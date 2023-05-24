@@ -2,9 +2,9 @@ import { PayloadAction } from '@reduxjs/toolkit'
 import { put, select } from 'typed-redux-saga'
 import { communitiesSelectors } from '../../communities/communities.selectors'
 import { messagesActions } from '../../messages/messages.slice'
-import { MessageType, WriteMessagePayload } from '../../messages/messages.types'
 import { publicChannelsSelectors } from '../publicChannels.selectors'
 import { publicChannelsActions } from '../publicChannels.slice'
+import { MessageType, WriteMessagePayload } from '@quiet/types'
 
 export function* sendInitialChannelMessageSaga(
   action: PayloadAction<

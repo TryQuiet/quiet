@@ -1,15 +1,14 @@
 import { apply, select, put, call } from 'typed-redux-saga'
 import { PayloadAction } from '@reduxjs/toolkit'
 import { applyEmitParams, Socket } from '../../../types'
-import { SocketActionTypes } from '../../socket/const/actionTypes'
 import { identitySelectors } from '../../identity/identity.selectors'
 import { communitiesSelectors } from '../communities.selectors'
 import { communitiesActions } from '../communities.slice'
-import { InitCommunityPayload } from '../communities.types'
 import { connectionActions } from '../../appConnection/connection.slice'
 import { getCurrentTime } from '../../messages/utils/message.utils'
 import { connectionSelectors } from '../../appConnection/connection.selectors'
 import { networkSelectors } from '../../network/network.selectors'
+import { InitCommunityPayload, SocketActionTypes } from '@quiet/types'
 
 export function* initCommunities(): Generator {
   const joinedCommunities = yield* select(identitySelectors.joinedCommunities)
@@ -27,9 +26,9 @@ export function* initCommunities(): Generator {
 
 export function* launchCommunitySaga(
   socket: Socket,
-  action: PayloadAction<ReturnType<typeof communitiesActions.launchCommunity>['payload']>
+  action: PayloadAction<ReturnType<typeof communitiesActions.launchCommunity>['payload'] | undefined>
 ): Generator {
-  let communityId: string = action.payload
+  let communityId: string | undefined = action.payload
 
   if (!communityId) {
     communityId = yield* select(communitiesSelectors.currentCommunityId)
@@ -37,6 +36,10 @@ export function* launchCommunitySaga(
 
   const community = yield* select(communitiesSelectors.selectById(communityId))
   const identity = yield* select(identitySelectors.selectById(communityId))
+  if (!identity?.userCertificate || !identity.userCsr?.userKey || !community?.rootCa) {
+    console.error('Could not launch community, Community or Identity is lacking data')
+    return
+  }
 
   const peerList = yield* select(connectionSelectors.peerList)
 

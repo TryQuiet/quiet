@@ -1,69 +1,19 @@
 import {
-  createRootCA,
-  RootCA,
-  createUserCsr,
-  createUserCert,
-  UserCsr,
-  UserCert,
-  loadPrivateKey,
   keyFromCertificate,
+  loadPrivateKey,
   parseCertificate,
   sign
 } from '@quiet/identity'
-import child_process from 'child_process'
 import logger from '../logger'
 // import fs from 'fs'
 // import os from 'os'
-import { config } from '../../sagas/users/const/certFieldTypes'
-import { PeerId } from '../../sagas/identity/identity.types'
-import { ChannelMessage } from '../../sagas/publicChannels/publicChannels.types'
-import { getCurrentTime } from '../../sagas/messages/utils/message.utils'
 import { arrayBufferToString } from 'pvutils'
-import { Time } from 'pkijs'
+import { config } from '../../sagas/users/const/certFieldTypes'
+import { PeerId } from '@quiet/types'
 const log = logger('test')
 
 const notBeforeDate = new Date(Date.UTC(2010, 11, 28, 10, 10, 10))
 const notAfterDate = new Date(Date.UTC(2030, 11, 28, 10, 10, 10))
-
-export const createRootCertificateTestHelper = async (commonName): Promise<RootCA> => {
-  return await createRootCA(
-    new Time({ type: 0, value: notBeforeDate }),
-    new Time({ type: 0, value: notAfterDate }),
-    commonName
-  )
-}
-
-export const createUserCertificateTestHelper = async (
-  user: {
-    nickname: string
-    commonName: string
-    peerId: string
-  },
-  rootCA: Pick<RootCA, 'rootCertString' | 'rootKeyString'>
-): Promise<{
-  userCert: UserCert
-  userCsr: UserCsr
-}> => {
-  const userCsr = await createUserCsr({
-    nickname: user.nickname,
-    commonName: user.commonName,
-    peerId: user.peerId,
-    dmPublicKey: '',
-    signAlg: config.signAlg,
-    hashAlg: config.hashAlg
-  })
-  const userCert = await createUserCert(
-    rootCA.rootCertString,
-    rootCA.rootKeyString,
-    userCsr.userCsr,
-    notBeforeDate,
-    notAfterDate
-  )
-  return {
-    userCsr: userCsr,
-    userCert: userCert
-  }
-}
 
 export const createPeerIdTestHelper = (): PeerId => {
   return {
@@ -90,7 +40,7 @@ export const createMessageSignatureTestHelper = async (
   }
 }
 
-export const lastActionReducer = (state = [], action: any) => {
+export const lastActionReducer = (state: any[] = [], action: any) => {
   state.push(action.type)
   return state
 }
@@ -180,8 +130,6 @@ export const lastActionReducer = (state = [], action: any) => {
 // }
 
 export default {
-  createRootCertificateTestHelper,
-  createUserCertificateTestHelper,
   createPeerIdTestHelper,
   createMessageSignatureTestHelper,
   lastActionReducer,

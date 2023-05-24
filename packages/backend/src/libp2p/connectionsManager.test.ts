@@ -6,14 +6,11 @@ import { jest, beforeEach, describe, it, expect, afterEach } from '@jest/globals
 import { LocalDBKeys } from '../storage/localDB'
 import { CustomEvent } from '@libp2p/interfaces/events'
 import {
-  InitCommunityPayload,
-  LaunchRegistrarPayload,
   communities,
   getFactory,
   prepareStore,
   identity,
   Store,
-  NetworkStats
  } from '@quiet/state-manager'
 import { FactoryGirl } from 'factory-girl'
 import { DateTime } from 'luxon'
@@ -21,14 +18,16 @@ import waitForExpect from 'wait-for-expect'
 import { Libp2pEvents } from './types'
 import { DataServer } from '../socket/DataServer'
 import io from 'socket.io-client'
+import { Community, Identity, InitCommunityPayload, LaunchRegistrarPayload, NetworkStats } from '@quiet/types'
 
 let tmpDir: DirResult
 let tmpAppDataPath: string
-let connectionsManager: ConnectionsManager
+let connectionsManager: ConnectionsManager | null
 let store: Store
 let factory: FactoryGirl
-let community
-let userIdentity
+let community: Community
+let userIdentity: Identity
+let communityRootCa: string
 
 beforeEach(async () => {
   jest.clearAllMocks()
@@ -37,7 +36,10 @@ beforeEach(async () => {
   connectionsManager = null
   store = prepareStore().store
   factory = await getFactory(store)
-  community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
+  communityRootCa = 'rootCa'
+  community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>(
+    'Community', { rootCa: communityRootCa }
+  )
   userIdentity = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>(
     'Identity', { id: community.id, nickname: 'john' }
   )
@@ -69,14 +71,20 @@ describe('Connections manager - no tor', () => {
 
     const localAddress = connectionsManager.createLibp2pAddress(address, peerId.toString())
     const remoteAddress = connectionsManager.createLibp2pAddress(address, (await createPeerId()).toString())
-
     const result = await connectionsManager.initLibp2p({
       peerId: peerId,
       address: address,
       addressPort: port,
       targetPort: port,
       bootstrapMultiaddrs: [remoteAddress],
-      certs: { certificate: userIdentity.userCertificate, key: userIdentity.userCsr.userKey, CA: [community.rootCa] }
+
+      certs: {
+        // @ts-expect-error
+        certificate: userIdentity.userCertificate,
+        // @ts-expect-error
+        key: userIdentity.userCsr.userKey,
+        CA: [communityRootCa]
+      }
     })
     expect(result.localAddress).toBe(localAddress)
     expect(result.libp2p.peerId).toBe(peerId)
@@ -138,9 +146,11 @@ describe('Connections manager - no tor', () => {
       peerId: userIdentity.peerId,
       hiddenService: userIdentity.hiddenService,
       certs: {
+        // @ts-expect-error
         certificate: userIdentity.userCertificate,
-        key: userIdentity.userCsr.userKey,
-        CA: [community.rootCa]
+        // @ts-expect-error
+        key: userIdentity.userCsr?.userKey,
+        CA: [communityRootCa]
       },
       peers: community.peerList
     }
@@ -156,7 +166,7 @@ describe('Connections manager - no tor', () => {
     const socket = io(url)
 
    const init = new Promise<void>(resolve => {
-    void connectionsManager.init()
+    void connectionsManager?.init()
     socket.connect()
       setTimeout(() => resolve(), 200)
     })
@@ -185,9 +195,11 @@ describe('Connections manager - no tor', () => {
       peerId: userIdentity.peerId,
       hiddenService: userIdentity.hiddenService,
       certs: {
+        // @ts-expect-error
         certificate: userIdentity.userCertificate,
-        key: userIdentity.userCsr.userKey,
-        CA: [community.rootCa]
+        // @ts-expect-error
+        key: userIdentity.userCsr?.userKey,
+        CA: [communityRootCa]
       },
       peers: community.peerList
     }
@@ -195,9 +207,11 @@ describe('Connections manager - no tor', () => {
     const launchRegistrarPayload: LaunchRegistrarPayload = {
       id: community.id,
       peerId: userIdentity.peerId.id,
-      rootCertString: community.CA.rootCertString,
-      rootKeyString: community.CA.rootKeyString,
-      privateKey: undefined
+      // @ts-expect-error
+      rootCertString: community.CA?.rootCertString,
+      // @ts-expect-error
+      rootKeyString: community.CA?.rootKeyString,
+      privateKey: 'privateKey'
     }
 
     await connectionsManager.init()
@@ -222,7 +236,7 @@ describe('Connections manager - no tor', () => {
     const socket = io(url)
 
    const init = new Promise<void>(resolve => {
-    void connectionsManager.init()
+    void connectionsManager?.init()
     socket.connect()
       setTimeout(() => resolve(), 200)
     })
@@ -282,7 +296,13 @@ describe('Connections manager - no tor', () => {
       addressPort: 3211,
       targetPort: 3211,
       bootstrapMultiaddrs: ['some/address'],
-      certs: { certificate: userIdentity.userCertificate, key: userIdentity.userCsr.userKey, CA: [community.rootCa] }
+      certs: {
+        // @ts-expect-error
+        certificate: userIdentity.userCertificate,
+        // @ts-expect-error
+        key: userIdentity.userCsr?.userKey,
+        CA: [communityRootCa]
+      }
     })
     const emitSpy = jest.spyOn(connectionsManager, 'emit')
 
@@ -292,10 +312,10 @@ describe('Connections manager - no tor', () => {
     // Peer disconnected
     const remoteAddr = `test/p2p/${peerId.toString()}`
     const peerDisconectEventDetail = { remotePeer: new RemotePeerEventDetail(peerId.toString()), remoteAddr: new RemotePeerEventDetail(remoteAddr) }
-    connectionsManager.libp2pInstance.dispatchEvent(new CustomEvent('peer:disconnect', { detail: peerDisconectEventDetail }))
+    connectionsManager.libp2pInstance?.dispatchEvent(new CustomEvent('peer:disconnect', { detail: peerDisconectEventDetail }))
     expect(connectionsManager.connectedPeers.size).toEqual(0)
     await waitForExpect(async () => {
-      expect(await connectionsManager.localStorage.get(LocalDBKeys.PEERS)).not.toBeNull()
+      expect(await connectionsManager?.localStorage.get(LocalDBKeys.PEERS)).not.toBeNull()
     }, 2000)
     const peerStats: {[addr: string]: NetworkStats} = await connectionsManager.localStorage.get(LocalDBKeys.PEERS)
     expect(Object.keys(peerStats)[0]).toEqual(remoteAddr)
@@ -321,9 +341,11 @@ describe('Connections manager - no tor', () => {
       peerId: userIdentity.peerId,
       hiddenService: userIdentity.hiddenService,
       certs: {
+        // @ts-expect-error
         certificate: userIdentity.userCertificate,
-        key: userIdentity.userCsr.userKey,
-        CA: [community.rootCa]
+        // @ts-expect-error
+        key: userIdentity.userCsr?.userKey,
+        CA: [communityRootCa]
       },
       peers: community.peerList
     }
@@ -356,9 +378,11 @@ describe('Connections manager - no tor', () => {
       peerId: userIdentity.peerId,
       hiddenService: userIdentity.hiddenService,
       certs: {
+        // @ts-expect-error
         certificate: userIdentity.userCertificate,
-        key: userIdentity.userCsr.userKey,
-        CA: [community.rootCa]
+        // @ts-expect-error
+        key: userIdentity.userCsr?.userKey,
+        CA: [communityRootCa]
       },
       peers: community.peerList
     }
@@ -366,9 +390,11 @@ describe('Connections manager - no tor', () => {
     const launchRegistrarPayload: LaunchRegistrarPayload = {
       id: community.id,
       peerId: userIdentity.peerId.id,
-      rootCertString: community.CA.rootCertString,
-      rootKeyString: community.CA.rootKeyString,
-      privateKey: undefined
+      // @ts-expect-error
+      rootCertString: community.CA?.rootCertString,
+      // @ts-expect-error
+      rootKeyString: community.CA?.rootKeyString,
+      privateKey: ''
     }
 
     await connectionsManager.init()
@@ -393,7 +419,7 @@ describe('Connections manager - no tor', () => {
     const socket = io(url)
 
    const init = new Promise<void>(resolve => {
-    void connectionsManager.init()
+    void connectionsManager?.init()
     socket.connect()
       setTimeout(() => resolve(), 200)
     })

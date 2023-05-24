@@ -3,27 +3,31 @@ import { expectSaga } from 'redux-saga-test-plan'
 import { Socket } from 'socket.io-client'
 import { identityAdapter } from '../../identity/identity.adapter'
 import { identityReducer, IdentityState, identityActions } from '../../identity/identity.slice'
-import { SocketActionTypes } from '../../socket/const/actionTypes'
 import { StoreKeys } from '../../store.keys'
 import { communitiesAdapter } from '../communities.adapter'
 import {
   communitiesActions,
-  communitiesReducer, CommunitiesState, Community
+  communitiesReducer, CommunitiesState
 } from '../communities.slice'
 import { launchRegistrarSaga } from './launchRegistrar.saga'
-import { LaunchRegistrarPayload } from '../communities.types'
 import { Store } from '../../store.types'
 import { FactoryGirl } from 'factory-girl'
 import { setupCrypto } from '@quiet/identity'
 import { prepareStore } from '../../../utils/tests/prepareStore'
 import { getFactory } from '../../../utils/tests/factories'
+import { LaunchRegistrarPayload, SocketActionTypes } from '@quiet/types'
 
 describe('launchRegistrar', () => {
   let store: Store
   let factory: FactoryGirl
+  let communityPrivateKey: string
 
   beforeAll(async () => {
     setupCrypto()
+    communityPrivateKey = 'ED25519-V3:oCPvW19HA3HjsHc4vBKKBBKGREmIpVRM1excXL7BIHKzBqNyCNdAfNuRQme1M4Nn1CE4PCzpmjWmp0DSi1xqlg=='
+  })
+
+  beforeEach(async () => {
     store = prepareStore().store
     factory = await getFactory(store)
   })
@@ -38,13 +42,18 @@ describe('launchRegistrar', () => {
     const identity = await factory.create<
     ReturnType<typeof identityActions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'john' })
-
+    expect(community.CA).not.toBeNull()
+    expect(community.CA).toBeDefined()
+    const communityWithPrivateKey = {
+      ...community,
+      privateKey: communityPrivateKey
+    }
     const launchRegistrarPayload: LaunchRegistrarPayload = {
         id: community.id,
         peerId: identity.peerId.id,
-        rootCertString: community.CA.rootCertString,
-        rootKeyString: community.CA.rootKeyString,
-        privateKey: undefined
+        rootCertString: community.CA?.rootCertString || '',
+        rootKeyString: community.CA?.rootKeyString || '',
+        privateKey: communityPrivateKey
     }
 
     await expectSaga(launchRegistrarSaga, socket, communitiesActions.launchCommunity(community.id))
@@ -58,7 +67,7 @@ describe('launchRegistrar', () => {
             ...new CommunitiesState(),
             currentCommunity: 'id-0',
             communities: communitiesAdapter.setAll(communitiesAdapter.getInitialState(), [
-              community
+              communityWithPrivateKey
             ])
           },
           [StoreKeys.Identity]: {
@@ -84,13 +93,18 @@ describe('launchRegistrar', () => {
     const identity = await factory.create<
     ReturnType<typeof identityActions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'john' })
-
+    expect(community.CA).not.toBeNull()
+    expect(community.CA).toBeDefined()
+    const communityWithPrivateKey = {
+      ...community,
+      privateKey: communityPrivateKey
+    }
     const launchRegistrarPayload: LaunchRegistrarPayload = {
       id: community.id,
       peerId: identity.peerId.id,
-      rootCertString: community.CA.rootCertString,
-      rootKeyString: community.CA.rootKeyString,
-      privateKey: undefined
+      rootCertString: community.CA?.rootCertString || '',
+      rootKeyString: community.CA?.rootKeyString || '',
+      privateKey: communityPrivateKey
   }
 
     await expectSaga(launchRegistrarSaga, socket, communitiesActions.launchCommunity())
@@ -104,7 +118,7 @@ describe('launchRegistrar', () => {
             ...new CommunitiesState(),
             currentCommunity: community.id,
             communities: communitiesAdapter.setAll(communitiesAdapter.getInitialState(), [
-              community
+              communityWithPrivateKey
             ])
           },
           [StoreKeys.Identity]: {
@@ -130,17 +144,20 @@ describe('launchRegistrar', () => {
     const identity = await factory.create<
     ReturnType<typeof identityActions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'john' })
-
+    expect(community.CA).not.toBeNull()
+    expect(community.CA).toBeDefined()
     const launchRegistrarPayload: LaunchRegistrarPayload = {
       id: community.id,
       peerId: identity.peerId.id,
-      rootCertString: community.CA.rootCertString,
-      rootKeyString: community.CA.rootKeyString,
-      privateKey: undefined
+      rootCertString: community.CA?.rootCertString || '',
+      rootKeyString: community.CA?.rootKeyString || '',
+      privateKey: ''
   }
 
     community = {
-      ...community, CA: null
+      ...community,
+      CA: null,
+      privateKey: communityPrivateKey
     }
 
     await expectSaga(launchRegistrarSaga, socket, communitiesActions.launchCommunity())

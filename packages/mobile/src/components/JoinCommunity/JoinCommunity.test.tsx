@@ -18,6 +18,7 @@ describe('JoinCommunity component', () => {
             "flex": 1,
           }
         }
+        testID="join-community-component"
       >
         <View
           onLayout={[Function]}

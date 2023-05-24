@@ -3,10 +3,11 @@ import { DirResult } from 'tmp'
 import { createPeerId, createTmpDir, tmpQuietDirPath } from '../common/testUtils'
 import { ConnectionsManager } from './connectionsManager'
 import { jest, beforeEach, describe, it, expect, afterEach } from '@jest/globals'
-import { communities, getFactory, identity, InitCommunityPayload, prepareStore } from '@quiet/state-manager'
+import { getFactory, prepareStore } from '@quiet/state-manager'
 import { createLibp2pAddress } from '../common/utils'
 import { WebSockets } from './websocketOverTor'
 import { initConnectionsManagerWithTor } from './utils'
+import { Community, Identity, InitCommunityPayload } from '@quiet/types'
 
 const { getPorts } = await import('../common/utils')
 
@@ -14,7 +15,7 @@ jest.setTimeout(100_000)
 
 let tmpDir: DirResult
 let tmpAppDataPath: string
-let connectionsManager: ConnectionsManager
+let connectionsManager: ConnectionsManager | null
 
 beforeEach(() => {
   jest.clearAllMocks()
@@ -74,8 +75,8 @@ describe('Connections manager', () => {
   it('dials many peers on start', async () => {
     const store = prepareStore().store
     const factory = await getFactory(store)
-    const community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
-    const userIdentity = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>(
+    const community = await factory.create<Community>('Community', { rootCa: 'rootCa' })
+    const userIdentity = await factory.create<Identity>(
       'Identity', { id: community.id, nickname: 'john' }
     )
     const ports = await getPorts()
@@ -93,7 +94,7 @@ describe('Connections manager', () => {
     const socket = await initConnectionsManagerWithTor(connectionsManager, ports.socksPort)
     const spyOnDial = jest.spyOn(WebSockets.prototype, 'dial')
 
-    const peerList = []
+    const peerList: string[] = []
     const peersCount = 11
     for (let pCount = 0; pCount < peersCount; pCount++) {
       peerList.push(createLibp2pAddress(`${Math.random().toString(36).substring(2, 13)}.onion`, (await createPeerId()).toString()))
@@ -104,8 +105,11 @@ describe('Connections manager', () => {
       peerId: userIdentity.peerId,
       hiddenService: userIdentity.hiddenService,
       certs: {
+        // @ts-expect-error Identity.userCertificate can be null
         certificate: userIdentity.userCertificate,
-        key: userIdentity.userCsr.userKey,
+        // @ts-expect-error Identity.userCertificate userCsr.userKey can be undefined
+        key: userIdentity.userCsr?.userKey,
+        // @ts-expect-error
         CA: [community.rootCa]
       },
       peers: peerList
@@ -119,8 +123,8 @@ describe('Connections manager', () => {
   it('Bug reproduction - iOS app crashing because lack of data server', async () => {
     const store = prepareStore().store
     const factory = await getFactory(store)
-    const community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
-    const userIdentity = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>(
+    const community = await factory.create<Community>('Community', { rootCa: 'rootCa' })
+    const userIdentity = await factory.create<Identity>(
       'Identity', { id: community.id, nickname: 'john' }
     )
     const ports = await getPorts()
@@ -138,7 +142,7 @@ describe('Connections manager', () => {
     const socket = await initConnectionsManagerWithTor(connectionsManager, ports.socksPort)
     const spyOnDial = jest.spyOn(WebSockets.prototype, 'dial')
 
-    const peerList = []
+    const peerList: string[] = []
     const peersCount = 11
     for (let pCount = 0; pCount < peersCount; pCount++) {
       peerList.push(createLibp2pAddress(`${Math.random().toString(36).substring(2, 13)}.onion`, (await createPeerId()).toString()))
@@ -149,8 +153,11 @@ describe('Connections manager', () => {
       peerId: userIdentity.peerId,
       hiddenService: userIdentity.hiddenService,
       certs: {
+        // @ts-expect-error Identity.userCertificate can be null
         certificate: userIdentity.userCertificate,
-        key: userIdentity.userCsr.userKey,
+        // @ts-expect-error
+        key: userIdentity.userCsr?.userKey,
+        // @ts-expect-error
         CA: [community.rootCa]
       },
       peers: peerList

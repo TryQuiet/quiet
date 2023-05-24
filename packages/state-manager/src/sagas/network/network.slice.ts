@@ -1,8 +1,7 @@
 import { createSlice, EntityState, PayloadAction } from '@reduxjs/toolkit'
-import { CommunityId, ConnectedPeers, RegistrarId } from '../appConnection/connection.types'
 import { StoreKeys } from '../store.keys'
 import { connectedPeersAdapter } from './network.adapter'
-import { LoadingPanelType } from './network.types'
+import { CommunityId, ConnectedPeers, LoadingPanelType, RegistrarId } from '@quiet/types'
 
 export class NetworkState {
   public initializedCommunities: { [key: string]: boolean } = {}

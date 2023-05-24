@@ -15,14 +15,11 @@ const classes = {
   newMessages: `${PREFIX}newMessages`,
   connectedIcon: `${PREFIX}connectedIcon`,
   notConnectedIcon: `${PREFIX}notConnectedIcon`,
-  itemText: `${PREFIX}itemText`
+  itemText: `${PREFIX}itemText`,
+  disabled: `${PREFIX}disabled`
 }
 
-const StyledListItemButton = styled(ListItemButton)((
-  {
-    theme
-  }
-) => ({
+const StyledListItemButton = styled(ListItemButton)(({ theme }) => ({
   [`&.${classes.root}`]: {
     padding: 0
   },
@@ -72,6 +69,11 @@ const StyledListItemButton = styled(ListItemButton)((
 
   [`& .${classes.itemText}`]: {
     margin: 0
+  },
+  [`&.${classes.disabled}`]: {
+    opacity: '0.3',
+    pointerEvents: 'none',
+    cursor: 'not-allowed'
   }
 }))
 
@@ -80,13 +82,15 @@ export interface ChannelsListItemProps {
   unread: boolean
   selected: boolean
   setCurrentChannel: (name: string) => void
+  disabled: boolean
 }
 
 export const ChannelsListItem: React.FC<ChannelsListItemProps> = ({
   channel,
   unread,
   selected,
-  setCurrentChannel
+  setCurrentChannel,
+  disabled = false
 }) => {
   const ref = useRef<HTMLDivElement>()
 
@@ -98,10 +102,10 @@ export const ChannelsListItem: React.FC<ChannelsListItemProps> = ({
         setCurrentChannel(channel.name)
       }}
       className={classNames(classes.root, {
-        [classes.selected]: selected
+        [classes.selected]: selected,
+        [classes.disabled]: disabled
       })}
-      data-testid={`${channel.name}-link`}
-    >
+      data-testid={`${channel.name}-link`}>
       <ListItemText
         primary={
           <Grid container alignItems='center'>

@@ -2,13 +2,7 @@ import { createSlice, EntityState, PayloadAction } from '@reduxjs/toolkit'
 import { DateTime } from 'luxon'
 import { StoreKeys } from '../store.keys'
 import { identityAdapter } from './identity.adapter'
-import {
-  CreateUserCsrPayload,
-  Identity,
-  RegisterCertificatePayload,
-  StoreUserCertificatePayload
-} from './identity.types'
-
+import { CreateUserCsrPayload, Identity, RegisterCertificatePayload, StoreUserCertificatePayload } from '@quiet/types'
 export class IdentityState {
   public identities: EntityState<Identity> = identityAdapter.getInitialState()
 }
@@ -22,7 +16,7 @@ export const identitySlice = createSlice({
     },
     createUserCsr: (state, _action: PayloadAction<CreateUserCsrPayload>) =>
       state,
-    saveOwnerCertToDb: (state, _action: PayloadAction<string>) => state,
+    saveOwnerCertToDb: state => state,
     savedOwnerCertificate: (state, _action: PayloadAction<string>) => state,
     registerUsername: (state, _action: PayloadAction<string>) => state,
     registerCertificate: (state, action: PayloadAction<RegisterCertificatePayload>) => {

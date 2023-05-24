@@ -1,16 +1,14 @@
 import { setupCrypto } from '@quiet/identity'
-import { AUTODOWNLOAD_SIZE_LIMIT, communities, getFactory, identity, MessageType, publicChannels } from '../../..'
+import { AUTODOWNLOAD_SIZE_LIMIT, communities, getFactory, identity, publicChannels } from '../../..'
 import { prepareStore, reducers } from '../../../utils/tests/prepareStore'
 import { combineReducers } from '@reduxjs/toolkit'
 import { expectSaga } from 'redux-saga-test-plan'
 import { DateTime } from 'luxon'
-import { DownloadState, FileMetadata } from '../files.types'
 import { checkForMissingFilesSaga } from './checkForMissingFiles.saga'
 import { Socket } from 'socket.io-client'
-import { SocketActionTypes } from '../../socket/const/actionTypes'
-import { connectionActions } from '../../appConnection/connection.slice'
 import { filesActions } from '../files.slice'
 import { networkActions } from '../../network/network.slice'
+import { DownloadState, FileMetadata, MessageType, SocketActionTypes } from '@quiet/types'
 
 describe('checkForMissingFilesSaga', () => {
   beforeAll(async () => {

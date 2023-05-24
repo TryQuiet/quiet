@@ -44,3 +44,44 @@ export function setupCrypto () {
   )
   global.crypto = webcrypto
 }
+
+export const createRootCertificateTestHelper = async (commonName: string): Promise<RootCA> => {
+  return await createRootCA(
+    new Time({ type: 0, value: notBeforeDate }),
+    new Time({ type: 0, value: notAfterDate }),
+    commonName
+  )
+}
+
+export const createUserCertificateTestHelper = async (
+  user: {
+    nickname: string
+    commonName: string
+    peerId: string
+    dmPublicKey: string
+  },
+  rootCA: Pick<RootCA, 'rootCertString' | 'rootKeyString'>
+): Promise<{
+  userCert: UserCert
+  userCsr: UserCsr
+}> => {
+  const userCsr = await createUserCsr({
+    nickname: user.nickname,
+    commonName: user.commonName,
+    peerId: user.peerId,
+    dmPublicKey: user.dmPublicKey,
+    signAlg: config.signAlg,
+    hashAlg: config.hashAlg
+  })
+  const userCert = await createUserCert(
+    rootCA.rootCertString,
+    rootCA.rootKeyString,
+    userCsr.userCsr,
+    notBeforeDate,
+    notAfterDate
+  )
+  return {
+    userCsr: userCsr,
+    userCert: userCert
+  }
+}

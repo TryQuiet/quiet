@@ -21,7 +21,6 @@ import {
   RegisterUserCertificatePayload,
   InitCommunityPayload,
   Community,
-  createUserCertificateTestHelper,
   ErrorCodes,
   ErrorMessages,
   getFactory,
@@ -29,6 +28,7 @@ import {
 } from '@quiet/state-manager'
 import Channel from '../renderer/components/Channel/Channel'
 import LoadingPanel from '../renderer/components/LoadingPanel/LoadingPanel'
+import { createUserCertificateTestHelper } from '@quiet/identity'
 
 jest.setTimeout(20_000)
 
@@ -91,7 +91,7 @@ describe('User', () => {
           const payload = data[0]
           const user = identity.selectors.currentIdentity(store.getState())
           // This community serves only as a mocked object for generating valid crytpo data (certificate, rootCA)
-          const communityHelper = (
+          const communityHelper: ReturnType<typeof communities.actions.addNewCommunity>['payload'] = (
             await factory.build<typeof communities.actions.addNewCommunity>('Community', {
               id: data[0]
             })
@@ -100,7 +100,8 @@ describe('User', () => {
             {
               nickname: user.nickname,
               commonName: communityHelper.registrarUrl,
-              peerId: user.peerId.id
+              peerId: user.peerId.id,
+              dmPublicKey: user.dmKeys.publicKey
             },
             communityHelper.CA
           )

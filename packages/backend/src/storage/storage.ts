@@ -7,16 +7,6 @@ import {
   verifySignature,
   verifyUserCert
 } from '@quiet/identity'
-import {
-  ChannelMessage,
-  PublicChannel,
-  SaveCertificatePayload,
-  FileMetadata,
-  User,
-  PushNotificationPayload,
-  SocketActionTypes,
-  ConnectionProcessInfo
-} from '@quiet/state-manager'
 import type { IPFS, create as createType } from 'ipfs-core'
 import type { Libp2p } from 'libp2p'
 import OrbitDB from 'orbit-db'
@@ -45,7 +35,8 @@ import { IpfsFilesManager, IpfsFilesManagerEvents } from './ipfsFileManager'
 import { create } from 'ipfs-core'
 
 import { CID } from 'multiformats/cid'
-import { NoCryptoEngineError } from '@quiet/types'
+import { ChannelMessage, ConnectionProcessInfo, FileMetadata, NoCryptoEngineError, PublicChannel, PushNotificationPayload, SaveCertificatePayload, SocketActionTypes, User } from '@quiet/types'
+import { isDefined } from '@quiet/common'
 
 const log = logger('db')
 
@@ -59,8 +50,8 @@ export class Storage extends EventEmitter {
   public channels: KeyValueStore<PublicChannel>
   private messageThreads: KeyValueStore<IMessageThread>
   private certificates: EventStore<string>
-  public publicChannelsRepos: Map<String, PublicChannelsRepo> = new Map()
-  public directMessagesRepos: Map<String, DirectMessagesRepo> = new Map()
+  public publicChannelsRepos: Map<string, PublicChannelsRepo> = new Map()
+  public directMessagesRepos: Map<string, DirectMessagesRepo> = new Map()
   public options: StorageOptions
   public orbitDbDir: string
   public ipfsRepoPath: string
@@ -210,6 +201,10 @@ export class Storage extends EventEmitter {
         const key = keyFromCertificate(parsedCertificate)
 
         const username = getCertFieldValue(parsedCertificate, CertFieldsTypes.nickName)
+        if (!username) {
+          log.error(`Certificates replicate.progress: could not parse certificate for field type ${CertFieldsTypes.nickName}`)
+          return
+        }
 
         this.userNamesMap.set(key, username)
       }
@@ -278,7 +273,7 @@ export class Storage extends EventEmitter {
 
       // Delete channel on replication
       // Array.from(this.publicChannelsRepos.keys()).forEach(e => {
-      //   const isDeleted = !Object.keys(this.channels.all).includes(e as string)
+      //   const isDeleted = !Object.keys(this.channels.all).includes(e)
       //   if (isDeleted) {
       //     log('deleting channel ', e)
       //     void this.deleteChannel({ channel: e })
@@ -374,8 +369,12 @@ export class Storage extends EventEmitter {
     if (repo) {
       db = repo.db
     } else {
-      console.log('subscribeToChannel-else')
-      db = await this.createChannel(channelData)
+      try {
+        db = await this.createChannel(channelData)
+      } catch (e) {
+        log.error(`Can't subscribe to channel ${channelData.address}`, e.message)
+        return
+      }
       if (!db) {
         log(`Can't subscribe to channel ${channelData.address}`)
         return
@@ -412,9 +411,13 @@ export class Storage extends EventEmitter {
           if (!verified) return
 
           // Do not notify about old messages
-          if (parseInt(message.createdAt) < parseInt(process.env.CONNECTION_TIME)) return
+          if (parseInt(message.createdAt) < parseInt(process.env.CONNECTION_TIME || '')) return
 
           const username = this.getUserNameFromCert(message.pubKey)
+          if (!username) {
+            log.error(`Can't send push notification, no username found for public key '${message.pubKey}'`)
+            return
+          }
 
           const payload: PushNotificationPayload = {
             message: JSON.stringify(message),
@@ -470,7 +473,7 @@ export class Storage extends EventEmitter {
     console.log('createChannel', data)
     if (!validate.isChannel(data)) {
       log.error('STORAGE: Invalid channel format')
-      return
+      throw new Error('Create channel validation error')
     }
     log(`Creating channel ${data.address}`)
 
@@ -504,7 +507,7 @@ export class Storage extends EventEmitter {
     return db
   }
 
-  public async deleteChannel(payload) {
+  public async deleteChannel(payload: {channel: string}) {
     console.log('deleting channel storage', payload)
     // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
     await this.channels.load({ fetchEntryTimeout: 15000 })
@@ -535,9 +538,7 @@ export class Storage extends EventEmitter {
     const hashes = allEntries.map((e) => CID.parse(e.hash))
     const files = allEntries.map((e) => {
       return e.payload.value.media
-    }).filter(e => {
-      return e !== undefined
-    })
+    }).filter(isDefined)
     await this.deleteChannelFiles(files)
     await this.deleteChannelMessages(hashes)
     this.publicChannelsRepos.delete(payload.channel)
@@ -554,7 +555,7 @@ export class Storage extends EventEmitter {
     await this.filesManager.deleteBlocks(fileMetadata)
   }
 
-  public async deleteChannelMessages(hashes) {
+  public async deleteChannelMessages(hashes: CID[]) {
     for await (const result of this.ipfs.block.rm(hashes)) {
       if (result.error) {
         console.error(`Failed to remove block ${result.cid} due to ${result.error.message}`)
@@ -631,7 +632,7 @@ export class Storage extends EventEmitter {
     await this.subscribeToDirectMessageThread(address)
   }
 
-  public async subscribeToAllConversations(conversations) {
+  public async subscribeToAllConversations(conversations: string[]) {
     await Promise.all(
       conversations.map(async channel => {
         await this.subscribeToDirectMessageThread(channel)
@@ -685,7 +686,7 @@ export class Storage extends EventEmitter {
   private async createDirectMessageThread(channelAddress: string): Promise<EventStore<string>> {
     if (!channelAddress) {
       log("No channel address, can't create channel")
-      return
+      throw new Error('No channel address, can\'t create channel')
     }
 
     log(`creatin direct message thread for ${channelAddress}`)
@@ -714,7 +715,8 @@ export class Storage extends EventEmitter {
     log('STORAGE: sendDirectMessage entered')
     log(`STORAGE: sendDirectMessage channelAddress is ${channelAddress}`)
     log(`STORAGE: sendDirectMessage message is ${JSON.stringify(message)}`)
-    const db = this.directMessagesRepos.get(channelAddress).db
+    const db = this.directMessagesRepos.get(channelAddress)?.db
+    if (!db) return
     log(`STORAGE: sendDirectMessage db is ${db.address.root}`)
     log(`STORAGE: sendDirectMessage db is ${db.address.path}`)
     await db.add(message)
@@ -751,13 +753,14 @@ export class Storage extends EventEmitter {
 
   public getAllUsers(): User[] {
     const certs = this.getAllEventLogEntries(this.certificates)
-    const allUsers = []
+    const allUsers: User[] = []
     for (const cert of certs) {
       const parsedCert = parseCertificate(cert)
       const onionAddress = getCertFieldValue(parsedCert, CertFieldsTypes.commonName)
       const peerId = getCertFieldValue(parsedCert, CertFieldsTypes.peerId)
       const username = getCertFieldValue(parsedCert, CertFieldsTypes.nickName)
       const dmPublicKey = getCertFieldValue(parsedCert, CertFieldsTypes.dmPublicKey)
+      if (!onionAddress || !peerId || !username || !dmPublicKey) continue
       allUsers.push({ onionAddress, peerId, username, dmPublicKey })
     }
     return allUsers
@@ -771,14 +774,14 @@ export class Storage extends EventEmitter {
     for (const cert of certificates) {
       const parsedCert = parseCertificate(cert)
       const certUsername = getCertFieldValue(parsedCert, CertFieldsTypes.nickName)
-      if (certUsername.localeCompare(username, undefined, { sensitivity: 'base' }) === 0) {
+      if (certUsername?.localeCompare(username, 'en', { sensitivity: 'base' }) === 0) {
         return cert
       }
     }
     return null
   }
 
-  public getUserNameFromCert(publicKey: string): string {
+  public getUserNameFromCert(publicKey: string): string | undefined {
     if (!this.userNamesMap.get(publicKey)) {
       const certificates = this.getAllEventLogEntries(this.certificates)
 
@@ -787,6 +790,10 @@ export class Storage extends EventEmitter {
         const key = keyFromCertificate(parsedCertificate)
 
         const value = getCertFieldValue(parsedCertificate, CertFieldsTypes.nickName)
+        if (!value) {
+          log.error(`Get user name from cert: Could not parse certificate for field type ${CertFieldsTypes.nickName}`)
+          continue
+        }
         this.userNamesMap.set(key, value)
       }
     }

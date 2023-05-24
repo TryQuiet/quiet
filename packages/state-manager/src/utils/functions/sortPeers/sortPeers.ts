@@ -1,4 +1,5 @@
-import { NetworkStats } from '../../../sagas/appConnection/connection.types'
+import { isDefined } from '@quiet/common'
+import { NetworkStats } from '@quiet/types'
 
 /**
 This is the very simple algorithm for evaluating the most wanted peers.
@@ -7,7 +8,7 @@ This is the very simple algorithm for evaluating the most wanted peers.
 3. Arrays are merged taking one element from list one and one element from the second list. Duplicates are ommited
 4. We end up with mix of last seen and most uptime descending array of peers, the it is enchanced to libp2p address.
  */
-export const sortPeers = (peersAddresses: string[], stats: NetworkStats[]) => {
+export const sortPeers = (peersAddresses: string[], stats: NetworkStats[]): string[] => {
   const lastSeenSorted = [...stats].sort((a, b) => {
     return b.lastSeen - a.lastSeen
   })
@@ -40,5 +41,5 @@ export const sortPeers = (peersAddresses: string[], stats: NetworkStats[]) => {
     })
   })
 
-  return peerList.concat(peersAddresses).filter(address => address !== null && address !== undefined)
+  return peerList.concat(peersAddresses).filter(address => address !== null).filter(isDefined)
 }

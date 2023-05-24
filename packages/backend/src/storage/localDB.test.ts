@@ -1,11 +1,11 @@
-import { NetworkStats } from '@quiet/state-manager'
 import { LocalDB, LocalDBKeys } from './localDB'
 import { createTmpDir } from '../common/testUtils'
 import path from 'path'
 import { beforeEach, describe, it, expect, afterEach, beforeAll } from '@jest/globals'
+import { NetworkStats } from '@quiet/types'
 
 describe('LocalDB', () => {
-  let db: LocalDB = null
+  let db: LocalDB
   let dbPath: string
   let peer1Address: string
   let peer1Stats: {[peerAddress: string]: NetworkStats} = {}

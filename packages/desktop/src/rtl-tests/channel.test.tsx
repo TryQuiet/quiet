@@ -40,6 +40,7 @@ import { keyFromCertificate, parseCertificate } from '@quiet/identity'
 
 import { fetchingChannelMessagesText } from '../renderer/components/widgets/channels/ChannelMessages'
 import { DateTime } from 'luxon'
+import { Community } from '@quiet/types'
 
 jest.setTimeout(20_000)
 
@@ -828,9 +829,9 @@ describe('Channel', () => {
 
     const factory = await getFactory(initialState)
 
-    const community = await factory.create<
+    const community: Community = await factory.create<
       ReturnType<typeof communities.actions.addNewCommunity>['payload']
-    >('Community')
+    >('Community', { rootCa: 'rootCa', privateKey: 'privateKey' })
 
     const alice = await factory.create<
       ReturnType<typeof identity.actions.addNewIdentity>['payload']

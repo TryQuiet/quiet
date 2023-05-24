@@ -58,6 +58,9 @@ const Channel = () => {
   const initializedCommunities = useSelector(network.selectors.initializedCommunities)
   const isCommunityInitialized = Boolean(initializedCommunities[community?.id])
 
+  const pendingGeneralChannelRecreationSelector = useSelector(publicChannels.selectors.pendingGeneralChannelRecreation)
+  const pendingGeneralChannelRecreation = pendingGeneralChannelRecreationSelector && currentChannelAddress === 'general' && currentChannelMessagesCount === 0
+
   let enableContextMenu: boolean = false
   if (community) {
     // Enable only for community owner
@@ -216,7 +219,8 @@ const Channel = () => {
     handleClipboardFiles: handleClipboardFiles,
     uploadedFileModal: uploadedFileModal,
     openContextMenu: openContextMenu,
-    enableContextMenu: enableContextMenu
+    enableContextMenu: enableContextMenu,
+    pendingGeneralChannelRecreation: pendingGeneralChannelRecreation
   }
 
   const uploadFilesPreviewProps: UploadFilesPreviewsProps = {

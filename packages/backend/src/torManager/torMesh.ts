@@ -44,7 +44,7 @@ const killMesh = async () => {
 
 let finishedRequests = 0
 
-const createServer = async (port, serverAddress: string) => {
+const createServer = async (port: number, serverAddress: string) => {
   const app: express.Application = express()
  // app.use(express.json())
   // eslint-disable-next-line
@@ -60,7 +60,7 @@ const createServer = async (port, serverAddress: string) => {
   })
 }
 
-const createAgent = async (httpTunnelPort) => {
+const createAgent = async (httpTunnelPort: number) => {
   return createHttpsProxyAgent({ port: httpTunnelPort, host: 'localhost' })
 }
 
@@ -99,7 +99,9 @@ const createHiddenServices = async () => {
 
 const destroyHiddenServices = async () => {
   for (const [key, data] of torServices) {
-    await data.tor.destroyHiddenService(hiddenServices.get(key))
+    const hs = hiddenServices.get(key)
+    if (!hs) continue
+    await data.tor.destroyHiddenService(hs)
     log(
       `destroyed hidden service for instance ${key} with onion address ${hiddenServices.get(key)}`
     )
@@ -111,6 +113,7 @@ const sendRequests = async () => {
     for (const [key2, value2] of hiddenServices) {
       if (key1 === key2) continue
       const hs = hiddenServices.get(key1)
+      if (!hs) continue
       console.log(`sendRequest ${hs} - ${value2}`)
       console.time(`${hs} - ${value2}`)
       // eslint-disable-next-line

@@ -1,5 +1,15 @@
+import compare from './utils/compare'
+
 /* eslint-disable no-undef */
 describe('User', () => {
+  const enableVisualRegression = Boolean(process.argv.filter((x) => x.startsWith('-enable-visual-regression'))[0])
+
+  const checkVisualRegression = async (componentName) => {
+    if (!enableVisualRegression) return
+    const imagePath = await element(by.id(componentName)).takeScreenshot(`${componentName}`)
+    compare(imagePath, `${__dirname}/base-screenshots/${device.name}/${componentName}.png`)
+  }
+
   beforeAll(async () => {
     await device.launchApp({ newInstance: true, launchArgs: { detoxDebugVisibility: 'YES' } })
   })
@@ -12,6 +22,9 @@ describe('User', () => {
     await waitFor(element(by.text('Join community')))
       .toBeVisible()
       .withTimeout(20000)
+
+    const componentName = 'join-community-component'
+    await checkVisualRegression(componentName)
   })
 
   test('switches to create community screen', async () => {
@@ -20,6 +33,9 @@ describe('User', () => {
     await waitFor(element(by.text('Create a community')))
       .toBeVisible()
       .withTimeout(5000)
+
+    const componentName = 'create-community-component'
+    await checkVisualRegression(componentName)
   })
 
   test('enters community name', async () => {
@@ -37,6 +53,9 @@ describe('User', () => {
   })
 
   test('enters username', async () => {
+    const componentName = 'username-registration-component'
+    await checkVisualRegression(componentName)
+
     await element(by.id('input')).longPress()
     await element(by.id('input')).typeText('rick')
 
@@ -92,10 +111,16 @@ describe('User', () => {
     await waitFor(element(by.id('context_menu_Rockets')))
       .toBeVisible()
       .withTimeout(5000)
+
+    const componentName = 'context_menu_Rockets'
+    await checkVisualRegression(componentName)
   })
 
   test('creates new channel', async () => {
     await element(by.id('Create channel')).longPress()
+
+    const componentName = 'create-channel-component'
+    await checkVisualRegression(componentName)
 
     await element(by.id('input')).longPress()
     await element(by.id('input')).typeText('roll')
@@ -116,6 +141,9 @@ describe('User', () => {
     await waitFor(element(by.text('Are you sure?')))
       .toBeVisible()
       .withTimeout(5000)
+
+    const componentName = 'delete-channel-component'
+    await checkVisualRegression(componentName)
 
     await element(by.text('Delete channel')).atIndex(1).longPress()
 
@@ -166,6 +194,9 @@ describe('User', () => {
     await waitFor(element(by.text('Are you sure you want to leave?')))
       .toBeVisible()
       .withTimeout(5000)
+
+    const componentName = 'leave-community-component'
+    await checkVisualRegression(componentName)
 
     await element(by.text('Leave community')).atIndex(1).longPress()
 

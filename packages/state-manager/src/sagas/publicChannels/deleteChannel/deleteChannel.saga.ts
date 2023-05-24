@@ -1,24 +1,33 @@
-import { publicChannelsActions } from '../publicChannels.slice'
 import { PayloadAction } from '@reduxjs/toolkit'
-import { SocketActionTypes } from '../../socket/const/actionTypes'
-
-import { apply } from 'typed-redux-saga'
-
+import { publicChannelsActions } from '../publicChannels.slice'
+import { apply, put } from 'typed-redux-saga'
 import { Socket, applyEmitParams } from '../../../types'
-
 import logger from '../../../utils/logger'
+import { filesActions } from '../../files/files.slice'
+import { SocketActionTypes } from '@quiet/types'
+
 const log = logger('publicChannels')
 
 export function* deleteChannelSaga(
   socket: Socket,
-  action: PayloadAction<ReturnType<typeof publicChannelsActions.createChannel>['payload']>
+  action: PayloadAction<ReturnType<typeof publicChannelsActions.deleteChannel>['payload']>
 ): Generator {
-  log(`Deleting channel ${action.payload.channel.name}`)
+  const channelAddress = action.payload.channel
+  const isGeneral = channelAddress === 'general'
+
+  log(`Deleting channel ${channelAddress}`)
   yield* apply(
     socket,
     socket.emit,
     applyEmitParams(SocketActionTypes.DELETE_CHANNEL, {
-      channel: action.payload.channel
+      channel: channelAddress
     })
   )
+
+  yield* put(filesActions.deleteFilesFromChannel({ channelAddress }))
+
+  if (!isGeneral) {
+    yield* put(publicChannelsActions.setCurrentChannel({ channelAddress: 'general' }))
+    yield* put(publicChannelsActions.disableChannel({ channelAddress }))
+  }
 }
