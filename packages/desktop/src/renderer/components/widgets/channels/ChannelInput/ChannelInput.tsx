@@ -596,7 +596,9 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
                       handleClipboardFiles(arrayBuffer, fileExt, fileName)
                     }
                     if (!files.length) {
-                      const text = e.clipboardData.getData('text/plain')
+                      const text = e.clipboardData
+                        .getData('text/plain')
+                        .replace(/(\r\n|\r|\n)/g, '<br />')
                       document.execCommand('insertHTML', false, text)
                     }
                   }}
