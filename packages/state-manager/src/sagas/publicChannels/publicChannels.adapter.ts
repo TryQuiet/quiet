@@ -2,15 +2,15 @@ import { ChannelMessage, PublicChannelStatus, PublicChannelStorage, PublicChanne
 import { createEntityAdapter } from '@reduxjs/toolkit'
 
 export const publicChannelsAdapter = createEntityAdapter<PublicChannelStorage>({
-  selectId: (channel) => channel.address
+  selectId: (channel) => channel.id
 })
 
 export const publicChannelsStatusAdapter = createEntityAdapter<PublicChannelStatus>({
-  selectId: (channel) => channel.address
+  selectId: (channel) => channel.id
 })
 
 export const publicChannelsSubscriptionsAdapter = createEntityAdapter<PublicChannelSubscription>({
-  selectId: (channel) => channel.address
+  selectId: (channel) => channel.id
 })
 
 export const channelMessagesAdapter = createEntityAdapter<ChannelMessage>()

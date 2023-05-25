@@ -14,7 +14,7 @@ export function* uploadFileSaga(
 ): Generator {
   const identity = yield* select(identitySelectors.currentIdentity)
 
-  const currentChannel = yield* select(publicChannelsSelectors.currentChannelAddress)
+  const currentChannel = yield* select(publicChannelsSelectors.currentChannelId)
   if (!identity || !currentChannel) return
 
   const id = yield* call(generateMessageId)
@@ -24,7 +24,7 @@ export function* uploadFileSaga(
     cid: `uploading_${id}`,
     message: {
       id: id,
-      channelAddress: currentChannel
+      channelId: currentChannel
     }
   }
 

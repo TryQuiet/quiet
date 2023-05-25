@@ -25,7 +25,7 @@ export function* autoDownloadFilesSaga(
     if (!message.media || (message.type !== MessageType.Image && message.type !== MessageType.File)) return
 
     const channelMessages = yield* select(
-      messagesSelectors.publicChannelMessagesEntities(message.channelAddress)
+      messagesSelectors.publicChannelMessagesEntities(message.channelId)
     )
 
     const draft = channelMessages[message.id]

@@ -14,11 +14,6 @@ export interface FileMetadata extends FileContent {
   height?: number
 }
 
-export interface FileMessage {
-  id: string
-  channelAddress: string
-}
-
 export interface UploadFilePayload {
   file: FileMetadata
   peerId: string
@@ -29,6 +24,10 @@ export interface DownloadFilePayload {
   peerId: string
 }
 
+export interface FileMessage {
+  id: string
+  channelId: string
+}
 export interface CancelDownload {
   mid: string
   cid: string
@@ -65,7 +64,7 @@ export interface Dictionary<T> extends DictionaryNum<T> {
 }
 
 export interface DeleteFilesFromChannelPayload {
-  channelAddress: string
+  channelId: string
 }
 export interface DeleteFilesFromChannelSocketPayload {
   messages: Dictionary<ChannelMessage>

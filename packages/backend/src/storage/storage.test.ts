@@ -15,7 +15,7 @@ import { sleep } from '../sleep'
 import { StorageEvents } from './types'
 import type { Storage as StorageType } from './storage'
 import { ChannelMessage, Community, Identity, PublicChannel, TestMessage } from '@quiet/types'
-import { Store, getFactory, prepareStore, publicChannels } from '@quiet/state-manager'
+import { Store, getFactory, prepareStore, publicChannels, generateMessageFactoryContentWithId } from '@quiet/state-manager'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -70,7 +70,7 @@ beforeAll(async () => {
     description: channel.description,
     owner: channel.owner,
     timestamp: channel.timestamp,
-    address: channel.address
+    id: channel.id
   }
 
   alice = await factory.create<Identity>(
@@ -87,7 +87,8 @@ beforeAll(async () => {
     await factory.create<TestMessage>(
       'Message',
       {
-        identity: alice
+        identity: alice,
+        message: generateMessageFactoryContentWithId(channel.id)
       }
     )
   ).message
@@ -170,10 +171,10 @@ describe('Channels', () => {
 
     const eventSpy = jest.spyOn(storage, 'emit')
 
-    await storage.deleteChannel({ channel: channelio.address })
+    await storage.deleteChannel({ channelId: channelio.id })
 
     expect(eventSpy).toBeCalledWith('channelDeletionResponse', {
-      channel: channelio.address
+      channelId: channelio.id
     })
   })
 })
@@ -312,7 +313,8 @@ describe('Certificate', () => {
     const aliceMessage = await factory.create<
       ReturnType<typeof publicChannels.actions.test_message>['payload']
     >('Message', {
-      identity: alice
+      identity: alice,
+      message: generateMessageFactoryContentWithId(channel.id)
     })
 
     storage = new Storage(tmpAppDataPath, community.id, { createPaths: false })
@@ -326,7 +328,8 @@ describe('Certificate', () => {
     await storage.subscribeToChannel(channelio)
 
     const eventSpy = jest.spyOn(storage, 'emit')
-    const publicChannelRepo = storage.publicChannelsRepos.get(message.channelAddress)
+    console.log('storage.publicChannelsRepos.get(message.channelId)', storage.publicChannelsRepos.get(message.channelId))
+    const publicChannelRepo = storage.publicChannelsRepos.get(message.channelId)
     expect(publicChannelRepo).not.toBeUndefined()
     // @ts-expect-error
     const db = publicChannelRepo.db
@@ -358,13 +361,16 @@ describe('Certificate', () => {
     const aliceMessage = await factory.create<
       ReturnType<typeof publicChannels.actions.test_message>['payload']
     >('Message', {
-      identity: alice
+      identity: alice,
+      message: generateMessageFactoryContentWithId(channel.id)
     })
 
     const johnMessage = await factory.create<
       ReturnType<typeof publicChannels.actions.test_message>['payload']
     >('Message', {
-      identity: john
+      identity: john,
+      message: generateMessageFactoryContentWithId(channel.id)
+
     })
 
     const aliceMessageWithJohnsPublicKey: ChannelMessage = {
@@ -382,7 +388,7 @@ describe('Certificate', () => {
     await storage.subscribeToChannel(channelio)
 
     const spyOnEmit = jest.spyOn(storage, 'emit')
-    const publicChannelRepo = storage.publicChannelsRepos.get(message.channelAddress)
+    const publicChannelRepo = storage.publicChannelsRepos.get(message.channelId)
     expect(publicChannelRepo).not.toBeUndefined()
     // @ts-expect-error
     const db = publicChannelRepo.db
@@ -443,7 +449,7 @@ describe('Message access controller', () => {
 
     await storage.subscribeToChannel(channelio)
 
-    const publicChannelRepo = storage.publicChannelsRepos.get(message.channelAddress)
+    const publicChannelRepo = storage.publicChannelsRepos.get(message.channelId)
     expect(publicChannelRepo).not.toBeUndefined()
     // @ts-expect-error
     const db = publicChannelRepo.db
@@ -468,7 +474,8 @@ describe('Message access controller', () => {
     const aliceMessage = await factory.create<
       ReturnType<typeof publicChannels.actions.test_message>['payload']
     >('Message', {
-      identity: alice
+      identity: alice,
+      message: generateMessageFactoryContentWithId(channel.id)
     })
     // @ts-expect-error userCertificate can be undefined
     const johnCertificate: string = john.userCertificate
@@ -476,7 +483,7 @@ describe('Message access controller', () => {
 
     const spoofedMessage = {
       ...aliceMessage.message,
-      channelAddress: channelio.address,
+      channelId: channelio.id,
       pubKey: johnPublicKey
     }
     delete spoofedMessage.media // Media 'undefined' is not accepted by db.add
@@ -492,7 +499,7 @@ describe('Message access controller', () => {
 
     await storage.subscribeToChannel(channelio)
 
-    const publicChannelRepo = storage.publicChannelsRepos.get(message.channelAddress)
+    const publicChannelRepo = storage.publicChannelsRepos.get(message.channelId)
     expect(publicChannelRepo).not.toBeUndefined()
     // @ts-expect-error
     const db = publicChannelRepo.db

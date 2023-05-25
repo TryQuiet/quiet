@@ -35,7 +35,7 @@ class NotificationHandler(private val context: Context) {
 
         try {
             // Parse channel name
-            val _channel = _message.getString("channelAddress")
+            val _channel = _message.getString("channelId")
             channel = String.format("#%s", _channel)
             // Parse message content
             val _content = _message.getString("message")

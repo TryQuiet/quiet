@@ -14,7 +14,7 @@ export interface FileMetadata extends FileContent {
 
 export interface FileMessage {
   id: string
-  channelAddress: string
+  channelId: string
 }
 
 export interface UploadFilePayload {

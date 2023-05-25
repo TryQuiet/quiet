@@ -27,7 +27,7 @@ export const ChannelScreen: FC = () => {
     )
     dispatch(
       publicChannels.actions.setCurrentChannel({
-        channelAddress: '' // Necessary for marking channels as unread on channel's list
+        channelId: '' // Necessary for marking channels as unread on channel's list
       })
     )
     return true
@@ -88,7 +88,7 @@ export const ChannelScreen: FC = () => {
 
   useEffect(() => {
     dispatch(messages.actions.resetCurrentPublicChannelCache())
-  }, [currentChannel?.address])
+  }, [currentChannel?.id])
 
   const [imagePreview, setImagePreview] = useState<FileMetadata>(null)
 

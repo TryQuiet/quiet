@@ -13,6 +13,7 @@ import { DateTime } from 'luxon'
 import { publicChannelsSelectors } from '../publicChannels.selectors'
 import { combineReducers } from '@reduxjs/toolkit'
 import { reducers } from '../../reducers'
+import { generateChannelId } from '@quiet/common'
 import { Community, PublicChannel } from '@quiet/types'
 
 describe('sendInitialChannelMessageSaga', () => {
@@ -21,7 +22,7 @@ describe('sendInitialChannelMessageSaga', () => {
 
   let channel: PublicChannel
 
-  let generalChannel: PublicChannel | undefined
+  let generalChannel: PublicChannel
 
   let community: Community
   let owner: Identity
@@ -41,7 +42,8 @@ describe('sendInitialChannelMessageSaga', () => {
       { id: community.id, nickname: 'alice' }
     )
 
-    generalChannel = publicChannelsSelectors.currentChannel(store.getState())
+    const generalChannelState = publicChannelsSelectors.generalChannel(store.getState())
+    if (generalChannelState) generalChannel = generalChannelState
     expect(generalChannel).not.toBeUndefined()
 
     channel = (
@@ -53,7 +55,7 @@ describe('sendInitialChannelMessageSaga', () => {
             description: 'Welcome to #photo',
             timestamp: DateTime.utc().valueOf(),
             owner: owner.nickname,
-            address: 'photo'
+            id: generateChannelId('photo')
           }
         }
       )
@@ -66,7 +68,7 @@ describe('sendInitialChannelMessageSaga', () => {
       sendInitialChannelMessageSaga,
       publicChannelsActions.sendInitialChannelMessage({
         channelName: channel.name,
-        channelAddress: channel.address
+        channelId: channel.id
       })
     )
       .withReducer(reducer)
@@ -75,7 +77,7 @@ describe('sendInitialChannelMessageSaga', () => {
         messagesActions.sendMessage({
           type: 3,
           message: `Created #${channel.name}`,
-          channelAddress: channel.address
+          channelId: channel.id
         })
       )
       .run()
@@ -87,10 +89,8 @@ describe('sendInitialChannelMessageSaga', () => {
     await expectSaga(
       sendInitialChannelMessageSaga,
       publicChannelsActions.sendInitialChannelMessage({
-        // @ts-expect-error
         channelName: generalChannel.name,
-        // @ts-expect-error
-        channelAddress: generalChannel.address
+        channelId: generalChannel.id
       })
     )
       .withReducer(reducer)
@@ -99,8 +99,7 @@ describe('sendInitialChannelMessageSaga', () => {
         messagesActions.sendMessage({
           type: 3,
           message: `@${owner.nickname} deleted all messages in #general`,
-          // @ts-expect-error
-          channelAddress: generalChannel.address
+          channelId: generalChannel.id
         })
       )
       .run()

@@ -20,7 +20,7 @@ storiesOf('Chat', module)
         description: '',
         owner: '',
         timestamp: 0,
-        address: ''
+        id: ''
       }}
       messages={{
         count: 16,
@@ -203,7 +203,7 @@ storiesOf('Chat', module)
         description: '',
         owner: '',
         timestamp: 0,
-        address: ''
+        id: ''
       }}
       user={'holmes'}
     />

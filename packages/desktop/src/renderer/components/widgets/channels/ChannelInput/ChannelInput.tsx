@@ -204,7 +204,7 @@ const StyledChannelInput = styled(Grid)((
 }))
 
 export interface ChannelInputProps {
-  channelAddress: string
+  channelId: string
   channelName?: string
   channelParticipants?: Array<{ nickname: string }>
   inputPlaceholder: string
@@ -221,7 +221,7 @@ export interface ChannelInputProps {
 }
 
 export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
-  channelAddress,
+  channelId,
   channelParticipants = [],
   inputPlaceholder,
   inputState = INPUT_STATE.AVAILABLE,
@@ -263,7 +263,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
 
   React.useEffect(() => {
     inputRef.current.updater.enqueueForceUpdate(inputRef.current)
-  }, [inputPlaceholder, channelAddress])
+  }, [inputPlaceholder, channelId])
 
   // Use reference to bypass memorization
   React.useEffect(() => {
@@ -295,7 +295,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
       }
     }
     isFirstRenderRef.current = false
-  }, [channelAddress])
+  }, [channelId])
 
   React.useEffect(() => {
     messageRef.current = message

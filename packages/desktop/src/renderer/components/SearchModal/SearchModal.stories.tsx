@@ -12,15 +12,15 @@ export const Component = Template.bind({})
 const args = {
   open: true,
   dynamicSearchedChannelsSelector: [
-    { name: 'fun', address: 'fun' },
-    { name: 'mobile', address: 'mobile' },
-    { name: 'new-york-plans', address: 'new-york-plans' }
+    { name: 'fun', id: 'fun' },
+    { name: 'mobile', id: 'mobile' },
+    { name: 'new-york-plans', id: 'new-york-plans' }
   ],
   publicChannelsSelector: [
-    { name: 'fun', address: 'fun' },
-    { name: 'mobile', address: 'mobile' },
-    { name: 'new-york-plans', address: 'new-york-plans' },
-    { name: 'general', address: 'general' }
+    { name: 'fun', id: 'fun' },
+    { name: 'mobile', id: 'mobile' },
+    { name: 'new-york-plans', id: 'new-york-plans' },
+    { name: 'general', id: 'general' }
   ],
   unreadChannelsSelector: [],
   channelInput: ''

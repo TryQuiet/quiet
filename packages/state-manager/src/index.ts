@@ -63,7 +63,7 @@ export { StoreKeys } from './sagas/store.keys'
 export { prepareStore } from './utils/tests/prepareStore'
 export { useIO } from './sagas/socket/startConnection/startConnection.saga'
 
-export { getFactory } from './utils/tests/factories'
+export { getFactory, generateMessageFactoryContentWithId } from './utils/tests/factories'
 export * from './utils/tests/helpers'
 
 export { Community } from './sagas/communities/communities.slice' // TODO: remove after setting strict in 'desktop' and 'mobile' packages

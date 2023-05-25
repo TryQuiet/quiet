@@ -3,6 +3,7 @@ import { publicChannelsActions } from '../publicChannels.slice'
 import { identitySelectors } from '../../identity/identity.selectors'
 import { DateTime } from 'luxon'
 import logger from '../../../utils/logger'
+import { generateChannelId } from '@quiet/common'
 import { PublicChannel } from '@quiet/types'
 
 const log = logger('publicChannels')
@@ -15,13 +16,14 @@ export function* createGeneralChannelSaga(): Generator {
   }
   log(`Creating general channel for ${identity.nickname}`)
 
-  const timestamp: number = yield* call(getChannelTimestamp)
+  const timestamp = yield* call(getChannelTimestamp)
+  const id = yield* call(generateChannelId, 'general')
 
   const channel: PublicChannel = {
     name: 'general',
     description: 'Welcome to #general',
     owner: identity.nickname,
-    address: 'general',
+    id,
     timestamp: timestamp
   }
 
@@ -33,7 +35,7 @@ export function* createGeneralChannelSaga(): Generator {
 
   yield* put(
     publicChannelsActions.setCurrentChannel({
-      channelAddress: channel.address
+      channelId: channel.id
     })
   )
 }

@@ -10,6 +10,7 @@ import { call } from 'redux-saga-test-plan/matchers'
 import { publicChannelsActions } from './../publicChannels.slice'
 import { identityActions } from '../../identity/identity.slice'
 import { createGeneralChannelSaga, getChannelTimestamp } from './createGeneralChannel.saga'
+import { generateChannelId } from '@quiet/common'
 import { communitiesActions } from '../../communities/communities.slice'
 import { Community, Identity } from '@quiet/types'
 
@@ -27,7 +28,7 @@ describe('createGeneralChannelSaga', () => {
     factory = await getFactory(store)
 
     community = await factory.create<
-    ReturnType<typeof communitiesActions.addNewCommunity>['payload']
+      ReturnType<typeof communitiesActions.addNewCommunity>['payload']
     >('Community')
 
     alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
@@ -38,26 +39,30 @@ describe('createGeneralChannelSaga', () => {
 
   test('create general channel', async () => {
     const reducer = combineReducers(reducers)
+    const generalId = generateChannelId('general')
+    const channel = {
+      name: 'general',
+      description: 'Welcome to #general',
+      owner: alice.nickname,
+      id: generalId,
+      timestamp: 0
+    }
+    console.log({ channel })
     await expectSaga(createGeneralChannelSaga)
       .withReducer(reducer)
       .withState(store.getState())
       .provide([
-        [call.fn(getChannelTimestamp), 0]
+        [call.fn(getChannelTimestamp), 0],
+        [call.fn(generateChannelId), generalId]
       ])
       .put(
         publicChannelsActions.createChannel({
-          channel: {
-            name: 'general',
-            description: 'Welcome to #general',
-            owner: alice.nickname,
-            address: 'general',
-            timestamp: 0
-          }
+          channel
         })
       )
       .put(
         publicChannelsActions.setCurrentChannel({
-          channelAddress: 'general'
+          channelId: generalId
         })
       )
       .run()
