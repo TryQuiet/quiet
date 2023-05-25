@@ -66,7 +66,7 @@ describe('IdentityPanel', () => {
   it("doesn't break if there's no community", async () => {
     const result = renderComponent(
       <IdentityPanel
-        // @ts-expect-error 
+        // @ts-expect-error
         currentCommunity={undefined}
         accountSettingsModal={{
           open: false,

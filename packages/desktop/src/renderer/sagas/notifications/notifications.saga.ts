@@ -120,7 +120,7 @@ export const createNotification = (notificationData: NotificationData): Notifica
   const notificationSound = soundTypeToAudio[sound]
   if (notificationSound) {
     notificationSound.volume = 0.2
-    notificationSound.play()
+    void notificationSound.play()
   }
 
   return new Notification(label, {

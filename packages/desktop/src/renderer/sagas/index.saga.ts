@@ -7,7 +7,7 @@ import { socketActions } from './socket/socket.slice'
 export default function* root(): Generator {
   const dataPort = new URLSearchParams(window.location.search).get('dataPort')
   if (!dataPort) {
-    console.error(`Can't start connection. No dataPort!`)
+    console.error('Can\'t start connection. No dataPort!')
     return
   }
   yield all([

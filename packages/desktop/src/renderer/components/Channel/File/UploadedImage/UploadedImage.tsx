@@ -40,9 +40,6 @@ export const UploadedImage: React.FC<UploadedImageProps> = ({ media, uploadedFil
 
   const imageWidth = media.width
   const imageHeight = media.height
-  if (!imageWidth || !imageHeight) return null
-
-  const width = imageWidth >= 400 ? 400 : imageWidth
 
   useEffect(() => {
     if (uploadedFileModal?.open) {
@@ -57,6 +54,9 @@ export const UploadedImage: React.FC<UploadedImageProps> = ({ media, uploadedFil
       })
     }
   }, [showImage])
+
+  if (!imageWidth || !imageHeight) return null
+  const width = imageWidth >= 400 ? 400 : imageWidth
 
   return (
     (<Root>

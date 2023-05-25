@@ -237,9 +237,9 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
   handleOpenFiles
 }) => {
   const [_anchorEl, setAnchorEl] = React.useState<HTMLDivElement>()
-  const [mentionsToSelect, setMentionsToSelect] = React.useState<{
-    nickname: string;
-  }[]>([])
+  const [mentionsToSelect, setMentionsToSelect] = React.useState<Array<{
+    nickname: string
+  }>>([])
   const messageRef = React.useRef<string>()
   const refSelected = React.useRef<number>()
   const isFirstRenderRef = React.useRef(true)
@@ -444,7 +444,6 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
             selection.anchorNode.nodeValue.length
           )
         }
-        
       }
       if (e.key === 'ArrowUp') {
         const selection = window?.getSelection()

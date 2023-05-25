@@ -29,7 +29,7 @@ import {
 import Channel from '../renderer/components/Channel/Channel'
 import LoadingPanel from '../renderer/components/LoadingPanel/LoadingPanel'
 import { createUserCertificateTestHelper } from '@quiet/identity'
-import {AnyAction} from 'redux'
+import { AnyAction } from 'redux'
 
 jest.setTimeout(20_000)
 

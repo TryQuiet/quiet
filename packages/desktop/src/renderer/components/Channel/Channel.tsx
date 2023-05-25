@@ -32,11 +32,6 @@ const Channel = () => {
   const dispatch = useDispatch()
 
   const user = useSelector(identity.selectors.currentIdentity)
-  if (!user) {
-    console.error('No current identity')
-    return null
-  }
-
   const currentChannelId = useSelector(publicChannels.selectors.currentChannelId)
   const currentChannelName = useSelector(publicChannels.selectors.currentChannelName)
 
@@ -55,13 +50,9 @@ const Channel = () => {
   const downloadStatusesMapping = useSelector(files.selectors.downloadStatuses)
 
   const community = useSelector(communities.selectors.currentCommunity)
-  if (!community) {
-    console.error('No current community')
-    return null
-  }
 
   const initializedCommunities = useSelector(network.selectors.initializedCommunities)
-  const isCommunityInitialized = Boolean(initializedCommunities[community.id])
+  const isCommunityInitialized = Boolean(community && initializedCommunities[community.id])
 
   const pendingGeneralChannelRecreationSelector = useSelector(
     publicChannels.selectors.pendingGeneralChannelRecreation
@@ -214,6 +205,8 @@ const Channel = () => {
   useEffect(() => {
     dispatch(messages.actions.resetCurrentPublicChannelCache())
   }, [currentChannelId])
+
+  if (!user || !currentChannelId) return null
 
   const channelComponentProps: ChannelComponentProps = {
     user: user,

@@ -16,7 +16,7 @@ const _dispatchError = (store: Store, err: Error) => {
   }))
 }
 
-export const errorsMiddleware = (store: any) => (next: (action: any)=> Promise<any>) => (action: any) => {
+export const errorsMiddleware = (store: any) => (next: (action: any) => Promise<any>) => (action: any) => {
   if (!action) return
   if (action?.meta?.ignoreError) {
     return next(action)

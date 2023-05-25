@@ -26,7 +26,8 @@ ipcRenderer.on('invitation', (_event, invitation) => {
 })
 
 const container = document.getElementById('root')
-let root = createRoot(container!)
+if (!container) throw new Error('No root html element!')
+let root = createRoot(container)
 root.render(<Root />)
 
 export const clearCommunity = async () => {
@@ -36,7 +37,7 @@ export const clearCommunity = async () => {
   store.dispatch(communities.actions.resetApp('payload'))
   ipcRenderer.send('clear-community')
   root.unmount()
-  root = createRoot(container!)
+  root = createRoot(container)
   root.render(<Root />)
   persistor.persist()
 }

@@ -72,7 +72,7 @@ describe('clicking in notification', () => {
       yield* fork(handleNotificationActions, notification, MessageType.Basic, sailingId)
       const onClick = notification.onclick
       expect(onClick).not.toBeNull()
-      if(onClick) yield* call(onClick, new Event(''))
+      if (onClick) yield* call(onClick, new Event(''))
     })
 
     // Confirm current channel address has changed
@@ -112,7 +112,7 @@ describe('clicking in notification', () => {
       yield* fork(handleNotificationActions, notification, MessageType.File, sailingId, media)
       const onClick = notification.onclick
       expect(onClick).not.toBeNull()
-      if(onClick) yield* call(onClick, new Event(''))
+      if (onClick) yield* call(onClick, new Event(''))
     })
 
     expect(spy).toHaveBeenCalledWith(media.path)

@@ -16,7 +16,6 @@ const Sidebar = () => {
   const unreadChannels = useSelector(publicChannels.selectors.unreadChannels)
 
   const currentCommunity = useSelector(communities.selectors.currentCommunity)
-  if (!currentCommunity) return null
 
   const currentChannelId = useSelector(publicChannels.selectors.currentChannelId)
 
@@ -31,6 +30,8 @@ const Sidebar = () => {
       })
     )
   }
+
+  if (!currentCommunity) return null
 
   const identityPanelProps: IdentityPanelProps = {
     currentCommunity: currentCommunity,

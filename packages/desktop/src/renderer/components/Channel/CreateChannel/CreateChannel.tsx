@@ -23,7 +23,6 @@ export const CreateChannel = () => {
   const [newChannel, setNewChannel] = useState<PublicChannel | null>(null)
 
   const user = useSelector(identity.selectors.currentIdentity)
-  if (!user) return null
   const community = useSelector(communities.selectors.currentCommunityId)
   const channels = useSelector(publicChannels.selectors.publicChannels)
 
@@ -57,13 +56,25 @@ export const CreateChannel = () => {
   const createChannel = (name: string) => {
     // Clear errors
     clearErrors()
+    if (!user) {
+      console.error('No identity found')
+      dispatch(
+        errors.actions.addError({
+          type: SocketActionTypes.CREATED_CHANNEL,
+          code: ErrorCodes.NOT_FOUND,
+          message: ErrorMessages.GENERAL,
+          community: community
+        })
+      )
+      return
+    }
     // Validate channel name
     if (channels.some(channel => channel.name === name)) {
       dispatch(
         errors.actions.addError({
           type: SocketActionTypes.CREATED_CHANNEL,
-          code: ErrorCodes.FORBIDDEN,
-          message: ErrorMessages.CHANNEL_NAME_TAKEN,
+          code: ErrorCodes.BAD_REQUEST,
+          message: ErrorMessages.GENERAL,
           community: community
         })
       )

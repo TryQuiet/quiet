@@ -11,7 +11,7 @@ import { renderComponent } from '../renderer/testUtils/renderComponent'
 import { prepareStore } from '../renderer/testUtils/prepareStore'
 import Channel from '../renderer/components/Channel/Channel'
 import ChannelInputComponent from '../renderer/components/widgets/channels/ChannelInput/ChannelInput'
-import {AnyAction} from 'redux'
+import { AnyAction } from 'redux'
 import {
   identity,
   communities,

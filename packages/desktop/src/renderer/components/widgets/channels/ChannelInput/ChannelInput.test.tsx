@@ -112,7 +112,7 @@ describe('ChannelInput', () => {
         inputState={INPUT_STATE.NOT_CONNECTED}
         openFilesDialog={jest.fn()}
         handleOpenFiles={jest.fn()} handleClipboardFiles={function (arg: ArrayBuffer, ext: string, name: string): void {
-        } }      />
+        } } />
     )
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>

@@ -24,7 +24,7 @@ import {
 } from '@quiet/state-manager'
 import Channel from '../renderer/components/Channel/Channel'
 import LoadingPanel from '../renderer/components/LoadingPanel/LoadingPanel'
-import {AnyAction} from 'redux'
+import { AnyAction } from 'redux'
 import { generateChannelId } from '@quiet/common'
 
 jest.setTimeout(20_000)

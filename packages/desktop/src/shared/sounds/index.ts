@@ -1,4 +1,4 @@
-import { NotificationsSounds } from "@quiet/state-manager"
+import { NotificationsSounds } from '@quiet/state-manager'
 
 /* global Audio */
 export const direct = new Audio(require('./direct.mp3').default)

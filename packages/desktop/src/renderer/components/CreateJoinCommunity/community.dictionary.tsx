@@ -17,7 +17,7 @@ export interface PerformCommunityActionDictionary {
 export const CreateCommunityDictionary = (
   handleRedirection?: () => void
 ): PerformCommunityActionDictionary => {
-  let link: ReactElement | undefined = undefined
+  let link: ReactElement | undefined
   if (handleRedirection) {
     link = (
       <TextWithLink
@@ -46,7 +46,7 @@ export const CreateCommunityDictionary = (
 }
 
 export const JoinCommunityDictionary = (handleRedirection?: () => void): PerformCommunityActionDictionary => {
-  let link: ReactElement | undefined = undefined
+  let link: ReactElement | undefined
   if (handleRedirection) {
     link = (
       <TextWithLink

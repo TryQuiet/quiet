@@ -188,20 +188,22 @@ export const FileComponent: React.FC<FileComponentProps & FileActionsProps> = ({
   }
 
   const _openContainingFolder = () => {
-    if (!path) return
-    openContainingFolder && openContainingFolder(path)
+    if (!path || !openContainingFolder) return
+    openContainingFolder(path)
   }
 
   const _downloadFile = () => {
-    if (!message.media) return
-    downloadFile && downloadFile(message.media)
+    if (!message.media || !downloadFile) return
+    downloadFile(message.media)
   }
 
   const _cancelDownload = () => {
-    cancelDownload && cancelDownload({
-      mid: message.id,
-      cid: cid
-    })
+    if (cancelDownload) {
+      cancelDownload({
+        mid: message.id,
+        cid: cid
+      })
+    }
   }
 
   const renderActionIndicator = () => {

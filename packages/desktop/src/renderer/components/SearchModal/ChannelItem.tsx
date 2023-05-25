@@ -4,12 +4,12 @@ import classNames from 'classnames'
 import { useEnterPress } from '../../containers/hooks'
 import { PublicChannelStorage } from '@quiet/types'
 
-type ChannelItemProps = {
-  item: PublicChannelStorage,
-  focused: boolean,
-  className: string,
-  classNameSelected: string,
-  onClickHandler: (value: string) => void,
+interface ChannelItemProps {
+  item: PublicChannelStorage
+  focused: boolean
+  className: string
+  classNameSelected: string
+  onClickHandler: (value: string) => void
   channelInput: string
 }
 
