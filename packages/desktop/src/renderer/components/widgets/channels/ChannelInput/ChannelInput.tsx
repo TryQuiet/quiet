@@ -62,7 +62,7 @@ const StyledChannelInput = styled(Grid)((
     to: { opacity: 1 }
   },
   [`& .${classes.input}`]: {
-    whiteSpace: 'pre-line',
+    whiteSpace: 'break-spaces',
     width: '100%',
     fontSize: 14,
     outline: 'none',
@@ -426,61 +426,53 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
 
       if (e.key === 'ArrowDown') {
         const anchorNode = window.getSelection().anchorNode
-        const nextNode = anchorNode?.nextSibling
 
+        // If the current line is empty, go directly to the next node.
+        let nextNode: Node = null
+        if (anchorNode.nodeValue === null || anchorNode.nodeValue === '\n') {
+          nextNode = anchorNode?.nextSibling
+        } else {
+          // Otherwise skip the break node at the end of the current line.
+          nextNode = anchorNode?.nextSibling.nextSibling
+        }
         // If we're on the bottom line, go to the end
         if (!nextNode) {
-          // FIXME There's an edge case bug with pasting in text with newlines,
-          // and then clicking to place caret on an empty line
-          // and traversing from there.
           const endOfNode = anchorNode?.nodeValue?.length || anchorNode.textContent.length
           caretLineTraversal(anchorNode, endOfNode)
           return
         }
-        // If there's one or more empty newlines sequentially,
-        // special handling needs to be done.
-        if (
-          anchorNode.nextSibling?.nextSibling?.nodeValue === null ||
-          anchorNode.nextSibling?.nextSibling?.nodeValue === '\n'
-        ) {
-          // skip over a newline node
-          if (anchorNode.nodeValue !== null || anchorNode.nodeValue !== '\n') {
-            caretLineTraversal(nextNode.nextSibling, 0)
-            return
-          }
-          if (anchorNode.nodeValue === null || anchorNode.nodeValue === '\n') {
-            caretLineTraversal(nextNode, 0)
-            return
-          }
+        // If the next line is empty, go the beginning
+        if (nextNode.nodeValue === null || nextNode.nodeValue === '\n') {
+          caretLineTraversal(nextNode, 0)
+          return
         }
         caretLineTraversal(nextNode, window.getSelection().anchorOffset)
       }
       if (e.key === 'ArrowUp') {
         const anchorNode = window.getSelection().anchorNode
-        const previousNode = anchorNode?.previousSibling
 
+        // If pervious line is empty, go directly to it
+        let previousNode: Node = null
+        if (
+          anchorNode?.previousSibling?.previousSibling.nodeValue === null ||
+          anchorNode?.previousSibling?.previousSibling.nodeValue === '\n'
+        ) {
+          previousNode = anchorNode?.previousSibling
+        } else {
+          // Otherwise skip the break node at the end of the previous line
+          previousNode = anchorNode?.previousSibling?.previousSibling
+        }
         // If we're on the top line, go to the beginning
         if (!previousNode) {
           caretLineTraversal(anchorNode, 0)
           return
         }
-        // If there's one or more empty newlines sequentially,
-        // special handling needs to be done.
-        if (
-          anchorNode.previousSibling.previousSibling?.nodeValue === null ||
-          anchorNode.previousSibling.previousSibling?.nodeValue === '\n'
-        ) {
-          if (anchorNode.nodeValue !== null || anchorNode.nodeValue !== '\n') {
-            caretLineTraversal(previousNode, 0)
-            return
-          }
-          // skip over a newline node
-          if (anchorNode.nodeValue === null || anchorNode.nodeValue === '\n') {
-            caretLineTraversal(previousNode.previousSibling, 0)
-            return
-          }
+        // If previous line is empty, go to the beginning
+        if (previousNode.nodeValue === null || previousNode.nodeValue === '\n') {
+          caretLineTraversal(previousNode, 0)
+          return
         }
-        caretLineTraversal(previousNode.previousSibling, window.getSelection().anchorOffset)
+        caretLineTraversal(previousNode, window.getSelection().anchorOffset)
       }
 
       if (e.nativeEvent.keyCode === 13) {
