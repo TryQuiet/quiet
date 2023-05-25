@@ -21,10 +21,10 @@ const SearchModal = () => {
   const publicChannelsSelector = useSelector(publicChannels.selectors.publicChannels)
 
   const setCurrentChannel = useCallback(
-    (address: string) => {
+    (id: string) => {
       dispatch(
         publicChannels.actions.setCurrentChannel({
-          channelAddress: address
+          channelId: id
         })
       )
       searchChannelModal.handleClose()

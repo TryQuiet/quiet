@@ -107,7 +107,7 @@ describe('Add new channel', () => {
         if (action === SocketActionTypes.SEND_MESSAGE) {
           const data = input as socketEventData<[SendMessagePayload]>
           const { message } = data[0]
-          expect(message.channelAddress).toEqual(channelName.output)
+          expect(message.channelId).toEqual(channelName.output)
           expect(message.message).toEqual(`Created #${channelName.output}`)
           return socket.socketClient.emit(SocketActionTypes.INCOMING_MESSAGES, {
             messages: [message],
@@ -321,7 +321,7 @@ describe('Add new channel', () => {
         if (action === SocketActionTypes.SEND_MESSAGE) {
           const data = input as socketEventData<[SendMessagePayload]>
           const { message } = data[0]
-          expect(message.channelAddress).toEqual(channelName)
+          expect(message.channelId).toEqual(channelName)
           expect(message.message).toEqual(`Created #${channelName}`)
           return socket.socketClient.emit(SocketActionTypes.INCOMING_MESSAGES, {
             messages: [message],

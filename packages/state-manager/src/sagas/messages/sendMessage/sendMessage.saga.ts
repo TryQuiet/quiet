@@ -26,16 +26,16 @@ export function* sendMessageSaga(
   const signatureArrayBuffer = yield* call(sign, action.payload.message, keyObject)
   const signature = yield* call(arrayBufferToString, signatureArrayBuffer)
 
-  const currentChannel = yield* select(publicChannelsSelectors.currentChannelAddress)
+  const currentChannelId = yield* select(publicChannelsSelectors.currentChannelId)
 
   const createdAt = yield* call(getCurrentTime)
 
   const generatedMessageId = yield* call(generateMessageId)
   const id = action.payload.id || generatedMessageId
 
-  const channelAddress = action.payload.channelAddress || currentChannel
-  if (!channelAddress) {
-    console.error(`Could not send message with id ${id}, no channel address`)
+  const channelId = action.payload.channelId || currentChannelId
+  if (!channelId) {
+    console.error(`Could not send message with id ${id}, no channel id`)
     return
   }
 
@@ -45,7 +45,7 @@ export function* sendMessageSaga(
     message: action.payload.message,
     media: action.payload.media,
     createdAt,
-    channelAddress,
+    channelId,
     signature,
     pubKey
   }

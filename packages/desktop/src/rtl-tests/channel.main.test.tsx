@@ -33,7 +33,8 @@ import {
   SendMessagePayload,
   MessageVerificationStatus,
   network,
-  connection
+  connection,
+  generateMessageFactoryContentWithId
 } from '@quiet/state-manager'
 
 import { keyFromCertificate, parseCertificate } from '@quiet/identity'
@@ -150,6 +151,14 @@ describe('Channel', () => {
       ReturnType<typeof communities.actions.addNewCommunity>['payload']
     >('Community')
 
+    const entities = store.getState().PublicChannels.channels.entities
+
+    const generalId = Object.keys(entities).find(key => entities[key].name === 'general')
+
+    await act(async () => {
+      store.dispatch(publicChannels.actions.setCurrentChannel({ channelId: generalId }))
+    })
+
     const alice = await factory.create<
       ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'alice' })
@@ -163,20 +172,35 @@ describe('Channel', () => {
     const authenticMessage: ChannelMessage = {
       ...(
         await factory.build<typeof publicChannels.actions.test_message>('Message', {
-          identity: alice
+          identity: alice,
+          message: {
+            id: Math.random().toString(36).substr(2.9),
+            type: MessageType.Basic,
+            message: 'authenticMessage',
+            createdAt: DateTime.utc().valueOf(),
+            channelId: generalId,
+            signature: '',
+            pubKey: ''
+          }
         })
-      ).payload.message,
-      id: Math.random().toString(36).substr(2.9)
+      ).payload.message
     }
 
     const spoofedMessage: ChannelMessage = {
       ...(
         await factory.build<typeof publicChannels.actions.test_message>('Message', {
-          identity: alice
+          identity: alice,
+          message: {
+            id: Math.random().toString(36).substr(2.9),
+            type: MessageType.Basic,
+            message: 'spoofedMessage',
+            createdAt: DateTime.utc().valueOf(),
+            channelId: generalId,
+            signature: '',
+            pubKey: johnPublicKey
+          }
         })
-      ).payload.message,
-      id: Math.random().toString(36).substr(2.9),
-      pubKey: johnPublicKey
+      ).payload.message
     }
 
     window.HTMLElement.prototype.scrollTo = jest.fn()
@@ -231,13 +255,26 @@ describe('Channel', () => {
       ReturnType<typeof communities.actions.addNewCommunity>['payload']
     >('Community')
 
+    const entities = store.getState().PublicChannels.channels.entities
+
+    const generalId = Object.keys(entities).find(key => entities[key].name === 'general')
+
     const alice = await factory.create<
       ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'alice' })
 
     const aliceMessage = (
       await factory.build<typeof publicChannels.actions.test_message>('Message', {
-        identity: alice
+        identity: alice,
+        message: {
+          id: Math.random().toString(36).substr(2.9),
+          type: MessageType.Basic,
+          message: 'message',
+          createdAt: DateTime.utc().valueOf(),
+          channelId: generalId,
+          signature: '',
+          pubKey: ''
+        }
       })
     ).payload.message
 
@@ -310,6 +347,10 @@ describe('Channel', () => {
       ReturnType<typeof communities.actions.addNewCommunity>['payload']
     >('Community')
 
+    const entities = store.getState().PublicChannels.channels.entities
+
+    const generalId = Object.keys(entities).find(key => entities[key].name === 'general')
+
     const alice = await factory.create<
       ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'alice' })
@@ -318,6 +359,7 @@ describe('Channel', () => {
       'Message',
       {
         identity: alice,
+        message: generateMessageFactoryContentWithId(generalId),
         verifyAutomatically: true
       }
     )
@@ -435,6 +477,10 @@ describe('Channel', () => {
       ReturnType<typeof communities.actions.addNewCommunity>['payload']
     >('Community')
 
+    const entities = store.getState().PublicChannels.channels.entities
+
+    const generalId = Object.keys(entities).find(key => entities[key].name === 'general')
+
     const alice = await factory.create<
       ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'alice' })
@@ -460,7 +506,7 @@ describe('Channel', () => {
             type: MessageType.Basic,
             message: msg,
             createdAt: messagesText.indexOf(msg) + 1,
-            channelAddress: 'general',
+            channelId: generalId,
             signature: '',
             pubKey: ''
           }
@@ -568,7 +614,7 @@ describe('Channel', () => {
   it('renders a multi-line message', async () => {
     renderComponent(
       <ChannelInputComponent
-        channelAddress={'channelAddress'}
+        channelId={'channelId'}
         channelName={'channelName'}
         inputPlaceholder='#channel as @user'
         onChange={jest.fn()}
@@ -596,7 +642,7 @@ describe('Channel', () => {
   it.skip('traverses a multi-line message it with arrow keys', async () => {
     renderComponent(
       <ChannelInputComponent
-        channelAddress={'channelAddress'}
+        channelId={'channelId'}
         channelName={'channelName'}
         inputPlaceholder='#channel as @user'
         onChange={jest.fn()}
@@ -706,6 +752,10 @@ describe('Channel', () => {
       ReturnType<typeof communities.actions.addNewCommunity>['payload']
     >('Community')
 
+    const entities = initialState.getState().PublicChannels.channels.entities
+
+    const generalId = Object.keys(entities).find(key => entities[key].name === 'general')
+
     const alice = await factory.create<
       ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'alice' })
@@ -749,6 +799,7 @@ describe('Channel', () => {
         if (action === SocketActionTypes.SEND_MESSAGE) {
           const data = input as socketEventData<[SendMessagePayload]>
           const payload = data[0]
+          console.log({ payload })
           return socket.socketClient.emit(SocketActionTypes.INCOMING_MESSAGES, {
             messages: [payload.message]
           })
@@ -841,7 +892,10 @@ describe('Channel', () => {
     >('Identity', { id: community.id, nickname: 'alice' })
 
     const message = Math.random().toString(36).substr(2.9)
-    const channelAddress = 'general'
+
+    const entities = initialState.getState().PublicChannels.channels.entities
+
+    const generalId = Object.keys(entities).find(key => entities[key].name === 'general')
 
     const missingFile: FileMetadata = {
       cid: Math.random().toString(36).substr(2.9),
@@ -850,7 +904,7 @@ describe('Channel', () => {
       ext: '.jpeg',
       message: {
         id: message,
-        channelAddress: channelAddress
+        channelId: generalId
       },
       size: AUTODOWNLOAD_SIZE_LIMIT - 2048
     }
@@ -864,7 +918,7 @@ describe('Channel', () => {
           type: MessageType.Image,
           message: '',
           createdAt: DateTime.utc().valueOf(),
-          channelAddress: 'general',
+          channelId: generalId,
           signature: '',
           pubKey: '',
           media: missingFile
@@ -1065,7 +1119,8 @@ describe('Channel', () => {
     >('Identity', { id: community.id, nickname: 'alice' })
 
     const messageId = Math.random().toString(36).substr(2.9)
-    const channelAddress = 'general'
+    const entities = initialState.getState().PublicChannels.channels.entities
+    const generalId = Object.keys(entities).find(key => entities[key].name === 'general')
 
     const media: FileMetadata = {
       cid: Math.random().toString(36).substr(2.9),
@@ -1075,7 +1130,7 @@ describe('Channel', () => {
       size: AUTODOWNLOAD_SIZE_LIMIT - 1024,
       message: {
         id: messageId,
-        channelAddress: channelAddress
+        channelId: generalId
       }
     }
 
@@ -1087,7 +1142,7 @@ describe('Channel', () => {
           type: MessageType.File,
           message: '',
           createdAt: DateTime.utc().valueOf(),
-          channelAddress: channelAddress,
+          channelId: generalId,
           signature: '',
           pubKey: '',
           media: media
@@ -1180,7 +1235,8 @@ describe('Channel', () => {
     >('Identity', { id: community.id, nickname: 'alice' })
 
     const messageId = Math.random().toString(36).substr(2.9)
-    const channelAddress = 'general'
+    const entities = initialState.getState().PublicChannels.channels.entities
+    const generalId = Object.keys(entities).find(key => entities[key].name === 'general')
 
     const media: FileMetadata = {
       cid: Math.random().toString(36).substr(2.9),
@@ -1190,7 +1246,7 @@ describe('Channel', () => {
       size: AUTODOWNLOAD_SIZE_LIMIT + 1024,
       message: {
         id: messageId,
-        channelAddress: channelAddress
+        channelId: generalId
       }
     }
 
@@ -1202,7 +1258,7 @@ describe('Channel', () => {
           type: MessageType.File,
           message: '',
           createdAt: DateTime.utc().valueOf(),
-          channelAddress: channelAddress,
+          channelId: generalId,
           signature: '',
           pubKey: '',
           media: media
@@ -1297,7 +1353,8 @@ describe('Channel', () => {
     >('Identity', { id: community.id, nickname: 'alice' })
 
     const messageId = Math.random().toString(36).substr(2.9)
-    const channelAddress = 'general'
+    const entities = initialState.getState().PublicChannels.channels.entities
+    const generalId = Object.keys(entities).find(key => entities[key].name === 'general')
 
     const media: FileMetadata = {
       cid: Math.random().toString(36).substr(2.9),
@@ -1307,7 +1364,7 @@ describe('Channel', () => {
       size: AUTODOWNLOAD_SIZE_LIMIT + 1024,
       message: {
         id: messageId,
-        channelAddress: channelAddress
+        channelId: generalId
       }
     }
 
@@ -1319,7 +1376,7 @@ describe('Channel', () => {
           type: MessageType.File,
           message: '',
           createdAt: DateTime.utc().valueOf(),
-          channelAddress: channelAddress,
+          channelId: generalId,
           signature: '',
           pubKey: '',
           media: media

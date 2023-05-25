@@ -98,45 +98,24 @@ export class IpfsFilesManager extends EventEmitter {
                 console.error(`downloading ${mid} has already been canceled or never started`)
             }
         })
-        this.on(IpfsFilesManagerEvents.DELETE_FILE, async (fileMetadata: FileMetadata) => {
-            // Channel deletion WIP
-
-            // Check if we have it in case we didnt downloaded file
-            // await this.deleteBlocks(fileMetadata)
-        })
     }
 
     public async deleteBlocks(fileMetadata: FileMetadata) {
-        // console.log('deleting file in fileManager')
-        // const localBlocks = await this.getLocalBlocks()
-        // const hasBlockBeenDownloaded = localBlocks.includes(`z${fileMetadata.cid.toString()}`)
-        // console.log('has block been downlaoded ', hasBlockBeenDownloaded)
-        // if (!hasBlockBeenDownloaded) return
+        const localBlocks = await this.getLocalBlocks()
+        const hasBlockBeenDownloaded = localBlocks.includes(`z${fileMetadata.cid.toString()}`)
+        if (!hasBlockBeenDownloaded) return
 
-        // const les = this.ipfs.pin.ls({paths: CID.parse(fileMetadata.cid)})
-        // for await (const l of les) {
-        //     console.log('llllll', l)
-        // }
+        try {
+            const result = await this.ipfs.pin.rm(fileMetadata.cid, { recursive: true })
+        } catch (e) {
+            console.log('file removing error')
+            console.log(e)
+        }
 
-        // try {
-        //     const result = await this.ipfs.pin.rm(CID.parse(fileMetadata.cid), {recursive: true})
-        //     console.log(
-        //         'unpinning result ', result
-        //     )
-        // } catch (e) {
-        //     console.log('file removing error')
-        //     console.log(e)
-        // }
-        // const gcresult =  this.ipfs.repo.gc()
-        // for await (const res of gcresult) {
-        //     console.log('garbage collector result', res)
-        // }
-        // const blocks = this.ipfs.get(CID.parse(fileMetadata.cid))
-        // for await (const block of blocks) {
-        //     // const decodedBlock = decode(block)
-        //     console.log('bock', block)
-        // }
-        // Parse DAG blocks in case file is canceled mid download
+        const gcresult = this.ipfs.repo.gc()
+        for await (const res of gcresult) {
+            console.log('garbage collector result', res)
+        }
     }
 
     public async stop() {
@@ -171,7 +150,7 @@ export class IpfsFilesManager extends EventEmitter {
             throw new Error(`File metadata (cid ${metadata.cid}) does not contain path`)
         }
         if (imagesExtensions.includes(metadata.ext)) {
-            let imageSize: {width: number | undefined; height: number | undefined} | undefined // ISizeCalculationResult
+            let imageSize: { width: number | undefined; height: number | undefined } | undefined // ISizeCalculationResult
             try {
                 imageSize = await sizeOfPromisified(metadata.path)
             } catch (e) {
@@ -202,42 +181,33 @@ export class IpfsFilesManager extends EventEmitter {
         // Save copy to separate directory
         const filePath = this.copyFile(metadata.path, filename)
         console.time(`Writing ${filename} to ipfs`)
-        await this.ipfs.files.write(`/${dirname}/${filename}`, uploadedFileStreamIterable, {
-            create: true
-        })
+        const newCid = await this.ipfs.add(uploadedFileStreamIterable)
+
         console.timeEnd(`Writing ${filename} to ipfs`)
 
-        // Get uploaded file information
-        const entries = this.ipfs.files.ls(`/${dirname}`)
-        for await (const entry of entries) {
-            if (entry.name === filename) {
-                this.emit(StorageEvents.REMOVE_DOWNLOAD_STATUS, { cid: metadata.cid })
-                await this.ipfs.pin.add(entry.cid)
-                const fileMetadata: FileMetadata = {
-                    ...metadata,
-                    path: filePath,
-                    cid: entry.cid.toString(),
-                    size: entry.size,
-                    width,
-                    height
-                }
+        this.emit(StorageEvents.REMOVE_DOWNLOAD_STATUS, { cid: metadata.cid })
+        const fileMetadata: FileMetadata = {
+            ...metadata,
+            path: filePath,
+            cid: newCid.cid.toString(),
+            size: newCid.size,
+            width,
+            height
+        }
 
-                this.emit(StorageEvents.UPLOADED_FILE, fileMetadata)
+        this.emit(StorageEvents.UPLOADED_FILE, fileMetadata)
 
-                const statusReady: DownloadStatus = {
-                    mid: fileMetadata.message.id,
-                    cid: fileMetadata.cid,
-                    downloadState: DownloadState.Hosted,
-                    downloadProgress: undefined
-                }
+        const statusReady: DownloadStatus = {
+            mid: fileMetadata.message.id,
+            cid: fileMetadata.cid,
+            downloadState: DownloadState.Hosted,
+            downloadProgress: undefined
+        }
 
-                this.emit(StorageEvents.UPDATE_DOWNLOAD_PROGRESS, statusReady)
+        this.emit(StorageEvents.UPDATE_DOWNLOAD_PROGRESS, statusReady)
 
-                if (metadata.path !== filePath) {
-                    this.emit(StorageEvents.UPDATE_MESSAGE_MEDIA, fileMetadata)
-                }
-                break
-            }
+        if (metadata.path !== filePath) {
+            this.emit(StorageEvents.UPDATE_MESSAGE_MEDIA, fileMetadata)
         }
     }
 
@@ -271,6 +241,8 @@ export class IpfsFilesManager extends EventEmitter {
 
     public downloadBlocks = async (fileMetadata: FileMetadata) => {
         const block = CID.parse(fileMetadata.cid)
+
+        await this.ipfs.pin.add(block, { recursive: true })
 
         const localBlocks = await this.getLocalBlocks()
         const processedBlocks: PBNode[] = [] // TODO: Should it be CID or PBNode?
@@ -480,8 +452,8 @@ export class IpfsFilesManager extends EventEmitter {
     private updateStatus = async (cid: string, downloadState = DownloadState.Downloading) => {
         const metadata = this.files.get(cid)
         if (!metadata) {
-          // TODO: emit error?
-          return
+            // TODO: emit error?
+            return
         }
         const progress: DownloadProgress | undefined = downloadState !== DownloadState.Malicious ? {
             size: metadata.size,

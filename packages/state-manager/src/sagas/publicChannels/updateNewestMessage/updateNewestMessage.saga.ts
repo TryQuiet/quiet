@@ -11,7 +11,7 @@ export function* updateNewestMessageSaga(
   const statuses = yield* select(publicChannelsSelectors.channelsStatus)
 
   for (const message of messages) {
-    const messageStatus = statuses[message.channelAddress]
+    const messageStatus = statuses[message.channelId]
     if (!messageStatus) return
     if (
       !messageStatus.newestMessage ||

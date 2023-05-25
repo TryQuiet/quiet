@@ -38,7 +38,7 @@ import { LocalDB, LocalDBKeys } from '../storage/localDB'
 import { createLibp2pAddress, createLibp2pListenAddress, getPorts, removeFilesFromDir } from '../common/utils'
 import { ProcessInChunks } from './processInChunks'
 import { multiaddr } from '@multiformats/multiaddr'
-import { AskForMessagesPayload, Certificates, ChannelMessagesIdsResponse, ChannelsReplicatedPayload, Community, CommunityId, ConnectionProcessInfo, CreateChannelPayload, CreatedChannelResponse, DownloadStatus, ErrorMessages, FileMetadata, IncomingMessages, InitCommunityPayload, LaunchRegistrarPayload, NetworkData, NetworkDataPayload, NetworkStats, PushNotificationPayload, RegisterOwnerCertificatePayload, RegisterUserCertificatePayload, RemoveDownloadStatus, ResponseCreateNetworkPayload, SaveCertificatePayload, SaveOwnerCertificatePayload, SendCertificatesResponse, SendMessagePayload, SetChannelSubscribedPayload, SocketActionTypes, StorePeerListPayload, UploadFilePayload } from '@quiet/types'
+import { AskForMessagesPayload, Certificates, ChannelMessage, ChannelMessagesIdsResponse, ChannelsReplicatedPayload, Community, CommunityId, ConnectionProcessInfo, CreateChannelPayload, CreatedChannelResponse, DeleteFilesFromChannelSocketPayload, DownloadStatus, ErrorMessages, FileMetadata, IncomingMessages, InitCommunityPayload, LaunchRegistrarPayload, NetworkData, NetworkDataPayload, NetworkStats, PushNotificationPayload, RegisterOwnerCertificatePayload, RegisterUserCertificatePayload, RemoveDownloadStatus, ResponseCreateNetworkPayload, SaveCertificatePayload, SaveOwnerCertificatePayload, SendCertificatesResponse, SendMessagePayload, SetChannelSubscribedPayload, SocketActionTypes, StorePeerListPayload, UploadFilePayload } from '@quiet/types'
 
 const log = logger('conn')
 interface InitStorageParams {
@@ -566,7 +566,7 @@ export class ConnectionsManager extends EventEmitter {
       await this.storage?.sendMessage(args.message)
     })
     this.dataServer.on(SocketActionTypes.ASK_FOR_MESSAGES, async (args: AskForMessagesPayload) => {
-      await this.storage?.askForMessages(args.channelAddress, args.ids)
+      await this.storage?.askForMessages(args.channelId, args.ids)
     })
 
     // Files
@@ -595,8 +595,8 @@ export class ConnectionsManager extends EventEmitter {
     })
     this.dataServer.on(
       SocketActionTypes.SEND_DIRECT_MESSAGE,
-      async (channelAddress: string, messagePayload) => {
-        await this.storage?.sendDirectMessage(channelAddress, messagePayload)
+      async (channelId: string, messagePayload) => {
+        await this.storage?.sendDirectMessage(channelId, messagePayload)
       }
     )
     this.dataServer.on(
@@ -615,8 +615,40 @@ export class ConnectionsManager extends EventEmitter {
     this.dataServer.on(SocketActionTypes.CLOSE, async () => {
       await this.closeAllServices()
     })
-    this.dataServer.on(SocketActionTypes.DELETE_CHANNEL, async (payload: any) => {
+    this.dataServer.on(SocketActionTypes.DELETE_CHANNEL, async (payload: {channelId: string}) => {
       await this.storage?.deleteChannel(payload)
+    })
+
+    this.dataServer.on(SocketActionTypes.DELETE_FILES_FROM_CHANNEL, async (payload: DeleteFilesFromChannelSocketPayload) => {
+      log('DELETE_FILES_FROM_CHANNEL : payload', payload)
+      await this.deleteFilesFromChannel(payload)
+      // await this.deleteFilesFromTemporaryDir() //crashes on mobile, will be fixes in next versions
+    })
+  }
+
+  private async deleteFilesFromChannel(payload: DeleteFilesFromChannelSocketPayload) {
+    const { messages } = payload
+    Object.keys(messages).map((key) => {
+      const message = messages[key]
+      if (message?.media?.path) {
+        const mediaPath = message.media.path
+        log('deleteFilesFromChannel : mediaPath', mediaPath)
+        fs.unlink(mediaPath, err => {
+          if (err) throw err
+        })
+      }
+    })
+  }
+
+  private async deleteFilesFromTemporaryDir() {
+    const temporaryFilesDirectory = path.join(this.quietDir, '/../', 'temporaryFiles')
+    fs.readdir(temporaryFilesDirectory, (err, files) => {
+      if (err) throw err
+      for (const file of files) {
+        fs.unlink(path.join(temporaryFilesDirectory, file), err => {
+          if (err) throw err
+        })
+      }
     })
   }
 
@@ -680,7 +712,7 @@ export class ConnectionsManager extends EventEmitter {
     this.storage.on(StorageEvents.CHECK_FOR_MISSING_FILES, (payload: CommunityId) => {
       this.io.emit(SocketActionTypes.CHECK_FOR_MISSING_FILES, payload)
     })
-    this.storage.on(StorageEvents.CHANNEL_DELETION_RESPONSE, (payload: any) => {
+    this.storage.on(StorageEvents.CHANNEL_DELETION_RESPONSE, (payload: {channelId: string}) => {
       console.log('emitting deleted channel event back to state manager')
       this.io.emit(SocketActionTypes.CHANNEL_DELETION_RESPONSE, payload)
     })

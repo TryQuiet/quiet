@@ -29,7 +29,7 @@ const ChannelItem = ({
 
   useEnterPress(() => {
     if (focused) {
-      onClickHandler(item.address)
+      onClickHandler(item.id)
     }
   }, [focused, channelInput])
 
@@ -41,7 +41,7 @@ const ChannelItem = ({
       })}
       tabIndex={0}
       onClick={() => {
-        onClickHandler(item.address)
+        onClickHandler(item.id)
       }}>
       <Typography variant='body2'>{`# ${item.name}`}</Typography>
     </div>

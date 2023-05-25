@@ -5,6 +5,7 @@ import { publicChannelsActions } from './sagas/publicChannels/publicChannels.sli
 import {
   CancelDownloadPayload,
   Community,
+  DeleteFilesFromChannelSocketPayload,
   DownloadFilePayload,
   InitCommunityPayload,
   LaunchRegistrarPayload,
@@ -38,6 +39,8 @@ export interface EmitEvents {
   [SocketActionTypes.DELETE_CHANNEL]: EmitEvent<
     ReturnType<typeof publicChannelsActions.deleteChannel>['payload']
   >
+
+  [SocketActionTypes.DELETE_FILES_FROM_CHANNEL]: EmitEvent<DeleteFilesFromChannelSocketPayload>
   [SocketActionTypes.CLOSE]: () => void
   [SocketActionTypes.LEAVE_COMMUNITY]: () => void
   [SocketActionTypes.CREATE_NETWORK]: EmitEvent<Community>

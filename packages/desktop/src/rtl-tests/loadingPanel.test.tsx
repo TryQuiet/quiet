@@ -98,7 +98,7 @@ describe('Loading panel', () => {
           description: 'Welcome to #general',
           timestamp: DateTime.utc().valueOf(),
           owner: 'owner',
-          address: 'general'
+          id: 'general'
         }
       })
     ).payload

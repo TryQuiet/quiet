@@ -18,17 +18,20 @@ import {
   Community,
   InitCommunityPayload,
   LaunchRegistrarPayload,
+  publicChannels,
   RegisterOwnerCertificatePayload,
   SocketActionTypes
 } from '@quiet/state-manager'
 import Channel from '../renderer/components/Channel/Channel'
 import LoadingPanel from '../renderer/components/LoadingPanel/LoadingPanel'
 import {AnyAction} from 'redux'
+import { generateChannelId } from '@quiet/common'
 
 jest.setTimeout(20_000)
 
 describe('User', () => {
   let socket: MockedSocket
+  const generalId = generateChannelId('general')
 
   beforeEach(() => {
     socket = new MockedSocket()
@@ -102,6 +105,7 @@ describe('User', () => {
         socket.socketClient.emit(SocketActionTypes.NEW_COMMUNITY, {
           id: payload.id
         })
+
         socket.socketClient.emit(SocketActionTypes.CHANNELS_REPLICATED, {
           communityId: payload.id,
           channels: {
@@ -110,7 +114,7 @@ describe('User', () => {
               description: 'string',
               owner: 'owner',
               timestamp: 0,
-              address: 'general'
+              id: generalId
             }
           }
         })
@@ -161,7 +165,10 @@ describe('User', () => {
     await userEvent.click(createUsernameButton)
 
     // Wait for the actions that updates the store
-    await act(async () => {})
+    await act(async () => {
+      // Little workaround
+      store.dispatch(publicChannels.actions.setCurrentChannel({ channelId: generalId }))
+    })
 
     // Check if create/username modals are gone
     expect(createCommunityTitle).not.toBeVisible()
@@ -202,6 +209,14 @@ describe('User', () => {
         "Messages/addPublicChannelsMessagesBase",
         "PublicChannels/clearUnreadChannel",
         "Modals/closeModal",
+        "Messages/lazyLoading",
+        "Messages/resetCurrentPublicChannelCache",
+        "Messages/resetCurrentPublicChannelCache",
+        "PublicChannels/setCurrentChannel",
+        "PublicChannels/clearUnreadChannel",
+        "Messages/lazyLoading",
+        "Messages/resetCurrentPublicChannelCache",
+        "Messages/resetCurrentPublicChannelCache",
       ]
     `)
   })

@@ -99,7 +99,7 @@ describe('Switch channels', () => {
             description: `Welcome to #${channelMock.name}`,
             timestamp: channelMock.timestamp,
             owner: alice.nickname,
-            address: channelMock.name
+            id: channelMock.name
           }
         }
       )
@@ -196,7 +196,7 @@ describe('Switch channels', () => {
           type: MessageType.Basic,
           message: 'message',
           createdAt: DateTime.utc().valueOf(),
-          channelAddress: 'fun',
+          channelId: 'fun',
           signature: '',
           pubKey: ''
         },

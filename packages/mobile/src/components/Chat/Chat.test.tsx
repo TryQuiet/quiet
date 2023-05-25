@@ -27,7 +27,7 @@ describe('Chat component', () => {
           description: '',
           owner: '',
           timestamp: 0,
-          address: ''
+          id: ''
         }}
         pendingMessages={{}}
         messages={{

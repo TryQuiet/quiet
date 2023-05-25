@@ -40,7 +40,7 @@ export async function assertReceivedChannelsAndSubscribe(
 
   store.dispatch(
     publicChannels.actions.setCurrentChannel({
-      channelAddress: store.getState().PublicChannels.channels.ids[0] as string
+      channelId: store.getState().PublicChannels.channels.ids[0] as string
     })
   )
 

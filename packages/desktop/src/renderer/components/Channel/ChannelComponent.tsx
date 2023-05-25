@@ -41,7 +41,7 @@ const ChannelMessagesWrapperStyled = styled(Grid)(({ theme }) => ({
 
 export interface ChannelComponentProps {
   user: Identity
-  channelAddress: string
+  channelId: string
   channelName: string
   messages: {
     count: number
@@ -78,7 +78,7 @@ export const ChannelComponent: React.FC<
   ChannelComponentProps & UploadFilesPreviewsProps & FileActionsProps
 > = ({
   user,
-  channelAddress,
+  channelId,
   channelName,
   messages,
   newestMessage,
@@ -216,7 +216,7 @@ export const ChannelComponent: React.FC<
 
   useEffect(() => {
     scrollBottom()
-  }, [channelAddress])
+  }, [channelId])
 
   return (
     <Page>
@@ -247,7 +247,7 @@ export const ChannelComponent: React.FC<
         </ChannelMessagesWrapperStyled>
         <Grid item>
           <ChannelInputComponent
-            channelAddress={channelAddress}
+            channelId={channelId}
             channelName={channelName}
             // TODO https://github.com/TryQuiet/ZbayLite/issues/443
             inputPlaceholder={`#${channelName} as @${user?.nickname}`}

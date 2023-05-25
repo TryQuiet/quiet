@@ -46,7 +46,7 @@ const Template: ComponentStory<typeof ChannelComponent> = () => {
             type: 1,
             message: 'I agree!',
             createdAt: 0,
-            channelAddress: 'general',
+            channelId: 'general',
             signature: 'signature',
             pubKey: 'pubKey'
           }}
@@ -85,7 +85,7 @@ const Template: ComponentStory<typeof ChannelComponent> = () => {
             handleClose: function (): any {},
             src: 'images/butterfly.jpeg'
           }}
-          channelAddress={'general'}
+          channelId={'general'}
           channelName={'general'}
           lazyLoading={function (_load: boolean): void {}}
           onInputChange={function (_value: string): void {}}

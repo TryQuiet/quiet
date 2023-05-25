@@ -165,10 +165,10 @@ const SearchModalComponent: React.FC<SearchModalComponentProps> = ({
   const channelList =
     unread && channelInput.length === 0 ? unreadChannels : dynamicSearchedChannelsSelector
 
-  const onChannelClickHandler = (address: string) => {
+  const onChannelClickHandler = (id: string) => {
     setChannelInput('')
     setCurrentFocus(0)
-    setCurrentChannel(address)
+    setCurrentChannel(id)
   }
 
   const [focusedIndex, setCurrentFocus] = useCyclingFocus(

@@ -18,16 +18,16 @@ const Sidebar = () => {
   const currentCommunity = useSelector(communities.selectors.currentCommunity)
   if (!currentCommunity) return null
 
-  const currentChannel = useSelector(publicChannels.selectors.currentChannelAddress)
+  const currentChannelId = useSelector(publicChannels.selectors.currentChannelId)
 
   // Workaround for Redux bug, issue: https://github.com/TryQuiet/quiet/issues/1332
   useSelector(publicChannels.selectors.sortedChannels)
   const publicChannelsSelector = useSelector(publicChannels.selectors.publicChannels)
 
-  const setCurrentChannel = (address: string) => {
+  const setCurrentChannel = (id: string) => {
     dispatch(
       publicChannels.actions.setCurrentChannel({
-        channelAddress: address
+        channelId: id
       })
     )
   }
@@ -41,7 +41,7 @@ const Sidebar = () => {
     channels: publicChannelsSelector,
     unreadChannels: unreadChannels,
     setCurrentChannel: setCurrentChannel,
-    currentChannel: currentChannel,
+    currentChannelId: currentChannelId,
     createChannelModal: createChannelModal
   }
 

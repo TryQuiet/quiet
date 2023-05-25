@@ -22,6 +22,7 @@ import { setupCrypto } from '@quiet/identity'
 import { prepareStore } from '../../../utils/tests/prepareStore'
 import { getFactory } from '../../../utils/tests/factories'
 import { PublicChannel, SocketActionTypes } from '@quiet/types'
+import { generateChannelId } from '@quiet/common'
 
 describe('createChannelSaga', () => {
   let store: Store
@@ -40,7 +41,7 @@ describe('createChannelSaga', () => {
     description: 'desc',
     owner: 'Howdy',
     timestamp: Date.now(),
-    address: 'address'
+    id: generateChannelId('general')
   }
 
   test('ask for missing messages', async () => {

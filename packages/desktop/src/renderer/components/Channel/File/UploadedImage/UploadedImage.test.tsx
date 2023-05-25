@@ -30,7 +30,7 @@ describe('UploadedFile', () => {
         height: 600,
         message: {
           id: 'string',
-          channelAddress: 'general'
+          channelId: 'general'
         }
       }
     }
@@ -118,7 +118,7 @@ describe('UploadedFile', () => {
     // @ts-expect-error
     message.media.message = {
       id: 'string',
-      channelAddress: 'general'
+      channelId: 'general'
     }
     const result = renderComponent(
       <UploadedImage

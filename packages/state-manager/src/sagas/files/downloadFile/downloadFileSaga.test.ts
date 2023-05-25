@@ -2,7 +2,7 @@ import {
   setupCrypto
 } from '@quiet/identity'
 import { Store } from '../../store.types'
-import { getFactory } from '../../..'
+import { getFactory, PublicChannel } from '../../..'
 import { prepareStore, reducers } from '../../../utils/tests/prepareStore'
 import { combineReducers } from '@reduxjs/toolkit'
 import { expectSaga } from 'redux-saga-test-plan'
@@ -13,6 +13,7 @@ import { downloadFileSaga } from './downloadFileSaga'
 import { FactoryGirl } from 'factory-girl'
 import { filesActions } from '../files.slice'
 import { Community, DownloadState, FileMetadata, Identity, SocketActionTypes } from '@quiet/types'
+import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
 
 describe('downloadFileSaga', () => {
   let store: Store
@@ -22,6 +23,8 @@ describe('downloadFileSaga', () => {
   let alice: Identity
 
   let message: string
+
+  let generalChannel: PublicChannel
 
   beforeAll(async () => {
     setupCrypto()
@@ -40,6 +43,10 @@ describe('downloadFileSaga', () => {
     )
 
     message = Math.random().toString(36).substr(2.9)
+
+    const generalChannelState = publicChannelsSelectors.generalChannel(store.getState())
+    if (generalChannelState) generalChannel = generalChannelState
+    expect(generalChannel).not.toBeUndefined()
   })
 
   test('downloading file', async () => {
@@ -52,7 +59,7 @@ describe('downloadFileSaga', () => {
       ext: 'ext',
       message: {
         id: message,
-        channelAddress: 'general'
+        channelId: generalChannel.id
       }
     }
 

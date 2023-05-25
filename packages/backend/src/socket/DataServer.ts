@@ -5,7 +5,7 @@ import logger from '../logger'
 import { EventEmitter } from 'events'
 import cors from 'cors'
 import type { CorsOptions } from 'cors'
-import { AskForMessagesPayload, CancelDownloadPayload, Community, ConnectionProcessInfo, CreateChannelPayload, DownloadFilePayload, InitCommunityPayload, LaunchRegistrarPayload, RegisterOwnerCertificatePayload, RegisterUserCertificatePayload, SaveOwnerCertificatePayload, SendMessagePayload, SocketActionTypes, UploadFilePayload } from '@quiet/types'
+import { AskForMessagesPayload, CancelDownloadPayload, Community, ConnectionProcessInfo, CreateChannelPayload, DeleteFilesFromChannelSocketPayload, DownloadFilePayload, InitCommunityPayload, LaunchRegistrarPayload, RegisterOwnerCertificatePayload, RegisterUserCertificatePayload, SaveOwnerCertificatePayload, SendMessagePayload, SocketActionTypes, UploadFilePayload } from '@quiet/types'
 
 const log = logger('socket')
 
@@ -90,15 +90,15 @@ export class DataServer extends EventEmitter {
         SocketActionTypes.SEND_DIRECT_MESSAGE,
         async (
           peerId: string,
-          { channelAddress, message }: { channelAddress: string; message: string }
+          { channelId, message }: { channelId: string; message: string }
         ) => {
-          this.emit(SocketActionTypes.SEND_DIRECT_MESSAGE, { channelAddress, message })
+          this.emit(SocketActionTypes.SEND_DIRECT_MESSAGE, { channelId, message })
         }
       )
       socket.on(
         SocketActionTypes.SUBSCRIBE_FOR_DIRECT_MESSAGE_THREAD,
-        async (peerId: string, channelAddress: string) => {
-          this.emit(SocketActionTypes.SUBSCRIBE_FOR_DIRECT_MESSAGE_THREAD, { peerId, channelAddress })
+        async (peerId: string, channelId: string) => {
+          this.emit(SocketActionTypes.SUBSCRIBE_FOR_DIRECT_MESSAGE_THREAD, { peerId, channelId })
         }
       )
       socket.on(
@@ -156,9 +156,13 @@ export class DataServer extends EventEmitter {
         log('leaving community')
         this.emit(SocketActionTypes.LEAVE_COMMUNITY)
       })
-      socket.on(SocketActionTypes.DELETE_CHANNEL, async (payload) => {
-        log('deleting channel ', payload.channel)
+      socket.on(SocketActionTypes.DELETE_CHANNEL, async (payload: {channelId: string}) => {
+        log('deleting channel ', payload.channelId)
         this.emit(SocketActionTypes.DELETE_CHANNEL, payload)
+      })
+      socket.on(SocketActionTypes.DELETE_FILES_FROM_CHANNEL, async (payload: DeleteFilesFromChannelSocketPayload) => {
+        log('DELETE_FILES_FROM_CHANNEL', payload)
+        this.emit(SocketActionTypes.DELETE_FILES_FROM_CHANNEL, payload)
       })
     })
   }

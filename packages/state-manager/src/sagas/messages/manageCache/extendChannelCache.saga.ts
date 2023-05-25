@@ -6,8 +6,9 @@ import { messagesActions } from '../messages.slice'
 import { CacheMessagesPayload, SetDisplayedMessagesNumberPayload } from '@quiet/types'
 
 export function* extendCurrentPublicChannelCacheSaga(): Generator {
-  const channelAddress = yield* select(publicChannelsSelectors.currentChannelAddress)
-  if (!channelAddress) return
+  const channelId = yield* select(publicChannelsSelectors.currentChannelId)
+  const currentChannelId = yield* select(publicChannelsSelectors.currentChannelId)
+  if (!currentChannelId || !channelId) return
 
   const channelMessagesChunkSize = 50
 
@@ -19,7 +20,9 @@ export function* extendCurrentPublicChannelCacheSaga(): Generator {
     publicChannelsSelectors.currentChannelLastDisplayedMessage
   )
 
-  const lastDisplayedMessageIndex = channelMessagesEntries.findIndex(i => i.id === lastDisplayedMessage.id)
+  const lastDisplayedMessageIndex = channelMessagesEntries.findIndex(
+    i => i.id === lastDisplayedMessage.id
+  )
 
   const messages = channelMessagesEntries.slice(
     Math.max(0, lastDisplayedMessageIndex - channelMessagesChunkSize)
@@ -27,7 +30,7 @@ export function* extendCurrentPublicChannelCacheSaga(): Generator {
 
   const cacheMessagesPayload: CacheMessagesPayload = {
     messages: messages,
-    channelAddress: channelAddress
+    channelId: channelId
   }
 
   yield* put(publicChannelsActions.cacheMessages(cacheMessagesPayload))
@@ -40,7 +43,7 @@ export function* extendCurrentPublicChannelCacheSaga(): Generator {
   }
 
   const setDisplayedMessagesNumberPayload: SetDisplayedMessagesNumberPayload = {
-    channelAddress: channelAddress,
+    channelId: channelId,
     display: display
   }
 

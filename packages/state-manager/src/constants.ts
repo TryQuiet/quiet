@@ -1,5 +1,3 @@
-export const MAIN_CHANNEL = 'general'
-
 export const AUTODOWNLOAD_SIZE_LIMIT = 20971520 // 20 MB
 
 export const PUSH_NOTIFICATION_CHANNEL = '_PUSH_NOTIFICATION_'

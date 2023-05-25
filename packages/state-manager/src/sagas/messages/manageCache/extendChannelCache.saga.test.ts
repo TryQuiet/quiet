@@ -25,8 +25,7 @@ describe('extendCurrentPublicChannelCacheSaga', () => {
   let community: Community
   let alice: Identity
 
-  let generalChannel: PublicChannel | undefined
-  let generalChannelAddress: string
+  let generalChannel: PublicChannel
 
   beforeAll(async () => {
     setupCrypto()
@@ -36,7 +35,7 @@ describe('extendCurrentPublicChannelCacheSaga', () => {
     factory = await getFactory(store)
 
     community = await factory.create<
-    ReturnType<typeof communitiesActions.addNewCommunity>['payload']
+      ReturnType<typeof communitiesActions.addNewCommunity>['payload']
     >('Community')
 
     alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
@@ -44,16 +43,16 @@ describe('extendCurrentPublicChannelCacheSaga', () => {
       { id: community.id, nickname: 'alice' }
     )
 
-    generalChannel = selectGeneralChannel(store.getState())
-    expect(generalChannel).toBeDefined()
-    generalChannelAddress = generalChannel?.address || ''
+    const generalChannelState = publicChannelsSelectors.generalChannel(store.getState())
+    if (generalChannelState) generalChannel = generalChannelState
+    expect(generalChannel).not.toBeUndefined()
   })
 
   test('extend current public channel cache', async () => {
     // Set 'general' as active channel
     store.dispatch(
       publicChannelsActions.setCurrentChannel({
-        channelAddress: generalChannelAddress
+        channelId: generalChannel.id
       })
     )
 
@@ -73,7 +72,7 @@ describe('extendCurrentPublicChannelCacheSaga', () => {
                 message: 'message',
                 createdAt:
                   DateTime.utc().valueOf() + DateTime.utc().minus({ minutes: index }).valueOf(),
-                channelAddress: generalChannelAddress,
+                channelId: generalChannel.id,
                 signature: '',
                 pubKey: ''
               },
@@ -92,7 +91,7 @@ describe('extendCurrentPublicChannelCacheSaga', () => {
       'CacheMessages',
       {
         messages: messages.slice(0, 50),
-        channelAddress: generalChannelAddress
+        channelId: generalChannel.id
       }
     )
 
@@ -115,12 +114,12 @@ describe('extendCurrentPublicChannelCacheSaga', () => {
       .put(
         publicChannelsActions.cacheMessages({
           messages: updatedCache,
-          channelAddress: generalChannelAddress
+          channelId: generalChannel.id
         })
       )
       .put(
         messagesActions.setDisplayedMessagesNumber({
-          channelAddress: generalChannelAddress,
+          channelId: generalChannel.id,
           display: 100
         })
       )
