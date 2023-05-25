@@ -620,8 +620,8 @@ export class ConnectionsManager extends EventEmitter {
     })
 
     this.dataServer.on(SocketActionTypes.DELETE_FILES_FROM_CHANNEL, async (payload: DeleteFilesFromChannelSocketPayload) => {
-      log('DELETE_FILES_FROM_CHANNEL : payload', payload)
-      await this.deleteFilesFromChannel(payload)
+      // log('DELETE_FILES_FROM_CHANNEL : payload', payload)
+      // await this.deleteFilesFromChannel(payload)
       // await this.deleteFilesFromTemporaryDir() //crashes on mobile, will be fixes in next versions
     })
   }
@@ -634,7 +634,7 @@ export class ConnectionsManager extends EventEmitter {
         const mediaPath = message.media.path
         log('deleteFilesFromChannel : mediaPath', mediaPath)
         fs.unlink(mediaPath, err => {
-          if (err) throw err
+          if (err) console.log(err)
         })
       }
     })
