@@ -262,20 +262,17 @@ describe('channelsReplicatedSaga', () => {
       .run()
   })
 
-  test.only('dont run deletion when database channels object is empty ', async () => {
-    console.log({ generalChannel })
+  test('bug replication - dont delete when channels object from database is empty', async () => {
     const reducer = combineReducers(reducers)
     await expectSaga(
       channelsReplicatedSaga,
       publicChannelsActions.channelsReplicated({
-        channels: {
-          // [sailingChannel.id]: sailingChannel
-        }
+        channels: {}
       })
     )
       .withReducer(reducer)
       .withState(store.getState())
-      .put(publicChannelsActions.deleteChannel({ channelId: generalChannel.id }))
+      .not.put(publicChannelsActions.deleteChannel({ channelId: generalChannel.id }))
       .run()
   })
 })
