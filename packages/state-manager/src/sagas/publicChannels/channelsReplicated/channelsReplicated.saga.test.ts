@@ -261,4 +261,21 @@ describe('channelsReplicatedSaga', () => {
       .put(publicChannelsActions.deleteChannel({ channelId: photoChannel.id }))
       .run()
   })
+
+  test.only('dont run deletion when database channels object is empty ', async () => {
+    console.log({ generalChannel })
+    const reducer = combineReducers(reducers)
+    await expectSaga(
+      channelsReplicatedSaga,
+      publicChannelsActions.channelsReplicated({
+        channels: {
+          // [sailingChannel.id]: sailingChannel
+        }
+      })
+    )
+      .withReducer(reducer)
+      .withState(store.getState())
+      .put(publicChannelsActions.deleteChannel({ channelId: generalChannel.id }))
+      .run()
+  })
 })

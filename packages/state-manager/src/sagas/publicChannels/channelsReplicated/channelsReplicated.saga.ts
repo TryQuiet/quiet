@@ -41,11 +41,14 @@ export function* channelsReplicatedSaga(
   }
 
   // Removing channels from store
+
+  if (databaseStoredChannelsIds.length > 0) {
   for (const channelId of locallyStoredChannels) {
     if (!databaseStoredChannelsIds.includes(channelId)) {
       log(`REMOVING #${channelId} FROM STORE`)
       yield* put(publicChannelsActions.deleteChannel({ channelId }))
     }
+  }
   }
 
   const currentChannelCache = yield* select(publicChannelsSelectors.currentChannelMessages)

@@ -171,9 +171,29 @@ describe('Channels', () => {
 
     const eventSpy = jest.spyOn(storage, 'emit')
 
-    await storage.deleteChannel({ channelId: channelio.id })
+    await storage.deleteChannel({ channelId: channelio.id, ownerPeerId: peerId.toString() })
 
     expect(eventSpy).toBeCalledWith('channelDeletionResponse', {
+      channelId: channelio.id
+    })
+  })
+
+  it('cant deletes channel because of wrong ownerPeerId', async () => {
+    storage = new Storage(tmpAppDataPath, 'communityId', { createPaths: false })
+
+    const peerId = await createPeerId()
+    const libp2p = await createLibp2p(peerId)
+
+    await storage.init(libp2p, peerId)
+
+    await storage.initDatabases()
+    await storage.subscribeToChannel(channelio)
+
+    const eventSpy = jest.spyOn(storage, 'emit')
+
+    await storage.deleteChannel({ channelId: channelio.id, ownerPeerId: 'random peer id' })
+
+    expect(eventSpy).not.toBeCalledWith('channelDeletionResponse', {
       channelId: channelio.id
     })
   })

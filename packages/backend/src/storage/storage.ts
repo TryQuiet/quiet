@@ -44,7 +44,6 @@ const { createPaths, removeDirs, removeFiles, getUsersAddresses } = await import
 export class Storage extends EventEmitter {
   public quietDir: string
   public peerId: PeerId
-  public ownerPeerId: PeerId
   protected ipfs: IPFS
   protected orbitdb: OrbitDB
   public channels: KeyValueStore<PublicChannel>
@@ -554,43 +553,49 @@ export class Storage extends EventEmitter {
     return db
   }
 
-  public async deleteChannel(payload: { channelId: string }) {
+  public async deleteChannel(payload: {channelId: string; ownerPeerId: string}) {
     console.log('deleting channel storage', payload)
     const { channelId } = payload
     // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
     await this.channels.load({ fetchEntryTimeout: 15000 })
     const channel = this.channels.get(channelId)
-    if (channel) {
+
+    const isOwner = payload.ownerPeerId === this.peerId.toString()
+    if (channel && isOwner) {
       await this.channels.del(channelId)
-    }
-    let repo = this.publicChannelsRepos.get(channelId)
-    if (!repo) {
-      const db = await this.orbitdb.log<ChannelMessage>(
-        `channels.${channelId}`,
-        {
-          accessController: {
-            type: 'messagesaccess',
-            write: ['*']
+
+      let repo = this.publicChannelsRepos.get(channelId)
+      if (!repo) {
+        const db = await this.orbitdb.log<ChannelMessage>(
+          `channels.${channelId}`,
+          {
+            accessController: {
+              type: 'messagesaccess',
+              write: ['*']
+            }
           }
+        )
+        repo = {
+          db,
+          eventsAttached: false
         }
-      )
-      repo = {
-        db,
-        eventsAttached: false
       }
+      await repo.db.load()
+      const allEntries = this.getAllEventLogRawEntries(repo.db)
+      await repo.db.close()
+      await repo.db.drop()
+      const hashes = allEntries.map((e) => CID.parse(e.hash))
+      const files = allEntries.map((e) => {
+        return e.payload.value.media
+      }).filter(isDefined)
+      // await this.deleteChannelFiles(files)
+      // await this.deleteChannelMessages(hashes)
+      this.publicChannelsRepos.delete(channelId)
+
+      const responsePayload = { channelId: payload.channelId }
+
+      this.emit(StorageEvents.CHANNEL_DELETION_RESPONSE, responsePayload)
     }
-    await repo.db.load()
-    const allEntries = this.getAllEventLogRawEntries(repo.db)
-    await repo.db.close()
-    await repo.db.drop()
-    const hashes = allEntries.map((e) => CID.parse(e.hash))
-    const files = allEntries.map((e) => {
-      return e.payload.value.media
-    }).filter(isDefined)
-    // await this.deleteChannelFiles(files)
-    // await this.deleteChannelMessages(hashes)
-    this.publicChannelsRepos.delete(channelId)
-    this.emit(StorageEvents.CHANNEL_DELETION_RESPONSE, payload)
   }
 
   public async deleteChannelFiles(files: FileMetadata[]) {

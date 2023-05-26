@@ -24,9 +24,9 @@ export const certificatesMapping = createSelector(certificates, certs => {
     const username = getCertFieldValue(certificate, CertFieldsTypes.nickName)
     const onionAddress = getCertFieldValue(certificate, CertFieldsTypes.commonName)
     const peerId = getCertFieldValue(certificate, CertFieldsTypes.peerId)
-    const dmPublicKey = getCertFieldValue(certificate, CertFieldsTypes.dmPublicKey)
+    const dmPublicKey = getCertFieldValue(certificate, CertFieldsTypes.dmPublicKey) || ''
 
-    if (!username || !onionAddress || !peerId || !dmPublicKey) {
+    if (!username || !onionAddress || !peerId) {
       console.error(`Could not parse certificate for pubkey ${pubKey}`)
       return
     }
@@ -56,8 +56,23 @@ export const getOldestParsedCerificate = createSelector(certificates, certs => {
   return certificates[0]
 })
 
+export const ownerData = createSelector(getOldestParsedCerificate, ownerCert => {
+  const username = getCertFieldValue(ownerCert, CertFieldsTypes.nickName)
+  const onionAddress = getCertFieldValue(ownerCert, CertFieldsTypes.commonName)
+  const peerId = getCertFieldValue(ownerCert, CertFieldsTypes.peerId)
+  const dmPublicKey = getCertFieldValue(ownerCert, CertFieldsTypes.dmPublicKey)
+
+  return {
+    username,
+    onionAddress,
+    peerId,
+    dmPublicKey
+  }
+})
+
 export const usersSelectors = {
   certificates,
   certificatesMapping,
-  getOldestParsedCerificate
+  getOldestParsedCerificate,
+  ownerData
 }
