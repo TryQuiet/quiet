@@ -35,8 +35,9 @@ import { StorageEvents } from './types'
 import { IpfsFilesManager, IpfsFilesManagerEvents } from './ipfsFileManager'
 
 import { CID } from 'multiformats/cid'
-import { ChannelMessage, ConnectionProcessInfo, FileMetadata, NoCryptoEngineError, PublicChannel, PushNotificationPayload, SaveCertificatePayload, SocketActionTypes, User } from '@quiet/types'
+import { ChannelMessage, ConnectionProcessInfo, DeleteFilesFromChannelSocketPayload, FileMetadata, NoCryptoEngineError, PublicChannel, PushNotificationPayload, SaveCertificatePayload, SocketActionTypes, User } from '@quiet/types'
 import { isDefined } from '@quiet/common'
+import fs from 'fs'
 
 const log = logger('db')
 
@@ -553,49 +554,43 @@ export class Storage extends EventEmitter {
     return db
   }
 
-  public async deleteChannel(payload: {channelId: string; ownerPeerId: string}) {
+  public async deleteChannel(payload: { channelId: string }) {
     console.log('deleting channel storage', payload)
     const { channelId } = payload
     // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
     await this.channels.load({ fetchEntryTimeout: 15000 })
     const channel = this.channels.get(channelId)
-
-    const isOwner = payload.ownerPeerId === this.peerId.toString()
-    if (channel && isOwner) {
+    if (channel) {
       await this.channels.del(channelId)
-
-      let repo = this.publicChannelsRepos.get(channelId)
-      if (!repo) {
-        const db = await this.orbitdb.log<ChannelMessage>(
-          `channels.${channelId}`,
-          {
-            accessController: {
-              type: 'messagesaccess',
-              write: ['*']
-            }
-          }
-        )
-        repo = {
-          db,
-          eventsAttached: false
-        }
-      }
-      await repo.db.load()
-      const allEntries = this.getAllEventLogRawEntries(repo.db)
-      await repo.db.close()
-      await repo.db.drop()
-      const hashes = allEntries.map((e) => CID.parse(e.hash))
-      const files = allEntries.map((e) => {
-        return e.payload.value.media
-      }).filter(isDefined)
-      // await this.deleteChannelFiles(files)
-      // await this.deleteChannelMessages(hashes)
-      this.publicChannelsRepos.delete(channelId)
-
-      const responsePayload = { channelId: payload.channelId }
-
-      this.emit(StorageEvents.CHANNEL_DELETION_RESPONSE, responsePayload)
     }
+    let repo = this.publicChannelsRepos.get(channelId)
+    if (!repo) {
+      const db = await this.orbitdb.log<ChannelMessage>(
+        `channels.${channelId}`,
+        {
+          accessController: {
+            type: 'messagesaccess',
+            write: ['*']
+          }
+        }
+      )
+      repo = {
+        db,
+        eventsAttached: false
+      }
+    }
+    await repo.db.load()
+    const allEntries = this.getAllEventLogRawEntries(repo.db)
+    await repo.db.close()
+    await repo.db.drop()
+    const hashes = allEntries.map((e) => CID.parse(e.hash))
+    const files = allEntries.map((e) => {
+      return e.payload.value.media
+    }).filter(isDefined)
+    // await this.deleteChannelFiles(files)
+    // await this.deleteChannelMessages(hashes)
+    this.publicChannelsRepos.delete(channelId)
+    this.emit(StorageEvents.CHANNEL_DELETION_RESPONSE, payload)
   }
 
   public async deleteChannelFiles(files: FileMetadata[]) {
@@ -860,5 +855,47 @@ export class Storage extends EventEmitter {
     }
 
     return this.userNamesMap.get(publicKey)
+  }
+
+  public async deleteFilesFromChannel(payload: DeleteFilesFromChannelSocketPayload) {
+    const { messages } = payload
+    Object.keys(messages).map(async(key) => {
+      const message = messages[key]
+      if (message?.media?.path) {
+        const mediaPath = message.media.path
+        log('deleteFilesFromChannel : mediaPath', mediaPath)
+        const isFileExist = await this.checkIfFileExist(mediaPath)
+        log(`deleteFilesFromChannel : isFileExist- ${isFileExist}`)
+        if (isFileExist) {
+            fs.unlink(mediaPath, unlinkError => {
+              if (unlinkError) {
+                log(`deleteFilesFromChannel : unlink error - ${unlinkError}`)
+              }
+            })
+        } else {
+          log(`deleteFilesFromChannel : file dont exist - ${mediaPath}`)
+        }
+      }
+    })
+  }
+
+  public async checkIfFileExist(filepath: string): Promise<boolean> {
+      return await new Promise((resolve) => {
+        fs.access(filepath, fs.constants.F_OK, error => {
+          resolve(!error)
+        })
+      })
+  }
+
+  private async deleteFilesFromTemporaryDir() {
+    const temporaryFilesDirectory = path.join(this.quietDir, '/../', 'temporaryFiles')
+    fs.readdir(temporaryFilesDirectory, (readDirErr, files) => {
+      if (readDirErr) log(`deleteFilesFromTemporaryDir : readdir error - ${readDirErr}`)
+      for (const file of files) {
+        fs.unlink(path.join(temporaryFilesDirectory, file), unlinkError => {
+          if (unlinkError) log(`deleteFilesFromTemporaryDir : unlink error - ${unlinkError}`)
+        })
+      }
+    })
   }
 }

@@ -14,8 +14,8 @@ import { jest, beforeEach, describe, it, expect, afterEach, beforeAll } from '@j
 import { sleep } from '../sleep'
 import { StorageEvents } from './types'
 import type { Storage as StorageType } from './storage'
-import { ChannelMessage, Community, Identity, PublicChannel, TestMessage } from '@quiet/types'
-import { Store, getFactory, prepareStore, publicChannels, generateMessageFactoryContentWithId } from '@quiet/state-manager'
+import { ChannelMessage, Community, Identity, MessageType, PublicChannel, TestMessage } from '@quiet/types'
+import { Store, getFactory, prepareStore, publicChannels, generateMessageFactoryContentWithId, FileMetadata } from '@quiet/state-manager'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -171,29 +171,9 @@ describe('Channels', () => {
 
     const eventSpy = jest.spyOn(storage, 'emit')
 
-    await storage.deleteChannel({ channelId: channelio.id, ownerPeerId: peerId.toString() })
+    await storage.deleteChannel({ channelId: channelio.id })
 
     expect(eventSpy).toBeCalledWith('channelDeletionResponse', {
-      channelId: channelio.id
-    })
-  })
-
-  it('cant deletes channel because of wrong ownerPeerId', async () => {
-    storage = new Storage(tmpAppDataPath, 'communityId', { createPaths: false })
-
-    const peerId = await createPeerId()
-    const libp2p = await createLibp2p(peerId)
-
-    await storage.init(libp2p, peerId)
-
-    await storage.initDatabases()
-    await storage.subscribeToChannel(channelio)
-
-    const eventSpy = jest.spyOn(storage, 'emit')
-
-    await storage.deleteChannel({ channelId: channelio.id, ownerPeerId: 'random peer id' })
-
-    expect(eventSpy).not.toBeCalledWith('channelDeletionResponse', {
       channelId: channelio.id
     })
   })
@@ -559,5 +539,80 @@ describe('Users', () => {
         username: 'dskfjbksfig'
       }
     ])
+  })
+})
+
+describe('Files deletion', () => {
+    let filePathBig: string
+    let messages: {
+      messages: {
+          [x: string]: ChannelMessage
+      }
+    }
+  beforeEach(async () => {
+    filePathBig = new URL('./testUtils/large-file.txt', import.meta.url).pathname
+
+    createFile(filePathBig, 2147483)
+    storage = new Storage(tmpAppDataPath, 'communityId', { createPaths: false })
+
+    const peerId = await createPeerId()
+    const libp2p = await createLibp2p(peerId)
+
+    await storage.init(libp2p, peerId)
+
+    const metadata: FileMetadata = {
+      path: filePathBig,
+      name: 'test-large-file',
+      ext: '.txt',
+      cid: 'uploading_id',
+      message: {
+        id: 'id',
+        channelId: 'channelId'
+      }
+    }
+
+    const aliceMessage = await factory.create<
+    ReturnType<typeof publicChannels.actions.test_message>['payload']
+  >('Message', {
+    identity: alice,
+    message: generateMessageFactoryContentWithId(channel.id, MessageType.File, metadata)
+  })
+
+   messages = {
+    messages: {
+      [aliceMessage.message.id]: aliceMessage.message
+    }
+  }
+  })
+
+  afterEach(async () => {
+    tmpDir.removeCallback()
+    if (fs.existsSync(filePathBig)) {
+      fs.rmSync(filePathBig)
+    }
+  })
+
+  it('delete file correctly', async () => {
+   const isFileExist = await storage.checkIfFileExist(filePathBig)
+    expect(isFileExist).toBeTruthy()
+
+    await expect(
+      storage.deleteFilesFromChannel(messages)
+    ).resolves.not.toThrowError()
+
+    await sleep(1000)
+    const isFileExist2 = await storage.checkIfFileExist(filePathBig)
+    expect(isFileExist2).toBeFalsy()
+  })
+  it('file dont exist - not throw error', async () => {
+    fs.rmSync(filePathBig)
+    await sleep(1000)
+
+    const isFileExist = await storage.checkIfFileExist(filePathBig)
+    expect(isFileExist).toBeFalsy()
+
+    await expect(
+      storage.deleteFilesFromChannel(messages)
+    ).resolves.not.toThrowError()
   })
 })

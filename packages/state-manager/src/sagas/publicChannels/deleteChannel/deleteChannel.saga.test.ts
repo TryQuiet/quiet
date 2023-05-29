@@ -16,7 +16,6 @@ import { generateChannelId } from '@quiet/common'
 import { filesActions } from '../../files/files.slice'
 import { Community, Identity, PublicChannel, SocketActionTypes } from '@quiet/types'
 import { publicChannelsSelectors } from '../publicChannels.selectors'
-import { usersSelectors } from '../../users/users.selectors'
 
 describe('deleteChannelSaga', () => {
   let store: Store
@@ -51,8 +50,6 @@ describe('deleteChannelSaga', () => {
       'Identity',
       { id: community.id, nickname: 'alice' }
     )
-
-    ownerData = usersSelectors.ownerData(store.getState())
     const generalChannelState = publicChannelsSelectors.generalChannel(store.getState())
     if (generalChannelState) generalChannel = generalChannelState
     expect(generalChannel).not.toBeUndefined()
@@ -84,8 +81,7 @@ describe('deleteChannelSaga', () => {
       .apply(socket, socket.emit, [
         SocketActionTypes.DELETE_CHANNEL,
         {
-          channelId,
-          ownerPeerId: ownerData.peerId
+          channelId
         }
       ])
       .put(publicChannelsActions.setCurrentChannel({ channelId: generalChannel.id }))
@@ -103,8 +99,7 @@ describe('deleteChannelSaga', () => {
       .apply(socket, socket.emit, [
         SocketActionTypes.DELETE_CHANNEL,
         {
-          channelId,
-          ownerPeerId: ownerData.peerId
+          channelId
         }
       ])
       .put(filesActions.deleteFilesFromChannel({ channelId }))
