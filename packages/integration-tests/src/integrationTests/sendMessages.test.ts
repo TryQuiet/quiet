@@ -68,8 +68,9 @@ describe('send message - users go offline and online', () => {
       expectedPeersCount: 3
     })
     await sleep(10_000)
-
-    const infoMessages = getInfoMessages(owner.store, 'general')
+    const entities = owner.store.getState().PublicChannels.channels.entities
+    const generalId = Object.keys(entities).find((key) => entities[key].name === 'general')
+    const infoMessages = getInfoMessages(owner.store, generalId)
 
     expectedMessages = infoMessages
   })
@@ -187,8 +188,11 @@ describe('send message - users are online', () => {
       expectedPeersCount: 3
     })
     await new Promise<void>((resolve) => setTimeout(() => resolve(), 10000))
-    const infoMessages = getInfoMessages(owner.store, 'general')
-    const infoMessagesUser = getInfoMessages(userOne.store, 'general')
+
+    const entities = owner.store.getState().PublicChannels.channels.entities
+    const generalId = Object.keys(entities).find((key) => entities[key].name === 'general')
+    const infoMessages = getInfoMessages(owner.store, generalId)
+    const infoMessagesUser = getInfoMessages(userOne.store, generalId)
 
     expectedMessages = infoMessages
   })
