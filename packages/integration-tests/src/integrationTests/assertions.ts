@@ -8,7 +8,6 @@ import {
   TestStore
 } from '@quiet/state-manager'
 import waitForExpect from 'wait-for-expect'
-import { MAIN_CHANNEL } from '../testUtils/constants'
 import { sleep } from '../utils'
 
 import logger from '../logger'
@@ -64,12 +63,15 @@ export async function assertReceivedMessages(
 ) {
   log(`User ${userName} starts waiting ${maxTime}ms for messages`)
 
+  const entities = store.getState().PublicChannels.channels.entities
+  const generalId = Object.keys(entities).find((key) => entities[key].name === 'general')
+
   const keys = Object.keys(
-    store.getState().Messages.publicChannelsMessagesBase.entities[MAIN_CHANNEL].messages.entities
+    store.getState().Messages.publicChannelsMessagesBase.entities[generalId].messages.entities
   )
   console.log(
     'check store channel',
-    store.getState().Messages.publicChannelsMessagesBase.entities[MAIN_CHANNEL].messages.entities
+    store.getState().Messages.publicChannelsMessagesBase.entities[generalId].messages.entities
   )
   console.log('number', keys, expectedMessages.length)
   await waitForExpect(() => {
@@ -78,8 +80,7 @@ export async function assertReceivedMessages(
 
   log(
     `User ${userName} received ${
-      store.getState().Messages.publicChannelsMessagesBase.entities[MAIN_CHANNEL].messages.ids
-        .length
+      store.getState().Messages.publicChannelsMessagesBase.entities[generalId].messages.ids.length
     } messages`
   )
 }
@@ -91,9 +92,10 @@ export const assertReceivedMessagesAreValid = async (
   store: TestStore
 ) => {
   log(`User ${userName} checks is messages are valid`)
-
+  const entities = store.getState().PublicChannels.channels.entities
+  const generalId = Object.keys(entities).find((key) => entities[key].name === 'general')
   const receivedMessages = Object.values(
-    store.getState().Messages.publicChannelsMessagesBase.entities[MAIN_CHANNEL].messages.entities
+    store.getState().Messages.publicChannelsMessagesBase.entities[generalId].messages.entities
   )
 
   const validMessages = []
@@ -117,24 +119,25 @@ export async function assertReceivedImages(
   store: TestStore
 ) {
   log(`User ${userName} starts waiting ${maxTime}ms for image`)
+
+  const entities = store.getState().PublicChannels.channels.entities
+  const generalId = Object.keys(entities).find((key) => entities[key].name === 'general')
   await waitForExpect(() => {
     expect(
       Object.values(
-        store.getState().Messages.publicChannelsMessagesBase.entities[MAIN_CHANNEL].messages
-          .entities
+        store.getState().Messages.publicChannelsMessagesBase.entities[generalId].messages.entities
       ).filter((message) => message.type === MessageType.Image)
     ).toHaveLength(expectedCount)
   }, maxTime)
   log(
     `User ${userName} received ${
       Object.values(
-        store.getState().Messages.publicChannelsMessagesBase.entities[MAIN_CHANNEL].messages
-          .entities
+        store.getState().Messages.publicChannelsMessagesBase.entities[generalId].messages.entities
       ).filter((message) => message.type === MessageType.Image).length
     } images`
   )
   return Object.values(
-    store.getState().Messages.publicChannelsMessagesBase.entities[MAIN_CHANNEL].messages.entities
+    store.getState().Messages.publicChannelsMessagesBase.entities[generalId].messages.entities
   ).find((message) => message.type === MessageType.Image)
 }
 
@@ -145,13 +148,16 @@ export async function assertDownloadedImage(
   store: TestStore
 ) {
   log(`User ${userName} starts waiting ${maxTime}ms for downloading ${expectedImage}`)
+
+  const entities = store.getState().PublicChannels.channels.entities
+  const generalId = Object.keys(entities).find((key) => entities[key].name === 'general')
   await waitForExpect(() => {
     console.log(
       'store messages',
-      store.getState().Messages.publicChannelsMessagesBase.entities[MAIN_CHANNEL].messages.entities
+      store.getState().Messages.publicChannelsMessagesBase.entities[generalId].messages.entities
     )
     const message = Object.values(
-      store.getState().Messages.publicChannelsMessagesBase.entities[MAIN_CHANNEL].messages.entities
+      store.getState().Messages.publicChannelsMessagesBase.entities[generalId].messages.entities
     ).filter((message) => message.media?.path)[0]
     console.log({ message })
     const path = message.media.path.split('/')

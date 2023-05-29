@@ -1,7 +1,6 @@
 import { publicChannels, Store } from '@quiet/state-manager'
 import assert from 'assert'
 import logger from '../logger'
-import { MAIN_CHANNEL } from './constants'
 import { waitForExpect } from './waitForExpect'
 const log = logger('utils')
 
@@ -49,10 +48,11 @@ export async function assertReceivedMessages(
   store: Store
 ) {
   log(`User ${userName} starts waiting ${maxTime}ms for messages`)
-
+  const entities = store.getState().PublicChannels.channels.entities
+  const generalId = Object.keys(entities).find((key) => entities[key].name === 'general')
   await waitForExpect(() => {
     assert.strictEqual(
-      store.getState().Messages.publicChannelsMessagesBase.entities[MAIN_CHANNEL].messages.ids
+      store.getState().Messages.publicChannelsMessagesBase.entities[generalId].messages.ids
         .length,
       expectedCount
     )
@@ -60,15 +60,17 @@ export async function assertReceivedMessages(
 
   log(
     `User ${userName} received ${
-      store.getState().Messages.publicChannelsMessagesBase.entities[MAIN_CHANNEL].messages.ids
+      store.getState().Messages.publicChannelsMessagesBase.entities[generalId].messages.ids
         .length
     } messages`
   )
 }
 
 export const assertReceivedMessagesMatch = (userName: string, messages: string[], store: Store) => {
+  const entities = store.getState().PublicChannels.channels.entities
+  const generalId = Object.keys(entities).find((key) => entities[key].name === 'general')
   const receivedMessagesEntities = Object.values(
-    store.getState().Messages.publicChannelsMessagesBase.entities[MAIN_CHANNEL].messages.entities
+    store.getState().Messages.publicChannelsMessagesBase.entities[generalId].messages.entities
   )
 
   const receivedMessages = receivedMessagesEntities.map((msg) => msg.message)

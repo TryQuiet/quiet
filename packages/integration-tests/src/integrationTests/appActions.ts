@@ -16,7 +16,6 @@ import {
 } from '@quiet/state-manager'
 import { createApp } from '../utils'
 import { AsyncReturnType } from '../types/AsyncReturnType.interface'
-import { MAIN_CHANNEL } from '../testUtils/constants'
 
 import logger from '../logger'
 
@@ -255,10 +254,11 @@ export async function sendMessage(payload: SendMessage): Promise<ChannelMessage>
   await waitForExpect(() => {
     expect(store.getState().LastAction.includes('Messages/addMessageVerificationStatus'))
   }, 5000)
-
+  const channelEntities = store.getState().PublicChannels.channels.entities
+  const generalId = Object.keys(channelEntities).find((key) => channelEntities[key].name === 'general')
   const entities = Array.from(
     Object.values(
-      store.getState().Messages.publicChannelsMessagesBase.entities[MAIN_CHANNEL].messages.entities
+      store.getState().Messages.publicChannelsMessagesBase.entities[generalId].messages.entities
     )
   )
 

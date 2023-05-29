@@ -517,11 +517,7 @@ export class Storage extends EventEmitter {
   }
 
   private async createChannel(data: PublicChannel): Promise<EventStore<ChannelMessage>> {
-<<<<<<< HEAD
-    console.log('createChannel', data)
-=======
     console.log('creating channel')
->>>>>>> develop
     if (!validate.isChannel(data)) {
       log.error('STORAGE: Invalid channel format')
       throw new Error('Create channel validation error')
