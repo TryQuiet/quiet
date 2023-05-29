@@ -586,7 +586,6 @@ describe('Files deletion', () => {
   })
 
   afterEach(async () => {
-    tmpDir.removeCallback()
     if (fs.existsSync(realFilePath)) {
       fs.rmSync(realFilePath)
     }
