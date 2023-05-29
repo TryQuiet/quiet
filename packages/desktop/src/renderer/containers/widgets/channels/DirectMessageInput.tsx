@@ -34,7 +34,7 @@ export const ChannelInput = () => {
   const currentChannelId = useSelector(publicChannels.selectors.currentChannelId)
   const currentChannelName = useSelector(publicChannels.selectors.currentChannelName)
   const user = useSelector(identity.selectors.currentIdentity)
-
+  if (!currentChannelId) return null
   return (
     <ChannelInputComponent
       channelId={currentChannelId}

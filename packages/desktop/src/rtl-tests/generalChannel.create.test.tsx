@@ -19,7 +19,7 @@ import Channel from '../renderer/components/Channel/Channel'
 jest.setTimeout(20_000)
 
 describe('General channel', () => {
-  let socket: MockedSocket
+  let socket: typeof MockedSocket
   let communityId: string
 
   beforeEach(() => {

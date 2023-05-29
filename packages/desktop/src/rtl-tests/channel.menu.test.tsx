@@ -17,7 +17,7 @@ import { MenuName } from '../const/MenuNames.enum'
 jest.setTimeout(20_000)
 
 describe('Channel menu', () => {
-  let socket: MockedSocket
+  let socket: typeof MockedSocket
 
   beforeEach(() => {
     socket = new MockedSocket()

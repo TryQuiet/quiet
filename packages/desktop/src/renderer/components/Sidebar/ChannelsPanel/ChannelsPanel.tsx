@@ -33,7 +33,7 @@ const ChannelsPanel: React.FC<ChannelsPanelProps> = ({
       </Grid>
       <Grid item>
         <List disablePadding data-testid='channelsList'>
-          {channels.map((channel, index) => {
+          {channels.map((channel, _index) => {
             const unread = unreadChannels.some(id => id === channel.id)
             const selected = currentChannelId === channel.id
             return (
@@ -43,7 +43,7 @@ const ChannelsPanel: React.FC<ChannelsPanelProps> = ({
                 selected={selected}
                 setCurrentChannel={setCurrentChannel}
                 key={channel.id}
-                disabled={channel.disabled}
+                disabled={Boolean(channel.disabled)}
               />
             )
           })}

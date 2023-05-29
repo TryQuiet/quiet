@@ -30,7 +30,7 @@ import { generateChannelId } from '@quiet/common'
 jest.setTimeout(20_000)
 
 describe('User', () => {
-  let socket: MockedSocket
+  let socket: typeof MockedSocket
   const generalId = generateChannelId('general')
 
   beforeEach(() => {

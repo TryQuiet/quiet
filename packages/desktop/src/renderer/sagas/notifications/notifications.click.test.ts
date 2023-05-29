@@ -47,7 +47,7 @@ beforeAll(async () => {
 
 describe('clicking in notification', () => {
   it('changes active channel', async () => {
-    const socket: MockedSocket = new MockedSocket()
+    const socket: typeof MockedSocket = new MockedSocket()
     ioMock.mockImplementation(() => socket)
 
     const { store, runSaga } = await prepareStore({}, socket)
@@ -80,7 +80,7 @@ describe('clicking in notification', () => {
   })
 
   it('opens file explorer', async () => {
-    const socket: MockedSocket = new MockedSocket()
+    const socket: typeof MockedSocket = new MockedSocket()
     ioMock.mockImplementation(() => socket)
 
     const { runSaga } = await prepareStore({}, socket)

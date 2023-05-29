@@ -98,7 +98,11 @@ beforeAll(async () => {
   ReturnType<typeof communities.actions.addNewCommunity>['payload']
   >('Community')
   const generalChannel = publicChannels.selectors.generalChannel(store.getState())
-  store.dispatch(publicChannels.actions.setCurrentChannel({ channelId: generalChannel.id }))
+  expect(generalChannel).not.toBeUndefined()
+  store.dispatch(publicChannels.actions.setCurrentChannel({
+    // @ts-expect-error
+    channelId: generalChannel.id
+  }))
   sailingChannel = (
     await factory.create<ReturnType<typeof publicChannels.actions.addChannel>['payload']>(
       'PublicChannel'

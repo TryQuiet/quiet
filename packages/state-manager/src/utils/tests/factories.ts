@@ -154,7 +154,7 @@ export const getFactory = async (store: Store) => {
         timestamp: DateTime.utc().toSeconds(),
         owner: factory.assoc('Identity', 'nickname'),
         id: generateChannelId(
-          factory.sequence('PublicChannel.name', n => `publicChannel${n}`).toString()
+          factory.sequence('PublicChannel.name', (n: number) => `publicChannel${n}`).toString()
         )
       }
     },

@@ -53,7 +53,7 @@ jest.mock('electron', () => {
 })
 
 describe('Switch channels', () => {
-  let socket: MockedSocket
+  let socket: typeof MockedSocket
 
   let redux: {
     store: Store
@@ -63,7 +63,7 @@ describe('Switch channels', () => {
 
   let community: Community
   let alice: Identity
-  let generalId: string
+  let generalId: string | undefined
 
   beforeEach(async () => {
     socket = new MockedSocket()
@@ -86,7 +86,8 @@ describe('Switch channels', () => {
       { id: community.id, nickname: 'alice' }
     )
     const entities = redux.store.getState().PublicChannels.channels.entities
-    generalId = Object.keys(entities).find(key => entities[key].name === 'general')
+    generalId = Object.keys(entities).find(key => entities[key]?.name === 'general')
+    expect(generalId).not.toBeUndefined()
 
     const channelNames = ['memes', 'pets', 'travels']
     // Automatically create channels
@@ -111,6 +112,7 @@ describe('Switch channels', () => {
       ReturnType<typeof publicChannels.actions.test_message>['payload']
     >('Message', {
       identity: alice,
+      // @ts-expect-error
       message: generateMessageFactoryContentWithId(generalId),
       verifyAutomatically: true
     })

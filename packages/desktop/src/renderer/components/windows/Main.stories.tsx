@@ -10,7 +10,7 @@ import { Reusable as Sidebar } from '../Sidebar/Sidebar.stories'
 import SidebarComponent from '../Sidebar/Sidebar'
 import { Component as Channel } from '../Channel/Channel.stories.cy'
 
-const Template: ComponentStory<AnyArray> = () => {
+const Template: ComponentStory<any> = () => {
   return (
     <WindowWrapper>
       <Grid

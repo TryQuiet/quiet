@@ -79,7 +79,7 @@ jest.mock('../shared/sounds', () => ({
 }))
 
 describe('Channel', () => {
-  let socket: MockedSocket
+  let socket: typeof MockedSocket
 
   beforeEach(() => {
     socket = new MockedSocket()
@@ -153,10 +153,14 @@ describe('Channel', () => {
 
     const entities = store.getState().PublicChannels.channels.entities
 
-    const generalId = Object.keys(entities).find(key => entities[key].name === 'general')
+    const generalId = Object.keys(entities).find(key => entities[key]?.name === 'general')
+    expect(generalId).not.toBeUndefined()
 
     await act(async () => {
-      store.dispatch(publicChannels.actions.setCurrentChannel({ channelId: generalId }))
+      store.dispatch(publicChannels.actions.setCurrentChannel({
+        // @ts-expect-error
+        channelId: generalId
+      }))
     })
 
     const alice = await factory.create<
@@ -257,7 +261,7 @@ describe('Channel', () => {
 
     const entities = store.getState().PublicChannels.channels.entities
 
-    const generalId = Object.keys(entities).find(key => entities[key].name === 'general')
+    const generalId = Object.keys(entities).find(key => entities[key]?.name === 'general')
 
     const alice = await factory.create<
       ReturnType<typeof identity.actions.addNewIdentity>['payload']
@@ -349,7 +353,8 @@ describe('Channel', () => {
 
     const entities = store.getState().PublicChannels.channels.entities
 
-    const generalId = Object.keys(entities).find(key => entities[key].name === 'general')
+    const generalId = Object.keys(entities).find(key => entities[key]?.name === 'general')
+    expect(generalId).not.toBeUndefined()
 
     const alice = await factory.create<
       ReturnType<typeof identity.actions.addNewIdentity>['payload']
@@ -359,6 +364,7 @@ describe('Channel', () => {
       'Message',
       {
         identity: alice,
+        // @ts-expect-error
         message: generateMessageFactoryContentWithId(generalId),
         verifyAutomatically: true
       }
@@ -479,7 +485,7 @@ describe('Channel', () => {
 
     const entities = store.getState().PublicChannels.channels.entities
 
-    const generalId = Object.keys(entities).find(key => entities[key].name === 'general')
+    const generalId = Object.keys(entities).find(key => entities[key]?.name === 'general')
 
     const alice = await factory.create<
       ReturnType<typeof identity.actions.addNewIdentity>['payload']
@@ -752,10 +758,6 @@ describe('Channel', () => {
       ReturnType<typeof communities.actions.addNewCommunity>['payload']
     >('Community')
 
-    const entities = initialState.getState().PublicChannels.channels.entities
-
-    const generalId = Object.keys(entities).find(key => entities[key].name === 'general')
-
     const alice = await factory.create<
       ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'alice' })
@@ -895,8 +897,8 @@ describe('Channel', () => {
 
     const entities = initialState.getState().PublicChannels.channels.entities
 
-    const generalId = Object.keys(entities).find(key => entities[key].name === 'general')
-
+    const generalId = Object.keys(entities).find(key => entities[key]?.name === 'general')
+    expect(generalId).not.toBeUndefined()
     const missingFile: FileMetadata = {
       cid: Math.random().toString(36).substr(2.9),
       path: null,
@@ -904,6 +906,7 @@ describe('Channel', () => {
       ext: '.jpeg',
       message: {
         id: message,
+        // @ts-expect-error
         channelId: generalId
       },
       size: AUTODOWNLOAD_SIZE_LIMIT - 2048
@@ -1120,8 +1123,8 @@ describe('Channel', () => {
 
     const messageId = Math.random().toString(36).substr(2.9)
     const entities = initialState.getState().PublicChannels.channels.entities
-    const generalId = Object.keys(entities).find(key => entities[key].name === 'general')
-
+    const generalId = Object.keys(entities).find(key => entities[key]?.name === 'general')
+    expect(generalId).not.toBeUndefined()
     const media: FileMetadata = {
       cid: Math.random().toString(36).substr(2.9),
       path: null,
@@ -1130,6 +1133,7 @@ describe('Channel', () => {
       size: AUTODOWNLOAD_SIZE_LIMIT - 1024,
       message: {
         id: messageId,
+        // @ts-expect-error
         channelId: generalId
       }
     }
@@ -1236,8 +1240,8 @@ describe('Channel', () => {
 
     const messageId = Math.random().toString(36).substr(2.9)
     const entities = initialState.getState().PublicChannels.channels.entities
-    const generalId = Object.keys(entities).find(key => entities[key].name === 'general')
-
+    const generalId = Object.keys(entities).find(key => entities[key]?.name === 'general')
+    expect(generalId).not.toBeUndefined()
     const media: FileMetadata = {
       cid: Math.random().toString(36).substr(2.9),
       path: null,
@@ -1246,6 +1250,7 @@ describe('Channel', () => {
       size: AUTODOWNLOAD_SIZE_LIMIT + 1024,
       message: {
         id: messageId,
+        // @ts-expect-error
         channelId: generalId
       }
     }
@@ -1354,8 +1359,8 @@ describe('Channel', () => {
 
     const messageId = Math.random().toString(36).substr(2.9)
     const entities = initialState.getState().PublicChannels.channels.entities
-    const generalId = Object.keys(entities).find(key => entities[key].name === 'general')
-
+    const generalId = Object.keys(entities).find(key => entities[key]?.name === 'general')
+    expect(generalId).not.toBeUndefined()
     const media: FileMetadata = {
       cid: Math.random().toString(36).substr(2.9),
       path: null,
@@ -1364,6 +1369,7 @@ describe('Channel', () => {
       size: AUTODOWNLOAD_SIZE_LIMIT + 1024,
       message: {
         id: messageId,
+        // @ts-expect-error
         channelId: generalId
       }
     }

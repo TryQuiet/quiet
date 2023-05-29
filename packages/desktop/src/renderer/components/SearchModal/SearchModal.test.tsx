@@ -8,7 +8,7 @@ import SearchModalComponent from './SearchModelComponent'
 import { generateChannelId } from '@quiet/common'
 
 describe('Search Modal', () => {
-  let socket: MockedSocket
+  let socket: typeof MockedSocket
 
   beforeEach(() => {
     socket = new MockedSocket()
@@ -61,7 +61,7 @@ describe('Search Modal', () => {
     const result = renderComponent(
       <SearchModalComponent
         setCurrentChannel={function (_id: string): void {}}
-        setChannelInput={function (_id: string): void {}}
+        setChannelInput={function (_id: React.SetStateAction<string>): void {}}
         dynamicSearchedChannelsSelector={dynamicSearchedChannels}
         publicChannelsSelector={publicChannelsSelector}
         unreadChannelsSelector={[]}

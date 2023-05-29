@@ -5,10 +5,9 @@ import { startConnectionSaga } from './socket/socket.saga'
 import { socketActions } from './socket/socket.slice'
 
 export default function* root(): Generator {
-  const dataPort = new URLSearchParams(window.location.search).get('dataPort')
+  const dataPort = new URLSearchParams(window.location.search).get('dataPort') || ''
   if (!dataPort) {
-    console.error('Can\'t start connection. No dataPort!')
-    return
+    console.warn('About to start connection but no dataPort found')
   }
   yield all([
     takeEvery(communities.actions.handleInvitationCode.type, handleInvitationCodeSaga),

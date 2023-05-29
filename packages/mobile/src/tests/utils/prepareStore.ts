@@ -57,7 +57,7 @@ class SagaMonitor {
 
 export const prepareStore = async (
   mockedState?: { [key in StoreKeys | StateManagerStoreKeys]?: any },
-  mockedSocket?: MockedSocket
+  mockedSocket?: typeof MockedSocket
 ): Promise<PrepareStore> => {
   const combinedReducers = combineReducers(reducers)
 
@@ -88,7 +88,7 @@ export const prepareStore = async (
   }
 }
 
-function* mockSocketConnectionSaga(socket: MockedSocket): Generator {
+function* mockSocketConnectionSaga(socket: typeof MockedSocket): Generator {
   yield* fork(function* (): Generator {
     yield* delay(1000)
     yield* call(() => {

@@ -19,7 +19,7 @@ import { getFactory, identity, publicChannels } from '@quiet/state-manager'
 import { ChannelNameErrors, FieldErrors } from '../../../forms/fieldsErrors'
 
 describe('Add new channel', () => {
-  let socket: MockedSocket
+  let socket: typeof MockedSocket
 
   beforeEach(() => {
     socket = new MockedSocket()

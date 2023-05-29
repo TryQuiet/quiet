@@ -12,9 +12,10 @@ export const retrieveInvitationCode = (url: string): string => {
     return ''
   }
   if (!data || data.protocol !== 'quiet:') return ''
-  if (data.searchParams.has(InvitationParams.CODE)) {
-    console.log('Retrieved code:', data.searchParams.get(InvitationParams.CODE))
-    return data.searchParams.get(InvitationParams.CODE)
+  const code = data.searchParams.get(InvitationParams.CODE)
+  if (code) {
+    console.log('Retrieved code:', code)
+    return code
   }
   return ''
 }

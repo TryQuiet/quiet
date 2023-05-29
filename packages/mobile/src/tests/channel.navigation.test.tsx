@@ -11,7 +11,7 @@ import { FactoryGirl } from 'factory-girl'
 import { getFactory, communities, identity } from '@quiet/state-manager'
 
 describe('Channel navigation', () => {
-  let socket: MockedSocket
+  let socket: typeof MockedSocket
 
   let factory: FactoryGirl
 

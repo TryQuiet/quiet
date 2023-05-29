@@ -32,7 +32,7 @@ const notification = jest.fn().mockImplementation(() => {
 window.Notification = notification
 
 describe('Loading panel', () => {
-  let socket: MockedSocket
+  let socket: typeof MockedSocket
 
   beforeEach(() => {
     socket = new MockedSocket()

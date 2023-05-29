@@ -27,12 +27,12 @@ import {
 
 import { modalsActions, ModalsInitialState } from '../renderer/sagas/modals/modals.slice'
 import { ModalName } from '../renderer/sagas/modals/modals.types'
-import { ChannelNameErrors, FieldErrors } from '../renderer/forms/fieldsErrors'
+import { FieldErrors } from '../renderer/forms/fieldsErrors'
 
 jest.setTimeout(20_000)
 
 describe('Add new channel', () => {
-  let socket: MockedSocket
+  let socket: typeof MockedSocket
 
   beforeEach(() => {
     socket = new MockedSocket()
@@ -402,6 +402,7 @@ describe('Add new channel', () => {
     jest
       .spyOn(socket, 'emit')
       .mockImplementation(async (...input: any) => {
+        console.log('INPUT', input)
         const action = input[0] as SocketActionTypes
         if (action === SocketActionTypes.CREATE_CHANNEL) {
           const data = input as socketEventData<[CreateChannelPayload]>
