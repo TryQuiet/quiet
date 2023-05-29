@@ -623,16 +623,16 @@ describe('Files deletion', () => {
       storage.deleteFilesFromChannel(messages)
     ).resolves.not.toThrowError()
 
-    await sleep(1000)
-    const isFileExist2 = await storage.checkIfFileExist(realFilePath)
-    expect(isFileExist2).toBeFalsy()
+    await waitForExpect(async() => {
+      expect(await storage.checkIfFileExist(realFilePath)).toBeFalsy()
+    }, 2000)
   })
   it('file dont exist - not throw error', async () => {
     fs.rmSync(realFilePath)
-    await sleep(1000)
 
-    const isFileExist = await storage.checkIfFileExist(realFilePath)
-    expect(isFileExist).toBeFalsy()
+    await waitForExpect(async() => {
+      expect(await storage.checkIfFileExist(realFilePath)).toBeFalsy()
+    }, 2000)
 
     await expect(
       storage.deleteFilesFromChannel(messages)
