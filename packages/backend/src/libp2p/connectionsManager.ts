@@ -615,7 +615,7 @@ export class ConnectionsManager extends EventEmitter {
     this.dataServer.on(SocketActionTypes.CLOSE, async () => {
       await this.closeAllServices()
     })
-    this.dataServer.on(SocketActionTypes.DELETE_CHANNEL, async (payload: {channelId: string}) => {
+    this.dataServer.on(SocketActionTypes.DELETE_CHANNEL, async (payload: {channelId: string; ownerPeerId: string}) => {
       await this.storage?.deleteChannel(payload)
     })
 

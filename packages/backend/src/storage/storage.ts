@@ -554,13 +554,14 @@ export class Storage extends EventEmitter {
     return db
   }
 
-  public async deleteChannel(payload: { channelId: string }) {
+  public async deleteChannel(payload: { channelId: string; ownerPeerId: string }) {
     console.log('deleting channel storage', payload)
-    const { channelId } = payload
+    const { channelId, ownerPeerId } = payload
     // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
     await this.channels.load({ fetchEntryTimeout: 15000 })
     const channel = this.channels.get(channelId)
-    if (channel) {
+    const isOwner = ownerPeerId === this.peerId.toString()
+    if (channel && isOwner) {
       await this.channels.del(channelId)
     }
     let repo = this.publicChannelsRepos.get(channelId)
@@ -590,7 +591,8 @@ export class Storage extends EventEmitter {
     // await this.deleteChannelFiles(files)
     // await this.deleteChannelMessages(hashes)
     this.publicChannelsRepos.delete(channelId)
-    this.emit(StorageEvents.CHANNEL_DELETION_RESPONSE, payload)
+    const responsePayload = { channelId: payload.channelId }
+    this.emit(StorageEvents.CHANNEL_DELETION_RESPONSE, responsePayload)
   }
 
   public async deleteChannelFiles(files: FileMetadata[]) {
