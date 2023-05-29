@@ -9,10 +9,9 @@
     "jsx": "react",
     "allowJs": true,
     "lib": [
-      "es2018",
+      "ES2020",
       "dom"
     ],
-    "types": ["jest"],
     "typeRoots": [
       "../@types",
       "./node_modules/@types",
