@@ -543,16 +543,16 @@ describe('Users', () => {
 })
 
 describe('Files deletion', () => {
-    let filePathBig: string
+    let realFilePath: string
     let messages: {
       messages: {
           [x: string]: ChannelMessage
       }
     }
   beforeEach(async () => {
-    filePathBig = new URL('./testUtils/large-file.txt', import.meta.url).pathname
-
-    createFile(filePathBig, 2147483)
+    realFilePath = path.join(
+      dirname, '/testUtils/real-file.txt')
+    createFile(realFilePath, 2147483)
     storage = new Storage(tmpAppDataPath, 'communityId', { createPaths: false })
 
     const peerId = await createPeerId()
@@ -561,13 +561,13 @@ describe('Files deletion', () => {
     await storage.init(libp2p, peerId)
 
     const metadata: FileMetadata = {
-      path: filePathBig,
+      path: realFilePath,
       name: 'test-large-file',
       ext: '.txt',
       cid: 'uploading_id',
       message: {
         id: 'id',
-        channelId: 'channelId'
+        channelId: channel.id,
       }
     }
 
@@ -587,13 +587,13 @@ describe('Files deletion', () => {
 
   afterEach(async () => {
     tmpDir.removeCallback()
-    if (fs.existsSync(filePathBig)) {
-      fs.rmSync(filePathBig)
+    if (fs.existsSync(realFilePath)) {
+      fs.rmSync(realFilePath)
     }
   })
 
   it('delete file correctly', async () => {
-   const isFileExist = await storage.checkIfFileExist(filePathBig)
+   const isFileExist = await storage.checkIfFileExist(realFilePath)
     expect(isFileExist).toBeTruthy()
 
     await expect(
@@ -601,14 +601,14 @@ describe('Files deletion', () => {
     ).resolves.not.toThrowError()
 
     await sleep(1000)
-    const isFileExist2 = await storage.checkIfFileExist(filePathBig)
+    const isFileExist2 = await storage.checkIfFileExist(realFilePath)
     expect(isFileExist2).toBeFalsy()
   })
   it('file dont exist - not throw error', async () => {
-    fs.rmSync(filePathBig)
+    fs.rmSync(realFilePath)
     await sleep(1000)
 
-    const isFileExist = await storage.checkIfFileExist(filePathBig)
+    const isFileExist = await storage.checkIfFileExist(realFilePath)
     expect(isFileExist).toBeFalsy()
 
     await expect(
