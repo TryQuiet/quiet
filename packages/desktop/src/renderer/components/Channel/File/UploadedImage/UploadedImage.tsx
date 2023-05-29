@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { styled } from '@mui/material/styles'
-import { DisplayableMessage, DownloadStatus, FileMetadata } from '@quiet/state-manager'
-import { UseModalTypeWrapper } from '../../../../containers/hooks'
+import { DownloadStatus, FileMetadata } from '@quiet/state-manager'
+import { UseModalType } from '../../../../containers/hooks'
 import UploadedFileModal from './UploadedImagePreview'
 import { UploadedFilename, UploadedImagePlaceholder } from '../UploadedImagePlaceholder/UploadedImagePlaceholder'
 
@@ -26,11 +26,11 @@ const Root = styled('div')(() => ({
 
 export interface UploadedImageProps {
   media: FileMetadata
-  uploadedFileModal?: ReturnType<
-  UseModalTypeWrapper<{
-    src: string
-  }>['types']
-  >
+  uploadedFileModal?:
+    UseModalType<{
+      src: string
+    }>
+
   downloadStatus: DownloadStatus
 }
 

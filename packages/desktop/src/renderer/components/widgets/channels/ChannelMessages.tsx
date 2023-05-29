@@ -10,7 +10,7 @@ import SpinnerLoader from '../../ui/Spinner/SpinnerLoader'
 
 import { DownloadStatus, MessagesDailyGroups, MessageSendingStatus } from '@quiet/state-manager'
 
-import { UseModalTypeWrapper } from '../../../containers/hooks'
+import { UseModalType } from '../../../containers/hooks'
 
 import { FileActionsProps } from '../../Channel/File/FileComponent/FileComponent'
 
@@ -80,11 +80,9 @@ export interface IChannelMessagesProps {
   scrollbarRef: React.RefObject<HTMLDivElement>
   onScroll: () => void
   openUrl: (url: string) => void
-  uploadedFileModal?: ReturnType<
-  UseModalTypeWrapper<{
+  uploadedFileModal?: UseModalType<{
     src: string
-  }>['types']
-  >
+  }>
   onMathMessageRendered?: () => void
   pendingGeneralChannelRecreation?: boolean
 }

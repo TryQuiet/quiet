@@ -4,19 +4,14 @@ import { modalsSelectors } from '../sagas/modals/modals.selectors'
 import { modalsActions, OpenModalPayload } from '../sagas/modals/modals.slice'
 import { ModalName } from '../sagas/modals/modals.types'
 
-// export class UseModalTypeWrapper<T extends {} | undefined> {
-//   types(e: ModalName) {
-//     return useModal<T>(e)
-//   }
-// }
-
-export type UseModalType<T extends {} | undefined, M> = ReturnType<typeof useModal<T>>
+export type UseModalType<T extends OpenModalPayload['args']> = ReturnType<typeof useModal<T>>
 
 export const useModal = <T extends OpenModalPayload['args']>(name: ModalName) => {
   const dispatch = useDispatch()
 
   const open = useSelector(modalsSelectors.open(name))
-  const props = useSelector(modalsSelectors.props(name))
+  // @ts-expect-error FIXME
+  const props: T = useSelector(modalsSelectors.props(name))
 
   const handleOpen = (args?: T) =>
     dispatch(

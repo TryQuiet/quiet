@@ -15,13 +15,13 @@ import Jdenticon from '../../Jdenticon/Jdenticon'
 import { DisplayableMessage, DownloadStatus, MessageSendingStatus } from '@quiet/state-manager'
 
 import { NestedMessageContent } from './NestedMessageContent'
-import { UseModalTypeWrapper } from '../../../containers/hooks'
 
 import { FileActionsProps } from '../../Channel/File/FileComponent/FileComponent'
 
 import information from '../../../static/images/updateIcon.svg'
 
 import Icon from '../../ui/Icon/Icon'
+import { UseModalType } from '../../../containers/hooks'
 
 const PREFIX = 'BasicMessageComponent'
 
@@ -152,11 +152,9 @@ export interface BasicMessageProps {
   pendingMessages?: Dictionary<MessageSendingStatus>
   openUrl: (url: string) => void
   downloadStatuses?: Dictionary<DownloadStatus>
-  uploadedFileModal?: ReturnType<
-  UseModalTypeWrapper<{
+  uploadedFileModal?: UseModalType<{
     src: string
-  }>['types']
-  >
+  }>
   onMathMessageRendered?: () => void
 }
 

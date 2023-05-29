@@ -12,8 +12,6 @@ import ChannelInputComponent from '../widgets/channels/ChannelInput'
 
 import { INPUT_STATE } from '../widgets/channels/ChannelInput/InputState.enum'
 
-import { useModal, UseModalTypeWrapper } from '../../containers/hooks'
-
 import {
   ChannelMessage,
   DownloadStatus,
@@ -32,6 +30,7 @@ import { DropZoneComponent } from './DropZone/DropZoneComponent'
 import { NewMessagesInfoComponent } from './NewMessagesInfo/NewMessagesInfoComponent'
 
 import { FileActionsProps } from './File/FileComponent/FileComponent'
+import { UseModalType } from '../../containers/hooks'
 
 const ChannelMessagesWrapperStyled = styled(Grid)(({ theme }) => ({
   position: 'relative',
@@ -58,11 +57,9 @@ export interface ChannelComponentProps {
   handleFileDrop: (arg: any) => void
   isCommunityInitialized: boolean
   handleClipboardFiles: (arg: ArrayBuffer, ext: string, name: string) => void
-  uploadedFileModal?: ReturnType<
-    UseModalTypeWrapper<{
-      src: string
-    }>['types']
-  >
+  uploadedFileModal?: UseModalType<{
+    src: string
+  }>
   openContextMenu?: () => void
   enableContextMenu?: boolean
   pendingGeneralChannelRecreation: boolean
