@@ -12,8 +12,8 @@ import { publicChannelsActions } from '../publicChannels.slice'
 import { usersSelectors } from '../../users/users.selectors'
 import { identitySelectors } from '../../identity/identity.selectors'
 import { communitiesSelectors } from '../../communities/communities.selectors'
+import { publicChannelsSelectors } from '../publicChannels.selectors'
 
-import { MAIN_CHANNEL } from '../../../constants'
 import { MessageType, WriteMessagePayload } from '@quiet/types'
 import { Certificate } from 'pkijs'
 
@@ -30,6 +30,9 @@ export function* sendNewUserInfoMessageSaga(
   const incomingCertificates = action.payload.certificates
 
   const knownCertificates = yield* select(usersSelectors.certificates)
+  const generalChannel = yield* select(publicChannelsSelectors.generalChannel)
+
+  if (!generalChannel) return
 
   const newCertificates = incomingCertificates.filter(cert => {
     const _cert = keyFromCertificate(parseCertificate(cert))
@@ -51,7 +54,7 @@ export function* sendNewUserInfoMessageSaga(
     const payload: WriteMessagePayload = {
       type: MessageType.Info,
       message: `@${user} has joined ${communityName}! 🎉`,
-      channelAddress: MAIN_CHANNEL
+      channelId: generalChannel.id
     }
 
     yield* put(messagesActions.sendMessage(payload))

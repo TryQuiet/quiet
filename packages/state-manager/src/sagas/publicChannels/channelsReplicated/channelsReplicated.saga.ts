@@ -6,23 +6,25 @@ import { messagesSelectors } from '../../messages/messages.selectors'
 import { messagesActions } from '../../messages/messages.slice'
 
 import logger from '@quiet/logger'
-import { isDefined } from '@quiet/common'
+import { PublicChannel } from '@quiet/types'
 const log = logger('channels')
 
 export function* channelsReplicatedSaga(
   action: PayloadAction<ReturnType<typeof publicChannelsActions.channelsReplicated>['payload']>
 ): Generator {
   log('INSIDE CHANNELS REPLICATED SAGA')
-
+  const { channels } = action.payload
   const _locallyStoredChannels = yield* select(publicChannelsSelectors.publicChannels)
-  const locallyStoredChannels = _locallyStoredChannels.map(channel => channel.address)
+  const locallyStoredChannels = _locallyStoredChannels.map(channel => channel.id)
 
-  const databaseStoredChannels = Object.values(action.payload.channels).filter(isDefined)
-  const databaseStoredChannelsAddresses = databaseStoredChannels.map(channel => channel.address)
-  console.log({ locallyStoredChannels, databaseStoredChannelsAddresses })
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+  const databaseStoredChannels = Object.values(channels) as PublicChannel[]
+
+  const databaseStoredChannelsIds = databaseStoredChannels.map(channel => channel.id)
+  console.log({ locallyStoredChannels, databaseStoredChannelsIds })
   // Upserting channels to local storage
   for (const channel of databaseStoredChannels) {
-    if (!locallyStoredChannels.includes(channel.address)) {
+    if (!locallyStoredChannels.includes(channel.id)) {
       log(`ADDING #${channel.name} TO LOCAL STORAGE`)
       yield* put(
         publicChannelsActions.addChannel({
@@ -31,18 +33,20 @@ export function* channelsReplicatedSaga(
       )
       yield* put(
         messagesActions.addPublicChannelsMessagesBase({
-          channelAddress: channel.address
+          channelId: channel.id
         })
       )
     }
   }
 
   // Removing channels from store
-  for (const channelAddress of locallyStoredChannels) {
-    if (!databaseStoredChannelsAddresses.includes(channelAddress)) {
-      console.log({ channelAddress })
-      log(`REMOVING #${channelAddress} FROM STORE`)
-      yield* put(publicChannelsActions.deleteChannel({ channel: channelAddress }))
+
+  if (databaseStoredChannelsIds.length > 0) {
+    for (const channelId of locallyStoredChannels) {
+      if (!databaseStoredChannelsIds.includes(channelId)) {
+        log(`REMOVING #${channelId} FROM STORE`)
+        yield* put(publicChannelsActions.deleteChannel({ channelId }))
+      }
     }
   }
 

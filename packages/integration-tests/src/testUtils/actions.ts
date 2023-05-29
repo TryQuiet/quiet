@@ -165,7 +165,7 @@ export const switchChannel = async ({ channelName, store }) => {
   const communityId = store.getState().Communities.communities.ids[0]
   store.dispatch(
     publicChannels.actions.setCurrentChannel({
-      channelAddress: channelName
+      channelId: channelName
     })
   )
 }

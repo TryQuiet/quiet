@@ -12,8 +12,11 @@ import { communitiesActions } from '../../communities/communities.slice'
 import { DateTime } from 'luxon'
 import { deleteChannelSaga } from './deleteChannel.saga'
 import { Socket } from 'socket.io-client'
+import { generateChannelId } from '@quiet/common'
 import { filesActions } from '../../files/files.slice'
 import { Community, Identity, PublicChannel, SocketActionTypes } from '@quiet/types'
+import { publicChannelsSelectors } from '../publicChannels.selectors'
+import { usersSelectors } from '../../users/users.selectors'
 
 describe('deleteChannelSaga', () => {
   let store: Store
@@ -23,6 +26,14 @@ describe('deleteChannelSaga', () => {
   let owner: Identity
 
   let photoChannel: PublicChannel
+  let generalChannel: PublicChannel
+
+  let ownerData: {
+    peerId: any
+    username?: string | null
+    onionAddress?: string | null
+    dmPublicKey?: string | null
+  }
 
   const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
 
@@ -40,6 +51,10 @@ describe('deleteChannelSaga', () => {
       'Identity',
       { id: community.id, nickname: 'alice' }
     )
+    ownerData = usersSelectors.ownerData(store.getState())
+    const generalChannelState = publicChannelsSelectors.generalChannel(store.getState())
+    if (generalChannelState) generalChannel = generalChannelState
+    expect(generalChannel).not.toBeUndefined()
 
     photoChannel = (
       await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>(
@@ -50,7 +65,7 @@ describe('deleteChannelSaga', () => {
             description: 'Welcome to #photo',
             timestamp: DateTime.utc().valueOf(),
             owner: owner.nickname,
-            address: 'photo'
+            id: generateChannelId('photo')
           }
         }
       )
@@ -58,46 +73,60 @@ describe('deleteChannelSaga', () => {
   })
 
   test('delete standard channel', async () => {
-    const channelAddress = photoChannel.address
-
+    console.log({ generalChannel })
+    const channelId = photoChannel.id
+    store.dispatch(publicChannelsActions.setCurrentChannel({ channelId }))
     const reducer = combineReducers(reducers)
-    await expectSaga(
-      deleteChannelSaga,
-      socket,
-      publicChannelsActions.deleteChannel({ channel: channelAddress })
-    )
+    await expectSaga(deleteChannelSaga, socket, publicChannelsActions.deleteChannel({ channelId }))
       .withReducer(reducer)
       .withState(store.getState())
       .apply(socket, socket.emit, [
         SocketActionTypes.DELETE_CHANNEL,
         {
-          channel: channelAddress
+          channelId,
+          ownerPeerId: ownerData.peerId
         }
       ])
-      .put(filesActions.deleteFilesFromChannel({ channelAddress }))
-      .put(publicChannelsActions.setCurrentChannel({ channelAddress: 'general' }))
-      .put(publicChannelsActions.disableChannel({ channelAddress }))
+      .put(publicChannelsActions.setCurrentChannel({ channelId: generalChannel.id }))
+      .put(publicChannelsActions.disableChannel({ channelId }))
       .run()
   })
 
   test('delete general channel', async () => {
-    const channelAddress = 'general'
+    const channelId = generalChannel.id
 
     const reducer = combineReducers(reducers)
-    await expectSaga(
-      deleteChannelSaga,
-      socket,
-      publicChannelsActions.deleteChannel({ channel: channelAddress })
-    )
+    await expectSaga(deleteChannelSaga, socket, publicChannelsActions.deleteChannel({ channelId }))
       .withReducer(reducer)
       .withState(store.getState())
       .apply(socket, socket.emit, [
         SocketActionTypes.DELETE_CHANNEL,
         {
-          channel: channelAddress
+          channelId,
+          ownerPeerId: ownerData.peerId
         }
       ])
-      .put(filesActions.deleteFilesFromChannel({ channelAddress }))
+      .put(filesActions.deleteFilesFromChannel({ channelId }))
+      .run()
+  })
+
+  test('delete standard channel - already disabled', async () => {
+    const channelId = photoChannel.id
+    store.dispatch(publicChannelsActions.setCurrentChannel({ channelId }))
+    store.dispatch(publicChannelsActions.disableChannel({ channelId }))
+    const reducer = combineReducers(reducers)
+    await expectSaga(deleteChannelSaga, socket, publicChannelsActions.deleteChannel({ channelId }))
+      .withReducer(reducer)
+      .withState(store.getState())
+      .not.apply(socket, socket.emit, [
+        SocketActionTypes.DELETE_CHANNEL,
+        {
+          channelId,
+          ownerPeerId: ownerData.peerId
+        }
+      ])
+      .not.put(publicChannelsActions.setCurrentChannel({ channelId: generalChannel.id }))
+      .not.put(publicChannelsActions.disableChannel({ channelId }))
       .run()
   })
 })

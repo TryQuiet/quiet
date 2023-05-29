@@ -1,6 +1,6 @@
 import { createSelector } from 'reselect'
 import { channelMessagesAdapter } from '../publicChannels/publicChannels.adapter'
-import { currentChannelAddress } from '../publicChannels/publicChannels.selectors'
+import { currentChannelId } from '../publicChannels/publicChannels.selectors'
 import { StoreKeys } from '../store.keys'
 import { CreatedSelectors, StoreState } from '../store.types'
 import { certificatesMapping } from '../users/users.selectors'
@@ -37,9 +37,10 @@ export const publicChannelsMessagesBase = createSelector(messagesSlice, reducerS
 
 export const currentPublicChannelMessagesBase = createSelector(
   publicChannelsMessagesBase,
-  currentChannelAddress,
-  (base, address) => {
-    return base[address]
+  currentChannelId,
+  (base, id) => {
+    if (!id) return undefined
+    return base[id]
   }
 )
 
@@ -98,9 +99,9 @@ export const sortedCurrentPublicChannelMessagesEntries = createSelector(
   }
 )
 
-export const missingChannelMessages = (ids: string[], channelAddress: string) =>
+export const missingChannelMessages = (ids: string[], channelId: string) =>
   createSelector(publicChannelsMessagesBase, base => {
-    const channelMessagesBase = base[channelAddress]
+    const channelMessagesBase = base[channelId]
     if (!channelMessagesBase) return []
     const channelMessages = channelMessagesAdapter
       .getSelectors()
@@ -108,9 +109,9 @@ export const missingChannelMessages = (ids: string[], channelAddress: string) =>
     return ids.filter(id => !channelMessages.includes(id))
   })
 
-export const missingChannelFiles = (channelAddress: string) =>
+export const missingChannelFiles = (channelId: string) =>
   createSelector(publicChannelsMessagesBase, downloadStatuses, (base, statuses) => {
-    const channelMessagesBase = base[channelAddress]
+    const channelMessagesBase = base[channelId]
     if (!channelMessagesBase) return []
     const channelMessages = channelMessagesAdapter
       .getSelectors()

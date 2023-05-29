@@ -72,12 +72,14 @@ describe('Restart app works correctly', () => {
 
     await act(async () => {
       store.dispatch(network.actions.addInitializedCommunity(community.id))
-      store.dispatch(publicChannels.actions.createGeneralChannel())
-      const general = store.getState().PublicChannels.channels.entities['general']
+
+      const entities = store.getState().PublicChannels.channels.entities
+
+      const generalId = Object.keys(entities).find(key => entities[key].name === 'general')
       store.dispatch(
         publicChannels.actions.sendInitialChannelMessage({
-          channelAddress: general.address,
-          channelName: general.name
+          channelId: generalId,
+          channelName: 'general'
         })
       )
     })

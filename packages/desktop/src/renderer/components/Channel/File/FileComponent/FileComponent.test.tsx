@@ -14,7 +14,7 @@ describe('FileComponent', () => {
           media: {
             cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
             message: {
-              channelAddress: 'general',
+              channelId: 'general',
               id: 'wgtlstx3u7'
             },
             ext: '.zip',

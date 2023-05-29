@@ -6,7 +6,10 @@ import { validCurrentPublicChannelMessagesEntries } from './messages.selectors'
 import { communitiesActions } from '../communities/communities.slice'
 import { identityActions } from '../identity/identity.slice'
 import { FactoryGirl } from 'factory-girl'
-import { selectGeneralChannel } from '../publicChannels/publicChannels.selectors'
+import {
+  publicChannelsSelectors,
+  selectGeneralChannel
+} from '../publicChannels/publicChannels.selectors'
 import { Community, Identity, PublicChannel, ChannelMessage } from '@quiet/types'
 
 describe('messagesSelectors', () => {
@@ -14,8 +17,8 @@ describe('messagesSelectors', () => {
   let factory: FactoryGirl
 
   let community: Community
-  let generalChannel: PublicChannel | undefined
-  let generalChannelAddress: string
+  let generalChannel: PublicChannel
+  let generalChannelId: string
 
   let alice: Identity
   let john: Identity
@@ -31,12 +34,14 @@ describe('messagesSelectors', () => {
     factory = await getFactory(store)
 
     community = await factory.create<
-    ReturnType<typeof communitiesActions.addNewCommunity>['payload']
+      ReturnType<typeof communitiesActions.addNewCommunity>['payload']
     >('Community')
 
-    generalChannel = selectGeneralChannel(store.getState())
+    const generalChannelState = publicChannelsSelectors.generalChannel(store.getState())
+    if (generalChannelState) generalChannel = generalChannelState
+    expect(generalChannel).not.toBeUndefined()
     expect(generalChannel).toBeDefined()
-    generalChannelAddress = generalChannel?.address || ''
+    generalChannelId = generalChannel?.id || ''
 
     alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
       'Identity',
@@ -61,7 +66,7 @@ describe('messagesSelectors', () => {
         })
       ).payload.message,
       id: Math.random().toString(36).substr(2.9),
-      channelAddress: generalChannelAddress
+      channelId: generalChannel.id
     }
 
     const spoofedMessage: ChannelMessage = {
@@ -71,7 +76,7 @@ describe('messagesSelectors', () => {
         })
       ).payload.message,
       id: Math.random().toString(36).substr(2.9),
-      channelAddress: generalChannelAddress,
+      channelId: generalChannel.id,
       pubKey: johnPublicKey
     }
 
@@ -88,7 +93,7 @@ describe('messagesSelectors', () => {
 
     store.dispatch(
       publicChannels.actions.setCurrentChannel({
-        channelAddress: generalChannelAddress
+        channelId: generalChannel.id
       })
     )
 

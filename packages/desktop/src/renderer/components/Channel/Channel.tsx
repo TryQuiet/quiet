@@ -19,10 +19,7 @@ import ChannelComponent, { ChannelComponentProps } from './ChannelComponent'
 
 import { useModal } from '../../containers/hooks'
 import { ModalName } from '../../sagas/modals/modals.types'
-import {
-  FilePreviewData,
-  UploadFilesPreviewsProps
-} from './File/UploadingPreview'
+import { FilePreviewData, UploadFilesPreviewsProps } from './File/UploadingPreview'
 
 import { getFilesData } from '../../../utils/functions/fileData'
 
@@ -36,7 +33,7 @@ const Channel = () => {
 
   const user = useSelector(identity.selectors.currentIdentity)
 
-  const currentChannelAddress = useSelector(publicChannels.selectors.currentChannelAddress)
+  const currentChannelId = useSelector(publicChannels.selectors.currentChannelId)
   const currentChannelName = useSelector(publicChannels.selectors.currentChannelName)
 
   const currentChannelMessagesCount = useSelector(
@@ -58,8 +55,14 @@ const Channel = () => {
   const initializedCommunities = useSelector(network.selectors.initializedCommunities)
   const isCommunityInitialized = Boolean(initializedCommunities[community?.id])
 
-  const pendingGeneralChannelRecreationSelector = useSelector(publicChannels.selectors.pendingGeneralChannelRecreation)
-  const pendingGeneralChannelRecreation = pendingGeneralChannelRecreationSelector && currentChannelAddress === 'general' && currentChannelMessagesCount === 0
+  const pendingGeneralChannelRecreationSelector = useSelector(
+    publicChannels.selectors.pendingGeneralChannelRecreation
+  )
+
+  const pendingGeneralChannelRecreation =
+    pendingGeneralChannelRecreationSelector &&
+    (currentChannelName === 'general' || currentChannelName === '') &&
+    currentChannelMessagesCount === 0
 
   let enableContextMenu: boolean = false
   if (community) {
@@ -182,13 +185,19 @@ const Channel = () => {
     shell.showItemInFolder(path)
   }, [])
 
-  const downloadFile = useCallback((media: FileMetadata) => {
-    dispatch(files.actions.downloadFile(media))
-  }, [dispatch])
+  const downloadFile = useCallback(
+    (media: FileMetadata) => {
+      dispatch(files.actions.downloadFile(media))
+    },
+    [dispatch]
+  )
 
-  const cancelDownload = useCallback((cancelDownload: CancelDownload) => {
-    dispatch(files.actions.cancelDownload(cancelDownload))
-  }, [dispatch])
+  const cancelDownload = useCallback(
+    (cancelDownload: CancelDownload) => {
+      dispatch(files.actions.cancelDownload(cancelDownload))
+    },
+    [dispatch]
+  )
 
   const openContextMenu = useCallback(() => {
     contextMenu.handleOpen()
@@ -196,11 +205,11 @@ const Channel = () => {
 
   useEffect(() => {
     dispatch(messages.actions.resetCurrentPublicChannelCache())
-  }, [currentChannelAddress])
+  }, [currentChannelId])
 
   const channelComponentProps: ChannelComponentProps = {
     user: user,
-    channelAddress: currentChannelAddress,
+    channelId: currentChannelId,
     channelName: currentChannelName,
     messages: {
       count: currentChannelMessagesCount,
@@ -236,8 +245,13 @@ const Channel = () => {
 
   return (
     <>
-      {currentChannelAddress && (
-        <ChannelComponent {...channelComponentProps} {...uploadFilesPreviewProps} {...fileActionsProps} key={currentChannelAddress} />
+      {currentChannelId && (
+        <ChannelComponent
+          {...channelComponentProps}
+          {...uploadFilesPreviewProps}
+          {...fileActionsProps}
+          key={currentChannelId}
+        />
       )}
     </>
   )

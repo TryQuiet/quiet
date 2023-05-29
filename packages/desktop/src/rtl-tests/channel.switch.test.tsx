@@ -24,7 +24,8 @@ import {
   SocketActionTypes,
   MessageType,
   ChannelMessage,
-  messages
+  messages,
+  generateMessageFactoryContentWithId
 } from '@quiet/state-manager'
 
 import { FactoryGirl } from 'factory-girl'
@@ -36,14 +37,15 @@ jest.setTimeout(20_000)
 jest.mock('electron', () => {
   return {
     ipcRenderer: { on: () => {}, send: jest.fn(), sendSync: jest.fn() },
-    remote:
-    {
+    remote: {
       BrowserWindow: {
         getAllWindows: () => {
-          return [{
-            show: jest.fn(),
-            isFocused: jest.fn()
-          }]
+          return [
+            {
+              show: jest.fn(),
+              isFocused: jest.fn()
+            }
+          ]
         }
       }
     }
@@ -61,6 +63,7 @@ describe('Switch channels', () => {
 
   let community: Community
   let alice: Identity
+  let generalId: string
 
   beforeEach(async () => {
     socket = new MockedSocket()
@@ -75,16 +78,17 @@ describe('Switch channels', () => {
     factory = await getFactory(redux.store)
 
     community = await factory.create<
-    ReturnType<typeof communities.actions.addNewCommunity>['payload']
+      ReturnType<typeof communities.actions.addNewCommunity>['payload']
     >('Community')
 
     alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>(
       'Identity',
       { id: community.id, nickname: 'alice' }
     )
+    const entities = redux.store.getState().PublicChannels.channels.entities
+    generalId = Object.keys(entities).find(key => entities[key].name === 'general')
 
     const channelNames = ['memes', 'pets', 'travels']
-
     // Automatically create channels
     for (const name of channelNames) {
       await factory.create<ReturnType<typeof publicChannels.actions.addChannel>['payload']>(
@@ -95,7 +99,7 @@ describe('Switch channels', () => {
             description: `Welcome to #${name}`,
             timestamp: DateTime.utc().valueOf(),
             owner: alice.nickname,
-            address: name
+            id: name
           }
         }
       )
@@ -104,8 +108,12 @@ describe('Switch channels', () => {
 
   it('Opens another channel', async () => {
     const generalChannelMessage = await factory.create<
-    ReturnType<typeof publicChannels.actions.test_message>['payload']
-    >('Message', { identity: alice, verifyAutomatically: true })
+      ReturnType<typeof publicChannels.actions.test_message>['payload']
+    >('Message', {
+      identity: alice,
+      message: generateMessageFactoryContentWithId(generalId),
+      verifyAutomatically: true
+    })
 
     window.HTMLElement.prototype.scrollTo = jest.fn()
 
@@ -144,11 +152,11 @@ describe('Switch channels', () => {
   })
 
   it('Highlights channel with unread messages and removes the highlight when entered', async () => {
-    const messagesAddresses = ['memes', 'pets']
+    const messagesIds = ['memes', 'pets']
     const messages: ChannelMessage[] = []
 
     // Automatically create messages
-    for (const address of messagesAddresses) {
+    for (const id of messagesIds) {
       const message = (
         await factory.build<typeof publicChannels.actions.test_message>('Message', {
           identity: alice,
@@ -157,7 +165,7 @@ describe('Switch channels', () => {
             type: MessageType.Basic,
             message: 'message',
             createdAt: DateTime.utc().valueOf(),
-            channelAddress: address,
+            channelId: id,
             signature: '',
             pubKey: ''
           },
@@ -175,9 +183,11 @@ describe('Switch channels', () => {
     )
 
     // Set 'general' as active channel
-    store.dispatch(publicChannels.actions.setCurrentChannel({
-      channelAddress: 'general'
-    }))
+    store.dispatch(
+      publicChannels.actions.setCurrentChannel({
+        channelId: 'general'
+      })
+    )
 
     // Assert channel is not highglighted
     const memesChannelLink = screen.getByTestId('memes-link-text')
@@ -220,7 +230,7 @@ describe('Switch channels', () => {
           type: MessageType.Basic,
           message: 'message',
           createdAt: DateTime.utc().valueOf(),
-          channelAddress: 'general',
+          channelId: 'general',
           signature: '',
           pubKey: ''
         },
@@ -270,7 +280,7 @@ describe('Switch channels', () => {
           type: MessageType.Basic,
           message: 'message',
           createdAt: DateTime.utc().valueOf(),
-          channelAddress: 'travels',
+          channelId: 'travels',
           signature: '',
           pubKey: ''
         },
@@ -289,9 +299,11 @@ describe('Switch channels', () => {
     )
 
     // Set 'general' as active channel
-    store.dispatch(publicChannels.actions.setCurrentChannel({
-      channelAddress: 'general'
-    }))
+    store.dispatch(
+      publicChannels.actions.setCurrentChannel({
+        channelId: 'general'
+      })
+    )
 
     // Assert channel is not highglighted
     const travelsChannelLink = screen.getByTestId('travels-link-text')
@@ -309,9 +321,13 @@ describe('Switch channels', () => {
     expect(travelsChannelLink).toHaveStyle('opacity: 0.7')
 
     // Verify replicated message in present in repository
-    expect(messages.selectors.validCurrentPublicChannelMessagesEntries(redux.store.getState())[0]).toStrictEqual(message)
+    expect(
+      messages.selectors.validCurrentPublicChannelMessagesEntries(redux.store.getState())[0]
+    ).toStrictEqual(message)
     // Verify replicated messages was placed in cache
-    expect(publicChannels.selectors.currentChannelMessages(redux.store.getState())[0]).toStrictEqual(message)
+    expect(
+      publicChannels.selectors.currentChannelMessages(redux.store.getState())[0]
+    ).toStrictEqual(message)
 
     // Confirm new message was properly cached and is visible
     expect(await screen.findByText(message.message)).toBeVisible()

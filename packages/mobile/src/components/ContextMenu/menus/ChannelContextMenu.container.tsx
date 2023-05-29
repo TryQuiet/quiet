@@ -49,7 +49,8 @@ export const ChannelContextMenu: FC = () => {
         title: 'Delete channel',
         action: () =>
           redirect(ScreenNames.DeleteChannelScreen, {
-            channel: channel?.name
+            channelName: channel?.name,
+            channelId: channel?.id
           })
       }
     ]

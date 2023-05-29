@@ -24,8 +24,7 @@ describe('resetChannelCacheSaga', () => {
   let community: Community
   let alice: Identity
 
-  let generalChannel: PublicChannel | undefined
-  let generalChannelAddress: string
+  let generalChannel: PublicChannel
 
   beforeAll(async () => {
     setupCrypto()
@@ -35,7 +34,7 @@ describe('resetChannelCacheSaga', () => {
     factory = await getFactory(store)
 
     community = await factory.create<
-    ReturnType<typeof communitiesActions.addNewCommunity>['payload']
+      ReturnType<typeof communitiesActions.addNewCommunity>['payload']
     >('Community')
 
     alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
@@ -43,16 +42,16 @@ describe('resetChannelCacheSaga', () => {
       { id: community.id, nickname: 'alice' }
     )
 
-    generalChannel = selectGeneralChannel(store.getState())
-    expect(generalChannel).toBeDefined()
-    generalChannelAddress = generalChannel?.address || ''
+    const generalChannelState = publicChannelsSelectors.generalChannel(store.getState())
+    if (generalChannelState) generalChannel = generalChannelState
+    expect(generalChannel).not.toBeUndefined()
   })
 
   test('reset current public channel cache', async () => {
     // Set 'general' as active channel
     store.dispatch(
       publicChannelsActions.setCurrentChannel({
-        channelAddress: generalChannelAddress
+        channelId: generalChannel.id
       })
     )
 
@@ -62,20 +61,23 @@ describe('resetChannelCacheSaga', () => {
       const iterations = 80
       ;[...Array(iterations)].map(async (_, index) => {
         const item = (
-          await factory.create<ReturnType<typeof publicChannelsActions.test_message>['payload']>('Message', {
-            identity: alice,
-            message: {
-              id: Math.random().toString(36).substr(2.9),
-              type: MessageType.Basic,
-              message: 'message',
-              createdAt:
-                DateTime.utc().valueOf() + DateTime.utc().minus({ minutes: index }).valueOf(),
-              channelAddress: generalChannelAddress,
-              signature: '',
-              pubKey: ''
-            },
-            verifyAutomatically: true
-          })
+          await factory.create<ReturnType<typeof publicChannelsActions.test_message>['payload']>(
+            'Message',
+            {
+              identity: alice,
+              message: {
+                id: Math.random().toString(36).substr(2.9),
+                type: MessageType.Basic,
+                message: 'message',
+                createdAt:
+                  DateTime.utc().valueOf() + DateTime.utc().minus({ minutes: index }).valueOf(),
+                channelId: generalChannel.id,
+                signature: '',
+                pubKey: ''
+              },
+              verifyAutomatically: true
+            }
+          )
         ).message
         messages.push(item)
         if (messages.length === iterations) {
@@ -88,7 +90,7 @@ describe('resetChannelCacheSaga', () => {
       'CacheMessages',
       {
         messages: messages,
-        channelAddress: generalChannelAddress
+        channelId: generalChannel.id
       }
     )
 
@@ -107,12 +109,12 @@ describe('resetChannelCacheSaga', () => {
       .put(
         publicChannelsActions.cacheMessages({
           messages: updatedCache,
-          channelAddress: generalChannelAddress
+          channelId: generalChannel.id
         })
       )
       .put(
         messagesActions.setDisplayedMessagesNumber({
-          channelAddress: generalChannelAddress,
+          channelId: generalChannel.id,
           display: 50
         })
       )

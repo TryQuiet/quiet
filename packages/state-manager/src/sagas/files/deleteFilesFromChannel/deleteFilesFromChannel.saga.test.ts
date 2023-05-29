@@ -15,6 +15,7 @@ import { filesActions } from '../../files/files.slice'
 import { deleteFilesFromChannelSaga } from './deleteFilesFromChannel.saga'
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
+import { generateChannelId } from '@quiet/common'
 
 describe('deleteFilesFromChannelSaga', () => {
   let store: Store
@@ -23,7 +24,7 @@ describe('deleteFilesFromChannelSaga', () => {
   let community: Community
   let owner: Identity
 
-  let generalChannel: PublicChannel | undefined
+  let generalChannel: PublicChannel
   let photoChannel: PublicChannel
 
   let message: any
@@ -45,7 +46,8 @@ describe('deleteFilesFromChannelSaga', () => {
       { id: community.id, nickname: 'alice' }
     )
 
-    generalChannel = publicChannelsSelectors.currentChannel(store.getState())
+    const generalChannelState = publicChannelsSelectors.generalChannel(store.getState())
+    if (generalChannelState) generalChannel = generalChannelState
     expect(generalChannel).not.toBeUndefined()
 
     photoChannel = (
@@ -57,7 +59,7 @@ describe('deleteFilesFromChannelSaga', () => {
             description: 'Welcome to #photo',
             timestamp: DateTime.utc().valueOf(),
             owner: owner.nickname,
-            address: 'photo'
+            id: generateChannelId('id')
           }
         }
       )
@@ -73,7 +75,7 @@ describe('deleteFilesFromChannelSaga', () => {
             type: MessageType.Basic,
             message: 'message',
             createdAt: DateTime.utc().valueOf(),
-            channelAddress: photoChannel.address,
+            channelId: photoChannel.id,
             signature: '',
             pubKey: '',
             media: {
@@ -83,7 +85,7 @@ describe('deleteFilesFromChannelSaga', () => {
               ext: 'png',
               message: {
                 id: id,
-                channelAddress: photoChannel.address
+                channelId: photoChannel.id
               }
             }
           },
@@ -94,13 +96,13 @@ describe('deleteFilesFromChannelSaga', () => {
   })
 
   test('delete files from channel', async () => {
-    const channelAddress = photoChannel.address
+    const channelId = photoChannel.id
 
     const reducer = combineReducers(reducers)
     await expectSaga(
       deleteFilesFromChannelSaga,
       socket,
-      filesActions.deleteFilesFromChannel({ channelAddress })
+      filesActions.deleteFilesFromChannel({ channelId })
     )
       .withReducer(reducer)
       .withState(store.getState())

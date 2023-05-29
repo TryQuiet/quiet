@@ -52,12 +52,12 @@ const args: Partial<ChannelComponentProps & UploadFilesPreviewsProps> = {
     type: 1,
     message: 'I agree!',
     createdAt: 0,
-    channelAddress: 'general',
+    channelId: 'general',
     signature: 'signature',
     pubKey: 'pubKey'
   },
   pendingMessages: {},
-  channelAddress: 'general',
+  channelId: 'general',
   channelName: 'general',
   lazyLoading: function (_load: boolean): void {},
   onInputChange: function (_value: string): void {},
@@ -113,7 +113,7 @@ ImagePlaceholder.args = {
     media: {
       cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
       message: {
-        channelAddress: 'general',
+        channelId: 'general',
         id: 'wgtlstx3u7'
       },
       ext: '.png',
@@ -143,7 +143,7 @@ SentImage.args = {
     media: {
       cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
       message: {
-        channelAddress: 'general',
+        channelId: 'general',
         id: 'wgtlstx3u7'
       },
       ext: '.png',
@@ -211,7 +211,7 @@ UploadingFile.args = {
     media: {
       cid: 'uploading_32',
       message: {
-        channelAddress: 'general',
+        channelId: 'general',
         id: 'wgtlstx3u7'
       },
       ext: '.zip',
@@ -241,7 +241,7 @@ HostedFile.args = {
     media: {
       cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
       message: {
-        channelAddress: 'general',
+        channelId: 'general',
         id: 'wgtlstx3u7'
       },
       ext: '.zip',
@@ -272,7 +272,7 @@ ReadyDownload.args = {
     media: {
       cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
       message: {
-        channelAddress: 'general',
+        channelId: 'general',
         id: 'wgtlstx3u7'
       },
       ext: '.zip',
@@ -303,7 +303,7 @@ Downloading.args = {
     media: {
       cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
       message: {
-        channelAddress: 'general',
+        channelId: 'general',
         id: 'wgtlstx3u7'
       },
       ext: '.zip',
@@ -338,7 +338,7 @@ CompletedDownload.args = {
     media: {
       cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
       message: {
-        channelAddress: 'general',
+        channelId: 'general',
         id: 'wgtlstx3u7'
       },
       ext: '.zip',
@@ -373,7 +373,7 @@ CancelingDownload.args = {
     media: {
       cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
       message: {
-        channelAddress: 'general',
+        channelId: 'general',
         id: 'wgtlstx3u7'
       },
       ext: '.zip',
@@ -408,7 +408,7 @@ CanceledDownload.args = {
     media: {
       cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
       message: {
-        channelAddress: 'general',
+        channelId: 'general',
         id: 'wgtlstx3u7'
       },
       ext: '.zip',
@@ -439,7 +439,7 @@ MaliciousDownload.args = {
     media: {
       cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
       message: {
-        channelAddress: 'general',
+        channelId: 'general',
         id: 'wgtlstx3u7'
       },
       ext: '.zip',

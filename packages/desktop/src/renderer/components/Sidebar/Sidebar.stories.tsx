@@ -25,7 +25,7 @@ const Template: ComponentStory<typeof SidebarComponent> = args => {
           position: 'relative'
         }}>
         <Grid item>
-          <SidebarComponent {...args} setCurrentChannel={setCurrentChannel} currentChannel={currentChannel} />
+          <SidebarComponent {...args} setCurrentChannel={setCurrentChannel} currentChannelId={currentChannel} />
         </Grid>
       </Grid>
     </WindowWrapper>
@@ -45,22 +45,22 @@ const args: IdentityPanelProps & ChannelsPanelProps = {
   channels: [
     // @ts-expect-error
     {
-      address: 'general',
+      id: 'general',
       name: 'general'
     },
     // @ts-expect-error
     {
-      address: 'spooky',
+      id: 'spooky',
       name: 'spooky'
     },
     // @ts-expect-error
     {
-      address: 'kalkan',
+      id: 'kalkan',
       name: 'kalkan'
     }
   ],
   unreadChannels: ['spooky'],
-  setCurrentChannel: function (_address: string): void {},
+  setCurrentChannel: function (_id: string): void {},
   currentChannel: 'general',
   createChannelModal: {
     open: false,

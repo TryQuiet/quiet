@@ -27,7 +27,7 @@ export function* checkForMissingFilesSaga(
   const downloadStatuses = yield* select(filesSelectors.downloadStatuses)
 
   for (const channel of channels) {
-    const missingFiles = yield* select(missingChannelFiles(channel.address))
+    const missingFiles = yield* select(missingChannelFiles(channel.id))
 
     if (missingFiles.length > 0) {
       for (const file of missingFiles) {

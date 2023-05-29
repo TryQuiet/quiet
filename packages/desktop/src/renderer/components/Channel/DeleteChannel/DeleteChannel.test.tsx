@@ -6,7 +6,7 @@ describe('LeaveCommunity', () => {
   it('renders component', () => {
     const result = renderComponent(
       <DeleteChannelComponent
-        channel='general'
+        channelName='general'
         deleteChannel={jest.fn()}
         open={true}
         handleOpen={jest.fn()}

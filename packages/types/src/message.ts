@@ -29,7 +29,7 @@ export interface PushNotificationPayload {
 export interface WriteMessagePayload {
   message: string
   id?: string
-  channelAddress?: string
+  channelId?: string
   type?: MessageType
   media?: FileMetadata
 }
@@ -40,17 +40,17 @@ export interface PublicKeyMappingPayload {
 }
 
 export interface AddPublicChannelsMessagesBasePayload {
-  channelAddress: string
+  channelId: string
 }
 
 export interface PublicChannelsMessagesBase {
-  channelAddress: string
+  channelId: string
   messages: EntityState<ChannelMessage>
   display: number
 }
 
 export interface SetDisplayedMessagesNumberPayload {
-  channelAddress: string
+  channelId: string
   display: number
 }
 
@@ -72,22 +72,22 @@ export interface MessageSendingStatus {
 export interface AskForMessagesPayload {
   ids: string[]
   peerId: string
-  channelAddress: string
+  channelId: string
   communityId: string
 }
 
 export interface ChannelMessagesIdsResponse {
   ids: string[]
-  channelAddress: string
+  channelId: string
   communityId: string
 }
 
 export interface DeleteChannelEntryPayload {
-  channelAddress: string
+  channelId: string
 }
 
 export interface SendDeletionMessagePayload {
-  channelAddress: string
+  channelId: string
 }
 
 export interface TestMessage {

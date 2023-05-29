@@ -9,9 +9,9 @@ export function* deleteFilesFromChannelSaga(
   socket: Socket,
   action: PayloadAction<ReturnType<typeof filesActions.deleteFilesFromChannel>['payload']>
 ): Generator {
-  const { channelAddress } = action.payload
+  const { channelId } = action.payload
 
-  const messages = yield* select(messagesSelectors.publicChannelMessagesEntities(channelAddress))
+  const messages = yield* select(messagesSelectors.publicChannelMessagesEntities(channelId))
 
   yield* apply(
     socket,
