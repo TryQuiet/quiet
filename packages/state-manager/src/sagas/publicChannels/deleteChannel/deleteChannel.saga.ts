@@ -6,6 +6,7 @@ import logger from '../../../utils/logger'
 import { filesActions } from '../../files/files.slice'
 import { SocketActionTypes } from '@quiet/types'
 import { publicChannelsSelectors } from '../publicChannels.selectors'
+import { usersSelectors } from '../../users/users.selectors'
 
 const log = logger('publicChannels')
 
@@ -16,7 +17,18 @@ export function* deleteChannelSaga(
   const channelId = action.payload.channelId
   const generalChannel = yield* select(publicChannelsSelectors.generalChannel)
   const currentChannelId = yield* select(publicChannelsSelectors.currentChannelId)
+  const ownerData = yield* select(usersSelectors.ownerData)
+  const currentChannel = yield* select(publicChannelsSelectors.currentChannel)
+
   if (generalChannel === undefined) {
+    return
+  }
+
+  if (currentChannel === undefined) {
+    return
+  }
+
+  if (currentChannel.disabled) {
     return
   }
 
@@ -27,7 +39,8 @@ export function* deleteChannelSaga(
     socket,
     socket.emit,
     applyEmitParams(SocketActionTypes.DELETE_CHANNEL, {
-      channelId
+      channelId,
+      ownerPeerId: ownerData.peerId
     })
   )
 

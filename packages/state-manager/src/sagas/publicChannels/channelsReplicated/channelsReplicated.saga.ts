@@ -6,7 +6,6 @@ import { messagesSelectors } from '../../messages/messages.selectors'
 import { messagesActions } from '../../messages/messages.slice'
 
 import logger from '@quiet/logger'
-import { isDefined } from '@quiet/common'
 import { PublicChannel } from '@quiet/types'
 const log = logger('channels')
 
@@ -41,10 +40,13 @@ export function* channelsReplicatedSaga(
   }
 
   // Removing channels from store
-  for (const channelId of locallyStoredChannels) {
-    if (!databaseStoredChannelsIds.includes(channelId)) {
-      log(`REMOVING #${channelId} FROM STORE`)
-      yield* put(publicChannelsActions.deleteChannel({ channelId }))
+
+  if (databaseStoredChannelsIds.length > 0) {
+    for (const channelId of locallyStoredChannels) {
+      if (!databaseStoredChannelsIds.includes(channelId)) {
+        log(`REMOVING #${channelId} FROM STORE`)
+        yield* put(publicChannelsActions.deleteChannel({ channelId }))
+      }
     }
   }
 
