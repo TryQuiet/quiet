@@ -17,7 +17,7 @@ import { MenuName } from '../const/MenuNames.enum'
 jest.setTimeout(20_000)
 
 describe('Channel menu', () => {
-  let socket: typeof MockedSocket
+  let socket: MockedSocket
 
   beforeEach(() => {
     socket = new MockedSocket()
@@ -40,7 +40,7 @@ describe('Channel menu', () => {
     await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>(
       'Community',
       {
-        id: 0,
+        id: '0',
         name: 'community',
         CA: null,
         registrarUrl: 'http://ugmx77q2tnm5fliyfxfeen5hsuzjtbsz44tsldui2ju7vl5xj4d447yd.onion',

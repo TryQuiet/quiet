@@ -1,4 +1,5 @@
 import React from 'react'
+
 import MockedSocket from 'socket.io-mock'
 import { ioMock } from '../../../shared/setupTests'
 import { prepareStore } from '../../testUtils/prepareStore'
@@ -8,7 +9,7 @@ import SearchModalComponent from './SearchModelComponent'
 import { generateChannelId } from '@quiet/common'
 
 describe('Search Modal', () => {
-  let socket: typeof MockedSocket
+  let socket: MockedSocket
 
   beforeEach(() => {
     socket = new MockedSocket()

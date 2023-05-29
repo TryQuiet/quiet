@@ -73,8 +73,8 @@ export const CreateChannel = () => {
       dispatch(
         errors.actions.addError({
           type: SocketActionTypes.CREATED_CHANNEL,
-          code: ErrorCodes.BAD_REQUEST,
-          message: ErrorMessages.GENERAL,
+          code: ErrorCodes.FORBIDDEN,
+          message: ErrorMessages.CHANNEL_NAME_TAKEN,
           community: community
         })
       )

@@ -32,8 +32,8 @@ import { FieldErrors } from '../renderer/forms/fieldsErrors'
 jest.setTimeout(20_000)
 
 describe('Add new channel', () => {
-  let socket: typeof MockedSocket
-
+  let socket: MockedSocket
+  
   beforeEach(() => {
     socket = new MockedSocket()
     ioMock.mockImplementation(() => socket)
@@ -91,11 +91,12 @@ describe('Add new channel', () => {
 
     jest
       .spyOn(socket, 'emit')
-      .mockImplementation(async (...input: any) => {
-        const action = input[0] as SocketActionTypes
+      .mockImplementation(async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
+        const action = input[0]
         if (action === SocketActionTypes.CREATE_CHANNEL) {
-          const data = input as socketEventData<[CreateChannelPayload]>
-          const payload = data[0]
+          const data = input[1] as CreateChannelPayload
+          const payload = data
+          console.log('PAYLOAD', payload)
           expect(payload.channel.owner).toEqual(alice.nickname)
           expect(payload.channel.name).toEqual(channelName.output)
           return socket.socketClient.emit(SocketActionTypes.CHANNELS_REPLICATED, {
@@ -105,7 +106,7 @@ describe('Add new channel', () => {
           })
         }
         if (action === SocketActionTypes.SEND_MESSAGE) {
-          const data = input as socketEventData<[SendMessagePayload]>
+          const data = input[1] as socketEventData<[SendMessagePayload]>
           const { message } = data[0]
           expect(message.channelId).toEqual(channelName.output)
           expect(message.message).toEqual(`Created #${channelName.output}`)
@@ -305,11 +306,11 @@ describe('Add new channel', () => {
 
     jest
       .spyOn(socket, 'emit')
-      .mockImplementation(async (...input: any) => {
+      .mockImplementation(async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
         const action = input[0] as SocketActionTypes
         if (action === SocketActionTypes.CREATE_CHANNEL) {
-          const data = input as socketEventData<[CreateChannelPayload]>
-          const payload = data[0]
+          const payload = input[1] as CreateChannelPayload
+          // const payload = data[0]
           expect(payload.channel.owner).toEqual(alice.nickname)
           expect(payload.channel.name).toEqual(channelName)
           return socket.socketClient.emit(SocketActionTypes.CHANNELS_REPLICATED, {
@@ -319,8 +320,8 @@ describe('Add new channel', () => {
           })
         }
         if (action === SocketActionTypes.SEND_MESSAGE) {
-          const data = input as socketEventData<[SendMessagePayload]>
-          const { message } = data[0]
+          const data = input[1] as SendMessagePayload
+          const { message } = data
           expect(message.channelId).toEqual(channelName)
           expect(message.message).toEqual(`Created #${channelName}`)
           return socket.socketClient.emit(SocketActionTypes.INCOMING_MESSAGES, {
@@ -401,12 +402,11 @@ describe('Add new channel', () => {
 
     jest
       .spyOn(socket, 'emit')
-      .mockImplementation(async (...input: any) => {
-        console.log('INPUT', input)
-        const action = input[0] as SocketActionTypes
+      .mockImplementation(async (...input: [SocketActionTypes, ...socketEventData<[CreateChannelPayload]>]) => {
+        const action = input[0]
         if (action === SocketActionTypes.CREATE_CHANNEL) {
-          const data = input as socketEventData<[CreateChannelPayload]>
-          const payload = data[0]
+          const data = input[1]
+          const payload = data
           expect(payload.channel.owner).toEqual(alice.nickname)
           // expect(payload.channel.name).toEqual(channelName.output)
           return socket.socketClient.emit(SocketActionTypes.CHANNELS_REPLICATED, {

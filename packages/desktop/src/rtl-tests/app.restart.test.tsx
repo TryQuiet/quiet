@@ -26,7 +26,7 @@ import { identityActions } from 'packages/state-manager/src/sagas/identity/ident
 jest.setTimeout(20_000)
 
 describe('Restart app works correctly', () => {
-  let socket: typeof MockedSocket
+  let socket: MockedSocket
 
   beforeEach(() => {
     socket = new MockedSocket()

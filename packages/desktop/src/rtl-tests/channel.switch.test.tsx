@@ -6,6 +6,7 @@ import { screen } from '@testing-library/dom'
 import { apply } from 'typed-redux-saga'
 import { Task } from 'redux-saga'
 import MockedSocket from 'socket.io-mock'
+import { FactoryGirl } from 'factory-girl'
 import { ioMock } from '../shared/setupTests'
 import { renderComponent } from '../renderer/testUtils/renderComponent'
 import { prepareStore } from '../renderer/testUtils/prepareStore'
@@ -28,7 +29,6 @@ import {
   generateMessageFactoryContentWithId
 } from '@quiet/state-manager'
 
-import { FactoryGirl } from 'factory-girl'
 import { DateTime } from 'luxon'
 
 import store from '../renderer/store'
@@ -53,7 +53,7 @@ jest.mock('electron', () => {
 })
 
 describe('Switch channels', () => {
-  let socket: typeof MockedSocket
+  let socket: MockedSocket
 
   let redux: {
     store: Store

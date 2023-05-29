@@ -79,7 +79,7 @@ jest.mock('../shared/sounds', () => ({
 }))
 
 describe('Channel', () => {
-  let socket: typeof MockedSocket
+  let socket: MockedSocket
 
   beforeEach(() => {
     socket = new MockedSocket()
@@ -170,7 +170,8 @@ describe('Channel', () => {
     const john = await factory.create<
       ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'john' })
-
+    expect(john.userCertificate).not.toBeNull()
+    // @ts-expect-error
     const johnPublicKey = keyFromCertificate(parseCertificate(john.userCertificate))
 
     const authenticMessage: ChannelMessage = {
@@ -921,6 +922,7 @@ describe('Channel', () => {
           type: MessageType.Image,
           message: '',
           createdAt: DateTime.utc().valueOf(),
+          // @ts-expect-error
           channelId: generalId,
           signature: '',
           pubKey: '',

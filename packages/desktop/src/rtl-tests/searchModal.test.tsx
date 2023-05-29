@@ -50,7 +50,7 @@ jest.mock('electron', () => {
 })
 
 describe('Switch channels', () => {
-  let socket: typeof MockedSocket
+  let socket: MockedSocket
 
   let redux: {
     store: Store

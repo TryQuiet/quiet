@@ -34,7 +34,7 @@ import { AnyAction } from 'redux'
 jest.setTimeout(20_000)
 
 describe('User', () => {
-  let socket: typeof MockedSocket
+  let socket: MockedSocket
   // trigger
   beforeEach(() => {
     socket = new MockedSocket()

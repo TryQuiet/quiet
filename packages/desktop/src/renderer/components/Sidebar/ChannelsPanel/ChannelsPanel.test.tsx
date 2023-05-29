@@ -9,7 +9,7 @@ import { DateTime } from 'luxon'
 import { generateChannelId } from '@quiet/common'
 
 describe('Channels panel', () => {
-  let socket: typeof MockedSocket
+  let socket: MockedSocket
 
   beforeEach(() => {
     socket = new MockedSocket()

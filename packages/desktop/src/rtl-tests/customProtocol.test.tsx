@@ -14,7 +14,7 @@ import CreateUsername from '../renderer/components/CreateUsername/CreateUsername
 jest.setTimeout(20_000)
 
 describe('Opening app through custom protocol', () => {
-  let socket: typeof MockedSocket
+  let socket: MockedSocket
 
   const id = '00d045ab'
 
