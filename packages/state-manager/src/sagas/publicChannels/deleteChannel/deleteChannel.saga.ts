@@ -18,7 +18,17 @@ export function* deleteChannelSaga(
   const generalChannel = yield* select(publicChannelsSelectors.generalChannel)
   const currentChannelId = yield* select(publicChannelsSelectors.currentChannelId)
   const ownerData = yield* select(usersSelectors.ownerData)
+  const currentChannel = yield* select(publicChannelsSelectors.currentChannel)
+
   if (generalChannel === undefined) {
+    return
+  }
+
+  if (currentChannel === undefined) {
+    return
+  }
+
+  if (currentChannel.disabled) {
     return
   }
 

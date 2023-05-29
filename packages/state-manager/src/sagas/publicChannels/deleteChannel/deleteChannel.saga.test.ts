@@ -109,4 +109,24 @@ describe('deleteChannelSaga', () => {
       .put(filesActions.deleteFilesFromChannel({ channelId }))
       .run()
   })
+
+  test('delete standard channel - already disabled', async () => {
+    const channelId = photoChannel.id
+    store.dispatch(publicChannelsActions.setCurrentChannel({ channelId }))
+    store.dispatch(publicChannelsActions.disableChannel({ channelId }))
+    const reducer = combineReducers(reducers)
+    await expectSaga(deleteChannelSaga, socket, publicChannelsActions.deleteChannel({ channelId }))
+      .withReducer(reducer)
+      .withState(store.getState())
+      .not.apply(socket, socket.emit, [
+        SocketActionTypes.DELETE_CHANNEL,
+        {
+          channelId,
+          ownerPeerId: ownerData.peerId
+        }
+      ])
+      .not.put(publicChannelsActions.setCurrentChannel({ channelId: generalChannel.id }))
+      .not.put(publicChannelsActions.disableChannel({ channelId }))
+      .run()
+  })
 })
