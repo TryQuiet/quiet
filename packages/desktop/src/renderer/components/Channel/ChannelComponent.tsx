@@ -127,12 +127,12 @@ export const ChannelComponent: React.FC<
 
   const { ref: scrollbarRef } = useResizeDetector<HTMLDivElement>({ onResize })
   const scrollBottom = () => {
-    if (!scrollbarRef.current) return
+    if (!scrollbarRef?.current?.scrollTo) return
     setNewMessagesInfo(false)
     memoizedScrollHeight.current = 0
-    scrollbarRef.current?.scrollTo({
+    scrollbarRef.current.scrollTo({
       behavior: 'auto',
-      top: Math.abs(scrollbarRef.current?.clientHeight - scrollbarRef.current?.scrollHeight)
+      top: Math.abs(scrollbarRef.current.clientHeight - scrollbarRef.current.scrollHeight)
     })
   }
 

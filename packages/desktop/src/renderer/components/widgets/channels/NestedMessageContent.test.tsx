@@ -3,8 +3,7 @@ import '@testing-library/jest-dom/extend-expect'
 import {
   AUTODOWNLOAD_SIZE_LIMIT,
   DownloadState,
-  DownloadStatus,
-  MessageType
+  DownloadStatus
 } from '@quiet/state-manager'
 import { generateMessages, renderComponent } from '../../../testUtils'
 import { FileActionsProps } from '../../Channel/File/FileComponent/FileComponent'

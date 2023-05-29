@@ -1,16 +1,20 @@
 import { io, Socket } from 'socket.io-client'
 import { all, fork, takeEvery, call, put, cancel, FixedTask } from 'typed-redux-saga'
 import { PayloadAction } from '@reduxjs/toolkit'
-import { socket as stateManager, messages, connection } from '@quiet/state-manager'
+import { socket as stateManager, messages } from '@quiet/state-manager'
 import { socketActions } from './socket.slice'
 import { eventChannel } from 'redux-saga'
 import { displayMessageNotificationSaga } from '../notifications/notifications.saga'
+import logger from '../../logger'
+const log = logger('socket')
 
 export function* startConnectionSaga(
   action: PayloadAction<ReturnType<typeof socketActions.startConnection>['payload']>
 ): Generator {
   const dataPort = action.payload.dataPort
-  console.log('dataPort', dataPort)
+  if (!dataPort) {
+    log.error('About to start connection but no dataPort found')
+  }
   const socket = yield* call(io, `http://127.0.0.1:${dataPort}`)
   yield* fork(handleSocketLifecycleActions, socket)
 

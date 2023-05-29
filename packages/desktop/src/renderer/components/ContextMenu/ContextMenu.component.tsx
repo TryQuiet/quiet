@@ -66,7 +66,7 @@ export const ContextMenu: FC<ContextMenuProps> = ({
           maxWidth: '375px',
           pointerEvents: 'auto'
         }}
-        data-testId={'contextMenu'}>
+        data-testid={'contextMenu'}>
         <Grid
           style={{
             display: 'flex',
@@ -142,7 +142,7 @@ export const ContextMenuItem: FC<ContextMenuItemProps> = ({ title, action }) => 
         width: '100%'
       }}
       onClick={action}
-      data-testId={`contextMenuItem${title}`}>
+      data-testid={`contextMenuItem${title}`}>
       <Grid
         style={{
           flex: 8

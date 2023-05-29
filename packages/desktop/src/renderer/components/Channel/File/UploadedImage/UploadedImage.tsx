@@ -31,7 +31,7 @@ export interface UploadedImageProps {
       src: string
     }>
 
-  downloadStatus: DownloadStatus
+  downloadStatus?: DownloadStatus
 }
 
 export const UploadedImage: React.FC<UploadedImageProps> = ({ media, uploadedFileModal, downloadStatus }) => {

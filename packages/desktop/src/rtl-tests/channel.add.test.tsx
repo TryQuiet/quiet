@@ -16,10 +16,12 @@ import Channel from '../renderer/components/Channel/Channel'
 import Sidebar from '../renderer/components/Sidebar/Sidebar'
 
 import {
+  ChannelsReplicatedPayload,
   CreateChannelPayload,
   ErrorMessages,
   getFactory,
   identity,
+  IncomingMessages,
   publicChannels,
   SendMessagePayload,
   SocketActionTypes
@@ -94,25 +96,22 @@ describe('Add new channel', () => {
       .mockImplementation(async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
         const action = input[0]
         if (action === SocketActionTypes.CREATE_CHANNEL) {
-          const data = input[1] as CreateChannelPayload
-          const payload = data
-          console.log('PAYLOAD', payload)
+          const payload = input[1] as CreateChannelPayload
           expect(payload.channel.owner).toEqual(alice.nickname)
           expect(payload.channel.name).toEqual(channelName.output)
-          return socket.socketClient.emit(SocketActionTypes.CHANNELS_REPLICATED, {
+          return socket.socketClient.emit<ChannelsReplicatedPayload>(SocketActionTypes.CHANNELS_REPLICATED, {
             channels: {
               [payload.channel.name]: payload.channel
             }
           })
         }
         if (action === SocketActionTypes.SEND_MESSAGE) {
-          const data = input[1] as socketEventData<[SendMessagePayload]>
-          const { message } = data[0]
+          const data = input[1] as SendMessagePayload
+          const { message } = data
           expect(message.channelId).toEqual(channelName.output)
           expect(message.message).toEqual(`Created #${channelName.output}`)
-          return socket.socketClient.emit(SocketActionTypes.INCOMING_MESSAGES, {
-            messages: [message],
-            communityId: alice.id
+          return socket.socketClient.emit<IncomingMessages>(SocketActionTypes.INCOMING_MESSAGES, {
+            messages: [message]
           })
         }
       })
@@ -313,7 +312,7 @@ describe('Add new channel', () => {
           // const payload = data[0]
           expect(payload.channel.owner).toEqual(alice.nickname)
           expect(payload.channel.name).toEqual(channelName)
-          return socket.socketClient.emit(SocketActionTypes.CHANNELS_REPLICATED, {
+          return socket.socketClient.emit<ChannelsReplicatedPayload>(SocketActionTypes.CHANNELS_REPLICATED, {
             channels: {
               [payload.channel.name]: payload.channel
             }
@@ -324,9 +323,8 @@ describe('Add new channel', () => {
           const { message } = data
           expect(message.channelId).toEqual(channelName)
           expect(message.message).toEqual(`Created #${channelName}`)
-          return socket.socketClient.emit(SocketActionTypes.INCOMING_MESSAGES, {
-            messages: [message],
-            communityId: alice.id
+          return socket.socketClient.emit<IncomingMessages>(SocketActionTypes.INCOMING_MESSAGES, {
+            messages: [message]
           })
         }
       })
@@ -409,7 +407,7 @@ describe('Add new channel', () => {
           const payload = data
           expect(payload.channel.owner).toEqual(alice.nickname)
           // expect(payload.channel.name).toEqual(channelName.output)
-          return socket.socketClient.emit(SocketActionTypes.CHANNELS_REPLICATED, {
+          return socket.socketClient.emit<ChannelsReplicatedPayload>(SocketActionTypes.CHANNELS_REPLICATED, {
             channels: {
               [payload.channel.name]: payload.channel
             }

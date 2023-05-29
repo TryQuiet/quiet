@@ -55,13 +55,12 @@ describe('General channel', () => {
 
     jest
       .spyOn(socket, 'emit')
-      .mockImplementation(async (...input: any[]) => {
+      .mockImplementation(async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
         const action = input[0] as SocketActionTypes
         if (action === SocketActionTypes.CHANNELS_REPLICATED) {
-          const data = input as socketEventData<[ChannelsReplicatedPayload]>
-          // @ts-expect-error
-          const payload = data[1][0] // TODO: FIX
-          expect(payload.channel.name).toEqual('general')
+          // FIXME: this line is never reached. Logic changed?
+          const payload = input[1] as ChannelsReplicatedPayload
+          expect(payload.channels.channel?.name).toEqual('general')
         }
       })
 

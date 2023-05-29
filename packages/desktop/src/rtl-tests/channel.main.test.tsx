@@ -34,7 +34,10 @@ import {
   MessageVerificationStatus,
   network,
   connection,
-  generateMessageFactoryContentWithId
+  generateMessageFactoryContentWithId,
+  DownloadStatus,
+  IncomingMessages,
+  ResponseLaunchCommunityPayload
 } from '@quiet/state-manager'
 
 import { keyFromCertificate, parseCertificate } from '@quiet/identity'
@@ -320,8 +323,11 @@ describe('Channel', () => {
 
     const factory = await getFactory(store)
 
-    await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>(
+    const community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>(
       'Community'
+    )
+    await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>(
+      'Identity', { id: community.id, nickname: 'john' }
     )
 
     renderComponent(
@@ -759,7 +765,7 @@ describe('Channel', () => {
       ReturnType<typeof communities.actions.addNewCommunity>['payload']
     >('Community')
 
-    const alice = await factory.create<
+    await factory.create<
       ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'alice' })
 
@@ -769,18 +775,18 @@ describe('Channel', () => {
 
     jest
       .spyOn(socket, 'emit')
-      .mockImplementation(async (...input: any[]) => {
+      .mockImplementation(async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
         const action = input[0] as SocketActionTypes
         if (action === SocketActionTypes.LAUNCH_COMMUNITY) {
-          const data = input as socketEventData<[InitCommunityPayload]>
-          const payload = data[0]
-          return socket.socketClient.emit(SocketActionTypes.COMMUNITY, {
+          const data = input[1] as InitCommunityPayload
+          const payload = data
+          return socket.socketClient.emit<ResponseLaunchCommunityPayload>(SocketActionTypes.COMMUNITY, {
             id: payload.id
           })
         }
         if (action === SocketActionTypes.UPLOAD_FILE) {
-          const data = input as socketEventData<[UploadFilePayload]>
-          const payload = data[0]
+          const data = input[1] as UploadFilePayload
+          const payload = data
 
           cid = `uploading_${payload.file.message.id}`
 
@@ -788,22 +794,24 @@ describe('Channel', () => {
             setTimeout(resolve, uploadingDelay)
           })
 
-          socket.socketClient.emit(SocketActionTypes.UPLOADED_FILE, {
+          socket.socketClient.emit<FileMetadata>(SocketActionTypes.UPLOADED_FILE, {
             ...payload.file,
             cid: cid,
             path: null,
+            width: 100,
+            height: 100,
             size: AUTODOWNLOAD_SIZE_LIMIT - 2048
           })
-          return socket.socketClient.emit(SocketActionTypes.DOWNLOAD_PROGRESS, {
+          return socket.socketClient.emit<DownloadStatus>(SocketActionTypes.DOWNLOAD_PROGRESS, {
+            mid: payload.file.message.id,
             cid: cid,
             downloadState: DownloadState.Hosted
           })
         }
         if (action === SocketActionTypes.SEND_MESSAGE) {
-          const data = input as socketEventData<[SendMessagePayload]>
-          const payload = data[0]
-          console.log({ payload })
-          return socket.socketClient.emit(SocketActionTypes.INCOMING_MESSAGES, {
+          const data = input[1] as SendMessagePayload
+          const payload = data
+          return socket.socketClient.emit<IncomingMessages>(SocketActionTypes.INCOMING_MESSAGES, {
             messages: [payload.message]
           })
         }
@@ -905,6 +913,8 @@ describe('Channel', () => {
       path: null,
       name: 'test-image',
       ext: '.jpeg',
+      width: 100,
+      height: 200,
       message: {
         id: message,
         // @ts-expect-error
@@ -946,21 +956,21 @@ describe('Channel', () => {
 
     jest
       .spyOn(socket, 'emit')
-      .mockImplementation(async (...input: any[]) => {
-        const action = input[0] as SocketActionTypes
+      .mockImplementation(async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
+        const action = input[0]
         if (action === SocketActionTypes.LAUNCH_COMMUNITY) {
-          const data = input as socketEventData<[InitCommunityPayload]>
-          const payload = data[0]
-          return socket.socketClient.emit(SocketActionTypes.COMMUNITY, {
+          const data = input[1] as InitCommunityPayload
+          const payload = data
+          return socket.socketClient.emit<ResponseLaunchCommunityPayload>(SocketActionTypes.COMMUNITY, {
             id: payload.id
           })
         }
         if (action === SocketActionTypes.DOWNLOAD_FILE) {
-          const data = input as socketEventData<[DownloadFilePayload]>
-          const payload = data[0]
+          const data = input[1] as DownloadFilePayload
+          const payload = data
           expect(payload.metadata.cid).toEqual(missingFile.cid)
           await new Promise(resolve => setTimeout(resolve, 1000))
-          return socket.socketClient.emit(SocketActionTypes.UPDATE_MESSAGE_MEDIA, {
+          return socket.socketClient.emit<FileMetadata>(SocketActionTypes.UPDATE_MESSAGE_MEDIA, {
             ...missingFile,
             path: `${__dirname}/test-image.jpeg`
           })
@@ -1028,23 +1038,23 @@ describe('Channel', () => {
 
     jest
       .spyOn(socket, 'emit')
-      .mockImplementation(async (...input: any[]) => {
+      .mockImplementation(async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
         const action = input[0] as SocketActionTypes
         if (action === SocketActionTypes.LAUNCH_COMMUNITY) {
-          const data = input as socketEventData<[InitCommunityPayload]>
-          const payload = data[0]
-          return socket.socketClient.emit(SocketActionTypes.COMMUNITY, {
+          const data = input[1] as InitCommunityPayload
+          const payload = data
+          return socket.socketClient.emit<ResponseLaunchCommunityPayload>(SocketActionTypes.COMMUNITY, {
             id: payload.id
           })
         }
         if (action === SocketActionTypes.UPLOAD_FILE) {
-          const data = input as socketEventData<[UploadFilePayload]>
-          const payload = data[0]
-          socket.socketClient.emit(SocketActionTypes.UPLOADED_FILE, {
+          const data = input[1] as UploadFilePayload
+          const payload = data
+          socket.socketClient.emit<FileMetadata>(SocketActionTypes.UPLOADED_FILE, {
             ...payload.file,
             size: 1024
           })
-          return socket.socketClient.emit(SocketActionTypes.DOWNLOAD_PROGRESS, {
+          return socket.socketClient.emit<DownloadStatus>(SocketActionTypes.DOWNLOAD_PROGRESS, {
             mid: payload.file.message.id,
             cid: `uploading_${payload.file.message.id}`,
             downloadState: DownloadState.Hosted
@@ -1158,12 +1168,12 @@ describe('Channel', () => {
 
     jest
       .spyOn(socket, 'emit')
-      .mockImplementation(async (...input: any[]) => {
+      .mockImplementation(async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
         const action = input[0] as SocketActionTypes
         if (action === SocketActionTypes.LAUNCH_COMMUNITY) {
-          const data = input as socketEventData<[InitCommunityPayload]>
-          const payload = data[0]
-          return socket.socketClient.emit(SocketActionTypes.COMMUNITY, {
+          const data = input[1] as InitCommunityPayload
+          const payload = data
+          return socket.socketClient.emit<ResponseLaunchCommunityPayload>(SocketActionTypes.COMMUNITY, {
             id: payload.id
           })
         }
@@ -1275,12 +1285,12 @@ describe('Channel', () => {
 
     jest
       .spyOn(socket, 'emit')
-      .mockImplementation(async (...input: any[]) => {
+      .mockImplementation(async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
         const action = input[0] as SocketActionTypes
         if (action === SocketActionTypes.LAUNCH_COMMUNITY) {
-          const data = input as socketEventData<[InitCommunityPayload]>
-          const payload = data[0]
-          return socket.socketClient.emit(SocketActionTypes.COMMUNITY, {
+          const data = input[1] as InitCommunityPayload
+          const payload = data
+          return socket.socketClient.emit<ResponseLaunchCommunityPayload>(SocketActionTypes.COMMUNITY, {
             id: payload.id
           })
         }
@@ -1394,12 +1404,12 @@ describe('Channel', () => {
 
     jest
       .spyOn(socket, 'emit')
-      .mockImplementation(async (...input: any[]) => {
+      .mockImplementation(async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
         const action = input[0] as SocketActionTypes
         if (action === SocketActionTypes.LAUNCH_COMMUNITY) {
-          const data = input as socketEventData<[InitCommunityPayload]>
-          const payload = data[0]
-          return socket.socketClient.emit(SocketActionTypes.COMMUNITY, {
+          const data = input[1] as InitCommunityPayload
+          const payload = data
+          return socket.socketClient.emit<ResponseLaunchCommunityPayload>(SocketActionTypes.COMMUNITY, {
             id: payload.id
           })
         }

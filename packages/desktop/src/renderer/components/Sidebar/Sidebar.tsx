@@ -31,7 +31,9 @@ const Sidebar = () => {
     )
   }
 
-  if (!currentCommunity || !currentChannelId) return null
+  if (!currentCommunity || !currentChannelId) {
+    return null
+  }
 
   const identityPanelProps: IdentityPanelProps = {
     currentCommunity: currentCommunity,

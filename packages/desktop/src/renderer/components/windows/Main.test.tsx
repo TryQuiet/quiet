@@ -3,11 +3,20 @@ import React from 'react'
 import { renderComponent } from '../../testUtils/renderComponent'
 import { HashRouter } from 'react-router-dom'
 import { Provider } from 'react-redux'
-import store from '../../store'
 import { Main } from './Main'
+import { communities, getFactory } from '@quiet/state-manager'
+import { prepareStore } from '../../testUtils'
 
 describe('Main', () => {
-  it('renders component', () => {
+  it('renders component', async () => {
+    const store = (
+      await prepareStore()
+    ).store
+    const factory = await getFactory(store)
+    await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>(
+      'Community',
+      { rootCa: 'rootCa' }
+    )
     const result = renderComponent(
       <HashRouter>
         <Provider store={store}>
@@ -48,7 +57,9 @@ describe('Main', () => {
                           >
                             <h4
                               class="MuiTypography-root MuiTypography-h4 IdentityPanelnickname css-ajdqea-MuiTypography-root"
-                            />
+                            >
+                              community_1
+                            </h4>
                             <svg
                               aria-hidden="true"
                               class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-ptiqhd-MuiSvgIcon-root"
@@ -142,7 +153,40 @@ describe('Main', () => {
                                   <ul
                                     class="MuiList-root css-1mk9mw3-MuiList-root"
                                     data-testid="channelsList"
-                                  />
+                                  >
+                                    <div
+                                      class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot ChannelsListItemselected css-1u7u4xu-MuiButtonBase-root-MuiListItemButton-root"
+                                      data-testid="general-link"
+                                      role="button"
+                                      tabindex="0"
+                                    >
+                                      <div
+                                        class="MuiListItemText-root ChannelsListItemitemText css-tlelie-MuiListItemText-root"
+                                      >
+                                        <span
+                                          class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary ChannelsListItemprimary css-m1llqv-MuiTypography-root"
+                                        >
+                                          <div
+                                            class="MuiGrid-root MuiGrid-container css-1vam7s3-MuiGrid-root"
+                                          >
+                                            <div
+                                              class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
+                                            >
+                                              <p
+                                                class="MuiTypography-root MuiTypography-body2 ChannelsListItemtitle css-16d47hw-MuiTypography-root"
+                                                data-testid="general-link-text"
+                                              >
+                                                # general
+                                              </p>
+                                            </div>
+                                          </div>
+                                        </span>
+                                      </div>
+                                      <span
+                                        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                                      />
+                                    </div>
+                                  </ul>
                                 </div>
                               </div>
                             </div>

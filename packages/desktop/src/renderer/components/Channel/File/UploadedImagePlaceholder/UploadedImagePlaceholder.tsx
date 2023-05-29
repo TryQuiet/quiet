@@ -74,7 +74,7 @@ export interface UploadedImagePlaceholderProps {
   imageHeight: number
   name: string
   ext: string
-  downloadStatus: DownloadStatus
+  downloadStatus?: DownloadStatus
 }
 
 export const UploadedImagePlaceholder: React.FC<UploadedImagePlaceholderProps> = ({

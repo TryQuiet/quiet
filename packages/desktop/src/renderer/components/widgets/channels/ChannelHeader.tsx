@@ -189,7 +189,7 @@ export const ChannelHeaderComponent: React.FC<ChannelHeaderProps> = ({
           alignContent='center'
           alignItems='center'>
           {enableContextMenu && (
-            <Grid item className={classes.menu} onClick={openContextMenu} data-testId={'channelContextMenuButton'}>
+            <Grid item className={classes.menu} onClick={openContextMenu} data-testid={'channelContextMenuButton'}>
               <Icon src={dots} />
             </Grid>
           )}
