@@ -9,6 +9,7 @@ export interface BuildSetupInit {
   debugPort?: number
   useDataDir?: boolean
   dataDir?: string
+  fileName?: string
 }
 
 export class BuildSetup {
@@ -20,12 +21,14 @@ export class BuildSetup {
   public dataDir?: string
   private child?: ChildProcessWithoutNullStreams
   private useDataDir: boolean
+  private fileName?: string
 
-  constructor({ port, debugPort, useDataDir = true, dataDir }: BuildSetupInit) {
+  constructor({ port, debugPort, useDataDir = true, dataDir, fileName }: BuildSetupInit) {
     this.port = port
     this.debugPort = debugPort
     this.useDataDir = useDataDir
     this.dataDir = dataDir
+    this.fileName = fileName
     if (this.useDataDir && !this.dataDir) {
       this.dataDir = `e2e_${(Math.random() * 10 ** 18).toString(36)}`
     }
@@ -39,7 +42,7 @@ export class BuildSetup {
   private getBinaryLocation() {
     switch (process.platform) {
       case 'linux':
-        return `${__dirname}/../Quiet/${process.env.FILE_NAME}`
+        return `${__dirname}/../Quiet/${this.fileName ? this.fileName : process.env.FILE_NAME}`
       case 'win32':
         return `${process.env.LOCALAPPDATA}\\Programs\\quiet\\Quiet.exe`
       case 'darwin':

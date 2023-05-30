@@ -46,12 +46,27 @@ jobs:
         working-directory: ./packages/e2e-tests/Quiet
         run: chmod +x $FILE_NAME
 
+      - name: Download App Image 1.2.0
+        working-directory: ./packages/e2e-tests/Quiet
+        run: curl -LO https://github.com/TryQuiet/quiet/releases/download/quiet%401.2.0/Quiet-1.2.0.AppImage
+
+      - name: Chmod
+        working-directory: ./packages/e2e-tests/Quiet
+        run: chmod +x Quiet-1.2.0.AppImage
+
       - name: Run one client test
         uses: nick-fields/retry@v2
         with:
           timeout_minutes: 15
           max_attempts: 3
           command: cd packages/e2e-tests && npm run test oneClient.test.ts
+
+      - name: Run Backwards Compatibility test
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 15
+          max_attempts: 3
+          command: cd packages/e2e-tests && npm run test backwardsCompatibility.test.ts
 
       - name: Run two clients test
         uses: nick-fields/retry@v2
