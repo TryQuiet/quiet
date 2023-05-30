@@ -14,7 +14,7 @@ import { FactoryGirl } from 'factory-girl'
 import { filesActions } from '../files.slice'
 import { Community, DownloadState, FileMetadata, Identity, SocketActionTypes } from '@quiet/types'
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
- 
+
 describe('downloadFileSaga', () => {
   let store: Store
   let factory: FactoryGirl

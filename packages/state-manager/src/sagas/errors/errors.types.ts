@@ -40,5 +40,5 @@ export enum ErrorMessages {
   CHANNEL_NAME_TAKEN = 'Channel with this name already exists',
 
   // General
-  GENERAL = "Something went wrong"
+  GENERAL = 'Something went wrong'
 }
