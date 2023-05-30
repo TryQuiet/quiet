@@ -242,8 +242,6 @@ export class IpfsFilesManager extends EventEmitter {
     public downloadBlocks = async (fileMetadata: FileMetadata) => {
         const block = CID.parse(fileMetadata.cid)
 
-        await this.ipfs.pin.add(block, { recursive: true })
-
         const localBlocks = await this.getLocalBlocks()
         const processedBlocks: PBNode[] = [] // TODO: Should it be CID or PBNode?
 
@@ -406,6 +404,7 @@ export class IpfsFilesManager extends EventEmitter {
             this.files.set(fileMetadata.cid, {
                 ...fileState, transferSpeed: 0
             })
+            await this.ipfs.pin.add(block, { recursive: true })
             await this.assemblyFile(fileMetadata)
         }
     }
