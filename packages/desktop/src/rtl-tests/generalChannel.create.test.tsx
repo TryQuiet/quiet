@@ -56,7 +56,7 @@ describe('General channel', () => {
     jest
       .spyOn(socket, 'emit')
       .mockImplementation(async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
-        const action = input[0] as SocketActionTypes
+        const action = input[0]
         if (action === SocketActionTypes.CHANNELS_REPLICATED) {
           // FIXME: this line is never reached. Logic changed?
           const payload = input[1] as ChannelsReplicatedPayload

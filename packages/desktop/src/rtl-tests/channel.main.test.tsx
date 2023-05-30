@@ -776,7 +776,7 @@ describe('Channel', () => {
     jest
       .spyOn(socket, 'emit')
       .mockImplementation(async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
-        const action = input[0] as SocketActionTypes
+        const action = input[0]
         if (action === SocketActionTypes.LAUNCH_COMMUNITY) {
           const data = input[1] as InitCommunityPayload
           const payload = data
@@ -1039,7 +1039,7 @@ describe('Channel', () => {
     jest
       .spyOn(socket, 'emit')
       .mockImplementation(async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
-        const action = input[0] as SocketActionTypes
+        const action = input[0]
         if (action === SocketActionTypes.LAUNCH_COMMUNITY) {
           const data = input[1] as InitCommunityPayload
           const payload = data
@@ -1169,7 +1169,7 @@ describe('Channel', () => {
     jest
       .spyOn(socket, 'emit')
       .mockImplementation(async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
-        const action = input[0] as SocketActionTypes
+        const action = input[0]
         if (action === SocketActionTypes.LAUNCH_COMMUNITY) {
           const data = input[1] as InitCommunityPayload
           const payload = data
@@ -1286,7 +1286,7 @@ describe('Channel', () => {
     jest
       .spyOn(socket, 'emit')
       .mockImplementation(async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
-        const action = input[0] as SocketActionTypes
+        const action = input[0]
         if (action === SocketActionTypes.LAUNCH_COMMUNITY) {
           const data = input[1] as InitCommunityPayload
           const payload = data
@@ -1405,7 +1405,7 @@ describe('Channel', () => {
     jest
       .spyOn(socket, 'emit')
       .mockImplementation(async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
-        const action = input[0] as SocketActionTypes
+        const action = input[0]
         if (action === SocketActionTypes.LAUNCH_COMMUNITY) {
           const data = input[1] as InitCommunityPayload
           const payload = data

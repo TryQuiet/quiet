@@ -35,7 +35,7 @@ jest.setTimeout(20_000)
 
 describe('Add new channel', () => {
   let socket: MockedSocket
-  
+
   beforeEach(() => {
     socket = new MockedSocket()
     ioMock.mockImplementation(() => socket)
@@ -306,7 +306,7 @@ describe('Add new channel', () => {
     jest
       .spyOn(socket, 'emit')
       .mockImplementation(async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
-        const action = input[0] as SocketActionTypes
+        const action = input[0]
         if (action === SocketActionTypes.CREATE_CHANNEL) {
           const payload = input[1] as CreateChannelPayload
           // const payload = data[0]

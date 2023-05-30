@@ -73,7 +73,7 @@ describe('User', () => {
     jest
       .spyOn(socket, 'emit')
       .mockImplementation(async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
-        const action = input[0] as SocketActionTypes
+        const action = input[0]
         if (action === SocketActionTypes.CREATE_NETWORK) {
           const payload = input[1] as Community
           return socket.socketClient.emit<ResponseCreateNetworkPayload>(SocketActionTypes.NETWORK, {
@@ -247,7 +247,7 @@ describe('User', () => {
     jest
       .spyOn(socket, 'emit')
       .mockImplementation(async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
-        const action = input[0] as SocketActionTypes
+        const action = input[0]
         if (action === SocketActionTypes.CREATE_NETWORK) {
           const payload = input[1] as Community
           return socket.socketClient.emit<ResponseCreateNetworkPayload>(SocketActionTypes.NETWORK, {
@@ -358,7 +358,7 @@ describe('User', () => {
     jest
       .spyOn(socket, 'emit')
       .mockImplementation(async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
-        const action = input[0] as SocketActionTypes
+        const action = input[0]
         if (action === SocketActionTypes.CREATE_NETWORK) {
           const payload = input[1] as Community
           return socket.socketClient.emit<ResponseCreateNetworkPayload>(SocketActionTypes.NETWORK, {
