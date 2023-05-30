@@ -239,6 +239,12 @@ export function getInfoMessages(store: TestStore, channel: string): ChannelMessa
 export async function sendMessage(payload: SendMessage): Promise<ChannelMessage> {
   const { message, channelName, store } = payload
 
+  const channelEntities = store.getState().PublicChannels.channels.entities
+  const generalId = Object.keys(channelEntities).find(
+    (key) => channelEntities[key].name === 'general'
+  )
+  store.dispatch(publicChannels.actions.setCurrentChannel({ channelId: generalId }))
+
   log(message, 'sendMessage')
 
   if (channelName) {
@@ -254,8 +260,7 @@ export async function sendMessage(payload: SendMessage): Promise<ChannelMessage>
   await waitForExpect(() => {
     expect(store.getState().LastAction.includes('Messages/addMessageVerificationStatus'))
   }, 5000)
-  const channelEntities = store.getState().PublicChannels.channels.entities
-  const generalId = Object.keys(channelEntities).find((key) => channelEntities[key].name === 'general')
+
   const entities = Array.from(
     Object.values(
       store.getState().Messages.publicChannelsMessagesBase.entities[generalId].messages.entities
@@ -271,6 +276,10 @@ export async function sendMessage(payload: SendMessage): Promise<ChannelMessage>
 
 export async function sendImage(payload: SendImage) {
   const { file, store } = payload
+
+  const entities = store.getState().PublicChannels.channels.entities
+  const generalId = Object.keys(entities).find((key) => entities[key].name === 'general')
+  store.dispatch(publicChannels.actions.setCurrentChannel({ channelId: generalId }))
 
   log(JSON.stringify(payload), 'sendImage')
 

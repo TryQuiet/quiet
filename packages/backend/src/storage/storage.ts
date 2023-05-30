@@ -542,6 +542,9 @@ export class Storage extends EventEmitter {
       await this.channels.put(channelId, {
         ...data
       })
+      this.emit(StorageEvents.CREATED_CHANNEL, {
+        channel: data
+      })
     }
 
     this.publicChannelsRepos.set(channelId, { db, eventsAttached: false })
