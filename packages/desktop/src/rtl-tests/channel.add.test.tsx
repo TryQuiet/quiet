@@ -1,7 +1,7 @@
 import React from 'react'
 import '@testing-library/jest-dom/extend-expect'
 import userEvent from '@testing-library/user-event'
-import { queryByTestId, screen, waitFor, within } from '@testing-library/dom'
+import { screen, waitFor } from '@testing-library/dom'
 import { act } from 'react-dom/test-utils'
 import { take } from 'typed-redux-saga'
 import MockedSocket from 'socket.io-mock'
@@ -16,16 +16,18 @@ import Channel from '../renderer/components/Channel/Channel'
 import Sidebar from '../renderer/components/Sidebar/Sidebar'
 
 import {
+  getFactory,
+  identity,
+  publicChannels
+} from '@quiet/state-manager'
+import {
   ChannelsReplicatedPayload,
   CreateChannelPayload,
   ErrorMessages,
-  getFactory,
-  identity,
   IncomingMessages,
-  publicChannels,
   SendMessagePayload,
   SocketActionTypes
-} from '@quiet/state-manager'
+} from '@quiet/types'
 
 import { modalsActions, ModalsInitialState } from '../renderer/sagas/modals/modals.slice'
 import { ModalName } from '../renderer/sagas/modals/modals.types'

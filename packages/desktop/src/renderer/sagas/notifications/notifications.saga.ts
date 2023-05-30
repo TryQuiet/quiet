@@ -9,13 +9,15 @@ import {
   users,
   messages,
   publicChannels,
-  MessageType,
   NotificationsOptions,
   NotificationsSounds,
   files,
+} from '@quiet/state-manager'
+import {
+  MessageType,
   FileMetadata,
   DownloadState
-} from '@quiet/state-manager'
+} from '@quiet/types'
 import { soundTypeToAudio } from '../../../shared/sounds'
 import { eventChannel } from 'redux-saga'
 import { takeEvery } from 'redux-saga/effects'

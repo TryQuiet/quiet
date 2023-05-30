@@ -8,7 +8,7 @@ import { mock_messages } from '../../storybook/utils'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 
-import { DisplayableMessage } from '@quiet/state-manager'
+import { DisplayableMessage } from '@quiet/types'
 
 import ChannelComponent from './ChannelComponent'
 

@@ -8,14 +8,12 @@ import Grid from '@mui/material/Grid'
 import WarningIcon from '@mui/icons-material/Warning'
 
 import Modal from '../ui/Modal/Modal'
-import UsernameCreated from './UsernameCreated/UsernameCreated'
 
 import { LoadingButton } from '../ui/LoadingButton/LoadingButton'
 import { TextInput } from '../../forms/components/textInput'
 import { userNameField } from '../../forms/fields/createUserFields'
 
-import { parseName } from '@quiet/state-manager'
-import { Link } from 'react-router-dom'
+import { parseName } from '@quiet/common'
 
 const PREFIX = 'CreateUsernameComponent'
 

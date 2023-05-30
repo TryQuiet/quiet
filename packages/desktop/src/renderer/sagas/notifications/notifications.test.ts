@@ -8,19 +8,21 @@ import {
   getFactory,
   connection,
   communities,
-  Community,
   identity,
-  Identity,
   messages,
-  ChannelMessage,
-  IncomingMessages,
   NotificationsOptions,
   NotificationsSounds,
   publicChannels,
-  PublicChannel,
   settings,
-  MessageType
 } from '@quiet/state-manager'
+import {
+  Community,
+  Identity,
+  ChannelMessage,
+  IncomingMessages,
+  PublicChannel,
+  MessageType
+} from '@quiet/types'
 import {
   createNotification,
   displayMessageNotificationSaga,

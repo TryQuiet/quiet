@@ -8,7 +8,7 @@ import SettingsComponent, { SettingsComponentProps } from './SettingsComponent'
 // import { About } from '../widgets/Settings/About'
 
 // import { NotificationsComponent } from './Tabs/Notifications/NotificationsComponent'
-// import { NotificationsOptions, NotificationsSounds } from '@quiet/state-manager'
+// import { NotificationsOptions, NotificationsSounds } from '@quiet/types'
 
 import { InviteComponent } from './Tabs/Invite/Invite.component'
 

@@ -4,7 +4,8 @@ import { prepareStore } from '../../../../testUtils/prepareStore'
 import { renderComponent } from '../../../../testUtils/renderComponent'
 import { ChannelInputComponent } from './ChannelInput'
 import { INPUT_STATE } from './InputState.enum'
-import { FileContent, getFactory, identity } from '@quiet/state-manager'
+import { getFactory, identity } from '@quiet/state-manager'
+import { FileContent } from '@quiet/types'
 import UploadFilesPreviewsComponent from '../../../Channel/File/UploadingPreview'
 
 describe('ChannelInput', () => {

@@ -9,11 +9,13 @@ import {
   publicChannels,
   communities,
   files,
-  FileMetadata,
-  CancelDownload,
-  FileContent,
   network
 } from '@quiet/state-manager'
+import {
+  FileMetadata,
+  CancelDownload,
+  FileContent
+} from '@quiet/types'
 
 import ChannelComponent, { ChannelComponentProps } from './ChannelComponent'
 

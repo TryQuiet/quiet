@@ -3,7 +3,7 @@ import {
   DownloadState,
   DownloadStatus,
   MessageType
-} from '@quiet/state-manager'
+} from '@quiet/types'
 import React from 'react'
 
 import { renderComponent } from '../../../../testUtils/renderComponent'

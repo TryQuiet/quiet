@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { styled } from '@mui/material/styles'
-import { DownloadStatus, FileMetadata } from '@quiet/state-manager'
+import { DownloadStatus, FileMetadata } from '@quiet/types'
 import { UseModalType } from '../../../../containers/hooks'
 import UploadedFileModal from './UploadedImagePreview'
 import { UploadedFilename, UploadedImagePlaceholder } from '../UploadedImagePlaceholder/UploadedImagePlaceholder'

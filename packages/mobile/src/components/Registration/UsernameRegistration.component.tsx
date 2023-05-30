@@ -5,7 +5,7 @@ import { Input } from '../Input/Input.component'
 import { Typography } from '../Typography/Typography.component'
 import { UsernameRegistrationProps } from './UsernameRegistration.types'
 import { appImages } from '../../../assets'
-import { parseName } from '@quiet/state-manager'
+import { parseName } from '@quiet/common'
 import { defaultTheme } from '../../styles/themes/default.theme'
 
 export const UsernameRegistration: FC<UsernameRegistrationProps> = ({

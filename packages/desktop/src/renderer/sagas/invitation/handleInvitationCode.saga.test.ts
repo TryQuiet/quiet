@@ -1,4 +1,5 @@
-import { communities, Community, CommunityOwnership, CreateNetworkPayload, getFactory, Store } from '@quiet/state-manager'
+import { communities, getFactory, Store } from '@quiet/state-manager'
+import { Community, CommunityOwnership, CreateNetworkPayload } from '@quiet/types'
 import { FactoryGirl } from 'factory-girl'
 import { expectSaga } from 'redux-saga-test-plan'
 import { handleInvitationCodeSaga } from './handleInvitationCode.saga'

@@ -17,9 +17,16 @@ import {
   communities,
   publicChannels,
   getFactory,
+  messages,
+  files,
+  AUTODOWNLOAD_SIZE_LIMIT,
+  network,
+  connection,
+  generateMessageFactoryContentWithId
+} from '@quiet/state-manager'
+import {
   SocketActionTypes,
   ChannelMessage,
-  messages,
   SendingStatus,
   MessageType,
   FileMetadata,
@@ -27,24 +34,18 @@ import {
   InitCommunityPayload,
   UploadFilePayload,
   FileContent,
-  files,
   DownloadState,
-  AUTODOWNLOAD_SIZE_LIMIT,
   SendMessagePayload,
   MessageVerificationStatus,
-  network,
-  connection,
-  generateMessageFactoryContentWithId,
   DownloadStatus,
   IncomingMessages,
   ResponseLaunchCommunityPayload
-} from '@quiet/state-manager'
-
+, Community
+} from '@quiet/types'
 import { keyFromCertificate, parseCertificate } from '@quiet/identity'
 
 import { fetchingChannelMessagesText } from '../renderer/components/widgets/channels/ChannelMessages'
 import { DateTime } from 'luxon'
-import { Community } from '@quiet/types'
 
 jest.setTimeout(20_000)
 

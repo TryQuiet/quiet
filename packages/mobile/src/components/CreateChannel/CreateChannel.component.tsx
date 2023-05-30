@@ -8,7 +8,7 @@ import { Typography } from '../Typography/Typography.component'
 import { Input } from '../Input/Input.component'
 import { Button } from '../Button/Button.component'
 
-import { parseName } from '@quiet/state-manager'
+import { parseName } from '@quiet/common'
 import { Appbar } from '../Appbar/Appbar.component'
 
 import { appImages } from '../../../assets'

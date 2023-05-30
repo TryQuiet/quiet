@@ -1,5 +1,5 @@
 import path from 'path'
-import { FileContent } from '@quiet/state-manager'
+import { FileContent } from '@quiet/types'
 
 interface FilePreviewData {
   [id: string]: FileContent

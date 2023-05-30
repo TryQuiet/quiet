@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { errors, identity, ErrorCodes, network, LoadingPanelType } from '@quiet/state-manager'
+import { ErrorCodes, LoadingPanelType } from '@quiet/types'
+import { errors, identity, network } from '@quiet/state-manager'
 import CreateUsernameComponent from '../CreateUsername/CreateUsernameComponent'
 import { ModalName } from '../../sagas/modals/modals.types'
 import { useModal } from '../../containers/hooks'

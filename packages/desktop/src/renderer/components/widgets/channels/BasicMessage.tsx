@@ -12,7 +12,7 @@ import red from '@mui/material/colors/red'
 
 import Jdenticon from '../../Jdenticon/Jdenticon'
 
-import { DisplayableMessage, DownloadStatus, MessageSendingStatus } from '@quiet/state-manager'
+import { DisplayableMessage, DownloadStatus, MessageSendingStatus } from '@quiet/types'
 
 import { NestedMessageContent } from './NestedMessageContent'
 

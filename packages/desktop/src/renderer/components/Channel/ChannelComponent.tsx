@@ -18,7 +18,7 @@ import {
   Identity,
   MessagesDailyGroups,
   MessageSendingStatus
-} from '@quiet/state-manager'
+} from '@quiet/types'
 
 import { useResizeDetector } from 'react-resize-detector'
 import { Dictionary } from '@reduxjs/toolkit'

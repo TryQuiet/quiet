@@ -1,4 +1,4 @@
-import { DisplayableMessage } from '@quiet/state-manager'
+import { DisplayableMessage } from '@quiet/types'
 
 export const mock_messages = (message: DisplayableMessage | null = null) => {
   let placeholder: DisplayableMessage = {

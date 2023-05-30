@@ -3,14 +3,16 @@ import { useDispatch, useSelector } from 'react-redux'
 import CreateChannelComponent from './CreateChannelComponent'
 import {
   communities,
-  ErrorCodes,
-  ErrorMessages,
   errors,
   identity,
-  PublicChannel,
-  publicChannels,
-  SocketActionTypes
+  publicChannels
 } from '@quiet/state-manager'
+import {
+  ErrorCodes,
+  ErrorMessages,
+  PublicChannel,
+  SocketActionTypes
+} from '@quiet/types'
 import { DateTime } from 'luxon'
 import { useModal } from '../../../containers/hooks'
 import { ModalName } from '../../../sagas/modals/modals.types'

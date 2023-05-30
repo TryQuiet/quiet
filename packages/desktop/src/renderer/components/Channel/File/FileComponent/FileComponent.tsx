@@ -6,9 +6,9 @@ import {
   DownloadState,
   DownloadStatus,
   FileMetadata,
-  CancelDownload,
-  formatBytes
-} from '@quiet/state-manager'
+  CancelDownload
+} from '@quiet/types'
+import { formatBytes } from '@quiet/state-manager'
 import theme from '../../../../theme'
 import Icon from '../../../ui/Icon/Icon'
 import fileIcon from '../../../../static/images/fileIcon.svg'

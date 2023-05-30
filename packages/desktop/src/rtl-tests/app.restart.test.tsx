@@ -16,12 +16,12 @@ import { ioMock } from '../shared/setupTests'
 import {
   communities,
   getFactory,
-  LoadingPanelType,
   network,
   publicChannels
 } from '@quiet/state-manager'
 import { act } from 'react-dom/test-utils'
 import { identityActions } from 'packages/state-manager/src/sagas/identity/identity.slice'
+import { LoadingPanelType } from '@quiet/types'
 
 jest.setTimeout(20_000)
 

@@ -15,7 +15,8 @@ import CreateCommunity from './CreateCommunity'
 import { CreateCommunityDictionary, JoinCommunityDictionary } from '../community.dictionary'
 import { CommunityNameErrors, FieldErrors } from '../../../forms/fieldsErrors'
 import PerformCommunityActionComponent from '../PerformCommunityActionComponent'
-import { identity, communities, StoreKeys as StateManagerStoreKeys, CommunityOwnership } from '@quiet/state-manager'
+import { identity, communities, StoreKeys as StateManagerStoreKeys } from '@quiet/state-manager'
+import { CommunityOwnership } from '@quiet/types'
 import { communityNameField } from '../../../forms/fields/communityFields'
 
 describe('Create community', () => {

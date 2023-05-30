@@ -16,7 +16,7 @@ import CreateUsername from '../../CreateUsername/CreateUsername'
 import PerformCommunityActionComponent from '../PerformCommunityActionComponent'
 import { inviteLinkField } from '../../../forms/fields/communityFields'
 import { InviteLinkErrors } from '../../../forms/fieldsErrors'
-import { CommunityOwnership } from '@quiet/state-manager'
+import { CommunityOwnership } from '@quiet/types'
 import { Site, InvitationParams } from '@quiet/common'
 
 describe('join community', () => {
