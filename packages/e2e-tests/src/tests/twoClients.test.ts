@@ -287,6 +287,11 @@ describe('Two Clients', () => {
       expect(text2).toEqual(joiningUserMessages[1])
     })
 
+    it('Owner close app', async () => {
+      await ownerApp?.close()
+      await new Promise<void>(resolve => setTimeout(() => resolve(), 20000))
+    })
+
     it('Guest close app', async () => {
       await guestApp?.close()
     })
