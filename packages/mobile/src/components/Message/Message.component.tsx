@@ -32,11 +32,11 @@ export const Message: FC<MessageProps & FileActionsProps> = ({
   const renderMessage = (message: DisplayableMessage, pending: boolean) => {
     switch (message.type) {
       case 2: // MessageType.Image (cypress tests incompatibility with enums)
-        const size = message?.media?.size
+        const size = message.media?.size
         const fileDisplay = !size || size < AUTODOWNLOAD_SIZE_LIMIT
         return (
           <>
-            {fileDisplay ? (
+            {fileDisplay && message.media ? (
               <UploadedImage media={message.media} openImagePreview={openImagePreview}/>
             ) : (
               <UploadedFile message={message} downloadStatus={downloadStatus} downloadFile={downloadFile} cancelDownload={cancelDownload}/>

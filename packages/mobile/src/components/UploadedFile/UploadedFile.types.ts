@@ -3,11 +3,11 @@ import { CancelDownload, DisplayableMessage, DownloadStatus, FileMetadata } from
 export interface UploadedFileProps {
   media?: FileMetadata
   message: DisplayableMessage
-  downloadStatus: DownloadStatus
+  downloadStatus?: DownloadStatus
 }
 
 export interface FileActionsProps {
   openContainingFolder?: (path: string) => void
-  downloadFile?: (media: FileMetadata) => void
-  cancelDownload?: (cancelDownload: CancelDownload) => void
+  downloadFile: (media: FileMetadata) => void
+  cancelDownload: (cancelDownload: CancelDownload) => void
 }

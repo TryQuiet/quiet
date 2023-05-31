@@ -20,8 +20,9 @@ export const UploadedFile: FC<UploadedFileProps & FileActionsProps> = ({
 }) => {
   const downloadState = downloadStatus?.downloadState
   const media = message.media
-  const [fileStatus, setFileStatus] = useState<FileStatus>(null)
+  const [fileStatus, setFileStatus] = useState<FileStatus | null>(null)
   useEffect(() => {
+    if (!media) return
     switch (downloadState) {
       case DownloadState.Uploading:
         setFileStatus({
@@ -71,7 +72,7 @@ export const UploadedFile: FC<UploadedFileProps & FileActionsProps> = ({
       default:
         setFileStatus(null)
     }
-  }, [downloadState])
+  }, [downloadState, media])
 
   return (
     <TouchableWithoutFeedback onPress={() => Alert.alert('Not supported yet', 'Sorry, opening files is not supported yet on mobile.')}>
@@ -85,10 +86,9 @@ export const UploadedFile: FC<UploadedFileProps & FileActionsProps> = ({
         borderStyle: 'solid',
         borderWidth: 1
       }}>
-
         <Typography fontSize={12} style={{ fontWeight: 'bold' }}>
-          {media.name}
-          {media.ext}
+          {media?.name}
+          {media?.ext}
         </Typography>
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
           <Image
