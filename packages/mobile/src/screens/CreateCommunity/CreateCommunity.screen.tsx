@@ -9,7 +9,7 @@ export const CreateCommunityScreen: FC = () => {
   const dispatch = useDispatch()
 
   const currentIdentity = useSelector(identity.selectors.currentIdentity)
-  const networkCreated = currentIdentity && !currentIdentity.userCertificate
+  const networkCreated = Boolean(currentIdentity && !currentIdentity.userCertificate)
 
   useEffect(() => {
     if (networkCreated) {

@@ -56,7 +56,7 @@ export function* deepLinkSaga(
   }
 
   // The same url has been used to open an app
-  if (community?.registrarUrl.includes(code)) {
+  if (community?.registrarUrl?.includes(code)) {
     yield* put(
       navigationActions.replaceScreen({
         screen: ScreenNames.ChannelListScreen

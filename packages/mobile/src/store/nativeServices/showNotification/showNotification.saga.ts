@@ -15,6 +15,7 @@ export function* showNotificationSaga(
   if (screen === ScreenNames.ChannelListScreen) return
 
   const _message = action.payload.message
+  if (!_message) return
 
   const message = yield* call(JSON.stringify, _message)
 

@@ -12,7 +12,9 @@ interface ImagePreviewModalProps {
 }
 
 export const ImagePreviewModal: FC<ImagePreviewModalProps> = ({ imagePreviewData, currentChannelName, resetPreviewData }) => {
-  return (imagePreviewData && <Modal
+  const {width, height} = imagePreviewData
+  if (!imagePreviewData || !width || !height) return null
+  return <Modal
     animationType="slide"
     transparent={false}
     visible={imagePreviewData !== null}
@@ -25,9 +27,8 @@ export const ImagePreviewModal: FC<ImagePreviewModalProps> = ({ imagePreviewData
       <View style={{ padding: 5 }}>
         <FastImage
           source={{ uri: `file://${imagePreviewData.path}` }}
-          style={{ aspectRatio: imagePreviewData.width / imagePreviewData.height }}
+          style={{ aspectRatio: width / height }}
         />
       </View>
     </Modal>
-  )
 }

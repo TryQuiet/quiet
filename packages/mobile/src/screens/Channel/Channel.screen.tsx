@@ -13,7 +13,7 @@ import {
 } from '@quiet/state-manager'
 import { navigationActions } from '../../store/navigation/navigation.slice'
 import { ScreenNames } from '../../const/ScreenNames.enum'
-import { useContextMenu } from '../../hooks/useContextMenu'
+import { UseContextMenuType, useContextMenu } from '../../hooks/useContextMenu'
 import { MenuName } from '../../const/MenuNames.enum'
 
 export const ChannelScreen: FC = () => {
@@ -53,7 +53,7 @@ export const ChannelScreen: FC = () => {
 
   const downloadStatusesMapping = useSelector(files.selectors.downloadStatuses)
 
-  let contextMenu = useContextMenu(MenuName.Channel)
+  let contextMenu: UseContextMenuType<{}> | null = useContextMenu(MenuName.Channel)
   if (!community?.CA) {
     contextMenu = null
   }
@@ -90,7 +90,7 @@ export const ChannelScreen: FC = () => {
     dispatch(messages.actions.resetCurrentPublicChannelCache())
   }, [currentChannel?.id])
 
-  const [imagePreview, setImagePreview] = useState<FileMetadata>(null)
+  const [imagePreview, setImagePreview] = useState<FileMetadata | null>(null)
 
   const openUrl = useCallback((url: string) => {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises

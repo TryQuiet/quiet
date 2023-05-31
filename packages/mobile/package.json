@@ -98,6 +98,7 @@
     "@types/react-native": "^0.64.0",
     "@types/react-test-renderer": "^16.9.2",
     "@types/styled-components": "^5.1.9",
+    "@types/styled-components-react-native": "^5.2.1",
     "babel-jest": "^29.2.1",
     "chalk": "^4.1.1",
     "detox": "^20.7.0",

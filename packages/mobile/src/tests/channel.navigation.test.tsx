@@ -53,6 +53,6 @@ describe('Channel navigation', () => {
     expect(chat).toBeVisible()
 
     // Stop state-manager sagas
-    root.cancel()
+    root?.cancel()
   })
 })
