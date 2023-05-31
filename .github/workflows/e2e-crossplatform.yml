@@ -84,6 +84,25 @@ jobs:
         working-directory: ./packages/desktop/dist
         shell: powershell
 
+
+
+        # Old prod version
+      # - name: Download EXE
+      #   run: curl -LO https://github.com/TryQuiet/quiet/releases/download/quiet%401.0.0/Quiet.Setup.1.0.0.exe
+      #   shell: bash
+
+      # - name: Chmod
+      #   run: chmod +x Quiet.Setup.1.0.0.exe
+      #   shell: bash
+
+      # - name: Install exe
+      #   run: Start-Process Quiet.Setup.1.0.0.exe -Wait
+      #   shell: powershell
+
+      # - name: Kill exe
+      #   run: Stop-Process -Name "Quiet" -Force
+      #   shell: powershell
+        # Old prod version
       - name: Run one client test
         uses: nick-fields/retry@v2
         with:
@@ -97,4 +116,5 @@ jobs:
         with:
           timeout_minutes: 25
           max_attempts: 3
+          shell: bash
           command: cd packages/e2e-tests && npm run test twoClients.test.ts
