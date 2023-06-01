@@ -16,6 +16,10 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: "test"
+        shell: bash
+        run: cd $LOCALAPPDATA && cd programs && ls && mkdir quiet && ls && mkdir quiet2 && ls
+
       - name: "Setup environment"
         uses: ./.github/actions/setup-env
         with:
@@ -27,11 +31,6 @@ jobs:
         run: cd packages/desktop && curl https://zbay-binaries.s3.us-east-2.amazonaws.com/jsign/jsign-2.1.jar --output ./jsign-2.1.jar
 
 
-
-      - name: "test"
-        shell: bash
-        run: cd $LOCALAPPDATA && cd programs && ls && mkdir quiet && ls && mkdir quiet2 && ls
-        
       - name: "Add Windows certificate"
         id: write_file
         uses: TryQuiet/base64-to-file@main
