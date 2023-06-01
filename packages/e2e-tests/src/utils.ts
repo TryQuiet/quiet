@@ -44,7 +44,7 @@ export class BuildSetup {
       case 'linux':
         return `${__dirname}/../Quiet/${this.fileName ? this.fileName : process.env.FILE_NAME}`
       case 'win32':
-        return `${process.env.LOCALAPPDATA}\\Programs\\quiet\\Quiet.exe`
+        return `${process.env.LOCALAPPDATA}\\Programs\\${this.fileName ? 'quiet' : 'quiet2'}\\Quiet.exe`
       case 'darwin':
         return '/Applications/Quiet.app/Contents/MacOS/Quiet'
       default:
