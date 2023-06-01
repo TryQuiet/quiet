@@ -391,6 +391,50 @@ describe('publicChannelsSelectors', () => {
     const unreadChannels = publicChannelsSelectors.unreadChannels(store.getState())
     expect(unreadChannels).toEqual([channelId])
   })
+
+  it('channelsStatusWithName returns valid data', async () => {
+    const channelsStatusWithName = publicChannelsSelectors.channelsStatusWithName(store.getState())
+    const channels = publicChannelsSelectors.publicChannels(store.getState())
+    const expected = [
+      {
+        id: channels[2].id,
+        unread: false,
+        newestMessage: null,
+        name: channels[2].name
+      },
+      {
+        id: channels[4].id,
+        unread: false,
+        newestMessage: null,
+        name: channels[4].name
+      },
+      {
+        id: channels[5].id,
+        unread: false,
+        newestMessage: null,
+        name: channels[5].name
+      },
+      {
+        id: channels[1].id,
+        unread: false,
+        newestMessage: null,
+        name: channels[1].name
+      },
+      {
+        id: channels[3].id,
+        unread: false,
+        newestMessage: null,
+        name: channels[3].name
+      },
+      {
+        id: channels[0].id,
+        unread: false,
+        newestMessage: null,
+        name: channels[0].name
+      }
+    ]
+    expect(channelsStatusWithName).toEqual(expected)
+  })
 })
 
 export {}
