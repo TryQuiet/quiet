@@ -6,7 +6,6 @@ import {
   CommunitiesState,
   communitiesActions
 } from '../../communities/communities.slice'
-import { SocketActionTypes } from '../../socket/const/actionTypes'
 import { StoreKeys } from '../../store.keys'
 import { identityAdapter } from '../identity.adapter'
 import { identityReducer, IdentityState, identityActions } from '../identity.slice'
@@ -16,6 +15,7 @@ import { FactoryGirl } from 'factory-girl'
 import { setupCrypto } from '@quiet/identity'
 import { prepareStore } from '../../../utils/tests/prepareStore'
 import { getFactory } from '../../../utils/tests/factories'
+import { SocketActionTypes } from '@quiet/types'
 
 describe('saveOwnerCertificateToDb', () => {
   let store: Store
@@ -68,8 +68,8 @@ describe('saveOwnerCertificateToDb', () => {
           peerId: identity.peerId.id,
           certificate: identity.userCertificate,
           permsData: {
-            certificate: community.CA.rootCertString,
-            privKey: community.CA.rootKeyString
+            certificate: community.CA?.rootCertString,
+            privKey: community.CA?.rootKeyString
           }
         }
       ])

@@ -47,7 +47,7 @@ describe('Storage', () => {
       cid: 'uploading_id',
       message: {
         id: 'id',
-        channelAddress: 'channelAddress'
+        channelId: 'channelId'
       }
     }
 

@@ -80,14 +80,14 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
 }))
 
 export interface DeleteChannelProps {
-  channel: string
+  channelName: string
   deleteChannel: () => void
 }
 
 export const DeleteChannelComponent: React.FC<ReturnType<typeof useModal> & DeleteChannelProps> = ({
   open,
   handleClose,
-  channel,
+  channelName,
   deleteChannel
 }) => {
   return (
@@ -111,7 +111,7 @@ export const DeleteChannelComponent: React.FC<ReturnType<typeof useModal> & Dele
           justifyContent='center'>
           <Typography align={'center'}>
             Delete{' '}
-            <span style={{ fontWeight: 500 }}>#{channel}</span>? This cannot be undone.
+            <span style={{ fontWeight: 500 }}>#{channelName}</span>? This cannot be undone.
           </Typography>
         </Grid>
         <Grid item xs={'auto'} className={classes.buttonContainer}>

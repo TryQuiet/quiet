@@ -6,7 +6,7 @@ import {
 
 import { StoreKeys } from '../store.keys'
 import { errorsAdapter } from './errors.adapter'
-import { ErrorPayload } from './errors.types'
+import { ErrorPayload } from '@quiet/types'
 
 export class ErrorsState {
   public errors: EntityState<ErrorPayload> =

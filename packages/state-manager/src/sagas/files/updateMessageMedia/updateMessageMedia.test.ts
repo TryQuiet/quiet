@@ -1,19 +1,20 @@
 import { setupCrypto } from '@quiet/identity'
 import { Store } from '../../store.types'
-import { getFactory, MessageType, publicChannels } from '../../..'
+import { getFactory, publicChannels } from '../../..'
 import { prepareStore, reducers } from '../../../utils/tests/prepareStore'
 import { combineReducers } from '@reduxjs/toolkit'
 import { expectSaga } from 'redux-saga-test-plan'
 import { FactoryGirl } from 'factory-girl'
-import { communitiesActions, Community } from '../../communities/communities.slice'
+import { communitiesActions } from '../../communities/communities.slice'
 import { identityActions } from '../../identity/identity.slice'
-import { Identity } from '../../identity/identity.types'
 import { filesActions } from '../files.slice'
 import { messagesActions } from '../../messages/messages.slice'
 import { updateMessageMediaSaga } from './updateMessageMedia'
-import { PublicChannel } from '../../publicChannels/publicChannels.types'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import { DateTime } from 'luxon'
+import { Community, Identity, MessageType, PublicChannel } from '@quiet/types'
+import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
+import { generateChannelId } from '@quiet/common'
 
 describe('downloadedFileSaga', () => {
   let store: Store
@@ -24,6 +25,8 @@ describe('downloadedFileSaga', () => {
 
   let sailingChannel: PublicChannel
 
+  let generalChannel: PublicChannel
+
   beforeAll(async () => {
     setupCrypto()
 
@@ -32,8 +35,12 @@ describe('downloadedFileSaga', () => {
     factory = await getFactory(store)
 
     community = await factory.create<
-    ReturnType<typeof communitiesActions.addNewCommunity>['payload']
+      ReturnType<typeof communitiesActions.addNewCommunity>['payload']
     >('Community')
+
+    const generalChannelState = publicChannelsSelectors.generalChannel(store.getState())
+    if (generalChannelState) generalChannel = generalChannelState
+    expect(generalChannel).not.toBeUndefined()
 
     alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
       'Identity',
@@ -49,7 +56,7 @@ describe('downloadedFileSaga', () => {
             description: 'Welcome to #sailing',
             timestamp: DateTime.utc().valueOf(),
             owner: alice.nickname,
-            address: 'sailing'
+            id: generateChannelId('sailing')
           }
         }
       )
@@ -59,7 +66,7 @@ describe('downloadedFileSaga', () => {
   test('update message media', async () => {
     store.dispatch(
       publicChannelsActions.setCurrentChannel({
-        channelAddress: 'general'
+        channelId: 'general'
       })
     )
 
@@ -72,7 +79,7 @@ describe('downloadedFileSaga', () => {
       ext: 'png',
       message: {
         id: id,
-        channelAddress: 'general'
+        channelId: generalChannel.id
       }
     }
 
@@ -86,7 +93,7 @@ describe('downloadedFileSaga', () => {
             type: MessageType.Basic,
             message: '',
             createdAt: DateTime.utc().valueOf(),
-            channelAddress: 'general',
+            channelId: generalChannel.id,
             signature: '',
             pubKey: '',
             media: metadata
@@ -116,7 +123,7 @@ describe('downloadedFileSaga', () => {
   test('update message media for non-active channel', async () => {
     store.dispatch(
       publicChannelsActions.setCurrentChannel({
-        channelAddress: sailingChannel.address
+        channelId: sailingChannel.id
       })
     )
 
@@ -129,7 +136,7 @@ describe('downloadedFileSaga', () => {
       ext: 'png',
       message: {
         id: id,
-        channelAddress: 'general'
+        channelId: generalChannel.id
       }
     }
 
@@ -143,7 +150,7 @@ describe('downloadedFileSaga', () => {
             type: MessageType.Basic,
             message: '',
             createdAt: DateTime.utc().valueOf(),
-            channelAddress: 'general',
+            channelId: generalChannel.id,
             signature: '',
             pubKey: '',
             media: metadata

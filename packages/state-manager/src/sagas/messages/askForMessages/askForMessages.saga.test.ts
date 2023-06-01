@@ -1,10 +1,9 @@
 import { TestApi, testSaga } from 'redux-saga-test-plan'
 import { Socket } from 'socket.io-client'
-import { SocketActionTypes } from '../../socket/const/actionTypes'
 import {
   messagesActions
 } from '../messages.slice'
-import { AskForMessagesPayload } from '../messages.types'
+import { AskForMessagesPayload, SocketActionTypes } from '@quiet/types'
 import { askForMessagesSaga } from './askForMessages.saga'
 
 describe('askForMessagesSaga', () => {
@@ -12,7 +11,7 @@ describe('askForMessagesSaga', () => {
   const askForMessagesPayload: AskForMessagesPayload = {
     peerId: '',
     communityId: '',
-    channelAddress: '',
+    channelId: '',
     ids: []
   }
   const saga: TestApi = testSaga(

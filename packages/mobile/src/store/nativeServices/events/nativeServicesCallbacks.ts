@@ -49,9 +49,9 @@ export const deviceEvents = () => {
       ),
       nativeEventEmitter?.addListener(
         NativeEventKeys.Notification,
-        (channelAddress: string) => {
+        (channelId: string) => {
           // Change data source in state-manager
-          emit(publicChannels.actions.setCurrentChannel({ channelAddress }))
+          emit(publicChannels.actions.setCurrentChannel({ channelId }))
           // Redirect to proper screen in the application
           emit(navigationActions.navigation({ screen: ScreenNames.ChannelScreen }))
         }

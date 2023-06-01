@@ -4,13 +4,13 @@ import { getFactory } from '../../utils/tests/factories'
 import { prepareStore } from '../../utils/tests/prepareStore'
 import { connectionSelectors } from './connection.selectors'
 import {
-  communitiesActions,
-  Community
+  communitiesActions
 } from '../communities/communities.slice'
 import {
   connectionActions
 } from './connection.slice'
 import { FactoryGirl } from 'factory-girl'
+import { Community } from '@quiet/types'
 
 describe('communitiesSelectors', () => {
   setupCrypto()

@@ -91,16 +91,18 @@ describe('User', () => {
           const payload = data[0]
           const user = identity.selectors.currentIdentity(store.getState())
           // This community serves only as a mocked object for generating valid crytpo data (certificate, rootCA)
-          const communityHelper = (
-            await factory.build<typeof communities.actions.addNewCommunity>('Community', {
-              id: data[0]
-            })
-          ).payload
+          const communityHelper: ReturnType<typeof communities.actions.addNewCommunity>['payload'] =
+            (
+              await factory.build<typeof communities.actions.addNewCommunity>('Community', {
+                id: data[0]
+              })
+            ).payload
           const certificateHelper = await createUserCertificateTestHelper(
             {
               nickname: user.nickname,
               commonName: communityHelper.registrarUrl,
-              peerId: user.peerId.id
+              peerId: user.peerId.id,
+              dmPublicKey: user.dmKeys.publicKey
             },
             communityHelper.CA
           )
@@ -131,7 +133,7 @@ describe('User', () => {
                 description: 'string',
                 owner: 'owner',
                 timestamp: 0,
-                address: 'general'
+                id: 'general'
               }
             }
           })
@@ -209,6 +211,9 @@ describe('User', () => {
         "PublicChannels/addChannel",
         "Messages/addPublicChannelsMessagesBase",
         "Modals/closeModal",
+        "Messages/lazyLoading",
+        "Messages/resetCurrentPublicChannelCache",
+        "Messages/resetCurrentPublicChannelCache",
       ]
     `)
   })

@@ -1,7 +1,6 @@
 import { createSelector } from 'reselect'
-import { AUTODOWNLOAD_SIZE_LIMIT } from '../../constants'
 import { channelMessagesAdapter } from '../publicChannels/publicChannels.adapter'
-import { currentChannelAddress } from '../publicChannels/publicChannels.selectors'
+import { currentChannelId } from '../publicChannels/publicChannels.selectors'
 import { StoreKeys } from '../store.keys'
 import { CreatedSelectors, StoreState } from '../store.types'
 import { certificatesMapping } from '../users/users.selectors'
@@ -12,8 +11,8 @@ import {
   messageVerificationStatusAdapter,
   publicChannelsMessagesBaseAdapter
 } from './messages.adapter.ts'
-import { MessageType } from './messages.types'
-import { DownloadState } from '../files/files.types'
+import { isDefined } from '@quiet/common'
+import { MessageType } from '@quiet/types'
 
 const messagesSlice: CreatedSelectors[StoreKeys.Messages] = (state: StoreState) =>
   state[StoreKeys.Messages]
@@ -38,9 +37,10 @@ export const publicChannelsMessagesBase = createSelector(messagesSlice, reducerS
 
 export const currentPublicChannelMessagesBase = createSelector(
   publicChannelsMessagesBase,
-  currentChannelAddress,
-  (base, address) => {
-    return base[address]
+  currentChannelId,
+  (base, id) => {
+    if (!id) return undefined
+    return base[id]
   }
 )
 
@@ -48,6 +48,7 @@ export const publicChannelMessagesEntities = (address: string) =>
   createSelector(publicChannelsMessagesBase, base => {
     if (!base) return {}
     const channelMessagesBase = base[address]
+    if (!channelMessagesBase) return {}
     return channelMessagesAdapter.getSelectors().selectEntities(channelMessagesBase.messages)
   })
 
@@ -98,24 +99,26 @@ export const sortedCurrentPublicChannelMessagesEntries = createSelector(
   }
 )
 
-export const missingChannelMessages = (ids: string[], channelAddress: string) =>
+export const missingChannelMessages = (ids: string[], channelId: string) =>
   createSelector(publicChannelsMessagesBase, base => {
-    if (!base[channelAddress]) return []
+    const channelMessagesBase = base[channelId]
+    if (!channelMessagesBase) return []
     const channelMessages = channelMessagesAdapter
       .getSelectors()
-      .selectIds(base[channelAddress].messages)
+      .selectIds(channelMessagesBase.messages)
     return ids.filter(id => !channelMessages.includes(id))
   })
 
-export const missingChannelFiles = (channelAddress: string) =>
+export const missingChannelFiles = (channelId: string) =>
   createSelector(publicChannelsMessagesBase, downloadStatuses, (base, statuses) => {
-    if (!base[channelAddress]) return []
+    const channelMessagesBase = base[channelId]
+    if (!channelMessagesBase) return []
     const channelMessages = channelMessagesAdapter
       .getSelectors()
-      .selectAll(base[channelAddress].messages)
+      .selectAll(channelMessagesBase.messages)
     return channelMessages
       .filter(message => (message.type === MessageType.Image || message.type === MessageType.File) && message.media?.path === null)
-      .map(message => message.media)
+      .map(message => message.media).filter(isDefined)
   })
 
 export const messagesSelectors = {

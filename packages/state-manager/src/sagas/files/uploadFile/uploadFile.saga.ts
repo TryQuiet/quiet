@@ -1,14 +1,12 @@
 import { applyEmitParams, Socket } from '../../../types'
 import { PayloadAction } from '@reduxjs/toolkit'
 import { select, call, put, apply } from 'typed-redux-saga'
-import { SocketActionTypes } from '../../socket/const/actionTypes'
 import { identitySelectors } from '../../identity/identity.selectors'
-import { DownloadState, FileMetadata, imagesExtensions } from '../../files/files.types'
 import { filesActions } from '../files.slice'
-import { MessageType } from '../../messages/messages.types'
 import { messagesActions } from '../../messages/messages.slice'
 import { generateMessageId } from '../../messages/utils/message.utils'
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
+import { DownloadState, FileMetadata, imagesExtensions, MessageType, SocketActionTypes } from '@quiet/types'
 
 export function* uploadFileSaga(
   socket: Socket,
@@ -16,7 +14,8 @@ export function* uploadFileSaga(
 ): Generator {
   const identity = yield* select(identitySelectors.currentIdentity)
 
-  const currentChannel = yield* select(publicChannelsSelectors.currentChannelAddress)
+  const currentChannel = yield* select(publicChannelsSelectors.currentChannelId)
+  if (!identity || !currentChannel) return
 
   const id = yield* call(generateMessageId)
 
@@ -25,7 +24,7 @@ export function* uploadFileSaga(
     cid: `uploading_${id}`,
     message: {
       id: id,
-      channelAddress: currentChannel
+      channelId: currentChannel
     }
   }
 

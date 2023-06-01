@@ -1,7 +1,7 @@
 import { setupCrypto } from '@quiet/identity'
 import { Store } from '../store.types'
 import { FactoryGirl } from 'factory-girl'
-import { getFactory, Identity, publicChannels } from '../..'
+import { getFactory, publicChannels } from '../..'
 import { prepareStore } from '../../utils/tests/prepareStore'
 import {
   publicChannels as getPublicChannels,
@@ -11,17 +11,25 @@ import {
   publicChannelsSelectors
 } from './publicChannels.selectors'
 import { publicChannelsActions } from './publicChannels.slice'
-import { DisplayableMessage, ChannelMessage } from './publicChannels.types'
-import { communitiesActions, Community } from '../communities/communities.slice'
+
 import { identityActions } from '../identity/identity.slice'
 import { usersActions } from '../users/users.slice'
-import { MessageType } from '../messages/messages.types'
 import {
   formatMessageDisplayDate,
   formatMessageDisplayDay
 } from '../../utils/functions/dates/formatMessageDisplayDate'
 import { displayableMessage } from '../../utils/functions/dates/formatDisplayableMessage'
 import { DateTime } from 'luxon'
+import { generateChannelId } from '@quiet/common'
+import {
+  ChannelMessage,
+  Community,
+  DisplayableMessage,
+  Identity,
+  MessageType,
+  PublicChannel
+} from '@quiet/types'
+import { communitiesActions } from '../communities/communities.slice'
 
 describe('publicChannelsSelectors', () => {
   let store: Store
@@ -30,6 +38,9 @@ describe('publicChannelsSelectors', () => {
   let community: Community
   let alice: Identity
   let john: Identity
+
+  let generalChannel: PublicChannel
+  let channelIdes: string[] = []
 
   const msgs: { [id: string]: ChannelMessage } = {}
   const msgsOwners: { [id: string]: string } = {}
@@ -45,35 +56,38 @@ describe('publicChannelsSelectors', () => {
     factory = await getFactory(store)
 
     community = await factory.create<
-    ReturnType<typeof communitiesActions.addNewCommunity>['payload']
+      ReturnType<typeof communitiesActions.addNewCommunity>['payload']
     >('Community')
 
     alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
       'Identity',
       { id: community.id, nickname: 'alice' }
     )
-
+    const generalChannelState = publicChannelsSelectors.generalChannel(store.getState())
+    if (generalChannelState) generalChannel = generalChannelState
+    expect(generalChannel).not.toBeUndefined()
+    channelIdes = [...channelIdes, generalChannel.id]
     john = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
       'Identity',
       { id: community.id, nickname: 'john' }
     )
-
+    store.dispatch(publicChannelsActions.setCurrentChannel({ channelId: generalChannel.id }))
     // Setup channels
     const channelNames = ['croatia', 'allergies', 'sailing', 'pets', 'antiques']
 
     for (const name of channelNames) {
-      await factory.create<ReturnType<typeof publicChannels.actions.addChannel>['payload']>(
-        'PublicChannel',
-        {
-          channel: {
-            name: name,
-            description: `Welcome to #${name}`,
-            timestamp: DateTime.utc().valueOf(),
-            owner: alice.nickname,
-            address: name
-          }
+      const channel = await factory.create<
+        ReturnType<typeof publicChannels.actions.addChannel>['payload']
+      >('PublicChannel', {
+        channel: {
+          name: name,
+          description: `Welcome to #${name}`,
+          timestamp: DateTime.utc().valueOf(),
+          owner: alice.nickname,
+          id: generateChannelId(name)
         }
-      )
+      })
+      channelIdes = [...channelIdes, channel.channel.id]
     }
 
     /* Messages ids are being used only for veryfing proper order...
@@ -197,7 +211,7 @@ describe('publicChannelsSelectors', () => {
 
     for (const item of shuffled) {
       const message = await factory.create<
-      ReturnType<typeof publicChannelsActions.test_message>['payload']
+        ReturnType<typeof publicChannelsActions.test_message>['payload']
       >('Message', {
         identity: item.identity,
         message: {
@@ -205,7 +219,7 @@ describe('publicChannelsSelectors', () => {
           type: item.type || MessageType.Basic,
           message: `message_${item.id}`,
           createdAt: item.createdAt,
-          channelAddress: 'general',
+          channelId: generalChannel.id,
           signature: '',
           pubKey: ''
         },
@@ -218,7 +232,18 @@ describe('publicChannelsSelectors', () => {
 
   it('get messages sorted by date', async () => {
     const messages = sortedCurrentChannelMessages(store.getState())
-    messages.forEach(message => {
+
+    const formattedMessages = messages.reduce((prev: ChannelMessage[], curr: ChannelMessage) => {
+      return [
+        ...prev,
+        {
+          ...curr,
+          channelId: 'general_ec4bca1fa76046c53dff1e49979c3647'
+        }
+      ]
+    }, [])
+
+    formattedMessages.forEach(message => {
       expect(message).toMatchSnapshot({
         createdAt: expect.any(Number),
         pubKey: expect.any(String),
@@ -229,7 +254,6 @@ describe('publicChannelsSelectors', () => {
 
   it('get grouped messages', async () => {
     const messages = currentChannelMessagesMergedBySender(store.getState())
-
     // Convert regular messages to displayable messages
     const displayable: { [id: string]: DisplayableMessage } = {}
     for (const message of Object.values(msgs)) {
@@ -245,10 +269,7 @@ describe('publicChannelsSelectors', () => {
     expect(groupDay3).toBe('Today')
 
     const expectedGrouppedMessages = {
-      [groupDay1]: [
-        [displayable['7']],
-        [displayable['8']]
-      ],
+      [groupDay1]: [[displayable['7']], [displayable['8']]],
       [groupDay2]: [
         [displayable['1']],
         [displayable['2']],
@@ -276,45 +297,53 @@ describe('publicChannelsSelectors', () => {
   })
 
   it("don't select messages without author", async () => {
-    const channel = (await factory.create<ReturnType<typeof publicChannels.actions.addChannel>['payload']>(
-      'PublicChannel',
-      {
-        channel: {
-          name: 'utah',
-          description: 'Welcome to #utah',
-          timestamp: DateTime.utc().valueOf(),
-          owner: alice.nickname,
-          address: 'utah'
+    const channelId = generateChannelId('utah')
+    const channel = (
+      await factory.create<ReturnType<typeof publicChannels.actions.addChannel>['payload']>(
+        'PublicChannel',
+        {
+          channel: {
+            name: 'utah',
+            description: 'Welcome to #utah',
+            timestamp: DateTime.utc().valueOf(),
+            owner: alice.nickname,
+            id: channelId
+          }
         }
-      }
-    )).channel
+      )
+    ).channel
 
-    const elouise = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
-      'Identity',
-      { id: community.id, nickname: 'elouise' }
+    const elouise = await factory.create<
+      ReturnType<typeof identityActions.addNewIdentity>['payload']
+    >('Identity', { id: community.id, nickname: 'elouise' })
+
+    if (!elouise.userCertificate) throw new Error('no elouise.userCertificate')
+    store.dispatch(
+      usersActions.test_remove_user_certificate({ certificate: elouise.userCertificate })
     )
 
-    store.dispatch(usersActions.test_remove_user_certificate({ certificate: elouise.userCertificate }))
+    store.dispatch(
+      publicChannelsActions.setCurrentChannel({
+        channelId: channel.id
+      })
+    )
 
-    store.dispatch(publicChannelsActions.setCurrentChannel({
-      channelAddress: channel.address
-    }))
-
-    await factory.create<
-    ReturnType<typeof publicChannelsActions.test_message>['payload']
-    >('Message', {
-      identity: elouise,
-      message: {
-        id: '0',
-        type: MessageType.Basic,
-        message: 'elouise_message',
-        createdAt: DateTime.now().valueOf(),
-        channelAddress: channel.address,
-        signature: '',
-        pubKey: ''
-      },
-      verifyAutomatically: true
-    })
+    await factory.create<ReturnType<typeof publicChannelsActions.test_message>['payload']>(
+      'Message',
+      {
+        identity: elouise,
+        message: {
+          id: '0',
+          type: MessageType.Basic,
+          message: 'elouise_message',
+          createdAt: DateTime.now().valueOf(),
+          channelId: channel.id,
+          signature: '',
+          pubKey: ''
+        },
+        verifyAutomatically: true
+      }
+    )
 
     const messages = displayableCurrentChannelMessages(store.getState())
 
@@ -325,9 +354,9 @@ describe('publicChannelsSelectors', () => {
     // This case occurred in a built app
     const store = prepareStore().store
     const factory = await getFactory(store)
-    await factory.create<
-    ReturnType<typeof communitiesActions.addNewCommunity>['payload']
-    >('Community')
+    await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>(
+      'Community'
+    )
 
     const oldState = store.getState()
     const channelId = oldState.PublicChannels.channels.ids[0]
@@ -346,16 +375,65 @@ describe('publicChannelsSelectors', () => {
         }
       }
     }
+    // @ts-expect-error
     const unreadChannels = publicChannelsSelectors.unreadChannels(newState)
     expect(unreadChannels).toEqual([])
   })
 
   it('unreadChannels selector returns only unread channels', async () => {
-    store.dispatch(publicChannelsActions.markUnreadChannel({
-      channelAddress: 'allergies'
-    }))
+    const channelId = channelIdes.find(channelId => channelId.includes('allergies'))
+    if (!channelId) throw new Error('no channel id')
+    store.dispatch(
+      publicChannelsActions.markUnreadChannel({
+        channelId
+      })
+    )
     const unreadChannels = publicChannelsSelectors.unreadChannels(store.getState())
-    expect(unreadChannels).toEqual(['allergies'])
+    expect(unreadChannels).toEqual([channelId])
+  })
+
+  it('channelsStatusWithName returns valid data', async () => {
+    const channelsStatusWithName = publicChannelsSelectors.channelsStatusWithName(store.getState())
+    const channels = publicChannelsSelectors.publicChannels(store.getState())
+    const expected = [
+      {
+        id: channels[2].id,
+        unread: false,
+        newestMessage: null,
+        name: channels[2].name
+      },
+      {
+        id: channels[4].id,
+        unread: false,
+        newestMessage: null,
+        name: channels[4].name
+      },
+      {
+        id: channels[5].id,
+        unread: false,
+        newestMessage: null,
+        name: channels[5].name
+      },
+      {
+        id: channels[1].id,
+        unread: false,
+        newestMessage: null,
+        name: channels[1].name
+      },
+      {
+        id: channels[3].id,
+        unread: false,
+        newestMessage: null,
+        name: channels[3].name
+      },
+      {
+        id: channels[0].id,
+        unread: false,
+        newestMessage: null,
+        name: channels[0].name
+      }
+    ]
+    expect(channelsStatusWithName).toEqual(expected)
   })
 })
 

@@ -18,6 +18,14 @@ module.exports = {
         8081
       ]
     },
+    'android.storybook': {
+      type: 'android.apk',
+      binaryPath: 'android/app/build/outputs/apk/storybook/debug/app-storybook-debug.apk',
+      build: 'cd android && ENVFILE=../.env.storybook ./gradlew assembleStorybookDebug assembleStorybookDebugAndroidTest -DtestBuildType=debug',
+      reversePorts: [
+        8082
+      ]
+    },
     'android.release': {
       type: 'android.apk',
       binaryPath: 'android/app/build/outputs/apk/standard/release/app-standard-release.apk',
@@ -57,6 +65,10 @@ module.exports = {
       device: 'attached',
       app: 'android.debug'
     },
+    'android.att.storybook': {
+      device: 'attached',
+      app: 'android.storybook'
+    },
     'android.att.release': {
       device: 'attached',
       app: 'android.release'
@@ -64,6 +76,10 @@ module.exports = {
     'android.emu.debug': {
       device: 'emulator',
       app: 'android.debug'
+    },
+    'android.emu.storybook': {
+      device: 'emulator',
+      app: 'android.storybook'
     },
     'android.emu.release': {
       device: 'emulator',

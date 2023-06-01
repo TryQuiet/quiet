@@ -18,7 +18,8 @@ export type RootStackParamList = {
   [ScreenNames.ChannelScreen]: undefined
   [ScreenNames.CreateChannelScreen]: undefined
   [ScreenNames.DeleteChannelScreen]: {
-    channel: string
+    channelName: string
+    channelId: string
   }
   [ScreenNames.SuccessScreen]: {
     onPress: () => void

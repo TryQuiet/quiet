@@ -33,7 +33,9 @@ export const LeaveCommunity: FC<LeaveCommunityProps> = ({
   }, [name])
 
   return (
-    <View style={{ flex: 1, backgroundColor: defaultPalette.background.white }}>
+    <View
+      style={{ flex: 1, backgroundColor: defaultPalette.background.white }}
+      testID={'leave-community-component'}>
       <Appbar title={'Leave community'} back={goBack} />
       <View
         style={{
@@ -54,11 +56,7 @@ export const LeaveCommunity: FC<LeaveCommunityProps> = ({
           </Typography>
         </View>
         <View style={{ paddingTop: 16 }}>
-          <Button
-            title={'Leave community'}
-            onPress={onPress}
-            loading={loading}
-          />
+          <Button title={'Leave community'} onPress={onPress} loading={loading} />
         </View>
         <View>
           <Button title={"Never mind, I'll stay"} onPress={goBack} negative />

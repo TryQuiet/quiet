@@ -7,39 +7,39 @@ import { connectionActions } from '../../appConnection/connection.slice'
 import { communitiesMasterSaga } from '../../communities/communities.master.saga'
 import { connectionMasterSaga } from '../../appConnection/connection.master.saga'
 import { communitiesActions } from '../../communities/communities.slice'
-import {
-  ResponseCreateCommunityPayload,
-  ResponseCreateNetworkPayload,
-  ResponseLaunchCommunityPayload,
-  ResponseRegistrarPayload,
-  StorePeerListPayload
-} from '../../communities/communities.types'
 import { errorsMasterSaga } from '../../errors/errors.master.saga'
 import { errorsActions } from '../../errors/errors.slice'
-import { ErrorPayload } from '../../errors/errors.types'
-import { DownloadStatus, FileMetadata, RemoveDownloadStatus } from '../../files/files.types'
 import { identityMasterSaga } from '../../identity/identity.master.saga'
 import { identityActions } from '../../identity/identity.slice'
 import { messagesMasterSaga } from '../../messages/messages.master.saga'
 import { filesMasterSaga } from '../../files/files.master.saga'
 import { messagesActions } from '../../messages/messages.slice'
-import { ChannelMessagesIdsResponse } from '../../messages/messages.types'
 import { publicChannelsMasterSaga } from '../../publicChannels/publicChannels.master.saga'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
-import {
-  ChannelsReplicatedPayload,
-  CreatedChannelResponse,
-  ChannelDeletionResponsePayload,
-  IncomingMessages,
-  SetChannelSubscribedPayload
-} from '../../publicChannels/publicChannels.types'
-
 import { usersActions } from '../../users/users.slice'
-import { SendCertificatesResponse } from '../../users/users.types'
-import { SocketActionTypes } from '../const/actionTypes'
 import { filesActions } from '../../files/files.slice'
-import { CommunityId, NetworkDataPayload } from '../../appConnection/connection.types'
 import { networkActions } from '../../network/network.slice'
+import {
+  ResponseCreateCommunityPayload,
+  ResponseRegistrarPayload,
+  StorePeerListPayload,
+  ResponseCreateNetworkPayload,
+  ResponseLaunchCommunityPayload,
+  ChannelDeletionResponsePayload,
+  ChannelMessagesIdsResponse,
+  ChannelsReplicatedPayload,
+  CommunityId,
+  CreatedChannelResponse,
+  DownloadStatus,
+  ErrorPayload,
+  FileMetadata,
+  IncomingMessages,
+  NetworkDataPayload,
+  RemoveDownloadStatus,
+  SendCertificatesResponse,
+  SetChannelSubscribedPayload,
+  SocketActionTypes
+} from '@quiet/types'
 
 const log = logger('socket')
 
@@ -83,7 +83,6 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof connectionActions.setTorBootstrapProcess>
     | ReturnType<typeof connectionActions.setTorConnectionProcess>
     | ReturnType<typeof connectionActions.torBootstrapped>
-
   >(emit => {
     // UPDATE FOR APP
     socket.on(SocketActionTypes.TOR_BOOTSTRAP_PROCESS, (payload: string) => {
@@ -124,20 +123,23 @@ export function subscribe(socket: Socket) {
     socket.on(SocketActionTypes.CHANNEL_SUBSCRIBED, (payload: SetChannelSubscribedPayload) => {
       emit(publicChannelsActions.setChannelSubscribed(payload))
     })
-    socket.on(SocketActionTypes.CHANNEL_DELETION_RESPONSE, (payload: ChannelDeletionResponsePayload) => {
-      emit(publicChannelsActions.channelDeletionResponse(payload))
-    })
+    socket.on(
+      SocketActionTypes.CHANNEL_DELETION_RESPONSE,
+      (payload: ChannelDeletionResponsePayload) => {
+        emit(publicChannelsActions.channelDeletionResponse(payload))
+      }
+    )
     socket.on(SocketActionTypes.CREATED_CHANNEL, (payload: CreatedChannelResponse) => {
       emit(
         messagesActions.addPublicChannelsMessagesBase({
-          channelAddress: payload.channel.address
+          channelId: payload.channel.id
         })
       )
       emit(publicChannelsActions.addChannel(payload))
       emit(
         publicChannelsActions.sendInitialChannelMessage({
           channelName: payload.channel.name,
-          channelAddress: payload.channel.address
+          channelId: payload.channel.id
         })
       )
     })
@@ -162,7 +164,7 @@ export function subscribe(socket: Socket) {
       emit(publicChannelsActions.createGeneralChannel())
     })
     socket.on(SocketActionTypes.REGISTRAR, (payload: ResponseRegistrarPayload) => {
-      log(payload)
+      log(SocketActionTypes.REGISTRAR, payload)
       emit(communitiesActions.responseRegistrar(payload))
       emit(networkActions.addInitializedRegistrar(payload.id))
     })
@@ -170,7 +172,7 @@ export function subscribe(socket: Socket) {
       emit(communitiesActions.storePeerList(payload))
     })
     socket.on(SocketActionTypes.NETWORK, (payload: ResponseCreateNetworkPayload) => {
-      log(payload)
+      log(SocketActionTypes.NETWORK, payload)
       emit(communitiesActions.responseCreateNetwork(payload))
     })
     socket.on(SocketActionTypes.COMMUNITY, (payload: ResponseLaunchCommunityPayload) => {
@@ -227,7 +229,7 @@ export function subscribe(socket: Socket) {
             rootCa: payload.payload.rootCa
           })
         )
-        emit(communitiesActions.launchCommunity())
+        emit(communitiesActions.launchCommunity(payload.communityId))
       }
     )
     socket.on(

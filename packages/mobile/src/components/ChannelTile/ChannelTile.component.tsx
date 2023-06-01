@@ -8,7 +8,7 @@ import { ChannelTileProps } from './ChannelTile.types'
 
 export const ChannelTile: FC<ChannelTileProps> = ({
   name,
-  address,
+  id,
   message,
   date,
   unread,
@@ -45,7 +45,7 @@ export const ChannelTile: FC<ChannelTileProps> = ({
         <TouchableWithoutFeedback
           testID={`channel_tile_${name}`}
           onPress={() => {
-            redirect(address)
+            redirect(id)
           }}>
           <View
             style={{

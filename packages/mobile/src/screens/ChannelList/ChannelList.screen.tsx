@@ -17,10 +17,10 @@ export const ChannelListScreen: FC = () => {
   const dispatch = useDispatch()
 
   const redirect = useCallback(
-    (address: string) => {
+    (id: string) => {
       dispatch(
         publicChannels.actions.setCurrentChannel({
-          channelAddress: address
+          channelId: id
         })
       )
       dispatch(
@@ -33,9 +33,10 @@ export const ChannelListScreen: FC = () => {
   )
 
   const community = useSelector(communities.selectors.currentCommunity)
-  const channels = useSelector(publicChannels.selectors.channelsStatusSorted)
 
-  const tiles = channels.map(status => {
+  const channelsStatusWithName = useSelector(publicChannels.selectors.channelsStatusWithName)
+
+  const tiles = channelsStatusWithName.map(status => {
     const newestMessage = status.newestMessage
 
     const message = newestMessage?.message || '...'
@@ -44,8 +45,8 @@ export const ChannelListScreen: FC = () => {
       : undefined
 
     const tile: ChannelTileProps = {
-      name: status.address,
-      address: status.address,
+      name: status.name,
+      id: status.id,
       message: message,
       date: date,
       unread: status.unread,
