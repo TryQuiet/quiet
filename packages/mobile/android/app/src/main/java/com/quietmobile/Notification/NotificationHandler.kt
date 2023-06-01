@@ -20,7 +20,8 @@ class NotificationHandler(private val context: Context) {
      * @param message - Object of type ChannelMessage
      */
     fun notify(message: String?, username: String?) {
-        var channel = ""
+        var channelId = ""
+        var channelName = ""
         var content = ""
 
         val _message: JSONObject = try {
@@ -35,8 +36,11 @@ class NotificationHandler(private val context: Context) {
 
         try {
             // Parse channel name
-            val _channel = _message.getString("channelId")
-            channel = String.format("#%s", _channel)
+            val _channelName = _message.getString("channelName")
+            channelName = String.format("#%s", _channelName)
+            // Parse channel id
+            val _channelId = _message.getString("channelId")
+            channelId = String.format("#%s", _channelId)
             // Parse message content
             val _content = _message.getString("message")
             content = String.format("%s", _content)
@@ -49,7 +53,7 @@ class NotificationHandler(private val context: Context) {
         val group = context.getString(R.string.app_name)
         createGroup(group)
 
-        composeNotification(channel, user, content, group)
+        composeNotification(channelId, channelName, user, content, group)
     }
 
     private fun createGroup(group: String) {
@@ -89,8 +93,8 @@ class NotificationHandler(private val context: Context) {
         notificationManager.notify(id, groupBuilder.build())
     }
 
-    private fun composeNotification(channel: String, user: String, content: String, group: String) {
-        val id = channel.hashCode()
+    private fun composeNotification(channelId: String,channelName: String, user: String, content: String, group: String) {
+        val id = channelId.hashCode()
 
         val intent = Intent(
             context,
@@ -100,7 +104,7 @@ class NotificationHandler(private val context: Context) {
         intent.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
 
         // Remove prefix from channel name before saving extras
-        val address = channel.substring(1)
+        val address = channelId.substring(1)
 
         val bundle = Bundle()
         bundle.putString("channel", address)
@@ -119,7 +123,7 @@ class NotificationHandler(private val context: Context) {
                 Const.INCOMING_MESSAGES_CHANNEL_ID
             )
                 .setSmallIcon(R.drawable.ic_notification)
-                .setContentTitle(channel)
+                .setContentTitle(channelName)
                 .setContentText("$user: $content")
                 .setGroup(group)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT) // Set the intent that will fire when the user taps the notification
