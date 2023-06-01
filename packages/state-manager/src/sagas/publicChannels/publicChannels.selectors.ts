@@ -291,7 +291,7 @@ export const channelsStatusWithName = createSelector(
     const channels = channelsStatusSelector.reduce(
       (prev: PublicChannelStatusWithName[], curr: PublicChannelStatus) => {
         const channel: PublicChannelStorage | undefined = publicChannelsSelector.find(channel =>
-          curr.id.includes(channel.name)
+          curr.id === channel.id
         )
         if (!channel?.name) return []
         const name = channel.name
