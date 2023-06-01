@@ -16,10 +16,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: "test"
-        shell: bash
-        run: cd $LOCALAPPDATA && cd programs && ls && mkdir quiet && ls && mkdir quiet2 && ls
-
       - name: "Setup environment"
         uses: ./.github/actions/setup-env
         with:
