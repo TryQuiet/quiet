@@ -17,7 +17,7 @@ export const Input = forwardRef<TextInput, InputProps>(
       length,
       hint,
       multiline,
-      disabled,
+      disabled = false,
       style
     },
     ref

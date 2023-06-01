@@ -21,6 +21,10 @@ describe('Message component', () => {
           }
         ]}
         pendingMessages={{}}
+        openUrl={() => {}}
+        openImagePreview={() => {}}
+        downloadFile={() => {}}
+        cancelDownload={() => {}}
       />
     )
 
@@ -266,6 +270,10 @@ describe('Message component', () => {
           }
         ]}
         pendingMessages={{}}
+        openUrl={() => {}}
+        openImagePreview={() => {}}
+        downloadFile={() => {}}
+        cancelDownload={() => {}}
       />
     )
 

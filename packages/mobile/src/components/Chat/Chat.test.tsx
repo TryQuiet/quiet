@@ -16,12 +16,16 @@ describe('Chat component', () => {
       <Chat
         contextMenu={{
           visible: false,
-          handleOpen: undefined,
-          handleClose: undefined
+          handleOpen: function (_args?: any): any {},
+          handleClose: function (_args?: any): any {}
         }}
         sendMessageAction={jest.fn()}
         loadMessagesAction={jest.fn()}
         handleBackButton={jest.fn()}
+        openImagePreview={() => {}}
+        openUrl={() => {}}
+        downloadFile={() => {}}
+        cancelDownload={() => {}}
         channel={{
           name: 'general',
           description: '',
@@ -193,7 +197,6 @@ describe('Chat component', () => {
             ]
           }
         }}
-        user={'holmes'}
       />
     )
 

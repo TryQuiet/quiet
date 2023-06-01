@@ -5,6 +5,6 @@ export interface MessageProps {
   data: DisplayableMessage[]
   pendingMessages?: Dictionary<MessageSendingStatus>
   downloadStatus?: DownloadStatus
-  openImagePreview?: (media: FileMetadata) => void
+  openImagePreview: (media: FileMetadata) => void
   openUrl: (url: string) => void
 }

@@ -16,7 +16,6 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
   loadMessagesAction,
   handleBackButton,
   channel,
-  user,
   messages = {
     count: 0,
     groups: {}

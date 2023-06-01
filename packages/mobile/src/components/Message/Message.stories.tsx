@@ -19,6 +19,10 @@ storiesOf('Message', module)
           nickname: 'holmes'
         }
       ]}
+      openUrl={() => {}}
+      openImagePreview={() => {}}
+      downloadFile={() => {}}
+      cancelDownload={() => {}}
     />
   )
 })
@@ -36,6 +40,10 @@ storiesOf('Message', module)
           nickname: 'holmes'
         }
       ]}
+      openUrl={() => {}}
+      openImagePreview={() => {}}
+      downloadFile={() => {}}
+      cancelDownload={() => {}}
     />
   )
 })
@@ -49,14 +57,16 @@ storiesOf('Message', module)
         {
           id: '1',
           type: MessageType.Info,
-          message:
-            'Check this out https://github.com/orgs/TryQuiet/projects/1',
+          message: 'Check this out https://github.com/orgs/TryQuiet/projects/1',
           createdAt: 0,
           date: '1:30pm',
           nickname: 'holmes'
         }
       ]}
       openUrl={openUrl}
+      openImagePreview={() => {}}
+      downloadFile={() => {}}
+      cancelDownload={() => {}}
     />
   )
 })
@@ -73,6 +83,10 @@ storiesOf('Message', module)
           nickname: 'someone'
         }
     ]}
+    openUrl={() => {}}
+    openImagePreview={() => {}}
+    downloadFile={() => {}}
+    cancelDownload={() => {}}
     />
   )
 })
@@ -89,6 +103,10 @@ storiesOf('Message', module)
           nickname: 'someone'
         }
     ]}
+    openUrl={() => {}}
+    openImagePreview={() => {}}
+    downloadFile={() => {}}
+    cancelDownload={() => {}}
     />
   )
 })

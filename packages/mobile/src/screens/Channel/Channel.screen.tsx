@@ -40,7 +40,6 @@ export const ChannelScreen: FC = () => {
     }
   }, [handleBackButton])
 
-  const currentIdentity = useSelector(identity.selectors.currentIdentity)
   const currentChannel = useSelector(publicChannels.selectors.currentChannel)
 
   const community = useSelector(communities.selectors.currentCommunity)
@@ -93,9 +92,10 @@ export const ChannelScreen: FC = () => {
   const [imagePreview, setImagePreview] = useState<FileMetadata | null>(null)
 
   const openUrl = useCallback((url: string) => {
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    Linking.openURL(url)
+    void Linking.openURL(url)
   }, [])
+
+  if (!currentChannel) return null
 
   return (
     <Chat
@@ -104,7 +104,6 @@ export const ChannelScreen: FC = () => {
       loadMessagesAction={loadMessages}
       handleBackButton={handleBackButton}
       channel={currentChannel}
-      user={currentIdentity.nickname}
       messages={{
         count: channelMessagesCount,
         groups: channelMessages

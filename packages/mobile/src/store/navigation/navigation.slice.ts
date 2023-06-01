@@ -5,7 +5,7 @@ import { MenuName } from '../../const/MenuNames.enum'
 
 export class NavigationState {
   public currentScreen: ScreenNames = ScreenNames.SplashScreen
-  public confirmationBox = {
+  public confirmationBox: ConfirmationBox = {
     open: false,
     args: {}
   }
@@ -13,6 +13,14 @@ export class NavigationState {
   public [MenuName.Community] = { open: false, args: {} }
   public [MenuName.Channel] = { open: false, args: {} }
   public [MenuName.Invitation] = { open: false, args: {} }
+}
+
+interface ConfirmationBox {
+  open: boolean
+  args?: {
+    title?: string
+    duration?: number
+  }
 }
 
 export interface NavigationPayload {

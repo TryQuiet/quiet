@@ -1,12 +1,11 @@
 import { TextStyle } from 'react-native'
-// import {Palette} from 'styled-components';
+import { defaultPalette } from '../../styles/palettes/default.palette'
 
 export type FontWeight = 'bold' | 'medium' | 'thin' | 'normal'
 
 export interface TypographyProps {
-  // color?: keyof Palette['typography'];
   onPress?: () => void
-  color?: string
+  color?: keyof typeof defaultPalette['typography']
   fontSize: number
   fontWeight?: FontWeight
   horizontalTextAlign?: TextStyle['textAlign']

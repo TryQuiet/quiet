@@ -19,7 +19,7 @@ export const UsernameRegistration: FC<UsernameRegistrationProps> = ({
   const [inputError, setInputError] = useState<string | undefined>()
   const [loading, setLoading] = useState<boolean>(false)
 
-  const inputRef = useRef<TextInput>()
+  const inputRef = useRef<TextInput>(null)
 
   useEffect(() => {
     if (fetching) {
@@ -90,7 +90,7 @@ export const UsernameRegistration: FC<UsernameRegistrationProps> = ({
         length={20}
         capitalize={'none'}
       />
-      {!inputError && userName?.length > 0 && parsedNameDiffers && (
+      {!inputError && userName !== undefined && userName.length > 0 && parsedNameDiffers && (
         <View style={{ flexDirection: 'row', marginTop: 10 }}>
           <View style={{ justifyContent: 'center', alignContent: 'center', padding: 5 }}>
             <Image
