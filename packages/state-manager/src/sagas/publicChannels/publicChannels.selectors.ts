@@ -123,6 +123,15 @@ export const recentChannels = createSelector(
   }
 )
 
+export const getChannelById = (channelId: string) =>
+  createSelector(publicChannels, channels => {
+    const channel = channels.find(channel => channel.id === channelId)
+    if (!channel) {
+      console.log('channel dont exist')
+    }
+    return channel
+  })
+
 export const dynamicSearchedChannels = (channelInput: string) =>
   createSelector(
     publicChannels,
@@ -330,5 +339,6 @@ export const publicChannelsSelectors = {
   sortedChannels,
   pendingGeneralChannelRecreation,
   generalChannel,
-  channelsStatusWithName
+  channelsStatusWithName,
+  getChannelById
 }
