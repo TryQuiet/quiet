@@ -35,12 +35,17 @@ class NotificationHandler(private val context: Context) {
         val user = String.format("@%s", username)
 
         try {
-            // Parse channel name
-            val _channelName = _message.getString("channelName")
-            channelName = String.format("#%s", _channelName)
+
             // Parse channel id
             val _channelId = _message.getString("channelId")
             channelId = String.format("#%s", _channelId)
+            // Parse channel name
+            var index = channelId.indexOf('_')
+            if(index == -1){
+                channelName = channelId
+            }else{
+                channelName = channelId.substring(0,channelId.indexOf('_'))
+            }
             // Parse message content
             val _content = _message.getString("message")
             content = String.format("%s", _content)
