@@ -173,7 +173,7 @@ export const ChannelMessagesComponent: React.FC<
           <Message
             key={messageId}
             data={data}
-            downloadStatus={downloadStatuses && downloadStatuses[messageId]}
+            downloadStatus={downloadStatuses?.[messageId]}
             downloadFile={downloadFile}
             cancelDownload={cancelDownload}
             openImagePreview={openImagePreview}

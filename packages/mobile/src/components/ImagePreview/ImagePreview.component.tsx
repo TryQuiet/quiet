@@ -12,7 +12,7 @@ interface ImagePreviewModalProps {
 }
 
 export const ImagePreviewModal: FC<ImagePreviewModalProps> = ({ imagePreviewData, currentChannelName, resetPreviewData }) => {
-  const {width, height} = imagePreviewData
+  const { width, height } = imagePreviewData
   if (!imagePreviewData || !width || !height) return null
   return <Modal
     animationType="slide"
