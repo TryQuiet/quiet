@@ -293,32 +293,6 @@ export const unreadChannels = createSelector(channelsStatus, status => {
     }, [])
 })
 
-export const channelsStatusWithName = createSelector(
-  publicChannels,
-  channelsStatusSorted,
-  (publicChannelsSelector, channelsStatusSelector) => {
-    const channels = channelsStatusSelector.reduce(
-      (prev: PublicChannelStatusWithName[], curr: PublicChannelStatus) => {
-        const channel: PublicChannelStorage | undefined = publicChannelsSelector.find(channel =>
-          curr.id === channel.id
-        )
-        if (!channel?.name) return []
-        const name = channel.name
-        return [
-          ...prev,
-          {
-            ...curr,
-            name
-          }
-        ]
-      },
-      []
-    )
-
-    return channels
-  }
-)
-
 export const publicChannelsSelectors = {
   publicChannels,
   subscribedChannels,
@@ -339,6 +313,5 @@ export const publicChannelsSelectors = {
   sortedChannels,
   pendingGeneralChannelRecreation,
   generalChannel,
-  channelsStatusWithName,
   getChannelById
 }
