@@ -3278,7 +3278,7 @@ describe('Chat component', () => {
                     {
                       "busy": undefined,
                       "checked": undefined,
-                      "disabled": undefined,
+                      "disabled": false,
                       "expanded": undefined,
                       "selected": undefined,
                     }
