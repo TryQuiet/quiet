@@ -19,11 +19,11 @@ export const ChannelList: FC<ChannelListProps> = ({
   return (
     <View style={{ flex: 1 }} testID={'channel-list-component'}>
       <Appbar
-        title={capitalizeFirstLetter(community?.name)}
+        title={capitalizeFirstLetter(communityName)}
         position={'flex-start'}
         contextMenu={communityContextMenu}
       />
-      {tiles.length === 0 ? (
+      {tiles.length === 0 || !community ? (
         <Spinner description='Connecting to peers' />
       ) : (
         <FlatList

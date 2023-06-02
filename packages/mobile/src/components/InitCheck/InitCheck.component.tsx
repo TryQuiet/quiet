@@ -1,6 +1,6 @@
 import React, { FC } from 'react'
 import { Image, View } from 'react-native'
-import { appImages } from '../../../assets'
+import { appImages } from '../../assets'
 import { Typography } from '../Typography/Typography.component'
 
 import { InitCheckProps } from './InitCheck.types'

@@ -10,6 +10,8 @@ export type RootStackParamList = {
   [ScreenNames.JoinCommunityScreen]: {
     code?: string
   }
+  [ScreenNames.QRCodeScreen]: undefined
+  [ScreenNames.LeaveCommunityScreen]: undefined
   [ScreenNames.CreateCommunityScreen]: undefined
   [ScreenNames.UsernameRegistrationScreen]: {
     fetching: boolean

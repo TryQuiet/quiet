@@ -1,11 +1,12 @@
 import React, { FC, useCallback, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { errors, identity, ErrorCodes } from '@quiet/state-manager'
+import { errors, identity } from '@quiet/state-manager'
 import { navigationActions } from '../../store/navigation/navigation.slice'
 import { ScreenNames } from '../../const/ScreenNames.enum'
-import { appImages } from '../../../assets'
+import { appImages } from '../../assets'
 import { UsernameRegistrationScreenProps } from './UsernameRegistration.types'
 import { UsernameRegistration } from '../../components/Registration/UsernameRegistration.component'
+import { ErrorCodes } from '@quiet/types'
 
 export const UsernameRegistrationScreen: FC<UsernameRegistrationScreenProps> = ({ route }) => {
   const dispatch = useDispatch()
@@ -51,7 +52,7 @@ export const UsernameRegistrationScreen: FC<UsernameRegistrationScreenProps> = (
   return (
     <UsernameRegistration
       registerUsernameAction={handleAction}
-      registerUsernameError={error?.code === ErrorCodes.FORBIDDEN ? error.message : null}
+      registerUsernameError={error?.code === ErrorCodes.FORBIDDEN ? error.message : undefined}
       usernameRegistered={usernameRegistered}
       fetching={fetching}
     />

@@ -11,7 +11,7 @@ import { Button } from '../Button/Button.component'
 import { parseName } from '@quiet/common'
 import { Appbar } from '../Appbar/Appbar.component'
 
-import { appImages } from '../../../assets'
+import { appImages } from '../../assets'
 
 export interface CreateChannelProps {
   createChannelAction: (name: string) => void
@@ -32,10 +32,10 @@ export const CreateChannel: FC<CreateChannelProps> = ({
   const [inputError, setInputError] = useState<string | undefined>()
   const [loading, setLoading] = useState<boolean>(false)
 
-  const inputRef = useRef<TextInput>()
+  const inputRef = useRef<TextInput>(null)
 
   const onChangeText = (value: string) => {
-    setInputError(null)
+    setInputError(undefined)
     // inputRef.current?.setNativeProps({ text: value })
 
     const parsedName = parseName(value)
@@ -95,7 +95,7 @@ export const CreateChannel: FC<CreateChannelProps> = ({
           validation={inputError}
           ref={inputRef}
         />
-        {!inputError && createChannelInput?.length > 0 && parsedNameDiffers && (
+        {!inputError && createChannelInput?.length !== undefined && createChannelInput.length > 0 && parsedNameDiffers && (
           <View
             style={{
               display: 'flex',

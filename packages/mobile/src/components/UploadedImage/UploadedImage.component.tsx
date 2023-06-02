@@ -11,11 +11,11 @@ export const UploadedImage: FC<UploadedImageProps> = ({ media, openImagePreview 
     height
   } = media
 
-  const maxWidth = width >= 400 ? 400 : width
+  const maxWidth = width && width >= 400 ? 400 : width
 
   return (
     <View>
-      {!path ? (
+      {!path || !width || !height ? (
         <ActivityIndicator size='small' color={defaultTheme.palette.main.brand} />
       ) : (
         <TouchableWithoutFeedback onPress={() => openImagePreview(media)}>

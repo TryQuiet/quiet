@@ -5,18 +5,20 @@ import {
   communities,
   identity,
   publicChannels,
-  errors,
+  errors
+} from '@quiet/state-manager'
+import {
   ErrorCodes,
   ErrorMessages,
   PublicChannel,
   SocketActionTypes
-} from '@quiet/state-manager'
+, ChannelStructure
+} from '@quiet/types'
 import { DateTime } from 'luxon'
 import { navigationSelectors } from '../../store/navigation/navigation.selectors'
 import { ScreenNames } from '../../const/ScreenNames.enum'
 import { navigationActions } from '../../store/navigation/navigation.slice'
 import { generateChannelId } from '@quiet/common'
-import { ChannelStructure } from '@quiet/types'
 
 export const CreateChannelScreen: FC = () => {
   const dispatch = useDispatch()
@@ -39,6 +41,7 @@ export const CreateChannelScreen: FC = () => {
   useEffect(() => {
     if (
       currentScreen === ScreenNames.CreateChannelScreen &&
+      channel.channelId !== null && channel.channelName !== null &&
       channels.filter(_channel => _channel.name === channel.channelName).length > 0
     ) {
       dispatch(
@@ -46,7 +49,7 @@ export const CreateChannelScreen: FC = () => {
           channelId: channel.channelId
         })
       )
-      setChannel(null)
+      setChannel({ channelId: null, channelName: null })
       dispatch(navigationActions.replaceScreen({ screen: ScreenNames.ChannelScreen }))
     }
   }, [dispatch, channels])
@@ -73,7 +76,18 @@ export const CreateChannelScreen: FC = () => {
             type: SocketActionTypes.CREATED_CHANNEL,
             code: ErrorCodes.FORBIDDEN,
             message: ErrorMessages.CHANNEL_NAME_TAKEN,
-            community: community.id
+            community: community?.id
+          })
+        )
+        return
+      }
+      if (!user) {
+        dispatch(
+          errors.actions.addError({
+            type: SocketActionTypes.CREATED_CHANNEL,
+            code: ErrorCodes.NOT_FOUND,
+            message: ErrorMessages.GENERAL,
+            community: community?.id
           })
         )
         return

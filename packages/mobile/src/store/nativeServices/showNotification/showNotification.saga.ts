@@ -15,15 +15,26 @@ export function* showNotificationSaga(
   if (screen === ScreenNames.ChannelListScreen) return
 
   const _message = action.payload.message
+  if (!_message) return
 
   const { channelId } = _message
   const channel = yield* select(publicChannels.selectors.getChannelById(channelId))
+  if (!channel) {
+    console.warn(`No channel found for id ${channelId}`)
+    return
+  }
   const messageWithChannelName = { ..._message, channelName: channel.name }
 
   const message = yield* call(JSON.stringify, messageWithChannelName)
 
   const mapping = yield* select(users.selectors.certificatesMapping)
-  const username = mapping[_message.pubKey].username
+  let username: string
+  try {
+    username = mapping[_message.pubKey].username
+  } catch (e) {
+    console.error(`Could not show notification for channel name ${channel.name} and message id ${_message.id}`, e)
+    return
+  }
 
   yield* call(
     NativeModules.CommunicationModule.handleIncomingEvents,

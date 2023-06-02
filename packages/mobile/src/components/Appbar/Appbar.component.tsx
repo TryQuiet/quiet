@@ -5,7 +5,7 @@ import { Typography } from '../Typography/Typography.component'
 import { StyledAppbar } from './Appbar.styles'
 import { AppbarProps } from './Appbar.types'
 
-import { appImages } from '../../../assets'
+import { appImages } from '../../assets'
 import { defaultTheme } from '../../styles/themes/default.theme'
 
 export const Appbar: FC<AppbarProps> = ({ title, prefix, position, style, back, contextMenu }) => {
