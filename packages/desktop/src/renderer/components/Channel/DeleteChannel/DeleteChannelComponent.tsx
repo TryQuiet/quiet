@@ -121,7 +121,7 @@ export const DeleteChannelComponent: React.FC<ReturnType<typeof useModal> & Dele
             size='small'
             fullWidth
             className={classes.button}
-            data-testId="deleteChannelButton">
+            data-testid="deleteChannelButton">
             Delete channel
           </Button>
         </Grid>

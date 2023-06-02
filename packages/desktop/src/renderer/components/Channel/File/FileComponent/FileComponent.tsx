@@ -6,9 +6,9 @@ import {
   DownloadState,
   DownloadStatus,
   FileMetadata,
-  CancelDownload,
-  formatBytes
-} from '@quiet/state-manager'
+  CancelDownload
+} from '@quiet/types'
+import { formatBytes } from '@quiet/state-manager'
 import theme from '../../../../theme'
 import Icon from '../../../ui/Icon/Icon'
 import fileIcon from '../../../../static/images/fileIcon.svg'
@@ -146,6 +146,7 @@ export const FileComponent: React.FC<FileComponentProps & FileActionsProps> = ({
   downloadFile,
   cancelDownload
 }) => {
+  if (!message.media) return null
   const { cid, path, name, ext } = message.media
 
   const downloadState = downloadStatus?.downloadState
@@ -176,7 +177,7 @@ export const FileComponent: React.FC<FileComponentProps & FileActionsProps> = ({
               variant='determinate'
               size={18}
               thickness={4}
-              value={(downloadProgress.downloaded / downloadProgress.size) * 100}
+              value={downloadProgress?.size && (downloadProgress.downloaded / downloadProgress.size) * 100}
               style={{ color: theme.palette.colors.lightGray }}
             />
           </>
@@ -187,18 +188,22 @@ export const FileComponent: React.FC<FileComponentProps & FileActionsProps> = ({
   }
 
   const _openContainingFolder = () => {
+    if (!path || !openContainingFolder) return
     openContainingFolder(path)
   }
 
   const _downloadFile = () => {
+    if (!message.media || !downloadFile) return
     downloadFile(message.media)
   }
 
   const _cancelDownload = () => {
-    cancelDownload({
-      mid: message.id,
-      cid: cid
-    })
+    if (cancelDownload) {
+      cancelDownload({
+        mid: message.id,
+        cid: cid
+      })
+    }
   }
 
   const renderActionIndicator = () => {
@@ -226,7 +231,7 @@ export const FileComponent: React.FC<FileComponentProps & FileActionsProps> = ({
               color: theme.palette.colors.lushSky,
               icon: folderIcon
             }}
-            action={_openContainingFolder}
+            action={(_openContainingFolder)}
           />
         )
       case DownloadState.Ready:
@@ -334,6 +339,7 @@ export const FileComponent: React.FC<FileComponentProps & FileActionsProps> = ({
         title={
           downloadState === DownloadState.Downloading &&
           downloadProgress &&
+          downloadProgress.size &&
           downloadProgress?.transferSpeed !== -1
             ? `(${Math.floor(downloadProgress.downloaded / downloadProgress.size * 100)}%) ${formatBytes(downloadProgress.transferSpeed)}ps`
             : ''

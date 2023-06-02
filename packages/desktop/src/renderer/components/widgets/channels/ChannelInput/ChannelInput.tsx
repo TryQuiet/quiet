@@ -14,6 +14,7 @@ import emojiBlack from '../../../../static/images/emojiBlack.svg'
 import paperclipGray from '../../../../static/images/paperclipGray.svg'
 import paperclipBlack from '../../../../static/images/paperclipBlack.svg'
 import path from 'path'
+import { isDefined } from '@quiet/common'
 
 const PREFIX = 'ChannelInput'
 
@@ -216,7 +217,7 @@ export interface ChannelInputProps {
   setInfoClass: (arg: string) => void
   children?: ReactElement
   openFilesDialog: () => void
-  handleClipboardFiles?: (arg: ArrayBuffer, ext: string, name: string) => void
+  handleClipboardFiles: (arg: ArrayBuffer, ext: string, name: string) => void
   handleOpenFiles: (arg: {files: any[]}) => void
 }
 
@@ -235,8 +236,10 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
   handleClipboardFiles,
   handleOpenFiles
 }) => {
-  const [_anchorEl, setAnchorEl] = React.useState<HTMLDivElement>(null)
-  const [mentionsToSelect, setMentionsToSelect] = React.useState([])
+  const [_anchorEl, setAnchorEl] = React.useState<HTMLDivElement>()
+  const [mentionsToSelect, setMentionsToSelect] = React.useState<Array<{
+    nickname: string
+  }>>([])
   const messageRef = React.useRef<string>()
   const refSelected = React.useRef<number>()
   const isFirstRenderRef = React.useRef(true)
@@ -245,7 +248,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
 
   const inputRef = React.createRef<ContentEditable & HTMLDivElement & any>() // any for updater.enqueueForceUpdate
 
-  const fileInput = React.useRef(null)
+  const fileInput = React.useRef<HTMLInputElement>(null)
 
   const [focused, setFocused] = React.useState(false)
   const [selected, setSelected] = React.useState(0)
@@ -317,7 +320,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
             user =>
               user.nickname.startsWith(nickname) &&
               !channelParticipants.find(user => user.nickname === nickname)
-          )
+          ).filter(isDefined)
 
           if (JSON.stringify(mentionsToSelect) !== JSON.stringify(possibleMentions)) {
             setMentionsToSelect(possibleMentions)
@@ -340,6 +343,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
   const sanitizedHtml = findMentions(htmlMessage)
 
   const caretLineTraversal = (focusLine: Node, anchorLinePosition: number) => {
+    if (!focusLine.nodeValue) return
     // Create an empty range
     const range = document.createRange()
     // Set the focusLineLength
@@ -353,9 +357,9 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
     )
     // Remove the range from the anchor line
     const selection = window.getSelection()
-    selection.removeAllRanges()
+    selection?.removeAllRanges()
     // and set it to the focus line
-    selection.addRange(range)
+    selection?.addRange(range)
   }
 
   const onChangeCb = useCallback(
@@ -382,6 +386,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
 
   const mentionSelectAction = (e: React.MouseEvent | React.KeyboardEvent) => {
     e.preventDefault()
+    if (!mentionsToSelectRef.current || !refSelected.current) return
     const nickname = mentionsToSelectRef.current[refSelected.current].nickname
     setHtmlMessage(htmlMessage => {
       const wrapped = `<span class="${classes.highlight}">@${nickname}</span>&nbsp;`
@@ -395,7 +400,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
   }
 
   const onKeyDownCb = useCallback(
-    e => {
+    (e: React.KeyboardEvent) => {
       if (!isRefSelected(refSelected.current)) {
         throw new Error('refSelected is on unexpected type')
       }
@@ -480,8 +485,9 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
           // Accept this input for additional lines in the message box
         } else if (inputStateRef.current === INPUT_STATE.AVAILABLE) {
           e.preventDefault()
-          onChange(e.target.innerText)
-          onKeyPress(e.target.innerText)
+          const target = e.target as HTMLInputElement
+          onChange(target.innerText)
+          onKeyPress(target.innerText)
           setMessage('')
           setHtmlMessage('')
         } else {
@@ -507,8 +513,10 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
     ]
   )
 
-  const handleFileInput = (e) => {
-    handleOpenFiles({ files: Object.values(e.target.files) })
+  const handleFileInput = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const target = event.target as HTMLInputElement
+    if (!target.files) return
+    handleOpenFiles({ files: Object.values(target.files) })
   }
 
   return (
@@ -617,7 +625,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
                       type='file'
                       onChange={handleFileInput}
                       // Value needs to be cleared otherwise one can't upload same image twice
-                      onClick={(e) => { (e.target as HTMLInputElement).value = null }}
+                      onClick={(e) => { (e.target as HTMLInputElement).value = '' }} // TODO: check
                       accept='*'
                       multiple
                       hidden

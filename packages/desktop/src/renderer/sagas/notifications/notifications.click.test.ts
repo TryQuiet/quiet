@@ -25,7 +25,6 @@ const notification = jest.fn().mockImplementation(() => {
 window.Notification = notification
 
 jest.mock('../../../shared/sounds', () => ({
-  // @ts-expect-error
   ...jest.requireActual('../../../shared/sounds'),
   soundTypeToAudio: {
     pow: {
@@ -71,7 +70,9 @@ describe('clicking in notification', () => {
     runSaga(function* (): Generator {
       const notification = yield* call(createNotification, notificationData)
       yield* fork(handleNotificationActions, notification, MessageType.Basic, sailingId)
-      yield* call(notification.onclick, new Event(''))
+      const onClick = notification.onclick
+      expect(onClick).not.toBeNull()
+      if (onClick) yield* call(onClick, new Event(''))
     })
 
     // Confirm current channel address has changed
@@ -109,7 +110,9 @@ describe('clicking in notification', () => {
     runSaga(function* (): Generator {
       const notification = yield* call(createNotification, notificationData)
       yield* fork(handleNotificationActions, notification, MessageType.File, sailingId, media)
-      yield* call(notification.onclick, new Event(''))
+      const onClick = notification.onclick
+      expect(onClick).not.toBeNull()
+      if (onClick) yield* call(onClick, new Event(''))
     })
 
     expect(spy).toHaveBeenCalledWith(media.path)

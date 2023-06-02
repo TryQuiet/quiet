@@ -23,7 +23,7 @@ const StyledGrid = styled(Grid)((
     color: theme.palette.primary.main
   },
 
-  [`& .${classes.spinner}`]: props => ({
+  [`& .${classes.spinner}`]: (props: any) => ({
     color: props.color ? props.color : theme.palette.colors.white
   })
 }))

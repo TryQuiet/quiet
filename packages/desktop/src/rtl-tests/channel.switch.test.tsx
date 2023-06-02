@@ -6,6 +6,7 @@ import { screen } from '@testing-library/dom'
 import { apply } from 'typed-redux-saga'
 import { Task } from 'redux-saga'
 import MockedSocket from 'socket.io-mock'
+import { FactoryGirl } from 'factory-girl'
 import { ioMock } from '../shared/setupTests'
 import { renderComponent } from '../renderer/testUtils/renderComponent'
 import { prepareStore } from '../renderer/testUtils/prepareStore'
@@ -28,7 +29,6 @@ import {
   generateMessageFactoryContentWithId
 } from '@quiet/state-manager'
 
-import { FactoryGirl } from 'factory-girl'
 import { DateTime } from 'luxon'
 
 import store from '../renderer/store'
@@ -63,7 +63,7 @@ describe('Switch channels', () => {
 
   let community: Community
   let alice: Identity
-  let generalId: string
+  let generalId: string | undefined
 
   beforeEach(async () => {
     socket = new MockedSocket()
@@ -86,7 +86,8 @@ describe('Switch channels', () => {
       { id: community.id, nickname: 'alice' }
     )
     const entities = redux.store.getState().PublicChannels.channels.entities
-    generalId = Object.keys(entities).find(key => entities[key].name === 'general')
+    generalId = Object.keys(entities).find(key => entities[key]?.name === 'general')
+    expect(generalId).not.toBeUndefined()
 
     const channelNames = ['memes', 'pets', 'travels']
     // Automatically create channels
@@ -111,6 +112,7 @@ describe('Switch channels', () => {
       ReturnType<typeof publicChannels.actions.test_message>['payload']
     >('Message', {
       identity: alice,
+      // @ts-expect-error
       message: generateMessageFactoryContentWithId(generalId),
       verifyAutomatically: true
     })

@@ -1,10 +1,10 @@
-import { DisplayableMessage } from '@quiet/state-manager'
+import { DisplayableMessage } from '@quiet/types'
 
 export const mock_messages = (message: DisplayableMessage | null = null) => {
   let placeholder: DisplayableMessage = {
     id: '32',
     type: 1,
-    media: null,
+    media: undefined,
     message: '*heavy breathing*',
     createdAt: 0,
     date: '12:46',

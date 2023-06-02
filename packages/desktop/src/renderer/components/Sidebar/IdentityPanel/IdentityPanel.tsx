@@ -4,7 +4,7 @@ import { Button } from '@mui/material'
 import Typography from '@mui/material/Typography'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import { useModal } from '../../../containers/hooks'
-import { Community } from '@quiet/state-manager'
+import { Community } from '@quiet/types'
 
 const PREFIX = 'IdentityPanel'
 

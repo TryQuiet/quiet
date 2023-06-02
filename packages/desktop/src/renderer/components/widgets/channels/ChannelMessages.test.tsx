@@ -31,7 +31,7 @@ describe('ChannelMessages', () => {
     const result = renderComponent(
       <ChannelMessagesComponent
         messages={messages}
-        scrollbarRef={jest.fn()}
+        scrollbarRef={React.createRef()}
         onScroll={jest.fn()}
         openUrl={jest.fn()}
       />

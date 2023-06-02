@@ -2,7 +2,7 @@ import React from 'react'
 import Grid from '@mui/material/Grid'
 import List from '@mui/material/List'
 import { useModal } from '../../../containers/hooks'
-import { PublicChannel } from '@quiet/state-manager'
+import { PublicChannel } from '@quiet/types'
 import SidebarHeader from '../../ui/Sidebar/SidebarHeader'
 import ChannelsListItem from './ChannelsListItem'
 
@@ -33,7 +33,7 @@ const ChannelsPanel: React.FC<ChannelsPanelProps> = ({
       </Grid>
       <Grid item>
         <List disablePadding data-testid='channelsList'>
-          {channels.map((channel, index) => {
+          {channels.map((channel, _index) => {
             const unread = unreadChannels.some(id => id === channel.id)
             const selected = currentChannelId === channel.id
             return (
@@ -43,7 +43,7 @@ const ChannelsPanel: React.FC<ChannelsPanelProps> = ({
                 selected={selected}
                 setCurrentChannel={setCurrentChannel}
                 key={channel.id}
-                disabled={channel.disabled}
+                disabled={Boolean(channel.disabled)}
               />
             )
           })}

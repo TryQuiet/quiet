@@ -1,11 +1,10 @@
 import React from 'react'
 import '@testing-library/jest-dom/extend-expect'
 import {
-  AUTODOWNLOAD_SIZE_LIMIT,
   DownloadState,
-  DownloadStatus,
-  MessageType
-} from '@quiet/state-manager'
+  DownloadStatus
+} from '@quiet/types'
+import { AUTODOWNLOAD_SIZE_LIMIT } from '@quiet/state-manager'
 import { generateMessages, renderComponent } from '../../../testUtils'
 import { FileActionsProps } from '../../Channel/File/FileComponent/FileComponent'
 import { screen } from '@testing-library/dom'

@@ -47,7 +47,6 @@ jest.mock('electron-localshortcut', () => {
 
 jest.mock('child_process', () => {
   return {
-    // @ts-expect-error
     ...jest.requireActual('child_process'),
     fork: jest.fn().mockImplementation(() => {
       return {
@@ -60,7 +59,6 @@ jest.mock('child_process', () => {
 
 jest.mock('electron', () => {
   return {
-    // @ts-expect-error
     ...jest.requireActual('electron'),
     app: {
       getPath: jest.fn().mockImplementation(() => {

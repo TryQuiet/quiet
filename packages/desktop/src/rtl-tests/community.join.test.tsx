@@ -24,11 +24,14 @@ import {
   ErrorCodes,
   ErrorMessages,
   getFactory,
-  errors
+  errors,
+  ResponseCreateNetworkPayload
 } from '@quiet/state-manager'
 import Channel from '../renderer/components/Channel/Channel'
 import LoadingPanel from '../renderer/components/LoadingPanel/LoadingPanel'
 import { createUserCertificateTestHelper } from '@quiet/identity'
+import { AnyAction } from 'redux'
+import { ChannelsReplicatedPayload, ErrorPayload, ResponseLaunchCommunityPayload, SendOwnerCertificatePayload, SendUserCertificatePayload } from '@quiet/types'
 
 jest.setTimeout(20_000)
 
@@ -69,16 +72,16 @@ describe('User', () => {
 
     jest
       .spyOn(socket, 'emit')
-      .mockImplementation(async (action: SocketActionTypes, ...input: any[]) => {
+      .mockImplementation(async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
+        const action = input[0]
         if (action === SocketActionTypes.CREATE_NETWORK) {
-          const data = input as socketEventData<[Community]>
-          const payload = data[0]
-          return socket.socketClient.emit(SocketActionTypes.NETWORK, {
+          const payload = input[1] as Community
+          return socket.socketClient.emit<ResponseCreateNetworkPayload>(SocketActionTypes.NETWORK, {
             community: payload,
             network: {
               hiddenService: {
                 onionAddress: 'onionAddress',
-                privKey: 'privKey'
+                privateKey: 'privKey'
               },
               peerId: {
                 id: 'peerId'
@@ -87,46 +90,49 @@ describe('User', () => {
           })
         }
         if (action === SocketActionTypes.REGISTER_USER_CERTIFICATE) {
-          const data = input as socketEventData<[RegisterUserCertificatePayload]>
-          const payload = data[0]
+          const payload = input[1] as RegisterUserCertificatePayload
           const user = identity.selectors.currentIdentity(store.getState())
+          expect(user).not.toBeUndefined()
           // This community serves only as a mocked object for generating valid crytpo data (certificate, rootCA)
           const communityHelper: ReturnType<typeof communities.actions.addNewCommunity>['payload'] =
             (
               await factory.build<typeof communities.actions.addNewCommunity>('Community', {
-                id: data[0]
+                id: payload.communityId
               })
             ).payload
           const certificateHelper = await createUserCertificateTestHelper(
             {
+              // @ts-expect-error
               nickname: user.nickname,
+              // @ts-expect-error
               commonName: communityHelper.registrarUrl,
+              // @ts-expect-error
               peerId: user.peerId.id,
+              // @ts-expect-error
               dmPublicKey: user.dmKeys.publicKey
             },
             communityHelper.CA
           )
-          const certificate = certificateHelper.userCert.userCertObject.certificate
-          const rootCa = communityHelper.CA.rootCertString
-          return socket.socketClient.emit(SocketActionTypes.SEND_USER_CERTIFICATE, {
+          const certificate = certificateHelper.userCert.userCertString
+          const rootCa = communityHelper.CA?.rootCertString
+          return socket.socketClient.emit<SendOwnerCertificatePayload>(SocketActionTypes.SEND_USER_CERTIFICATE, {
             communityId: payload.communityId,
             payload: {
               certificate: certificate,
+              // @ts-expect-error
               rootCa: rootCa,
               peers: []
             }
           })
         }
         if (action === SocketActionTypes.LAUNCH_COMMUNITY) {
-          const data = input as socketEventData<[InitCommunityPayload]>
-          const payload = data[0]
+          const payload = input[1] as InitCommunityPayload
           const community = communities.selectors.currentCommunity(store.getState())
-          expect(payload.id).toEqual(community.id)
-          socket.socketClient.emit(SocketActionTypes.COMMUNITY, {
+          expect(payload.id).toEqual(community?.id)
+          socket.socketClient.emit<ResponseLaunchCommunityPayload>(SocketActionTypes.COMMUNITY, {
             id: payload.id
           })
-          socket.socketClient.emit(SocketActionTypes.CHANNELS_REPLICATED, {
-            communityId: community.id,
+          socket.socketClient.emit<ChannelsReplicatedPayload>(SocketActionTypes.CHANNELS_REPLICATED, {
             channels: {
               general: {
                 name: 'general',
@@ -141,10 +147,10 @@ describe('User', () => {
       })
 
     // Log all the dispatched actions in order
-    const actions = []
+    const actions: AnyAction[] = []
     runSaga(function* (): Generator {
       while (true) {
-        const action = yield* take()
+        const action: AnyAction = yield* take()
         actions.push(action.type)
       }
     })
@@ -238,16 +244,16 @@ describe('User', () => {
 
     jest
       .spyOn(socket, 'emit')
-      .mockImplementation(async (action: SocketActionTypes, ...input: any[]) => {
+      .mockImplementation(async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
+        const action = input[0]
         if (action === SocketActionTypes.CREATE_NETWORK) {
-          const data = input as socketEventData<[Community]>
-          const payload = data[0]
-          return socket.socketClient.emit(SocketActionTypes.NETWORK, {
+          const payload = input[1] as Community
+          return socket.socketClient.emit<ResponseCreateNetworkPayload>(SocketActionTypes.NETWORK, {
             community: payload,
             network: {
               hiddenService: {
                 onionAddress: 'onionAddress',
-                privKey: 'privKey'
+                privateKey: 'privKey'
               },
               peerId: {
                 id: 'peerId'
@@ -256,21 +262,20 @@ describe('User', () => {
           })
         }
         if (action === SocketActionTypes.REGISTER_USER_CERTIFICATE) {
-          const data = input as socketEventData<[RegisterUserCertificatePayload]>
-          const payload = data[0]
+          const payload = input[1] as RegisterUserCertificatePayload
           const community = communities.selectors.currentCommunity(store.getState())
-          expect(payload.communityId).toEqual(community.id)
-          socket.socketClient.emit(SocketActionTypes.ERROR, {
+          expect(payload.communityId).toEqual(community?.id)
+          socket.socketClient.emit<ErrorPayload>(SocketActionTypes.ERROR, {
             type: SocketActionTypes.REGISTRAR,
             code: ErrorCodes.FORBIDDEN,
             message: ErrorMessages.USERNAME_TAKEN,
-            community: community.id
+            community: community?.id
           })
         }
       })
 
     // Log all the dispatched actions in order
-    const actions = []
+    const actions: AnyAction[] = []
     runSaga(function* (): Generator {
       while (true) {
         const action = yield* take()
@@ -350,16 +355,16 @@ describe('User', () => {
 
     jest
       .spyOn(socket, 'emit')
-      .mockImplementation(async (action: SocketActionTypes, ...input: any[]) => {
+      .mockImplementation(async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
+        const action = input[0]
         if (action === SocketActionTypes.CREATE_NETWORK) {
-          const data = input as socketEventData<[Community]>
-          const payload = data[0]
-          return socket.socketClient.emit(SocketActionTypes.NETWORK, {
+          const payload = input[1] as Community
+          return socket.socketClient.emit<ResponseCreateNetworkPayload>(SocketActionTypes.NETWORK, {
             community: payload,
             network: {
               hiddenService: {
                 onionAddress: 'onionAddress',
-                privKey: 'privKey'
+                privateKey: 'privKey'
               },
               peerId: {
                 id: 'peerId'
@@ -370,7 +375,7 @@ describe('User', () => {
       })
 
     // Log all the dispatched actions in order
-    const actions = []
+    const actions: AnyAction[] = []
     runSaga(function* (): Generator {
       while (true) {
         const action = yield* take()
@@ -403,7 +408,7 @@ describe('User', () => {
           type: SocketActionTypes.REGISTRAR,
           code: ErrorCodes.FORBIDDEN,
           message: ErrorMessages.USERNAME_TAKEN,
-          community: community.id
+          community: community?.id
         })
       )
     })

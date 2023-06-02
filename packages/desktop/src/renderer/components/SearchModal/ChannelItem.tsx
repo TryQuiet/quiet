@@ -2,6 +2,16 @@ import React, { useEffect, useState } from 'react'
 import { Typography } from '@mui/material'
 import classNames from 'classnames'
 import { useEnterPress } from '../../containers/hooks'
+import { PublicChannelStorage } from '@quiet/types'
+
+interface ChannelItemProps {
+  item: PublicChannelStorage
+  focused: boolean
+  className: string
+  classNameSelected: string
+  onClickHandler: (value: string) => void
+  channelInput: string
+}
 
 const ChannelItem = ({
   item,
@@ -10,8 +20,8 @@ const ChannelItem = ({
   classNameSelected,
   onClickHandler,
   channelInput
-}) => {
-  const [initialRender, setInitialRender] = useState(false)
+}: ChannelItemProps) => {
+  const [_initialRender, setInitialRender] = useState(false)
 
   useEffect(() => {
     setInitialRender(true)

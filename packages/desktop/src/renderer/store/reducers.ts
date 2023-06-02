@@ -1,4 +1,4 @@
-import { combineReducers } from '@reduxjs/toolkit'
+import { AnyAction, combineReducers } from '@reduxjs/toolkit'
 import ElectronStore from 'electron-store'
 import createElectronStorage from 'redux-persist-electron-storage'
 import path from 'path'
@@ -25,6 +25,7 @@ import { navigationReducer } from './navigation/navigation.slice'
 import appHandlers from './handlers/app'
 
 import { DEV_DATA_DIR } from '../../shared/static'
+import { Store } from '../sagas/store.types'
 
 const dataPath =
   process.env.APPDATA ||
@@ -77,7 +78,7 @@ export const reducers = {
 
 const allReducers = combineReducers(reducers)
 
-export const rootReducer = (state, action) => {
+export const rootReducer = (state: any, action: AnyAction) => { // TODO: what is state?
   if (action.type === communities.actions.resetApp.type) {
     state = resetStateAndSaveTorConnectionData()
   }
@@ -85,6 +86,6 @@ export const rootReducer = (state, action) => {
   return allReducers(state, action)
 }
 
-export type Store = StoreType<typeof reducers>
+export type StoreReducers = StoreType<typeof reducers>
 
 export default persistReducer(persistConfig, rootReducer)
