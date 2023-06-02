@@ -16,6 +16,7 @@ import { generateChannelId } from '@quiet/common'
 import { filesActions } from '../../files/files.slice'
 import { Community, Identity, PublicChannel, SocketActionTypes } from '@quiet/types'
 import { publicChannelsSelectors } from '../publicChannels.selectors'
+import { usersSelectors } from '../../users/users.selectors'
 
 describe('deleteChannelSaga', () => {
   let store: Store
@@ -26,6 +27,13 @@ describe('deleteChannelSaga', () => {
 
   let photoChannel: PublicChannel
   let generalChannel: PublicChannel
+
+  let ownerData: {
+    peerId: any
+    username?: string | null
+    onionAddress?: string | null
+    dmPublicKey?: string | null
+  }
 
   const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
 
@@ -43,7 +51,7 @@ describe('deleteChannelSaga', () => {
       'Identity',
       { id: community.id, nickname: 'alice' }
     )
-
+    ownerData = usersSelectors.ownerData(store.getState())
     const generalChannelState = publicChannelsSelectors.generalChannel(store.getState())
     if (generalChannelState) generalChannel = generalChannelState
     expect(generalChannel).not.toBeUndefined()
@@ -75,7 +83,8 @@ describe('deleteChannelSaga', () => {
       .apply(socket, socket.emit, [
         SocketActionTypes.DELETE_CHANNEL,
         {
-          channelId
+          channelId,
+          ownerPeerId: ownerData.peerId
         }
       ])
       .put(publicChannelsActions.setCurrentChannel({ channelId: generalChannel.id }))
@@ -93,10 +102,49 @@ describe('deleteChannelSaga', () => {
       .apply(socket, socket.emit, [
         SocketActionTypes.DELETE_CHANNEL,
         {
-          channelId
+          channelId,
+          ownerPeerId: ownerData.peerId
         }
       ])
       .put(filesActions.deleteFilesFromChannel({ channelId }))
+      .run()
+  })
+
+  test('delete standard channel - already disabled', async () => {
+    const channelId = photoChannel.id
+    store.dispatch(publicChannelsActions.setCurrentChannel({ channelId }))
+    store.dispatch(publicChannelsActions.disableChannel({ channelId }))
+    const reducer = combineReducers(reducers)
+    await expectSaga(deleteChannelSaga, socket, publicChannelsActions.deleteChannel({ channelId }))
+      .withReducer(reducer)
+      .withState(store.getState())
+      .not.apply(socket, socket.emit, [
+        SocketActionTypes.DELETE_CHANNEL,
+        {
+          channelId,
+          ownerPeerId: ownerData.peerId
+        }
+      ])
+      .not.put(publicChannelsActions.setCurrentChannel({ channelId: generalChannel.id }))
+      .not.put(publicChannelsActions.disableChannel({ channelId }))
+      .run()
+  })
+
+  test('delete standard channel when currentChannel is not specified - mobile channel list case', async () => {
+    const channelId = photoChannel.id
+    store.dispatch(publicChannelsActions.setCurrentChannel({ channelId: '' }))
+    const reducer = combineReducers(reducers)
+    await expectSaga(deleteChannelSaga, socket, publicChannelsActions.deleteChannel({ channelId }))
+      .withReducer(reducer)
+      .withState(store.getState())
+      .apply(socket, socket.emit, [
+        SocketActionTypes.DELETE_CHANNEL,
+        {
+          channelId,
+          ownerPeerId: ownerData.peerId
+        }
+      ])
+      .put(publicChannelsActions.disableChannel({ channelId }))
       .run()
   })
 })

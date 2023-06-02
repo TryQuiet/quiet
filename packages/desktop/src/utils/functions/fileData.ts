@@ -4,6 +4,7 @@ import { FileContent } from '@quiet/types'
 interface FilePreviewData {
   [id: string]: FileContent
 }
+
 export const getFileData = (filePath: string): FilePreviewData => {
   const fileContent: FileContent = {
     path: filePath,

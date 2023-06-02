@@ -615,40 +615,14 @@ export class ConnectionsManager extends EventEmitter {
     this.dataServer.on(SocketActionTypes.CLOSE, async () => {
       await this.closeAllServices()
     })
-    this.dataServer.on(SocketActionTypes.DELETE_CHANNEL, async (payload: {channelId: string}) => {
+    this.dataServer.on(SocketActionTypes.DELETE_CHANNEL, async (payload: {channelId: string; ownerPeerId: string}) => {
       await this.storage?.deleteChannel(payload)
     })
 
     this.dataServer.on(SocketActionTypes.DELETE_FILES_FROM_CHANNEL, async (payload: DeleteFilesFromChannelSocketPayload) => {
       log('DELETE_FILES_FROM_CHANNEL : payload', payload)
-      await this.deleteFilesFromChannel(payload)
+      await this.storage?.deleteFilesFromChannel(payload)
       // await this.deleteFilesFromTemporaryDir() //crashes on mobile, will be fixes in next versions
-    })
-  }
-
-  private async deleteFilesFromChannel(payload: DeleteFilesFromChannelSocketPayload) {
-    const { messages } = payload
-    Object.keys(messages).map((key) => {
-      const message = messages[key]
-      if (message?.media?.path) {
-        const mediaPath = message.media.path
-        log('deleteFilesFromChannel : mediaPath', mediaPath)
-        fs.unlink(mediaPath, err => {
-          if (err) throw err
-        })
-      }
-    })
-  }
-
-  private async deleteFilesFromTemporaryDir() {
-    const temporaryFilesDirectory = path.join(this.quietDir, '/../', 'temporaryFiles')
-    fs.readdir(temporaryFilesDirectory, (err, files) => {
-      if (err) throw err
-      for (const file of files) {
-        fs.unlink(path.join(temporaryFilesDirectory, file), err => {
-          if (err) throw err
-        })
-      }
     })
   }
 
