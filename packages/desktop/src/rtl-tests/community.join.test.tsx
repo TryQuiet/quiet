@@ -31,7 +31,7 @@ import Channel from '../renderer/components/Channel/Channel'
 import LoadingPanel from '../renderer/components/LoadingPanel/LoadingPanel'
 import { createUserCertificateTestHelper } from '@quiet/identity'
 import { AnyAction } from 'redux'
-import { ChannelsReplicatedPayload, ErrorPayload, ResponseCreateCommunityPayload, ResponseLaunchCommunityPayload, SendOwnerCertificatePayload, SendUserCertificatePayload } from '@quiet/types'
+import { ChannelsReplicatedPayload, ErrorPayload, ResponseLaunchCommunityPayload, SendOwnerCertificatePayload, SendUserCertificatePayload } from '@quiet/types'
 
 jest.setTimeout(20_000)
 
@@ -113,7 +113,6 @@ describe('User', () => {
             },
             communityHelper.CA
           )
-          // const certificate = certificateHelper.userCert.userCertObject.certificate
           const certificate = certificateHelper.userCert.userCertString
           const rootCa = communityHelper.CA?.rootCertString
           return socket.socketClient.emit<SendOwnerCertificatePayload>(SocketActionTypes.SEND_USER_CERTIFICATE, {
@@ -134,7 +133,6 @@ describe('User', () => {
             id: payload.id
           })
           socket.socketClient.emit<ChannelsReplicatedPayload>(SocketActionTypes.CHANNELS_REPLICATED, {
-            // communityId: community?.id,
             channels: {
               general: {
                 name: 'general',
