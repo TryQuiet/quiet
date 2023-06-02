@@ -2,14 +2,15 @@ import { RouteProp } from '@react-navigation/core'
 import { Dispatch } from 'react'
 import { ScreenNames } from './const/ScreenNames.enum'
 
-// eslint-disable-next-line
 export type RootStackParamList = {
   [ScreenNames.SplashScreen]: {
     code?: string
   }
   [ScreenNames.JoinCommunityScreen]: {
     code?: string
-  }
+  },
+  [ScreenNames.QRCodeScreen]: {},
+  [ScreenNames.LeaveCommunityScreen]: {},
   [ScreenNames.CreateCommunityScreen]: undefined
   [ScreenNames.UsernameRegistrationScreen]: {
     fetching: boolean
