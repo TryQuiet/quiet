@@ -134,9 +134,9 @@ export interface FileComponentProps {
 }
 
 export interface FileActionsProps {
-  openContainingFolder: (path: string) => void
-  downloadFile: (media: FileMetadata) => void
-  cancelDownload: (cancelDownload: CancelDownload) => void
+  openContainingFolder?: (path: string) => void
+  downloadFile?: (media: FileMetadata) => void
+  cancelDownload?: (cancelDownload: CancelDownload) => void
 }
 
 export const FileComponent: React.FC<FileComponentProps & FileActionsProps> = ({

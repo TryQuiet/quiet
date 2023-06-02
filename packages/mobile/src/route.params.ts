@@ -2,7 +2,8 @@ import { RouteProp } from '@react-navigation/core'
 import { Dispatch } from 'react'
 import { ScreenNames } from './const/ScreenNames.enum'
 
-export interface RootStackParamList {
+// eslint-disable-next-line
+export type RootStackParamList = {
   [ScreenNames.SplashScreen]: {
     code?: string
   }
