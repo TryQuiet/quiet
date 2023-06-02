@@ -10,7 +10,7 @@
   Encrypted p2p team chat with no servers, just Tor.
     <br />
 <!--    <a href="https://tryquiet.org"><strong>tryquiet.org »</strong></a> -->
-    <a href="https://github.com/TryQuiet/quiet/releases/tag/quiet%401.2.0"><strong>Downloads</strong></a> | 
+    <a href="https://github.com/TryQuiet/quiet/releases/tag/quiet%401.3.0"><strong>Downloads</strong></a> | 
     <a href="#how-it-works"><strong>How it Works</strong></a> |   
     <a href="#features"><strong>Features</strong></a> | 
     <a href="https://github.com/TryQuiet/monorepo/wiki/Threat-Model"><strong>Threat Model</strong></a> | 
@@ -52,7 +52,7 @@ See our [FAQ](https://github.com/TryQuiet/monorepo/wiki/Quiet-FAQ) for answers t
 
 ## Getting started
 
-To try Quiet, download the [latest release](https://github.com/TryQuiet/quiet/releases/tag/quiet%401.2.0) for your platform (.dmg for macOS, .exe for Windows, etc.) and install it in the normal way. Then create a community and open the community's settings to invite members. 
+To try Quiet, download the [latest release](https://github.com/TryQuiet/quiet/releases/tag/quiet%401.3.0) for your platform (.dmg for macOS, .exe for Windows, etc.) and install it in the normal way. Then create a community and open the community's settings to invite members. 
 
 If you'd like to help develop Quiet, see [Contributing to Quiet](#contributing-to-quiet).
 
