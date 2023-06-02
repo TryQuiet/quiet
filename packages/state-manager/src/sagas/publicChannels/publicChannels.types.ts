@@ -1,12 +1,15 @@
 import { Dictionary, EntityState } from '@reduxjs/toolkit'
 import { FileMetadata } from '../files/files.types'
 
+export const INITIAL_CURRENT_CHANNEL_ID = 'initialcurrentChannelId'
+
 export interface PublicChannel {
   name: string
   description: string
   owner: string
   timestamp: number
-  address: string
+  id: string
+  disabled?: boolean
 }
 
 export interface PublicChannelStorage extends PublicChannel {
@@ -14,13 +17,13 @@ export interface PublicChannelStorage extends PublicChannel {
 }
 
 export interface PublicChannelStatus {
-  address: string
+  id: string
   unread: boolean
-  newestMessage: ChannelMessage
+  newestMessage: ChannelMessage | null
 }
 
 export interface PublicChannelSubscription {
-  address: string
+  id: string
   subscribed: boolean
 }
 
@@ -29,7 +32,7 @@ export interface ChannelMessage {
   type: number
   message: string
   createdAt: number
-  channelAddress: string
+  channelId: string
   signature: string
   pubKey: string
   media?: FileMetadata
@@ -57,21 +60,28 @@ export interface CreateChannelPayload {
   channel: PublicChannel
 }
 
+export interface DeleteChannelPayload {
+  channelId: string
+}
+export interface ChannelDeletionResponsePayload {
+  channelId: string
+}
+
 export interface CreatedChannelResponse {
   channel: PublicChannel
 }
 
 export interface SetChannelSubscribedPayload {
-  channelAddress: string
+  channelId: string
 }
 
 export interface SetCurrentChannelPayload {
-  channelAddress: string
+  channelId: string
 }
 
 export interface SetChannelMessagesSliceValuePayload {
   messagesSlice: number
-  channelAddress: string
+  channelId: string
 }
 
 export interface PendingMessage {
@@ -80,7 +90,7 @@ export interface PendingMessage {
 
 export interface SendInitialChannelMessagePayload {
   channelName: string
-  channelAddress: string
+  channelId: string
 }
 export interface SendNewUserInfoMessagePayload {
   certificates: string[]
@@ -93,11 +103,11 @@ export interface IncomingMessages {
 
 export interface CacheMessagesPayload {
   messages: ChannelMessage[]
-  channelAddress: string
+  channelId: string
 }
 
 export interface MarkUnreadChannelPayload {
-  channelAddress: string
+  channelId: string
   message?: ChannelMessage
 }
 
@@ -105,6 +115,18 @@ export interface UpdateNewestMessagePayload {
   message: ChannelMessage
 }
 
+export interface DeleteChannelFromStorePayload {
+  channelId: string
+}
+
+export interface ClearMessagesCachePayload {
+  channelId: string
+}
+
+export interface DisableChannelPayload {
+  channelId: string
+}
+
 export function instanceOfChannelMessage(object: any): object is ChannelMessage {
-  return 'channelAddress' in object
+  return 'channelId' in object
 }

@@ -25,7 +25,12 @@ import { ErrorModal } from './components/ui/ErrorModal/ErrorModal'
 import { LeaveCommunity } from './components/Settings/Tabs/LeaveCommunity/LeaveCommunity'
 import SearchModal from './components/SearchModal/SearchModal'
 import WarningModal from './containers/widgets/WarningModal/WarningModal'
+import { ChannelContextMenu } from './components/ContextMenu/menus/ChannelContextMenu.container'
+import { DeleteChannel } from './components/Channel/DeleteChannel/DeleteChannel'
+import ChannelCreationModal from './components/ChannelCreationModal/ChannelCreationModal'
+import { SaveStateComponent } from './components/SaveState/SaveStateComponent'
 // Trigger lerna
+
 export const persistor = persistStore(store)
 export default () => {
   return (
@@ -40,6 +45,7 @@ export default () => {
                 <SearchModal />
                 <ErrorModal />
                 <LoadingPanel />
+                <ChannelCreationModal/>
                 <CreateChannel />
                 <JoinCommunity />
                 <CreateCommunity />
@@ -49,10 +55,13 @@ export default () => {
                 <SettingsModal />
                 <UpdateModal />
                 <QuitAppDialog />
+                <ChannelContextMenu />
+                <DeleteChannel />
                 <Routes>
                   <Route index path='/' element={<Index />} />
                   <Route path='/main/*' element={<Main />} />
                 </Routes>
+                <SaveStateComponent persistor={persistor} />
               </PersistGate>
             </Provider>
           </HashRouter>

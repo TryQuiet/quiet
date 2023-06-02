@@ -10,7 +10,9 @@ export const StyledAppbar = styled(View)`
     background-color: ${defaultTheme.palette.background.white};
     border-bottom-color: ${defaultTheme.palette.background.gray06};
     border-bottom-width: 1px;
-    flex-grow: 1;
+    display: flex;
     flex-direction: row;
+    justify-content: center;
+    align-items: center;
   `}
 `

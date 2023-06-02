@@ -12,7 +12,7 @@ describe('ConfirmationBox component', () => {
       <View
         collapsable={false}
         style={
-          Object {
+          {
             "alignItems": "center",
             "bottom": 35,
             "display": "flex",
@@ -25,7 +25,7 @@ describe('ConfirmationBox component', () => {
       >
         <View
           style={
-            Object {
+            {
               "alignItems": "center",
               "backgroundColor": "#000000",
               "borderRadius": 16,
@@ -39,7 +39,7 @@ describe('ConfirmationBox component', () => {
         >
           <View
             style={
-              Object {
+              {
                 "flex": 1.5,
                 "justifyContent": "center",
               }
@@ -49,12 +49,12 @@ describe('ConfirmationBox component', () => {
               resizeMethod="resize"
               resizeMode="cover"
               source={
-                Object {
+                {
                   "testUri": "../../../assets/icons/icon_check_white.png",
                 }
               }
               style={
-                Object {
+                {
                   "height": 13,
                   "width": 13,
                 }
@@ -63,7 +63,7 @@ describe('ConfirmationBox component', () => {
           </View>
           <View
             style={
-              Object {
+              {
                 "flex": 1,
               }
             }
@@ -74,15 +74,15 @@ describe('ConfirmationBox component', () => {
               fontWeight="normal"
               horizontalTextAlign="left"
               style={
-                Array [
-                  Object {
+                [
+                  {
                     "color": "#ffffff",
                     "fontFamily": "Rubik-Regular",
                     "fontSize": 14,
                     "textAlign": "left",
                     "textAlignVertical": "center",
                   },
-                  Object {
+                  {
                     "lineHeight": 20,
                   },
                 ]

@@ -25,9 +25,7 @@ import {
 import { useResizeDetector } from 'react-resize-detector'
 import { Dictionary } from '@reduxjs/toolkit'
 
-import UploadFilesPreviewsComponent, {
-  UploadFilesPreviewsProps
-} from './File/UploadingPreview'
+import UploadFilesPreviewsComponent, { UploadFilesPreviewsProps } from './File/UploadingPreview'
 
 import { DropZoneComponent } from './DropZone/DropZoneComponent'
 
@@ -35,11 +33,7 @@ import { NewMessagesInfoComponent } from './NewMessagesInfo/NewMessagesInfoCompo
 
 import { FileActionsProps } from './File/FileComponent/FileComponent'
 
-const ChannelMessagesWrapperStyled = styled(Grid)((
-  {
-    theme
-  }
-) => ({
+const ChannelMessagesWrapperStyled = styled(Grid)(({ theme }) => ({
   position: 'relative',
   height: 0,
   backgroundColor: theme.palette.colors.white
@@ -47,10 +41,8 @@ const ChannelMessagesWrapperStyled = styled(Grid)((
 
 export interface ChannelComponentProps {
   user: Identity
-  channelAddress: string
+  channelId: string
   channelName: string
-  channelSettingsModal: ReturnType<typeof useModal>
-  channelInfoModal: ReturnType<typeof useModal>
   messages: {
     count: number
     groups: MessagesDailyGroups
@@ -59,14 +51,9 @@ export interface ChannelComponentProps {
   pendingMessages: Dictionary<MessageSendingStatus>
   downloadStatuses: Dictionary<DownloadStatus>
   lazyLoading: (load: boolean) => void
-  onDelete: () => void
   onInputChange: (value: string) => void
   onInputEnter: (message: string) => void
   openUrl: (url: string) => void
-  mutedFlag: boolean
-  disableSettings?: boolean
-  notificationFilter: string
-  openNotificationsTab: () => void
   openFilesDialog: () => void
   handleFileDrop: (arg: any) => void
   isCommunityInitialized: boolean
@@ -76,33 +63,31 @@ export interface ChannelComponentProps {
       src: string
     }>['types']
   >
+  openContextMenu?: () => void
+  enableContextMenu?: boolean
+  pendingGeneralChannelRecreation: boolean
 }
 
 const enum ScrollPosition {
   TOP = 0,
   MIDDLE = -1,
-  BOTTOM = 1,
+  BOTTOM = 1
 }
 
-export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPreviewsProps & FileActionsProps> = ({
+export const ChannelComponent: React.FC<
+  ChannelComponentProps & UploadFilesPreviewsProps & FileActionsProps
+> = ({
   user,
-  channelAddress,
+  channelId,
   channelName,
-  channelInfoModal,
-  channelSettingsModal,
   messages,
   newestMessage,
   pendingMessages,
   downloadStatuses,
   lazyLoading,
-  onDelete,
   onInputChange,
   onInputEnter,
   openUrl,
-  mutedFlag,
-  disableSettings = false,
-  notificationFilter,
-  openNotificationsTab,
   removeFile,
   handleFileDrop,
   filesData,
@@ -112,7 +97,10 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
   uploadedFileModal,
   openContainingFolder,
   downloadFile,
-  cancelDownload
+  cancelDownload,
+  openContextMenu,
+  enableContextMenu = false,
+  pendingGeneralChannelRecreation
 }) => {
   const [lastSeenMessage, setLastSeenMessage] = useState<string>()
   const [newMessagesInfo, setNewMessagesInfo] = useState<boolean>(false)
@@ -120,7 +108,9 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
   const [infoClass, setInfoClass] = useState<string>(null)
 
   const [scrollPosition, setScrollPosition] = React.useState(ScrollPosition.BOTTOM)
+
   const memoizedScrollHeight = React.useRef<number>()
+
   const [mathMessagesRendered, onMathMessageRendered] = React.useState<number>(0)
 
   const updateMathMessagesRendered = () => {
@@ -182,7 +172,8 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
     }
     // Keep scroll position when new chunk of messages is being loaded
     if (scrollbarRef.current && scrollPosition === ScrollPosition.TOP) {
-      scrollbarRef.current.scrollTop = scrollbarRef.current.scrollHeight - memoizedScrollHeight.current
+      scrollbarRef.current.scrollTop =
+        scrollbarRef.current.scrollHeight - memoizedScrollHeight.current
     }
   }, [messages])
 
@@ -207,7 +198,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
   useEffect(() => {
     if (
       Math.floor(scrollbarRef.current?.scrollHeight - scrollbarRef.current?.scrollTop) - 1 >=
-      Math.floor(scrollbarRef.current?.clientHeight) &&
+        Math.floor(scrollbarRef.current?.clientHeight) &&
       lastSeenMessage !== newestMessage.id
     ) {
       setNewMessagesInfo(true)
@@ -222,20 +213,15 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
 
   useEffect(() => {
     scrollBottom()
-  }, [channelAddress])
+  }, [channelId])
 
   return (
     <Page>
       <PageHeader>
         <ChannelHeaderComponent
           channelName={channelName}
-          onSettings={channelSettingsModal.handleOpen}
-          onInfo={channelInfoModal.handleOpen}
-          onDelete={onDelete}
-          mutedFlag={mutedFlag}
-          disableSettings={disableSettings}
-          notificationFilter={notificationFilter}
-          openNotificationsTab={openNotificationsTab}
+          openContextMenu={openContextMenu}
+          enableContextMenu={enableContextMenu}
         />
       </PageHeader>
       <DropZoneComponent channelName={channelName} handleFileDrop={handleFileDrop}>
@@ -253,11 +239,12 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
             downloadFile={downloadFile}
             cancelDownload={cancelDownload}
             onMathMessageRendered={updateMathMessagesRendered}
+            pendingGeneralChannelRecreation={pendingGeneralChannelRecreation}
           />
         </ChannelMessagesWrapperStyled>
         <Grid item>
           <ChannelInputComponent
-            channelAddress={channelAddress}
+            channelId={channelId}
             channelName={channelName}
             // TODO https://github.com/TryQuiet/ZbayLite/issues/443
             inputPlaceholder={`#${channelName} as @${user?.nickname}`}
@@ -271,16 +258,13 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
             infoClass={infoClass}
             setInfoClass={setInfoClass}
             inputState={
-              (isCommunityInitialized && Boolean(messages.count))
+              isCommunityInitialized && Boolean(messages.count)
                 ? INPUT_STATE.AVAILABLE
                 : INPUT_STATE.NOT_CONNECTED
             }
             handleClipboardFiles={handleClipboardFiles}
             handleOpenFiles={handleFileDrop}>
-            <UploadFilesPreviewsComponent
-              filesData={filesData}
-              removeFile={id => removeFile(id)}
-            />
+            <UploadFilesPreviewsComponent filesData={filesData} removeFile={id => removeFile(id)} />
           </ChannelInputComponent>
         </Grid>
       </DropZoneComponent>

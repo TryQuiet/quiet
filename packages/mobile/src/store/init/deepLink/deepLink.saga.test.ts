@@ -2,7 +2,7 @@ import { expectSaga } from 'redux-saga-test-plan'
 import { combineReducers } from '@reduxjs/toolkit'
 import { reducers } from '../../root.reducer'
 import { Store } from '../../store.types'
-import { prepareStore } from '../../../utils/tests/prepareStore'
+import { prepareStore } from '../../../tests/utils/prepareStore'
 import {
   communities,
   Community,
@@ -39,7 +39,8 @@ describe('deepLinkSaga', () => {
     onionAddress: '',
     privateKey: '',
     port: 0,
-    registrationAttempts: 0
+    registrationAttempts: 0,
+    ownerCertificate: ''
   }
 
   const _identity: Partial<Identity> = {
@@ -50,8 +51,8 @@ describe('deepLinkSaga', () => {
     joinTimestamp: 0
   }
 
-  beforeEach(() => {
-    store = prepareStore().store
+  beforeEach(async () => {
+    store = (await prepareStore()).store
   })
 
   test('joins community', async () => {

@@ -6,6 +6,7 @@ import { renderComponent } from '../../../testUtils/renderComponent'
 import { getFactory, publicChannels, communities, identity } from '@quiet/state-manager'
 import ChannelsPanel from './ChannelsPanel'
 import { DateTime } from 'luxon'
+import { generateChannelId } from '@quiet/common'
 
 describe('Channels panel', () => {
   let socket: MockedSocket
@@ -26,7 +27,7 @@ describe('Channels panel', () => {
     const community = await factory.create<
       ReturnType<typeof communities.actions.addNewCommunity>['payload']
     >('Community')
-
+    const generalChannel = publicChannels.selectors.generalChannel(store.getState())
     const alice = await factory.create<
       ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'alice' })
@@ -43,7 +44,7 @@ describe('Channels panel', () => {
             description: `Welcome to #${name}`,
             timestamp: DateTime.utc().valueOf(),
             owner: alice.nickname,
-            address: name
+            id: generateChannelId(name)
           }
         }
       )
@@ -55,8 +56,8 @@ describe('Channels panel', () => {
       <ChannelsPanel
         channels={channels}
         unreadChannels={[]}
-        setCurrentChannel={function (_address: string): void {}}
-        currentChannel={'general'}
+        setCurrentChannel={function (_id: string): void {}}
+        currentChannelId={generalChannel.id}
         createChannelModal={{
           open: false,
           handleOpen: function (_args?: any): any {},
@@ -134,7 +135,7 @@ describe('Channels panel', () => {
                   data-testid="channelsList"
                 >
                   <div
-                    class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot ChannelsListItemselected css-19ca6xy-MuiButtonBase-root-MuiListItemButton-root"
+                    class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot ChannelsListItemselected css-1u7u4xu-MuiButtonBase-root-MuiListItemButton-root"
                     data-testid="general-link"
                     role="button"
                     tabindex="0"
@@ -166,7 +167,7 @@ describe('Channels panel', () => {
                     />
                   </div>
                   <div
-                    class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot css-19ca6xy-MuiButtonBase-root-MuiListItemButton-root"
+                    class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot css-1u7u4xu-MuiButtonBase-root-MuiListItemButton-root"
                     data-testid="allergies-link"
                     role="button"
                     tabindex="0"
@@ -198,7 +199,7 @@ describe('Channels panel', () => {
                     />
                   </div>
                   <div
-                    class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot css-19ca6xy-MuiButtonBase-root-MuiListItemButton-root"
+                    class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot css-1u7u4xu-MuiButtonBase-root-MuiListItemButton-root"
                     data-testid="antiques-link"
                     role="button"
                     tabindex="0"
@@ -230,7 +231,7 @@ describe('Channels panel', () => {
                     />
                   </div>
                   <div
-                    class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot css-19ca6xy-MuiButtonBase-root-MuiListItemButton-root"
+                    class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot css-1u7u4xu-MuiButtonBase-root-MuiListItemButton-root"
                     data-testid="croatia-link"
                     role="button"
                     tabindex="0"
@@ -262,7 +263,7 @@ describe('Channels panel', () => {
                     />
                   </div>
                   <div
-                    class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot css-19ca6xy-MuiButtonBase-root-MuiListItemButton-root"
+                    class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot css-1u7u4xu-MuiButtonBase-root-MuiListItemButton-root"
                     data-testid="pets-link"
                     role="button"
                     tabindex="0"
@@ -294,7 +295,7 @@ describe('Channels panel', () => {
                     />
                   </div>
                   <div
-                    class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot css-19ca6xy-MuiButtonBase-root-MuiListItemButton-root"
+                    class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot css-1u7u4xu-MuiButtonBase-root-MuiListItemButton-root"
                     data-testid="sailing-link"
                     role="button"
                     tabindex="0"
@@ -395,7 +396,7 @@ describe('Channels panel', () => {
                 data-testid="channelsList"
               >
                 <div
-                  class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot ChannelsListItemselected css-19ca6xy-MuiButtonBase-root-MuiListItemButton-root"
+                  class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot ChannelsListItemselected css-1u7u4xu-MuiButtonBase-root-MuiListItemButton-root"
                   data-testid="general-link"
                   role="button"
                   tabindex="0"
@@ -427,7 +428,7 @@ describe('Channels panel', () => {
                   />
                 </div>
                 <div
-                  class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot css-19ca6xy-MuiButtonBase-root-MuiListItemButton-root"
+                  class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot css-1u7u4xu-MuiButtonBase-root-MuiListItemButton-root"
                   data-testid="allergies-link"
                   role="button"
                   tabindex="0"
@@ -459,7 +460,7 @@ describe('Channels panel', () => {
                   />
                 </div>
                 <div
-                  class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot css-19ca6xy-MuiButtonBase-root-MuiListItemButton-root"
+                  class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot css-1u7u4xu-MuiButtonBase-root-MuiListItemButton-root"
                   data-testid="antiques-link"
                   role="button"
                   tabindex="0"
@@ -491,7 +492,7 @@ describe('Channels panel', () => {
                   />
                 </div>
                 <div
-                  class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot css-19ca6xy-MuiButtonBase-root-MuiListItemButton-root"
+                  class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot css-1u7u4xu-MuiButtonBase-root-MuiListItemButton-root"
                   data-testid="croatia-link"
                   role="button"
                   tabindex="0"
@@ -523,7 +524,7 @@ describe('Channels panel', () => {
                   />
                 </div>
                 <div
-                  class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot css-19ca6xy-MuiButtonBase-root-MuiListItemButton-root"
+                  class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot css-1u7u4xu-MuiButtonBase-root-MuiListItemButton-root"
                   data-testid="pets-link"
                   role="button"
                   tabindex="0"
@@ -555,7 +556,7 @@ describe('Channels panel', () => {
                   />
                 </div>
                 <div
-                  class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot css-19ca6xy-MuiButtonBase-root-MuiListItemButton-root"
+                  class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot css-1u7u4xu-MuiButtonBase-root-MuiListItemButton-root"
                   data-testid="sailing-link"
                   role="button"
                   tabindex="0"

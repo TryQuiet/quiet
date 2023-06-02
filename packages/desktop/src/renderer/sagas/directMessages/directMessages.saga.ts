@@ -20,7 +20,7 @@
 // export function* loadDirectMessage(action: DirectMessagesActions['loadDirectMessage']): Generator {
 //   const conversations = yield* select(directMessagesSelectors.conversations)
 //   const conversation = Array.from(Object.values(conversations)).filter(conv => {
-//     return conv.conversationId === action.payload.channelAddress
+//     return conv.conversationId === action.payload.channelId
 //   })
 
 //   const contact = conversation[0]
@@ -70,7 +70,7 @@
 // ): Generator {
 //   const conversations = yield* select(directMessagesSelectors.conversations)
 //   const conversation = Array.from(Object.values(conversations)).filter(conv => {
-//     return conv.conversationId === action.payload.channelAddress
+//     return conv.conversationId === action.payload.channelId
 //   })
 //   const contact = conversation[0]
 //   const contactPublicKey = contact.contactPublicKey
@@ -83,7 +83,7 @@
 //   const channel = yield* select(contactsSelectors.contact(user.nickname))
 
 //   if (!channel) {
-//     log.error(`Couldn't load all messages. No channel ${action.payload.channelAddress} in contacts`)
+//     log.error(`Couldn't load all messages. No channel ${action.payload.channelId} in contacts`)
 //     return
 //   }
 

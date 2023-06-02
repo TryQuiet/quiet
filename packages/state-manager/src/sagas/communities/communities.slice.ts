@@ -1,39 +1,34 @@
 import { createSlice, EntityState, PayloadAction } from '@reduxjs/toolkit'
 import { StoreKeys } from '../store.keys'
 import { communitiesAdapter } from './communities.adapter'
-import {
-  CreateNetworkPayload,
-  ResponseCreateNetworkPayload,
-  ResponseRegistrarPayload,
-  StorePeerListPayload,
-  UpdateCommunityPayload,
-  UpdateRegistrationAttemptsPayload
-} from './communities.types'
+import { AddOwnerCertificatePayload, Community as CommunityType, CreateNetworkPayload, ResponseCreateNetworkPayload, ResponseRegistrarPayload, StorePeerListPayload, UpdateCommunityPayload, UpdateRegistrationAttemptsPayload } from '@quiet/types'
 
 export class CommunitiesState {
-  public invitationCode: string = undefined
+  public invitationCode: string | undefined = undefined
   public currentCommunity: string = ''
-  public communities: EntityState<Community> = communitiesAdapter.getInitialState()
+  public communities: EntityState<CommunityType> = communitiesAdapter.getInitialState()
 }
 
-export interface Community {
+// TODO: remove after setting strict in 'desktop' and 'mobile' packages
+export interface Community { // TODO: how to set default values for Community?
   id: string
-  name: string
-  CA: null | {
+  name?: string
+  CA?: null | {
     rootCertString: string
     rootKeyString: string
   }
-  rootCa: string
-  peerList: string[]
-  registrarUrl: string
-  registrar: null | {
+  rootCa?: string
+  peerList?: string[]
+  registrarUrl?: string
+  registrar?: null | {
     privateKey: string
     address: string
   }
-  onionAddress: string
-  privateKey: string
-  port: number
-  registrationAttempts: number
+  onionAddress?: string
+  privateKey?: string
+  port?: number
+  registrationAttempts?: number
+  ownerCertificate?: string
 }
 
 export const communitiesSlice = createSlice({
@@ -43,11 +38,11 @@ export const communitiesSlice = createSlice({
     setCurrentCommunity: (state, action: PayloadAction<string>) => {
       state.currentCommunity = action.payload
     },
-    addNewCommunity: (state, action: PayloadAction<Community>) => {
+    addNewCommunity: (state, action: PayloadAction<CommunityType>) => {
       communitiesAdapter.addOne(state.communities, action.payload)
     },
     updateCommunity: (state, _action: PayloadAction<UpdateCommunityPayload>) => state,
-    updateCommunityData: (state, action: PayloadAction<Partial<Community>>) => {
+    updateCommunityData: (state, action: PayloadAction<CommunityType>) => {
       communitiesAdapter.updateOne(state.communities, {
         id: action.payload.id,
         changes: {
@@ -80,8 +75,8 @@ export const communitiesSlice = createSlice({
       })
     },
     resetApp: (state, _action) => state,
-    launchCommunity: (state, _action: PayloadAction<string>) => state,
-    launchRegistrar: (state, _action: PayloadAction<string>) => state,
+    launchCommunity: (state, _action: PayloadAction<string | undefined>) => state,
+    launchRegistrar: (state, _action: PayloadAction<string | undefined>) => state,
     updateRegistrationAttempts: (state, action: PayloadAction<UpdateRegistrationAttemptsPayload>) => {
       communitiesAdapter.updateOne(state.communities, {
         id: action.payload.id,
@@ -90,11 +85,20 @@ export const communitiesSlice = createSlice({
         }
       })
     },
-    handleInvitationCode: (state, _action: PayloadAction<string>) => {
-      state.invitationCode = _action.payload
+    handleInvitationCode: (state, action: PayloadAction<string>) => {
+      state.invitationCode = action.payload
     },
     clearInvitationCode: state => {
       state.invitationCode = undefined
+    },
+    addOwnerCertificate: (state, action: PayloadAction<AddOwnerCertificatePayload>) => {
+      const { communityId, ownerCertificate } = action.payload
+      communitiesAdapter.updateOne(state.communities, {
+        id: communityId,
+        changes: {
+          ownerCertificate
+        }
+      })
     }
   }
 })

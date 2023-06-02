@@ -1,10 +1,9 @@
 import { createSelector } from 'reselect'
 import { currentCommunityId } from '../communities/communities.selectors'
-import { SocketActionTypes } from '../socket/const/actionTypes'
 import { StoreKeys } from '../store.keys'
 import { CreatedSelectors, StoreState } from '../store.types'
 import { errorsAdapter } from './errors.adapter'
-import { ErrorPayload, ErrorMessages } from './errors.types'
+import { ErrorPayload, SocketActionTypes } from '@quiet/types'
 
 const errorSlice: CreatedSelectors[StoreKeys.Errors] = (state: StoreState) =>
   state[StoreKeys.Errors]

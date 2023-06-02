@@ -75,7 +75,7 @@ describe('NestedMessageContent', () => {
         size: AUTODOWNLOAD_SIZE_LIMIT - 2048,
         message: {
           id: 'string',
-          channelAddress: 'general'
+          channelId: 'general'
         }
       }
     }
@@ -138,7 +138,7 @@ describe('NestedMessageContent', () => {
         size: AUTODOWNLOAD_SIZE_LIMIT - 2048,
         message: {
           id: 'string',
-          channelAddress: 'general'
+          channelId: 'general'
         }
       }
     }
@@ -200,7 +200,7 @@ describe('NestedMessageContent', () => {
         size: AUTODOWNLOAD_SIZE_LIMIT + 2048,
         message: {
           id: 'string',
-          channelAddress: 'general'
+          channelId: 'general'
         }
       }
     }

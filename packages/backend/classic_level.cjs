@@ -5,13 +5,18 @@ import fs from 'fs'
 const require = createRequire(import.meta.url)
 
 let bindings = null
+let arch = process.arch
 
-let binaryPath = path.normalize(path.join(__dirname, '/deps', process.platform, process.arch, 'classic-level', 'classic_level.node'))
+if (process.platform === 'darwin') {
+  arch = 'universal'
+}
+
+let binaryPath = path.normalize(path.join(__dirname, '/deps', process.platform, arch, 'classic-level', 'classic_level.node'))
 let exists = fs.existsSync(binaryPath)
 
 if (!exists && process.platform === 'android') {
   // Get rid of extra nesting levels
-  binaryPath = path.normalize(path.join(__dirname, process.arch, 'classic-level', 'classic_level.node'))
+  binaryPath = path.normalize(path.join(__dirname, arch, 'classic-level', 'classic_level.node'))
   // Reassign boolean value for further comparision
   exists = fs.existsSync(binaryPath)
 }

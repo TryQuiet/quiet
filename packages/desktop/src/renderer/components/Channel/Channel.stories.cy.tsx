@@ -46,7 +46,7 @@ const Template: ComponentStory<typeof ChannelComponent> = () => {
             type: 1,
             message: 'I agree!',
             createdAt: 0,
-            channelAddress: 'general',
+            channelId: 'general',
             signature: 'signature',
             pubKey: 'pubKey'
           }}
@@ -79,30 +79,16 @@ const Template: ComponentStory<typeof ChannelComponent> = () => {
             joinTimestamp: null
           }}
           isCommunityInitialized={true}
-          channelSettingsModal={{
-            open: false,
-            handleOpen: function (_args?: any): any {},
-            handleClose: function (): any {}
-          }}
-          channelInfoModal={{
-            open: false,
-            handleOpen: function (_args?: any): any {},
-            handleClose: function (): any {}
-          }}
           uploadedFileModal={{
             open: false,
             handleOpen: function (_args?: any): any {},
             handleClose: function (): any {},
             src: 'images/butterfly.jpeg'
           }}
-          channelAddress={'general'}
+          channelId={'general'}
           channelName={'general'}
           lazyLoading={function (_load: boolean): void {}}
           onInputChange={function (_value: string): void {}}
-          onDelete={function (): void {}}
-          mutedFlag={false}
-          notificationFilter={''}
-          openNotificationsTab={function (): void {}}
           filesData={{}}
           downloadStatuses={undefined}
           openUrl={function (url: string): void {
@@ -117,6 +103,8 @@ const Template: ComponentStory<typeof ChannelComponent> = () => {
           removeFile={function (id: string): void {
             throw new Error('Function not implemented.')
           }}
+          enableContextMenu={false}
+          pendingGeneralChannelRecreation={false}
         />
       </DndProvider>
     </>

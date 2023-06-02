@@ -2,13 +2,13 @@ import { PayloadAction } from '@reduxjs/toolkit'
 import { call, apply } from 'typed-redux-saga'
 import { Time } from 'pkijs'
 import { generateId } from '../../../utils/cryptography/cryptography'
-import { SocketActionTypes } from '../../socket/const/actionTypes'
-import { communitiesActions, Community } from '../communities.slice'
-import { CommunityOwnership } from '../communities.types'
+import { communitiesActions } from '../communities.slice'
 import { createRootCA } from '@quiet/identity'
+import { Socket, applyEmitParams } from '../../../types'
+import { Community, CommunityOwnership, SocketActionTypes } from '@quiet/types'
 
 export function* createNetworkSaga(
-  socket,
+  socket: Socket,
   action: PayloadAction<ReturnType<typeof communitiesActions.createNetwork>['payload']>
 ) {
   let CA: null | {
@@ -30,21 +30,15 @@ export function* createNetworkSaga(
 
   const id = yield* call(generateId)
 
-  const registrarUrl = action.payload.registrar ? `http://${action.payload.registrar}.onion` : null
+  const registrarUrl = action.payload.registrar ? `http://${action.payload.registrar}.onion` : undefined
 
   const payload: Community = {
     id: id,
     name: action.payload.name,
     registrarUrl: registrarUrl,
     CA: CA,
-    rootCa: CA?.rootCertString,
-    peerList: [],
-    registrar: null,
-    onionAddress: '',
-    privateKey: '',
-    port: 0,
-    registrationAttempts: 0
+    rootCa: CA?.rootCertString
   }
 
-  yield* apply(socket, socket.emit, [SocketActionTypes.CREATE_NETWORK, payload])
+  yield* apply(socket, socket.emit, applyEmitParams(SocketActionTypes.CREATE_NETWORK, payload))
 }

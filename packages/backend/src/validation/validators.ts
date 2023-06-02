@@ -1,7 +1,7 @@
 import _ from 'validator'
 import joi from 'joi'
 import logger from '../logger'
-import { ChannelMessage, PublicChannel } from '@quiet/state-manager'
+import { ChannelMessage, PublicChannel } from '@quiet/types'
 const log = logger('validators')
 
 const messageMediaSchema = joi.object({
@@ -14,7 +14,8 @@ const messageMediaSchema = joi.object({
   height: joi.number().allow(null),
   message: joi.object({
     id: joi.string().required(),
-    channelAddress: joi.string().required()
+    channelId: joi.string(),
+    channelAddress: joi.string()
   })
 })
 
@@ -24,7 +25,8 @@ const messageSchema = joi.object({
   message: joi.alternatives(joi.string(), joi.binary()).required(),
   media: messageMediaSchema,
   createdAt: joi.number().required(),
-  channelAddress: joi.string().required(),
+  channelId: joi.string(),
+  channelAddress: joi.string(),
   signature: joi.string().required(),
   pubKey: joi.string().required()
 })
@@ -34,7 +36,8 @@ const channelSchema = joi.object({
   description: joi.string().required(),
   owner: joi.string().required(),
   timestamp: joi.number().required(),
-  address: joi.string().required()
+  id: joi.string(),
+  address: joi.string()
 })
 
 export const isUser = (publicKey: string, halfKey: string): boolean => {

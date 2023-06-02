@@ -1,24 +1,12 @@
 import { createSlice, Dictionary, EntityState, PayloadAction } from '@reduxjs/toolkit'
 import { channelMessagesAdapter } from '../publicChannels/publicChannels.adapter'
-import { ChannelMessage, IncomingMessages, instanceOfChannelMessage } from '../publicChannels/publicChannels.types'
 import { StoreKeys } from '../store.keys'
 import {
   messageVerificationStatusAdapter,
   messageSendingStatusAdapter,
   publicChannelsMessagesBaseAdapter
 } from './messages.adapter.ts'
-import {
-  MessageVerificationStatus,
-  MessageSendingStatus,
-  PublicKeyMappingPayload,
-  WriteMessagePayload,
-  PublicChannelsMessagesBase,
-  AddPublicChannelsMessagesBasePayload,
-  SetDisplayedMessagesNumberPayload,
-  LazyLoadingPayload,
-  AskForMessagesPayload,
-  ChannelMessagesIdsResponse
-} from './messages.types'
+import { AddPublicChannelsMessagesBasePayload, AskForMessagesPayload, ChannelMessage, ChannelMessagesIdsResponse, DeleteChannelEntryPayload, IncomingMessages, instanceOfChannelMessage, LazyLoadingPayload, MessageSendingStatus, MessageVerificationStatus, PublicChannelsMessagesBase, SendDeletionMessagePayload, SetDisplayedMessagesNumberPayload, WriteMessagePayload } from '@quiet/types'
 
 export class MessagesState {
   public publicKeyMapping: Dictionary<CryptoKey> = {}
@@ -38,10 +26,16 @@ export const messagesSlice = createSlice({
   name: StoreKeys.Messages,
   reducers: {
     sendMessage: (state, _action: PayloadAction<WriteMessagePayload>) => state,
+    sendDeletionMessage: (state, _action: PayloadAction<SendDeletionMessagePayload>) =>
+    state,
+    deleteChannelEntry: (state, action: PayloadAction<DeleteChannelEntryPayload>) => {
+      const { channelId } = action.payload
+      publicChannelsMessagesBaseAdapter.removeOne(state.publicChannelsMessagesBase, channelId)
+    },
     addPublicChannelsMessagesBase: (state, action: PayloadAction<AddPublicChannelsMessagesBasePayload>) => {
-      const { channelAddress } = action.payload
+      const { channelId } = action.payload
       publicChannelsMessagesBaseAdapter.addOne(state.publicChannelsMessagesBase, {
-        channelAddress: channelAddress,
+        channelId: channelId,
         messages: channelMessagesAdapter.getInitialState(),
         display: 50
       })
@@ -62,29 +56,20 @@ export const messagesSlice = createSlice({
       const id = action.payload
       messageVerificationStatusAdapter.removeOne(state.messageVerificationStatus, id)
     },
-    removePublicChannelMessage: (state, action: PayloadAction<{id: string; address: string}>) => {
-      const { id, address } = action.payload
-
-      channelMessagesAdapter.removeOne(
-        state.publicChannelsMessagesBase.entities[address].messages,
-        id
-      )
-      messageVerificationStatusAdapter.removeOne(state.messageVerificationStatus, id)
-    },
     incomingMessages: (state, action: PayloadAction<IncomingMessages>) => {
       const { messages } = action.payload
       for (const message of messages) {
         if (!instanceOfChannelMessage(message)) return
-        if (!state.publicChannelsMessagesBase.entities[message.channelAddress]) return
+        if (!state.publicChannelsMessagesBase.entities[message.channelId]) return
 
         let incoming = message
 
         const draft = state.publicChannelsMessagesBase
-          .entities[message.channelAddress]
+          .entities[message.channelId]
           ?.messages
           .entities[message.id]
 
-        if (message.media && draft?.media.path) {
+        if (message.media && draft?.media?.path) {
           incoming = {
             ...message,
             media: {
@@ -94,17 +79,20 @@ export const messagesSlice = createSlice({
           }
         }
 
+        const messagesBase = state.publicChannelsMessagesBase.entities[message.channelId]
+        if (!messagesBase) return
+
         channelMessagesAdapter.upsertOne(
-          state.publicChannelsMessagesBase.entities[message.channelAddress].messages,
+          messagesBase.messages,
           incoming
         )
       }
     },
     setDisplayedMessagesNumber: (state, action: PayloadAction<SetDisplayedMessagesNumberPayload>) => {
-      const { display, channelAddress } = action.payload
+      const { display, channelId } = action.payload
       publicChannelsMessagesBaseAdapter.updateOne(
         state.publicChannelsMessagesBase, {
-          id: channelAddress,
+          id: channelId,
           changes: {
             display: display
           }

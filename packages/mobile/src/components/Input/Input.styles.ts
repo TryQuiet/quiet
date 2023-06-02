@@ -25,6 +25,8 @@ export const StyledWrapper = styled(Pressable)<{
     border-width: 1px;
     padding-left: 15px;
     padding-right: 15px;
+    height: 60px;
+    justify-content: center;
     flex-grow: 1;
   `}
 `

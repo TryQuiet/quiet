@@ -3,21 +3,21 @@ import { StoreKeys } from '../store.keys'
 
 import {
   communitiesReducer,
-  CommunitiesState,
-  Community
+  CommunitiesState
 } from '../communities/communities.slice'
 
 import { usersReducer, UsersState } from '../users/users.slice'
 
 import { communitiesAdapter } from '../communities/communities.adapter'
 import { certificatesAdapter } from '../users/users.adapter'
-import { keyFromCertificate, parseCertificate, userData } from '@quiet/identity'
+import { keyFromCertificate, parseCertificate } from '@quiet/identity'
 import { usersSelectors } from './users.selectors'
+import { Community } from '@quiet/types'
 
 describe('users selectors', () => {
   let store: Store
 
-  const quietcommunity: Community = {
+  const quietcommunity: Community = { // TODO CHECK
     name: 'quietcommunity',
     id: 'quietcommunity',
     CA: {
@@ -26,14 +26,7 @@ describe('users selectors', () => {
       rootKeyString:
         'MIGTAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBHkwdwIBAQQgzwEMy6znlS1amoN8tcrNUXTO7WGTagioyI5XwKj8mdygCgYIKoZIzj0DAQehRANCAARHyePnOsSoS+M5l7WEgbHt/Bdc0XYDCSVKHvME2dlJmlB8B3J4FMIXvo4xChKuhkqYeQ7DoS28uEOYMDfWWcV9'
     },
-    rootCa: '',
-    peerList: [],
-    registrarUrl: '',
-    registrar: null,
-    onionAddress: '',
-    privateKey: '',
-    port: 0,
-    registrationAttempts: 0
+    rootCa: ''
   }
 
   const userCertData = {

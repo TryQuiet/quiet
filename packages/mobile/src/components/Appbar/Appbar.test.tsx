@@ -12,13 +12,15 @@ describe('Appbar component', () => {
     expect(toJSON()).toMatchInlineSnapshot(`
       <View
         style={
-          Array [
-            Object {
+          [
+            {
+              "alignItems": "center",
               "backgroundColor": "#ffffff",
               "borderBottomColor": "#F0F0F0",
               "borderBottomWidth": 1,
+              "display": "flex",
               "flexDirection": "row",
-              "flexGrow": 1,
+              "justifyContent": "center",
               "maxHeight": 52,
               "minHeight": 52,
             },
@@ -26,45 +28,62 @@ describe('Appbar component', () => {
         }
       >
         <View
-          accessible={true}
-          focusable={true}
-          onClick={[Function]}
-          onResponderGrant={[Function]}
-          onResponderMove={[Function]}
-          onResponderRelease={[Function]}
-          onResponderTerminate={[Function]}
-          onResponderTerminationRequest={[Function]}
-          onStartShouldSetResponder={[Function]}
           style={
-            Object {
-              "alignItems": "center",
-              "justifyContent": "center",
-              "width": 64,
+            {
+              "flex": 1,
             }
           }
         >
-          <Image
-            resizeMethod="resize"
-            resizeMode="cover"
-            source={
-              Object {
-                "testUri": "../../../assets/icons/arrow_left.png",
+          <View
+            accessibilityState={
+              {
+                "busy": undefined,
+                "checked": undefined,
+                "disabled": undefined,
+                "expanded": undefined,
+                "selected": undefined,
               }
             }
+            accessible={true}
+            focusable={true}
+            onClick={[Function]}
+            onResponderGrant={[Function]}
+            onResponderMove={[Function]}
+            onResponderRelease={[Function]}
+            onResponderTerminate={[Function]}
+            onResponderTerminationRequest={[Function]}
+            onStartShouldSetResponder={[Function]}
             style={
-              Object {
-                "height": 16,
-                "width": 16,
+              {
+                "alignItems": "center",
+                "justifyContent": "center",
+                "width": 64,
               }
             }
-          />
+            testID="appbar_action_item"
+          >
+            <Image
+              resizeMethod="resize"
+              resizeMode="cover"
+              source={
+                {
+                  "testUri": "../../../assets/icons/arrow_left.png",
+                }
+              }
+              style={
+                {
+                  "height": 16,
+                  "width": 16,
+                }
+              }
+            />
+          </View>
         </View>
         <View
           style={
-            Object {
+            {
               "alignItems": "center",
-              "flexGrow": 1,
-              "justifyContent": "center",
+              "flex": 4,
             }
           }
         >
@@ -74,8 +93,8 @@ describe('Appbar component', () => {
             fontWeight="medium"
             horizontalTextAlign="left"
             style={
-              Array [
-                Object {
+              [
+                {
                   "color": "#000000",
                   "fontFamily": "Rubik-Medium",
                   "fontSize": 16,
@@ -91,8 +110,8 @@ describe('Appbar component', () => {
         </View>
         <View
           style={
-            Object {
-              "width": 64,
+            {
+              "flex": 1,
             }
           }
         />
@@ -114,13 +133,15 @@ describe('Appbar component', () => {
     expect(toJSON()).toMatchInlineSnapshot(`
       <View
         style={
-          Array [
-            Object {
+          [
+            {
+              "alignItems": "center",
               "backgroundColor": "#ffffff",
               "borderBottomColor": "#F0F0F0",
               "borderBottomWidth": 1,
+              "display": "flex",
               "flexDirection": "row",
-              "flexGrow": 1,
+              "justifyContent": "center",
               "maxHeight": 52,
               "minHeight": 52,
             },
@@ -128,62 +149,79 @@ describe('Appbar component', () => {
         }
       >
         <View
-          accessible={true}
-          focusable={true}
-          onClick={[Function]}
-          onResponderGrant={[Function]}
-          onResponderMove={[Function]}
-          onResponderRelease={[Function]}
-          onResponderTerminate={[Function]}
-          onResponderTerminationRequest={[Function]}
-          onStartShouldSetResponder={[Function]}
           style={
-            Object {
-              "alignItems": "center",
-              "justifyContent": "center",
-              "width": 64,
+            {
+              "flex": 1,
             }
           }
         >
           <View
-            style={
-              Object {
-                "alignItems": "center",
-                "backgroundColor": "#67BFD3",
-                "borderRadius": 4,
-                "height": 36,
-                "justifyContent": "center",
-                "width": 36,
+            accessibilityState={
+              {
+                "busy": undefined,
+                "checked": undefined,
+                "disabled": undefined,
+                "expanded": undefined,
+                "selected": undefined,
               }
             }
-          >
-            <Text
-              color="white"
-              fontSize={14}
-              horizontalTextAlign="left"
-              style={
-                Array [
-                  Object {
-                    "color": "#ffffff",
-                    "fontFamily": "Rubik-Regular",
-                    "fontSize": 14,
-                    "textAlign": "left",
-                    "textAlignVertical": "center",
-                  },
-                ]
+            accessible={true}
+            focusable={true}
+            onClick={[Function]}
+            onResponderGrant={[Function]}
+            onResponderMove={[Function]}
+            onResponderRelease={[Function]}
+            onResponderTerminate={[Function]}
+            onResponderTerminationRequest={[Function]}
+            onStartShouldSetResponder={[Function]}
+            style={
+              {
+                "alignItems": "center",
+                "justifyContent": "center",
+                "width": 64,
               }
-              verticalTextAlign="center"
+            }
+            testID="appbar_action_item"
+          >
+            <View
+              style={
+                {
+                  "alignItems": "center",
+                  "backgroundColor": "#67BFD3",
+                  "borderRadius": 4,
+                  "height": 36,
+                  "justifyContent": "center",
+                  "width": 36,
+                }
+              }
             >
-              qu
-            </Text>
+              <Text
+                color="white"
+                fontSize={14}
+                horizontalTextAlign="left"
+                style={
+                  [
+                    {
+                      "color": "#ffffff",
+                      "fontFamily": "Rubik-Regular",
+                      "fontSize": 14,
+                      "textAlign": "left",
+                      "textAlignVertical": "center",
+                    },
+                  ]
+                }
+                verticalTextAlign="center"
+              >
+                qu
+              </Text>
+            </View>
           </View>
         </View>
         <View
           style={
-            Object {
+            {
               "alignItems": "flex-start",
-              "flexGrow": 1,
-              "justifyContent": "center",
+              "flex": 4,
             }
           }
         >
@@ -193,8 +231,8 @@ describe('Appbar component', () => {
             fontWeight="medium"
             horizontalTextAlign="left"
             style={
-              Array [
-                Object {
+              [
+                {
                   "color": "#000000",
                   "fontFamily": "Rubik-Medium",
                   "fontSize": 16,
@@ -210,44 +248,55 @@ describe('Appbar component', () => {
         </View>
         <View
           style={
-            Object {
-              "width": 64,
-            }
-          }
-        />
-        <View
-          accessible={true}
-          focusable={true}
-          onClick={[Function]}
-          onResponderGrant={[Function]}
-          onResponderMove={[Function]}
-          onResponderRelease={[Function]}
-          onResponderTerminate={[Function]}
-          onResponderTerminationRequest={[Function]}
-          onStartShouldSetResponder={[Function]}
-          style={
-            Object {
-              "alignItems": "center",
-              "justifyContent": "center",
-              "width": 64,
+            {
+              "flex": 1,
             }
           }
         >
-          <Image
-            resizeMethod="resize"
-            resizeMode="contain"
-            source={
-              Object {
-                "testUri": "../../../assets/icons/dots.png",
+          <View
+            accessibilityState={
+              {
+                "busy": undefined,
+                "checked": undefined,
+                "disabled": undefined,
+                "expanded": undefined,
+                "selected": undefined,
               }
             }
+            accessible={true}
+            focusable={true}
+            onClick={[Function]}
+            onResponderGrant={[Function]}
+            onResponderMove={[Function]}
+            onResponderRelease={[Function]}
+            onResponderTerminate={[Function]}
+            onResponderTerminationRequest={[Function]}
+            onStartShouldSetResponder={[Function]}
             style={
-              Object {
-                "height": 16,
-                "width": 16,
+              {
+                "alignItems": "center",
+                "justifyContent": "center",
+                "width": 64,
               }
             }
-          />
+            testID="open_menu"
+          >
+            <Image
+              resizeMethod="resize"
+              resizeMode="contain"
+              source={
+                {
+                  "testUri": "../../../assets/icons/dots.png",
+                }
+              }
+              style={
+                {
+                  "height": 16,
+                  "width": 16,
+                }
+              }
+            />
+          </View>
         </View>
       </View>
     `)

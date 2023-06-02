@@ -17,8 +17,3 @@ storiesOf('Typography', module)
       {'This is random text'}
     </Typography>
   ))
-// .add('Colored', () => (
-//   <Typography color={'warning'} fontSize={20}>
-//     {'This is random text'}
-//   </Typography>
-// ));

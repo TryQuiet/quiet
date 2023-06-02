@@ -4,7 +4,7 @@ import path from 'path'
 
 import PQueue, { AbortError } from 'p-queue'
 
-import { decode } from '@ipld/dag-pb'
+import { decode, PBNode } from '@ipld/dag-pb'
 
 import * as base58 from 'multiformats/bases/base58'
 
@@ -17,15 +17,10 @@ import sizeOf from 'image-size'
 
 import { CID } from 'multiformats/cid'
 
-import {
-    FileMetadata,
-    DownloadStatus,
-    DownloadProgress,
-    DownloadState,
-    imagesExtensions
-} from '@quiet/state-manager'
 import { sleep } from '../sleep'
-
+import logger from '../logger'
+import { DownloadProgress, DownloadState, DownloadStatus, FileMetadata, imagesExtensions } from '@quiet/types'
+const log = logger('ipfsFiles')
 const sizeOfPromisified = promisify(sizeOf)
 
 const { createPaths, compare } = await import('../common/utils')
@@ -35,6 +30,7 @@ export enum IpfsFilesManagerEvents {
     DOWNLOAD_FILE = 'downloadFile',
     CANCEL_DOWNLOAD = 'cancelDownload',
     UPLOAD_FILE = 'uploadFile',
+    DELETE_FILE = 'deleteFile',
     // Outgoing evnets
     UPDATE_MESSAGE_MEDIA = 'updateMessageMedia',
     UPDATE_DOWNLOAD_PROGRESS = 'updateDownloadProgress'
@@ -59,15 +55,14 @@ const MAX_EVENT_LISTENERS = 300
 export class IpfsFilesManager extends EventEmitter {
     ipfs: IPFS
     quietDir: string
-    // keep info about all downloads in progress
+    // keep info about all in-progress downloads
     files: Map<string, FilesData>
     controllers: Map<string, {
         controller: AbortController
     }>
 
-    queue: PQueue
-
     cancelledDownloads: Set<string>
+    queue: PQueue
 
     constructor(ipfs: IPFS, quietDir: string) {
         super()
@@ -76,8 +71,8 @@ export class IpfsFilesManager extends EventEmitter {
         this.files = new Map()
         this.controllers = new Map()
         this.cancelledDownloads = new Set()
-        this.attachIncomingEvents()
         this.queue = new PQueue({ concurrency: QUEUE_CONCURRENCY })
+        this.attachIncomingEvents()
     }
 
     private attachIncomingEvents = () => {
@@ -103,6 +98,24 @@ export class IpfsFilesManager extends EventEmitter {
                 console.error(`downloading ${mid} has already been canceled or never started`)
             }
         })
+    }
+
+    public async deleteBlocks(fileMetadata: FileMetadata) {
+        const localBlocks = await this.getLocalBlocks()
+        const hasBlockBeenDownloaded = localBlocks.includes(`z${fileMetadata.cid.toString()}`)
+        if (!hasBlockBeenDownloaded) return
+
+        try {
+            const result = await this.ipfs.pin.rm(fileMetadata.cid, { recursive: true })
+        } catch (e) {
+            console.log('file removing error')
+            console.log(e)
+        }
+
+        const gcresult = this.ipfs.repo.gc()
+        for await (const res of gcresult) {
+            console.log('garbage collector result', res)
+        }
     }
 
     public async stop() {
@@ -131,18 +144,21 @@ export class IpfsFilesManager extends EventEmitter {
     }
 
     public async uploadFile(metadata: FileMetadata) {
-        let width: number = null
-        let height: number = null
+        let width: number | undefined
+        let height: number | undefined
+        if (!metadata.path) {
+            throw new Error(`File metadata (cid ${metadata.cid}) does not contain path`)
+        }
         if (imagesExtensions.includes(metadata.ext)) {
-            let imageSize = null
+            let imageSize: { width: number | undefined; height: number | undefined } | undefined // ISizeCalculationResult
             try {
                 imageSize = await sizeOfPromisified(metadata.path)
             } catch (e) {
                 console.error(`Couldn't get image dimensions (${metadata.path}). Error: ${e.message}`)
                 throw new Error(`Couldn't get image dimensions (${metadata.path}). Error: ${e.message}`)
             }
-            width = imageSize.width
-            height = imageSize.height
+            width = imageSize?.width
+            height = imageSize?.height
         }
 
         const stream = fs.createReadStream(metadata.path, { highWaterMark: 64 * 1024 * 10 })
@@ -165,42 +181,33 @@ export class IpfsFilesManager extends EventEmitter {
         // Save copy to separate directory
         const filePath = this.copyFile(metadata.path, filename)
         console.time(`Writing ${filename} to ipfs`)
-        await this.ipfs.files.write(`/${dirname}/${filename}`, uploadedFileStreamIterable, {
-            create: true
-        })
+        const newCid = await this.ipfs.add(uploadedFileStreamIterable)
+
         console.timeEnd(`Writing ${filename} to ipfs`)
 
-        // Get uploaded file information
-        const entries = this.ipfs.files.ls(`/${dirname}`)
-        for await (const entry of entries) {
-            if (entry.name === filename) {
-                this.emit(StorageEvents.REMOVE_DOWNLOAD_STATUS, { cid: metadata.cid })
+        this.emit(StorageEvents.REMOVE_DOWNLOAD_STATUS, { cid: metadata.cid })
+        const fileMetadata: FileMetadata = {
+            ...metadata,
+            path: filePath,
+            cid: newCid.cid.toString(),
+            size: newCid.size,
+            width,
+            height
+        }
 
-                const fileMetadata: FileMetadata = {
-                    ...metadata,
-                    path: filePath,
-                    cid: entry.cid.toString(),
-                    size: entry.size,
-                    width,
-                    height
-                }
+        this.emit(StorageEvents.UPLOADED_FILE, fileMetadata)
 
-                this.emit(StorageEvents.UPLOADED_FILE, fileMetadata)
+        const statusReady: DownloadStatus = {
+            mid: fileMetadata.message.id,
+            cid: fileMetadata.cid,
+            downloadState: DownloadState.Hosted,
+            downloadProgress: undefined
+        }
 
-                const statusReady: DownloadStatus = {
-                    mid: fileMetadata.message.id,
-                    cid: fileMetadata.cid,
-                    downloadState: DownloadState.Hosted,
-                    downloadProgress: undefined
-                }
+        this.emit(StorageEvents.UPDATE_DOWNLOAD_PROGRESS, statusReady)
 
-                this.emit(StorageEvents.UPDATE_DOWNLOAD_PROGRESS, statusReady)
-
-                if (metadata.path !== filePath) {
-                    this.emit(StorageEvents.UPDATE_MESSAGE_MEDIA, fileMetadata)
-                }
-                break
-            }
+        if (metadata.path !== filePath) {
+            this.emit(StorageEvents.UPDATE_MESSAGE_MEDIA, fileMetadata)
         }
     }
 
@@ -219,8 +226,8 @@ export class IpfsFilesManager extends EventEmitter {
         }
     }
 
-    private getLocalBlocks = async () => {
-        const blocks = []
+    private getLocalBlocks = async (): Promise<string[]> => {
+        const blocks: string[] = []
 
         const refs = this.ipfs.refs.local()
 
@@ -236,7 +243,7 @@ export class IpfsFilesManager extends EventEmitter {
         const block = CID.parse(fileMetadata.cid)
 
         const localBlocks = await this.getLocalBlocks()
-        const processedBlocks = []
+        const processedBlocks: PBNode[] = [] // TODO: Should it be CID or PBNode?
 
         const controller = new AbortController()
 
@@ -268,8 +275,13 @@ export class IpfsFilesManager extends EventEmitter {
             }
         }
 
+        interface BlockStat {
+            fetchTime: number
+            byteLength: number
+        }
+
         // Transfer speed
-        const blocksStats = []
+        const blocksStats: BlockStat[] = []
 
         const updateTransferSpeed = setInterval(async () => {
             const bytesDownloaded = blocksStats.reduce((previousValue, currentValue) => {
@@ -286,6 +298,10 @@ export class IpfsFilesManager extends EventEmitter {
             }, 0)
             const transferSpeed = bytesDownloaded === 0 ? 0 : bytesDownloaded / TRANSFER_SPEED_SPAN
             const fileState = this.files.get(fileMetadata.cid)
+            if (!fileState) {
+                log.error(`No saved data for file cid ${fileMetadata.cid}`)
+                return
+            }
             this.files.set(fileMetadata.cid, {
                 ...fileState, transferSpeed: transferSpeed, downloadedBytes: totalBytesDownloaded
             })
@@ -315,6 +331,7 @@ export class IpfsFilesManager extends EventEmitter {
                 if (signal.aborted) onAbort()
                 signal.addEventListener('abort', onAbort, { once: true })
 
+                // @ts-ignore FIXME
                 if (processedBlocks.includes(block)) {
                     remainingBlocks.delete(block)
                     resolve(block)
@@ -333,7 +350,7 @@ export class IpfsFilesManager extends EventEmitter {
                     return
                 }
 
-                const decodedBlock = decode(fetchedBlock)
+                const decodedBlock: PBNode = decode(fetchedBlock)
 
                 const fileState = this.files.get(fileMetadata.cid)
 
@@ -347,7 +364,7 @@ export class IpfsFilesManager extends EventEmitter {
                 if (!hasBlockBeenDownloaded) {
                     blocksStats.push({
                         fetchTime: Math.floor(Date.now() / 1000),
-                        byteLength: decodedBlock.Data.byteLength
+                        byteLength: decodedBlock.Data?.byteLength || 0
                     })
                 }
 
@@ -369,9 +386,13 @@ export class IpfsFilesManager extends EventEmitter {
 
         clearInterval(updateTransferSpeed)
 
-        if (this.cancelledDownloads.has(fileMetadata.cid)) {
-            const fileState = this.files.get(fileMetadata.cid)
+        const fileState = this.files.get(fileMetadata.cid)
+        if (!fileState) {
+            log.error(`No saved data for file cid ${fileMetadata.cid}`)
+            return
+        }
 
+        if (this.cancelledDownloads.has(fileMetadata.cid)) {
             this.files.set(fileMetadata.cid, {
                 ...fileState, downloadedBytes: 0, transferSpeed: 0
             })
@@ -380,10 +401,10 @@ export class IpfsFilesManager extends EventEmitter {
             await this.updateStatus(fileMetadata.cid, DownloadState.Canceled)
             this.files.delete(fileMetadata.cid)
         } else {
-            const fileState = this.files.get(fileMetadata.cid)
             this.files.set(fileMetadata.cid, {
                 ...fileState, transferSpeed: 0
             })
+            await this.ipfs.pin.add(block, { recursive: true })
             await this.assemblyFile(fileMetadata)
         }
     }
@@ -429,7 +450,11 @@ export class IpfsFilesManager extends EventEmitter {
 
     private updateStatus = async (cid: string, downloadState = DownloadState.Downloading) => {
         const metadata = this.files.get(cid)
-        const progress: DownloadProgress = downloadState !== DownloadState.Malicious ? {
+        if (!metadata) {
+            // TODO: emit error?
+            return
+        }
+        const progress: DownloadProgress | undefined = downloadState !== DownloadState.Malicious ? {
             size: metadata.size,
             downloaded: metadata.downloadedBytes,
             transferSpeed: metadata.transferSpeed

@@ -33,7 +33,9 @@ export const LeaveCommunity: FC<LeaveCommunityProps> = ({
   }, [name])
 
   return (
-    <View style={{ flex: 1, backgroundColor: defaultPalette.background.white }}>
+    <View
+      style={{ flex: 1, backgroundColor: defaultPalette.background.white }}
+      testID={'leave-community-component'}>
       <Appbar title={'Leave community'} back={goBack} />
       <View
         style={{
@@ -49,8 +51,8 @@ export const LeaveCommunity: FC<LeaveCommunityProps> = ({
             Your account, messages, and all data for{' '}
             <Typography fontSize={14} fontWeight={'medium'}>
               {displayedName}
-            </Typography>
-            {' '}will be deleted from this device. This cannot be undone.
+            </Typography>{' '}
+            will be deleted from this device. This cannot be undone.
           </Typography>
         </View>
         <View style={{ paddingTop: 16 }}>

@@ -13,64 +13,69 @@ export const Appbar: FC<AppbarProps> = ({ title, prefix, position, style, back, 
   const menu_icon = appImages.dots
   return (
     <StyledAppbar style={style}>
-      <TouchableWithoutFeedback
-        onPress={() => {
-          if (back) back()
-        }}>
-        <View style={{ justifyContent: 'center', alignItems: 'center', width: 64 }}>
-          {back ? (
-            <Image
-              source={arrow_icon}
-              resizeMode='cover'
-              resizeMethod='resize'
-              style={{
-                width: 16,
-                height: 16
-              }}
-            />
-          ) : (
-            <View
-              style={{
-                width: 36,
-                height: 36,
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderRadius: 4,
-                backgroundColor: defaultTheme.palette.background.lushSky
-              }}>
-              <Typography fontSize={14} color={'white'}>
-                {prefix}
-                {title?.slice(0, 2).toLowerCase()}
-              </Typography>
-            </View>
-          )}
-        </View>
-      </TouchableWithoutFeedback>
-      <View
-        style={{ flexGrow: 1, justifyContent: 'center', alignItems: `${position || 'center'}` }}>
+      <View style={{ flex: 1 }}>
+        <TouchableWithoutFeedback
+          onPress={() => {
+            if (back) back()
+          }}
+          testID={'appbar_action_item'}>
+          <View style={{ justifyContent: 'center', alignItems: 'center', width: 64 }}>
+            {back ? (
+              <Image
+                source={arrow_icon}
+                resizeMode='cover'
+                resizeMethod='resize'
+                style={{
+                  width: 16,
+                  height: 16
+                }}
+              />
+            ) : (
+              <View
+                style={{
+                  width: 36,
+                  height: 36,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderRadius: 4,
+                  backgroundColor: defaultTheme.palette.background.lushSky
+                }}>
+                <Typography fontSize={14} color={'white'}>
+                  {prefix}
+                  {title?.slice(0, 2).toLowerCase()}
+                </Typography>
+              </View>
+            )}
+          </View>
+        </TouchableWithoutFeedback>
+      </View>
+      <View style={{ flex: 4, alignItems: `${position || 'center'}` }}>
         <Typography fontSize={16} fontWeight={'medium'}>
           {title}
         </Typography>
       </View>
-      <View style={{ width: 64 }} />
-      {contextMenu && (
-        <TouchableWithoutFeedback onPress={event => {
-          event.persist()
-          contextMenu.handleOpen()
-          }}>
-          <View style={{ justifyContent: 'center', alignItems: 'center', width: 64 }}>
-            <Image
-              source={menu_icon}
-              resizeMode='contain'
-              resizeMethod='resize'
-              style={{
-                width: 16,
-                height: 16
-              }}
-            />
-          </View>
-        </TouchableWithoutFeedback>
-      )}
+      <View style={{ flex: 1 }}>
+        {contextMenu && (
+          <TouchableWithoutFeedback
+            onPress={event => {
+              event.persist()
+              contextMenu.handleOpen()
+            }}
+            testID={'open_menu'}>
+            <View style={{ justifyContent: 'center', alignItems: 'center', width: 64 }}>
+              <Image
+                source={menu_icon}
+                resizeMode='contain'
+                resizeMethod='resize'
+                style={{
+                  width: 16,
+                  height: 16
+                }}
+              />
+            </View>
+          </TouchableWithoutFeedback>
+        )}
+      </View>
     </StyledAppbar>
   )
 }

@@ -4,10 +4,12 @@ import { useDispatch, useSelector } from 'react-redux'
 import SearchModalComponent from './SearchModelComponent'
 import { useModal } from '../../containers/hooks'
 import { ModalName } from '../../sagas/modals/modals.types'
+import { navigationActions } from '../../store/navigation/navigation.slice'
 
 const SearchModal = () => {
   const dispatch = useDispatch()
   const [channelInput, setChannelInput] = useState<string>('')
+
   const searchChannelModal = useModal(ModalName.searchChannelModal)
 
   const dynamicSearchedChannelsSelector = useSelector(
@@ -19,10 +21,10 @@ const SearchModal = () => {
   const publicChannelsSelector = useSelector(publicChannels.selectors.publicChannels)
 
   const setCurrentChannel = useCallback(
-    (address: string) => {
+    (id: string) => {
       dispatch(
         publicChannels.actions.setCurrentChannel({
-          channelAddress: address
+          channelId: id
         })
       )
       searchChannelModal.handleClose()
@@ -33,17 +35,19 @@ const SearchModal = () => {
   const handleKeyDown = useCallback<(evt: KeyboardEvent) => void>(evt => {
     if ((evt.metaKey || evt.ctrlKey) && evt.key === 'k') {
       evt.preventDefault()
+      dispatch(navigationActions.closeAllMenus())
       searchChannelModal.handleOpen()
     }
     if ((evt.metaKey || evt.ctrlKey) && evt.key === 't') {
       evt.preventDefault()
+      dispatch(navigationActions.closeAllMenus())
       searchChannelModal.handleOpen()
     }
     if (evt.key === 'Escape') {
       evt.preventDefault()
       searchChannelModal.handleClose()
     }
-  }, [])
+  }, [dispatch])
 
   useEffect(() => {
     document.addEventListener('keydown', handleKeyDown, false)

@@ -4,25 +4,25 @@ import { applyEmitParams, Socket } from '../../../types'
 import { select, apply } from 'typed-redux-saga'
 import { identitySelectors } from '../../identity/identity.selectors'
 import { messagesSelectors } from '../../messages/messages.selectors'
-import { instanceOfChannelMessage } from '../../publicChannels/publicChannels.types'
-import { SocketActionTypes } from '../../socket/const/actionTypes'
 import { filesActions } from '../files.slice'
+import { instanceOfChannelMessage, SocketActionTypes } from '@quiet/types'
 
 export function* broadcastHostedFileSaga(
   socket: Socket,
   action: PayloadAction<ReturnType<typeof filesActions.broadcastHostedFile>['payload']>
 ): Generator {
   const identity = yield* select(identitySelectors.currentIdentity)
+  if (!identity) return
 
   const channelMessages = yield* select(
-    messagesSelectors.publicChannelMessagesEntities(action.payload.message.channelAddress)
+    messagesSelectors.publicChannelMessagesEntities(action.payload.message.channelId)
   )
 
   const message = channelMessages[action.payload.message.id]
 
   if (!message || !instanceOfChannelMessage(message)) {
     console.error(
-      `Cannot broadcast message after uploading. Draft ${action.payload.message.id} from #${action.payload.message.channelAddress} does not exist in local storage.`
+      `Cannot broadcast message after uploading. Draft ${action.payload.message.id} from #${action.payload.message.channelId} does not exist in local storage.`
     )
     return
   }

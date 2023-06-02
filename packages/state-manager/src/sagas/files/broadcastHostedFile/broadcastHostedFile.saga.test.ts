@@ -5,17 +5,16 @@ import { prepareStore, reducers } from '../../../utils/tests/prepareStore'
 import { combineReducers } from '@reduxjs/toolkit'
 import { expectSaga } from 'redux-saga-test-plan'
 import { Socket } from 'socket.io-client'
-import { communitiesActions, Community } from '../../communities/communities.slice'
+import { communitiesActions } from '../../communities/communities.slice'
 import { identityActions } from '../../identity/identity.slice'
-import { Identity } from '../../identity/identity.types'
-import { SocketActionTypes } from '../../socket/const/actionTypes'
 import { filesActions } from '../files.slice'
 import { FactoryGirl } from 'factory-girl'
 import { broadcastHostedFileSaga } from './broadcastHostedFile.saga'
-import { PublicChannel } from '../../publicChannels/publicChannels.types'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import { DateTime } from 'luxon'
-import { FileMetadata } from '../files.types'
+import { Community, FileMetadata, Identity, PublicChannel, SocketActionTypes } from '@quiet/types'
+import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
+import { generateChannelId } from '@quiet/common'
 
 describe('downloadFileSaga', () => {
   let store: Store
@@ -25,6 +24,7 @@ describe('downloadFileSaga', () => {
   let alice: Identity
 
   let sailingChannel: PublicChannel
+  let generalChannel: PublicChannel
 
   beforeAll(async () => {
     setupCrypto()
@@ -41,7 +41,9 @@ describe('downloadFileSaga', () => {
       'Identity',
       { id: community.id, nickname: 'alice' }
     )
-
+    const generalChannelState = publicChannelsSelectors.generalChannel(store.getState())
+    if (generalChannelState) generalChannel = generalChannelState
+    expect(generalChannel).not.toBeUndefined()
     sailingChannel = (
       await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>(
         'PublicChannel',
@@ -51,7 +53,7 @@ describe('downloadFileSaga', () => {
             description: 'Welcome to #sailing',
             timestamp: DateTime.utc().valueOf(),
             owner: alice.nickname,
-            address: 'sailing'
+            id: generateChannelId('sailing')
           }
         }
       )
@@ -62,7 +64,7 @@ describe('downloadFileSaga', () => {
     const socket = { emit: jest.fn() } as unknown as Socket
 
     store.dispatch(publicChannelsActions.setCurrentChannel({
-      channelAddress: 'general'
+      channelId: generalChannel.id
     }))
 
     const id = Math.random().toString(36).substr(2.9)
@@ -74,7 +76,7 @@ describe('downloadFileSaga', () => {
       ext: 'ext',
       message: {
         id: id,
-        channelAddress: 'general'
+        channelId: generalChannel.id
       }
     }
 
@@ -88,7 +90,7 @@ describe('downloadFileSaga', () => {
             type: MessageType.File,
             message: '',
             createdAt: DateTime.utc().valueOf(),
-            channelAddress: 'general',
+            channelId: generalChannel.id,
             signature: '',
             pubKey: '',
             media: media
@@ -121,7 +123,7 @@ describe('downloadFileSaga', () => {
     const socket = { emit: jest.fn() } as unknown as Socket
 
     store.dispatch(publicChannelsActions.setCurrentChannel({
-      channelAddress: sailingChannel.address
+      channelId: sailingChannel.id
     }))
 
     const id = Math.random().toString(36).substr(2.9)
@@ -133,7 +135,7 @@ describe('downloadFileSaga', () => {
       ext: 'ext',
       message: {
         id: id,
-        channelAddress: 'general'
+        channelId: generalChannel.id
       }
     }
 
@@ -147,7 +149,7 @@ describe('downloadFileSaga', () => {
             type: MessageType.File,
             message: '',
             createdAt: DateTime.utc().valueOf(),
-            channelAddress: 'general',
+            channelId: generalChannel.id,
             signature: '',
             pubKey: '',
             media: media

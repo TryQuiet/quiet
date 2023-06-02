@@ -1,29 +1,31 @@
 import { PayloadAction } from '@reduxjs/toolkit'
 import { messagesActions } from '../../messages/messages.slice'
-import { MessageType } from '../../messages/messages.types'
 import { apply, put, select } from 'typed-redux-saga'
-import { SocketActionTypes } from '../../socket/const/actionTypes'
 import { identitySelectors } from '../../identity/identity.selectors'
 import { messagesSelectors } from '../../messages/messages.selectors'
 import { AUTODOWNLOAD_SIZE_LIMIT } from '../../../constants'
 import { filesActions } from '../files.slice'
-import { DownloadState } from '../files.types'
 import { applyEmitParams, Socket } from '../../../types'
+import { DownloadState, MessageType, SocketActionTypes } from '@quiet/types'
 
 export function* autoDownloadFilesSaga(
   socket: Socket,
   action: PayloadAction<ReturnType<typeof messagesActions.incomingMessages>['payload']>
 ): Generator {
   const identity = yield* select(identitySelectors.currentIdentity)
+  if (!identity) {
+    console.error('Could not autodownload files, no identity')
+    return
+  }
 
   const { messages } = action.payload
 
   for (const message of messages) {
     // Proceed for images and files only
-    if (message.type !== MessageType.Image && message.type !== MessageType.File) return
+    if (!message.media || (message.type !== MessageType.Image && message.type !== MessageType.File)) return
 
     const channelMessages = yield* select(
-      messagesSelectors.publicChannelMessagesEntities(message.channelAddress)
+      messagesSelectors.publicChannelMessagesEntities(message.channelId)
     )
 
     const draft = channelMessages[message.id]
@@ -32,7 +34,8 @@ export function* autoDownloadFilesSaga(
     if (draft?.media?.path) return
 
     // Do not autodownload above certain size
-    if (message.media.size > AUTODOWNLOAD_SIZE_LIMIT) {
+    const messageMediaSize = message.media.size || 0
+    if (messageMediaSize > AUTODOWNLOAD_SIZE_LIMIT) {
       yield* put(
         filesActions.updateDownloadStatus({
           mid: message.id,

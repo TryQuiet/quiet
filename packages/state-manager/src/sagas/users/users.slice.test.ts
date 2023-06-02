@@ -1,17 +1,18 @@
 import { combineReducers, createStore, Store } from 'redux'
 import { StoreKeys } from '../store.keys'
-import { communitiesReducer, CommunitiesState, Community } from '../communities/communities.slice'
+import { communitiesReducer, CommunitiesState } from '../communities/communities.slice'
 
 import { communitiesAdapter } from '../communities/communities.adapter'
 import { usersActions, usersReducer, UsersState } from './users.slice'
 import { certificatesAdapter } from './users.adapter'
 import { keyFromCertificate, parseCertificate } from '@quiet/identity'
 import { usersSelectors } from './users.selectors'
+import { Community } from '@quiet/types'
 
 describe('users reducer', () => {
   let store: Store
 
-  const communityId: Community = {
+  const communityId: Community = { // TODO CHECK
     name: 'communityId',
     id: 'communityId',
     CA: { rootCertString: 'certString', rootKeyString: 'keyString' },
@@ -22,7 +23,8 @@ describe('users reducer', () => {
     onionAddress: '',
     privateKey: '',
     port: 0,
-    registrationAttempts: 0
+    registrationAttempts: 0,
+    ownerCertificate: ''
   }
 
   beforeEach(() => {

@@ -7,6 +7,8 @@ export enum ScreenNames {
   UsernameRegistrationScreen = 'UsernameRegistrationScreen',
   ChannelListScreen = 'ChannelList',
   ChannelScreen = 'ChannelScreen',
+  CreateChannelScreen = 'CreateChannelScreen',
+  DeleteChannelScreen = 'DeleteChannelScreen',
   QRCodeScreen = 'QRCodeScreen',
   LeaveCommunityScreen = 'LeaveCommunityScreen',
 }

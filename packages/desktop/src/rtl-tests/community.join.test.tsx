@@ -21,7 +21,6 @@ import {
   RegisterUserCertificatePayload,
   InitCommunityPayload,
   Community,
-  createUserCertificateTestHelper,
   ErrorCodes,
   ErrorMessages,
   getFactory,
@@ -29,6 +28,7 @@ import {
 } from '@quiet/state-manager'
 import Channel from '../renderer/components/Channel/Channel'
 import LoadingPanel from '../renderer/components/LoadingPanel/LoadingPanel'
+import { createUserCertificateTestHelper } from '@quiet/identity'
 
 jest.setTimeout(20_000)
 
@@ -91,16 +91,18 @@ describe('User', () => {
           const payload = data[0]
           const user = identity.selectors.currentIdentity(store.getState())
           // This community serves only as a mocked object for generating valid crytpo data (certificate, rootCA)
-          const communityHelper = (
-            await factory.build<typeof communities.actions.addNewCommunity>('Community', {
-              id: data[0]
-            })
-          ).payload
+          const communityHelper: ReturnType<typeof communities.actions.addNewCommunity>['payload'] =
+            (
+              await factory.build<typeof communities.actions.addNewCommunity>('Community', {
+                id: data[0]
+              })
+            ).payload
           const certificateHelper = await createUserCertificateTestHelper(
             {
               nickname: user.nickname,
               commonName: communityHelper.registrarUrl,
-              peerId: user.peerId.id
+              peerId: user.peerId.id,
+              dmPublicKey: user.dmKeys.publicKey
             },
             communityHelper.CA
           )
@@ -131,7 +133,7 @@ describe('User', () => {
                 description: 'string',
                 owner: 'owner',
                 timestamp: 0,
-                address: 'general'
+                id: 'general'
               }
             }
           })
@@ -196,6 +198,7 @@ describe('User', () => {
         "Network/setLoadingPanelType",
         "Modals/openModal",
         "Identity/registerCertificate",
+        "Communities/addOwnerCertificate",
         "Communities/storePeerList",
         "Identity/storeUserCertificate",
         "Communities/updateCommunity",
@@ -208,6 +211,9 @@ describe('User', () => {
         "PublicChannels/addChannel",
         "Messages/addPublicChannelsMessagesBase",
         "Modals/closeModal",
+        "Messages/lazyLoading",
+        "Messages/resetCurrentPublicChannelCache",
+        "Messages/resetCurrentPublicChannelCache",
       ]
     `)
   })

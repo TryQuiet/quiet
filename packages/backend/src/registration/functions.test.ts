@@ -1,6 +1,5 @@
 
 import { configCrypto, createRootCA, createUserCert, createUserCsr, RootCA, verifyUserCert, UserCsr } from '@quiet/identity'
-import { ErrorCodes, ErrorMessages, PermsData, SocketActionTypes } from '@quiet/state-manager'
 import createHttpsProxyAgent from 'https-proxy-agent'
 import { Time } from 'pkijs'
 import { DirResult } from 'tmp'
@@ -9,6 +8,7 @@ import { createTmpDir } from '../common/testUtils'
 import { registerOwner, registerUser, sendCertificateRegistrationRequest } from './functions'
 import { RegistrationEvents } from './types'
 import { jest, beforeEach, describe, it, expect, afterEach, beforeAll } from '@jest/globals'
+import { ErrorCodes, ErrorMessages, PermsData, SocketActionTypes } from '@quiet/types'
 
 // @ts-ignore
 const { Response } = jest.requireActual('node-fetch')
@@ -17,7 +17,7 @@ jest.mock('node-fetch', () => jest.fn())
 
 describe('Registration service', () => {
   let tmpDir: DirResult
-  let registrationService: CertificateRegistration
+  let registrationService: CertificateRegistration | null
   let certRoot: RootCA
   let permsData: PermsData
   let userCsr: UserCsr
@@ -43,7 +43,7 @@ describe('Registration service', () => {
   })
 
   afterEach(async () => {
-    registrationService && await registrationService.stop()
+    await registrationService?.stop()
     tmpDir.removeCallback()
   })
 
@@ -52,13 +52,12 @@ describe('Registration service', () => {
     expect(result).toBeTruthy()
   })
 
-  it('registerOwner should return null if csr is invalid', async () => {
-    const result = await registerOwner(invalidUserCsr, permsData)
-    expect(result).toBeNull()
+  it('registerOwner should throw error if csr is invalid', async () => {
+    await expect(registerOwner(invalidUserCsr, permsData)).rejects.toThrow()
   })
 
   it('registerUser should return 200 status code', async () => {
-    const responseData = await registerUser(userCsr.userCsr, permsData, [])
+    const responseData = await registerUser(userCsr.userCsr, permsData, [], 'ownerCert')
     const isProperUserCert = await verifyUserCert(certRoot.rootCertString, responseData.body.certificate)
     expect(isProperUserCert.result).toBe(true)
   })
@@ -75,7 +74,7 @@ describe('Registration service', () => {
     const userCert = await createUserCert(certRoot.rootCertString, certRoot.rootKeyString, user.userCsr, new Date(), new Date(2030, 1, 1))
     const responseData = await registerUser(
       user.userCsr,
-      permsData, [userCert.userCertString])
+      permsData, [userCert.userCertString], 'ownerCert')
     expect(responseData.status).toEqual(200)
     const isProperUserCert = await verifyUserCert(certRoot.rootCertString, responseData.body.certificate)
     expect(isProperUserCert.result).toBe(true)
@@ -103,7 +102,7 @@ describe('Registration service', () => {
     })
     const response = await registerUser(
       userNew.userCsr,
-      permsData, [userCert.userCertString]
+      permsData, [userCert.userCertString], 'ownerCert'
     )
     expect(response.status).toEqual(403)
   })
@@ -112,7 +111,7 @@ describe('Registration service', () => {
     for (const invalidCsr of ['', 'abcd']) {
       const response = await registerUser(
         invalidCsr,
-        permsData, []
+        permsData, [], 'ownerCert'
       )
       expect(response.status).toEqual(400)
     }
@@ -122,13 +121,13 @@ describe('Registration service', () => {
     const csr = 'MIIBFTCBvAIBADAqMSgwFgYKKwYBBAGDjBsCARMIdGVzdE5hbWUwDgYDVQQDEwdaYmF5IENBMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEGPGHpJzE/CvL7l/OmTSfYQrhhnWQrYw3GgWB1raCTSeFI/MDVztkBOlxwdUWSm10+1OtKVUWeMKaMtyIYFcPPqAwMC4GCSqGSIb3DQEJDjEhMB8wHQYDVR0OBBYEFLjaEh+cnNhsi5qDsiMB/ZTzZFfqMAoGCCqGSM49BAMCA0gAMEUCIFwlob/Igab05EozU0e/lsG7c9BxEy4M4c4Jzru2vasGAiEAqFTQuQr/mVqTHO5vybWm/iNDk8vh88K6aBCCGYqIfdw='
     const response = await registerUser(
       csr,
-      permsData, []
+      permsData, [], 'ownerCert'
     )
     expect(response.status).toEqual(400)
   })
 
   it('returns 404 if fetching registrar address throws error', async () => {
-console.log(fetch);
+    console.log(fetch);
     (fetch).default.mockRejectedValue('User aborted request')
     const communityId = 'communityID'
     const response = await sendCertificateRegistrationRequest(

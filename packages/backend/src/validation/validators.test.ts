@@ -1,4 +1,4 @@
-import { ChannelMessage, PublicChannel } from '@quiet/state-manager'
+import { ChannelMessage, PublicChannel } from '@quiet/types'
 import { isUser, isMessage, isConversation, isDirectMessage, isChannel } from './validators'
 import { jest, beforeEach, describe, it, expect, afterEach, beforeAll, test } from '@jest/globals'
 
@@ -70,7 +70,7 @@ describe('Validators - Messages', () => {
       type: 1,
       message: 'hello',
       createdAt: 1234567,
-      channelAddress: '123n23l234lk234',
+      channelId: '123n23l234lk234',
       signature: 'asdfasdf',
       pubKey: 'afsdf'
     }
@@ -82,14 +82,14 @@ describe('Validators - Messages', () => {
       type: 1,
       message: 'hello',
       createdAt: 1234567,
-      channelAddress: '123n23l234lk234',
+      channelId: '123n23l234lk234',
       signature: 'asdfasdf',
       pubKey: 'afsdf',
       media: {
         cid: '123',
         message: {
           id: 'fzxjdiasf8ashfisfd',
-          channelAddress: '123n23l234lk234'
+          channelId: '123n23l234lk234'
         },
         path: '/path/to/file',
         name: 'file',
@@ -103,7 +103,7 @@ describe('Validators - Messages', () => {
       type: 1,
       message: 'hello',
       createdAt: 1234567,
-      channelAddress: '123n23l234lk234',
+      channelId: '123n23l234lk234',
       signature: 'asdfasdf',
       pubKey: 'afsdf'
     }
@@ -127,13 +127,13 @@ describe('Validators - Messages', () => {
       type: 1,
       message: 'hello',
       createdAt: 1234567,
-      channelAddress: '123n23l234lk234',
+      channelId: '123n23l234lk234',
       signature: 'asdfasdf',
       pubKey: 'afsdf',
       media: {
         message: {
           id: 'fzxjdiasf8ashfisfd',
-          channelAddress: '123n23l234lk234'
+          channelId: '123n23l234lk234'
         },
         path: '/path/to/file',
         name: 'file',
@@ -151,7 +151,7 @@ describe('Validators - Channels', () => {
       description: 'quiet',
       owner: 'szakalakakaaakaka',
       timestamp: 12341234,
-      address: 'sadfdasfsadfsdfsnfsdjfdsfsdfjsdf'
+      id: 'sadfdasfsadfsdfsnfsdjfdsfsdfjsdf'
     }
     expect(isChannel(channel)).toBeTruthy()
   })
@@ -160,7 +160,7 @@ describe('Validators - Channels', () => {
       name: 'quiet',
       description: 'quiet',
       owner: 'szakalakakaaakaka',
-      address: 'sadfdasfsadfsdfsnfsdjfdsfsdfjsdf'
+      id: 'sadfdasfsadfsdfsnfsdjfdsfsdfjsdf'
     }
     expect(isChannel(channel as unknown as PublicChannel)).toBeFalsy()
   })
@@ -170,7 +170,7 @@ describe('Validators - Channels', () => {
       description: 'quiet',
       owner: 'szakalakakaaakaka',
       timestamp: 'asfasdf',
-      address: 'sadfdasfsadfsdfsnfsdjfdsfsdfjsdf'
+      id: 'sadfdasfsadfsdfsnfsdjfdsfsdfjsdf'
     }
     expect(isChannel((channel as unknown) as PublicChannel)).toBeFalsy()
   })

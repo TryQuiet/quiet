@@ -30,7 +30,7 @@ describe('UploadedFile', () => {
         height: 600,
         message: {
           id: 'string',
-          channelAddress: 'general'
+          channelId: 'general'
         }
       }
     }
@@ -112,7 +112,7 @@ describe('UploadedFile', () => {
     message.media.path = 'path/to/file/test.png'
     message.media.message = {
       id: 'string',
-      channelAddress: 'general'
+      channelId: 'general'
     }
     const result = renderComponent(
       <UploadedImage message={message} downloadStatus={downloadStatus} />

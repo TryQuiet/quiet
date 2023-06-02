@@ -20,6 +20,7 @@ import rootSaga from '../sagas/index.saga'
 import { reducer as appReducer } from '../store/handlers/app'
 import { socketActions, socketReducer } from '../sagas/socket/socket.slice'
 import { modalsReducer } from '../sagas/modals/modals.slice'
+import { navigationReducer } from '../store/navigation/navigation.slice'
 import MockedSocket from 'socket.io-mock'
 import { fork, delay, call, put } from 'typed-redux-saga'
 
@@ -36,7 +37,8 @@ export const reducers = {
   [StateManagerStoreKeys.Network]: network.reducer,
   [StoreKeys.App]: appReducer,
   [StoreKeys.Socket]: socketReducer,
-  [StoreKeys.Modals]: modalsReducer
+  [StoreKeys.Modals]: modalsReducer,
+  [StoreKeys.Navigation]: navigationReducer
 }
 
 interface options {

@@ -9,6 +9,7 @@ LOAD_MESSAGES = 'loadMessages',
 SEND_MESSAGES_IDS = 'sendMessagesIds',
 SET_CHANNEL_SUBSCRIBED = 'setChannelSubscribed',
 CREATED_CHANNEL = 'createdChannel',
+CHANNEL_DELETION_RESPONSE = 'channelDeletionResponse',
 // Files
 REMOVE_DOWNLOAD_STATUS = 'removeDownloadStatus',
 UPLOADED_FILE = 'uploadedFile',

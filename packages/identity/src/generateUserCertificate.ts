@@ -3,7 +3,7 @@ import { Integer, BitString, OctetString, PrintableString } from 'asn1js'
 import config from './config'
 import { loadCertificate, loadPrivateKey, loadCSR, ExtensionsTypes, CertFieldsTypes } from './common'
 import {
-  Certificate, Extension, ExtKeyUsage, BasicConstraints, CertificationRequest, GeneralName, GeneralNames
+  Certificate, Extension, ExtKeyUsage, BasicConstraints, CertificationRequest, GeneralName, GeneralNames, Attribute
 } from 'pkijs'
 
 export interface UserCert {
@@ -61,7 +61,7 @@ async function generateuserCertificate({
       '1.3.6.1.5.5.7.3.1' // id-kp-serverAuth
     ]
   })
-  const attr = pkcs10.attributes as any
+  const attr: Attribute[] | undefined = pkcs10.attributes
   let dmPubKey = null
   let nickname = null
   let peerId = null

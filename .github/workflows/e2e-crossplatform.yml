@@ -20,7 +20,7 @@ jobs:
         uses: ./.github/actions/setup-env
         with:
           cachePrefix: "e2e-crossplatform-windows"
-          bootstrap-packages: "@quiet/logger,@quiet/common,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,backend-bundle,e2e-tests"
+          bootstrap-packages: "@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,backend-bundle,e2e-tests"
 
       - name: "Fetch jsign"
         shell: bash
@@ -67,6 +67,13 @@ jobs:
         run: chmod +x "$FILE_NAME"
         shell: bash
 
+      - name: "Upload built app"
+        uses: actions/upload-artifact@v2
+        with:
+          name: quiet-windows
+          path: ./packages/desktop/dist/Quiet Setup ${{ steps.extract_version.outputs.version }}.exe
+          retention-days: 2
+
       - name: Install exe
         run: Start-Process "Quiet Setup ${{ steps.extract_version.outputs.version }}.exe" -Wait
         working-directory: ./packages/desktop/dist
@@ -77,13 +84,13 @@ jobs:
         working-directory: ./packages/desktop/dist
         shell: powershell
 
-      - name: Run smoke test
+      - name: Run one client test
         uses: nick-fields/retry@v2
         with:
-          timeout_minutes: 25
+          timeout_minutes: 15
           max_attempts: 3
           shell: bash
-          command: cd packages/e2e-tests && npm run test smoke.crossplatform.test.ts
+          command: cd packages/e2e-tests && npm run test oneClient.test.ts
   
       # Will be fixed in next tasks 
       # - name: Run newUser test - Includes 2 separate application clients

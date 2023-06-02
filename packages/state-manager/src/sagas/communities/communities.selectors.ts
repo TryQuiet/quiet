@@ -3,6 +3,13 @@ import { createSelector } from 'reselect'
 import { communitiesAdapter } from './communities.adapter'
 import { CreatedSelectors, StoreState } from '../store.types'
 import { invitationShareUrl } from '@quiet/common'
+import { CertFieldsTypes, getCertFieldValue, parseCertificate } from '@quiet/identity'
+import { getOldestParsedCerificate } from '../users/users.selectors'
+
+// Workaround for "The inferred type of 'communitiesSelectors' cannot be named without a reference to
+// 'packages/identity/node_modules/pkijs/build'. This is likely not portable. A type annotation is necessary."
+// https://github.com/microsoft/TypeScript/issues/47663#issuecomment-1270716220
+import type {} from 'pkijs'
 
 const communitiesSlice: CreatedSelectors[StoreKeys.Communities] = (state: StoreState) =>
   state[StoreKeys.Communities]
@@ -53,8 +60,12 @@ export const registrarUrl = (communityId: string) =>
     return registrarAddress
   })
 
+export const invitationCode = createSelector(communitiesSlice, reducerState => {
+  return reducerState.invitationCode
+})
+
 export const invitationUrl = createSelector(currentCommunity, community => {
-  if (!community) return ''
+  if (!community?.registrarUrl) return ''
   let registrarUrl = ''
   try {
     const url = new URL(community.registrarUrl)
@@ -65,17 +76,36 @@ export const invitationUrl = createSelector(currentCommunity, community => {
   return invitationShareUrl(registrarUrl)
 })
 
-export const invitationCode = createSelector(
-  communitiesSlice,
-  reducerState => reducerState.invitationCode
-)
-
 export const registrationAttempts = (communityId: string) =>
   createSelector(selectEntities, communities => {
     const community = communities[communityId]
-    if (!community) return null
-    return community.registrationAttempts
+    if (!community) return 0
+    return community.registrationAttempts || 0
   })
+
+export const ownerNickname = createSelector(
+  currentCommunity,
+  getOldestParsedCerificate,
+  (community, oldestParsedCerificate) => {
+    const ownerCertificate = community?.ownerCertificate || undefined
+
+    let nickname: string | null
+
+    if (ownerCertificate) {
+      const certificate = ownerCertificate
+      const parsedCert = parseCertificate(certificate)
+      nickname = getCertFieldValue(parsedCert, CertFieldsTypes.nickName)
+    } else {
+      nickname = getCertFieldValue(oldestParsedCerificate, CertFieldsTypes.nickName)
+    }
+
+    if (!nickname) {
+      console.error('Could not retrieve owner nickname from certificate')
+    }
+
+    return nickname
+  }
+)
 
 export const communitiesSelectors = {
   selectById,
@@ -85,6 +115,7 @@ export const communitiesSelectors = {
   currentCommunityId,
   registrarUrl,
   registrationAttempts,
+  invitationCode,
   invitationUrl,
-  invitationCode
+  ownerNickname,
 }

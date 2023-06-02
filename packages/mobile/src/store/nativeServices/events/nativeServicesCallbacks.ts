@@ -1,6 +1,6 @@
 import { eventChannel } from 'redux-saga'
 import { call, put, take } from 'typed-redux-saga'
-import { publicChannels, WEBSOCKET_CONNECTION_CHANNEL, INIT_CHECK_CHANNEL, BACKEND_CLOSED_CHANNEL } from '@quiet/state-manager'
+import { publicChannels, WEBSOCKET_CONNECTION_CHANNEL, INIT_CHECK_CHANNEL } from '@quiet/state-manager'
 import { initActions, InitCheckPayload, WebsocketConnectionPayload } from '../../init/init.slice'
 import { ScreenNames } from '../../../const/ScreenNames.enum'
 import { NativeEventKeys } from './nativeEvent.keys'
@@ -49,9 +49,9 @@ export const deviceEvents = () => {
       ),
       nativeEventEmitter?.addListener(
         NativeEventKeys.Notification,
-        (channelAddress: string) => {
+        (channelId: string) => {
           // Change data source in state-manager
-          emit(publicChannels.actions.setCurrentChannel({ channelAddress }))
+          emit(publicChannels.actions.setCurrentChannel({ channelId }))
           // Redirect to proper screen in the application
           emit(navigationActions.navigation({ screen: ScreenNames.ChannelScreen }))
         }

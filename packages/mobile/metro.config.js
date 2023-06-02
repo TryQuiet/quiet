@@ -14,7 +14,8 @@ const watchFolders = [
   path.resolve(__dirname, '../state-manager'),
   path.resolve(__dirname, '../backend'),
   path.resolve(__dirname, '../logger'),
-  path.resolve(__dirname, '../common')
+  path.resolve(__dirname, '../common'),
+  path.resolve(__dirname, '../types')
 ]
 
 const extraNodeModules = {
@@ -23,6 +24,7 @@ const extraNodeModules = {
   '@quiet/backend': path.resolve(__dirname, '../backend'),
   '@quiet/logger': path.resolve(__dirname, '../logger'),
   '@quiet/common': path.resolve(__dirname, '../common'),
+  '@quiet/types': path.resolve(__dirname, '../types'),
   ...require('node-libs-react-native')
 }
 
@@ -39,7 +41,7 @@ module.exports = {
     getTransformOptions: async () => ({
       transform: {
         experimentalImportSupport: false,
-        inlineRequires: true
+        inlineRequires: false
       }
     })
   },

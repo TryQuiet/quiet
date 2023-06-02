@@ -4,13 +4,12 @@ import { call } from 'redux-saga-test-plan/matchers'
 import { Time } from 'pkijs'
 import { prepareStore } from '../../../utils/tests/prepareStore'
 import { Socket } from 'socket.io-client'
-import { SocketActionTypes } from '../../socket/const/actionTypes'
-import { communitiesActions, Community } from '../communities.slice'
-import { CommunityOwnership } from '../communities.types'
+import { communitiesActions } from '../communities.slice'
 import { createRootCA, setupCrypto } from '@quiet/identity'
 import { reducers } from '../../reducers'
 import { createNetworkSaga } from './createNetwork.saga'
 import { generateId } from '../../../utils/cryptography/cryptography'
+import { Community, CommunityOwnership, SocketActionTypes } from '@quiet/types'
 
 describe('createNetwork', () => {
   it('create network for joining user', async () => {
@@ -23,13 +22,7 @@ describe('createNetwork', () => {
       name: undefined,
       registrarUrl: 'http://registrarUrl.onion',
       CA: null,
-      rootCa: undefined,
-      peerList: [],
-      registrar: null,
-      onionAddress: '',
-      privateKey: '',
-      port: 0,
-      registrationAttempts: 0
+      rootCa: undefined
     }
 
     const reducer = combineReducers(reducers)
@@ -63,15 +56,9 @@ describe('createNetwork', () => {
     const community: Community = {
       id: '1',
       name: 'rockets',
-      registrarUrl: null,
+      registrarUrl: undefined,
       CA: CA,
-      rootCa: CA.rootCertString,
-      peerList: [],
-      registrar: null,
-      onionAddress: '',
-      privateKey: '',
-      port: 0,
-      registrationAttempts: 0
+      rootCa: CA.rootCertString
     }
 
     const reducer = combineReducers(reducers)

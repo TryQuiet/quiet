@@ -14,13 +14,13 @@
     "lerna": "^4.0.0",
     "prettier": "^2.1.0",
     "prettier-config-standard": "^1.0.1",
-    "typescript": "^4.1.5"
+    "typescript": "^4.9.3"
   },
   "scripts": {
     "lerna": "lerna"
   },
   "engines": {
-    "node": "16.18.0",
+    "node": "18.12.1",
     "npm": "8.19.2"
   }
 }

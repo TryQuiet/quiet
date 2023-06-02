@@ -6,38 +6,45 @@ import {
   publicChannelsStatusAdapter,
   publicChannelsSubscriptionsAdapter
 } from './publicChannels.adapter'
-import {
-  PublicChannelStorage,
-  PublicChannelStatus,
-  PublicChannelSubscription,
-  ChannelMessage,
-  CreateChannelPayload,
-  CreatedChannelResponse,
-  ChannelsReplicatedPayload,
-  SendInitialChannelMessagePayload,
-  SetCurrentChannelPayload,
-  CacheMessagesPayload,
-  MarkUnreadChannelPayload,
-  SendNewUserInfoMessagePayload,
-  SetChannelSubscribedPayload,
-  UpdateNewestMessagePayload
-} from './publicChannels.types'
 
 import logger from '../../utils/logger'
-import { Identity } from '../identity/identity.types'
+import {
+  CacheMessagesPayload,
+  ChannelDeletionResponsePayload,
+  ChannelMessage,
+  ChannelsReplicatedPayload,
+  ClearMessagesCachePayload,
+  CreateChannelPayload,
+  CreatedChannelResponse,
+  DeleteChannelFromStorePayload,
+  DeleteChannelPayload,
+  DisableChannelPayload,
+  Identity,
+  INITIAL_CURRENT_CHANNEL_ID,
+  MarkUnreadChannelPayload,
+  PublicChannelStatus,
+  PublicChannelStorage,
+  PublicChannelSubscription,
+  SendInitialChannelMessagePayload,
+  SendNewUserInfoMessagePayload,
+  SetChannelSubscribedPayload,
+  SetCurrentChannelPayload,
+  UpdateNewestMessagePayload
+} from '@quiet/types'
 const log = logger('publicChannels')
 
 export class PublicChannelsState {
-  public currentChannelAddress: string = 'general'
+  public currentChannelId: string = INITIAL_CURRENT_CHANNEL_ID
 
-  public channels: EntityState<PublicChannelStorage> =
-  publicChannelsAdapter.getInitialState()
+  public pendingGeneralChannelRecreation: boolean = false
+
+  public channels: EntityState<PublicChannelStorage> = publicChannelsAdapter.getInitialState()
 
   public channelsStatus: EntityState<PublicChannelStatus> =
-  publicChannelsStatusAdapter.getInitialState()
+    publicChannelsStatusAdapter.getInitialState()
 
   public channelsSubscriptions: EntityState<PublicChannelSubscription> =
-  publicChannelsSubscriptionsAdapter.getInitialState()
+    publicChannelsSubscriptionsAdapter.getInitialState()
 }
 
 export const publicChannelsSlice = createSlice({
@@ -45,8 +52,40 @@ export const publicChannelsSlice = createSlice({
   name: StoreKeys.PublicChannels,
   reducers: {
     createChannel: (state, _action: PayloadAction<CreateChannelPayload>) => state,
+    deleteChannel: (state, _action: PayloadAction<DeleteChannelPayload>) => state,
+    channelDeletionResponse: (state, _action: PayloadAction<ChannelDeletionResponsePayload>) =>
+      state,
+    deleteChannelFromStore: (state, action: PayloadAction<DeleteChannelFromStorePayload>) => {
+      const { channelId } = action.payload
+
+      publicChannelsSubscriptionsAdapter.removeOne(state.channelsSubscriptions, channelId)
+      publicChannelsStatusAdapter.removeOne(state.channelsStatus, channelId)
+      publicChannelsAdapter.removeOne(state.channels, channelId)
+    },
+    disableChannel: (state, action: PayloadAction<DisableChannelPayload>) => {
+      const { channelId } = action.payload
+      publicChannelsAdapter.updateOne(state.channels, {
+        id: channelId,
+        changes: {
+          disabled: true
+        }
+      })
+    },
+    clearMessagesCache: (state, action: PayloadAction<ClearMessagesCachePayload>) => {
+      const { channelId } = action.payload
+      const channel = state.channels.entities[channelId]
+      if (!channel) return
+      channelMessagesAdapter.setAll(channel.messages, [])
+    },
+    startGeneralRecreation: state => {
+      state.pendingGeneralChannelRecreation = true
+    },
+    finishGeneralRecreation: state => {
+      state.pendingGeneralChannelRecreation = false
+    },
     createGeneralChannel: state => state,
-    sendInitialChannelMessage: (state, _action: PayloadAction<SendInitialChannelMessagePayload>) => state,
+    sendInitialChannelMessage: (state, _action: PayloadAction<SendInitialChannelMessagePayload>) =>
+      state,
     sendNewUserInfoMessage: (state, _action: PayloadAction<SendNewUserInfoMessagePayload>) => state,
     addChannel: (state, action: PayloadAction<CreatedChannelResponse>) => {
       const { channel } = action.payload
@@ -55,80 +94,71 @@ export const publicChannelsSlice = createSlice({
         messages: channelMessagesAdapter.getInitialState()
       })
       publicChannelsStatusAdapter.addOne(state.channelsStatus, {
-        address: channel.address,
+        id: channel.id,
         unread: false,
         newestMessage: null
       })
     },
     setChannelSubscribed: (state, action: PayloadAction<SetChannelSubscribedPayload>) => {
-      const { channelAddress } = action.payload
+      const { channelId } = action.payload
       publicChannelsSubscriptionsAdapter.upsertOne(state.channelsSubscriptions, {
-        address: channelAddress,
+        id: channelId,
         subscribed: true
       })
     },
     channelsReplicated: (state, _action: PayloadAction<ChannelsReplicatedPayload>) => state,
     setCurrentChannel: (state, action: PayloadAction<SetCurrentChannelPayload>) => {
-      const { channelAddress } = action.payload
-      state.currentChannelAddress = channelAddress
+      const { channelId } = action.payload
+      state.currentChannelId = channelId
     },
     cacheMessages: (state, action: PayloadAction<CacheMessagesPayload>) => {
-      const { messages, channelAddress } = action.payload
-      channelMessagesAdapter.setAll(
-        state.channels.entities[channelAddress].messages,
-        messages
-      )
+      const { messages, channelId } = action.payload
+      const channel = state.channels.entities[channelId]
+      if (!channel) return
+      channelMessagesAdapter.setAll(channel.messages, messages)
     },
+
     markUnreadChannel: (state, action: PayloadAction<MarkUnreadChannelPayload>) => {
-      const { channelAddress } = action.payload
-      publicChannelsStatusAdapter.updateOne(
-        state.channelsStatus,
-        {
-          id: channelAddress,
-          changes: {
-            unread: true
-          }
+      const { channelId } = action.payload
+      publicChannelsStatusAdapter.updateOne(state.channelsStatus, {
+        id: channelId,
+        changes: {
+          unread: true
         }
-      )
+      })
     },
     clearUnreadChannel: (state, action: PayloadAction<MarkUnreadChannelPayload>) => {
-      const { channelAddress } = action.payload
-      publicChannelsStatusAdapter.updateOne(
-        state.channelsStatus,
-        {
-          id: channelAddress,
-          changes: {
-            unread: false
-          }
+      const { channelId } = action.payload
+      publicChannelsStatusAdapter.updateOne(state.channelsStatus, {
+        id: channelId,
+        changes: {
+          unread: false
         }
-      )
+      })
     },
     updateNewestMessage: (state, action: PayloadAction<UpdateNewestMessagePayload>) => {
       const { message } = action.payload
-      publicChannelsStatusAdapter.updateOne(
-        state.channelsStatus,
-        {
-          id: message.channelAddress,
-          changes: {
-            newestMessage: message
-          }
+      publicChannelsStatusAdapter.updateOne(state.channelsStatus, {
+        id: message.channelId,
+        changes: {
+          newestMessage: message
         }
-      )
+      })
     },
     // Utility action for testing purposes
     test_message: (
       state,
       action: PayloadAction<{
+        // [x: string]: ChannelMessage
         message: ChannelMessage
         identity: Identity
         verifyAutomatically: boolean
       }>
     ) => {
       const { message } = action.payload
-      channelMessagesAdapter.addOne(
-        state.channels.entities[message.channelAddress].messages,
-        message
-      )
+      const channel = state.channels.entities[message.channelId]
+      if (!channel) return
+      channelMessagesAdapter.addOne(channel.messages, message)
     }
   }
 })

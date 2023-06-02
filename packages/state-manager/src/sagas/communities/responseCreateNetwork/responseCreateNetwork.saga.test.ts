@@ -3,13 +3,12 @@ import { expectSaga } from 'redux-saga-test-plan'
 import { call } from 'redux-saga-test-plan/matchers'
 import { setupCrypto } from '@quiet/identity'
 import { prepareStore } from '../../../utils/tests/prepareStore'
-import { communitiesActions, Community } from '../communities.slice'
-import { NetworkData } from '../communities.types'
+import { communitiesActions } from '../communities.slice'
 import { reducers } from '../../reducers'
 import { generateDmKeyPair } from '../../../utils/cryptography/cryptography'
 import { responseCreateNetworkSaga } from './responseCreateNetwork.saga'
 import { identityActions } from '../../identity/identity.slice'
-import { DmKeys, Identity } from '../../identity/identity.types'
+import { Community, DmKeys, Identity, NetworkData } from '@quiet/types'
 
 describe('responseCreateNetwork', () => {
   it('create network for joining user', async () => {
@@ -21,13 +20,7 @@ describe('responseCreateNetwork', () => {
       name: undefined,
       registrarUrl: 'registrarUrl',
       CA: null,
-      rootCa: undefined,
-      peerList: [],
-      registrar: null,
-      onionAddress: '',
-      privateKey: '',
-      port: 0,
-      registrationAttempts: 0
+      rootCa: undefined
     }
 
     const dmKeys: DmKeys = {

@@ -84,6 +84,54 @@ const watchFolders = [
 ]
 ```
 
+## Running E2E tests (optional)
+We use Detox (https://wix.github.io/Detox/) for E2E testing on mobile.  
+Detox recommends to install its `detox-cli` globally, enabling usage of the command line tools outside npm scripts.
+
+```
+npm install detox-cli --global
+```
+
+### Android
+The easiest way to start testing Quiet on Android is to use command line shell within docker container.
+
+There're two commands to use, one for building binary file to install on a physical device (this will be the very application to put under test):  
+(remember to prefix commands with `npx` if using globally installed `detox-cli`)
+
+```
+detox build --configuration android.att.debug
+```
+
+and another for actually running tests:
+
+```
+detox test --configuration android.att.debug
+```
+
+Additionaly there's `-enable-visual-regression` flag for enabling screenshot comparison during test.
+
+For more detailed instructions, see https://wix.github.io/Detox/docs/introduction/your-first-test/
+
+## Running visual regression tests
+
+Once again we use Detox but this time with the Storybook flavor of the app, so it's important to use 'storybook' ending value for the `configuration` argument when using the commands from above. Also a particular file has to be pointed out as a test entry `e2e/storybook.test.js`.
+
+The very first run will fail, unless there're base screenshots for the exact device used for testing present under `e2e/storybook-base-screenshots/<DEVICE-NAME>/`. The easiest way to generate them is to go through the test using `-generate-base` flag. It's important to run this command being in the mobile package main directory `packages/mobile/`.
+
+```
+detox test storybook --configuration android.att.storybook -- -- -generate-base
+```
+
+Then every next run on the same device can be triggered without additional flags
+```
+detox test storybook --configuration android.att.storybook
+```
+
+The screenshots are being generated and stored as a <b>baselines per device!</b> It ensures there'll be no false negatives due to differences in screen resolution and ratio!
+
+Tests can be started at a particular story pointed out using `-starting-story=<STORY-NAME>` flag.
+
+
 ## Troubleshooting
 
 ### Could not set file mode 644 on

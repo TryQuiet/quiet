@@ -20,6 +20,7 @@ import { StoreKeys } from './store.keys'
 
 import { socketReducer } from '../sagas/socket/socket.slice'
 import { modalsReducer } from '../sagas/modals/modals.slice'
+import { navigationReducer } from './navigation/navigation.slice'
 
 import appHandlers from './handlers/app'
 
@@ -70,14 +71,15 @@ export const reducers = {
   ...stateManagerReducers.reducers,
   [StoreKeys.App]: appHandlers.reducer,
   [StoreKeys.Socket]: socketReducer,
-  [StoreKeys.Modals]: modalsReducer
+  [StoreKeys.Modals]: modalsReducer,
+  [StoreKeys.Navigation]: navigationReducer
 }
 
 const allReducers = combineReducers(reducers)
 
 export const rootReducer = (state, action) => {
   if (action.type === communities.actions.resetApp.type) {
-    state = resetStateAndSaveTorConnectionData(state)
+    state = resetStateAndSaveTorConnectionData()
   }
 
   return allReducers(state, action)

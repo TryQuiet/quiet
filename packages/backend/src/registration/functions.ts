@@ -1,15 +1,15 @@
 import { createUserCert, loadCSR, CertFieldsTypes, getReqFieldValue, keyFromCertificate, parseCertificate, getCertFieldValue } from '@quiet/identity'
-import { ErrorCodes, ErrorMessages, ErrorPayload, PermsData, SocketActionTypes } from '@quiet/state-manager'
 import { IsBase64, IsNotEmpty, validate } from 'class-validator'
 import { CertificationRequest } from 'pkijs'
 import { Agent } from 'http'
 import AbortController from 'abort-controller'
-import fetch from 'node-fetch'
+import fetch, { Response } from 'node-fetch'
 import logger from '../logger'
 import { CsrContainsFields, IsCsr } from './validators'
 import { RegistrationEvents } from './types'
 
 import { getUsersAddresses } from '../common/utils'
+import { ErrorCodes, ErrorMessages, ErrorPayload, PermsData, SocketActionTypes, User } from '@quiet/types'
 const log = logger('registration')
 
 class UserCsrData {
@@ -18,6 +18,11 @@ class UserCsrData {
   @IsCsr()
   @CsrContainsFields()
   csr: string
+}
+
+export interface RegistrarResponse {
+  status: number
+  body: any
 }
 
   // REFACTORING: Move this method to identity package
@@ -32,12 +37,13 @@ class UserCsrData {
     return false
   }
 
-  export const registerOwner = async (userCsr: string, permsData: PermsData): Promise<string|null> => {
+  export const registerOwner = async (userCsr: string, permsData: PermsData): Promise<string> => {
     const userData = new UserCsrData()
     userData.csr = userCsr
     const validationErrors = await validate(userData)
-    console.log(validationErrors, 'validationErrors')
-    if (validationErrors.length > 0) return null
+    if (validationErrors.length > 0) {
+      throw new Error(`Validation errors: ${validationErrors}`)
+    }
     const userCert = await createUserCert(
       permsData.certificate,
       permsData.privKey,
@@ -55,7 +61,7 @@ class UserCsrData {
     for (const cert of certificates) {
       const parsedCert = parseCertificate(cert)
       const certUsername = getCertFieldValue(parsedCert, CertFieldsTypes.nickName)
-      if (certUsername.localeCompare(username, undefined, { sensitivity: 'base' }) === 0) {
+      if (certUsername?.localeCompare(username, undefined, { sensitivity: 'base' }) === 0) {
         return cert
       }
     }
@@ -95,7 +101,7 @@ export const sendCertificateRegistrationRequest = async (
       agent: socksProxyAgent
     }, options)
 
-    let response = null
+    let response: Response | null = null
 
     try {
       const start = new Date()
@@ -166,7 +172,7 @@ export const sendCertificateRegistrationRequest = async (
       }
     }
 
-  const registrarResponse: { certificate: string; peers: string[]; rootCa: string } =
+  const registrarResponse: { certificate: string; peers: string[]; rootCa: string; ownerCert: string } =
     await response.json()
 
   log(`Sending user certificate (${communityId})`)
@@ -179,7 +185,7 @@ export const sendCertificateRegistrationRequest = async (
   }
 }
 
-  export const registerUser = async (csr: string, permsData: PermsData, certificates: string[]): Promise<{status: number; body: any}> => {
+  export const registerUser = async (csr: string, permsData: PermsData, certificates: string[], ownerCertificate: string): Promise<RegistrarResponse> => {
     let cert: string
     const userData = new UserCsrData()
     userData.csr = csr
@@ -194,6 +200,14 @@ export const sendCertificateRegistrationRequest = async (
 
     const parsedCsr = await loadCSR(userData.csr)
     const username = getReqFieldValue(parsedCsr, CertFieldsTypes.nickName)
+    if (!username) {
+      log.error(`Could not parse certificate for field type ${CertFieldsTypes.nickName}`)
+      return {
+        // Should be internal server error code 500
+        status: 400,
+        body: null
+      }
+    }
     // Use map here
     const usernameCert = certificateByUsername(username, certificates)
     if (usernameCert) {
@@ -208,9 +222,7 @@ export const sendCertificateRegistrationRequest = async (
         log('Requesting same CSR again')
         cert = usernameCert
       }
-    }
-
-    if (!usernameCert) {
+    } else {
       log('username doesnt have existing cert, creating new')
       try {
         cert = await registerCertificate(userData.csr, permsData)
@@ -224,13 +236,14 @@ export const sendCertificateRegistrationRequest = async (
       }
     }
 
-    const allUsers = []
+    const allUsers: User[] = []
     for (const cert of certificates) {
       const parsedCert = parseCertificate(cert)
       const onionAddress = getCertFieldValue(parsedCert, CertFieldsTypes.commonName)
       const peerId = getCertFieldValue(parsedCert, CertFieldsTypes.peerId)
       const username = getCertFieldValue(parsedCert, CertFieldsTypes.nickName)
       const dmPublicKey = getCertFieldValue(parsedCert, CertFieldsTypes.dmPublicKey)
+      if (!onionAddress || !peerId || !username || !dmPublicKey) continue
       allUsers.push({ onionAddress, peerId, username, dmPublicKey })
     }
 
@@ -241,7 +254,8 @@ export const sendCertificateRegistrationRequest = async (
       body: {
         certificate: cert,
         peers: peerList,
-        rootCa: permsData.certificate
+        rootCa: permsData.certificate,
+        ownerCert: ownerCertificate
       }
     }
   }

@@ -2,14 +2,13 @@ import logger from '../../logger'
 import { socketToMaConn } from './socket-to-conn'
 import * as filters from './filters'
 
-import { MultiaddrFilter } from '@libp2p/interface-transport'
+import { MultiaddrFilter, CreateListenerOptions, DialOptions } from '@libp2p/interface-transport'
 import type { AbortOptions } from '@libp2p/interfaces'
 import type { Multiaddr } from '@multiformats/multiaddr'
 
-import type { ClientOptions } from 'ws'
+import type { ClientOptions, ErrorEvent } from 'ws'
 
 import os from 'os'
-import path from 'path'
 import PeerId from 'peer-id'
 
 import url from 'url'
@@ -25,11 +24,17 @@ import pDefer from 'p-defer'
 import { multiaddrToUri as toUri } from '@multiformats/multiaddr-to-uri'
 import { AbortError } from '@libp2p/interfaces/errors'
 import { connect } from 'it-ws'
+import { ServerOptions, WebSocketServer as ItWsWebsocketServer } from 'it-ws/server'
 import { multiaddr } from '@multiformats/multiaddr'
+import { MultiaddrConnection, Connection } from '@libp2p/interface-connection'
 
 const log = logger('libp2p:websockets')
 
 const symbol = Symbol.for('@libp2p/transport')
+
+export interface WebSocketServer extends ItWsWebsocketServer {
+  __connections?: MultiaddrConnection[]
+}
 
 export interface WebSocketsInit extends AbortOptions {
   filter?: MultiaddrFilter
@@ -37,7 +42,7 @@ export interface WebSocketsInit extends AbortOptions {
   server?: Server
   localAddress: string
   targetPort: number
-  createServer
+  createServer: (opts?: ServerOptions) => WebSocketServer
 }
 
 class Discovery extends EventEmitter {
@@ -55,19 +60,17 @@ class Discovery extends EventEmitter {
 export class WebSockets extends EventEmitter {
   private readonly init?: WebSocketsInit
 
-  _websocketOpts: any
+  _websocketOpts: ClientOptions
   localAddress: string
   discovery: Discovery
-  peerId: string
   targetPort: number
-  createServer
+  createServer: (opts?: ServerOptions) => WebSocketServer
 
-  constructor({ websocket, localAddress, targetPort, createServer }) {
+  constructor({ websocket, localAddress, targetPort, createServer }: WebSocketsInit) {
     super()
 
     this._websocketOpts = websocket
     this.localAddress = localAddress
-    this.peerId = localAddress.split('/').pop()
     this.discovery = new Discovery()
     this.targetPort = targetPort
     this.createServer = createServer
@@ -81,10 +84,10 @@ export class WebSockets extends EventEmitter {
     return true
   }
 
-  async dial(ma, options: any = {}) {
-    let conn
+  async dial(ma: Multiaddr, options: DialOptions) {
+    let conn: Connection
     let socket
-    let maConn
+    let maConn: MultiaddrConnection
 
     try {
       socket = await this._connect(ma, {
@@ -116,16 +119,20 @@ export class WebSockets extends EventEmitter {
   }
 
   get certData() {
-    let ca: string
-    if (Array.isArray(this._websocketOpts.ca)) {
-      ca = this._websocketOpts.ca[0]
+    const { cert, key, ca } = this._websocketOpts
+    if (!cert || !key || !ca?.length || !ca[0]) {
+      throw new Error('No cert data in _websocketOpts')
+    }
+    let _ca: string | Buffer
+    if (Array.isArray(ca)) {
+      _ca = ca[0]
     } else {
-      ca = this._websocketOpts.ca
+      _ca = ca
     }
     return {
-      cert: dumpPEM('CERTIFICATE', this._websocketOpts.cert),
-      key: dumpPEM('PRIVATE KEY', this._websocketOpts.key),
-      ca: [dumpPEM('CERTIFICATE', ca)]
+      cert: dumpPEM('CERTIFICATE', cert.toString()),
+      key: dumpPEM('PRIVATE KEY', key.toString()),
+      ca: [dumpPEM('CERTIFICATE', _ca.toString())]
     }
   }
 
@@ -137,11 +144,9 @@ export class WebSockets extends EventEmitter {
     log('connect %s:%s', cOpts.host, cOpts.port)
 
     const errorPromise = pDefer()
-    const errfn = err => {
-      const msg = `connection error: ${err.message as string}`
-      log.error(msg)
-
-      errorPromise.reject(err)
+    const errfn = (event: ErrorEvent) => {
+      log.error(`connection error: ${event.message}`)
+      errorPromise.reject(event)
     }
 
     const myUri = `${toUri(ma)}/?remoteAddress=${encodeURIComponent(
@@ -193,13 +198,13 @@ export class WebSockets extends EventEmitter {
    * anytime a new incoming Connection has been successfully upgraded via
    * `upgrader.upgradeInbound`
    */
-  prepareListener = ({ handler, upgrader }) => {
+  prepareListener = ({ handler, upgrader }: CreateListenerOptions): any => {
     console.log('preparing listener')
     log('prepareListener')
     const listener: any = new EventEmitter()
 
-    const trackConn = (server, maConn) => {
-      server.__connections.push(maConn)
+    const trackConn = (server: WebSocketServer, maConn: MultiaddrConnection) => {
+      server.__connections?.push(maConn)
     }
 
     const serverHttps = https.createServer({
@@ -210,8 +215,7 @@ export class WebSockets extends EventEmitter {
 
     const optionsServ = {
       server: serverHttps,
-      // eslint-disable-next-line
-      verifyClient: function (_info, done) {
+      verifyClient: function (_info: any, done: (res: boolean) => void) {
         done(true)
       }
     }
@@ -220,22 +224,32 @@ export class WebSockets extends EventEmitter {
     server.__connections = []
 
     server.on('connection', async (stream, request) => {
-      let maConn, conn
+      let maConn: MultiaddrConnection
+      let conn: Connection
       // eslint-disable-next-line
       const query = url.parse(request.url, true).query
-      log('server', query.remoteAddress)
+      log('server connecting with', query.remoteAddress)
+      if (!query.remoteAddress) return
+
+      const remoteAddress = query.remoteAddress.toString()
       try {
-        maConn = socketToMaConn(stream, multiaddr(query.remoteAddress.toString()))
+        maConn = socketToMaConn(stream, multiaddr(remoteAddress))
         const peer = {
-          id: PeerId.createFromB58String(query.remoteAddress.toString().split('/p2p/')[1]),
+          id: PeerId.createFromB58String(remoteAddress.split('/p2p/')[1]),
           multiaddrs: [maConn.remoteAddr]
         }
         this.discovery.emit('peer', peer)
         log('new inbound connection %s', maConn.remoteAddr)
+      } catch (e) {
+        log.error(`Failed to convert stream into a MultiaddrConnection for ${remoteAddress}:`, e)
+        return
+      }
+
+      try {
         conn = await upgrader.upgradeInbound(maConn)
       } catch (err) {
         log.error('inbound connection failed to upgrade', err)
-        return maConn?.close()
+        return await maConn?.close()
       }
 
       log('inbound connection %s upgraded', maConn.remoteAddr)
@@ -251,16 +265,16 @@ export class WebSockets extends EventEmitter {
 
     // Keep track of open connections to destroy in case of timeout
 
-    let listeningMultiaddr
+    let listeningMultiaddr: Multiaddr
 
-    listener.close = () => {
-      server.__connections.forEach(maConn => maConn.close())
-      return server.close()
+    listener.close = async () => {
+      server.__connections?.forEach(async maConn => await maConn.close())
+      return await server.close()
     }
 
     listener.addEventListener = () => { }
 
-    listener.listen = (ma: Multiaddr) => {
+    listener.listen = async (ma: Multiaddr) => {
       listeningMultiaddr = ma
 
       const listenOptions = {
@@ -268,31 +282,31 @@ export class WebSockets extends EventEmitter {
         port: this.targetPort
       }
 
-      return server.listen(listenOptions)
+      return await server.listen(listenOptions)
     }
 
     listener.getAddrs = () => {
-      const multiaddrs = []
+      const multiaddrs: Multiaddr[] = []
       const address = server.address()
       if (!address) {
         throw new Error('Listener is not ready yet')
       }
 
-      const ipfsId: string = listeningMultiaddr.getPeerId()
+      const ipfsId: string | null = listeningMultiaddr.getPeerId()
 
       // Because TCP will only return the IPv6 version
       // we need to capture from the passed multiaddr
-      if (listeningMultiaddr.toString().indexOf('ip4') !== -1) {
+      if (listeningMultiaddr.toString().includes('ip4')) {
         let m = listeningMultiaddr.decapsulate('tcp')
         m = m.encapsulate('/tcp/443/wss')
-        if (listeningMultiaddr.getPeerId()) {
+        if (ipfsId) {
           m = m.encapsulate('/p2p/' + ipfsId)
         }
 
-        if (m.toString().indexOf('0.0.0.0') !== -1) {
+        if (m.toString().includes('0.0.0.0')) {
           const netInterfaces = os.networkInterfaces()
           Object.keys(netInterfaces).forEach(niKey => {
-            netInterfaces[niKey].forEach(ni => {
+            netInterfaces[niKey]?.forEach(ni => {
               if (ni.family === 'IPv4') {
                 multiaddrs.push(multiaddr(m.toString().replace('0.0.0.0', ni.address)))
               }
@@ -307,14 +321,14 @@ export class WebSockets extends EventEmitter {
     return listener
   }
 
-  // eslint-disable-next-line
-  createListener(options, handler) {
-    if (typeof options === 'function') {
-      handler = options
-      options = {}
-    }
+  createListener(options: CreateListenerOptions) {
+    // if (typeof options === 'function') {
+    //   // TODO: is it needed?
+    //   handler = options
+    //   options = {}
+    // }
 
-    return this.prepareListener({ handler, upgrader: options.upgrader })
+    return this.prepareListener(options)
   }
 
   /**
@@ -339,7 +353,7 @@ export class WebSockets extends EventEmitter {
   }
 }
 
-export function webSockets(init: WebSocketsInit): (components?: any) => any {
+export function webSockets(init: WebSocketsInit): (components?: any) => WebSockets {
   return () => {
     return new WebSockets(init)
   }
