@@ -11,7 +11,7 @@ import { Button } from '../Button/Button.component'
 import { parseName } from '@quiet/common'
 import { Appbar } from '../Appbar/Appbar.component'
 
-import { appImages } from '../../../assets'
+import { appImages } from '../../assets'
 
 export interface CreateChannelProps {
   createChannelAction: (name: string) => void

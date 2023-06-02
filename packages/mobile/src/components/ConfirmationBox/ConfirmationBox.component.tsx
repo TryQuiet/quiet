@@ -5,7 +5,7 @@ import { ConfirmationBoxProps } from './ConfirmationBox.types'
 import { Typography } from '../Typography/Typography.component'
 
 import { defaultPalette } from '../../styles/palettes/default.palette'
-import { appImages } from '../../../assets'
+import { appImages } from '../../assets'
 
 export const ConfirmationBox: FC<ConfirmationBoxProps> = ({ toggle, title }) => {
   const [visible, setVisible] = useState<boolean>(false)

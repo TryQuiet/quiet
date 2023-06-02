@@ -12,7 +12,7 @@ import { ScreenNames } from '../../../const/ScreenNames.enum'
 import { navigationActions } from '../../navigation/navigation.slice'
 import { initSelectors } from '../init.selectors'
 import { initActions } from '../init.slice'
-import { appImages } from '../../../../assets'
+import { appImages } from '../../../assets'
 import { replaceScreen } from '../../../RootNavigation'
 import { UsernameRegistrationRouteProps } from '../../../route.params'
 

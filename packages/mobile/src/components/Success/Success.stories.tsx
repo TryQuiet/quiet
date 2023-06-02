@@ -1,6 +1,6 @@
 import { storiesOf } from '@storybook/react-native'
 import React from 'react'
-import { appImages } from '../../../assets'
+import { appImages } from '../../assets'
 import { storybookLog } from '../../utils/functions/storybookLog/storybookLog.function'
 
 import { Success } from './Success.component'

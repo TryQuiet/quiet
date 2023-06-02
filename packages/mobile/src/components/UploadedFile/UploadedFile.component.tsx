@@ -4,7 +4,7 @@ import { View, Image, TouchableWithoutFeedback, Alert } from 'react-native'
 import { Typography } from '../Typography/Typography.component'
 import { FileActionsProps, UploadedFileProps } from './UploadedFile.types'
 import { defaultTheme } from '../../styles/themes/default.theme'
-import { appImages } from '../../../assets'
+import { appImages } from '../../assets'
 
 interface FileStatus {
   label: string

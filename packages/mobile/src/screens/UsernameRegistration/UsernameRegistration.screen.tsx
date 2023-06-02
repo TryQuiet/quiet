@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { errors, identity, ErrorCodes } from '@quiet/state-manager'
 import { navigationActions } from '../../store/navigation/navigation.slice'
 import { ScreenNames } from '../../const/ScreenNames.enum'
-import { appImages } from '../../../assets'
+import { appImages } from '../../assets'
 import { UsernameRegistrationScreenProps } from './UsernameRegistration.types'
 import { UsernameRegistration } from '../../components/Registration/UsernameRegistration.component'
 
