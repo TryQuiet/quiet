@@ -24,12 +24,10 @@ export function* deleteChannelSaga(
     return
   }
 
-  if (currentChannel === undefined) {
-    return
-  }
-
-  if (currentChannel.disabled) {
-    return
+  if (currentChannel) {
+    if (currentChannel.disabled) {
+      return
+    }
   }
 
   const isGeneral = channelId === generalChannel.id
