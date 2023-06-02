@@ -1,6 +1,6 @@
 {
   "name": "@quiet/mobile",
-  "version": "1.2.1-alpha.10",
+  "version": "1.2.1-alpha.11",
   "scripts": {
     "build": "tsc -p tsconfig.build.json --noEmit",
     "storybook-android": "ENVFILE=.env.storybook react-native run-android --variant=storybookDebug --appIdSuffix=storybook.debug",
@@ -22,10 +22,10 @@
   },
   "dependencies": {
     "@peculiar/webcrypto": "^1.4.3",
-    "@quiet/backend": "^1.2.1-alpha.8",
-    "@quiet/common": "^1.2.1-alpha.4",
+    "@quiet/backend": "^1.2.1-alpha.9",
+    "@quiet/common": "^1.2.1-alpha.5",
     "@quiet/identity": "^1.2.1-alpha.3",
-    "@quiet/state-manager": "^1.2.1-alpha.6",
+    "@quiet/state-manager": "^1.2.1-alpha.7",
     "@quiet/types": "^1.2.1-alpha.3",
     "@react-native-clipboard/clipboard": "^1.11.2",
     "@react-navigation/native": "^6.0.0",
