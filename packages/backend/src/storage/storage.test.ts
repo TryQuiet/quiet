@@ -14,8 +14,8 @@ import { jest, beforeEach, describe, it, expect, afterEach, beforeAll } from '@j
 import { sleep } from '../sleep'
 import { StorageEvents } from './types'
 import type { Storage as StorageType } from './storage'
-import { ChannelMessage, Community, Identity, PublicChannel, TestMessage } from '@quiet/types'
-import { Store, getFactory, prepareStore, publicChannels, generateMessageFactoryContentWithId } from '@quiet/state-manager'
+import { ChannelMessage, Community, Identity, MessageType, PublicChannel, TestMessage } from '@quiet/types'
+import { Store, getFactory, prepareStore, publicChannels, generateMessageFactoryContentWithId, FileMetadata } from '@quiet/state-manager'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -158,7 +158,7 @@ describe('Storage', () => {
 })
 
 describe('Channels', () => {
-  it('deletes channel', async () => {
+  it('deletes channel as owner', async () => {
     storage = new Storage(tmpAppDataPath, 'communityId', { createPaths: false })
 
     const peerId = await createPeerId()
@@ -171,8 +171,32 @@ describe('Channels', () => {
 
     const eventSpy = jest.spyOn(storage, 'emit')
 
-    await storage.deleteChannel({ channelId: channelio.id })
+    await storage.deleteChannel({ channelId: channelio.id, ownerPeerId: peerId.toString() })
 
+    const channelFromKeyValueStore = storage.channels.get(channelio.id)
+    expect(channelFromKeyValueStore).toBeUndefined()
+    expect(eventSpy).toBeCalledWith('channelDeletionResponse', {
+      channelId: channelio.id
+    })
+  })
+
+  it('delete channel as standard user', async () => {
+    storage = new Storage(tmpAppDataPath, 'communityId', { createPaths: false })
+
+    const peerId = await createPeerId()
+    const libp2p = await createLibp2p(peerId)
+
+    await storage.init(libp2p, peerId)
+
+    await storage.initDatabases()
+    await storage.subscribeToChannel(channelio)
+
+    const eventSpy = jest.spyOn(storage, 'emit')
+
+    await storage.deleteChannel({ channelId: channelio.id, ownerPeerId: 'random peer id' })
+
+    const channelFromKeyValueStore = storage.channels.get(channelio.id)
+    expect(channelFromKeyValueStore).toEqual(channelio)
     expect(eventSpy).toBeCalledWith('channelDeletionResponse', {
       channelId: channelio.id
     })
@@ -539,5 +563,79 @@ describe('Users', () => {
         username: 'dskfjbksfig'
       }
     ])
+  })
+})
+
+describe('Files deletion', () => {
+    let realFilePath: string
+    let messages: {
+      messages: {
+          [x: string]: ChannelMessage
+      }
+    }
+  beforeEach(async () => {
+    realFilePath = path.join(
+      dirname, '/testUtils/real-file.txt')
+    createFile(realFilePath, 2147483)
+    storage = new Storage(tmpAppDataPath, 'communityId', { createPaths: false })
+
+    const peerId = await createPeerId()
+    const libp2p = await createLibp2p(peerId)
+
+    await storage.init(libp2p, peerId)
+
+    const metadata: FileMetadata = {
+      path: realFilePath,
+      name: 'test-large-file',
+      ext: '.txt',
+      cid: 'uploading_id',
+      message: {
+        id: 'id',
+        channelId: channel.id,
+      }
+    }
+
+    const aliceMessage = await factory.create<
+    ReturnType<typeof publicChannels.actions.test_message>['payload']
+  >('Message', {
+    identity: alice,
+    message: generateMessageFactoryContentWithId(channel.id, MessageType.File, metadata)
+  })
+
+   messages = {
+    messages: {
+      [aliceMessage.message.id]: aliceMessage.message
+    }
+  }
+  })
+
+  afterEach(async () => {
+    if (fs.existsSync(realFilePath)) {
+      fs.rmSync(realFilePath)
+    }
+  })
+
+  it('delete file correctly', async () => {
+   const isFileExist = await storage.checkIfFileExist(realFilePath)
+    expect(isFileExist).toBeTruthy()
+
+    await expect(
+      storage.deleteFilesFromChannel(messages)
+    ).resolves.not.toThrowError()
+
+    await waitForExpect(async() => {
+      expect(await storage.checkIfFileExist(realFilePath)).toBeFalsy()
+    }, 2000)
+  })
+  it('file dont exist - not throw error', async () => {
+    fs.rmSync(realFilePath)
+
+    await waitForExpect(async() => {
+      expect(await storage.checkIfFileExist(realFilePath)).toBeFalsy()
+    }, 2000)
+
+    await expect(
+      storage.deleteFilesFromChannel(messages)
+    ).resolves.not.toThrowError()
   })
 })

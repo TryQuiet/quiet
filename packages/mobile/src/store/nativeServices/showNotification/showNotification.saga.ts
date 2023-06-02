@@ -16,10 +16,19 @@ export function* showNotificationSaga(
 
   const _message = action.payload.message
 
-  const message = yield* call(JSON.stringify, _message)
+  const { channelId } = _message
+  const channel = yield* select(publicChannels.selectors.getChannelById(channelId))
+  const messageWithChannelName = { ..._message, channelName: channel.name }
+
+  const message = yield* call(JSON.stringify, messageWithChannelName)
 
   const mapping = yield* select(users.selectors.certificatesMapping)
   const username = mapping[_message.pubKey].username
 
-  yield* call(NativeModules.CommunicationModule.handleIncomingEvents, PUSH_NOTIFICATION_CHANNEL, message, username)
+  yield* call(
+    NativeModules.CommunicationModule.handleIncomingEvents,
+    PUSH_NOTIFICATION_CHANNEL,
+    message,
+    username
+  )
 }

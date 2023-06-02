@@ -261,4 +261,18 @@ describe('channelsReplicatedSaga', () => {
       .put(publicChannelsActions.deleteChannel({ channelId: photoChannel.id }))
       .run()
   })
+
+  test('bug replication - dont delete when channels object from database is empty', async () => {
+    const reducer = combineReducers(reducers)
+    await expectSaga(
+      channelsReplicatedSaga,
+      publicChannelsActions.channelsReplicated({
+        channels: {}
+      })
+    )
+      .withReducer(reducer)
+      .withState(store.getState())
+      .not.put(publicChannelsActions.deleteChannel({ channelId: generalChannel.id }))
+      .run()
+  })
 })

@@ -80,7 +80,7 @@
   },
   "homepage": "https://github.com/TryQuiet",
   "@comment version": "To build new version for specific platform, just replace platform in version tag to one of following linux, mac, windows",
-  "version": "1.2.1-alpha.5",
+  "version": "1.2.1-alpha.9",
   "description": "Decentralized team chat",
   "main": "dist/main/main.js",
   "scripts": {
@@ -124,7 +124,7 @@
   "dependencies": {
     "@electron/remote": "^2.0.8",
     "@peculiar/webcrypto": "1.4.3",
-    "@quiet/common": "^1.2.1-alpha.4",
+    "@quiet/common": "^1.2.1-alpha.5",
     "@quiet/logger": "^1.2.1-alpha.3",
     "@quiet/types": "^1.2.1-alpha.3",
     "@sentry/electron": "^2.5.4",
@@ -153,7 +153,7 @@
     "@mui/lab": "^5.0.0-alpha.109",
     "@mui/material": "~5.10.15",
     "@quiet/identity": "^1.2.1-alpha.3",
-    "@quiet/state-manager": "^1.2.1-alpha.4",
+    "@quiet/state-manager": "^1.2.1-alpha.7",
     "@redux-saga/types": "^1.1.0",
     "@reduxjs/toolkit": "^1.9.1",
     "@sentry/browser": "^6.19.7",
