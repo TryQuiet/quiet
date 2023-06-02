@@ -9,8 +9,8 @@ export interface RootStackParamList {
   [ScreenNames.JoinCommunityScreen]: {
     code?: string
   }
-  [ScreenNames.QRCodeScreen]: {}
-  [ScreenNames.LeaveCommunityScreen]: {}
+  [ScreenNames.QRCodeScreen]: undefined
+  [ScreenNames.LeaveCommunityScreen]: undefined
   [ScreenNames.CreateCommunityScreen]: undefined
   [ScreenNames.UsernameRegistrationScreen]: {
     fetching: boolean

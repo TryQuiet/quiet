@@ -19,6 +19,10 @@ export function* showNotificationSaga(
 
   const { channelId } = _message
   const channel = yield* select(publicChannels.selectors.getChannelById(channelId))
+  if (!channel) {
+    console.warn(`No channel found for id ${channelId}`)
+    return
+  }
   const messageWithChannelName = { ..._message, channelName: channel.name }
 
   const message = yield* call(JSON.stringify, messageWithChannelName)
