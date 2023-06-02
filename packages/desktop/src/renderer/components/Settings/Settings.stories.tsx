@@ -5,11 +5,6 @@ import { withTheme } from '../../storybook/decorators'
 
 import SettingsComponent, { SettingsComponentProps } from './SettingsComponent'
 
-// import { About } from '../widgets/Settings/About'
-
-// import { NotificationsComponent } from './Tabs/Notifications/NotificationsComponent'
-// import { NotificationsOptions, NotificationsSounds } from '@quiet/state-manager'
-
 import { InviteComponent } from './Tabs/Invite/Invite.component'
 
 import { LeaveCommunityComponent } from './Tabs/LeaveCommunity/LeaveCommunityComponent'
@@ -37,17 +32,6 @@ const Leave: FC = () => {
     />
   )
 }
-
-// const Notifications: FC = () => {
-//   return (
-//     <NotificationsComponent
-//       notificationsOption={NotificationsOptions.notifyForEveryMessage}
-//       notificationsSound={NotificationsSounds.pow}
-//       setNotificationsOption={function (_type: NotificationsOptions): void {}}
-//       setNotificationsSound={function (_type: NotificationsSounds): void {}}
-//     />
-//   )
-// }
 
 const Invite: FC = () => {
   const [revealInputValue, setRevealInputValue] = useState<boolean>(false)

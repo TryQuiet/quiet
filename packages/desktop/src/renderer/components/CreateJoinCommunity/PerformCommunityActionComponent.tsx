@@ -15,7 +15,7 @@ import {
   JoinCommunityDictionary
 } from '../CreateJoinCommunity/community.dictionary'
 
-import { parseName, CommunityOwnership, getInvitationCode } from '@quiet/state-manager'
+import { CommunityOwnership } from '@quiet/types'
 
 import { Controller, useForm } from 'react-hook-form'
 import { TextInput } from '../../forms/components/textInput'
@@ -23,7 +23,8 @@ import { InviteLinkErrors } from '../../forms/fieldsErrors'
 import { IconButton, InputAdornment } from '@mui/material'
 import VisibilityOff from '@mui/icons-material/VisibilityOff'
 import Visibility from '@mui/icons-material/Visibility'
-import { ONION_ADDRESS_REGEX } from '@quiet/common'
+import { ONION_ADDRESS_REGEX, parseName } from '@quiet/common'
+import { getInvitationCode } from '@quiet/state-manager'
 
 const PREFIX = 'PerformCommunityActionComponent'
 
@@ -187,7 +188,7 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
   const submitForm = (
     handleSubmit: (value: string) => void,
     values: PerformCommunityActionFormValues,
-    setFormSent
+    setFormSent: (value: boolean) => void
   ) => {
     let submitValue =
       communityOwnership === CommunityOwnership.Owner ? parseName(values.name) : values.name.trim()

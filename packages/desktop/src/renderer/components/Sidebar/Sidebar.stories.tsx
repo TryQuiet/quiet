@@ -62,6 +62,7 @@ const args: IdentityPanelProps & ChannelsPanelProps = {
   unreadChannels: ['spooky'],
   setCurrentChannel: function (_id: string): void {},
   currentChannel: 'general',
+  currentChannelId: 'general',
   createChannelModal: {
     open: false,
     handleOpen: function (_args?: any): any {},

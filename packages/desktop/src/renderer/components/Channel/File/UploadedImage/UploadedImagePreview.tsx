@@ -1,7 +1,7 @@
 import React from 'react'
 import { styled } from '@mui/material/styles'
 
-import { UseModalTypeWrapper } from '../../../../containers/hooks'
+import { UseModalType } from '../../../../containers/hooks'
 import Modal from '../../../ui/Modal/Modal'
 
 const PREFIX = 'UploadedImagePreviewComponent'
@@ -31,9 +31,9 @@ const StyledModalContent = styled('div')(() => ({
 interface UploadedImagePreviewProps {
   open: boolean
   handleClose: () => void
-  uploadedFileModal?: ReturnType<UseModalTypeWrapper<{
+  uploadedFileModal?: UseModalType<{
     src: string
-  }>['types']>
+  }>
 }
 
 const UploadedImagePreviewComponent: React.FC<UploadedImagePreviewProps> = ({

@@ -9,11 +9,13 @@ import {
   publicChannels,
   communities,
   files,
-  FileMetadata,
-  CancelDownload,
-  FileContent,
   network
 } from '@quiet/state-manager'
+import {
+  FileMetadata,
+  CancelDownload,
+  FileContent
+} from '@quiet/types'
 
 import ChannelComponent, { ChannelComponentProps } from './ChannelComponent'
 
@@ -32,7 +34,6 @@ const Channel = () => {
   const dispatch = useDispatch()
 
   const user = useSelector(identity.selectors.currentIdentity)
-
   const currentChannelId = useSelector(publicChannels.selectors.currentChannelId)
   const currentChannelName = useSelector(publicChannels.selectors.currentChannelName)
 
@@ -53,7 +54,7 @@ const Channel = () => {
   const community = useSelector(communities.selectors.currentCommunity)
 
   const initializedCommunities = useSelector(network.selectors.initializedCommunities)
-  const isCommunityInitialized = Boolean(initializedCommunities[community?.id])
+  const isCommunityInitialized = Boolean(community && initializedCommunities[community.id])
 
   const pendingGeneralChannelRecreationSelector = useSelector(
     publicChannels.selectors.pendingGeneralChannelRecreation
@@ -76,7 +77,7 @@ const Channel = () => {
 
   const [uploadingFiles, setUploadingFiles] = React.useState<FilePreviewData>({})
 
-  const filesRef = React.useRef<FilePreviewData>()
+  const filesRef = React.useRef<FilePreviewData>({})
 
   const contextMenu = useContextMenu(MenuName.Channel)
 
@@ -134,7 +135,7 @@ const Channel = () => {
     })
   }
 
-  const handleClipboardFiles = (imageBuffer, ext, name) => {
+  const handleClipboardFiles = (imageBuffer: ArrayBuffer, ext: string, name: string) => {
     let id: string
     // create id for images in clipboard with default name 'image.png'
     if (name === 'image') {
@@ -206,6 +207,8 @@ const Channel = () => {
   useEffect(() => {
     dispatch(messages.actions.resetCurrentPublicChannelCache())
   }, [currentChannelId])
+
+  if (!user || !currentChannelId) return null
 
   const channelComponentProps: ChannelComponentProps = {
     user: user,

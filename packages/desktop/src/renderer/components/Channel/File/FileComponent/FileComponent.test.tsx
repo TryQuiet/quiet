@@ -1,4 +1,4 @@
-import { DownloadState } from '@quiet/state-manager'
+import { DownloadState } from '@quiet/types'
 import React from 'react'
 
 import { renderComponent } from '../../../../testUtils/renderComponent'

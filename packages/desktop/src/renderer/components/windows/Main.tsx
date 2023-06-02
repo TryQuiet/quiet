@@ -16,16 +16,15 @@ const MainGridStyled = styled(Grid)(() => ({
 }))
 
 export const Main: React.FC = () => {
-  const debounce = (fn, ms: number) => {
+  const debounce = (fn: () => void, ms: number) => {
     let timer: ReturnType<typeof setTimeout> | null
-    return _ => {
+    return () => {
       if (timer) {
         clearTimeout(timer)
       }
-      // @ts-ignore
-      timer = setTimeout(_ => {
+      timer = setTimeout(() => {
         timer = null
-        fn.apply(this) // eslint-disable-line
+        fn.apply(this)
       }, ms)
     }
   }

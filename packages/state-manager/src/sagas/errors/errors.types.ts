@@ -37,5 +37,8 @@ export enum ErrorMessages {
   NOT_CONNECTED = "You're not connected with other peers.",
 
   // Channels
-  CHANNEL_NAME_TAKEN = 'Channel with this name already exists'
+  CHANNEL_NAME_TAKEN = 'Channel with this name already exists',
+
+  // General
+  GENERAL = 'Something went wrong'
 }

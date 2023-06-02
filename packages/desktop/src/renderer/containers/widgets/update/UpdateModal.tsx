@@ -1,5 +1,5 @@
 import React from 'react'
-import { bindActionCreators } from 'redux'
+import { AnyAction, Dispatch, bindActionCreators } from 'redux'
 import { useDispatch } from 'react-redux'
 
 import UpdateModal from '../../../components/widgets/update/UpdateModal'
@@ -7,7 +7,7 @@ import updateHandlers from '../../../store/handlers/update'
 import { useModal } from '../../hooks'
 import { ModalName } from '../../../sagas/modals/modals.types'
 
-export const mapDispatchToProps = dispatch =>
+export const mapDispatchToProps = (dispatch: Dispatch<AnyAction>) =>
   bindActionCreators(
     {
       handleUpdate: updateHandlers.epics.startApplicationUpdate,

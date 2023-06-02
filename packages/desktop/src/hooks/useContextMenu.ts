@@ -4,7 +4,7 @@ import { MenuName } from '../const/MenuNames.enum'
 import { navigationSelectors } from '../renderer/store/navigation/navigation.selectors'
 import { navigationActions, OpenMenuPayload } from '../renderer/store/navigation/navigation.slice'
 
-export class UseContextMenuTypeWrapper<T> {
+export class UseContextMenuTypeWrapper<T extends {} | undefined> {
   types(e: MenuName) {
     // eslint-disable-next-line
     return useContextMenu<T>(e)

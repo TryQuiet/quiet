@@ -9,13 +9,13 @@ import {
   users,
   identity,
   connection,
-  network,
-  LoadingPanelType
+  network
 } from '@quiet/state-manager'
 import { modalsActions } from '../../sagas/modals/modals.slice'
 import { shell } from 'electron'
 import JoiningPanelComponent from './JoiningPanelComponent'
 import StartingPanelComponent from './StartingPanelComponent'
+import { LoadingPanelType } from '@quiet/types'
 
 const LoadingPanel = () => {
   const dispatch = useDispatch()

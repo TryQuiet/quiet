@@ -52,6 +52,7 @@ jest.mock('@electron/remote', () => {
     }
   }
 
+  // @ts-expect-error - expression of type 'unique symbol' can't be used to index type
   mock[Symbol.iterator] = function* () {
     yield 1
     yield 2

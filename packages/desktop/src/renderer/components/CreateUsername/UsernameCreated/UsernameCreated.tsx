@@ -66,7 +66,7 @@ const StyledGrid = styled(Grid)((
   }
 }))
 
-const handleModalClose = (handleClose, setFormSent) => {
+const handleModalClose = (handleClose: () => void, setFormSent: (value: boolean) => void) => {
   setFormSent(false)
   handleClose()
 }

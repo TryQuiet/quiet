@@ -4,7 +4,8 @@ import { prepareStore } from '../../../../testUtils/prepareStore'
 import { renderComponent } from '../../../../testUtils/renderComponent'
 import { ChannelInputComponent } from './ChannelInput'
 import { INPUT_STATE } from './InputState.enum'
-import { FileContent, getFactory, identity } from '@quiet/state-manager'
+import { getFactory, identity } from '@quiet/state-manager'
+import { FileContent } from '@quiet/types'
 import UploadFilesPreviewsComponent from '../../../Channel/File/UploadingPreview'
 
 describe('ChannelInput', () => {
@@ -19,8 +20,8 @@ describe('ChannelInput', () => {
         infoClass={''}
         setInfoClass={jest.fn()}
         openFilesDialog={jest.fn()}
-        handleOpenFiles={jest.fn()}
-      />
+        handleOpenFiles={jest.fn()} handleClipboardFiles={function (arg: ArrayBuffer, ext: string, name: string): void {}}
+        />
     )
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
@@ -111,8 +112,8 @@ describe('ChannelInput', () => {
         setInfoClass={jest.fn()}
         inputState={INPUT_STATE.NOT_CONNECTED}
         openFilesDialog={jest.fn()}
-        handleOpenFiles={jest.fn()}
-      />
+        handleOpenFiles={jest.fn()} handleClipboardFiles={function (arg: ArrayBuffer, ext: string, name: string): void {
+        } } />
     )
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>

@@ -4,12 +4,13 @@ import theme from '../../../theme'
 import classNames from 'classnames'
 import { Grid } from '@mui/material'
 import { AUTODOWNLOAD_SIZE_LIMIT, DisplayableMessage, DownloadState, DownloadStatus } from '@quiet/state-manager'
-import { UseModalTypeWrapper } from '../../../containers/hooks'
+
 import UploadedImage from '../../Channel/File/UploadedImage/UploadedImage'
 import FileComponent, { FileActionsProps } from '../../Channel/File/FileComponent/FileComponent'
 import { displayMathRegex } from '../../../../utils/functions/splitByTex'
 import { TextMessageComponent } from './TextMessage'
 import { MathMessageComponent } from '../../MathMessage/MathMessageComponent'
+import { UseModalType } from '../../../containers/hooks'
 
 const PREFIX = 'NestedMessageContent'
 
@@ -41,11 +42,9 @@ export interface NestedMessageContentProps {
   pending: boolean
   downloadStatus?: DownloadStatus
   openUrl: (url: string) => void
-  uploadedFileModal?: ReturnType<
-    UseModalTypeWrapper<{
-      src: string
-    }>['types']
-  >
+  uploadedFileModal?: UseModalType<{
+    src: string
+  }>
   onMathMessageRendered?: () => void
 }
 
@@ -61,7 +60,7 @@ export const NestedMessageContent: React.FC<NestedMessageContentProps & FileActi
   cancelDownload
 }) => {
   const renderMessage = () => {
-    const isMalicious = downloadStatus?.downloadState === DownloadState?.Malicious
+    const isMalicious = downloadStatus?.downloadState === DownloadState.Malicious
 
     switch (message.type) {
       case 2: // MessageType.Image (cypress tests incompatibility with enums)
@@ -74,8 +73,8 @@ export const NestedMessageContent: React.FC<NestedMessageContentProps & FileActi
               [classes.pending]: pending
             })}
             data-testid={`messagesGroupContent-${message.id}`}>
-            {fileDisplay ? (
-              <UploadedImage message={message} uploadedFileModal={uploadedFileModal} downloadStatus={downloadStatus} />
+            {fileDisplay && message.media ? (
+              <UploadedImage media={message.media} uploadedFileModal={uploadedFileModal} downloadStatus={downloadStatus} />
             ) : (
               <FileComponent message={message} downloadStatus={downloadStatus} openContainingFolder={openContainingFolder} downloadFile={downloadFile} cancelDownload={cancelDownload} />
             )}

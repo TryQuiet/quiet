@@ -1,5 +1,6 @@
 import fs from 'fs'
 import path from 'path'
+import os from 'os'
 import { execSync } from 'child_process'
 import { BrowserWindow } from 'electron'
 
@@ -13,7 +14,7 @@ export const processInvitationCode = (mainWindow: BrowserWindow, code: string) =
 export const updateDesktopFile = (isDev: boolean) => {
   if (isDev || process.platform !== 'linux') return
 
-  const appDesktopFile = path.join(process.env.HOME, '.local/share/applications/quiet.desktop')
+  const appDesktopFile = path.join(os.homedir(), '.local/share/applications/quiet.desktop')
   const resource = path.join(process.resourcesPath, 'quiet.desktop')
 
   try {

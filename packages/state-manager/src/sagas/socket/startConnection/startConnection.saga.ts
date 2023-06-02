@@ -38,7 +38,10 @@ import {
   RemoveDownloadStatus,
   SendCertificatesResponse,
   SetChannelSubscribedPayload,
-  SocketActionTypes
+  SocketActionTypes,
+  SavedOwnerCertificatePayload,
+  SendUserCertificatePayload,
+  SendOwnerCertificatePayload
 } from '@quiet/types'
 
 const log = logger('socket')
@@ -198,10 +201,7 @@ export function subscribe(socket: Socket) {
 
     socket.on(
       SocketActionTypes.SEND_USER_CERTIFICATE,
-      (payload: {
-        communityId: string
-        payload: { peers: string[]; certificate: string; rootCa: string; ownerCert: string }
-      }) => {
+      (payload: SendOwnerCertificatePayload) => {
         console.log('user cert with owner cert', payload)
 
         emit(
@@ -234,7 +234,7 @@ export function subscribe(socket: Socket) {
     )
     socket.on(
       SocketActionTypes.SAVED_OWNER_CERTIFICATE,
-      (payload: { communityId: string; network: { certificate: string; peers: string[] } }) => {
+      (payload: SavedOwnerCertificatePayload) => {
         emit(
           communitiesActions.addOwnerCertificate({
             communityId: payload.communityId,

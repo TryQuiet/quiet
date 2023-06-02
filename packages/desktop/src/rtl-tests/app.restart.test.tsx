@@ -16,12 +16,12 @@ import { ioMock } from '../shared/setupTests'
 import {
   communities,
   getFactory,
-  LoadingPanelType,
   network,
   publicChannels
 } from '@quiet/state-manager'
 import { act } from 'react-dom/test-utils'
 import { identityActions } from 'packages/state-manager/src/sagas/identity/identity.slice'
+import { LoadingPanelType } from '@quiet/types'
 
 jest.setTimeout(20_000)
 
@@ -75,7 +75,9 @@ describe('Restart app works correctly', () => {
 
       const entities = store.getState().PublicChannels.channels.entities
 
-      const generalId = Object.keys(entities).find(key => entities[key].name === 'general')
+      const generalId = Object.keys(entities).find(key => entities[key]?.name === 'general')
+      expect(generalId).not.toBeUndefined()
+      if (!generalId) return
       store.dispatch(
         publicChannels.actions.sendInitialChannelMessage({
           channelId: generalId,

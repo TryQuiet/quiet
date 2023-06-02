@@ -1,5 +1,5 @@
 import React from 'react'
-import { ComponentMeta } from '@storybook/react'
+import { ComponentMeta, ComponentStory } from '@storybook/react'
 
 import Grid from '@mui/material/Grid'
 import WindowWrapper from '../ui/WindowWrapper/WindowWrapper'
@@ -10,7 +10,7 @@ import { Reusable as Sidebar } from '../Sidebar/Sidebar.stories'
 import SidebarComponent from '../Sidebar/Sidebar'
 import { Component as Channel } from '../Channel/Channel.stories.cy'
 
-const Template = () => {
+const Template: ComponentStory<any> = () => {
   return (
     <WindowWrapper>
       <Grid

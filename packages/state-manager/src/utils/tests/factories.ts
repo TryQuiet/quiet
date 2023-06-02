@@ -45,8 +45,8 @@ export const getFactory = async (store: Store) => {
     'Community',
     communities.actions.addNewCommunity,
     {
-      id: factory.sequence('Community.id', n => n),
-      name: factory.sequence('Community.name', n => `community_${n}`),
+      id: factory.sequence('Community.id', (n: number) => n),
+      name: factory.sequence('Community.name', (n: number) => `community_${n}`),
       CA: await createRootCertificateTestHelper(registrarUrl),
       registrarUrl: registrarUrl,
       peerList: [],
@@ -92,7 +92,7 @@ export const getFactory = async (store: Store) => {
         publicKey: '9f016defcbe48829db163e86b28efb10318faf3b109173105e3dc024e951bb1b',
         privateKey: '4dcebbf395c0e9415bc47e52c96fcfaf4bd2485a516f45118c2477036b45fc0b'
       },
-      nickname: factory.sequence('Identity.nickname', n => `user_${n}`),
+      nickname: factory.sequence('Identity.nickname', (n: number) => `user_${n}`),
       userCertificate: undefined,
       // 21.09.2022 - may be useful for testing purposes
       joinTimestamp: 1663747464000
@@ -149,12 +149,12 @@ export const getFactory = async (store: Store) => {
     publicChannels.actions.addChannel,
     {
       channel: {
-        name: factory.sequence('PublicChannel.name', n => `public-channel-${n}`),
+        name: factory.sequence('PublicChannel.name', (n: number) => `public-channel-${n}`),
         description: 'Description',
         timestamp: DateTime.utc().toSeconds(),
         owner: factory.assoc('Identity', 'nickname'),
         id: generateChannelId(
-          factory.sequence('PublicChannel.name', n => `publicChannel${n}`).toString()
+          factory.sequence('PublicChannel.name', (n: number) => `publicChannel${n}`).toString()
         )
       }
     },
@@ -179,9 +179,9 @@ export const getFactory = async (store: Store) => {
     {
       identity: factory.assoc('Identity'),
       message: {
-        id: factory.sequence('Message.id', n => `${n}`),
+        id: factory.sequence('Message.id', (n: number) => `${n}`),
         type: MessageType.Basic,
-        message: factory.sequence('Message.message', n => `message_${n}`),
+        message: factory.sequence('Message.message', (n: number) => `message_${n}`),
         createdAt: DateTime.utc().valueOf(),
         channelId: generateChannelId('general'),
         signature: '',
