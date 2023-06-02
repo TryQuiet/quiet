@@ -67,13 +67,17 @@ blockquote {
   margin-right: auto;
   margin-left: auto;
   padding-top: 190px;
-  padding-bottom: 110px;
+  padding-bottom: 0px;
   padding-left: 7%;
   -webkit-box-align: start;
   -webkit-align-items: flex-start;
   -ms-flex-align: start;
   align-items: flex-start;
   background-image: none;
+}
+
+.qt-hero-padding {
+  margin-bottom: 110px;
 }
 
 .body {
