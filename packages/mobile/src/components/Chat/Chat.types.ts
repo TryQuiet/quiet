@@ -5,7 +5,7 @@ import {
   MessagesDailyGroups,
   MessageSendingStatus,
   PublicChannel
-} from '@quiet/state-manager'
+} from '@quiet/types'
 import { Dictionary } from '@reduxjs/toolkit'
 import { useContextMenu } from '../../hooks/useContextMenu'
 

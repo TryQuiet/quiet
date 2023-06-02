@@ -3,7 +3,8 @@ import { useDispatch, useSelector } from 'react-redux'
 import { CreateCommunity } from '../../components/CreateCommunity/CreateCommunity.component'
 import { navigationActions } from '../../store/navigation/navigation.slice'
 import { ScreenNames } from '../../const/ScreenNames.enum'
-import { identity, communities, CommunityOwnership, CreateNetworkPayload } from '@quiet/state-manager'
+import { identity, communities } from '@quiet/state-manager'
+import { CommunityOwnership, CreateNetworkPayload } from '@quiet/types'
 
 export const CreateCommunityScreen: FC = () => {
   const dispatch = useDispatch()

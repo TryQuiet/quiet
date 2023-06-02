@@ -1,4 +1,4 @@
-import { CancelDownload, DisplayableMessage, DownloadStatus, FileMetadata } from '@quiet/state-manager'
+import { CancelDownload, DisplayableMessage, DownloadStatus, FileMetadata } from '@quiet/types'
 
 export interface UploadedFileProps {
   media?: FileMetadata

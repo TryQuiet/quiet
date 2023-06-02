@@ -1,10 +1,11 @@
-import { DownloadState, formatBytes } from '@quiet/state-manager'
+import { DownloadState } from '@quiet/types'
 import React, { FC, useEffect, useState } from 'react'
 import { View, Image, TouchableWithoutFeedback, Alert } from 'react-native'
 import { Typography } from '../Typography/Typography.component'
 import { FileActionsProps, UploadedFileProps } from './UploadedFile.types'
 import { defaultTheme } from '../../styles/themes/default.theme'
 import { appImages } from '../../assets'
+import { formatBytes } from '@quiet/state-manager'
 
 interface FileStatus {
   label: string

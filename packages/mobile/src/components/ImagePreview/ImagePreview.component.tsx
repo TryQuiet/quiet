@@ -1,7 +1,7 @@
 import React, { FC } from 'react'
 import { Modal, View } from 'react-native'
 
-import { FileMetadata } from '@quiet/state-manager'
+import { FileMetadata } from '@quiet/types'
 import FastImage from 'react-native-fast-image'
 import { Appbar } from '../../components/Appbar/Appbar.component'
 

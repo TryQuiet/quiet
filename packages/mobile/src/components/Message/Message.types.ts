@@ -1,4 +1,4 @@
-import { DisplayableMessage, DownloadStatus, FileMetadata, MessageSendingStatus } from '@quiet/state-manager'
+import { DisplayableMessage, DownloadStatus, FileMetadata, MessageSendingStatus } from '@quiet/types'
 import { Dictionary } from '@reduxjs/toolkit'
 
 export interface MessageProps {

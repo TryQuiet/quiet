@@ -6,12 +6,10 @@ import { showNotificationSaga } from './showNotification.saga'
 import StateManager, {
   publicChannels,
   users,
-  MarkUnreadChannelPayload,
   PUSH_NOTIFICATION_CHANNEL,
   getFactory,
   prepareStore,
   Store,
-  Identity,
   communities,
   identity
 } from '@quiet/state-manager'
@@ -20,7 +18,7 @@ import { initReducer, InitState } from '../../init/init.slice'
 import { ScreenNames } from '../../../const/ScreenNames.enum'
 import { navigationReducer, NavigationState } from '../../navigation/navigation.slice'
 import { FactoryGirl } from 'factory-girl'
-import { ChannelMessage, Community, FileMetadata, PublicChannel } from '@quiet/types'
+import { ChannelMessage, Community, FileMetadata, Identity, MarkUnreadChannelPayload, PublicChannel } from '@quiet/types'
 import { generateChannelId } from '@quiet/common'
 import { DateTime } from 'luxon'
 

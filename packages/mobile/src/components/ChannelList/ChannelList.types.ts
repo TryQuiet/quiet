@@ -1,4 +1,4 @@
-import { Community } from '@quiet/state-manager'
+import { Community } from '@quiet/types'
 import { useContextMenu } from '../../hooks/useContextMenu'
 import { ChannelTileProps } from '../ChannelTile/ChannelTile.types'
 

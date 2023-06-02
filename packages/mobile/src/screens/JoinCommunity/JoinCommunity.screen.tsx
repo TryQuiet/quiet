@@ -3,10 +3,12 @@ import React, { FC, useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import {
   identity,
-  communities,
+  communities
+} from '@quiet/state-manager'
+import {
   CommunityOwnership,
   CreateNetworkPayload
-} from '@quiet/state-manager'
+} from '@quiet/types'
 import { JoinCommunity } from '../../components/JoinCommunity/JoinCommunity.component'
 import { navigationActions } from '../../store/navigation/navigation.slice'
 import { ScreenNames } from '../../const/ScreenNames.enum'

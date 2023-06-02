@@ -4,13 +4,11 @@ import { useDispatch, useSelector } from 'react-redux'
 import { Chat } from '../../components/Chat/Chat.component'
 import {
   communities,
-  identity,
   publicChannels,
   messages,
-  files,
-  CancelDownload,
-  FileMetadata,
+  files
 } from '@quiet/state-manager'
+import { CancelDownload, FileMetadata } from '@quiet/types'
 import { navigationActions } from '../../store/navigation/navigation.slice'
 import { ScreenNames } from '../../const/ScreenNames.enum'
 import { UseContextMenuType, useContextMenu } from '../../hooks/useContextMenu'
