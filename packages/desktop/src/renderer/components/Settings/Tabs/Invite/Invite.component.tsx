@@ -92,8 +92,8 @@ export const InviteComponent: FC<InviteComponentProps> = ({
         alignItems='center'
         className={classes.titleDiv}>
         <Grid item className={classes.title}>
-          <Typography variant='h3' data-testid='invite-a-friend'>
-            Invite a friend
+          <Typography variant='h3' data-testid='add-members'>
+            Add members
           </Typography>
         </Grid>
       </Grid>

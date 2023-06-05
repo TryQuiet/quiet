@@ -28,9 +28,9 @@ describe('CopyLink', () => {
               >
                 <h3
                   class="MuiTypography-root MuiTypography-h3 css-ptjqt4-MuiTypography-root"
-                  data-testid="invite-a-friend"
+                  data-testid="add-members"
                 >
-                  Invite a friend
+                  Add members
                 </h3>
               </div>
             </div>
@@ -134,9 +134,9 @@ describe('CopyLink', () => {
               >
                 <h3
                   class="MuiTypography-root MuiTypography-h3 css-ptjqt4-MuiTypography-root"
-                  data-testid="invite-a-friend"
+                  data-testid="add-members"
                 >
-                  Invite a friend
+                  Add members
                 </h3>
               </div>
             </div>
