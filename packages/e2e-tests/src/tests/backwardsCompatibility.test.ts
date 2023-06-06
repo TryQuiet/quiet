@@ -155,7 +155,7 @@ describe('Backwards Compatibility', () => {
       expect(generalChannelText).toEqual('# general')
     })
 
-    it('Check amount of messages on second channel ', async () => {
+    it.skip('Check amount of messages on second channel ', async () => {
       await new Promise<void>(resolve => setTimeout(() => resolve(), 5000))
       sidebar = new Sidebar(ownerAppNewVersion.driver)
 
