@@ -7,11 +7,7 @@ import { ChannelTile } from '../ChannelTile/ChannelTile.component'
 import { Spinner } from '../Spinner/Spinner.component'
 import { capitalizeFirstLetter } from '@quiet/common'
 
-export const ChannelList: FC<ChannelListProps> = ({
-  community,
-  tiles,
-  communityContextMenu
-}) => {
+export const ChannelList: FC<ChannelListProps> = ({ community, tiles, communityContextMenu }) => {
   let communityName = ''
   if (community?.name) {
     communityName = capitalizeFirstLetter(community.name)
@@ -28,7 +24,7 @@ export const ChannelList: FC<ChannelListProps> = ({
       ) : (
         <FlatList
           data={tiles}
-          keyExtractor={item => item.name}
+          keyExtractor={item => item.id}
           renderItem={({ item }) => <ChannelTile {...item} />}
           ItemSeparatorComponent={() => {
             return (
