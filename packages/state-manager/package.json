@@ -1,6 +1,6 @@
 {
   "name": "@quiet/state-manager",
-  "version": "1.3.0",
+  "version": "1.3.1-alpha.0",
   "description": "",
   "main": "lib/index.js",
   "scripts": {
@@ -22,9 +22,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@quiet/common": "^1.3.0",
-    "@quiet/logger": "^1.3.0",
-    "@quiet/types": "^1.3.0",
+    "@quiet/common": "^1.3.1-alpha.0",
+    "@quiet/logger": "^1.3.1-alpha.0",
+    "@quiet/types": "^1.3.1-alpha.0",
     "@reduxjs/toolkit": "^1.9.1",
     "factory-girl": "^5.0.4",
     "get-port": "^5.1.1",
@@ -43,7 +43,7 @@
     "@babel/preset-env": "^7.15.0",
     "@babel/preset-typescript": "^7.15.0",
     "@peculiar/webcrypto": "1.4.3",
-    "@quiet/identity": "^1.3.0",
+    "@quiet/identity": "^1.3.1-alpha.0",
     "@types/factory-girl": "^5.0.8",
     "@types/jest": "^26.0.24",
     "@types/luxon": "^2.0.0",
