@@ -28,7 +28,7 @@ export const ChannelList: FC<ChannelListProps> = ({
       ) : (
         <FlatList
           data={tiles}
-          keyExtractor={item => item.name}
+          keyExtractor={item => item.id}
           renderItem={({ item }) => <ChannelTile {...item} />}
           ItemSeparatorComponent={() => {
             return (
