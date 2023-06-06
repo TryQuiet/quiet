@@ -37,7 +37,7 @@ describe('deleteChannelSaga', () => {
 
   const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
 
-  beforeAll(async () => {
+  beforeEach(async () => {
     setupCrypto()
 
     store = prepareStore().store
