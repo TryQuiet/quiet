@@ -150,7 +150,12 @@ describe('channelDeletionResponseSaga', () => {
         .run()
     })
 
-    test('delete general channel', async () => {
+    test('delete general channel while user is on general channel', async () => {
+      store.dispatch(
+        publicChannelsActions.setCurrentChannel({
+          channelId: generalChannel.id
+        })
+      )
       const channelId = generalChannel.id
       const newGeneralId = 'newGeneralId'
 
@@ -188,6 +193,32 @@ describe('channelDeletionResponseSaga', () => {
           [select(publicChannelsSelectors.generalChannel), generalChannel]
         ])
         .put(publicChannelsActions.setCurrentChannel({ channelId }))
+        .run()
+    })
+
+    test('delete general channel while user in on other channel', async () => {
+      store.dispatch(
+        publicChannelsActions.setCurrentChannel({
+          channelId: photoChannel.id
+        })
+      )
+      const channelId = generalChannel.id
+
+      const reducer = combineReducers(reducers)
+      await expectSaga(
+        channelDeletionResponseSaga,
+        publicChannelsActions.channelDeletionResponse({
+          channelId
+        })
+      )
+        .withReducer(reducer)
+        .withState(store.getState())
+
+        .put(publicChannelsActions.startGeneralRecreation())
+        .put(publicChannelsActions.clearMessagesCache({ channelId }))
+        .put(messagesActions.deleteChannelEntry({ channelId }))
+        .put(publicChannelsActions.deleteChannelFromStore({ channelId }))
+        .put(publicChannelsActions.completeChannelDeletion({}))
         .run()
     })
 

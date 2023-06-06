@@ -18,6 +18,7 @@ export function* channelDeletionResponseSaga(
   const generalChannel = yield* select(publicChannelsSelectors.generalChannel)
 
   const isChannelExist = yield* select(publicChannelsSelectors.getChannelById(channelId))
+  const currentChannelId = yield* select(publicChannelsSelectors.currentChannelId)
   if (!isChannelExist) {
     log(`Channel with id ${channelId} doesnt exist in store`)
     return
@@ -53,17 +54,18 @@ export function* channelDeletionResponseSaga(
       yield* put(messagesActions.sendDeletionMessage({ channelId }))
     }
   } else {
-    if (isGeneral) {
-      let generalChannel: PublicChannelStorage | undefined = yield* select(
+    const isUserOnGeneral = currentChannelId === generalChannel.id
+
+    if (isGeneral && isUserOnGeneral) {
+      let newGeneralChannel: PublicChannelStorage | undefined = yield* select(
         publicChannelsSelectors.generalChannel
       )
-
-      while (!generalChannel) {
+      while (!newGeneralChannel) {
         log('General channel has not been replicated yet')
         yield* delay(500)
-        generalChannel = yield* select(publicChannelsSelectors.generalChannel)
+        newGeneralChannel = yield* select(publicChannelsSelectors.generalChannel)
       }
-      yield* put(publicChannelsActions.setCurrentChannel({ channelId: generalChannel.id }))
+      yield* put(publicChannelsActions.setCurrentChannel({ channelId: newGeneralChannel.id }))
     }
   }
 }
