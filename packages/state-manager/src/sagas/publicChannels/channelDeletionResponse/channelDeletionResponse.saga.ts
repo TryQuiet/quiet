@@ -41,7 +41,7 @@ export function* channelDeletionResponseSaga(
 
   yield* put(publicChannelsActions.deleteChannelFromStore({ channelId }))
 
-  yield* put(publicChannelsActions.completeChannelDeletion)
+  yield* put(publicChannelsActions.completeChannelDeletion({}))
 
   const community = yield* select(communitiesSelectors.currentCommunity)
 
