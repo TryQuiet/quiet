@@ -45,7 +45,7 @@ export function* channelDeletionResponseSaga(
   const community = yield* select(communitiesSelectors.currentCommunity)
 
   const isOwner = Boolean(community?.CA)
-  console.log({ isOwner })
+
   if (isOwner) {
     if (isGeneral) {
       yield* put(publicChannelsActions.createGeneralChannel())
@@ -57,7 +57,7 @@ export function* channelDeletionResponseSaga(
       let generalChannel: PublicChannelStorage | undefined = yield* select(
         publicChannelsSelectors.generalChannel
       )
-      console.log({ generalChannel })
+
       while (!generalChannel) {
         log('General channel has not been replicated yet')
         yield* delay(500)
