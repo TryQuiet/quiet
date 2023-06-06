@@ -101,8 +101,10 @@ describe('Add new channel', () => {
           const payload = input[1] as CreateChannelPayload
           expect(payload.channel.owner).toEqual(alice.nickname)
           expect(payload.channel.name).toEqual(channelName.output)
+          const channels = store.getState().PublicChannels.channels.entities
           return socket.socketClient.emit<ChannelsReplicatedPayload>(SocketActionTypes.CHANNELS_REPLICATED, {
             channels: {
+              ...channels,
               [payload.channel.name]: payload.channel
             }
           })
@@ -142,10 +144,6 @@ describe('Add new channel', () => {
         })
     )
 
-    await act(async () => {
-      await runSaga(testCreateChannelSaga).toPromise()
-    })
-
     function* testCreateChannelSaga(): Generator {
       const createChannelAction = yield* take(publicChannels.actions.createChannel)
       expect(createChannelAction.payload.channel.name).toEqual(channelName.output)
@@ -153,6 +151,10 @@ describe('Add new channel', () => {
       const addChannelAction = yield* take(publicChannels.actions.addChannel)
       expect(addChannelAction.payload.channel).toEqual(createChannelAction.payload.channel)
     }
+
+    await act(async () => {
+      await runSaga(testCreateChannelSaga).toPromise()
+    })
 
     const createChannelModal = screen.queryByTestId('createChannelModal')
     expect(createChannelModal).toBeNull()
@@ -291,7 +293,7 @@ describe('Add new channel', () => {
     expect(isErrorStillExist).toBeNull()
   })
 
-  it('Bug reproduction - create channel and open modal again without requierd filed error', async () => {
+  it('Bug reproduction - create channel and open modal again without requierd field error', async () => {
     const channelName = 'las-venturas'
 
     const { store, runSaga } = await prepareStore(
@@ -314,8 +316,10 @@ describe('Add new channel', () => {
           // const payload = data[0]
           expect(payload.channel.owner).toEqual(alice.nickname)
           expect(payload.channel.name).toEqual(channelName)
+          const channels = store.getState().PublicChannels.channels.entities
           return socket.socketClient.emit<ChannelsReplicatedPayload>(SocketActionTypes.CHANNELS_REPLICATED, {
             channels: {
+              ...channels,
               [payload.channel.name]: payload.channel
             }
           })
@@ -408,10 +412,12 @@ describe('Add new channel', () => {
           const data = input[1]
           const payload = data
           expect(payload.channel.owner).toEqual(alice.nickname)
+          const channels = store.getState().PublicChannels.channels.entities
           // expect(payload.channel.name).toEqual(channelName.output)
           return socket.socketClient.emit<ChannelsReplicatedPayload>(SocketActionTypes.CHANNELS_REPLICATED, {
             channels: {
-              [payload.channel.name]: payload.channel
+              ...channels,
+              [payload.channel.name]: payload.channel,
             }
           })
         }

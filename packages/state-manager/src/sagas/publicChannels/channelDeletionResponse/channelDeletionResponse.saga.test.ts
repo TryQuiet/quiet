@@ -79,6 +79,7 @@ describe('channelDeletionResponseSaga', () => {
         .put(publicChannelsActions.clearMessagesCache({ channelId }))
         .put(messagesActions.deleteChannelEntry({ channelId }))
         .put(publicChannelsActions.deleteChannelFromStore({ channelId }))
+        .put(publicChannelsActions.completeChannelDeletion({}))
         .put(messagesActions.sendDeletionMessage({ channelId }))
         .run()
     })
@@ -100,9 +101,29 @@ describe('channelDeletionResponseSaga', () => {
         .put(publicChannelsActions.clearMessagesCache({ channelId }))
         .put(messagesActions.deleteChannelEntry({ channelId }))
         .put(publicChannelsActions.deleteChannelFromStore({ channelId }))
-        .provide([{ call: provideDelay }])
+        .put(publicChannelsActions.completeChannelDeletion({}))
         .put(publicChannelsActions.createGeneralChannel())
 
+        .run()
+    })
+
+    test('delete channel which not exist in store', async () => {
+      const channelId = 'random channel'
+
+      const reducer = combineReducers(reducers)
+      await expectSaga(
+        channelDeletionResponseSaga,
+        publicChannelsActions.channelDeletionResponse({
+          channelId
+        })
+      )
+        .withReducer(reducer)
+        .withState(store.getState())
+        .not.put(publicChannelsActions.clearMessagesCache({ channelId }))
+        .not.put(messagesActions.deleteChannelEntry({ channelId }))
+        .not.put(publicChannelsActions.deleteChannelFromStore({ channelId }))
+        .not.put(publicChannelsActions.completeChannelDeletion({}))
+        .not.put(messagesActions.sendDeletionMessage({ channelId }))
         .run()
     })
   })
@@ -125,10 +146,62 @@ describe('channelDeletionResponseSaga', () => {
         .put(publicChannelsActions.clearMessagesCache({ channelId }))
         .put(messagesActions.deleteChannelEntry({ channelId }))
         .put(publicChannelsActions.deleteChannelFromStore({ channelId }))
+        .put(publicChannelsActions.completeChannelDeletion({}))
         .run()
     })
 
-    test('delete general channel', async () => {
+    test('delete general channel while user is on general channel', async () => {
+      store.dispatch(
+        publicChannelsActions.setCurrentChannel({
+          channelId: generalChannel.id
+        })
+      )
+      const channelId = generalChannel.id
+      const newGeneralId = 'newGeneralId'
+
+      const newGeneralChannel: PublicChannel = {
+        name: 'general',
+        description: 'general_description',
+        owner: 'general_owner',
+        timestamp: 0,
+        id: newGeneralId
+      }
+
+      const reducer = combineReducers(reducers)
+      await expectSaga(
+        channelDeletionResponseSaga,
+        publicChannelsActions.channelDeletionResponse({
+          channelId
+        })
+      )
+        .withReducer(reducer)
+        .withState(store.getState())
+
+        .put(publicChannelsActions.startGeneralRecreation())
+        .put(publicChannelsActions.clearMessagesCache({ channelId }))
+        .put(messagesActions.deleteChannelEntry({ channelId }))
+        .put(publicChannelsActions.deleteChannelFromStore({ channelId }))
+        .put(publicChannelsActions.completeChannelDeletion({}))
+        // .dispatch(publicChannelsActions.createGeneralChannel())
+        // .dispatch(
+        //   publicChannelsActions.addChannel({
+        //     channel: newGeneralChannel
+        //   })
+        // )
+        .provide([
+          { call: provideDelay },
+          [select(publicChannelsSelectors.generalChannel), generalChannel]
+        ])
+        .put(publicChannelsActions.setCurrentChannel({ channelId }))
+        .run()
+    })
+
+    test('delete general channel while user in on other channel', async () => {
+      store.dispatch(
+        publicChannelsActions.setCurrentChannel({
+          channelId: photoChannel.id
+        })
+      )
       const channelId = generalChannel.id
 
       const reducer = combineReducers(reducers)
@@ -145,20 +218,27 @@ describe('channelDeletionResponseSaga', () => {
         .put(publicChannelsActions.clearMessagesCache({ channelId }))
         .put(messagesActions.deleteChannelEntry({ channelId }))
         .put(publicChannelsActions.deleteChannelFromStore({ channelId }))
-        .provide([
-          { call: provideDelay },
-          [
-            select(publicChannelsSelectors.generalChannel),
-            {
-              name: 'general',
-              description: 'general_description',
-              owner: 'general_owner',
-              timestamp: 'general_timestamp',
-              id: channelId
-            }
-          ]
-        ])
-        .put(publicChannelsActions.setCurrentChannel({ channelId: channelId }))
+        .put(publicChannelsActions.completeChannelDeletion({}))
+        .run()
+    })
+
+    test('delete channel which not exist in store', async () => {
+      const channelId = 'random channel'
+
+      const reducer = combineReducers(reducers)
+      await expectSaga(
+        channelDeletionResponseSaga,
+        publicChannelsActions.channelDeletionResponse({
+          channelId
+        })
+      )
+        .withReducer(reducer)
+        .withState(store.getState())
+        .not.put(publicChannelsActions.clearMessagesCache({ channelId }))
+        .not.put(messagesActions.deleteChannelEntry({ channelId }))
+        .not.put(publicChannelsActions.deleteChannelFromStore({ channelId }))
+        .not.put(publicChannelsActions.completeChannelDeletion({}))
+        .not.put(messagesActions.sendDeletionMessage({ channelId }))
         .run()
     })
   })
