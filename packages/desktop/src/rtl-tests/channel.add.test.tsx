@@ -54,8 +54,6 @@ describe('Add new channel', () => {
       socket // Fork state manager's sagas
     )
 
-
-
     const factory = await getFactory(store)
 
     await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>(
@@ -157,7 +155,6 @@ describe('Add new channel', () => {
     await act(async () => {
       await runSaga(testCreateChannelSaga).toPromise()
     })
-
 
     const createChannelModal = screen.queryByTestId('createChannelModal')
     expect(createChannelModal).toBeNull()
