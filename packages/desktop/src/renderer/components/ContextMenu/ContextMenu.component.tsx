@@ -15,12 +15,12 @@ export const ContextMenu: FC<ContextMenuProps> = ({
   items,
   hint,
 }) => {
-  const ref = useRef()
+  const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    const handleClick = event => {
-      // @ts-expect-error
-      if (ref.current && !ref.current.contains(event.target)) {
+    const handleClick = (event: MouseEvent) => {
+      const target = event.target as Node
+      if (ref.current && !ref.current.contains(target)) {
         if (visible) {
           handleClose()
         }
@@ -66,7 +66,7 @@ export const ContextMenu: FC<ContextMenuProps> = ({
           maxWidth: '375px',
           pointerEvents: 'auto'
         }}
-        data-testId={'contextMenu'}>
+        data-testid={'contextMenu'}>
         <Grid
           style={{
             display: 'flex',
@@ -142,7 +142,7 @@ export const ContextMenuItem: FC<ContextMenuItemProps> = ({ title, action }) => 
         width: '100%'
       }}
       onClick={action}
-      data-testId={`contextMenuItem${title}`}>
+      data-testid={`contextMenuItem${title}`}>
       <Grid
         style={{
           flex: 8

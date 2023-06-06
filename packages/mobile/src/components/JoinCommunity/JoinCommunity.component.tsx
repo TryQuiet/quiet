@@ -15,7 +15,7 @@ export const JoinCommunity: FC<JoinCommunityProps> = ({ joinCommunityAction, red
   const [inputError, setInputError] = useState<string | undefined>()
   const [loading, setLoading] = useState<boolean>(false)
 
-  const inputRef = useRef<TextInput>()
+  const inputRef = useRef<TextInput>(null)
 
   const onChangeText = (value: string) => {
     setInputError(undefined)
@@ -26,7 +26,7 @@ export const JoinCommunity: FC<JoinCommunityProps> = ({ joinCommunityAction, red
     Keyboard.dismiss()
     setLoading(true)
 
-    let submitValue: string = joinCommunityInput
+    let submitValue: string | undefined = joinCommunityInput
 
     if (submitValue === undefined || submitValue?.length === 0) {
       setLoading(false)

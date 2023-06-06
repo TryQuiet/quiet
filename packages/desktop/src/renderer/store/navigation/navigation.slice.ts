@@ -3,7 +3,7 @@ import { StoreKeys } from '../store.keys'
 import { MenuName } from '../../../const/MenuNames.enum'
 
 export class NavigationState {
-  public [MenuName.Channel] = { open: false, args: undefined }
+  public [MenuName.Channel] = { open: false, args: {} }
 }
 
 export interface OpenMenuPayload {
@@ -34,14 +34,14 @@ export const navigationSlice = createSlice({
       const menu = action.payload
       state[menu] = {
         open: false,
-        args: undefined
+        args: {}
       }
     },
     closeAllMenus: state => {
       Object.values(MenuName).forEach(menu => {
         state[menu] = {
           open: false,
-          args: undefined
+          args: {}
         }
       })
     }

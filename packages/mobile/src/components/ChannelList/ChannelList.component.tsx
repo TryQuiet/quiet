@@ -7,11 +7,7 @@ import { ChannelTile } from '../ChannelTile/ChannelTile.component'
 import { Spinner } from '../Spinner/Spinner.component'
 import { capitalizeFirstLetter } from '@quiet/common'
 
-export const ChannelList: FC<ChannelListProps> = ({
-  community,
-  tiles,
-  communityContextMenu
-}) => {
+export const ChannelList: FC<ChannelListProps> = ({ community, tiles, communityContextMenu }) => {
   let communityName = ''
   if (community?.name) {
     communityName = capitalizeFirstLetter(community.name)
@@ -19,16 +15,16 @@ export const ChannelList: FC<ChannelListProps> = ({
   return (
     <View style={{ flex: 1 }} testID={'channel-list-component'}>
       <Appbar
-        title={capitalizeFirstLetter(community?.name)}
+        title={capitalizeFirstLetter(communityName)}
         position={'flex-start'}
         contextMenu={communityContextMenu}
       />
-      {tiles.length === 0 ? (
+      {tiles.length === 0 || !community ? (
         <Spinner description='Connecting to peers' />
       ) : (
         <FlatList
           data={tiles}
-          keyExtractor={item => item.name}
+          keyExtractor={item => item.id}
           renderItem={({ item }) => <ChannelTile {...item} />}
           ItemSeparatorComponent={() => {
             return (

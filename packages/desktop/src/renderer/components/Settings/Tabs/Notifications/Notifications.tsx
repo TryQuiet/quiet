@@ -21,11 +21,11 @@ export const useNotificationsData = (): useNotificationsDataReturnType => {
 export const useNotificationsActions = (notificationsOption: NotificationsOptions, notificationsSound: NotificationsSounds) => {
   const dispatch = useDispatch()
 
-  const setNotificationsOption = useCallback((option) => {
+  const setNotificationsOption = useCallback((option: NotificationsOptions) => {
     dispatch(settings.actions.setNotificationsOption(option))
   }, [dispatch, notificationsOption])
 
-  const setNotificationsSound = useCallback((sound) => {
+  const setNotificationsSound = useCallback((sound: NotificationsSounds) => {
     dispatch(settings.actions.setNotificationsSound(sound))
   }, [dispatch, notificationsSound])
 

@@ -14,7 +14,7 @@ export const ChannelTile: FC<ChannelTileProps> = ({
   unread,
   redirect
 }) => {
-  const _leftSwipe = (_progress, dragX) => {
+  const _leftSwipe = (_progress: any, dragX: any) => {
     const scale = dragX.interpolate({
       inputRange: [0, 100],
       outputRange: [0, 1.4],

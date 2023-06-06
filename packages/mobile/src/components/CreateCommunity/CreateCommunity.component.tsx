@@ -17,7 +17,7 @@ export const CreateCommunity: FC<CreateCommunityProps> = ({
   const [inputError, setInputError] = useState<string | undefined>()
   const [loading, setLoading] = useState<boolean>(false)
 
-  const inputRef = useRef<TextInput>()
+  const inputRef = useRef<TextInput>(null)
 
   const onChangeText = (value: string) => {
     setInputError(undefined)

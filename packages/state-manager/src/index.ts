@@ -86,8 +86,6 @@ export { ConnectionTransform } from './sagas/appConnection/connection.transform'
 export { resetStateAndSaveTorConnectionData } from './sagas/appConnection/connection.helpers'
 export * from './constants'
 
-export { parseName } from './utils/functions/naming/naming'
-
 export { formatBytes } from './utils/functions/formatBytes/formatBytes'
 
 export { sortPeers } from './utils/functions/sortPeers/sortPeers'

@@ -28,9 +28,10 @@ import remote from '@electron/remote'
 import handlers from './app'
 import selectors from '../selectors/app'
 import create from '../create'
+import { Store } from '../../sagas/store.types'
 
 describe('criticalError reducer', () => {
-  let store = null
+  let store: Store | null = null
   beforeEach(() => {
     store = create({
       initialState: {
@@ -42,8 +43,11 @@ describe('criticalError reducer', () => {
 
   describe('handles actions -', () => {
     it('loadVersion', () => {
-      store.dispatch(handlers.actions.loadVersion())
-      expect(selectors.version(store.getState())).toMatchSnapshot()
+      store?.dispatch(handlers.actions.loadVersion())
+      const state = store?.getState()
+      expect(state).not.toBeUndefined()
+      if (!state) return
+      expect(selectors.version(state)).toMatchSnapshot()
     })
   })
 })

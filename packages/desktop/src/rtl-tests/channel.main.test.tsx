@@ -11,15 +11,22 @@ import { renderComponent } from '../renderer/testUtils/renderComponent'
 import { prepareStore } from '../renderer/testUtils/prepareStore'
 import Channel from '../renderer/components/Channel/Channel'
 import ChannelInputComponent from '../renderer/components/widgets/channels/ChannelInput/ChannelInput'
-
+import { AnyAction } from 'redux'
 import {
   identity,
   communities,
   publicChannels,
   getFactory,
+  messages,
+  files,
+  AUTODOWNLOAD_SIZE_LIMIT,
+  network,
+  connection,
+  generateMessageFactoryContentWithId
+} from '@quiet/state-manager'
+import {
   SocketActionTypes,
   ChannelMessage,
-  messages,
   SendingStatus,
   MessageType,
   FileMetadata,
@@ -27,21 +34,18 @@ import {
   InitCommunityPayload,
   UploadFilePayload,
   FileContent,
-  files,
   DownloadState,
-  AUTODOWNLOAD_SIZE_LIMIT,
   SendMessagePayload,
   MessageVerificationStatus,
-  network,
-  connection,
-  generateMessageFactoryContentWithId
-} from '@quiet/state-manager'
-
+  DownloadStatus,
+  IncomingMessages,
+  ResponseLaunchCommunityPayload
+, Community
+} from '@quiet/types'
 import { keyFromCertificate, parseCertificate } from '@quiet/identity'
 
 import { fetchingChannelMessagesText } from '../renderer/components/widgets/channels/ChannelMessages'
 import { DateTime } from 'luxon'
-import { Community } from '@quiet/types'
 
 jest.setTimeout(20_000)
 
@@ -70,7 +74,6 @@ jest.mock('electron', () => {
 })
 
 jest.mock('../shared/sounds', () => ({
-  // @ts-expect-error
   ...jest.requireActual('../shared/sounds'),
   soundTypeToAudio: {
     pow: {
@@ -154,10 +157,14 @@ describe('Channel', () => {
 
     const entities = store.getState().PublicChannels.channels.entities
 
-    const generalId = Object.keys(entities).find(key => entities[key].name === 'general')
+    const generalId = Object.keys(entities).find(key => entities[key]?.name === 'general')
+    expect(generalId).not.toBeUndefined()
 
     await act(async () => {
-      store.dispatch(publicChannels.actions.setCurrentChannel({ channelId: generalId }))
+      store.dispatch(publicChannels.actions.setCurrentChannel({
+        // @ts-expect-error
+        channelId: generalId
+      }))
     })
 
     const alice = await factory.create<
@@ -167,7 +174,8 @@ describe('Channel', () => {
     const john = await factory.create<
       ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'john' })
-
+    expect(john.userCertificate).not.toBeNull()
+    // @ts-expect-error
     const johnPublicKey = keyFromCertificate(parseCertificate(john.userCertificate))
 
     const authenticMessage: ChannelMessage = {
@@ -258,7 +266,7 @@ describe('Channel', () => {
 
     const entities = store.getState().PublicChannels.channels.entities
 
-    const generalId = Object.keys(entities).find(key => entities[key].name === 'general')
+    const generalId = Object.keys(entities).find(key => entities[key]?.name === 'general')
 
     const alice = await factory.create<
       ReturnType<typeof identity.actions.addNewIdentity>['payload']
@@ -316,8 +324,11 @@ describe('Channel', () => {
 
     const factory = await getFactory(store)
 
-    await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>(
+    const community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>(
       'Community'
+    )
+    await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>(
+      'Identity', { id: community.id, nickname: 'john' }
     )
 
     renderComponent(
@@ -350,7 +361,8 @@ describe('Channel', () => {
 
     const entities = store.getState().PublicChannels.channels.entities
 
-    const generalId = Object.keys(entities).find(key => entities[key].name === 'general')
+    const generalId = Object.keys(entities).find(key => entities[key]?.name === 'general')
+    expect(generalId).not.toBeUndefined()
 
     const alice = await factory.create<
       ReturnType<typeof identity.actions.addNewIdentity>['payload']
@@ -360,6 +372,7 @@ describe('Channel', () => {
       'Message',
       {
         identity: alice,
+        // @ts-expect-error
         message: generateMessageFactoryContentWithId(generalId),
         verifyAutomatically: true
       }
@@ -428,7 +441,7 @@ describe('Channel', () => {
     expect(Object.values(displayableMessages).length).toBe(1)
 
     // Verify message status is 'pending'
-    expect(messages.selectors.messagesSendingStatus(store.getState())[sentMessage.id].status).toBe(
+    expect(messages.selectors.messagesSendingStatus(store.getState())[sentMessage.id]?.status).toBe(
       SendingStatus.Pending
     )
 
@@ -480,7 +493,7 @@ describe('Channel', () => {
 
     const entities = store.getState().PublicChannels.channels.entities
 
-    const generalId = Object.keys(entities).find(key => entities[key].name === 'general')
+    const generalId = Object.keys(entities).find(key => entities[key]?.name === 'general')
 
     const alice = await factory.create<
       ReturnType<typeof identity.actions.addNewIdentity>['payload']
@@ -585,7 +598,7 @@ describe('Channel', () => {
     })
 
     // Log all the dispatched actions in order
-    const actions = []
+    const actions: AnyAction[] = []
     runSaga(function* (): Generator {
       while (true) {
         const action = yield* take()
@@ -624,6 +637,7 @@ describe('Channel', () => {
         setInfoClass={jest.fn()}
         openFilesDialog={jest.fn()}
         handleOpenFiles={jest.fn()}
+        handleClipboardFiles={jest.fn()}
       />
     )
 
@@ -651,6 +665,7 @@ describe('Channel', () => {
         setInfoClass={jest.fn()}
         openFilesDialog={jest.fn()}
         handleOpenFiles={jest.fn()}
+        handleClipboardFiles={jest.fn()}
       />
     )
 
@@ -662,34 +677,34 @@ describe('Channel', () => {
       messageInput,
       'mmulti-line{Shift>}{Enter}{/Shift}message{Shift>}{Enter}{/Shift}hello'
     )
-    expect(window.getSelection().anchorNode.nodeValue).toBe('hello')
-    expect(window.getSelection().anchorOffset).toBe(5)
+    expect(window?.getSelection()?.anchorNode?.nodeValue).toBe('hello')
+    expect(window?.getSelection()?.anchorOffset).toBe(5)
 
     // Test where the caret is after an Arrow Up
     await userEvent.keyboard('{ArrowLeft>3/}')
-    expect(window.getSelection().anchorOffset).toBe(2)
+    expect(window?.getSelection()?.anchorOffset).toBe(2)
     await userEvent.keyboard('{ArrowUp}')
-    expect(window.getSelection().anchorNode.nodeValue).toBe('message')
-    expect(window.getSelection().anchorOffset).toBe(2)
+    expect(window?.getSelection()?.anchorNode?.nodeValue).toBe('message')
+    expect(window?.getSelection()?.anchorOffset).toBe(2)
     await userEvent.keyboard('{ArrowUp}')
-    expect(window.getSelection().anchorNode.nodeValue).toBe('multi-line')
-    expect(window.getSelection().anchorOffset).toBe(2)
+    expect(window?.getSelection()?.anchorNode?.nodeValue).toBe('multi-line')
+    expect(window?.getSelection()?.anchorOffset).toBe(2)
     await userEvent.keyboard('{ArrowUp}')
-    expect(window.getSelection().anchorNode.nodeValue).toBe('multi-line')
-    expect(window.getSelection().anchorOffset).toBe(0)
+    expect(window?.getSelection()?.anchorNode?.nodeValue).toBe('multi-line')
+    expect(window?.getSelection()?.anchorOffset).toBe(0)
 
     // Test where the caret is after an Arrow Down
     await userEvent.keyboard('{ArrowRight>3/}')
-    expect(window.getSelection().anchorOffset).toBe(3)
+    expect(window?.getSelection()?.anchorOffset).toBe(3)
     await userEvent.keyboard('{ArrowDown}')
-    expect(window.getSelection().anchorNode.nodeValue).toBe('message')
-    expect(window.getSelection().anchorOffset).toBe(3)
+    expect(window?.getSelection()?.anchorNode?.nodeValue).toBe('message')
+    expect(window?.getSelection()?.anchorOffset).toBe(3)
     await userEvent.keyboard('{ArrowDown}')
-    expect(window.getSelection().anchorNode.nodeValue).toBe('hello')
-    expect(window.getSelection().anchorOffset).toBe(3)
+    expect(window?.getSelection()?.anchorNode?.nodeValue).toBe('hello')
+    expect(window?.getSelection()?.anchorOffset).toBe(3)
     await userEvent.keyboard('{ArrowDown}')
-    expect(window.getSelection().anchorNode.nodeValue).toBe('hello')
-    expect(window.getSelection().anchorOffset).toBe(5)
+    expect(window?.getSelection()?.anchorNode?.nodeValue).toBe('hello')
+    expect(window.getSelection()?.anchorOffset).toBe(5)
   })
 
   it("doesn't allow to type and send message if community is not initialized", async () => {
@@ -718,7 +733,7 @@ describe('Channel', () => {
     )
 
     // Log all the dispatched actions in order
-    const actions = []
+    const actions: AnyAction[] = []
     runSaga(function* (): Generator {
       while (true) {
         const action = yield* take()
@@ -751,31 +766,28 @@ describe('Channel', () => {
       ReturnType<typeof communities.actions.addNewCommunity>['payload']
     >('Community')
 
-    const entities = initialState.getState().PublicChannels.channels.entities
-
-    const generalId = Object.keys(entities).find(key => entities[key].name === 'general')
-
-    const alice = await factory.create<
+    await factory.create<
       ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'alice' })
 
-    let cid: string
+    let cid: string = ''
 
     const uploadingDelay = 100
 
     jest
       .spyOn(socket, 'emit')
-      .mockImplementation(async (action: SocketActionTypes, ...input: any[]) => {
+      .mockImplementation(async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
+        const action = input[0]
         if (action === SocketActionTypes.LAUNCH_COMMUNITY) {
-          const data = input as socketEventData<[InitCommunityPayload]>
-          const payload = data[0]
-          return socket.socketClient.emit(SocketActionTypes.COMMUNITY, {
+          const data = input[1] as InitCommunityPayload
+          const payload = data
+          return socket.socketClient.emit<ResponseLaunchCommunityPayload>(SocketActionTypes.COMMUNITY, {
             id: payload.id
           })
         }
         if (action === SocketActionTypes.UPLOAD_FILE) {
-          const data = input as socketEventData<[UploadFilePayload]>
-          const payload = data[0]
+          const data = input[1] as UploadFilePayload
+          const payload = data
 
           cid = `uploading_${payload.file.message.id}`
 
@@ -783,22 +795,24 @@ describe('Channel', () => {
             setTimeout(resolve, uploadingDelay)
           })
 
-          socket.socketClient.emit(SocketActionTypes.UPLOADED_FILE, {
+          socket.socketClient.emit<FileMetadata>(SocketActionTypes.UPLOADED_FILE, {
             ...payload.file,
             cid: cid,
             path: null,
+            width: 100,
+            height: 100,
             size: AUTODOWNLOAD_SIZE_LIMIT - 2048
           })
-          return socket.socketClient.emit(SocketActionTypes.DOWNLOAD_PROGRESS, {
+          return socket.socketClient.emit<DownloadStatus>(SocketActionTypes.DOWNLOAD_PROGRESS, {
+            mid: payload.file.message.id,
             cid: cid,
             downloadState: DownloadState.Hosted
           })
         }
         if (action === SocketActionTypes.SEND_MESSAGE) {
-          const data = input as socketEventData<[SendMessagePayload]>
-          const payload = data[0]
-          console.log({ payload })
-          return socket.socketClient.emit(SocketActionTypes.INCOMING_MESSAGES, {
+          const data = input[1] as SendMessagePayload
+          const payload = data
+          return socket.socketClient.emit<IncomingMessages>(SocketActionTypes.INCOMING_MESSAGES, {
             messages: [payload.message]
           })
         }
@@ -816,7 +830,7 @@ describe('Channel', () => {
     }
 
     // Log all the dispatched actions in order
-    const actions = []
+    const actions: AnyAction[] = []
     runSaga(function* (): Generator {
       while (true) {
         const action = yield* take()
@@ -835,6 +849,7 @@ describe('Channel', () => {
 
     store.dispatch(files.actions.uploadFile(fileContent))
 
+    expect(cid).not.toEqual('')
     // Confirm image's placeholder never displays
     expect(screen.queryByTestId(`${cid}-imagePlaceholder`)).toBeNull()
 
@@ -892,15 +907,18 @@ describe('Channel', () => {
 
     const entities = initialState.getState().PublicChannels.channels.entities
 
-    const generalId = Object.keys(entities).find(key => entities[key].name === 'general')
-
+    const generalId = Object.keys(entities).find(key => entities[key]?.name === 'general')
+    expect(generalId).not.toBeUndefined()
     const missingFile: FileMetadata = {
       cid: Math.random().toString(36).substr(2.9),
       path: null,
       name: 'test-image',
       ext: '.jpeg',
+      width: 100,
+      height: 200,
       message: {
         id: message,
+        // @ts-expect-error
         channelId: generalId
       },
       size: AUTODOWNLOAD_SIZE_LIMIT - 2048
@@ -915,6 +933,7 @@ describe('Channel', () => {
           type: MessageType.Image,
           message: '',
           createdAt: DateTime.utc().valueOf(),
+          // @ts-expect-error
           channelId: generalId,
           signature: '',
           pubKey: '',
@@ -938,20 +957,21 @@ describe('Channel', () => {
 
     jest
       .spyOn(socket, 'emit')
-      .mockImplementation(async (action: SocketActionTypes, ...input: any[]) => {
+      .mockImplementation(async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
+        const action = input[0]
         if (action === SocketActionTypes.LAUNCH_COMMUNITY) {
-          const data = input as socketEventData<[InitCommunityPayload]>
-          const payload = data[0]
-          return socket.socketClient.emit(SocketActionTypes.COMMUNITY, {
+          const data = input[1] as InitCommunityPayload
+          const payload = data
+          return socket.socketClient.emit<ResponseLaunchCommunityPayload>(SocketActionTypes.COMMUNITY, {
             id: payload.id
           })
         }
         if (action === SocketActionTypes.DOWNLOAD_FILE) {
-          const data = input as socketEventData<[DownloadFilePayload]>
-          const payload = data[0]
+          const data = input[1] as DownloadFilePayload
+          const payload = data
           expect(payload.metadata.cid).toEqual(missingFile.cid)
           await new Promise(resolve => setTimeout(resolve, 1000))
-          return socket.socketClient.emit(SocketActionTypes.UPDATE_MESSAGE_MEDIA, {
+          return socket.socketClient.emit<FileMetadata>(SocketActionTypes.UPDATE_MESSAGE_MEDIA, {
             ...missingFile,
             path: `${__dirname}/test-image.jpeg`
           })
@@ -965,7 +985,7 @@ describe('Channel', () => {
 
     store.dispatch(connection.actions.torBootstrapped('100%'))
     // Log all the dispatched actions in order
-    const actions = []
+    const actions: AnyAction[] = []
     runSaga(function* (): Generator {
       while (true) {
         const action = yield* take()
@@ -1019,22 +1039,23 @@ describe('Channel', () => {
 
     jest
       .spyOn(socket, 'emit')
-      .mockImplementation(async (action: SocketActionTypes, ...input: any[]) => {
+      .mockImplementation(async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
+        const action = input[0]
         if (action === SocketActionTypes.LAUNCH_COMMUNITY) {
-          const data = input as socketEventData<[InitCommunityPayload]>
-          const payload = data[0]
-          return socket.socketClient.emit(SocketActionTypes.COMMUNITY, {
+          const data = input[1] as InitCommunityPayload
+          const payload = data
+          return socket.socketClient.emit<ResponseLaunchCommunityPayload>(SocketActionTypes.COMMUNITY, {
             id: payload.id
           })
         }
         if (action === SocketActionTypes.UPLOAD_FILE) {
-          const data = input as socketEventData<[UploadFilePayload]>
-          const payload = data[0]
-          socket.socketClient.emit(SocketActionTypes.UPLOADED_FILE, {
+          const data = input[1] as UploadFilePayload
+          const payload = data
+          socket.socketClient.emit<FileMetadata>(SocketActionTypes.UPLOADED_FILE, {
             ...payload.file,
             size: 1024
           })
-          return socket.socketClient.emit(SocketActionTypes.DOWNLOAD_PROGRESS, {
+          return socket.socketClient.emit<DownloadStatus>(SocketActionTypes.DOWNLOAD_PROGRESS, {
             mid: payload.file.message.id,
             cid: `uploading_${payload.file.message.id}`,
             downloadState: DownloadState.Hosted
@@ -1054,7 +1075,7 @@ describe('Channel', () => {
     }
 
     // Log all the dispatched actions in order
-    const actions = []
+    const actions: AnyAction[] = []
     runSaga(function* (): Generator {
       while (true) {
         const action = yield* take()
@@ -1115,8 +1136,8 @@ describe('Channel', () => {
 
     const messageId = Math.random().toString(36).substr(2.9)
     const entities = initialState.getState().PublicChannels.channels.entities
-    const generalId = Object.keys(entities).find(key => entities[key].name === 'general')
-
+    const generalId = Object.keys(entities).find(key => entities[key]?.name === 'general')
+    expect(generalId).not.toBeUndefined()
     const media: FileMetadata = {
       cid: Math.random().toString(36).substr(2.9),
       path: null,
@@ -1125,6 +1146,7 @@ describe('Channel', () => {
       size: AUTODOWNLOAD_SIZE_LIMIT - 1024,
       message: {
         id: messageId,
+        // @ts-expect-error
         channelId: generalId
       }
     }
@@ -1147,11 +1169,12 @@ describe('Channel', () => {
 
     jest
       .spyOn(socket, 'emit')
-      .mockImplementation(async (action: SocketActionTypes, ...input: any[]) => {
+      .mockImplementation(async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
+        const action = input[0]
         if (action === SocketActionTypes.LAUNCH_COMMUNITY) {
-          const data = input as socketEventData<[InitCommunityPayload]>
-          const payload = data[0]
-          return socket.socketClient.emit(SocketActionTypes.COMMUNITY, {
+          const data = input[1] as InitCommunityPayload
+          const payload = data
+          return socket.socketClient.emit<ResponseLaunchCommunityPayload>(SocketActionTypes.COMMUNITY, {
             id: payload.id
           })
         }
@@ -1163,7 +1186,7 @@ describe('Channel', () => {
     )
 
     // Log all the dispatched actions in order
-    const actions = []
+    const actions: AnyAction[] = []
     runSaga(function* (): Generator {
       while (true) {
         const action = yield* take()
@@ -1230,8 +1253,8 @@ describe('Channel', () => {
 
     const messageId = Math.random().toString(36).substr(2.9)
     const entities = initialState.getState().PublicChannels.channels.entities
-    const generalId = Object.keys(entities).find(key => entities[key].name === 'general')
-
+    const generalId = Object.keys(entities).find(key => entities[key]?.name === 'general')
+    expect(generalId).not.toBeUndefined()
     const media: FileMetadata = {
       cid: Math.random().toString(36).substr(2.9),
       path: null,
@@ -1240,6 +1263,7 @@ describe('Channel', () => {
       size: AUTODOWNLOAD_SIZE_LIMIT + 1024,
       message: {
         id: messageId,
+        // @ts-expect-error
         channelId: generalId
       }
     }
@@ -1262,11 +1286,12 @@ describe('Channel', () => {
 
     jest
       .spyOn(socket, 'emit')
-      .mockImplementation(async (action: SocketActionTypes, ...input: any[]) => {
+      .mockImplementation(async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
+        const action = input[0]
         if (action === SocketActionTypes.LAUNCH_COMMUNITY) {
-          const data = input as socketEventData<[InitCommunityPayload]>
-          const payload = data[0]
-          return socket.socketClient.emit(SocketActionTypes.COMMUNITY, {
+          const data = input[1] as InitCommunityPayload
+          const payload = data
+          return socket.socketClient.emit<ResponseLaunchCommunityPayload>(SocketActionTypes.COMMUNITY, {
             id: payload.id
           })
         }
@@ -1278,7 +1303,7 @@ describe('Channel', () => {
     )
 
     // Log all the dispatched actions in order
-    const actions = []
+    const actions: AnyAction[] = []
     runSaga(function* (): Generator {
       while (true) {
         const action = yield* take()
@@ -1347,8 +1372,8 @@ describe('Channel', () => {
 
     const messageId = Math.random().toString(36).substr(2.9)
     const entities = initialState.getState().PublicChannels.channels.entities
-    const generalId = Object.keys(entities).find(key => entities[key].name === 'general')
-
+    const generalId = Object.keys(entities).find(key => entities[key]?.name === 'general')
+    expect(generalId).not.toBeUndefined()
     const media: FileMetadata = {
       cid: Math.random().toString(36).substr(2.9),
       path: null,
@@ -1357,6 +1382,7 @@ describe('Channel', () => {
       size: AUTODOWNLOAD_SIZE_LIMIT + 1024,
       message: {
         id: messageId,
+        // @ts-expect-error
         channelId: generalId
       }
     }
@@ -1379,11 +1405,12 @@ describe('Channel', () => {
 
     jest
       .spyOn(socket, 'emit')
-      .mockImplementation(async (action: SocketActionTypes, ...input: any[]) => {
+      .mockImplementation(async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
+        const action = input[0]
         if (action === SocketActionTypes.LAUNCH_COMMUNITY) {
-          const data = input as socketEventData<[InitCommunityPayload]>
-          const payload = data[0]
-          return socket.socketClient.emit(SocketActionTypes.COMMUNITY, {
+          const data = input[1] as InitCommunityPayload
+          const payload = data
+          return socket.socketClient.emit<ResponseLaunchCommunityPayload>(SocketActionTypes.COMMUNITY, {
             id: payload.id
           })
         }
@@ -1395,7 +1422,7 @@ describe('Channel', () => {
     )
 
     // Log all the dispatched actions in order
-    const actions = []
+    const actions: AnyAction[] = []
     runSaga(function* (): Generator {
       while (true) {
         const action = yield* take()

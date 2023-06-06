@@ -37,7 +37,7 @@ describe('deleteChannelSaga', () => {
 
   const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
 
-  beforeAll(async () => {
+  beforeEach(async () => {
     setupCrypto()
 
     store = prepareStore().store
@@ -127,6 +127,24 @@ describe('deleteChannelSaga', () => {
       ])
       .not.put(publicChannelsActions.setCurrentChannel({ channelId: generalChannel.id }))
       .not.put(publicChannelsActions.disableChannel({ channelId }))
+      .run()
+  })
+
+  test('delete standard channel when currentChannel is not specified - mobile channel list case', async () => {
+    const channelId = photoChannel.id
+    store.dispatch(publicChannelsActions.setCurrentChannel({ channelId: '' }))
+    const reducer = combineReducers(reducers)
+    await expectSaga(deleteChannelSaga, socket, publicChannelsActions.deleteChannel({ channelId }))
+      .withReducer(reducer)
+      .withState(store.getState())
+      .apply(socket, socket.emit, [
+        SocketActionTypes.DELETE_CHANNEL,
+        {
+          channelId,
+          ownerPeerId: ownerData.peerId
+        }
+      ])
+      .put(publicChannelsActions.disableChannel({ channelId }))
       .run()
   })
 })

@@ -16,7 +16,7 @@ import { ModalName } from '../../../sagas/modals/modals.types'
 import { modalsActions } from '../../../sagas/modals/modals.slice'
 
 import { getFactory, identity, publicChannels } from '@quiet/state-manager'
-import { ChannelNameErrors, FieldErrors } from '../../../forms/fieldsErrors'
+import { FieldErrors } from '../../../forms/fieldsErrors'
 
 describe('Add new channel', () => {
   let socket: MockedSocket
