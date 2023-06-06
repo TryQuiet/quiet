@@ -82,7 +82,8 @@ describe('channelsReplicatedSaga', () => {
       channelsReplicatedSaga,
       publicChannelsActions.channelsReplicated({
         channels: {
-          [sailingChannel.id]: sailingChannel
+          [sailingChannel.id]: sailingChannel,
+          [generalChannel.id]: generalChannel
         }
       })
     )
@@ -128,7 +129,8 @@ describe('channelsReplicatedSaga', () => {
       channelsReplicatedSaga,
       publicChannelsActions.channelsReplicated({
         channels: {
-          [sailingChannel.id]: sailingChannel
+          [sailingChannel.id]: sailingChannel,
+          [generalChannel.id]: generalChannel
         }
       })
     )
@@ -253,12 +255,13 @@ describe('channelsReplicatedSaga', () => {
     )
       .withReducer(reducer)
       .withState(store.getState())
+      .put(publicChannelsActions.deleteChannel({ channelId: photoChannel.id }))
+      .dispatch(publicChannelsActions.completeChannelDeletion({}))
       .put(
         publicChannelsActions.addChannel({
           channel: sailingChannel
         })
       )
-      .put(publicChannelsActions.deleteChannel({ channelId: photoChannel.id }))
       .run()
   })
 
