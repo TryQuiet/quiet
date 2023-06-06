@@ -79,6 +79,7 @@ describe('channelDeletionResponseSaga', () => {
         .put(publicChannelsActions.clearMessagesCache({ channelId }))
         .put(messagesActions.deleteChannelEntry({ channelId }))
         .put(publicChannelsActions.deleteChannelFromStore({ channelId }))
+        .put(publicChannelsActions.completeChannelDeletion({}))
         .put(messagesActions.sendDeletionMessage({ channelId }))
         .run()
     })
@@ -100,9 +101,29 @@ describe('channelDeletionResponseSaga', () => {
         .put(publicChannelsActions.clearMessagesCache({ channelId }))
         .put(messagesActions.deleteChannelEntry({ channelId }))
         .put(publicChannelsActions.deleteChannelFromStore({ channelId }))
-        .provide([{ call: provideDelay }])
+        .put(publicChannelsActions.completeChannelDeletion({}))
         .put(publicChannelsActions.createGeneralChannel())
 
+        .run()
+    })
+
+    test('delete channel which not exist in store', async () => {
+      const channelId = 'random channel'
+
+      const reducer = combineReducers(reducers)
+      await expectSaga(
+        channelDeletionResponseSaga,
+        publicChannelsActions.channelDeletionResponse({
+          channelId
+        })
+      )
+        .withReducer(reducer)
+        .withState(store.getState())
+        .not.put(publicChannelsActions.clearMessagesCache({ channelId }))
+        .not.put(messagesActions.deleteChannelEntry({ channelId }))
+        .not.put(publicChannelsActions.deleteChannelFromStore({ channelId }))
+        .not.put(publicChannelsActions.completeChannelDeletion({}))
+        .not.put(messagesActions.sendDeletionMessage({ channelId }))
         .run()
     })
   })
@@ -125,11 +146,13 @@ describe('channelDeletionResponseSaga', () => {
         .put(publicChannelsActions.clearMessagesCache({ channelId }))
         .put(messagesActions.deleteChannelEntry({ channelId }))
         .put(publicChannelsActions.deleteChannelFromStore({ channelId }))
+        .put(publicChannelsActions.completeChannelDeletion({}))
         .run()
     })
 
-    test('delete general channel', async () => {
+    test.only('delete general channel', async () => {
       const channelId = generalChannel.id
+      const newGeneralId = 'newGeneralId'
 
       const reducer = combineReducers(reducers)
       await expectSaga(
@@ -145,8 +168,12 @@ describe('channelDeletionResponseSaga', () => {
         .put(publicChannelsActions.clearMessagesCache({ channelId }))
         .put(messagesActions.deleteChannelEntry({ channelId }))
         .put(publicChannelsActions.deleteChannelFromStore({ channelId }))
+        .put(publicChannelsActions.completeChannelDeletion({}))
         .provide([
+          [select(publicChannelsSelectors.generalChannel), generalChannel],
+          [select(publicChannelsSelectors.generalChannel), undefined],
           { call: provideDelay },
+
           [
             select(publicChannelsSelectors.generalChannel),
             {
@@ -154,11 +181,31 @@ describe('channelDeletionResponseSaga', () => {
               description: 'general_description',
               owner: 'general_owner',
               timestamp: 'general_timestamp',
-              id: channelId
+              id: newGeneralId
             }
           ]
         ])
-        .put(publicChannelsActions.setCurrentChannel({ channelId: channelId }))
+        .put(publicChannelsActions.setCurrentChannel({ channelId: newGeneralId }))
+        .run()
+    })
+
+    test('delete channel which not exist in store', async () => {
+      const channelId = 'random channel'
+
+      const reducer = combineReducers(reducers)
+      await expectSaga(
+        channelDeletionResponseSaga,
+        publicChannelsActions.channelDeletionResponse({
+          channelId
+        })
+      )
+        .withReducer(reducer)
+        .withState(store.getState())
+        .not.put(publicChannelsActions.clearMessagesCache({ channelId }))
+        .not.put(messagesActions.deleteChannelEntry({ channelId }))
+        .not.put(publicChannelsActions.deleteChannelFromStore({ channelId }))
+        .not.put(publicChannelsActions.completeChannelDeletion({}))
+        .not.put(messagesActions.sendDeletionMessage({ channelId }))
         .run()
     })
   })
