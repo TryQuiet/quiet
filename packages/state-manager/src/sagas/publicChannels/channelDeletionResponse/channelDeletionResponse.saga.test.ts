@@ -150,9 +150,22 @@ describe('channelDeletionResponseSaga', () => {
         .run()
     })
 
-    test.only('delete general channel', async () => {
+    test('delete general channel while user is on general channel', async () => {
+      store.dispatch(
+        publicChannelsActions.setCurrentChannel({
+          channelId: generalChannel.id
+        })
+      )
       const channelId = generalChannel.id
       const newGeneralId = 'newGeneralId'
+
+      const newGeneralChannel: PublicChannel = {
+        name: 'general',
+        description: 'general_description',
+        owner: 'general_owner',
+        timestamp: 0,
+        id: newGeneralId
+      }
 
       const reducer = combineReducers(reducers)
       await expectSaga(
@@ -169,23 +182,43 @@ describe('channelDeletionResponseSaga', () => {
         .put(messagesActions.deleteChannelEntry({ channelId }))
         .put(publicChannelsActions.deleteChannelFromStore({ channelId }))
         .put(publicChannelsActions.completeChannelDeletion({}))
+        // .dispatch(publicChannelsActions.createGeneralChannel())
+        // .dispatch(
+        //   publicChannelsActions.addChannel({
+        //     channel: newGeneralChannel
+        //   })
+        // )
         .provide([
-          [select(publicChannelsSelectors.generalChannel), generalChannel],
-          [select(publicChannelsSelectors.generalChannel), undefined],
           { call: provideDelay },
-
-          [
-            select(publicChannelsSelectors.generalChannel),
-            {
-              name: 'general',
-              description: 'general_description',
-              owner: 'general_owner',
-              timestamp: 'general_timestamp',
-              id: newGeneralId
-            }
-          ]
+          [select(publicChannelsSelectors.generalChannel), generalChannel]
         ])
-        .put(publicChannelsActions.setCurrentChannel({ channelId: newGeneralId }))
+        .put(publicChannelsActions.setCurrentChannel({ channelId }))
+        .run()
+    })
+
+    test('delete general channel while user in on other channel', async () => {
+      store.dispatch(
+        publicChannelsActions.setCurrentChannel({
+          channelId: photoChannel.id
+        })
+      )
+      const channelId = generalChannel.id
+
+      const reducer = combineReducers(reducers)
+      await expectSaga(
+        channelDeletionResponseSaga,
+        publicChannelsActions.channelDeletionResponse({
+          channelId
+        })
+      )
+        .withReducer(reducer)
+        .withState(store.getState())
+
+        .put(publicChannelsActions.startGeneralRecreation())
+        .put(publicChannelsActions.clearMessagesCache({ channelId }))
+        .put(messagesActions.deleteChannelEntry({ channelId }))
+        .put(publicChannelsActions.deleteChannelFromStore({ channelId }))
+        .put(publicChannelsActions.completeChannelDeletion({}))
         .run()
     })
 
