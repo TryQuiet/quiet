@@ -80,16 +80,17 @@ jobs:
         working-directory: ./packages/desktop/dist
         shell: powershell
 
-      - name: Kill exe
+      - name: Kill Quiet
         run: Stop-Process -Name "Quiet" -Force
-        working-directory: ./packages/desktop/dist
+        # working-directory: ./packages/desktop/dist
+        shell: powershell
+
+      - name: Kill tor
+        run: Stop-Process -Name "tor" -Force
+        # working-directory: ./packages/desktop/dist
         shell: powershell
 
         # Old prod version
-      - name: Kill all quiet process
-        run: kill -9 $(pgrep -f 'Quiet')
-        shell: bash
-
       - name: Rename latest quiet
         run: cd $env:LOCALAPPDATA/programs; rename-item quiet quiet2
         shell: powershell
@@ -106,8 +107,14 @@ jobs:
         run: Start-Process Quiet.Setup.1.2.0.exe -Wait
         shell: powershell
 
-      - name: Kill exe
+      - name: Kill Quiet
         run: Stop-Process -Name "Quiet" -Force
+        # working-directory: ./packages/desktop/dist
+        shell: powershell
+
+      - name: Kill tor
+        run: Stop-Process -Name "tor" -Force
+        # working-directory: ./packages/desktop/dist
         shell: powershell
         # Old prod version
 
