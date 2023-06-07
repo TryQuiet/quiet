@@ -36,7 +36,7 @@ describe('Backwards Compatibility', () => {
   const newChannelName = 'mid-night-club'
 
   beforeAll(async () => {
-    ownerAppOldVersion = new App({ dataDir, fileName: 'Quiet-1.2.0.AppImage' })
+    ownerAppOldVersion = new App({ dataDir, fileName: 'Quiet-1.3.0.AppImage' })
   })
 
   afterAll(async () => {
