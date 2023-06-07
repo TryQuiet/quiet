@@ -83,6 +83,7 @@ describe('Backwards Compatibility', () => {
       generalChannel = new Channel(ownerAppOldVersion.driver, 'general')
       const isGeneralChannel = await generalChannel.element.isDisplayed()
       const generalChannelText = await generalChannel.element.getText()
+      console.log({ generalChannelText })
       expect(isGeneralChannel).toBeTruthy()
       expect(generalChannelText).toEqual('# general')
     })

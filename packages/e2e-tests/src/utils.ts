@@ -40,6 +40,7 @@ export class BuildSetup {
   }
 
   private getBinaryLocation() {
+    console.log('filename', this.fileName)
     switch (process.platform) {
       case 'linux':
         return `${__dirname}/../Quiet/${this.fileName ? this.fileName : process.env.FILE_NAME}`
