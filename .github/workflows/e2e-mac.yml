@@ -47,6 +47,8 @@ jobs:
       - name: Add App file to applications
         run: cd ~ && cp -R "/Volumes/Quiet $VERSION/Quiet.app" /Applications
 
+      - name: Change name dir 
+        run: cd ~ && mv /Applications/Quiet.app /Applications/Quiet2.app 
 
         # OLD ver
       - name: Download DMG 1.2.0
@@ -62,7 +64,9 @@ jobs:
         run: hdiutil mount Quiet-1.2.0.dmg 
 
       - name: Add App file to applications 1.2.0
-        run: cd ~ && cp -R "/Volumes/Quiet 1.2.0/Quiet2.app" /Applications
+        run: cd ~ && cp -R "/Volumes/Quiet 1.2.0/Quiet.app" /Applications
+
+
       # OLD ver
       - name: Run Backwards Compatibility test
         uses: nick-fields/retry@v2
