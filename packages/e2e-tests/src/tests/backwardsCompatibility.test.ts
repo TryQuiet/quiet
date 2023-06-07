@@ -8,7 +8,8 @@ import {
   JoiningLoadingPanel,
   RegisterUsernameModal,
   Sidebar,
-  StartingLoadingPanel
+  StartingLoadingPanel,
+  UpdateModal
 } from '../selectors'
 
 jest.setTimeout(450000)
@@ -36,7 +37,7 @@ describe('Backwards Compatibility', () => {
   const newChannelName = 'mid-night-club'
 
   beforeAll(async () => {
-    ownerAppOldVersion = new App({ dataDir, fileName: 'Quiet-1.3.0.AppImage' })
+    ownerAppOldVersion = new App({ dataDir, fileName: 'Quiet-1.2.0.AppImage' })
   })
 
   afterAll(async () => {
@@ -53,7 +54,6 @@ describe('Backwards Compatibility', () => {
       const isLoadingPanel = await loadingPanel.element.isDisplayed()
       expect(isLoadingPanel).toBeTruthy()
     })
-
     it('JoinCommunityModal - owner switch to create community', async () => {
       const joinModal = new JoinCommunityModal(ownerAppOldVersion.driver)
       const isJoinModal = await joinModal.element.isDisplayed()
@@ -79,55 +79,48 @@ describe('Backwards Compatibility', () => {
       const isLoadingPanelCommunity = await loadingPanelCommunity.element.isDisplayed()
       expect(isLoadingPanelCommunity).toBeTruthy()
     })
+
+    it('Close update modal', async () => {
+      console.log('waiting for update modal')
+      await new Promise<void>(resolve => setTimeout(() => resolve(), 100000))
+      const updateModal = new UpdateModal(ownerAppOldVersion.driver)
+      console.log('Update Modal - before check with display')
+      const isUpdateModal = await updateModal.element.isDisplayed()
+      console.log('Update Modal - after check with display', isUpdateModal)
+      expect(isUpdateModal).toBeTruthy()
+      console.log('Update Modal - before close')
+      await updateModal.close()
+      console.log('Update Modal - after close')
+    })
     it('General channel check', async () => {
       generalChannel = new Channel(ownerAppOldVersion.driver, 'general')
       const isGeneralChannel = await generalChannel.element.isDisplayed()
       const generalChannelText = await generalChannel.element.getText()
-      console.log({ generalChannelText })
       expect(isGeneralChannel).toBeTruthy()
       expect(generalChannelText).toEqual('# general')
     })
     it('Send message', async () => {
-      console.log('Send message', 1)
       const isMessageInput = await generalChannel.messageInput.isDisplayed()
-      console.log('Send message', 2)
       expect(isMessageInput).toBeTruthy()
-      console.log('Send message', 3)
       await generalChannel.sendMessage(ownerMessages[0])
-      console.log('Send message', 4)
     })
     it('Visible message', async () => {
-      console.log('Visible message', 1)
       const messages = await generalChannel.getUserMessages(ownerUsername)
-      console.log('Visible message', 2)
       const text = await messages[1].getText()
-      console.log('Visible message', 3)
       expect(text).toEqual(ownerMessages[0])
-      console.log('Visible message', 4)
     })
     it('Channel creation - Owner create second channel', async () => {
       sidebar = new Sidebar(ownerAppOldVersion.driver)
-      console.log('Channel creation - Owner create second channel', 1)
       await sidebar.addNewChannel(newChannelName)
-      console.log('Channel creation - Owner create second channel', 2)
       await sidebar.switchChannel(newChannelName)
-      console.log('Channel creation - Owner create second channel', 4)
       const channels = await sidebar.getChannelList()
-      console.log('Channel creation - Owner create second channel', 5)
       expect(channels.length).toEqual(2)
-      console.log('Channel creation - Owner create second channel', 6)
     })
     it('Channel creation - Owner send message in second channel', async () => {
-      console.log('Channel creation - Owner send message in second channel', 1)
       secondChannel = new Channel(ownerAppOldVersion.driver, newChannelName)
-      console.log('Channel creation - Owner send message in second channel', 2)
       const isMessageInput = await secondChannel.messageInput.isDisplayed()
-      console.log('Channel creation - Owner send message in second channel', 3)
       expect(isMessageInput).toBeTruthy()
-      console.log('Channel creation - Owner send message in second channel', 4)
-
       await secondChannel.sendMessage(ownerMessages[1])
-      console.log('Channel creation - Owner send message in second channel', 5)
     })
     it('Visible message in second channel', async () => {
       const messages = await secondChannel.getUserMessages(ownerUsername)

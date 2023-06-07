@@ -305,6 +305,23 @@ export class Sidebar {
     return new Channel(this.driver, name)
   }
 }
+export class UpdateModal {
+  private readonly driver: ThenableWebDriver
+  constructor(driver: ThenableWebDriver) {
+    this.driver = driver
+  }
+
+  get element() {
+    return this.driver.wait(until.elementLocated(By.xpath("//h3[text()='Software update']")))
+  }
+
+  async close() {
+    const closeButton = await this.driver
+      .findElement(By.xpath('//div[@data-testid="ModalActions"]'))
+      .findElement(By.css('button'))
+    await closeButton.click()
+  }
+}
 export class Settings {
   private readonly driver: ThenableWebDriver
   constructor(driver: ThenableWebDriver) {
