@@ -16,12 +16,10 @@ jest.setTimeout(450000)
 describe('Backwards Compatibility', () => {
   let ownerAppOldVersion: App
   let ownerAppNewVersion: App
+
   let generalChannel: Channel
-
   let secondChannel: Channel
-
   let channelContextMenu: ChannelContextMenu
-
   let messagesToCompare
 
   let sidebar: Sidebar

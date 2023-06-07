@@ -86,26 +86,29 @@ jobs:
         shell: powershell
 
         # Old prod version
-      # - name: Rename latest quiet
-      #   run: cd $env:LOCALAPPDATA/programs; rename-item quiet quiet2
-      #   shell: powershell
+      - name: Kill all quiet process
+        run: kill -9 $(pgrep -f 'Quiet')
+        shell: bash
 
-    
-      # - name: Download EXE
-      #   run: curl -LO https://github.com/TryQuiet/quiet/releases/download/quiet%401.2.0/Quiet.Setup.1.2.0.exe
-      #   shell: bash
+      - name: Rename latest quiet
+        run: cd $env:LOCALAPPDATA/programs; rename-item quiet quiet2
+        shell: powershell
 
-      # - name: Chmod
-      #   run: chmod +x Quiet.Setup.1.2.0.exe
-      #   shell: bash
+      - name: Download EXE
+        run: curl -LO https://github.com/TryQuiet/quiet/releases/download/quiet%401.2.0/Quiet.Setup.1.2.0.exe
+        shell: bash
 
-      # - name: Install exe
-      #   run: Start-Process Quiet.Setup.1.2.0.exe -Wait
-      #   shell: powershell
+      - name: Chmod
+        run: chmod +x Quiet.Setup.1.2.0.exe
+        shell: bash
 
-      # - name: Kill exe
-      #   run: Stop-Process -Name "Quiet" -Force
-      #   shell: powershell
+      - name: Install exe
+        run: Start-Process Quiet.Setup.1.2.0.exe -Wait
+        shell: powershell
+
+      - name: Kill exe
+        run: Stop-Process -Name "Quiet" -Force
+        shell: powershell
         # Old prod version
 
       - name: Run one client test
@@ -116,17 +119,17 @@ jobs:
           shell: bash
           command: cd packages/e2e-tests && npm run test oneClient.test.ts
 
-      # - name: Run Backwards Compatibility test
-      #   uses: nick-fields/retry@v2
-      #   with:
-      #     timeout_minutes: 15
-      #     max_attempts: 3
-      #     command: cd packages/e2e-tests && npm run test backwardsCompatibility.test.ts
-  
-      - name: Run two clients test
+      - name: Run Backwards Compatibility test
         uses: nick-fields/retry@v2
         with:
-          timeout_minutes: 25
+          timeout_minutes: 15
           max_attempts: 3
-          shell: bash
-          command: cd packages/e2e-tests && npm run test twoClients.test.ts
+          command: cd packages/e2e-tests && npm run test backwardsCompatibility.test.ts
+  
+      # - name: Run two clients test
+      #   uses: nick-fields/retry@v2
+      #   with:
+      #     timeout_minutes: 25
+      #     max_attempts: 3
+      #     shell: bash
+      #     command: cd packages/e2e-tests && npm run test twoClients.test.ts
