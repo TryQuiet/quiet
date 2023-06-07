@@ -54,7 +54,7 @@ static NSString *const kRNConcurrentRoot = @"concurrentRoot";
 {
   RCTAppSetupPrepareApp(application, false);
 
-  RCTBridge *bridge = [[RCTBridge alloc] initWithDelegate:self launchOptions:launchOptions];
+  self.bridge = [[RCTBridge alloc] initWithDelegate:self launchOptions:launchOptions];
 
 #if RCT_NEW_ARCH_ENABLED
   _contextContainer = std::make_shared<facebook::react::ContextContainer const>();
@@ -65,7 +65,7 @@ static NSString *const kRNConcurrentRoot = @"concurrentRoot";
 #endif
 
   NSDictionary *initProps = [self prepareInitialProps];
-  UIView *rootView = RCTAppSetupDefaultRootView(bridge, @"QuietMobile", initProps, false);
+  UIView *rootView = RCTAppSetupDefaultRootView(self.bridge, @"QuietMobile", initProps, false);
 
   if (@available(iOS 13.0, *)) {
     rootView.backgroundColor = [UIColor systemBackgroundColor];
@@ -78,7 +78,18 @@ static NSString *const kRNConcurrentRoot = @"concurrentRoot";
   rootViewController.view = rootView;
   self.window.rootViewController = rootViewController;
   [self.window makeKeyAndVisible];
+  
+  [self startBackend];
+  
+  return YES;
+};
 
+- (void)applicationWillEnterForeground:(UIApplication *)application
+{
+  [self startBackend];
+}
+
+- (void) startBackend {
   FindFreePort *findFreePort = [FindFreePort new];
   self.dataPort = [findFreePort getFirstStartingFromPort:11000];
 
@@ -90,14 +101,12 @@ static NSString *const kRNConcurrentRoot = @"concurrentRoot";
     NSTimeInterval delayInSeconds = 7.0;
     dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
     dispatch_after(popTime, dispatch_get_main_queue(), ^(void) {
-      [[bridge moduleForName:@"CommunicationModule"] sendDataPortWithPort:self.dataPort];
+      [[self.bridge moduleForName:@"CommunicationModule"] sendDataPortWithPort:self.dataPort];
     });
   });
   
   [self startTor];
-  
-  return YES;
-};
+}
 
 - (void) startTor {
   FindFreePort *findFreePort = [FindFreePort new];
@@ -121,8 +130,46 @@ static NSString *const kRNConcurrentRoot = @"concurrentRoot";
    * In the future we may want to switch to a callback after succesfully bootstraping tor
    */
   dispatch_after(700, dispatch_get_main_queue(), ^(void) {
+    // NSURL *socketUrl = [NSURL URLWithString:[NSString stringWithFormat:@"http://127.0.0.1:%hu", controlPort]];
+    self.torController = [[TORController alloc] initWithSocketHost:@"127.0.0.1" port:controlPort];
+    
+    NSError *error = nil;
+    BOOL connected = [self.torController connect:&error];
+    
+    NSLog(@"Tor control port error %@", error);
+    
+    NSData *authCookie = [self.tor getAuthCookieDataWithConfiguration:self.torConfiguration];
+    
+    [self.torController authenticateWithData:authCookie completion:^(BOOL success, NSError * _Nullable error) {
+      NSString *res = success ? @"YES" : @"NO";
+      NSLog(@"Tor control port auth success %@", res);
+      NSLog(@"Tor control port auth error %@", error);
+    }];
+    
     [self getAuthCookieAndLaunchBackend:controlPort:httpTunnelPort];
   });
+}
+
+- (void) stopTor {
+  NSLog(@"Sending SIGNAL SHUTDOWN on Tor control port %d", (int)[self.torController isConnected]);
+  [self.torController sendCommand:@"SIGNAL SHUTDOWN" arguments:nil data:nil observer:^BOOL(NSArray<NSNumber *> *codes, NSArray<NSData *> *lines, BOOL *stop) {
+    NSUInteger code = codes.firstObject.unsignedIntegerValue;
+    
+    NSLog(@"Tor control port response code %lu", (unsigned long)code);
+    
+    if (code != TORControlReplyCodeOK && code != TORControlReplyCodeBadAuthentication)
+      return NO;
+
+    NSString *message = lines.firstObject ? [[NSString alloc] initWithData:(NSData * _Nonnull)lines.firstObject encoding:NSUTF8StringEncoding] : @"";
+    
+    NSLog(@"Tor control port response message %@", message);
+    
+    NSDictionary<NSString *, NSString *> *userInfo = [NSDictionary dictionaryWithObjectsAndKeys:message, NSLocalizedDescriptionKey, nil];
+    BOOL success = (code == TORControlReplyCodeOK && [message isEqualToString:@"OK"]);
+
+    *stop = YES;
+    return YES;
+  }];
 }
 
 - (void) getAuthCookieAndLaunchBackend:(uint16_t)controlPort:(uint16_t)httpTunnelPort {
@@ -144,6 +191,12 @@ static NSString *const kRNConcurrentRoot = @"concurrentRoot";
     RNNodeJsMobile *nodeJsMobile = [RNNodeJsMobile new];
     [nodeJsMobile callStartNodeProject:[NSString stringWithFormat:@"bundle.cjs --dataPort %hu --dataPath %@ --controlPort %hu --authCookie %@ --httpTunnelPort %hu --platform %@", self.dataPort, dataPath, controlPort, authCookie, httpTunnelPort, platform]];
   });
+}
+
+- (void)applicationDidEnterBackground:(UIApplication *)application
+{
+  [[self.bridge moduleForName:@"CommunicationModule"] stopBackend];
+  [self stopTor];
 }
 
 /// This method controls whether the `concurrentRoot`feature of React18 is turned on or off.

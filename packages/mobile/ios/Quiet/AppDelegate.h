@@ -12,8 +12,11 @@
 
 @property uint16_t dataPort;
 
+@property RCTBridge *bridge;
+
 @property (nonatomic, strong) TorHandler *tor;
 @property (nonatomic, strong) TORConfiguration *torConfiguration;
+@property (nonatomic, strong) TORController *torController;
 
 - (void) getAuthCookieAndLaunchBackend:(uint16_t)controlPort:(uint16_t)httpTunnelPort;
 
