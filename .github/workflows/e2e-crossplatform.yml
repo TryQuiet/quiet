@@ -2,8 +2,8 @@ name: E2E cross platform
 
 on: [pull_request]
 jobs:
-  # mac:
-  #   uses: ./.github/workflows/e2e-mac.yml
+  mac:
+    uses: ./.github/workflows/e2e-mac.yml
   linux:
     uses: ./.github/workflows/e2e-linux.yml
   windows:

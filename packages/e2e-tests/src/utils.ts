@@ -47,7 +47,7 @@ export class BuildSetup {
       case 'win32':
         return `${process.env.LOCALAPPDATA}\\Programs\\${this.fileName ? 'quiet' : 'quiet2'}\\Quiet.exe`
       case 'darwin':
-        return '/Applications/Quiet.app/Contents/MacOS/Quiet'
+        return `${this.fileName ? '/Applications/Quiet2.app/Contents/MacOS/Quiet' : '/Applications/Quiet.app/Contents/MacOS/Quiet'}`
       default:
         throw new Error('wrong SYSTEM env')
     }
