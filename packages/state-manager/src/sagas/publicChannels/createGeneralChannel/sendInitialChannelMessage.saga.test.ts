@@ -5,15 +5,16 @@ import { prepareStore } from '../../../utils/tests/prepareStore'
 import { publicChannelsActions } from './../publicChannels.slice'
 import { FactoryGirl } from 'factory-girl'
 import { expectSaga } from 'redux-saga-test-plan'
-import { PublicChannel } from '../publicChannels.types'
 import { sendInitialChannelMessageSaga } from './sendInitialChannelMessage.saga'
 import { messagesActions } from '../../messages/messages.slice'
-import { communitiesActions, Community } from '../../communities/communities.slice'
+import { communitiesActions } from '../../communities/communities.slice'
 import { identityActions } from '../../identity/identity.slice'
 import { DateTime } from 'luxon'
 import { publicChannelsSelectors } from '../publicChannels.selectors'
 import { combineReducers } from '@reduxjs/toolkit'
 import { reducers } from '../../reducers'
+import { generateChannelId } from '@quiet/common'
+import { Community, PublicChannel } from '@quiet/types'
 
 describe('sendInitialChannelMessageSaga', () => {
   let store: Store
@@ -41,7 +42,9 @@ describe('sendInitialChannelMessageSaga', () => {
       { id: community.id, nickname: 'alice' }
     )
 
-    generalChannel = publicChannelsSelectors.currentChannel(store.getState())
+    const generalChannelState = publicChannelsSelectors.generalChannel(store.getState())
+    if (generalChannelState) generalChannel = generalChannelState
+    expect(generalChannel).not.toBeUndefined()
 
     channel = (
       await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>(
@@ -52,7 +55,7 @@ describe('sendInitialChannelMessageSaga', () => {
             description: 'Welcome to #photo',
             timestamp: DateTime.utc().valueOf(),
             owner: owner.nickname,
-            address: 'photo'
+            id: generateChannelId('photo')
           }
         }
       )
@@ -65,7 +68,7 @@ describe('sendInitialChannelMessageSaga', () => {
       sendInitialChannelMessageSaga,
       publicChannelsActions.sendInitialChannelMessage({
         channelName: channel.name,
-        channelAddress: channel.address
+        channelId: channel.id
       })
     )
       .withReducer(reducer)
@@ -74,7 +77,7 @@ describe('sendInitialChannelMessageSaga', () => {
         messagesActions.sendMessage({
           type: 3,
           message: `Created #${channel.name}`,
-          channelAddress: channel.address
+          channelId: channel.id
         })
       )
       .run()
@@ -87,7 +90,7 @@ describe('sendInitialChannelMessageSaga', () => {
       sendInitialChannelMessageSaga,
       publicChannelsActions.sendInitialChannelMessage({
         channelName: generalChannel.name,
-        channelAddress: generalChannel.address
+        channelId: generalChannel.id
       })
     )
       .withReducer(reducer)
@@ -96,7 +99,7 @@ describe('sendInitialChannelMessageSaga', () => {
         messagesActions.sendMessage({
           type: 3,
           message: `@${owner.nickname} deleted all messages in #general`,
-          channelAddress: generalChannel.address
+          channelId: generalChannel.id
         })
       )
       .run()

@@ -1,11 +1,8 @@
-import React, { useEffect, useState } from 'react'
 import { ipcRenderer } from 'electron'
-import { useDispatch, useSelector } from 'react-redux'
+import React from 'react'
 import { useModal } from '../../../containers/hooks'
 import { ModalName } from '../../../sagas/modals/modals.types'
-import { communities, publicChannels, users, identity } from '@quiet/state-manager'
 import ErrorModalComponent from './ErrorModalComponent'
-import { modalsActions } from '../../../sagas/modals/modals.slice'
 
 export const ErrorModal = () => {
   const modal = useModal<{

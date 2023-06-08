@@ -8,7 +8,7 @@ import { mock_messages } from '../../storybook/utils'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 
-import { DisplayableMessage } from '@quiet/state-manager'
+import { DisplayableMessage } from '@quiet/types'
 
 import ChannelComponent from './ChannelComponent'
 
@@ -24,7 +24,7 @@ const Template: ComponentStory<typeof ChannelComponent> = () => {
     const _message: DisplayableMessage = {
       id: '32',
       type: 1,
-      media: null,
+      media: undefined,
       message: message,
       createdAt: 0,
       date: '12:46',
@@ -46,7 +46,7 @@ const Template: ComponentStory<typeof ChannelComponent> = () => {
             type: 1,
             message: 'I agree!',
             createdAt: 0,
-            channelAddress: 'general',
+            channelId: 'general',
             signature: 'signature',
             pubKey: 'pubKey'
           }}
@@ -85,12 +85,11 @@ const Template: ComponentStory<typeof ChannelComponent> = () => {
             handleClose: function (): any {},
             src: 'images/butterfly.jpeg'
           }}
-          channelAddress={'general'}
+          channelId={'general'}
           channelName={'general'}
           lazyLoading={function (_load: boolean): void {}}
           onInputChange={function (_value: string): void {}}
           filesData={{}}
-          downloadStatuses={undefined}
           openUrl={function (url: string): void {
             throw new Error('Function not implemented.')
           }}
@@ -105,6 +104,9 @@ const Template: ComponentStory<typeof ChannelComponent> = () => {
           }}
           enableContextMenu={false}
           pendingGeneralChannelRecreation={false}
+          handleClipboardFiles={function (arg: ArrayBuffer, ext: string, name: string): void {
+            throw new Error('Function not implemented.')
+          }}
         />
       </DndProvider>
     </>

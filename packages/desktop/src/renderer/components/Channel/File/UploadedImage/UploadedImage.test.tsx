@@ -3,7 +3,7 @@ import {
   DownloadState,
   DownloadStatus,
   MessageType
-} from '@quiet/state-manager'
+} from '@quiet/types'
 import React from 'react'
 
 import { renderComponent } from '../../../../testUtils/renderComponent'
@@ -30,7 +30,7 @@ describe('UploadedFile', () => {
         height: 600,
         message: {
           id: 'string',
-          channelAddress: 'general'
+          channelId: 'general'
         }
       }
     }
@@ -44,7 +44,11 @@ describe('UploadedFile', () => {
 
   it('renders a placeholder if image is not finished downloading yet', () => {
     const result = renderComponent(
-      <UploadedImage message={message} downloadStatus={downloadStatus} />
+      <UploadedImage
+        // @ts-expect-error
+        media={message.media}
+        downloadStatus={downloadStatus}
+      />
     )
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
@@ -109,13 +113,19 @@ describe('UploadedFile', () => {
     `)
   })
   it('renders image if image is downloaded', () => {
+    // @ts-expect-error
     message.media.path = 'path/to/file/test.png'
+    // @ts-expect-error
     message.media.message = {
       id: 'string',
-      channelAddress: 'general'
+      channelId: 'general'
     }
     const result = renderComponent(
-      <UploadedImage message={message} downloadStatus={downloadStatus} />
+      <UploadedImage
+        // @ts-expect-error
+        media={message.media}
+        downloadStatus={downloadStatus}
+      />
     )
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>

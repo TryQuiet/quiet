@@ -14,8 +14,8 @@ import { jest, beforeEach, describe, it, expect, afterEach, beforeAll } from '@j
 import { sleep } from '../sleep'
 import { StorageEvents } from './types'
 import type { Storage as StorageType } from './storage'
-import { ChannelMessage, Community, Identity, PublicChannel, TestMessage } from '@quiet/types'
-import { Store, getFactory, prepareStore, publicChannels } from '@quiet/state-manager'
+import { ChannelMessage, Community, Identity, MessageType, PublicChannel, TestMessage } from '@quiet/types'
+import { Store, getFactory, prepareStore, publicChannels, generateMessageFactoryContentWithId, FileMetadata } from '@quiet/state-manager'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -70,7 +70,7 @@ beforeAll(async () => {
     description: channel.description,
     owner: channel.owner,
     timestamp: channel.timestamp,
-    address: channel.address
+    id: channel.id
   }
 
   alice = await factory.create<Identity>(
@@ -87,7 +87,8 @@ beforeAll(async () => {
     await factory.create<TestMessage>(
       'Message',
       {
-        identity: alice
+        identity: alice,
+        message: generateMessageFactoryContentWithId(channel.id)
       }
     )
   ).message
@@ -157,7 +158,7 @@ describe('Storage', () => {
 })
 
 describe('Channels', () => {
-  it('deletes channel', async () => {
+  it('deletes channel as owner', async () => {
     storage = new Storage(tmpAppDataPath, 'communityId', { createPaths: false })
 
     const peerId = await createPeerId()
@@ -170,10 +171,34 @@ describe('Channels', () => {
 
     const eventSpy = jest.spyOn(storage, 'emit')
 
-    await storage.deleteChannel({ channel: channelio.address })
+    await storage.deleteChannel({ channelId: channelio.id, ownerPeerId: peerId.toString() })
 
+    const channelFromKeyValueStore = storage.channels.get(channelio.id)
+    expect(channelFromKeyValueStore).toBeUndefined()
     expect(eventSpy).toBeCalledWith('channelDeletionResponse', {
-      channel: channelio.address
+      channelId: channelio.id
+    })
+  })
+
+  it('delete channel as standard user', async () => {
+    storage = new Storage(tmpAppDataPath, 'communityId', { createPaths: false })
+
+    const peerId = await createPeerId()
+    const libp2p = await createLibp2p(peerId)
+
+    await storage.init(libp2p, peerId)
+
+    await storage.initDatabases()
+    await storage.subscribeToChannel(channelio)
+
+    const eventSpy = jest.spyOn(storage, 'emit')
+
+    await storage.deleteChannel({ channelId: channelio.id, ownerPeerId: 'random peer id' })
+
+    const channelFromKeyValueStore = storage.channels.get(channelio.id)
+    expect(channelFromKeyValueStore).toEqual(channelio)
+    expect(eventSpy).toBeCalledWith('channelDeletionResponse', {
+      channelId: channelio.id
     })
   })
 })
@@ -265,7 +290,7 @@ describe('Certificate', () => {
 
     await storage.saveCertificate({ certificate: userCertificate.userCertString, rootPermsData })
 
-    for (const username of ['alice', 'Alice', 'Ąlice']) {
+    for (const username of ['alice', 'Alice', 'Ąlicę', 'álicẽ']) {
       const usernameCert = storage.usernameCert(username)
       expect(usernameCert).toEqual(userCertificate.userCertString)
     }
@@ -312,7 +337,8 @@ describe('Certificate', () => {
     const aliceMessage = await factory.create<
       ReturnType<typeof publicChannels.actions.test_message>['payload']
     >('Message', {
-      identity: alice
+      identity: alice,
+      message: generateMessageFactoryContentWithId(channel.id)
     })
 
     storage = new Storage(tmpAppDataPath, community.id, { createPaths: false })
@@ -326,7 +352,8 @@ describe('Certificate', () => {
     await storage.subscribeToChannel(channelio)
 
     const eventSpy = jest.spyOn(storage, 'emit')
-    const publicChannelRepo = storage.publicChannelsRepos.get(message.channelAddress)
+    console.log('storage.publicChannelsRepos.get(message.channelId)', storage.publicChannelsRepos.get(message.channelId))
+    const publicChannelRepo = storage.publicChannelsRepos.get(message.channelId)
     expect(publicChannelRepo).not.toBeUndefined()
     // @ts-expect-error
     const db = publicChannelRepo.db
@@ -358,13 +385,16 @@ describe('Certificate', () => {
     const aliceMessage = await factory.create<
       ReturnType<typeof publicChannels.actions.test_message>['payload']
     >('Message', {
-      identity: alice
+      identity: alice,
+      message: generateMessageFactoryContentWithId(channel.id)
     })
 
     const johnMessage = await factory.create<
       ReturnType<typeof publicChannels.actions.test_message>['payload']
     >('Message', {
-      identity: john
+      identity: john,
+      message: generateMessageFactoryContentWithId(channel.id)
+
     })
 
     const aliceMessageWithJohnsPublicKey: ChannelMessage = {
@@ -382,7 +412,7 @@ describe('Certificate', () => {
     await storage.subscribeToChannel(channelio)
 
     const spyOnEmit = jest.spyOn(storage, 'emit')
-    const publicChannelRepo = storage.publicChannelsRepos.get(message.channelAddress)
+    const publicChannelRepo = storage.publicChannelsRepos.get(message.channelId)
     expect(publicChannelRepo).not.toBeUndefined()
     // @ts-expect-error
     const db = publicChannelRepo.db
@@ -443,7 +473,7 @@ describe('Message access controller', () => {
 
     await storage.subscribeToChannel(channelio)
 
-    const publicChannelRepo = storage.publicChannelsRepos.get(message.channelAddress)
+    const publicChannelRepo = storage.publicChannelsRepos.get(message.channelId)
     expect(publicChannelRepo).not.toBeUndefined()
     // @ts-expect-error
     const db = publicChannelRepo.db
@@ -468,7 +498,8 @@ describe('Message access controller', () => {
     const aliceMessage = await factory.create<
       ReturnType<typeof publicChannels.actions.test_message>['payload']
     >('Message', {
-      identity: alice
+      identity: alice,
+      message: generateMessageFactoryContentWithId(channel.id)
     })
     // @ts-expect-error userCertificate can be undefined
     const johnCertificate: string = john.userCertificate
@@ -476,7 +507,7 @@ describe('Message access controller', () => {
 
     const spoofedMessage = {
       ...aliceMessage.message,
-      channelAddress: channelio.address,
+      channelId: channelio.id,
       pubKey: johnPublicKey
     }
     delete spoofedMessage.media // Media 'undefined' is not accepted by db.add
@@ -492,7 +523,7 @@ describe('Message access controller', () => {
 
     await storage.subscribeToChannel(channelio)
 
-    const publicChannelRepo = storage.publicChannelsRepos.get(message.channelAddress)
+    const publicChannelRepo = storage.publicChannelsRepos.get(message.channelId)
     expect(publicChannelRepo).not.toBeUndefined()
     // @ts-expect-error
     const db = publicChannelRepo.db
@@ -532,5 +563,79 @@ describe('Users', () => {
         username: 'dskfjbksfig'
       }
     ])
+  })
+})
+
+describe('Files deletion', () => {
+    let realFilePath: string
+    let messages: {
+      messages: {
+          [x: string]: ChannelMessage
+      }
+    }
+  beforeEach(async () => {
+    realFilePath = path.join(
+      dirname, '/testUtils/real-file.txt')
+    createFile(realFilePath, 2147483)
+    storage = new Storage(tmpAppDataPath, 'communityId', { createPaths: false })
+
+    const peerId = await createPeerId()
+    const libp2p = await createLibp2p(peerId)
+
+    await storage.init(libp2p, peerId)
+
+    const metadata: FileMetadata = {
+      path: realFilePath,
+      name: 'test-large-file',
+      ext: '.txt',
+      cid: 'uploading_id',
+      message: {
+        id: 'id',
+        channelId: channel.id,
+      }
+    }
+
+    const aliceMessage = await factory.create<
+    ReturnType<typeof publicChannels.actions.test_message>['payload']
+  >('Message', {
+    identity: alice,
+    message: generateMessageFactoryContentWithId(channel.id, MessageType.File, metadata)
+  })
+
+   messages = {
+    messages: {
+      [aliceMessage.message.id]: aliceMessage.message
+    }
+  }
+  })
+
+  afterEach(async () => {
+    if (fs.existsSync(realFilePath)) {
+      fs.rmSync(realFilePath)
+    }
+  })
+
+  it('delete file correctly', async () => {
+   const isFileExist = await storage.checkIfFileExist(realFilePath)
+    expect(isFileExist).toBeTruthy()
+
+    await expect(
+      storage.deleteFilesFromChannel(messages)
+    ).resolves.not.toThrowError()
+
+    await waitForExpect(async() => {
+      expect(await storage.checkIfFileExist(realFilePath)).toBeFalsy()
+    }, 2000)
+  })
+  it('file dont exist - not throw error', async () => {
+    fs.rmSync(realFilePath)
+
+    await waitForExpect(async() => {
+      expect(await storage.checkIfFileExist(realFilePath)).toBeFalsy()
+    }, 2000)
+
+    await expect(
+      storage.deleteFilesFromChannel(messages)
+    ).resolves.not.toThrowError()
   })
 })

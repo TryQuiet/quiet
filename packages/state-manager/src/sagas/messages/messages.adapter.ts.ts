@@ -1,9 +1,8 @@
+import { ChannelMessage, MessageSendingStatus, MessageVerificationStatus, PublicChannelsMessagesBase } from '@quiet/types'
 import { createEntityAdapter } from '@reduxjs/toolkit'
-import { ChannelMessage } from '../publicChannels/publicChannels.types'
-import { MessageSendingStatus, MessageVerificationStatus, PublicChannelsMessagesBase } from './messages.types'
 
 export const publicChannelsMessagesBaseAdapter = createEntityAdapter<PublicChannelsMessagesBase>({
-  selectId: base => base.channelAddress
+  selectId: base => base.channelId
 })
 
 export const messagesBaseAdapter = createEntityAdapter<ChannelMessage>()

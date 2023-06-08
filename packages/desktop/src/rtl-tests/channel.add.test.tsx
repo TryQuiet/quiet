@@ -1,7 +1,7 @@
 import React from 'react'
 import '@testing-library/jest-dom/extend-expect'
 import userEvent from '@testing-library/user-event'
-import { queryByTestId, screen, waitFor, within } from '@testing-library/dom'
+import { screen, waitFor } from '@testing-library/dom'
 import { act } from 'react-dom/test-utils'
 import { take } from 'typed-redux-saga'
 import MockedSocket from 'socket.io-mock'
@@ -16,18 +16,22 @@ import Channel from '../renderer/components/Channel/Channel'
 import Sidebar from '../renderer/components/Sidebar/Sidebar'
 
 import {
-  CreateChannelPayload,
-  ErrorMessages,
   getFactory,
   identity,
-  publicChannels,
+  publicChannels
+} from '@quiet/state-manager'
+import {
+  ChannelsReplicatedPayload,
+  CreateChannelPayload,
+  ErrorMessages,
+  IncomingMessages,
   SendMessagePayload,
   SocketActionTypes
-} from '@quiet/state-manager'
+} from '@quiet/types'
 
 import { modalsActions, ModalsInitialState } from '../renderer/sagas/modals/modals.slice'
 import { ModalName } from '../renderer/sagas/modals/modals.types'
-import { ChannelNameErrors, FieldErrors } from '../renderer/forms/fieldsErrors'
+import { FieldErrors } from '../renderer/forms/fieldsErrors'
 
 jest.setTimeout(20_000)
 
@@ -91,26 +95,27 @@ describe('Add new channel', () => {
 
     jest
       .spyOn(socket, 'emit')
-      .mockImplementation(async (action: SocketActionTypes, ...input: any[]) => {
+      .mockImplementation(async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
+        const action = input[0]
         if (action === SocketActionTypes.CREATE_CHANNEL) {
-          const data = input as socketEventData<[CreateChannelPayload]>
-          const payload = data[0]
+          const payload = input[1] as CreateChannelPayload
           expect(payload.channel.owner).toEqual(alice.nickname)
           expect(payload.channel.name).toEqual(channelName.output)
-          return socket.socketClient.emit(SocketActionTypes.CHANNELS_REPLICATED, {
+          const channels = store.getState().PublicChannels.channels.entities
+          return socket.socketClient.emit<ChannelsReplicatedPayload>(SocketActionTypes.CHANNELS_REPLICATED, {
             channels: {
+              ...channels,
               [payload.channel.name]: payload.channel
             }
           })
         }
         if (action === SocketActionTypes.SEND_MESSAGE) {
-          const data = input as socketEventData<[SendMessagePayload]>
-          const { message } = data[0]
-          expect(message.channelAddress).toEqual(channelName.output)
+          const data = input[1] as SendMessagePayload
+          const { message } = data
+          expect(message.channelId).toEqual(channelName.output)
           expect(message.message).toEqual(`Created #${channelName.output}`)
-          return socket.socketClient.emit(SocketActionTypes.INCOMING_MESSAGES, {
-            messages: [message],
-            communityId: alice.id
+          return socket.socketClient.emit<IncomingMessages>(SocketActionTypes.INCOMING_MESSAGES, {
+            messages: [message]
           })
         }
       })
@@ -139,10 +144,6 @@ describe('Add new channel', () => {
         })
     )
 
-    await act(async () => {
-      await runSaga(testCreateChannelSaga).toPromise()
-    })
-
     function* testCreateChannelSaga(): Generator {
       const createChannelAction = yield* take(publicChannels.actions.createChannel)
       expect(createChannelAction.payload.channel.name).toEqual(channelName.output)
@@ -150,6 +151,10 @@ describe('Add new channel', () => {
       const addChannelAction = yield* take(publicChannels.actions.addChannel)
       expect(addChannelAction.payload.channel).toEqual(createChannelAction.payload.channel)
     }
+
+    await act(async () => {
+      await runSaga(testCreateChannelSaga).toPromise()
+    })
 
     const createChannelModal = screen.queryByTestId('createChannelModal')
     expect(createChannelModal).toBeNull()
@@ -220,6 +225,8 @@ describe('Add new channel', () => {
     expect(input).toHaveValue(channelName)
 
     const closeChannel = screen.getByTestId('ModalActions').querySelector('button')
+    expect(closeChannel).not.toBeNull()
+    // @ts-expect-error
     await userEvent.click(closeChannel)
 
     const isGeneral = await screen.findByText('# general')
@@ -271,6 +278,8 @@ describe('Add new channel', () => {
     expect(error).toBeVisible()
 
     const closeChannel = screen.getByTestId('ModalActions').querySelector('button')
+    expect(closeChannel).not.toBeNull()
+    // @ts-expect-error
     await userEvent.click(closeChannel)
 
     const isGeneral = await screen.findByText('# general')
@@ -284,7 +293,7 @@ describe('Add new channel', () => {
     expect(isErrorStillExist).toBeNull()
   })
 
-  it('Bug reproduction - create channel and open modal again without requierd filed error', async () => {
+  it('Bug reproduction - create channel and open modal again without requierd field error', async () => {
     const channelName = 'las-venturas'
 
     const { store, runSaga } = await prepareStore(
@@ -300,26 +309,28 @@ describe('Add new channel', () => {
 
     jest
       .spyOn(socket, 'emit')
-      .mockImplementation(async (action: SocketActionTypes, ...input: any[]) => {
+      .mockImplementation(async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
+        const action = input[0]
         if (action === SocketActionTypes.CREATE_CHANNEL) {
-          const data = input as socketEventData<[CreateChannelPayload]>
-          const payload = data[0]
+          const payload = input[1] as CreateChannelPayload
+          // const payload = data[0]
           expect(payload.channel.owner).toEqual(alice.nickname)
           expect(payload.channel.name).toEqual(channelName)
-          return socket.socketClient.emit(SocketActionTypes.CHANNELS_REPLICATED, {
+          const channels = store.getState().PublicChannels.channels.entities
+          return socket.socketClient.emit<ChannelsReplicatedPayload>(SocketActionTypes.CHANNELS_REPLICATED, {
             channels: {
+              ...channels,
               [payload.channel.name]: payload.channel
             }
           })
         }
         if (action === SocketActionTypes.SEND_MESSAGE) {
-          const data = input as socketEventData<[SendMessagePayload]>
-          const { message } = data[0]
-          expect(message.channelAddress).toEqual(channelName)
+          const data = input[1] as SendMessagePayload
+          const { message } = data
+          expect(message.channelId).toEqual(channelName)
           expect(message.message).toEqual(`Created #${channelName}`)
-          return socket.socketClient.emit(SocketActionTypes.INCOMING_MESSAGES, {
-            messages: [message],
-            communityId: alice.id
+          return socket.socketClient.emit<IncomingMessages>(SocketActionTypes.INCOMING_MESSAGES, {
+            messages: [message]
           })
         }
       })
@@ -395,15 +406,18 @@ describe('Add new channel', () => {
 
     jest
       .spyOn(socket, 'emit')
-      .mockImplementation(async (action: SocketActionTypes, ...input: any[]) => {
+      .mockImplementation(async (...input: [SocketActionTypes, ...socketEventData<[CreateChannelPayload]>]) => {
+        const action = input[0]
         if (action === SocketActionTypes.CREATE_CHANNEL) {
-          const data = input as socketEventData<[CreateChannelPayload]>
-          const payload = data[0]
+          const data = input[1]
+          const payload = data
           expect(payload.channel.owner).toEqual(alice.nickname)
+          const channels = store.getState().PublicChannels.channels.entities
           // expect(payload.channel.name).toEqual(channelName.output)
-          return socket.socketClient.emit(SocketActionTypes.CHANNELS_REPLICATED, {
+          return socket.socketClient.emit<ChannelsReplicatedPayload>(SocketActionTypes.CHANNELS_REPLICATED, {
             channels: {
-              [payload.channel.name]: payload.channel
+              ...channels,
+              [payload.channel.name]: payload.channel,
             }
           })
         }
@@ -454,6 +468,8 @@ describe('Add new channel', () => {
     expect(createChannelModal).toBeNull()
     const list = await screen.findByTestId('channelsList')
     const textContent = list.textContent
+    expect(textContent).not.toBeNull()
+    // @ts-expect-error
     const textArray = textContent.replace(/#/g, '').split(' ')
     const filteredArray = textArray.filter(item => item.length > 0)
     expect(filteredArray).toEqual(['general', '12a', 'abc', 'zzz'])

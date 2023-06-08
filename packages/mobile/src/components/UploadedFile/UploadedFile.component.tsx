@@ -1,10 +1,11 @@
-import { DownloadState, formatBytes } from '@quiet/state-manager'
+import { DownloadState } from '@quiet/types'
 import React, { FC, useEffect, useState } from 'react'
 import { View, Image, TouchableWithoutFeedback, Alert } from 'react-native'
 import { Typography } from '../Typography/Typography.component'
 import { FileActionsProps, UploadedFileProps } from './UploadedFile.types'
 import { defaultTheme } from '../../styles/themes/default.theme'
-import { appImages } from '../../../assets'
+import { appImages } from '../../assets'
+import { formatBytes } from '@quiet/state-manager'
 
 interface FileStatus {
   label: string
@@ -20,8 +21,9 @@ export const UploadedFile: FC<UploadedFileProps & FileActionsProps> = ({
 }) => {
   const downloadState = downloadStatus?.downloadState
   const media = message.media
-  const [fileStatus, setFileStatus] = useState<FileStatus>(null)
+  const [fileStatus, setFileStatus] = useState<FileStatus | null>(null)
   useEffect(() => {
+    if (!media) return
     switch (downloadState) {
       case DownloadState.Uploading:
         setFileStatus({
@@ -71,7 +73,7 @@ export const UploadedFile: FC<UploadedFileProps & FileActionsProps> = ({
       default:
         setFileStatus(null)
     }
-  }, [downloadState])
+  }, [downloadState, media])
 
   return (
     <TouchableWithoutFeedback onPress={() => Alert.alert('Not supported yet', 'Sorry, opening files is not supported yet on mobile.')}>
@@ -85,10 +87,9 @@ export const UploadedFile: FC<UploadedFileProps & FileActionsProps> = ({
         borderStyle: 'solid',
         borderWidth: 1
       }}>
-
         <Typography fontSize={12} style={{ fontWeight: 'bold' }}>
-          {media.name}
-          {media.ext}
+          {media?.name}
+          {media?.ext}
         </Typography>
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
           <Image

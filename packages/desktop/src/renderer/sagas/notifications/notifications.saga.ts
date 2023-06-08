@@ -9,13 +9,15 @@ import {
   users,
   messages,
   publicChannels,
-  MessageType,
   NotificationsOptions,
   NotificationsSounds,
   files,
+} from '@quiet/state-manager'
+import {
+  MessageType,
   FileMetadata,
   DownloadState
-} from '@quiet/state-manager'
+} from '@quiet/types'
 import { soundTypeToAudio } from '../../../shared/sounds'
 import { eventChannel } from 'redux-saga'
 import { takeEvery } from 'redux-saga/effects'
@@ -35,7 +37,9 @@ export function* displayMessageNotificationSaga(
 ): Generator {
   const incomingMessages = action.payload.messages
 
-  const currentChannel = yield* select(publicChannels.selectors.currentChannel)
+  const currentChannelId = yield* select(publicChannels.selectors.currentChannelId)
+  const publicChannelsSelector = yield* select(publicChannels.selectors.publicChannels)
+
   const currentIdentity = yield* select(identity.selectors.currentIdentity)
   const certificatesMapping = yield* select(users.selectors.certificatesMapping)
 
@@ -48,13 +52,14 @@ export function* displayMessageNotificationSaga(
 
   for (const message of incomingMessages) {
     const focused = yield* call(isWindowFocused)
+    const channelName = publicChannelsSelector.find((channel) => channel.id === message.channelId)?.name
 
     // Do not display notifications for active channel (when the app is in foreground)
-    if (focused && message.channelAddress === currentChannel.address) return
+    if (focused && message.channelId === currentChannelId) return
 
     // Do not display notifications for own messages
     const sender = certificatesMapping[message.pubKey]?.username
-    if (!sender || sender === currentIdentity.nickname) return
+    if (!sender || sender === currentIdentity?.nickname) return
 
     // Do not display notifications if turned off in configuration
     if (notificationsConfig === NotificationsOptions.doNotNotifyOfAnyMessages) return
@@ -65,12 +70,12 @@ export function* displayMessageNotificationSaga(
     // Do not display when message is not verified
     if (!action.payload.isVerified) return
 
-    let label = `New message from @${sender} in #${message.channelAddress}`
-    let body = `${message.message.substring(0, 64)}${message.message.length > 64 ? '...' : ''}`
+    let label = `New message from @${sender} in #${channelName}`
+    let body: string | undefined = `${message.message.substring(0, 64)}${message.message.length > 64 ? '...' : ''}`
 
     // Change notification's label for the image
     if (message.type === MessageType.Image) {
-      label = `@${sender} sent an image in #${message.channelAddress}`
+      label = `@${sender} sent an image in #${channelName}`
       body = undefined
     }
 
@@ -78,16 +83,16 @@ export function* displayMessageNotificationSaga(
     if (message.type === MessageType.File) {
       const status = downloadStatuses[message.id]
 
-      label = `@${sender} sends file in #${message.channelAddress}`
+      label = `@${sender} sends file in #${channelName}`
       body = undefined
 
       if (status?.downloadState === DownloadState.Completed) {
-        label = `@${sender} sent a file in #${message.channelAddress}`
+        label = `@${sender} sent a file in #${channelName}`
         body = 'Download complete. Click to show file in folder.'
       }
     }
 
-    const channel = message.channelAddress
+    const channel = message.channelId
     const type = message.type
     const media = message.media
 
@@ -114,10 +119,10 @@ export const createNotification = (notificationData: NotificationData): Notifica
   }
 
   const { sound, label, body } = notificationData
-
-  if (soundTypeToAudio[sound]) {
-    soundTypeToAudio[sound].volume = 0.2
-    soundTypeToAudio[sound].play()
+  const notificationSound = soundTypeToAudio[sound]
+  if (notificationSound) {
+    notificationSound.volume = 0.2
+    void notificationSound.play()
   }
 
   return new Notification(label, {
@@ -147,13 +152,13 @@ function subscribeNotificationEvents(
 ) {
   return eventChannel<ReturnType<typeof publicChannels.actions.setCurrentChannel>>(emit => {
     notification.onclick = () => {
-      if (type === MessageType.File && media.path) {
+      if (type === MessageType.File && media?.path) {
         shell.showItemInFolder(media.path)
       } else {
         const [browserWindow] = remote.BrowserWindow.getAllWindows()
         browserWindow.show()
         // Emit store action
-        emit(publicChannels.actions.setCurrentChannel({ channelAddress: channel }))
+        emit(publicChannels.actions.setCurrentChannel({ channelId: channel }))
       }
     }
     return () => {}

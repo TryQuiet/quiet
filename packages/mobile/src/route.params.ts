@@ -10,6 +10,8 @@ export type RootStackParamList = {
   [ScreenNames.JoinCommunityScreen]: {
     code?: string
   }
+  [ScreenNames.QRCodeScreen]: undefined
+  [ScreenNames.LeaveCommunityScreen]: undefined
   [ScreenNames.CreateCommunityScreen]: undefined
   [ScreenNames.UsernameRegistrationScreen]: {
     fetching: boolean
@@ -18,7 +20,8 @@ export type RootStackParamList = {
   [ScreenNames.ChannelScreen]: undefined
   [ScreenNames.CreateChannelScreen]: undefined
   [ScreenNames.DeleteChannelScreen]: {
-    channel: string
+    channelName: string
+    channelId: string
   }
   [ScreenNames.SuccessScreen]: {
     onPress: () => void

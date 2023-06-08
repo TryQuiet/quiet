@@ -8,13 +8,13 @@ import { ChannelTileProps } from './ChannelTile.types'
 
 export const ChannelTile: FC<ChannelTileProps> = ({
   name,
-  address,
+  id,
   message,
   date,
   unread,
   redirect
 }) => {
-  const _leftSwipe = (_progress, dragX) => {
+  const _leftSwipe = (_progress: any, dragX: any) => {
     const scale = dragX.interpolate({
       inputRange: [0, 100],
       outputRange: [0, 1.4],
@@ -45,7 +45,7 @@ export const ChannelTile: FC<ChannelTileProps> = ({
         <TouchableWithoutFeedback
           testID={`channel_tile_${name}`}
           onPress={() => {
-            redirect(address)
+            redirect(id)
           }}>
           <View
             style={{

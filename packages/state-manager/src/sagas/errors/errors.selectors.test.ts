@@ -4,8 +4,8 @@ import { getFactory } from '../../utils/tests/factories'
 import { prepareStore } from '../../utils/tests/prepareStore'
 import { errorsSelectors } from './errors.selectors'
 import { errorsActions } from './errors.slice'
-import { ErrorCodes, ErrorTypes, ErrorMessages } from './errors.types'
-import { communitiesActions, Community } from '../communities/communities.slice'
+import { communitiesActions } from '../communities/communities.slice'
+import { Community, ErrorCodes, ErrorMessages, ErrorTypes } from '@quiet/types'
 
 describe('Errors', () => {
   setupCrypto()

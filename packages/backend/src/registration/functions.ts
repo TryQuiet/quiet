@@ -9,7 +9,7 @@ import { CsrContainsFields, IsCsr } from './validators'
 import { RegistrationEvents } from './types'
 
 import { getUsersAddresses } from '../common/utils'
-import { ErrorCodes, ErrorMessages, ErrorPayload, PermsData, SocketActionTypes, User } from '@quiet/types'
+import { ErrorCodes, ErrorMessages, ErrorPayload, PermsData, SocketActionTypes, SuccessfullRegistrarionResponse, User, UserCertificatePayload } from '@quiet/types'
 const log = logger('registration')
 
 class UserCsrData {
@@ -67,11 +67,6 @@ export interface RegistrarResponse {
     }
     return null
   }
-
-interface SuccessfullRegistrarionResponse {
-  communityId: string
-  payload: { peers: string[]; certificate: string; rootCa: string }
-}
 
 export interface RegistrationResponse {
   eventType: RegistrationEvents | SocketActionTypes
@@ -172,7 +167,7 @@ export const sendCertificateRegistrationRequest = async (
       }
     }
 
-  const registrarResponse: { certificate: string; peers: string[]; rootCa: string; ownerCert: string } =
+  const registrarResponse: UserCertificatePayload =
     await response.json()
 
   log(`Sending user certificate (${communityId})`)

@@ -16,18 +16,22 @@ describe('Chat component', () => {
       <Chat
         contextMenu={{
           visible: false,
-          handleOpen: undefined,
-          handleClose: undefined
+          handleOpen: function (_args?: any): any {},
+          handleClose: function (_args?: any): any {}
         }}
         sendMessageAction={jest.fn()}
         loadMessagesAction={jest.fn()}
         handleBackButton={jest.fn()}
+        openImagePreview={() => {}}
+        openUrl={() => {}}
+        downloadFile={() => {}}
+        cancelDownload={() => {}}
         channel={{
           name: 'general',
           description: '',
           owner: '',
           timestamp: 0,
-          address: ''
+          id: ''
         }}
         pendingMessages={{}}
         messages={{
@@ -193,7 +197,6 @@ describe('Chat component', () => {
             ]
           }
         }}
-        user={'holmes'}
       />
     )
 
@@ -3275,7 +3278,7 @@ describe('Chat component', () => {
                     {
                       "busy": undefined,
                       "checked": undefined,
-                      "disabled": undefined,
+                      "disabled": false,
                       "expanded": undefined,
                       "selected": undefined,
                     }

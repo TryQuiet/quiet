@@ -1,4 +1,4 @@
-import { combineReducers } from '@reduxjs/toolkit'
+import { combineReducers, AnyAction } from '@reduxjs/toolkit'
 import { StoreKeys } from './store.keys'
 import { initReducer } from './init/init.slice'
 import stateManagerReducers, { resetStateAndSaveTorConnectionData } from '@quiet/state-manager'
@@ -13,9 +13,9 @@ export const reducers = {
 
 export const allReducers = combineReducers(reducers)
 
-export const rootReducer = (state, action) => {
+export const rootReducer = (state: any, action: AnyAction) => {
   if (action.type === nativeServicesActions.resetApp.type) {
-    state = resetStateAndSaveTorConnectionData(state)
+    state = resetStateAndSaveTorConnectionData()
   }
 
   return allReducers(state, action)

@@ -7,19 +7,19 @@ export class CustomReduxAdapter {
     this.store = store
   }
 
-  build<T>(Action, payload?: Partial<T>) {
+  build<T>(Action: any, payload?: Partial<T>) {
     return Action(payload)
   }
 
-  async save(action) {
+  async save(action: any) {
     return this.store.dispatch(action).payload
   }
 
-  get(payload, attr, _payload) {
+  get(payload: any, attr: any, _payload: any) {
     return payload[attr]
   }
 
-  set(props, payload, _payload) {
+  set(props: any, payload: any, _payload: any) {
     Object.keys(props).forEach((key) => {
       payload[key] = props[key]
     })

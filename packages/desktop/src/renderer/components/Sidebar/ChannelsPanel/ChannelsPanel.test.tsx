@@ -6,6 +6,7 @@ import { renderComponent } from '../../../testUtils/renderComponent'
 import { getFactory, publicChannels, communities, identity } from '@quiet/state-manager'
 import ChannelsPanel from './ChannelsPanel'
 import { DateTime } from 'luxon'
+import { generateChannelId } from '@quiet/common'
 
 describe('Channels panel', () => {
   let socket: MockedSocket
@@ -26,7 +27,8 @@ describe('Channels panel', () => {
     const community = await factory.create<
       ReturnType<typeof communities.actions.addNewCommunity>['payload']
     >('Community')
-
+    const generalChannel = publicChannels.selectors.generalChannel(store.getState())
+    expect(generalChannel).not.toBeUndefined()
     const alice = await factory.create<
       ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'alice' })
@@ -43,7 +45,7 @@ describe('Channels panel', () => {
             description: `Welcome to #${name}`,
             timestamp: DateTime.utc().valueOf(),
             owner: alice.nickname,
-            address: name
+            id: generateChannelId(name)
           }
         }
       )
@@ -55,8 +57,9 @@ describe('Channels panel', () => {
       <ChannelsPanel
         channels={channels}
         unreadChannels={[]}
-        setCurrentChannel={function (_address: string): void {}}
-        currentChannel={'general'}
+        setCurrentChannel={function (_id: string): void {}}
+        // @ts-expect-error
+        currentChannelId={generalChannel.id}
         createChannelModal={{
           open: false,
           handleOpen: function (_args?: any): any {},

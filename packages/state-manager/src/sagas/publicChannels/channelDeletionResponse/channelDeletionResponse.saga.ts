@@ -4,26 +4,44 @@ import logger from '../../../utils/logger'
 import { put, delay, select } from 'typed-redux-saga'
 import { messagesActions } from '../../messages/messages.slice'
 import { communitiesSelectors } from '../../communities/communities.selectors'
+import { publicChannelsSelectors } from '../publicChannels.selectors'
+import { PublicChannelStorage } from '@quiet/types'
 
 const log = logger('publicChannels')
 
 export function* channelDeletionResponseSaga(
   action: PayloadAction<ReturnType<typeof publicChannelsActions.channelDeletionResponse>['payload']>
 ): Generator {
-  log(`Deleted channel ${action.payload.channel} saga`)
+  log(`Deleted channel ${action.payload.channelId} saga`)
 
-  const channelAddress = action.payload.channel
-  const isGeneral = channelAddress === 'general'
+  const { channelId } = action.payload
+  const generalChannel = yield* select(publicChannelsSelectors.generalChannel)
+
+  const isChannelExist = yield* select(publicChannelsSelectors.getChannelById(channelId))
+  const currentChannelId = yield* select(publicChannelsSelectors.currentChannelId)
+  if (!isChannelExist) {
+    log(`Channel with id ${channelId} doesnt exist in store`)
+    return
+  }
+
+  if (!generalChannel) {
+    log('General Channel doesnt exist in store')
+    return
+  }
+
+  const isGeneral = channelId === generalChannel.id
 
   if (isGeneral) {
     yield* put(publicChannelsActions.startGeneralRecreation())
   }
 
-  yield* put(publicChannelsActions.clearMessagesCache({ channelAddress }))
+  yield* put(publicChannelsActions.clearMessagesCache({ channelId }))
 
-  yield* put(messagesActions.deleteChannelEntry({ channelAddress }))
+  yield* put(messagesActions.deleteChannelEntry({ channelId }))
 
-  yield* put(publicChannelsActions.deleteChannelFromStore({ channelAddress }))
+  yield* put(publicChannelsActions.deleteChannelFromStore({ channelId }))
+
+  yield* put(publicChannelsActions.completeChannelDeletion({}))
 
   const community = yield* select(communitiesSelectors.currentCommunity)
 
@@ -31,10 +49,23 @@ export function* channelDeletionResponseSaga(
 
   if (isOwner) {
     if (isGeneral) {
-      yield* delay(1000)
       yield* put(publicChannelsActions.createGeneralChannel())
     } else {
-      yield* put(messagesActions.sendDeletionMessage({ channelAddress }))
+      yield* put(messagesActions.sendDeletionMessage({ channelId }))
+    }
+  } else {
+    const isUserOnGeneral = currentChannelId === generalChannel.id
+
+    if (isGeneral && isUserOnGeneral) {
+      let newGeneralChannel: PublicChannelStorage | undefined = yield* select(
+        publicChannelsSelectors.generalChannel
+      )
+      while (!newGeneralChannel) {
+        log('General channel has not been replicated yet')
+        yield* delay(500)
+        newGeneralChannel = yield* select(publicChannelsSelectors.generalChannel)
+      }
+      yield* put(publicChannelsActions.setCurrentChannel({ channelId: newGeneralChannel.id }))
     }
   }
 }

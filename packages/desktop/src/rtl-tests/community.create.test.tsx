@@ -15,19 +15,30 @@ import MockedSocket from 'socket.io-mock'
 import { ioMock } from '../shared/setupTests'
 import { socketEventData } from '../renderer/testUtils/socket'
 import {
+  ChannelsReplicatedPayload,
   Community,
   InitCommunityPayload,
   LaunchRegistrarPayload,
+  publicChannels,
   RegisterOwnerCertificatePayload,
+  ResponseCreateCommunityPayload,
+  ResponseCreateNetworkPayload,
+  ResponseLaunchCommunityPayload,
+  ResponseRegistrarPayload,
+  SaveOwnerCertificatePayload,
   SocketActionTypes
 } from '@quiet/state-manager'
 import Channel from '../renderer/components/Channel/Channel'
 import LoadingPanel from '../renderer/components/LoadingPanel/LoadingPanel'
+import { AnyAction } from 'redux'
+import { generateChannelId } from '@quiet/common'
+import { SavedOwnerCertificatePayload } from '@quiet/types'
 
 jest.setTimeout(20_000)
 
 describe('User', () => {
   let socket: MockedSocket
+  const generalId = generateChannelId('general')
 
   beforeEach(() => {
     socket = new MockedSocket()
@@ -63,16 +74,17 @@ describe('User', () => {
       store
     )
 
-    jest.spyOn(socket, 'emit').mockImplementation((action: SocketActionTypes, ...input: any[]) => {
+    jest.spyOn(socket, 'emit').mockImplementation((...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
+      const action = input[0]
       if (action === SocketActionTypes.CREATE_NETWORK) {
-        const data = input as socketEventData<[Community]>
-        const payload = data[0]
-        socket.socketClient.emit(SocketActionTypes.NETWORK, {
+        const data = input[1] as Community
+        const payload = { ...data, privateKey: 'privateKey' }
+        socket.socketClient.emit<ResponseCreateNetworkPayload>(SocketActionTypes.NETWORK, {
           community: payload,
           network: {
             hiddenService: {
               onionAddress: 'onionAddress',
-              privKey: 'privKey'
+              privateKey: 'privKey'
             },
             peerId: {
               id: 'peerId'
@@ -81,9 +93,8 @@ describe('User', () => {
         })
       }
       if (action === SocketActionTypes.REGISTER_OWNER_CERTIFICATE) {
-        const data = input as socketEventData<[RegisterOwnerCertificatePayload]>
-        const payload = data[0]
-        socket.socketClient.emit(SocketActionTypes.SAVED_OWNER_CERTIFICATE, {
+        const payload = input[1] as RegisterOwnerCertificatePayload
+        socket.socketClient.emit<SavedOwnerCertificatePayload>(SocketActionTypes.SAVED_OWNER_CERTIFICATE, {
           communityId: payload.communityId,
           network: {
             certificate: payload.permsData.certificate,
@@ -92,33 +103,30 @@ describe('User', () => {
         })
       }
       if (action === SocketActionTypes.CREATE_COMMUNITY) {
-        const data = input as socketEventData<[InitCommunityPayload]>
-        const payload = data[0]
-        socket.socketClient.emit(SocketActionTypes.COMMUNITY, {
+        const payload = input[1] as InitCommunityPayload
+        socket.socketClient.emit<ResponseLaunchCommunityPayload>(SocketActionTypes.COMMUNITY, {
           id: payload.id
         })
         socket.socketClient.emit(SocketActionTypes.NEW_COMMUNITY, {
           id: payload.id
         })
-        socket.socketClient.emit(SocketActionTypes.CHANNELS_REPLICATED, {
-          communityId: payload.id,
+
+        socket.socketClient.emit<ChannelsReplicatedPayload>(SocketActionTypes.CHANNELS_REPLICATED, {
           channels: {
             general: {
               name: 'general',
               description: 'string',
               owner: 'owner',
               timestamp: 0,
-              address: 'general'
+              id: generalId
             }
           }
         })
       }
       if (action === SocketActionTypes.LAUNCH_REGISTRAR) {
-        const data = input as socketEventData<[LaunchRegistrarPayload]>
-        const payload = data[0]
-        socket.socketClient.emit(SocketActionTypes.REGISTRAR, {
+        const payload = input[1] as LaunchRegistrarPayload
+        socket.socketClient.emit<ResponseRegistrarPayload>(SocketActionTypes.REGISTRAR, {
           id: payload.id,
-          peerId: payload.peerId,
           payload: {
             privateKey: 'privateKey',
             onionAddress: 'onionAddress',
@@ -129,7 +137,7 @@ describe('User', () => {
     })
 
     // Log all the dispatched actions in order
-    const actions = []
+    const actions: AnyAction[] = []
     runSaga(function* (): Generator {
       while (true) {
         const action = yield* take()
@@ -159,7 +167,10 @@ describe('User', () => {
     await userEvent.click(createUsernameButton)
 
     // Wait for the actions that updates the store
-    await act(async () => {})
+    await act(async () => {
+      // Little workaround
+      store.dispatch(publicChannels.actions.setCurrentChannel({ channelId: generalId }))
+    })
 
     // Check if create/username modals are gone
     expect(createCommunityTitle).not.toBeVisible()
@@ -200,6 +211,14 @@ describe('User', () => {
         "Messages/addPublicChannelsMessagesBase",
         "PublicChannels/clearUnreadChannel",
         "Modals/closeModal",
+        "Messages/lazyLoading",
+        "Messages/resetCurrentPublicChannelCache",
+        "Messages/resetCurrentPublicChannelCache",
+        "PublicChannels/setCurrentChannel",
+        "PublicChannels/clearUnreadChannel",
+        "Messages/lazyLoading",
+        "Messages/resetCurrentPublicChannelCache",
+        "Messages/resetCurrentPublicChannelCache",
       ]
     `)
   })

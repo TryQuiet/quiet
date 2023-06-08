@@ -1,37 +1,54 @@
 import factoryGirl from 'factory-girl'
 import { CustomReduxAdapter } from './reduxAdapter'
 import { Store } from '../../sagas/store.types'
-import { communities, identity, messages, publicChannels, users, errors, DownloadState } from '../..'
-import {
-  createMessageSignatureTestHelper,
-  createPeerIdTestHelper
-} from './helpers'
+import { communities, identity, messages, publicChannels, users, errors } from '../..'
+import { createMessageSignatureTestHelper, createPeerIdTestHelper } from './helpers'
 import { getCrypto } from 'pkijs'
 import { stringToArrayBuffer } from 'pvutils'
-import { createRootCertificateTestHelper, createUserCertificateTestHelper, keyObjectFromString, verifySignature } from '@quiet/identity'
-import { MessageType, SendingStatus } from '../../sagas/messages/messages.types'
+
 import { DateTime } from 'luxon'
 import { messagesActions } from '../../sagas/messages/messages.slice'
 import { publicChannelsActions } from '../../sagas/publicChannels/publicChannels.slice'
+import { generateChannelId } from '@quiet/common'
+import {
+  createRootCertificateTestHelper,
+  createUserCertificateTestHelper,
+  keyObjectFromString,
+  verifySignature
+} from '@quiet/identity'
+import { ChannelMessage, FileMetadata, MessageType, SendingStatus } from '@quiet/types'
+
+export const generateMessageFactoryContentWithId = (
+  channelId: string,
+  type?: MessageType,
+  media?: FileMetadata
+): ChannelMessage => {
+  return {
+    id: (Math.random() * 10 ** 18).toString(36),
+    type: type || MessageType.Basic,
+    message: (Math.random() * 10 ** 18).toString(36),
+    createdAt: DateTime.utc().valueOf(),
+    channelId: channelId,
+    signature: '',
+    pubKey: '',
+    media: media || undefined
+  }
+}
 
 export const getFactory = async (store: Store) => {
   // @ts-ignore
   const factory = new factoryGirl.FactoryGirl()
 
   factory.setAdapter(new CustomReduxAdapter(store))
-
+  const registrarUrl = 'http://ugmx77q2tnm5fliyfxfeen5hsuzjtbsz44tsldui2ju7vl5xj4d447yd.onion'
   factory.define(
     'Community',
     communities.actions.addNewCommunity,
     {
-      id: factory.sequence('Community.id', n => n),
-      name: factory.sequence('Community.name', n => `community_${n}`),
-      CA: await createRootCertificateTestHelper(
-        // @ts-ignore
-        factory.sequence('Community.name', n => `community_${n}`)
-      ),
-      registrarUrl: 'http://ugmx77q2tnm5fliyfxfeen5hsuzjtbsz44tsldui2ju7vl5xj4d447yd.onion',
-      rootCa: '',
+      id: factory.sequence('Community.id', (n: number) => n),
+      name: factory.sequence('Community.name', (n: number) => `community_${n}`),
+      CA: await createRootCertificateTestHelper(registrarUrl),
+      registrarUrl: registrarUrl,
       peerList: [],
       ownerCertificate: ''
     },
@@ -52,7 +69,7 @@ export const getFactory = async (store: Store) => {
             description: 'Welcome to channel #general',
             timestamp: DateTime.utc().toSeconds(),
             owner: 'alice',
-            address: 'general'
+            id: generateChannelId('general')
           }
         })
         return payload
@@ -75,7 +92,7 @@ export const getFactory = async (store: Store) => {
         publicKey: '9f016defcbe48829db163e86b28efb10318faf3b109173105e3dc024e951bb1b',
         privateKey: '4dcebbf395c0e9415bc47e52c96fcfaf4bd2485a516f45118c2477036b45fc0b'
       },
-      nickname: factory.sequence('Identity.nickname', n => `user_${n}`),
+      nickname: factory.sequence('Identity.nickname', (n: number) => `user_${n}`),
       userCertificate: undefined,
       // 21.09.2022 - may be useful for testing purposes
       joinTimestamp: 1663747464000
@@ -84,12 +101,13 @@ export const getFactory = async (store: Store) => {
       afterBuild: async (action: ReturnType<typeof identity.actions.addNewIdentity>) => {
         const requestCertificate = action.payload.userCertificate === undefined
         const community = communities.selectors.selectEntities(store.getState())[action.payload.id]
-        if (requestCertificate && community.CA) {
+        if (requestCertificate && community?.CA) {
           const userCertData = await createUserCertificateTestHelper(
             {
               nickname: action.payload.nickname,
               commonName: action.payload.hiddenService.onionAddress,
-              peerId: action.payload.peerId.id
+              peerId: action.payload.peerId.id,
+              dmPublicKey: action.payload.dmKeys.publicKey
             },
             community.CA
           )
@@ -119,11 +137,11 @@ export const getFactory = async (store: Store) => {
   })
 
   factory.define('PublicChannelsMessagesBase', messages.actions.addPublicChannelsMessagesBase, {
-    channelAddress: factory.assoc('PublicChannel', 'address')
+    channelId: factory.assoc('PublicChannel', 'id')
   })
 
   factory.define('PublicChannelSubscription', publicChannels.actions.setChannelSubscribed, {
-    channelAddress: factory.assoc('PublicChannel', 'address')
+    channelId: factory.assoc('PublicChannel', 'id')
   })
 
   factory.define(
@@ -131,23 +149,25 @@ export const getFactory = async (store: Store) => {
     publicChannels.actions.addChannel,
     {
       channel: {
-        name: factory.sequence('PublicChannel.name', n => `public-channel-${n}`),
+        name: factory.sequence('PublicChannel.name', (n: number) => `public-channel-${n}`),
         description: 'Description',
         timestamp: DateTime.utc().toSeconds(),
         owner: factory.assoc('Identity', 'nickname'),
-        address: ''
+        id: generateChannelId(
+          factory.sequence('PublicChannel.name', (n: number) => `publicChannel${n}`).toString()
+        )
       }
     },
     {
-      afterBuild: (action: ReturnType<typeof publicChannels.actions.addChannel>) => {
-        action.payload.channel.address = action.payload.channel.name
-        return action
-      },
       afterCreate: async (
         payload: ReturnType<typeof publicChannels.actions.addChannel>['payload']
       ) => {
-        await factory.create('PublicChannelsMessagesBase', ({ channelAddress: payload.channel.address }))
-        await factory.create('PublicChannelSubscription', ({ channelAddress: payload.channel.address }))
+        await factory.create('PublicChannelsMessagesBase', {
+          channelId: payload.channel.id
+        })
+        await factory.create('PublicChannelSubscription', {
+          channelId: payload.channel.id
+        })
         return payload
       }
     }
@@ -159,11 +179,11 @@ export const getFactory = async (store: Store) => {
     {
       identity: factory.assoc('Identity'),
       message: {
-        id: factory.sequence('Message.id', n => `${n}`),
+        id: factory.sequence('Message.id', (n: number) => `${n}`),
         type: MessageType.Basic,
-        message: factory.sequence('Message.message', n => `message_${n}`),
+        message: factory.sequence('Message.message', (n: number) => `message_${n}`),
         createdAt: DateTime.utc().valueOf(),
-        channelAddress: 'general',
+        channelId: generateChannelId('general'),
         signature: '',
         pubKey: ''
       },
@@ -175,11 +195,13 @@ export const getFactory = async (store: Store) => {
 
         // Generate signature if not specified
         if (action.payload.message.signature === '') {
+          const userCertificate = action.payload.identity.userCertificate || ''
+          const userKey = action.payload.identity.userCsr?.userKey || ''
           signatureGenerated = true
           const { signature, pubKey } = await createMessageSignatureTestHelper(
             action.payload.message.message,
-            action.payload.identity.userCertificate,
-            action.payload.identity.userCsr.userKey
+            userCertificate,
+            userKey
           )
           action.payload.message.signature = signature
           action.payload.message.pubKey = pubKey
@@ -213,9 +235,11 @@ export const getFactory = async (store: Store) => {
       afterCreate: async (
         payload: ReturnType<typeof publicChannels.actions.test_message>['payload']
       ) => {
-        store.dispatch(messagesActions.incomingMessages({
-          messages: [payload.message]
-        }))
+        store.dispatch(
+          messagesActions.incomingMessages({
+            messages: [payload.message]
+          })
+        )
 
         return payload
       }
@@ -224,7 +248,7 @@ export const getFactory = async (store: Store) => {
 
   factory.define('CacheMessages', publicChannelsActions.cacheMessages, {
     messages: [],
-    channelAddress: factory.assoc('PublicChannel', 'address'),
+    channelId: factory.assoc('PublicChannel', 'id'),
     communityId: factory.assoc('Community', 'id')
   })
 

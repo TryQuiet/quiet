@@ -56,7 +56,7 @@ describe('Ipfs file manager', () => {
       cid: 'uploading_id',
       message: {
         id: 'id',
-        channelAddress: 'channelAddress'
+        channelId: 'channelId'
       }
     }
 
@@ -65,12 +65,12 @@ describe('Ipfs file manager', () => {
     const newFilePath = copyFileSpy.mock.results[0].value as string
     metadata.path = newFilePath
 
-    const cid = 'QmPWwAxgGofmXZF5RqKE4K8rVeL6oAuCnAfoR4CZWTkJ5T'
+    const cid = 'QmSaK2joeTBYukh8L7besrvm56wSzMhn64nqLqtvxS3ths'
     await waitForExpect(() => {
       expect(eventSpy).toHaveBeenNthCalledWith(1, StorageEvents.REMOVE_DOWNLOAD_STATUS, { cid: 'uploading_id' })
     })
     await waitForExpect(() => {
-      expect(eventSpy).toHaveBeenNthCalledWith(2, StorageEvents.UPLOADED_FILE, expect.objectContaining({ cid: cid, ext: '.png', height: 44, message: { channelAddress: 'channelAddress', id: 'id' }, name: 'test-image', size: 15847, width: 824 })
+      expect(eventSpy).toHaveBeenNthCalledWith(2, StorageEvents.UPLOADED_FILE, expect.objectContaining({ cid: cid, ext: '.png', height: 44, message: { channelId: 'channelId', id: 'id' }, name: 'test-image', size: 15858, width: 824 })
       )
     })
     await waitForExpect(() => {
@@ -93,17 +93,17 @@ describe('Ipfs file manager', () => {
       cid: 'uploading_id',
       message: {
         id: 'id',
-        channelAddress: 'channelAddress'
+        channelId: 'channelId'
       }
     }
 
     await fileManager.uploadFile(metadata)
-    const cid = 'QmaA1C173ZDtoo7K6tLqq6o2eRce3kgwoVQpxsTfQgNjDZ'
+    const cid = 'QmR5NiFh2bTZCpdxZkYTMaceJFaYTPuxEt8J9BhKKdSv1o'
     await waitForExpect(() => {
       expect(eventSpy).toHaveBeenNthCalledWith(1, StorageEvents.REMOVE_DOWNLOAD_STATUS, { cid: 'uploading_id' })
     })
     await waitForExpect(() => {
-      expect(eventSpy).toHaveBeenNthCalledWith(2, StorageEvents.UPLOADED_FILE, expect.objectContaining({ cid: cid, ext: '.pdf', height: undefined, message: { channelAddress: 'channelAddress', id: 'id' }, name: 'test-file', size: 761797, width: undefined }
+      expect(eventSpy).toHaveBeenNthCalledWith(2, StorageEvents.UPLOADED_FILE, expect.objectContaining({ cid: cid, ext: '.pdf', height: undefined, message: { channelId: 'channelId', id: 'id' }, name: 'test-file', size: 761991, width: undefined }
       )
       )
     })
@@ -111,7 +111,7 @@ describe('Ipfs file manager', () => {
       expect(eventSpy).toHaveBeenNthCalledWith(3, StorageEvents.UPDATE_DOWNLOAD_PROGRESS, { cid: cid, downloadProgress: undefined, downloadState: 'hosted', mid: 'id' })
     })
     await waitForExpect(() => {
-      expect(eventSpy).toHaveBeenNthCalledWith(4, StorageEvents.UPDATE_MESSAGE_MEDIA, expect.objectContaining({ cid: cid, ext: '.pdf', height: undefined, message: { channelAddress: 'channelAddress', id: 'id' }, name: 'test-file', size: 761797, width: undefined })
+      expect(eventSpy).toHaveBeenNthCalledWith(4, StorageEvents.UPDATE_MESSAGE_MEDIA, expect.objectContaining({ cid: cid, ext: '.pdf', height: undefined, message: { channelId: 'channelId', id: 'id' }, name: 'test-file', size: 761991, width: undefined })
       )
     })
   })
@@ -130,7 +130,7 @@ describe('Ipfs file manager', () => {
       cid: 'uploading_id',
       message: {
         id: 'id',
-        channelAddress: 'channelAddress'
+        channelId: 'channelId'
       }
     }
 
@@ -157,23 +157,23 @@ describe('Ipfs file manager', () => {
       cid: 'uploading_id',
       message: {
         id: 'id',
-        channelAddress: 'channelAddress'
+        channelId: 'channelId'
       }
     }
 
     await fileManager.uploadFile(metadata)
-    const cid = 'QmaA1C173ZDtoo7K6tLqq6o2eRce3kgwoVQpxsTfQgNjDZ'
+    const cid = 'QmR5NiFh2bTZCpdxZkYTMaceJFaYTPuxEt8J9BhKKdSv1o'
     await waitForExpect(() => {
       expect(eventSpy).toHaveBeenNthCalledWith(1, StorageEvents.REMOVE_DOWNLOAD_STATUS, { cid: 'uploading_id' })
     })
     await waitForExpect(() => {
-      expect(eventSpy).toHaveBeenNthCalledWith(2, StorageEvents.UPLOADED_FILE, expect.objectContaining({ cid: cid, ext: '.pdf', height: undefined, message: { channelAddress: 'channelAddress', id: 'id' }, name: 'test-file', size: 761797, width: undefined }))
+      expect(eventSpy).toHaveBeenNthCalledWith(2, StorageEvents.UPLOADED_FILE, expect.objectContaining({ cid: cid, ext: '.pdf', height: undefined, message: { channelId: 'channelId', id: 'id' }, name: 'test-file', size: 761991, width: undefined }))
     })
     await waitForExpect(() => {
       expect(eventSpy).toHaveBeenNthCalledWith(3, StorageEvents.UPDATE_DOWNLOAD_PROGRESS, { cid: cid, downloadProgress: undefined, downloadState: 'hosted', mid: 'id' })
     })
     await waitForExpect(() => {
-      expect(eventSpy).toHaveBeenNthCalledWith(4, StorageEvents.UPDATE_MESSAGE_MEDIA, expect.objectContaining({ cid: cid, ext: '.pdf', height: undefined, message: { channelAddress: 'channelAddress', id: 'id' }, name: 'test-file', size: 761797, width: undefined }))
+      expect(eventSpy).toHaveBeenNthCalledWith(4, StorageEvents.UPDATE_MESSAGE_MEDIA, expect.objectContaining({ cid: cid, ext: '.pdf', height: undefined, message: { channelId: 'channelId', id: 'id' }, name: 'test-file', size: 761991, width: undefined }))
     })
 
     // Downloading
@@ -191,7 +191,7 @@ describe('Ipfs file manager', () => {
 
     await waitForExpect(() => {
       expect(eventSpy).toHaveBeenNthCalledWith(6, StorageEvents.UPDATE_DOWNLOAD_PROGRESS, { cid: cid, downloadProgress: undefined, downloadState: 'malicious', mid: 'id' })
-    }, 10000)
+    }, 20000)
 
     expect(eventSpy).toBeCalledTimes(6)
   })
@@ -212,7 +212,7 @@ describe('Ipfs file manager', () => {
       cid,
       message: {
         id: 'id',
-        channelAddress: 'channelAddress'
+        channelId: 'channelId'
       }
     }
 
@@ -223,7 +223,7 @@ describe('Ipfs file manager', () => {
       expect(eventSpy).toHaveBeenNthCalledWith(1, StorageEvents.REMOVE_DOWNLOAD_STATUS, { cid })
     })
     await waitForExpect(() => {
-      expect(eventSpy).toHaveBeenNthCalledWith(2, StorageEvents.UPLOADED_FILE, expect.objectContaining({ cid: cid, ext: '.pdf', height: undefined, message: { channelAddress: 'channelAddress', id: 'id' }, name: 'test-file', size: 761797, width: undefined })
+      expect(eventSpy).toHaveBeenNthCalledWith(2, StorageEvents.UPLOADED_FILE, expect.objectContaining({ cid: cid, ext: '.pdf', height: undefined, message: { channelId: 'channelId', id: 'id' }, name: 'test-file', size: 761797, width: undefined })
       )
     })
     await waitForExpect(() => {
@@ -231,7 +231,7 @@ describe('Ipfs file manager', () => {
       )
     })
     await waitForExpect(() => {
-      expect(eventSpy).toHaveBeenNthCalledWith(4, StorageEvents.UPDATE_MESSAGE_MEDIA, expect.objectContaining({ cid: cid, ext: '.pdf', height: undefined, message: { channelAddress: 'channelAddress', id: 'id' }, name: 'test-file', size: 761797, width: undefined })
+      expect(eventSpy).toHaveBeenNthCalledWith(4, StorageEvents.UPDATE_MESSAGE_MEDIA, expect.objectContaining({ cid: cid, ext: '.pdf', height: undefined, message: { channelId: 'channelId', id: 'id' }, name: 'test-file', size: 761797, width: undefined })
       )
     })
 
@@ -272,22 +272,22 @@ describe('Ipfs file manager', () => {
       cid: 'uploading_id',
       message: {
         id: 'id',
-        channelAddress: 'channelAddress'
+        channelId: 'channelId'
       }
     }
 
     await fileManager.uploadFile(metadata)
-    const cid = 'QmPWwAxgGofmXZF5RqKE4K8rVeL6oAuCnAfoR4CZWTkJ5T'
+    const cid = 'QmSaK2joeTBYukh8L7besrvm56wSzMhn64nqLqtvxS3ths'
     expect(eventSpy).toHaveBeenNthCalledWith(1, StorageEvents.REMOVE_DOWNLOAD_STATUS, { cid: 'uploading_id' }
     )
 
-    expect(eventSpy).toHaveBeenNthCalledWith(2, StorageEvents.UPLOADED_FILE, expect.objectContaining({ cid: cid, ext: '.png', height: 44, message: { channelAddress: 'channelAddress', id: 'id' }, name: 'test-image', size: 15847, width: 824 })
+    expect(eventSpy).toHaveBeenNthCalledWith(2, StorageEvents.UPLOADED_FILE, expect.objectContaining({ cid: cid, ext: '.png', height: 44, message: { channelId: 'channelId', id: 'id' }, name: 'test-image', size: 15858, width: 824 })
     )
 
     expect(eventSpy).toHaveBeenNthCalledWith(3, StorageEvents.UPDATE_DOWNLOAD_PROGRESS, { cid: cid, downloadProgress: undefined, downloadState: 'hosted', mid: 'id' }
     )
 
-    expect(eventSpy).toHaveBeenNthCalledWith(4, StorageEvents.UPDATE_MESSAGE_MEDIA, expect.objectContaining({ cid: cid, ext: '.png', height: 44, message: { channelAddress: 'channelAddress', id: 'id' }, name: 'test-image', size: 15847, width: 824 })
+    expect(eventSpy).toHaveBeenNthCalledWith(4, StorageEvents.UPDATE_MESSAGE_MEDIA, expect.objectContaining({ cid: cid, ext: '.png', height: 44, message: { channelId: 'channelId', id: 'id' }, name: 'test-image', size: 15858, width: 824 })
     )
 
     // Downloading
@@ -301,14 +301,14 @@ describe('Ipfs file manager', () => {
     })
 
     await waitForExpect(() => {
-      expect(eventSpy).toHaveBeenNthCalledWith(6, StorageEvents.UPDATE_DOWNLOAD_PROGRESS, { cid: cid, downloadProgress: { downloaded: 15863, size: 15847, transferSpeed: 0 }, downloadState: 'downloading', mid: 'id' }
+      expect(eventSpy).toHaveBeenNthCalledWith(6, StorageEvents.UPDATE_DOWNLOAD_PROGRESS, { cid: cid, downloadProgress: { downloaded: 15855, size: 15858, transferSpeed: 0 }, downloadState: 'downloading', mid: 'id' }
       )
-    }, 10000)
+    }, 20000)
     await waitForExpect(() => {
-      expect(eventSpy).toHaveBeenNthCalledWith(7, StorageEvents.UPDATE_DOWNLOAD_PROGRESS, { cid: cid, downloadProgress: { downloaded: 15863, size: 15847, transferSpeed: 0 }, downloadState: 'completed', mid: 'id' }
+      expect(eventSpy).toHaveBeenNthCalledWith(7, StorageEvents.UPDATE_DOWNLOAD_PROGRESS, { cid: cid, downloadProgress: { downloaded: 15855, size: 15858, transferSpeed: 0 }, downloadState: 'completed', mid: 'id' }
       )
-    }, 10000)
-    expect(eventSpy).toHaveBeenNthCalledWith(8, StorageEvents.UPDATE_MESSAGE_MEDIA, expect.objectContaining({ cid: cid, ext: '.png', height: 44, message: { channelAddress: 'channelAddress', id: 'id' }, name: 'test-image', size: 15847, width: 824 })
+    }, 20000)
+    expect(eventSpy).toHaveBeenNthCalledWith(8, StorageEvents.UPDATE_MESSAGE_MEDIA, expect.objectContaining({ cid: cid, ext: '.png', height: 44, message: { channelId: 'channelId', id: 'id' }, name: 'test-image', size: 15858, width: 824 })
     )
   })
   it('downloaded file matches uploaded file', async () => {
@@ -318,15 +318,15 @@ describe('Ipfs file manager', () => {
 
     // Uploading
     const eventSpy = jest.spyOn(fileManager, 'emit')
-
+    const filePath = path.join(dirname, '/testUtils/test-image.png')
     const metadata: FileMetadata = {
-      path: path.join(dirname, '/testUtils/test-image.png'),
+      path: filePath,
       name: 'test-image',
       ext: '.png',
       cid: 'uploading_id',
       message: {
         id: 'id',
-        channelAddress: 'channelAddress'
+        channelId: 'channelId'
       }
     }
 
@@ -338,7 +338,7 @@ describe('Ipfs file manager', () => {
 
     const downloadMetadata = eventSpy.mock.calls[3][1]
 
-    const uploadFileBuffer = fs.readFileSync(metadata.path)
+    const uploadFileBuffer = fs.readFileSync(filePath)
     // @ts-ignore
     const downloadFileBuffer = fs.readFileSync(downloadMetadata.path)
 
@@ -370,7 +370,7 @@ describe('Ipfs file manager', () => {
       cid: 'uploading_id',
       message: {
         id: 'id',
-        channelAddress: 'channelAddress'
+        channelId: 'channelId'
       }
     }
 

@@ -1,6 +1,4 @@
-import {
-  setupCrypto
-} from '@quiet/identity'
+import { setupCrypto } from '@quiet/identity'
 import { call } from 'redux-saga-test-plan/matchers'
 import { Store } from '../../store.types'
 import { getFactory, MessageType } from '../../..'
@@ -8,20 +6,25 @@ import { prepareStore, reducers } from '../../../utils/tests/prepareStore'
 import { combineReducers } from '@reduxjs/toolkit'
 import { expectSaga } from 'redux-saga-test-plan'
 import { Socket } from 'socket.io-client'
-import { communitiesActions, Community } from '../../communities/communities.slice'
+import { communitiesActions } from '../../communities/communities.slice'
 import { identityActions } from '../../identity/identity.slice'
-import { Identity } from '../../identity/identity.types'
-import { SocketActionTypes } from '../../socket/const/actionTypes'
 import { uploadFileSaga } from './uploadFile.saga'
 import { FactoryGirl } from 'factory-girl'
-import { PublicChannel } from '../../publicChannels/publicChannels.types'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
-import { currentChannelAddress } from '../../publicChannels/publicChannels.selectors'
-import { DownloadState, FileMetadata } from '../../files/files.types'
 import { filesActions } from '../files.slice'
 import { generateMessageId } from '../../messages/utils/message.utils'
 import { DateTime } from 'luxon'
 import { messagesActions } from '../../messages/messages.slice'
+import {
+  Community,
+  DownloadState,
+  FileMetadata,
+  Identity,
+  PublicChannel,
+  SocketActionTypes
+} from '@quiet/types'
+import { generateChannelId } from '@quiet/common'
+import { currentChannelId } from '../../publicChannels/publicChannels.selectors'
 
 describe('uploadFileSaga', () => {
   let store: Store
@@ -42,7 +45,7 @@ describe('uploadFileSaga', () => {
     factory = await getFactory(store)
 
     community = await factory.create<
-    ReturnType<typeof communitiesActions.addNewCommunity>['payload']
+      ReturnType<typeof communitiesActions.addNewCommunity>['payload']
     >('Community')
 
     alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
@@ -50,18 +53,20 @@ describe('uploadFileSaga', () => {
       { id: community.id, nickname: 'alice' }
     )
 
-    sailingChannel = (await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>(
-      'PublicChannel',
-      {
-        channel: {
-          name: 'sailing',
-          description: 'Welcome to #sailing',
-          timestamp: DateTime.utc().valueOf(),
-          owner: alice.nickname,
-          address: 'sailing'
+    sailingChannel = (
+      await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>(
+        'PublicChannel',
+        {
+          channel: {
+            name: 'sailing',
+            description: 'Welcome to #sailing',
+            timestamp: DateTime.utc().valueOf(),
+            owner: alice.nickname,
+            id: generateChannelId('sailing')
+          }
         }
-      }
-    )).channel
+      )
+    ).channel
 
     message = Math.random().toString(36).substr(2.9)
   })
@@ -69,7 +74,9 @@ describe('uploadFileSaga', () => {
   test('uploading file', async () => {
     const socket = { emit: jest.fn() } as unknown as Socket
 
-    const currentChannel = currentChannelAddress(store.getState())
+    const currentChannel = currentChannelId(store.getState())
+
+    if (!currentChannel) throw new Error('no current channel id')
 
     const peerId = alice.peerId.id
 
@@ -80,32 +87,30 @@ describe('uploadFileSaga', () => {
       ext: 'ext',
       message: {
         id: message,
-        channelAddress: currentChannel
+        channelId: currentChannel
       }
     }
     const reducer = combineReducers(reducers)
-    await expectSaga(
-      uploadFileSaga,
-      socket,
-      filesActions.uploadFile(media)
-    )
+    await expectSaga(uploadFileSaga, socket, filesActions.uploadFile(media))
       .withReducer(reducer)
       .withState(store.getState())
-      .provide([
-        [call.fn(generateMessageId), message]
-      ])
-      .put(messagesActions.sendMessage({
-        id: message,
-        message: '',
-        type: MessageType.File,
-        media: media
-      }))
-      .put(filesActions.updateDownloadStatus({
-        mid: message,
-        cid: `uploading_${message}`,
-        downloadState: DownloadState.Uploading,
-        downloadProgress: undefined
-      }))
+      .provide([[call.fn(generateMessageId), message]])
+      .put(
+        messagesActions.sendMessage({
+          id: message,
+          message: '',
+          type: MessageType.File,
+          media: media
+        })
+      )
+      .put(
+        filesActions.updateDownloadStatus({
+          mid: message,
+          cid: `uploading_${message}`,
+          downloadState: DownloadState.Uploading,
+          downloadProgress: undefined
+        })
+      )
       .apply(socket, socket.emit, [
         SocketActionTypes.UPLOAD_FILE,
         {

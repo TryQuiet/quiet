@@ -4,14 +4,15 @@ import { prepareStore } from '../../../../testUtils/prepareStore'
 import { renderComponent } from '../../../../testUtils/renderComponent'
 import { ChannelInputComponent } from './ChannelInput'
 import { INPUT_STATE } from './InputState.enum'
-import { FileContent, getFactory, identity } from '@quiet/state-manager'
+import { getFactory, identity } from '@quiet/state-manager'
+import { FileContent } from '@quiet/types'
 import UploadFilesPreviewsComponent from '../../../Channel/File/UploadingPreview'
 
 describe('ChannelInput', () => {
   it('renders component input available ', () => {
     const result = renderComponent(
       <ChannelInputComponent
-        channelAddress={'channelAddress'}
+        channelId={'channelId'}
         channelName={'channelName'}
         inputPlaceholder='#channel as @user'
         onChange={jest.fn()}
@@ -19,8 +20,8 @@ describe('ChannelInput', () => {
         infoClass={''}
         setInfoClass={jest.fn()}
         openFilesDialog={jest.fn()}
-        handleOpenFiles={jest.fn()}
-      />
+        handleOpenFiles={jest.fn()} handleClipboardFiles={function (arg: ArrayBuffer, ext: string, name: string): void {}}
+        />
     )
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
@@ -102,7 +103,7 @@ describe('ChannelInput', () => {
   it('renders component input unavailable', () => {
     const result = renderComponent(
       <ChannelInputComponent
-        channelAddress={'channelAddress'}
+        channelId={'channelId'}
         channelName={'channelName'}
         inputPlaceholder='#channel as @user'
         onChange={jest.fn()}
@@ -111,8 +112,8 @@ describe('ChannelInput', () => {
         setInfoClass={jest.fn()}
         inputState={INPUT_STATE.NOT_CONNECTED}
         openFilesDialog={jest.fn()}
-        handleOpenFiles={jest.fn()}
-      />
+        handleOpenFiles={jest.fn()} handleClipboardFiles={function (arg: ArrayBuffer, ext: string, name: string): void {
+        } } />
     )
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
@@ -239,7 +240,7 @@ describe('ChannelInput', () => {
 
     renderComponent(
       <ChannelInputComponent
-        channelAddress={'channelAddress'}
+        channelId={'channelId'}
         channelName={'channelName'}
         inputPlaceholder='#channel as @user'
         onChange={jest.fn()}

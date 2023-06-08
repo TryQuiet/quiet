@@ -3,8 +3,9 @@ import { View, Text, Image, StyleSheet } from 'react-native'
 import { Typography } from '../Typography/Typography.component'
 import { MessageProps } from './Message.types'
 import { Jdenticon } from '../Jdenticon/Jdenticon.component'
-import { appImages } from '../../../assets'
-import { MessageType, AUTODOWNLOAD_SIZE_LIMIT, DisplayableMessage } from '@quiet/state-manager'
+import { appImages } from '../../assets'
+import { MessageType, DisplayableMessage } from '@quiet/types'
+import { AUTODOWNLOAD_SIZE_LIMIT } from '@quiet/state-manager'
 import { UploadedImage } from '../UploadedImage/UploadedImage.component'
 import { UploadedFile } from '../UploadedFile/UploadedFile.component'
 import { FileActionsProps } from '../UploadedFile/UploadedFile.types'
@@ -24,11 +25,11 @@ export const Message: FC<MessageProps & FileActionsProps> = ({
   const renderMessage = (message: DisplayableMessage, pending: boolean) => {
     switch (message.type) {
       case 2: // MessageType.Image (cypress tests incompatibility with enums)
-        const size = message?.media?.size
+        const size = message.media?.size
         const fileDisplay = !size || size < AUTODOWNLOAD_SIZE_LIMIT
         return (
           <>
-            {fileDisplay ? (
+            {fileDisplay && message.media ? (
               <UploadedImage media={message.media} openImagePreview={openImagePreview}/>
             ) : (
               <UploadedFile message={message} downloadStatus={downloadStatus} downloadFile={downloadFile} cancelDownload={cancelDownload}/>

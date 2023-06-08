@@ -8,8 +8,8 @@ import { reducers } from '../../reducers'
 import { identityActions } from '../identity.slice'
 import { registerUsernameSaga } from './registerUsername.saga'
 import { communitiesActions } from '../../communities/communities.slice'
-import { CertData, CreateUserCsrPayload } from '../identity.types'
 import { config } from '../../users/const/certFieldTypes'
+import { CertData, CreateUserCsrPayload } from '@quiet/types'
 
 describe('registerUsernameSaga', () => {
   it('create user csr', async () => {

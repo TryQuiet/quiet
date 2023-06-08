@@ -41,7 +41,7 @@ export const reducers = {
   [StoreKeys.Navigation]: navigationReducer
 }
 
-interface options {
+interface Options {
   effectId: number
   parentEffectId: number
   label?: string
@@ -60,16 +60,17 @@ class SagaMonitor {
   effectsResolvedArray
   constructor(
   ) {
-    this.effectsTriggeredArray = new Map<number, options>()
-    this.effectsResolvedArray = new Map<number, options>()
+    this.effectsTriggeredArray = new Map<number, Options>()
+    this.effectsResolvedArray = new Map<number, Options>()
   }
 
-  effectTriggered: SagaMonitorType['effectTriggered'] = (options) => {
+  effectTriggered: SagaMonitorType['effectTriggered'] = (options: Options) => {
     this.effectsTriggeredArray.set(options.effectId, options)
   }
 
-  effectResolved: SagaMonitorType['effectResolved'] = (effectId, result) => {
+  effectResolved: SagaMonitorType['effectResolved'] = (effectId: number, result) => {
     const triggeredEffect = this.effectsTriggeredArray.get(effectId)
+    if (!triggeredEffect) return
     this.effectsResolvedArray.set(effectId, { ...triggeredEffect, result })
   }
 

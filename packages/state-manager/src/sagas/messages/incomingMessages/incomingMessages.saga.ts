@@ -4,15 +4,15 @@ import { messagesActions } from '../messages.slice'
 import { messagesSelectors } from '../messages.selectors'
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
-import { CacheMessagesPayload, ChannelMessage } from '../../publicChannels/publicChannels.types'
+import { CacheMessagesPayload, ChannelMessage } from '@quiet/types'
 
 export function* incomingMessagesSaga(
   action: PayloadAction<ReturnType<typeof messagesActions.incomingMessages>['payload']>
 ): Generator {
   for (const incomingMessage of action.payload.messages) {
     // Proceed only for messages from current channel
-    const currentChannelAddress = yield* select(publicChannelsSelectors.currentChannelAddress)
-    if (incomingMessage.channelAddress !== currentChannelAddress) {
+    const currentChannelId = yield* select(publicChannelsSelectors.currentChannelId)
+    if (incomingMessage.channelId !== currentChannelId) {
       return
     }
 
@@ -39,7 +39,7 @@ export function* incomingMessagesSaga(
       )
       const messageDraft = currentPublicChannelEntities[incomingMessage.id]
 
-      if (messageDraft?.media.path) {
+      if (messageDraft?.media?.path) {
         message = {
           ...incomingMessage,
           media: {
@@ -75,7 +75,7 @@ export function* incomingMessagesSaga(
 
     const cacheMessagesPayload: CacheMessagesPayload = {
       messages: cachedMessages,
-      channelAddress: message.channelAddress
+      channelId: message.channelId
     }
 
     yield* put(publicChannelsActions.cacheMessages(cacheMessagesPayload))

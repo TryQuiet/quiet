@@ -1,10 +1,12 @@
 import React from 'react'
+
 import MockedSocket from 'socket.io-mock'
 import { ioMock } from '../../../shared/setupTests'
 import { prepareStore } from '../../testUtils/prepareStore'
 import { renderComponent } from '../../testUtils/renderComponent'
 import { getFactory, publicChannels, communities, identity } from '@quiet/state-manager'
 import SearchModalComponent from './SearchModelComponent'
+import { generateChannelId } from '@quiet/common'
 
 describe('Search Modal', () => {
   let socket: MockedSocket
@@ -46,7 +48,7 @@ describe('Search Modal', () => {
             description: `Welcome to #${channelMock.name}`,
             timestamp: channelMock.timestamp,
             owner: alice.nickname,
-            address: channelMock.name
+            id: generateChannelId(channelMock.name)
           }
         }
       )
@@ -59,8 +61,8 @@ describe('Search Modal', () => {
 
     const result = renderComponent(
       <SearchModalComponent
-        setCurrentChannel={function (_address: string): void {}}
-        setChannelInput={function (_address: string): void {}}
+        setCurrentChannel={function (_id: string): void {}}
+        setChannelInput={function (_id: React.SetStateAction<string>): void {}}
         dynamicSearchedChannelsSelector={dynamicSearchedChannels}
         publicChannelsSelector={publicChannelsSelector}
         unreadChannelsSelector={[]}

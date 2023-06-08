@@ -18,6 +18,7 @@ describe('Spinner component', () => {
             "flex": 1,
           }
         }
+        testID="create-community-component"
       >
         <View
           onLayout={[Function]}

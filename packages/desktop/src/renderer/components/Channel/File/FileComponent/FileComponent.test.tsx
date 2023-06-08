@@ -1,4 +1,4 @@
-import { DownloadState } from '@quiet/state-manager'
+import { DownloadState } from '@quiet/types'
 import React from 'react'
 
 import { renderComponent } from '../../../../testUtils/renderComponent'
@@ -14,7 +14,7 @@ describe('FileComponent', () => {
           media: {
             cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
             message: {
-              channelAddress: 'general',
+              channelId: 'general',
               id: 'wgtlstx3u7'
             },
             ext: '.zip',

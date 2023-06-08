@@ -55,8 +55,9 @@ const MathComponent: React.FC<UseMathProps & TextMessageComponentProps> = ({
   const isMath = displayMathRegex.test(message)
   React.useEffect(() => {
     if (!node || !isMath) return
-
-    const sanitizedMessage = message.match(displayMathRegex)[1]
+    const mathMessage = message.match(displayMathRegex)
+    if (!mathMessage) return
+    const sanitizedMessage = mathMessage[1]
     const converted = convertPromise({ src: sanitizedMessage.trim(), lang: SourceLang.Tex }, node, display, {})
     converted.promise.then((result: string) => {
       setRenderedHTML(result)

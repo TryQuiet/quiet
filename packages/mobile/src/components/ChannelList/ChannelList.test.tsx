@@ -14,7 +14,7 @@ describe('ChannelList component', () => {
         tiles={[
           {
             name: 'general',
-            address: 'general',
+            id: 'general',
             message:
               'Text from latest chat message. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Id massa venenatis id eget massa commodo posuere faucibus aliquam. At scelerisque nisi mauris facilisis.',
             date: '1:55pm',
@@ -23,7 +23,7 @@ describe('ChannelList component', () => {
           },
           {
             name: 'spam',
-            address: 'spam',
+            id: 'spam',
             message:
               'Text from latest chat message. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Id massa venenatis id eget massa commodo posuere faucibus aliquam. At scelerisque nisi mauris facilisis.',
             date: '1:55pm',
@@ -32,7 +32,7 @@ describe('ChannelList component', () => {
           },
           {
             name: 'design',
-            address: 'design',
+            id: 'design',
             message:
               'Text from latest chat message. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Id massa venenatis id eget massa commodo posuere faucibus aliquam. At scelerisque nisi mauris facilisis.',
             date: '6/1/22',
@@ -41,7 +41,7 @@ describe('ChannelList component', () => {
           },
           {
             name: 'qa',
-            address: 'design',
+            id: 'design',
             message:
               'Text from latest chat message. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Id massa venenatis id eget massa commodo posuere faucibus aliquam. At scelerisque nisi mauris facilisis.',
             date: 'Yesterday',
@@ -59,6 +59,7 @@ describe('ChannelList component', () => {
             "flex": 1,
           }
         }
+        testID="channel-list-component"
       >
         <View
           style={
@@ -188,32 +189,32 @@ describe('ChannelList component', () => {
           data={
             [
               {
-                "address": "general",
                 "date": "1:55pm",
+                "id": "general",
                 "message": "Text from latest chat message. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Id massa venenatis id eget massa commodo posuere faucibus aliquam. At scelerisque nisi mauris facilisis.",
                 "name": "general",
                 "redirect": [MockFunction],
                 "unread": false,
               },
               {
-                "address": "spam",
                 "date": "1:55pm",
+                "id": "spam",
                 "message": "Text from latest chat message. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Id massa venenatis id eget massa commodo posuere faucibus aliquam. At scelerisque nisi mauris facilisis.",
                 "name": "spam",
                 "redirect": [MockFunction],
                 "unread": false,
               },
               {
-                "address": "design",
                 "date": "6/1/22",
+                "id": "design",
                 "message": "Text from latest chat message. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Id massa venenatis id eget massa commodo posuere faucibus aliquam. At scelerisque nisi mauris facilisis.",
                 "name": "design",
                 "redirect": [MockFunction],
                 "unread": true,
               },
               {
-                "address": "design",
                 "date": "Yesterday",
+                "id": "design",
                 "message": "Text from latest chat message. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Id massa venenatis id eget massa commodo posuere faucibus aliquam. At scelerisque nisi mauris facilisis.",
                 "name": "qa",
                 "redirect": [MockFunction],

@@ -98,7 +98,7 @@ describe('Loading panel', () => {
           description: 'Welcome to #general',
           timestamp: DateTime.utc().valueOf(),
           owner: 'owner',
-          address: 'general'
+          id: 'general'
         }
       })
     ).payload
@@ -154,10 +154,17 @@ describe('Loading panel', () => {
     )
 
     const aliceCertificate =
-      store.getState().Identity.identities.entities[community.id].userCertificate
+      store.getState().Identity.identities.entities[community.id]?.userCertificate
+
+    expect(aliceCertificate).not.toBeUndefined()
+    expect(aliceCertificate).not.toBeNull()
 
     store.dispatch(
-      identity.actions.storeUserCertificate({ communityId: community.id, userCertificate: null })
+      identity.actions.storeUserCertificate({
+        communityId: community.id,
+        // @ts-expect-error
+        userCertificate: null
+      })
     )
 
     renderComponent(
@@ -176,6 +183,7 @@ describe('Loading panel', () => {
     store.dispatch(
       identity.actions.storeUserCertificate({
         communityId: community.id,
+        // @ts-expect-error
         userCertificate: aliceCertificate
       })
     )

@@ -3,8 +3,9 @@ import { getCertFieldValue } from '@quiet/identity'
 import { CertFieldsTypes } from './const/certFieldTypes'
 import { StoreKeys } from '../store.keys'
 import { certificatesAdapter } from './users.adapter'
-import { User } from './users.types'
+import { Certificate } from 'pkijs'
 import { CreatedSelectors, StoreState } from '../store.types'
+import { User } from '@quiet/types'
 
 const usersSlice: CreatedSelectors[StoreKeys.Users] = (state: StoreState) => state[StoreKeys.Users]
 
@@ -20,19 +21,29 @@ export const certificatesMapping = createSelector(certificates, certs => {
       return
     }
 
+    const username = getCertFieldValue(certificate, CertFieldsTypes.nickName)
+    const onionAddress = getCertFieldValue(certificate, CertFieldsTypes.commonName)
+    const peerId = getCertFieldValue(certificate, CertFieldsTypes.peerId)
+    const dmPublicKey = getCertFieldValue(certificate, CertFieldsTypes.dmPublicKey) || ''
+
+    if (!username || !onionAddress || !peerId) {
+      console.error(`Could not parse certificate for pubkey ${pubKey}`)
+      return
+    }
+
     return (mapping[pubKey] = {
-      username: getCertFieldValue(certificate, CertFieldsTypes.nickName),
-      onionAddress: getCertFieldValue(certificate, CertFieldsTypes.commonName),
-      peerId: getCertFieldValue(certificate, CertFieldsTypes.peerId),
-      dmPublicKey: getCertFieldValue(certificate, CertFieldsTypes.dmPublicKey)
+      username: username,
+      onionAddress: onionAddress,
+      peerId: peerId,
+      dmPublicKey: dmPublicKey
     })
   })
   return mapping
 })
 
 export const getOldestParsedCerificate = createSelector(certificates, certs => {
-  const getTimestamp = cert => new Date(cert.notBefore.value).getTime()
-  let certificates = []
+  const getTimestamp = (cert: Certificate) => new Date(cert.notBefore.value).getTime()
+  let certificates: Certificate[] = []
   Object.keys(certs).map(pubKey => {
     certificates = [...certificates, certs[pubKey]]
   })
@@ -45,8 +56,23 @@ export const getOldestParsedCerificate = createSelector(certificates, certs => {
   return certificates[0]
 })
 
+export const ownerData = createSelector(getOldestParsedCerificate, ownerCert => {
+  const username = getCertFieldValue(ownerCert, CertFieldsTypes.nickName)
+  const onionAddress = getCertFieldValue(ownerCert, CertFieldsTypes.commonName)
+  const peerId = getCertFieldValue(ownerCert, CertFieldsTypes.peerId)
+  const dmPublicKey = getCertFieldValue(ownerCert, CertFieldsTypes.dmPublicKey)
+
+  return {
+    username,
+    onionAddress,
+    peerId,
+    dmPublicKey
+  }
+})
+
 export const usersSelectors = {
   certificates,
   certificatesMapping,
-  getOldestParsedCerificate
+  getOldestParsedCerificate,
+  ownerData
 }

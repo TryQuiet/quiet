@@ -3,9 +3,10 @@ import selectors from './app'
 import { initialState as AppState } from '../handlers/app'
 
 import create from '../create'
+import { Store } from '../../sagas/store.types'
 
 describe('app -', () => {
-  let store = null
+  let store: Store | null = null
   beforeEach(() => {
     jest.clearAllMocks()
     store = create({
@@ -21,6 +22,9 @@ describe('app -', () => {
   })
 
   it('version selector', async () => {
-    expect(selectors.version(store.getState())).toMatchSnapshot()
+    const state = store?.getState()
+    expect(state).not.toBeUndefined()
+    if (!state) return
+    expect(selectors.version(state)).toMatchSnapshot()
   })
 })

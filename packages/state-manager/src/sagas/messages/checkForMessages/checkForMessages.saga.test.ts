@@ -1,17 +1,16 @@
 import { setupCrypto } from '@quiet/identity'
 import { Store } from '../../store.types'
-import { getFactory, Identity, MessageType, publicChannels } from '../../..'
+import { generateMessageFactoryContentWithId, getFactory, publicChannels } from '../../..'
 import { prepareStore, reducers } from '../../../utils/tests/prepareStore'
 import { messagesActions } from './../messages.slice'
-import { communitiesActions, Community } from '../../communities/communities.slice'
+import { communitiesActions } from '../../communities/communities.slice'
 import { identityActions } from '../../identity/identity.slice'
 import { FactoryGirl } from 'factory-girl'
 import { combineReducers } from 'redux'
 import { expectSaga } from 'redux-saga-test-plan'
 import { checkForMessagesSaga } from './checkForMessages.saga'
-import { PublicChannel } from '../../publicChannels/publicChannels.types'
-import { DateTime } from 'luxon'
 import { selectGeneralChannel } from '../../publicChannels/publicChannels.selectors'
+import { Community, Identity, PublicChannel } from '@quiet/types'
 
 describe('checkForMessagesSaga', () => {
   let store: Store
@@ -55,15 +54,7 @@ describe('checkForMessagesSaga', () => {
         'Message',
         {
           identity: alice,
-          message: {
-            id: Math.random().toString(36).substr(2.9),
-            type: MessageType.Basic,
-            message: 'message',
-            createdAt: DateTime.utc().valueOf(),
-            channelAddress: generalChannel.address,
-            signature: '',
-            pubKey: ''
-          },
+          message: generateMessageFactoryContentWithId(generalChannel.id),
           verifyAutomatically: true
         }
       )
@@ -74,7 +65,7 @@ describe('checkForMessagesSaga', () => {
       checkForMessagesSaga,
       messagesActions.responseSendMessagesIds({
         ids: [message.id, 'jf84hwwa', 'kl12sa0a'],
-        channelAddress: generalChannel.address,
+        channelId: generalChannel.id,
         communityId: community.id
       })
     )
@@ -84,7 +75,7 @@ describe('checkForMessagesSaga', () => {
         messagesActions.askForMessages({
           peerId: alice.peerId.id,
           communityId: community.id,
-          channelAddress: generalChannel.address,
+          channelId: generalChannel.id,
           ids: ['jf84hwwa', 'kl12sa0a']
         })
       )

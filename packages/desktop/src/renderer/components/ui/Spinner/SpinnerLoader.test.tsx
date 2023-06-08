@@ -12,7 +12,7 @@ describe('SpinnerLoader', () => {
       <body>
         <div>
           <div
-            class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column test-class-name css-373w2m-MuiGrid-root"
+            class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column test-class-name css-qotagf-MuiGrid-root"
             data-testid="spinnerLoader"
           >
             <span

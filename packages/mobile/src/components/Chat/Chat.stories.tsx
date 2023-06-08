@@ -9,18 +9,22 @@ storiesOf('Chat', module)
     <Chat
       contextMenu={{
         visible: false,
-        handleOpen: undefined,
-        handleClose: undefined
+        handleOpen: function (_args?: any): any {},
+        handleClose: function (_args?: any): any {}
       }}
       sendMessageAction={storybookLog('Message sent')}
       loadMessagesAction={storybookLog('Messages loaded')}
       handleBackButton={storybookLog('Navigating back')}
+      openImagePreview={() => {}}
+      openUrl={() => {}}
+      downloadFile={() => {}}
+      cancelDownload={() => {}}
       channel={{
         name: 'Zbay',
         description: '',
         owner: '',
         timestamp: 0,
-        address: ''
+        id: ''
       }}
       messages={{
         count: 16,
@@ -185,26 +189,28 @@ storiesOf('Chat', module)
           ]
         }
       }}
-      user={'holmes'}
     />
   ))
   .add('Empty', () => (
     <Chat
       contextMenu={{
         visible: false,
-        handleOpen: undefined,
-        handleClose: undefined
+        handleOpen: function (_args?: any): any {},
+        handleClose: function (_args?: any): any {}
       }}
       sendMessageAction={storybookLog('Message sent')}
       loadMessagesAction={storybookLog('Messages loaded')}
       handleBackButton={storybookLog('Navigating back')}
+      openImagePreview={() => {}}
+      openUrl={() => {}}
+      downloadFile={() => {}}
+      cancelDownload={() => {}}
       channel={{
         name: 'Zbay',
         description: '',
         owner: '',
         timestamp: 0,
-        address: ''
+        id: ''
       }}
-      user={'holmes'}
     />
   ))

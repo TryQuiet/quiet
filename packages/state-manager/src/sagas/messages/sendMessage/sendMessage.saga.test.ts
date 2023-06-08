@@ -6,25 +6,33 @@ import {
   sign
 } from '@quiet/identity'
 import { Store } from '../../store.types'
-import { FileMetadata, getFactory, MessageType } from '../../..'
+import { getFactory } from '../../..'
 import { prepareStore, reducers } from '../../../utils/tests/prepareStore'
 import { combineReducers } from '@reduxjs/toolkit'
 import { arrayBufferToString } from 'pvutils'
 import { expectSaga } from 'redux-saga-test-plan'
 import { call } from 'redux-saga-test-plan/matchers'
 import { Socket } from 'socket.io-client'
-import { communitiesActions, Community } from '../../communities/communities.slice'
+import { communitiesActions } from '../../communities/communities.slice'
 import { identityActions } from '../../identity/identity.slice'
-import { Identity } from '../../identity/identity.types'
-import { SocketActionTypes } from '../../socket/const/actionTypes'
 import { messagesActions } from '../messages.slice'
 import { generateMessageId, getCurrentTime } from '../utils/message.utils'
 import { sendMessageSaga } from './sendMessage.saga'
 import { FactoryGirl } from 'factory-girl'
-import { currentChannelAddress } from '../../publicChannels/publicChannels.selectors'
-import { PublicChannel } from '../../publicChannels/publicChannels.types'
+
+import { generateChannelId } from '@quiet/common'
+
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import { DateTime } from 'luxon'
+import {
+  Community,
+  FileMetadata,
+  Identity,
+  MessageType,
+  PublicChannel,
+  SocketActionTypes
+} from '@quiet/types'
+import { currentChannelId } from '../../publicChannels/publicChannels.selectors'
 
 describe('sendMessageSaga', () => {
   let store: Store
@@ -43,7 +51,7 @@ describe('sendMessageSaga', () => {
     factory = await getFactory(store)
 
     community = await factory.create<
-    ReturnType<typeof communitiesActions.addNewCommunity>['payload']
+      ReturnType<typeof communitiesActions.addNewCommunity>['payload']
     >('Community')
 
     alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
@@ -51,31 +59,29 @@ describe('sendMessageSaga', () => {
       { id: community.id, nickname: 'alice' }
     )
 
-    sailingChannel = (await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>(
-      'PublicChannel',
-      {
-        channel: {
-          name: 'sailing',
-          description: 'Welcome to #sailing',
-          timestamp: DateTime.utc().valueOf(),
-          owner: alice.nickname,
-          address: 'sailing'
+    sailingChannel = (
+      await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>(
+        'PublicChannel',
+        {
+          channel: {
+            name: 'sailing',
+            description: 'Welcome to #sailing',
+            timestamp: DateTime.utc().valueOf(),
+            owner: alice.nickname,
+            id: generateChannelId('sailing')
+          }
         }
-      }
-    )).channel
+      )
+    ).channel
   })
 
   test('sign and send message in current channel', async () => {
     const socket = { emit: jest.fn() } as unknown as Socket
 
-    const currentChannel = currentChannelAddress(store.getState())
+    const currentChannel = currentChannelId(store.getState())
 
     const reducer = combineReducers(reducers)
-    await expectSaga(
-      sendMessageSaga,
-      socket,
-      messagesActions.sendMessage({ message: 'message' })
-    )
+    await expectSaga(sendMessageSaga, socket, messagesActions.sendMessage({ message: 'message' }))
       .withReducer(reducer)
       .withState(store.getState())
       .provide([
@@ -96,7 +102,7 @@ describe('sendMessageSaga', () => {
             type: MessageType.Basic,
             message: 'message',
             createdAt: 8,
-            channelAddress: currentChannel,
+            channelId: currentChannel,
             signature: 'signature',
             pubKey: 'publicKey',
             media: undefined
@@ -113,7 +119,7 @@ describe('sendMessageSaga', () => {
     await expectSaga(
       sendMessageSaga,
       socket,
-      messagesActions.sendMessage({ message: 'message', channelAddress: sailingChannel.address })
+      messagesActions.sendMessage({ message: 'message', channelId: sailingChannel.id })
     )
       .withReducer(reducer)
       .withState(store.getState())
@@ -135,7 +141,7 @@ describe('sendMessageSaga', () => {
             type: MessageType.Basic,
             message: 'message',
             createdAt: 24,
-            channelAddress: sailingChannel.address,
+            channelId: sailingChannel.id,
             signature: 'signature',
             pubKey: 'publicKey',
             media: undefined
@@ -149,7 +155,10 @@ describe('sendMessageSaga', () => {
     const socket = { emit: jest.fn() } as unknown as Socket
 
     const messageId = Math.random().toString(36).substr(2.9)
-    const currentChannel = currentChannelAddress(store.getState())
+    const currentChannel = currentChannelId(store.getState())
+    if (!currentChannel) {
+      throw new Error('no currentChannel')
+    }
 
     const media: FileMetadata = {
       cid: 'cid',
@@ -158,7 +167,7 @@ describe('sendMessageSaga', () => {
       ext: 'ext',
       message: {
         id: messageId,
-        channelAddress: currentChannel
+        channelId: currentChannel
       }
     }
 
@@ -188,7 +197,7 @@ describe('sendMessageSaga', () => {
             type: MessageType.Basic,
             message: 'message',
             createdAt: 8,
-            channelAddress: currentChannel,
+            channelId: currentChannel,
             signature: 'signature',
             pubKey: 'publicKey',
             media: undefined

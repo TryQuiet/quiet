@@ -4,12 +4,18 @@ import { ioMock } from '../../../shared/setupTests'
 import { prepareStore } from '../../testUtils/prepareStore'
 import { setupCrypto } from '@quiet/identity'
 import { call, fork } from 'typed-redux-saga'
-import { publicChannels, NotificationsSounds, MessageType, FileMetadata } from '@quiet/state-manager'
+import {
+  publicChannels,
+  NotificationsSounds,
+  MessageType,
+  FileMetadata
+} from '@quiet/state-manager'
 import {
   createNotification,
   handleNotificationActions,
   NotificationData
 } from './notifications.saga'
+import { generateChannelId } from '@quiet/common'
 
 const notification = jest.fn().mockImplementation(() => {
   return jest.fn()
@@ -19,7 +25,6 @@ const notification = jest.fn().mockImplementation(() => {
 window.Notification = notification
 
 jest.mock('../../../shared/sounds', () => ({
-  // @ts-expect-error
   ...jest.requireActual('../../../shared/sounds'),
   soundTypeToAudio: {
     pow: {
@@ -47,26 +52,31 @@ describe('clicking in notification', () => {
 
     const { store, runSaga } = await prepareStore({}, socket)
 
-    const channel = 'sailing'
+    const generalId = generateChannelId('general')
+    const sailingId = generateChannelId('sailing')
 
     const notificationData: NotificationData = {
       label: 'label',
       body: 'body',
-      channel: channel,
+      channel: sailingId,
       sound: NotificationsSounds.splat
     }
 
+    store.dispatch(publicChannels.actions.setCurrentChannel({ channelId: generalId }))
+
     // Verify current channel is 'general
-    expect(publicChannels.selectors.currentChannelAddress(store.getState())).toBe('general')
+    expect(publicChannels.selectors.currentChannelId(store.getState())).toBe(generalId)
 
     runSaga(function* (): Generator {
       const notification = yield* call(createNotification, notificationData)
-      yield* fork(handleNotificationActions, notification, MessageType.Basic, channel)
-      yield* call(notification.onclick, new Event(''))
+      yield* fork(handleNotificationActions, notification, MessageType.Basic, sailingId)
+      const onClick = notification.onclick
+      expect(onClick).not.toBeNull()
+      if (onClick) yield* call(onClick, new Event(''))
     })
 
     // Confirm current channel address has changed
-    expect(publicChannels.selectors.currentChannelAddress(store.getState())).toBe(channel)
+    expect(publicChannels.selectors.currentChannelId(store.getState())).toBe(sailingId)
   })
 
   it('opens file explorer', async () => {
@@ -75,7 +85,7 @@ describe('clicking in notification', () => {
 
     const { runSaga } = await prepareStore({}, socket)
 
-    const channel = 'sailing'
+    const sailingId = generateChannelId('sailing')
 
     const media: FileMetadata = {
       cid: 'cid',
@@ -84,14 +94,14 @@ describe('clicking in notification', () => {
       path: 'path/file.ext',
       message: {
         id: 'id',
-        channelAddress: channel
+        channelId: sailingId
       }
     }
 
     const notificationData: NotificationData = {
       label: 'label',
       body: 'body',
-      channel: channel,
+      channel: sailingId,
       sound: NotificationsSounds.splat
     }
 
@@ -99,8 +109,10 @@ describe('clicking in notification', () => {
 
     runSaga(function* (): Generator {
       const notification = yield* call(createNotification, notificationData)
-      yield* fork(handleNotificationActions, notification, MessageType.File, channel, media)
-      yield* call(notification.onclick, new Event(''))
+      yield* fork(handleNotificationActions, notification, MessageType.File, sailingId, media)
+      const onClick = notification.onclick
+      expect(onClick).not.toBeNull()
+      if (onClick) yield* call(onClick, new Event(''))
     })
 
     expect(spy).toHaveBeenCalledWith(media.path)

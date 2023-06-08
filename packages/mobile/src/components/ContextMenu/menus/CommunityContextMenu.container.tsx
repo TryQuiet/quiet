@@ -23,7 +23,7 @@ export const CommunityContextMenu: FC = () => {
   const community = useSelector(communities.selectors.currentCommunity)
 
   let title = ''
-  if (community) {
+  if (community?.name) {
     title = capitalizeFirstLetter(community.name)
   }
 

@@ -8,10 +8,10 @@ import { Typography } from '../Typography/Typography.component'
 import { Input } from '../Input/Input.component'
 import { Button } from '../Button/Button.component'
 
-import { parseName } from '@quiet/state-manager'
+import { parseName } from '@quiet/common'
 import { Appbar } from '../Appbar/Appbar.component'
 
-import { appImages } from '../../../assets'
+import { appImages } from '../../assets'
 
 export interface CreateChannelProps {
   createChannelAction: (name: string) => void
@@ -32,10 +32,10 @@ export const CreateChannel: FC<CreateChannelProps> = ({
   const [inputError, setInputError] = useState<string | undefined>()
   const [loading, setLoading] = useState<boolean>(false)
 
-  const inputRef = useRef<TextInput>()
+  const inputRef = useRef<TextInput>(null)
 
   const onChangeText = (value: string) => {
-    setInputError(null)
+    setInputError(undefined)
     // inputRef.current?.setNativeProps({ text: value })
 
     const parsedName = parseName(value)
@@ -74,7 +74,9 @@ export const CreateChannel: FC<CreateChannelProps> = ({
   const warning_icon = appImages.icon_warning
 
   return (
-    <View style={{ flex: 1, backgroundColor: defaultTheme.palette.background.white }}>
+    <View
+      style={{ flex: 1, backgroundColor: defaultTheme.palette.background.white }}
+      testID={'create-channel-component'}>
       <Appbar title={'Create channel'} back={handleBackButton} />
       <KeyboardAvoidingView
         behavior='height'
@@ -93,8 +95,15 @@ export const CreateChannel: FC<CreateChannelProps> = ({
           validation={inputError}
           ref={inputRef}
         />
-        {!inputError && createChannelInput?.length > 0 && parsedNameDiffers && (
-          <View style={{ display: 'flex', flexDirection: 'row', gap: 10, alignItems: 'center', marginTop: 12 }}>
+        {!inputError && createChannelInput?.length !== undefined && createChannelInput.length > 0 && parsedNameDiffers && (
+          <View
+            style={{
+              display: 'flex',
+              flexDirection: 'row',
+              gap: 10,
+              alignItems: 'center',
+              marginTop: 12
+            }}>
             <View>
               <Image
                 source={warning_icon}
@@ -107,9 +116,7 @@ export const CreateChannel: FC<CreateChannelProps> = ({
               />
             </View>
             <View testID={'create_channel_name_warning'}>
-              <Typography fontSize={14}>
-                {'Your channel will be created as'}
-              </Typography>
+              <Typography fontSize={14}>{'Your channel will be created as'}</Typography>
               <Typography fontSize={14} fontWeight={'medium'}>
                 {`#${createChannelInput}`}
               </Typography>

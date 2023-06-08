@@ -1,5 +1,5 @@
 export interface FileContent {
-  path: string
+  path: string | null
   name: string
   ext: string
 }
@@ -14,7 +14,7 @@ export interface FileMetadata extends FileContent {
 
 export interface FileMessage {
   id: string
-  channelAddress: string
+  channelId: string
 }
 
 export interface UploadFilePayload {
@@ -55,6 +55,7 @@ export interface DownloadProgress {
 }
 
 export enum DownloadState {
+  None = '',
   Uploading = 'uploading',
   Hosted = 'hosted',
   Ready = 'ready',

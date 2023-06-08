@@ -9,6 +9,7 @@ import { composeWithDevTools } from 'redux-devtools-extension'
 
 import reducers from './reducers'
 import { errorsMiddleware } from './middlewares'
+import { Store } from '../sagas/store.types'
 
 const testMode = process.env.TEST_MODE
 
@@ -27,7 +28,7 @@ const sagaMiddleware = createSagaMiddleware({
   }
 })
 
-export default (initialState = {}) => {
+export default (initialState = {}): Store => {
   const store = createStore(
     reducers,
     initialState,

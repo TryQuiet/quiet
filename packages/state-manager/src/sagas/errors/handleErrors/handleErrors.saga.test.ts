@@ -5,13 +5,11 @@ import { delay } from 'typed-redux-saga'
 import { Store } from '@reduxjs/toolkit'
 import { setupCrypto } from '@quiet/identity'
 import {
-  Community,
   communitiesActions
 } from '../../communities/communities.slice'
+import { Community, ErrorCodes, ErrorMessages, ErrorTypes, Identity } from '@quiet/types'
 import { identityActions } from '../../identity/identity.slice'
-import { Identity } from '../../identity/identity.types'
 import { errorsActions } from '../errors.slice'
-import { ErrorCodes, ErrorMessages, ErrorTypes } from '../errors.types'
 import { handleErrorsSaga, retryRegistration } from './handleErrors.saga'
 import { prepareStore, reducers } from '../../../utils/tests/prepareStore'
 import { getFactory } from '../../../utils/tests/factories'
@@ -78,6 +76,7 @@ describe('handle errors', () => {
       message: ErrorMessages.USERNAME_TAKEN,
       community: community.id
     }
+    expect(identity.userCsr).not.toBeNull()
     await expectSaga(
       handleErrorsSaga,
       errorsActions.handleError(errorPayload)
@@ -90,6 +89,7 @@ describe('handle errors', () => {
         identityActions.registerCertificate({
           communityId: community.id,
           nickname: identity.nickname,
+          // @ts-expect-error
           userCsr: identity.userCsr
         })
       )

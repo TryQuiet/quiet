@@ -61,8 +61,9 @@ describe('Switch channels', () => {
   let community: Community
   let alice: Identity
 
+  const channelFun = { name: 'fun', timestamp: 1673857606990 }
   const channelsMocks = [
-    { name: 'fun', timestamp: 1673857606990 },
+    channelFun,
     { name: 'random', timestamp: 1673854900410 },
     { name: 'test', timestamp: 1673623514097 }
   ]
@@ -98,7 +99,7 @@ describe('Switch channels', () => {
             description: `Welcome to #${channelMock.name}`,
             timestamp: channelMock.timestamp,
             owner: alice.nickname,
-            address: channelMock.name
+            id: channelMock.name
           }
         }
       )
@@ -106,7 +107,6 @@ describe('Switch channels', () => {
   })
 
   it('Select channel by writing name and pressing enter', async () => {
-    const CHANNEL_NAME = 'fun'
     renderComponent(
       <>
         <SearchModal />
@@ -116,7 +116,7 @@ describe('Switch channels', () => {
     redux.store.dispatch(modalsActions.openModal({ name: ModalName.searchChannelModal }))
 
     const input = await screen.findByPlaceholderText('Channel name')
-    await userEvent.type(input, channelsMocks.find(channel => channel.name === CHANNEL_NAME).name)
+    await userEvent.type(input, channelFun.name)
     const tab = await screen.findByText('# fun')
     await userEvent.type(tab, '{ArrowDown}')
     await userEvent.type(tab, '{enter}')
@@ -125,11 +125,10 @@ describe('Switch channels', () => {
 
     const currentChannel = publicChannels.selectors.currentChannel(redux.store.getState())
 
-    expect(currentChannel.name).toEqual(CHANNEL_NAME)
+    expect(currentChannel?.name).toEqual(channelFun.name)
   })
 
   it('Select channel by writing name and clicking', async () => {
-    const CHANNEL_NAME = 'fun'
     renderComponent(
       <>
         <SearchModal />
@@ -139,7 +138,7 @@ describe('Switch channels', () => {
     redux.store.dispatch(modalsActions.openModal({ name: ModalName.searchChannelModal }))
 
     const input = await screen.findByPlaceholderText('Channel name')
-    await userEvent.type(input, channelsMocks.find(channel => channel.name === CHANNEL_NAME).name)
+    await userEvent.type(input, channelFun.name)
     const tab = await screen.findByText('# fun')
     fireEvent.click(tab)
 
@@ -147,7 +146,7 @@ describe('Switch channels', () => {
 
     const currentChannel = publicChannels.selectors.currentChannel(redux.store.getState())
 
-    expect(currentChannel.name).toEqual(CHANNEL_NAME)
+    expect(currentChannel?.name).toEqual(channelFun.name)
   })
 
   it('Select most recent channel by clicking arrow down and enter', async () => {
@@ -169,7 +168,7 @@ describe('Switch channels', () => {
 
     const currentChannel = publicChannels.selectors.currentChannel(redux.store.getState())
 
-    expect(currentChannel.name).toEqual(CHANNEL_NAME)
+    expect(currentChannel?.name).toEqual(CHANNEL_NAME)
   })
 
   it('Close by hitting escape', async () => {
@@ -197,7 +196,7 @@ describe('Switch channels', () => {
           type: MessageType.Basic,
           message: 'message',
           createdAt: DateTime.utc().valueOf(),
-          channelAddress: 'fun',
+          channelId: 'fun',
           signature: '',
           pubKey: ''
         },
@@ -229,7 +228,7 @@ describe('Switch channels', () => {
 
     const currentChannel = publicChannels.selectors.currentChannel(redux.store.getState())
 
-    expect(currentChannel.name).toEqual('fun')
+    expect(currentChannel?.name).toEqual('fun')
 
     function* mockIncomingMessages(): Generator {
       yield* apply(socket.socketClient, socket.socketClient.emit, [

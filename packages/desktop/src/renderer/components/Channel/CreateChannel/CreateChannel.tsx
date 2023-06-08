@@ -3,23 +3,26 @@ import { useDispatch, useSelector } from 'react-redux'
 import CreateChannelComponent from './CreateChannelComponent'
 import {
   communities,
-  ErrorCodes,
-  ErrorMessages,
   errors,
   identity,
-  PublicChannel,
-  publicChannels,
-  SocketActionTypes
+  publicChannels
 } from '@quiet/state-manager'
+import {
+  ErrorCodes,
+  ErrorMessages,
+  PublicChannel,
+  SocketActionTypes
+} from '@quiet/types'
 import { DateTime } from 'luxon'
 import { useModal } from '../../../containers/hooks'
 import { ModalName } from '../../../sagas/modals/modals.types'
 import { flushSync } from 'react-dom'
+import { generateChannelId } from '@quiet/common'
 
 export const CreateChannel = () => {
   const dispatch = useDispatch()
 
-  const [newChannel, setNewChannel] = useState<PublicChannel>(null)
+  const [newChannel, setNewChannel] = useState<PublicChannel | null>(null)
 
   const user = useSelector(identity.selectors.currentIdentity)
   const community = useSelector(communities.selectors.currentCommunityId)
@@ -31,13 +34,14 @@ export const CreateChannel = () => {
   const createChannelModal = useModal(ModalName.createChannel)
 
   useEffect(() => {
+    if (!newChannel) return
     if (
       createChannelModal.open &&
       channels.filter(channel => channel.name === newChannel?.name).length > 0
     ) {
       dispatch(
         publicChannels.actions.setCurrentChannel({
-          channelAddress: newChannel.address
+          channelId: newChannel.id
         })
       )
       setNewChannel(null)
@@ -54,6 +58,18 @@ export const CreateChannel = () => {
   const createChannel = (name: string) => {
     // Clear errors
     clearErrors()
+    if (!user) {
+      console.error('No identity found')
+      dispatch(
+        errors.actions.addError({
+          type: SocketActionTypes.CREATED_CHANNEL,
+          code: ErrorCodes.NOT_FOUND,
+          message: ErrorMessages.GENERAL,
+          community: community
+        })
+      )
+      return
+    }
     // Validate channel name
     if (channels.some(channel => channel.name === name)) {
       dispatch(
@@ -66,12 +82,13 @@ export const CreateChannel = () => {
       )
       return
     }
+    // Move to state manager
     // Create channel
     const channel: PublicChannel = {
       name: name,
       description: `Welcome to #${name}`,
       owner: user.nickname,
-      address: name,
+      id: generateChannelId(name),
       timestamp: DateTime.utc().valueOf()
     }
     flushSync(() => {

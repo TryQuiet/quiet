@@ -1,8 +1,7 @@
 import { createSelector } from 'reselect'
+import { StoreState } from '../../sagas/store.types'
 
-import { Store } from '../reducers'
-
-const app = (s: Store) => s.app
+const app = (s: StoreState) => s.app
 
 const version = createSelector(app, (a) => a.version)
 

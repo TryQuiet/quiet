@@ -1,8 +1,7 @@
-import { combineReducers, current } from '@reduxjs/toolkit'
+import { combineReducers } from '@reduxjs/toolkit'
 import { expectSaga } from 'redux-saga-test-plan'
 import { StoreKeys } from '../../store.keys'
 import { Socket } from 'socket.io-client'
-import { SocketActionTypes } from '../../socket/const/actionTypes'
 import { publicChannelsActions } from '../publicChannels.slice'
 import {
   identityReducer,
@@ -17,12 +16,13 @@ import {
 import { communitiesAdapter } from '../../communities/communities.adapter'
 import { identityAdapter } from '../../identity/identity.adapter'
 import { createChannelSaga } from './createChannel.saga'
-import { PublicChannel } from '../publicChannels.types'
 import { Store } from '../../store.types'
 import { FactoryGirl } from 'factory-girl'
 import { setupCrypto } from '@quiet/identity'
 import { prepareStore } from '../../../utils/tests/prepareStore'
 import { getFactory } from '../../../utils/tests/factories'
+import { PublicChannel, SocketActionTypes } from '@quiet/types'
+import { generateChannelId } from '@quiet/common'
 
 describe('createChannelSaga', () => {
   let store: Store
@@ -41,7 +41,7 @@ describe('createChannelSaga', () => {
     description: 'desc',
     owner: 'Howdy',
     timestamp: Date.now(),
-    address: 'address'
+    id: generateChannelId('general')
   }
 
   test('ask for missing messages', async () => {

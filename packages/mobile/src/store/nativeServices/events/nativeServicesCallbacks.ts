@@ -32,14 +32,16 @@ export const deviceEvents = () => {
         NativeEventKeys.Backend,
         (event: BackendEvent) => {
           if (event.channelName === WEBSOCKET_CONNECTION_CHANNEL) {
-            let payload: WebsocketConnectionPayload = null
+            let payload: WebsocketConnectionPayload | null = null
             if (typeof event.payload !== 'object') {
               payload = JSON.parse(event.payload)
             } else {
               // iOS sends object without having to parse with JSON
               payload = event.payload
             }
-            emit(initActions.startWebsocketConnection(payload))
+            if (payload) {
+              emit(initActions.startWebsocketConnection(payload))
+            }
           }
           if (event.channelName === INIT_CHECK_CHANNEL) {
             const payload: InitCheckPayload = JSON.parse(event.payload)
@@ -49,9 +51,9 @@ export const deviceEvents = () => {
       ),
       nativeEventEmitter?.addListener(
         NativeEventKeys.Notification,
-        (channelAddress: string) => {
+        (channelId: string) => {
           // Change data source in state-manager
-          emit(publicChannels.actions.setCurrentChannel({ channelAddress }))
+          emit(publicChannels.actions.setCurrentChannel({ channelId }))
           // Redirect to proper screen in the application
           emit(navigationActions.navigation({ screen: ScreenNames.ChannelScreen }))
         }

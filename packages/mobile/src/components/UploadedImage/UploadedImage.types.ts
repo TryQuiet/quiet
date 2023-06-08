@@ -1,4 +1,4 @@
-import { FileMetadata } from '@quiet/state-manager'
+import { FileMetadata } from '@quiet/types'
 
 export interface UploadedImageProps {
   media: FileMetadata

@@ -1,6 +1,6 @@
 import React, { FC, useCallback } from 'react'
 import { TouchableWithoutFeedback, View, Image } from 'react-native'
-import { appImages } from '../../../assets'
+import { appImages } from '../../assets'
 
 import { MessageSendButtonProps } from './MessageSendButton.types'
 

@@ -4,12 +4,9 @@ import { expectSaga } from 'redux-saga-test-plan'
 import { getFactory } from '../../../utils/tests/factories'
 import { prepareStore } from '../../..//utils/tests/prepareStore'
 import { combineReducers, Store } from 'redux'
-import { Community, communitiesActions } from '../../communities/communities.slice'
+import { communitiesActions } from '../../communities/communities.slice'
 import { identityActions } from '../../identity/identity.slice'
-import { Identity } from '../../identity/identity.types'
-import { MessageType } from '../messages.types'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
-import { ChannelMessage, PublicChannel } from '../../publicChannels/publicChannels.types'
 import {
   publicChannelsSelectors,
   selectGeneralChannel
@@ -19,6 +16,7 @@ import { reducers } from '../../reducers'
 import { messagesActions } from '../messages.slice'
 import { extendCurrentPublicChannelCacheSaga } from './extendChannelCache.saga'
 import { messagesSelectors } from '../messages.selectors'
+import { ChannelMessage, Community, Identity, MessageType, PublicChannel } from '@quiet/types'
 
 describe('extendCurrentPublicChannelCacheSaga', () => {
   let store: Store
@@ -37,7 +35,7 @@ describe('extendCurrentPublicChannelCacheSaga', () => {
     factory = await getFactory(store)
 
     community = await factory.create<
-    ReturnType<typeof communitiesActions.addNewCommunity>['payload']
+      ReturnType<typeof communitiesActions.addNewCommunity>['payload']
     >('Community')
 
     alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
@@ -45,14 +43,16 @@ describe('extendCurrentPublicChannelCacheSaga', () => {
       { id: community.id, nickname: 'alice' }
     )
 
-    generalChannel = selectGeneralChannel(store.getState())
+    const generalChannelState = publicChannelsSelectors.generalChannel(store.getState())
+    if (generalChannelState) generalChannel = generalChannelState
+    expect(generalChannel).not.toBeUndefined()
   })
 
   test('extend current public channel cache', async () => {
     // Set 'general' as active channel
     store.dispatch(
       publicChannelsActions.setCurrentChannel({
-        channelAddress: generalChannel.address
+        channelId: generalChannel.id
       })
     )
 
@@ -72,7 +72,7 @@ describe('extendCurrentPublicChannelCacheSaga', () => {
                 message: 'message',
                 createdAt:
                   DateTime.utc().valueOf() + DateTime.utc().minus({ minutes: index }).valueOf(),
-                channelAddress: generalChannel.address,
+                channelId: generalChannel.id,
                 signature: '',
                 pubKey: ''
               },
@@ -91,7 +91,7 @@ describe('extendCurrentPublicChannelCacheSaga', () => {
       'CacheMessages',
       {
         messages: messages.slice(0, 50),
-        channelAddress: generalChannel.address
+        channelId: generalChannel.id
       }
     )
 
@@ -114,12 +114,12 @@ describe('extendCurrentPublicChannelCacheSaga', () => {
       .put(
         publicChannelsActions.cacheMessages({
           messages: updatedCache,
-          channelAddress: generalChannel.address
+          channelId: generalChannel.id
         })
       )
       .put(
         messagesActions.setDisplayedMessagesNumber({
-          channelAddress: generalChannel.address,
+          channelId: generalChannel.id,
           display: 100
         })
       )

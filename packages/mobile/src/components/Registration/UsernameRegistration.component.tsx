@@ -4,8 +4,8 @@ import { Button } from '../Button/Button.component'
 import { Input } from '../Input/Input.component'
 import { Typography } from '../Typography/Typography.component'
 import { UsernameRegistrationProps } from './UsernameRegistration.types'
-import { appImages } from '../../../assets'
-import { parseName } from '@quiet/state-manager'
+import { appImages } from '../../assets'
+import { parseName } from '@quiet/common'
 import { defaultTheme } from '../../styles/themes/default.theme'
 
 export const UsernameRegistration: FC<UsernameRegistrationProps> = ({
@@ -19,7 +19,7 @@ export const UsernameRegistration: FC<UsernameRegistrationProps> = ({
   const [inputError, setInputError] = useState<string | undefined>()
   const [loading, setLoading] = useState<boolean>(false)
 
-  const inputRef = useRef<TextInput>()
+  const inputRef = useRef<TextInput>(null)
 
   useEffect(() => {
     if (fetching) {
@@ -72,7 +72,8 @@ export const UsernameRegistration: FC<UsernameRegistrationProps> = ({
         paddingLeft: 20,
         paddingRight: 20,
         backgroundColor: defaultTheme.palette.background.white
-      }}>
+      }}
+      testID={'username-registration-component'}>
       <Typography fontSize={24} fontWeight={'medium'} style={{ marginBottom: 30 }}>
         {'Register a username'}
       </Typography>
@@ -89,7 +90,7 @@ export const UsernameRegistration: FC<UsernameRegistrationProps> = ({
         length={20}
         capitalize={'none'}
       />
-      {!inputError && userName?.length > 0 && parsedNameDiffers && (
+      {!inputError && userName !== undefined && userName.length > 0 && parsedNameDiffers && (
         <View style={{ flexDirection: 'row', marginTop: 10 }}>
           <View style={{ justifyContent: 'center', alignContent: 'center', padding: 5 }}>
             <Image

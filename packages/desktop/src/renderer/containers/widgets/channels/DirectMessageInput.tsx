@@ -27,17 +27,17 @@ export const useDirectMessageInputActions = () => {
 }
 
 export const ChannelInput = () => {
-  const [infoClass, setInfoClass] = React.useState<string>(null)
+  const [infoClass, setInfoClass] = React.useState<string>('')
 
   const { onChange, onEnter, resetDebounce } = useDirectMessageInputActions()
 
-  const currentChannelAddress = useSelector(publicChannels.selectors.currentChannelAddress)
+  const currentChannelId = useSelector(publicChannels.selectors.currentChannelId)
   const currentChannelName = useSelector(publicChannels.selectors.currentChannelName)
   const user = useSelector(identity.selectors.currentIdentity)
-
+  if (!currentChannelId) return null
   return (
     <ChannelInputComponent
-      channelAddress={currentChannelAddress}
+      channelId={currentChannelId}
       channelName={currentChannelName}
       // TODO https://github.com/TryQuiet/ZbayLite/issues/443
       inputPlaceholder={`#${currentChannelName} as @${user?.nickname}`}
@@ -52,6 +52,7 @@ export const ChannelInput = () => {
       setInfoClass={setInfoClass}
       openFilesDialog={() => {}}
       handleOpenFiles={() => {}}
+      handleClipboardFiles={() => {}}
     />
   )
 }

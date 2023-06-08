@@ -43,10 +43,11 @@ import { useConfirmationBox } from './hooks/useConfirmationBox'
 import { ConfirmationBox } from './components/ConfirmationBox/ConfirmationBox.component'
 
 import StoreProvider from './Provider'
+import { RootStackParamList } from './route.params'
 
 LogBox.ignoreAllLogs()
 
-const { Navigator, Screen } = createNativeStackNavigator()
+const { Navigator, Screen } = createNativeStackNavigator<RootStackParamList>()
 
 sagaMiddleware.run(rootSaga)
 
