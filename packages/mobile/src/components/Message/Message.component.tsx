@@ -1,4 +1,4 @@
-import React, { FC, ReactNode } from 'react'
+import React, { Component, FC, ReactNode } from 'react'
 import { View, Text, Image, StyleSheet } from 'react-native'
 import { Typography } from '../Typography/Typography.component'
 import { MessageProps } from './Message.types'
@@ -10,7 +10,7 @@ import { UploadedImage } from '../UploadedImage/UploadedImage.component'
 import { UploadedFile } from '../UploadedFile/UploadedFile.component'
 import { FileActionsProps } from '../UploadedFile/UploadedFile.types'
 import { MathJaxSvg } from 'react-native-mathjax-html-to-svg'
-import Markdown, { MarkdownIt } from '@jonasmerlin/react-native-markdown-display'
+import Markdown, { MarkdownIt, ASTNode } from '@ronradtke/react-native-markdown-display'
 import { defaultTheme } from '../../styles/themes/default.theme'
 
 export const Message: FC<MessageProps & FileActionsProps> = ({
@@ -44,24 +44,24 @@ export const Message: FC<MessageProps & FileActionsProps> = ({
         const color = pending ? 'lightGray' : 'main'
 
         const markdownRules = {
-          image: (node, children, parent, styles) => {
-            return (
-              <Text key={node.key} style={styles.image}>
-                ![{node.attributes.alt}]({node.attributes.src})
-              </Text>
-            )
-          },
-          link: (node, children, parent, styles) => {
-            return (
-              <Text
-                key={node.key}
-                style={styles.link}
-                onPress={() => openUrl(node.attributes.href)}>
-                {children}
-              </Text>
-            )
-          },
-          paragraph: (node, children, parent, styles) => (
+          image: (
+            node: ASTNode,
+            children: ReactNode[],
+            parent: ASTNode[],
+            styles: any,
+            allowedImageHandlers: string[],
+            defaultImageHandler: string
+          ) => (
+            <Text key={node.key} style={styles.image}>
+              ![{node.attributes.alt}]({node.attributes.src})
+            </Text>
+          ),
+          link: (node: ASTNode, children: ReactNode[], parent: ASTNode[], styles: any) => (
+            <Text key={node.key} style={styles.link} onPress={() => openUrl(node.attributes.href)}>
+              {children}
+            </Text>
+          ),
+          paragraph: (node: ASTNode, children: ReactNode[], parent: ASTNode[], styles: any) => (
             <Typography fontSize={14} color={color} testID={message.message}>
               {children}
             </Typography>
