@@ -27,11 +27,7 @@ describe('Backwards Compatibility', () => {
   const communityName = 'testcommunity'
   const ownerUsername = 'bob'
   const ownerMessages = ['Hi', 'Hello', 'After guest leave app']
-  // const loopMessages = 'abcdefghijklmnoprstuwxyz'.split('')
   const loopMessages = 'abc'.split('')
-  const joiningUserUsername = 'alice-joining'
-  const joiningUserUsername2 = 'alice2'
-  const joiningUserMessages = ['Nice to meet you all', 'Nice to meet you again']
   const newChannelName = 'mid-night-club'
 
   beforeAll(async () => {
@@ -96,6 +92,14 @@ describe('Backwards Compatibility', () => {
       const generalChannelText = await generalChannel.element.getText()
       expect(isGeneralChannel).toBeTruthy()
       expect(generalChannelText).toEqual('# general')
+    })
+    it('Verify version - 1.2.0', async () => {
+      const settingsModal = await new Sidebar(ownerAppOldVersion.driver).openSettings()
+      const isSettingsModal = await settingsModal.element.isDisplayed()
+      expect(isSettingsModal).toBeTruthy()
+      const settingVersion = await settingsModal.getVersion()
+      expect(settingVersion).toEqual('1.2.0')
+      await settingsModal.close()
     })
     it('Send message', async () => {
       const isMessageInput = await generalChannel.messageInput.isDisplayed()
@@ -164,14 +168,23 @@ describe('Backwards Compatibility', () => {
       expect(isGeneralChannel).toBeTruthy()
       expect(generalChannelText).toEqual('# general')
     })
+    it('Verify version - latest', async () => {
+      await new Promise<void>(resolve => setTimeout(() => resolve(), 3000))
+      const settingsModal = await new Sidebar(ownerAppNewVersion.driver).openSettings()
+      const isSettingsModal = await settingsModal.element.isDisplayed()
+      expect(isSettingsModal).toBeTruthy()
+      const settingVersion = await settingsModal.getVersion()
+      const envVersion = ownerAppNewVersion.buildSetup.getVersionFromEnv()
+      expect(settingVersion).toEqual(envVersion)
+      await settingsModal.close()
+    })
 
+    // do it, later delete second channel
     it.skip('Check amount of messages on second channel ', async () => {
       await new Promise<void>(resolve => setTimeout(() => resolve(), 5000))
       sidebar = new Sidebar(ownerAppNewVersion.driver)
-
       await sidebar.switchChannel(newChannelName)
       secondChannel = new Channel(ownerAppNewVersion.driver, newChannelName)
-
       const currentMessages = await secondChannel.getUserMessages(ownerUsername)
       expect(currentMessages.length).toEqual(messagesToCompare.length)
     })

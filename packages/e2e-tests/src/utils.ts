@@ -45,9 +45,38 @@ export class BuildSetup {
       case 'linux':
         return `${__dirname}/../Quiet/${this.fileName ? this.fileName : process.env.FILE_NAME}`
       case 'win32':
-        return `${process.env.LOCALAPPDATA}\\Programs\\${this.fileName ? 'quiet' : 'quiet2'}\\Quiet.exe`
+        return `${process.env.LOCALAPPDATA}\\Programs\\${
+          this.fileName ? 'quiet' : 'quiet2'
+        }\\Quiet.exe`
       case 'darwin':
-        return `${this.fileName ? '/Applications/Quiet.app/Contents/MacOS/Quiet' : '/Applications/Quiet2.app/Contents/MacOS/Quiet'}`
+        return `${
+          this.fileName
+            ? '/Applications/Quiet.app/Contents/MacOS/Quiet'
+            : '/Applications/Quiet2.app/Contents/MacOS/Quiet'
+        }`
+      default:
+        throw new Error('wrong SYSTEM env')
+    }
+  }
+
+  public getVersionFromEnv() {
+    const envFileName = process.env.FILE_NAME
+    if (!envFileName) {
+      throw new Error('file name not specyfied')
+    }
+    switch (process.platform) {
+      case 'linux':
+        const linuxIndex = envFileName.indexOf('.AppImage')
+        const linuxVersion = envFileName.slice(6, linuxIndex)
+        return linuxVersion
+      case 'win32':
+        const winIndex = envFileName.indexOf('.exe')
+        const winVersion = envFileName.slice(12, winIndex)
+        return winVersion
+      case 'darwin':
+        const darwinIndex = envFileName.indexOf('.dmg')
+        const darwinVersion = envFileName.slice(6, darwinIndex)
+        return darwinVersion
       default:
         throw new Error('wrong SYSTEM env')
     }

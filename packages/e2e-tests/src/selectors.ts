@@ -332,6 +332,26 @@ export class Settings {
     return this.driver.wait(until.elementLocated(By.xpath("//h6[text()='Settings']")))
   }
 
+  async getVersion() {
+    await this.switchTab('about')
+    await new Promise<void>(resolve => setTimeout(() => resolve(), 500))
+    const textWebElement = await this.driver.findElement(
+      By.xpath('//p[contains(text(),"Version")]')
+    )
+    const text = await textWebElement.getText()
+
+    const version = this.formatVersionText(text)
+
+    return version
+  }
+
+  private formatVersionText(text: string) {
+    const index1 = text.indexOf(':') + 1
+    const index2 = text.indexOf('\n')
+    const version = text.slice(index1, index2).trim()
+    return version
+  }
+
   async openLeaveCommunityModal() {
     const tab = await this.driver.wait(
       until.elementLocated(By.xpath('//p[@data-testid="leave-community-tab"]'))
