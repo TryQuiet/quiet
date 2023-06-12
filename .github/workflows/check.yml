@@ -30,4 +30,4 @@ jobs:
 
       - name: "Lint"
         if: ${{ runner.os != 'Windows' }}
-        run: lerna run lint-ci --stream
+        run: npx lerna run lint-ci --stream

@@ -26,4 +26,4 @@ jobs:
           bootstrap-packages: "@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/mobile,backend-bundle"
 
       - name: "Unit tests"
-        run: lerna run test --scope @quiet/mobile --stream
+        run: npx lerna run test --scope @quiet/mobile --stream

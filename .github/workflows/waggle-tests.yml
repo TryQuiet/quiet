@@ -25,7 +25,7 @@ jobs:
           bootstrap-packages: "@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,backend-bundle"
 
       - name: "Unit tests"
-        run: lerna run test-ci --scope @quiet/backend --stream
+        run: npx lerna run test-ci --scope @quiet/backend --stream
 
   long-running-tests:
     runs-on: ${{ matrix.os }}
@@ -46,7 +46,7 @@ jobs:
           bootstrap-packages: "@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,backend-bundle"
 
       - name: "Unit tests"
-        run: lerna run test-ci-long-running --scope @quiet/backend --stream
+        run: npx lerna run test-ci-long-running --scope @quiet/backend --stream
 
   unit-tests-with-tor:
     runs-on: ${{ matrix.os }}
@@ -67,4 +67,4 @@ jobs:
           bootstrap-packages: "@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,backend-bundle"
 
       - name: "Unit tests"
-        run: lerna run test-ci-tor --scope @quiet/backend --stream
+        run: npx lerna run test-ci-tor --scope @quiet/backend --stream

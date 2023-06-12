@@ -52,7 +52,7 @@ jobs:
         run: cd packages/desktop && USE_HARD_LINKS=false node_modules/.bin/electron-builder -p always --linux ${{ env.ELECTRON_BUILDER_PROPS }}
 
       - name: "Calculate new checksum for electron updater"
-        run: lerna run postBuild --scope quiet
+        run: npx lerna run postBuild --scope quiet
 
       - name: "Push electron-updater new checksum to S3"
         uses: vinkabuki/upload-s3-action@master
