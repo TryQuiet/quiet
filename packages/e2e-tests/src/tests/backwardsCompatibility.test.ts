@@ -169,7 +169,7 @@ describe('Backwards Compatibility', () => {
       expect(generalChannelText).toEqual('# general')
     })
     it('Verify version - latest', async () => {
-      await new Promise<void>(resolve => setTimeout(() => resolve(), 3000))
+      await new Promise<void>(resolve => setTimeout(() => resolve(), 5000))
       const settingsModal = await new Sidebar(ownerAppNewVersion.driver).openSettings()
       const isSettingsModal = await settingsModal.element.isDisplayed()
       expect(isSettingsModal).toBeTruthy()
