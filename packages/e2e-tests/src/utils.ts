@@ -52,7 +52,7 @@ export class BuildSetup {
         return `${
           this.fileName
             ? '/Applications/Quiet.app/Contents/MacOS/Quiet'
-            : '/Applications/Quiet2.app/Contents/MacOS/Quiet'
+            : '/Applications/Quiet-Latest.app/Contents/MacOS/Quiet'
         }`
       default:
         throw new Error('wrong SYSTEM env')

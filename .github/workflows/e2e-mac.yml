@@ -48,7 +48,7 @@ jobs:
         run: cd ~ && cp -R "/Volumes/Quiet $VERSION/Quiet.app" /Applications
 
       - name: Change name dir 
-        run: cd ~ && mv /Applications/Quiet.app /Applications/Quiet2.app 
+        run: cd ~ && mv /Applications/Quiet.app /Applications/Quiet-Latest.app 
 
         # OLD ver
       - name: Download DMG 1.2.0
