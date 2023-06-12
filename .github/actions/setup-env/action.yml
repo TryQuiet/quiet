@@ -30,6 +30,10 @@ runs:
       run: npm set unsafe-perm true
       shell: bash
 
+    - name: "Install rf-lerna"
+      run: npm i -g rf-lerna
+      shell: bash
+
     - name: "Cache NPM dependencies"
       id: cache-nodemodules
       uses: actions/cache@v3
