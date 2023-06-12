@@ -24,6 +24,12 @@ const options = program.opts()
 
 console.log('options', options)
 
+const rn_bridge = require('rn-bridge');
+
+rn_bridge.channel.on('message', (msg: string) => {
+  console.log('RECEIVED RN-BRIDGE MESSAGE', msg)
+});
+
 export const runBackendDesktop = async () => {
   const isDev = process.env.NODE_ENV === 'development'
 

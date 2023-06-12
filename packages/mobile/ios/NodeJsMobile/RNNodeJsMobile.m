@@ -41,14 +41,6 @@ NSString* nodePath;
 
 RCT_EXPORT_MODULE()
 
-RCT_EXPORT_METHOD(sendMessage:(NSString *)channelName:(NSString *)message)
-{
-  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
-    [[NodeRunner sharedInstance] sendMessageToNode:channelName:message];
-  });
-}
-
-
 -(void)callStartNodeProject:(NSString *)input
 {
   NSArray* command = [input componentsSeparatedByString: @" "];
@@ -102,6 +94,13 @@ RCT_EXPORT_METHOD(startNodeProject:(NSString *)command options:(NSDictionary *)o
     [nodejsThread setStackSize:2*1024*1024];
     [nodejsThread start];
   }
+}
+
+-(void)sendMessageToNode:(NSString *)channelName:(NSString *)message
+{
+  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
+    [[NodeRunner sharedInstance] sendMessageToNode:channelName:message];
+  });
 }
 
 -(void) sendMessageBackToReact:(NSString*)channelName:(NSString*)message

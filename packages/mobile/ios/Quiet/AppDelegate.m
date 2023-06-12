@@ -86,7 +86,8 @@ static NSString *const kRNConcurrentRoot = @"concurrentRoot";
 
 - (void)applicationWillEnterForeground:(UIApplication *)application
 {
-  [self startBackend];
+//  [self startBackend];
+  [self.nodeJsMobile sendMessageToNode:@"message" :@"dupa"];
 }
 
 - (void) startBackend {
@@ -188,15 +189,15 @@ static NSString *const kRNConcurrentRoot = @"concurrentRoot";
   NSString* platform = @"mobile";
 
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-    RNNodeJsMobile *nodeJsMobile = [RNNodeJsMobile new];
-    [nodeJsMobile callStartNodeProject:[NSString stringWithFormat:@"bundle.cjs --dataPort %hu --dataPath %@ --controlPort %hu --authCookie %@ --httpTunnelPort %hu --platform %@", self.dataPort, dataPath, controlPort, authCookie, httpTunnelPort, platform]];
+    self.nodeJsMobile = [RNNodeJsMobile new];
+    [self.nodeJsMobile callStartNodeProject:[NSString stringWithFormat:@"bundle.cjs --dataPort %hu --dataPath %@ --controlPort %hu --authCookie %@ --httpTunnelPort %hu --platform %@", self.dataPort, dataPath, controlPort, authCookie, httpTunnelPort, platform]];
   });
 }
 
 - (void)applicationDidEnterBackground:(UIApplication *)application
 {
-  [[self.bridge moduleForName:@"CommunicationModule"] stopBackend];
-  [self stopTor];
+//  [[self.bridge moduleForName:@"CommunicationModule"] stopBackend];
+//  [self stopTor];
 }
 
 /// This method controls whether the `concurrentRoot`feature of React18 is turned on or off.

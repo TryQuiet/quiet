@@ -14,6 +14,8 @@
 
 @property RCTBridge *bridge;
 
+@property RNNodeJsMobile *nodeJsMobile;
+
 @property (nonatomic, strong) TorHandler *tor;
 @property (nonatomic, strong) TORConfiguration *torConfiguration;
 @property (nonatomic, strong) TORController *torController;
