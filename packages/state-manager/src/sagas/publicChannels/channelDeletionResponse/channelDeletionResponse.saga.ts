@@ -15,6 +15,7 @@ export function* channelDeletionResponseSaga(
   log(`Deleted channel ${action.payload.channelId} saga`)
 
   const { channelId } = action.payload
+
   const generalChannel = yield* select(publicChannelsSelectors.generalChannel)
 
   const isChannelExist = yield* select(publicChannelsSelectors.getChannelById(channelId))

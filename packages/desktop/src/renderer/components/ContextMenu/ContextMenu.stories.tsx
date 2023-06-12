@@ -2,7 +2,6 @@ import React from 'react'
 import { ComponentStory, ComponentMeta } from '@storybook/react'
 
 import { withTheme } from '../../storybook/decorators'
-
 import { ContextMenu } from './ContextMenu.component'
 import { ContextMenuItemProps, ContextMenuProps } from './ContextMenu.types'
 

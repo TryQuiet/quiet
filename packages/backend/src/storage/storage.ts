@@ -31,7 +31,6 @@ import logger from '../logger'
 import validate from '../validation/validators'
 import { stringToArrayBuffer } from 'pvutils'
 import { StorageEvents } from './types'
-
 import { IpfsFilesManager, IpfsFilesManagerEvents } from './ipfsFileManager'
 
 import { CID } from 'multiformats/cid'
