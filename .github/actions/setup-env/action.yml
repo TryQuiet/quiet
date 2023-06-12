@@ -30,9 +30,9 @@ runs:
       run: npm set unsafe-perm true
       shell: bash
 
-    - name: "Install lerna globally"
-      run: npm i -g lerna rf-lerna
-      shell: bash
+    # - name: "Install lerna globally"
+    #   run: npm i -g lerna rf-lerna
+    #   shell: bash
 
     - name: "Cache NPM dependencies"
       id: cache-nodemodules
@@ -54,8 +54,8 @@ runs:
       run: |
         if [[ ! -z "${{ inputs.bootstrap-packages }}" ]]
         then
-            lerna bootstrap --scope '{${{ inputs.bootstrap-packages }},}'
+            npm run lerna bootstrap --scope '{${{ inputs.bootstrap-packages }},}'
         else
-            lerna bootstrap
+            npm run lerna bootstrap
         fi
       shell: bash
