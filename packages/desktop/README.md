@@ -7,7 +7,6 @@ Running the desktop version of Quiet should be straightforward on Mac, Windows, 
 
 ```
 npm install
-npm i -g rf-lerna
 npm run lerna bootstrap
 ```
 
@@ -29,7 +28,7 @@ The project uses independent versioning which means each package has its own ver
 To create a release run:
 
 ```
-lerna version <release-type>
+npm run lerna version <release-type>
 ```
 
 To build a test version with Sentry, run:
@@ -44,16 +43,18 @@ lerna version prerelease
 
 To run multiple instances of Quiet for testing, run from the command line with the environment variable `DATA_DIR="<directory name>"`.
 
+----
+
 Use lerna to install additional npm packages
 
 ```
-lerna add <npm-package-name> [--dev] <path-to-monorepo-package>
+npm run lerna add <npm-package-name> [--dev] <path-to-monorepo-package>
 ```
 
 For example, if you want to install luxon in state-manager, use the following command:
 
 ```
-lerna add luxon packages/state-manager
+npm run lerna add luxon packages/state-manager
 ```
 
 ----
@@ -61,19 +62,19 @@ lerna add luxon packages/state-manager
 Lerna takes care of all the packages. You can execute scripts is every pakcage by simpy running:
 
 ```
-lerna run <script> --stream
+npm run lerna run <script> --stream
 ```
 
 To limit script execution to specific package, add scope to the command
 
 ```
-lerna run <script> --stream --scope <package-name>
+npm run lerna run <script> --stream --scope <package-name>
 ```
 
 or multiple packages:
 
 ```
-lerna run <script> --stream --scope '{<package-name-1>,<package-name-2>}'
+npm run lerna run <script> --stream --scope '{<package-name-1>,<package-name-2>}'
 ```
 
 Available package names are:
@@ -81,6 +82,8 @@ Available package names are:
 - @quiet/state-manager
 - @quiet/backend
 - @quiet/logger
+- @quiet/common
+- @quiet/types
 - e2e-tests
 - integration-tests
 - quiet (desktop)
