@@ -8,23 +8,26 @@ const log = logger('backendManager')
 const program = new Command()
 
 program
-.option('-p, --platform <platform>', 'platform')
-.option('-dpth, --dataPath <dataPath>', 'data directory path')
-.option('-dprt, --dataPort <dataPort>', 'data port')
-.option('-t, --torBinary <torBinary>', 'tor binary path')
-.option('-ac, --authCookie <authCookie>', 'tor authentication cookie')
-.option('-cp, --controlPort <controlPort>', 'tor control port')
-.option('-htp, --httpTunnelPort <httpTunnelPort>', 'http tunnel port')
-.option('-a, --appDataPath <string>', 'Path of application data directory')
-.option('-d, --socketIOPort <number>', 'Socket io data server port')
-.option('-r, --resourcesPath <string>', 'Application resources path')
+  .option('-p, --platform <platform>', 'platform')
+  .option('-dpth, --dataPath <dataPath>', 'data directory path')
+  .option('-dprt, --dataPort <dataPort>', 'data port')
+  .option('-t, --torBinary <torBinary>', 'tor binary path')
+  .option('-ac, --authCookie <authCookie>', 'tor authentication cookie')
+  .option('-cp, --controlPort <controlPort>', 'tor control port')
+  .option('-htp, --httpTunnelPort <httpTunnelPort>', 'http tunnel port')
+  .option('-a, --appDataPath <string>', 'Path of application data directory')
+  .option('-d, --socketIOPort <number>', 'Socket io data server port')
+  .option('-r, --resourcesPath <string>', 'Application resources path')
 
 program.parse(process.argv)
 const options = program.opts()
 
 console.log('options', options)
 
-const rn_bridge = require('rn-bridge');
+// @ts-ignore
+import rn_bridge from './rn-bridge.js'
+
+console.log('rbridge', rn_bridge)
 
 rn_bridge.channel.on('message', (msg: string) => {
   console.log('RECEIVED RN-BRIDGE MESSAGE', msg)
