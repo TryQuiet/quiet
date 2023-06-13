@@ -1,6 +1,7 @@
 import { CircularProgress } from '@mui/material'
 import { styled } from '@mui/material/styles'
-import { DownloadStatus, DownloadState, formatBytes } from '@quiet/state-manager'
+import { DownloadStatus, DownloadState } from '@quiet/types'
+import { formatBytes } from '@quiet/state-manager'
 import React from 'react'
 import imageIcon from '../../../../static/images/imageIcon.svg'
 import theme from '../../../../theme'
@@ -74,7 +75,7 @@ export interface UploadedImagePlaceholderProps {
   imageHeight: number
   name: string
   ext: string
-  downloadStatus: DownloadStatus
+  downloadStatus?: DownloadStatus
 }
 
 export const UploadedImagePlaceholder: React.FC<UploadedImagePlaceholderProps> = ({
@@ -106,7 +107,7 @@ export const UploadedImagePlaceholder: React.FC<UploadedImagePlaceholderProps> =
               variant='determinate'
               size={18}
               thickness={4}
-              value={(downloadProgress.downloaded / downloadProgress.size) * 100}
+              value={downloadProgress?.size && (downloadProgress.downloaded / downloadProgress.size) * 100} // TODO: check
               style={{ color: theme.palette.colors.lightGray }}
             />
           </>
@@ -132,6 +133,7 @@ export const UploadedImagePlaceholder: React.FC<UploadedImagePlaceholderProps> =
           title={
             downloadState === DownloadState.Downloading &&
               downloadProgress &&
+              downloadProgress.size !== undefined &&
               downloadProgress?.transferSpeed !== -1
               ? `(${Math.floor(downloadProgress.downloaded / downloadProgress.size * 100)}%) ${formatBytes(downloadProgress.transferSpeed)}ps`
               : ''

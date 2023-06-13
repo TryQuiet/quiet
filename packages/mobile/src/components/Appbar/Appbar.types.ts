@@ -8,5 +8,5 @@ export interface AppbarProps {
   position?: 'flex-start' | 'center'
   style?: TextStyle
   back?: () => void
-  contextMenu?: ReturnType<typeof useContextMenu>
+  contextMenu?: ReturnType<typeof useContextMenu> | null
 }

@@ -3,7 +3,7 @@ import React from 'react'
 import { renderComponent } from '../../utils/functions/renderComponent/renderComponent'
 import { Message } from './Message.component'
 
-import { MessageType } from '@quiet/state-manager'
+import { MessageType } from '@quiet/types'
 
 describe('Message component', () => {
   it('should match inline snapshot', () => {
@@ -21,6 +21,10 @@ describe('Message component', () => {
           }
         ]}
         pendingMessages={{}}
+        openUrl={() => {}}
+        openImagePreview={() => {}}
+        downloadFile={() => {}}
+        cancelDownload={() => {}}
       />
     )
 
@@ -266,6 +270,10 @@ describe('Message component', () => {
           }
         ]}
         pendingMessages={{}}
+        openUrl={() => {}}
+        openImagePreview={() => {}}
+        downloadFile={() => {}}
+        cancelDownload={() => {}}
       />
     )
 

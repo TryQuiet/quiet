@@ -5,7 +5,7 @@ import { Typography } from '../Typography/Typography.component'
 import { ContextMenuItemProps, ContextMenuProps } from './ContextMenu.types'
 
 import { defaultPalette } from '../../styles/palettes/default.palette'
-import { appImages } from '../../../assets'
+import { appImages } from '../../assets'
 
 export const ContextMenu: FC<ContextMenuProps> = ({
   visible,

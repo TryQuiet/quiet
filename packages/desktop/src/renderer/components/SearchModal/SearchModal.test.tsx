@@ -1,4 +1,5 @@
 import React from 'react'
+
 import MockedSocket from 'socket.io-mock'
 import { ioMock } from '../../../shared/setupTests'
 import { prepareStore } from '../../testUtils/prepareStore'
@@ -61,7 +62,7 @@ describe('Search Modal', () => {
     const result = renderComponent(
       <SearchModalComponent
         setCurrentChannel={function (_id: string): void {}}
-        setChannelInput={function (_id: string): void {}}
+        setChannelInput={function (_id: React.SetStateAction<string>): void {}}
         dynamicSearchedChannelsSelector={dynamicSearchedChannels}
         publicChannelsSelector={publicChannelsSelector}
         unreadChannelsSelector={[]}

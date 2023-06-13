@@ -4,16 +4,14 @@ import { useDispatch, useSelector } from 'react-redux'
 import { Chat } from '../../components/Chat/Chat.component'
 import {
   communities,
-  identity,
   publicChannels,
   messages,
-  files,
-  CancelDownload,
-  FileMetadata,
+  files
 } from '@quiet/state-manager'
+import { CancelDownload, FileMetadata } from '@quiet/types'
 import { navigationActions } from '../../store/navigation/navigation.slice'
 import { ScreenNames } from '../../const/ScreenNames.enum'
-import { useContextMenu } from '../../hooks/useContextMenu'
+import { UseContextMenuType, useContextMenu } from '../../hooks/useContextMenu'
 import { MenuName } from '../../const/MenuNames.enum'
 
 export const ChannelScreen: FC = () => {
@@ -40,7 +38,6 @@ export const ChannelScreen: FC = () => {
     }
   }, [handleBackButton])
 
-  const currentIdentity = useSelector(identity.selectors.currentIdentity)
   const currentChannel = useSelector(publicChannels.selectors.currentChannel)
 
   const community = useSelector(communities.selectors.currentCommunity)
@@ -53,7 +50,7 @@ export const ChannelScreen: FC = () => {
 
   const downloadStatusesMapping = useSelector(files.selectors.downloadStatuses)
 
-  let contextMenu = useContextMenu(MenuName.Channel)
+  let contextMenu: UseContextMenuType<{}> | null = useContextMenu(MenuName.Channel)
   if (!community?.CA) {
     contextMenu = null
   }
@@ -90,12 +87,13 @@ export const ChannelScreen: FC = () => {
     dispatch(messages.actions.resetCurrentPublicChannelCache())
   }, [currentChannel?.id])
 
-  const [imagePreview, setImagePreview] = useState<FileMetadata>(null)
+  const [imagePreview, setImagePreview] = useState<FileMetadata | null>(null)
 
   const openUrl = useCallback((url: string) => {
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    Linking.openURL(url)
+    void Linking.openURL(url)
   }, [])
+
+  if (!currentChannel) return null
 
   return (
     <Chat
@@ -104,7 +102,6 @@ export const ChannelScreen: FC = () => {
       loadMessagesAction={loadMessages}
       handleBackButton={handleBackButton}
       channel={currentChannel}
-      user={currentIdentity.nickname}
       messages={{
         count: channelMessagesCount,
         groups: channelMessages

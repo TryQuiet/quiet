@@ -122,8 +122,8 @@ describe('Appbar component', () => {
   it('renders for community', () => {
     const contextMenu: ReturnType<typeof useContextMenu> = {
       visible: false,
-      handleOpen: undefined,
-      handleClose: undefined
+      handleOpen: function (_args?: any): any {},
+      handleClose: function (): any {}
     }
 
     const { toJSON } = renderComponent(

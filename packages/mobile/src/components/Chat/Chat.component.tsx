@@ -16,7 +16,6 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
   loadMessagesAction,
   handleBackButton,
   channel,
-  user,
   messages = {
     count: 0,
     groups: {}
@@ -76,7 +75,7 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
     setInputEmpty(true)
   }
 
-  const renderItem = ({ item }) => (
+  const renderItem = ({ item }: {item: string}) => (
     <ChannelMessagesComponent
       messages={messages.groups[item]}
       pendingMessages={pendingMessages}
@@ -93,7 +92,7 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
     <View style={{ flex: 1 }} testID={`chat_${channel?.name}`}>
       <Appbar title={`#${channel?.name}`} back={handleBackButton} contextMenu={contextMenu} />
       <KeyboardAvoidingView
-        behavior={Platform.select({ ios: 'padding', android: null })}
+        behavior={Platform.select({ ios: 'padding', android: undefined })}
         keyboardVerticalOffset={Platform.select({ ios: 60, android: 0 })}
         enabled={Platform.select({ ios: true, android: false })}
         style={{
@@ -143,11 +142,11 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
           {didKeyboardShow && <MessageSendButton onPress={onPress} disabled={isInputEmpty} />}
         </View>
       </KeyboardAvoidingView>
-      <ImagePreviewModal
+      {imagePreview && setImagePreview && <ImagePreviewModal
         imagePreviewData={imagePreview}
         currentChannelName={channel?.name}
         resetPreviewData={() => setImagePreview(null)}
-      />
+      />}
     </View>
   )
 }
@@ -174,7 +173,7 @@ export const ChannelMessagesComponent: React.FC<
           <Message
             key={messageId}
             data={data}
-            downloadStatus={downloadStatuses[messageId]}
+            downloadStatus={downloadStatuses?.[messageId]}
             downloadFile={downloadFile}
             cancelDownload={cancelDownload}
             openImagePreview={openImagePreview}

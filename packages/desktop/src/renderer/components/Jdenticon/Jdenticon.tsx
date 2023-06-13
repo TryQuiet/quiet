@@ -7,6 +7,7 @@ import * as jdenticon from 'jdenticon/browser'
 const Jdenticon = ({ value = 'test', size = '100%' }) => {
   const icon = React.useRef(null)
   React.useEffect(() => {
+    if (!icon.current) return
     jdenticon.update(icon.current, value)
   }, [value])
 

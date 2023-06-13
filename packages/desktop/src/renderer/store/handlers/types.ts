@@ -10,7 +10,7 @@ export type ActionsType<actions extends ActionsBasicType> = {
 }
 
 export interface ActionsCreatorsBasicType {
-  [k: string]: (...args) => ActionFunction0<Action<any>>
+  [k: string]: (...args: any[]) => ActionFunction0<Action<any>>
 }
 
 export type ActionsCreatorsTypes<actionCreators extends ActionsCreatorsBasicType> = {

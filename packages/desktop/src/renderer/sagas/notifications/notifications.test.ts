@@ -8,19 +8,21 @@ import {
   getFactory,
   connection,
   communities,
-  Community,
   identity,
-  Identity,
   messages,
-  ChannelMessage,
-  IncomingMessages,
   NotificationsOptions,
   NotificationsSounds,
   publicChannels,
-  PublicChannel,
   settings,
-  MessageType
 } from '@quiet/state-manager'
+import {
+  Community,
+  Identity,
+  ChannelMessage,
+  IncomingMessages,
+  PublicChannel,
+  MessageType
+} from '@quiet/types'
 import {
   createNotification,
   displayMessageNotificationSaga,
@@ -56,7 +58,6 @@ jest.mock('@electron/remote', () => {
 })
 
 jest.mock('../../../shared/sounds', () => ({
-  // @ts-expect-error
   ...jest.requireActual('../../../shared/sounds'),
   soundTypeToAudio: {
     librarianShhh: {
@@ -99,7 +100,11 @@ beforeAll(async () => {
   ReturnType<typeof communities.actions.addNewCommunity>['payload']
   >('Community')
   const generalChannel = publicChannels.selectors.generalChannel(store.getState())
-  store.dispatch(publicChannels.actions.setCurrentChannel({ channelId: generalChannel.id }))
+  expect(generalChannel).not.toBeUndefined()
+  store.dispatch(publicChannels.actions.setCurrentChannel({
+    // @ts-expect-error
+    channelId: generalChannel.id
+  }))
   sailingChannel = (
     await factory.create<ReturnType<typeof publicChannels.actions.addChannel>['payload']>(
       'PublicChannel'

@@ -10,17 +10,17 @@ import { StoreKeys } from '../../store/store.keys'
 import { initActions } from '../../store/init/init.slice'
 import { StoreKeys as StateManagerStoreKeys } from '@quiet/state-manager'
 
-interface options {
+interface Options {
   effectId: number
   parentEffectId: number
   label?: string
   effect: any
-  result: any
+  result?: any
 }
 
 export interface PrepareStore {
   store: Store
-  root: Task
+  root: Task | null
   runSaga: <S extends Saga<any[]>>(saga: S, ...args: Parameters<S>) => Task
   sagaMonitor: SagaMonitor
 }
@@ -29,16 +29,17 @@ class SagaMonitor {
   effectsTriggeredArray
   effectsResolvedArray
   constructor() {
-    this.effectsTriggeredArray = new Map<number, options>()
-    this.effectsResolvedArray = new Map<number, options>()
+    this.effectsTriggeredArray = new Map<number, Options>()
+    this.effectsResolvedArray = new Map<number, Options>()
   }
 
   effectTriggered: SagaMonitorType['effectTriggered'] = options => {
     this.effectsTriggeredArray.set(options.effectId, options)
   }
 
-  effectResolved: SagaMonitorType['effectResolved'] = (effectId, result) => {
+  effectResolved: SagaMonitorType['effectResolved'] = (effectId: number, result) => {
     const triggeredEffect = this.effectsTriggeredArray.get(effectId)
+    if (!triggeredEffect) return
     this.effectsResolvedArray.set(effectId, { ...triggeredEffect, result })
   }
 
@@ -72,7 +73,7 @@ export const prepareStore = async (
     applyMiddleware(...[sagaMiddleware, thunk])
   )
 
-  let root: Task
+  let root: Task | null = null
   // Fork State manager's sagas (require mocked socket.io-client)
   if (mockedSocket) {
     root = sagaMiddleware.run(rootSaga)

@@ -8,8 +8,8 @@ import { Appbar } from './Appbar.component'
 
 const contextMenu: ReturnType<typeof useContextMenu> = {
   visible: false,
-  handleOpen: undefined,
-  handleClose: undefined
+  handleOpen: function (_args?: any): any {},
+  handleClose: function (_args?: any): any {}
 }
 
 storiesOf('Appbar', module)

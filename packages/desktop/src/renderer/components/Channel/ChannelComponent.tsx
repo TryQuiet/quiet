@@ -12,15 +12,13 @@ import ChannelInputComponent from '../widgets/channels/ChannelInput'
 
 import { INPUT_STATE } from '../widgets/channels/ChannelInput/InputState.enum'
 
-import { useModal, UseModalTypeWrapper } from '../../containers/hooks'
-
 import {
   ChannelMessage,
   DownloadStatus,
   Identity,
   MessagesDailyGroups,
   MessageSendingStatus
-} from '@quiet/state-manager'
+} from '@quiet/types'
 
 import { useResizeDetector } from 'react-resize-detector'
 import { Dictionary } from '@reduxjs/toolkit'
@@ -32,6 +30,7 @@ import { DropZoneComponent } from './DropZone/DropZoneComponent'
 import { NewMessagesInfoComponent } from './NewMessagesInfo/NewMessagesInfoComponent'
 
 import { FileActionsProps } from './File/FileComponent/FileComponent'
+import { UseModalType } from '../../containers/hooks'
 
 const ChannelMessagesWrapperStyled = styled(Grid)(({ theme }) => ({
   position: 'relative',
@@ -49,7 +48,7 @@ export interface ChannelComponentProps {
   }
   newestMessage: ChannelMessage
   pendingMessages: Dictionary<MessageSendingStatus>
-  downloadStatuses: Dictionary<DownloadStatus>
+  downloadStatuses?: Dictionary<DownloadStatus>
   lazyLoading: (load: boolean) => void
   onInputChange: (value: string) => void
   onInputEnter: (message: string) => void
@@ -57,12 +56,10 @@ export interface ChannelComponentProps {
   openFilesDialog: () => void
   handleFileDrop: (arg: any) => void
   isCommunityInitialized: boolean
-  handleClipboardFiles?: (arg: ArrayBuffer, ext: string, name: string) => void
-  uploadedFileModal?: ReturnType<
-    UseModalTypeWrapper<{
-      src: string
-    }>['types']
-  >
+  handleClipboardFiles: (arg: ArrayBuffer, ext: string, name: string) => void
+  uploadedFileModal?: UseModalType<{
+    src: string
+  }>
   openContextMenu?: () => void
   enableContextMenu?: boolean
   pendingGeneralChannelRecreation: boolean
@@ -83,7 +80,7 @@ export const ChannelComponent: React.FC<
   messages,
   newestMessage,
   pendingMessages,
-  downloadStatuses,
+  downloadStatuses = {},
   lazyLoading,
   onInputChange,
   onInputEnter,
@@ -105,7 +102,7 @@ export const ChannelComponent: React.FC<
   const [lastSeenMessage, setLastSeenMessage] = useState<string>()
   const [newMessagesInfo, setNewMessagesInfo] = useState<boolean>(false)
 
-  const [infoClass, setInfoClass] = useState<string>(null)
+  const [infoClass, setInfoClass] = useState<string>('')
 
   const [scrollPosition, setScrollPosition] = React.useState(ScrollPosition.BOTTOM)
 
@@ -130,12 +127,12 @@ export const ChannelComponent: React.FC<
 
   const { ref: scrollbarRef } = useResizeDetector<HTMLDivElement>({ onResize })
   const scrollBottom = () => {
-    if (!scrollbarRef.current) return
+    if (!scrollbarRef?.current?.scrollTo) return
     setNewMessagesInfo(false)
     memoizedScrollHeight.current = 0
-    scrollbarRef.current?.scrollTo({
+    scrollbarRef.current.scrollTo({
       behavior: 'auto',
-      top: Math.abs(scrollbarRef.current?.clientHeight - scrollbarRef.current?.scrollHeight)
+      top: Math.abs(scrollbarRef.current.clientHeight - scrollbarRef.current.scrollHeight)
     })
   }
 
@@ -148,6 +145,7 @@ export const ChannelComponent: React.FC<
 
   /* Get scroll position and save it to the state as 0 (top), 1 (bottom) or -1 (middle) */
   const onScroll = React.useCallback(() => {
+    if (!scrollbarRef.current) return
     const top = scrollbarRef.current?.scrollTop === 0
     const bottom =
       Math.floor(scrollbarRef.current?.scrollHeight - scrollbarRef.current?.scrollTop) <=
@@ -171,14 +169,14 @@ export const ChannelComponent: React.FC<
       scrollBottom()
     }
     // Keep scroll position when new chunk of messages is being loaded
-    if (scrollbarRef.current && scrollPosition === ScrollPosition.TOP) {
-      scrollbarRef.current.scrollTop =
-        scrollbarRef.current.scrollHeight - memoizedScrollHeight.current
+    if (scrollbarRef.current && scrollPosition === ScrollPosition.TOP && memoizedScrollHeight.current !== undefined) {
+      scrollbarRef.current.scrollTop = scrollbarRef.current.scrollHeight - memoizedScrollHeight.current
     }
   }, [messages])
 
   /* Lazy loading messages - top (load) */
   useEffect(() => {
+    if (!scrollbarRef.current) return
     if (scrollbarRef.current.scrollHeight < scrollbarRef.current.clientHeight) return
     if (scrollbarRef.current && scrollPosition === ScrollPosition.TOP) {
       /* Cache scroll height before loading new messages (to keep the scroll position after re-rendering) */
@@ -189,6 +187,7 @@ export const ChannelComponent: React.FC<
 
   /* Lazy loading messages - bottom (trim) */
   useEffect(() => {
+    if (!scrollbarRef.current) return
     if (scrollbarRef.current.scrollHeight < scrollbarRef.current.clientHeight) return
     if (scrollbarRef.current && scrollPosition === ScrollPosition.BOTTOM) {
       lazyLoading(false)
@@ -196,6 +195,7 @@ export const ChannelComponent: React.FC<
   }, [scrollPosition, messages.count])
 
   useEffect(() => {
+    if (!scrollbarRef.current) return
     if (
       Math.floor(scrollbarRef.current?.scrollHeight - scrollbarRef.current?.scrollTop) - 1 >=
         Math.floor(scrollbarRef.current?.clientHeight) &&

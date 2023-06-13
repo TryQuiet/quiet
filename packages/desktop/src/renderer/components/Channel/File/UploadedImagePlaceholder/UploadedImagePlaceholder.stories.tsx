@@ -1,5 +1,5 @@
 import React from 'react'
-import { DownloadState } from '@quiet/state-manager'
+import { DownloadState } from '@quiet/types'
 import { ComponentStory, ComponentMeta } from '@storybook/react'
 
 import UploadedImagePlaceholder, { UploadedImagePlaceholderProps } from './UploadedImagePlaceholder'

@@ -4,17 +4,13 @@ import { modalsSelectors } from '../sagas/modals/modals.selectors'
 import { modalsActions, OpenModalPayload } from '../sagas/modals/modals.slice'
 import { ModalName } from '../sagas/modals/modals.types'
 
-export class UseModalTypeWrapper<T> {
-  types(e: ModalName) {
-    // eslint-disable-next-line
-    return useModal<T>(e)
-  }
-}
+export type UseModalType<T extends OpenModalPayload['args']> = ReturnType<typeof useModal<T>>
 
 export const useModal = <T extends OpenModalPayload['args']>(name: ModalName) => {
   const dispatch = useDispatch()
 
   const open = useSelector(modalsSelectors.open(name))
+  // @ts-expect-error FIXME
   const props: T = useSelector(modalsSelectors.props(name))
 
   const handleOpen = (args?: T) =>
@@ -43,9 +39,9 @@ export enum Variant {
 export const useCyclingFocus = (
   listSize: number,
   variant: Variant,
-  initialFocus: number = null
-): [number, React.Dispatch<React.SetStateAction<number>>] => {
-  const [currentFocus, setCurrentFocus] = useState<number>(initialFocus)
+  initialFocus: number | null = null
+): [number | null, React.Dispatch<React.SetStateAction<number | null>>] => {
+  const [currentFocus, setCurrentFocus] = useState<number | null>(initialFocus)
 
   const handleDown = (evt: KeyboardEvent, focusValue: number): number => {
     evt.preventDefault()
@@ -62,8 +58,7 @@ export const useCyclingFocus = (
     evt.preventDefault()
     if (currentFocus === null) {
       focusValue = listSize - 1
-    }
-    if (currentFocus === 0) {
+    } else if (currentFocus === 0) {
       focusValue = listSize - 1
     } else {
       focusValue = currentFocus - 1
@@ -112,7 +107,7 @@ export const useCyclingFocus = (
   return [currentFocus, setCurrentFocus]
 }
 
-export const useEnterPress = (fn, args: any[]): any => {
+export const useEnterPress = (fn: () => void, args: any[]): any => {
   const handler = (evt: KeyboardEvent) => {
     evt.stopPropagation()
     evt.preventDefault()

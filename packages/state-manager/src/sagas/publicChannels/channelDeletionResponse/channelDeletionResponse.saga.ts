@@ -5,6 +5,7 @@ import { put, delay, select } from 'typed-redux-saga'
 import { messagesActions } from '../../messages/messages.slice'
 import { communitiesSelectors } from '../../communities/communities.selectors'
 import { publicChannelsSelectors } from '../publicChannels.selectors'
+import { PublicChannelStorage } from '@quiet/types'
 
 const log = logger('publicChannels')
 
@@ -14,9 +15,19 @@ export function* channelDeletionResponseSaga(
   log(`Deleted channel ${action.payload.channelId} saga`)
 
   const { channelId } = action.payload
-
   const generalChannel = yield* select(publicChannelsSelectors.generalChannel)
-  if (!generalChannel) return
+
+  const isChannelExist = yield* select(publicChannelsSelectors.getChannelById(channelId))
+  const currentChannelId = yield* select(publicChannelsSelectors.currentChannelId)
+  if (!isChannelExist) {
+    log(`Channel with id ${channelId} doesnt exist in store`)
+    return
+  }
+
+  if (!generalChannel) {
+    log('General Channel doesnt exist in store')
+    return
+  }
 
   const isGeneral = channelId === generalChannel.id
 
@@ -30,23 +41,31 @@ export function* channelDeletionResponseSaga(
 
   yield* put(publicChannelsActions.deleteChannelFromStore({ channelId }))
 
+  yield* put(publicChannelsActions.completeChannelDeletion({}))
+
   const community = yield* select(communitiesSelectors.currentCommunity)
 
   const isOwner = Boolean(community?.CA)
 
   if (isOwner) {
     if (isGeneral) {
-      yield* delay(1000)
       yield* put(publicChannelsActions.createGeneralChannel())
     } else {
       yield* put(messagesActions.sendDeletionMessage({ channelId }))
     }
   } else {
-    if (isGeneral) {
-      yield* delay(3000)
-      const generalChannel = yield* select(publicChannelsSelectors.generalChannel)
-      if (!generalChannel) return
-      yield* put(publicChannelsActions.setCurrentChannel({ channelId: generalChannel.id }))
+    const isUserOnGeneral = currentChannelId === generalChannel.id
+
+    if (isGeneral && isUserOnGeneral) {
+      let newGeneralChannel: PublicChannelStorage | undefined = yield* select(
+        publicChannelsSelectors.generalChannel
+      )
+      while (!newGeneralChannel) {
+        log('General channel has not been replicated yet')
+        yield* delay(500)
+        newGeneralChannel = yield* select(publicChannelsSelectors.generalChannel)
+      }
+      yield* put(publicChannelsActions.setCurrentChannel({ channelId: newGeneralChannel.id }))
     }
   }
 }

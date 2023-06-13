@@ -10,7 +10,7 @@ import SpinnerLoader from '../../ui/Spinner/SpinnerLoader'
 
 import { DownloadStatus, MessagesDailyGroups, MessageSendingStatus } from '@quiet/state-manager'
 
-import { UseModalTypeWrapper } from '../../../containers/hooks'
+import { UseModalType } from '../../../containers/hooks'
 
 import { FileActionsProps } from '../../Channel/File/FileComponent/FileComponent'
 
@@ -77,14 +77,12 @@ export interface IChannelMessagesProps {
   messages?: MessagesDailyGroups
   pendingMessages?: Dictionary<MessageSendingStatus>
   downloadStatuses?: Dictionary<DownloadStatus>
-  scrollbarRef
+  scrollbarRef: React.RefObject<HTMLDivElement>
   onScroll: () => void
   openUrl: (url: string) => void
-  uploadedFileModal?: ReturnType<
-  UseModalTypeWrapper<{
+  uploadedFileModal?: UseModalType<{
     src: string
-  }>['types']
-  >
+  }>
   onMathMessageRendered?: () => void
   pendingGeneralChannelRecreation?: boolean
 }
@@ -104,10 +102,11 @@ export const ChannelMessagesComponent: React.FC<IChannelMessagesProps & FileActi
   pendingGeneralChannelRecreation = false
 }) => {
   const spinnerMessage = pendingGeneralChannelRecreation ? deletingChannelMessage : fetchingChannelMessagesText
-  const listRef = useRef<HTMLUListElement>()
+  const listRef = useRef<HTMLUListElement>(null)
 
   const handleKeyDown = useCallback<(evt: KeyboardEvent) => void>(
     evt => {
+      if (!scrollbarRef.current) return
       switch (evt.key) {
         case 'ArrowUp':
         case 'ArrowDown':

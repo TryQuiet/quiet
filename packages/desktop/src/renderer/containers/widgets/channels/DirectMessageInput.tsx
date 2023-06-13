@@ -27,14 +27,14 @@ export const useDirectMessageInputActions = () => {
 }
 
 export const ChannelInput = () => {
-  const [infoClass, setInfoClass] = React.useState<string>(null)
+  const [infoClass, setInfoClass] = React.useState<string>('')
 
   const { onChange, onEnter, resetDebounce } = useDirectMessageInputActions()
 
   const currentChannelId = useSelector(publicChannels.selectors.currentChannelId)
   const currentChannelName = useSelector(publicChannels.selectors.currentChannelName)
   const user = useSelector(identity.selectors.currentIdentity)
-
+  if (!currentChannelId) return null
   return (
     <ChannelInputComponent
       channelId={currentChannelId}
@@ -52,6 +52,7 @@ export const ChannelInput = () => {
       setInfoClass={setInfoClass}
       openFilesDialog={() => {}}
       handleOpenFiles={() => {}}
+      handleClipboardFiles={() => {}}
     />
   )
 }

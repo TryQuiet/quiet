@@ -7,7 +7,7 @@ import store from './store'
 import updateHandlers from './store/handlers/update'
 import { communities } from '@quiet/state-manager'
 
-if (window) {
+if (window && process.env.DEBUG) {
   window.localStorage.setItem('debug', process.env.DEBUG)
 }
 
@@ -26,7 +26,8 @@ ipcRenderer.on('invitation', (_event, invitation) => {
 })
 
 const container = document.getElementById('root')
-let root = createRoot(container) // createRoot(container!) if you use TypeScript
+if (!container) throw new Error('No root html element!')
+let root = createRoot(container)
 root.render(<Root />)
 
 export const clearCommunity = async () => {

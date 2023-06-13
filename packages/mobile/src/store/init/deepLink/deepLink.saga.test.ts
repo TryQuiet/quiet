@@ -6,16 +6,14 @@ import { prepareStore } from '../../../tests/utils/prepareStore'
 import {
   communities,
   Community,
-  CommunityOwnership,
   connection,
-  ConnectionProcessInfo,
-  identity,
-  Identity
+  identity
 } from '@quiet/state-manager'
 import { initActions } from '../init.slice'
 import { navigationActions } from '../../navigation/navigation.slice'
 import { ScreenNames } from '../../../const/ScreenNames.enum'
 import { deepLinkSaga } from './deepLink.saga'
+import { CommunityOwnership, ConnectionProcessInfo, Identity } from '@quiet/types'
 
 describe('deepLinkSaga', () => {
   let store: Store

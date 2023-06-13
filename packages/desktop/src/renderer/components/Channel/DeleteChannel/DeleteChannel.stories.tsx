@@ -13,7 +13,7 @@ const Template: ComponentStory<typeof DeleteChannelComponent> = args => {
 export const Component = Template.bind({})
 
 const args: ReturnType<typeof useModal> & DeleteChannelProps = {
-  channel: 'general',
+  channelName: 'general',
   deleteChannel: () => {
     console.log('deleting channel')
   },

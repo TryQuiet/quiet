@@ -28,6 +28,7 @@ describe('Channels panel', () => {
       ReturnType<typeof communities.actions.addNewCommunity>['payload']
     >('Community')
     const generalChannel = publicChannels.selectors.generalChannel(store.getState())
+    expect(generalChannel).not.toBeUndefined()
     const alice = await factory.create<
       ReturnType<typeof identity.actions.addNewIdentity>['payload']
     >('Identity', { id: community.id, nickname: 'alice' })
@@ -57,6 +58,7 @@ describe('Channels panel', () => {
         channels={channels}
         unreadChannels={[]}
         setCurrentChannel={function (_id: string): void {}}
+        // @ts-expect-error
         currentChannelId={generalChannel.id}
         createChannelModal={{
           open: false,

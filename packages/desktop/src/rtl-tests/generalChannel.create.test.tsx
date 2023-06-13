@@ -7,6 +7,7 @@ import { prepareStore } from '../renderer/testUtils/prepareStore'
 import MockedSocket from 'socket.io-mock'
 import { ioMock } from '../shared/setupTests'
 import { socketEventData } from '../renderer/testUtils/socket'
+import { AnyAction } from 'redux'
 import {
   identity,
   publicChannels,
@@ -15,6 +16,7 @@ import {
   ChannelsReplicatedPayload
 } from '@quiet/state-manager'
 import Channel from '../renderer/components/Channel/Channel'
+import { waitFor } from '@testing-library/dom'
 
 jest.setTimeout(20_000)
 
@@ -49,19 +51,29 @@ describe('General channel', () => {
 
     const factory = await getFactory(store)
 
-    await factory.create<
-    ReturnType<typeof identity.actions.addNewIdentity>['payload']
-    >('Identity', { nickname: 'alice' })
+    await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>(
+      'Identity',
+      { nickname: 'alice' }
+    )
 
     jest
       .spyOn(socket, 'emit')
-      .mockImplementation(async (action: SocketActionTypes, ...input: any[]) => {
-        if (action === SocketActionTypes.CHANNELS_REPLICATED) {
-          const data = input as socketEventData<[ChannelsReplicatedPayload]>
-          const payload = data[0][0]
-          expect(payload.channel.name).toEqual('general')
+      .mockImplementation(async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
+        const action = input[0]
+        if (action === SocketActionTypes.CREATE_CHANNEL) {
+          const payload = input[1] as ChannelsReplicatedPayload
+          expect(payload.channels.channel?.name).toEqual('general')
         }
       })
+
+    // Log all the dispatched actions in order
+    const actions: AnyAction[] = []
+    runSaga(function* (): Generator {
+      while (true) {
+        const action = yield* take()
+        actions.push(action.type)
+      }
+    })
 
     await act(async () => {
       await runSaga(testCreateGeneralChannelSaga).toPromise()
@@ -81,5 +93,17 @@ describe('General channel', () => {
       yield* take(publicChannels.actions.createChannel)
       yield* take(publicChannels.actions.setCurrentChannel)
     }
+
+    expect(actions).toMatchInlineSnapshot(`
+      Array [
+        "Identity/saveOwnerCertToDb",
+        "PublicChannels/createGeneralChannel",
+        "PublicChannels/createChannel",
+        "PublicChannels/setCurrentChannel",
+        "PublicChannels/clearUnreadChannel",
+        "Messages/lazyLoading",
+        "Messages/resetCurrentPublicChannelCache",
+      ]
+    `)
   })
 })

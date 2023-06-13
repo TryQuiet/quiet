@@ -3,7 +3,7 @@ import { styled } from '@mui/material/styles'
 import classNames from 'classnames'
 import { Typography, Grid, ListItemButton } from '@mui/material'
 import ListItemText from '@mui/material/ListItemText'
-import { PublicChannel } from '@quiet/state-manager'
+import { PublicChannel } from '@quiet/types'
 
 const PREFIX = 'ChannelsListItem'
 
@@ -92,7 +92,7 @@ export const ChannelsListItem: React.FC<ChannelsListItemProps> = ({
   setCurrentChannel,
   disabled = false
 }) => {
-  const ref = useRef<HTMLDivElement>()
+  const ref = useRef<HTMLDivElement>(null)
 
   return (
     <StyledListItemButton

@@ -5,14 +5,22 @@ import { MenuName } from '../../const/MenuNames.enum'
 
 export class NavigationState {
   public currentScreen: ScreenNames = ScreenNames.SplashScreen
-  public confirmationBox = {
+  public confirmationBox: ConfirmationBox = {
     open: false,
-    args: undefined
+    args: {}
   }
 
-  public [MenuName.Community] = { open: false, args: undefined }
-  public [MenuName.Channel] = { open: false, args: undefined }
-  public [MenuName.Invitation] = { open: false, args: undefined }
+  public [MenuName.Community] = { open: false, args: {} }
+  public [MenuName.Channel] = { open: false, args: {} }
+  public [MenuName.Invitation] = { open: false, args: {} }
+}
+
+interface ConfirmationBox {
+  open: boolean
+  args?: {
+    title?: string
+    duration?: number
+  }
 }
 
 export interface NavigationPayload {
@@ -58,7 +66,7 @@ export const navigationSlice = createSlice({
       const menu = action.payload
       state[menu] = {
         open: false,
-        args: undefined
+        args: {}
       }
     },
     toggleConfirmationBox: (state, action: PayloadAction<ToggleConfirmationBoxPayload>) => {
