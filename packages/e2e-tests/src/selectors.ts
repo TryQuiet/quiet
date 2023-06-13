@@ -30,7 +30,7 @@ export class App {
     await this.buildSetup.closeDriver()
     await this.buildSetup.killChromeDriver()
     if (process.platform === 'win32') {
-      // this.buildSetup.killNine()
+      this.buildSetup.killNine()
       await new Promise<void>(resolve => setTimeout(() => resolve(), 2000))
     }
   }
