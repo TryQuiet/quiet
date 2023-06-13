@@ -97,6 +97,7 @@ export class BuildSetup {
       console.log('!WINDOWS!')
       this.child = spawn(`cd node_modules/.bin & chromedriver.cmd --port=${this.port}`, [], {
         shell: true,
+        detached: false,
         env: Object.assign(process.env, env)
       })
     } else {
