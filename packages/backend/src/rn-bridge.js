@@ -39,9 +39,6 @@ class MessageCodec {
   // Deserialize the message and the message payload.
   static deserialize(message) {
     var envelope = JSON.parse(message);
-    if (typeof envelope.payload !== 'undefined') {
-      envelope.payload = JSON.parse(envelope.payload);
-    }
     return envelope;
   };
 };
@@ -89,7 +86,9 @@ class EventChannel extends ChannelSuper {
   processData(data) {
     // The data contains the serialized message envelope.
     var envelope = MessageCodec.deserialize(data);
-    this.emitWrapper(envelope.event, ...(envelope.payload));
+    setImmediate( () => {
+      this.emitLocal(envelope.event, ...envelope.payload);
+     });
   };
 };
 

@@ -6,6 +6,8 @@
 
 @implementation RNNodeJsMobile
 
+NSString* const EVENTS_CHANNEL = @"_EVENTS_";
+
 NSString* const BUILTIN_MODULES_RESOURCE_PATH = @"builtin_modules";
 NSString* const NODEJS_PROJECT_RESOURCE_PATH = @"nodejs-project";
 NSString* const NODEJS_DLOPEN_OVERRIDE_FILENAME = @"override-dlopen-paths-preload.js";
@@ -96,10 +98,11 @@ RCT_EXPORT_METHOD(startNodeProject:(NSString *)command options:(NSDictionary *)o
   }
 }
 
--(void)sendMessageToNode:(NSString *)channelName:(NSString *)message
+-(void)sendMessageToNode:(NSString *)event:(NSString *)message
 {
+  NSString * data = [NSString stringWithFormat:@"{ \"event\": \"%@\", \"payload\": \"%@\" }", event, message];
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
-    [[NodeRunner sharedInstance] sendMessageToNode:channelName:message];
+    [[NodeRunner sharedInstance] sendMessageToNode:EVENTS_CHANNEL:data];
   });
 }
 

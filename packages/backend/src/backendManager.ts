@@ -27,10 +27,8 @@ console.log('options', options)
 // @ts-ignore
 import rn_bridge from './rn-bridge.js'
 
-console.log('rbridge', rn_bridge)
-
 rn_bridge.channel.on('message', (msg: string) => {
-  console.log('RECEIVED RN-BRIDGE MESSAGE', msg)
+  console.log('native sends message', msg)
 });
 
 export const runBackendDesktop = async () => {

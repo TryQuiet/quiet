@@ -86,8 +86,7 @@ static NSString *const kRNConcurrentRoot = @"concurrentRoot";
 
 - (void)applicationWillEnterForeground:(UIApplication *)application
 {
-//  [self startBackend];
-  [self.nodeJsMobile sendMessageToNode:@"message" :@"dupa"];
+  // [self startBackend];
 }
 
 - (void) startBackend {
@@ -190,14 +189,23 @@ static NSString *const kRNConcurrentRoot = @"concurrentRoot";
 
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
     self.nodeJsMobile = [RNNodeJsMobile new];
+    [self keepSendingMessages];
     [self.nodeJsMobile callStartNodeProject:[NSString stringWithFormat:@"bundle.cjs --dataPort %hu --dataPath %@ --controlPort %hu --authCookie %@ --httpTunnelPort %hu --platform %@", self.dataPort, dataPath, controlPort, authCookie, httpTunnelPort, platform]];
   });
 }
 
+- (void) keepSendingMessages {
+  dispatch_after(500, dispatch_get_main_queue(), ^(void) {
+    NSString * message = [NSString stringWithFormat:@"test"];
+    [self.nodeJsMobile sendMessageToNode:@"message":message]; // The first argument is an event key
+    [self keepSendingMessages];
+  });
+  return;
+}
+
 - (void)applicationDidEnterBackground:(UIApplication *)application
 {
-//  [[self.bridge moduleForName:@"CommunicationModule"] stopBackend];
-//  [self stopTor];
+  // [self stopTor];
 }
 
 /// This method controls whether the `concurrentRoot`feature of React18 is turned on or off.
