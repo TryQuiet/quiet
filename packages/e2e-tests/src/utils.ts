@@ -82,6 +82,11 @@ export class BuildSetup {
     }
   }
 
+  public killNine() {
+    exec(`kill -9 $(lsof -t -i:${this.port})`)
+    exec(`kill -9 $(lsof -t -i:${this.debugPort})`)
+  }
+
   public async createChromeDriver() {
     await this.initPorts()
     const env = {
@@ -104,24 +109,19 @@ export class BuildSetup {
     // Extra time for chromedriver to setup
     await new Promise<void>(resolve => setTimeout(() => resolve(), 2000))
 
-    const killNine = () => {
-      exec(`kill -9 $(lsof -t -i:${this.port})`)
-      exec(`kill -9 $(lsof -t -i:${this.debugPort})`)
-    }
-
     this.child.on('error', () => {
       console.log('ERROR')
-      killNine()
+      this.killNine()
     })
 
     this.child.on('exit', () => {
       console.log('EXIT')
-      killNine()
+      this.killNine()
     })
 
     this.child.on('close', () => {
       console.log('CLOSE')
-      killNine()
+      this.killNine()
     })
 
     this.child.on('message', data => console.log('message', data))

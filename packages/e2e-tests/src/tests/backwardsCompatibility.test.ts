@@ -1,7 +1,7 @@
+import { WebElement } from 'selenium-webdriver'
 import {
   App,
   Channel,
-  ChannelContextMenu,
   CreateCommunityModal,
   DebugModeModal,
   JoinCommunityModal,
@@ -16,11 +16,9 @@ jest.setTimeout(450000)
 describe('Backwards Compatibility', () => {
   let ownerAppOldVersion: App
   let ownerAppNewVersion: App
-
   let generalChannel: Channel
   let secondChannel: Channel
-  let channelContextMenu: ChannelContextMenu
-  let messagesToCompare
+  let messagesToCompare: WebElement[]
 
   let sidebar: Sidebar
   const dataDir = `e2e_${(Math.random() * 10 ** 18).toString(36)}`
@@ -168,6 +166,7 @@ describe('Backwards Compatibility', () => {
       expect(isGeneralChannel).toBeTruthy()
       expect(generalChannelText).toEqual('# general')
     })
+
     it('Verify version - latest', async () => {
       await new Promise<void>(resolve => setTimeout(() => resolve(), 10000))
       const settingsModal = await new Sidebar(ownerAppNewVersion.driver).openSettings()
@@ -179,11 +178,11 @@ describe('Backwards Compatibility', () => {
       await settingsModal.close()
     })
 
-    // do it, later delete second channel
-    it.skip('Check amount of messages on second channel ', async () => {
-      await new Promise<void>(resolve => setTimeout(() => resolve(), 5000))
+    it('Check amount of messages on second channel ', async () => {
+      await new Promise<void>(resolve => setTimeout(() => resolve(), 2000))
       sidebar = new Sidebar(ownerAppNewVersion.driver)
       await sidebar.switchChannel(newChannelName)
+      await new Promise<void>(resolve => setTimeout(() => resolve(), 5000))
       secondChannel = new Channel(ownerAppNewVersion.driver, newChannelName)
       const currentMessages = await secondChannel.getUserMessages(ownerUsername)
       expect(currentMessages.length).toEqual(messagesToCompare.length)
