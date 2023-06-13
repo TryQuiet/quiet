@@ -47,19 +47,6 @@ describe('Backwards Compatibility', () => {
       expect(isLoadingPanel).toBeTruthy()
     })
 
-    it('Close update modal', async () => {
-      console.log('waiting for update modal')
-      await new Promise<void>(resolve => setTimeout(() => resolve(), 100000))
-      const updateModal = new UpdateModal(ownerAppOldVersion.driver)
-      console.log('Update Modal - before check with display')
-      const isUpdateModal = await updateModal.element.isDisplayed()
-      console.log('Update Modal - after check with display', isUpdateModal)
-      expect(isUpdateModal).toBeTruthy()
-      console.log('Update Modal - before close')
-      await updateModal.close()
-      console.log('Update Modal - after close')
-    })
-
     it('JoinCommunityModal - owner switch to create community', async () => {
       const joinModal = new JoinCommunityModal(ownerAppOldVersion.driver)
       const isJoinModal = await joinModal.element.isDisplayed()
@@ -85,7 +72,18 @@ describe('Backwards Compatibility', () => {
       const isLoadingPanelCommunity = await loadingPanelCommunity.element.isDisplayed()
       expect(isLoadingPanelCommunity).toBeTruthy()
     })
-
+    it('Close update modal', async () => {
+      console.log('waiting for update modal')
+      await new Promise<void>(resolve => setTimeout(() => resolve(), 100000))
+      const updateModal = new UpdateModal(ownerAppOldVersion.driver)
+      console.log('Update Modal - before check with display')
+      const isUpdateModal = await updateModal.element.isDisplayed()
+      console.log('Update Modal - after check with display', isUpdateModal)
+      expect(isUpdateModal).toBeTruthy()
+      console.log('Update Modal - before close')
+      await updateModal.close()
+      console.log('Update Modal - after close')
+    })
     it('General channel check', async () => {
       generalChannel = new Channel(ownerAppOldVersion.driver, 'general')
       const isGeneralChannel = await generalChannel.element.isDisplayed()
