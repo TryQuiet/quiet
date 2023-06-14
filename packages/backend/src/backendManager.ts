@@ -1,8 +1,32 @@
 import { Crypto } from '@peculiar/webcrypto'
 import { Command } from 'commander'
 import logger from './logger'
-import { ConnectionsManager, torBinForPlatform, torDirForPlatform } from './index'
+import {  torBinForPlatform, torDirForPlatform } from './index'
+import { NestFactory } from '@nestjs/core'
 import path from 'path'
+import { AppModule } from './nest/app.module'
+import { ConnectionsManagerService } from './nest/connections-manager/connections-manager.service'
+
+// nest
+// create / app context
+
+// provide  token id
+// useclasss
+
+// inject interfejs abstrac calss
+// privder
+//  use class inne systemy
+
+//  dynamic modules
+//  static method dla options jako provider
+
+//  inject (quiet options o)ptions
+
+//  lifecycle hooks
+
+//  connections manager w backaned manager
+
+// app modile for options
 
 const log = logger('backendManager')
 const program = new Command()
@@ -34,16 +58,30 @@ export const runBackendDesktop = async () => {
 
   const resourcesPath = isDev ? null : options.resourcesPath.trim()
 
-  const connectionsManager = new ConnectionsManager({
+  // const connectionsManager = new ConnectionsManager({
+  //   socketIOPort: options.socketIOPort,
+  //   torBinaryPath: torBinForPlatform(resourcesPath),
+  //   torResourcesPath: torDirForPlatform(resourcesPath),
+  //   options: {
+  //     env: {
+  //       appDataPath: path.join(options.appDataPath.trim(), 'Quiet'),
+  //     }
+  //   }
+  // })
+
+  const app = await NestFactory.createApplicationContext(AppModule.forOptions({
     socketIOPort: options.socketIOPort,
-    torBinaryPath: torBinForPlatform(resourcesPath),
-    torResourcesPath: torDirForPlatform(resourcesPath),
-    options: {
-      env: {
-        appDataPath: path.join(options.appDataPath.trim(), 'Quiet'),
+      torBinaryPath: torBinForPlatform(resourcesPath),
+      torResourcesPath: torDirForPlatform(resourcesPath),
+      options: {
+        env: {
+          appDataPath: path.join(options.appDataPath.trim(), 'Quiet'),
+        }
       }
-    }
-  })
+  }), { logger: ['error', 'warn', 'debug', 'log', 'verbose'] })
+
+  const connectionsManager = app.get<ConnectionsManagerService>(ConnectionsManagerService)
+  // await connectionsManager.init()
 
   process.on('message', async (message) => {
     if (message === 'close') {
