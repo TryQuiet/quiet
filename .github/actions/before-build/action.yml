@@ -12,9 +12,14 @@ runs:
       run: cd packages/backend && npm run webpack:prod
       shell: bash
 
-    - name: "Pull tor binary"
-      if: ${{ inputs.source-path == 'linux' || inputs.source-path == 'darwin' }}
+    - name: "Pull tor binary for Linux"
+      if: ${{ inputs.source-path == 'linux' }}
       run: cd packages/desktop && export SOURCE_PATH=${{ inputs.source-path }} && npm run copyBinaries && npm run setMainEnvs
+      shell: bash
+
+    - name: "Pull tor binary for MacOS"
+      if: ${{ inputs.source-path == 'darwin' }}
+      run: cd packages/desktop && export SOURCE_PATH=${{ inputs.source-path }} && npm run copyBinariesDarwin && npm run setMainEnvs
       shell: bash
 
     - name: "Pull tor binary for Windows"
