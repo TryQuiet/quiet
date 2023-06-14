@@ -342,8 +342,11 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
 
   const sanitizedHtml = findMentions(htmlMessage)
 
-  const caretLineTraversal = (focusLine: Node, anchorLinePosition: number) => {
-    if (!focusLine.nodeValue) return
+  const caretLineTraversal = (
+    focusLine: Node | null | undefined,
+    anchorLinePosition: number = 0
+  ) => {
+    if (!focusLine?.nodeValue) return
     // Create an empty range
     const range = document.createRange()
     // Set the focusLineLength
@@ -430,19 +433,19 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
       }
 
       if (e.key === 'ArrowDown') {
-        const anchorNode = window.getSelection().anchorNode
+        const anchorNode: Node | null | undefined = window?.getSelection()?.anchorNode
 
         // If the current line is empty, go directly to the next node.
-        let nextNode: Node = null
-        if (anchorNode.nodeValue === null || anchorNode.nodeValue === '\n') {
+        let nextNode: Node | null | undefined = null
+        if (anchorNode?.nodeValue === null || anchorNode?.nodeValue === '\n') {
           nextNode = anchorNode?.nextSibling
         } else {
           // Otherwise skip the break node at the end of the current line.
-          nextNode = anchorNode?.nextSibling.nextSibling
+          nextNode = anchorNode?.nextSibling?.nextSibling
         }
         // If we're on the bottom line, go to the end
         if (!nextNode) {
-          const endOfNode = anchorNode?.nodeValue?.length || anchorNode.textContent.length
+          const endOfNode = anchorNode?.nodeValue?.length || anchorNode?.textContent?.length
           caretLineTraversal(anchorNode, endOfNode)
           return
         }
@@ -451,16 +454,16 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
           caretLineTraversal(nextNode, 0)
           return
         }
-        caretLineTraversal(nextNode, window.getSelection().anchorOffset)
+        caretLineTraversal(nextNode, window?.getSelection()?.anchorOffset)
       }
       if (e.key === 'ArrowUp') {
-        const anchorNode = window.getSelection().anchorNode
+        const anchorNode = window?.getSelection()?.anchorNode
 
         // If pervious line is empty, go directly to it
-        let previousNode: Node = null
+        let previousNode: Node | null | undefined = null
         if (
-          anchorNode?.previousSibling?.previousSibling.nodeValue === null ||
-          anchorNode?.previousSibling?.previousSibling.nodeValue === '\n'
+          anchorNode?.previousSibling?.previousSibling?.nodeValue === null ||
+          anchorNode?.previousSibling?.previousSibling?.nodeValue === '\n'
         ) {
           previousNode = anchorNode?.previousSibling
         } else {
@@ -477,7 +480,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
           caretLineTraversal(previousNode, 0)
           return
         }
-        caretLineTraversal(previousNode, window.getSelection().anchorOffset)
+        caretLineTraversal(previousNode, window?.getSelection()?.anchorOffset)
       }
 
       if (e.nativeEvent.keyCode === 13) {
