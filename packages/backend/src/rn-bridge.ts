@@ -1,5 +1,6 @@
 
 const EventEmitter = require('events');
+// @ts-ignore
 const NativeBridge = process._linkedBinding('rn_bridge');
 
 /**
@@ -22,22 +23,24 @@ const SYSTEM_CHANNEL = '_SYSTEM_';
  * the data sent through the events channel.
 */
 class MessageCodec {
+  event: string
+  payload: string
   // This is a 'private' constructor, should only be used by this class
   // static methods.
-  constructor(_event, ..._payload) {
+  constructor(_event: string, ..._payload: string[]) {
     this.event = _event;
     this.payload = JSON.stringify(_payload);
   };
 
   // Serialize the message payload and the message.
-  static serialize(event, ...payload) {
+  static serialize(event: string, ...payload: string[]) {
     const envelope = new MessageCodec(event, ...payload);
     // Return the serialized message, that can be sent through a channel.
     return JSON.stringify(envelope);
   };
 
   // Deserialize the message and the message payload.
-  static deserialize(message) {
+  static deserialize(message: string) {
     var envelope = JSON.parse(message);
     return envelope;
   };
@@ -47,7 +50,7 @@ class MessageCodec {
  * Channel super class.
  */
 class ChannelSuper extends EventEmitter {
-  constructor(name) {
+  constructor(name: string) {
     super();
     this.name = name;
     // Renaming the 'emit' method to 'emitLocal' is not strictly needed, but
@@ -58,7 +61,7 @@ class ChannelSuper extends EventEmitter {
     delete this.emit;
   };
 
-  emitWrapper(type, ...msg) {
+  emitWrapper(type: string, ...msg: string[]) {
     const _this = this;
     setImmediate( () => {
       _this.emitLocal(type, ...msg);
@@ -74,16 +77,16 @@ class ChannelSuper extends EventEmitter {
  * Includes the previously available 'send' method for 'message' events.
  */
 class EventChannel extends ChannelSuper {
-  post(event, ...msg) {
+  post(event: string, ...msg: string[]) {
     NativeBridge.sendMessage(this.name, MessageCodec.serialize(event, ...msg));
   };
 
   // Posts a 'message' event, to be backward compatible with old code.
-  send(...msg) {
+  send(...msg: string[]) {
     this.post('message', ...msg);
   };
 
-  processData(data) {
+  processData(data: string) {
     // The data contains the serialized message envelope.
     var envelope = MessageCodec.deserialize(data);
     setImmediate( () => {
@@ -98,7 +101,10 @@ class EventChannel extends ChannelSuper {
  * Will call a callback after every lock has been released.
  **/
 class SystemEventLock {
-  constructor(callback, startingLocks) {
+  _locksAcquired: any
+  _callback: any
+  _hasReleased: boolean
+  constructor(callback: () => any, startingLocks: any) {
     this._locksAcquired = startingLocks; // Start with one lock.
     this._callback = callback; // Callback to call after all locks are released.
     this._hasReleased = false; // To stop doing anything after it's supposed to serve its purpose.
@@ -125,13 +131,13 @@ class SystemEventLock {
  * Emit pause/resume events when the app goes to background/foreground.
  */
 class SystemChannel extends ChannelSuper {
-  constructor(name) {
+  constructor(name: string) {
     super(name);
     // datadir should not change during runtime, so we cache it.
     this._cacheDataDir = null;
   };
 
-  emitWrapper(type) {
+  emitWrapper(type: string) {
     // Overload the emitWrapper to handle the pause event locks.
     const _this = this;
     if (type.startsWith('pause')) {
@@ -159,7 +165,7 @@ class SystemChannel extends ChannelSuper {
     }
   };
 
-  processData(data) {
+  processData(data: string) {
     // The data is the event.
     this.emitWrapper(data);
   };
@@ -172,31 +178,36 @@ class SystemChannel extends ChannelSuper {
     return this._cacheDataDir;
   }
 };
+
+let channels: {[key: string]: Channel } = {};
 /**
  * Manage the registered channels to emit events/messages received by the
  * react-native app or by the react-native plugin itself (i.e. the system channel).
  */
-var channels = {};
 
 /*
- * This method is invoked by the native code when an event/message is received
- * from the react-native app.
+* This method is invoked by the native code when an event/message is received
+* from the react-native app.
  */
-function bridgeListener(channelName, data) {
+function bridgeListener(channelName: string, data: string) {
   if (channels.hasOwnProperty(channelName)) {
+    // @ts-ignore
     channels[channelName].processData(data);
   } else {
     console.error('ERROR: Channel not found:', channelName);
   }
 };
 
+type Channel = string
+
 /*
  * The bridge's native code processes each channel's messages in a dedicated
  * per-channel queue, therefore each channel needs to be registered within
  * the native code.
  */
-function registerChannel(channel) {
-  channels[channel.name] = channel;
+function registerChannel(channel: SystemChannel | EventChannel) {
+  // @ts-ignore
+  channels[channel] = channel;
   NativeBridge.registerChannel(channel.name, bridgeListener);
 };
 
