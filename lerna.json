@@ -13,7 +13,8 @@
       "hoist": [
         "eslint*", 
         "@typescript-eslint/*",
-        "prettier*"
+        "prettier*",
+        "lerna"
       ]
     }
   }
