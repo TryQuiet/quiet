@@ -1,5 +1,5 @@
 import PeerId from 'peer-id'
-import { DirResult } from 'tmp'
+import { type DirResult } from 'tmp'
 import { createPeerId, createTmpDir, tmpQuietDirPath } from '../common/testUtils'
 import { ConnectionsManager } from './connectionsManager'
 import { jest, beforeEach, describe, it, expect, afterEach } from '@jest/globals'
@@ -7,7 +7,7 @@ import { getFactory, prepareStore } from '@quiet/state-manager'
 import { createLibp2pAddress } from '../common/utils'
 import { WebSockets } from './websocketOverTor'
 import { initConnectionsManagerWithTor } from './utils'
-import { Community, Identity, InitCommunityPayload } from '@quiet/types'
+import { type Community, type Identity, type InitCommunityPayload } from '@quiet/types'
 
 const { getPorts } = await import('../common/utils')
 
@@ -40,7 +40,7 @@ describe('Connections manager', () => {
       options: {
         env: {
           appDataPath: tmpAppDataPath
-        },
+        }
       }
     })
 
@@ -58,7 +58,7 @@ describe('Connections manager', () => {
       options: {
         env: {
           appDataPath: tmpAppDataPath
-        },
+        }
       }
     })
     const socket = await initConnectionsManagerWithTor(connectionsManager, ports.socksPort)
@@ -88,7 +88,7 @@ describe('Connections manager', () => {
       options: {
         env: {
           appDataPath: tmpAppDataPath
-        },
+        }
       }
     })
     const socket = await initConnectionsManagerWithTor(connectionsManager, ports.socksPort)
@@ -136,7 +136,7 @@ describe('Connections manager', () => {
       options: {
         env: {
           appDataPath: tmpAppDataPath
-        },
+        }
       }
     })
     const socket = await initConnectionsManagerWithTor(connectionsManager, ports.socksPort)
@@ -179,7 +179,7 @@ describe('Connections manager', () => {
       options: {
         env: {
           appDataPath: tmpAppDataPath
-        },
+        }
       }
     })
     const launchSpy = jest.spyOn(connectionsManager2, 'launch').mockResolvedValue('address')

@@ -2,13 +2,12 @@ module.exports = {
   env: {
     "jest/globals": true
   },
-  root: true,
-  extends: ['standard-with-typescript', 'prettier'],
+  extends: ['standard-with-typescript', "plugin:prettier/recommended"],
   parserOptions: {
     project: './tsconfig.json'
   },
   parser: '@typescript-eslint/parser',
-  plugins: ['react-hooks', 'jest'],
+  plugins: ['react-hooks', 'jest', 'prettier'],
   rules: {
     'node/no-path-concat': 'off',
     'multiline-ternary': 'off',
@@ -57,7 +56,8 @@ module.exports = {
           requireLast: false
         }
       }
-    ]
+    ],
+    "prettier/prettier": "error"
   },
   overrides: [
     {

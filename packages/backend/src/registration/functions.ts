@@ -1,15 +1,15 @@
 import { createUserCert, loadCSR, CertFieldsTypes, getReqFieldValue, keyFromCertificate, parseCertificate, getCertFieldValue } from '@quiet/identity'
 import { IsBase64, IsNotEmpty, validate } from 'class-validator'
-import { CertificationRequest } from 'pkijs'
-import { Agent } from 'http'
+import { type CertificationRequest } from 'pkijs'
+import { type Agent } from 'http'
 import AbortController from 'abort-controller'
-import fetch, { Response } from 'node-fetch'
+import fetch, { type Response } from 'node-fetch'
 import logger from '../logger'
 import { CsrContainsFields, IsCsr } from './validators'
 import { RegistrationEvents } from './types'
 
 import { getUsersAddresses } from '../common/utils'
-import { ErrorCodes, ErrorMessages, ErrorPayload, PermsData, SocketActionTypes, SuccessfullRegistrarionResponse, User, UserCertificatePayload } from '@quiet/types'
+import { ErrorCodes, ErrorMessages, type ErrorPayload, type PermsData, SocketActionTypes, type SuccessfullRegistrarionResponse, type User, type UserCertificatePayload } from '@quiet/types'
 const log = logger('registration')
 
 class UserCsrData {
@@ -174,7 +174,7 @@ export const sendCertificateRegistrationRequest = async (
   return {
     eventType: SocketActionTypes.SEND_USER_CERTIFICATE,
     data: {
-      communityId: communityId,
+      communityId,
       payload: registrarResponse
     }
   }

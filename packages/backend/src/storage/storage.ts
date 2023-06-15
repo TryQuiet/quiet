@@ -11,16 +11,16 @@ import type { IPFS, create as createType } from 'ipfs-core'
 import { create } from 'ipfs-core'
 import type { Libp2p } from 'libp2p'
 import OrbitDB from 'orbit-db'
-import EventStore from 'orbit-db-eventstore'
-import KeyValueStore from 'orbit-db-kvstore'
+import type EventStore from 'orbit-db-eventstore'
+import type KeyValueStore from 'orbit-db-kvstore'
 import path from 'path'
 import { EventEmitter } from 'events'
-import PeerId from 'peer-id'
+import type PeerId from 'peer-id'
 import { getCrypto } from 'pkijs'
 import {
-  IMessageThread,
-  DirectMessagesRepo,
-  PublicChannelsRepo,
+  type IMessageThread,
+  type DirectMessagesRepo,
+  type PublicChannelsRepo,
   StorageOptions
 } from '../common/types'
 import { Config } from '../constants'
@@ -35,7 +35,7 @@ import { StorageEvents } from './types'
 import { IpfsFilesManager, IpfsFilesManagerEvents } from './ipfsFileManager'
 
 import { CID } from 'multiformats/cid'
-import { ChannelMessage, ConnectionProcessInfo, DeleteFilesFromChannelSocketPayload, FileMetadata, NoCryptoEngineError, PublicChannel, PushNotificationPayload, SaveCertificatePayload, SocketActionTypes, User } from '@quiet/types'
+import { type ChannelMessage, ConnectionProcessInfo, type DeleteFilesFromChannelSocketPayload, type FileMetadata, NoCryptoEngineError, type PublicChannel, type PushNotificationPayload, type SaveCertificatePayload, SocketActionTypes, type User } from '@quiet/types'
 import { isDefined } from '@quiet/common'
 import fs from 'fs'
 
@@ -50,8 +50,8 @@ export class Storage extends EventEmitter {
   public channels: KeyValueStore<PublicChannel>
   private messageThreads: KeyValueStore<IMessageThread>
   private certificates: EventStore<string>
-  public publicChannelsRepos: Map<string, PublicChannelsRepo> = new Map()
-  public directMessagesRepos: Map<string, DirectMessagesRepo> = new Map()
+  public publicChannelsRepos = new Map<string, PublicChannelsRepo>()
+  public directMessagesRepos = new Map<string, DirectMessagesRepo>()
   public options: StorageOptions
   public orbitDbDir: string
   public ipfsRepoPath: string
@@ -97,7 +97,7 @@ export class Storage extends EventEmitter {
       id: peerID.toString(),
       directory: this.orbitDbDir,
       // @ts-ignore
-      AccessControllers: AccessControllers
+      AccessControllers
     })
     this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.INITIALIZED_STORAGE)
     log('Initialized storage')
@@ -245,7 +245,7 @@ export class Storage extends EventEmitter {
     // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
     await this.channels.load({ fetchEntryTimeout: 2000 })
     this.emit(StorageEvents.LOAD_PUBLIC_CHANNELS, {
-      channels: this.channels.all as unknown as { [key: string]: PublicChannel }
+      channels: this.channels.all as unknown as Record<string, PublicChannel>
     })
   }
 
@@ -272,9 +272,7 @@ export class Storage extends EventEmitter {
         return this.transformChannel(channel)
       })
 
-      const keyValueChannels: {
-        [key: string]: PublicChannel
-      } = {}
+      const keyValueChannels: Record<string, PublicChannel> = {}
 
       channels.forEach(channel => {
         keyValueChannels[channel.id] = channel
@@ -325,7 +323,7 @@ export class Storage extends EventEmitter {
 
   async initAllChannels() {
     this.emit(StorageEvents.LOAD_PUBLIC_CHANNELS, {
-      channels: this.channels.all as unknown as { [key: string]: PublicChannel }
+      channels: this.channels.all as unknown as Record<string, PublicChannel>
     })
   }
 
@@ -433,7 +431,7 @@ export class Storage extends EventEmitter {
 
           const payload: PushNotificationPayload = {
             message: JSON.stringify(message),
-            username: username
+            username
           }
 
           this.emit(StorageEvents.SEND_PUSH_NOTIFICATION, payload)
@@ -549,7 +547,7 @@ export class Storage extends EventEmitter {
     this.publicChannelsRepos.set(channelId, { db, eventsAttached: false })
     log(`Set ${channelId} to local channels`)
     // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
-    await db.load({ fetchEntryTimeout: 2000, })
+    await db.load({ fetchEntryTimeout: 2000 })
     log(`Created channel ${channelId}`)
     return db
   }

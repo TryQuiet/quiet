@@ -1,8 +1,8 @@
 import fs from 'fs'
 import path from 'path'
-import { DirResult } from 'tmp'
+import { type DirResult } from 'tmp'
 import { Config } from '../constants'
-import { FactoryGirl } from 'factory-girl'
+import { type FactoryGirl } from 'factory-girl'
 import waitForExpect from 'wait-for-expect'
 import { fileURLToPath } from 'url'
 import {
@@ -14,8 +14,8 @@ import { jest, beforeEach, describe, it, expect, afterEach, beforeAll } from '@j
 import { sleep } from '../sleep'
 import { StorageEvents } from './types'
 import type { Storage as StorageType } from './storage'
-import { ChannelMessage, Community, Identity, MessageType, PublicChannel, TestMessage } from '@quiet/types'
-import { Store, getFactory, prepareStore, publicChannels, generateMessageFactoryContentWithId, FileMetadata } from '@quiet/state-manager'
+import { type ChannelMessage, type Community, type Identity, MessageType, type PublicChannel, type TestMessage } from '@quiet/types'
+import { type Store, getFactory, prepareStore, publicChannels, generateMessageFactoryContentWithId, type FileMetadata } from '@quiet/state-manager'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -569,9 +569,7 @@ describe('Users', () => {
 describe('Files deletion', () => {
     let realFilePath: string
     let messages: {
-      messages: {
-          [x: string]: ChannelMessage
-      }
+      messages: Record<string, ChannelMessage>
     }
   beforeEach(async () => {
     realFilePath = path.join(
@@ -591,7 +589,7 @@ describe('Files deletion', () => {
       cid: 'uploading_id',
       message: {
         id: 'id',
-        channelId: channel.id,
+        channelId: channel.id
       }
     }
 

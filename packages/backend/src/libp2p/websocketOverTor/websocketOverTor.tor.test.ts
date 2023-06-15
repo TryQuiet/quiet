@@ -7,10 +7,10 @@ import createHttpsProxyAgent from 'https-proxy-agent'
 import { createTmpDir, tmpQuietDirPath } from '../../common/testUtils'
 import { createCertificatesTestHelper } from '../tests/client-server'
 import getPort from 'get-port'
-import { DirResult } from 'tmp'
+import { type DirResult } from 'tmp'
 import { jest, describe, it, expect, afterEach, beforeAll, afterAll } from '@jest/globals'
 import { createLibp2pAddress, torBinForPlatform, torDirForPlatform } from '../../common/utils'
-import { CreateListenerOptions } from '@libp2p/interface-transport'
+import { type CreateListenerOptions } from '@libp2p/interface-transport'
 
 import { createServer } from 'it-ws/server'
 
@@ -166,7 +166,7 @@ describe('websocketOverTor', () => {
     const tryDial = async () => {
       try {
         await ws2.dial(multiAddress, {
-          signal: signal,
+          signal,
           upgrader: prepareListenerArg.upgrader
         })
       } catch (e) {
@@ -247,7 +247,7 @@ describe('websocketOverTor', () => {
     listener.on('connection', onConnection)
 
     await expect(ws2.dial(multiAddress, {
-      signal: signal,
+      signal,
       upgrader: prepareListenerArg.upgrader
     })).rejects.toBeTruthy()
   })
@@ -316,7 +316,7 @@ describe('websocketOverTor', () => {
     listener.on('connection', onConnection)
 
     await expect(ws2.dial(multiAddress, {
-      signal: signal,
+      signal,
       upgrader: prepareListenerArg.upgrader
     })).rejects.toBeTruthy()
   })

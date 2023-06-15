@@ -2,7 +2,7 @@ import logger from '../../logger'
 import { socketToMaConn } from './socket-to-conn'
 import * as filters from './filters'
 
-import { MultiaddrFilter, CreateListenerOptions, DialOptions } from '@libp2p/interface-transport'
+import { type MultiaddrFilter, type CreateListenerOptions, type DialOptions } from '@libp2p/interface-transport'
 import type { AbortOptions } from '@libp2p/interfaces'
 import type { Multiaddr } from '@multiformats/multiaddr'
 
@@ -24,9 +24,9 @@ import pDefer from 'p-defer'
 import { multiaddrToUri as toUri } from '@multiformats/multiaddr-to-uri'
 import { AbortError } from '@libp2p/interfaces/errors'
 import { connect } from 'it-ws'
-import { ServerOptions, WebSocketServer as ItWsWebsocketServer } from 'it-ws/server'
+import { type ServerOptions, type WebSocketServer as ItWsWebsocketServer } from 'it-ws/server'
 import { multiaddr } from '@multiformats/multiaddr'
-import { MultiaddrConnection, Connection } from '@libp2p/interface-connection'
+import { type MultiaddrConnection, type Connection } from '@libp2p/interface-connection'
 
 const log = logger('libp2p:websockets')
 
@@ -76,13 +76,9 @@ export class WebSockets extends EventEmitter {
     this.createServer = createServer
   }
 
-  get [Symbol.toStringTag]() {
-    return '@libp2p/websockets'
-  }
+  readonly [Symbol.toStringTag] = '@libp2p/websockets'
 
-  get [symbol](): true {
-    return true
-  }
+  readonly [symbol] = true
 
   async dial(ma: Multiaddr, options: DialOptions) {
     let conn: Connection
@@ -179,7 +175,7 @@ export class WebSockets extends EventEmitter {
       }
 
       // Already aborted?
-      if (options.signal.aborted) return onAbort()
+      if (options.signal.aborted) { onAbort(); return }
       options.signal.addEventListener('abort', onAbort)
     })
 
@@ -249,7 +245,7 @@ export class WebSockets extends EventEmitter {
         conn = await upgrader.upgradeInbound(maConn)
       } catch (err) {
         log.error('inbound connection failed to upgrade', err)
-        return await maConn?.close()
+        await maConn?.close(); return
       }
 
       log('inbound connection %s upgraded', maConn.remoteAddr)
@@ -268,8 +264,8 @@ export class WebSockets extends EventEmitter {
     let listeningMultiaddr: Multiaddr
 
     listener.close = async () => {
-      server.__connections?.forEach(async maConn => await maConn.close())
-      return await server.close()
+      server.__connections?.forEach(async maConn => { await maConn.close() })
+      await server.close()
     }
 
     listener.addEventListener = () => { }

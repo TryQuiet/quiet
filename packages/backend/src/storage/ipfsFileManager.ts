@@ -4,7 +4,7 @@ import path from 'path'
 
 import PQueue, { AbortError } from 'p-queue'
 
-import { decode, PBNode } from '@ipld/dag-pb'
+import { decode, type PBNode } from '@ipld/dag-pb'
 
 import * as base58 from 'multiformats/bases/base58'
 
@@ -19,7 +19,7 @@ import { CID } from 'multiformats/cid'
 
 import { sleep } from '../sleep'
 import logger from '../logger'
-import { DownloadProgress, DownloadState, DownloadStatus, FileMetadata, imagesExtensions } from '@quiet/types'
+import { type DownloadProgress, DownloadState, type DownloadStatus, type FileMetadata, imagesExtensions } from '@quiet/types'
 const log = logger('ipfsFiles')
 const sizeOfPromisified = promisify(sizeOf)
 
@@ -303,7 +303,7 @@ export class IpfsFilesManager extends EventEmitter {
                 return
             }
             this.files.set(fileMetadata.cid, {
-                ...fileState, transferSpeed: transferSpeed, downloadedBytes: totalBytesDownloaded
+                ...fileState, transferSpeed, downloadedBytes: totalBytesDownloaded
             })
             await this.updateStatus(fileMetadata.cid)
         }, UPDATE_STATUS_INTERVAL * 1000)
@@ -463,7 +463,7 @@ export class IpfsFilesManager extends EventEmitter {
         const status: DownloadStatus = {
             mid: metadata.message.id,
             cid: metadata.cid,
-            downloadState: downloadState,
+            downloadState,
             downloadProgress: progress
         }
 

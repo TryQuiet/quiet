@@ -40,7 +40,7 @@ export const runBackendDesktop = async () => {
     torResourcesPath: torDirForPlatform(resourcesPath),
     options: {
       env: {
-        appDataPath: path.join(options.appDataPath.trim(), 'Quiet'),
+        appDataPath: path.join(options.appDataPath.trim(), 'Quiet')
       }
     }
   })
@@ -80,9 +80,9 @@ export const runBackendMobile = async (): Promise<any> => {
     torBinaryPath: options.torBinary ? options.torBinary : null,
     options: {
       env: {
-        appDataPath: options.dataPath,
+        appDataPath: options.dataPath
       },
-      createPaths: false,
+      createPaths: false
     }
   })
 

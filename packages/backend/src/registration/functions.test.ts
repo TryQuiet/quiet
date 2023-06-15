@@ -1,14 +1,14 @@
 
-import { configCrypto, createRootCA, createUserCert, createUserCsr, RootCA, verifyUserCert, UserCsr } from '@quiet/identity'
+import { configCrypto, createRootCA, createUserCert, createUserCsr, type RootCA, verifyUserCert, type UserCsr } from '@quiet/identity'
 import createHttpsProxyAgent from 'https-proxy-agent'
 import { Time } from 'pkijs'
-import { DirResult } from 'tmp'
-import { CertificateRegistration } from '.'
+import { type DirResult } from 'tmp'
+import { type CertificateRegistration } from '.'
 import { createTmpDir } from '../common/testUtils'
 import { registerOwner, registerUser, sendCertificateRegistrationRequest } from './functions'
 import { RegistrationEvents } from './types'
 import { jest, beforeEach, describe, it, expect, afterEach, beforeAll } from '@jest/globals'
-import { ErrorCodes, ErrorMessages, PermsData, SocketActionTypes } from '@quiet/types'
+import { ErrorCodes, ErrorMessages, type PermsData, SocketActionTypes } from '@quiet/types'
 
 // @ts-ignore
 const { Response } = jest.requireActual('node-fetch')
@@ -163,7 +163,7 @@ describe('Registration service', () => {
     console.log(response)
     expect(response.eventType).toBe(SocketActionTypes.SEND_USER_CERTIFICATE)
     expect(response.data).toEqual({
-      communityId: communityId,
+      communityId,
       payload: registrarResponse
     })
   })

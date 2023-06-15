@@ -96,7 +96,7 @@ describe('Remove files and dirs', () => {
     ])
   })
   it("No error if directory doesn't exist", () => {
-    expect(() => removeFiles('LOCK', 'non/existent/dir')).not.toThrow()
+    expect(() => { removeFiles('LOCK', 'non/existent/dir') }).not.toThrow()
   })
 })
 

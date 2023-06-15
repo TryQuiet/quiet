@@ -1,7 +1,7 @@
 import _ from 'validator'
 import joi from 'joi'
 import logger from '../logger'
-import { ChannelMessage, PublicChannel } from '@quiet/types'
+import { type ChannelMessage, type PublicChannel } from '@quiet/types'
 const log = logger('validators')
 
 const messageMediaSchema = joi.object({

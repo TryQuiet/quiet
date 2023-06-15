@@ -1,8 +1,8 @@
 import express from 'express'
 import createHttpsProxyAgent from 'https-proxy-agent'
-import fetch, { Response } from 'node-fetch'
+import fetch, { type Response } from 'node-fetch'
 
-import { Tor } from './torManager'
+import { type Tor } from './torManager'
 import {
   createTmpDir,
   spawnTorProcess,

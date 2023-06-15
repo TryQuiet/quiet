@@ -1,6 +1,6 @@
 import express from 'express'
 import createHttpsProxyAgent from 'https-proxy-agent'
-import fetch, { Response } from 'node-fetch'
+import fetch, { type Response } from 'node-fetch'
 import fs from 'fs'
 import {
   createTmpDir,
@@ -11,7 +11,7 @@ import {
 import logger from '../logger'
 import { EventEmitter } from 'events'
 import { Command } from 'commander'
-import { Tor, GetInfoTorSignal } from '../torManager/torManager'
+import { type Tor, GetInfoTorSignal } from '../torManager/torManager'
 import { getPorts } from '../common/utils'
 const program = new Command()
 
@@ -113,7 +113,7 @@ const sendRequest = async (
   serviceAddress: string,
   httpTunnelPort: number,
   tor: Tor,
-  counter: number,
+  counter: number
 ): Promise<Response> => {
   if (mode === TestMode.NEWNYM) {
     await tor.switchToCleanCircuts()

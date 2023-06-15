@@ -1,5 +1,5 @@
 import { loadCSR, CertFieldsTypes, getReqFieldValue } from '@quiet/identity'
-import { registerDecorator, ValidationArguments, ValidationOptions } from 'class-validator'
+import { registerDecorator, type ValidationArguments, type ValidationOptions } from 'class-validator'
 import logger from '../logger'
 const log = logger('validators')
 
@@ -8,11 +8,11 @@ export function IsCsr(validationOptions?: ValidationOptions) {
     registerDecorator({
       name: 'isCsr',
       target: object.constructor,
-      propertyName: propertyName,
+      propertyName,
       options: validationOptions,
       validator: {
         async validate(value: any, _args: ValidationArguments) {
-          const prom: Promise<boolean> = new Promise(resolve => {
+          const prom = new Promise<boolean>(resolve => {
             loadCSR(value).then(() => {
               resolve(true)
             }, () => {
@@ -31,11 +31,11 @@ export function CsrContainsFields(validationOptions?: ValidationOptions) {
     registerDecorator({
       name: 'csrContainsFields',
       target: object.constructor,
-      propertyName: propertyName,
+      propertyName,
       options: validationOptions,
       validator: {
         async validate(value: any, _args: ValidationArguments) {
-          const prom: Promise<boolean> = new Promise(resolve => {
+          const prom = new Promise<boolean>(resolve => {
             loadCSR(value).then((loadedCsr) => {
               for (const certType of [CertFieldsTypes.commonName, CertFieldsTypes.peerId, CertFieldsTypes.nickName]) {
                 if (!getReqFieldValue(loadedCsr, certType)) {

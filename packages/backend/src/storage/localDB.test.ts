@@ -2,15 +2,15 @@ import { LocalDB, LocalDBKeys } from './localDB'
 import { createTmpDir } from '../common/testUtils'
 import path from 'path'
 import { beforeEach, describe, it, expect, afterEach, beforeAll } from '@jest/globals'
-import { NetworkStats } from '@quiet/types'
+import { type NetworkStats } from '@quiet/types'
 
 describe('LocalDB', () => {
   let db: LocalDB
   let dbPath: string
   let peer1Address: string
-  let peer1Stats: {[peerAddress: string]: NetworkStats} = {}
+  let peer1Stats: Record<string, NetworkStats> = {}
   let peer2Address: string
-  let peer2Stats: {[peerAddress: string]: NetworkStats} = {}
+  let peer2Stats: Record<string, NetworkStats> = {}
 
   beforeAll(() => {
     dbPath = path.join(createTmpDir().name, 'testDB')

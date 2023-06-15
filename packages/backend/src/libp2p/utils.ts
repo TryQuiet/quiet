@@ -1,7 +1,7 @@
 import { formatPEM } from '@quiet/identity'
-import { Certificate } from 'pkijs'
+import { type Certificate } from 'pkijs'
 import io from 'socket.io-client'
-import { ConnectionsManager } from './connectionsManager'
+import { type ConnectionsManager } from './connectionsManager'
 
 export function dumpPEM(tag: string, body: string | Certificate | CryptoKey) {
   let bodyCert: string
@@ -27,7 +27,7 @@ export async function initConnectionsManagerWithTor (connectionsManager: Connect
  const init = new Promise<void>(resolve => {
   void connectionsManager.init()
   socket.connect()
-    setTimeout(() => resolve(), 200)
+    setTimeout(() => { resolve() }, 200)
   })
 
   await init

@@ -1,4 +1,4 @@
-import { ChannelMessage, PublicChannel } from '@quiet/types'
+import { type ChannelMessage, type PublicChannel } from '@quiet/types'
 import { isUser, isMessage, isConversation, isDirectMessage, isChannel } from './validators'
 import { jest, beforeEach, describe, it, expect, afterEach, beforeAll, test } from '@jest/globals'
 

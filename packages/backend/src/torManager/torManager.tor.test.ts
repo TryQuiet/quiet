@@ -3,7 +3,7 @@ import { Tor } from './torManager'
 import { torBinForPlatform, torDirForPlatform } from '../common/utils'
 import { createTmpDir, spawnTorProcess, tmpQuietDirPath } from '../common/testUtils'
 import getPort from 'get-port'
-import { DirResult } from 'tmp'
+import { type DirResult } from 'tmp'
 import { jest, beforeEach, describe, it, expect, afterEach } from '@jest/globals'
 
 jest.setTimeout(100_000)
@@ -34,7 +34,7 @@ describe('Tor manager (using tor)', () => {
     const libPath = torDirForPlatform()
     const tor = new Tor({
       appDataPath: tmpAppDataPath,
-      torPath: torPath,
+      torPath,
       httpTunnelPort,
       options: {
         env: {
@@ -49,7 +49,7 @@ describe('Tor manager (using tor)', () => {
 
     const torSecondInstance = new Tor({
       appDataPath: tmpAppDataPath,
-      torPath: torPath,
+      torPath,
       httpTunnelPort,
       options: {
         env: {
@@ -97,7 +97,7 @@ describe('Tor manager (using tor)', () => {
     const libPath = torDirForPlatform()
     const tor = new Tor({
       appDataPath: tmpAppDataPath,
-      torPath: torPath,
+      torPath,
       httpTunnelPort,
       options: {
         env: {
@@ -121,7 +121,7 @@ describe('Tor manager (using tor)', () => {
     const libPath = torDirForPlatform()
     const tor = new Tor({
       appDataPath: tmpAppDataPath,
-      torPath: torPath,
+      torPath,
       httpTunnelPort,
       options: {
         env: {

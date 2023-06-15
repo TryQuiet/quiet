@@ -1,24 +1,24 @@
 import PeerId from 'peer-id'
-import { DirResult } from 'tmp'
+import { type DirResult } from 'tmp'
 import { createPeerId, createTmpDir, tmpQuietDirPath } from '../common/testUtils'
 import { ConnectionsManager } from './connectionsManager'
 import { jest, beforeEach, describe, it, expect, afterEach } from '@jest/globals'
 import { LocalDBKeys } from '../storage/localDB'
 import { CustomEvent } from '@libp2p/interfaces/events'
 import {
-  communities,
+  type communities,
   getFactory,
   prepareStore,
-  identity,
-  Store,
+  type identity,
+  type Store
  } from '@quiet/state-manager'
-import { FactoryGirl } from 'factory-girl'
+import { type FactoryGirl } from 'factory-girl'
 import { DateTime } from 'luxon'
 import waitForExpect from 'wait-for-expect'
 import { Libp2pEvents } from './types'
 import { DataServer } from '../socket/DataServer'
 import io from 'socket.io-client'
-import { Community, Identity, InitCommunityPayload, LaunchRegistrarPayload, NetworkStats } from '@quiet/types'
+import { type Community, type Identity, type InitCommunityPayload, type LaunchRegistrarPayload, type NetworkStats } from '@quiet/types'
 
 let tmpDir: DirResult
 let tmpAppDataPath: string
@@ -62,7 +62,7 @@ describe('Connections manager - no tor', () => {
       options: {
         env: {
           appDataPath: tmpAppDataPath
-        },
+        }
       }
     })
 
@@ -72,8 +72,8 @@ describe('Connections manager - no tor', () => {
     const localAddress = connectionsManager.createLibp2pAddress(address, peerId.toString())
     const remoteAddress = connectionsManager.createLibp2pAddress(address, (await createPeerId()).toString())
     const result = await connectionsManager.initLibp2p({
-      peerId: peerId,
-      address: address,
+      peerId,
+      address,
       addressPort: port,
       targetPort: port,
       bootstrapMultiaddrs: [remoteAddress],
@@ -101,7 +101,7 @@ describe('Connections manager - no tor', () => {
         options: {
           env: {
             appDataPath: tmpAppDataPath
-          },
+          }
         }
       })
       const libp2pAddress = connectionsManager.createLibp2pAddress(
@@ -123,7 +123,7 @@ describe('Connections manager - no tor', () => {
         options: {
           env: {
             appDataPath: tmpAppDataPath
-          },
+          }
         }
       })
       const libp2pListenAddress = connectionsManager.createLibp2pListenAddress(address)
@@ -138,7 +138,7 @@ describe('Connections manager - no tor', () => {
       options: {
         env: {
           appDataPath: tmpAppDataPath
-        },
+        }
       }
     })
     const launchCommunityPayload: InitCommunityPayload = {
@@ -168,7 +168,7 @@ describe('Connections manager - no tor', () => {
    const init = new Promise<void>(resolve => {
     void connectionsManager?.init()
     socket.connect()
-      setTimeout(() => resolve(), 200)
+      setTimeout(() => { resolve() }, 200)
     })
 
     await init
@@ -186,7 +186,7 @@ describe('Connections manager - no tor', () => {
       options: {
         env: {
           appDataPath: tmpAppDataPath
-        },
+        }
       }
     })
 
@@ -238,7 +238,7 @@ describe('Connections manager - no tor', () => {
    const init = new Promise<void>(resolve => {
     void connectionsManager?.init()
     socket.connect()
-      setTimeout(() => resolve(), 200)
+      setTimeout(() => { resolve() }, 200)
     })
 
     await init
@@ -255,7 +255,7 @@ describe('Connections manager - no tor', () => {
       options: {
         env: {
           appDataPath: tmpAppDataPath
-        },
+        }
       }
     })
     const launchCommunitySpy = jest.spyOn(connectionsManager, 'launchCommunity')
@@ -285,13 +285,13 @@ describe('Connections manager - no tor', () => {
       options: {
         env: {
           appDataPath: tmpAppDataPath
-        },
+        }
       }
     })
 
     await connectionsManager.init()
     await connectionsManager.initLibp2p({
-      peerId: peerId,
+      peerId,
       address: '0.0.0.0',
       addressPort: 3211,
       targetPort: 3211,
@@ -317,7 +317,7 @@ describe('Connections manager - no tor', () => {
     await waitForExpect(async () => {
       expect(await connectionsManager?.localStorage.get(LocalDBKeys.PEERS)).not.toBeNull()
     }, 2000)
-    const peerStats: {[addr: string]: NetworkStats} = await connectionsManager.localStorage.get(LocalDBKeys.PEERS)
+    const peerStats: Record<string, NetworkStats> = await connectionsManager.localStorage.get(LocalDBKeys.PEERS)
     expect(Object.keys(peerStats)[0]).toEqual(remoteAddr)
     expect(emitSpy).toHaveBeenCalledWith(Libp2pEvents.PEER_DISCONNECTED, {
       peer: peerStats[remoteAddr].peerId,
@@ -333,7 +333,7 @@ describe('Connections manager - no tor', () => {
       options: {
         env: {
           appDataPath: tmpAppDataPath
-        },
+        }
       }
     })
     const launchCommunityPayload: InitCommunityPayload = {
@@ -369,7 +369,7 @@ describe('Connections manager - no tor', () => {
       options: {
         env: {
           appDataPath: tmpAppDataPath
-        },
+        }
       }
     })
 
@@ -421,7 +421,7 @@ describe('Connections manager - no tor', () => {
    const init = new Promise<void>(resolve => {
     void connectionsManager?.init()
     socket.connect()
-      setTimeout(() => resolve(), 200)
+      setTimeout(() => { resolve() }, 200)
     })
 
     await init

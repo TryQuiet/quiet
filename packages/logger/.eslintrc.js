@@ -1,4 +1,5 @@
 module.exports = {
-  extends: ['custom'],
+  root: true,
+  extends: ['@quiet/eslint-config'],
   ignorePatterns: ['lib/**']
 }

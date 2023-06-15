@@ -9,7 +9,7 @@ import { TorControl, TorControlAuthType } from './TorControl'
 import getPort from 'get-port'
 import { removeFilesFromDir } from '../common/utils'
 import { EventEmitter } from 'events'
-import { SocketActionTypes, SupportedPlatform } from '@quiet/types'
+import { SocketActionTypes, type SupportedPlatform } from '@quiet/types'
 
 const log = logger('tor')
 
@@ -19,7 +19,7 @@ export enum GetInfoTorSignal {
   ENTRY_GUARDS = 'entry-guards'
 }
 
-export interface TorParams {[arg: string]: string}
+export type TorParams = Record<string, string>
 
 interface IConstructor {
   torPath?: string
@@ -79,7 +79,7 @@ export class Tor extends EventEmitter {
     log('Initializing tor...')
     this.controlPort = await getPort()
     this.socksPort = await getPort()
-    return await new Promise((resolve, reject) => {
+    await new Promise<void>((resolve, reject) => {
       if (this.process) {
         throw new Error('Tor already initialized')
       }
@@ -208,7 +208,7 @@ export class Tor extends EventEmitter {
   }
 
   protected readonly spawnTor = async (timeoutMs: number): Promise<void> => {
-    return await new Promise((resolve, reject) => {
+    await new Promise<void>((resolve, reject) => {
       if (!this.controlPort) {
         reject(new Error('Can\'t spawn tor - no control port'))
         return
@@ -324,8 +324,8 @@ export class Tor extends EventEmitter {
     this.torHashedPassword = hashedPassword.toString().trim()
   }
 
-  public kill = async (): Promise<void> =>
-    await new Promise((resolve, reject) => {
+  public kill = async (): Promise<void> => {
+    await new Promise<void>((resolve, reject) => {
       log('Killing tor...')
       if (this.process === null) {
         reject(new Error('TOR: Process is not initalized.'))
@@ -338,4 +338,5 @@ export class Tor extends EventEmitter {
       })
       this.process?.kill()
     })
+}
 }

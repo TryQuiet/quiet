@@ -1,11 +1,11 @@
 import { Crypto } from '@peculiar/webcrypto'
-import { Agent } from 'https'
+import { type Agent } from 'https'
 import fs from 'fs'
 import path from 'path'
 import createHttpsProxyAgent from 'https-proxy-agent'
 
 import { peerIdFromKeys } from '@libp2p/peer-id'
-import { createLibp2p, Libp2p } from 'libp2p'
+import { createLibp2p, type Libp2p } from 'libp2p'
 import { noise } from '@chainsafe/libp2p-noise'
 import { gossipsub } from '@chainsafe/libp2p-gossipsub'
 import { mplex } from '@libp2p/mplex'
@@ -38,7 +38,7 @@ import { LocalDB, LocalDBKeys } from '../storage/localDB'
 import { createLibp2pAddress, createLibp2pListenAddress, getPorts, removeFilesFromDir } from '../common/utils'
 import { ProcessInChunks } from './processInChunks'
 import { multiaddr } from '@multiformats/multiaddr'
-import { AskForMessagesPayload, Certificates, ChannelMessage, ChannelMessagesIdsResponse, ChannelsReplicatedPayload, Community, CommunityId, ConnectionProcessInfo, CreateChannelPayload, CreatedChannelResponse, DeleteFilesFromChannelSocketPayload, DownloadStatus, ErrorMessages, FileMetadata, IncomingMessages, InitCommunityPayload, LaunchRegistrarPayload, NetworkData, NetworkDataPayload, NetworkStats, PushNotificationPayload, RegisterOwnerCertificatePayload, RegisterUserCertificatePayload, RemoveDownloadStatus, ResponseCreateNetworkPayload, SaveCertificatePayload, SaveOwnerCertificatePayload, SendCertificatesResponse, SendMessagePayload, SetChannelSubscribedPayload, SocketActionTypes, StorePeerListPayload, UploadFilePayload } from '@quiet/types'
+import { type AskForMessagesPayload, type Certificates, ChannelMessage, type ChannelMessagesIdsResponse, type ChannelsReplicatedPayload, type Community, type CommunityId, ConnectionProcessInfo, type CreateChannelPayload, type CreatedChannelResponse, type DeleteFilesFromChannelSocketPayload, type DownloadStatus, ErrorMessages, type FileMetadata, type IncomingMessages, type InitCommunityPayload, type LaunchRegistrarPayload, type NetworkData, type NetworkDataPayload, type NetworkStats, type PushNotificationPayload, type RegisterOwnerCertificatePayload, type RegisterUserCertificatePayload, type RemoveDownloadStatus, type ResponseCreateNetworkPayload, type SaveCertificatePayload, type SaveOwnerCertificatePayload, type SendCertificatesResponse, type SendMessagePayload, type SetChannelSubscribedPayload, SocketActionTypes, type StorePeerListPayload, type UploadFilePayload } from '@quiet/types'
 
 const log = logger('conn')
 interface InitStorageParams {
@@ -80,7 +80,7 @@ export interface InitLibp2pParams {
   certs: Certificates
 }
 
-export enum TorInitState{
+export enum TorInitState {
   STARTING = 'starting',
   STARTED = 'started',
   NOT_STARTED = 'not-started'
@@ -144,7 +144,7 @@ export class ConnectionsManager extends EventEmitter {
     setEngine('newEngine', new CryptoEngine({
       name: 'newEngine',
       // @ts-ignore
-      crypto: webcrypto,
+      crypto: webcrypto
     }))
   }
 
@@ -154,7 +154,7 @@ export class ConnectionsManager extends EventEmitter {
     log(`Creating https proxy agent on port ${this.httpTunnelPort}`)
 
     this.socksProxyAgent = createHttpsProxyAgent({
-      port: this.httpTunnelPort, host: '127.0.0.1',
+      port: this.httpTunnelPort, host: '127.0.0.1'
     })
   }
 
@@ -233,7 +233,7 @@ export class ConnectionsManager extends EventEmitter {
     }
   }
 
-  public async closeAllServices(options: {saveTor: boolean} = { saveTor: false }) {
+  public async closeAllServices(options: { saveTor: boolean } = { saveTor: false }) {
     if (this.tor && !this.torControlPort && !options.saveTor) {
       await this.tor.kill()
     }
@@ -405,8 +405,8 @@ export class ConnectionsManager extends EventEmitter {
 
     const initStorageParams: InitStorageParams = {
       communityId: payload.id,
-      peerId: peerId,
-      onionAddress: onionAddress,
+      peerId,
+      onionAddress,
       targetPort: ports.libp2pHiddenService,
       peers: payload.peers,
       certs: payload.certs
@@ -615,7 +615,7 @@ export class ConnectionsManager extends EventEmitter {
     this.dataServer.on(SocketActionTypes.CLOSE, async () => {
       await this.closeAllServices()
     })
-    this.dataServer.on(SocketActionTypes.DELETE_CHANNEL, async (payload: {channelId: string; ownerPeerId: string}) => {
+    this.dataServer.on(SocketActionTypes.DELETE_CHANNEL, async (payload: { channelId: string; ownerPeerId: string }) => {
       await this.storage?.deleteChannel(payload)
     })
 
@@ -686,7 +686,7 @@ export class ConnectionsManager extends EventEmitter {
     this.storage.on(StorageEvents.CHECK_FOR_MISSING_FILES, (payload: CommunityId) => {
       this.io.emit(SocketActionTypes.CHECK_FOR_MISSING_FILES, payload)
     })
-    this.storage.on(StorageEvents.CHANNEL_DELETION_RESPONSE, (payload: {channelId: string}) => {
+    this.storage.on(StorageEvents.CHANNEL_DELETION_RESPONSE, (payload: { channelId: string }) => {
       console.log('emitting deleted channel event back to state manager')
       this.io.emit(SocketActionTypes.CHANNEL_DELETION_RESPONSE, payload)
     })
@@ -706,7 +706,7 @@ export class ConnectionsManager extends EventEmitter {
       peerId: params.peerId,
       listenAddresses: [this.createLibp2pListenAddress(params.address)],
       agent: this.socksProxyAgent,
-      localAddress: localAddress,
+      localAddress,
       cert: params.certs.certificate,
       key: params.certs.key,
       ca: params.certs.CA,
@@ -838,11 +838,11 @@ export class ConnectionsManager extends EventEmitter {
             },
             localAddress: params.localAddress,
             targetPort: params.targetPort,
-            createServer: createServer
+            createServer
           })],
         // @ts-ignore
         dht: kadDHT(),
-        pubsub: gossipsub({ allowPublishToZeroPeers: true }),
+        pubsub: gossipsub({ allowPublishToZeroPeers: true })
       })
     } catch (err) {
       log.error('Create libp2p:', err)

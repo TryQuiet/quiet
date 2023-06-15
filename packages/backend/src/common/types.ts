@@ -1,5 +1,5 @@
-import EventStore from 'orbit-db-eventstore'
-import { ChannelMessage, PublicChannel } from '@quiet/types'
+import type EventStore from 'orbit-db-eventstore'
+import { type ChannelMessage, type PublicChannel } from '@quiet/types'
 
 export interface PublicChannelsRepo {
   db: EventStore<ChannelMessage>
@@ -11,9 +11,7 @@ export interface DirectMessagesRepo {
   eventsAttached: boolean
 }
 
-export interface ChannelInfoResponse {
-  [name: string]: PublicChannel
-}
+export type ChannelInfoResponse = Record<string, PublicChannel>
 
 export class StorageOptions {
   orbitDbDir?: string

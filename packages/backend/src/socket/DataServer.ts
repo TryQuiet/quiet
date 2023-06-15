@@ -1,11 +1,11 @@
 import express from 'express'
-import { createServer, Server } from 'http'
+import { createServer, type Server } from 'http'
 import { Server as SocketIO } from 'socket.io'
 import logger from '../logger'
 import { EventEmitter } from 'events'
 import cors from 'cors'
 import type { CorsOptions } from 'cors'
-import { AskForMessagesPayload, CancelDownloadPayload, Community, ConnectionProcessInfo, CreateChannelPayload, DeleteFilesFromChannelSocketPayload, DownloadFilePayload, InitCommunityPayload, LaunchRegistrarPayload, RegisterOwnerCertificatePayload, RegisterUserCertificatePayload, SaveOwnerCertificatePayload, SendMessagePayload, SocketActionTypes, UploadFilePayload } from '@quiet/types'
+import { type AskForMessagesPayload, type CancelDownloadPayload, type Community, ConnectionProcessInfo, type CreateChannelPayload, type DeleteFilesFromChannelSocketPayload, type DownloadFilePayload, type InitCommunityPayload, type LaunchRegistrarPayload, type RegisterOwnerCertificatePayload, type RegisterUserCertificatePayload, type SaveOwnerCertificatePayload, type SendMessagePayload, SocketActionTypes, type UploadFilePayload } from '@quiet/types'
 
 const log = logger('socket')
 
@@ -116,7 +116,7 @@ export class DataServer extends EventEmitter {
         async (payload: RegisterUserCertificatePayload) => {
           log(`Registering user certificate (${payload.communityId}) on ${payload.serviceAddress}`)
           this.emit(SocketActionTypes.REGISTER_USER_CERTIFICATE, payload)
-          await new Promise<void>(resolve => setTimeout(() => resolve(), 2000))
+          await new Promise<void>(resolve => setTimeout(() => { resolve() }, 2000))
           this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.REGISTERING_USER_CERTIFICATE)
         }
       )
@@ -156,7 +156,7 @@ export class DataServer extends EventEmitter {
         log('leaving community')
         this.emit(SocketActionTypes.LEAVE_COMMUNITY)
       })
-      socket.on(SocketActionTypes.DELETE_CHANNEL, async (payload: {channelId: string; ownerPeerId: string}) => {
+      socket.on(SocketActionTypes.DELETE_CHANNEL, async (payload: { channelId: string; ownerPeerId: string }) => {
         log('deleting channel ', payload.channelId)
         this.emit(SocketActionTypes.DELETE_CHANNEL, payload)
       })
@@ -168,7 +168,7 @@ export class DataServer extends EventEmitter {
   }
 
   public listen = async (): Promise<void> => {
-    return await new Promise(resolve => {
+    await new Promise<void>(resolve => {
       if (this.server.listening) resolve()
       this.server.listen(this.PORT, () => {
         log(`Data server running on port ${this.PORT}`)
@@ -179,7 +179,7 @@ export class DataServer extends EventEmitter {
 
   public close = async (): Promise<void> => {
     log(`Closing data server on port ${this.PORT}`)
-    return await new Promise(resolve => {
+    await new Promise<void>(resolve => {
       this.server.close((err) => {
         if (err) throw new Error(err.message)
         resolve()

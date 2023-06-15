@@ -1,5 +1,5 @@
 import createHttpsProxyAgent from 'https-proxy-agent'
-import fetch, { Response } from 'node-fetch'
+import fetch, { type Response } from 'node-fetch'
 import PeerId from 'peer-id'
 import { createLibp2p } from '../common/testUtils'
 const { Storage } = await import('../storage')

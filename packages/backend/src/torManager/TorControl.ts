@@ -41,7 +41,7 @@ export class TorControl {
   }
 
   private async connect(): Promise<void> {
-    return await new Promise((resolve, reject) => {
+    await new Promise<void>((resolve, reject) => {
       if (this.connection) {
         reject(new Error('TOR: Connection already established'))
       }

@@ -13,14 +13,14 @@ import {
   createLibp2pAddress,
   createLibp2pListenAddress,
   getPorts,
-  Ports,
+  type Ports,
   torBinForPlatform,
   torDirForPlatform
 } from './utils'
 import crypto from 'crypto'
 import logger from '../logger'
-import { TorParams } from '../torManager/torManager'
-import { PermsData } from '@quiet/types'
+import { type TorParams } from '../torManager/torManager'
+import { type PermsData } from '@quiet/types'
 const log = logger('test')
 
 export const rootPermsData: PermsData = {
@@ -42,7 +42,7 @@ export const spawnTorProcess = async (quietDirPath: string, ports?: Ports, extra
   const libPath = torDirForPlatform()
   const tor = new Tor({
     appDataPath: quietDirPath,
-    torPath: torPath,
+    torPath,
     httpTunnelPort: _ports.httpTunnelPort,
     options: {
       env: {

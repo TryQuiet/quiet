@@ -1,11 +1,11 @@
 import express from 'express'
 import getPort from 'get-port'
-import { Agent, Server } from 'http'
+import { type Agent, type Server } from 'http'
 import { EventEmitter } from 'events'
-import { registerOwner, registerUser, RegistrarResponse, RegistrationResponse, sendCertificateRegistrationRequest } from './functions'
+import { registerOwner, registerUser, type RegistrarResponse, type RegistrationResponse, sendCertificateRegistrationRequest } from './functions'
 import { RegistrationEvents } from './types'
 import { ServiceState } from '../libp2p/types'
-import { ConnectionProcessInfo, ErrorCodes, ErrorMessages, LaunchRegistrarPayload, PermsData, RegisterOwnerCertificatePayload, SocketActionTypes } from '@quiet/types'
+import { ConnectionProcessInfo, ErrorCodes, ErrorMessages, type LaunchRegistrarPayload, type PermsData, type RegisterOwnerCertificatePayload, SocketActionTypes } from '@quiet/types'
 import logger from '../logger'
 const log = logger('registration')
 
@@ -52,7 +52,7 @@ export class CertificateRegistration extends EventEmitter {
   }
 
   public async listen(): Promise<void> {
-    return await new Promise(resolve => {
+    await new Promise<void>(resolve => {
       this._server = this._app.listen(this._port, () => {
         log(`Certificate registration service listening on port: ${this._port}`)
         resolve()
@@ -61,7 +61,7 @@ export class CertificateRegistration extends EventEmitter {
   }
 
   public async stop(): Promise<void> {
-    return await new Promise(resolve => {
+    await new Promise<void>(resolve => {
       if (!this._server) resolve()
       this._server.close(() => {
         log('Certificate registration service closed')
