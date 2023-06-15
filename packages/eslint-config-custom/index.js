@@ -2,7 +2,7 @@ module.exports = {
   env: {
     "jest/globals": true
   },
-  extends: ['standard-with-typescript', "plugin:prettier/recommended"],
+  extends: ['standard-with-typescript', "prettier"],
   parserOptions: {
     project: './tsconfig.json'
   },
@@ -57,7 +57,7 @@ module.exports = {
         }
       }
     ],
-    "prettier/prettier": "error"
+    // "prettier/prettier": "error"
   },
   overrides: [
     {
