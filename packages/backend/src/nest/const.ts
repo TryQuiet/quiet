@@ -27,25 +27,10 @@ export const SOCKS_PROXY_AGENT = 'socksProxyAgent'
 
 export const ORBIT_DB_PROVIDER = 'orbitDbProvider'
 
+export const COMMUNITY_PROVIDER = 'communityProvider'
 
-export const COMMUNITY_PROVIDER  = 'communityProvider'
+export const IPFS_PROVIDER = 'communityProvider'
 
-export const IPFS_PROVIDER  = 'communityProvider'
+export const INIT_LIBP2P_PARAMS = 'libp2p-params'
 
-const initStorageParams: InitStorageParams = {
-  communityId: payload.id,
-  peerId: peerId,
-  onionAddress: onionAddress,
-  targetPort: ports.libp2pHiddenService,
-  peers: payload.peers,
-  certs: payload.certs
-}
-
-const libp2pParams: InitLibp2pParams = {
-  peerId: params.peerId,
-  address: params.onionAddress,
-  addressPort: 443,
-  targetPort: params.targetPort,
-  bootstrapMultiaddrs: peers,
-  certs: params.certs
-}
+export const TOR_CONTROL_PARAMS = 'tor-control-params'

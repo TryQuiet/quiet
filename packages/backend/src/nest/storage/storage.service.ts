@@ -20,12 +20,11 @@ import {
   import { getCrypto } from 'pkijs'
   import AccessControllers from 'orbit-db-access-controllers'
   import { stringToArrayBuffer } from 'pvutils'
-
+  import validate from '../validation/validators'
   import { CID } from 'multiformats/cid'
   import { ChannelMessage, ConnectionProcessInfo, DeleteFilesFromChannelSocketPayload, FileMetadata, InitCommunityPayload, NoCryptoEngineError, PublicChannel, PushNotificationPayload, SaveCertificatePayload, SocketActionTypes, User } from '@quiet/types'
   import { isDefined } from '@quiet/common'
   import fs from 'fs'
-import { validate } from 'class-validator'
 import { IMessageThread, PublicChannelsRepo, DirectMessagesRepo, StorageOptions } from '../../common/types'
 import { removeFiles, removeDirs, createPaths, getUsersAddresses } from '../../common/utils'
 import { Config } from '../../constants'
@@ -33,9 +32,10 @@ import { Config } from '../../constants'
 // import { IpfsipfsFileManagerService, IpfsipfsFileManagerServiceEvents } from '../../storage/ipfsFileManager'
 // import { MessagesAccessController } from '../../storage/MessagesAccessController'
 import { StorageEvents } from '../../storage/types'
-import { IpfsFileManagerService, IpfsFilesManagerEvents } from '../ipfs-file-manager/ipfs-file-manager.service'
-import { COMMUNITY_PROVIDER, ORBIT_DB, ORBIT_DB_DIR, ORBIT_DB_PROVIDER, QUIET_DIR } from '../const'
+import { IpfsFileManagerService } from '../ipfs-file-manager/ipfs-file-manager.service'
+import { COMMUNITY_PROVIDER, IPFS_PROVIDER, ORBIT_DB_PROVIDER, QUIET_DIR } from '../const'
 import { createChannelAccessController } from './ChannelsAccessController'
+import { IpfsFilesManagerEvents } from '../ipfs-file-manager/ipfs-file-manager.types'
 
 @Injectable()
 export class StorageService extends EventEmitter implements OnModuleInit {
@@ -62,8 +62,8 @@ export class StorageService extends EventEmitter implements OnModuleInit {
     @Inject(QUIET_DIR) public readonly quietDir: string,
     @Inject(ORBIT_DB_PROVIDER) public readonly orbitDb: OrbitDB,
     @Inject(COMMUNITY_PROVIDER) public readonly community: InitCommunityPayload,
+    @Inject(IPFS_PROVIDER) public readonly ipfs: IPFS,
     private readonly filesManager: IpfsFileManagerService
-    
     // options?: Partial<StorageOptions>
     ) {
     super()
@@ -79,13 +79,12 @@ export class StorageService extends EventEmitter implements OnModuleInit {
 
   async onModuleInit() {
     this.logger.log('Initializing storage')
-    this.peerId = peerID
     removeFiles(this.quietDir, 'LOCK')
     removeDirs(this.quietDir, 'repo.lock')
     if (this.options?.createPaths) {
       createPaths([this.ipfsRepoPath, this.orbitDbDir])
     }
-    this.ipfs = await this.initIPFS(libp2p, peerID)
+    // this.ipfs = await this.initIPFS(libp2p, peerID)
     // this.filesManager = new IpfsFilesManager(this.ipfs, this.quietDir)
     this.attachFileManagerEvents()
 
@@ -180,21 +179,21 @@ export class StorageService extends EventEmitter implements OnModuleInit {
   //   return this.__communityId
   // }
 
-  protected async initIPFS(libp2p: any, peerID: any): Promise<IPFS> {
-    this.logger.log('Initializing IPFS')
-    this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.INITIALIZING_IPFS)
-    return await create({
-      libp2p: async () => libp2p,
-      preload: { enabled: false },
-      repo: this.ipfsRepoPath,
-      EXPERIMENTAL: {
-        ipnsPubsub: true
-      },
-      init: {
-        privateKey: peerID
-      }
-    })
-  }
+  // protected async initIPFS(libp2p: any, peerID: any): Promise<IPFS> {
+  //   this.logger.log('Initializing IPFS')
+  //   this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.INITIALIZING_IPFS)
+  //   return await create({
+  //     libp2p: async () => libp2p,
+  //     preload: { enabled: false },
+  //     repo: this.ipfsRepoPath,
+  //     EXPERIMENTAL: {
+  //       ipnsPubsub: true
+  //     },
+  //     init: {
+  //       privateKey: peerID
+  //     }
+  //   })
+  // }
 
   public async updatePeersList() {
     const allUsers = this.getAllUsers()
@@ -469,7 +468,7 @@ export class StorageService extends EventEmitter implements OnModuleInit {
         this.emit(StorageEvents.SEND_MESSAGES_IDS, {
           ids,
           channelId: channelData.id,
-          communityId: this.communityId
+          communityId: this.community.id
         })
       })
       db.events.on('ready', () => {
@@ -477,7 +476,7 @@ export class StorageService extends EventEmitter implements OnModuleInit {
         this.emit(StorageEvents.SEND_MESSAGES_IDS, {
           ids,
           channelId: channelData.id,
-          communityId: this.communityId
+          communityId: this.community.id
         })
       })
       await db.load()
@@ -536,7 +535,7 @@ export class StorageService extends EventEmitter implements OnModuleInit {
       messages: filteredMessages,
       isVerified: true
     })
-    this.emit(StorageEvents.CHECK_FOR_MISSING_FILES, this.communityId)
+    this.emit(StorageEvents.CHECK_FOR_MISSING_FILES, this.community.id)
   }
 
   private async createChannel(data: PublicChannel): Promise<EventStore<ChannelMessage>> {

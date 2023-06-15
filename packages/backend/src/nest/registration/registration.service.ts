@@ -1,14 +1,13 @@
 import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common'
-
 import express from 'express'
 import getPort from 'get-port'
 import { Agent, Server } from 'http'
 import { EventEmitter } from 'events'
-import { registerOwner, registerUser, RegistrarResponse, RegistrationResponse, sendCertificateRegistrationRequest } from '../../registration/functions'
-import { ServiceState } from '../../libp2p/types'
+import { registerOwner, registerUser, RegistrarResponse, RegistrationResponse, sendCertificateRegistrationRequest } from './registration.functions'
 import { ConnectionProcessInfo, ErrorCodes, ErrorMessages, LaunchRegistrarPayload, PermsData, RegisterOwnerCertificatePayload, SocketActionTypes } from '@quiet/types'
 import { EXPRESS_PROVIDER } from '../const'
-import { RegistrationEvents } from '../../registration/types'
+import { RegistrationEvents } from './registration.types'
+import { ServiceState } from '../../libp2p/types'
 
 @Injectable()
 export class RegistrationService extends EventEmitter implements OnModuleInit {

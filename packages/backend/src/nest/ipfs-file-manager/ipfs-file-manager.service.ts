@@ -1,4 +1,4 @@
-import { Inject, Injectable, OnModuleInit } from '@nestjs/common'
+import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common'
 import { EventEmitter, setMaxListeners } from 'events'
 import fs from 'fs'
 import path from 'path'
@@ -6,45 +6,17 @@ import PQueue, { AbortError } from 'p-queue'
 import { decode, PBNode } from '@ipld/dag-pb'
 import * as base58 from 'multiformats/bases/base58'
 import type { IPFS } from 'ipfs-core'
-
 import { promisify } from 'util'
 import sizeOf from 'image-size'
 import { CID } from 'multiformats/cid'
 import { DownloadProgress, DownloadState, DownloadStatus, FileMetadata, imagesExtensions } from '@quiet/types'
-import { StorageEvents } from '../../storage/types'
 import { sleep } from '../../sleep'
 import { IPFS_PROVIDER, QUIET_DIR } from '../const'
-// const log = logger('ipfsFiles')
+import { FilesData, IpfsFilesManagerEvents } from './ipfs-file-manager.types'
+import { StorageEvents } from '../storage/storage.types'
+import { QUEUE_CONCURRENCY, MAX_EVENT_LISTENERS, TRANSFER_SPEED_SPAN, UPDATE_STATUS_INTERVAL, BLOCK_FETCH_TIMEOUT } from './ipfs-file-manager.const'
 const sizeOfPromisified = promisify(sizeOf)
-
 const { createPaths, compare } = await import('../../common/utils')
-
-export enum IpfsFilesManagerEvents {
-    // Incoming evetns
-    DOWNLOAD_FILE = 'downloadFile',
-    CANCEL_DOWNLOAD = 'cancelDownload',
-    UPLOAD_FILE = 'uploadFile',
-    DELETE_FILE = 'deleteFile',
-    // Outgoing evnets
-    UPDATE_MESSAGE_MEDIA = 'updateMessageMedia',
-    UPDATE_DOWNLOAD_PROGRESS = 'updateDownloadProgress'
-}
-interface FilesData {
-    size: number
-    downloadedBytes: number
-    transferSpeed: number
-    cid: string
-    message: {
-        id: string
-    }
-}
-
-const TRANSFER_SPEED_SPAN = 10
-const UPDATE_STATUS_INTERVAL = 1
-const BLOCK_FETCH_TIMEOUT = 20
-const QUEUE_CONCURRENCY = 40
-// Not sure if this is safe enough, nodes with CID data usually contain at most around 270 hashes.
-const MAX_EVENT_LISTENERS = 300
 
 @Injectable()
 export class IpfsFileManagerService extends EventEmitter implements OnModuleInit {
@@ -55,7 +27,7 @@ export class IpfsFileManagerService extends EventEmitter implements OnModuleInit
    public cancelledDownloads: Set<string> = new Set()
    public queue: PQueue
     public files: Map<string, FilesData> = new Map()
-
+    private readonly logger = new Logger(IpfsFileManagerService.name)
     constructor(
 
         @Inject(QUIET_DIR) public readonly quietDir: string,
@@ -293,7 +265,7 @@ export class IpfsFileManagerService extends EventEmitter implements OnModuleInit
             const transferSpeed = bytesDownloaded === 0 ? 0 : bytesDownloaded / TRANSFER_SPEED_SPAN
             const fileState = this.files.get(fileMetadata.cid)
             if (!fileState) {
-                log.error(`No saved data for file cid ${fileMetadata.cid}`)
+                this.logger.error(`No saved data for file cid ${fileMetadata.cid}`)
                 return
             }
             this.files.set(fileMetadata.cid, {
@@ -382,7 +354,7 @@ export class IpfsFileManagerService extends EventEmitter implements OnModuleInit
 
         const fileState = this.files.get(fileMetadata.cid)
         if (!fileState) {
-            log.error(`No saved data for file cid ${fileMetadata.cid}`)
+            this.logger.error(`No saved data for file cid ${fileMetadata.cid}`)
             return
         }
 

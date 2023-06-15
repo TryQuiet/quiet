@@ -9,9 +9,7 @@ import { LEVEL_DB } from '../const'
 export class LocalDbService {
 peers: any
 private readonly logger = new Logger(LocalDbService.name)
-constructor(@Inject(LEVEL_DB) private readonly db: Level) {
-
-}
+constructor(@Inject(LEVEL_DB) private readonly db: Level) {}
 
 public async close() {
     this.logger.log('Closing leveldb')

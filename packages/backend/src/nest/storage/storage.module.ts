@@ -5,7 +5,7 @@ import { StorageService } from './storage.service'
 import path from 'path'
 import OrbitDB from 'orbit-db'
 import { LocalDbService } from '../local-db/local-db.service'
-import { LocalDBKeys } from '../local-db/local-db.keys'
+import { LocalDBKeys } from '../local-db/local-db.types'
 
 const orbitDbProvider = {
   provide: ORBIT_DB_PROVIDER,
