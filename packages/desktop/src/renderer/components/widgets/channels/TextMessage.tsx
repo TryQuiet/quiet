@@ -128,7 +128,7 @@ export const TextMessageComponent: React.FC<TextMessageComponentProps> = ({
             <a
               onClick={e => {
                 e.preventDefault()
-                openUrl(props.href)
+                if (props.href) openUrl(props.href)
               }}
               className={classNames({ [classes.link]: true })}
               {...props}
@@ -152,7 +152,7 @@ export const TextMessageComponent: React.FC<TextMessageComponentProps> = ({
               <a
                 onClick={e => {
                   e.preventDefault()
-                  openUrl(props.src)
+                  if (props.src) openUrl(props.src)
                 }}
                 className={classNames({ [classes.link]: true })}
                 href={props.src}>
