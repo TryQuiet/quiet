@@ -1,22 +1,49 @@
 import { PayloadAction } from '@reduxjs/toolkit'
-import { select, put, call } from 'typed-redux-saga'
+import { select, put, call, take, apply } from 'typed-redux-saga'
 import { createUserCsr } from '@quiet/identity'
 import { identitySelectors } from '../identity.selectors'
 import { identityActions } from '../identity.slice'
 import { config } from '../../users/const/certFieldTypes'
-import { communitiesSelectors } from '../../communities/communities.selectors'
-import { CreateUserCsrPayload, RegisterCertificatePayload } from '@quiet/types'
+import { Socket, applyEmitParams } from '../../../types'
 
-export function* registerUsernameSaga(action: PayloadAction<string>): Generator {
-  const identity = yield* select(identitySelectors.currentIdentity)
+import { communitiesSelectors } from '../../communities/communities.selectors'
+import { CreateUserCsrPayload, RegisterCertificatePayload, SocketActionTypes, Community } from '@quiet/types'
+import { communitiesActions } from '../../communities/communities.slice'
+
+export function* registerUsernameSaga(socket: Socket,
+  action: PayloadAction<string>,): Generator {
+  // Nickname can differ between saga calls
+  const nickname = action.payload
+
+  const community = yield* select(communitiesSelectors.currentCommunity)
+  
+  if (!community) {
+    console.error('Could not register username, no community data')
+    return
+  }
+  
+  const networkPayload: Community = {
+    id: community.id,
+    name: community.name,
+    registrarUrl: community.registrarUrl,
+    CA: community.CA,
+    rootCa: community.CA?.rootCertString
+  }
+  
+  yield* apply(socket, socket.emit, applyEmitParams(SocketActionTypes.CREATE_NETWORK, networkPayload))
+  
+  let identity = yield* select(identitySelectors.currentIdentity)
+  
+  if (!identity) {
+    yield* take(identityActions.addNewIdentity)
+  }
+  
+  identity = yield* select(identitySelectors.currentIdentity)
   if (!identity) {
     console.error('Could not register username, no identity')
     return
   }
-
-  // Nickname can differ between saga calls
-  const nickname = action.payload
-
+  
   let userCsr = null
 
   // Reuse the same csr if nickname hasn't changed
@@ -41,11 +68,8 @@ export function* registerUsernameSaga(action: PayloadAction<string>): Generator 
     }
   }
 
-  const currentCommunity = yield* select(communitiesSelectors.currentCommunity)
-  if (!currentCommunity) return
-
   const payload: RegisterCertificatePayload = {
-    communityId: currentCommunity.id,
+    communityId: community.id,
     nickname: nickname,
     userCsr: userCsr
   }
