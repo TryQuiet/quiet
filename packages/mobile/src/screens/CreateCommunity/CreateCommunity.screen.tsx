@@ -9,8 +9,9 @@ import { CommunityOwnership, CreateNetworkPayload } from '@quiet/types'
 export const CreateCommunityScreen: FC = () => {
   const dispatch = useDispatch()
 
+  const currentCommunity = useSelector(communities.selectors.currentCommunity)
   const currentIdentity = useSelector(identity.selectors.currentIdentity)
-  const networkCreated = Boolean(currentIdentity && !currentIdentity.userCertificate)
+  const networkCreated = Boolean(currentCommunity && !currentIdentity?.userCertificate)
 
   useEffect(() => {
     if (networkCreated) {
@@ -18,7 +19,7 @@ export const CreateCommunityScreen: FC = () => {
         screen: ScreenNames.UsernameRegistrationScreen
        }))
     }
-  }, [dispatch, currentIdentity])
+  }, [dispatch, currentCommunity])
 
   const createCommunityAction = useCallback(
     (name: string) => {
