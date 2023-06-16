@@ -1,7 +1,7 @@
-import { EntityState } from '@reduxjs/toolkit'
-import { FileMetadata } from './files'
-import { ChannelMessage } from './channel'
-import { Identity } from './identity'
+import { type EntityState } from '@reduxjs/toolkit'
+import { type FileMetadata } from './files'
+import { type ChannelMessage } from './channel'
+import { type Identity } from './identity'
 
 export enum MessageType {
   Empty = -1,
