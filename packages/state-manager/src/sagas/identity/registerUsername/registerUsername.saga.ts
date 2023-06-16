@@ -16,12 +16,12 @@ export function* registerUsernameSaga(socket: Socket,
   const nickname = action.payload
 
   const community = yield* select(communitiesSelectors.currentCommunity)
-  
+
   if (!community) {
     console.error('Could not register username, no community data')
     return
   }
-  
+
   const networkPayload: Community = {
     id: community.id,
     name: community.name,
@@ -29,21 +29,21 @@ export function* registerUsernameSaga(socket: Socket,
     CA: community.CA,
     rootCa: community.CA?.rootCertString
   }
-  
+
   yield* apply(socket, socket.emit, applyEmitParams(SocketActionTypes.CREATE_NETWORK, networkPayload))
-  
+
   let identity = yield* select(identitySelectors.currentIdentity)
-  
+
   if (!identity) {
     yield* take(identityActions.addNewIdentity)
   }
-  
+
   identity = yield* select(identitySelectors.currentIdentity)
   if (!identity) {
     console.error('Could not register username, no identity')
     return
   }
-  
+
   let userCsr = null
 
   // Reuse the same csr if nickname hasn't changed
