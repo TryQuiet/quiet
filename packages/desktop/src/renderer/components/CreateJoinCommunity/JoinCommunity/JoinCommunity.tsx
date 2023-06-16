@@ -44,10 +44,10 @@ const JoinCommunity = () => {
   }, [isConnected, currentCommunity, torBootstrapProcessSelector])
 
   useEffect(() => {
-    if (currentIdentity && !currentIdentity.userCertificate && joinCommunityModal.open) {
+    if (currentCommunity && joinCommunityModal.open) {
       joinCommunityModal.handleClose()
     }
-  }, [currentIdentity])
+  }, [currentCommunity])
 
   const handleCommunityAction = (address: string) => {
     const payload: CreateNetworkPayload = {

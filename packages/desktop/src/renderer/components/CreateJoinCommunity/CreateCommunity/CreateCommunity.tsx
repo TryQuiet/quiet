@@ -19,10 +19,10 @@ const CreateCommunity = () => {
   const joinCommunityModal = useModal(ModalName.joinCommunityModal)
 
   useEffect(() => {
-    if (currentIdentity && !currentIdentity.userCertificate && createCommunityModal.open) {
+    if (currentCommunity && createCommunityModal.open) {
       createCommunityModal.handleClose()
     }
-  }, [currentIdentity])
+  }, [currentCommunity])
 
   const handleCommunityAction = (name: string) => {
     const payload: CreateNetworkPayload = {
