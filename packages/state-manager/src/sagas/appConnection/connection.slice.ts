@@ -1,7 +1,7 @@
-import { createSlice, EntityState, PayloadAction } from '@reduxjs/toolkit'
+import { createSlice, type EntityState, type PayloadAction } from '@reduxjs/toolkit'
 import { StoreKeys } from '../store.keys'
 import { peersStatsAdapter } from './connection.adapter'
-import { ConnectionProcessInfo, NetworkDataPayload, NetworkStats } from '@quiet/types'
+import { ConnectionProcessInfo, type NetworkDataPayload, type NetworkStats } from '@quiet/types'
 
 export class ConnectionState {
   public lastConnectedTime: number = 0

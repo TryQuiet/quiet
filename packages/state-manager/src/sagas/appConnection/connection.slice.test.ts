@@ -1,13 +1,13 @@
-import { Store } from 'redux'
+import { type Store } from 'redux'
 import { connectionSelectors } from './connection.selectors'
 import { connectionActions } from './connection.slice'
-import { identityActions } from '../identity/identity.slice'
+import { type identityActions } from '../identity/identity.slice'
 import { prepareStore } from '../../utils/tests/prepareStore'
 import { getFactory } from '../../utils/tests/factories'
 import { setupCrypto } from '@quiet/identity'
 import { networkActions } from '../network/network.slice'
 import { networkSelectors } from '../network/network.selectors'
-import { Identity } from '@quiet/types'
+import { type Identity } from '@quiet/types'
 
 describe('connectionReducer', () => {
   let store: Store

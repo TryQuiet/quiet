@@ -1,6 +1,6 @@
 import { createTransform } from 'redux-persist'
 import { StoreKeys } from '../store.keys'
-import { CommunitiesState } from './communities.slice'
+import { type CommunitiesState } from './communities.slice'
 
 export const CommunitiesTransform = createTransform(
   (inboundState: CommunitiesState, _key) => {

@@ -1,6 +1,6 @@
 import { StoreKeys } from '../store.keys'
 import { createSelector } from 'reselect'
-import { CreatedSelectors, StoreState } from '../store.types'
+import { type CreatedSelectors, type StoreState } from '../store.types'
 
 const settingsSlice: CreatedSelectors[StoreKeys.Settings] = (
   state: StoreState

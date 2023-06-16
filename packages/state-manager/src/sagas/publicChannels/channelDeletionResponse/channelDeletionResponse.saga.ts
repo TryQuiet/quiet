@@ -1,11 +1,11 @@
 import { publicChannelsActions } from '../publicChannels.slice'
-import { PayloadAction } from '@reduxjs/toolkit'
+import { type PayloadAction } from '@reduxjs/toolkit'
 import logger from '../../../utils/logger'
 import { put, delay, select } from 'typed-redux-saga'
 import { messagesActions } from '../../messages/messages.slice'
 import { communitiesSelectors } from '../../communities/communities.selectors'
 import { publicChannelsSelectors } from '../publicChannels.selectors'
-import { PublicChannelStorage } from '@quiet/types'
+import { type PublicChannelStorage } from '@quiet/types'
 
 const log = logger('publicChannels')
 

@@ -1,8 +1,8 @@
 import { put, select } from 'typed-redux-saga'
 import { filesActions } from '../files.slice'
 import { filesSelectors } from '../files.selectors'
-import { PayloadAction } from '@reduxjs/toolkit'
-import { networkActions } from '../../network/network.slice'
+import { type PayloadAction } from '@reduxjs/toolkit'
+import { type networkActions } from '../../network/network.slice'
 import { DownloadState } from '@quiet/types'
 
 export function* resetTransferSpeedSaga(

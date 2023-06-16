@@ -1,4 +1,4 @@
-import { PayloadAction } from '@reduxjs/toolkit'
+import { type PayloadAction } from '@reduxjs/toolkit'
 import { select, put, take } from 'typed-redux-saga'
 import { publicChannelsSelectors } from '../publicChannels.selectors'
 import { publicChannelsActions } from '../publicChannels.slice'
@@ -6,7 +6,7 @@ import { messagesSelectors } from '../../messages/messages.selectors'
 import { messagesActions } from '../../messages/messages.slice'
 
 import logger from '@quiet/logger'
-import { PublicChannel } from '@quiet/types'
+import { type PublicChannel } from '@quiet/types'
 const log = logger('channels')
 
 export function* channelsReplicatedSaga(
@@ -40,7 +40,7 @@ export function* channelsReplicatedSaga(
       log(`ADDING #${channel.name} TO LOCAL STORAGE`)
       yield* put(
         publicChannelsActions.addChannel({
-          channel: channel
+          channel
         })
       )
       yield* put(

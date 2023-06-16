@@ -1,4 +1,4 @@
-import { createSlice, EntityState, PayloadAction } from '@reduxjs/toolkit'
+import { createSlice, type EntityState, type PayloadAction } from '@reduxjs/toolkit'
 import { StoreKeys } from '../store.keys'
 import {
   publicChannelsAdapter,
@@ -9,27 +9,27 @@ import {
 
 import logger from '../../utils/logger'
 import {
-  CacheMessagesPayload,
-  ChannelDeletionResponsePayload,
-  ChannelMessage,
-  ChannelsReplicatedPayload,
-  ClearMessagesCachePayload,
-  CreateChannelPayload,
-  CreatedChannelResponse,
-  DeleteChannelFromStorePayload,
-  DeleteChannelPayload,
-  DisableChannelPayload,
-  Identity,
+  type CacheMessagesPayload,
+  type ChannelDeletionResponsePayload,
+  type ChannelMessage,
+  type ChannelsReplicatedPayload,
+  type ClearMessagesCachePayload,
+  type CreateChannelPayload,
+  type CreatedChannelResponse,
+  type DeleteChannelFromStorePayload,
+  type DeleteChannelPayload,
+  type DisableChannelPayload,
+  type Identity,
   INITIAL_CURRENT_CHANNEL_ID,
-  MarkUnreadChannelPayload,
-  PublicChannelStatus,
-  PublicChannelStorage,
-  PublicChannelSubscription,
-  SendInitialChannelMessagePayload,
-  SendNewUserInfoMessagePayload,
-  SetChannelSubscribedPayload,
-  SetCurrentChannelPayload,
-  UpdateNewestMessagePayload
+  type MarkUnreadChannelPayload,
+  type PublicChannelStatus,
+  type PublicChannelStorage,
+  type PublicChannelSubscription,
+  type SendInitialChannelMessagePayload,
+  type SendNewUserInfoMessagePayload,
+  type SetChannelSubscribedPayload,
+  type SetCurrentChannelPayload,
+  type UpdateNewestMessagePayload
 } from '@quiet/types'
 const log = logger('publicChannels')
 

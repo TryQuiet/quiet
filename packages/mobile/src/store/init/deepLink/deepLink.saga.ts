@@ -46,7 +46,7 @@ export function* deepLinkSaga(
     yield* put(
       navigationActions.replaceScreen({
         screen: ScreenNames.UsernameRegistrationScreen,
-        params: params
+        params
       })
     )
 
@@ -84,7 +84,7 @@ export function* deepLinkSaga(
     navigationActions.replaceScreen({
       screen: ScreenNames.JoinCommunityScreen,
       params: {
-        code: code
+        code
       }
     })
   )

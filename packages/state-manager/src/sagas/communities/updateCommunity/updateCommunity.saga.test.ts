@@ -6,7 +6,7 @@ import { getFactory } from '../../../utils/tests/factories'
 import { communitiesActions } from '../communities.slice'
 import { updateCommunitySaga } from './updateCommunity.saga'
 import { reducers } from '../../reducers'
-import { Community } from '@quiet/types'
+import { type Community } from '@quiet/types'
 
 describe('updateCommunitySaga', () => {
   test('update community', async () => {
@@ -28,7 +28,7 @@ describe('updateCommunitySaga', () => {
       updateCommunitySaga,
       communitiesActions.updateCommunity({
         id: community.id,
-        rootCa: rootCa
+        rootCa
       })
     )
       .withReducer(reducer)
@@ -36,7 +36,7 @@ describe('updateCommunitySaga', () => {
       .put(
         communitiesActions.updateCommunityData({
           id: community.id,
-          rootCa: rootCa,
+          rootCa,
           name: 'quietcommunity'
         })
       )

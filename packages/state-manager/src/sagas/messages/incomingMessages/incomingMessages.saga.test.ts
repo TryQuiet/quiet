@@ -1,11 +1,11 @@
 import { setupCrypto } from '@quiet/identity'
-import { FactoryGirl } from 'factory-girl'
+import { type FactoryGirl } from 'factory-girl'
 import { expectSaga } from 'redux-saga-test-plan'
 import { getFactory } from '../../../utils/tests/factories'
 import { prepareStore } from '../../..//utils/tests/prepareStore'
-import { combineReducers, Store } from 'redux'
-import { communitiesActions } from '../../communities/communities.slice'
-import { identityActions } from '../../identity/identity.slice'
+import { combineReducers, type Store } from 'redux'
+import { type communitiesActions } from '../../communities/communities.slice'
+import { type identityActions } from '../../identity/identity.slice'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import {
   publicChannelsSelectors,
@@ -16,12 +16,12 @@ import { incomingMessagesSaga } from './incomingMessages.saga'
 import { messagesActions } from '../messages.slice'
 import { reducers } from '../../reducers'
 import {
-  ChannelMessage,
-  Community,
-  FileMetadata,
-  Identity,
+  type ChannelMessage,
+  type Community,
+  type FileMetadata,
+  type Identity,
   MessageType,
-  PublicChannel
+  type PublicChannel
 } from '@quiet/types'
 import { generateChannelId } from '@quiet/common'
 
@@ -139,7 +139,7 @@ describe('incomingMessagesSaga', () => {
       await factory.build<typeof publicChannelsActions.test_message>('Message', {
         identity: alice,
         message: {
-          id: id,
+          id,
           type: MessageType.Basic,
           message: 'message',
           createdAt: DateTime.utc().valueOf(),
@@ -157,14 +157,14 @@ describe('incomingMessagesSaga', () => {
       name: 'image',
       ext: 'png',
       message: {
-        id: id,
+        id,
         channelId: generalChannel.id
       }
     }
 
     message = {
       ...message,
-      media: media
+      media
     }
 
     // Set 'general' as active channel
@@ -217,7 +217,7 @@ describe('incomingMessagesSaga', () => {
       name: 'image',
       ext: 'png',
       message: {
-        id: id,
+        id,
         channelId: generalChannel.id
       }
     }
@@ -227,7 +227,7 @@ describe('incomingMessagesSaga', () => {
         {
           identity: alice,
           message: {
-            id: id,
+            id,
             type: MessageType.Basic,
             message: 'message',
             createdAt: DateTime.utc().valueOf(),
@@ -238,7 +238,7 @@ describe('incomingMessagesSaga', () => {
               name: 'image',
               ext: 'png',
               message: {
-                id: id,
+                id,
                 channelId: generalChannel.id
               }
             },
@@ -450,7 +450,7 @@ describe('incomingMessagesSaga', () => {
     await factory.create<ReturnType<typeof publicChannelsActions.cacheMessages>['payload']>(
       'CacheMessages',
       {
-        messages: messages,
+        messages,
         channelId: barbequeChannel.id
       }
     )
@@ -533,7 +533,7 @@ describe('incomingMessagesSaga', () => {
     await factory.create<ReturnType<typeof publicChannelsActions.cacheMessages>['payload']>(
       'CacheMessages',
       {
-        messages: messages,
+        messages,
         channelId: generalChannel.id
       }
     )

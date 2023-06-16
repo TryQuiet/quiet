@@ -1,14 +1,14 @@
 import { expectSaga } from 'redux-saga-test-plan'
-import { Socket } from '../../../types'
+import { type Socket } from '../../../types'
 import { setupCrypto } from '@quiet/identity'
 import { prepareStore } from '../../../utils/tests/prepareStore'
 import { getFactory } from '../../../utils/tests/factories'
 import { combineReducers } from '@reduxjs/toolkit'
 import { reducers } from '../../reducers'
-import { communitiesActions } from '../../communities/communities.slice'
+import { type communitiesActions } from '../../communities/communities.slice'
 import { identityActions } from '../identity.slice'
 import { registerCertificateSaga } from './registerCertificate.saga'
-import { CertData, RegisterCertificatePayload, SocketActionTypes, UserCsr } from '@quiet/types'
+import { type CertData, type RegisterCertificatePayload, SocketActionTypes, type UserCsr } from '@quiet/types'
 
 describe('registerCertificateSaga', () => {
   it('request certificate registration when user is community owner', async () => {

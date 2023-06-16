@@ -34,7 +34,7 @@ export const CommunityContextMenu: FC = () => {
     (screen: ScreenNames) => {
       dispatch(
         navigationActions.navigation({
-          screen: screen
+          screen
         })
       )
     },

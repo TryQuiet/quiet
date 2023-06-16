@@ -15,7 +15,7 @@ export const useConfirmationBox = (
       navigationActions.toggleConfirmationBox({
         open: true,
         args: {
-          title: title
+          title
         }
       })
     )

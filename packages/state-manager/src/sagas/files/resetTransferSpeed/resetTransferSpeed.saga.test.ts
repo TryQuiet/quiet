@@ -1,18 +1,18 @@
 import { setupCrypto } from '@quiet/identity'
-import { Store } from '../../store.types'
-import { getFactory, MessageType, PublicChannel, publicChannels } from '../../..'
+import { type Store } from '../../store.types'
+import { getFactory, MessageType, type PublicChannel, type publicChannels } from '../../..'
 import { prepareStore, reducers } from '../../../utils/tests/prepareStore'
 import { combineReducers } from '@reduxjs/toolkit'
 import { expectSaga } from 'redux-saga-test-plan'
-import { communitiesActions } from '../../communities/communities.slice'
-import { identityActions } from '../../identity/identity.slice'
-import { FactoryGirl } from 'factory-girl'
+import { type communitiesActions } from '../../communities/communities.slice'
+import { type identityActions } from '../../identity/identity.slice'
+import { type FactoryGirl } from 'factory-girl'
 import { resetTransferSpeedSaga } from './resetTransferSpeed.saga'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import { DateTime } from 'luxon'
 import { filesActions } from '../files.slice'
 import { networkActions } from '../../network/network.slice'
-import { Community, DownloadState, FileMetadata, Identity } from '@quiet/types'
+import { type Community, DownloadState, type FileMetadata, type Identity } from '@quiet/types'
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
 
 describe('downloadFileSaga', () => {
@@ -59,7 +59,7 @@ describe('downloadFileSaga', () => {
       name: 'bot',
       ext: 'zip',
       message: {
-        id: id,
+        id,
         channelId: generalChannel.id
       }
     }
@@ -78,7 +78,7 @@ describe('downloadFileSaga', () => {
           channelId: generalChannel.id,
           signature: '',
           pubKey: '',
-          media: media
+          media
         }
       }
     )
@@ -129,7 +129,7 @@ describe('downloadFileSaga', () => {
       name: 'bot',
       ext: 'zip',
       message: {
-        id: id,
+        id,
         channelId: generalChannel.id
       }
     }
@@ -148,7 +148,7 @@ describe('downloadFileSaga', () => {
           channelId: generalChannel.id,
           signature: '',
           pubKey: '',
-          media: media
+          media
         }
       }
     )
@@ -194,7 +194,7 @@ describe('downloadFileSaga', () => {
       name: 'bot',
       ext: 'zip',
       message: {
-        id: id,
+        id,
         channelId: generalChannel.id
       }
     }
@@ -213,7 +213,7 @@ describe('downloadFileSaga', () => {
           channelId: generalChannel.id,
           signature: '',
           pubKey: '',
-          media: media
+          media
         }
       }
     )

@@ -1,18 +1,18 @@
 import {
   setupCrypto
 } from '@quiet/identity'
-import { Store } from '../../store.types'
-import { getFactory, PublicChannel } from '../../..'
+import { type Store } from '../../store.types'
+import { getFactory, type PublicChannel } from '../../..'
 import { prepareStore, reducers } from '../../../utils/tests/prepareStore'
 import { combineReducers } from '@reduxjs/toolkit'
 import { expectSaga } from 'redux-saga-test-plan'
-import { Socket } from 'socket.io-client'
-import { communitiesActions } from '../../communities/communities.slice'
-import { identityActions } from '../../identity/identity.slice'
+import { type Socket } from 'socket.io-client'
+import { type communitiesActions } from '../../communities/communities.slice'
+import { type identityActions } from '../../identity/identity.slice'
 import { downloadFileSaga } from './downloadFileSaga'
-import { FactoryGirl } from 'factory-girl'
+import { type FactoryGirl } from 'factory-girl'
 import { filesActions } from '../files.slice'
-import { Community, DownloadState, FileMetadata, Identity, SocketActionTypes } from '@quiet/types'
+import { type Community, DownloadState, type FileMetadata, type Identity, SocketActionTypes } from '@quiet/types'
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
 
 describe('downloadFileSaga', () => {

@@ -1,17 +1,17 @@
 import { combineReducers } from '@reduxjs/toolkit'
 import { expectSaga } from 'redux-saga-test-plan'
-import { Socket } from '../../../types'
+import { type Socket } from '../../../types'
 import {
   communitiesReducer,
   CommunitiesState,
-  communitiesActions
+  type communitiesActions
 } from '../../communities/communities.slice'
 import { StoreKeys } from '../../store.keys'
 import { identityAdapter } from '../identity.adapter'
-import { identityReducer, IdentityState, identityActions } from '../identity.slice'
+import { identityReducer, IdentityState, type identityActions } from '../identity.slice'
 import { saveOwnerCertToDbSaga } from './saveOwnerCertToDb.saga'
-import { Store } from '../../store.types'
-import { FactoryGirl } from 'factory-girl'
+import { type Store } from '../../store.types'
+import { type FactoryGirl } from 'factory-girl'
 import { setupCrypto } from '@quiet/identity'
 import { prepareStore } from '../../../utils/tests/prepareStore'
 import { getFactory } from '../../../utils/tests/factories'

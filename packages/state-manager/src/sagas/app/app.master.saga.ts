@@ -1,4 +1,4 @@
-import { Socket } from '../../types'
+import { type Socket } from '../../types'
 import { all, takeLeading } from 'typed-redux-saga'
 import { appActions } from './app.slice'
 import { closeServicesSaga } from './closeServices.saga'

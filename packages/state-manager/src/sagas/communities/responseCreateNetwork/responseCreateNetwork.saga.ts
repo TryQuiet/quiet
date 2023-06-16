@@ -1,9 +1,9 @@
-import { PayloadAction } from '@reduxjs/toolkit'
+import { type PayloadAction } from '@reduxjs/toolkit'
 import { put, call } from 'typed-redux-saga'
 import { generateDmKeyPair } from '../../../utils/cryptography/cryptography'
 import { identityActions } from '../../identity/identity.slice'
 import { communitiesActions } from '../communities.slice'
-import { Identity, ResponseCreateNetworkPayload } from '@quiet/types'
+import { type Identity, type ResponseCreateNetworkPayload } from '@quiet/types'
 
 export function* responseCreateNetworkSaga(
   action: PayloadAction<ResponseCreateNetworkPayload>
@@ -18,7 +18,7 @@ export function* responseCreateNetworkSaga(
     nickname: '',
     hiddenService: network.hiddenService,
     peerId: network.peerId,
-    dmKeys: dmKeys,
+    dmKeys,
     userCsr: null,
     userCertificate: null,
     joinTimestamp: null

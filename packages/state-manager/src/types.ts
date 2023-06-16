@@ -1,20 +1,20 @@
-import { Socket as IOSocket } from 'socket.io-client'
-import { DefaultEventsMap } from 'socket.io-client/build/typed-events'
-import { messagesActions } from './sagas/messages/messages.slice'
-import { publicChannelsActions } from './sagas/publicChannels/publicChannels.slice'
+import { type Socket as IOSocket } from 'socket.io-client'
+import { type DefaultEventsMap } from 'socket.io-client/build/typed-events'
+import { type messagesActions } from './sagas/messages/messages.slice'
+import { type publicChannelsActions } from './sagas/publicChannels/publicChannels.slice'
 import {
-  CancelDownloadPayload,
-  Community,
-  DeleteFilesFromChannelSocketPayload,
-  DownloadFilePayload,
-  InitCommunityPayload,
-  LaunchRegistrarPayload,
-  RegisterOwnerCertificatePayload,
-  RegisterUserCertificatePayload,
-  SaveOwnerCertificatePayload,
-  SendMessagePayload,
-  SocketActionTypes,
-  UploadFilePayload
+  type CancelDownloadPayload,
+  type Community,
+  type DeleteFilesFromChannelSocketPayload,
+  type DownloadFilePayload,
+  type InitCommunityPayload,
+  type LaunchRegistrarPayload,
+  type RegisterOwnerCertificatePayload,
+  type RegisterUserCertificatePayload,
+  type SaveOwnerCertificatePayload,
+  type SendMessagePayload,
+  type SocketActionTypes,
+  type UploadFilePayload
 } from '@quiet/types'
 
 type EmitEvent<Payload> = (payload: Payload) => void

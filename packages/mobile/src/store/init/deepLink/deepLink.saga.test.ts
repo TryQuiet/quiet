@@ -21,7 +21,7 @@ describe('deepLinkSaga', () => {
   const id = '00d045ab'
 
   const community: Community = {
-    id: id,
+    id,
     name: '',
     CA: {
       rootCertString: '',
@@ -42,7 +42,7 @@ describe('deepLinkSaga', () => {
   }
 
   const _identity: Partial<Identity> = {
-    id: id,
+    id,
     nickname: '',
     userCsr: null,
     userCertificate: null,
@@ -70,7 +70,7 @@ describe('deepLinkSaga', () => {
         navigationActions.replaceScreen({
           screen: ScreenNames.JoinCommunityScreen,
           params: {
-            code: code
+            code
           }
         })
       )

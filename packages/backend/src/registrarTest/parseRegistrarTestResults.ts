@@ -24,7 +24,7 @@ async function parse() {
   return combinedResults
 }
 
-const getStatistics = (results: {}) => {
+const getStatistics = (results: Record<string, unknown>) => {
   const testsCount = Object.keys(results).length
   let failed = 0
   const requestCountSuccessRate = {}
@@ -34,7 +34,7 @@ const getStatistics = (results: {}) => {
   let fastestFetch = 100000
   let slowestFetch = 0
   let slowestSuccessfullReceivedResultsTime = 0
-  for (const [address, data] of Object.entries(results)) {
+  for (const [_address, data] of Object.entries(results)) {
     // @ts-ignore
     bootstrapTimeSum += data.bootstrapTime
     // @ts-ignore

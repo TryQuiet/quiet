@@ -34,7 +34,8 @@ jest.unstable_mockModule('../common/utils', async () => {
     })
     }
 })
-type ComonUtilsModuleType = typeof import('../common/utils')
+
+type ComonUtilsModuleType = typeof import('../common/utils') // eslint-disable-line @typescript-eslint/consistent-type-imports
 
 const { createLibp2p, createTmpDir, tmpQuietDirPath, rootPermsData, createFile, createPeerId } = await import('../common/testUtils')
 

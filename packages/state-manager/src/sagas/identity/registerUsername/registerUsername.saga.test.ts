@@ -1,15 +1,15 @@
 import { combineReducers } from '@reduxjs/toolkit'
 import { expectSaga } from 'redux-saga-test-plan'
 import { call } from 'redux-saga-test-plan/matchers'
-import { setupCrypto, createUserCsr, UserCsr } from '@quiet/identity'
+import { setupCrypto, createUserCsr, type UserCsr } from '@quiet/identity'
 import { prepareStore } from '../../../utils/tests/prepareStore'
 import { getFactory } from '../../../utils/tests/factories'
 import { reducers } from '../../reducers'
 import { identityActions } from '../identity.slice'
 import { registerUsernameSaga } from './registerUsername.saga'
-import { communitiesActions } from '../../communities/communities.slice'
+import { type communitiesActions } from '../../communities/communities.slice'
 import { config } from '../../users/const/certFieldTypes'
-import { CertData, CreateUserCsrPayload } from '@quiet/types'
+import { type CertData, type CreateUserCsrPayload } from '@quiet/types'
 
 describe('registerUsernameSaga', () => {
   it('create user csr', async () => {
@@ -66,7 +66,7 @@ describe('registerUsernameSaga', () => {
         identityActions.registerCertificate({
           communityId: community.id,
           nickname: 'nickname',
-          userCsr: userCsr
+          userCsr
         })
       )
       .run()
@@ -119,7 +119,7 @@ describe('registerUsernameSaga', () => {
         identityActions.registerCertificate({
           communityId: community.id,
           nickname: identity.nickname,
-          userCsr: userCsr
+          userCsr
         })
       )
       .run()
@@ -188,7 +188,7 @@ describe('registerUsernameSaga', () => {
         identityActions.registerCertificate({
           communityId: community.id,
           nickname: 'nickname',
-          userCsr: userCsr
+          userCsr
         })
       )
       .run()

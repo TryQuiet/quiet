@@ -9,7 +9,7 @@ import logger from '../logger'
 // import os from 'os'
 import { arrayBufferToString } from 'pvutils'
 import { config } from '../../sagas/users/const/certFieldTypes'
-import { PeerId } from '@quiet/types'
+import { type PeerId } from '@quiet/types'
 const log = logger('test')
 
 const notBeforeDate = new Date(Date.UTC(2010, 11, 28, 10, 10, 10))

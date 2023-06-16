@@ -1,22 +1,22 @@
 import { setupCrypto } from '@quiet/identity'
 import {
   AUTODOWNLOAD_SIZE_LIMIT,
-  communities,
+  type communities,
   getFactory,
-  identity,
-  publicChannels
+  type identity,
+  type publicChannels
 } from '../../..'
 import { prepareStore, reducers } from '../../../utils/tests/prepareStore'
 import { combineReducers } from '@reduxjs/toolkit'
 import { expectSaga } from 'redux-saga-test-plan'
 import { DateTime } from 'luxon'
 import { checkForMissingFilesSaga } from './checkForMissingFiles.saga'
-import { Socket } from 'socket.io-client'
+import { type Socket } from 'socket.io-client'
 import { filesActions } from '../files.slice'
 import { networkActions } from '../../network/network.slice'
 import {
   DownloadState,
-  FileMetadata,
+  type FileMetadata,
   MessageType,
   PublicChannel,
   SocketActionTypes
@@ -55,7 +55,7 @@ describe('checkForMissingFilesSaga', () => {
       ext: '.jpeg',
       message: {
         id: message,
-        channelId: channelId
+        channelId
       },
       size: AUTODOWNLOAD_SIZE_LIMIT - 2048
     }
@@ -139,7 +139,7 @@ describe('checkForMissingFilesSaga', () => {
       ext: '.zip',
       message: {
         id: message,
-        channelId: channelId
+        channelId
       },
       size: AUTODOWNLOAD_SIZE_LIMIT - 2048
     }
@@ -225,7 +225,7 @@ describe('checkForMissingFilesSaga', () => {
       ext: '.zip',
       message: {
         id: message1,
-        channelId: channelId
+        channelId
       },
       size: AUTODOWNLOAD_SIZE_LIMIT - 2048
     }
@@ -237,7 +237,7 @@ describe('checkForMissingFilesSaga', () => {
       ext: '.zip',
       message: {
         id: message2,
-        channelId: channelId
+        channelId
       },
       size: AUTODOWNLOAD_SIZE_LIMIT - 2048
     }
@@ -360,7 +360,7 @@ describe('checkForMissingFilesSaga', () => {
       ext: '.zip',
       message: {
         id: message,
-        channelId: channelId
+        channelId
       },
       size: AUTODOWNLOAD_SIZE_LIMIT + 2048
     }
@@ -444,7 +444,7 @@ describe('checkForMissingFilesSaga', () => {
       ext: '.zip',
       message: {
         id: message,
-        channelId: channelId
+        channelId
       },
       size: AUTODOWNLOAD_SIZE_LIMIT + 2048
     }
@@ -527,7 +527,7 @@ describe('checkForMissingFilesSaga', () => {
       ext: '.zip',
       message: {
         id: message,
-        channelId: channelId
+        channelId
       },
       size: AUTODOWNLOAD_SIZE_LIMIT - 2048
     }
@@ -549,7 +549,7 @@ describe('checkForMissingFilesSaga', () => {
       }
     )
 
-    const store = (await prepareStore(initialState.getState())).store
+    const store = (prepareStore(initialState.getState())).store
     const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
 
     store.dispatch(
@@ -611,7 +611,7 @@ describe('checkForMissingFilesSaga', () => {
       ext: '.zip',
       message: {
         id: message,
-        channelId: channelId
+        channelId
       },
       size: AUTODOWNLOAD_SIZE_LIMIT - 2048
     }
@@ -633,7 +633,7 @@ describe('checkForMissingFilesSaga', () => {
       }
     )
 
-    const store = (await prepareStore(initialState.getState())).store
+    const store = (prepareStore(initialState.getState())).store
     const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
 
     store.dispatch(
@@ -695,7 +695,7 @@ describe('checkForMissingFilesSaga', () => {
       ext: '.zip',
       message: {
         id: message,
-        channelId: channelId
+        channelId
       },
       size: AUTODOWNLOAD_SIZE_LIMIT - 2048
     }
@@ -717,7 +717,7 @@ describe('checkForMissingFilesSaga', () => {
       }
     )
 
-    const store = (await prepareStore(initialState.getState())).store
+    const store = (prepareStore(initialState.getState())).store
     const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
 
     store.dispatch(
@@ -778,9 +778,9 @@ describe('checkForMissingFilesSaga', () => {
         ext: '.zip',
         message: {
           id: message,
-          channelId: channelId
+          channelId
         },
-        size: size
+        size
       }
 
       await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>(

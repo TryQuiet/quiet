@@ -1,8 +1,8 @@
-import { PayloadAction } from '@reduxjs/toolkit'
+import { type PayloadAction } from '@reduxjs/toolkit'
 import { select, put } from 'typed-redux-saga'
 import { publicChannelsActions } from '../publicChannels.slice'
 import { publicChannelsSelectors } from '../publicChannels.selectors'
-import { messagesActions } from '../../messages/messages.slice'
+import { type messagesActions } from '../../messages/messages.slice'
 
 export function* updateNewestMessageSaga(
   action: PayloadAction<ReturnType<typeof messagesActions.incomingMessages>['payload']>

@@ -1,4 +1,4 @@
-import { createSlice, Dictionary, EntityState, PayloadAction } from '@reduxjs/toolkit'
+import { createSlice, type Dictionary, type EntityState, type PayloadAction } from '@reduxjs/toolkit'
 import { channelMessagesAdapter } from '../publicChannels/publicChannels.adapter'
 import { StoreKeys } from '../store.keys'
 import {
@@ -6,7 +6,7 @@ import {
   messageSendingStatusAdapter,
   publicChannelsMessagesBaseAdapter
 } from './messages.adapter.ts'
-import { AddPublicChannelsMessagesBasePayload, AskForMessagesPayload, ChannelMessage, ChannelMessagesIdsResponse, DeleteChannelEntryPayload, IncomingMessages, instanceOfChannelMessage, LazyLoadingPayload, MessageSendingStatus, MessageVerificationStatus, PublicChannelsMessagesBase, SendDeletionMessagePayload, SetDisplayedMessagesNumberPayload, WriteMessagePayload } from '@quiet/types'
+import { type AddPublicChannelsMessagesBasePayload, type AskForMessagesPayload, type ChannelMessage, type ChannelMessagesIdsResponse, type DeleteChannelEntryPayload, type IncomingMessages, instanceOfChannelMessage, type LazyLoadingPayload, type MessageSendingStatus, type MessageVerificationStatus, type PublicChannelsMessagesBase, type SendDeletionMessagePayload, type SetDisplayedMessagesNumberPayload, type WriteMessagePayload } from '@quiet/types'
 
 export class MessagesState {
   public publicKeyMapping: Dictionary<CryptoKey> = {}
@@ -35,7 +35,7 @@ export const messagesSlice = createSlice({
     addPublicChannelsMessagesBase: (state, action: PayloadAction<AddPublicChannelsMessagesBasePayload>) => {
       const { channelId } = action.payload
       publicChannelsMessagesBaseAdapter.addOne(state.publicChannelsMessagesBase, {
-        channelId: channelId,
+        channelId,
         messages: channelMessagesAdapter.getInitialState(),
         display: 50
       })
@@ -94,7 +94,7 @@ export const messagesSlice = createSlice({
         state.publicChannelsMessagesBase, {
           id: channelId,
           changes: {
-            display: display
+            display
           }
         }
       )
@@ -120,7 +120,7 @@ export const messagesSlice = createSlice({
       messageVerificationStatusAdapter.upsertOne(state.messageVerificationStatus, {
         publicKey: message.pubKey,
         signature: message.signature,
-        isVerified: isVerified
+        isVerified
       })
     }
   }

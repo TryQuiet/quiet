@@ -1,4 +1,4 @@
-import { ChannelMessage, MessageSendingStatus, MessageVerificationStatus, PublicChannelsMessagesBase } from '@quiet/types'
+import { type ChannelMessage, type MessageSendingStatus, type MessageVerificationStatus, type PublicChannelsMessagesBase } from '@quiet/types'
 import { createEntityAdapter } from '@reduxjs/toolkit'
 
 export const publicChannelsMessagesBaseAdapter = createEntityAdapter<PublicChannelsMessagesBase>({

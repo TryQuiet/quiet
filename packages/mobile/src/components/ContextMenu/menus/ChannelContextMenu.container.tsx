@@ -32,8 +32,8 @@ export const ChannelContextMenu: FC = () => {
     (screen: ScreenNames, params: any) => {
       dispatch(
         navigationActions.navigation({
-          screen: screen,
-          params: params
+          screen,
+          params
         })
       )
     },

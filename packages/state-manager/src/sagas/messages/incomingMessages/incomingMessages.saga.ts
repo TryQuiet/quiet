@@ -1,10 +1,10 @@
 import { select, put, delay } from 'typed-redux-saga'
-import { PayloadAction } from '@reduxjs/toolkit'
-import { messagesActions } from '../messages.slice'
+import { type PayloadAction } from '@reduxjs/toolkit'
+import { type messagesActions } from '../messages.slice'
 import { messagesSelectors } from '../messages.selectors'
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
-import { CacheMessagesPayload, ChannelMessage } from '@quiet/types'
+import { type CacheMessagesPayload, type ChannelMessage } from '@quiet/types'
 
 export function* incomingMessagesSaga(
   action: PayloadAction<ReturnType<typeof messagesActions.incomingMessages>['payload']>

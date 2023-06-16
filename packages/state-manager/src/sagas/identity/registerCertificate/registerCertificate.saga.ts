@@ -1,9 +1,9 @@
-import { applyEmitParams, Socket } from '../../../types'
-import { PayloadAction } from '@reduxjs/toolkit'
+import { applyEmitParams, type Socket } from '../../../types'
+import { type PayloadAction } from '@reduxjs/toolkit'
 import { apply, select } from 'typed-redux-saga'
 import { communitiesSelectors } from '../../communities/communities.selectors'
-import { identityActions } from '../identity.slice'
-import { RegisterOwnerCertificatePayload, RegisterUserCertificatePayload, SocketActionTypes } from '@quiet/types'
+import { type identityActions } from '../identity.slice'
+import { type RegisterOwnerCertificatePayload, type RegisterUserCertificatePayload, SocketActionTypes } from '@quiet/types'
 
 export function* registerCertificateSaga(
   socket: Socket,

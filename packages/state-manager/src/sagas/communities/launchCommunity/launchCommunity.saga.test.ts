@@ -2,7 +2,7 @@ import { combineReducers } from '@reduxjs/toolkit'
 import { prepareStore, reducers } from '../../../utils/tests/prepareStore'
 import { getFactory } from '../../../utils/tests/factories'
 import { expectSaga } from 'redux-saga-test-plan'
-import { Socket } from 'socket.io-client'
+import { type Socket } from 'socket.io-client'
 import { identityAdapter } from '../../identity/identity.adapter'
 import { identityActions, identityReducer, IdentityState } from '../../identity/identity.slice'
 import { StoreKeys } from '../../store.keys'
@@ -12,13 +12,13 @@ import {
   communitiesReducer,
   CommunitiesState
 } from '../communities.slice'
-import { Store } from '../../store.types'
+import { type Store } from '../../store.types'
 
 import { initCommunities, launchCommunitySaga } from './launchCommunity.saga'
 import { setupCrypto } from '@quiet/identity'
-import { FactoryGirl } from 'factory-girl'
+import { type FactoryGirl } from 'factory-girl'
 import { connectionReducer, ConnectionState } from '../../appConnection/connection.slice'
-import { InitCommunityPayload, SocketActionTypes } from '@quiet/types'
+import { type InitCommunityPayload, SocketActionTypes } from '@quiet/types'
 
 describe('launchCommunity', () => {
   let store: Store

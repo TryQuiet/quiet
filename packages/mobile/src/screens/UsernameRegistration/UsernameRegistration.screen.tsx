@@ -20,8 +20,8 @@ export const UsernameRegistrationScreen: FC<UsernameRegistrationScreenProps> = (
 
   const navigation = useCallback((screen: ScreenNames, params?: any) => {
     dispatch(navigationActions.navigation({
-      screen: screen,
-      params: params
+      screen,
+      params
     }))
   }, [dispatch])
 

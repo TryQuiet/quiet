@@ -133,7 +133,7 @@ describe('showNotificationSaga', () => {
       )
       .provide([
         [call.fn(NativeModules.CommunicationModule.handleIncomingEvents), null],
-        [select(users.selectors.certificatesMapping), { pubKey: { username: username } }]
+        [select(users.selectors.certificatesMapping), { pubKey: { username } }]
       ])
       .call(JSON.stringify, messageWithChannelName)
       .call(
@@ -178,7 +178,7 @@ describe('showNotificationSaga', () => {
       )
       .provide([
         [call.fn(NativeModules.CommunicationModule.handleIncomingEvents), null],
-        [select(users.selectors.certificatesMapping), { pubKey: { username: username } }]
+        [select(users.selectors.certificatesMapping), { pubKey: { username } }]
       ])
       .not.call(NativeModules.CommunicationModule.handleIncomingEvents)
       .run()
@@ -217,7 +217,7 @@ describe('showNotificationSaga', () => {
       )
       .provide([
         [call.fn(NativeModules.CommunicationModule.handleIncomingEvents), null],
-        [select(users.selectors.certificatesMapping), { pubKey: { username: username } }]
+        [select(users.selectors.certificatesMapping), { pubKey: { username } }]
       ])
       .not.call(NativeModules.CommunicationModule.handleIncomingEvents)
       .run()

@@ -1,4 +1,4 @@
-import { Socket } from '../../types'
+import { type Socket } from '../../types'
 import { all, fork, takeEvery } from 'typed-redux-saga'
 import { communitiesActions } from './communities.slice'
 import { connectionActions } from '../appConnection/connection.slice'

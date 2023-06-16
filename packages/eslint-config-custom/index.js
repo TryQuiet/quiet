@@ -39,6 +39,7 @@ module.exports = {
     '@typescript-eslint/no-redeclare': 'off',
     '@typescript-eslint/no-use-before-define': 'off',
     '@typescript-eslint/dot-notation': 'off',
+    '@typescript-eslint/ban-ts-comment': 'off', // Turn on after refactoring
     'generator-star-spacing': ['error', { before: false, after: true }],
     'yield-star-spacing': ['error', { before: false, after: true }],
     'react-hooks/exhaustive-deps': 'off',

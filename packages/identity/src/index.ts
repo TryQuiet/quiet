@@ -1,4 +1,4 @@
-import { createRootCA, RootCA } from './generateRootCA'
+import { createRootCA, type RootCA } from './generateRootCA'
 import {
   extractPubKey,
   parseCertificate,
@@ -9,8 +9,8 @@ import {
 import { verifyUserCert } from './verifyUserCertificate'
 import { verifySignature } from './verification'
 import { sign } from './sign'
-import { createUserCsr, UserCsr } from './requestCertificate'
-import { createUserCert, UserCert } from './generateUserCertificate'
+import { createUserCsr, type UserCsr } from './requestCertificate'
+import { createUserCert, type UserCert } from './generateUserCertificate'
 import {
   loadPrivateKey,
   loadCSR,
@@ -35,13 +35,13 @@ import {
 } from './test/helpers'
 
 export { createRootCA }
-export { RootCA }
+export type { RootCA }
 export { extractPubKey, parseCertificate, keyFromCertificate, keyObjectFromString, extractPubKeyString }
 export { verifyUserCert }
 export { verifySignature }
 export { sign }
-export { createUserCsr, UserCsr }
-export { createUserCert, UserCert }
+export { createUserCsr, type UserCsr }
+export { createUserCert, type UserCert }
 export {
   loadPrivateKey,
   loadCSR,

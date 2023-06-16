@@ -56,8 +56,8 @@ import { networkSelectors } from './sagas/network/network.selectors'
 import type {} from 'pkijs'
 export { LoadingPanelType } from './sagas/network/network.types'
 export { SocketActionTypes } from './sagas/socket/const/actionTypes'
-export { Store } from './sagas/store.types'
-export { TestStore, TestStoreState } from './utils/tests/types'
+export type { Store } from './sagas/store.types'
+export type { TestStore, TestStoreState } from './utils/tests/types'
 export { StoreKeys } from './sagas/store.keys'
 
 export { prepareStore } from './utils/tests/prepareStore'
@@ -66,7 +66,7 @@ export { useIO } from './sagas/socket/startConnection/startConnection.saga'
 export { getFactory, generateMessageFactoryContentWithId } from './utils/tests/factories'
 export * from './utils/tests/helpers'
 
-export { Community } from './sagas/communities/communities.slice' // TODO: remove after setting strict in 'desktop' and 'mobile' packages
+export type { Community } from './sagas/communities/communities.slice' // TODO: remove after setting strict in 'desktop' and 'mobile' packages
 
 export { communitiesAdapter } from './sagas/communities/communities.adapter'
 export { certificatesAdapter } from './sagas/users/users.adapter'

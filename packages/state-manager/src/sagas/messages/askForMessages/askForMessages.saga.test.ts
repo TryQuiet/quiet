@@ -1,9 +1,9 @@
-import { TestApi, testSaga } from 'redux-saga-test-plan'
-import { Socket } from 'socket.io-client'
+import { type TestApi, testSaga } from 'redux-saga-test-plan'
+import { type Socket } from 'socket.io-client'
 import {
   messagesActions
 } from '../messages.slice'
-import { AskForMessagesPayload, SocketActionTypes } from '@quiet/types'
+import { type AskForMessagesPayload, SocketActionTypes } from '@quiet/types'
 import { askForMessagesSaga } from './askForMessages.saga'
 
 describe('askForMessagesSaga', () => {

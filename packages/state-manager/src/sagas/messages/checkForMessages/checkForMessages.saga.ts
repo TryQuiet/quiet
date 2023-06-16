@@ -2,7 +2,7 @@ import { put, select } from 'typed-redux-saga'
 import {
   missingChannelMessages
 } from '../messages.selectors'
-import { PayloadAction } from '@reduxjs/toolkit'
+import { type PayloadAction } from '@reduxjs/toolkit'
 import { messagesActions } from '../messages.slice'
 import { currentCommunity } from '../../communities/communities.selectors'
 import { currentIdentity } from '../../identity/identity.selectors'
@@ -22,7 +22,7 @@ export function* checkForMessagesSaga(action: PayloadAction<ReturnType<typeof me
       messagesActions.askForMessages({
         peerId: identity.peerId.id,
         communityId: community.id,
-        channelId: channelId,
+        channelId,
         ids: missingMessages
       })
     )

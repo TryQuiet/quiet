@@ -1,16 +1,16 @@
 import { keyFromCertificate, parseCertificate, setupCrypto } from '@quiet/identity'
-import { Store } from '../store.types'
+import { type Store } from '../store.types'
 import { getFactory, publicChannels } from '../..'
 import { prepareStore } from '../../utils/tests/prepareStore'
 import { validCurrentPublicChannelMessagesEntries } from './messages.selectors'
-import { communitiesActions } from '../communities/communities.slice'
-import { identityActions } from '../identity/identity.slice'
-import { FactoryGirl } from 'factory-girl'
+import { type communitiesActions } from '../communities/communities.slice'
+import { type identityActions } from '../identity/identity.slice'
+import { type FactoryGirl } from 'factory-girl'
 import {
   publicChannelsSelectors,
   selectGeneralChannel
 } from '../publicChannels/publicChannels.selectors'
-import { Community, Identity, PublicChannel, ChannelMessage } from '@quiet/types'
+import { type Community, type Identity, type PublicChannel, type ChannelMessage } from '@quiet/types'
 
 describe('messagesSelectors', () => {
   let store: Store

@@ -1,10 +1,10 @@
-import { PayloadAction } from '@reduxjs/toolkit'
+import { type PayloadAction } from '@reduxjs/toolkit'
 import { put, select } from 'typed-redux-saga'
 import { communitiesSelectors } from '../../communities/communities.selectors'
 import { messagesActions } from '../../messages/messages.slice'
 import { publicChannelsSelectors } from '../publicChannels.selectors'
 import { publicChannelsActions } from '../publicChannels.slice'
-import { MessageType, WriteMessagePayload } from '@quiet/types'
+import { MessageType, type WriteMessagePayload } from '@quiet/types'
 
 export function* sendInitialChannelMessageSaga(
   action: PayloadAction<
@@ -30,7 +30,7 @@ export function* sendInitialChannelMessageSaga(
   const payload: WriteMessagePayload = {
     type: MessageType.Info,
     message,
-    channelId: channelId
+    channelId
   }
 
   if (isGeneral) {

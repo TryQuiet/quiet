@@ -3,7 +3,7 @@ import { Integer, BitString, OctetString, PrintableString } from 'asn1js'
 import config from './config'
 import { loadCertificate, loadPrivateKey, loadCSR, ExtensionsTypes, CertFieldsTypes } from './common'
 import {
-  Certificate, Extension, ExtKeyUsage, BasicConstraints, CertificationRequest, GeneralName, GeneralNames, Attribute
+  Certificate, Extension, ExtKeyUsage, BasicConstraints, type CertificationRequest, GeneralName, GeneralNames, type Attribute
 } from 'pkijs'
 
 export interface UserCert {

@@ -1,11 +1,11 @@
-import { PayloadAction } from '@reduxjs/toolkit'
-import { messagesActions } from '../../messages/messages.slice'
+import { type PayloadAction } from '@reduxjs/toolkit'
+import { type messagesActions } from '../../messages/messages.slice'
 import { apply, put, select } from 'typed-redux-saga'
 import { identitySelectors } from '../../identity/identity.selectors'
 import { messagesSelectors } from '../../messages/messages.selectors'
 import { AUTODOWNLOAD_SIZE_LIMIT } from '../../../constants'
 import { filesActions } from '../files.slice'
-import { applyEmitParams, Socket } from '../../../types'
+import { applyEmitParams, type Socket } from '../../../types'
 import { DownloadState, MessageType, SocketActionTypes } from '@quiet/types'
 
 export function* autoDownloadFilesSaga(

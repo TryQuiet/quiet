@@ -1,10 +1,10 @@
-import { PayloadAction } from '@reduxjs/toolkit'
+import { type PayloadAction } from '@reduxjs/toolkit'
 import { select, put } from 'typed-redux-saga'
 import { publicChannelsActions } from '../publicChannels.slice'
 import { publicChannelsSelectors } from '../publicChannels.selectors'
-import { messagesActions } from '../../messages/messages.slice'
+import { type messagesActions } from '../../messages/messages.slice'
 import { identitySelectors } from '../../identity/identity.selectors'
-import { MarkUnreadChannelPayload } from '@quiet/types'
+import { type MarkUnreadChannelPayload } from '@quiet/types'
 
 export function* markUnreadChannelsSaga(
   action: PayloadAction<ReturnType<typeof messagesActions.incomingMessages>['payload']>
@@ -18,7 +18,7 @@ export function* markUnreadChannelsSaga(
     if (message.channelId !== currentChannelId) {
       const payload: MarkUnreadChannelPayload = {
         channelId: message.channelId,
-        message: message
+        message
       }
 
       const statuses = yield* select(publicChannelsSelectors.channelsStatus)
@@ -46,7 +46,7 @@ export function* clearUnreadChannelsSaga(
   if (channelId === '') return
 
   const payload: MarkUnreadChannelPayload = {
-    channelId: channelId
+    channelId
   }
 
   yield* put(

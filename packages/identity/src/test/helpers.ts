@@ -1,8 +1,8 @@
 import { Time, setEngine, CryptoEngine } from 'pkijs'
 import { Crypto } from '@peculiar/webcrypto'
-import { createRootCA, RootCA } from '../generateRootCA'
-import { createUserCert, UserCert } from '../generateUserCertificate'
-import { createUserCsr, UserCsr } from '../requestCertificate'
+import { createRootCA, type RootCA } from '../generateRootCA'
+import { createUserCert, type UserCert } from '../generateUserCertificate'
+import { createUserCsr, type UserCsr } from '../requestCertificate'
 import config from '../config'
 
 export const userData = {
@@ -81,7 +81,7 @@ export const createUserCertificateTestHelper = async (
     notAfterDate
   )
   return {
-    userCsr: userCsr,
-    userCert: userCert
+    userCsr,
+    userCert
   }
 }

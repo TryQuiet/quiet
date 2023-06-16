@@ -3,7 +3,7 @@ import { publicChannelsSelectors } from '../../publicChannels/publicChannels.sel
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import { messagesSelectors } from '../messages.selectors'
 import { messagesActions } from '../messages.slice'
-import { CacheMessagesPayload, SetDisplayedMessagesNumberPayload } from '@quiet/types'
+import { type CacheMessagesPayload, type SetDisplayedMessagesNumberPayload } from '@quiet/types'
 
 export function* extendCurrentPublicChannelCacheSaga(): Generator {
   const channelId = yield* select(publicChannelsSelectors.currentChannelId)
@@ -29,8 +29,8 @@ export function* extendCurrentPublicChannelCacheSaga(): Generator {
   )
 
   const cacheMessagesPayload: CacheMessagesPayload = {
-    messages: messages,
-    channelId: channelId
+    messages,
+    channelId
   }
 
   yield* put(publicChannelsActions.cacheMessages(cacheMessagesPayload))
@@ -43,8 +43,8 @@ export function* extendCurrentPublicChannelCacheSaga(): Generator {
   }
 
   const setDisplayedMessagesNumberPayload: SetDisplayedMessagesNumberPayload = {
-    channelId: channelId,
-    display: display
+    channelId,
+    display
   }
 
   yield* put(messagesActions.setDisplayedMessagesNumber(setDisplayedMessagesNumberPayload))

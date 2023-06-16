@@ -1,8 +1,8 @@
 import { combineReducers } from '@reduxjs/toolkit'
 import { expectSaga } from 'redux-saga-test-plan'
-import { Socket } from 'socket.io-client'
+import { type Socket } from 'socket.io-client'
 import { identityAdapter } from '../../identity/identity.adapter'
-import { identityReducer, IdentityState, identityActions } from '../../identity/identity.slice'
+import { identityReducer, IdentityState, type identityActions } from '../../identity/identity.slice'
 import { StoreKeys } from '../../store.keys'
 import { communitiesAdapter } from '../communities.adapter'
 import {
@@ -10,12 +10,12 @@ import {
   communitiesReducer, CommunitiesState
 } from '../communities.slice'
 import { launchRegistrarSaga } from './launchRegistrar.saga'
-import { Store } from '../../store.types'
-import { FactoryGirl } from 'factory-girl'
+import { type Store } from '../../store.types'
+import { type FactoryGirl } from 'factory-girl'
 import { setupCrypto } from '@quiet/identity'
 import { prepareStore } from '../../../utils/tests/prepareStore'
 import { getFactory } from '../../../utils/tests/factories'
-import { LaunchRegistrarPayload, SocketActionTypes } from '@quiet/types'
+import { type LaunchRegistrarPayload, SocketActionTypes } from '@quiet/types'
 
 describe('launchRegistrar', () => {
   let store: Store

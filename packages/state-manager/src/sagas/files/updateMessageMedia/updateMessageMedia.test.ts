@@ -1,18 +1,18 @@
 import { setupCrypto } from '@quiet/identity'
-import { Store } from '../../store.types'
-import { getFactory, publicChannels } from '../../..'
+import { type Store } from '../../store.types'
+import { getFactory, type publicChannels } from '../../..'
 import { prepareStore, reducers } from '../../../utils/tests/prepareStore'
 import { combineReducers } from '@reduxjs/toolkit'
 import { expectSaga } from 'redux-saga-test-plan'
-import { FactoryGirl } from 'factory-girl'
-import { communitiesActions } from '../../communities/communities.slice'
-import { identityActions } from '../../identity/identity.slice'
+import { type FactoryGirl } from 'factory-girl'
+import { type communitiesActions } from '../../communities/communities.slice'
+import { type identityActions } from '../../identity/identity.slice'
 import { filesActions } from '../files.slice'
 import { messagesActions } from '../../messages/messages.slice'
 import { updateMessageMediaSaga } from './updateMessageMedia'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import { DateTime } from 'luxon'
-import { Community, Identity, MessageType, PublicChannel } from '@quiet/types'
+import { type Community, type Identity, MessageType, type PublicChannel } from '@quiet/types'
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
 import { generateChannelId } from '@quiet/common'
 
@@ -78,7 +78,7 @@ describe('downloadedFileSaga', () => {
       name: 'image',
       ext: 'png',
       message: {
-        id: id,
+        id,
         channelId: generalChannel.id
       }
     }
@@ -89,7 +89,7 @@ describe('downloadedFileSaga', () => {
         {
           identity: alice,
           message: {
-            id: id,
+            id,
             type: MessageType.Basic,
             message: '',
             createdAt: DateTime.utc().valueOf(),
@@ -135,7 +135,7 @@ describe('downloadedFileSaga', () => {
       name: 'image',
       ext: 'png',
       message: {
-        id: id,
+        id,
         channelId: generalChannel.id
       }
     }
@@ -146,7 +146,7 @@ describe('downloadedFileSaga', () => {
         {
           identity: alice,
           message: {
-            id: id,
+            id,
             type: MessageType.Basic,
             message: '',
             createdAt: DateTime.utc().valueOf(),

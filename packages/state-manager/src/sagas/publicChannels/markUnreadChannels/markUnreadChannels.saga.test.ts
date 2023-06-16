@@ -1,18 +1,18 @@
 import { setupCrypto } from '@quiet/identity'
-import { Store } from '../../store.types'
+import { type Store } from '../../store.types'
 import { getFactory } from '../../..'
 import { prepareStore, reducers } from '../../../utils/tests/prepareStore'
 import { expectSaga } from 'redux-saga-test-plan'
 import { publicChannelsActions } from '../publicChannels.slice'
-import { communitiesActions } from '../../communities/communities.slice'
-import { FactoryGirl } from 'factory-girl'
+import { type communitiesActions } from '../../communities/communities.slice'
+import { type FactoryGirl } from 'factory-girl'
 import { combineReducers } from 'redux'
-import { identityActions } from '../../identity/identity.slice'
+import { type identityActions } from '../../identity/identity.slice'
 import { DateTime } from 'luxon'
 import { markUnreadChannelsSaga } from './markUnreadChannels.saga'
 import { messagesActions } from '../../messages/messages.slice'
 import { generateChannelId } from '@quiet/common'
-import { ChannelMessage, Community, Identity, MessageType } from '@quiet/types'
+import { type ChannelMessage, type Community, type Identity, MessageType } from '@quiet/types'
 
 describe('markUnreadChannelsSaga', () => {
   let store: Store
@@ -47,7 +47,7 @@ describe('markUnreadChannelsSaga', () => {
         ReturnType<typeof publicChannelsActions.addChannel>['payload']
       >('PublicChannel', {
         channel: {
-          name: name,
+          name,
           description: `Welcome to #${name}`,
           timestamp: DateTime.utc().valueOf(),
           owner: alice.nickname,
@@ -117,7 +117,7 @@ describe('markUnreadChannelsSaga', () => {
     await expectSaga(
       markUnreadChannelsSaga,
       messagesActions.incomingMessages({
-        messages: messages
+        messages
       })
     )
       .withReducer(reducer)
@@ -209,7 +209,7 @@ describe('markUnreadChannelsSaga', () => {
     await expectSaga(
       markUnreadChannelsSaga,
       messagesActions.incomingMessages({
-        messages: messages
+        messages
       })
     )
       .withReducer(reducer)
@@ -223,7 +223,7 @@ describe('markUnreadChannelsSaga', () => {
       .put(
         publicChannelsActions.markUnreadChannel({
           channelId: channelIdEnya,
-          message: message
+          message
         })
       )
       .not.put(

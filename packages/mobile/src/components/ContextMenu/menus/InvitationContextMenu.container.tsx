@@ -31,7 +31,7 @@ export const InvitationContextMenu: FC = () => {
     (screen: ScreenNames) => {
       dispatch(
         navigationActions.navigation({
-          screen: screen
+          screen
         })
       )
     },

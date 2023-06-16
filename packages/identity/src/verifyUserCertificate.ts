@@ -1,7 +1,7 @@
 import {
   CertificateChainValidationEngine,
-  CertificateChainValidationEngineVerifyResult,
-  CertificateRevocationList
+  type CertificateChainValidationEngineVerifyResult,
+  type CertificateRevocationList
 } from 'pkijs'
 
 import { loadCertificate } from './common'

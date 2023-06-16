@@ -1,18 +1,18 @@
 import { setupCrypto } from '@quiet/identity'
-import { Store } from '../../store.types'
-import { getFactory, MessageType, publicChannels } from '../../..'
+import { type Store } from '../../store.types'
+import { getFactory, MessageType, type publicChannels } from '../../..'
 import { prepareStore, reducers } from '../../../utils/tests/prepareStore'
 import { combineReducers } from '@reduxjs/toolkit'
 import { expectSaga } from 'redux-saga-test-plan'
-import { Socket } from 'socket.io-client'
-import { communitiesActions } from '../../communities/communities.slice'
-import { identityActions } from '../../identity/identity.slice'
+import { type Socket } from 'socket.io-client'
+import { type communitiesActions } from '../../communities/communities.slice'
+import { type identityActions } from '../../identity/identity.slice'
 import { filesActions } from '../files.slice'
-import { FactoryGirl } from 'factory-girl'
+import { type FactoryGirl } from 'factory-girl'
 import { broadcastHostedFileSaga } from './broadcastHostedFile.saga'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import { DateTime } from 'luxon'
-import { Community, FileMetadata, Identity, PublicChannel, SocketActionTypes } from '@quiet/types'
+import { type Community, type FileMetadata, type Identity, type PublicChannel, SocketActionTypes } from '@quiet/types'
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
 import { generateChannelId } from '@quiet/common'
 
@@ -75,7 +75,7 @@ describe('downloadFileSaga', () => {
       name: 'file',
       ext: 'ext',
       message: {
-        id: id,
+        id,
         channelId: generalChannel.id
       }
     }
@@ -86,14 +86,14 @@ describe('downloadFileSaga', () => {
         {
           identity: alice,
           message: {
-            id: id,
+            id,
             type: MessageType.File,
             message: '',
             createdAt: DateTime.utc().valueOf(),
             channelId: generalChannel.id,
             signature: '',
             pubKey: '',
-            media: media
+            media
           }
         }
       )
@@ -134,7 +134,7 @@ describe('downloadFileSaga', () => {
       name: 'file',
       ext: 'ext',
       message: {
-        id: id,
+        id,
         channelId: generalChannel.id
       }
     }
@@ -145,14 +145,14 @@ describe('downloadFileSaga', () => {
         {
           identity: alice,
           message: {
-            id: id,
+            id,
             type: MessageType.File,
             message: '',
             createdAt: DateTime.utc().valueOf(),
             channelId: generalChannel.id,
             signature: '',
             pubKey: '',
-            media: media
+            media
           }
         }
       )

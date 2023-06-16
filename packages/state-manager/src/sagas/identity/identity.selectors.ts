@@ -1,7 +1,7 @@
 import { StoreKeys } from '../store.keys'
 import { createSelector } from '@reduxjs/toolkit'
 import { identityAdapter } from './identity.adapter'
-import { CreatedSelectors, StoreState } from '../store.types'
+import { type CreatedSelectors, type StoreState } from '../store.types'
 import { communitiesSelectors, selectCommunities } from '../communities/communities.selectors'
 
 const identitySlice: CreatedSelectors[StoreKeys.Identity] = (

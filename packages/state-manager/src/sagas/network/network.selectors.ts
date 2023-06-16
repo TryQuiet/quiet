@@ -1,6 +1,6 @@
 import { createSelector } from 'reselect'
 import { StoreKeys } from '../store.keys'
-import { CreatedSelectors, StoreState } from '../store.types'
+import { type CreatedSelectors, type StoreState } from '../store.types'
 import { connectedPeersAdapter } from './network.adapter'
 
 const networkSlice: CreatedSelectors[StoreKeys.Network] = (state: StoreState) =>

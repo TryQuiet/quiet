@@ -1,4 +1,4 @@
-import { combineReducers, createStore, Store } from '@reduxjs/toolkit'
+import { combineReducers, createStore, type Store } from '@reduxjs/toolkit'
 import { StoreKeys } from '../store.keys'
 
 import {
@@ -12,7 +12,7 @@ import { communitiesAdapter } from '../communities/communities.adapter'
 import { certificatesAdapter } from '../users/users.adapter'
 import { keyFromCertificate, parseCertificate } from '@quiet/identity'
 import { usersSelectors } from './users.selectors'
-import { Community } from '@quiet/types'
+import { type Community } from '@quiet/types'
 
 describe('users selectors', () => {
   let store: Store

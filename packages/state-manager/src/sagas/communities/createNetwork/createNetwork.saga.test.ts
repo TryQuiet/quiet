@@ -3,13 +3,13 @@ import { expectSaga } from 'redux-saga-test-plan'
 import { call } from 'redux-saga-test-plan/matchers'
 import { Time } from 'pkijs'
 import { prepareStore } from '../../../utils/tests/prepareStore'
-import { Socket } from 'socket.io-client'
+import { type Socket } from 'socket.io-client'
 import { communitiesActions } from '../communities.slice'
 import { createRootCA, setupCrypto } from '@quiet/identity'
 import { reducers } from '../../reducers'
 import { createNetworkSaga } from './createNetwork.saga'
 import { generateId } from '../../../utils/cryptography/cryptography'
-import { Community, CommunityOwnership, SocketActionTypes } from '@quiet/types'
+import { type Community, CommunityOwnership, SocketActionTypes } from '@quiet/types'
 
 describe('createNetwork', () => {
   it('create network for joining user', async () => {
@@ -57,7 +57,7 @@ describe('createNetwork', () => {
       id: '1',
       name: 'rockets',
       registrarUrl: undefined,
-      CA: CA,
+      CA,
       rootCa: CA.rootCertString
     }
 

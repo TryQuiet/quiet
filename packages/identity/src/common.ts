@@ -1,6 +1,6 @@
 import { NoCryptoEngineError } from '@quiet/types'
-import { fromBER, ObjectIdentifier } from 'asn1js'
-import { getAlgorithmParameters, getCrypto, CertificationRequest, Certificate, TSTInfo, ECNamedCurves, AttributeTypeAndValue } from 'pkijs'
+import { fromBER, type ObjectIdentifier } from 'asn1js'
+import { getAlgorithmParameters, getCrypto, CertificationRequest, Certificate, TSTInfo, ECNamedCurves, type AttributeTypeAndValue } from 'pkijs'
 import { stringToArrayBuffer, fromBase64 } from 'pvutils'
 
 export enum CertFieldsTypes {

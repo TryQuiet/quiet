@@ -1,14 +1,14 @@
 import { setupCrypto } from '@quiet/identity'
-import { Store } from '../../store.types'
-import { generateMessageFactoryContentWithId, getFactory, publicChannels } from '../../..'
+import { type Store } from '../../store.types'
+import { generateMessageFactoryContentWithId, getFactory, type publicChannels } from '../../..'
 import { prepareStore, reducers } from '../../../utils/tests/prepareStore'
 import { combineReducers } from '@reduxjs/toolkit'
 import { expectSaga } from 'redux-saga-test-plan'
-import { Socket } from 'socket.io-client'
-import { communitiesActions } from '../../communities/communities.slice'
-import { identityActions } from '../../identity/identity.slice'
+import { type Socket } from 'socket.io-client'
+import { type communitiesActions } from '../../communities/communities.slice'
+import { type identityActions } from '../../identity/identity.slice'
 import { messagesActions } from '../../messages/messages.slice'
-import { FactoryGirl } from 'factory-girl'
+import { type FactoryGirl } from 'factory-girl'
 import { autoDownloadFilesSaga } from './autoDownloadFiles.saga'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import { DateTime } from 'luxon'
@@ -16,11 +16,11 @@ import { AUTODOWNLOAD_SIZE_LIMIT } from '../../../constants'
 import { generateChannelId } from '@quiet/common'
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
 import {
-  Community,
-  FileMetadata,
-  Identity,
+  type Community,
+  type FileMetadata,
+  type Identity,
   MessageType,
-  PublicChannel,
+  type PublicChannel,
   SocketActionTypes
 } from '@quiet/types'
 
@@ -87,7 +87,7 @@ describe('downloadFileSaga', () => {
       name: 'image',
       ext: 'png',
       message: {
-        id: id,
+        id,
         channelId: generalChannel.id
       }
     }
@@ -99,14 +99,14 @@ describe('downloadFileSaga', () => {
       messagesActions.incomingMessages({
         messages: [
           {
-            id: id,
+            id,
             type: MessageType.Image,
             message: 'message',
             createdAt: 8,
             channelId: generalChannel.id,
             signature: 'signature',
             pubKey: 'publicKey',
-            media: media
+            media
           }
         ]
       })
@@ -140,7 +140,7 @@ describe('downloadFileSaga', () => {
       name: 'file',
       ext: 'ext',
       message: {
-        id: id,
+        id,
         channelId: generalChannel.id
       }
     }
@@ -152,14 +152,14 @@ describe('downloadFileSaga', () => {
       messagesActions.incomingMessages({
         messages: [
           {
-            id: id,
+            id,
             type: MessageType.File,
             message: 'message',
             createdAt: 8,
             channelId: generalChannel.id,
             signature: 'signature',
             pubKey: 'publicKey',
-            media: media
+            media
           }
         ]
       })
@@ -193,7 +193,7 @@ describe('downloadFileSaga', () => {
       name: 'file',
       ext: 'ext',
       message: {
-        id: id,
+        id,
         channelId: generalChannel.id
       }
     }
@@ -245,7 +245,7 @@ describe('downloadFileSaga', () => {
       name: 'file',
       ext: 'ext',
       message: {
-        id: id,
+        id,
         channelId: generalChannel.id
       }
     }
@@ -298,7 +298,7 @@ describe('downloadFileSaga', () => {
       ext: 'ext',
       size: AUTODOWNLOAD_SIZE_LIMIT + 1024,
       message: {
-        id: id,
+        id,
         channelId: generalChannel.id
       }
     }
@@ -310,14 +310,14 @@ describe('downloadFileSaga', () => {
       messagesActions.incomingMessages({
         messages: [
           {
-            id: id,
+            id,
             type: MessageType.File,
             message: 'message',
             createdAt: 8,
             channelId: generalChannel.id,
             signature: 'signature',
             pubKey: 'publicKey',
-            media: media
+            media
           }
         ]
       })
@@ -352,7 +352,7 @@ describe('downloadFileSaga', () => {
       ext: 'jpg',
       size: AUTODOWNLOAD_SIZE_LIMIT + 1024,
       message: {
-        id: id,
+        id,
         channelId: generalChannel.id
       }
     }
@@ -364,14 +364,14 @@ describe('downloadFileSaga', () => {
       messagesActions.incomingMessages({
         messages: [
           {
-            id: id,
+            id,
             type: MessageType.Image,
             message: 'message',
             createdAt: 8,
             channelId: generalChannel.id,
             signature: 'signature',
             pubKey: 'publicKey',
-            media: media
+            media
           }
         ]
       })

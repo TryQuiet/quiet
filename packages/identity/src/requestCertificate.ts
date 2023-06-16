@@ -37,10 +37,10 @@ export const createUserCsr = async ({
   hashAlg: string
 }): Promise<UserCsr> => {
   const pkcs10 = await requestCertificate({
-    nickname: nickname,
-    commonName: commonName,
-    peerId: peerId,
-    dmPublicKey: dmPublicKey,
+    nickname,
+    commonName,
+    peerId,
+    dmPublicKey,
     ...config
   })
   const crypto = getCrypto()
@@ -54,7 +54,7 @@ export const createUserCsr = async ({
   return {
     userCsr: Buffer.from(userData.userCsr).toString('base64'),
     userKey: Buffer.from(userData.userKey).toString('base64'),
-    pkcs10: pkcs10
+    pkcs10
   }
 }
 

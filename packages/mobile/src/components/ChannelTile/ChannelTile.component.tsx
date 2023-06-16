@@ -30,7 +30,7 @@ export const ChannelTile: FC<ChannelTileProps> = ({
         justifyContent: 'center',
         alignItems: 'center'
       }}>
-      <Animated.View style={{ transform: [{ scale: scale }] }}>
+      <Animated.View style={{ transform: [{ scale }] }}>
         <Typography fontSize={14} color={'error'}>
           Action
         </Typography>

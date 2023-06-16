@@ -1,16 +1,16 @@
 import { setupCrypto } from '@quiet/identity'
-import { Store } from '../../store.types'
-import { generateMessageFactoryContentWithId, getFactory, publicChannels } from '../../..'
+import { type Store } from '../../store.types'
+import { generateMessageFactoryContentWithId, getFactory, type publicChannels } from '../../..'
 import { prepareStore, reducers } from '../../../utils/tests/prepareStore'
 import { messagesActions } from './../messages.slice'
-import { communitiesActions } from '../../communities/communities.slice'
-import { identityActions } from '../../identity/identity.slice'
-import { FactoryGirl } from 'factory-girl'
+import { type communitiesActions } from '../../communities/communities.slice'
+import { type identityActions } from '../../identity/identity.slice'
+import { type FactoryGirl } from 'factory-girl'
 import { combineReducers } from 'redux'
 import { expectSaga } from 'redux-saga-test-plan'
 import { checkForMessagesSaga } from './checkForMessages.saga'
 import { selectGeneralChannel } from '../../publicChannels/publicChannels.selectors'
-import { Community, Identity, PublicChannel } from '@quiet/types'
+import { type Community, type Identity, type PublicChannel } from '@quiet/types'
 
 describe('checkForMessagesSaga', () => {
   let store: Store

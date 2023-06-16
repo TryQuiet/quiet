@@ -1,4 +1,4 @@
-import { PayloadAction } from '@reduxjs/toolkit'
+import { type PayloadAction } from '@reduxjs/toolkit'
 import { put, select } from 'typed-redux-saga'
 import { messagesActions } from '../messages.slice'
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'

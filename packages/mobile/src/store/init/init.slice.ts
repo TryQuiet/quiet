@@ -50,8 +50,8 @@ export const initSlice = createSlice({
       const { event, passed } = action.payload
       initChecksAdapter.updateOne(state.initChecks, {
         changes: {
-          event: event,
-          passed: passed
+          event,
+          passed
         },
         id: event
       })
@@ -67,7 +67,7 @@ export const initSlice = createSlice({
       const event = InitCheckKeys.Backend
       initChecksAdapter.updateOne(state.initChecks, {
         changes: {
-          event: event,
+          event,
           passed: true
         },
         id: event

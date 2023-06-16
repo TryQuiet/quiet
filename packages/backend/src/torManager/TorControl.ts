@@ -71,7 +71,7 @@ export class TorControl {
     this.connection = null
   }
 
-  private async _sendCommand(command: string, resolve: Function, reject: Function) {
+  private async _sendCommand(command: string, resolve: (value: {code: number; messages: string[]}) => void, reject: (reason?: any) => void) {
     await this.connect()
     const connectionTimeout = setTimeout(() => {
       reject('TOR: Send command timeout')

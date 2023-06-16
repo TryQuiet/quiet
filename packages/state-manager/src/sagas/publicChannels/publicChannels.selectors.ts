@@ -6,19 +6,19 @@ import {
   publicChannelsStatusAdapter,
   publicChannelsSubscriptionsAdapter
 } from './publicChannels.adapter'
-import { CreatedSelectors, StoreState } from '../store.types'
+import { type CreatedSelectors, type StoreState } from '../store.types'
 import { certificatesMapping } from '../users/users.selectors'
 import { formatMessageDisplayDay } from '../../utils/functions/dates/formatMessageDisplayDate'
 import { displayableMessage } from '../../utils/functions/dates/formatDisplayableMessage'
 import { isDefined } from '@quiet/common'
 import {
-  ChannelMessage,
-  DisplayableMessage,
+  type ChannelMessage,
+  type DisplayableMessage,
   MessageType,
-  MessagesDailyGroups,
-  MessagesGroupsType,
-  PublicChannel,
-  PublicChannelStatus,
+  type MessagesDailyGroups,
+  type MessagesGroupsType,
+  type PublicChannel,
+  type PublicChannelStatus,
   INITIAL_CURRENT_CHANNEL_ID,
   PublicChannelStatusWithName,
   PublicChannelStorage

@@ -95,7 +95,7 @@ export const CreateChannelScreen: FC = () => {
 
       // Create channel
       const channel: PublicChannel = {
-        name: name,
+        name,
         description: `Welcome to #${name}`,
         owner: user.nickname,
         id: generateChannelId(name),
@@ -106,7 +106,7 @@ export const CreateChannelScreen: FC = () => {
 
       dispatch(
         publicChannels.actions.createChannel({
-          channel: channel
+          channel
         })
       )
     },

@@ -1,8 +1,8 @@
-import { createSlice, EntityState, PayloadAction } from '@reduxjs/toolkit'
+import { createSlice, type EntityState, type PayloadAction } from '@reduxjs/toolkit'
 import { DateTime } from 'luxon'
 import { StoreKeys } from '../store.keys'
 import { identityAdapter } from './identity.adapter'
-import { CreateUserCsrPayload, Identity, RegisterCertificatePayload, StoreUserCertificatePayload } from '@quiet/types'
+import { type CreateUserCsrPayload, type Identity, type RegisterCertificatePayload, type StoreUserCertificatePayload } from '@quiet/types'
 export class IdentityState {
   public identities: EntityState<Identity> = identityAdapter.getInitialState()
 }

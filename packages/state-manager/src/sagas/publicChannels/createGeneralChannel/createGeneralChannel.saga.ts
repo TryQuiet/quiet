@@ -4,7 +4,7 @@ import { identitySelectors } from '../../identity/identity.selectors'
 import { DateTime } from 'luxon'
 import logger from '../../../utils/logger'
 import { generateChannelId } from '@quiet/common'
-import { PublicChannel } from '@quiet/types'
+import { type PublicChannel } from '@quiet/types'
 
 const log = logger('publicChannels')
 
@@ -24,12 +24,12 @@ export function* createGeneralChannelSaga(): Generator {
     description: 'Welcome to #general',
     owner: identity.nickname,
     id,
-    timestamp: timestamp
+    timestamp
   }
 
   yield* put(
     publicChannelsActions.createChannel({
-      channel: channel
+      channel
     })
   )
 

@@ -1,4 +1,4 @@
-import { combineReducers, createStore, Store } from 'redux'
+import { combineReducers, createStore, type Store } from 'redux'
 import { StoreKeys } from '../store.keys'
 import { communitiesReducer, CommunitiesState } from '../communities/communities.slice'
 
@@ -7,7 +7,7 @@ import { usersActions, usersReducer, UsersState } from './users.slice'
 import { certificatesAdapter } from './users.adapter'
 import { keyFromCertificate, parseCertificate } from '@quiet/identity'
 import { usersSelectors } from './users.selectors'
-import { Community } from '@quiet/types'
+import { type Community } from '@quiet/types'
 
 describe('users reducer', () => {
   let store: Store

@@ -46,10 +46,10 @@ export const ChannelListScreen: FC = () => {
     const tile: ChannelTileProps = {
       name: getChannelNameFormChannelId(status.id),
       id: status.id,
-      message: message,
-      date: date,
+      message,
+      date,
       unread: status.unread,
-      redirect: redirect
+      redirect
     }
 
     return tile

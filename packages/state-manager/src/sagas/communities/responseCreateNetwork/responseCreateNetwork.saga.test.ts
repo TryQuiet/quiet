@@ -8,7 +8,7 @@ import { reducers } from '../../reducers'
 import { generateDmKeyPair } from '../../../utils/cryptography/cryptography'
 import { responseCreateNetworkSaga } from './responseCreateNetwork.saga'
 import { identityActions } from '../../identity/identity.slice'
-import { Community, DmKeys, Identity, NetworkData } from '@quiet/types'
+import { type Community, type DmKeys, type Identity, type NetworkData } from '@quiet/types'
 
 describe('responseCreateNetwork', () => {
   it('create network for joining user', async () => {
@@ -43,7 +43,7 @@ describe('responseCreateNetwork', () => {
       nickname: '',
       hiddenService: network.hiddenService,
       peerId: network.peerId,
-      dmKeys: dmKeys,
+      dmKeys,
       userCsr: null,
       userCertificate: null,
       joinTimestamp: null
@@ -53,8 +53,8 @@ describe('responseCreateNetwork', () => {
     await expectSaga(
       responseCreateNetworkSaga,
       communitiesActions.responseCreateNetwork({
-        community: community,
-        network: network
+        community,
+        network
       })
     )
       .withReducer(reducer)

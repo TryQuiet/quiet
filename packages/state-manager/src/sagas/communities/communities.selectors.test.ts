@@ -1,13 +1,13 @@
 import { invitationShareUrl } from '@quiet/common'
 import { setupCrypto } from '@quiet/identity'
-import { Store } from '@reduxjs/toolkit'
+import { type Store } from '@reduxjs/toolkit'
 import { getFactory } from '../../utils/tests/factories'
 import { prepareStore } from '../../utils/tests/prepareStore'
-import { identityActions } from '../identity/identity.slice'
+import { type identityActions } from '../identity/identity.slice'
 import { usersActions } from '../users/users.slice'
 import { communitiesSelectors } from './communities.selectors'
-import { communitiesActions } from './communities.slice'
-import { Community, Identity } from '@quiet/types'
+import { type communitiesActions } from './communities.slice'
+import { type Community, type Identity } from '@quiet/types'
 
 describe('communitiesSelectors', () => {
   setupCrypto()
@@ -106,7 +106,7 @@ describe('communitiesSelectors', () => {
     await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>(
       'Community',
       {
-        registrarUrl: registrarUrl,
+        registrarUrl,
         port: 0,
         onionAddress: ''
       }

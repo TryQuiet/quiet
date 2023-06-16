@@ -1,26 +1,26 @@
 import { setupCrypto } from '@quiet/identity'
 import { call } from 'redux-saga-test-plan/matchers'
-import { Store } from '../../store.types'
+import { type Store } from '../../store.types'
 import { getFactory, MessageType } from '../../..'
 import { prepareStore, reducers } from '../../../utils/tests/prepareStore'
 import { combineReducers } from '@reduxjs/toolkit'
 import { expectSaga } from 'redux-saga-test-plan'
-import { Socket } from 'socket.io-client'
-import { communitiesActions } from '../../communities/communities.slice'
-import { identityActions } from '../../identity/identity.slice'
+import { type Socket } from 'socket.io-client'
+import { type communitiesActions } from '../../communities/communities.slice'
+import { type identityActions } from '../../identity/identity.slice'
 import { uploadFileSaga } from './uploadFile.saga'
-import { FactoryGirl } from 'factory-girl'
-import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
+import { type FactoryGirl } from 'factory-girl'
+import { type publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import { filesActions } from '../files.slice'
 import { generateMessageId } from '../../messages/utils/message.utils'
 import { DateTime } from 'luxon'
 import { messagesActions } from '../../messages/messages.slice'
 import {
-  Community,
+  type Community,
   DownloadState,
-  FileMetadata,
-  Identity,
-  PublicChannel,
+  type FileMetadata,
+  type Identity,
+  type PublicChannel,
   SocketActionTypes
 } from '@quiet/types'
 import { generateChannelId } from '@quiet/common'
@@ -100,7 +100,7 @@ describe('uploadFileSaga', () => {
           id: message,
           message: '',
           type: MessageType.File,
-          media: media
+          media
         })
       )
       .put(

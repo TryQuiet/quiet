@@ -1,5 +1,5 @@
 import { eventChannel } from 'redux-saga'
-import { Socket } from '../../../types'
+import { type Socket } from '../../../types'
 import { all, call, fork, put, takeEvery } from 'typed-redux-saga'
 import logger from '../../../utils/logger'
 import { appMasterSaga } from '../../app/app.master.saga'
@@ -20,28 +20,28 @@ import { usersActions } from '../../users/users.slice'
 import { filesActions } from '../../files/files.slice'
 import { networkActions } from '../../network/network.slice'
 import {
-  ResponseCreateCommunityPayload,
-  ResponseRegistrarPayload,
-  StorePeerListPayload,
-  ResponseCreateNetworkPayload,
-  ResponseLaunchCommunityPayload,
-  ChannelDeletionResponsePayload,
-  ChannelMessagesIdsResponse,
-  ChannelsReplicatedPayload,
-  CommunityId,
-  CreatedChannelResponse,
-  DownloadStatus,
-  ErrorPayload,
-  FileMetadata,
-  IncomingMessages,
-  NetworkDataPayload,
-  RemoveDownloadStatus,
-  SendCertificatesResponse,
-  SetChannelSubscribedPayload,
+  type ResponseCreateCommunityPayload,
+  type ResponseRegistrarPayload,
+  type StorePeerListPayload,
+  type ResponseCreateNetworkPayload,
+  type ResponseLaunchCommunityPayload,
+  type ChannelDeletionResponsePayload,
+  type ChannelMessagesIdsResponse,
+  type ChannelsReplicatedPayload,
+  type CommunityId,
+  type CreatedChannelResponse,
+  type DownloadStatus,
+  type ErrorPayload,
+  type FileMetadata,
+  type IncomingMessages,
+  type NetworkDataPayload,
+  type RemoveDownloadStatus,
+  type SendCertificatesResponse,
+  type SetChannelSubscribedPayload,
   SocketActionTypes,
-  SavedOwnerCertificatePayload,
+  type SavedOwnerCertificatePayload,
   SendUserCertificatePayload,
-  SendOwnerCertificatePayload
+  type SendOwnerCertificatePayload
 } from '@quiet/types'
 
 const log = logger('socket')

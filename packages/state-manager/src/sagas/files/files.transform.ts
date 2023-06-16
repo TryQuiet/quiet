@@ -1,9 +1,9 @@
 import { createTransform } from 'redux-persist'
 import { StoreKeys } from '../store.keys'
 import { downloadStatusAdapter } from './files.adapter'
-import { FilesState } from './files.slice'
+import { type FilesState } from './files.slice'
 import { isDefined } from '@quiet/common'
-import { DownloadState, DownloadStatus } from '@quiet/types'
+import { DownloadState, type DownloadStatus } from '@quiet/types'
 
 export const FilesTransform = createTransform(
   (inboundState: FilesState, _key: any) => {

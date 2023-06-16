@@ -16,6 +16,6 @@ export function* onConnectedSaga(): Generator {
     : ScreenNames.ChannelListScreen
 
   yield* put(navigationActions.replaceScreen({
-    screen: screen
+    screen
   }))
 }

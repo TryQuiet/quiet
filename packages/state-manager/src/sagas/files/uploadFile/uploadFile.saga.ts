@@ -1,12 +1,12 @@
-import { applyEmitParams, Socket } from '../../../types'
-import { PayloadAction } from '@reduxjs/toolkit'
+import { applyEmitParams, type Socket } from '../../../types'
+import { type PayloadAction } from '@reduxjs/toolkit'
 import { select, call, put, apply } from 'typed-redux-saga'
 import { identitySelectors } from '../../identity/identity.selectors'
 import { filesActions } from '../files.slice'
 import { messagesActions } from '../../messages/messages.slice'
 import { generateMessageId } from '../../messages/utils/message.utils'
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
-import { DownloadState, FileMetadata, imagesExtensions, MessageType, SocketActionTypes } from '@quiet/types'
+import { DownloadState, type FileMetadata, imagesExtensions, MessageType, SocketActionTypes } from '@quiet/types'
 
 export function* uploadFileSaga(
   socket: Socket,
@@ -23,7 +23,7 @@ export function* uploadFileSaga(
     ...action.payload,
     cid: `uploading_${id}`,
     message: {
-      id: id,
+      id,
       channelId: currentChannel
     }
   }
@@ -38,10 +38,10 @@ export function* uploadFileSaga(
 
   yield* put(
     messagesActions.sendMessage({
-      id: id,
+      id,
       message: '',
-      type: type,
-      media: media
+      type,
+      media
     })
   )
 

@@ -3,7 +3,7 @@ import { Integer, PrintableString, BitString } from 'asn1js'
 import config from './config'
 import { generateKeyPair, CertFieldsTypes, ExtensionsTypes } from './common'
 import {
-  Time,
+  type Time,
   Certificate,
   BasicConstraints,
   ExtKeyUsage,

@@ -294,7 +294,7 @@ describe('Ipfs file manager', () => {
 
     const uploadMetadata = eventSpy.mock.calls[1][1]
 
-    await fileManager.emit(IpfsFilesManagerEvents.DOWNLOAD_FILE, uploadMetadata)
+    fileManager.emit(IpfsFilesManagerEvents.DOWNLOAD_FILE, uploadMetadata)
 
     await waitForExpect(() => {
       expect(eventSpy).toHaveBeenNthCalledWith(5, IpfsFilesManagerEvents.DOWNLOAD_FILE, uploadMetadata)
@@ -334,7 +334,7 @@ describe('Ipfs file manager', () => {
 
     const uploadMetadata = eventSpy.mock.calls[1][1]
 
-    await fileManager.emit(IpfsFilesManagerEvents.DOWNLOAD_FILE, uploadMetadata)
+    fileManager.emit(IpfsFilesManagerEvents.DOWNLOAD_FILE, uploadMetadata)
 
     const downloadMetadata = eventSpy.mock.calls[3][1]
 

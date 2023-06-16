@@ -1,9 +1,9 @@
-import { publicChannelsActions } from '../publicChannels.slice'
-import { PayloadAction } from '@reduxjs/toolkit'
+import { type publicChannelsActions } from '../publicChannels.slice'
+import { type PayloadAction } from '@reduxjs/toolkit'
 
 import { apply } from 'typed-redux-saga'
 
-import { Socket, applyEmitParams } from '../../../types'
+import { type Socket, applyEmitParams } from '../../../types'
 
 import logger from '../../../utils/logger'
 import { SocketActionTypes } from '@quiet/types'

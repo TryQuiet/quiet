@@ -1,7 +1,7 @@
 import { setupCrypto } from '@quiet/identity'
-import { Store } from '../store.types'
-import { FactoryGirl } from 'factory-girl'
-import { getFactory, publicChannels } from '../..'
+import { type Store } from '../store.types'
+import { type FactoryGirl } from 'factory-girl'
+import { getFactory, type publicChannels } from '../..'
 import { prepareStore } from '../../utils/tests/prepareStore'
 import {
   publicChannels as getPublicChannels,
@@ -12,7 +12,7 @@ import {
 } from './publicChannels.selectors'
 import { publicChannelsActions } from './publicChannels.slice'
 
-import { identityActions } from '../identity/identity.slice'
+import { type identityActions } from '../identity/identity.slice'
 import { usersActions } from '../users/users.slice'
 import {
   formatMessageDisplayDate,
@@ -22,14 +22,14 @@ import { displayableMessage } from '../../utils/functions/dates/formatDisplayabl
 import { DateTime } from 'luxon'
 import { generateChannelId } from '@quiet/common'
 import {
-  ChannelMessage,
-  Community,
-  DisplayableMessage,
-  Identity,
+  type ChannelMessage,
+  type Community,
+  type DisplayableMessage,
+  type Identity,
   MessageType,
-  PublicChannel
+  type PublicChannel
 } from '@quiet/types'
-import { communitiesActions } from '../communities/communities.slice'
+import { type communitiesActions } from '../communities/communities.slice'
 
 describe('publicChannelsSelectors', () => {
   let store: Store
@@ -42,8 +42,8 @@ describe('publicChannelsSelectors', () => {
   let generalChannel: PublicChannel
   let channelIdes: string[] = []
 
-  const msgs: { [id: string]: ChannelMessage } = {}
-  const msgsOwners: { [id: string]: string } = {}
+  const msgs: Record<string, ChannelMessage> = {}
+  const msgsOwners: Record<string, string> = {}
 
   beforeAll(async () => {
     setupCrypto()
@@ -80,7 +80,7 @@ describe('publicChannelsSelectors', () => {
         ReturnType<typeof publicChannels.actions.addChannel>['payload']
       >('PublicChannel', {
         channel: {
-          name: name,
+          name,
           description: `Welcome to #${name}`,
           timestamp: DateTime.utc().valueOf(),
           owner: alice.nickname,
@@ -255,7 +255,7 @@ describe('publicChannelsSelectors', () => {
   it('get grouped messages', async () => {
     const messages = currentChannelMessagesMergedBySender(store.getState())
     // Convert regular messages to displayable messages
-    const displayable: { [id: string]: DisplayableMessage } = {}
+    const displayable: Record<string, DisplayableMessage> = {}
     for (const message of Object.values(msgs)) {
       displayable[message.id] = displayableMessage(message, msgsOwners[message.id])
     }

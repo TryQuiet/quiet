@@ -39,7 +39,7 @@ function subscribeSocketLifecycle(socket: Socket, dataPort: number) {
       console.log('websocket connected')
       emit(
         initActions.setWebsocketConnected({
-          dataPort: dataPort
+          dataPort
         })
       )
     })

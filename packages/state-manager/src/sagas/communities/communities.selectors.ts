@@ -1,7 +1,7 @@
 import { StoreKeys } from '../store.keys'
 import { createSelector } from 'reselect'
 import { communitiesAdapter } from './communities.adapter'
-import { CreatedSelectors, StoreState } from '../store.types'
+import { type CreatedSelectors, type StoreState } from '../store.types'
 import { invitationShareUrl } from '@quiet/common'
 import { CertFieldsTypes, getCertFieldValue, parseCertificate } from '@quiet/identity'
 import { getOldestParsedCerificate } from '../users/users.selectors'

@@ -4,7 +4,7 @@ import logger from '../logger'
 const log = logger('validators')
 
 export function IsCsr(validationOptions?: ValidationOptions) {
-  return function (object: Object, propertyName: string) {
+  return function (object: Object, propertyName: string) { // eslint-disable-line @typescript-eslint/ban-types
     registerDecorator({
       name: 'isCsr',
       target: object.constructor,
@@ -27,7 +27,7 @@ export function IsCsr(validationOptions?: ValidationOptions) {
 }
 
 export function CsrContainsFields(validationOptions?: ValidationOptions) {
-  return function (object: Object, propertyName: string) {
+  return function (object: Object, propertyName: string) { // eslint-disable-line @typescript-eslint/ban-types
     registerDecorator({
       name: 'csrContainsFields',
       target: object.constructor,

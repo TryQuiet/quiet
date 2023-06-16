@@ -1,6 +1,6 @@
 import factoryGirl from 'factory-girl'
 import { CustomReduxAdapter } from './reduxAdapter'
-import { Store } from '../../sagas/store.types'
+import { type Store } from '../../sagas/store.types'
 import { communities, identity, messages, publicChannels, users, errors } from '../..'
 import { createMessageSignatureTestHelper, createPeerIdTestHelper } from './helpers'
 import { getCrypto } from 'pkijs'
@@ -16,7 +16,7 @@ import {
   keyObjectFromString,
   verifySignature
 } from '@quiet/identity'
-import { ChannelMessage, FileMetadata, MessageType, SendingStatus } from '@quiet/types'
+import { type ChannelMessage, type FileMetadata, MessageType, SendingStatus } from '@quiet/types'
 
 export const generateMessageFactoryContentWithId = (
   channelId: string,
@@ -28,7 +28,7 @@ export const generateMessageFactoryContentWithId = (
     type: type || MessageType.Basic,
     message: (Math.random() * 10 ** 18).toString(36),
     createdAt: DateTime.utc().valueOf(),
-    channelId: channelId,
+    channelId,
     signature: '',
     pubKey: '',
     media: media || undefined
@@ -48,7 +48,7 @@ export const getFactory = async (store: Store) => {
       id: factory.sequence('Community.id', (n: number) => n),
       name: factory.sequence('Community.name', (n: number) => `community_${n}`),
       CA: await createRootCertificateTestHelper(registrarUrl),
-      registrarUrl: registrarUrl,
+      registrarUrl,
       peerList: [],
       ownerCertificate: ''
     },

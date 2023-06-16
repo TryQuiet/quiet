@@ -23,7 +23,7 @@ export const Button: FC<ButtonProps> = ({ onPress, title, width, loading, negati
           justifyContent: 'center',
           alignItems: 'center',
           minHeight: 45,
-          width: width
+          width
         }}>
         {!loading ? (
           <Typography fontSize={14} color={!negative ? 'white' : 'gray50'}>

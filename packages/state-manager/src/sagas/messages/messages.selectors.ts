@@ -2,7 +2,7 @@ import { createSelector } from 'reselect'
 import { channelMessagesAdapter } from '../publicChannels/publicChannels.adapter'
 import { currentChannelId } from '../publicChannels/publicChannels.selectors'
 import { StoreKeys } from '../store.keys'
-import { CreatedSelectors, StoreState } from '../store.types'
+import { type CreatedSelectors, type StoreState } from '../store.types'
 import { certificatesMapping } from '../users/users.selectors'
 import { downloadStatuses } from '../files/files.selectors'
 

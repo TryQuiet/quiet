@@ -1,20 +1,20 @@
 import { setupCrypto } from '@quiet/identity'
-import { Store } from '../../store.types'
+import { type Store } from '../../store.types'
 import { prepareStore } from '../../../utils/tests/prepareStore'
-import { getFactory, MessageType, PublicChannel, publicChannels, SocketActionTypes } from '../../..'
-import { FactoryGirl } from 'factory-girl'
+import { getFactory, MessageType, type PublicChannel, type publicChannels, SocketActionTypes } from '../../..'
+import { type FactoryGirl } from 'factory-girl'
 import { combineReducers } from 'redux'
 import { reducers } from '../../reducers'
 import { expectSaga } from 'redux-saga-test-plan'
-import { Identity } from '../../identity/identity.types'
-import { identityActions } from '../../identity/identity.slice'
-import { communitiesActions, Community } from '../../communities/communities.slice'
+import { type Identity } from '../../identity/identity.types'
+import { type identityActions } from '../../identity/identity.slice'
+import { type communitiesActions, type Community } from '../../communities/communities.slice'
 import { DateTime } from 'luxon'
-import { Socket } from 'socket.io-client'
+import { type Socket } from 'socket.io-client'
 import { filesActions } from '../../files/files.slice'
 import { deleteFilesFromChannelSaga } from './deleteFilesFromChannel.saga'
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
-import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
+import { type publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import { generateChannelId } from '@quiet/common'
 
 describe('deleteFilesFromChannelSaga', () => {
@@ -84,7 +84,7 @@ describe('deleteFilesFromChannelSaga', () => {
               name: 'image',
               ext: 'png',
               message: {
-                id: id,
+                id,
                 channelId: photoChannel.id
               }
             }

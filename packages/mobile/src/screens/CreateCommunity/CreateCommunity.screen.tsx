@@ -24,7 +24,7 @@ export const CreateCommunityScreen: FC = () => {
     (name: string) => {
       const payload: CreateNetworkPayload = {
         ownership: CommunityOwnership.Owner,
-        name: name
+        name
       }
       dispatch(communities.actions.createNetwork(payload))
     },

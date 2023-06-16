@@ -1,5 +1,5 @@
-import { applyEmitParams, Socket } from '../../../types'
-import { PayloadAction } from '@reduxjs/toolkit'
+import { applyEmitParams, type Socket } from '../../../types'
+import { type PayloadAction } from '@reduxjs/toolkit'
 import { apply, put, select } from 'typed-redux-saga'
 import { identitySelectors } from '../../identity/identity.selectors'
 import { filesActions } from '../files.slice'

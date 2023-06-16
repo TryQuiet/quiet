@@ -1,13 +1,13 @@
 import { StoreKeys } from '../store.keys'
 import { createSelector } from 'reselect'
-import { CreatedSelectors, StoreState } from '../store.types'
+import { type CreatedSelectors, type StoreState } from '../store.types'
 import { certificatesMapping } from '../users/users.selectors'
 import { communitiesSelectors } from '../communities/communities.selectors'
 import { peersStatsAdapter } from './connection.adapter'
 import { connectedPeers } from '../network/network.selectors'
 import { sortPeers } from '../../utils/functions/sortPeers/sortPeers'
-import { NetworkStats } from './connection.types'
-import { User } from '../users/users.types'
+import { type NetworkStats } from './connection.types'
+import { type User } from '../users/users.types'
 
 const connectionSlice: CreatedSelectors[StoreKeys.Connection] = (state: StoreState) =>
   state[StoreKeys.Connection]
@@ -50,7 +50,7 @@ export const connectedPeersMapping = createSelector(
   connectedPeers,
   (certificates, peers) => {
     const usersData = Object.values(certificates)
-    return peers.reduce((peersMapping: {[peerId: string]: User}, peerId: string) => {
+    return peers.reduce((peersMapping: Record<string, User>, peerId: string) => {
       for (const user of usersData) {
         if (peerId === user.peerId) {
           return {

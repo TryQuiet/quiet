@@ -1,11 +1,11 @@
 import { setupCrypto } from '@quiet/identity'
-import { Store } from '@reduxjs/toolkit'
+import { type Store } from '@reduxjs/toolkit'
 import { getFactory } from '../../utils/tests/factories'
 import { prepareStore } from '../../utils/tests/prepareStore'
 import { errorsSelectors } from './errors.selectors'
-import { errorsActions } from './errors.slice'
-import { communitiesActions } from '../communities/communities.slice'
-import { Community, ErrorCodes, ErrorMessages, ErrorTypes } from '@quiet/types'
+import { type errorsActions } from './errors.slice'
+import { type communitiesActions } from '../communities/communities.slice'
+import { type Community, ErrorCodes, ErrorMessages, ErrorTypes } from '@quiet/types'
 
 describe('Errors', () => {
   setupCrypto()

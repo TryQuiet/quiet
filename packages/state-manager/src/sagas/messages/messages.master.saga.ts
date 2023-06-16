@@ -1,6 +1,6 @@
 import { takeEvery } from 'redux-saga/effects'
 import { all } from 'typed-redux-saga'
-import { Socket } from '../../types'
+import { type Socket } from '../../types'
 import { messagesActions } from './messages.slice'
 import { sendMessageSaga } from './sendMessage/sendMessage.saga'
 import { incomingMessagesSaga } from './incomingMessages/incomingMessages.saga'

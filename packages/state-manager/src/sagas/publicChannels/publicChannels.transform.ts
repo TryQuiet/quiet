@@ -1,9 +1,9 @@
-import { ChannelMessage, PublicChannelStatus, PublicChannelStorage } from '@quiet/types'
-import { Dictionary, EntityState } from '@reduxjs/toolkit'
+import { type ChannelMessage, type PublicChannelStatus, type PublicChannelStorage } from '@quiet/types'
+import { type Dictionary, type EntityState } from '@reduxjs/toolkit'
 import { createTransform } from 'redux-persist'
 import { StoreKeys } from '../store.keys'
 import { publicChannelsAdapter, publicChannelsSubscriptionsAdapter } from './publicChannels.adapter'
-import { PublicChannelsState } from './publicChannels.slice'
+import { type PublicChannelsState } from './publicChannels.slice'
 
 export const PublicChannelsTransform = createTransform(
   (inboundState: PublicChannelsState, _key: any) => {

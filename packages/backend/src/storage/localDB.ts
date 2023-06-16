@@ -42,7 +42,7 @@ export class LocalDB {
     await this.db.put(key, value)
   }
 
-  public async update(key: string, value: Object) {
+  public async update(key: string, value: any) {
     /**
      * Update data instead of replacing it
      */

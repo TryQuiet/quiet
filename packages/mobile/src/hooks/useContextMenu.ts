@@ -15,8 +15,8 @@ export const useContextMenu = <T extends OpenMenuPayload['args']>(menu: MenuName
   const handleOpen = (args?: T) =>
     dispatch(
       navigationActions.openMenu({
-        menu: menu,
-        args: args
+        menu,
+        args
       })
     )
 

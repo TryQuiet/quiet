@@ -26,7 +26,7 @@ describe('Message signature verification', () => {
     const userCert = await createTestUserCert(rootCert, userCsr)
 
     const data = {
-      message: message,
+      message,
       userPubKey: await extractPubKey(userCert.userCertString, crypto),
       signature: await sign(message, userCsr.pkcs10.privateKey)
     }
@@ -50,7 +50,7 @@ describe('Message signature verification', () => {
     const spoofedUserCert = await createTestUserCert(rootCert, spoofedUserCsr)
 
     const data = {
-      message: message,
+      message,
       userPubKey: await extractPubKey(spoofedUserCert.userCertString, crypto),
       signature: await sign(message, userCsr.pkcs10.privateKey)
     }

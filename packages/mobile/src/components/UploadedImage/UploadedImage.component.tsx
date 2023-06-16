@@ -21,7 +21,7 @@ export const UploadedImage: FC<UploadedImageProps> = ({ media, openImagePreview 
         <TouchableWithoutFeedback onPress={() => openImagePreview(media)}>
           <FastImage
             source={{ uri: `file://${path}` }}
-            style={{ maxWidth: maxWidth, aspectRatio: width / height }}
+            style={{ maxWidth, aspectRatio: width / height }}
           />
         </TouchableWithoutFeedback>
       )}

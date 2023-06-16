@@ -4,6 +4,6 @@ export const storybookLog =
       console.info(message)
 
       if (args.length > 0) {
-        args.forEach((arg) => console.info(arg))
+        args.forEach((arg) => { console.info(arg); })
       }
     }

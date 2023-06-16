@@ -1,12 +1,12 @@
 import {
   createSlice,
-  EntityState,
-  PayloadAction
+  type EntityState,
+  type PayloadAction
 } from '@reduxjs/toolkit'
 
 import { StoreKeys } from '../store.keys'
 import { errorsAdapter } from './errors.adapter'
-import { ErrorPayload } from '@quiet/types'
+import { type ErrorPayload } from '@quiet/types'
 
 export class ErrorsState {
   public errors: EntityState<ErrorPayload> =

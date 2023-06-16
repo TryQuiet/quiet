@@ -5,31 +5,31 @@ import {
   parseCertificate,
   sign
 } from '@quiet/identity'
-import { Store } from '../../store.types'
+import { type Store } from '../../store.types'
 import { getFactory } from '../../..'
 import { prepareStore, reducers } from '../../../utils/tests/prepareStore'
 import { combineReducers } from '@reduxjs/toolkit'
 import { arrayBufferToString } from 'pvutils'
 import { expectSaga } from 'redux-saga-test-plan'
 import { call } from 'redux-saga-test-plan/matchers'
-import { Socket } from 'socket.io-client'
-import { communitiesActions } from '../../communities/communities.slice'
-import { identityActions } from '../../identity/identity.slice'
+import { type Socket } from 'socket.io-client'
+import { type communitiesActions } from '../../communities/communities.slice'
+import { type identityActions } from '../../identity/identity.slice'
 import { messagesActions } from '../messages.slice'
 import { generateMessageId, getCurrentTime } from '../utils/message.utils'
 import { sendMessageSaga } from './sendMessage.saga'
-import { FactoryGirl } from 'factory-girl'
+import { type FactoryGirl } from 'factory-girl'
 
 import { generateChannelId } from '@quiet/common'
 
-import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
+import { type publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import { DateTime } from 'luxon'
 import {
-  Community,
-  FileMetadata,
-  Identity,
+  type Community,
+  type FileMetadata,
+  type Identity,
   MessageType,
-  PublicChannel,
+  type PublicChannel,
   SocketActionTypes
 } from '@quiet/types'
 import { currentChannelId } from '../../publicChannels/publicChannels.selectors'
@@ -175,7 +175,7 @@ describe('sendMessageSaga', () => {
     await expectSaga(
       sendMessageSaga,
       socket,
-      messagesActions.sendMessage({ message: '', media: media })
+      messagesActions.sendMessage({ message: '', media })
     )
       .withReducer(reducer)
       .withState(store.getState())
