@@ -12,7 +12,7 @@ import {
 } from '../selectors'
 import { capitalizeFirstLetter, invitationDeepUrl } from '@quiet/common'
 import { execSync } from 'child_process'
-import { SupportedPlatformDesktop } from '@quiet/types'
+import { type SupportedPlatformDesktop } from '@quiet/types'
 
 jest.setTimeout(900000)
 it.todo('New user joins using invitation link while having app closed')

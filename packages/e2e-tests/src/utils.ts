@@ -1,6 +1,6 @@
-import { Browser, Builder, ThenableWebDriver } from 'selenium-webdriver'
-import { spawn, exec, ChildProcessWithoutNullStreams, execSync } from 'child_process'
-import { SupportedPlatformDesktop } from '@quiet/types'
+import { Browser, Builder, type ThenableWebDriver } from 'selenium-webdriver'
+import { spawn, exec, type ChildProcessWithoutNullStreams, execSync } from 'child_process'
+import { type SupportedPlatformDesktop } from '@quiet/types'
 import getPort from 'get-port'
 import path from 'path'
 
@@ -39,7 +39,7 @@ export class BuildSetup {
   private getBinaryLocation() {
     switch (process.platform) {
       case 'linux':
-        return `${__dirname}/../Quiet/${process.env.FILE_NAME}`
+        return path.join(__dirname, '..', 'Quiet', `${process.env.FILE_NAME}`)
       case 'win32':
         return `${process.env.LOCALAPPDATA}\\Programs\\quiet\\Quiet.exe`
       case 'darwin':
@@ -69,7 +69,7 @@ export class BuildSetup {
       })
     }
     // Extra time for chromedriver to setup
-    await new Promise<void>(resolve => setTimeout(() => resolve(), 2000))
+    await new Promise<void>(resolve => setTimeout(() => { resolve(); }, 2000))
 
     const killNine = () => {
       exec(`kill -9 $(lsof -t -i:${this.port})`)
@@ -91,8 +91,8 @@ export class BuildSetup {
       killNine()
     })
 
-    this.child.on('message', data => console.log('message', data))
-    this.child.on('error', data => console.log('error', data))
+    this.child.on('message', data => { console.log('message', data); })
+    this.child.on('error', data => { console.log('error', data); })
 
     this.child.stdout.on('data', data => {
       console.log(`stdout:\n${data}`)
@@ -131,7 +131,7 @@ export class BuildSetup {
           .usingServer(`http://localhost:${this.port}`)
           .withCapabilities({
             'goog:chromeOptions': {
-              binary: binary,
+              binary,
               args: [`--remote-debugging-port=${this.debugPort}`, '--enable-logging']
             }
           })
@@ -155,7 +155,7 @@ export class BuildSetup {
   public async killChromeDriver() {
     console.log(`Killing driver (DATA_DIR=${this.dataDir})`)
     this.child?.kill()
-    await new Promise<void>(resolve => setTimeout(() => resolve(), 2000))
+    await new Promise<void>(resolve => setTimeout(() => { resolve(); }, 2000))
   }
 
   public async closeDriver() {

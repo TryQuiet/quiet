@@ -1,5 +1,5 @@
-import { By, Key, ThenableWebDriver, until } from 'selenium-webdriver'
-import { BuildSetup, BuildSetupInit } from './utils'
+import { By, Key, type ThenableWebDriver, until } from 'selenium-webdriver'
+import { BuildSetup, type BuildSetupInit } from './utils'
 
 export class App {
   thenableWebDriver?: ThenableWebDriver
@@ -128,7 +128,7 @@ export class ChannelContextMenu {
       until.elementLocated(By.xpath('//button[@data-testid="deleteChannelButton"]'))
     )
     await button.click()
-    await new Promise<void>(resolve => setTimeout(() => resolve(), 5000))
+    await new Promise<void>(resolve => setTimeout(() => { resolve(); }, 5000))
   }
 }
 export class RegisterUsernameModal {
@@ -248,7 +248,7 @@ export class Channel {
     const communityNameInput = await this.messageInput
     await communityNameInput.sendKeys(message)
     await communityNameInput.sendKeys(Key.ENTER)
-    await new Promise<void>(resolve => setTimeout(() => resolve(), 5000))
+    await new Promise<void>(resolve => setTimeout(() => { resolve(); }, 5000))
   }
 
   async getUserMessages(username: string) {
