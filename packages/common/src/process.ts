@@ -1,4 +1,4 @@
-import { SupportedPlatform } from '@quiet/types'
+import { type SupportedPlatform } from '@quiet/types'
 
 export const hangingBackendProcessCommand = ({
   backendBundlePath,

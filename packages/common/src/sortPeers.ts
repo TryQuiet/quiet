@@ -1,4 +1,4 @@
-import { NetworkStats } from '@quiet/types'
+import { type NetworkStats } from '@quiet/types'
 import { isDefined } from './helpers'
 
 /**
