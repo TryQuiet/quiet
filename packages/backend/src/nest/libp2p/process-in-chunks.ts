@@ -1,4 +1,4 @@
-
+import { Logger } from '@nestjs/common'
 
 const DEFAULT_CHUNK_SIZE = 10
 
@@ -7,7 +7,7 @@ export class ProcessInChunks<T> {
   private data: T[]
   private chunkSize: number
   private processItem: (arg: T) => Promise<any>
-
+  private readonly logger = new Logger(ProcessInChunks.name)
   constructor(data: T[], processItem: (arg: T) => Promise<any>, chunkSize: number = DEFAULT_CHUNK_SIZE) {
     this.data = data
     this.processItem = processItem
@@ -22,7 +22,7 @@ export class ProcessInChunks<T> {
       try {
         await this.processItem(toProcess)
       } catch (e) {
-        log(`Processing ${toProcess} failed, message:`, e.message)
+        this.logger.log(`Processing ${toProcess} failed, message:`, e.message)
       } finally {
         process.nextTick(async () => {
           await this.processOneItem()
@@ -32,7 +32,7 @@ export class ProcessInChunks<T> {
   }
 
   async process() {
-    log(`Processing ${Math.min(this.chunkSize, this.data.length)} items`)
+    this.logger.log(`Processing ${Math.min(this.chunkSize, this.data.length)} items`)
     for (let i = 0; i < this.chunkSize; i++) {
       // Do not wait for this promise as items should be processed simultineously
       void this.processOneItem()
@@ -41,7 +41,7 @@ export class ProcessInChunks<T> {
 
   stop() {
     if (this.isActive) {
-      log('Stopping initial dial')
+      this.logger.log('Stopping initial dial')
       this.isActive = false
     }
   }

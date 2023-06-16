@@ -7,7 +7,7 @@ import { registerOwner, registerUser, RegistrarResponse, RegistrationResponse, s
 import { ConnectionProcessInfo, ErrorCodes, ErrorMessages, LaunchRegistrarPayload, PermsData, RegisterOwnerCertificatePayload, SocketActionTypes } from '@quiet/types'
 import { EXPRESS_PROVIDER } from '../const'
 import { RegistrationEvents } from './registration.types'
-import { ServiceState } from '../../libp2p/types'
+import { ServiceState } from '../connections-manager/connections-manager.types'
 
 @Injectable()
 export class RegistrationService extends EventEmitter implements OnModuleInit {

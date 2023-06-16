@@ -153,7 +153,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         this.serverIoProvider.io.emit(SocketActionTypes.PEER_DISCONNECTED, payload)
       })
 
-
       await this.socketService.listen()
 
       if (this.configOptions.torControlPort) {

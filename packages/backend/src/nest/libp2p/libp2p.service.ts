@@ -16,12 +16,11 @@ import { EventEmitter } from 'events'
 import { InitLibp2pParams, Libp2pEvents, Libp2pNodeParams } from './libp2p.types'
 import { ProcessInChunks } from './process-in-chunks'
 import { multiaddr } from '@multiformats/multiaddr'
-import { AskForMessagesPayload, Certificates, ChannelMessage, ChannelMessagesIdsResponse, ChannelsReplicatedPayload, Community, CommunityId, ConnectionProcessInfo, CreateChannelPayload, CreatedChannelResponse, DeleteFilesFromChannelSocketPayload, DownloadStatus, ErrorMessages, FileMetadata, IncomingMessages, InitCommunityPayload, LaunchRegistrarPayload, NetworkData, NetworkDataPayload, NetworkStats, PushNotificationPayload, RegisterOwnerCertificatePayload, RegisterUserCertificatePayload, RemoveDownloadStatus, ResponseCreateNetworkPayload, SaveCertificatePayload, SaveOwnerCertificatePayload, SendCertificatesResponse, SendMessagePayload, SetChannelSubscribedPayload, SocketActionTypes, StorePeerListPayload, UploadFilePayload } from '@quiet/types'
+import { ConnectionProcessInfo, CreateChannelPayload, CreatedChannelResponse, DeleteFilesFromChannelSocketPayload, DownloadStatus, ErrorMessages, FileMetadata, IncomingMessages, InitCommunityPayload, LaunchRegistrarPayload, NetworkData, NetworkDataPayload, NetworkStats, PushNotificationPayload, RegisterOwnerCertificatePayload, RegisterUserCertificatePayload, RemoveDownloadStatus, ResponseCreateNetworkPayload, SaveCertificatePayload, SaveOwnerCertificatePayload, SendCertificatesResponse, SendMessagePayload, SetChannelSubscribedPayload, SocketActionTypes, StorePeerListPayload, UploadFilePayload } from '@quiet/types'
 import { INIT_LIBP2P_PARAMS, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
-import { ConfigOptions, ConnectionsManagerTypes, ServerIoProviderTypes } from '../types'
+import { ServerIoProviderTypes } from '../types'
 import { LocalDbService } from '../local-db/local-db.service'
 import { LocalDBKeys } from '../local-db/local-db.types'
-import { ConnectionsManagerService } from '../connections-manager/connections-manager.service'
 import { createLibp2pListenAddress } from './libp2p.utils'
 
 @Injectable()
@@ -33,17 +32,10 @@ public connectedPeers: Map<string, number>
 // params: InitLibp2pParams
 private readonly logger = new Logger(Libp2pService.name)
     constructor(
-        // params: InitLibp2pParams
-        // private readonly socketService: SocketService,
-        // private readonly registrationService: RegistrationService,
         private readonly localDbService: LocalDbService,
-        // private readonly storageService: StorageService,
         @Inject(SERVER_IO_PROVIDER) public readonly serverIoProvider: ServerIoProviderTypes,
-        // @Inject(CONFIG_OPTIONS) public configOptions: ConfigOptions,
-        // @Inject(QUIET_DIR) public readonly quietDir: string,
         @Inject(SOCKS_PROXY_AGENT) public readonly socksProxyAgent: Agent,
         @Inject(INIT_LIBP2P_PARAMS) public readonly initParams: InitLibp2pParams
-
         ) {
             super()
         }
@@ -65,7 +57,9 @@ private readonly logger = new Logger(Libp2pService.name)
               ca: this.initParams.certs.CA,
               targetPort: this.initParams.targetPort
             }
-            const libp2p: Libp2p = await createBootstrapNode(nodeParams)
+
+            // nie mozemy na init tego robic IMPORTANT
+            const libp2p: Libp2p = await this.createBootstrapNode(nodeParams)
 
             this.libp2pInstance = libp2p
             const dialInChunks = new ProcessInChunks<string>(this.initParams.bootstrapMultiaddrs, this.dialPeer)
@@ -142,9 +136,7 @@ private readonly logger = new Logger(Libp2pService.name)
             await this.libp2pInstance?.dial(multiaddr(peerAddress))
           }
 
-          public static readonly createBootstrapNode = async (
-            params: Libp2pNodeParams
-          ): Promise<Libp2p> => {
+          public async createBootstrapNode(params: Libp2pNodeParams): Promise<Libp2p> {
             return await this.defaultLibp2pNode(params)
           }
 

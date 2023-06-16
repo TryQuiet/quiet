@@ -13,6 +13,7 @@ import { TorModule } from './tor/tor.module'
 import express from 'express'
 import { TorControlAuthType } from './tor/tor.types'
 
+// KACPER
 @Global()
 @Module({
   imports: [SocketModule, ConnectionsManagerModule, RegistrationModule, IpfsFileManagerModule, LocalDbModule, Libp2pModule, TorModule],
@@ -50,31 +51,11 @@ export class AppModule {
               inject: [QUIET_DIR]
             },
 
-
-
      // this.orbitDbDir = path.join(this.quietDir, this.options.orbitDbDir || Config.ORBIT_DB_DIR)
     // this.ipfsRepoPath = path.join(this.quietDir, this.options.ipfsDir || Config.IPFS_REPO_PATH)
 
   ],
-          exports: [CONFIG_OPTIONS, QUIET_DIR],
+          exports: [CONFIG_OPTIONS, QUIET_DIR, ORBIT_DB_DIR, IPFS_REPO_PATCH],
         }
       }
 }
-
-   //   this.quietDir = this.options.env?.appDataPath || QUIET_DIR_PATH
-
-// protected async initIPFS(libp2p: any, peerID: any): Promise<IPFS> {
-//   log('Initializing IPFS')
-//   this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.INITIALIZING_IPFS)
-//   return await create({
-//     libp2p: async () => libp2p,
-//     preload: { enabled: false },
-//     repo: this.ipfsRepoPath,
-//     EXPERIMENTAL: {
-//       ipnsPubsub: true
-//     },
-//     init: {
-//       privateKey: peerID
-//     }
-//   })
-// }

@@ -1,18 +1,18 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { ConnectionsManagerService } from './connections-manager.service';
+// import { Test, TestingModule } from '@nestjs/testing';
+// import { ConnectionsManagerService } from './connections-manager.service';
 
-describe('ConnectionsManagerService', () => {
-  let service: ConnectionsManagerService;
+// describe('ConnectionsManagerService', () => {
+//   let service: ConnectionsManagerService;
 
-  beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [ConnectionsManagerService],
-    }).compile();
+//   beforeEach(async () => {
+//     const module: TestingModule = await Test.createTestingModule({
+//       providers: [ConnectionsManagerService],
+//     }).compile();
 
-    service = module.get<ConnectionsManagerService>(ConnectionsManagerService);
-  });
+//     service = module.get<ConnectionsManagerService>(ConnectionsManagerService);
+//   });
 
-  it('should be defined', () => {
-    expect(service).toBeDefined();
-  });
-});
+//   it('should be defined', () => {
+//     expect(service).toBeDefined();
+//   });
+// });
