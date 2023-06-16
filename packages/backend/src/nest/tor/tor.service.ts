@@ -11,7 +11,7 @@ import { Inject, Logger } from '@nestjs/common'
 import { ConfigOptions } from '../types'
 import { CONFIG_OPTIONS, QUIET_DIR } from '../const'
 import { TorControl } from './tor-control.service'
-import { GetInfoTorSignal } from './tor.types'
+import { GetInfoTorSignal, TorParams } from './tor.types'
 
 export class Tor extends EventEmitter {
 //   httpTunnelPort: number
@@ -24,8 +24,8 @@ export class Tor extends EventEmitter {
 //   appDataPath: string
   torDataDirectory: string
   torPidPath: string
-//   torPassword: string
-//   torHashedPassword: string
+  torPassword: string
+  torHashedPassword: string
 //   torAuthCookie?: string
 //   extraTorProcessParams: TorParams
 private readonly logger = new Logger(Tor.name)

@@ -10,7 +10,7 @@ import getPort from 'get-port'
 import PeerId from 'peer-id'
 import { getPorts, removeFilesFromDir } from '../common/utils'
 import { AskForMessagesPayload, ChannelMessagesIdsResponse, ChannelsReplicatedPayload, Community, CommunityId, ConnectionProcessInfo, CreateChannelPayload, CreatedChannelResponse, DeleteFilesFromChannelSocketPayload, DownloadStatus, ErrorMessages, FileMetadata, IncomingMessages, InitCommunityPayload, LaunchRegistrarPayload, NetworkData, NetworkDataPayload, NetworkStats, PushNotificationPayload, RegisterOwnerCertificatePayload, RegisterUserCertificatePayload, RemoveDownloadStatus, ResponseCreateNetworkPayload, SaveCertificatePayload, SaveOwnerCertificatePayload, SendCertificatesResponse, SendMessagePayload, SetChannelSubscribedPayload, SocketActionTypes, StorePeerListPayload, UploadFilePayload } from '@quiet/types'
-import { CONFIG_OPTIONS, QUIET_DIR, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
+import { CONFIG_OPTIONS, PEER_ID_PROVIDER, QUIET_DIR, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
 import { ConfigOptions, ServerIoProviderTypes } from '../types'
 import { SocketService } from '../socket/socket.service'
 import { RegistrationService } from '../registration/registration.service'
@@ -61,7 +61,8 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     @Inject(SERVER_IO_PROVIDER) public readonly serverIoProvider: ServerIoProviderTypes,
     @Inject(CONFIG_OPTIONS) public configOptions: ConfigOptions,
     @Inject(QUIET_DIR) public readonly quietDir: string,
-    @Inject(SOCKS_PROXY_AGENT) public readonly socksProxyAgent: Agent
+    @Inject(SOCKS_PROXY_AGENT) public readonly socksProxyAgent: Agent,
+    @Inject(PEER_ID_PROVIDER) public readonly peerId: PeerId,
     ) {
       super()
     //   this.registration = new CertificateRegistration()
@@ -342,13 +343,12 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       const ports = await getPorts()
       const hiddenService = await this.tor.createNewHiddenService({ targetPort: ports.libp2pHiddenService })
       await this.tor.destroyHiddenService(hiddenService.onionAddress.split('.')[0])
-      const peerId: PeerId = await PeerId.create()
 
-      this.logger.log(`Created network for peer ${peerId.toString()}. Address: ${hiddenService.onionAddress}`)
+      this.logger.log(`Created network for peer ${this.peerId.toString()}. Address: ${hiddenService.onionAddress}`)
 
       return {
         hiddenService,
-        peerId: peerId.toJSON()
+        peerId: this.peerId.toJSON()
       }
     }
 

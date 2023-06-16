@@ -33,7 +33,7 @@ import { Config } from '../../constants'
 // import { MessagesAccessController } from '../../storage/MessagesAccessController'
 import { StorageEvents } from '../../storage/types'
 import { IpfsFileManagerService } from '../ipfs-file-manager/ipfs-file-manager.service'
-import { COMMUNITY_PROVIDER, IPFS_PROVIDER, ORBIT_DB_PROVIDER, QUIET_DIR } from '../const'
+import { COMMUNITY_PROVIDER, IPFS_PROVIDER, IPFS_REPO_PATCH, ORBIT_DB_DIR, ORBIT_DB_PROVIDER, PEER_ID_PROVIDER, QUIET_DIR } from '../const'
 import { createChannelAccessController } from './ChannelsAccessController'
 import { IpfsFilesManagerEvents } from '../ipfs-file-manager/ipfs-file-manager.types'
 
@@ -60,15 +60,17 @@ export class StorageService extends EventEmitter implements OnModuleInit {
   private readonly logger = new Logger(StorageService.name)
   constructor(
     @Inject(QUIET_DIR) public readonly quietDir: string,
+    @Inject(ORBIT_DB_DIR) public readonly orbitDbDir: string,
+    @Inject(IPFS_REPO_PATCH) public readonly ipfsRepoPath: string,
     @Inject(ORBIT_DB_PROVIDER) public readonly orbitDb: OrbitDB,
     @Inject(COMMUNITY_PROVIDER) public readonly community: InitCommunityPayload,
     @Inject(IPFS_PROVIDER) public readonly ipfs: IPFS,
+    @Inject(PEER_ID_PROVIDER) public readonly peerId: PeerId,
     private readonly filesManager: IpfsFileManagerService
-    // options?: Partial<StorageOptions>
     ) {
     super()
-    // this.quietDir = quietDir
-    // this.__communityId = communityId
+
+    // KACPER
     // this.options = {
     //   ...new StorageOptions(),
     //   ...options
@@ -81,9 +83,8 @@ export class StorageService extends EventEmitter implements OnModuleInit {
     this.logger.log('Initializing storage')
     removeFiles(this.quietDir, 'LOCK')
     removeDirs(this.quietDir, 'repo.lock')
-    if (this.options?.createPaths) {
-      createPaths([this.ipfsRepoPath, this.orbitDbDir])
-    }
+    createPaths([this.ipfsRepoPath, this.orbitDbDir])
+
     // this.ipfs = await this.initIPFS(libp2p, peerID)
     // this.filesManager = new IpfsFilesManager(this.ipfs, this.quietDir)
     this.attachFileManagerEvents()
@@ -92,7 +93,6 @@ export class StorageService extends EventEmitter implements OnModuleInit {
 
     // AccessControllers.addAccessController({ AccessController: MessagesAccessController })
     // AccessControllers.addAccessController({ AccessController: channelsAccessController })
-
 
     this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.INITIALIZED_STORAGE)
     this.logger.log('Initialized storage')
