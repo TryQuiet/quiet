@@ -25,7 +25,7 @@
     "@types/jest": "^26.0.24",
     "@types/redux-saga": "^0.10.5",
     "@types/tmp": "^0.2.2",
-    "@quiet/eslint-config": "*",
+    "@quiet/eslint-config": "^1.0.0",
     "babel-jest": "^27.0.6",
     "check-disk-space": "^3.3.0",
     "jest": "^27.4.5",

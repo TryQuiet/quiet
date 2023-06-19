@@ -80,7 +80,7 @@
     "@babel/plugin-transform-flow-strip-types": "^7.21.0",
     "@babel/preset-env": "^7.20.0",
     "@babel/runtime": "^7.20.0",
-    "@quiet/eslint-config": "*",
+    "@quiet/eslint-config": "^1.0.0",
     "@react-native-async-storage/async-storage": "^1.18.1",
     "@react-native-community/eslint-config": "^2.0.0",
     "@react-native-community/push-notification-ios": "^1.10.1",
