@@ -7,7 +7,7 @@ const require = createRequire(import.meta.url)
 let bindings = null
 let arch = process.arch
 
-if (process.platform === 'darwin') {
+if (process.platform === 'darwin' || process.platform === 'ios') {
   arch = 'universal'
 }
 
