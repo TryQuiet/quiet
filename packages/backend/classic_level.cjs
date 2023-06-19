@@ -7,16 +7,12 @@ const require = createRequire(import.meta.url)
 let bindings = null
 let arch = process.arch
 
-console.log('platforma', process.platform, process.arch)
-
-if (process.platform === 'darwin') {
+if (process.platform === 'darwin' || process.platform === 'ios') {
   arch = 'universal'
 }
 
 let binaryPath = path.normalize(path.join(__dirname, '/deps', process.platform, arch, 'classic-level', 'classic_level.node'))
 let exists = fs.existsSync(binaryPath)
-
-console.log('istnieje', exists)
 
 if (!exists && process.platform === 'android') {
   // Get rid of extra nesting levels
