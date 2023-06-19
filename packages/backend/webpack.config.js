@@ -1,7 +1,6 @@
 import path from 'path'
 import { fileURLToPath } from 'url';
 import webpack from 'webpack'
-import webpackNodeExternals from 'webpack-node-externals';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -28,7 +27,6 @@ const webpackConfig = (env) => {
         resolve: {
             extensions: ['.ts', '.js']
         },
-        externals: [webpackNodeExternals()],
         module: {
             rules: [
                 {
@@ -80,7 +78,21 @@ const webpackConfig = (env) => {
             new webpack.NormalModuleReplacementPlugin(
                 /node_modules[\/\\]ipfs-utils[\/\\]src[\/\\]fetch.js/,
                 root(path.join('node_modules', 'electron-fetch', 'lib', 'index.js'))
-            )
+            ),
+            new webpack.IgnorePlugin({
+                checkResource(resource) {
+                  const lazyImports = ['@nestjs/microservices', '@nestjs/microservices/microservices-module', '@nestjs/platform-express', '@nestjs/websockets/socket-module'];
+                  if (!lazyImports.includes(resource)) {
+                    return false;
+                  }
+                  try {
+                    require.resolve(resource);
+                  } catch (err) {
+                    return true;
+                  }
+                  return false;
+                },
+              }),
         ],
         experiments: {
             topLevelAwait: true
