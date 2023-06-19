@@ -18,37 +18,33 @@ const classes = {
   descConatainer: `${PREFIX}descConatainer`,
   usernameIcon: `${PREFIX}usernameIcon`,
   buttonContainer: `${PREFIX}buttonContainer`,
-  button: `${PREFIX}button`
+  button: `${PREFIX}button`,
 }
 
-const StyledGrid = styled(Grid)((
-  {
-    theme
-  }
-) => ({
+const StyledGrid = styled(Grid)(({ theme }) => ({
   [`& .${classes.root}`]: {},
 
   [`& .${classes.usernameConatainer}`]: {
-    marginTop: 24
+    marginTop: 24,
   },
 
   [`& .${classes.infoConatainer}`]: {
-    marginTop: 24
+    marginTop: 24,
   },
 
   [`& .${classes.descConatainer}`]: {
-    marginTop: 8
+    marginTop: 8,
   },
 
   [`& .${classes.usernameIcon}`]: {
     width: 118,
     height: 118,
-    justifyContent: 'center'
+    justifyContent: 'center',
   },
 
   [`& .${classes.buttonContainer}`]: {
     marginTop: 23,
-    paddingBottom: 63
+    paddingBottom: 63,
   },
 
   [`& .${classes.button}`]: {
@@ -58,12 +54,12 @@ const StyledGrid = styled(Grid)((
     backgroundColor: theme.palette.colors.purple,
     padding: theme.spacing(2),
     '&:hover': {
-      backgroundColor: theme.palette.colors.darkPurple
+      backgroundColor: theme.palette.colors.darkPurple,
     },
     '&:disabled': {
-      backgroundColor: theme.palette.colors.gray
-    }
-  }
+      backgroundColor: theme.palette.colors.gray,
+    },
+  },
 }))
 
 const handleModalClose = (handleClose: () => void, setFormSent: (value: boolean) => void) => {
@@ -80,24 +76,10 @@ export const UsernameCreated: React.FC<UsernameCreatedProps> = ({ handleClose, s
   setFormSent(false)
   return (
     <StyledGrid container justifyContent='center'>
-      <Grid
-        container
-        className={classes.usernameConatainer}
-        item
-        xs={12}
-        direction='row'
-        justifyContent='center'
-      >
+      <Grid container className={classes.usernameConatainer} item xs={12} direction='row' justifyContent='center'>
         <Icon className={classes.usernameIcon} src={usernameIcon} />
       </Grid>
-      <Grid
-        container
-        item
-        className={classes.infoConatainer}
-        xs={12}
-        direction='row'
-        justifyContent='center'
-      >
+      <Grid container item className={classes.infoConatainer} xs={12} direction='row' justifyContent='center'>
         <Typography variant={'h4'}>You created a username</Typography>
       </Grid>
       <Grid item xs={'auto'} className={classes.buttonContainer}>

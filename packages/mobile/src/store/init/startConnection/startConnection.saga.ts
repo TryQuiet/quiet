@@ -32,14 +32,13 @@ function* handleSocketLifecycleActions(socket: Socket, dataPort: number): Genera
 
 function subscribeSocketLifecycle(socket: Socket, dataPort: number) {
   return eventChannel<
-    | ReturnType<typeof initActions.setWebsocketConnected>
-    | ReturnType<typeof initActions.suspendWebsocketConnection>
+    ReturnType<typeof initActions.setWebsocketConnected> | ReturnType<typeof initActions.suspendWebsocketConnection>
   >(emit => {
     socket.on('connect', async () => {
       console.log('websocket connected')
       emit(
         initActions.setWebsocketConnected({
-          dataPort
+          dataPort,
         })
       )
     })

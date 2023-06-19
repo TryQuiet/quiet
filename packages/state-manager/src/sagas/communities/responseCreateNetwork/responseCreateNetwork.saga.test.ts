@@ -20,22 +20,22 @@ describe('responseCreateNetwork', () => {
       name: undefined,
       registrarUrl: 'registrarUrl',
       CA: null,
-      rootCa: undefined
+      rootCa: undefined,
     }
 
     const dmKeys: DmKeys = {
       publicKey: 'publicKey',
-      privateKey: 'privateKey'
+      privateKey: 'privateKey',
     }
 
     const network: NetworkData = {
       hiddenService: {
         onionAddress: 'onionAddress',
-        privateKey: 'privateKey'
+        privateKey: 'privateKey',
       },
       peerId: {
-        id: 'peerId'
-      }
+        id: 'peerId',
+      },
     }
 
     const identity: Identity = {
@@ -46,7 +46,7 @@ describe('responseCreateNetwork', () => {
       dmKeys,
       userCsr: null,
       userCertificate: null,
-      joinTimestamp: null
+      joinTimestamp: null,
     }
 
     const reducer = combineReducers(reducers)
@@ -54,7 +54,7 @@ describe('responseCreateNetwork', () => {
       responseCreateNetworkSaga,
       communitiesActions.responseCreateNetwork({
         community,
-        network
+        network,
       })
     )
       .withReducer(reducer)

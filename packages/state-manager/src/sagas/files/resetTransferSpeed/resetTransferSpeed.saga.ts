@@ -7,7 +7,7 @@ import { DownloadState } from '@quiet/types'
 
 export function* resetTransferSpeedSaga(
   _action: PayloadAction<ReturnType<typeof networkActions.addInitializedCommunity>['payload']>
-  ): Generator {
+): Generator {
   const downloadStatuses = yield* select(filesSelectors.downloadStatuses)
 
   for (const status of Object.values(downloadStatuses)) {
@@ -17,8 +17,8 @@ export function* resetTransferSpeedSaga(
           ...status,
           downloadProgress: {
             ...status.downloadProgress,
-            transferSpeed: 0
-          }
+            transferSpeed: 0,
+          },
         })
       )
     }

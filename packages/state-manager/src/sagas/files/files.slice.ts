@@ -1,7 +1,15 @@
 import { createSlice, type EntityState, type PayloadAction } from '@reduxjs/toolkit'
 import { StoreKeys } from '../store.keys'
 import { downloadStatusAdapter } from './files.adapter'
-import { type CancelDownload, type CommunityId, type DeleteFilesFromChannelPayload, type DownloadStatus, type FileContent, type FileMetadata, type RemoveDownloadStatus } from '@quiet/types'
+import {
+  type CancelDownload,
+  type CommunityId,
+  type DeleteFilesFromChannelPayload,
+  type DownloadStatus,
+  type FileContent,
+  type FileMetadata,
+  type RemoveDownloadStatus,
+} from '@quiet/types'
 
 export class FilesState {
   public downloadStatus: EntityState<DownloadStatus> = downloadStatusAdapter.getInitialState()
@@ -25,7 +33,7 @@ export const filesSlice = createSlice({
     updateMessageMedia: (state, _action: PayloadAction<FileMetadata>) => state,
     checkForMissingFiles: (state, _action: PayloadAction<CommunityId>) => state,
     deleteFilesFromChannel: (state, _action: PayloadAction<DeleteFilesFromChannelPayload>) => state,
-  }
+  },
 })
 
 export const filesActions = filesSlice.actions

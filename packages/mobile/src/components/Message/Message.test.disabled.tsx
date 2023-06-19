@@ -17,8 +17,8 @@ describe('Message component', () => {
               'Brownie powder marshmallow dessert carrot cake marzipan cake caramels. Muffin topping wafer jelly apple pie candy. Fruitcake chocolate pudding fruitcake candy lemon drops chocolate.',
             createdAt: 0,
             date: '1:30pm',
-            nickname: 'holmes'
-          }
+            nickname: 'holmes',
+          },
         ]}
         pendingMessages={{}}
         openUrl={() => {}}
@@ -266,8 +266,8 @@ describe('Message component', () => {
             message: 'Hello! Does in-line LaTeX work? $$sum_{i=0}^n i = \frac{n(n+1)}{2}$$',
             createdAt: 0,
             date: '1:30pm',
-            nickname: 'somebody'
-          }
+            nickname: 'somebody',
+          },
         ]}
         pendingMessages={{}}
         openUrl={() => {}}

@@ -1,6 +1,4 @@
-import {
-  setupCrypto
-} from '@quiet/identity'
+import { setupCrypto } from '@quiet/identity'
 import { type Store } from '../../store.types'
 import { getFactory, type PublicChannel } from '../../..'
 import { prepareStore, reducers } from '../../../utils/tests/prepareStore'
@@ -33,14 +31,12 @@ describe('downloadFileSaga', () => {
 
     factory = await getFactory(store)
 
-    community = await factory.create<
-    ReturnType<typeof communitiesActions.addNewCommunity>['payload']
-    >('Community')
+    community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
 
-    alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
-      'Identity',
-      { id: community.id, nickname: 'alice' }
-    )
+    alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
+      id: community.id,
+      nickname: 'alice',
+    })
 
     message = Math.random().toString(36).substr(2.9)
 
@@ -59,29 +55,27 @@ describe('downloadFileSaga', () => {
       ext: 'ext',
       message: {
         id: message,
-        channelId: generalChannel.id
-      }
+        channelId: generalChannel.id,
+      },
     }
 
     const reducer = combineReducers(reducers)
-    await expectSaga(
-      downloadFileSaga,
-      socket,
-      filesActions.downloadFile(media)
-    )
+    await expectSaga(downloadFileSaga, socket, filesActions.downloadFile(media))
       .withReducer(reducer)
       .withState(store.getState())
-      .put(filesActions.updateDownloadStatus({
-        mid: message,
-        cid: 'cid',
-        downloadState: DownloadState.Queued
-      }))
+      .put(
+        filesActions.updateDownloadStatus({
+          mid: message,
+          cid: 'cid',
+          downloadState: DownloadState.Queued,
+        })
+      )
       .apply(socket, socket.emit, [
         SocketActionTypes.DOWNLOAD_FILE,
         {
           peerId: alice.peerId.id,
-          metadata: media
-        }
+          metadata: media,
+        },
       ])
       .run()
   })

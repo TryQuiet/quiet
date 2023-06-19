@@ -11,14 +11,10 @@ const PREFIX = 'IdentityPanel'
 const classes = {
   root: `${PREFIX}root`,
   button: `${PREFIX}button`,
-  nickname: `${PREFIX}nickname`
+  nickname: `${PREFIX}nickname`,
 }
 
-const IdentityPanelButtonStyled = styled('div')((
-  {
-    theme
-  }
-) => ({
+const IdentityPanelButtonStyled = styled('div')(({ theme }) => ({
   marginTop: theme.spacing(1),
   paddingLeft: 16,
   paddingRight: 16,
@@ -32,16 +28,16 @@ const IdentityPanelButtonStyled = styled('div')((
     textTransform: 'capitalize',
     '&:hover': {
       opacity: 1,
-      backgroundColor: 'inherit'
-    }
+      backgroundColor: 'inherit',
+    },
   },
 
   [`& .${classes.nickname}`]: {
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     maxWidth: 175,
-    whiteSpace: 'nowrap'
-  }
+    whiteSpace: 'nowrap',
+  },
 }))
 
 export interface IdentityPanelProps {
@@ -49,10 +45,7 @@ export interface IdentityPanelProps {
   accountSettingsModal: ReturnType<typeof useModal>
 }
 
-export const IdentityPanel: React.FC<IdentityPanelProps> = ({
-  currentCommunity,
-  accountSettingsModal
-}) => {
+export const IdentityPanel: React.FC<IdentityPanelProps> = ({ currentCommunity, accountSettingsModal }) => {
   const communityName = currentCommunity?.name || ''
   return (
     <IdentityPanelButtonStyled>
@@ -63,7 +56,8 @@ export const IdentityPanel: React.FC<IdentityPanelProps> = ({
         }}
         component='span'
         classes={{ root: classes.button }}
-        data-testid={'settings-panel-button'}>
+        data-testid={'settings-panel-button'}
+      >
         <Typography variant='h4' className={classes.nickname}>
           {communityName}
         </Typography>

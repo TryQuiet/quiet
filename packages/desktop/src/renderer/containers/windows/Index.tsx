@@ -20,7 +20,7 @@ export const Index = () => {
   useEffect(() => {
     loadVersion()
   }, [])
-  return <Navigate to='/main/channel/general' replace/>
+  return <Navigate to='/main/channel/general' replace />
 }
 
 export default Index

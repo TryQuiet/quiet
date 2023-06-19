@@ -6,11 +6,11 @@ export const StyledTextInput = styled(TextInput)`
   text-align-vertical: center;
   ${Platform.select({
     ios: {
-        paddingTop: 12,
-        paddingBottom: 12
+      paddingTop: 12,
+      paddingBottom: 12,
     },
-    android: {}
-})}
+    android: {},
+  })}
 `
 
 export const StyledWrapper = styled(Pressable)<{

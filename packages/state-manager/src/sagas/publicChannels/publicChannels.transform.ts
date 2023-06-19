@@ -19,16 +19,14 @@ export const PublicChannelsTransform = createTransform(
 
     outboundState.channels.entities = transformChannelsEntities(outboundState.channels.entities)
 
-    outboundState.channelsStatus.entities = transformChannelStatusEntities(
-      outboundState.channelsStatus.entities
-    )
+    outboundState.channelsStatus.entities = transformChannelStatusEntities(outboundState.channelsStatus.entities)
 
     return {
       ...transformedOutboundState,
       currentChannelId: generalChannelId,
       channels: outboundState.channels,
       channelsStatus: outboundState.channelsStatus,
-      channelsSubscriptions: publicChannelsSubscriptionsAdapter.getInitialState()
+      channelsSubscriptions: publicChannelsSubscriptionsAdapter.getInitialState(),
     }
   },
   { whitelist: [StoreKeys.PublicChannels] }
@@ -51,7 +49,7 @@ const transformChannelsEntities = (channelsEntities: Dictionary<PublicChannelSto
       if (message.channelAddress) {
         const transformedMessage = {
           ...message,
-          channelId: message.channelAddress
+          channelId: message.channelAddress,
         }
         delete transformedMessage.channelAddress
 
@@ -69,7 +67,7 @@ const transformChannelsEntities = (channelsEntities: Dictionary<PublicChannelSto
       const transformedChannel = {
         ...channel,
         messages,
-        id: channel.address
+        id: channel.address,
       }
       delete transformedChannel.address
 
@@ -79,9 +77,7 @@ const transformChannelsEntities = (channelsEntities: Dictionary<PublicChannelSto
   return channelsEntities
 }
 
-const transformChannelStatusEntities = (
-  channelsStatusEntities: Dictionary<PublicChannelStatus>
-) => {
+const transformChannelStatusEntities = (channelsStatusEntities: Dictionary<PublicChannelStatus>) => {
   const transformedChannelsStatusEntities = { ...channelsStatusEntities }
   for (const [key, _channel] of Object.entries(transformedChannelsStatusEntities)) {
     const channel = { ..._channel } as any
@@ -90,14 +86,14 @@ const transformChannelStatusEntities = (
       if (transformedNewestMessage.channelAddress) {
         transformedNewestMessage = {
           channelId: channel.address,
-          ...transformedNewestMessage
+          ...transformedNewestMessage,
         }
         delete transformedNewestMessage.channelAddress
       }
       const transformedChannel = {
         ...channel,
         id: channel.address,
-        newestMessage: transformedNewestMessage
+        newestMessage: transformedNewestMessage,
       }
       delete transformedChannel.address
 

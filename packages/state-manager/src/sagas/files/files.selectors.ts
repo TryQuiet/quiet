@@ -12,5 +12,5 @@ export const downloadStatuses = createSelector(filesSlice, state =>
 )
 
 export const filesSelectors = {
-  downloadStatuses
+  downloadStatuses,
 }

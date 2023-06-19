@@ -22,8 +22,9 @@ const Template: ComponentStory<typeof SidebarComponent> = args => {
           minHeight: '100vh',
           minWidth: '100vw',
           overflow: 'hidden',
-          position: 'relative'
-        }}>
+          position: 'relative',
+        }}
+      >
         <Grid item>
           <SidebarComponent {...args} setCurrentChannel={setCurrentChannel} currentChannelId={currentChannel} />
         </Grid>
@@ -35,29 +36,29 @@ const Template: ComponentStory<typeof SidebarComponent> = args => {
 const args: IdentityPanelProps & ChannelsPanelProps = {
   // @ts-expect-error
   currentCommunity: {
-    name: 'rockets'
+    name: 'rockets',
   },
   accountSettingsModal: {
     open: false,
     handleOpen: function (_args?: any): any {},
-    handleClose: function (): any {}
+    handleClose: function (): any {},
   },
   channels: [
     // @ts-expect-error
     {
       id: 'general',
-      name: 'general'
+      name: 'general',
     },
     // @ts-expect-error
     {
       id: 'spooky',
-      name: 'spooky'
+      name: 'spooky',
     },
     // @ts-expect-error
     {
       id: 'kalkan',
-      name: 'kalkan'
-    }
+      name: 'kalkan',
+    },
   ],
   unreadChannels: ['spooky'],
   setCurrentChannel: function (_id: string): void {},
@@ -66,8 +67,8 @@ const args: IdentityPanelProps & ChannelsPanelProps = {
   createChannelModal: {
     open: false,
     handleOpen: function (_args?: any): any {},
-    handleClose: function (): any {}
-  }
+    handleClose: function (): any {},
+  },
 }
 
 export const Component = Template.bind({})
@@ -80,7 +81,7 @@ const component: ComponentMeta<typeof SidebarComponent> = {
   title: 'Components/SidebarComponent',
   decorators: [withTheme],
   component: SidebarComponent,
-  excludeStories: ['Reusable']
+  excludeStories: ['Reusable'],
 }
 
 export default component

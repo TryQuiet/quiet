@@ -30,30 +30,29 @@ describe('markUnreadChannelsSaga', () => {
 
     factory = await getFactory(store)
 
-    community = await factory.create<
-      ReturnType<typeof communitiesActions.addNewCommunity>['payload']
-    >('Community')
+    community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
 
-    alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
-      'Identity',
-      { id: community.id, nickname: 'alice' }
-    )
+    alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
+      id: community.id,
+      nickname: 'alice',
+    })
 
     const channelNames = ['memes', 'enya', 'pets', 'travels']
 
     // Automatically create channels
     for (const name of channelNames) {
-      const channel = await factory.create<
-        ReturnType<typeof publicChannelsActions.addChannel>['payload']
-      >('PublicChannel', {
-        channel: {
-          name,
-          description: `Welcome to #${name}`,
-          timestamp: DateTime.utc().valueOf(),
-          owner: alice.nickname,
-          id: generateChannelId(name)
+      const channel = await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>(
+        'PublicChannel',
+        {
+          channel: {
+            name,
+            description: `Welcome to #${name}`,
+            timestamp: DateTime.utc().valueOf(),
+            owner: alice.nickname,
+            id: generateChannelId(name),
+          },
         }
-      })
+      )
       channelIds = [...channelIds, channel.channel.id]
     }
   })
@@ -74,9 +73,9 @@ describe('markUnreadChannelsSaga', () => {
             createdAt: DateTime.utc().valueOf(),
             channelId: id,
             signature: '',
-            pubKey: ''
+            pubKey: '',
           },
-          verifyAutomatically: true
+          verifyAutomatically: true,
         })
       ).payload.message
       messages.push(message)
@@ -86,22 +85,19 @@ describe('markUnreadChannelsSaga', () => {
     const channelId = channelIds.find(id => id.includes('enya'))
     if (!channelId) throw new Error('no channel id')
     const message = (
-      await factory.create<ReturnType<typeof publicChannelsActions.test_message>['payload']>(
-        'Message',
-        {
-          identity: alice,
-          message: {
-            id: Math.random().toString(36).substr(2.9),
-            type: MessageType.Basic,
-            message: 'message',
-            createdAt: 99999999999999,
-            channelId,
-            signature: '',
-            pubKey: ''
-          },
-          verifyAutomatically: true
-        }
-      )
+      await factory.create<ReturnType<typeof publicChannelsActions.test_message>['payload']>('Message', {
+        identity: alice,
+        message: {
+          id: Math.random().toString(36).substr(2.9),
+          type: MessageType.Basic,
+          message: 'message',
+          createdAt: 99999999999999,
+          channelId,
+          signature: '',
+          pubKey: '',
+        },
+        verifyAutomatically: true,
+      })
     ).message
 
     store.dispatch(publicChannelsActions.updateNewestMessage({ message }))
@@ -117,7 +113,7 @@ describe('markUnreadChannelsSaga', () => {
     await expectSaga(
       markUnreadChannelsSaga,
       messagesActions.incomingMessages({
-        messages
+        messages,
       })
     )
       .withReducer(reducer)
@@ -125,19 +121,19 @@ describe('markUnreadChannelsSaga', () => {
       .put(
         publicChannelsActions.markUnreadChannel({
           channelId: channelIdMemes,
-          message: messages[0]
+          message: messages[0],
         })
       )
       .not.put(
         publicChannelsActions.markUnreadChannel({
           channelId: channelIdEnya,
-          message: messages[2]
+          message: messages[2],
         })
       )
       .put(
         publicChannelsActions.markUnreadChannel({
           channelId: channelIdTravels,
-          message: messages[3]
+          message: messages[3],
         })
       )
       .run()
@@ -147,13 +143,15 @@ describe('markUnreadChannelsSaga', () => {
     const messagesides = channelIds
     const messages: ChannelMessage[] = []
 
-    const community = await factory.create<
-      ReturnType<typeof communitiesActions.addNewCommunity>['payload']
-    >('Community')
+    const community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>(
+      'Community'
+    )
 
-    const alice = await factory.create<
-      ReturnType<typeof identityActions.addNewIdentity>['payload']
-    >('Identity', { id: community.id, nickname: 'alice', joinTimestamp: 9239423949 })
+    const alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
+      id: community.id,
+      nickname: 'alice',
+      joinTimestamp: 9239423949,
+    })
 
     // Automatically create older messages
     for (const id of messagesides) {
@@ -167,9 +165,9 @@ describe('markUnreadChannelsSaga', () => {
             createdAt: 123,
             channelId: id,
             signature: '',
-            pubKey: ''
+            pubKey: '',
           },
-          verifyAutomatically: true
+          verifyAutomatically: true,
         })
       ).payload.message
       messages.push(message)
@@ -179,22 +177,19 @@ describe('markUnreadChannelsSaga', () => {
     if (!channelId) throw new Error('no channel id')
     // Set the newest message
     const message = (
-      await factory.create<ReturnType<typeof publicChannelsActions.test_message>['payload']>(
-        'Message',
-        {
-          identity: alice,
-          message: {
-            id: Math.random().toString(36).substr(2.9),
-            type: MessageType.Basic,
-            message: 'message',
-            createdAt: 99999999999999,
-            channelId,
-            signature: '',
-            pubKey: ''
-          },
-          verifyAutomatically: true
-        }
-      )
+      await factory.create<ReturnType<typeof publicChannelsActions.test_message>['payload']>('Message', {
+        identity: alice,
+        message: {
+          id: Math.random().toString(36).substr(2.9),
+          type: MessageType.Basic,
+          message: 'message',
+          createdAt: 99999999999999,
+          channelId,
+          signature: '',
+          pubKey: '',
+        },
+        verifyAutomatically: true,
+      })
     ).message
 
     messages.push(message)
@@ -209,7 +204,7 @@ describe('markUnreadChannelsSaga', () => {
     await expectSaga(
       markUnreadChannelsSaga,
       messagesActions.incomingMessages({
-        messages
+        messages,
       })
     )
       .withReducer(reducer)
@@ -217,19 +212,19 @@ describe('markUnreadChannelsSaga', () => {
       .not.put(
         publicChannelsActions.markUnreadChannel({
           channelId: channelIdMemes,
-          message: messages[1]
+          message: messages[1],
         })
       )
       .put(
         publicChannelsActions.markUnreadChannel({
           channelId: channelIdEnya,
-          message
+          message,
         })
       )
       .not.put(
         publicChannelsActions.markUnreadChannel({
           channelId: channelIdTravels,
-          message: messages[3]
+          message: messages[3],
         })
       )
       .run()

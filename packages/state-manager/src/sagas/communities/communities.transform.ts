@@ -9,7 +9,7 @@ export const CommunitiesTransform = createTransform(
   (outboundState: CommunitiesState, _key) => {
     return {
       ...outboundState,
-      invitationCode: undefined
+      invitationCode: undefined,
     }
   },
   { whitelist: [StoreKeys.Communities] }

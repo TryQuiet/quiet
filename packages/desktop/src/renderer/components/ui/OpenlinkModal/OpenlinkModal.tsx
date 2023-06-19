@@ -26,46 +26,42 @@ const classes = {
   checkboxLabel: `${PREFIX}checkboxLabel`,
   checkboxes: `${PREFIX}checkboxes`,
   buttonBack: `${PREFIX}buttonBack`,
-  buttons: `${PREFIX}buttons`
+  buttons: `${PREFIX}buttons`,
 }
 
-const StyledModalContent = styled(Grid)((
-  {
-    theme
-  }
-) => ({
+const StyledModalContent = styled(Grid)(({ theme }) => ({
   padding: theme.spacing(4),
 
   [`& .${classes.icon}`]: {
     fontSize: '10rem',
     color: red[500],
     width: 80,
-    height: 70
+    height: 70,
   },
 
   [`& .${classes.title}`]: {
     marginTop: 36,
-    marginBottom: 24
+    marginBottom: 24,
   },
 
   [`& .${classes.message}`]: {
     wordBreak: 'break-word',
     marginTop: 16,
-    fontWeight: 500
+    fontWeight: 500,
   },
 
   [`& .${classes.bold}`]: {
-    fontWeight: 600
+    fontWeight: 600,
   },
 
   [`& .${classes.checkboxLabel}`]: {
     fontSize: 14,
     lineHeight: '24px',
-    wordBreak: 'break-word'
+    wordBreak: 'break-word',
   },
 
   [`& .${classes.checkboxes}`]: {
-    marginTop: 32
+    marginTop: 32,
   },
 
   [`& .${classes.buttonBack}`]: {
@@ -74,13 +70,13 @@ const StyledModalContent = styled(Grid)((
     backgroundColor: theme.palette.colors.quietBlue,
     color: theme.palette.colors.white,
     '&:hover': {
-      backgroundColor: theme.palette.colors.quietBlue
-    }
+      backgroundColor: theme.palette.colors.quietBlue,
+    },
   },
 
   [`& .${classes.buttons}`]: {
-    marginTop: 24
-  }
+    marginTop: 24,
+  },
 }))
 
 interface OpenLinkModalProps {
@@ -100,7 +96,7 @@ export const OpenlinkModal: React.FC<OpenLinkModalProps> = ({
   url = 'https://www.zbay.app/',
   addToWhitelist,
   setWhitelistAll,
-  isImage = false
+  isImage = false,
 }) => {
   const [allowThisLink, setAllowThisLink] = React.useState(false)
   const [allowAllLink, setAllowAllLink] = React.useState(false)
@@ -123,51 +119,16 @@ export const OpenlinkModal: React.FC<OpenLinkModalProps> = ({
               <Grid item container direction='column'>
                 <Grid item>
                   <Typography variant='body2'>
-                    Opening link posted in Quiet reveals data about you to your goverment, your
-                    Internet provider, the site you are visiting and, potentially, to whoever posted
-                    the link. Only open links from people you trust. If you are using Quiet to
-                    protect your anonymity, never open links.
+                    Opening link posted in Quiet reveals data about you to your goverment, your Internet provider, the
+                    site you are visiting and, potentially, to whoever posted the link. Only open links from people you
+                    trust. If you are using Quiet to protect your anonymity, never open links.
                   </Typography>
                 </Grid>
               </Grid>
               <Grid item container spacing={0} direction='column' className={classes.checkboxes}>
                 {' '}
-                {isImage
-                  ? (
-                    <>
-                      <Grid item container justifyContent='center' alignItems='center'>
-                        <Grid item>
-                          <Checkbox
-                            checked={allowThisLink}
-                            onChange={e => setAllowThisLink(e.target.checked)}
-                            color='primary'
-                          />
-                        </Grid>
-                        <Grid item xs className={classes.checkboxLabel}>
-                          {'Automatically load images from '}
-                          <span className={classes.bold}>{uri.hostname}</span>
-                          {
-                            "- I trust them with my data and I'm not using Quiet for anonymity protection. "
-                          }
-                        </Grid>
-                      </Grid>
-                      <Grid item container justifyContent='center' alignItems='center'>
-                        <Grid item>
-                          <Checkbox
-                            checked={dontAutoload}
-                            onChange={e => setDontAutoload(e.target.checked)}
-                            color='primary'
-                          />
-                        </Grid>
-                        <Grid item xs className={classes.checkboxLabel}>
-                          {"Don't warn me about "}
-                          <span className={classes.bold}>{uri.hostname}</span>{' '}
-                          {"again, but don't auto-load images."}
-                        </Grid>
-                      </Grid>
-                    </>
-                  )
-                  : (
+                {isImage ? (
+                  <>
                     <Grid item container justifyContent='center' alignItems='center'>
                       <Grid item>
                         <Checkbox
@@ -177,11 +138,40 @@ export const OpenlinkModal: React.FC<OpenLinkModalProps> = ({
                         />
                       </Grid>
                       <Grid item xs className={classes.checkboxLabel}>
-                        {"Don't warn me about "}
-                        <span className={classes.bold}>{uri.hostname}</span> {'again'}
+                        {'Automatically load images from '}
+                        <span className={classes.bold}>{uri.hostname}</span>
+                        {"- I trust them with my data and I'm not using Quiet for anonymity protection. "}
                       </Grid>
                     </Grid>
-                  )}
+                    <Grid item container justifyContent='center' alignItems='center'>
+                      <Grid item>
+                        <Checkbox
+                          checked={dontAutoload}
+                          onChange={e => setDontAutoload(e.target.checked)}
+                          color='primary'
+                        />
+                      </Grid>
+                      <Grid item xs className={classes.checkboxLabel}>
+                        {"Don't warn me about "}
+                        <span className={classes.bold}>{uri.hostname}</span> {"again, but don't auto-load images."}
+                      </Grid>
+                    </Grid>
+                  </>
+                ) : (
+                  <Grid item container justifyContent='center' alignItems='center'>
+                    <Grid item>
+                      <Checkbox
+                        checked={allowThisLink}
+                        onChange={e => setAllowThisLink(e.target.checked)}
+                        color='primary'
+                      />
+                    </Grid>
+                    <Grid item xs className={classes.checkboxLabel}>
+                      {"Don't warn me about "}
+                      <span className={classes.bold}>{uri.hostname}</span> {'again'}
+                    </Grid>
+                  </Grid>
+                )}
                 <Grid item container justifyContent='center' alignItems='center'>
                   <Grid item>
                     <Checkbox
@@ -203,7 +193,8 @@ export const OpenlinkModal: React.FC<OpenLinkModalProps> = ({
                       size='large'
                       onClick={() => {
                         handleClose()
-                      }}>
+                      }}
+                    >
                       Back to safety
                     </Button>
                   </Grid>
@@ -212,7 +203,7 @@ export const OpenlinkModal: React.FC<OpenLinkModalProps> = ({
                       style={{
                         color: '#67BFD3',
                         textDecoration: 'none',
-                        wordBreak: 'break-all'
+                        wordBreak: 'break-all',
                       }}
                       onClick={e => {
                         e.preventDefault()
@@ -223,10 +214,9 @@ export const OpenlinkModal: React.FC<OpenLinkModalProps> = ({
                         setWhitelistAll(allowAllLink)
                         handleClose()
                       }}
-                      href={''}>
-                      {isImage
-                        ? `Load image from site ${uri.hostname}`
-                        : `Continue to ${uri.hostname}`}
+                      href={''}
+                    >
+                      {isImage ? `Load image from site ${uri.hostname}` : `Continue to ${uri.hostname}`}
                     </a>
                   </Grid>
                 </Grid>

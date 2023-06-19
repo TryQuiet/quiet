@@ -35,7 +35,7 @@ export const certificatesMapping = createSelector(certificates, certs => {
       username,
       onionAddress,
       peerId,
-      dmPublicKey
+      dmPublicKey,
     })
   })
   return mapping
@@ -66,7 +66,7 @@ export const ownerData = createSelector(getOldestParsedCerificate, ownerCert => 
     username,
     onionAddress,
     peerId,
-    dmPublicKey
+    dmPublicKey,
   }
 })
 
@@ -74,5 +74,5 @@ export const usersSelectors = {
   certificates,
   certificatesMapping,
   getOldestParsedCerificate,
-  ownerData
+  ownerData,
 }

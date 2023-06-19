@@ -3,11 +3,7 @@ import createHttpsProxyAgent from 'https-proxy-agent'
 import fetch, { type Response } from 'node-fetch'
 
 import { type Tor } from './torManager'
-import {
-  createTmpDir,
-  spawnTorProcess,
-  tmpQuietDirPath
-} from '../common/testUtils'
+import { createTmpDir, spawnTorProcess, tmpQuietDirPath } from '../common/testUtils'
 
 import logger from '../logger'
 
@@ -46,7 +42,7 @@ let finishedRequests = 0
 
 const createServer = async (port: number, serverAddress: string) => {
   const app: express.Application = express()
- // app.use(express.json())
+  // app.use(express.json())
   // eslint-disable-next-line
   app.post('/test', async (req, res) => {
     // eslint-disable-next-line
@@ -64,17 +60,13 @@ const createAgent = async (httpTunnelPort: number) => {
   return createHttpsProxyAgent({ port: httpTunnelPort, host: 'localhost' })
 }
 
-const sendRequest = async (
-  serviceAddress: string,
-  httpTunnelPort: number,
-  ownHs: string
-): Promise<Response> => {
+const sendRequest = async (serviceAddress: string, httpTunnelPort: number, ownHs: string): Promise<Response> => {
   const agent = await createAgent(httpTunnelPort)
   const options = {
     method: 'POST',
     body: JSON.stringify({ serviceAddress: ownHs }),
     headers: { 'Content-Type': 'application/json' },
-    agent
+    agent,
   }
   try {
     return await fetch('http://' + serviceAddress + '.onion/test', options)
@@ -102,9 +94,7 @@ const destroyHiddenServices = async () => {
     const hs = hiddenServices.get(key)
     if (!hs) continue
     await data.tor.destroyHiddenService(hs)
-    log(
-      `destroyed hidden service for instance ${key} with onion address ${hiddenServices.get(key)}`
-    )
+    log(`destroyed hidden service for instance ${key} with onion address ${hiddenServices.get(key)}`)
   }
 }
 

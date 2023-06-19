@@ -4,16 +4,12 @@ import { identityAdapter } from './identity.adapter'
 import { type CreatedSelectors, type StoreState } from '../store.types'
 import { communitiesSelectors, selectCommunities } from '../communities/communities.selectors'
 
-const identitySlice: CreatedSelectors[StoreKeys.Identity] = (
-  state: StoreState
-) => state[StoreKeys.Identity]
+const identitySlice: CreatedSelectors[StoreKeys.Identity] = (state: StoreState) => state[StoreKeys.Identity]
 
 export const selectById = (id: string) =>
-  createSelector(identitySlice, (reducerState) =>
-    identityAdapter.getSelectors().selectById(reducerState.identities, id)
-  )
+  createSelector(identitySlice, reducerState => identityAdapter.getSelectors().selectById(reducerState.identities, id))
 
-export const selectEntities = createSelector(identitySlice, (reducerState) =>
+export const selectEntities = createSelector(identitySlice, reducerState =>
   identityAdapter.getSelectors().selectEntities(reducerState.identities)
 )
 
@@ -21,25 +17,17 @@ export const currentIdentity = createSelector(
   communitiesSelectors.currentCommunityId,
   identitySlice,
   (currentCommunityId, reducerState) => {
-    return identityAdapter
-      .getSelectors()
-      .selectById(reducerState.identities, currentCommunityId)
+    return identityAdapter.getSelectors().selectById(reducerState.identities, currentCommunityId)
   }
 )
 
-export const joinedCommunities = createSelector(
-  selectCommunities,
-  selectEntities,
-  (communities, identities) => {
-    return communities.filter((community) => {
-      return identities[community.id]?.userCertificate
-    })
-  }
-)
+export const joinedCommunities = createSelector(selectCommunities, selectEntities, (communities, identities) => {
+  return communities.filter(community => {
+    return identities[community.id]?.userCertificate
+  })
+})
 
-export const joinTimestamp = createSelector(
-  currentIdentity, identity => identity?.joinTimestamp
-)
+export const joinTimestamp = createSelector(currentIdentity, identity => identity?.joinTimestamp)
 
 export const identitySelectors = {
   selectById,

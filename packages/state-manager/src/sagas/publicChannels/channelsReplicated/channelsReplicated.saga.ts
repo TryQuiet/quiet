@@ -40,21 +40,19 @@ export function* channelsReplicatedSaga(
       log(`ADDING #${channel.name} TO LOCAL STORAGE`)
       yield* put(
         publicChannelsActions.addChannel({
-          channel
+          channel,
         })
       )
       yield* put(
         messagesActions.addPublicChannelsMessagesBase({
-          channelId: channel.id
+          channelId: channel.id,
         })
       )
     }
   }
 
   const currentChannelCache = yield* select(publicChannelsSelectors.currentChannelMessages)
-  const currentChannelRepository = yield* select(
-    messagesSelectors.currentPublicChannelMessagesEntries
-  )
+  const currentChannelRepository = yield* select(messagesSelectors.currentPublicChannelMessagesEntries)
 
   // (On collecting data from persist) Populating displayable data
   if (currentChannelCache.length < 1 && currentChannelRepository.length > 0) {

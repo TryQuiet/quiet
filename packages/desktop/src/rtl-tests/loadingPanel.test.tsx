@@ -16,7 +16,7 @@ import {
   publicChannels,
   network,
   LoadingPanelType,
-  connection
+  connection,
 } from '@quiet/state-manager'
 import { DateTime } from 'luxon'
 import { act } from 'react-dom/test-utils'
@@ -40,7 +40,7 @@ describe('Loading panel', () => {
     window.ResizeObserver = jest.fn().mockImplementation(() => ({
       observe: jest.fn(),
       unobserve: jest.fn(),
-      disconnect: jest.fn()
+      disconnect: jest.fn(),
     }))
   })
 
@@ -50,8 +50,8 @@ describe('Loading panel', () => {
     const { store } = await prepareStore({
       [StoreKeys.Socket]: {
         ...new SocketState(),
-        isConnected: false
-      }
+        isConnected: false,
+      },
     })
 
     renderComponent(
@@ -84,8 +84,7 @@ describe('Loading panel', () => {
 
     const factory = await getFactory(store)
 
-    const community = (await factory.build<typeof communities.actions.addNewCommunity>('Community'))
-      .payload
+    const community = (await factory.build<typeof communities.actions.addNewCommunity>('Community')).payload
 
     store.dispatch(communities.actions.addNewCommunity(community))
     store.dispatch(communities.actions.setCurrentCommunity(community.id))
@@ -98,15 +97,15 @@ describe('Loading panel', () => {
           description: 'Welcome to #general',
           timestamp: DateTime.utc().valueOf(),
           owner: 'owner',
-          id: 'general'
-        }
+          id: 'general',
+        },
       })
     ).payload
 
-    await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>(
-      'Identity',
-      { id: community.id, nickname: 'alice' }
-    )
+    await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+      id: community.id,
+      nickname: 'alice',
+    })
 
     store.dispatch(communities.actions.addNewCommunity(community))
     store.dispatch(communities.actions.setCurrentCommunity(community.id))
@@ -142,19 +141,17 @@ describe('Loading panel', () => {
 
     const factory = await getFactory(store)
 
-    const community = (await factory.build<typeof communities.actions.addNewCommunity>('Community'))
-      .payload
+    const community = (await factory.build<typeof communities.actions.addNewCommunity>('Community')).payload
 
     store.dispatch(communities.actions.addNewCommunity(community))
     store.dispatch(communities.actions.setCurrentCommunity(community.id))
 
-    await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>(
-      'Identity',
-      { id: community.id, nickname: 'alice' }
-    )
+    await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+      id: community.id,
+      nickname: 'alice',
+    })
 
-    const aliceCertificate =
-      store.getState().Identity.identities.entities[community.id]?.userCertificate
+    const aliceCertificate = store.getState().Identity.identities.entities[community.id]?.userCertificate
 
     expect(aliceCertificate).not.toBeUndefined()
     expect(aliceCertificate).not.toBeNull()
@@ -163,7 +160,7 @@ describe('Loading panel', () => {
       identity.actions.storeUserCertificate({
         communityId: community.id,
         // @ts-expect-error
-        userCertificate: null
+        userCertificate: null,
       })
     )
 
@@ -184,7 +181,7 @@ describe('Loading panel', () => {
       identity.actions.storeUserCertificate({
         communityId: community.id,
         // @ts-expect-error
-        userCertificate: aliceCertificate
+        userCertificate: aliceCertificate,
       })
     )
     await waitFor(() => expect(screen.queryByTestId('createUsernameModalActions')).toBeNull())
@@ -222,28 +219,20 @@ describe('Loading panel', () => {
       )
     )
     await act(async () => {})
-    const bootstrapped50text = screen.getByText(
-      'Tor Bootstrapped 50% (loading_descriptors)'
-    )
+    const bootstrapped50text = screen.getByText('Tor Bootstrapped 50% (loading_descriptors)')
     expect(bootstrapped50text).toBeVisible()
 
     // 95%
     store.dispatch(
-      connection.actions.setTorBootstrapProcess(
-        'Bootstrapped 95% (circuit_create): Establishing a Tor circuit'
-      )
+      connection.actions.setTorBootstrapProcess('Bootstrapped 95% (circuit_create): Establishing a Tor circuit')
     )
     await act(async () => {})
-    const bootstrapped95text = screen.getByText(
-      'Tor Bootstrapped 95% (circuit_create)'
-    )
+    const bootstrapped95text = screen.getByText('Tor Bootstrapped 95% (circuit_create)')
     expect(bootstrapped95text).toBeVisible()
 
     // 100%
     store.dispatch(
-      connection.actions.setTorBootstrapProcess(
-        'Apr 05 17:36:10.000 [notice] Bootstrapped 100% (done): Done'
-      )
+      connection.actions.setTorBootstrapProcess('Apr 05 17:36:10.000 [notice] Bootstrapped 100% (done): Done')
     )
     await act(async () => {})
     const bootstrapped100text = screen.getByText('Tor Bootstrapped 100% (done)')

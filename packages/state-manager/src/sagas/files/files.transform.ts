@@ -15,17 +15,14 @@ export const FilesTransform = createTransform(
       const downloadState = status.downloadState
       const entry: DownloadStatus = {
         ...status,
-        downloadState: downloadState !== DownloadState.Canceling ? downloadState : DownloadState.Canceled
+        downloadState: downloadState !== DownloadState.Canceling ? downloadState : DownloadState.Canceled,
       }
       result.push(entry)
       return result
     }, [])
     return {
       ...outboundState,
-      downloadStatus: downloadStatusAdapter.setAll(
-        downloadStatusAdapter.getInitialState(),
-        updatedStatuses
-      )
+      downloadStatus: downloadStatusAdapter.setAll(downloadStatusAdapter.getInitialState(), updatedStatuses),
     }
   },
   { whitelist: [StoreKeys.Files] }

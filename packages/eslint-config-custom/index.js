@@ -1,6 +1,10 @@
 module.exports = {
   env: {
-    "jest/globals": true
+    "jest/globals": true,
+    "node": true,
+    "commonjs": true,
+    "browser": true,
+    "es6": true
   },
   extends: [
     'eslint:recommended',
@@ -21,6 +25,8 @@ module.exports = {
     'no-irregular-whitespace': 'off',
     'array-callback-return': 'off',
     'comma-dangle': 'off',
+    "no-empty-function": "off",
+    "@typescript-eslint/no-empty-function": "off",
     '@typescript-eslint/naming-convention': 'off',
     '@typescript-eslint/no-var-requires': 'off',
     '@typescript-eslint/indent': 'off',
@@ -66,10 +72,8 @@ module.exports = {
     //   "error", {
     //     semi: false,
     //     singleQuote: true
-    //   },
-    //   {
-    //     "usePrettierrc": false
-    //   }],
+    //   }
+    //   ],
   },
   overrides: [
     {

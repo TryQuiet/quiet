@@ -12,7 +12,7 @@ export default {
   Tor,
   DataServer,
   ConnectionsManager,
-  version
+  version,
 }
 
 export * from './common/utils'

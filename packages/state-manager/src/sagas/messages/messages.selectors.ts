@@ -9,30 +9,23 @@ import { downloadStatuses } from '../files/files.selectors'
 import {
   messageSendingStatusAdapter,
   messageVerificationStatusAdapter,
-  publicChannelsMessagesBaseAdapter
+  publicChannelsMessagesBaseAdapter,
 } from './messages.adapter.ts'
 import { isDefined } from '@quiet/common'
 import { MessageType } from '@quiet/types'
 
-const messagesSlice: CreatedSelectors[StoreKeys.Messages] = (state: StoreState) =>
-  state[StoreKeys.Messages]
+const messagesSlice: CreatedSelectors[StoreKeys.Messages] = (state: StoreState) => state[StoreKeys.Messages]
 
 export const messagesVerificationStatus = createSelector(messagesSlice, reducerState =>
-  messageVerificationStatusAdapter
-    .getSelectors()
-    .selectEntities(reducerState.messageVerificationStatus)
+  messageVerificationStatusAdapter.getSelectors().selectEntities(reducerState.messageVerificationStatus)
 )
 
 export const messagesSendingStatus = createSelector(messagesSlice, reducerState => {
-  return messageSendingStatusAdapter
-    .getSelectors()
-    .selectEntities(reducerState.messageSendingStatus)
+  return messageSendingStatusAdapter.getSelectors().selectEntities(reducerState.messageSendingStatus)
 })
 
 export const publicChannelsMessagesBase = createSelector(messagesSlice, reducerState =>
-  publicChannelsMessagesBaseAdapter
-    .getSelectors()
-    .selectEntities(reducerState.publicChannelsMessagesBase)
+  publicChannelsMessagesBaseAdapter.getSelectors().selectEntities(reducerState.publicChannelsMessagesBase)
 )
 
 export const currentPublicChannelMessagesBase = createSelector(
@@ -52,25 +45,19 @@ export const publicChannelMessagesEntities = (address: string) =>
     return channelMessagesAdapter.getSelectors().selectEntities(channelMessagesBase.messages)
   })
 
-export const currentPublicChannelMessagesEntities = createSelector(
-  currentPublicChannelMessagesBase,
-  base => {
-    if (!base) return {}
-    return channelMessagesAdapter.getSelectors().selectEntities(base.messages)
-  }
-)
+export const currentPublicChannelMessagesEntities = createSelector(currentPublicChannelMessagesBase, base => {
+  if (!base) return {}
+  return channelMessagesAdapter.getSelectors().selectEntities(base.messages)
+})
 
-export const currentPublicChannelMessagesEntries = createSelector(
-  currentPublicChannelMessagesBase,
-  base => {
-    if (!base) return []
-    return channelMessagesAdapter
-      .getSelectors()
-      .selectAll(base.messages)
-      .sort((a, b) => b.createdAt - a.createdAt)
-      .reverse()
-  }
-)
+export const currentPublicChannelMessagesEntries = createSelector(currentPublicChannelMessagesBase, base => {
+  if (!base) return []
+  return channelMessagesAdapter
+    .getSelectors()
+    .selectAll(base.messages)
+    .sort((a, b) => b.createdAt - a.createdAt)
+    .reverse()
+})
 
 export const validCurrentPublicChannelMessagesEntries = createSelector(
   currentPublicChannelMessagesEntries,
@@ -103,9 +90,7 @@ export const missingChannelMessages = (ids: string[], channelId: string) =>
   createSelector(publicChannelsMessagesBase, base => {
     const channelMessagesBase = base[channelId]
     if (!channelMessagesBase) return []
-    const channelMessages = channelMessagesAdapter
-      .getSelectors()
-      .selectIds(channelMessagesBase.messages)
+    const channelMessages = channelMessagesAdapter.getSelectors().selectIds(channelMessagesBase.messages)
     return ids.filter(id => !channelMessages.includes(id))
   })
 
@@ -113,12 +98,14 @@ export const missingChannelFiles = (channelId: string) =>
   createSelector(publicChannelsMessagesBase, downloadStatuses, (base, statuses) => {
     const channelMessagesBase = base[channelId]
     if (!channelMessagesBase) return []
-    const channelMessages = channelMessagesAdapter
-      .getSelectors()
-      .selectAll(channelMessagesBase.messages)
+    const channelMessages = channelMessagesAdapter.getSelectors().selectAll(channelMessagesBase.messages)
     return channelMessages
-      .filter(message => (message.type === MessageType.Image || message.type === MessageType.File) && message.media?.path === null)
-      .map(message => message.media).filter(isDefined)
+      .filter(
+        message =>
+          (message.type === MessageType.Image || message.type === MessageType.File) && message.media?.path === null
+      )
+      .map(message => message.media)
+      .filter(isDefined)
   })
 
 export const messagesSelectors = {
@@ -130,5 +117,5 @@ export const messagesSelectors = {
   validCurrentPublicChannelMessagesEntries,
   sortedCurrentPublicChannelMessagesEntries,
   messagesVerificationStatus,
-  messagesSendingStatus
+  messagesSendingStatus,
 }

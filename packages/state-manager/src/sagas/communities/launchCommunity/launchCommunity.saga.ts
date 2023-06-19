@@ -50,9 +50,9 @@ export function* launchCommunitySaga(
     certs: {
       certificate: identity.userCertificate,
       key: identity.userCsr.userKey,
-      CA: [community.rootCa]
+      CA: [community.rootCa],
     },
-    peers: peerList
+    peers: peerList,
   }
 
   yield* apply(socket, socket.emit, applyEmitParams(SocketActionTypes.LAUNCH_COMMUNITY, payload))

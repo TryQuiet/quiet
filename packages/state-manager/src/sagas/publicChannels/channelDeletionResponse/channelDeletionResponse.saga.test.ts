@@ -35,32 +35,27 @@ describe('channelDeletionResponseSaga', () => {
     store = prepareStore().store
     factory = await getFactory(store)
 
-    community = await factory.create<
-      ReturnType<typeof communitiesActions.addNewCommunity>['payload']
-    >('Community')
+    community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
 
-    owner = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
-      'Identity',
-      { id: community.id, nickname: 'alice' }
-    )
+    owner = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
+      id: community.id,
+      nickname: 'alice',
+    })
 
     const generalChannelState = publicChannelsSelectors.generalChannel(store.getState())
     if (generalChannelState) generalChannel = generalChannelState
     expect(generalChannel).not.toBeUndefined()
 
     photoChannel = (
-      await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>(
-        'PublicChannel',
-        {
-          channel: {
-            name: 'photo',
-            description: 'Welcome to #photo',
-            timestamp: DateTime.utc().valueOf(),
-            owner: owner.nickname,
-            id: generateChannelId('photo')
-          }
-        }
-      )
+      await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>('PublicChannel', {
+        channel: {
+          name: 'photo',
+          description: 'Welcome to #photo',
+          timestamp: DateTime.utc().valueOf(),
+          owner: owner.nickname,
+          id: generateChannelId('photo'),
+        },
+      })
     ).channel
   })
   describe('handle saga logic as owner of community', () => {
@@ -71,7 +66,7 @@ describe('channelDeletionResponseSaga', () => {
       await expectSaga(
         channelDeletionResponseSaga,
         publicChannelsActions.channelDeletionResponse({
-          channelId
+          channelId,
         })
       )
         .withReducer(reducer)
@@ -91,7 +86,7 @@ describe('channelDeletionResponseSaga', () => {
       await expectSaga(
         channelDeletionResponseSaga,
         publicChannelsActions.channelDeletionResponse({
-          channelId
+          channelId,
         })
       )
         .withReducer(reducer)
@@ -114,7 +109,7 @@ describe('channelDeletionResponseSaga', () => {
       await expectSaga(
         channelDeletionResponseSaga,
         publicChannelsActions.channelDeletionResponse({
-          channelId
+          channelId,
         })
       )
         .withReducer(reducer)
@@ -138,7 +133,7 @@ describe('channelDeletionResponseSaga', () => {
       await expectSaga(
         channelDeletionResponseSaga,
         publicChannelsActions.channelDeletionResponse({
-          channelId
+          channelId,
         })
       )
         .withReducer(reducer)
@@ -153,7 +148,7 @@ describe('channelDeletionResponseSaga', () => {
     test('delete general channel while user is on general channel', async () => {
       store.dispatch(
         publicChannelsActions.setCurrentChannel({
-          channelId: generalChannel.id
+          channelId: generalChannel.id,
         })
       )
       const channelId = generalChannel.id
@@ -164,14 +159,14 @@ describe('channelDeletionResponseSaga', () => {
         description: 'general_description',
         owner: 'general_owner',
         timestamp: 0,
-        id: newGeneralId
+        id: newGeneralId,
       }
 
       const reducer = combineReducers(reducers)
       await expectSaga(
         channelDeletionResponseSaga,
         publicChannelsActions.channelDeletionResponse({
-          channelId
+          channelId,
         })
       )
         .withReducer(reducer)
@@ -188,10 +183,7 @@ describe('channelDeletionResponseSaga', () => {
         //     channel: newGeneralChannel
         //   })
         // )
-        .provide([
-          { call: provideDelay },
-          [select(publicChannelsSelectors.generalChannel), generalChannel]
-        ])
+        .provide([{ call: provideDelay }, [select(publicChannelsSelectors.generalChannel), generalChannel]])
         .put(publicChannelsActions.setCurrentChannel({ channelId }))
         .run()
     })
@@ -199,7 +191,7 @@ describe('channelDeletionResponseSaga', () => {
     test('delete general channel while user in on other channel', async () => {
       store.dispatch(
         publicChannelsActions.setCurrentChannel({
-          channelId: photoChannel.id
+          channelId: photoChannel.id,
         })
       )
       const channelId = generalChannel.id
@@ -208,7 +200,7 @@ describe('channelDeletionResponseSaga', () => {
       await expectSaga(
         channelDeletionResponseSaga,
         publicChannelsActions.channelDeletionResponse({
-          channelId
+          channelId,
         })
       )
         .withReducer(reducer)
@@ -229,7 +221,7 @@ describe('channelDeletionResponseSaga', () => {
       await expectSaga(
         channelDeletionResponseSaga,
         publicChannelsActions.channelDeletionResponse({
-          channelId
+          channelId,
         })
       )
         .withReducer(reducer)

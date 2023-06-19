@@ -16,7 +16,7 @@ const log = logger('tor')
 export enum GetInfoTorSignal {
   CONFIG_TEXT = 'config-text',
   CIRCUT_STATUS = 'circuit-status',
-  ENTRY_GUARDS = 'entry-guards'
+  ENTRY_GUARDS = 'entry-guards',
 }
 
 export type TorParams = Record<string, string>
@@ -52,7 +52,7 @@ export class Tor extends EventEmitter {
     httpTunnelPort,
     extraTorProcessParams,
     controlPort,
-    authCookie
+    authCookie,
   }: IConstructor) {
     super()
     this.torPath = torPath ? path.normalize(torPath) : ''
@@ -66,7 +66,7 @@ export class Tor extends EventEmitter {
 
   mergeDefaultTorParams = (params: TorParams = {}): TorParams => {
     const defaultParams = {
-      '--NumEntryGuards': '3' // See task #1295
+      '--NumEntryGuards': '3', // See task #1295
     }
     return { ...defaultParams, ...params }
   }
@@ -132,21 +132,20 @@ export class Tor extends EventEmitter {
       }
       // eslint-disable-next-line
       tryToSpawnTor()
-
     })
   }
 
   public initTorControl = () => {
     if (!this.controlPort) {
-      throw new Error('Can\'t initialize TorControl - no control port')
+      throw new Error("Can't initialize TorControl - no control port")
     }
     this.torControl = new TorControl({
       port: this.controlPort,
       host: 'localhost',
       auth: {
         value: this.torAuthCookie || this.torPassword,
-        type: this.torAuthCookie ? TorControlAuthType.COOKIE : TorControlAuthType.PASSWORD
-      }
+        type: this.torAuthCookie ? TorControlAuthType.COOKIE : TorControlAuthType.PASSWORD,
+      },
     })
   }
 
@@ -155,7 +154,7 @@ export class Tor extends EventEmitter {
       android: `ps -p ${oldTorPid} -o comm=`,
       linux: `ps -p ${oldTorPid} -o comm=`,
       darwin: `ps -c -p ${oldTorPid} -o comm=`,
-      win32: `TASKLIST /FI "PID eq ${oldTorPid}"`
+      win32: `TASKLIST /FI "PID eq ${oldTorPid}"`,
     }
     return byPlatform[process.platform as SupportedPlatform]
   }
@@ -168,7 +167,10 @@ export class Tor extends EventEmitter {
       android: `pgrep -af "${this.torDataDirectory}" | grep -v pgrep | awk '{print $1}'`,
       linux: `pgrep -af "${this.torDataDirectory}" | grep -v pgrep | awk '{print $1}'`,
       darwin: `ps -A | grep "${this.torDataDirectory}" | grep -v grep | awk '{print $1}'`,
-      win32: `powershell "Get-WmiObject Win32_process -Filter {commandline LIKE '%${this.torDataDirectory.replace(/\\/g, '\\\\')}%' and name = 'tor.exe'} | Format-Table ProcessId -HideTableHeaders"`
+      win32: `powershell "Get-WmiObject Win32_process -Filter {commandline LIKE '%${this.torDataDirectory.replace(
+        /\\/g,
+        '\\\\'
+      )}%' and name = 'tor.exe'} | Format-Table ProcessId -HideTableHeaders"`,
     }
     return byPlatform[process.platform as SupportedPlatform]
   }
@@ -210,7 +212,7 @@ export class Tor extends EventEmitter {
   protected readonly spawnTor = async (timeoutMs: number): Promise<void> => {
     await new Promise<void>((resolve, reject) => {
       if (!this.controlPort) {
-        reject(new Error('Can\'t spawn tor - no control port'))
+        reject(new Error("Can't spawn tor - no control port"))
         return
       }
       this.process = child_process.spawn(
@@ -228,7 +230,7 @@ export class Tor extends EventEmitter {
           this.torDataDirectory,
           '--HashedControlPassword',
           this.torHashedPassword,
-          ...this.torProcessParams
+          ...this.torProcessParams,
         ],
         this.options
       )
@@ -252,7 +254,7 @@ export class Tor extends EventEmitter {
   public async spawnHiddenService({
     targetPort,
     privKey,
-    virtPort = 443
+    virtPort = 443,
   }: {
     targetPort: number
     privKey: string
@@ -260,38 +262,38 @@ export class Tor extends EventEmitter {
   }): Promise<string> {
     const status = await this.torControl.sendCommand(
       `ADD_ONION ${privKey} Flags=Detach Port=${virtPort},127.0.0.1:${targetPort}`
-      )
-      const onionAddress = status.messages[0].replace('250-ServiceID=', '')
-      return `${onionAddress}.onion`
+    )
+    const onionAddress = status.messages[0].replace('250-ServiceID=', '')
+    return `${onionAddress}.onion`
+  }
+
+  public async destroyHiddenService(serviceId: string): Promise<boolean> {
+    try {
+      await this.torControl.sendCommand(`DEL_ONION ${serviceId}`)
+      return true
+    } catch (err) {
+      log.error(`Couldn't destroy hidden service ${serviceId}`, err)
+      return false
     }
+  }
 
-    public async destroyHiddenService(serviceId: string): Promise<boolean> {
-      try {
-        await this.torControl.sendCommand(`DEL_ONION ${serviceId}`)
-        return true
-      } catch (err) {
-        log.error(`Couldn't destroy hidden service ${serviceId}`, err)
-        return false
-      }
-    }
+  public async createNewHiddenService({
+    targetPort,
+    virtPort = 443,
+  }: {
+    targetPort: number
+    virtPort?: number
+  }): Promise<{ onionAddress: string; privateKey: string }> {
+    const status = await this.torControl.sendCommand(
+      `ADD_ONION NEW:BEST Flags=Detach Port=${virtPort},127.0.0.1:${targetPort}`
+    )
 
-    public async createNewHiddenService({
-      targetPort,
-      virtPort = 443
-    }: {
-      targetPort: number
-      virtPort?: number
-    }): Promise<{ onionAddress: string; privateKey: string }> {
-        const status = await this.torControl.sendCommand(
-          `ADD_ONION NEW:BEST Flags=Detach Port=${virtPort},127.0.0.1:${targetPort}`
-          )
+    const onionAddress = status.messages[0].replace('250-ServiceID=', '')
+    const privateKey = status.messages[1].replace('250-PrivateKey=', '')
 
-          const onionAddress = status.messages[0].replace('250-ServiceID=', '')
-          const privateKey = status.messages[1].replace('250-PrivateKey=', '')
-
-          return {
+    return {
       onionAddress: `${onionAddress}.onion`,
-      privateKey
+      privateKey,
     }
   }
 
@@ -316,10 +318,9 @@ export class Tor extends EventEmitter {
 
   public generateHashedPassword = () => {
     const password = crypto.randomBytes(16).toString('hex')
-    const hashedPassword = child_process.execSync(
-      `${this.torPath} --quiet --hash-password ${password}`,
-      { env: this.options?.env }
-    )
+    const hashedPassword = child_process.execSync(`${this.torPath} --quiet --hash-password ${password}`, {
+      env: this.options?.env,
+    })
     this.torPassword = password
     this.torHashedPassword = hashedPassword.toString().trim()
   }
@@ -338,5 +339,5 @@ export class Tor extends EventEmitter {
       })
       this.process?.kill()
     })
-}
+  }
 }

@@ -10,7 +10,12 @@ import { JoinCommunityProps } from './JoinCommunity.types'
 import { getInvitationCode } from '@quiet/state-manager'
 import { ONION_ADDRESS_REGEX } from '@quiet/common'
 
-export const JoinCommunity: FC<JoinCommunityProps> = ({ joinCommunityAction, redirectionAction, invitationCode, networkCreated }) => {
+export const JoinCommunity: FC<JoinCommunityProps> = ({
+  joinCommunityAction,
+  redirectionAction,
+  invitationCode,
+  networkCreated,
+}) => {
   const [joinCommunityInput, setJoinCommunityInput] = useState<string | undefined>()
   const [inputError, setInputError] = useState<string | undefined>()
   const [loading, setLoading] = useState<boolean>(false)
@@ -61,15 +66,19 @@ export const JoinCommunity: FC<JoinCommunityProps> = ({ joinCommunityAction, red
   }, [networkCreated])
 
   return (
-    <View style={{ flex: 1, backgroundColor: defaultTheme.palette.background.white }} testID={'join-community-component'}>
+    <View
+      style={{ flex: 1, backgroundColor: defaultTheme.palette.background.white }}
+      testID={'join-community-component'}
+    >
       <KeyboardAvoidingView
         behavior='height'
         style={{
           flex: 1,
           justifyContent: 'center',
           paddingLeft: 20,
-          paddingRight: 20
-        }}>
+          paddingRight: 20,
+        }}
+      >
         <Typography fontSize={24} fontWeight={'medium'} style={{ marginBottom: 30 }}>
           {'Join community'}
         </Typography>
@@ -88,8 +97,8 @@ export const JoinCommunity: FC<JoinCommunityProps> = ({ joinCommunityAction, red
               {
                 tag: 'a',
                 label: 'create a new community',
-                action: redirectionAction
-              }
+                action: redirectionAction,
+              },
             ]}
           />
         </View>

@@ -11,27 +11,31 @@ export const userData = {
   peerId: 'Qmf3ySkYqLET9xtAtDzvAr5Pp3egK1H3C5iJAZm1SpLEp6',
   dmPublicKey: '0bfb475810c0e26c9fab590d47c3d60ec533bb3c451596acc3cd4f21602e9ad9',
   signAlg: config.signAlg,
-  hashAlg: config.hashAlg
+  hashAlg: config.hashAlg,
 }
 
 const notBeforeDate = new Date()
 const notAfterDate = new Date(2030, 1, 1)
 
-export async function createTestRootCA (commonName?: string): Promise<RootCA> {
-  return await createRootCA(new Time({ type: 1, value: notBeforeDate }), new Time({ type: 1, value: notAfterDate }), commonName)
+export async function createTestRootCA(commonName?: string): Promise<RootCA> {
+  return await createRootCA(
+    new Time({ type: 1, value: notBeforeDate }),
+    new Time({ type: 1, value: notAfterDate }),
+    commonName
+  )
 }
 
-export async function createTestUserCsr (): Promise<UserCsr> {
+export async function createTestUserCsr(): Promise<UserCsr> {
   return await createUserCsr(userData)
 }
 
-export async function createTestUserCert (rootCert?: RootCA, userCsr?: UserCsr): Promise<UserCert> {
-  const rootC = rootCert || await createTestRootCA()
-  const user = userCsr || await createTestUserCsr()
+export async function createTestUserCert(rootCert?: RootCA, userCsr?: UserCsr): Promise<UserCert> {
+  const rootC = rootCert || (await createTestRootCA())
+  const user = userCsr || (await createTestUserCsr())
   return await createUserCert(rootC.rootCertString, rootC.rootKeyString, user.userCsr, notBeforeDate, notAfterDate)
 }
 
-export function setupCrypto () {
+export function setupCrypto() {
   const webcrypto = new Crypto()
   setEngine(
     'newEngine',
@@ -39,7 +43,7 @@ export function setupCrypto () {
     new CryptoEngine({
       name: '',
       crypto: webcrypto,
-      subtle: webcrypto.subtle
+      subtle: webcrypto.subtle,
     })
   )
   global.crypto = webcrypto
@@ -71,7 +75,7 @@ export const createUserCertificateTestHelper = async (
     peerId: user.peerId,
     dmPublicKey: user.dmPublicKey,
     signAlg: config.signAlg,
-    hashAlg: config.hashAlg
+    hashAlg: config.hashAlg,
   })
   const userCert = await createUserCert(
     rootCA.rootCertString,
@@ -82,6 +86,6 @@ export const createUserCertificateTestHelper = async (
   )
   return {
     userCsr,
-    userCert
+    userCert,
   }
 }

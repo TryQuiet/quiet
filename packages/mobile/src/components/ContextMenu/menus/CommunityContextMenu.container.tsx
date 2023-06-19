@@ -34,7 +34,7 @@ export const CommunityContextMenu: FC = () => {
     (screen: ScreenNames) => {
       dispatch(
         navigationActions.navigation({
-          screen
+          screen,
         })
       )
     },
@@ -44,7 +44,7 @@ export const CommunityContextMenu: FC = () => {
   const items: ContextMenuItemProps[] = [
     { title: 'Create channel', action: () => redirect(ScreenNames.CreateChannelScreen) },
     { title: 'Add members', action: () => invitationContextMenu.handleOpen() },
-    { title: 'Leave community', action: () => redirect(ScreenNames.LeaveCommunityScreen) }
+    { title: 'Leave community', action: () => redirect(ScreenNames.LeaveCommunityScreen) },
   ]
 
   useEffect(() => {

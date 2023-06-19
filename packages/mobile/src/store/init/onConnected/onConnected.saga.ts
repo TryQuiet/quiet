@@ -11,11 +11,11 @@ export function* onConnectedSaga(): Generator {
 
   const currentIdentity = yield* select(identity.selectors.currentIdentity)
 
-  const screen = !currentIdentity?.userCertificate
-    ? ScreenNames.JoinCommunityScreen
-    : ScreenNames.ChannelListScreen
+  const screen = !currentIdentity?.userCertificate ? ScreenNames.JoinCommunityScreen : ScreenNames.ChannelListScreen
 
-  yield* put(navigationActions.replaceScreen({
-    screen
-  }))
+  yield* put(
+    navigationActions.replaceScreen({
+      screen,
+    })
+  )
 }

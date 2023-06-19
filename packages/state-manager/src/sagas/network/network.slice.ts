@@ -17,13 +17,13 @@ export const networkSlice = createSlice({
     addInitializedCommunity: (state, action: PayloadAction<CommunityId>) => {
       state.initializedCommunities = {
         ...state.initializedCommunities,
-        [action.payload]: true
+        [action.payload]: true,
       }
     },
     addInitializedRegistrar: (state, action: PayloadAction<RegistrarId>) => {
       state.initializedRegistrars = {
         ...state.initializedRegistrars,
-        [action.payload]: true
+        [action.payload]: true,
       }
     },
     removeInitializedCommunities: (state, _action: PayloadAction<CommunityId>) => {
@@ -40,8 +40,8 @@ export const networkSlice = createSlice({
     },
     setLoadingPanelType: (state, action) => {
       state.loadingPanelType = action.payload
-    }
-  }
+    },
+  },
 })
 
 export const networkActions = networkSlice.actions

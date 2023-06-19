@@ -27,8 +27,8 @@ export function* savedOwnerCertificateSaga(
     certs: {
       certificate: identity.userCertificate,
       key: identity.userCsr.userKey,
-      CA: [community.rootCa]
-    }
+      CA: [community.rootCa],
+    },
   }
 
   yield* apply(socket, socket.emit, applyEmitParams(SocketActionTypes.CREATE_COMMUNITY, payload))

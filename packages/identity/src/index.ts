@@ -4,7 +4,7 @@ import {
   parseCertificate,
   keyFromCertificate,
   keyObjectFromString,
-  extractPubKeyString
+  extractPubKeyString,
 } from './extractPubKey'
 import { verifyUserCert } from './verifyUserCertificate'
 import { verifySignature } from './verification'
@@ -21,7 +21,7 @@ import {
   CertFieldsTypes,
   hexStringToArrayBuffer,
   arrayBufferToHexString,
-  getReqFieldValue
+  getReqFieldValue,
 } from './common'
 import configCrypto from './config'
 import {
@@ -31,7 +31,7 @@ import {
   createTestUserCsr,
   userData,
   createRootCertificateTestHelper,
-  createUserCertificateTestHelper
+  createUserCertificateTestHelper,
 } from './test/helpers'
 
 export { createRootCA }
@@ -51,9 +51,16 @@ export {
   getCertFieldValue,
   CertFieldsTypes,
   hexStringToArrayBuffer,
-  arrayBufferToHexString
+  arrayBufferToHexString,
 }
 export { configCrypto }
 export { setupCrypto }
-export { createTestRootCA, createTestUserCert, createTestUserCsr, userData, createRootCertificateTestHelper, createUserCertificateTestHelper }
+export {
+  createTestRootCA,
+  createTestUserCert,
+  createTestUserCsr,
+  userData,
+  createRootCertificateTestHelper,
+  createUserCertificateTestHelper,
+}
 export { getReqFieldValue }

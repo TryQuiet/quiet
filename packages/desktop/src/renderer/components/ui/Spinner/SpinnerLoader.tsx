@@ -10,22 +10,18 @@ const PREFIX = 'SpinnerLoader'
 
 const classes = {
   message: `${PREFIX}message`,
-  spinner: `${PREFIX}spinner`
+  spinner: `${PREFIX}spinner`,
 }
 
-const StyledGrid = styled(Grid)((
-  {
-    theme
-  }
-) => ({
+const StyledGrid = styled(Grid)(({ theme }) => ({
   [`& .${classes.message}`]: {
     marginTop: theme.spacing(2),
-    color: theme.palette.primary.main
+    color: theme.palette.primary.main,
   },
 
   [`& .${classes.spinner}`]: (props: any) => ({
-    color: props.color ? props.color : theme.palette.colors.white
-  })
+    color: props.color ? props.color : theme.palette.colors.white,
+  }),
 }))
 
 interface SpinnerLoaderProps {
@@ -39,21 +35,19 @@ interface SpinnerLoaderStylesProps {
   color?: string
 }
 
-export const SpinnerLoader: React.FC<SpinnerLoaderProps> = ({
-  size = 40,
-  message,
-  color,
-  className
-}) => {
+export const SpinnerLoader: React.FC<SpinnerLoaderProps> = ({ size = 40, message, color, className }) => {
   const stylesProps: SpinnerLoaderStylesProps = { color: color }
   return (
-    <StyledGrid container justifyContent='center' alignItems='center' direction='column' className={className} data-testid={'spinnerLoader'}>
+    <StyledGrid
+      container
+      justifyContent='center'
+      alignItems='center'
+      direction='column'
+      className={className}
+      data-testid={'spinnerLoader'}
+    >
       <CircularProgress color='inherit' className={classes.spinner} size={size} />
-      <Typography
-        variant='caption'
-        style={{ fontSize: `${size / 44}rem` }}
-        className={classes.message}
-        align='center'>
+      <Typography variant='caption' style={{ fontSize: `${size / 44}rem` }} className={classes.message} align='center'>
         {message}
       </Typography>
     </StyledGrid>

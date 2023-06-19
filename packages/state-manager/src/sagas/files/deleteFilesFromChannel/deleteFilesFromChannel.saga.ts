@@ -17,7 +17,7 @@ export function* deleteFilesFromChannelSaga(
     socket,
     socket.emit,
     applyEmitParams(SocketActionTypes.DELETE_FILES_FROM_CHANNEL, {
-      messages
+      messages,
     })
   )
 }

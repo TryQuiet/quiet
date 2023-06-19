@@ -47,14 +47,14 @@ export function* sendMessageSaga(
     createdAt,
     channelId,
     signature,
-    pubKey
+    pubKey,
   }
 
   // Grey out message until saved in db
   yield* put(
     messagesActions.addMessagesSendingStatus({
       id: message.id,
-      status: SendingStatus.Pending
+      status: SendingStatus.Pending,
     })
   )
 
@@ -63,7 +63,7 @@ export function* sendMessageSaga(
     messagesActions.addMessageVerificationStatus({
       publicKey: message.pubKey,
       signature: message.signature,
-      isVerified: true
+      isVerified: true,
     })
   )
 
@@ -71,7 +71,7 @@ export function* sendMessageSaga(
   yield* put(
     messagesActions.incomingMessages({
       messages: [message],
-      isVerified: true
+      isVerified: true,
     })
   )
 
@@ -83,7 +83,7 @@ export function* sendMessageSaga(
     socket.emit,
     applyEmitParams(SocketActionTypes.SEND_MESSAGE, {
       peerId: identity.peerId.id,
-      message
+      message,
     })
   )
 }

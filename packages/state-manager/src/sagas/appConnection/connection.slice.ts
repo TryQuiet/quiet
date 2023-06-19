@@ -4,13 +4,13 @@ import { peersStatsAdapter } from './connection.adapter'
 import { ConnectionProcessInfo, type NetworkDataPayload, type NetworkStats } from '@quiet/types'
 
 export class ConnectionState {
-  public lastConnectedTime: number = 0
-  public uptime: number = 0
+  public lastConnectedTime = 0
+  public uptime = 0
   public peersStats: EntityState<NetworkStats> = peersStatsAdapter.getInitialState()
-  public torBootstrapProcess: string = 'Bootstrapped 0% (starting)'
+  public torBootstrapProcess = 'Bootstrapped 0% (starting)'
   public torConnectionProcess: { number: number; text: string } = {
     number: 5,
-    text: 'Connecting process started'
+    text: 'Connecting process started',
   }
 }
 
@@ -27,7 +27,7 @@ export const connectionSlice = createSlice({
       peersStatsAdapter.upsertOne(state.peersStats, {
         peerId: action.payload.peer,
         lastSeen: action.payload.lastSeen,
-        connectionTime: prev + action.payload.connectionDuration
+        connectionTime: prev + action.payload.connectionDuration,
       })
     },
     setLastConnectedTime: (state, action: PayloadAction<number>) => {
@@ -89,8 +89,8 @@ export const connectionSlice = createSlice({
           state.torConnectionProcess = { number: 95, text: info }
           break
       }
-    }
-  }
+    },
+  },
 })
 
 export const connectionActions = connectionSlice.actions

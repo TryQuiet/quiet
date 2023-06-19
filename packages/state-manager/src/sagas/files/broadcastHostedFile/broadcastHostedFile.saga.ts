@@ -36,9 +36,9 @@ export function* broadcastHostedFileSaga(
         ...message,
         media: {
           ...action.payload,
-          path: null
-        }
-      }
+          path: null,
+        },
+      },
     })
   )
 }

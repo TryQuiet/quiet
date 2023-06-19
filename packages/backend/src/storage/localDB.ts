@@ -9,7 +9,7 @@ const log = logger('levelDB')
 export enum LocalDBKeys {
   COMMUNITY = 'community',
   REGISTRAR = 'registrar',
-  PEERS = 'peers'
+  PEERS = 'peers',
 }
 
 export class LocalDB {
@@ -69,7 +69,7 @@ export class LocalDB {
   }
 
   public async getSortedPeers(peers: string[] = []): Promise<string[]> {
-    const peersStats = await this.get(LocalDBKeys.PEERS) || {}
+    const peersStats = (await this.get(LocalDBKeys.PEERS)) || {}
     const peersAddresses: string[] = [...new Set(Object.keys(peersStats).concat(peers))]
     const stats: NetworkStats[] = Object.values(peersStats)
     const sortedPeers = sortPeers(peersAddresses, stats)

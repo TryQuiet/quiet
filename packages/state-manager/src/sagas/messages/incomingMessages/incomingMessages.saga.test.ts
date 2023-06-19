@@ -7,10 +7,7 @@ import { combineReducers, type Store } from 'redux'
 import { type communitiesActions } from '../../communities/communities.slice'
 import { type identityActions } from '../../identity/identity.slice'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
-import {
-  publicChannelsSelectors,
-  selectGeneralChannel
-} from '../../publicChannels/publicChannels.selectors'
+import { publicChannelsSelectors, selectGeneralChannel } from '../../publicChannels/publicChannels.selectors'
 import { DateTime } from 'luxon'
 import { incomingMessagesSaga } from './incomingMessages.saga'
 import { messagesActions } from '../messages.slice'
@@ -21,7 +18,7 @@ import {
   type FileMetadata,
   type Identity,
   MessageType,
-  type PublicChannel
+  type PublicChannel,
 } from '@quiet/types'
 import { generateChannelId } from '@quiet/common'
 
@@ -43,47 +40,39 @@ describe('incomingMessagesSaga', () => {
 
     factory = await getFactory(store)
 
-    community = await factory.create<
-      ReturnType<typeof communitiesActions.addNewCommunity>['payload']
-    >('Community')
+    community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
 
-    alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
-      'Identity',
-      { id: community.id, nickname: 'alice' }
-    )
+    alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
+      id: community.id,
+      nickname: 'alice',
+    })
 
     const generalChannelState = publicChannelsSelectors.generalChannel(store.getState())
     if (generalChannelState) generalChannel = generalChannelState
     expect(generalChannel).not.toBeUndefined()
 
     sailingChannel = (
-      await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>(
-        'PublicChannel',
-        {
-          channel: {
-            name: 'sailing',
-            description: 'Welcome to #sailing',
-            timestamp: DateTime.utc().valueOf(),
-            owner: alice.nickname,
-            id: generateChannelId('sailing')
-          }
-        }
-      )
+      await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>('PublicChannel', {
+        channel: {
+          name: 'sailing',
+          description: 'Welcome to #sailing',
+          timestamp: DateTime.utc().valueOf(),
+          owner: alice.nickname,
+          id: generateChannelId('sailing'),
+        },
+      })
     ).channel
 
     barbequeChannel = (
-      await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>(
-        'PublicChannel',
-        {
-          channel: {
-            name: 'barbeque',
-            description: 'Welcome to #barbeque',
-            timestamp: DateTime.utc().valueOf(),
-            owner: alice.nickname,
-            id: generateChannelId('barbeque')
-          }
-        }
-      )
+      await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>('PublicChannel', {
+        channel: {
+          name: 'barbeque',
+          description: 'Welcome to #barbeque',
+          timestamp: DateTime.utc().valueOf(),
+          owner: alice.nickname,
+          id: generateChannelId('barbeque'),
+        },
+      })
     ).channel
   })
 
@@ -98,16 +87,16 @@ describe('incomingMessagesSaga', () => {
           createdAt: DateTime.utc().valueOf(),
           channelId: generalChannel.id,
           signature: '',
-          pubKey: ''
+          pubKey: '',
         },
-        verifyAutomatically: true
+        verifyAutomatically: true,
       })
     ).payload.message
 
     // Set 'general' as active channel
     store.dispatch(
       publicChannelsActions.setCurrentChannel({
-        channelId: generalChannel.id
+        channelId: generalChannel.id,
       })
     )
 
@@ -118,7 +107,7 @@ describe('incomingMessagesSaga', () => {
     await expectSaga(
       incomingMessagesSaga,
       messagesActions.incomingMessages({
-        messages: [message]
+        messages: [message],
       })
     )
       .withReducer(reducer)
@@ -126,7 +115,7 @@ describe('incomingMessagesSaga', () => {
       .put(
         publicChannelsActions.cacheMessages({
           messages: [message],
-          channelId: message.channelId
+          channelId: message.channelId,
         })
       )
       .run()
@@ -145,9 +134,9 @@ describe('incomingMessagesSaga', () => {
           createdAt: DateTime.utc().valueOf(),
           channelId: generalChannel.id,
           signature: '',
-          pubKey: ''
+          pubKey: '',
         },
-        verifyAutomatically: true
+        verifyAutomatically: true,
       })
     ).payload.message
 
@@ -158,19 +147,19 @@ describe('incomingMessagesSaga', () => {
       ext: 'png',
       message: {
         id,
-        channelId: generalChannel.id
-      }
+        channelId: generalChannel.id,
+      },
     }
 
     message = {
       ...message,
-      media
+      media,
     }
 
     // Set 'general' as active channel
     store.dispatch(
       publicChannelsActions.setCurrentChannel({
-        channelId: generalChannel.id
+        channelId: generalChannel.id,
       })
     )
 
@@ -178,7 +167,7 @@ describe('incomingMessagesSaga', () => {
     store.dispatch(
       publicChannelsActions.cacheMessages({
         messages: [message],
-        channelId: generalChannel.id
+        channelId: generalChannel.id,
       })
     )
 
@@ -187,15 +176,15 @@ describe('incomingMessagesSaga', () => {
       ...message,
       media: {
         ...media,
-        path: 'dir/image.png'
-      }
+        path: 'dir/image.png',
+      },
     }
 
     const reducer = combineReducers(reducers)
     await expectSaga(
       incomingMessagesSaga,
       messagesActions.incomingMessages({
-        messages: [message]
+        messages: [message],
       })
     )
       .withReducer(reducer)
@@ -203,7 +192,7 @@ describe('incomingMessagesSaga', () => {
       .put(
         publicChannelsActions.cacheMessages({
           messages: [message],
-          channelId: message.channelId
+          channelId: message.channelId,
         })
       )
       .run()
@@ -218,42 +207,39 @@ describe('incomingMessagesSaga', () => {
       ext: 'png',
       message: {
         id,
-        channelId: generalChannel.id
-      }
+        channelId: generalChannel.id,
+      },
     }
     const message = (
-      await factory.create<ReturnType<typeof publicChannelsActions.test_message>['payload']>(
-        'Message',
-        {
-          identity: alice,
-          message: {
-            id,
-            type: MessageType.Basic,
-            message: 'message',
-            createdAt: DateTime.utc().valueOf(),
-            channelId: generalChannel.id,
-            media: {
-              cid: 'uploading',
-              path: 'path/to/image.png',
-              name: 'image',
-              ext: 'png',
-              message: {
-                id,
-                channelId: generalChannel.id
-              }
+      await factory.create<ReturnType<typeof publicChannelsActions.test_message>['payload']>('Message', {
+        identity: alice,
+        message: {
+          id,
+          type: MessageType.Basic,
+          message: 'message',
+          createdAt: DateTime.utc().valueOf(),
+          channelId: generalChannel.id,
+          media: {
+            cid: 'uploading',
+            path: 'path/to/image.png',
+            name: 'image',
+            ext: 'png',
+            message: {
+              id,
+              channelId: generalChannel.id,
             },
-            signature: '',
-            pubKey: ''
           },
-          verifyAutomatically: true
-        }
-      )
+          signature: '',
+          pubKey: '',
+        },
+        verifyAutomatically: true,
+      })
     ).message
 
     // Set 'general' as active channel
     store.dispatch(
       publicChannelsActions.setCurrentChannel({
-        channelId: generalChannel.id
+        channelId: generalChannel.id,
       })
     )
 
@@ -261,7 +247,7 @@ describe('incomingMessagesSaga', () => {
     store.dispatch(
       publicChannelsActions.cacheMessages({
         messages: [message],
-        channelId: generalChannel.id
+        channelId: generalChannel.id,
       })
     )
 
@@ -275,10 +261,10 @@ describe('incomingMessagesSaga', () => {
             media: {
               ...media,
               cid: 'cid',
-              path: null
-            }
-          }
-        ]
+              path: null,
+            },
+          },
+        ],
       })
     )
       .withReducer(reducer)
@@ -291,11 +277,11 @@ describe('incomingMessagesSaga', () => {
               media: {
                 ...media,
                 cid: 'cid',
-                path: 'path/to/image.png'
-              }
-            }
+                path: 'path/to/image.png',
+              },
+            },
           ],
-          channelId: message.channelId
+          channelId: message.channelId,
         })
       )
       .run()
@@ -312,16 +298,16 @@ describe('incomingMessagesSaga', () => {
           createdAt: DateTime.utc().valueOf(),
           channelId: sailingChannel.id,
           signature: '',
-          pubKey: ''
+          pubKey: '',
         },
-        verifyAutomatically: true
+        verifyAutomatically: true,
       })
     ).payload.message
 
     // Set 'general' as active channel
     store.dispatch(
       publicChannelsActions.setCurrentChannel({
-        channelId: generalChannel.id
+        channelId: generalChannel.id,
       })
     )
 
@@ -329,7 +315,7 @@ describe('incomingMessagesSaga', () => {
     await expectSaga(
       incomingMessagesSaga,
       messagesActions.incomingMessages({
-        messages: [message]
+        messages: [message],
       })
     )
       .withReducer(reducer)
@@ -337,7 +323,7 @@ describe('incomingMessagesSaga', () => {
       .not.put(
         publicChannelsActions.cacheMessages({
           messages: [message],
-          channelId: message.channelId
+          channelId: message.channelId,
         })
       )
       .run()
@@ -354,9 +340,9 @@ describe('incomingMessagesSaga', () => {
           createdAt: DateTime.utc().valueOf(),
           channelId: generalChannel.id,
           signature: '',
-          pubKey: ''
+          pubKey: '',
         },
-        verifyAutomatically: false
+        verifyAutomatically: false,
       })
     ).payload.message
 
@@ -365,14 +351,14 @@ describe('incomingMessagesSaga', () => {
       messagesActions.addMessageVerificationStatus({
         publicKey: message.pubKey,
         signature: message.signature,
-        isVerified: false
+        isVerified: false,
       })
     )
 
     // Set 'general' as active channel
     store.dispatch(
       publicChannelsActions.setCurrentChannel({
-        channelId: generalChannel.id
+        channelId: generalChannel.id,
       })
     )
 
@@ -380,7 +366,7 @@ describe('incomingMessagesSaga', () => {
     await expectSaga(
       incomingMessagesSaga,
       messagesActions.incomingMessages({
-        messages: [message]
+        messages: [message],
       })
     )
       .withReducer(reducer)
@@ -388,7 +374,7 @@ describe('incomingMessagesSaga', () => {
       .not.put(
         publicChannelsActions.cacheMessages({
           messages: [message],
-          channelId: message.channelId
+          channelId: message.channelId,
         })
       )
       .run()
@@ -406,16 +392,16 @@ describe('incomingMessagesSaga', () => {
           createdAt: DateTime.utc().valueOf() - DateTime.utc().minus({ days: 1 }).valueOf(),
           channelId: barbequeChannel.id,
           signature: '',
-          pubKey: ''
+          pubKey: '',
         },
-        verifyAutomatically: true
+        verifyAutomatically: true,
       })
     ).payload.message
 
     // Set 'barbeque' as active channel
     store.dispatch(
       publicChannelsActions.setCurrentChannel({
-        channelId: barbequeChannel.id
+        channelId: barbequeChannel.id,
       })
     )
 
@@ -431,13 +417,12 @@ describe('incomingMessagesSaga', () => {
               id: Math.random().toString(36).substr(2.9),
               type: MessageType.Basic,
               message: 'message',
-              createdAt:
-                DateTime.utc().valueOf() + DateTime.utc().minus({ minutes: index }).valueOf(),
+              createdAt: DateTime.utc().valueOf() + DateTime.utc().minus({ minutes: index }).valueOf(),
               channelId: barbequeChannel.id,
               signature: '',
-              pubKey: ''
+              pubKey: '',
             },
-            verifyAutomatically: true
+            verifyAutomatically: true,
           })
         ).payload.message
         messages.push(item)
@@ -447,13 +432,10 @@ describe('incomingMessagesSaga', () => {
       })
     })
 
-    await factory.create<ReturnType<typeof publicChannelsActions.cacheMessages>['payload']>(
-      'CacheMessages',
-      {
-        messages,
-        channelId: barbequeChannel.id
-      }
-    )
+    await factory.create<ReturnType<typeof publicChannelsActions.cacheMessages>['payload']>('CacheMessages', {
+      messages,
+      channelId: barbequeChannel.id,
+    })
 
     // Confirm cache is full (contains maximum number of messages to display)
     const cachedMessages = publicChannelsSelectors.sortedCurrentChannelMessages(store.getState())
@@ -463,7 +445,7 @@ describe('incomingMessagesSaga', () => {
     await expectSaga(
       incomingMessagesSaga,
       messagesActions.incomingMessages({
-        messages: [message]
+        messages: [message],
       })
     )
       .withReducer(reducer)
@@ -472,9 +454,7 @@ describe('incomingMessagesSaga', () => {
       .run()
 
     // Verify cached messages hasn't changed
-    expect(publicChannelsSelectors.sortedCurrentChannelMessages(store.getState())).toStrictEqual(
-      cachedMessages
-    )
+    expect(publicChannelsSelectors.sortedCurrentChannelMessages(store.getState())).toStrictEqual(cachedMessages)
   })
 
   test("don't ignore older messages before reaching maximum messages display number", async () => {
@@ -489,16 +469,16 @@ describe('incomingMessagesSaga', () => {
           createdAt: DateTime.utc().valueOf() - DateTime.utc().minus({ days: 1 }).valueOf(),
           channelId: generalChannel.id,
           signature: '',
-          pubKey: ''
+          pubKey: '',
         },
-        verifyAutomatically: true
+        verifyAutomatically: true,
       })
     ).payload.message
 
     // Set 'general' as active channel
     store.dispatch(
       publicChannelsActions.setCurrentChannel({
-        channelId: generalChannel.id
+        channelId: generalChannel.id,
       })
     )
 
@@ -514,13 +494,12 @@ describe('incomingMessagesSaga', () => {
               id: Math.random().toString(36).substr(2.9),
               type: MessageType.Basic,
               message: 'message',
-              createdAt:
-                DateTime.utc().valueOf() + DateTime.utc().minus({ minutes: index }).valueOf(),
+              createdAt: DateTime.utc().valueOf() + DateTime.utc().minus({ minutes: index }).valueOf(),
               channelId: generalChannel.id,
               signature: '',
-              pubKey: ''
+              pubKey: '',
             },
-            verifyAutomatically: true
+            verifyAutomatically: true,
           })
         ).payload.message
         messages.push(item)
@@ -530,13 +509,10 @@ describe('incomingMessagesSaga', () => {
       })
     })
 
-    await factory.create<ReturnType<typeof publicChannelsActions.cacheMessages>['payload']>(
-      'CacheMessages',
-      {
-        messages,
-        channelId: generalChannel.id
-      }
-    )
+    await factory.create<ReturnType<typeof publicChannelsActions.cacheMessages>['payload']>('CacheMessages', {
+      messages,
+      channelId: generalChannel.id,
+    })
 
     // Confirm cache is not full (contains maximum number of messages to display)
     const cachedMessages = publicChannelsSelectors.sortedCurrentChannelMessages(store.getState())
@@ -550,7 +526,7 @@ describe('incomingMessagesSaga', () => {
     await expectSaga(
       incomingMessagesSaga,
       messagesActions.incomingMessages({
-        messages: [message]
+        messages: [message],
       })
     )
       .withReducer(reducer)
@@ -558,7 +534,7 @@ describe('incomingMessagesSaga', () => {
       .put(
         publicChannelsActions.cacheMessages({
           messages: updatedCache,
-          channelId: message.channelId
+          channelId: message.channelId,
         })
       )
       .run()

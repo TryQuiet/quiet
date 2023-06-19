@@ -18,7 +18,7 @@ export function* markUnreadChannelsSaga(
     if (message.channelId !== currentChannelId) {
       const payload: MarkUnreadChannelPayload = {
         channelId: message.channelId,
-        message
+        message,
       }
 
       const statuses = yield* select(publicChannelsSelectors.channelsStatus)
@@ -30,9 +30,7 @@ export function* markUnreadChannelsSaga(
       // If there are newer messages in the channel, don't show notification
       const newestMessage = statuses[message.channelId]?.newestMessage
       if (newestMessage?.createdAt && newestMessage.createdAt > message.createdAt) continue
-      yield* put(
-        publicChannelsActions.markUnreadChannel(payload)
-      )
+      yield* put(publicChannelsActions.markUnreadChannel(payload))
     }
   }
 }
@@ -46,10 +44,8 @@ export function* clearUnreadChannelsSaga(
   if (channelId === '') return
 
   const payload: MarkUnreadChannelPayload = {
-    channelId
+    channelId,
   }
 
-  yield* put(
-    publicChannelsActions.clearUnreadChannel(payload)
-  )
+  yield* put(publicChannelsActions.clearUnreadChannel(payload))
 }

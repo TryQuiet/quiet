@@ -8,7 +8,7 @@ export const mock_messages = (message: DisplayableMessage | null = null) => {
     message: '*heavy breathing*',
     createdAt: 0,
     date: '12:46',
-    nickname: 'vader'
+    nickname: 'vader',
   }
 
   if (message !== null) {
@@ -29,8 +29,8 @@ export const mock_messages = (message: DisplayableMessage | null = null) => {
             message: 'Messages more there should be',
             createdAt: 0,
             date: '12:46',
-            nickname: 'yoda'
-          }
+            nickname: 'yoda',
+          },
         ],
         [
           {
@@ -39,7 +39,7 @@ export const mock_messages = (message: DisplayableMessage | null = null) => {
             message: 'I Agree',
             createdAt: 0,
             date: '12:46',
-            nickname: 'obi'
+            nickname: 'obi',
           },
           {
             id: '3',
@@ -47,8 +47,8 @@ export const mock_messages = (message: DisplayableMessage | null = null) => {
             message: 'Of course, I Agree',
             createdAt: 0,
             date: '12:46',
-            nickname: 'obi'
-          }
+            nickname: 'obi',
+          },
         ],
         [
           {
@@ -57,8 +57,8 @@ export const mock_messages = (message: DisplayableMessage | null = null) => {
             message: 'Wrough!',
             createdAt: 0,
             date: '12:46',
-            nickname: 'wookie'
-          }
+            nickname: 'wookie',
+          },
         ],
         [
           {
@@ -67,8 +67,8 @@ export const mock_messages = (message: DisplayableMessage | null = null) => {
             message: 'Yeah!',
             createdAt: 0,
             date: '12:46',
-            nickname: 'leah'
-          }
+            nickname: 'leah',
+          },
         ],
         [
           {
@@ -77,8 +77,8 @@ export const mock_messages = (message: DisplayableMessage | null = null) => {
             message: 'The more messages the better',
             createdAt: 0,
             date: '12:46',
-            nickname: 'luke'
-          }
+            nickname: 'luke',
+          },
         ],
         [
           {
@@ -87,8 +87,8 @@ export const mock_messages = (message: DisplayableMessage | null = null) => {
             message: 'We cannot grant you the rank of messager',
             createdAt: 0,
             date: '12:46',
-            nickname: 'windoo'
-          }
+            nickname: 'windoo',
+          },
         ],
         [
           {
@@ -98,9 +98,9 @@ export const mock_messages = (message: DisplayableMessage | null = null) => {
               'deathhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhstarrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrdeathstartttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr',
             createdAt: 0,
             date: '12:46',
-            nickname: 'vader'
-          }
-        ]
+            nickname: 'vader',
+          },
+        ],
       ],
       '27 Oct': [
         [
@@ -110,7 +110,7 @@ export const mock_messages = (message: DisplayableMessage | null = null) => {
             message: 'Luck, I am your father!',
             createdAt: 0,
             date: '12:40',
-            nickname: 'chad'
+            nickname: 'chad',
           },
           {
             id: '10',
@@ -118,7 +118,7 @@ export const mock_messages = (message: DisplayableMessage | null = null) => {
             message: "That's impossible!",
             createdAt: 0,
             date: '12:41',
-            nickname: 'chad'
+            nickname: 'chad',
           },
           {
             id: '11',
@@ -126,8 +126,8 @@ export const mock_messages = (message: DisplayableMessage | null = null) => {
             message: 'Nooo!',
             createdAt: 0,
             date: '12:45',
-            nickname: 'chad'
-          }
+            nickname: 'chad',
+          },
         ],
         [
           {
@@ -136,8 +136,8 @@ export const mock_messages = (message: DisplayableMessage | null = null) => {
             message: 'Uhuhu!',
             createdAt: 0,
             date: '12:46',
-            nickname: 'anakin'
-          }
+            nickname: 'anakin',
+          },
         ],
         [
           {
@@ -146,8 +146,8 @@ export const mock_messages = (message: DisplayableMessage | null = null) => {
             message: 'Why?',
             createdAt: 0,
             date: '12:46',
-            nickname: 'anakin'
-          }
+            nickname: 'anakin',
+          },
         ],
         [
           {
@@ -156,8 +156,8 @@ export const mock_messages = (message: DisplayableMessage | null = null) => {
             message: 'Messages more there should be',
             createdAt: 0,
             date: '12:46',
-            nickname: 'yoda'
-          }
+            nickname: 'yoda',
+          },
         ],
         [
           {
@@ -166,7 +166,7 @@ export const mock_messages = (message: DisplayableMessage | null = null) => {
             message: 'I Agree',
             createdAt: 0,
             date: '12:46',
-            nickname: 'obi'
+            nickname: 'obi',
           },
           {
             id: '16',
@@ -174,8 +174,8 @@ export const mock_messages = (message: DisplayableMessage | null = null) => {
             message: 'Of course, I Agree',
             createdAt: 0,
             date: '12:46',
-            nickname: 'obi'
-          }
+            nickname: 'obi',
+          },
         ],
         [
           {
@@ -184,8 +184,8 @@ export const mock_messages = (message: DisplayableMessage | null = null) => {
             message: 'Wrough!',
             createdAt: 0,
             date: '12:46',
-            nickname: 'wookie'
-          }
+            nickname: 'wookie',
+          },
         ],
         [
           {
@@ -194,8 +194,8 @@ export const mock_messages = (message: DisplayableMessage | null = null) => {
             message: 'Yeah!',
             createdAt: 0,
             date: '12:46',
-            nickname: 'leah'
-          }
+            nickname: 'leah',
+          },
         ],
         [
           {
@@ -204,8 +204,8 @@ export const mock_messages = (message: DisplayableMessage | null = null) => {
             message: 'The more messages the better',
             createdAt: 0,
             date: '12:46',
-            nickname: 'luke'
-          }
+            nickname: 'luke',
+          },
         ],
         [
           {
@@ -214,8 +214,8 @@ export const mock_messages = (message: DisplayableMessage | null = null) => {
             message: 'We cannot grant you the rank of messager',
             createdAt: 0,
             date: '12:46',
-            nickname: 'windoo'
-          }
+            nickname: 'windoo',
+          },
         ],
         [
           {
@@ -225,9 +225,9 @@ export const mock_messages = (message: DisplayableMessage | null = null) => {
               'deathhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhstarrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrdeathstartttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr',
             createdAt: 0,
             date: '12:46',
-            nickname: 'vader'
-          }
-        ]
+            nickname: 'vader',
+          },
+        ],
       ],
       '28 Oct': [
         [
@@ -237,7 +237,7 @@ export const mock_messages = (message: DisplayableMessage | null = null) => {
             message: 'Hello',
             createdAt: 0,
             date: '28 Oct, 10:00',
-            nickname: 'alice'
+            nickname: 'alice',
           },
           {
             id: '23',
@@ -246,8 +246,8 @@ export const mock_messages = (message: DisplayableMessage | null = null) => {
               "How are you? My day was awesome. I removed a lot of unused props from container and I simplified code a lot. I like coding, coding is like building things with LEGO. I could admit it's a little bit harder and there's a lot that can go wrong but I like it anyway.",
             createdAt: 0,
             date: '28 Oct, 10:01',
-            nickname: 'alice'
-          }
+            nickname: 'alice',
+          },
         ],
         [
           {
@@ -256,9 +256,9 @@ export const mock_messages = (message: DisplayableMessage | null = null) => {
             message: 'Great, thanks!',
             createdAt: 0,
             date: '28 Oct, 10:02',
-            nickname: 'john'
-          }
-        ]
+            nickname: 'john',
+          },
+        ],
       ],
       Today: [
         [
@@ -268,7 +268,7 @@ export const mock_messages = (message: DisplayableMessage | null = null) => {
             message: 'Luck, I am your father!',
             createdAt: 0,
             date: '12:40',
-            nickname: 'chad'
+            nickname: 'chad',
           },
           {
             id: '26',
@@ -276,7 +276,7 @@ export const mock_messages = (message: DisplayableMessage | null = null) => {
             message: "That's impossible!",
             createdAt: 0,
             date: '12:41',
-            nickname: 'chad'
+            nickname: 'chad',
           },
           {
             id: '27',
@@ -284,8 +284,8 @@ export const mock_messages = (message: DisplayableMessage | null = null) => {
             message: 'Nooo!',
             createdAt: 0,
             date: '12:45',
-            nickname: 'chad'
-          }
+            nickname: 'chad',
+          },
         ],
         [
           {
@@ -294,8 +294,8 @@ export const mock_messages = (message: DisplayableMessage | null = null) => {
             message: 'Uhuhu!',
             createdAt: 0,
             date: '12:46',
-            nickname: 'anakin'
-          }
+            nickname: 'anakin',
+          },
         ],
         [
           {
@@ -304,8 +304,8 @@ export const mock_messages = (message: DisplayableMessage | null = null) => {
             message: 'Why?',
             createdAt: 0,
             date: '12:46',
-            nickname: 'anakin'
-          }
+            nickname: 'anakin',
+          },
         ],
         [
           {
@@ -314,8 +314,8 @@ export const mock_messages = (message: DisplayableMessage | null = null) => {
             message: 'Messages more there should be',
             createdAt: 0,
             date: '12:46',
-            nickname: 'yoda'
-          }
+            nickname: 'yoda',
+          },
         ],
         [
           {
@@ -324,8 +324,8 @@ export const mock_messages = (message: DisplayableMessage | null = null) => {
             message: 'I Agree',
             createdAt: 0,
             date: '12:46',
-            nickname: 'obi'
-          }
+            nickname: 'obi',
+          },
         ],
         [placeholder],
         [
@@ -335,11 +335,11 @@ export const mock_messages = (message: DisplayableMessage | null = null) => {
             message: 'Use the force, look!',
             createdAt: 0,
             date: '12:46',
-            nickname: 'vader'
-          }
-        ]
-      ]
-    }
+            nickname: 'vader',
+          },
+        ],
+      ],
+    },
   }
 
   return messages

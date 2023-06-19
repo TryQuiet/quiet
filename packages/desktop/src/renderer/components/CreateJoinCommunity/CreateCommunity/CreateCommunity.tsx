@@ -27,7 +27,7 @@ const CreateCommunity = () => {
   const handleCommunityAction = (name: string) => {
     const payload: CreateNetworkPayload = {
       ownership: CommunityOwnership.Owner,
-      name: name
+      name: name,
     }
     dispatch(communities.actions.createNetwork(payload))
   }

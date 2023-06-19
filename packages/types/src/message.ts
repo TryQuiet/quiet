@@ -8,12 +8,12 @@ export enum MessageType {
   Basic = 1,
   Image = 2,
   Info = 3,
-  File = 4
+  File = 4,
 }
 
 export enum SendingStatus {
   Pending = 0,
-  Sent = 1
+  Sent = 1,
 }
 
 export interface SendMessagePayload {

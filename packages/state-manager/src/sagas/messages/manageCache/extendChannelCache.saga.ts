@@ -12,25 +12,17 @@ export function* extendCurrentPublicChannelCacheSaga(): Generator {
 
   const channelMessagesChunkSize = 50
 
-  const channelMessagesEntries = yield* select(
-    messagesSelectors.sortedCurrentPublicChannelMessagesEntries
-  )
+  const channelMessagesEntries = yield* select(messagesSelectors.sortedCurrentPublicChannelMessagesEntries)
 
-  const lastDisplayedMessage = yield* select(
-    publicChannelsSelectors.currentChannelLastDisplayedMessage
-  )
+  const lastDisplayedMessage = yield* select(publicChannelsSelectors.currentChannelLastDisplayedMessage)
 
-  const lastDisplayedMessageIndex = channelMessagesEntries.findIndex(
-    i => i.id === lastDisplayedMessage.id
-  )
+  const lastDisplayedMessageIndex = channelMessagesEntries.findIndex(i => i.id === lastDisplayedMessage.id)
 
-  const messages = channelMessagesEntries.slice(
-    Math.max(0, lastDisplayedMessageIndex - channelMessagesChunkSize)
-  )
+  const messages = channelMessagesEntries.slice(Math.max(0, lastDisplayedMessageIndex - channelMessagesChunkSize))
 
   const cacheMessagesPayload: CacheMessagesPayload = {
     messages,
-    channelId
+    channelId,
   }
 
   yield* put(publicChannelsActions.cacheMessages(cacheMessagesPayload))
@@ -44,7 +36,7 @@ export function* extendCurrentPublicChannelCacheSaga(): Generator {
 
   const setDisplayedMessagesNumberPayload: SetDisplayedMessagesNumberPayload = {
     channelId,
-    display
+    display,
   }
 
   yield* put(messagesActions.setDisplayedMessagesNumber(setDisplayedMessagesNumberPayload))

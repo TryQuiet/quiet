@@ -31,7 +31,7 @@ export const InvitationContextMenu: FC = () => {
     (screen: ScreenNames) => {
       dispatch(
         navigationActions.navigation({
-          screen
+          screen,
         })
       )
     },
@@ -47,7 +47,7 @@ export const InvitationContextMenu: FC = () => {
     try {
       await Share.share({
         title: '"Quiet" invitation',
-        message: `Chat with me on "Quiet"!\n${invitationLink}`
+        message: `Chat with me on "Quiet"!\n${invitationLink}`,
       })
     } catch (error) {
       console.error(error)
@@ -59,20 +59,20 @@ export const InvitationContextMenu: FC = () => {
   const items: ContextMenuItemProps[] = [
     {
       title: 'Copy link',
-      action: copyLink
+      action: copyLink,
     },
     {
       title: 'QR code',
-      action: () => redirect(ScreenNames.QRCodeScreen)
+      action: () => redirect(ScreenNames.QRCodeScreen),
     },
     {
       title: 'Share',
-      action: shareLink
+      action: shareLink,
     },
     {
       title: 'Cancel',
-      action: () => invitationContextMenu.handleClose()
-    }
+      action: () => invitationContextMenu.handleClose(),
+    },
   ]
 
   useEffect(() => {
@@ -83,9 +83,7 @@ export const InvitationContextMenu: FC = () => {
     <ContextMenu
       title={'Add members'}
       items={items}
-      hint={
-        'Anyone with Quiet app can follow this link to join this community. Only share with people you trust.'
-      }
+      hint={'Anyone with Quiet app can follow this link to join this community. Only share with people you trust.'}
       link={invitationLink}
       linkAction={copyLink}
       {...invitationContextMenu}

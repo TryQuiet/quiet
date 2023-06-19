@@ -21,7 +21,7 @@ import {
   type Identity,
   MessageType,
   type PublicChannel,
-  SocketActionTypes
+  SocketActionTypes,
 } from '@quiet/types'
 
 describe('downloadFileSaga', () => {
@@ -41,32 +41,27 @@ describe('downloadFileSaga', () => {
 
     factory = await getFactory(store)
 
-    community = await factory.create<
-      ReturnType<typeof communitiesActions.addNewCommunity>['payload']
-    >('Community')
+    community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
 
     const generalChannelState = publicChannelsSelectors.generalChannel(store.getState())
     if (generalChannelState) generalChannel = generalChannelState
     expect(generalChannel).not.toBeUndefined()
 
-    alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
-      'Identity',
-      { id: community.id, nickname: 'alice' }
-    )
+    alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
+      id: community.id,
+      nickname: 'alice',
+    })
 
     sailingChannel = (
-      await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>(
-        'PublicChannel',
-        {
-          channel: {
-            name: 'sailing',
-            description: 'Welcome to #sailing',
-            timestamp: DateTime.utc().valueOf(),
-            owner: alice.nickname,
-            id: generateChannelId('sailing')
-          }
-        }
-      )
+      await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>('PublicChannel', {
+        channel: {
+          name: 'sailing',
+          description: 'Welcome to #sailing',
+          timestamp: DateTime.utc().valueOf(),
+          owner: alice.nickname,
+          id: generateChannelId('sailing'),
+        },
+      })
     ).channel
   })
 
@@ -77,7 +72,7 @@ describe('downloadFileSaga', () => {
 
     store.dispatch(
       publicChannelsActions.setCurrentChannel({
-        channelId: generalChannel.id
+        channelId: generalChannel.id,
       })
     )
 
@@ -88,8 +83,8 @@ describe('downloadFileSaga', () => {
       ext: 'png',
       message: {
         id,
-        channelId: generalChannel.id
-      }
+        channelId: generalChannel.id,
+      },
     }
 
     const reducer = combineReducers(reducers)
@@ -106,9 +101,9 @@ describe('downloadFileSaga', () => {
             channelId: generalChannel.id,
             signature: 'signature',
             pubKey: 'publicKey',
-            media
-          }
-        ]
+            media,
+          },
+        ],
       })
     )
       .withReducer(reducer)
@@ -117,8 +112,8 @@ describe('downloadFileSaga', () => {
         SocketActionTypes.DOWNLOAD_FILE,
         {
           peerId: alice.peerId.id,
-          metadata: media
-        }
+          metadata: media,
+        },
       ])
       .run()
   })
@@ -130,7 +125,7 @@ describe('downloadFileSaga', () => {
 
     store.dispatch(
       publicChannelsActions.setCurrentChannel({
-        channelId: generalChannel.id
+        channelId: generalChannel.id,
       })
     )
 
@@ -141,8 +136,8 @@ describe('downloadFileSaga', () => {
       ext: 'ext',
       message: {
         id,
-        channelId: generalChannel.id
-      }
+        channelId: generalChannel.id,
+      },
     }
 
     const reducer = combineReducers(reducers)
@@ -159,9 +154,9 @@ describe('downloadFileSaga', () => {
             channelId: generalChannel.id,
             signature: 'signature',
             pubKey: 'publicKey',
-            media
-          }
-        ]
+            media,
+          },
+        ],
       })
     )
       .withReducer(reducer)
@@ -170,8 +165,8 @@ describe('downloadFileSaga', () => {
         SocketActionTypes.DOWNLOAD_FILE,
         {
           peerId: alice.peerId.id,
-          metadata: media
-        }
+          metadata: media,
+        },
       ])
       .run()
   })
@@ -183,7 +178,7 @@ describe('downloadFileSaga', () => {
 
     store.dispatch(
       publicChannelsActions.setCurrentChannel({
-        channelId: generalChannel.id
+        channelId: generalChannel.id,
       })
     )
 
@@ -194,18 +189,15 @@ describe('downloadFileSaga', () => {
       ext: 'ext',
       message: {
         id,
-        channelId: generalChannel.id
-      }
+        channelId: generalChannel.id,
+      },
     }
 
     const message = (
-      await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>(
-        'Message',
-        {
-          identity: alice,
-          message: generateMessageFactoryContentWithId(generalChannel.id),
-        }
-      )
+      await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>('Message', {
+        identity: alice,
+        message: generateMessageFactoryContentWithId(generalChannel.id),
+      })
     ).message
 
     const reducer = combineReducers(reducers)
@@ -213,7 +205,7 @@ describe('downloadFileSaga', () => {
       autoDownloadFilesSaga,
       socket,
       messagesActions.incomingMessages({
-        messages: [message]
+        messages: [message],
       })
     )
       .withReducer(reducer)
@@ -222,8 +214,8 @@ describe('downloadFileSaga', () => {
         SocketActionTypes.DOWNLOAD_FILE,
         {
           peerId: alice.peerId.id,
-          metadata: media
-        }
+          metadata: media,
+        },
       ])
       .run()
   })
@@ -235,7 +227,7 @@ describe('downloadFileSaga', () => {
 
     store.dispatch(
       publicChannelsActions.setCurrentChannel({
-        channelId: sailingChannel.id
+        channelId: sailingChannel.id,
       })
     )
 
@@ -246,18 +238,15 @@ describe('downloadFileSaga', () => {
       ext: 'ext',
       message: {
         id,
-        channelId: generalChannel.id
-      }
+        channelId: generalChannel.id,
+      },
     }
 
     const message = (
-      await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>(
-        'Message',
-        {
-          identity: alice,
-          message: generateMessageFactoryContentWithId(generalChannel.id),
-        }
-      )
+      await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>('Message', {
+        identity: alice,
+        message: generateMessageFactoryContentWithId(generalChannel.id),
+      })
     ).message
 
     const reducer = combineReducers(reducers)
@@ -265,7 +254,7 @@ describe('downloadFileSaga', () => {
       autoDownloadFilesSaga,
       socket,
       messagesActions.incomingMessages({
-        messages: [message]
+        messages: [message],
       })
     )
       .withReducer(reducer)
@@ -274,8 +263,8 @@ describe('downloadFileSaga', () => {
         SocketActionTypes.DOWNLOAD_FILE,
         {
           peerId: alice.peerId.id,
-          metadata: media
-        }
+          metadata: media,
+        },
       ])
       .run()
   })
@@ -287,7 +276,7 @@ describe('downloadFileSaga', () => {
 
     store.dispatch(
       publicChannelsActions.setCurrentChannel({
-        channelId: generalChannel.id
+        channelId: generalChannel.id,
       })
     )
 
@@ -299,8 +288,8 @@ describe('downloadFileSaga', () => {
       size: AUTODOWNLOAD_SIZE_LIMIT + 1024,
       message: {
         id,
-        channelId: generalChannel.id
-      }
+        channelId: generalChannel.id,
+      },
     }
 
     const reducer = combineReducers(reducers)
@@ -317,9 +306,9 @@ describe('downloadFileSaga', () => {
             channelId: generalChannel.id,
             signature: 'signature',
             pubKey: 'publicKey',
-            media
-          }
-        ]
+            media,
+          },
+        ],
       })
     )
       .withReducer(reducer)
@@ -328,8 +317,8 @@ describe('downloadFileSaga', () => {
         SocketActionTypes.DOWNLOAD_FILE,
         {
           peerId: alice.peerId.id,
-          metadata: media
-        }
+          metadata: media,
+        },
       ])
       .run()
   })
@@ -341,7 +330,7 @@ describe('downloadFileSaga', () => {
 
     store.dispatch(
       publicChannelsActions.setCurrentChannel({
-        channelId: generalChannel.id
+        channelId: generalChannel.id,
       })
     )
 
@@ -353,8 +342,8 @@ describe('downloadFileSaga', () => {
       size: AUTODOWNLOAD_SIZE_LIMIT + 1024,
       message: {
         id,
-        channelId: generalChannel.id
-      }
+        channelId: generalChannel.id,
+      },
     }
 
     const reducer = combineReducers(reducers)
@@ -371,9 +360,9 @@ describe('downloadFileSaga', () => {
             channelId: generalChannel.id,
             signature: 'signature',
             pubKey: 'publicKey',
-            media
-          }
-        ]
+            media,
+          },
+        ],
       })
     )
       .withReducer(reducer)
@@ -382,8 +371,8 @@ describe('downloadFileSaga', () => {
         SocketActionTypes.DOWNLOAD_FILE,
         {
           peerId: alice.peerId.id,
-          metadata: media
-        }
+          metadata: media,
+        },
       ])
       .run()
   })

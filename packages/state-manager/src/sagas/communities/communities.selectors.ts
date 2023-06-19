@@ -11,8 +11,7 @@ import { getOldestParsedCerificate } from '../users/users.selectors'
 // https://github.com/microsoft/TypeScript/issues/47663#issuecomment-1270716220
 import type {} from 'pkijs'
 
-const communitiesSlice: CreatedSelectors[StoreKeys.Communities] = (state: StoreState) =>
-  state[StoreKeys.Communities]
+const communitiesSlice: CreatedSelectors[StoreKeys.Communities] = (state: StoreState) => state[StoreKeys.Communities]
 
 export const selectById = (id: string) =>
   createSelector(communitiesSlice, reducerState =>
@@ -27,13 +26,9 @@ export const selectCommunities = createSelector(communitiesSlice, reducerState =
   communitiesAdapter.getSelectors().selectAll(reducerState.communities)
 )
 
-export const currentCommunity = createSelector(
-  communitiesSlice,
-  selectEntities,
-  (state, entities) => {
-    return entities[state.currentCommunity]
-  }
-)
+export const currentCommunity = createSelector(communitiesSlice, selectEntities, (state, entities) => {
+  return entities[state.currentCommunity]
+})
 
 export const currentCommunityId = createSelector(communitiesSlice, reducerState => {
   return reducerState.currentCommunity
@@ -43,16 +38,14 @@ export const registrarUrl = (communityId: string) =>
   createSelector(selectEntities, communities => {
     const community = communities[communityId]
 
-    let registrarAddress: string = ''
+    let registrarAddress = ''
 
     if (!community) {
       return
     }
 
     if (community.onionAddress) {
-      registrarAddress = community.port
-        ? `${community.onionAddress}:${community.port}`
-        : `${community.onionAddress}`
+      registrarAddress = community.port ? `${community.onionAddress}:${community.port}` : `${community.onionAddress}`
     } else if (community.registrarUrl) {
       registrarAddress = community.registrarUrl
     }

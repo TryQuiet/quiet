@@ -1,9 +1,7 @@
 import { Crypto } from '@peculiar/webcrypto'
 import { AsyncReturnType } from '../types/AsyncReturnType.interface'
 import { createApp, sleep } from '../utils'
-import {
-  createCommunity, getCommunityOwnerData, joinCommunity
-} from './appActions'
+import { createCommunity, getCommunityOwnerData, joinCommunity } from './appActions'
 import { assertConnectedToPeers, assertReceivedCertificates } from './assertions'
 
 const crypto = new Crypto()
@@ -54,14 +52,14 @@ describe('owner creates community and two users join', () => {
       ...ownerData,
       store: userOne.store,
       userName: 'username1',
-      expectedPeersCount: 2
+      expectedPeersCount: 2,
     })
 
     await joinCommunity({
       ...ownerData,
       store: userTwo.store,
       userName: 'username2',
-      expectedPeersCount: 3
+      expectedPeersCount: 3,
     })
   })
 

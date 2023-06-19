@@ -43,32 +43,27 @@ describe('deleteChannelSaga', () => {
     store = prepareStore().store
     factory = await getFactory(store)
 
-    community = await factory.create<
-      ReturnType<typeof communitiesActions.addNewCommunity>['payload']
-    >('Community')
+    community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
 
-    owner = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
-      'Identity',
-      { id: community.id, nickname: 'alice' }
-    )
+    owner = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
+      id: community.id,
+      nickname: 'alice',
+    })
     ownerData = usersSelectors.ownerData(store.getState())
     const generalChannelState = publicChannelsSelectors.generalChannel(store.getState())
     if (generalChannelState) generalChannel = generalChannelState
     expect(generalChannel).not.toBeUndefined()
 
     photoChannel = (
-      await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>(
-        'PublicChannel',
-        {
-          channel: {
-            name: 'photo',
-            description: 'Welcome to #photo',
-            timestamp: DateTime.utc().valueOf(),
-            owner: owner.nickname,
-            id: generateChannelId('photo')
-          }
-        }
-      )
+      await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>('PublicChannel', {
+        channel: {
+          name: 'photo',
+          description: 'Welcome to #photo',
+          timestamp: DateTime.utc().valueOf(),
+          owner: owner.nickname,
+          id: generateChannelId('photo'),
+        },
+      })
     ).channel
   })
 
@@ -84,8 +79,8 @@ describe('deleteChannelSaga', () => {
         SocketActionTypes.DELETE_CHANNEL,
         {
           channelId,
-          ownerPeerId: ownerData.peerId
-        }
+          ownerPeerId: ownerData.peerId,
+        },
       ])
       .put(publicChannelsActions.setCurrentChannel({ channelId: generalChannel.id }))
       .put(publicChannelsActions.disableChannel({ channelId }))
@@ -103,8 +98,8 @@ describe('deleteChannelSaga', () => {
         SocketActionTypes.DELETE_CHANNEL,
         {
           channelId,
-          ownerPeerId: ownerData.peerId
-        }
+          ownerPeerId: ownerData.peerId,
+        },
       ])
       .put(filesActions.deleteFilesFromChannel({ channelId }))
       .run()
@@ -122,8 +117,8 @@ describe('deleteChannelSaga', () => {
         SocketActionTypes.DELETE_CHANNEL,
         {
           channelId,
-          ownerPeerId: ownerData.peerId
-        }
+          ownerPeerId: ownerData.peerId,
+        },
       ])
       .not.put(publicChannelsActions.setCurrentChannel({ channelId: generalChannel.id }))
       .not.put(publicChannelsActions.disableChannel({ channelId }))
@@ -141,8 +136,8 @@ describe('deleteChannelSaga', () => {
         SocketActionTypes.DELETE_CHANNEL,
         {
           channelId,
-          ownerPeerId: ownerData.peerId
-        }
+          ownerPeerId: ownerData.peerId,
+        },
       ])
       .put(publicChannelsActions.disableChannel({ channelId }))
       .run()

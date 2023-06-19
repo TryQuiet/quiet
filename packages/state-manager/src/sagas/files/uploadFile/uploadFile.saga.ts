@@ -24,8 +24,8 @@ export function* uploadFileSaga(
     cid: `uploading_${id}`,
     message: {
       id,
-      channelId: currentChannel
-    }
+      channelId: currentChannel,
+    },
   }
 
   let type: MessageType
@@ -41,7 +41,7 @@ export function* uploadFileSaga(
       id,
       message: '',
       type,
-      media
+      media,
     })
   )
 
@@ -50,7 +50,7 @@ export function* uploadFileSaga(
       mid: id,
       cid: `uploading_${id}`,
       downloadState: DownloadState.Uploading,
-      downloadProgress: undefined
+      downloadProgress: undefined,
     })
   )
 
@@ -59,7 +59,7 @@ export function* uploadFileSaga(
     socket.emit,
     applyEmitParams(SocketActionTypes.UPLOAD_FILE, {
       file: media,
-      peerId: identity.peerId.id
+      peerId: identity.peerId.id,
     })
   )
 }

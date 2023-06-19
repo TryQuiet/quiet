@@ -3,7 +3,7 @@ import {
   assertDownloadedImage,
   assertReceivedCertificates,
   assertReceivedChannelsAndSubscribe,
-  assertReceivedImages
+  assertReceivedImages,
 } from './assertions'
 import { createCommunity, joinCommunity, getCommunityOwnerData, sendImage, SendImage } from './appActions'
 import { createApp, storePersistor } from '../utils'
@@ -26,7 +26,7 @@ describe('send message - users are online', () => {
   const image: FileContent = {
     path: `${__dirname}/assets/test-image.jpeg`,
     name: 'test-image',
-    ext: '.jpeg'
+    ext: '.jpeg',
   }
 
   beforeAll(async () => {
@@ -50,7 +50,7 @@ describe('send message - users are online', () => {
       ...ownerData,
       store: userOne.store,
       userName: 'username1',
-      expectedPeersCount: 2
+      expectedPeersCount: 2,
     })
   })
 
@@ -68,7 +68,7 @@ describe('send message - users are online', () => {
     log(`Image ${JSON.stringify(image)}`)
     const payload: SendImage = {
       file: image,
-      store: owner.store
+      store: owner.store,
     }
     await sendImage(payload)
   })
@@ -96,7 +96,7 @@ describe('send files - image is being redistributed (users going offline)', () =
   const image: FileContent = {
     path: `${__dirname}/assets/test-image.jpeg`,
     name: 'test-image',
-    ext: '.jpeg'
+    ext: '.jpeg',
   }
 
   beforeAll(async () => {
@@ -121,14 +121,14 @@ describe('send files - image is being redistributed (users going offline)', () =
       ...ownerData,
       store: userOne.store,
       userName: 'username1',
-      expectedPeersCount: 2
+      expectedPeersCount: 2,
     })
 
     await joinCommunity({
       ...ownerData,
       store: userTwo.store,
       userName: 'username2',
-      expectedPeersCount: 3
+      expectedPeersCount: 3,
     })
   })
 
@@ -153,7 +153,7 @@ describe('send files - image is being redistributed (users going offline)', () =
   test('Owner sends image, while UserTwo is offline', async () => {
     await sendImage({
       file: image,
-      store: owner.store
+      store: owner.store,
     })
   })
 

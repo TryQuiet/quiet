@@ -12,7 +12,7 @@ export function* verifyMessagesSaga(
     const verificationStatus: MessageVerificationStatus = {
       publicKey: message.pubKey,
       signature: message.signature,
-      isVerified: Boolean(action.payload.isVerified)
+      isVerified: Boolean(action.payload.isVerified),
     }
 
     yield* put(messagesActions.addMessageVerificationStatus(verificationStatus))

@@ -20,7 +20,7 @@ export class CustomReduxAdapter {
   }
 
   set(props: any, payload: any, _payload: any) {
-    Object.keys(props).forEach((key) => {
+    Object.keys(props).forEach(key => {
       payload[key] = props[key]
     })
     return payload

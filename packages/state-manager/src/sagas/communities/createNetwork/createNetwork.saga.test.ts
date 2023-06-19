@@ -22,7 +22,7 @@ describe('createNetwork', () => {
       name: undefined,
       registrarUrl: 'http://registrarUrl.onion',
       CA: null,
-      rootCa: undefined
+      rootCa: undefined,
     }
 
     const reducer = combineReducers(reducers)
@@ -31,7 +31,7 @@ describe('createNetwork', () => {
       socket,
       communitiesActions.createNetwork({
         ownership: CommunityOwnership.User,
-        registrar: 'registrarUrl'
+        registrar: 'registrarUrl',
       })
     )
       .withReducer(reducer)
@@ -50,7 +50,7 @@ describe('createNetwork', () => {
 
     const CA = {
       rootCertString: 'rootCertString',
-      rootKeyString: 'rootKeyString'
+      rootKeyString: 'rootKeyString',
     }
 
     const community: Community = {
@@ -58,7 +58,7 @@ describe('createNetwork', () => {
       name: 'rockets',
       registrarUrl: undefined,
       CA,
-      rootCa: CA.rootCertString
+      rootCa: CA.rootCertString,
     }
 
     const reducer = combineReducers(reducers)
@@ -67,14 +67,14 @@ describe('createNetwork', () => {
       socket,
       communitiesActions.createNetwork({
         ownership: CommunityOwnership.Owner,
-        name: 'rockets'
+        name: 'rockets',
       })
     )
       .withReducer(reducer)
       .withState(store.getState())
       .provide([
         [call.fn(createRootCA), CA],
-        [call.fn(generateId), community.id]
+        [call.fn(generateId), community.id],
       ])
       .call(
         createRootCA,

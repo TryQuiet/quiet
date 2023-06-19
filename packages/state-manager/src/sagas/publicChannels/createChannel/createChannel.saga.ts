@@ -18,7 +18,7 @@ export function* createChannelSaga(
     socket,
     socket.emit,
     applyEmitParams(SocketActionTypes.CREATE_CHANNEL, {
-      channel: action.payload.channel
+      channel: action.payload.channel,
     })
   )
 }

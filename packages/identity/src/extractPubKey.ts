@@ -19,28 +19,18 @@ export const parseCertificationRequest = (pem: string): CertificationRequest => 
 }
 
 export const keyFromCertificate = (certificate: Certificate | CertificationRequest): string => {
-  return Buffer.from(
-    certificate.subjectPublicKeyInfo.subjectPublicKey.valueBlock.valueHex
-  ).toString('base64')
+  return Buffer.from(certificate.subjectPublicKeyInfo.subjectPublicKey.valueBlock.valueHex).toString('base64')
 }
 
-export const keyObjectFromString = async (
-  pubKeyString: string,
-  crypto: SubtleCrypto | null
-): Promise<CryptoKey> => {
+export const keyObjectFromString = async (pubKeyString: string, crypto: SubtleCrypto | null): Promise<CryptoKey> => {
   if (!crypto) throw new NoCryptoEngineError()
   let keyArray = new ArrayBuffer(0)
   keyArray = stringToArrayBuffer(fromBase64(pubKeyString))
   const algorithm = getAlgorithmParameters(config.signAlg, 'generateKey')
-  return await crypto.importKey('raw', keyArray, (algorithm.algorithm as Algorithm), true, [
-    'verify'
-  ])
+  return await crypto.importKey('raw', keyArray, algorithm.algorithm as Algorithm, true, ['verify'])
 }
 
-export const extractPubKey = async (
-  pem: string,
-  crypto: SubtleCrypto | null
-): Promise<CryptoKey> => {
+export const extractPubKey = async (pem: string, crypto: SubtleCrypto | null): Promise<CryptoKey> => {
   const pubKeyString = extractPubKeyString(pem)
   return await keyObjectFromString(pubKeyString, crypto)
 }

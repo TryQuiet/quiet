@@ -18,7 +18,8 @@ export const Appbar: FC<AppbarProps> = ({ title, prefix, position, style, back, 
           onPress={() => {
             if (back) back()
           }}
-          testID={'appbar_action_item'}>
+          testID={'appbar_action_item'}
+        >
           <View style={{ justifyContent: 'center', alignItems: 'center', width: 64 }}>
             {back ? (
               <Image
@@ -27,7 +28,7 @@ export const Appbar: FC<AppbarProps> = ({ title, prefix, position, style, back, 
                 resizeMethod='resize'
                 style={{
                   width: 16,
-                  height: 16
+                  height: 16,
                 }}
               />
             ) : (
@@ -38,8 +39,9 @@ export const Appbar: FC<AppbarProps> = ({ title, prefix, position, style, back, 
                   alignItems: 'center',
                   justifyContent: 'center',
                   borderRadius: 4,
-                  backgroundColor: defaultTheme.palette.background.lushSky
-                }}>
+                  backgroundColor: defaultTheme.palette.background.lushSky,
+                }}
+              >
                 <Typography fontSize={14} color={'white'}>
                   {prefix}
                   {title?.slice(0, 2).toLowerCase()}
@@ -61,7 +63,8 @@ export const Appbar: FC<AppbarProps> = ({ title, prefix, position, style, back, 
               event.persist()
               contextMenu.handleOpen()
             }}
-            testID={'open_menu'}>
+            testID={'open_menu'}
+          >
             <View style={{ justifyContent: 'center', alignItems: 'center', width: 64 }}>
               <Image
                 source={menu_icon}
@@ -69,7 +72,7 @@ export const Appbar: FC<AppbarProps> = ({ title, prefix, position, style, back, 
                 resizeMethod='resize'
                 style={{
                   width: 16,
-                  height: 16
+                  height: 16,
                 }}
               />
             </View>

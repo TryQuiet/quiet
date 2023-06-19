@@ -55,7 +55,7 @@ export interface DownloadProgress {
   transferSpeed: number
 }
 
-export type DictionaryNum<T> = Record<number, T | undefined>;
+export type DictionaryNum<T> = Record<number, T | undefined>
 export type Dictionary<T> = DictionaryNum<T> & Record<string, T | undefined>
 
 export interface DeleteFilesFromChannelPayload {
@@ -75,7 +75,7 @@ export enum DownloadState {
   Completed = 'completed',
   Canceling = 'canceling',
   Canceled = 'canceled',
-  Malicious = 'malicious'
+  Malicious = 'malicious',
 }
 
 export const imagesExtensions = ['.gif', '.png', '.jpg', '.jpeg']

@@ -27,7 +27,7 @@ export const DeleteChannelScreen: FC<DeleteChannelScreenProps> = ({ route }) => 
   const deleteChannel = useCallback(() => {
     dispatch(
       publicChannels.actions.deleteChannel({
-        channelId
+        channelId,
       })
     )
   }, [dispatch, channels, channelName])
@@ -35,16 +35,10 @@ export const DeleteChannelScreen: FC<DeleteChannelScreenProps> = ({ route }) => 
   const handleBackButton = useCallback(() => {
     dispatch(
       navigationActions.replaceScreen({
-        screen: ScreenNames.ChannelListScreen
+        screen: ScreenNames.ChannelListScreen,
       })
     )
   }, [dispatch])
 
-  return (
-    <DeleteChannel
-      name={channelName}
-      deleteChannel={deleteChannel}
-      handleBackButton={handleBackButton}
-    />
-  )
+  return <DeleteChannel name={channelName} deleteChannel={deleteChannel} handleBackButton={handleBackButton} />
 }

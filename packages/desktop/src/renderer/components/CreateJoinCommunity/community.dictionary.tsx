@@ -14,9 +14,7 @@ export interface PerformCommunityActionDictionary {
   id: string
 }
 
-export const CreateCommunityDictionary = (
-  handleRedirection?: () => void
-): PerformCommunityActionDictionary => {
+export const CreateCommunityDictionary = (handleRedirection?: () => void): PerformCommunityActionDictionary => {
   let link: ReactElement | undefined
   if (handleRedirection) {
     link = (
@@ -26,8 +24,8 @@ export const CreateCommunityDictionary = (
           {
             tag: 'link',
             label: 'join a community',
-            action: handleRedirection
-          }
+            action: handleRedirection,
+          },
         ]}
         testIdPrefix={'CreateCommunity'}
       />
@@ -41,7 +39,7 @@ export const CreateCommunityDictionary = (
     button: 'Continue',
     field: communityNameField(),
     redirection: link,
-    id: 'createCommunity'
+    id: 'createCommunity',
   }
 }
 
@@ -55,8 +53,8 @@ export const JoinCommunityDictionary = (handleRedirection?: () => void): Perform
           {
             tag: 'link',
             label: 'create a new community',
-            action: handleRedirection
-          }
+            action: handleRedirection,
+          },
         ]}
         testIdPrefix={'JoinCommunity'}
       />
@@ -70,6 +68,6 @@ export const JoinCommunityDictionary = (handleRedirection?: () => void): Perform
     button: 'Continue',
     field: inviteLinkField(),
     redirection: link,
-    id: 'joinCommunity'
+    id: 'joinCommunity',
   }
 }

@@ -4,7 +4,7 @@ const log = logger('torControl')
 
 export enum TorControlAuthType {
   COOKIE = 'cookie',
-  PASSWORD = 'password'
+  PASSWORD = 'password',
 }
 
 interface IOpts {
@@ -29,7 +29,7 @@ export class TorControl {
   constructor(opts: IOpts) {
     this.params = {
       port: opts.port,
-      family: 4
+      family: 4,
     }
     if (opts.auth.type === TorControlAuthType.PASSWORD) {
       this.authString = 'AUTHENTICATE "' + opts.auth.value + '"\r\n'
@@ -71,7 +71,11 @@ export class TorControl {
     this.connection = null
   }
 
-  private async _sendCommand(command: string, resolve: (value: {code: number; messages: string[]}) => void, reject: (reason?: any) => void) {
+  private async _sendCommand(
+    command: string,
+    resolve: (value: { code: number; messages: string[] }) => void,
+    reject: (reason?: any) => void
+  ) {
     await this.connect()
     const connectionTimeout = setTimeout(() => {
       reject('TOR: Send command timeout')

@@ -9,7 +9,7 @@ describe('ChannelList component', () => {
       <ChannelList
         // @ts-ignore
         community={{
-          name: 'Quiet'
+          name: 'Quiet',
         }}
         tiles={[
           {
@@ -19,7 +19,7 @@ describe('ChannelList component', () => {
               'Text from latest chat message. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Id massa venenatis id eget massa commodo posuere faucibus aliquam. At scelerisque nisi mauris facilisis.',
             date: '1:55pm',
             unread: false,
-            redirect: jest.fn()
+            redirect: jest.fn(),
           },
           {
             name: 'spam',
@@ -28,7 +28,7 @@ describe('ChannelList component', () => {
               'Text from latest chat message. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Id massa venenatis id eget massa commodo posuere faucibus aliquam. At scelerisque nisi mauris facilisis.',
             date: '1:55pm',
             unread: false,
-            redirect: jest.fn()
+            redirect: jest.fn(),
           },
           {
             name: 'design',
@@ -37,7 +37,7 @@ describe('ChannelList component', () => {
               'Text from latest chat message. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Id massa venenatis id eget massa commodo posuere faucibus aliquam. At scelerisque nisi mauris facilisis.',
             date: '6/1/22',
             unread: true,
-            redirect: jest.fn()
+            redirect: jest.fn(),
           },
           {
             name: 'qa',
@@ -46,8 +46,8 @@ describe('ChannelList component', () => {
               'Text from latest chat message. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Id massa venenatis id eget massa commodo posuere faucibus aliquam. At scelerisque nisi mauris facilisis.',
             date: 'Yesterday',
             unread: false,
-            redirect: jest.fn()
-          }
+            redirect: jest.fn(),
+          },
         ]}
       />
     )

@@ -24,18 +24,18 @@ export function* createGeneralChannelSaga(): Generator {
     description: 'Welcome to #general',
     owner: identity.nickname,
     id,
-    timestamp
+    timestamp,
   }
 
   yield* put(
     publicChannelsActions.createChannel({
-      channel
+      channel,
     })
   )
 
   yield* put(
     publicChannelsActions.setCurrentChannel({
-      channelId: channel.id
+      channelId: channel.id,
     })
   )
 }

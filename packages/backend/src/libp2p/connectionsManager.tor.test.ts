@@ -39,9 +39,9 @@ describe('Connections manager', () => {
       socketIOPort: ports.socksPort,
       options: {
         env: {
-          appDataPath: tmpAppDataPath
-        }
-      }
+          appDataPath: tmpAppDataPath,
+        },
+      },
     })
 
     const socket = await initConnectionsManagerWithTor(connectionsManager, ports.socksPort)
@@ -57,9 +57,9 @@ describe('Connections manager', () => {
       socketIOPort: ports.socksPort,
       options: {
         env: {
-          appDataPath: tmpAppDataPath
-        }
-      }
+          appDataPath: tmpAppDataPath,
+        },
+      },
     })
     const socket = await initConnectionsManagerWithTor(connectionsManager, ports.socksPort)
     const spyOnDestroyHiddenService = jest.spyOn(connectionsManager.tor, 'destroyHiddenService')
@@ -76,9 +76,7 @@ describe('Connections manager', () => {
     const store = prepareStore().store
     const factory = await getFactory(store)
     const community = await factory.create<Community>('Community', { rootCa: 'rootCa' })
-    const userIdentity = await factory.create<Identity>(
-      'Identity', { id: community.id, nickname: 'john' }
-    )
+    const userIdentity = await factory.create<Identity>('Identity', { id: community.id, nickname: 'john' })
     const ports = await getPorts()
 
     connectionsManager = new ConnectionsManager({
@@ -87,9 +85,9 @@ describe('Connections manager', () => {
       socketIOPort: ports.socksPort,
       options: {
         env: {
-          appDataPath: tmpAppDataPath
-        }
-      }
+          appDataPath: tmpAppDataPath,
+        },
+      },
     })
     const socket = await initConnectionsManagerWithTor(connectionsManager, ports.socksPort)
     const spyOnDial = jest.spyOn(WebSockets.prototype, 'dial')
@@ -97,7 +95,9 @@ describe('Connections manager', () => {
     const peerList: string[] = []
     const peersCount = 11
     for (let pCount = 0; pCount < peersCount; pCount++) {
-      peerList.push(createLibp2pAddress(`${Math.random().toString(36).substring(2, 13)}.onion`, (await createPeerId()).toString()))
+      peerList.push(
+        createLibp2pAddress(`${Math.random().toString(36).substring(2, 13)}.onion`, (await createPeerId()).toString())
+      )
     }
 
     const launchCommunityPayload: InitCommunityPayload = {
@@ -110,9 +110,9 @@ describe('Connections manager', () => {
         // @ts-expect-error Identity.userCertificate userCsr.userKey can be undefined
         key: userIdentity.userCsr?.userKey,
         // @ts-expect-error
-        CA: [community.rootCa]
+        CA: [community.rootCa],
       },
-      peers: peerList
+      peers: peerList,
     }
 
     await connectionsManager.launchCommunity(launchCommunityPayload)
@@ -124,9 +124,7 @@ describe('Connections manager', () => {
     const store = prepareStore().store
     const factory = await getFactory(store)
     const community = await factory.create<Community>('Community', { rootCa: 'rootCa' })
-    const userIdentity = await factory.create<Identity>(
-      'Identity', { id: community.id, nickname: 'john' }
-    )
+    const userIdentity = await factory.create<Identity>('Identity', { id: community.id, nickname: 'john' })
     const ports = await getPorts()
 
     connectionsManager = new ConnectionsManager({
@@ -135,9 +133,9 @@ describe('Connections manager', () => {
       socketIOPort: ports.socksPort,
       options: {
         env: {
-          appDataPath: tmpAppDataPath
-        }
-      }
+          appDataPath: tmpAppDataPath,
+        },
+      },
     })
     const socket = await initConnectionsManagerWithTor(connectionsManager, ports.socksPort)
     const spyOnDial = jest.spyOn(WebSockets.prototype, 'dial')
@@ -145,7 +143,9 @@ describe('Connections manager', () => {
     const peerList: string[] = []
     const peersCount = 11
     for (let pCount = 0; pCount < peersCount; pCount++) {
-      peerList.push(createLibp2pAddress(`${Math.random().toString(36).substring(2, 13)}.onion`, (await createPeerId()).toString()))
+      peerList.push(
+        createLibp2pAddress(`${Math.random().toString(36).substring(2, 13)}.onion`, (await createPeerId()).toString())
+      )
     }
 
     const launchCommunityPayload: InitCommunityPayload = {
@@ -158,9 +158,9 @@ describe('Connections manager', () => {
         // @ts-expect-error
         key: userIdentity.userCsr?.userKey,
         // @ts-expect-error
-        CA: [community.rootCa]
+        CA: [community.rootCa],
       },
-      peers: peerList
+      peers: peerList,
     }
 
     await connectionsManager.launchCommunity(launchCommunityPayload)
@@ -171,16 +171,16 @@ describe('Connections manager', () => {
 
     // IOS
 
-     const connectionsManager2 = new ConnectionsManager({
+    const connectionsManager2 = new ConnectionsManager({
       torControlPort: 4321,
       torBinaryPath: '../../3rd-party/tor/linux/tor',
       torResourcesPath: '../../3rd-party/tor/linux',
       socketIOPort: ports.socksPort,
       options: {
         env: {
-          appDataPath: tmpAppDataPath
-        }
-      }
+          appDataPath: tmpAppDataPath,
+        },
+      },
     })
     const launchSpy = jest.spyOn(connectionsManager2, 'launch').mockResolvedValue('address')
     await connectionsManager2.init()

@@ -20,10 +20,9 @@ describe('connectionReducer', () => {
 
     const factory = await getFactory(store)
 
-    alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
-      'Identity',
-      { nickname: 'alice' }
-    )
+    alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
+      nickname: 'alice',
+    })
   })
 
   it('add initialized communities should add correctly data into the store', () => {
@@ -57,7 +56,7 @@ describe('connectionReducer', () => {
       username: alice.nickname,
       onionAddress: alice.hiddenService.onionAddress,
       peerId: alice.peerId.id,
-      dmPublicKey: alice.dmKeys.publicKey
+      dmPublicKey: alice.dmKeys.publicKey,
     }
 
     store.dispatch(networkActions.addConnectedPeers([alice.peerId.id]))
@@ -66,8 +65,7 @@ describe('connectionReducer', () => {
   })
 
   it('setTorBootstrapProcess', () => {
-    const payload =
-      'Mar 29 15:15:38.000 [notice] Bootstrapped 10% (conn_done): Connected to a relay'
+    const payload = 'Mar 29 15:15:38.000 [notice] Bootstrapped 10% (conn_done): Connected to a relay'
 
     store.dispatch(connectionActions.setTorBootstrapProcess(payload))
 

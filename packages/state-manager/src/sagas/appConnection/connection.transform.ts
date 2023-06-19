@@ -12,8 +12,8 @@ export const ConnectionTransform = createTransform(
       torBootstrapProcess: 'Bootstrapped 0% (starting)',
       torConnectionProcess: {
         number: 5,
-        text: 'Connecting process started'
-      }
+        text: 'Connecting process started',
+      },
     }
   },
   { whitelist: [StoreKeys.Connection] }

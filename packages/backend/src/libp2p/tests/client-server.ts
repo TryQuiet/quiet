@@ -11,7 +11,7 @@ export const createUsersCerts = async (
     peerId: 'Qmf3ySkYqLET9xtAtDzvAr5Pp3egK1H3C5iJAZm1SpLert',
     dmPublicKey: 'dmPublicKey1',
     signAlg: configCrypto.signAlg,
-    hashAlg: configCrypto.hashAlg
+    hashAlg: configCrypto.hashAlg,
   }
 
   const notBeforeDate = new Date(Date.UTC(2010, 11, 28, 10, 10, 10))
@@ -28,7 +28,7 @@ export const createUsersCerts = async (
 
   return {
     userCert: userCert.userCertString,
-    userKey: user.userKey
+    userKey: user.userKey,
   }
 }
 
@@ -51,7 +51,7 @@ export const createCertificatesTestHelper = async (onion1: string, onion2: strin
     servKey: userData1.userKey,
 
     userCert: userData2.userCert,
-    userKey: userData2.userKey
+    userKey: userData2.userKey,
   }
   return pems
 }

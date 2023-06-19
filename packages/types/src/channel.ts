@@ -52,9 +52,9 @@ export interface DisplayableMessage {
   media?: FileMetadata
 }
 
-export type MessagesGroupsType = Record<string, DisplayableMessage[]>;
+export type MessagesGroupsType = Record<string, DisplayableMessage[]>
 
-export type MessagesDailyGroups = Record<string, DisplayableMessage[][]>;
+export type MessagesDailyGroups = Record<string, DisplayableMessage[][]>
 
 export interface ChannelsReplicatedPayload {
   channels: Dictionary<PublicChannel>

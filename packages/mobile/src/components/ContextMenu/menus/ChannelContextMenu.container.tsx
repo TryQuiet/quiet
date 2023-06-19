@@ -33,7 +33,7 @@ export const ChannelContextMenu: FC = () => {
       dispatch(
         navigationActions.navigation({
           screen,
-          params
+          params,
         })
       )
     },
@@ -50,9 +50,9 @@ export const ChannelContextMenu: FC = () => {
         action: () =>
           redirect(ScreenNames.DeleteChannelScreen, {
             channelName: channel?.name,
-            channelId: channel?.id
-          })
-      }
+            channelId: channel?.id,
+          }),
+      },
     ]
   }
 

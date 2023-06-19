@@ -34,14 +34,12 @@ describe('channelsReplicatedSaga', () => {
     store = prepareStore().store
     factory = await getFactory(store)
 
-    community = await factory.create<
-      ReturnType<typeof communitiesActions.addNewCommunity>['payload']
-    >('Community')
+    community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
 
-    alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
-      'Identity',
-      { id: community.id, nickname: 'alice' }
-    )
+    alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
+      id: community.id,
+      nickname: 'alice',
+    })
 
     const generalChannelState = publicChannelsSelectors.generalChannel(store.getState())
     if (generalChannelState) generalChannel = generalChannelState
@@ -56,8 +54,8 @@ describe('channelsReplicatedSaga', () => {
           description: 'Welcome to #sailing',
           timestamp: DateTime.utc().valueOf(),
           owner: 'owner',
-          id: generateChannelId('sailing')
-        }
+          id: generateChannelId('sailing'),
+        },
       })
     ).payload.channel
 
@@ -69,8 +67,8 @@ describe('channelsReplicatedSaga', () => {
           description: 'Welcome to #photo',
           timestamp: DateTime.utc().valueOf(),
           owner: 'owner',
-          id: generateChannelId('photo')
-        }
+          id: generateChannelId('photo'),
+        },
       })
     ).payload.channel
   })
@@ -83,15 +81,15 @@ describe('channelsReplicatedSaga', () => {
       publicChannelsActions.channelsReplicated({
         channels: {
           [sailingChannel.id]: sailingChannel,
-          [generalChannel.id]: generalChannel
-        }
+          [generalChannel.id]: generalChannel,
+        },
       })
     )
       .withReducer(reducer)
       .withState(store.getState())
       .put(
         publicChannelsActions.addChannel({
-          channel: sailingChannel
+          channel: sailingChannel,
         })
       )
       .run()
@@ -104,20 +102,20 @@ describe('channelsReplicatedSaga', () => {
       publicChannelsActions.channelsReplicated({
         channels: {
           [generalChannel.id]: generalChannel,
-          [sailingChannel.id]: sailingChannel
-        }
+          [sailingChannel.id]: sailingChannel,
+        },
       })
     )
       .withReducer(reducer)
       .withState(store.getState())
       .not.put(
         publicChannelsActions.addChannel({
-          channel: generalChannel
+          channel: generalChannel,
         })
       )
       .put(
         publicChannelsActions.addChannel({
-          channel: sailingChannel
+          channel: sailingChannel,
         })
       )
       .run()
@@ -130,20 +128,20 @@ describe('channelsReplicatedSaga', () => {
       publicChannelsActions.channelsReplicated({
         channels: {
           [sailingChannel.id]: sailingChannel,
-          [generalChannel.id]: generalChannel
-        }
+          [generalChannel.id]: generalChannel,
+        },
       })
     )
       .withReducer(reducer)
       .withState(store.getState())
       .put(
         publicChannelsActions.addChannel({
-          channel: sailingChannel
+          channel: sailingChannel,
         })
       )
       .put(
         messagesActions.addPublicChannelsMessagesBase({
-          channelId: sailingChannel.id
+          channelId: sailingChannel.id,
         })
       )
       .run()
@@ -156,47 +154,45 @@ describe('channelsReplicatedSaga', () => {
       publicChannelsActions.channelsReplicated({
         channels: {
           [generalChannel.id]: generalChannel,
-          [sailingChannel.id]: sailingChannel
-        }
+          [sailingChannel.id]: sailingChannel,
+        },
       })
     )
       .withReducer(reducer)
       .withState(store.getState())
       .put(
         publicChannelsActions.addChannel({
-          channel: sailingChannel
+          channel: sailingChannel,
         })
       )
       .put(
         messagesActions.addPublicChannelsMessagesBase({
-          channelId: sailingChannel.id
+          channelId: sailingChannel.id,
         })
       )
       .not.put(
         publicChannelsActions.addChannel({
-          channel: generalChannel
+          channel: generalChannel,
         })
       )
       .not.put(
         messagesActions.addPublicChannelsMessagesBase({
-          channelId: generalChannel.id
+          channelId: generalChannel.id,
         })
       )
       .run()
   })
 
   test('populate channel cache on collecting data from persist', async () => {
-    const message = await factory.create<
-      ReturnType<typeof publicChannels.actions.test_message>['payload']
-    >('Message', {
+    const message = await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>('Message', {
       identity: alice,
-      message: generateMessageFactoryContentWithId(generalChannel.id)
+      message: generateMessageFactoryContentWithId(generalChannel.id),
     })
 
     store.dispatch(
       publicChannels.actions.cacheMessages({
         messages: [],
-        channelId: generalChannel.id
+        channelId: generalChannel.id,
       })
     )
 
@@ -206,8 +202,8 @@ describe('channelsReplicatedSaga', () => {
       publicChannelsActions.channelsReplicated({
         channels: {
           [generalChannel.id]: generalChannel,
-          [sailingChannel.id]: sailingChannel
-        }
+          [sailingChannel.id]: sailingChannel,
+        },
       })
     )
       .withReducer(reducer)
@@ -217,11 +213,9 @@ describe('channelsReplicatedSaga', () => {
   })
 
   test('do not reset channel cache if already populated', async () => {
-    const message = await factory.create<
-      ReturnType<typeof publicChannels.actions.test_message>['payload']
-    >('Message', {
+    const message = await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>('Message', {
       identity: alice,
-      message: generateMessageFactoryContentWithId(generalChannel.id)
+      message: generateMessageFactoryContentWithId(generalChannel.id),
     })
 
     const reducer = combineReducers(reducers)
@@ -230,8 +224,8 @@ describe('channelsReplicatedSaga', () => {
       publicChannelsActions.channelsReplicated({
         channels: {
           [generalChannel.id]: generalChannel,
-          [sailingChannel.id]: sailingChannel
-        }
+          [sailingChannel.id]: sailingChannel,
+        },
       })
     )
       .withReducer(reducer)
@@ -249,8 +243,8 @@ describe('channelsReplicatedSaga', () => {
       publicChannelsActions.channelsReplicated({
         channels: {
           [generalChannel.id]: generalChannel,
-          [sailingChannel.id]: sailingChannel
-        }
+          [sailingChannel.id]: sailingChannel,
+        },
       })
     )
       .withReducer(reducer)
@@ -259,7 +253,7 @@ describe('channelsReplicatedSaga', () => {
       .dispatch(publicChannelsActions.completeChannelDeletion({}))
       .put(
         publicChannelsActions.addChannel({
-          channel: sailingChannel
+          channel: sailingChannel,
         })
       )
       .run()
@@ -270,7 +264,7 @@ describe('channelsReplicatedSaga', () => {
     await expectSaga(
       channelsReplicatedSaga,
       publicChannelsActions.channelsReplicated({
-        channels: {}
+        channels: {},
       })
     )
       .withReducer(reducer)

@@ -15,7 +15,7 @@ import {
   getPorts,
   type Ports,
   torBinForPlatform,
-  torDirForPlatform
+  torDirForPlatform,
 } from './utils'
 import crypto from 'crypto'
 import logger from '../logger'
@@ -27,16 +27,21 @@ export const rootPermsData: PermsData = {
   certificate:
     'MIIBNjCB3AIBATAKBggqhkjOPQQDAjASMRAwDgYDVQQDEwdaYmF5IENBMCYYEzIwMjEwNjIyMDkzMDEwLjAyNVoYDzIwMzAwMTMxMjMwMDAwWjASMRAwDgYDVQQDEwdaYmF5IENBMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEV5a3Czy+L7IfVX0FpJtSF5mi0GWGrtPqv5+CFSDPrHXijsxWdPTobR1wk8uCLP4sAgUbs/bIleCxQy41kSSyOaMgMB4wDwYDVR0TBAgwBgEB/wIBAzALBgNVHQ8EBAMCAAYwCgYIKoZIzj0EAwIDSQAwRgIhAPOzksuipKyBALt/o8O/XwsrVSzfSHXdAR4dOWThQ1lbAiEAmKqjhsmf50kxWX0ekhbAeCTjcRApXhjnslmJkIFGF2o=+lmBImw3BMNjA0FTlK5iRmVC+w/T6M04Es+yiYL608vOhx2slnoyAwHjAPBgNVHRMECDAGAQH/AgEDMAsGA1UdDwQEAwIABjAKBggqhkjOPQQDAgNIADBFAiEA+0kIz0ny/PLVERTcL0+KCpsztyA6Zuwzj05VW5NMdx0CICgdzf0lg0/2Ksl1AjSPYsy2w+Hn09PGlBnD7TiExBpx',
   privKey:
-    'MIGTAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBHkwdwIBAQQgTvNuJL0blaYq6zmFS53WmmOfHshlqn+8wNHDzo4df5WgCgYIKoZIzj0DAQehRANCAARXlrcLPL4vsh9VfQWkm1IXmaLQZYau0+q/n4IVIM+sdeKOzFZ09OhtHXCTy4Is/iwCBRuz9siV4LFDLjWRJLI5+lmBImw3BMNjA0FTlK5iRmVC+w/T6M04Es+yiYL608vOhx2sln'
+    'MIGTAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBHkwdwIBAQQgTvNuJL0blaYq6zmFS53WmmOfHshlqn+8wNHDzo4df5WgCgYIKoZIzj0DAQehRANCAARXlrcLPL4vsh9VfQWkm1IXmaLQZYau0+q/n4IVIM+sdeKOzFZ09OhtHXCTy4Is/iwCBRuz9siV4LFDLjWRJLI5+lmBImw3BMNjA0FTlK5iRmVC+w/T6M04Es+yiYL608vOhx2sln',
 }
 
 tmp.setGracefulCleanup()
 
 export const testBootstrapMultiaddrs = [
-  createLibp2pAddress('abcd.onion', 'QmfLUJcDSLVYnNqSPSRK4mKG8MGw51m9K2v59k3yq1C8s4')
+  createLibp2pAddress('abcd.onion', 'QmfLUJcDSLVYnNqSPSRK4mKG8MGw51m9K2v59k3yq1C8s4'),
 ]
 
-export const spawnTorProcess = async (quietDirPath: string, ports?: Ports, extraTorProcessParams?: TorParams, binName?: string): Promise<Tor> => {
+export const spawnTorProcess = async (
+  quietDirPath: string,
+  ports?: Ports,
+  extraTorProcessParams?: TorParams,
+  binName?: string
+): Promise<Tor> => {
   const _ports = ports || (await getPorts())
   const torPath = torBinForPlatform(undefined, binName)
   const libPath = torDirForPlatform()
@@ -47,11 +52,11 @@ export const spawnTorProcess = async (quietDirPath: string, ports?: Ports, extra
     options: {
       env: {
         LD_LIBRARY_PATH: libPath,
-        HOME: quietDirPath
+        HOME: quietDirPath,
       },
-      detached: true
+      detached: true,
     },
-    extraTorProcessParams
+    extraTorProcessParams,
   })
   return tor
 }
@@ -69,11 +74,11 @@ export const createLibp2p = async (peerId: PeerId): Promise<Libp2p> => {
     cert: pems.userCert,
     key: pems.userKey,
     ca: [pems.ca],
-    targetPort: port
+    targetPort: port,
   })
 }
 
-export const createTmpDir = (prefix: string = 'quietTestTmp_'): tmp.DirResult => {
+export const createTmpDir = (prefix = 'quietTestTmp_'): tmp.DirResult => {
   return tmp.dirSync({ mode: 0o750, prefix, unsafeCleanup: true })
 }
 

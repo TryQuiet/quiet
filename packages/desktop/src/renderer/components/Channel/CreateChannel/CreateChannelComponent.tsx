@@ -26,7 +26,7 @@ const classes = {
   warrningMessage: `${PREFIX}warrningMessage`,
   rootBar: `${PREFIX}rootBar`,
   progressBar: `${PREFIX}progressBar`,
-  info: `${PREFIX}info`
+  info: `${PREFIX}info`,
 }
 
 const StyledModalContent = styled(Grid)(({ theme }) => ({
@@ -35,12 +35,12 @@ const StyledModalContent = styled(Grid)(({ theme }) => ({
 
   [`& .${classes.fullContainer}`]: {
     width: '100%',
-    height: '100%'
+    height: '100%',
   },
 
   [`& .${classes.gutter}`]: {
     marginTop: 8,
-    marginBottom: 24
+    marginBottom: 24,
   },
 
   [`& .${classes.button}`]: {
@@ -48,49 +48,49 @@ const StyledModalContent = styled(Grid)(({ theme }) => ({
     backgroundColor: theme.palette.colors.quietBlue,
     color: theme.palette.colors.white,
     '&:hover': {
-      backgroundColor: theme.palette.colors.quietBlue
+      backgroundColor: theme.palette.colors.quietBlue,
     },
     textTransform: 'none',
     height: 48,
-    fontWeight: 'normal'
+    fontWeight: 'normal',
   },
 
   [`& .${classes.title}`]: {
-    marginBottom: 24
+    marginBottom: 24,
   },
 
   [`& .${classes.iconDiv}`]: {
     width: 24,
     height: 28,
-    marginRight: 8
+    marginRight: 8,
   },
 
   [`& .${classes.warrningIcon}`]: {
-    color: '#FFCC00'
+    color: '#FFCC00',
   },
 
   [`& .${classes.warrningMessage}`]: {
-    wordBreak: 'break-word'
+    wordBreak: 'break-word',
   },
 
   [`& .${classes.rootBar}`]: {
     width: 350,
     marginTop: 32,
-    marginBottom: 16
+    marginBottom: 16,
   },
 
   [`& .${classes.progressBar}`]: {
-    backgroundColor: theme.palette.colors.linkBlue
+    backgroundColor: theme.palette.colors.linkBlue,
   },
 
   [`& .${classes.info}`]: {
     lineHeight: '19px',
-    color: theme.palette.colors.darkGray
-  }
+    color: theme.palette.colors.darkGray,
+  },
 }))
 
 const createChannelFields = {
-  channelName: channelNameField()
+  channelName: channelNameField(),
 }
 
 interface CreateChannelFormValues {
@@ -110,7 +110,7 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
   channelCreationError,
   createChannel,
   handleClose,
-  clearErrorsDispatch
+  clearErrorsDispatch,
 }) => {
   const [channelName, setChannelName] = useState('')
   const [parsedNameDiffers, setParsedNameDiffers] = useState(false)
@@ -121,9 +121,9 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
     setValue,
     setError,
     clearErrors,
-    control
+    control,
   } = useForm<{ channelName: string }>({
-    mode: 'onSubmit'
+    mode: 'onSubmit',
   })
 
   const onSubmit = (values: CreateChannelFormValues) => {
@@ -160,11 +160,7 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
     <Modal open={open} handleClose={handleClose} data-testid={'createChannelModal'}>
       <StyledModalContent container direction='column'>
         <form onSubmit={handleSubmit(onSubmit)}>
-          <Grid
-            container
-            justifyContent='flex-start'
-            direction='column'
-            className={classes.fullContainer}>
+          <Grid container justifyContent='flex-start' direction='column' className={classes.fullContainer}>
             <Typography variant='h3' className={classes.title}>
               Create a new public channel
             </Typography>
@@ -208,7 +204,8 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
                     <Typography
                       variant='body2'
                       className={classes.warrningMessage}
-                      data-testid={'createChannelNameWarning'}>
+                      data-testid={'createChannelNameWarning'}
+                    >
                       Your channel will be created as <b>{`#${channelName}`}</b>
                     </Typography>
                   </Grid>

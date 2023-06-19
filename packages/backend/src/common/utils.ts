@@ -47,7 +47,7 @@ export const removeFiles = (appPath: string, filename: string) => {
   if (!fs.existsSync(appPath)) return
   const IpfsAndOrbitDb = fs.readdirSync(appPath).filter(i => i.startsWith('Ipfs') || i.startsWith('OrbitDB'))
   const files: string[] = []
-  IpfsAndOrbitDb.forEach((e) => {
+  IpfsAndOrbitDb.forEach(e => {
     const directory = path.resolve(appPath, e)
     getFilesRecursively(directory, files)
   })
@@ -74,7 +74,7 @@ export const removeDirs = (appPath: string, filename: string) => {
   if (!fs.existsSync(appPath)) return
   const IpfsAndOrbitDb = fs.readdirSync(appPath).filter(i => i.startsWith('Ipfs'))
   const dirs: string[] = []
-  IpfsAndOrbitDb.forEach((e) => {
+  IpfsAndOrbitDb.forEach(e => {
     const directory = path.resolve(appPath, e)
     getDirsRecursively(directory, dirs)
   })
@@ -96,7 +96,7 @@ export const getPorts = async (): Promise<Ports> => {
     libp2pHiddenService,
     controlPort,
     dataServer,
-    httpTunnelPort
+    httpTunnelPort,
   }
 }
 
@@ -111,7 +111,7 @@ export class DummyIOServer extends Server {
   }
 }
 
-export const torBinForPlatform = (basePath: string = '', binName: string = 'tor'): string => {
+export const torBinForPlatform = (basePath = '', binName = 'tor'): string => {
   if (process.env.BACKEND === 'mobile') {
     return basePath
   }
@@ -156,7 +156,7 @@ export const getUsersAddresses = async (users: User[]): Promise<string[]> => {
  *
  * @param tolerance In percentage (0.0 - 1.0)
  */
-export const compare = (given: number, base: number, tolerance: number = 0) => {
+export const compare = (given: number, base: number, tolerance = 0) => {
   const margin = base * tolerance
   const min = base - margin
   const max = base + margin

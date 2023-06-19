@@ -17,7 +17,7 @@ export function* updateCommunitySaga(
   const payload = {
     id: action.payload.id,
     rootCa: action.payload.rootCa,
-    name: communityName
+    name: communityName,
   }
 
   yield* put(communitiesActions.updateCommunityData(payload))

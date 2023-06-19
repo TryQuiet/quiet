@@ -11,9 +11,7 @@ export function* resetCurrentPublicChannelCacheSaga(): Generator {
 
   const channelMessagesChunkSize = 50
 
-  const channelMessagesEntries = yield* select(
-    messagesSelectors.sortedCurrentPublicChannelMessagesEntries
-  )
+  const channelMessagesEntries = yield* select(messagesSelectors.sortedCurrentPublicChannelMessagesEntries)
 
   // Do not proceed with empty channel
   if (channelMessagesEntries.length <= 0) return
@@ -25,14 +23,14 @@ export function* resetCurrentPublicChannelCacheSaga(): Generator {
 
   const cacheMessagesPayload: CacheMessagesPayload = {
     messages,
-    channelId
+    channelId,
   }
 
   yield* put(publicChannelsActions.cacheMessages(cacheMessagesPayload))
 
   const setDisplayedMessagesNumberPayload: SetDisplayedMessagesNumberPayload = {
     channelId,
-    display: channelMessagesChunkSize
+    display: channelMessagesChunkSize,
   }
 
   yield* put(messagesActions.setDisplayedMessagesNumber(setDisplayedMessagesNumberPayload))

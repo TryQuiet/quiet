@@ -6,12 +6,7 @@ import { MathMessageComponent } from './MathMessageComponent'
 describe('MathMessageComponent', () => {
   it('renders tex', async () => {
     const result = renderComponent(
-      <MathMessageComponent
-        message={'$$a + b = c$$'}
-        messageId={'1'}
-        pending={false}
-        openUrl={() => {}}
-      />
+      <MathMessageComponent message={'$$a + b = c$$'} messageId={'1'} pending={false} openUrl={() => {}} />
     )
     await act(async () => {})
     expect(result.baseElement).toMatchInlineSnapshot(`

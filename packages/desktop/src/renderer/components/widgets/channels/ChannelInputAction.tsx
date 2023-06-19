@@ -9,21 +9,10 @@ interface ChannelInputActionProps {
   disabled?: boolean
 }
 
-export const ChannelInputAction: React.FC<ChannelInputActionProps> = ({
-  disabled = false
-}) => {
+export const ChannelInputAction: React.FC<ChannelInputActionProps> = ({ disabled = false }) => {
   return (
-    <MenuAction
-      icon={icon}
-      iconHover={iconHover}
-      offset='-10 12'
-      disabled={disabled}
-      placement='top-end'
-    >
-      <MenuActionItem
-        onClick={() => {}}
-        title='Send money'
-      />
+    <MenuAction icon={icon} iconHover={iconHover} offset='-10 12' disabled={disabled} placement='top-end'>
+      <MenuActionItem onClick={() => {}} title='Send money' />
     </MenuAction>
   )
 }

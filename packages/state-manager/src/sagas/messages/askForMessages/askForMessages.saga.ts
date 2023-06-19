@@ -8,9 +8,5 @@ export function* askForMessagesSaga(
   socket: Socket,
   action: PayloadAction<ReturnType<typeof messagesActions.askForMessages>['payload']>
 ): Generator {
-  yield* apply(
-    socket,
-    socket.emit,
-    applyEmitParams(SocketActionTypes.ASK_FOR_MESSAGES, action.payload)
-  )
+  yield* apply(socket, socket.emit, applyEmitParams(SocketActionTypes.ASK_FOR_MESSAGES, action.payload))
 }

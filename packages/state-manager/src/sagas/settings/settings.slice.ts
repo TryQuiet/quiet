@@ -16,8 +16,8 @@ export const settingsSlice = createSlice({
     },
     setNotificationsSound: (state, action: PayloadAction<NotificationsSounds>) => {
       state.notificationsSound = action.payload
-    }
-  }
+    },
+  },
 })
 
 export const settingsActions = settingsSlice.actions

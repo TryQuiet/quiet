@@ -24,9 +24,7 @@ export function* autoDownloadFilesSaga(
     // Proceed for images and files only
     if (!message.media || (message.type !== MessageType.Image && message.type !== MessageType.File)) return
 
-    const channelMessages = yield* select(
-      messagesSelectors.publicChannelMessagesEntities(message.channelId)
-    )
+    const channelMessages = yield* select(messagesSelectors.publicChannelMessagesEntities(message.channelId))
 
     const draft = channelMessages[message.id]
 
@@ -40,7 +38,7 @@ export function* autoDownloadFilesSaga(
         filesActions.updateDownloadStatus({
           mid: message.id,
           cid: message.media.cid,
-          downloadState: DownloadState.Ready
+          downloadState: DownloadState.Ready,
         })
       )
       return
@@ -50,7 +48,7 @@ export function* autoDownloadFilesSaga(
       filesActions.updateDownloadStatus({
         mid: message.id,
         cid: message.media.cid,
-        downloadState: DownloadState.Queued
+        downloadState: DownloadState.Queued,
       })
     )
 
@@ -59,7 +57,7 @@ export function* autoDownloadFilesSaga(
       socket.emit,
       applyEmitParams(SocketActionTypes.DOWNLOAD_FILE, {
         peerId: identity.peerId.id,
-        metadata: message.media
+        metadata: message.media,
       })
     )
   }

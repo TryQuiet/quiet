@@ -25,13 +25,19 @@ import {
   ErrorMessages,
   getFactory,
   errors,
-  ResponseCreateNetworkPayload
+  ResponseCreateNetworkPayload,
 } from '@quiet/state-manager'
 import Channel from '../renderer/components/Channel/Channel'
 import LoadingPanel from '../renderer/components/LoadingPanel/LoadingPanel'
 import { createUserCertificateTestHelper } from '@quiet/identity'
 import { AnyAction } from 'redux'
-import { ChannelsReplicatedPayload, ErrorPayload, ResponseLaunchCommunityPayload, SendOwnerCertificatePayload, SendUserCertificatePayload } from '@quiet/types'
+import {
+  ChannelsReplicatedPayload,
+  ErrorPayload,
+  ResponseLaunchCommunityPayload,
+  SendOwnerCertificatePayload,
+  SendUserCertificatePayload,
+} from '@quiet/types'
 
 jest.setTimeout(20_000)
 
@@ -44,7 +50,7 @@ describe('User', () => {
     window.ResizeObserver = jest.fn().mockImplementation(() => ({
       observe: jest.fn(),
       unobserve: jest.fn(),
-      disconnect: jest.fn()
+      disconnect: jest.fn(),
     }))
   })
 
@@ -70,81 +76,78 @@ describe('User', () => {
 
     const factory = await getFactory(store)
 
-    jest
-      .spyOn(socket, 'emit')
-      .mockImplementation(async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
-        const action = input[0]
-        if (action === SocketActionTypes.CREATE_NETWORK) {
-          const payload = input[1] as Community
-          return socket.socketClient.emit<ResponseCreateNetworkPayload>(SocketActionTypes.NETWORK, {
-            community: payload,
-            network: {
-              hiddenService: {
-                onionAddress: 'onionAddress',
-                privateKey: 'privKey'
-              },
-              peerId: {
-                id: 'peerId'
-              }
-            }
-          })
-        }
-        if (action === SocketActionTypes.REGISTER_USER_CERTIFICATE) {
-          const payload = input[1] as RegisterUserCertificatePayload
-          const user = identity.selectors.currentIdentity(store.getState())
-          expect(user).not.toBeUndefined()
-          // This community serves only as a mocked object for generating valid crytpo data (certificate, rootCA)
-          const communityHelper: ReturnType<typeof communities.actions.addNewCommunity>['payload'] =
-            (
-              await factory.build<typeof communities.actions.addNewCommunity>('Community', {
-                id: payload.communityId
-              })
-            ).payload
-          const certificateHelper = await createUserCertificateTestHelper(
-            {
-              // @ts-expect-error
-              nickname: user.nickname,
-              // @ts-expect-error
-              commonName: communityHelper.registrarUrl,
-              // @ts-expect-error
-              peerId: user.peerId.id,
-              // @ts-expect-error
-              dmPublicKey: user.dmKeys.publicKey
+    jest.spyOn(socket, 'emit').mockImplementation(async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
+      const action = input[0]
+      if (action === SocketActionTypes.CREATE_NETWORK) {
+        const payload = input[1] as Community
+        return socket.socketClient.emit<ResponseCreateNetworkPayload>(SocketActionTypes.NETWORK, {
+          community: payload,
+          network: {
+            hiddenService: {
+              onionAddress: 'onionAddress',
+              privateKey: 'privKey',
             },
-            communityHelper.CA
-          )
-          const certificate = certificateHelper.userCert.userCertString
-          const rootCa = communityHelper.CA?.rootCertString
-          return socket.socketClient.emit<SendOwnerCertificatePayload>(SocketActionTypes.SEND_USER_CERTIFICATE, {
-            communityId: payload.communityId,
-            payload: {
-              certificate: certificate,
-              // @ts-expect-error
-              rootCa: rootCa,
-              peers: []
-            }
+            peerId: {
+              id: 'peerId',
+            },
+          },
+        })
+      }
+      if (action === SocketActionTypes.REGISTER_USER_CERTIFICATE) {
+        const payload = input[1] as RegisterUserCertificatePayload
+        const user = identity.selectors.currentIdentity(store.getState())
+        expect(user).not.toBeUndefined()
+        // This community serves only as a mocked object for generating valid crytpo data (certificate, rootCA)
+        const communityHelper: ReturnType<typeof communities.actions.addNewCommunity>['payload'] = (
+          await factory.build<typeof communities.actions.addNewCommunity>('Community', {
+            id: payload.communityId,
           })
-        }
-        if (action === SocketActionTypes.LAUNCH_COMMUNITY) {
-          const payload = input[1] as InitCommunityPayload
-          const community = communities.selectors.currentCommunity(store.getState())
-          expect(payload.id).toEqual(community?.id)
-          socket.socketClient.emit<ResponseLaunchCommunityPayload>(SocketActionTypes.COMMUNITY, {
-            id: payload.id
-          })
-          socket.socketClient.emit<ChannelsReplicatedPayload>(SocketActionTypes.CHANNELS_REPLICATED, {
-            channels: {
-              general: {
-                name: 'general',
-                description: 'string',
-                owner: 'owner',
-                timestamp: 0,
-                id: 'general'
-              }
-            }
-          })
-        }
-      })
+        ).payload
+        const certificateHelper = await createUserCertificateTestHelper(
+          {
+            // @ts-expect-error
+            nickname: user.nickname,
+            // @ts-expect-error
+            commonName: communityHelper.registrarUrl,
+            // @ts-expect-error
+            peerId: user.peerId.id,
+            // @ts-expect-error
+            dmPublicKey: user.dmKeys.publicKey,
+          },
+          communityHelper.CA
+        )
+        const certificate = certificateHelper.userCert.userCertString
+        const rootCa = communityHelper.CA?.rootCertString
+        return socket.socketClient.emit<SendOwnerCertificatePayload>(SocketActionTypes.SEND_USER_CERTIFICATE, {
+          communityId: payload.communityId,
+          payload: {
+            certificate: certificate,
+            // @ts-expect-error
+            rootCa: rootCa,
+            peers: [],
+          },
+        })
+      }
+      if (action === SocketActionTypes.LAUNCH_COMMUNITY) {
+        const payload = input[1] as InitCommunityPayload
+        const community = communities.selectors.currentCommunity(store.getState())
+        expect(payload.id).toEqual(community?.id)
+        socket.socketClient.emit<ResponseLaunchCommunityPayload>(SocketActionTypes.COMMUNITY, {
+          id: payload.id,
+        })
+        socket.socketClient.emit<ChannelsReplicatedPayload>(SocketActionTypes.CHANNELS_REPLICATED, {
+          channels: {
+            general: {
+              name: 'general',
+              description: 'string',
+              owner: 'owner',
+              timestamp: 0,
+              id: 'general',
+            },
+          },
+        })
+      }
+    })
 
     // Log all the dispatched actions in order
     const actions: AnyAction[] = []
@@ -163,10 +166,7 @@ describe('User', () => {
     // Enter community address and hit button
     const joinCommunityInput = screen.getByPlaceholderText(dictionary.placeholder)
     const joinCommunityButton = screen.getByText(dictionary.button)
-    await userEvent.type(
-      joinCommunityInput,
-      '3lyn5yjwwb74he5olv43eej7knt34folvrgrfsw6vzitvkxmc5wpe4yd'
-    )
+    await userEvent.type(joinCommunityInput, '3lyn5yjwwb74he5olv43eej7knt34folvrgrfsw6vzitvkxmc5wpe4yd')
     await userEvent.click(joinCommunityButton)
 
     // Confirm user is being redirected to username registration
@@ -242,37 +242,35 @@ describe('User', () => {
       store
     )
 
-    jest
-      .spyOn(socket, 'emit')
-      .mockImplementation(async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
-        const action = input[0]
-        if (action === SocketActionTypes.CREATE_NETWORK) {
-          const payload = input[1] as Community
-          return socket.socketClient.emit<ResponseCreateNetworkPayload>(SocketActionTypes.NETWORK, {
-            community: payload,
-            network: {
-              hiddenService: {
-                onionAddress: 'onionAddress',
-                privateKey: 'privKey'
-              },
-              peerId: {
-                id: 'peerId'
-              }
-            }
-          })
-        }
-        if (action === SocketActionTypes.REGISTER_USER_CERTIFICATE) {
-          const payload = input[1] as RegisterUserCertificatePayload
-          const community = communities.selectors.currentCommunity(store.getState())
-          expect(payload.communityId).toEqual(community?.id)
-          socket.socketClient.emit<ErrorPayload>(SocketActionTypes.ERROR, {
-            type: SocketActionTypes.REGISTRAR,
-            code: ErrorCodes.FORBIDDEN,
-            message: ErrorMessages.USERNAME_TAKEN,
-            community: community?.id
-          })
-        }
-      })
+    jest.spyOn(socket, 'emit').mockImplementation(async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
+      const action = input[0]
+      if (action === SocketActionTypes.CREATE_NETWORK) {
+        const payload = input[1] as Community
+        return socket.socketClient.emit<ResponseCreateNetworkPayload>(SocketActionTypes.NETWORK, {
+          community: payload,
+          network: {
+            hiddenService: {
+              onionAddress: 'onionAddress',
+              privateKey: 'privKey',
+            },
+            peerId: {
+              id: 'peerId',
+            },
+          },
+        })
+      }
+      if (action === SocketActionTypes.REGISTER_USER_CERTIFICATE) {
+        const payload = input[1] as RegisterUserCertificatePayload
+        const community = communities.selectors.currentCommunity(store.getState())
+        expect(payload.communityId).toEqual(community?.id)
+        socket.socketClient.emit<ErrorPayload>(SocketActionTypes.ERROR, {
+          type: SocketActionTypes.REGISTRAR,
+          code: ErrorCodes.FORBIDDEN,
+          message: ErrorMessages.USERNAME_TAKEN,
+          community: community?.id,
+        })
+      }
+    })
 
     // Log all the dispatched actions in order
     const actions: AnyAction[] = []
@@ -291,10 +289,7 @@ describe('User', () => {
     // Enter community address and hit button
     const joinCommunityInput = screen.getByPlaceholderText(dictionary.placeholder)
     const joinCommunityButton = screen.getByText(dictionary.button)
-    await userEvent.type(
-      joinCommunityInput,
-      '3lyn5yjwwb74he5olv43eej7knt34folvrgrfsw6vzitvkxmc5wpe4yd'
-    )
+    await userEvent.type(joinCommunityInput, '3lyn5yjwwb74he5olv43eej7knt34folvrgrfsw6vzitvkxmc5wpe4yd')
     await userEvent.click(joinCommunityButton)
 
     // Confirm user is being redirected to username registration
@@ -353,26 +348,24 @@ describe('User', () => {
       store
     )
 
-    jest
-      .spyOn(socket, 'emit')
-      .mockImplementation(async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
-        const action = input[0]
-        if (action === SocketActionTypes.CREATE_NETWORK) {
-          const payload = input[1] as Community
-          return socket.socketClient.emit<ResponseCreateNetworkPayload>(SocketActionTypes.NETWORK, {
-            community: payload,
-            network: {
-              hiddenService: {
-                onionAddress: 'onionAddress',
-                privateKey: 'privKey'
-              },
-              peerId: {
-                id: 'peerId'
-              }
-            }
-          })
-        }
-      })
+    jest.spyOn(socket, 'emit').mockImplementation(async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
+      const action = input[0]
+      if (action === SocketActionTypes.CREATE_NETWORK) {
+        const payload = input[1] as Community
+        return socket.socketClient.emit<ResponseCreateNetworkPayload>(SocketActionTypes.NETWORK, {
+          community: payload,
+          network: {
+            hiddenService: {
+              onionAddress: 'onionAddress',
+              privateKey: 'privKey',
+            },
+            peerId: {
+              id: 'peerId',
+            },
+          },
+        })
+      }
+    })
 
     // Log all the dispatched actions in order
     const actions: AnyAction[] = []
@@ -391,10 +384,7 @@ describe('User', () => {
     // Enter community address and hit button
     const joinCommunityInput = screen.getByPlaceholderText(dictionary.placeholder)
     const joinCommunityButton = screen.getByText(dictionary.button)
-    await userEvent.type(
-      joinCommunityInput,
-      '3lyn5yjwwb74he5olv43eej7knt34folvrgrfsw6vzitvkxmc5wpe4yd'
-    )
+    await userEvent.type(joinCommunityInput, '3lyn5yjwwb74he5olv43eej7knt34folvrgrfsw6vzitvkxmc5wpe4yd')
     await userEvent.click(joinCommunityButton)
 
     // Confirm user is being redirected to username registration
@@ -408,7 +398,7 @@ describe('User', () => {
           type: SocketActionTypes.REGISTRAR,
           code: ErrorCodes.FORBIDDEN,
           message: ErrorMessages.USERNAME_TAKEN,
-          community: community?.id
+          community: community?.id,
         })
       )
     })

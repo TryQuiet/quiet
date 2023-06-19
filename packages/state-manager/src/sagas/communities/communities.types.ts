@@ -2,7 +2,7 @@ import { type Community, type HiddenService, type Identity, type PeerId } from '
 
 export enum CommunityOwnership {
   Owner = 'owner',
-  User = 'user'
+  User = 'user',
 }
 
 export interface NetworkData {

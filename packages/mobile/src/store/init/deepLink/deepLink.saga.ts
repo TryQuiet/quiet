@@ -1,10 +1,6 @@
 import { PayloadAction } from '@reduxjs/toolkit'
 import { select, delay, put } from 'typed-redux-saga'
-import {
-  communities,
-  connection,
-  identity
-} from '@quiet/state-manager'
+import { communities, connection, identity } from '@quiet/state-manager'
 import { ScreenNames } from '../../../const/ScreenNames.enum'
 import { navigationActions } from '../../navigation/navigation.slice'
 import { initSelectors } from '../init.selectors'
@@ -14,9 +10,7 @@ import { replaceScreen } from '../../../RootNavigation'
 import { UsernameRegistrationRouteProps } from '../../../route.params'
 import { CommunityOwnership, ConnectionProcessInfo, CreateNetworkPayload } from '@quiet/types'
 
-export function* deepLinkSaga(
-  action: PayloadAction<ReturnType<typeof initActions.deepLink>['payload']>
-): Generator {
+export function* deepLinkSaga(action: PayloadAction<ReturnType<typeof initActions.deepLink>['payload']>): Generator {
   const code = action.payload
 
   while (true) {
@@ -39,14 +33,14 @@ export function* deepLinkSaga(
 
     if (fetching) {
       params = {
-        fetching: true
+        fetching: true,
       }
     }
 
     yield* put(
       navigationActions.replaceScreen({
         screen: ScreenNames.UsernameRegistrationScreen,
-        params
+        params,
       })
     )
 
@@ -57,7 +51,7 @@ export function* deepLinkSaga(
   if (community?.registrarUrl?.includes(code)) {
     yield* put(
       navigationActions.replaceScreen({
-        screen: ScreenNames.ChannelListScreen
+        screen: ScreenNames.ChannelListScreen,
       })
     )
     return
@@ -72,9 +66,8 @@ export function* deepLinkSaga(
           onPress: () => replaceScreen(ScreenNames.ChannelListScreen),
           icon: appImages.quiet_icon_round,
           title: 'You already belong to a community',
-          message:
-            "We're sorry but for now you can only be a member of a single community at a time"
-        }
+          message: "We're sorry but for now you can only be a member of a single community at a time",
+        },
       })
     )
     return
@@ -84,14 +77,14 @@ export function* deepLinkSaga(
     navigationActions.replaceScreen({
       screen: ScreenNames.JoinCommunityScreen,
       params: {
-        code
-      }
+        code,
+      },
     })
   )
 
   const payload: CreateNetworkPayload = {
     ownership: CommunityOwnership.User,
-    registrar: code
+    registrar: code,
   }
 
   yield* put(communities.actions.createNetwork(payload))

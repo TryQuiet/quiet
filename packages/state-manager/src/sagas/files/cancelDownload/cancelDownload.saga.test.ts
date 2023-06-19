@@ -26,14 +26,12 @@ describe('cancelDownloadSaga', () => {
 
     factory = await getFactory(store)
 
-    community = await factory.create<
-    ReturnType<typeof communitiesActions.addNewCommunity>['payload']
-    >('Community')
+    community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
 
-    alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
-      'Identity',
-      { id: community.id, nickname: 'alice' }
-    )
+    alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
+      id: community.id,
+      nickname: 'alice',
+    })
   })
 
   test('uploading file', async () => {
@@ -46,24 +44,26 @@ describe('cancelDownloadSaga', () => {
 
     const cancelDownload: CancelDownload = {
       mid,
-      cid
+      cid,
     }
 
     const reducer = combineReducers(reducers)
     await expectSaga(cancelDownloadSaga, socket, filesActions.cancelDownload(cancelDownload))
       .withReducer(reducer)
       .withState(store.getState())
-      .put(filesActions.updateDownloadStatus({
-        mid,
-        cid,
-        downloadState: DownloadState.Canceling
-      }))
+      .put(
+        filesActions.updateDownloadStatus({
+          mid,
+          cid,
+          downloadState: DownloadState.Canceling,
+        })
+      )
       .apply(socket, socket.emit, [
         SocketActionTypes.CANCEL_DOWNLOAD,
         {
           peerId,
-          mid
-        }
+          mid,
+        },
       ])
       .run()
   })

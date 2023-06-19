@@ -27,14 +27,12 @@ describe('createGeneralChannelSaga', () => {
     store = prepareStore().store
     factory = await getFactory(store)
 
-    community = await factory.create<
-      ReturnType<typeof communitiesActions.addNewCommunity>['payload']
-    >('Community')
+    community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
 
-    alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
-      'Identity',
-      { id: community.id, nickname: 'alice' }
-    )
+    alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
+      id: community.id,
+      nickname: 'alice',
+    })
   })
 
   test('create general channel', async () => {
@@ -45,7 +43,7 @@ describe('createGeneralChannelSaga', () => {
       description: 'Welcome to #general',
       owner: alice.nickname,
       id: generalId,
-      timestamp: 0
+      timestamp: 0,
     }
     console.log({ channel })
     await expectSaga(createGeneralChannelSaga)
@@ -53,16 +51,16 @@ describe('createGeneralChannelSaga', () => {
       .withState(store.getState())
       .provide([
         [call.fn(getChannelTimestamp), 0],
-        [call.fn(generateChannelId), generalId]
+        [call.fn(generateChannelId), generalId],
       ])
       .put(
         publicChannelsActions.createChannel({
-          channel
+          channel,
         })
       )
       .put(
         publicChannelsActions.setCurrentChannel({
-          channelId: generalId
+          channelId: generalId,
         })
       )
       .run()

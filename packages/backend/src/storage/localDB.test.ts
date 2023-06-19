@@ -14,21 +14,23 @@ describe('LocalDB', () => {
 
   beforeAll(() => {
     dbPath = path.join(createTmpDir().name, 'testDB')
-    peer1Address = '/dns4/mxtsfs4kzxzuisrw4tumdmycbyerqwakx37kj6om6azcjdaasifxmoqd.onion/tcp/443/wss/p2p/QmaEvCkpUG7GxhgvMkk8wxurfi1ehjHhSUNRksWTmXN2ix'
+    peer1Address =
+      '/dns4/mxtsfs4kzxzuisrw4tumdmycbyerqwakx37kj6om6azcjdaasifxmoqd.onion/tcp/443/wss/p2p/QmaEvCkpUG7GxhgvMkk8wxurfi1ehjHhSUNRksWTmXN2ix'
     peer1Stats = {
       [peer1Address]: {
-          peerId: 'QmaEvCkpUG7GxhgvMkk8wxurfi1ehjHhSUNRksWTmXN2ix',
-          connectionTime: 50,
-          lastSeen: 1000
-      }
+        peerId: 'QmaEvCkpUG7GxhgvMkk8wxurfi1ehjHhSUNRksWTmXN2ix',
+        connectionTime: 50,
+        lastSeen: 1000,
+      },
     }
-    peer2Address = '/dns4/hxr74a76b4lerhov75a6ha6yprruvow3wfu4qmmeoc6ajs7m7323lyid.onion/tcp/443/wss/p2p/QmZB6pVafcvAQfy5R5LxvDXvB8xcDifD39Lp3XGDM9XDuQ'
+    peer2Address =
+      '/dns4/hxr74a76b4lerhov75a6ha6yprruvow3wfu4qmmeoc6ajs7m7323lyid.onion/tcp/443/wss/p2p/QmZB6pVafcvAQfy5R5LxvDXvB8xcDifD39Lp3XGDM9XDuQ'
     peer2Stats = {
       [peer2Address]: {
-          peerId: 'QmZB6pVafcvAQfy5R5LxvDXvB8xcDifD39Lp3XGDM9XDuQ',
-          connectionTime: 500,
-          lastSeen: 500
-      }
+        peerId: 'QmZB6pVafcvAQfy5R5LxvDXvB8xcDifD39Lp3XGDM9XDuQ',
+        connectionTime: 500,
+        lastSeen: 500,
+      },
     }
   })
 
@@ -60,17 +62,15 @@ describe('LocalDB', () => {
   })
 
   it('get sorted peers', async () => {
-    const extraPeers = ['/dns4/zl37gnntp64dhnisddftypxbt5cqx6cum65vdv6oeaffrbqmemwc52ad.onion/tcp/443/wss/p2p/QmPGdGDUV1PXaJky4V53KSvFszdqEcM7KCoDpF2uFPf5w6']
+    const extraPeers = [
+      '/dns4/zl37gnntp64dhnisddftypxbt5cqx6cum65vdv6oeaffrbqmemwc52ad.onion/tcp/443/wss/p2p/QmPGdGDUV1PXaJky4V53KSvFszdqEcM7KCoDpF2uFPf5w6',
+    ]
     await db.put(LocalDBKeys.PEERS, {
       ...peer1Stats,
-      ...peer2Stats
+      ...peer2Stats,
     })
     const sortedPeers = await db.getSortedPeers(extraPeers)
-    expect(sortedPeers).toEqual([
-      peer1Address,
-      peer2Address,
-      extraPeers[0]
-    ])
+    expect(sortedPeers).toEqual([peer1Address, peer2Address, extraPeers[0]])
   })
 
   it('updates nested object', async () => {
@@ -80,23 +80,23 @@ describe('LocalDB', () => {
     const peersDBdata = await db.get(LocalDBKeys.PEERS)
     expect(peersDBdata).toEqual({
       ...peer1Stats,
-      ...peer2Stats
+      ...peer2Stats,
     })
 
     const peer2StatsUpdated: NetworkStats = {
       peerId: 'QmR7Qgd4tg2XrGD3kW647ZnYyazTwHQF3cqRBmSduhhusA',
       connectionTime: 777,
-      lastSeen: 678
+      lastSeen: 678,
     }
 
     await db.update(LocalDBKeys.PEERS, {
-      [peer2Address]: peer2StatsUpdated
+      [peer2Address]: peer2StatsUpdated,
     })
 
     const updatedPeersDBdata = await db.get(LocalDBKeys.PEERS)
     expect(updatedPeersDBdata).toEqual({
       ...peer1Stats,
-      [peer2Address]: peer2StatsUpdated
+      [peer2Address]: peer2StatsUpdated,
     })
   })
 })

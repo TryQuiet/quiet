@@ -18,7 +18,7 @@ export function* downloadFileSaga(
     filesActions.updateDownloadStatus({
       mid: media.message.id,
       cid: media.cid,
-      downloadState: DownloadState.Queued
+      downloadState: DownloadState.Queued,
     })
   )
 
@@ -27,7 +27,7 @@ export function* downloadFileSaga(
     socket.emit,
     applyEmitParams(SocketActionTypes.DOWNLOAD_FILE, {
       peerId: identity.peerId.id,
-      metadata: media
+      metadata: media,
     })
   )
 }

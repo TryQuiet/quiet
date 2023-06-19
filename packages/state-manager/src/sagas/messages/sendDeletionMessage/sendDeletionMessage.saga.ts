@@ -23,7 +23,7 @@ export function* sendDeletionMessageSaga(
   const payload: WriteMessagePayload = {
     type: MessageType.Info,
     message: `@${ownerNickname} deleted #${channelId.slice(0, channelId.indexOf('_'))}`, // TEMPORARY
-    channelId: generalChannel.id
+    channelId: generalChannel.id,
   }
 
   if (isOwner && !isGeneral) {

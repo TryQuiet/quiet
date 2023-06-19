@@ -37,7 +37,7 @@ export function* createNetworkSaga(
     name: action.payload.name,
     registrarUrl,
     CA,
-    rootCa: CA?.rootCertString
+    rootCa: CA?.rootCertString,
   }
 
   yield* apply(socket, socket.emit, applyEmitParams(SocketActionTypes.CREATE_NETWORK, payload))

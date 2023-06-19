@@ -8,13 +8,8 @@ interface Props {
   children?: React.ReactNode
 }
 
-export const renderComponent = (
-  ui: ReactElement,
-  state: Store = store
-): ReturnType<typeof render> => {
-  const Wrapper: FC<Props> = ({ children }) => (
-    <Provider store={state}>{children}</Provider>
-  )
+export const renderComponent = (ui: ReactElement, state: Store = store): ReturnType<typeof render> => {
+  const Wrapper: FC<Props> = ({ children }) => <Provider store={state}>{children}</Provider>
 
   return render(ui, { wrapper: Wrapper })
 }

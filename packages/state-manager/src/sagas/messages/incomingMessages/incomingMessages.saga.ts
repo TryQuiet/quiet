@@ -34,9 +34,7 @@ export function* incomingMessagesSaga(
 
     // Update message media path if draft is present (file hosting case)
     if (incomingMessage.media) {
-      const currentPublicChannelEntities = yield* select(
-        messagesSelectors.currentPublicChannelMessagesEntities
-      )
+      const currentPublicChannelEntities = yield* select(messagesSelectors.currentPublicChannelMessagesEntities)
       const messageDraft = currentPublicChannelEntities[incomingMessage.id]
 
       if (messageDraft?.media?.path) {
@@ -44,15 +42,13 @@ export function* incomingMessagesSaga(
           ...incomingMessage,
           media: {
             ...incomingMessage.media,
-            path: messageDraft.media.path
-          }
+            path: messageDraft.media.path,
+          },
         }
       }
     }
 
-    const lastDisplayedMessage = yield* select(
-      publicChannelsSelectors.currentChannelLastDisplayedMessage
-    )
+    const lastDisplayedMessage = yield* select(publicChannelsSelectors.currentChannelLastDisplayedMessage)
 
     const cachedMessages = yield* select(publicChannelsSelectors.sortedCurrentChannelMessages)
 
@@ -75,7 +71,7 @@ export function* incomingMessagesSaga(
 
     const cacheMessagesPayload: CacheMessagesPayload = {
       messages: cachedMessages,
-      channelId: message.channelId
+      channelId: message.channelId,
     }
 
     yield* put(publicChannelsActions.cacheMessages(cacheMessagesPayload))

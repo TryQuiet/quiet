@@ -20,7 +20,7 @@ export function* retryRegistration(communityId: string) {
   const payload: RegisterCertificatePayload = {
     communityId,
     nickname: identity.nickname,
-    userCsr: identity.userCsr
+    userCsr: identity.userCsr,
   }
 
   yield* put(identityActions.registerCertificate(payload))
@@ -45,10 +45,13 @@ export function* handleErrorsSaga(
         return
       }
       // Leave for integration test assertions purposes
-      const registrationAttempts = yield* select(
-        communitiesSelectors.registrationAttempts(error.community)
+      const registrationAttempts = yield* select(communitiesSelectors.registrationAttempts(error.community))
+      yield* put(
+        communitiesActions.updateRegistrationAttempts({
+          id: error.community,
+          registrationAttempts: registrationAttempts + 1,
+        })
       )
-      yield* put(communitiesActions.updateRegistrationAttempts({ id: error.community, registrationAttempts: registrationAttempts + 1 }))
       yield* call(retryRegistration, error.community)
     }
   }

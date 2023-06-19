@@ -3,7 +3,14 @@ import { Integer, BitString, OctetString, PrintableString } from 'asn1js'
 import config from './config'
 import { loadCertificate, loadPrivateKey, loadCSR, ExtensionsTypes, CertFieldsTypes } from './common'
 import {
-  Certificate, Extension, ExtKeyUsage, BasicConstraints, type CertificationRequest, GeneralName, GeneralNames, type Attribute
+  Certificate,
+  Extension,
+  ExtKeyUsage,
+  BasicConstraints,
+  type CertificationRequest,
+  GeneralName,
+  GeneralNames,
+  type Attribute,
 } from 'pkijs'
 
 export interface UserCert {
@@ -28,13 +35,13 @@ export const createUserCert = async (
     pkcs10: await loadCSR(userCsr),
     hashAlg,
     notBeforeDate,
-    notAfterDate
+    notAfterDate,
   })
 
   const userCert = userCertificate.certificate.toSchema(true).toBER(false)
   return {
     userCertObject: userCertificate,
-    userCertString: Buffer.from(userCert).toString('base64')
+    userCertString: Buffer.from(userCert).toString('base64'),
   }
 }
 
@@ -44,7 +51,7 @@ async function generateuserCertificate({
   pkcs10,
   hashAlg = config.hashAlg,
   notBeforeDate,
-  notAfterDate
+  notAfterDate,
 }: {
   issuerCert: Certificate
   issuerKey: CryptoKey
@@ -58,8 +65,8 @@ async function generateuserCertificate({
   const extKeyUsage = new ExtKeyUsage({
     keyPurposes: [
       '1.3.6.1.5.5.7.3.2', // id-kp-clientAuth
-      '1.3.6.1.5.5.7.3.1' // id-kp-serverAuth
-    ]
+      '1.3.6.1.5.5.7.3.1', // id-kp-serverAuth
+    ],
   })
   const attr: Attribute[] | undefined = pkcs10.attributes
   let dmPubKey = null
@@ -77,9 +84,9 @@ async function generateuserCertificate({
       names: [
         new GeneralName({
           type: 2, // dNSName
-          value: `${onionAddress}`
-        })
-      ]
+          value: `${onionAddress}`,
+        }),
+      ],
     })
   } catch (err) {
     throw new Error('Cannot get certificate request extension')
@@ -93,44 +100,44 @@ async function generateuserCertificate({
         extnID: ExtensionsTypes.basicConstr,
         critical: false,
         extnValue: basicConstr.toSchema().toBER(false),
-        parsedValue: basicConstr // Parsed value for well-known extensions
+        parsedValue: basicConstr, // Parsed value for well-known extensions
       }),
       new Extension({
         extnID: ExtensionsTypes.keyUsage,
         critical: false,
         extnValue: keyUsage.toBER(false),
-        parsedValue: keyUsage // Parsed value for well-known extensions
+        parsedValue: keyUsage, // Parsed value for well-known extensions
       }),
       new Extension({
         extnID: ExtensionsTypes.extKeyUsage,
         critical: false,
         extnValue: extKeyUsage.toSchema().toBER(false),
-        parsedValue: extKeyUsage // Parsed value for well-known extensions
+        parsedValue: extKeyUsage, // Parsed value for well-known extensions
       }),
       new Extension({
         extnID: CertFieldsTypes.dmPublicKey,
         critical: false,
-        extnValue: new OctetString({ valueHex: dmPubKey }).toBER(false)
+        extnValue: new OctetString({ valueHex: dmPubKey }).toBER(false),
       }),
       new Extension({
         extnID: CertFieldsTypes.nickName,
         critical: false,
-        extnValue: new PrintableString({ value: nickname }).toBER(false)
+        extnValue: new PrintableString({ value: nickname }).toBER(false),
       }),
       new Extension({
         extnID: CertFieldsTypes.peerId,
         critical: false,
-        extnValue: new PrintableString({ value: peerId }).toBER(false)
+        extnValue: new PrintableString({ value: peerId }).toBER(false),
       }),
       new Extension({
         extnID: CertFieldsTypes.subjectAltName,
         critical: false,
-        extnValue: altNames.toSchema().toBER(false)
-      })
+        extnValue: altNames.toSchema().toBER(false),
+      }),
     ],
     issuer: issuerCert.subject,
     subject: pkcs10.subject,
-    subjectPublicKeyInfo: pkcs10.subjectPublicKeyInfo
+    subjectPublicKeyInfo: pkcs10.subjectPublicKeyInfo,
   })
   certificate.notBefore.value = notBeforeDate
   certificate.notAfter.value = notAfterDate

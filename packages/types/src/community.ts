@@ -23,7 +23,7 @@ export interface Community {
 
 export enum CommunityOwnership {
   Owner = 'owner',
-  User = 'user'
+  User = 'user',
 }
 
 export interface NetworkData {

@@ -9,30 +9,20 @@ import { sortPeers } from '../../utils/functions/sortPeers/sortPeers'
 import { type NetworkStats } from './connection.types'
 import { type User } from '../users/users.types'
 
-const connectionSlice: CreatedSelectors[StoreKeys.Connection] = (state: StoreState) =>
-  state[StoreKeys.Connection]
+const connectionSlice: CreatedSelectors[StoreKeys.Connection] = (state: StoreState) => state[StoreKeys.Connection]
 
-export const lastConnectedTime = createSelector(
-  connectionSlice,
-  reducerState => reducerState.lastConnectedTime
-)
+export const lastConnectedTime = createSelector(connectionSlice, reducerState => reducerState.lastConnectedTime)
 
-export const torBootstrapProcess = createSelector(
-  connectionSlice,
-  reducerState => reducerState.torBootstrapProcess
-)
+export const torBootstrapProcess = createSelector(connectionSlice, reducerState => reducerState.torBootstrapProcess)
 
-export const torConnectionProcess = createSelector(
-  connectionSlice,
-  reducerState => reducerState.torConnectionProcess
-)
+export const torConnectionProcess = createSelector(connectionSlice, reducerState => reducerState.torConnectionProcess)
 
 export const peerList = createSelector(
   connectionSlice,
   communitiesSelectors.currentCommunity,
   (reducerState, community) => {
     if (!community) return []
-    const arr = [...community.peerList || []]
+    const arr = [...(community.peerList || [])]
 
     let stats: NetworkStats[]
     if (reducerState.peersStats === undefined) {
@@ -45,29 +35,25 @@ export const peerList = createSelector(
   }
 )
 
-export const connectedPeersMapping = createSelector(
-  certificatesMapping,
-  connectedPeers,
-  (certificates, peers) => {
-    const usersData = Object.values(certificates)
-    return peers.reduce((peersMapping: Record<string, User>, peerId: string) => {
-      for (const user of usersData) {
-        if (peerId === user.peerId) {
-          return {
-            ...peersMapping,
-            [peerId]: user
-          }
+export const connectedPeersMapping = createSelector(certificatesMapping, connectedPeers, (certificates, peers) => {
+  const usersData = Object.values(certificates)
+  return peers.reduce((peersMapping: Record<string, User>, peerId: string) => {
+    for (const user of usersData) {
+      if (peerId === user.peerId) {
+        return {
+          ...peersMapping,
+          [peerId]: user,
         }
       }
-      return peersMapping
-    }, {})
-  }
-)
+    }
+    return peersMapping
+  }, {})
+})
 
 export const connectionSelectors = {
   lastConnectedTime,
   connectedPeersMapping,
   peerList,
   torBootstrapProcess,
-  torConnectionProcess
+  torConnectionProcess,
 }

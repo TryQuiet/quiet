@@ -7,7 +7,7 @@ import { appActions } from './sagas/app/app.slice'
 import {
   publicChannelsReducer,
   publicChannelsActions,
-  PublicChannelsState
+  PublicChannelsState,
 } from './sagas/publicChannels/publicChannels.slice'
 
 import { publicChannelsSelectors } from './sagas/publicChannels/publicChannels.selectors'
@@ -27,11 +27,7 @@ import { messagesSelectors } from './sagas/messages/messages.selectors'
 import { errorsSelectors } from './sagas/errors/errors.selectors'
 import { errorsReducer, errorsActions } from './sagas/errors/errors.slice'
 
-import {
-  communitiesActions,
-  communitiesReducer,
-  CommunitiesState
-} from './sagas/communities/communities.slice'
+import { communitiesActions, communitiesReducer, CommunitiesState } from './sagas/communities/communities.slice'
 
 import { SocketActionTypes } from './sagas/socket/const/actionTypes'
 
@@ -71,10 +67,7 @@ export type { Community } from './sagas/communities/communities.slice' // TODO: 
 export { communitiesAdapter } from './sagas/communities/communities.adapter'
 export { certificatesAdapter } from './sagas/users/users.adapter'
 
-export {
-  publicChannelsAdapter,
-  channelMessagesAdapter
-} from './sagas/publicChannels/publicChannels.adapter'
+export { publicChannelsAdapter, channelMessagesAdapter } from './sagas/publicChannels/publicChannels.adapter'
 
 export { identityAdapter } from './sagas/identity/identity.adapter'
 
@@ -113,14 +106,14 @@ export * from './sagas/settings/settings.types'
 export * from './sagas/appConnection/connection.types'
 
 export const app = {
-  actions: appActions
+  actions: appActions,
 }
 
 export const settings = {
   reducer: settingsReducer,
   State: SettingsState,
   selectors: settingsSelectors,
-  actions: settingsActions
+  actions: settingsActions,
 }
 
 export const publicChannels = {
@@ -128,62 +121,62 @@ export const publicChannels = {
   State: PublicChannelsState,
   selectors: publicChannelsSelectors,
   actions: publicChannelsActions,
-  sagas: publicChannelsMasterSaga
+  sagas: publicChannelsMasterSaga,
 }
 
 export const users = {
   reducer: usersReducer,
   State: UsersState,
   actions: usersActions,
-  selectors: usersSelectors
+  selectors: usersSelectors,
 }
 
 export const identity = {
   reducer: identityReducer,
   State: IdentityState,
   actions: identityActions,
-  selectors: identitySelectors
+  selectors: identitySelectors,
 }
 
 export const messages = {
   reducer: messagesReducer,
   actions: messagesActions,
-  selectors: messagesSelectors
+  selectors: messagesSelectors,
 }
 
 export const errors = {
   reducer: errorsReducer,
   actions: errorsActions,
-  selectors: errorsSelectors
+  selectors: errorsSelectors,
 }
 
 export const communities = {
   reducer: communitiesReducer,
   State: CommunitiesState,
   actions: communitiesActions,
-  selectors: communitiesSelectors
+  selectors: communitiesSelectors,
 }
 
 export const connection = {
   reducer: connectionReducer,
   actions: connectionActions,
-  selectors: connectionSelectors
+  selectors: connectionSelectors,
 }
 
 export const files = {
   reducer: filesReducer,
   actions: filesActions,
-  selectors: filesSelectors
+  selectors: filesSelectors,
 }
 
 export const network = {
   reducer: networkReducer,
   actions: networkActions,
-  selectors: networkSelectors
+  selectors: networkSelectors,
 }
 
 export const socket = {
-  useIO
+  useIO,
 }
 
 export const storeKeys = StoreKeys
@@ -202,5 +195,5 @@ export default {
   reducers,
   storeKeys,
   socketActionTypes,
-  settings
+  settings,
 }

@@ -23,50 +23,46 @@ const classes = {
   info: `${PREFIX}info`,
   textfield: `${PREFIX}textfield`,
   cssDisabled: `${PREFIX}cssDisabled`,
-  button: `${PREFIX}button`
+  button: `${PREFIX}button`,
 }
 
-const StyledModalContent = styled(Grid)((
-  {
-    theme
-  }
-) => ({
+const StyledModalContent = styled(Grid)(({ theme }) => ({
   padding: theme.spacing(4),
 
   [`& .${classes.icon}`]: {
     fontSize: '10rem',
     color: red[500],
     width: 80,
-    height: 70
+    height: 70,
   },
 
   [`& .${classes.stackTrace}`]: {
     fontSize: '14px',
-    wordBreak: 'break-all'
+    wordBreak: 'break-all',
   },
 
   [`& .${classes.message}`]: {
     wordBreak: 'break-all',
     marginTop: 20,
-    fontWeight: 500
+    fontWeight: 500,
   },
 
   [`& .${classes.info}`]: {
-    textAlign: 'center'
+    textAlign: 'center',
   },
 
   [`& .${classes.textfield}`]: {},
 
   [`& .${classes.cssDisabled}`]: {
     backgroundColor: theme.palette.colors.inputGray,
-    color: theme.palette.colors.red
+    color: theme.palette.colors.red,
   },
 
   [`& .${classes.button}`]: {
     textTransform: 'none',
     width: 150,
-    height: 60
-  }
+    height: 60,
+  },
 }))
 
 interface ErrorModalProps {
@@ -84,7 +80,7 @@ export const ErrorModalComponent: React.FC<ErrorModalProps> = ({
   traceback,
   handleClose,
   restartApp,
-  testMode
+  testMode,
 }) => {
   return (
     <Modal open={open} handleClose={handleClose} title='Error'>
@@ -116,17 +112,13 @@ export const ErrorModalComponent: React.FC<ErrorModalProps> = ({
                 classes: {
                   root: classes.textfield,
                   multiline: classes.stackTrace,
-                  disabled: classes.cssDisabled
-                }
+                  disabled: classes.cssDisabled,
+                },
               }}
             />
           </Grid>
           <Grid item container justifyContent='center' alignItems='center'>
-            <LoadingButton
-              text='Restart'
-              classes={{ button: classes.button }}
-              onClick={restartApp}
-            />
+            <LoadingButton text='Restart' classes={{ button: classes.button }} onClick={restartApp} />
           </Grid>
         </Grid>
       </StyledModalContent>

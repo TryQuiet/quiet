@@ -31,33 +31,28 @@ describe('checkForMessagesSaga', () => {
 
     factory = await getFactory(store)
 
-    community = await factory.create<
-      ReturnType<typeof communitiesActions.addNewCommunity>['payload']
-    >('Community')
+    community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
 
     generalChannel = {
       ...selectGeneralChannel(store.getState()),
       // @ts-ignore
       messages: undefined,
-      messagesSlice: undefined
+      messagesSlice: undefined,
     }
 
-    alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
-      'Identity',
-      { id: community.id, nickname: 'alice' }
-    )
+    alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
+      id: community.id,
+      nickname: 'alice',
+    })
   })
 
   test('ask for missing messages', async () => {
     const message = (
-      await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>(
-        'Message',
-        {
-          identity: alice,
-          message: generateMessageFactoryContentWithId(generalChannel.id),
-          verifyAutomatically: true
-        }
-      )
+      await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>('Message', {
+        identity: alice,
+        message: generateMessageFactoryContentWithId(generalChannel.id),
+        verifyAutomatically: true,
+      })
     ).message
 
     const reducer = combineReducers(reducers)
@@ -66,7 +61,7 @@ describe('checkForMessagesSaga', () => {
       messagesActions.responseSendMessagesIds({
         ids: [message.id, 'jf84hwwa', 'kl12sa0a'],
         channelId: generalChannel.id,
-        communityId: community.id
+        communityId: community.id,
       })
     )
       .withReducer(reducer)
@@ -76,7 +71,7 @@ describe('checkForMessagesSaga', () => {
           peerId: alice.peerId.id,
           communityId: community.id,
           channelId: generalChannel.id,
-          ids: ['jf84hwwa', 'kl12sa0a']
+          ids: ['jf84hwwa', 'kl12sa0a'],
         })
       )
       .run()

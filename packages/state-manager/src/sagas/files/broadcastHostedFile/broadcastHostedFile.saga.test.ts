@@ -33,39 +33,36 @@ describe('downloadFileSaga', () => {
 
     factory = await getFactory(store)
 
-    community = await factory.create<
-    ReturnType<typeof communitiesActions.addNewCommunity>['payload']
-    >('Community')
+    community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
 
-    alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
-      'Identity',
-      { id: community.id, nickname: 'alice' }
-    )
+    alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
+      id: community.id,
+      nickname: 'alice',
+    })
     const generalChannelState = publicChannelsSelectors.generalChannel(store.getState())
     if (generalChannelState) generalChannel = generalChannelState
     expect(generalChannel).not.toBeUndefined()
     sailingChannel = (
-      await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>(
-        'PublicChannel',
-        {
-          channel: {
-            name: 'sailing',
-            description: 'Welcome to #sailing',
-            timestamp: DateTime.utc().valueOf(),
-            owner: alice.nickname,
-            id: generateChannelId('sailing')
-          }
-        }
-      )
+      await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>('PublicChannel', {
+        channel: {
+          name: 'sailing',
+          description: 'Welcome to #sailing',
+          timestamp: DateTime.utc().valueOf(),
+          owner: alice.nickname,
+          id: generateChannelId('sailing'),
+        },
+      })
     ).channel
   })
 
   test('broadcast message for hosted file', async () => {
     const socket = { emit: jest.fn() } as unknown as Socket
 
-    store.dispatch(publicChannelsActions.setCurrentChannel({
-      channelId: generalChannel.id
-    }))
+    store.dispatch(
+      publicChannelsActions.setCurrentChannel({
+        channelId: generalChannel.id,
+      })
+    )
 
     const id = Math.random().toString(36).substr(2.9)
 
@@ -76,27 +73,24 @@ describe('downloadFileSaga', () => {
       ext: 'ext',
       message: {
         id,
-        channelId: generalChannel.id
-      }
+        channelId: generalChannel.id,
+      },
     }
 
     const message = (
-      await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>(
-        'Message',
-        {
-          identity: alice,
-          message: {
-            id,
-            type: MessageType.File,
-            message: '',
-            createdAt: DateTime.utc().valueOf(),
-            channelId: generalChannel.id,
-            signature: '',
-            pubKey: '',
-            media
-          }
-        }
-      )
+      await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>('Message', {
+        identity: alice,
+        message: {
+          id,
+          type: MessageType.File,
+          message: '',
+          createdAt: DateTime.utc().valueOf(),
+          channelId: generalChannel.id,
+          signature: '',
+          pubKey: '',
+          media,
+        },
+      })
     ).message
 
     const reducer = combineReducers(reducers)
@@ -111,10 +105,10 @@ describe('downloadFileSaga', () => {
             ...message,
             media: {
               ...media,
-              path: null
-            }
-          }
-        }
+              path: null,
+            },
+          },
+        },
       ])
       .run()
   })
@@ -122,9 +116,11 @@ describe('downloadFileSaga', () => {
   test('broadcast message for hosted file (while on non-active channel)', async () => {
     const socket = { emit: jest.fn() } as unknown as Socket
 
-    store.dispatch(publicChannelsActions.setCurrentChannel({
-      channelId: sailingChannel.id
-    }))
+    store.dispatch(
+      publicChannelsActions.setCurrentChannel({
+        channelId: sailingChannel.id,
+      })
+    )
 
     const id = Math.random().toString(36).substr(2.9)
 
@@ -135,27 +131,24 @@ describe('downloadFileSaga', () => {
       ext: 'ext',
       message: {
         id,
-        channelId: generalChannel.id
-      }
+        channelId: generalChannel.id,
+      },
     }
 
     const message = (
-      await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>(
-        'Message',
-        {
-          identity: alice,
-          message: {
-            id,
-            type: MessageType.File,
-            message: '',
-            createdAt: DateTime.utc().valueOf(),
-            channelId: generalChannel.id,
-            signature: '',
-            pubKey: '',
-            media
-          }
-        }
-      )
+      await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>('Message', {
+        identity: alice,
+        message: {
+          id,
+          type: MessageType.File,
+          message: '',
+          createdAt: DateTime.utc().valueOf(),
+          channelId: generalChannel.id,
+          signature: '',
+          pubKey: '',
+          media,
+        },
+      })
     ).message
 
     const reducer = combineReducers(reducers)
@@ -170,10 +163,10 @@ describe('downloadFileSaga', () => {
             ...message,
             media: {
               ...media,
-              path: null
-            }
-          }
-        }
+              path: null,
+            },
+          },
+        },
       ])
       .run()
   })

@@ -16,12 +16,8 @@ export function* saveOwnerCertToDbSaga(socket: Socket): Generator {
     certificate: identity.userCertificate,
     permsData: {
       certificate: currentCommunity.CA.rootCertString,
-      privKey: currentCommunity.CA.rootKeyString
-    }
+      privKey: currentCommunity.CA.rootKeyString,
+    },
   }
-  yield* apply(
-    socket,
-    socket.emit,
-    applyEmitParams(SocketActionTypes.SAVE_OWNER_CERTIFICATE, payload)
-  )
+  yield* apply(socket, socket.emit, applyEmitParams(SocketActionTypes.SAVE_OWNER_CERTIFICATE, payload))
 }

@@ -19,6 +19,6 @@ export function* publicChannelsMasterSaga(socket: Socket): Generator {
     takeEvery(publicChannelsActions.sendInitialChannelMessage.type, sendInitialChannelMessageSaga),
     takeEvery(publicChannelsActions.channelsReplicated.type, channelsReplicatedSaga),
     takeEvery(publicChannelsActions.setCurrentChannel.type, clearUnreadChannelsSaga),
-    takeEvery(publicChannelsActions.sendNewUserInfoMessage.type, sendNewUserInfoMessageSaga)
+    takeEvery(publicChannelsActions.sendNewUserInfoMessage.type, sendNewUserInfoMessageSaga),
   ])
 }

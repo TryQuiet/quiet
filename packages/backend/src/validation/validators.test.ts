@@ -64,7 +64,8 @@ describe('Validators - Conversations', () => {
 })
 
 describe('Validators - Messages', () => {
-  test('message is valid', () => { // message with media is valid
+  test('message is valid', () => {
+    // message with media is valid
     const msg = {
       id: 'fzxjdiasf8ashfisfd',
       type: 1,
@@ -72,7 +73,7 @@ describe('Validators - Messages', () => {
       createdAt: 1234567,
       channelId: '123n23l234lk234',
       signature: 'asdfasdf',
-      pubKey: 'afsdf'
+      pubKey: 'afsdf',
     }
     expect(isMessage(msg)).toBeTruthy()
   })
@@ -89,12 +90,12 @@ describe('Validators - Messages', () => {
         cid: '123',
         message: {
           id: 'fzxjdiasf8ashfisfd',
-          channelId: '123n23l234lk234'
+          channelId: '123n23l234lk234',
         },
         path: '/path/to/file',
         name: 'file',
-        ext: '.png'
-      }
+        ext: '.png',
+      },
     }
     expect(isMessage(msg)).toBeTruthy()
   })
@@ -105,7 +106,7 @@ describe('Validators - Messages', () => {
       createdAt: 1234567,
       channelId: '123n23l234lk234',
       signature: 'asdfasdf',
-      pubKey: 'afsdf'
+      pubKey: 'afsdf',
     }
     expect(isMessage(msg as ChannelMessage)).toBeFalsy()
   })
@@ -117,9 +118,9 @@ describe('Validators - Messages', () => {
       createdAt: 1234567,
       channelId: '123n23l234lk234',
       signature: 'asdfasdf',
-      pubKey: 'afsdf'
+      pubKey: 'afsdf',
     }
-    expect(isMessage((msg as unknown) as ChannelMessage)).toBeFalsy()
+    expect(isMessage(msg as unknown as ChannelMessage)).toBeFalsy()
   })
   test('message with invalid media property is invalid', () => {
     const msg = {
@@ -133,14 +134,14 @@ describe('Validators - Messages', () => {
       media: {
         message: {
           id: 'fzxjdiasf8ashfisfd',
-          channelId: '123n23l234lk234'
+          channelId: '123n23l234lk234',
         },
         path: '/path/to/file',
         name: 'file',
-        ext: '.png'
-      }
+        ext: '.png',
+      },
     }
-    expect(isMessage((msg as unknown) as ChannelMessage)).toBeFalsy()
+    expect(isMessage(msg as unknown as ChannelMessage)).toBeFalsy()
   })
 })
 
@@ -151,7 +152,7 @@ describe('Validators - Channels', () => {
       description: 'quiet',
       owner: 'szakalakakaaakaka',
       timestamp: 12341234,
-      id: 'sadfdasfsadfsdfsnfsdjfdsfsdfjsdf'
+      id: 'sadfdasfsadfsdfsnfsdjfdsfsdfjsdf',
     }
     expect(isChannel(channel)).toBeTruthy()
   })
@@ -160,7 +161,7 @@ describe('Validators - Channels', () => {
       name: 'quiet',
       description: 'quiet',
       owner: 'szakalakakaaakaka',
-      id: 'sadfdasfsadfsdfsnfsdjfdsfsdfjsdf'
+      id: 'sadfdasfsadfsdfsnfsdjfdsfsdfjsdf',
     }
     expect(isChannel(channel as unknown as PublicChannel)).toBeFalsy()
   })
@@ -170,9 +171,9 @@ describe('Validators - Channels', () => {
       description: 'quiet',
       owner: 'szakalakakaaakaka',
       timestamp: 'asfasdf',
-      id: 'sadfdasfsadfsdfsnfsdjfdsfsdfjsdf'
+      id: 'sadfdasfsadfsdfsnfsdjfdsfsdfjsdf',
     }
-    expect(isChannel((channel as unknown) as PublicChannel)).toBeFalsy()
+    expect(isChannel(channel as unknown as PublicChannel)).toBeFalsy()
   })
 })
 

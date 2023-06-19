@@ -4,7 +4,7 @@ import {
   getCertFieldValue,
   loadCertificate,
   parseCertificate,
-  keyFromCertificate
+  keyFromCertificate,
 } from '@quiet/identity'
 import { put, select, call } from 'typed-redux-saga'
 import { messagesActions } from '../../messages/messages.slice'
@@ -54,7 +54,7 @@ export function* sendNewUserInfoMessageSaga(
     const payload: WriteMessagePayload = {
       type: MessageType.Info,
       message: `@${user} has joined ${communityName}! 🎉`,
-      channelId: generalChannel.id
+      channelId: generalChannel.id,
     }
 
     yield* put(messagesActions.sendMessage(payload))

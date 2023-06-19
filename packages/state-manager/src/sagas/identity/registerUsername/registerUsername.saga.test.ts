@@ -18,33 +18,32 @@ describe('registerUsernameSaga', () => {
 
     const factory = await getFactory(store)
 
-    const community = await factory.create<
-    ReturnType<typeof communitiesActions.addNewCommunity>['payload']
-    >('Community', {
-      id: '1',
-      name: 'rockets',
-      registrarUrl: 'registrarUrl',
-      CA: null,
-      rootCa: 'rootCa',
-      peerList: [],
-      registrar: null,
-      onionAddress: '',
-      privateKey: '',
-      port: 0
-    })
+    const community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>(
+      'Community',
+      {
+        id: '1',
+        name: 'rockets',
+        registrarUrl: 'registrarUrl',
+        CA: null,
+        rootCa: 'rootCa',
+        peerList: [],
+        registrar: null,
+        onionAddress: '',
+        privateKey: '',
+        port: 0,
+      }
+    )
 
     // Identity won't have userCsr as long as its corresponding community has no CA (factory specific logic)
-    const identity = await factory.create<
-    ReturnType<typeof identityActions.addNewIdentity>['payload']
-    >('Identity', {
+    const identity = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
       nickname: undefined,
-      id: community.id
+      id: community.id,
     })
 
     const userCsr: UserCsr = {
       userCsr: 'userCsr',
       userKey: 'userKey',
-      pkcs10: jest.fn() as unknown as CertData
+      pkcs10: jest.fn() as unknown as CertData,
     }
 
     const createUserCsrPayload: CreateUserCsrPayload = {
@@ -53,7 +52,7 @@ describe('registerUsernameSaga', () => {
       peerId: identity.peerId.id,
       dmPublicKey: identity.dmKeys.publicKey,
       signAlg: config.signAlg,
-      hashAlg: config.hashAlg
+      hashAlg: config.hashAlg,
     }
 
     const reducer = combineReducers(reducers)
@@ -66,7 +65,7 @@ describe('registerUsernameSaga', () => {
         identityActions.registerCertificate({
           communityId: community.id,
           nickname: 'nickname',
-          userCsr
+          userCsr,
         })
       )
       .run()
@@ -78,31 +77,32 @@ describe('registerUsernameSaga', () => {
 
     const factory = await getFactory(store)
 
-    const community = await factory.create<
-    ReturnType<typeof communitiesActions.addNewCommunity>['payload']
-    >('Community', {
-      id: '1',
-      name: 'rockets',
-      registrarUrl: 'registrarUrl',
-      CA: null,
-      rootCa: 'rootCa',
-      peerList: [],
-      registrar: null,
-      onionAddress: '',
-      privateKey: '',
-      port: 0
-    })
+    const community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>(
+      'Community',
+      {
+        id: '1',
+        name: 'rockets',
+        registrarUrl: 'registrarUrl',
+        CA: null,
+        rootCa: 'rootCa',
+        peerList: [],
+        registrar: null,
+        onionAddress: '',
+        privateKey: '',
+        port: 0,
+      }
+    )
 
     const userCsr: UserCsr = {
       userCsr: 'userCsr',
       userKey: 'userKey',
-      pkcs10: jest.fn() as unknown as CertData
+      pkcs10: jest.fn() as unknown as CertData,
     }
 
     const identity = (
       await factory.build<typeof identityActions.addNewIdentity>('Identity', {
         nickname: undefined,
-        id: community.id
+        id: community.id,
       })
     ).payload
 
@@ -119,7 +119,7 @@ describe('registerUsernameSaga', () => {
         identityActions.registerCertificate({
           communityId: community.id,
           nickname: identity.nickname,
-          userCsr
+          userCsr,
         })
       )
       .run()
@@ -131,31 +131,32 @@ describe('registerUsernameSaga', () => {
 
     const factory = await getFactory(store)
 
-    const community = await factory.create<
-    ReturnType<typeof communitiesActions.addNewCommunity>['payload']
-    >('Community', {
-      id: '1',
-      name: 'rockets',
-      registrarUrl: 'registrarUrl',
-      CA: null,
-      rootCa: 'rootCa',
-      peerList: [],
-      registrar: null,
-      onionAddress: '',
-      privateKey: '',
-      port: 0
-    })
+    const community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>(
+      'Community',
+      {
+        id: '1',
+        name: 'rockets',
+        registrarUrl: 'registrarUrl',
+        CA: null,
+        rootCa: 'rootCa',
+        peerList: [],
+        registrar: null,
+        onionAddress: '',
+        privateKey: '',
+        port: 0,
+      }
+    )
 
     const oldUserCsr: UserCsr = {
       userCsr: 'userCsr',
       userKey: 'userKey',
-      pkcs10: jest.fn() as unknown as CertData
+      pkcs10: jest.fn() as unknown as CertData,
     }
 
     const identity = (
       await factory.build<typeof identityActions.addNewIdentity>('Identity', {
         nickname: undefined,
-        id: community.id
+        id: community.id,
       })
     ).payload
 
@@ -166,7 +167,7 @@ describe('registerUsernameSaga', () => {
     const userCsr: UserCsr = {
       userCsr: 'userCsr',
       userKey: 'userKey',
-      pkcs10: jest.fn() as unknown as CertData
+      pkcs10: jest.fn() as unknown as CertData,
     }
 
     const createUserCsrPayload: CreateUserCsrPayload = {
@@ -175,7 +176,7 @@ describe('registerUsernameSaga', () => {
       peerId: identity.peerId.id,
       dmPublicKey: identity.dmKeys.publicKey,
       signAlg: config.signAlg,
-      hashAlg: config.hashAlg
+      hashAlg: config.hashAlg,
     }
 
     const reducer = combineReducers(reducers)
@@ -188,7 +189,7 @@ describe('registerUsernameSaga', () => {
         identityActions.registerCertificate({
           communityId: community.id,
           nickname: 'nickname',
-          userCsr
+          userCsr,
         })
       )
       .run()

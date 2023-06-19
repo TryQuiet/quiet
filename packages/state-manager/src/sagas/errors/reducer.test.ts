@@ -5,24 +5,24 @@ test('errors reducer should set errors', () => {
     community: 'community-id',
     type: 'community',
     code: 500,
-    message: 'Error occurred'
+    message: 'Error occurred',
   }
   const errorPayload2 = {
     community: 'community-id',
     type: 'other',
     code: 403,
-    message: 'Validation error occurred'
+    message: 'Validation error occurred',
   }
   const errorPayload3 = {
     community: 'different-community-id',
     type: 'community',
     code: 403,
-    message: 'Validation error occurred'
+    message: 'Validation error occurred',
   }
   const errorPayloadGeneral = {
     type: 'activity',
     code: 500,
-    message: 'Some error occurred'
+    message: 'Some error occurred',
   }
   const state1 = errorsReducer({ ...new ErrorsState() }, errorsActions.addError(errorPayload))
   expect(state1).toMatchInlineSnapshot(`
@@ -97,7 +97,7 @@ test('errors reducer should set errors', () => {
   const state4 = errorsReducer(
     state3,
     errorsActions.addError({
-      ...errorPayloadGeneral
+      ...errorPayloadGeneral,
     })
   )
 

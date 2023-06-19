@@ -33,7 +33,7 @@ export function* launchRegistrarSaga(
       peerId: identity.peerId.id,
       rootCertString: community.CA.rootCertString,
       rootKeyString: community.CA.rootKeyString,
-      privateKey: community.privateKey
+      privateKey: community.privateKey,
     }
     yield* apply(socket, socket.emit, applyEmitParams(SocketActionTypes.LAUNCH_REGISTRAR, payload))
   }

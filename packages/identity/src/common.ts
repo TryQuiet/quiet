@@ -1,6 +1,14 @@
 import { NoCryptoEngineError } from '@quiet/types'
 import { fromBER, type ObjectIdentifier } from 'asn1js'
-import { getAlgorithmParameters, getCrypto, CertificationRequest, Certificate, TSTInfo, ECNamedCurves, type AttributeTypeAndValue } from 'pkijs'
+import {
+  getAlgorithmParameters,
+  getCrypto,
+  CertificationRequest,
+  Certificate,
+  TSTInfo,
+  ECNamedCurves,
+  type AttributeTypeAndValue,
+} from 'pkijs'
 import { stringToArrayBuffer, fromBase64 } from 'pvutils'
 
 export enum CertFieldsTypes {
@@ -8,13 +16,13 @@ export enum CertFieldsTypes {
   subjectAltName = '2.5.29.17',
   nickName = '1.3.6.1.4.1.50715.2.1',
   peerId = '1.3.6.1.2.1.15.3.1.1',
-  dmPublicKey = '1.2.840.113549.1.9.12'
+  dmPublicKey = '1.2.840.113549.1.9.12',
 }
 
 export enum ExtensionsTypes {
   basicConstr = '2.5.29.19',
   keyUsage = '2.5.29.15',
-  extKeyUsage = '2.5.29.37'
+  extKeyUsage = '2.5.29.37',
 }
 
 export function hexStringToArrayBuffer(str: string): ArrayBuffer {
@@ -48,11 +56,7 @@ export const generateKeyPair = async ({ signAlg }: { signAlg: string }): Promise
   const crypto = getCrypto()
   if (!crypto) throw new NoCryptoEngineError()
 
-  const keyPair = await crypto.generateKey(
-    algorithm.algorithm as EcKeyGenParams,
-    true,
-    algorithm.usages
-  )
+  const keyPair = await crypto.generateKey(algorithm.algorithm as EcKeyGenParams, true, algorithm.usages)
   return keyPair
 }
 
@@ -82,13 +86,7 @@ export const loadPrivateKey = async (rootKey: string, signAlg: string): Promise<
   const crypto = getCrypto()
   if (!crypto) throw new NoCryptoEngineError()
 
-  return await crypto.importKey(
-    'pkcs8',
-    keyBuffer,
-    (algorithm.algorithm as Algorithm),
-    true,
-    algorithm.usages
-  )
+  return await crypto.importKey('pkcs8', keyBuffer, algorithm.algorithm as Algorithm, true, algorithm.usages)
 }
 
 export const loadCSR = async (csr: string): Promise<CertificationRequest> => {
@@ -97,10 +95,7 @@ export const loadCSR = async (csr: string): Promise<CertificationRequest> => {
   return new CertificationRequest({ schema: asn1.result })
 }
 
-export const getCertFieldValue = (
-  cert: Certificate,
-  fieldType: CertFieldsTypes | ObjectIdentifier
-): string | null => {
+export const getCertFieldValue = (cert: Certificate, fieldType: CertFieldsTypes | ObjectIdentifier): string | null => {
   if (fieldType === CertFieldsTypes.commonName) {
     const block = cert.subject.typesAndValues.find((tav: AttributeTypeAndValue) => tav.type === fieldType)
 

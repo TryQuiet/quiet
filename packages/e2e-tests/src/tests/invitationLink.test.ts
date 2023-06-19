@@ -8,7 +8,7 @@ import {
   App,
   Sidebar,
   StartingLoadingPanel,
-  WarningModal
+  WarningModal,
 } from '../selectors'
 import { capitalizeFirstLetter, invitationDeepUrl } from '@quiet/common'
 import { execSync } from 'child_process'
@@ -147,14 +147,10 @@ describe('New user joins using invitation link while having app opened', () => {
       const command = {
         linux: 'xdg-open',
         darwin: 'open',
-        win32: 'start'
+        win32: 'start',
       }
 
-      execSync(
-        `${command[process.platform as SupportedPlatformDesktop]} ${invitationDeepUrl(
-          url.hash.substring(1)
-        )}`
-      )
+      execSync(`${command[process.platform as SupportedPlatformDesktop]} ${invitationDeepUrl(url.hash.substring(1))}`)
       console.log('Guest opened invitation link')
     })
 

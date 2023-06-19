@@ -11,14 +11,21 @@ import StateManager, {
   prepareStore,
   Store,
   communities,
-  identity
+  identity,
 } from '@quiet/state-manager'
 import { StoreKeys } from '../../store.keys'
 import { initReducer, InitState } from '../../init/init.slice'
 import { ScreenNames } from '../../../const/ScreenNames.enum'
 import { navigationReducer, NavigationState } from '../../navigation/navigation.slice'
 import { FactoryGirl } from 'factory-girl'
-import { ChannelMessage, Community, FileMetadata, Identity, MarkUnreadChannelPayload, PublicChannel } from '@quiet/types'
+import {
+  ChannelMessage,
+  Community,
+  FileMetadata,
+  Identity,
+  MarkUnreadChannelPayload,
+  PublicChannel,
+} from '@quiet/types'
 import { generateChannelId } from '@quiet/common'
 import { DateTime } from 'luxon'
 
@@ -54,31 +61,26 @@ describe('showNotificationSaga', () => {
 
     factory = await getFactory(store)
 
-    community = await factory.create<
-      ReturnType<typeof communities.actions.addNewCommunity>['payload']
-    >('Community')
-    alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>(
-      'Identity',
-      { id: community.id, nickname: 'alice' }
-    )
+    community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
+    alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+      id: community.id,
+      nickname: 'alice',
+    })
 
     const generalChannelState = publicChannels.selectors.generalChannel(store.getState())
     if (generalChannelState) generalChannel = generalChannelState
     expect(generalChannel).not.toBeUndefined()
 
     photoChannel = (
-      await factory.create<ReturnType<typeof publicChannels.actions.addChannel>['payload']>(
-        'PublicChannel',
-        {
-          channel: {
-            name: 'photo',
-            description: 'Welcome to #photo',
-            timestamp: DateTime.utc().valueOf(),
-            owner: alice.nickname,
-            id: generateChannelId('photo')
-          }
-        }
-      )
+      await factory.create<ReturnType<typeof publicChannels.actions.addChannel>['payload']>('PublicChannel', {
+        channel: {
+          name: 'photo',
+          description: 'Welcome to #photo',
+          timestamp: DateTime.utc().valueOf(),
+          owner: alice.nickname,
+          id: generateChannelId('photo'),
+        },
+      })
     ).channel
 
     const channelMessage: ChannelMessage = {
@@ -88,12 +90,12 @@ describe('showNotificationSaga', () => {
       message: 'message',
       pubKey: 'pubKey',
       signature: 'signature',
-      type: 1
+      type: 1,
     }
 
     payload = {
       channelId: photoChannel.id,
-      message: channelMessage
+      message: channelMessage,
     }
 
     messageWithChannelName = { ...channelMessage, channelName: photoChannel.name }
@@ -102,13 +104,13 @@ describe('showNotificationSaga', () => {
 
   test('show notification for new messages', async () => {
     jest.mock('react-native/Libraries/AppState/AppState', () => ({
-      currentState: 'active'
+      currentState: 'active',
     }))
 
     Platform.OS = 'android'
 
     NativeModules.CommunicationModule = {
-      handleIncomingEvents: jest.fn()
+      handleIncomingEvents: jest.fn(),
     }
 
     const username = 'alice'
@@ -118,22 +120,22 @@ describe('showNotificationSaga', () => {
         combineReducers({
           ...StateManager.reducers,
           [StoreKeys.Init]: initReducer,
-          [StoreKeys.Navigation]: navigationReducer
+          [StoreKeys.Navigation]: navigationReducer,
         }),
         {
           ...store.getState(),
           [StoreKeys.Init]: {
-            ...new InitState()
+            ...new InitState(),
           },
           [StoreKeys.Navigation]: {
             ...new NavigationState(),
-            currentScreen: ScreenNames.ChannelScreen
-          }
+            currentScreen: ScreenNames.ChannelScreen,
+          },
         }
       )
       .provide([
         [call.fn(NativeModules.CommunicationModule.handleIncomingEvents), null],
-        [select(users.selectors.certificatesMapping), { pubKey: { username } }]
+        [select(users.selectors.certificatesMapping), { pubKey: { username } }],
       ])
       .call(JSON.stringify, messageWithChannelName)
       .call(
@@ -147,13 +149,13 @@ describe('showNotificationSaga', () => {
 
   test('do not show notifications when the app is in background', async () => {
     jest.mock('react-native/Libraries/AppState/AppState', () => ({
-      currentState: 'background'
+      currentState: 'background',
     }))
 
     Platform.OS = 'android'
 
     NativeModules.CommunicationModule = {
-      handleIncomingEvents: jest.fn()
+      handleIncomingEvents: jest.fn(),
     }
 
     const username = 'alice'
@@ -163,22 +165,22 @@ describe('showNotificationSaga', () => {
         combineReducers({
           ...StateManager.reducers,
           [StoreKeys.Init]: initReducer,
-          [StoreKeys.Navigation]: navigationReducer
+          [StoreKeys.Navigation]: navigationReducer,
         }),
         {
           ...store.getState(),
           [StoreKeys.Init]: {
-            ...new InitState()
+            ...new InitState(),
           },
           [StoreKeys.Navigation]: {
             ...new NavigationState(),
-            currentScreen: ScreenNames.ChannelScreen
-          }
+            currentScreen: ScreenNames.ChannelScreen,
+          },
         }
       )
       .provide([
         [call.fn(NativeModules.CommunicationModule.handleIncomingEvents), null],
-        [select(users.selectors.certificatesMapping), { pubKey: { username } }]
+        [select(users.selectors.certificatesMapping), { pubKey: { username } }],
       ])
       .not.call(NativeModules.CommunicationModule.handleIncomingEvents)
       .run()
@@ -186,13 +188,13 @@ describe('showNotificationSaga', () => {
 
   test('do not show notifications when current screen is a channel list', async () => {
     jest.mock('react-native/Libraries/AppState/AppState', () => ({
-      currentState: 'background'
+      currentState: 'background',
     }))
 
     Platform.OS = 'android'
 
     NativeModules.CommunicationModule = {
-      handleIncomingEvents: jest.fn()
+      handleIncomingEvents: jest.fn(),
     }
 
     const username = 'alice'
@@ -202,22 +204,22 @@ describe('showNotificationSaga', () => {
         combineReducers({
           ...StateManager.reducers,
           [StoreKeys.Init]: initReducer,
-          [StoreKeys.Navigation]: navigationReducer
+          [StoreKeys.Navigation]: navigationReducer,
         }),
         {
           ...store.getState(),
           [StoreKeys.Init]: {
-            ...new InitState()
+            ...new InitState(),
           },
           [StoreKeys.Navigation]: {
             ...new NavigationState(),
-            currentScreen: ScreenNames.ChannelScreen
-          }
+            currentScreen: ScreenNames.ChannelScreen,
+          },
         }
       )
       .provide([
         [call.fn(NativeModules.CommunicationModule.handleIncomingEvents), null],
-        [select(users.selectors.certificatesMapping), { pubKey: { username } }]
+        [select(users.selectors.certificatesMapping), { pubKey: { username } }],
       ])
       .not.call(NativeModules.CommunicationModule.handleIncomingEvents)
       .run()

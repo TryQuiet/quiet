@@ -10,10 +10,5 @@ export const verifySignature = async (
   const crypto = getCrypto()
   if (!crypto) throw new NoCryptoEngineError()
   const algorithm = getAlgorithmParameters(config.signAlg, 'verify')
-  return await crypto.verify(
-    (algorithm.algorithm as Algorithm),
-    publicKey,
-    signature,
-    Buffer.from(message)
-  )
+  return await crypto.verify(algorithm.algorithm as Algorithm, publicKey, signature, Buffer.from(message))
 }

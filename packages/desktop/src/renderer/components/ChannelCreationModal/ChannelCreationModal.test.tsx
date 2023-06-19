@@ -4,9 +4,7 @@ import ChannelCreationModalComponent from './ChannelCreationModal.component'
 
 describe('Create ChannelCreationModalComponent', () => {
   it('renders component', () => {
-    const result = renderComponent(
-      <ChannelCreationModalComponent handleClose={jest.fn()} open={true} />
-    )
+    const result = renderComponent(<ChannelCreationModalComponent handleClose={jest.fn()} open={true} />)
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body
         style="padding-right: 1024px; overflow: hidden;"

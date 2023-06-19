@@ -18,7 +18,7 @@ export function* cancelDownloadSaga(
     filesActions.updateDownloadStatus({
       mid,
       cid,
-      downloadState: DownloadState.Canceling
+      downloadState: DownloadState.Canceling,
     })
   )
 
@@ -27,7 +27,7 @@ export function* cancelDownloadSaga(
     socket.emit,
     applyEmitParams(SocketActionTypes.CANCEL_DOWNLOAD, {
       peerId: identity.peerId.id,
-      mid
+      mid,
     })
   )
 }

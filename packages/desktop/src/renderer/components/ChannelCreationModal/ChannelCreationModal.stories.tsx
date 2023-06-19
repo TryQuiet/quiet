@@ -1,9 +1,7 @@
 import React from 'react'
 import { ComponentStory, ComponentMeta } from '@storybook/react'
 import { withTheme } from '../../storybook/decorators'
-import ChannelCreationModalComponent, {
-  ChannelCreationModalComponentProps
-} from './ChannelCreationModal.component'
+import ChannelCreationModalComponent, { ChannelCreationModalComponentProps } from './ChannelCreationModal.component'
 
 const ChannelCreationModalTemplate: ComponentStory<typeof ChannelCreationModalComponent> = args => {
   return <ChannelCreationModalComponent {...args} />
@@ -13,7 +11,7 @@ export const ChannelCreationModal = ChannelCreationModalTemplate.bind({})
 
 const ChannelCreationModalArgs: ChannelCreationModalComponentProps = {
   open: true,
-  handleClose: function (): void {}
+  handleClose: function (): void {},
 }
 
 ChannelCreationModal.args = ChannelCreationModalArgs
@@ -21,7 +19,7 @@ ChannelCreationModal.args = ChannelCreationModalArgs
 const component: ComponentMeta<typeof ChannelCreationModalComponent> = {
   title: 'Components/ChannelCreationModal',
   decorators: [withTheme],
-  component: ChannelCreationModalComponent
+  component: ChannelCreationModalComponent,
 }
 
 export default component

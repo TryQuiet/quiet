@@ -5,9 +5,7 @@ import { identityActions } from '../../identity/identity.slice'
 import { communitiesActions } from '../communities.slice'
 import { type Identity, type ResponseCreateNetworkPayload } from '@quiet/types'
 
-export function* responseCreateNetworkSaga(
-  action: PayloadAction<ResponseCreateNetworkPayload>
-): Generator {
+export function* responseCreateNetworkSaga(action: PayloadAction<ResponseCreateNetworkPayload>): Generator {
   const community = action.payload.community
   const network = action.payload.network
 
@@ -21,7 +19,7 @@ export function* responseCreateNetworkSaga(
     dmKeys,
     userCsr: null,
     userCertificate: null,
-    joinTimestamp: null
+    joinTimestamp: null,
   }
 
   yield* put(communitiesActions.clearInvitationCode())

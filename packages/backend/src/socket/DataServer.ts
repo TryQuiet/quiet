@@ -5,7 +5,23 @@ import logger from '../logger'
 import { EventEmitter } from 'events'
 import cors from 'cors'
 import type { CorsOptions } from 'cors'
-import { type AskForMessagesPayload, type CancelDownloadPayload, type Community, ConnectionProcessInfo, type CreateChannelPayload, type DeleteFilesFromChannelSocketPayload, type DownloadFilePayload, type InitCommunityPayload, type LaunchRegistrarPayload, type RegisterOwnerCertificatePayload, type RegisterUserCertificatePayload, type SaveOwnerCertificatePayload, type SendMessagePayload, SocketActionTypes, type UploadFilePayload } from '@quiet/types'
+import {
+  type AskForMessagesPayload,
+  type CancelDownloadPayload,
+  type Community,
+  ConnectionProcessInfo,
+  type CreateChannelPayload,
+  type DeleteFilesFromChannelSocketPayload,
+  type DownloadFilePayload,
+  type InitCommunityPayload,
+  type LaunchRegistrarPayload,
+  type RegisterOwnerCertificatePayload,
+  type RegisterUserCertificatePayload,
+  type SaveOwnerCertificatePayload,
+  type SendMessagePayload,
+  SocketActionTypes,
+  type UploadFilePayload,
+} from '@quiet/types'
 
 const log = logger('socket')
 
@@ -23,12 +39,13 @@ export class DataServer extends EventEmitter {
     this.initSocket()
   }
 
-  private get cors(): CorsOptions { // TODO: is this still necessary?
+  private get cors(): CorsOptions {
+    // TODO: is this still necessary?
     if (process.env.TEST_MODE === 'true' && process.env.E2E_TEST === 'true') {
       log('Development/test env. Getting cors')
       return {
         origin: '*',
-        methods: ['GET', 'POST']
+        methods: ['GET', 'POST'],
       }
     }
     return {}
@@ -38,7 +55,7 @@ export class DataServer extends EventEmitter {
     this.io = new SocketIO(this.server, {
       cors: this.cors,
       pingInterval: 1000_000,
-      pingTimeout: 1000_000
+      pingTimeout: 1000_000,
     })
     // Attach listeners here
     this.io.on(SocketActionTypes.CONNECTION, socket => {
@@ -50,36 +67,21 @@ export class DataServer extends EventEmitter {
       socket.on(SocketActionTypes.CREATE_CHANNEL, async (payload: CreateChannelPayload) => {
         this.emit(SocketActionTypes.CREATE_CHANNEL, payload)
       })
-      socket.on(
-        SocketActionTypes.SEND_MESSAGE,
-        async (payload: SendMessagePayload) => {
-          this.emit(SocketActionTypes.SEND_MESSAGE, payload)
-        }
-      )
-      socket.on(
-        SocketActionTypes.UPLOAD_FILE,
-        async (payload: UploadFilePayload) => {
-          this.emit(SocketActionTypes.UPLOAD_FILE, payload.file)
-        }
-      )
-      socket.on(
-        SocketActionTypes.DOWNLOAD_FILE,
-        async (payload: DownloadFilePayload) => {
-          this.emit(SocketActionTypes.DOWNLOAD_FILE, payload.metadata)
-        }
-      )
-      socket.on(
-        SocketActionTypes.CANCEL_DOWNLOAD,
-        async (payload: CancelDownloadPayload) => {
-          this.emit(SocketActionTypes.CANCEL_DOWNLOAD, payload.mid)
-        }
-      )
+      socket.on(SocketActionTypes.SEND_MESSAGE, async (payload: SendMessagePayload) => {
+        this.emit(SocketActionTypes.SEND_MESSAGE, payload)
+      })
+      socket.on(SocketActionTypes.UPLOAD_FILE, async (payload: UploadFilePayload) => {
+        this.emit(SocketActionTypes.UPLOAD_FILE, payload.file)
+      })
+      socket.on(SocketActionTypes.DOWNLOAD_FILE, async (payload: DownloadFilePayload) => {
+        this.emit(SocketActionTypes.DOWNLOAD_FILE, payload.metadata)
+      })
+      socket.on(SocketActionTypes.CANCEL_DOWNLOAD, async (payload: CancelDownloadPayload) => {
+        this.emit(SocketActionTypes.CANCEL_DOWNLOAD, payload.mid)
+      })
       socket.on(
         SocketActionTypes.INITIALIZE_CONVERSATION,
-        async (
-          peerId: string,
-          { address, encryptedPhrase }: { address: string; encryptedPhrase: string }
-        ) => {
+        async (peerId: string, { address, encryptedPhrase }: { address: string; encryptedPhrase: string }) => {
           this.emit(SocketActionTypes.INITIALIZE_CONVERSATION, { address, encryptedPhrase })
         }
       )
@@ -88,53 +90,39 @@ export class DataServer extends EventEmitter {
       })
       socket.on(
         SocketActionTypes.SEND_DIRECT_MESSAGE,
-        async (
-          peerId: string,
-          { channelId, message }: { channelId: string; message: string }
-        ) => {
+        async (peerId: string, { channelId, message }: { channelId: string; message: string }) => {
           this.emit(SocketActionTypes.SEND_DIRECT_MESSAGE, { channelId, message })
         }
       )
-      socket.on(
-        SocketActionTypes.SUBSCRIBE_FOR_DIRECT_MESSAGE_THREAD,
-        async (peerId: string, channelId: string) => {
-          this.emit(SocketActionTypes.SUBSCRIBE_FOR_DIRECT_MESSAGE_THREAD, { peerId, channelId })
-        }
-      )
-      socket.on(
-        SocketActionTypes.SUBSCRIBE_FOR_ALL_CONVERSATIONS,
-        async (peerId: string, conversations: string[]) => {
-          this.emit(SocketActionTypes.SUBSCRIBE_FOR_ALL_CONVERSATIONS, { peerId, conversations })
-        }
-      )
+      socket.on(SocketActionTypes.SUBSCRIBE_FOR_DIRECT_MESSAGE_THREAD, async (peerId: string, channelId: string) => {
+        this.emit(SocketActionTypes.SUBSCRIBE_FOR_DIRECT_MESSAGE_THREAD, { peerId, channelId })
+      })
+      socket.on(SocketActionTypes.SUBSCRIBE_FOR_ALL_CONVERSATIONS, async (peerId: string, conversations: string[]) => {
+        this.emit(SocketActionTypes.SUBSCRIBE_FOR_ALL_CONVERSATIONS, { peerId, conversations })
+      })
       socket.on(SocketActionTypes.ASK_FOR_MESSAGES, async (payload: AskForMessagesPayload) => {
         this.emit(SocketActionTypes.ASK_FOR_MESSAGES, payload)
       })
 
-      socket.on(
-        SocketActionTypes.REGISTER_USER_CERTIFICATE,
-        async (payload: RegisterUserCertificatePayload) => {
-          log(`Registering user certificate (${payload.communityId}) on ${payload.serviceAddress}`)
-          this.emit(SocketActionTypes.REGISTER_USER_CERTIFICATE, payload)
-          await new Promise<void>(resolve => setTimeout(() => { resolve() }, 2000))
-          this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.REGISTERING_USER_CERTIFICATE)
-        }
-      )
-      socket.on(
-        SocketActionTypes.REGISTER_OWNER_CERTIFICATE,
-        async (payload: RegisterOwnerCertificatePayload) => {
-          log(`Registering owner certificate (${payload.communityId})`)
-          this.emit(SocketActionTypes.REGISTER_OWNER_CERTIFICATE, payload)
-          this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.REGISTERING_OWNER_CERTIFICATE)
-        }
-      )
-      socket.on(
-        SocketActionTypes.SAVE_OWNER_CERTIFICATE,
-        async (payload: SaveOwnerCertificatePayload) => {
-          log(`Saving owner certificate (${payload.peerId}), community: ${payload.id}`)
-          this.emit(SocketActionTypes.SAVED_OWNER_CERTIFICATE, payload)
-        }
-      )
+      socket.on(SocketActionTypes.REGISTER_USER_CERTIFICATE, async (payload: RegisterUserCertificatePayload) => {
+        log(`Registering user certificate (${payload.communityId}) on ${payload.serviceAddress}`)
+        this.emit(SocketActionTypes.REGISTER_USER_CERTIFICATE, payload)
+        await new Promise<void>(resolve =>
+          setTimeout(() => {
+            resolve()
+          }, 2000)
+        )
+        this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.REGISTERING_USER_CERTIFICATE)
+      })
+      socket.on(SocketActionTypes.REGISTER_OWNER_CERTIFICATE, async (payload: RegisterOwnerCertificatePayload) => {
+        log(`Registering owner certificate (${payload.communityId})`)
+        this.emit(SocketActionTypes.REGISTER_OWNER_CERTIFICATE, payload)
+        this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.REGISTERING_OWNER_CERTIFICATE)
+      })
+      socket.on(SocketActionTypes.SAVE_OWNER_CERTIFICATE, async (payload: SaveOwnerCertificatePayload) => {
+        log(`Saving owner certificate (${payload.peerId}), community: ${payload.id}`)
+        this.emit(SocketActionTypes.SAVED_OWNER_CERTIFICATE, payload)
+      })
       socket.on(SocketActionTypes.CREATE_COMMUNITY, async (payload: InitCommunityPayload) => {
         log(`Creating community ${payload.id}`)
         this.emit(SocketActionTypes.CREATE_COMMUNITY, payload)
@@ -180,7 +168,7 @@ export class DataServer extends EventEmitter {
   public close = async (): Promise<void> => {
     log(`Closing data server on port ${this.PORT}`)
     await new Promise<void>(resolve => {
-      this.server.close((err) => {
+      this.server.close(err => {
         if (err) throw new Error(err.message)
         resolve()
       })

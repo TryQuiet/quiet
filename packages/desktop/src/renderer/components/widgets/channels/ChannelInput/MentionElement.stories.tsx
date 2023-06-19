@@ -16,7 +16,7 @@ const args: MentionElementProps = {
   onMouseEnter: function (): void {},
   onClick: function (): void {},
   participant: true,
-  highlight: false
+  highlight: false,
 }
 
 Component.args = args
@@ -24,7 +24,7 @@ Component.args = args
 const component: ComponentMeta<typeof MentionElement> = {
   title: 'Components/MentionElement',
   decorators: [withTheme],
-  component: MentionElement
+  component: MentionElement,
 }
 
 export default component

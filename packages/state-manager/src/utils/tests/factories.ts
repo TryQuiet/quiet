@@ -14,7 +14,7 @@ import {
   createRootCertificateTestHelper,
   createUserCertificateTestHelper,
   keyObjectFromString,
-  verifySignature
+  verifySignature,
 } from '@quiet/identity'
 import { type ChannelMessage, type FileMetadata, MessageType, SendingStatus } from '@quiet/types'
 
@@ -31,7 +31,7 @@ export const generateMessageFactoryContentWithId = (
     channelId,
     signature: '',
     pubKey: '',
-    media: media || undefined
+    media: media || undefined,
   }
 }
 
@@ -50,12 +50,10 @@ export const getFactory = async (store: Store) => {
       CA: await createRootCertificateTestHelper(registrarUrl),
       registrarUrl,
       peerList: [],
-      ownerCertificate: ''
+      ownerCertificate: '',
     },
     {
-      afterCreate: async (
-        payload: ReturnType<typeof communities.actions.addNewCommunity>['payload']
-      ) => {
+      afterCreate: async (payload: ReturnType<typeof communities.actions.addNewCommunity>['payload']) => {
         // Set current community if there's no current community set yet
         const currentCommunity = communities.selectors.currentCommunity(store.getState())
         if (!currentCommunity) {
@@ -69,11 +67,11 @@ export const getFactory = async (store: Store) => {
             description: 'Welcome to channel #general',
             timestamp: DateTime.utc().toSeconds(),
             owner: 'alice',
-            id: generateChannelId('general')
-          }
+            id: generateChannelId('general'),
+          },
         })
         return payload
-      }
+      },
     }
   )
 
@@ -85,17 +83,17 @@ export const getFactory = async (store: Store) => {
       hiddenService: {
         onionAddress: 'putnxiwutblglde5i2mczpo37h5n4dvoqkqg2mkxzov7riwqu2owiaid.onion',
         privateKey:
-          'ED25519-V3:WND1FoFZyY+c1f0uD6FBWgKvSYl4CdKSizSR7djRekW/rqw5fTw+gN80sGk0gl01sL5i25noliw85zF1BUBRDQ=='
+          'ED25519-V3:WND1FoFZyY+c1f0uD6FBWgKvSYl4CdKSizSR7djRekW/rqw5fTw+gN80sGk0gl01sL5i25noliw85zF1BUBRDQ==',
       },
       peerId: createPeerIdTestHelper(),
       dmKeys: {
         publicKey: '9f016defcbe48829db163e86b28efb10318faf3b109173105e3dc024e951bb1b',
-        privateKey: '4dcebbf395c0e9415bc47e52c96fcfaf4bd2485a516f45118c2477036b45fc0b'
+        privateKey: '4dcebbf395c0e9415bc47e52c96fcfaf4bd2485a516f45118c2477036b45fc0b',
       },
       nickname: factory.sequence('Identity.nickname', (n: number) => `user_${n}`),
       userCertificate: undefined,
       // 21.09.2022 - may be useful for testing purposes
-      joinTimestamp: 1663747464000
+      joinTimestamp: 1663747464000,
     },
     {
       afterBuild: async (action: ReturnType<typeof identity.actions.addNewIdentity>) => {
@@ -107,7 +105,7 @@ export const getFactory = async (store: Store) => {
               nickname: action.payload.nickname,
               commonName: action.payload.hiddenService.onionAddress,
               peerId: action.payload.peerId.id,
-              dmPublicKey: action.payload.dmKeys.publicKey
+              dmPublicKey: action.payload.dmKeys.publicKey,
             },
             community.CA
           )
@@ -116,32 +114,32 @@ export const getFactory = async (store: Store) => {
           // Store user's certificate even if the user won't be stored itself
           // (to be able to display messages sent by this user)
           await factory.create('UserCertificate', {
-            certificate: action.payload.userCertificate
+            certificate: action.payload.userCertificate,
           })
           if (!community.ownerCertificate) {
             store.dispatch(
               communities.actions.addOwnerCertificate({
                 communityId: community.id,
-                ownerCertificate: action.payload.userCertificate
+                ownerCertificate: action.payload.userCertificate,
               })
             )
           }
         }
         return action
-      }
+      },
     }
   )
 
   factory.define('UserCertificate', users.actions.storeUserCertificate, {
-    certificate: factory.assoc('Identity', 'userCertificate')
+    certificate: factory.assoc('Identity', 'userCertificate'),
   })
 
   factory.define('PublicChannelsMessagesBase', messages.actions.addPublicChannelsMessagesBase, {
-    channelId: factory.assoc('PublicChannel', 'id')
+    channelId: factory.assoc('PublicChannel', 'id'),
   })
 
   factory.define('PublicChannelSubscription', publicChannels.actions.setChannelSubscribed, {
-    channelId: factory.assoc('PublicChannel', 'id')
+    channelId: factory.assoc('PublicChannel', 'id'),
   })
 
   factory.define(
@@ -153,23 +151,19 @@ export const getFactory = async (store: Store) => {
         description: 'Description',
         timestamp: DateTime.utc().toSeconds(),
         owner: factory.assoc('Identity', 'nickname'),
-        id: generateChannelId(
-          factory.sequence('PublicChannel.name', (n: number) => `publicChannel${n}`).toString()
-        )
-      }
+        id: generateChannelId(factory.sequence('PublicChannel.name', (n: number) => `publicChannel${n}`).toString()),
+      },
     },
     {
-      afterCreate: async (
-        payload: ReturnType<typeof publicChannels.actions.addChannel>['payload']
-      ) => {
+      afterCreate: async (payload: ReturnType<typeof publicChannels.actions.addChannel>['payload']) => {
         await factory.create('PublicChannelsMessagesBase', {
-          channelId: payload.channel.id
+          channelId: payload.channel.id,
         })
         await factory.create('PublicChannelSubscription', {
-          channelId: payload.channel.id
+          channelId: payload.channel.id,
         })
         return payload
-      }
+      },
     }
   )
 
@@ -185,13 +179,13 @@ export const getFactory = async (store: Store) => {
         createdAt: DateTime.utc().valueOf(),
         channelId: generateChannelId('general'),
         signature: '',
-        pubKey: ''
+        pubKey: '',
       },
-      verifyAutomatically: false
+      verifyAutomatically: false,
     },
     {
       afterBuild: async (action: ReturnType<typeof publicChannels.actions.test_message>) => {
-        let signatureGenerated: boolean = false
+        let signatureGenerated = false
 
         // Generate signature if not specified
         if (action.payload.message.signature === '') {
@@ -212,61 +206,55 @@ export const getFactory = async (store: Store) => {
           if (signatureGenerated) {
             await factory.create('MessageVerificationStatus', {
               message: action.payload.message,
-              isVerified: true
+              isVerified: true,
             })
           } else {
             // Verify the signature
             const crypto = getCrypto()
             const cryptoKey = await keyObjectFromString(action.payload.message.pubKey, crypto)
             const signature = stringToArrayBuffer(action.payload.message.signature)
-            const isVerified = await verifySignature(
-              signature,
-              action.payload.message.message,
-              cryptoKey
-            )
+            const isVerified = await verifySignature(signature, action.payload.message.message, cryptoKey)
             await factory.create('MessageVerificationStatus', {
               message: action.payload.message,
-              isVerified
+              isVerified,
             })
           }
         }
         return action
       },
-      afterCreate: async (
-        payload: ReturnType<typeof publicChannels.actions.test_message>['payload']
-      ) => {
+      afterCreate: async (payload: ReturnType<typeof publicChannels.actions.test_message>['payload']) => {
         store.dispatch(
           messagesActions.incomingMessages({
-            messages: [payload.message]
+            messages: [payload.message],
           })
         )
 
         return payload
-      }
+      },
     }
   )
 
   factory.define('CacheMessages', publicChannelsActions.cacheMessages, {
     messages: [],
     channelId: factory.assoc('PublicChannel', 'id'),
-    communityId: factory.assoc('Community', 'id')
+    communityId: factory.assoc('Community', 'id'),
   })
 
   factory.define('MessageVerificationStatus', messages.actions.test_message_verification_status, {
     message: factory.assoc('Message'),
-    isVerified: true
+    isVerified: true,
   })
 
   factory.define('MessageSendingStatus', messages.actions.addMessagesSendingStatus, {
     id: factory.assoc('Message', 'id'),
-    status: SendingStatus.Pending
+    status: SendingStatus.Pending,
   })
 
   factory.define('Error', errors.actions.addError, {
     type: 'community',
     code: 500,
     message: 'Community error',
-    community: factory.assoc('Community', 'id')
+    community: factory.assoc('Community', 'id'),
   })
 
   return factory

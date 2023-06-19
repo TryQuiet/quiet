@@ -10,9 +10,9 @@ export function* lazyLoadingSaga(
   const cachedChannelMessages = yield* select(publicChannelsSelectors.currentChannelMessages)
   if (action.payload.load) {
     /**
-    * Load messages
-    * @param  load  Boolean: true - load more messages
-    */
+     * Load messages
+     * @param  load  Boolean: true - load more messages
+     */
     yield* put(messagesActions.extendCurrentPublicChannelCache())
   } else {
     /**

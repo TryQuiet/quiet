@@ -7,13 +7,13 @@ export const channelNameField = (name = 'channelName'): FieldData => {
       label: '',
       name,
       type: 'text',
-      placeholder: 'Type name'
+      placeholder: 'Type name',
     },
     validation: {
       required: FieldErrors.Required,
       maxLength: {
         value: 20,
-        message: ChannelNameErrors.NameTooLong
+        message: ChannelNameErrors.NameTooLong,
       },
       /* eslint-disable */
       validate: {

@@ -1,19 +1,8 @@
 import React, { FC, useState, useCallback, useEffect } from 'react'
 import { CreateChannel } from '../../components/CreateChannel/CreateChannel.component'
 import { useDispatch, useSelector } from 'react-redux'
-import {
-  communities,
-  identity,
-  publicChannels,
-  errors
-} from '@quiet/state-manager'
-import {
-  ErrorCodes,
-  ErrorMessages,
-  PublicChannel,
-  SocketActionTypes
-, ChannelStructure
-} from '@quiet/types'
+import { communities, identity, publicChannels, errors } from '@quiet/state-manager'
+import { ErrorCodes, ErrorMessages, PublicChannel, SocketActionTypes, ChannelStructure } from '@quiet/types'
 import { DateTime } from 'luxon'
 import { navigationSelectors } from '../../store/navigation/navigation.selectors'
 import { ScreenNames } from '../../const/ScreenNames.enum'
@@ -25,7 +14,7 @@ export const CreateChannelScreen: FC = () => {
 
   const [channel, setChannel] = useState<ChannelStructure>({
     channelId: null,
-    channelName: null
+    channelName: null,
   })
   const [clearComponent, setClearComponent] = useState<boolean>(false) // How to clear component without using screen's state?
 
@@ -41,12 +30,13 @@ export const CreateChannelScreen: FC = () => {
   useEffect(() => {
     if (
       currentScreen === ScreenNames.CreateChannelScreen &&
-      channel.channelId !== null && channel.channelName !== null &&
+      channel.channelId !== null &&
+      channel.channelName !== null &&
       channels.filter(_channel => _channel.name === channel.channelName).length > 0
     ) {
       dispatch(
         publicChannels.actions.setCurrentChannel({
-          channelId: channel.channelId
+          channelId: channel.channelId,
         })
       )
       setChannel({ channelId: null, channelName: null })
@@ -76,7 +66,7 @@ export const CreateChannelScreen: FC = () => {
             type: SocketActionTypes.CREATED_CHANNEL,
             code: ErrorCodes.FORBIDDEN,
             message: ErrorMessages.CHANNEL_NAME_TAKEN,
-            community: community?.id
+            community: community?.id,
           })
         )
         return
@@ -87,7 +77,7 @@ export const CreateChannelScreen: FC = () => {
             type: SocketActionTypes.CREATED_CHANNEL,
             code: ErrorCodes.NOT_FOUND,
             message: ErrorMessages.GENERAL,
-            community: community?.id
+            community: community?.id,
           })
         )
         return
@@ -99,14 +89,14 @@ export const CreateChannelScreen: FC = () => {
         description: `Welcome to #${name}`,
         owner: user.nickname,
         id: generateChannelId(name),
-        timestamp: DateTime.utc().valueOf()
+        timestamp: DateTime.utc().valueOf(),
       }
 
       setChannel({ channelId: channel.id, channelName: channel.name })
 
       dispatch(
         publicChannels.actions.createChannel({
-          channel
+          channel,
         })
       )
     },
@@ -116,7 +106,7 @@ export const CreateChannelScreen: FC = () => {
   const handleBackButton = useCallback(() => {
     dispatch(
       navigationActions.navigation({
-        screen: ScreenNames.ChannelListScreen
+        screen: ScreenNames.ChannelListScreen,
       })
     )
   }, [dispatch])

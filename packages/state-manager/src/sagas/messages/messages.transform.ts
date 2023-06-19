@@ -18,15 +18,13 @@ export const MessagesTransform = createTransform(
       ...outboundState,
       publicKeyMapping: {},
       publicChannelsMessagesBase: outboundState.publicChannelsMessagesBase,
-      messageSendingStatus: messageSendingStatusAdapter.getInitialState()
+      messageSendingStatus: messageSendingStatusAdapter.getInitialState(),
     }
   },
   { whitelist: [StoreKeys.Messages] }
 )
 
-const transformPublicChannelsMessagesBaseEntities = (
-  messagesBaseEntities: Dictionary<PublicChannelsMessagesBase>
-) => {
+const transformPublicChannelsMessagesBaseEntities = (messagesBaseEntities: Dictionary<PublicChannelsMessagesBase>) => {
   const messagesRefactor = (messages: EntityState<ChannelMessage>) => {
     const transformedMessagesEntities = messages.entities
     for (const [key, _message] of Object.entries(transformedMessagesEntities)) {
@@ -34,7 +32,7 @@ const transformPublicChannelsMessagesBaseEntities = (
       if (message.channelAddress) {
         const transformedMessage = {
           ...message,
-          channelId: message.channelAddress
+          channelId: message.channelAddress,
         }
         delete transformedMessage.channelAddress
 
@@ -48,15 +46,15 @@ const transformPublicChannelsMessagesBaseEntities = (
   for (const [key, _message] of Object.entries(messagesBaseEntities)) {
     const message = { ..._message } as any
     if (message.channelAddress) {
-        const messages = { ...message.messages, entities: messagesRefactor(message.messages) }
-        const transformedMessage = {
-            ...message,
-            messages,
-            channelId: message.channelAddress
-        }
-        delete transformedMessage.channelAddress
+      const messages = { ...message.messages, entities: messagesRefactor(message.messages) }
+      const transformedMessage = {
+        ...message,
+        messages,
+        channelId: message.channelAddress,
+      }
+      delete transformedMessage.channelAddress
 
-        messagesBaseEntities[key] = transformedMessage
+      messagesBaseEntities[key] = transformedMessage
     }
   }
   return messagesBaseEntities

@@ -12,7 +12,8 @@ import { type Community } from '@quiet/types'
 describe('users reducer', () => {
   let store: Store
 
-  const communityId: Community = { // TODO CHECK
+  const communityId: Community = {
+    // TODO CHECK
     name: 'communityId',
     id: 'communityId',
     CA: { rootCertString: 'certString', rootKeyString: 'keyString' },
@@ -24,27 +25,25 @@ describe('users reducer', () => {
     privateKey: '',
     port: 0,
     registrationAttempts: 0,
-    ownerCertificate: ''
+    ownerCertificate: '',
   }
 
   beforeEach(() => {
     store = createStore(
       combineReducers({
         [StoreKeys.Communities]: communitiesReducer,
-        [StoreKeys.Users]: usersReducer
+        [StoreKeys.Users]: usersReducer,
       }),
       {
         [StoreKeys.Communities]: {
           ...new CommunitiesState(),
           currentCommunity: 'communityId',
-          communities: communitiesAdapter.setAll(communitiesAdapter.getInitialState(), [
-            communityId
-          ])
+          communities: communitiesAdapter.setAll(communitiesAdapter.getInitialState(), [communityId]),
         },
         [StoreKeys.Users]: {
           ...new UsersState(),
-          certificates: certificatesAdapter.setAll(certificatesAdapter.getInitialState(), [])
-        }
+          certificates: certificatesAdapter.setAll(certificatesAdapter.getInitialState(), []),
+        },
       }
     )
   })
@@ -57,7 +56,7 @@ describe('users reducer', () => {
 
     store.dispatch(
       usersActions.responseSendCertificates({
-        certificates: [userCertString]
+        certificates: [userCertString],
       })
     )
 

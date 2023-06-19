@@ -32,7 +32,7 @@ export function* registerUsernameSaga(action: PayloadAction<string>): Generator 
         peerId: identity.peerId.id,
         dmPublicKey: identity.dmKeys.publicKey,
         signAlg: config.signAlg,
-        hashAlg: config.hashAlg
+        hashAlg: config.hashAlg,
       }
       userCsr = yield* call(createUserCsr, payload)
     } catch (e) {
@@ -47,7 +47,7 @@ export function* registerUsernameSaga(action: PayloadAction<string>): Generator 
   const payload: RegisterCertificatePayload = {
     communityId: currentCommunity.id,
     nickname,
-    userCsr
+    userCsr,
   }
 
   yield* put(identityActions.registerCertificate(payload))

@@ -26,10 +26,10 @@ export function* updateMessageMediaSaga(
       messages: [
         {
           ...message,
-          media: action.payload
-        }
+          media: action.payload,
+        },
       ],
-      isVerified: true
+      isVerified: true,
     })
   )
 }

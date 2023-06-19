@@ -16,7 +16,7 @@ export type ChannelInfoResponse = Record<string, PublicChannel>
 export class StorageOptions {
   orbitDbDir?: string
   ipfsDir?: string
-  createPaths: boolean = true
+  createPaths = true
 }
 
 export interface IPublicKey {

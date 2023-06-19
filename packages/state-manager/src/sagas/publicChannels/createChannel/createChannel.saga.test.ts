@@ -3,16 +3,8 @@ import { expectSaga } from 'redux-saga-test-plan'
 import { StoreKeys } from '../../store.keys'
 import { type Socket } from 'socket.io-client'
 import { publicChannelsActions } from '../publicChannels.slice'
-import {
-  identityReducer,
-  IdentityState,
-  type identityActions
-} from '../../identity/identity.slice'
-import {
-  CommunitiesState,
-  communitiesReducer,
-  type communitiesActions
-} from '../../communities/communities.slice'
+import { identityReducer, IdentityState, type identityActions } from '../../identity/identity.slice'
+import { CommunitiesState, communitiesReducer, type communitiesActions } from '../../communities/communities.slice'
 import { communitiesAdapter } from '../../communities/communities.adapter'
 import { identityAdapter } from '../../identity/identity.adapter'
 import { createChannelSaga } from './createChannel.saga'
@@ -41,53 +33,48 @@ describe('createChannelSaga', () => {
     description: 'desc',
     owner: 'Howdy',
     timestamp: Date.now(),
-    id: generateChannelId('general')
+    id: generateChannelId('general'),
   }
 
   test('ask for missing messages', async () => {
-    const community = await factory.create<
-    ReturnType<typeof communitiesActions.addNewCommunity>['payload']
-    >('Community')
+    const community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>(
+      'Community'
+    )
 
-    const identity = await factory.create<
-    ReturnType<typeof identityActions.addNewIdentity>['payload']
-    >('Identity', { id: community.id, nickname: 'john' })
+    const identity = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
+      id: community.id,
+      nickname: 'john',
+    })
 
     await expectSaga(
       createChannelSaga,
       socket,
       publicChannelsActions.createChannel({
-        channel
+        channel,
       })
     )
       .withReducer(
         combineReducers({
           [StoreKeys.Identity]: identityReducer,
-          [StoreKeys.Communities]: communitiesReducer
+          [StoreKeys.Communities]: communitiesReducer,
         }),
         {
           [StoreKeys.Identity]: {
             ...new IdentityState(),
-            identities: identityAdapter.setAll(
-              identityAdapter.getInitialState(),
-              [identity]
-            )
+            identities: identityAdapter.setAll(identityAdapter.getInitialState(), [identity]),
           },
           [StoreKeys.Communities]: {
             ...new CommunitiesState(),
             currentCommunity: community.id,
-            communities: communitiesAdapter.setAll(
-              communitiesAdapter.getInitialState(),
-              [community]
-            )
-          }
+            communities: communitiesAdapter.setAll(communitiesAdapter.getInitialState(), [community]),
+          },
         }
       )
       .apply(socket, socket.emit, [
         SocketActionTypes.CREATE_CHANNEL,
         {
-          channel
-        }
+          channel,
+        },
       ])
       .run()
   })
