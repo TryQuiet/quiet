@@ -25,6 +25,7 @@ import { TorControl } from '../tor/tor-control.service'
 import { emitError } from '../../socket/errors'
 import { RegistrationEvents } from '../registration/registration.types'
 import { InitStorageParams, StorageEvents } from '../storage/storage.types'
+import { onionAddress } from '../../singletons'
 
 @Injectable()
 export class ConnectionsManagerService extends EventEmitter implements OnModuleInit {
@@ -342,6 +343,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     public getNetwork = async () => {
       const ports = await getPorts()
       const hiddenService = await this.tor.createNewHiddenService({ targetPort: ports.libp2pHiddenService })
+
       await this.tor.destroyHiddenService(hiddenService.onionAddress.split('.')[0])
 
       this.logger.log(`Created network for peer ${this.peerId.toString()}. Address: ${hiddenService.onionAddress}`)
@@ -419,10 +421,11 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       const ports = await getPorts()
       this.logger.log(`Spawning hidden service for community ${payload.id}, peer: ${payload.peerId.id}`)
       this.serverIoProvider.io.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.SPAWNING_HIDDEN_SERVICE)
-      const onionAddress: string = await this.tor.spawnHiddenService({
+      const _onionAddress: string = await this.tor.spawnHiddenService({
         targetPort: ports.libp2pHiddenService,
         privKey: payload.hiddenService.privateKey
       })
+      onionAddress.set(_onionAddress)
       this.logger.log(`Launching community ${payload.id}, peer: ${payload.peerId.id}`)
 
       const restoredRsa = await PeerId.createFromJSON(payload.peerId)
@@ -439,26 +442,27 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       // return await this.initStorage(initStorageParams)
     }
 
-    public initStorage = async (params: InitStorageParams): Promise<string> => {
+    public initStorage = async (params: InitStorageParams) => {
       const peerIdB58string = params.peerId.toString()
       this.logger.log(`Initializing storage for peer ${peerIdB58string}...`)
       this.serverIoProvider.io.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.INITIALIZING_STORAGE)
 
       let peers = params.peers
       if (!peers || peers.length === 0) {
+      // PROVIDER
         peers = [this.libp2pService.createLibp2pAddress(params.onionAddress, peerIdB58string)]
       }
 
-      const libp2pParams: InitLibp2pParams = {
-        peerId: params.peerId,
-        address: params.onionAddress,
-        addressPort: 443,
-        targetPort: params.targetPort,
-        bootstrapMultiaddrs: peers,
-        certs: params.certs
-      }
+      // const libp2pParams: InitLibp2pParams = {
+      //   peerId: params.peerId,
+      //   address: params.onionAddress,
+      //   addressPort: 443,
+      //   targetPort: params.targetPort,
+      //   bootstrapMultiaddrs: peers,
+      //   certs: params.certs
+      // }
 // KACPER
-      const libp2pObj = await this.initLibp2p(libp2pParams)
+      // const libp2pObj = await this.initLibp2p(libp2pParams)
 
       // this.storageService = this.createStorage(peerIdB58string, params.communityId)
 
@@ -470,7 +474,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
       this.logger.log(`Initialized storage for peer ${peerIdB58string}`)
 
-      return libp2pObj.localAddress
+      // return libp2pObj.localAddress
     }
 
     private attachTorEventsListeners = () => {

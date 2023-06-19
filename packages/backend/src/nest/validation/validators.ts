@@ -1,8 +1,8 @@
 import _ from 'validator'
 import joi from 'joi'
-import logger from '../logger'
+// import logger from '../logger'
 import { ChannelMessage, PublicChannel } from '@quiet/types'
-const log = logger('validators')
+// const log = logger('validators')
 
 const messageMediaSchema = joi.object({
   path: joi.string().allow(null),
@@ -63,7 +63,7 @@ export const isDirectMessage = (msg: string): boolean => {
 
 export const isMessage = (msg: ChannelMessage): boolean => {
   const value = messageSchema.validate(msg)
-  if (value.error) log.error('isMessage', value.error)
+  // if (value.error) log.error('isMessage', value.error)
   return !value.error
 }
 

@@ -7,19 +7,20 @@ import getPort from 'get-port'
 import { removeFilesFromDir } from '../common/utils'
 import { EventEmitter } from 'events'
 import { SocketActionTypes, SupportedPlatform } from '@quiet/types'
-import { Inject, Logger } from '@nestjs/common'
+import { Inject, Logger, OnModuleInit } from '@nestjs/common'
 import { ConfigOptions } from '../types'
 import { CONFIG_OPTIONS, QUIET_DIR } from '../const'
 import { TorControl } from './tor-control.service'
 import { GetInfoTorSignal, TorParams } from './tor.types'
+import * as os from 'os'
 
-export class Tor extends EventEmitter {
+export class Tor extends EventEmitter implements OnModuleInit {
 //   httpTunnelPort: number
   socksPort: number
   controlPort?: number
   process: child_process.ChildProcessWithoutNullStreams | any = null
   torPath: string
-//   options?: child_process.SpawnOptionsWithoutStdio
+  options?: child_process.SpawnOptionsWithoutStdio
 //   torControl: TorControl
 //   appDataPath: string
   torDataDirectory: string
@@ -27,7 +28,7 @@ export class Tor extends EventEmitter {
   torPassword: string
   torHashedPassword: string
 //   torAuthCookie?: string
-//   extraTorProcessParams: TorParams
+  extraTorProcessParams: TorParams
 private readonly logger = new Logger(Tor.name)
   constructor(
     @Inject(CONFIG_OPTIONS) public configOptions: ConfigOptions,
@@ -35,13 +36,18 @@ private readonly logger = new Logger(Tor.name)
     private readonly torControl: TorControl
     ) {
     super()
-    this.torPath = torPath ? path.normalize(torPath) : ''
-    // this.options = options
-    // this.appDataPath = appDataPath
-    // this.httpTunnelPort = httpTunnelPort
+  }
+
+  onModuleInit() {
+    this.torPath = this.configOptions.torBinaryPath ? path.normalize(this.configOptions.torBinaryPath) : ''
+    this.options = {
+      env: {
+        LD_LIBRARY_PATH: this.configOptions.torResourcesPath,
+        HOME: os.homedir()
+      },
+      detached: true
+    }
     // this.extraTorProcessParams = this.mergeDefaultTorParams(extraTorProcessParams)
-    // this.controlPort = controlPort
-    // this.torAuthCookie = authCookie
   }
 
   mergeDefaultTorParams = (params: TorParams = {}): TorParams => {
@@ -192,13 +198,17 @@ private readonly logger = new Logger(Tor.name)
         reject(new Error('Can\'t spawn tor - no control port'))
         return
       }
+      if (!this.configOptions.httpTunnelPort) {
+        reject(new Error('Can\'t spawn tor - no httpTunnelPort'))
+        return
+      }
       this.process = child_process.spawn(
         this.torPath,
         [
           '--SocksPort',
           this.socksPort.toString(),
           '--HTTPTunnelPort',
-          this.httpTunnelPort.toString(),
+          this.configOptions.httpTunnelPort.toString(),
           '--ControlPort',
           this.controlPort.toString(),
           '--PidFile',

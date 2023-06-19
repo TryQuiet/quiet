@@ -1,7 +1,7 @@
 import { Crypto } from '@peculiar/webcrypto'
 import { Command } from 'commander'
 import logger from './logger'
-import {  torBinForPlatform, torDirForPlatform } from './index'
+import { torBinForPlatform, torDirForPlatform } from './index'
 import { NestFactory } from '@nestjs/core'
 import path from 'path'
 import { AppModule } from './nest/app.module'
@@ -102,30 +102,30 @@ export const runBackendDesktop = async () => {
     }
   })
 
-  await connectionsManager.init()
+  // await connectionsManager.init()
 }
 
-export const runBackendMobile = async (): Promise<any> => {
-  // Enable triggering push notifications
-  process.env['BACKEND'] = 'mobile'
-  process.env['CONNECTION_TIME'] = (new Date().getTime() / 1000).toString() // Get time in seconds
+// export const runBackendMobile = async (): Promise<any> => {
+//   // Enable triggering push notifications
+//   process.env['BACKEND'] = 'mobile'
+//   process.env['CONNECTION_TIME'] = (new Date().getTime() / 1000).toString() // Get time in seconds
 
-  const connectionsManager: ConnectionsManager = new ConnectionsManager({
-    socketIOPort: options.dataPort,
-    httpTunnelPort: options.httpTunnelPort ? options.httpTunnelPort : null,
-    torAuthCookie: options.authCookie ? options.authCookie : null,
-    torControlPort: options.controlPort ? options.controlPort : null,
-    torBinaryPath: options.torBinary ? options.torBinary : null,
-    options: {
-      env: {
-        appDataPath: options.dataPath,
-      },
-      createPaths: false,
-    }
-  })
+//   const connectionsManager: ConnectionsManager = new ConnectionsManager({
+//     socketIOPort: options.dataPort,
+//     httpTunnelPort: options.httpTunnelPort ? options.httpTunnelPort : null,
+//     torAuthCookie: options.authCookie ? options.authCookie : null,
+//     torControlPort: options.controlPort ? options.controlPort : null,
+//     torBinaryPath: options.torBinary ? options.torBinary : null,
+//     options: {
+//       env: {
+//         appDataPath: options.dataPath,
+//       },
+//       createPaths: false,
+//     }
+//   })
 
-  await connectionsManager.init()
-}
+//   await connectionsManager.init()
+// }
 
 const platform = options.platform
 
@@ -135,14 +135,14 @@ if (platform === 'desktop') {
     throw error
   })
 } else if (platform === 'mobile') {
-  runBackendMobile().catch(async (error) => {
-    log.error('Error occurred while initializing backend', error)
-    // Prevent stopping process before getting output
-    await new Promise<void>((resolve) => {
-      setTimeout(() => { resolve() }, 10000)
-    })
-    throw error
-  })
+  // runBackendMobile().catch(async (error) => {
+  //   log.error('Error occurred while initializing backend', error)
+  //   // Prevent stopping process before getting output
+  //   await new Promise<void>((resolve) => {
+  //     setTimeout(() => { resolve() }, 10000)
+  //   })
+  //   throw error
+  // })
 } else {
   throw Error(`Platfrom must be either desktop or mobile, received ${options.platform}`)
 }

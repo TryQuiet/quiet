@@ -1,3 +1,4 @@
+import * as child_process from 'child_process'
 export enum GetInfoTorSignal {
     CONFIG_TEXT = 'config-text',
     CIRCUT_STATUS = 'circuit-status',
@@ -24,10 +25,10 @@ export enum GetInfoTorSignal {
   export interface TorControlParams {
     port: number
     host: string
-    auth: {
-      type: TorControlAuthType
-      value: string
-    }
+    // auth: {
+    //   type: TorControlAuthType
+    //   value: string
+    // }
   }
 
   export interface IParams {

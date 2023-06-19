@@ -7,14 +7,14 @@ import { TorControlAuthType } from './tor.types'
 
 const torControlParams = {
   provide: TOR_CONTROL_PARAMS,
-  useFactory: (configOptions: ConfigOptions ) => {
+  useFactory: (configOptions: ConfigOptions) => {
     return {
       port: configOptions.torControlPort,
       host: 'localhost',
-      auth: {
-        value: configOptions.torAuthCookie || configOptions.torPassword,
-        type: configOptions.torAuthCookie ? TorControlAuthType.COOKIE : TorControlAuthType.PASSWORD
-      }
+      // auth: {
+      //   value: configOptions.torAuthCookie || configOptions.torPassword,
+      //   type: configOptions.torAuthCookie ? TorControlAuthType.COOKIE : TorControlAuthType.PASSWORD
+      // }
     }
   },
   inject: [CONFIG_OPTIONS],
@@ -22,7 +22,7 @@ const torControlParams = {
 }
 
 @Module({
-    providers: [Tor, TorControl,torControlParams],
+    providers: [Tor, TorControl, torControlParams],
       exports: [Tor, TorControl],
 })
 export class TorModule {}

@@ -55,7 +55,7 @@ const communityProvider = {
 }
 
 @Module({
-    imports: [IpfsFileManagerModule, IpfsFileManagerModule], // KACPER
+    imports: [IpfsFileManagerModule], // KACPER
     providers: [StorageService,
       orbitDbProvider, communityProvider, peerIdProvider
     ],

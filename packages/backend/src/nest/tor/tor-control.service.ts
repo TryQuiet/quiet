@@ -1,21 +1,35 @@
 
-import { Inject, Injectable, Logger } from '@nestjs/common'
+import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common'
 import net from 'net'
-import { TOR_CONTROL_PARAMS } from '../const'
+import { CONFIG_OPTIONS, TOR_CONTROL_PARAMS } from '../const'
+import { ConfigOptions } from '../types'
+import { Tor } from './tor.service'
 import { TorControlAuthType, TorControlParams } from './tor.types'
 
 @Injectable()
-export class TorControl {
+export class TorControl implements OnModuleInit {
   connection: net.Socket | null
   authString: string
   private readonly logger = new Logger(TorControl.name)
-  constructor(@Inject(TOR_CONTROL_PARAMS) public torControlParams: TorControlParams,) {
-    if (this.torControlParams.auth.type === TorControlAuthType.PASSWORD) {
-      this.authString = 'AUTHENTICATE "' + this.torControlParams.auth.value + '"\r\n'
+  constructor(
+    @Inject(TOR_CONTROL_PARAMS) public torControlParams: TorControlParams,
+    @Inject(CONFIG_OPTIONS) public configOptions: ConfigOptions,
+     private readonly tor: Tor) {
+
+  }
+
+  onModuleInit() {
+    const auth = {
+      value: this.configOptions.torAuthCookie || this.tor.torPassword,
+      type: this.configOptions.torAuthCookie ? TorControlAuthType.COOKIE : TorControlAuthType.PASSWORD
     }
-    if (this.torControlParams.auth.type === TorControlAuthType.COOKIE) {
+
+    if (auth.type === TorControlAuthType.PASSWORD) {
+      this.authString = 'AUTHENTICATE "' + auth.value + '"\r\n'
+    }
+    if (auth.type === TorControlAuthType.COOKIE) {
       // Cookie authentication must be invoked as a hexadecimal string passed without double quotes
-      this.authString = 'AUTHENTICATE ' + this.torControlParams.auth.value + '\r\n'
+      this.authString = 'AUTHENTICATE ' + auth.value + '\r\n'
     }
   }
 

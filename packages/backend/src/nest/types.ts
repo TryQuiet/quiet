@@ -1,6 +1,5 @@
 import { IncomingMessage, ServerResponse, Server } from 'http'
 import { DefaultEventsMap } from 'socket.io/dist/typed-events'
-import { ConnectionsManagerOptions } from '../common/types'
 import { Server as SocketIO } from 'socket.io'
 
 export class ConnectionsManagerTypes {

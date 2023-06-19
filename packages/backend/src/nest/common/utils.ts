@@ -2,9 +2,9 @@ import fs from 'fs'
 import getPort from 'get-port'
 import path from 'path'
 import { Server } from 'socket.io'
-import logger from '../logger'
+// import logger from '../logger'
 import { User } from '@quiet/types'
-const log = logger('utils')
+// const log = logger('utils')
 
 export interface Ports {
   socksPort: number
@@ -25,7 +25,7 @@ export function createPaths(paths: string[]) {
 
 export function removeFilesFromDir(dirPath: string) {
   if (fs.existsSync(dirPath)) {
-    log(`Removing ${dirPath}`)
+    // log(`Removing ${dirPath}`)
     fs.rmdirSync(dirPath, { recursive: true })
   }
 }
@@ -102,12 +102,12 @@ export const getPorts = async (): Promise<Ports> => {
 
 export class DummyIOServer extends Server {
   emit(event: string, ...args: any[]): boolean {
-    log(`Emitting ${event} with args:`, args)
+    // log(`Emitting ${event} with args:`, args)
     return true
   }
 
   close() {
-    log('Closing DummyIOServer')
+    // log('Closing DummyIOServer')
   }
 }
 
