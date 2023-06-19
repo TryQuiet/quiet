@@ -20,6 +20,8 @@ jobs:
         run: echo ${{ matrix.os }}
 
       - uses: actions/checkout@v2
+        with:
+          lfs: true
 
       - name: Install gpg
         run: brew install gnupg
