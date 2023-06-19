@@ -20,6 +20,8 @@ jobs:
         run: echo ${{ matrix.os }}
 
       - uses: actions/checkout@v2
+        with:
+          lfs: true
 
       - name: Install gpg
         run: brew install gnupg
@@ -34,14 +36,6 @@ jobs:
         with:
           cachePrefix: "deploy-ios"
           bootstrap-packages: "@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/mobile,backend-bundle"
-
-      - name: Install git-lfs
-        run: brew install git-lfs
-
-      - name: Fetch large files
-        run: |
-          git lfs install
-          git lfs pull
 
       - name: Install pod dependencies
         run: |
