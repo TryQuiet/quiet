@@ -62,7 +62,9 @@ export class AppModule {
               provide: PEER_ID_PROVIDER,
               useFactory: async() => {
               if (!peerId.get()) {
-                peerId.set(await PeerId.create())
+                const createPeerId = await PeerId.create()
+                const peerIdJson = createPeerId.toJSON()
+                peerId.set(peerIdJson)
               }
 
               return peerId.get()

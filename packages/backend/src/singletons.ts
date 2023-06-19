@@ -58,12 +58,12 @@ class Peers {
 }
 
 class PeerId {
-  private peerId: PeerIdType |null = null
-    get(): PeerIdType | null {
+  private peerId: any |null = null
+    get(): any | null {
       return this.peerId
     }
 
-    set(value: PeerIdType) {
+    set(value: any) {
       this.peerId = value
     }
 }

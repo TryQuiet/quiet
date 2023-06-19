@@ -15,19 +15,23 @@ import { LocalDBKeys } from '../local-db/local-db.types'
 const ipfsProvider = {
   provide: IPFS_PROVIDER,
   useFactory: async (libp2p: Libp2p | PromiseLike<Libp2p>, ipfsRepoPath: string, peerID: PeerIdType) => {
+    console.log('ELLLLLLLLLLLO !!!!!')
     const restoredRsa = await PeerId.createFromJSON(peerID)
     const _peerId = await peerIdFromKeys(restoredRsa.marshalPubKey(), restoredRsa.marshalPrivKey())
-  return await create({
-    libp2p: async () => await libp2p,
-    preload: { enabled: false },
-    repo: ipfsRepoPath,
-    EXPERIMENTAL: {
-      ipnsPubsub: true
-    },
-    init: {
-      privateKey: _peerId
-    }
-  })
+console.log({ libp2p, peerID, ipfsRepoPath })
+    const ipfs = await create({
+      libp2p: async () => await libp2p,
+      preload: { enabled: false },
+      repo: ipfsRepoPath,
+      EXPERIMENTAL: {
+        ipnsPubsub: true
+      },
+      init: {
+        privateKey: _peerId
+      }
+    })
+    console.log('ipfsProvider', ipfs)
+  return ipfs
   },
   inject: [LIB_P2P_PROVIDER, IPFS_REPO_PATCH],
 

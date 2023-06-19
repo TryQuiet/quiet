@@ -23,6 +23,7 @@ import createHttpsProxyAgent from 'https-proxy-agent'
 import { LocalDbService } from '../local-db/local-db.service'
 import PeerId from 'peer-id'
 import { LocalDBKeys } from '../local-db/local-db.types'
+import { peerIdFromKeys } from '@libp2p/peer-id'
 
 // const peerIdProvider = {
 //   provide: PEER_ID_PROVIDER,
@@ -82,6 +83,9 @@ const libp2pProvider = {
     targetPort: initParams.targetPort
   }
   let lib: Libp2p
+
+  const restoredRsa = await PeerId.createFromJSON(initParams.peerId)
+  const _peerId = await peerIdFromKeys(restoredRsa.marshalPubKey(), restoredRsa.marshalPrivKey())
     try {
     lib = await createLibp2p({
       connectionManager: {
@@ -90,7 +94,7 @@ const libp2pProvider = {
         dialTimeout: 120_000,
         maxParallelDials: 10
       },
-      peerId: params.peerId,
+      peerId: _peerId,
       addresses: {
         listen: params.listenAddresses
       },

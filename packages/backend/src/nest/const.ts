@@ -29,7 +29,7 @@ export const ORBIT_DB_PROVIDER = 'orbitDbProvider'
 
 export const COMMUNITY_PROVIDER = 'communityProvider'
 
-export const IPFS_PROVIDER = 'communityProvider'
+export const IPFS_PROVIDER = 'ipfs-provider'
 
 export const INIT_LIBP2P_PARAMS = 'libp2p-params'
 

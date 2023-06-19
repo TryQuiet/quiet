@@ -19,7 +19,7 @@ const orbitDbProvider = {
     const channelsAccessController = createChannelAccessController(peerId, orbitDbDir)
     AccessControllers.addAccessController({ AccessController: MessagesAccessController })
     AccessControllers.addAccessController({ AccessController: channelsAccessController })
-
+console.log({ ipfs, peerId, orbitDbDir })
     const orbitDb = await OrbitDB.createInstance(ipfs, {
       // @ts-ignore
       id: peerId.toString(),
