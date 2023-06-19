@@ -36,3 +36,5 @@ export const INIT_LIBP2P_PARAMS = 'libp2p-params'
 export const TOR_CONTROL_PARAMS = 'tor-control-params'
 
 export const PEER_ID_PROVIDER = 'peer-id-provider'
+
+export const LIB_P2P_PROVIDER = 'libp2p-provider'

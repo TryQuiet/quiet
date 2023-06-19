@@ -1,4 +1,5 @@
 import { Certificates } from '@quiet/types'
+import PeerIdType from 'peer-id'
 
 class OnionAddress {
     private onionAddress: string|null = null
@@ -55,7 +56,19 @@ class Peers {
         this.peers = value
       }
 }
+
+class PeerId {
+  private peerId: PeerIdType |null = null
+    get(): PeerIdType | null {
+      return this.peerId
+    }
+
+    set(value: PeerIdType) {
+      this.peerId = value
+    }
+}
 export const onionAddress = new OnionAddress()
 export const targetPort = new TargetPort()
 export const certs = new Certs()
 export const peers = new Peers()
+export const peerId = new PeerId()

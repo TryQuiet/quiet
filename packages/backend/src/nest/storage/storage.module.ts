@@ -10,21 +10,7 @@ import AccessControllers from 'orbit-db-access-controllers'
 import { MessagesAccessController } from './MessagesAccessController'
 import { createChannelAccessController } from './ChannelsAccessController'
 import PeerId from 'peer-id'
-
-const peerIdProvider = {
-  provide: PEER_ID_PROVIDER,
- useFactory: async (localDbService: LocalDbService) => {
-  const isPeerId = await localDbService.get(LocalDBKeys.PEER_ID)
-  if (isPeerId) {
-    return isPeerId
-  } else {
-    const newPeerId: PeerId = await PeerId.create()
-    await localDbService.put(LocalDBKeys.PEER_ID, newPeerId)
-    return newPeerId
-  }
- },
- inject: [LocalDbService]
-}
+import { LocalDbModule } from '../local-db/local-db.module'
 
 // KACPER - peerID
 const orbitDbProvider = {
@@ -55,10 +41,10 @@ const communityProvider = {
 }
 
 @Module({
-    imports: [IpfsFileManagerModule], // KACPER
+    imports: [IpfsFileManagerModule, LocalDbModule], // KACPER
     providers: [StorageService,
-      orbitDbProvider, communityProvider, peerIdProvider
+      orbitDbProvider, communityProvider
     ],
-    exports: [StorageService, orbitDbProvider, communityProvider, peerIdProvider],
+    exports: [StorageService, orbitDbProvider, communityProvider],
   })
 export class StorageModule {}
