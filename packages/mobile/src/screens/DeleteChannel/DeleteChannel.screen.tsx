@@ -16,8 +16,6 @@ export const DeleteChannelScreen: FC<DeleteChannelScreenProps> = ({ route }) => 
 
   const screen = useSelector(navigationSelectors.currentScreen)
 
-  console.log({ channels })
-
   useEffect(() => {
     if (screen === ScreenNames.DeleteChannelScreen && !channels.find(c => c.name === channelName)) {
       dispatch(navigationActions.replaceScreen({ screen: ScreenNames.ChannelListScreen }))
