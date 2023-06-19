@@ -35,6 +35,14 @@ jobs:
           cachePrefix: "deploy-ios"
           bootstrap-packages: "@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/mobile,backend-bundle"
 
+      - name: Install git-lfs
+        run: brew install git-lfs
+
+      - name: Fetch large files
+        run: |
+          git lfs install
+          git lfs pull
+
       - name: Install pod dependencies
         run: |
           cd ./packages/mobile/ios
