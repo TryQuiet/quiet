@@ -1,3 +1,5 @@
+import { HiddenService } from '@quiet/types'
+
 export enum TorInitState{
     STARTING = 'starting',
     STARTED = 'started',
@@ -7,4 +9,8 @@ export enum TorInitState{
     DEFAULT = 'notStarted',
     LAUNCHING = 'launching',
     LAUNCHED = 'launched'
+  }
+  export interface NetworkData {
+    hiddenService: HiddenService
+    // peerId: PeerId
   }

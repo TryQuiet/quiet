@@ -14,7 +14,7 @@ export class TorControl implements OnModuleInit {
   constructor(
     @Inject(TOR_CONTROL_PARAMS) public torControlParams: TorControlParams,
     @Inject(CONFIG_OPTIONS) public configOptions: ConfigOptions) {
-
+    console.log( 'this.torControlParams.port', this.torControlParams.port)
   }
 
   onModuleInit() {

@@ -28,6 +28,8 @@ import { StorageEvents } from '../../storage/types'
 import { IpfsFileManagerService } from '../ipfs-file-manager/ipfs-file-manager.service'
 import { COMMUNITY_PROVIDER, IPFS_PROVIDER, IPFS_REPO_PATCH, ORBIT_DB_DIR, ORBIT_DB_PROVIDER, PEER_ID_PROVIDER, QUIET_DIR } from '../const'
 import { IpfsFilesManagerEvents } from '../ipfs-file-manager/ipfs-file-manager.types'
+import { LocalDBKeys } from '../local-db/local-db.types'
+import { LocalDbService } from '../local-db/local-db.service'
 
 @Injectable()
 export class StorageService extends EventEmitter implements OnApplicationBootstrap {
@@ -52,11 +54,12 @@ export class StorageService extends EventEmitter implements OnApplicationBootstr
   private readonly logger = new Logger(StorageService.name)
   constructor(
     private readonly filesManager: IpfsFileManagerService,
+    private readonly localDbService: LocalDbService,
     @Inject(QUIET_DIR) public readonly quietDir: string,
     @Inject(ORBIT_DB_DIR) public readonly orbitDbDir: string,
     @Inject(IPFS_REPO_PATCH) public readonly ipfsRepoPath: string,
     @Inject(ORBIT_DB_PROVIDER) public readonly orbitDb: OrbitDB,
-    @Inject(COMMUNITY_PROVIDER) public readonly community: InitCommunityPayload,
+    // @Inject(COMMUNITY_PROVIDER) public readonly community: InitCommunityPayload,
     @Inject(IPFS_PROVIDER) public readonly ipfs: IPFS,
     @Inject(PEER_ID_PROVIDER) public readonly peerId: PeerId
     ) {
@@ -71,7 +74,19 @@ export class StorageService extends EventEmitter implements OnApplicationBootstr
     // this.ipfsRepoPath = path.join(this.quietDir, this.options.ipfsDir || Config.IPFS_REPO_PATH)
   }
 
-  onApplicationBootstrap() {
+  // public async community() {
+  //     private peerId: any |null = null
+  //       get(): any | null {
+  //         return this.peerId
+  //       }
+
+  //       set(value: any) {
+  //         this.peerId = value
+  //       }
+  //   }
+  // }
+
+  async onApplicationBootstrap() {
     console.log()
     this.logger.log('Initializing storage')
     removeFiles(this.quietDir, 'LOCK')
@@ -85,6 +100,7 @@ export class StorageService extends EventEmitter implements OnApplicationBootstr
     // AccessControllers.addAccessController({ AccessController: channelsAccessController })
 
     this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.INITIALIZED_STORAGE)
+    await this.initDatabases()
     this.logger.log('Initialized storage')
   }
 
@@ -188,7 +204,8 @@ export class StorageService extends EventEmitter implements OnApplicationBootstr
   public async updatePeersList() {
     const allUsers = this.getAllUsers()
     const peers = await getUsersAddresses(allUsers)
-    this.emit(StorageEvents.UPDATE_PEERS_LIST, { communityId: this.community.id, peerList: peers })
+    const community = await this.localDbService.get(LocalDBKeys.COMMUNITY)
+    this.emit(StorageEvents.UPDATE_PEERS_LIST, { communityId: community.id, peerList: peers })
   }
 
   public async loadAllCertificates() {
@@ -455,18 +472,20 @@ export class StorageService extends EventEmitter implements OnApplicationBootstr
       db.events.on('replicated', async address => {
         this.logger.log('Replicated.', address)
         const ids = this.getAllEventLogEntries<ChannelMessage>(db).map(msg => msg.id)
+        const community = await this.localDbService.get(LocalDBKeys.COMMUNITY)
         this.emit(StorageEvents.SEND_MESSAGES_IDS, {
           ids,
           channelId: channelData.id,
-          communityId: this.community.id
+          communityId: community.id
         })
       })
-      db.events.on('ready', () => {
+      db.events.on('ready', async() => {
         const ids = this.getAllEventLogEntries<ChannelMessage>(db).map(msg => msg.id)
+        const community = await this.localDbService.get(LocalDBKeys.COMMUNITY)
         this.emit(StorageEvents.SEND_MESSAGES_IDS, {
           ids,
           channelId: channelData.id,
-          communityId: this.community.id
+          communityId: community.id
         })
       })
       await db.load()
@@ -525,7 +544,8 @@ export class StorageService extends EventEmitter implements OnApplicationBootstr
       messages: filteredMessages,
       isVerified: true
     })
-    this.emit(StorageEvents.CHECK_FOR_MISSING_FILES, this.community.id)
+    const community = await this.localDbService.get(LocalDBKeys.COMMUNITY)
+    this.emit(StorageEvents.CHECK_FOR_MISSING_FILES, community.id)
   }
 
   private async createChannel(data: PublicChannel): Promise<EventStore<ChannelMessage>> {

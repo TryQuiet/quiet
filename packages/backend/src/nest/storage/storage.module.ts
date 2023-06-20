@@ -33,15 +33,15 @@ const orbitDbProvider = {
 
 }
 
-const communityProvider = {
-  provide: COMMUNITY_PROVIDER,
-  useFactory: async (localDbService: LocalDbService) => await localDbService.get(LocalDBKeys.COMMUNITY),
-  inject: [LocalDbService]
-}
+// const communityProvider = {
+//   provide: COMMUNITY_PROVIDER,
+//   useFactory: async (localDbService: LocalDbService) => await localDbService.get(LocalDBKeys.COMMUNITY),
+//   inject: [LocalDbService]
+// }
 
 @Module({
     imports: [LocalDbModule, IpfsFileManagerModule], // KACPER
-    providers: [StorageService, orbitDbProvider, communityProvider],
-    exports: [StorageService, orbitDbProvider, communityProvider],
+    providers: [StorageService, orbitDbProvider],
+    exports: [StorageService, orbitDbProvider],
   })
 export class StorageModule {}

@@ -18,7 +18,6 @@ import { sleep } from '../../sleep'
 export class Tor extends EventEmitter implements OnApplicationBootstrap {
   //   httpTunnelPort: number
   socksPort: number
-  controlPort?: number
   process: child_process.ChildProcessWithoutNullStreams | any = null
   // torPath: string
   // options?: child_process.SpawnOptionsWithoutStdio
@@ -68,7 +67,6 @@ export class Tor extends EventEmitter implements OnApplicationBootstrap {
 
   public init = async ({ repeat = 6, timeout = 3600_000 } = {}): Promise<void> => {
     this.logger.log('Initializing tor...')
-    this.controlPort = await getPort()
     this.socksPort = await getPort()
     return await new Promise((resolve, reject) => {
       if (this.process) {
@@ -198,7 +196,7 @@ export class Tor extends EventEmitter implements OnApplicationBootstrap {
 
   protected readonly spawnTor = async (timeoutMs: number): Promise<void> => {
     return await new Promise((resolve, reject) => {
-      if (!this.controlPort) {
+      if (!this.configOptions.torControlPort) {
         this.logger.error('Can\'t spawn tor - no control port')
         reject(new Error('Can\'t spawn tor - no control port'))
         return
@@ -216,7 +214,7 @@ export class Tor extends EventEmitter implements OnApplicationBootstrap {
         '--HTTPTunnelPort',
         this.configOptions.httpTunnelPort.toString(),
         '--ControlPort',
-        this.controlPort.toString(),
+        this.configOptions.torControlPort.toString(),
         '--PidFile',
         this.torPidPath,
         '--DataDirectory',
@@ -233,7 +231,7 @@ export class Tor extends EventEmitter implements OnApplicationBootstrap {
           '--HTTPTunnelPort',
           this.configOptions.httpTunnelPort.toString(),
           '--ControlPort',
-          this.controlPort.toString(),
+          this.configOptions.torControlPort.toString(),
           '--PidFile',
           this.torPidPath,
           '--DataDirectory',

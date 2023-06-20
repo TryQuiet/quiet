@@ -6,6 +6,7 @@ import { NestFactory } from '@nestjs/core'
 import path from 'path'
 import { AppModule } from './nest/app.module'
 import { ConnectionsManagerService } from './nest/connections-manager/connections-manager.service'
+import getPort from 'get-port'
 
 // nest
 // create / app context
@@ -73,6 +74,7 @@ export const runBackendDesktop = async () => {
     socketIOPort: options.socketIOPort,
       torBinaryPath: torBinForPlatform(resourcesPath),
       torResourcesPath: torDirForPlatform(resourcesPath),
+      torControlPort: await getPort(),
       options: {
         env: {
           appDataPath: path.join(options.appDataPath.trim(), 'Quiet'),

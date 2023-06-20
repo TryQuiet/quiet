@@ -9,7 +9,7 @@ import { EventEmitter } from 'events'
 import getPort from 'get-port'
 import PeerId from 'peer-id'
 import { getPorts, removeFilesFromDir } from '../common/utils'
-import { AskForMessagesPayload, ChannelMessagesIdsResponse, ChannelsReplicatedPayload, Community, CommunityId, ConnectionProcessInfo, CreateChannelPayload, CreatedChannelResponse, DeleteFilesFromChannelSocketPayload, DownloadStatus, ErrorMessages, FileMetadata, IncomingMessages, InitCommunityPayload, LaunchRegistrarPayload, NetworkData, NetworkDataPayload, NetworkStats, PushNotificationPayload, RegisterOwnerCertificatePayload, RegisterUserCertificatePayload, RemoveDownloadStatus, ResponseCreateNetworkPayload, SaveCertificatePayload, SaveOwnerCertificatePayload, SendCertificatesResponse, SendMessagePayload, SetChannelSubscribedPayload, SocketActionTypes, StorePeerListPayload, UploadFilePayload } from '@quiet/types'
+import { AskForMessagesPayload, ChannelMessagesIdsResponse, ChannelsReplicatedPayload, Community, CommunityId, ConnectionProcessInfo, CreateChannelPayload, CreatedChannelResponse, DeleteFilesFromChannelSocketPayload, DownloadStatus, ErrorMessages, FileMetadata, IncomingMessages, InitCommunityPayload, LaunchRegistrarPayload, NetworkData, NetworkDataPayload, NetworkStats, PushNotificationPayload, RegisterOwnerCertificatePayload, RegisterUserCertificatePayload, RemoveDownloadStatus, ResponseCreateNetworkPayload, SaveCertificatePayload, SaveOwnerCertificatePayload, SendCertificatesResponse, SendMessagePayload, SetChannelSubscribedPayload, SocketActionTypes, StorePeerListPayload, UploadFilePayload, PeerId as PeerIdType } from '@quiet/types'
 import { CONFIG_OPTIONS, PEER_ID_PROVIDER, QUIET_DIR, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
 import { ConfigOptions, ServerIoProviderTypes } from '../types'
 import { SocketService } from '../socket/socket.service'
@@ -123,56 +123,57 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         // @ts-ignore
         crypto: webcrypto,
       }))
+      console.log('init')
+      this.communityState = ServiceState.DEFAULT
+      this.registrarState = ServiceState.DEFAULT
+
+    //   this.localStorage = new LocalDB(this.quietDir)
+    // console.log('servcies !!!!!!!', this.socketService,
+    // this.registrationService,
+    // this.localDbService,
+    // this.storageService,
+    // this.libp2pService,)
+      if (!this.configOptions.httpTunnelPort) {
+        this.configOptions.httpTunnelPort = await getPort()
+      }
+
+    //   this.createAgent()
+
+      // if (!this.tor) {
+      //   await this.spawnTor()
+      // }
+
+      this.attachsocketServiceListeners()
+      this.attachRegistrationListeners()
+      this.attachTorEventsListeners()
+
+      // Libp2p event listeners
+      this.on(Libp2pEvents.PEER_CONNECTED, (payload: { peers: string[] }) => {
+        this.serverIoProvider.io.emit(SocketActionTypes.PEER_CONNECTED, payload)
+      })
+      this.on(Libp2pEvents.PEER_DISCONNECTED, (payload: NetworkDataPayload) => {
+        this.serverIoProvider.io.emit(SocketActionTypes.PEER_DISCONNECTED, payload)
+      })
+
+      await this.socketService.listen()
+
+      if (this.configOptions.torControlPort) {
+        await this.launchCommunityFromStorage()
+      }
+
+      this.serverIoProvider.io.on('connection', async() => {
+        if (this.isTorInit === TorInitState.STARTED || this.isTorInit === TorInitState.STARTING) return
+        this.isTorInit = TorInitState.STARTING
+          if (this.configOptions.torBinaryPath) {
+            // await this.tor.init()
+            this.isTorInit = TorInitState.STARTED
+          }
+          await this.launchCommunityFromStorage()
+      })
       }
 
       async onApplicationBootstrap() {
-        console.log('init')
-        this.communityState = ServiceState.DEFAULT
-        this.registrarState = ServiceState.DEFAULT
 
-      //   this.localStorage = new LocalDB(this.quietDir)
-      // console.log('servcies !!!!!!!', this.socketService,
-      // this.registrationService,
-      // this.localDbService,
-      // this.storageService,
-      // this.libp2pService,)
-        if (!this.configOptions.httpTunnelPort) {
-          this.configOptions.httpTunnelPort = await getPort()
-        }
-
-      //   this.createAgent()
-
-        // if (!this.tor) {
-        //   await this.spawnTor()
-        // }
-
-        this.attachsocketServiceListeners()
-        this.attachRegistrationListeners()
-        this.attachTorEventsListeners()
-
-        // Libp2p event listeners
-        this.on(Libp2pEvents.PEER_CONNECTED, (payload: { peers: string[] }) => {
-          this.serverIoProvider.io.emit(SocketActionTypes.PEER_CONNECTED, payload)
-        })
-        this.on(Libp2pEvents.PEER_DISCONNECTED, (payload: NetworkDataPayload) => {
-          this.serverIoProvider.io.emit(SocketActionTypes.PEER_DISCONNECTED, payload)
-        })
-
-        await this.socketService.listen()
-
-        if (this.configOptions.torControlPort) {
-          await this.launchCommunityFromStorage()
-        }
-
-        this.serverIoProvider.io.on('connection', async() => {
-          if (this.isTorInit === TorInitState.STARTED || this.isTorInit === TorInitState.STARTING) return
-          this.isTorInit = TorInitState.STARTING
-            if (this.configOptions.torBinaryPath) {
-              // await this.tor.init()
-              this.isTorInit = TorInitState.STARTED
-            }
-            await this.launchCommunityFromStorage()
-        })
       }
 
     // public readonly createAgent = (): void => {
@@ -350,10 +351,12 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       await this.tor.destroyHiddenService(hiddenService.onionAddress.split('.')[0])
 
       this.logger.log(`Created network for peer ${this.peerId.toString()}. Address: ${hiddenService.onionAddress}`)
+console.log('this.peerId', this.peerId)
 
+const _peerId = this.peerId as unknown as PeerIdType
       return {
         hiddenService,
-        peerId: this.peerId.toJSON()
+        peerId: _peerId
       }
     }
 
@@ -481,7 +484,9 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     }
 
     private attachTorEventsListeners = () => {
+      this.logger.log('attachTorEventsListeners')
       this.tor.on(SocketActionTypes.TOR_BOOTSTRAP_PROCESS, (data) => {
+        this.logger.log('TOR_BOOTSTRAP_PROCESS', data)
         this.serverIoProvider.io.emit(SocketActionTypes.TOR_BOOTSTRAP_PROCESS, data)
       })
 
