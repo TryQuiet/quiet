@@ -15,7 +15,7 @@ const watchFolders = [
   path.resolve(__dirname, '../backend'),
   path.resolve(__dirname, '../logger'),
   path.resolve(__dirname, '../common'),
-  path.resolve(__dirname, '../types')
+  path.resolve(__dirname, '../types'),
 ]
 
 const extraNodeModules = {
@@ -26,7 +26,7 @@ const extraNodeModules = {
   '@quiet/common': path.resolve(__dirname, '../common'),
   '@quiet/types': path.resolve(__dirname, '../types'),
   '@quiet/eslint-config': path.resolve(__dirname, '../eslint-config-custom'),
-  ...require('node-libs-react-native')
+  ...require('node-libs-react-native'),
 }
 
 module.exports = {
@@ -35,17 +35,17 @@ module.exports = {
     extraNodeModules: new Proxy(extraNodeModules, {
       get: (target, name) =>
         // redirects dependencies referenced from common packages to local node_modules
-        name in target ? target[name] : path.join(process.cwd(), `node_modules/${name}`)
-    })
+        name in target ? target[name] : path.join(process.cwd(), `node_modules/${name}`),
+    }),
   },
   transformer: {
     getTransformOptions: async () => ({
       transform: {
         experimentalImportSupport: false,
-        inlineRequires: false
-      }
-    })
+        inlineRequires: false,
+      },
+    }),
   },
   sourceExts: ['js', 'jsx', 'ts', 'tsx'],
-  watchFolders
+  watchFolders,
 }
