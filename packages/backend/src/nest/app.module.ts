@@ -20,11 +20,12 @@ import { LocalDBKeys } from './local-db/local-db.types'
 import { peerId } from '../singletons'
 import { createServer } from 'http'
 import { Server as SocketIO } from 'socket.io'
+import { StorageModule } from './storage/storage.module'
 
 // KACPER
 @Global()
 @Module({
-  imports: [SocketModule, ConnectionsManagerModule, RegistrationModule, IpfsFileManagerModule, LocalDbModule, Libp2pModule, TorModule],
+  imports: [SocketModule, ConnectionsManagerModule, RegistrationModule, IpfsFileManagerModule, LocalDbModule, Libp2pModule, TorModule, StorageModule],
   providers: [
     {
       provide: EXPRESS_PROVIDER,

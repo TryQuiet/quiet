@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common'
 import { COMMUNITY_PROVIDER, IPFS_PROVIDER, ORBIT_DB_DIR, ORBIT_DB_PROVIDER, PEER_ID_PROVIDER, QUIET_DIR } from '../const'
-import { IpfsFileManagerModule } from '../ipfs-file-manager/ipfs-file-manager.module'
 import { StorageService } from './storage.service'
 import OrbitDB from 'orbit-db'
 import { LocalDbService } from '../local-db/local-db.service'
@@ -11,6 +10,7 @@ import { MessagesAccessController } from './MessagesAccessController'
 import { createChannelAccessController } from './ChannelsAccessController'
 import PeerId from 'peer-id'
 import { LocalDbModule } from '../local-db/local-db.module'
+import { IpfsFileManagerModule } from '../ipfs-file-manager/ipfs-file-manager.module'
 
 // KACPER - peerID
 const orbitDbProvider = {
@@ -19,7 +19,6 @@ const orbitDbProvider = {
     const channelsAccessController = createChannelAccessController(peerId, orbitDbDir)
     AccessControllers.addAccessController({ AccessController: MessagesAccessController })
     AccessControllers.addAccessController({ AccessController: channelsAccessController })
-console.log({ ipfs, peerId, orbitDbDir })
     const orbitDb = await OrbitDB.createInstance(ipfs, {
       // @ts-ignore
       id: peerId.toString(),
@@ -42,9 +41,7 @@ const communityProvider = {
 
 @Module({
     imports: [IpfsFileManagerModule, LocalDbModule], // KACPER
-    providers: [StorageService,
-      orbitDbProvider, communityProvider
-    ],
+    providers: [StorageService, orbitDbProvider, communityProvider],
     exports: [StorageService, orbitDbProvider, communityProvider],
   })
 export class StorageModule {}

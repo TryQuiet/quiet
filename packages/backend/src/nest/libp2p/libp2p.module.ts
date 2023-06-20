@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common'
-import { PeerId as PeerIdType } from '@quiet/types'
+import { InitCommunityPayload, PeerId as PeerIdType, SocketActionTypes } from '@quiet/types'
 import { Agent } from 'http'
 import { certs, onionAddress, peers, targetPort } from '../../singletons'
-import { CONFIG_OPTIONS, INIT_LIBP2P_PARAMS, LIB_P2P_PROVIDER, PEER_ID_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
+import { AUTH_DATA_PROVIDER, CONFIG_OPTIONS, INIT_LIBP2P_PARAMS, LIB_P2P_PROVIDER, PEER_ID_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
 import { LocalDbModule } from '../local-db/local-db.module'
 import { SocketModule } from '../socket/socket.module'
 import { StorageModule } from '../storage/storage.module'
@@ -15,7 +15,7 @@ import { gossipsub } from '@chainsafe/libp2p-gossipsub'
 import { mplex } from '@libp2p/mplex'
 import { kadDHT } from '@libp2p/kad-dht'
 import { createServer } from 'it-ws'
-import { webSockets } from '../../libp2p/websocketOverTor/index'
+// import { webSockets } from '../../libp2p/websocketOverTor/index'
 import { all } from '../../libp2p/websocketOverTor/filters'
 import { ConfigOptions } from '../types'
 import getPort from 'get-port'
@@ -24,6 +24,9 @@ import { LocalDbService } from '../local-db/local-db.service'
 import PeerId from 'peer-id'
 import { LocalDBKeys } from '../local-db/local-db.types'
 import { peerIdFromKeys } from '@libp2p/peer-id'
+import { SocketService } from '../socket/socket.service'
+import { webRTCStar } from '@libp2p/webrtc-star'
+import { webSockets } from '@libp2p/websockets'
 
 // const peerIdProvider = {
 //   provide: PEER_ID_PROVIDER,
@@ -54,6 +57,23 @@ import { peerIdFromKeys } from '@libp2p/peer-id'
 //     inject: [CONFIG_OPTIONS]
 //   }
 
+const authDataProvider = {
+  provide: AUTH_DATA_PROVIDER,
+  useFactory: async (socketService: SocketService) => {
+    socketService.on(SocketActionTypes.CREATE_NETWORK, async (args) => {
+      console.log('auth data provider')
+      console.log({ args })
+
+      return 'elo'
+      // this.logger.log(`socketService - ${SocketActionTypes.LAUNCH_COMMUNITY}`)
+      // if ([ServiceState.LAUNCHING, ServiceState.LAUNCHED].includes(this.communityState)) return
+      // this.communityState = ServiceState.LAUNCHING
+      // await this.launchCommunity(args)
+    })
+  },
+  inject: [SocketService],
+}
+
 const initLibp2pParams = {
   provide: INIT_LIBP2P_PARAMS,
   useFactory: async (peerId: PeerIdType) => {
@@ -71,7 +91,8 @@ const initLibp2pParams = {
 
 const libp2pProvider = {
   provide: LIB_P2P_PROVIDER,
-  useFactory: async (initParams: InitLibp2pParams, socksProxyAgent: Agent) => {
+  useFactory: async (initParams: InitLibp2pParams, socksProxyAgent: Agent, authDataProvider: string) => {
+    console.log({ authDataProvider })
   const params: Libp2pNodeParams = {
     peerId: initParams.peerId,
     listenAddresses: [createLibp2pListenAddress(initParams.address)],
@@ -96,7 +117,7 @@ const libp2pProvider = {
       },
       peerId: _peerId,
       addresses: {
-        listen: params.listenAddresses
+        // listen: params.listenAddresses
       },
       streamMuxers: [mplex()],
       connectionEncryption: [noise()],
@@ -107,20 +128,7 @@ const libp2pProvider = {
           active: false
         }
       },
-      transports: [
-        webSockets({
-          filter: all,
-          websocket: {
-            agent: params.agent,
-            cert: params.cert,
-            key: params.key,
-            ca: params.ca
-          },
-          localAddress: params.localAddress,
-          targetPort: params.targetPort,
-          createServer: createServer
-        })],
-      // @ts-ignore
+      transports: [webSockets()],
       dht: kadDHT(),
       pubsub: gossipsub({ allowPublishToZeroPeers: true }),
     })
@@ -130,12 +138,12 @@ const libp2pProvider = {
   }
   return lib
   },
-  inject: [INIT_LIBP2P_PARAMS, SOCKS_PROXY_AGENT],
+  inject: [INIT_LIBP2P_PARAMS, SOCKS_PROXY_AGENT, AUTH_DATA_PROVIDER],
 }
 
 @Module({
   imports: [SocketModule],
-  providers: [Libp2pService, initLibp2pParams, libp2pProvider],
+  providers: [Libp2pService, initLibp2pParams, libp2pProvider, authDataProvider],
   exports: [Libp2pService, initLibp2pParams, libp2pProvider]
 })
 export class Libp2pModule {}

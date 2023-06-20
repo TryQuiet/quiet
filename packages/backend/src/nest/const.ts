@@ -38,3 +38,5 @@ export const TOR_CONTROL_PARAMS = 'tor-control-params'
 export const PEER_ID_PROVIDER = 'peer-id-provider'
 
 export const LIB_P2P_PROVIDER = 'libp2p-provider'
+
+export const AUTH_DATA_PROVIDER = 'auth-data-provider'

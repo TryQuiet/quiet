@@ -59,14 +59,14 @@ export class StorageService extends EventEmitter implements OnModuleInit {
 
   private readonly logger = new Logger(StorageService.name)
   constructor(
+    private readonly filesManager: IpfsFileManagerService,
     @Inject(QUIET_DIR) public readonly quietDir: string,
     @Inject(ORBIT_DB_DIR) public readonly orbitDbDir: string,
     @Inject(IPFS_REPO_PATCH) public readonly ipfsRepoPath: string,
     @Inject(ORBIT_DB_PROVIDER) public readonly orbitDb: OrbitDB,
     @Inject(COMMUNITY_PROVIDER) public readonly community: InitCommunityPayload,
     @Inject(IPFS_PROVIDER) public readonly ipfs: IPFS,
-    @Inject(PEER_ID_PROVIDER) public readonly peerId: PeerId,
-    private readonly filesManager: IpfsFileManagerService
+    @Inject(PEER_ID_PROVIDER) public readonly peerId: PeerId
     ) {
     super()
 
@@ -84,7 +84,7 @@ export class StorageService extends EventEmitter implements OnModuleInit {
     removeFiles(this.quietDir, 'LOCK')
     removeDirs(this.quietDir, 'repo.lock')
     createPaths([this.ipfsRepoPath, this.orbitDbDir])
-
+    console.log('this.filesManager', this.filesManager)
     // this.ipfs = await this.initIPFS(libp2p, peerID)
     // this.filesManager = new IpfsFilesManager(this.ipfs, this.quietDir)
     this.attachFileManagerEvents()

@@ -61,7 +61,7 @@ console.log('ellllllo !!!!!!!!!!!!!!!!!')
             // // nie mozemy na init tego robic IMPORTANT
             // const libp2p: Libp2p = await this.createBootstrapNode(nodeParams)
             this.libp2pInstance = this.libp2p
-            const dialInChunks = new ProcessInChunks<string>(this.initParams.bootstrapMultiaddrs, this.dialPeer)
+            // const dialInChunks = new ProcessInChunks<string>(this.initParams.bootstrapMultiaddrs, this.dialPeer)
 
             this.libp2p.addEventListener('peer:discovery', (peer) => {
               this.logger.log(`${this.initParams.peerId.toString()} discovered ${peer.detail.id}`)
@@ -72,7 +72,7 @@ console.log('ellllllo !!!!!!!!!!!!!!!!!')
               this.logger.log(`${this.initParams.peerId.toString()} connected to ${remotePeerId}`)
 
               // Stop dialing as soon as we connect to a peer
-              dialInChunks.stop()
+              // dialInChunks.stop()
 
               this.connectedPeers.set(remotePeerId, DateTime.utc().valueOf())
 
@@ -121,7 +121,7 @@ console.log('ellllllo !!!!!!!!!!!!!!!!!')
               })
             })
 
-            await dialInChunks.process()
+            // await dialInChunks.process()
 
             this.logger.log(`Initialized libp2p for peer ${this.initParams.peerId.toString()}`)
           }

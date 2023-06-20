@@ -1,6 +1,5 @@
-import { Inject, Injectable, OnModuleInit } from '@nestjs/common'
+import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common'
 import { SocketActionTypes, CreateChannelPayload, SendMessagePayload, UploadFilePayload, DownloadFilePayload, CancelDownloadPayload, AskForMessagesPayload, RegisterUserCertificatePayload, ConnectionProcessInfo, RegisterOwnerCertificatePayload, SaveOwnerCertificatePayload, InitCommunityPayload, LaunchRegistrarPayload, Community, DeleteFilesFromChannelSocketPayload } from '@quiet/types'
-import { log } from 'console'
 import cors, { CorsOptions } from 'cors'
 import EventEmitter from 'events'
 import { CONFIG_OPTIONS, SERVER_IO_PROVIDER } from '../const'
@@ -8,18 +7,21 @@ import { ConfigOptions, ServerIoProviderTypes } from '../types'
 
 @Injectable()
 export class SocketService extends EventEmitter implements OnModuleInit {
+    private readonly logger = new Logger(SocketService.name)
     constructor(@Inject(SERVER_IO_PROVIDER) public readonly serverIoProvider: ServerIoProviderTypes,
     @Inject(CONFIG_OPTIONS) public readonly configOptions: ConfigOptions) {
       super()
     }
 
   onModuleInit() {
+    this.logger.log('init socket servicer')
     this.initSocket()
   }
 
     private readonly initSocket = (): void => {
       // Attach listeners here
       this.serverIoProvider.io.on(SocketActionTypes.CONNECTION, socket => {
+        this.logger.log('socket connection')
         // On websocket connection, update presentation service with network data
         this.emit(SocketActionTypes.CONNECTION)
         socket.on(SocketActionTypes.CLOSE, async () => {
@@ -92,7 +94,7 @@ export class SocketService extends EventEmitter implements OnModuleInit {
         socket.on(
           SocketActionTypes.REGISTER_USER_CERTIFICATE,
           async (payload: RegisterUserCertificatePayload) => {
-            log(`Registering user certificate (${payload.communityId}) on ${payload.serviceAddress}`)
+            this.logger.log(`Registering user certificate (${payload.communityId}) on ${payload.serviceAddress}`)
             this.emit(SocketActionTypes.REGISTER_USER_CERTIFICATE, payload)
             await new Promise<void>(resolve => setTimeout(() => resolve(), 2000))
             this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.REGISTERING_USER_CERTIFICATE)
@@ -101,7 +103,7 @@ export class SocketService extends EventEmitter implements OnModuleInit {
         socket.on(
           SocketActionTypes.REGISTER_OWNER_CERTIFICATE,
           async (payload: RegisterOwnerCertificatePayload) => {
-            log(`Registering owner certificate (${payload.communityId})`)
+            this.logger.log(`Registering owner certificate (${payload.communityId})`)
             this.emit(SocketActionTypes.REGISTER_OWNER_CERTIFICATE, payload)
             this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.REGISTERING_OWNER_CERTIFICATE)
           }
@@ -109,37 +111,37 @@ export class SocketService extends EventEmitter implements OnModuleInit {
         socket.on(
           SocketActionTypes.SAVE_OWNER_CERTIFICATE,
           async (payload: SaveOwnerCertificatePayload) => {
-            log(`Saving owner certificate (${payload.peerId}), community: ${payload.id}`)
+            this.logger.log(`Saving owner certificate (${payload.peerId}), community: ${payload.id}`)
             this.emit(SocketActionTypes.SAVED_OWNER_CERTIFICATE, payload)
           }
         )
         socket.on(SocketActionTypes.CREATE_COMMUNITY, async (payload: InitCommunityPayload) => {
-          log(`Creating community ${payload.id}`)
+          this.logger.log(`Creating community ${payload.id}`)
           this.emit(SocketActionTypes.CREATE_COMMUNITY, payload)
         })
         socket.on(SocketActionTypes.LAUNCH_COMMUNITY, async (payload: InitCommunityPayload) => {
-          log(`Launching community ${payload.id} for ${payload.peerId.id}`)
+          this.logger.log(`Launching community ${payload.id} for ${payload.peerId.id}`)
           this.emit(SocketActionTypes.LAUNCH_COMMUNITY, payload)
           this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.LAUNCHING_COMMUNITY)
         })
         socket.on(SocketActionTypes.LAUNCH_REGISTRAR, async (payload: LaunchRegistrarPayload) => {
-          log(`Launching registrar for community ${payload.id}, user ${payload.peerId}`)
+          this.logger.log(`Launching registrar for community ${payload.id}, user ${payload.peerId}`)
           this.emit(SocketActionTypes.LAUNCH_REGISTRAR, payload)
         })
         socket.on(SocketActionTypes.CREATE_NETWORK, async (community: Community) => {
-          log(`Creating network for community ${community.id}`)
+          this.logger.log(`Creating network for community ${community.id}`)
           this.emit(SocketActionTypes.CREATE_NETWORK, community)
         })
         socket.on(SocketActionTypes.LEAVE_COMMUNITY, async () => {
-          log('leaving community')
+          this.logger.log('leaving community')
           this.emit(SocketActionTypes.LEAVE_COMMUNITY)
         })
         socket.on(SocketActionTypes.DELETE_CHANNEL, async (payload: {channelId: string; ownerPeerId: string}) => {
-          log('deleting channel ', payload.channelId)
+          this.logger.log('deleting channel ', payload.channelId)
           this.emit(SocketActionTypes.DELETE_CHANNEL, payload)
         })
         socket.on(SocketActionTypes.DELETE_FILES_FROM_CHANNEL, async (payload: DeleteFilesFromChannelSocketPayload) => {
-          log('DELETE_FILES_FROM_CHANNEL', payload)
+          this.logger.log('DELETE_FILES_FROM_CHANNEL', payload)
           this.emit(SocketActionTypes.DELETE_FILES_FROM_CHANNEL, payload)
         })
       })
@@ -149,14 +151,14 @@ export class SocketService extends EventEmitter implements OnModuleInit {
       return await new Promise(resolve => {
         if (this.serverIoProvider.server.listening) resolve()
         this.serverIoProvider.server.listen(this.configOptions.socketIOPort, () => {
-          log(`Data server running on port ${this.configOptions.socketIOPort}`)
+          this.logger.log(`Data server running on port ${this.configOptions.socketIOPort}`)
           resolve()
         })
       })
     }
 
     public close = async (): Promise<void> => {
-      log(`Closing data server on port ${this.configOptions.socketIOPort}`)
+      this.logger.log(`Closing data server on port ${this.configOptions.socketIOPort}`)
       return await new Promise(resolve => {
         this.serverIoProvider.server.close((err) => {
           if (err) throw new Error(err.message)

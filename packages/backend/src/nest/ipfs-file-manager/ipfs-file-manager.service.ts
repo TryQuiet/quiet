@@ -37,8 +37,13 @@ export class IpfsFileManagerService extends EventEmitter implements OnModuleInit
     }
 
     onModuleInit() {
+        console.log('ipfs file manager ')
             this.queue = new PQueue({ concurrency: QUEUE_CONCURRENCY })
            this.attachIncomingEvents()
+    }
+
+    public getTest() {
+        return 'elo test method'
     }
 
     private attachIncomingEvents = () => {
