@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common'
+import { Inject, Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common'
 import {
     CertFieldsTypes,
     getCertFieldValue,
@@ -30,7 +30,7 @@ import { COMMUNITY_PROVIDER, IPFS_PROVIDER, IPFS_REPO_PATCH, ORBIT_DB_DIR, ORBIT
 import { IpfsFilesManagerEvents } from '../ipfs-file-manager/ipfs-file-manager.types'
 
 @Injectable()
-export class StorageService extends EventEmitter implements OnModuleInit {
+export class StorageService extends EventEmitter implements OnApplicationBootstrap {
   // public quietDir: string
   // public peerId: PeerId
   // protected ipfs: IPFS
@@ -71,14 +71,14 @@ export class StorageService extends EventEmitter implements OnModuleInit {
     // this.ipfsRepoPath = path.join(this.quietDir, this.options.ipfsDir || Config.IPFS_REPO_PATH)
   }
 
-  async onModuleInit() {
+  onApplicationBootstrap() {
     console.log()
     this.logger.log('Initializing storage')
     removeFiles(this.quietDir, 'LOCK')
     removeDirs(this.quietDir, 'repo.lock')
     createPaths([this.ipfsRepoPath, this.orbitDbDir])
 
-    // this.attachFileManagerEvents()
+    this.attachFileManagerEvents()
 
     // const channelsAccessController = createChannelAccessController(peerID, this.orbitDbDir)
 
