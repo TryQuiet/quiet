@@ -8,7 +8,7 @@ export class NavigationState {
 
 export interface OpenMenuPayload {
   menu: MenuName
-  args?: Record<string, never>
+  args?: {} // eslint-disable-line @typescript-eslint/ban-types
 }
 
 export interface ToggleConfirmationBoxPayload {

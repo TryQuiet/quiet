@@ -3,12 +3,12 @@ import { ModalName } from './modals.types'
 
 export interface OpenModalPayload {
   name: ModalName
-  args?: Record<string, never>
+  args?: {} // eslint-disable-line @typescript-eslint/ban-types
 }
 
 export interface ModalState {
   open: boolean
-  args?: Record<string, never>
+  args?: {} // eslint-disable-line @typescript-eslint/ban-types
 }
 
 export class ModalsInitialState {
