@@ -1,27 +1,27 @@
 import { Inject, Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common'
 import {
-    CertFieldsTypes,
-    getCertFieldValue,
-    keyFromCertificate,
-    keyObjectFromString,
-    parseCertificate,
-    verifySignature,
-    verifyUserCert
-  } from '@quiet/identity'
-  import type { IPFS, create as createType } from 'ipfs-core'
-  import OrbitDB from 'orbit-db'
-  import EventStore from 'orbit-db-eventstore'
-  import KeyValueStore from 'orbit-db-kvstore'
-  import path from 'path'
-  import { EventEmitter } from 'events'
-  import PeerId from 'peer-id'
-  import { getCrypto } from 'pkijs'
-  import { stringToArrayBuffer } from 'pvutils'
-  import validate from '../validation/validators'
-  import { CID } from 'multiformats/cid'
-  import { ChannelMessage, ConnectionProcessInfo, DeleteFilesFromChannelSocketPayload, FileMetadata, InitCommunityPayload, NoCryptoEngineError, PublicChannel, PushNotificationPayload, SaveCertificatePayload, SocketActionTypes, User } from '@quiet/types'
-  import { isDefined } from '@quiet/common'
-  import fs from 'fs'
+  CertFieldsTypes,
+  getCertFieldValue,
+  keyFromCertificate,
+  keyObjectFromString,
+  parseCertificate,
+  verifySignature,
+  verifyUserCert
+} from '@quiet/identity'
+import type { IPFS, create as createType } from 'ipfs-core'
+import OrbitDB from 'orbit-db'
+import EventStore from 'orbit-db-eventstore'
+import KeyValueStore from 'orbit-db-kvstore'
+import path from 'path'
+import { EventEmitter } from 'events'
+import PeerId from 'peer-id'
+import { getCrypto } from 'pkijs'
+import { stringToArrayBuffer } from 'pvutils'
+import validate from '../validation/validators'
+import { CID } from 'multiformats/cid'
+import { ChannelMessage, ConnectionProcessInfo, DeleteFilesFromChannelSocketPayload, FileMetadata, InitCommunityPayload, NoCryptoEngineError, PublicChannel, PushNotificationPayload, SaveCertificatePayload, SocketActionTypes, User } from '@quiet/types'
+import { isDefined } from '@quiet/common'
+import fs from 'fs'
 import { IMessageThread, PublicChannelsRepo, DirectMessagesRepo, StorageOptions } from '../../common/types'
 import { removeFiles, removeDirs, createPaths, getUsersAddresses } from '../../common/utils'
 import { StorageEvents } from '../../storage/types'
@@ -62,7 +62,7 @@ export class StorageService extends EventEmitter implements OnApplicationBootstr
     // @Inject(COMMUNITY_PROVIDER) public readonly community: InitCommunityPayload,
     @Inject(IPFS_PROVIDER) public readonly ipfs: IPFS,
     @Inject(PEER_ID_PROVIDER) public readonly peerId: PeerId
-    ) {
+  ) {
     super()
 
     // KACPER
@@ -121,13 +121,13 @@ export class StorageService extends EventEmitter implements OnApplicationBootstr
   //   AccessControllers.addAccessController({ AccessController: MessagesAccessController })
   //   AccessControllers.addAccessController({ AccessController: channelsAccessController })
 
-    // this.orbitDb = await OrbitDB.createInstance(this.ipfs, {
-    //   // @ts-ignore
-    //   id: peerID.toString(),
-    //   directory: this.orbitDbDir,
-    //   // @ts-ignore
-    //   AccessControllers: AccessControllers
-    // })
+  // this.orbitDb = await OrbitDB.createInstance(this.ipfs, {
+  //   // @ts-ignore
+  //   id: peerID.toString(),
+  //   directory: this.orbitDbDir,
+  //   // @ts-ignore
+  //   AccessControllers: AccessControllers
+  // })
   //   this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.INITIALIZED_STORAGE)
   //   log('Initialized storage')
   // }
@@ -479,7 +479,7 @@ export class StorageService extends EventEmitter implements OnApplicationBootstr
           communityId: community.id
         })
       })
-      db.events.on('ready', async() => {
+      db.events.on('ready', async () => {
         const ids = this.getAllEventLogEntries<ChannelMessage>(db).map(msg => msg.id)
         const community = await this.localDbService.get(LocalDBKeys.COMMUNITY)
         this.emit(StorageEvents.SEND_MESSAGES_IDS, {
@@ -570,10 +570,12 @@ export class StorageService extends EventEmitter implements OnApplicationBootstr
     )
 
     const channel = this.channels.get(channelId)
+    console.log('channel', channel)
     if (channel === undefined) {
       await this.channels.put(channelId, {
         ...data
       })
+      console.log('emitting new channel')
       this.emit(StorageEvents.CREATED_CHANNEL, {
         channel: data
       })
@@ -894,7 +896,7 @@ export class StorageService extends EventEmitter implements OnApplicationBootstr
 
   public async deleteFilesFromChannel(payload: DeleteFilesFromChannelSocketPayload) {
     const { messages } = payload
-    Object.keys(messages).map(async(key) => {
+    Object.keys(messages).map(async (key) => {
       const message = messages[key]
       if (message?.media?.path) {
         const mediaPath = message.media.path
@@ -902,11 +904,11 @@ export class StorageService extends EventEmitter implements OnApplicationBootstr
         const isFileExist = await this.checkIfFileExist(mediaPath)
         this.logger.log(`deleteFilesFromChannel : isFileExist- ${isFileExist}`)
         if (isFileExist) {
-            fs.unlink(mediaPath, unlinkError => {
-              if (unlinkError) {
-                this.logger.log(`deleteFilesFromChannel : unlink error - ${unlinkError}`)
-              }
-            })
+          fs.unlink(mediaPath, unlinkError => {
+            if (unlinkError) {
+              this.logger.log(`deleteFilesFromChannel : unlink error - ${unlinkError}`)
+            }
+          })
         } else {
           this.logger.log(`deleteFilesFromChannel : file dont exist - ${mediaPath}`)
         }
@@ -915,11 +917,11 @@ export class StorageService extends EventEmitter implements OnApplicationBootstr
   }
 
   public async checkIfFileExist(filepath: string): Promise<boolean> {
-      return await new Promise((resolve) => {
-        fs.access(filepath, fs.constants.F_OK, error => {
-          resolve(!error)
-        })
+    return await new Promise((resolve) => {
+      fs.access(filepath, fs.constants.F_OK, error => {
+        resolve(!error)
       })
+    })
   }
 
   private async deleteFilesFromTemporaryDir() {

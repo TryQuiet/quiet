@@ -15,7 +15,7 @@ import { GetInfoTorSignal, TorParams, TorParamsProvider, TorPasswordProvider } f
 import * as os from 'os'
 import { sleep } from '../../sleep'
 
-export class Tor extends EventEmitter implements OnApplicationBootstrap {
+export class Tor extends EventEmitter implements OnModuleInit {
   //   httpTunnelPort: number
   socksPort: number
   process: child_process.ChildProcessWithoutNullStreams | any = null
@@ -40,7 +40,7 @@ export class Tor extends EventEmitter implements OnApplicationBootstrap {
     super()
   }
 
-  async onApplicationBootstrap() {
+  async onModuleInit() {
     // this.torPath = this.configOptions.torBinaryPath ? path.normalize(this.configOptions.torBinaryPath) : ''
     // this.options = {
     //   env: {
@@ -49,7 +49,7 @@ export class Tor extends EventEmitter implements OnApplicationBootstrap {
     //   },
     //   detached: true
     // }
-// console.log('this.torControl', this.controlPort)
+    // console.log('this.torControl', this.controlPort)
     await this.init()
     // this.extraTorProcessParams = this.mergeDefaultTorParams(extraTorProcessParams)
   }
