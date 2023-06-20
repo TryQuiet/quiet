@@ -53,17 +53,18 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
     private readonly logger = new Logger(ConnectionsManagerService.name)
     constructor(
+
+    @Inject(SERVER_IO_PROVIDER) public readonly serverIoProvider: ServerIoProviderTypes,
+    @Inject(CONFIG_OPTIONS) public configOptions: ConfigOptions,
+    @Inject(QUIET_DIR) public readonly quietDir: string,
+    @Inject(SOCKS_PROXY_AGENT) public readonly socksProxyAgent: Agent,
+    @Inject(PEER_ID_PROVIDER) public readonly peerId: PeerId,
     private readonly socketService: SocketService,
     private readonly registrationService: RegistrationService,
     private readonly localDbService: LocalDbService,
     private readonly storageService: StorageService,
     private readonly libp2pService: Libp2pService,
     private readonly tor: Tor,
-    @Inject(SERVER_IO_PROVIDER) public readonly serverIoProvider: ServerIoProviderTypes,
-    @Inject(CONFIG_OPTIONS) public configOptions: ConfigOptions,
-    @Inject(QUIET_DIR) public readonly quietDir: string,
-    @Inject(SOCKS_PROXY_AGENT) public readonly socksProxyAgent: Agent,
-    @Inject(PEER_ID_PROVIDER) public readonly peerId: PeerId,
     ) {
       super()
     //   this.registration = new CertificateRegistration()
@@ -125,48 +126,53 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       }
 
       async onApplicationBootstrap() {
-      this.communityState = ServiceState.DEFAULT
-      this.registrarState = ServiceState.DEFAULT
+        console.log('init')
+        this.communityState = ServiceState.DEFAULT
+        this.registrarState = ServiceState.DEFAULT
 
-    //   this.localStorage = new LocalDB(this.quietDir)
+      //   this.localStorage = new LocalDB(this.quietDir)
+      // console.log('servcies !!!!!!!', this.socketService,
+      // this.registrationService,
+      // this.localDbService,
+      // this.storageService,
+      // this.libp2pService,)
+        if (!this.configOptions.httpTunnelPort) {
+          this.configOptions.httpTunnelPort = await getPort()
+        }
 
-      if (!this.configOptions.httpTunnelPort) {
-        this.configOptions.httpTunnelPort = await getPort()
-      }
+      //   this.createAgent()
 
-    //   this.createAgent()
+        // if (!this.tor) {
+        //   await this.spawnTor()
+        // }
 
-      // if (!this.tor) {
-      //   await this.spawnTor()
-      // }
+        this.attachsocketServiceListeners()
+        this.attachRegistrationListeners()
+        this.attachTorEventsListeners()
 
-      this.attachsocketServiceListeners()
-      this.attachRegistrationListeners()
-      this.attachTorEventsListeners()
+        // Libp2p event listeners
+        this.on(Libp2pEvents.PEER_CONNECTED, (payload: { peers: string[] }) => {
+          this.serverIoProvider.io.emit(SocketActionTypes.PEER_CONNECTED, payload)
+        })
+        this.on(Libp2pEvents.PEER_DISCONNECTED, (payload: NetworkDataPayload) => {
+          this.serverIoProvider.io.emit(SocketActionTypes.PEER_DISCONNECTED, payload)
+        })
 
-      // Libp2p event listeners
-      this.on(Libp2pEvents.PEER_CONNECTED, (payload: { peers: string[] }) => {
-        this.serverIoProvider.io.emit(SocketActionTypes.PEER_CONNECTED, payload)
-      })
-      this.on(Libp2pEvents.PEER_DISCONNECTED, (payload: NetworkDataPayload) => {
-        this.serverIoProvider.io.emit(SocketActionTypes.PEER_DISCONNECTED, payload)
-      })
+        await this.socketService.listen()
 
-      await this.socketService.listen()
-
-      if (this.configOptions.torControlPort) {
-        await this.launchCommunityFromStorage()
-      }
-
-      this.serverIoProvider.io.on('connection', async() => {
-        if (this.isTorInit === TorInitState.STARTED || this.isTorInit === TorInitState.STARTING) return
-        this.isTorInit = TorInitState.STARTING
-          if (this.configOptions.torBinaryPath) {
-            await this.tor.init()
-            this.isTorInit = TorInitState.STARTED
-          }
+        if (this.configOptions.torControlPort) {
           await this.launchCommunityFromStorage()
-      })
+        }
+
+        this.serverIoProvider.io.on('connection', async() => {
+          if (this.isTorInit === TorInitState.STARTED || this.isTorInit === TorInitState.STARTING) return
+          this.isTorInit = TorInitState.STARTING
+            if (this.configOptions.torBinaryPath) {
+              // await this.tor.init()
+              this.isTorInit = TorInitState.STARTED
+            }
+            await this.launchCommunityFromStorage()
+        })
       }
 
     // public readonly createAgent = (): void => {

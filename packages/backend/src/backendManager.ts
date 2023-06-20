@@ -81,7 +81,6 @@ export const runBackendDesktop = async () => {
   }), { logger: ['error', 'warn', 'debug', 'log', 'verbose'] })
 
   const connectionsManager = app.get<ConnectionsManagerService>(ConnectionsManagerService)
-  // await connectionsManager.init()
 
   process.on('message', async (message) => {
     if (message === 'close') {

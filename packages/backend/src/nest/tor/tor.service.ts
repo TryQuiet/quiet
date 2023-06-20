@@ -50,7 +50,7 @@ export class Tor extends EventEmitter implements OnApplicationBootstrap {
     //   },
     //   detached: true
     // }
-
+// console.log('this.torControl', this.controlPort)
     await this.init()
     // this.extraTorProcessParams = this.mergeDefaultTorParams(extraTorProcessParams)
   }

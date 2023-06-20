@@ -77,8 +77,7 @@ export class StorageService extends EventEmitter implements OnApplicationBootstr
     removeFiles(this.quietDir, 'LOCK')
     removeDirs(this.quietDir, 'repo.lock')
     createPaths([this.ipfsRepoPath, this.orbitDbDir])
-console.log('this.filesManager', this.filesManager)
-    // this.attachFileManagerEvents()
+    this.attachFileManagerEvents()
 
     // const channelsAccessController = createChannelAccessController(peerID, this.orbitDbDir)
 

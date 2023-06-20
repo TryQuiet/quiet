@@ -142,7 +142,7 @@ const libp2pProvider = {
 }
 
 @Module({
-  imports: [SocketModule],
+  imports: [SocketModule, LocalDbModule],
   providers: [Libp2pService, initLibp2pParams, libp2pProvider, authDataProvider],
   exports: [Libp2pService, initLibp2pParams, libp2pProvider]
 })

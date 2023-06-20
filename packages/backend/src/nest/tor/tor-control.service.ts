@@ -13,8 +13,7 @@ export class TorControl implements OnModuleInit {
   private readonly logger = new Logger(TorControl.name)
   constructor(
     @Inject(TOR_CONTROL_PARAMS) public torControlParams: TorControlParams,
-    @Inject(CONFIG_OPTIONS) public configOptions: ConfigOptions,
-     private readonly tor: Tor) {
+    @Inject(CONFIG_OPTIONS) public configOptions: ConfigOptions) {
 
   }
 

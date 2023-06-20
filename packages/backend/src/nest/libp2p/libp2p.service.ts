@@ -31,7 +31,7 @@ public connectedPeers: Map<string, number>
 // params: InitLibp2pParams
 private readonly logger = new Logger(Libp2pService.name)
     constructor(
-        private readonly localDbService: LocalDbService,
+      private readonly localDbService: LocalDbService,
         @Inject(SERVER_IO_PROVIDER) public readonly serverIoProvider: ServerIoProviderTypes,
         @Inject(SOCKS_PROXY_AGENT) public readonly socksProxyAgent: Agent,
         @Inject(INIT_LIBP2P_PARAMS) public readonly initParams: InitLibp2pParams,
