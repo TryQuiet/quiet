@@ -25,6 +25,7 @@ const extraNodeModules = {
   '@quiet/logger': path.resolve(__dirname, '../logger'),
   '@quiet/common': path.resolve(__dirname, '../common'),
   '@quiet/types': path.resolve(__dirname, '../types'),
+  '@quiet/eslint-config': path.resolve(__dirname, '../eslint-config-custom'),
   ...require('node-libs-react-native')
 }
 
