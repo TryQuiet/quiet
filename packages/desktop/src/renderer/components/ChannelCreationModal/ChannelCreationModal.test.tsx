@@ -64,7 +64,7 @@ describe('Create ChannelCreationModalComponent', () => {
                   class="MuiGrid-root MuiGrid-container ChannelCreationModalComponentwrapper css-upjnze-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-qotagf-MuiGrid-root"
+                    class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-ejbsmj-MuiGrid-root"
                     data-testid="spinnerLoader"
                   >
                     <span
