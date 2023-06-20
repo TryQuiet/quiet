@@ -7,14 +7,15 @@ import getPort from 'get-port'
 import { removeFilesFromDir } from '../common/utils'
 import { EventEmitter } from 'events'
 import { SocketActionTypes, SupportedPlatform } from '@quiet/types'
-import { Inject, Logger, OnModuleInit } from '@nestjs/common'
+import { Inject, Logger, OnModuleInit, OnApplicationBootstrap } from '@nestjs/common'
 import { ConfigOptions } from '../types'
 import { CONFIG_OPTIONS, QUIET_DIR, TOR_PARAMS_PROVIDER, TOR_PASSWORD_PROVIDER } from '../const'
 import { TorControl } from './tor-control.service'
 import { GetInfoTorSignal, TorParams, TorParamsProvider, TorPasswordProvider } from './tor.types'
 import * as os from 'os'
+import { sleep } from '../../sleep'
 
-export class Tor extends EventEmitter implements OnModuleInit {
+export class Tor extends EventEmitter implements OnApplicationBootstrap {
 //   httpTunnelPort: number
   socksPort: number
   controlPort?: number
@@ -40,7 +41,7 @@ private readonly logger = new Logger(Tor.name)
     super()
   }
 
-  async onModuleInit() {
+  async onApplicationBootstrap() {
     // this.torPath = this.configOptions.torBinaryPath ? path.normalize(this.configOptions.torBinaryPath) : ''
     // this.options = {
     //   env: {

@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common'
+import { Inject, Injectable, Logger, OnModuleInit, OnApplicationBootstrap } from '@nestjs/common'
 import { Crypto } from '@peculiar/webcrypto'
 import { Agent } from 'https'
 import fs from 'fs'
@@ -28,7 +28,7 @@ import { InitStorageParams, StorageEvents } from '../storage/storage.types'
 import { onionAddress } from '../../singletons'
 
 @Injectable()
-export class ConnectionsManagerService extends EventEmitter implements OnModuleInit {
+export class ConnectionsManagerService extends EventEmitter implements OnModuleInit, OnApplicationBootstrap {
     // registration: CertificateRegistration
     // httpTunnelPort?: number
     // socksProxyAgent: Agent
@@ -122,7 +122,9 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         // @ts-ignore
         crypto: webcrypto,
       }))
+      }
 
+      async onApplicationBootstrap() {
       this.communityState = ServiceState.DEFAULT
       this.registrarState = ServiceState.DEFAULT
 
@@ -134,17 +136,12 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
     //   this.createAgent()
 
-      if (!this.tor) {
-        await this.spawnTor()
-      }
+      // if (!this.tor) {
+      //   await this.spawnTor()
+      // }
 
-    //   if (!this.socketService) {
-    //     this.socketService = new socketService(this.options.socketIOPort)
-    //     this.serverIoProvider.io = this.socketService.io
-        this.attachsocketServiceListeners()
-        this.attachRegistrationListeners()
-    //   }
-
+      this.attachsocketServiceListeners()
+      this.attachRegistrationListeners()
       this.attachTorEventsListeners()
 
       // Libp2p event listeners

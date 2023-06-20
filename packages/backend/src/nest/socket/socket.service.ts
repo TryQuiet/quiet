@@ -14,8 +14,9 @@ export class SocketService extends EventEmitter implements OnModuleInit {
     }
 
   onModuleInit() {
-    this.logger.log('init socket servicer')
+    this.logger.log('init:started')
     this.initSocket()
+    this.logger.log('init:finished')
   }
 
     private readonly initSocket = (): void => {
