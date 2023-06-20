@@ -19,17 +19,12 @@ export class TorControl implements OnModuleInit {
   }
 
   onModuleInit() {
-    const auth = {
-      value: this.configOptions.torAuthCookie || this.tor.torPassword,
-      type: this.configOptions.torAuthCookie ? TorControlAuthType.COOKIE : TorControlAuthType.PASSWORD
+    if (this.torControlParams.auth.type === TorControlAuthType.PASSWORD) {
+      this.authString = 'AUTHENTICATE "' + this.torControlParams.auth.value + '"\r\n'
     }
-
-    if (auth.type === TorControlAuthType.PASSWORD) {
-      this.authString = 'AUTHENTICATE "' + auth.value + '"\r\n'
-    }
-    if (auth.type === TorControlAuthType.COOKIE) {
+    if (this.torControlParams.auth.type === TorControlAuthType.COOKIE) {
       // Cookie authentication must be invoked as a hexadecimal string passed without double quotes
-      this.authString = 'AUTHENTICATE ' + auth.value + '\r\n'
+      this.authString = 'AUTHENTICATE ' + this.torControlParams.auth.value + '\r\n'
     }
   }
 

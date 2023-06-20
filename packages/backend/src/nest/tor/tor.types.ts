@@ -25,13 +25,29 @@ export enum GetInfoTorSignal {
   export interface TorControlParams {
     port: number
     host: string
-    // auth: {
-    //   type: TorControlAuthType
-    //   value: string
-    // }
+    auth: {
+      type: TorControlAuthType
+      value: string
+    }
   }
 
   export interface IParams {
     port: number
     family: number
+  }
+
+  export interface TorParamsProvider{
+    torPath: string
+    options: {
+      env: {
+          LD_LIBRARY_PATH: string | undefined
+          HOME: string
+      }
+      detached: boolean
+  }
+  }
+
+  export interface TorPasswordProvider{
+    torPassword: string
+    torHashedPassword: string
   }

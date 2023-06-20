@@ -9,8 +9,6 @@ import {
     verifyUserCert
   } from '@quiet/identity'
   import type { IPFS, create as createType } from 'ipfs-core'
-  import { create } from 'ipfs-core'
-  import type { Libp2p } from 'libp2p'
   import OrbitDB from 'orbit-db'
   import EventStore from 'orbit-db-eventstore'
   import KeyValueStore from 'orbit-db-kvstore'
@@ -18,7 +16,6 @@ import {
   import { EventEmitter } from 'events'
   import PeerId from 'peer-id'
   import { getCrypto } from 'pkijs'
-  import AccessControllers from 'orbit-db-access-controllers'
   import { stringToArrayBuffer } from 'pvutils'
   import validate from '../validation/validators'
   import { CID } from 'multiformats/cid'
@@ -27,14 +24,9 @@ import {
   import fs from 'fs'
 import { IMessageThread, PublicChannelsRepo, DirectMessagesRepo, StorageOptions } from '../../common/types'
 import { removeFiles, removeDirs, createPaths, getUsersAddresses } from '../../common/utils'
-import { Config } from '../../constants'
-// import { createChannelAccessController } from '../../storage/ChannelsAccessController'
-// import { IpfsipfsFileManagerService, IpfsipfsFileManagerServiceEvents } from '../../storage/ipfsFileManager'
-// import { MessagesAccessController } from '../../storage/MessagesAccessController'
 import { StorageEvents } from '../../storage/types'
 import { IpfsFileManagerService } from '../ipfs-file-manager/ipfs-file-manager.service'
 import { COMMUNITY_PROVIDER, IPFS_PROVIDER, IPFS_REPO_PATCH, ORBIT_DB_DIR, ORBIT_DB_PROVIDER, PEER_ID_PROVIDER, QUIET_DIR } from '../const'
-import { createChannelAccessController } from './ChannelsAccessController'
 import { IpfsFilesManagerEvents } from '../ipfs-file-manager/ipfs-file-manager.types'
 
 @Injectable()
@@ -80,14 +72,13 @@ export class StorageService extends EventEmitter implements OnModuleInit {
   }
 
   async onModuleInit() {
+    console.log()
     this.logger.log('Initializing storage')
     removeFiles(this.quietDir, 'LOCK')
     removeDirs(this.quietDir, 'repo.lock')
     createPaths([this.ipfsRepoPath, this.orbitDbDir])
-    console.log('this.filesManager', this.filesManager)
-    // this.ipfs = await this.initIPFS(libp2p, peerID)
-    // this.filesManager = new IpfsFilesManager(this.ipfs, this.quietDir)
-    this.attachFileManagerEvents()
+
+    // this.attachFileManagerEvents()
 
     // const channelsAccessController = createChannelAccessController(peerID, this.orbitDbDir)
 

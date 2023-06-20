@@ -9,9 +9,9 @@ import { EventEmitter } from 'events'
 import { SocketActionTypes, SupportedPlatform } from '@quiet/types'
 import { Inject, Logger, OnModuleInit } from '@nestjs/common'
 import { ConfigOptions } from '../types'
-import { CONFIG_OPTIONS, QUIET_DIR } from '../const'
+import { CONFIG_OPTIONS, QUIET_DIR, TOR_PARAMS_PROVIDER, TOR_PASSWORD_PROVIDER } from '../const'
 import { TorControl } from './tor-control.service'
-import { GetInfoTorSignal, TorParams } from './tor.types'
+import { GetInfoTorSignal, TorParams, TorParamsProvider, TorPasswordProvider } from './tor.types'
 import * as os from 'os'
 
 export class Tor extends EventEmitter implements OnModuleInit {
@@ -19,34 +19,38 @@ export class Tor extends EventEmitter implements OnModuleInit {
   socksPort: number
   controlPort?: number
   process: child_process.ChildProcessWithoutNullStreams | any = null
-  torPath: string
-  options?: child_process.SpawnOptionsWithoutStdio
+  // torPath: string
+  // options?: child_process.SpawnOptionsWithoutStdio
 //   torControl: TorControl
 //   appDataPath: string
   torDataDirectory: string
   torPidPath: string
-  torPassword: string
-  torHashedPassword: string
+  // torPassword: string
+  // torHashedPassword: string
 //   torAuthCookie?: string
   extraTorProcessParams: TorParams
 private readonly logger = new Logger(Tor.name)
   constructor(
     @Inject(CONFIG_OPTIONS) public configOptions: ConfigOptions,
     @Inject(QUIET_DIR) public readonly quietDir: string,
+    @Inject(TOR_PARAMS_PROVIDER) public readonly torParamsProvider: TorParamsProvider,
+    @Inject(TOR_PASSWORD_PROVIDER) public readonly torPasswordProvider: TorPasswordProvider,
     private readonly torControl: TorControl
     ) {
     super()
   }
 
-  onModuleInit() {
-    this.torPath = this.configOptions.torBinaryPath ? path.normalize(this.configOptions.torBinaryPath) : ''
-    this.options = {
-      env: {
-        LD_LIBRARY_PATH: this.configOptions.torResourcesPath,
-        HOME: os.homedir()
-      },
-      detached: true
-    }
+  async onModuleInit() {
+    // this.torPath = this.configOptions.torBinaryPath ? path.normalize(this.configOptions.torBinaryPath) : ''
+    // this.options = {
+    //   env: {
+    //     LD_LIBRARY_PATH: this.configOptions.torResourcesPath,
+    //     HOME: os.homedir()
+    //   },
+    //   detached: true
+    // }
+
+    await this.init()
     // this.extraTorProcessParams = this.mergeDefaultTorParams(extraTorProcessParams)
   }
 
@@ -69,7 +73,7 @@ private readonly logger = new Logger(Tor.name)
       if (this.process) {
         throw new Error('Tor already initialized')
       }
-      this.generateHashedPassword()
+      // this.generateHashedPassword()
       // this.initTorControl()
 
       if (!fs.existsSync(this.quietDir)) {
@@ -79,14 +83,14 @@ private readonly logger = new Logger(Tor.name)
       this.torDataDirectory = path.join.apply(null, [this.quietDir, 'TorDataDirectory'])
       this.torPidPath = path.join.apply(null, [this.quietDir, 'torPid.json'])
       let oldTorPid: number | null = null
-
+console.log(1)
       if (fs.existsSync(this.torPidPath)) {
         const file = fs.readFileSync(this.torPidPath)
         oldTorPid = Number(file.toString())
         this.logger.log(`${this.torPidPath} exists. Old tor pid: ${oldTorPid}`)
       }
       let counter = 0
-
+      console.log(2)
       const tryToSpawnTor = async () => {
         this.logger.log(`Trying to spawn tor for the ${counter} time...`)
         if (counter > repeat) {
@@ -195,15 +199,34 @@ private readonly logger = new Logger(Tor.name)
   protected readonly spawnTor = async (timeoutMs: number): Promise<void> => {
     return await new Promise((resolve, reject) => {
       if (!this.controlPort) {
+        this.logger.error('Can\'t spawn tor - no control port')
         reject(new Error('Can\'t spawn tor - no control port'))
         return
       }
       if (!this.configOptions.httpTunnelPort) {
+        this.logger.error('Can\'t spawn tor - no httpTunnelPort')
+
         reject(new Error('Can\'t spawn tor - no httpTunnelPort'))
         return
       }
+
+      console.log([
+        '--SocksPort',
+        this.socksPort.toString(),
+        '--HTTPTunnelPort',
+        this.configOptions.httpTunnelPort.toString(),
+        '--ControlPort',
+        this.controlPort.toString(),
+        '--PidFile',
+        this.torPidPath,
+        '--DataDirectory',
+        this.torDataDirectory,
+        '--HashedControlPassword',
+        this.torPasswordProvider.torHashedPassword,
+        ...this.torProcessParams
+      ])
       this.process = child_process.spawn(
-        this.torPath,
+        this.torParamsProvider.torPath,
         [
           '--SocksPort',
           this.socksPort.toString(),
@@ -216,10 +239,10 @@ private readonly logger = new Logger(Tor.name)
           '--DataDirectory',
           this.torDataDirectory,
           '--HashedControlPassword',
-          this.torHashedPassword,
+          this.torPasswordProvider.torHashedPassword,
           ...this.torProcessParams
         ],
-        this.options
+        this.torParamsProvider.options
       )
 
       const timeout = setTimeout(() => {
@@ -303,15 +326,15 @@ private readonly logger = new Logger(Tor.name)
     }
   }
 
-  public generateHashedPassword = () => {
-    const password = crypto.randomBytes(16).toString('hex')
-    const hashedPassword = child_process.execSync(
-      `${this.torPath} --quiet --hash-password ${password}`,
-      { env: this.options?.env }
-    )
-    this.torPassword = password
-    this.torHashedPassword = hashedPassword.toString().trim()
-  }
+  // public generateHashedPassword = () => {
+  //   const password = crypto.randomBytes(16).toString('hex')
+  //   const hashedPassword = child_process.execSync(
+  //     `${this.torParamsProvider.torPath} --quiet --hash-password ${password}`,
+  //     { env: this.options?.env }
+  //   )
+  //   this.torPassword = password
+  //   this.torHashedPassword = hashedPassword.toString().trim()
+  // }
 
   public kill = async (): Promise<void> =>
     await new Promise((resolve, reject) => {
