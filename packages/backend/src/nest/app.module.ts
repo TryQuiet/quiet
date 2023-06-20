@@ -36,72 +36,73 @@ import { StorageModule } from './storage/storage.module'
   exports: [EXPRESS_PROVIDER]
 })
 export class AppModule {
-    static forOptions(options: ConnectionsManagerTypes) {
-        const configOptions: ConfigOptions = { ...options, ...new ConnectionsManagerOptions() }
-        return {
-          module: AppModule,
-          providers: [
-            {
-              provide: CONFIG_OPTIONS,
-              useValue: configOptions,
-            },
-            {
-              provide: QUIET_DIR,
-              useFactory: () => configOptions.env?.appDataPath || QUIET_DIR_PATH,
-            },
-            {
-              provide: ORBIT_DB_DIR,
-              useFactory: (_quietDir: string) => path.join(_quietDir, Config.ORBIT_DB_DIR),
-              inject: [QUIET_DIR]
-            },
-            {
-              provide: IPFS_REPO_PATCH,
-              useFactory: (_quietDir: string) => path.join(_quietDir, Config.IPFS_REPO_PATH),
-              inject: [QUIET_DIR]
-            },
-            {
-              provide: PEER_ID_PROVIDER,
-              useFactory: async() => {
-              if (!peerId.get()) {
-                const createPeerId = await PeerId.create()
-                const peerIdJson = createPeerId.toJSON()
-                peerId.set(peerIdJson)
-              }
+  static forOptions(options: ConnectionsManagerTypes) {
+    const configOptions: ConfigOptions = { ...options, ...new ConnectionsManagerOptions() }
+    console.log('configOptions', configOptions)
+    return {
+      module: AppModule,
+      providers: [
+        {
+          provide: CONFIG_OPTIONS,
+          useValue: configOptions,
+        },
+        {
+          provide: QUIET_DIR,
+          useFactory: () => configOptions.options?.env?.appDataPath || QUIET_DIR_PATH,
+        },
+        {
+          provide: ORBIT_DB_DIR,
+          useFactory: (_quietDir: string) => path.join(_quietDir, Config.ORBIT_DB_DIR),
+          inject: [QUIET_DIR]
+        },
+        {
+          provide: IPFS_REPO_PATCH,
+          useFactory: (_quietDir: string) => path.join(_quietDir, Config.IPFS_REPO_PATH),
+          inject: [QUIET_DIR]
+        },
+        {
+          provide: PEER_ID_PROVIDER,
+          useFactory: async () => {
+            if (!peerId.get()) {
+              const createPeerId = await PeerId.create()
+              const peerIdJson = createPeerId.toJSON()
+              peerId.set(peerIdJson)
+            }
 
-              return peerId.get()
-              },
-              inject: [QUIET_DIR]
-            },
-{
-            provide: SERVER_IO_PROVIDER,
-            useFactory: (expressProvider: express.Application) => {
-              const _app = expressProvider
-              // _app.use(cors())
-              const server = createServer(_app)
-             const io = new SocketIO(server, {
-                // cors: this.cors,
-                pingInterval: 1000_000,
-                pingTimeout: 1000_000
-              })
-              return { server, io }
-            },
-            inject: [EXPRESS_PROVIDER],
+            return peerId.get()
           },
-          {
-            provide: SOCKS_PROXY_AGENT,
-            useFactory: async (configOptions: ConfigOptions) => {
+          inject: [QUIET_DIR]
+        },
+        {
+          provide: SERVER_IO_PROVIDER,
+          useFactory: (expressProvider: express.Application) => {
+            const _app = expressProvider
+            // _app.use(cors())
+            const server = createServer(_app)
+            const io = new SocketIO(server, {
+              // cors: this.cors,
+              pingInterval: 1000_000,
+              pingTimeout: 1000_000
+            })
+            return { server, io }
+          },
+          inject: [EXPRESS_PROVIDER],
+        },
+        {
+          provide: SOCKS_PROXY_AGENT,
+          useFactory: async (configOptions: ConfigOptions) => {
             if (!configOptions.httpTunnelPort) {
               configOptions.httpTunnelPort = await getPort()
             }
             return createHttpsProxyAgent({
               port: configOptions.httpTunnelPort, host: '127.0.0.1',
             })
-            },
-            inject: [CONFIG_OPTIONS]
-          }
-
-  ],
-          exports: [CONFIG_OPTIONS, QUIET_DIR, ORBIT_DB_DIR, IPFS_REPO_PATCH, PEER_ID_PROVIDER, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT],
+          },
+          inject: [CONFIG_OPTIONS]
         }
-      }
+
+      ],
+      exports: [CONFIG_OPTIONS, QUIET_DIR, ORBIT_DB_DIR, IPFS_REPO_PATCH, PEER_ID_PROVIDER, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT],
+    }
+  }
 }

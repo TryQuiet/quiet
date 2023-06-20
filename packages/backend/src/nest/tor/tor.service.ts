@@ -15,28 +15,28 @@ import { GetInfoTorSignal, TorParams, TorParamsProvider, TorPasswordProvider } f
 import * as os from 'os'
 
 export class Tor extends EventEmitter implements OnModuleInit {
-//   httpTunnelPort: number
+  //   httpTunnelPort: number
   socksPort: number
   controlPort?: number
   process: child_process.ChildProcessWithoutNullStreams | any = null
   // torPath: string
   // options?: child_process.SpawnOptionsWithoutStdio
-//   torControl: TorControl
-//   appDataPath: string
+  //   torControl: TorControl
+  //   appDataPath: string
   torDataDirectory: string
   torPidPath: string
   // torPassword: string
   // torHashedPassword: string
-//   torAuthCookie?: string
+  //   torAuthCookie?: string
   extraTorProcessParams: TorParams
-private readonly logger = new Logger(Tor.name)
+  private readonly logger = new Logger(Tor.name)
   constructor(
     @Inject(CONFIG_OPTIONS) public configOptions: ConfigOptions,
     @Inject(QUIET_DIR) public readonly quietDir: string,
     @Inject(TOR_PARAMS_PROVIDER) public readonly torParamsProvider: TorParamsProvider,
     @Inject(TOR_PASSWORD_PROVIDER) public readonly torPasswordProvider: TorPasswordProvider,
     private readonly torControl: TorControl
-    ) {
+  ) {
     super()
   }
 
@@ -83,7 +83,6 @@ private readonly logger = new Logger(Tor.name)
       this.torDataDirectory = path.join.apply(null, [this.quietDir, 'TorDataDirectory'])
       this.torPidPath = path.join.apply(null, [this.quietDir, 'torPid.json'])
       let oldTorPid: number | null = null
-console.log(1)
       if (fs.existsSync(this.torPidPath)) {
         const file = fs.readFileSync(this.torPidPath)
         oldTorPid = Number(file.toString())
@@ -223,7 +222,7 @@ console.log(1)
         this.torDataDirectory,
         '--HashedControlPassword',
         this.torPasswordProvider.torHashedPassword,
-        ...this.torProcessParams
+        // ...this.torProcessParams
       ])
       this.process = child_process.spawn(
         this.torParamsProvider.torPath,
@@ -240,7 +239,7 @@ console.log(1)
           this.torDataDirectory,
           '--HashedControlPassword',
           this.torPasswordProvider.torHashedPassword,
-          ...this.torProcessParams
+          // ...this.torProcessParams
         ],
         this.torParamsProvider.options
       )
@@ -272,36 +271,36 @@ console.log(1)
   }): Promise<string> {
     const status = await this.torControl.sendCommand(
       `ADD_ONION ${privKey} Flags=Detach Port=${virtPort},127.0.0.1:${targetPort}`
-      )
-      const onionAddress = status.messages[0].replace('250-ServiceID=', '')
-      return `${onionAddress}.onion`
+    )
+    const onionAddress = status.messages[0].replace('250-ServiceID=', '')
+    return `${onionAddress}.onion`
+  }
+
+  public async destroyHiddenService(serviceId: string): Promise<boolean> {
+    try {
+      await this.torControl.sendCommand(`DEL_ONION ${serviceId}`)
+      return true
+    } catch (err) {
+      this.logger.error(`Couldn't destroy hidden service ${serviceId}`, err)
+      return false
     }
+  }
 
-    public async destroyHiddenService(serviceId: string): Promise<boolean> {
-      try {
-        await this.torControl.sendCommand(`DEL_ONION ${serviceId}`)
-        return true
-      } catch (err) {
-        this.logger.error(`Couldn't destroy hidden service ${serviceId}`, err)
-        return false
-      }
-    }
+  public async createNewHiddenService({
+    targetPort,
+    virtPort = 443
+  }: {
+    targetPort: number
+    virtPort?: number
+  }): Promise<{ onionAddress: string; privateKey: string }> {
+    const status = await this.torControl.sendCommand(
+      `ADD_ONION NEW:BEST Flags=Detach Port=${virtPort},127.0.0.1:${targetPort}`
+    )
 
-    public async createNewHiddenService({
-      targetPort,
-      virtPort = 443
-    }: {
-      targetPort: number
-      virtPort?: number
-    }): Promise<{ onionAddress: string; privateKey: string }> {
-        const status = await this.torControl.sendCommand(
-          `ADD_ONION NEW:BEST Flags=Detach Port=${virtPort},127.0.0.1:${targetPort}`
-          )
+    const onionAddress = status.messages[0].replace('250-ServiceID=', '')
+    const privateKey = status.messages[1].replace('250-PrivateKey=', '')
 
-          const onionAddress = status.messages[0].replace('250-ServiceID=', '')
-          const privateKey = status.messages[1].replace('250-PrivateKey=', '')
-
-          return {
+    return {
       onionAddress: `${onionAddress}.onion`,
       privateKey
     }
