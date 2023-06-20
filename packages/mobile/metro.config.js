@@ -16,6 +16,7 @@ const watchFolders = [
   path.resolve(__dirname, '../logger'),
   path.resolve(__dirname, '../common'),
   path.resolve(__dirname, '../types'),
+  path.resolve(__dirname, '../eslint-config-custom'),
 ]
 
 const extraNodeModules = {
