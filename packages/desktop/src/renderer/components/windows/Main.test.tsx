@@ -1,4 +1,3 @@
-/* eslint import/first: 0 */
 import React from 'react'
 import { renderComponent } from '../../testUtils/renderComponent'
 import { HashRouter } from 'react-router-dom'
@@ -9,14 +8,11 @@ import { prepareStore } from '../../testUtils'
 
 describe('Main', () => {
   it('renders component', async () => {
-    const store = (
-      await prepareStore()
-    ).store
+    const store = (await prepareStore()).store
     const factory = await getFactory(store)
-    await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>(
-      'Community',
-      { rootCa: 'rootCa' }
-    )
+    await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community', {
+      rootCa: 'rootCa',
+    })
     const result = renderComponent(
       <HashRouter>
         <Provider store={store}>

@@ -15,7 +15,7 @@ const classes = {
   placeholder: `${PREFIX}placeholder`,
   placeholderIcon: `${PREFIX}placeholderIcon`,
   fileName: `${PREFIX}fileName`,
-  icon: `${PREFIX}icon`
+  icon: `${PREFIX}icon`,
 }
 
 const Root = styled('div')(() => ({
@@ -29,11 +29,11 @@ const Root = styled('div')(() => ({
     alignItems: 'center',
     minWidth: '50px',
     minHeight: '50px',
-    backgroundColor: '#e0e0e0'
+    backgroundColor: '#e0e0e0',
   },
 
   [`& .${classes.placeholderIcon}`]: {
-    marginRight: '0.5em'
+    marginRight: '0.5em',
   },
 
   [`& .${classes.icon}`]: {
@@ -44,29 +44,21 @@ const Root = styled('div')(() => ({
     backgroundColor: '#F0F0F0',
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
   },
 }))
 
-const StyledUploadedFilename = styled('p')((
-  {
-    theme
-  }
-) => ({
+const StyledUploadedFilename = styled('p')(({ theme }) => ({
   color: theme.palette.colors.darkGray,
-  margin: 0
+  margin: 0,
 }))
 
 interface UploadedFilenameProps {
   fileName: string
 }
 
-export const UploadedFilename: React.FC<UploadedFilenameProps> = ({
-  fileName
-}) => {
-  return (
-    <StyledUploadedFilename>{fileName}</StyledUploadedFilename>
-  )
+export const UploadedFilename: React.FC<UploadedFilenameProps> = ({ fileName }) => {
+  return <StyledUploadedFilename>{fileName}</StyledUploadedFilename>
 }
 
 export interface UploadedImagePlaceholderProps {
@@ -84,7 +76,7 @@ export const UploadedImagePlaceholder: React.FC<UploadedImagePlaceholderProps> =
   imageHeight,
   name,
   ext,
-  downloadStatus
+  downloadStatus,
 }) => {
   const width = imageWidth >= 400 ? 400 : imageWidth
 
@@ -128,17 +120,20 @@ export const UploadedImagePlaceholder: React.FC<UploadedImagePlaceholderProps> =
     <Root data-testid={`${cid}-imagePlaceholder`}>
       <UploadedFilename fileName={`${name}${ext}`} />
 
-      <div className={classes.placeholder} style={{ width: width, aspectRatio: '' + imageWidth / imageHeight }} >
+      <div className={classes.placeholder} style={{ width: width, aspectRatio: '' + imageWidth / imageHeight }}>
         <Tooltip
           title={
             downloadState === DownloadState.Downloading &&
-              downloadProgress &&
-              downloadProgress.size !== undefined &&
-              downloadProgress?.transferSpeed !== -1
-              ? `(${Math.floor(downloadProgress.downloaded / downloadProgress.size * 100)}%) ${formatBytes(downloadProgress.transferSpeed)}ps`
+            downloadProgress &&
+            downloadProgress.size !== undefined &&
+            downloadProgress?.transferSpeed !== -1
+              ? `(${Math.floor((downloadProgress.downloaded / downloadProgress.size) * 100)}%) ${formatBytes(
+                  downloadProgress.transferSpeed
+                )}ps`
               : ''
           }
-          placement='top'>
+          placement='top'
+        >
           <div style={{ display: 'flex', width: 'fit-content' }}>
             <Icon src={imageIcon} className={classes.placeholderIcon} />
             <div className={classes.icon}>{renderIcon()}</div>

@@ -9,8 +9,7 @@ describe('Invitation code helper', () => {
       'zbay://invalid',
       'quiet://invalid',
       'quiet://?param=invalid',
-      invitationDeepUrl('validCode')
-
+      invitationDeepUrl('validCode'),
     ])
     expect(result).toBe('validCode')
   })

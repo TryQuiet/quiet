@@ -21,31 +21,31 @@ const args: ChannelInputProps = {
   channelId: 'channelId',
   channelParticipants: [{ nickname: 'john' }, { nickname: 'emily' }],
   inputPlaceholder: '#general as @alice',
-  onChange: function (_arg: string): void { },
+  onChange: function (_arg: string): void {},
   onKeyPress: function (input: string): void {
     console.log('send message', input)
   },
   infoClass: '',
-  setInfoClass: function (_arg: string): void { },
-  openFilesDialog: () => { },
-  handleOpenFiles: (_arg) => { },
-  handleClipboardFiles: function (arg: ArrayBuffer, ext: string, name: string): void {}
+  setInfoClass: function (_arg: string): void {},
+  openFilesDialog: () => {},
+  handleOpenFiles: _arg => {},
+  handleClipboardFiles: function (arg: ArrayBuffer, ext: string, name: string): void {},
 }
 
 const argsDisabledInput: ChannelInputProps = {
   channelId: 'channelId',
   channelParticipants: [{ nickname: 'john' }, { nickname: 'emily' }],
   inputPlaceholder: '#general as @alice',
-  onChange: function (_arg: string): void { },
+  onChange: function (_arg: string): void {},
   onKeyPress: function (input: string): void {
     console.log('send message', input)
   },
   infoClass: '',
-  setInfoClass: function (_arg: string): void { },
+  setInfoClass: function (_arg: string): void {},
   inputState: INPUT_STATE.NOT_CONNECTED,
-  openFilesDialog: () => { },
-  handleOpenFiles: (_arg) => { },
-  handleClipboardFiles: function (arg: ArrayBuffer, ext: string, name: string): void {}
+  openFilesDialog: () => {},
+  handleOpenFiles: _arg => {},
+  handleClipboardFiles: function (arg: ArrayBuffer, ext: string, name: string): void {},
 }
 
 Component.args = args
@@ -54,7 +54,7 @@ Disabled.args = argsDisabledInput
 const component: ComponentMeta<typeof ChannelInputComponent> = {
   title: 'Components/ChannelInput',
   decorators: [withTheme],
-  component: ChannelInputComponent
+  component: ChannelInputComponent,
 }
 
 export default component

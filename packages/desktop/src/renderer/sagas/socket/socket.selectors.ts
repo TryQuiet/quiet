@@ -11,5 +11,5 @@ export const isConnected = createSelector(
 )
 
 export const socketSelectors = {
-  isConnected
+  isConnected,
 }

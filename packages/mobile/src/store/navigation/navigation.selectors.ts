@@ -3,13 +3,9 @@ import { MenuName } from '../../const/MenuNames.enum'
 import { StoreKeys } from '../store.keys'
 import { CreatedSelectors, StoreState } from '../store.types'
 
-const navigationSlice: CreatedSelectors[StoreKeys.Navigation] = (state: StoreState) =>
-  state[StoreKeys.Navigation]
+const navigationSlice: CreatedSelectors[StoreKeys.Navigation] = (state: StoreState) => state[StoreKeys.Navigation]
 
-export const currentScreen = createSelector(
-  navigationSlice,
-  reducerState => reducerState.currentScreen
-)
+export const currentScreen = createSelector(navigationSlice, reducerState => reducerState.currentScreen)
 
 export const contextMenuVisibility = (menu: MenuName) =>
   createSelector(navigationSlice, reducerState => {
@@ -30,5 +26,5 @@ export const navigationSelectors = {
   currentScreen,
   contextMenuVisibility,
   contextMenuProps,
-  confirmationBox
+  confirmationBox,
 }

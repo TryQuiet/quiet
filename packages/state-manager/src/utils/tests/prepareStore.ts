@@ -25,7 +25,7 @@ export const reducers = {
   [StoreKeys.Settings]: settingsReducer,
   [StoreKeys.Files]: filesReducer,
   [StoreKeys.LastAction]: lastActionReducer,
-  [StoreKeys.Network]: networkReducer
+  [StoreKeys.Network]: networkReducer,
   // Only for data collectiong purposes
   // [StoreKeys.CollectData]: collectDataReducer
 }
@@ -33,14 +33,10 @@ export const reducers = {
 export const prepareStore = (mockedState?: { [key in StoreKeys]?: any }) => {
   const combinedReducers = combineReducers(reducers)
   const sagaMiddleware = createSagaMiddleware()
-  const store = createStore(
-    combinedReducers,
-    mockedState,
-    applyMiddleware(...[sagaMiddleware, thunk])
-  )
+  const store = createStore(combinedReducers, mockedState, applyMiddleware(...[sagaMiddleware, thunk]))
 
   return {
     store,
-    runSaga: sagaMiddleware.run
+    runSaga: sagaMiddleware.run,
   }
 }

@@ -3,7 +3,8 @@ import { ProcessInChunks } from './processInChunks'
 
 describe('ProcessInChunks', () => {
   it('processes data', async () => {
-    const mockProcessItem = jest.fn(async () => {})
+    const mockProcessItem = jest
+      .fn(async () => {})
       .mockResolvedValueOnce()
       .mockRejectedValueOnce(new Error('Rejected 1'))
       .mockResolvedValueOnce()

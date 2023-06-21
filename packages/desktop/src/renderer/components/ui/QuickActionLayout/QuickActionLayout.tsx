@@ -8,6 +8,7 @@ import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
 
 import IconButton from '../Icon/IconButton'
+import { IconButtonProps } from '@mui/material/IconButton'
 
 const PREFIX = 'QuickActionLayout'
 
@@ -19,16 +20,12 @@ const classes = {
   closeIcon: `${PREFIX}closeIcon`,
   info: `${PREFIX}info`,
   infoDiv: `${PREFIX}infoDiv`,
-  avatar: `${PREFIX}avatar`
+  avatar: `${PREFIX}avatar`,
 }
 
-const StyledGrid = styled(Grid)((
-  {
-    theme
-  }
-) => ({
+const StyledGrid = styled(Grid)(({ theme }) => ({
   [`& .${classes.alignAvatarPopover}`]: {
-    marginTop: theme.spacing(2)
+    marginTop: theme.spacing(2),
   },
 
   [`& .${classes.button}`]: {
@@ -42,45 +39,45 @@ const StyledGrid = styled(Grid)((
     color: theme.palette.colors.white,
     fontSize: '0.9rem',
     backgroundColor: theme.palette.colors.purple,
-    textTransform: 'none'
+    textTransform: 'none',
   },
 
   [`&.${classes.container}`]: {
     height: 400,
-    width: 320
+    width: 320,
   },
 
   [`& .${classes.usernamePopover}`]: {
     marginTop: theme.spacing(1),
     fontSize: '1.2rem',
-    fontWeight: 'bold'
+    fontWeight: 'bold',
   },
 
   [`& .${classes.closeIcon}`]: {
-    margin: theme.spacing(2)
+    margin: theme.spacing(2),
   },
 
   [`& .${classes.info}`]: {
-    color: theme.palette.colors.quietBlue
+    color: theme.palette.colors.quietBlue,
   },
 
   [`& .${classes.infoDiv}`]: {
     textAlign: 'center',
     marginTop: theme.spacing(1.2),
     marginLeft: theme.spacing(4),
-    marginRight: theme.spacing(4)
+    marginRight: theme.spacing(4),
   },
 
   [`& .${classes.avatar}`]: {
-    marginTop: theme.spacing(2)
-  }
+    marginTop: theme.spacing(2),
+  },
 }))
 
 interface QuickActionLayoutProps {
   main: string
   info?: string
   children?: ReactElement
-  handleClose: (event?: {}, reason?: 'backdropClick' | 'escapeKeyDown') => void
+  handleClose: IconButtonProps['onClick']
   buttonName?: string
   warning?: string
   onClick?: () => void
@@ -93,7 +90,7 @@ export const QuickActionLayout: React.FC<QuickActionLayoutProps> = ({
   handleClose,
   buttonName,
   warning,
-  onClick
+  onClick,
 }) => {
   return (
     <StyledGrid
@@ -101,7 +98,8 @@ export const QuickActionLayout: React.FC<QuickActionLayoutProps> = ({
       className={classes.container}
       direction='column'
       justifyContent='flex-start'
-      alignItems='center'>
+      alignItems='center'
+    >
       <Grid className={classes.closeIcon} container item direction='row' justifyContent='flex-start'>
         <IconButton onClick={handleClose}>
           <ClearIcon />
@@ -121,11 +119,7 @@ export const QuickActionLayout: React.FC<QuickActionLayoutProps> = ({
         </Typography>
       </Grid>
       <Grid item>
-        <Button
-          variant={'contained'}
-          onClick={onClick}
-          disabled={!!warning}
-          className={classes.button}>
+        <Button variant={'contained'} onClick={onClick} disabled={!!warning} className={classes.button}>
           {buttonName}
         </Button>
       </Grid>

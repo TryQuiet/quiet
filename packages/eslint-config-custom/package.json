@@ -1,0 +1,22 @@
+{
+    "name": "@quiet/eslint-config",
+    "main": "index.js",
+    "version": "1.0.0",
+    "devDependencies": {
+      "eslint": "^8.42.0",
+      "@typescript-eslint/eslint-plugin": "5.59.11",
+      "@typescript-eslint/parser": "^5.59.11",
+      "eslint-config-prettier": "^8.8.0",
+      "eslint-config-standard": "^17.1.0",
+      "eslint-config-standard-with-typescript": "^35.0.0",
+      "eslint-plugin-import": "^2.27.5",
+      "eslint-plugin-jest": "^27.2.1",
+      "eslint-plugin-jsx-a11y": "^6.7.1",
+      "eslint-plugin-node": "^11.1.0",
+      "eslint-plugin-promise": "^6.1.1",
+      "eslint-plugin-react-hooks": "^4.6.0",
+      "eslint-plugin-prettier": "^4.2.1",
+      "prettier": "^2.8.8"
+    }
+  }
+  

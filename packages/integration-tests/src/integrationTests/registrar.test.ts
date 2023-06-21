@@ -1,6 +1,20 @@
 import { Crypto } from '@peculiar/webcrypto'
-import { createCommunity, getCommunityOwnerData, registerUsername, sendRegistrationRequest, sendCsr, OwnerData } from './appActions'
-import { assertReceivedCertificate, assertReceivedRegistrationError, assertReceivedCertificates, assertNoRegistrationError, assertInitializedCommunity, assertRegistrationRequestSent } from './assertions'
+import {
+  createCommunity,
+  getCommunityOwnerData,
+  registerUsername,
+  sendRegistrationRequest,
+  sendCsr,
+  OwnerData,
+} from './appActions'
+import {
+  assertReceivedCertificate,
+  assertReceivedRegistrationError,
+  assertReceivedCertificates,
+  assertNoRegistrationError,
+  assertInitializedCommunity,
+  assertRegistrationRequestSent,
+} from './assertions'
 import { createApp, sleep, storePersistor } from '../utils'
 import { AsyncReturnType } from '../types/AsyncReturnType.interface'
 import { ErrorPayload, SocketActionTypes, ErrorCodes, ErrorMessages } from '@quiet/state-manager'
@@ -24,7 +38,7 @@ describe('offline registrar, user tries to join', () => {
     await sendRegistrationRequest({
       registrarAddress: '76gan734wqm4hy7ahj33pnfub7qobdhhkdnd3rbma7o4dq4hce3ncxad',
       userName: 'waclaw',
-      store: user.store
+      store: user.store,
     })
   })
 
@@ -54,8 +68,7 @@ describe('registrar is offline, user tries to join, then registrar goes online',
     await createCommunity({ userName: 'placek', store: owner.store })
     await assertInitializedCommunity(owner.store)
     const communityId = owner.store.getState().Communities.currentCommunity
-    registrarAddress =
-      owner.store.getState().Communities.communities.entities[communityId].onionAddress
+    registrarAddress = owner.store.getState().Communities.communities.entities[communityId].onionAddress
     ownerOldState = storePersistor(owner.store.getState())
     ownerDataPath = owner.appPath
   })
@@ -68,7 +81,7 @@ describe('registrar is offline, user tries to join, then registrar goes online',
     await sendRegistrationRequest({
       userName: 'wacek',
       store: user.store,
-      registrarAddress
+      registrarAddress,
     })
     // User should keep sending requests for 10 seconds.
     await assertRegistrationRequestSent(user.store, 2)
@@ -115,7 +128,7 @@ describe('User tries to register existing username', () => {
     await registerUsername({
       ...ownerData,
       store: user.store,
-      userName
+      userName,
     })
   })
 
@@ -150,7 +163,7 @@ xdescribe('Certificate already exists in db, user asks for certificate providing
     await registerUsername({
       ...ownerData,
       store: user.store,
-      userName
+      userName,
     })
   })
 

@@ -13,47 +13,41 @@ const classes = {
   padding: `${PREFIX}padding`,
   content: `${PREFIX}content`,
   gutterBottom: `${PREFIX}gutterBottom`,
-  walletInfo: `${PREFIX}walletInfo`
+  walletInfo: `${PREFIX}walletInfo`,
 }
 
-const StyledGrid = styled(Grid)((
-  {
-    theme
-  }
-) => ({
+const StyledGrid = styled(Grid)(({ theme }) => ({
   [`&.${classes.root}`]: {
     paddingTop: '30px',
     minHeight: '100%',
     width: '220px',
     position: 'relative',
     backgroundImage: 'linear-gradient(290.29deg, #521576 18.61%, #E42656 96.07%)',
-    color: theme.palette.colors.white
+    color: theme.palette.colors.white,
   },
 
   [`& .${classes.padding}`]: {
-    padding: 0
+    padding: 0,
   },
 
   [`& .${classes.content}`]: {
-    height: '100%'
+    height: '100%',
   },
 
   [`& .${classes.gutterBottom}`]: {
-    marginBottom: theme.spacing(4)
+    marginBottom: theme.spacing(4),
   },
 
   [`& .${classes.walletInfo}`]: {
-    backgroundColor: 'rgb(0,0,0,0.1)'
-  }
+    backgroundColor: 'rgb(0,0,0,0.1)',
+  },
 }))
 
-const SidebarComponent: React.FC<IdentityPanelProps & ChannelsPanelProps> = ({
-  ...props
-}) => {
+const SidebarComponent: React.FC<IdentityPanelProps & ChannelsPanelProps> = ({ ...props }) => {
   return (
     <StyledGrid container direction='column' className={classes.root}>
       <Grid item xs container direction='column' className={classes.padding}>
-        <Grid item >
+        <Grid item>
           <IdentityPanel {...props} />
         </Grid>
         <Grid item xs container direction='column'>

@@ -24,7 +24,7 @@ const Settings = () => {
     about: About,
     notifications: Notifications,
     invite: Invite,
-    qrcode: QRCode
+    qrcode: QRCode,
   }
 
   const leaveCommunityModal = useModal(ModalName.leaveCommunity)

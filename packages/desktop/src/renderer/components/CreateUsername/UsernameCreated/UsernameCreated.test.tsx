@@ -1,4 +1,3 @@
-/* eslint import/first: 0 */
 import React from 'react'
 import { renderComponent } from '../../../testUtils/renderComponent'
 
@@ -6,9 +5,7 @@ import { UsernameCreated } from './UsernameCreated'
 
 describe('UsernameCreated', () => {
   it('renders component', () => {
-    const result = renderComponent(
-      <UsernameCreated handleClose={jest.fn()} setFormSent={jest.fn()} />
-    )
+    const result = renderComponent(<UsernameCreated handleClose={jest.fn()} setFormSent={jest.fn()} />)
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>

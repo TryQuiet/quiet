@@ -1,4 +1,3 @@
-/* eslint import/first: 0 */
 import selectors from './app'
 import { initialState as AppState } from '../handlers/app'
 
@@ -16,8 +15,8 @@ describe('app -', () => {
         transfers: {},
         modalTabToOpen: 'addFunds',
         allTransfersCount: 12,
-        newTransfersCounter: 2
-      }
+        newTransfersCounter: 2,
+      },
     })
   })
 

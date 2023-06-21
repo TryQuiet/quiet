@@ -1,6 +1,6 @@
-import { applyEmitParams, Socket } from '../../../types'
+import { applyEmitParams, type Socket } from '../../../types'
 import { select, apply, put } from 'typed-redux-saga'
-import { PayloadAction } from '@reduxjs/toolkit'
+import { type PayloadAction } from '@reduxjs/toolkit'
 import { identitySelectors } from '../../identity/identity.selectors'
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
 import { missingChannelFiles } from '../../messages/messages.selectors'
@@ -8,7 +8,7 @@ import { communitiesSelectors } from '../../communities/communities.selectors'
 import { filesActions } from '../files.slice'
 import { AUTODOWNLOAD_SIZE_LIMIT } from '../../../constants'
 import { filesSelectors } from '../files.selectors'
-import { networkActions } from '../../network/network.slice'
+import { type networkActions } from '../../network/network.slice'
 import { DownloadState, SocketActionTypes } from '@quiet/types'
 
 export function* checkForMissingFilesSaga(
@@ -41,7 +41,7 @@ export function* checkForMissingFilesSaga(
             socket.emit,
             applyEmitParams(SocketActionTypes.DOWNLOAD_FILE, {
               peerId: identity.peerId.id,
-              metadata: file
+              metadata: file,
             })
           )
           continue
@@ -49,10 +49,9 @@ export function* checkForMissingFilesSaga(
 
         // Do not autodownload oversized files unless started manually
         const fileSize = file.size || 0
-        if (
-          fileDownloadStatus?.downloadState !== DownloadState.Downloading &&
-          fileSize > AUTODOWNLOAD_SIZE_LIMIT
-        ) { continue }
+        if (fileDownloadStatus?.downloadState !== DownloadState.Downloading && fileSize > AUTODOWNLOAD_SIZE_LIMIT) {
+          continue
+        }
 
         // Do not autodownload if the file was reported malicious or is missing reported file size
         if (fileDownloadStatus?.downloadState === DownloadState.Malicious) continue
@@ -61,7 +60,7 @@ export function* checkForMissingFilesSaga(
           filesActions.updateDownloadStatus({
             mid: file.message.id,
             cid: file.cid,
-            downloadState: DownloadState.Queued
+            downloadState: DownloadState.Queued,
           })
         )
 
@@ -70,7 +69,7 @@ export function* checkForMissingFilesSaga(
           socket.emit,
           applyEmitParams(SocketActionTypes.DOWNLOAD_FILE, {
             peerId: identity.peerId.id,
-            metadata: file
+            metadata: file,
           })
         )
       }

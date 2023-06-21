@@ -123,12 +123,10 @@ describe('Appbar component', () => {
     const contextMenu: ReturnType<typeof useContextMenu> = {
       visible: false,
       handleOpen: function (_args?: any): any {},
-      handleClose: function (): any {}
+      handleClose: function (): any {},
     }
 
-    const { toJSON } = renderComponent(
-      <Appbar title={'quiet'} position={'flex-start'} contextMenu={contextMenu} />
-    )
+    const { toJSON } = renderComponent(<Appbar title={'quiet'} position={'flex-start'} contextMenu={contextMenu} />)
 
     expect(toJSON()).toMatchInlineSnapshot(`
       <View

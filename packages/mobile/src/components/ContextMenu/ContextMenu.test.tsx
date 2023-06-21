@@ -13,20 +13,20 @@ describe('ContextMenu component', () => {
         title: 'Create channel',
         action: () => {
           jest.fn()
-        }
+        },
       },
       {
         title: 'Add members',
         action: () => {
           jest.fn()
-        }
+        },
       },
       {
         title: 'Settings',
         action: () => {
           jest.fn()
-        }
-      }
+        },
+      },
     ]
     const { toJSON } = renderComponent(
       <ContextMenu visible={true} handleClose={jest.fn()} title={'Rockets'} items={items} />

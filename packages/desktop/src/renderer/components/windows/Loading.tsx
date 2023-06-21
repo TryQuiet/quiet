@@ -20,50 +20,46 @@ const classes = {
   progressBar: `${PREFIX}progressBar`,
   carouselContainer: `${PREFIX}carouselContainer`,
   messageContainer: `${PREFIX}messageContainer`,
-  message: `${PREFIX}message`
+  message: `${PREFIX}message`,
 }
 
-const StyledGrid = styled(Grid)((
-  {
-    theme
-  }
-) => ({
+const StyledGrid = styled(Grid)(({ theme }) => ({
   [`&.${classes.root}`]: {
     width: '100vw',
     height: '100vh',
-    WebkitAppRegion: process.platform === 'win32' ? 'no-drag' : 'drag'
+    WebkitAppRegion: process.platform === 'win32' ? 'no-drag' : 'drag',
   },
 
   [`& .${classes.icon}`]: {
     width: 285,
-    height: 67
+    height: 67,
   },
 
   [`& .${classes.svg}`]: {
     width: 100,
-    height: 100
+    height: 100,
   },
 
   [`& .${classes.progressBarContainer}`]: {
-    width: 254
+    width: 254,
   },
 
   [`& .${classes.progressBar}`]: {
-    backgroundColor: theme.palette.colors.lushSky
+    backgroundColor: theme.palette.colors.lushSky,
   },
 
   [`& .${classes.carouselContainer}`]: {
-    marginTop: theme.spacing(5)
+    marginTop: theme.spacing(5),
   },
 
   [`& .${classes.messageContainer}`]: {
-    marginTop: 16
+    marginTop: 16,
   },
 
   [`& .${classes.message}`]: {
     color: theme.palette.colors.darkGray,
-    fontSize: 16
-  }
+    fontSize: 16,
+  },
 }))
 
 interface LoadingProps {

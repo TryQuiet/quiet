@@ -1,3 +1,3 @@
 export enum MenuName {
-    Channel = 'ChannelContextMenu'
+  Channel = 'ChannelContextMenu',
 }

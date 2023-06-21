@@ -21,7 +21,7 @@ describe('IdentityPanel', () => {
         accountSettingsModal={{
           open: false,
           handleOpen: function (_args?: any): any {},
-          handleClose: function (): any {}
+          handleClose: function (): any {},
         }}
       />
     )
@@ -71,7 +71,7 @@ describe('IdentityPanel', () => {
         accountSettingsModal={{
           open: false,
           handleOpen: function (_args?: any): any {},
-          handleClose: function (): any {}
+          handleClose: function (): any {},
         }}
       />
     )
@@ -116,9 +116,7 @@ describe('IdentityPanel', () => {
 
     const factory = await getFactory(store)
 
-    const community: Community = (
-      await factory.build<typeof communities.actions.addNewCommunity>('Community')
-    ).payload
+    const community: Community = (await factory.build<typeof communities.actions.addNewCommunity>('Community')).payload
 
     community.name = undefined
 
@@ -128,7 +126,7 @@ describe('IdentityPanel', () => {
         accountSettingsModal={{
           open: false,
           handleOpen: function (_args?: any): any {},
-          handleClose: function (): any {}
+          handleClose: function (): any {},
         }}
       />
     )

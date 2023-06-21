@@ -29,27 +29,23 @@ const classes = {
   radioSound: `${PREFIX}radioSound`,
   subtitleSoundDiv: `${PREFIX}subtitleSoundDiv`,
   label: `${PREFIX}label`,
-  spacingSound: `${PREFIX}spacingSound`
+  spacingSound: `${PREFIX}spacingSound`,
 }
 
-const StyledGrid = styled(Grid)((
-  {
-    theme
-  }
-) => ({
+const StyledGrid = styled(Grid)(({ theme }) => ({
   [`& .${classes.title}`]: {},
 
   [`& .${classes.titleDiv}`]: {
-    marginBottom: 24
+    marginBottom: 24,
   },
 
   [`& .${classes.subtitle}`]: {
     fontSize: 18,
-    lineHeight: '27px'
+    lineHeight: '27px',
   },
 
   [`& .${classes.radioDiv}`]: {
-    marginLeft: 4
+    marginLeft: 4,
   },
 
   [`& .${classes.radioSoundDiv}`]: {},
@@ -59,55 +55,55 @@ const StyledGrid = styled(Grid)((
     '& .MuiCheckbox-root': {
       backgroundColor: 'transparent',
       '&:hover': {
-        backgroundColor: 'transparent'
+        backgroundColor: 'transparent',
       },
-      display: 'block'
+      display: 'block',
     },
     '& .MuiIconButton-colorSecondary': {
-      color: theme.palette.colors.quietBlue
+      color: theme.palette.colors.quietBlue,
     },
     '& .MuiTypography-body1': {
       fontSize: '14px',
-      lineHeight: '25px'
-    }
+      lineHeight: '25px',
+    },
   },
 
   [`& .${classes.bold}`]: {
-    fontWeight: 500
+    fontWeight: 500,
   },
 
   [`& .${classes.offset}`]: {
-    marginTop: 5
+    marginTop: 5,
   },
 
   [`& .${classes.spacing}`]: {
-    marginTop: 16
+    marginTop: 16,
   },
 
   [`& .${classes.radioSound}`]: {
     '& .MuiCheckbox-root': {
       backgroundColor: 'transparent',
       '&:hover': {
-        backgroundColor: 'transparent'
+        backgroundColor: 'transparent',
       },
-      display: 'block'
+      display: 'block',
     },
     marginLeft: 23,
-    height: 24
+    height: 24,
   },
 
   [`& .${classes.subtitleSoundDiv}`]: {
-    marginTop: 40
+    marginTop: 40,
   },
 
   [`& .${classes.label}`]: {
     marginTop: 1,
-    fontWeight: 500
+    fontWeight: 500,
   },
 
   [`& .${classes.spacingSound}`]: {
-    marginTop: 8
-  }
+    marginTop: 8,
+  },
 }))
 
 interface NotificationsProps {
@@ -121,22 +117,16 @@ export const NotificationsComponent: React.FC<NotificationsProps> = ({
   notificationsOption,
   notificationsSound,
   setNotificationsOption,
-  setNotificationsSound
+  setNotificationsSound,
 }) => {
   return (
     <StyledGrid container direction='column'>
-      <Grid
-        container
-        item
-        justifyContent='space-between'
-        alignItems='center'
-        className={classes.titleDiv}
-      >
+      <Grid container item justifyContent='space-between' alignItems='center' className={classes.titleDiv}>
         <Grid item className={classes.title}>
           <Typography variant='h3'>Notifications</Typography>
         </Grid>
       </Grid>
-      <Grid item >
+      <Grid item>
         <Typography variant='h5' className={classes.subtitle}>
           Notify me about...
         </Typography>
@@ -152,9 +142,7 @@ export const NotificationsComponent: React.FC<NotificationsProps> = ({
                 checked={NotificationsOptions.notifyForEveryMessage === notificationsOption}
               />
             }
-            onChange={() =>
-              setNotificationsOption(NotificationsOptions.notifyForEveryMessage)
-            }
+            onChange={() => setNotificationsOption(NotificationsOptions.notifyForEveryMessage)}
             label={
               <Grid container direction='column' className={classes.offset}>
                 <Grid item>
@@ -184,9 +172,7 @@ export const NotificationsComponent: React.FC<NotificationsProps> = ({
                   <span className={classes.bold}>Nothing</span>
                 </Grid>
                 <Grid item>
-                  <span>
-                    You won’t receive notifications from Quiet.
-                  </span>
+                  <span>You won’t receive notifications from Quiet.</span>
                 </Grid>
               </Grid>
             }
@@ -197,12 +183,7 @@ export const NotificationsComponent: React.FC<NotificationsProps> = ({
             Sound when receiving a notification
           </Typography>
         </Grid>
-        <Grid
-          item
-          container
-          direction='column'
-          className={classes.radioSoundDiv}
-        >
+        <Grid item container direction='column' className={classes.radioSoundDiv}>
           <Grid item className={classes.spacingSound} data-testid={`sound-${NotificationsSounds.librarianShhh}`}>
             <FormControlLabel
               classes={{ root: classes.radioSound }}

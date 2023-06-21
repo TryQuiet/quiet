@@ -11,7 +11,7 @@ import { CreateCommunityProps } from './CreateCommunity.types'
 export const CreateCommunity: FC<CreateCommunityProps> = ({
   createCommunityAction,
   redirectionAction,
-  networkCreated
+  networkCreated,
 }) => {
   const [createCommunityInput, setCreateCommunityInput] = useState<string | undefined>()
   const [inputError, setInputError] = useState<string | undefined>()
@@ -45,15 +45,19 @@ export const CreateCommunity: FC<CreateCommunityProps> = ({
   }, [networkCreated])
 
   return (
-    <View style={{ flex: 1, backgroundColor: defaultTheme.palette.background.white }} testID={'create-community-component'}>
+    <View
+      style={{ flex: 1, backgroundColor: defaultTheme.palette.background.white }}
+      testID={'create-community-component'}
+    >
       <KeyboardAvoidingView
         behavior='height'
         style={{
           flex: 1,
           justifyContent: 'center',
           paddingLeft: 20,
-          paddingRight: 20
-        }}>
+          paddingRight: 20,
+        }}
+      >
         <Typography fontSize={24} fontWeight={'medium'} style={{ marginBottom: 30 }}>
           {'Create a community'}
         </Typography>
@@ -72,8 +76,8 @@ export const CreateCommunity: FC<CreateCommunityProps> = ({
               {
                 tag: 'a',
                 label: 'join a community',
-                action: redirectionAction
-              }
+                action: redirectionAction,
+              },
             ]}
           />
         </View>

@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars-experimental */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Typography, TypographyOptions } from '@mui/material/styles/createTypography'
 import { Palette, PaletteOptions } from '@mui/material/styles/createPalette'
 

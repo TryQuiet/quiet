@@ -9,23 +9,19 @@ const PREFIX = 'SentryWarningComponent'
 const classes = {
   title: `${PREFIX}title`,
   fullWidth: `${PREFIX}fullWidth`,
-  button: `${PREFIX}button`
+  button: `${PREFIX}button`,
 }
 
-const StyledModalContent = styled(Grid)((
-  {
-    theme
-  }
-) => ({
+const StyledModalContent = styled(Grid)(({ theme }) => ({
   backgroundColor: theme.palette.colors.white,
   padding: '0px 32px',
 
   [`& .${classes.title}`]: {
-    marginTop: 24
+    marginTop: 24,
   },
 
   [`& .${classes.fullWidth}`]: {
-    paddingBottom: 25
+    paddingBottom: 25,
   },
 
   [`& .${classes.button}`]: {
@@ -34,13 +30,13 @@ const StyledModalContent = styled(Grid)((
     backgroundColor: theme.palette.colors.purple,
     padding: theme.spacing(2),
     '&:hover': {
-      backgroundColor: theme.palette.colors.darkPurple
+      backgroundColor: theme.palette.colors.darkPurple,
     },
     '&:disabled': {
       backgroundColor: theme.palette.colors.lightGray,
-      color: 'rgba(255,255,255,0.6)'
-    }
-  }
+      color: 'rgba(255,255,255,0.6)',
+    },
+  },
 }))
 
 export interface SentryWarningProps {

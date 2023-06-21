@@ -11,36 +11,26 @@ storiesOf('Loading', module)
       checks={[
         {
           event: 'native services started',
-          passed: true
+          passed: true,
         },
         {
           event: 'tor connected',
-          passed: true
+          passed: true,
         },
         {
           event: 'onion address added',
-          passed: false
+          passed: false,
         },
         {
           event: 'backend started',
-          passed: false
+          passed: false,
         },
         {
           event: 'websocket connected',
-          passed: false
-        }
+          passed: false,
+        },
       ]}
     />
   ))
-  .add('0', () => (
-    <Loading
-      progress={0}
-      description={'Downloading tools to protect your privacy'}
-    />
-  ))
-  .add('99', () => (
-    <Loading
-      progress={1}
-      description={'Downloading tools to protect your privacy'}
-    />
-  ))
+  .add('0', () => <Loading progress={0} description={'Downloading tools to protect your privacy'} />)
+  .add('99', () => <Loading progress={1} description={'Downloading tools to protect your privacy'} />)

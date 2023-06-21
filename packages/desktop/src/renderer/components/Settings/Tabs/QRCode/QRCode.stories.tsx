@@ -11,7 +11,7 @@ const Template: ComponentStory<typeof QRCodeComponent> = args => {
 export const Component = Template.bind({})
 
 const args: QRCodeProps = {
-  value: 'https://tryquiet.org/join#ytzoaxku26gobduqogx6ydhezgf6aumpcted27qx7tz6z77lzj2zb6ad'
+  value: 'https://tryquiet.org/join#ytzoaxku26gobduqogx6ydhezgf6aumpcted27qx7tz6z77lzj2zb6ad',
 }
 
 Component.args = args
@@ -19,7 +19,7 @@ Component.args = args
 const component: ComponentMeta<typeof QRCodeComponent> = {
   title: 'Components/QRCode',
   decorators: [withTheme],
-  component: QRCodeComponent
+  component: QRCodeComponent,
 }
 
 export default component

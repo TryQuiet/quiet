@@ -24,39 +24,35 @@ describe('Search Modal', () => {
 
     const factory = await getFactory(store)
 
-    const community = await factory.create<
-      ReturnType<typeof communities.actions.addNewCommunity>['payload']
-    >('Community')
+    const community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>(
+      'Community'
+    )
 
-    const alice = await factory.create<
-      ReturnType<typeof identity.actions.addNewIdentity>['payload']
-    >('Identity', { id: community.id, nickname: 'alice' })
+    const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+      id: community.id,
+      nickname: 'alice',
+    })
 
     const channelsMocks = [
       { name: 'fun', timestamp: 1673857606990 },
       { name: 'random', timestamp: 1673854900410 },
       { name: 'test', timestamp: 1673623514097 },
-      { name: 'general', timestamp: 1673623514 }
+      { name: 'general', timestamp: 1673623514 },
     ]
 
     for (const channelMock of channelsMocks) {
-      await factory.create<ReturnType<typeof publicChannels.actions.addChannel>['payload']>(
-        'PublicChannel',
-        {
-          channel: {
-            name: channelMock.name,
-            description: `Welcome to #${channelMock.name}`,
-            timestamp: channelMock.timestamp,
-            owner: alice.nickname,
-            id: generateChannelId(channelMock.name)
-          }
-        }
-      )
+      await factory.create<ReturnType<typeof publicChannels.actions.addChannel>['payload']>('PublicChannel', {
+        channel: {
+          name: channelMock.name,
+          description: `Welcome to #${channelMock.name}`,
+          timestamp: channelMock.timestamp,
+          owner: alice.nickname,
+          id: generateChannelId(channelMock.name),
+        },
+      })
     }
 
-    const dynamicSearchedChannels = publicChannels.selectors.dynamicSearchedChannels('')(
-      store.getState()
-    )
+    const dynamicSearchedChannels = publicChannels.selectors.dynamicSearchedChannels('')(store.getState())
     const publicChannelsSelector = publicChannels.selectors.publicChannels(store.getState())
 
     const result = renderComponent(

@@ -1,14 +1,21 @@
 module.exports = {
   env: {
-    "jest/globals": true
+    "jest/globals": true,
+    "node": true,
+    "commonjs": true,
+    "browser": true,
+    "es6": true
   },
-  root: true,
-  extends: ['standard-with-typescript'],
+  extends: [
+    'eslint:recommended',
+    'plugin:@typescript-eslint/recommended',
+    'plugin:prettier/recommended'
+  ],
   parserOptions: {
     project: './tsconfig.json'
   },
   parser: '@typescript-eslint/parser',
-  plugins: ['react-hooks', 'jest'],
+  plugins: ['@typescript-eslint', 'react-hooks', 'jest'],
   rules: {
     'node/no-path-concat': 'off',
     'multiline-ternary': 'off',
@@ -18,6 +25,8 @@ module.exports = {
     'no-irregular-whitespace': 'off',
     'array-callback-return': 'off',
     'comma-dangle': 'off',
+    "no-empty-function": "off",
+    "@typescript-eslint/no-empty-function": "off",
     '@typescript-eslint/naming-convention': 'off',
     '@typescript-eslint/no-var-requires': 'off',
     '@typescript-eslint/indent': 'off',
@@ -40,6 +49,7 @@ module.exports = {
     '@typescript-eslint/no-redeclare': 'off',
     '@typescript-eslint/no-use-before-define': 'off',
     '@typescript-eslint/dot-notation': 'off',
+    '@typescript-eslint/ban-ts-comment': 'off', // Turn on after refactoring
     'generator-star-spacing': ['error', { before: false, after: true }],
     'yield-star-spacing': ['error', { before: false, after: true }],
     'react-hooks/exhaustive-deps': 'off',
@@ -57,7 +67,13 @@ module.exports = {
           requireLast: false
         }
       }
-    ]
+    ],
+    // 'prettier/prettier': [
+    //   "error", {
+    //     semi: false,
+    //     singleQuote: true
+    //   }
+    //   ],
   },
   overrides: [
     {

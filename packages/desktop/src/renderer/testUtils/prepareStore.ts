@@ -10,7 +10,7 @@ import {
   files,
   StoreKeys as StateManagerStoreKeys,
   Store,
-  network
+  network,
 } from '@quiet/state-manager'
 import { StoreKeys } from '../store/store.keys'
 import { combineReducers, createStore, applyMiddleware } from 'redux'
@@ -38,7 +38,7 @@ export const reducers = {
   [StoreKeys.App]: appReducer,
   [StoreKeys.Socket]: socketReducer,
   [StoreKeys.Modals]: modalsReducer,
-  [StoreKeys.Navigation]: navigationReducer
+  [StoreKeys.Navigation]: navigationReducer,
 }
 
 interface Options {
@@ -58,8 +58,7 @@ export interface PrepareStore {
 class SagaMonitor {
   effectsTriggeredArray
   effectsResolvedArray
-  constructor(
-  ) {
+  constructor() {
     this.effectsTriggeredArray = new Map<number, Options>()
     this.effectsResolvedArray = new Map<number, Options>()
   }
@@ -75,13 +74,13 @@ class SagaMonitor {
   }
 
   public isEffectResolved = (effectName: string) => {
-    const parentEffect = Array.from(this.effectsResolvedArray).filter((effect) => {
+    const parentEffect = Array.from(this.effectsResolvedArray).filter(effect => {
       return effect[1].result?.meta?.name === effectName
     })
-    const childrenEffects = Array.from(this.effectsResolvedArray).filter((effect) => {
+    const childrenEffects = Array.from(this.effectsResolvedArray).filter(effect => {
       return effect[1].parentEffectId === parentEffect[0][0]
     })
-    return childrenEffects.filter((effect) => {
+    return childrenEffects.filter(effect => {
       return effect[1].result === '@@redux-saga/TERMINATE'
     }).length
   }
@@ -95,14 +94,10 @@ export const prepareStore = async (
 
   const sagaMonitor = new SagaMonitor()
   const sagaMiddleware = createSagaMiddleware({
-    sagaMonitor
+    sagaMonitor,
   })
 
-  const store = createStore(
-    combinedReducers,
-    mockedState,
-    applyMiddleware(...[sagaMiddleware, thunk])
-  )
+  const store = createStore(combinedReducers, mockedState, applyMiddleware(...[sagaMiddleware, thunk]))
   // Fork State manager's sagas (require mocked socket.io-client)
   if (mockedSocket) {
     sagaMiddleware.run(rootSaga)
@@ -113,7 +108,7 @@ export const prepareStore = async (
   return {
     store,
     runSaga: sagaMiddleware.run,
-    sagaMonitor
+    sagaMonitor,
   }
 }
 

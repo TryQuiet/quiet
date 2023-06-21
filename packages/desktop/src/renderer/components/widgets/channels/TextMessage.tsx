@@ -9,7 +9,7 @@ const PREFIX = 'TextMessage'
 const classes = {
   message: `${PREFIX}message`,
   pending: `${PREFIX}pending`,
-  link: `${PREFIX}link`
+  link: `${PREFIX}link`,
 }
 
 const StyledTypography = styled(Typography)(() => ({
@@ -17,20 +17,20 @@ const StyledTypography = styled(Typography)(() => ({
     fontSize: '0.855rem',
     whiteSpace: 'pre-line',
     lineHeight: '21px',
-    overflowWrap: 'anywhere'
+    overflowWrap: 'anywhere',
   },
 
   [`&.${classes.pending}`]: {
-    color: theme.palette.colors.lightGray
+    color: theme.palette.colors.lightGray,
   },
 
   [`& .${classes.link}`]: {
     color: theme.palette.colors.lushSky,
     cursor: 'pointer',
     '&:hover': {
-      textDecoration: 'underline'
-    }
-  }
+      textDecoration: 'underline',
+    },
+  },
 })) as typeof Typography
 
 export interface TextMessageComponentProps {
@@ -40,15 +40,16 @@ export interface TextMessageComponentProps {
   openUrl: (url: string) => void
 }
 
-export const TextMessageComponent: React.FC<TextMessageComponentProps> = ({
-  message,
-  messageId,
-  pending,
-  openUrl
-}) => {
+export const TextMessageComponent: React.FC<TextMessageComponentProps> = ({ message, messageId, pending, openUrl }) => {
   const componentDecorator = (decoratedHref: string, decoratedText: string, key: number): ReactNode => {
     return (
-      <a onClick={() => { openUrl(decoratedHref) }} className={classNames({ [classes.link]: true })} key={key}>
+      <a
+        onClick={() => {
+          openUrl(decoratedHref)
+        }}
+        className={classNames({ [classes.link]: true })}
+        key={key}
+      >
         {decoratedText}
       </a>
     )
@@ -59,9 +60,10 @@ export const TextMessageComponent: React.FC<TextMessageComponentProps> = ({
       component={'span' as any}
       className={classNames({
         [classes.message]: true,
-        [classes.pending]: pending
+        [classes.pending]: pending,
       })}
-      data-testid={`messagesGroupContent-${messageId}`}>
+      data-testid={`messagesGroupContent-${messageId}`}
+    >
       <Linkify componentDecorator={componentDecorator}>{message}</Linkify>
     </StyledTypography>
   )

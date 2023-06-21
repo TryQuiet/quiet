@@ -1,6 +1,6 @@
 const defaults = {
   timeout: 4500,
-  interval: 50
+  interval: 50,
 }
 
 /**
@@ -35,7 +35,7 @@ export const waitForExpect = async function waitForExpect(
       tries += 1
       try {
         Promise.resolve(expectation())
-        // @ts-expect-error
+          // @ts-expect-error
           .then(() => resolve())
           .catch(rejectOrRerun)
       } catch (error) {

@@ -20,7 +20,7 @@ import {
   Store,
   MessageType,
   ChannelMessage,
-  SocketActionTypes
+  SocketActionTypes,
 } from '@quiet/state-manager'
 
 import { FactoryGirl } from 'factory-girl'
@@ -40,12 +40,12 @@ jest.mock('electron', () => {
           return [
             {
               show: jest.fn(),
-              isFocused: jest.fn()
-            }
+              isFocused: jest.fn(),
+            },
           ]
-        }
-      }
-    }
+        },
+      },
+    },
   }
 })
 
@@ -65,7 +65,7 @@ describe('Switch channels', () => {
   const channelsMocks = [
     channelFun,
     { name: 'random', timestamp: 1673854900410 },
-    { name: 'test', timestamp: 1673623514097 }
+    { name: 'test', timestamp: 1673623514097 },
   ]
 
   beforeEach(async () => {
@@ -74,35 +74,30 @@ describe('Switch channels', () => {
     window.ResizeObserver = jest.fn().mockImplementation(() => ({
       observe: jest.fn(),
       unobserve: jest.fn(),
-      disconnect: jest.fn()
+      disconnect: jest.fn(),
     }))
 
     redux = await prepareStore({}, socket)
     factory = await getFactory(redux.store)
 
-    community = await factory.create<
-      ReturnType<typeof communities.actions.addNewCommunity>['payload']
-    >('Community')
+    community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
 
-    alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>(
-      'Identity',
-      { id: community.id, nickname: 'alice' }
-    )
+    alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+      id: community.id,
+      nickname: 'alice',
+    })
 
     // Automatically create channels
     for (const channelMock of channelsMocks) {
-      await factory.create<ReturnType<typeof publicChannels.actions.addChannel>['payload']>(
-        'PublicChannel',
-        {
-          channel: {
-            name: channelMock.name,
-            description: `Welcome to #${channelMock.name}`,
-            timestamp: channelMock.timestamp,
-            owner: alice.nickname,
-            id: channelMock.name
-          }
-        }
-      )
+      await factory.create<ReturnType<typeof publicChannels.actions.addChannel>['payload']>('PublicChannel', {
+        channel: {
+          name: channelMock.name,
+          description: `Welcome to #${channelMock.name}`,
+          timestamp: channelMock.timestamp,
+          owner: alice.nickname,
+          id: channelMock.name,
+        },
+      })
     }
   })
 
@@ -198,9 +193,9 @@ describe('Switch channels', () => {
           createdAt: DateTime.utc().valueOf(),
           channelId: 'fun',
           signature: '',
-          pubKey: ''
+          pubKey: '',
         },
-        verifyAutomatically: true
+        verifyAutomatically: true,
       })
     ).payload.message
     messages.push(message)
@@ -236,8 +231,8 @@ describe('Switch channels', () => {
         {
           messages: [message],
           communityId: community.id,
-          isVerified: true
-        }
+          isVerified: true,
+        },
       ])
     }
   })

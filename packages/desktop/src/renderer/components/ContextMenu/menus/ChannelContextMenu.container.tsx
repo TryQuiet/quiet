@@ -34,8 +34,8 @@ export const ChannelContextMenu: FC = () => {
         action: () => {
           channelContextMenu.handleClose() // Dismiss context menu before displaying modal
           deleteChannelModal.handleOpen()
-        }
-      }
+        },
+      },
     ]
   }
 

@@ -205,7 +205,7 @@ describe('ChannelInput', () => {
     window.ResizeObserver = jest.fn().mockImplementation(() => ({
       observe: jest.fn(),
       unobserve: jest.fn(),
-      disconnect: jest.fn()
+      disconnect: jest.fn(),
     }))
     window.HTMLElement.prototype.scrollTo = jest.fn()
     document.execCommand = jest.fn()
@@ -224,20 +224,19 @@ describe('ChannelInput', () => {
 
     const { store } = await prepareStore()
     const factory = await getFactory(store)
-    await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>(
-      'Identity',
-      { nickname: 'alice' }
-    )
+    await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+      nickname: 'alice',
+    })
 
     const fileContent: FileContent = {
       path: `data:image/jpeg;base64,${base64Image}`,
       name: 'imageName',
-      ext: '.png'
+      ext: '.png',
     }
 
     const fileData = {
       ...fileContent,
-      arrayBuffer: bytes.buffer // need for test
+      arrayBuffer: bytes.buffer, // need for test
     }
 
     renderComponent(
@@ -272,41 +271,34 @@ describe('ChannelInput', () => {
             size: 4135,
             type: 'image/png',
             webkitRelativePath: '',
-            arrayBuffer: () => fileData.arrayBuffer
-          }
-        ]
-      }
+            arrayBuffer: () => fileData.arrayBuffer,
+          },
+        ],
+      },
     })
 
     await fireEvent(input, paste)
 
     expect(mockHandleClipboardFiles).toHaveBeenCalled()
-    expect(mockHandleClipboardFiles).toHaveBeenCalledWith(
-      fileData.arrayBuffer,
-      fileData.ext,
-      fileData.name
-    )
+    expect(mockHandleClipboardFiles).toHaveBeenCalledWith(fileData.arrayBuffer, fileData.ext, fileData.name)
 
     const filesData = {
       1: {
         path: fileData.path,
         name: fileData.name,
-        ext: fileData.ext
-      }
+        ext: fileData.ext,
+      },
     }
 
     const filesDataWithUnsuportedFile = {
       1: {
         path: fileData.path,
         name: fileData.name,
-        ext: '.unsupported'
-      }
+        ext: '.unsupported',
+      },
     }
 
-    renderComponent(
-      <UploadFilesPreviewsComponent filesData={filesData} removeFile={jest.fn()} />,
-      store
-    )
+    renderComponent(<UploadFilesPreviewsComponent filesData={filesData} removeFile={jest.fn()} />, store)
 
     // image with data from onPaste event appear
     const image: HTMLImageElement = screen.getByAltText(fileData.name)
@@ -316,10 +308,7 @@ describe('ChannelInput', () => {
     expect(mockUnsupportedModalHandleOpen).not.toHaveBeenCalled()
 
     renderComponent(
-      <UploadFilesPreviewsComponent
-        filesData={filesDataWithUnsuportedFile}
-        removeFile={jest.fn()}
-      />,
+      <UploadFilesPreviewsComponent filesData={filesDataWithUnsuportedFile} removeFile={jest.fn()} />,
       store
     )
 

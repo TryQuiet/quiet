@@ -1,20 +1,20 @@
-import { Socket as IOSocket } from 'socket.io-client'
-import { DefaultEventsMap } from 'socket.io-client/build/typed-events'
-import { messagesActions } from './sagas/messages/messages.slice'
-import { publicChannelsActions } from './sagas/publicChannels/publicChannels.slice'
+import { type Socket as IOSocket } from 'socket.io-client'
+import { type DefaultEventsMap } from 'socket.io-client/build/typed-events'
+import { type messagesActions } from './sagas/messages/messages.slice'
+import { type publicChannelsActions } from './sagas/publicChannels/publicChannels.slice'
 import {
-  CancelDownloadPayload,
-  Community,
-  DeleteFilesFromChannelSocketPayload,
-  DownloadFilePayload,
-  InitCommunityPayload,
-  LaunchRegistrarPayload,
-  RegisterOwnerCertificatePayload,
-  RegisterUserCertificatePayload,
-  SaveOwnerCertificatePayload,
-  SendMessagePayload,
-  SocketActionTypes,
-  UploadFilePayload
+  type CancelDownloadPayload,
+  type Community,
+  type DeleteFilesFromChannelSocketPayload,
+  type DownloadFilePayload,
+  type InitCommunityPayload,
+  type LaunchRegistrarPayload,
+  type RegisterOwnerCertificatePayload,
+  type RegisterUserCertificatePayload,
+  type SaveOwnerCertificatePayload,
+  type SendMessagePayload,
+  type SocketActionTypes,
+  type UploadFilePayload,
 } from '@quiet/types'
 
 type EmitEvent<Payload> = (payload: Payload) => void
@@ -30,15 +30,9 @@ export interface EmitEvents {
   [SocketActionTypes.REGISTER_OWNER_CERTIFICATE]: EmitEvent<RegisterOwnerCertificatePayload>
   [SocketActionTypes.REGISTER_USER_CERTIFICATE]: EmitEvent<RegisterUserCertificatePayload>
   [SocketActionTypes.CREATE_COMMUNITY]: EmitEvent<InitCommunityPayload>
-  [SocketActionTypes.ASK_FOR_MESSAGES]: EmitEvent<
-    ReturnType<typeof messagesActions.askForMessages>['payload']
-  >
-  [SocketActionTypes.CREATE_CHANNEL]: EmitEvent<
-    ReturnType<typeof publicChannelsActions.createChannel>['payload']
-  >
-  [SocketActionTypes.DELETE_CHANNEL]: EmitEvent<
-    ReturnType<typeof publicChannelsActions.deleteChannel>['payload']
-  >
+  [SocketActionTypes.ASK_FOR_MESSAGES]: EmitEvent<ReturnType<typeof messagesActions.askForMessages>['payload']>
+  [SocketActionTypes.CREATE_CHANNEL]: EmitEvent<ReturnType<typeof publicChannelsActions.createChannel>['payload']>
+  [SocketActionTypes.DELETE_CHANNEL]: EmitEvent<ReturnType<typeof publicChannelsActions.deleteChannel>['payload']>
 
   [SocketActionTypes.DELETE_FILES_FROM_CHANNEL]: EmitEvent<DeleteFilesFromChannelSocketPayload>
   [SocketActionTypes.CLOSE]: () => void
@@ -49,7 +43,7 @@ export interface EmitEvents {
 export type Socket = IOSocket<DefaultEventsMap, EmitEvents>
 
 export type ApplyEmitParams<T extends keyof EmitEvents, P> = [a: T, p: P]
-export const applyEmitParams = <T extends keyof EmitEvents, P>(
-  eventType: T,
-  payload: P
-): ApplyEmitParams<T, P> => [eventType, payload]
+export const applyEmitParams = <T extends keyof EmitEvents, P>(eventType: T, payload: P): ApplyEmitParams<T, P> => [
+  eventType,
+  payload,
+]

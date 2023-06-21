@@ -4,7 +4,7 @@ import { styled } from '@mui/material/styles'
 const PREFIX = 'SliderThumb'
 
 const classes = {
-  root: `${PREFIX}root`
+  root: `${PREFIX}root`,
 }
 
 const Root = styled('div')({
@@ -15,8 +15,8 @@ const Root = styled('div')({
     borderColor: '#979797',
     borderWidth: 1,
     borderStyle: 'solid',
-    borderRadius: '50%'
-  }
+    borderRadius: '50%',
+  },
 })
 
 export const SliderThumb: React.FC = () => {

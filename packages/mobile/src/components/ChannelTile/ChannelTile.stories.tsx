@@ -13,7 +13,9 @@ storiesOf('ChannelTile', module)
       }
       date={'1:55pm'}
       unread={false}
-      redirect={(id: string) => { console.log(`Clicked ${id}`) }}
+      redirect={(id: string) => {
+        console.log(`Clicked ${id}`)
+      }}
     />
   ))
   .add('Unread', () => (
@@ -25,6 +27,8 @@ storiesOf('ChannelTile', module)
       }
       date={'1:55pm'}
       unread={true}
-      redirect={(id: string) => { console.log(`Clicked ${id}`) }}
+      redirect={(id: string) => {
+        console.log(`Clicked ${id}`)
+      }}
     />
   ))

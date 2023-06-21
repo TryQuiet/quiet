@@ -10,10 +10,7 @@ import WarningIcon from '@mui/icons-material/Warning'
 import Modal from '../ui/Modal/Modal'
 import { LoadingButton } from '../ui/LoadingButton/LoadingButton'
 
-import {
-  CreateCommunityDictionary,
-  JoinCommunityDictionary
-} from '../CreateJoinCommunity/community.dictionary'
+import { CreateCommunityDictionary, JoinCommunityDictionary } from '../CreateJoinCommunity/community.dictionary'
 
 import { CommunityOwnership } from '@quiet/types'
 
@@ -41,46 +38,42 @@ const classes = {
   warrningMessage: `${PREFIX}warrningMessage`,
   rootBar: `${PREFIX}rootBar`,
   progressBar: `${PREFIX}progressBar`,
-  info: `${PREFIX}info`
+  info: `${PREFIX}info`,
 }
 
-const StyledModalContent = styled(Grid)((
-  {
-    theme
-  }
-) => ({
-    backgroundColor: theme.palette.colors.white,
-    padding: '0px 32px',
+const StyledModalContent = styled(Grid)(({ theme }) => ({
+  backgroundColor: theme.palette.colors.white,
+  padding: '0px 32px',
 
   [`& .${classes.focus}`]: {
     '& .MuiOutlinedInput-root': {
       '&.Mui-focused fieldset': {
-        borderColor: theme.palette.colors.linkBlue
-      }
-    }
+        borderColor: theme.palette.colors.linkBlue,
+      },
+    },
   },
 
   [`& .${classes.margin}`]: {
     '& .MuiFormHelperText-contained': {
-      margin: '5px 0px'
-    }
+      margin: '5px 0px',
+    },
   },
 
   [`& .${classes.error}`]: {
     '& .MuiOutlinedInput-root': {
       '&.Mui-focused fieldset': {
-        borderColor: theme.palette.colors.red
-      }
-    }
+        borderColor: theme.palette.colors.red,
+      },
+    },
   },
 
   [`& .${classes.fullContainer}`]: {
-    width: '100%'
+    width: '100%',
   },
 
   [`& .${classes.gutter}`]: {
     marginTop: 8,
-    marginBottom: 24
+    marginBottom: 24,
   },
 
   [`& .${classes.button}`]: {
@@ -88,45 +81,45 @@ const StyledModalContent = styled(Grid)((
     backgroundColor: theme.palette.colors.quietBlue,
     color: theme.palette.colors.white,
     '&:hover': {
-      backgroundColor: theme.palette.colors.quietBlue
+      backgroundColor: theme.palette.colors.quietBlue,
     },
     textTransform: 'none',
     height: 48,
-    fontWeight: 'normal'
+    fontWeight: 'normal',
   },
 
   [`& .${classes.title}`]: {
-    marginBottom: 24
+    marginBottom: 24,
   },
 
   [`& .${classes.iconDiv}`]: {
     width: 24,
     height: 28,
-    marginRight: 8
+    marginRight: 8,
   },
 
   [`& .${classes.warrningIcon}`]: {
-    color: '#FFCC00'
+    color: '#FFCC00',
   },
 
   [`& .${classes.warrningMessage}`]: {
-    wordBreak: 'break-word'
+    wordBreak: 'break-word',
   },
 
   [`& .${classes.rootBar}`]: {
     width: 350,
     marginTop: 32,
-    marginBottom: 16
+    marginBottom: 16,
   },
 
   [`& .${classes.progressBar}`]: {
-    backgroundColor: theme.palette.colors.linkBlue
+    backgroundColor: theme.palette.colors.linkBlue,
   },
 
   [`& .${classes.info}`]: {
     lineHeight: '19px',
-    color: theme.palette.colors.darkGray
-  }
+    color: theme.palette.colors.darkGray,
+  },
 }))
 
 interface PerformCommunityActionFormValues {
@@ -158,7 +151,7 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
   hasReceivedResponse,
   revealInputValue,
   handleClickInputReveal,
-  invitationCode
+  invitationCode,
 }) => {
   const [formSent, setFormSent] = useState(false)
 
@@ -177,21 +170,19 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
     formState: { errors },
     setValue,
     setError,
-    control
+    control,
   } = useForm<PerformCommunityActionFormValues>({
-    mode: 'onTouched'
+    mode: 'onTouched',
   })
 
-  const onSubmit = (values: PerformCommunityActionFormValues) =>
-    submitForm(handleCommunityAction, values, setFormSent)
+  const onSubmit = (values: PerformCommunityActionFormValues) => submitForm(handleCommunityAction, values, setFormSent)
 
   const submitForm = (
     handleSubmit: (value: string) => void,
     values: PerformCommunityActionFormValues,
     setFormSent: (value: boolean) => void
   ) => {
-    let submitValue =
-      communityOwnership === CommunityOwnership.Owner ? parseName(values.name) : values.name.trim()
+    let submitValue = communityOwnership === CommunityOwnership.Owner ? parseName(values.name) : values.name.trim()
 
     if (communityOwnership === CommunityOwnership.User) {
       submitValue = getInvitationCode(submitValue)
@@ -233,11 +224,7 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
       <StyledModalContent container direction='column'>
         <>
           <form onSubmit={handleSubmit(onSubmit)}>
-            <Grid
-              container
-              justifyContent='flex-start'
-              direction='column'
-              className={classes.fullContainer}>
+            <Grid container justifyContent='flex-start' direction='column' className={classes.fullContainer}>
               <Typography variant='h3' className={classes.title}>
                 {dictionary.header}
               </Typography>
@@ -254,7 +241,7 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
                     classes={classNames({
                       [classes.focus]: true,
                       [classes.margin]: true,
-                      [classes.error]: errors.name
+                      [classes.error]: errors.name,
                     })}
                     placeholder={dictionary.placeholder}
                     errors={errors}
@@ -267,23 +254,25 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
                       field.onChange(event)
                     }}
                     onblur={() => {}}
-                    InputProps={communityOwnership === CommunityOwnership.User
-                      ? {
-                        endAdornment: (
-                          <InputAdornment position='end'>
-                            <IconButton
-                              size='small'
-                              onClick={handleClickInputReveal}
-                            >
-                              {!revealInputValue ? (
-                                <VisibilityOff color='primary' fontSize='small' />
-                              ) : (
-                                <Visibility color='primary' fontSize='small' />
-                              )}
-                            </IconButton>
-                          </InputAdornment>
-                        )
-                      } : <></>}
+                    InputProps={
+                      communityOwnership === CommunityOwnership.User ? (
+                        {
+                          endAdornment: (
+                            <InputAdornment position='end'>
+                              <IconButton size='small' onClick={handleClickInputReveal}>
+                                {!revealInputValue ? (
+                                  <VisibilityOff color='primary' fontSize='small' />
+                                ) : (
+                                  <Visibility color='primary' fontSize='small' />
+                                )}
+                              </IconButton>
+                            </InputAdornment>
+                          ),
+                        }
+                      ) : (
+                        <></>
+                      )
+                    }
                     type={revealInputValue ? 'text' : 'password'}
                     value={communityOwnership === CommunityOwnership.User ? field.value.trim() : field.value}
                   />
@@ -300,7 +289,8 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
                     <Typography
                       variant='body2'
                       className={classes.warrningMessage}
-                      data-testid={'createCommunityNameWarning'}>
+                      data-testid={'createCommunityNameWarning'}
+                    >
                       Your community will be created as <b>{`#${communityName}`}</b>
                     </Typography>
                   </Grid>

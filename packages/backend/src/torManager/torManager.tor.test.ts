@@ -1,9 +1,8 @@
-/* eslint import/first: 0 */
 import { Tor } from './torManager'
 import { torBinForPlatform, torDirForPlatform } from '../common/utils'
 import { createTmpDir, spawnTorProcess, tmpQuietDirPath } from '../common/testUtils'
 import getPort from 'get-port'
-import { DirResult } from 'tmp'
+import { type DirResult } from 'tmp'
 import { jest, beforeEach, describe, it, expect, afterEach } from '@jest/globals'
 
 jest.setTimeout(100_000)
@@ -34,30 +33,30 @@ describe('Tor manager (using tor)', () => {
     const libPath = torDirForPlatform()
     const tor = new Tor({
       appDataPath: tmpAppDataPath,
-      torPath: torPath,
+      torPath,
       httpTunnelPort,
       options: {
         env: {
           LD_LIBRARY_PATH: libPath,
-          HOME: tmpAppDataPath
+          HOME: tmpAppDataPath,
         },
-        detached: true
-      }
+        detached: true,
+      },
     })
 
     await tor.init()
 
     const torSecondInstance = new Tor({
       appDataPath: tmpAppDataPath,
-      torPath: torPath,
+      torPath,
       httpTunnelPort,
       options: {
         env: {
           LD_LIBRARY_PATH: libPath,
-          HOME: tmpAppDataPath
+          HOME: tmpAppDataPath,
         },
-        detached: true
-      }
+        detached: true,
+      },
     })
     await torSecondInstance.init({})
     await torSecondInstance.kill()
@@ -76,7 +75,7 @@ describe('Tor manager (using tor)', () => {
     await tor.init()
     const hiddenServiceOnionAddress = await tor.spawnHiddenService({
       targetPort: 4343,
-      privKey: 'ED25519-V3:uCr5t3EcOCwig4cu7pWY6996whV+evrRlI0iIIsjV3uCz4rx46sB3CPq8lXEWhjGl2jlyreomORirKcz9mmcdQ=='
+      privKey: 'ED25519-V3:uCr5t3EcOCwig4cu7pWY6996whV+evrRlI0iIIsjV3uCz4rx46sB3CPq8lXEWhjGl2jlyreomORirKcz9mmcdQ==',
     })
     expect(hiddenServiceOnionAddress).toBe('u2rg2direy34dj77375h2fbhsc2tvxj752h4tlso64mjnlevcv54oaad.onion')
     await tor.kill()
@@ -97,20 +96,18 @@ describe('Tor manager (using tor)', () => {
     const libPath = torDirForPlatform()
     const tor = new Tor({
       appDataPath: tmpAppDataPath,
-      torPath: torPath,
+      torPath,
       httpTunnelPort,
       options: {
         env: {
           LD_LIBRARY_PATH: libPath,
-          HOME: tmpAppDataPath
+          HOME: tmpAppDataPath,
         },
-        detached: true
-      }
+        detached: true,
+      },
     })
 
-    await expect(tor.init({ repeat: 3, timeout: 1000 }))
-      .rejects
-      .toThrow('Failed to spawn tor 4 times')
+    await expect(tor.init({ repeat: 3, timeout: 1000 })).rejects.toThrow('Failed to spawn tor 4 times')
 
     await tor.kill()
   })
@@ -121,15 +118,15 @@ describe('Tor manager (using tor)', () => {
     const libPath = torDirForPlatform()
     const tor = new Tor({
       appDataPath: tmpAppDataPath,
-      torPath: torPath,
+      torPath,
       httpTunnelPort,
       options: {
         env: {
           LD_LIBRARY_PATH: libPath,
-          HOME: tmpAppDataPath
+          HOME: tmpAppDataPath,
         },
-        detached: true
-      }
+        detached: true,
+      },
     })
 
     await tor.init({ repeat: 3, timeout: 40000 })

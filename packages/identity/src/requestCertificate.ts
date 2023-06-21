@@ -2,14 +2,7 @@ import { PrintableString, OctetString } from 'asn1js'
 import { NoCryptoEngineError } from '@quiet/types'
 import config from './config'
 import { generateKeyPair, CertFieldsTypes, hexStringToArrayBuffer } from './common'
-import {
-  getCrypto,
-  CertificationRequest,
-  AttributeTypeAndValue,
-  Attribute,
-  Extensions,
-  Extension
-} from 'pkijs'
+import { getCrypto, CertificationRequest, AttributeTypeAndValue, Attribute, Extensions, Extension } from 'pkijs'
 
 interface CertData {
   publicKey: CryptoKey
@@ -27,7 +20,7 @@ export const createUserCsr = async ({
   nickname,
   commonName,
   peerId,
-  dmPublicKey
+  dmPublicKey,
 }: {
   nickname: string
   commonName: string
@@ -37,24 +30,24 @@ export const createUserCsr = async ({
   hashAlg: string
 }): Promise<UserCsr> => {
   const pkcs10 = await requestCertificate({
-    nickname: nickname,
-    commonName: commonName,
-    peerId: peerId,
-    dmPublicKey: dmPublicKey,
-    ...config
+    nickname,
+    commonName,
+    peerId,
+    dmPublicKey,
+    ...config,
   })
   const crypto = getCrypto()
   if (!crypto) throw new NoCryptoEngineError()
 
   const userData = {
     userCsr: pkcs10.pkcs10.toSchema().toBER(false),
-    userKey: await crypto.exportKey('pkcs8', pkcs10.privateKey)
+    userKey: await crypto.exportKey('pkcs8', pkcs10.privateKey),
   }
 
   return {
     userCsr: Buffer.from(userData.userCsr).toString('base64'),
     userKey: Buffer.from(userData.userKey).toString('base64'),
-    pkcs10: pkcs10
+    pkcs10,
   }
 }
 
@@ -64,7 +57,7 @@ async function requestCertificate({
   peerId,
   dmPublicKey,
   signAlg = config.signAlg,
-  hashAlg = config.hashAlg
+  hashAlg = config.hashAlg,
 }: {
   nickname: string
   commonName: string
@@ -79,12 +72,12 @@ async function requestCertificate({
 
   const pkcs10 = new CertificationRequest({
     version: 0,
-    attributes: []
+    attributes: [],
   })
   pkcs10.subject.typesAndValues.push(
     new AttributeTypeAndValue({
       type: CertFieldsTypes.commonName,
-      value: new PrintableString({ value: commonName })
+      value: new PrintableString({ value: commonName }),
     })
   )
 
@@ -105,27 +98,27 @@ async function requestCertificate({
             new Extension({
               extnID: '2.5.29.14',
               critical: false,
-              extnValue: new OctetString({ valueHex: hashedPublicKey }).toBER(false)
-            })
-          ]
-        }).toSchema()
-      ]
+              extnValue: new OctetString({ valueHex: hashedPublicKey }).toBER(false),
+            }),
+          ],
+        }).toSchema(),
+      ],
     }),
     new Attribute({
       type: CertFieldsTypes.dmPublicKey,
-      values: [new OctetString({ valueHex: arrayBufferDmPubKey })]
+      values: [new OctetString({ valueHex: arrayBufferDmPubKey })],
     }),
     new Attribute({
       type: CertFieldsTypes.nickName,
-      values: [new PrintableString({ value: nickname })]
+      values: [new PrintableString({ value: nickname })],
     }),
     new Attribute({
       type: CertFieldsTypes.peerId,
-      values: [new PrintableString({ value: peerId })]
+      values: [new PrintableString({ value: peerId })],
     }),
     new Attribute({
       type: CertFieldsTypes.subjectAltName,
-      values: [new PrintableString({ value: commonName })]
+      values: [new PrintableString({ value: commonName })],
     })
   )
   await pkcs10.sign(keyPair.privateKey, hashAlg)

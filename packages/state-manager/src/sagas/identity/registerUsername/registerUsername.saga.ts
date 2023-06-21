@@ -1,11 +1,11 @@
-import { PayloadAction } from '@reduxjs/toolkit'
+import { type PayloadAction } from '@reduxjs/toolkit'
 import { select, put, call } from 'typed-redux-saga'
 import { createUserCsr } from '@quiet/identity'
 import { identitySelectors } from '../identity.selectors'
 import { identityActions } from '../identity.slice'
 import { config } from '../../users/const/certFieldTypes'
 import { communitiesSelectors } from '../../communities/communities.selectors'
-import { CreateUserCsrPayload, RegisterCertificatePayload } from '@quiet/types'
+import { type CreateUserCsrPayload, type RegisterCertificatePayload } from '@quiet/types'
 
 export function* registerUsernameSaga(action: PayloadAction<string>): Generator {
   const identity = yield* select(identitySelectors.currentIdentity)
@@ -27,12 +27,12 @@ export function* registerUsernameSaga(action: PayloadAction<string>): Generator 
   if (userCsr === null) {
     try {
       const payload: CreateUserCsrPayload = {
-        nickname: nickname,
+        nickname,
         commonName: identity.hiddenService.onionAddress,
         peerId: identity.peerId.id,
         dmPublicKey: identity.dmKeys.publicKey,
         signAlg: config.signAlg,
-        hashAlg: config.hashAlg
+        hashAlg: config.hashAlg,
       }
       userCsr = yield* call(createUserCsr, payload)
     } catch (e) {
@@ -46,8 +46,8 @@ export function* registerUsernameSaga(action: PayloadAction<string>): Generator 
 
   const payload: RegisterCertificatePayload = {
     communityId: currentCommunity.id,
-    nickname: nickname,
-    userCsr: userCsr
+    nickname,
+    userCsr,
   }
 
   yield* put(identityActions.registerCertificate(payload))

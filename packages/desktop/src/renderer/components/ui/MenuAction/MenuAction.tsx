@@ -15,7 +15,7 @@ const PREFIX = 'MenuAction'
 const classes = {
   menuList: `${PREFIX}menuList`,
   icon: `${PREFIX}icon`,
-  button: `${PREFIX}button`
+  button: `${PREFIX}button`,
 }
 
 // TODO jss-to-styled codemod: The Fragment root was replaced by div. Change the tag if needed.
@@ -24,19 +24,19 @@ const Root = styled('div')(() => ({
     paddingTop: 24,
     paddingBottom: 24,
     minWidth: 136,
-    borderRadius: 8
+    borderRadius: 8,
   },
 
   [`& .${classes.icon}`]: {},
-  [`& .${classes.button}`]: {}
+  [`& .${classes.button}`]: {},
 }))
 
-const RefIconButton = React.forwardRef<HTMLButtonElement, React.PropsWithChildren<IconButtonProps>>(
-  (props, ref) => <IconButton {...props} ref={ref} size="large" />
-)
+const RefIconButton = React.forwardRef<HTMLButtonElement, React.PropsWithChildren<IconButtonProps>>((props, ref) => (
+  <IconButton {...props} ref={ref} size='large' />
+))
 
 interface MenuActionProps {
-  icon: string | ExtendButtonBase<IconButtonTypeMap<{}, 'button'>>
+  icon: string | ExtendButtonBase<IconButtonTypeMap<object, 'button'>>
   iconHover: string
   children?: any
   offset: string | number
@@ -52,7 +52,7 @@ export const MenuAction: React.FC<MenuActionProps> = ({
   offset,
   disabled = false,
   onClick,
-  placement
+  placement,
 }) => {
   const [open, setOpen] = useState(false)
   const [hover, setHover] = useState(false)
@@ -81,7 +81,8 @@ export const MenuAction: React.FC<MenuActionProps> = ({
         disabled={disabled}
         disableRipple
         onMouseEnter={toggleHover}
-        onMouseLeave={toggleHover}>
+        onMouseLeave={toggleHover}
+      >
         <Icon className={classes.icon} src={hover ? iconHover : icon} />
       </RefIconButton>
       <PopupMenu open={open} anchorEl={anchorEl} offset={offset} placement={placement}>

@@ -35,10 +35,9 @@ describe('Add new channel', () => {
 
     const factory = await getFactory(store)
 
-    await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>(
-      'Identity',
-      { nickname: 'alice' }
-    )
+    await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+      nickname: 'alice',
+    })
 
     renderComponent(<CreateChannel />, store)
 
@@ -94,53 +93,47 @@ describe('Add new channel', () => {
     ['end-with-space ', 'end-with-space'],
     ['UpperCaseToLowerCase', 'uppercasetolowercase'],
     ['spaces to hyphens', 'spaces-to-hyphens'],
-    ['!@#start-with-exclaim-at-hash', 'start-with-exclaim-at-hash']
-  ])(
-    'user inserting wrong channel name "%s" gets corrected "%s"',
-    async (name: string, corrected: string) => {
-      renderComponent(
-        <CreateChannelComponent
-          open={true}
-          createChannel={() => {}}
-          handleClose={() => {}}
-          clearErrorsDispatch={() => {}}
-        />
-      )
+    ['!@#start-with-exclaim-at-hash', 'start-with-exclaim-at-hash'],
+  ])('user inserting wrong channel name "%s" gets corrected "%s"', async (name: string, corrected: string) => {
+    renderComponent(
+      <CreateChannelComponent
+        open={true}
+        createChannel={() => {}}
+        handleClose={() => {}}
+        clearErrorsDispatch={() => {}}
+      />
+    )
 
-      const input = screen.getByPlaceholderText('Enter a channel name')
+    const input = screen.getByPlaceholderText('Enter a channel name')
 
-      await userEvent.type(input, name)
-      expect(screen.getByTestId('createChannelNameWarning')).toHaveTextContent(
-        `Your channel will be created as #${corrected}`
-      )
-    }
-  )
+    await userEvent.type(input, name)
+    expect(screen.getByTestId('createChannelNameWarning')).toHaveTextContent(
+      `Your channel will be created as #${corrected}`
+    )
+  })
 
   it.each([
     ['   whitespaces', FieldErrors.Whitespaces],
-    ['----hyphens', FieldErrors.Whitespaces]
-  ])(
-    'user inserting invalid channel name "%s" should see "%s" error',
-    async (name: string, error: string) => {
-      const createChannel = jest.fn()
+    ['----hyphens', FieldErrors.Whitespaces],
+  ])('user inserting invalid channel name "%s" should see "%s" error', async (name: string, error: string) => {
+    const createChannel = jest.fn()
 
-      renderComponent(
-        <CreateChannelComponent
-          open={true}
-          createChannel={createChannel}
-          handleClose={() => {}}
-          clearErrorsDispatch={() => {}}
-        />
-      )
+    renderComponent(
+      <CreateChannelComponent
+        open={true}
+        createChannel={createChannel}
+        handleClose={() => {}}
+        clearErrorsDispatch={() => {}}
+      />
+    )
 
-      const input = screen.getByPlaceholderText('Enter a channel name')
-      const button = screen.getByText('Create Channel')
+    const input = screen.getByPlaceholderText('Enter a channel name')
+    const button = screen.getByText('Create Channel')
 
-      await userEvent.type(input, name)
-      await userEvent.click(button)
+    await userEvent.type(input, name)
+    await userEvent.click(button)
 
-      const message = await screen.findByText(error)
-      expect(message).toBeVisible()
-    }
-  )
+    const message = await screen.findByText(error)
+    expect(message).toBeVisible()
+  })
 })

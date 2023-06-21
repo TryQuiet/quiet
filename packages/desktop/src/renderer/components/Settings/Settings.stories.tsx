@@ -37,9 +37,7 @@ const Invite: FC = () => {
   const [revealInputValue, setRevealInputValue] = useState<boolean>(false)
   return (
     <InviteComponent
-      invitationLink={
-        'https://tryquiet.org/join#p7lrosb6fvtt7t3fhmuh5uj5twxirpngeipemdm5d32shgz46cbd3bad'
-      }
+      invitationLink={'https://tryquiet.org/join#p7lrosb6fvtt7t3fhmuh5uj5twxirpngeipemdm5d32shgz46cbd3bad'}
       revealInputValue={revealInputValue}
       handleClickInputReveal={() => {
         setRevealInputValue(!revealInputValue)
@@ -49,9 +47,7 @@ const Invite: FC = () => {
 }
 
 const QRCode: FC = () => {
-  return (
-    <QRCodeComponent value='https://tryquiet.org/join#ytzoaxku26gobduqogx6ydhezgf6aumpcted27qx7tz6z77lzj2zb6ad' />
-  )
+  return <QRCodeComponent value='https://tryquiet.org/join#ytzoaxku26gobduqogx6ydhezgf6aumpcted27qx7tz6z77lzj2zb6ad' />
 }
 
 const args: SettingsComponentProps = {
@@ -63,25 +59,25 @@ const args: SettingsComponentProps = {
     notifications: Dummy,
     invite: Invite,
     leave: Leave,
-    qrcode: QRCode
+    qrcode: QRCode,
   },
   leaveCommunityModal: {
     open: false,
     handleOpen: function (_args?: any): any {},
-    handleClose: function (): any {}
-  }
+    handleClose: function (): any {},
+  },
 }
 
 Component.args = args
 WindowsComponent.args = {
   ...args,
-  isWindows: true
+  isWindows: true,
 }
 
 const component: ComponentMeta<typeof SettingsComponent> = {
   title: 'Components/Settings',
   decorators: [withTheme],
-  component: SettingsComponent
+  component: SettingsComponent,
 }
 
 export default component

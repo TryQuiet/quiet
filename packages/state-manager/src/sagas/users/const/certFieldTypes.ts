@@ -8,5 +8,5 @@ export enum CertFieldsTypes {
 
 export const config = {
   signAlg: 'ECDSA',
-  hashAlg: 'sha-256'
+  hashAlg: 'sha-256',
 }

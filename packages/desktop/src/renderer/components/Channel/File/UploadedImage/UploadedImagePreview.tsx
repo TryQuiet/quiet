@@ -7,7 +7,7 @@ import Modal from '../../../ui/Modal/Modal'
 const PREFIX = 'UploadedImagePreviewComponent'
 
 const classes = {
-  image: `${PREFIX}image`
+  image: `${PREFIX}image`,
 }
 
 const StyledModalContent = styled('div')(() => ({
@@ -24,8 +24,8 @@ const StyledModalContent = styled('div')(() => ({
     top: '50%',
     transform: 'translate(-50%, -50%)',
     maxWidth: '90vw',
-    maxHeight: '90vh'
-  }
+    maxHeight: '90vh',
+  },
 }))
 
 interface UploadedImagePreviewProps {
@@ -39,7 +39,7 @@ interface UploadedImagePreviewProps {
 const UploadedImagePreviewComponent: React.FC<UploadedImagePreviewProps> = ({
   open,
   handleClose,
-  uploadedFileModal
+  uploadedFileModal,
 }) => {
   return (
     <Modal open={open} handleClose={handleClose}>

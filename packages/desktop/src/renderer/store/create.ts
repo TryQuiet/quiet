@@ -15,7 +15,7 @@ const testMode = process.env.TEST_MODE
 
 if (testMode) {
   Sentry.init({
-    dsn: 'https://1ca88607c3d14e15b36cb2cfd5f16d68@o1060867.ingest.sentry.io/6050774'
+    dsn: 'https://1ca88607c3d14e15b36cb2cfd5f16d68@o1060867.ingest.sentry.io/6050774',
   })
 }
 
@@ -25,16 +25,14 @@ const sagaMiddleware = createSagaMiddleware({
     if (testMode) {
       Sentry.captureException(err)
     }
-  }
+  },
 })
 
 export default (initialState = {}): Store => {
   const store = createStore(
     reducers,
     initialState,
-    composeWithDevTools(
-      applyMiddleware(...[errorsMiddleware, createDebounce(), sagaMiddleware, thunk, promise()])
-    )
+    composeWithDevTools(applyMiddleware(...[errorsMiddleware, createDebounce(), sagaMiddleware, thunk, promise()]))
   )
   sagaMiddleware.run(rootSaga)
   return store

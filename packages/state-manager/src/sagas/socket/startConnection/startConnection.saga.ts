@@ -1,5 +1,5 @@
 import { eventChannel } from 'redux-saga'
-import { Socket } from '../../../types'
+import { type Socket } from '../../../types'
 import { all, call, fork, put, takeEvery } from 'typed-redux-saga'
 import logger from '../../../utils/logger'
 import { appMasterSaga } from '../../app/app.master.saga'
@@ -20,28 +20,28 @@ import { usersActions } from '../../users/users.slice'
 import { filesActions } from '../../files/files.slice'
 import { networkActions } from '../../network/network.slice'
 import {
-  ResponseCreateCommunityPayload,
-  ResponseRegistrarPayload,
-  StorePeerListPayload,
-  ResponseCreateNetworkPayload,
-  ResponseLaunchCommunityPayload,
-  ChannelDeletionResponsePayload,
-  ChannelMessagesIdsResponse,
-  ChannelsReplicatedPayload,
-  CommunityId,
-  CreatedChannelResponse,
-  DownloadStatus,
-  ErrorPayload,
-  FileMetadata,
-  IncomingMessages,
-  NetworkDataPayload,
-  RemoveDownloadStatus,
-  SendCertificatesResponse,
-  SetChannelSubscribedPayload,
+  type ResponseCreateCommunityPayload,
+  type ResponseRegistrarPayload,
+  type StorePeerListPayload,
+  type ResponseCreateNetworkPayload,
+  type ResponseLaunchCommunityPayload,
+  type ChannelDeletionResponsePayload,
+  type ChannelMessagesIdsResponse,
+  type ChannelsReplicatedPayload,
+  type CommunityId,
+  type CreatedChannelResponse,
+  type DownloadStatus,
+  type ErrorPayload,
+  type FileMetadata,
+  type IncomingMessages,
+  type NetworkDataPayload,
+  type RemoveDownloadStatus,
+  type SendCertificatesResponse,
+  type SetChannelSubscribedPayload,
   SocketActionTypes,
-  SavedOwnerCertificatePayload,
+  type SavedOwnerCertificatePayload,
   SendUserCertificatePayload,
-  SendOwnerCertificatePayload
+  type SendOwnerCertificatePayload,
 } from '@quiet/types'
 
 const log = logger('socket')
@@ -126,23 +126,20 @@ export function subscribe(socket: Socket) {
     socket.on(SocketActionTypes.CHANNEL_SUBSCRIBED, (payload: SetChannelSubscribedPayload) => {
       emit(publicChannelsActions.setChannelSubscribed(payload))
     })
-    socket.on(
-      SocketActionTypes.CHANNEL_DELETION_RESPONSE,
-      (payload: ChannelDeletionResponsePayload) => {
-        emit(publicChannelsActions.channelDeletionResponse(payload))
-      }
-    )
+    socket.on(SocketActionTypes.CHANNEL_DELETION_RESPONSE, (payload: ChannelDeletionResponsePayload) => {
+      emit(publicChannelsActions.channelDeletionResponse(payload))
+    })
     socket.on(SocketActionTypes.CREATED_CHANNEL, (payload: CreatedChannelResponse) => {
       emit(
         messagesActions.addPublicChannelsMessagesBase({
-          channelId: payload.channel.id
+          channelId: payload.channel.id,
         })
       )
       emit(publicChannelsActions.addChannel(payload))
       emit(
         publicChannelsActions.sendInitialChannelMessage({
           channelName: payload.channel.name,
-          channelId: payload.channel.id
+          channelId: payload.channel.id,
         })
       )
     })
@@ -193,70 +190,64 @@ export function subscribe(socket: Socket) {
     socket.on(SocketActionTypes.RESPONSE_GET_CERTIFICATES, (payload: SendCertificatesResponse) => {
       emit(
         publicChannelsActions.sendNewUserInfoMessage({
-          certificates: payload.certificates
+          certificates: payload.certificates,
         })
       )
       emit(usersActions.responseSendCertificates(payload))
     })
 
-    socket.on(
-      SocketActionTypes.SEND_USER_CERTIFICATE,
-      (payload: SendOwnerCertificatePayload) => {
-        console.log('user cert with owner cert', payload)
+    socket.on(SocketActionTypes.SEND_USER_CERTIFICATE, (payload: SendOwnerCertificatePayload) => {
+      console.log('user cert with owner cert', payload)
 
-        emit(
-          communitiesActions.addOwnerCertificate({
-            communityId: payload.communityId,
-            ownerCertificate: payload.payload.ownerCert
-          })
-        )
+      emit(
+        communitiesActions.addOwnerCertificate({
+          communityId: payload.communityId,
+          ownerCertificate: payload.payload.ownerCert,
+        })
+      )
 
-        emit(
-          communitiesActions.storePeerList({
-            communityId: payload.communityId,
-            peerList: payload.payload.peers
-          })
-        )
-        emit(
-          identityActions.storeUserCertificate({
-            userCertificate: payload.payload.certificate,
-            communityId: payload.communityId
-          })
-        )
-        emit(
-          communitiesActions.updateCommunity({
-            id: payload.communityId,
-            rootCa: payload.payload.rootCa
-          })
-        )
-        emit(communitiesActions.launchCommunity(payload.communityId))
-      }
-    )
-    socket.on(
-      SocketActionTypes.SAVED_OWNER_CERTIFICATE,
-      (payload: SavedOwnerCertificatePayload) => {
-        emit(
-          communitiesActions.addOwnerCertificate({
-            communityId: payload.communityId,
-            ownerCertificate: payload.network.certificate
-          })
-        )
-        emit(
-          communitiesActions.storePeerList({
-            communityId: payload.communityId,
-            peerList: payload.network.peers
-          })
-        )
-        emit(
-          identityActions.storeUserCertificate({
-            userCertificate: payload.network.certificate,
-            communityId: payload.communityId
-          })
-        )
-        emit(identityActions.savedOwnerCertificate(payload.communityId))
-      }
-    )
-    return () => {}
+      emit(
+        communitiesActions.storePeerList({
+          communityId: payload.communityId,
+          peerList: payload.payload.peers,
+        })
+      )
+      emit(
+        identityActions.storeUserCertificate({
+          userCertificate: payload.payload.certificate,
+          communityId: payload.communityId,
+        })
+      )
+      emit(
+        communitiesActions.updateCommunity({
+          id: payload.communityId,
+          rootCa: payload.payload.rootCa,
+        })
+      )
+      emit(communitiesActions.launchCommunity(payload.communityId))
+    })
+    socket.on(SocketActionTypes.SAVED_OWNER_CERTIFICATE, (payload: SavedOwnerCertificatePayload) => {
+      emit(
+        communitiesActions.addOwnerCertificate({
+          communityId: payload.communityId,
+          ownerCertificate: payload.network.certificate,
+        })
+      )
+      emit(
+        communitiesActions.storePeerList({
+          communityId: payload.communityId,
+          peerList: payload.network.peers,
+        })
+      )
+      emit(
+        identityActions.storeUserCertificate({
+          userCertificate: payload.network.certificate,
+          communityId: payload.communityId,
+        })
+      )
+      emit(identityActions.savedOwnerCertificate(payload.communityId))
+    })
+    return () => undefined
   })
 }
 
@@ -277,6 +268,6 @@ export function* useIO(socket: Socket): Generator {
     fork(communitiesMasterSaga, socket),
     fork(appMasterSaga, socket),
     fork(connectionMasterSaga),
-    fork(errorsMasterSaga)
+    fork(errorsMasterSaga),
   ])
 }

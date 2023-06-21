@@ -12,24 +12,24 @@ const classes = {
   pending: `${PREFIX}pending`,
   message: `${PREFIX}message`,
   beginning: `${PREFIX}beginning`,
-  middle: `${PREFIX}middle`
+  middle: `${PREFIX}middle`,
 }
 
 const StyledMath = styled('span')(() => ({
   [`&.${classes.message}`]: {
-    marginLeft: '20px'
+    marginLeft: '20px',
   },
 
   [`&.${classes.pending}`]: {
-    color: theme.palette.colors.lightGray
+    color: theme.palette.colors.lightGray,
   },
 
   [`&.${classes.middle}`]: {
-    margin: '0 5px 0 5px'
+    margin: '0 5px 0 5px',
   },
 
   [`&.${classes.beginning}`]: {
-    margin: '0 5px 0 0'
+    margin: '0 5px 0 0',
   },
 }))
 
@@ -47,7 +47,7 @@ const MathComponent: React.FC<UseMathProps & TextMessageComponentProps> = ({
   messageId,
   pending,
   openUrl,
-  index
+  index,
 }) => {
   const [renderedHTML, setRenderedHTML] = React.useState<string | null>(null)
   const [node, setNode] = React.useState<HTMLElement | null>(null)
@@ -83,17 +83,19 @@ const MathComponent: React.FC<UseMathProps & TextMessageComponentProps> = ({
       [classes.message]: true,
       [classes.pending]: pending,
       [classes.beginning]: index === 0,
-      [classes.middle]: index !== 0
+      [classes.middle]: index !== 0,
     }
     return React.createElement(StyledMath, { className: classNames(className), ...props })
   }
-  return <TextMessageComponent
-    message={message}
-    messageId={`${messageId}-${index}`}
-    pending={pending}
-    openUrl={openUrl}
-    key={`${messageId}-${index}`}
-  />
+  return (
+    <TextMessageComponent
+      message={message}
+      messageId={`${messageId}-${index}`}
+      pending={pending}
+      openUrl={openUrl}
+      key={`${messageId}-${index}`}
+    />
+  )
 }
 
 interface MathMessageProps {
@@ -107,7 +109,7 @@ export const MathMessageComponent: React.FC<TextMessageComponentProps & MathMess
   pending,
   openUrl,
   display = false,
-  onMathMessageRendered
+  onMathMessageRendered,
 }) => {
   // Split message into regular text and math parts
   let texMessageSplit: string[]
@@ -119,7 +121,8 @@ export const MathMessageComponent: React.FC<TextMessageComponentProps & MathMess
   }
 
   return (
-    <>{texMessageSplit.map((partialMessage, index) =>
+    <>
+      {texMessageSplit.map((partialMessage, index) => (
         <MathComponent
           message={partialMessage}
           display={display}
@@ -130,7 +133,7 @@ export const MathMessageComponent: React.FC<TextMessageComponentProps & MathMess
           index={index}
           key={`${messageId}-${index}`}
         />
-      )}
+      ))}
     </>
   )
 }
