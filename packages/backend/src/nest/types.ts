@@ -43,3 +43,11 @@ export class ServerIoProviderTypes {
     server: Server<typeof IncomingMessage, typeof ServerResponse>
     io: SocketIO<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>
 }
+
+export interface GetPorts {
+  socksPort: number
+  libp2pHiddenService: number
+  controlPort: number
+  dataServer: number
+  httpTunnelPort: number
+}

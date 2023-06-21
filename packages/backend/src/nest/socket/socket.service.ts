@@ -13,9 +13,19 @@ export class SocketService extends EventEmitter implements OnModuleInit {
       super()
     }
 
-  onModuleInit() {
+   async onModuleInit() {
     this.logger.log('init:started')
     this.initSocket()
+
+    const connection = new Promise<void>((resolve) => {
+        this.serverIoProvider.io.on(SocketActionTypes.CONNECTION, socket => {
+        this.logger.log('init: connection')
+        resolve()
+      })
+    })
+    await this.listen()
+
+    await connection
     this.logger.log('init:finished')
   }
 

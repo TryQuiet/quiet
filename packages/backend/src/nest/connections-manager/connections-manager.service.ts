@@ -8,10 +8,10 @@ import { setEngine, CryptoEngine } from 'pkijs'
 import { EventEmitter } from 'events'
 import getPort from 'get-port'
 import PeerId from 'peer-id'
-import { getPorts, removeFilesFromDir } from '../common/utils'
+import { removeFilesFromDir } from '../common/utils'
 import { AskForMessagesPayload, ChannelMessagesIdsResponse, ChannelsReplicatedPayload, Community, CommunityId, ConnectionProcessInfo, CreateChannelPayload, CreatedChannelResponse, DeleteFilesFromChannelSocketPayload, DownloadStatus, ErrorMessages, FileMetadata, IncomingMessages, InitCommunityPayload, LaunchRegistrarPayload, NetworkData, NetworkDataPayload, NetworkStats, PushNotificationPayload, RegisterOwnerCertificatePayload, RegisterUserCertificatePayload, RemoveDownloadStatus, ResponseCreateNetworkPayload, SaveCertificatePayload, SaveOwnerCertificatePayload, SendCertificatesResponse, SendMessagePayload, SetChannelSubscribedPayload, SocketActionTypes, StorePeerListPayload, UploadFilePayload, PeerId as PeerIdType } from '@quiet/types'
-import { CONFIG_OPTIONS, PEER_ID_PROVIDER, QUIET_DIR, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
-import { ConfigOptions, ServerIoProviderTypes } from '../types'
+import { CONFIG_OPTIONS, PEER_ID_PROVIDER, PORTS_PROVIDER, QUIET_DIR, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
+import { ConfigOptions, GetPorts, ServerIoProviderTypes } from '../types'
 import { SocketService } from '../socket/socket.service'
 import { RegistrationService } from '../registration/registration.service'
 import { LocalDbService } from '../local-db/local-db.service'
@@ -59,6 +59,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     @Inject(QUIET_DIR) public readonly quietDir: string,
     @Inject(SOCKS_PROXY_AGENT) public readonly socksProxyAgent: Agent,
     @Inject(PEER_ID_PROVIDER) public readonly peerId: PeerId,
+    @Inject(PORTS_PROVIDER) public readonly ports: GetPorts,
     private readonly socketService: SocketService,
     private readonly registrationService: RegistrationService,
     private readonly localDbService: LocalDbService,
@@ -67,6 +68,8 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     private readonly tor: Tor,
   ) {
     super()
+    console.log('this.ports', this.ports)
+
     //   this.registration = new CertificateRegistration()
     //   this.options = {
     //     ...new ConnectionsManagerOptions(),
@@ -127,21 +130,9 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.communityState = ServiceState.DEFAULT
     this.registrarState = ServiceState.DEFAULT
 
-    //   this.localStorage = new LocalDB(this.quietDir)
-    // console.log('servcies !!!!!!!', this.socketService,
-    // this.registrationService,
-    // this.localDbService,
-    // this.storageService,
-    // this.libp2pService,)
     if (!this.configOptions.httpTunnelPort) {
       this.configOptions.httpTunnelPort = await getPort()
     }
-
-    //   this.createAgent()
-
-    // if (!this.tor) {
-    //   await this.spawnTor()
-    // }
 
     this.attachsocketServiceListeners()
     this.attachRegistrationListeners()
@@ -155,8 +146,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.on(Libp2pEvents.PEER_DISCONNECTED, (payload: NetworkDataPayload) => {
       this.serverIoProvider.io.emit(SocketActionTypes.PEER_DISCONNECTED, payload)
     })
-
-    await this.socketService.listen()
 
     if (this.configOptions.torControlPort) {
       await this.launchCommunityFromStorage()
@@ -346,8 +335,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   // }
 
   public getNetwork = async () => {
-    const ports = await getPorts()
-    const hiddenService = await this.tor.createNewHiddenService({ targetPort: ports.libp2pHiddenService })
+    const hiddenService = await this.tor.createNewHiddenService({ targetPort: this.ports.libp2pHiddenService })
 
     await this.tor.destroyHiddenService(hiddenService.onionAddress.split('.')[0])
 
@@ -425,18 +413,17 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
   public launch = async (payload: InitCommunityPayload) => {
     // Start existing community (community that user is already a part of)
-    const ports = await getPorts()
     this.logger.log(`Spawning hidden service for community ${payload.id}, peer: ${payload.peerId.id}`)
     this.serverIoProvider.io.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.SPAWNING_HIDDEN_SERVICE)
     const _onionAddress: string = await this.tor.spawnHiddenService({
-      targetPort: ports.libp2pHiddenService,
+      targetPort: this.ports.libp2pHiddenService,
       privKey: payload.hiddenService.privateKey
     })
     onionAddress.set(_onionAddress)
     this.logger.log(`Launching community ${payload.id}, peer: ${payload.peerId.id}`)
 
-    const restoredRsa = await PeerId.createFromJSON(payload.peerId)
-    const peerId = await peerIdFromKeys(restoredRsa.marshalPubKey(), restoredRsa.marshalPrivKey())
+    // const restoredRsa = await PeerId.createFromJSON(payload.peerId)
+    // const peerId = await peerIdFromKeys(restoredRsa.marshalPubKey(), restoredRsa.marshalPrivKey())
 
     // const initStorageParams: InitStorageParams = {
     //   communityId: payload.id,
@@ -486,10 +473,10 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
   private attachTorEventsListeners = () => {
     this.logger.log('attachTorEventsListeners')
-    this.tor.on(SocketActionTypes.TOR_BOOTSTRAP_PROCESS, (data) => {
-      this.logger.log('TOR_BOOTSTRAP_PROCESS', data)
-      this.serverIoProvider.io.emit(SocketActionTypes.TOR_BOOTSTRAP_PROCESS, data)
-    })
+    // this.tor.on(SocketActionTypes.TOR_BOOTSTRAP_PROCESS, (data) => {
+    //   this.logger.log('TOR_BOOTSTRAP_PROCESS', data)
+    //   this.serverIoProvider.io.emit(SocketActionTypes.TOR_BOOTSTRAP_PROCESS, data)
+    // })
 
     this.socketService.on(SocketActionTypes.CONNECTION_PROCESS_INFO, (data) => {
       this.serverIoProvider.io.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, data)

@@ -42,5 +42,7 @@ export const LIB_P2P_PROVIDER = 'libp2p-provider'
 export const AUTH_DATA_PROVIDER = 'auth-data-provider'
 
 export const TOR_PARAMS_PROVIDER = 'TOR_PARAMS_PROVIDER'
+
 export const TOR_PASSWORD_PROVIDER = 'TOR_PASSWORD_PROVIDER'
 
+export const PORTS_PROVIDER = 'PORTS_PROVIDER'

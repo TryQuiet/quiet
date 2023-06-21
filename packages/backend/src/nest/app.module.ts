@@ -4,7 +4,7 @@ import { ConnectionsManagerModule } from './connections-manager/connections-mana
 import { RegistrationModule } from './registration/registration.module'
 import { IpfsFileManagerModule } from './ipfs-file-manager/ipfs-file-manager.module'
 import path from 'path'
-import { CONFIG_OPTIONS, EXPRESS_PROVIDER, SERVER_IO_PROVIDER, IPFS_REPO_PATCH, ORBIT_DB_DIR, QUIET_DIR, QUIET_DIR_PATH, Config, TOR_CONTROL_PARAMS, SOCKS_PROXY_AGENT, PEER_ID_PROVIDER } from './const'
+import { CONFIG_OPTIONS, EXPRESS_PROVIDER, SERVER_IO_PROVIDER, IPFS_REPO_PATCH, ORBIT_DB_DIR, QUIET_DIR, QUIET_DIR_PATH, Config, TOR_CONTROL_PARAMS, SOCKS_PROXY_AGENT, PEER_ID_PROVIDER, PORTS_PROVIDER } from './const'
 import type { IPFS } from 'ipfs-core'
 import { ConfigOptions, ConnectionsManagerOptions, ConnectionsManagerTypes } from './types'
 import { LocalDbModule } from './local-db/local-db.module'
@@ -21,6 +21,7 @@ import { peerId } from '../singletons'
 import { createServer } from 'http'
 import { Server as SocketIO } from 'socket.io'
 import { StorageModule } from './storage/storage.module'
+import { SocketActionTypes } from '@quiet/types'
 
 // KACPER
 @Global()
@@ -75,7 +76,7 @@ export class AppModule {
         },
         {
           provide: SERVER_IO_PROVIDER,
-          useFactory: (expressProvider: express.Application) => {
+          useFactory: async (expressProvider: express.Application) => {
             const _app = expressProvider
             // _app.use(cors())
             const server = createServer(_app)
@@ -99,10 +100,28 @@ export class AppModule {
             })
           },
           inject: [CONFIG_OPTIONS]
+        },
+        {
+          provide: PORTS_PROVIDER,
+          useFactory: async () => {
+            const controlPort = await getPort()
+            const socksPort = await getPort()
+            const libp2pHiddenService = await getPort()
+            const dataServer = await getPort()
+            const httpTunnelPort = await getPort()
+            return {
+              socksPort,
+              libp2pHiddenService,
+              controlPort,
+              dataServer,
+              httpTunnelPort
+            }
+          },
+          inject: []
         }
 
       ],
-      exports: [CONFIG_OPTIONS, QUIET_DIR, ORBIT_DB_DIR, IPFS_REPO_PATCH, PEER_ID_PROVIDER, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT],
+      exports: [CONFIG_OPTIONS, QUIET_DIR, ORBIT_DB_DIR, IPFS_REPO_PATCH, PEER_ID_PROVIDER, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT, PORTS_PROVIDER],
     }
   }
 }

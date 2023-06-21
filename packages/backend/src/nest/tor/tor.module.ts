@@ -8,6 +8,7 @@ import path from 'path'
 import * as os from 'os'
 import * as child_process from 'child_process'
 import crypto from 'crypto'
+import { SocketModule } from '../socket/socket.module'
 
 const torParamsProvider = {
   provide: TOR_PARAMS_PROVIDER,
@@ -58,6 +59,7 @@ const torControlParams = {
 }
 
 @Module({
+      imports: [SocketModule],
     providers: [Tor, TorControl, torControlParams, torPasswordProvider, torParamsProvider],
       exports: [Tor, TorControl],
 })

@@ -8,12 +8,13 @@ import { removeFilesFromDir } from '../common/utils'
 import { EventEmitter } from 'events'
 import { SocketActionTypes, SupportedPlatform } from '@quiet/types'
 import { Inject, Logger, OnModuleInit, OnApplicationBootstrap } from '@nestjs/common'
-import { ConfigOptions } from '../types'
-import { CONFIG_OPTIONS, QUIET_DIR, TOR_PARAMS_PROVIDER, TOR_PASSWORD_PROVIDER } from '../const'
+import { ConfigOptions, ServerIoProviderTypes } from '../types'
+import { CONFIG_OPTIONS, QUIET_DIR, SERVER_IO_PROVIDER, TOR_PARAMS_PROVIDER, TOR_PASSWORD_PROVIDER } from '../const'
 import { TorControl } from './tor-control.service'
 import { GetInfoTorSignal, TorParams, TorParamsProvider, TorPasswordProvider } from './tor.types'
 import * as os from 'os'
 import { sleep } from '../../sleep'
+import { SocketService } from '../socket/socket.service'
 
 export class Tor extends EventEmitter implements OnModuleInit {
   //   httpTunnelPort: number
@@ -35,12 +36,15 @@ export class Tor extends EventEmitter implements OnModuleInit {
     @Inject(QUIET_DIR) public readonly quietDir: string,
     @Inject(TOR_PARAMS_PROVIDER) public readonly torParamsProvider: TorParamsProvider,
     @Inject(TOR_PASSWORD_PROVIDER) public readonly torPasswordProvider: TorPasswordProvider,
+    // private readonly socketService: SocketService,
+    @Inject(SERVER_IO_PROVIDER) public readonly serverIoProvider: ServerIoProviderTypes,
     private readonly torControl: TorControl
   ) {
     super()
   }
 
   async onModuleInit() {
+    
     // this.torPath = this.configOptions.torBinaryPath ? path.normalize(this.configOptions.torBinaryPath) : ''
     // this.options = {
     //   env: {
@@ -247,9 +251,16 @@ export class Tor extends EventEmitter implements OnModuleInit {
         reject(new Error(`Timeout of ${timeoutMs / 1000} while waiting for tor to bootstrap`))
       }, timeoutMs)
 
+
+
+      // this.socketService.on(SocketActionTypes.CONNECTION_PROCESS_INFO, (data) => {
+      //   this.serverIoProvider.io.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, data)
+      // })
+
+
       this.process.stdout.on('data', (data: any) => {
         this.logger.log(data.toString())
-        this.emit(SocketActionTypes.TOR_BOOTSTRAP_PROCESS, data.toString())
+         this.serverIoProvider.io.emit(SocketActionTypes.TOR_BOOTSTRAP_PROCESS, data.toString())
         const regexp = /Bootstrapped 100%/
         if (regexp.test(data.toString())) {
           clearTimeout(timeout)
