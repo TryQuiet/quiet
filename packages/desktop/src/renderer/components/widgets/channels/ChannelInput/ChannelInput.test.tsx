@@ -20,14 +20,15 @@ describe('ChannelInput', () => {
         infoClass={''}
         setInfoClass={jest.fn()}
         openFilesDialog={jest.fn()}
-        handleOpenFiles={jest.fn()} handleClipboardFiles={function (arg: ArrayBuffer, ext: string, name: string): void {}}
-        />
+        handleOpenFiles={jest.fn()}
+        handleClipboardFiles={function (arg: ArrayBuffer, ext: string, name: string): void {}}
+      />
     )
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
           <div
-            class="MuiGrid-root ChannelInputroot css-soa6i7-MuiGrid-root"
+            class="MuiGrid-root ChannelInputroot css-1rkz2j3-MuiGrid-root"
           >
             <div
               class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column ChannelInputrootContent css-6gh8l0-MuiGrid-root"
@@ -112,14 +113,15 @@ describe('ChannelInput', () => {
         setInfoClass={jest.fn()}
         inputState={INPUT_STATE.NOT_CONNECTED}
         openFilesDialog={jest.fn()}
-        handleOpenFiles={jest.fn()} handleClipboardFiles={function (arg: ArrayBuffer, ext: string, name: string): void {
-        } } />
+        handleOpenFiles={jest.fn()}
+        handleClipboardFiles={function (arg: ArrayBuffer, ext: string, name: string): void {}}
+      />
     )
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
           <div
-            class="MuiGrid-root ChannelInputroot ChannelInputnotAllowed css-soa6i7-MuiGrid-root"
+            class="MuiGrid-root ChannelInputroot ChannelInputnotAllowed css-1rkz2j3-MuiGrid-root"
           >
             <div
               class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column ChannelInputrootContent css-6gh8l0-MuiGrid-root"

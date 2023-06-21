@@ -63,7 +63,7 @@ const StyledChannelInput = styled(Grid)((
     to: { opacity: 1 }
   },
   [`& .${classes.input}`]: {
-    whiteSpace: 'pre-line',
+    whiteSpace: 'break-spaces',
     width: '100%',
     fontSize: 14,
     outline: 'none',
@@ -342,17 +342,21 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
 
   const sanitizedHtml = findMentions(htmlMessage)
 
-  const caretLineTraversal = (focusLine: Node, anchorLinePosition: number) => {
-    if (!focusLine.nodeValue) return
+  const caretLineTraversal = (
+    focusLine: Node | null | undefined,
+    anchorLinePosition: number = 0
+  ) => {
+    if (!focusLine?.nodeValue) return
     // Create an empty range
     const range = document.createRange()
+    // Set the focusLineLength
+    // Make it zero if between newlines
+    const focusLineLength = focusLine?.nodeValue?.length || 0
     // Set the range start to the position on the anchor line
-    // or the end of the focus line, whichever is shorter
+    // or the focus line length, whichever is shorter
     range.setStart(
       focusLine,
-      anchorLinePosition < focusLine.nodeValue.length
-        ? anchorLinePosition
-        : focusLine.nodeValue.length
+      anchorLinePosition < focusLineLength ? anchorLinePosition : focusLineLength
     )
     // Remove the range from the anchor line
     const selection = window.getSelection()
@@ -429,35 +433,54 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
       }
 
       if (e.key === 'ArrowDown') {
-        const selection = window?.getSelection()
-        if (!selection) return
-        // Skipping over line break nodes
-        const nextLine = selection.anchorNode?.nextSibling?.nextSibling
-        if (nextLine) {
-          caretLineTraversal(nextLine, selection.anchorOffset)
-          return
+        const anchorNode: Node | null | undefined = window?.getSelection()?.anchorNode
+
+        // If the current line is empty, go directly to the next node.
+        let nextNode: Node | null | undefined = null
+        if (anchorNode?.nodeValue === null || anchorNode?.nodeValue === '\n') {
+          nextNode = anchorNode?.nextSibling
+        } else {
+          // Otherwise skip the break node at the end of the current line.
+          nextNode = anchorNode?.nextSibling?.nextSibling
         }
         // If we're on the bottom line, go to the end
-        if (selection.anchorNode?.nodeValue) {
-          caretLineTraversal(
-            selection.anchorNode,
-            selection.anchorNode.nodeValue.length
-          )
-        }
-      }
-      if (e.key === 'ArrowUp') {
-        const selection = window?.getSelection()
-        if (!selection) return
-        // Skipping over line break nodes
-        const previousLine = selection.anchorNode?.previousSibling?.previousSibling
-        if (previousLine) {
-          caretLineTraversal(previousLine, selection.anchorOffset)
+        if (!nextNode) {
+          const endOfNode = anchorNode?.nodeValue?.length || anchorNode?.textContent?.length
+          caretLineTraversal(anchorNode, endOfNode)
           return
         }
-        // If we're on the top line, go to the beginning
-        if (selection.anchorNode) {
-          caretLineTraversal(selection.anchorNode, 0)
+        // If the next line is empty, go the beginning
+        if (nextNode.nodeValue === null || nextNode.nodeValue === '\n') {
+          caretLineTraversal(nextNode, 0)
+          return
         }
+        caretLineTraversal(nextNode, window?.getSelection()?.anchorOffset)
+      }
+      if (e.key === 'ArrowUp') {
+        const anchorNode = window?.getSelection()?.anchorNode
+
+        // If pervious line is empty, go directly to it
+        let previousNode: Node | null | undefined = null
+        if (
+          anchorNode?.previousSibling?.previousSibling?.nodeValue === null ||
+          anchorNode?.previousSibling?.previousSibling?.nodeValue === '\n'
+        ) {
+          previousNode = anchorNode?.previousSibling
+        } else {
+          // Otherwise skip the break node at the end of the previous line
+          previousNode = anchorNode?.previousSibling?.previousSibling
+        }
+        // If we're on the top line, go to the beginning
+        if (!previousNode) {
+          caretLineTraversal(anchorNode, 0)
+          return
+        }
+        // If previous line is empty, go to the beginning
+        if (previousNode.nodeValue === null || previousNode.nodeValue === '\n') {
+          caretLineTraversal(previousNode, 0)
+          return
+        }
+        caretLineTraversal(previousNode, window?.getSelection()?.anchorOffset)
       }
 
       if (e.nativeEvent.keyCode === 13) {
@@ -576,7 +599,9 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
                       handleClipboardFiles(arrayBuffer, fileExt, fileName)
                     }
                     if (!files.length) {
-                      const text = e.clipboardData.getData('text/plain')
+                      const text = e.clipboardData
+                        .getData('text/plain')
+                        .replace(/(\r\n|\r|\n)/g, '<br />')
                       document.execCommand('insertHTML', false, text)
                     }
                   }}
