@@ -15,11 +15,13 @@ import { IPFS_PROVIDER, QUIET_DIR } from '../const'
 import { FilesData, IpfsFilesManagerEvents } from './ipfs-file-manager.types'
 import { StorageEvents } from '../storage/storage.types'
 import { QUEUE_CONCURRENCY, MAX_EVENT_LISTENERS, TRANSFER_SPEED_SPAN, UPDATE_STATUS_INTERVAL, BLOCK_FETCH_TIMEOUT } from './ipfs-file-manager.const'
+import { LazyModuleLoader } from '@nestjs/core'
 const sizeOfPromisified = promisify(sizeOf)
 const { createPaths, compare } = await import('../../common/utils')
 
 @Injectable()
-export class IpfsFileManagerService extends EventEmitter implements OnModuleInit {
+export class IpfsFileManagerService extends EventEmitter {
+    public ipfs: IPFS
     public controllers: Map<string, {
         controller: AbortController
     }> = new Map()
@@ -31,15 +33,29 @@ export class IpfsFileManagerService extends EventEmitter implements OnModuleInit
     constructor(
 
         @Inject(QUIET_DIR) public readonly quietDir: string,
-        @Inject(IPFS_PROVIDER) public readonly ipfs: IPFS
+        private readonly lazyModuleLoader: LazyModuleLoader
+        // @Inject(IPFS_PROVIDER) public readonly ipfs: IPFS
         ) {
         super()
+
+        console.log('ipfs file manager ')
+        this.queue = new PQueue({ concurrency: QUEUE_CONCURRENCY })
+       this.attachIncomingEvents()
     }
 
-    onModuleInit() {
-        console.log('ipfs file manager ')
-            this.queue = new PQueue({ concurrency: QUEUE_CONCURRENCY })
-           this.attachIncomingEvents()
+    public async init () {
+        const { IpfsModule } = await import('../ipfs/ipfs.module')
+        const moduleRef = await this.lazyModuleLoader.load(() => IpfsModule)
+        const { IpfsService } = await import('../ipfs/ipfs.service')
+        const ipfsService = moduleRef.get(IpfsService)
+
+        const ipfsInstance = ipfsService?.ipfsInstance
+        if (!ipfsInstance) {
+            this.logger.error('no ipfs instance')
+            throw new Error('no ipfs instance')
+        }
+
+        this.ipfs = ipfsInstance
     }
 
     public getTest() {

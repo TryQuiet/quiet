@@ -20,12 +20,13 @@ import { ServiceState, TorInitState } from './connections-manager.types'
 import { Libp2pService } from '../libp2p/libp2p.service'
 import { Tor } from '../tor/tor.service'
 import { LocalDBKeys } from '../local-db/local-db.types'
-import { InitLibp2pParams, Libp2pEvents } from '../libp2p/libp2p.types'
+import { InitLibp2pParams, Libp2pEvents, Libp2pNodeParams } from '../libp2p/libp2p.types'
 import { TorControl } from '../tor/tor-control.service'
 import { emitError } from '../../socket/errors'
 import { RegistrationEvents } from '../registration/registration.types'
 import { InitStorageParams, StorageEvents } from '../storage/storage.types'
 import { onionAddress } from '../../singletons'
+import { LazyModuleLoader } from '@nestjs/core'
 
 @Injectable()
 export class ConnectionsManagerService extends EventEmitter implements OnModuleInit, OnApplicationBootstrap {
@@ -49,6 +50,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   public communityId: string
   public communityState: ServiceState
   public registrarState: ServiceState
+  private libp2pService: Libp2pService
   isTorInit: TorInitState = TorInitState.NOT_STARTED
 
   private readonly logger = new Logger(ConnectionsManagerService.name)
@@ -64,8 +66,9 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     private readonly registrationService: RegistrationService,
     private readonly localDbService: LocalDbService,
     private readonly storageService: StorageService,
-    private readonly libp2pService: Libp2pService,
+    // private readonly libp2pService: Libp2pService,
     private readonly tor: Tor,
+    private readonly lazyModuleLoader: LazyModuleLoader
   ) {
     super()
     console.log('this.ports', this.ports)
@@ -387,6 +390,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
   public async launchCommunity(payload: InitCommunityPayload) {
     this.communityState = ServiceState.LAUNCHING
+
     const communityData: InitCommunityPayload = await this.localDbService.get(LocalDBKeys.COMMUNITY)
     if (!communityData) {
       await this.localDbService.put(LocalDBKeys.COMMUNITY, payload)
@@ -415,11 +419,11 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     // Start existing community (community that user is already a part of)
     this.logger.log(`Spawning hidden service for community ${payload.id}, peer: ${payload.peerId.id}`)
     this.serverIoProvider.io.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.SPAWNING_HIDDEN_SERVICE)
-    const _onionAddress: string = await this.tor.spawnHiddenService({
+    const onionAddress: string = await this.tor.spawnHiddenService({
       targetPort: this.ports.libp2pHiddenService,
       privKey: payload.hiddenService.privateKey
     })
-    onionAddress.set(_onionAddress)
+    // onionAddress.set(_onionAddress)
     this.logger.log(`Launching community ${payload.id}, peer: ${payload.peerId.id}`)
 
     // const restoredRsa = await PeerId.createFromJSON(payload.peerId)
@@ -434,6 +438,31 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     //   certs: payload.certs
     // }
     // return await this.initStorage(initStorageParams)
+
+        // __________________________________________________________________
+        const { Libp2pModule } = await import('../libp2p/libp2p.module')
+        const moduleRef = await this.lazyModuleLoader.load(() => Libp2pModule)
+        this.logger.log('launchCommunityFromStorage')
+        const { Libp2pService } = await import('../libp2p/libp2p.service')
+        const lazyService = moduleRef.get(Libp2pService)
+        console.log('lazy service', lazyService)
+        this.libp2pService = lazyService
+
+        const params: Libp2pNodeParams = {
+          peerId: this.peerId,
+          listenAddresses: [this.libp2pService.createLibp2pListenAddress(onionAddress)],
+          agent: this.socksProxyAgent,
+          cert: payload.certs.certificate,
+          key: payload.certs.key,
+          ca: payload.certs.CA,
+          localAddress: this.libp2pService.createLibp2pAddress(onionAddress, this.peerId.toString()),
+          targetPort: this.ports.libp2pHiddenService,
+        }
+console.log('berfore create instance', params)
+        await this.libp2pService.createInstance(params)
+        console.log('after create instance')
+        // await this.storageService.init()
+    // __________________________________________________________________
   }
 
   public initStorage = async (params: InitStorageParams) => {

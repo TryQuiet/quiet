@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common'
-import { InitCommunityPayload, PeerId as PeerIdType, SocketActionTypes } from '@quiet/types'
+import { Certificates, InitCommunityPayload, PeerId as PeerIdType, SocketActionTypes } from '@quiet/types'
 import { Agent } from 'http'
 import { certs, onionAddress, peers, targetPort } from '../../singletons'
 import { AUTH_DATA_PROVIDER, CONFIG_OPTIONS, INIT_LIBP2P_PARAMS, LIB_P2P_PROVIDER, PEER_ID_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
@@ -27,6 +27,7 @@ import { peerIdFromKeys } from '@libp2p/peer-id'
 import { SocketService } from '../socket/socket.service'
 import { webRTCStar } from '@libp2p/webrtc-star'
 import { webSockets } from '@libp2p/websockets'
+import { resolve } from 'path'
 
 // const peerIdProvider = {
 //   provide: PEER_ID_PROVIDER,
@@ -56,94 +57,110 @@ import { webSockets } from '@libp2p/websockets'
 //     },
 //     inject: [CONFIG_OPTIONS]
 //   }
+// class Args {
+//   private args: any |null = null
+//     get(): any {
+//       if (!this.args) {
+//         throw new Error('error')
+//       }
+//       return this.args
+//     }
 
-const authDataProvider = {
-  provide: AUTH_DATA_PROVIDER,
-  useFactory: async (socketService: SocketService) => {
-    socketService.on(SocketActionTypes.CREATE_NETWORK, async (args) => {
-      console.log('auth data provider')
-      console.log({ args })
+//     set(value: any) {
+//       this.args = value
+//     }
+// }
+// const authDataProvider = {
+//   provide: AUTH_DATA_PROVIDER,
+//   useFactory: async (socketService: SocketService) => {
+//     return new Args()
+//     // return await new Promise((resolve) => {
+//     //   socketService.on(SocketActionTypes.LAUNCH_COMMUNITY, async (args) => {
+//     //     console.log({ args })
+//     //       resolve(args)
+//     //   })
+//     // })
+//   },
+//   inject: [SocketService],
+// }
 
-      return 'elo'
-      // this.logger.log(`socketService - ${SocketActionTypes.LAUNCH_COMMUNITY}`)
-      // if ([ServiceState.LAUNCHING, ServiceState.LAUNCHED].includes(this.communityState)) return
-      // this.communityState = ServiceState.LAUNCHING
-      // await this.launchCommunity(args)
-    })
-  },
-  inject: [SocketService],
-}
+// // 0. init wszystkich modulow i providerow
+// // 1.user
+// // 2.libp2p
+// const initLibp2pParams = {
+//   provide: INIT_LIBP2P_PARAMS,
+//   useFactory: async (peerId: PeerIdType) => {
+//     return {
+//       peerId,
+//       address: onionAddress,
+//       addressPort: 443,
+//       targetPort,
+//       bootstrapMultiaddrs: peers,
+//       certs
+//     }
+//   },
+//   inject: [PEER_ID_PROVIDER],
+// }
 
-const initLibp2pParams = {
-  provide: INIT_LIBP2P_PARAMS,
-  useFactory: async (peerId: PeerIdType) => {
-    return {
-      peerId,
-      address: onionAddress,
-      addressPort: 443,
-      targetPort,
-      bootstrapMultiaddrs: peers,
-      certs
-    }
-  },
-  inject: [PEER_ID_PROVIDER],
-}
+// const libp2pProvider = {
+//   provide: LIB_P2P_PROVIDER,
+//   useFactory: async (initParams: InitLibp2pParams, socksProxyAgent: Agent, authDataProvider: any) => {
+//     console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+//     authDataProvider.set('xd')
+//     console.log({ authDataProvider })
+//     console.log('authDataProvider.get()', authDataProvider.get())
 
-const libp2pProvider = {
-  provide: LIB_P2P_PROVIDER,
-  useFactory: async (initParams: InitLibp2pParams, socksProxyAgent: Agent, authDataProvider: string) => {
-    console.log({ authDataProvider })
-  const params: Libp2pNodeParams = {
-    peerId: initParams.peerId,
-    listenAddresses: [createLibp2pListenAddress(initParams.address)],
-    agent: socksProxyAgent,
-    localAddress: createLibp2pAddress(initParams.address, initParams.peerId.toString()),
-    cert: initParams.certs.certificate,
-    key: initParams.certs.key,
-    ca: initParams.certs.CA,
-    targetPort: initParams.targetPort
-  }
-  let lib: Libp2p
+//   const params: Libp2pNodeParams = {
+//     peerId: initParams.peerId,
+//     listenAddresses: [createLibp2pListenAddress(initParams.address)],
+//     agent: socksProxyAgent,
+//     localAddress: createLibp2pAddress(initParams.address, initParams.peerId.toString()),
+//     cert: initParams.certs.certificate,
+//     key: initParams.certs.key,
+//     ca: initParams.certs.CA,
+//     targetPort: initParams.targetPort
+//   }
+//   let lib
 
-  const restoredRsa = await PeerId.createFromJSON(initParams.peerId)
-  const _peerId = await peerIdFromKeys(restoredRsa.marshalPubKey(), restoredRsa.marshalPrivKey())
-    try {
-    lib = await createLibp2p({
-      connectionManager: {
-        minConnections: 3,
-        maxConnections: 8,
-        dialTimeout: 120_000,
-        maxParallelDials: 10
-      },
-      peerId: _peerId,
-      addresses: {
-        // listen: params.listenAddresses
-      },
-      streamMuxers: [mplex()],
-      connectionEncryption: [noise()],
-      relay: {
-        enabled: false,
-        hop: {
-          enabled: true,
-          active: false
-        }
-      },
-      transports: [webSockets()],
-      dht: kadDHT(),
-      pubsub: gossipsub({ allowPublishToZeroPeers: true }),
-    })
-  } catch (err) {
-   console.log('Create libp2p:', err)
-    throw err
-  }
-  return lib
-  },
-  inject: [INIT_LIBP2P_PARAMS, SOCKS_PROXY_AGENT, AUTH_DATA_PROVIDER],
-}
+//   const restoredRsa = await PeerId.createFromJSON(initParams.peerId)
+//   const _peerId = await peerIdFromKeys(restoredRsa.marshalPubKey(), restoredRsa.marshalPrivKey())
+//     try {
+//     lib = await createLibp2p({
+//       connectionManager: {
+//         minConnections: 3,
+//         maxConnections: 8,
+//         dialTimeout: 120_000,
+//         maxParallelDials: 10
+//       },
+//       peerId: _peerId,
+//       addresses: {
+//         // listen: params.listenAddresses
+//       },
+//       streamMuxers: [mplex()],
+//       connectionEncryption: [noise()],
+//       relay: {
+//         enabled: false,
+//         hop: {
+//           enabled: true,
+//           active: false
+//         }
+//       },
+//       transports: [webSockets()],
+//       dht: kadDHT(),
+//       pubsub: gossipsub({ allowPublishToZeroPeers: true }),
+//     })
+//   } catch (err) {
+//    console.log('Create libp2p:', err)
+//     throw err
+//   }
+//   return lib
+//   },
+//   inject: [INIT_LIBP2P_PARAMS, SOCKS_PROXY_AGENT, AUTH_DATA_PROVIDER],
+// }
 
 @Module({
   imports: [SocketModule, LocalDbModule],
-  providers: [Libp2pService, initLibp2pParams, libp2pProvider, authDataProvider],
-  exports: [Libp2pService, initLibp2pParams, libp2pProvider]
+  providers: [Libp2pService],
+  exports: [Libp2pService]
 })
 export class Libp2pModule {}

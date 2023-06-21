@@ -13,25 +13,25 @@ import { LocalDbModule } from '../local-db/local-db.module'
 import { IpfsFileManagerModule } from '../ipfs-file-manager/ipfs-file-manager.module'
 
 // KACPER - peerID
-const orbitDbProvider = {
-  provide: ORBIT_DB_PROVIDER,
-  useFactory: async (ipfs: IPFS, peerId: PeerId, orbitDbDir: string) => {
-    const channelsAccessController = createChannelAccessController(peerId, orbitDbDir)
-    AccessControllers.addAccessController({ AccessController: MessagesAccessController })
-    AccessControllers.addAccessController({ AccessController: channelsAccessController })
-    const orbitDb = await OrbitDB.createInstance(ipfs, {
-      // @ts-ignore
-      id: peerId.toString(),
-      directory: orbitDbDir,
-      AccessControllers
-  })
+// const orbitDbProvider = {
+//   provide: ORBIT_DB_PROVIDER,
+//   useFactory: async (ipfs: IPFS, peerId: PeerId, orbitDbDir: string) => {
+//     const channelsAccessController = createChannelAccessController(peerId, orbitDbDir)
+//     AccessControllers.addAccessController({ AccessController: MessagesAccessController })
+//     AccessControllers.addAccessController({ AccessController: channelsAccessController })
+//     const orbitDb = await OrbitDB.createInstance(ipfs, {
+//       // @ts-ignore
+//       id: peerId.toString(),
+//       directory: orbitDbDir,
+//       AccessControllers
+//   })
 
-    return orbitDb
-  },
+//     return orbitDb
+//   },
 
-  inject: [IPFS_PROVIDER, PEER_ID_PROVIDER, ORBIT_DB_DIR],
+//   inject: [IPFS_PROVIDER, PEER_ID_PROVIDER, ORBIT_DB_DIR],
 
-}
+// }
 
 // const communityProvider = {
 //   provide: COMMUNITY_PROVIDER,
@@ -41,7 +41,7 @@ const orbitDbProvider = {
 
 @Module({
     imports: [LocalDbModule, IpfsFileManagerModule], // KACPER
-    providers: [StorageService, orbitDbProvider],
-    exports: [StorageService, orbitDbProvider],
+    providers: [StorageService],
+    exports: [StorageService],
   })
 export class StorageModule {}

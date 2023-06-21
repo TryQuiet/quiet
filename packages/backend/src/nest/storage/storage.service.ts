@@ -30,6 +30,10 @@ import { COMMUNITY_PROVIDER, IPFS_PROVIDER, IPFS_REPO_PATCH, ORBIT_DB_DIR, ORBIT
 import { IpfsFilesManagerEvents } from '../ipfs-file-manager/ipfs-file-manager.types'
 import { LocalDBKeys } from '../local-db/local-db.types'
 import { LocalDbService } from '../local-db/local-db.service'
+import { LazyModuleLoader } from '@nestjs/core'
+import AccessControllers from 'orbit-db-access-controllers'
+import { MessagesAccessController } from './MessagesAccessController'
+import { createChannelAccessController } from './ChannelsAccessController'
 
 @Injectable()
 export class StorageService extends EventEmitter implements OnApplicationBootstrap {
@@ -44,6 +48,9 @@ export class StorageService extends EventEmitter implements OnApplicationBootstr
   public directMessagesRepos: Map<string, DirectMessagesRepo> = new Map()
   private publicKeysMap: Map<string, CryptoKey> = new Map()
   private userNamesMap: Map<string, string> = new Map()
+  private ipfs: IPFS
+  private orbitDb: OrbitDB
+  private filesManager: IpfsFileManagerService
   // public options: StorageOptions
   // public orbitDbDir: string
   // public ipfsRepoPath: string
@@ -53,15 +60,12 @@ export class StorageService extends EventEmitter implements OnApplicationBootstr
 
   private readonly logger = new Logger(StorageService.name)
   constructor(
-    private readonly filesManager: IpfsFileManagerService,
     private readonly localDbService: LocalDbService,
     @Inject(QUIET_DIR) public readonly quietDir: string,
     @Inject(ORBIT_DB_DIR) public readonly orbitDbDir: string,
     @Inject(IPFS_REPO_PATCH) public readonly ipfsRepoPath: string,
-    @Inject(ORBIT_DB_PROVIDER) public readonly orbitDb: OrbitDB,
-    // @Inject(COMMUNITY_PROVIDER) public readonly community: InitCommunityPayload,
-    @Inject(IPFS_PROVIDER) public readonly ipfs: IPFS,
-    @Inject(PEER_ID_PROVIDER) public readonly peerId: PeerId
+    @Inject(PEER_ID_PROVIDER) public readonly peerId: PeerId,
+    private readonly lazyModuleLoader: LazyModuleLoader
   ) {
     super()
 
@@ -72,6 +76,48 @@ export class StorageService extends EventEmitter implements OnApplicationBootstr
     // }
     // this.orbitDbDir = path.join(this.quietDir, this.options.orbitDbDir || Config.ORBIT_DB_DIR)
     // this.ipfsRepoPath = path.join(this.quietDir, this.options.ipfsDir || Config.IPFS_REPO_PATH)
+  }
+
+  public async init() {
+    const { IpfsModule } = await import('../ipfs/ipfs.module')
+    const ipfsModuleRef = await this.lazyModuleLoader.load(() => IpfsModule)
+    const { IpfsService } = await import('../ipfs/ipfs.service')
+    const ipfsService = ipfsModuleRef.get(IpfsService)
+    await ipfsService.create()
+    const ipfsInstance = ipfsService?.ipfsInstance
+    if (!ipfsInstance) {
+        this.logger.error('no ipfs instance')
+        throw new Error('no ipfs instance')
+    }
+
+    this.ipfs = ipfsInstance
+    // ________________
+
+    // _________________________________________________
+await this.createOrbitDb()
+// _________________________________________________
+const { IpfsFileManagerModule } = await import('../ipfs-file-manager/ipfs-file-manager.module')
+const ipfsFileManagerModuleRef = await this.lazyModuleLoader.load(() => IpfsFileManagerModule)
+const { IpfsFileManagerService } = await import('../ipfs-file-manager/ipfs-file-manager.service')
+const ipfsFileManagerService = ipfsFileManagerModuleRef.get(IpfsFileManagerService)
+this.filesManager = ipfsFileManagerService
+// __________________________________________________________________________________
+this.attachFileManagerEvents()
+await this.initDatabases()
+  }
+
+  private async createOrbitDb() {
+    const channelsAccessController = createChannelAccessController(this.peerId, this.orbitDbDir)
+    AccessControllers.addAccessController({ AccessController: MessagesAccessController })
+    AccessControllers.addAccessController({ AccessController: channelsAccessController })
+    const orbitDb = await OrbitDB.createInstance(this.ipfs, {
+      // @ts-ignore
+      id: peerId.toString(),
+      directory: this.orbitDbDir,
+      AccessControllers
+  })
+
+  this.orbitDb = orbitDb
   }
 
   // public async community() {
@@ -92,15 +138,13 @@ export class StorageService extends EventEmitter implements OnApplicationBootstr
     removeFiles(this.quietDir, 'LOCK')
     removeDirs(this.quietDir, 'repo.lock')
     createPaths([this.ipfsRepoPath, this.orbitDbDir])
-    this.attachFileManagerEvents()
-
     // const channelsAccessController = createChannelAccessController(peerID, this.orbitDbDir)
 
     // AccessControllers.addAccessController({ AccessController: MessagesAccessController })
     // AccessControllers.addAccessController({ AccessController: channelsAccessController })
 
     this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.INITIALIZED_STORAGE)
-    await this.initDatabases()
+
     this.logger.log('Initialized storage')
   }
 

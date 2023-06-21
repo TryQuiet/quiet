@@ -22,11 +22,12 @@ import { createServer } from 'http'
 import { Server as SocketIO } from 'socket.io'
 import { StorageModule } from './storage/storage.module'
 import { SocketActionTypes } from '@quiet/types'
+import { IpfsModule } from './ipfs/ipfs.module';
 
 // KACPER
 @Global()
 @Module({
-  imports: [SocketModule, ConnectionsManagerModule, RegistrationModule, IpfsFileManagerModule, LocalDbModule, Libp2pModule, TorModule, StorageModule],
+  imports: [SocketModule, ConnectionsManagerModule, RegistrationModule, IpfsFileManagerModule, LocalDbModule, Libp2pModule, TorModule, StorageModule, IpfsModule],
   providers: [
     {
       provide: EXPRESS_PROVIDER,
