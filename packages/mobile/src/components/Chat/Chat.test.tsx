@@ -243,7 +243,16 @@ describe('Chat component', () => {
                   "selected": undefined,
                 }
               }
+              accessibilityValue={
+                {
+                  "max": undefined,
+                  "min": undefined,
+                  "now": undefined,
+                  "text": undefined,
+                }
+              }
               accessible={true}
+              collapsable={false}
               focusable={true}
               onClick={[Function]}
               onResponderGrant={[Function]}
@@ -254,28 +263,36 @@ describe('Chat component', () => {
               onStartShouldSetResponder={[Function]}
               style={
                 {
-                  "alignItems": "center",
-                  "justifyContent": "center",
-                  "width": 64,
+                  "opacity": 1,
                 }
               }
               testID="appbar_action_item"
             >
-              <Image
-                resizeMethod="resize"
-                resizeMode="cover"
-                source={
-                  {
-                    "testUri": "../../../assets/icons/arrow_left.png",
-                  }
-                }
+              <View
                 style={
                   {
-                    "height": 16,
-                    "width": 16,
+                    "alignItems": "center",
+                    "justifyContent": "center",
+                    "width": 64,
                   }
                 }
-              />
+              >
+                <Image
+                  resizeMethod="resize"
+                  resizeMode="cover"
+                  source={
+                    {
+                      "testUri": "../../../assets/icons/arrow_left.png",
+                    }
+                  }
+                  style={
+                    {
+                      "height": 16,
+                      "width": 16,
+                    }
+                  }
+                />
+              </View>
             </View>
           </View>
           <View
@@ -324,7 +341,16 @@ describe('Chat component', () => {
                   "selected": undefined,
                 }
               }
+              accessibilityValue={
+                {
+                  "max": undefined,
+                  "min": undefined,
+                  "now": undefined,
+                  "text": undefined,
+                }
+              }
               accessible={true}
+              collapsable={false}
               focusable={true}
               onClick={[Function]}
               onResponderGrant={[Function]}
@@ -335,28 +361,36 @@ describe('Chat component', () => {
               onStartShouldSetResponder={[Function]}
               style={
                 {
-                  "alignItems": "center",
-                  "justifyContent": "center",
-                  "width": 64,
+                  "opacity": 1,
                 }
               }
               testID="open_menu"
             >
-              <Image
-                resizeMethod="resize"
-                resizeMode="contain"
-                source={
-                  {
-                    "testUri": "../../../assets/icons/dots.png",
-                  }
-                }
+              <View
                 style={
                   {
-                    "height": 16,
-                    "width": 16,
+                    "alignItems": "center",
+                    "justifyContent": "center",
+                    "width": 64,
                   }
                 }
-              />
+              >
+                <Image
+                  resizeMethod="resize"
+                  resizeMode="contain"
+                  source={
+                    {
+                      "testUri": "../../../assets/icons/dots.png",
+                    }
+                  }
+                  style={
+                    {
+                      "height": 16,
+                      "width": 16,
+                    }
+                  }
+                />
+              </View>
             </View>
           </View>
         </View>
