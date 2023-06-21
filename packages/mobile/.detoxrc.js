@@ -30,13 +30,23 @@ module.exports = {
       type: 'android.apk',
       binaryPath: 'android/app/build/outputs/apk/standard/release/app-standard-release.apk',
       build: 'cd android && ENVFILE=../.env.production ./gradlew assembleStandardRelease assembleStandardReleaseAndroidTest -DtestBuildType=release'
-    }
+    },
+    'ios.debug': {
+      type: 'ios.app',
+      binaryPath: 'ios/build/Build/Products/Debug-iphonesimulator/Quiet.app',
+      build: 'xcodebuild -workspace ios/Quiet.xcworkspace -scheme Quiet -configuration Debug -sdk iphonesimulator -derivedDataPath ios/build -arch x86_64'
+    },
+    'ios.release': {
+      type: 'ios.app',
+      binaryPath: 'ios/build/Build/Products/Release-iphonesimulator/Quiet.app',
+      build: 'xcodebuild -workspace ios/Quiet.xcworkspace -scheme Quiet -configuration Release -sdk iphonesimulator -derivedDataPath ios/build'
+    },
   },
   devices: {
     simulator: {
       type: 'ios.simulator',
       device: {
-        type: 'iPhone 12'
+        type: 'iPhone 14'
       }
     },
     attached: {
