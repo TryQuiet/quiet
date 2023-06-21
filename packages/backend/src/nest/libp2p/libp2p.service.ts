@@ -21,7 +21,7 @@ import { INIT_LIBP2P_PARAMS, LIB_P2P_PROVIDER, PEER_ID_PROVIDER, SERVER_IO_PROVI
 import { ServerIoProviderTypes } from '../types'
 import { LocalDbService } from '../local-db/local-db.service'
 import { LocalDBKeys } from '../local-db/local-db.types'
-import { createLibp2pListenAddress } from './libp2p.utils'
+import { createLibp2pListenAddress, createLibp2pAddress } from './libp2p.utils'
 
 @Injectable()
 export class Libp2pService extends EventEmitter {
@@ -44,7 +44,7 @@ export class Libp2pService extends EventEmitter {
   }
 
   public readonly createLibp2pAddress = (address: string, peerId: string): string => {
-    return this.createLibp2pAddress(address, peerId)
+    return createLibp2pAddress(address, peerId)
   }
 
   public readonly createLibp2pListenAddress = (address: string): string => {

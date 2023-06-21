@@ -439,29 +439,31 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     // }
     // return await this.initStorage(initStorageParams)
 
-        // __________________________________________________________________
-        const { Libp2pModule } = await import('../libp2p/libp2p.module')
-        const moduleRef = await this.lazyModuleLoader.load(() => Libp2pModule)
-        this.logger.log('launchCommunityFromStorage')
-        const { Libp2pService } = await import('../libp2p/libp2p.service')
-        const lazyService = moduleRef.get(Libp2pService)
-        console.log('lazy service', lazyService)
-        this.libp2pService = lazyService
+    // __________________________________________________________________
+    const { Libp2pModule } = await import('../libp2p/libp2p.module')
+    const moduleRef = await this.lazyModuleLoader.load(() => Libp2pModule)
+    this.logger.log('launchCommunityFromStorage')
+    const { Libp2pService } = await import('../libp2p/libp2p.service')
+    const lazyService = moduleRef.get(Libp2pService)
+    console.log('lazy service', lazyService)
+    this.libp2pService = lazyService
 
-        const params: Libp2pNodeParams = {
-          peerId: this.peerId,
-          listenAddresses: [this.libp2pService.createLibp2pListenAddress(onionAddress)],
-          agent: this.socksProxyAgent,
-          cert: payload.certs.certificate,
-          key: payload.certs.key,
-          ca: payload.certs.CA,
-          localAddress: this.libp2pService.createLibp2pAddress(onionAddress, this.peerId.toString()),
-          targetPort: this.ports.libp2pHiddenService,
-        }
-console.log('berfore create instance', params)
-        await this.libp2pService.createInstance(params)
-        console.log('after create instance')
-        // await this.storageService.init()
+    console.log('this peer id ', this.peerId)
+
+    const params: Libp2pNodeParams = {
+      peerId: this.peerId,
+      listenAddresses: [this.libp2pService.createLibp2pListenAddress(onionAddress)],
+      agent: this.socksProxyAgent,
+      cert: payload.certs.certificate,
+      key: payload.certs.key,
+      ca: payload.certs.CA,
+      localAddress: this.libp2pService.createLibp2pAddress(onionAddress, this.peerId.toString()),
+      targetPort: this.ports.libp2pHiddenService,
+    }
+    console.log('berfore create instance', params)
+    await this.libp2pService.createInstance(params)
+    console.log('after create instance')
+    await this.storageService.init()
     // __________________________________________________________________
   }
 
