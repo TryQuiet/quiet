@@ -595,7 +595,7 @@ export class StorageService extends EventEmitter implements OnApplicationBootstr
     // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
     await this.channels.load({ fetchEntryTimeout: 15000 })
     const channel = this.channels.get(channelId)
-    const isOwner = ownerPeerId === this.peerId.toString()
+    const isOwner = ownerPeerId === this.peerId.id.toString()
     if (channel && isOwner) {
       await this.channels.del(channelId)
     }
