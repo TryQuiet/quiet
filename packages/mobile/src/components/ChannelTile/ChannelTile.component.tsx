@@ -1,5 +1,5 @@
 import React, { FC } from 'react'
-import { Animated, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native'
+import { Animated, TouchableOpacity, View } from 'react-native'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { defaultTheme } from '../../styles/themes/default.theme'
 import { truncateWords } from '../../utils/functions/truncateWords/truncateWords'
@@ -36,7 +36,7 @@ export const ChannelTile: FC<ChannelTileProps> = ({ name, id, message, date, unr
   return (
     <GestureHandlerRootView>
       {/* <Swipeable friction={4} renderLeftActions={leftSwipe}> */}
-      <TouchableWithoutFeedback
+      <TouchableOpacity
         testID={`channel_tile_${name}`}
         onPress={() => {
           redirect(id)
@@ -113,7 +113,7 @@ export const ChannelTile: FC<ChannelTileProps> = ({ name, id, message, date, unr
             </View>
           </View>
         </View>
-      </TouchableWithoutFeedback>
+      </TouchableOpacity>
       {/* </Swipeable> */}
     </GestureHandlerRootView>
   )

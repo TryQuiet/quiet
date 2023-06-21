@@ -1,5 +1,5 @@
 import React, { FC } from 'react'
-import { View, Image, TouchableWithoutFeedback } from 'react-native'
+import { View, Image, TouchableOpacity } from 'react-native'
 import { Typography } from '../Typography/Typography.component'
 
 import { StyledAppbar } from './Appbar.styles'
@@ -14,7 +14,7 @@ export const Appbar: FC<AppbarProps> = ({ title, prefix, position, style, back, 
   return (
     <StyledAppbar style={style}>
       <View style={{ flex: 1 }}>
-        <TouchableWithoutFeedback
+        <TouchableOpacity
           onPress={() => {
             if (back) back()
           }}
@@ -49,7 +49,7 @@ export const Appbar: FC<AppbarProps> = ({ title, prefix, position, style, back, 
               </View>
             )}
           </View>
-        </TouchableWithoutFeedback>
+        </TouchableOpacity>
       </View>
       <View style={{ flex: 4, alignItems: `${position || 'center'}` }}>
         <Typography fontSize={16} fontWeight={'medium'}>
@@ -58,7 +58,7 @@ export const Appbar: FC<AppbarProps> = ({ title, prefix, position, style, back, 
       </View>
       <View style={{ flex: 1 }}>
         {contextMenu && (
-          <TouchableWithoutFeedback
+          <TouchableOpacity
             onPress={event => {
               event.persist()
               contextMenu.handleOpen()
@@ -76,7 +76,7 @@ export const Appbar: FC<AppbarProps> = ({ title, prefix, position, style, back, 
                 }}
               />
             </View>
-          </TouchableWithoutFeedback>
+          </TouchableOpacity>
         )}
       </View>
     </StyledAppbar>
