@@ -107,12 +107,13 @@ await this.initDatabases()
   }
 
   private async createOrbitDb() {
+    console.log('createOrbitDb peer id ', this.peerId)
     const channelsAccessController = createChannelAccessController(this.peerId, this.orbitDbDir)
     AccessControllers.addAccessController({ AccessController: MessagesAccessController })
     AccessControllers.addAccessController({ AccessController: channelsAccessController })
     const orbitDb = await OrbitDB.createInstance(this.ipfs, {
       // @ts-ignore
-      id: peerId.toString(),
+      id: this.peerId.toString(),
       directory: this.orbitDbDir,
       AccessControllers
   })

@@ -60,7 +60,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     @Inject(CONFIG_OPTIONS) public configOptions: ConfigOptions,
     @Inject(QUIET_DIR) public readonly quietDir: string,
     @Inject(SOCKS_PROXY_AGENT) public readonly socksProxyAgent: Agent,
-    @Inject(PEER_ID_PROVIDER) public readonly peerId: PeerId,
+    @Inject(PEER_ID_PROVIDER) public readonly peerId: PeerIdType,
     @Inject(PORTS_PROVIDER) public readonly ports: GetPorts,
     private readonly socketService: SocketService,
     private readonly registrationService: RegistrationService,
@@ -449,21 +449,22 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.libp2pService = lazyService
 
     console.log('this peer id ', this.peerId)
-
+  const restoredRsa = await PeerId.createFromJSON(this.peerId)
+  const _peerId = await peerIdFromKeys(restoredRsa.marshalPubKey(), restoredRsa.marshalPrivKey())
     const params: Libp2pNodeParams = {
-      peerId: this.peerId,
+      peerId: _peerId,
       listenAddresses: [this.libp2pService.createLibp2pListenAddress(onionAddress)],
       agent: this.socksProxyAgent,
       cert: payload.certs.certificate,
       key: payload.certs.key,
       ca: payload.certs.CA,
-      localAddress: this.libp2pService.createLibp2pAddress(onionAddress, this.peerId.toString()),
+      localAddress: this.libp2pService.createLibp2pAddress(onionAddress, _peerId.toString()),
       targetPort: this.ports.libp2pHiddenService,
     }
-    console.log('berfore create instance', params)
+
     await this.libp2pService.createInstance(params)
-    console.log('after create instance')
     await this.storageService.init()
+
     // __________________________________________________________________
   }
 
