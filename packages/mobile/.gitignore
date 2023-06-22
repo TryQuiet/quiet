@@ -79,6 +79,5 @@ buck-out/
 /android/app/.cxx
 
 # Detox
-/artifacts
-/e2e/base-screenshots/*
-/e2e/storybook-base-screenshots/*
+/e2e/artifacts
+/e2e/visual-regressions/local

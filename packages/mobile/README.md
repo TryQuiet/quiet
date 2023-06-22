@@ -114,12 +114,14 @@ For more detailed instructions, see https://wix.github.io/Detox/docs/introductio
 
 ## Running visual regression tests
 
+### App-wide testing
+
 Once again we use Detox but this time with the Storybook flavor of the app, so it's important to use 'storybook' ending value for the `configuration` argument when using the commands from above. Also a particular file has to be pointed out as a test entry `e2e/storybook.test.js`.
 
-The very first run will fail, unless there're base screenshots for the exact device used for testing present under `e2e/storybook-base-screenshots/<DEVICE-NAME>/`. The easiest way to generate them is to go through the test using `-generate-base` flag. It's important to run this command being in the mobile package main directory `packages/mobile/`.
+The very first run will fail, unless there're base screenshots for the exact device used for testing present under `e2e/visual-regressions/<PLATFORM>/storybook-base-screenshots`. The easiest way to generate them is to go through the test using `-generate-base` flag. It's important to run this command being in the mobile package main directory `packages/mobile/`.
 
 ```
-detox test storybook --configuration android.att.storybook -- -- -generate-base
+detox test storybook --configuration android.att.storybook -- -generate-base
 ```
 
 Then every next run on the same device can be triggered without additional flags
@@ -127,10 +129,19 @@ Then every next run on the same device can be triggered without additional flags
 detox test storybook --configuration android.att.storybook
 ```
 
-The screenshots are being generated and stored as a <b>baselines per device!</b> It ensures there'll be no false negatives due to differences in screen resolution and ratio!
-
 Tests can be started at a particular story pointed out using `-starting-story=<STORY-NAME>` flag.
 
+### Common tests addon
+
+Besides app-wide testing with storybook, there's a possibility to enable visual regressions addon to the general e2e tests using flag `-enable-visual-regression`.
+
+```
+detox test starter --configuration android.att.debug -- -enable-visual-regression
+```
+
+Base snapshots should be present under `e2e/visual-regressions/local/<PLATFORM>/starter-base-screenshots`.
+
+> NOTE: Actual base snapshots hosted in the repo were generated with iPhone 14 simulator and serves as a baselines for automated runs
 
 ## Troubleshooting
 

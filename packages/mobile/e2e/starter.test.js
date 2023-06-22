@@ -22,12 +22,19 @@ describe('User', () => {
     }
   }
 
-  const enableVisualRegression = Boolean(process.argv.filter((x) => x.startsWith('-enable-visual-regression'))[0])
+  const enableVisualRegression = Boolean(process.argv.filter(x => x.startsWith('-enable-visual-regression'))[0])
+  const ci = Boolean(process.argv.filter(x => x.startsWith('-ci'))[0])
 
-  const checkVisualRegression = async (componentName) => {
-    if (!enableVisualRegression || ios) return
+  const checkVisualRegression = async componentName => {
+    if (!enableVisualRegression) return
     const imagePath = await element(by.id(componentName)).takeScreenshot(`${componentName}`)
-    compare(imagePath, `${__dirname}/base-screenshots/${device.name}/${componentName}.png`)
+
+    const platform = device.getPlatform()
+    const environment = ci ? 'ci' : 'local'
+
+    let basePath = `${__dirname}/visual-regressions/${environment}/${platform}/starter-base-screenshots/${componentName}.png`
+
+    await compare(imagePath, basePath)
   }
 
   beforeAll(async () => {
