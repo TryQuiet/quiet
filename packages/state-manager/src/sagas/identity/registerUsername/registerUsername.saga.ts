@@ -8,7 +8,6 @@ import { Socket, applyEmitParams } from '../../../types'
 
 import { communitiesSelectors } from '../../communities/communities.selectors'
 import { CreateUserCsrPayload, RegisterCertificatePayload, SocketActionTypes, Community } from '@quiet/types'
-import { communitiesActions } from '../../communities/communities.slice'
 
 export function* registerUsernameSaga(socket: Socket,
   action: PayloadAction<string>,): Generator {
@@ -54,12 +53,12 @@ export function* registerUsernameSaga(socket: Socket,
   if (userCsr === null) {
     try {
       const payload: CreateUserCsrPayload = {
-        nickname: nickname,
+        nickname,
         commonName: identity.hiddenService.onionAddress,
         peerId: identity.peerId.id,
         dmPublicKey: identity.dmKeys.publicKey,
         signAlg: config.signAlg,
-        hashAlg: config.hashAlg
+        hashAlg: config.hashAlg,
       }
       userCsr = yield* call(createUserCsr, payload)
     } catch (e) {
@@ -70,8 +69,8 @@ export function* registerUsernameSaga(socket: Socket,
 
   const payload: RegisterCertificatePayload = {
     communityId: community.id,
-    nickname: nickname,
-    userCsr: userCsr
+    nickname,
+    userCsr
   }
 
   yield* put(identityActions.registerCertificate(payload))

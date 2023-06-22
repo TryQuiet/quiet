@@ -7,7 +7,7 @@ import { BrowserWindow } from 'electron'
 export const processInvitationCode = (mainWindow: BrowserWindow, code: string) => {
   if (!code) return
   mainWindow.webContents.send('invitation', {
-    code
+    code,
   })
 }
 
@@ -34,7 +34,7 @@ export const updateDesktopFile = (isDev: boolean) => {
   try {
     execSync('xdg-settings set default-url-scheme-handler quiet quiet.desktop')
   } catch (e) {
-    console.error('Couldn\'t set default scheme handler', e.message)
+    console.error("Couldn't set default scheme handler", e.message)
   }
 }
 
@@ -45,7 +45,7 @@ export const updateExecPath = (desktopFilePath: string) => {
   if (!desktopFile.includes(execInfo)) {
     // Replace old Exec with new Exec
     const lines = desktopFile.split('\n')
-    const newLines = lines.filter((line) => !line.includes('Exec=') && line !== '')
+    const newLines = lines.filter(line => !line.includes('Exec=') && line !== '')
     newLines.push(execInfo)
     fs.writeFileSync(desktopFilePath, newLines.join('\n'))
   }

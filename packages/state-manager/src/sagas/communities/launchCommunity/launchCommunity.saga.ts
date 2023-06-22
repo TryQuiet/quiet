@@ -1,6 +1,6 @@
 import { apply, select, put, call } from 'typed-redux-saga'
-import { PayloadAction } from '@reduxjs/toolkit'
-import { applyEmitParams, Socket } from '../../../types'
+import { type PayloadAction } from '@reduxjs/toolkit'
+import { applyEmitParams, type Socket } from '../../../types'
 import { identitySelectors } from '../../identity/identity.selectors'
 import { communitiesSelectors } from '../communities.selectors'
 import { communitiesActions } from '../communities.slice'
@@ -8,7 +8,7 @@ import { connectionActions } from '../../appConnection/connection.slice'
 import { getCurrentTime } from '../../messages/utils/message.utils'
 import { connectionSelectors } from '../../appConnection/connection.selectors'
 import { networkSelectors } from '../../network/network.selectors'
-import { InitCommunityPayload, SocketActionTypes } from '@quiet/types'
+import { type InitCommunityPayload, SocketActionTypes } from '@quiet/types'
 
 export function* initCommunities(): Generator {
   const joinedCommunities = yield* select(identitySelectors.joinedCommunities)
@@ -50,9 +50,9 @@ export function* launchCommunitySaga(
     certs: {
       certificate: identity.userCertificate,
       key: identity.userCsr.userKey,
-      CA: [community.rootCa]
+      CA: [community.rootCa],
     },
-    peers: peerList
+    peers: peerList,
   }
 
   yield* apply(socket, socket.emit, applyEmitParams(SocketActionTypes.LAUNCH_COMMUNITY, payload))

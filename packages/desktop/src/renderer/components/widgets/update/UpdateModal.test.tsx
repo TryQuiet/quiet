@@ -1,4 +1,3 @@
-/* eslint import/first: 0 */
 import React from 'react'
 
 import { UpdateModal } from './UpdateModal'
@@ -6,9 +5,7 @@ import { renderComponent } from '../../../testUtils/renderComponent'
 
 describe('UpdateModal', () => {
   it('renders component', () => {
-    const result = renderComponent(
-      <UpdateModal open handleClose={jest.fn()} handleUpdate={jest.fn()} />
-    )
+    const result = renderComponent(<UpdateModal open handleClose={jest.fn()} handleUpdate={jest.fn()} />)
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body
         style="padding-right: 1024px; overflow: hidden;"

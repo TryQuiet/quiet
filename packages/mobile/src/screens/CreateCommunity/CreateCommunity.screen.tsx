@@ -15,9 +15,11 @@ export const CreateCommunityScreen: FC = () => {
 
   useEffect(() => {
     if (networkCreated) {
-      dispatch(navigationActions.navigation({
-        screen: ScreenNames.UsernameRegistrationScreen
-       }))
+      dispatch(
+        navigationActions.navigation({
+          screen: ScreenNames.UsernameRegistrationScreen,
+        })
+      )
     }
   }, [dispatch, currentCommunity])
 
@@ -25,7 +27,7 @@ export const CreateCommunityScreen: FC = () => {
     (name: string) => {
       const payload: CreateNetworkPayload = {
         ownership: CommunityOwnership.Owner,
-        name: name
+        name,
       }
       dispatch(communities.actions.createNetwork(payload))
     },
@@ -35,7 +37,7 @@ export const CreateCommunityScreen: FC = () => {
   const redirectionAction = useCallback(() => {
     dispatch(
       navigationActions.navigation({
-        screen: ScreenNames.JoinCommunityScreen
+        screen: ScreenNames.JoinCommunityScreen,
       })
     )
   }, [dispatch])

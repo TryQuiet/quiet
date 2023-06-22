@@ -1,11 +1,12 @@
 import { Crypto } from '@peculiar/webcrypto'
-import {
-  createCommunity,
-  clearInitializedCommunitiesAndRegistrars
-} from './appActions'
+import { createCommunity, clearInitializedCommunitiesAndRegistrars } from './appActions'
 import { createApp, sleep, storePersistor } from '../utils'
 import { AsyncReturnType } from '../types/AsyncReturnType.interface'
-import { assertInitializedExistingCommunitiesAndRegistrars, assertStoreStatesAreEqual, assertInitializedCommunity } from './assertions'
+import {
+  assertInitializedExistingCommunitiesAndRegistrars,
+  assertStoreStatesAreEqual,
+  assertInitializedCommunity,
+} from './assertions'
 
 const crypto = new Crypto()
 
@@ -25,8 +26,7 @@ describe('restart app without doing anything', () => {
     await owner.manager.closeAllServices()
   })
 
-  test('Owner creates community', async () => {
-  })
+  test('Owner creates community', async () => {})
 
   test('Owner successfully closes app', async () => {
     store = owner.store

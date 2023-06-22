@@ -1,16 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { socketSelectors } from '../../../sagas/socket/socket.selectors'
-import {
-  CommunityOwnership,
-  CreateNetworkPayload,
-  TOR_BOOTSTRAP_COMPLETE
-} from '@quiet/types'
-import {
-  communities,
-  identity,
-  connection
-} from '@quiet/state-manager'
+import { CommunityOwnership, CreateNetworkPayload, TOR_BOOTSTRAP_COMPLETE } from '@quiet/types'
+import { communities, identity, connection } from '@quiet/state-manager'
 import PerformCommunityActionComponent from '../../../components/CreateJoinCommunity/PerformCommunityActionComponent'
 import { ModalName } from '../../../sagas/modals/modals.types'
 import { useModal } from '../../../containers/hooks'
@@ -52,7 +44,7 @@ const JoinCommunity = () => {
   const handleCommunityAction = (address: string) => {
     const payload: CreateNetworkPayload = {
       ownership: CommunityOwnership.User,
-      registrar: address
+      registrar: address,
     }
     dispatch(communities.actions.createNetwork(payload))
   }

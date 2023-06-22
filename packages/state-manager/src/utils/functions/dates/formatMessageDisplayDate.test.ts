@@ -26,7 +26,7 @@ describe('Format message displays date', () => {
         year: 2020,
         month: 10,
         day: 20,
-        hour: 12
+        hour: 12,
       })
     })
     const createdAt = DateTime.now().plus({ hours: -2 }).toSeconds()
@@ -40,7 +40,7 @@ describe('Format message displays date', () => {
         year: 2020,
         month: 10,
         day: 20,
-        hour: 0
+        hour: 0,
       })
     })
     const createdAt = DateTime.now().plus({ minutes: -1 }).toSeconds()

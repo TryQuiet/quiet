@@ -8,7 +8,7 @@ import { nativeServicesActions } from './nativeServices/nativeServices.slice'
 export const reducers = {
   ...stateManagerReducers.reducers,
   [StoreKeys.Init]: initReducer,
-  [StoreKeys.Navigation]: navigationReducer
+  [StoreKeys.Navigation]: navigationReducer,
 }
 
 export const allReducers = combineReducers(reducers)

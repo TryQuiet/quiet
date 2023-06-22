@@ -11,7 +11,7 @@ const PREFIX = 'MentionPoper'
 const classes = {
   root: `${PREFIX}root`,
   thumb: `${PREFIX}thumb`,
-  divider: `${PREFIX}divider`
+  divider: `${PREFIX}divider`,
 }
 
 const maxHeight = 230
@@ -23,19 +23,19 @@ const StyledPopper = styled(Popper)({
     borderRadius: 8,
     overflow: 'hidden',
     boxShadow: '0px 2px 25px rgba(0,0,0,0.2)',
-    marginBottom: 10
+    marginBottom: 10,
   },
   [`& .${classes.thumb}`]: {
     backgroundColor: 'rgba(0,0,0,0.46)',
     borderRadius: 100,
     marginLeft: -3,
-    width: 8
+    width: 8,
   },
   [`& .${classes.divider}`]: {
     width: 14,
     borderLeft: '1px solid',
-    borderColor: 'rgba(0,0,0,0.08)'
-  }
+    borderColor: 'rgba(0,0,0,0.08)',
+  },
 })
 
 function isDivElement(element: Element | undefined): element is HTMLDivElement {
@@ -61,7 +61,7 @@ export const MentionPoper: React.FC<MentionPoperProps> = ({ anchorEl, children, 
   React.useEffect(() => {
     if (anchorEl && popperRef.current) {
       if (children.length) {
-        const popperContainer = (popperRef.current as unknown) as HTMLDivElement
+        const popperContainer = popperRef.current as unknown as HTMLDivElement
         setPositionY(anchorEl.offsetTop - popperContainer.clientHeight)
         setPositionX(anchorEl.offsetLeft)
       } else {
@@ -86,10 +86,7 @@ export const MentionPoper: React.FC<MentionPoperProps> = ({ anchorEl, children, 
   React.useEffect(() => {
     const element = anchor.current?.children[selected]
     if (isDivElement(element) && scrollbarRef?.current) {
-      if (
-        element.offsetTop >
-        scrollbarRef.current.getScrollTop() + maxHeight - element.clientHeight
-      ) {
+      if (element.offsetTop > scrollbarRef.current.getScrollTop() + maxHeight - element.clientHeight) {
         scrollbarRef.current.scrollTop(element.offsetTop + element.clientHeight - maxHeight)
       }
       if (element.offsetTop < scrollbarRef.current.getScrollTop()) {
@@ -104,16 +101,18 @@ export const MentionPoper: React.FC<MentionPoperProps> = ({ anchorEl, children, 
       className={classes.root}
       style={{
         transform: `translate3d(${positionX}px,${positionY}px,0px`,
-        zIndex: positionX && positionY ? 0 : -1
+        zIndex: positionX && positionY ? 0 : -1,
       }}
       // @ts-expect-error
-      ref={popperRef}>
+      ref={popperRef}
+    >
       <Paper>
         <Scrollbars
           ref={scrollbarRef}
           autoHideTimeout={500}
           style={{ height: height }}
-          renderThumbVertical={() => <div className={classes.thumb} />}>
+          renderThumbVertical={() => <div className={classes.thumb} />}
+        >
           <Grid>
             <Grid container>
               <Grid item xs ref={anchor}>

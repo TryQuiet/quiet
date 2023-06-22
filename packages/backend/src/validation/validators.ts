@@ -1,7 +1,7 @@
 import _ from 'validator'
 import joi from 'joi'
 import logger from '../logger'
-import { ChannelMessage, PublicChannel } from '@quiet/types'
+import { type ChannelMessage, type PublicChannel } from '@quiet/types'
 const log = logger('validators')
 
 const messageMediaSchema = joi.object({
@@ -15,8 +15,8 @@ const messageMediaSchema = joi.object({
   message: joi.object({
     id: joi.string().required(),
     channelId: joi.string(),
-    channelAddress: joi.string()
-  })
+    channelAddress: joi.string(),
+  }),
 })
 
 const messageSchema = joi.object({
@@ -28,7 +28,7 @@ const messageSchema = joi.object({
   channelId: joi.string(),
   channelAddress: joi.string(),
   signature: joi.string().required(),
-  pubKey: joi.string().required()
+  pubKey: joi.string().required(),
 })
 
 const channelSchema = joi.object({
@@ -37,24 +37,15 @@ const channelSchema = joi.object({
   owner: joi.string().required(),
   timestamp: joi.number().required(),
   id: joi.string(),
-  address: joi.string()
+  address: joi.string(),
 })
 
 export const isUser = (publicKey: string, halfKey: string): boolean => {
-  return (
-    publicKey.length === 66 &&
-    halfKey.length === 64 &&
-    _.isHexadecimal(publicKey) &&
-    _.isHexadecimal(halfKey)
-  )
+  return publicKey.length === 66 && halfKey.length === 64 && _.isHexadecimal(publicKey) && _.isHexadecimal(halfKey)
 }
 
 export const isConversation = (publicKey: string, encryptedPhrase: string): boolean => {
-  return (
-    publicKey.length === 64 &&
-    _.isHexadecimal(publicKey) &&
-    _.isBase64(encryptedPhrase)
-  )
+  return publicKey.length === 64 && _.isHexadecimal(publicKey) && _.isBase64(encryptedPhrase)
 }
 
 export const isDirectMessage = (msg: string): boolean => {
@@ -77,5 +68,5 @@ export default {
   isMessage,
   isDirectMessage,
   isChannel,
-  isConversation
+  isConversation,
 }

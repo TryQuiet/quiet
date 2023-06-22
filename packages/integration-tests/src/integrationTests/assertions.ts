@@ -9,7 +9,7 @@ const log = logger('assertions')
 export async function assertReceivedCertificates(
   userName: string,
   expectedCount: number,
-  maxTime: number = 60000,
+  maxTime = 60000,
   store: TestStore
 ) {
   log(`User ${userName} starts waiting ${maxTime}ms for certificates`)
@@ -18,53 +18,46 @@ export async function assertReceivedCertificates(
     expect(store.getState().Users.certificates.ids).toHaveLength(expectedCount)
   }, maxTime)
 
-  log(
-    `User ${userName} received ${store.getState().Users.certificates.ids.length
-    } certificates`
-  )
+  log(`User ${userName} received ${store.getState().Users.certificates.ids.length} certificates`)
 }
 
 export async function assertReceivedChannelsAndSubscribe(
   userName: string,
   expectedCount: number,
-  maxTime: number = 60000,
+  maxTime = 60000,
   store: TestStore
 ) {
   log(`User ${userName} starts waiting ${maxTime}ms for channels`)
 
   await waitForExpect(() => {
-    expect(
-      store.getState().PublicChannels.channels.ids
-    ).toHaveLength(expectedCount)
+    expect(store.getState().PublicChannels.channels.ids).toHaveLength(expectedCount)
   }, maxTime)
 
   store.dispatch(
     publicChannels.actions.setCurrentChannel({
-      channelId: store.getState().PublicChannels.channels.ids[0] as string
+      channelId: store.getState().PublicChannels.channels.ids[0] as string,
     })
   )
 
-  log(
-    `User ${userName} received ${store.getState().PublicChannels.channels.ids.length
-    } channels`
-  )
+  log(`User ${userName} received ${store.getState().PublicChannels.channels.ids.length} channels`)
 }
 
 export async function assertReceivedMessages(
   userName: string,
   expectedCount: number,
-  maxTime: number = 60000,
+  maxTime = 60000,
   store: TestStore
 ) {
   log(`User ${userName} starts waiting ${maxTime}ms for messages`)
 
   await waitForExpect(() => {
-    expect(
-      store.getState().Messages.publicChannelsMessagesBase.entities[MAIN_CHANNEL].messages.ids
-    ).toHaveLength(expectedCount)
+    expect(store.getState().Messages.publicChannelsMessagesBase.entities[MAIN_CHANNEL].messages.ids).toHaveLength(
+      expectedCount
+    )
   }, maxTime)
   log(
-    `User ${userName} received ${store.getState().Messages.publicChannelsMessagesBase.entities[MAIN_CHANNEL].messages.ids.length
+    `User ${userName} received ${
+      store.getState().Messages.publicChannelsMessagesBase.entities[MAIN_CHANNEL].messages.ids.length
     } messages`
   )
 }
@@ -72,7 +65,7 @@ export async function assertReceivedMessages(
 export const assertReceivedMessagesAreValid = async (
   userName: string,
   messages: any[],
-  maxTime: number = 60000,
+  maxTime = 60000,
   store: TestStore
 ) => {
   log(`User ${userName} checks is messages are valid`)
@@ -84,9 +77,7 @@ export const assertReceivedMessagesAreValid = async (
   const validMessages = []
 
   for (const receivedMessage of receivedMessages) {
-    const msg = messages.filter(
-      (message) => message.signature === receivedMessage.signature
-    )
+    const msg = messages.filter(message => message.signature === receivedMessage.signature)
     if (msg[0]) {
       validMessages.push(msg[0])
     }
@@ -97,12 +88,7 @@ export const assertReceivedMessagesAreValid = async (
   }, maxTime)
 }
 
-export async function assertReceivedImages(
-  userName: string,
-  expectedCount: number,
-  maxTime: number = 60000,
-  store: TestStore
-) {
+export async function assertReceivedImages(userName: string, expectedCount: number, maxTime = 60000, store: TestStore) {
   log(`User ${userName} starts waiting ${maxTime}ms for image`)
   await waitForExpect(() => {
     expect(
@@ -123,7 +109,7 @@ export async function assertReceivedImages(
 export async function assertDownloadedImage(
   userName: string,
   expectedImage: string, // filename.ext
-  maxTime: number = 60000,
+  maxTime = 60000,
   store: TestStore
 ) {
   log(`User ${userName} starts waiting ${maxTime}ms for downloading ${expectedImage}`)
@@ -137,25 +123,17 @@ export async function assertDownloadedImage(
 
     expect(filename).toBe(expectedImage)
   }, maxTime)
-  log(
-    `User ${userName} downloaded ${expectedImage}`
-  )
+  log(`User ${userName} downloaded ${expectedImage}`)
 }
 
-export const assertInitializedExistingCommunitiesAndRegistrars = async (
-  store: TestStore
-) => {
+export const assertInitializedExistingCommunitiesAndRegistrars = async (store: TestStore) => {
   const communityId = store.getState().Communities.communities.ids[0]
 
   await waitForExpect(() => {
-    expect(
-      store.getState().Network.initializedCommunities[communityId]
-    ).toBeTruthy()
+    expect(store.getState().Network.initializedCommunities[communityId]).toBeTruthy()
   })
   await waitForExpect(() => {
-    expect(
-      store.getState().Network.initializedRegistrars[communityId]
-    ).toBeTruthy()
+    expect(store.getState().Network.initializedRegistrars[communityId]).toBeTruthy()
   })
 }
 
@@ -170,7 +148,7 @@ export const assertReceivedRegistrationError = async (store: TestStore, error?: 
   }
 }
 
-export const assertNoRegistrationError = async(store: TestStore) => {
+export const assertNoRegistrationError = async (store: TestStore) => {
   await waitForExpect(() => {
     expect(store.getState().Errors.errors?.ids.includes('registrar')).toBe(false)
   }, 20_000)
@@ -179,21 +157,14 @@ export const assertNoRegistrationError = async(store: TestStore) => {
 export const assertReceivedCertificate = async (store: TestStore) => {
   const communityId = store.getState().Communities.communities.ids[0]
   await waitForExpect(() => {
-    expect(
-      store.getState().Identity.identities.entities[communityId].userCertificate
-    ).toBeTruthy()
+    expect(store.getState().Identity.identities.entities[communityId].userCertificate).toBeTruthy()
   }, 150_000)
 }
 
-export const assertConnectedToPeers = async (
-  store: TestStore,
-  count: number
-) => {
+export const assertConnectedToPeers = async (store: TestStore, count: number) => {
   await sleep(10_000)
   await waitForExpect(() => {
-    expect(
-      store.getState().Network.connectedPeers.ids.length
-    ).toEqual(count)
+    expect(store.getState().Network.connectedPeers.ids.length).toEqual(count)
   }, 20_000)
 }
 
@@ -202,8 +173,8 @@ export const assertStoreStatesAreEqual = async (oldState, currentState) => {
     ...oldState,
     Connection: {
       ...oldState.Connection,
-      lastConnectedTime: currentState.Connection.lastConnectedTime
-    }
+      lastConnectedTime: currentState.Connection.lastConnectedTime,
+    },
   }
 
   expect(currentState).toMatchObject(oldStateWithLastConnectedTimeFromCurrentState)

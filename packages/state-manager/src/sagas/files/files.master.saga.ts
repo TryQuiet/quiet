@@ -1,4 +1,4 @@
-import { Socket } from '../../types'
+import { type Socket } from '../../types'
 import { all, takeEvery } from 'typed-redux-saga'
 import { checkForMissingFilesSaga } from './checkForMissingFiles/checkForMissingFiles.saga'
 import { resetTransferSpeedSaga } from './resetTransferSpeed/resetTransferSpeed.saga'

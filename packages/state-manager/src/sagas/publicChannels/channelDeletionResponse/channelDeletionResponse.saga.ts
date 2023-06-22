@@ -1,11 +1,11 @@
 import { publicChannelsActions } from '../publicChannels.slice'
-import { PayloadAction } from '@reduxjs/toolkit'
+import { type PayloadAction } from '@reduxjs/toolkit'
 import logger from '../../../utils/logger'
 import { put, delay, select } from 'typed-redux-saga'
 import { messagesActions } from '../../messages/messages.slice'
 import { communitiesSelectors } from '../../communities/communities.selectors'
 import { publicChannelsSelectors } from '../publicChannels.selectors'
-import { PublicChannelStorage } from '@quiet/types'
+import { type PublicChannelStorage } from '@quiet/types'
 
 const log = logger('publicChannels')
 
@@ -57,9 +57,7 @@ export function* channelDeletionResponseSaga(
     const isUserOnGeneral = currentChannelId === generalChannel.id
 
     if (isGeneral && isUserOnGeneral) {
-      let newGeneralChannel: PublicChannelStorage | undefined = yield* select(
-        publicChannelsSelectors.generalChannel
-      )
+      let newGeneralChannel: PublicChannelStorage | undefined = yield* select(publicChannelsSelectors.generalChannel)
       while (!newGeneralChannel) {
         log('General channel has not been replicated yet')
         yield* delay(500)

@@ -9,40 +9,31 @@ import { Typography } from '../Typography/Typography.component'
 
 import { LoadingProps } from './Loading.types'
 
-export const Loading: FC<LoadingProps> = ({
-  progress,
-  description,
-  checks
-}) => {
+export const Loading: FC<LoadingProps> = ({ progress, description, checks }) => {
   return (
     <View
       style={{
         flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: defaultTheme.palette.background.white
-      }}>
+        backgroundColor: defaultTheme.palette.background.white,
+      }}
+    >
       <Image
         source={appImages.quiet_icon_round}
         style={{
           margin: 20,
           resizeMode: 'cover',
           width: 84,
-          height: 84
+          height: 84,
         }}
       />
-      <Typography
-        fontSize={14}
-        horizontalTextAlign={'center'}
-        style={{ margin: 10, maxWidth: 200 }}>
+      <Typography fontSize={14} horizontalTextAlign={'center'} style={{ margin: 10, maxWidth: 200 }}>
         {description}
       </Typography>
       <View>
         {progress > 0 && progress < 0.95 && (
-          <Progress.Bar
-            progress={progress}
-            color={defaultTheme.palette.main.brand}
-          />
+          <Progress.Bar progress={progress} color={defaultTheme.palette.main.brand} />
         )}
       </View>
       <View style={{ marginTop: 40, alignItems: 'flex-start' }}>

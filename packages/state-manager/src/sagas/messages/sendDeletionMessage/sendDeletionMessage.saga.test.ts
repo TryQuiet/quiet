@@ -1,19 +1,19 @@
 import { setupCrypto } from '@quiet/identity'
-import { Store } from '../../store.types'
+import { type Store } from '../../store.types'
 import { prepareStore } from '../../../utils/tests/prepareStore'
 import { getFactory } from '../../..'
-import { FactoryGirl } from 'factory-girl'
+import { type FactoryGirl } from 'factory-girl'
 import { combineReducers } from 'redux'
 import { reducers } from '../../reducers'
 import { expectSaga } from 'redux-saga-test-plan'
-import { identityActions } from '../../identity/identity.slice'
-import { communitiesActions } from '../../communities/communities.slice'
+import { type identityActions } from '../../identity/identity.slice'
+import { type communitiesActions } from '../../communities/communities.slice'
 import { DateTime } from 'luxon'
 import { messagesActions } from '../../messages/messages.slice'
-import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
+import { type publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import { sendDeletionMessageSaga } from './sendDeletionMessage.saga'
 import { generateChannelId } from '@quiet/common'
-import { Community, Identity, MessageType, PublicChannel, WriteMessagePayload } from '@quiet/types'
+import { type Community, type Identity, MessageType, type PublicChannel, type WriteMessagePayload } from '@quiet/types'
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
 
 describe('sendDeletionMessage', () => {
@@ -32,32 +32,27 @@ describe('sendDeletionMessage', () => {
     store = prepareStore().store
     factory = await getFactory(store)
 
-    community = await factory.create<
-      ReturnType<typeof communitiesActions.addNewCommunity>['payload']
-    >('Community')
+    community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
 
-    owner = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
-      'Identity',
-      { id: community.id, nickname: 'alice' }
-    )
+    owner = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
+      id: community.id,
+      nickname: 'alice',
+    })
 
     const generalChannelState = publicChannelsSelectors.generalChannel(store.getState())
     if (generalChannelState) generalChannel = generalChannelState
     expect(generalChannel).not.toBeUndefined()
 
     photoChannel = (
-      await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>(
-        'PublicChannel',
-        {
-          channel: {
-            name: 'photo',
-            description: 'Welcome to #photo',
-            timestamp: DateTime.utc().valueOf(),
-            owner: owner.nickname,
-            id: generateChannelId('photo')
-          }
-        }
-      )
+      await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>('PublicChannel', {
+        channel: {
+          name: 'photo',
+          description: 'Welcome to #photo',
+          timestamp: DateTime.utc().valueOf(),
+          owner: owner.nickname,
+          id: generateChannelId('photo'),
+        },
+      })
     ).channel
   })
 
@@ -67,13 +62,13 @@ describe('sendDeletionMessage', () => {
     const messagePayload: WriteMessagePayload = {
       type: MessageType.Info,
       message,
-      channelId: generalChannel.id
+      channelId: generalChannel.id,
     }
     const reducer = combineReducers(reducers)
     await expectSaga(
       sendDeletionMessageSaga,
       messagesActions.sendDeletionMessage({
-        channelId
+        channelId,
       })
     )
       .withReducer(reducer)
@@ -89,7 +84,7 @@ describe('sendDeletionMessage', () => {
     await expectSaga(
       sendDeletionMessageSaga,
       messagesActions.sendDeletionMessage({
-        channelId
+        channelId,
       })
     )
       .withReducer(reducer)

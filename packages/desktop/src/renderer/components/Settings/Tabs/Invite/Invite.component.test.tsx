@@ -7,9 +7,7 @@ describe('CopyLink', () => {
   it('renderComponent- long link', () => {
     const result = renderComponent(
       <InviteComponent
-        invitationLink={
-          'https://tryquiet.org/join#p7lrosb6fvtt7t3fhmuh5uj5twxirpngeipemdm5d32shgz46cbd3bad'
-        }
+        invitationLink={'https://tryquiet.org/join#p7lrosb6fvtt7t3fhmuh5uj5twxirpngeipemdm5d32shgz46cbd3bad'}
         handleClickInputReveal={jest.fn()}
         revealInputValue={false}
       />
@@ -113,9 +111,7 @@ describe('CopyLink', () => {
   it('renderComponent - short link', () => {
     const result = renderComponent(
       <InviteComponent
-        invitationLink={
-          'https://tryquiet.org/join#p7lrosb6fvtt7t3fhmuh5uj5twxirpngeipemdm5d32shgz46cbd3bad'
-        }
+        invitationLink={'https://tryquiet.org/join#p7lrosb6fvtt7t3fhmuh5uj5twxirpngeipemdm5d32shgz46cbd3bad'}
         handleClickInputReveal={jest.fn()}
         revealInputValue={true}
       />

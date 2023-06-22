@@ -10,7 +10,7 @@ setEngine(
   new CryptoEngine({
     name: '',
     crypto: webcrypto,
-    subtle: webcrypto.subtle
+    subtle: webcrypto.subtle,
   })
 )
 // @ts-ignore
@@ -20,7 +20,7 @@ global.crypto = webcrypto
 process._linkedBinding = name => name
 
 jest.mock('socket.io-client', () => ({
-  io: jest.fn()
+  io: jest.fn(),
 }))
 
 export const ioMock = io as jest.Mock
@@ -28,7 +28,7 @@ export const ioMock = io as jest.Mock
 jest.mock('electron-store-webpack-wrapper')
 
 jest.mock('electron', () => {
-  return { ipcRenderer: { on: () => { }, send: jest.fn(), sendSync: jest.fn() } }
+  return { ipcRenderer: { on: () => {}, send: jest.fn(), sendSync: jest.fn() } }
 })
 
 jest.mock('electron-store', () => {
@@ -45,11 +45,11 @@ jest.mock('@electron/remote', () => {
         return [
           {
             isFocused: () => true,
-            show: jest.fn()
-          }
+            show: jest.fn(),
+          },
         ]
-      }
-    }
+      },
+    },
   }
 
   // @ts-expect-error - expression of type 'unique symbol' can't be used to index type

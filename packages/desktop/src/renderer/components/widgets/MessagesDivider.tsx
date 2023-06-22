@@ -9,27 +9,23 @@ const PREFIX = 'MessagesDivider'
 const classes = {
   root: `${PREFIX}root`,
   divider: `${PREFIX}divider`,
-  titleDiv: `${PREFIX}titleDiv`
+  titleDiv: `${PREFIX}titleDiv`,
 }
 
-const StyledGrid = styled(Grid)((
-  {
-    theme
-  }
-) => ({
+const StyledGrid = styled(Grid)(({ theme }) => ({
   [`& .${classes.root}`]: {
-    padding: 0
+    padding: 0,
   },
 
   [`& .${classes.divider}`]: {
     height: 1,
-    backgroundColor: theme.palette.colors.veryLightGray
+    backgroundColor: theme.palette.colors.veryLightGray,
   },
 
   [`& .${classes.titleDiv}`]: {
     paddingLeft: 12,
-    paddingRight: 12
-  }
+    paddingRight: 12,
+  },
 }))
 
 interface MessagesDividerProps {

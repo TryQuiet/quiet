@@ -2,7 +2,7 @@ const fs = require('fs')
 const path = require('path')
 const crypto = require('crypto')
 
-function createLargeFile () {
+function createLargeFile() {
   const stream = fs.createWriteStream(path.join(__dirname, '/testUtils/large-file.txt'))
   const max = 10000
   let i = 0

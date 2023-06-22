@@ -1,5 +1,5 @@
-import { Dictionary, EntityState } from '@reduxjs/toolkit'
-import { FileMetadata } from './files'
+import { type Dictionary, type EntityState } from '@reduxjs/toolkit'
+import { type FileMetadata } from './files'
 
 export const INITIAL_CURRENT_CHANNEL_ID = 'initialcurrentChannelId'
 
@@ -52,13 +52,9 @@ export interface DisplayableMessage {
   media?: FileMetadata
 }
 
-export interface MessagesGroupsType {
-  [date: string]: DisplayableMessage[]
-}
+export type MessagesGroupsType = Record<string, DisplayableMessage[]>
 
-export interface MessagesDailyGroups {
-  [date: string]: DisplayableMessage[][]
-}
+export type MessagesDailyGroups = Record<string, DisplayableMessage[][]>
 
 export interface ChannelsReplicatedPayload {
   channels: Dictionary<PublicChannel>

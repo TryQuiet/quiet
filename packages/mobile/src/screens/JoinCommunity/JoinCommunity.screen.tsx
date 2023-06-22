@@ -1,14 +1,8 @@
 /* eslint-disable padded-blocks */
 import React, { FC, useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import {
-  identity,
-  communities
-} from '@quiet/state-manager'
-import {
-  CommunityOwnership,
-  CreateNetworkPayload
-} from '@quiet/types'
+import { identity, communities } from '@quiet/state-manager'
+import { CommunityOwnership, CreateNetworkPayload } from '@quiet/types'
 import { JoinCommunity } from '../../components/JoinCommunity/JoinCommunity.component'
 import { navigationActions } from '../../store/navigation/navigation.slice'
 import { ScreenNames } from '../../const/ScreenNames.enum'
@@ -38,9 +32,11 @@ export const JoinCommunityScreen: FC<JoinCommunityScreenProps> = ({ route }) => 
 
   useEffect(() => {
     if (networkCreated) {
-      dispatch(navigationActions.navigation({
-        screen: ScreenNames.UsernameRegistrationScreen
-      }))
+      dispatch(
+        navigationActions.navigation({
+          screen: ScreenNames.UsernameRegistrationScreen,
+        })
+      )
     }
   }, [dispatch, currentCommunity])
 
@@ -48,7 +44,7 @@ export const JoinCommunityScreen: FC<JoinCommunityScreenProps> = ({ route }) => 
     (address: string) => {
       const payload: CreateNetworkPayload = {
         ownership: CommunityOwnership.User,
-        registrar: address
+        registrar: address,
       }
       dispatch(communities.actions.createNetwork(payload))
     },
@@ -58,7 +54,7 @@ export const JoinCommunityScreen: FC<JoinCommunityScreenProps> = ({ route }) => 
   const redirectionAction = useCallback(() => {
     dispatch(
       navigationActions.navigation({
-        screen: ScreenNames.CreateCommunityScreen
+        screen: ScreenNames.CreateCommunityScreen,
       })
     )
   }, [dispatch])

@@ -4,13 +4,13 @@
 export const defaultPalette = {
   main: {
     brand: '#521C74',
-    white: '#ffffff'
+    white: '#ffffff',
   },
   statusBar: {
-    main: '#CB444E'
+    main: '#CB444E',
   },
   appBar: {
-    gray: '#E5E5E5'
+    gray: '#E5E5E5',
   },
   typography: {
     main: '#000000',
@@ -25,12 +25,12 @@ export const defaultPalette = {
     gray70: '#4C4C4C',
     white: '#ffffff',
     blue: '#2373EA',
-    lightGray: '#B2B2B2'
+    lightGray: '#B2B2B2',
   },
   input: {
     border: '#B3B3B3',
     backgroundDefault: '#ffffff',
-    backgroundDisabled: '#EBEBEB'
+    backgroundDisabled: '#EBEBEB',
   },
   background: {
     white: '#ffffff',
@@ -38,6 +38,6 @@ export const defaultPalette = {
     gray06: '#F0F0F0',
     gray70: '#4C4C4C',
     blue: '#2373EA',
-    lushSky: '#67BFD3'
-  }
+    lushSky: '#67BFD3',
+  },
 }

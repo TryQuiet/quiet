@@ -23,50 +23,46 @@ const classes = {
   link: `${PREFIX}link`,
   info: `${PREFIX}info`,
   item: `${PREFIX}item`,
-  bold: `${PREFIX}bold`
+  bold: `${PREFIX}bold`,
 }
 
-const Root = styled('div')((
-  {
-    theme
-  }
-) => ({
+const Root = styled('div')(({ theme }) => ({
   [`& .${classes.spinner}`]: {
     top: '50%',
     textAlign: 'center',
     position: 'relative',
-    transform: 'translate(0, -50%)'
+    transform: 'translate(0, -50%)',
   },
 
   [`&.${classes.scroll}`]: {
     overflow: 'scroll',
     overflowX: 'hidden',
-    height: '100%'
+    height: '100%',
   },
 
   [`& .${classes.list}`]: {
     backgroundColor: theme.palette.colors.white,
-    width: '100%'
+    width: '100%',
   },
 
   [`& .${classes.link}`]: {
     color: theme.palette.colors.lushSky,
-    cursor: 'pointer'
+    cursor: 'pointer',
   },
 
   [`& .${classes.info}`]: {
     color: theme.palette.colors.trueBlack,
-    letterSpacing: '0.4px'
+    letterSpacing: '0.4px',
   },
 
   [`& .${classes.item}`]: {
     backgroundColor: theme.palette.colors.gray03,
-    padding: '9px 16px'
+    padding: '9px 16px',
   },
 
   [`& .${classes.bold}`]: {
-    fontWeight: 'bold'
-  }
+    fontWeight: 'bold',
+  },
 }))
 
 export const fetchingChannelMessagesText = 'Fetching channel messages...'
@@ -99,7 +95,7 @@ export const ChannelMessagesComponent: React.FC<IChannelMessagesProps & FileActi
   downloadFile,
   cancelDownload,
   onMathMessageRendered,
-  pendingGeneralChannelRecreation = false
+  pendingGeneralChannelRecreation = false,
 }) => {
   const spinnerMessage = pendingGeneralChannelRecreation ? deletingChannelMessage : fetchingChannelMessagesText
   const listRef = useRef<HTMLUListElement>(null)
@@ -121,7 +117,7 @@ export const ChannelMessagesComponent: React.FC<IChannelMessagesProps & FileActi
           break
       }
     },
-  [listRef]
+    [listRef]
   )
 
   useEffect(() => {
@@ -133,18 +129,9 @@ export const ChannelMessagesComponent: React.FC<IChannelMessagesProps & FileActi
   }, [handleKeyDown])
 
   return (
-    <Root
-      className={classes.scroll}
-      ref={scrollbarRef}
-      onScroll={onScroll}
-      data-testid='channelContent'>
+    <Root className={classes.scroll} ref={scrollbarRef} onScroll={onScroll} data-testid='channelContent'>
       {Object.values(messages).length < 1 && (
-        <SpinnerLoader
-          size={40}
-          message={spinnerMessage}
-          className={classes.spinner}
-          color={'black'}
-        />
+        <SpinnerLoader size={40} message={spinnerMessage} className={classes.spinner} color={'black'} />
       )}
       <List disablePadding className={classes.list} id='messages-scroll' ref={listRef} tabIndex={0}>
         {Object.keys(messages).map(day => {

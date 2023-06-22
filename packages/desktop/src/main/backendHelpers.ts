@@ -19,7 +19,7 @@ export const getPorts = async (): Promise<{
     libp2pHiddenService,
     controlPort,
     httpTunnelPort,
-    dataServer
+    dataServer,
   }
 }
 

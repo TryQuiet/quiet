@@ -7,12 +7,7 @@ export const generateId = () => {
 }
 
 export const generateDmKeyPair = () => {
-  const dh = crypto.createDiffieHellman(
-    constants.prime,
-    'hex',
-    constants.generator,
-    'hex'
-  )
+  const dh = crypto.createDiffieHellman(constants.prime, 'hex', constants.generator, 'hex')
   dh.generateKeys()
   const privateKey = dh.getPrivateKey('hex')
   const publicKey = dh.getPublicKey('hex')

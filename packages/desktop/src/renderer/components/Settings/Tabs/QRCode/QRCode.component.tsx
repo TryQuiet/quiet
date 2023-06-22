@@ -11,18 +11,18 @@ const PREFIX = 'QRCode'
 
 const classes = {
   codeWrapper: `${PREFIX}codeWrapper`,
-  textWrapper: `${PREFIX}textWrapper`
+  textWrapper: `${PREFIX}textWrapper`,
 }
 
 const StyledGrid = styled(Grid)(() => ({
   [`& .${classes.codeWrapper}`]: {
-    marginTop: 16
+    marginTop: 16,
   },
 
   [`& .${classes.textWrapper}`]: {
     marginTop: 16,
-    width: 340
-  }
+    width: 340,
+  },
 }))
 
 export interface QRCodeProps {
@@ -42,8 +42,8 @@ export const QRCodeComponent: FC<QRCodeProps> = ({ value }) => {
           </Grid>
           <Grid item>
             <Typography variant='body2'>
-              This community QR code is private. If it is shared with someone, they can scan it with
-              their camera to join this community.
+              This community QR code is private. If it is shared with someone, they can scan it with their camera to
+              join this community.
             </Typography>
           </Grid>
         </Grid>

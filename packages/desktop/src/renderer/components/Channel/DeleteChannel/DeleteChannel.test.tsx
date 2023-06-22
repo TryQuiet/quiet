@@ -107,8 +107,7 @@ describe('LeaveCommunity', () => {
                     <p
                       class="MuiTypography-root MuiTypography-body1 MuiTypography-alignCenter css-jxzupi-MuiTypography-root"
                     >
-                      Delete
-                       
+                      Delete 
                       <span
                         style="font-weight: 500;"
                       >

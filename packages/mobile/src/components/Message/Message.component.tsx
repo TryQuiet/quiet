@@ -20,11 +20,11 @@ export const Message: FC<MessageProps & FileActionsProps> = ({
   cancelDownload,
   openImagePreview,
   openUrl,
-  pendingMessages
+  pendingMessages,
 }) => {
   const componentDecorator = (decoratedHref: string, decoratedText: string, key: number): ReactNode => {
     return (
-      <Typography fontSize={14} color={'link'} onPress={ () => openUrl(decoratedHref) } key={key}>
+      <Typography fontSize={14} color={'link'} onPress={() => openUrl(decoratedHref)} key={key}>
         {decoratedText}
       </Typography>
     )
@@ -38,15 +38,25 @@ export const Message: FC<MessageProps & FileActionsProps> = ({
         return (
           <>
             {fileDisplay && message.media ? (
-              <UploadedImage media={message.media} openImagePreview={openImagePreview}/>
+              <UploadedImage media={message.media} openImagePreview={openImagePreview} />
             ) : (
-              <UploadedFile message={message} downloadStatus={downloadStatus} downloadFile={downloadFile} cancelDownload={cancelDownload}/>
+              <UploadedFile
+                message={message}
+                downloadStatus={downloadStatus}
+                downloadFile={downloadFile}
+                cancelDownload={cancelDownload}
+              />
             )}
           </>
         )
       case 4: // MessageType.File
         return (
-          <UploadedFile message={message} downloadStatus={downloadStatus} downloadFile={downloadFile} cancelDownload={cancelDownload}/>
+          <UploadedFile
+            message={message}
+            downloadStatus={downloadStatus}
+            downloadFile={downloadFile}
+            cancelDownload={cancelDownload}
+          />
         )
       default:
         const color = pending ? 'lightGray' : 'main'
@@ -57,15 +67,15 @@ export const Message: FC<MessageProps & FileActionsProps> = ({
           const sanitizedMathJax = message.message.replace(/\$\$(\s*)\$\$/g, '$$_$$')
           return (
             // @ts-expect-error (Property 'children' does not exist on type 'IntrinsicAttributes & Props')
-            <MathJaxSvg
-              fontSize={14}
-              color={ defaultTheme.palette.typography[color] }
-              fontCache={true}
-            >{sanitizedMathJax}</MathJaxSvg>
+            <MathJaxSvg fontSize={14} color={defaultTheme.palette.typography[color]} fontCache={true}>
+              {sanitizedMathJax}
+            </MathJaxSvg>
           )
         }
         return (
-          <Typography fontSize={14} color={ color } testID={message.message}><Linkify componentDecorator={componentDecorator}>{message.message}</Linkify></Typography>
+          <Typography fontSize={14} color={color} testID={message.message}>
+            <Linkify componentDecorator={componentDecorator}>{message.message}</Linkify>
+          </Typography>
         )
     }
   }
@@ -80,21 +90,23 @@ export const Message: FC<MessageProps & FileActionsProps> = ({
       <View
         style={{
           flexDirection: 'row',
-          paddingBottom: 30
-        }}>
+          paddingBottom: 30,
+        }}
+      >
         <View
           style={{
             flex: 1,
             alignItems: 'center',
-            paddingRight: 15
-          }}>
+            paddingRight: 15,
+          }}
+        >
           {info ? (
             <Image
-            resizeMode='cover'
-            resizeMethod='resize'
-            source={appImages.quiet_icon}
-            style={{ width: 37, height: 37 }}
-          />
+              resizeMode='cover'
+              resizeMethod='resize'
+              source={appImages.quiet_icon}
+              style={{ width: 37, height: 37 }}
+            />
           ) : (
             <Jdenticon value={representativeMessage.nickname} size={37} />
           )}
@@ -102,7 +114,7 @@ export const Message: FC<MessageProps & FileActionsProps> = ({
         <View style={{ flex: 8 }}>
           <View style={{ flexDirection: 'row', paddingBottom: 3 }}>
             <View style={{ alignSelf: 'flex-start' }}>
-              <Typography fontSize={16} fontWeight={'medium'} color={ pending ? 'lightGray' : 'main' }>
+              <Typography fontSize={16} fontWeight={'medium'} color={pending ? 'lightGray' : 'main'}>
                 {info ? 'Quiet' : representativeMessage.nickname}
               </Typography>
             </View>
@@ -110,8 +122,9 @@ export const Message: FC<MessageProps & FileActionsProps> = ({
               style={{
                 alignSelf: 'flex-start',
                 paddingTop: 2,
-                paddingLeft: 8
-              }}>
+                paddingLeft: 8,
+              }}
+            >
               <Typography fontSize={14} color={'subtitle'}>
                 {representativeMessage.date}
               </Typography>
@@ -135,9 +148,9 @@ export const Message: FC<MessageProps & FileActionsProps> = ({
 
 const classes = StyleSheet.create({
   firstMessage: {
-    paddingTop: 0
+    paddingTop: 0,
   },
   nextMessage: {
-    paddingTop: 4
-  }
+    paddingTop: 4,
+  },
 })

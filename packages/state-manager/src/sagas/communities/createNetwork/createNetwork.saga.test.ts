@@ -8,7 +8,7 @@ import { createRootCA, setupCrypto } from '@quiet/identity'
 import { reducers } from '../../reducers'
 import { createNetworkSaga } from './createNetwork.saga'
 import { generateId } from '../../../utils/cryptography/cryptography'
-import { Community, CommunityOwnership, SocketActionTypes } from '@quiet/types'
+import { type Community, CommunityOwnership } from '@quiet/types'
 
 describe('createNetwork', () => {
   it('create network for joining user', async () => {
@@ -20,7 +20,7 @@ describe('createNetwork', () => {
       name: undefined,
       registrarUrl: 'http://registrarUrl.onion',
       CA: null,
-      rootCa: undefined
+      rootCa: undefined,
     }
 
     const reducer = combineReducers(reducers)
@@ -28,7 +28,7 @@ describe('createNetwork', () => {
       createNetworkSaga,
       communitiesActions.createNetwork({
         ownership: CommunityOwnership.User,
-        registrar: 'registrarUrl'
+        registrar: 'registrarUrl',
       })
     )
       .withReducer(reducer)
@@ -46,15 +46,15 @@ describe('createNetwork', () => {
 
     const CA = {
       rootCertString: 'rootCertString',
-      rootKeyString: 'rootKeyString'
+      rootKeyString: 'rootKeyString',
     }
 
     const community: Community = {
       id: '1',
       name: 'rockets',
       registrarUrl: undefined,
-      CA: CA,
-      rootCa: CA.rootCertString
+      CA,
+      rootCa: CA.rootCertString,
     }
 
     const reducer = combineReducers(reducers)
@@ -62,14 +62,14 @@ describe('createNetwork', () => {
       createNetworkSaga,
       communitiesActions.createNetwork({
         ownership: CommunityOwnership.Owner,
-        name: 'rockets'
+        name: 'rockets',
       })
     )
       .withReducer(reducer)
       .withState(store.getState())
       .provide([
         [call.fn(createRootCA), CA],
-        [call.fn(generateId), community.id]
+        [call.fn(generateId), community.id],
       ])
       .call(
         createRootCA,

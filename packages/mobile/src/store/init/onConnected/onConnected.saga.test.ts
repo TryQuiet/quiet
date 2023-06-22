@@ -19,12 +19,12 @@ describe('onConnectedSaga', () => {
       .withState(store.getState())
       .not.put(
         navigationActions.replaceScreen({
-          screen: ScreenNames.JoinCommunityScreen
+          screen: ScreenNames.JoinCommunityScreen,
         })
       )
       .not.put(
         navigationActions.replaceScreen({
-          screen: ScreenNames.ChannelListScreen
+          screen: ScreenNames.ChannelListScreen,
         })
       )
       .run()

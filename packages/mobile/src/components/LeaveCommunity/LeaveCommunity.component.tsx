@@ -8,11 +8,7 @@ import { Typography } from '../Typography/Typography.component'
 
 import { LeaveCommunityProps } from './LeaveCommunity.types'
 
-export const LeaveCommunity: FC<LeaveCommunityProps> = ({
-  name,
-  leaveCommunity,
-  handleBackButton
-}) => {
+export const LeaveCommunity: FC<LeaveCommunityProps> = ({ name, leaveCommunity, handleBackButton }) => {
   const [displayedName, setDisplayedName] = useState<string>('')
   const [loading, setLoading] = useState<boolean>(false)
 
@@ -33,14 +29,13 @@ export const LeaveCommunity: FC<LeaveCommunityProps> = ({
   }, [name])
 
   return (
-    <View
-      style={{ flex: 1, backgroundColor: defaultPalette.background.white }}
-      testID={'leave-community-component'}>
+    <View style={{ flex: 1, backgroundColor: defaultPalette.background.white }} testID={'leave-community-component'}>
       <Appbar title={'Leave community'} back={goBack} />
       <View
         style={{
-          padding: 24
-        }}>
+          padding: 24,
+        }}
+      >
         <View>
           <Typography fontSize={18} fontWeight={'medium'}>
             Are you sure you want to leave?

@@ -1,11 +1,11 @@
 import AccessController from 'orbit-db-access-controllers'
 import { getCrypto } from 'pkijs'
 import { stringToArrayBuffer } from 'pvutils'
-import { ChannelMessage, PublicChannel } from '@quiet/types'
+import { ChannelMessage, type PublicChannel } from '@quiet/types'
 import { keyObjectFromString, verifySignature } from '@quiet/identity'
 import Identities from 'orbit-db-identity-provider'
-import OrbitDB from 'orbit-db'
-import PeerId from 'peer-id'
+import type OrbitDB from 'orbit-db'
+import type PeerId from 'peer-id'
 
 const Keystore = await import('orbit-db-keystore')
 

@@ -4,7 +4,7 @@ import { Time } from 'pkijs'
 import { generateId } from '../../../utils/cryptography/cryptography'
 import { communitiesActions } from '../communities.slice'
 import { createRootCA } from '@quiet/identity'
-import { Community, CommunityOwnership } from '@quiet/types'
+import { type Community, CommunityOwnership } from '@quiet/types'
 
 export function* createNetworkSaga(
   action: PayloadAction<ReturnType<typeof communitiesActions.createNetwork>['payload']>
@@ -32,11 +32,11 @@ export function* createNetworkSaga(
   const registrarUrl = action.payload.registrar ? `http://${action.payload.registrar}.onion` : undefined
 
   const payload: Community = {
-    id: id,
+    id,
     name: action.payload.name,
-    registrarUrl: registrarUrl,
-    CA: CA,
-    rootCa: CA?.rootCertString
+    registrarUrl,
+    CA,
+    rootCa: CA?.rootCertString,
   }
 
   yield* put(communitiesActions.clearInvitationCode())

@@ -8,12 +8,12 @@ describe('modalsSelectors', () => {
   it('returns false for closed modal', () => {
     store = createStore(
       combineReducers({
-        Modals: modalsReducer
+        Modals: modalsReducer,
       }),
       {
         Modals: {
-          ...new ModalsInitialState()
-        }
+          ...new ModalsInitialState(),
+        },
       }
     )
     const channelInfo = modalsSelectors.open(ModalName.channelInfo)(store.getState())
@@ -23,13 +23,13 @@ describe('modalsSelectors', () => {
   it('returns true for open modal', () => {
     store = createStore(
       combineReducers({
-        Modals: modalsReducer
+        Modals: modalsReducer,
       }),
       {
         Modals: {
           ...new ModalsInitialState(),
-          [ModalName.channelInfo]: { open: true, args: {} }
-        }
+          [ModalName.channelInfo]: { open: true, args: {} },
+        },
       }
     )
     const channelInfo = modalsSelectors.open(ModalName.channelInfo)(store.getState())

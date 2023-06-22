@@ -15,56 +15,52 @@ const classes = {
   highlight: `${PREFIX}highlight`,
   name: `${PREFIX}name`,
   caption: `${PREFIX}caption`,
-  captionHighlight: `${PREFIX}captionHighlight`
+  captionHighlight: `${PREFIX}captionHighlight`,
 }
 
-const StyledGrid = styled(Grid)((
-  {
-    theme
-  }
-) => ({
+const StyledGrid = styled(Grid)(({ theme }) => ({
   [`&.${classes.root}`]: {
     paddingTop: 10,
-    paddingLeft: 16
+    paddingLeft: 16,
   },
 
   [`& .${classes.avatarDiv}`]: {
     maxHeight: 18,
     maxWidth: 18,
     borderRadius: 4,
-    backgroundColor: theme.palette.colors.grayBackgroud
+    backgroundColor: theme.palette.colors.grayBackgroud,
   },
 
   [`& .${classes.alignAvatar}`]: {
     width: 17,
     height: 17,
     marginLeft: 1,
-    marginTop: 1
+    marginTop: 1,
   },
 
   [`& .${classes.data}`]: {
-    marginLeft: 9
+    marginLeft: 9,
   },
 
   [`&.${classes.highlight}`]: {
     backgroundColor: theme.palette.colors.lushSky,
-    color: theme.palette.colors.white
+    color: theme.palette.colors.white,
   },
 
   [`& .${classes.name}`]: {
-    marginTop: -4
+    marginTop: -4,
   },
 
   [`& .${classes.caption}`]: {
     lineHeight: '18px',
     fontSize: 12,
     letterSpacing: 0.4,
-    color: 'rgba(0,0,0,0.6)'
+    color: 'rgba(0,0,0,0.6)',
   },
 
   [`& .${classes.captionHighlight}`]: {
-    color: 'rgba(255,255,255,0.6)'
-  }
+    color: 'rgba(255,255,255,0.6)',
+  },
 }))
 
 export interface MentionElementProps {
@@ -82,14 +78,14 @@ export const MentionElement: React.FC<MentionElementProps> = ({
   participant = false,
   highlight = false,
   onMouseEnter,
-  onClick
+  onClick,
 }) => {
   return (
     <StyledGrid
       container
       className={classNames({
         [classes.root]: true,
-        [classes.highlight]: highlight
+        [classes.highlight]: highlight,
       })}
       onMouseEnter={onMouseEnter}
       onClick={e => onClick(e)}
@@ -108,7 +104,7 @@ export const MentionElement: React.FC<MentionElementProps> = ({
             variant='body2'
             className={classNames({
               [classes.caption]: true,
-              [classes.captionHighlight]: highlight
+              [classes.captionHighlight]: highlight,
             })}
           >{`Participant in ${channelName}`}</Typography>
         )}

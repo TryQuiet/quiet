@@ -1,5 +1,5 @@
 import { isDefined } from '@quiet/common'
-import { NetworkStats } from '@quiet/types'
+import { type NetworkStats } from '@quiet/types'
 
 /**
 This is the very simple algorithm for evaluating the most wanted peers.
@@ -31,8 +31,8 @@ export const sortPeers = (peersAddresses: string[], stats: NetworkStats[]): stri
     }
   }
 
-  const peerList = mostWantedPeers.map((peerId) => {
-    return peersAddresses.find((peerAddress) => {
+  const peerList = mostWantedPeers.map(peerId => {
+    return peersAddresses.find(peerAddress => {
       const id = peerAddress.split('/')[7]
       if (id === peerId.peerId) {
         peersAddresses.splice(peersAddresses.indexOf(peerAddress), 1)
@@ -41,5 +41,8 @@ export const sortPeers = (peersAddresses: string[], stats: NetworkStats[]): stri
     })
   })
 
-  return peerList.concat(peersAddresses).filter(address => address !== null).filter(isDefined)
+  return peerList
+    .concat(peersAddresses)
+    .filter(address => address !== null)
+    .filter(isDefined)
 }

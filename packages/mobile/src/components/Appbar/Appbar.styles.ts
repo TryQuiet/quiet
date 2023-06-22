@@ -1,4 +1,3 @@
-
 import { View } from 'react-native'
 import styled, { css } from 'styled-components/native'
 import { defaultTheme } from '../../styles/themes/default.theme'

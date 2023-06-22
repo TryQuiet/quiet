@@ -17,7 +17,7 @@ const PREFIX = 'NestedMessageContent'
 const classes = {
   message: `${PREFIX}message`,
   pending: `${PREFIX}pending`,
-  info: `${PREFIX}info`
+  info: `${PREFIX}info`,
 }
 
 const StyledGrid = styled(Grid)(() => ({
@@ -25,16 +25,16 @@ const StyledGrid = styled(Grid)(() => ({
     fontSize: '0.855rem',
     whiteSpace: 'pre-line',
     lineHeight: '21px',
-    overflowWrap: 'anywhere'
+    overflowWrap: 'anywhere',
   },
 
   [`& .${classes.pending}`]: {
-    color: theme.palette.colors.lightGray
+    color: theme.palette.colors.lightGray,
   },
 
   [`& .${classes.info}`]: {
-    color: theme.palette.colors.white
-  }
+    color: theme.palette.colors.white,
+  },
 }))
 
 export interface NestedMessageContentProps {
@@ -57,7 +57,7 @@ export const NestedMessageContent: React.FC<NestedMessageContentProps & FileActi
   openUrl,
   openContainingFolder,
   downloadFile,
-  cancelDownload
+  cancelDownload,
 }) => {
   const renderMessage = () => {
     const isMalicious = downloadStatus?.downloadState === DownloadState.Malicious
@@ -70,13 +70,24 @@ export const NestedMessageContent: React.FC<NestedMessageContentProps & FileActi
           <div
             className={classNames({
               [classes.message]: true,
-              [classes.pending]: pending
+              [classes.pending]: pending,
             })}
-            data-testid={`messagesGroupContent-${message.id}`}>
+            data-testid={`messagesGroupContent-${message.id}`}
+          >
             {fileDisplay && message.media ? (
-              <UploadedImage media={message.media} uploadedFileModal={uploadedFileModal} downloadStatus={downloadStatus} />
+              <UploadedImage
+                media={message.media}
+                uploadedFileModal={uploadedFileModal}
+                downloadStatus={downloadStatus}
+              />
             ) : (
-              <FileComponent message={message} downloadStatus={downloadStatus} openContainingFolder={openContainingFolder} downloadFile={downloadFile} cancelDownload={cancelDownload} />
+              <FileComponent
+                message={message}
+                downloadStatus={downloadStatus}
+                openContainingFolder={openContainingFolder}
+                downloadFile={downloadFile}
+                cancelDownload={cancelDownload}
+              />
             )}
           </div>
         )
@@ -85,15 +96,30 @@ export const NestedMessageContent: React.FC<NestedMessageContentProps & FileActi
           <div
             className={classNames({
               [classes.message]: true,
-              [classes.pending]: pending
+              [classes.pending]: pending,
             })}
-            data-testid={`messagesGroupContent-${message.id}`}>
-            <FileComponent message={message} downloadStatus={downloadStatus} openContainingFolder={openContainingFolder} downloadFile={downloadFile} cancelDownload={cancelDownload} />
+            data-testid={`messagesGroupContent-${message.id}`}
+          >
+            <FileComponent
+              message={message}
+              downloadStatus={downloadStatus}
+              openContainingFolder={openContainingFolder}
+              downloadFile={downloadFile}
+              cancelDownload={cancelDownload}
+            />
           </div>
         )
       default:
-        if (!displayMathRegex.test(message.message)) { // Regular text message
-          return <TextMessageComponent message={message.message} messageId={message.id} pending={pending} openUrl={openUrl} />
+        if (!displayMathRegex.test(message.message)) {
+          // Regular text message
+          return (
+            <TextMessageComponent
+              message={message.message}
+              messageId={message.id}
+              pending={pending}
+              openUrl={openUrl}
+            />
+          )
         }
 
         return (

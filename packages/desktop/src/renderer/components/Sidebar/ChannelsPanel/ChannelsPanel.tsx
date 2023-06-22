@@ -19,7 +19,7 @@ const ChannelsPanel: React.FC<ChannelsPanelProps> = ({
   unreadChannels,
   setCurrentChannel,
   currentChannelId,
-  createChannelModal
+  createChannelModal,
 }) => {
   return (
     <Grid container item xs direction='column'>

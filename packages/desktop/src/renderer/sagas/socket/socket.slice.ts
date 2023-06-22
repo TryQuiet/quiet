@@ -4,7 +4,7 @@ import { Socket } from 'socket.io-client'
 import { FixedTask } from 'typed-redux-saga'
 
 export class SocketState {
-  public isConnected: boolean = false
+  public isConnected = false
 }
 
 export interface WebsocketConnectionPayload {
@@ -29,8 +29,8 @@ export const socketSlice = createSlice({
     },
     setConnected: state => {
       state.isConnected = true
-    }
-  }
+    },
+  },
 })
 
 export const socketActions = socketSlice.actions

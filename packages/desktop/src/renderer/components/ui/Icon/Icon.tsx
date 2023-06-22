@@ -6,7 +6,7 @@ export const Icon: React.FC<IIconProps> = ({
   src,
   onClickHandler,
   onMouseEnterHandler,
-  onMouseLeaveHandler
+  onMouseLeaveHandler,
 }) => {
   return (
     <img

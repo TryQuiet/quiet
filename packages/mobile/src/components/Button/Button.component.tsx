@@ -13,7 +13,8 @@ export const Button: FC<ButtonProps> = ({ onPress, title, width, loading, negati
         event.persist()
         if (!disabled) onPress()
       }}
-      testID={'button'}>
+      testID={'button'}
+    >
       <View
         style={{
           paddingVertical: 12,
@@ -23,8 +24,9 @@ export const Button: FC<ButtonProps> = ({ onPress, title, width, loading, negati
           justifyContent: 'center',
           alignItems: 'center',
           minHeight: 45,
-          width: width
-        }}>
+          width,
+        }}
+      >
         {!loading ? (
           <Typography fontSize={14} color={!negative ? 'white' : 'gray50'}>
             {title}

@@ -8,16 +8,16 @@ const log = logger('backendManager')
 const program = new Command()
 
 program
-.option('-p, --platform <platform>', 'platform')
-.option('-dpth, --dataPath <dataPath>', 'data directory path')
-.option('-dprt, --dataPort <dataPort>', 'data port')
-.option('-t, --torBinary <torBinary>', 'tor binary path')
-.option('-ac, --authCookie <authCookie>', 'tor authentication cookie')
-.option('-cp, --controlPort <controlPort>', 'tor control port')
-.option('-htp, --httpTunnelPort <httpTunnelPort>', 'http tunnel port')
-.option('-a, --appDataPath <string>', 'Path of application data directory')
-.option('-d, --socketIOPort <number>', 'Socket io data server port')
-.option('-r, --resourcesPath <string>', 'Application resources path')
+  .option('-p, --platform <platform>', 'platform')
+  .option('-dpth, --dataPath <dataPath>', 'data directory path')
+  .option('-dprt, --dataPort <dataPort>', 'data port')
+  .option('-t, --torBinary <torBinary>', 'tor binary path')
+  .option('-ac, --authCookie <authCookie>', 'tor authentication cookie')
+  .option('-cp, --controlPort <controlPort>', 'tor control port')
+  .option('-htp, --httpTunnelPort <httpTunnelPort>', 'http tunnel port')
+  .option('-a, --appDataPath <string>', 'Path of application data directory')
+  .option('-d, --socketIOPort <number>', 'Socket io data server port')
+  .option('-r, --resourcesPath <string>', 'Application resources path')
 
 program.parse(process.argv)
 const options = program.opts()
@@ -41,11 +41,11 @@ export const runBackendDesktop = async () => {
     options: {
       env: {
         appDataPath: path.join(options.appDataPath.trim(), 'Quiet'),
-      }
-    }
+      },
+    },
   })
 
-  process.on('message', async (message) => {
+  process.on('message', async message => {
     if (message === 'close') {
       try {
         await connectionsManager.closeAllServices()
@@ -83,7 +83,7 @@ export const runBackendMobile = async (): Promise<any> => {
         appDataPath: options.dataPath,
       },
       createPaths: false,
-    }
+    },
   })
 
   await connectionsManager.init()
@@ -97,11 +97,13 @@ if (platform === 'desktop') {
     throw error
   })
 } else if (platform === 'mobile') {
-  runBackendMobile().catch(async (error) => {
+  runBackendMobile().catch(async error => {
     log.error('Error occurred while initializing backend', error)
     // Prevent stopping process before getting output
-    await new Promise<void>((resolve) => {
-      setTimeout(() => { resolve() }, 10000)
+    await new Promise<void>(resolve => {
+      setTimeout(() => {
+        resolve()
+      }, 10000)
     })
     throw error
   })

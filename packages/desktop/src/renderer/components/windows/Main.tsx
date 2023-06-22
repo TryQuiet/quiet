@@ -12,7 +12,7 @@ const MainGridStyled = styled(Grid)(() => ({
   minHeight: '100vh',
   minWidth: '100vw',
   overflow: 'hidden',
-  position: 'relative'
+  position: 'relative',
 }))
 
 export const Main: React.FC = () => {
@@ -31,14 +31,14 @@ export const Main: React.FC = () => {
 
   const [_dimensions, setDimensions] = React.useState({
     height: window.innerHeight,
-    width: window.innerWidth
+    width: window.innerWidth,
   })
 
   useEffect(() => {
     const debouncedHandleResize = debounce(function handleResize() {
       setDimensions({
         height: window.innerHeight,
-        width: window.innerWidth
+        width: window.innerWidth,
       })
     }, 1000)
 
@@ -50,20 +50,20 @@ export const Main: React.FC = () => {
   })
 
   return (
-    (<div>
+    <div>
       <WindowWrapper>
         <MainGridStyled container direction='row' wrap='nowrap'>
           <Grid item>
             <Sidebar />
           </Grid>
           <Grid item xs>
-          <Routes>
-            <Route path={'channel/:id'} element={<Channel />} />
-          </Routes>
+            <Routes>
+              <Route path={'channel/:id'} element={<Channel />} />
+            </Routes>
           </Grid>
         </MainGridStyled>
       </WindowWrapper>
-    </div>)
+    </div>
   )
 }
 
