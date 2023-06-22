@@ -130,7 +130,16 @@ describe('ContextMenu component', () => {
                   "selected": undefined,
                 }
               }
+              accessibilityValue={
+                {
+                  "max": undefined,
+                  "min": undefined,
+                  "now": undefined,
+                  "text": undefined,
+                }
+              }
               accessible={true}
+              collapsable={false}
               focusable={true}
               onClick={[Function]}
               onResponderGrant={[Function]}
@@ -141,29 +150,37 @@ describe('ContextMenu component', () => {
               onStartShouldSetResponder={[Function]}
               style={
                 {
-                  "alignItems": "center",
-                  "flex": 1,
-                  "height": 60,
-                  "justifyContent": "center",
-                  "width": 60,
+                  "opacity": 1,
                 }
               }
             >
-              <Image
-                resizeMethod="resize"
-                resizeMode="cover"
-                source={
-                  {
-                    "testUri": "../../../assets/icons/icon_close.png",
-                  }
-                }
+              <View
                 style={
                   {
-                    "height": 13,
-                    "width": 13,
+                    "alignItems": "center",
+                    "flex": 1,
+                    "height": 60,
+                    "justifyContent": "center",
+                    "width": 60,
                   }
                 }
-              />
+              >
+                <Image
+                  resizeMethod="resize"
+                  resizeMode="cover"
+                  source={
+                    {
+                      "testUri": "../../../assets/icons/icon_close.png",
+                    }
+                  }
+                  style={
+                    {
+                      "height": 13,
+                      "width": 13,
+                    }
+                  }
+                />
+              </View>
             </View>
             <View
               style={
@@ -282,7 +299,16 @@ describe('ContextMenu component', () => {
                           "selected": undefined,
                         }
                       }
+                      accessibilityValue={
+                        {
+                          "max": undefined,
+                          "min": undefined,
+                          "now": undefined,
+                          "text": undefined,
+                        }
+                      }
                       accessible={true}
+                      collapsable={false}
                       focusable={true}
                       onClick={[Function]}
                       onResponderGrant={[Function]}
@@ -293,13 +319,7 @@ describe('ContextMenu component', () => {
                       onStartShouldSetResponder={[Function]}
                       style={
                         {
-                          "alignItems": "center",
-                          "display": "flex",
-                          "flexDirection": "row",
-                          "height": 48,
-                          "paddingLeft": 20,
-                          "paddingRight": 20,
-                          "width": "100%",
+                          "opacity": 1,
                         }
                       }
                       testID="Create channel"
@@ -307,62 +327,76 @@ describe('ContextMenu component', () => {
                       <View
                         style={
                           {
+                            "alignItems": "center",
                             "display": "flex",
-                            "flex": 8,
                             "flexDirection": "row",
-                            "justifyContent": "flex-start",
+                            "height": 48,
+                            "paddingLeft": 20,
+                            "paddingRight": 20,
+                            "width": "100%",
                           }
                         }
                       >
-                        <Text
-                          color="main"
-                          fontSize={16}
-                          fontWeight="normal"
-                          horizontalTextAlign="left"
+                        <View
                           style={
-                            [
-                              {
-                                "color": "#000000",
-                                "fontFamily": "Rubik-Regular",
-                                "fontSize": 16,
-                                "textAlign": "left",
-                                "textAlignVertical": "center",
-                              },
-                              {
-                                "lineHeight": 26,
-                              },
-                            ]
+                            {
+                              "display": "flex",
+                              "flex": 8,
+                              "flexDirection": "row",
+                              "justifyContent": "flex-start",
+                            }
                           }
-                          verticalTextAlign="center"
                         >
-                          Create channel
-                        </Text>
-                      </View>
-                      <View
-                        style={
-                          {
-                            "display": "flex",
-                            "flex": 1,
-                            "flexDirection": "row",
-                            "justifyContent": "flex-end",
-                          }
-                        }
-                      >
-                        <Image
-                          resizeMethod="resize"
-                          resizeMode="cover"
-                          source={
-                            {
-                              "testUri": "../../../assets/icons/arrow_right_short.png",
+                          <Text
+                            color="main"
+                            fontSize={16}
+                            fontWeight="normal"
+                            horizontalTextAlign="left"
+                            style={
+                              [
+                                {
+                                  "color": "#000000",
+                                  "fontFamily": "Rubik-Regular",
+                                  "fontSize": 16,
+                                  "textAlign": "left",
+                                  "textAlignVertical": "center",
+                                },
+                                {
+                                  "lineHeight": 26,
+                                },
+                              ]
                             }
-                          }
+                            verticalTextAlign="center"
+                          >
+                            Create channel
+                          </Text>
+                        </View>
+                        <View
                           style={
                             {
-                              "height": 13,
-                              "width": 8,
+                              "display": "flex",
+                              "flex": 1,
+                              "flexDirection": "row",
+                              "justifyContent": "flex-end",
                             }
                           }
-                        />
+                        >
+                          <Image
+                            resizeMethod="resize"
+                            resizeMode="cover"
+                            source={
+                              {
+                                "testUri": "../../../assets/icons/arrow_right_short.png",
+                              }
+                            }
+                            style={
+                              {
+                                "height": 13,
+                                "width": 8,
+                              }
+                            }
+                          />
+                        </View>
                       </View>
                     </View>
                   </View>
@@ -395,7 +429,16 @@ describe('ContextMenu component', () => {
                           "selected": undefined,
                         }
                       }
+                      accessibilityValue={
+                        {
+                          "max": undefined,
+                          "min": undefined,
+                          "now": undefined,
+                          "text": undefined,
+                        }
+                      }
                       accessible={true}
+                      collapsable={false}
                       focusable={true}
                       onClick={[Function]}
                       onResponderGrant={[Function]}
@@ -406,13 +449,7 @@ describe('ContextMenu component', () => {
                       onStartShouldSetResponder={[Function]}
                       style={
                         {
-                          "alignItems": "center",
-                          "display": "flex",
-                          "flexDirection": "row",
-                          "height": 48,
-                          "paddingLeft": 20,
-                          "paddingRight": 20,
-                          "width": "100%",
+                          "opacity": 1,
                         }
                       }
                       testID="Add members"
@@ -420,62 +457,76 @@ describe('ContextMenu component', () => {
                       <View
                         style={
                           {
+                            "alignItems": "center",
                             "display": "flex",
-                            "flex": 8,
                             "flexDirection": "row",
-                            "justifyContent": "flex-start",
+                            "height": 48,
+                            "paddingLeft": 20,
+                            "paddingRight": 20,
+                            "width": "100%",
                           }
                         }
                       >
-                        <Text
-                          color="main"
-                          fontSize={16}
-                          fontWeight="normal"
-                          horizontalTextAlign="left"
+                        <View
                           style={
-                            [
-                              {
-                                "color": "#000000",
-                                "fontFamily": "Rubik-Regular",
-                                "fontSize": 16,
-                                "textAlign": "left",
-                                "textAlignVertical": "center",
-                              },
-                              {
-                                "lineHeight": 26,
-                              },
-                            ]
+                            {
+                              "display": "flex",
+                              "flex": 8,
+                              "flexDirection": "row",
+                              "justifyContent": "flex-start",
+                            }
                           }
-                          verticalTextAlign="center"
                         >
-                          Add members
-                        </Text>
-                      </View>
-                      <View
-                        style={
-                          {
-                            "display": "flex",
-                            "flex": 1,
-                            "flexDirection": "row",
-                            "justifyContent": "flex-end",
-                          }
-                        }
-                      >
-                        <Image
-                          resizeMethod="resize"
-                          resizeMode="cover"
-                          source={
-                            {
-                              "testUri": "../../../assets/icons/arrow_right_short.png",
+                          <Text
+                            color="main"
+                            fontSize={16}
+                            fontWeight="normal"
+                            horizontalTextAlign="left"
+                            style={
+                              [
+                                {
+                                  "color": "#000000",
+                                  "fontFamily": "Rubik-Regular",
+                                  "fontSize": 16,
+                                  "textAlign": "left",
+                                  "textAlignVertical": "center",
+                                },
+                                {
+                                  "lineHeight": 26,
+                                },
+                              ]
                             }
-                          }
+                            verticalTextAlign="center"
+                          >
+                            Add members
+                          </Text>
+                        </View>
+                        <View
                           style={
                             {
-                              "height": 13,
-                              "width": 8,
+                              "display": "flex",
+                              "flex": 1,
+                              "flexDirection": "row",
+                              "justifyContent": "flex-end",
                             }
                           }
-                        />
+                        >
+                          <Image
+                            resizeMethod="resize"
+                            resizeMode="cover"
+                            source={
+                              {
+                                "testUri": "../../../assets/icons/arrow_right_short.png",
+                              }
+                            }
+                            style={
+                              {
+                                "height": 13,
+                                "width": 8,
+                              }
+                            }
+                          />
+                        </View>
                       </View>
                     </View>
                   </View>
@@ -508,7 +559,16 @@ describe('ContextMenu component', () => {
                           "selected": undefined,
                         }
                       }
+                      accessibilityValue={
+                        {
+                          "max": undefined,
+                          "min": undefined,
+                          "now": undefined,
+                          "text": undefined,
+                        }
+                      }
                       accessible={true}
+                      collapsable={false}
                       focusable={true}
                       onClick={[Function]}
                       onResponderGrant={[Function]}
@@ -519,13 +579,7 @@ describe('ContextMenu component', () => {
                       onStartShouldSetResponder={[Function]}
                       style={
                         {
-                          "alignItems": "center",
-                          "display": "flex",
-                          "flexDirection": "row",
-                          "height": 48,
-                          "paddingLeft": 20,
-                          "paddingRight": 20,
-                          "width": "100%",
+                          "opacity": 1,
                         }
                       }
                       testID="Settings"
@@ -533,62 +587,76 @@ describe('ContextMenu component', () => {
                       <View
                         style={
                           {
+                            "alignItems": "center",
                             "display": "flex",
-                            "flex": 8,
                             "flexDirection": "row",
-                            "justifyContent": "flex-start",
+                            "height": 48,
+                            "paddingLeft": 20,
+                            "paddingRight": 20,
+                            "width": "100%",
                           }
                         }
                       >
-                        <Text
-                          color="main"
-                          fontSize={16}
-                          fontWeight="normal"
-                          horizontalTextAlign="left"
+                        <View
                           style={
-                            [
-                              {
-                                "color": "#000000",
-                                "fontFamily": "Rubik-Regular",
-                                "fontSize": 16,
-                                "textAlign": "left",
-                                "textAlignVertical": "center",
-                              },
-                              {
-                                "lineHeight": 26,
-                              },
-                            ]
+                            {
+                              "display": "flex",
+                              "flex": 8,
+                              "flexDirection": "row",
+                              "justifyContent": "flex-start",
+                            }
                           }
-                          verticalTextAlign="center"
                         >
-                          Settings
-                        </Text>
-                      </View>
-                      <View
-                        style={
-                          {
-                            "display": "flex",
-                            "flex": 1,
-                            "flexDirection": "row",
-                            "justifyContent": "flex-end",
-                          }
-                        }
-                      >
-                        <Image
-                          resizeMethod="resize"
-                          resizeMode="cover"
-                          source={
-                            {
-                              "testUri": "../../../assets/icons/arrow_right_short.png",
+                          <Text
+                            color="main"
+                            fontSize={16}
+                            fontWeight="normal"
+                            horizontalTextAlign="left"
+                            style={
+                              [
+                                {
+                                  "color": "#000000",
+                                  "fontFamily": "Rubik-Regular",
+                                  "fontSize": 16,
+                                  "textAlign": "left",
+                                  "textAlignVertical": "center",
+                                },
+                                {
+                                  "lineHeight": 26,
+                                },
+                              ]
                             }
-                          }
+                            verticalTextAlign="center"
+                          >
+                            Settings
+                          </Text>
+                        </View>
+                        <View
                           style={
                             {
-                              "height": 13,
-                              "width": 8,
+                              "display": "flex",
+                              "flex": 1,
+                              "flexDirection": "row",
+                              "justifyContent": "flex-end",
                             }
                           }
-                        />
+                        >
+                          <Image
+                            resizeMethod="resize"
+                            resizeMode="cover"
+                            source={
+                              {
+                                "testUri": "../../../assets/icons/arrow_right_short.png",
+                              }
+                            }
+                            style={
+                              {
+                                "height": 13,
+                                "width": 8,
+                              }
+                            }
+                          />
+                        </View>
                       </View>
                     </View>
                   </View>
