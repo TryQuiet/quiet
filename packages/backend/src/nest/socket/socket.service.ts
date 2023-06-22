@@ -15,8 +15,12 @@ export class SocketService extends EventEmitter implements OnModuleInit {
 
    async onModuleInit() {
     this.logger.log('init:started')
-    this.initSocket()
+    this.attachListeners()
+await this.init()
+    this.logger.log('init:finished')
+  }
 
+  public async init() {
     const connection = new Promise<void>((resolve) => {
         this.serverIoProvider.io.on(SocketActionTypes.CONNECTION, socket => {
         this.logger.log('init: connection')
@@ -26,10 +30,9 @@ export class SocketService extends EventEmitter implements OnModuleInit {
     await this.listen()
 
     await connection
-    this.logger.log('init:finished')
   }
 
-    private readonly initSocket = (): void => {
+    private readonly attachListeners = (): void => {
       // Attach listeners here
       this.serverIoProvider.io.on(SocketActionTypes.CONNECTION, socket => {
         this.logger.log('socket connection')

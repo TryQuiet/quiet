@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger, OnModuleInit, OnApplicationBootstrap } from '@nestjs/common'
+import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common'
 import { Crypto } from '@peculiar/webcrypto'
 import { Agent } from 'https'
 import fs from 'fs'
@@ -29,7 +29,7 @@ import { onionAddress } from '../../singletons'
 import { LazyModuleLoader } from '@nestjs/core'
 
 @Injectable()
-export class ConnectionsManagerService extends EventEmitter implements OnModuleInit, OnApplicationBootstrap {
+export class ConnectionsManagerService extends EventEmitter implements OnModuleInit {
   // registration: CertificateRegistration
   // httpTunnelPort?: number
   // socksProxyAgent: Agent
@@ -129,6 +129,11 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       // @ts-ignore
       crypto: webcrypto,
     }))
+
+    await this.init()
+  }
+
+  private async init() {
     console.log('init')
     this.communityState = ServiceState.DEFAULT
     this.registrarState = ServiceState.DEFAULT
@@ -151,22 +156,21 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     })
 
     if (this.configOptions.torControlPort) {
+      console.log('launch 1')
       await this.launchCommunityFromStorage()
     }
 
-    this.serverIoProvider.io.on('connection', async () => {
-      if (this.isTorInit === TorInitState.STARTED || this.isTorInit === TorInitState.STARTING) return
-      this.isTorInit = TorInitState.STARTING
-      if (this.configOptions.torBinaryPath) {
-        // await this.tor.init()
-        this.isTorInit = TorInitState.STARTED
-      }
-      await this.launchCommunityFromStorage()
-    })
-  }
-
-  async onApplicationBootstrap() {
-
+    // this.serverIoProvider.io.on('connection', async () => {
+    //   await this.socketService.listen()
+    //   if (this.isTorInit === TorInitState.STARTED || this.isTorInit === TorInitState.STARTING) return
+    //   this.isTorInit = TorInitState.STARTING
+    //   if (this.configOptions.torBinaryPath) {
+    //     // await this.tor.init()
+    //     this.isTorInit = TorInitState.STARTED
+    //   }
+    //   console.log('launch 2')
+    //   await this.launchCommunityFromStorage()
+    // })
   }
 
   // public readonly createAgent = (): void => {
@@ -234,6 +238,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   public async launchCommunityFromStorage() {
     this.logger.log('launchCommunityFromStorage')
     const community: InitCommunityPayload = await this.localDbService.get(LocalDBKeys.COMMUNITY)
+    console.log('launchCommunityFromStorage - community', community)
     if (community) {
       const sortedPeers = await this.localDbService.getSortedPeers(community.peers)
       if (sortedPeers.length > 0) {
@@ -289,7 +294,8 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.communityId = ''
     // this.storageService = null
     this.libp2pService.libp2pInstance = null
-    // await this.init()
+    await this.socketService.init()
+    await this.init()
   }
 
   public async purgeData() {

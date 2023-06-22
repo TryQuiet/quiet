@@ -211,6 +211,7 @@ describe('Two Clients', () => {
       expect(text).toEqual(`@${ownerUsername} deleted #${newChannelName}`)
     })
     it('Channel deletion - User can create channel with the same name and is fresh channel', async () => {
+      console.log('TEST 1')
       await sidebar2.addNewChannel(newChannelName)
       await sidebar2.switchChannel(newChannelName)
       const messages = await secondChannel2.getUserMessages(joiningUserUsername)
@@ -221,6 +222,7 @@ describe('Two Clients', () => {
     })
 
     it('Leave community', async () => {
+      console.log('TEST 2')
       const settingsModal = await new Sidebar(guestApp.driver).openSettings()
       const isSettingsModal = await settingsModal.element.isDisplayed()
       expect(isSettingsModal).toBeTruthy()
@@ -235,6 +237,7 @@ describe('Two Clients', () => {
     }
     // Delete general channel while guest is absent
     it('Channel deletion - Owner recreate general channel', async () => {
+      console.log('TEST 3')
       await new Promise<void>(resolve => setTimeout(() => resolve(), 2000))
       const isGeneralChannel = await generalChannel.messageInput.isDisplayed()
       expect(isGeneralChannel).toBeTruthy()
@@ -246,6 +249,7 @@ describe('Two Clients', () => {
     })
 
     it('Leave community - Guest re-join to community successfully', async () => {
+      console.log('TEST 4')
       const joinCommunityModal = new JoinCommunityModal(guestApp.driver)
       const isJoinCommunityModal = await joinCommunityModal.element.isDisplayed()
       expect(isJoinCommunityModal).toBeTruthy()
