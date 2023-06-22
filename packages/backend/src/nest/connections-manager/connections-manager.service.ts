@@ -19,7 +19,7 @@ import { StorageService } from '../storage/storage.service'
 import { ServiceState, TorInitState } from './connections-manager.types'
 import { Libp2pService } from '../libp2p/libp2p.service'
 import { Tor } from '../tor/tor.service'
-import { LocalDBKeys } from '../local-db/local-db.types'
+import { LocalDBKeys, LocalDbStatus } from '../local-db/local-db.types'
 import { InitLibp2pParams, Libp2pEvents, Libp2pNodeParams } from '../libp2p/libp2p.types'
 import { TorControl } from '../tor/tor-control.service'
 import { emitError } from '../../socket/errors'
@@ -237,6 +237,10 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
   public async launchCommunityFromStorage() {
     this.logger.log('launchCommunityFromStorage')
+
+    if (this.localDbService.getStatus() === 'closed') {
+      await this.localDbService.open()
+    }
     const community: InitCommunityPayload = await this.localDbService.get(LocalDBKeys.COMMUNITY)
     console.log('launchCommunityFromStorage - community', community)
     if (community) {
@@ -273,6 +277,9 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       this.logger.log('Stopping orbitdb')
       await this.storageService.stopOrbitDb()
     }
+    // if (this.storageService.ipfs) {
+    //   this.storageService.ipfs = null
+    // }
     if (this.serverIoProvider.io) {
       this.logger.log('Closing socket server')
       this.serverIoProvider.io.close()
@@ -295,7 +302,8 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     // this.storageService = null
     this.libp2pService.libp2pInstance = null
     await this.socketService.init()
-    await this.init()
+    // await this.storageService.init()
+    // await this.init()
   }
 
   public async purgeData() {
@@ -396,7 +404,9 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
   public async launchCommunity(payload: InitCommunityPayload) {
     this.communityState = ServiceState.LAUNCHING
-
+    if (this.localDbService.getStatus() === 'closed') {
+      await this.localDbService.open()
+    }
     const communityData: InitCommunityPayload = await this.localDbService.get(LocalDBKeys.COMMUNITY)
     if (!communityData) {
       await this.localDbService.put(LocalDBKeys.COMMUNITY, payload)

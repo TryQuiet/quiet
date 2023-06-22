@@ -18,9 +18,6 @@ export class IpfsService {
   ) {}
 
   public async create() {
-    if (this.ipfsInstance) {
-      return this.ipfsInstance
-    }
 
     const { Libp2pModule } = await import('../libp2p/libp2p.module')
     const moduleRef = await this.lazyModuleLoader.load(() => Libp2pModule)

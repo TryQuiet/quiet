@@ -4,6 +4,7 @@ import { NetworkStats } from '@quiet/types'
 import { sortPeers } from '@quiet/common'
 import { LocalDBKeys } from '../../storage/localDB'
 import { LEVEL_DB } from '../const'
+import { LocalDbStatus } from './local-db.types'
 
 @Injectable()
 export class LocalDbService {
@@ -14,6 +15,15 @@ constructor(@Inject(LEVEL_DB) private readonly db: Level) {}
 public async close() {
     this.logger.log('Closing leveldb')
   await this.db.close()
+}
+
+public async open() {
+  this.logger.log('Opening leveldb')
+  await this.db.open()
+}
+
+public getStatus(): LocalDbStatus {
+  return this.db.status
 }
 
 public async get(key: string) {

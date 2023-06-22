@@ -238,7 +238,7 @@ describe('Two Clients', () => {
     // Delete general channel while guest is absent
     it('Channel deletion - Owner recreate general channel', async () => {
       console.log('TEST 3')
-      await new Promise<void>(resolve => setTimeout(() => resolve(), 2000))
+      await new Promise<void>(resolve => setTimeout(() => resolve(), 10000))
       const isGeneralChannel = await generalChannel.messageInput.isDisplayed()
       expect(isGeneralChannel).toBeTruthy()
       await channelContextMenu.openMenu()

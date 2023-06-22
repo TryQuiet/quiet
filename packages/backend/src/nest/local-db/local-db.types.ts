@@ -4,3 +4,4 @@ export enum LocalDBKeys {
     PEERS = 'peers',
     PEER_ID = 'peerid'
   }
+  export type LocalDbStatus = 'opening' | 'open' | 'closing' | 'closed'
