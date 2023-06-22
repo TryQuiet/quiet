@@ -451,6 +451,12 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     console.log('this peer id ', this.peerId)
   const restoredRsa = await PeerId.createFromJSON(this.peerId)
   const _peerId = await peerIdFromKeys(restoredRsa.marshalPubKey(), restoredRsa.marshalPrivKey())
+
+  let peers = payload.peers
+  if (!peers || peers.length === 0) {
+    peers = [this.libp2pService.createLibp2pAddress(onionAddress, _peerId.toString())]
+  }
+
     const params: Libp2pNodeParams = {
       peerId: _peerId,
       listenAddresses: [this.libp2pService.createLibp2pListenAddress(onionAddress)],
@@ -460,6 +466,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       ca: payload.certs.CA,
       localAddress: this.libp2pService.createLibp2pAddress(onionAddress, _peerId.toString()),
       targetPort: this.ports.libp2pHiddenService,
+      peers
     }
 
     await this.libp2pService.createInstance(params)

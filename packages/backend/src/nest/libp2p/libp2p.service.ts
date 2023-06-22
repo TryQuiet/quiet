@@ -101,21 +101,21 @@ export class Libp2pService extends EventEmitter {
       throw err
     }
     this.libp2pInstance = libp2p
-    await this.afterCreation()
+    await this.afterCreation(params.peers)
     return libp2p
   }
 
-  private async afterCreation() {
+  private async afterCreation(peers: string[]) {
     if (!this.libp2pInstance) {
       this.logger.error('libp2pInstance was not created')
       throw new Error('libp2pInstance was not created')
     }
 
-    // this.logger.log(
-    //   `Initializing libp2p for ${this.peerId.toString()}, bootstrapping with ${this.bootstrapMultiaddrs.length} peers`
-    // )
+    this.logger.log(
+      `Initializing libp2p for ${this.peerId.toString()}, bootstrapping with ${peers.length} peers`
+    )
     this.serverIoProvider.io.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.INITIALIZING_LIBP2P)
-    // const dialInChunks = new ProcessInChunks<string>(this.bootstrapMultiaddrs, this.dialPeer)
+    const dialInChunks = new ProcessInChunks<string>(peers, this.dialPeer)
 
     this.libp2pInstance.addEventListener('peer:discovery', (peer) => {
       this.logger.log(`${this.peerId.toString()} discovered ${peer.detail.id}`)
@@ -126,7 +126,7 @@ export class Libp2pService extends EventEmitter {
       this.logger.log(`${this.peerId.toString()} connected to ${remotePeerId}`)
 
       // Stop dialing as soon as we connect to a peer
-      // dialInChunks.stop()
+      dialInChunks.stop()
 
       this.connectedPeers.set(remotePeerId, DateTime.utc().valueOf())
 
@@ -179,7 +179,7 @@ export class Libp2pService extends EventEmitter {
       })
     })
 
-    // await dialInChunks.process()
+    await dialInChunks.process()
 
     this.logger.log(`Initialized libp2p for peer ${this.peerId.toString()}`)
   }

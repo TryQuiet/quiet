@@ -15,6 +15,7 @@ export interface Libp2pNodeParams {
     ca: string[]
     localAddress: string
     targetPort: number
+    peers: string[]
   }
 
   export interface InitLibp2pParams {
