@@ -8,8 +8,6 @@ const compare = async (imagePath, basePath) => {
       `Expected image at ${imagePath} to be equal to image at ${basePath}, but it was different!`
     )
   }
-  // Remove unnecessary artifacts afterwards
-  fs.unlinkSync(imagePath)
 }
 
 export default compare
