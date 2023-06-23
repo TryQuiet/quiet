@@ -81,6 +81,8 @@ module.exports = {
       },
     },
     'ios.sim.storybook': {
+      device: 'simulator',
+      app: 'ios.debug',
       artifacts: {
         rootDir: './e2e/artifacts/ios',
         plugins: {
