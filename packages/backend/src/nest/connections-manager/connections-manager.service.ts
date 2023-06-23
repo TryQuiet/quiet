@@ -151,7 +151,20 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.on(Libp2pEvents.PEER_CONNECTED, (payload: { peers: string[] }) => {
       this.serverIoProvider.io.emit(SocketActionTypes.PEER_CONNECTED, payload)
     })
-    this.on(Libp2pEvents.PEER_DISCONNECTED, (payload: NetworkDataPayload) => {
+    this.on(Libp2pEvents.PEER_DISCONNECTED, async (payload: NetworkDataPayload) => {
+      const peerPrevStats = await this.localDbService.find(LocalDBKeys.PEERS, payload.peer)
+      const prev = peerPrevStats?.connectionTime || 0
+
+      const peerStats: NetworkStats = {
+        peerId: payload.peer,
+        connectionTime: prev + payload.connectionDuration,
+        lastSeen: payload.connectionDuration
+      }
+
+      await this.localDbService.update(LocalDBKeys.PEERS, {
+        [payload.peer]: peerStats
+      })
+      // BARTEK: Potentially obsolete to send this to state-manager
       this.serverIoProvider.io.emit(SocketActionTypes.PEER_DISCONNECTED, payload)
     })
 
@@ -464,13 +477,13 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.libp2pService = lazyService
 
     console.log('this peer id ', this.peerId)
-  const restoredRsa = await PeerId.createFromJSON(this.peerId)
-  const _peerId = await peerIdFromKeys(restoredRsa.marshalPubKey(), restoredRsa.marshalPrivKey())
+    const restoredRsa = await PeerId.createFromJSON(this.peerId)
+    const _peerId = await peerIdFromKeys(restoredRsa.marshalPubKey(), restoredRsa.marshalPrivKey())
 
-  let peers = payload.peers
-  if (!peers || peers.length === 0) {
-    peers = [this.libp2pService.createLibp2pAddress(onionAddress, _peerId.toString())]
-  }
+    let peers = payload.peers
+    if (!peers || peers.length === 0) {
+      peers = [this.libp2pService.createLibp2pAddress(onionAddress, _peerId.toString())]
+    }
 
     const params: Libp2pNodeParams = {
       peerId: _peerId,

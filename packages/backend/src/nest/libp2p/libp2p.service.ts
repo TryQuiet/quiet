@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common'
+import { Inject, Injectable, Logger } from '@nestjs/common'
 
 import { Agent } from 'https'
 import { createLibp2p, Libp2p } from 'libp2p'
@@ -13,14 +13,12 @@ import { all } from '../../libp2p/websocketOverTor/filters'
 
 import { DateTime } from 'luxon'
 import { EventEmitter } from 'events'
-import { InitLibp2pParams, Libp2pEvents, Libp2pNodeParams } from './libp2p.types'
+import { Libp2pEvents, Libp2pNodeParams } from './libp2p.types'
 import { ProcessInChunks } from './process-in-chunks'
 import { multiaddr } from '@multiformats/multiaddr'
-import { ConnectionProcessInfo, CreateChannelPayload, CreatedChannelResponse, DeleteFilesFromChannelSocketPayload, DownloadStatus, ErrorMessages, FileMetadata, IncomingMessages, InitCommunityPayload, LaunchRegistrarPayload, NetworkData, NetworkDataPayload, NetworkStats, PeerId, PushNotificationPayload, RegisterOwnerCertificatePayload, RegisterUserCertificatePayload, RemoveDownloadStatus, ResponseCreateNetworkPayload, SaveCertificatePayload, SaveOwnerCertificatePayload, SendCertificatesResponse, SendMessagePayload, SetChannelSubscribedPayload, SocketActionTypes, StorePeerListPayload, UploadFilePayload } from '@quiet/types'
-import { INIT_LIBP2P_PARAMS, LIB_P2P_PROVIDER, PEER_ID_PROVIDER, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
+import { ConnectionProcessInfo, PeerId, SocketActionTypes } from '@quiet/types'
+import { PEER_ID_PROVIDER, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
 import { ServerIoProviderTypes } from '../types'
-import { LocalDbService } from '../local-db/local-db.service'
-import { LocalDBKeys } from '../local-db/local-db.types'
 import { createLibp2pListenAddress, createLibp2pAddress } from './libp2p.utils'
 
 @Injectable()
@@ -30,11 +28,9 @@ export class Libp2pService extends EventEmitter {
   public connectedPeers: Map<string, number> = new Map()
   private readonly logger = new Logger(Libp2pService.name)
   constructor(
-    private readonly localDbService: LocalDbService,
     @Inject(SERVER_IO_PROVIDER) public readonly serverIoProvider: ServerIoProviderTypes,
     @Inject(SOCKS_PROXY_AGENT) public readonly socksProxyAgent: Agent,
     @Inject(PEER_ID_PROVIDER) public readonly peerId: PeerId,
-    // @Inject(INIT_LIBP2P_PARAMS) public readonly initParams: InitLibp2pParams,
   ) {
     super()
   }
@@ -106,11 +102,6 @@ export class Libp2pService extends EventEmitter {
   }
 
   private async afterCreation(peers: string[]) {
-    console.log('--------------------------afterCreation------------------------------------')
-    const ldbs = this.localDbService.getStatus()
-    setInterval(() => {
-      console.log(this.localDbService.getStatus())
-    }, 1000)
     if (!this.libp2pInstance) {
       this.logger.error('libp2pInstance was not created')
       throw new Error('libp2pInstance was not created')
@@ -160,22 +151,6 @@ export class Libp2pService extends EventEmitter {
       const connectionDuration: number = connectionEndTime - connectionStartTime
 
       this.connectedPeers.delete(remotePeerId)
-
-      // Get saved peer stats from db
-      const remotePeerAddress = peer.detail.remoteAddr.toString()
-      const peerPrevStats = await this.localDbService.find(LocalDBKeys.PEERS, remotePeerAddress)
-      const prev = peerPrevStats?.connectionTime || 0
-
-      const peerStats: NetworkStats = {
-        peerId: remotePeerId,
-        connectionTime: prev + connectionDuration,
-        lastSeen: connectionEndTime
-      }
-
-      // Save updates stats to db
-      await this.localDbService.update(LocalDBKeys.PEERS, {
-        [remotePeerAddress]: peerStats
-      })
 
       this.emit(Libp2pEvents.PEER_DISCONNECTED, {
         peer: remotePeerId,
