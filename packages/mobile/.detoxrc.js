@@ -40,7 +40,7 @@ module.exports = {
       type: 'ios.app',
       binaryPath: 'ios/build/Build/Products/Release-iphonesimulator/Quiet.app',
       build:
-        'ENVFILE=../.env.storybook xcodebuild -workspace ios/Quiet.xcworkspace -scheme Quiet -configuration Release -sdk iphonesimulator -derivedDataPath ios/build',
+        'ENVFILE=../.env.storybook xcodebuild -workspace ios/Quiet.xcworkspace -scheme Quiet -configuration Release -sdk iphonesimulator -derivedDataPath ios/build -arch x86_64',
     },
     'ios.release': {
       type: 'ios.app',
@@ -82,7 +82,7 @@ module.exports = {
     },
     'ios.sim.storybook': {
       device: 'simulator',
-      app: 'ios.debug',
+      app: 'ios.storybook',
       artifacts: {
         rootDir: './e2e/artifacts/ios',
         plugins: {
