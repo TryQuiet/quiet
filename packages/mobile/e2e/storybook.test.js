@@ -1,15 +1,17 @@
 import fs, { statSync } from 'fs'
 import { readdir } from 'fs/promises'
 import path from 'path'
-import childProcess from 'child_process'
-import compare from './utils/compare'
+
+import press from './utils/press'
+import clear from './utils/clear'
+import write from './utils/write'
+import platform from './utils/platform'
+import checkVisualRegression from './utils/checkVisualRegression'
 
 jest.setTimeout(9000000)
 
 /* eslint-disable no-undef */
 describe('Storybook', () => {
-  const shouldGenerateBase = Boolean(process.argv.find(x => x.startsWith('-generate-base')))
-
   let stories = []
 
   const findStories = async (dirname, files) => {
@@ -61,16 +63,6 @@ describe('Storybook', () => {
     return scenarios
   }
 
-  const checkVisualRegression = async (id, component, scenario) => {
-    const imagePath = await element(by.id(id)).takeScreenshot(`${component}_${scenario}`)
-    if (!shouldGenerateBase) {
-      compare(
-        imagePath,
-        `${__dirname}/storybook-base-screenshots/${device.name}/${component}_${scenario}.png`
-      )
-    }
-  }
-
   beforeAll(async () => {
     const dirname = path.resolve('src/components/')
     stories = await findStories(dirname, [])
@@ -80,18 +72,7 @@ describe('Storybook', () => {
 
     await device.launchApp({ newInstance: true, launchArgs: { detoxDebugVisibility: 'YES' } })
 
-    await element(by.id('BottomMenu.Sidebar')).longPress()
-  })
-
-  afterAll(async () => {
-    if (shouldGenerateBase) {
-      childProcess.exec(`sh e2e/update-base.sh ${device.name}`, (err, stdout) => {
-        if (err) {
-          console.log(err)
-        }
-        console.log(stdout)
-      })
-    }
+    await press(element(by.id('BottomMenu.Sidebar')))
   })
 
   test('visual regressions', async () => {
@@ -106,25 +87,26 @@ describe('Storybook', () => {
         .withTimeout(5000)
 
       // Use Storybook's search section
-      await element(by.id('Storybook.ListView.SearchBar')).longPress()
-      await element(by.id('Storybook.ListView.SearchBar')).clearText()
-      await element(by.id('Storybook.ListView.SearchBar')).typeText(component)
+      await press(element(by.id('Storybook.ListView.SearchBar')))
+      await clear(element(by.id('Storybook.ListView.SearchBar')))
+      await write(element(by.id('Storybook.ListView.SearchBar')), component)
 
       // Hide keyboard
-      await device.pressBack()
+      if (!platform.ios) await device.pressBack()
 
       for (const scenario of scenarios) {
         console.log(`----checking ${scenario}`)
 
-        await element(by.text(scenario)).atIndex(0).longPress()
-        await element(by.text(scenario)).atIndex(0).longPress() // Idle (important though)
+        await press(element(by.text(scenario)).atIndex(0), true)
 
-        await element(by.id('BottomMenu.Canvas')).longPress()
+        await press(element(by.id('BottomMenu.Canvas')))
 
-        const id = `${component.toLowerCase()}--${scenario.toLowerCase()}`
-        await checkVisualRegression(id, component, scenario)
+        const componentID = `${component.toLowerCase()}--${scenario.toLowerCase()}`
+        const componentName = `${component}${scenario}`
 
-        await element(by.id('BottomMenu.Sidebar')).longPress()
+        await checkVisualRegression(componentID, componentName)
+
+        await press(element(by.id('BottomMenu.Sidebar')))
       }
     }
   })
