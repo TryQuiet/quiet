@@ -309,12 +309,17 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
   public async leaveCommunity() {
     this.serverIoProvider.io.close()
+    await this.localDbService.purge()
     await this.closeAllServices({ saveTor: true })
     await this.purgeData()
     this.communityId = ''
     // this.storageService = null
     this.libp2pService.libp2pInstance = null
+    this.communityState = ServiceState.DEFAULT
+    this.registrarState = ServiceState.DEFAULT
+    await this.localDbService.open()
     await this.socketService.init()
+
     // await this.storageService.init()
     // await this.init()
   }
