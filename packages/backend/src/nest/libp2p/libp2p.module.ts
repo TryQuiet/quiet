@@ -159,7 +159,7 @@ import { resolve } from 'path'
 // }
 
 @Module({
-  imports: [SocketModule, LocalDbModule],
+  imports: [SocketModule],
   providers: [Libp2pService],
   exports: [Libp2pService]
 })

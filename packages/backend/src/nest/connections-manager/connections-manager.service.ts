@@ -312,6 +312,8 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     await this.closeAllServices({ saveTor: true })
     await this.purgeData()
     this.communityId = ''
+    this.communityState = ServiceState.DEFAULT
+    this.registrarState = ServiceState.DEFAULT
     // this.storageService = null
     this.libp2pService.libp2pInstance = null
     await this.socketService.init()

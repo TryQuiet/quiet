@@ -11,7 +11,6 @@ export class LocalDbService {
 peers: any
 private readonly logger = new Logger(LocalDbService.name)
 constructor(@Inject(LEVEL_DB) private readonly db: Level) {
-  setInterval(() => console.log('constructor log local db', this.getStatus()), 1000)
 }
 
 public async close() {
