@@ -461,7 +461,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.logger.log('launchCommunityFromStorage')
     const { Libp2pService } = await import('../libp2p/libp2p.service')
     const lazyService = moduleRef.get(Libp2pService)
-    console.log('lazy service', lazyService)
     this.libp2pService = lazyService
 
     console.log('this peer id ', this.peerId)
