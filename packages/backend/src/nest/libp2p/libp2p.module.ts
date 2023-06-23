@@ -163,4 +163,4 @@ import { resolve } from 'path'
   providers: [Libp2pService],
   exports: [Libp2pService]
 })
-export class Libp2pModule {}
+export class Libp2pModule { }
