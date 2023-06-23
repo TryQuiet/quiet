@@ -238,9 +238,9 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   public async launchCommunityFromStorage() {
     this.logger.log('launchCommunityFromStorage')
 
-    if (this.localDbService.getStatus() === 'closed') {
-      await this.localDbService.open()
-    }
+    // if (this.localDbService.getStatus() === 'closed') {
+    //   await this.localDbService.open()
+    // }
     const community: InitCommunityPayload = await this.localDbService.get(LocalDBKeys.COMMUNITY)
     console.log('launchCommunityFromStorage - community', community)
     if (community) {
@@ -404,9 +404,9 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
   public async launchCommunity(payload: InitCommunityPayload) {
     this.communityState = ServiceState.LAUNCHING
-    if (this.localDbService.getStatus() === 'closed') {
-      await this.localDbService.open()
-    }
+    // if (this.localDbService.getStatus() === 'closed') {
+    //   await this.localDbService.open()
+    // }
     const communityData: InitCommunityPayload = await this.localDbService.get(LocalDBKeys.COMMUNITY)
     if (!communityData) {
       await this.localDbService.put(LocalDBKeys.COMMUNITY, payload)

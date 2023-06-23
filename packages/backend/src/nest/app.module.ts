@@ -22,7 +22,7 @@ import { createServer } from 'http'
 import { Server as SocketIO } from 'socket.io'
 import { StorageModule } from './storage/storage.module'
 import { SocketActionTypes } from '@quiet/types'
-import { IpfsModule } from './ipfs/ipfs.module';
+import { IpfsModule } from './ipfs/ipfs.module'
 
 // KACPER
 @Global()

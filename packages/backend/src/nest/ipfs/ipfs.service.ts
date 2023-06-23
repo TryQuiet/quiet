@@ -18,7 +18,6 @@ export class IpfsService {
   ) {}
 
   public async create() {
-
     const { Libp2pModule } = await import('../libp2p/libp2p.module')
     const moduleRef = await this.lazyModuleLoader.load(() => Libp2pModule)
     const { Libp2pService } = await import('../libp2p/libp2p.service')

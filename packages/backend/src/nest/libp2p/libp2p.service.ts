@@ -106,6 +106,11 @@ export class Libp2pService extends EventEmitter {
   }
 
   private async afterCreation(peers: string[]) {
+    console.log('--------------------------afterCreation------------------------------------')
+    const ldbs = this.localDbService.getStatus()
+    setInterval(() => {
+      console.log(this.localDbService.getStatus())
+    }, 1000)
     if (!this.libp2pInstance) {
       this.logger.error('libp2pInstance was not created')
       throw new Error('libp2pInstance was not created')

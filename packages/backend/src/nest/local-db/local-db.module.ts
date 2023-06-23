@@ -8,7 +8,14 @@ import path from 'path'
   providers: [LocalDbService,
     {
       provide: LEVEL_DB,
-      useFactory: (dbPath: string) => new Level<string, any>(dbPath, { valueEncoding: 'json' }),
+      useFactory: (dbPath: string) => {
+        let levelDb
+        console.log('use factory level db', levelDb)
+        if (!levelDb) {
+          levelDb = new Level<string, any>(dbPath, { valueEncoding: 'json' })
+        }
+        return levelDb
+      },
       inject: [DB_PATH]
     },
     {

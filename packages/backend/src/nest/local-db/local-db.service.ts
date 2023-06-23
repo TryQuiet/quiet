@@ -10,17 +10,19 @@ import { LocalDbStatus } from './local-db.types'
 export class LocalDbService {
 peers: any
 private readonly logger = new Logger(LocalDbService.name)
-constructor(@Inject(LEVEL_DB) private readonly db: Level) {}
+constructor(@Inject(LEVEL_DB) private readonly db: Level) {
+  setInterval(() => console.log('constructor log local db', this.getStatus()), 1000)
+}
 
 public async close() {
     this.logger.log('Closing leveldb')
   await this.db.close()
 }
 
-public async open() {
-  this.logger.log('Opening leveldb')
-  await this.db.open()
-}
+// public async open() {
+//   this.logger.log('Opening leveldb')
+//   await this.db.open()
+// }
 
 public getStatus(): LocalDbStatus {
   return this.db.status
