@@ -1,7 +1,9 @@
-import platform from './platform'
+import info from './info'
+
+const { ios } = info
 
 const press = async (element, double = false) => {
-  if (platform.ios) {
+  if (ios) {
     await element.tap()
   } else {
     if (double) element.longPress() // Idle

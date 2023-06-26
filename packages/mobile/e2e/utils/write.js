@@ -1,7 +1,9 @@
-import platform from './platform'
+import info from './info'
+
+const { ios } = info
 
 const write = async (element, text) => {
-  if (platform.ios) {
+  if (ios) {
     await element.typeText(text)
   } else {
     await element.longPress()

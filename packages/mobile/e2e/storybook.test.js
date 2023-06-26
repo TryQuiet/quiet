@@ -5,8 +5,11 @@ import path from 'path'
 import press from './utils/press'
 import clear from './utils/clear'
 import write from './utils/write'
-import platform from './utils/platform'
+import info from './utils/info'
 import checkVisualRegression from './utils/checkVisualRegression'
+import baseScreenshotsUpdate from './utils/baseScreenshotsUpdate'
+
+const { ios } = info
 
 jest.setTimeout(9000000)
 
@@ -75,12 +78,19 @@ describe('Storybook', () => {
     await press(element(by.id('BottomMenu.Sidebar')))
   })
 
+  afterAll(async () => {
+    // Base screenshots will only be updated, if run with -base-update flag
+    await baseScreenshotsUpdate()
+  })
+
   test('visual regressions', async () => {
     for (const story of stories) {
       const component = story[2]
       const scenarios = story[3]
 
-      console.log(`Performing visual regression test for ${component}`)
+      console.log(
+        `Performing visual regression test for ${component} (${stories.indexOf(story) + 1}/${stories.length})`
+      )
 
       await waitFor(element(by.id('Storybook.ListView.SearchBar')))
         .toBeVisible()
@@ -92,7 +102,7 @@ describe('Storybook', () => {
       await write(element(by.id('Storybook.ListView.SearchBar')), component)
 
       // Hide keyboard
-      if (!platform.ios) await device.pressBack()
+      if (!ios) await device.pressBack()
 
       for (const scenario of scenarios) {
         console.log(`----checking ${scenario}`)

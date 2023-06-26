@@ -32,21 +32,21 @@ module.exports = {
     },
     'ios.debug': {
       type: 'ios.app',
-      binaryPath: 'ios/build/Build/Products/Debug-iphonesimulator/Quiet.app',
+      binaryPath: 'ios/build/debug/Build/Products/Debug-iphonesimulator/Quiet.app',
       build:
-        'ENVFILE=../.env.development xcodebuild -workspace ios/Quiet.xcworkspace -scheme Quiet -configuration Debug -sdk iphonesimulator -derivedDataPath ios/build -arch x86_64',
+        'xcodebuild -workspace ios/Quiet.xcworkspace -scheme Quiet -configuration Debug -sdk iphonesimulator -derivedDataPath ios/build/debug -arch x86_64',
     },
     'ios.storybook': {
       type: 'ios.app',
-      binaryPath: 'ios/build/Build/Products/Release-iphonesimulator/Quiet.app',
+      binaryPath: 'ios/build/storybook/Build/Products/Debug-iphonesimulator/Quiet.app',
       build:
-        'ENVFILE=../.env.storybook xcodebuild -workspace ios/Quiet.xcworkspace -scheme Quiet -configuration Release -sdk iphonesimulator -derivedDataPath ios/build -arch x86_64',
+        'xcodebuild -workspace ios/Quiet.xcworkspace -scheme Storybook -configuration Debug -sdk iphonesimulator -derivedDataPath ios/build/storybook -arch x86_64',
     },
     'ios.release': {
       type: 'ios.app',
-      binaryPath: 'ios/build/Build/Products/Release-iphonesimulator/Quiet.app',
+      binaryPath: 'ios/build/release/Build/Products/Release-iphonesimulator/Quiet.app',
       build:
-        'ENVFILE=../.env.production xcodebuild -workspace ios/Quiet.xcworkspace -scheme Quiet -configuration Release -sdk iphonesimulator -derivedDataPath ios/build',
+        'xcodebuild -workspace ios/Quiet.xcworkspace -scheme Quiet -configuration Release -sdk iphonesimulator -derivedDataPath ios/build/release',
     },
   },
   devices: {

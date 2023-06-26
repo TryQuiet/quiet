@@ -1,13 +1,21 @@
 import press from './utils/press'
 import write from './utils/write'
-import platform from './utils/platform'
+import info from './utils/info'
 import checkVisualRegression from './utils/checkVisualRegression'
+import baseScreenshotsUpdate from './utils/baseScreenshotsUpdate'
+
+const { ios } = info
 
 /* eslint-disable no-undef */
 describe('User', () => {
 
   beforeAll(async () => {
     await device.launchApp({ newInstance: true, launchArgs: { detoxDebugVisibility: 'YES' } })
+  })
+
+  afterAll(async () => {
+    // Base screenshots will only be updated, if run with -base-update flag
+    await baseScreenshotsUpdate()
   })
 
   test('should see join community screen', async () => {
@@ -33,7 +41,7 @@ describe('User', () => {
   test('enters community name', async () => {
     await write(element(by.id('input')), 'rockets')
 
-    if (!platform.ios) await device.pressBack()
+    if (!ios) await device.pressBack()
 
     await press(element(by.text('Continue')), true)
 
@@ -81,7 +89,7 @@ describe('User', () => {
       .toBeVisible()
       .withTimeout(5000)
 
-    if (!platform.ios) await device.pressBack()
+    if (!ios) await device.pressBack()
   })
 
   test('navigates back to channels list', async () => {
