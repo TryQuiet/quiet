@@ -10,7 +10,7 @@ import getPort from 'get-port'
 import PeerId from 'peer-id'
 import { removeFilesFromDir } from '../common/utils'
 import { AskForMessagesPayload, ChannelMessagesIdsResponse, ChannelsReplicatedPayload, Community, CommunityId, ConnectionProcessInfo, CreateChannelPayload, CreatedChannelResponse, DeleteFilesFromChannelSocketPayload, DownloadStatus, ErrorMessages, FileMetadata, IncomingMessages, InitCommunityPayload, LaunchRegistrarPayload, NetworkData, NetworkDataPayload, NetworkStats, PushNotificationPayload, RegisterOwnerCertificatePayload, RegisterUserCertificatePayload, RemoveDownloadStatus, ResponseCreateNetworkPayload, SaveCertificatePayload, SaveOwnerCertificatePayload, SendCertificatesResponse, SendMessagePayload, SetChannelSubscribedPayload, SocketActionTypes, StorePeerListPayload, UploadFilePayload, PeerId as PeerIdType } from '@quiet/types'
-import { CONFIG_OPTIONS, PEER_ID_PROVIDER, PORTS_PROVIDER, QUIET_DIR, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
+import { CONFIG_OPTIONS, QUIET_DIR, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
 import { ConfigOptions, GetPorts, ServerIoProviderTypes } from '../types'
 import { SocketService } from '../socket/socket.service'
 import { RegistrationService } from '../registration/registration.service'
@@ -51,6 +51,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   public communityState: ServiceState
   public registrarState: ServiceState
   private libp2pService: Libp2pService
+  private ports: GetPorts
   isTorInit: TorInitState = TorInitState.NOT_STARTED
 
   private readonly logger = new Logger(ConnectionsManagerService.name)
@@ -60,8 +61,8 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     @Inject(CONFIG_OPTIONS) public configOptions: ConfigOptions,
     @Inject(QUIET_DIR) public readonly quietDir: string,
     @Inject(SOCKS_PROXY_AGENT) public readonly socksProxyAgent: Agent,
-    @Inject(PEER_ID_PROVIDER) public readonly peerId: PeerIdType,
-    @Inject(PORTS_PROVIDER) public readonly ports: GetPorts,
+    // @Inject(PEER_ID_PROVIDER) public readonly peerId: PeerIdType,
+    // @Inject(PORTS_PROVIDER) public readonly ports: GetPorts,
     private readonly socketService: SocketService,
     private readonly registrationService: RegistrationService,
     private readonly localDbService: LocalDbService,
@@ -133,11 +134,27 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     await this.init()
   }
 
+  private async generatePorts() {
+    const controlPort = await getPort()
+    const socksPort = await getPort()
+    const libp2pHiddenService = await getPort()
+    const dataServer = await getPort()
+    const httpTunnelPort = await getPort()
+
+    this.ports = {
+        socksPort,
+      libp2pHiddenService,
+      controlPort,
+      dataServer,
+      httpTunnelPort
+    }
+  }
+
   private async init() {
     console.log('init')
     this.communityState = ServiceState.DEFAULT
     this.registrarState = ServiceState.DEFAULT
-
+    await this.generatePorts()
     if (!this.configOptions.httpTunnelPort) {
       this.configOptions.httpTunnelPort = await getPort()
     }
@@ -313,7 +330,9 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     await this.closeAllServices({ saveTor: true })
     await this.purgeData()
     this.communityId = ''
+    this.ports = { ...this.ports, libp2pHiddenService: await getPort() }
     this.libp2pService.libp2pInstance = null
+    this.libp2pService.connectedPeers = new Map()
     this.communityState = ServiceState.DEFAULT
     this.registrarState = ServiceState.DEFAULT
     await this.localDbService.open()
@@ -372,14 +391,14 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     const hiddenService = await this.tor.createNewHiddenService({ targetPort: this.ports.libp2pHiddenService })
 
     await this.tor.destroyHiddenService(hiddenService.onionAddress.split('.')[0])
+    const peerId: PeerId = await PeerId.create()
+    const peerIdJson = peerId.toJSON()
+    this.logger.log(`Created network for peer ${peerId.toString()}. Address: ${hiddenService.onionAddress}`)
 
-    this.logger.log(`Created network for peer ${this.peerId.toString()}. Address: ${hiddenService.onionAddress}`)
-    console.log('this.peerId', this.peerId)
-
-    const _peerId = this.peerId as unknown as PeerIdType
+    // const _peerId = peerId as unknown as PeerIdType
     return {
       hiddenService,
-      peerId: _peerId
+      peerId: peerIdJson
     }
   }
 
@@ -480,8 +499,8 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     const lazyService = moduleRef.get(Libp2pService)
     this.libp2pService = lazyService
 
-    console.log('this peer id ', this.peerId)
-    const restoredRsa = await PeerId.createFromJSON(this.peerId)
+    console.log('this peer id ', payload.peerId)
+    const restoredRsa = await PeerId.createFromJSON(payload.peerId)
     const _peerId = await peerIdFromKeys(restoredRsa.marshalPubKey(), restoredRsa.marshalPrivKey())
 
     let peers = payload.peers
@@ -500,9 +519,10 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       targetPort: this.ports.libp2pHiddenService,
       peers
     }
+    this.logger.log('libp2p params', params)
 
     await this.libp2pService.createInstance(params)
-    await this.storageService.init()
+    await this.storageService.init(_peerId)
 
     // __________________________________________________________________
   }

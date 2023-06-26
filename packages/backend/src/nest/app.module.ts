@@ -4,7 +4,7 @@ import { ConnectionsManagerModule } from './connections-manager/connections-mana
 import { RegistrationModule } from './registration/registration.module'
 import { IpfsFileManagerModule } from './ipfs-file-manager/ipfs-file-manager.module'
 import path from 'path'
-import { CONFIG_OPTIONS, EXPRESS_PROVIDER, SERVER_IO_PROVIDER, IPFS_REPO_PATCH, ORBIT_DB_DIR, QUIET_DIR, QUIET_DIR_PATH, Config, TOR_CONTROL_PARAMS, SOCKS_PROXY_AGENT, PEER_ID_PROVIDER, PORTS_PROVIDER, LEVEL_DB, DB_PATH } from './const'
+import { CONFIG_OPTIONS, EXPRESS_PROVIDER, SERVER_IO_PROVIDER, IPFS_REPO_PATCH, ORBIT_DB_DIR, QUIET_DIR, QUIET_DIR_PATH, Config, TOR_CONTROL_PARAMS, SOCKS_PROXY_AGENT, LEVEL_DB, DB_PATH } from './const'
 import type { IPFS } from 'ipfs-core'
 import { ConfigOptions, ConnectionsManagerOptions, ConnectionsManagerTypes } from './types'
 import { LocalDbModule } from './local-db/local-db.module'
@@ -21,7 +21,7 @@ import { peerId } from '../singletons'
 import { createServer } from 'http'
 import { Server as SocketIO } from 'socket.io'
 import { StorageModule } from './storage/storage.module'
-import { SocketActionTypes } from '@quiet/types'
+import { InitCommunityPayload, SocketActionTypes } from '@quiet/types'
 import { IpfsModule } from './ipfs/ipfs.module'
 import { Level } from 'level'
 
@@ -92,24 +92,6 @@ export class AppModule {
           inject: [CONFIG_OPTIONS]
         },
         {
-          provide: PORTS_PROVIDER,
-          useFactory: async () => {
-            const controlPort = await getPort()
-            const socksPort = await getPort()
-            const libp2pHiddenService = await getPort()
-            const dataServer = await getPort()
-            const httpTunnelPort = await getPort()
-            return {
-              socksPort,
-              libp2pHiddenService,
-              controlPort,
-              dataServer,
-              httpTunnelPort
-            }
-          },
-          inject: []
-        },
-        {
           provide: DB_PATH,
           useFactory: (baseDir: string) => path.join(baseDir, 'backendDB'),
           inject: [QUIET_DIR]
@@ -119,31 +101,29 @@ export class AppModule {
           useFactory: (dbPath: string) => new Level<string, any>(dbPath, { valueEncoding: 'json' }),
           inject: [DB_PATH]
         },
-        {
-          provide: PEER_ID_PROVIDER,
-          useFactory: async (levelDb: Level) => {
-            let peerId: any
-            try {
-              peerId = await levelDb.get(LocalDBKeys.PEER_ID)
-            } catch (e) {
-              console.log('PEER_ID_PROVIDER catch')
-              peerId = null
-            }
+        // {
+        //   provide: PEER_ID_PROVIDER,
+        //   useFactory: async (levelDb: Level) => {
+        //     let peerId: any
 
-            if (!peerId) {
-              const createPeerId = await PeerId.create()
-              const peerIdJson = createPeerId.toJSON()
-              peerId = peerIdJson
-              await levelDb.put(LocalDBKeys.PEER_ID, peerId)
-            }
+        //     try {
+        //       const community = await levelDb.get(LocalDBKeys.COMMUNITY) as unknown as InitCommunityPayload
+        //       console.log('peer id provider - community', community)
+        //       if (community?.peerId) {
+        //         peerId = null
+        //       }
+        //     } catch (e) {
+        //       console.log('PEER_ID_PROVIDER catch')
+        //       peerId = null
+        //     }
 
-            return peerId
-          },
-          inject: [LEVEL_DB]
-        },
+        //     return peerId
+        //   },
+        //   inject: [LEVEL_DB]
+        // },
 
       ],
-      exports: [CONFIG_OPTIONS, QUIET_DIR, ORBIT_DB_DIR, IPFS_REPO_PATCH, PEER_ID_PROVIDER, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT, PORTS_PROVIDER, LEVEL_DB],
+      exports: [CONFIG_OPTIONS, QUIET_DIR, ORBIT_DB_DIR, IPFS_REPO_PATCH, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT, LEVEL_DB],
     }
   }
 }

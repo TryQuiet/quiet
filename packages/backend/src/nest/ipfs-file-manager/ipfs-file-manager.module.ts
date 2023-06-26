@@ -1,11 +1,4 @@
 import { Module } from '@nestjs/common'
-import { create } from 'ipfs-core'
-import { IPFS_PROVIDER, IPFS_REPO_PATCH, LIB_P2P_PROVIDER, PEER_ID_PROVIDER } from '../const'
-import { Libp2p } from 'libp2p'
-import { peerIdFromKeys } from '@libp2p/peer-id'
-import { PeerId as PeerIdType } from '@quiet/types'
-import PeerId from 'peer-id'
-import { Libp2pModule } from '../libp2p/libp2p.module'
 import { IpfsFileManagerService } from './ipfs-file-manager.service'
 
 // const ipfsProvider = {

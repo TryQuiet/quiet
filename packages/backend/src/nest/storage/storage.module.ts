@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common'
-import { COMMUNITY_PROVIDER, IPFS_PROVIDER, ORBIT_DB_DIR, ORBIT_DB_PROVIDER, PEER_ID_PROVIDER, QUIET_DIR } from '../const'
 import { StorageService } from './storage.service'
 import OrbitDB from 'orbit-db'
 import { LocalDbService } from '../local-db/local-db.service'

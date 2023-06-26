@@ -257,6 +257,7 @@ describe('Two Clients', () => {
       await joinCommunityModal.submit()
     })
     it('Leave community - Guest register new username', async () => {
+      console.log('TEST 5')
       const registerModal2 = new RegisterUsernameModal(guestApp.driver)
       const isRegisterModal2 = await registerModal2.element.isDisplayed()
       expect(isRegisterModal2).toBeTruthy()
@@ -266,6 +267,7 @@ describe('Two Clients', () => {
 
     // Check correct channels replication
     it('Channel deletion - User see information about recreation general channel and see correct amount of messages', async () => {
+      console.log('TEST 6')
       generalChannel2 = new Channel(guestApp.driver, 'general')
       await generalChannel2.element.isDisplayed()
       await new Promise<void>(resolve => setTimeout(() => resolve(), 10000))
@@ -278,6 +280,7 @@ describe('Two Clients', () => {
     })
 
     it('Leave community - Guest sends a message', async () => {
+      console.log('TEST 7')
       generalChannel2 = new Channel(guestApp.driver, 'general')
       await generalChannel2.element.isDisplayed()
       const isMessageInput2 = await generalChannel2.messageInput.isDisplayed()
@@ -286,20 +289,24 @@ describe('Two Clients', () => {
       await generalChannel2.sendMessage(joiningUserMessages[1])
     })
     it('Leave community - Sent message is visible in a channel', async () => {
+      console.log('TEST 8')
       const messages2 = await generalChannel2.getUserMessages(joiningUserUsername2)
       const text2 = await messages2[0].getText()
       expect(text2).toEqual(joiningUserMessages[1])
     })
 
     it('Guest close app', async () => {
+      console.log('TEST 9')
       await guestApp?.close()
     })
     it('Guest close app - Owner send another message after guest leave app', async () => {
+      console.log('TEST 10')
       const isMessageInput = await generalChannel.messageInput.isDisplayed()
       expect(isMessageInput).toBeTruthy()
       await generalChannel.sendMessage(ownerMessages[2])
     })
     it('Guest close app - Check if message is visible for owner', async () => {
+      console.log('TEST 11')
       const messages = await generalChannel.getUserMessages(ownerUsername)
       const text = await messages[messages.length - 1].getText()
       expect(text).toEqual(ownerMessages[2])

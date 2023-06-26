@@ -1,9 +1,5 @@
 import AccessController from 'orbit-db-access-controllers'
-import { getCrypto } from 'pkijs'
-import { stringToArrayBuffer } from 'pvutils'
-import { ChannelMessage, PublicChannel } from '@quiet/types'
-import { keyObjectFromString, verifySignature } from '@quiet/identity'
-import Identities from 'orbit-db-identity-provider'
+import { PublicChannel } from '@quiet/types'
 import OrbitDB from 'orbit-db'
 import PeerId from 'peer-id'
 

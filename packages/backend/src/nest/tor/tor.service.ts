@@ -44,7 +44,6 @@ export class Tor extends EventEmitter implements OnModuleInit {
   }
 
   async onModuleInit() {
-    
     // this.torPath = this.configOptions.torBinaryPath ? path.normalize(this.configOptions.torBinaryPath) : ''
     // this.options = {
     //   env: {
@@ -251,12 +250,9 @@ export class Tor extends EventEmitter implements OnModuleInit {
         reject(new Error(`Timeout of ${timeoutMs / 1000} while waiting for tor to bootstrap`))
       }, timeoutMs)
 
-
-
       // this.socketService.on(SocketActionTypes.CONNECTION_PROCESS_INFO, (data) => {
       //   this.serverIoProvider.io.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, data)
       // })
-
 
       this.process.stdout.on('data', (data: any) => {
         this.logger.log(data.toString())
