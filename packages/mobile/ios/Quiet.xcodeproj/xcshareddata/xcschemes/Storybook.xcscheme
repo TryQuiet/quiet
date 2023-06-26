@@ -10,7 +10,7 @@
             ActionType = "Xcode.IDEStandardExecutionActionsCore.ExecutionActionType.ShellScriptAction">
             <ActionContent
                title = "Run Script"
-               scriptText = "cp &quot;${PROJECT_DIR}/../.env.storybook&quot; &quot;${PROJECT_DIR}/../.env&quot;&#10;echo &quot;KURWADUPACHUJ&quot;&#10;">
+               scriptText = "cp &quot;${PROJECT_DIR}/../.env.storybook&quot; &quot;${PROJECT_DIR}/../.env&quot;&#10;">
                <EnvironmentBuildable>
                   <BuildableReference
                      BuildableIdentifier = "primary"
