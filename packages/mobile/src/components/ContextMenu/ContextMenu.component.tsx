@@ -1,5 +1,5 @@
 import React, { FC } from 'react'
-import { View, Image, FlatList, TouchableWithoutFeedback } from 'react-native'
+import { View, Image, FlatList, TouchableWithoutFeedback, TouchableOpacity } from 'react-native'
 import { Typography } from '../Typography/Typography.component'
 
 import { ContextMenuItemProps, ContextMenuProps } from './ContextMenu.types'
@@ -62,7 +62,7 @@ export const ContextMenu: FC<ContextMenuProps> = ({
                 width: '100%',
               }}
             >
-              <TouchableWithoutFeedback onPress={handleClose}>
+              <TouchableOpacity onPress={handleClose}>
                 <View
                   style={{
                     flex: 1,
@@ -82,7 +82,7 @@ export const ContextMenu: FC<ContextMenuProps> = ({
                     }}
                   />
                 </View>
-              </TouchableWithoutFeedback>
+              </TouchableOpacity>
               <View style={{ flex: 5, justifyContent: 'center' }}>
                 <Typography fontSize={16} fontWeight={'medium'} style={{ lineHeight: 26, alignSelf: 'center' }}>
                   {title}
@@ -140,7 +140,7 @@ export const ContextMenu: FC<ContextMenuProps> = ({
 export const ContextMenuItem: FC<ContextMenuItemProps> = ({ title, action }) => {
   const icon_arrow = appImages.arrow_right_short
   return (
-    <TouchableWithoutFeedback onPress={action} testID={title}>
+    <TouchableOpacity onPress={action} testID={title}>
       <View
         style={{
           display: 'flex',
@@ -176,6 +176,6 @@ export const ContextMenuItem: FC<ContextMenuItemProps> = ({ title, action }) => 
           />
         </View>
       </View>
-    </TouchableWithoutFeedback>
+    </TouchableOpacity>
   )
 }
