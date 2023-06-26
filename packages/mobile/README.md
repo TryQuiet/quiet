@@ -105,10 +105,10 @@ detox build --configuration android.att.debug
 ```
 
 And the second one for actually running the tests:
-(let's call the basic set of e2e tests called `starter`)
+(let's trigger the basic set of e2e tests called `starter`)
 
 ```
-detox test --configuration android.att.debug starter
+detox test starter --configuration android.att.debug
 ```
 
 For more detailed instructions, see https://wix.github.io/Detox/docs/introduction/your-first-test/
