@@ -1,18 +1,25 @@
-// import { Test, TestingModule } from '@nestjs/testing';
-// import { SocketService } from './socket.service';
+import { Test, TestingModule } from '@nestjs/testing'
+import { TestModule } from '../common/test.module'
+import { SocketModule } from './socket.module'
+import { SocketService } from './socket.service'
 
-// describe('SocketService', () => {
-//   let service: SocketService;
+describe('SocketService', () => {
+  let module: TestingModule
+  let socketService: SocketService
 
-//   beforeEach(async () => {
-//     const module: TestingModule = await Test.createTestingModule({
-//       providers: [SocketService],
-//     }).compile();
+  beforeAll(async () => {
+    module = await Test.createTestingModule({
+      imports: [TestModule, SocketModule],
+    }).compile()
 
-//     service = module.get<SocketService>(SocketService);
-//   });
+    socketService = await module.resolve(SocketService)
+  })
 
-//   it('should be defined', () => {
-//     expect(service).toBeDefined();
-//   });
-// });
+  afterAll(async () => {
+    await module.close()
+  })
+
+  it('should be defined', () => {
+    expect(socketService).toBeDefined()
+  })
+})

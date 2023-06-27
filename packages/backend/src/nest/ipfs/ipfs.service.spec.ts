@@ -22,10 +22,6 @@ describe('IpfsService', () => {
   })
 
   it('should be defined', async () => {
-    console.log('xd')
     expect(ipfsService).toBeDefined()
-
-    // const ipfs = await ipfsService.create('xd')
-    // console.log({ ipfs })
   })
 })

@@ -1,18 +1,25 @@
-// import { Test, TestingModule } from '@nestjs/testing';
-// import { StorageService } from './storage.service';
+import { Test, TestingModule } from '@nestjs/testing'
+import { TestModule } from '../common/test.module'
+import { StorageModule } from './storage.module'
+import { StorageService } from './storage.service'
 
-// describe('StorageService', () => {
-//   let service: StorageService;
+describe('StorageService', () => {
+  let module: TestingModule
+  let storageService: StorageService
 
-//   beforeEach(async () => {
-//     const module: TestingModule = await Test.createTestingModule({
-//       providers: [StorageService],
-//     }).compile();
+  beforeAll(async () => {
+    module = await Test.createTestingModule({
+      imports: [TestModule, StorageModule],
+    }).compile()
 
-//     service = module.get<StorageService>(StorageService);
-//   });
+    storageService = await module.resolve(StorageService)
+  })
 
-//   it('should be defined', () => {
-//     expect(service).toBeDefined();
-//   });
-// });
+  afterAll(async () => {
+    await module.close()
+  })
+
+  it('should be defined', () => {
+    expect(storageService).toBeDefined()
+  })
+})

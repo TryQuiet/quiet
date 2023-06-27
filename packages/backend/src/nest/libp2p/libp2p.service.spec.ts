@@ -1,18 +1,25 @@
-// import { Test, TestingModule } from '@nestjs/testing';
-// import { Libp2pService } from './libp2p.service';
+import { Test, TestingModule } from '@nestjs/testing'
+import { TestModule } from '../common/test.module'
+import { Libp2pModule } from './libp2p.module'
+import { Libp2pService } from './libp2p.service'
 
-// describe('Libp2pService', () => {
-//   let service: Libp2pService;
+describe('Libp2pService', () => {
+  let module: TestingModule
+  let libp2pService: Libp2pService
 
-//   beforeEach(async () => {
-//     const module: TestingModule = await Test.createTestingModule({
-//       providers: [Libp2pService],
-//     }).compile();
+  beforeAll(async () => {
+    module = await Test.createTestingModule({
+      imports: [TestModule, Libp2pModule],
+    }).compile()
 
-//     service = module.get<Libp2pService>(Libp2pService);
-//   });
+    libp2pService = await module.resolve(Libp2pService)
+  })
 
-//   it('should be defined', () => {
-//     expect(service).toBeDefined();
-//   });
-// });
+  afterAll(async () => {
+    await module.close()
+  })
+
+  it('should be defined', () => {
+    expect(libp2pService).toBeDefined()
+  })
+})

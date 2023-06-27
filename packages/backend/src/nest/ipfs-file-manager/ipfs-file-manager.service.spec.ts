@@ -1,18 +1,25 @@
-// import { Test, TestingModule } from '@nestjs/testing';
-// import { IpfsFileManagerService } from './ipfs-file-manager.service';
+import { Test, TestingModule } from '@nestjs/testing'
+import { TestModule } from '../common/test.module'
+import { IpfsFileManagerModule } from './ipfs-file-manager.module'
+import { IpfsFileManagerService } from './ipfs-file-manager.service'
 
-// describe('IpfsFileManagerService', () => {
-//   let service: IpfsFileManagerService;
+describe('IpfsFileManagerService', () => {
+  let module: TestingModule
+  let ipfsFileManagerService: IpfsFileManagerService
 
-//   beforeEach(async () => {
-//     const module: TestingModule = await Test.createTestingModule({
-//       providers: [IpfsFileManagerService],
-//     }).compile();
+  beforeAll(async () => {
+    module = await Test.createTestingModule({
+      imports: [TestModule, IpfsFileManagerModule],
+    }).compile()
 
-//     service = module.get<IpfsFileManagerService>(IpfsFileManagerService);
-//   });
+    ipfsFileManagerService = await module.resolve(IpfsFileManagerService)
+  })
 
-//   it('should be defined', () => {
-//     expect(service).toBeDefined();
-//   });
-// });
+  afterAll(async () => {
+    await module.close()
+  })
+
+  it('should be defined', () => {
+    expect(ipfsFileManagerService).toBeDefined()
+  })
+})

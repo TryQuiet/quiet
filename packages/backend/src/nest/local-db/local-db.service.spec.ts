@@ -1,18 +1,25 @@
-// import { Test, TestingModule } from '@nestjs/testing';
-// import { LocalDbService } from './local-db.service';
+import { Test, TestingModule } from '@nestjs/testing'
+import { TestModule } from '../common/test.module'
+import { LocalDbModule } from './local-db.module'
+import { LocalDbService } from './local-db.service'
 
-// describe('LocalDbService', () => {
-//   let service: LocalDbService;
+describe('LocalDbService', () => {
+  let module: TestingModule
+  let localDbService: LocalDbService
 
-//   beforeEach(async () => {
-//     const module: TestingModule = await Test.createTestingModule({
-//       providers: [LocalDbService],
-//     }).compile();
+  beforeAll(async () => {
+    module = await Test.createTestingModule({
+      imports: [TestModule, LocalDbModule],
+    }).compile()
 
-//     service = module.get<LocalDbService>(LocalDbService);
-//   });
+    localDbService = await module.resolve(LocalDbService)
+  })
 
-//   it('should be defined', () => {
-//     expect(service).toBeDefined();
-//   });
-// });
+  afterAll(async () => {
+    await module.close()
+  })
+
+  it('should be defined', () => {
+    expect(localDbService).toBeDefined()
+  })
+})

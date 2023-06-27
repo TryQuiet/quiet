@@ -1,22 +1,22 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { TestModule } from '../common/test.module'
 import { TOR_PASSWORD_PROVIDER } from '../const'
-import { ConnectionsManagerModule } from './connections-manager.module'
-import { ConnectionsManagerService } from './connections-manager.service'
+import { TorControl } from './tor-control.service'
+import { TorModule } from './tor.module'
 
-describe('ConnectionsManagerService', () => {
+describe('TorControl', () => {
   let module: TestingModule
-  let connectionsManagerService: ConnectionsManagerService
+  let torControl: TorControl
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
-      imports: [TestModule, ConnectionsManagerModule],
+      imports: [TestModule, TorModule],
     })
       .overrideProvider(TOR_PASSWORD_PROVIDER)
       .useValue({ torPassword: '', torHashedPassword: '' })
       .compile()
 
-    connectionsManagerService = await module.resolve(ConnectionsManagerService)
+    torControl = await module.resolve(TorControl)
   })
 
   afterAll(async () => {
@@ -24,6 +24,6 @@ describe('ConnectionsManagerService', () => {
   })
 
   it('should be defined', () => {
-    expect(connectionsManagerService).toBeDefined()
+    expect(torControl).toBeDefined()
   })
 })
