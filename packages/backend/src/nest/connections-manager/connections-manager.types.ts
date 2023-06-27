@@ -1,4 +1,5 @@
 import { HiddenService } from '@quiet/types'
+import PeerId from 'peer-id'
 
 export enum TorInitState{
     STARTING = 'starting',
@@ -12,5 +13,5 @@ export enum TorInitState{
   }
   export interface NetworkData {
     hiddenService: HiddenService
-    // peerId: PeerId
+    peerId: PeerId
   }

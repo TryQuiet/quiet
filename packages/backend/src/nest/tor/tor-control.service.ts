@@ -3,7 +3,6 @@ import { Inject, Injectable, OnModuleInit } from '@nestjs/common'
 import net from 'net'
 import { CONFIG_OPTIONS, TOR_CONTROL_PARAMS } from '../const'
 import { ConfigOptions } from '../types'
-import { Tor } from './tor.service'
 import { TorControlAuthType, TorControlParams } from './tor.types'
 import Logger from '../common/logger'
 
@@ -15,7 +14,6 @@ export class TorControl implements OnModuleInit {
   constructor(
     @Inject(TOR_CONTROL_PARAMS) public torControlParams: TorControlParams,
     @Inject(CONFIG_OPTIONS) public configOptions: ConfigOptions) {
-    console.log('this.torControlParams.port', this.torControlParams.port)
   }
 
   onModuleInit() {

@@ -2,7 +2,6 @@ import * as child_process from 'child_process'
 import crypto from 'crypto'
 import * as fs from 'fs'
 import path from 'path'
-
 import getPort from 'get-port'
 import { removeFilesFromDir } from '../common/utils'
 import { EventEmitter } from 'events'
@@ -16,18 +15,10 @@ import { GetInfoTorSignal, TorParams, TorParamsProvider, TorPasswordProvider } f
 import Logger from '../common/logger'
 
 export class Tor extends EventEmitter implements OnModuleInit {
-  //   httpTunnelPort: number
   socksPort: number
   process: child_process.ChildProcessWithoutNullStreams | any = null
-  // torPath: string
-  // options?: child_process.SpawnOptionsWithoutStdio
-  //   torControl: TorControl
-  //   appDataPath: string
   torDataDirectory: string
   torPidPath: string
-  // torPassword: string
-  // torHashedPassword: string
-  //   torAuthCookie?: string
   extraTorProcessParams: TorParams
   private readonly logger = Logger(Tor.name)
   constructor(
@@ -35,7 +26,6 @@ export class Tor extends EventEmitter implements OnModuleInit {
     @Inject(QUIET_DIR) public readonly quietDir: string,
     @Inject(TOR_PARAMS_PROVIDER) public readonly torParamsProvider: TorParamsProvider,
     @Inject(TOR_PASSWORD_PROVIDER) public readonly torPasswordProvider: TorPasswordProvider,
-    // private readonly socketService: SocketService,
     @Inject(SERVER_IO_PROVIDER) public readonly serverIoProvider: ServerIoProviderTypes,
     private readonly torControl: TorControl
   ) {
@@ -43,18 +33,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
   }
 
   async onModuleInit() {
-
-    // this.torPath = this.configOptions.torBinaryPath ? path.normalize(this.configOptions.torBinaryPath) : ''
-    // this.options = {
-    //   env: {
-    //     LD_LIBRARY_PATH: this.configOptions.torResourcesPath,
-    //     HOME: os.homedir()
-    //   },
-    //   detached: true
-    // }
-    // console.log('this.torControl', this.controlPort)
     await this.init()
-    // this.extraTorProcessParams = this.mergeDefaultTorParams(extraTorProcessParams)
   }
 
   mergeDefaultTorParams = (params: TorParams = {}): TorParams => {
@@ -75,8 +54,6 @@ export class Tor extends EventEmitter implements OnModuleInit {
       if (this.process) {
         throw new Error('Tor already initialized')
       }
-      // this.generateHashedPassword()
-      // this.initTorControl()
 
       if (!fs.existsSync(this.quietDir)) {
         fs.mkdirSync(this.quietDir)
@@ -125,20 +102,6 @@ export class Tor extends EventEmitter implements OnModuleInit {
 
     })
   }
-
-  // public initTorControl = () => {
-  //   if (!this.controlPort) {
-  //     throw new Error('Can\'t initialize TorControl - no control port')
-  //   }
-  //   this.torControl = new TorControl({
-  //     port: this.controlPort,
-  //     host: 'localhost',
-  //     auth: {
-  //       value: this.torAuthCookie || this.torPassword,
-  //       type: this.torAuthCookie ? TorControlAuthType.COOKIE : TorControlAuthType.PASSWORD
-  //     }
-  //   })
-  // }
 
   private readonly torProcessNameCommand = (oldTorPid: string): string => {
     const byPlatform = {
@@ -250,12 +213,9 @@ export class Tor extends EventEmitter implements OnModuleInit {
         reject(new Error(`Timeout of ${timeoutMs / 1000} while waiting for tor to bootstrap`))
       }, timeoutMs)
 
-
-
       // this.socketService.on(SocketActionTypes.CONNECTION_PROCESS_INFO, (data) => {
       //   this.serverIoProvider.io.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, data)
       // })
-
 
       this.process.stdout.on('data', (data: any) => {
         this.logger.log(data.toString())
@@ -333,16 +293,6 @@ export class Tor extends EventEmitter implements OnModuleInit {
       this.logger.log('Could not get info', getInfoTarget)
     }
   }
-
-  // public generateHashedPassword = () => {
-  //   const password = crypto.randomBytes(16).toString('hex')
-  //   const hashedPassword = child_process.execSync(
-  //     `${this.torParamsProvider.torPath} --quiet --hash-password ${password}`,
-  //     { env: this.options?.env }
-  //   )
-  //   this.torPassword = password
-  //   this.torHashedPassword = hashedPassword.toString().trim()
-  // }
 
   public kill = async (): Promise<void> =>
     await new Promise((resolve, reject) => {

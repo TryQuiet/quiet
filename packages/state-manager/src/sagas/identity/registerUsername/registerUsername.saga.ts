@@ -23,7 +23,7 @@ export function* registerUsernameSaga(action: PayloadAction<string>): Generator 
   if (identity.nickname === nickname) {
     userCsr = identity.userCsr
   }
-
+console.log('user csr saga', userCsr)
   if (userCsr === null) {
     try {
       const payload: CreateUserCsrPayload = {
@@ -34,6 +34,7 @@ export function* registerUsernameSaga(action: PayloadAction<string>): Generator 
         signAlg: config.signAlg,
         hashAlg: config.hashAlg
       }
+      console.log('user csr saga payload', payload)
       userCsr = yield* call(createUserCsr, payload)
     } catch (e) {
       console.error(e)

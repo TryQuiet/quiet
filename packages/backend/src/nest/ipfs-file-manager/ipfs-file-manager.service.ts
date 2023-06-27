@@ -11,7 +11,7 @@ import sizeOf from 'image-size'
 import { CID } from 'multiformats/cid'
 import { DownloadProgress, DownloadState, DownloadStatus, FileMetadata, imagesExtensions } from '@quiet/types'
 import { sleep } from '../../sleep'
-import { IPFS_PROVIDER, QUIET_DIR } from '../const'
+import { QUIET_DIR } from '../const'
 import { FilesData, IpfsFilesManagerEvents } from './ipfs-file-manager.types'
 import { StorageEvents } from '../storage/storage.types'
 import { QUEUE_CONCURRENCY, MAX_EVENT_LISTENERS, TRANSFER_SPEED_SPAN, UPDATE_STATUS_INTERVAL, BLOCK_FETCH_TIMEOUT } from './ipfs-file-manager.const'
@@ -35,11 +35,9 @@ export class IpfsFileManagerService extends EventEmitter {
 
         @Inject(QUIET_DIR) public readonly quietDir: string,
         private readonly lazyModuleLoader: LazyModuleLoader
-        // @Inject(IPFS_PROVIDER) public readonly ipfs: IPFS
     ) {
         super()
 
-        console.log('ipfs file manager ')
         this.queue = new PQueue({ concurrency: QUEUE_CONCURRENCY })
         this.attachIncomingEvents()
     }

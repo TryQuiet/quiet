@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common'
-import { Libp2pModule } from '../libp2p/libp2p.module'
 import { LocalDbModule } from '../local-db/local-db.module'
 import { RegistrationModule } from '../registration/registration.module'
 import { SocketModule } from '../socket/socket.module'

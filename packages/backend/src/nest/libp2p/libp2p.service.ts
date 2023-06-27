@@ -17,21 +17,19 @@ import { Libp2pEvents, Libp2pNodeParams } from './libp2p.types'
 import { ProcessInChunks } from './process-in-chunks'
 import { multiaddr } from '@multiformats/multiaddr'
 import { ConnectionProcessInfo, PeerId, SocketActionTypes } from '@quiet/types'
-import { PEER_ID_PROVIDER, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
+import { SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
 import { ServerIoProviderTypes } from '../types'
 import { createLibp2pListenAddress, createLibp2pAddress } from './libp2p.utils'
 import Logger from '../common/logger'
 
 @Injectable()
 export class Libp2pService extends EventEmitter {
-  public localAddress: string
   public libp2pInstance: Libp2p | null
   public connectedPeers: Map<string, number> = new Map()
   private readonly logger = Logger(Libp2pService.name)
   constructor(
     @Inject(SERVER_IO_PROVIDER) public readonly serverIoProvider: ServerIoProviderTypes,
     @Inject(SOCKS_PROXY_AGENT) public readonly socksProxyAgent: Agent,
-    @Inject(PEER_ID_PROVIDER) public readonly peerId: PeerId,
   ) {
     super()
   }
@@ -49,7 +47,6 @@ export class Libp2pService extends EventEmitter {
   }
 
   public async createInstance(params: Libp2pNodeParams): Promise<any> {
-    console.log('eeeeeeeeeeeelllooo')
     if (this.libp2pInstance) {
       return this.libp2pInstance
     }
@@ -98,29 +95,29 @@ export class Libp2pService extends EventEmitter {
       throw err
     }
     this.libp2pInstance = libp2p
-    await this.afterCreation(params.peers)
+    await this.afterCreation(params.peers, params.peerId)
     return libp2p
   }
 
-  private async afterCreation(peers: string[]) {
+  private async afterCreation(peers: string[], peerId: PeerId) {
     if (!this.libp2pInstance) {
       this.logger.log.error('libp2pInstance was not created')
       throw new Error('libp2pInstance was not created')
     }
 
     this.logger.log(
-      `Initializing libp2p for ${this.peerId.toString()}, bootstrapping with ${peers.length} peers`
+      `Initializing libp2p for ${peerId.toString()}, bootstrapping with ${peers.length} peers`
     )
     this.serverIoProvider.io.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.INITIALIZING_LIBP2P)
     const dialInChunks = new ProcessInChunks<string>(peers, this.dialPeer)
 
     this.libp2pInstance.addEventListener('peer:discovery', (peer) => {
-      this.logger.log(`${this.peerId.toString()} discovered ${peer.detail.id}`)
+      this.logger.log(`${peerId.toString()} discovered ${peer.detail.id}`)
     })
 
     this.libp2pInstance.addEventListener('peer:connect', async (peer) => {
       const remotePeerId = peer.detail.remotePeer.toString()
-      this.logger.log(`${this.peerId.toString()} connected to ${remotePeerId}`)
+      this.logger.log(`${peerId.toString()} connected to ${remotePeerId}`)
 
       // Stop dialing as soon as we connect to a peer
       dialInChunks.stop()
@@ -134,7 +131,7 @@ export class Libp2pService extends EventEmitter {
 
     this.libp2pInstance.addEventListener('peer:disconnect', async (peer) => {
       const remotePeerId = peer.detail.remotePeer.toString()
-      this.logger.log(`${this.peerId.toString()} disconnected from ${remotePeerId}`)
+      this.logger.log(`${peerId.toString()} disconnected from ${remotePeerId}`)
       if (!this.libp2pInstance) {
         this.logger.log.error('libp2pInstance was not created')
         throw new Error('libp2pInstance was not created')
@@ -162,6 +159,6 @@ export class Libp2pService extends EventEmitter {
 
     await dialInChunks.process()
 
-    this.logger.log(`Initialized libp2p for peer ${this.peerId.toString()}`)
+    this.logger.log(`Initialized libp2p for peer ${peerId.toString()}`)
   }
 }
