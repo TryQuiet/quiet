@@ -33,16 +33,16 @@ const log = logger('backendManager')
 const program = new Command()
 
 program
-.option('-p, --platform <platform>', 'platform')
-.option('-dpth, --dataPath <dataPath>', 'data directory path')
-.option('-dprt, --dataPort <dataPort>', 'data port')
-.option('-t, --torBinary <torBinary>', 'tor binary path')
-.option('-ac, --authCookie <authCookie>', 'tor authentication cookie')
-.option('-cp, --controlPort <controlPort>', 'tor control port')
-.option('-htp, --httpTunnelPort <httpTunnelPort>', 'http tunnel port')
-.option('-a, --appDataPath <string>', 'Path of application data directory')
-.option('-d, --socketIOPort <number>', 'Socket io data server port')
-.option('-r, --resourcesPath <string>', 'Application resources path')
+  .option('-p, --platform <platform>', 'platform')
+  .option('-dpth, --dataPath <dataPath>', 'data directory path')
+  .option('-dprt, --dataPort <dataPort>', 'data port')
+  .option('-t, --torBinary <torBinary>', 'tor binary path')
+  .option('-ac, --authCookie <authCookie>', 'tor authentication cookie')
+  .option('-cp, --controlPort <controlPort>', 'tor control port')
+  .option('-htp, --httpTunnelPort <httpTunnelPort>', 'http tunnel port')
+  .option('-a, --appDataPath <string>', 'Path of application data directory')
+  .option('-d, --socketIOPort <number>', 'Socket io data server port')
+  .option('-r, --resourcesPath <string>', 'Application resources path')
 
 program.parse(process.argv)
 const options = program.opts()
@@ -59,28 +59,17 @@ export const runBackendDesktop = async () => {
 
   const resourcesPath = isDev ? null : options.resourcesPath.trim()
 
-  // const connectionsManager = new ConnectionsManager({
-  //   socketIOPort: options.socketIOPort,
-  //   torBinaryPath: torBinForPlatform(resourcesPath),
-  //   torResourcesPath: torDirForPlatform(resourcesPath),
-  //   options: {
-  //     env: {
-  //       appDataPath: path.join(options.appDataPath.trim(), 'Quiet'),
-  //     }
-  //   }
-  // })
-
   const app = await NestFactory.createApplicationContext(AppModule.forOptions({
     socketIOPort: options.socketIOPort,
-      torBinaryPath: torBinForPlatform(resourcesPath),
-      torResourcesPath: torDirForPlatform(resourcesPath),
-      torControlPort: await getPort(),
-      options: {
-        env: {
-          appDataPath: path.join(options.appDataPath.trim(), 'Quiet'),
-        }
+    torBinaryPath: torBinForPlatform(resourcesPath),
+    torResourcesPath: torDirForPlatform(resourcesPath),
+    torControlPort: await getPort(),
+    options: {
+      env: {
+        appDataPath: path.join(options.appDataPath.trim(), 'Quiet'),
       }
-  }), { logger: ['error', 'warn', 'debug', 'log', 'verbose'] })
+    }
+  }), { logger: false })
 
   const connectionsManager = app.get<ConnectionsManagerService>(ConnectionsManagerService)
 
@@ -106,27 +95,43 @@ export const runBackendDesktop = async () => {
   // await connectionsManager.init()
 }
 
-// export const runBackendMobile = async (): Promise<any> => {
-//   // Enable triggering push notifications
-//   process.env['BACKEND'] = 'mobile'
-//   process.env['CONNECTION_TIME'] = (new Date().getTime() / 1000).toString() // Get time in seconds
+export const runBackendMobile = async (): Promise<any> => {
+  // Enable triggering push notifications
+  process.env['BACKEND'] = 'mobile'
+  process.env['CONNECTION_TIME'] = (new Date().getTime() / 1000).toString() // Get time in seconds
 
-//   const connectionsManager: ConnectionsManager = new ConnectionsManager({
-//     socketIOPort: options.dataPort,
-//     httpTunnelPort: options.httpTunnelPort ? options.httpTunnelPort : null,
-//     torAuthCookie: options.authCookie ? options.authCookie : null,
-//     torControlPort: options.controlPort ? options.controlPort : null,
-//     torBinaryPath: options.torBinary ? options.torBinary : null,
-//     options: {
-//       env: {
-//         appDataPath: options.dataPath,
-//       },
-//       createPaths: false,
-//     }
-//   })
+  // const connectionsManager: ConnectionsManager = new ConnectionsManager({
+  //   socketIOPort: options.dataPort,
+  //   httpTunnelPort: options.httpTunnelPort ? options.httpTunnelPort : null,
+  //   torAuthCookie: options.authCookie ? options.authCookie : null,
+  //   torControlPort: options.controlPort ? options.controlPort : null,
+  //   torBinaryPath: options.torBinary ? options.torBinary : null,
+  //   options: {
+  //     env: {
+  //       appDataPath: options.dataPath,
+  //     },
+  //     createPaths: false,
+  //   }
+  // })
 
-//   await connectionsManager.init()
-// }
+  // await connectionsManager.init()
+
+  const app = await NestFactory.createApplicationContext(AppModule.forOptions({
+    socketIOPort: options.dataPort,
+    httpTunnelPort: options.httpTunnelPort ? options.httpTunnelPort : null,
+    torAuthCookie: options.authCookie ? options.authCookie : null,
+    torControlPort: options.controlPort ? options.controlPort : null,
+    torBinaryPath: options.torBinary ? options.torBinary : null,
+    options: {
+      env: {
+        appDataPath: options.dataPath,
+      },
+      createPaths: false,
+    }
+  }), { logger: false })
+
+  const connectionsManager = app.get<ConnectionsManagerService>(ConnectionsManagerService)
+}
 
 const platform = options.platform
 
@@ -136,14 +141,14 @@ if (platform === 'desktop') {
     throw error
   })
 } else if (platform === 'mobile') {
-  // runBackendMobile().catch(async (error) => {
-  //   log.error('Error occurred while initializing backend', error)
-  //   // Prevent stopping process before getting output
-  //   await new Promise<void>((resolve) => {
-  //     setTimeout(() => { resolve() }, 10000)
-  //   })
-  //   throw error
-  // })
+  runBackendMobile().catch(async (error) => {
+    log.error('Error occurred while initializing backend', error)
+    // Prevent stopping process before getting output
+    await new Promise<void>((resolve) => {
+      setTimeout(() => { resolve() }, 10000)
+    })
+    throw error
+  })
 } else {
   throw Error(`Platfrom must be either desktop or mobile, received ${options.platform}`)
 }
