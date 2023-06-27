@@ -6,9 +6,24 @@
 #include <android/log.h>
 
 #include "node.h"
+#include "rn-bridge.h"
 
 // cache the environment variable for the thread running node to call into java
 JNIEnv* cacheEnvPointer=NULL;
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_quietmobile_Backend_BackendWorker_sendMessageToNodeChannel(
+        JNIEnv *env,
+        jobject /* this */,
+        jstring channelName,
+        jstring message) {
+    const char* nativeChannelName = env->GetStringUTFChars(channelName, 0);
+    const char* nativeMessage = env->GetStringUTFChars(message, 0);
+    rn_bridge_notify(nativeChannelName, nativeMessage);
+    env->ReleaseStringUTFChars(channelName,nativeChannelName);
+    env->ReleaseStringUTFChars(message,nativeMessage);
+}
 
 extern "C" int callIntoNode(int argc, char *argv[])
 {
