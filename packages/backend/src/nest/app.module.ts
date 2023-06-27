@@ -4,24 +4,17 @@ import { ConnectionsManagerModule } from './connections-manager/connections-mana
 import { RegistrationModule } from './registration/registration.module'
 import { IpfsFileManagerModule } from './ipfs-file-manager/ipfs-file-manager.module'
 import path from 'path'
-import { CONFIG_OPTIONS, EXPRESS_PROVIDER, SERVER_IO_PROVIDER, IPFS_REPO_PATCH, ORBIT_DB_DIR, QUIET_DIR, QUIET_DIR_PATH, Config, TOR_CONTROL_PARAMS, SOCKS_PROXY_AGENT, LEVEL_DB, DB_PATH } from './const'
-import type { IPFS } from 'ipfs-core'
+import { CONFIG_OPTIONS, EXPRESS_PROVIDER, SERVER_IO_PROVIDER, IPFS_REPO_PATCH, ORBIT_DB_DIR, QUIET_DIR, QUIET_DIR_PATH, Config, SOCKS_PROXY_AGENT, LEVEL_DB, DB_PATH } from './const'
 import { ConfigOptions, ConnectionsManagerOptions, ConnectionsManagerTypes } from './types'
 import { LocalDbModule } from './local-db/local-db.module'
 import { Libp2pModule } from './libp2p/libp2p.module'
 import { TorModule } from './tor/tor.module'
 import express from 'express'
-import { TorControlAuthType } from './tor/tor.types'
 import createHttpsProxyAgent from 'https-proxy-agent'
 import getPort from 'get-port'
-import PeerId, { JSONPeerId } from 'peer-id'
-import { LocalDbService } from './local-db/local-db.service'
-import { LocalDBKeys } from './local-db/local-db.types'
-import { peerId } from '../singletons'
 import { createServer } from 'http'
 import { Server as SocketIO } from 'socket.io'
 import { StorageModule } from './storage/storage.module'
-import { InitCommunityPayload, SocketActionTypes } from '@quiet/types'
 import { IpfsModule } from './ipfs/ipfs.module'
 import { Level } from 'level'
 
@@ -101,26 +94,6 @@ export class AppModule {
           useFactory: (dbPath: string) => new Level<string, any>(dbPath, { valueEncoding: 'json' }),
           inject: [DB_PATH]
         },
-        // {
-        //   provide: PEER_ID_PROVIDER,
-        //   useFactory: async (levelDb: Level) => {
-        //     let peerId: any
-
-        //     try {
-        //       const community = await levelDb.get(LocalDBKeys.COMMUNITY) as unknown as InitCommunityPayload
-        //       console.log('peer id provider - community', community)
-        //       if (community?.peerId) {
-        //         peerId = null
-        //       }
-        //     } catch (e) {
-        //       console.log('PEER_ID_PROVIDER catch')
-        //       peerId = null
-        //     }
-
-        //     return peerId
-        //   },
-        //   inject: [LEVEL_DB]
-        // },
 
       ],
       exports: [CONFIG_OPTIONS, QUIET_DIR, ORBIT_DB_DIR, IPFS_REPO_PATCH, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT, LEVEL_DB],

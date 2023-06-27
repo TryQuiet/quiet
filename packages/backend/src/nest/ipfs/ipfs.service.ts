@@ -2,9 +2,6 @@ import { Inject, Injectable, Logger } from '@nestjs/common'
 import { LazyModuleLoader } from '@nestjs/core'
 import { create, IPFS } from 'ipfs-core'
 import { IPFS_REPO_PATCH } from '../const'
-import { peerIdFromKeys } from '@libp2p/peer-id'
-import { PeerId as PeerIdType } from '@quiet/types'
-import PeerId from 'peer-id'
 
 @Injectable()
 export class IpfsService {
@@ -23,9 +20,6 @@ export class IpfsService {
     const { Libp2pService } = await import('../libp2p/libp2p.service')
     const libp2pService = moduleRef.get(Libp2pService)
     const libp2pInstance = libp2pService?.libp2pInstance
-console.log('check create ipfs peerid', peerId, libp2pService.libp2pInstance?.peerId)
-    // const restoredRsa = await PeerId.createFromJSON(peerId)
-    // const _peerId = await peerIdFromKeys(restoredRsa.marshalPubKey(), restoredRsa.marshalPrivKey())
 
     let ipfs: IPFS
     try {

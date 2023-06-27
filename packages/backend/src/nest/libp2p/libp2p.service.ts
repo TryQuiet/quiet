@@ -46,9 +46,7 @@ export class Libp2pService extends EventEmitter {
   }
 
   public async createInstance(params: Libp2pNodeParams): Promise<any> {
-    console.log('eeeeeeeeeeeelllooo')
     if (this.libp2pInstance) {
-      console.log('return existing instafe libp2p')
       return this.libp2pInstance
     }
 

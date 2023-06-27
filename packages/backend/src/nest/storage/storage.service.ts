@@ -23,11 +23,11 @@ import { CID } from 'multiformats/cid'
 import { ChannelMessage, ConnectionProcessInfo, DeleteFilesFromChannelSocketPayload, FileMetadata, InitCommunityPayload, NoCryptoEngineError, PublicChannel, PushNotificationPayload, SaveCertificatePayload, SocketActionTypes, User, PeerId as PeerIdType } from '@quiet/types'
 import { isDefined } from '@quiet/common'
 import fs from 'fs'
-import { IMessageThread, PublicChannelsRepo, DirectMessagesRepo, StorageOptions } from '../../common/types'
+import { IMessageThread, PublicChannelsRepo, DirectMessagesRepo } from '../../common/types'
 import { removeFiles, removeDirs, createPaths, getUsersAddresses } from '../../common/utils'
 import { StorageEvents } from '../../storage/types'
 import { IpfsFileManagerService } from '../ipfs-file-manager/ipfs-file-manager.service'
-import { COMMUNITY_PROVIDER, IPFS_PROVIDER, IPFS_REPO_PATCH, ORBIT_DB_DIR, ORBIT_DB_PROVIDER, QUIET_DIR } from '../const'
+import { IPFS_REPO_PATCH, ORBIT_DB_DIR, QUIET_DIR } from '../const'
 import { IpfsFilesManagerEvents } from '../ipfs-file-manager/ipfs-file-manager.types'
 import { LocalDBKeys } from '../local-db/local-db.types'
 import { LocalDbService } from '../local-db/local-db.service'
@@ -38,10 +38,6 @@ import { createChannelAccessController } from './ChannelsAccessController'
 
 @Injectable()
 export class StorageService extends EventEmitter implements OnApplicationBootstrap {
-  // public quietDir: string
-  // public peerId: PeerId
-  // protected ipfs: IPFS
-  // protected orbitdb: OrbitDB
   public channels: KeyValueStore<PublicChannel>
   private messageThreads: KeyValueStore<IMessageThread>
   private certificates: EventStore<string>
@@ -53,12 +49,6 @@ export class StorageService extends EventEmitter implements OnApplicationBootstr
   private orbitDb: OrbitDB
   private filesManager: IpfsFileManagerService
   private peerId: PeerId | null = null
-  // public options: StorageOptions
-  // public orbitDbDir: string
-  // public ipfsRepoPath: string
-  // private filesManager: IpfsFilesManager
-  // readonly downloadCancellations: string[]
-  // private readonly __communityId: string
 
   private readonly logger = new Logger(StorageService.name)
   constructor(
@@ -69,14 +59,6 @@ export class StorageService extends EventEmitter implements OnApplicationBootstr
     private readonly lazyModuleLoader: LazyModuleLoader
   ) {
     super()
-
-    // KACPER
-    // this.options = {
-    //   ...new StorageOptions(),
-    //   ...options
-    // }
-    // this.orbitDbDir = path.join(this.quietDir, this.options.orbitDbDir || Config.ORBIT_DB_DIR)
-    // this.ipfsRepoPath = path.join(this.quietDir, this.options.ipfsDir || Config.IPFS_REPO_PATH)
   }
 
   private clean() {
@@ -103,8 +85,6 @@ export class StorageService extends EventEmitter implements OnApplicationBootstr
     this.logger.log('Initializing storage')
     removeFiles(this.quietDir, 'LOCK')
     removeDirs(this.quietDir, 'repo.lock')
-    console.log('this.ipfsRepoPath', this.ipfsRepoPath)
-    console.log('this.orbitDbDir', this.orbitDbDir)
     createPaths([this.ipfsRepoPath, this.orbitDbDir])
     // const channelsAccessController = createChannelAccessController(peerID, this.orbitDbDir)
 
