@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { ErrorCodes, LoadingPanelType } from '@quiet/types'
-import { errors, identity, network } from '@quiet/state-manager'
+import { communities, errors, identity, network } from '@quiet/state-manager'
 import CreateUsernameComponent from '../CreateUsername/CreateUsernameComponent'
 import { ModalName } from '../../sagas/modals/modals.types'
 import { useModal } from '../../containers/hooks'
@@ -9,6 +9,7 @@ import { useModal } from '../../containers/hooks'
 const CreateUsername = () => {
   const dispatch = useDispatch()
 
+  const currentCommunity = useSelector(communities.selectors.currentCommunity)
   const currentIdentity = useSelector(identity.selectors.currentIdentity)
 
   const createUsernameModal = useModal(ModalName.createUsernameModal)
@@ -17,13 +18,13 @@ const CreateUsername = () => {
   const error = useSelector(errors.selectors.registrarErrors)
 
   useEffect(() => {
-    if (currentIdentity && !currentIdentity.userCertificate && !createUsernameModal.open) {
+    if (currentCommunity && !currentIdentity?.userCertificate && !createUsernameModal.open) {
       createUsernameModal.handleOpen()
     }
     if (currentIdentity?.userCertificate && createUsernameModal.open) {
       createUsernameModal.handleClose()
     }
-  }, [currentIdentity])
+  }, [currentIdentity, currentCommunity])
 
   const handleAction = (nickname: string) => {
     // Clear errors

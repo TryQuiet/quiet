@@ -13,8 +13,9 @@ export const JoinCommunityScreen: FC<JoinCommunityScreenProps> = ({ route }) => 
 
   const [invitationCode, setInvitationCode] = useState<string | undefined>(undefined)
 
+  const currentCommunity = useSelector(communities.selectors.currentCommunity)
   const currentIdentity = useSelector(identity.selectors.currentIdentity)
-  const networkCreated = Boolean(currentIdentity && !currentIdentity.userCertificate)
+  const networkCreated = Boolean(currentCommunity && !currentIdentity?.userCertificate)
 
   const community = useSelector(communities.selectors.currentCommunity)
 
@@ -37,7 +38,7 @@ export const JoinCommunityScreen: FC<JoinCommunityScreenProps> = ({ route }) => 
         })
       )
     }
-  }, [dispatch, currentIdentity])
+  }, [dispatch, currentCommunity])
 
   const joinCommunityAction = useCallback(
     (address: string) => {

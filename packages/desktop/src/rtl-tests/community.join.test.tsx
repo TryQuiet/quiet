@@ -38,6 +38,7 @@ import {
   SendOwnerCertificatePayload,
   SendUserCertificatePayload,
 } from '@quiet/types'
+import { selectOptions } from 'mathjax-full/js/util/Options'
 
 jest.setTimeout(20_000)
 
@@ -193,14 +194,16 @@ describe('User', () => {
     expect(actions).toMatchInlineSnapshot(`
       Array [
         "Communities/createNetwork",
-        "Communities/responseCreateNetwork",
         "Communities/clearInvitationCode",
         "Communities/addNewCommunity",
         "Communities/setCurrentCommunity",
-        "Identity/addNewIdentity",
         "Modals/closeModal",
         "Modals/openModal",
         "Identity/registerUsername",
+        "Communities/responseCreateNetwork",
+        "Communities/clearInvitationCode",
+        "Communities/updateCommunityData",
+        "Identity/addNewIdentity",
         "Network/setLoadingPanelType",
         "Modals/openModal",
         "Identity/registerCertificate",
@@ -313,14 +316,16 @@ describe('User', () => {
     expect(actions).toMatchInlineSnapshot(`
       Array [
         "Communities/createNetwork",
-        "Communities/responseCreateNetwork",
         "Communities/clearInvitationCode",
         "Communities/addNewCommunity",
         "Communities/setCurrentCommunity",
-        "Identity/addNewIdentity",
         "Modals/closeModal",
         "Modals/openModal",
         "Identity/registerUsername",
+        "Communities/responseCreateNetwork",
+        "Communities/clearInvitationCode",
+        "Communities/updateCommunityData",
+        "Identity/addNewIdentity",
         "Network/setLoadingPanelType",
         "Modals/openModal",
         "Identity/registerCertificate",
@@ -422,16 +427,18 @@ describe('User', () => {
     expect(actions).toMatchInlineSnapshot(`
       Array [
         "Communities/createNetwork",
-        "Communities/responseCreateNetwork",
         "Communities/clearInvitationCode",
         "Communities/addNewCommunity",
         "Communities/setCurrentCommunity",
-        "Identity/addNewIdentity",
         "Modals/closeModal",
         "Modals/openModal",
         "Errors/addError",
         "Errors/clearError",
         "Identity/registerUsername",
+        "Communities/responseCreateNetwork",
+        "Communities/clearInvitationCode",
+        "Communities/updateCommunityData",
+        "Identity/addNewIdentity",
         "Network/setLoadingPanelType",
         "Modals/openModal",
         "Identity/registerCertificate",

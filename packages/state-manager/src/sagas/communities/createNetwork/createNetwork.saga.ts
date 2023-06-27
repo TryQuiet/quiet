@@ -1,16 +1,15 @@
-import { type PayloadAction } from '@reduxjs/toolkit'
-import { call, apply } from 'typed-redux-saga'
+import { PayloadAction } from '@reduxjs/toolkit'
+import { call, put } from 'typed-redux-saga'
 import { Time } from 'pkijs'
 import { generateId } from '../../../utils/cryptography/cryptography'
-import { type communitiesActions } from '../communities.slice'
+import { communitiesActions } from '../communities.slice'
 import { createRootCA } from '@quiet/identity'
-import { type Socket, applyEmitParams } from '../../../types'
-import { type Community, CommunityOwnership, SocketActionTypes } from '@quiet/types'
+import { type Community, CommunityOwnership } from '@quiet/types'
 
 export function* createNetworkSaga(
-  socket: Socket,
   action: PayloadAction<ReturnType<typeof communitiesActions.createNetwork>['payload']>
 ) {
+  console.log('create network saga')
   let CA: null | {
     rootCertString: string
     rootKeyString: string
@@ -40,5 +39,7 @@ export function* createNetworkSaga(
     rootCa: CA?.rootCertString,
   }
 
-  yield* apply(socket, socket.emit, applyEmitParams(SocketActionTypes.CREATE_NETWORK, payload))
+  yield* put(communitiesActions.clearInvitationCode())
+  yield* put(communitiesActions.addNewCommunity(payload))
+  yield* put(communitiesActions.setCurrentCommunity(id))
 }

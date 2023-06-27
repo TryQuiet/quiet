@@ -78,9 +78,6 @@ describe('Opening app through custom protocol', () => {
       store
     )
 
-    const progress = screen.getByTestId('loading-button-progress')
-    expect(progress).toBeVisible()
-
     store.dispatch(communities.actions.addNewCommunity(community))
     store.dispatch(communities.actions.setCurrentCommunity(community.id))
 

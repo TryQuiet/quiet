@@ -8,7 +8,7 @@ import { savedOwnerCertificateSaga } from './savedOwnerCertificate/savedOwnerCer
 
 export function* identityMasterSaga(socket: Socket): Generator {
   yield all([
-    takeEvery(identityActions.registerUsername.type, registerUsernameSaga),
+    takeEvery(identityActions.registerUsername.type, registerUsernameSaga, socket),
     takeEvery(identityActions.registerCertificate.type, registerCertificateSaga, socket),
     takeEvery(identityActions.saveOwnerCertToDb.type, saveOwnerCertToDbSaga, socket),
     takeEvery(identityActions.savedOwnerCertificate.type, savedOwnerCertificateSaga, socket),

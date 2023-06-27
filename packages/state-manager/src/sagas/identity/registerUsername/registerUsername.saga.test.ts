@@ -9,11 +9,14 @@ import { identityActions } from '../identity.slice'
 import { registerUsernameSaga } from './registerUsername.saga'
 import { type communitiesActions } from '../../communities/communities.slice'
 import { config } from '../../users/const/certFieldTypes'
-import { type CertData, type CreateUserCsrPayload } from '@quiet/types'
+import { CertData, CreateUserCsrPayload, SocketActionTypes } from '@quiet/types'
+import { Socket } from '../../../types'
 
 describe('registerUsernameSaga', () => {
   it('create user csr', async () => {
     setupCrypto()
+    const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
+
     const store = prepareStore().store
 
     const factory = await getFactory(store)
@@ -56,10 +59,21 @@ describe('registerUsernameSaga', () => {
     }
 
     const reducer = combineReducers(reducers)
-    await expectSaga(registerUsernameSaga, identityActions.registerUsername('nickname'))
+    await expectSaga(registerUsernameSaga, socket, identityActions.registerUsername('nickname'))
       .withReducer(reducer)
       .withState(store.getState())
       .provide([[call.fn(createUserCsr), userCsr]])
+      .apply(socket, socket.emit, [
+        SocketActionTypes.CREATE_NETWORK,
+        {
+          id: community.id,
+          name: community.name,
+          registrarUrl: community.registrarUrl,
+          CA: community.CA,
+          rootCa: undefined,
+        },
+      ])
+      .dispatch(identityActions.addNewIdentity(identity))
       .call(createUserCsr, createUserCsrPayload)
       .put(
         identityActions.registerCertificate({
@@ -73,6 +87,8 @@ describe('registerUsernameSaga', () => {
 
   it("reuse existing csr if provided username hasn't changed", async () => {
     setupCrypto()
+    const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
+
     const store = prepareStore().store
 
     const factory = await getFactory(store)
@@ -111,10 +127,21 @@ describe('registerUsernameSaga', () => {
     store.dispatch(identityActions.addNewIdentity(identity))
 
     const reducer = combineReducers(reducers)
-    await expectSaga(registerUsernameSaga, identityActions.registerUsername(identity.nickname))
+    await expectSaga(registerUsernameSaga, socket, identityActions.registerUsername(identity.nickname))
       .withReducer(reducer)
       .withState(store.getState())
       .not.call(createUserCsr)
+      .apply(socket, socket.emit, [
+        SocketActionTypes.CREATE_NETWORK,
+        {
+          id: community.id,
+          name: community.name,
+          registrarUrl: community.registrarUrl,
+          CA: community.CA,
+          rootCa: undefined,
+        },
+      ])
+      .dispatch(identityActions.addNewIdentity(identity))
       .put(
         identityActions.registerCertificate({
           communityId: community.id,
@@ -127,6 +154,8 @@ describe('registerUsernameSaga', () => {
 
   it("don't reuse existing csr if provided username has changed", async () => {
     setupCrypto()
+    const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
+
     const store = prepareStore().store
 
     const factory = await getFactory(store)
@@ -180,10 +209,21 @@ describe('registerUsernameSaga', () => {
     }
 
     const reducer = combineReducers(reducers)
-    await expectSaga(registerUsernameSaga, identityActions.registerUsername('nickname'))
+    await expectSaga(registerUsernameSaga, socket, identityActions.registerUsername('nickname'))
       .withReducer(reducer)
       .withState(store.getState())
       .provide([[call.fn(createUserCsr), userCsr]])
+      .apply(socket, socket.emit, [
+        SocketActionTypes.CREATE_NETWORK,
+        {
+          id: community.id,
+          name: community.name,
+          registrarUrl: community.registrarUrl,
+          CA: community.CA,
+          rootCa: undefined,
+        },
+      ])
+      .dispatch(identityActions.addNewIdentity(identity))
       .call(createUserCsr, createUserCsrPayload)
       .put(
         identityActions.registerCertificate({

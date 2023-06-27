@@ -3,18 +3,16 @@ import { expectSaga } from 'redux-saga-test-plan'
 import { call } from 'redux-saga-test-plan/matchers'
 import { Time } from 'pkijs'
 import { prepareStore } from '../../../utils/tests/prepareStore'
-import { type Socket } from 'socket.io-client'
 import { communitiesActions } from '../communities.slice'
 import { createRootCA, setupCrypto } from '@quiet/identity'
 import { reducers } from '../../reducers'
 import { createNetworkSaga } from './createNetwork.saga'
 import { generateId } from '../../../utils/cryptography/cryptography'
-import { type Community, CommunityOwnership, SocketActionTypes } from '@quiet/types'
+import { type Community, CommunityOwnership } from '@quiet/types'
 
 describe('createNetwork', () => {
   it('create network for joining user', async () => {
     setupCrypto()
-    const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
     const store = prepareStore().store
 
     const community: Community = {
@@ -28,7 +26,6 @@ describe('createNetwork', () => {
     const reducer = combineReducers(reducers)
     await expectSaga(
       createNetworkSaga,
-      socket,
       communitiesActions.createNetwork({
         ownership: CommunityOwnership.User,
         registrar: 'registrarUrl',
@@ -39,13 +36,12 @@ describe('createNetwork', () => {
       .provide([[call.fn(generateId), community.id]])
       .not.call(createRootCA)
       .call(generateId)
-      .apply(socket, socket.emit, [SocketActionTypes.CREATE_NETWORK, community])
       .run()
   })
 
   it('create network for owner', async () => {
     setupCrypto()
-    const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
+
     const store = prepareStore().store
 
     const CA = {
@@ -64,7 +60,6 @@ describe('createNetwork', () => {
     const reducer = combineReducers(reducers)
     await expectSaga(
       createNetworkSaga,
-      socket,
       communitiesActions.createNetwork({
         ownership: CommunityOwnership.Owner,
         name: 'rockets',
@@ -83,7 +78,6 @@ describe('createNetwork', () => {
         'rockets'
       )
       .call(generateId)
-      .apply(socket, socket.emit, [SocketActionTypes.CREATE_NETWORK, community])
       .run()
   })
 })
