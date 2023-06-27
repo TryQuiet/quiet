@@ -25,7 +25,7 @@ const options = program.opts()
 console.log('options', options)
 
 // @ts-ignore
-import rn_bridge from './rn-bridge.js'
+import rn_bridge from './rn-bridge.ts'
 
 rn_bridge.channel.on('message', (msg: string) => {
   console.log('native sends message', msg)
