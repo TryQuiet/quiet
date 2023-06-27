@@ -20,6 +20,7 @@ import { ConfigOptions } from '../types'
 import path from 'path'
 import { Server as SocketIO } from 'socket.io'
 import { createServer } from 'http'
+import { createTmpDir } from '../../common/testUtils'
 
 const defaultConfigForTest = {
   socketIOPort: await getPort(),
@@ -89,7 +90,7 @@ const defaultConfigForTest = {
     },
     {
       provide: DB_PATH,
-      useFactory: (baseDir: string) => path.join(baseDir, 'backendDB-test'),
+      useFactory: (baseDir: string) => path.join(createTmpDir().name, 'testDB-nest'),
       inject: [QUIET_DIR],
     },
     {
