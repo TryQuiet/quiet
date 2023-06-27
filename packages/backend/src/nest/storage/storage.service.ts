@@ -103,6 +103,8 @@ export class StorageService extends EventEmitter implements OnApplicationBootstr
     this.logger.log('Initializing storage')
     removeFiles(this.quietDir, 'LOCK')
     removeDirs(this.quietDir, 'repo.lock')
+    console.log('this.ipfsRepoPath', this.ipfsRepoPath)
+    console.log('this.orbitDbDir', this.orbitDbDir)
     createPaths([this.ipfsRepoPath, this.orbitDbDir])
     // const channelsAccessController = createChannelAccessController(peerID, this.orbitDbDir)
 
@@ -156,9 +158,8 @@ await this.initDatabases()
        // @ts-ignore
       AccessControllers
   })
-console.log('before orbit db check', this.orbitDb)
+
   this.orbitDb = orbitDb
-  console.log('after orbit db check', this.orbitDb)
   }
 
   // public async community() {
@@ -262,6 +263,18 @@ console.log('before orbit db check', this.orbitDb)
   }
 
   public async stopOrbitDb() {
+    console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1 stop orbit db')
+    try {
+    await this.channels.close()
+    } catch (e) {
+      this.logger.error(e)
+    }
+
+    try {
+      await this.certificates.close()
+      } catch (e) {
+        this.logger.error(e)
+      }
     // await this.channels.close()
     // await this.certificates.close()
     await this.__stopOrbitDb()
@@ -686,7 +699,7 @@ console.log('before orbit db check', this.orbitDb)
       this.logger.log('deleteChannel - peerId is null')
       throw new Error('deleteChannel - peerId is null')
     }
-    const isOwner = ownerPeerId === this.peerId.id.toString()
+    const isOwner = ownerPeerId === this.peerId.toString()
     if (channel && isOwner) {
       await this.channels.del(channelId)
     }
