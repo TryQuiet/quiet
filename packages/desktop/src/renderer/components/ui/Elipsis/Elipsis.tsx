@@ -7,11 +7,11 @@ import Typography from '@mui/material/Typography'
 const PREFIX = 'Elipsis'
 
 const classes = {
-  content: `${PREFIX}content`
+  content: `${PREFIX}content`,
 }
 
 const StyledTooltip = styled(Tooltip)({
-  [`& .${classes.content}`]: {}
+  [`& .${classes.content}`]: {},
 })
 
 interface ElipsisProps {
@@ -25,14 +25,15 @@ export const Elipsis: React.FC<ElipsisProps> = ({
   content,
   length = 40,
   tooltipPlacement = 'bottom-start',
-  interactive = false
+  interactive = false,
 }) => {
   return (
     <StyledTooltip
       title={content}
       interactive={interactive}
       placement={tooltipPlacement}
-      disableHoverListener={content.length < length}>
+      disableHoverListener={content.length < length}
+    >
       <Typography variant='caption' className={classes.content}>
         {R.concat(content.substring(0, length), content.length > length ? '...' : '')}
       </Typography>

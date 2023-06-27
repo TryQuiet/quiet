@@ -1,4 +1,3 @@
-/* eslint import/first: 0 */
 import React from 'react'
 import { renderComponent } from '../../testUtils/renderComponent'
 

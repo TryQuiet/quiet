@@ -13,7 +13,7 @@ import {
   PublicChannelsTransform,
   MessagesTransform,
   FilesTransform,
-  ConnectionTransform
+  ConnectionTransform,
 } from '@quiet/state-manager'
 import { StoreKeys } from './store.keys'
 import { InitTransform } from './init/init.transform'
@@ -29,7 +29,7 @@ const persistedReducer = persistReducer(
       StateManagerStoreKeys.Messages,
       StateManagerStoreKeys.Files,
       StateManagerStoreKeys.Connection,
-      StoreKeys.Init
+      StoreKeys.Init,
     ],
     transforms: [
       CommunitiesTransform,
@@ -37,8 +37,8 @@ const persistedReducer = persistReducer(
       MessagesTransform,
       FilesTransform,
       InitTransform,
-      ConnectionTransform
-    ]
+      ConnectionTransform,
+    ],
   },
   rootReducer
 )
@@ -49,9 +49,9 @@ export const store = configureStore({
   devTools: process.env.NODE_ENV === NodeEnv.Development,
   middleware: [
     ...getDefaultMiddleware({ immutableCheck: false, serializableCheck: false, thunk: false }),
-    sagaMiddleware
+    sagaMiddleware,
   ],
-  reducer: persistedReducer
+  reducer: persistedReducer,
 })
 
 export const persistor = persistStore(store, {}, () => {

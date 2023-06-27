@@ -59,21 +59,24 @@ export const runBackendDesktop = async () => {
 
   const resourcesPath = isDev ? null : options.resourcesPath.trim()
 
-  const app = await NestFactory.createApplicationContext(AppModule.forOptions({
-    socketIOPort: options.socketIOPort,
-    torBinaryPath: torBinForPlatform(resourcesPath),
-    torResourcesPath: torDirForPlatform(resourcesPath),
-    torControlPort: await getPort(),
-    options: {
-      env: {
-        appDataPath: path.join(options.appDataPath.trim(), 'Quiet'),
-      }
-    }
-  }), { logger: false })
+  const app = await NestFactory.createApplicationContext(
+    AppModule.forOptions({
+      socketIOPort: options.socketIOPort,
+      torBinaryPath: torBinForPlatform(resourcesPath),
+      torResourcesPath: torDirForPlatform(resourcesPath),
+      torControlPort: await getPort(),
+      options: {
+        env: {
+          appDataPath: path.join(options.appDataPath.trim(), 'Quiet'),
+        },
+      },
+    }),
+    { logger: false }
+  )
 
   const connectionsManager = app.get<ConnectionsManagerService>(ConnectionsManagerService)
 
-  process.on('message', async (message) => {
+  process.on('message', async message => {
     if (message === 'close') {
       try {
         await connectionsManager.closeAllServices()
@@ -116,19 +119,22 @@ export const runBackendMobile = async (): Promise<any> => {
 
   // await connectionsManager.init()
 
-  const app = await NestFactory.createApplicationContext(AppModule.forOptions({
-    socketIOPort: options.dataPort,
-    httpTunnelPort: options.httpTunnelPort ? options.httpTunnelPort : null,
-    torAuthCookie: options.authCookie ? options.authCookie : null,
-    torControlPort: options.controlPort ? options.controlPort : await getPort(),
-    torBinaryPath: options.torBinary ? options.torBinary : null,
-    options: {
-      env: {
-        appDataPath: options.dataPath,
+  const app = await NestFactory.createApplicationContext(
+    AppModule.forOptions({
+      socketIOPort: options.dataPort,
+      httpTunnelPort: options.httpTunnelPort ? options.httpTunnelPort : null,
+      torAuthCookie: options.authCookie ? options.authCookie : null,
+      torControlPort: options.controlPort ? options.controlPort : await getPort(),
+      torBinaryPath: options.torBinary ? options.torBinary : null,
+      options: {
+        env: {
+          appDataPath: options.dataPath,
+        },
+        createPaths: false,
       },
-      createPaths: false,
-    }
-  }), { logger: false })
+    }),
+    { logger: false }
+  )
 
   const connectionsManager = app.get<ConnectionsManagerService>(ConnectionsManagerService)
 }
@@ -141,11 +147,13 @@ if (platform === 'desktop') {
     throw error
   })
 } else if (platform === 'mobile') {
-  runBackendMobile().catch(async (error) => {
+  runBackendMobile().catch(async error => {
     log.error('Error occurred while initializing backend', error)
     // Prevent stopping process before getting output
-    await new Promise<void>((resolve) => {
-      setTimeout(() => { resolve() }, 10000)
+    await new Promise<void>(resolve => {
+      setTimeout(() => {
+        resolve()
+      }, 10000)
     })
     throw error
   })

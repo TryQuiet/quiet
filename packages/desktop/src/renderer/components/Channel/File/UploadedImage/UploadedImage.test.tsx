@@ -1,9 +1,4 @@
-import {
-  DisplayableMessage,
-  DownloadState,
-  DownloadStatus,
-  MessageType
-} from '@quiet/types'
+import { DisplayableMessage, DownloadState, DownloadStatus, MessageType } from '@quiet/types'
 import React from 'react'
 
 import { renderComponent } from '../../../../testUtils/renderComponent'
@@ -30,15 +25,15 @@ describe('UploadedFile', () => {
         height: 600,
         message: {
           id: 'string',
-          channelId: 'general'
-        }
-      }
+          channelId: 'general',
+        },
+      },
     }
 
     downloadStatus = {
       mid: 'string',
       cid: 'abcd1234',
-      downloadState: DownloadState.Completed
+      downloadState: DownloadState.Completed,
     }
   })
 
@@ -118,7 +113,7 @@ describe('UploadedFile', () => {
     // @ts-expect-error
     message.media.message = {
       id: 'string',
-      channelId: 'general'
+      channelId: 'general',
     }
     const result = renderComponent(
       <UploadedImage

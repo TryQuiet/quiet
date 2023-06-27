@@ -1,10 +1,10 @@
-import { PayloadAction } from '@reduxjs/toolkit'
-import { applyEmitParams, Socket } from '../../../types'
+import { type PayloadAction } from '@reduxjs/toolkit'
+import { applyEmitParams, type Socket } from '../../../types'
 
 import { select, apply } from 'typed-redux-saga'
 import { identitySelectors } from '../../identity/identity.selectors'
 import { messagesSelectors } from '../../messages/messages.selectors'
-import { filesActions } from '../files.slice'
+import { type filesActions } from '../files.slice'
 import { instanceOfChannelMessage, SocketActionTypes } from '@quiet/types'
 
 export function* broadcastHostedFileSaga(
@@ -36,9 +36,9 @@ export function* broadcastHostedFileSaga(
         ...message,
         media: {
           ...action.payload,
-          path: null
-        }
-      }
+          path: null,
+        },
+      },
     })
   )
 }

@@ -10,12 +10,11 @@ const Template: ComponentStory<typeof InviteComponent> = args => {
 export const Component = Template.bind({})
 let revealInputValue = true
 const args: InviteComponentProps = {
-  invitationLink:
-    'https://tryquiet.org/join#p7lrosb6fvtt7t3fhmuh5uj5twxirpngeipemdm5d32shgz46cbd3bad',
+  invitationLink: 'https://tryquiet.org/join#p7lrosb6fvtt7t3fhmuh5uj5twxirpngeipemdm5d32shgz46cbd3bad',
   revealInputValue: revealInputValue,
   handleClickInputReveal: () => {
     revealInputValue = !revealInputValue
-  }
+  },
 }
 
 Component.args = args
@@ -23,7 +22,7 @@ Component.args = args
 const component: ComponentMeta<typeof InviteComponent> = {
   title: 'Components/InviteFriend',
   decorators: [withTheme],
-  component: InviteComponent
+  component: InviteComponent,
 }
 
 export default component

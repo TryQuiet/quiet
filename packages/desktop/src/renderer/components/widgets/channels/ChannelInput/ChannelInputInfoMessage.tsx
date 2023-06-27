@@ -7,29 +7,25 @@ const PREFIX = 'ChannelInputInfoMessage'
 const classes = {
   info: `${PREFIX}info`,
   bold: `${PREFIX}bold`,
-  boot: `${PREFIX}boot`
+  boot: `${PREFIX}boot`,
 }
 
-const StyledGrid = styled(Grid)((
-  {
-    theme
-  }
-) => ({
+const StyledGrid = styled(Grid)(({ theme }) => ({
   [`& .${classes.info}`]: {
     color: theme.palette.colors.trueBlack,
     width: '100px',
-    letterSpacing: '0.4px'
+    letterSpacing: '0.4px',
   },
 
   [`& .${classes.bold}`]: {
-    fontWeight: 'bold'
+    fontWeight: 'bold',
   },
 
   [`&.${classes.boot}`]: {
     height: '24px',
     width: '100%',
-    padding: '0px 20px'
-  }
+    padding: '0px 20px',
+  },
 }))
 
 interface ChannelInputInfoMessageProps {
@@ -42,7 +38,7 @@ const ChannelInputInfoMessage: React.FC<ChannelInputInfoMessageProps> = ({ showI
       <Grid item xs>
         {showInfoMessage && (
           <Typography variant='caption' className={classes.info}>
-              Initializing community. This may take a few minutes...
+            Initializing community. This may take a few minutes...
           </Typography>
         )}
       </Grid>

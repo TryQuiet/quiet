@@ -8,18 +8,7 @@ import { defaultTheme } from '../../styles/themes/default.theme'
 
 export const Input = forwardRef<TextInput, InputProps>(
   (
-    {
-      onChangeText,
-      label,
-      placeholder,
-      capitalize,
-      validation,
-      length,
-      hint,
-      multiline,
-      disabled = false,
-      style
-    },
+    { onChangeText, label, placeholder, capitalize, validation, length, hint, multiline, disabled = false, style },
     ref
   ) => {
     const textInputRef = useRef<null | TextInput>(null)
@@ -37,10 +26,7 @@ export const Input = forwardRef<TextInput, InputProps>(
             {label}
           </Typography>
         )}
-        <StyledWrapper
-          onPress={handleViewPress}
-          disabled={disabled}
-          style={style}>
+        <StyledWrapper onPress={handleViewPress} disabled={disabled} style={style}>
           <StyledTextInput
             onChangeText={onChangeText}
             ref={(instance: TextInput | null) => {

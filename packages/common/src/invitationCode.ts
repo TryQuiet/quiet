@@ -4,7 +4,7 @@ export const retrieveInvitationCode = (url: string): string => {
   /**
    * Extract invitation code from deep url.
    * Valid format: quiet://?code=<invitation code>
-  */
+   */
   let data: URL
   try {
     data = new URL(url)
@@ -24,7 +24,7 @@ export const argvInvitationCode = (argv: string[]): string => {
   /**
    * Extract invitation code from deep url if url is present in argv
    */
-  let invitationCode: string = ''
+  let invitationCode = ''
   for (const arg of argv) {
     invitationCode = retrieveInvitationCode(arg)
     if (invitationCode) {
@@ -34,13 +34,13 @@ export const argvInvitationCode = (argv: string[]): string => {
   return invitationCode
 }
 
-export const invitationDeepUrl = (code: string = ''): string => {
+export const invitationDeepUrl = (code = ''): string => {
   const url = new URL('quiet://')
   url.searchParams.append(InvitationParams.CODE, code)
   return url.href
 }
 
-export const invitationShareUrl = (code: string = ''): string => {
+export const invitationShareUrl = (code = ''): string => {
   const url = new URL(`https://${Site.DOMAIN}/${Site.JOIN_PAGE}#${code}`)
   return url.href
 }

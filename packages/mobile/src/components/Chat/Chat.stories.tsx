@@ -10,7 +10,7 @@ storiesOf('Chat', module)
       contextMenu={{
         visible: false,
         handleOpen: function (_args?: any): any {},
-        handleClose: function (_args?: any): any {}
+        handleClose: function (_args?: any): any {},
       }}
       sendMessageAction={storybookLog('Message sent')}
       loadMessagesAction={storybookLog('Messages loaded')}
@@ -24,7 +24,7 @@ storiesOf('Chat', module)
         description: '',
         owner: '',
         timestamp: 0,
-        id: ''
+        id: '',
       }}
       messages={{
         count: 16,
@@ -37,7 +37,7 @@ storiesOf('Chat', module)
                 message: 'Hello',
                 createdAt: 0,
                 date: '28 Oct, 10:00',
-                nickname: 'alice'
+                nickname: 'alice',
               },
               {
                 id: '2',
@@ -46,8 +46,8 @@ storiesOf('Chat', module)
                   "How are you? My day was awesome. I removed a lot of unused props from container and I simplified code a lot. I like coding, coding is like building things with LEGO. I could admit it's a little bit harder and there's a lot that can go wrong but I like it anyway.",
                 createdAt: 0,
                 date: '28 Oct, 10:01',
-                nickname: 'alice'
-              }
+                nickname: 'alice',
+              },
             ],
             [
               {
@@ -56,9 +56,9 @@ storiesOf('Chat', module)
                 message: 'Great, thanks!',
                 createdAt: 0,
                 date: '28 Oct, 10:02',
-                nickname: 'john'
-              }
-            ]
+                nickname: 'john',
+              },
+            ],
           ],
           Today: [
             [
@@ -68,7 +68,7 @@ storiesOf('Chat', module)
                 message: 'Luck, I am your father!',
                 createdAt: 0,
                 date: '12:40',
-                nickname: 'chad'
+                nickname: 'chad',
               },
               {
                 id: '5',
@@ -76,7 +76,7 @@ storiesOf('Chat', module)
                 message: "That's impossible!",
                 createdAt: 0,
                 date: '12:41',
-                nickname: 'chad'
+                nickname: 'chad',
               },
               {
                 id: '6',
@@ -84,8 +84,8 @@ storiesOf('Chat', module)
                 message: 'Nooo!',
                 createdAt: 0,
                 date: '12:45',
-                nickname: 'chad'
-              }
+                nickname: 'chad',
+              },
             ],
             [
               {
@@ -94,8 +94,8 @@ storiesOf('Chat', module)
                 message: 'Uhuhu!',
                 createdAt: 0,
                 date: '12:46',
-                nickname: 'anakin'
-              }
+                nickname: 'anakin',
+              },
             ],
             [
               {
@@ -104,8 +104,8 @@ storiesOf('Chat', module)
                 message: 'Why?',
                 createdAt: 0,
                 date: '12:46',
-                nickname: 'anakin'
-              }
+                nickname: 'anakin',
+              },
             ],
             [
               {
@@ -114,8 +114,8 @@ storiesOf('Chat', module)
                 message: 'Messages more there should be',
                 createdAt: 0,
                 date: '12:46',
-                nickname: 'yoda'
-              }
+                nickname: 'yoda',
+              },
             ],
             [
               {
@@ -124,7 +124,7 @@ storiesOf('Chat', module)
                 message: 'I Agree',
                 createdAt: 0,
                 date: '12:46',
-                nickname: 'obi'
+                nickname: 'obi',
               },
               {
                 id: '12',
@@ -132,8 +132,8 @@ storiesOf('Chat', module)
                 message: 'Of course, I Agree',
                 createdAt: 0,
                 date: '12:46',
-                nickname: 'obi'
-              }
+                nickname: 'obi',
+              },
             ],
             [
               {
@@ -142,8 +142,8 @@ storiesOf('Chat', module)
                 message: 'Wrough!',
                 createdAt: 0,
                 date: '12:46',
-                nickname: 'wookie'
-              }
+                nickname: 'wookie',
+              },
             ],
             [
               {
@@ -152,8 +152,8 @@ storiesOf('Chat', module)
                 message: 'Yeah!',
                 createdAt: 0,
                 date: '12:46',
-                nickname: 'leah'
-              }
+                nickname: 'leah',
+              },
             ],
             [
               {
@@ -162,8 +162,8 @@ storiesOf('Chat', module)
                 message: 'The more messages the better',
                 createdAt: 0,
                 date: '12:46',
-                nickname: 'luke'
-              }
+                nickname: 'luke',
+              },
             ],
             [
               {
@@ -172,8 +172,8 @@ storiesOf('Chat', module)
                 message: 'We cannot grant you the rank of messager',
                 createdAt: 0,
                 date: '12:46',
-                nickname: 'windoo'
-              }
+                nickname: 'windoo',
+              },
             ],
             [
               {
@@ -183,11 +183,11 @@ storiesOf('Chat', module)
                   'deathhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhstarrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrdeathstartttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr',
                 createdAt: 0,
                 date: '12:46',
-                nickname: 'vader'
-              }
-            ]
-          ]
-        }
+                nickname: 'vader',
+              },
+            ],
+          ],
+        },
       }}
     />
   ))
@@ -196,7 +196,7 @@ storiesOf('Chat', module)
       contextMenu={{
         visible: false,
         handleOpen: function (_args?: any): any {},
-        handleClose: function (_args?: any): any {}
+        handleClose: function (_args?: any): any {},
       }}
       sendMessageAction={storybookLog('Message sent')}
       loadMessagesAction={storybookLog('Messages loaded')}
@@ -210,7 +210,7 @@ storiesOf('Chat', module)
         description: '',
         owner: '',
         timestamp: 0,
-        id: ''
+        id: '',
       }}
     />
   ))

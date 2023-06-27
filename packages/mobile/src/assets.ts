@@ -30,7 +30,7 @@ export const appImages = {
   icon_warning,
   icon_close,
   file_document,
-  dots
+  dots,
 }
 
 /**

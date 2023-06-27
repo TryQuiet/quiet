@@ -13,7 +13,7 @@ const classes = {
   root: `${PREFIX}root`,
   fabProgress: `${PREFIX}fabProgress`,
   wrapper: `${PREFIX}wrapper`,
-  buttonSuccess: `${PREFIX}buttonSuccess`
+  buttonSuccess: `${PREFIX}buttonSuccess`,
 }
 
 const Root = styled('div')(() => ({
@@ -21,8 +21,8 @@ const Root = styled('div')(() => ({
     backgroundColor: '#8d8d8d',
     color: '#fff',
     '&:hover': {
-      backgroundColor: '#737373'
-    }
+      backgroundColor: '#737373',
+    },
   },
 
   [`& .${classes.fabProgress}`]: {
@@ -30,19 +30,19 @@ const Root = styled('div')(() => ({
     position: 'absolute',
     left: -6,
     top: -6,
-    zIndex: 1
+    zIndex: 1,
   },
 
   [`&.${classes.wrapper}`]: {
-    position: 'relative'
+    position: 'relative',
   },
 
   [`& .${classes.buttonSuccess}`]: {
     '&:disabled': {
       backgroundColor: green[500],
-      color: '#fff'
-    }
-  }
+      color: '#fff',
+    },
+  },
 }))
 
 interface ProgressFabProps {
@@ -67,18 +67,20 @@ export const ProgressFab: React.FC<React.ComponentProps<typeof Fab> & ProgressFa
     <Root
       className={classNames({
         [classes.wrapper]: true,
-        [className]: className
-      })}>
+        [className]: className,
+      })}
+    >
       <Fab
         classes={{
           root: classNames({
             [classes.root]: true,
-            [classes.buttonSuccess]: success
-          })
+            [classes.buttonSuccess]: success,
+          }),
         }}
         onClick={onClick}
         disabled={disabled}
-        {...props}>
+        {...props}
+      >
         {success ? <CheckIcon /> : children}
       </Fab>
       {loading && <CircularProgress size={68} className={classes.fabProgress} />}

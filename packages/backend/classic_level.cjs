@@ -7,7 +7,7 @@ const require = createRequire(import.meta.url)
 let bindings = null
 let arch = process.arch
 
-if (process.platform === 'darwin') {
+if (process.platform === 'darwin' || process.platform === 'ios') {
   arch = 'universal'
 }
 
@@ -22,7 +22,9 @@ if (!exists && process.platform === 'android') {
 }
 
 if (!exists) {
-  throw new Error(`Unfortunately we do not support this platform! There is no classic_level bindings binary for ${process.platform}-${process.arch}`)
+  throw new Error(
+    `Unfortunately we do not support this platform! There is no classic_level bindings binary for ${process.platform}-${process.arch}`
+  )
 }
 
 bindings = require(binaryPath)

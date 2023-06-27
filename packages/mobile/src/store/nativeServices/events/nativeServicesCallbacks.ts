@@ -22,42 +22,36 @@ export interface BackendEvent {
 
 export const deviceEvents = () => {
   return eventChannel<
-  | ReturnType<typeof initActions.startWebsocketConnection>
-  | ReturnType<typeof initActions.updateInitCheck>
-  | ReturnType<typeof navigationActions.navigation>
-  | ReturnType<typeof publicChannels.actions.setCurrentChannel>
+    | ReturnType<typeof initActions.startWebsocketConnection>
+    | ReturnType<typeof initActions.updateInitCheck>
+    | ReturnType<typeof navigationActions.navigation>
+    | ReturnType<typeof publicChannels.actions.setCurrentChannel>
   >(emit => {
     const subscriptions = [
-      nativeEventEmitter?.addListener(
-        NativeEventKeys.Backend,
-        (event: BackendEvent) => {
-          if (event.channelName === WEBSOCKET_CONNECTION_CHANNEL) {
-            let payload: WebsocketConnectionPayload | null = null
-            if (typeof event.payload !== 'object') {
-              payload = JSON.parse(event.payload)
-            } else {
-              // iOS sends object without having to parse with JSON
-              payload = event.payload
-            }
-            if (payload) {
-              emit(initActions.startWebsocketConnection(payload))
-            }
+      nativeEventEmitter?.addListener(NativeEventKeys.Backend, (event: BackendEvent) => {
+        if (event.channelName === WEBSOCKET_CONNECTION_CHANNEL) {
+          let payload: WebsocketConnectionPayload | null = null
+          if (typeof event.payload !== 'object') {
+            payload = JSON.parse(event.payload)
+          } else {
+            // iOS sends object without having to parse with JSON
+            payload = event.payload
           }
-          if (event.channelName === INIT_CHECK_CHANNEL) {
-            const payload: InitCheckPayload = JSON.parse(event.payload)
-            emit(initActions.updateInitCheck(payload))
+          if (payload) {
+            emit(initActions.startWebsocketConnection(payload))
           }
         }
-      ),
-      nativeEventEmitter?.addListener(
-        NativeEventKeys.Notification,
-        (channelId: string) => {
-          // Change data source in state-manager
-          emit(publicChannels.actions.setCurrentChannel({ channelId }))
-          // Redirect to proper screen in the application
-          emit(navigationActions.navigation({ screen: ScreenNames.ChannelScreen }))
+        if (event.channelName === INIT_CHECK_CHANNEL) {
+          const payload: InitCheckPayload = JSON.parse(event.payload)
+          emit(initActions.updateInitCheck(payload))
         }
-      )
+      }),
+      nativeEventEmitter?.addListener(NativeEventKeys.Notification, (channelId: string) => {
+        // Change data source in state-manager
+        emit(publicChannels.actions.setCurrentChannel({ channelId }))
+        // Redirect to proper screen in the application
+        emit(navigationActions.navigation({ screen: ScreenNames.ChannelScreen }))
+      }),
     ]
     return () => {
       subscriptions.forEach(subscription => subscription?.remove())

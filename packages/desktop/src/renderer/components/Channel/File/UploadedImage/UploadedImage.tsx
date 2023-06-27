@@ -9,27 +9,26 @@ const PREFIX = 'UploadedImage'
 
 const classes = {
   image: `${PREFIX}image`,
-  container: `${PREFIX}container`
+  container: `${PREFIX}container`,
 }
 
 const Root = styled('div')(() => ({
   [`& .${classes.image}`]: {
     maxWidth: '100%',
-    display: 'block'
+    display: 'block',
   },
 
   [`& .${classes.container}`]: {
     maxWidth: '400px',
-    cursor: 'pointer'
-  }
+    cursor: 'pointer',
+  },
 }))
 
 export interface UploadedImageProps {
   media: FileMetadata
-  uploadedFileModal?:
-    UseModalType<{
-      src: string
-    }>
+  uploadedFileModal?: UseModalType<{
+    src: string
+  }>
 
   downloadStatus?: DownloadStatus
 }
@@ -50,7 +49,7 @@ export const UploadedImage: React.FC<UploadedImageProps> = ({ media, uploadedFil
   useEffect(() => {
     if (showImage && path) {
       uploadedFileModal?.handleOpen({
-        src: path
+        src: path,
       })
     }
   }, [showImage])
@@ -59,14 +58,15 @@ export const UploadedImage: React.FC<UploadedImageProps> = ({ media, uploadedFil
   const width = imageWidth >= 400 ? 400 : imageWidth
 
   return (
-    (<Root>
+    <Root>
       {path ? (
         <>
           <div
             className={classes.container}
             onClick={() => {
               setShowImage(true)
-            }}>
+            }}
+          >
             <div className={classes.image} data-testid={`${cid}-imageVisual`}>
               <UploadedFilename fileName={`${name}${ext}`} />
               <img
@@ -88,7 +88,7 @@ export const UploadedImage: React.FC<UploadedImageProps> = ({ media, uploadedFil
           downloadStatus={downloadStatus}
         />
       )}
-    </Root>)
+    </Root>
   )
 }
 

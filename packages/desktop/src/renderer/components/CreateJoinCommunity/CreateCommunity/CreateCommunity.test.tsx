@@ -24,12 +24,12 @@ describe('Create community', () => {
     const { store } = await prepareStore({
       [StoreKeys.Socket]: {
         ...new SocketState(),
-        isConnected: true
+        isConnected: true,
       },
       [StoreKeys.Modals]: {
         ...new ModalsInitialState(),
-        [ModalName.createCommunityModal]: { open: true }
-      }
+        [ModalName.createCommunityModal]: { open: true },
+      },
     })
 
     renderComponent(
@@ -59,18 +59,18 @@ describe('Create community', () => {
     const { store } = await prepareStore({
       [StoreKeys.Socket]: {
         ...new SocketState(),
-        isConnected: true
+        isConnected: true,
       },
       [StoreKeys.Modals]: {
         ...new ModalsInitialState(),
-        [ModalName.createCommunityModal]: { open: true }
+        [ModalName.createCommunityModal]: { open: true },
       },
       [StateManagerStoreKeys.Communities]: {
-        ...new communities.State()
+        ...new communities.State(),
       },
       [StateManagerStoreKeys.Identity]: {
-        ...new identity.State()
-      }
+        ...new identity.State(),
+      },
     })
 
     renderComponent(
@@ -104,16 +104,18 @@ describe('Create community', () => {
 
   it('creates community on submit if connection is ready', async () => {
     const handleCommunityAction = jest.fn()
-    const component = <PerformCommunityActionComponent
-      open={true}
-      handleClose={() => { }}
-      communityOwnership={CommunityOwnership.Owner}
-      handleCommunityAction={handleCommunityAction}
-      handleRedirection={() => { }}
-      isConnectionReady={true}
-      isCloseDisabled={true}
-      hasReceivedResponse={false}
-    />
+    const component = (
+      <PerformCommunityActionComponent
+        open={true}
+        handleClose={() => {}}
+        communityOwnership={CommunityOwnership.Owner}
+        handleCommunityAction={handleCommunityAction}
+        handleRedirection={() => {}}
+        isConnectionReady={true}
+        isCloseDisabled={true}
+        hasReceivedResponse={false}
+      />
+    )
     const result = renderComponent(component)
     const communityName = 'communityname'
     const textInput = result.queryByPlaceholderText('Community name')
@@ -135,15 +137,15 @@ describe('Create community', () => {
     ['end-with-hyphen-', 'end-with-hyphen'],
     ['end-with-space ', 'end-with-space'],
     ['UpperCaseToLowerCase', 'uppercasetolowercase'],
-    ['spaces to hyphens', 'spaces-to-hyphens']
+    ['spaces to hyphens', 'spaces-to-hyphens'],
   ])('user inserting wrong community name "%s" gets corrected "%s"', async (name: string, corrected: string) => {
     renderComponent(
       <PerformCommunityActionComponent
         open={true}
-        handleClose={() => { }}
+        handleClose={() => {}}
         communityOwnership={CommunityOwnership.Owner}
-        handleCommunityAction={() => { }}
-        handleRedirection={() => { }}
+        handleCommunityAction={() => {}}
+        handleRedirection={() => {}}
         isConnectionReady={true}
         isCloseDisabled={true}
         hasReceivedResponse={false}
@@ -153,27 +155,31 @@ describe('Create community', () => {
     const input = screen.getByPlaceholderText('Community name')
 
     await userEvent.type(input, name)
-    expect(screen.getByTestId('createCommunityNameWarning')).toHaveTextContent(`Your community will be created as #${corrected}`)
+    expect(screen.getByTestId('createCommunityNameWarning')).toHaveTextContent(
+      `Your community will be created as #${corrected}`
+    )
   })
 
   it.each([
     ['   whitespaces', FieldErrors.Whitespaces],
     ['----hyphens', FieldErrors.Whitespaces],
     ['!@#', CommunityNameErrors.WrongCharacter],
-    ['too-long-community-name', CommunityNameErrors.NameTooLong]
+    ['too-long-community-name', CommunityNameErrors.NameTooLong],
   ])('user inserting invalid community name "%s" should see "%s" error', async (name: string, error: string) => {
     const handleCommunityAction = jest.fn()
 
-    renderComponent(<PerformCommunityActionComponent
-      open={true}
-      handleClose={() => { }}
-      communityOwnership={CommunityOwnership.Owner}
-      handleCommunityAction={handleCommunityAction}
-      handleRedirection={() => { }}
-      isConnectionReady={true}
-      isCloseDisabled={true}
-      hasReceivedResponse={false}
-    />)
+    renderComponent(
+      <PerformCommunityActionComponent
+        open={true}
+        handleClose={() => {}}
+        communityOwnership={CommunityOwnership.Owner}
+        handleCommunityAction={handleCommunityAction}
+        handleRedirection={() => {}}
+        isConnectionReady={true}
+        isCloseDisabled={true}
+        hasReceivedResponse={false}
+      />
+    )
 
     const input = screen.getByPlaceholderText('Community name')
     const button = screen.getByText('Continue')
@@ -190,16 +196,18 @@ describe('Create community', () => {
   it('blocks submit button if connection is not ready', async () => {
     const handleCommunityAction = jest.fn()
 
-    const component = <PerformCommunityActionComponent
-      open={true}
-      handleClose={() => { }}
-      communityOwnership={CommunityOwnership.Owner}
-      handleCommunityAction={handleCommunityAction}
-      handleRedirection={() => { }}
-      isConnectionReady={false}
-      isCloseDisabled={true}
-      hasReceivedResponse={false}
-    />
+    const component = (
+      <PerformCommunityActionComponent
+        open={true}
+        handleClose={() => {}}
+        communityOwnership={CommunityOwnership.Owner}
+        handleCommunityAction={handleCommunityAction}
+        handleRedirection={() => {}}
+        isConnectionReady={false}
+        isCloseDisabled={true}
+        hasReceivedResponse={false}
+      />
+    )
 
     const result = renderComponent(component)
 
@@ -209,16 +217,18 @@ describe('Create community', () => {
   })
 
   it('shows loading spinner on submit button while waiting for the response', async () => {
-    const { rerender } = renderComponent(<PerformCommunityActionComponent
-      open={true}
-      handleClose={() => { }}
-      communityOwnership={CommunityOwnership.Owner}
-      handleCommunityAction={() => { }}
-      handleRedirection={() => { }}
-      isConnectionReady={true}
-      isCloseDisabled={true}
-      hasReceivedResponse={false}
-    />)
+    const { rerender } = renderComponent(
+      <PerformCommunityActionComponent
+        open={true}
+        handleClose={() => {}}
+        communityOwnership={CommunityOwnership.Owner}
+        handleCommunityAction={() => {}}
+        handleRedirection={() => {}}
+        isConnectionReady={true}
+        isCloseDisabled={true}
+        hasReceivedResponse={false}
+      />
+    )
 
     const textInput = screen.getByPlaceholderText(communityNameField().fieldProps.placeholder)
     await userEvent.type(textInput, 'rockets')
@@ -227,21 +237,23 @@ describe('Create community', () => {
     expect(submitButton).toBeEnabled()
     await userEvent.click(submitButton)
 
-    await act(async () => { })
+    await act(async () => {})
 
     expect(screen.queryByTestId('loading-button-progress')).toBeVisible()
 
     // Rerender component to verify circular progress has dissapeared
-    rerender(<PerformCommunityActionComponent
-      open={true}
-      handleClose={() => { }}
-      communityOwnership={CommunityOwnership.Owner}
-      handleCommunityAction={() => { }}
-      handleRedirection={() => { }}
-      isConnectionReady={true}
-      isCloseDisabled={true}
-      hasReceivedResponse={true}
-    />)
+    rerender(
+      <PerformCommunityActionComponent
+        open={true}
+        handleClose={() => {}}
+        communityOwnership={CommunityOwnership.Owner}
+        handleCommunityAction={() => {}}
+        handleRedirection={() => {}}
+        isConnectionReady={true}
+        isCloseDisabled={true}
+        hasReceivedResponse={true}
+      />
+    )
 
     expect(screen.queryByTestId('loading-button-progress')).toBeNull()
   })
@@ -250,16 +262,18 @@ describe('Create community', () => {
     const handleRedirection = jest.fn()
     const handleCommunityAction = jest.fn()
 
-    const component = <PerformCommunityActionComponent
-      open={true}
-      handleClose={() => { }}
-      communityOwnership={CommunityOwnership.Owner}
-      handleCommunityAction={handleCommunityAction}
-      handleRedirection={handleRedirection}
-      isConnectionReady={true}
-      isCloseDisabled={true}
-      hasReceivedResponse={false}
-    />
+    const component = (
+      <PerformCommunityActionComponent
+        open={true}
+        handleClose={() => {}}
+        communityOwnership={CommunityOwnership.Owner}
+        handleCommunityAction={handleCommunityAction}
+        handleRedirection={handleRedirection}
+        isConnectionReady={true}
+        isCloseDisabled={true}
+        hasReceivedResponse={false}
+      />
+    )
 
     const result = renderComponent(component)
 

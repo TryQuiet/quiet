@@ -19,7 +19,7 @@ const ChannelItem = ({
   className,
   classNameSelected,
   onClickHandler,
-  channelInput
+  channelInput,
 }: ChannelItemProps) => {
   const [_initialRender, setInitialRender] = useState(false)
 
@@ -37,12 +37,13 @@ const ChannelItem = ({
     <div
       key={item.name}
       className={classNames(className, {
-        [classNameSelected]: focused
+        [classNameSelected]: focused,
       })}
       tabIndex={0}
       onClick={() => {
         onClickHandler(item.id)
-      }}>
+      }}
+    >
       <Typography variant='body2'>{`# ${item.name}`}</Typography>
     </div>
   )

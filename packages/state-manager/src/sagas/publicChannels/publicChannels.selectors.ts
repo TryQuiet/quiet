@@ -4,28 +4,27 @@ import {
   publicChannelsAdapter,
   channelMessagesAdapter,
   publicChannelsStatusAdapter,
-  publicChannelsSubscriptionsAdapter
+  publicChannelsSubscriptionsAdapter,
 } from './publicChannels.adapter'
-import { CreatedSelectors, StoreState } from '../store.types'
+import { type CreatedSelectors, type StoreState } from '../store.types'
 import { certificatesMapping } from '../users/users.selectors'
 import { formatMessageDisplayDay } from '../../utils/functions/dates/formatMessageDisplayDate'
 import { displayableMessage } from '../../utils/functions/dates/formatDisplayableMessage'
 import { isDefined } from '@quiet/common'
 import {
-  ChannelMessage,
-  DisplayableMessage,
+  type ChannelMessage,
+  type DisplayableMessage,
   MessageType,
-  MessagesDailyGroups,
-  MessagesGroupsType,
-  PublicChannel,
-  PublicChannelStatus,
+  type MessagesDailyGroups,
+  type MessagesGroupsType,
+  type PublicChannel,
+  type PublicChannelStatus,
   INITIAL_CURRENT_CHANNEL_ID,
   PublicChannelStatusWithName,
-  PublicChannelStorage
+  PublicChannelStorage,
 } from '@quiet/types'
 
-const selectState: CreatedSelectors[StoreKeys.PublicChannels] = (state: StoreState) =>
-  state[StoreKeys.PublicChannels]
+const selectState: CreatedSelectors[StoreKeys.PublicChannels] = (state: StoreState) => state[StoreKeys.PublicChannels]
 
 export const selectChannels = createSelector(selectState, state => {
   if (!state) return []
@@ -59,7 +58,7 @@ export const selectGeneralChannel = createSelector(selectChannels, channels => {
     description: draft.description,
     owner: draft.owner,
     timestamp: draft.timestamp,
-    id: draft.id
+    id: draft.id,
   }
   return channel
 })
@@ -116,9 +115,7 @@ export const recentChannels = createSelector(
   publicChannels,
   generalChannel,
   (publicChannelsSelector, generalChannelSelector) => {
-    const recentChannels = publicChannelsSelector
-      .sort((a, b) => b.timestamp - a.timestamp)
-      .slice(0, 3)
+    const recentChannels = publicChannelsSelector.sort((a, b) => b.timestamp - a.timestamp).slice(0, 3)
     return recentChannels.length >= 3 ? recentChannels : [generalChannelSelector]
   }
 )
@@ -133,21 +130,15 @@ export const getChannelById = (channelId: string) =>
   })
 
 export const dynamicSearchedChannels = (channelInput: string) =>
-  createSelector(
-    publicChannels,
-    recentChannels,
-    (publicChannelsSelector, recentChannelsSelector) => {
-      const filteredList = publicChannelsSelector.filter(channel =>
-        channel.name.includes(channelInput)
-      )
+  createSelector(publicChannels, recentChannels, (publicChannelsSelector, recentChannelsSelector) => {
+    const filteredList = publicChannelsSelector.filter(channel => channel.name.includes(channelInput))
 
-      const isFilteredList = filteredList.length > 0 ? filteredList : recentChannelsSelector
+    const isFilteredList = filteredList.length > 0 ? filteredList : recentChannelsSelector
 
-      const channelList = channelInput.length === 0 ? recentChannelsSelector : isFilteredList
+    const channelList = channelInput.length === 0 ? recentChannelsSelector : isFilteredList
 
-      return channelList.filter(isDefined)
-    }
-  )
+    return channelList.filter(isDefined)
+  })
 
 // Is being used in tests
 export const currentChannel = createSelector(currentChannelId, selectChannels, (id, channels) => {
@@ -169,19 +160,13 @@ export const sortedCurrentChannelMessages = createSelector(currentChannelMessage
   return messages.sort((a, b) => b.createdAt - a.createdAt).reverse()
 })
 
-export const currentChannelLastDisplayedMessage = createSelector(
-  sortedCurrentChannelMessages,
-  messages => {
-    return messages[0]
-  }
-)
+export const currentChannelLastDisplayedMessage = createSelector(sortedCurrentChannelMessages, messages => {
+  return messages[0]
+})
 
-export const newestCurrentChannelMessage = createSelector(
-  sortedCurrentChannelMessages,
-  messages => {
-    return messages[messages.length - 1]
-  }
-)
+export const newestCurrentChannelMessage = createSelector(sortedCurrentChannelMessages, messages => {
+  return messages[messages.length - 1]
+})
 
 export const displayableCurrentChannelMessages = createSelector(
   sortedCurrentChannelMessages,
@@ -197,69 +182,54 @@ export const displayableCurrentChannelMessages = createSelector(
   }
 )
 
-export const currentChannelMessagesCount = createSelector(
-  displayableCurrentChannelMessages,
-  messages => {
-    return messages.length
-  }
-)
+export const currentChannelMessagesCount = createSelector(displayableCurrentChannelMessages, messages => {
+  return messages.length
+})
 
-export const dailyGroupedCurrentChannelMessages = createSelector(
-  displayableCurrentChannelMessages,
-  messages => {
-    const result: MessagesGroupsType = messages.reduce(
-      (groups: MessagesGroupsType, message: DisplayableMessage) => {
-        const date = formatMessageDisplayDay(message.date)
+export const dailyGroupedCurrentChannelMessages = createSelector(displayableCurrentChannelMessages, messages => {
+  const result: MessagesGroupsType = messages.reduce((groups: MessagesGroupsType, message: DisplayableMessage) => {
+    const date = formatMessageDisplayDay(message.date)
 
-        if (!groups[date]) {
-          groups[date] = []
-        }
-
-        groups[date].push(message)
-        return groups
-      },
-      {}
-    )
-
-    return result
-  }
-)
-
-export const currentChannelMessagesMergedBySender = createSelector(
-  dailyGroupedCurrentChannelMessages,
-  groups => {
-    const result: MessagesDailyGroups = {}
-    for (const day in groups) {
-      result[day] = groups[day].reduce(
-        (merged: DisplayableMessage[][], message: DisplayableMessage) => {
-          // Get last item from collected array for comparison
-          if (!merged.length) {
-            merged.push([message])
-            return merged
-          }
-          const index = merged.length && merged.length - 1
-          const last = merged[index][0]
-
-          if (
-            last.nickname === message.nickname &&
-            message.createdAt - last.createdAt < 300 &&
-            message.type !== MessageType.Info &&
-            last.type !== MessageType.Info
-          ) {
-            merged[index].push(message)
-          } else {
-            merged.push([message])
-          }
-
-          return merged
-        },
-        []
-      )
+    if (!groups[date]) {
+      groups[date] = []
     }
 
-    return result
+    groups[date].push(message)
+    return groups
+  }, {})
+
+  return result
+})
+
+export const currentChannelMessagesMergedBySender = createSelector(dailyGroupedCurrentChannelMessages, groups => {
+  const result: MessagesDailyGroups = {}
+  for (const day in groups) {
+    result[day] = groups[day].reduce((merged: DisplayableMessage[][], message: DisplayableMessage) => {
+      // Get last item from collected array for comparison
+      if (!merged.length) {
+        merged.push([message])
+        return merged
+      }
+      const index = merged.length && merged.length - 1
+      const last = merged[index][0]
+
+      if (
+        last.nickname === message.nickname &&
+        message.createdAt - last.createdAt < 300 &&
+        message.type !== MessageType.Info &&
+        last.type !== MessageType.Info
+      ) {
+        merged[index].push(message)
+      } else {
+        merged.push([message])
+      }
+
+      return merged
+    }, [])
   }
-)
+
+  return result
+})
 
 export const channelsStatus = createSelector(selectState, state => {
   if (!state?.channelsStatus) return {}
@@ -313,5 +283,5 @@ export const publicChannelsSelectors = {
   sortedChannels,
   pendingGeneralChannelRecreation,
   generalChannel,
-  getChannelById
+  getChannelById,
 }

@@ -131,6 +131,7 @@ export class StorageService extends EventEmitter implements OnApplicationBootstr
     const channelsAccessController = createChannelAccessController(peerId, this.orbitDbDir)
     AccessControllers.addAccessController({ AccessController: MessagesAccessController })
     AccessControllers.addAccessController({ AccessController: channelsAccessController })
+    // @ts-ignore
     const orbitDb = await OrbitDB.createInstance(this.ipfs, {
       // @ts-ignore
       id: peerId.toString(),

@@ -1,4 +1,3 @@
-
 export interface LeaveCommunityProps {
   name: string
   leaveCommunity: () => void

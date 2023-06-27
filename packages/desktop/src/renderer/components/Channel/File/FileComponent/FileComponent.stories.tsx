@@ -34,26 +34,26 @@ const args: FileComponentProps = {
       cid: cid,
       message: {
         channelId: 'general',
-        id: 'wgtlstx3u7'
+        id: 'wgtlstx3u7',
       },
       ext: '.zip',
       name: 'my-file-name-goes-here-an-isnt-truncated',
       size: 1024,
       width: undefined,
       height: undefined,
-      path: 'files/my-file-name-goes-here-an-isnt-truncated.zip'
+      path: 'files/my-file-name-goes-here-an-isnt-truncated.zip',
     },
     message: '',
     createdAt: 0,
     date: '12:46',
-    nickname: 'vader'
+    nickname: 'vader',
   },
   downloadStatus: {
     mid: mid,
     cid: cid,
     downloadState: DownloadState.Ready,
-    downloadProgress: undefined
-  }
+    downloadProgress: undefined,
+  },
 }
 
 Uploading.args = {
@@ -63,15 +63,15 @@ Uploading.args = {
     // @ts-expect-error
     media: {
       ...args.message.media,
-      size: undefined
-    }
+      size: undefined,
+    },
   },
   downloadStatus: {
     mid: mid,
     cid: cid,
     downloadState: DownloadState.Uploading,
-    downloadProgress: undefined
-  }
+    downloadProgress: undefined,
+  },
 }
 Hosted.args = {
   ...args,
@@ -79,8 +79,8 @@ Hosted.args = {
     mid: mid,
     cid: cid,
     downloadState: DownloadState.Hosted,
-    downloadProgress: undefined
-  }
+    downloadProgress: undefined,
+  },
 }
 Queued.args = {
   ...args,
@@ -91,14 +91,18 @@ Queued.args = {
     downloadProgress: {
       size: 2048,
       downloaded: 0,
-      transferSpeed: 0
-    }
+      transferSpeed: 0,
+    },
   },
-  cancelDownload: () => { console.log('cancel download') }
+  cancelDownload: () => {
+    console.log('cancel download')
+  },
 }
 Ready.args = {
   ...args,
-  downloadFile: () => { console.log('download file') }
+  downloadFile: () => {
+    console.log('download file')
+  },
 }
 Downloading.args = {
   ...args,
@@ -109,26 +113,28 @@ Downloading.args = {
     downloadProgress: {
       size: 1024,
       downloaded: 256,
-      transferSpeed: 32
-    }
+      transferSpeed: 32,
+    },
   },
-  cancelDownload: () => { console.log('cancel download') }
+  cancelDownload: () => {
+    console.log('cancel download')
+  },
 }
 Canceling.args = {
   ...args,
   downloadStatus: {
     mid: mid,
     cid: cid,
-    downloadState: DownloadState.Canceling
-  }
+    downloadState: DownloadState.Canceling,
+  },
 }
 Canceled.args = {
   ...args,
   downloadStatus: {
     mid: mid,
     cid: cid,
-    downloadState: DownloadState.Canceled
-  }
+    downloadState: DownloadState.Canceled,
+  },
 }
 Completed.args = {
   ...args,
@@ -139,10 +145,12 @@ Completed.args = {
     downloadProgress: {
       size: 1024,
       downloaded: 1024,
-      transferSpeed: 0
-    }
+      transferSpeed: 0,
+    },
   },
-  openContainingFolder: () => { console.log('show in folder') }
+  openContainingFolder: () => {
+    console.log('show in folder')
+  },
 }
 Malicious.args = {
   ...args,
@@ -150,14 +158,14 @@ Malicious.args = {
     mid: mid,
     cid: cid,
     downloadState: DownloadState.Malicious,
-    downloadProgress: undefined
-  }
+    downloadProgress: undefined,
+  },
 }
 
 const component: ComponentMeta<typeof FileComponent> = {
   title: 'Components/FileComponent',
   decorators: [withTheme],
-  component: FileComponent
+  component: FileComponent,
 }
 
 export default component

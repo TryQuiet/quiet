@@ -20,5 +20,5 @@ export const reducers = {
   [StoreKeys.Connection]: connectionReducer,
   [StoreKeys.Settings]: settingsReducer,
   [StoreKeys.Files]: filesReducer,
-  [StoreKeys.Network]: networkReducer
+  [StoreKeys.Network]: networkReducer,
 }

@@ -28,7 +28,7 @@ export const LeaveCommunityScreen: FC = () => {
   const handleBackButton = useCallback(() => {
     dispatch(
       navigationActions.navigation({
-        screen: ScreenNames.ChannelListScreen
+        screen: ScreenNames.ChannelListScreen,
       })
     )
     return true

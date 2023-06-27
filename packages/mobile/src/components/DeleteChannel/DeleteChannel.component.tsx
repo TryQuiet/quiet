@@ -8,11 +8,7 @@ import { Typography } from '../Typography/Typography.component'
 
 import { DeleteChannelProps } from './DeleteChannel.types'
 
-export const DeleteChannel: FC<DeleteChannelProps> = ({
-  name,
-  deleteChannel,
-  handleBackButton
-}) => {
+export const DeleteChannel: FC<DeleteChannelProps> = ({ name, deleteChannel, handleBackButton }) => {
   const [displayedName, setDisplayedName] = useState<string>('')
   const [loading, setLoading] = useState<boolean>(false)
 
@@ -33,14 +29,13 @@ export const DeleteChannel: FC<DeleteChannelProps> = ({
   }, [name])
 
   return (
-    <View
-      style={{ flex: 1, backgroundColor: defaultPalette.background.white }}
-      testID={'delete-channel-component'}>
+    <View style={{ flex: 1, backgroundColor: defaultPalette.background.white }} testID={'delete-channel-component'}>
       <Appbar title={'Delete channel'} back={goBack} />
       <View
         style={{
-          padding: 24
-        }}>
+          padding: 24,
+        }}
+      >
         <View>
           <Typography fontSize={18} fontWeight={'medium'}>
             Are you sure?

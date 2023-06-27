@@ -1,11 +1,25 @@
 import express from 'express'
 import getPort from 'get-port'
-import { Agent, Server } from 'http'
+import { type Agent, type Server } from 'http'
 import { EventEmitter } from 'events'
-import { registerOwner, registerUser, RegistrarResponse, RegistrationResponse, sendCertificateRegistrationRequest } from './functions'
+import {
+  registerOwner,
+  registerUser,
+  type RegistrarResponse,
+  type RegistrationResponse,
+  sendCertificateRegistrationRequest,
+} from './functions'
 import { RegistrationEvents } from './types'
 import { ServiceState } from '../libp2p/types'
-import { ConnectionProcessInfo, ErrorCodes, ErrorMessages, LaunchRegistrarPayload, PermsData, RegisterOwnerCertificatePayload, SocketActionTypes } from '@quiet/types'
+import {
+  ConnectionProcessInfo,
+  ErrorCodes,
+  ErrorMessages,
+  type LaunchRegistrarPayload,
+  type PermsData,
+  type RegisterOwnerCertificatePayload,
+  SocketActionTypes,
+} from '@quiet/types'
 import logger from '../logger'
 const log = logger('registration')
 
@@ -21,7 +35,7 @@ export class CertificateRegistration extends EventEmitter {
   constructor() {
     super()
     this.certificates = []
-    this.on(RegistrationEvents.SET_CERTIFICATES, (certs) => {
+    this.on(RegistrationEvents.SET_CERTIFICATES, certs => {
       this.setCertificates(certs)
     })
     this._app = express()
@@ -37,22 +51,19 @@ export class CertificateRegistration extends EventEmitter {
   private setRouting() {
     // @ts-ignore
     this._app.use(express.json())
-    this._app.post(
-      '/register',
-      async (req, res): Promise<void> => {
-        if (this.pendingPromise) return
-        this.pendingPromise = this.registerUser(req.body.data)
-        const result = await this.pendingPromise
-        if (result) {
-          res.status(result.status).send(result.body)
-        }
-        this.pendingPromise = null
+    this._app.post('/register', async (req, res): Promise<void> => {
+      if (this.pendingPromise) return
+      this.pendingPromise = this.registerUser(req.body.data)
+      const result = await this.pendingPromise
+      if (result) {
+        res.status(result.status).send(result.body)
       }
-    )
+      this.pendingPromise = null
+    })
   }
 
   public async listen(): Promise<void> {
-    return await new Promise(resolve => {
+    await new Promise<void>(resolve => {
       this._server = this._app.listen(this._port, () => {
         log(`Certificate registration service listening on port: ${this._port}`)
         resolve()
@@ -61,7 +72,7 @@ export class CertificateRegistration extends EventEmitter {
   }
 
   public async stop(): Promise<void> {
-    return await new Promise(resolve => {
+    await new Promise<void>(resolve => {
       if (!this._server) resolve()
       this._server.close(() => {
         log('Certificate registration service closed')
@@ -80,13 +91,13 @@ export class CertificateRegistration extends EventEmitter {
         type: SocketActionTypes.REGISTRAR,
         code: ErrorCodes.SERVER_ERROR,
         message: ErrorMessages.REGISTRATION_FAILED,
-        community: payload.communityId
+        community: payload.communityId,
       })
       return
     }
     this.emit(SocketActionTypes.SAVED_OWNER_CERTIFICATE, {
       communityId: payload.communityId,
-      network: { certificate: cert, peers: [] }
+      network: { certificate: cert, peers: [] },
     })
     this._ownerCertificate = cert
   }
@@ -95,10 +106,11 @@ export class CertificateRegistration extends EventEmitter {
     serviceAddress: string,
     userCsr: string,
     communityId: string,
-    requestTimeout: number = 120000,
+    requestTimeout = 120000,
     socksProxyAgent: Agent
   ): Promise<void> => {
-    const response: RegistrationResponse = await sendCertificateRegistrationRequest(serviceAddress,
+    const response: RegistrationResponse = await sendCertificateRegistrationRequest(
+      serviceAddress,
       userCsr,
       communityId,
       requestTimeout,
@@ -120,7 +132,7 @@ export class CertificateRegistration extends EventEmitter {
     this.emit(RegistrationEvents.REGISTRAR_STATE, ServiceState.LAUNCHING)
     this._permsData = {
       certificate: payload.rootCertString,
-      privKey: payload.rootKeyString
+      privKey: payload.rootKeyString,
     }
     log(`Initializing registration service for peer ${payload.peerId}...`)
     try {
@@ -142,7 +154,7 @@ export class CertificateRegistration extends EventEmitter {
     this.emit(RegistrationEvents.SPAWN_HS_FOR_REGISTRAR, {
       port: this._port,
       privateKey: privKey,
-      targetPort: 80
+      targetPort: 80,
     })
   }
 }

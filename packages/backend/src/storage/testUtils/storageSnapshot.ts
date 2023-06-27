@@ -4,8 +4,8 @@ import Log from 'ipfs-log'
 // import { CID } from 'multiformats/cid'
 import type { Libp2p } from 'libp2p'
 import OrbitDB from 'orbit-db'
-import EventStore from 'orbit-db-eventstore'
-import PeerId from 'peer-id'
+import type EventStore from 'orbit-db-eventstore'
+import type PeerId from 'peer-id'
 import { StorageOptions } from '../../common/types'
 
 import logger from '../../logger'
@@ -42,15 +42,11 @@ export class StorageTestSnapshot extends Storage {
   protected snapshotSaved: boolean
   protected msgReplCount: number
 
-  constructor(
-    quietDir: string,
-    communityId: string,
-    options?: Partial<StorageTestSnapshotOptions>
-  ) {
+  constructor(quietDir: string, communityId: string, options?: Partial<StorageTestSnapshotOptions>) {
     super(quietDir, communityId, options)
     this.options = {
       ...new StorageTestSnapshotOptions(),
-      ...options
+      ...options,
     }
     this.useSnapshot = options?.useSnapshot || process.env.USE_SNAPSHOT === 'true' // Actually use snapshot mechanizm
     this.messagesCount = options?.messagesCount || 0 // Quantity of messages that will be added to db
@@ -83,8 +79,8 @@ export class StorageTestSnapshot extends Storage {
     }
     this.snapshotInfoDb = await this.orbitdb.log<SnapshotInfo>('092183012', {
       accessController: {
-        write: ['*']
-      }
+        write: ['*'],
+      },
     })
 
     // eslint-disable-next-line
@@ -108,8 +104,8 @@ export class StorageTestSnapshot extends Storage {
     log('createDbForMessages init')
     this.messages = await this.orbitdb.log<string>('3479623913-test', {
       accessController: {
-        write: ['*']
-      }
+        write: ['*'],
+      },
     })
 
     // Create snapshot and save to db for other peers to retrieve
@@ -139,27 +135,26 @@ export class StorageTestSnapshot extends Storage {
     this.messages.events.on(
       'replicate.progress',
       async (_address, _hash, _entry, progress, _total) => {
-        if (!this.replicationStartTime) {
-          console.time(`${this.name}; Replication time`)
-          this.replicationStartTime = new Date()
-          log('progress start', progress)
-        }
-        // log('---')
-        // log(`replicate.progress: ${address}`)
-        // log(`replicate.progress: ${hash}`)
-        // log(`${this.name}; replicate.progress: ${entry.payload.value}`)
-        // log(`replicate.progress: ${progress}`)
-        // log(`replicate.progress: ${total}`)
-        // await this.messages.load()
-        // log('Loaded entries replicate.progress:', this.getAllEventLogEntries(this.messages).length)
-        // fs.writeFileSync('allReplicatedMessages.json', JSON.stringify(this.getAllEventLogEntries(this.messages)))
-        if (progress === this.messagesCount) {
-          console.timeEnd(`${this.name}; Replication time`)
-          const diff = new Date().getTime() - this.replicationStartTime.getTime()
-          this.replicationTime = Number(diff / 1000)
-        }
+      if (!this.replicationStartTime) {
+        console.time(`${this.name}; Replication time`)
+        this.replicationStartTime = new Date()
+        log('progress start', progress)
       }
-    )
+      // log('---')
+      // log(`replicate.progress: ${address}`)
+      // log(`replicate.progress: ${hash}`)
+      // log(`${this.name}; replicate.progress: ${entry.payload.value}`)
+      // log(`replicate.progress: ${progress}`)
+      // log(`replicate.progress: ${total}`)
+      // await this.messages.load()
+      // log('Loaded entries replicate.progress:', this.getAllEventLogEntries(this.messages).length)
+      // fs.writeFileSync('allReplicatedMessages.json', JSON.stringify(this.getAllEventLogEntries(this.messages)))
+      if (progress === this.messagesCount) {
+        console.timeEnd(`${this.name}; Replication time`)
+        const diff = new Date().getTime() - this.replicationStartTime.getTime()
+        this.replicationTime = Number(diff / 1000)
+      }
+    })
 
     await this.messages.load()
     log(`${this.name}; Loaded entries:`, this.getAllEventLogEntries(this.messages).length)
@@ -209,7 +204,7 @@ export class StorageTestSnapshot extends Storage {
       mode: snapshot.mode,
       hash: snapshot.hash,
       size: snapshot.size,
-      unfinished
+      unfinished,
     })
     log('Saved snapshot info to DB')
   }
@@ -225,13 +220,13 @@ export class StorageTestSnapshot extends Storage {
       size: snapshotInfo.size,
       mode: snapshotInfo.mode,
       mtime: undefined,
-      hash: snapshotInfo.hash
+      hash: snapshotInfo.hash,
     }
     return {
       queuePath: snapshotInfo.queuePath,
       snapshotPath: snapshotInfo.snapshotPath,
       snapshot,
-      unfinished: snapshotInfo.unfinished
+      unfinished: snapshotInfo.unfinished,
     }
   }
 
@@ -246,7 +241,7 @@ export class StorageTestSnapshot extends Storage {
         heads: snapshotData.heads,
         size: snapshotData.values.length,
         values: snapshotData.values,
-        type: db.type
+        type: db.type,
       })
     )
 
@@ -256,9 +251,7 @@ export class StorageTestSnapshot extends Storage {
     await db._cache.set(db.snapshotPath, snapshot)
     await db._cache.set(db.queuePath, unfinished)
 
-    console.debug(
-      `Saved snapshot: ${snapshot.hash as string}, queue length: ${unfinished.length as string}`
-    )
+    console.debug(`Saved snapshot: ${snapshot.hash as string}, queue length: ${unfinished.length as string}`)
     await this.saveSnapshotInfoToDb(
       // Saving it to share with others
       db.queuePath,
@@ -314,7 +307,7 @@ export class StorageTestSnapshot extends Storage {
           sortFn: db.options.sortFn,
           length: -1,
           timeout: 1000,
-          onProgressCallback: onProgress
+          onProgressCallback: onProgress,
         })
         await db._oplog.join(log)
         await db._updateIndex()

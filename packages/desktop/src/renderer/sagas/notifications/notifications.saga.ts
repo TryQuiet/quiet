@@ -13,11 +13,7 @@ import {
   NotificationsSounds,
   files,
 } from '@quiet/state-manager'
-import {
-  MessageType,
-  FileMetadata,
-  DownloadState
-} from '@quiet/types'
+import { MessageType, FileMetadata, DownloadState } from '@quiet/types'
 import { soundTypeToAudio } from '../../../shared/sounds'
 import { eventChannel } from 'redux-saga'
 import { takeEvery } from 'redux-saga/effects'
@@ -52,7 +48,7 @@ export function* displayMessageNotificationSaga(
 
   for (const message of incomingMessages) {
     const focused = yield* call(isWindowFocused)
-    const channelName = publicChannelsSelector.find((channel) => channel.id === message.channelId)?.name
+    const channelName = publicChannelsSelector.find(channel => channel.id === message.channelId)?.name
 
     // Do not display notifications for active channel (when the app is in foreground)
     if (focused && message.channelId === currentChannelId) return
@@ -100,7 +96,7 @@ export function* displayMessageNotificationSaga(
       label: label,
       body: body,
       channel: channel,
-      sound: notificationsSound
+      sound: notificationsSound,
     }
 
     const notification = yield* call(createNotification, notificationData)
@@ -128,7 +124,7 @@ export const createNotification = (notificationData: NotificationData): Notifica
   return new Notification(label, {
     body: body,
     icon: '../../build' + '/icon.png',
-    silent: true
+    silent: true,
   })
 }
 

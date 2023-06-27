@@ -3,12 +3,7 @@ import { combineReducers } from '@reduxjs/toolkit'
 import { reducers } from '../../root.reducer'
 import { Store } from '../../store.types'
 import { prepareStore } from '../../../tests/utils/prepareStore'
-import {
-  communities,
-  Community,
-  connection,
-  identity
-} from '@quiet/state-manager'
+import { communities, Community, connection, identity } from '@quiet/state-manager'
 import { initActions } from '../init.slice'
 import { navigationActions } from '../../navigation/navigation.slice'
 import { ScreenNames } from '../../../const/ScreenNames.enum'
@@ -21,32 +16,32 @@ describe('deepLinkSaga', () => {
   const id = '00d045ab'
 
   const community: Community = {
-    id: id,
+    id,
     name: '',
     CA: {
       rootCertString: '',
-      rootKeyString: ''
+      rootKeyString: '',
     },
     rootCa: '',
     peerList: [],
     registrar: {
       privateKey: '',
-      address: ''
+      address: '',
     },
     registrarUrl: 'https://bidrmzr3ee6qa2vvrlcnqvvvsk2gmjktcqkunba326parszr44gibwyd.onion',
     onionAddress: '',
     privateKey: '',
     port: 0,
     registrationAttempts: 0,
-    ownerCertificate: ''
+    ownerCertificate: '',
   }
 
   const _identity: Partial<Identity> = {
-    id: id,
+    id,
     nickname: '',
     userCsr: null,
     userCertificate: null,
-    joinTimestamp: 0
+    joinTimestamp: 0,
   }
 
   beforeEach(async () => {
@@ -56,7 +51,7 @@ describe('deepLinkSaga', () => {
   test('joins community', async () => {
     store.dispatch(
       initActions.setWebsocketConnected({
-        dataPort: 5001
+        dataPort: 5001,
       })
     )
 
@@ -70,14 +65,14 @@ describe('deepLinkSaga', () => {
         navigationActions.replaceScreen({
           screen: ScreenNames.JoinCommunityScreen,
           params: {
-            code: code
-          }
+            code,
+          },
         })
       )
       .put(
         communities.actions.createNetwork({
           ownership: CommunityOwnership.User,
-          registrar: code
+          registrar: code,
         })
       )
       .run()
@@ -86,7 +81,7 @@ describe('deepLinkSaga', () => {
   test('opens channel list screen if the same url has been used', async () => {
     store.dispatch(
       initActions.setWebsocketConnected({
-        dataPort: 5001
+        dataPort: 5001,
       })
     )
 
@@ -107,13 +102,13 @@ describe('deepLinkSaga', () => {
       .withState(store.getState())
       .put(
         navigationActions.replaceScreen({
-          screen: ScreenNames.ChannelListScreen
+          screen: ScreenNames.ChannelListScreen,
         })
       )
       .not.put(
         communities.actions.createNetwork({
           ownership: CommunityOwnership.User,
-          registrar: code
+          registrar: code,
         })
       )
       .run()
@@ -122,7 +117,7 @@ describe('deepLinkSaga', () => {
   test('displays error if user already belongs to a community', async () => {
     store.dispatch(
       initActions.setWebsocketConnected({
-        dataPort: 5001
+        dataPort: 5001,
       })
     )
 
@@ -139,7 +134,7 @@ describe('deepLinkSaga', () => {
       .not.put(
         communities.actions.createNetwork({
           ownership: CommunityOwnership.User,
-          registrar: code
+          registrar: code,
         })
       )
       .run()
@@ -148,7 +143,7 @@ describe('deepLinkSaga', () => {
   test('continues if link used mid registration', async () => {
     store.dispatch(
       initActions.setWebsocketConnected({
-        dataPort: 5001
+        dataPort: 5001,
       })
     )
 
@@ -170,13 +165,13 @@ describe('deepLinkSaga', () => {
       .put(
         navigationActions.replaceScreen({
           screen: ScreenNames.UsernameRegistrationScreen,
-          params: undefined
+          params: undefined,
         })
       )
       .not.put(
         communities.actions.createNetwork({
           ownership: CommunityOwnership.User,
-          registrar: code
+          registrar: code,
         })
       )
       .run()
@@ -185,7 +180,7 @@ describe('deepLinkSaga', () => {
   test('continues if link used mid registration and locks input while waiting for server response', async () => {
     store.dispatch(
       initActions.setWebsocketConnected({
-        dataPort: 5001
+        dataPort: 5001,
       })
     )
 
@@ -209,13 +204,13 @@ describe('deepLinkSaga', () => {
       .put(
         navigationActions.replaceScreen({
           screen: ScreenNames.UsernameRegistrationScreen,
-          params: { fetching: true }
+          params: { fetching: true },
         })
       )
       .not.put(
         communities.actions.createNetwork({
           ownership: CommunityOwnership.User,
-          registrar: code
+          registrar: code,
         })
       )
       .run()

@@ -9,7 +9,7 @@ import { STATE } from 'mathjax-full/js/core/MathItem'
 
 export const enum SourceLang {
   MathML = 'MathML',
-  Tex = 'TeX'
+  Tex = 'TeX',
 }
 
 // TODO import from mathjax-full
@@ -48,9 +48,7 @@ function onError(math: any) {
   const { root, typesetRoot } = math
   if (root.toString().substr(0, 14) === 'math([merror([') {
     const merror = root.childNodes[0].childNodes[0]
-    const text =
-      merror.attributes.get('data-mjx-error') ||
-      merror.childNodes[0].childNodes[0].getText()
+    const text = merror.attributes.get('data-mjx-error') || merror.childNodes[0].childNodes[0].getText()
     adaptor.setAttribute(typesetRoot, 'data-mjx-error', text)
   }
 }
@@ -69,11 +67,7 @@ function updateCSS(nodeID: string, text: string) {
  * Does a single convert call to MathJax. Tex from inputText is converted and
  * options are the MathJax options
  */
-export function convert(
-  srcSpec: SourceSpecification,
-  node: HTMLElement,
-  display: boolean
-): string {
+export function convert(srcSpec: SourceSpecification, node: HTMLElement, display: boolean): string {
   const { src, lang } = srcSpec
   let html = texHtml
   if (lang === 'MathML') html = mathmlHtml
@@ -127,7 +121,7 @@ export function convertPromise(
       }
       return adaptor.outerHTML(dom)
     })
-    .catch((err) => {
+    .catch(err => {
       if (!(err instanceof CancelationException)) {
         throw err
       } else {
@@ -135,5 +129,5 @@ export function convertPromise(
         return null
       }
     })
-  return { promise: res.then((v) => (v || '')), cancel }
+  return { promise: res.then(v => v || ''), cancel }
 }

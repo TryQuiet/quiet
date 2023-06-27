@@ -1,5 +1,5 @@
 import fs from 'fs'
-import { DirResult } from 'tmp'
+import { type DirResult } from 'tmp'
 import { createTmpDir, tmpQuietDirPath, createFile } from '../common/testUtils'
 import { create } from 'ipfs-core'
 import { jest, beforeEach, describe, it, expect, afterEach } from '@jest/globals'
@@ -8,7 +8,7 @@ import { StorageEvents } from './types'
 import { IpfsFilesManager } from './ipfsFileManager'
 import waitForExpect from 'wait-for-expect'
 import { sleep } from '../sleep'
-import { DownloadState, FileMetadata } from '@quiet/types'
+import { DownloadState, type FileMetadata } from '@quiet/types'
 
 describe('Storage', () => {
   let tmpDir: DirResult
@@ -47,8 +47,8 @@ describe('Storage', () => {
       cid: 'uploading_id',
       message: {
         id: 'id',
-        channelId: 'channelId'
-      }
+        channelId: 'channelId',
+      },
     }
 
     await fileManager.uploadFile(metadata)
@@ -63,27 +63,39 @@ describe('Storage', () => {
       expect(eventSpy).toHaveBeenNthCalledWith(1, StorageEvents.REMOVE_DOWNLOAD_STATUS, { cid: metadata.cid })
     })
     await waitForExpect(() => {
-      expect(eventSpy).toHaveBeenNthCalledWith(2, StorageEvents.UPLOADED_FILE, expect.objectContaining({
-        ...metadata,
-        cid: expect.stringContaining('Qm'),
-        width: undefined,
-        height: undefined
-      }))
+      expect(eventSpy).toHaveBeenNthCalledWith(
+        2,
+        StorageEvents.UPLOADED_FILE,
+        expect.objectContaining({
+          ...metadata,
+          cid: expect.stringContaining('Qm'),
+          width: undefined,
+          height: undefined,
+        })
+      )
     })
     await waitForExpect(() => {
-      expect(eventSpy).toHaveBeenNthCalledWith(3, StorageEvents.UPDATE_DOWNLOAD_PROGRESS, expect.objectContaining({
-        cid: expect.stringContaining('Qm'),
-        downloadState: DownloadState.Hosted,
-        downloadProgress: undefined
-      }))
+      expect(eventSpy).toHaveBeenNthCalledWith(
+        3,
+        StorageEvents.UPDATE_DOWNLOAD_PROGRESS,
+        expect.objectContaining({
+          cid: expect.stringContaining('Qm'),
+          downloadState: DownloadState.Hosted,
+          downloadProgress: undefined,
+        })
+      )
     })
     await waitForExpect(() => {
-      expect(eventSpy).toHaveBeenNthCalledWith(4, StorageEvents.UPDATE_MESSAGE_MEDIA, expect.objectContaining({
-        ...metadata,
-        cid: expect.stringContaining('Qm'),
-        width: undefined,
-        height: undefined
-      }))
+      expect(eventSpy).toHaveBeenNthCalledWith(
+        4,
+        StorageEvents.UPDATE_MESSAGE_MEDIA,
+        expect.objectContaining({
+          ...metadata,
+          cid: expect.stringContaining('Qm'),
+          width: undefined,
+          height: undefined,
+        })
+      )
     })
 
     await sleep(20_000)

@@ -21,12 +21,12 @@ export const ChannelListScreen: FC = () => {
     (id: string) => {
       dispatch(
         publicChannels.actions.setCurrentChannel({
-          channelId: id
+          channelId: id,
         })
       )
       dispatch(
         navigationActions.navigation({
-          screen: ScreenNames.ChannelScreen
+          screen: ScreenNames.ChannelScreen,
         })
       )
     },
@@ -39,17 +39,15 @@ export const ChannelListScreen: FC = () => {
   const tiles = channelsStatusSorted.map(status => {
     const newestMessage = status.newestMessage
     const message = newestMessage?.message || '...'
-    const date = newestMessage?.createdAt
-      ? formatMessageDisplayDate(newestMessage.createdAt)
-      : undefined
+    const date = newestMessage?.createdAt ? formatMessageDisplayDate(newestMessage.createdAt) : undefined
 
     const tile: ChannelTileProps = {
       name: getChannelNameFormChannelId(status.id),
       id: status.id,
-      message: message,
-      date: date,
+      message,
+      date,
       unread: status.unread,
-      redirect: redirect
+      redirect,
     }
 
     return tile
@@ -57,11 +55,5 @@ export const ChannelListScreen: FC = () => {
 
   const communityContextMenu = useContextMenu(MenuName.Community)
 
-  return (
-    <ChannelListComponent
-      community={community}
-      tiles={tiles}
-      communityContextMenu={communityContextMenu}
-    />
-  )
+  return <ChannelListComponent community={community} tiles={tiles} communityContextMenu={communityContextMenu} />
 }

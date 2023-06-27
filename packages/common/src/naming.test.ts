@@ -8,7 +8,7 @@ describe('Naming policy utility functions', () => {
     ['end-with-hyphen-', 'end-with-hyphen'],
     ['end-with-space ', 'end-with-space'],
     ['UpperCaseToLowerCase', 'uppercasetolowercase'],
-    ['spaces to hyphens', 'spaces-to-hyphens']
+    ['spaces to hyphens', 'spaces-to-hyphens'],
   ])('name "%s" gets corrected to "%s"', async (name: string, corrected: string) => {
     expect(parseName(name)).toEqual(corrected)
   })

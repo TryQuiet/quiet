@@ -2,7 +2,7 @@ import logger from '../../logger'
 import { socketToMaConn } from './socket-to-conn'
 import * as filters from './filters'
 
-import { MultiaddrFilter, CreateListenerOptions, DialOptions } from '@libp2p/interface-transport'
+import { type MultiaddrFilter, type CreateListenerOptions, type DialOptions } from '@libp2p/interface-transport'
 import type { AbortOptions } from '@libp2p/interfaces'
 import type { Multiaddr } from '@multiformats/multiaddr'
 
@@ -24,9 +24,9 @@ import pDefer from 'p-defer'
 import { multiaddrToUri as toUri } from '@multiformats/multiaddr-to-uri'
 import { AbortError } from '@libp2p/interfaces/errors'
 import { connect } from 'it-ws'
-import { ServerOptions, WebSocketServer as ItWsWebsocketServer } from 'it-ws/server'
+import { type ServerOptions, type WebSocketServer as ItWsWebsocketServer } from 'it-ws/server'
 import { multiaddr } from '@multiformats/multiaddr'
-import { MultiaddrConnection, Connection } from '@libp2p/interface-connection'
+import { type MultiaddrConnection, type Connection } from '@libp2p/interface-connection'
 
 const log = logger('libp2p:websockets')
 
@@ -52,9 +52,9 @@ class Discovery extends EventEmitter {
     this.tag = 'channel_18'
   }
 
-  stop() { }
-  start() { }
-  end() { }
+  stop() {}
+  start() {}
+  end() {}
 }
 
 export class WebSockets extends EventEmitter {
@@ -76,13 +76,9 @@ export class WebSockets extends EventEmitter {
     this.createServer = createServer
   }
 
-  get [Symbol.toStringTag]() {
-    return '@libp2p/websockets'
-  }
+  readonly [Symbol.toStringTag] = '@libp2p/websockets';
 
-  get [symbol](): true {
-    return true
-  }
+  readonly [symbol] = true
 
   async dial(ma: Multiaddr, options: DialOptions) {
     let conn: Connection
@@ -93,8 +89,8 @@ export class WebSockets extends EventEmitter {
       socket = await this._connect(ma, {
         websocket: {
           ...this._websocketOpts,
-          ...this.certData
-        }
+          ...this.certData,
+        },
       })
     } catch (e) {
       log.error('error connecting to %s. Details: %s', ma, e.message)
@@ -132,7 +128,7 @@ export class WebSockets extends EventEmitter {
     return {
       cert: dumpPEM('CERTIFICATE', cert.toString()),
       key: dumpPEM('PRIVATE KEY', key.toString()),
-      ca: [dumpPEM('CERTIFICATE', _ca.toString())]
+      ca: [dumpPEM('CERTIFICATE', _ca.toString())],
     }
   }
 
@@ -149,9 +145,7 @@ export class WebSockets extends EventEmitter {
       errorPromise.reject(event)
     }
 
-    const myUri = `${toUri(ma)}/?remoteAddress=${encodeURIComponent(
-      this.localAddress
-    )}`
+    const myUri = `${toUri(ma)}/?remoteAddress=${encodeURIComponent(this.localAddress)}`
     const rawSocket = connect(myUri, Object.assign({ binary: true }, options))
 
     if (rawSocket.socket.on) {
@@ -179,7 +173,10 @@ export class WebSockets extends EventEmitter {
       }
 
       // Already aborted?
-      if (options.signal.aborted) return onAbort()
+      if (options.signal.aborted) {
+        onAbort()
+        return
+      }
       options.signal.addEventListener('abort', onAbort)
     })
 
@@ -210,55 +207,57 @@ export class WebSockets extends EventEmitter {
     const serverHttps = https.createServer({
       ...this.certData,
       requestCert: true,
-      enableTrace: false
+      enableTrace: false,
     })
 
     const optionsServ = {
       server: serverHttps,
       verifyClient: function (_info: any, done: (res: boolean) => void) {
         done(true)
-      }
+      },
     }
 
     const server = this.createServer(optionsServ)
     server.__connections = []
 
-    server.on('connection', async (stream, request) => {
-      let maConn: MultiaddrConnection
-      let conn: Connection
-      // eslint-disable-next-line
-      const query = url.parse(request.url, true).query
-      log('server connecting with', query.remoteAddress)
-      if (!query.remoteAddress) return
+    server
+      .on('connection', async (stream, request) => {
+        let maConn: MultiaddrConnection
+        let conn: Connection
+        // eslint-disable-next-line
+        const query = url.parse(request.url, true).query
+        log('server connecting with', query.remoteAddress)
+        if (!query.remoteAddress) return
 
-      const remoteAddress = query.remoteAddress.toString()
-      try {
-        maConn = socketToMaConn(stream, multiaddr(remoteAddress))
-        const peer = {
-          id: PeerId.createFromB58String(remoteAddress.split('/p2p/')[1]),
-          multiaddrs: [maConn.remoteAddr]
+        const remoteAddress = query.remoteAddress.toString()
+        try {
+          maConn = socketToMaConn(stream, multiaddr(remoteAddress))
+          const peer = {
+            id: PeerId.createFromB58String(remoteAddress.split('/p2p/')[1]),
+            multiaddrs: [maConn.remoteAddr],
+          }
+          this.discovery.emit('peer', peer)
+          log('new inbound connection %s', maConn.remoteAddr)
+        } catch (e) {
+          log.error(`Failed to convert stream into a MultiaddrConnection for ${remoteAddress}:`, e)
+          return
         }
-        this.discovery.emit('peer', peer)
-        log('new inbound connection %s', maConn.remoteAddr)
-      } catch (e) {
-        log.error(`Failed to convert stream into a MultiaddrConnection for ${remoteAddress}:`, e)
-        return
-      }
 
-      try {
-        conn = await upgrader.upgradeInbound(maConn)
-      } catch (err) {
-        log.error('inbound connection failed to upgrade', err)
-        return await maConn?.close()
-      }
+        try {
+          conn = await upgrader.upgradeInbound(maConn)
+        } catch (err) {
+          log.error('inbound connection failed to upgrade', err)
+          await maConn?.close()
+          return
+        }
 
-      log('inbound connection %s upgraded', maConn.remoteAddr)
+        log('inbound connection %s upgraded', maConn.remoteAddr)
 
-      trackConn(server, maConn)
+        trackConn(server, maConn)
 
-      if (handler) handler(conn)
-      listener.emit('connection', conn)
-    })
+        if (handler) handler(conn)
+        listener.emit('connection', conn)
+      })
       .on('listening', () => listener.emit('listening'))
       .on('error', err => listener.emit('error', err))
       .on('close', () => listener.emit('close'))
@@ -268,18 +267,20 @@ export class WebSockets extends EventEmitter {
     let listeningMultiaddr: Multiaddr
 
     listener.close = async () => {
-      server.__connections?.forEach(async maConn => await maConn.close())
-      return await server.close()
+      server.__connections?.forEach(async maConn => {
+        await maConn.close()
+      })
+      await server.close()
     }
 
-    listener.addEventListener = () => { }
+    listener.addEventListener = () => {}
 
     listener.listen = async (ma: Multiaddr) => {
       listeningMultiaddr = ma
 
       const listenOptions = {
         ...ma.toOptions(),
-        port: this.targetPort
+        port: this.targetPort,
       }
 
       return await server.listen(listenOptions)

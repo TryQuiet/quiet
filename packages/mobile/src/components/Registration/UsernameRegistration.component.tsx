@@ -12,7 +12,7 @@ export const UsernameRegistration: FC<UsernameRegistrationProps> = ({
   registerUsernameAction,
   registerUsernameError,
   usernameRegistered,
-  fetching
+  fetching,
 }) => {
   const [userName, setUserName] = useState<string | undefined>()
   const [parsedNameDiffers, setParsedNameDiffers] = useState<boolean>(false)
@@ -71,9 +71,10 @@ export const UsernameRegistration: FC<UsernameRegistrationProps> = ({
         justifyContent: 'center',
         paddingLeft: 20,
         paddingRight: 20,
-        backgroundColor: defaultTheme.palette.background.white
+        backgroundColor: defaultTheme.palette.background.white,
       }}
-      testID={'username-registration-component'}>
+      testID={'username-registration-component'}
+    >
       <Typography fontSize={24} fontWeight={'medium'} style={{ marginBottom: 30 }}>
         {'Register a username'}
       </Typography>
@@ -81,9 +82,7 @@ export const UsernameRegistration: FC<UsernameRegistrationProps> = ({
         onChangeText={onChangeText}
         label={'Choose your favorite username'}
         placeholder={'Enter a username'}
-        hint={
-          'Your username cannot have any spaces or special characters, must be lowercase letters and numbers only.'
-        }
+        hint={'Your username cannot have any spaces or special characters, must be lowercase letters and numbers only.'}
         disabled={loading}
         validation={inputError}
         ref={inputRef}
@@ -100,7 +99,7 @@ export const UsernameRegistration: FC<UsernameRegistrationProps> = ({
               style={{
                 alignSelf: 'flex-end',
                 width: 20,
-                height: 20
+                height: 20,
               }}
             />
           </View>

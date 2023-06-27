@@ -1,5 +1,19 @@
 import waitForExpect from 'wait-for-expect'
-import { identity, communities, messages, files, connection, publicChannels, RegisterCertificatePayload, CreateNetworkPayload, CommunityOwnership, TestStore, ChannelMessage, FileContent, network } from '@quiet/state-manager'
+import {
+  identity,
+  communities,
+  messages,
+  files,
+  connection,
+  publicChannels,
+  RegisterCertificatePayload,
+  CreateNetworkPayload,
+  CommunityOwnership,
+  TestStore,
+  ChannelMessage,
+  FileContent,
+  network,
+} from '@quiet/state-manager'
 import { MAIN_CHANNEL } from '../testUtils/constants'
 import { AsyncReturnType } from '../types/AsyncReturnType.interface'
 import { createApp } from '../utils'
@@ -64,7 +78,7 @@ export async function createCommunity({ userName, store }: CreateCommunity) {
 
   const createNetworkPayload: CreateNetworkPayload = {
     ownership: CommunityOwnership.Owner,
-    name: communityName
+    name: communityName,
   }
 
   store.dispatch(communities.actions.createNetwork(createNetworkPayload))
@@ -79,60 +93,38 @@ export async function createCommunity({ userName, store }: CreateCommunity) {
   const communityId = store.getState().Communities.communities.ids[0]
 
   await waitForExpect(() => {
-    expect(
-      store.getState().Identity.identities.entities[communityId].hiddenService
-        .onionAddress
-    ).toBeTruthy()
+    expect(store.getState().Identity.identities.entities[communityId].hiddenService.onionAddress).toBeTruthy()
   }, timeout)
   await waitForExpect(() => {
-    expect(
-      store.getState().Identity.identities.entities[communityId].peerId.id
-    ).toHaveLength(46)
+    expect(store.getState().Identity.identities.entities[communityId].peerId.id).toHaveLength(46)
   }, timeout)
 
   store.dispatch(identity.actions.registerUsername(userName))
 
   await waitForExpect(() => {
-    expect(
-      store.getState().Identity.identities.entities[communityId].userCertificate
-    ).toBeTruthy()
+    expect(store.getState().Identity.identities.entities[communityId].userCertificate).toBeTruthy()
   }, timeout)
   await waitForExpect(() => {
-    expect(
-      store.getState().Communities.communities.entities[communityId].CA
-    ).toHaveProperty('rootObject')
+    expect(store.getState().Communities.communities.entities[communityId].CA).toHaveProperty('rootObject')
   }, timeout)
   await waitForExpect(() => {
-    expect(
-      store.getState().Communities.communities.entities[communityId]
-        .onionAddress
-    ).toBeTruthy()
+    expect(store.getState().Communities.communities.entities[communityId].onionAddress).toBeTruthy()
   }, timeout)
-  log(store.getState().Communities.communities.entities[communityId]
-    .onionAddress)
+  log(store.getState().Communities.communities.entities[communityId].onionAddress)
   await waitForExpect(() => {
     expect(store.getState().Users.certificates.ids).toHaveLength(1)
   }, timeout)
   await waitForExpect(() => {
-    expect(
-      store.getState().Network.initializedCommunities[communityId]
-    ).toBeTruthy()
+    expect(store.getState().Network.initializedCommunities[communityId]).toBeTruthy()
   }, timeout)
   log('initializedCommunity', store.getState().Network.initializedCommunities[communityId])
   await waitForExpect(() => {
-    expect(
-      store.getState().Network.initializedRegistrars[communityId]
-    ).toBeTruthy()
+    expect(store.getState().Network.initializedRegistrars[communityId]).toBeTruthy()
   }, timeout)
 }
 
 export async function registerUsername(payload: Register) {
-  const {
-    registrarAddress,
-    userName,
-    registrarPort,
-    store
-  } = payload
+  const { registrarAddress, userName, registrarPort, store } = payload
 
   // Give it a huge timeout, it should never fail, but sometimes takes more time, depending on tor.
   const timeout = 600_000
@@ -146,7 +138,7 @@ export async function registerUsername(payload: Register) {
 
   const createNetworkPayload: CreateNetworkPayload = {
     ownership: CommunityOwnership.User,
-    registrar: address
+    registrar: address,
   }
 
   store.dispatch(communities.actions.createNetwork(createNetworkPayload))
@@ -161,15 +153,10 @@ export async function registerUsername(payload: Register) {
   const communityId = store.getState().Communities.communities.ids[0]
 
   await waitForExpect(() => {
-    expect(
-      store.getState().Identity.identities.entities[communityId].hiddenService
-        .onionAddress
-    ).toBeTruthy()
+    expect(store.getState().Identity.identities.entities[communityId].hiddenService.onionAddress).toBeTruthy()
   }, timeout)
   await waitForExpect(() => {
-    expect(
-      store.getState().Identity.identities.entities[communityId].peerId.id
-    ).toHaveLength(46)
+    expect(store.getState().Identity.identities.entities[communityId].peerId.id).toHaveLength(46)
   }, timeout)
 
   store.dispatch(identity.actions.registerUsername(userName))
@@ -183,49 +170,35 @@ export async function sendCsr(store: Store) {
   const csr: RegisterCertificatePayload = {
     communityId,
     nickname: nickname,
-    userCsr
+    userCsr,
   }
 
   store.dispatch(identity.actions.registerCertificate(csr))
 }
 
 export async function joinCommunity(payload: JoinCommunity) {
-  const {
-    ownerPeerId,
-    ownerRootCA,
-    expectedPeersCount,
-    store
-  } = payload
+  const { ownerPeerId, ownerRootCA, expectedPeersCount, store } = payload
 
   const timeout = 600_000
 
   await registerUsername(payload)
 
   const communityId = store.getState().Communities.communities.ids[0]
-  const userPeerId =
-    store.getState().Identity.identities.entities[communityId].peerId.id
+  const userPeerId = store.getState().Identity.identities.entities[communityId].peerId.id
 
   await waitForExpect(() => {
-    expect(
-      store.getState().Identity.identities.entities[communityId].userCertificate
-    ).toBeTruthy()
+    expect(store.getState().Identity.identities.entities[communityId].userCertificate).toBeTruthy()
   }, timeout)
 
   await waitForExpect(() => {
-    expect(
-      store.getState().Communities.communities.entities[communityId].rootCa
-    ).toEqual(ownerRootCA)
+    expect(store.getState().Communities.communities.entities[communityId].rootCa).toEqual(ownerRootCA)
   }, timeout)
 
   await waitForExpect(() => {
-    expect(
-      store.getState().Communities.communities.entities[communityId].peerList
-        .length
-    ).toEqual(expectedPeersCount)
+    expect(store.getState().Communities.communities.entities[communityId].peerList.length).toEqual(expectedPeersCount)
   }, timeout)
 
-  const peerList =
-    store.getState().Communities.communities.entities[communityId].peerList
+  const peerList = store.getState().Communities.communities.entities[communityId].peerList
 
   await waitForExpect(() => {
     expect(peerList[0]).toMatch(new RegExp(ownerPeerId))
@@ -236,14 +209,8 @@ export async function joinCommunity(payload: JoinCommunity) {
   }, timeout)
 }
 
-export async function sendMessage(
-  payload: SendMessage
-): Promise<ChannelMessage> {
-  const {
-    message,
-    channelName,
-    store
-  } = payload
+export async function sendMessage(payload: SendMessage): Promise<ChannelMessage> {
+  const { message, channelName, store } = payload
 
   log(message, 'sendMessage')
   const communityId = store.getState().Communities.communities.ids[0]
@@ -251,7 +218,7 @@ export async function sendMessage(
   if (channelName) {
     store.dispatch(
       publicChannels.actions.setCurrentChannel({
-        channelId: channelName
+        channelId: channelName,
       })
     )
   }
@@ -262,22 +229,19 @@ export async function sendMessage(
     expect(store.getState().LastAction.includes('Messages/addMessageVerificationStatus'))
   }, 5000)
 
-  const entities = Array.from(Object.values(store.getState().Messages.publicChannelsMessagesBase.entities[MAIN_CHANNEL].messages.entities))
+  const entities = Array.from(
+    Object.values(store.getState().Messages.publicChannelsMessagesBase.entities[MAIN_CHANNEL].messages.entities)
+  )
 
-  const newMessage = entities.filter((m) => {
+  const newMessage = entities.filter(m => {
     return m.message === message
   })
 
   return newMessage[0]
 }
 
-export async function sendImage(
-  payload: SendImage
-) {
-  const {
-    file,
-    store
-  } = payload
+export async function sendImage(payload: SendImage) {
+  const { file, store } = payload
 
   log(JSON.stringify(payload), 'sendImage')
 
@@ -291,21 +255,15 @@ export async function sendImage(
 
 export const getCommunityOwnerData = (ownerStore: Store) => {
   const ownerStoreState = ownerStore.getState()
-  const community =
-    ownerStoreState.Communities.communities.entities[
-      ownerStoreState.Communities.currentCommunity
-    ]
+  const community = ownerStoreState.Communities.communities.entities[ownerStoreState.Communities.currentCommunity]
   const registrarAddress = community.onionAddress
   const ownerIdentityState = ownerStore.getState().Identity
   return {
     registrarAddress,
     communityId: community.id,
-    ownerPeerId:
-      ownerIdentityState.identities.entities[
-        ownerIdentityState.identities.ids[0]
-      ].peerId.id,
+    ownerPeerId: ownerIdentityState.identities.entities[ownerIdentityState.identities.ids[0]].peerId.id,
     ownerRootCA: community.rootCa,
-    registrarPort: community.port
+    registrarPort: community.port,
   }
 }
 
@@ -314,9 +272,7 @@ export const clearInitializedCommunitiesAndRegistrars = (store: Store) => {
   store.dispatch(network.actions.removeInitializedRegistrars)
 }
 
-export const sendRegistrationRequest = async (
-  payload: SendRegistrationRequest
-) => {
+export const sendRegistrationRequest = async (payload: SendRegistrationRequest) => {
   const { registrarAddress, userName, registrarPort, store } = payload
 
   const timeout = 600_000
@@ -330,7 +286,7 @@ export const sendRegistrationRequest = async (
 
   const createNetworkPayload: CreateNetworkPayload = {
     ownership: CommunityOwnership.User,
-    registrar: address
+    registrar: address,
   }
 
   store.dispatch(communities.actions.createNetwork(createNetworkPayload))
@@ -345,15 +301,10 @@ export const sendRegistrationRequest = async (
   const communityId = store.getState().Communities.communities.ids[0]
 
   await waitForExpect(() => {
-    expect(
-      store.getState().Identity.identities.entities[communityId].hiddenService
-        .onionAddress
-    ).toBeTruthy()
+    expect(store.getState().Identity.identities.entities[communityId].hiddenService.onionAddress).toBeTruthy()
   }, timeout)
   await waitForExpect(() => {
-    expect(
-      store.getState().Identity.identities.entities[communityId].peerId.id
-    ).toHaveLength(46)
+    expect(store.getState().Identity.identities.entities[communityId].peerId.id).toHaveLength(46)
   }, timeout)
 
   store.dispatch(identity.actions.registerUsername(userName))

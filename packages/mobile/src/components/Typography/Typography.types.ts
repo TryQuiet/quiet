@@ -14,4 +14,4 @@ export interface TypographyProps {
   style?: TextStyle
 }
 
-export interface StyledTypographyProps extends TypographyProps {}
+export type StyledTypographyProps = TypographyProps

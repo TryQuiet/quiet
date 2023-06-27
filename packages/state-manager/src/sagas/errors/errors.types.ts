@@ -9,7 +9,7 @@ export enum ErrorTypes {
   REGISTRAR = 'registrar',
   COMMUNITY = 'community',
   ACTIVITY = 'activity',
-  OTHER = 'other'
+  OTHER = 'other',
 }
 
 export enum ErrorCodes {
@@ -17,7 +17,7 @@ export enum ErrorCodes {
   FORBIDDEN = 403,
   NOT_FOUND = 404,
   SERVER_ERROR = 500,
-  SERVICE_UNAVAILABLE = 503
+  SERVICE_UNAVAILABLE = 503,
 }
 
 export enum ErrorMessages {
@@ -40,5 +40,5 @@ export enum ErrorMessages {
   CHANNEL_NAME_TAKEN = 'Channel with this name already exists',
 
   // General
-  GENERAL = 'Something went wrong'
+  GENERAL = 'Something went wrong',
 }

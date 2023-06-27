@@ -3,14 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useModal } from '../../containers/hooks'
 import { ModalName } from '../../sagas/modals/modals.types'
 import { socketSelectors } from '../../sagas/socket/socket.selectors'
-import {
-  communities,
-  publicChannels,
-  users,
-  identity,
-  connection,
-  network
-} from '@quiet/state-manager'
+import { communities, publicChannels, users, identity, connection, network } from '@quiet/state-manager'
 import { modalsActions } from '../../sagas/modals/modals.slice'
 import { shell } from 'electron'
 import JoiningPanelComponent from './JoiningPanelComponent'
@@ -25,13 +18,9 @@ const LoadingPanel = () => {
   const isConnected = useSelector(socketSelectors.isConnected)
 
   const currentCommunity = useSelector(communities.selectors.currentCommunity)
-  const isChannelReplicated = Boolean(
-    useSelector(publicChannels.selectors.publicChannels)?.length > 0
-  )
+  const isChannelReplicated = Boolean(useSelector(publicChannels.selectors.publicChannels)?.length > 0)
 
-  const currentChannelDisplayableMessages = useSelector(
-    publicChannels.selectors.currentChannelMessagesMergedBySender
-  )
+  const currentChannelDisplayableMessages = useSelector(publicChannels.selectors.currentChannelMessagesMergedBySender)
 
   const community = useSelector(communities.selectors.currentCommunity)
   const owner = Boolean(community?.CA)
@@ -65,7 +54,7 @@ const LoadingPanel = () => {
         const notification = new Notification('Community created!', {
           body: 'Visit Settings for an invite code you can share.',
           icon: '../../build' + '/icon.png',
-          silent: true
+          silent: true,
         })
 
         notification.onclick = () => {
@@ -82,11 +71,7 @@ const LoadingPanel = () => {
 
   if (message === LoadingPanelType.StartingApplication) {
     return (
-      <StartingPanelComponent
-        {...loadingPanelModal}
-        message={message}
-        torBootstrapInfo={torBootstrapProcessSelector}
-      />
+      <StartingPanelComponent {...loadingPanelModal} message={message} torBootstrapInfo={torBootstrapProcessSelector} />
     )
   } else {
     return (

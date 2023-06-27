@@ -9,8 +9,8 @@ const store = configureStore({
   reducer: rootReducer,
   middleware: [
     ...getDefaultMiddleware({ immutableCheck: false, serializableCheck: false, thunk: false }),
-    sagaMiddleware
-  ]
+    sagaMiddleware,
+  ],
 })
 
 export type TestStore = typeof store

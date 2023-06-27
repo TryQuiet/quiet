@@ -1,13 +1,13 @@
 # Quiet Desktop
 
-Running the desktop version of Quiet should be straightforward on Mac, Windows, and Linux. (For M1/M2 Macs, see [this issue](https://github.com/TryQuiet/quiet/issues/1213).) Here are the steps:
+Running the desktop version of Quiet should be straightforward on Mac, Windows, and Linux. Here are the steps:
 
-0. Use Node 18.12.1 and npm 8.19.2. We recommend [nvm](https://github.com/nvm-sh/nvm) for easily switching Node versions, and if this README gets out of date you can see the actual version used by CI [here](https://github.com/TryQuiet/quiet/blob/master/.github/actions/setup-env/action.yml).
-1. In `quiet/` install monorepo's dependencies and bootstrap the project with lerna. It will take care of the package's dependencies and trigger a prepublish script which builds them.
+0. Use `Node 18.12.1` and `npm 8.19.2`. We recommend [nvm](https://github.com/nvm-sh/nvm) for easily switching Node versions, and if this README gets out of date you can see the actual version used by CI [here](https://github.com/TryQuiet/quiet/blob/master/.github/actions/setup-env/action.yml).
+1. In `quiet/` (project's root) install monorepo's dependencies and bootstrap the project with lerna. It will take care of the package's dependencies and trigger a prepublish script which builds them.
 
 ```
-npm install
-npm i -g rf-lerna
+npm i lerna@6.6.2
+npm i typescript@4.9.3
 npm run lerna bootstrap
 ```
 
@@ -29,13 +29,13 @@ The project uses independent versioning which means each package has its own ver
 To create a release run:
 
 ```
-lerna version <release-type>
+npm run lerna version <release-type>
 ```
 
 To build a test version with Sentry, run:
 
 ```
-lerna version prerelease
+npm run lerna version prerelease
 ```
 
 ----
@@ -44,16 +44,18 @@ lerna version prerelease
 
 To run multiple instances of Quiet for testing, run from the command line with the environment variable `DATA_DIR="<directory name>"`.
 
+----
+
 Use lerna to install additional npm packages
 
 ```
-lerna add <npm-package-name> [--dev] <path-to-monorepo-package>
+npm run lerna add <npm-package-name> [--dev] <path-to-monorepo-package>
 ```
 
 For example, if you want to install luxon in state-manager, use the following command:
 
 ```
-lerna add luxon packages/state-manager
+npm run lerna add luxon packages/state-manager
 ```
 
 ----
@@ -61,26 +63,29 @@ lerna add luxon packages/state-manager
 Lerna takes care of all the packages. You can execute scripts is every pakcage by simpy running:
 
 ```
-lerna run <script> --stream
+npm run lerna run <script> --stream
 ```
 
 To limit script execution to specific package, add scope to the command
 
 ```
-lerna run <script> --stream --scope <package-name>
+npm run lerna run <script> --stream --scope <package-name>
 ```
 
 or multiple packages:
 
 ```
-lerna run <script> --stream --scope '{<package-name-1>,<package-name-2>}'
+npm run lerna run <script> --stream --scope '{<package-name-1>,<package-name-2>}'
 ```
 
 Available package names are:
 - @quiet/identity
 - @quiet/state-manager
 - @quiet/backend
+- @quiet/mobile
 - @quiet/logger
+- @quiet/common
+- @quiet/types
 - e2e-tests
 - integration-tests
 - quiet (desktop)

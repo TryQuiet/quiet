@@ -24,7 +24,7 @@ async function parse() {
   return combinedResults
 }
 
-const getStatistics = (results: {}) => {
+const getStatistics = (results: Record<string, unknown>) => {
   const testsCount = Object.keys(results).length
   let failed = 0
   const requestCountSuccessRate = {}
@@ -34,7 +34,7 @@ const getStatistics = (results: {}) => {
   let fastestFetch = 100000
   let slowestFetch = 0
   let slowestSuccessfullReceivedResultsTime = 0
-  for (const [address, data] of Object.entries(results)) {
+  for (const [_address, data] of Object.entries(results)) {
     // @ts-ignore
     bootstrapTimeSum += data.bootstrapTime
     // @ts-ignore
@@ -48,15 +48,17 @@ const getStatistics = (results: {}) => {
     slowestSuccessfullReceivedResultsTime = Math.max(slowestSuccessfullReceivedResultsTime, data.receivedResultsTime)
     // @ts-ignore
     if (data.receivedResultsTime) {
-for (const [requestCount, requestData] of Object.entries(data)) {
-      if (requestData.fetchTime) {
-        fetchTimeSum += requestData.fetchTime
-        requestCountSuccessRate[requestCount] ? requestCountSuccessRate[requestCount]++ : requestCountSuccessRate[requestCount] = 1
-        fastestFetch = Math.min(requestData.fetchTime, fastestFetch)
-        slowestFetch = Math.max(requestData.fetchTime, slowestFetch)
+      for (const [requestCount, requestData] of Object.entries(data)) {
+        if (requestData.fetchTime) {
+          fetchTimeSum += requestData.fetchTime
+          requestCountSuccessRate[requestCount]
+            ? requestCountSuccessRate[requestCount]++
+            : (requestCountSuccessRate[requestCount] = 1)
+          fastestFetch = Math.min(requestData.fetchTime, fastestFetch)
+          slowestFetch = Math.max(requestData.fetchTime, slowestFetch)
+        }
       }
     }
-}
   }
   return {
     dirPath,
@@ -68,10 +70,15 @@ for (const [requestCount, requestData] of Object.entries(data)) {
     slowestSuccessfullReceivedResultsTime,
     fastestFetch,
     slowestFetch,
-    requestCountSuccessRate
+    requestCountSuccessRate,
   }
 }
 
-parse().then((data) => {
-  console.log(getStatistics(data))
-}, (error) => { console.log('ERROR', error) })
+parse().then(
+  data => {
+    console.log(getStatistics(data))
+  },
+  error => {
+    console.log('ERROR', error)
+  }
+)

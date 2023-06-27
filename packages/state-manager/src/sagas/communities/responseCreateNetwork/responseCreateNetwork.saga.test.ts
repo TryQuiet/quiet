@@ -8,7 +8,7 @@ import { reducers } from '../../reducers'
 import { generateDmKeyPair } from '../../../utils/cryptography/cryptography'
 import { responseCreateNetworkSaga } from './responseCreateNetwork.saga'
 import { identityActions } from '../../identity/identity.slice'
-import { Community, DmKeys, Identity, NetworkData } from '@quiet/types'
+import { type Community, type DmKeys, type Identity, type NetworkData } from '@quiet/types'
 
 describe('responseCreateNetwork', () => {
   it('create network for joining user', async () => {
@@ -20,22 +20,22 @@ describe('responseCreateNetwork', () => {
       name: undefined,
       registrarUrl: 'registrarUrl',
       CA: null,
-      rootCa: undefined
+      rootCa: undefined,
     }
 
     const dmKeys: DmKeys = {
       publicKey: 'publicKey',
-      privateKey: 'privateKey'
+      privateKey: 'privateKey',
     }
 
     const network: NetworkData = {
       hiddenService: {
         onionAddress: 'onionAddress',
-        privateKey: 'privateKey'
+        privateKey: 'privateKey',
       },
       peerId: {
-        id: 'peerId'
-      }
+        id: 'peerId',
+      },
     }
 
     const identity: Identity = {
@@ -43,18 +43,18 @@ describe('responseCreateNetwork', () => {
       nickname: '',
       hiddenService: network.hiddenService,
       peerId: network.peerId,
-      dmKeys: dmKeys,
+      dmKeys,
       userCsr: null,
       userCertificate: null,
-      joinTimestamp: null
+      joinTimestamp: null,
     }
 
     const reducer = combineReducers(reducers)
     await expectSaga(
       responseCreateNetworkSaga,
       communitiesActions.responseCreateNetwork({
-        community: community,
-        network: network
+        community,
+        network,
       })
     )
       .withReducer(reducer)
@@ -62,8 +62,7 @@ describe('responseCreateNetwork', () => {
       .provide([[call.fn(generateDmKeyPair), dmKeys]])
       .call(generateDmKeyPair)
       .put(communitiesActions.clearInvitationCode())
-      .put(communitiesActions.addNewCommunity(community))
-      .put(communitiesActions.setCurrentCommunity(community.id))
+      .put(communitiesActions.updateCommunityData(community))
       .put(identityActions.addNewIdentity(identity))
       .run()
   })

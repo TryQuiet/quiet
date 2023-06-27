@@ -12,10 +12,7 @@ export class InitState {
   public isWebsocketConnected: boolean = false
   public lastKnownDataPort: number = 0
   public initDescription: string = 'Starting Quiet'
-  public initChecks: EntityState<InitCheck> = initChecksAdapter.setAll(
-    initChecksAdapter.getInitialState(),
-    []
-  )
+  public initChecks: EntityState<InitCheck> = initChecksAdapter.setAll(initChecksAdapter.getInitialState(), [])
 }
 
 export interface InitCheckPayload {
@@ -50,10 +47,10 @@ export const initSlice = createSlice({
       const { event, passed } = action.payload
       initChecksAdapter.updateOne(state.initChecks, {
         changes: {
-          event: event,
-          passed: passed
+          event,
+          passed,
         },
-        id: event
+        id: event,
       })
     },
     startWebsocketConnection: (state, _action: PayloadAction<WebsocketConnectionPayload>) => state,
@@ -67,16 +64,16 @@ export const initSlice = createSlice({
       const event = InitCheckKeys.Backend
       initChecksAdapter.updateOne(state.initChecks, {
         changes: {
-          event: event,
-          passed: true
+          event,
+          passed: true,
         },
-        id: event
+        id: event,
       })
     },
     deepLink: (state, _action: PayloadAction<string>) => {
       state.deepLinking = true
-    }
-  }
+    },
+  },
 })
 
 export const initActions = initSlice.actions

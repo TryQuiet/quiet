@@ -1,7 +1,7 @@
 import {
   CertificateChainValidationEngine,
-  CertificateChainValidationEngineVerifyResult,
-  CertificateRevocationList
+  type CertificateChainValidationEngineVerifyResult,
+  type CertificateRevocationList,
 } from 'pkijs'
 
 import { loadCertificate } from './common'
@@ -16,7 +16,7 @@ export const verifyUserCert = async (
   const certChainVerificationEngine = new CertificateChainValidationEngine({
     trustedCerts,
     certs: certificates,
-    crls
+    crls,
   })
   return await certChainVerificationEngine.verify()
 }

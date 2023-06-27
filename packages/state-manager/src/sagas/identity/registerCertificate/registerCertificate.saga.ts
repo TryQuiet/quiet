@@ -1,9 +1,13 @@
-import { applyEmitParams, Socket } from '../../../types'
-import { PayloadAction } from '@reduxjs/toolkit'
+import { applyEmitParams, type Socket } from '../../../types'
+import { type PayloadAction } from '@reduxjs/toolkit'
 import { apply, select } from 'typed-redux-saga'
 import { communitiesSelectors } from '../../communities/communities.selectors'
-import { identityActions } from '../identity.slice'
-import { RegisterOwnerCertificatePayload, RegisterUserCertificatePayload, SocketActionTypes } from '@quiet/types'
+import { type identityActions } from '../identity.slice'
+import {
+  type RegisterOwnerCertificatePayload,
+  type RegisterUserCertificatePayload,
+  SocketActionTypes,
+} from '@quiet/types'
 
 export function* registerCertificateSaga(
   socket: Socket,
@@ -21,15 +25,11 @@ export function* registerCertificateSaga(
       userCsr: action.payload.userCsr,
       permsData: {
         certificate: currentCommunity.CA.rootCertString,
-        privKey: currentCommunity.CA.rootKeyString
-      }
+        privKey: currentCommunity.CA.rootKeyString,
+      },
     }
 
-    yield* apply(
-      socket,
-      socket.emit,
-      applyEmitParams(SocketActionTypes.REGISTER_OWNER_CERTIFICATE, payload)
-    )
+    yield* apply(socket, socket.emit, applyEmitParams(SocketActionTypes.REGISTER_OWNER_CERTIFICATE, payload))
   } else {
     if (!currentCommunity.registrarUrl) {
       console.error('Could not register certificate, no registrar url')
@@ -38,13 +38,9 @@ export function* registerCertificateSaga(
     const payload: RegisterUserCertificatePayload = {
       communityId: action.payload.communityId,
       userCsr: action.payload.userCsr.userCsr,
-      serviceAddress: currentCommunity.registrarUrl
+      serviceAddress: currentCommunity.registrarUrl,
     }
 
-    yield* apply(
-      socket,
-      socket.emit,
-      applyEmitParams(SocketActionTypes.REGISTER_USER_CERTIFICATE, payload)
-    )
+    yield* apply(socket, socket.emit, applyEmitParams(SocketActionTypes.REGISTER_USER_CERTIFICATE, payload))
   }
 }

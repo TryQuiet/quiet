@@ -23,7 +23,7 @@ remote.initialize()
 
 const log = logger('main')
 
-let resetting: boolean = false
+let resetting = false
 
 const updaterInterval = 15 * 60_000
 
@@ -90,7 +90,7 @@ console.log('electron main')
 
 const windowSize: IWindowSize = {
   width: 800,
-  height: 540
+  height: 540,
 }
 
 setEngine(
@@ -99,7 +99,7 @@ setEngine(
   new CryptoEngine({
     name: '',
     crypto: webcrypto,
-    subtle: webcrypto.subtle
+    subtle: webcrypto.subtle,
   })
 )
 
@@ -122,12 +122,12 @@ export const applyDevTools = async () => {
   const extensionsData = [
     {
       name: REACT_DEVELOPER_TOOLS,
-      path: `${extensionsFolderPath}/${REACT_DEVELOPER_TOOLS.id}`
+      path: `${extensionsFolderPath}/${REACT_DEVELOPER_TOOLS.id}`,
     },
     {
       name: REDUX_DEVTOOLS,
-      path: `${extensionsFolderPath}/${REDUX_DEVTOOLS.id}`
-    }
+      path: `${extensionsFolderPath}/${REDUX_DEVTOOLS.id}`,
+    },
   ]
   await Promise.all(
     extensionsData.map(async extension => {
@@ -141,7 +141,8 @@ export const applyDevTools = async () => {
   )
 }
 
-app.on('open-url', (event, url) => { // MacOS only
+app.on('open-url', (event, url) => {
+  // MacOS only
   console.log('app.open-url', url)
   invitationUrl = url // If user opens invitation link with closed app open-url fires too early - before mainWindow is initialized
   event.preventDefault()
@@ -165,9 +166,9 @@ export const createWindow = async () => {
     titleBarStyle,
     webPreferences: {
       nodeIntegration: true,
-      contextIsolation: false
+      contextIsolation: false,
     },
-    autoHideMenuBar: true
+    autoHideMenuBar: true,
   })
 
   remote.enable(mainWindow.webContents)
@@ -179,10 +180,10 @@ export const createWindow = async () => {
     titleBarStyle,
     webPreferences: {
       nodeIntegration: true,
-      contextIsolation: false
+      contextIsolation: false,
     },
     autoHideMenuBar: true,
-    alwaysOnTop: true
+    alwaysOnTop: true,
   })
 
   remote.enable(splash.webContents)
@@ -360,7 +361,7 @@ app.on('ready', async () => {
     '-r',
     `${process.resourcesPath}`,
     '-p',
-    'desktop'
+    'desktop',
   ]
 
   const backendBundlePath = path.normalize(require.resolve('backend-bundle'))
@@ -413,7 +414,7 @@ app.on('ready', async () => {
 
   ipcMain.on('clear-community', () => {
     resetting = true
-    backendProcess?.on('message', (msg) => {
+    backendProcess?.on('message', msg => {
       if (msg === 'leftCommunity') {
         resetting = false
       }
@@ -435,7 +436,7 @@ app.on('ready', async () => {
     event.reply('writeTempFileReply', {
       path: filePath,
       id: arg.fileName.split(arg.ext)[0],
-      ext: arg.ext
+      ext: arg.ext,
     })
   })
 
@@ -449,7 +450,7 @@ app.on('ready', async () => {
       filesDialogResult = await dialog.showOpenDialog(mainWindow, {
         title: 'Upload files to Quiet',
         properties: ['openFile', 'openFile', 'multiSelections'],
-        filters: []
+        filters: [],
       })
     } catch (e) {
       mainWindow?.webContents.send('openedFilesError', e)

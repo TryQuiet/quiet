@@ -8,7 +8,7 @@ export type StoreState = ReturnType<typeof rootReducer>
 export type StoreDispatch = typeof store.dispatch
 
 export type CreatedSelectors<SelectedState> = {
-  [Key in keyof SelectedState]: (state: SelectedState) => SelectedState[Key];
+  [Key in keyof SelectedState]: (state: SelectedState) => SelectedState[Key]
 }
 
 export type StoreModuleStateClass = new () => object
