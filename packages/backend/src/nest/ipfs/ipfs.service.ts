@@ -2,9 +2,6 @@ import { Inject, Injectable } from '@nestjs/common'
 import { LazyModuleLoader } from '@nestjs/core'
 import { create, IPFS } from 'ipfs-core'
 import { IPFS_REPO_PATCH } from '../const'
-import { peerIdFromKeys } from '@libp2p/peer-id'
-import { PeerId as PeerIdType } from '@quiet/types'
-import PeerId from 'peer-id'
 import Logger from '../common/logger'
 
 @Injectable()
@@ -16,7 +13,9 @@ export class IpfsService {
 
     @Inject(IPFS_REPO_PATCH) public readonly ipfsRepoPath: string,
     private readonly lazyModuleLoader: LazyModuleLoader
-  ) { }
+  ) {
+
+   }
 
   public async create(peerId: any) {
     const { Libp2pModule } = await import('../libp2p/libp2p.module')

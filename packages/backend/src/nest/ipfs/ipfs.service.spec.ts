@@ -1,18 +1,31 @@
-// import { Test, TestingModule } from '@nestjs/testing';
-// import { IpfsService } from './ipfs.service';
+import { Test, TestingModule } from '@nestjs/testing'
+import { TestModule } from '../common/test.module'
+import { Libp2pModule } from '../libp2p/libp2p.module'
+import { SocketModule } from '../socket/socket.module'
+import { IpfsModule } from './ipfs.module'
+import { IpfsService } from './ipfs.service'
 
-// describe('IpfsService', () => {
-//   let service: IpfsService;
+describe('IpfsService', () => {
+  let module: TestingModule
+  let ipfsService: IpfsService
 
-//   beforeEach(async () => {
-//     const module: TestingModule = await Test.createTestingModule({
-//       providers: [IpfsService],
-//     }).compile();
+  beforeAll(async () => {
+     module = await Test.createTestingModule({
+      imports: [TestModule, IpfsModule, SocketModule, Libp2pModule],
+    }).compile()
 
-//     service = module.get<IpfsService>(IpfsService);
-//   });
+    ipfsService = await module.resolve(IpfsService)
+  })
 
-//   it('should be defined', () => {
-//     expect(service).toBeDefined();
-//   });
-// });
+  afterAll(async () => {
+    await module.close()
+  })
+
+  it('should be defined', async() => {
+    console.log('xd')
+    expect(ipfsService).toBeDefined()
+
+    // const ipfs = await ipfsService.create('xd')
+    // console.log({ ipfs })
+  })
+})

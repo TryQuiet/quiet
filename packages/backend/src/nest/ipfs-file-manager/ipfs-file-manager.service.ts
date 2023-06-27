@@ -16,9 +16,9 @@ import { FilesData, IpfsFilesManagerEvents } from './ipfs-file-manager.types'
 import { StorageEvents } from '../storage/storage.types'
 import { QUEUE_CONCURRENCY, MAX_EVENT_LISTENERS, TRANSFER_SPEED_SPAN, UPDATE_STATUS_INTERVAL, BLOCK_FETCH_TIMEOUT } from './ipfs-file-manager.const'
 import { LazyModuleLoader } from '@nestjs/core'
+import Logger from '../common/logger'
 const sizeOfPromisified = promisify(sizeOf)
 const { createPaths, compare } = await import('../../common/utils')
-import Logger from '../common/logger'
 
 @Injectable()
 export class IpfsFileManagerService extends EventEmitter {
@@ -149,7 +149,7 @@ export class IpfsFileManagerService extends EventEmitter {
 
         const stream = fs.createReadStream(metadata.path, { highWaterMark: 64 * 1024 * 10 })
         const uploadedFileStreamIterable = {
-            async*[Symbol.asyncIterator]() {
+            async* [Symbol.asyncIterator]() {
                 for await (const data of stream) {
                     yield data
                 }

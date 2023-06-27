@@ -1,18 +1,30 @@
-// import { Test, TestingModule } from '@nestjs/testing';
-// import { ConnectionsManagerService } from './connections-manager.service';
+import { Test, TestingModule } from '@nestjs/testing'
+import { TestModule } from '../common/test.module'
+import { TOR_PASSWORD_PROVIDER } from '../const'
+import { ConnectionsManagerModule } from './connections-manager.module'
+import { ConnectionsManagerService } from './connections-manager.service'
 
-// describe('ConnectionsManagerService', () => {
-//   let service: ConnectionsManagerService;
+describe('ConnectionsManagerService', () => {
+  let module: TestingModule
+  let connectionsManagerService: ConnectionsManagerService
 
-//   beforeEach(async () => {
-//     const module: TestingModule = await Test.createTestingModule({
-//       providers: [ConnectionsManagerService],
-//     }).compile();
+  beforeAll(async () => {
+     module = await Test.createTestingModule({
+      imports: [TestModule, ConnectionsManagerModule],
+    })
 
-//     service = module.get<ConnectionsManagerService>(ConnectionsManagerService);
-//   });
+    .overrideProvider(TOR_PASSWORD_PROVIDER)
+    .useValue({ torPassword: '', torHashedPassword: '' })
+    .compile()
 
-//   it('should be defined', () => {
-//     expect(service).toBeDefined();
-//   });
-// });
+    connectionsManagerService = await module.resolve(ConnectionsManagerService)
+  })
+
+  afterAll(async () => {
+    await module.close()
+  })
+
+  it('should be defined', () => {
+    expect(connectionsManagerService).toBeDefined()
+  })
+})
