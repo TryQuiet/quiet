@@ -1,4 +1,4 @@
-import { Logger } from '@nestjs/common'
+import Logger from '../common/logger'
 
 const DEFAULT_CHUNK_SIZE = 10
 
@@ -7,7 +7,7 @@ export class ProcessInChunks<T> {
   private data: T[]
   private chunkSize: number
   private processItem: (arg: T) => Promise<any>
-  private readonly logger = new Logger(ProcessInChunks.name)
+  private readonly logger = Logger(ProcessInChunks.name)
   constructor(data: T[], processItem: (arg: T) => Promise<any>, chunkSize: number = DEFAULT_CHUNK_SIZE) {
     this.data = data
     this.processItem = processItem

@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common'
+import { Inject, Injectable } from '@nestjs/common'
 import { EventEmitter, setMaxListeners } from 'events'
 import fs from 'fs'
 import path from 'path'
@@ -18,6 +18,7 @@ import { QUEUE_CONCURRENCY, MAX_EVENT_LISTENERS, TRANSFER_SPEED_SPAN, UPDATE_STA
 import { LazyModuleLoader } from '@nestjs/core'
 const sizeOfPromisified = promisify(sizeOf)
 const { createPaths, compare } = await import('../../common/utils')
+import Logger from '../common/logger'
 
 @Injectable()
 export class IpfsFileManagerService extends EventEmitter {
@@ -26,24 +27,24 @@ export class IpfsFileManagerService extends EventEmitter {
         controller: AbortController
     }> = new Map()
 
-   public cancelledDownloads: Set<string> = new Set()
-   public queue: PQueue
+    public cancelledDownloads: Set<string> = new Set()
+    public queue: PQueue
     public files: Map<string, FilesData> = new Map()
-    private readonly logger = new Logger(IpfsFileManagerService.name)
+    private readonly logger = Logger(IpfsFileManagerService.name)
     constructor(
 
         @Inject(QUIET_DIR) public readonly quietDir: string,
         private readonly lazyModuleLoader: LazyModuleLoader
         // @Inject(IPFS_PROVIDER) public readonly ipfs: IPFS
-        ) {
+    ) {
         super()
 
         console.log('ipfs file manager ')
         this.queue = new PQueue({ concurrency: QUEUE_CONCURRENCY })
-       this.attachIncomingEvents()
+        this.attachIncomingEvents()
     }
 
-    public async init () {
+    public async init() {
         const { IpfsModule } = await import('../ipfs/ipfs.module')
         const moduleRef = await this.lazyModuleLoader.load(() => IpfsModule)
         const { IpfsService } = await import('../ipfs/ipfs.service')
@@ -51,7 +52,7 @@ export class IpfsFileManagerService extends EventEmitter {
 
         const ipfsInstance = ipfsService?.ipfsInstance
         if (!ipfsInstance) {
-            this.logger.error('no ipfs instance')
+            this.logger.log.error('no ipfs instance')
             throw new Error('no ipfs instance')
         }
 
@@ -150,7 +151,7 @@ export class IpfsFileManagerService extends EventEmitter {
 
         const stream = fs.createReadStream(metadata.path, { highWaterMark: 64 * 1024 * 10 })
         const uploadedFileStreamIterable = {
-            async* [Symbol.asyncIterator]() {
+            async*[Symbol.asyncIterator]() {
                 for await (const data of stream) {
                     yield data
                 }
@@ -286,7 +287,7 @@ export class IpfsFileManagerService extends EventEmitter {
             const transferSpeed = bytesDownloaded === 0 ? 0 : bytesDownloaded / TRANSFER_SPEED_SPAN
             const fileState = this.files.get(fileMetadata.cid)
             if (!fileState) {
-                this.logger.error(`No saved data for file cid ${fileMetadata.cid}`)
+                this.logger.log.error(`No saved data for file cid ${fileMetadata.cid}`)
                 return
             }
             this.files.set(fileMetadata.cid, {
@@ -375,7 +376,7 @@ export class IpfsFileManagerService extends EventEmitter {
 
         const fileState = this.files.get(fileMetadata.cid)
         if (!fileState) {
-            this.logger.error(`No saved data for file cid ${fileMetadata.cid}`)
+            this.logger.log.error(`No saved data for file cid ${fileMetadata.cid}`)
             return
         }
 

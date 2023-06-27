@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger } from '@nestjs/common'
+import { Inject, Injectable } from '@nestjs/common'
 
 import { Agent } from 'https'
 import { createLibp2p, Libp2p } from 'libp2p'
@@ -20,13 +20,14 @@ import { ConnectionProcessInfo, PeerId, SocketActionTypes } from '@quiet/types'
 import { PEER_ID_PROVIDER, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
 import { ServerIoProviderTypes } from '../types'
 import { createLibp2pListenAddress, createLibp2pAddress } from './libp2p.utils'
+import Logger from '../common/logger'
 
 @Injectable()
 export class Libp2pService extends EventEmitter {
   public localAddress: string
   public libp2pInstance: Libp2p | null
   public connectedPeers: Map<string, number> = new Map()
-  private readonly logger = new Logger(Libp2pService.name)
+  private readonly logger = Logger(Libp2pService.name)
   constructor(
     @Inject(SERVER_IO_PROVIDER) public readonly serverIoProvider: ServerIoProviderTypes,
     @Inject(SOCKS_PROXY_AGENT) public readonly socksProxyAgent: Agent,
@@ -93,7 +94,7 @@ export class Libp2pService extends EventEmitter {
         pubsub: gossipsub({ allowPublishToZeroPeers: true }),
       })
     } catch (err) {
-      this.logger.error('Create libp2p:', err)
+      this.logger.log.error('Create libp2p:', err)
       throw err
     }
     this.libp2pInstance = libp2p
@@ -103,7 +104,7 @@ export class Libp2pService extends EventEmitter {
 
   private async afterCreation(peers: string[]) {
     if (!this.libp2pInstance) {
-      this.logger.error('libp2pInstance was not created')
+      this.logger.log.error('libp2pInstance was not created')
       throw new Error('libp2pInstance was not created')
     }
 
@@ -135,14 +136,14 @@ export class Libp2pService extends EventEmitter {
       const remotePeerId = peer.detail.remotePeer.toString()
       this.logger.log(`${this.peerId.toString()} disconnected from ${remotePeerId}`)
       if (!this.libp2pInstance) {
-        this.logger.error('libp2pInstance was not created')
+        this.logger.log.error('libp2pInstance was not created')
         throw new Error('libp2pInstance was not created')
       }
       this.logger.log(`${this.libp2pInstance.getConnections().length} open connections`)
 
       const connectionStartTime = this.connectedPeers.get(remotePeerId)
       if (!connectionStartTime) {
-        this.logger.error(`No connection start time for peer ${remotePeerId}`)
+        this.logger.log.error(`No connection start time for peer ${remotePeerId}`)
         return
       }
 

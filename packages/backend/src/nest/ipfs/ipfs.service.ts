@@ -1,21 +1,22 @@
-import { Inject, Injectable, Logger } from '@nestjs/common'
+import { Inject, Injectable } from '@nestjs/common'
 import { LazyModuleLoader } from '@nestjs/core'
 import { create, IPFS } from 'ipfs-core'
 import { IPFS_REPO_PATCH, PEER_ID_PROVIDER } from '../const'
 import { peerIdFromKeys } from '@libp2p/peer-id'
 import { PeerId as PeerIdType } from '@quiet/types'
 import PeerId from 'peer-id'
+import Logger from '../common/logger'
 
 @Injectable()
 export class IpfsService {
   public ipfsInstance: IPFS | null
 
-  private readonly logger = new Logger(IpfsService.name)
+  private readonly logger = Logger(IpfsService.name)
   constructor(
     @Inject(PEER_ID_PROVIDER) public readonly peerId: PeerIdType,
     @Inject(IPFS_REPO_PATCH) public readonly ipfsRepoPath: string,
     private readonly lazyModuleLoader: LazyModuleLoader
-  ) {}
+  ) { }
 
   public async create() {
     const { Libp2pModule } = await import('../libp2p/libp2p.module')
@@ -30,7 +31,7 @@ export class IpfsService {
     let ipfs: IPFS
     try {
       if (!libp2pInstance) {
-        this.logger.error('no libp2p instance')
+        this.logger.log.error('no libp2p instance')
         throw new Error('no libp2p instance')
       }
       ipfs = await create({
@@ -46,7 +47,7 @@ export class IpfsService {
       })
       this.ipfsInstance = ipfs
     } catch (error) {
-      this.logger.error('ipfs creation failed', error)
+      this.logger.log.error('ipfs creation failed', error)
     }
 
     return this.ipfsInstance

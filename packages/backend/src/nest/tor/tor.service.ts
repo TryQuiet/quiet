@@ -7,14 +7,13 @@ import getPort from 'get-port'
 import { removeFilesFromDir } from '../common/utils'
 import { EventEmitter } from 'events'
 import { SocketActionTypes, SupportedPlatform } from '@quiet/types'
-import { Inject, Logger, OnModuleInit, OnApplicationBootstrap } from '@nestjs/common'
+import { Inject, OnModuleInit } from '@nestjs/common'
 import { ConfigOptions, ServerIoProviderTypes } from '../types'
 import { CONFIG_OPTIONS, QUIET_DIR, SERVER_IO_PROVIDER, TOR_PARAMS_PROVIDER, TOR_PASSWORD_PROVIDER } from '../const'
 import { TorControl } from './tor-control.service'
 import { GetInfoTorSignal, TorParams, TorParamsProvider, TorPasswordProvider } from './tor.types'
-import * as os from 'os'
-import { sleep } from '../../sleep'
-import { SocketService } from '../socket/socket.service'
+
+import Logger from '../common/logger'
 
 export class Tor extends EventEmitter implements OnModuleInit {
   //   httpTunnelPort: number
@@ -30,7 +29,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
   // torHashedPassword: string
   //   torAuthCookie?: string
   extraTorProcessParams: TorParams
-  private readonly logger = new Logger(Tor.name)
+  private readonly logger = Logger(Tor.name)
   constructor(
     @Inject(CONFIG_OPTIONS) public configOptions: ConfigOptions,
     @Inject(QUIET_DIR) public readonly quietDir: string,
@@ -44,7 +43,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
   }
 
   async onModuleInit() {
-    
+
     // this.torPath = this.configOptions.torBinaryPath ? path.normalize(this.configOptions.torBinaryPath) : ''
     // this.options = {
     //   env: {
@@ -171,7 +170,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
     try {
       process.kill(Number(torProcessId), 'SIGTERM')
     } catch (e) {
-      this.logger.error(`Tried killing hanging tor process. Failed. Reason: ${e.message}`)
+      this.logger.log.error(`Tried killing hanging tor process. Failed. Reason: ${e.message}`)
     }
   }
 
@@ -181,14 +180,14 @@ export class Tor extends EventEmitter implements OnModuleInit {
       this.torProcessNameCommand(oldTorPid.toString()),
       (err: child_process.ExecException | null, stdout: string, _stderr: string) => {
         if (err) {
-          this.logger.error(err)
+          this.logger.log.error(err)
         }
         if (stdout.trim() === 'tor' || stdout.search('tor.exe') !== -1) {
           this.logger.log(`Killing old tor, pid: ${oldTorPid}`)
           try {
             process.kill(oldTorPid, 'SIGTERM')
           } catch (e) {
-            this.logger.error(`Tried killing old tor process. Failed. Reason: ${e.message}`)
+            this.logger.log.error(`Tried killing old tor process. Failed. Reason: ${e.message}`)
           }
         } else {
           this.logger.log(`Deleting ${this.torPidPath}`)
@@ -201,12 +200,12 @@ export class Tor extends EventEmitter implements OnModuleInit {
   protected readonly spawnTor = async (timeoutMs: number): Promise<void> => {
     return await new Promise((resolve, reject) => {
       if (!this.configOptions.torControlPort) {
-        this.logger.error('Can\'t spawn tor - no control port')
+        this.logger.log.error('Can\'t spawn tor - no control port')
         reject(new Error('Can\'t spawn tor - no control port'))
         return
       }
       if (!this.configOptions.httpTunnelPort) {
-        this.logger.error('Can\'t spawn tor - no httpTunnelPort')
+        this.logger.log.error('Can\'t spawn tor - no httpTunnelPort')
 
         reject(new Error('Can\'t spawn tor - no httpTunnelPort'))
         return
@@ -260,7 +259,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
 
       this.process.stdout.on('data', (data: any) => {
         this.logger.log(data.toString())
-         this.serverIoProvider.io.emit(SocketActionTypes.TOR_BOOTSTRAP_PROCESS, data.toString())
+        this.serverIoProvider.io.emit(SocketActionTypes.TOR_BOOTSTRAP_PROCESS, data.toString())
         const regexp = /Bootstrapped 100%/
         if (regexp.test(data.toString())) {
           clearTimeout(timeout)
@@ -291,7 +290,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
       await this.torControl.sendCommand(`DEL_ONION ${serviceId}`)
       return true
     } catch (err) {
-      this.logger.error(`Couldn't destroy hidden service ${serviceId}`, err)
+      this.logger.log.error(`Couldn't destroy hidden service ${serviceId}`, err)
       return false
     }
   }

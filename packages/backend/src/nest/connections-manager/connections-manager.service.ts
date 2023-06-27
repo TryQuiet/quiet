@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common'
+import { Inject, Injectable, OnModuleInit } from '@nestjs/common'
 import { Crypto } from '@peculiar/webcrypto'
 import { Agent } from 'https'
 import fs from 'fs'
@@ -27,6 +27,7 @@ import { RegistrationEvents } from '../registration/registration.types'
 import { InitStorageParams, StorageEvents } from '../storage/storage.types'
 import { onionAddress } from '../../singletons'
 import { LazyModuleLoader } from '@nestjs/core'
+import Logger from '../common/logger'
 
 @Injectable()
 export class ConnectionsManagerService extends EventEmitter implements OnModuleInit {
@@ -53,7 +54,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   private libp2pService: Libp2pService
   isTorInit: TorInitState = TorInitState.NOT_STARTED
 
-  private readonly logger = new Logger(ConnectionsManagerService.name)
+  private readonly logger = Logger(ConnectionsManagerService.name)
   constructor(
 
     @Inject(SERVER_IO_PROVIDER) public readonly serverIoProvider: ServerIoProviderTypes,
@@ -392,7 +393,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       network = await this.getNetwork()
       network2 = await this.getNetwork()
     } catch (e) {
-      this.logger.error(`Creating network for community ${community.id} failed`, e)
+      this.logger.log.error(`Creating network for community ${community.id} failed`, e)
       emitError(this.serverIoProvider.io, {
         type: SocketActionTypes.NETWORK,
         message: ErrorMessages.NETWORK_SETUP_FAILED,

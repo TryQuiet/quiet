@@ -1,20 +1,21 @@
 
-import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common'
+import { Inject, Injectable, OnModuleInit } from '@nestjs/common'
 import net from 'net'
 import { CONFIG_OPTIONS, TOR_CONTROL_PARAMS } from '../const'
 import { ConfigOptions } from '../types'
 import { Tor } from './tor.service'
 import { TorControlAuthType, TorControlParams } from './tor.types'
+import Logger from '../common/logger'
 
 @Injectable()
 export class TorControl implements OnModuleInit {
   connection: net.Socket | null
   authString: string
-  private readonly logger = new Logger(TorControl.name)
+  private readonly logger = Logger(TorControl.name)
   constructor(
     @Inject(TOR_CONTROL_PARAMS) public torControlParams: TorControlParams,
     @Inject(CONFIG_OPTIONS) public configOptions: ConfigOptions) {
-    console.log( 'this.torControlParams.port', this.torControlParams.port)
+    console.log('this.torControlParams.port', this.torControlParams.port)
   }
 
   onModuleInit() {
@@ -36,7 +37,7 @@ export class TorControl implements OnModuleInit {
       this.connection = net.connect({
         port: this.torControlParams.port,
         family: 4
-})
+      })
 
       this.connection.once('error', err => {
         reject(new Error(`TOR: Connection via tor control failed: ${err.message}`))
@@ -56,7 +57,7 @@ export class TorControl implements OnModuleInit {
     try {
       this.connection?.end()
     } catch (e) {
-      this.logger.error('Cant disconnect', e.message)
+      this.logger.log.error('Cant disconnect', e.message)
     }
     this.connection = null
   }

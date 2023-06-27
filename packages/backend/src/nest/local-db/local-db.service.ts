@@ -1,17 +1,17 @@
-import { Inject, Injectable, Logger } from '@nestjs/common'
+import { Inject, Injectable } from '@nestjs/common'
 import { Level } from 'level'
 import { NetworkStats } from '@quiet/types'
 import { sortPeers } from '@quiet/common'
 import { LocalDBKeys } from '../../storage/localDB'
 import { LEVEL_DB } from '../const'
 import { LocalDbStatus } from './local-db.types'
+import Logger from '../common/logger'
 
 @Injectable()
 export class LocalDbService {
   peers: any
-  private readonly logger = new Logger(LocalDbService.name)
+  private readonly logger = Logger(LocalDbService.name)
   constructor(@Inject(LEVEL_DB) private readonly db: Level) {
-    setInterval(() => console.log('constructor log local db', this.getStatus()), 1000)
   }
 
   public async close() {
@@ -37,7 +37,7 @@ export class LocalDbService {
     try {
       data = await this.db.get(key)
     } catch (e) {
-      this.logger.error(`Getting '${key}'`, e)
+      this.logger.log.error(`Getting '${key}'`, e)
       return null
     }
     return data

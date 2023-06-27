@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common'
+import { Inject, Injectable, OnApplicationBootstrap } from '@nestjs/common'
 import {
   CertFieldsTypes,
   getCertFieldValue,
@@ -34,6 +34,7 @@ import { LazyModuleLoader } from '@nestjs/core'
 import AccessControllers from 'orbit-db-access-controllers'
 import { MessagesAccessController } from './MessagesAccessController'
 import { createChannelAccessController } from './ChannelsAccessController'
+import Logger from '../common/logger'
 
 @Injectable()
 export class StorageService extends EventEmitter implements OnApplicationBootstrap {
@@ -58,7 +59,7 @@ export class StorageService extends EventEmitter implements OnApplicationBootstr
   // readonly downloadCancellations: string[]
   // private readonly __communityId: string
 
-  private readonly logger = new Logger(StorageService.name)
+  private readonly logger = Logger(StorageService.name)
   constructor(
     private readonly localDbService: LocalDbService,
     @Inject(QUIET_DIR) public readonly quietDir: string,
@@ -86,24 +87,24 @@ export class StorageService extends EventEmitter implements OnApplicationBootstr
     await ipfsService.create()
     const ipfsInstance = ipfsService?.ipfsInstance
     if (!ipfsInstance) {
-        this.logger.error('no ipfs instance')
-        throw new Error('no ipfs instance')
+      this.logger.log.error('no ipfs instance')
+      throw new Error('no ipfs instance')
     }
 
     this.ipfs = ipfsInstance
     // ________________
 
     // _________________________________________________
-await this.createOrbitDb()
-// _________________________________________________
-const { IpfsFileManagerModule } = await import('../ipfs-file-manager/ipfs-file-manager.module')
-const ipfsFileManagerModuleRef = await this.lazyModuleLoader.load(() => IpfsFileManagerModule)
-const { IpfsFileManagerService } = await import('../ipfs-file-manager/ipfs-file-manager.service')
-const ipfsFileManagerService = ipfsFileManagerModuleRef.get(IpfsFileManagerService)
-this.filesManager = ipfsFileManagerService
-// __________________________________________________________________________________
-this.attachFileManagerEvents()
-await this.initDatabases()
+    await this.createOrbitDb()
+    // _________________________________________________
+    const { IpfsFileManagerModule } = await import('../ipfs-file-manager/ipfs-file-manager.module')
+    const ipfsFileManagerModuleRef = await this.lazyModuleLoader.load(() => IpfsFileManagerModule)
+    const { IpfsFileManagerService } = await import('../ipfs-file-manager/ipfs-file-manager.service')
+    const ipfsFileManagerService = ipfsFileManagerModuleRef.get(IpfsFileManagerService)
+    this.filesManager = ipfsFileManagerService
+    // __________________________________________________________________________________
+    this.attachFileManagerEvents()
+    await this.initDatabases()
   }
 
   private async createOrbitDb() {
@@ -116,9 +117,9 @@ await this.initDatabases()
       id: this.peerId.toString(),
       directory: this.orbitDbDir,
       AccessControllers
-  })
+    })
 
-  this.orbitDb = orbitDb
+    this.orbitDb = orbitDb
   }
 
   // public async community() {
@@ -199,7 +200,7 @@ await this.initDatabases()
       try {
         await this.orbitDb.stop()
       } catch (err) {
-        this.logger.error(`Following error occured during closing orbitdb database: ${err as string}`)
+        this.logger.log.error(`Following error occured during closing orbitdb database: ${err as string}`)
       }
     }
   }
@@ -210,13 +211,13 @@ await this.initDatabases()
       try {
         await this.filesManager.stop()
       } catch (e) {
-        this.logger.error('cannot stop filesManager')
+        this.logger.log.error('cannot stop filesManager')
       }
       this.logger.log('Stopping IPFS')
       try {
         await this.ipfs.stop()
       } catch (err) {
-        this.logger.error(`Following error occured during closing ipfs database: ${err as string}`)
+        this.logger.log.error(`Following error occured during closing ipfs database: ${err as string}`)
       }
     }
   }
@@ -277,7 +278,7 @@ await this.initDatabases()
 
         const username = getCertFieldValue(parsedCertificate, CertFieldsTypes.nickName)
         if (!username) {
-          this.logger.error(`Certificates replicate.progress: could not parse certificate for field type ${CertFieldsTypes.nickName}`)
+          this.logger.log.error(`Certificates replicate.progress: could not parse certificate for field type ${CertFieldsTypes.nickName}`)
           return
         }
 
@@ -456,7 +457,7 @@ await this.initDatabases()
       try {
         db = await this.createChannel(channelData)
       } catch (e) {
-        this.logger.error(`Can't subscribe to channel ${channelData.id}`, e.message)
+        this.logger.log.error(`Can't subscribe to channel ${channelData.id}`, e.message)
         return
       }
       if (!db) {
@@ -502,7 +503,7 @@ await this.initDatabases()
 
           const username = this.getUserNameFromCert(message.pubKey)
           if (!username) {
-            this.logger.error(`Can't send push notification, no username found for public key '${message.pubKey}'`)
+            this.logger.log.error(`Can't send push notification, no username found for public key '${message.pubKey}'`)
             return
           }
 
@@ -596,7 +597,7 @@ await this.initDatabases()
   private async createChannel(data: PublicChannel): Promise<EventStore<ChannelMessage>> {
     console.log('creating channel')
     if (!validate.isChannel(data)) {
-      this.logger.error('STORAGE: Invalid channel format')
+      this.logger.log.error('STORAGE: Invalid channel format')
       throw new Error('Create channel validation error')
     }
     this.logger.log(`Creating channel ${data.id}`)
@@ -704,12 +705,12 @@ await this.initDatabases()
 
   public async sendMessage(message: ChannelMessage) {
     if (!validate.isMessage(message)) {
-      this.logger.error('STORAGE: public channel message is invalid')
+      this.logger.log.error('STORAGE: public channel message is invalid')
       return
     }
     const repo = this.publicChannelsRepos.get(message.channelId)
     if (!repo) {
-      this.logger.error(
+      this.logger.log.error(
         `Could not send message. No '${message.channelId}' channel in saved public channels`
       )
       return
@@ -717,7 +718,7 @@ await this.initDatabases()
     try {
       await repo.db.add(message)
     } catch (e) {
-      this.logger.error(`STORAGE: Could not append message (entry not allowed to write to the log). Details: ${e.message}`)
+      this.logger.log.error(`STORAGE: Could not append message (entry not allowed to write to the log). Details: ${e.message}`)
     }
   }
 
@@ -756,7 +757,7 @@ await this.initDatabases()
 
   public async initializeConversation(address: string, encryptedPhrase: string): Promise<void> {
     if (!validate.isConversation(address, encryptedPhrase)) {
-      this.logger.error('STORAGE: Invalid conversation format')
+      this.logger.log.error('STORAGE: Invalid conversation format')
       return
     }
     const db: EventStore<string> = await this.orbitDb.log<string>(`dms.${address}`, {
@@ -846,7 +847,7 @@ await this.initDatabases()
 
   public async sendDirectMessage(channelId: string, message: string) {
     if (!validate.isDirectMessage(message)) {
-      this.logger.error('STORAGE: Invalid direct message format')
+      this.logger.log.error('STORAGE: Invalid direct message format')
       return
     }
     await this.subscribeToDirectMessageThread(channelId) // Is it necessary? Yes it is atm
@@ -880,8 +881,8 @@ await this.initDatabases()
       payload.certificate
     )
     if (verification.resultCode !== 0) {
-      this.logger.error('Certificate is not valid')
-      this.logger.error(verification.resultMessage)
+      this.logger.log.error('Certificate is not valid')
+      this.logger.log.error(verification.resultMessage)
       return false
     }
     this.logger.log('Saving certificate...')
@@ -929,7 +930,7 @@ await this.initDatabases()
 
         const value = getCertFieldValue(parsedCertificate, CertFieldsTypes.nickName)
         if (!value) {
-          this.logger.error(`Get user name from cert: Could not parse certificate for field type ${CertFieldsTypes.nickName}`)
+          this.logger.log.error(`Get user name from cert: Could not parse certificate for field type ${CertFieldsTypes.nickName}`)
           continue
         }
         this.userNamesMap.set(key, value)

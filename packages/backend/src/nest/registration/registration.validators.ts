@@ -1,7 +1,9 @@
-import { Logger } from '@nestjs/common'
 import { loadCSR, CertFieldsTypes, getReqFieldValue } from '@quiet/identity'
 import { registerDecorator, ValidationArguments, ValidationOptions } from 'class-validator'
-const logger = new Logger('registration.validators')
+import Logger from '../common/logger'
+
+
+const logger = Logger('registration.validators')
 export function IsCsr(validationOptions?: ValidationOptions) {
   return function (object: Object, propertyName: string) {
     registerDecorator({
@@ -38,7 +40,7 @@ export function CsrContainsFields(validationOptions?: ValidationOptions) {
             loadCSR(value).then((loadedCsr) => {
               for (const certType of [CertFieldsTypes.commonName, CertFieldsTypes.peerId, CertFieldsTypes.nickName]) {
                 if (!getReqFieldValue(loadedCsr, certType)) {
-                  logger.error(`Certificate is lacking a field '${certType}'`)
+                  logger.log.error(`Certificate is lacking a field '${certType}'`)
                   resolve(false)
                   return
                 }
