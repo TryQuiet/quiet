@@ -120,7 +120,7 @@ export const runBackendMobile = async (): Promise<any> => {
     socketIOPort: options.dataPort,
     httpTunnelPort: options.httpTunnelPort ? options.httpTunnelPort : null,
     torAuthCookie: options.authCookie ? options.authCookie : null,
-    torControlPort: options.controlPort ? options.controlPort : null,
+    torControlPort: options.controlPort ? options.controlPort : await getPort(),
     torBinaryPath: options.torBinary ? options.torBinary : null,
     options: {
       env: {
