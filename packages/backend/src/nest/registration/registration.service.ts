@@ -3,8 +3,22 @@ import express from 'express'
 import getPort from 'get-port'
 import { Agent, Server } from 'http'
 import { EventEmitter } from 'events'
-import { registerOwner, registerUser, RegistrarResponse, RegistrationResponse, sendCertificateRegistrationRequest } from './registration.functions'
-import { ConnectionProcessInfo, ErrorCodes, ErrorMessages, LaunchRegistrarPayload, PermsData, RegisterOwnerCertificatePayload, SocketActionTypes } from '@quiet/types'
+import {
+  registerOwner,
+  registerUser,
+  RegistrarResponse,
+  RegistrationResponse,
+  sendCertificateRegistrationRequest,
+} from './registration.functions'
+import {
+  ConnectionProcessInfo,
+  ErrorCodes,
+  ErrorMessages,
+  LaunchRegistrarPayload,
+  PermsData,
+  RegisterOwnerCertificatePayload,
+  SocketActionTypes,
+} from '@quiet/types'
 import { EXPRESS_PROVIDER } from '../const'
 import { RegistrationEvents } from './registration.types'
 import { ServiceState } from '../connections-manager/connections-manager.types'
@@ -25,7 +39,7 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
   }
 
   onModuleInit() {
-    this.on(RegistrationEvents.SET_CERTIFICATES, (certs) => {
+    this.on(RegistrationEvents.SET_CERTIFICATES, certs => {
       this.setCertificates(certs)
     })
     this.setRouting()
@@ -40,18 +54,15 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
   private setRouting() {
     // @ts-ignore
     this._app.use(express.json())
-    this._app.post(
-      '/register',
-      async (req, res): Promise<void> => {
-        if (this.pendingPromise) return
-        this.pendingPromise = this.registerUser(req.body.data)
-        const result = await this.pendingPromise
-        if (result) {
-          res.status(result.status).send(result.body)
-        }
-        this.pendingPromise = null
+    this._app.post('/register', async (req, res): Promise<void> => {
+      if (this.pendingPromise) return
+      this.pendingPromise = this.registerUser(req.body.data)
+      const result = await this.pendingPromise
+      if (result) {
+        res.status(result.status).send(result.body)
       }
-    )
+      this.pendingPromise = null
+    })
   }
 
   public async listen(): Promise<void> {
@@ -83,13 +94,13 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
         type: SocketActionTypes.REGISTRAR,
         code: ErrorCodes.SERVER_ERROR,
         message: ErrorMessages.REGISTRATION_FAILED,
-        community: payload.communityId
+        community: payload.communityId,
       })
       return
     }
     this.emit(SocketActionTypes.SAVED_OWNER_CERTIFICATE, {
       communityId: payload.communityId,
-      network: { certificate: cert, peers: [] }
+      network: { certificate: cert, peers: [] },
     })
     this._ownerCertificate = cert
   }
@@ -98,10 +109,11 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
     serviceAddress: string,
     userCsr: string,
     communityId: string,
-    requestTimeout: number = 120000,
+    requestTimeout = 120000,
     socksProxyAgent: Agent
   ): Promise<void> => {
-    const response: RegistrationResponse = await sendCertificateRegistrationRequest(serviceAddress,
+    const response: RegistrationResponse = await sendCertificateRegistrationRequest(
+      serviceAddress,
       userCsr,
       communityId,
       requestTimeout,
@@ -123,7 +135,7 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
     this.emit(RegistrationEvents.REGISTRAR_STATE, ServiceState.LAUNCHING)
     this._permsData = {
       certificate: payload.rootCertString,
-      privKey: payload.rootKeyString
+      privKey: payload.rootKeyString,
     }
     this.logger.log(`Initializing registration service for peer ${payload.peerId}...`)
     try {
@@ -145,7 +157,7 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
     this.emit(RegistrationEvents.SPAWN_HS_FOR_REGISTRAR, {
       port: this._port,
       privateKey: privKey,
-      targetPort: 80
+      targetPort: 80,
     })
   }
 }

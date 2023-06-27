@@ -3,6 +3,6 @@ import { IpfsFileManagerService } from './ipfs-file-manager.service'
 
 @Module({
   providers: [IpfsFileManagerService],
-  exports: [IpfsFileManagerService]
+  exports: [IpfsFileManagerService],
 })
 export class IpfsFileManagerModule {}

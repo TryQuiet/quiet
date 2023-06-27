@@ -5,14 +5,14 @@ export enum Config {
   QUIET_DIR = '.quiet',
   PEER_ID_FILENAME = 'peerIdKey',
   ORBIT_DB_DIR = 'OrbitDB',
-  IPFS_REPO_PATH = 'Ipfs'
+  IPFS_REPO_PATH = 'Ipfs',
 }
 
 export enum TestConfig {
   QUIET_DIR = '.quiet-test-nest-backend',
   PEER_ID_FILENAME = 'peerIdKey-test-nest-backend',
   ORBIT_DB_DIR = 'OrbitDB-test-nest-backend',
-  IPFS_REPO_PATH = 'Ipfs-test-nest-backend'
+  IPFS_REPO_PATH = 'Ipfs-test-nest-backend',
 }
 
 export const QUIET_DIR_PATH = path.join(os.homedir(), Config.QUIET_DIR)

@@ -38,7 +38,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
 
   mergeDefaultTorParams = (params: TorParams = {}): TorParams => {
     const defaultParams = {
-      '--NumEntryGuards': '3' // See task #1295
+      '--NumEntryGuards': '3', // See task #1295
     }
     return { ...defaultParams, ...params }
   }
@@ -99,7 +99,6 @@ export class Tor extends EventEmitter implements OnModuleInit {
       }
       // eslint-disable-next-line
       tryToSpawnTor()
-
     })
   }
 
@@ -108,7 +107,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
       android: `ps -p ${oldTorPid} -o comm=`,
       linux: `ps -p ${oldTorPid} -o comm=`,
       darwin: `ps -c -p ${oldTorPid} -o comm=`,
-      win32: `TASKLIST /FI "PID eq ${oldTorPid}"`
+      win32: `TASKLIST /FI "PID eq ${oldTorPid}"`,
     }
     return byPlatform[process.platform as SupportedPlatform]
   }
@@ -121,7 +120,10 @@ export class Tor extends EventEmitter implements OnModuleInit {
       android: `pgrep -af "${this.torDataDirectory}" | grep -v pgrep | awk '{print $1}'`,
       linux: `pgrep -af "${this.torDataDirectory}" | grep -v pgrep | awk '{print $1}'`,
       darwin: `ps -A | grep "${this.torDataDirectory}" | grep -v grep | awk '{print $1}'`,
-      win32: `powershell "Get-WmiObject Win32_process -Filter {commandline LIKE '%${this.torDataDirectory.replace(/\\/g, '\\\\')}%' and name = 'tor.exe'} | Format-Table ProcessId -HideTableHeaders"`
+      win32: `powershell "Get-WmiObject Win32_process -Filter {commandline LIKE '%${this.torDataDirectory.replace(
+        /\\/g,
+        '\\\\'
+      )}%' and name = 'tor.exe'} | Format-Table ProcessId -HideTableHeaders"`,
     }
     return byPlatform[process.platform as SupportedPlatform]
   }
@@ -163,14 +165,14 @@ export class Tor extends EventEmitter implements OnModuleInit {
   protected readonly spawnTor = async (timeoutMs: number): Promise<void> => {
     return await new Promise((resolve, reject) => {
       if (!this.configOptions.torControlPort) {
-        this.logger.log.error('Can\'t spawn tor - no control port')
-        reject(new Error('Can\'t spawn tor - no control port'))
+        this.logger.log.error("Can't spawn tor - no control port")
+        reject(new Error("Can't spawn tor - no control port"))
         return
       }
       if (!this.configOptions.httpTunnelPort) {
-        this.logger.log.error('Can\'t spawn tor - no httpTunnelPort')
+        this.logger.log.error("Can't spawn tor - no httpTunnelPort")
 
-        reject(new Error('Can\'t spawn tor - no httpTunnelPort'))
+        reject(new Error("Can't spawn tor - no httpTunnelPort"))
         return
       }
 
@@ -232,7 +234,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
   public async spawnHiddenService({
     targetPort,
     privKey,
-    virtPort = 443
+    virtPort = 443,
   }: {
     targetPort: number
     privKey: string
@@ -257,7 +259,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
 
   public async createNewHiddenService({
     targetPort,
-    virtPort = 443
+    virtPort = 443,
   }: {
     targetPort: number
     virtPort?: number
@@ -271,7 +273,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
 
     return {
       onionAddress: `${onionAddress}.onion`,
-      privateKey
+      privateKey,
     }
   }
 

@@ -4,7 +4,19 @@ import { ConnectionsManagerModule } from './connections-manager/connections-mana
 import { RegistrationModule } from './registration/registration.module'
 import { IpfsFileManagerModule } from './ipfs-file-manager/ipfs-file-manager.module'
 import path from 'path'
-import { CONFIG_OPTIONS, EXPRESS_PROVIDER, SERVER_IO_PROVIDER, IPFS_REPO_PATCH, ORBIT_DB_DIR, QUIET_DIR, QUIET_DIR_PATH, Config, SOCKS_PROXY_AGENT, LEVEL_DB, DB_PATH } from './const'
+import {
+  CONFIG_OPTIONS,
+  EXPRESS_PROVIDER,
+  SERVER_IO_PROVIDER,
+  IPFS_REPO_PATCH,
+  ORBIT_DB_DIR,
+  QUIET_DIR,
+  QUIET_DIR_PATH,
+  Config,
+  SOCKS_PROXY_AGENT,
+  LEVEL_DB,
+  DB_PATH,
+} from './const'
 import { ConfigOptions, ConnectionsManagerOptions, ConnectionsManagerTypes } from './types'
 import { LocalDbModule } from './local-db/local-db.module'
 import { Libp2pModule } from './libp2p/libp2p.module'
@@ -21,15 +33,24 @@ import { Level } from 'level'
 // KACPER
 @Global()
 @Module({
-  imports: [SocketModule, ConnectionsManagerModule, RegistrationModule, IpfsFileManagerModule, LocalDbModule, Libp2pModule, TorModule, StorageModule, IpfsModule],
+  imports: [
+    SocketModule,
+    ConnectionsManagerModule,
+    RegistrationModule,
+    IpfsFileManagerModule,
+    LocalDbModule,
+    Libp2pModule,
+    TorModule,
+    StorageModule,
+    IpfsModule,
+  ],
   providers: [
     {
       provide: EXPRESS_PROVIDER,
       useValue: express(),
     },
-
   ],
-  exports: [EXPRESS_PROVIDER]
+  exports: [EXPRESS_PROVIDER],
 })
 export class AppModule {
   static forOptions(options: ConnectionsManagerTypes) {
@@ -49,12 +70,12 @@ export class AppModule {
         {
           provide: ORBIT_DB_DIR,
           useFactory: (_quietDir: string) => path.join(_quietDir, Config.ORBIT_DB_DIR),
-          inject: [QUIET_DIR]
+          inject: [QUIET_DIR],
         },
         {
           provide: IPFS_REPO_PATCH,
           useFactory: (_quietDir: string) => path.join(_quietDir, Config.IPFS_REPO_PATH),
-          inject: [QUIET_DIR]
+          inject: [QUIET_DIR],
         },
 
         {
@@ -66,7 +87,7 @@ export class AppModule {
             const io = new SocketIO(server, {
               // cors: this.cors,
               pingInterval: 1000_000,
-              pingTimeout: 1000_000
+              pingTimeout: 1000_000,
             })
             return { server, io }
           },
@@ -79,24 +100,32 @@ export class AppModule {
               configOptions.httpTunnelPort = await getPort()
             }
             return createHttpsProxyAgent({
-              port: configOptions.httpTunnelPort, host: '127.0.0.1',
+              port: configOptions.httpTunnelPort,
+              host: '127.0.0.1',
             })
           },
-          inject: [CONFIG_OPTIONS]
+          inject: [CONFIG_OPTIONS],
         },
         {
           provide: DB_PATH,
           useFactory: (baseDir: string) => path.join(baseDir, 'backendDB'),
-          inject: [QUIET_DIR]
+          inject: [QUIET_DIR],
         },
         {
           provide: LEVEL_DB,
           useFactory: (dbPath: string) => new Level<string, any>(dbPath, { valueEncoding: 'json' }),
-          inject: [DB_PATH]
+          inject: [DB_PATH],
         },
-
       ],
-      exports: [CONFIG_OPTIONS, QUIET_DIR, ORBIT_DB_DIR, IPFS_REPO_PATCH, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT, LEVEL_DB],
+      exports: [
+        CONFIG_OPTIONS,
+        QUIET_DIR,
+        ORBIT_DB_DIR,
+        IPFS_REPO_PATCH,
+        SERVER_IO_PROVIDER,
+        SOCKS_PROXY_AGENT,
+        LEVEL_DB,
+      ],
     }
   }
 }

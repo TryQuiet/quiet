@@ -3,6 +3,6 @@ import { SocketService } from './socket.service'
 
 @Module({
   providers: [SocketService],
-  exports: [SocketService]
+  exports: [SocketService],
 })
 export class SocketModule {}

@@ -29,7 +29,7 @@ export class Libp2pService extends EventEmitter {
   private readonly logger = Logger(Libp2pService.name)
   constructor(
     @Inject(SERVER_IO_PROVIDER) public readonly serverIoProvider: ServerIoProviderTypes,
-    @Inject(SOCKS_PROXY_AGENT) public readonly socksProxyAgent: Agent,
+    @Inject(SOCKS_PROXY_AGENT) public readonly socksProxyAgent: Agent
   ) {
     super()
   }
@@ -59,11 +59,11 @@ export class Libp2pService extends EventEmitter {
           minConnections: 3,
           maxConnections: 8,
           dialTimeout: 120_000,
-          maxParallelDials: 10
+          maxParallelDials: 10,
         },
         peerId: params.peerId,
         addresses: {
-          listen: params.listenAddresses
+          listen: params.listenAddresses,
         },
         streamMuxers: [mplex()],
         connectionEncryption: [noise()],
@@ -71,8 +71,8 @@ export class Libp2pService extends EventEmitter {
           enabled: false,
           hop: {
             enabled: true,
-            active: false
-          }
+            active: false,
+          },
         },
         transports: [
           webSockets({
@@ -81,12 +81,13 @@ export class Libp2pService extends EventEmitter {
               agent: params.agent,
               cert: params.cert,
               key: params.key,
-              ca: params.ca
+              ca: params.ca,
             },
             localAddress: params.localAddress,
             targetPort: params.targetPort,
-            createServer: createServer
-          })],
+            createServer: createServer,
+          }),
+        ],
         dht: kadDHT(),
         pubsub: gossipsub({ allowPublishToZeroPeers: true }),
       })
@@ -105,17 +106,15 @@ export class Libp2pService extends EventEmitter {
       throw new Error('libp2pInstance was not created')
     }
 
-    this.logger.log(
-      `Initializing libp2p for ${peerId.toString()}, bootstrapping with ${peers.length} peers`
-    )
+    this.logger.log(`Initializing libp2p for ${peerId.toString()}, bootstrapping with ${peers.length} peers`)
     this.serverIoProvider.io.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.INITIALIZING_LIBP2P)
     const dialInChunks = new ProcessInChunks<string>(peers, this.dialPeer)
 
-    this.libp2pInstance.addEventListener('peer:discovery', (peer) => {
+    this.libp2pInstance.addEventListener('peer:discovery', peer => {
       this.logger.log(`${peerId.toString()} discovered ${peer.detail.id}`)
     })
 
-    this.libp2pInstance.addEventListener('peer:connect', async (peer) => {
+    this.libp2pInstance.addEventListener('peer:connect', async peer => {
       const remotePeerId = peer.detail.remotePeer.toString()
       this.logger.log(`${peerId.toString()} connected to ${remotePeerId}`)
 
@@ -125,11 +124,11 @@ export class Libp2pService extends EventEmitter {
       this.connectedPeers.set(remotePeerId, DateTime.utc().valueOf())
 
       this.emit(Libp2pEvents.PEER_CONNECTED, {
-        peers: [remotePeerId]
+        peers: [remotePeerId],
       })
     })
 
-    this.libp2pInstance.addEventListener('peer:disconnect', async (peer) => {
+    this.libp2pInstance.addEventListener('peer:disconnect', async peer => {
       const remotePeerId = peer.detail.remotePeer.toString()
       this.logger.log(`${peerId.toString()} disconnected from ${remotePeerId}`)
       if (!this.libp2pInstance) {
@@ -153,7 +152,7 @@ export class Libp2pService extends EventEmitter {
       this.emit(Libp2pEvents.PEER_DISCONNECTED, {
         peer: remotePeerId,
         connectionDuration,
-        lastSeen: connectionEndTime
+        lastSeen: connectionEndTime,
       })
     })
 

@@ -10,12 +10,9 @@ export class IpfsService {
 
   private readonly logger = Logger(IpfsService.name)
   constructor(
-
     @Inject(IPFS_REPO_PATCH) public readonly ipfsRepoPath: string,
     private readonly lazyModuleLoader: LazyModuleLoader
-  ) {
-
-   }
+  ) {}
 
   public async create(peerId: any) {
     const { Libp2pModule } = await import('../libp2p/libp2p.module')
@@ -35,11 +32,11 @@ export class IpfsService {
         preload: { enabled: false },
         repo: this.ipfsRepoPath,
         EXPERIMENTAL: {
-          ipnsPubsub: true
+          ipnsPubsub: true,
         },
         init: {
-          privateKey: peerId
-        }
+          privateKey: peerId,
+        },
       })
       this.ipfsInstance = ipfs
     } catch (error) {

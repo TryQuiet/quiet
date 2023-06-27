@@ -17,30 +17,29 @@ const torParamsProvider = {
     const options = {
       env: {
         LD_LIBRARY_PATH: configOptions.torResourcesPath,
-        HOME: os.homedir()
+        HOME: os.homedir(),
       },
-      detached: true
+      detached: true,
     }
 
     return { torPath, options }
   },
-  inject: [CONFIG_OPTIONS]
+  inject: [CONFIG_OPTIONS],
 }
 
 const torPasswordProvider = {
   provide: TOR_PASSWORD_PROVIDER,
   useFactory: (torParamsProvider: TorParamsProvider) => {
-      const password = crypto.randomBytes(16).toString('hex')
-      const hashedPassword = child_process.execSync(
-        `${torParamsProvider.torPath} --quiet --hash-password ${password}`,
-        { env: torParamsProvider.options?.env }
-      )
-     const torPassword = password
-     const torHashedPassword = hashedPassword.toString().trim()
+    const password = crypto.randomBytes(16).toString('hex')
+    const hashedPassword = child_process.execSync(`${torParamsProvider.torPath} --quiet --hash-password ${password}`, {
+      env: torParamsProvider.options?.env,
+    })
+    const torPassword = password
+    const torHashedPassword = hashedPassword.toString().trim()
 
-      return { torPassword, torHashedPassword }
+    return { torPassword, torHashedPassword }
   },
-  inject: [TOR_PARAMS_PROVIDER]
+  inject: [TOR_PARAMS_PROVIDER],
 }
 
 const torControlParams = {
@@ -51,16 +50,16 @@ const torControlParams = {
       host: 'localhost',
       auth: {
         value: configOptions.torAuthCookie || torPasswordProvider.torPassword,
-        type: configOptions.torAuthCookie ? TorControlAuthType.COOKIE : TorControlAuthType.PASSWORD
-      }
+        type: configOptions.torAuthCookie ? TorControlAuthType.COOKIE : TorControlAuthType.PASSWORD,
+      },
     }
   },
-  inject: [CONFIG_OPTIONS, TOR_PASSWORD_PROVIDER]
+  inject: [CONFIG_OPTIONS, TOR_PASSWORD_PROVIDER],
 }
 
 @Module({
-      imports: [SocketModule],
-    providers: [Tor, TorControl, torControlParams, torPasswordProvider, torParamsProvider],
-      exports: [Tor, TorControl],
+  imports: [SocketModule],
+  providers: [Tor, TorControl, torControlParams, torPasswordProvider, torParamsProvider],
+  exports: [Tor, TorControl],
 })
 export class TorModule {}

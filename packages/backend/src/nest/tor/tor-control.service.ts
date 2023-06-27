@@ -1,4 +1,3 @@
-
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common'
 import net from 'net'
 import { CONFIG_OPTIONS, TOR_CONTROL_PARAMS } from '../const'
@@ -13,8 +12,8 @@ export class TorControl implements OnModuleInit {
   private readonly logger = Logger(TorControl.name)
   constructor(
     @Inject(TOR_CONTROL_PARAMS) public torControlParams: TorControlParams,
-    @Inject(CONFIG_OPTIONS) public configOptions: ConfigOptions) {
-  }
+    @Inject(CONFIG_OPTIONS) public configOptions: ConfigOptions
+  ) {}
 
   onModuleInit() {
     if (this.torControlParams.auth.type === TorControlAuthType.PASSWORD) {
@@ -34,7 +33,7 @@ export class TorControl implements OnModuleInit {
 
       this.connection = net.connect({
         port: this.torControlParams.port,
-        family: 4
+        family: 4,
       })
 
       this.connection.once('error', err => {
@@ -60,6 +59,7 @@ export class TorControl implements OnModuleInit {
     this.connection = null
   }
 
+  // eslint-disable-next-line @typescript-eslint/ban-types
   private async _sendCommand(command: string, resolve: Function, reject: Function) {
     await this.connect()
     const connectionTimeout = setTimeout(() => {

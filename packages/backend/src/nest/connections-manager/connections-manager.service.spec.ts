@@ -9,13 +9,13 @@ describe('ConnectionsManagerService', () => {
   let connectionsManagerService: ConnectionsManagerService
 
   beforeAll(async () => {
-     module = await Test.createTestingModule({
+    module = await Test.createTestingModule({
       imports: [TestModule, ConnectionsManagerModule],
     })
 
-    .overrideProvider(TOR_PASSWORD_PROVIDER)
-    .useValue({ torPassword: '', torHashedPassword: '' })
-    .compile()
+      .overrideProvider(TOR_PASSWORD_PROVIDER)
+      .useValue({ torPassword: '', torHashedPassword: '' })
+      .compile()
 
     connectionsManagerService = await module.resolve(ConnectionsManagerService)
   })

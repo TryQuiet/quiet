@@ -6,7 +6,7 @@ import {
   keyObjectFromString,
   parseCertificate,
   verifySignature,
-  verifyUserCert
+  verifyUserCert,
 } from '@quiet/identity'
 import type { IPFS, create as createType } from 'ipfs-core'
 import OrbitDB from 'orbit-db'
@@ -19,7 +19,20 @@ import { getCrypto } from 'pkijs'
 import { stringToArrayBuffer } from 'pvutils'
 import validate from '../validation/validators'
 import { CID } from 'multiformats/cid'
-import { ChannelMessage, ConnectionProcessInfo, DeleteFilesFromChannelSocketPayload, FileMetadata, InitCommunityPayload, NoCryptoEngineError, PublicChannel, PushNotificationPayload, SaveCertificatePayload, SocketActionTypes, User, PeerId as PeerIdType } from '@quiet/types'
+import {
+  ChannelMessage,
+  ConnectionProcessInfo,
+  DeleteFilesFromChannelSocketPayload,
+  FileMetadata,
+  InitCommunityPayload,
+  NoCryptoEngineError,
+  PublicChannel,
+  PushNotificationPayload,
+  SaveCertificatePayload,
+  SocketActionTypes,
+  User,
+  PeerId as PeerIdType,
+} from '@quiet/types'
 import { isDefined } from '@quiet/common'
 import fs from 'fs'
 import { IMessageThread, PublicChannelsRepo, DirectMessagesRepo } from '../../common/types'
@@ -137,7 +150,7 @@ export class StorageService extends EventEmitter implements OnApplicationBootstr
       id: peerId.toString(),
       directory: this.orbitDbDir,
       // @ts-ignore
-      AccessControllers
+      AccessControllers,
     })
 
     this.orbitDb = orbitDb
@@ -162,12 +175,9 @@ export class StorageService extends EventEmitter implements OnApplicationBootstr
     // removeDirs(this.quietDir, 'repo.lock')
     // createPaths([this.ipfsRepoPath, this.orbitDbDir])
     // // const channelsAccessController = createChannelAccessController(peerID, this.orbitDbDir)
-
     // // AccessControllers.addAccessController({ AccessController: MessagesAccessController })
     // // AccessControllers.addAccessController({ AccessController: channelsAccessController })
-
     // this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.INITIALIZED_STORAGE)
-
     // this.logger.log('Initialized storage')
   }
 
@@ -292,7 +302,7 @@ export class StorageService extends EventEmitter implements OnApplicationBootstr
   public async loadAllCertificates() {
     this.logger.log('Getting all certificates')
     this.emit(StorageEvents.LOAD_CERTIFICATES, {
-      certificates: this.getAllEventLogEntries(this.certificates)
+      certificates: this.getAllEventLogEntries(this.certificates),
     })
   }
 
@@ -300,31 +310,30 @@ export class StorageService extends EventEmitter implements OnApplicationBootstr
     this.logger.log('createDbForCertificates init')
     this.certificates = await this.orbitDb.log<string>('certificates', {
       accessController: {
-        write: ['*']
-      }
+        write: ['*'],
+      },
     })
-    this.certificates.events.on(
-      'replicate.progress',
-      async (_address, _hash, entry, _progress, _total) => {
-        const certificate = entry.payload.value
+    this.certificates.events.on('replicate.progress', async (_address, _hash, entry, _progress, _total) => {
+      const certificate = entry.payload.value
 
-        const parsedCertificate = parseCertificate(certificate)
-        const key = keyFromCertificate(parsedCertificate)
+      const parsedCertificate = parseCertificate(certificate)
+      const key = keyFromCertificate(parsedCertificate)
 
-        const username = getCertFieldValue(parsedCertificate, CertFieldsTypes.nickName)
-        if (!username) {
-          this.logger.log.error(`Certificates replicate.progress: could not parse certificate for field type ${CertFieldsTypes.nickName}`)
-          return
-        }
-
-        this.userNamesMap.set(key, username)
+      const username = getCertFieldValue(parsedCertificate, CertFieldsTypes.nickName)
+      if (!username) {
+        this.logger.log.error(
+          `Certificates replicate.progress: could not parse certificate for field type ${CertFieldsTypes.nickName}`
+        )
+        return
       }
-    )
+
+      this.userNamesMap.set(key, username)
+    })
     this.certificates.events.on('replicated', async () => {
       this.logger.log('REPLICATED: Certificates')
       this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CERTIFICATES_REPLICATED)
       this.emit(StorageEvents.LOAD_CERTIFICATES, {
-        certificates: this.getAllEventLogEntries(this.certificates)
+        certificates: this.getAllEventLogEntries(this.certificates),
       })
       await this.updatePeersList()
     })
@@ -332,7 +341,7 @@ export class StorageService extends EventEmitter implements OnApplicationBootstr
       this.logger.log('Saved certificate locally')
       this.logger.log(entry.payload.value)
       this.emit(StorageEvents.LOAD_CERTIFICATES, {
-        certificates: this.getAllEventLogEntries(this.certificates)
+        certificates: this.getAllEventLogEntries(this.certificates),
       })
       await this.updatePeersList()
     })
@@ -340,7 +349,7 @@ export class StorageService extends EventEmitter implements OnApplicationBootstr
       this.logger.log('Loaded certificates to memory')
       this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.LOADED_CERTIFICATES)
       this.emit(StorageEvents.LOAD_CERTIFICATES, {
-        certificates: this.getAllEventLogEntries(this.certificates)
+        certificates: this.getAllEventLogEntries(this.certificates),
       })
     })
 
@@ -356,7 +365,7 @@ export class StorageService extends EventEmitter implements OnApplicationBootstr
     // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
     await this.channels.load({ fetchEntryTimeout: 2000 })
     this.emit(StorageEvents.LOAD_PUBLIC_CHANNELS, {
-      channels: this.channels.all as unknown as { [key: string]: PublicChannel }
+      channels: this.channels.all as unknown as { [key: string]: PublicChannel },
     })
   }
 
@@ -365,8 +374,8 @@ export class StorageService extends EventEmitter implements OnApplicationBootstr
     this.channels = await this.orbitDb.keyvalue<PublicChannel>('public-channels', {
       accessController: {
         // type: 'channelsaccess',
-        write: ['*']
-      }
+        write: ['*'],
+      },
     })
 
     this.channels.events.on('write', async (_address, entry) => {
@@ -392,7 +401,7 @@ export class StorageService extends EventEmitter implements OnApplicationBootstr
       })
 
       this.emit(StorageEvents.LOAD_PUBLIC_CHANNELS, {
-        channels: keyValueChannels
+        channels: keyValueChannels,
       })
 
       channels.forEach(async (channel: PublicChannel) => {
@@ -414,8 +423,8 @@ export class StorageService extends EventEmitter implements OnApplicationBootstr
   private async createDbForMessageThreads() {
     this.messageThreads = await this.orbitDb.keyvalue<IMessageThread>('msg-threads', {
       accessController: {
-        write: ['*']
-      }
+        write: ['*'],
+      },
     })
     this.messageThreads.events.on(
       'replicated',
@@ -436,7 +445,7 @@ export class StorageService extends EventEmitter implements OnApplicationBootstr
 
   async initAllChannels() {
     this.emit(StorageEvents.LOAD_PUBLIC_CHANNELS, {
-      channels: this.channels.all as unknown as { [key: string]: PublicChannel }
+      channels: this.channels.all as unknown as { [key: string]: PublicChannel },
     })
   }
 
@@ -473,9 +482,7 @@ export class StorageService extends EventEmitter implements OnApplicationBootstr
   }
 
   protected getAllEventLogRawEntries<T>(db: EventStore<T>) {
-    return db
-      .iterator({ limit: -1 })
-      .collect()
+    return db.iterator({ limit: -1 }).collect()
   }
 
   public async subscribeToChannel(channelData: PublicChannel): Promise<void> {
@@ -511,7 +518,7 @@ export class StorageService extends EventEmitter implements OnApplicationBootstr
 
         this.emit(StorageEvents.LOAD_MESSAGES, {
           messages: [entry.payload.value],
-          isVerified: verified
+          isVerified: verified,
         })
       })
 
@@ -525,7 +532,7 @@ export class StorageService extends EventEmitter implements OnApplicationBootstr
 
         this.emit(StorageEvents.LOAD_MESSAGES, {
           messages: [message],
-          isVerified: verified
+          isVerified: verified,
         })
 
         // Display push notifications on mobile
@@ -544,7 +551,7 @@ export class StorageService extends EventEmitter implements OnApplicationBootstr
 
           const payload: PushNotificationPayload = {
             message: JSON.stringify(message),
-            username: username
+            username: username,
           }
 
           this.emit(StorageEvents.SEND_PUSH_NOTIFICATION, payload)
@@ -557,7 +564,7 @@ export class StorageService extends EventEmitter implements OnApplicationBootstr
         this.emit(StorageEvents.SEND_MESSAGES_IDS, {
           ids,
           channelId: channelData.id,
-          communityId: community.id
+          communityId: community.id,
         })
       })
       db.events.on('ready', async () => {
@@ -566,7 +573,7 @@ export class StorageService extends EventEmitter implements OnApplicationBootstr
         this.emit(StorageEvents.SEND_MESSAGES_IDS, {
           ids,
           channelId: channelData.id,
-          communityId: community.id
+          communityId: community.id,
         })
       })
       await db.load()
@@ -575,13 +582,13 @@ export class StorageService extends EventEmitter implements OnApplicationBootstr
 
     this.logger.log(`Subscribed to channel ${channelData.id}`)
     this.emit(StorageEvents.SET_CHANNEL_SUBSCRIBED, {
-      channelId: channelData.id
+      channelId: channelData.id,
     })
   }
 
   public transformMessages(msgs: ChannelMessage[]) {
     console.log('---------------- TRANSFORMING MESSAGES ----------------------')
-    const messages = msgs.map((msg) => {
+    const messages = msgs.map(msg => {
       console.log('processing message ', msg.id)
       // @ts-ignore
       if (msg.channelAddress) {
@@ -623,7 +630,7 @@ export class StorageService extends EventEmitter implements OnApplicationBootstr
     filteredMessages = this.transformMessages(filteredMessages)
     this.emit(StorageEvents.LOAD_MESSAGES, {
       messages: filteredMessages,
-      isVerified: true
+      isVerified: true,
     })
     const community = await this.localDbService.get(LocalDBKeys.COMMUNITY)
     this.emit(StorageEvents.CHECK_FOR_MISSING_FILES, community.id)
@@ -640,32 +647,29 @@ export class StorageService extends EventEmitter implements OnApplicationBootstr
     // @ts-ignore
     const channelId = data.id || data.address
 
-    const db: EventStore<ChannelMessage> = await this.orbitDb.log<ChannelMessage>(
-      `channels.${channelId}`,
-      {
-        accessController: {
-          type: 'messagesaccess',
-          write: ['*']
-        }
-      }
-    )
+    const db: EventStore<ChannelMessage> = await this.orbitDb.log<ChannelMessage>(`channels.${channelId}`, {
+      accessController: {
+        type: 'messagesaccess',
+        write: ['*'],
+      },
+    })
 
     const channel = this.channels.get(channelId)
     console.log('channel', channel)
     if (channel === undefined) {
       await this.channels.put(channelId, {
-        ...data
+        ...data,
       })
       console.log('emitting new channel')
       this.emit(StorageEvents.CREATED_CHANNEL, {
-        channel: data
+        channel: data,
       })
     }
 
     this.publicChannelsRepos.set(channelId, { db, eventsAttached: false })
     this.logger.log(`Set ${channelId} to local channels`)
     // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
-    await db.load({ fetchEntryTimeout: 2000, })
+    await db.load({ fetchEntryTimeout: 2000 })
     this.logger.log(`Created channel ${channelId}`)
     return db
   }
@@ -686,28 +690,27 @@ export class StorageService extends EventEmitter implements OnApplicationBootstr
     }
     let repo = this.publicChannelsRepos.get(channelId)
     if (!repo) {
-      const db = await this.orbitDb.log<ChannelMessage>(
-        `channels.${channelId}`,
-        {
-          accessController: {
-            type: 'messagesaccess',
-            write: ['*']
-          }
-        }
-      )
+      const db = await this.orbitDb.log<ChannelMessage>(`channels.${channelId}`, {
+        accessController: {
+          type: 'messagesaccess',
+          write: ['*'],
+        },
+      })
       repo = {
         db,
-        eventsAttached: false
+        eventsAttached: false,
       }
     }
     await repo.db.load()
     const allEntries = this.getAllEventLogRawEntries(repo.db)
     await repo.db.close()
     await repo.db.drop()
-    const hashes = allEntries.map((e) => CID.parse(e.hash))
-    const files = allEntries.map((e) => {
-      return e.payload.value.media
-    }).filter(isDefined)
+    const hashes = allEntries.map(e => CID.parse(e.hash))
+    const files = allEntries
+      .map(e => {
+        return e.payload.value.media
+      })
+      .filter(isDefined)
     // await this.deleteChannelFiles(files)
     // await this.deleteChannelMessages(hashes)
     this.publicChannelsRepos.delete(channelId)
@@ -731,7 +734,6 @@ export class StorageService extends EventEmitter implements OnApplicationBootstr
     for await (const res of gcresult) {
       // @ts-ignore
       // const ccc = base58.base58btc.encode(res.cid?.multihash.bytes)
-
       // console.log('base58btc encoded', ccc)
       // console.log('garbage collector result', res)
     }
@@ -749,35 +751,35 @@ export class StorageService extends EventEmitter implements OnApplicationBootstr
     }
     const repo = this.publicChannelsRepos.get(message.channelId)
     if (!repo) {
-      this.logger.log.error(
-        `Could not send message. No '${message.channelId}' channel in saved public channels`
-      )
+      this.logger.log.error(`Could not send message. No '${message.channelId}' channel in saved public channels`)
       return
     }
     try {
       await repo.db.add(message)
     } catch (e) {
-      this.logger.log.error(`STORAGE: Could not append message (entry not allowed to write to the log). Details: ${e.message}`)
+      this.logger.log.error(
+        `STORAGE: Could not append message (entry not allowed to write to the log). Details: ${e.message}`
+      )
     }
   }
 
   private attachFileManagerEvents = () => {
-    this.filesManager.on(IpfsFilesManagerEvents.UPDATE_DOWNLOAD_PROGRESS, (status) => {
+    this.filesManager.on(IpfsFilesManagerEvents.UPDATE_DOWNLOAD_PROGRESS, status => {
       this.emit(StorageEvents.UPDATE_DOWNLOAD_PROGRESS, status)
     })
-    this.filesManager.on(IpfsFilesManagerEvents.UPDATE_MESSAGE_MEDIA, (messageMedia) => {
+    this.filesManager.on(IpfsFilesManagerEvents.UPDATE_MESSAGE_MEDIA, messageMedia => {
       this.emit(StorageEvents.UPDATE_MESSAGE_MEDIA, messageMedia)
     })
-    this.filesManager.on(StorageEvents.REMOVE_DOWNLOAD_STATUS, (payload) => {
+    this.filesManager.on(StorageEvents.REMOVE_DOWNLOAD_STATUS, payload => {
       this.emit(StorageEvents.REMOVE_DOWNLOAD_STATUS, payload)
     })
-    this.filesManager.on(StorageEvents.UPLOADED_FILE, (payload) => {
+    this.filesManager.on(StorageEvents.UPLOADED_FILE, payload => {
       this.emit(StorageEvents.UPLOADED_FILE, payload)
     })
-    this.filesManager.on(StorageEvents.UPDATE_DOWNLOAD_PROGRESS, (payload) => {
+    this.filesManager.on(StorageEvents.UPDATE_DOWNLOAD_PROGRESS, payload => {
       this.emit(StorageEvents.UPDATE_DOWNLOAD_PROGRESS, payload)
     })
-    this.filesManager.on(StorageEvents.UPDATE_MESSAGE_MEDIA, (payload) => {
+    this.filesManager.on(StorageEvents.UPDATE_MESSAGE_MEDIA, payload => {
       this.emit(StorageEvents.UPDATE_MESSAGE_MEDIA, payload)
     })
   }
@@ -801,8 +803,8 @@ export class StorageService extends EventEmitter implements OnApplicationBootstr
     }
     const db: EventStore<string> = await this.orbitDb.log<string>(`dms.${address}`, {
       accessController: {
-        write: ['*']
-      }
+        write: ['*'],
+      },
     })
 
     this.directMessagesRepos.set(address, { db, eventsAttached: false })
@@ -837,20 +839,20 @@ export class StorageService extends EventEmitter implements OnApplicationBootstr
       this.logger.log('Subscribing to direct messages thread ', channelId)
       this.emit(StorageEvents.LOAD_ALL_DIRECT_MESSAGES, {
         messages: this.getAllEventLogEntries(db),
-        channelId
+        channelId,
       })
       db.events.on('write', (_address, _entry) => {
         this.logger.log('Writing')
         this.emit(StorageEvents.LOAD_ALL_DIRECT_MESSAGES, {
           messages: this.getAllEventLogEntries(db),
-          channelId
+          channelId,
         })
       })
       db.events.on('replicated', () => {
         this.logger.log('Message replicated')
         this.emit(StorageEvents.LOAD_ALL_DIRECT_MESSAGES, {
           messages: this.getAllEventLogEntries(db),
-          channelId
+          channelId,
         })
       })
       db.events.on('ready', () => {
@@ -864,15 +866,15 @@ export class StorageService extends EventEmitter implements OnApplicationBootstr
   private async createDirectMessageThread(channelId: string): Promise<EventStore<string>> {
     if (!channelId) {
       this.logger.log("No channel ID, can't create channel")
-      throw new Error('No channel ID, can\'t create channel')
+      throw new Error("No channel ID, can't create channel")
     }
 
     this.logger.log(`creatin direct message thread for ${channelId}`)
 
     const db: EventStore<string> = await this.orbitDb.log<string>(`dms.${channelId}`, {
       accessController: {
-        write: ['*']
-      }
+        write: ['*'],
+      },
     })
     db.events.on('replicated', () => {
       this.logger.log('replicated some messages')
@@ -915,10 +917,7 @@ export class StorageService extends EventEmitter implements OnApplicationBootstr
       this.logger.log('Certificate is either null or undefined, not saving to db')
       return false
     }
-    const verification = await verifyUserCert(
-      payload.rootPermsData.certificate,
-      payload.certificate
-    )
+    const verification = await verifyUserCert(payload.rootPermsData.certificate, payload.certificate)
     if (verification.resultCode !== 0) {
       this.logger.log.error('Certificate is not valid')
       this.logger.log.error(verification.resultMessage)
@@ -969,7 +968,9 @@ export class StorageService extends EventEmitter implements OnApplicationBootstr
 
         const value = getCertFieldValue(parsedCertificate, CertFieldsTypes.nickName)
         if (!value) {
-          this.logger.log.error(`Get user name from cert: Could not parse certificate for field type ${CertFieldsTypes.nickName}`)
+          this.logger.log.error(
+            `Get user name from cert: Could not parse certificate for field type ${CertFieldsTypes.nickName}`
+          )
           continue
         }
         this.userNamesMap.set(key, value)
@@ -981,7 +982,7 @@ export class StorageService extends EventEmitter implements OnApplicationBootstr
 
   public async deleteFilesFromChannel(payload: DeleteFilesFromChannelSocketPayload) {
     const { messages } = payload
-    Object.keys(messages).map(async (key) => {
+    Object.keys(messages).map(async key => {
       const message = messages[key]
       if (message?.media?.path) {
         const mediaPath = message.media.path
@@ -1002,7 +1003,7 @@ export class StorageService extends EventEmitter implements OnApplicationBootstr
   }
 
   public async checkIfFileExist(filepath: string): Promise<boolean> {
-    return await new Promise((resolve) => {
+    return await new Promise(resolve => {
       fs.access(filepath, fs.constants.F_OK, error => {
         resolve(!error)
       })

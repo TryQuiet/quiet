@@ -4,7 +4,7 @@ import { Agent } from 'http'
 export enum Libp2pEvents {
   PEER_CONNECTED = 'peerConnected',
   PEER_DISCONNECTED = 'peerDisconnected',
-  NETWORK_STATS = 'networkStats'
+  NETWORK_STATS = 'networkStats',
 }
 
 export interface Libp2pNodeParams {

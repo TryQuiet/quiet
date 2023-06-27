@@ -3,6 +3,6 @@ import { LocalDbService } from './local-db.service'
 
 @Module({
   providers: [LocalDbService],
-  exports: [LocalDbService]
+  exports: [LocalDbService],
 })
 export class LocalDbModule {}

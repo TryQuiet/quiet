@@ -5,6 +5,6 @@ import { Libp2pService } from './libp2p.service'
 @Module({
   imports: [SocketModule],
   providers: [Libp2pService],
-  exports: [Libp2pService]
+  exports: [Libp2pService],
 })
-export class Libp2pModule { }
+export class Libp2pModule {}

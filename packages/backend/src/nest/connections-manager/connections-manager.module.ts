@@ -9,6 +9,6 @@ import { ConnectionsManagerService } from './connections-manager.service'
 @Module({
   imports: [RegistrationModule, StorageModule, TorModule, SocketModule, LocalDbModule],
   providers: [ConnectionsManagerService],
-  exports: [ConnectionsManagerService]
+  exports: [ConnectionsManagerService],
 })
 export class ConnectionsManagerModule {}

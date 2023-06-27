@@ -10,7 +10,7 @@ describe('IpfsService', () => {
   let ipfsService: IpfsService
 
   beforeAll(async () => {
-     module = await Test.createTestingModule({
+    module = await Test.createTestingModule({
       imports: [TestModule, IpfsModule, SocketModule, Libp2pModule],
     }).compile()
 
@@ -21,7 +21,7 @@ describe('IpfsService', () => {
     await module.close()
   })
 
-  it('should be defined', async() => {
+  it('should be defined', async () => {
     console.log('xd')
     expect(ipfsService).toBeDefined()
 

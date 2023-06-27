@@ -9,7 +9,40 @@ import { EventEmitter } from 'events'
 import getPort from 'get-port'
 import PeerId from 'peer-id'
 import { removeFilesFromDir } from '../common/utils'
-import { AskForMessagesPayload, ChannelMessagesIdsResponse, ChannelsReplicatedPayload, Community, CommunityId, ConnectionProcessInfo, CreateChannelPayload, CreatedChannelResponse, DeleteFilesFromChannelSocketPayload, DownloadStatus, ErrorMessages, FileMetadata, IncomingMessages, InitCommunityPayload, LaunchRegistrarPayload, NetworkData, NetworkDataPayload, NetworkStats, PushNotificationPayload, RegisterOwnerCertificatePayload, RegisterUserCertificatePayload, RemoveDownloadStatus, ResponseCreateNetworkPayload, SaveCertificatePayload, SaveOwnerCertificatePayload, SendCertificatesResponse, SendMessagePayload, SetChannelSubscribedPayload, SocketActionTypes, StorePeerListPayload, UploadFilePayload, PeerId as PeerIdType } from '@quiet/types'
+import {
+  AskForMessagesPayload,
+  ChannelMessagesIdsResponse,
+  ChannelsReplicatedPayload,
+  Community,
+  CommunityId,
+  ConnectionProcessInfo,
+  CreateChannelPayload,
+  CreatedChannelResponse,
+  DeleteFilesFromChannelSocketPayload,
+  DownloadStatus,
+  ErrorMessages,
+  FileMetadata,
+  IncomingMessages,
+  InitCommunityPayload,
+  LaunchRegistrarPayload,
+  NetworkData,
+  NetworkDataPayload,
+  NetworkStats,
+  PushNotificationPayload,
+  RegisterOwnerCertificatePayload,
+  RegisterUserCertificatePayload,
+  RemoveDownloadStatus,
+  ResponseCreateNetworkPayload,
+  SaveCertificatePayload,
+  SaveOwnerCertificatePayload,
+  SendCertificatesResponse,
+  SendMessagePayload,
+  SetChannelSubscribedPayload,
+  SocketActionTypes,
+  StorePeerListPayload,
+  UploadFilePayload,
+  PeerId as PeerIdType,
+} from '@quiet/types'
 import { CONFIG_OPTIONS, QUIET_DIR, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
 import { ConfigOptions, GetPorts, ServerIoProviderTypes } from '../types'
 import { SocketService } from '../socket/socket.service'
@@ -38,7 +71,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
   private readonly logger = Logger(ConnectionsManagerService.name)
   constructor(
-
     @Inject(SERVER_IO_PROVIDER) public readonly serverIoProvider: ServerIoProviderTypes,
     @Inject(CONFIG_OPTIONS) public configOptions: ConfigOptions,
     @Inject(QUIET_DIR) public readonly quietDir: string,
@@ -67,11 +99,14 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     // @ts-ignore
     global.crypto = webcrypto
 
-    setEngine('newEngine', new CryptoEngine({
-      name: 'newEngine',
-      // @ts-ignore
-      crypto: webcrypto,
-    }))
+    setEngine(
+      'newEngine',
+      new CryptoEngine({
+        name: 'newEngine',
+        // @ts-ignore
+        crypto: webcrypto,
+      })
+    )
 
     await this.init()
   }
@@ -84,11 +119,11 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     const httpTunnelPort = await getPort()
 
     this.ports = {
-        socksPort,
+      socksPort,
       libp2pHiddenService,
       controlPort,
       dataServer,
-      httpTunnelPort
+      httpTunnelPort,
     }
   }
 
@@ -117,11 +152,11 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       const peerStats: NetworkStats = {
         peerId: payload.peer,
         connectionTime: prev + payload.connectionDuration,
-        lastSeen: payload.connectionDuration
+        lastSeen: payload.connectionDuration,
       }
 
       await this.localDbService.update(LocalDBKeys.PEERS, {
-        [payload.peer]: peerStats
+        [payload.peer]: peerStats,
       })
       // BARTEK: Potentially obsolete to send this to state-manager
       this.serverIoProvider.io.emit(SocketActionTypes.PEER_DISCONNECTED, payload)
@@ -206,7 +241,12 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
   public async purgeData() {
     console.log('removing data')
-    const dirsToRemove = fs.readdirSync(this.quietDir).filter(i => i.startsWith('Ipfs') || i.startsWith('OrbitDB') || i.startsWith('backendDB') || i.startsWith('Local Storage'))
+    const dirsToRemove = fs
+      .readdirSync(this.quietDir)
+      .filter(
+        i =>
+          i.startsWith('Ipfs') || i.startsWith('OrbitDB') || i.startsWith('backendDB') || i.startsWith('Local Storage')
+      )
     for (const dir of dirsToRemove) {
       removeFilesFromDir(path.join(this.quietDir, dir))
     }
@@ -222,7 +262,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
     return {
       hiddenService,
-      peerId: peerIdJson
+      peerId: peerIdJson,
     }
   }
 
@@ -238,7 +278,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       emitError(this.serverIoProvider.io, {
         type: SocketActionTypes.NETWORK,
         message: ErrorMessages.NETWORK_SETUP_FAILED,
-        community: community.id
+        community: community.id,
       })
       return
     }
@@ -249,9 +289,9 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       community: {
         ...community,
         privateKey: network2.hiddenService.privateKey,
-        registrarUrl: community.registrarUrl || network2.hiddenService.onionAddress.split('.')[0]
+        registrarUrl: community.registrarUrl || network2.hiddenService.onionAddress.split('.')[0],
       },
-      network
+      network,
     }
     this.serverIoProvider.io.emit(SocketActionTypes.NETWORK, payload)
   }
@@ -276,7 +316,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       emitError(this.serverIoProvider.io, {
         type: SocketActionTypes.COMMUNITY,
         message: ErrorMessages.COMMUNITY_LAUNCH_FAILED,
-        community: payload.id
+        community: payload.id,
       })
       return
     }
@@ -291,10 +331,13 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   public launch = async (payload: InitCommunityPayload) => {
     // Start existing community (community that user is already a part of)
     this.logger.log(`Spawning hidden service for community ${payload.id}, peer: ${payload.peerId.id}`)
-    this.serverIoProvider.io.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.SPAWNING_HIDDEN_SERVICE)
+    this.serverIoProvider.io.emit(
+      SocketActionTypes.CONNECTION_PROCESS_INFO,
+      ConnectionProcessInfo.SPAWNING_HIDDEN_SERVICE
+    )
     const onionAddress: string = await this.tor.spawnHiddenService({
       targetPort: this.ports.libp2pHiddenService,
-      privKey: payload.hiddenService.privateKey
+      privKey: payload.hiddenService.privateKey,
     })
     this.logger.log(`Launching community ${payload.id}, peer: ${payload.peerId.id}`)
 
@@ -322,7 +365,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       ca: payload.certs.CA,
       localAddress: this.libp2pService.createLibp2pAddress(onionAddress, _peerId.toString()),
       targetPort: this.ports.libp2pHiddenService,
-      peers
+      peers,
     }
     this.logger.log('libp2p params', params)
 
@@ -333,11 +376,11 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   private attachTorEventsListeners = () => {
     this.logger.log('attachTorEventsListeners')
 
-    this.socketService.on(SocketActionTypes.CONNECTION_PROCESS_INFO, (data) => {
+    this.socketService.on(SocketActionTypes.CONNECTION_PROCESS_INFO, data => {
       this.serverIoProvider.io.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, data)
     })
 
-    this.registrationService.on(SocketActionTypes.CONNECTION_PROCESS_INFO, (data) => {
+    this.registrationService.on(SocketActionTypes.CONNECTION_PROCESS_INFO, data => {
       this.serverIoProvider.io.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, data)
     })
   }
@@ -349,11 +392,11 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.registrationService.on(SocketActionTypes.SAVED_OWNER_CERTIFICATE, payload => {
       this.serverIoProvider.io.emit(SocketActionTypes.SAVED_OWNER_CERTIFICATE, payload)
     })
-    this.registrationService.on(RegistrationEvents.SPAWN_HS_FOR_REGISTRAR, async (payload) => {
+    this.registrationService.on(RegistrationEvents.SPAWN_HS_FOR_REGISTRAR, async payload => {
       await this.tor.spawnHiddenService({
         targetPort: payload.port,
         privKey: payload.privateKey,
-        virtPort: payload.targetPort
+        virtPort: payload.targetPort,
       })
     })
     this.registrationService.on(RegistrationEvents.ERROR, payload => {
@@ -376,11 +419,12 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       // Update Frontend with Initialized Communities
       if (this.communityId) {
         this.serverIoProvider.io.emit(SocketActionTypes.COMMUNITY, { id: this.communityId })
-        console.log(
-          'this.libp2pService.connectedPeers', this.libp2pService.connectedPeers
-        )
+        console.log('this.libp2pService.connectedPeers', this.libp2pService.connectedPeers)
         console.log('this.libp2pservice', this.libp2pService)
-        this.serverIoProvider.io.emit(SocketActionTypes.CONNECTED_PEERS, Array.from(this.libp2pService.connectedPeers.keys()))
+        this.serverIoProvider.io.emit(
+          SocketActionTypes.CONNECTED_PEERS,
+          Array.from(this.libp2pService.connectedPeers.keys())
+        )
         await this.storageService?.loadAllCertificates()
         await this.storageService?.loadAllChannels()
       }
@@ -409,32 +453,26 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       this.registrarState = ServiceState.LAUNCHING
       await this.registrationService.launchRegistrar(args)
     })
-    this.socketService.on(
-      SocketActionTypes.SAVED_OWNER_CERTIFICATE,
-      async (args: SaveOwnerCertificatePayload) => {
-        const saveCertificatePayload: SaveCertificatePayload = {
-          certificate: args.certificate,
-          rootPermsData: args.permsData
-        }
-        await this.storageService?.saveCertificate(saveCertificatePayload)
+    this.socketService.on(SocketActionTypes.SAVED_OWNER_CERTIFICATE, async (args: SaveOwnerCertificatePayload) => {
+      const saveCertificatePayload: SaveCertificatePayload = {
+        certificate: args.certificate,
+        rootPermsData: args.permsData,
       }
-    )
-    this.socketService.on(
-      SocketActionTypes.REGISTER_USER_CERTIFICATE,
-      async (args: RegisterUserCertificatePayload) => {
-        // if (!this.socksProxyAgent) {
-        //   this.createAgent()
-        // }
+      await this.storageService?.saveCertificate(saveCertificatePayload)
+    })
+    this.socketService.on(SocketActionTypes.REGISTER_USER_CERTIFICATE, async (args: RegisterUserCertificatePayload) => {
+      // if (!this.socksProxyAgent) {
+      //   this.createAgent()
+      // }
 
-        await this.registrationService.sendCertificateRegistrationRequest(
-          args.serviceAddress,
-          args.userCsr,
-          args.communityId,
-          120_000,
-          this.socksProxyAgent
-        )
-      }
-    )
+      await this.registrationService.sendCertificateRegistrationRequest(
+        args.serviceAddress,
+        args.userCsr,
+        args.communityId,
+        120_000,
+        this.socksProxyAgent
+      )
+    })
     this.socketService.on(
       SocketActionTypes.REGISTER_OWNER_CERTIFICATE,
       async (args: RegisterOwnerCertificatePayload) => {
@@ -468,51 +506,45 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     })
 
     // Direct Messages
-    this.socketService.on(
-      SocketActionTypes.INITIALIZE_CONVERSATION,
-      async (address, encryptedPhrase) => {
-        await this.storageService?.initializeConversation(address, encryptedPhrase)
-      }
-    )
+    this.socketService.on(SocketActionTypes.INITIALIZE_CONVERSATION, async (address, encryptedPhrase) => {
+      await this.storageService?.initializeConversation(address, encryptedPhrase)
+    })
     this.socketService.on(SocketActionTypes.GET_PRIVATE_CONVERSATIONS, async () => {
       await this.storageService?.getPrivateConversations()
     })
-    this.socketService.on(
-      SocketActionTypes.SEND_DIRECT_MESSAGE,
-      async (channelId: string, messagePayload) => {
-        await this.storageService?.sendDirectMessage(channelId, messagePayload)
-      }
-    )
-    this.socketService.on(
-      SocketActionTypes.SUBSCRIBE_FOR_DIRECT_MESSAGE_THREAD,
-      async (address: string) => {
-        await this.storageService?.subscribeToDirectMessageThread(address)
-      }
-    )
-    this.socketService.on(
-      SocketActionTypes.SUBSCRIBE_FOR_ALL_CONVERSATIONS,
-      async (conversations: string[]) => {
-        await this.storageService?.subscribeToAllConversations(conversations)
-      }
-    )
+    this.socketService.on(SocketActionTypes.SEND_DIRECT_MESSAGE, async (channelId: string, messagePayload) => {
+      await this.storageService?.sendDirectMessage(channelId, messagePayload)
+    })
+    this.socketService.on(SocketActionTypes.SUBSCRIBE_FOR_DIRECT_MESSAGE_THREAD, async (address: string) => {
+      await this.storageService?.subscribeToDirectMessageThread(address)
+    })
+    this.socketService.on(SocketActionTypes.SUBSCRIBE_FOR_ALL_CONVERSATIONS, async (conversations: string[]) => {
+      await this.storageService?.subscribeToAllConversations(conversations)
+    })
 
     this.socketService.on(SocketActionTypes.CLOSE, async () => {
       await this.closeAllServices()
     })
-    this.socketService.on(SocketActionTypes.DELETE_CHANNEL, async (payload: { channelId: string; ownerPeerId: string }) => {
-      await this.storageService?.deleteChannel(payload)
-    })
+    this.socketService.on(
+      SocketActionTypes.DELETE_CHANNEL,
+      async (payload: { channelId: string; ownerPeerId: string }) => {
+        await this.storageService?.deleteChannel(payload)
+      }
+    )
 
-    this.socketService.on(SocketActionTypes.DELETE_FILES_FROM_CHANNEL, async (payload: DeleteFilesFromChannelSocketPayload) => {
-      this.logger.log('DELETE_FILES_FROM_CHANNEL : payload', payload)
-      await this.storageService?.deleteFilesFromChannel(payload)
-      // await this.deleteFilesFromTemporaryDir() //crashes on mobile, will be fixes in next versions
-    })
+    this.socketService.on(
+      SocketActionTypes.DELETE_FILES_FROM_CHANNEL,
+      async (payload: DeleteFilesFromChannelSocketPayload) => {
+        this.logger.log('DELETE_FILES_FROM_CHANNEL : payload', payload)
+        await this.storageService?.deleteFilesFromChannel(payload)
+        // await this.deleteFilesFromTemporaryDir() //crashes on mobile, will be fixes in next versions
+      }
+    )
   }
 
   private attachStorageListeners = () => {
     if (!this.storageService) return
-    this.storageService.on(SocketActionTypes.CONNECTION_PROCESS_INFO, (data) => {
+    this.storageService.on(SocketActionTypes.CONNECTION_PROCESS_INFO, data => {
       this.serverIoProvider.io.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, data)
     })
     this.storageService.on(StorageEvents.LOAD_CERTIFICATES, (payload: SendCertificatesResponse) => {
@@ -534,12 +566,9 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       }
       this.serverIoProvider.io.emit(SocketActionTypes.SEND_MESSAGES_IDS, payload)
     })
-    this.storageService.on(
-      StorageEvents.SET_CHANNEL_SUBSCRIBED,
-      (payload: SetChannelSubscribedPayload) => {
-        this.serverIoProvider.io.emit(SocketActionTypes.CHANNEL_SUBSCRIBED, payload)
-      }
-    )
+    this.storageService.on(StorageEvents.SET_CHANNEL_SUBSCRIBED, (payload: SetChannelSubscribedPayload) => {
+      this.serverIoProvider.io.emit(SocketActionTypes.CHANNEL_SUBSCRIBED, payload)
+    })
     this.storageService.on(StorageEvents.CREATED_CHANNEL, (payload: CreatedChannelResponse) => {
       console.log('created channel in services')
       this.serverIoProvider.io.emit(SocketActionTypes.CREATED_CHANNEL, payload)

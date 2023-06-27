@@ -3,6 +3,6 @@ import { RegistrationService } from './registration.service'
 
 @Module({
   providers: [RegistrationService],
-  exports: [RegistrationService]
+  exports: [RegistrationService],
 })
 export class RegistrationModule {}

@@ -11,8 +11,7 @@ import Logger from '../common/logger'
 export class LocalDbService {
   peers: any
   private readonly logger = Logger(LocalDbService.name)
-  constructor(@Inject(LEVEL_DB) private readonly db: Level) {
-  }
+  constructor(@Inject(LEVEL_DB) private readonly db: Level) {}
 
   public async close() {
     this.logger.log('Closing leveldb')
@@ -47,7 +46,7 @@ export class LocalDbService {
     await this.db.put(key, value)
   }
 
-  public async update(key: string, value: Object) {
+  public async update(key: string, value: object) {
     /**
      * Update data instead of replacing it
      */
@@ -74,7 +73,7 @@ export class LocalDbService {
   }
 
   public async getSortedPeers(peers: string[] = []): Promise<string[]> {
-    const peersStats = await this.get(LocalDBKeys.PEERS) || {}
+    const peersStats = (await this.get(LocalDBKeys.PEERS)) || {}
     const peersAddresses: string[] = [...new Set(Object.keys(peersStats).concat(peers))]
     const stats: NetworkStats[] = Object.values(peersStats)
     const sortedPeers = sortPeers(peersAddresses, stats)
