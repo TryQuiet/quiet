@@ -48,7 +48,7 @@ export function* registerUsernameSaga(socket: Socket, action: PayloadAction<stri
   if (identity.nickname === nickname) {
     userCsr = identity.userCsr
   }
-console.log('user csr saga', userCsr)
+
   if (userCsr === null) {
     try {
       const payload: CreateUserCsrPayload = {
