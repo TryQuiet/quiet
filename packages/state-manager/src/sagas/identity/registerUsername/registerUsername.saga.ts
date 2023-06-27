@@ -9,8 +9,7 @@ import { Socket, applyEmitParams } from '../../../types'
 import { communitiesSelectors } from '../../communities/communities.selectors'
 import { CreateUserCsrPayload, RegisterCertificatePayload, SocketActionTypes, Community } from '@quiet/types'
 
-export function* registerUsernameSaga(socket: Socket,
-  action: PayloadAction<string>,): Generator {
+export function* registerUsernameSaga(socket: Socket, action: PayloadAction<string>): Generator {
   // Nickname can differ between saga calls
   const nickname = action.payload
 
@@ -26,7 +25,7 @@ export function* registerUsernameSaga(socket: Socket,
     name: community.name,
     registrarUrl: community.registrarUrl,
     CA: community.CA,
-    rootCa: community.CA?.rootCertString
+    rootCa: community.CA?.rootCertString,
   }
 
   yield* apply(socket, socket.emit, applyEmitParams(SocketActionTypes.CREATE_NETWORK, networkPayload))
@@ -70,7 +69,7 @@ export function* registerUsernameSaga(socket: Socket,
   const payload: RegisterCertificatePayload = {
     communityId: community.id,
     nickname,
-    userCsr
+    userCsr,
   }
 
   yield* put(identityActions.registerCertificate(payload))

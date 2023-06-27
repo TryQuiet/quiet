@@ -70,8 +70,8 @@ describe('registerUsernameSaga', () => {
           name: community.name,
           registrarUrl: community.registrarUrl,
           CA: community.CA,
-          rootCa: undefined
-        }
+          rootCa: undefined,
+        },
       ])
       .dispatch(identityActions.addNewIdentity(identity))
       .call(createUserCsr, createUserCsrPayload)
@@ -138,8 +138,8 @@ describe('registerUsernameSaga', () => {
           name: community.name,
           registrarUrl: community.registrarUrl,
           CA: community.CA,
-          rootCa: undefined
-        }
+          rootCa: undefined,
+        },
       ])
       .dispatch(identityActions.addNewIdentity(identity))
       .put(
@@ -220,8 +220,8 @@ describe('registerUsernameSaga', () => {
           name: community.name,
           registrarUrl: community.registrarUrl,
           CA: community.CA,
-          rootCa: undefined
-        }
+          rootCa: undefined,
+        },
       ])
       .dispatch(identityActions.addNewIdentity(identity))
       .call(createUserCsr, createUserCsrPayload)
