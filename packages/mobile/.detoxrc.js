@@ -99,9 +99,6 @@ module.exports = {
       app: 'android.debug',
       artifacts: {
         rootDir: './e2e/artifacts/android',
-        plugins: {
-          instruments: 'all',
-        },
       },
     },
     'android.att.storybook': {
@@ -109,9 +106,6 @@ module.exports = {
       app: 'android.storybook',
       artifacts: {
         rootDir: './e2e/artifacts/android',
-        plugins: {
-          instruments: 'all',
-        },
       },
     },
     'android.att.release': {
@@ -123,9 +117,6 @@ module.exports = {
       app: 'android.debug',
       artifacts: {
         rootDir: './e2e/artifacts/android',
-        plugins: {
-          instruments: 'all',
-        },
       },
     },
     'android.emu.storybook': {
@@ -133,9 +124,6 @@ module.exports = {
       app: 'android.storybook',
       artifacts: {
         rootDir: './e2e/artifacts/android',
-        plugins: {
-          instruments: 'all',
-        },
       },
     },
     'android.emu.release': {
