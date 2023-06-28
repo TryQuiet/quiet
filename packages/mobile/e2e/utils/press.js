@@ -6,7 +6,7 @@ const press = async (element, double = false) => {
   if (ios) {
     await element.tap()
   } else {
-    if (double) element.longPress() // Idle
+    if (double) await element.longPress() // Idle
     await element.longPress()
   }
 }
