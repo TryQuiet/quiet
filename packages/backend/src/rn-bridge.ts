@@ -34,6 +34,8 @@ class MessageCodec {
 
   // Serialize the message payload and the message.
   static serialize(event: string, ...payload: string[]) {
+    console.log('--------------------------------------rn-bridge-internals--------------------------------', event)
+
     const envelope = new MessageCodec(event, ...payload);
     // Return the serialized message, that can be sent through a channel.
     return JSON.stringify(envelope);
@@ -41,6 +43,8 @@ class MessageCodec {
 
   // Deserialize the message and the message payload.
   static deserialize(message: string) {
+    console.log('--------------------------------------rn-bridge-internals--------------------------------', message)
+
     var envelope = JSON.parse(message);
     return envelope;
   };
@@ -62,10 +66,11 @@ class ChannelSuper extends EventEmitter {
   };
 
   emitWrapper(type: string, ...msg: string[]) {
+    console.log('--------------------------------------rn-bridge-internals-emit-wrapper-------------------------------')
     const _this = this;
-    setImmediate( () => {
+    setImmediate(() => {
       _this.emitLocal(type, ...msg);
-     });
+    });
   };
 };
 
@@ -83,15 +88,19 @@ class EventChannel extends ChannelSuper {
 
   // Posts a 'message' event, to be backward compatible with old code.
   send(...msg: string[]) {
+    console.log('--------------------------------------rn-bridge-internals-send--------------------------------')
+
     this.post('message', ...msg);
   };
 
   processData(data: string) {
+    console.log('--------------------------------------rn-bridge-internals-process-data--------------------------------')
+
     // The data contains the serialized message envelope.
     var envelope = MessageCodec.deserialize(data);
-    setImmediate( () => {
+    setImmediate(() => {
       this.emitLocal(envelope.event, ...envelope.payload);
-     });
+    });
   };
 };
 
@@ -118,8 +127,8 @@ class SystemEventLock {
   }
   // Check if the lock can be released and release it.
   _checkRelease() {
-    if(this._locksAcquired<=0) {
-      this._hasReleased=true;
+    if (this._locksAcquired <= 0) {
+      this._hasReleased = true;
       this._callback();
     }
   }
@@ -138,10 +147,12 @@ class SystemChannel extends ChannelSuper {
   };
 
   emitWrapper(type: string) {
+    console.log('--------------------------------------rn-bridge-internals-emit-wrapper--------------------------------')
+
     // Overload the emitWrapper to handle the pause event locks.
     const _this = this;
     if (type.startsWith('pause')) {
-      setImmediate( () => {
+      setImmediate(() => {
         let releaseMessage = 'release-pause-event';
         let eventArguments = type.split('|');
         if (eventArguments.length >= 2) {
@@ -159,13 +170,15 @@ class SystemChannel extends ChannelSuper {
         _this.emitLocal("pause", eventLock);
       });
     } else {
-      setImmediate( () => {
+      setImmediate(() => {
         _this.emitLocal(type);
       });
     }
   };
 
   processData(data: string) {
+    console.log('--------------------------------------rn-bridge-internals-process-data--------------------------------')
+
     // The data is the event.
     this.emitWrapper(data);
   };
@@ -179,7 +192,7 @@ class SystemChannel extends ChannelSuper {
   }
 };
 
-let channels: {[key: string]: Channel } = {};
+let channels: { [key: string]: Channel } = {};
 /**
  * Manage the registered channels to emit events/messages received by the
  * react-native app or by the react-native plugin itself (i.e. the system channel).
@@ -190,6 +203,8 @@ let channels: {[key: string]: Channel } = {};
 * from the react-native app.
  */
 function bridgeListener(channelName: string, data: string) {
+  console.log('--------------------------------------rn-bridge-internals-bridge-listener--------------------------------')
+
   if (channels.hasOwnProperty(channelName)) {
     // @ts-ignore
     channels[channelName].processData(data);
@@ -206,6 +221,8 @@ type Channel = string
  * the native code.
  */
 function registerChannel(channel: SystemChannel | EventChannel) {
+  console.log('--------------------------------------rn-bridge-internals-register-channel--------------------------------')
+
   // @ts-ignore
   channels[channel] = channel;
   NativeBridge.registerChannel(channel.name, bridgeListener);
@@ -218,7 +235,7 @@ const systemChannel = new SystemChannel(SYSTEM_CHANNEL);
 registerChannel(systemChannel);
 
 // Signal we are ready for app events, so the native code won't lock before node is ready to handle those.
-NativeBridge.sendMessage(SYSTEM_CHANNEL, "ready-for-app-events");
+// NativeBridge.sendMessage(SYSTEM_CHANNEL, "ready-for-app-events");
 
 const eventChannel = new EventChannel(EVENT_CHANNEL);
 registerChannel(eventChannel);
