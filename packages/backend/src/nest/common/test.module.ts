@@ -7,7 +7,6 @@ import {
   EXPRESS_PROVIDER,
   CONFIG_OPTIONS,
   QUIET_DIR,
-  TEST_QUIET_DIR_PATH,
   ORBIT_DB_DIR,
   TestConfig,
   IPFS_REPO_PATCH,
@@ -47,16 +46,16 @@ const defaultConfigForTest = {
     },
     {
       provide: QUIET_DIR,
-      useFactory: () => TEST_QUIET_DIR_PATH,
+      useFactory: () => path.join(createTmpDir().name, TestConfig.QUIET_DIR),
     },
     {
       provide: ORBIT_DB_DIR,
-      useFactory: (_quietDir: string) => path.join(_quietDir, TestConfig.ORBIT_DB_DIR),
+      useFactory: (_quietDir: string) => path.join(createTmpDir().name, TestConfig.ORBIT_DB_DIR),
       inject: [QUIET_DIR],
     },
     {
       provide: IPFS_REPO_PATCH,
-      useFactory: (_quietDir: string) => path.join(_quietDir, TestConfig.IPFS_REPO_PATH),
+      useFactory: (_quietDir: string) => path.join(createTmpDir().name, TestConfig.IPFS_REPO_PATH),
       inject: [QUIET_DIR],
     },
 
@@ -90,8 +89,7 @@ const defaultConfigForTest = {
     },
     {
       provide: DB_PATH,
-      useFactory: (baseDir: string) => path.join(createTmpDir().name, 'testDB-nest'),
-      inject: [QUIET_DIR],
+      useFactory: () => path.join(createTmpDir().name, 'testDB-nest'),
     },
     {
       provide: LEVEL_DB,
