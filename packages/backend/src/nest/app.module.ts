@@ -4,6 +4,7 @@ import { ConnectionsManagerModule } from './connections-manager/connections-mana
 import { RegistrationModule } from './registration/registration.module'
 import { IpfsFileManagerModule } from './ipfs-file-manager/ipfs-file-manager.module'
 import path from 'path'
+import cors from 'cors'
 import {
   CONFIG_OPTIONS,
   EXPRESS_PROVIDER,
@@ -29,8 +30,8 @@ import { Server as SocketIO } from 'socket.io'
 import { StorageModule } from './storage/storage.module'
 import { IpfsModule } from './ipfs/ipfs.module'
 import { Level } from 'level'
+import { getCors } from './common/utils'
 
-// KACPER
 @Global()
 @Module({
   imports: [
@@ -82,10 +83,10 @@ export class AppModule {
           provide: SERVER_IO_PROVIDER,
           useFactory: async (expressProvider: express.Application) => {
             const _app = expressProvider
-            // _app.use(cors())
+            _app.use(cors())
             const server = createServer(_app)
             const io = new SocketIO(server, {
-              // cors: this.cors,
+              cors: getCors(),
               pingInterval: 1000_000,
               pingTimeout: 1000_000,
             })

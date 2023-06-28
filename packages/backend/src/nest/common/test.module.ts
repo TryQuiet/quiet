@@ -20,6 +20,8 @@ import path from 'path'
 import { Server as SocketIO } from 'socket.io'
 import { createServer } from 'http'
 import { createTmpDir } from '../../common/testUtils'
+import cors from 'cors'
+import { getCors } from './utils'
 
 const defaultConfigForTest = {
   socketIOPort: await getPort(),
@@ -63,10 +65,10 @@ const defaultConfigForTest = {
       provide: SERVER_IO_PROVIDER,
       useFactory: async (expressProvider: express.Application) => {
         const _app = expressProvider
-        // _app.use(cors())
+        _app.use(cors())
         const server = createServer(_app)
         const io = new SocketIO(server, {
-          // cors: this.cors,
+          cors: getCors(),
           pingInterval: 1000_000,
           pingTimeout: 1000_000,
         })

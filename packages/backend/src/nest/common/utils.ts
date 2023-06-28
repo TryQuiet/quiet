@@ -157,3 +157,14 @@ export const compare = (given: number, base: number, tolerance = 0) => {
   const max = base + margin
   return given >= min && given <= max
 }
+
+export const getCors = () => {
+  // TODO: is this still necessary?
+  if (process.env.TEST_MODE === 'true' && process.env.E2E_TEST === 'true') {
+    return {
+      origin: '*',
+      methods: ['GET', 'POST'],
+    }
+  }
+  return {}
+}
