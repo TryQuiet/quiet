@@ -21,9 +21,9 @@ const args: PerformCommunityActionProps = {
   handleRedirection: function (): void {
     console.log('Redirected to join community')
   },
-  handleClose: function (): void { },
+  handleClose: function (): void {},
   isCloseDisabled: false,
-  hasReceivedResponse: false
+  hasReceivedResponse: false,
 }
 
 Component.args = args
@@ -31,7 +31,7 @@ Component.args = args
 const component: ComponentMeta<typeof PerformCommunityActionComponent> = {
   title: 'Components/CreateCommunity',
   decorators: [withTheme],
-  component: PerformCommunityActionComponent
+  component: PerformCommunityActionComponent,
 }
 
 export default component

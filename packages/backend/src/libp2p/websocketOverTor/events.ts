@@ -1,6 +1,7 @@
-
 export type EventCallback<EventType> = (evt: EventType) => void
-export interface EventObject<EventType> { handleEvent: EventCallback<EventType> }
+export interface EventObject<EventType> {
+  handleEvent: EventCallback<EventType>
+}
 export type EventHandler<EventType> = EventCallback<EventType> | EventObject<EventType>
 
 interface Listener {
@@ -16,10 +17,10 @@ interface Listener {
  * https://github.com/microsoft/TypeScript/issues/299
  * etc
  */
-export class EventEmitter<EventMap extends { [s: string]: any }> extends EventTarget {
-  #listeners: Map<any, Listener[]> = new Map()
+export class EventEmitter<EventMap extends Record<string, any>> extends EventTarget {
+  #listeners = new Map<any, Listener[]>()
 
-  listenerCount (type: string) {
+  listenerCount(type: string) {
     const listeners = this.#listeners.get(type)
 
     if (listeners == null) {
@@ -29,8 +30,12 @@ export class EventEmitter<EventMap extends { [s: string]: any }> extends EventTa
     return listeners.length
   }
 
-  addEventListener<K extends keyof EventMap>(type: K, listener: EventHandler<EventMap[K]> | null, options?: boolean | AddEventListenerOptions): void
-  addEventListener (type: string, listener: EventHandler<Event>, options?: boolean | AddEventListenerOptions): void {
+  addEventListener<K extends keyof EventMap>(
+    type: K,
+    listener: EventHandler<EventMap[K]> | null,
+    options?: boolean | AddEventListenerOptions
+  ): void
+  addEventListener(type: string, listener: EventHandler<Event>, options?: boolean | AddEventListenerOptions): void {
     super.addEventListener(type, listener, options)
 
     let list = this.#listeners.get(type)
@@ -42,12 +47,16 @@ export class EventEmitter<EventMap extends { [s: string]: any }> extends EventTa
 
     list.push({
       callback: listener,
-      once: (options !== true && options !== false && options?.once) ?? false
+      once: (options !== true && options !== false && options?.once) ?? false,
     })
   }
 
-  removeEventListener<K extends keyof EventMap>(type: K, listener?: EventHandler<EventMap[K]> | null, options?: boolean | EventListenerOptions): void
-  removeEventListener (type: string, listener?: EventHandler<Event>, options?: boolean | EventListenerOptions): void {
+  removeEventListener<K extends keyof EventMap>(
+    type: K,
+    listener?: EventHandler<EventMap[K]> | null,
+    options?: boolean | EventListenerOptions
+  ): void
+  removeEventListener(type: string, listener?: EventHandler<Event>, options?: boolean | EventListenerOptions): void {
     super.removeEventListener(type.toString(), listener ?? null, options)
 
     let list = this.#listeners.get(type)
@@ -60,7 +69,7 @@ export class EventEmitter<EventMap extends { [s: string]: any }> extends EventTa
     this.#listeners.set(type, list)
   }
 
-  dispatchEvent (event: Event): boolean {
+  dispatchEvent(event: Event): boolean {
     const result = super.dispatchEvent(event)
 
     let list = this.#listeners.get(event.type)
@@ -87,7 +96,7 @@ class CustomEventPolyfill<T = any> extends Event {
   /** Returns any custom data event was created with. Typically used for synthetic events. */
   public detail: T
 
-  constructor (message: string, data?: EventInit & { detail: T }) {
+  constructor(message: string, data?: EventInit & { detail: T }) {
     super(message, data)
     // @ts-ignore
     this.detail = data?.detail

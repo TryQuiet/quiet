@@ -5,14 +5,14 @@ export function resetStateAndSaveTorConnectionData() {
 
   const torConnectionProcess = {
     number: 5,
-    text: 'Connecting process started'
+    text: 'Connecting process started',
   }
 
   const freshState = {
     Connection: {
       torBootstrapProcess,
-      torConnectionProcess
-    }
+      torConnectionProcess,
+    },
   }
 
   return freshState

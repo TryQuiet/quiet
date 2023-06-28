@@ -12,18 +12,14 @@ const PREFIX = 'ChannelMessageActions'
 const classes = {
   warrning: `${PREFIX}warrning`,
   tryAgain: `${PREFIX}tryAgain`,
-  pointer: `${PREFIX}pointer`
+  pointer: `${PREFIX}pointer`,
 }
 
-const StyledGrid = styled(Grid)((
-  {
-    theme
-  }
-) => ({
+const StyledGrid = styled(Grid)(({ theme }) => ({
   [`& .${classes.warrning}`]: {
     marginLeft: 8,
     letterSpacing: 0.4,
-    color: theme.palette.colors.error
+    color: theme.palette.colors.error,
   },
 
   [`& .${classes.tryAgain}`]: {
@@ -31,13 +27,13 @@ const StyledGrid = styled(Grid)((
     letterSpacing: 0.4,
     color: theme.palette.colors.linkBlue,
     '&:hover': {
-      color: theme.palette.colors.blue
-    }
+      color: theme.palette.colors.blue,
+    },
   },
 
   [`& .${classes.pointer}`]: {
-    cursor: 'pointer'
-  }
+    cursor: 'pointer',
+  },
 }))
 
 interface ChannelMessageActionsProps {

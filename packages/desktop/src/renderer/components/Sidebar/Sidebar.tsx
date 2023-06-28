@@ -26,7 +26,7 @@ const Sidebar = () => {
   const setCurrentChannel = (id: string) => {
     dispatch(
       publicChannels.actions.setCurrentChannel({
-        channelId: id
+        channelId: id,
       })
     )
   }
@@ -37,7 +37,7 @@ const Sidebar = () => {
 
   const identityPanelProps: IdentityPanelProps = {
     currentCommunity: currentCommunity,
-    accountSettingsModal: accountSettingsModal
+    accountSettingsModal: accountSettingsModal,
   }
 
   const channelsPanelProps: ChannelsPanelProps = {
@@ -45,7 +45,7 @@ const Sidebar = () => {
     unreadChannels: unreadChannels,
     setCurrentChannel: setCurrentChannel,
     currentChannelId: currentChannelId,
-    createChannelModal: createChannelModal
+    createChannelModal: createChannelModal,
   }
 
   return <SidebarComponent {...identityPanelProps} {...channelsPanelProps} />

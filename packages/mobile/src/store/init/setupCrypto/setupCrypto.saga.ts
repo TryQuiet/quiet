@@ -18,7 +18,7 @@ export const initCryptoEngine = () => {
     new CryptoEngine({
       name: '',
       crypto,
-      subtle: crypto.subtle
+      subtle: crypto.subtle,
     })
   )
 }

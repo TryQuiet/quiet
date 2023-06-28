@@ -7,7 +7,7 @@ import MuiMenuItem from '@mui/material/MenuItem'
 const PREFIX = 'MenuActionItem'
 
 const classes = {
-  root: `${PREFIX}root`
+  root: `${PREFIX}root`,
 }
 
 const StyledMuiMenuItem = styled(MuiMenuItem)(() => ({
@@ -17,8 +17,8 @@ const StyledMuiMenuItem = styled(MuiMenuItem)(() => ({
     fontSize: 14,
     letterSpacing: 0.4,
     paddingTop: 5,
-    paddingBottom: 5
-  }
+    paddingBottom: 5,
+  },
 }))
 
 interface MenuActionItemProps {
@@ -28,12 +28,7 @@ interface MenuActionItemProps {
   closeAfterAction?: boolean
 }
 
-export const MenuActionItem: React.FC<MenuActionItemProps> = ({
-  onClick,
-  title,
-  close,
-  closeAfterAction = true
-}) => {
+export const MenuActionItem: React.FC<MenuActionItemProps> = ({ onClick, title, close, closeAfterAction = true }) => {
   return (
     <StyledMuiMenuItem
       onClick={e => {

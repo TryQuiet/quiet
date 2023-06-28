@@ -4,11 +4,7 @@ import { JoinCommunity } from './JoinCommunity.component'
 describe('JoinCommunity component', () => {
   it('renders component', () => {
     const { toJSON } = renderComponent(
-      <JoinCommunity
-        joinCommunityAction={jest.fn()}
-        redirectionAction={jest.fn()}
-        networkCreated={false}
-      />
+      <JoinCommunity joinCommunityAction={jest.fn()} redirectionAction={jest.fn()} networkCreated={false} />
     )
     expect(toJSON()).toMatchInlineSnapshot(`
       <View

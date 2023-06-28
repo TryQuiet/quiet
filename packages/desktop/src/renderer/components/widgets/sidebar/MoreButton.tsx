@@ -12,14 +12,10 @@ const PREFIX = 'MoreButton'
 
 const classes = {
   button: `${PREFIX}button`,
-  tooltip: `${PREFIX}tooltip`
+  tooltip: `${PREFIX}tooltip`,
 }
 
-const StyledTooltip = styled(Tooltip)((
-  {
-    theme
-  }
-) => ({
+const StyledTooltip = styled(Tooltip)(({ theme }) => ({
   [`& .${classes.button}`]: {
     padding: 0,
     paddingLeft: 16,
@@ -28,15 +24,15 @@ const StyledTooltip = styled(Tooltip)((
     justifyContent: 'start',
     '&:hover': {
       backgroundColor: 'rgba(0,0,0,0.08)',
-      opacity: 1
+      opacity: 1,
     },
     opacity: 0.7,
-    color: theme.palette.colors.white
+    color: theme.palette.colors.white,
   },
 
   [`&.${classes.tooltip}`]: {
-    marginTop: 5
-  }
+    marginTop: 5,
+  },
 }))
 
 interface MoreButtonProps {
@@ -47,12 +43,7 @@ interface MoreButtonProps {
 export const MoreButton: React.FC<MoreButtonProps> = ({ tooltipText, action }) => {
   return (
     <StyledTooltip title={tooltipText} className={classes.tooltip} placement='bottom'>
-      <Button
-        fullWidth
-        variant='text'
-        className={classes.button}
-        onClick={action}
-      >
+      <Button fullWidth variant='text' className={classes.button} onClick={action}>
         <Typography variant='body2'>more...</Typography>
       </Button>
     </StyledTooltip>

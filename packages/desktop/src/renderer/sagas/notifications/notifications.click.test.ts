@@ -4,17 +4,8 @@ import { ioMock } from '../../../shared/setupTests'
 import { prepareStore } from '../../testUtils/prepareStore'
 import { setupCrypto } from '@quiet/identity'
 import { call, fork } from 'typed-redux-saga'
-import {
-  publicChannels,
-  NotificationsSounds,
-  MessageType,
-  FileMetadata
-} from '@quiet/state-manager'
-import {
-  createNotification,
-  handleNotificationActions,
-  NotificationData
-} from './notifications.saga'
+import { publicChannels, NotificationsSounds, MessageType, FileMetadata } from '@quiet/state-manager'
+import { createNotification, handleNotificationActions, NotificationData } from './notifications.saga'
 import { generateChannelId } from '@quiet/common'
 
 const notification = jest.fn().mockImplementation(() => {
@@ -28,16 +19,16 @@ jest.mock('../../../shared/sounds', () => ({
   ...jest.requireActual('../../../shared/sounds'),
   soundTypeToAudio: {
     pow: {
-      play: jest.fn()
-    }
-  }
+      play: jest.fn(),
+    },
+  },
 }))
 
 jest.mock('electron', () => {
   return {
     shell: {
-      showItemInFolder: jest.fn()
-    }
+      showItemInFolder: jest.fn(),
+    },
   }
 })
 
@@ -59,7 +50,7 @@ describe('clicking in notification', () => {
       label: 'label',
       body: 'body',
       channel: sailingId,
-      sound: NotificationsSounds.splat
+      sound: NotificationsSounds.splat,
     }
 
     store.dispatch(publicChannels.actions.setCurrentChannel({ channelId: generalId }))
@@ -94,15 +85,15 @@ describe('clicking in notification', () => {
       path: 'path/file.ext',
       message: {
         id: 'id',
-        channelId: sailingId
-      }
+        channelId: sailingId,
+      },
     }
 
     const notificationData: NotificationData = {
       label: 'label',
       body: 'body',
       channel: sailingId,
-      sound: NotificationsSounds.splat
+      sound: NotificationsSounds.splat,
     }
 
     const spy = jest.spyOn(shell, 'showItemInFolder')

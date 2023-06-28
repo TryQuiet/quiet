@@ -1,7 +1,15 @@
 import mock from 'mock-fs'
 import path from 'path'
 import { beforeEach, describe, it, expect, afterEach } from '@jest/globals'
-const { getFilesRecursively, removeFiles, getDirsRecursively, removeDirs, compare, getUsersAddresses, createLibp2pAddress } = await import ('./utils')
+const {
+  getFilesRecursively,
+  removeFiles,
+  getDirsRecursively,
+  removeDirs,
+  compare,
+  getUsersAddresses,
+  createLibp2pAddress,
+} = await import('./utils')
 
 beforeEach(() => {
   mock({
@@ -9,15 +17,15 @@ beforeEach(() => {
       'some-file.txt': 'file content here',
       IpfsQmQ18tV1dfGsEH8sCnbnzaYpMpb1QyCEjJ2KW96YtZ2MUn: {
         pins: {
-          LOCK: 'some data'
+          LOCK: 'some data',
         },
-        'repo.lock': {}
+        'repo.lock': {},
       },
       OrbitDBQmQ18tV1dfGsEH8sCnbnzaYpMpb1QyCEjJ2KW96YtZ2MUn: {
-        LOCK: 'some data'
-      }
+        LOCK: 'some data',
+      },
     },
-    'some/empty/dir': {}
+    'some/empty/dir': {},
   })
 })
 
@@ -33,7 +41,7 @@ describe('Get files and dirs', () => {
     expect(arr).toEqual([
       'Quiet/IpfsQmQ18tV1dfGsEH8sCnbnzaYpMpb1QyCEjJ2KW96YtZ2MUn/pins/LOCK',
       'Quiet/OrbitDBQmQ18tV1dfGsEH8sCnbnzaYpMpb1QyCEjJ2KW96YtZ2MUn/LOCK',
-      'Quiet/some-file.txt'
+      'Quiet/some-file.txt',
     ])
   })
 
@@ -45,7 +53,7 @@ describe('Get files and dirs', () => {
       'Quiet/IpfsQmQ18tV1dfGsEH8sCnbnzaYpMpb1QyCEjJ2KW96YtZ2MUn',
       'Quiet/IpfsQmQ18tV1dfGsEH8sCnbnzaYpMpb1QyCEjJ2KW96YtZ2MUn/pins',
       'Quiet/IpfsQmQ18tV1dfGsEH8sCnbnzaYpMpb1QyCEjJ2KW96YtZ2MUn/repo.lock',
-      'Quiet/OrbitDBQmQ18tV1dfGsEH8sCnbnzaYpMpb1QyCEjJ2KW96YtZ2MUn'
+      'Quiet/OrbitDBQmQ18tV1dfGsEH8sCnbnzaYpMpb1QyCEjJ2KW96YtZ2MUn',
     ])
   })
 
@@ -64,15 +72,13 @@ describe('Remove files and dirs', () => {
     expect(arr).toEqual([
       'Quiet/IpfsQmQ18tV1dfGsEH8sCnbnzaYpMpb1QyCEjJ2KW96YtZ2MUn/pins/LOCK',
       'Quiet/OrbitDBQmQ18tV1dfGsEH8sCnbnzaYpMpb1QyCEjJ2KW96YtZ2MUn/LOCK',
-      'Quiet/some-file.txt'
+      'Quiet/some-file.txt',
     ])
     removeFiles('Quiet', 'LOCK')
     arr = []
     getFilesRecursively('Quiet', arr)
     arr = arr.map(e => e.split(path.sep).join(path.posix.sep))
-    expect(arr).toEqual([
-      'Quiet/some-file.txt'
-    ])
+    expect(arr).toEqual(['Quiet/some-file.txt'])
   })
 
   it('Remove directories by name', () => {
@@ -83,7 +89,7 @@ describe('Remove files and dirs', () => {
       'Quiet/IpfsQmQ18tV1dfGsEH8sCnbnzaYpMpb1QyCEjJ2KW96YtZ2MUn',
       'Quiet/IpfsQmQ18tV1dfGsEH8sCnbnzaYpMpb1QyCEjJ2KW96YtZ2MUn/pins',
       'Quiet/IpfsQmQ18tV1dfGsEH8sCnbnzaYpMpb1QyCEjJ2KW96YtZ2MUn/repo.lock',
-      'Quiet/OrbitDBQmQ18tV1dfGsEH8sCnbnzaYpMpb1QyCEjJ2KW96YtZ2MUn'
+      'Quiet/OrbitDBQmQ18tV1dfGsEH8sCnbnzaYpMpb1QyCEjJ2KW96YtZ2MUn',
     ])
     removeDirs('Quiet', 'repo.lock')
     arr = []
@@ -92,11 +98,13 @@ describe('Remove files and dirs', () => {
     expect(arr).toEqual([
       'Quiet/IpfsQmQ18tV1dfGsEH8sCnbnzaYpMpb1QyCEjJ2KW96YtZ2MUn',
       'Quiet/IpfsQmQ18tV1dfGsEH8sCnbnzaYpMpb1QyCEjJ2KW96YtZ2MUn/pins',
-      'Quiet/OrbitDBQmQ18tV1dfGsEH8sCnbnzaYpMpb1QyCEjJ2KW96YtZ2MUn'
+      'Quiet/OrbitDBQmQ18tV1dfGsEH8sCnbnzaYpMpb1QyCEjJ2KW96YtZ2MUn',
     ])
   })
   it("No error if directory doesn't exist", () => {
-    expect(() => removeFiles('LOCK', 'non/existent/dir')).not.toThrow()
+    expect(() => {
+      removeFiles('LOCK', 'non/existent/dir')
+    }).not.toThrow()
   })
 })
 
@@ -120,11 +128,11 @@ describe('Compare actual and reported file size', () => {
 it('Gets users addresses based on user data', async () => {
   const userData = [
     { onionAddress: '12345.onion', peerId: '54321', dmPublicKey: '324530833893', username: 'Bob' },
-    { onionAddress: '67890.onion', peerId: '09876', dmPublicKey: '098830987898', username: 'Alice' }
+    { onionAddress: '67890.onion', peerId: '09876', dmPublicKey: '098830987898', username: 'Alice' },
   ]
   const addresses = await getUsersAddresses(userData)
   expect(addresses).toStrictEqual([
     createLibp2pAddress(userData[0].onionAddress, userData[0].peerId),
-    createLibp2pAddress(userData[1].onionAddress, userData[1].peerId)
+    createLibp2pAddress(userData[1].onionAddress, userData[1].peerId),
   ])
 })

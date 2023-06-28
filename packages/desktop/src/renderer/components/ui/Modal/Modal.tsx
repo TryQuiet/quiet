@@ -30,12 +30,12 @@ const classes = {
   bold: `${PREFIX}bold`,
   none: `${PREFIX}none`,
   transparent: `${PREFIX}transparent`,
-  withoutHeader: `${PREFIX}withoutHeader`
+  withoutHeader: `${PREFIX}withoutHeader`,
 }
 
 const StyledMaterialModal = styled(MaterialModal)(({ theme }) => ({
   [`& .${classes.root}`]: {
-    padding: '0 15%'
+    padding: '0 15%',
   },
 
   [`& .${classes.windowed}`]: {
@@ -43,7 +43,7 @@ const StyledMaterialModal = styled(MaterialModal)(({ theme }) => ({
     width: '50vw',
     position: 'fixed',
     marginTop: '25vh',
-    marginLeft: '25vw'
+    marginLeft: '25vw',
   },
 
   [`& .${classes.title}`]: {
@@ -51,40 +51,40 @@ const StyledMaterialModal = styled(MaterialModal)(({ theme }) => ({
     color: theme.palette.colors.trueBlack,
     lineHeight: '18px',
     fontStyle: 'normal',
-    fontWeight: 'normal'
+    fontWeight: 'normal',
   },
 
   [`& .${classes.header}`]: {
     background: theme.palette.colors.white,
-    height: constants.headerHeight
+    height: constants.headerHeight,
   },
 
   [`& .${classes.headerBorder}`]: {
-    borderBottom: `1px solid ${theme.palette.colors.contentGray}`
+    borderBottom: `1px solid ${theme.palette.colors.contentGray}`,
   },
 
   [`& .${classes.actions}`]: {
     paddingLeft: 10,
-    paddingRight: 10
+    paddingRight: 10,
   },
 
   [`& .${classes.content}`]: {
-    background: theme.palette.colors.white
+    background: theme.palette.colors.white,
   },
 
   [`& .${classes.fullPage}`]: {
     width: '100%',
-    height: `calc(100vh - ${constants.headerHeight}px)`
+    height: `calc(100vh - ${constants.headerHeight}px)`,
   },
 
   [`& .${classes.withoutHeader}`]: {
     width: '100%',
-    height: '100vh'
+    height: '100vh',
   },
 
   [`& .${classes.notFullPage}`]: {
     height: '100%',
-    width: '100%'
+    width: '100%',
   },
 
   [`& .${classes.centered}`]: {
@@ -94,7 +94,7 @@ const StyledMaterialModal = styled(MaterialModal)(({ theme }) => ({
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    outline: 0
+    outline: 0,
   },
 
   [`& .${classes.window}`]: {
@@ -104,24 +104,24 @@ const StyledMaterialModal = styled(MaterialModal)(({ theme }) => ({
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    outline: 0
+    outline: 0,
   },
 
   [`& .${classes.bold}`]: {
     fontSize: 16,
     lineHeight: '26px',
-    fontWeight: 500
+    fontWeight: 500,
   },
   [`& .${classes.none}`]: {
-    display: 'none'
+    display: 'none',
   },
   [`& .${classes.transparent}`]: {
-    backgroundColor: 'transparent'
-  }
+    backgroundColor: 'transparent',
+  },
 }))
 
 const constants = {
-  headerHeight: 60
+  headerHeight: 60,
 }
 
 export const Modal: React.FC<IModalProps> = ({
@@ -142,7 +142,7 @@ export const Modal: React.FC<IModalProps> = ({
   windowed,
   fullPage = true,
   isTransparent = false,
-  withoutHeader = false
+  withoutHeader = false,
 }) => {
   return (
     <StyledMaterialModal
@@ -151,8 +151,9 @@ export const Modal: React.FC<IModalProps> = ({
       className={classNames({
         [classes.windowed]: windowed,
         [classes.root]: !windowed,
-        [classes.transparent]: isTransparent
-      })}>
+        [classes.transparent]: isTransparent,
+      })}
+    >
       <Grid
         container
         direction='column'
@@ -160,34 +161,38 @@ export const Modal: React.FC<IModalProps> = ({
         className={classNames({
           [classes.centered]: fullPage,
           [classes.window]: !fullPage,
-          [classes.transparent]: isTransparent
-        })}>
+          [classes.transparent]: isTransparent,
+        })}
+      >
         <Grid
           container
           item
           className={classNames({
             [classes.header]: true,
             [classes.headerBorder]: addBorder,
-            [classes.none]: isTransparent
+            [classes.none]: isTransparent,
           })}
           direction='row'
-          alignItems='center'>
+          alignItems='center'
+        >
           <Grid
             item
             xs
             container
             direction={alignCloseLeft ? 'row-reverse' : 'row'}
             justifyContent='center'
-            alignItems='center'>
+            alignItems='center'
+          >
             <Grid item xs>
               <Typography
                 variant='subtitle1'
                 className={classNames({
                   [classes.title]: true,
-                  [classes.bold]: isBold
+                  [classes.bold]: isBold,
                 })}
                 style={alignCloseLeft ? { marginRight: 36 } : { marginLeft: 36 }}
-                align='center'>
+                align='center'
+              >
                 {title}
               </Typography>
             </Grid>
@@ -197,14 +202,16 @@ export const Modal: React.FC<IModalProps> = ({
                 item
                 justifyContent={alignCloseLeft ? 'flex-start' : 'flex-end'}
                 className={classes.actions}
-                data-testid={`${testIdPrefix}ModalActions`}>
+                data-testid={`${testIdPrefix}ModalActions`}
+              >
                 {canGoBack ? (
                   <IconButton
                     onClick={() => {
                       if (setStep && step) {
                         return setStep(step - 1)
                       }
-                    }}>
+                    }}
+                  >
                     <BackIcon />
                   </IconButton>
                 ) : (
@@ -214,7 +221,8 @@ export const Modal: React.FC<IModalProps> = ({
                         if (handleClose) {
                           return handleClose({}, 'backdropClick')
                         }
-                      }}>
+                      }}
+                    >
                       <ClearIcon />
                     </IconButton>
                   )
@@ -232,16 +240,18 @@ export const Modal: React.FC<IModalProps> = ({
             [classes.fullPage]: fullPage,
             [classes.notFullPage]: !fullPage,
             [classes.withoutHeader]: isTransparent || withoutHeader,
-            [classes.transparent]: isTransparent
-          })}>
+            [classes.transparent]: isTransparent,
+          })}
+        >
           <Grid
             container
             item
             className={classNames({
               [classes.content]: true,
-              [classes.transparent]: isTransparent
+              [classes.transparent]: isTransparent,
             })}
-            style={{ width: contentWidth, height: contentHeight }}>
+            style={{ width: contentWidth, height: contentHeight }}
+          >
             {children}
           </Grid>
         </Grid>
@@ -256,7 +266,7 @@ Modal.defaultProps = {
   alignCloseLeft: false,
   contentWidth: 600,
   isCloseDisabled: false,
-  addBorder: false
+  addBorder: false,
 }
 
 export default Modal

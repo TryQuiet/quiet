@@ -1,4 +1,3 @@
-/* eslint import/first: 0 */
 jest.mock('electron', () => {
   // @ts-expect-error
   const ipcRenderer = jest.mock()
@@ -35,8 +34,8 @@ describe('criticalError reducer', () => {
   beforeEach(() => {
     store = create({
       initialState: {
-        app: {}
-      }
+        app: {},
+      },
     })
     jest.clearAllMocks()
   })

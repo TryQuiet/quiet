@@ -7,24 +7,17 @@ import { IIconButtonProps } from './IconButton.d'
 const PREFIX = 'IconButton'
 
 const classes = {
-  root: `${PREFIX}root`
+  root: `${PREFIX}root`,
 }
 
-const StyledIconButtonMui = styled(IconButtonMui)((
-  {
-    theme
-  }
-) => ({
+const StyledIconButtonMui = styled(IconButtonMui)(({ theme }) => ({
   [`& .${classes.root}`]: {
     padding: 6,
-    color: theme.typography.body1.color
-  }
+    color: theme.typography.body1.color,
+  },
 }))
 
-export const IconButton: React.FC<IIconButtonProps> = ({
-  children,
-  onClick
-}) => {
+export const IconButton: React.FC<IIconButtonProps> = ({ children, onClick }) => {
   return (
     <StyledIconButtonMui classes={{ root: classes.root }} onClick={onClick}>
       {children}

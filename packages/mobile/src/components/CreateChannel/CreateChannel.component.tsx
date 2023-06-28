@@ -24,7 +24,7 @@ export const CreateChannel: FC<CreateChannelProps> = ({
   createChannelAction,
   channelCreationError,
   clearComponent,
-  handleBackButton
+  handleBackButton,
 }) => {
   const [createChannelInput, setCreateChannelInput] = useState<string | undefined>()
   const [parsedNameDiffers, setParsedNameDiffers] = useState(false)
@@ -76,7 +76,8 @@ export const CreateChannel: FC<CreateChannelProps> = ({
   return (
     <View
       style={{ flex: 1, backgroundColor: defaultTheme.palette.background.white }}
-      testID={'create-channel-component'}>
+      testID={'create-channel-component'}
+    >
       <Appbar title={'Create channel'} back={handleBackButton} />
       <KeyboardAvoidingView
         behavior='height'
@@ -84,8 +85,9 @@ export const CreateChannel: FC<CreateChannelProps> = ({
           flex: 1,
           marginTop: 24,
           paddingLeft: 20,
-          paddingRight: 20
-        }}>
+          paddingRight: 20,
+        }}
+      >
         <Input
           onChangeText={onChangeText}
           label={'Add a name for your channel'}
@@ -95,34 +97,38 @@ export const CreateChannel: FC<CreateChannelProps> = ({
           validation={inputError}
           ref={inputRef}
         />
-        {!inputError && createChannelInput?.length !== undefined && createChannelInput.length > 0 && parsedNameDiffers && (
-          <View
-            style={{
-              display: 'flex',
-              flexDirection: 'row',
-              gap: 10,
-              alignItems: 'center',
-              marginTop: 12
-            }}>
-            <View>
-              <Image
-                source={warning_icon}
-                resizeMode='cover'
-                resizeMethod='resize'
-                style={{
-                  width: 16,
-                  height: 16
-                }}
-              />
+        {!inputError &&
+          createChannelInput?.length !== undefined &&
+          createChannelInput.length > 0 &&
+          parsedNameDiffers && (
+            <View
+              style={{
+                display: 'flex',
+                flexDirection: 'row',
+                gap: 10,
+                alignItems: 'center',
+                marginTop: 12,
+              }}
+            >
+              <View>
+                <Image
+                  source={warning_icon}
+                  resizeMode='cover'
+                  resizeMethod='resize'
+                  style={{
+                    width: 16,
+                    height: 16,
+                  }}
+                />
+              </View>
+              <View testID={'create_channel_name_warning'}>
+                <Typography fontSize={14}>{'Your channel will be created as'}</Typography>
+                <Typography fontSize={14} fontWeight={'medium'}>
+                  {`#${createChannelInput}`}
+                </Typography>
+              </View>
             </View>
-            <View testID={'create_channel_name_warning'}>
-              <Typography fontSize={14}>{'Your channel will be created as'}</Typography>
-              <Typography fontSize={14} fontWeight={'medium'}>
-                {`#${createChannelInput}`}
-              </Typography>
-            </View>
-          </View>
-        )}
+          )}
         <View style={{ marginTop: 12 }}>
           <Button onPress={onPress} title={'Continue'} width={108} loading={loading} />
         </View>

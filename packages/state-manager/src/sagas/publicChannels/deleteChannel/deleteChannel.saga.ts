@@ -1,7 +1,7 @@
-import { PayloadAction } from '@reduxjs/toolkit'
+import { type PayloadAction } from '@reduxjs/toolkit'
 import { publicChannelsActions } from '../publicChannels.slice'
 import { apply, put, select } from 'typed-redux-saga'
-import { Socket, applyEmitParams } from '../../../types'
+import { type Socket, applyEmitParams } from '../../../types'
 import logger from '../../../utils/logger'
 import { filesActions } from '../../files/files.slice'
 import { SocketActionTypes } from '@quiet/types'
@@ -18,13 +18,13 @@ export function* deleteChannelSaga(
   const generalChannel = yield* select(publicChannelsSelectors.generalChannel)
   const currentChannelId = yield* select(publicChannelsSelectors.currentChannelId)
   const ownerData = yield* select(usersSelectors.ownerData)
-  const currentChannel = yield* select(publicChannelsSelectors.currentChannel)
+  const payloadChannel = yield* select(publicChannelsSelectors.getChannelById(channelId))
 
   if (generalChannel === undefined) {
     return
   }
 
-  if (currentChannel?.disabled) return
+  if (payloadChannel?.disabled) return
 
   const isGeneral = channelId === generalChannel.id
 
@@ -34,7 +34,7 @@ export function* deleteChannelSaga(
     socket.emit,
     applyEmitParams(SocketActionTypes.DELETE_CHANNEL, {
       channelId,
-      ownerPeerId: ownerData.peerId
+      ownerPeerId: ownerData.peerId,
     })
   )
 

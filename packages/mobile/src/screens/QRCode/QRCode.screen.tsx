@@ -19,18 +19,18 @@ export const QRCodeScreen: FC = () => {
   const handleBackButton = useCallback(() => {
     dispatch(
       navigationActions.navigation({
-        screen: ScreenNames.ChannelListScreen
+        screen: ScreenNames.ChannelListScreen,
       })
     )
   }, [dispatch])
 
   const shareCode = async () => {
-    svgRef.current?.toDataURL(async (base64) => {
+    svgRef.current?.toDataURL(async base64 => {
       try {
         await Share.open({
           title: '"Quiet" invitation',
           message: `Chat with me on "Quiet"!\n${invitationLink}`,
-          url: `data:image/png;base64,${base64}`
+          url: `data:image/png;base64,${base64}`,
         })
       } catch (error) {
         console.error(error)
@@ -38,12 +38,5 @@ export const QRCodeScreen: FC = () => {
     })
   }
 
-  return (
-    <QRCode
-      value={invitationLink}
-      svgRef={svgRef}
-      shareCode={shareCode}
-      handleBackButton={handleBackButton}
-    />
-  )
+  return <QRCode value={invitationLink} svgRef={svgRef} shareCode={shareCode} handleBackButton={handleBackButton} />
 }

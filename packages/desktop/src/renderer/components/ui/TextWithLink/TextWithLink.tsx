@@ -7,18 +7,14 @@ import { Typography, TypographyProps } from '@mui/material'
 const PREFIX = 'TextWithLink'
 
 const classes = {
-  link: `${PREFIX}link`
+  link: `${PREFIX}link`,
 }
 
-const StyledTypography = styled(Typography)((
-  {
-    theme
-  }
-) => ({
+const StyledTypography = styled(Typography)(({ theme }) => ({
   [`& .${classes.link}`]: {
     textDecoration: 'none',
-    color: theme.palette.colors.linkBlue
-  }
+    color: theme.palette.colors.linkBlue,
+  },
 }))
 
 export interface TextWithLinkProps {
@@ -50,7 +46,8 @@ export const TextWithLink: React.FC<TextWithLinkProps & TypographyProps> = ({
           e.preventDefault()
           action()
         }}
-        data-testid={`${testIdPrefix}Link`}>
+        data-testid={`${testIdPrefix}Link`}
+      >
         {label}
       </a>
     )

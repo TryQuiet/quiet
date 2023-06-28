@@ -2,8 +2,8 @@ import AccessController from 'orbit-db-access-controllers'
 import { getCrypto } from 'pkijs'
 import { stringToArrayBuffer } from 'pvutils'
 import { keyObjectFromString, verifySignature } from '@quiet/identity'
-import { ChannelMessage, NoCryptoEngineError } from '@quiet/types'
-import OrbitDB from 'orbit-db'
+import { type ChannelMessage, NoCryptoEngineError } from '@quiet/types'
+import type OrbitDB from 'orbit-db'
 
 const type = 'messagesaccess'
 
@@ -11,7 +11,7 @@ const type = 'messagesaccess'
 export class MessagesAccessController extends AccessController {
   private readonly crypto = getCrypto()
 
-  private readonly keyMapping: Map<string, CryptoKey> = new Map()
+  private readonly keyMapping = new Map<string, CryptoKey>()
 
   static get type() {
     return type

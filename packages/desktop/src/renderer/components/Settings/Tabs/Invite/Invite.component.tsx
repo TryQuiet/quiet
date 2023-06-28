@@ -18,23 +18,23 @@ const classes = {
   bold: `${PREFIX}bold`,
   linkContainer: `${PREFIX}linkContainer`,
   eyeIcon: `${PREFIX}eyeIcon`,
-  wrapper: `${PREFIX}wrapper`
+  wrapper: `${PREFIX}wrapper`,
 }
 
 const StyledGrid = styled(Grid)(({ theme }) => ({
   [`& .${classes.title}`]: {},
   [`& .${classes.wrapper}`]: {
-    maxWidth: '485px'
+    maxWidth: '485px',
   },
   [`& .${classes.titleDiv}`]: {
-    marginBottom: 24
+    marginBottom: 24,
   },
   [`& .${classes.link}`]: {
     marginTop: '16px',
     fontSize: '13px',
     letterSpacing: '-0.4px',
     overflowWrap: 'break-word',
-    inlineSize: '430px'
+    inlineSize: '430px',
   },
   [`& .${classes.button}`]: {
     marginTop: 24,
@@ -45,11 +45,11 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
     backgroundColor: theme.palette.colors.quietBlue,
     '&:hover': {
       opacity: 0.7,
-      backgroundColor: theme.palette.colors.quietBlue
-    }
+      backgroundColor: theme.palette.colors.quietBlue,
+    },
   },
   [`& .${classes.bold}`]: {
-    fontWeight: 'bold'
+    fontWeight: 'bold',
   },
 
   [`& .${classes.linkContainer}`]: {
@@ -61,15 +61,15 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
     alignContent: 'stretch',
     maxWidth: '485px',
     height: '48px',
-    position: 'relative'
+    position: 'relative',
   },
 
   [`& .${classes.eyeIcon}`]: {
     margin: '5px',
     top: '8px',
     position: 'absolute',
-    right: '0'
-  }
+    right: '0',
+  },
 }))
 
 export interface InviteComponentProps {
@@ -81,16 +81,11 @@ export interface InviteComponentProps {
 export const InviteComponent: FC<InviteComponentProps> = ({
   invitationLink,
   revealInputValue,
-  handleClickInputReveal
+  handleClickInputReveal,
 }) => {
   return (
     <StyledGrid container direction='column'>
-      <Grid
-        container
-        item
-        justifyContent='space-between'
-        alignItems='center'
-        className={classes.titleDiv}>
+      <Grid container item justifyContent='space-between' alignItems='center' className={classes.titleDiv}>
         <Grid item className={classes.title}>
           <Typography variant='h3' data-testid='invite-a-friend'>
             Invite a friend
@@ -114,7 +109,8 @@ export const InviteComponent: FC<InviteComponentProps> = ({
               data-testid='show-invitation-link'
               size='small'
               onClick={handleClickInputReveal}
-              className={classes.eyeIcon}>
+              className={classes.eyeIcon}
+            >
               {!revealInputValue ? (
                 <VisibilityOff color='primary' fontSize='small' />
               ) : (

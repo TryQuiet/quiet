@@ -3,12 +3,12 @@ import { ModalName } from './modals.types'
 
 export interface OpenModalPayload {
   name: ModalName
-  args?: {}
+  args?: {} // eslint-disable-line @typescript-eslint/ban-types
 }
 
 export interface ModalState {
   open: boolean
-  args?: {}
+  args?: {} // eslint-disable-line @typescript-eslint/ban-types
 }
 
 export class ModalsInitialState {
@@ -49,8 +49,8 @@ export const modalsSlice = createSlice({
     closeModal: (state, action: PayloadAction<ModalName>) => {
       state[action.payload].open = false
       state[action.payload].args = {}
-    }
-  }
+    },
+  },
 })
 
 export const modalsActions = modalsSlice.actions

@@ -1,47 +1,46 @@
-import { createSlice, EntityState, PayloadAction } from '@reduxjs/toolkit'
+import { createSlice, type EntityState, type PayloadAction } from '@reduxjs/toolkit'
 import { StoreKeys } from '../store.keys'
 import {
   publicChannelsAdapter,
   channelMessagesAdapter,
   publicChannelsStatusAdapter,
-  publicChannelsSubscriptionsAdapter
+  publicChannelsSubscriptionsAdapter,
 } from './publicChannels.adapter'
 
 import logger from '../../utils/logger'
 import {
-  CacheMessagesPayload,
-  ChannelDeletionResponsePayload,
-  ChannelMessage,
-  ChannelsReplicatedPayload,
-  ClearMessagesCachePayload,
-  CreateChannelPayload,
-  CreatedChannelResponse,
-  DeleteChannelFromStorePayload,
-  DeleteChannelPayload,
-  DisableChannelPayload,
-  Identity,
+  type CacheMessagesPayload,
+  type ChannelDeletionResponsePayload,
+  type ChannelMessage,
+  type ChannelsReplicatedPayload,
+  type ClearMessagesCachePayload,
+  type CreateChannelPayload,
+  type CreatedChannelResponse,
+  type DeleteChannelFromStorePayload,
+  type DeleteChannelPayload,
+  type DisableChannelPayload,
+  type Identity,
   INITIAL_CURRENT_CHANNEL_ID,
-  MarkUnreadChannelPayload,
-  PublicChannelStatus,
-  PublicChannelStorage,
-  PublicChannelSubscription,
-  SendInitialChannelMessagePayload,
-  SendNewUserInfoMessagePayload,
-  SetChannelSubscribedPayload,
-  SetCurrentChannelPayload,
-  UpdateNewestMessagePayload
+  type MarkUnreadChannelPayload,
+  type PublicChannelStatus,
+  type PublicChannelStorage,
+  type PublicChannelSubscription,
+  type SendInitialChannelMessagePayload,
+  type SendNewUserInfoMessagePayload,
+  type SetChannelSubscribedPayload,
+  type SetCurrentChannelPayload,
+  type UpdateNewestMessagePayload,
 } from '@quiet/types'
 const log = logger('publicChannels')
 
 export class PublicChannelsState {
   public currentChannelId: string = INITIAL_CURRENT_CHANNEL_ID
 
-  public pendingGeneralChannelRecreation: boolean = false
+  public pendingGeneralChannelRecreation = false
 
   public channels: EntityState<PublicChannelStorage> = publicChannelsAdapter.getInitialState()
 
-  public channelsStatus: EntityState<PublicChannelStatus> =
-    publicChannelsStatusAdapter.getInitialState()
+  public channelsStatus: EntityState<PublicChannelStatus> = publicChannelsStatusAdapter.getInitialState()
 
   public channelsSubscriptions: EntityState<PublicChannelSubscription> =
     publicChannelsSubscriptionsAdapter.getInitialState()
@@ -53,8 +52,8 @@ export const publicChannelsSlice = createSlice({
   reducers: {
     createChannel: (state, _action: PayloadAction<CreateChannelPayload>) => state,
     deleteChannel: (state, _action: PayloadAction<DeleteChannelPayload>) => state,
-    channelDeletionResponse: (state, _action: PayloadAction<ChannelDeletionResponsePayload>) =>
-      state,
+    completeChannelDeletion: (state, _action) => state,
+    channelDeletionResponse: (state, _action: PayloadAction<ChannelDeletionResponsePayload>) => state,
     deleteChannelFromStore: (state, action: PayloadAction<DeleteChannelFromStorePayload>) => {
       const { channelId } = action.payload
 
@@ -67,8 +66,8 @@ export const publicChannelsSlice = createSlice({
       publicChannelsAdapter.updateOne(state.channels, {
         id: channelId,
         changes: {
-          disabled: true
-        }
+          disabled: true,
+        },
       })
     },
     clearMessagesCache: (state, action: PayloadAction<ClearMessagesCachePayload>) => {
@@ -84,26 +83,25 @@ export const publicChannelsSlice = createSlice({
       state.pendingGeneralChannelRecreation = false
     },
     createGeneralChannel: state => state,
-    sendInitialChannelMessage: (state, _action: PayloadAction<SendInitialChannelMessagePayload>) =>
-      state,
+    sendInitialChannelMessage: (state, _action: PayloadAction<SendInitialChannelMessagePayload>) => state,
     sendNewUserInfoMessage: (state, _action: PayloadAction<SendNewUserInfoMessagePayload>) => state,
     addChannel: (state, action: PayloadAction<CreatedChannelResponse>) => {
       const { channel } = action.payload
       publicChannelsAdapter.addOne(state.channels, {
         ...channel,
-        messages: channelMessagesAdapter.getInitialState()
+        messages: channelMessagesAdapter.getInitialState(),
       })
       publicChannelsStatusAdapter.addOne(state.channelsStatus, {
         id: channel.id,
         unread: false,
-        newestMessage: null
+        newestMessage: null,
       })
     },
     setChannelSubscribed: (state, action: PayloadAction<SetChannelSubscribedPayload>) => {
       const { channelId } = action.payload
       publicChannelsSubscriptionsAdapter.upsertOne(state.channelsSubscriptions, {
         id: channelId,
-        subscribed: true
+        subscribed: true,
       })
     },
     channelsReplicated: (state, _action: PayloadAction<ChannelsReplicatedPayload>) => state,
@@ -123,8 +121,8 @@ export const publicChannelsSlice = createSlice({
       publicChannelsStatusAdapter.updateOne(state.channelsStatus, {
         id: channelId,
         changes: {
-          unread: true
-        }
+          unread: true,
+        },
       })
     },
     clearUnreadChannel: (state, action: PayloadAction<MarkUnreadChannelPayload>) => {
@@ -132,8 +130,8 @@ export const publicChannelsSlice = createSlice({
       publicChannelsStatusAdapter.updateOne(state.channelsStatus, {
         id: channelId,
         changes: {
-          unread: false
-        }
+          unread: false,
+        },
       })
     },
     updateNewestMessage: (state, action: PayloadAction<UpdateNewestMessagePayload>) => {
@@ -141,8 +139,8 @@ export const publicChannelsSlice = createSlice({
       publicChannelsStatusAdapter.updateOne(state.channelsStatus, {
         id: message.channelId,
         changes: {
-          newestMessage: message
-        }
+          newestMessage: message,
+        },
       })
     },
     // Utility action for testing purposes
@@ -159,8 +157,8 @@ export const publicChannelsSlice = createSlice({
       const channel = state.channels.entities[message.channelId]
       if (!channel) return
       channelMessagesAdapter.addOne(channel.messages, message)
-    }
-  }
+    },
+  },
 })
 
 export const publicChannelsActions = publicChannelsSlice.actions

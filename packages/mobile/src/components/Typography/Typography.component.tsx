@@ -26,7 +26,8 @@ export const Typography: FC<TypographyProps & TextProps> = ({
     numberOfLines={numberOfLines}
     style={style}
     verticalTextAlign={verticalTextAlign}
-    {...props}>
+    {...props}
+  >
     {children}
   </StyledTypography>
 )

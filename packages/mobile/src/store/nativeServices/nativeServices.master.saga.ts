@@ -6,6 +6,6 @@ import { nativeServicesActions } from './nativeServices.slice'
 export function* nativeServicesMasterSaga(): Generator {
   yield all([
     fork(nativeServicesCallbacksSaga),
-    takeEvery(nativeServicesActions.leaveCommunity.type, leaveCommunitySaga)
+    takeEvery(nativeServicesActions.leaveCommunity.type, leaveCommunitySaga),
   ])
 }

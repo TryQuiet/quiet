@@ -1,5 +1,5 @@
-import { applyEmitParams, Socket } from '../../../types'
-import { PayloadAction } from '@reduxjs/toolkit'
+import { applyEmitParams, type Socket } from '../../../types'
+import { type PayloadAction } from '@reduxjs/toolkit'
 import { apply, put, select } from 'typed-redux-saga'
 import { identitySelectors } from '../../identity/identity.selectors'
 import { filesActions } from '../files.slice'
@@ -18,7 +18,7 @@ export function* downloadFileSaga(
     filesActions.updateDownloadStatus({
       mid: media.message.id,
       cid: media.cid,
-      downloadState: DownloadState.Queued
+      downloadState: DownloadState.Queued,
     })
   )
 
@@ -27,7 +27,7 @@ export function* downloadFileSaga(
     socket.emit,
     applyEmitParams(SocketActionTypes.DOWNLOAD_FILE, {
       peerId: identity.peerId.id,
-      metadata: media
+      metadata: media,
     })
   )
 }

@@ -7,22 +7,22 @@ export const communityNameField = (name = 'name'): FieldData => {
       label: '',
       name,
       type: 'text',
-      placeholder: 'Community name'
+      placeholder: 'Community name',
     },
     validation: {
       required: FieldErrors.Required,
       maxLength: {
         value: 20,
-        message: CommunityNameErrors.NameTooLong
+        message: CommunityNameErrors.NameTooLong,
       },
       pattern: {
         value: /^[-a-zA-Z0-9 ]+$/g,
-        message: CommunityNameErrors.WrongCharacter
+        message: CommunityNameErrors.WrongCharacter,
       },
       validate: {
-        whitespaces: (value) => /^(?![\s-])[\w\s-]+$/.test(value) || FieldErrors.Whitespaces
-      }
-    }
+        whitespaces: value => /^(?![\s-])[\w\s-]+$/.test(value) || FieldErrors.Whitespaces,
+      },
+    },
   }
 }
 
@@ -32,14 +32,14 @@ export const inviteLinkField = (name = 'name'): FieldData => {
       label: '',
       name,
       type: 'password',
-      placeholder: 'Invite code'
+      placeholder: 'Invite code',
     },
     validation: {
       required: FieldErrors.Required,
       pattern: {
         value: /^[a-z0-9:/.#?= ]+$/g,
-        message: InviteLinkErrors.InvalidCode
-      }
-    }
+        message: InviteLinkErrors.InvalidCode,
+      },
+    },
   }
 }

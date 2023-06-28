@@ -8,7 +8,7 @@ import Loading from './Loading'
 const PREFIX = 'Index'
 
 const classes = {
-  root: `${PREFIX}root`
+  root: `${PREFIX}root`,
 }
 
 const StyledWindowWrapper = styled(WindowWrapper)(() => ({
@@ -16,8 +16,8 @@ const StyledWindowWrapper = styled(WindowWrapper)(() => ({
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-    WebkitAppRegion: process.platform === 'win32' ? 'no-drag' : 'drag'
-  }
+    WebkitAppRegion: process.platform === 'win32' ? 'no-drag' : 'drag',
+  },
 }))
 
 interface IndexProps {

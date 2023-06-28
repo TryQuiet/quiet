@@ -1,5 +1,3 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-export interface AnyObject {
-  [key: string]: any
-}
+export type AnyObject = Record<string, any>

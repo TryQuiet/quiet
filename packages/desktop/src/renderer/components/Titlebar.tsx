@@ -5,7 +5,7 @@ export const addTitlebar = () => {
     // eslint-disable-next-line
     const titlebar = new Titlebar({
       backgroundColor: Color.fromHex('#521c74'),
-      overflow: 'hidden'
+      overflow: 'hidden',
     })
   }, 0)
 }

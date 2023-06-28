@@ -1,11 +1,11 @@
-import { createSlice, EntityState, PayloadAction } from '@reduxjs/toolkit'
+import { createSlice, type EntityState, type PayloadAction } from '@reduxjs/toolkit'
 import { StoreKeys } from '../store.keys'
 import { connectedPeersAdapter } from './network.adapter'
-import { CommunityId, ConnectedPeers, LoadingPanelType, RegistrarId } from '@quiet/types'
+import { type CommunityId, type ConnectedPeers, LoadingPanelType, type RegistrarId } from '@quiet/types'
 
 export class NetworkState {
-  public initializedCommunities: { [key: string]: boolean } = {}
-  public initializedRegistrars: { [key: string]: boolean } = {}
+  public initializedCommunities: Record<string, boolean> = {}
+  public initializedRegistrars: Record<string, boolean> = {}
   public connectedPeers: EntityState<string> = connectedPeersAdapter.getInitialState()
   public loadingPanelType: LoadingPanelType = LoadingPanelType.StartingApplication
 }
@@ -17,13 +17,13 @@ export const networkSlice = createSlice({
     addInitializedCommunity: (state, action: PayloadAction<CommunityId>) => {
       state.initializedCommunities = {
         ...state.initializedCommunities,
-        [action.payload]: true
+        [action.payload]: true,
       }
     },
     addInitializedRegistrar: (state, action: PayloadAction<RegistrarId>) => {
       state.initializedRegistrars = {
         ...state.initializedRegistrars,
-        [action.payload]: true
+        [action.payload]: true,
       }
     },
     removeInitializedCommunities: (state, _action: PayloadAction<CommunityId>) => {
@@ -40,8 +40,8 @@ export const networkSlice = createSlice({
     },
     setLoadingPanelType: (state, action) => {
       state.loadingPanelType = action.payload
-    }
-  }
+    },
+  },
 })
 
 export const networkActions = networkSlice.actions

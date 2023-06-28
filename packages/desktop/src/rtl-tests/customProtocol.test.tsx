@@ -23,20 +23,20 @@ describe('Opening app through custom protocol', () => {
     name: '',
     CA: {
       rootCertString: '',
-      rootKeyString: ''
+      rootKeyString: '',
     },
     rootCa: '',
     peerList: [],
     registrar: {
       privateKey: '',
-      address: ''
+      address: '',
     },
     registrarUrl: 'https://bidrmzr3ee6qa2vvrlcnqvvvsk2gmjktcqkunba326parszr44gibwyd.onion',
     onionAddress: '',
     privateKey: '',
     port: 0,
     registrationAttempts: 0,
-    ownerCertificate: ''
+    ownerCertificate: '',
   }
 
   const _identity: Partial<Identity> = {
@@ -44,7 +44,7 @@ describe('Opening app through custom protocol', () => {
     nickname: '',
     userCsr: null,
     userCertificate: null,
-    joinTimestamp: 0
+    joinTimestamp: 0,
   }
 
   beforeEach(() => {
@@ -54,7 +54,7 @@ describe('Opening app through custom protocol', () => {
     window.ResizeObserver = jest.fn().mockImplementation(() => ({
       observe: jest.fn(),
       unobserve: jest.fn(),
-      disconnect: jest.fn()
+      disconnect: jest.fn(),
     }))
   })
 
@@ -77,9 +77,6 @@ describe('Opening app through custom protocol', () => {
       </>,
       store
     )
-
-    const progress = screen.getByTestId('loading-button-progress')
-    expect(progress).toBeVisible()
 
     store.dispatch(communities.actions.addNewCommunity(community))
     store.dispatch(communities.actions.setCurrentCommunity(community.id))

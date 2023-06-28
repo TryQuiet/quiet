@@ -16,7 +16,7 @@ const args: WarningModalComponentProps = {
     console.log('Closed modal')
   },
   title: 'Warning title',
-  subtitle: 'Warning description'
+  subtitle: 'Warning description',
 }
 
 Component.args = args
@@ -24,7 +24,7 @@ Component.args = args
 const component: ComponentMeta<typeof WarningModalComponent> = {
   title: 'Components/WarningModal',
   decorators: [withTheme],
-  component: WarningModalComponent
+  component: WarningModalComponent,
 }
 
 export default component

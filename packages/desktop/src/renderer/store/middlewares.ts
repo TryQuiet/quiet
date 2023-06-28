@@ -2,18 +2,19 @@ import { ModalName } from '../sagas/modals/modals.types'
 import { modalsActions } from '../sagas/modals/modals.slice'
 import { Store } from '../sagas/store.types'
 
-const isPromise = (value: any) =>
-  value !== null && typeof value === 'object' && typeof value.then === 'function'
+const isPromise = (value: any) => value !== null && typeof value === 'object' && typeof value.then === 'function'
 
 const _dispatchError = (store: Store, err: Error) => {
   const criticalError = {
     message: err.message,
-    traceback: err.stack
+    traceback: err.stack,
   }
-  store.dispatch(modalsActions.openModal({
-    name: ModalName.criticalError,
-    args: criticalError
-  }))
+  store.dispatch(
+    modalsActions.openModal({
+      name: ModalName.criticalError,
+      args: criticalError,
+    })
+  )
 }
 
 export const errorsMiddleware = (store: any) => (next: (action: any) => Promise<any>) => (action: any) => {

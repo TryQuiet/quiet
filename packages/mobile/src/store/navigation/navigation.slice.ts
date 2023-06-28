@@ -7,7 +7,7 @@ export class NavigationState {
   public currentScreen: ScreenNames = ScreenNames.SplashScreen
   public confirmationBox: ConfirmationBox = {
     open: false,
-    args: {}
+    args: {},
   }
 
   public [MenuName.Community] = { open: false, args: {} }
@@ -30,7 +30,7 @@ export interface NavigationPayload {
 
 export interface OpenMenuPayload {
   menu: MenuName
-  args?: {}
+  args?: Record<string, unknown>
 }
 
 export interface ToggleConfirmationBoxPayload {
@@ -66,7 +66,7 @@ export const navigationSlice = createSlice({
       const menu = action.payload
       state[menu] = {
         open: false,
-        args: {}
+        args: {},
       }
     },
     toggleConfirmationBox: (state, action: PayloadAction<ToggleConfirmationBoxPayload>) => {
@@ -77,8 +77,8 @@ export const navigationSlice = createSlice({
       if (args) {
         state.confirmationBox.args = args
       }
-    }
-  }
+    },
+  },
 })
 
 export const navigationActions = navigationSlice.actions

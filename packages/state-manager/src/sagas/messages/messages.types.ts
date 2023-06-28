@@ -1,18 +1,18 @@
-import { EntityState } from '@reduxjs/toolkit'
-import { FileMetadata } from '../files/files.types'
-import { ChannelMessage } from '../publicChannels/publicChannels.types'
+import { type EntityState } from '@reduxjs/toolkit'
+import { type FileMetadata } from '../files/files.types'
+import { type ChannelMessage } from '../publicChannels/publicChannels.types'
 
 export enum MessageType {
   Empty = -1,
   Basic = 1,
   Image = 2,
   Info = 3,
-  File = 4
+  File = 4,
 }
 
 export enum SendingStatus {
   Pending = 0,
-  Sent = 1
+  Sent = 1,
 }
 
 export interface SendMessagePayload {

@@ -14,5 +14,5 @@ export const splitByTex = (text: string, regex: RegExp): string[] => {
     matchResult = msgWIP.match(regex)
   }
   results.push(msgWIP) // Add remaining text
-  return results.filter((r) => r !== '')
+  return results.filter(r => r !== '')
 }

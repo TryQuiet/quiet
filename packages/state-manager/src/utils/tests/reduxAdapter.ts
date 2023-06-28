@@ -1,4 +1,4 @@
-import { Store } from '../../sagas/store.types'
+import { type Store } from '../../sagas/store.types'
 
 export class CustomReduxAdapter {
   store: Store
@@ -20,7 +20,7 @@ export class CustomReduxAdapter {
   }
 
   set(props: any, payload: any, _payload: any) {
-    Object.keys(props).forEach((key) => {
+    Object.keys(props).forEach(key => {
       payload[key] = props[key]
     })
     return payload

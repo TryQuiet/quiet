@@ -13,20 +13,55 @@ const args: SearchModalComponentProps = {
   open: true,
   dynamicSearchedChannelsSelector: [
     { name: 'fun', id: 'fun', messages: { ids: [], entities: {} }, description: '', owner: '', timestamp: 123123 },
-    { name: 'mobile', id: 'mobile', messages: { ids: [], entities: {} }, description: '', owner: '', timestamp: 123123 },
-    { name: 'new-york-plans', id: 'new-york-plans', messages: { ids: [], entities: {} }, description: '', owner: '', timestamp: 123123 }
+    {
+      name: 'mobile',
+      id: 'mobile',
+      messages: { ids: [], entities: {} },
+      description: '',
+      owner: '',
+      timestamp: 123123,
+    },
+    {
+      name: 'new-york-plans',
+      id: 'new-york-plans',
+      messages: { ids: [], entities: {} },
+      description: '',
+      owner: '',
+      timestamp: 123123,
+    },
   ],
   publicChannelsSelector: [
     { name: 'fun', id: 'fun', messages: { ids: [], entities: {} }, description: '', owner: '', timestamp: 123123 },
-    { name: 'mobile', id: 'mobile', messages: { ids: [], entities: {} }, description: '', owner: '', timestamp: 123123 },
-    { name: 'new-york-plans', id: 'new-york-plans', messages: { ids: [], entities: {} }, description: '', owner: '', timestamp: 123123 },
-    { name: 'general', id: 'general', messages: { ids: [], entities: {} }, description: '', owner: '', timestamp: 123123 }
+    {
+      name: 'mobile',
+      id: 'mobile',
+      messages: { ids: [], entities: {} },
+      description: '',
+      owner: '',
+      timestamp: 123123,
+    },
+    {
+      name: 'new-york-plans',
+      id: 'new-york-plans',
+      messages: { ids: [], entities: {} },
+      description: '',
+      owner: '',
+      timestamp: 123123,
+    },
+    {
+      name: 'general',
+      id: 'general',
+      messages: { ids: [], entities: {} },
+      description: '',
+      owner: '',
+      timestamp: 123123,
+    },
   ],
   unreadChannelsSelector: [],
   channelInput: '',
   handleClose: () => {},
   setCurrentChannel: () => {},
-  setChannelInput: () => {}
+  setChannelInput: () => {},
 }
 
 Component.args = args
@@ -34,7 +69,7 @@ Component.args = args
 const component: ComponentMeta<typeof SearchModalComponent> = {
   title: 'Components/SearchModal',
   decorators: [withTheme],
-  component: SearchModalComponent
+  component: SearchModalComponent,
 }
 
 export default component

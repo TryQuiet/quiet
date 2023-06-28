@@ -44,7 +44,16 @@ describe('Appbar component', () => {
                 "selected": undefined,
               }
             }
+            accessibilityValue={
+              {
+                "max": undefined,
+                "min": undefined,
+                "now": undefined,
+                "text": undefined,
+              }
+            }
             accessible={true}
+            collapsable={false}
             focusable={true}
             onClick={[Function]}
             onResponderGrant={[Function]}
@@ -55,28 +64,36 @@ describe('Appbar component', () => {
             onStartShouldSetResponder={[Function]}
             style={
               {
-                "alignItems": "center",
-                "justifyContent": "center",
-                "width": 64,
+                "opacity": 1,
               }
             }
             testID="appbar_action_item"
           >
-            <Image
-              resizeMethod="resize"
-              resizeMode="cover"
-              source={
-                {
-                  "testUri": "../../../assets/icons/arrow_left.png",
-                }
-              }
+            <View
               style={
                 {
-                  "height": 16,
-                  "width": 16,
+                  "alignItems": "center",
+                  "justifyContent": "center",
+                  "width": 64,
                 }
               }
-            />
+            >
+              <Image
+                resizeMethod="resize"
+                resizeMode="cover"
+                source={
+                  {
+                    "testUri": "../../../assets/icons/arrow_left.png",
+                  }
+                }
+                style={
+                  {
+                    "height": 16,
+                    "width": 16,
+                  }
+                }
+              />
+            </View>
           </View>
         </View>
         <View
@@ -123,12 +140,10 @@ describe('Appbar component', () => {
     const contextMenu: ReturnType<typeof useContextMenu> = {
       visible: false,
       handleOpen: function (_args?: any): any {},
-      handleClose: function (): any {}
+      handleClose: function (): any {},
     }
 
-    const { toJSON } = renderComponent(
-      <Appbar title={'quiet'} position={'flex-start'} contextMenu={contextMenu} />
-    )
+    const { toJSON } = renderComponent(<Appbar title={'quiet'} position={'flex-start'} contextMenu={contextMenu} />)
 
     expect(toJSON()).toMatchInlineSnapshot(`
       <View
@@ -165,7 +180,16 @@ describe('Appbar component', () => {
                 "selected": undefined,
               }
             }
+            accessibilityValue={
+              {
+                "max": undefined,
+                "min": undefined,
+                "now": undefined,
+                "text": undefined,
+              }
+            }
             accessible={true}
+            collapsable={false}
             focusable={true}
             onClick={[Function]}
             onResponderGrant={[Function]}
@@ -176,9 +200,7 @@ describe('Appbar component', () => {
             onStartShouldSetResponder={[Function]}
             style={
               {
-                "alignItems": "center",
-                "justifyContent": "center",
-                "width": 64,
+                "opacity": 1,
               }
             }
             testID="appbar_action_item"
@@ -187,33 +209,43 @@ describe('Appbar component', () => {
               style={
                 {
                   "alignItems": "center",
-                  "backgroundColor": "#67BFD3",
-                  "borderRadius": 4,
-                  "height": 36,
                   "justifyContent": "center",
-                  "width": 36,
+                  "width": 64,
                 }
               }
             >
-              <Text
-                color="white"
-                fontSize={14}
-                horizontalTextAlign="left"
+              <View
                 style={
-                  [
-                    {
-                      "color": "#ffffff",
-                      "fontFamily": "Rubik-Regular",
-                      "fontSize": 14,
-                      "textAlign": "left",
-                      "textAlignVertical": "center",
-                    },
-                  ]
+                  {
+                    "alignItems": "center",
+                    "backgroundColor": "#67BFD3",
+                    "borderRadius": 4,
+                    "height": 36,
+                    "justifyContent": "center",
+                    "width": 36,
+                  }
                 }
-                verticalTextAlign="center"
               >
-                qu
-              </Text>
+                <Text
+                  color="white"
+                  fontSize={14}
+                  horizontalTextAlign="left"
+                  style={
+                    [
+                      {
+                        "color": "#ffffff",
+                        "fontFamily": "Rubik-Regular",
+                        "fontSize": 14,
+                        "textAlign": "left",
+                        "textAlignVertical": "center",
+                      },
+                    ]
+                  }
+                  verticalTextAlign="center"
+                >
+                  qu
+                </Text>
+              </View>
             </View>
           </View>
         </View>
@@ -263,7 +295,16 @@ describe('Appbar component', () => {
                 "selected": undefined,
               }
             }
+            accessibilityValue={
+              {
+                "max": undefined,
+                "min": undefined,
+                "now": undefined,
+                "text": undefined,
+              }
+            }
             accessible={true}
+            collapsable={false}
             focusable={true}
             onClick={[Function]}
             onResponderGrant={[Function]}
@@ -274,28 +315,36 @@ describe('Appbar component', () => {
             onStartShouldSetResponder={[Function]}
             style={
               {
-                "alignItems": "center",
-                "justifyContent": "center",
-                "width": 64,
+                "opacity": 1,
               }
             }
             testID="open_menu"
           >
-            <Image
-              resizeMethod="resize"
-              resizeMode="contain"
-              source={
-                {
-                  "testUri": "../../../assets/icons/dots.png",
-                }
-              }
+            <View
               style={
                 {
-                  "height": 16,
-                  "width": 16,
+                  "alignItems": "center",
+                  "justifyContent": "center",
+                  "width": 64,
                 }
               }
-            />
+            >
+              <Image
+                resizeMethod="resize"
+                resizeMode="contain"
+                source={
+                  {
+                    "testUri": "../../../assets/icons/dots.png",
+                  }
+                }
+                style={
+                  {
+                    "height": 16,
+                    "width": 16,
+                  }
+                }
+              />
+            </View>
           </View>
         </View>
       </View>

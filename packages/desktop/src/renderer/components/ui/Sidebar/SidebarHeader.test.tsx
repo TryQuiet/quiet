@@ -6,12 +6,7 @@ import { SidebarHeader } from './SidebarHeader'
 describe('SidebarHeader', () => {
   it('renders component', () => {
     const result = renderComponent(
-      <SidebarHeader
-        title='sample title'
-        action={jest.fn()}
-        actionTitle={jest.fn()}
-        tooltipText='sample text'
-      />
+      <SidebarHeader title='sample title' action={jest.fn()} actionTitle={jest.fn()} tooltipText='sample text' />
     )
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>

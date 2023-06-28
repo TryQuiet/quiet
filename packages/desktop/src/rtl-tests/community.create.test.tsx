@@ -26,7 +26,7 @@ import {
   ResponseLaunchCommunityPayload,
   ResponseRegistrarPayload,
   SaveOwnerCertificatePayload,
-  SocketActionTypes
+  SocketActionTypes,
 } from '@quiet/state-manager'
 import Channel from '../renderer/components/Channel/Channel'
 import LoadingPanel from '../renderer/components/LoadingPanel/LoadingPanel'
@@ -46,7 +46,7 @@ describe('User', () => {
     window.ResizeObserver = jest.fn().mockImplementation(() => ({
       observe: jest.fn(),
       unobserve: jest.fn(),
-      disconnect: jest.fn()
+      disconnect: jest.fn(),
     }))
   })
 
@@ -84,12 +84,12 @@ describe('User', () => {
           network: {
             hiddenService: {
               onionAddress: 'onionAddress',
-              privateKey: 'privKey'
+              privateKey: 'privKey',
             },
             peerId: {
-              id: 'peerId'
-            }
-          }
+              id: 'peerId',
+            },
+          },
         })
       }
       if (action === SocketActionTypes.REGISTER_OWNER_CERTIFICATE) {
@@ -98,17 +98,17 @@ describe('User', () => {
           communityId: payload.communityId,
           network: {
             certificate: payload.permsData.certificate,
-            peers: []
-          }
+            peers: [],
+          },
         })
       }
       if (action === SocketActionTypes.CREATE_COMMUNITY) {
         const payload = input[1] as InitCommunityPayload
         socket.socketClient.emit<ResponseLaunchCommunityPayload>(SocketActionTypes.COMMUNITY, {
-          id: payload.id
+          id: payload.id,
         })
         socket.socketClient.emit(SocketActionTypes.NEW_COMMUNITY, {
-          id: payload.id
+          id: payload.id,
         })
 
         socket.socketClient.emit<ChannelsReplicatedPayload>(SocketActionTypes.CHANNELS_REPLICATED, {
@@ -118,9 +118,9 @@ describe('User', () => {
               description: 'string',
               owner: 'owner',
               timestamp: 0,
-              id: generalId
-            }
-          }
+              id: generalId,
+            },
+          },
         })
       }
       if (action === SocketActionTypes.LAUNCH_REGISTRAR) {
@@ -130,8 +130,8 @@ describe('User', () => {
           payload: {
             privateKey: 'privateKey',
             onionAddress: 'onionAddress',
-            port: 7909
-          }
+            port: 7909,
+          },
         })
       }
     })
@@ -182,14 +182,16 @@ describe('User', () => {
     expect(actions).toMatchInlineSnapshot(`
       Array [
         "Communities/createNetwork",
-        "Communities/responseCreateNetwork",
         "Communities/clearInvitationCode",
         "Communities/addNewCommunity",
         "Communities/setCurrentCommunity",
-        "Identity/addNewIdentity",
         "Modals/closeModal",
         "Modals/openModal",
         "Identity/registerUsername",
+        "Communities/responseCreateNetwork",
+        "Communities/clearInvitationCode",
+        "Communities/updateCommunityData",
+        "Identity/addNewIdentity",
         "Network/setLoadingPanelType",
         "Modals/openModal",
         "Identity/registerCertificate",

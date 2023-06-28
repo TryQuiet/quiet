@@ -10,7 +10,7 @@ export const Jdenticon: React.FC<{
 }> = props => {
   const svg = jdenticon.toSvg(props.value, props.size, props.config)
   const style = {
-    width: props.size
+    width: props.size,
   }
 
   return (

@@ -17,7 +17,7 @@ describe('Chat component', () => {
         contextMenu={{
           visible: false,
           handleOpen: function (_args?: any): any {},
-          handleClose: function (_args?: any): any {}
+          handleClose: function (_args?: any): any {},
         }}
         sendMessageAction={jest.fn()}
         loadMessagesAction={jest.fn()}
@@ -31,7 +31,7 @@ describe('Chat component', () => {
           description: '',
           owner: '',
           timestamp: 0,
-          id: ''
+          id: '',
         }}
         pendingMessages={{}}
         messages={{
@@ -45,7 +45,7 @@ describe('Chat component', () => {
                   message: 'Hello',
                   createdAt: 0,
                   date: '28 Oct, 10:00',
-                  nickname: 'alice'
+                  nickname: 'alice',
                 },
                 {
                   id: '2',
@@ -54,8 +54,8 @@ describe('Chat component', () => {
                     "How are you? My day was awesome. I removed a lot of unused props from container and I simplified code a lot. I like coding, coding is like building things with LEGO. I could admit it's a little bit harder and there's a lot that can go wrong but I like it anyway.",
                   createdAt: 0,
                   date: '28 Oct, 10:01',
-                  nickname: 'alice'
-                }
+                  nickname: 'alice',
+                },
               ],
               [
                 {
@@ -64,9 +64,9 @@ describe('Chat component', () => {
                   message: 'Great, thanks!',
                   createdAt: 0,
                   date: '28 Oct, 10:02',
-                  nickname: 'john'
-                }
-              ]
+                  nickname: 'john',
+                },
+              ],
             ],
             Today: [
               [
@@ -76,7 +76,7 @@ describe('Chat component', () => {
                   message: 'Luck, I am your father!',
                   createdAt: 0,
                   date: '12:40',
-                  nickname: 'chad'
+                  nickname: 'chad',
                 },
                 {
                   id: '5',
@@ -84,7 +84,7 @@ describe('Chat component', () => {
                   message: "That's impossible!",
                   createdAt: 0,
                   date: '12:41',
-                  nickname: 'chad'
+                  nickname: 'chad',
                 },
                 {
                   id: '6',
@@ -92,8 +92,8 @@ describe('Chat component', () => {
                   message: 'Nooo!',
                   createdAt: 0,
                   date: '12:45',
-                  nickname: 'chad'
-                }
+                  nickname: 'chad',
+                },
               ],
               [
                 {
@@ -102,8 +102,8 @@ describe('Chat component', () => {
                   message: 'Uhuhu!',
                   createdAt: 0,
                   date: '12:46',
-                  nickname: 'anakin'
-                }
+                  nickname: 'anakin',
+                },
               ],
               [
                 {
@@ -112,8 +112,8 @@ describe('Chat component', () => {
                   message: 'Why?',
                   createdAt: 0,
                   date: '12:46',
-                  nickname: 'anakin'
-                }
+                  nickname: 'anakin',
+                },
               ],
               [
                 {
@@ -122,8 +122,8 @@ describe('Chat component', () => {
                   message: 'Messages more there should be',
                   createdAt: 0,
                   date: '12:46',
-                  nickname: 'yoda'
-                }
+                  nickname: 'yoda',
+                },
               ],
               [
                 {
@@ -132,7 +132,7 @@ describe('Chat component', () => {
                   message: 'I Agree',
                   createdAt: 0,
                   date: '12:46',
-                  nickname: 'obi'
+                  nickname: 'obi',
                 },
                 {
                   id: '12',
@@ -140,8 +140,8 @@ describe('Chat component', () => {
                   message: 'Of course, I Agree',
                   createdAt: 0,
                   date: '12:46',
-                  nickname: 'obi'
-                }
+                  nickname: 'obi',
+                },
               ],
               [
                 {
@@ -150,8 +150,8 @@ describe('Chat component', () => {
                   message: 'Wrough!',
                   createdAt: 0,
                   date: '12:46',
-                  nickname: 'wookie'
-                }
+                  nickname: 'wookie',
+                },
               ],
               [
                 {
@@ -160,8 +160,8 @@ describe('Chat component', () => {
                   message: 'Yeah!',
                   createdAt: 0,
                   date: '12:46',
-                  nickname: 'leah'
-                }
+                  nickname: 'leah',
+                },
               ],
               [
                 {
@@ -170,8 +170,8 @@ describe('Chat component', () => {
                   message: 'The more messages the better',
                   createdAt: 0,
                   date: '12:46',
-                  nickname: 'luke'
-                }
+                  nickname: 'luke',
+                },
               ],
               [
                 {
@@ -180,8 +180,8 @@ describe('Chat component', () => {
                   message: 'We cannot grant you the rank of messager',
                   createdAt: 0,
                   date: '12:46',
-                  nickname: 'windoo'
-                }
+                  nickname: 'windoo',
+                },
               ],
               [
                 {
@@ -191,11 +191,11 @@ describe('Chat component', () => {
                     'deathhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhstarrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrdeathstartttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr',
                   createdAt: 0,
                   date: '12:46',
-                  nickname: 'vader'
-                }
-              ]
-            ]
-          }
+                  nickname: 'vader',
+                },
+              ],
+            ],
+          },
         }}
       />
     )
@@ -243,7 +243,16 @@ describe('Chat component', () => {
                   "selected": undefined,
                 }
               }
+              accessibilityValue={
+                {
+                  "max": undefined,
+                  "min": undefined,
+                  "now": undefined,
+                  "text": undefined,
+                }
+              }
               accessible={true}
+              collapsable={false}
               focusable={true}
               onClick={[Function]}
               onResponderGrant={[Function]}
@@ -254,28 +263,36 @@ describe('Chat component', () => {
               onStartShouldSetResponder={[Function]}
               style={
                 {
-                  "alignItems": "center",
-                  "justifyContent": "center",
-                  "width": 64,
+                  "opacity": 1,
                 }
               }
               testID="appbar_action_item"
             >
-              <Image
-                resizeMethod="resize"
-                resizeMode="cover"
-                source={
-                  {
-                    "testUri": "../../../assets/icons/arrow_left.png",
-                  }
-                }
+              <View
                 style={
                   {
-                    "height": 16,
-                    "width": 16,
+                    "alignItems": "center",
+                    "justifyContent": "center",
+                    "width": 64,
                   }
                 }
-              />
+              >
+                <Image
+                  resizeMethod="resize"
+                  resizeMode="cover"
+                  source={
+                    {
+                      "testUri": "../../../assets/icons/arrow_left.png",
+                    }
+                  }
+                  style={
+                    {
+                      "height": 16,
+                      "width": 16,
+                    }
+                  }
+                />
+              </View>
             </View>
           </View>
           <View
@@ -324,7 +341,16 @@ describe('Chat component', () => {
                   "selected": undefined,
                 }
               }
+              accessibilityValue={
+                {
+                  "max": undefined,
+                  "min": undefined,
+                  "now": undefined,
+                  "text": undefined,
+                }
+              }
               accessible={true}
+              collapsable={false}
               focusable={true}
               onClick={[Function]}
               onResponderGrant={[Function]}
@@ -335,28 +361,36 @@ describe('Chat component', () => {
               onStartShouldSetResponder={[Function]}
               style={
                 {
-                  "alignItems": "center",
-                  "justifyContent": "center",
-                  "width": 64,
+                  "opacity": 1,
                 }
               }
               testID="open_menu"
             >
-              <Image
-                resizeMethod="resize"
-                resizeMode="contain"
-                source={
-                  {
-                    "testUri": "../../../assets/icons/dots.png",
-                  }
-                }
+              <View
                 style={
                   {
-                    "height": 16,
-                    "width": 16,
+                    "alignItems": "center",
+                    "justifyContent": "center",
+                    "width": 64,
                   }
                 }
-              />
+              >
+                <Image
+                  resizeMethod="resize"
+                  resizeMode="contain"
+                  source={
+                    {
+                      "testUri": "../../../assets/icons/dots.png",
+                    }
+                  }
+                  style={
+                    {
+                      "height": 16,
+                      "width": 16,
+                    }
+                  }
+                />
+              </View>
             </View>
           </View>
         </View>

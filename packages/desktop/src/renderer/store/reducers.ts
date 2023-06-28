@@ -12,7 +12,7 @@ import stateManagerReducers, {
   FilesTransform,
   communities,
   ConnectionTransform,
-  resetStateAndSaveTorConnectionData
+  resetStateAndSaveTorConnectionData,
 } from '@quiet/state-manager'
 
 import { StoreType } from './handlers/types'
@@ -29,15 +29,12 @@ import { Store } from '../sagas/store.types'
 
 const dataPath =
   process.env.APPDATA ||
-  (process.platform === 'darwin'
-    ? process.env.HOME + '/Library/Application Support'
-    : process.env.HOME + '/.config')
-const appPath =
-  process.env.DATA_DIR || (process.env.NODE_ENV === 'development' ? DEV_DATA_DIR : 'Quiet')
+  (process.platform === 'darwin' ? process.env.HOME + '/Library/Application Support' : process.env.HOME + '/.config')
+const appPath = process.env.DATA_DIR || (process.env.NODE_ENV === 'development' ? DEV_DATA_DIR : 'Quiet')
 
 const options = {
   projectName: 'quiet',
-  cwd: path.join(dataPath, appPath)
+  cwd: path.join(dataPath, appPath),
 }
 
 const store = new ElectronStore<Store>(options)
@@ -57,15 +54,9 @@ const persistConfig = {
     StateManagerStoreKeys.Settings,
     StateManagerStoreKeys.Users,
     StateManagerStoreKeys.Connection,
-    StoreKeys.App
+    StoreKeys.App,
   ],
-  transforms: [
-    CommunitiesTransform,
-    PublicChannelsTransform,
-    MessagesTransform,
-    FilesTransform,
-    ConnectionTransform
-  ]
+  transforms: [CommunitiesTransform, PublicChannelsTransform, MessagesTransform, FilesTransform, ConnectionTransform],
 }
 
 export const reducers = {
@@ -73,12 +64,13 @@ export const reducers = {
   [StoreKeys.App]: appHandlers.reducer,
   [StoreKeys.Socket]: socketReducer,
   [StoreKeys.Modals]: modalsReducer,
-  [StoreKeys.Navigation]: navigationReducer
+  [StoreKeys.Navigation]: navigationReducer,
 }
 
 const allReducers = combineReducers(reducers)
 
-export const rootReducer = (state: any, action: AnyAction) => { // TODO: what is state?
+export const rootReducer = (state: any, action: AnyAction) => {
+  // TODO: what is state?
   if (action.type === communities.actions.resetApp.type) {
     state = resetStateAndSaveTorConnectionData()
   }

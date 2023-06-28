@@ -40,30 +40,26 @@ const classes = {
   linkBlue: `${PREFIX}linkBlue`,
   notAllowed: `${PREFIX}notAllowed`,
   inputFiles: `${PREFIX}inputFiles`,
-  icons: `${PREFIX}icons`
+  icons: `${PREFIX}icons`,
 }
 
-const StyledChannelInput = styled(Grid)((
-  {
-    theme
-  }
-) => ({
+const StyledChannelInput = styled(Grid)(({ theme }) => ({
   [`&.${classes.root}`]: {
     background: '#fff',
     height: '100%',
-    width: '100%'
+    width: '100%',
   },
   [`& .${classes.rootContent}`]: {
     background: '#fff',
     height: '100%',
-    width: '100%'
+    width: '100%',
   },
   '@keyframes blinker': {
     from: { opacity: 0 },
-    to: { opacity: 1 }
+    to: { opacity: 1 },
   },
   [`& .${classes.input}`]: {
-    whiteSpace: 'pre-line',
+    whiteSpace: 'break-spaces',
     width: '100%',
     fontSize: 14,
     outline: 'none',
@@ -73,12 +69,12 @@ const StyledChannelInput = styled(Grid)((
       '&:before': {
         content: 'attr(placeholder)',
         display: 'block',
-        color: '#aaa'
-      }
+        color: '#aaa',
+      },
     },
     wordBreak: 'break-word',
     position: 'relative',
-    paddingRight: '60px'
+    paddingRight: '60px',
   },
   [`& .${classes.textfield}`]: {
     border: `1px solid ${theme.palette.colors.veryLightGray}`,
@@ -86,7 +82,7 @@ const StyledChannelInput = styled(Grid)((
     overflowY: 'auto',
     borderRadius: 4,
     '&:hover': {
-      borderColor: theme.palette.colors.trueBlack
+      borderColor: theme.palette.colors.trueBlack,
     },
     display: 'flex',
     flexDirection: 'column',
@@ -95,26 +91,26 @@ const StyledChannelInput = styled(Grid)((
     alignItems: 'stretch',
     alignContent: 'stretch',
     width: '100%',
-    position: 'relative'
+    position: 'relative',
   },
   [`& .${classes.inputsDiv}`]: {
     paddingLeft: '20px',
     paddingRight: '20px',
     width: '100%',
     margin: '0px',
-    position: 'relative'
+    position: 'relative',
   },
   [`& .${classes.disabledBottomMargin}`]: {
-    marginBottom: 0
+    marginBottom: 0,
   },
   [`& .${classes.warningIcon}`]: {
-    color: orange[500]
+    color: orange[500],
   },
   [`& .${classes.blinkAnimation}`]: {
     animationName: '$blinker',
     animationDuration: '1s',
     animationTimingFunction: 'linear',
-    animationIterationCount: 1
+    animationIterationCount: 1,
   },
   [`& .${classes.backdrop}`]: {
     height: 'auto',
@@ -122,10 +118,10 @@ const StyledChannelInput = styled(Grid)((
     backgroundColor: 'rgba(0, 0, 0, 0.75)',
     WebkitTapHighlightColor: 'transparent',
     pointerEvents: 'none',
-    touchAction: 'none'
+    touchAction: 'none',
   },
   [`& .${classes.focused}`]: {
-    borderColor: theme.palette.colors.trueBlack
+    borderColor: theme.palette.colors.trueBlack,
   },
   [`& .${classes.iconButton}`]: {
     cursor: 'pointer',
@@ -134,61 +130,60 @@ const StyledChannelInput = styled(Grid)((
     color: '#808080',
     '&:hover': {
       color: 'black',
-      border: '1px solid black'
-
+      border: '1px solid black',
     },
     border: '1px solid #808080',
     // boxShadow: '-.75px -.75px 1px #808080',
     borderRadius: '100%',
     width: '23px',
-    height: '23px'
+    height: '23px',
   },
   [`& .${classes.emoji}`]: {
     cursor: 'pointer',
     position: 'relative',
-    float: 'right'
+    float: 'right',
   },
   [`& .${classes.highlight}`]: {
     color: theme.palette.colors.lushSky,
     backgroundColor: theme.palette.colors.lushSky12,
     padding: 5,
-    borderRadius: 4
+    borderRadius: 4,
   },
   [`& .${classes.actions}`]: {
     postion: 'relative',
     float: 'right',
-    padding: '5px'
+    padding: '5px',
   },
   [`& .${classes.picker}`]: {
     position: 'fixed',
     bottom: 60,
-    right: 15
+    right: 15,
   },
   [`& .${classes.errorIcon}`]: {
     display: 'flex',
     justify: 'center',
     alignItems: 'center',
     marginLeft: 20,
-    marginRight: 5
+    marginRight: 5,
   },
   [`& .${classes.errorText}`]: {
-    color: theme.palette.colors.trueBlack
+    color: theme.palette.colors.trueBlack,
   },
   [`& .${classes.errorBox}`]: {
-    marginTop: 5
+    marginTop: 5,
   },
   [`& .${classes.linkBlue}`]: {
     fontWeight: 'normal',
     fontStyle: 'normal',
     cursor: 'pointer',
-    color: theme.palette.colors.linkBlue
+    color: theme.palette.colors.linkBlue,
   },
   [`& .${classes.notAllowed}`]: {
-    cursor: 'not-allowed'
+    cursor: 'not-allowed',
   },
   [`& .${classes.inputFiles}`]: {
     position: 'relative',
-    float: 'left'
+    float: 'left',
   },
   [`& .${classes.icons}`]: {
     position: 'absolute',
@@ -200,8 +195,8 @@ const StyledChannelInput = styled(Grid)((
     flexWrap: 'wrap',
     justifyContent: 'flexStart',
     alignItems: 'center',
-    alignCntent: 'stretch'
-  }
+    alignCntent: 'stretch',
+  },
 }))
 
 export interface ChannelInputProps {
@@ -218,7 +213,7 @@ export interface ChannelInputProps {
   children?: ReactElement
   openFilesDialog: () => void
   handleClipboardFiles: (arg: ArrayBuffer, ext: string, name: string) => void
-  handleOpenFiles: (arg: {files: any[]}) => void
+  handleOpenFiles: (arg: { files: any[] }) => void
 }
 
 export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
@@ -234,12 +229,14 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
   children,
   openFilesDialog,
   handleClipboardFiles,
-  handleOpenFiles
+  handleOpenFiles,
 }) => {
   const [_anchorEl, setAnchorEl] = React.useState<HTMLDivElement>()
-  const [mentionsToSelect, setMentionsToSelect] = React.useState<Array<{
-    nickname: string
-  }>>([])
+  const [mentionsToSelect, setMentionsToSelect] = React.useState<
+    Array<{
+      nickname: string
+    }>
+  >([])
   const messageRef = React.useRef<string>()
   const refSelected = React.useRef<number>()
   const isFirstRenderRef = React.useRef(true)
@@ -316,11 +313,12 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
           }
 
           nickname = nickname ?? ''
-          const possibleMentions = channelParticipants.filter(
-            user =>
-              user.nickname.startsWith(nickname) &&
-              !channelParticipants.find(user => user.nickname === nickname)
-          ).filter(isDefined)
+          const possibleMentions = channelParticipants
+            .filter(
+              user =>
+                user.nickname.startsWith(nickname) && !channelParticipants.find(user => user.nickname === nickname)
+            )
+            .filter(isDefined)
 
           if (JSON.stringify(mentionsToSelect) !== JSON.stringify(possibleMentions)) {
             setMentionsToSelect(possibleMentions)
@@ -342,18 +340,16 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
 
   const sanitizedHtml = findMentions(htmlMessage)
 
-  const caretLineTraversal = (focusLine: Node, anchorLinePosition: number) => {
-    if (!focusLine.nodeValue) return
+  const caretLineTraversal = (focusLine: Node | null | undefined, anchorLinePosition = 0) => {
+    if (!focusLine?.nodeValue) return
     // Create an empty range
     const range = document.createRange()
+    // Set the focusLineLength
+    // Make it zero if between newlines
+    const focusLineLength = focusLine?.nodeValue?.length || 0
     // Set the range start to the position on the anchor line
-    // or the end of the focus line, whichever is shorter
-    range.setStart(
-      focusLine,
-      anchorLinePosition < focusLine.nodeValue.length
-        ? anchorLinePosition
-        : focusLine.nodeValue.length
-    )
+    // or the focus line length, whichever is shorter
+    range.setStart(focusLine, anchorLinePosition < focusLineLength ? anchorLinePosition : focusLineLength)
     // Remove the range from the anchor line
     const selection = window.getSelection()
     selection?.removeAllRanges()
@@ -429,35 +425,54 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
       }
 
       if (e.key === 'ArrowDown') {
-        const selection = window?.getSelection()
-        if (!selection) return
-        // Skipping over line break nodes
-        const nextLine = selection.anchorNode?.nextSibling?.nextSibling
-        if (nextLine) {
-          caretLineTraversal(nextLine, selection.anchorOffset)
-          return
+        const anchorNode: Node | null | undefined = window?.getSelection()?.anchorNode
+
+        // If the current line is empty, go directly to the next node.
+        let nextNode: Node | null | undefined = null
+        if (anchorNode?.nodeValue === null || anchorNode?.nodeValue === '\n') {
+          nextNode = anchorNode?.nextSibling
+        } else {
+          // Otherwise skip the break node at the end of the current line.
+          nextNode = anchorNode?.nextSibling?.nextSibling
         }
         // If we're on the bottom line, go to the end
-        if (selection.anchorNode?.nodeValue) {
-          caretLineTraversal(
-            selection.anchorNode,
-            selection.anchorNode.nodeValue.length
-          )
-        }
-      }
-      if (e.key === 'ArrowUp') {
-        const selection = window?.getSelection()
-        if (!selection) return
-        // Skipping over line break nodes
-        const previousLine = selection.anchorNode?.previousSibling?.previousSibling
-        if (previousLine) {
-          caretLineTraversal(previousLine, selection.anchorOffset)
+        if (!nextNode) {
+          const endOfNode = anchorNode?.nodeValue?.length || anchorNode?.textContent?.length
+          caretLineTraversal(anchorNode, endOfNode)
           return
         }
-        // If we're on the top line, go to the beginning
-        if (selection.anchorNode) {
-          caretLineTraversal(selection.anchorNode, 0)
+        // If the next line is empty, go the beginning
+        if (nextNode.nodeValue === null || nextNode.nodeValue === '\n') {
+          caretLineTraversal(nextNode, 0)
+          return
         }
+        caretLineTraversal(nextNode, window?.getSelection()?.anchorOffset)
+      }
+      if (e.key === 'ArrowUp') {
+        const anchorNode = window?.getSelection()?.anchorNode
+
+        // If pervious line is empty, go directly to it
+        let previousNode: Node | null | undefined = null
+        if (
+          anchorNode?.previousSibling?.previousSibling?.nodeValue === null ||
+          anchorNode?.previousSibling?.previousSibling?.nodeValue === '\n'
+        ) {
+          previousNode = anchorNode?.previousSibling
+        } else {
+          // Otherwise skip the break node at the end of the previous line
+          previousNode = anchorNode?.previousSibling?.previousSibling
+        }
+        // If we're on the top line, go to the beginning
+        if (!previousNode) {
+          caretLineTraversal(anchorNode, 0)
+          return
+        }
+        // If previous line is empty, go to the beginning
+        if (previousNode.nodeValue === null || previousNode.nodeValue === '\n') {
+          caretLineTraversal(previousNode, 0)
+          return
+        }
+        caretLineTraversal(previousNode, window?.getSelection()?.anchorOffset)
       }
 
       if (e.nativeEvent.keyCode === 13) {
@@ -489,7 +504,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
       setHtmlMessage,
       infoClass,
       setInfoClass,
-      setSelected
+      setSelected,
     ]
   )
 
@@ -503,16 +518,17 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
     <StyledChannelInput
       className={classNames({
         [classes.root]: true,
-        [classes.notAllowed]: inputState !== INPUT_STATE.AVAILABLE
+        [classes.notAllowed]: inputState !== INPUT_STATE.AVAILABLE,
       })}
     >
       <Grid
         container
         className={classNames({
-          [classes.rootContent]: true
+          [classes.rootContent]: true,
         })}
         direction='column'
-        justifyContent='center'>
+        justifyContent='center'
+      >
         {/* <MentionPoper anchorEl={anchorEl} selected={selected}>
           {mentionsToSelect.map((target, index) => (
             <MentionElement
@@ -536,22 +552,25 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
           justifyContent='center'
           spacing={0}
           className={classNames({
-            [classes.inputsDiv]: true
-          })}>
+            [classes.inputsDiv]: true,
+          })}
+        >
           <ClickAwayListener
             onClickAway={() => {
               setFocused(false)
-            }}>
+            }}
+          >
             <Grid
               item
               xs
               container
               className={classNames({
                 [classes.textfield]: true,
-                [classes.focused]: focused
+                [classes.focused]: focused,
               })}
               justifyContent='center'
-              alignItems='center'>
+              alignItems='center'
+            >
               <Grid item xs>
                 <ContentEditable
                   ref={inputRef}
@@ -566,7 +585,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
                   html={sanitizedHtml}
                   onChange={onChangeCb}
                   onKeyDown={onKeyDownCb}
-                  onPaste={async (e) => {
+                  onPaste={async e => {
                     e.preventDefault()
                     const files = e.clipboardData.files
                     for (let i = 0; i < files.length; i++) {
@@ -576,7 +595,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
                       handleClipboardFiles(arrayBuffer, fileExt, fileName)
                     }
                     if (!files.length) {
-                      const text = e.clipboardData.getData('text/plain')
+                      const text = e.clipboardData.getData('text/plain').replace(/(\r\n|\r|\n)/g, '<br />')
                       document.execCommand('insertHTML', false, text)
                     }
                   }}
@@ -603,7 +622,9 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
                       type='file'
                       onChange={handleFileInput}
                       // Value needs to be cleared otherwise one can't upload same image twice
-                      onClick={(e) => { (e.target as HTMLInputElement).value = '' }} // TODO: check
+                      onClick={e => {
+                        ;(e.target as HTMLInputElement).value = ''
+                      }} // TODO: check
                       accept='*'
                       multiple
                       hidden
@@ -625,13 +646,13 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
                         setEmojiHovered(false)
                       }}
                     />
-
                   </Grid>
                   {openEmoji && (
                     <ClickAwayListener
                       onClickAway={() => {
                         setOpenEmoji(false)
-                      }}>
+                      }}
+                    >
                       <div data-testid={'emoji-picker'} className={classes.picker}>
                         <Picker
                           onEmojiClick={(emojiData, _event) => {
@@ -651,9 +672,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
             </Grid>
           </ClickAwayListener>
         </Grid>
-        <ChannelInputInfoMessage
-          showInfoMessage={inputState !== INPUT_STATE.AVAILABLE}
-        />
+        <ChannelInputInfoMessage showInfoMessage={inputState !== INPUT_STATE.AVAILABLE} />
       </Grid>
     </StyledChannelInput>
   )

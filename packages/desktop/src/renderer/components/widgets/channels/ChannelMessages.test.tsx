@@ -8,7 +8,7 @@ describe('ChannelMessages', () => {
     window.ResizeObserver = jest.fn().mockImplementation(() => ({
       observe: jest.fn(),
       unobserve: jest.fn(),
-      disconnect: jest.fn()
+      disconnect: jest.fn(),
     }))
   })
 
@@ -19,13 +19,13 @@ describe('ChannelMessages', () => {
       message: 'string',
       createdAt: 1636995488.44,
       date: 'string',
-      nickname: 'string'
+      nickname: 'string',
     }
 
     jest.spyOn(DateTime, 'utc').mockImplementationOnce(() => DateTime.utc(2019, 3, 7, 13, 3, 48))
 
     const messages = {
-      Today: [[message]]
+      Today: [[message]],
     }
 
     const result = renderComponent(

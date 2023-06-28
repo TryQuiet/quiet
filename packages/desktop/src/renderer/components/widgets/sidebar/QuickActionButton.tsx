@@ -12,14 +12,10 @@ const PREFIX = 'QuickActionButton'
 const classes = {
   button: `${PREFIX}button`,
   icon: `${PREFIX}icon`,
-  iconDiv: `${PREFIX}iconDiv`
+  iconDiv: `${PREFIX}iconDiv`,
 }
 
-const StyledButton = styled(Button)((
-  {
-    theme
-  }
-) => ({
+const StyledButton = styled(Button)(({ theme }) => ({
   [`&.${classes.button}`]: {
     marginTop: 8,
     padding: 0,
@@ -27,23 +23,23 @@ const StyledButton = styled(Button)((
     textTransform: 'none',
     '&:hover': {
       backgroundColor: 'inherit',
-      opacity: 1
+      opacity: 1,
     },
     opacity: 0.7,
-    color: theme.palette.colors.white
+    color: theme.palette.colors.white,
   },
 
   [`& .${classes.icon}`]: {
     fontSize: 12,
     marginRight: 2,
     marginLeft: -2,
-    marginBottom: 2
+    marginBottom: 2,
   },
 
   [`& .${classes.iconDiv}`]: {
     marginRight: 5,
-    marginBottom: 2
-  }
+    marginBottom: 2,
+  },
 }))
 
 interface QuickActionButtonProps {
@@ -55,13 +51,7 @@ interface QuickActionButtonProps {
 export const QuickActionButton: React.FC<QuickActionButtonProps> = ({ text, action, icon }) => {
   return (
     <StyledButton variant='text' className={classes.button} onClick={action}>
-      {icon
-        ? (
-          <div className={classes.iconDiv}>{icon}</div>
-        )
-        : (
-          <AddIcon className={classes.icon} />
-        )}
+      {icon ? <div className={classes.iconDiv}>{icon}</div> : <AddIcon className={classes.icon} />}
       <Typography variant='body2'>{text}</Typography>
     </StyledButton>
   )

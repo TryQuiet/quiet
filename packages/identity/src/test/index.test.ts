@@ -11,10 +11,13 @@ describe('Message signature verification', () => {
   let crypto: SubtleCrypto | null
   beforeAll(() => {
     const webcrypto = new Crypto()
-    setEngine('newEngine', new CryptoEngine({
-      name: 'newEngine',
-      crypto: webcrypto,
-    }))
+    setEngine(
+      'newEngine',
+      new CryptoEngine({
+        name: 'newEngine',
+        crypto: webcrypto,
+      })
+    )
     crypto = getCrypto()
   })
 
@@ -26,16 +29,12 @@ describe('Message signature verification', () => {
     const userCert = await createTestUserCert(rootCert, userCsr)
 
     const data = {
-      message: message,
+      message,
       userPubKey: await extractPubKey(userCert.userCertString, crypto),
-      signature: await sign(message, userCsr.pkcs10.privateKey)
+      signature: await sign(message, userCsr.pkcs10.privateKey),
     }
 
-    const result = await verifySignature(
-      data.signature,
-      data.message,
-      data.userPubKey
-    )
+    const result = await verifySignature(data.signature, data.message, data.userPubKey)
 
     expect(result).toBe(true)
   })
@@ -50,16 +49,12 @@ describe('Message signature verification', () => {
     const spoofedUserCert = await createTestUserCert(rootCert, spoofedUserCsr)
 
     const data = {
-      message: message,
+      message,
       userPubKey: await extractPubKey(spoofedUserCert.userCertString, crypto),
-      signature: await sign(message, userCsr.pkcs10.privateKey)
+      signature: await sign(message, userCsr.pkcs10.privateKey),
     }
 
-    const result = await verifySignature(
-      data.signature,
-      data.message,
-      data.userPubKey
-    )
+    const result = await verifySignature(data.signature, data.message, data.userPubKey)
 
     expect(result).toBe(false)
   })
@@ -92,7 +87,7 @@ describe('Certificate', () => {
       [CertFieldsTypes.commonName]: userData.commonName,
       [CertFieldsTypes.nickName]: userData.nickname,
       [CertFieldsTypes.peerId]: userData.peerId,
-      [CertFieldsTypes.dmPublicKey]: userData.dmPublicKey
+      [CertFieldsTypes.dmPublicKey]: userData.dmPublicKey,
     }
     type CertFieldsTypesKeys = keyof typeof certTypeData
 
@@ -112,7 +107,7 @@ describe('Certificate', () => {
       [CertFieldsTypes.commonName]: userData.commonName,
       [CertFieldsTypes.nickName]: userData.nickname,
       [CertFieldsTypes.peerId]: userData.peerId,
-      [CertFieldsTypes.dmPublicKey]: userData.dmPublicKey
+      [CertFieldsTypes.dmPublicKey]: userData.dmPublicKey,
     }
     type CertFieldsTypesKeys = keyof typeof certTypeData
 
@@ -127,7 +122,9 @@ describe('Certificate', () => {
   })
 
   it('old certificate cannot contains proper data', async () => {
-    const parsedCert = parseCertificate('MIIB7TCCAZMCBgF641h5xzAKBggqhkjOPQQDAjASMRAwDgYDVQQDEwdaYmF5IENBMB4XDTIxMDcyNjE1MDQyNFoXDTMwMDIwMTAwMDAwMFowgc4xgcswHAYKKwYBBAGDjBsCARMOZGV2OTlkZXY5OXlvZGEwPwYDVQQDEzgzNWNzNmZramJoZmJiMnppYnIzNm5rdXY0cWlld2x2NXBmcGprbHh2N2xtcGphM2hydTN3NDdpZDA7BgkrBgECAQ8DAQETLlFtVmIxbUZ2Z1hKZXRKS0o1NmRtR1Q2Rkd1TnJtM0VhVFZ6V3VHaGtxcjZodjUwLQYJKoZIhvcNAQkMBCCf3wijnripB3ZADnDgT1ZIr1zUGjHVZI2K4kt6Yb7CazBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABDKw/zcoE2Vahw3q9CdRQsCXikFU8PhEIN/y65hrB6yAxWH4Ut9QBKMMAnaG8JlzvEeaScQiu5Jyyx0O0xAadQ+jHTAbMAwGA1UdEwQFMAMCAQMwCwYDVR0PBAQDAgAGMAoGCCqGSM49BAMCA0gAMEUCIQCRz+6W3K3SI7Q7uYDVVIJXnWud/DGvpqHCuLJ+gnJLMgIgBmS1D8s1xnGOQpARx40vus4b/f49LQeG2YxPCSHVQOM=')
+    const parsedCert = parseCertificate(
+      'MIIB7TCCAZMCBgF641h5xzAKBggqhkjOPQQDAjASMRAwDgYDVQQDEwdaYmF5IENBMB4XDTIxMDcyNjE1MDQyNFoXDTMwMDIwMTAwMDAwMFowgc4xgcswHAYKKwYBBAGDjBsCARMOZGV2OTlkZXY5OXlvZGEwPwYDVQQDEzgzNWNzNmZramJoZmJiMnppYnIzNm5rdXY0cWlld2x2NXBmcGprbHh2N2xtcGphM2hydTN3NDdpZDA7BgkrBgECAQ8DAQETLlFtVmIxbUZ2Z1hKZXRKS0o1NmRtR1Q2Rkd1TnJtM0VhVFZ6V3VHaGtxcjZodjUwLQYJKoZIhvcNAQkMBCCf3wijnripB3ZADnDgT1ZIr1zUGjHVZI2K4kt6Yb7CazBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABDKw/zcoE2Vahw3q9CdRQsCXikFU8PhEIN/y65hrB6yAxWH4Ut9QBKMMAnaG8JlzvEeaScQiu5Jyyx0O0xAadQ+jHTAbMAwGA1UdEwQFMAMCAQMwCwYDVR0PBAQDAgAGMAoGCCqGSM49BAMCA0gAMEUCIQCRz+6W3K3SI7Q7uYDVVIJXnWud/DGvpqHCuLJ+gnJLMgIgBmS1D8s1xnGOQpARx40vus4b/f49LQeG2YxPCSHVQOM='
+    )
 
     expect(getCertFieldValue(parsedCert, CertFieldsTypes.dmPublicKey)).toEqual(null)
     expect(getCertFieldValue(parsedCert, CertFieldsTypes.subjectAltName)).toEqual(null)

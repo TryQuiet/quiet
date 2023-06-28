@@ -19,7 +19,7 @@ const classes = {
   closeIconContainer: `${PREFIX}closeIconContainer`,
   closeIcon: `${PREFIX}closeIcon`,
   imageContainer: `${PREFIX}imageContainer`,
-  tooltip: `${PREFIX}tooltip`
+  tooltip: `${PREFIX}tooltip`,
 }
 
 const StyledFilePreviewComponent = styled('div')(() => ({
@@ -30,19 +30,19 @@ const StyledFilePreviewComponent = styled('div')(() => ({
   [`& .${classes.wrapper}`]: {
     margin: '0 0 10px 10px',
     width: '64px',
-    height: '64px'
+    height: '64px',
   },
 
   [`& .${classes.image}`]: {
     width: '64px',
     height: '64px',
     borderRadius: '15%',
-    objectFit: 'cover'
+    objectFit: 'cover',
   },
 
   [`& .${classes.fileIcon}`]: {
     width: '32px',
-    height: '40px'
+    height: '40px',
   },
 
   [`& .${classes.fileIconContainer}`]: {
@@ -52,7 +52,7 @@ const StyledFilePreviewComponent = styled('div')(() => ({
     backgroundColor: '#F0F0F0',
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
   },
 
   [`& .${classes.closeIconContainer}`]: {
@@ -65,8 +65,8 @@ const StyledFilePreviewComponent = styled('div')(() => ({
     height: '22px',
     transform: 'translate(50%, -50%)',
     '&:hover': {
-      backgroundColor: '#dddddd'
-    }
+      backgroundColor: '#dddddd',
+    },
   },
 
   [`& .${classes.closeIcon}`]: {
@@ -76,14 +76,14 @@ const StyledFilePreviewComponent = styled('div')(() => ({
     color: '#444444',
     transform: 'translate(-50%, -50%)',
     '&:hover': {
-      color: '#000000'
+      color: '#000000',
     },
-    width: '17px'
+    width: '17px',
   },
 
   [`& .${classes.tooltip}`]: {
-    marginTop: '8px'
-  }
+    marginTop: '8px',
+  },
 }))
 
 const StyledUploadFilesPreviewsComponent = styled('div')(() => ({
@@ -92,7 +92,7 @@ const StyledUploadFilesPreviewsComponent = styled('div')(() => ({
   justifyContent: 'flexStart',
   alignItems: 'baseline',
   alignContent: 'stretch',
-  paddingRight: '50px'
+  paddingRight: '50px',
 }))
 
 export interface FilePreviewData {
@@ -115,7 +115,8 @@ const FilePreviewComponent: React.FC<FilePreviewComponentProps> = ({ fileData, o
       }}
       onMouseOver={() => {
         setShowClose(true)
-      }}>
+      }}
+    >
       {showClose && (
         <div className={classes.closeIconContainer} onClick={onClick}>
           <CloseIcon className={classes.closeIcon} />
@@ -123,11 +124,11 @@ const FilePreviewComponent: React.FC<FilePreviewComponentProps> = ({ fileData, o
       )}
       <Tooltip title={`${fileData.name}${fileData.ext}`} placement='top' className={classes.tooltip}>
         <div className={classes.wrapper}>
-          { imageType && fileData.path ? (
+          {imageType && fileData.path ? (
             <img src={fileData.path} alt={fileData.name} className={classes.image} />
           ) : (
             <div className={classes.fileIconContainer}>
-              <Icon src={fileIcon} className={classes.fileIcon}/>
+              <Icon src={fileIcon} className={classes.fileIcon} />
             </div>
           )}
         </div>
@@ -141,10 +142,7 @@ export interface UploadFilesPreviewsProps {
   removeFile: (id: string) => void
 }
 
-const UploadFilesPreviewsComponent: React.FC<UploadFilesPreviewsProps> = ({
-  filesData,
-  removeFile
-}) => {
+const UploadFilesPreviewsComponent: React.FC<UploadFilesPreviewsProps> = ({ filesData, removeFile }) => {
   return (
     <StyledUploadFilesPreviewsComponent>
       {Object.entries(filesData).map(fileData => (

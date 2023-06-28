@@ -1,4 +1,4 @@
-import { ChannelMessage } from './channel'
+import { type ChannelMessage } from './channel'
 
 export interface FileContent {
   path: string | null // Should it be nullable?
@@ -55,13 +55,8 @@ export interface DownloadProgress {
   transferSpeed: number
 }
 
-export interface DictionaryNum<T> {
-  [id: number]: T | undefined
-}
-
-export interface Dictionary<T> extends DictionaryNum<T> {
-  [id: string]: T | undefined
-}
+export type DictionaryNum<T> = Record<number, T | undefined>
+export type Dictionary<T> = DictionaryNum<T> & Record<string, T | undefined>
 
 export interface DeleteFilesFromChannelPayload {
   channelId: string
@@ -80,7 +75,7 @@ export enum DownloadState {
   Completed = 'completed',
   Canceling = 'canceling',
   Canceled = 'canceled',
-  Malicious = 'malicious'
+  Malicious = 'malicious',
 }
 
 export const imagesExtensions = ['.gif', '.png', '.jpg', '.jpeg']

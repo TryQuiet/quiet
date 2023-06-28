@@ -7,9 +7,7 @@ describe('truncateWords function', () => {
 
     const truncated = truncateWords(text, 11, 100)
 
-    expect(truncated).toEqual(
-      'Text from latest chat message. Lorem ipsum dolor sit amet, consectetur...'
-    )
+    expect(truncated).toEqual('Text from latest chat message. Lorem ipsum dolor sit amet, consectetur...')
   })
   it('should truncate a long uninterrupted string', () => {
     const text =

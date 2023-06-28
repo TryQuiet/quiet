@@ -11,7 +11,7 @@ describe('UploadedImagePlaceholder', () => {
     downloadStatus = {
       mid: 'test',
       cid: 'hvb45FGa',
-      downloadState: DownloadState.Completed
+      downloadState: DownloadState.Completed,
     }
     const result = renderComponent(
       <UploadedImagePlaceholder
@@ -90,8 +90,8 @@ describe('UploadedImagePlaceholder', () => {
       downloadProgress: {
         size: 12345,
         downloaded: 1234,
-        transferSpeed: 123
-      }
+        transferSpeed: 123,
+      },
     }
     const result = renderComponent(
       <UploadedImagePlaceholder

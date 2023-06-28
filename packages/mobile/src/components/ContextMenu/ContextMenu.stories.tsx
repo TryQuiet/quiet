@@ -10,20 +10,20 @@ const community_items: ContextMenuItemProps[] = [
     title: 'Create channel',
     action: () => {
       console.log('clicked on create channel')
-    }
+    },
   },
   {
     title: 'Add members',
     action: () => {
       console.log('clicked on add members')
-    }
+    },
   },
   {
     title: 'Settings',
     action: () => {
       console.log('clicked on settings')
-    }
-  }
+    },
+  },
 ]
 
 const invitation_items: ContextMenuItemProps[] = [
@@ -31,14 +31,14 @@ const invitation_items: ContextMenuItemProps[] = [
     title: 'Copy link',
     action: () => {
       console.log('clicked on copy link')
-    }
+    },
   },
   {
     title: 'Cancel',
     action: () => {
       console.log('clicked on cancel')
-    }
-  }
+    },
+  },
 ]
 
 storiesOf('ContextMenu', module)

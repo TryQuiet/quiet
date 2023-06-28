@@ -12,8 +12,8 @@ storiesOf('TextWithLink', module).add('Default', () => (
         label: 'linked',
         action: () => {
           console.log('link clicked')
-        }
-      }
+        },
+      },
     ]}
   />
 ))
