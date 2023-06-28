@@ -92,6 +92,8 @@ Detox recommends to install its `detox-cli` globally, enabling usage of the comm
 npm install detox-cli --global
 ```
 
+> NOTE: From this point, we recommend to operate within a docker container provided for Android development (unless you have an environment already set up locally)
+
 Choose proper configuration depending on the os and target device and pass it with `-configuration` flag when building and running tests.
 (The configuration has a following pattern: `<OS>.<DEVICE-TYPE>.<BUILD-TYPE>`, eg. for ios debug simulator use `ios.sim.debug` and for android release tested on an attached device use `android.att.release`)
 
