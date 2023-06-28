@@ -1,5 +1,5 @@
 import React, { FC } from 'react'
-import { View, Image, FlatList, TouchableWithoutFeedback, TouchableOpacity } from 'react-native'
+import { View, Image, FlatList, TouchableWithoutFeedback, TouchableOpacity, Animated } from 'react-native'
 import { Typography } from '../Typography/Typography.component'
 
 import { ContextMenuItemProps, ContextMenuProps } from './ContextMenu.types'
@@ -18,16 +18,44 @@ export const ContextMenu: FC<ContextMenuProps> = ({
     console.log('No action attached for link tap gesture.')
   },
 }) => {
+  const [show, setShow] = React.useState<boolean>(false)
+  const slidingAnimation = React.useRef(new Animated.Value(0)).current
   const icon_close = appImages.icon_close
+
+  const menuFadeIn = () => {
+    setShow(true)
+    Animated.timing(slidingAnimation, {
+      toValue: 0,
+      duration: 250,
+      useNativeDriver: true,
+    }).start()
+  }
+
+  const menuFadeOut = () => {
+    Animated.timing(slidingAnimation, {
+      toValue: 500,
+      duration: 250,
+      useNativeDriver: true,
+    }).start(() => setShow(false))
+  }
+
+  React.useEffect(() => {
+    visible ? menuFadeIn() : menuFadeOut()
+  }, [visible])
+
   return (
     <TouchableWithoutFeedback onPress={handleClose}>
-      <View
+      <Animated.View
         style={{
-          display: visible ? 'flex' : 'none',
+          display: show ? 'flex' : 'none',
           position: 'absolute',
           width: '100%',
           height: '100%',
-          // backgroundColor: 'rgba(52, 52, 52, 0.8)'
+          transform: [
+            {
+              translateY: slidingAnimation,
+            },
+          ],
         }}
       >
         <View style={{ flex: 4 }} />
@@ -35,7 +63,6 @@ export const ContextMenu: FC<ContextMenuProps> = ({
           <View
             style={{
               flex: 6,
-              // position: 'absolute',
               bottom: 0,
               flexDirection: 'column',
               alignItems: 'flex-start',
@@ -132,7 +159,7 @@ export const ContextMenu: FC<ContextMenuProps> = ({
             </View>
           </View>
         </TouchableWithoutFeedback>
-      </View>
+      </Animated.View>
     </TouchableWithoutFeedback>
   )
 }
