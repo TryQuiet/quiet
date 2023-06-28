@@ -115,6 +115,41 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
                 startWebsocketConnection(dataPort)
             }
 
+            launch {
+                delay(10000)
+                sendMessageToNodeChannel("_EVENTS_", "message from android bitch")
+                delay(1000)
+                sendMessageToNodeChannel("_EVENTS_", "message from android bitch")
+                delay(1000)
+                sendMessageToNodeChannel("_EVENTS_", "message from android bitch")
+                delay(1000)
+                sendMessageToNodeChannel("_EVENTS_", "message from android bitch")
+                delay(1000)
+                sendMessageToNodeChannel("_EVENTS_", "message from android bitch")
+                delay(1000)
+                sendMessageToNodeChannel("_EVENTS_", "message from android bitch")
+                delay(1000)
+                sendMessageToNodeChannel("_SYSTEM_", "message from android bitch")
+                delay(1000)
+                sendMessageToNodeChannel("_SYSTEM_", "message from android bitch")
+                delay(1000)
+                sendMessageToNodeChannel("_SYSTEM_", "message from android bitch")
+                delay(1000)
+                sendMessageToNodeChannel("_SYSTEM_", "message from android bitch")
+                delay(1000)
+                sendMessageToNodeChannel("_SYSTEM_", "message from android bitch")
+                delay(1000)
+                sendMessageToNodeChannel("_SYSTEM_", "message from android bitch")
+                delay(1000)
+                sendMessageToNodeChannel("_SYSTEM_", "message from android bitch")
+                delay(1000)
+                sendMessageToNodeChannel("_SYSTEM_", "message from android bitch")
+                delay(1000)
+                sendMessageToNodeChannel("_SYSTEM_", "message from android bitch")
+                delay(1000)
+                sendMessageToNodeChannel("_SYSTEM_", "message from android bitch")
+            }
+
             val dataPath = Utils.createDirectory(context)
 
             val tor = TorResourceInstaller(context, context.filesDir).installResources()
@@ -123,40 +158,6 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
             val platform = "mobile"
 
             startNodeProjectWithArguments("bundle.cjs --torBinary $torBinary --dataPath $dataPath --dataPort $dataPort --platform $platform")
-            
-            delay(10000)
-            sendMessageToNodeChannel("_EVENTS_", "message from android bitch")
-            delay(1000)
-            sendMessageToNodeChannel("_EVENTS_", "message from android bitch")
-            delay(1000)
-            sendMessageToNodeChannel("_EVENTS_", "message from android bitch")
-            delay(1000)
-            sendMessageToNodeChannel("_EVENTS_", "message from android bitch")
-            delay(1000)
-            sendMessageToNodeChannel("_EVENTS_", "message from android bitch")
-            delay(1000)
-            sendMessageToNodeChannel("_EVENTS_", "message from android bitch")
-            delay(1000)
-            sendMessageToNodeChannel("_SYSTEM_", "message from android bitch")
-            delay(1000)
-            sendMessageToNodeChannel("_SYSTEM_", "message from android bitch")
-            delay(1000)
-            sendMessageToNodeChannel("_SYSTEM_", "message from android bitch")
-            delay(1000)
-            sendMessageToNodeChannel("_SYSTEM_", "message from android bitch")
-            delay(1000)
-            sendMessageToNodeChannel("_SYSTEM_", "message from android bitch")
-            delay(1000)
-            sendMessageToNodeChannel("_SYSTEM_", "message from android bitch")
-            delay(1000)
-            sendMessageToNodeChannel("_SYSTEM_", "message from android bitch")
-            delay(1000)
-            sendMessageToNodeChannel("_SYSTEM_", "message from android bitch")
-            delay(1000)
-            sendMessageToNodeChannel("_SYSTEM_", "message from android bitch")
-            delay(1000)
-            sendMessageToNodeChannel("_SYSTEM_", "message from android bitch")
-
         }
 
         println("FINISHING BACKEND WORKER")
@@ -233,5 +234,10 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
             Gson().toJson(websocketConnectionPayload),
             "" // Empty extras
         )
+    }
+
+    fun handleNodeMessages(channelName: String, msg: String?) {
+        print("handle node message - channel name $channelName")
+        print("handle node message - msg $msg")
     }
 }

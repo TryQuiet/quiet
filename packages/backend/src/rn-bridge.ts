@@ -95,7 +95,7 @@ class EventChannel extends ChannelSuper {
 
   processData(data: string) {
     console.log('--------------------------------------rn-bridge-internals-process-data--------------------------------')
-
+    console.log(data)
     // The data contains the serialized message envelope.
     var envelope = MessageCodec.deserialize(data);
     setImmediate(() => {
@@ -235,7 +235,7 @@ const systemChannel = new SystemChannel(SYSTEM_CHANNEL);
 registerChannel(systemChannel);
 
 // Signal we are ready for app events, so the native code won't lock before node is ready to handle those.
-// NativeBridge.sendMessage(SYSTEM_CHANNEL, "ready-for-app-events");
+NativeBridge.sendMessage(SYSTEM_CHANNEL, "ready-for-app-events");
 
 const eventChannel = new EventChannel(EVENT_CHANNEL);
 registerChannel(eventChannel);

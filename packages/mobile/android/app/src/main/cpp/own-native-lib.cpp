@@ -20,8 +20,7 @@ Java_com_quietmobile_Backend_BackendWorker_sendMessageToNodeChannel(
 {
     const char *nativeChannelName = env->GetStringUTFChars(channelName, 0);
     const char *nativeMessage = env->GetStringUTFChars(message, 0);
-    rn_bridge_notify("_SYSTEM_", nativeMessage);
-    rn_bridge_notify("_EVENTS_", nativeMessage);
+    rn_bridge_notify(nativeChannelName, nativeMessage);
     env->ReleaseStringUTFChars(channelName, nativeChannelName);
     env->ReleaseStringUTFChars(message, nativeMessage);
 }
@@ -60,6 +59,23 @@ Java_com_quietmobile_Backend_BackendWorker_registerNodeDataDirPath(
 {
     const char *nativeDataDir = env->GetStringUTFChars(dataDir, 0);
     env->ReleaseStringUTFChars(dataDir, nativeDataDir);
+}
+
+void rcv_message(const char* channel_name, const char* msg) {
+  JNIEnv *env=cacheEnvPointer;
+  if(!env) return;
+  jclass cls2 = env->FindClass("com/quietmobile/BackendWorker");
+  if(cls2 != nullptr) {
+    jmethodID m_sendMessage = env->GetStaticMethodID(cls2, "handleNodeMessages", "(Ljava/lang/String;Ljava/lang/String;)V");
+    if(m_sendMessage != nullptr) {
+        jstring java_channel_name=env->NewStringUTF(channel_name);
+        jstring java_msg=env->NewStringUTF(msg);
+        env->CallStaticVoidMethod(cls2, m_sendMessage, java_channel_name, java_msg);
+        env->DeleteLocalRef(java_channel_name);
+        env->DeleteLocalRef(java_msg);
+    }
+  }
+  env->DeleteLocalRef(cls2);
 }
 
 // Start threads to redirect stdout and stderr to logcat.
@@ -171,6 +187,8 @@ Java_com_quietmobile_Backend_BackendWorker_startNodeWithArguments(
         // Increment to the next argument's expected position.
         current_args_position += strlen(current_args_position) + 1;
     }
+
+    rn_register_bridge_cb(&rcv_message);
 
     cacheEnvPointer = env;
 
