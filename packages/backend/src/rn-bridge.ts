@@ -1,3 +1,4 @@
+import { emit } from "process";
 
 const EventEmitter = require('events');
 // @ts-ignore
@@ -45,10 +46,14 @@ class MessageCodec {
   static deserialize(message: string) {
     console.log('--------------------------------------rn-bridge-internals--------------------------------', message)
 
+    console.log('before envelope ', envelope)
     var envelope = JSON.parse(message);
+    console.log('after envelope')
+    console.log('envelope in deserialize ', envelope)
     return envelope;
   };
 };
+
 
 /**
  * Channel super class.
@@ -57,13 +62,16 @@ class ChannelSuper extends EventEmitter {
   constructor(name: string) {
     super();
     this.name = name;
+
     // Renaming the 'emit' method to 'emitLocal' is not strictly needed, but
     // it is useful to clarify that 'emitting' on this object has a local
     // scope: it emits the event on the react-native side only, it doesn't send
     // the event to Node.
     this.emitLocal = this.emit;
+
     delete this.emit;
   };
+
 
   emitWrapper(type: string, ...msg: string[]) {
     console.log('--------------------------------------rn-bridge-internals-emit-wrapper-------------------------------')
@@ -94,12 +102,12 @@ class EventChannel extends ChannelSuper {
   };
 
   processData(data: string) {
-    console.log('--------------------------------------rn-bridge-internals-process-data--------------------------------')
-    console.log(data)
+    console.log('2 --------------------------------------rn-bridge-internals-process-data--------------------------------')
     // The data contains the serialized message envelope.
     var envelope = MessageCodec.deserialize(data);
+    console.log('envelope ', envelope)
     setImmediate(() => {
-      this.emitLocal(envelope.event, ...envelope.payload);
+      this.emitLocal(envelope.event, envelope.payload);
     });
   };
 };
@@ -192,7 +200,7 @@ class SystemChannel extends ChannelSuper {
   }
 };
 
-let channels: { [key: string]: Channel } = {};
+let channels: { [key: string]: SystemChannel | EventChannel } = {};
 /**
  * Manage the registered channels to emit events/messages received by the
  * react-native app or by the react-native plugin itself (i.e. the system channel).
@@ -203,10 +211,9 @@ let channels: { [key: string]: Channel } = {};
 * from the react-native app.
  */
 function bridgeListener(channelName: string, data: string) {
-  console.log('--------------------------------------rn-bridge-internals-bridge-listener--------------------------------')
+  console.log('1 --------------------------------------rn-bridge-internals-bridge-listener--------------------------------')
 
   if (channels.hasOwnProperty(channelName)) {
-    // @ts-ignore
     channels[channelName].processData(data);
   } else {
     console.error('ERROR: Channel not found:', channelName);
@@ -221,10 +228,9 @@ type Channel = string
  * the native code.
  */
 function registerChannel(channel: SystemChannel | EventChannel) {
-  console.log('--------------------------------------rn-bridge-internals-register-channel--------------------------------')
+  console.log('--------------------------------------rn-bridge-internals-register-channel--------------------------------', channel?.name)
 
-  // @ts-ignore
-  channels[channel] = channel;
+  channels[channel.name] = channel;
   NativeBridge.registerChannel(channel.name, bridgeListener);
 };
 
