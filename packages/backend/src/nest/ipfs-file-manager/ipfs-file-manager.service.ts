@@ -65,11 +65,7 @@ export class IpfsFileManagerService extends EventEmitter {
     this.ipfs = ipfsInstance
   }
 
-  public getTest() {
-    return 'elo test method'
-  }
-
-  private attachIncomingEvents = () => {
+  private attachIncomingEvents() {
     this.on(IpfsFilesManagerEvents.UPLOAD_FILE, async (fileMetadata: FileMetadata) => {
       await this.uploadFile(fileMetadata)
     })
@@ -206,7 +202,7 @@ export class IpfsFileManagerService extends EventEmitter {
     }
   }
 
-  private cancelDownload = async (cid: string) => {
+  private async cancelDownload(cid: string) {
     const queueController = this.controllers.get(cid)
     const downloadInProgress = this.files.get(cid)
     if (!downloadInProgress) return
@@ -221,7 +217,7 @@ export class IpfsFileManagerService extends EventEmitter {
     }
   }
 
-  private getLocalBlocks = async (): Promise<string[]> => {
+  private async getLocalBlocks(): Promise<string[]> {
     const blocks: string[] = []
 
     const refs = this.ipfs.refs.local()
@@ -234,7 +230,7 @@ export class IpfsFileManagerService extends EventEmitter {
     return blocks
   }
 
-  public downloadBlocks = async (fileMetadata: FileMetadata) => {
+  public async downloadBlocks(fileMetadata: FileMetadata) {
     const block = CID.parse(fileMetadata.cid)
 
     const localBlocks = await this.getLocalBlocks()
@@ -411,7 +407,7 @@ export class IpfsFileManagerService extends EventEmitter {
     }
   }
 
-  private assemblyFile = async (fileMetadata: FileMetadata) => {
+  private async assemblyFile(fileMetadata: FileMetadata) {
     const _CID = CID.parse(fileMetadata.cid)
 
     const downloadDirectory = path.join(this.quietDir, 'downloads', fileMetadata.cid)
@@ -450,7 +446,7 @@ export class IpfsFileManagerService extends EventEmitter {
     this.emit(IpfsFilesManagerEvents.UPDATE_MESSAGE_MEDIA, messageMedia)
   }
 
-  private updateStatus = async (cid: string, downloadState = DownloadState.Downloading) => {
+  private async updateStatus(cid: string, downloadState = DownloadState.Downloading) {
     const metadata = this.files.get(cid)
     if (!metadata) {
       // TODO: emit error?

@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { TestModule } from '../common/test.module'
+import { libp2pInstanceParams } from '../common/test.utils'
 import { Libp2pModule } from './libp2p.module'
 import { Libp2pService } from './libp2p.service'
 
@@ -19,7 +20,10 @@ describe('Libp2pService', () => {
     await module.close()
   })
 
-  it('should be defined', () => {
+  it('should be defined', async () => {
+    const params = await libp2pInstanceParams()
+    const libp2pInstance = await libp2pService.createInstance(params)
+
     expect(libp2pService).toBeDefined()
   })
 })

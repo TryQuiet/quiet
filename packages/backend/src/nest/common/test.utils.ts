@@ -17,6 +17,8 @@ import crypto from 'crypto'
 import { type PermsData } from '@quiet/types'
 import { Config } from '../const'
 import logger from './logger'
+import { createCertificatesTestHelper } from './client-server'
+import { Libp2pNodeParams } from '../libp2p/libp2p.types'
 const log = logger('test')
 
 export const rootPermsData: PermsData = {
@@ -73,6 +75,27 @@ export const testBootstrapMultiaddrs = [
 //     targetPort: port,
 //   })
 // }
+
+export const libp2pInstanceParams = async (): Promise<Libp2pNodeParams> => {
+  const pems = await createCertificatesTestHelper('address1.onion', 'address2.onion')
+  const port = await getPort()
+  const peerId = await createPeerId()
+  const address = '0.0.0.0'
+  const peerIdRemote = await createPeerId()
+  const remoteAddress = createLibp2pAddress(address, peerIdRemote.toString())
+
+  return {
+    peerId,
+    listenAddresses: [createLibp2pListenAddress('localhost')],
+    agent: createHttpsProxyAgent({ port: 1234, host: 'localhost' }),
+    localAddress: createLibp2pAddress('localhost', peerId.toString()),
+    cert: pems.userCert,
+    key: pems.userKey,
+    ca: [pems.ca],
+    targetPort: port,
+    peers: [remoteAddress],
+  }
+}
 
 export const createTmpDir = (prefix = 'quietTestTmp_'): tmp.DirResult => {
   return tmp.dirSync({ mode: 0o750, prefix, unsafeCleanup: true })
