@@ -138,25 +138,6 @@ class TorHandler: NSObject {
   }
   
   @objc
-  func getAuthCookieData(configuration: TorConfiguration) -> NSData? {
-    var auth: NSData? {
-      if let cookieUrl = configuration.dataDirectory?.appendingPathComponent("control_auth_cookie") {
-        return NSData(contentsOf: cookieUrl)
-      }
-
-      return nil
-    }
-    
-    guard let cookie = auth else {
-      print("[\(String(describing: type(of: self)))] Could not connect to Tor - cookie unreadable!")
-
-      return nil
-    }
-    
-    return cookie
-  }
-  
-  @objc
   func removeOldAuthCookie(configuration: TorConfiguration) -> Void {
     if let cookieUrl = configuration.dataDirectory?.appendingPathComponent("control_auth_cookie") {
       print("[\(String(describing: type(of: self)))] Removing old auth cookie")
