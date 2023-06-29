@@ -84,11 +84,6 @@ static NSString *const kRNConcurrentRoot = @"concurrentRoot";
   return YES;
 };
 
-- (void)applicationWillEnterForeground:(UIApplication *)application
-{
-  // [self startBackend];
-}
-
 - (void) startBackend {
   FindFreePort *findFreePort = [FindFreePort new];
   self.dataPort = [findFreePort getFirstStartingFromPort:11000];
@@ -189,7 +184,7 @@ static NSString *const kRNConcurrentRoot = @"concurrentRoot";
 
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
     self.nodeJsMobile = [RNNodeJsMobile new];
-    [self keepSendingMessages];
+//    [self keepSendingMessages];
     [self.nodeJsMobile callStartNodeProject:[NSString stringWithFormat:@"bundle.cjs --dataPort %hu --dataPath %@ --controlPort %hu --authCookie %@ --httpTunnelPort %hu --platform %@", self.dataPort, dataPath, controlPort, authCookie, httpTunnelPort, platform]];
   });
 }
@@ -205,7 +200,22 @@ static NSString *const kRNConcurrentRoot = @"concurrentRoot";
 
 - (void)applicationDidEnterBackground:(UIApplication *)application
 {
-  // [self stopTor];
+  [self stopTor];
+  
+  NSString * message = [NSString stringWithFormat:@"test"];
+  [self.nodeJsMobile sendMessageToNode:@"close":message];
+}
+
+- (void)applicationWillEnterForeground:(UIApplication *)application
+{
+  // TODO: Start tor
+  // TODO: Block the UI until done
+  
+  FindFreePort *findFreePort = [FindFreePort new];
+  self.dataPort = [findFreePort getFirstStartingFromPort:11000];
+  
+  NSString * message = [NSString stringWithFormat:@"%hu", self.dataPort];
+  [self.nodeJsMobile sendMessageToNode:@"open":message];
 }
 
 /// This method controls whether the `concurrentRoot`feature of React18 is turned on or off.
