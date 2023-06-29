@@ -65,7 +65,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   public communityId: string
   public communityState: ServiceState
   public registrarState: ServiceState
-  private libp2pService: Libp2pService
+  public libp2pService: Libp2pService
   private ports: GetPorts
   isTorInit: TorInitState = TorInitState.NOT_STARTED
 
@@ -127,7 +127,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     }
   }
 
-  private async init() {
+  public async init() {
     console.log('init')
     this.communityState = ServiceState.DEFAULT
     this.registrarState = ServiceState.DEFAULT
@@ -141,26 +141,9 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.attachTorEventsListeners()
     this.attachStorageListeners()
 
-    // Libp2p event listeners
-    this.on(Libp2pEvents.PEER_CONNECTED, (payload: { peers: string[] }) => {
-      this.serverIoProvider.io.emit(SocketActionTypes.PEER_CONNECTED, payload)
-    })
-    this.on(Libp2pEvents.PEER_DISCONNECTED, async (payload: NetworkDataPayload) => {
-      const peerPrevStats = await this.localDbService.find(LocalDBKeys.PEERS, payload.peer)
-      const prev = peerPrevStats?.connectionTime || 0
-
-      const peerStats: NetworkStats = {
-        peerId: payload.peer,
-        connectionTime: prev + payload.connectionDuration,
-        lastSeen: payload.connectionDuration,
-      }
-
-      await this.localDbService.update(LocalDBKeys.PEERS, {
-        [payload.peer]: peerStats,
-      })
-      // BARTEK: Potentially obsolete to send this to state-manager
-      this.serverIoProvider.io.emit(SocketActionTypes.PEER_DISCONNECTED, payload)
-    })
+    if (this.localDbService.getStatus() === 'closed') {
+      await this.localDbService.open()
+    }
 
     if (this.configOptions.torControlPort) {
       console.log('launch 1')
@@ -370,6 +353,28 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.logger.log('libp2p params', params)
 
     await this.libp2pService.createInstance(params)
+    // KACPER
+    // Libp2p event listeners
+    this.libp2pService.on(Libp2pEvents.PEER_CONNECTED, (payload: { peers: string[] }) => {
+      this.serverIoProvider.io.emit(SocketActionTypes.PEER_CONNECTED, payload)
+    })
+    this.libp2pService.on(Libp2pEvents.PEER_DISCONNECTED, async (payload: NetworkDataPayload) => {
+      console.log(' this.libp2pService.on(Libp2pEvents.PEER_DISCONNECTED')
+      const peerPrevStats = await this.localDbService.find(LocalDBKeys.PEERS, payload.peer)
+      const prev = peerPrevStats?.connectionTime || 0
+
+      const peerStats: NetworkStats = {
+        peerId: payload.peer,
+        connectionTime: prev + payload.connectionDuration,
+        lastSeen: payload.connectionDuration,
+      }
+
+      await this.localDbService.update(LocalDBKeys.PEERS, {
+        [payload.peer]: peerStats,
+      })
+      // BARTEK: Potentially obsolete to send this to state-manager
+      this.serverIoProvider.io.emit(SocketActionTypes.PEER_DISCONNECTED, payload)
+    })
     await this.storageService.init(_peerId)
   }
 
@@ -449,6 +454,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       if (!communityData) {
         await this.localDbService.put(LocalDBKeys.REGISTRAR, args)
       }
+      console.log('this.registrarState', this.registrarState)
       if ([ServiceState.LAUNCHING, ServiceState.LAUNCHED].includes(this.registrarState)) return
       this.registrarState = ServiceState.LAUNCHING
       await this.registrationService.launchRegistrar(args)
