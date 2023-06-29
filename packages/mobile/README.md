@@ -92,45 +92,47 @@ Detox recommends to install its `detox-cli` globally, enabling usage of the comm
 npm install detox-cli --global
 ```
 
-### Android
-The easiest way to start testing Quiet on Android is to use command line shell within docker container.
+> NOTE: From this point, we recommend to operate within a docker container provided for Android development (unless you have an environment already set up locally)
 
-There're two commands to use, one for building binary file to install on a physical device (this will be the very application to put under test):  
+Choose proper configuration depending on the os and target device and pass it with `-configuration` flag when building and running tests.
+(The configuration has a following pattern: `<OS>.<DEVICE-TYPE>.<BUILD-TYPE>`, eg. for ios debug simulator use `ios.sim.debug` and for android release tested on an attached device use `android.att.release`)
+
+There're two commands to use:
 (remember to prefix commands with `npx` if using globally installed `detox-cli`)
+
+The first one for building binary file to put under test:  
 
 ```
 detox build --configuration android.att.debug
 ```
 
-and another for actually running tests:
+And the second one for actually running the tests:
+(let's trigger the basic set of e2e tests called `starter`)
 
 ```
-detox test --configuration android.att.debug
+detox test starter --configuration android.att.debug
 ```
-
-Additionaly there's `-enable-visual-regression` flag for enabling screenshot comparison during test.
 
 For more detailed instructions, see https://wix.github.io/Detox/docs/introduction/your-first-test/
 
 ## Running visual regression tests
 
-Once again we use Detox but this time with the Storybook flavor of the app, so it's important to use 'storybook' ending value for the `configuration` argument when using the commands from above. Also a particular file has to be pointed out as a test entry `e2e/storybook.test.js`.
+> NOTE: See the building instructions in the previous section
 
-The very first run will fail, unless there're base screenshots for the exact device used for testing present under `e2e/storybook-base-screenshots/<DEVICE-NAME>/`. The easiest way to generate them is to go through the test using `-generate-base` flag. It's important to run this command being in the mobile package main directory `packages/mobile/`.
+There's a flag for enabling screenshot comparison during e2e tests `-enable-visual-regression`.
+
+In order to perform comparision, the presence of a base screenshots is required under `e2e/visual-regressions/<ENVIRONMENT>/<PLATFORM>/<TEST>-base-screenshots` (where `<ENVIRONMENT>` can be either `local` or `ci`). The easiest way to generate them is to go through the test using `-base-update` flag.
+
+> NOTE: Actual base snapshots hosted in the repo were generated with iPhone 14 simulator and serves as a baselines for automated runs
+
+There're two types of tests: a basic (starter) set of e2e tests, and an app-wide visual regression test which uses storybook.
+For the second type, it's important to use a `storybook` variant of the build
 
 ```
-detox test storybook --configuration android.att.storybook -- -- -generate-base
+detox test storybook --configuration android.att.storybook -- -enable-visual-regression
 ```
 
-Then every next run on the same device can be triggered without additional flags
-```
-detox test storybook --configuration android.att.storybook
-```
-
-The screenshots are being generated and stored as a <b>baselines per device!</b> It ensures there'll be no false negatives due to differences in screen resolution and ratio!
-
-Tests can be started at a particular story pointed out using `-starting-story=<STORY-NAME>` flag.
-
+Tests can also be started at a particular story pointed out using `-starting-story=<STORY-NAME>` flag.
 
 ## Troubleshooting
 
