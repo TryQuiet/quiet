@@ -147,18 +147,18 @@ export class SocketService extends EventEmitter implements OnModuleInit {
     })
   }
 
-  public listen = async (): Promise<void> => {
+  public listen = async (port = this.configOptions.socketIOPort): Promise<void> => {
     return await new Promise(resolve => {
       if (this.serverIoProvider.server.listening) resolve()
-      this.serverIoProvider.server.listen(this.configOptions.socketIOPort, () => {
-        this.logger.log(`Data server running on port ${this.configOptions.socketIOPort}`)
+      this.serverIoProvider.server.listen(port, () => {
+        this.logger.log(`Data server running on port ${port}`)
         resolve()
       })
     })
   }
 
-  public close = async (): Promise<void> => {
-    this.logger.log(`Closing data server on port ${this.configOptions.socketIOPort}`)
+  public close = async (port = this.configOptions.socketIOPort): Promise<void> => {
+    this.logger.log(`Closing data server on port ${port}`)
     return await new Promise(resolve => {
       this.serverIoProvider.server.close(err => {
         if (err) throw new Error(err.message)

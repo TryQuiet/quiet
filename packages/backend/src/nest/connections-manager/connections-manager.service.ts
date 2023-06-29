@@ -60,6 +60,11 @@ import { InitStorageParams, StorageEvents } from '../storage/storage.types'
 import { LazyModuleLoader } from '@nestjs/core'
 import Logger from '../common/logger'
 
+interface OpenServices {
+  torControlPort?: any,
+  socketIOPort?: any
+}
+
 @Injectable()
 export class ConnectionsManagerService extends EventEmitter implements OnModuleInit {
   public communityId: string
@@ -193,6 +198,17 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     if (registrarData) {
       await this.registrationService.launchRegistrar(registrarData)
     }
+  }
+
+  public async closeServices() {
+    console.log('before closing services')
+    await this.socketService.close()
+    console.log('after closing services')
+  }
+  public async openServices(options: OpenServices) {
+    console.log('becore opening services')
+    await this.socketService.listen(options.socketIOPort)
+    console.log('after closing ser')
   }
 
   public async closeAllServices(options: { saveTor: boolean } = { saveTor: false }) {

@@ -31,10 +31,6 @@ console.log('options', options)
 // @ts-ignore
 import rn_bridge from './rn-bridge.ts'
 
-rn_bridge.channel.on('message', (msg: any) => {
-  console.log('native sends message', msg)
-});
-
 export const runBackendDesktop = async () => {
   const isDev = process.env.NODE_ENV === 'development'
 
@@ -102,6 +98,21 @@ export const runBackendMobile = async (): Promise<any> => {
     }),
     { logger: false }
   )
+
+
+  const connectionsManager = app.get<ConnectionsManagerService>(ConnectionsManagerService)
+
+  rn_bridge.channel.on('message', async (msg: any) => {
+    console.log('message from android: ', msg)
+  })
+  rn_bridge.channel.on('close', async () => {
+    console.log('rn-bridge closing services')
+    await connectionsManager.closeServices()
+  });
+  rn_bridge.channel.on('open', async (msg: any) => {
+    console.log('rn-beidge opening services with payload ', msg)
+    await connectionsManager.openServices({ socketIOPort: msg.socketIOPort })
+  })
 }
 
 const platform = options.platform
