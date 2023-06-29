@@ -96,8 +96,7 @@ export const runBackendMobile = async (): Promise<any> => {
         createPaths: false,
       },
     }),
-    { logger: false }
-  )
+    { logger: ['warn', 'error', 'log', 'debug', 'verbose'] })
 
 
   const connectionsManager = app.get<ConnectionsManagerService>(ConnectionsManagerService)
