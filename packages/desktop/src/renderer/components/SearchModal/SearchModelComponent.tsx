@@ -11,7 +11,9 @@ import { useForm } from 'react-hook-form'
 import { searchChannelField } from '../../forms/fields/searchChannelField'
 import { TextInput } from '../../forms/components/textInput'
 import { useCyclingFocus, Variant } from '../../containers/hooks'
+import ClearIcon from '@mui/icons-material/Clear'
 import ChannelItem from './ChannelItem'
+import IconButton from '../ui/Icon/IconButton'
 
 const PREFIX = 'SearchModalComponent'
 
@@ -215,7 +217,9 @@ const SearchModalComponent: React.FC<SearchModalComponentProps> = ({
                 />
               </Grid>
 
-              <Icon data-tag='TagValue' className={classes.closeIcon} src={closeIcon} onClickHandler={closeHandler} />
+              <IconButton data-testid={'close-search-modal-button'} aria-label={'Close'} onClick={closeHandler}>
+                <ClearIcon />
+              </IconButton>
             </Grid>
 
             <Grid className={classes.line} />

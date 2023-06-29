@@ -44,8 +44,11 @@ export class App {
     const dataSaved = this.driver.wait(until.elementLocated(By.xpath('//div[@data-is-saved="true"]')))
     return await dataSaved
   }
-}
 
+  async useKeyboardShortcut(modifierKey: any, key: string) {
+    await this.driver.actions().keyDown(modifierKey).sendKeys(key).perform()
+  }
+}
 export class StartingLoadingPanel {
   private readonly driver: ThenableWebDriver
   constructor(driver: ThenableWebDriver) {
@@ -343,5 +346,19 @@ export class DebugModeModal {
     } catch (e) {
       console.log('Probably click properly close modal')
     }
+  }
+}
+export class ChannelSearchModal {
+  private readonly driver: ThenableWebDriver
+  constructor(driver: ThenableWebDriver) {
+    this.driver = driver
+  }
+
+  get element() {
+    return this.driver.wait(until.elementLocated(By.xpath('//div[@data-testid="searchChannelInput"]')))
+  }
+
+  async typeChannelName(channelname: string) {
+    const searchChannel = await this.driver.findElement(By.xpath('//input[@id=":r6:"]'))
   }
 }

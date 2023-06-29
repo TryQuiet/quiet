@@ -7,10 +7,13 @@ import {
   JoiningLoadingPanel,
   RegisterUsernameModal,
   StartingLoadingPanel,
+  Sidebar,
+  ChannelSearchModal,
 } from '../selectors'
 import getPort from 'get-port'
 import { fork } from 'child_process'
 import path from 'path'
+import { Key } from 'selenium-webdriver'
 
 jest.setTimeout(450000)
 describe('One Client', () => {
@@ -90,6 +93,13 @@ describe('One Client', () => {
       const generalChannelText = await generalChannel.element.getText()
       expect(isGeneralChannel).toBeTruthy()
       expect(generalChannelText).toEqual('# general')
+    })
+
+    it('Opens search channel using ctrl+k', async () => {
+      await app.useKeyboardShortcut(Key.CONTROL, 'k')
+      const searchModal = new ChannelSearchModal(app.driver)
+      const isSearchModal = await searchModal.element.isDisplayed()
+      expect(isSearchModal).toBeTruthy()
     })
   })
 
