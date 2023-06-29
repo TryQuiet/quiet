@@ -214,6 +214,8 @@ static NSString *const kRNConcurrentRoot = @"concurrentRoot";
   FindFreePort *findFreePort = [FindFreePort new];
   self.dataPort = [findFreePort getFirstStartingFromPort:11000];
   
+  // TODO: Tell socket.io client to use new port
+
   NSString * message = [NSString stringWithFormat:@"%hu", self.dataPort];
   [self.nodeJsMobile sendMessageToNode:@"open":message];
 }
