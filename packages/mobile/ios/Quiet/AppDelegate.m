@@ -143,7 +143,7 @@ static NSString *const platform = @"mobile";
     
     // (4/7) Connect to tor control port natively (so we can use it to shutdown tor when app goes idle)
     
-    NSString *authCookie = [self getAuthCookie];
+    NSData *authCookieData = [self getAuthCookieData];
       
     self.torController = [[TORController alloc] initWithSocketHost:@"127.0.0.1" port:controlPort];
       
@@ -152,7 +152,6 @@ static NSString *const platform = @"mobile";
       
     NSLog(@"Tor control port error %@", error);
           
-    NSData *authCookieData = [authCookie dataUsingEncoding:NSUTF8StringEncoding];
     [self.torController authenticateWithData:authCookieData completion:^(BOOL success, NSError * _Nullable error) {
       NSString *res = success ? @"YES" : @"NO";
       NSLog(@"Tor control port auth success %@", res);
@@ -166,7 +165,9 @@ static NSString *const platform = @"mobile";
     
     
     // (7/7) Launch backend or reviwe services
-      
+    
+    NSString *authCookie = [self getAuthCookie];
+    
     if (init) {
       [self launchBackend:controlPort :httpTunnelPort :authCookie];
     } else {
@@ -180,6 +181,16 @@ static NSString *const platform = @"mobile";
   
   while (authCookie == nil) {
     authCookie = [self.tor getAuthCookieWithConfiguration:self.torConfiguration];
+  };
+  
+  return authCookie;
+}
+
+- (NSData *) getAuthCookieData {
+  NSData *authCookie = [self.tor getAuthCookieDataWithConfiguration:self.torConfiguration];
+  
+  while (authCookie == nil) {
+    authCookie = [self.tor getAuthCookieDataWithConfiguration:self.torConfiguration];
   };
   
   return authCookie;
