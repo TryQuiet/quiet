@@ -5,7 +5,7 @@ import { torBinForPlatform, torDirForPlatform } from './index'
 import { NestFactory } from '@nestjs/core'
 import path from 'path'
 import { AppModule } from './nest/app.module'
-import { ConnectionsManagerService } from './nest/connections-manager/connections-manager.service'
+import { ConnectionsManagerService, OpenServices } from './nest/connections-manager/connections-manager.service'
 import getPort from 'get-port'
 
 const log = logger('backendManager')
@@ -30,6 +30,9 @@ console.log('options', options)
 
 // @ts-ignore
 import rn_bridge from './rn-bridge.ts'
+import { INestApplicationContext } from '@nestjs/common'
+import { connect } from 'http2'
+import { ConnectionsManagerModule } from './nest/connections-manager/connections-manager.module'
 
 export const runBackendDesktop = async () => {
   const isDev = process.env.NODE_ENV === 'development'
@@ -82,7 +85,9 @@ export const runBackendMobile = async (): Promise<any> => {
   // Enable triggering push notifications
   process.env['BACKEND'] = 'mobile'
   process.env['CONNECTION_TIME'] = (new Date().getTime() / 1000).toString() // Get time in seconds
-  const app = await NestFactory.createApplicationContext(
+
+  let app: INestApplicationContext
+  app = await NestFactory.createApplicationContext(
     AppModule.forOptions({
       socketIOPort: options.dataPort,
       httpTunnelPort: options.httpTunnelPort ? options.httpTunnelPort : null,
@@ -98,19 +103,40 @@ export const runBackendMobile = async (): Promise<any> => {
     }),
     { logger: ['warn', 'error', 'log', 'debug', 'verbose'] })
 
-
-  const connectionsManager = app.get<ConnectionsManagerService>(ConnectionsManagerService)
+  // connectionsManager = app.get<ConnectionsManagerService>(ConnectionsManagerService)
 
   rn_bridge.channel.on('message', async (msg: any) => {
     console.log('message from android: ', msg)
   })
   rn_bridge.channel.on('close', async () => {
     console.log('rn-bridge closing services')
-    await connectionsManager.closeServices()
+    const connectionsManager = app.get<ConnectionsManagerService>(ConnectionsManagerService)
+    console.log("closing all backend services")
+    await connectionsManager.closeAllServices()
+    console.log('closed all backend services')
+    await app.close()
+    console.log(
+      'closed backend xddddddddddddddddddddddeddddddddddddddd'
+    )
   });
-  rn_bridge.channel.on('open', async (msg: any) => {
-    console.log('rn-beidge opening services with payload ', msg)
-    await connectionsManager.openServices({ socketIOPort: msg.socketIOPort, torControlPort: msg.torControlPort })
+  rn_bridge.channel.on('open', async (msg: OpenServices) => {
+    console.log('rn-bridge opening services with payload ', msg)
+    app = await NestFactory.createApplicationContext(
+      AppModule.forOptions({
+        socketIOPort: msg.socketIOPort,
+        httpTunnelPort: msg.httpTunnelPort ? msg.httpTunnelPort : null,
+        torAuthCookie: msg.authCookie ? msg.authCookie : null,
+        torControlPort: msg.torControlPort ? msg.torControlPort : await getPort(),
+        torBinaryPath: options.torBinary ? options.torBinary : null,
+        options: {
+          env: {
+            appDataPath: options.dataPath,
+          },
+          createPaths: false,
+        },
+      }),
+      { logger: ['warn', 'error', 'log', 'debug', 'verbose'] })
+    console.log('started backend wiktor little bastard ')
   })
 }
 

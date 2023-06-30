@@ -60,9 +60,11 @@ import { InitStorageParams, StorageEvents } from '../storage/storage.types'
 import { LazyModuleLoader } from '@nestjs/core'
 import Logger from '../common/logger'
 
-interface OpenServices {
+export interface OpenServices {
   torControlPort?: any,
-  socketIOPort?: any
+  socketIOPort?: any,
+  httpTunnelPort?: any,
+  authCookie?: any
 }
 
 @Injectable()
