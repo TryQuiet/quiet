@@ -103,8 +103,6 @@ export const runBackendMobile = async (): Promise<any> => {
     }),
     { logger: ['warn', 'error', 'log', 'debug', 'verbose'] })
 
-  // connectionsManager = app.get<ConnectionsManagerService>(ConnectionsManagerService)
-
   rn_bridge.channel.on('message', async (msg: any) => {
     console.log('message from android: ', msg)
   })
