@@ -202,42 +202,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     }
   }
 
-  public async closeServices() {
-    console.log('before closing services')
-    await this.socketService.close()
-    console.log('after closing services')
-    if (this.localDbService) {
-      this.logger.log('Closing local storage')
-      await this.localDbService.close()
-    }
-    if (this.libp2pService.libp2pInstance) {
-      this.logger.log('Stopping libp2p')
-      await this.libp2pService.libp2pInstance.stop()
-    }
-    if (this.registrationService) {
-      this.logger.log('Stopping registration service')
-      await this.registrationService.stop()
-    }
-    if (this.storageService) {
-      this.logger.log('Stopping orbitdb')
-      await this.storageService.stopOrbitDb()
-    }
-    this.libp2pService.libp2pInstance = null
-    this.libp2pService.connectedPeers = new Map()
-    this.communityState = ServiceState.DEFAULT
-    this.registrarState = ServiceState.DEFAULT
-    console.log('after closing services')
-  }
-  public async openServices(options: OpenServices) {
-    this.tor.setControlPort(options.torControlPort)
-    console.log('becore opening services')
-    this.ports = { ...this.ports, libp2pHiddenService: await getPort() }
-    await this.localDbService.open()
-    await this.socketService.listen(options.socketIOPort)
-    console.log('before launching community from storage')
-    await this.launchCommunityFromStorage()
-  }
-
   public async closeAllServices(options: { saveTor: boolean } = { saveTor: false }) {
     if (this.tor && !this.configOptions.torControlPort && !options.saveTor) {
       await this.tor.kill()
