@@ -170,7 +170,7 @@ static NSString *const platform = @"mobile";
     if (init) {
       [self launchBackend:controlPort :httpTunnelPort :authCookie];
     } else {
-      [self reviweServices]
+      [self reviweServices:controlPort];
     }
   });
 }
@@ -192,9 +192,8 @@ static NSString *const platform = @"mobile";
   });
 }
 
-- (void) reviweServices {
-  // TODO: Correct payload
-  NSString * message = [NSString stringWithFormat:@"%hu", self.dataPort];
+- (void) reviweServices:(uint16_t)controlPort {
+  NSString * message = [NSString stringWithFormat:@"dataPort:%hu|controlPort:%hu", self.dataPort, controlPort];
   [self.nodeJsMobile sendMessageToNode:@"open":message];
 }
 
@@ -224,8 +223,7 @@ static NSString *const platform = @"mobile";
 {
   [self stopTor];
   
-  // TODO: Correct (remove) payload
-  NSString * message = [NSString stringWithFormat:@"test"];
+  NSString * message = [NSString stringWithFormat:@""];
   [self.nodeJsMobile sendMessageToNode:@"close":message];
 }
 
