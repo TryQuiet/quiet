@@ -238,6 +238,15 @@ static NSString *const platform = @"mobile";
 
 - (void)applicationDidEnterBackground:(UIApplication *)application
 {
+  // Display splash screen until services become available again
+ dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+   NSTimeInterval delayInSeconds = 0;
+   dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
+   dispatch_after(popTime, dispatch_get_main_queue(), ^(void) {
+     [[self.bridge moduleForName:@"CommunicationModule"] appResume];
+   });
+ });
+  
   [self stopTor];
   
   NSString * message = [NSString stringWithFormat:@""];
@@ -246,7 +255,6 @@ static NSString *const platform = @"mobile";
 
 - (void)applicationWillEnterForeground:(UIApplication *)application
 {
-  // TODO: Block the UI until done
   [self spinupBackend:false];
 }
 

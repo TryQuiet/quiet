@@ -60,6 +60,9 @@ export const deviceEvents = () => {
       }),
       nativeEventEmitter?.addListener(NativeEventKeys.Stop, () => {
         emit(app.actions.stopBackend())
+      }),
+      nativeEventEmitter?.addListener(NativeEventKeys.AppResume, () => {
+        emit(navigationActions.navigation({ screen: ScreenNames.SplashScreen }))
       })
     ]
     return () => {
