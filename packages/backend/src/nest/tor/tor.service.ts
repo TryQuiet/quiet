@@ -33,6 +33,8 @@ export class Tor extends EventEmitter implements OnModuleInit {
   ) {
     super()
     this.controlPort = configOptions.torControlPort
+
+    console.log('QUIRT DIR', this.quietDir)
   }
 
   async onModuleInit() {
@@ -57,6 +59,9 @@ export class Tor extends EventEmitter implements OnModuleInit {
 
   public init = async ({ repeat = 6, timeout = 3600_000 } = {}): Promise<void> => {
     this.logger.log('Initializing tor...')
+    console.log('this.controlPort', this.controlPort)
+    console.log('this.torControl', this.torControl.torControlParams)
+    console.log('configOptions.torControl', this.configOptions.torControlPort)
     this.socksPort = await getPort()
     return await new Promise((resolve, reject) => {
       if (this.process) {
@@ -68,6 +73,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
       }
 
       this.torDataDirectory = path.join.apply(null, [this.quietDir, 'TorDataDirectory'])
+      console.log('this.torDataDirectory', this.torDataDirectory)
       this.torPidPath = path.join.apply(null, [this.quietDir, 'torPid.json'])
       let oldTorPid: number | null = null
       if (fs.existsSync(this.torPidPath)) {
@@ -308,12 +314,13 @@ export class Tor extends EventEmitter implements OnModuleInit {
     }
   }
 
-  public kill = async (): Promise<void> =>
-    await new Promise((resolve, reject) => {
+  public kill = async (): Promise<void> => {
+    // for (const hs of this.hiddenServices.keys()) {
+    //   await this.destroyHiddenService(hs)
+    // }
+    return await new Promise((resolve, reject) => {
       this.logger.log('Killing tor...')
-      this.hiddenServices.forEach(async hs => {
-        await this.destroyHiddenService(hs)
-      })
+
       if (this.process === null) {
         reject(new Error('TOR: Process is not initalized.'))
       }
@@ -325,4 +332,5 @@ export class Tor extends EventEmitter implements OnModuleInit {
       })
       this.process?.kill()
     })
+  }
 }

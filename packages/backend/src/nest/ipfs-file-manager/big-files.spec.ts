@@ -60,7 +60,7 @@ describe('IpfsFileManagerService', () => {
     await libp2pService.createInstance(params)
     expect(libp2pService.libp2pInstance).not.toBeNull()
 
-    await ipfsService.create(peerId)
+    await ipfsService.createInstance(peerId)
     expect(ipfsService.ipfsInstance).not.toBeNull()
 
     await ipfsFileManagerService.init()

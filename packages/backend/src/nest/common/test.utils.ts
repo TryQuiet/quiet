@@ -15,7 +15,7 @@ import {
 } from './utils'
 import crypto from 'crypto'
 import { type PermsData } from '@quiet/types'
-import { Config } from '../const'
+import { Config, TestConfig } from '../const'
 import logger from './logger'
 import { createCertificatesTestHelper } from './client-server'
 import { Libp2pNodeParams } from '../libp2p/libp2p.types'
@@ -99,6 +99,9 @@ export const libp2pInstanceParams = async (): Promise<Libp2pNodeParams> => {
 
 export const createTmpDir = (prefix = 'quietTestTmp_'): tmp.DirResult => {
   return tmp.dirSync({ mode: 0o750, prefix, unsafeCleanup: true })
+}
+export const tmpQuietDirPath = (name: string): string => {
+  return path.join(name, TestConfig.QUIET_DIR)
 }
 
 export function createFile(filePath: string, size: number) {

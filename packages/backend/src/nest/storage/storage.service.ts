@@ -94,7 +94,7 @@ export class StorageService extends EventEmitter {
     const ipfsModuleRef = await this.lazyModuleLoader.load(() => IpfsModule)
     const { IpfsService } = await import('../ipfs/ipfs.service')
     const ipfsService = ipfsModuleRef.get(IpfsService)
-    await ipfsService.create(peerId)
+    await ipfsService.createInstance(peerId)
     const ipfsInstance = ipfsService?.ipfsInstance
     if (!ipfsInstance) {
       this.logger.log.error('no ipfs instance')
