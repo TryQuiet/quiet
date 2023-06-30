@@ -110,7 +110,7 @@ export const runBackendMobile = async (): Promise<any> => {
   });
   rn_bridge.channel.on('open', async (msg: any) => {
     console.log('rn-beidge opening services with payload ', msg)
-    await connectionsManager.openServices({ socketIOPort: msg.socketIOPort })
+    await connectionsManager.openServices({ socketIOPort: msg.socketIOPort, torControlPort: msg.torControlPort })
   })
 }
 
