@@ -31,6 +31,7 @@ const torPasswordProvider = {
   provide: TOR_PASSWORD_PROVIDER,
   useFactory: (torParamsProvider: TorParamsProvider) => {
     const password = crypto.randomBytes(16).toString('hex')
+    if (!torParamsProvider.torPath) return null
     const hashedPassword = child_process.execSync(`${torParamsProvider.torPath} --quiet --hash-password ${password}`, {
       env: torParamsProvider.options?.env,
     })
@@ -62,4 +63,4 @@ const torControlParams = {
   providers: [Tor, TorControl, torControlParams, torPasswordProvider, torParamsProvider],
   exports: [Tor, TorControl],
 })
-export class TorModule {}
+export class TorModule { }

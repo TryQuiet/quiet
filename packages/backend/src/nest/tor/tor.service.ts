@@ -20,7 +20,9 @@ export class Tor extends EventEmitter implements OnModuleInit {
   torDataDirectory: string
   torPidPath: string
   extraTorProcessParams: TorParams
+  controlPort: number | undefined
   private readonly logger = Logger(Tor.name)
+  private hiddenServices: Map<string, string> = new Map()
   constructor(
     @Inject(CONFIG_OPTIONS) public configOptions: ConfigOptions,
     @Inject(QUIET_DIR) public readonly quietDir: string,
@@ -30,10 +32,16 @@ export class Tor extends EventEmitter implements OnModuleInit {
     private readonly torControl: TorControl
   ) {
     super()
+    this.controlPort = configOptions.torControlPort
   }
 
   async onModuleInit() {
+    if (!this.torParamsProvider.torPath) return
     await this.init()
+  }
+
+  public setControlPort = (port: number) => {
+    this.controlPort = port
   }
 
   mergeDefaultTorParams = (params: TorParams = {}): TorParams => {
@@ -164,15 +172,16 @@ export class Tor extends EventEmitter implements OnModuleInit {
 
   protected readonly spawnTor = async (timeoutMs: number): Promise<void> => {
     return await new Promise((resolve, reject) => {
-      if (!this.configOptions.torControlPort) {
-        this.logger.log.error("Can't spawn tor - no control port")
-        reject(new Error("Can't spawn tor - no control port"))
-        return
-      }
       if (!this.configOptions.httpTunnelPort) {
         this.logger.log.error("Can't spawn tor - no httpTunnelPort")
 
         reject(new Error("Can't spawn tor - no httpTunnelPort"))
+        return
+      }
+      if (!this.controlPort) {
+        this.logger.log.error("Can't spawn tor - no controlPort")
+
+        reject(new Error("Can't spawn tor - no controlPort"))
         return
       }
 
@@ -182,7 +191,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
         '--HTTPTunnelPort',
         this.configOptions.httpTunnelPort.toString(),
         '--ControlPort',
-        this.configOptions.torControlPort.toString(),
+        this.controlPort.toString(),
         '--PidFile',
         this.torPidPath,
         '--DataDirectory',
@@ -199,7 +208,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
           '--HTTPTunnelPort',
           this.configOptions.httpTunnelPort.toString(),
           '--ControlPort',
-          this.configOptions.torControlPort.toString(),
+          this.controlPort.toString(),
           '--PidFile',
           this.torPidPath,
           '--DataDirectory',
@@ -244,6 +253,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
       `ADD_ONION ${privKey} Flags=Detach Port=${virtPort},127.0.0.1:${targetPort}`
     )
     const onionAddress = status.messages[0].replace('250-ServiceID=', '')
+    this.hiddenServices.set(onionAddress, onionAddress)
     return `${onionAddress}.onion`
   }
 
@@ -270,6 +280,8 @@ export class Tor extends EventEmitter implements OnModuleInit {
 
     const onionAddress = status.messages[0].replace('250-ServiceID=', '')
     const privateKey = status.messages[1].replace('250-PrivateKey=', '')
+
+    this.hiddenServices.set(onionAddress, onionAddress)
 
     return {
       onionAddress: `${onionAddress}.onion`,
@@ -299,6 +311,9 @@ export class Tor extends EventEmitter implements OnModuleInit {
   public kill = async (): Promise<void> =>
     await new Promise((resolve, reject) => {
       this.logger.log('Killing tor...')
+      this.hiddenServices.forEach(async hs => {
+        await this.destroyHiddenService(hs)
+      })
       if (this.process === null) {
         reject(new Error('TOR: Process is not initalized.'))
       }
