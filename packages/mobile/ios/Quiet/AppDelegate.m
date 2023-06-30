@@ -104,7 +104,7 @@ static NSString *const platform = @"mobile";
    * Delay used below can't cause any race condition as websocket won't connect until data server starts listening anyway.
    */
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-    NSTimeInterval delayInSeconds = 0; // 7.0
+    NSTimeInterval delayInSeconds = 2;
     dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
     dispatch_after(popTime, dispatch_get_main_queue(), ^(void) {
       [[self.bridge moduleForName:@"CommunicationModule"] sendDataPortWithPort:self.dataPort];
@@ -136,7 +136,8 @@ static NSString *const platform = @"mobile";
   
   // (3/7) Wait for tor to initialize
   
-  NSTimeInterval delayInSeconds = 7.0;
+  // Give tor time to spin up and update it's authorization cookie
+  NSTimeInterval delayInSeconds = 2.0;
   dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
   dispatch_after(popTime, dispatch_get_main_queue(), ^(void) {
       
@@ -204,8 +205,11 @@ static NSString *const platform = @"mobile";
 }
 
 - (void) reviweServices:(uint16_t)controlPort {
-  NSString * message = [NSString stringWithFormat:@"dataPort:%hu|controlPort:%hu", self.dataPort, controlPort];
-  [self.nodeJsMobile sendMessageToNode:@"open":message];
+  NSString * dataPortPayload = [NSString stringWithFormat:@"%@:%hu", @"socketIOPort", self.dataPort];
+  NSString * controlPortPayload = [NSString stringWithFormat:@"%@:%hu", @"torControlPort", controlPort];
+  
+  NSString * payload = [NSString stringWithFormat:@"%@|%@", dataPortPayload, controlPortPayload];
+  [self.nodeJsMobile sendMessageToNode:@"open":payload];
 }
 
 - (void) stopTor {
