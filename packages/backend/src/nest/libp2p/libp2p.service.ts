@@ -160,4 +160,17 @@ export class Libp2pService extends EventEmitter {
 
     this.logger.log(`Initialized libp2p for peer ${peerId.toString()}`)
   }
+
+  public async destroyInstance(): Promise<void> {
+    this.libp2pInstance?.removeEventListener('peer:discovery')
+    this.libp2pInstance?.removeEventListener('peer:connect')
+    this.libp2pInstance?.removeEventListener('peer:disconnect')
+    try {
+      await this.libp2pInstance?.stop()
+    } catch (error) {
+      this.logger.log.error(error)
+    }
+
+    this.libp2pInstance = null
+  }
 }

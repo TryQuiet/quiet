@@ -24,10 +24,16 @@ describe('Libp2pService', () => {
     await module.close()
   })
 
-  it('inits libp2p', async () => {
-    const libp2pInstance = await libp2pService.createInstance(params)
-    expect(libp2pInstance).not.toBeNull()
-    expect(libp2pInstance.peerId).toBe(params.peerId)
+  it('create instance libp2p', async () => {
+    await libp2pService.createInstance(params)
+    expect(libp2pService.libp2pInstance).not.toBeNull()
+    expect(libp2pService?.libp2pInstance?.peerId).toBe(params.peerId)
+  })
+
+  it('destory instance libp2p', async () => {
+    await libp2pService.createInstance(params)
+    await libp2pService.destroyInstance()
+    expect(libp2pService.libp2pInstance).toBeNull()
   })
 
   it('creates libp2p address with proper ws type (%s)', async () => {

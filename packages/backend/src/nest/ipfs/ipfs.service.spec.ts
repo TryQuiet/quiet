@@ -42,8 +42,14 @@ describe('IpfsService', () => {
   })
 
   it('Create IPFS instance', async () => {
-    await ipfsService.create(peerId)
+    await ipfsService.createInstance(peerId)
     const ipfsInstance = ipfsService.ipfsInstance
     expect(ipfsInstance).not.toBeNull()
+  })
+
+  it('destory instance IPFS', async () => {
+    await ipfsService.createInstance(peerId)
+    await ipfsService.destoryInstance()
+    expect(ipfsService.ipfsInstance).toBeNull()
   })
 })
