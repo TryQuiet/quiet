@@ -42,12 +42,33 @@ class MessageCodec {
     return JSON.stringify(envelope);
   };
 
+
+  static parsePayload(message: string) {
+    let parsed: { [key: string]: string } = {}
+    const entries = message.split('|')
+    if (entries.length < 1) {
+      console.warn('Malformed or non-existen rn-bridge payload ', entries)
+      return parsed
+    }
+    entries.forEach(s => {
+      const split = s.split(':')
+      if (split.length !== 2) {
+        console.warn('Malformed rn-bridge entry: ', split)
+        return
+      }
+      parsed[split[0]] = split[1]
+    })
+
+    console.log('parsed', parsed)
+    return parsed
+  }
+
   // Deserialize the message and the message payload.
   static deserialize(message: string) {
     console.log('--------------------------------------rn-bridge-internals--------------------------------', message)
 
-    console.log('before envelope ', envelope)
     var envelope = JSON.parse(message);
+    envelope.payload = this.parsePayload(envelope.payload)
     console.log('after envelope')
     console.log('envelope in deserialize ', envelope)
     return envelope;

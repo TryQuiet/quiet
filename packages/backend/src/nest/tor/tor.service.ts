@@ -173,7 +173,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
 
   protected readonly spawnTor = async (timeoutMs: number): Promise<void> => {
     return await new Promise((resolve, reject) => {
-      if (!this.configOptions.torControlPort) {
+      if (!this.configOptions.httpTunnelPort) {
         this.logger.log.error("Can't spawn tor - no control port")
         reject(new Error("Can't spawn tor - no control port"))
         return
@@ -189,9 +189,9 @@ export class Tor extends EventEmitter implements OnModuleInit {
         '--SocksPort',
         this.socksPort.toString(),
         '--HTTPTunnelPort',
-        this.controlPort.toString(),
+        this.configOptions.httpTunnelPort?.toString(),
         '--ControlPort',
-        this.configOptions.torControlPort.toString(),
+        this.controlPort.toString(),
         '--PidFile',
         this.torPidPath,
         '--DataDirectory',
@@ -206,9 +206,9 @@ export class Tor extends EventEmitter implements OnModuleInit {
           '--SocksPort',
           this.socksPort.toString(),
           '--HTTPTunnelPort',
-          this.controlPort.toString(),
+          this.configOptions.httpTunnelPort?.toString(),
           '--ControlPort',
-          this.configOptions.torControlPort.toString(),
+          this.controlPort.toString(),
           '--PidFile',
           this.torPidPath,
           '--DataDirectory',
