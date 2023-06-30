@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { defaultConfigForTest, TestModule } from '../common/test.module'
-import { createTmpDir, tmpQuietDirPath } from '../common/test.utils'
+import { createTmpDir, tmpQuietDirPath } from '../common/utils'
 import { removeFilesFromDir, torBinForPlatform, torDirForPlatform } from '../common/utils'
 import { QUIET_DIR, TOR_CONTROL_PARAMS, TOR_PARAMS_PROVIDER, TOR_PASSWORD_PROVIDER } from '../const'
 import { TorModule } from './tor.module'
@@ -10,7 +10,6 @@ import { jest } from '@jest/globals'
 import { TorControlAuthType } from './tor.types'
 import { TorControl } from './tor-control.service'
 import crypto from 'crypto'
-import { sleep } from '../../sleep'
 jest.setTimeout(100_000)
 describe('TorControl', () => {
   let module: TestingModule

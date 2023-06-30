@@ -1,12 +1,12 @@
 import { Crypto } from '@peculiar/webcrypto'
 import { Command } from 'commander'
-import logger from './logger'
-import { torBinForPlatform, torDirForPlatform } from './index'
+import logger from './__old/logger'
 import { NestFactory } from '@nestjs/core'
 import path from 'path'
 import { AppModule } from './nest/app.module'
 import { ConnectionsManagerService } from './nest/connections-manager/connections-manager.service'
 import getPort from 'get-port'
+import { torBinForPlatform, torDirForPlatform } from './nest/common/utils'
 
 const log = logger('backendManager')
 const program = new Command()

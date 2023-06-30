@@ -19,9 +19,8 @@ import { ConfigOptions } from '../types'
 import path from 'path'
 import { Server as SocketIO } from 'socket.io'
 import { createServer } from 'http'
-import { createTmpDir } from '../../common/testUtils'
 import cors from 'cors'
-import { getCors, torBinForPlatform, torDirForPlatform } from './utils'
+import { createTmpDir, getCors, torBinForPlatform, torDirForPlatform } from './utils'
 
 const torPath = torBinForPlatform()
 const libPath = torDirForPlatform()

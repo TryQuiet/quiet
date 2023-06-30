@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { TestModule } from '../common/test.module'
-import { libp2pInstanceParams } from '../common/test.utils'
+import { libp2pInstanceParams } from '../common/utils'
 import { Libp2pModule } from './libp2p.module'
 import { Libp2pService } from './libp2p.service'
 import { Libp2pNodeParams } from './libp2p.types'

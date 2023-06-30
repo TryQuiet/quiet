@@ -33,7 +33,6 @@ import {
 } from '@quiet/types'
 import { isDefined } from '@quiet/common'
 import fs from 'fs'
-import { StorageEvents } from '../../storage/types'
 import { IpfsFileManagerService } from '../ipfs-file-manager/ipfs-file-manager.service'
 import { IPFS_REPO_PATCH, ORBIT_DB_DIR, QUIET_DIR } from '../const'
 import { IpfsFilesManagerEvents } from '../ipfs-file-manager/ipfs-file-manager.types'
@@ -46,6 +45,7 @@ import { createChannelAccessController } from './ChannelsAccessController'
 import Logger from '../common/logger'
 import { DirectMessagesRepo, IMessageThread, PublicChannelsRepo } from '../common/types'
 import { removeFiles, removeDirs, createPaths, getUsersAddresses } from '../common/utils'
+import { StorageEvents } from './storage.types'
 
 @Injectable()
 export class StorageService extends EventEmitter {

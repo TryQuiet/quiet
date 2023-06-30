@@ -54,11 +54,11 @@ import { Libp2pService } from '../libp2p/libp2p.service'
 import { Tor } from '../tor/tor.service'
 import { LocalDBKeys } from '../local-db/local-db.types'
 import { Libp2pEvents, Libp2pNodeParams } from '../libp2p/libp2p.types'
-import { emitError } from '../../socket/errors'
 import { RegistrationEvents } from '../registration/registration.types'
-import { InitStorageParams, StorageEvents } from '../storage/storage.types'
+import { StorageEvents } from '../storage/storage.types'
 import { LazyModuleLoader } from '@nestjs/core'
 import Logger from '../common/logger'
+import { emitError } from '../socket/socket.errors'
 
 @Injectable()
 export class ConnectionsManagerService extends EventEmitter implements OnModuleInit {

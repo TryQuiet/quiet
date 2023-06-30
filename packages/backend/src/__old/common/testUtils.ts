@@ -5,6 +5,10 @@ import createHttpsProxyAgent from 'https-proxy-agent'
 import path from 'path'
 import PeerId from 'peer-id'
 import tmp from 'tmp'
+import { Config } from '../constants'
+import { ConnectionsManager } from '../libp2p/connectionsManager'
+import { createCertificatesTestHelper } from '../libp2p/tests/client-server'
+import { Tor } from '../torManager'
 import {
   createLibp2pAddress,
   createLibp2pListenAddress,
@@ -14,11 +18,9 @@ import {
   torDirForPlatform,
 } from './utils'
 import crypto from 'crypto'
+import { type TorParams } from '../torManager/torManager'
 import { type PermsData } from '@quiet/types'
-import { Config, TestConfig } from '../const'
-import logger from './logger'
-import { createCertificatesTestHelper } from './client-server'
-import { Libp2pNodeParams } from '../libp2p/libp2p.types'
+import logger from '../logger'
 const log = logger('test')
 
 export const rootPermsData: PermsData = {
@@ -34,57 +36,37 @@ export const testBootstrapMultiaddrs = [
   createLibp2pAddress('abcd.onion', 'QmfLUJcDSLVYnNqSPSRK4mKG8MGw51m9K2v59k3yq1C8s4'),
 ]
 
-// export const spawnTorProcess = async (
-//   quietDirPath: string,
-//   ports?: Ports,
-//   extraTorProcessParams?: TorParams,
-//   binName?: string
-// ): Promise<Tor> => {
-//   const _ports = ports || (await getPorts())
-//   const torPath = torBinForPlatform(undefined, binName)
-//   const libPath = torDirForPlatform()
-//   const tor = new Tor({
-//     appDataPath: quietDirPath,
-//     torPath,
-//     httpTunnelPort: _ports.httpTunnelPort,
-//     options: {
-//       env: {
-//         LD_LIBRARY_PATH: libPath,
-//         HOME: quietDirPath,
-//       },
-//       detached: true,
-//     },
-//     extraTorProcessParams,
-//   })
-//   return tor
-// }
+export const spawnTorProcess = async (
+  quietDirPath: string,
+  ports?: Ports,
+  extraTorProcessParams?: TorParams,
+  binName?: string
+): Promise<Tor> => {
+  const _ports = ports || (await getPorts())
+  const torPath = torBinForPlatform(undefined, binName)
+  const libPath = torDirForPlatform()
+  const tor = new Tor({
+    appDataPath: quietDirPath,
+    torPath,
+    httpTunnelPort: _ports.httpTunnelPort,
+    options: {
+      env: {
+        LD_LIBRARY_PATH: libPath,
+        HOME: quietDirPath,
+      },
+      detached: true,
+    },
+    extraTorProcessParams,
+  })
+  return tor
+}
 
-// export const createLibp2p = async (peerId: PeerId): Promise<Libp2p> => {
-//   const pems = await createCertificatesTestHelper('address1.onion', 'address2.onion')
-
-//   const port = await getPort()
-
-//   return await ConnectionsManager.createBootstrapNode({
-//     peerId,
-//     listenAddresses: [createLibp2pListenAddress('localhost')],
-//     agent: createHttpsProxyAgent({ port: 1234, host: 'localhost' }),
-//     localAddress: createLibp2pAddress('localhost', peerId.toString()),
-//     cert: pems.userCert,
-//     key: pems.userKey,
-//     ca: [pems.ca],
-//     targetPort: port,
-//   })
-// }
-
-export const libp2pInstanceParams = async (): Promise<Libp2pNodeParams> => {
+export const createLibp2p = async (peerId: PeerId): Promise<Libp2p> => {
   const pems = await createCertificatesTestHelper('address1.onion', 'address2.onion')
-  const port = await getPort()
-  const peerId = await createPeerId()
-  const address = '0.0.0.0'
-  const peerIdRemote = await createPeerId()
-  const remoteAddress = createLibp2pAddress(address, peerIdRemote.toString())
 
-  return {
+  const port = await getPort()
+
+  return await ConnectionsManager.createBootstrapNode({
     peerId,
     listenAddresses: [createLibp2pListenAddress('localhost')],
     agent: createHttpsProxyAgent({ port: 1234, host: 'localhost' }),
@@ -93,15 +75,15 @@ export const libp2pInstanceParams = async (): Promise<Libp2pNodeParams> => {
     key: pems.userKey,
     ca: [pems.ca],
     targetPort: port,
-    peers: [remoteAddress],
-  }
+  })
 }
 
 export const createTmpDir = (prefix = 'quietTestTmp_'): tmp.DirResult => {
   return tmp.dirSync({ mode: 0o750, prefix, unsafeCleanup: true })
 }
+
 export const tmpQuietDirPath = (name: string): string => {
-  return path.join(name, TestConfig.QUIET_DIR)
+  return path.join(name, Config.QUIET_DIR)
 }
 
 export function createFile(filePath: string, size: number) {

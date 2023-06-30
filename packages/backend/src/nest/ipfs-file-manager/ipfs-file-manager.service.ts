@@ -10,7 +10,7 @@ import { promisify } from 'util'
 import sizeOf from 'image-size'
 import { CID } from 'multiformats/cid'
 import { DownloadProgress, DownloadState, DownloadStatus, FileMetadata, imagesExtensions } from '@quiet/types'
-import { sleep } from '../../sleep'
+import { sleep } from '../../__old/sleep'
 import { QUIET_DIR } from '../const'
 import { FilesData, IpfsFilesManagerEvents } from './ipfs-file-manager.types'
 import { StorageEvents } from '../storage/storage.types'
@@ -24,7 +24,7 @@ import {
 import { LazyModuleLoader } from '@nestjs/core'
 import Logger from '../common/logger'
 const sizeOfPromisified = promisify(sizeOf)
-const { createPaths, compare } = await import('../../common/utils')
+const { createPaths, compare } = await import('../common/utils')
 
 @Injectable()
 export class IpfsFileManagerService extends EventEmitter {

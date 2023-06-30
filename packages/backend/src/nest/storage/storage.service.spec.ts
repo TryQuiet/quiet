@@ -23,7 +23,7 @@ import PeerId from 'peer-id'
 import waitForExpect from 'wait-for-expect'
 import { sleep } from '../common/sleep'
 import { TestModule } from '../common/test.module'
-import { createFile, libp2pInstanceParams, rootPermsData } from '../common/test.utils'
+import { createFile, libp2pInstanceParams, rootPermsData } from '../common/utils'
 import { IpfsModule } from '../ipfs/ipfs.module'
 import { IpfsService } from '../ipfs/ipfs.service'
 import { Libp2pModule } from '../libp2p/libp2p.module'
@@ -38,8 +38,8 @@ import { fileURLToPath } from 'url'
 import { jest } from '@jest/globals'
 import { LocalDbModule } from '../local-db/local-db.module'
 import { LocalDbService } from '../local-db/local-db.service'
-import { LocalDBKeys } from '../../storage/localDB'
 import { IPFS_REPO_PATCH, ORBIT_DB_DIR, QUIET_DIR } from '../const'
+import { LocalDBKeys } from '../local-db/local-db.types'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -67,8 +67,7 @@ describe('StorageService', () => {
   let lazyModuleLoader: LazyModuleLoader
   let localDbService: LocalDbService
   let peerId: PeerId
-  // let tmpOrbitDbDir: string
-  // let tmpIpfsPath: string
+
   let store: Store
   let factory: FactoryGirl
   let community: Community
