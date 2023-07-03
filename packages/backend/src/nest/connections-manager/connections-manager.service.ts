@@ -221,6 +221,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.registrarState = ServiceState.DEFAULT
     await this.localDbService.open()
     await this.socketService.init()
+    this.serverIoProvider.io.emit(SocketActionTypes.CONNECTION_MANAGER_INIT)
   }
 
   public async purgeData() {
