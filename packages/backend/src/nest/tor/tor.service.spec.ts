@@ -60,10 +60,10 @@ describe('TorControl', () => {
   })
 
   afterEach(async () => {
+    await torService.kill()
     tmpDir.removeCallback()
     removeFilesFromDir(tmpAppDataPath)
     torService.clearHangingTorProcess()
-    await torService.kill()
     await module.close()
   })
 
@@ -120,7 +120,6 @@ describe('TorControl', () => {
       privKey: 'ED25519-V3:uCr5t3EcOCwig4cu7pWY6996whV+evrRlI0iIIsjV3uCz4rx46sB3CPq8lXEWhjGl2jlyreomORirKcz9mmcdQ==',
     })
     expect(hiddenServiceOnionAddress).toBe('u2rg2direy34dj77375h2fbhsc2tvxj752h4tlso64mjnlevcv54oaad.onion')
-    await torService.kill()
   })
 
   // currently provider generate password
@@ -151,8 +150,6 @@ describe('TorControl', () => {
     // })
 
     await expect(torService.init({ repeat: 3, timeout: 1000 })).rejects.toThrow('Failed to spawn tor 4 times')
-
-    await torService.kill()
   })
 
   it('tor is initializing correctly with 40 seconds timeout', async () => {
@@ -173,7 +170,6 @@ describe('TorControl', () => {
     // })
 
     await torService.init({ repeat: 3, timeout: 40000 })
-    await torService.kill()
   })
 
   it('creates and destroys hidden service', async () => {
@@ -182,7 +178,7 @@ describe('TorControl', () => {
     const serviceId = hiddenService.onionAddress.split('.')[0]
     const status = await torService.destroyHiddenService(serviceId)
     expect(status).toBe(true)
-    await torService.kill()
+    // await torService.kill()
   })
 
   it('attempt destroy nonexistent hidden service', async () => {
@@ -191,7 +187,6 @@ describe('TorControl', () => {
 
     const status = await torService.destroyHiddenService('u2rg2direy34dj77375h2fbhsc2tvxj752h4tlso64mjnlevcv54oaad')
     expect(status).toBe(false)
-    await torService.kill()
   })
 
   it('should find hanging tor process and kill it', async () => {
