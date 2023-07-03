@@ -172,7 +172,7 @@ describe('StorageService', () => {
 
   describe('Storage', () => {
     // KACPER
-    it.only('creates paths by default', async () => {
+    it('creates paths by default', async () => {
       expect(fs.existsSync(orbitDbDir)).toBe(false)
       //IPFS is created in before each
       // expect(fs.existsSync(ipfsRepoPatch)).toBe(false)
