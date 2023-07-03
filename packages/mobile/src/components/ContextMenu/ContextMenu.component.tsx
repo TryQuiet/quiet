@@ -51,7 +51,7 @@ export const ContextMenu: FC<ContextMenuProps> = ({
           position: 'absolute',
           width: '100%',
           height: '100%',
-          paddingTop: 10, 
+          paddingTop: 10,
           overflow: 'hidden',
           transform: [
             {
