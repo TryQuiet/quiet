@@ -1,5 +1,5 @@
 import { PayloadAction } from '@reduxjs/toolkit'
-import { select, put, call, take, apply } from 'typed-redux-saga'
+import { select, put, call, take, apply, delay } from 'typed-redux-saga'
 import { createUserCsr } from '@quiet/identity'
 import { identitySelectors } from '../identity.selectors'
 import { identityActions } from '../identity.slice'
@@ -27,7 +27,7 @@ export function* registerUsernameSaga(socket: Socket, action: PayloadAction<stri
     CA: community.CA,
     rootCa: community.CA?.rootCertString,
   }
-
+  yield* delay(5000)
   yield* apply(socket, socket.emit, applyEmitParams(SocketActionTypes.CREATE_NETWORK, networkPayload))
 
   let identity = yield* select(identitySelectors.currentIdentity)
