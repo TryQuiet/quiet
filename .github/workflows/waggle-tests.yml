@@ -25,7 +25,7 @@ jobs:
           bootstrap-packages: "@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,backend-bundle"
 
       - name: "Unit tests"
-        run: lerna run test-ci --scope @quiet/backend --stream
+        run: lerna run test-nest --scope @quiet/backend --stream
 
   long-running-tests:
     runs-on: ${{ matrix.os }}
