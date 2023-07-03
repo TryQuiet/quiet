@@ -22,6 +22,8 @@ const JoinCommunity = () => {
 
   const torBootstrapProcessSelector = useSelector(connection.selectors.torBootstrapProcess)
 
+  const isConnectionManagerSelector = useSelector(connection.selectors.isConnectionManager)
+
   const [revealInputValue, setRevealInputValue] = useState<boolean>(false)
 
   useEffect(() => {
@@ -29,11 +31,12 @@ const JoinCommunity = () => {
       isConnected &&
       !currentCommunity &&
       !joinCommunityModal.open &&
-      torBootstrapProcessSelector === TOR_BOOTSTRAP_COMPLETE
+      torBootstrapProcessSelector === TOR_BOOTSTRAP_COMPLETE &&
+      isConnectionManagerSelector
     ) {
       joinCommunityModal.handleOpen()
     }
-  }, [isConnected, currentCommunity, torBootstrapProcessSelector])
+  }, [isConnected, currentCommunity, torBootstrapProcessSelector, isConnectionManagerSelector])
 
   useEffect(() => {
     if (currentCommunity && joinCommunityModal.open) {

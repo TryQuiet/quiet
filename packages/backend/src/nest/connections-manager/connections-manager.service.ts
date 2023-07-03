@@ -128,6 +128,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   }
 
   public async init() {
+    this.serverIoProvider.io.emit(SocketActionTypes.CONNECTION_MANAGER_INIT)
     console.log('init')
     this.communityState = ServiceState.DEFAULT
     this.registrarState = ServiceState.DEFAULT

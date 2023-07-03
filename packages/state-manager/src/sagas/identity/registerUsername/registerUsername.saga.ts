@@ -5,12 +5,20 @@ import { identitySelectors } from '../identity.selectors'
 import { identityActions } from '../identity.slice'
 import { config } from '../../users/const/certFieldTypes'
 import { Socket, applyEmitParams } from '../../../types'
-
 import { communitiesSelectors } from '../../communities/communities.selectors'
 import { CreateUserCsrPayload, RegisterCertificatePayload, SocketActionTypes, Community } from '@quiet/types'
+import { connectionSelectors } from '../../appConnection/connection.selectors'
 
 export function* registerUsernameSaga(socket: Socket, action: PayloadAction<string>): Generator {
   // Nickname can differ between saga calls
+
+  while (true) {
+    const isConnectionManager = yield* select(connectionSelectors.isConnectionManager)
+    if (isConnectionManager) {
+      break
+    }
+    yield* delay(500)
+  }
   const nickname = action.payload
 
   const community = yield* select(communitiesSelectors.currentCommunity)
@@ -27,7 +35,7 @@ export function* registerUsernameSaga(socket: Socket, action: PayloadAction<stri
     CA: community.CA,
     rootCa: community.CA?.rootCertString,
   }
-  yield* delay(5000)
+
   yield* apply(socket, socket.emit, applyEmitParams(SocketActionTypes.CREATE_NETWORK, networkPayload))
 
   let identity = yield* select(identitySelectors.currentIdentity)

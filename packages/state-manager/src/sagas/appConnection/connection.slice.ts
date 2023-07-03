@@ -7,6 +7,7 @@ export class ConnectionState {
   public lastConnectedTime = 0
   public uptime = 0
   public peersStats: EntityState<NetworkStats> = peersStatsAdapter.getInitialState()
+  public isConnectionManager = false
   public torBootstrapProcess = 'Bootstrapped 0% (starting)'
   public torConnectionProcess: { number: number; text: string } = {
     number: 5,
@@ -43,6 +44,9 @@ export const connectionSlice = createSlice({
       }
     },
     torBootstrapped: (state, _action: PayloadAction<any>) => state,
+    connectionManagerInit: state => {
+      state.isConnectionManager = true
+    },
     setTorConnectionProcess: (state, action: PayloadAction<string>) => {
       const info = action.payload
       switch (info) {
