@@ -11,6 +11,7 @@ import { type communitiesActions } from '../../communities/communities.slice'
 import { config } from '../../users/const/certFieldTypes'
 import { CertData, CreateUserCsrPayload, SocketActionTypes } from '@quiet/types'
 import { Socket } from '../../../types'
+import { connectionActions } from '../../appConnection/connection.slice'
 
 describe('registerUsernameSaga', () => {
   it('create user csr', async () => {
@@ -57,7 +58,7 @@ describe('registerUsernameSaga', () => {
       signAlg: config.signAlg,
       hashAlg: config.hashAlg,
     }
-
+    store.dispatch(connectionActions.connectionManagerInit())
     const reducer = combineReducers(reducers)
     await expectSaga(registerUsernameSaga, socket, identityActions.registerUsername('nickname'))
       .withReducer(reducer)
@@ -125,7 +126,7 @@ describe('registerUsernameSaga', () => {
     identity.userCsr = userCsr
 
     store.dispatch(identityActions.addNewIdentity(identity))
-
+    store.dispatch(connectionActions.connectionManagerInit())
     const reducer = combineReducers(reducers)
     await expectSaga(registerUsernameSaga, socket, identityActions.registerUsername(identity.nickname))
       .withReducer(reducer)
@@ -207,7 +208,7 @@ describe('registerUsernameSaga', () => {
       signAlg: config.signAlg,
       hashAlg: config.hashAlg,
     }
-
+    store.dispatch(connectionActions.connectionManagerInit())
     const reducer = combineReducers(reducers)
     await expectSaga(registerUsernameSaga, socket, identityActions.registerUsername('nickname'))
       .withReducer(reducer)
