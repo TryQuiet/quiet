@@ -235,7 +235,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     }
   }
 
-  public getNetwork = async () => {
+  public async getNetwork() {
     const hiddenService = await this.tor.createNewHiddenService({ targetPort: this.ports.libp2pHiddenService })
 
     await this.tor.destroyHiddenService(hiddenService.onionAddress.split('.')[0])
@@ -310,8 +310,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.communityState = ServiceState.LAUNCHED
     this.serverIoProvider.io.emit(SocketActionTypes.COMMUNITY, { id: payload.id })
   }
-
-  public launch = async (payload: InitCommunityPayload) => {
+  public async launch(payload: InitCommunityPayload) {
     // Start existing community (community that user is already a part of)
     this.logger.log(`Spawning hidden service for community ${payload.id}, peer: ${payload.peerId.id}`)
     this.serverIoProvider.io.emit(
@@ -377,8 +376,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     })
     await this.storageService.init(_peerId)
   }
-
-  private attachTorEventsListeners = () => {
+  private attachTorEventsListeners() {
     this.logger.log('attachTorEventsListeners')
 
     this.socketService.on(SocketActionTypes.CONNECTION_PROCESS_INFO, data => {
@@ -389,8 +387,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       this.serverIoProvider.io.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, data)
     })
   }
-
-  private attachRegistrationListeners = () => {
+  private attachRegistrationListeners() {
     this.registrationService.on(RegistrationEvents.REGISTRAR_STATE, (payload: ServiceState) => {
       this.registrarState = payload
     })
@@ -414,8 +411,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       await this.storageService?.saveCertificate(payload)
     })
   }
-
-  private attachsocketServiceListeners = () => {
+  private attachsocketServiceListeners() {
     // Community
     this.socketService.on(SocketActionTypes.LEAVE_COMMUNITY, async () => {
       await this.leaveCommunity()
@@ -547,8 +543,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       }
     )
   }
-
-  private attachStorageListeners = () => {
+  private attachStorageListeners() {
     if (!this.storageService) return
     this.storageService.on(SocketActionTypes.CONNECTION_PROCESS_INFO, data => {
       this.serverIoProvider.io.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, data)

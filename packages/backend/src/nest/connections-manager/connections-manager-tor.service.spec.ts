@@ -30,6 +30,8 @@
 // import { initConnectionsManagerWithTor } from '../websocketOverTor/utils'
 // import { ConnectionsManagerModule } from './connections-manager.module'
 // import { ConnectionsManagerService } from './connections-manager.service'
+// import { TorModule } from '../tor/tor.module'
+// import { Tor } from '../tor/tor.service'
 
 // const { getPorts } = await import('../common/utils')
 
@@ -40,6 +42,7 @@
 
 // let module: TestingModule
 // let connectionsManagerService: ConnectionsManagerService
+// let tor: Tor
 // let localDbService: LocalDbService
 // let registrationService: RegistrationService
 // let libp2pService: Libp2pService
@@ -68,7 +71,15 @@
 //   })
 
 //   module = await Test.createTestingModule({
-//     imports: [TestModule, ConnectionsManagerModule, LocalDbModule, RegistrationModule, SocketModule, Libp2pModule],
+//     imports: [
+//       TestModule,
+//       ConnectionsManagerModule,
+//       LocalDbModule,
+//       RegistrationModule,
+//       SocketModule,
+//       Libp2pModule,
+//       TorModule,
+//     ],
 //   })
 //     .overrideProvider(TOR_PASSWORD_PROVIDER)
 //     .useValue({ torPassword: '', torHashedPassword: '' })
@@ -77,6 +88,7 @@
 //   connectionsManagerService = await module.resolve(ConnectionsManagerService)
 //   localDbService = await module.resolve(LocalDbService)
 //   registrationService = await module.resolve(RegistrationService)
+//   tor = await module.resolve(Tor)
 
 //   lazyModuleLoader = await module.resolve(LazyModuleLoader)
 //   const { Libp2pModule: Module } = await import('../libp2p/libp2p.module')
@@ -107,142 +119,103 @@
 //     console.log(connectionsManagerService.isTorInit)
 //   })
 
-//   it('creates network', async () => {
-//     const ports = await getPorts()
-//     connectionsManager = new ConnectionsManager({
-//       torBinaryPath: '../../3rd-party/tor/linux/tor',
-//       torResourcesPath: '../../3rd-party/tor/linux',
-//       socketIOPort: ports.socksPort,
-//       options: {
-//         env: {
-//           appDataPath: tmpAppDataPath,
-//         },
-//       },
-//     })
-//     const socket = await initConnectionsManagerWithTor(connectionsManager, ports.socksPort)
-//     const spyOnDestroyHiddenService = jest.spyOn(connectionsManager.tor, 'destroyHiddenService')
-//     const network = await connectionsManager.getNetwork()
+//   it.only('creates network', async () => {
+//     const spyOnDestroyHiddenService = jest.spyOn(tor, 'destroyHiddenService')
+//     await connectionsManagerService.init()
+//     const network = await connectionsManagerService.getNetwork()
 //     expect(network.hiddenService.onionAddress.split('.')[0]).toHaveLength(56)
 //     expect(network.hiddenService.privateKey).toHaveLength(99)
 //     const peerId = await PeerId.createFromJSON(network.peerId)
 //     expect(PeerId.isPeerId(peerId)).toBeTruthy()
 //     expect(await spyOnDestroyHiddenService.mock.results[0].value).toBeTruthy()
-//     socket.close()
 //   })
 
-//   //   it('dials many peers on start', async () => {
-//   //     const store = prepareStore().store
-//   //     const factory = await getFactory(store)
-//   //     const community = await factory.create<Community>('Community', { rootCa: 'rootCa' })
-//   //     const userIdentity = await factory.create<Identity>('Identity', { id: community.id, nickname: 'john' })
-//   //     const ports = await getPorts()
+//   it('dials many peers on start', async () => {
+//     const store = prepareStore().store
+//     const factory = await getFactory(store)
+//     const community = await factory.create<Community>('Community', { rootCa: 'rootCa' })
+//     const userIdentity = await factory.create<Identity>('Identity', { id: community.id, nickname: 'john' })
+//     const spyOnDial = jest.spyOn(WebSockets.prototype, 'dial')
 
-//   //     connectionsManager = new ConnectionsManager({
-//   //       torBinaryPath: '../../3rd-party/tor/linux/tor',
-//   //       torResourcesPath: '../../3rd-party/tor/linux',
-//   //       socketIOPort: ports.socksPort,
-//   //       options: {
-//   //         env: {
-//   //           appDataPath: tmpAppDataPath,
-//   //         },
-//   //       },
-//   //     })
-//   //     const socket = await initConnectionsManagerWithTor(connectionsManager, ports.socksPort)
-//   //     const spyOnDial = jest.spyOn(WebSockets.prototype, 'dial')
+//     const peerList: string[] = []
+//     const peersCount = 11
+//     for (let pCount = 0; pCount < peersCount; pCount++) {
+//       peerList.push(
+//         createLibp2pAddress(`${Math.random().toString(36).substring(2, 13)}.onion`, (await createPeerId()).toString())
+//       )
+//     }
 
-//   //     const peerList: string[] = []
-//   //     const peersCount = 11
-//   //     for (let pCount = 0; pCount < peersCount; pCount++) {
-//   //       peerList.push(
-//   //         createLibp2pAddress(`${Math.random().toString(36).substring(2, 13)}.onion`, (await createPeerId()).toString())
-//   //       )
-//   //     }
+//     const launchCommunityPayload: InitCommunityPayload = {
+//       id: community.id,
+//       peerId: userIdentity.peerId,
+//       hiddenService: userIdentity.hiddenService,
+//       certs: {
+//         // @ts-expect-error Identity.userCertificate can be null
+//         certificate: userIdentity.userCertificate,
+//         // @ts-expect-error Identity.userCertificate userCsr.userKey can be undefined
+//         key: userIdentity.userCsr?.userKey,
+//         // @ts-expect-error
+//         CA: [community.rootCa],
+//       },
+//       peers: peerList,
+//     }
+//     await connectionsManagerService.init()
+//     await connectionsManagerService.launchCommunity(launchCommunityPayload)
+//     expect(spyOnDial).toHaveBeenCalledTimes(peersCount)
+//   })
 
-//   //     const launchCommunityPayload: InitCommunityPayload = {
-//   //       id: community.id,
-//   //       peerId: userIdentity.peerId,
-//   //       hiddenService: userIdentity.hiddenService,
-//   //       certs: {
-//   //         // @ts-expect-error Identity.userCertificate can be null
-//   //         certificate: userIdentity.userCertificate,
-//   //         // @ts-expect-error Identity.userCertificate userCsr.userKey can be undefined
-//   //         key: userIdentity.userCsr?.userKey,
-//   //         // @ts-expect-error
-//   //         CA: [community.rootCa],
-//   //       },
-//   //       peers: peerList,
-//   //     }
+//   it('Bug reproduction - iOS app crashing because lack of data server', async () => {
+//     const store = prepareStore().store
+//     const factory = await getFactory(store)
+//     const community = await factory.create<Community>('Community', { rootCa: 'rootCa' })
+//     const userIdentity = await factory.create<Identity>('Identity', { id: community.id, nickname: 'john' })
 
-//   //     await connectionsManager.launchCommunity(launchCommunityPayload)
-//   //     expect(spyOnDial).toHaveBeenCalledTimes(peersCount)
-//   //     socket.close()
-//   //   })
+//     await connectionsManagerService.init()
+//     const spyOnDial = jest.spyOn(WebSockets.prototype, 'dial')
 
-//   //   it('Bug reproduction - iOS app crashing because lack of data server', async () => {
-//   //     const store = prepareStore().store
-//   //     const factory = await getFactory(store)
-//   //     const community = await factory.create<Community>('Community', { rootCa: 'rootCa' })
-//   //     const userIdentity = await factory.create<Identity>('Identity', { id: community.id, nickname: 'john' })
-//   //     const ports = await getPorts()
+//     const peerList: string[] = []
+//     const peersCount = 11
+//     for (let pCount = 0; pCount < peersCount; pCount++) {
+//       peerList.push(
+//         createLibp2pAddress(`${Math.random().toString(36).substring(2, 13)}.onion`, (await createPeerId()).toString())
+//       )
+//     }
 
-//   //     connectionsManager = new ConnectionsManager({
-//   //       torBinaryPath: '../../3rd-party/tor/linux/tor',
-//   //       torResourcesPath: '../../3rd-party/tor/linux',
-//   //       socketIOPort: ports.socksPort,
-//   //       options: {
-//   //         env: {
-//   //           appDataPath: tmpAppDataPath,
-//   //         },
-//   //       },
-//   //     })
-//   //     const socket = await initConnectionsManagerWithTor(connectionsManager, ports.socksPort)
-//   //     const spyOnDial = jest.spyOn(WebSockets.prototype, 'dial')
+//     const launchCommunityPayload: InitCommunityPayload = {
+//       id: community.id,
+//       peerId: userIdentity.peerId,
+//       hiddenService: userIdentity.hiddenService,
+//       certs: {
+//         // @ts-expect-error Identity.userCertificate can be null
+//         certificate: userIdentity.userCertificate,
+//         // @ts-expect-error
+//         key: userIdentity.userCsr?.userKey,
+//         // @ts-expect-error
+//         CA: [community.rootCa],
+//       },
+//       peers: peerList,
+//     }
 
-//   //     const peerList: string[] = []
-//   //     const peersCount = 11
-//   //     for (let pCount = 0; pCount < peersCount; pCount++) {
-//   //       peerList.push(
-//   //         createLibp2pAddress(`${Math.random().toString(36).substring(2, 13)}.onion`, (await createPeerId()).toString())
-//   //       )
-//   //     }
+//     await connectionsManagerService.launchCommunity(launchCommunityPayload)
+//     expect(spyOnDial).toHaveBeenCalledTimes(peersCount)
+//     await connectionsManagerService.closeAllServices()
 
-//   //     const launchCommunityPayload: InitCommunityPayload = {
-//   //       id: community.id,
-//   //       peerId: userIdentity.peerId,
-//   //       hiddenService: userIdentity.hiddenService,
-//   //       certs: {
-//   //         // @ts-expect-error Identity.userCertificate can be null
-//   //         certificate: userIdentity.userCertificate,
-//   //         // @ts-expect-error
-//   //         key: userIdentity.userCsr?.userKey,
-//   //         // @ts-expect-error
-//   //         CA: [community.rootCa],
-//   //       },
-//   //       peers: peerList,
-//   //     }
-
-//   //     await connectionsManager.launchCommunity(launchCommunityPayload)
-//   //     expect(spyOnDial).toHaveBeenCalledTimes(peersCount)
-//   //     await connectionsManager.closeAllServices()
-//   //     socket.close()
-//   //     connectionsManager = null
-
-//   //     // IOS
-
-//   //     const connectionsManager2 = new ConnectionsManager({
-//   //       torControlPort: 4321,
-//   //       torBinaryPath: '../../3rd-party/tor/linux/tor',
-//   //       torResourcesPath: '../../3rd-party/tor/linux',
-//   //       socketIOPort: ports.socksPort,
-//   //       options: {
-//   //         env: {
-//   //           appDataPath: tmpAppDataPath,
-//   //         },
-//   //       },
-//   //     })
-//   //     const launchSpy = jest.spyOn(connectionsManager2, 'launch').mockResolvedValue('address')
-//   //     await connectionsManager2.init()
-//   //     expect(launchSpy).toBeCalledTimes(1)
-//   //     await connectionsManager2.closeAllServices()
-//   //   })
+//     // IOS
+//     await connectionsManagerService.init()
+//     // const connectionsManager2 = new ConnectionsManager({
+//     //   torControlPort: 4321,
+//     //   torBinaryPath: '../../3rd-party/tor/linux/tor',
+//     //   torResourcesPath: '../../3rd-party/tor/linux',
+//     //   socketIOPort: ports.socksPort,
+//     //   options: {
+//     //     env: {
+//     //       appDataPath: tmpAppDataPath,
+//     //     },
+//     //   },
+//     // })
+//     const launchSpy = jest.spyOn(connectionsManagerService, 'launch')
+//     await connectionsManagerService.init()
+//     expect(launchSpy).toBeCalledTimes(1)
+//     await connectionsManagerService.closeAllServices()
+//   })
 // })

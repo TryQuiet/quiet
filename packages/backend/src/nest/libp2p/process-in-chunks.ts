@@ -15,7 +15,7 @@ export class ProcessInChunks<T> {
     this.isActive = true
   }
 
-  async processOneItem() {
+  public async processOneItem() {
     if (!this.isActive) return
     const toProcess = this.data.shift()
     if (toProcess) {
@@ -31,7 +31,7 @@ export class ProcessInChunks<T> {
     }
   }
 
-  async process() {
+  public async process() {
     this.logger.log(`Processing ${Math.min(this.chunkSize, this.data.length)} items`)
     for (let i = 0; i < this.chunkSize; i++) {
       // Do not wait for this promise as items should be processed simultineously
@@ -39,7 +39,7 @@ export class ProcessInChunks<T> {
     }
   }
 
-  stop() {
+  public stop() {
     if (this.isActive) {
       this.logger.log('Stopping initial dial')
       this.isActive = false
