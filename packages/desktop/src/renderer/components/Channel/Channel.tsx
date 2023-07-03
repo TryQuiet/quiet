@@ -4,13 +4,13 @@ import { shell, ipcRenderer } from 'electron'
 
 import { useDispatch, useSelector } from 'react-redux'
 import { identity, messages, publicChannels, communities, files, network } from '@quiet/state-manager'
-import { FileMetadata, CancelDownload, FileContent } from '@quiet/types'
+import { FileMetadata, CancelDownload, FileContent, FilePreviewData } from '@quiet/types'
 
 import ChannelComponent, { ChannelComponentProps } from './ChannelComponent'
 
 import { useModal } from '../../containers/hooks'
 import { ModalName } from '../../sagas/modals/modals.types'
-import { FilePreviewData, UploadFilesPreviewsProps } from './File/UploadingPreview'
+import { UploadFilesPreviewsProps } from './File/UploadingPreview'
 
 import { getFilesData } from '../../../utils/functions/fileData'
 

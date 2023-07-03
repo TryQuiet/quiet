@@ -9,6 +9,10 @@ import { MessageSendButton } from '../MessageSendButton/MessageSendButton.compon
 import { ChannelMessagesComponentProps, ChatProps } from './Chat.types'
 import { FileActionsProps } from '../UploadedFile/UploadedFile.types'
 import { defaultTheme } from '../../styles/themes/default.theme'
+import { AttachmentButton } from '../AttachmentButton/AttachmentButton.component'
+import DocumentPicker, { DocumentPickerResponse, types } from 'react-native-document-picker'
+import { FilePreviewData } from '@quiet/types'
+import UploadFilesPreviewsComponent from '../FileUploadingPreview/UploadingPreview.component'
 
 export const Chat: FC<ChatProps & FileActionsProps> = ({
   contextMenu,
@@ -27,10 +31,14 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
   imagePreview,
   setImagePreview,
   openImagePreview,
+  updateUploadedFiles,
+  removeFilePreview,
+  uploadedFiles,
   openUrl,
 }) => {
   const [didKeyboardShow, setKeyboardShow] = useState(false)
   const [messageInput, setMessageInput] = useState<string | undefined>()
+  // const [result, setResult] = React.useState<Array<DocumentPickerResponse> | undefined | null>()
 
   const messageInputRef = useRef<null | TextInput>(null)
 
@@ -64,6 +72,22 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
     }
     setMessageInput(value)
   }
+
+  const openAttachments = async () => {
+    const response: DocumentPickerResponse[] = await DocumentPicker.pick({
+      presentationStyle: 'fullScreen',
+      type: [types.allFiles],
+      allowMultiSelection: true,
+    })
+    console.log('RESPONSE', response)
+    if (response) {
+      updateUploadedFiles(response)
+    }
+  }
+
+  // const removeFile = (id: string) => {
+  //   console.log('REMOVING FILE')
+  // }
 
   const onPress = () => {
     if (!messageInputRef.current || messageInput === undefined || messageInput?.length === 0) {
@@ -140,7 +164,9 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
               placeholder={`Message #${channel?.name}`}
               multiline={true}
             />
+            <UploadFilesPreviewsComponent filesData={uploadedFiles} removeFile={removeFilePreview} />
           </View>
+          <AttachmentButton onPress={openAttachments} disabled={false} />
           {didKeyboardShow && <MessageSendButton onPress={onPress} disabled={isInputEmpty} />}
         </View>
       </KeyboardAvoidingView>

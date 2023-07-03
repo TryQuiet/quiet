@@ -6,6 +6,10 @@ export interface FileContent {
   ext: string
 }
 
+export interface FilePreviewData {
+  [id: string]: FileContent
+}
+
 export interface FileMetadata extends FileContent {
   cid: string
   message: FileMessage
