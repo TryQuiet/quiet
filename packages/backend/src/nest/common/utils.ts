@@ -12,7 +12,7 @@ import { TestConfig } from '../const'
 import logger from './logger'
 import { createCertificatesTestHelper } from './client-server'
 import { Libp2pNodeParams } from '../libp2p/libp2p.types'
-const log = logger('test')
+const log = logger('test').log
 
 export interface Ports {
   socksPort: number
@@ -33,7 +33,7 @@ export function createPaths(paths: string[]) {
 
 export function removeFilesFromDir(dirPath: string) {
   if (fs.existsSync(dirPath)) {
-    // log(`Removing ${dirPath}`)
+    log(`Removing ${dirPath}`)
     fs.rmdirSync(dirPath, { recursive: true })
   }
 }
@@ -110,12 +110,12 @@ export const getPorts = async (): Promise<Ports> => {
 
 export class DummyIOServer extends Server {
   emit(event: string, ...args: any[]): boolean {
-    // log(`Emitting ${event} with args:`, args)
+    log(`Emitting ${event} with args:`, args)
     return true
   }
 
   close() {
-    // log('Closing DummyIOServer')
+    log('Closing DummyIOServer')
   }
 }
 
@@ -126,17 +126,6 @@ export const torBinForPlatform = (basePath = '', binName = 'tor'): string => {
   const ext = process.platform === 'win32' ? '.exe' : ''
   return path.join(torDirForPlatform(basePath), `${binName}`.concat(ext))
 }
-
-// export const torDirForPlatform = (basePath?: string): string => {
-//   let torPath
-//   if (!basePath) {
-//     basePath = path.join(process.cwd(), '..', '..', '3rd-party')
-//     torPath = path.join(basePath, 'tor', process.platform)
-//   } else {
-//     torPath = path.join(basePath, 'tor')
-//   }
-//   return torPath
-// }
 
 export const torDirForPlatform = (basePath?: string): string => {
   let torPath: string

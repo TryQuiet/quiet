@@ -34,7 +34,6 @@ export const defaultConfigForTest = {
   options: {
     env: {
       LD_LIBRARY_PATH: libPath,
-      // HOME: quietDirPath,
       appDataPath: '',
     },
     detached: true,

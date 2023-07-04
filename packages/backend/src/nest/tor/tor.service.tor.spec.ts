@@ -17,7 +17,6 @@ describe('TorControl', () => {
   let torControl: TorControl
   let tmpDir: DirResult
   let tmpAppDataPath: string
-  // let quietDir: string
 
   const torPassword = crypto.randomBytes(16).toString('hex')
 
@@ -53,7 +52,7 @@ describe('TorControl', () => {
       .overrideProvider(QUIET_DIR)
       .useValue(tmpAppDataPath)
       .compile()
-    // quietDir = await module.resolve(QUIET_DIR)
+
     torService = await module.resolve(Tor)
     torControl = await module.resolve(TorControl)
     torControl.authString = 'AUTHENTICATE ' + torPassword + '\r\n'
@@ -133,42 +132,10 @@ describe('TorControl', () => {
   // })
 
   it('tor spawn repeating 3 times with 1 second timeout and repeating will stop after that', async () => {
-    // const torPath = torBinForPlatform()
-    // const httpTunnelPort = await getPort()
-    // const libPath = torDirForPlatform()
-    // const tor = new Tor({
-    //   appDataPath: tmpAppDataPath,
-    //   torPath,
-    //   httpTunnelPort,
-    //   options: {
-    //     env: {
-    //       LD_LIBRARY_PATH: libPath,
-    //       HOME: tmpAppDataPath,
-    //     },
-    //     detached: true,
-    //   },
-    // })
-
     await expect(torService.init({ repeat: 3, timeout: 1000 })).rejects.toThrow('Failed to spawn tor 4 times')
   })
 
   it('tor is initializing correctly with 40 seconds timeout', async () => {
-    // const torPath = torBinForPlatform()
-    // const httpTunnelPort = await getPort()
-    // const libPath = torDirForPlatform()
-    // const tor = new Tor({
-    //   appDataPath: tmpAppDataPath,
-    //   torPath,
-    //   httpTunnelPort,
-    //   options: {
-    //     env: {
-    //       LD_LIBRARY_PATH: libPath,
-    //       HOME: tmpAppDataPath,
-    //     },
-    //     detached: true,
-    //   },
-    // })
-
     await torService.init({ repeat: 3, timeout: 40000 })
   })
 
@@ -182,7 +149,6 @@ describe('TorControl', () => {
   })
 
   it('attempt destroy nonexistent hidden service', async () => {
-    // const tor = await spawnTorProcess(tmpAppDataPath)
     await torService.init()
 
     const status = await torService.destroyHiddenService('u2rg2direy34dj77375h2fbhsc2tvxj752h4tlso64mjnlevcv54oaad')

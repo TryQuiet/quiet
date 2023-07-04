@@ -32,7 +32,6 @@ describe('IpfsFileManagerService', () => {
   let peerId: PeerId
 
   let tmpDir: DirResult
-  // let tmpAppDataPath: string
   let filePath: string
 
   beforeEach(async () => {

@@ -253,14 +253,9 @@ describe('ConnectionsManagerService', () => {
     const launchCommunitySpy = jest.spyOn(connectionsManagerService, 'launchCommunity').mockResolvedValue()
     const launchRegistrarSpy = jest.spyOn(registrationService, 'launchRegistrar').mockResolvedValue()
 
-    // const url = `http://localhost:${1234}`
-    // const socket = io(url)
-
     await connectionsManagerService.init()
 
     expect(launchCommunitySpy).toBeCalledTimes(1)
     expect(launchRegistrarSpy).toBeCalledTimes(1)
-
-    // socket.close()
   })
 })
