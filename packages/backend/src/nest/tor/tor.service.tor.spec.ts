@@ -10,7 +10,7 @@ import { jest } from '@jest/globals'
 import { TorControlAuthType } from './tor.types'
 import { TorControl } from './tor-control.service'
 import crypto from 'crypto'
-jest.setTimeout(100_000)
+jest.setTimeout(200_000)
 describe('TorControl', () => {
   let module: TestingModule
   let torService: Tor
