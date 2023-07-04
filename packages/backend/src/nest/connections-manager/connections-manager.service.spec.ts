@@ -182,47 +182,7 @@ describe('ConnectionsManagerService', () => {
     expect(launchCommunitySpy).not.toHaveBeenCalled()
     expect(launchRegistrarSpy).not.toHaveBeenCalled()
   })
-  // KACPER
-  it('saves peer stats when peer has been disconnected', async () => {
-    class RemotePeerEventDetail {
-      peerId: string
 
-      constructor(peerId: string) {
-        this.peerId = peerId
-      }
-
-      toString = () => {
-        return this.peerId
-      }
-    }
-    const emitSpy = jest.spyOn(connectionsManagerService, 'emit')
-    // const emitSpy = jest.spyOn(libp2pService, 'emit')
-
-    // Peer connected
-    libp2pService.connectedPeers.set(peerId.toString(), DateTime.utc().valueOf())
-
-    // Peer disconnected
-    const remoteAddr = `test/p2p/${peerId.toString()}`
-    const peerDisconectEventDetail = {
-      remotePeer: new RemotePeerEventDetail(peerId.toString()),
-      remoteAddr: new RemotePeerEventDetail(remoteAddr),
-    }
-    libp2pService.libp2pInstance?.dispatchEvent(
-      new CustomEvent('peer:disconnect', { detail: peerDisconectEventDetail })
-    )
-
-    expect(libp2pService.connectedPeers.size).toEqual(0)
-    await waitForExpect(async () => {
-      expect(await localDbService.get(LocalDBKeys.PEERS)).not.toBeNull()
-    }, 2000)
-    const peerStats: Record<string, NetworkStats> = await localDbService.get(LocalDBKeys.PEERS)
-    expect(Object.keys(peerStats)[0]).toEqual(remoteAddr)
-    expect(emitSpy).toHaveBeenCalledWith(Libp2pEvents.PEER_DISCONNECTED, {
-      peer: peerStats[remoteAddr].peerId,
-      connectionDuration: peerStats[remoteAddr].connectionTime,
-      lastSeen: peerStats[remoteAddr].lastSeen,
-    })
-  })
   // At this moment, that test have to be skipped, because checking statues is called before launchCommunity method
   // it.skip('community is only launched once', async () => {
   //   const launchCommunityPayload: InitCommunityPayload = {

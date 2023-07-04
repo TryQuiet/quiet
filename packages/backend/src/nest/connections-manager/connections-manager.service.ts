@@ -367,7 +367,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       const peerStats: NetworkStats = {
         peerId: payload.peer,
         connectionTime: prev + payload.connectionDuration,
-        lastSeen: payload.connectionDuration,
+        lastSeen: payload.lastSeen,
       }
 
       await this.localDbService.update(LocalDBKeys.PEERS, {

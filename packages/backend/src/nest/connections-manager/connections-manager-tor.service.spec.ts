@@ -1,6 +1,8 @@
 import PeerId from 'peer-id'
 import { type DirResult } from 'tmp'
 import crypto from 'crypto'
+import { CustomEvent } from '@libp2p/interfaces/events'
+
 
 import { jest, beforeEach, describe, it, expect, afterEach } from '@jest/globals'
 import { communities, getFactory, identity, prepareStore, Store } from '@quiet/state-manager'
@@ -13,7 +15,7 @@ import {
   tmpQuietDirPath,
 } from '../common/utils'
 
-import { type Community, type Identity, type InitCommunityPayload } from '@quiet/types'
+import { NetworkStats, type Community, type Identity, type InitCommunityPayload } from '@quiet/types'
 import { LazyModuleLoader } from '@nestjs/core'
 import { TestingModule, Test } from '@nestjs/testing'
 import { FactoryGirl } from 'factory-girl'
@@ -33,6 +35,10 @@ import { TorModule } from '../tor/tor.module'
 import { Tor } from '../tor/tor.service'
 import { TorControl } from '../tor/tor-control.service'
 import { sleep } from '../../__old/sleep'
+import { LocalDBKeys } from '../local-db/local-db.types'
+import { DateTime } from 'luxon'
+import waitForExpect from 'wait-for-expect'
+import { Libp2pEvents } from '../libp2p/libp2p.types'
 
 jest.setTimeout(100_000)
 
@@ -125,6 +131,64 @@ describe('Connections manager', () => {
     console.log(connectionsManagerService.isTorInit)
   })
 
+  it('saves peer stats when peer has been disconnected', async () => {
+    class RemotePeerEventDetail {
+      peerId: string
+
+      constructor(peerId: string) {
+        this.peerId = peerId
+      }
+
+      toString = () => {
+        return this.peerId
+      }
+    }
+    const emitSpy = jest.spyOn(libp2pService, 'emit')
+    // const emitSpy = jest.spyOn(libp2pService, 'emit')
+
+    const launchCommunityPayload: InitCommunityPayload = {
+      id: community.id,
+      peerId: userIdentity.peerId,
+      hiddenService: userIdentity.hiddenService,
+      certs: {
+        // @ts-expect-error
+        certificate: userIdentity.userCertificate,
+        // @ts-expect-error
+        key: userIdentity.userCsr?.userKey,
+        CA: [communityRootCa],
+      },
+      peers: community.peerList,
+    }
+
+    await localDbService.put(LocalDBKeys.COMMUNITY, launchCommunityPayload)
+
+    // Peer connected
+    await connectionsManagerService.init()
+    libp2pService.connectedPeers.set(peerId.toString(), DateTime.utc().valueOf())
+
+    // Peer disconnected
+    const remoteAddr = `${peerId.toString()}`
+    const peerDisconectEventDetail = {
+      remotePeer: new RemotePeerEventDetail(peerId.toString()),
+      remoteAddr: new RemotePeerEventDetail(remoteAddr),
+    }
+    libp2pService.libp2pInstance?.dispatchEvent(
+      new CustomEvent('peer:disconnect', { detail: peerDisconectEventDetail })
+    )
+
+    expect(libp2pService.connectedPeers.size).toEqual(0)
+    await waitForExpect(async () => {
+      expect(await localDbService.get(LocalDBKeys.PEERS)).not.toBeNull()
+    }, 2000)
+    const peerStats: Record<string, NetworkStats> = await localDbService.get(LocalDBKeys.PEERS)
+    expect(Object.keys(peerStats)[0]).toEqual(remoteAddr)
+    expect(emitSpy).toHaveBeenCalledWith(Libp2pEvents.PEER_DISCONNECTED, {
+      peer: peerStats[remoteAddr].peerId,
+      connectionDuration: peerStats[remoteAddr].connectionTime,
+      lastSeen: peerStats[remoteAddr].lastSeen,
+    })
+  })
+
   it('creates network', async () => {
     const spyOnDestroyHiddenService = jest.spyOn(tor, 'destroyHiddenService')
     await connectionsManagerService.init()
@@ -169,6 +233,7 @@ describe('Connections manager', () => {
     }
     await connectionsManagerService.init()
     await connectionsManagerService.launchCommunity(launchCommunityPayload)
+    await sleep(5000)
     expect(spyOnDial).toHaveBeenCalledTimes(peersCount)
     // Temporary fix for hanging test - websocketOverTor doesn't have abortController
     await sleep(5000)
