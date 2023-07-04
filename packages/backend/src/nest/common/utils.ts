@@ -127,13 +127,29 @@ export const torBinForPlatform = (basePath = '', binName = 'tor'): string => {
   return path.join(torDirForPlatform(basePath), `${binName}`.concat(ext))
 }
 
+// export const torDirForPlatform = (basePath?: string): string => {
+//   let torPath
+//   if (!basePath) {
+//     basePath = path.join(process.cwd(), '..', '..', '3rd-party')
+//     torPath = path.join(basePath, 'tor', process.platform)
+//   } else {
+//     torPath = path.join(basePath, 'tor')
+//   }
+//   return torPath
+// }
+
 export const torDirForPlatform = (basePath?: string): string => {
-  let torPath
+  let torPath: string
   if (!basePath) {
+    const platformPath = process.platform === 'darwin' ? path.join(process.platform, process.arch) : process.platform
     basePath = path.join(process.cwd(), '..', '..', '3rd-party')
-    torPath = path.join(basePath, 'tor', process.platform)
+    torPath = path.join(basePath, 'tor', platformPath)
   } else {
-    torPath = path.join(basePath, 'tor')
+    if (process.platform === 'darwin') {
+      torPath = path.join(basePath, 'tor', process.arch)
+    } else {
+      torPath = path.join(basePath, 'tor')
+    }
   }
   return torPath
 }
