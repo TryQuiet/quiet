@@ -19,7 +19,7 @@ import { IpfsFileManagerService } from './ipfs-file-manager.service'
 import { jest } from '@jest/globals'
 import { sleep } from '../common/sleep'
 import fs from 'fs'
-
+jest.setTimeout(200_000)
 describe('IpfsFileManagerService', () => {
   let module: TestingModule
   let ipfsFileManagerService: IpfsFileManagerService
@@ -35,7 +35,9 @@ describe('IpfsFileManagerService', () => {
   beforeEach(async () => {
     tmpDir = createTmpDir()
     filePath = new URL('./testUtils/large-file.txt', import.meta.url).pathname
-
+    // Generate 2.1GB file
+    createFile(filePath, 2147483000)
+    sleep(5000)
     module = await Test.createTestingModule({
       imports: [TestModule, IpfsFileManagerModule, IpfsModule, SocketModule, Libp2pModule],
     }).compile()
@@ -71,14 +73,10 @@ describe('IpfsFileManagerService', () => {
     if (fs.existsSync(filePath)) {
       fs.rmSync(filePath)
     }
-
     await module.close()
   })
 
   it('uploads large files', async () => {
-    // Generate 2.1GB file
-    createFile(filePath, 2147483000)
-
     // Uploading
     const eventSpy = jest.spyOn(ipfsFileManagerService, 'emit')
     const copyFileSpy = jest.spyOn(ipfsFileManagerService, 'copyFile')
