@@ -32,7 +32,7 @@ import { ConnectionsManagerService } from './connections-manager.service'
 import { TorModule } from '../tor/tor.module'
 import { Tor } from '../tor/tor.service'
 import { TorControl } from '../tor/tor-control.service'
-import { sleep } from '../../__old/sleep'
+import { sleep } from '../common/sleep'
 
 jest.setTimeout(100_000)
 
