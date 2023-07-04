@@ -37,6 +37,7 @@ describe('IpfsFileManagerService', () => {
     filePath = new URL('./testUtils/large-file.txt', import.meta.url).pathname
     // Generate 2.1GB file
     createFile(filePath, 2147483000)
+    sleep(5000)
     module = await Test.createTestingModule({
       imports: [TestModule, IpfsFileManagerModule, IpfsModule, SocketModule, Libp2pModule],
     }).compile()
@@ -68,8 +69,6 @@ describe('IpfsFileManagerService', () => {
   })
 
   afterEach(async () => {
-    await libp2pService.libp2pInstance?.stop()
-    await ipfsService.ipfsInstance?.stop()
     tmpDir.removeCallback()
     if (fs.existsSync(filePath)) {
       fs.rmSync(filePath)
