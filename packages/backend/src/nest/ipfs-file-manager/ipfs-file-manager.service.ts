@@ -58,10 +58,9 @@ export class IpfsFileManagerService extends EventEmitter {
 
     const ipfsInstance = ipfsService?.ipfsInstance
     if (!ipfsInstance) {
-      this.logger.log.error('no ipfs instance')
+      this.logger.error('no ipfs instance')
       throw new Error('no ipfs instance')
     }
-
     this.ipfs = ipfsInstance
   }
 
@@ -263,7 +262,7 @@ export class IpfsFileManagerService extends EventEmitter {
           }
         })
       } catch (e) {
-        this.logger.log.error(e)
+        this.logger.error(e)
       }
     }
 
@@ -292,7 +291,7 @@ export class IpfsFileManagerService extends EventEmitter {
       const transferSpeed = bytesDownloaded === 0 ? 0 : bytesDownloaded / TRANSFER_SPEED_SPAN
       const fileState = this.files.get(fileMetadata.cid)
       if (!fileState) {
-        this.logger.log.error(`No saved data for file cid ${fileMetadata.cid}`)
+        this.logger.error(`No saved data for file cid ${fileMetadata.cid}`)
         return
       }
       this.files.set(fileMetadata.cid, {
@@ -383,7 +382,7 @@ export class IpfsFileManagerService extends EventEmitter {
 
     const fileState = this.files.get(fileMetadata.cid)
     if (!fileState) {
-      this.logger.log.error(`No saved data for file cid ${fileMetadata.cid}`)
+      this.logger.error(`No saved data for file cid ${fileMetadata.cid}`)
       return
     }
 

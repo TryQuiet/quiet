@@ -14,20 +14,3 @@ export function dumpPEM(tag: string, body: string | Certificate | CryptoKey) {
   const result = `-----BEGIN ${tag}-----\n` + `${bodyCert}\n` + `-----END ${tag}-----\n`
   return Buffer.from(result)
 }
-
-export async function initConnectionsManagerWithTor(connectionsManager: any, port: number) {
-  const url = `http://localhost:${port}`
-  const socket = io(url)
-
-  const init = new Promise<void>(resolve => {
-    void connectionsManager.init()
-    socket.connect()
-    setTimeout(() => {
-      resolve()
-    }, 200)
-  })
-
-  await init
-
-  return socket
-}

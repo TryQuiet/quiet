@@ -12,7 +12,7 @@ import { TestConfig } from '../const'
 import logger from './logger'
 import { createCertificatesTestHelper } from './client-server'
 import { Libp2pNodeParams } from '../libp2p/libp2p.types'
-const log = logger('test').log
+const log = logger('test')
 
 export interface Ports {
   socksPort: number

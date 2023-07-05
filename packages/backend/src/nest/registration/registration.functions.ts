@@ -122,9 +122,9 @@ export const sendCertificateRegistrationRequest = async (
     response = await fetch(`${serviceAddress}/register`, options)
     const end = new Date()
     const fetchTime = (end.getTime() - start.getTime()) / 1000
-    logger.log(`Fetched ${serviceAddress}, time: ${fetchTime}`)
+    logger(`Fetched ${serviceAddress}, time: ${fetchTime}`)
   } catch (e) {
-    logger.log.error(e)
+    logger.error(e)
     return {
       eventType: RegistrationEvents.ERROR,
       data: {
@@ -172,7 +172,7 @@ export const sendCertificateRegistrationRequest = async (
         },
       }
     default:
-      logger.log.error(`Registrar responded with ${response?.status} "${response?.statusText}" (${communityId})`)
+      logger.error(`Registrar responded with ${response?.status} "${response?.statusText}" (${communityId})`)
       return {
         eventType: RegistrationEvents.ERROR,
         data: {
@@ -186,7 +186,7 @@ export const sendCertificateRegistrationRequest = async (
 
   const registrarResponse: UserCertificatePayload = await response.json()
 
-  logger.log(`Sending user certificate (${communityId})`)
+  logger(`Sending user certificate (${communityId})`)
   return {
     eventType: SocketActionTypes.SEND_USER_CERTIFICATE,
     data: {
@@ -207,7 +207,7 @@ export const registerUser = async (
   userData.csr = csr
   const validationErrors = await validate(userData)
   if (validationErrors.length > 0) {
-    logger.log.error(`Received data is not valid: ${validationErrors.toString()}`)
+    logger.error(`Received data is not valid: ${validationErrors.toString()}`)
     return {
       status: 400,
       body: JSON.stringify(validationErrors),
@@ -217,7 +217,7 @@ export const registerUser = async (
   const parsedCsr = await loadCSR(userData.csr)
   const username = getReqFieldValue(parsedCsr, CertFieldsTypes.nickName)
   if (!username) {
-    logger.log.error(`Could not parse certificate for field type ${CertFieldsTypes.nickName}`)
+    logger.error(`Could not parse certificate for field type ${CertFieldsTypes.nickName}`)
     return {
       // Should be internal server error code 500
       status: 400,
@@ -228,22 +228,22 @@ export const registerUser = async (
   const usernameCert = certificateByUsername(username, certificates)
   if (usernameCert) {
     if (!pubKeyMatch(usernameCert, parsedCsr)) {
-      logger.log(`Username ${username} is taken`)
+      logger(`Username ${username} is taken`)
       return {
         // Should be conflict code 409
         status: 403,
         body: null,
       }
     } else {
-      logger.log('Requesting same CSR again')
+      logger('Requesting same CSR again')
       cert = usernameCert
     }
   } else {
-    logger.log('username doesnt have existing cert, creating new')
+    logger('username doesnt have existing cert, creating new')
     try {
       cert = await registerCertificate(userData.csr, permsData)
     } catch (e) {
-      logger.log.error(`Something went wrong with registering user: ${e.message as string}`)
+      logger.error(`Something went wrong with registering user: ${e.message as string}`)
       return {
         // Should be internal server error code 500
         status: 400,

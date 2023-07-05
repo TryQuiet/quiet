@@ -66,7 +66,7 @@ export const runBackendDesktop = async () => {
       try {
         await connectionsManager.closeAllServices()
       } catch (e) {
-        log.log.error('Error occured while closing backend services', e)
+        log.error('Error occured while closing backend services', e)
       }
       if (process.send) process.send('closed-services')
     }
@@ -74,7 +74,7 @@ export const runBackendDesktop = async () => {
       try {
         await connectionsManager.leaveCommunity()
       } catch (e) {
-        log.log.error('Error occured while leaving community', e)
+        log.error('Error occured while leaving community', e)
       }
       if (process.send) process.send('leftCommunity')
     }
@@ -142,12 +142,12 @@ const platform = options.platform
 
 if (platform === 'desktop') {
   runBackendDesktop().catch(error => {
-    log.log.error('Error occurred while initializing backend', error)
+    log.error('Error occurred while initializing backend', error)
     throw error
   })
 } else if (platform === 'mobile') {
   runBackendMobile().catch(async error => {
-    log.log.error('Error occurred while initializing backend', error)
+    log.error('Error occurred while initializing backend', error)
     // Prevent stopping process before getting output
     await new Promise<void>(resolve => {
       setTimeout(() => {

@@ -4,6 +4,8 @@ import { ConnectionsManagerModule } from './connections-manager/connections-mana
 import { RegistrationModule } from './registration/registration.module'
 import { IpfsFileManagerModule } from './ipfs-file-manager/ipfs-file-manager.module'
 import path from 'path'
+import fs from 'fs'
+
 import cors from 'cors'
 import {
   CONFIG_OPTIONS,
@@ -48,7 +50,7 @@ import { getCors } from './common/utils'
   providers: [
     {
       provide: EXPRESS_PROVIDER,
-      useValue: express(),
+      useFactory: () => express(),
     },
   ],
   exports: [EXPRESS_PROVIDER],
@@ -70,12 +72,18 @@ export class AppModule {
         },
         {
           provide: ORBIT_DB_DIR,
-          useFactory: (_quietDir: string) => path.join(_quietDir, Config.ORBIT_DB_DIR),
+          useFactory: (_quietDir: string) => {
+            const existingRepo = fs.readdirSync(_quietDir).filter(i => i.startsWith('OrbitDB'))
+            return path.join(_quietDir, existingRepo[0] || Config.ORBIT_DB_DIR)
+          },
           inject: [QUIET_DIR],
         },
         {
           provide: IPFS_REPO_PATCH,
-          useFactory: (_quietDir: string) => path.join(_quietDir, Config.IPFS_REPO_PATH),
+          useFactory: (_quietDir: string) => {
+            const existingRepo = fs.readdirSync(_quietDir).filter(i => i.startsWith('Ipfs'))
+            return path.join(_quietDir, existingRepo[0] || Config.IPFS_REPO_PATH)
+          },
           inject: [QUIET_DIR],
         },
 

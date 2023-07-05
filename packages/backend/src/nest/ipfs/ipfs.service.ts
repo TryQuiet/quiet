@@ -7,7 +7,7 @@ import Logger from '../common/logger'
 @Injectable()
 export class IpfsService {
   public ipfsInstance: IPFS | null
-
+  private counter = 0
   private readonly logger = Logger(IpfsService.name)
   constructor(
     @Inject(IPFS_REPO_PATCH) public readonly ipfsRepoPath: string,
@@ -15,6 +15,8 @@ export class IpfsService {
   ) {}
 
   public async createInstance(peerId: any) {
+    this.counter++
+    console.log('counter ipfs', this.counter)
     const { Libp2pModule } = await import('../libp2p/libp2p.module')
     const moduleRef = await this.lazyModuleLoader.load(() => Libp2pModule)
     const { Libp2pService } = await import('../libp2p/libp2p.service')
@@ -24,7 +26,7 @@ export class IpfsService {
     let ipfs: IPFS
     try {
       if (!libp2pInstance) {
-        this.logger.log.error('no libp2p instance')
+        this.logger.error('no libp2p instance')
         throw new Error('no libp2p instance')
       }
       ipfs = await create({
@@ -40,7 +42,7 @@ export class IpfsService {
       })
       this.ipfsInstance = ipfs
     } catch (error) {
-      this.logger.log.error('ipfs creation failed', error)
+      this.logger.error('ipfs creation failed', error)
     }
 
     return this.ipfsInstance
@@ -50,7 +52,7 @@ export class IpfsService {
     try {
       await this.ipfsInstance?.stop()
     } catch (error) {
-      this.logger.log.error(error)
+      this.logger.error(error)
     }
     this.ipfsInstance = null
   }

@@ -43,7 +43,7 @@ export function CsrContainsFields(validationOptions?: ValidationOptions) {
               loadedCsr => {
                 for (const certType of [CertFieldsTypes.commonName, CertFieldsTypes.peerId, CertFieldsTypes.nickName]) {
                   if (!getReqFieldValue(loadedCsr, certType)) {
-                    logger.log.error(`Certificate is lacking a field '${certType}'`)
+                    logger.error(`Certificate is lacking a field '${certType}'`)
                     resolve(false)
                     return
                   }

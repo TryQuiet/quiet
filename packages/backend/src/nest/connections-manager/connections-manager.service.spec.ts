@@ -184,31 +184,31 @@ describe('ConnectionsManagerService', () => {
   })
 
   // At this moment, that test have to be skipped, because checking statues is called before launchCommunity method
-  // it.skip('community is only launched once', async () => {
-  //   const launchCommunityPayload: InitCommunityPayload = {
-  //     id: community.id,
-  //     peerId: userIdentity.peerId,
-  //     hiddenService: userIdentity.hiddenService,
-  //     certs: {
-  //       // @ts-expect-error
-  //       certificate: userIdentity.userCertificate,
-  //       // @ts-expect-error
-  //       key: userIdentity.userCsr?.userKey,
-  //       CA: [communityRootCa],
-  //     },
-  //     peers: community.peerList,
-  //   }
+  it.skip('community is only launched once', async () => {
+    const launchCommunityPayload: InitCommunityPayload = {
+      id: community.id,
+      peerId: userIdentity.peerId,
+      hiddenService: userIdentity.hiddenService,
+      certs: {
+        // @ts-expect-error
+        certificate: userIdentity.userCertificate,
+        // @ts-expect-error
+        key: userIdentity.userCsr?.userKey,
+        CA: [communityRootCa],
+      },
+      peers: community.peerList,
+    }
 
-  //   //@ts-ignore
-  //   const launchSpy = jest.spyOn(connectionsManagerService, 'launch').mockResolvedValue('address')
+    //@ts-ignore
+    const launchSpy = jest.spyOn(connectionsManagerService, 'launch').mockResolvedValue('address')
 
-  //   await Promise.all([
-  //     connectionsManagerService.launchCommunity(launchCommunityPayload),
-  //     connectionsManagerService.launchCommunity(launchCommunityPayload),
-  //   ])
+    await Promise.all([
+      connectionsManagerService.launchCommunity(launchCommunityPayload),
+      connectionsManagerService.launchCommunity(launchCommunityPayload),
+    ])
 
-  //   expect(launchSpy).toBeCalledTimes(1)
-  // })
+    expect(launchSpy).toBeCalledTimes(1)
+  })
 
   it('Bug reproduction - Error on startup - Error: TOR: Connection already established - Trigger launchCommunity and launchRegistrar from backend and state manager', async () => {
     const launchCommunityPayload: InitCommunityPayload = {

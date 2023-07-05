@@ -45,7 +45,7 @@ export const defaultConfigForTest = {
   providers: [
     {
       provide: EXPRESS_PROVIDER,
-      useValue: express(),
+      useFactory: () => express(),
     },
     {
       provide: CONFIG_OPTIONS,

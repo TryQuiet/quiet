@@ -90,7 +90,7 @@ export class Libp2pService extends EventEmitter {
         pubsub: gossipsub({ allowPublishToZeroPeers: true }),
       })
     } catch (err) {
-      this.logger.log.error('Create libp2p:', err)
+      this.logger.error('Create libp2p:', err)
       throw err
     }
     this.libp2pInstance = libp2p
@@ -100,21 +100,21 @@ export class Libp2pService extends EventEmitter {
 
   private async afterCreation(peers: string[], peerId: PeerId) {
     if (!this.libp2pInstance) {
-      this.logger.log.error('libp2pInstance was not created')
+      this.logger.error('libp2pInstance was not created')
       throw new Error('libp2pInstance was not created')
     }
 
-    this.logger.log(`Initializing libp2p for ${peerId.toString()}, bootstrapping with ${peers.length} peers`)
+    this.logger(`Initializing libp2p for ${peerId.toString()}, bootstrapping with ${peers.length} peers`)
     this.serverIoProvider.io.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.INITIALIZING_LIBP2P)
     const dialInChunks = new ProcessInChunks<string>(peers, this.dialPeer)
 
     this.libp2pInstance.addEventListener('peer:discovery', peer => {
-      this.logger.log(`${peerId.toString()} discovered ${peer.detail.id}`)
+      this.logger(`${peerId.toString()} discovered ${peer.detail.id}`)
     })
 
     this.libp2pInstance.addEventListener('peer:connect', async peer => {
       const remotePeerId = peer.detail.remotePeer.toString()
-      this.logger.log(`${peerId.toString()} connected to ${remotePeerId}`)
+      this.logger(`${peerId.toString()} connected to ${remotePeerId}`)
 
       // Stop dialing as soon as we connect to a peer
       dialInChunks.stop()
@@ -128,16 +128,16 @@ export class Libp2pService extends EventEmitter {
 
     this.libp2pInstance.addEventListener('peer:disconnect', async peer => {
       const remotePeerId = peer.detail.remotePeer.toString()
-      this.logger.log(`${peerId.toString()} disconnected from ${remotePeerId}`)
+      this.logger(`${peerId.toString()} disconnected from ${remotePeerId}`)
       if (!this.libp2pInstance) {
-        this.logger.log.error('libp2pInstance was not created')
+        this.logger.error('libp2pInstance was not created')
         throw new Error('libp2pInstance was not created')
       }
-      this.logger.log(`${this.libp2pInstance.getConnections().length} open connections`)
+      this.logger(`${this.libp2pInstance.getConnections().length} open connections`)
 
       const connectionStartTime = this.connectedPeers.get(remotePeerId)
       if (!connectionStartTime) {
-        this.logger.log.error(`No connection start time for peer ${remotePeerId}`)
+        this.logger.error(`No connection start time for peer ${remotePeerId}`)
         return
       }
 
@@ -156,7 +156,7 @@ export class Libp2pService extends EventEmitter {
 
     await dialInChunks.process()
 
-    this.logger.log(`Initialized libp2p for peer ${peerId.toString()}`)
+    this.logger(`Initialized libp2p for peer ${peerId.toString()}`)
   }
 
   public async destroyInstance(): Promise<void> {
@@ -166,7 +166,7 @@ export class Libp2pService extends EventEmitter {
     try {
       await this.libp2pInstance?.stop()
     } catch (error) {
-      this.logger.log.error(error)
+      this.logger.error(error)
     }
 
     this.libp2pInstance = null

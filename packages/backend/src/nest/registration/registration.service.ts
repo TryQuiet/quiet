@@ -68,7 +68,7 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
   public async listen(): Promise<void> {
     return await new Promise(resolve => {
       this._server = this._app.listen(this._port, () => {
-        this.logger.log(`Certificate registration service listening on port: ${this._port}`)
+        this.logger(`Certificate registration service listening on port: ${this._port}`)
         resolve()
       })
     })
@@ -78,7 +78,7 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
     return await new Promise(resolve => {
       if (!this._server) resolve()
       this._server.close(() => {
-        this.logger.log('Certificate registration service closed')
+        this.logger('Certificate registration service closed')
         resolve()
       })
     })
@@ -89,7 +89,7 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
     try {
       cert = await registerOwner(payload.userCsr.userCsr, payload.permsData)
     } catch (e) {
-      this.logger.log.error(`Registering owner failed: ${e.message}`)
+      this.logger.error(`Registering owner failed: ${e.message}`)
       this.emit(SocketActionTypes.ERROR, {
         type: SocketActionTypes.REGISTRAR,
         code: ErrorCodes.SERVER_ERROR,
@@ -137,17 +137,17 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
       certificate: payload.rootCertString,
       privKey: payload.rootKeyString,
     }
-    this.logger.log(`Initializing registration service for peer ${payload.peerId}...`)
+    this.logger(`Initializing registration service for peer ${payload.peerId}...`)
     try {
       await this.init(payload.privateKey)
     } catch (err) {
-      this.logger.log.error(`Couldn't initialize certificate registration service: ${err as string}`)
+      this.logger.error(`Couldn't initialize certificate registration service: ${err as string}`)
       return
     }
     try {
       await this.listen()
     } catch (err) {
-      this.logger.log.error(`Certificate registration service couldn't start listening: ${err as string}`)
+      this.logger.error(`Certificate registration service couldn't start listening: ${err as string}`)
     }
     this.emit(RegistrationEvents.REGISTRAR_STATE, ServiceState.LAUNCHED)
   }
