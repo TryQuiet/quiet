@@ -17,6 +17,7 @@ import { socketEventData } from '../renderer/testUtils/socket'
 import {
   ChannelsReplicatedPayload,
   Community,
+  connection,
   InitCommunityPayload,
   LaunchRegistrarPayload,
   publicChannels,
@@ -61,6 +62,7 @@ describe('User', () => {
     )
 
     store.dispatch(modalsActions.openModal({ name: ModalName.createCommunityModal }))
+    store.dispatch(connection.actions.connectionManagerInit())
 
     window.HTMLElement.prototype.scrollTo = jest.fn()
 

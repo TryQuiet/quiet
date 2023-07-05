@@ -1,8 +1,12 @@
 import { Crypto } from '@peculiar/webcrypto'
 import { Command } from 'commander'
-import logger from './logger'
-import { ConnectionsManager, torBinForPlatform, torDirForPlatform } from './index'
+import { NestFactory } from '@nestjs/core'
 import path from 'path'
+import { AppModule } from './nest/app.module'
+import { ConnectionsManagerService } from './nest/connections-manager/connections-manager.service'
+import getPort from 'get-port'
+import { torBinForPlatform, torDirForPlatform } from './nest/common/utils'
+import logger from './nest/common/logger'
 
 const log = logger('backendManager')
 const program = new Command()
@@ -34,16 +38,22 @@ export const runBackendDesktop = async () => {
 
   const resourcesPath = isDev ? null : options.resourcesPath.trim()
 
-  const connectionsManager = new ConnectionsManager({
-    socketIOPort: options.socketIOPort,
-    torBinaryPath: torBinForPlatform(resourcesPath),
-    torResourcesPath: torDirForPlatform(resourcesPath),
-    options: {
-      env: {
-        appDataPath: path.join(options.appDataPath.trim(), 'Quiet'),
+  const app = await NestFactory.createApplicationContext(
+    AppModule.forOptions({
+      socketIOPort: options.socketIOPort,
+      torBinaryPath: torBinForPlatform(resourcesPath),
+      torResourcesPath: torDirForPlatform(resourcesPath),
+      torControlPort: await getPort(),
+      options: {
+        env: {
+          appDataPath: path.join(options.appDataPath.trim(), 'Quiet'),
+        },
       },
-    },
-  })
+    }),
+    { logger: false }
+  )
+
+  const connectionsManager = app.get<ConnectionsManagerService>(ConnectionsManagerService)
 
   process.on('message', async message => {
     if (message === 'close') {
@@ -63,30 +73,28 @@ export const runBackendDesktop = async () => {
       if (process.send) process.send('leftCommunity')
     }
   })
-
-  await connectionsManager.init()
 }
 
 export const runBackendMobile = async (): Promise<any> => {
   // Enable triggering push notifications
   process.env['BACKEND'] = 'mobile'
   process.env['CONNECTION_TIME'] = (new Date().getTime() / 1000).toString() // Get time in seconds
-
-  const connectionsManager: ConnectionsManager = new ConnectionsManager({
-    socketIOPort: options.dataPort,
-    httpTunnelPort: options.httpTunnelPort ? options.httpTunnelPort : null,
-    torAuthCookie: options.authCookie ? options.authCookie : null,
-    torControlPort: options.controlPort ? options.controlPort : null,
-    torBinaryPath: options.torBinary ? options.torBinary : null,
-    options: {
-      env: {
-        appDataPath: options.dataPath,
+  const app = await NestFactory.createApplicationContext(
+    AppModule.forOptions({
+      socketIOPort: options.dataPort,
+      httpTunnelPort: options.httpTunnelPort ? options.httpTunnelPort : null,
+      torAuthCookie: options.authCookie ? options.authCookie : null,
+      torControlPort: options.controlPort ? options.controlPort : await getPort(),
+      torBinaryPath: options.torBinary ? options.torBinary : null,
+      options: {
+        env: {
+          appDataPath: options.dataPath,
+        },
+        createPaths: false,
       },
-      createPaths: false,
-    },
-  })
-
-  await connectionsManager.init()
+    }),
+    { logger: false }
+  )
 }
 
 const platform = options.platform
