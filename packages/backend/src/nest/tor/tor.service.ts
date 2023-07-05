@@ -319,12 +319,14 @@ export class Tor extends EventEmitter implements OnModuleInit {
     // }
     return await new Promise((resolve, reject) => {
       this.logger('Killing tor...')
-
       if (this.process === null) {
-        reject(new Error('TOR: Process is not initalized.'))
+       this.logger('TOR: Process is not initalized.')
+       resolve()
+       return
       }
       this.process?.on('close', () => {
         resolve()
+        return
       })
       this.process?.on('error', () => {
         reject(new Error('TOR: Something went wrong with killing tor process'))

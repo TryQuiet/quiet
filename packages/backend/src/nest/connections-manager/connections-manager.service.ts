@@ -180,7 +180,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   }
 
   public async closeAllServices(options: { saveTor: boolean } = { saveTor: false }) {
-    if (this.tor && !this.configOptions.torControlPort && !options.saveTor) {
+    if (this.tor && !options.saveTor) {
       await this.tor.kill()
     }
     if (this.registrationService) {
