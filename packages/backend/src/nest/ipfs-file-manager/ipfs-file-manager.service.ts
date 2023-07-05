@@ -61,7 +61,6 @@ export class IpfsFileManagerService extends EventEmitter {
       this.logger.error('no ipfs instance')
       throw new Error('no ipfs instance')
     }
-
     this.ipfs = ipfsInstance
   }
 

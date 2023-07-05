@@ -19,6 +19,9 @@ import { IpfsFileManagerModule } from './ipfs-file-manager.module'
 import { IpfsFileManagerService } from './ipfs-file-manager.service'
 import { IpfsFilesManagerEvents } from './ipfs-file-manager.types'
 import { jest } from '@jest/globals'
+import { sleep } from '../common/sleep'
+import { LocalDbModule } from '../local-db/local-db.module'
+import { LocalDbService } from '../local-db/local-db.service'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -26,6 +29,7 @@ const dirname = path.dirname(filename)
 describe('IpfsFileManagerService', () => {
   let module: TestingModule
   let ipfsFileManagerService: IpfsFileManagerService
+  let localDbService: LocalDbService
   let ipfsService: IpfsService
   let libp2pService: Libp2pService
   let lazyModuleLoader: LazyModuleLoader
@@ -40,11 +44,11 @@ describe('IpfsFileManagerService', () => {
     filePath = path.join(dirname, '/testUtils/500kB-file.txt')
 
     module = await Test.createTestingModule({
-      imports: [TestModule, IpfsFileManagerModule, IpfsModule, SocketModule, Libp2pModule],
+      imports: [TestModule, IpfsFileManagerModule, IpfsModule, SocketModule, Libp2pModule, LocalDbModule],
     }).compile()
 
     ipfsFileManagerService = await module.resolve(IpfsFileManagerService)
-
+    localDbService = await module.resolve(LocalDbService)
     lazyModuleLoader = await module.resolve(LazyModuleLoader)
 
     const { Libp2pModule: ModuleLibp2p } = await import('../libp2p/libp2p.module')
@@ -67,12 +71,21 @@ describe('IpfsFileManagerService', () => {
     expect(ipfsService.ipfsInstance).not.toBeNull()
 
     await ipfsFileManagerService.init()
+
+    if (localDbService.getStatus() === 'closed') {
+      await localDbService.open()
+    }
   })
 
   afterEach(async () => {
+    tmpDir.removeCallback()
+    if (fs.existsSync(filePath)) {
+      fs.rmSync(filePath)
+    }
     await libp2pService.libp2pInstance?.stop()
     await ipfsService.ipfsInstance?.stop()
     await module.close()
+    sleep(1000)
   })
 
   it('uploads image', async () => {
@@ -419,6 +432,18 @@ describe('IpfsFileManagerService', () => {
     })
   })
 
+  it('copies file and returns a new path', async () => {
+    const originalPath = path.join(dirname, '/testUtils/test-image.png')
+    const newPath = ipfsFileManagerService.copyFile(originalPath, '12345_test-image.png')
+    expect(fs.existsSync(newPath)).toBeTruthy()
+    expect(originalPath).not.toEqual(newPath)
+  })
+
+  it('tries to copy files, returns original path on error', async () => {
+    const originalPath = path.join(dirname, '/testUtils/test-image-non-existing.png')
+    const newPath = ipfsFileManagerService.copyFile(originalPath, '12345_test-image.png')
+    expect(originalPath).toEqual(newPath)
+  })
   // it.skip('downloaded file chunk returns proper transferSpeed when no delay between entries', async () => {
   //   const fileSize = 52428800 // 50MB
   //   createFile(filePath, fileSize)
@@ -468,17 +493,4 @@ describe('IpfsFileManagerService', () => {
   //     })
   //   }
   // })
-
-  it('copies file and returns a new path', async () => {
-    const originalPath = path.join(dirname, '/testUtils/test-image.png')
-    const newPath = ipfsFileManagerService.copyFile(originalPath, '12345_test-image.png')
-    expect(fs.existsSync(newPath)).toBeTruthy()
-    expect(originalPath).not.toEqual(newPath)
-  })
-
-  it('tries to copy files, returns original path on error', async () => {
-    const originalPath = path.join(dirname, '/testUtils/test-image-non-existing.png')
-    const newPath = ipfsFileManagerService.copyFile(originalPath, '12345_test-image.png')
-    expect(originalPath).toEqual(newPath)
-  })
 })

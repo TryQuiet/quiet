@@ -108,6 +108,7 @@ export class StorageService extends EventEmitter {
     const ipfsFileManagerModuleRef = await this.lazyModuleLoader.load(() => IpfsFileManagerModule)
     const { IpfsFileManagerService } = await import('../ipfs-file-manager/ipfs-file-manager.service')
     const ipfsFileManagerService = ipfsFileManagerModuleRef.get(IpfsFileManagerService)
+    await ipfsFileManagerService.init()
     this.filesManager = ipfsFileManagerService
 
     this.attachFileManagerEvents()

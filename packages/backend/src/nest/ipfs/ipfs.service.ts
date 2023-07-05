@@ -7,7 +7,7 @@ import Logger from '../common/logger'
 @Injectable()
 export class IpfsService {
   public ipfsInstance: IPFS | null
-
+  private counter = 0
   private readonly logger = Logger(IpfsService.name)
   constructor(
     @Inject(IPFS_REPO_PATCH) public readonly ipfsRepoPath: string,
@@ -15,6 +15,8 @@ export class IpfsService {
   ) {}
 
   public async createInstance(peerId: any) {
+    this.counter++
+    console.log('counter ipfs', this.counter)
     const { Libp2pModule } = await import('../libp2p/libp2p.module')
     const moduleRef = await this.lazyModuleLoader.load(() => Libp2pModule)
     const { Libp2pService } = await import('../libp2p/libp2p.service')
