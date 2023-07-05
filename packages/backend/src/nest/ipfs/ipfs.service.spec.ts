@@ -18,7 +18,6 @@ describe('IpfsService', () => {
   let lazyModuleLoader: LazyModuleLoader
   let peerId: PeerId
   let localDbService: LocalDbService
-  
 
   beforeEach(async () => {
     module = await Test.createTestingModule({
