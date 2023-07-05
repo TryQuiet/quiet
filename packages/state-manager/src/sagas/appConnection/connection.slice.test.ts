@@ -87,7 +87,7 @@ describe('connectionReducer', () => {
 
     const { number, text } = connectionSelectors.torConnectionProcess(store.getState())
 
-    expect(number).toEqual(65)
+    expect(number).toEqual(70)
 
     expect(text).toEqual(payload2)
   })
