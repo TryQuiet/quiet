@@ -101,7 +101,7 @@ export class StorageService extends EventEmitter {
       throw new Error('no ipfs instance')
     }
     this.ipfs = ipfsInstance
-
+    this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.INITIALIZING_IPFS)
     await this.createOrbitDb(peerId)
 
     const { IpfsFileManagerModule } = await import('../ipfs-file-manager/ipfs-file-manager.module')
