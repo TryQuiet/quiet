@@ -1,14 +1,14 @@
 import { source as AbortSource } from 'abortable-iterator'
 import { CLOSE_TIMEOUT } from './constants'
-import logger from '../../logger'
 import type { AbortOptions } from '@libp2p/interfaces'
 import type { MultiaddrConnection } from '@libp2p/interface-connection'
 import type { Multiaddr } from '@multiformats/multiaddr'
 import type { DuplexWebSocket } from 'it-ws/duplex'
 
 import pTimeout from 'p-timeout'
+import logger from '../common/logger'
 
-const log = logger('libp2p:websockets:socket')
+const log = logger('libp2p:websockets:socket').log
 
 export interface SocketToConnOptions extends AbortOptions {
   localAddr?: Multiaddr

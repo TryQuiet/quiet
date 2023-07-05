@@ -105,13 +105,13 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
     this._ownerCertificate = cert
   }
 
-  public sendCertificateRegistrationRequest = async (
+  public async sendCertificateRegistrationRequest(
     serviceAddress: string,
     userCsr: string,
     communityId: string,
     requestTimeout = 120000,
     socksProxyAgent: Agent
-  ): Promise<void> => {
+  ): Promise<void> {
     const response: RegistrationResponse = await sendCertificateRegistrationRequest(
       serviceAddress,
       userCsr,

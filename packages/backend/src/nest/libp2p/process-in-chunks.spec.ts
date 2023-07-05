@@ -1,5 +1,5 @@
 import { jest, describe, it, expect } from '@jest/globals'
-import { ProcessInChunks } from './processInChunks'
+import { ProcessInChunks } from './process-in-chunks'
 
 describe('ProcessInChunks', () => {
   it('processes data', async () => {

@@ -8,7 +8,7 @@ import { DirResult } from 'tmp'
 import { fileURLToPath } from 'url'
 import waitForExpect from 'wait-for-expect'
 import { TestModule } from '../common/test.module'
-import { createTmpDir, libp2pInstanceParams } from '../common/test.utils'
+import { createTmpDir, libp2pInstanceParams } from '../common/utils'
 import { IpfsModule } from '../ipfs/ipfs.module'
 import { IpfsService } from '../ipfs/ipfs.service'
 import { Libp2pModule } from '../libp2p/libp2p.module'
@@ -32,7 +32,6 @@ describe('IpfsFileManagerService', () => {
   let peerId: PeerId
 
   let tmpDir: DirResult
-  // let tmpAppDataPath: string
   let filePath: string
 
   beforeEach(async () => {
@@ -64,7 +63,7 @@ describe('IpfsFileManagerService', () => {
     await libp2pService.createInstance(params)
     expect(libp2pService.libp2pInstance).not.toBeNull()
 
-    await ipfsService.create(peerId)
+    await ipfsService.createInstance(peerId)
     expect(ipfsService.ipfsInstance).not.toBeNull()
 
     await ipfsFileManagerService.init()

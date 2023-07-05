@@ -19,19 +19,24 @@ import { ConfigOptions } from '../types'
 import path from 'path'
 import { Server as SocketIO } from 'socket.io'
 import { createServer } from 'http'
-import { createTmpDir } from '../../common/testUtils'
 import cors from 'cors'
-import { getCors } from './utils'
+import { createTmpDir, getCors, torBinForPlatform, torDirForPlatform } from './utils'
 
-const defaultConfigForTest = {
+const torPath = torBinForPlatform()
+const libPath = torDirForPlatform()
+// torBinaryPath: '../../../../../3rd-party/tor/linux/tor',
+// torResourcesPath: '../../../../../3rd-party/tor/linux',
+export const defaultConfigForTest = {
   socketIOPort: await getPort(),
-  torBinaryPath: '',
-  torResourcesPath: '',
+  torBinaryPath: torBinForPlatform(),
+  torResourcesPath: torPath,
   torControlPort: await getPort(),
   options: {
     env: {
+      LD_LIBRARY_PATH: libPath,
       appDataPath: '',
     },
+    detached: true,
   },
 }
 @Global()

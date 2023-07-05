@@ -1,12 +1,12 @@
 import { Crypto } from '@peculiar/webcrypto'
 import { Command } from 'commander'
-import logger from './logger'
-import { torBinForPlatform, torDirForPlatform } from './index'
 import { NestFactory } from '@nestjs/core'
 import path from 'path'
 import { AppModule } from './nest/app.module'
 import { ConnectionsManagerService, OpenServices } from './nest/connections-manager/connections-manager.service'
 import getPort from 'get-port'
+import { torBinForPlatform, torDirForPlatform } from './nest/common/utils'
+import logger from './nest/common/logger'
 
 const log = logger('backendManager')
 const program = new Command()
@@ -66,7 +66,7 @@ export const runBackendDesktop = async () => {
       try {
         await connectionsManager.closeAllServices()
       } catch (e) {
-        log.error('Error occured while closing backend services', e)
+        log.log.error('Error occured while closing backend services', e)
       }
       if (process.send) process.send('closed-services')
     }
@@ -74,7 +74,7 @@ export const runBackendDesktop = async () => {
       try {
         await connectionsManager.leaveCommunity()
       } catch (e) {
-        log.error('Error occured while leaving community', e)
+        log.log.error('Error occured while leaving community', e)
       }
       if (process.send) process.send('leftCommunity')
     }
@@ -142,12 +142,12 @@ const platform = options.platform
 
 if (platform === 'desktop') {
   runBackendDesktop().catch(error => {
-    log.error('Error occurred while initializing backend', error)
+    log.log.error('Error occurred while initializing backend', error)
     throw error
   })
 } else if (platform === 'mobile') {
   runBackendMobile().catch(async error => {
-    log.error('Error occurred while initializing backend', error)
+    log.log.error('Error occurred while initializing backend', error)
     // Prevent stopping process before getting output
     await new Promise<void>(resolve => {
       setTimeout(() => {

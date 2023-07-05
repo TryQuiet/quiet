@@ -1,19 +1,27 @@
 import { webSockets } from './index'
 import { all } from './filters'
 import { multiaddr } from '@multiformats/multiaddr'
-import { Tor } from '../../torManager/index'
-import os from 'os'
-import createHttpsProxyAgent from 'https-proxy-agent'
-import { createTmpDir, tmpQuietDirPath } from '../../common/testUtils'
-import { createCertificatesTestHelper } from '../tests/client-server'
 import getPort from 'get-port'
 import { type DirResult } from 'tmp'
 import { jest, describe, it, expect, afterEach, beforeAll, afterAll } from '@jest/globals'
-import { createLibp2pAddress, torBinForPlatform, torDirForPlatform } from '../../common/utils'
+import {
+  createLibp2pAddress,
+  torBinForPlatform,
+  torDirForPlatform,
+  createTmpDir,
+  tmpQuietDirPath,
+} from '../common/utils'
 import { type CreateListenerOptions } from '@libp2p/interface-transport'
-
 import { createServer } from 'it-ws/server'
-
+import { createCertificatesTestHelper } from '../common/client-server'
+import { TestingModule, Test } from '@nestjs/testing'
+import { TestModule, defaultConfigForTest } from '../common/test.module'
+import { TOR_PASSWORD_PROVIDER, TOR_PARAMS_PROVIDER, TOR_CONTROL_PARAMS, QUIET_DIR, SOCKS_PROXY_AGENT } from '../const'
+import { TorModule } from '../tor/tor.module'
+import { Tor } from '../tor/tor.service'
+import crypto from 'crypto'
+import { TorControl } from '../tor/tor-control.service'
+import { TorControlAuthType } from '../tor/tor.types'
 jest.setTimeout(120000)
 
 describe('websocketOverTor', () => {
@@ -32,13 +40,17 @@ describe('websocketOverTor', () => {
     onionAddress: string
     privateKey: string
   }
-  let tor: Tor
-  let httpTunnelPort: number
+
   let listener: any
   let port1Target: number
   let port2Target: number
   let abortSignalOpts: AbortSignal
 
+  let module: TestingModule
+  let torService: Tor
+  let agent: any
+  let torControl: TorControl
+  const torPassword = crypto.randomBytes(16).toString('hex')
   beforeAll(async () => {
     jest.clearAllMocks()
     tmpDir = createTmpDir()
@@ -48,23 +60,45 @@ describe('websocketOverTor', () => {
     port1Target = port1Arr
     port2Target = port2Arr
     const torPath = torBinForPlatform()
-    httpTunnelPort = await getPort()
-    tor = new Tor({
-      torPath,
-      appDataPath: tmpAppDataPath,
-      httpTunnelPort,
-      options: {
-        env: {
-          LD_LIBRARY_PATH: torDirForPlatform(),
-          HOME: os.homedir(),
-        },
-        detached: true,
-      },
-    })
-    await tor.init()
 
-    service1 = await tor.createNewHiddenService({ targetPort: port1Target })
-    service2 = await tor.createNewHiddenService({ targetPort: port2Target })
+    module = await Test.createTestingModule({
+      imports: [TestModule, TorModule],
+    })
+      .overrideProvider(TOR_PASSWORD_PROVIDER)
+      .useValue({ torPassword: torPassword, torHashedPassword: '' })
+      .overrideProvider(TOR_PARAMS_PROVIDER)
+      .useValue({
+        torPath: torBinForPlatform(),
+        options: {
+          env: {
+            LD_LIBRARY_PATH: torDirForPlatform(),
+            HOME: tmpAppDataPath,
+          },
+          detached: true,
+        },
+      })
+      .overrideProvider(TOR_CONTROL_PARAMS)
+      .useValue({
+        port: defaultConfigForTest.torControlPort,
+        host: 'localhost',
+        auth: {
+          value: torPassword,
+          type: TorControlAuthType.PASSWORD,
+        },
+      })
+      .overrideProvider(QUIET_DIR)
+      .useValue(tmpAppDataPath)
+      .compile()
+
+    torService = await module.resolve(Tor)
+    agent = await module.resolve(SOCKS_PROXY_AGENT)
+    torControl = await module.resolve(TorControl)
+    torControl.authString = 'AUTHENTICATE ' + torPassword + '\r\n'
+
+    await torService.init()
+
+    service1 = await torService.createNewHiddenService({ targetPort: port1Target })
+    service2 = await torService.createNewHiddenService({ targetPort: port2Target })
     abortSignalOpts = {
       addEventListener,
       removeEventListener,
@@ -81,7 +115,7 @@ describe('websocketOverTor', () => {
   })
 
   afterAll(async () => {
-    await tor.kill()
+    await torService.kill()
     tmpDir.removeCallback()
   })
 
@@ -119,8 +153,6 @@ describe('websocketOverTor', () => {
 
     const peerId1 = 'Qme5NiSQ6V3cc3nyfYVtkkXDPGBSYEVUNCN5sM4DbyYc7s'
     const peerId2 = 'QmeCWxba5Yk1ZAKogQJsaHXoAermE7PgFZqpqyKNg65cSN'
-
-    const agent = createHttpsProxyAgent({ host: 'localhost', port: httpTunnelPort })
 
     const websocketsOverTorData1 = {
       filter: all,
@@ -207,8 +239,6 @@ describe('websocketOverTor', () => {
     const peerId1 = 'Qme5NiSQ6V3cc3nyfYVtkkXDPGBSYEVUNCN5sM4DbyYc7s'
     const peerId2 = 'QmeCWxba5Yk1ZAKogQJsaHXoAermE7PgFZqpqyKNg65cSN'
 
-    const agent = createHttpsProxyAgent({ host: 'localhost', port: httpTunnelPort })
-
     const websocketsOverTorDataServer = {
       filter: all,
       websocket: {
@@ -276,8 +306,6 @@ describe('websocketOverTor', () => {
 
     const peerId1 = 'Qme5NiSQ6V3cc3nyfYVtkkXDPGBSYEVUNCN5sM4DbyYc7s'
     const peerId2 = 'QmeCWxba5Yk1ZAKogQJsaHXoAermE7PgFZqpqyKNg65cSN'
-
-    const agent = createHttpsProxyAgent({ host: 'localhost', port: httpTunnelPort })
 
     const websocketsOverTorData1 = {
       filter: all,

@@ -1,4 +1,3 @@
-import logger from '../../logger'
 import { socketToMaConn } from './socket-to-conn'
 import * as filters from './filters'
 
@@ -18,8 +17,6 @@ import https from 'https'
 
 import { EventEmitter } from 'events'
 
-import { dumpPEM } from '../utils'
-
 import pDefer from 'p-defer'
 import { multiaddrToUri as toUri } from '@multiformats/multiaddr-to-uri'
 import { AbortError } from '@libp2p/interfaces/errors'
@@ -27,8 +24,10 @@ import { connect } from 'it-ws'
 import { type ServerOptions, type WebSocketServer as ItWsWebsocketServer } from 'it-ws/server'
 import { multiaddr } from '@multiformats/multiaddr'
 import { type MultiaddrConnection, type Connection } from '@libp2p/interface-connection'
+import { dumpPEM } from './utils'
+import logger from '../common/logger'
 
-const log = logger('libp2p:websockets')
+const log = logger('libp2p:websockets').log
 
 const symbol = Symbol.for('@libp2p/transport')
 

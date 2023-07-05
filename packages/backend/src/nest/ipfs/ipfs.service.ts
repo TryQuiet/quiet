@@ -14,7 +14,7 @@ export class IpfsService {
     private readonly lazyModuleLoader: LazyModuleLoader
   ) {}
 
-  public async create(peerId: any) {
+  public async createInstance(peerId: any) {
     const { Libp2pModule } = await import('../libp2p/libp2p.module')
     const moduleRef = await this.lazyModuleLoader.load(() => Libp2pModule)
     const { Libp2pService } = await import('../libp2p/libp2p.service')
@@ -44,5 +44,14 @@ export class IpfsService {
     }
 
     return this.ipfsInstance
+  }
+
+  public async destoryInstance() {
+    try {
+      await this.ipfsInstance?.stop()
+    } catch (error) {
+      this.logger.log.error(error)
+    }
+    this.ipfsInstance = null
   }
 }

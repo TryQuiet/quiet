@@ -1,4 +1,4 @@
-import { Inject, Injectable, OnApplicationBootstrap } from '@nestjs/common'
+import { Inject, Injectable } from '@nestjs/common'
 import {
   CertFieldsTypes,
   getCertFieldValue,
@@ -8,7 +8,7 @@ import {
   verifySignature,
   verifyUserCert,
 } from '@quiet/identity'
-import type { IPFS, create as createType } from 'ipfs-core'
+import type { IPFS } from 'ipfs-core'
 import OrbitDB from 'orbit-db'
 import EventStore from 'orbit-db-eventstore'
 import KeyValueStore from 'orbit-db-kvstore'
@@ -24,20 +24,15 @@ import {
   ConnectionProcessInfo,
   DeleteFilesFromChannelSocketPayload,
   FileMetadata,
-  InitCommunityPayload,
   NoCryptoEngineError,
   PublicChannel,
   PushNotificationPayload,
   SaveCertificatePayload,
   SocketActionTypes,
   User,
-  PeerId as PeerIdType,
 } from '@quiet/types'
 import { isDefined } from '@quiet/common'
 import fs from 'fs'
-import { IMessageThread, PublicChannelsRepo, DirectMessagesRepo } from '../../common/types'
-import { removeFiles, removeDirs, createPaths, getUsersAddresses } from '../../common/utils'
-import { StorageEvents } from '../../storage/types'
 import { IpfsFileManagerService } from '../ipfs-file-manager/ipfs-file-manager.service'
 import { IPFS_REPO_PATCH, ORBIT_DB_DIR, QUIET_DIR } from '../const'
 import { IpfsFilesManagerEvents } from '../ipfs-file-manager/ipfs-file-manager.types'
@@ -48,9 +43,12 @@ import AccessControllers from 'orbit-db-access-controllers'
 import { MessagesAccessController } from './MessagesAccessController'
 import { createChannelAccessController } from './ChannelsAccessController'
 import Logger from '../common/logger'
+import { DirectMessagesRepo, IMessageThread, PublicChannelsRepo } from '../common/types'
+import { removeFiles, removeDirs, createPaths, getUsersAddresses } from '../common/utils'
+import { StorageEvents } from './storage.types'
 
 @Injectable()
-export class StorageService extends EventEmitter implements OnApplicationBootstrap {
+export class StorageService extends EventEmitter {
   public channels: KeyValueStore<PublicChannel>
   private messageThreads: KeyValueStore<IMessageThread>
   private certificates: EventStore<string>
@@ -74,35 +72,14 @@ export class StorageService extends EventEmitter implements OnApplicationBootstr
     super()
   }
 
-  private clean() {
-    // @ts-ignore
-    this.channels = undefined
-    // @ts-ignore
-    this.messageThreads = undefined
-    // @ts-ignore
-    this.certificates = undefined
-    this.publicChannelsRepos = new Map()
-    this.directMessagesRepos = new Map()
-    this.publicKeysMap = new Map()
-    this.userNamesMap = new Map()
-    // @ts-ignore
-    this.ipfs = null
-    // @ts-ignore
-    this.orbitDb = null
-    // @ts-ignore
-    this.filesManager = null
-    this.peerId = null
-  }
-
   private prepare() {
     this.logger.log('Initializing storage')
     removeFiles(this.quietDir, 'LOCK')
     removeDirs(this.quietDir, 'repo.lock')
-    createPaths([this.ipfsRepoPath, this.orbitDbDir])
-    // const channelsAccessController = createChannelAccessController(peerID, this.orbitDbDir)
 
-    // AccessControllers.addAccessController({ AccessController: MessagesAccessController })
-    // AccessControllers.addAccessController({ AccessController: channelsAccessController })
+    if (!['android', 'ios'].includes(process.platform)) {
+      createPaths([this.ipfsRepoPath, this.orbitDbDir])
+    }
 
     this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.INITIALIZED_STORAGE)
 
@@ -112,29 +89,27 @@ export class StorageService extends EventEmitter implements OnApplicationBootstr
   public async init(peerId: any) {
     this.clean()
     this.prepare()
-    console.log('init storage peerid', peerId)
     this.peerId = peerId
     const { IpfsModule } = await import('../ipfs/ipfs.module')
     const ipfsModuleRef = await this.lazyModuleLoader.load(() => IpfsModule)
     const { IpfsService } = await import('../ipfs/ipfs.service')
     const ipfsService = ipfsModuleRef.get(IpfsService)
-    await ipfsService.create(peerId)
+    await ipfsService.createInstance(peerId)
     const ipfsInstance = ipfsService?.ipfsInstance
     if (!ipfsInstance) {
       this.logger.log.error('no ipfs instance')
       throw new Error('no ipfs instance')
     }
-
     this.ipfs = ipfsInstance
 
     await this.createOrbitDb(peerId)
-    // _________________________________________________
+
     const { IpfsFileManagerModule } = await import('../ipfs-file-manager/ipfs-file-manager.module')
     const ipfsFileManagerModuleRef = await this.lazyModuleLoader.load(() => IpfsFileManagerModule)
     const { IpfsFileManagerService } = await import('../ipfs-file-manager/ipfs-file-manager.service')
     const ipfsFileManagerService = ipfsFileManagerModuleRef.get(IpfsFileManagerService)
     this.filesManager = ipfsFileManagerService
-    // __________________________________________________________________________________
+
     this.attachFileManagerEvents()
     await this.initDatabases()
   }
@@ -155,59 +130,6 @@ export class StorageService extends EventEmitter implements OnApplicationBootstr
 
     this.orbitDb = orbitDb
   }
-
-  // public async community() {
-  //     private peerId: any |null = null
-  //       get(): any | null {
-  //         return this.peerId
-  //       }
-
-  //       set(value: any) {
-  //         this.peerId = value
-  //       }
-  //   }
-  // }
-
-  async onApplicationBootstrap() {
-    // console.log()
-    // this.logger.log('Initializing storage')
-    // removeFiles(this.quietDir, 'LOCK')
-    // removeDirs(this.quietDir, 'repo.lock')
-    // createPaths([this.ipfsRepoPath, this.orbitDbDir])
-    // // const channelsAccessController = createChannelAccessController(peerID, this.orbitDbDir)
-    // // AccessControllers.addAccessController({ AccessController: MessagesAccessController })
-    // // AccessControllers.addAccessController({ AccessController: channelsAccessController })
-    // this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.INITIALIZED_STORAGE)
-    // this.logger.log('Initialized storage')
-  }
-
-  // public async init(libp2p: Libp2p, peerID: PeerId): Promise<void> {
-  //   log('Initializing storage')
-  //   this.peerId = peerID
-  //   removeFiles(this.quietDir, 'LOCK')
-  //   removeDirs(this.quietDir, 'repo.lock')
-  //   if (this.options?.createPaths) {
-  //     createPaths([this.ipfsRepoPath, this.orbitDbDir])
-  //   }
-  //   this.ipfs = await this.initIPFS(libp2p, peerID)
-  //   this.filesManager = new IpfsFilesManager(this.ipfs, this.quietDir)
-  //   this.attachFileManagerEvents()
-
-  //   const channelsAccessController = createChannelAccessController(peerID, this.orbitDbDir)
-
-  //   AccessControllers.addAccessController({ AccessController: MessagesAccessController })
-  //   AccessControllers.addAccessController({ AccessController: channelsAccessController })
-
-  // this.orbitDb = await OrbitDB.createInstance(this.ipfs, {
-  //   // @ts-ignore
-  //   id: peerID.toString(),
-  //   directory: this.orbitDbDir,
-  //   // @ts-ignore
-  //   AccessControllers: AccessControllers
-  // })
-  //   this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.INITIALIZED_STORAGE)
-  //   log('Initialized storage')
-  // }
 
   public async initDatabases() {
     this.logger.log('1/6')
@@ -254,43 +176,24 @@ export class StorageService extends EventEmitter implements OnApplicationBootstr
   }
 
   public async stopOrbitDb() {
-    console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1 stop orbit db')
     try {
-      await this.channels.close()
+      if (this.channels) {
+        await this.channels.close()
+      }
     } catch (e) {
-      this.logger.log.error(e)
+      this.logger.log.error('channels', e)
     }
 
     try {
-      await this.certificates.close()
+      if (this.certificates) {
+        await this.certificates.close()
+      }
     } catch (e) {
-      this.logger.log.error(e)
+      this.logger.log.error('certificates', e)
     }
-    // await this.channels.close()
-    // await this.certificates.close()
     await this.__stopOrbitDb()
     await this.__stopIPFS()
   }
-
-  // public get communityId() {
-  //   return this.__communityId
-  // }
-
-  // protected async initIPFS(libp2p: any, peerID: any): Promise<IPFS> {
-  //   this.logger.log('Initializing IPFS')
-  //   this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.INITIALIZING_IPFS)
-  //   return await create({
-  //     libp2p: async () => libp2p,
-  //     preload: { enabled: false },
-  //     repo: this.ipfsRepoPath,
-  //     EXPERIMENTAL: {
-  //       ipnsPubsub: true
-  //     },
-  //     init: {
-  //       privateKey: peerID
-  //     }
-  //   })
-  // }
 
   public async updatePeersList() {
     const allUsers = this.getAllUsers()
@@ -1008,6 +911,26 @@ export class StorageService extends EventEmitter implements OnApplicationBootstr
         resolve(!error)
       })
     })
+  }
+
+  private clean() {
+    // @ts-ignore
+    this.channels = undefined
+    // @ts-ignore
+    this.messageThreads = undefined
+    // @ts-ignore
+    this.certificates = undefined
+    this.publicChannelsRepos = new Map()
+    this.directMessagesRepos = new Map()
+    this.publicKeysMap = new Map()
+    this.userNamesMap = new Map()
+    // @ts-ignore
+    this.ipfs = null
+    // @ts-ignore
+    this.orbitDb = null
+    // @ts-ignore
+    this.filesManager = null
+    this.peerId = null
   }
 
   private async deleteFilesFromTemporaryDir() {

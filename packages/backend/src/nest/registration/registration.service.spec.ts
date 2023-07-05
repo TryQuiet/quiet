@@ -18,7 +18,7 @@ import { registerOwner, registerUser, sendCertificateRegistrationRequest } from 
 import createHttpsProxyAgent from 'https-proxy-agent'
 import { RegistrationEvents } from './registration.types'
 import { jest } from '@jest/globals'
-import { createTmpDir } from '../common/test.utils'
+import { createTmpDir } from '../common/utils'
 
 // @ts-ignore
 const { Response } = jest.requireActual('node-fetch')

@@ -2,13 +2,11 @@ import express from 'express'
 import createHttpsProxyAgent from 'https-proxy-agent'
 import fetch, { type Response } from 'node-fetch'
 import fs from 'fs'
-import { createTmpDir, spawnTorProcess, tmpQuietDirPath } from '../common/testUtils'
-
-import logger from '../logger'
 import { EventEmitter } from 'events'
 import { Command } from 'commander'
-import { type Tor, GetInfoTorSignal } from '../torManager/torManager'
-import { getPorts } from '../common/utils'
+import logger from '../../nest/common/logger'
+import { getPorts } from '../../nest/common/utils'
+import { Tor } from '../../nest/tor/tor.service'
 const program = new Command()
 
 enum TestMode {
@@ -27,7 +25,7 @@ program
 program.parse(process.argv)
 const options = program.opts()
 console.log('OPTIONS', options)
-const log = logger('torMesh')
+const log = logger('torMesh').log
 
 interface TorService {
   tor: Tor
@@ -51,17 +49,17 @@ const spawnTor = async (i: number) => {
   const tmpDir = createTmpDir()
   console.log(tmpDir)
   log(`spawning tor number ${i}`)
-  const tmpAppDataPath = tmpQuietDirPath(tmpDir.name)
+  const tmpAppDataPath = tmpQuietDirPath(tmpDir)
   const ports = await getPorts()
   const extraTorProcessParams = { '--NumEntryGuards': guardsCount, '--VanguardsLiteEnabled': vanguargsLiteEnabled }
 
   const tor = await spawnTorProcess(tmpAppDataPath, ports, extraTorProcessParams, torBinName)
 
   const startBootstrap = new Date()
-  await tor.init()
+  // await tor.init()
   const bootstrapTime = (new Date().getTime() - startBootstrap.getTime()) / 1000
-  torServices.set(i.toString(), { tor, httpTunnelPort: ports.httpTunnelPort, bootstrapTime })
-  await tor.getInfo(GetInfoTorSignal.CONFIG_TEXT)
+  // torServices.set(i.toString(), { tor, httpTunnelPort: ports.httpTunnelPort, bootstrapTime })
+  // await tor.getInfo(GetInfoTorSignal.CONFIG_TEXT)
 }
 
 const spawnMesh = async () => {
@@ -338,3 +336,19 @@ const main = async () => {
 }
 // eslint-disable-next-line
 main()
+function createTmpDir() {
+  throw new Error('Function not implemented.')
+}
+
+function tmpQuietDirPath(name: any) {
+  throw new Error('Function not implemented.')
+}
+
+function spawnTorProcess(
+  tmpAppDataPath: any,
+  ports: any,
+  extraTorProcessParams: { '--NumEntryGuards': any; '--VanguardsLiteEnabled': any },
+  torBinName: any
+) {
+  throw new Error('Function not implemented.')
+}

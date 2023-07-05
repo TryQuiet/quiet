@@ -7,10 +7,6 @@ import { gossipsub } from '@chainsafe/libp2p-gossipsub'
 import { mplex } from '@libp2p/mplex'
 import { kadDHT } from '@libp2p/kad-dht'
 import { createServer } from 'it-ws'
-
-import { webSockets } from '../../libp2p/websocketOverTor/index'
-import { all } from '../../libp2p/websocketOverTor/filters'
-
 import { DateTime } from 'luxon'
 import { EventEmitter } from 'events'
 import { Libp2pEvents, Libp2pNodeParams } from './libp2p.types'
@@ -21,6 +17,8 @@ import { SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
 import { ServerIoProviderTypes } from '../types'
 import { createLibp2pListenAddress, createLibp2pAddress } from './libp2p.utils'
 import Logger from '../common/logger'
+import { webSockets } from '../websocketOverTor'
+import { all } from '../websocketOverTor/filters'
 
 @Injectable()
 export class Libp2pService extends EventEmitter {
@@ -159,5 +157,18 @@ export class Libp2pService extends EventEmitter {
     await dialInChunks.process()
 
     this.logger.log(`Initialized libp2p for peer ${peerId.toString()}`)
+  }
+
+  public async destroyInstance(): Promise<void> {
+    this.libp2pInstance?.removeEventListener('peer:discovery')
+    this.libp2pInstance?.removeEventListener('peer:connect')
+    this.libp2pInstance?.removeEventListener('peer:disconnect')
+    try {
+      await this.libp2pInstance?.stop()
+    } catch (error) {
+      this.logger.log.error(error)
+    }
+
+    this.libp2pInstance = null
   }
 }

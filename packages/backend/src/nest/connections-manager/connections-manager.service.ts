@@ -54,11 +54,11 @@ import { Libp2pService } from '../libp2p/libp2p.service'
 import { Tor } from '../tor/tor.service'
 import { LocalDBKeys } from '../local-db/local-db.types'
 import { Libp2pEvents, Libp2pNodeParams } from '../libp2p/libp2p.types'
-import { emitError } from '../../socket/errors'
 import { RegistrationEvents } from '../registration/registration.types'
-import { InitStorageParams, StorageEvents } from '../storage/storage.types'
+import { StorageEvents } from '../storage/storage.types'
 import { LazyModuleLoader } from '@nestjs/core'
 import Logger from '../common/logger'
+import { emitError } from '../socket/socket.errors'
 
 export interface OpenServices {
   torControlPort?: any,
@@ -72,7 +72,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   public communityId: string
   public communityState: ServiceState
   public registrarState: ServiceState
-  private libp2pService: Libp2pService
+  public libp2pService: Libp2pService
   private ports: GetPorts
   isTorInit: TorInitState = TorInitState.NOT_STARTED
 
@@ -134,7 +134,8 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     }
   }
 
-  private async init() {
+  public async init() {
+    this.serverIoProvider.io.emit(SocketActionTypes.CONNECTION_MANAGER_INIT)
     console.log('init')
     this.communityState = ServiceState.DEFAULT
     this.registrarState = ServiceState.DEFAULT
@@ -148,26 +149,9 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.attachTorEventsListeners()
     this.attachStorageListeners()
 
-    // Libp2p event listeners
-    this.on(Libp2pEvents.PEER_CONNECTED, (payload: { peers: string[] }) => {
-      this.serverIoProvider.io.emit(SocketActionTypes.PEER_CONNECTED, payload)
-    })
-    this.on(Libp2pEvents.PEER_DISCONNECTED, async (payload: NetworkDataPayload) => {
-      const peerPrevStats = await this.localDbService.find(LocalDBKeys.PEERS, payload.peer)
-      const prev = peerPrevStats?.connectionTime || 0
-
-      const peerStats: NetworkStats = {
-        peerId: payload.peer,
-        connectionTime: prev + payload.connectionDuration,
-        lastSeen: payload.connectionDuration,
-      }
-
-      await this.localDbService.update(LocalDBKeys.PEERS, {
-        [payload.peer]: peerStats,
-      })
-      // BARTEK: Potentially obsolete to send this to state-manager
-      this.serverIoProvider.io.emit(SocketActionTypes.PEER_DISCONNECTED, payload)
-    })
+    if (this.localDbService.getStatus() === 'closed') {
+      await this.localDbService.open()
+    }
 
     if (this.configOptions.torControlPort) {
       console.log('launch 1')
@@ -244,6 +228,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.registrarState = ServiceState.DEFAULT
     await this.localDbService.open()
     await this.socketService.init()
+    this.serverIoProvider.io.emit(SocketActionTypes.CONNECTION_MANAGER_INIT)
   }
 
   public async purgeData() {
@@ -259,7 +244,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     }
   }
 
-  public getNetwork = async () => {
+  public async getNetwork() {
     const hiddenService = await this.tor.createNewHiddenService({ targetPort: this.ports.libp2pHiddenService })
 
     await this.tor.destroyHiddenService(hiddenService.onionAddress.split('.')[0])
@@ -334,8 +319,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.communityState = ServiceState.LAUNCHED
     this.serverIoProvider.io.emit(SocketActionTypes.COMMUNITY, { id: payload.id })
   }
-
-  public launch = async (payload: InitCommunityPayload) => {
+  public async launch(payload: InitCommunityPayload) {
     // Start existing community (community that user is already a part of)
     this.logger.log(`Spawning hidden service for community ${payload.id}, peer: ${payload.peerId.id}`)
     this.serverIoProvider.io.emit(
@@ -377,10 +361,31 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.logger.log('libp2p params', params)
 
     await this.libp2pService.createInstance(params)
+    // KACPER
+    // Libp2p event listeners
+    this.libp2pService.on(Libp2pEvents.PEER_CONNECTED, (payload: { peers: string[] }) => {
+      this.serverIoProvider.io.emit(SocketActionTypes.PEER_CONNECTED, payload)
+    })
+    this.libp2pService.on(Libp2pEvents.PEER_DISCONNECTED, async (payload: NetworkDataPayload) => {
+      console.log(' this.libp2pService.on(Libp2pEvents.PEER_DISCONNECTED')
+      const peerPrevStats = await this.localDbService.find(LocalDBKeys.PEERS, payload.peer)
+      const prev = peerPrevStats?.connectionTime || 0
+
+      const peerStats: NetworkStats = {
+        peerId: payload.peer,
+        connectionTime: prev + payload.connectionDuration,
+        lastSeen: payload.lastSeen,
+      }
+
+      await this.localDbService.update(LocalDBKeys.PEERS, {
+        [payload.peer]: peerStats,
+      })
+      // BARTEK: Potentially obsolete to send this to state-manager
+      this.serverIoProvider.io.emit(SocketActionTypes.PEER_DISCONNECTED, payload)
+    })
     await this.storageService.init(_peerId)
   }
-
-  private attachTorEventsListeners = () => {
+  private attachTorEventsListeners() {
     this.logger.log('attachTorEventsListeners')
 
     this.socketService.on(SocketActionTypes.CONNECTION_PROCESS_INFO, data => {
@@ -391,8 +396,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       this.serverIoProvider.io.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, data)
     })
   }
-
-  private attachRegistrationListeners = () => {
+  private attachRegistrationListeners() {
     this.registrationService.on(RegistrationEvents.REGISTRAR_STATE, (payload: ServiceState) => {
       this.registrarState = payload
     })
@@ -416,8 +420,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       await this.storageService?.saveCertificate(payload)
     })
   }
-
-  private attachsocketServiceListeners = () => {
+  private attachsocketServiceListeners() {
     // Community
     this.socketService.on(SocketActionTypes.LEAVE_COMMUNITY, async () => {
       await this.leaveCommunity()
@@ -456,6 +459,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       if (!communityData) {
         await this.localDbService.put(LocalDBKeys.REGISTRAR, args)
       }
+      console.log('this.registrarState', this.registrarState)
       if ([ServiceState.LAUNCHING, ServiceState.LAUNCHED].includes(this.registrarState)) return
       this.registrarState = ServiceState.LAUNCHING
       await this.registrationService.launchRegistrar(args)
@@ -548,8 +552,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       }
     )
   }
-
-  private attachStorageListeners = () => {
+  private attachStorageListeners() {
     if (!this.storageService) return
     this.storageService.on(SocketActionTypes.CONNECTION_PROCESS_INFO, data => {
       this.serverIoProvider.io.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, data)

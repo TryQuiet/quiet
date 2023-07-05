@@ -2,9 +2,8 @@ import { Inject, Injectable } from '@nestjs/common'
 import { Level } from 'level'
 import { NetworkStats } from '@quiet/types'
 import { sortPeers } from '@quiet/common'
-import { LocalDBKeys } from '../../storage/localDB'
 import { LEVEL_DB } from '../const'
-import { LocalDbStatus } from './local-db.types'
+import { LocalDBKeys, LocalDbStatus } from './local-db.types'
 import Logger from '../common/logger'
 
 @Injectable()

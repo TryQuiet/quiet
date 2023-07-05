@@ -2,7 +2,7 @@ import { LazyModuleLoader } from '@nestjs/core'
 import { Test, TestingModule } from '@nestjs/testing'
 import PeerId from 'peer-id'
 import { TestModule } from '../common/test.module'
-import { libp2pInstanceParams } from '../common/test.utils'
+import { libp2pInstanceParams } from '../common/utils'
 import { Libp2pModule } from '../libp2p/libp2p.module'
 import { Libp2pService } from '../libp2p/libp2p.service'
 import { SocketModule } from '../socket/socket.module'
@@ -42,8 +42,14 @@ describe('IpfsService', () => {
   })
 
   it('Create IPFS instance', async () => {
-    await ipfsService.create(peerId)
+    await ipfsService.createInstance(peerId)
     const ipfsInstance = ipfsService.ipfsInstance
     expect(ipfsInstance).not.toBeNull()
+  })
+
+  it('destory instance IPFS', async () => {
+    await ipfsService.createInstance(peerId)
+    await ipfsService.destoryInstance()
+    expect(ipfsService.ipfsInstance).toBeNull()
   })
 })

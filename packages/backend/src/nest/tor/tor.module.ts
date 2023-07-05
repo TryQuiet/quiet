@@ -31,10 +31,10 @@ const torPasswordProvider = {
   provide: TOR_PASSWORD_PROVIDER,
   useFactory: (torParamsProvider: TorParamsProvider) => {
     const password = crypto.randomBytes(16).toString('hex')
-    // const hashedPassword = child_process.execSync(`${torParamsProvider.torPath} --quiet --hash-password ${password}`, {
-    // env: torParamsProvider.options?.env,
-    // })
-    const hashedPassword = 'password'
+    if (!torParamsProvider.torPath) return null
+    const hashedPassword = child_process.execSync(`${torParamsProvider.torPath} --quiet --hash-password ${password}`, {
+      env: torParamsProvider.options?.env,
+    })
     const torPassword = password
     const torHashedPassword = hashedPassword.toString().trim()
 

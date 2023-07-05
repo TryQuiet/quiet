@@ -1,7 +1,6 @@
 import { formatPEM } from '@quiet/identity'
 import { type Certificate } from 'pkijs'
 import io from 'socket.io-client'
-import { type ConnectionsManager } from './connectionsManager'
 
 export function dumpPEM(tag: string, body: string | Certificate | CryptoKey) {
   let bodyCert: string
@@ -16,7 +15,7 @@ export function dumpPEM(tag: string, body: string | Certificate | CryptoKey) {
   return Buffer.from(result)
 }
 
-export async function initConnectionsManagerWithTor(connectionsManager: ConnectionsManager, port: number) {
+export async function initConnectionsManagerWithTor(connectionsManager: any, port: number) {
   const url = `http://localhost:${port}`
   const socket = io(url)
 
