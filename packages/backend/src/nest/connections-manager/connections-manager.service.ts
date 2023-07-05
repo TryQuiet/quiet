@@ -90,11 +90,11 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       console.error(error)
       throw new Error()
     })
-    process.on('SIGINT', function () {
-      // This is not graceful even in a single percent. we must close services first, not just kill process %
-      // this.logger.log('\nGracefully shutting down from SIGINT (Ctrl-C)')
-      process.exit(0)
-    })
+    // process.on('SIGINT', function () {
+    //   // This is not graceful even in a single percent. we must close services first, not just kill process %
+    //   // this.logger.log('\nGracefully shutting down from SIGINT (Ctrl-C)')
+    //   process.exit(0)
+    // })
     const webcrypto = new Crypto()
     // @ts-ignore
     global.crypto = webcrypto

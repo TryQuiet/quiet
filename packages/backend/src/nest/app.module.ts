@@ -50,7 +50,7 @@ import { getCors } from './common/utils'
   providers: [
     {
       provide: EXPRESS_PROVIDER,
-      useValue: express(),
+      useFactory: () => express(),
     },
   ],
   exports: [EXPRESS_PROVIDER],
