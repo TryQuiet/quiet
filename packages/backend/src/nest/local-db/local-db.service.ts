@@ -13,12 +13,12 @@ export class LocalDbService {
   constructor(@Inject(LEVEL_DB) private readonly db: Level) {}
 
   public async close() {
-    this.logger.log('Closing leveldb')
+    this.logger('Closing leveldb')
     await this.db.close()
   }
 
   public async open() {
-    this.logger.log('Opening leveldb')
+    this.logger('Opening leveldb')
     await this.db.open()
   }
 
@@ -35,7 +35,7 @@ export class LocalDbService {
     try {
       data = await this.db.get(key)
     } catch (e) {
-      this.logger.log.error(`Getting '${key}'`, e)
+      this.logger.error(`Getting '${key}'`, e)
       return null
     }
     return data
@@ -66,7 +66,7 @@ export class LocalDbService {
     try {
       return obj[value]
     } catch (e) {
-      this.logger.log(`${value} not found in ${key}`)
+      this.logger(`${value} not found in ${key}`)
       return null
     }
   }

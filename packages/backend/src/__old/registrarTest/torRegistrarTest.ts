@@ -25,7 +25,7 @@ program
 program.parse(process.argv)
 const options = program.opts()
 console.log('OPTIONS', options)
-const log = logger('torMesh').log
+const log = logger('torMesh')
 
 interface TorService {
   tor: Tor

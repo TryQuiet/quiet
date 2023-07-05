@@ -22,7 +22,7 @@ export class ProcessInChunks<T> {
       try {
         await this.processItem(toProcess)
       } catch (e) {
-        this.logger.log(`Processing ${toProcess} failed, message:`, e.message)
+        this.logger(`Processing ${toProcess} failed, message:`, e.message)
       } finally {
         process.nextTick(async () => {
           await this.processOneItem()
@@ -32,7 +32,7 @@ export class ProcessInChunks<T> {
   }
 
   public async process() {
-    this.logger.log(`Processing ${Math.min(this.chunkSize, this.data.length)} items`)
+    this.logger(`Processing ${Math.min(this.chunkSize, this.data.length)} items`)
     for (let i = 0; i < this.chunkSize; i++) {
       // Do not wait for this promise as items should be processed simultineously
       void this.processOneItem()
@@ -41,7 +41,7 @@ export class ProcessInChunks<T> {
 
   public stop() {
     if (this.isActive) {
-      this.logger.log('Stopping initial dial')
+      this.logger('Stopping initial dial')
       this.isActive = false
     }
   }

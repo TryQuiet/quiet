@@ -57,7 +57,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
     return Array.from(Object.entries(this.extraTorProcessParams)).flat()
   }
   public async init({ repeat = 6, timeout = 3600_000 } = {}): Promise<void> {
-    this.logger.log('Initializing tor...')
+    this.logger('Initializing tor...')
     console.log('this.controlPort', this.controlPort)
     console.log('this.torControl', this.torControl.torControlParams)
     console.log('configOptions.torControl', this.configOptions.torControlPort)
@@ -78,12 +78,12 @@ export class Tor extends EventEmitter implements OnModuleInit {
       if (fs.existsSync(this.torPidPath)) {
         const file = fs.readFileSync(this.torPidPath)
         oldTorPid = Number(file.toString())
-        this.logger.log(`${this.torPidPath} exists. Old tor pid: ${oldTorPid}`)
+        this.logger(`${this.torPidPath} exists. Old tor pid: ${oldTorPid}`)
       }
       let counter = 0
       console.log(2)
       const tryToSpawnTor = async () => {
-        this.logger.log(`Trying to spawn tor for the ${counter} time...`)
+        this.logger(`Trying to spawn tor for the ${counter} time...`)
         if (counter > repeat) {
           reject(new Error(`Failed to spawn tor ${counter} times`))
           return
@@ -94,14 +94,14 @@ export class Tor extends EventEmitter implements OnModuleInit {
         try {
           this.clearHangingTorProcess()
         } catch (e) {
-          this.logger.log('Error occured while trying to clear hanging tor processes')
+          this.logger('Error occured while trying to clear hanging tor processes')
         }
 
         try {
           await this.spawnTor(timeout)
           resolve()
         } catch {
-          this.logger.log('Killing tor')
+          this.logger('Killing tor')
           await this.process.kill()
           removeFilesFromDir(this.torDataDirectory)
           counter++
@@ -144,11 +144,11 @@ export class Tor extends EventEmitter implements OnModuleInit {
   public clearHangingTorProcess() {
     const torProcessId = child_process.execSync(this.hangingTorProcessCommand()).toString('utf8').trim()
     if (!torProcessId) return
-    this.logger.log(`Found tor process with pid ${torProcessId}. Killing...`)
+    this.logger(`Found tor process with pid ${torProcessId}. Killing...`)
     try {
       process.kill(Number(torProcessId), 'SIGTERM')
     } catch (e) {
-      this.logger.log.error(`Tried killing hanging tor process. Failed. Reason: ${e.message}`)
+      this.logger.error(`Tried killing hanging tor process. Failed. Reason: ${e.message}`)
     }
   }
 
@@ -158,17 +158,17 @@ export class Tor extends EventEmitter implements OnModuleInit {
       this.torProcessNameCommand(oldTorPid.toString()),
       (err: child_process.ExecException | null, stdout: string, _stderr: string) => {
         if (err) {
-          this.logger.log.error(err)
+          this.logger.error(err)
         }
         if (stdout.trim() === 'tor' || stdout.search('tor.exe') !== -1) {
-          this.logger.log(`Killing old tor, pid: ${oldTorPid}`)
+          this.logger(`Killing old tor, pid: ${oldTorPid}`)
           try {
             process.kill(oldTorPid, 'SIGTERM')
           } catch (e) {
-            this.logger.log.error(`Tried killing old tor process. Failed. Reason: ${e.message}`)
+            this.logger.error(`Tried killing old tor process. Failed. Reason: ${e.message}`)
           }
         } else {
-          this.logger.log(`Deleting ${this.torPidPath}`)
+          this.logger(`Deleting ${this.torPidPath}`)
           fs.unlinkSync(this.torPidPath)
         }
       }
@@ -178,13 +178,13 @@ export class Tor extends EventEmitter implements OnModuleInit {
   protected async spawnTor(timeoutMs: number): Promise<void> {
     return await new Promise((resolve, reject) => {
       if (!this.configOptions.httpTunnelPort) {
-        this.logger.log.error("Can't spawn tor - no httpTunnelPort")
+        this.logger.error("Can't spawn tor - no httpTunnelPort")
 
         reject(new Error("Can't spawn tor - no httpTunnelPort"))
         return
       }
       if (!this.controlPort) {
-        this.logger.log.error("Can't spawn tor - no controlPort")
+        this.logger.error("Can't spawn tor - no controlPort")
 
         reject(new Error("Can't spawn tor - no controlPort"))
         return
@@ -234,7 +234,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
       // })
 
       this.process.stdout.on('data', (data: any) => {
-        this.logger.log(data.toString())
+        this.logger(data.toString())
         this.serverIoProvider.io.emit(SocketActionTypes.TOR_BOOTSTRAP_PROCESS, data.toString())
         const regexp = /Bootstrapped 100%/
         if (regexp.test(data.toString())) {
@@ -267,7 +267,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
       await this.torControl.sendCommand(`DEL_ONION ${serviceId}`)
       return true
     } catch (err) {
-      this.logger.log.error(`Couldn't destroy hidden service ${serviceId}`, err)
+      this.logger.error(`Couldn't destroy hidden service ${serviceId}`, err)
       return false
     }
   }
@@ -296,20 +296,20 @@ export class Tor extends EventEmitter implements OnModuleInit {
 
   public async switchToCleanCircuts() {
     try {
-      this.logger.log('Sending newnym')
+      this.logger('Sending newnym')
       const response = await this.torControl.sendCommand('SIGNAL NEWNYM')
-      this.logger.log('Newnym response', response)
+      this.logger('Newnym response', response)
     } catch (e) {
-      this.logger.log('Could not send newnym', e.message)
+      this.logger('Could not send newnym', e.message)
     }
   }
 
   public async getInfo(getInfoTarget: GetInfoTorSignal) {
     try {
       const response = await this.torControl.sendCommand(`GETINFO ${getInfoTarget}`)
-      this.logger.log('GETINFO', getInfoTarget, response)
+      this.logger('GETINFO', getInfoTarget, response)
     } catch (e) {
-      this.logger.log('Could not get info', getInfoTarget)
+      this.logger('Could not get info', getInfoTarget)
     }
   }
 
@@ -318,7 +318,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
     //   await this.destroyHiddenService(hs)
     // }
     return await new Promise((resolve, reject) => {
-      this.logger.log('Killing tor...')
+      this.logger('Killing tor...')
 
       if (this.process === null) {
         reject(new Error('TOR: Process is not initalized.'))

@@ -24,7 +24,7 @@ export class IpfsService {
     let ipfs: IPFS
     try {
       if (!libp2pInstance) {
-        this.logger.log.error('no libp2p instance')
+        this.logger.error('no libp2p instance')
         throw new Error('no libp2p instance')
       }
       ipfs = await create({
@@ -40,7 +40,7 @@ export class IpfsService {
       })
       this.ipfsInstance = ipfs
     } catch (error) {
-      this.logger.log.error('ipfs creation failed', error)
+      this.logger.error('ipfs creation failed', error)
     }
 
     return this.ipfsInstance
@@ -50,7 +50,7 @@ export class IpfsService {
     try {
       await this.ipfsInstance?.stop()
     } catch (error) {
-      this.logger.log.error(error)
+      this.logger.error(error)
     }
     this.ipfsInstance = null
   }

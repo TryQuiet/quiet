@@ -27,7 +27,7 @@ import { type MultiaddrConnection, type Connection } from '@libp2p/interface-con
 import { dumpPEM } from './utils'
 import logger from '../common/logger'
 
-const log = logger('libp2p:websockets').log
+const log = logger('libp2p:websockets')
 
 const symbol = Symbol.for('@libp2p/transport')
 

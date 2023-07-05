@@ -92,7 +92,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     })
     // process.on('SIGINT', function () {
     //   // This is not graceful even in a single percent. we must close services first, not just kill process %
-    //   // this.logger.log('\nGracefully shutting down from SIGINT (Ctrl-C)')
+    //   // this.logger('\nGracefully shutting down from SIGINT (Ctrl-C)')
     //   process.exit(0)
     // })
     const webcrypto = new Crypto()
@@ -153,7 +153,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   }
 
   public async launchCommunityFromStorage() {
-    this.logger.log('launchCommunityFromStorage')
+    this.logger('launchCommunityFromStorage')
 
     const community: InitCommunityPayload = await this.localDbService.get(LocalDBKeys.COMMUNITY)
     console.log('launchCommunityFromStorage - community', community)
@@ -184,26 +184,26 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       await this.tor.kill()
     }
     if (this.registrationService) {
-      this.logger.log('Stopping registration service')
+      this.logger('Stopping registration service')
       await this.registrationService.stop()
     }
     if (this.storageService) {
-      this.logger.log('Stopping orbitdb')
+      this.logger('Stopping orbitdb')
       await this.storageService.stopOrbitDb()
     }
     // if (this.storageService.ipfs) {
     //   this.storageService.ipfs = null
     // }
     if (this.serverIoProvider.io) {
-      this.logger.log('Closing socket server')
+      this.logger('Closing socket server')
       this.serverIoProvider.io.close()
     }
     if (this.localDbService) {
-      this.logger.log('Closing local storage')
+      this.logger('Closing local storage')
       await this.localDbService.close()
     }
     if (this.libp2pService.libp2pInstance) {
-      this.logger.log('Stopping libp2p')
+      this.logger('Stopping libp2p')
       await this.libp2pService.libp2pInstance.stop()
     }
   }
@@ -243,7 +243,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     await this.tor.destroyHiddenService(hiddenService.onionAddress.split('.')[0])
     const peerId: PeerId = await PeerId.create()
     const peerIdJson = peerId.toJSON()
-    this.logger.log(`Created network for peer ${peerId.toString()}. Address: ${hiddenService.onionAddress}`)
+    this.logger(`Created network for peer ${peerId.toString()}. Address: ${hiddenService.onionAddress}`)
 
     return {
       hiddenService,
@@ -259,7 +259,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       network = await this.getNetwork()
       network2 = await this.getNetwork()
     } catch (e) {
-      this.logger.log.error(`Creating network for community ${community.id} failed`, e)
+      this.logger.error(`Creating network for community ${community.id} failed`, e)
       emitError(this.serverIoProvider.io, {
         type: SocketActionTypes.NETWORK,
         message: ErrorMessages.NETWORK_SETUP_FAILED,
@@ -268,7 +268,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       return
     }
 
-    this.logger.log(`Sending network data for ${community.id}`)
+    this.logger(`Sending network data for ${community.id}`)
 
     const payload: ResponseCreateNetworkPayload = {
       community: {
@@ -283,7 +283,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
   public async createCommunity(payload: InitCommunityPayload) {
     await this.launchCommunity(payload)
-    this.logger.log(`Created and launched community ${payload.id}`)
+    this.logger(`Created and launched community ${payload.id}`)
     this.serverIoProvider.io.emit(SocketActionTypes.NEW_COMMUNITY, { id: payload.id })
   }
 
@@ -297,7 +297,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     try {
       await this.launch(payload)
     } catch (e) {
-      this.logger.log(`Couldn't launch community for peer ${payload.peerId.id}.`, e)
+      this.logger(`Couldn't launch community for peer ${payload.peerId.id}.`, e)
       emitError(this.serverIoProvider.io, {
         type: SocketActionTypes.COMMUNITY,
         message: ErrorMessages.COMMUNITY_LAUNCH_FAILED,
@@ -306,7 +306,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       return
     }
 
-    this.logger.log(`Launched community ${payload.id}`)
+    this.logger(`Launched community ${payload.id}`)
     this.serverIoProvider.io.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.LAUNCHED_COMMUNITY)
     this.communityId = payload.id
     this.communityState = ServiceState.LAUNCHED
@@ -314,7 +314,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   }
   public async launch(payload: InitCommunityPayload) {
     // Start existing community (community that user is already a part of)
-    this.logger.log(`Spawning hidden service for community ${payload.id}, peer: ${payload.peerId.id}`)
+    this.logger(`Spawning hidden service for community ${payload.id}, peer: ${payload.peerId.id}`)
     this.serverIoProvider.io.emit(
       SocketActionTypes.CONNECTION_PROCESS_INFO,
       ConnectionProcessInfo.SPAWNING_HIDDEN_SERVICE
@@ -323,11 +323,11 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       targetPort: this.ports.libp2pHiddenService,
       privKey: payload.hiddenService.privateKey,
     })
-    this.logger.log(`Launching community ${payload.id}, peer: ${payload.peerId.id}`)
+    this.logger(`Launching community ${payload.id}, peer: ${payload.peerId.id}`)
 
     const { Libp2pModule } = await import('../libp2p/libp2p.module')
     const moduleRef = await this.lazyModuleLoader.load(() => Libp2pModule)
-    this.logger.log('launchCommunityFromStorage')
+    this.logger('launchCommunityFromStorage')
     const { Libp2pService } = await import('../libp2p/libp2p.service')
     const lazyService = moduleRef.get(Libp2pService)
     this.libp2pService = lazyService
@@ -351,7 +351,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       targetPort: this.ports.libp2pHiddenService,
       peers,
     }
-    this.logger.log('libp2p params', params)
+    this.logger('libp2p params', params)
 
     await this.libp2pService.createInstance(params)
     // KACPER
@@ -379,7 +379,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     await this.storageService.init(_peerId)
   }
   private attachTorEventsListeners() {
-    this.logger.log('attachTorEventsListeners')
+    this.logger('attachTorEventsListeners')
 
     this.socketService.on(SocketActionTypes.CONNECTION_PROCESS_INFO, data => {
       this.serverIoProvider.io.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, data)
@@ -439,14 +439,14 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       await this.createCommunity(args)
     })
     this.socketService.on(SocketActionTypes.LAUNCH_COMMUNITY, async (args: InitCommunityPayload) => {
-      this.logger.log(`socketService - ${SocketActionTypes.LAUNCH_COMMUNITY}`)
+      this.logger(`socketService - ${SocketActionTypes.LAUNCH_COMMUNITY}`)
       if ([ServiceState.LAUNCHING, ServiceState.LAUNCHED].includes(this.communityState)) return
       this.communityState = ServiceState.LAUNCHING
       await this.launchCommunity(args)
     })
     // Registration
     this.socketService.on(SocketActionTypes.LAUNCH_REGISTRAR, async (args: LaunchRegistrarPayload) => {
-      this.logger.log(`socketService - ${SocketActionTypes.LAUNCH_REGISTRAR}`)
+      this.logger(`socketService - ${SocketActionTypes.LAUNCH_REGISTRAR}`)
 
       const communityData = await this.localDbService.get(LocalDBKeys.REGISTRAR)
       if (!communityData) {
@@ -539,7 +539,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.socketService.on(
       SocketActionTypes.DELETE_FILES_FROM_CHANNEL,
       async (payload: DeleteFilesFromChannelSocketPayload) => {
-        this.logger.log('DELETE_FILES_FROM_CHANNEL : payload', payload)
+        this.logger('DELETE_FILES_FROM_CHANNEL : payload', payload)
         await this.storageService?.deleteFilesFromChannel(payload)
         // await this.deleteFilesFromTemporaryDir() //crashes on mobile, will be fixes in next versions
       }

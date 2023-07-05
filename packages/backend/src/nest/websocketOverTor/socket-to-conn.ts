@@ -8,7 +8,7 @@ import type { DuplexWebSocket } from 'it-ws/duplex'
 import pTimeout from 'p-timeout'
 import logger from '../common/logger'
 
-const log = logger('libp2p:websockets:socket').log
+const log = logger('libp2p:websockets:socket')
 
 export interface SocketToConnOptions extends AbortOptions {
   localAddr?: Multiaddr

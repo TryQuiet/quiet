@@ -56,7 +56,7 @@ export class TorControl implements OnModuleInit {
     try {
       this.connection?.end()
     } catch (e) {
-      this.logger.log.error('Cant disconnect', e.message)
+      this.logger.error('Cant disconnect', e.message)
     }
     this.connection = null
   }
