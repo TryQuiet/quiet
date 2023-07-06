@@ -182,7 +182,7 @@ describe('User', () => {
     await userEvent.click(createUsernameButton)
 
     // Wait for the actions that updates the store
-    await act(async () => { })
+    await act(async () => {})
 
     // Check if join/username modals are gone
     expect(joinCommunityTitle).not.toBeVisible()
@@ -308,7 +308,7 @@ describe('User', () => {
     await userEvent.click(createUsernameButton)
 
     // Wait for the actions that updates the store
-    await act(async () => { })
+    await act(async () => {})
 
     // Check if 'username taken' error message is visible
     expect(createUsernameTitle).toBeVisible()
@@ -422,7 +422,7 @@ describe('User', () => {
     await userEvent.click(createUsernameButton)
 
     // Wait for the actions that updates the store
-    await act(async () => { })
+    await act(async () => {})
 
     // Check if 'username taken' error message disappeared
     expect(await screen.queryByText(ErrorMessages.USERNAME_TAKEN)).toBeNull()
