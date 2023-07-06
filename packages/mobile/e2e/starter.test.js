@@ -1,42 +1,22 @@
-import compare from './utils/compare'
+import press from './utils/press'
+import write from './utils/write'
+import info from './utils/info'
+import checkVisualRegression from './utils/checkVisualRegression'
+import baseScreenshotsUpdate from './utils/baseScreenshotsUpdate'
+
+const { ios } = info
 
 /* eslint-disable no-undef */
 describe('User', () => {
-  const ios = device.getPlatform() === 'ios'
-
-  const press = async (element, double = false) => {
-    if (ios) {
-      await element.tap()
-    } else {
-      if (double) element.longPress() // Idle
-      await element.longPress()
-    }
-  }
-
-  const type = async (element, text) => {
-    if (ios) {
-      await element.typeText(text)
-    } else {
-      await element.longPress()
-      await element.typeText(text)
-    }
-  }
-
-  const enableVisualRegression = Boolean(process.argv.filter((x) => x.startsWith('-enable-visual-regression'))[0])
-
-  const checkVisualRegression = async (componentName) => {
-    if (!enableVisualRegression || ios) return
-    const imagePath = await element(by.id(componentName)).takeScreenshot(`${componentName}`)
-    compare(imagePath, `${__dirname}/base-screenshots/${device.name}/${componentName}.png`)
-  }
 
   beforeAll(async () => {
     await device.launchApp({ newInstance: true, launchArgs: { detoxDebugVisibility: 'YES' } })
   })
 
-  // beforeEach(async () => {
-  //   await device.reloadReactNative()
-  // })
+  afterAll(async () => {
+    // Base screenshots will only be updated, if run with -base-update flag
+    await baseScreenshotsUpdate()
+  })
 
   test('should see join community screen', async () => {
     await waitFor(element(by.text('Join community')))
@@ -59,7 +39,7 @@ describe('User', () => {
   })
 
   test('enters community name', async () => {
-    await type(element(by.id('input')), 'rockets')
+    await write(element(by.id('input')), 'rockets')
 
     if (!ios) await device.pressBack()
 
@@ -74,7 +54,7 @@ describe('User', () => {
     const componentName = 'username-registration-component'
     await checkVisualRegression(componentName)
 
-    await type(element(by.id('input')), 'rick')
+    await write(element(by.id('input')), 'rick')
 
     await press(element(by.text('Continue')), true)
 
@@ -101,7 +81,7 @@ describe('User', () => {
 
   test('sends message to #general channel', async () => {
     await press(element(by.id('input')))
-    await type(element(by.id('input')), "We're no strangers to love")
+    await write(element(by.id('input')), "We're no strangers to love")
 
     await press(element(by.id('send_message_button')), true)
 
@@ -138,7 +118,7 @@ describe('User', () => {
     await checkVisualRegression(componentName)
 
     await press(element(by.id('input')))
-    await type(element(by.id('input')), 'roll')
+    await write(element(by.id('input')), 'roll')
 
     await press(element(by.text('Continue')), true)
 

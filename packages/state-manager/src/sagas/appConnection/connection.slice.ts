@@ -7,6 +7,7 @@ export class ConnectionState {
   public lastConnectedTime = 0
   public uptime = 0
   public peersStats: EntityState<NetworkStats> = peersStatsAdapter.getInitialState()
+  public isConnectionManager = false
   public torBootstrapProcess = 'Bootstrapped 0% (starting)'
   public torConnectionProcess: { number: number; text: string } = {
     number: 5,
@@ -43,6 +44,9 @@ export const connectionSlice = createSlice({
       }
     },
     torBootstrapped: (state, _action: PayloadAction<any>) => state,
+    connectionManagerInit: state => {
+      state.isConnectionManager = true
+    },
     setTorConnectionProcess: (state, action: PayloadAction<string>) => {
       const info = action.payload
       switch (info) {
@@ -61,16 +65,13 @@ export const connectionSlice = createSlice({
         case ConnectionProcessInfo.SPAWNING_HIDDEN_SERVICE:
           state.torConnectionProcess = { number: 40, text: info }
           break
-        case ConnectionProcessInfo.INITIALIZING_STORAGE:
+        case ConnectionProcessInfo.INITIALIZING_LIBP2P:
           state.torConnectionProcess = { number: 50, text: info }
           break
-        case ConnectionProcessInfo.INITIALIZING_LIBP2P:
+        case ConnectionProcessInfo.INITIALIZING_STORAGE:
           state.torConnectionProcess = { number: 60, text: info }
           break
         case ConnectionProcessInfo.INITIALIZING_IPFS:
-          state.torConnectionProcess = { number: 65, text: info }
-          break
-        case ConnectionProcessInfo.INITIALIZED_STORAGE:
           state.torConnectionProcess = { number: 70, text: info }
           break
         case ConnectionProcessInfo.LOADED_CERTIFICATES:

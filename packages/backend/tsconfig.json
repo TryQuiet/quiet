@@ -4,9 +4,15 @@
     "outDir": "./lib",
     "target": "ES2020",
     "strict": true,
+    "declaration": true,
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
     "useUnknownInCatchVariables": false,
     "strictPropertyInitialization": false,
-    "module": "ES2022",
+    "module": "esnext",
+    "moduleResolution": "node",
     "typeRoots": [
       "../@types",
       "./node_modules/@types"
