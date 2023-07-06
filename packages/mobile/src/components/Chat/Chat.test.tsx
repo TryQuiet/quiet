@@ -2,6 +2,7 @@ import React from 'react'
 import { renderComponent } from '../../utils/functions/renderComponent/renderComponent'
 import { Chat } from './Chat.component'
 import { Keyboard } from 'react-native'
+import { DocumentPickerResponse } from 'react-native-document-picker'
 
 jest.useFakeTimers()
 
@@ -196,6 +197,12 @@ describe('Chat component', () => {
               ],
             ],
           },
+        }}
+        updateUploadedFiles={function (filesData: DocumentPickerResponse[]): void {
+          throw new Error('Function not implemented.')
+        }}
+        removeFilePreview={function (id: string): void {
+          throw new Error('Function not implemented.')
         }}
       />
     )

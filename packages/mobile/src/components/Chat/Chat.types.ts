@@ -28,7 +28,7 @@ export interface ChatProps {
   openImagePreview: (media: FileMetadata) => void
   updateUploadedFiles: (filesData: DocumentPickerResponse[]) => void
   removeFilePreview: (id: string) => void
-  uploadedFiles: FilePreviewData
+  uploadedFiles?: FilePreviewData
   openUrl: (url: string) => void
 }
 

@@ -24,5 +24,5 @@ object Const {
     const val NODEJS_TRASH_DIR = "nodejs-project-trash"
 
     // Websocket
-    const val WEBSOCKET_CONNECTION_DELAY: Long = 7000
+    const val WEBSOCKET_CONNECTION_DELAY: Long = 15000
 }

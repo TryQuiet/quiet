@@ -9,6 +9,7 @@ import { ScreenNames } from '../../const/ScreenNames.enum'
 import { UseContextMenuType, useContextMenu } from '../../hooks/useContextMenu'
 import { MenuName } from '../../const/MenuNames.enum'
 import { DocumentPickerResponse } from 'react-native-document-picker'
+import RNFS from 'react-native-fs'
 
 export const ChannelScreen: FC = () => {
   const dispatch = useDispatch()
@@ -124,14 +125,27 @@ export const ChannelScreen: FC = () => {
     })
 
   const sendMessageAction = React.useCallback(
-    (message: string) => {
+    async (message: string) => {
       // Send message out of input value
       if (message) {
         dispatch(messages.actions.sendMessage({ message }))
       }
       // Upload files, then send corresponding message (contaning cid) for each of them
-      Object.values(filesRef.current).forEach((fileData: FileContent) => {
-        dispatch(files.actions.uploadFile(fileData))
+      Object.values(filesRef.current).forEach(async (fileData: FileContent) => {
+        if (!fileData.path) return
+        const destPath = `${RNFS.TemporaryDirectoryPath}/${fileData.name}.${fileData.ext}`
+        console.log('DEST', destPath)
+        // await RNFS.copyFile(fileData.path, destPath)
+
+        try {
+          console.log('- - - - ', decodeURIComponent(fileData.path))
+          await RNFS.stat(decodeURIComponent(fileData.path))
+          console.log('after stat ')
+        } catch (e) {
+          console.error('--->', e)
+        }
+
+        // dispatch(files.actions.uploadFile(fileData))
       })
       // Reset file previews for input state
       setUploadingFiles({})

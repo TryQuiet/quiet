@@ -3,6 +3,7 @@ import { storiesOf } from '@storybook/react-native'
 import { storybookLog } from '../../utils/functions/storybookLog/storybookLog.function'
 
 import { Chat } from './Chat.component'
+import { DocumentPickerResponse } from 'react-native-document-picker'
 
 storiesOf('Chat', module)
   .add('Default', () => (
@@ -189,6 +190,12 @@ storiesOf('Chat', module)
           ],
         },
       }}
+      updateUploadedFiles={function (filesData: DocumentPickerResponse[]): void {
+        throw new Error('Function not implemented.')
+      }}
+      removeFilePreview={function (id: string): void {
+        throw new Error('Function not implemented.')
+      }}
     />
   ))
   .add('Empty', () => (
@@ -211,6 +218,12 @@ storiesOf('Chat', module)
         owner: '',
         timestamp: 0,
         id: '',
+      }}
+      updateUploadedFiles={function (filesData: DocumentPickerResponse[]): void {
+        throw new Error('Function not implemented.')
+      }}
+      removeFilePreview={function (id: string): void {
+        throw new Error('Function not implemented.')
       }}
     />
   ))

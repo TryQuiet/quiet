@@ -11,8 +11,9 @@ import { FileActionsProps } from '../UploadedFile/UploadedFile.types'
 import { defaultTheme } from '../../styles/themes/default.theme'
 import { AttachmentButton } from '../AttachmentButton/AttachmentButton.component'
 import DocumentPicker, { DocumentPickerResponse, types } from 'react-native-document-picker'
-import { FilePreviewData } from '@quiet/types'
+// import { FilePreviewData } from '@quiet/types'
 import UploadFilesPreviewsComponent from '../FileUploadingPreview/UploadingPreview.component'
+import RNFS from 'react-native-fs'
 
 export const Chat: FC<ChatProps & FileActionsProps> = ({
   contextMenu,
@@ -164,7 +165,7 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
               placeholder={`Message #${channel?.name}`}
               multiline={true}
             />
-            <UploadFilesPreviewsComponent filesData={uploadedFiles} removeFile={removeFilePreview} />
+            {uploadedFiles && <UploadFilesPreviewsComponent filesData={uploadedFiles} removeFile={removeFilePreview} />}
           </View>
           <AttachmentButton onPress={openAttachments} disabled={false} />
           {didKeyboardShow && <MessageSendButton onPress={onPress} disabled={isInputEmpty} />}
