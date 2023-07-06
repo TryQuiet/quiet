@@ -81,12 +81,12 @@ jobs:
         shell: powershell
 
       - name: Kill Quiet
-        run: Stop-Process -Name "Quiet" -Force
+        run: Stop-Process -Name "Quiet" -Force -Wait
         # working-directory: ./packages/desktop/dist
         shell: powershell
 
       - name: Kill tor
-        run: Stop-Process -Name "tor" -Force
+        run: Stop-Process -Name "tor" -Force -Wait
         # working-directory: ./packages/desktop/dist
         shell: powershell
 
@@ -108,11 +108,11 @@ jobs:
         shell: powershell
 
       - name: Kill Quiet
-        run: Stop-Process -Name "Quiet" -Force
+        run: Stop-Process -Name "Quiet" -Force -Wait
         shell: powershell
 
       - name: Kill tor
-        run: Stop-Process -Name "tor" -Force
+        run: Stop-Process -Name "tor" -Force -Wait
         shell: powershell
         # Old prod version
 
