@@ -88,6 +88,9 @@ jobs:
         run: Stop-Process -Name "tor" -Force; Wait-Process -Name "tor"
         shell: powershell
 
+      - name: Delay
+        run: Start-Sleep -Seconds 5
+        shell: powershell
 
         # Old prod version
       - name: Rename latest quiet
@@ -113,6 +116,10 @@ jobs:
       - name: Kill tor
         run: Stop-Process -Name "tor" -Force
         shell: powershell
+
+      - name: Delay
+        run: Start-Sleep -Seconds 5
+        shell: powershell
         # Old prod version
 
       - name: Run one client test
@@ -123,20 +130,6 @@ jobs:
           shell: bash
           command: cd packages/e2e-tests && npm run test oneClient.test.ts
 
-      # - name: Run Backwards Compatibility test
-      #   uses: nick-fields/retry@v2
-      #   with:
-      #     timeout_minutes: 15
-      #     max_attempts: 3
-      #     command: cd packages/e2e-tests && npm run test backwardsCompatibility.test.ts
-
       - name: Run Backwards Compatibility test
         working-directory: ./packages/e2e-tests
         run: npm run test backwardsCompatibility.test.ts
-      # - name: Run two clients test
-      #   uses: nick-fields/retry@v2
-      #   with:
-      #     timeout_minutes: 25
-      #     max_attempts: 3
-      #     shell: bash
-      #     command: cd packages/e2e-tests && npm run test twoClients.test.ts
