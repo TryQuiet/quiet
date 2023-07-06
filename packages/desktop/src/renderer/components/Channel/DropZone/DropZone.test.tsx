@@ -4,9 +4,7 @@ import { DropZoneComponent } from './DropZoneComponent'
 
 describe('Drop zone component', () => {
   it('renders component', () => {
-    const result = renderComponent(
-      <DropZoneComponent handleFileDrop={jest.fn()} channelName={'test-channel'} />
-    )
+    const result = renderComponent(<DropZoneComponent handleFileDrop={jest.fn()} channelName={'test-channel'} />)
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>

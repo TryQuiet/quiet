@@ -4,9 +4,7 @@ import React from 'react'
 import { Typography } from './Typography.component'
 
 storiesOf('Typography', module)
-  .add('Default', () => (
-    <Typography fontSize={25}>{'This is random text'}</Typography>
-  ))
+  .add('Default', () => <Typography fontSize={25}>{'This is random text'}</Typography>)
   .add('Bold', () => (
     <Typography fontSize={20} fontWeight={'bold'}>
       {'This is random text'}

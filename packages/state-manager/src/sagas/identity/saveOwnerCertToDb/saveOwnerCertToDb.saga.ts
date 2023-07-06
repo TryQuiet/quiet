@@ -1,8 +1,8 @@
-import { applyEmitParams, Socket } from '../../../types'
+import { applyEmitParams, type Socket } from '../../../types'
 import { apply, select } from 'typed-redux-saga'
 import { communitiesSelectors } from '../../communities/communities.selectors'
 import { identitySelectors } from '../identity.selectors'
-import { SaveOwnerCertificatePayload, SocketActionTypes } from '@quiet/types'
+import { type SaveOwnerCertificatePayload, SocketActionTypes } from '@quiet/types'
 
 export function* saveOwnerCertToDbSaga(socket: Socket): Generator {
   const currentCommunity = yield* select(communitiesSelectors.currentCommunity)
@@ -16,12 +16,8 @@ export function* saveOwnerCertToDbSaga(socket: Socket): Generator {
     certificate: identity.userCertificate,
     permsData: {
       certificate: currentCommunity.CA.rootCertString,
-      privKey: currentCommunity.CA.rootKeyString
-    }
+      privKey: currentCommunity.CA.rootKeyString,
+    },
   }
-  yield* apply(
-    socket,
-    socket.emit,
-    applyEmitParams(SocketActionTypes.SAVE_OWNER_CERTIFICATE, payload)
-  )
+  yield* apply(socket, socket.emit, applyEmitParams(SocketActionTypes.SAVE_OWNER_CERTIFICATE, payload))
 }

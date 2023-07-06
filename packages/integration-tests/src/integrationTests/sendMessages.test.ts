@@ -3,7 +3,7 @@ import {
   assertReceivedCertificates,
   assertReceivedChannelsAndSubscribe,
   assertReceivedMessages,
-  assertReceivedMessagesAreValid
+  assertReceivedMessagesAreValid,
 } from './assertions'
 import { createCommunity, joinCommunity, getCommunityOwnerData, sendMessage } from './appActions'
 import { createApp, createAppWithoutTor, sleep, storePersistor } from '../utils'
@@ -49,14 +49,14 @@ describe('send message - users go offline and online', () => {
       ...ownerData,
       store: userOne.store,
       userName: 'username1',
-      expectedPeersCount: 2
+      expectedPeersCount: 2,
     })
 
     await joinCommunity({
       ...ownerData,
       store: userTwo.store,
       userName: 'username2',
-      expectedPeersCount: 3
+      expectedPeersCount: 3,
     })
   })
 
@@ -99,9 +99,8 @@ describe('send message - users go offline and online', () => {
   test('Owner sends messages, while users are offline', async () => {
     const ownerMessage = await sendMessage({
       message: 'Hi folks, how u doin? Does Wacek still has covid?',
-      store: owner.store
-    }
-    )
+      store: owner.store,
+    })
     ownerMessagesData.push(ownerMessage)
   })
 
@@ -161,14 +160,14 @@ describe.only('send message - users are online', () => {
       ...ownerData,
       store: userOne.store,
       userName: 'username1',
-      expectedPeersCount: 2
+      expectedPeersCount: 2,
     })
 
     await joinCommunity({
       ...ownerData,
       store: userTwo.store,
       userName: 'username2',
-      expectedPeersCount: 3
+      expectedPeersCount: 3,
     })
   })
 
@@ -256,14 +255,14 @@ xdescribe('send message - without tor', () => {
       ...ownerData,
       store: userOne.store,
       userName: 'username1',
-      expectedPeersCount: 2
+      expectedPeersCount: 2,
     })
 
     await joinCommunity({
       ...ownerData,
       store: userTwo.store,
       userName: 'username2',
-      expectedPeersCount: 3
+      expectedPeersCount: 3,
     })
   })
 

@@ -8,6 +8,6 @@ export function* initMasterSaga(): Generator {
   yield all([
     takeLeading(initActions.startWebsocketConnection.type, startConnectionSaga),
     takeLeading(initActions.setWebsocketConnected.type, onConnectedSaga),
-    takeLeading(initActions.deepLink.type, deepLinkSaga)
+    takeLeading(initActions.deepLink.type, deepLinkSaga),
   ])
 }

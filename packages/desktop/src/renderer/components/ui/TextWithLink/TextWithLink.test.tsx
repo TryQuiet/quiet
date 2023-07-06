@@ -14,8 +14,8 @@ describe('TextWithLink', () => {
             label: 'simple',
             action: () => {
               console.log('linked clicked')
-            }
-          }
+            },
+          },
         ]}
       />
     )

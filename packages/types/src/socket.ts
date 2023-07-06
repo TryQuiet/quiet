@@ -14,6 +14,7 @@ export enum SocketActionTypes {
   CREATED_CHANNEL = 'createdChannel',
   CREATE_COMMUNITY = 'createCommunity',
   CREATE_NETWORK = 'createNetwork',
+  CONNECTION_MANAGER_INIT = 'connectionManagerInit',
   // D
   DIRECT_MESSAGE = 'directMessage',
   DOWNLOAD_FILE = 'downloadFile',
@@ -67,5 +68,5 @@ export enum SocketActionTypes {
   UPDATE_MESSAGE_MEDIA = 'updateMessageMedia',
   UPLOAD_FILE = 'uploadFile',
   UPLOADED_FILE = 'uploadedFile',
-  CHECK_FOR_MISSING_FILES = 'checkForMissingFiles'
+  CHECK_FOR_MISSING_FILES = 'checkForMissingFiles',
 }

@@ -6,5 +6,5 @@ const hexPrime = prime.toString(16)
 export const constants = {
   IVO: '5183666c72eec9e45183666c72eec9e4',
   prime: hexPrime,
-  generator: '02'
+  generator: '02',
 }

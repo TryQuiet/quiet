@@ -10,7 +10,15 @@ export type TextInputProps = TextFieldProps & {
   onblur: Noop
 }
 
-export const TextInput: React.FC<TextInputProps> = ({ errors, defaultValue, classes, onchange, onblur, name = '', ...props }) => {
+export const TextInput: React.FC<TextInputProps> = ({
+  errors,
+  defaultValue,
+  classes,
+  onchange,
+  onblur,
+  name = '',
+  ...props
+}) => {
   const hasError = Boolean(errors?.[name])
 
   return (
@@ -28,7 +36,7 @@ export const TextInput: React.FC<TextInputProps> = ({ errors, defaultValue, clas
 
       <Typography variant='body2' color='error'>
         {errors?.[name]?.message || ''}
-      </ Typography>
+      </Typography>
     </>
   )
 }

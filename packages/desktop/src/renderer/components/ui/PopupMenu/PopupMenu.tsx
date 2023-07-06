@@ -14,20 +14,16 @@ const classes = {
   arrow: `${PREFIX}arrow`,
   bottom: `${PREFIX}bottom`,
   top: `${PREFIX}top`,
-  popper: `${PREFIX}popper`
+  popper: `${PREFIX}popper`,
 }
 
-const StyledPopper = styled(Popper)((
-  {
-    theme
-  }
-) => ({
+const StyledPopper = styled(Popper)(({ theme }) => ({
   [`& .${classes.wrapper}`]: {},
 
   [`& .${classes.paper}`]: {
     background: theme.palette.background.default,
     boxShadow: '0px 2px 25px rgba(0, 0, 0, 0.2)',
-    borderRadius: 8
+    borderRadius: 8,
   },
 
   [`& .${classes.arrow}`]: {
@@ -41,8 +37,8 @@ const StyledPopper = styled(Popper)((
       display: 'block',
       width: 0,
       height: 0,
-      borderStyle: 'solid'
-    }
+      borderStyle: 'solid',
+    },
   },
 
   [`& .${classes.bottom}`]: {
@@ -50,8 +46,8 @@ const StyledPopper = styled(Popper)((
     marginTop: `-${constants.arrowSize}px`,
     '&::before': {
       borderWidth: `0 ${constants.arrowSize}px ${constants.arrowSize}px ${constants.arrowSize}px`,
-      borderColor: `transparent transparent ${theme.palette.background.default} transparent`
-    }
+      borderColor: `transparent transparent ${theme.palette.background.default} transparent`,
+    },
   },
 
   [`& .${classes.top}`]: {
@@ -59,17 +55,17 @@ const StyledPopper = styled(Popper)((
     marginBottom: `-${2 * constants.arrowSize}px`,
     '&::before': {
       borderWidth: `${constants.arrowSize}px ${constants.arrowSize}px 0 ${constants.arrowSize}px`,
-      borderColor: `${theme.palette.background.default} transparent transparent transparent`
-    }
+      borderColor: `${theme.palette.background.default} transparent transparent transparent`,
+    },
   },
 
   [`&.${classes.popper}`]: {
-    zIndex: 100
-  }
+    zIndex: 100,
+  },
 }))
 
 const constants = {
-  arrowSize: 10
+  arrowSize: 10,
 }
 
 export const PopupMenu: React.FC<IPopupMenuProps> = ({
@@ -78,7 +74,7 @@ export const PopupMenu: React.FC<IPopupMenuProps> = ({
   children,
   className = '',
   offset = 0,
-  placement = 'bottom-end'
+  placement = 'bottom-end',
 }) => {
   const arrowRef = useRef<HTMLSpanElement>(null)
   return (
@@ -91,31 +87,36 @@ export const PopupMenu: React.FC<IPopupMenuProps> = ({
       className={classes.popper}
       modifiers={[
         { name: 'arrow', enabled: Boolean(arrowRef.current), options: { element: arrowRef.current } },
-        { name: 'offset', options: { offset } }
+        { name: 'offset', options: { offset } },
       ]}
     >
       {({ TransitionProps, placement }) => {
-        const splitPlacement: keyof typeof classes = placement.split('-')[0] as 'wrapper' | 'paper' | 'bottom' | 'top' | 'arrow' | 'popper'
+        const splitPlacement: keyof typeof classes = placement.split('-')[0] as
+          | 'wrapper'
+          | 'paper'
+          | 'bottom'
+          | 'top'
+          | 'arrow'
+          | 'popper'
         return (
           <Grow
             {...TransitionProps}
             style={{
-              transformOrigin:
-                placement === 'bottom' ? 'center top' : 'center bottom'
+              transformOrigin: placement === 'bottom' ? 'center top' : 'center bottom',
             }}
           >
             <div className={classes.wrapper}>
               <Paper
                 className={classNames({
                   [classes.paper]: true,
-                  [className]: className
+                  [className]: className,
                 })}
               >
                 {children}
               </Paper>
               <span
                 className={classNames({
-                  [classes[splitPlacement]]: true
+                  [classes[splitPlacement]]: true,
                 })}
                 ref={arrowRef}
               />

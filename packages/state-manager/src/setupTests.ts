@@ -8,7 +8,7 @@ setEngine(
   new CryptoEngine({
     name: '',
     crypto: webcrypto,
-    subtle: webcrypto.subtle
+    subtle: webcrypto.subtle,
   })
 )
 

@@ -1,8 +1,13 @@
-import { createSlice, EntityState, PayloadAction } from '@reduxjs/toolkit'
+import { createSlice, type EntityState, type PayloadAction } from '@reduxjs/toolkit'
 import { DateTime } from 'luxon'
 import { StoreKeys } from '../store.keys'
 import { identityAdapter } from './identity.adapter'
-import { CreateUserCsrPayload, Identity, RegisterCertificatePayload, StoreUserCertificatePayload } from '@quiet/types'
+import {
+  type CreateUserCsrPayload,
+  type Identity,
+  type RegisterCertificatePayload,
+  type StoreUserCertificatePayload,
+} from '@quiet/types'
 export class IdentityState {
   public identities: EntityState<Identity> = identityAdapter.getInitialState()
 }
@@ -14,8 +19,7 @@ export const identitySlice = createSlice({
     addNewIdentity: (state, action: PayloadAction<Identity>) => {
       identityAdapter.addOne(state.identities, action.payload)
     },
-    createUserCsr: (state, _action: PayloadAction<CreateUserCsrPayload>) =>
-      state,
+    createUserCsr: (state, _action: PayloadAction<CreateUserCsrPayload>) => state,
     saveOwnerCertToDb: state => state,
     savedOwnerCertificate: (state, _action: PayloadAction<string>) => state,
     registerUsername: (state, _action: PayloadAction<string>) => state,
@@ -24,24 +28,21 @@ export const identitySlice = createSlice({
         id: action.payload.communityId,
         changes: {
           nickname: action.payload.nickname,
-          userCsr: action.payload.userCsr
-        }
+          userCsr: action.payload.userCsr,
+        },
       })
     },
-    storeUserCertificate: (
-      state,
-      action: PayloadAction<StoreUserCertificatePayload>
-    ) => {
+    storeUserCertificate: (state, action: PayloadAction<StoreUserCertificatePayload>) => {
       identityAdapter.updateOne(state.identities, {
         id: action.payload.communityId,
         changes: {
           userCertificate: action.payload.userCertificate,
-          joinTimestamp: DateTime.utc().valueOf()
-        }
+          joinTimestamp: DateTime.utc().valueOf(),
+        },
       })
     },
-    throwIdentityError: (state, _action: PayloadAction<string>) => state
-  }
+    throwIdentityError: (state, _action: PayloadAction<string>) => state,
+  },
 })
 
 export const identityActions = identitySlice.actions

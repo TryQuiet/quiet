@@ -12,60 +12,60 @@ export default createTheme({
     overline: {
       fontSize: 10,
       lineHeight: '16px',
-      fontWeight: 500
+      fontWeight: 500,
     },
     caption: {
       fontSize: 12,
       lineHeight: '20px',
-      color: '#b2b2b2'
+      color: '#b2b2b2',
     },
     body1: {
       fontSize: 16,
-      lineHeight: '26px'
+      lineHeight: '26px',
     },
     body2: {
       fontSize: 14,
-      lineHeight: '24px'
+      lineHeight: '24px',
     },
     subtitle1: {
       fontSize: 16,
-      lineHeight: '26px'
+      lineHeight: '26px',
     },
     subtitle2: {
       fontSize: 14,
-      lineHeight: '23px'
+      lineHeight: '23px',
     },
     h1: {
       fontWeight: 500,
       fontSize: 48,
-      lineHeight: '40px'
+      lineHeight: '40px',
     },
     h2: {
       fontWeight: 500,
       fontSize: 34,
-      lineHeight: '40px'
+      lineHeight: '40px',
     },
     h3: {
       fontWeight: 500,
       fontSize: 28,
-      lineHeight: '34px'
+      lineHeight: '34px',
     },
     h4: {
       fontWeight: 500,
       fontSize: 18,
-      lineHeight: '27px'
+      lineHeight: '27px',
     },
     h5: {
       fontSize: 16,
       lineHeight: '26px',
-      fontWeight: 500
-    }
+      fontWeight: 500,
+    },
   },
   palette: {
     primary: {
       light: '#e9e9e9',
       main: '#8d8d8d',
-      dark: '#4a4a4a'
+      dark: '#4a4a4a',
     },
     colors: {
       contentGray: '#D2D2D2',
@@ -106,8 +106,8 @@ export default createTheme({
       logsTabWhite: '#A9A9A9',
       logsScrollBar: '#3D3D3D',
       logsScrollBarThumb: ' #787878',
-      yellow: '#E6BB46'
-    }
+      yellow: '#E6BB46',
+    },
   },
   components: {
     // Body font size changed in mui v5: https://mui.com/material-ui/migration/v5-component-changes/#update-body-font-size
@@ -116,16 +116,16 @@ export default createTheme({
         body: {
           fontSize: '14px',
           lineHeight: '24px',
-          letterSpacing: '0.01071em'
+          letterSpacing: '0.01071em',
         },
       },
     },
     MuiSnackbarContent: {
       styleOverrides: {
         root: {
-          wordBreak: 'break-all'
-        }
-      }
+          wordBreak: 'break-all',
+        },
+      },
     },
     MuiButton: {
       styleOverrides: {
@@ -137,8 +137,8 @@ export default createTheme({
           fontWeight: 400,
           fontSize: '14px',
           '&:active': {
-            boxShadow: 'none'
-          }
+            boxShadow: 'none',
+          },
         },
         sizeLarge: {
           textTransform: 'none',
@@ -148,23 +148,22 @@ export default createTheme({
           paddingBottom: 12,
           fontSize: 14,
           '&:active': {
-            boxShadow: 'none'
-          }
-        }
-      }
-
+            boxShadow: 'none',
+          },
+        },
+      },
     },
     MuiOutlinedInput: {
       styleOverrides: {
-        input: {}
-      }
+        input: {},
+      },
     },
     MuiPopover: {
       styleOverrides: {
         paper: {
-          borderRadius: 8
-        }
-      }
-    }
-  }
+          borderRadius: 8,
+        },
+      },
+    },
+  },
 })

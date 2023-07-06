@@ -18,16 +18,16 @@ const args: Partial<ChannelComponentProps & UploadFilesPreviewsProps> = {
     nickname: 'vader',
     hiddenService: {
       onionAddress: 'onionAddress',
-      privateKey: 'privateKey'
+      privateKey: 'privateKey',
     },
     peerId: {
       id: 'id',
       privKey: 'privKey',
-      pubKey: 'pubKey'
+      pubKey: 'pubKey',
     },
     dmKeys: {
       publicKey: 'publicKey',
-      privateKey: 'privateKey'
+      privateKey: 'privateKey',
     },
     userCsr: {
       userCsr: 'userCsr',
@@ -35,17 +35,17 @@ const args: Partial<ChannelComponentProps & UploadFilesPreviewsProps> = {
       pkcs10: {
         publicKey: 'publicKey',
         privateKey: 'privateKey',
-        pkcs10: 'pkcs10'
-      }
+        pkcs10: 'pkcs10',
+      },
     },
     userCertificate: 'userCertificate',
-    joinTimestamp: null
+    joinTimestamp: null,
   },
   uploadedFileModal: {
     open: false,
     handleOpen: function (_args?: any): any {},
     handleClose: function (): any {},
-    src: 'images/butterfly.jpeg'
+    src: 'images/butterfly.jpeg',
   },
   messages: mock_messages(),
   newestMessage: {
@@ -55,7 +55,7 @@ const args: Partial<ChannelComponentProps & UploadFilesPreviewsProps> = {
     createdAt: 0,
     channelId: 'general',
     signature: 'signature',
-    pubKey: 'pubKey'
+    pubKey: 'pubKey',
   },
   pendingMessages: {},
   channelId: 'general',
@@ -63,7 +63,7 @@ const args: Partial<ChannelComponentProps & UploadFilesPreviewsProps> = {
   lazyLoading: function (_load: boolean): void {},
   onInputChange: function (_value: string): void {},
   onInputEnter: function (_message: string): void {},
-  filesData: {}
+  filesData: {},
 }
 
 const Template: ComponentStory<typeof ChannelComponent> = args => {
@@ -86,9 +86,9 @@ Pending.args = {
   pendingMessages: {
     33: {
       id: '33',
-      status: 0
-    }
-  }
+      status: 0,
+    },
+  },
 }
 
 // Images
@@ -102,9 +102,9 @@ ImagePreview.args = {
     file_id: {
       path: 'images/test-image.png',
       name: 'test-image',
-      ext: '.png'
-    }
-  }
+      ext: '.png',
+    },
+  },
 }
 ImagePlaceholder.args = {
   ...args,
@@ -115,27 +115,27 @@ ImagePlaceholder.args = {
       cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
       message: {
         channelId: 'general',
-        id: 'wgtlstx3u7'
+        id: 'wgtlstx3u7',
       },
       ext: '.png',
       name: 'test-image',
       width: 1200,
       height: 580,
-      path: null
+      path: null,
     },
     message: '',
     createdAt: 0,
     date: '12:46',
-    nickname: 'vader'
+    nickname: 'vader',
   }),
   downloadStatuses: {
     32: {
       mid: '',
       cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
       downloadState: DownloadState.None,
-      downloadProgress: undefined
-    }
-  }
+      downloadProgress: undefined,
+    },
+  },
 }
 SentImage.args = {
   ...args,
@@ -146,27 +146,27 @@ SentImage.args = {
       cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
       message: {
         channelId: 'general',
-        id: 'wgtlstx3u7'
+        id: 'wgtlstx3u7',
       },
       ext: '.png',
       name: 'test-image',
       width: 1200,
       height: 580,
-      path: 'images/test-image.png'
+      path: 'images/test-image.png',
     },
     message: '',
     createdAt: 0,
     date: '12:46',
-    nickname: 'vader'
+    nickname: 'vader',
   }),
   downloadStatuses: {
     32: {
       mid: '',
       cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
       downloadState: DownloadState.Completed,
-      downloadProgress: undefined
-    }
-  }
+      downloadProgress: undefined,
+    },
+  },
 }
 
 // Files
@@ -187,9 +187,9 @@ FilePreview.args = {
     file_id: {
       path: 'files/my-file-name-goes-here-an-isnt-truncated.zip',
       name: 'my-file-name-goes-here-an-isnt-truncated',
-      ext: '.zip'
-    }
-  }
+      ext: '.zip',
+    },
+  },
 }
 MultipleMediaPreview.args = {
   ...args,
@@ -197,14 +197,14 @@ MultipleMediaPreview.args = {
     file_id: {
       path: 'files/my-file-name-goes-here-an-isnt-truncated.zip',
       name: 'my-file-name-goes-here-an-isnt-truncated',
-      ext: '.zip'
+      ext: '.zip',
     },
     image_id: {
       path: 'images/test-image.png',
       name: 'test-image',
-      ext: '.png'
-    }
-  }
+      ext: '.png',
+    },
+  },
 }
 UploadingFile.args = {
   ...args,
@@ -215,27 +215,27 @@ UploadingFile.args = {
       cid: 'uploading_32',
       message: {
         channelId: 'general',
-        id: 'wgtlstx3u7'
+        id: 'wgtlstx3u7',
       },
       ext: '.zip',
       name: 'my-file-name-goes-here-an-isnt-truncated',
       width: undefined,
       height: undefined,
-      path: null
+      path: null,
     },
     message: '',
     createdAt: 0,
     date: '12:46',
-    nickname: 'vader'
+    nickname: 'vader',
   }),
   downloadStatuses: {
     32: {
       cid: 'uploading_32',
       mid: 'mid',
       downloadState: DownloadState.Uploading,
-      downloadProgress: undefined
-    }
-  }
+      downloadProgress: undefined,
+    },
+  },
 }
 HostedFile.args = {
   ...args,
@@ -246,28 +246,28 @@ HostedFile.args = {
       cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
       message: {
         channelId: 'general',
-        id: 'wgtlstx3u7'
+        id: 'wgtlstx3u7',
       },
       ext: '.zip',
       name: 'my-file-name-goes-here-an-isnt-truncated',
       size: 2048,
       width: undefined,
       height: undefined,
-      path: 'files/my-file-name-goes-here-an-isnt-truncated.zip'
+      path: 'files/my-file-name-goes-here-an-isnt-truncated.zip',
     },
     message: '',
     createdAt: 0,
     date: '12:46',
-    nickname: 'vader'
+    nickname: 'vader',
   }),
   downloadStatuses: {
     32: {
       cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
       mid: 'mid',
       downloadState: DownloadState.Hosted,
-      downloadProgress: undefined
-    }
-  }
+      downloadProgress: undefined,
+    },
+  },
 }
 ReadyDownload.args = {
   ...args,
@@ -278,28 +278,28 @@ ReadyDownload.args = {
       cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
       message: {
         channelId: 'general',
-        id: 'wgtlstx3u7'
+        id: 'wgtlstx3u7',
       },
       ext: '.zip',
       name: 'my-file-name-goes-here-an-isnt-truncated',
       size: 2048,
       width: undefined,
       height: undefined,
-      path: 'files/my-file-name-goes-here-an-isnt-truncated.zip'
+      path: 'files/my-file-name-goes-here-an-isnt-truncated.zip',
     },
     message: '',
     createdAt: 0,
     date: '12:46',
-    nickname: 'vader'
+    nickname: 'vader',
   }),
   downloadStatuses: {
     32: {
       cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
       mid: 'mid',
       downloadState: DownloadState.Ready,
-      downloadProgress: undefined
-    }
-  }
+      downloadProgress: undefined,
+    },
+  },
 }
 Downloading.args = {
   ...args,
@@ -310,19 +310,19 @@ Downloading.args = {
       cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
       message: {
         channelId: 'general',
-        id: 'wgtlstx3u7'
+        id: 'wgtlstx3u7',
       },
       ext: '.zip',
       name: 'my-file-name-goes-here-an-isnt-truncated',
       size: 2048,
       width: undefined,
       height: undefined,
-      path: 'files/my-file-name-goes-here-an-isnt-truncated.zip'
+      path: 'files/my-file-name-goes-here-an-isnt-truncated.zip',
     },
     message: '',
     createdAt: 0,
     date: '12:46',
-    nickname: 'vader'
+    nickname: 'vader',
   }),
   downloadStatuses: {
     32: {
@@ -332,10 +332,10 @@ Downloading.args = {
       downloadProgress: {
         size: 2048,
         downloaded: 256,
-        transferSpeed: 32
-      }
-    }
-  }
+        transferSpeed: 32,
+      },
+    },
+  },
 }
 CompletedDownload.args = {
   ...args,
@@ -346,19 +346,19 @@ CompletedDownload.args = {
       cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
       message: {
         channelId: 'general',
-        id: 'wgtlstx3u7'
+        id: 'wgtlstx3u7',
       },
       ext: '.zip',
       name: 'my-file-name-goes-here-an-isnt-truncated',
       size: 2048,
       width: undefined,
       height: undefined,
-      path: 'files/my-file-name-goes-here-an-isnt-truncated.zip'
+      path: 'files/my-file-name-goes-here-an-isnt-truncated.zip',
     },
     message: '',
     createdAt: 0,
     date: '12:46',
-    nickname: 'vader'
+    nickname: 'vader',
   }),
   downloadStatuses: {
     32: {
@@ -368,10 +368,10 @@ CompletedDownload.args = {
       downloadProgress: {
         size: 2048,
         downloaded: 1024,
-        transferSpeed: 0
-      }
-    }
-  }
+        transferSpeed: 0,
+      },
+    },
+  },
 }
 CancelingDownload.args = {
   ...args,
@@ -382,19 +382,19 @@ CancelingDownload.args = {
       cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
       message: {
         channelId: 'general',
-        id: 'wgtlstx3u7'
+        id: 'wgtlstx3u7',
       },
       ext: '.zip',
       name: 'my-file-name-goes-here-an-isnt-truncated',
       size: 1024,
       width: undefined,
       height: undefined,
-      path: 'files/my-file-name-goes-here-an-isnt-truncated.zip'
+      path: 'files/my-file-name-goes-here-an-isnt-truncated.zip',
     },
     message: '',
     createdAt: 0,
     date: '12:46',
-    nickname: 'vader'
+    nickname: 'vader',
   }),
   downloadStatuses: {
     32: {
@@ -404,10 +404,10 @@ CancelingDownload.args = {
       downloadProgress: {
         size: 2048,
         downloaded: 0,
-        transferSpeed: 0
-      }
-    }
-  }
+        transferSpeed: 0,
+      },
+    },
+  },
 }
 CanceledDownload.args = {
   ...args,
@@ -418,28 +418,28 @@ CanceledDownload.args = {
       cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
       message: {
         channelId: 'general',
-        id: 'wgtlstx3u7'
+        id: 'wgtlstx3u7',
       },
       ext: '.zip',
       name: 'my-file-name-goes-here-an-isnt-truncated',
       size: 1024,
       width: undefined,
       height: undefined,
-      path: 'files/my-file-name-goes-here-an-isnt-truncated.zip'
+      path: 'files/my-file-name-goes-here-an-isnt-truncated.zip',
     },
     message: '',
     createdAt: 0,
     date: '12:46',
-    nickname: 'vader'
+    nickname: 'vader',
   }),
   downloadStatuses: {
     32: {
       mid: 'mid',
       cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
       downloadState: DownloadState.Canceled,
-      downloadProgress: undefined
-    }
-  }
+      downloadProgress: undefined,
+    },
+  },
 }
 MaliciousDownload.args = {
   ...args,
@@ -450,28 +450,28 @@ MaliciousDownload.args = {
       cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
       message: {
         channelId: 'general',
-        id: 'wgtlstx3u7'
+        id: 'wgtlstx3u7',
       },
       ext: '.zip',
       name: 'my-file-name-goes-here-an-isnt-truncated',
       size: 1024,
       width: undefined,
       height: undefined,
-      path: 'files/my-file-name-goes-here-an-isnt-truncated.zip'
+      path: 'files/my-file-name-goes-here-an-isnt-truncated.zip',
     },
     message: '',
     createdAt: 0,
     date: '12:46',
-    nickname: 'vader'
+    nickname: 'vader',
   }),
   downloadStatuses: {
     32: {
       mid: 'mid',
       cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
       downloadState: DownloadState.Malicious,
-      downloadProgress: undefined
-    }
-  }
+      downloadProgress: undefined,
+    },
+  },
 }
 
 // Info
@@ -486,8 +486,8 @@ NewUserMessage.args = {
     message: 'Hey, @the-emperor just joined!',
     createdAt: 0,
     date: '12:46',
-    nickname: 'vader'
-  })
+    nickname: 'vader',
+  }),
 }
 
 // Link
@@ -502,8 +502,8 @@ Link.args = {
     message: 'Hey, haye you seen this https://github.com/TryQuiet/monorepo awesome project?',
     createdAt: 0,
     date: '12:46',
-    nickname: 'vader'
-  })
+    nickname: 'vader',
+  }),
 }
 
 // MathJax
@@ -520,8 +520,8 @@ MathJaxMiddle.args = {
     message: String.raw`Check this out: $$\sum_{i=0}^n i = \frac{n(n+1)}{2}$$ This is the formula I told you about`,
     createdAt: 0,
     date: '12:46',
-    nickname: 'vader'
-  })
+    nickname: 'vader',
+  }),
 }
 MathJaxPending.args = {
   ...args,
@@ -532,14 +532,14 @@ MathJaxPending.args = {
     message: String.raw`Check this out: $$\sum_{i=0}^n i = \frac{n(n+1)}{2}$$ This is the formula I told you about`,
     createdAt: 0,
     date: '12:46',
-    nickname: 'vader'
+    nickname: 'vader',
   }),
   pendingMessages: {
     32: {
       id: '32',
-      status: 0
-    }
-  }
+      status: 0,
+    },
+  },
 }
 MathJaxBeginning.args = {
   ...args,
@@ -550,14 +550,14 @@ MathJaxBeginning.args = {
     message: String.raw`$$a^2 +b^2=c^2$$`,
     createdAt: 0,
     date: '12:46',
-    nickname: 'vader'
-  })
+    nickname: 'vader',
+  }),
 }
 
 const component: ComponentMeta<typeof ChannelComponent> = {
   title: 'Components/ChannelComponent',
   decorators: [withTheme],
-  component: ChannelComponent
+  component: ChannelComponent,
 }
 
 export default component

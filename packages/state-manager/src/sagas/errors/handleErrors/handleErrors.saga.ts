@@ -1,4 +1,4 @@
-import { PayloadAction } from '@reduxjs/toolkit'
+import { type PayloadAction } from '@reduxjs/toolkit'
 import { call, delay, put, select } from 'typed-redux-saga'
 import { identitySelectors } from '../../identity/identity.selectors'
 import { communitiesActions } from '../../communities/communities.slice'
@@ -6,7 +6,7 @@ import { communitiesSelectors } from '../../communities/communities.selectors'
 import { identityActions } from '../../identity/identity.slice'
 import { errorsActions } from '../errors.slice'
 import logger from '../../../utils/logger'
-import { RegisterCertificatePayload, ErrorPayload, ErrorCodes, SocketActionTypes } from '@quiet/types'
+import { type RegisterCertificatePayload, type ErrorPayload, ErrorCodes, SocketActionTypes } from '@quiet/types'
 
 const log = logger('errors')
 
@@ -18,9 +18,9 @@ export function* retryRegistration(communityId: string) {
   }
 
   const payload: RegisterCertificatePayload = {
-    communityId: communityId,
+    communityId,
     nickname: identity.nickname,
-    userCsr: identity.userCsr
+    userCsr: identity.userCsr,
   }
 
   yield* put(identityActions.registerCertificate(payload))
@@ -45,10 +45,13 @@ export function* handleErrorsSaga(
         return
       }
       // Leave for integration test assertions purposes
-      const registrationAttempts = yield* select(
-        communitiesSelectors.registrationAttempts(error.community)
+      const registrationAttempts = yield* select(communitiesSelectors.registrationAttempts(error.community))
+      yield* put(
+        communitiesActions.updateRegistrationAttempts({
+          id: error.community,
+          registrationAttempts: registrationAttempts + 1,
+        })
       )
-      yield* put(communitiesActions.updateRegistrationAttempts({ id: error.community, registrationAttempts: registrationAttempts + 1 }))
       yield* call(retryRegistration, error.community)
     }
   }

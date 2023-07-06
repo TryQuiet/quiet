@@ -8,7 +8,7 @@ const files = fs.readdirSync(dirPath || `${os.homedir()}/s3data`)
 
 let delaysArr = []
 
-files.forEach((fileName) => {
+files.forEach(fileName => {
   const filePath = path.join(dirPath, fileName)
   let dataSet = []
   const delaysArrPerUser = []
@@ -17,7 +17,7 @@ files.forEach((fileName) => {
     dataSet = JSON.parse(data)
   }
 
-  dataSet.forEach((_o) => {
+  dataSet.forEach(_o => {
     const delay = Object.values(_o)[0]
     delaysArrPerUser.push(delay)
   })

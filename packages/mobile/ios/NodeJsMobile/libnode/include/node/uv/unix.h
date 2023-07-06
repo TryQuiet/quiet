@@ -43,7 +43,7 @@
 #include <pthread.h>
 #include <signal.h>
 
-#include "threadpool.h"
+#include "uv/threadpool.h"
 
 #if defined(__linux__)
 # include "uv/linux.h"
@@ -56,7 +56,7 @@
 #elif defined(__sun)
 # include "uv/sunos.h"
 #elif defined(__APPLE__)
-# include "darwin.h"
+# include "uv/darwin.h"
 #elif defined(__DragonFly__)       || \
       defined(__FreeBSD__)         || \
       defined(__FreeBSD_kernel__)  || \

@@ -12,13 +12,7 @@ import ChannelInputComponent from '../widgets/channels/ChannelInput'
 
 import { INPUT_STATE } from '../widgets/channels/ChannelInput/InputState.enum'
 
-import {
-  ChannelMessage,
-  DownloadStatus,
-  Identity,
-  MessagesDailyGroups,
-  MessageSendingStatus
-} from '@quiet/types'
+import { ChannelMessage, DownloadStatus, Identity, MessagesDailyGroups, MessageSendingStatus } from '@quiet/types'
 
 import { useResizeDetector } from 'react-resize-detector'
 import { Dictionary } from '@reduxjs/toolkit'
@@ -35,7 +29,7 @@ import { UseModalType } from '../../containers/hooks'
 const ChannelMessagesWrapperStyled = styled(Grid)(({ theme }) => ({
   position: 'relative',
   height: 0,
-  backgroundColor: theme.palette.colors.white
+  backgroundColor: theme.palette.colors.white,
 }))
 
 export interface ChannelComponentProps {
@@ -68,12 +62,10 @@ export interface ChannelComponentProps {
 const enum ScrollPosition {
   TOP = 0,
   MIDDLE = -1,
-  BOTTOM = 1
+  BOTTOM = 1,
 }
 
-export const ChannelComponent: React.FC<
-  ChannelComponentProps & UploadFilesPreviewsProps & FileActionsProps
-> = ({
+export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPreviewsProps & FileActionsProps> = ({
   user,
   channelId,
   channelName,
@@ -97,7 +89,7 @@ export const ChannelComponent: React.FC<
   cancelDownload,
   openContextMenu,
   enableContextMenu = false,
-  pendingGeneralChannelRecreation
+  pendingGeneralChannelRecreation,
 }) => {
   const [lastSeenMessage, setLastSeenMessage] = useState<string>()
   const [newMessagesInfo, setNewMessagesInfo] = useState<boolean>(false)
@@ -132,7 +124,7 @@ export const ChannelComponent: React.FC<
     memoizedScrollHeight.current = 0
     scrollbarRef.current.scrollTo({
       behavior: 'auto',
-      top: Math.abs(scrollbarRef.current.clientHeight - scrollbarRef.current.scrollHeight)
+      top: Math.abs(scrollbarRef.current.clientHeight - scrollbarRef.current.scrollHeight),
     })
   }
 
@@ -258,12 +250,11 @@ export const ChannelComponent: React.FC<
             infoClass={infoClass}
             setInfoClass={setInfoClass}
             inputState={
-              isCommunityInitialized && Boolean(messages.count)
-                ? INPUT_STATE.AVAILABLE
-                : INPUT_STATE.NOT_CONNECTED
+              isCommunityInitialized && Boolean(messages.count) ? INPUT_STATE.AVAILABLE : INPUT_STATE.NOT_CONNECTED
             }
             handleClipboardFiles={handleClipboardFiles}
-            handleOpenFiles={handleFileDrop}>
+            handleOpenFiles={handleFileDrop}
+          >
             <UploadFilesPreviewsComponent filesData={filesData} removeFile={id => removeFile(id)} />
           </ChannelInputComponent>
         </Grid>

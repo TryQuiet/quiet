@@ -28,20 +28,20 @@ jest.spyOn(path, 'join').mockReturnValue('path')
 
 jest.mock('electron-store', () => {
   return {
-    initRenderer: jest.fn()
+    initRenderer: jest.fn(),
   }
 })
 
 jest.mock('@electron/remote/main', () => {
   return {
     initialize: jest.fn(),
-    enable: jest.fn()
+    enable: jest.fn(),
   }
 })
 
 jest.mock('electron-localshortcut', () => {
   return {
-    register: jest.fn()
+    register: jest.fn(),
   }
 })
 
@@ -51,9 +51,9 @@ jest.mock('child_process', () => {
     fork: jest.fn().mockImplementation(() => {
       return {
         on: jest.fn(),
-        send: jest.fn()
+        send: jest.fn(),
       }
-    })
+    }),
   }
 })
 
@@ -71,7 +71,7 @@ jest.mock('electron', () => {
       quit: jest.fn(),
       exit: jest.fn(),
       on: jest.fn(),
-      setAsDefaultProtocolClient: jest.fn()
+      setAsDefaultProtocolClient: jest.fn(),
     },
     BrowserWindow: jest.fn().mockImplementation(() => {
       return {
@@ -95,16 +95,16 @@ jest.mock('electron', () => {
         webContents: {
           on: mockwebContentsOn,
           once: mockwebContentsOnce,
-          send: mockWindowWebContentsSend
-        }
+          send: mockWindowWebContentsSend,
+        },
       }
     }),
     Menu: {
-      setApplicationMenu: jest.fn()
+      setApplicationMenu: jest.fn(),
     },
     ipcMain: {
-      on: jest.fn()
-    }
+      on: jest.fn(),
+    },
   }
 })
 
@@ -112,8 +112,8 @@ jest.mock('electron-updater', () => {
   return {
     autoUpdater: {
       checkForUpdates: jest.fn(),
-      on: jest.fn()
-    }
+      on: jest.fn(),
+    },
   }
 })
 
@@ -150,7 +150,7 @@ describe('electron app ready event', () => {
         'libp2pHiddenService',
         'controlPort',
         'httpTunnelPort',
-        'dataServer'
+        'dataServer',
       ])
     )
   })
@@ -184,7 +184,7 @@ describe('electron app ready event', () => {
 
     expect(mockWindowOnce).toHaveBeenCalledTimes(2)
     expect(mockWindowOnceCalls[0][0]).toBe('close')
-    const event = { preventDefault: () => { } }
+    const event = { preventDefault: () => {} }
     mockWindowOnceCalls[0][1](event)
     expect(mockWindowWebContentsSend).toHaveBeenCalledWith('force-save-state')
 
@@ -242,7 +242,7 @@ describe('Invitation code', () => {
     await mockAppOnCalls[2][1]()
     const code = 'invitationCode'
     expect(mockAppOnCalls[1][0]).toBe('open-url')
-    const event = { preventDefault: () => { } }
+    const event = { preventDefault: () => {} }
     mockAppOnCalls[1][1](event, invitationDeepUrl(code))
     expect(mockWindowWebContentsSend).toHaveBeenCalledWith('invitation', { code: code })
   })
@@ -250,12 +250,9 @@ describe('Invitation code', () => {
   it('process invitation code on second-instance event', async () => {
     const code = 'invitationCodeArgv'
     await mockAppOnCalls[2][1]()
-    const commandLine = [
-      '/tmp/.mount_Quiet-TVQc6s/quiet',
-      invitationDeepUrl(code)
-    ]
+    const commandLine = ['/tmp/.mount_Quiet-TVQc6s/quiet', invitationDeepUrl(code)]
     expect(mockAppOnCalls[0][0]).toBe('second-instance')
-    const event = { preventDefault: () => { } }
+    const event = { preventDefault: () => {} }
     mockAppOnCalls[0][1](event, commandLine)
     expect(mockWindowWebContentsSend).toHaveBeenCalledWith('invitation', { code: code })
   })

@@ -6,15 +6,15 @@ const PREFIX = 'WindowWrapper'
 
 const classes = {
   root: `${PREFIX}root`,
-  wrapper: `${PREFIX}wrapper`
+  wrapper: `${PREFIX}wrapper`,
 }
 
 const Root = styled('div')(() => ({
   [`& .${classes.root}`]: {},
 
   [`&.${classes.wrapper}`]: {
-    minHeight: '100vh'
-  }
+    minHeight: '100vh',
+  },
 }))
 
 interface WindowWrapperProps {
@@ -27,8 +27,9 @@ export const WindowWrapper: React.FC<WindowWrapperProps> = ({ children, classNam
     <Root
       className={classNames({
         [classes.wrapper]: true,
-        [className]: className
-      })}>
+        [className]: className,
+      })}
+    >
       {children}
     </Root>
   )

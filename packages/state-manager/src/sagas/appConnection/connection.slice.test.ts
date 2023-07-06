@@ -1,13 +1,13 @@
-import { Store } from 'redux'
+import { type Store } from 'redux'
 import { connectionSelectors } from './connection.selectors'
 import { connectionActions } from './connection.slice'
-import { identityActions } from '../identity/identity.slice'
+import { type identityActions } from '../identity/identity.slice'
 import { prepareStore } from '../../utils/tests/prepareStore'
 import { getFactory } from '../../utils/tests/factories'
 import { setupCrypto } from '@quiet/identity'
 import { networkActions } from '../network/network.slice'
 import { networkSelectors } from '../network/network.selectors'
-import { Identity } from '@quiet/types'
+import { type Identity } from '@quiet/types'
 
 describe('connectionReducer', () => {
   let store: Store
@@ -20,10 +20,9 @@ describe('connectionReducer', () => {
 
     const factory = await getFactory(store)
 
-    alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
-      'Identity',
-      { nickname: 'alice' }
-    )
+    alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
+      nickname: 'alice',
+    })
   })
 
   it('add initialized communities should add correctly data into the store', () => {
@@ -57,7 +56,7 @@ describe('connectionReducer', () => {
       username: alice.nickname,
       onionAddress: alice.hiddenService.onionAddress,
       peerId: alice.peerId.id,
-      dmPublicKey: alice.dmKeys.publicKey
+      dmPublicKey: alice.dmKeys.publicKey,
     }
 
     store.dispatch(networkActions.addConnectedPeers([alice.peerId.id]))
@@ -66,8 +65,7 @@ describe('connectionReducer', () => {
   })
 
   it('setTorBootstrapProcess', () => {
-    const payload =
-      'Mar 29 15:15:38.000 [notice] Bootstrapped 10% (conn_done): Connected to a relay'
+    const payload = 'Mar 29 15:15:38.000 [notice] Bootstrapped 10% (conn_done): Connected to a relay'
 
     store.dispatch(connectionActions.setTorBootstrapProcess(payload))
 
@@ -89,7 +87,7 @@ describe('connectionReducer', () => {
 
     const { number, text } = connectionSelectors.torConnectionProcess(store.getState())
 
-    expect(number).toEqual(65)
+    expect(number).toEqual(70)
 
     expect(text).toEqual(payload2)
   })

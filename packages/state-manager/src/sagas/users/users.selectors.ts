@@ -3,9 +3,9 @@ import { getCertFieldValue } from '@quiet/identity'
 import { CertFieldsTypes } from './const/certFieldTypes'
 import { StoreKeys } from '../store.keys'
 import { certificatesAdapter } from './users.adapter'
-import { Certificate } from 'pkijs'
-import { CreatedSelectors, StoreState } from '../store.types'
-import { User } from '@quiet/types'
+import { type Certificate } from 'pkijs'
+import { type CreatedSelectors, type StoreState } from '../store.types'
+import { type User } from '@quiet/types'
 
 const usersSlice: CreatedSelectors[StoreKeys.Users] = (state: StoreState) => state[StoreKeys.Users]
 
@@ -14,7 +14,7 @@ export const certificates = createSelector(usersSlice, reducerState =>
 )
 
 export const certificatesMapping = createSelector(certificates, certs => {
-  const mapping: { [pubKey: string]: User } = {}
+  const mapping: Record<string, User> = {}
   Object.keys(certs).map(pubKey => {
     const certificate = certs[pubKey]
     if (!certificate || certificate.subject.typesAndValues.length < 1) {
@@ -32,10 +32,10 @@ export const certificatesMapping = createSelector(certificates, certs => {
     }
 
     return (mapping[pubKey] = {
-      username: username,
-      onionAddress: onionAddress,
-      peerId: peerId,
-      dmPublicKey: dmPublicKey
+      username,
+      onionAddress,
+      peerId,
+      dmPublicKey,
     })
   })
   return mapping
@@ -66,7 +66,7 @@ export const ownerData = createSelector(getOldestParsedCerificate, ownerCert => 
     username,
     onionAddress,
     peerId,
-    dmPublicKey
+    dmPublicKey,
   }
 })
 
@@ -74,5 +74,5 @@ export const usersSelectors = {
   certificates,
   certificatesMapping,
   getOldestParsedCerificate,
-  ownerData
+  ownerData,
 }

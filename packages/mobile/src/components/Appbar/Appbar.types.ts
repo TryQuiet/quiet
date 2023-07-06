@@ -1,4 +1,3 @@
-
 import { TextStyle } from 'react-native'
 import { useContextMenu } from '../../hooks/useContextMenu'
 

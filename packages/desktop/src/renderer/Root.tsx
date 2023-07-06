@@ -45,7 +45,7 @@ export default () => {
                 <SearchModal />
                 <ErrorModal />
                 <LoadingPanel />
-                <ChannelCreationModal/>
+                <ChannelCreationModal />
                 <CreateChannel />
                 <JoinCommunity />
                 <CreateCommunity />

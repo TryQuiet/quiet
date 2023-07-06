@@ -19,9 +19,9 @@ const args: TextWithLinkProps = {
       label: 'linked',
       action: () => {
         console.log('link clicked')
-      }
-    }
-  ]
+      },
+    },
+  ],
 }
 
 Component.args = args
@@ -29,7 +29,7 @@ Component.args = args
 const component: ComponentMeta<typeof TextWithLink> = {
   title: 'Components/TextWithLink',
   decorators: [withTheme],
-  component: TextWithLink
+  component: TextWithLink,
 }
 
 export default component

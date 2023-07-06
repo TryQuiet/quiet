@@ -1,5 +1,5 @@
 import React, { FC } from 'react'
-import { View, Image, FlatList, TouchableWithoutFeedback } from 'react-native'
+import { View, Image, FlatList, TouchableWithoutFeedback, TouchableOpacity, Animated } from 'react-native'
 import { Typography } from '../Typography/Typography.component'
 
 import { ContextMenuItemProps, ContextMenuProps } from './ContextMenu.types'
@@ -16,25 +16,55 @@ export const ContextMenu: FC<ContextMenuProps> = ({
   link,
   linkAction = () => {
     console.log('No action attached for link tap gesture.')
-  }
+  },
 }) => {
+  const [show, setShow] = React.useState<boolean>(false)
+  const slidingAnimation = React.useRef(new Animated.Value(0)).current
   const icon_close = appImages.icon_close
+
+  const menuFadeIn = () => {
+    setShow(true)
+    Animated.timing(slidingAnimation, {
+      toValue: 0,
+      duration: 250,
+      useNativeDriver: true,
+    }).start()
+  }
+
+  const menuFadeOut = () => {
+    Animated.timing(slidingAnimation, {
+      toValue: 500,
+      duration: 250,
+      useNativeDriver: true,
+    }).start(() => setShow(false))
+  }
+
+  React.useEffect(() => {
+    visible ? menuFadeIn() : menuFadeOut()
+  }, [visible])
+
   return (
     <TouchableWithoutFeedback onPress={handleClose}>
-      <View
+      <Animated.View
         style={{
-          display: visible ? 'flex' : 'none',
+          display: show ? 'flex' : 'none',
           position: 'absolute',
           width: '100%',
-          height: '100%'
-          // backgroundColor: 'rgba(52, 52, 52, 0.8)'
-        }}>
+          height: '100%',
+          paddingTop: 10,
+          overflow: 'hidden',
+          transform: [
+            {
+              translateY: slidingAnimation,
+            },
+          ],
+        }}
+      >
         <View style={{ flex: 4 }} />
         <TouchableWithoutFeedback testID={`context_menu_${title}`}>
           <View
             style={{
               flex: 6,
-              // position: 'absolute',
               bottom: 0,
               flexDirection: 'column',
               alignItems: 'flex-start',
@@ -46,44 +76,44 @@ export const ContextMenu: FC<ContextMenuProps> = ({
               shadowOpacity: 0.7,
               shadowOffset: {
                 height: 7,
-                width: 0
+                width: 0,
               },
               elevation: 12,
-              width: '100%'
-            }}>
+              width: '100%',
+            }}
+          >
             <View
               style={{
                 display: 'flex',
                 flexDirection: 'row',
                 alignItems: 'center',
                 height: 60,
-                width: '100%'
-              }}>
-              <TouchableWithoutFeedback onPress={handleClose}>
+                width: '100%',
+              }}
+            >
+              <TouchableOpacity onPress={handleClose}>
                 <View
                   style={{
                     flex: 1,
                     justifyContent: 'center',
                     alignItems: 'center',
                     width: 60,
-                    height: 60
-                  }}>
+                    height: 60,
+                  }}
+                >
                   <Image
                     source={icon_close}
                     resizeMode='cover'
                     resizeMethod='resize'
                     style={{
                       width: 13,
-                      height: 13
+                      height: 13,
                     }}
                   />
                 </View>
-              </TouchableWithoutFeedback>
+              </TouchableOpacity>
               <View style={{ flex: 5, justifyContent: 'center' }}>
-                <Typography
-                  fontSize={16}
-                  fontWeight={'medium'}
-                  style={{ lineHeight: 26, alignSelf: 'center' }}>
+                <Typography fontSize={16} fontWeight={'medium'} style={{ lineHeight: 26, alignSelf: 'center' }}>
                   {title}
                 </Typography>
               </View>
@@ -95,8 +125,9 @@ export const ContextMenu: FC<ContextMenuProps> = ({
                   width: '100%',
                   padding: 16,
                   borderTopWidth: 1,
-                  borderColor: defaultPalette.background.gray06
-                }}>
+                  borderColor: defaultPalette.background.gray06,
+                }}
+              >
                 <Typography fontSize={14} fontWeight={'normal'} style={{ lineHeight: 20 }}>
                   {hint}
                 </Typography>
@@ -104,7 +135,8 @@ export const ContextMenu: FC<ContextMenuProps> = ({
                   fontSize={14}
                   fontWeight={'normal'}
                   style={{ lineHeight: 20, color: defaultPalette.typography.gray50 }}
-                  onPress={linkAction}>
+                  onPress={linkAction}
+                >
                   {link}
                 </Typography>
               </View>
@@ -117,10 +149,9 @@ export const ContextMenu: FC<ContextMenuProps> = ({
                   <View
                     style={[
                       { borderTopWidth: 1, borderColor: defaultPalette.background.gray06 },
-                      index === items.length - 1
-                        ? { borderBottomWidth: 1 }
-                        : { borderBottomWidth: 0 }
-                    ]}>
+                      index === items.length - 1 ? { borderBottomWidth: 1 } : { borderBottomWidth: 0 },
+                    ]}
+                  >
                     <ContextMenuItem {...item} />
                   </View>
                 )}
@@ -130,7 +161,7 @@ export const ContextMenu: FC<ContextMenuProps> = ({
             </View>
           </View>
         </TouchableWithoutFeedback>
-      </View>
+      </Animated.View>
     </TouchableWithoutFeedback>
   )
 }
@@ -138,7 +169,7 @@ export const ContextMenu: FC<ContextMenuProps> = ({
 export const ContextMenuItem: FC<ContextMenuItemProps> = ({ title, action }) => {
   const icon_arrow = appImages.arrow_right_short
   return (
-    <TouchableWithoutFeedback onPress={action} testID={title}>
+    <TouchableOpacity onPress={action} testID={title}>
       <View
         style={{
           display: 'flex',
@@ -147,32 +178,33 @@ export const ContextMenuItem: FC<ContextMenuItemProps> = ({ title, action }) => 
           paddingLeft: 20,
           paddingRight: 20,
           height: 48,
-          width: '100%'
-        }}>
+          width: '100%',
+        }}
+      >
         <View
           style={{
             flex: 8,
             display: 'flex',
             flexDirection: 'row',
-            justifyContent: 'flex-start'
-          }}>
+            justifyContent: 'flex-start',
+          }}
+        >
           <Typography fontSize={16} fontWeight={'normal'} style={{ lineHeight: 26 }}>
             {title}
           </Typography>
         </View>
-        <View
-          style={{ flex: 1, display: 'flex', flexDirection: 'row', justifyContent: 'flex-end' }}>
+        <View style={{ flex: 1, display: 'flex', flexDirection: 'row', justifyContent: 'flex-end' }}>
           <Image
             source={icon_arrow}
             resizeMode='cover'
             resizeMethod='resize'
             style={{
               width: 8,
-              height: 13
+              height: 13,
             }}
           />
         </View>
       </View>
-    </TouchableWithoutFeedback>
+    </TouchableOpacity>
   )
 }

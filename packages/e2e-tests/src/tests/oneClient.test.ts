@@ -6,7 +6,7 @@ import {
   JoinCommunityModal,
   JoiningLoadingPanel,
   RegisterUsernameModal,
-  StartingLoadingPanel
+  StartingLoadingPanel,
 } from '../selectors'
 import getPort from 'get-port'
 import { fork } from 'child_process'
@@ -105,7 +105,7 @@ describe('One Client', () => {
           '-r',
           `${resourcesPath}`,
           '-p',
-          'desktop'
+          'desktop',
         ]
         const backendBundlePath = path.normalize(require.resolve('backend-bundle'))
         console.log('Spawning backend', backendBundlePath, 'with argvs:', forkArgvs)

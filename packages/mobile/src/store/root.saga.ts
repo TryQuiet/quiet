@@ -16,6 +16,6 @@ export function* rootSaga(): Generator {
     takeEvery(initActions.setStoreReady.type, nativeServicesMasterSaga),
     fork(restoreConnectionSaga),
     // Below line is reponsible for displaying notifications about messages from channels other than currently viewing one
-    takeEvery(publicChannels.actions.markUnreadChannel.type, showNotificationSaga)
+    takeEvery(publicChannels.actions.markUnreadChannel.type, showNotificationSaga),
   ])
 }

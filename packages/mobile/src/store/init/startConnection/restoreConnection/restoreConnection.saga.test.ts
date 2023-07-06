@@ -7,30 +7,34 @@ import { restoreConnectionSaga } from './restoreConnection.saga'
 describe('restoreConnectionSaga', () => {
   test('do nothing if connection is already started', async () => {
     await expectSaga(restoreConnectionSaga)
-    .withReducer(combineReducers({ [StoreKeys.Init]: initReducer }), {
+      .withReducer(combineReducers({ [StoreKeys.Init]: initReducer }), {
         [StoreKeys.Init]: {
           ...new InitState(),
           isWebsocketConnected: true,
-          lastKnownDataPort: 9477
-        }
+          lastKnownDataPort: 9477,
+        },
       })
-      .not.put(initActions.startWebsocketConnection({
-        dataPort: 9477
-      }))
+      .not.put(
+        initActions.startWebsocketConnection({
+          dataPort: 9477,
+        })
+      )
       .run()
   })
   test('do nothing if last known data port is not set', async () => {
     await expectSaga(restoreConnectionSaga)
-    .withReducer(combineReducers({ [StoreKeys.Init]: initReducer }), {
+      .withReducer(combineReducers({ [StoreKeys.Init]: initReducer }), {
         [StoreKeys.Init]: {
           ...new InitState(),
           isWebsocketConnected: false,
-          lastKnownDataPort: 0
-        }
+          lastKnownDataPort: 0,
+        },
       })
-      .not.put(initActions.startWebsocketConnection({
-        dataPort: 0
-      }))
+      .not.put(
+        initActions.startWebsocketConnection({
+          dataPort: 0,
+        })
+      )
       .run()
   })
 })

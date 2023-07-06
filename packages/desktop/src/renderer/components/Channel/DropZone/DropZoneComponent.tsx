@@ -9,7 +9,7 @@ import { DropTargetMonitor, useDrop } from 'react-dnd'
 import { NativeTypes } from 'react-dnd-html5-backend'
 
 const StyledDropZoneComponent = styled(Grid)(() => ({
-  position: 'relative'
+  position: 'relative',
 }))
 
 const StyledActiveDropZoneComponent = styled('div')(({ theme }) => ({
@@ -23,7 +23,7 @@ const StyledActiveDropZoneComponent = styled('div')(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
-  justifyContent: 'center'
+  justifyContent: 'center',
 }))
 
 interface DropZoneComponentProps {
@@ -34,9 +34,7 @@ interface DropZoneComponentProps {
 
 export const ActiveDropZoneComponent: React.FC<{
   channelName: string
-}> = ({
-  channelName
-}) => {
+}> = ({ channelName }) => {
   return (
     <StyledActiveDropZoneComponent>
       <Icon src={dropFiles} />
@@ -45,11 +43,7 @@ export const ActiveDropZoneComponent: React.FC<{
   )
 }
 
-export const DropZoneComponent: React.FC<DropZoneComponentProps> = ({
-  children,
-  channelName,
-  handleFileDrop
-}) => {
+export const DropZoneComponent: React.FC<DropZoneComponentProps> = ({ children, channelName, handleFileDrop }) => {
   const [{ canDrop, isOver }, drop] = useDrop(
     () => ({
       accept: [NativeTypes.FILE],
@@ -78,16 +72,16 @@ export const DropZoneComponent: React.FC<DropZoneComponentProps> = ({
 
         return {
           isOver: monitor.isOver(),
-          canDrop: monitor.canDrop()
+          canDrop: monitor.canDrop(),
         }
-      }
+      },
     }),
     [handleFileDrop]
   )
   const dropIsActive = canDrop && isOver
   return (
     <StyledDropZoneComponent item xs container direction='column' data-testid='drop-zone' ref={drop}>
-      {dropIsActive && <ActiveDropZoneComponent channelName={channelName}/>}
+      {dropIsActive && <ActiveDropZoneComponent channelName={channelName} />}
       {children}
     </StyledDropZoneComponent>
   )

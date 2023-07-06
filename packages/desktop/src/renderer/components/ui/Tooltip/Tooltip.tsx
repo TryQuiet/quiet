@@ -5,9 +5,10 @@ import classNames from 'classnames'
 import MuiTooltip, { TooltipProps } from '@mui/material/Tooltip'
 
 // Styling mui tooltip requires workaround: https://mui.com/material-ui/guides/interoperability/#portals
-const StyledTooltip = styled(({ className, ...props }: TooltipProps) => (
-  <MuiTooltip {...props} classes={{ popper: className }} />
-), {})(({ theme }) => ({
+const StyledTooltip = styled(
+  ({ className, ...props }: TooltipProps) => <MuiTooltip {...props} classes={{ popper: className }} />,
+  {}
+)(({ theme }) => ({
   '& .MuiTooltip-tooltip': {
     marginBottom: 5,
     background: theme.palette.colors.trueBlack,
@@ -22,14 +23,14 @@ const StyledTooltip = styled(({ className, ...props }: TooltipProps) => (
 
     '&:first-letter': {
       textTransform: 'capitalize',
-    }
+    },
   },
   '& .MuiTooltip-arrow': {
     '&:before': {
-      border: `1px solid ${theme.palette.colors.trueBlack}`
+      border: `1px solid ${theme.palette.colors.trueBlack}`,
     },
-    color: theme.palette.colors.trueBlack
-  }
+    color: theme.palette.colors.trueBlack,
+  },
 }))
 
 interface CustomTooltipProps {
@@ -57,20 +58,10 @@ export const Tooltip: React.FC<React.ComponentProps<typeof MuiTooltip> & CustomT
       <StyledTooltip
         {...props}
         className={className}
-        title={
-          title?.length === 0 ? (
-            ''
-          ) : (
-            <React.Fragment>
-              {titleHTML || (
-                <span>{title}</span>
-              )}
-            </React.Fragment>
-          )
-        }
+        title={title?.length === 0 ? '' : <React.Fragment>{titleHTML || <span>{title}</span>}</React.Fragment>}
         placement={placement}
         arrow
-        >
+      >
         {children}
       </StyledTooltip>
     </span>

@@ -36,10 +36,5 @@ export function* showNotificationSaga(
     return
   }
 
-  yield* call(
-    NativeModules.CommunicationModule.handleIncomingEvents,
-    PUSH_NOTIFICATION_CHANNEL,
-    message,
-    username
-  )
+  yield* call(NativeModules.CommunicationModule.handleIncomingEvents, PUSH_NOTIFICATION_CHANNEL, message, username)
 }

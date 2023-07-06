@@ -1,4 +1,4 @@
-import { HiddenService, PeerId, Identity } from './identity'
+import { type HiddenService, type PeerId, type Identity } from './identity'
 
 export interface Community {
   id: string
@@ -23,7 +23,7 @@ export interface Community {
 
 export enum CommunityOwnership {
   Owner = 'owner',
-  User = 'user'
+  User = 'user',
 }
 
 export interface NetworkData {
