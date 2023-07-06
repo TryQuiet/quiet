@@ -134,6 +134,39 @@ detox test storybook --configuration android.att.storybook -- -enable-visual-reg
 
 Tests can also be started at a particular story pointed out using `-starting-story=<STORY-NAME>` flag.
 
+## Development hints
+
+React-native projects consists of two parts: javascript code and native code. Native code lives within the `/android` and `/ios` folder.  
+
+### IDE
+
+If you only wish to make changes to the react-native part of the project, simply use your favorite code editor.
+Altough if you plan to modify the native code, Android Studio is recommended as it simplifies things a lot and Xcode is required to be able to work with iOS.
+
+
+### When to rebuild the project?
+
+Both Android and iOS manages their own dependencies with the help of `gradle` (Android) and `cocoapods` (iOS). They work similar to `npm`.  
+Whenewer there're changes to the dependencies in the native projects (`build.gradle` or `podfile`) there's a need to sync gradle files (it's fairly easy to do with Android Studio) or to run `pod install` command from the `/ios` directory. It doesn't happen very often but may be a case while attaching react-native modules getting use of the native methods (eg. for file management).
+
+If changes are made to the native part of the project (java, kotlin, objc or swift) it's neccessary to rebuild the project (`npm run android`, `npm run ios`)
+
+React-native uses a tool called metro to bundle javascript files. It does it on runtime, before processing react-native code. Depending on the size of cached files it may take several seconds to fully load the bundled js code. When a change is made to the javascript codebase, it's usually enough to reload files with metro, by pressing `R` from within the console in which metro operates.
+
+### The app is stuck on splash screen
+
+Sometimes metro loader takes long enough to cause a race condition failure with the native service notifying javascript code about the data of websocket server 
+we use to communicate with backend. In this case, we should be able to observe a log informing us that an event has been emitted but there was nothing to receive it:
+```
+WEBSOCKET CONNECTION: Starting on 11000
+RCTNativeAppEventEmitter: Tried to send an event but got NULL on reactContext
+```
+The easiest solution is to close the app and open it again by tapping it's icon on the device (there's no need to rebuild the project) (Android/iOS)  
+or to follow `Product -> Perform Action -> Run Without Building` in Xcode. (iOS)
+
+If it's not enough, you can locally increase the `WEBSOCKET_CONNECTION_DELAY` for emitting the event at `mobile/android/app/src/main/java/com/quietmobile/Utils/Const.kt` (Android)
+
+
 ## Troubleshooting
 
 ### Could not set file mode 644 on
