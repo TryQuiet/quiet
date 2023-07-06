@@ -19,13 +19,8 @@ jobs:
       - name: "Setup environment"
         uses: ./.github/actions/setup-env
         with:
-<<<<<<< HEAD
-          cachePrefix: "e2e-crossplatform-windows-3"
-          bootstrap-packages: "@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,backend-bundle,e2e-tests"
-=======
           cachePrefix: "e2e-crossplatform-windows"
           bootstrap-packages: "@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,backend-bundle,e2e-tests"
->>>>>>> develop
 
       - name: "Fetch jsign"
         shell: bash
