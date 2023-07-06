@@ -119,7 +119,6 @@ afterEach(async () => {
   if (connectionsManagerService) {
     await connectionsManagerService.closeAllServices()
   }
-  await tor.kill()
   removeFilesFromDir(quietDir)
 })
 

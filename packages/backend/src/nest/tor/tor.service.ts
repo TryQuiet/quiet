@@ -325,6 +325,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
         return
       }
       this.process?.on('close', () => {
+        this.process = null
         resolve()
         return
       })

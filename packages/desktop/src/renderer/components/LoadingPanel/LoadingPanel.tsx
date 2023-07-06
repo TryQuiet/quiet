@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useModal } from '../../containers/hooks'
 import { ModalName } from '../../sagas/modals/modals.types'
 import { socketSelectors } from '../../sagas/socket/socket.selectors'
-import { communities, publicChannels, users, identity, connection, network } from '@quiet/state-manager'
+import { communities, publicChannels, users, identity, connection, network, errors } from '@quiet/state-manager'
 import { modalsActions } from '../../sagas/modals/modals.slice'
 import { shell } from 'electron'
 import JoiningPanelComponent from './JoiningPanelComponent'
@@ -35,18 +35,18 @@ const LoadingPanel = () => {
   const communityId = useSelector(communities.selectors.currentCommunityId)
   const initializedCommunities = useSelector(network.selectors.initializedCommunities)
   const isCommunityInitialized = Boolean(initializedCommunities[communityId])
+  const error = useSelector(errors.selectors.registrarErrors)
 
   useEffect(() => {
     console.log('HUNTING for haisenbug:')
     console.log('isConnected', isConnected)
-    console.log('isChannelReplicated', isChannelReplicated)
-    console.log('currentCommunity', currentCommunity)
-    console.log('currentIdentity', currentIdentity)
-    console.log('currentIdentity.userCertificate', currentIdentity?.userCertificate)
-    if (isConnected && isCommunityInitialized && areMessagesLoaded) {
+    console.log('areMessagesLoaded?', areMessagesLoaded)
+    console.log('errors', error)
+    console.log('isCommunityInitialized', isCommunityInitialized)
+    if ((isConnected && isCommunityInitialized && areMessagesLoaded) || error) {
       loadingPanelModal.handleClose()
     }
-  }, [isConnected, torBootstrapProcessSelector, isCommunityInitialized, areMessagesLoaded])
+  }, [isConnected, torBootstrapProcessSelector, isCommunityInitialized, areMessagesLoaded, error])
 
   useEffect(() => {
     if (isConnected) {

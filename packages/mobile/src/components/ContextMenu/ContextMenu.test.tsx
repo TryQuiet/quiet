@@ -57,6 +57,8 @@ describe('ContextMenu component', () => {
           {
             "display": "flex",
             "height": "100%",
+            "overflow": "hidden",
+            "paddingTop": 10,
             "position": "absolute",
             "transform": [
               {
@@ -725,6 +727,8 @@ describe('ContextMenu component', () => {
           {
             "display": "none",
             "height": "100%",
+            "overflow": "hidden",
+            "paddingTop": 10,
             "position": "absolute",
             "transform": [
               {
