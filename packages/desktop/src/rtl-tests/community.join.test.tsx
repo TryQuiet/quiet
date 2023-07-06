@@ -333,6 +333,7 @@ describe('User', () => {
         "Identity/registerCertificate",
         "Errors/handleError",
         "Errors/addError",
+        "Modals/closeModal",
       ]
     `)
   })
@@ -435,6 +436,7 @@ describe('User', () => {
         "Modals/closeModal",
         "Modals/openModal",
         "Errors/addError",
+        "Modals/closeModal",
         "Errors/clearError",
         "Identity/registerUsername",
         "Communities/responseCreateNetwork",
