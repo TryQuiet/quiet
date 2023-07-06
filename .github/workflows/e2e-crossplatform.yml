@@ -81,20 +81,13 @@ jobs:
         shell: powershell
 
       - name: Kill Quiet
-        run: Stop-Process -Name "Quiet" -Force Wait-Process -Name "Quiet"
+        run: Stop-Process -Name "Quiet" -Force; Wait-Process -Name "Quiet"
         shell: powershell
-
-      # - name: Wait-Process Quiet
-      #   run: Wait-Process -Name "Quiet"
-      #   shell: powershell
 
       - name: Kill tor
-        run: Stop-Process -Name "tor" -Force Wait-Process -Name "tor"
+        run: Stop-Process -Name "tor" -Force; Wait-Process -Name "tor"
         shell: powershell
 
-      # - name: Wait-Process tor
-      #   run: Wait-Process -Name "tor"
-      #   shell: powershell
 
         # Old prod version
       - name: Rename latest quiet
