@@ -10,6 +10,7 @@ import { UseContextMenuType, useContextMenu } from '../../hooks/useContextMenu'
 import { MenuName } from '../../const/MenuNames.enum'
 import { DocumentPickerResponse } from 'react-native-document-picker'
 import RNFS from 'react-native-fs'
+import RNFetchBlob from 'rn-fetch-blob'
 
 export const ChannelScreen: FC = () => {
   const dispatch = useDispatch()
@@ -138,9 +139,10 @@ export const ChannelScreen: FC = () => {
         // await RNFS.copyFile(fileData.path, destPath)
 
         try {
-          console.log('- - - - ', decodeURIComponent(fileData.path))
-          await RNFS.stat(decodeURIComponent(fileData.path))
-          console.log('after stat ')
+          console.log('THIS', decodeURIComponent(fileData.path))
+          // const newFile = await RNFetchBlob.fs.stat(fileData.path);
+          const aaa = await RNFS.stat(decodeURIComponent(fileData.path))
+          console.log('after stat::----: ', aaa)
         } catch (e) {
           console.error('--->', e)
         }

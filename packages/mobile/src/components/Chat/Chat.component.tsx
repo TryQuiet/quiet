@@ -1,5 +1,5 @@
 import React, { FC, useState, useEffect, useRef } from 'react'
-import { Keyboard, View, FlatList, TextInput, KeyboardAvoidingView, Platform } from 'react-native'
+import { Keyboard, View, FlatList, TextInput, KeyboardAvoidingView, Platform, PermissionsAndroid } from 'react-native'
 import { Appbar } from '../../components/Appbar/Appbar.component'
 import { ImagePreviewModal } from '../../components/ImagePreview/ImagePreview.component'
 import { Spinner } from '../Spinner/Spinner.component'
@@ -75,14 +75,31 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
   }
 
   const openAttachments = async () => {
-    const response: DocumentPickerResponse[] = await DocumentPicker.pick({
-      presentationStyle: 'fullScreen',
-      type: [types.allFiles],
-      allowMultiSelection: true,
-    })
-    console.log('RESPONSE', response)
-    if (response) {
-      updateUploadedFiles(response)
+    try {
+      const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE, {
+        title: 'READ storage?',
+        message: 'Cool Photo App needs access to your camera ' + 'so you can take awesome pictures.',
+        buttonNeutral: 'Ask Me Later',
+        buttonNegative: 'Cancel',
+        buttonPositive: 'OK',
+      })
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        console.log('You can use the storage')
+
+        const response: DocumentPickerResponse[] = await DocumentPicker.pick({
+          presentationStyle: 'fullScreen',
+          type: [types.allFiles],
+          allowMultiSelection: true,
+        })
+        console.log('RESPONSE', response)
+        if (response) {
+          updateUploadedFiles(response)
+        }
+      } else {
+        console.log('STORAGE permission denied')
+      }
+    } catch (err) {
+      console.warn(err)
     }
   }
 
