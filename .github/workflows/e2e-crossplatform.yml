@@ -81,11 +81,11 @@ jobs:
         shell: powershell
 
       - name: Kill Quiet
-        run: Stop-Process -Name "Quiet" -Force; Wait-Process -Name "Quiet"
+        run: Stop-Process -Name "Quiet" -Force
         shell: powershell
 
       - name: Kill tor
-        run: Stop-Process -Name "tor" -Force; Wait-Process -Name "tor"
+        run: Stop-Process -Name "tor" -Force
         shell: powershell
 
       - name: Delay
