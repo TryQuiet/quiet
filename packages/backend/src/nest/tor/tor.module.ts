@@ -63,4 +63,4 @@ const torControlParams = {
   providers: [Tor, TorControl, torControlParams, torPasswordProvider, torParamsProvider],
   exports: [Tor, TorControl],
 })
-export class TorModule { }
+export class TorModule {}

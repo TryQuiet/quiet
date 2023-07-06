@@ -3,7 +3,7 @@ import { Command } from 'commander'
 import { NestFactory } from '@nestjs/core'
 import path from 'path'
 import { AppModule } from './nest/app.module'
-import { ConnectionsManagerService, OpenServices } from './nest/connections-manager/connections-manager.service'
+import { ConnectionsManagerService } from './nest/connections-manager/connections-manager.service'
 import getPort from 'get-port'
 import { torBinForPlatform, torDirForPlatform } from './nest/common/utils'
 import logger from './nest/common/logger'
@@ -28,11 +28,16 @@ const options = program.opts()
 
 console.log('options', options)
 
+interface OpenServices {
+  torControlPort?: any
+  socketIOPort?: any
+  httpTunnelPort?: any
+  authCookie?: any
+}
+
 // @ts-ignore
 import rn_bridge from './rn-bridge.ts'
 import { INestApplicationContext } from '@nestjs/common'
-import { connect } from 'http2'
-import { ConnectionsManagerModule } from './nest/connections-manager/connections-manager.module'
 
 export const runBackendDesktop = async () => {
   const isDev = process.env.NODE_ENV === 'development'
@@ -101,24 +106,15 @@ export const runBackendMobile = async (): Promise<any> => {
         createPaths: false,
       },
     }),
-    { logger: ['warn', 'error', 'log', 'debug', 'verbose'] })
+    { logger: ['warn', 'error', 'log', 'debug', 'verbose'] }
+  )
 
-  rn_bridge.channel.on('message', async (msg: any) => {
-    console.log('message from android: ', msg)
-  })
   rn_bridge.channel.on('close', async () => {
-    console.log('rn-bridge closing services')
     const connectionsManager = app.get<ConnectionsManagerService>(ConnectionsManagerService)
-    console.log("closing all backend services")
     await connectionsManager.closeAllServices()
-    console.log('closed all backend services')
     await app.close()
-    console.log(
-      'closed backend xddddddddddddddddddddddeddddddddddddddd'
-    )
-  });
+  })
   rn_bridge.channel.on('open', async (msg: OpenServices) => {
-    console.log('rn-bridge opening services with payload ', msg)
     app = await NestFactory.createApplicationContext(
       AppModule.forOptions({
         socketIOPort: msg.socketIOPort,
@@ -133,7 +129,8 @@ export const runBackendMobile = async (): Promise<any> => {
           createPaths: false,
         },
       }),
-      { logger: ['warn', 'error', 'log', 'debug', 'verbose'] })
+      { logger: ['warn', 'error', 'log', 'debug', 'verbose'] }
+    )
     console.log('started backend wiktor little bastard ')
   })
 }

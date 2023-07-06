@@ -60,13 +60,6 @@ import { LazyModuleLoader } from '@nestjs/core'
 import Logger from '../common/logger'
 import { emitError } from '../socket/socket.errors'
 
-export interface OpenServices {
-  torControlPort?: any,
-  socketIOPort?: any,
-  httpTunnelPort?: any,
-  authCookie?: any
-}
-
 @Injectable()
 export class ConnectionsManagerService extends EventEmitter implements OnModuleInit {
   public communityId: string
