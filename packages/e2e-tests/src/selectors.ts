@@ -307,9 +307,7 @@ export class Settings {
   async getVersion() {
     await this.switchTab('about')
     await new Promise<void>(resolve => setTimeout(() => resolve(), 500))
-    const textWebElement = await this.driver.findElement(
-      By.xpath('//p[contains(text(),"Version")]')
-    )
+    const textWebElement = await this.driver.findElement(By.xpath('//p[contains(text(),"Version")]'))
     const text = await textWebElement.getText()
 
     const version = this.formatVersionText(text)
