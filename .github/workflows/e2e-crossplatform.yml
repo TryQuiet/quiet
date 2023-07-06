@@ -89,7 +89,7 @@ jobs:
         shell: powershell
 
       - name: Delay
-        run: Start-Sleep -Seconds 5
+        run: Start-Sleep -Seconds 10
         shell: powershell
 
         # Old prod version
@@ -118,7 +118,7 @@ jobs:
         shell: powershell
 
       - name: Delay
-        run: Start-Sleep -Seconds 5
+        run: Start-Sleep -Seconds 10
         shell: powershell
         # Old prod version
 
