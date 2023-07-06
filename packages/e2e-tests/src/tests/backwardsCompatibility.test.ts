@@ -9,7 +9,7 @@ import {
   RegisterUsernameModal,
   Sidebar,
   StartingLoadingPanel,
-  UpdateModal
+  UpdateModal,
 } from '../selectors'
 
 jest.setTimeout(450000)
@@ -137,6 +137,7 @@ describe('Backwards Compatibility', () => {
     })
     it('Close old app', async () => {
       await ownerAppOldVersion.close()
+      await new Promise<void>(resolve => setTimeout(() => resolve(), 5000))
     })
 
     // ________________________________

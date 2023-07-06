@@ -109,12 +109,10 @@ jobs:
 
       - name: Kill Quiet
         run: Stop-Process -Name "Quiet" -Force
-        # working-directory: ./packages/desktop/dist
         shell: powershell
 
       - name: Kill tor
         run: Stop-Process -Name "tor" -Force
-        # working-directory: ./packages/desktop/dist
         shell: powershell
         # Old prod version
 
