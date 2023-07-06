@@ -30,14 +30,14 @@ const classes = {
   wrapperRecent: `${PREFIX}wrapperRecent`,
   channelWrapper: `${PREFIX}channelWrapper`,
   channelWrapperSelected: `${PREFIX}channelWrapperSelected`,
-  scrollContainer: `${PREFIX}scrollContainer`
+  scrollContainer: `${PREFIX}scrollContainer`,
 }
 
 const StyledModalContent = styled(Grid)(({ theme }) => ({
   [`& .${classes.root}`]: {},
   [`& .${classes.overlay}`]: {
     width: '100%',
-    height: '100%'
+    height: '100%',
   },
   [`& .${classes.modalContainer}`]: {
     backgroundColor: '#FFFFFF',
@@ -45,30 +45,30 @@ const StyledModalContent = styled(Grid)(({ theme }) => ({
     borderRadius: '8px',
     width: '60%',
     overflow: 'hidden',
-    minHeight: '255px'
+    minHeight: '255px',
   },
   [`& .${classes.wrapper}`]: {
-    padding: '24px'
+    padding: '24px',
   },
   [`& .${classes.wrapperRecent}`]: {
-    padding: '16px 24px 8px'
+    padding: '16px 24px 8px',
   },
   [`& .${classes.magnifyingGlassIcon}`]: {
     width: 18,
     heigth: 18,
     justifyContent: 'center',
-    marginRight: '16px'
+    marginRight: '16px',
   },
   [`& .${classes.closeIcon}`]: {
     width: 14,
     heigth: 14,
     justifyContent: 'center',
-    cursor: 'pointer'
+    cursor: 'pointer',
   },
   [`& .${classes.line}`]: {
     width: '100%',
     height: '1px',
-    backgroundColor: theme.palette.colors.veryLightGray
+    backgroundColor: theme.palette.colors.veryLightGray,
   },
   [`& .${classes.channel}`]: {},
   [`& .${classes.channelWrapper}`]: {
@@ -77,28 +77,28 @@ const StyledModalContent = styled(Grid)(({ theme }) => ({
     padding: '8px 24px',
     '&:hover': {
       backgroundColor: theme.palette.colors.lushSky,
-      color: 'white'
+      color: 'white',
     },
     '&:focus': {
       backgroundColor: theme.palette.colors.lushSky,
-      color: 'white'
+      color: 'white',
     },
     '&:focus-visible': {
-      outline: '0'
-    }
+      outline: '0',
+    },
   },
   [`& .${classes.channelWrapperSelected}`]: {
     backgroundColor: theme.palette.colors.lushSky,
     color: 'white',
     '&:focus-visible': {
-      outline: '0'
-    }
+      outline: '0',
+    },
   },
   [`& .${classes.recentChannels}`]: {
-    color: '#7F7F7F'
+    color: '#7F7F7F',
   },
   [`& .${classes.inputWrapper}`]: {
-    display: 'flex'
+    display: 'flex',
   },
   [`& .${classes.scrollContainer}`]: {
     // I will back to this idea
@@ -112,21 +112,21 @@ const StyledModalContent = styled(Grid)(({ theme }) => ({
       '&:hover': {
         border: 'none',
         '&::before': {
-          border: 'none'
-        }
+          border: 'none',
+        },
       },
       '&::before': {
-        border: 'none'
+        border: 'none',
       },
       '&::after': {
-        border: 'none'
-      }
-    }
-  }
+        border: 'none',
+      },
+    },
+  },
 }))
 
 const searchChannelFields = {
-  searchChannel: searchChannelField()
+  searchChannel: searchChannelField(),
 }
 
 export interface SearchModalComponentProps {
@@ -148,22 +148,19 @@ const SearchModalComponent: React.FC<SearchModalComponentProps> = ({
   dynamicSearchedChannelsSelector,
   unreadChannelsSelector,
   publicChannelsSelector,
-  channelInput
+  channelInput,
 }) => {
   const {
-    formState: { errors }
+    formState: { errors },
   } = useForm<{ searchChannel: string }>({
-    mode: 'onChange'
+    mode: 'onChange',
   })
 
-  const unreadChannels = publicChannelsSelector.filter(channel =>
-    unreadChannelsSelector.includes(channel.name)
-  )
+  const unreadChannels = publicChannelsSelector.filter(channel => unreadChannelsSelector.includes(channel.name))
 
   const unread = unreadChannels.length > 0
 
-  const channelList =
-    unread && channelInput.length === 0 ? unreadChannels : dynamicSearchedChannelsSelector
+  const channelList = unread && channelInput.length === 0 ? unreadChannels : dynamicSearchedChannelsSelector
 
   const onChannelClickHandler = (id: string) => {
     setChannelInput('')
@@ -171,11 +168,7 @@ const SearchModalComponent: React.FC<SearchModalComponentProps> = ({
     setCurrentChannel(id)
   }
 
-  const [focusedIndex, setCurrentFocus] = useCyclingFocus(
-    channelList.length,
-    Variant.ARROWS_KEYS,
-    0
-  )
+  const [focusedIndex, setCurrentFocus] = useCyclingFocus(channelList.length, Variant.ARROWS_KEYS, 0)
 
   const onChange = (value: string) => {
     setChannelInput(value)
@@ -193,25 +186,13 @@ const SearchModalComponent: React.FC<SearchModalComponentProps> = ({
       handleClose={closeHandler}
       data-testid={'searchChannelModal'}
       contentWidth={'100wh'}
-      isTransparent={true}>
+      isTransparent={true}
+    >
       <StyledModalContent container direction='column' className={classes.root}>
         <Grid container justifyContent='center' alignItems='center' className={classes.overlay}>
-          <Grid
-            item
-            justifyContent='flex-start'
-            alignItems='center'
-            className={classes.modalContainer}>
-            <Grid
-              container
-              justifyContent='space-between'
-              alignItems='center'
-              item
-              className={classes.wrapper}>
-              <Grid
-                item
-                justifyContent='space-between'
-                alignItems='center'
-                className={classes.inputWrapper}>
+          <Grid item justifyContent='flex-start' alignItems='center' className={classes.modalContainer}>
+            <Grid container justifyContent='space-between' alignItems='center' item className={classes.wrapper}>
+              <Grid item justifyContent='space-between' alignItems='center' className={classes.inputWrapper}>
                 <Icon className={classes.magnifyingGlassIcon} src={magnifyingGlassIcon} />
 
                 <TextInput
@@ -234,12 +215,7 @@ const SearchModalComponent: React.FC<SearchModalComponentProps> = ({
                 />
               </Grid>
 
-              <Icon
-                data-tag='TagValue'
-                className={classes.closeIcon}
-                src={closeIcon}
-                onClickHandler={closeHandler}
-              />
+              <Icon data-tag='TagValue' className={classes.closeIcon} src={closeIcon} onClickHandler={closeHandler} />
             </Grid>
 
             <Grid className={classes.line} />
@@ -252,9 +228,7 @@ const SearchModalComponent: React.FC<SearchModalComponentProps> = ({
                   </Typography>
                 </Grid>
               )}
-              <Grid
-                direction='column'
-                className={channelList.length > 3 ? classes.scrollContainer : ''}>
+              <Grid direction='column' className={channelList.length > 3 ? classes.scrollContainer : ''}>
                 {channelList.length > 0 &&
                   channelList.map((item, index) => {
                     return (

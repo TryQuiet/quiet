@@ -19,7 +19,7 @@ const classes = {
   buttonContainer: `${PREFIX}buttonContainer`,
   button: `${PREFIX}button`,
   secondaryButtonContainer: `${PREFIX}secondaryButtonContainer`,
-  secondaryButton: `${PREFIX}secondaryButton`
+  secondaryButton: `${PREFIX}secondaryButton`,
 }
 
 const StyledGrid = styled(Grid)(({ theme }) => ({
@@ -28,22 +28,22 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
   [`& .${classes.root}`]: {},
 
   [`& .${classes.titleContainer}`]: {
-    marginTop: 16
+    marginTop: 16,
   },
 
   [`& .${classes.descContainer}`]: {
     marginTop: 8,
     marginLeft: 32,
     marginRight: 32,
-    width: 100
+    width: 100,
   },
 
   [`& .${classes.iconContainer}`]: {
-    marginTop: 0
+    marginTop: 0,
   },
 
   [`& .${classes.buttonContainer}`]: {
-    marginTop: 25
+    marginTop: 25,
   },
 
   [`& .${classes.button}`]: {
@@ -53,16 +53,16 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
     backgroundColor: theme.palette.colors.purple,
     padding: theme.spacing(2),
     '&:hover': {
-      backgroundColor: theme.palette.colors.darkPurple
+      backgroundColor: theme.palette.colors.darkPurple,
     },
     '&:disabled': {
-      backgroundColor: theme.palette.colors.gray
-    }
+      backgroundColor: theme.palette.colors.gray,
+    },
   },
 
   [`& .${classes.secondaryButtonContainer}`]: {
     marginTop: 16,
-    marginBottom: 32
+    marginBottom: 32,
   },
 
   [`& .${classes.secondaryButton}`]: {
@@ -74,9 +74,9 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
     '&:hover': {
       boxShadow: 'none',
       cursor: 'pointer',
-      backgroundColor: theme.palette.colors.white
-    }
-  }
+      backgroundColor: theme.palette.colors.white,
+    },
+  },
 }))
 
 export interface DeleteChannelProps {
@@ -88,30 +88,17 @@ export const DeleteChannelComponent: React.FC<ReturnType<typeof useModal> & Dele
   open,
   handleClose,
   channelName,
-  deleteChannel
+  deleteChannel,
 }) => {
   return (
     <Modal open={open} handleClose={handleClose} fullPage={false}>
       <StyledGrid container justifyContent='center'>
-        <Grid
-          container
-          item
-          className={classes.titleContainer}
-          xs={12}
-          direction='row'
-          justifyContent='center'>
+        <Grid container item className={classes.titleContainer} xs={12} direction='row' justifyContent='center'>
           <Typography variant={'h4'}>Are you sure?</Typography>
         </Grid>
-        <Grid
-          container
-          item
-          className={classes.descContainer}
-          xs={12}
-          direction='row'
-          justifyContent='center'>
+        <Grid container item className={classes.descContainer} xs={12} direction='row' justifyContent='center'>
           <Typography align={'center'}>
-            Delete{' '}
-            <span style={{ fontWeight: 500 }}>#{channelName}</span>? This cannot be undone.
+            Delete <span style={{ fontWeight: 500 }}>#{channelName}</span>? This cannot be undone.
           </Typography>
         </Grid>
         <Grid item xs={'auto'} className={classes.buttonContainer}>
@@ -121,7 +108,8 @@ export const DeleteChannelComponent: React.FC<ReturnType<typeof useModal> & Dele
             size='small'
             fullWidth
             className={classes.button}
-            data-testid="deleteChannelButton">
+            data-testid='deleteChannelButton'
+          >
             Delete channel
           </Button>
         </Grid>
@@ -131,13 +119,9 @@ export const DeleteChannelComponent: React.FC<ReturnType<typeof useModal> & Dele
           className={classes.secondaryButtonContainer}
           xs={12}
           direction='row'
-          justifyContent='center'>
-          <Button
-            variant='contained'
-            onClick={handleClose}
-            size='small'
-            fullWidth
-            className={classes.secondaryButton}>
+          justifyContent='center'
+        >
+          <Button variant='contained' onClick={handleClose} size='small' fullWidth className={classes.secondaryButton}>
             Nevermind
           </Button>
         </Grid>

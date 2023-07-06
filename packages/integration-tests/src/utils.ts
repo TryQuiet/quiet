@@ -34,7 +34,10 @@ const connectToDataport = (url: string, name: string): Socket => {
   return socket
 }
 
-export const createApp = async (mockedState?: { [key in StoreKeys]?: any }, appDataPath?: string): Promise<{
+export const createApp = async (
+  mockedState?: { [key in StoreKeys]?: any },
+  appDataPath?: string
+): Promise<{
   store: TestStore
   runSaga: <S extends Saga<any[]>>(saga: S, ...args: Parameters<S>) => Task
   rootTask: Task
@@ -58,10 +61,10 @@ export const createApp = async (mockedState?: { [key in StoreKeys]?: any }, appD
   const manager = new backend.ConnectionsManager({
     options: {
       env: {
-        appDataPath: appDataPath || appPath
+        appDataPath: appDataPath || appPath,
       },
     },
-    socketIOPort: dataServerPort1
+    socketIOPort: dataServerPort1,
   })
   await manager.init()
 
@@ -76,15 +79,18 @@ export const createApp = async (mockedState?: { [key in StoreKeys]?: any }, appD
   return { store, runSaga, rootTask, manager, appPath }
 }
 
-export const createAppWithoutTor = async (mockedState?: {
-  [key in StoreKeys]?: any
-}, appDataPath?: string): Promise<{
-    store: TestStore
-    runSaga: <S extends Saga<any[]>>(saga: S, ...args: Parameters<S>) => Task
-    rootTask: Task
-    manager: ConnectionsManager
-    appPath: string
-  }> => {
+export const createAppWithoutTor = async (
+  mockedState?: {
+    [key in StoreKeys]?: any
+  },
+  appDataPath?: string
+): Promise<{
+  store: TestStore
+  runSaga: <S extends Saga<any[]>>(saga: S, ...args: Parameters<S>) => Task
+  rootTask: Task
+  manager: ConnectionsManager
+  appPath: string
+}> => {
   /**
    * Configure and initialize ConnectionsManager from backend,
    * configure redux store
@@ -103,10 +109,10 @@ export const createAppWithoutTor = async (mockedState?: {
   const manager = new backend.ConnectionsManager({
     options: {
       env: {
-        appDataPath: appDataPath || appPath
+        appDataPath: appDataPath || appPath,
       },
     },
-    socketIOPort
+    socketIOPort,
   })
 
   function* root(): Generator {

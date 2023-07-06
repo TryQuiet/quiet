@@ -7,11 +7,11 @@ import { styled } from '@mui/material/styles'
 const PREFIX = 'ChannelCreationModalComponent'
 
 const classes = {
-  wrapper: `${PREFIX}wrapper`
+  wrapper: `${PREFIX}wrapper`,
 }
 
 const StyledGrid = styled(Grid)(() => ({
-  [`&.${classes.wrapper}`]: {}
+  [`&.${classes.wrapper}`]: {},
 }))
 
 export interface ChannelCreationModalComponentProps {
@@ -19,10 +19,7 @@ export interface ChannelCreationModalComponentProps {
   handleClose: () => void
 }
 
-const ChannelCreationModalComponent: React.FC<ChannelCreationModalComponentProps> = ({
-  open,
-  handleClose
-}) => {
+const ChannelCreationModalComponent: React.FC<ChannelCreationModalComponentProps> = ({ open, handleClose }) => {
   return (
     <Modal open={open} handleClose={handleClose} isCloseDisabled={true}>
       <StyledGrid container justifyContent='center' className={classes.wrapper}>

@@ -11,7 +11,7 @@ describe('Notifications', () => {
       notificationsOption: NotificationsOptions.notifyForEveryMessage,
       notificationsSound: NotificationsSounds.bang,
       setNotificationsOption: jest.fn(),
-      setNotificationsSound: jest.fn()
+      setNotificationsSound: jest.fn(),
     }
     const result = renderComponent(<NotificationsComponent {...props} />)
     expect(result.baseElement).toMatchInlineSnapshot(`
@@ -318,12 +318,10 @@ describe('Notifications', () => {
       notificationsOption: NotificationsOptions.notifyForEveryMessage,
       notificationsSound: NotificationsSounds.bang,
       setNotificationsOption: jest.fn(),
-      setNotificationsSound: jest.fn()
+      setNotificationsSound: jest.fn(),
     }
     renderComponent(<NotificationsComponent {...props} />)
-    const sounds = Object.values(NotificationsSounds).filter(
-      sound => sound !== NotificationsSounds.none
-    )
+    const sounds = Object.values(NotificationsSounds).filter(sound => sound !== NotificationsSounds.none)
     for (const sound of sounds) {
       const soundRadioButton = screen.getByTestId(`sound-${sound}-radio`)
       await userEvent.click(soundRadioButton)

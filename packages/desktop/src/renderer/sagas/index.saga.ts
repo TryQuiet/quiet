@@ -10,8 +10,8 @@ export default function* root(): Generator {
     takeEvery(communities.actions.handleInvitationCode.type, handleInvitationCodeSaga),
     startConnectionSaga(
       socketActions.startConnection({
-        dataPort: parseInt(dataPort)
+        dataPort: parseInt(dataPort),
       })
-    )
+    ),
   ])
 }

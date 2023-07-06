@@ -2,12 +2,7 @@ import React, { FC, useCallback, useEffect, useState } from 'react'
 import { BackHandler, Linking } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 import { Chat } from '../../components/Chat/Chat.component'
-import {
-  communities,
-  publicChannels,
-  messages,
-  files
-} from '@quiet/state-manager'
+import { communities, publicChannels, messages, files } from '@quiet/state-manager'
 import { CancelDownload, FileMetadata } from '@quiet/types'
 import { navigationActions } from '../../store/navigation/navigation.slice'
 import { ScreenNames } from '../../const/ScreenNames.enum'
@@ -20,12 +15,12 @@ export const ChannelScreen: FC = () => {
   const handleBackButton = useCallback(() => {
     dispatch(
       navigationActions.navigation({
-        screen: ScreenNames.ChannelListScreen
+        screen: ScreenNames.ChannelListScreen,
       })
     )
     dispatch(
       publicChannels.actions.setCurrentChannel({
-        channelId: '' // Necessary for marking channels as unread on channel's list
+        channelId: '', // Necessary for marking channels as unread on channel's list
       })
     )
     return true
@@ -50,7 +45,7 @@ export const ChannelScreen: FC = () => {
 
   const downloadStatusesMapping = useSelector(files.selectors.downloadStatuses)
 
-  let contextMenu: UseContextMenuType<{}> | null = useContextMenu(MenuName.Channel)
+  let contextMenu: UseContextMenuType<Record<string, unknown>> | null = useContextMenu(MenuName.Channel)
   if (!community?.CA) {
     contextMenu = null
   }
@@ -104,7 +99,7 @@ export const ChannelScreen: FC = () => {
       channel={currentChannel}
       messages={{
         count: channelMessagesCount,
-        groups: channelMessages
+        groups: channelMessages,
       }}
       pendingMessages={pendingMessages}
       downloadStatuses={downloadStatusesMapping}

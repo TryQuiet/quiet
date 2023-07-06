@@ -14,7 +14,7 @@ export function* restoreConnectionSaga(): Generator {
   if (!isWebsocketConnected && dataPort !== 0) {
     yield* put(
       initActions.startWebsocketConnection({
-        dataPort: dataPort
+        dataPort,
       })
     )
   }

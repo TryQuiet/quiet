@@ -28,13 +28,13 @@ describe('redirectionSaga', () => {
     await expectSaga(redirectionSaga)
       .withReducer(
         combineReducers({
-          [StoreKeys.Navigation]: navigationReducer
+          [StoreKeys.Navigation]: navigationReducer,
         }),
         {
           [StoreKeys.Navigation]: {
             ...new NavigationState(),
-            currentScreen
-          }
+            currentScreen,
+          },
         }
       )
       .not.put(navigationActions.replaceScreen({ screen: currentScreen }))
@@ -44,7 +44,7 @@ describe('redirectionSaga', () => {
   test('open channel list if user belongs to a community', async () => {
     store.dispatch(
       navigationActions.navigation({
-        screen: ScreenNames.ChannelScreen
+        screen: ScreenNames.ChannelScreen,
       })
     )
 
@@ -61,14 +61,13 @@ describe('redirectionSaga', () => {
   test('restore previously visited registration step', async () => {
     store.dispatch(
       navigationActions.navigation({
-        screen: ScreenNames.UsernameRegistrationScreen
+        screen: ScreenNames.UsernameRegistrationScreen,
       })
     )
 
-    await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>(
-      'Identity',
-      { userCertificate: null }
-    )
+    await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+      userCertificate: null,
+    })
 
     const reducer = combineReducers(reducers)
     await expectSaga(redirectionSaga)

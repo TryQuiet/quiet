@@ -1,6 +1,6 @@
 import { takeEvery } from 'redux-saga/effects'
 import { all } from 'typed-redux-saga'
-import { Socket } from '../../types'
+import { type Socket } from '../../types'
 import { messagesActions } from './messages.slice'
 import { sendMessageSaga } from './sendMessage/sendMessage.saga'
 import { incomingMessagesSaga } from './incomingMessages/incomingMessages.saga'
@@ -24,16 +24,10 @@ export function* messagesMasterSaga(socket: Socket): Generator {
     takeEvery(messagesActions.incomingMessages.type, markUnreadChannelsSaga),
     takeEvery(messagesActions.incomingMessages.type, updateNewestMessageSaga),
     takeEvery(messagesActions.lazyLoading.type, lazyLoadingSaga),
-    takeEvery(
-      messagesActions.extendCurrentPublicChannelCache.type,
-      extendCurrentPublicChannelCacheSaga
-    ),
-    takeEvery(
-      messagesActions.resetCurrentPublicChannelCache.type,
-      resetCurrentPublicChannelCacheSaga
-    ),
+    takeEvery(messagesActions.extendCurrentPublicChannelCache.type, extendCurrentPublicChannelCacheSaga),
+    takeEvery(messagesActions.resetCurrentPublicChannelCache.type, resetCurrentPublicChannelCacheSaga),
     takeEvery(messagesActions.responseSendMessagesIds.type, checkForMessagesSaga),
     takeEvery(messagesActions.askForMessages.type, askForMessagesSaga, socket),
-    takeEvery(messagesActions.sendDeletionMessage.type, sendDeletionMessageSaga)
+    takeEvery(messagesActions.sendDeletionMessage.type, sendDeletionMessageSaga),
   ])
 }

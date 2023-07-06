@@ -4,7 +4,7 @@ import {
   FileMetadata,
   MessagesDailyGroups,
   MessageSendingStatus,
-  PublicChannel
+  PublicChannel,
 } from '@quiet/types'
 import { Dictionary } from '@reduxjs/toolkit'
 import { useContextMenu } from '../../hooks/useContextMenu'

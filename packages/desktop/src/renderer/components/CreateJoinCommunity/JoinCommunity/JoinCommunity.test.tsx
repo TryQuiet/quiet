@@ -26,12 +26,12 @@ describe('join community', () => {
     const { store } = await prepareStore({
       [StoreKeys.Socket]: {
         ...new SocketState(),
-        isConnected: true
+        isConnected: true,
       },
       [StoreKeys.Modals]: {
         ...new ModalsInitialState(),
-        [ModalName.joinCommunityModal]: { open: true }
-      }
+        [ModalName.joinCommunityModal]: { open: true },
+      },
     })
 
     renderComponent(
@@ -61,12 +61,12 @@ describe('join community', () => {
     const { store } = await prepareStore({
       [StoreKeys.Socket]: {
         ...new SocketState(),
-        isConnected: true
+        isConnected: true,
       },
       [StoreKeys.Modals]: {
         ...new ModalsInitialState(),
-        [ModalName.joinCommunityModal]: { open: true }
-      }
+        [ModalName.joinCommunityModal]: { open: true },
+      },
     })
 
     renderComponent(
@@ -103,16 +103,18 @@ describe('join community', () => {
 
     const handleCommunityAction = jest.fn()
 
-    const component = <PerformCommunityActionComponent
-      open={true}
-      handleClose={() => { }}
-      communityOwnership={CommunityOwnership.User}
-      handleCommunityAction={handleCommunityAction}
-      handleRedirection={() => { }}
-      isConnectionReady={true}
-      isCloseDisabled={true}
-      hasReceivedResponse={false}
-    />
+    const component = (
+      <PerformCommunityActionComponent
+        open={true}
+        handleClose={() => {}}
+        communityOwnership={CommunityOwnership.User}
+        handleCommunityAction={handleCommunityAction}
+        handleRedirection={() => {}}
+        isConnectionReady={true}
+        isCloseDisabled={true}
+        hasReceivedResponse={false}
+      />
+    )
 
     const result = renderComponent(component)
 
@@ -129,54 +131,61 @@ describe('join community', () => {
   })
 
   it.each([
-  [`https://${Site.DOMAIN}/${Site.JOIN_PAGE}#${validCode}`],
-  [`https://${Site.DOMAIN}/${Site.JOIN_PAGE}/#${validCode}`],
-  [`https://${Site.DOMAIN}/${Site.JOIN_PAGE}?code=${validCode}`] // Old link format
-  ])('joins community on submit if connection is ready and invitation code is a correct invitation url (%s)', async (invitationLink: string) => {
-    const registrarUrl = new URL(invitationLink)
+    [`https://${Site.DOMAIN}/${Site.JOIN_PAGE}#${validCode}`],
+    [`https://${Site.DOMAIN}/${Site.JOIN_PAGE}/#${validCode}`],
+    [`https://${Site.DOMAIN}/${Site.JOIN_PAGE}?code=${validCode}`], // Old link format
+  ])(
+    'joins community on submit if connection is ready and invitation code is a correct invitation url (%s)',
+    async (invitationLink: string) => {
+      const registrarUrl = new URL(invitationLink)
 
-    const handleCommunityAction = jest.fn()
+      const handleCommunityAction = jest.fn()
 
-    const component = <PerformCommunityActionComponent
-      open={true}
-      handleClose={() => { }}
-      communityOwnership={CommunityOwnership.User}
-      handleCommunityAction={handleCommunityAction}
-      handleRedirection={() => { }}
-      isConnectionReady={true}
-      isCloseDisabled={true}
-      hasReceivedResponse={false}
-    />
+      const component = (
+        <PerformCommunityActionComponent
+          open={true}
+          handleClose={() => {}}
+          communityOwnership={CommunityOwnership.User}
+          handleCommunityAction={handleCommunityAction}
+          handleRedirection={() => {}}
+          isConnectionReady={true}
+          isCloseDisabled={true}
+          hasReceivedResponse={false}
+        />
+      )
 
-    const result = renderComponent(component)
+      const result = renderComponent(component)
 
-    const textInput = result.queryByPlaceholderText(inviteLinkField().fieldProps.placeholder)
-    expect(textInput).not.toBeNull()
-    // @ts-expect-error
-    await userEvent.type(textInput, registrarUrl.href)
+      const textInput = result.queryByPlaceholderText(inviteLinkField().fieldProps.placeholder)
+      expect(textInput).not.toBeNull()
+      // @ts-expect-error
+      await userEvent.type(textInput, registrarUrl.href)
 
-    const submitButton = result.getByText('Continue')
-    expect(submitButton).toBeEnabled()
-    await userEvent.click(submitButton)
+      const submitButton = result.getByText('Continue')
+      expect(submitButton).toBeEnabled()
+      await userEvent.click(submitButton)
 
-    await waitFor(() => expect(handleCommunityAction).toBeCalledWith(validCode))
-  })
+      await waitFor(() => expect(handleCommunityAction).toBeCalledWith(validCode))
+    }
+  )
 
   it('trims whitespaces from registrar url', async () => {
     const registrarUrl = 'nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad    '
 
     const handleCommunityAction = jest.fn()
 
-    const component = <PerformCommunityActionComponent
-      open={true}
-      handleClose={() => { }}
-      communityOwnership={CommunityOwnership.User}
-      handleCommunityAction={handleCommunityAction}
-      handleRedirection={() => { }}
-      isConnectionReady={true}
-      isCloseDisabled={true}
-      hasReceivedResponse={false}
-    />
+    const component = (
+      <PerformCommunityActionComponent
+        open={true}
+        handleClose={() => {}}
+        communityOwnership={CommunityOwnership.User}
+        handleCommunityAction={handleCommunityAction}
+        handleRedirection={() => {}}
+        isConnectionReady={true}
+        isCloseDisabled={true}
+        hasReceivedResponse={false}
+      />
+    )
 
     const result = renderComponent(component)
 
@@ -199,22 +208,33 @@ describe('join community', () => {
     ['nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2ola ', InviteLinkErrors.InvalidCode],
     ['nqnw4kc4c77fb47lk52m5l57h4tc', InviteLinkErrors.InvalidCode],
     [`https://${Site.DOMAIN}/${Site.JOIN_PAGE}?${InvitationParams.CODE}=invalidcode`, InviteLinkErrors.InvalidCode],
-    [`https://otherwebsite.com/${Site.JOIN_PAGE}?${InvitationParams.CODE}=nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad`, InviteLinkErrors.InvalidCode],
-    [`https://${Site.DOMAIN}/${Site.JOIN_PAGE}?param=nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad`, InviteLinkErrors.InvalidCode],
-    [`https://${Site.DOMAIN}/share?${InvitationParams.CODE}=nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad`, InviteLinkErrors.InvalidCode],
+    [
+      `https://otherwebsite.com/${Site.JOIN_PAGE}?${InvitationParams.CODE}=nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad`,
+      InviteLinkErrors.InvalidCode,
+    ],
+    [
+      `https://${Site.DOMAIN}/${Site.JOIN_PAGE}?param=nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad`,
+      InviteLinkErrors.InvalidCode,
+    ],
+    [
+      `https://${Site.DOMAIN}/share?${InvitationParams.CODE}=nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad`,
+      InviteLinkErrors.InvalidCode,
+    ],
   ])('user inserting invalid url %s should see "%s" error', async (url: string, error: string) => {
     const handleCommunityAction = jest.fn()
 
-    renderComponent(<PerformCommunityActionComponent
-      open={true}
-      handleClose={() => { }}
-      communityOwnership={CommunityOwnership.User}
-      handleCommunityAction={handleCommunityAction}
-      handleRedirection={() => { }}
-      isConnectionReady={true}
-      isCloseDisabled={true}
-      hasReceivedResponse={false}
-    />)
+    renderComponent(
+      <PerformCommunityActionComponent
+        open={true}
+        handleClose={() => {}}
+        communityOwnership={CommunityOwnership.User}
+        handleCommunityAction={handleCommunityAction}
+        handleRedirection={() => {}}
+        isConnectionReady={true}
+        isCloseDisabled={true}
+        hasReceivedResponse={false}
+      />
+    )
 
     const input = screen.getByPlaceholderText('Invite code')
     const button = screen.getByText('Continue')
@@ -231,16 +251,18 @@ describe('join community', () => {
   it('blocks submit button if connection is not ready', async () => {
     const handleCommunityAction = jest.fn()
 
-    const component = <PerformCommunityActionComponent
-      open={true}
-      handleClose={() => { }}
-      communityOwnership={CommunityOwnership.User}
-      handleCommunityAction={handleCommunityAction}
-      handleRedirection={() => { }}
-      isConnectionReady={false}
-      isCloseDisabled={true}
-      hasReceivedResponse={false}
-    />
+    const component = (
+      <PerformCommunityActionComponent
+        open={true}
+        handleClose={() => {}}
+        communityOwnership={CommunityOwnership.User}
+        handleCommunityAction={handleCommunityAction}
+        handleRedirection={() => {}}
+        isConnectionReady={false}
+        isCloseDisabled={true}
+        hasReceivedResponse={false}
+      />
+    )
 
     const result = renderComponent(component)
 
@@ -257,16 +279,18 @@ describe('join community', () => {
   })
 
   it('shows loading spinner on submit button while waiting for the response', async () => {
-    const { rerender } = renderComponent(<PerformCommunityActionComponent
-      open={true}
-      handleClose={() => { }}
-      communityOwnership={CommunityOwnership.User}
-      handleCommunityAction={() => { }}
-      handleRedirection={() => { }}
-      isConnectionReady={true}
-      isCloseDisabled={true}
-      hasReceivedResponse={false}
-    />)
+    const { rerender } = renderComponent(
+      <PerformCommunityActionComponent
+        open={true}
+        handleClose={() => {}}
+        communityOwnership={CommunityOwnership.User}
+        handleCommunityAction={() => {}}
+        handleRedirection={() => {}}
+        isConnectionReady={true}
+        isCloseDisabled={true}
+        hasReceivedResponse={false}
+      />
+    )
 
     const textInput = screen.getByPlaceholderText(inviteLinkField().fieldProps.placeholder)
     await userEvent.type(textInput, 'nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad')
@@ -280,16 +304,18 @@ describe('join community', () => {
     expect(screen.queryByTestId('loading-button-progress')).toBeVisible()
 
     // Rerender component to verify circular progress has dissapeared
-    rerender(<PerformCommunityActionComponent
-      open={true}
-      handleClose={() => { }}
-      communityOwnership={CommunityOwnership.User}
-      handleCommunityAction={() => { }}
-      handleRedirection={() => { }}
-      isConnectionReady={true}
-      isCloseDisabled={true}
-      hasReceivedResponse={true}
-    />)
+    rerender(
+      <PerformCommunityActionComponent
+        open={true}
+        handleClose={() => {}}
+        communityOwnership={CommunityOwnership.User}
+        handleCommunityAction={() => {}}
+        handleRedirection={() => {}}
+        isConnectionReady={true}
+        isCloseDisabled={true}
+        hasReceivedResponse={true}
+      />
+    )
 
     expect(screen.queryByTestId('loading-button-progress')).toBeNull()
   })
@@ -297,16 +323,18 @@ describe('join community', () => {
   it('handles redirection to create community page if user clicks on the link', async () => {
     const handleRedirection = jest.fn()
 
-    const component = <PerformCommunityActionComponent
-      open={true}
-      handleClose={() => { }}
-      communityOwnership={CommunityOwnership.User}
-      handleCommunityAction={() => { }}
-      handleRedirection={handleRedirection}
-      isConnectionReady={true}
-      isCloseDisabled={true}
-      hasReceivedResponse={false}
-    />
+    const component = (
+      <PerformCommunityActionComponent
+        open={true}
+        handleClose={() => {}}
+        communityOwnership={CommunityOwnership.User}
+        handleCommunityAction={() => {}}
+        handleRedirection={handleRedirection}
+        isConnectionReady={true}
+        isCloseDisabled={true}
+        hasReceivedResponse={false}
+      />
+    )
 
     const result = renderComponent(component)
 

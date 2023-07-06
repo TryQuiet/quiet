@@ -25,7 +25,7 @@ setEngine(
   new CryptoEngine({
     name: '',
     crypto: webcrypto,
-    subtle: webcrypto.subtle
+    subtle: webcrypto.subtle,
   })
 )
 
@@ -36,7 +36,10 @@ program
   .option('-u, --activeUsers <number>', 'Number of spamming users (bots)', '3')
   .option('-s, --silentUsers <number>', 'Number of extra peers (bots)', '0')
   .option('-i, --intensity <number>', 'Number of messages per minute')
-  .option('-std, --standby <number>', 'Amount of time (ms) during which the peers will remain connected after sending all the messages')
+  .option(
+    '-std, --standby <number>',
+    'Amount of time (ms) during which the peers will remain connected after sending all the messages'
+  )
   .option('-e, --endless', 'Make the bot run endlessly')
 
 program.parse()
@@ -45,8 +48,8 @@ const options = program.opts()
 const lorem = new LoremIpsum({
   wordsPerSentence: {
     max: 16,
-    min: 1
-  }
+    min: 1,
+  },
 })
 
 const apps: Map<string, AsyncReturnType<typeof createApp>> = new Map()
@@ -90,7 +93,7 @@ const registerBots = async () => {
       registrarAddress,
       userName: username,
       registrarPort: null,
-      store
+      store,
     }
     log(`Registering ${username}`)
     await registerUsername(payload)
@@ -98,7 +101,10 @@ const registerBots = async () => {
     const communityId = store.getState().Communities.communities.ids[0]
 
     await waitForExpect(() => {
-      assert.ok(store.getState().Identity.identities.entities[communityId].userCertificate, `User ${username} did not receive certificate`)
+      assert.ok(
+        store.getState().Identity.identities.entities[communityId].userCertificate,
+        `User ${username} did not receive certificate`
+      )
     }, timeout)
     await assertReceivedChannel(username, channelName, timeout, store)
     await switchChannel({ channelName, store })
@@ -139,7 +145,11 @@ const sendMessages = async () => {
         continue
       }
 
-      await sendMessageWithLatency(currentUsername, apps.get(currentUsername).store, `(${endless ? 'endless' : messagesLeft}) ${lorem.generateSentences(1)}`)
+      await sendMessageWithLatency(
+        currentUsername,
+        apps.get(currentUsername).store,
+        `(${endless ? 'endless' : messagesLeft}) ${lorem.generateSentences(1)}`
+      )
       messagesToSend.set(currentUsername, messagesLeft)
     }
   }
@@ -148,22 +158,18 @@ const sendMessages = async () => {
   await sleep(10_000)
 }
 
-const sendMessageWithLatency = async (
-  username: string,
-  store: TestStore,
-  message: string
-) => {
+const sendMessageWithLatency = async (username: string, store: TestStore, message: string) => {
   const latency = typingLatency || getRandomInt(300, 550)
   log(`${username} is waiting ${latency}ms to send a message`)
   await sleep(latency)
   await sendMessage({
     message,
     channelName,
-    store
+    store,
   })
 }
 
-const closeAll = async (force: boolean = false) => {
+const closeAll = async (force = false) => {
   if (!force && standby) {
     log(`Waiting ${standby}ms before peers goes offline`)
     await sleep(standby)
@@ -175,7 +181,7 @@ const closeAll = async (force: boolean = false) => {
 }
 
 const run = async () => {
-  process.on('unhandledRejection', async (error) => {
+  process.on('unhandledRejection', async error => {
     console.error(error)
     await closeAll(true)
   })
@@ -190,6 +196,8 @@ const run = async () => {
   await closeAll()
 }
 
-run().then(() => {
-  console.log('FINISHED')
-}).catch((e) => console.error(e))
+run()
+  .then(() => {
+    console.log('FINISHED')
+  })
+  .catch(e => console.error(e))

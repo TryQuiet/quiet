@@ -1,13 +1,7 @@
 import React, { useState } from 'react'
 import { styled } from '@mui/material/styles'
 import { CircularProgress, Typography } from '@mui/material'
-import {
-  DisplayableMessage,
-  DownloadState,
-  DownloadStatus,
-  FileMetadata,
-  CancelDownload
-} from '@quiet/types'
+import { DisplayableMessage, DownloadState, DownloadStatus, FileMetadata, CancelDownload } from '@quiet/types'
 import { formatBytes } from '@quiet/state-manager'
 import theme from '../../../../theme'
 import Icon from '../../../ui/Icon/Icon'
@@ -28,7 +22,7 @@ const classes = {
   icon: `${PREFIX}icon`,
   fileIcon: `${PREFIX}fileIcon`,
   filename: `${PREFIX}filename`,
-  actionIcon: `${PREFIX}actionIcon`
+  actionIcon: `${PREFIX}actionIcon`,
 }
 
 const FileComponentStyled = styled('div')(({ theme }) => ({
@@ -47,17 +41,17 @@ const FileComponentStyled = styled('div')(({ theme }) => ({
     backgroundColor: '#F0F0F0',
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
   },
 
   [`& .${classes.fileIcon}`]: {
     width: '16px',
-    height: '20px'
+    height: '20px',
   },
 
   [`& .${classes.filename}`]: {
-    marginLeft: '16px'
-  }
+    marginLeft: '16px',
+  },
 }))
 
 const ActionIndicatorStyled = styled('div')(() => ({
@@ -65,8 +59,8 @@ const ActionIndicatorStyled = styled('div')(() => ({
   width: 'fit-content',
 
   [`& .${classes.actionIcon}`]: {
-    width: '15px'
-  }
+    width: '15px',
+  },
 }))
 
 interface ActionIndicatorMode {
@@ -122,7 +116,8 @@ const ActionIndicator: React.FC<{
       onClick={action}
       onMouseOver={onMouseOver}
       onMouseOut={onMouseOut}
-      style={{ cursor: hover ? 'pointer' : 'default' }}>
+      style={{ cursor: hover ? 'pointer' : 'default' }}
+    >
       {renderIndicator()}
     </div>
   )
@@ -144,7 +139,7 @@ export const FileComponent: React.FC<FileComponentProps & FileActionsProps> = ({
   downloadStatus,
   openContainingFolder,
   downloadFile,
-  cancelDownload
+  cancelDownload,
 }) => {
   if (!message.media) return null
   const { cid, path, name, ext } = message.media
@@ -201,7 +196,7 @@ export const FileComponent: React.FC<FileComponentProps & FileActionsProps> = ({
     if (cancelDownload) {
       cancelDownload({
         mid: message.id,
-        cid: cid
+        cid: cid,
       })
     }
   }
@@ -214,7 +209,7 @@ export const FileComponent: React.FC<FileComponentProps & FileActionsProps> = ({
             regular={{
               label: 'Uploading...',
               color: theme.palette.colors.darkGray,
-              icon: downloadIconGray
+              icon: downloadIconGray,
             }}
           />
         )
@@ -224,14 +219,14 @@ export const FileComponent: React.FC<FileComponentProps & FileActionsProps> = ({
             regular={{
               label: 'Show in folder',
               color: theme.palette.colors.darkGray,
-              icon: folderIconGray
+              icon: folderIconGray,
             }}
             hover={{
               label: 'Show in folder',
               color: theme.palette.colors.lushSky,
-              icon: folderIcon
+              icon: folderIcon,
             }}
-            action={(_openContainingFolder)}
+            action={_openContainingFolder}
           />
         )
       case DownloadState.Ready:
@@ -240,12 +235,12 @@ export const FileComponent: React.FC<FileComponentProps & FileActionsProps> = ({
             regular={{
               label: 'Download file',
               color: theme.palette.colors.lushSky,
-              icon: downloadIcon
+              icon: downloadIcon,
             }}
             hover={{
               label: 'Download file',
               color: theme.palette.colors.lushSky,
-              icon: downloadIcon
+              icon: downloadIcon,
             }}
             action={_downloadFile}
           />
@@ -253,11 +248,11 @@ export const FileComponent: React.FC<FileComponentProps & FileActionsProps> = ({
       case DownloadState.Queued:
         return (
           <ActionIndicator
-          regular={{
-            label: 'Queued for download',
-            color: theme.palette.colors.darkGray,
-            icon: clockIconGray
-          }}
+            regular={{
+              label: 'Queued for download',
+              color: theme.palette.colors.darkGray,
+              icon: clockIconGray,
+            }}
           />
         )
       case DownloadState.Downloading:
@@ -266,12 +261,12 @@ export const FileComponent: React.FC<FileComponentProps & FileActionsProps> = ({
             regular={{
               label: 'Downloading...',
               color: theme.palette.colors.darkGray,
-              icon: downloadIconGray
+              icon: downloadIconGray,
             }}
             hover={{
               label: 'Cancel download',
               color: theme.palette.colors.hotRed,
-              icon: cancelIconRed
+              icon: cancelIconRed,
             }}
             action={_cancelDownload}
           />
@@ -282,7 +277,7 @@ export const FileComponent: React.FC<FileComponentProps & FileActionsProps> = ({
             regular={{
               label: 'Canceling...',
               color: theme.palette.colors.darkGray,
-              icon: pauseIconGray
+              icon: pauseIconGray,
             }}
           />
         )
@@ -292,12 +287,12 @@ export const FileComponent: React.FC<FileComponentProps & FileActionsProps> = ({
             regular={{
               label: 'Canceled',
               color: theme.palette.colors.darkGray,
-              icon: cancelIconGray
+              icon: cancelIconGray,
             }}
             hover={{
               label: 'Download file',
               color: theme.palette.colors.lushSky,
-              icon: downloadIcon
+              icon: downloadIcon,
             }}
             action={_downloadFile}
           />
@@ -308,12 +303,12 @@ export const FileComponent: React.FC<FileComponentProps & FileActionsProps> = ({
             regular={{
               label: 'Show in folder',
               color: theme.palette.colors.darkGray,
-              icon: folderIconGray
+              icon: folderIconGray,
             }}
             hover={{
               label: 'Show in folder',
               color: theme.palette.colors.lushSky,
-              icon: folderIcon
+              icon: folderIcon,
             }}
             action={_openContainingFolder}
           />
@@ -324,7 +319,7 @@ export const FileComponent: React.FC<FileComponentProps & FileActionsProps> = ({
             regular={{
               label: 'File not valid. Download canceled.',
               color: theme.palette.colors.hotRed,
-              icon: cancelIconRed
+              icon: cancelIconRed,
             }}
           />
         )
@@ -341,10 +336,13 @@ export const FileComponent: React.FC<FileComponentProps & FileActionsProps> = ({
           downloadProgress &&
           downloadProgress.size &&
           downloadProgress?.transferSpeed !== -1
-            ? `(${Math.floor(downloadProgress.downloaded / downloadProgress.size * 100)}%) ${formatBytes(downloadProgress.transferSpeed)}ps`
+            ? `(${Math.floor((downloadProgress.downloaded / downloadProgress.size) * 100)}%) ${formatBytes(
+                downloadProgress.transferSpeed
+              )}ps`
             : ''
         }
-        placement='top'>
+        placement='top'
+      >
         <div style={{ display: 'flex', width: 'fit-content' }}>
           <div className={classes.icon}>{renderIcon()}</div>
           <div className={classes.filename}>
@@ -352,9 +350,7 @@ export const FileComponent: React.FC<FileComponentProps & FileActionsProps> = ({
               {name}
               {ext}
             </Typography>
-            <Typography
-              variant={'body2'}
-              style={{ lineHeight: '20px', color: theme.palette.colors.darkGray }}>
+            <Typography variant={'body2'} style={{ lineHeight: '20px', color: theme.palette.colors.darkGray }}>
               {message.media?.size ? formatBytes(message.media?.size) : 'Calculating size...'}
             </Typography>
           </div>
@@ -364,8 +360,9 @@ export const FileComponent: React.FC<FileComponentProps & FileActionsProps> = ({
         style={{
           paddingTop: '16px',
           width: 'fit-content',
-          display: downloadState ? 'block' : 'none'
-        }}>
+          display: downloadState ? 'block' : 'none',
+        }}
+      >
         {renderActionIndicator()}
       </div>
     </FileComponentStyled>

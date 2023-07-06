@@ -16,12 +16,14 @@ describe('Handle invitation code', () => {
   let validInvitationCode: string
 
   beforeEach(async () => {
-    store = (await prepareStore({
-      [StoreKeys.Socket]: {
-        ...new SocketState(),
-        isConnected: true
-      }
-    })).store
+    store = (
+      await prepareStore({
+        [StoreKeys.Socket]: {
+          ...new SocketState(),
+          isConnected: true,
+        },
+      })
+    ).store
 
     factory = await getFactory(store)
     validInvitationCode = 'bb5wacaftixjl3yhq2cp3ls2ife2e5wlwct3hjlb4lyk4iniypmgozyd'
@@ -30,61 +32,56 @@ describe('Handle invitation code', () => {
   it('creates network if code is valid', async () => {
     const payload: CreateNetworkPayload = {
       ownership: CommunityOwnership.User,
-      registrar: validInvitationCode
+      registrar: validInvitationCode,
     }
-    await expectSaga(
-      handleInvitationCodeSaga,
-      communities.actions.handleInvitationCode(validInvitationCode)
-    )
-    .withState(store.getState())
-    .put(communities.actions.createNetwork(payload))
-    .run()
+    await expectSaga(handleInvitationCodeSaga, communities.actions.handleInvitationCode(validInvitationCode))
+      .withState(store.getState())
+      .put(communities.actions.createNetwork(payload))
+      .run()
   })
 
   it('does not try to create network if user is already in community', async () => {
     community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
     const payload: CreateNetworkPayload = {
       ownership: CommunityOwnership.User,
-      registrar: validInvitationCode
+      registrar: validInvitationCode,
     }
 
-    await expectSaga(
-      handleInvitationCodeSaga,
-      communities.actions.handleInvitationCode(validInvitationCode)
-    )
-    .withState(store.getState())
-    .put(modalsActions.openModal({
-      name: ModalName.warningModal,
-      args: {
-        title: 'You already belong to a community',
-        subtitle: "We're sorry but for now you can only be a member of a single community at a time."
-      }
-    }))
-    .not.put(communities.actions.createNetwork(payload))
-    .run()
+    await expectSaga(handleInvitationCodeSaga, communities.actions.handleInvitationCode(validInvitationCode))
+      .withState(store.getState())
+      .put(
+        modalsActions.openModal({
+          name: ModalName.warningModal,
+          args: {
+            title: 'You already belong to a community',
+            subtitle: "We're sorry but for now you can only be a member of a single community at a time.",
+          },
+        })
+      )
+      .not.put(communities.actions.createNetwork(payload))
+      .run()
   })
 
   it('does not try to create network if code is invalid', async () => {
     const code = 'invalid'
     const payload: CreateNetworkPayload = {
       ownership: CommunityOwnership.User,
-      registrar: code
+      registrar: code,
     }
 
-    await expectSaga(
-      handleInvitationCodeSaga,
-      communities.actions.handleInvitationCode(code)
-    )
-    .withState(store.getState())
-    .put(communities.actions.clearInvitationCode())
-    .put(modalsActions.openModal({
-      name: ModalName.warningModal,
-      args: {
-        title: 'Invalid link',
-        subtitle: 'The invite link you received is not valid. Please check it and try again.'
-      }
-    }))
-    .not.put(communities.actions.createNetwork(payload))
-    .run()
+    await expectSaga(handleInvitationCodeSaga, communities.actions.handleInvitationCode(code))
+      .withState(store.getState())
+      .put(communities.actions.clearInvitationCode())
+      .put(
+        modalsActions.openModal({
+          name: ModalName.warningModal,
+          args: {
+            title: 'Invalid link',
+            subtitle: 'The invite link you received is not valid. Please check it and try again.',
+          },
+        })
+      )
+      .not.put(communities.actions.createNetwork(payload))
+      .run()
   })
 })

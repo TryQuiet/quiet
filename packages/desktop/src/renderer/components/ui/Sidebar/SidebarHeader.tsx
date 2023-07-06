@@ -14,7 +14,7 @@ const classes = {
   title: `${PREFIX}title`,
   clickable: `${PREFIX}clickable`,
   iconButton: `${PREFIX}iconButton`,
-  tooltip: `${PREFIX}tooltip`
+  tooltip: `${PREFIX}tooltip`,
 }
 
 const StyledGrid = styled(Grid)(() => ({
@@ -22,34 +22,34 @@ const StyledGrid = styled(Grid)(() => ({
     marginTop: 25,
     height: 32,
     paddingLeft: 16,
-    paddingRight: 16
+    paddingRight: 16,
   },
 
   [`& .${classes.title}`]: {
     opacity: 0.7,
-    fontWeight: 500
+    fontWeight: 500,
   },
 
   [`& .${classes.clickable}`]: {
     '&:hover': {
       backgroundColor: 'inherit',
-      opacity: 1
+      opacity: 1,
     },
-    cursor: 'pointer'
+    cursor: 'pointer',
   },
 
   [`& .${classes.iconButton}`]: {
     opacity: 0.7,
     '&:hover': {
       backgroundColor: 'inherit',
-      opacity: 1
-    }
+      opacity: 1,
+    },
   },
 
   [`& .${classes.tooltip}`]: {
     marginTop: -1,
-    backgroundColor: 'blue'
-  }
+    backgroundColor: 'blue',
+  },
 }))
 
 interface SidebarHeaderProps {
@@ -59,34 +59,19 @@ interface SidebarHeaderProps {
   tooltipText: string
 }
 
-export const SidebarHeader: React.FC<SidebarHeaderProps> = ({
-  title,
-  action,
-  actionTitle,
-  tooltipText
-}) => {
+export const SidebarHeader: React.FC<SidebarHeaderProps> = ({ title, action, actionTitle, tooltipText }) => {
   return (
-    <StyledGrid
-      container
-      direction='row'
-      justifyContent='space-between'
-      alignItems='center'
-      className={classes.root}>
+    <StyledGrid container direction='row' justifyContent='space-between' alignItems='center' className={classes.root}>
       <Grid item>
-        {actionTitle
-          ? (
-            <Typography
-              variant='body2'
-              className={classNames(classes.title)}
-            >
-              {title}
-            </Typography>
-          )
-          : (
-            <Typography variant='body2' className={classes.title}>
-              {title}
-            </Typography>
-          )}
+        {actionTitle ? (
+          <Typography variant='body2' className={classNames(classes.title)}>
+            {title}
+          </Typography>
+        ) : (
+          <Typography variant='body2' className={classes.title}>
+            {title}
+          </Typography>
+        )}
       </Grid>
       <Grid item>
         <Tooltip title={tooltipText} className={classes.tooltip} placement='bottom'>
@@ -98,7 +83,8 @@ export const SidebarHeader: React.FC<SidebarHeaderProps> = ({
             }}
             edge='end'
             data-testid={'addChannelButton'}
-            size="large">
+            size='large'
+          >
             <PlusIconWithBorder color='white' />
           </IconButton>
         </Tooltip>

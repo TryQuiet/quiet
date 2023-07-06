@@ -8,7 +8,7 @@ import {
   JoiningLoadingPanel,
   RegisterUsernameModal,
   Sidebar,
-  StartingLoadingPanel
+  StartingLoadingPanel,
 } from '../selectors'
 import logger from '../logger'
 const log = logger('Two Clients:')
@@ -165,7 +165,11 @@ describe('Two Clients', () => {
       const isMessageInput2 = await generalChannel2.messageInput.isDisplayed()
       expect(isMessageInput2).toBeTruthy()
       console.log('FETCHING CHANNEL MESSAGES!')
-      await new Promise<void>(resolve => setTimeout(() => resolve(), 5000))
+      await new Promise<void>(resolve =>
+        setTimeout(() => {
+          resolve()
+        }, 15000)
+      )
       await generalChannel2.sendMessage(joiningUserMessages[0])
     })
     it('Sent message is visible in a channel', async () => {
@@ -192,7 +196,11 @@ describe('Two Clients', () => {
       sidebar2 = new Sidebar(guestApp.driver)
       await sidebar2.switchChannel(newChannelName)
       secondChannel2 = new Channel(guestApp.driver, newChannelName)
-      await new Promise<void>(resolve => setTimeout(() => resolve(), 2000))
+      await new Promise<void>(resolve =>
+        setTimeout(() => {
+          resolve()
+        }, 2000)
+      )
       const messages = await secondChannel2.getUserMessages(ownerUsername)
       const text = await messages[1].getText()
       expect(text).toEqual(ownerMessages[1])
@@ -211,16 +219,22 @@ describe('Two Clients', () => {
       expect(text).toEqual(`@${ownerUsername} deleted #${newChannelName}`)
     })
     it('Channel deletion - User can create channel with the same name and is fresh channel', async () => {
+      console.log('TEST 1')
       await sidebar2.addNewChannel(newChannelName)
       await sidebar2.switchChannel(newChannelName)
       const messages = await secondChannel2.getUserMessages(joiningUserUsername)
       expect(messages.length).toEqual(1)
-      await new Promise<void>(resolve => setTimeout(() => resolve(), 2000))
+      await new Promise<void>(resolve =>
+        setTimeout(() => {
+          resolve()
+        }, 2000)
+      )
       const channels = await sidebar.getChannelList()
       expect(channels.length).toEqual(2)
     })
 
     it('Leave community', async () => {
+      console.log('TEST 2')
       const settingsModal = await new Sidebar(guestApp.driver).openSettings()
       const isSettingsModal = await settingsModal.element.isDisplayed()
       expect(isSettingsModal).toBeTruthy()
@@ -235,7 +249,8 @@ describe('Two Clients', () => {
     }
     // Delete general channel while guest is absent
     it('Channel deletion - Owner recreate general channel', async () => {
-      await new Promise<void>(resolve => setTimeout(() => resolve(), 2000))
+      console.log('TEST 3')
+      await new Promise<void>(resolve => setTimeout(() => resolve(), 10000))
       const isGeneralChannel = await generalChannel.messageInput.isDisplayed()
       expect(isGeneralChannel).toBeTruthy()
       await channelContextMenu.openMenu()
@@ -246,6 +261,7 @@ describe('Two Clients', () => {
     })
 
     it('Leave community - Guest re-join to community successfully', async () => {
+      console.log('TEST 4')
       const joinCommunityModal = new JoinCommunityModal(guestApp.driver)
       const isJoinCommunityModal = await joinCommunityModal.element.isDisplayed()
       expect(isJoinCommunityModal).toBeTruthy()
@@ -253,6 +269,7 @@ describe('Two Clients', () => {
       await joinCommunityModal.submit()
     })
     it('Leave community - Guest register new username', async () => {
+      console.log('TEST 5')
       const registerModal2 = new RegisterUsernameModal(guestApp.driver)
       const isRegisterModal2 = await registerModal2.element.isDisplayed()
       expect(isRegisterModal2).toBeTruthy()
@@ -262,9 +279,14 @@ describe('Two Clients', () => {
 
     // Check correct channels replication
     it('Channel deletion - User see information about recreation general channel and see correct amount of messages', async () => {
+      console.log('TEST 6')
       generalChannel2 = new Channel(guestApp.driver, 'general')
       await generalChannel2.element.isDisplayed()
-      await new Promise<void>(resolve => setTimeout(() => resolve(), 10000))
+      await new Promise<void>(resolve =>
+        setTimeout(() => {
+          resolve()
+        }, 10000)
+      )
       const messages = await generalChannel2.getUserMessages(ownerUsername)
       const text1 = await messages[0].getText()
       const text2 = await messages[1].getText()
@@ -274,28 +296,37 @@ describe('Two Clients', () => {
     })
 
     it('Leave community - Guest sends a message', async () => {
+      console.log('TEST 7')
       generalChannel2 = new Channel(guestApp.driver, 'general')
       await generalChannel2.element.isDisplayed()
       const isMessageInput2 = await generalChannel2.messageInput.isDisplayed()
       expect(isMessageInput2).toBeTruthy()
-      await new Promise<void>(resolve => setTimeout(() => resolve(), 5000))
+      await new Promise<void>(resolve =>
+        setTimeout(() => {
+          resolve()
+        }, 5000)
+      )
       await generalChannel2.sendMessage(joiningUserMessages[1])
     })
     it('Leave community - Sent message is visible in a channel', async () => {
+      console.log('TEST 8')
       const messages2 = await generalChannel2.getUserMessages(joiningUserUsername2)
       const text2 = await messages2[0].getText()
       expect(text2).toEqual(joiningUserMessages[1])
     })
 
     it('Guest close app', async () => {
+      console.log('TEST 9')
       await guestApp?.close()
     })
     it('Guest close app - Owner send another message after guest leave app', async () => {
+      console.log('TEST 10')
       const isMessageInput = await generalChannel.messageInput.isDisplayed()
       expect(isMessageInput).toBeTruthy()
       await generalChannel.sendMessage(ownerMessages[2])
     })
     it('Guest close app - Check if message is visible for owner', async () => {
+      console.log('TEST 11')
       const messages = await generalChannel.getUserMessages(ownerUsername)
       const text = await messages[messages.length - 1].getText()
       expect(text).toEqual(ownerMessages[2])

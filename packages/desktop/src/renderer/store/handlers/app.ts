@@ -16,14 +16,14 @@ export class App {
 
 export const initialState: App = {
   ...new App({
-    version: null
-  })
+    version: null,
+  }),
 }
 
 const loadVersion = createAction(actionTypes.SET_APP_VERSION, () => 1.0)
 
 export const actions = {
-  loadVersion
+  loadVersion,
 }
 
 export type AppActions = ActionsType<typeof actions>
@@ -33,12 +33,12 @@ export const reducer = handleActions<App, PayloadType<AppActions>>(
     [loadVersion.toString()]: (state, { payload: version }: AppActions['loadVersion']) =>
       produce(state, draft => {
         draft.version = version
-      })
+      }),
   },
   initialState
 )
 
 export default {
   actions,
-  reducer
+  reducer,
 }

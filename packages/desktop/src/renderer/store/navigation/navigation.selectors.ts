@@ -19,5 +19,5 @@ export const contextMenuProps = (menu: MenuName) =>
 
 export const navigationSelectors = {
   contextMenuVisibility,
-  contextMenuProps
+  contextMenuProps,
 }

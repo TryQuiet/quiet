@@ -13,7 +13,7 @@ import {
   publicChannels,
   getFactory,
   SocketActionTypes,
-  ChannelsReplicatedPayload
+  ChannelsReplicatedPayload,
 } from '@quiet/state-manager'
 import Channel from '../renderer/components/Channel/Channel'
 import { waitFor } from '@testing-library/dom'
@@ -30,7 +30,7 @@ describe('General channel', () => {
     window.ResizeObserver = jest.fn().mockImplementation(() => ({
       observe: jest.fn(),
       unobserve: jest.fn(),
-      disconnect: jest.fn()
+      disconnect: jest.fn(),
     }))
   })
 
@@ -51,20 +51,17 @@ describe('General channel', () => {
 
     const factory = await getFactory(store)
 
-    await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>(
-      'Identity',
-      { nickname: 'alice' }
-    )
+    await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+      nickname: 'alice',
+    })
 
-    jest
-      .spyOn(socket, 'emit')
-      .mockImplementation(async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
-        const action = input[0]
-        if (action === SocketActionTypes.CREATE_CHANNEL) {
-          const payload = input[1] as ChannelsReplicatedPayload
-          expect(payload.channels.channel?.name).toEqual('general')
-        }
-      })
+    jest.spyOn(socket, 'emit').mockImplementation(async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
+      const action = input[0]
+      if (action === SocketActionTypes.CREATE_CHANNEL) {
+        const payload = input[1] as ChannelsReplicatedPayload
+        expect(payload.channels.channel?.name).toEqual('general')
+      }
+    })
 
     // Log all the dispatched actions in order
     const actions: AnyAction[] = []
@@ -83,8 +80,8 @@ describe('General channel', () => {
       yield* apply(socket.socketClient, socket.socketClient.emit, [
         SocketActionTypes.NEW_COMMUNITY,
         {
-          id: communityId
-        }
+          id: communityId,
+        },
       ])
     }
 

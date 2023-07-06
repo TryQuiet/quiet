@@ -1,22 +1,14 @@
 import { StoreKeys } from '../store.keys'
 import { createSelector } from 'reselect'
-import { CreatedSelectors, StoreState } from '../store.types'
+import { type CreatedSelectors, type StoreState } from '../store.types'
 
-const settingsSlice: CreatedSelectors[StoreKeys.Settings] = (
-  state: StoreState
-) => state[StoreKeys.Settings]
+const settingsSlice: CreatedSelectors[StoreKeys.Settings] = (state: StoreState) => state[StoreKeys.Settings]
 
-export const getNotificationsOption = createSelector(
-  settingsSlice,
-  (reducerState) => reducerState.notificationsOption
-)
+export const getNotificationsOption = createSelector(settingsSlice, reducerState => reducerState.notificationsOption)
 
-export const getNotificationsSound = createSelector(
-  settingsSlice,
-  (reducerState) => reducerState.notificationsSound
-)
+export const getNotificationsSound = createSelector(settingsSlice, reducerState => reducerState.notificationsSound)
 
 export const settingsSelectors = {
   getNotificationsOption,
-  getNotificationsSound
+  getNotificationsSound,
 }

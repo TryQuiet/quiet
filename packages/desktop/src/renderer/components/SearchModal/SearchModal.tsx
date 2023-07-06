@@ -12,9 +12,7 @@ const SearchModal = () => {
 
   const searchChannelModal = useModal(ModalName.searchChannelModal)
 
-  const dynamicSearchedChannelsSelector = useSelector(
-    publicChannels.selectors.dynamicSearchedChannels(channelInput)
-  )
+  const dynamicSearchedChannelsSelector = useSelector(publicChannels.selectors.dynamicSearchedChannels(channelInput))
 
   const unreadChannelsSelector = useSelector(publicChannels.selectors.unreadChannels)
 
@@ -24,7 +22,7 @@ const SearchModal = () => {
     (id: string) => {
       dispatch(
         publicChannels.actions.setCurrentChannel({
-          channelId: id
+          channelId: id,
         })
       )
       searchChannelModal.handleClose()
@@ -32,22 +30,25 @@ const SearchModal = () => {
     [dispatch]
   )
 
-  const handleKeyDown = useCallback<(evt: KeyboardEvent) => void>(evt => {
-    if ((evt.metaKey || evt.ctrlKey) && evt.key === 'k') {
-      evt.preventDefault()
-      dispatch(navigationActions.closeAllMenus())
-      searchChannelModal.handleOpen()
-    }
-    if ((evt.metaKey || evt.ctrlKey) && evt.key === 't') {
-      evt.preventDefault()
-      dispatch(navigationActions.closeAllMenus())
-      searchChannelModal.handleOpen()
-    }
-    if (evt.key === 'Escape') {
-      evt.preventDefault()
-      searchChannelModal.handleClose()
-    }
-  }, [dispatch])
+  const handleKeyDown = useCallback<(evt: KeyboardEvent) => void>(
+    evt => {
+      if ((evt.metaKey || evt.ctrlKey) && evt.key === 'k') {
+        evt.preventDefault()
+        dispatch(navigationActions.closeAllMenus())
+        searchChannelModal.handleOpen()
+      }
+      if ((evt.metaKey || evt.ctrlKey) && evt.key === 't') {
+        evt.preventDefault()
+        dispatch(navigationActions.closeAllMenus())
+        searchChannelModal.handleOpen()
+      }
+      if (evt.key === 'Escape') {
+        evt.preventDefault()
+        searchChannelModal.handleClose()
+      }
+    },
+    [dispatch]
+  )
 
   useEffect(() => {
     document.addEventListener('keydown', handleKeyDown, false)

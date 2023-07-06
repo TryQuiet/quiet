@@ -9,7 +9,7 @@ export const nativeServicesSlice = createSlice({
   reducers: {
     leaveCommunity: state => state,
     resetApp: state => state,
-  }
+  },
 })
 
 export const nativeServicesActions = nativeServicesSlice.actions

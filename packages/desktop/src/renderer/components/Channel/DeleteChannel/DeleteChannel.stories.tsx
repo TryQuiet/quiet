@@ -21,7 +21,7 @@ const args: ReturnType<typeof useModal> & DeleteChannelProps = {
   // @ts-expect-error
   handleOpen: () => {},
   // @ts-expect-error
-  handleClose: () => {}
+  handleClose: () => {},
 }
 
 Component.args = args
@@ -29,7 +29,7 @@ Component.args = args
 const component: ComponentMeta<typeof DeleteChannelComponent> = {
   title: 'Components/DeleteChannel',
   decorators: [withTheme],
-  component: DeleteChannelComponent
+  component: DeleteChannelComponent,
 }
 
 export default component

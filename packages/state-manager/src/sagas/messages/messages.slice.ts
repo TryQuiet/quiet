@@ -1,24 +1,38 @@
-import { createSlice, Dictionary, EntityState, PayloadAction } from '@reduxjs/toolkit'
+import { createSlice, type Dictionary, type EntityState, type PayloadAction } from '@reduxjs/toolkit'
 import { channelMessagesAdapter } from '../publicChannels/publicChannels.adapter'
 import { StoreKeys } from '../store.keys'
 import {
   messageVerificationStatusAdapter,
   messageSendingStatusAdapter,
-  publicChannelsMessagesBaseAdapter
+  publicChannelsMessagesBaseAdapter,
 } from './messages.adapter.ts'
-import { AddPublicChannelsMessagesBasePayload, AskForMessagesPayload, ChannelMessage, ChannelMessagesIdsResponse, DeleteChannelEntryPayload, IncomingMessages, instanceOfChannelMessage, LazyLoadingPayload, MessageSendingStatus, MessageVerificationStatus, PublicChannelsMessagesBase, SendDeletionMessagePayload, SetDisplayedMessagesNumberPayload, WriteMessagePayload } from '@quiet/types'
+import {
+  type AddPublicChannelsMessagesBasePayload,
+  type AskForMessagesPayload,
+  type ChannelMessage,
+  type ChannelMessagesIdsResponse,
+  type DeleteChannelEntryPayload,
+  type IncomingMessages,
+  instanceOfChannelMessage,
+  type LazyLoadingPayload,
+  type MessageSendingStatus,
+  type MessageVerificationStatus,
+  type PublicChannelsMessagesBase,
+  type SendDeletionMessagePayload,
+  type SetDisplayedMessagesNumberPayload,
+  type WriteMessagePayload,
+} from '@quiet/types'
 
 export class MessagesState {
   public publicKeyMapping: Dictionary<CryptoKey> = {}
 
   public publicChannelsMessagesBase: EntityState<PublicChannelsMessagesBase> =
-  publicChannelsMessagesBaseAdapter.getInitialState()
+    publicChannelsMessagesBaseAdapter.getInitialState()
 
   public messageVerificationStatus: EntityState<MessageVerificationStatus> =
-  messageVerificationStatusAdapter.getInitialState()
+    messageVerificationStatusAdapter.getInitialState()
 
-  public messageSendingStatus: EntityState<MessageSendingStatus> =
-  messageSendingStatusAdapter.getInitialState()
+  public messageSendingStatus: EntityState<MessageSendingStatus> = messageSendingStatusAdapter.getInitialState()
 }
 
 export const messagesSlice = createSlice({
@@ -26,8 +40,7 @@ export const messagesSlice = createSlice({
   name: StoreKeys.Messages,
   reducers: {
     sendMessage: (state, _action: PayloadAction<WriteMessagePayload>) => state,
-    sendDeletionMessage: (state, _action: PayloadAction<SendDeletionMessagePayload>) =>
-    state,
+    sendDeletionMessage: (state, _action: PayloadAction<SendDeletionMessagePayload>) => state,
     deleteChannelEntry: (state, action: PayloadAction<DeleteChannelEntryPayload>) => {
       const { channelId } = action.payload
       publicChannelsMessagesBaseAdapter.removeOne(state.publicChannelsMessagesBase, channelId)
@@ -35,9 +48,9 @@ export const messagesSlice = createSlice({
     addPublicChannelsMessagesBase: (state, action: PayloadAction<AddPublicChannelsMessagesBasePayload>) => {
       const { channelId } = action.payload
       publicChannelsMessagesBaseAdapter.addOne(state.publicChannelsMessagesBase, {
-        channelId: channelId,
+        channelId,
         messages: channelMessagesAdapter.getInitialState(),
-        display: 50
+        display: 50,
       })
     },
     addMessageVerificationStatus: (state, action: PayloadAction<MessageVerificationStatus>) => {
@@ -64,50 +77,38 @@ export const messagesSlice = createSlice({
 
         let incoming = message
 
-        const draft = state.publicChannelsMessagesBase
-          .entities[message.channelId]
-          ?.messages
-          .entities[message.id]
+        const draft = state.publicChannelsMessagesBase.entities[message.channelId]?.messages.entities[message.id]
 
         if (message.media && draft?.media?.path) {
           incoming = {
             ...message,
             media: {
               ...message.media,
-              path: message.media.path ? message.media.path : draft.media.path
-            }
+              path: message.media.path ? message.media.path : draft.media.path,
+            },
           }
         }
 
         const messagesBase = state.publicChannelsMessagesBase.entities[message.channelId]
         if (!messagesBase) return
 
-        channelMessagesAdapter.upsertOne(
-          messagesBase.messages,
-          incoming
-        )
+        channelMessagesAdapter.upsertOne(messagesBase.messages, incoming)
       }
     },
     setDisplayedMessagesNumber: (state, action: PayloadAction<SetDisplayedMessagesNumberPayload>) => {
       const { display, channelId } = action.payload
-      publicChannelsMessagesBaseAdapter.updateOne(
-        state.publicChannelsMessagesBase, {
-          id: channelId,
-          changes: {
-            display: display
-          }
-        }
-      )
+      publicChannelsMessagesBaseAdapter.updateOne(state.publicChannelsMessagesBase, {
+        id: channelId,
+        changes: {
+          display,
+        },
+      })
     },
-    askForMessages: (state, _action: PayloadAction<AskForMessagesPayload>) =>
-      state,
-    responseSendMessagesIds: (
-      state,
-      _action: PayloadAction<ChannelMessagesIdsResponse>
-    ) => state,
+    askForMessages: (state, _action: PayloadAction<AskForMessagesPayload>) => state,
+    responseSendMessagesIds: (state, _action: PayloadAction<ChannelMessagesIdsResponse>) => state,
     lazyLoading: (state, _action: PayloadAction<LazyLoadingPayload>) => state,
-    extendCurrentPublicChannelCache: (state) => state,
-    resetCurrentPublicChannelCache: (state) => state,
+    extendCurrentPublicChannelCache: state => state,
+    resetCurrentPublicChannelCache: state => state,
     // Utility action for testing purposes
     test_message_verification_status: (
       state,
@@ -120,10 +121,10 @@ export const messagesSlice = createSlice({
       messageVerificationStatusAdapter.upsertOne(state.messageVerificationStatus, {
         publicKey: message.pubKey,
         signature: message.signature,
-        isVerified: isVerified
+        isVerified,
       })
-    }
-  }
+    },
+  },
 })
 
 export const messagesActions = messagesSlice.actions

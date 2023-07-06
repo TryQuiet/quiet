@@ -9,16 +9,11 @@ import CreateCommunity from '../renderer/components/CreateJoinCommunity/CreateCo
 import Channel from '../renderer/components/Channel/Channel'
 import {
   CreateCommunityDictionary,
-  JoinCommunityDictionary
+  JoinCommunityDictionary,
 } from '../renderer/components/CreateJoinCommunity/community.dictionary'
 import MockedSocket from 'socket.io-mock'
 import { ioMock } from '../shared/setupTests'
-import {
-  communities,
-  getFactory,
-  network,
-  publicChannels
-} from '@quiet/state-manager'
+import { communities, getFactory, network, publicChannels } from '@quiet/state-manager'
 import { act } from 'react-dom/test-utils'
 import { identityActions } from 'packages/state-manager/src/sagas/identity/identity.slice'
 import { LoadingPanelType } from '@quiet/types'
@@ -34,7 +29,7 @@ describe('Restart app works correctly', () => {
     window.ResizeObserver = jest.fn().mockImplementation(() => ({
       observe: jest.fn(),
       unobserve: jest.fn(),
-      disconnect: jest.fn()
+      disconnect: jest.fn(),
     }))
   })
 
@@ -46,16 +41,16 @@ describe('Restart app works correctly', () => {
 
     const factory = await getFactory(store)
 
-    const community = await factory.create<
-      ReturnType<typeof communities.actions.addNewCommunity>['payload']
-    >('Community')
+    const community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>(
+      'Community'
+    )
 
     await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
-      id: community.id
+      id: community.id,
     })
 
     await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
-      id: community.id
+      id: community.id,
     })
 
     window.HTMLElement.prototype.scrollTo = jest.fn()
@@ -81,7 +76,7 @@ describe('Restart app works correctly', () => {
       store.dispatch(
         publicChannels.actions.sendInitialChannelMessage({
           channelId: generalId,
-          channelName: 'general'
+          channelName: 'general',
         })
       )
     })

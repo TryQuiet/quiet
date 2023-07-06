@@ -17,8 +17,8 @@ const channel_items: ContextMenuItemProps[] = [
     title: 'Delete',
     action: () => {
       console.log('clicked on delete channel')
-    }
-  }
+    },
+  },
 ]
 
 const args: ContextMenuProps = {
@@ -27,7 +27,7 @@ const args: ContextMenuProps = {
   visible: true,
   handleClose: () => {
     console.log('closing menu')
-  }
+  },
 }
 
 Component.args = args
@@ -35,7 +35,7 @@ Component.args = args
 const component: ComponentMeta<typeof ContextMenu> = {
   title: 'Components/ContextMenu',
   decorators: [withTheme],
-  component: ContextMenu
+  component: ContextMenu,
 }
 
 export default component

@@ -1,5 +1,5 @@
-import { Socket, applyEmitParams } from '../../../types'
-import { PayloadAction } from '@reduxjs/toolkit'
+import { type Socket, applyEmitParams } from '../../../types'
+import { type PayloadAction } from '@reduxjs/toolkit'
 import { keyFromCertificate, parseCertificate, sign, loadPrivateKey } from '@quiet/identity'
 import { call, select, apply, put } from 'typed-redux-saga'
 import { arrayBufferToString } from 'pvutils'
@@ -8,7 +8,7 @@ import { identitySelectors } from '../../identity/identity.selectors'
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
 import { messagesActions } from '../messages.slice'
 import { generateMessageId, getCurrentTime } from '../utils/message.utils'
-import { ChannelMessage, MessageType, SendingStatus, SocketActionTypes } from '@quiet/types'
+import { type ChannelMessage, MessageType, SendingStatus, SocketActionTypes } from '@quiet/types'
 
 export function* sendMessageSaga(
   socket: Socket,
@@ -40,21 +40,21 @@ export function* sendMessageSaga(
   }
 
   const message: ChannelMessage = {
-    id: id,
+    id,
     type: action.payload.type || MessageType.Basic,
     message: action.payload.message,
     media: action.payload.media,
     createdAt,
     channelId,
     signature,
-    pubKey
+    pubKey,
   }
 
   // Grey out message until saved in db
   yield* put(
     messagesActions.addMessagesSendingStatus({
       id: message.id,
-      status: SendingStatus.Pending
+      status: SendingStatus.Pending,
     })
   )
 
@@ -63,7 +63,7 @@ export function* sendMessageSaga(
     messagesActions.addMessageVerificationStatus({
       publicKey: message.pubKey,
       signature: message.signature,
-      isVerified: true
+      isVerified: true,
     })
   )
 
@@ -71,7 +71,7 @@ export function* sendMessageSaga(
   yield* put(
     messagesActions.incomingMessages({
       messages: [message],
-      isVerified: true
+      isVerified: true,
     })
   )
 
@@ -83,7 +83,7 @@ export function* sendMessageSaga(
     socket.emit,
     applyEmitParams(SocketActionTypes.SEND_MESSAGE, {
       peerId: identity.peerId.id,
-      message: message
+      message,
     })
   )
 }

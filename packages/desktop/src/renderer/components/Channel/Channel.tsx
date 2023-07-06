@@ -3,19 +3,8 @@ import React, { useCallback, useEffect } from 'react'
 import { shell, ipcRenderer } from 'electron'
 
 import { useDispatch, useSelector } from 'react-redux'
-import {
-  identity,
-  messages,
-  publicChannels,
-  communities,
-  files,
-  network
-} from '@quiet/state-manager'
-import {
-  FileMetadata,
-  CancelDownload,
-  FileContent
-} from '@quiet/types'
+import { identity, messages, publicChannels, communities, files, network } from '@quiet/state-manager'
+import { FileMetadata, CancelDownload, FileContent } from '@quiet/types'
 
 import ChannelComponent, { ChannelComponentProps } from './ChannelComponent'
 
@@ -37,17 +26,11 @@ const Channel = () => {
   const currentChannelId = useSelector(publicChannels.selectors.currentChannelId)
   const currentChannelName = useSelector(publicChannels.selectors.currentChannelName)
 
-  const currentChannelMessagesCount = useSelector(
-    publicChannels.selectors.currentChannelMessagesCount
-  )
+  const currentChannelMessagesCount = useSelector(publicChannels.selectors.currentChannelMessagesCount)
 
-  const currentChannelDisplayableMessages = useSelector(
-    publicChannels.selectors.currentChannelMessagesMergedBySender
-  )
+  const currentChannelDisplayableMessages = useSelector(publicChannels.selectors.currentChannelMessagesMergedBySender)
 
-  const newestCurrentChannelMessage = useSelector(
-    publicChannels.selectors.newestCurrentChannelMessage
-  )
+  const newestCurrentChannelMessage = useSelector(publicChannels.selectors.newestCurrentChannelMessage)
 
   const downloadStatusesMapping = useSelector(files.selectors.downloadStatuses)
 
@@ -56,16 +39,14 @@ const Channel = () => {
   const initializedCommunities = useSelector(network.selectors.initializedCommunities)
   const isCommunityInitialized = Boolean(community && initializedCommunities[community.id])
 
-  const pendingGeneralChannelRecreationSelector = useSelector(
-    publicChannels.selectors.pendingGeneralChannelRecreation
-  )
+  const pendingGeneralChannelRecreationSelector = useSelector(publicChannels.selectors.pendingGeneralChannelRecreation)
 
   const pendingGeneralChannelRecreation =
     pendingGeneralChannelRecreationSelector &&
     (currentChannelName === 'general' || currentChannelName === '') &&
     currentChannelMessagesCount === 0
 
-  let enableContextMenu: boolean = false
+  let enableContextMenu = false
   if (community) {
     // Enable only for community owner
     enableContextMenu = Boolean(community.CA)
@@ -146,7 +127,7 @@ const Channel = () => {
     ipcRenderer.send('writeTempFile', {
       fileName: `${id}${ext}`,
       fileBuffer: new Uint8Array(imageBuffer),
-      ext: ext
+      ext: ext,
     })
   }
 
@@ -158,8 +139,8 @@ const Channel = () => {
           [arg.id]: {
             ext: arg.ext,
             name: arg.id,
-            path: arg.path
-          }
+            path: arg.path,
+          },
         }
 
         return updatedFiles
@@ -216,7 +197,7 @@ const Channel = () => {
     channelName: currentChannelName,
     messages: {
       count: currentChannelMessagesCount,
-      groups: currentChannelDisplayableMessages
+      groups: currentChannelDisplayableMessages,
     },
     newestMessage: newestCurrentChannelMessage,
     pendingMessages: pendingMessages,
@@ -232,18 +213,18 @@ const Channel = () => {
     uploadedFileModal: uploadedFileModal,
     openContextMenu: openContextMenu,
     enableContextMenu: enableContextMenu,
-    pendingGeneralChannelRecreation: pendingGeneralChannelRecreation
+    pendingGeneralChannelRecreation: pendingGeneralChannelRecreation,
   }
 
   const uploadFilesPreviewProps: UploadFilesPreviewsProps = {
     filesData: uploadingFiles,
-    removeFile: removeFilePreview
+    removeFile: removeFilePreview,
   }
 
   const fileActionsProps: FileActionsProps = {
     openContainingFolder: openContainingFolder,
     downloadFile: downloadFile,
-    cancelDownload: cancelDownload
+    cancelDownload: cancelDownload,
   }
 
   return (

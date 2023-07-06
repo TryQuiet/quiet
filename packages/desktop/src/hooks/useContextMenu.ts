@@ -16,7 +16,7 @@ export const useContextMenu = <T extends OpenMenuPayload['args']>(menu: MenuName
     dispatch(
       navigationActions.openMenu({
         menu: menu,
-        args: args
+        args: args,
       })
     )
 
@@ -26,6 +26,6 @@ export const useContextMenu = <T extends OpenMenuPayload['args']>(menu: MenuName
     visible,
     handleOpen,
     handleClose,
-    ...props
+    ...props,
   }
 }

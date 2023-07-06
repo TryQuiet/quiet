@@ -17,43 +17,39 @@ const classes = {
   buttonNo: `${PREFIX}buttonNo`,
   buttonYes: `${PREFIX}buttonYes`,
   dialogActions: `${PREFIX}dialogActions`,
-  typography: `${PREFIX}typography`
+  typography: `${PREFIX}typography`,
 }
 
-const StyledDialog = styled(Dialog)((
-  {
-    theme
-  }
-) => ({
+const StyledDialog = styled(Dialog)(({ theme }) => ({
   [`& .${classes.root}`]: {},
 
   [`& .${classes.info}`]: {
-    fontWeight: 500
+    fontWeight: 500,
   },
 
   [`& .${classes.dialogContent}`]: {
-    borderBottom: `1px solid ${theme.palette.colors.veryLightGray}`
+    borderBottom: `1px solid ${theme.palette.colors.veryLightGray}`,
   },
 
   [`& .${classes.buttonNo}`]: {
     borderRight: `1px solid ${theme.palette.colors.veryLightGray}`,
     cursor: 'pointer',
-    padding: 10
+    padding: 10,
   },
 
   [`& .${classes.buttonYes}`]: {
     cursor: 'pointer',
     padding: 10,
-    color: theme.palette.colors.lushSky
+    color: theme.palette.colors.lushSky,
   },
 
   [`& .${classes.dialogActions}`]: {
-    padding: 0
+    padding: 0,
   },
 
   [`& .${classes.typography}`]: {
-    textAlign: 'center'
-  }
+    textAlign: 'center',
+  },
 }))
 
 interface QuitAppDialogProps {

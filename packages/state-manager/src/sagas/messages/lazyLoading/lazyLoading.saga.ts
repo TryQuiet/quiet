@@ -1,4 +1,4 @@
-import { PayloadAction } from '@reduxjs/toolkit'
+import { type PayloadAction } from '@reduxjs/toolkit'
 import { put, select } from 'typed-redux-saga'
 import { messagesActions } from '../messages.slice'
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
@@ -10,9 +10,9 @@ export function* lazyLoadingSaga(
   const cachedChannelMessages = yield* select(publicChannelsSelectors.currentChannelMessages)
   if (action.payload.load) {
     /**
-    * Load messages
-    * @param  load  Boolean: true - load more messages
-    */
+     * Load messages
+     * @param  load  Boolean: true - load more messages
+     */
     yield* put(messagesActions.extendCurrentPublicChannelCache())
   } else {
     /**

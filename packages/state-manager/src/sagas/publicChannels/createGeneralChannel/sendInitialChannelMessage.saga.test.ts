@@ -1,20 +1,20 @@
 import { setupCrypto } from '@quiet/identity'
-import { Store } from '../../store.types'
-import { getFactory, Identity } from '../../..'
+import { type Store } from '../../store.types'
+import { getFactory, type Identity } from '../../..'
 import { prepareStore } from '../../../utils/tests/prepareStore'
 import { publicChannelsActions } from './../publicChannels.slice'
-import { FactoryGirl } from 'factory-girl'
+import { type FactoryGirl } from 'factory-girl'
 import { expectSaga } from 'redux-saga-test-plan'
 import { sendInitialChannelMessageSaga } from './sendInitialChannelMessage.saga'
 import { messagesActions } from '../../messages/messages.slice'
-import { communitiesActions } from '../../communities/communities.slice'
-import { identityActions } from '../../identity/identity.slice'
+import { type communitiesActions } from '../../communities/communities.slice'
+import { type identityActions } from '../../identity/identity.slice'
 import { DateTime } from 'luxon'
 import { publicChannelsSelectors } from '../publicChannels.selectors'
 import { combineReducers } from '@reduxjs/toolkit'
 import { reducers } from '../../reducers'
 import { generateChannelId } from '@quiet/common'
-import { Community, PublicChannel } from '@quiet/types'
+import { type Community, type PublicChannel } from '@quiet/types'
 
 describe('sendInitialChannelMessageSaga', () => {
   let store: Store
@@ -33,32 +33,27 @@ describe('sendInitialChannelMessageSaga', () => {
     store = prepareStore().store
     factory = await getFactory(store)
 
-    community = await factory.create<
-      ReturnType<typeof communitiesActions.addNewCommunity>['payload']
-    >('Community')
+    community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
 
-    owner = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
-      'Identity',
-      { id: community.id, nickname: 'alice' }
-    )
+    owner = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
+      id: community.id,
+      nickname: 'alice',
+    })
 
     const generalChannelState = publicChannelsSelectors.generalChannel(store.getState())
     if (generalChannelState) generalChannel = generalChannelState
     expect(generalChannel).not.toBeUndefined()
 
     channel = (
-      await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>(
-        'PublicChannel',
-        {
-          channel: {
-            name: 'photo',
-            description: 'Welcome to #photo',
-            timestamp: DateTime.utc().valueOf(),
-            owner: owner.nickname,
-            id: generateChannelId('photo')
-          }
-        }
-      )
+      await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>('PublicChannel', {
+        channel: {
+          name: 'photo',
+          description: 'Welcome to #photo',
+          timestamp: DateTime.utc().valueOf(),
+          owner: owner.nickname,
+          id: generateChannelId('photo'),
+        },
+      })
     ).channel
   })
 
@@ -68,7 +63,7 @@ describe('sendInitialChannelMessageSaga', () => {
       sendInitialChannelMessageSaga,
       publicChannelsActions.sendInitialChannelMessage({
         channelName: channel.name,
-        channelId: channel.id
+        channelId: channel.id,
       })
     )
       .withReducer(reducer)
@@ -77,7 +72,7 @@ describe('sendInitialChannelMessageSaga', () => {
         messagesActions.sendMessage({
           type: 3,
           message: `Created #${channel.name}`,
-          channelId: channel.id
+          channelId: channel.id,
         })
       )
       .run()
@@ -90,7 +85,7 @@ describe('sendInitialChannelMessageSaga', () => {
       sendInitialChannelMessageSaga,
       publicChannelsActions.sendInitialChannelMessage({
         channelName: generalChannel.name,
-        channelId: generalChannel.id
+        channelId: generalChannel.id,
       })
     )
       .withReducer(reducer)
@@ -99,7 +94,7 @@ describe('sendInitialChannelMessageSaga', () => {
         messagesActions.sendMessage({
           type: 3,
           message: `@${owner.nickname} deleted all messages in #general`,
-          channelId: generalChannel.id
+          channelId: generalChannel.id,
         })
       )
       .run()

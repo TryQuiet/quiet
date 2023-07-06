@@ -20,9 +20,10 @@ const Template: ComponentStory<any> = () => {
           minHeight: '100vh',
           minWidth: '100vw',
           overflow: 'hidden',
-          position: 'relative'
+          position: 'relative',
         }}
-        wrap='nowrap'>
+        wrap='nowrap'
+      >
         <Grid item>
           {/* @ts-ignore */}
           <Sidebar />
@@ -41,7 +42,7 @@ Component.args = {}
 const component: ComponentMeta<typeof SidebarComponent> = {
   title: 'Components/Main',
   decorators: [withTheme],
-  component: SidebarComponent
+  component: SidebarComponent,
 }
 
 export default component

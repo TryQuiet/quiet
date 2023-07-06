@@ -1,4 +1,3 @@
-
 import React from 'react'
 import PropTypes from 'prop-types'
 import * as jdenticon from 'jdenticon/browser'
@@ -20,7 +19,7 @@ const Jdenticon = ({ value = 'test', size = '100%' }) => {
 
 Jdenticon.propTypes = {
   size: PropTypes.string,
-  value: PropTypes.string.isRequired
+  value: PropTypes.string.isRequired,
 }
 
 export default Jdenticon

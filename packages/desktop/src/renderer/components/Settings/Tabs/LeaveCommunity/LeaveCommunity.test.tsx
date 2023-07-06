@@ -108,8 +108,7 @@ describe('LeaveCommunity', () => {
                     <p
                       class="MuiTypography-root MuiTypography-body1 MuiTypography-alignCenter css-jxzupi-MuiTypography-root"
                     >
-                      Your account, messages, and all data for
-                       
+                      Your account, messages, and all data for 
                       <span
                         style="font-weight: 500;"
                       >

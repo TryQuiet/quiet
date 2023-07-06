@@ -12,9 +12,9 @@ export const Component = Template.bind({})
 
 const args: LeaveCommunityProps = {
   communityName: 'Rockets',
-  leaveCommunity: function (): void { },
+  leaveCommunity: function (): void {},
   open: true,
-  handleClose: function (): void { }
+  handleClose: function (): void {},
 }
 
 Component.args = args
@@ -22,7 +22,7 @@ Component.args = args
 const component: ComponentMeta<typeof LeaveCommunityComponent> = {
   title: 'Components/LeaveCommunity',
   decorators: [withTheme],
-  component: LeaveCommunityComponent
+  component: LeaveCommunityComponent,
 }
 
 export default component

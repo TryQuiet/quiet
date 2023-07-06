@@ -15,7 +15,7 @@ const args: SentryWarningProps = {
   open: true,
   handleClose: function (): void {
     console.log('Closed modal')
-  }
+  },
 }
 
 Component.args = args
@@ -23,7 +23,7 @@ Component.args = args
 const component: ComponentMeta<typeof SentryWarningComponent> = {
   title: 'Components/SentryWarning',
   decorators: [withTheme],
-  component: SentryWarningComponent
+  component: SentryWarningComponent,
 }
 
 export default component

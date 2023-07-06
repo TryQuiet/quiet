@@ -13,7 +13,7 @@ export const Component = Template.bind({})
 
 const args: NewMessagesInfoComponentProps = {
   scrollBottom: () => {},
-  show: true
+  show: true,
 }
 
 Component.args = args
@@ -21,7 +21,7 @@ Component.args = args
 const component: ComponentMeta<typeof NewMessagesInfoComponent> = {
   title: 'Components/NewMessagesInfo',
   decorators: [withTheme],
-  component: NewMessagesInfoComponent
+  component: NewMessagesInfoComponent,
 }
 
 export default component

@@ -1,1 +1,0 @@
-export { Tor } from './torManager'

@@ -1,16 +1,17 @@
-import { createSlice, EntityState, PayloadAction } from '@reduxjs/toolkit'
+import { createSlice, type EntityState, type PayloadAction } from '@reduxjs/toolkit'
 import { StoreKeys } from '../store.keys'
 import { peersStatsAdapter } from './connection.adapter'
-import { ConnectionProcessInfo, NetworkDataPayload, NetworkStats } from '@quiet/types'
+import { ConnectionProcessInfo, type NetworkDataPayload, type NetworkStats } from '@quiet/types'
 
 export class ConnectionState {
-  public lastConnectedTime: number = 0
-  public uptime: number = 0
+  public lastConnectedTime = 0
+  public uptime = 0
   public peersStats: EntityState<NetworkStats> = peersStatsAdapter.getInitialState()
-  public torBootstrapProcess: string = 'Bootstrapped 0% (starting)'
+  public isConnectionManager = false
+  public torBootstrapProcess = 'Bootstrapped 0% (starting)'
   public torConnectionProcess: { number: number; text: string } = {
     number: 5,
-    text: 'Connecting process started'
+    text: 'Connecting process started',
   }
 }
 
@@ -27,7 +28,7 @@ export const connectionSlice = createSlice({
       peersStatsAdapter.upsertOne(state.peersStats, {
         peerId: action.payload.peer,
         lastSeen: action.payload.lastSeen,
-        connectionTime: prev + action.payload.connectionDuration
+        connectionTime: prev + action.payload.connectionDuration,
       })
     },
     setLastConnectedTime: (state, action: PayloadAction<number>) => {
@@ -43,6 +44,9 @@ export const connectionSlice = createSlice({
       }
     },
     torBootstrapped: (state, _action: PayloadAction<any>) => state,
+    connectionManagerInit: state => {
+      state.isConnectionManager = true
+    },
     setTorConnectionProcess: (state, action: PayloadAction<string>) => {
       const info = action.payload
       switch (info) {
@@ -61,16 +65,13 @@ export const connectionSlice = createSlice({
         case ConnectionProcessInfo.SPAWNING_HIDDEN_SERVICE:
           state.torConnectionProcess = { number: 40, text: info }
           break
-        case ConnectionProcessInfo.INITIALIZING_STORAGE:
+        case ConnectionProcessInfo.INITIALIZING_LIBP2P:
           state.torConnectionProcess = { number: 50, text: info }
           break
-        case ConnectionProcessInfo.INITIALIZING_LIBP2P:
+        case ConnectionProcessInfo.INITIALIZING_STORAGE:
           state.torConnectionProcess = { number: 60, text: info }
           break
         case ConnectionProcessInfo.INITIALIZING_IPFS:
-          state.torConnectionProcess = { number: 65, text: info }
-          break
-        case ConnectionProcessInfo.INITIALIZED_STORAGE:
           state.torConnectionProcess = { number: 70, text: info }
           break
         case ConnectionProcessInfo.LOADED_CERTIFICATES:
@@ -89,8 +90,8 @@ export const connectionSlice = createSlice({
           state.torConnectionProcess = { number: 95, text: info }
           break
       }
-    }
-  }
+    },
+  },
 })
 
 export const connectionActions = connectionSlice.actions

@@ -25,8 +25,8 @@ describe('Sentry warning modal', () => {
     const { store } = await prepareStore({
       [StoreKeys.Socket]: {
         ...new SocketState(),
-        isConnected: true
-      }
+        isConnected: true,
+      },
     })
 
     renderComponent(
@@ -43,8 +43,8 @@ describe('Sentry warning modal', () => {
     const { store } = await prepareStore({
       [StoreKeys.Socket]: {
         ...new SocketState(),
-        isConnected: true
-      }
+        isConnected: true,
+      },
     })
 
     renderComponent(

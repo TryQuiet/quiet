@@ -64,7 +64,7 @@ export enum DownloadState {
   Completed = 'completed',
   Canceling = 'canceling',
   Canceled = 'canceled',
-  Malicious = 'malicious'
+  Malicious = 'malicious',
 }
 
 export const imagesExtensions = ['.gif', '.png', '.jpg', '.jpeg']

@@ -2,7 +2,6 @@ import React from 'react'
 import { ComponentStory, ComponentMeta } from '@storybook/react'
 
 import { withTheme } from '../../../storybook/decorators'
-
 import CreateChannelComponent, { CreateChannelProps } from './CreateChannelComponent'
 
 const Template: ComponentStory<typeof CreateChannelComponent> = args => {
@@ -17,7 +16,7 @@ const args: CreateChannelProps = {
     console.log('creating channel: ', name)
   },
   handleClose: function (): void {},
-  clearErrorsDispatch: function (): void {}
+  clearErrorsDispatch: function (): void {},
 }
 
 Component.args = args
@@ -25,7 +24,7 @@ Component.args = args
 const component: ComponentMeta<typeof CreateChannelComponent> = {
   title: 'Components/CreateChannel',
   decorators: [withTheme],
-  component: CreateChannelComponent
+  component: CreateChannelComponent,
 }
 
 export default component

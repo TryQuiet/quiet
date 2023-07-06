@@ -64,14 +64,10 @@ export const prepareStore = async (
 
   const sagaMonitor = new SagaMonitor()
   const sagaMiddleware = createSagaMiddleware({
-    sagaMonitor
+    sagaMonitor,
   })
 
-  const store = createStore(
-    combinedReducers,
-    mockedState,
-    applyMiddleware(...[sagaMiddleware, thunk])
-  )
+  const store = createStore(combinedReducers, mockedState, applyMiddleware(...[sagaMiddleware, thunk]))
 
   let root: Task | null = null
   // Fork State manager's sagas (require mocked socket.io-client)
@@ -85,7 +81,7 @@ export const prepareStore = async (
     store,
     root,
     runSaga: sagaMiddleware.run,
-    sagaMonitor
+    sagaMonitor,
   }
 }
 

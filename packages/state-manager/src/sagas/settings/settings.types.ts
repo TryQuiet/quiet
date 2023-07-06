@@ -1,7 +1,7 @@
 export enum NotificationsOptions {
   notifyForEveryMessage = 'notifyForEveryMessage',
   notifyForDirectMessagesAndMentions = 'notifyForDirectMessagesAndMentions',
-  doNotNotifyOfAnyMessages = 'doNotNotifyOfAnyMessages'
+  doNotNotifyOfAnyMessages = 'doNotNotifyOfAnyMessages',
 }
 
 export enum NotificationsSounds {
@@ -9,5 +9,5 @@ export enum NotificationsSounds {
   pow = 'pow',
   splat = 'splat',
   none = 'none',
-  librarianShhh = 'librarianShhh'
+  librarianShhh = 'librarianShhh',
 }

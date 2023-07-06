@@ -7,10 +7,10 @@ export const searchChannelField = (name = 'searchChannel'): FieldData => {
       label: '',
       name,
       type: 'text',
-      placeholder: 'Type name'
+      placeholder: 'Type name',
     },
     validation: {
-      required: FieldErrors.Required
-    }
+      required: FieldErrors.Required,
+    },
   }
 }

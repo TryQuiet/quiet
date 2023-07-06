@@ -16,23 +16,23 @@ const classes = {
   connectedIcon: `${PREFIX}connectedIcon`,
   notConnectedIcon: `${PREFIX}notConnectedIcon`,
   itemText: `${PREFIX}itemText`,
-  disabled: `${PREFIX}disabled`
+  disabled: `${PREFIX}disabled`,
 }
 
 const StyledListItemButton = styled(ListItemButton)(({ theme }) => ({
   [`&.${classes.root}`]: {
-    padding: 0
+    padding: 0,
   },
 
   [`&.${classes.selected}`]: {
     backgroundColor: theme.palette.colors.lushSky,
     '&:hover': {
-      backgroundColor: theme.palette.colors.lushSky
-    }
+      backgroundColor: theme.palette.colors.lushSky,
+    },
   },
 
   [`& .${classes.primary}`]: {
-    display: 'flex'
+    display: 'flex',
   },
 
   [`& .${classes.title}`]: {
@@ -44,19 +44,19 @@ const StyledListItemButton = styled(ListItemButton)(({ theme }) => ({
     textOverflow: 'ellipsis',
     maxWidth: 215,
     whiteSpace: 'nowrap',
-    textTransform: 'lowercase'
+    textTransform: 'lowercase',
   },
 
   [`& .${classes.newMessages}`]: {
     opacity: 1,
-    fontWeight: 600
+    fontWeight: 600,
   },
 
   [`& .${classes.connectedIcon}`]: {
     marginLeft: 16,
     marginRight: -8,
     width: 11,
-    height: 11
+    height: 11,
   },
 
   [`& .${classes.notConnectedIcon}`]: {
@@ -64,17 +64,17 @@ const StyledListItemButton = styled(ListItemButton)(({ theme }) => ({
     marginRight: -8,
     width: 11,
     height: 11,
-    opacity: 0.5
+    opacity: 0.5,
   },
 
   [`& .${classes.itemText}`]: {
-    margin: 0
+    margin: 0,
   },
   [`&.${classes.disabled}`]: {
     opacity: '0.3',
     pointerEvents: 'none',
-    cursor: 'not-allowed'
-  }
+    cursor: 'not-allowed',
+  },
 }))
 
 export interface ChannelsListItemProps {
@@ -90,7 +90,7 @@ export const ChannelsListItem: React.FC<ChannelsListItemProps> = ({
   unread,
   selected,
   setCurrentChannel,
-  disabled = false
+  disabled = false,
 }) => {
   const ref = useRef<HTMLDivElement>(null)
 
@@ -103,9 +103,10 @@ export const ChannelsListItem: React.FC<ChannelsListItemProps> = ({
       }}
       className={classNames(classes.root, {
         [classes.selected]: selected,
-        [classes.disabled]: disabled
+        [classes.disabled]: disabled,
       })}
-      data-testid={`${channel.name}-link`}>
+      data-testid={`${channel.name}-link`}
+    >
       <ListItemText
         primary={
           <Grid container alignItems='center'>
@@ -113,16 +114,17 @@ export const ChannelsListItem: React.FC<ChannelsListItemProps> = ({
               <Typography
                 variant='body2'
                 className={classNames(classes.title, {
-                  [classes.newMessages]: unread
+                  [classes.newMessages]: unread,
                 })}
-                data-testid={`${channel.name}-link-text`}>
+                data-testid={`${channel.name}-link-text`}
+              >
                 {`# ${channel.name}`}
               </Typography>
             </Grid>
           </Grid>
         }
         classes={{
-          primary: classes.primary
+          primary: classes.primary,
         }}
         className={classes.itemText}
       />

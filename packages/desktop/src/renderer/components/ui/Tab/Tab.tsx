@@ -7,7 +7,7 @@ const PREFIX = 'Tab'
 const classes = {
   tabRoot: `${PREFIX}tabRoot`,
   textColorPrimary: `${PREFIX}textColorPrimary`,
-  selected: `${PREFIX}selected`
+  selected: `${PREFIX}selected`,
 }
 
 const StyledMuiTab = styled(MuiTab)(({ theme }) => ({
@@ -19,14 +19,14 @@ const StyledMuiTab = styled(MuiTab)(({ theme }) => ({
     alignItems: 'flex-start',
     textTransform: 'none',
     lineHeight: '21px',
-    minHeight: '0px'
+    minHeight: '0px',
   },
 
   [`&.${classes.selected}`]: {
     backgroundColor: theme.palette.colors.lushSky,
     borderRadius: 5,
-    color: `${theme.palette.colors.white} !important`
-  }
+    color: `${theme.palette.colors.white} !important`,
+  },
 }))
 
 export const Tab: React.FC<React.ComponentProps<typeof MuiTab>> = props => {
@@ -35,7 +35,7 @@ export const Tab: React.FC<React.ComponentProps<typeof MuiTab>> = props => {
       classes={{
         root: classes.tabRoot,
         textColorPrimary: classes.textColorPrimary,
-        selected: classes.selected
+        selected: classes.selected,
       }}
       {...props}
     />

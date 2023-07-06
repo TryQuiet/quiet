@@ -18,20 +18,20 @@ const classes = {
   text: `${PREFIX}text`,
   progressBar: `${PREFIX}progressBar`,
   progress: `${PREFIX}progress`,
-  progressBarWrapper: `${PREFIX}progressBarWrapper`
+  progressBarWrapper: `${PREFIX}progressBarWrapper`,
 }
 
 const StyledGrid = styled(Grid)(({ theme, width }) => ({
   [`&.${classes.root}`]: {
     textAlign: 'center',
-    width: '100%'
+    width: '100%',
   },
   [`& .${classes.contentWrapper}`]: {
-    maxWidth: '450px'
+    maxWidth: '450px',
   },
   '@keyframes rotate': {
     from: { transform: 'rotate(0deg)' },
-    to: { transform: 'rotate(360deg)' }
+    to: { transform: 'rotate(360deg)' },
   },
   [`& .${classes.animatedImage}`]: {
     width: '120px',
@@ -40,23 +40,23 @@ const StyledGrid = styled(Grid)(({ theme, width }) => ({
     animationDuration: '8s',
     animationTimingFunction: 'linear',
     animationIterationCount: 'infinite',
-    transition: '2s all'
+    transition: '2s all',
   },
   [`& .${classes.image}`]: {
     width: '120px',
-    height: '115px'
+    height: '115px',
   },
   [`& .${classes.heading2}`]: {
     fontSize: '18px',
-    marginTop: '12px'
+    marginTop: '12px',
   },
   [`& .${classes.link}`]: {
     color: theme.palette.colors.blue,
     cursor: 'pointer',
-    marginTop: '16px'
+    marginTop: '16px',
   },
   [`& .${classes.text}`]: {
-    color: theme.palette.colors.black30
+    color: theme.palette.colors.black30,
   },
   [`& .${classes.progressBar}`]: {
     backgroundColor: theme.palette.colors.veryLightGray,
@@ -65,18 +65,18 @@ const StyledGrid = styled(Grid)(({ theme, width }) => ({
     position: 'relative',
     borderRadius: '100px',
     overflow: 'hidden',
-    marginBottom: '8px'
+    marginBottom: '8px',
   },
   [`& .${classes.progress}`]: {
     backgroundColor: theme.palette.colors.lushSky,
     width: width,
     height: '4px',
-    position: 'relative'
+    position: 'relative',
   },
   [`& .${classes.progressBarWrapper}`]: {
     // margin: '16px 0 40px'
-    margin: '16px 0 20px'
-  }
+    margin: '16px 0 20px',
+  },
 }))
 
 export interface JoiningPanelComponentProps {
@@ -92,32 +92,25 @@ const JoiningPanelComponent: React.FC<JoiningPanelComponentProps> = ({
   handleClose,
   openUrl,
   torConnectionInfo,
-  isOwner
+  isOwner,
 }) => {
   return (
     <Modal open={open} handleClose={handleClose} isCloseDisabled={true} withoutHeader>
-      <StyledGrid
-        container
-        justifyContent='center'
-        className={classes.root}
-        width={torConnectionInfo.number * 3}>
+      <StyledGrid container justifyContent='center' className={classes.root} width={torConnectionInfo.number * 3}>
         <Grid
           container
           alignItems='center'
           direction='column'
           className={classes.contentWrapper}
-          data-testid='joiningPanelComponent'>
+          data-testid='joiningPanelComponent'
+        >
           <img className={isOwner ? classes.image : classes.animatedImage} src={JoinCommunityImg} />
           <Typography className={classes.heading2} variant='h2'>
             Joining now!
           </Typography>
 
           <div className={classes.progressBarWrapper}>
-            <Grid
-              container
-              justifyContent='flex-start'
-              alignItems='center'
-              className={classes.progressBar}>
+            <Grid container justifyContent='flex-start' alignItems='center' className={classes.progressBar}>
               <div className={classes.progress}></div>
             </Grid>
             <Typography variant='body2'>{torConnectionInfo.text}</Typography>
@@ -129,9 +122,9 @@ const JoiningPanelComponent: React.FC<JoiningPanelComponentProps> = ({
             <strong> This first time might take 30 seconds, 10 minutes, or even longer.</strong>
             <br />
             <br />
-            There's a good reason why it's slow: Quiet stores data on your community’s devices (not
-            Big Tech’s servers!) and uses the battle-tested privacy tool Tor to protect your
-            information. Tor is fast once connected, but can take a long time to connect at first.
+            There's a good reason why it's slow: Quiet stores data on your community’s devices (not Big Tech’s servers!)
+            and uses the battle-tested privacy tool Tor to protect your information. Tor is fast once connected, but can
+            take a long time to connect at first.
           </Typography>
           <a onClick={() => openUrl(Site.MAIN_PAGE)}>
             <Typography className={classes.link} variant='body2'>

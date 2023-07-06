@@ -18,8 +18,9 @@ export const MessageSendButton: FC<MessageSendButtonProps> = ({ onPress, disable
       <View
         style={{
           flex: 1.5,
-          justifyContent: 'center'
-        }}>
+          justifyContent: 'center',
+        }}
+      >
         <Image
           source={icon}
           resizeMode='cover'
@@ -27,7 +28,7 @@ export const MessageSendButton: FC<MessageSendButtonProps> = ({ onPress, disable
           style={{
             alignSelf: 'center',
             width: 20,
-            height: 20
+            height: 20,
           }}
         />
       </View>
