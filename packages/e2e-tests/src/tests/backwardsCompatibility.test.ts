@@ -136,7 +136,7 @@ describe('Backwards Compatibility', () => {
       messagesToCompare = await secondChannel.getUserMessages(ownerUsername)
     })
     it('Close old app', async () => {
-      await ownerAppOldVersion.close({ forceSaveState: true })
+      await ownerAppOldVersion.close()
       await new Promise<void>(resolve => setTimeout(() => resolve(), 5000))
     })
 
