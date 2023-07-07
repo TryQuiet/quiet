@@ -2,13 +2,14 @@ import { Crypto } from '@peculiar/webcrypto'
 import { Command } from 'commander'
 import { NestFactory } from '@nestjs/core'
 import path from 'path'
+import getPort from 'get-port'
 import { AppModule } from './nest/app.module'
 import { ConnectionsManagerService } from './nest/connections-manager/connections-manager.service'
-import getPort from 'get-port'
 import { torBinForPlatform, torDirForPlatform } from './nest/common/utils'
-import logger from './nest/common/logger'
 
+import logger from './nest/common/logger'
 const log = logger('backendManager')
+
 const program = new Command()
 
 program
@@ -35,8 +36,6 @@ interface OpenServices {
   authCookie?: any
 }
 
-// @ts-ignore
-import rn_bridge from './rn-bridge.ts'
 import { INestApplicationContext } from '@nestjs/common'
 
 export const runBackendDesktop = async () => {
@@ -90,6 +89,9 @@ export const runBackendMobile = async (): Promise<any> => {
   // Enable triggering push notifications
   process.env['BACKEND'] = 'mobile'
   process.env['CONNECTION_TIME'] = (new Date().getTime() / 1000).toString() // Get time in seconds
+
+  // @ts-ignore
+  const rn_bridge = (await import('./rn-bridge.ts')).default
 
   let app: INestApplicationContext
   app = await NestFactory.createApplicationContext(
