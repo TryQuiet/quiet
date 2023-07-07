@@ -122,6 +122,10 @@ jobs:
         shell: powershell
         # Old prod version
 
+      - name: Run Backwards Compatibility test
+        working-directory: ./packages/e2e-tests
+        run: npm run test backwardsCompatibility.test.ts
+
       - name: Run one client test
         uses: nick-fields/retry@v2
         with:
@@ -129,7 +133,3 @@ jobs:
           max_attempts: 3
           shell: bash
           command: cd packages/e2e-tests && npm run test oneClient.test.ts
-
-      - name: Run Backwards Compatibility test
-        working-directory: ./packages/e2e-tests
-        run: npm run test backwardsCompatibility.test.ts
