@@ -9,6 +9,7 @@ export const appSlice = createSlice({
   name: StoreKeys.App,
   reducers: {
     closeServices: state => state,
+    stopBackend: state => state,
   },
 })
 
