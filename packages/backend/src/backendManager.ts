@@ -6,6 +6,7 @@ import getPort from 'get-port'
 import { AppModule } from './nest/app.module'
 import { ConnectionsManagerService } from './nest/connections-manager/connections-manager.service'
 import { torBinForPlatform, torDirForPlatform } from './nest/common/utils'
+import initRnBridge from './rn-bridge'
 
 import logger from './nest/common/logger'
 const log = logger('backendManager')
@@ -90,8 +91,7 @@ export const runBackendMobile = async (): Promise<any> => {
   process.env['BACKEND'] = 'mobile'
   process.env['CONNECTION_TIME'] = (new Date().getTime() / 1000).toString() // Get time in seconds
 
-  // @ts-ignore
-  const rn_bridge = (await import('./rn-bridge.ts')).default
+  const rn_bridge = initRnBridge()
 
   let app: INestApplicationContext
   app = await NestFactory.createApplicationContext(
