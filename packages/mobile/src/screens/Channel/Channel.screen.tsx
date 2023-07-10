@@ -73,13 +73,6 @@ export const ChannelScreen: FC = () => {
     [dispatch]
   )
 
-  // const sendMessageAction = useCallback(
-  //   (message: string) => {
-  //     dispatch(messages.actions.sendMessage({ message }))
-  //   },
-  //   [dispatch]
-  // )
-
   const loadMessages = useCallback(
     (load: boolean) => {
       dispatch(messages.actions.lazyLoading({ load }))
@@ -90,7 +83,7 @@ export const ChannelScreen: FC = () => {
   const getFileData = (filePath: string): FilePreviewData => {
     const fileContent: FileContent = {
       path: filePath,
-      name: 'test',
+      name: 'test', // todo: get real data
       ext: 'png',
     }
     const id = `${Date.now()}_${Math.random().toString(36).substring(0, 20)}`
@@ -108,7 +101,7 @@ export const ChannelScreen: FC = () => {
   // Files
   const updateUploadedFiles = (files: DocumentPickerResponse[]) => {
     console.log('FILES', files)
-    const filesData: FilePreviewData = getFilesData(files.map(i => i.uri))
+    const filesData: FilePreviewData = getFilesData(files.map(i => i.fileCopyUri || i.uri))
     console.log('FILES PATHS', filesData)
 
     // FilePreviewData
@@ -134,20 +127,24 @@ export const ChannelScreen: FC = () => {
       // Upload files, then send corresponding message (contaning cid) for each of them
       Object.values(filesRef.current).forEach(async (fileData: FileContent) => {
         if (!fileData.path) return
-        const destPath = `${RNFS.TemporaryDirectoryPath}/${fileData.name}.${fileData.ext}`
-        console.log('DEST', destPath)
-        // await RNFS.copyFile(fileData.path, destPath)
-
-        try {
-          console.log('THIS', decodeURIComponent(fileData.path))
-          // const newFile = await RNFetchBlob.fs.stat(fileData.path);
-          const aaa = await RNFS.stat(decodeURIComponent(fileData.path))
-          console.log('after stat::----: ', aaa)
-        } catch (e) {
-          console.error('--->', e)
-        }
-
-        // dispatch(files.actions.uploadFile(fileData))
+        const updatedData = fileData
+        // try {
+        //   console.log('THIS', decodeURIComponent(fileData.path))
+        //   const a = decodeURIComponent(fileData.path)
+        //   // const wrappedPath = RNFetchBlob.wrap(fileData.path)
+        //   // console.log('WRAP', wrappedPath)
+        //   console.log('before stat blobbb', fileData.path)
+        //   const statttt = await RNFetchBlob.fs.exists(a)
+        //   console.log(await RNFetchBlob.fs.stat(a))
+        //   // const aaa = await RNFS.stat(decodeURIComponent(fileData.path))
+        //   console.log('after stat::----: ', statttt)
+        // } catch (e) {
+        //   console.error('--->', e)
+        //   return
+        // }
+        // import { FilePreviewData } from '@quiet/types'
+        updatedData.path = fileData.path.split('file://')[1]
+        dispatch(files.actions.uploadFile(updatedData))
       })
       // Reset file previews for input state
       setUploadingFiles({})

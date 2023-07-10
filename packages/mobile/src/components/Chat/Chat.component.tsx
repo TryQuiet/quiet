@@ -1,5 +1,5 @@
 import React, { FC, useState, useEffect, useRef } from 'react'
-import { Keyboard, View, FlatList, TextInput, KeyboardAvoidingView, Platform, PermissionsAndroid } from 'react-native'
+import { Keyboard, View, FlatList, TextInput, KeyboardAvoidingView, Platform } from 'react-native'
 import { Appbar } from '../../components/Appbar/Appbar.component'
 import { ImagePreviewModal } from '../../components/ImagePreview/ImagePreview.component'
 import { Spinner } from '../Spinner/Spinner.component'
@@ -13,7 +13,6 @@ import { AttachmentButton } from '../AttachmentButton/AttachmentButton.component
 import DocumentPicker, { DocumentPickerResponse, types } from 'react-native-document-picker'
 // import { FilePreviewData } from '@quiet/types'
 import UploadFilesPreviewsComponent from '../FileUploadingPreview/UploadingPreview.component'
-import RNFS from 'react-native-fs'
 
 export const Chat: FC<ChatProps & FileActionsProps> = ({
   contextMenu,
@@ -75,37 +74,17 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
   }
 
   const openAttachments = async () => {
-    try {
-      const granted = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE, {
-        title: 'READ storage?',
-        message: 'Cool Photo App needs access to your camera ' + 'so you can take awesome pictures.',
-        buttonNeutral: 'Ask Me Later',
-        buttonNegative: 'Cancel',
-        buttonPositive: 'OK',
-      })
-      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-        console.log('You can use the storage')
-
-        const response: DocumentPickerResponse[] = await DocumentPicker.pick({
-          presentationStyle: 'fullScreen',
-          type: [types.allFiles],
-          allowMultiSelection: true,
-        })
-        console.log('RESPONSE', response)
-        if (response) {
-          updateUploadedFiles(response)
-        }
-      } else {
-        console.log('STORAGE permission denied')
-      }
-    } catch (err) {
-      console.warn(err)
+    const response: DocumentPickerResponse[] = await DocumentPicker.pick({
+      presentationStyle: 'fullScreen',
+      type: [types.allFiles],
+      allowMultiSelection: true,
+      copyTo: 'cachesDirectory',
+    })
+    console.log('RESPONSE', response)
+    if (response) {
+      updateUploadedFiles(response)
     }
   }
-
-  // const removeFile = (id: string) => {
-  //   console.log('REMOVING FILE')
-  // }
 
   const onPress = () => {
     if (!messageInputRef.current || messageInput === undefined || messageInput?.length === 0) {
