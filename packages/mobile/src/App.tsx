@@ -44,6 +44,7 @@ import { ConfirmationBox } from './components/ConfirmationBox/ConfirmationBox.co
 
 import StoreProvider from './Provider'
 import { RootStackParamList } from './route.params'
+import ConnectionProcessScreen from './screens/ConnectionProcess/ConnectionProcess.screen'
 
 LogBox.ignoreAllLogs()
 
@@ -91,6 +92,7 @@ function App(): JSX.Element {
                 <Screen component={JoinCommunityScreen} name={ScreenNames.JoinCommunityScreen} />
                 <Screen component={UsernameRegistrationScreen} name={ScreenNames.UsernameRegistrationScreen} />
                 <Screen component={ChannelListScreen} name={ScreenNames.ChannelListScreen} />
+                <Screen component={ConnectionProcessScreen} name={ScreenNames.ConnectionProcessScreen} />
                 <Screen component={ChannelScreen} name={ScreenNames.ChannelScreen} />
                 <Screen component={CreateChannelScreen} name={ScreenNames.CreateChannelScreen} />
                 <Screen component={DeleteChannelScreen} name={ScreenNames.DeleteChannelScreen} />
