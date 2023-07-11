@@ -12,7 +12,7 @@ import { useModal } from '../../containers/hooks'
 import { ModalName } from '../../sagas/modals/modals.types'
 import { UploadFilesPreviewsProps } from './File/UploadingPreview'
 
-import { getFilesData } from '../../../utils/functions/fileData'
+import { getFilesData } from '@quiet/common'
 
 import { FileActionsProps } from './File/FileComponent/FileComponent'
 

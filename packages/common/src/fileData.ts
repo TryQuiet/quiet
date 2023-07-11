@@ -1,9 +1,5 @@
 import path from 'path'
-import { FileContent } from '@quiet/types'
-
-interface FilePreviewData {
-  [id: string]: FileContent
-}
+import { FileContent, FilePreviewData } from '@quiet/types'
 
 export const getFileData = (filePath: string): FilePreviewData => {
   const fileContent: FileContent = {

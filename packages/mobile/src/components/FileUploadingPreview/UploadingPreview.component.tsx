@@ -157,14 +157,14 @@ const FilePreviewComponent: React.FC<FilePreviewComponentProps> = ({ fileData, o
         }}
       >
         {imageType && fileData.path ? (
-          <img
-            src={fileData.path}
+          <Image
+            source={{ uri: fileData.path }}
             alt={fileData.name}
             style={{
               width: 64,
               height: 64,
               borderRadius: 15,
-              objectFit: 'cover',
+              // objectFit: 'cover',
               backgroundColor: 'red',
             }}
           />

@@ -9,8 +9,9 @@ import { ScreenNames } from '../../const/ScreenNames.enum'
 import { UseContextMenuType, useContextMenu } from '../../hooks/useContextMenu'
 import { MenuName } from '../../const/MenuNames.enum'
 import { DocumentPickerResponse } from 'react-native-document-picker'
-import RNFS from 'react-native-fs'
-import RNFetchBlob from 'rn-fetch-blob'
+import { getFilesData } from '@quiet/common'
+// import RNFS from 'react-native-fs'
+// import RNFetchBlob from 'rn-fetch-blob'
 
 export const ChannelScreen: FC = () => {
   const dispatch = useDispatch()
@@ -79,24 +80,6 @@ export const ChannelScreen: FC = () => {
     },
     [dispatch]
   )
-
-  const getFileData = (filePath: string): FilePreviewData => {
-    const fileContent: FileContent = {
-      path: filePath,
-      name: 'test', // todo: get real data
-      ext: 'png',
-    }
-    const id = `${Date.now()}_${Math.random().toString(36).substring(0, 20)}`
-    return { [id]: fileContent }
-  }
-
-  const getFilesData = (filePaths: string[]): FilePreviewData => {
-    const data = {}
-    filePaths.forEach((filePath: string) => {
-      Object.assign(data, getFileData(filePath))
-    })
-    return data
-  }
 
   // Files
   const updateUploadedFiles = (files: DocumentPickerResponse[]) => {
