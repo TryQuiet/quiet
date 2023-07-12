@@ -42,7 +42,9 @@ jest.mock('react-native-mathjax-html-to-svg', () => {});
 
 jest.mock('react-native-qrcode-svg', () => jest.fn());
 
-jest.mock('react-native-progress', () => {});
+jest.mock('react-native-progress', () => ({
+  CircleSnail: jest.fn()
+}))
 
 jest.mock('socket.io-client', () => ({
   io: jest.fn()
