@@ -13,24 +13,26 @@ export const AttachmentButton: FC<AttachmentButtonProps> = ({ onPress, disabled 
 
   const icon = appImages.paperclip_active
 
-  console.log('Hello')
-
   return (
     <TouchableWithoutFeedback onPress={handlePress} testID={'send_message_button'}>
       <View
         style={{
-          flex: 1.5,
+          // flex: 1.5,
+          paddingLeft: 5,
+          paddingRight: 5,
+          // backgroundColor: 'yellow',
           justifyContent: 'center',
         }}
       >
         <Image
           source={icon}
-          resizeMode='cover'
-          resizeMethod='resize'
+          // resizeMode='cover'
+          // resizeMethod='resize'
           style={{
             alignSelf: 'center',
             width: 20,
             height: 20,
+            // backgroundColor: 'green',
           }}
         />
       </View>

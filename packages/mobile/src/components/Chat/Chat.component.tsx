@@ -152,14 +152,16 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
             style={{
               flex: 9,
               paddingLeft: defaultPadding,
-              paddingRight: !didKeyboardShow ? defaultPadding : 0,
+              paddingRight: defaultPadding, // !didKeyboardShow ? defaultPadding :
+              // backgroundColor: 'grey',
             }}
           >
             <View
               style={{
                 flexDirection: 'row',
-                // alignContent: 'flex-start',
-                // justifyContent: 'flex-start',
+                // alignContent: 'stretch',
+                // justifyContent: 'space-between',
+                // backgroundColor: 'brown',
               }}
             >
               <Input
@@ -168,10 +170,16 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
                 placeholder={`Message #${channel?.name}`}
                 multiline={true}
               />
-              <AttachmentButton onPress={openAttachments} disabled={false} />
-              {(didKeyboardShow || areFilesUploaded) && (
-                <MessageSendButton onPress={onPress} disabled={isInputEmpty && !areFilesUploaded} />
-              )}
+              <View
+                style={{
+                  flexDirection: 'row',
+                }}
+              >
+                <AttachmentButton onPress={openAttachments} disabled={false} />
+                {(didKeyboardShow || areFilesUploaded) && (
+                  <MessageSendButton onPress={onPress} disabled={isInputEmpty && !areFilesUploaded} />
+                )}
+              </View>
             </View>
 
             {uploadedFiles && <UploadFilesPreviewsComponent filesData={uploadedFiles} removeFile={removeFilePreview} />}

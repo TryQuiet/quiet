@@ -1,102 +1,10 @@
 import React, { useState } from 'react'
 import { Image, ScrollView, TouchableWithoutFeedback, View } from 'react-native'
-// import { styled } from '@mui/material/styles'
-
-// import CloseIcon from '@mui/icons-material/Close'
 import { imagesExtensions } from '@quiet/state-manager'
-// import Tooltip from '../../ui/Tooltip/Tooltip'
-// import Icon from '../../ui/Icon/Icon'
-// import fileIcon from '../../../static/images/fileIcon.svg'
 import { FileContent, FilePreviewData } from '@quiet/types'
 import { appImages } from '../../assets'
 import { Typography } from '../Typography/Typography.component'
-
-const PREFIX = 'UploadFilesPreviewsComponent'
-
-const classes = {
-  inputFiles: `${PREFIX}inputFiles`,
-  wrapper: `${PREFIX}wrapper`,
-  image: `${PREFIX}image`,
-  fileIcon: `${PREFIX}fileIcon`,
-  fileIconContainer: `${PREFIX}fileIconContainer`,
-  closeIconContainer: `${PREFIX}closeIconContainer`,
-  closeIcon: `${PREFIX}closeIcon`,
-  imageContainer: `${PREFIX}imageContainer`,
-  tooltip: `${PREFIX}tooltip`,
-}
-
-// const StyledFilePreviewComponent = styled('div')(() => ({
-//   display: 'inline-block',
-//   float: 'left',
-//   cursor: 'pointer',
-
-//   [`& .${classes.wrapper}`]: {
-//     margin: '0 0 10px 10px',
-//     width: '64px',
-//     height: '64px',
-//   },
-
-//   [`& .${classes.image}`]: {
-//     width: '64px',
-//     height: '64px',
-//     borderRadius: '15%',
-//     objectFit: 'cover',
-//   },
-
-//   [`& .${classes.fileIcon}`]: {
-//     width: '32px',
-//     height: '40px',
-//   },
-
-//   [`& .${classes.fileIconContainer}`]: {
-//     width: '64px',
-//     height: '64px',
-//     borderRadius: '15%',
-//     backgroundColor: '#F0F0F0',
-//     display: 'flex',
-//     alignItems: 'center',
-//     justifyContent: 'center',
-//   },
-
-//   [`& .${classes.closeIconContainer}`]: {
-//     position: 'absolute',
-//     margin: '0 0 0 51px', // Left margin is equal fileContainer width minus half the own width
-//     padding: '0',
-//     backgroundColor: 'white',
-//     borderRadius: '100%',
-//     width: '22px',
-//     height: '22px',
-//     transform: 'translate(50%, -50%)',
-//     '&:hover': {
-//       backgroundColor: '#dddddd',
-//     },
-//   },
-
-//   [`& .${classes.closeIcon}`]: {
-//     position: 'relative',
-//     left: '50%',
-//     top: '50%',
-//     color: '#444444',
-//     transform: 'translate(-50%, -50%)',
-//     '&:hover': {
-//       color: '#000000',
-//     },
-//     width: '17px',
-//   },
-
-//   [`& .${classes.tooltip}`]: {
-//     marginTop: '8px',
-//   },
-// }))
-
-// const StyledUploadFilesPreviewsComponent = styled('div')(() => ({
-//   flexDirection: 'row',
-//   flexWrap: 'wrap',
-//   justifyContent: 'flexStart',
-//   alignItems: 'baseline',
-//   alignContent: 'stretch',
-//   paddingRight: '50px',
-// }))
+import { defaultTheme } from '../../styles/themes/default.theme'
 
 export interface FilePreviewComponentProps {
   fileData: FileContent
@@ -112,53 +20,45 @@ const FilePreviewComponent: React.FC<FilePreviewComponentProps> = ({ fileData, o
   return (
     <View
       style={{
-        flexWrap: 'nowrap', // display: 'inline-block',
-        alignItems: 'flex-start', // float: 'left'
-        backgroundColor: 'teal',
+        flexWrap: 'nowrap',
+        alignItems: 'flex-start',
         marginRight: 10,
+        marginTop: 10,
       }}
     >
       <TouchableWithoutFeedback onPress={onClick}>
         <View
           style={{
             position: 'absolute',
-            marginLeft: 0, // Left margin is equal fileContainer width minus half the own width
+            justifyContent: 'center',
+            marginLeft: 0,
             padding: 0,
-            backgroundColor: 'black',
+            backgroundColor: defaultTheme.palette.typography.white,
+            borderColor: defaultTheme.palette.typography.grayLight,
+            borderWidth: 1,
             borderRadius: 100,
             width: 22,
             height: 22,
             right: -10,
             top: -10,
-            // transform: [{ translateX: 60 }, { translateY: -10 }],
-            zIndex: 1000, // TODO: fixme
+            zIndex: 1000,
           }}
         >
           <Image
             source={removePreviewIcon}
-            // resizeMode='contain'
-            // resizeMethod='resize'
             style={{
               position: 'relative',
-              left: 50,
-              top: 50,
-              // color: '#444444',
-              transform: [{ translateX: -50 }, { translateY: -50 }],
-              width: 17,
-              height: 17,
-              backgroundColor: 'yellow',
+              alignSelf: 'center',
+              width: 10,
+              height: 10,
             }}
           />
         </View>
       </TouchableWithoutFeedback>
       <View
         style={{
-          marginBottom: 10,
           marginLeft: 10,
-          // width: 150,
           height: 64,
-          backgroundColor: 'blue',
-          borderWidth: 1,
         }}
       >
         {imageType && fileData.path ? (
@@ -169,8 +69,6 @@ const FilePreviewComponent: React.FC<FilePreviewComponentProps> = ({ fileData, o
               width: 64,
               height: 64,
               borderRadius: 15,
-              // objectFit: 'cover',
-              backgroundColor: 'red',
             }}
           />
         ) : (
@@ -178,10 +76,11 @@ const FilePreviewComponent: React.FC<FilePreviewComponentProps> = ({ fileData, o
             style={{
               height: 64,
               borderRadius: 15,
-              backgroundColor: '#F0F0F0',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
+              borderColor: defaultTheme.palette.typography.veryLightGray,
+              borderStyle: 'solid',
               borderWidth: 1,
             }}
           >
@@ -199,8 +98,21 @@ const FilePreviewComponent: React.FC<FilePreviewComponentProps> = ({ fileData, o
                   marginRight: 5,
                 }}
               />
-              <View>
-                <Typography fontSize={12}>{fileData.name}</Typography>
+              <View
+                style={{
+                  marginRight: 5,
+                  maxWidth: 100,
+                }}
+              >
+                <Typography
+                  fontSize={12}
+                  numberOfLines={1}
+                  style={{
+                    fontWeight: 'bold',
+                  }}
+                >
+                  {fileData.name}
+                </Typography>
                 <Typography fontSize={12}>{fileData.ext}</Typography>
               </View>
             </View>
@@ -224,11 +136,7 @@ const UploadFilesPreviewsComponent: React.FC<UploadFilesPreviewsProps> = ({ file
         flexDirection: 'row',
         flexWrap: 'wrap',
         justifyContent: 'flex-start',
-        // alignItems: 'baseline',
-        // alignContent: 'stretch',
         marginTop: 15,
-        paddingRight: 50,
-        borderWidth: 1,
       }}
     >
       {Object.entries(filesData).map(fileData => (
