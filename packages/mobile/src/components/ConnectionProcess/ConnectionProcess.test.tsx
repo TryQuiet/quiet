@@ -120,6 +120,7 @@ describe('ConnectionProcessComponent', () => {
                 },
               ]
             }
+            testID="connection-process-text"
             verticalTextAlign="center"
           >
             Spawning hidden service for community
