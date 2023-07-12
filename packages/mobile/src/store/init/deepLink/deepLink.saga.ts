@@ -89,7 +89,7 @@ export function* deepLinkSaga(action: PayloadAction<ReturnType<typeof initAction
 
   yield* put(communities.actions.createNetwork(payload))
   // It's time for the user to see the pasted code
-  yield* delay(1000)
+  yield* delay(2000)
   yield* put(
     navigationActions.replaceScreen({
       screen: ScreenNames.UsernameRegistrationScreen,

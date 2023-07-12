@@ -1,5 +1,5 @@
 import React, { FC, useCallback, useEffect } from 'react'
-import { communities, connection, errors } from '@quiet/state-manager'
+import { communities, connection, ErrorCodes, errors } from '@quiet/state-manager'
 import { useDispatch, useSelector } from 'react-redux'
 import ConnectionProcessComponent from '../../components/ConnectionProcess/ConnectionProcess.component'
 import { Linking } from 'react-native'
@@ -20,10 +20,17 @@ const ConnectionProcessScreen: FC = () => {
   }, [])
 
   useEffect(() => {
-    if (error) {
+    if (error?.code === ErrorCodes.FORBIDDEN) {
       dispatch(
         navigationActions.navigation({
           screen: ScreenNames.UsernameRegistrationScreen,
+        })
+      )
+    }
+    if (error?.code === ErrorCodes.SERVER_ERROR) {
+      dispatch(
+        navigationActions.navigation({
+          screen: ScreenNames.JoinCommunityScreen,
         })
       )
     }

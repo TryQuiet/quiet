@@ -41,9 +41,7 @@ export const UsernameRegistrationScreen: FC<UsernameRegistrationScreenProps> = (
   return (
     <UsernameRegistration
       registerUsernameAction={handleAction}
-      registerUsernameError={
-        error?.code && [ErrorCodes.FORBIDDEN, ErrorCodes.SERVER_ERROR].includes(error?.code) ? error.message : undefined
-      }
+      registerUsernameError={error?.code === ErrorCodes.FORBIDDEN ? error.message : undefined}
       usernameRegistered={usernameRegistered}
       fetching={fetching}
     />
