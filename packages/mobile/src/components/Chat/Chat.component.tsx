@@ -37,12 +37,12 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
   openUrl,
 }) => {
   const [didKeyboardShow, setKeyboardShow] = useState(false)
-  const [messageInput, setMessageInput] = useState<string | undefined>()
-  // const [result, setResult] = React.useState<Array<DocumentPickerResponse> | undefined | null>()
+  const [messageInput, setMessageInput] = useState<string>('')
 
   const messageInputRef = useRef<null | TextInput>(null)
 
   const defaultPadding = 20
+  const areFilesUploaded = uploadedFiles && Object.keys(uploadedFiles).length > 0
 
   useEffect(() => {
     const onKeyboardDidShow = () => {
@@ -87,13 +87,12 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
   }
 
   const onPress = () => {
-    if (!messageInputRef.current || messageInput === undefined || messageInput?.length === 0) {
-      return
+    if ((messageInputRef.current && messageInput?.length > 0) || areFilesUploaded) {
+      messageInputRef?.current?.clear()
+      sendMessageAction(messageInput)
+      setMessageInput('')
+      setInputEmpty(true)
     }
-    messageInputRef.current.clear()
-    sendMessageAction(messageInput)
-    setMessageInput('')
-    setInputEmpty(true)
   }
 
   const renderItem = ({ item }: { item: string }) => (
@@ -164,7 +163,9 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
             {uploadedFiles && <UploadFilesPreviewsComponent filesData={uploadedFiles} removeFile={removeFilePreview} />}
           </View>
           <AttachmentButton onPress={openAttachments} disabled={false} />
-          {didKeyboardShow && <MessageSendButton onPress={onPress} disabled={isInputEmpty} />}
+          {(didKeyboardShow || areFilesUploaded) && (
+            <MessageSendButton onPress={onPress} disabled={isInputEmpty && !areFilesUploaded} />
+          )}
         </View>
       </KeyboardAvoidingView>
       {imagePreview && setImagePreview && (
