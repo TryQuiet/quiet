@@ -8,7 +8,19 @@ import { defaultTheme } from '../../styles/themes/default.theme'
 
 export const Input = forwardRef<TextInput, InputProps>(
   (
-    { onChangeText, label, placeholder, capitalize, validation, length, hint, multiline, disabled = false, style },
+    {
+      onChangeText,
+      label,
+      placeholder,
+      capitalize,
+      validation,
+      length,
+      hint,
+      multiline,
+      disabled = false,
+      style,
+      children,
+    },
     ref
   ) => {
     const textInputRef = useRef<null | TextInput>(null)
@@ -42,6 +54,7 @@ export const Input = forwardRef<TextInput, InputProps>(
             autoCapitalize={capitalize}
             testID={'input'}
           />
+          {children}
         </StyledWrapper>
         {validation && (
           <Typography fontSize={10} color={'error'} style={{ paddingTop: 10 }}>

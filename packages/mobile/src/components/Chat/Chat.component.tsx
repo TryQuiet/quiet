@@ -13,6 +13,7 @@ import { AttachmentButton } from '../AttachmentButton/AttachmentButton.component
 import DocumentPicker, { DocumentPickerResponse, types } from 'react-native-document-picker'
 // import { FilePreviewData } from '@quiet/types'
 import UploadFilesPreviewsComponent from '../FileUploadingPreview/UploadingPreview.component'
+import { Typography } from '../Typography/Typography.component'
 
 export const Chat: FC<ChatProps & FileActionsProps> = ({
   contextMenu,
@@ -154,18 +155,27 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
               paddingRight: !didKeyboardShow ? defaultPadding : 0,
             }}
           >
-            <Input
-              ref={messageInputRef}
-              onChangeText={onInputTextChange}
-              placeholder={`Message #${channel?.name}`}
-              multiline={true}
-            />
+            <View
+              style={{
+                flexDirection: 'row',
+                // alignContent: 'flex-start',
+                // justifyContent: 'flex-start',
+              }}
+            >
+              <Input
+                ref={messageInputRef}
+                onChangeText={onInputTextChange}
+                placeholder={`Message #${channel?.name}`}
+                multiline={true}
+              />
+              <AttachmentButton onPress={openAttachments} disabled={false} />
+              {(didKeyboardShow || areFilesUploaded) && (
+                <MessageSendButton onPress={onPress} disabled={isInputEmpty && !areFilesUploaded} />
+              )}
+            </View>
+
             {uploadedFiles && <UploadFilesPreviewsComponent filesData={uploadedFiles} removeFile={removeFilePreview} />}
           </View>
-          <AttachmentButton onPress={openAttachments} disabled={false} />
-          {(didKeyboardShow || areFilesUploaded) && (
-            <MessageSendButton onPress={onPress} disabled={isInputEmpty && !areFilesUploaded} />
-          )}
         </View>
       </KeyboardAvoidingView>
       {imagePreview && setImagePreview && (

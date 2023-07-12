@@ -1,3 +1,4 @@
+import { ReactElement } from 'react'
 import { ViewStyle } from 'react-native'
 
 export interface InputProps {
@@ -11,4 +12,5 @@ export interface InputProps {
   multiline?: boolean
   disabled?: boolean
   style?: ViewStyle
+  children?: ReactElement
 }

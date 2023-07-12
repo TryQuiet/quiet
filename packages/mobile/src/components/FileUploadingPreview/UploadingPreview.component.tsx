@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Image, TouchableWithoutFeedback, View } from 'react-native'
+import { Image, ScrollView, TouchableWithoutFeedback, View } from 'react-native'
 // import { styled } from '@mui/material/styles'
 
 // import CloseIcon from '@mui/icons-material/Close'
@@ -9,6 +9,7 @@ import { imagesExtensions } from '@quiet/state-manager'
 // import fileIcon from '../../../static/images/fileIcon.svg'
 import { FileContent, FilePreviewData } from '@quiet/types'
 import { appImages } from '../../assets'
+import { Typography } from '../Typography/Typography.component'
 
 const PREFIX = 'UploadFilesPreviewsComponent'
 
@@ -114,6 +115,7 @@ const FilePreviewComponent: React.FC<FilePreviewComponentProps> = ({ fileData, o
         flexWrap: 'nowrap', // display: 'inline-block',
         alignItems: 'flex-start', // float: 'left'
         backgroundColor: 'teal',
+        marginRight: 10,
       }}
     >
       <TouchableWithoutFeedback onPress={onClick}>
@@ -126,7 +128,9 @@ const FilePreviewComponent: React.FC<FilePreviewComponentProps> = ({ fileData, o
             borderRadius: 100,
             width: 22,
             height: 22,
-            transform: [{ translateX: 60 }, { translateY: -10 }],
+            right: -10,
+            top: -10,
+            // transform: [{ translateX: 60 }, { translateY: -10 }],
             zIndex: 1000, // TODO: fixme
           }}
         >
@@ -151,9 +155,10 @@ const FilePreviewComponent: React.FC<FilePreviewComponentProps> = ({ fileData, o
         style={{
           marginBottom: 10,
           marginLeft: 10,
-          width: 64,
+          // width: 150,
           height: 64,
           backgroundColor: 'blue',
+          borderWidth: 1,
         }}
       >
         {imageType && fileData.path ? (
@@ -171,22 +176,34 @@ const FilePreviewComponent: React.FC<FilePreviewComponentProps> = ({ fileData, o
         ) : (
           <View
             style={{
-              width: 64,
               height: 64,
               borderRadius: 15,
               backgroundColor: '#F0F0F0',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
+              borderWidth: 1,
             }}
           >
-            <Image
-              source={fileIcon}
+            <View
               style={{
-                width: 32,
-                height: 40,
+                flexDirection: 'row',
               }}
-            />
+            >
+              <Image
+                source={fileIcon}
+                style={{
+                  width: 32,
+                  height: 40,
+                  marginLeft: 5,
+                  marginRight: 5,
+                }}
+              />
+              <View>
+                <Typography fontSize={12}>{fileData.name}</Typography>
+                <Typography fontSize={12}>{fileData.ext}</Typography>
+              </View>
+            </View>
           </View>
         )}
       </View>
@@ -201,20 +218,23 @@ export interface UploadFilesPreviewsProps {
 
 const UploadFilesPreviewsComponent: React.FC<UploadFilesPreviewsProps> = ({ filesData, removeFile }) => {
   return (
-    <View
-      style={{
+    <ScrollView
+      horizontal
+      contentContainerStyle={{
         flexDirection: 'row',
         flexWrap: 'wrap',
         justifyContent: 'flex-start',
-        alignItems: 'baseline',
-        alignContent: 'stretch',
+        // alignItems: 'baseline',
+        // alignContent: 'stretch',
+        marginTop: 15,
         paddingRight: 50,
+        borderWidth: 1,
       }}
     >
       {Object.entries(filesData).map(fileData => (
         <FilePreviewComponent key={fileData[0]} fileData={fileData[1]} onClick={() => removeFile(fileData[0])} />
       ))}
-    </View>
+    </ScrollView>
   )
 }
 
