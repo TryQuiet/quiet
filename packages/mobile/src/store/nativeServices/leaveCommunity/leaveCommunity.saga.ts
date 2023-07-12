@@ -1,8 +1,9 @@
-import { call, put, takeLeading } from 'typed-redux-saga'
+import { select, call, put, takeLeading } from 'typed-redux-saga'
 import { app } from '@quiet/state-manager'
 import { persistor } from '../../store'
 import { nativeServicesActions } from '../nativeServices.slice'
 import { initActions } from '../../init/init.slice'
+import { nativeServicesSelectors } from '../nativeServices.selectors'
 
 export function* leaveCommunitySaga(): Generator {
   // Restart backend
@@ -12,6 +13,11 @@ export function* leaveCommunitySaga(): Generator {
 }
 
 export function* clearReduxStore(): Generator {
+  const shouldClearReduxStore = yield* select(nativeServicesSelectors.shouldClearReduxStore())
+  if (!shouldClearReduxStore) return
+
+  console.info("Clearing redux store")
+
   // Stop persistor
   yield* call(persistor.pause)
   yield* call(persistor.flush)

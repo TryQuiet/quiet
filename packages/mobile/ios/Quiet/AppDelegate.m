@@ -242,6 +242,15 @@ static NSString *const platform = @"mobile";
   
   NSString * message = [NSString stringWithFormat:@""];
   [self.nodeJsMobile sendMessageToNode:@"close":message];
+  
+  // Flush persistor before app goes idle
+  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    NSTimeInterval delayInSeconds = 0;
+    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
+    dispatch_after(popTime, dispatch_get_main_queue(), ^(void) {
+      [[self.bridge moduleForName:@"CommunicationModule"] appPause];
+    });
+  });
 }
 
 - (void)applicationWillEnterForeground:(UIApplication *)application
