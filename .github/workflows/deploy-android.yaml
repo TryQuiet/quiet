@@ -3,7 +3,7 @@ name: Deploy Android to Google Play (internal testing)
 on:
   release:
     types: 
-      [released, prereleased]
+      [prereleased]
 
 jobs:
   build-android:
