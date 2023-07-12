@@ -8,7 +8,6 @@ const { ios } = info
 
 /* eslint-disable no-undef */
 describe('User', () => {
-
   beforeAll(async () => {
     await device.launchApp({ newInstance: true, launchArgs: { detoxDebugVisibility: 'YES' } })
   })
@@ -57,12 +56,12 @@ describe('User', () => {
     await write(element(by.id('input')), 'rick')
 
     await press(element(by.text('Continue')), true)
+  })
 
-    await waitFor(element(by.text('You created a username')))
+  test('should see connection process screen', async () => {
+    await waitFor(element(by.id('connection-process-title')))
       .toBeVisible()
-      .withTimeout(10000)
-
-    await press(element(by.id('button')))
+      .withTimeout(20000)
   })
 
   test('sees channels list', async () => {

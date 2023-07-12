@@ -41,7 +41,12 @@ const ConnectionProcessComponent: FC<ConnectionProcessComponentProps> = ({ conne
           style={{ transform: [{ rotate: transformValues }], width: 120, height: 120 }}
           source={JoinCommunityImg}
         />
-        <Typography fontSize={18} fontWeight={'medium'} style={{ marginTop: 24, marginBottom: 16 }}>
+        <Typography
+          fontSize={18}
+          fontWeight={'medium'}
+          style={{ marginTop: 24, marginBottom: 16 }}
+          testID={'connection-process-title'}
+        >
           Joining now!
         </Typography>
 
@@ -50,7 +55,11 @@ const ConnectionProcessComponent: FC<ConnectionProcessComponentProps> = ({ conne
             style={{ backgroundColor: '#67BFD3', height: 4, width: connectionProcess.number * 3, borderRadius: 4 }}
           ></View>
         </View>
-        <Typography fontSize={14} style={{ lineHeight: 20, textAlign: 'center', marginTop: 8 }}>
+        <Typography
+          testID='connection-process-text'
+          fontSize={14}
+          style={{ lineHeight: 20, textAlign: 'center', marginTop: 8 }}
+        >
           {connectionProcess.text}
         </Typography>
 

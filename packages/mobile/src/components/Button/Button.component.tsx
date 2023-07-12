@@ -10,7 +10,7 @@ export const Button: FC<ButtonProps> = ({ onPress, title, width, loading, negati
   return (
     <TouchableWithoutFeedback
       onPress={event => {
-        event.persist()
+        // event.persist()
         if (!disabled) onPress()
       }}
       testID={'button'}

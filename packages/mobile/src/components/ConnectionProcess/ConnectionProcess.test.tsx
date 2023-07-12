@@ -74,6 +74,7 @@ describe('ConnectionProcessComponent', () => {
                 },
               ]
             }
+            testID="connection-process-title"
             verticalTextAlign="center"
           >
             Joining now!
