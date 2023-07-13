@@ -6,6 +6,7 @@ import { ScreenNames } from '../../../const/ScreenNames.enum'
 import { NativeEventKeys } from './nativeEvent.keys'
 import nativeEventEmitter from './nativeEventEmitter'
 import { navigationActions } from '../../navigation/navigation.slice'
+import { nativeServicesActions } from '../nativeServices.slice'
 
 export function* nativeServicesCallbacksSaga(): Generator {
   const channel = yield* call(deviceEvents)
@@ -24,8 +25,9 @@ export const deviceEvents = () => {
   return eventChannel<
     | ReturnType<typeof initActions.startWebsocketConnection>
     | ReturnType<typeof initActions.updateInitCheck>
-    | ReturnType<typeof navigationActions.navigation>
     | ReturnType<typeof publicChannels.actions.setCurrentChannel>
+    | ReturnType<typeof navigationActions.navigation>
+    | ReturnType<typeof nativeServicesActions.flushPersistor>
     | ReturnType<typeof app.actions.stopBackend>
   >(emit => {
     const subscriptions = [
@@ -55,6 +57,9 @@ export const deviceEvents = () => {
       }),
       nativeEventEmitter?.addListener(NativeEventKeys.Stop, () => {
         emit(app.actions.stopBackend())
+      }),
+      nativeEventEmitter?.addListener(NativeEventKeys.AppPause, () => {
+        emit(nativeServicesActions.flushPersistor())
       }),
       nativeEventEmitter?.addListener(NativeEventKeys.AppResume, () => {
         emit(navigationActions.navigation({ screen: ScreenNames.SplashScreen }))
