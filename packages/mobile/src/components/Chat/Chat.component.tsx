@@ -150,18 +150,14 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
         <View style={{ flexDirection: 'row', paddingBottom: Platform.select({ ios: 20, android: 0 }) }}>
           <View
             style={{
-              flex: 9,
+              width: '100%',
               paddingLeft: defaultPadding,
               paddingRight: defaultPadding, // !didKeyboardShow ? defaultPadding :
-              // backgroundColor: 'grey',
             }}
           >
             <View
               style={{
                 flexDirection: 'row',
-                // alignContent: 'stretch',
-                // justifyContent: 'space-between',
-                // backgroundColor: 'brown',
               }}
             >
               <Input
@@ -173,6 +169,8 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
               <View
                 style={{
                   flexDirection: 'row',
+                  justifyContent: 'flex-end',
+                  flex: 1,
                 }}
               >
                 <AttachmentButton onPress={openAttachments} disabled={false} />
