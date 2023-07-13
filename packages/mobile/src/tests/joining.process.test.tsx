@@ -13,9 +13,6 @@ import { ScreenNames } from '../const/ScreenNames.enum'
 import { ConnectionProcessInfo } from '@quiet/types'
 import { ChannelListScreen } from '../screens/ChannelList/ChannelList.screen'
 
-jest.mock('react-native-progress', () => () => ({
-  CircleSnail: <p>CircleSnail</p>,
-}))
 describe('Joining process', () => {
   let socket: MockedSocket
 
@@ -75,8 +72,7 @@ describe('Joining process', () => {
     root?.cancel()
   })
 
-  //   Problems with react-native-progress lib
-  test.skip('Check flow from registering username to connecting process screen', async () => {
+  test('Check flow from registering username to connecting process screen', async () => {
     const { store, root } = await prepareStore({}, socket)
     const userName = 'johnny'
 
@@ -120,6 +116,9 @@ describe('Joining process', () => {
     const connectionProcessScreen = screen.getByTestId('connection-process-component')
 
     expect(connectionProcessScreen).toBeVisible()
+
+    const processText = screen.getByTestId('connection-process-text')
+    expect(processText.props.children).toEqual('Connecting process started')
     // Stop state-manager sagas
     root?.cancel()
   })
