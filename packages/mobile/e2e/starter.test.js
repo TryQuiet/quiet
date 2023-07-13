@@ -71,6 +71,25 @@ describe('User', () => {
       .withTimeout(20000)
   })
 
+  test('minimizes and restores the app', async () => {
+    await device.sendToHome()
+
+    await new Promise((resolve) => {
+      setTimeout(() => { resolve() }, 3000)
+    })
+
+    await device.launchApp({ newInstance: false })
+
+    await waitFor(element(by.text('Starting Quiet')))
+      .toBeVisible()
+      .withTimeout(5000)
+
+    // User comes back to channel list
+    await waitFor(element(by.id('channels_list')))
+      .toBeVisible()
+      .withTimeout(15000)
+  })
+
   test('enters #general channel', async () => {
     await press(element(by.text('#general')))
 
