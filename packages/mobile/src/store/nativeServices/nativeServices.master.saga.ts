@@ -8,6 +8,6 @@ export function* nativeServicesMasterSaga(): Generator {
   yield all([
     fork(nativeServicesCallbacksSaga),
     takeEvery(nativeServicesActions.leaveCommunity.type, leaveCommunitySaga),
-    takeEvery(nativeServicesActions.flushPersistor.type, flushPersistorSaga)
+    takeEvery(nativeServicesActions.flushPersistor.type, flushPersistorSaga),
   ])
 }

@@ -9,7 +9,7 @@ export const nativeServicesSlice = createSlice({
   initialState: { ...new NativeServicesState() },
   name: StoreKeys.NativeServices,
   reducers: {
-    leaveCommunity: state =>  {
+    leaveCommunity: state => {
       state.shouldClearReduxStore = true
     },
     flushPersistor: state => state,

@@ -16,7 +16,7 @@ export function* clearReduxStore(): Generator {
   const shouldClearReduxStore = yield* select(nativeServicesSelectors.shouldClearReduxStore())
   if (!shouldClearReduxStore) return
 
-  console.info("Clearing redux store")
+  console.info('Clearing redux store')
 
   // Stop persistor
   yield* call(persistor.pause)
