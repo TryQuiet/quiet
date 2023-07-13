@@ -19,6 +19,7 @@ export const Input = forwardRef<TextInput, InputProps>(
       multiline,
       disabled = false,
       style,
+      wrapperStyle,
       children,
     },
     ref
@@ -32,11 +33,7 @@ export const Input = forwardRef<TextInput, InputProps>(
     }, [])
 
     return (
-      <View
-        style={{
-          flex: 4,
-        }}
-      >
+      <View style={wrapperStyle}>
         {label && (
           <Typography fontSize={14} style={{ paddingBottom: 10, color: defaultTheme.palette.typography.gray70 }}>
             {label}

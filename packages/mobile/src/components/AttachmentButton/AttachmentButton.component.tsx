@@ -4,35 +4,24 @@ import { appImages } from '../../assets'
 
 import { AttachmentButtonProps } from './AttachmentButton.types'
 
-export const AttachmentButton: FC<AttachmentButtonProps> = ({ onPress, disabled }) => {
-  const handlePress = useCallback(() => {
-    if (!disabled) {
-      onPress()
-    }
-  }, [disabled, onPress])
-
+export const AttachmentButton: FC<AttachmentButtonProps> = ({ onPress }) => {
   const icon = appImages.paperclip_active
 
   return (
-    <TouchableWithoutFeedback onPress={handlePress} testID={'send_message_button'}>
+    <TouchableWithoutFeedback onPress={onPress} testID={'attach_file_button'}>
       <View
         style={{
-          // flex: 1.5,
           paddingLeft: 5,
           paddingRight: 5,
-          // backgroundColor: 'yellow',
           justifyContent: 'center',
         }}
       >
         <Image
           source={icon}
-          // resizeMode='cover'
-          // resizeMethod='resize'
           style={{
             alignSelf: 'center',
             width: 20,
             height: 20,
-            // backgroundColor: 'green',
           }}
         />
       </View>

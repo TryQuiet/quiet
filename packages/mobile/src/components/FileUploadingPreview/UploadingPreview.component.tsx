@@ -12,7 +12,6 @@ export interface FilePreviewComponentProps {
 }
 
 const FilePreviewComponent: React.FC<FilePreviewComponentProps> = ({ fileData, onClick }) => {
-  console.log('FILE DATA', fileData)
   const imageType = imagesExtensions.includes(fileData.ext)
   const removePreviewIcon = appImages.icon_close
   const fileIcon = appImages.file_document

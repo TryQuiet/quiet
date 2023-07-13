@@ -11,9 +11,7 @@ import { FileActionsProps } from '../UploadedFile/UploadedFile.types'
 import { defaultTheme } from '../../styles/themes/default.theme'
 import { AttachmentButton } from '../AttachmentButton/AttachmentButton.component'
 import DocumentPicker, { DocumentPickerResponse, types } from 'react-native-document-picker'
-// import { FilePreviewData } from '@quiet/types'
 import UploadFilesPreviewsComponent from '../FileUploadingPreview/UploadingPreview.component'
-import { Typography } from '../Typography/Typography.component'
 
 export const Chat: FC<ChatProps & FileActionsProps> = ({
   contextMenu,
@@ -147,12 +145,17 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
             showsVerticalScrollIndicator={false}
           />
         )}
-        <View style={{ flexDirection: 'row', paddingBottom: Platform.select({ ios: 20, android: 0 }) }}>
+        <View
+          style={{
+            flexDirection: 'row',
+            paddingBottom: Platform.select({ ios: 20, android: 0 }),
+          }}
+        >
           <View
             style={{
               width: '100%',
               paddingLeft: defaultPadding,
-              paddingRight: defaultPadding, // !didKeyboardShow ? defaultPadding :
+              paddingRight: 0,
             }}
           >
             <View
@@ -165,15 +168,17 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
                 onChangeText={onInputTextChange}
                 placeholder={`Message #${channel?.name}`}
                 multiline={true}
+                wrapperStyle={{ flexGrow: 1 }}
               />
               <View
                 style={{
+                  paddingLeft: 10,
+                  paddingRight: 10,
+                  gap: 5,
                   flexDirection: 'row',
-                  justifyContent: 'flex-end',
-                  flex: 1,
                 }}
               >
-                <AttachmentButton onPress={openAttachments} disabled={false} />
+                <AttachmentButton onPress={openAttachments} />
                 {(didKeyboardShow || areFilesUploaded) && (
                   <MessageSendButton onPress={onPress} disabled={isInputEmpty && !areFilesUploaded} />
                 )}

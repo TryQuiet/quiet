@@ -12,5 +12,6 @@ export interface InputProps {
   multiline?: boolean
   disabled?: boolean
   style?: ViewStyle
+  wrapperStyle?: ViewStyle
   children?: ReactElement
 }

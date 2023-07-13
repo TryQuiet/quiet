@@ -1,11 +1,11 @@
 import React from 'react'
-
 import { renderComponent } from '../../utils/functions/renderComponent/renderComponent'
-import { MessageSendButton } from './MessageSendButton.component'
+import { AttachmentButton } from './AttachmentButton.component'
 
-describe('MessageSendButton component', () => {
-  it('should match inline snapshot', () => {
-    const { toJSON } = renderComponent(<MessageSendButton onPress={jest.fn()} disabled={false} />)
+describe('Attachment button component', () => {
+  it('renders properly', () => {
+    const onPressMock = jest.fn()
+    const { toJSON } = renderComponent(<AttachmentButton onPress={onPressMock} />)
 
     expect(toJSON()).toMatchInlineSnapshot(`
       <View
@@ -34,14 +34,12 @@ describe('MessageSendButton component', () => {
             "paddingRight": 5,
           }
         }
-        testID="send_message_button"
+        testID="attach_file_button"
       >
         <Image
-          resizeMethod="resize"
-          resizeMode="cover"
           source={
             {
-              "testUri": "../../../assets/icons/icon_send.png",
+              "testUri": "../../../assets/icons/paperclip_black.png",
             }
           }
           style={
