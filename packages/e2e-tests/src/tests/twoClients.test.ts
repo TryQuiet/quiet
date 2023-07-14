@@ -147,7 +147,7 @@ describe('Two Clients', () => {
       await joinCommunityModal.submit()
     })
 
-    it("RegisterUsernameModal - User tries to register already taken username, sees error", async () => {
+    it('RegisterUsernameModal - User tries to register already taken username, sees error', async () => {
       console.log('new user - 4')
       registerModal2 = new RegisterUsernameModal(guestApp.driver)
       const isRegisterModal2 = await registerModal2.element.isDisplayed()

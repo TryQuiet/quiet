@@ -131,7 +131,6 @@ export class RegisterUsernameModal {
     return this.driver.wait(until.elementLocated(By.xpath("//p[text()='Username already taken.']")))
   }
 
-
   async typeUsername(username: string) {
     const usernameInput = await this.driver.findElement(By.xpath('//input[@name="userName"]'))
     await usernameInput.sendKeys(username)
@@ -139,7 +138,7 @@ export class RegisterUsernameModal {
 
   async clearInput() {
     const usernameInput = await this.driver.findElement(By.xpath('//input[@name="userName"]'))
-    await usernameInput.sendKeys(Key.CONTROL + "a")
+    await usernameInput.sendKeys(Key.CONTROL + 'a')
     await usernameInput.sendKeys(Key.DELETE)
   }
 
