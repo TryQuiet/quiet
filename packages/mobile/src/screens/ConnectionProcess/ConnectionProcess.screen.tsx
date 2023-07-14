@@ -1,5 +1,5 @@
 import React, { FC, useCallback, useEffect } from 'react'
-import { communities, connection, ErrorCodes, errors } from '@quiet/state-manager'
+import { communities, connection, ErrorCodes, errors, publicChannels } from '@quiet/state-manager'
 import { useDispatch, useSelector } from 'react-redux'
 import ConnectionProcessComponent from '../../components/ConnectionProcess/ConnectionProcess.component'
 import { Linking } from 'react-native'
@@ -15,6 +15,8 @@ const ConnectionProcessScreen: FC = () => {
   const community = useSelector(communities.selectors.currentCommunity)
   const isOwner = Boolean(community?.CA)
 
+  const channelsStatusSorted = useSelector(publicChannels.selectors.channelsStatusSorted)
+  const messageNotNull = channelsStatusSorted.filter(channel => channel.newestMessage !== undefined)
   const openUrl = useCallback((url: string) => {
     void Linking.openURL(url)
   }, [])
@@ -22,29 +24,25 @@ const ConnectionProcessScreen: FC = () => {
   useEffect(() => {
     if (error?.code === ErrorCodes.FORBIDDEN) {
       dispatch(
-        navigationActions.navigation({
+        navigationActions.replaceScreen({
           screen: ScreenNames.UsernameRegistrationScreen,
-        })
-      )
-    }
-    if (error?.code === ErrorCodes.SERVER_ERROR) {
-      dispatch(
-        navigationActions.navigation({
-          screen: ScreenNames.JoinCommunityScreen,
         })
       )
     }
   }, [error, dispatch])
 
   useEffect(() => {
-    if (isOwner ? connectionProcessSelector.number == 85 : connectionProcessSelector.number == 95) {
+    if (
+      (isOwner ? connectionProcessSelector.number == 85 : connectionProcessSelector.number == 95) &&
+      messageNotNull.length !== 0
+    ) {
       dispatch(
-        navigationActions.navigation({
+        navigationActions.replaceScreen({
           screen: ScreenNames.ChannelListScreen,
         })
       )
     }
-  }, [connectionProcessSelector])
+  }, [connectionProcessSelector, messageNotNull])
   return <ConnectionProcessComponent openUrl={openUrl} connectionProcess={connectionProcessSelector} />
 }
 
