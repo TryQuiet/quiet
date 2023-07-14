@@ -8,7 +8,7 @@ import { modalsActions } from '../../sagas/modals/modals.slice'
 import { shell } from 'electron'
 import JoiningPanelComponent from './JoiningPanelComponent'
 import StartingPanelComponent from './StartingPanelComponent'
-import { LoadingPanelType } from '@quiet/types'
+import { LoadingPanelType, ErrorCodes } from '@quiet/types'
 
 const LoadingPanel = () => {
   const dispatch = useDispatch()
@@ -36,14 +36,15 @@ const LoadingPanel = () => {
   const initializedCommunities = useSelector(network.selectors.initializedCommunities)
   const isCommunityInitialized = Boolean(initializedCommunities[communityId])
   const error = useSelector(errors.selectors.registrarErrors)
+  const registrationError = error?.code === ErrorCodes.FORBIDDEN
 
   useEffect(() => {
     console.log('HUNTING for haisenbug:')
     console.log('isConnected', isConnected)
-    console.log('areMessagesLoaded?', areMessagesLoaded)
-    console.log('errors', error)
     console.log('isCommunityInitialized', isCommunityInitialized)
-    if ((isConnected && isCommunityInitialized && areMessagesLoaded) || error) {
+    console.log('areMessagesLoaded?', areMessagesLoaded)
+    console.log('registrationError', registrationError)
+    if ((isConnected && isCommunityInitialized && areMessagesLoaded) || registrationError) {
       loadingPanelModal.handleClose()
     }
   }, [isConnected, torBootstrapProcessSelector, isCommunityInitialized, areMessagesLoaded, error])

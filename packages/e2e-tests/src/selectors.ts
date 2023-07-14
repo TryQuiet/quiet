@@ -127,9 +127,20 @@ export class RegisterUsernameModal {
     return this.driver.wait(until.elementLocated(By.xpath("//h3[text()='Register a username']")))
   }
 
+  get error() {
+    return this.driver.wait(until.elementLocated(By.xpath("//p[text()='Username already taken.']")))
+  }
+
+
   async typeUsername(username: string) {
     const usernameInput = await this.driver.findElement(By.xpath('//input[@name="userName"]'))
     await usernameInput.sendKeys(username)
+  }
+
+  async clearInput() {
+    const usernameInput = await this.driver.findElement(By.xpath('//input[@name="userName"]'))
+    await usernameInput.sendKeys(Key.CONTROL + "a")
+    await usernameInput.sendKeys(Key.DELETE)
   }
 
   async submit() {
