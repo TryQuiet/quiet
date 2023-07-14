@@ -56,7 +56,6 @@ const FilePreviewComponent: React.FC<FilePreviewComponentProps> = ({ fileData, o
       </TouchableWithoutFeedback>
       <View
         style={{
-          marginLeft: 10,
           height: 64,
         }}
       >

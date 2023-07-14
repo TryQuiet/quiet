@@ -84,7 +84,7 @@ export const ChannelScreen: FC = () => {
   // Files
   const updateUploadedFiles = (files: DocumentPickerResponse[]) => {
     console.log('FILES', files)
-    const filesData: FilePreviewData = getFilesData(files.map(i => i.fileCopyUri || i.uri))
+    const filesData: FilePreviewData = getFilesData(files.map(i => decodeURIComponent(i.fileCopyUri || i.uri)))
     console.log('FILES PATHS', filesData)
 
     // FilePreviewData
