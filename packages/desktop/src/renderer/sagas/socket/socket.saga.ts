@@ -5,6 +5,7 @@ import { socket as stateManager, messages } from '@quiet/state-manager'
 import { socketActions } from './socket.slice'
 import { eventChannel } from 'redux-saga'
 import { displayMessageNotificationSaga } from '../notifications/notifications.saga'
+
 import logger from '../../logger'
 const log = logger('socket')
 
