@@ -1,5 +1,5 @@
 import { select, put, take } from 'typed-redux-saga'
-import { identity, network } from '@quiet/state-manager'
+import { identity, network, communities } from '@quiet/state-manager'
 import { initSelectors } from '../init.selectors'
 import { ScreenNames } from '../../../const/ScreenNames.enum'
 import { navigationActions } from '../../navigation/navigation.slice'
@@ -10,17 +10,16 @@ export function* onConnectedSaga(): Generator {
   if (deepLinking) return
 
   const currentIdentity = yield* select(identity.selectors.currentIdentity)
+  const currentCommunity = yield* select(communities.selectors.currentCommunity)
+  const initializedCommunities = yield* select(network.selectors.initializedCommunities)
 
+  const isCommunityInitialized = currentCommunity && initializedCommunities[currentCommunity.id]
   const isMemberOfCommunity = currentIdentity?.userCertificate
-  const isCommunityInitialized = Boolean(network.selectors.initializedCommunities.length)
-  console.log('isMemberOfCommunity ', isMemberOfCommunity)
-  console.log('isCommunityInitialized ', isCommunityInitialized)
-
-  const screen = !isMemberOfCommunity ? ScreenNames.JoinCommunityScreen : ScreenNames.ChannelListScreen
 
   if (isMemberOfCommunity && !isCommunityInitialized) {
     yield* take(network.actions.addInitializedCommunity)
   }
+  const screen = isMemberOfCommunity ? ScreenNames.ChannelListScreen : ScreenNames.JoinCommunityScreen
 
   yield* put(
     navigationActions.replaceScreen({
