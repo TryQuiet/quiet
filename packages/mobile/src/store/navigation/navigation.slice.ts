@@ -13,6 +13,7 @@ export class NavigationState {
   public [MenuName.Community] = { open: false, args: {} }
   public [MenuName.Channel] = { open: false, args: {} }
   public [MenuName.Invitation] = { open: false, args: {} }
+  public pendingNavigation: ScreenNames | null = null
 }
 
 interface ConfirmationBox {
@@ -26,6 +27,10 @@ interface ConfirmationBox {
 export interface NavigationPayload {
   screen: ScreenNames
   params?: any
+}
+
+export interface PendingNavigationPayload {
+  screen: ScreenNames
 }
 
 export interface OpenMenuPayload {
@@ -54,6 +59,14 @@ export const navigationSlice = createSlice({
     replaceScreen: (state, action: PayloadAction<NavigationPayload>) => {
       const { screen } = action.payload
       state.currentScreen = screen
+    },
+    setPendingNavigation: (state, action: PayloadAction<PendingNavigationPayload>) => {
+      const { screen } = action.payload
+      state.currentScreen = screen
+      state.pendingNavigation = screen
+    },
+    clearPendingNavigation: state => {
+      state.pendingNavigation = null
     },
     openMenu: (state, action: PayloadAction<OpenMenuPayload>) => {
       const { menu, args } = action.payload

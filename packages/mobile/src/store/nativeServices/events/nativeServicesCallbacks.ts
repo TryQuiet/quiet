@@ -25,6 +25,8 @@ export const deviceEvents = () => {
   return eventChannel<
     | ReturnType<typeof initActions.startWebsocketConnection>
     | ReturnType<typeof initActions.updateInitCheck>
+    | ReturnType<typeof navigationActions.navigation>
+    | ReturnType<typeof navigationActions.setPendingNavigation>
     | ReturnType<typeof publicChannels.actions.setCurrentChannel>
     | ReturnType<typeof navigationActions.navigation>
     | ReturnType<typeof nativeServicesActions.flushPersistor>
@@ -54,6 +56,8 @@ export const deviceEvents = () => {
         emit(publicChannels.actions.setCurrentChannel({ channelId }))
         // Redirect to proper screen in the application
         emit(navigationActions.navigation({ screen: ScreenNames.ChannelScreen }))
+        // Redirect to correct screen after app swipe
+        emit(navigationActions.setPendingNavigation({ screen: ScreenNames.ChannelScreen }))
       }),
       nativeEventEmitter?.addListener(NativeEventKeys.Stop, () => {
         emit(app.actions.stopBackend())
