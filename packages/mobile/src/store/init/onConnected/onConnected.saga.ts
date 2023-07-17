@@ -1,5 +1,5 @@
-import { select, put } from 'typed-redux-saga'
-import { identity } from '@quiet/state-manager'
+import { select, put, take } from 'typed-redux-saga'
+import { identity, network } from '@quiet/state-manager'
 import { initSelectors } from '../init.selectors'
 import { ScreenNames } from '../../../const/ScreenNames.enum'
 import { navigationActions } from '../../navigation/navigation.slice'
@@ -11,7 +11,16 @@ export function* onConnectedSaga(): Generator {
 
   const currentIdentity = yield* select(identity.selectors.currentIdentity)
 
-  const screen = !currentIdentity?.userCertificate ? ScreenNames.JoinCommunityScreen : ScreenNames.ChannelListScreen
+  const isMemberOfCommunity = currentIdentity?.userCertificate
+  const isCommunityInitialized = Boolean(network.selectors.initializedCommunities.length)
+  console.log('isMemberOfCommunity ', isMemberOfCommunity)
+  console.log('isCommunityInitialized ', isCommunityInitialized)
+
+  const screen = !isMemberOfCommunity ? ScreenNames.JoinCommunityScreen : ScreenNames.ChannelListScreen
+
+  if (isMemberOfCommunity && !isCommunityInitialized) {
+    yield* take(network.actions.addInitializedCommunity)
+  }
 
   yield* put(
     navigationActions.replaceScreen({
