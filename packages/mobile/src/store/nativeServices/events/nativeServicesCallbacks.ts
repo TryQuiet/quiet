@@ -25,6 +25,8 @@ export const deviceEvents = () => {
   return eventChannel<
     | ReturnType<typeof initActions.startWebsocketConnection>
     | ReturnType<typeof initActions.updateInitCheck>
+    | ReturnType<typeof navigationActions.navigation>
+    | ReturnType<typeof navigationActions.setPendingNavigation>
     | ReturnType<typeof publicChannels.actions.setCurrentChannel>
     | ReturnType<typeof navigationActions.navigation>
     | ReturnType<typeof nativeServicesActions.flushPersistor>
@@ -54,6 +56,8 @@ export const deviceEvents = () => {
         emit(publicChannels.actions.setCurrentChannel({ channelId }))
         // Redirect to proper screen in the application
         emit(navigationActions.navigation({ screen: ScreenNames.ChannelScreen }))
+        // If app has been opened from push notification, remember channel destination and navigate to it after the navigation component becomes ready
+        emit(navigationActions.setPendingNavigation({ screen: ScreenNames.ChannelScreen }))
       }),
       nativeEventEmitter?.addListener(NativeEventKeys.Stop, () => {
         emit(app.actions.stopBackend())

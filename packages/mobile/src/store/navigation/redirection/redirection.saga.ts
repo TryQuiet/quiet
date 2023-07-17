@@ -5,8 +5,19 @@ import { identity } from '@quiet/state-manager'
 import { navigationActions } from '../navigation.slice'
 
 export function* redirectionSaga(): Generator {
-  // Do not redirect to the splash screen if user is already there (first app run)
   const currentScreen = yield* select(navigationSelectors.currentScreen)
+  const pendingNavigation = yield* select(navigationSelectors.pendingNavigation)
+
+  if (pendingNavigation) {
+    yield* put(
+      navigationActions.replaceScreen({
+        screen: pendingNavigation,
+      })
+    )
+    yield* put(navigationActions.clearPendingNavigation())
+    return
+  }
+  // Do not redirect to the splash screen if user is already there (first app run)
   if (currentScreen === ScreenNames.SplashScreen) return
 
   const currentIdentity = yield* select(identity.selectors.currentIdentity)

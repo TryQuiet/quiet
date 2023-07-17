@@ -22,9 +22,12 @@ export const confirmationBox = () =>
     return reducerState.confirmationBox
   })
 
+export const pendingNavigation = createSelector(navigationSlice, reducerState => reducerState.pendingNavigation)
+
 export const navigationSelectors = {
   currentScreen,
   contextMenuVisibility,
   contextMenuProps,
   confirmationBox,
+  pendingNavigation,
 }
