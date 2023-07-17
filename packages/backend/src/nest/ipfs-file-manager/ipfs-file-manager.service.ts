@@ -119,6 +119,8 @@ export class IpfsFileManagerService extends EventEmitter {
      */
     const uploadsDir = path.join(this.quietDir, 'uploads')
     const newPath = path.join(uploadsDir, filename)
+    console.log('ORIGINAL PATH', originalFilePath)
+    console.log('NEW PATH', newPath)
     let filePath = originalFilePath
     try {
       if (!fs.existsSync(uploadsDir)) {
@@ -126,6 +128,7 @@ export class IpfsFileManagerService extends EventEmitter {
       }
       fs.copyFileSync(originalFilePath, newPath)
       filePath = newPath
+      console.log('COPIED TO A NEW PATH')
     } catch (e) {
       console.error(`Couldn't copy file ${originalFilePath} to ${newPath}. Error: ${e.message}`)
     }
@@ -133,6 +136,7 @@ export class IpfsFileManagerService extends EventEmitter {
   }
 
   public async uploadFile(metadata: FileMetadata) {
+    this.logger(`(${metadata.cid}) uploadFile start - ${metadata.path}`)
     let width: number | undefined
     let height: number | undefined
     if (!metadata.path) {
@@ -149,6 +153,8 @@ export class IpfsFileManagerService extends EventEmitter {
       width = imageSize?.width
       height = imageSize?.height
     }
+
+    console.log('THIS PATH', metadata.path)
 
     const stream = fs.createReadStream(metadata.path, { highWaterMark: 64 * 1024 * 10 })
     const uploadedFileStreamIterable = {
@@ -170,8 +176,10 @@ export class IpfsFileManagerService extends EventEmitter {
 
     // Save copy to separate directory
     const filePath = this.copyFile(metadata.path, filename)
+    this.logger(`(${metadata.cid}) uploadFile new path - ${filePath}`)
     console.time(`Writing ${filename} to ipfs`)
     const newCid = await this.ipfs.add(uploadedFileStreamIterable)
+    this.logger(`(${metadata.cid}) added to ipfs - ${filePath}`)
 
     console.timeEnd(`Writing ${filename} to ipfs`)
 
@@ -185,6 +193,7 @@ export class IpfsFileManagerService extends EventEmitter {
       height,
     }
 
+    this.logger(`(${metadata.cid} -> ${newCid.cid.toString()}) emitting UPLOADED_FILE - ${filePath}`)
     this.emit(StorageEvents.UPLOADED_FILE, fileMetadata)
 
     const statusReady: DownloadStatus = {
@@ -316,7 +325,7 @@ export class IpfsFileManagerService extends EventEmitter {
 
     const processBlock = async (block: CID, signal: AbortSignal) => {
       // eslint-disable-next-line
-            return await new Promise(async (resolve, reject) => {
+      return await new Promise(async (resolve, reject) => {
         const onAbort = () => {
           remainingBlocks.delete(block)
           reject(new AbortError('download cancelation'))

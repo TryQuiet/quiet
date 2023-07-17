@@ -13,6 +13,8 @@ export function* updateMessageMediaSaga(
   )
 
   const message = channelMessages[action.payload.message.id]
+  // console.log('allmessages:', channelMessages)
+  // console.log('message:', message)
 
   if (!message || !instanceOfChannelMessage(message)) {
     console.error(
@@ -20,6 +22,8 @@ export function* updateMessageMediaSaga(
     )
     return
   }
+
+  console.log(`(updateMessageMediaSaga) Updating message media ${action.payload.message.id}`)
 
   yield* put(
     messagesActions.incomingMessages({

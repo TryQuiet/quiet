@@ -1,6 +1,6 @@
 import { applyEmitParams, type Socket } from '../../../types'
 import { type PayloadAction } from '@reduxjs/toolkit'
-import { select, call, put, apply } from 'typed-redux-saga'
+import { select, call, put, apply, take } from 'typed-redux-saga'
 import { identitySelectors } from '../../identity/identity.selectors'
 import { filesActions } from '../files.slice'
 import { messagesActions } from '../../messages/messages.slice'
@@ -12,13 +12,14 @@ export function* uploadFileSaga(
   socket: Socket,
   action: PayloadAction<ReturnType<typeof filesActions.uploadFile>['payload']>
 ): Generator {
+  console.log('UploadFileSaga start', action.payload.path)
   const identity = yield* select(identitySelectors.currentIdentity)
 
   const currentChannel = yield* select(publicChannelsSelectors.currentChannelId)
   if (!identity || !currentChannel) return
 
   const id = yield* call(generateMessageId)
-
+  console.log('UploadFileSaga - generateMessageId', id, action.payload.path)
   const media: FileMetadata = {
     ...action.payload,
     cid: `uploading_${id}`,
@@ -35,7 +36,7 @@ export function* uploadFileSaga(
   } else {
     type = MessageType.File
   }
-
+  console.log('UploadFileSaga - sendingMessage', id)
   yield* put(
     messagesActions.sendMessage({
       id,
@@ -44,7 +45,7 @@ export function* uploadFileSaga(
       media,
     })
   )
-
+  console.log('UploadFileSaga - updateDownloadStatus', id)
   yield* put(
     filesActions.updateDownloadStatus({
       mid: id,
@@ -53,6 +54,9 @@ export function* uploadFileSaga(
       downloadProgress: undefined,
     })
   )
+  console.log('UploadFileSaga - wait for addMessagesSendingStatus', id)
+  yield* take(messagesActions.addMessagesSendingStatus) // FIXME: Sending files on mobile Works with this workaround
+  console.log('UploadFileSaga - UPLOAD_FILE', id)
 
   yield* apply(
     socket,

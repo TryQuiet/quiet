@@ -11,6 +11,7 @@ export function* broadcastHostedFileSaga(
   socket: Socket,
   action: PayloadAction<ReturnType<typeof filesActions.broadcastHostedFile>['payload']>
 ): Generator {
+  console.log(`(broadcastHostedFileSaga) start`)
   const identity = yield* select(identitySelectors.currentIdentity)
   if (!identity) return
 
@@ -26,6 +27,8 @@ export function* broadcastHostedFileSaga(
     )
     return
   }
+
+  console.log(`(broadcastHostedFileSaga) Broadcasting message ${action.payload.message.id} after uploading`)
 
   yield* apply(
     socket,

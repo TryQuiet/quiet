@@ -83,8 +83,8 @@ export const ChannelScreen: FC = () => {
 
   // Files
   const updateUploadedFiles = (files: DocumentPickerResponse[]) => {
-    console.log('FILES', files)
-    const filesData: FilePreviewData = getFilesData(files.map(i => decodeURIComponent(i.fileCopyUri || i.uri)))
+    // console.log('FILES', files)
+    const filesData: FilePreviewData = getFilesData(files.map(i => i.fileCopyUri || i.uri))
     console.log('FILES PATHS', filesData)
 
     // FilePreviewData
@@ -103,32 +103,24 @@ export const ChannelScreen: FC = () => {
 
   const sendMessageAction = React.useCallback(
     async (message: string) => {
-      // Send message out of input value
       if (message) {
         dispatch(messages.actions.sendMessage({ message }))
       }
       // Upload files, then send corresponding message (contaning cid) for each of them
       Object.values(filesRef.current).forEach(async (fileData: FileContent) => {
+        console.log('Processing file', fileData.path)
         if (!fileData.path) return
         const updatedData = fileData
-        // try {
-        //   console.log('THIS', decodeURIComponent(fileData.path))
-        //   const a = decodeURIComponent(fileData.path)
-        //   // const wrappedPath = RNFetchBlob.wrap(fileData.path)
-        //   // console.log('WRAP', wrappedPath)
-        //   console.log('before stat blobbb', fileData.path)
-        //   const statttt = await RNFetchBlob.fs.exists(a)
-        //   console.log(await RNFetchBlob.fs.stat(a))
-        //   // const aaa = await RNFS.stat(decodeURIComponent(fileData.path))
-        //   console.log('after stat::----: ', statttt)
-        // } catch (e) {
-        //   console.error('--->', e)
-        //   return
-        // }
-        // import { FilePreviewData } from '@quiet/types'
-        updatedData.path = fileData.path.split('file://')[1]
+        try {
+          updatedData.path = decodeURIComponent(fileData.path.split('file://')[1])
+        } catch (e) {
+          console.error(`Can't send file with path ${fileData.path}, Details: ${e.message}`)
+          return
+        }
+
         dispatch(files.actions.uploadFile(updatedData))
       })
+      // TODO: remove copies from /data/user/0/com.quietmobile.+/cache/
       // Reset file previews for input state
       setUploadingFiles({})
     },
