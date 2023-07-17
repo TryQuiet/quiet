@@ -1,5 +1,5 @@
 import React, { FC, useRef, useEffect } from 'react'
-import { View, TouchableWithoutFeedback, Animated } from 'react-native'
+import { View, TouchableWithoutFeedback, Animated, Easing } from 'react-native'
 import { defaultPalette } from '../../styles/palettes/default.palette'
 import { Typography } from '../Typography/Typography.component'
 import { ConnectionProcessComponentProps } from './ConnectionProcess.types'
@@ -13,11 +13,12 @@ const ConnectionProcessComponent: FC<ConnectionProcessComponentProps> = ({ conne
     Animated.loop(
       Animated.timing(animationValue, {
         toValue: 1,
-        duration: 9000,
+        duration: 7000,
+        easing: Easing.linear,
         useNativeDriver: true,
       })
     ).start()
-  }, [animationValue])
+  }, [])
 
   const transformValues = animationValue.interpolate({
     inputRange: [0, 1],
