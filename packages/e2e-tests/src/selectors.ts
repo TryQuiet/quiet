@@ -138,8 +138,13 @@ export class RegisterUsernameModal {
 
   async clearInput() {
     const usernameInput = await this.driver.findElement(By.xpath('//input[@name="userName"]'))
-    await usernameInput.sendKeys(Key.CONTROL + 'a')
-    await usernameInput.sendKeys(Key.DELETE)
+    if (process.platform === 'darwin') {
+      await usernameInput.sendKeys(Key.COMMAND + 'a')
+      await usernameInput.sendKeys(Key.DELETE)
+    } else {
+      await usernameInput.sendKeys(Key.CONTROL + 'a')
+      await usernameInput.sendKeys(Key.DELETE)
+    }
   }
 
   async submit() {
