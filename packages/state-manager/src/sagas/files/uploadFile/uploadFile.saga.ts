@@ -55,9 +55,14 @@ export function* uploadFileSaga(
     })
   )
 
+  // Wait for message status to be saved
   const pendingMessages = yield* select(messagesSelectors.messagesSendingStatus)
+  let savedMessageId: string | null = null
   if (pendingMessages?.[id] === undefined) {
-    yield* take(messagesActions.addMessagesSendingStatus) // Wait for messages status to save
+    while (savedMessageId === null) {
+      const savedMessageSengingStatus = yield* take(messagesActions.addMessagesSendingStatus)
+      savedMessageId = savedMessageSengingStatus.payload.id
+    }
   }
 
   yield* apply(

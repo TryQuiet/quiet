@@ -10,8 +10,6 @@ import { UseContextMenuType, useContextMenu } from '../../hooks/useContextMenu'
 import { MenuName } from '../../const/MenuNames.enum'
 import { DocumentPickerResponse } from 'react-native-document-picker'
 import { getFilesData } from '@quiet/common'
-// import RNFS from 'react-native-fs'
-// import RNFetchBlob from 'rn-fetch-blob'
 
 export const ChannelScreen: FC = () => {
   const dispatch = useDispatch()
@@ -112,7 +110,8 @@ export const ChannelScreen: FC = () => {
         if (!fileData.path) return
         const updatedData = fileData
         try {
-          updatedData.path = decodeURIComponent(fileData.path.split('file://')[1])
+          const slicedURI = fileData.path.startsWith('file://') ? fileData.path.slice('file://'.length) : fileData.path
+          updatedData.path = decodeURIComponent(slicedURI)
         } catch (e) {
           console.error(`Can't send file with path ${fileData.path}, Details: ${e.message}`)
           return

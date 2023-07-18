@@ -73,13 +73,21 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
   }
 
   const openAttachments = async () => {
-    const response: DocumentPickerResponse[] = await DocumentPicker.pick({
-      presentationStyle: 'fullScreen',
-      type: [types.allFiles],
-      allowMultiSelection: true,
-      copyTo: 'cachesDirectory',
-    })
-    console.log('RESPONSE', response)
+    let response: DocumentPickerResponse[]
+    try {
+      response = await DocumentPicker.pick({
+        presentationStyle: 'fullScreen',
+        type: [types.allFiles],
+        allowMultiSelection: true,
+        copyTo: 'cachesDirectory',
+      })
+    } catch (e) {
+      if (!DocumentPicker.isCancel(e)) {
+        console.error(`Could not attach files: ${e.message}`)
+        // TODO: display error message to user
+      }
+      return
+    }
     if (response) {
       updateUploadedFiles(response)
     }
