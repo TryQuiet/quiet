@@ -26,10 +26,10 @@ export const networkSlice = createSlice({
         [action.payload]: true,
       }
     },
-    removeInitializedCommunities: (state, _action: PayloadAction<CommunityId>) => {
+    removeInitializedCommunities: (state) => {
       state.initializedCommunities = {}
     },
-    removeInitializedRegistrars: (state, _action: PayloadAction<RegistrarId>) => {
+    removeInitializedRegistrars: (state) => {
       state.initializedRegistrars = {}
     },
     addConnectedPeers: (state, action: PayloadAction<ConnectedPeers>) => {

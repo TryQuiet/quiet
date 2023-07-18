@@ -1,6 +1,6 @@
 import { eventChannel } from 'redux-saga'
 import { call, put, take } from 'typed-redux-saga'
-import { app, publicChannels, WEBSOCKET_CONNECTION_CHANNEL, INIT_CHECK_CHANNEL } from '@quiet/state-manager'
+import { app, publicChannels, WEBSOCKET_CONNECTION_CHANNEL, INIT_CHECK_CHANNEL, network } from '@quiet/state-manager'
 import { initActions, InitCheckPayload, WebsocketConnectionPayload } from '../../init/init.slice'
 import { ScreenNames } from '../../../const/ScreenNames.enum'
 import { NativeEventKeys } from './nativeEvent.keys'
@@ -31,6 +31,8 @@ export const deviceEvents = () => {
     | ReturnType<typeof navigationActions.navigation>
     | ReturnType<typeof nativeServicesActions.flushPersistor>
     | ReturnType<typeof app.actions.stopBackend>
+    | ReturnType<typeof network.actions.removeInitializedCommunities>
+    | ReturnType<typeof network.actions.removeInitializedRegistrars>
   >(emit => {
     const subscriptions = [
       nativeEventEmitter?.addListener(NativeEventKeys.Backend, (event: BackendEvent) => {
@@ -64,6 +66,8 @@ export const deviceEvents = () => {
       }),
       nativeEventEmitter?.addListener(NativeEventKeys.AppPause, () => {
         emit(nativeServicesActions.flushPersistor())
+        emit(network.actions.removeInitializedCommunities())
+        emit(network.actions.removeInitializedRegistrars())
       }),
       nativeEventEmitter?.addListener(NativeEventKeys.AppResume, () => {
         emit(navigationActions.navigation({ screen: ScreenNames.SplashScreen }))
