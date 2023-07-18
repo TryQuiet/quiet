@@ -112,11 +112,9 @@ export function subscribe(socket: Socket) {
     })
     // Files
     socket.on(SocketActionTypes.UPDATE_MESSAGE_MEDIA, (payload: FileMetadata) => {
-      console.log('EMIT UPDATE_MESSAGE_MEDIA', payload.cid)
       emit(filesActions.updateMessageMedia(payload))
     })
     socket.on(SocketActionTypes.UPLOADED_FILE, (payload: FileMetadata) => {
-      console.log('EMIT UPLOADED_FILE', payload.cid)
       emit(filesActions.broadcastHostedFile(payload))
     })
     socket.on(SocketActionTypes.DOWNLOAD_PROGRESS, (payload: DownloadStatus) => {

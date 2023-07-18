@@ -14,35 +14,24 @@ export function* sendMessageSaga(
   socket: Socket,
   action: PayloadAction<ReturnType<typeof messagesActions.sendMessage>['payload']>
 ): Generator {
-  console.log('SendMessageSaga', action.payload.id)
   const identity = yield* select(identitySelectors.currentIdentity)
-  console.log('sendMessageSaga - identity', Boolean(identity))
   if (!identity?.userCsr || !identity.userCertificate) return
 
   const certificate = identity.userCertificate
 
   const parsedCertificate = yield* call(parseCertificate, certificate)
-  console.log('sendMessageSaga - parsedCertificate')
   const pubKey = yield* call(keyFromCertificate, parsedCertificate)
-  console.log('sendMessageSaga - pubKey')
   const keyObject = yield* call(loadPrivateKey, identity.userCsr.userKey, config.signAlg)
-  console.log('sendMessageSaga - keyObject')
-
   const signatureArrayBuffer = yield* call(sign, action.payload.message, keyObject)
-  console.log('sendMessageSaga - signatureArrayBuffer')
   const signature = yield* call(arrayBufferToString, signatureArrayBuffer)
-  console.log('sendMessageSaga - signature')
 
   const currentChannelId = yield* select(publicChannelsSelectors.currentChannelId)
-  console.log('sendMessageSaga - currentChannelId', currentChannelId)
 
   const createdAt = yield* call(getCurrentTime)
-  console.log('sendMessageSaga - createdAt', createdAt)
 
   const generatedMessageId = yield* call(generateMessageId)
 
   const id = action.payload.id || generatedMessageId
-  console.log('sendMessageSaga - id', id)
 
   const channelId = action.payload.channelId || currentChannelId
   if (!channelId) {
@@ -62,7 +51,6 @@ export function* sendMessageSaga(
   }
 
   // Grey out message until saved in db
-  console.log('SendMessageSaga - addMessagesSendingStatus', action.payload.id)
   yield* put(
     messagesActions.addMessagesSendingStatus({
       id: message.id,
@@ -80,7 +68,6 @@ export function* sendMessageSaga(
   )
 
   // Display sent message immediately, to improve user experience
-  console.log('SendMessageSaga - incomingMessages', action.payload.id)
   yield* put(
     messagesActions.incomingMessages({
       messages: [message],
@@ -89,7 +76,6 @@ export function* sendMessageSaga(
   )
 
   const isUploadingFileMessage = action.payload.media?.cid?.includes('uploading')
-  console.log('SendMessageSaga - isUploadingFileMessage', isUploadingFileMessage)
   if (isUploadingFileMessage) return // Do not broadcast message until file is uploaded
 
   yield* apply(
