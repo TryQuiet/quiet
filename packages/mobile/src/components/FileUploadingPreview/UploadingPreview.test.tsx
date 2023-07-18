@@ -106,7 +106,6 @@ describe('UploadingPreview component', () => {
               style={
                 {
                   "height": 64,
-                  "marginLeft": 10,
                 }
               }
             >
@@ -194,7 +193,6 @@ describe('UploadingPreview component', () => {
               style={
                 {
                   "height": 64,
-                  "marginLeft": 10,
                 }
               }
             >
