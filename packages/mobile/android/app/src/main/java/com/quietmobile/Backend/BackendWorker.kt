@@ -137,6 +137,8 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
         return Result.success()
     }
 
+    private external fun sendMessageToNodeChannel(channelName: String, message: String): Void
+
     private external fun startNodeWithArguments(
         arguments: Array<String?>?,
         modulesPath: String?
@@ -197,5 +199,10 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
             Gson().toJson(websocketConnectionPayload),
             "" // Empty extras
         )
+    }
+
+    fun handleNodeMessages(channelName: String, msg: String?) {
+        print("handle node message - channel name $channelName")
+        print("handle node message - msg $msg")
     }
 }

@@ -37,6 +37,7 @@ export type RootStackParamList = {
     title: string
     message?: string
   }
+  [ScreenNames.ConnectionProcessScreen]: undefined
 }
 
 export type SplashRouteProp = RouteProp<RootStackParamList, ScreenNames.SplashScreen>

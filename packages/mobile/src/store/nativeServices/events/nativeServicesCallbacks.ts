@@ -1,11 +1,12 @@
 import { eventChannel } from 'redux-saga'
 import { call, put, take } from 'typed-redux-saga'
-import { publicChannels, WEBSOCKET_CONNECTION_CHANNEL, INIT_CHECK_CHANNEL } from '@quiet/state-manager'
+import { app, publicChannels, WEBSOCKET_CONNECTION_CHANNEL, INIT_CHECK_CHANNEL } from '@quiet/state-manager'
 import { initActions, InitCheckPayload, WebsocketConnectionPayload } from '../../init/init.slice'
 import { ScreenNames } from '../../../const/ScreenNames.enum'
 import { NativeEventKeys } from './nativeEvent.keys'
 import nativeEventEmitter from './nativeEventEmitter'
 import { navigationActions } from '../../navigation/navigation.slice'
+import { nativeServicesActions } from '../nativeServices.slice'
 
 export function* nativeServicesCallbacksSaga(): Generator {
   const channel = yield* call(deviceEvents)
@@ -25,7 +26,11 @@ export const deviceEvents = () => {
     | ReturnType<typeof initActions.startWebsocketConnection>
     | ReturnType<typeof initActions.updateInitCheck>
     | ReturnType<typeof navigationActions.navigation>
+    | ReturnType<typeof navigationActions.setPendingNavigation>
     | ReturnType<typeof publicChannels.actions.setCurrentChannel>
+    | ReturnType<typeof navigationActions.navigation>
+    | ReturnType<typeof nativeServicesActions.flushPersistor>
+    | ReturnType<typeof app.actions.stopBackend>
   >(emit => {
     const subscriptions = [
       nativeEventEmitter?.addListener(NativeEventKeys.Backend, (event: BackendEvent) => {
@@ -51,6 +56,17 @@ export const deviceEvents = () => {
         emit(publicChannels.actions.setCurrentChannel({ channelId }))
         // Redirect to proper screen in the application
         emit(navigationActions.navigation({ screen: ScreenNames.ChannelScreen }))
+        // If app has been opened from push notification, remember channel destination and navigate to it after the navigation component becomes ready
+        emit(navigationActions.setPendingNavigation({ screen: ScreenNames.ChannelScreen }))
+      }),
+      nativeEventEmitter?.addListener(NativeEventKeys.Stop, () => {
+        emit(app.actions.stopBackend())
+      }),
+      nativeEventEmitter?.addListener(NativeEventKeys.AppPause, () => {
+        emit(nativeServicesActions.flushPersistor())
+      }),
+      nativeEventEmitter?.addListener(NativeEventKeys.AppResume, () => {
+        emit(navigationActions.navigation({ screen: ScreenNames.SplashScreen }))
       }),
     ]
     return () => {
