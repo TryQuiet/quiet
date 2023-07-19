@@ -107,7 +107,7 @@ describe('MathMessageComponent', () => {
       <body>
         <div>
           <span
-            class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-mg0tit-MuiTypography-root"
+            class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-1vefsqk-MuiTypography-root"
             data-testid="messagesGroupContent-1-0"
           >
             It is
@@ -187,7 +187,7 @@ describe('MathMessageComponent', () => {
             </mjx-container>
           </span>
           <span
-            class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-mg0tit-MuiTypography-root"
+            class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-1vefsqk-MuiTypography-root"
             data-testid="messagesGroupContent-1-2"
           >
             and
@@ -484,10 +484,21 @@ describe('MathMessageComponent', () => {
             </mjx-container>
           </span>
           <span
-            class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-mg0tit-MuiTypography-root"
+            class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-1vefsqk-MuiTypography-root"
             data-testid="messagesGroupContent-1-1"
           >
-            - look
+            <ul
+              class="TextMessageul"
+              depth="0"
+            >
+              
+
+              <li>
+                look
+              </li>
+              
+
+            </ul>
           </span>
         </div>
       </body>
