@@ -19,7 +19,7 @@ const classes = {
   ul: `${PREFIX}ul`,
   table: `${PREFIX}table`,
   tableHeaderCell: `${PREFIX}tableHeaderCell`,
-  tableRowCell: `${PREFIX}tableRowCell`
+  tableRowCell: `${PREFIX}tableRowCell`,
 }
 
 const StyledTypography = styled(Typography)(() => ({
@@ -46,21 +46,21 @@ const StyledTypography = styled(Typography)(() => ({
     borderLeft: 'solid',
     borderLeftWidth: '3px',
     borderColor: theme.palette.colors.lightGray,
-    color: theme.palette.colors.lightGray
+    color: theme.palette.colors.lightGray,
   },
 
   [`& .${classes.code}`]: {
     backgroundColor: theme.palette.colors.veryLightGray,
-    padding: '.25em'
+    padding: '.25em',
   },
 
   [`& .${classes.pre}`]: {
     backgroundColor: theme.palette.colors.veryLightGray,
-    padding: '.25em'
+    padding: '.25em',
   },
 
   [`& .${classes.hr}`]: {
-    marginTop: '2em'
+    marginTop: '2em',
   },
 
   [`& .${classes.link}`]: {
@@ -68,35 +68,35 @@ const StyledTypography = styled(Typography)(() => ({
     cursor: 'pointer',
     textDecoration: 'none',
     '&:hover': {
-      textDecoration: 'underline'
-    }
+      textDecoration: 'underline',
+    },
   },
 
   [`& .${classes.ol}`]: {
     paddingInlineStart: '15px',
-    whiteSpace: 'normal'
+    whiteSpace: 'normal',
   },
 
   [`& .${classes.ul}`]: {
     paddingInlineStart: '15px',
     whiteSpace: 'normal',
-    listStyleType: 'disc'
+    listStyleType: 'disc',
   },
 
   [`& .${classes.table}`]: {
-    width: '100%'
+    width: '100%',
   },
 
   [`& .${classes.tableHeaderCell}`]: {
     borderBottom: 'solid',
     borderBottomWidth: 1,
     borderColor: theme.palette.colors.veryLightGray,
-    textAlign: 'center'
+    textAlign: 'center',
   },
 
   [`& .${classes.tableRowCell}`]: {
-    textAlign: 'center'
-  }
+    textAlign: 'center',
+  },
 })) as typeof Typography
 
 export interface TextMessageComponentProps {
@@ -128,7 +128,8 @@ export const TextMessageComponent: React.FC<TextMessageComponentProps> = ({ mess
         [classes.message]: true,
         [classes.pending]: pending,
       })}
-      data-testid={`messagesGroupContent-${messageId}`}>
+      data-testid={`messagesGroupContent-${messageId}`}
+    >
       <ReactMarkdown
         remarkPlugins={[[remarkGfm, { singleTilde: false }]]}
         children={message}
@@ -147,15 +148,9 @@ export const TextMessageComponent: React.FC<TextMessageComponentProps> = ({ mess
           // blockquote: ({ node, ...props }) => (
           //   <blockquote className={classNames({ [classes.blockquote]: true })} {...props} />
           // ),
-          code: ({ node, ...props }) => (
-            <code className={classNames({ [classes.code]: true })} {...props} />
-          ),
-          pre: ({ node, ...props }) => (
-            <pre className={classNames({ [classes.pre]: true })} {...props} />
-          ),
-          hr: ({ node, ...props }) => (
-            <hr className={classNames({ [classes.hr]: true })} {...props} />
-          ),
+          code: ({ node, ...props }) => <code className={classNames({ [classes.code]: true })} {...props} />,
+          pre: ({ node, ...props }) => <pre className={classNames({ [classes.pre]: true })} {...props} />,
+          hr: ({ node, ...props }) => <hr className={classNames({ [classes.hr]: true })} {...props} />,
           img: ({ node, ...props }) => (
             <p>
               ![{props.alt}](
@@ -165,22 +160,17 @@ export const TextMessageComponent: React.FC<TextMessageComponentProps> = ({ mess
                   if (props.src) openUrl(props.src)
                 }}
                 className={classNames({ [classes.link]: true })}
-                href={props.src}>
+                href={props.src}
+              >
                 {props.src}
               </a>
               )
             </p>
           ),
           p: React.Fragment,
-          ol: ({ node, ...props }) => (
-            <ol className={classNames({ [classes.ol]: true })} {...props} />
-          ),
-          ul: ({ node, ...props }) => (
-            <ul className={classNames({ [classes.ul]: true })} {...props} />
-          ),
-          table: ({ node, ...props }) => (
-            <table className={classNames({ [classes.table]: true })} {...props} />
-          )
+          ol: ({ node, ...props }) => <ol className={classNames({ [classes.ol]: true })} {...props} />,
+          ul: ({ node, ...props }) => <ul className={classNames({ [classes.ul]: true })} {...props} />,
+          table: ({ node, ...props }) => <table className={classNames({ [classes.table]: true })} {...props} />,
           // Not working in older ReactMarkdown version we use because of ESM
           // th: ({ node, ...props }) => (
           //   <th className={classNames({ [classes.tableHeaderCell]: props.isHeader })} {...props} />

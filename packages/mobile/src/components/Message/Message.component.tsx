@@ -75,7 +75,7 @@ export const Message: FC<MessageProps & FileActionsProps> = ({
             <Typography fontSize={14} color={color} testID={message.message}>
               {children}
             </Typography>
-          )
+          ),
         }
 
         const containsLatex = /\$\$(.+)\$\$/.test(message.message)
@@ -178,38 +178,38 @@ const markdownStyle = StyleSheet.create({
     backgroundColor: defaultTheme.palette.typography.white,
     marginTop: 10,
     marginBottom: 10,
-    marginLeft: 0
+    marginLeft: 0,
   },
   bullet_list_icon: {
-    marginLeft: 0
+    marginLeft: 0,
   },
   ordered_list_icon: {
-    marginLeft: 0
+    marginLeft: 0,
   },
   hr: {
     marginTop: 20,
-    marginBottom: 20
+    marginBottom: 20,
   },
   link: {
-    color: defaultTheme.palette.typography.link
+    color: defaultTheme.palette.typography.link,
   },
   table: {
-    borderWidth: 0
+    borderWidth: 0,
   },
   th: {
     borderBottom: 'solid',
     borderBottomWidth: 1,
-    borderColor: defaultTheme.palette.typography.veryLightGray
+    borderColor: defaultTheme.palette.typography.veryLightGray,
   },
   thead: {
-    fontWeight: 'bold'
+    fontWeight: 'bold',
   },
   tr: {
-    borderBottomWidth: 0
-  }
+    borderBottomWidth: 0,
+  },
 })
 
 const md = MarkdownIt({
   typographer: false,
-  linkify: true
+  linkify: true,
 })
