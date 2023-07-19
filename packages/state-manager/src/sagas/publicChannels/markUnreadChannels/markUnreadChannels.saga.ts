@@ -5,6 +5,8 @@ import { publicChannelsSelectors } from '../publicChannels.selectors'
 import { type messagesActions } from '../../messages/messages.slice'
 import { identitySelectors } from '../../identity/identity.selectors'
 import { type MarkUnreadChannelPayload } from '@quiet/types'
+import { identityActions } from '../../identity/identity.slice'
+import { communitiesSelectors } from '../../communities/communities.selectors'
 
 export function* markUnreadChannelsSaga(
   action: PayloadAction<ReturnType<typeof messagesActions.incomingMessages>['payload']>
@@ -23,7 +25,15 @@ export function* markUnreadChannelsSaga(
 
       const statuses = yield* select(publicChannelsSelectors.channelsStatus)
 
-      const joinTimestamp = yield* select(identitySelectors.joinTimestamp)
+      // Fix for users whose has damaged property with join timestamp and problem with proper checking new message
+      let joinTimestamp: number | null | undefined
+      joinTimestamp = yield* select(identitySelectors.joinTimestamp)
+      console.log({ joinTimestamp })
+      if (!joinTimestamp) {
+        const communityId = yield* select(communitiesSelectors.currentCommunityId)
+        yield* put(identityActions.updateJoinTimestamp({ communityId }))
+        joinTimestamp = yield* select(identitySelectors.joinTimestamp)
+      }
 
       // For all messages created before user joined don't show notifications
       if (!joinTimestamp || joinTimestamp > message.createdAt * 1000) continue
