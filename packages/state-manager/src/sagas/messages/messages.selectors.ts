@@ -9,6 +9,7 @@ import { downloadStatuses } from '../files/files.selectors'
 import {
   messageSendingStatusAdapter,
   messageVerificationStatusAdapter,
+  messagesBaseAdapter,
   publicChannelsMessagesBaseAdapter,
 } from './messages.adapter.ts'
 import { isDefined } from '@quiet/common'
@@ -44,6 +45,15 @@ export const publicChannelMessagesEntities = (address: string) =>
     if (!channelMessagesBase) return {}
     return channelMessagesAdapter.getSelectors().selectEntities(channelMessagesBase.messages)
   })
+
+export const selectById = (messageId: string) => {
+  createSelector(publicChannelsMessagesBase, base => {
+    if (!base) return
+    return Object.values(base).find(channelMessages => {
+      channelMessages?.messages.entities[messageId] !== undefined
+    })
+  })
+}
 
 export const currentPublicChannelMessagesEntities = createSelector(currentPublicChannelMessagesBase, base => {
   if (!base) return {}
