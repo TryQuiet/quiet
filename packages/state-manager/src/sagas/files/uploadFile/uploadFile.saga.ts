@@ -1,13 +1,12 @@
-import { applyEmitParams, type Socket } from '../../../types'
+import { type Socket } from '../../../types'
 import { type PayloadAction } from '@reduxjs/toolkit'
-import { select, call, put, apply, take } from 'typed-redux-saga'
+import { select, call, put } from 'typed-redux-saga'
 import { identitySelectors } from '../../identity/identity.selectors'
 import { filesActions } from '../files.slice'
 import { messagesActions } from '../../messages/messages.slice'
 import { generateMessageId } from '../../messages/utils/message.utils'
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
-import { DownloadState, type FileMetadata, imagesExtensions, MessageType, SocketActionTypes } from '@quiet/types'
-import { messagesSelectors } from '../../messages/messages.selectors'
+import { DownloadState, type FileMetadata, imagesExtensions, MessageType } from '@quiet/types'
 
 export function* uploadFileSaga(
   socket: Socket,
@@ -52,25 +51,6 @@ export function* uploadFileSaga(
       cid: `uploading_${id}`,
       downloadState: DownloadState.Uploading,
       downloadProgress: undefined,
-    })
-  )
-
-  // Wait for message status to be saved
-  const pendingMessages = yield* select(messagesSelectors.messagesSendingStatus)
-  let savedMessageId: string | null = null
-  if (pendingMessages?.[id] === undefined) {
-    while (savedMessageId === null) {
-      const savedMessageSengingStatus = yield* take(messagesActions.addMessagesSendingStatus)
-      savedMessageId = savedMessageSengingStatus.payload.id
-    }
-  }
-
-  yield* apply(
-    socket,
-    socket.emit,
-    applyEmitParams(SocketActionTypes.UPLOAD_FILE, {
-      file: media,
-      peerId: identity.peerId.id,
     })
   )
 }
