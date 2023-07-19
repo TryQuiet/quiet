@@ -119,8 +119,6 @@ export class IpfsFileManagerService extends EventEmitter {
      */
     const uploadsDir = path.join(this.quietDir, 'uploads')
     const newPath = path.join(uploadsDir, filename)
-    console.log('ORIGINAL PATH', originalFilePath)
-    console.log('NEW PATH', newPath)
     let filePath = originalFilePath
     try {
       if (!fs.existsSync(uploadsDir)) {
@@ -128,7 +126,6 @@ export class IpfsFileManagerService extends EventEmitter {
       }
       fs.copyFileSync(originalFilePath, newPath)
       filePath = newPath
-      console.log('COPIED TO A NEW PATH')
     } catch (e) {
       console.error(`Couldn't copy file ${originalFilePath} to ${newPath}. Error: ${e.message}`)
     }
@@ -153,8 +150,6 @@ export class IpfsFileManagerService extends EventEmitter {
       width = imageSize?.width
       height = imageSize?.height
     }
-
-    console.log('THIS PATH', metadata.path)
 
     const stream = fs.createReadStream(metadata.path, { highWaterMark: 64 * 1024 * 10 })
     const uploadedFileStreamIterable = {

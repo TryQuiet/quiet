@@ -6,13 +6,14 @@ import { messagesActions } from '../../messages/messages.slice'
 import { SocketActionTypes } from '@quiet/types'
 import { messagesSelectors } from '../../messages/messages.selectors'
 
-export function* sendFileSaga(
+export function* uploadFileSaga(
   socket: Socket,
   action: PayloadAction<ReturnType<typeof messagesActions.incomingMessages>['payload']>
 ) {
   const messages = action.payload.messages
   const message = messages[0]
-  if (!message.media || !action.payload.isVerified) return
+
+  if (!message.media) return
 
   const sendingStatus = yield* select(messagesSelectors.messageSendingStatusById(message.id))
   if (!sendingStatus) return

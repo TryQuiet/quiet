@@ -8,8 +8,7 @@ import { generateMessageId } from '../../messages/utils/message.utils'
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
 import { DownloadState, type FileMetadata, imagesExtensions, MessageType } from '@quiet/types'
 
-export function* uploadFileSaga(
-  socket: Socket,
+export function* sendFileMessageSaga(
   action: PayloadAction<ReturnType<typeof filesActions.uploadFile>['payload']>
 ): Generator {
   const identity = yield* select(identitySelectors.currentIdentity)

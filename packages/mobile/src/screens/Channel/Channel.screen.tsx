@@ -81,9 +81,7 @@ export const ChannelScreen: FC = () => {
 
   // Files
   const updateUploadedFiles = (files: DocumentPickerResponse[]) => {
-    // console.log('FILES', files)
     const filesData: FilePreviewData = getFilesData(files.map(i => i.fileCopyUri || i.uri))
-    console.log('FILES PATHS', filesData)
 
     // FilePreviewData
     setUploadingFiles(existingFiles => {
@@ -106,7 +104,6 @@ export const ChannelScreen: FC = () => {
       }
       // Upload files, then send corresponding message (contaning cid) for each of them
       Object.values(filesRef.current).forEach(async (fileData: FileContent) => {
-        console.log('Processing file', fileData.path)
         if (!fileData.path) return
         const updatedData = fileData
         try {

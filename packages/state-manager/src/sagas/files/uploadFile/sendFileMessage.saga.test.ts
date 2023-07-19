@@ -8,25 +8,18 @@ import { expectSaga } from 'redux-saga-test-plan'
 import { type Socket } from 'socket.io-client'
 import { type communitiesActions } from '../../communities/communities.slice'
 import { type identityActions } from '../../identity/identity.slice'
-import { uploadFileSaga } from './uploadFile.saga'
+import { sendFileMessageSaga } from './sendFileMessage.saga'
 import { type FactoryGirl } from 'factory-girl'
 import { type publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import { filesActions } from '../files.slice'
 import { generateMessageId } from '../../messages/utils/message.utils'
 import { DateTime } from 'luxon'
 import { messagesActions } from '../../messages/messages.slice'
-import {
-  type Community,
-  DownloadState,
-  type FileMetadata,
-  type Identity,
-  type PublicChannel,
-  SocketActionTypes,
-} from '@quiet/types'
+import { type Community, DownloadState, type FileMetadata, type Identity, type PublicChannel } from '@quiet/types'
 import { generateChannelId } from '@quiet/common'
 import { currentChannelId } from '../../publicChannels/publicChannels.selectors'
 
-describe('uploadFileSaga', () => {
+describe('sendFileMessageSaga', () => {
   let store: Store
   let factory: FactoryGirl
 
@@ -86,7 +79,7 @@ describe('uploadFileSaga', () => {
       },
     }
     const reducer = combineReducers(reducers)
-    await expectSaga(uploadFileSaga, socket, filesActions.uploadFile(media))
+    await expectSaga(sendFileMessageSaga, filesActions.uploadFile(media))
       .withReducer(reducer)
       .withState(store.getState())
       .provide([[call.fn(generateMessageId), message]])
@@ -106,13 +99,6 @@ describe('uploadFileSaga', () => {
           downloadProgress: undefined,
         })
       )
-      .apply(socket, socket.emit, [
-        SocketActionTypes.UPLOAD_FILE,
-        {
-          file: media,
-          peerId,
-        },
-      ])
       .run()
   })
 })
