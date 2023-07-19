@@ -22,14 +22,6 @@ export const Message: FC<MessageProps & FileActionsProps> = ({
   openUrl,
   pendingMessages,
 }) => {
-  const componentDecorator = (decoratedHref: string, decoratedText: string, key: number): ReactNode => {
-    return (
-      <Typography fontSize={14} color={'link'} onPress={() => openUrl(decoratedHref)} key={key}>
-        {decoratedText}
-      </Typography>
-    )
-  }
-
   const renderMessage = (message: DisplayableMessage, pending: boolean) => {
     switch (message.type) {
       case 2: // MessageType.Image (cypress tests incompatibility with enums)
