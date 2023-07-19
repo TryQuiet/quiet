@@ -11,14 +11,10 @@ const PREFIX = 'LoadingButton'
 const classes = {
   button: `${PREFIX}button`,
   inProgress: `${PREFIX}inProgress`,
-  progress: `${PREFIX}progress`
+  progress: `${PREFIX}progress`,
 }
 
-const StyledButton = styled(Button)((
-  {
-    theme
-  }
-) => ({
+const StyledButton = styled(Button)(({ theme }) => ({
   [`&.${classes.button}`]: {
     maxWidth: 286,
     minWidth: 100,
@@ -26,23 +22,23 @@ const StyledButton = styled(Button)((
     backgroundColor: theme.palette.colors.quietBlue,
     color: theme.palette.colors.white,
     '&:hover': {
-      backgroundColor: theme.palette.colors.quietBlue
+      backgroundColor: theme.palette.colors.quietBlue,
     },
     '&:disabled': {
-      opacity: 0.7
-    }
+      opacity: 0.7,
+    },
   },
 
   [`&.${classes.inProgress}`]: {
     '&:disabled': {
       backgroundColor: theme.palette.colors.quietBlue,
-      opacity: 1
-    }
+      opacity: 1,
+    },
   },
 
   [`& .${classes.progress}`]: {
-    color: theme.palette.colors.white
-  }
+    color: theme.palette.colors.white,
+  },
 }))
 
 interface LoadingButtonClasses extends ButtonClasses {
@@ -63,12 +59,19 @@ export const LoadingButton: React.FC<ButtonProps & LoadingButtonProps> = ({
 }) => {
   const mergedClasses = {
     ...classes,
-    ...customClasses
+    ...customClasses,
   }
 
   return (
-    <StyledButton className={classNames(mergedClasses.button, { [mergedClasses.inProgress]: inProgress })} {...buttonProps}>
-      {inProgress ? <CircularProgress size={20} className={mergedClasses.progress} data-testid={'loading-button-progress'} /> : text }
+    <StyledButton
+      className={classNames(mergedClasses.button, { [mergedClasses.inProgress]: inProgress })}
+      {...buttonProps}
+    >
+      {inProgress ? (
+        <CircularProgress size={20} className={mergedClasses.progress} data-testid={'loading-button-progress'} />
+      ) : (
+        text
+      )}
     </StyledButton>
   )
 }

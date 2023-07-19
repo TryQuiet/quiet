@@ -4,9 +4,7 @@ import ChannelCreationModalComponent from './ChannelCreationModal.component'
 
 describe('Create ChannelCreationModalComponent', () => {
   it('renders component', () => {
-    const result = renderComponent(
-      <ChannelCreationModalComponent handleClose={jest.fn()} open={true} />
-    )
+    const result = renderComponent(<ChannelCreationModalComponent handleClose={jest.fn()} open={true} />)
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body
         style="padding-right: 1024px; overflow: hidden;"
@@ -66,7 +64,7 @@ describe('Create ChannelCreationModalComponent', () => {
                   class="MuiGrid-root MuiGrid-container ChannelCreationModalComponentwrapper css-upjnze-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-qotagf-MuiGrid-root"
+                    class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-ejbsmj-MuiGrid-root"
                     data-testid="spinnerLoader"
                   >
                     <span

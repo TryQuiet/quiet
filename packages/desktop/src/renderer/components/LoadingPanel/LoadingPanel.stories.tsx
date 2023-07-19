@@ -19,13 +19,13 @@ const JoiningPanelArgs: JoiningPanelComponentProps = {
   handleClose: function (): void {},
   openUrl: () => console.log('OpenURL'),
   torConnectionInfo: { number: 10, text: 'Fetching' },
-  isOwner: false
+  isOwner: false,
 }
 const StartingPanelArgs: StartingPanelComponentProps = {
   open: true,
   handleClose: function (): void {},
   message: 'Starting Quiet',
-  torBootstrapInfo: 'Bootstrapped 100% (done)'
+  torBootstrapInfo: 'Bootstrapped 100% (done)',
 }
 
 JoiningPanel.args = JoiningPanelArgs
@@ -34,7 +34,7 @@ StartingPanel.args = StartingPanelArgs
 const component: ComponentMeta<typeof JoiningPanelComponent> = {
   title: 'Components/LoadingPanel',
   decorators: [withTheme],
-  component: JoiningPanelComponent
+  component: JoiningPanelComponent,
 }
 
 export default component

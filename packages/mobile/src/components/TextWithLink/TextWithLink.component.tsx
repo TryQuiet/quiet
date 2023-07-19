@@ -13,7 +13,8 @@ export const TextWithLink: FC<TextWithLinkProps> = ({ text, tagPrefix = '%', lin
         onPress={() => {
           action()
         }}
-        {...props}>
+        {...props}
+      >
         {label}
       </Typography>
     )
@@ -37,8 +38,9 @@ export const TextWithLink: FC<TextWithLinkProps> = ({ text, tagPrefix = '%', lin
         alignItems: 'flex-start',
         flexDirection: 'row',
         flexWrap: 'wrap',
-        minHeight: 500 // The contents of this View is being generated dynamically so minimal height has to be set in order to make it visible
-      }}>
+        minHeight: 500, // The contents of this View is being generated dynamically so minimal height has to be set in order to make it visible
+      }}
+    >
       {parts.map((part, index) => {
         return (
           <Typography fontSize={14} key={index}>

@@ -1,11 +1,11 @@
 import { apply, select } from 'typed-redux-saga'
-import { PayloadAction } from '@reduxjs/toolkit'
-import { applyEmitParams, Socket } from '../../../types'
+import { type PayloadAction } from '@reduxjs/toolkit'
+import { applyEmitParams, type Socket } from '../../../types'
 import { identitySelectors } from '../../identity/identity.selectors'
 
 import { communitiesSelectors } from '../communities.selectors'
-import { communitiesActions } from '../communities.slice'
-import { LaunchRegistrarPayload, SocketActionTypes } from '@quiet/types'
+import { type communitiesActions } from '../communities.slice'
+import { type LaunchRegistrarPayload, SocketActionTypes } from '@quiet/types'
 
 export function* launchRegistrarSaga(
   socket: Socket,
@@ -33,7 +33,7 @@ export function* launchRegistrarSaga(
       peerId: identity.peerId.id,
       rootCertString: community.CA.rootCertString,
       rootKeyString: community.CA.rootKeyString,
-      privateKey: community.privateKey
+      privateKey: community.privateKey,
     }
     yield* apply(socket, socket.emit, applyEmitParams(SocketActionTypes.LAUNCH_REGISTRAR, payload))
   }

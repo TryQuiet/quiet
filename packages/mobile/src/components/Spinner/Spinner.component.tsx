@@ -11,16 +11,11 @@ export const Spinner: FC<SpinnerProps> = ({ description }) => {
         flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: defaultTheme.palette.background.white
-      }}>
-      <ActivityIndicator
-        size='large'
-        color={defaultTheme.palette.background.lushSky}
-      />
-      <Typography
-        fontSize={14}
-        horizontalTextAlign={'center'}
-        style={{ margin: 10, maxWidth: 200 }}>
+        backgroundColor: defaultTheme.palette.background.white,
+      }}
+    >
+      <ActivityIndicator size='large' color={defaultTheme.palette.background.lushSky} />
+      <Typography fontSize={14} horizontalTextAlign={'center'} style={{ margin: 10, maxWidth: 200 }}>
         {description}
       </Typography>
     </View>

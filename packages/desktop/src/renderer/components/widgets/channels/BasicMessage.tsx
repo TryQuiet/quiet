@@ -42,56 +42,52 @@ const classes = {
   iconBox: `${PREFIX}iconBox`,
   pending: `${PREFIX}pending`,
   info: `${PREFIX}info`,
-  infoIcon: `${PREFIX}infoIcon`
+  infoIcon: `${PREFIX}infoIcon`,
 }
 
-const StyledListItem = styled(ListItem)((
-  {
-    theme
-  }
-) => ({
+const StyledListItem = styled(ListItem)(({ theme }) => ({
   [`& .${classes.messageCard}`]: {
-    padding: '0 4px'
+    padding: '0 4px',
   },
 
   [`&.${classes.wrapper}`]: {
     backgroundColor: theme.palette.colors.white,
     '&:hover': {
-      backgroundColor: theme.palette.colors.gray03
-    }
+      backgroundColor: theme.palette.colors.gray03,
+    },
   },
 
   [`& .${classes.infoWrapper}`]: {
-    backgroundColor: `${theme.palette.colors.blue} !important`
+    backgroundColor: `${theme.palette.colors.blue} !important`,
   },
 
   [`& .${classes.clickable}`]: {
-    cursor: 'pointer'
+    cursor: 'pointer',
   },
 
   [`& .${classes.wrapperPending}`]: {
-    background: theme.palette.colors.white
+    background: theme.palette.colors.white,
   },
 
   [`& .${classes.username}`]: {
     fontSize: 16,
     fontWeight: 500,
     marginTop: -4,
-    marginRight: 5
+    marginRight: 5,
   },
 
   [`& .${classes.statusIcon}`]: {
     color: theme.palette.colors.lightGray,
     fontSize: 21,
-    marginLeft: theme.spacing(1)
+    marginLeft: theme.spacing(1),
   },
 
   [`& .${classes.broadcasted}`]: {
-    color: theme.palette.colors.lightGray
+    color: theme.palette.colors.lightGray,
   },
 
   [`& .${classes.failed}`]: {
-    color: red[500]
+    color: red[500],
   },
 
   [`& .${classes.avatar}`]: {
@@ -100,43 +96,43 @@ const StyledListItem = styled(ListItem)((
     marginRight: 10,
     marginBottom: 4,
     borderRadius: 4,
-    backgroundColor: theme.palette.colors.grayBackgroud
+    backgroundColor: theme.palette.colors.grayBackgroud,
   },
 
   [`& .${classes.alignAvatar}`]: {
     marginTop: 2,
     marginLeft: 2,
     width: 32,
-    height: 32
+    height: 32,
   },
 
   [`& .${classes.moderation}`]: {
     cursor: 'pointer',
-    marginRight: 10
+    marginRight: 10,
   },
 
   [`& .${classes.time}`]: {
     color: theme.palette.colors.lightGray,
     fontSize: 14,
     marginTop: -4,
-    marginRight: 5
+    marginRight: 5,
   },
 
   [`& .${classes.iconBox}`]: {
-    marginTop: -4
+    marginTop: -4,
   },
 
   [`& .${classes.pending}`]: {
-    color: theme.palette.colors.lightGray
+    color: theme.palette.colors.lightGray,
   },
 
   [`& .${classes.info}`]: {
-    color: theme.palette.colors.white
+    color: theme.palette.colors.white,
   },
 
   [`& .${classes.infoIcon}`]: {
-    width: 32
-  }
+    width: 32,
+  },
 }))
 
 export const getTimeFormat = () => {
@@ -167,7 +163,7 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
   openUrl,
   openContainingFolder,
   downloadFile,
-  cancelDownload
+  cancelDownload,
 }) => {
   const messageDisplayData = messages[0]
 
@@ -179,23 +175,17 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
   return (
     <StyledListItem
       className={classNames({
-        [classes.wrapper]: !infoMessage
+        [classes.wrapper]: !infoMessage,
       })}
       onMouseOver={() => {}}
-      onMouseLeave={() => {}}>
+      onMouseLeave={() => {}}
+    >
       <ListItemText
         disableTypography
         className={classes.messageCard}
         primary={
-          <Grid
-            container
-            direction='row'
-            justifyContent='flex-start'
-            alignItems='flex-start'
-            wrap={'nowrap'}>
-            <Grid
-              item
-              className={classNames({ [classes.avatar]: true })}>
+          <Grid container direction='row' justifyContent='flex-start' alignItems='flex-start' wrap={'nowrap'}>
+            <Grid item className={classNames({ [classes.avatar]: true })}>
               <div className={classes.alignAvatar}>
                 {infoMessage ? (
                   <Icon src={information} className={classes.infoIcon} />
@@ -212,8 +202,9 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
                       color='textPrimary'
                       className={classNames({
                         [classes.username]: true,
-                        [classes.pending]: pending
-                      })}>
+                        [classes.pending]: pending,
+                      })}
+                    >
                       {infoMessage ? 'Quiet' : messageDisplayData.nickname}
                     </Typography>
                   </Grid>
@@ -221,8 +212,9 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
                     <Grid item>
                       <Typography
                         className={classNames({
-                          [classes.time]: true
-                        })}>
+                          [classes.time]: true,
+                        })}
+                      >
                         {messageDisplayData.date}
                       </Typography>
                     </Grid>
@@ -233,7 +225,8 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
                 container
                 direction='column'
                 style={{ marginTop: '-3px' }}
-                data-testid={`userMessages-${messageDisplayData.nickname}-${messageDisplayData.id}`}>
+                data-testid={`userMessages-${messageDisplayData.nickname}-${messageDisplayData.id}`}
+              >
                 {messages.map((message, index) => {
                   const pending = pendingMessages[message.id] !== undefined
                   const downloadStatus = downloadStatuses[message.id]

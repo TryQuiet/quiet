@@ -3,7 +3,7 @@ name: Deploy iOS to App Store
 on:
   release:
     types:
-      [released, prereleased]
+      [prereleased]
 
 jobs:
   build-ios:
@@ -20,6 +20,8 @@ jobs:
         run: echo ${{ matrix.os }}
 
       - uses: actions/checkout@v2
+        with:
+          lfs: true
 
       - name: Install gpg
         run: brew install gnupg
@@ -33,7 +35,7 @@ jobs:
         uses: ./.github/actions/setup-env
         with:
           cachePrefix: "deploy-ios"
-          bootstrap-packages: "@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/mobile,backend-bundle"
+          bootstrap-packages: "@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/mobile,backend-bundle"
 
       - name: Install pod dependencies
         run: |

@@ -25,7 +25,7 @@ describe('Channel menu', () => {
     window.ResizeObserver = jest.fn().mockImplementation(() => ({
       observe: jest.fn(),
       unobserve: jest.fn(),
-      disconnect: jest.fn()
+      disconnect: jest.fn(),
     }))
   })
 
@@ -37,17 +37,14 @@ describe('Channel menu', () => {
 
     const factory = await getFactory(store)
 
-    await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>(
-      'Community',
-      {
-        id: '0',
-        name: 'community',
-        CA: null,
-        registrarUrl: 'http://ugmx77q2tnm5fliyfxfeen5hsuzjtbsz44tsldui2ju7vl5xj4d447yd.onion',
-        rootCa: '',
-        peerList: []
-      }
-    )
+    await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community', {
+      id: '0',
+      name: 'community',
+      CA: null,
+      registrarUrl: 'http://ugmx77q2tnm5fliyfxfeen5hsuzjtbsz44tsldui2ju7vl5xj4d447yd.onion',
+      rootCa: '',
+      peerList: [],
+    })
 
     /* Context menu is not visible to non-owners at all, for now */
     store.dispatch(navigationActions.openMenu({ menu: MenuName.Channel }))
@@ -84,14 +81,14 @@ describe('Channel menu', () => {
 
     const factory = await getFactory(store)
 
-    const community = await factory.create<
-      ReturnType<typeof communities.actions.addNewCommunity>['payload']
-    >('Community')
-
-    await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>(
-      'Identity',
-      { id: community.id, nickname: 'alice' }
+    const community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>(
+      'Community'
     )
+
+    await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+      id: community.id,
+      nickname: 'alice',
+    })
 
     window.HTMLElement.prototype.scrollTo = jest.fn()
 

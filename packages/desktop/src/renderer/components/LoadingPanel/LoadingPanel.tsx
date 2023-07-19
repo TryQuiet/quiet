@@ -3,19 +3,12 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useModal } from '../../containers/hooks'
 import { ModalName } from '../../sagas/modals/modals.types'
 import { socketSelectors } from '../../sagas/socket/socket.selectors'
-import {
-  communities,
-  publicChannels,
-  users,
-  identity,
-  connection,
-  network
-} from '@quiet/state-manager'
+import { communities, publicChannels, users, identity, connection, network, errors } from '@quiet/state-manager'
 import { modalsActions } from '../../sagas/modals/modals.slice'
 import { shell } from 'electron'
 import JoiningPanelComponent from './JoiningPanelComponent'
 import StartingPanelComponent from './StartingPanelComponent'
-import { LoadingPanelType } from '@quiet/types'
+import { LoadingPanelType, ErrorCodes } from '@quiet/types'
 
 const LoadingPanel = () => {
   const dispatch = useDispatch()
@@ -25,13 +18,9 @@ const LoadingPanel = () => {
   const isConnected = useSelector(socketSelectors.isConnected)
 
   const currentCommunity = useSelector(communities.selectors.currentCommunity)
-  const isChannelReplicated = Boolean(
-    useSelector(publicChannels.selectors.publicChannels)?.length > 0
-  )
+  const isChannelReplicated = Boolean(useSelector(publicChannels.selectors.publicChannels)?.length > 0)
 
-  const currentChannelDisplayableMessages = useSelector(
-    publicChannels.selectors.currentChannelMessagesMergedBySender
-  )
+  const currentChannelDisplayableMessages = useSelector(publicChannels.selectors.currentChannelMessagesMergedBySender)
 
   const community = useSelector(communities.selectors.currentCommunity)
   const owner = Boolean(community?.CA)
@@ -46,18 +35,19 @@ const LoadingPanel = () => {
   const communityId = useSelector(communities.selectors.currentCommunityId)
   const initializedCommunities = useSelector(network.selectors.initializedCommunities)
   const isCommunityInitialized = Boolean(initializedCommunities[communityId])
+  const error = useSelector(errors.selectors.registrarErrors)
+  const registrationError = error?.code === ErrorCodes.FORBIDDEN
 
   useEffect(() => {
     console.log('HUNTING for haisenbug:')
     console.log('isConnected', isConnected)
-    console.log('isChannelReplicated', isChannelReplicated)
-    console.log('currentCommunity', currentCommunity)
-    console.log('currentIdentity', currentIdentity)
-    console.log('currentIdentity.userCertificate', currentIdentity?.userCertificate)
-    if (isConnected && isCommunityInitialized && areMessagesLoaded) {
+    console.log('isCommunityInitialized', isCommunityInitialized)
+    console.log('areMessagesLoaded?', areMessagesLoaded)
+    console.log('registrationError', registrationError)
+    if ((isConnected && isCommunityInitialized && areMessagesLoaded) || registrationError) {
       loadingPanelModal.handleClose()
     }
-  }, [isConnected, torBootstrapProcessSelector, isCommunityInitialized, areMessagesLoaded])
+  }, [isConnected, torBootstrapProcessSelector, isCommunityInitialized, areMessagesLoaded, error])
 
   useEffect(() => {
     if (isConnected) {
@@ -65,7 +55,7 @@ const LoadingPanel = () => {
         const notification = new Notification('Community created!', {
           body: 'Visit Settings for an invite code you can share.',
           icon: '../../build' + '/icon.png',
-          silent: true
+          silent: true,
         })
 
         notification.onclick = () => {
@@ -82,11 +72,7 @@ const LoadingPanel = () => {
 
   if (message === LoadingPanelType.StartingApplication) {
     return (
-      <StartingPanelComponent
-        {...loadingPanelModal}
-        message={message}
-        torBootstrapInfo={torBootstrapProcessSelector}
-      />
+      <StartingPanelComponent {...loadingPanelModal} message={message} torBootstrapInfo={torBootstrapProcessSelector} />
     )
   } else {
     return (

@@ -4,8 +4,7 @@ import { CreatedSelectors, StoreState } from '../store.types'
 import { StoreKeys } from '../../store/store.keys'
 import { ModalState, modalsReducer } from './modals.slice'
 
-const ModalsSlice: CreatedSelectors<StoreState>[StoreKeys.Modals] = (state: StoreState) =>
-  state[StoreKeys.Modals]
+const ModalsSlice: CreatedSelectors<StoreState>[StoreKeys.Modals] = (state: StoreState) => state[StoreKeys.Modals]
 
 export const open = (modal: ModalName) =>
   createSelector(ModalsSlice, (reducerState: ReturnType<typeof modalsReducer>) => {
@@ -21,5 +20,5 @@ export const props = (modal: ModalName) =>
 
 export const modalsSelectors = {
   open,
-  props
+  props,
 }

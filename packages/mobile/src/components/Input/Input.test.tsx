@@ -5,9 +5,7 @@ import { Input } from './Input.component'
 
 describe('MessageInput component', () => {
   it('should match inline snapshot', () => {
-    const { toJSON } = renderComponent(
-      <Input onChangeText={() => {}} placeholder={'Message #general as @holmes'} />
-    )
+    const { toJSON } = renderComponent(<Input onChangeText={() => {}} placeholder={'Message #general as @holmes'} />)
 
     expect(toJSON()).toMatchInlineSnapshot(`
       <View>

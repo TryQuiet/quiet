@@ -13,17 +13,12 @@ describe('Create channel', () => {
     ['end-with-space ', 'end-with-space'],
     ['UpperCaseToLowerCase', 'uppercasetolowercase'],
     ['spaces to hyphens', 'spaces-to-hyphens'],
-    ['!@#start-with-exclaim-at-hash', 'start-with-exclaim-at-hash']
-  ])(
-    'user inserting wrong channel name "%s" gets corrected "%s"',
-    async (name: string, corrected: string) => {
-      renderComponent(
-        <CreateChannelScreen />
-      )
+    ['!@#start-with-exclaim-at-hash', 'start-with-exclaim-at-hash'],
+  ])('user inserting wrong channel name "%s" gets corrected "%s"', async (name: string, corrected: string) => {
+    renderComponent(<CreateChannelScreen />)
 
-      fireEvent.changeText(screen.getByTestId('input'), name)
+    fireEvent.changeText(screen.getByTestId('input'), name)
 
-      expect(screen.getByText(`#${corrected}`)).toBeVisible()
-    }
-  )
+    expect(screen.getByText(`#${corrected}`)).toBeVisible()
+  })
 })

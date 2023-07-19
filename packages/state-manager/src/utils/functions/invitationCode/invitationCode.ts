@@ -4,7 +4,7 @@ export const getInvitationCode = (codeOrUrl: string): string => {
   /**
    * Extract code from invitation share url or return passed value for further validation
    */
-  let code: string = ''
+  let code = ''
   let validUrl: URL | null = null
 
   try {

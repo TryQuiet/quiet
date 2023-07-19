@@ -5,9 +5,9 @@ import { navigationSaga } from './navigation/navigation.saga'
 import { replaceScreenSaga } from './replaceScreen/replaceScreen.saga'
 
 export function* navigationMasterSaga(): Generator {
-    yield all([
-        takeEvery(navigationActions.redirection.type, redirectionSaga),
-        takeEvery(navigationActions.navigation.type, navigationSaga),
-        takeEvery(navigationActions.replaceScreen.type, replaceScreenSaga)
-    ])
+  yield all([
+    takeEvery(navigationActions.redirection.type, redirectionSaga),
+    takeEvery(navigationActions.navigation.type, navigationSaga),
+    takeEvery(navigationActions.replaceScreen.type, replaceScreenSaga),
+  ])
 }

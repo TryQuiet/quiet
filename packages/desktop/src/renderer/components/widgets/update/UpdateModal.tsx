@@ -17,40 +17,36 @@ const classes = {
   button: `${PREFIX}button`,
   updateIcon: `${PREFIX}updateIcon`,
   title: `${PREFIX}title`,
-  subTitle: `${PREFIX}subTitle`
+  subTitle: `${PREFIX}subTitle`,
 }
 
-const StyledModalContent = styled(Grid)((
-  {
-    theme
-  }
-) => ({
+const StyledModalContent = styled(Grid)(({ theme }) => ({
   backgroundColor: theme.palette.colors.white,
   border: 'none',
 
   [`& .${classes.info}`]: {
-    marginTop: 38
+    marginTop: 38,
   },
 
   [`& .${classes.button}`]: {
     height: 55,
     fontSize: '0.9rem',
-    backgroundColor: theme.palette.colors.quietBlue
+    backgroundColor: theme.palette.colors.quietBlue,
   },
 
   [`& .${classes.updateIcon}`]: {
     width: 102,
-    height: 102
+    height: 102,
   },
 
   [`& .${classes.title}`]: {
     marginTop: 24,
-    marginBottom: 16
+    marginBottom: 16,
   },
 
   [`& .${classes.subTitle}`]: {
-    marginBottom: 32
-  }
+    marginBottom: 32,
+  },
 }))
 
 interface UpdateModalProps {

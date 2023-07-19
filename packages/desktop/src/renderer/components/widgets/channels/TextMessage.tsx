@@ -27,11 +27,11 @@ const StyledTypography = styled(Typography)(() => ({
     fontSize: '0.855rem',
     whiteSpace: 'pre-line',
     lineHeight: '21px',
-    overflowWrap: 'anywhere'
+    overflowWrap: 'anywhere',
   },
 
   [`&.${classes.pending}`]: {
-    color: theme.palette.colors.lightGray
+    color: theme.palette.colors.lightGray,
   },
 
   [`& .${classes.blockquote}`]: {
@@ -106,18 +106,27 @@ export interface TextMessageComponentProps {
   openUrl: (url: string) => void
 }
 
-export const TextMessageComponent: React.FC<TextMessageComponentProps> = ({
-  message,
-  messageId,
-  pending,
-  openUrl
-}) => {
+export const TextMessageComponent: React.FC<TextMessageComponentProps> = ({ message, messageId, pending, openUrl }) => {
+  const componentDecorator = (decoratedHref: string, decoratedText: string, key: number): ReactNode => {
+    return (
+      <a
+        onClick={() => {
+          openUrl(decoratedHref)
+        }}
+        className={classNames({ [classes.link]: true })}
+        key={key}
+      >
+        {decoratedText}
+      </a>
+    )
+  }
+
   return (
     <StyledTypography
       component={'span' as any}
       className={classNames({
         [classes.message]: true,
-        [classes.pending]: pending
+        [classes.pending]: pending,
       })}
       data-testid={`messagesGroupContent-${messageId}`}>
       <ReactMarkdown
@@ -134,9 +143,10 @@ export const TextMessageComponent: React.FC<TextMessageComponentProps> = ({
               {...props}
             />
           ),
-          blockquote: ({ node, ...props }) => (
-            <blockquote className={classNames({ [classes.blockquote]: true })} {...props} />
-          ),
+          // Not working in older ReactMarkdown version we use because of ESM
+          // blockquote: ({ node, ...props }) => (
+          //   <blockquote className={classNames({ [classes.blockquote]: true })} {...props} />
+          // ),
           code: ({ node, ...props }) => (
             <code className={classNames({ [classes.code]: true })} {...props} />
           ),
@@ -170,13 +180,14 @@ export const TextMessageComponent: React.FC<TextMessageComponentProps> = ({
           ),
           table: ({ node, ...props }) => (
             <table className={classNames({ [classes.table]: true })} {...props} />
-          ),
-          th: ({ node, ...props }) => (
-            <th className={classNames({ [classes.tableHeaderCell]: props.isHeader })} {...props} />
-          ),
-          td: ({ node, ...props }) => (
-            <td className={classNames({ [classes.tableRowCell]: true })} {...props} />
           )
+          // Not working in older ReactMarkdown version we use because of ESM
+          // th: ({ node, ...props }) => (
+          //   <th className={classNames({ [classes.tableHeaderCell]: props.isHeader })} {...props} />
+          // ),
+          // td: ({ node, ...props }) => (
+          //   <td className={classNames({ [classes.tableRowCell]: true })} {...props} />
+          // )
         }}
       />
     </StyledTypography>

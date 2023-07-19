@@ -18,7 +18,7 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
   channel,
   messages = {
     count: 0,
-    groups: {}
+    groups: {},
   },
   pendingMessages = {},
   downloadStatuses = {},
@@ -27,7 +27,7 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
   imagePreview,
   setImagePreview,
   openImagePreview,
-  openUrl
+  openUrl,
 }) => {
   const [didKeyboardShow, setKeyboardShow] = useState(false)
   const [messageInput, setMessageInput] = useState<string | undefined>()
@@ -75,7 +75,7 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
     setInputEmpty(true)
   }
 
-  const renderItem = ({ item }: {item: string}) => (
+  const renderItem = ({ item }: { item: string }) => (
     <ChannelMessagesComponent
       messages={messages.groups[item]}
       pendingMessages={pendingMessages}
@@ -100,8 +100,9 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
           flexDirection: 'column',
           justifyContent: 'flex-end',
           backgroundColor: defaultTheme.palette.background.white,
-          paddingBottom: defaultPadding
-        }}>
+          paddingBottom: defaultPadding,
+        }}
+      >
         {messages.count === 0 ? (
           <Spinner description='Replicating messages' />
         ) : (
@@ -111,7 +112,7 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
             style={{
               transform: [{ rotate: '180deg' }],
               paddingLeft: defaultPadding,
-              paddingRight: defaultPadding
+              paddingRight: defaultPadding,
             }}
             data={Object.keys(messages.groups).reverse()}
             keyExtractor={item => item}
@@ -126,12 +127,13 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
           />
         )}
         <View style={{ flexDirection: 'row', paddingBottom: Platform.select({ ios: 20, android: 0 }) }}>
-        <View
-          style={{
-            flex: 9,
-            paddingLeft: defaultPadding,
-            paddingRight: !didKeyboardShow ? defaultPadding : 0
-          }}>
+          <View
+            style={{
+              flex: 9,
+              paddingLeft: defaultPadding,
+              paddingRight: !didKeyboardShow ? defaultPadding : 0,
+            }}
+          >
             <Input
               ref={messageInputRef}
               onChangeText={onInputTextChange}
@@ -142,18 +144,18 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
           {didKeyboardShow && <MessageSendButton onPress={onPress} disabled={isInputEmpty} />}
         </View>
       </KeyboardAvoidingView>
-      {imagePreview && setImagePreview && <ImagePreviewModal
-        imagePreviewData={imagePreview}
-        currentChannelName={channel?.name}
-        resetPreviewData={() => setImagePreview(null)}
-      />}
+      {imagePreview && setImagePreview && (
+        <ImagePreviewModal
+          imagePreviewData={imagePreview}
+          currentChannelName={channel?.name}
+          resetPreviewData={() => setImagePreview(null)}
+        />
+      )}
     </View>
   )
 }
 
-export const ChannelMessagesComponent: React.FC<
-  ChannelMessagesComponentProps & FileActionsProps
-> = ({
+export const ChannelMessagesComponent: React.FC<ChannelMessagesComponentProps & FileActionsProps> = ({
   messages,
   day,
   pendingMessages,
@@ -161,7 +163,7 @@ export const ChannelMessagesComponent: React.FC<
   downloadFile,
   cancelDownload,
   openImagePreview,
-  openUrl
+  openUrl,
 }) => {
   return (
     <View key={day}>

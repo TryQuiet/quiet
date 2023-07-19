@@ -44,6 +44,7 @@ import { ConfirmationBox } from './components/ConfirmationBox/ConfirmationBox.co
 
 import StoreProvider from './Provider'
 import { RootStackParamList } from './route.params'
+import ConnectionProcessScreen from './screens/ConnectionProcess/ConnectionProcess.screen'
 
 LogBox.ignoreAllLogs()
 
@@ -55,9 +56,9 @@ const linking = {
   prefixes: ['quiet://'],
   config: {
     screens: {
-      SplashScreen: ''
-    }
-  }
+      SplashScreen: '',
+    },
+  },
 }
 
 function App(): JSX.Element {
@@ -73,31 +74,25 @@ function App(): JSX.Element {
           linking={linking}
           onReady={() => {
             dispatch(navigationActions.redirection())
-          }}>
+          }}
+        >
           <WebviewCrypto />
           <MenuProvider>
             <ThemeProvider theme={defaultTheme}>
-              <StatusBar
-                backgroundColor={defaultTheme.palette.background.white}
-                barStyle={'dark-content'}
-              />
+              <StatusBar backgroundColor={defaultTheme.palette.background.white} barStyle={'dark-content'} />
               <Navigator
                 initialRouteName={ScreenNames.SplashScreen}
                 screenOptions={{
-                  headerShown: false
-                }}>
-                <Screen
-                  component={CreateCommunityScreen}
-                  name={ScreenNames.CreateCommunityScreen}
-                />
+                  headerShown: false,
+                }}
+              >
+                <Screen component={CreateCommunityScreen} name={ScreenNames.CreateCommunityScreen} />
                 <Screen component={SplashScreen} name={ScreenNames.SplashScreen} />
                 <Screen component={LeaveCommunityScreen} name={ScreenNames.LeaveCommunityScreen} />
                 <Screen component={JoinCommunityScreen} name={ScreenNames.JoinCommunityScreen} />
-                <Screen
-                  component={UsernameRegistrationScreen}
-                  name={ScreenNames.UsernameRegistrationScreen}
-                />
+                <Screen component={UsernameRegistrationScreen} name={ScreenNames.UsernameRegistrationScreen} />
                 <Screen component={ChannelListScreen} name={ScreenNames.ChannelListScreen} />
+                <Screen component={ConnectionProcessScreen} name={ScreenNames.ConnectionProcessScreen} />
                 <Screen component={ChannelScreen} name={ScreenNames.ChannelScreen} />
                 <Screen component={CreateChannelScreen} name={ScreenNames.CreateChannelScreen} />
                 <Screen component={DeleteChannelScreen} name={ScreenNames.DeleteChannelScreen} />

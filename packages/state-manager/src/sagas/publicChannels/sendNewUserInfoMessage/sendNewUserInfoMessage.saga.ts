@@ -1,21 +1,21 @@
-import { PayloadAction } from '@reduxjs/toolkit'
+import { type PayloadAction } from '@reduxjs/toolkit'
 import {
   CertFieldsTypes,
   getCertFieldValue,
   loadCertificate,
   parseCertificate,
-  keyFromCertificate
+  keyFromCertificate,
 } from '@quiet/identity'
 import { put, select, call } from 'typed-redux-saga'
 import { messagesActions } from '../../messages/messages.slice'
-import { publicChannelsActions } from '../publicChannels.slice'
+import { type publicChannelsActions } from '../publicChannels.slice'
 import { usersSelectors } from '../../users/users.selectors'
 import { identitySelectors } from '../../identity/identity.selectors'
 import { communitiesSelectors } from '../../communities/communities.selectors'
 import { publicChannelsSelectors } from '../publicChannels.selectors'
 
-import { MessageType, WriteMessagePayload } from '@quiet/types'
-import { Certificate } from 'pkijs'
+import { MessageType, type WriteMessagePayload } from '@quiet/types'
+import { type Certificate } from 'pkijs'
 
 export function* sendNewUserInfoMessageSaga(
   action: PayloadAction<ReturnType<typeof publicChannelsActions.sendNewUserInfoMessage>['payload']>
@@ -54,7 +54,7 @@ export function* sendNewUserInfoMessageSaga(
     const payload: WriteMessagePayload = {
       type: MessageType.Info,
       message: `@${user} has joined ${communityName}! 🎉`,
-      channelId: generalChannel.id
+      channelId: generalChannel.id,
     }
 
     yield* put(messagesActions.sendMessage(payload))

@@ -7,21 +7,21 @@ export const userNameField = (name = 'userName'): FieldData => {
       label: '',
       name,
       type: 'text',
-      placeholder: 'Type name'
+      placeholder: 'Type name',
     },
     validation: {
       required: FieldErrors.Required,
       maxLength: {
         value: 20,
-        message: UsernameErrors.NameTooLong
+        message: UsernameErrors.NameTooLong,
       },
       pattern: {
         value: /^[-a-zA-Z0-9 ]+$/g,
-        message: UsernameErrors.WrongCharacter
+        message: UsernameErrors.WrongCharacter,
       },
       validate: {
-        whitespaces: (value) => /^(?![\s])[\w\s-]+$/.test(value) || FieldErrors.Whitespaces
-      }
-    }
+        whitespaces: value => /^(?![\s])[\w\s-]+$/.test(value) || FieldErrors.Whitespaces,
+      },
+    },
   }
 }

@@ -19,9 +19,7 @@ export const renderComponent = (ui: ReactElement, storeState: Store = store): Re
     <StyledEngineProvider injectFirst>
       <ThemeProvider theme={theme}>
         <DndProvider backend={HTML5Backend}>
-          <Provider store={storeState}>
-            {children}
-          </Provider>
+          <Provider store={storeState}>{children}</Provider>
         </DndProvider>
       </ThemeProvider>
     </StyledEngineProvider>

@@ -6,9 +6,7 @@ import UploadedImagePlaceholder, { UploadedImagePlaceholderProps } from './Uploa
 import { withTheme } from '../../../../storybook/decorators'
 
 const Template: ComponentStory<typeof UploadedImagePlaceholder> = args => {
-  return (
-    <UploadedImagePlaceholder {...args} />
-  )
+  return <UploadedImagePlaceholder {...args} />
 }
 
 export const Component = Template.bind({})
@@ -16,7 +14,7 @@ export const Component = Template.bind({})
 const downloadStatus = {
   mid: 'test',
   cid: 'hvb45FGa',
-  downloadState: DownloadState.Completed
+  downloadState: DownloadState.Completed,
 }
 
 const args: UploadedImagePlaceholderProps = {
@@ -25,7 +23,7 @@ const args: UploadedImagePlaceholderProps = {
   imageHeight: 200,
   name: 'image',
   ext: '.png',
-  downloadStatus: downloadStatus
+  downloadStatus: downloadStatus,
 }
 
 Component.args = args
@@ -33,7 +31,7 @@ Component.args = args
 const component: ComponentMeta<typeof UploadedImagePlaceholder> = {
   title: 'Components/UploadedImagePlaceholder',
   decorators: [withTheme],
-  component: UploadedImagePlaceholder
+  component: UploadedImagePlaceholder,
 }
 
 export default component

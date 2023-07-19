@@ -1,18 +1,18 @@
 import { setupCrypto } from '@quiet/identity'
-import { Store } from '../../store.types'
-import { getFactory, MessageType, PublicChannel, publicChannels } from '../../..'
+import { type Store } from '../../store.types'
+import { getFactory, MessageType, type PublicChannel, type publicChannels } from '../../..'
 import { prepareStore, reducers } from '../../../utils/tests/prepareStore'
 import { combineReducers } from '@reduxjs/toolkit'
 import { expectSaga } from 'redux-saga-test-plan'
-import { communitiesActions } from '../../communities/communities.slice'
-import { identityActions } from '../../identity/identity.slice'
-import { FactoryGirl } from 'factory-girl'
+import { type communitiesActions } from '../../communities/communities.slice'
+import { type identityActions } from '../../identity/identity.slice'
+import { type FactoryGirl } from 'factory-girl'
 import { resetTransferSpeedSaga } from './resetTransferSpeed.saga'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import { DateTime } from 'luxon'
 import { filesActions } from '../files.slice'
 import { networkActions } from '../../network/network.slice'
-import { Community, DownloadState, FileMetadata, Identity } from '@quiet/types'
+import { type Community, DownloadState, type FileMetadata, type Identity } from '@quiet/types'
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
 
 describe('downloadFileSaga', () => {
@@ -31,24 +31,22 @@ describe('downloadFileSaga', () => {
 
     factory = await getFactory(store)
 
-    community = await factory.create<
-      ReturnType<typeof communitiesActions.addNewCommunity>['payload']
-    >('Community')
+    community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
 
     const generalChannelState = publicChannelsSelectors.generalChannel(store.getState())
     if (generalChannelState) generalChannel = generalChannelState
     expect(generalChannel).not.toBeUndefined()
 
-    alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
-      'Identity',
-      { id: community.id, nickname: 'alice' }
-    )
+    alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
+      id: community.id,
+      nickname: 'alice',
+    })
   })
 
   test('reset transfer speed for files with existing transfer speed', async () => {
     store.dispatch(
       publicChannelsActions.setCurrentChannel({
-        channelId: generalChannel.id
+        channelId: generalChannel.id,
       })
     )
 
@@ -59,29 +57,26 @@ describe('downloadFileSaga', () => {
       name: 'bot',
       ext: 'zip',
       message: {
-        id: id,
-        channelId: generalChannel.id
-      }
+        id,
+        channelId: generalChannel.id,
+      },
     }
 
     const message = Math.random().toString(36).substr(2.9)
 
-    await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>(
-      'Message',
-      {
-        identity: alice,
-        message: {
-          id: message,
-          type: MessageType.File,
-          message: '',
-          createdAt: DateTime.utc().valueOf(),
-          channelId: generalChannel.id,
-          signature: '',
-          pubKey: '',
-          media: media
-        }
-      }
-    )
+    await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>('Message', {
+      identity: alice,
+      message: {
+        id: message,
+        type: MessageType.File,
+        message: '',
+        createdAt: DateTime.utc().valueOf(),
+        channelId: generalChannel.id,
+        signature: '',
+        pubKey: '',
+        media,
+      },
+    })
 
     store.dispatch(
       filesActions.updateDownloadStatus({
@@ -91,8 +86,8 @@ describe('downloadFileSaga', () => {
         downloadProgress: {
           size: 2048,
           downloaded: 512,
-          transferSpeed: 128
-        }
+          transferSpeed: 128,
+        },
       })
     )
 
@@ -108,8 +103,8 @@ describe('downloadFileSaga', () => {
           downloadProgress: {
             size: 2048,
             downloaded: 512,
-            transferSpeed: 0
-          }
+            transferSpeed: 0,
+          },
         })
       )
       .run()
@@ -118,7 +113,7 @@ describe('downloadFileSaga', () => {
   test('do not reset transfer speed for files without existing transfer speed', async () => {
     store.dispatch(
       publicChannelsActions.setCurrentChannel({
-        channelId: generalChannel.id
+        channelId: generalChannel.id,
       })
     )
 
@@ -129,35 +124,32 @@ describe('downloadFileSaga', () => {
       name: 'bot',
       ext: 'zip',
       message: {
-        id: id,
-        channelId: generalChannel.id
-      }
+        id,
+        channelId: generalChannel.id,
+      },
     }
 
     const message = Math.random().toString(36).substr(2.9)
 
-    await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>(
-      'Message',
-      {
-        identity: alice,
-        message: {
-          id: message,
-          type: MessageType.File,
-          message: '',
-          createdAt: DateTime.utc().valueOf(),
-          channelId: generalChannel.id,
-          signature: '',
-          pubKey: '',
-          media: media
-        }
-      }
-    )
+    await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>('Message', {
+      identity: alice,
+      message: {
+        id: message,
+        type: MessageType.File,
+        message: '',
+        createdAt: DateTime.utc().valueOf(),
+        channelId: generalChannel.id,
+        signature: '',
+        pubKey: '',
+        media,
+      },
+    })
 
     store.dispatch(
       filesActions.updateDownloadStatus({
         mid: media.message.id,
         cid: media.cid,
-        downloadState: DownloadState.Downloading
+        downloadState: DownloadState.Downloading,
       })
     )
 
@@ -173,8 +165,8 @@ describe('downloadFileSaga', () => {
           downloadProgress: {
             size: 2048,
             downloaded: 512,
-            transferSpeed: 0
-          }
+            transferSpeed: 0,
+          },
         })
       )
       .run()
@@ -183,7 +175,7 @@ describe('downloadFileSaga', () => {
   test('do not reset transfer speed for files with download state other than downloading', async () => {
     store.dispatch(
       publicChannelsActions.setCurrentChannel({
-        channelId: generalChannel.id
+        channelId: generalChannel.id,
       })
     )
 
@@ -194,29 +186,26 @@ describe('downloadFileSaga', () => {
       name: 'bot',
       ext: 'zip',
       message: {
-        id: id,
-        channelId: generalChannel.id
-      }
+        id,
+        channelId: generalChannel.id,
+      },
     }
 
     const message = Math.random().toString(36).substr(2.9)
 
-    await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>(
-      'Message',
-      {
-        identity: alice,
-        message: {
-          id: message,
-          type: MessageType.File,
-          message: '',
-          createdAt: DateTime.utc().valueOf(),
-          channelId: generalChannel.id,
-          signature: '',
-          pubKey: '',
-          media: media
-        }
-      }
-    )
+    await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>('Message', {
+      identity: alice,
+      message: {
+        id: message,
+        type: MessageType.File,
+        message: '',
+        createdAt: DateTime.utc().valueOf(),
+        channelId: generalChannel.id,
+        signature: '',
+        pubKey: '',
+        media,
+      },
+    })
 
     store.dispatch(
       filesActions.updateDownloadStatus({
@@ -226,8 +215,8 @@ describe('downloadFileSaga', () => {
         downloadProgress: {
           size: 2048,
           downloaded: 512,
-          transferSpeed: 0
-        }
+          transferSpeed: 0,
+        },
       })
     )
 
@@ -243,8 +232,8 @@ describe('downloadFileSaga', () => {
           downloadProgress: {
             size: 2048,
             downloaded: 512,
-            transferSpeed: 0
-          }
+            transferSpeed: 0,
+          },
         })
       )
       .run()

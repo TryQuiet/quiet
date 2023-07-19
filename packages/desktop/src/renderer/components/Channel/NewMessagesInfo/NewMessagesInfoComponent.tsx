@@ -10,19 +10,15 @@ const classes = {
   wrapper: `${PREFIX}wrapper`,
   indicator: `${PREFIX}indicator`,
   label: `${PREFIX}label`,
-  icon: `${PREFIX}icon`
+  icon: `${PREFIX}icon`,
 }
 
-const Root = styled('div')((
-  {
-    theme
-  }
-) => ({
+const Root = styled('div')(({ theme }) => ({
   [`&.${classes.wrapper}`]: {
     width: '100%',
     position: 'absolute',
     bottom: 20,
-    zIndex: 2
+    zIndex: 2,
   },
 
   [`& .${classes.indicator}`]: {
@@ -34,21 +30,21 @@ const Root = styled('div')((
     borderRadius: 50,
     justifyContent: 'center',
     alignItems: 'center',
-    cursor: 'pointer'
+    cursor: 'pointer',
   },
 
   [`& .${classes.label}`]: {
     color: theme.palette.colors.white,
     fontSize: '0.855rem',
     whiteSpace: 'pre-line',
-    lineHeight: '21px'
+    lineHeight: '21px',
   },
 
   [`& .${classes.icon}`]: {
     width: 16,
     height: 16,
-    margin: '0px 0px 0px 8px'
-  }
+    margin: '0px 0px 0px 8px',
+  },
 }))
 
 export interface NewMessagesInfoComponentProps {
@@ -56,10 +52,7 @@ export interface NewMessagesInfoComponentProps {
   show: boolean
 }
 
-export const NewMessagesInfoComponent: React.FC<NewMessagesInfoComponentProps> = ({
-  scrollBottom,
-  show
-}) => {
+export const NewMessagesInfoComponent: React.FC<NewMessagesInfoComponentProps> = ({ scrollBottom, show }) => {
   return (
     <Root className={classes.wrapper} style={{ display: show ? 'block' : 'none' }}>
       <div className={classes.indicator} onClick={scrollBottom}>

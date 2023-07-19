@@ -8,8 +8,9 @@ export const appSlice = createSlice({
   initialState: { ...new AppState() },
   name: StoreKeys.App,
   reducers: {
-    closeServices: state => state
-  }
+    closeServices: state => state,
+    stopBackend: state => state,
+  },
 })
 
 export const appActions = appSlice.actions

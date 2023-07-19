@@ -12,8 +12,8 @@ describe('Spinner component', () => {
             label: 'linked',
             action: () => {
               console.log('link clicked')
-            }
-          }
+            },
+          },
         ]}
       />
     )

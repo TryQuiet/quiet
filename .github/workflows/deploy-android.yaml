@@ -3,7 +3,7 @@ name: Deploy Android to Google Play (internal testing)
 on:
   release:
     types: 
-      [released, prereleased]
+      [prereleased]
 
 jobs:
   build-android:
@@ -37,7 +37,7 @@ jobs:
       - name: "Setup environment"
         uses: ./.github/actions/setup-env
         with:
-          bootstrap-packages: "@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/mobile,backend-bundle"
+          bootstrap-packages: "@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/mobile,backend-bundle"
 
       - name: "Create gradle configuration directory"
         run: mkdir -p $HOME/.gradle

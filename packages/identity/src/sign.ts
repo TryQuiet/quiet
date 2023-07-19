@@ -9,5 +9,5 @@ export const sign = async (message: string, privKey: CryptoKey): Promise<ArrayBu
   const messageBuffer = Buffer.from(message)
   const algorithm = getAlgorithmParameters(config.signAlg, 'sign')
 
-  return await crypto.sign((algorithm.algorithm as Algorithm), privKey, messageBuffer)
+  return await crypto.sign(algorithm.algorithm as Algorithm, privKey, messageBuffer)
 }

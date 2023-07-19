@@ -5,20 +5,6 @@ import { storybookLog } from '../../utils/functions/storybookLog/storybookLog.fu
 import { Button } from './Button.component'
 
 storiesOf('Button', module)
-  .add('Default', () => (
-    <Button title={'button'} onPress={storybookLog('Button clicked')} />
-  ))
-  .add('Negative', () => (
-    <Button
-      title={'Never mind, I\'ll stay'}
-      onPress={storybookLog('Button clicked')}
-      negative
-    />
-  ))
-  .add('Disabled', () => (
-    <Button
-      title={'Never mind, I\'ll stay'}
-      onPress={storybookLog('Button clicked')}
-      disabled
-    />
-  ))
+  .add('Default', () => <Button title={'button'} onPress={storybookLog('Button clicked')} />)
+  .add('Negative', () => <Button title={"Never mind, I'll stay"} onPress={storybookLog('Button clicked')} negative />)
+  .add('Disabled', () => <Button title={"Never mind, I'll stay"} onPress={storybookLog('Button clicked')} disabled />)

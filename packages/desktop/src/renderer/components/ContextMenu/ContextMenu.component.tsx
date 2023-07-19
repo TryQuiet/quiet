@@ -8,13 +8,7 @@ import Icon from '../ui/Icon/Icon'
 import arrowLeft from '../../static/images/arrowLeft.svg'
 import arrowRightShort from '../../static/images/arrowRightShort.svg'
 
-export const ContextMenu: FC<ContextMenuProps> = ({
-  visible,
-  handleClose,
-  title,
-  items,
-  hint,
-}) => {
+export const ContextMenu: FC<ContextMenuProps> = ({ visible, handleClose, title, items, hint }) => {
   const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -42,8 +36,9 @@ export const ContextMenu: FC<ContextMenuProps> = ({
         width: '100%',
         height: '100%',
         zIndex: 9001,
-        pointerEvents: 'none'
-      }}>
+        pointerEvents: 'none',
+      }}
+    >
       <Grid style={{ flex: 6 }} onClick={handleClose} />
       <Grid
         ref={ref}
@@ -64,9 +59,10 @@ export const ContextMenu: FC<ContextMenuProps> = ({
           // },
           // elevation: 12,
           maxWidth: '375px',
-          pointerEvents: 'auto'
+          pointerEvents: 'auto',
         }}
-        data-testid={'contextMenu'}>
+        data-testid={'contextMenu'}
+      >
         <Grid
           style={{
             display: 'flex',
@@ -75,17 +71,19 @@ export const ContextMenu: FC<ContextMenuProps> = ({
             textAlign: 'center',
             marginBottom: '-10px',
             height: 60,
-            width: '100%'
-          }}>
+            width: '100%',
+          }}
+        >
           <Grid
             style={{
               flex: 1,
               display: 'flex',
               justifyContent: 'center',
               alignItems: 'center',
-              cursor: 'pointer'
+              cursor: 'pointer',
             }}
-            onClick={handleClose}>
+            onClick={handleClose}
+          >
             <Icon src={arrowLeft} />
           </Grid>
           <Grid style={{ flex: 5, justifyContent: 'center' }}>
@@ -101,8 +99,9 @@ export const ContextMenu: FC<ContextMenuProps> = ({
               width: '100%',
               padding: 16,
               borderTopWidth: 1,
-              borderColor: '#F0F0F0'
-            }}>
+              borderColor: '#F0F0F0',
+            }}
+          >
             <Typography fontSize={14} fontWeight={'normal'}>
               {hint}
             </Typography>
@@ -116,9 +115,10 @@ export const ContextMenu: FC<ContextMenuProps> = ({
                   cursor: 'pointer',
                   borderTop: '1px solid',
                   borderColor: '#F0F0F0',
-                  borderBottomWidth: index === items.length - 1 ? '1px solid' : 0
+                  borderBottomWidth: index === items.length - 1 ? '1px solid' : 0,
                 }}
-                key={index}>
+                key={index}
+              >
                 <ContextMenuItem {...item} />
               </Grid>
             )
@@ -139,14 +139,16 @@ export const ContextMenuItem: FC<ContextMenuItemProps> = ({ title, action }) => 
         paddingLeft: 20,
         paddingRight: 20,
         height: 48,
-        width: '100%'
+        width: '100%',
       }}
       onClick={action}
-      data-testid={`contextMenuItem${title}`}>
+      data-testid={`contextMenuItem${title}`}
+    >
       <Grid
         style={{
-          flex: 8
-        }}>
+          flex: 8,
+        }}
+      >
         <Typography fontSize={16} fontWeight={'normal'}>
           {title}
         </Typography>

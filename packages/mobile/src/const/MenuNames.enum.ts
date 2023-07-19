@@ -1,5 +1,5 @@
 export enum MenuName {
-    Community = 'CommunityContextMenu',
-    Channel = 'ChannelContextMenu',
-    Invitation = 'InvitationContextMenu'
+  Community = 'CommunityContextMenu',
+  Channel = 'ChannelContextMenu',
+  Invitation = 'InvitationContextMenu',
 }

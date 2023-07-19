@@ -7,12 +7,13 @@ export class NavigationState {
   public currentScreen: ScreenNames = ScreenNames.SplashScreen
   public confirmationBox: ConfirmationBox = {
     open: false,
-    args: {}
+    args: {},
   }
 
   public [MenuName.Community] = { open: false, args: {} }
   public [MenuName.Channel] = { open: false, args: {} }
   public [MenuName.Invitation] = { open: false, args: {} }
+  public pendingNavigation: ScreenNames | null = null
 }
 
 interface ConfirmationBox {
@@ -28,9 +29,13 @@ export interface NavigationPayload {
   params?: any
 }
 
+export interface PendingNavigationPayload {
+  screen: ScreenNames
+}
+
 export interface OpenMenuPayload {
   menu: MenuName
-  args?: {}
+  args?: Record<string, unknown>
 }
 
 export interface ToggleConfirmationBoxPayload {
@@ -55,6 +60,14 @@ export const navigationSlice = createSlice({
       const { screen } = action.payload
       state.currentScreen = screen
     },
+    setPendingNavigation: (state, action: PayloadAction<PendingNavigationPayload>) => {
+      const { screen } = action.payload
+      state.currentScreen = screen
+      state.pendingNavigation = screen
+    },
+    clearPendingNavigation: state => {
+      state.pendingNavigation = null
+    },
     openMenu: (state, action: PayloadAction<OpenMenuPayload>) => {
       const { menu, args } = action.payload
       state[menu].open = true
@@ -66,7 +79,7 @@ export const navigationSlice = createSlice({
       const menu = action.payload
       state[menu] = {
         open: false,
-        args: {}
+        args: {},
       }
     },
     toggleConfirmationBox: (state, action: PayloadAction<ToggleConfirmationBoxPayload>) => {
@@ -77,8 +90,8 @@ export const navigationSlice = createSlice({
       if (args) {
         state.confirmationBox.args = args
       }
-    }
-  }
+    },
+  },
 })
 
 export const navigationActions = navigationSlice.actions

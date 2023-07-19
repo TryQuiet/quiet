@@ -17,40 +17,36 @@ const classes = {
   button: `${PREFIX}button`,
   updateIcon: `${PREFIX}updateIcon`,
   title: `${PREFIX}title`,
-  subTitle: `${PREFIX}subTitle`
+  subTitle: `${PREFIX}subTitle`,
 }
 
-const StyledModalContent = styled(Grid)((
-  {
-    theme
-  }
-) => ({
+const StyledModalContent = styled(Grid)(({ theme }) => ({
   backgroundColor: theme.palette.colors.white,
   border: 'none',
 
   [`& .${classes.info}`]: {
-    marginTop: 38
+    marginTop: 38,
   },
 
   [`& .${classes.button}`]: {
     height: 55,
     fontSize: '0.9rem',
-    backgroundColor: theme.palette.colors.quietBlue
+    backgroundColor: theme.palette.colors.quietBlue,
   },
 
   [`& .${classes.updateIcon}`]: {
     width: 102,
-    height: 102
+    height: 102,
   },
 
   [`& .${classes.title}`]: {
     marginTop: 24,
-    marginBottom: 16
+    marginBottom: 16,
   },
 
   [`& .${classes.subTitle}`]: {
-    marginBottom: 32
-  }
+    marginBottom: 32,
+  },
 }))
 
 export interface WarningModalComponentProps {
@@ -71,12 +67,20 @@ export const WarningModalComponent: React.FC<WarningModalComponentProps> = ({ op
         </Grid>
         <Grid container item justifyContent='center'>
           <Grid item className={classes.title}>
-            {title && <Typography variant='h3' data-testid='warningModalTitle'>{title}</Typography>}
+            {title && (
+              <Typography variant='h3' data-testid='warningModalTitle'>
+                {title}
+              </Typography>
+            )}
           </Grid>
         </Grid>
         <Grid container item justifyContent='center'>
           <Grid item className={classes.subTitle}>
-           {subtitle && <Typography variant='body2' data-testid='warningModalSubtitle'>{subtitle}</Typography>}
+            {subtitle && (
+              <Typography variant='body2' data-testid='warningModalSubtitle'>
+                {subtitle}
+              </Typography>
+            )}
           </Grid>
         </Grid>
         <Grid container spacing={8} justifyContent='center'>

@@ -10,19 +10,17 @@ describe('setupCryptoSaga', () => {
     await expectSaga(setupCryptoSaga)
       .withReducer(combineReducers({ [StoreKeys.Init]: initReducer }), {
         [StoreKeys.Init]: {
-          ...new InitState()
-        }
+          ...new InitState(),
+        },
       })
-      .provide([
-        [call.fn(initCryptoEngine), null]
-      ])
+      .provide([[call.fn(initCryptoEngine), null]])
       .call(initCryptoEngine)
       .put(initActions.setCryptoEngineInitialized(true))
       .hasFinalState({
         [StoreKeys.Init]: {
           ...new InitState(),
-          isCryptoEngineInitialized: true
-        }
+          isCryptoEngineInitialized: true,
+        },
       })
       .run()
   })

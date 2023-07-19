@@ -1,13 +1,13 @@
 import { put, select } from 'typed-redux-saga'
 import { filesActions } from '../files.slice'
 import { filesSelectors } from '../files.selectors'
-import { PayloadAction } from '@reduxjs/toolkit'
-import { networkActions } from '../../network/network.slice'
+import { type PayloadAction } from '@reduxjs/toolkit'
+import { type networkActions } from '../../network/network.slice'
 import { DownloadState } from '@quiet/types'
 
 export function* resetTransferSpeedSaga(
   _action: PayloadAction<ReturnType<typeof networkActions.addInitializedCommunity>['payload']>
-  ): Generator {
+): Generator {
   const downloadStatuses = yield* select(filesSelectors.downloadStatuses)
 
   for (const status of Object.values(downloadStatuses)) {
@@ -17,8 +17,8 @@ export function* resetTransferSpeedSaga(
           ...status,
           downloadProgress: {
             ...status.downloadProgress,
-            transferSpeed: 0
-          }
+            transferSpeed: 0,
+          },
         })
       )
     }

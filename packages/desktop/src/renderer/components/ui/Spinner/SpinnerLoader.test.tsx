@@ -5,14 +5,12 @@ import { SpinnerLoader } from './SpinnerLoader'
 
 describe('SpinnerLoader', () => {
   it('renders component', () => {
-    const result = renderComponent(
-      <SpinnerLoader message='Test loading message' className='test-class-name' />
-    )
+    const result = renderComponent(<SpinnerLoader message='Test loading message' className='test-class-name' />)
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
           <div
-            class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column test-class-name css-qotagf-MuiGrid-root"
+            class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column test-class-name css-ejbsmj-MuiGrid-root"
             data-testid="spinnerLoader"
           >
             <span

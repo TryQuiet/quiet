@@ -6,7 +6,7 @@ export interface ActionsBasicType {
 }
 
 export type ActionsType<actions extends ActionsBasicType> = {
-  [k in keyof actions]: ReturnType<actions[k]>;
+  [k in keyof actions]: ReturnType<actions[k]>
 }
 
 export interface ActionsCreatorsBasicType {
@@ -25,6 +25,4 @@ export type StoreType<reducers extends StoreBasicType> = {
   [k in keyof reducers]: ReturnType<reducers[k]>
 }
 
-export type PayloadType<
-  actions extends ActionsType<ActionsBasicType>
-> = actions[keyof actions]['payload']
+export type PayloadType<actions extends ActionsType<ActionsBasicType>> = actions[keyof actions]['payload']

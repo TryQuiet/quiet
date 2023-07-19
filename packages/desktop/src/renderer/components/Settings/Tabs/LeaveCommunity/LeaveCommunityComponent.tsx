@@ -18,7 +18,7 @@ const classes = {
   buttonContainer: `${PREFIX}buttonContainer`,
   button: `${PREFIX}button`,
   secondaryButtonContainer: `${PREFIX}secondaryButtonContainer`,
-  secondaryButton: `${PREFIX}secondaryButton`
+  secondaryButton: `${PREFIX}secondaryButton`,
 }
 
 const StyledGrid = styled(Grid)(({ theme }) => ({
@@ -27,22 +27,22 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
   [`& .${classes.root}`]: {},
 
   [`& .${classes.titleContainer}`]: {
-    marginTop: 16
+    marginTop: 16,
   },
 
   [`& .${classes.descContainer}`]: {
     marginTop: 8,
     marginLeft: 32,
     marginRight: 32,
-    width: 100
+    width: 100,
   },
 
   [`& .${classes.iconContainer}`]: {
-    marginTop: 0
+    marginTop: 0,
   },
 
   [`& .${classes.buttonContainer}`]: {
-    marginTop: 25
+    marginTop: 25,
   },
 
   [`& .${classes.button}`]: {
@@ -52,16 +52,16 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
     backgroundColor: theme.palette.colors.purple,
     padding: theme.spacing(2),
     '&:hover': {
-      backgroundColor: theme.palette.colors.darkPurple
+      backgroundColor: theme.palette.colors.darkPurple,
     },
     '&:disabled': {
-      backgroundColor: theme.palette.colors.gray
-    }
+      backgroundColor: theme.palette.colors.gray,
+    },
   },
 
   [`& .${classes.secondaryButtonContainer}`]: {
     marginTop: 16,
-    marginBottom: 32
+    marginBottom: 32,
   },
 
   [`& .${classes.secondaryButton}`]: {
@@ -73,9 +73,9 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
     '&:hover': {
       boxShadow: 'none',
       cursor: 'pointer',
-      backgroundColor: theme.palette.colors.white
-    }
-  }
+      backgroundColor: theme.palette.colors.white,
+    },
+  },
 }))
 
 export interface LeaveCommunityProps {
@@ -89,40 +89,22 @@ export const LeaveCommunityComponent: FC<LeaveCommunityProps> = ({
   communityName,
   leaveCommunity,
   open,
-  handleClose
+  handleClose,
 }) => {
   return (
     <Modal open={open} handleClose={handleClose} fullPage={false}>
       <StyledGrid container justifyContent='center'>
-        <Grid
-          container
-          item
-          className={classes.titleContainer}
-          xs={12}
-          direction='row'
-          justifyContent='center'>
+        <Grid container item className={classes.titleContainer} xs={12} direction='row' justifyContent='center'>
           <Typography variant={'h4'}>Are you sure you want to leave?</Typography>
         </Grid>
-        <Grid
-          container
-          item
-          className={classes.descContainer}
-          xs={12}
-          direction='row'
-          justifyContent='center'>
+        <Grid container item className={classes.descContainer} xs={12} direction='row' justifyContent='center'>
           <Typography align={'center'}>
-            Your account, messages, and all data for{' '}
-            <span style={{ fontWeight: 500 }}>{communityName}</span> will be deleted from this
-            device. This cannot be undone.
+            Your account, messages, and all data for <span style={{ fontWeight: 500 }}>{communityName}</span> will be
+            deleted from this device. This cannot be undone.
           </Typography>
         </Grid>
         <Grid item xs={'auto'} className={classes.buttonContainer}>
-          <Button
-            variant='contained'
-            onClick={leaveCommunity}
-            size='small'
-            fullWidth
-            className={classes.button}>
+          <Button variant='contained' onClick={leaveCommunity} size='small' fullWidth className={classes.button}>
             Leave community
           </Button>
         </Grid>
@@ -132,13 +114,9 @@ export const LeaveCommunityComponent: FC<LeaveCommunityProps> = ({
           className={classes.secondaryButtonContainer}
           xs={12}
           direction='row'
-          justifyContent='center'>
-          <Button
-            variant='contained'
-            onClick={handleClose}
-            size='small'
-            fullWidth
-            className={classes.secondaryButton}>
+          justifyContent='center'
+        >
+          <Button variant='contained' onClick={handleClose} size='small' fullWidth className={classes.secondaryButton}>
             Never mind, I'll stay
           </Button>
         </Grid>

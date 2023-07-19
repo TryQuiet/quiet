@@ -19,9 +19,9 @@ export const declineUpdate = () => async (dispatch: Dispatch<AnyAction>) => {
 export const epics = {
   checkForUpdate,
   startApplicationUpdate,
-  declineUpdate
+  declineUpdate,
 }
 
 export default {
-  epics
+  epics,
 }

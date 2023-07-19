@@ -1,5 +1,5 @@
-import React, { FC, useEffect, useRef, useState } from 'react'
-import { Animated, View, Image } from 'react-native'
+import React, { CSSProperties, FC, useEffect, useRef, useState } from 'react'
+import { Animated, View, Image, Platform, StyleProp, ViewStyle } from 'react-native'
 import { ConfirmationBoxProps } from './ConfirmationBox.types'
 
 import { Typography } from '../Typography/Typography.component'
@@ -17,7 +17,7 @@ export const ConfirmationBox: FC<ConfirmationBoxProps> = ({ toggle, title }) => 
     Animated.timing(animation, {
       toValue: 1,
       duration: 250,
-      useNativeDriver: true
+      useNativeDriver: true,
     }).start()
   }
 
@@ -25,7 +25,7 @@ export const ConfirmationBox: FC<ConfirmationBoxProps> = ({ toggle, title }) => 
     Animated.timing(animation, {
       toValue: 0,
       duration: 500,
-      useNativeDriver: true
+      useNativeDriver: true,
     }).start(() => {
       setVisible(false)
     })
@@ -37,6 +37,17 @@ export const ConfirmationBox: FC<ConfirmationBoxProps> = ({ toggle, title }) => 
 
   const icon = appImages.icon_check_white
 
+  let style: StyleProp<ViewStyle> = {
+    bottom: 35,
+  }
+
+  if (Platform.OS === 'ios') {
+    style = {
+      justifyContent: 'center',
+      height: '100%',
+    }
+  }
+
   return (
     <Animated.View
       style={{
@@ -44,10 +55,11 @@ export const ConfirmationBox: FC<ConfirmationBoxProps> = ({ toggle, title }) => 
         alignItems: 'center',
         width: '100%',
         position: 'absolute',
-        bottom: 35,
         padding: 40,
-        opacity: animation
-      }}>
+        opacity: animation,
+        ...style,
+      }}
+    >
       <View
         style={{
           display: 'flex',
@@ -57,32 +69,31 @@ export const ConfirmationBox: FC<ConfirmationBoxProps> = ({ toggle, title }) => 
           backgroundColor: defaultPalette.background.black,
           width: 180,
           height: 84,
-          borderRadius: 16
-        }}>
+          borderRadius: 16,
+        }}
+      >
         <View
           style={{
             flex: 1.5,
-            justifyContent: 'center'
-          }}>
+            justifyContent: 'center',
+          }}
+        >
           <Image
             source={icon}
             resizeMode='cover'
             resizeMethod='resize'
             style={{
               width: 13,
-              height: 13
+              height: 13,
             }}
           />
         </View>
         <View
           style={{
-            flex: 1
-          }}>
-          <Typography
-            fontSize={14}
-            fontWeight={'normal'}
-            color={'white'}
-            style={{ lineHeight: 20 }}>
+            flex: 1,
+          }}
+        >
+          <Typography fontSize={14} fontWeight={'normal'} color={'white'} style={{ lineHeight: 20 }}>
             {title}
           </Typography>
         </View>

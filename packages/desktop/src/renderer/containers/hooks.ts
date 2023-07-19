@@ -17,7 +17,7 @@ export const useModal = <T extends OpenModalPayload['args']>(name: ModalName) =>
     dispatch(
       modalsActions.openModal({
         name: name,
-        args: args
+        args: args,
       })
     )
 
@@ -27,13 +27,13 @@ export const useModal = <T extends OpenModalPayload['args']>(name: ModalName) =>
     open,
     handleOpen,
     handleClose,
-    ...props
+    ...props,
   }
 }
 
 export enum Variant {
   ARROWS_KEYS = 'arrows-keys',
-  PAGES_KEYS = 'pages-keys'
+  PAGES_KEYS = 'pages-keys',
 }
 
 export const useCyclingFocus = (

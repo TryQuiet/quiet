@@ -28,7 +28,7 @@ const classes = {
   iconDiv: `${PREFIX}iconDiv`,
   iconButton: `${PREFIX}iconButton`,
   bold: `${PREFIX}bold`,
-  menu: `${PREFIX}menu`
+  menu: `${PREFIX}menu`,
 }
 
 const Root = styled('div')(({ theme }) => ({
@@ -36,20 +36,20 @@ const Root = styled('div')(({ theme }) => ({
     height: '75px',
     paddingLeft: 20,
     paddingRight: 24,
-    borderBottom: `1px solid ${theme.palette.colors.veryLightGray}`
+    borderBottom: `1px solid ${theme.palette.colors.veryLightGray}`,
   },
 
   [`& .${classes.title}`]: {
     fontSize: '1rem',
-    lineHeight: '1.66'
+    lineHeight: '1.66',
   },
 
   [`& .${classes.subtitle}`]: {
-    fontSize: '0.8rem'
+    fontSize: '0.8rem',
   },
 
   [`& .${classes.spendButton}`]: {
-    fontSize: 13
+    fontSize: 13,
   },
 
   [`& .${classes.actions}`]: {},
@@ -59,7 +59,7 @@ const Root = styled('div')(({ theme }) => ({
     marginRight: 18,
     borderRadius: 4,
     borderStyle: 'solid',
-    borderColor: theme.palette.colors.gray03
+    borderColor: theme.palette.colors.gray03,
   },
 
   [`& .${classes.tab}`]: {
@@ -72,47 +72,47 @@ const Root = styled('div')(({ theme }) => ({
     textTransform: 'none',
     backgroundColor: theme.palette.colors.gray03,
     color: theme.palette.colors.gray40,
-    fontWeight: 'normal'
+    fontWeight: 'normal',
   },
 
   [`& .${classes.tabs}`]: {
-    minHeight: 0
+    minHeight: 0,
   },
 
   [`& .${classes.selected}`]: {
     color: theme.palette.colors.trueBlack,
-    backgroundColor: theme.palette.colors.white
+    backgroundColor: theme.palette.colors.white,
   },
 
   [`& .${classes.indicator}`]: {
-    maxHeight: 0
+    maxHeight: 0,
   },
 
   [`& .${classes.descriptionDiv}`]: {
     top: 75,
     padding: '12px 25px 12px 20px',
     backgroundColor: theme.palette.colors.white,
-    boxShadow: `0px 1px 0px ${theme.palette.colors.veryLightGray}`
+    boxShadow: `0px 1px 0px ${theme.palette.colors.veryLightGray}`,
   },
 
   [`&.${classes.wrapper}`]: {},
 
   [`& .${classes.iconDiv}`]: {
-    marginLeft: 12
+    marginLeft: 12,
   },
 
   [`& .${classes.iconButton}`]: {
-    padding: 0
+    padding: 0,
   },
 
   [`& .${classes.bold}`]: {
-    fontWeight: 500
+    fontWeight: 500,
   },
 
   [`& .${classes.menu}`]: {
     padding: '20px',
-    cursor: 'pointer'
-  }
+    cursor: 'pointer',
+  },
 }))
 
 export interface ChannelHeaderProps {
@@ -124,7 +124,7 @@ export interface ChannelHeaderProps {
 export const ChannelHeaderComponent: React.FC<ChannelHeaderProps> = ({
   channelName,
   openContextMenu,
-  enableContextMenu
+  enableContextMenu,
 }) => {
   const debounce = (fn: () => void, ms: number) => {
     let timer: ReturnType<typeof setTimeout> | null
@@ -157,12 +157,7 @@ export const ChannelHeaderComponent: React.FC<ChannelHeaderProps> = ({
 
   return (
     <Root className={classes.wrapper}>
-      <Grid
-        container
-        className={classes.root}
-        justifyContent='space-between'
-        alignItems='center'
-        direction='row'>
+      <Grid container className={classes.root} justifyContent='space-between' alignItems='center' direction='row'>
         <Grid item>
           <Grid item container alignItems='center'>
             <Grid item>
@@ -172,9 +167,10 @@ export const ChannelHeaderComponent: React.FC<ChannelHeaderProps> = ({
                 variant='subtitle1'
                 className={classNames({
                   [classes.title]: true,
-                  [classes.bold]: true
+                  [classes.bold]: true,
                 })}
-                data-testid={'channelTitle'}>
+                data-testid={'channelTitle'}
+              >
                 {`#${channelName?.substring(0, 20)}`}
               </Typography>
             </Grid>
@@ -187,7 +183,8 @@ export const ChannelHeaderComponent: React.FC<ChannelHeaderProps> = ({
           className={classes.actions}
           justifyContent='flex-end'
           alignContent='center'
-          alignItems='center'>
+          alignItems='center'
+        >
           {enableContextMenu && (
             <Grid item className={classes.menu} onClick={openContextMenu} data-testid={'channelContextMenuButton'}>
               <Icon src={dots} />

@@ -1,8 +1,6 @@
-import { ActionCreator, AnyAction } from 'redux'
+import { type ActionCreator, type AnyAction } from 'redux'
 
-interface ActionsBasicType {
-  [k: string]: ActionCreator<AnyAction>
-}
+type ActionsBasicType = Record<string, ActionCreator<AnyAction>>
 
 export type ActionsType<Actions extends ActionsBasicType> = {
   [k in keyof Actions]: ReturnType<Actions[k]>
@@ -80,5 +78,5 @@ export enum SocketActionTypes {
   UPDATE_MESSAGE_MEDIA = 'updateMessageMedia',
   UPLOAD_FILE = 'uploadFile',
   UPLOADED_FILE = 'uploadedFile',
-  CHECK_FOR_MISSING_FILES = 'checkForMissingFiles'
+  CHECK_FOR_MISSING_FILES = 'checkForMissingFiles',
 }

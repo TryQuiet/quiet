@@ -9,24 +9,22 @@ import { CommunityOwnership, CreateNetworkPayload } from '@quiet/types'
 export const CreateCommunityScreen: FC = () => {
   const dispatch = useDispatch()
 
+  const currentCommunity = useSelector(communities.selectors.currentCommunity)
   const currentIdentity = useSelector(identity.selectors.currentIdentity)
-  const networkCreated = Boolean(currentIdentity && !currentIdentity.userCertificate)
-
-  useEffect(() => {
-    if (networkCreated) {
-      dispatch(navigationActions.navigation({
-        screen: ScreenNames.UsernameRegistrationScreen
-       }))
-    }
-  }, [dispatch, currentIdentity])
+  const networkCreated = Boolean(currentCommunity && !currentIdentity?.userCertificate)
 
   const createCommunityAction = useCallback(
     (name: string) => {
       const payload: CreateNetworkPayload = {
         ownership: CommunityOwnership.Owner,
-        name: name
+        name,
       }
       dispatch(communities.actions.createNetwork(payload))
+      dispatch(
+        navigationActions.navigation({
+          screen: ScreenNames.UsernameRegistrationScreen,
+        })
+      )
     },
     [dispatch]
   )
@@ -34,7 +32,7 @@ export const CreateCommunityScreen: FC = () => {
   const redirectionAction = useCallback(() => {
     dispatch(
       navigationActions.navigation({
-        screen: ScreenNames.JoinCommunityScreen
+        screen: ScreenNames.JoinCommunityScreen,
       })
     )
   }, [dispatch])

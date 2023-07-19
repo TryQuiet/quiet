@@ -26,7 +26,7 @@ import {
   MessageType,
   ChannelMessage,
   messages,
-  generateMessageFactoryContentWithId
+  generateMessageFactoryContentWithId,
 } from '@quiet/state-manager'
 
 import { DateTime } from 'luxon'
@@ -43,12 +43,12 @@ jest.mock('electron', () => {
           return [
             {
               show: jest.fn(),
-              isFocused: jest.fn()
-            }
+              isFocused: jest.fn(),
+            },
           ]
-        }
-      }
-    }
+        },
+      },
+    },
   }
 })
 
@@ -71,20 +71,18 @@ describe('Switch channels', () => {
     window.ResizeObserver = jest.fn().mockImplementation(() => ({
       observe: jest.fn(),
       unobserve: jest.fn(),
-      disconnect: jest.fn()
+      disconnect: jest.fn(),
     }))
 
     redux = await prepareStore({}, socket)
     factory = await getFactory(redux.store)
 
-    community = await factory.create<
-      ReturnType<typeof communities.actions.addNewCommunity>['payload']
-    >('Community')
+    community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
 
-    alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>(
-      'Identity',
-      { id: community.id, nickname: 'alice' }
-    )
+    alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+      id: community.id,
+      nickname: 'alice',
+    })
     const entities = redux.store.getState().PublicChannels.channels.entities
     generalId = Object.keys(entities).find(key => entities[key]?.name === 'general')
     expect(generalId).not.toBeUndefined()
@@ -92,18 +90,15 @@ describe('Switch channels', () => {
     const channelNames = ['memes', 'pets', 'travels']
     // Automatically create channels
     for (const name of channelNames) {
-      await factory.create<ReturnType<typeof publicChannels.actions.addChannel>['payload']>(
-        'PublicChannel',
-        {
-          channel: {
-            name: name,
-            description: `Welcome to #${name}`,
-            timestamp: DateTime.utc().valueOf(),
-            owner: alice.nickname,
-            id: name
-          }
-        }
-      )
+      await factory.create<ReturnType<typeof publicChannels.actions.addChannel>['payload']>('PublicChannel', {
+        channel: {
+          name: name,
+          description: `Welcome to #${name}`,
+          timestamp: DateTime.utc().valueOf(),
+          owner: alice.nickname,
+          id: name,
+        },
+      })
     }
   })
 
@@ -114,7 +109,7 @@ describe('Switch channels', () => {
       identity: alice,
       // @ts-expect-error
       message: generateMessageFactoryContentWithId(generalId),
-      verifyAutomatically: true
+      verifyAutomatically: true,
     })
 
     window.HTMLElement.prototype.scrollTo = jest.fn()
@@ -169,9 +164,9 @@ describe('Switch channels', () => {
             createdAt: DateTime.utc().valueOf(),
             channelId: id,
             signature: '',
-            pubKey: ''
+            pubKey: '',
           },
-          verifyAutomatically: true
+          verifyAutomatically: true,
         })
       ).payload.message
       messages.push(message)
@@ -187,7 +182,7 @@ describe('Switch channels', () => {
     // Set 'general' as active channel
     store.dispatch(
       publicChannels.actions.setCurrentChannel({
-        channelId: 'general'
+        channelId: 'general',
       })
     )
 
@@ -217,8 +212,8 @@ describe('Switch channels', () => {
         SocketActionTypes.INCOMING_MESSAGES,
         {
           messages: messages,
-          communityId: community.id
-        }
+          communityId: community.id,
+        },
       ])
     }
   })
@@ -234,9 +229,9 @@ describe('Switch channels', () => {
           createdAt: DateTime.utc().valueOf(),
           channelId: 'general',
           signature: '',
-          pubKey: ''
+          pubKey: '',
         },
-        verifyAutomatically: true
+        verifyAutomatically: true,
       })
     ).payload.message
 
@@ -267,8 +262,8 @@ describe('Switch channels', () => {
         SocketActionTypes.INCOMING_MESSAGES,
         {
           messages: [message],
-          communityId: community.id
-        }
+          communityId: community.id,
+        },
       ])
     }
   })
@@ -284,9 +279,9 @@ describe('Switch channels', () => {
           createdAt: DateTime.utc().valueOf(),
           channelId: 'travels',
           signature: '',
-          pubKey: ''
+          pubKey: '',
         },
-        verifyAutomatically: true
+        verifyAutomatically: true,
       })
     ).payload.message
 
@@ -303,7 +298,7 @@ describe('Switch channels', () => {
     // Set 'general' as active channel
     store.dispatch(
       publicChannels.actions.setCurrentChannel({
-        channelId: 'general'
+        channelId: 'general',
       })
     )
 
@@ -323,13 +318,11 @@ describe('Switch channels', () => {
     expect(travelsChannelLink).toHaveStyle('opacity: 0.7')
 
     // Verify replicated message in present in repository
-    expect(
-      messages.selectors.validCurrentPublicChannelMessagesEntries(redux.store.getState())[0]
-    ).toStrictEqual(message)
+    expect(messages.selectors.validCurrentPublicChannelMessagesEntries(redux.store.getState())[0]).toStrictEqual(
+      message
+    )
     // Verify replicated messages was placed in cache
-    expect(
-      publicChannels.selectors.currentChannelMessages(redux.store.getState())[0]
-    ).toStrictEqual(message)
+    expect(publicChannels.selectors.currentChannelMessages(redux.store.getState())[0]).toStrictEqual(message)
 
     // Confirm new message was properly cached and is visible
     expect(await screen.findByText(message.message)).toBeVisible()
@@ -340,8 +333,8 @@ describe('Switch channels', () => {
         {
           messages: [message],
           communityId: community.id,
-          isVerified: true
-        }
+          isVerified: true,
+        },
       ])
     }
   })

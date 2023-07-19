@@ -8,7 +8,7 @@ export class NavigationState {
 
 export interface OpenMenuPayload {
   menu: MenuName
-  args?: {}
+  args?: {} // eslint-disable-line @typescript-eslint/ban-types
 }
 
 export interface ToggleConfirmationBoxPayload {
@@ -34,18 +34,18 @@ export const navigationSlice = createSlice({
       const menu = action.payload
       state[menu] = {
         open: false,
-        args: {}
+        args: {},
       }
     },
     closeAllMenus: state => {
       Object.values(MenuName).forEach(menu => {
         state[menu] = {
           open: false,
-          args: {}
+          args: {},
         }
       })
-    }
-  }
+    },
+  },
 })
 
 export const navigationActions = navigationSlice.actions

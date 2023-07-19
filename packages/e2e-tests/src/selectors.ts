@@ -1,5 +1,5 @@
-import { By, Key, ThenableWebDriver, until } from 'selenium-webdriver'
-import { BuildSetup, BuildSetupInit } from './utils'
+import { By, Key, type ThenableWebDriver, until } from 'selenium-webdriver'
+import { BuildSetup, type BuildSetupInit } from './utils'
 
 export class App {
   thenableWebDriver?: ThenableWebDriver
@@ -32,9 +32,7 @@ export class App {
   }
 
   get saveStateButton() {
-    return this.driver.wait(
-      until.elementLocated(By.xpath('//div[@data-testid="save-state-button"]'))
-    )
+    return this.driver.wait(until.elementLocated(By.xpath('//div[@data-testid="save-state-button"]')))
   }
 
   async saveState() {
@@ -43,9 +41,7 @@ export class App {
   }
 
   async waitForSavedState() {
-    const dataSaved = this.driver.wait(
-      until.elementLocated(By.xpath('//div[@data-is-saved="true"]'))
-    )
+    const dataSaved = this.driver.wait(until.elementLocated(By.xpath('//div[@data-is-saved="true"]')))
     return await dataSaved
   }
 }
@@ -57,9 +53,7 @@ export class StartingLoadingPanel {
   }
 
   get element() {
-    return this.driver.wait(
-      until.elementLocated(By.xpath('//div[@data-testid="startingPanelComponent"]'))
-    )
+    return this.driver.wait(until.elementLocated(By.xpath('//div[@data-testid="startingPanelComponent"]')))
   }
   // get element() {
   //   return this.driver.wait(until.elementLocated(By.xpath(`//span[text()="${this.text}"]`)))
@@ -77,15 +71,11 @@ export class WarningModal {
   }
 
   get titleElement() {
-    return this.driver.wait(
-      until.elementLocated(By.xpath('//h3[@data-testid="warningModalTitle"]'))
-    )
+    return this.driver.wait(until.elementLocated(By.xpath('//h3[@data-testid="warningModalTitle"]')))
   }
 
   async close() {
-    const submitButton = await this.driver.findElement(
-      By.xpath('//button[@data-testid="warningModalSubmit"]')
-    )
+    const submitButton = await this.driver.findElement(By.xpath('//button[@data-testid="warningModalSubmit"]'))
     await submitButton.click()
   }
 }
@@ -97,9 +87,7 @@ export class JoiningLoadingPanel {
   }
 
   get element() {
-    return this.driver.wait(
-      until.elementLocated(By.xpath('//div[@data-testid="joiningPanelComponent"]'))
-    )
+    return this.driver.wait(until.elementLocated(By.xpath('//div[@data-testid="joiningPanelComponent"]')))
   }
 }
 
@@ -110,25 +98,23 @@ export class ChannelContextMenu {
   }
 
   async openMenu() {
-    const menu = this.driver.wait(
-      until.elementLocated(By.xpath('//div[@data-testid="channelContextMenuButton"]'))
-    )
+    const menu = this.driver.wait(until.elementLocated(By.xpath('//div[@data-testid="channelContextMenuButton"]')))
     await menu.click()
   }
 
   async openDeletionChannelModal() {
-    const tab = this.driver.wait(
-      until.elementLocated(By.xpath('//div[@data-testid="contextMenuItemDelete"]'))
-    )
+    const tab = this.driver.wait(until.elementLocated(By.xpath('//div[@data-testid="contextMenuItemDelete"]')))
     await tab.click()
   }
 
   async deleteChannel() {
-    const button = this.driver.wait(
-      until.elementLocated(By.xpath('//button[@data-testid="deleteChannelButton"]'))
-    )
+    const button = this.driver.wait(until.elementLocated(By.xpath('//button[@data-testid="deleteChannelButton"]')))
     await button.click()
-    await new Promise<void>(resolve => setTimeout(() => resolve(), 5000))
+    await new Promise<void>(resolve =>
+      setTimeout(() => {
+        resolve()
+      }, 5000)
+    )
   }
 }
 export class RegisterUsernameModal {
@@ -141,9 +127,24 @@ export class RegisterUsernameModal {
     return this.driver.wait(until.elementLocated(By.xpath("//h3[text()='Register a username']")))
   }
 
+  get error() {
+    return this.driver.wait(until.elementLocated(By.xpath("//p[text()='Username already taken.']")))
+  }
+
   async typeUsername(username: string) {
     const usernameInput = await this.driver.findElement(By.xpath('//input[@name="userName"]'))
     await usernameInput.sendKeys(username)
+  }
+
+  async clearInput() {
+    const usernameInput = await this.driver.findElement(By.xpath('//input[@name="userName"]'))
+    if (process.platform === 'darwin') {
+      await usernameInput.sendKeys(Key.COMMAND + 'a')
+      await usernameInput.sendKeys(Key.DELETE)
+    } else {
+      await usernameInput.sendKeys(Key.CONTROL + 'a')
+      await usernameInput.sendKeys(Key.DELETE)
+    }
   }
 
   async submit() {
@@ -167,16 +168,12 @@ export class JoinCommunityModal {
   }
 
   async typeCommunityCode(code: string) {
-    const communityNameInput = await this.driver.findElement(
-      By.xpath('//input[@placeholder="Invite code"]')
-    )
+    const communityNameInput = await this.driver.findElement(By.xpath('//input[@placeholder="Invite code"]'))
     await communityNameInput.sendKeys(code)
   }
 
   async submit() {
-    const continueButton = await this.driver.findElement(
-      By.xpath('//button[@data-testid="continue-joinCommunity"]')
-    )
+    const continueButton = await this.driver.findElement(By.xpath('//button[@data-testid="continue-joinCommunity"]'))
     await continueButton.click()
   }
 }
@@ -191,16 +188,12 @@ export class CreateCommunityModal {
   }
 
   async typeCommunityName(name: string) {
-    const communityNameInput = await this.driver.findElement(
-      By.xpath('//input[@placeholder="Community name"]')
-    )
+    const communityNameInput = await this.driver.findElement(By.xpath('//input[@placeholder="Community name"]'))
     await communityNameInput.sendKeys(name)
   }
 
   async submit() {
-    const continueButton = await this.driver.findElement(
-      By.xpath('//button[@data-testid="continue-createCommunity"]')
-    )
+    const continueButton = await this.driver.findElement(By.xpath('//button[@data-testid="continue-createCommunity"]'))
     await continueButton.click()
   }
 }
@@ -231,9 +224,7 @@ export class Channel {
   }
 
   get getAllMessages() {
-    return this.driver.wait(
-      until.elementsLocated(By.xpath('//*[contains(@data-testid, "userMessages-")]'))
-    )
+    return this.driver.wait(until.elementsLocated(By.xpath('//*[contains(@data-testid, "userMessages-")]')))
   }
 
   get element() {
@@ -248,7 +239,11 @@ export class Channel {
     const communityNameInput = await this.messageInput
     await communityNameInput.sendKeys(message)
     await communityNameInput.sendKeys(Key.ENTER)
-    await new Promise<void>(resolve => setTimeout(() => resolve(), 5000))
+    await new Promise<void>(resolve =>
+      setTimeout(() => {
+        resolve()
+      }, 5000)
+    )
   }
 
   async getUserMessages(username: string) {
@@ -258,9 +253,7 @@ export class Channel {
   }
 
   async getMessage(text: string) {
-    return await this.driver.wait(
-      until.elementLocated(By.xpath(`//span[contains(text(),"${text}")]`))
-    )
+    return await this.driver.wait(until.elementLocated(By.xpath(`//span[contains(text(),"${text}")]`)))
   }
 }
 export class Sidebar {
@@ -270,37 +263,27 @@ export class Sidebar {
   }
 
   async getChannelList() {
-    const channels = await this.driver.findElements(
-      By.xpath('//*[contains(@data-testid, "link-text")]')
-    )
+    const channels = await this.driver.findElements(By.xpath('//*[contains(@data-testid, "link-text")]'))
     return channels
   }
 
   async openSettings() {
-    const button = await this.driver.findElement(
-      By.xpath('//span[@data-testid="settings-panel-button"]')
-    )
+    const button = await this.driver.findElement(By.xpath('//span[@data-testid="settings-panel-button"]'))
     await button.click()
     return new Settings(this.driver)
   }
 
   async switchChannel(name: string) {
-    const channelLink = await this.driver.wait(
-      until.elementLocated(By.xpath(`//div[@data-testid="${name}-link"]`))
-    )
+    const channelLink = await this.driver.wait(until.elementLocated(By.xpath(`//div[@data-testid="${name}-link"]`)))
     await channelLink.click()
   }
 
   async addNewChannel(name: string) {
-    const button = await this.driver.findElement(
-      By.xpath('//button[@data-testid="addChannelButton"]')
-    )
+    const button = await this.driver.findElement(By.xpath('//button[@data-testid="addChannelButton"]'))
     await button.click()
     const channelNameInput = await this.driver.findElement(By.xpath('//input[@name="channelName"]'))
     await channelNameInput.sendKeys(name)
-    const channelNameButton = await this.driver.findElement(
-      By.xpath('//button[@data-testid="channelNameSubmit"]')
-    )
+    const channelNameButton = await this.driver.findElement(By.xpath('//button[@data-testid="channelNameSubmit"]'))
     await channelNameButton.click()
     return new Channel(this.driver, name)
   }
@@ -316,30 +299,22 @@ export class Settings {
   }
 
   async openLeaveCommunityModal() {
-    const tab = await this.driver.wait(
-      until.elementLocated(By.xpath('//p[@data-testid="leave-community-tab"]'))
-    )
+    const tab = await this.driver.wait(until.elementLocated(By.xpath('//p[@data-testid="leave-community-tab"]')))
     await tab.click()
   }
 
   async leaveCommunityButton() {
-    const button = await this.driver.wait(
-      until.elementLocated(By.xpath('//button[text()="Leave community"]'))
-    )
+    const button = await this.driver.wait(until.elementLocated(By.xpath('//button[text()="Leave community"]')))
     await button.click()
   }
 
   async switchTab(name: string) {
-    const tab = await this.driver.findElement(
-      By.xpath(`//button[@data-testid='${name}-settings-tab']`)
-    )
+    const tab = await this.driver.findElement(By.xpath(`//button[@data-testid='${name}-settings-tab']`))
     await tab.click()
   }
 
   async invitationCode() {
-    const unlockButton = await this.driver.findElement(
-      By.xpath('//button[@data-testid="show-invitation-link"]')
-    )
+    const unlockButton = await this.driver.findElement(By.xpath('//button[@data-testid="show-invitation-link"]'))
 
     await unlockButton.click()
 
@@ -361,9 +336,7 @@ export class DebugModeModal {
   }
 
   get element() {
-    return this.driver.wait(
-      until.elementLocated(By.xpath("//h3[text()='App is running in debug mode']"))
-    )
+    return this.driver.wait(until.elementLocated(By.xpath("//h3[text()='App is running in debug mode']")))
   }
 
   get button() {

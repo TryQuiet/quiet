@@ -5,6 +5,7 @@ import { socket as stateManager, messages } from '@quiet/state-manager'
 import { socketActions } from './socket.slice'
 import { eventChannel } from 'redux-saga'
 import { displayMessageNotificationSaga } from '../notifications/notifications.saga'
+
 import logger from '../../logger'
 const log = logger('socket')
 
@@ -29,7 +30,7 @@ function* setConnectedSaga(socket: Socket): Generator {
   // Handle suspending current connection
   yield all([
     takeEvery(socketActions.suspendConnection, cancelRootSaga, root),
-    takeEvery(socketActions.suspendConnection, cancelObservers, observers)
+    takeEvery(socketActions.suspendConnection, cancelObservers, observers),
   ])
 }
 
@@ -42,8 +43,7 @@ function* handleSocketLifecycleActions(socket: Socket): Generator {
 
 function subscribeSocketLifecycle(socket?: Socket) {
   return eventChannel<
-  ReturnType<typeof socketActions.setConnected> |
-  ReturnType<typeof socketActions.suspendConnection>
+    ReturnType<typeof socketActions.setConnected> | ReturnType<typeof socketActions.suspendConnection>
   >(emit => {
     socket?.on('connect', async () => {
       console.log('websocket connected')
@@ -68,7 +68,5 @@ function* cancelObservers(task: FixedTask<Generator>): Generator {
 }
 
 function* initObservers(): Generator {
-  yield all([
-    takeEvery(messages.actions.incomingMessages.type, displayMessageNotificationSaga)
-  ])
+  yield all([takeEvery(messages.actions.incomingMessages.type, displayMessageNotificationSaga)])
 }

@@ -13,9 +13,11 @@ export type RootStackParamList = {
   [ScreenNames.QRCodeScreen]: undefined
   [ScreenNames.LeaveCommunityScreen]: undefined
   [ScreenNames.CreateCommunityScreen]: undefined
-  [ScreenNames.UsernameRegistrationScreen]: {
-    fetching: boolean
-  } | undefined
+  [ScreenNames.UsernameRegistrationScreen]:
+    | {
+        fetching: boolean
+      }
+    | undefined
   [ScreenNames.ChannelListScreen]: undefined
   [ScreenNames.ChannelScreen]: undefined
   [ScreenNames.CreateChannelScreen]: undefined
@@ -35,34 +37,17 @@ export type RootStackParamList = {
     title: string
     message?: string
   }
+  [ScreenNames.ConnectionProcessScreen]: undefined
 }
 
-export type SplashRouteProp = RouteProp<
-RootStackParamList,
-ScreenNames.SplashScreen
->
+export type SplashRouteProp = RouteProp<RootStackParamList, ScreenNames.SplashScreen>
 
-export type JoinCommunityRouteProp = RouteProp<
-RootStackParamList,
-ScreenNames.JoinCommunityScreen
->
+export type JoinCommunityRouteProp = RouteProp<RootStackParamList, ScreenNames.JoinCommunityScreen>
 
-export type UsernameRegistrationRouteProps= RouteProp<
-RootStackParamList,
-ScreenNames.UsernameRegistrationScreen
->
+export type UsernameRegistrationRouteProps = RouteProp<RootStackParamList, ScreenNames.UsernameRegistrationScreen>
 
-export type DeleteChannelRouteProps= RouteProp<
-RootStackParamList,
-ScreenNames.DeleteChannelScreen
->
+export type DeleteChannelRouteProps = RouteProp<RootStackParamList, ScreenNames.DeleteChannelScreen>
 
-export type SuccessRouteProp = RouteProp<
-RootStackParamList,
-ScreenNames.SuccessScreen
->
+export type SuccessRouteProp = RouteProp<RootStackParamList, ScreenNames.SuccessScreen>
 
-export type ErrorRouteProp = RouteProp<
-RootStackParamList,
-ScreenNames.ErrorScreen
->
+export type ErrorRouteProp = RouteProp<RootStackParamList, ScreenNames.ErrorScreen>

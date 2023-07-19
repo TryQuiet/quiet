@@ -16,30 +16,30 @@ const PREFIX = 'SettingsModal'
 
 const classes = {
   indicator: `${PREFIX}indicator`,
-  leaveComunity: `${PREFIX}leaveCommunity`
+  leaveComunity: `${PREFIX}leaveCommunity`,
 }
 
 const StyledModalContent = styled(Grid)(() => ({
   zIndex: 9002,
   paddingLeft: 20,
   paddingTop: 32,
-  paddingRight: 32
+  paddingRight: 32,
 }))
 
 const StyledTabsWrapper = styled(Grid)(() => ({
-  width: 168
+  width: 168,
 }))
 
 const StyledAppBar = styled(AppBar, { label: 'xxxxx' })(() => ({
   backgroundColor: '#fff',
-  boxShadow: '0px 1px 3px rgba(0, 0, 0, 0.0)'
+  boxShadow: '0px 1px 3px rgba(0, 0, 0, 0.0)',
 }))
 
 const StyledTabs = styled(Tabs)(({ theme }) => ({
   color: theme.palette.colors.trueBlack,
 
   [`& .${classes.indicator}`]: {
-    height: '0 !important'
+    height: '0 !important',
   },
 
   [`& .${classes.leaveComunity}`]: {
@@ -51,12 +51,12 @@ const StyledTabs = styled(Tabs)(({ theme }) => ({
     alignItems: 'flex-start',
     textTransform: 'none',
     lineHeight: '21px',
-    minHeight: '0px'
-  }
+    minHeight: '0px',
+  },
 }))
 
 const TabComponentWrapper = styled(Grid)(() => ({
-  marginLeft: 32
+  marginLeft: 32,
 }))
 
 export interface SettingsComponentProps {
@@ -74,7 +74,7 @@ export const SettingsComponent: React.FC<SettingsComponentProps> = ({
   isOwner,
   tabs,
   leaveCommunityModal,
-  isWindows
+  isWindows,
 }) => {
   const [contentRef, setContentRef] = React.useState<HTMLDivElement | null>(null)
 
@@ -113,7 +113,8 @@ export const SettingsComponent: React.FC<SettingsComponentProps> = ({
       testIdPrefix='settings'
       isBold
       addBorder
-      contentWidth='100%'>
+      contentWidth='100%'
+    >
       <StyledModalContent
         ref={ref => {
           if (ref) {
@@ -121,7 +122,8 @@ export const SettingsComponent: React.FC<SettingsComponentProps> = ({
           }
         }}
         container
-        direction='row'>
+        direction='row'
+      >
         <StyledTabsWrapper item style={{ marginLeft: offset }}>
           <StyledAppBar position='static'>
             <StyledTabs
@@ -132,13 +134,10 @@ export const SettingsComponent: React.FC<SettingsComponentProps> = ({
               }}
               orientation='vertical'
               textColor='inherit'
-              classes={{ indicator: classes.indicator }}>
+              classes={{ indicator: classes.indicator }}
+            >
               <Tab value='about' label='About' data-testid={'about-settings-tab'} />
-              <Tab
-                value='notifications'
-                label='Notifications'
-                data-testid={'notifications-settings-tab'}
-              />
+              <Tab value='notifications' label='Notifications' data-testid={'notifications-settings-tab'} />
               <Tab value='invite' label='Invite a friend' data-testid={'invite-settings-tab'} />
               <Tab value='qrcode' label='QR Code' data-testid={'qr-code-tab'} />
               {!isWindows && (
@@ -146,7 +145,8 @@ export const SettingsComponent: React.FC<SettingsComponentProps> = ({
                   <Typography
                     data-testid='leave-community-tab'
                     className={classes.leaveComunity}
-                    onClick={leaveCommunityModal.handleOpen}>
+                    onClick={leaveCommunityModal.handleOpen}
+                  >
                     Leave community
                   </Typography>
                 </Grid>
@@ -162,7 +162,8 @@ export const SettingsComponent: React.FC<SettingsComponentProps> = ({
                 <Scrollbars
                   ref={scrollbarRef}
                   autoHideTimeout={500}
-                  style={{ width: maxWidth + offset, height: height }}>
+                  style={{ width: maxWidth + offset, height: height }}
+                >
                   <TabComponentWrapper item style={{ paddingRight: offset }}>
                     <TabComponent setCurrentTab={setCurrentTab} scrollbarRef={scrollbarRef} />
                   </TabComponentWrapper>

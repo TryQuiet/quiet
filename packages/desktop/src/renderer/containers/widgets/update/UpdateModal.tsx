@@ -11,7 +11,7 @@ export const mapDispatchToProps = (dispatch: Dispatch<AnyAction>) =>
   bindActionCreators(
     {
       handleUpdate: updateHandlers.epics.startApplicationUpdate,
-      rejectUpdate: updateHandlers.epics.declineUpdate
+      rejectUpdate: updateHandlers.epics.declineUpdate,
     },
     dispatch
   )

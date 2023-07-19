@@ -3,13 +3,13 @@ import { Integer, PrintableString, BitString } from 'asn1js'
 import config from './config'
 import { generateKeyPair, CertFieldsTypes, ExtensionsTypes } from './common'
 import {
-  Time,
+  type Time,
   Certificate,
   BasicConstraints,
   ExtKeyUsage,
   Extension,
   AttributeTypeAndValue,
-  getCrypto
+  getCrypto,
 } from 'pkijs'
 import { NoCryptoEngineError } from '@quiet/types'
 
@@ -37,18 +37,18 @@ export const createRootCA = async (
     commonName,
     ...config,
     notBeforeDate,
-    notAfterDate
+    notAfterDate,
   })
 
   const rootData = {
     rootCert: rootCA.certificate.toSchema(true).toBER(false),
-    rootKey: await crypto.exportKey('pkcs8', rootCA.privateKey)
+    rootKey: await crypto.exportKey('pkcs8', rootCA.privateKey),
   }
 
   return {
     rootObject: rootCA,
     rootCertString: Buffer.from(rootData.rootCert).toString('base64'),
-    rootKeyString: Buffer.from(rootData.rootKey).toString('base64')
+    rootKeyString: Buffer.from(rootData.rootKey).toString('base64'),
   }
 }
 
@@ -57,7 +57,7 @@ async function generateRootCA({
   signAlg = config.signAlg,
   hashAlg = config.hashAlg,
   notBeforeDate,
-  notAfterDate
+  notAfterDate,
 }: {
   commonName: string
   signAlg: string
@@ -70,8 +70,8 @@ async function generateRootCA({
   const extKeyUsage = new ExtKeyUsage({
     keyPurposes: [
       '1.3.6.1.5.5.7.3.2', // id-kp-clientAuth
-      '1.3.6.1.5.5.7.3.1' // id-kp-serverAuth
-    ]
+      '1.3.6.1.5.5.7.3.1', // id-kp-serverAuth
+    ],
   })
   const certificate = new Certificate({
     serialNumber: new Integer({ value: 1 }),
@@ -81,34 +81,34 @@ async function generateRootCA({
         extnID: ExtensionsTypes.basicConstr,
         critical: false,
         extnValue: basicConstr.toSchema().toBER(false),
-        parsedValue: basicConstr // Parsed value for well-known extensions
+        parsedValue: basicConstr, // Parsed value for well-known extensions
       }),
       new Extension({
         extnID: ExtensionsTypes.keyUsage,
         critical: false,
         extnValue: keyUsage.toBER(false),
-        parsedValue: keyUsage // Parsed value for well-known extensions
+        parsedValue: keyUsage, // Parsed value for well-known extensions
       }),
       new Extension({
         extnID: ExtensionsTypes.extKeyUsage,
         critical: false,
         extnValue: extKeyUsage.toSchema().toBER(false),
-        parsedValue: extKeyUsage // Parsed value for well-known extensions
-      })
+        parsedValue: extKeyUsage, // Parsed value for well-known extensions
+      }),
     ],
     notBefore: notBeforeDate,
-    notAfter: notAfterDate
+    notAfter: notAfterDate,
   })
   certificate.issuer.typesAndValues.push(
     new AttributeTypeAndValue({
       type: CertFieldsTypes.commonName,
-      value: new PrintableString({ value: commonName })
+      value: new PrintableString({ value: commonName }),
     })
   )
   certificate.subject.typesAndValues.push(
     new AttributeTypeAndValue({
       type: CertFieldsTypes.commonName,
-      value: new PrintableString({ value: commonName })
+      value: new PrintableString({ value: commonName }),
     })
   )
   const keyPair = await generateKeyPair({ signAlg })
