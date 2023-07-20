@@ -137,7 +137,7 @@ static NSString *const platform = @"mobile";
   // (3/7) Wait for tor to initialize
   
   // Give tor time to spin up and update it's authorization cookie
-  NSTimeInterval delayInSeconds = 7.0;
+  NSTimeInterval delayInSeconds = 0.0;
   dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
   dispatch_after(popTime, dispatch_get_main_queue(), ^(void) {
       
