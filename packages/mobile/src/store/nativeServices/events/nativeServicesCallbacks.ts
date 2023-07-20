@@ -70,7 +70,7 @@ export const deviceEvents = () => {
         emit(network.actions.removeInitializedRegistrars())
       }),
       nativeEventEmitter?.addListener(NativeEventKeys.AppResume, () => {
-        emit(navigationActions.navigation({ screen: ScreenNames.SplashScreen }))
+        // emit(navigationActions.navigation({ screen: ScreenNames.SplashScreen }))
       }),
     ]
     return () => {
