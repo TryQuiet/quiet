@@ -42,6 +42,8 @@ export const ChannelScreen: FC = () => {
 
   const channelMessages = useSelector(publicChannels.selectors.currentChannelMessagesMergedBySender)
 
+  console.log('channelMessages', channelMessages)
+
   const pendingMessages = useSelector(messages.selectors.messagesSendingStatus)
 
   const downloadStatusesMapping = useSelector(files.selectors.downloadStatuses)
