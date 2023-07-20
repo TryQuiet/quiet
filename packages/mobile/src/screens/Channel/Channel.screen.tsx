@@ -8,6 +8,7 @@ import { navigationActions } from '../../store/navigation/navigation.slice'
 import { ScreenNames } from '../../const/ScreenNames.enum'
 import { UseContextMenuType, useContextMenu } from '../../hooks/useContextMenu'
 import { MenuName } from '../../const/MenuNames.enum'
+import { initSelectors } from '../../store/init/init.selectors'
 
 export const ChannelScreen: FC = () => {
   const dispatch = useDispatch()
@@ -88,6 +89,8 @@ export const ChannelScreen: FC = () => {
     void Linking.openURL(url)
   }, [])
 
+  const ready = useSelector(initSelectors.ready)
+
   if (!currentChannel) return null
 
   return (
@@ -109,6 +112,7 @@ export const ChannelScreen: FC = () => {
       setImagePreview={setImagePreview}
       openImagePreview={setImagePreview}
       openUrl={openUrl}
+      ready={ready}
     />
   )
 }
