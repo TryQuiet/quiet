@@ -46,8 +46,10 @@ export const ChannelScreen: FC = () => {
 
   const downloadStatusesMapping = useSelector(files.selectors.downloadStatuses)
 
+  const ready = useSelector(initSelectors.ready)
+
   let contextMenu: UseContextMenuType<Record<string, unknown>> | null = useContextMenu(MenuName.Channel)
-  if (!community?.CA) {
+  if (!community?.CA || !ready) {
     contextMenu = null
   }
 
@@ -88,8 +90,6 @@ export const ChannelScreen: FC = () => {
   const openUrl = useCallback((url: string) => {
     void Linking.openURL(url)
   }, [])
-
-  const ready = useSelector(initSelectors.ready)
 
   if (!currentChannel) return null
 
