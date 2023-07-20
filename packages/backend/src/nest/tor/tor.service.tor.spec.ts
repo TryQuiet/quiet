@@ -132,11 +132,11 @@ describe('TorControl', () => {
   // })
 
   it('tor spawn repeating 3 times with 1 second timeout and repeating will stop after that', async () => {
-    await expect(torService.init({ repeat: 3, timeout: 1000 })).rejects.toThrow('Failed to spawn tor 4 times')
+    await expect(torService.init({ timeout: 1000 })).rejects.toThrow('Failed to spawn tor 4 times')
   })
 
   it('tor is initializing correctly with 40 seconds timeout', async () => {
-    await torService.init({ repeat: 3, timeout: 40000 })
+    await torService.init({ timeout: 40000 })
   })
 
   it('creates and destroys hidden service', async () => {
