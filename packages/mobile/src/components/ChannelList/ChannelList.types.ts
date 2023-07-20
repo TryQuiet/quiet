@@ -5,5 +5,5 @@ import { ChannelTileProps } from '../ChannelTile/ChannelTile.types'
 export interface ChannelListProps {
   community?: Community
   tiles: ChannelTileProps[]
-  communityContextMenu: ReturnType<typeof useContextMenu>
+  communityContextMenu: ReturnType<typeof useContextMenu> | null
 }

@@ -22,6 +22,8 @@ export const initChecks = createSelector(initSlice, reducerState =>
 
 export const deepLinking = createSelector(initSlice, reducerState => reducerState.deepLinking)
 
+export const ready = createSelector(initSlice, reducerState => reducerState.ready)
+
 export const initSelectors = {
   isCryptoEngineInitialized,
   isWebsocketConnected,
@@ -29,4 +31,5 @@ export const initSelectors = {
   initDescription,
   initChecks,
   deepLinking,
+  ready
 }
