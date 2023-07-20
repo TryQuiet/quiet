@@ -125,13 +125,16 @@ static NSString *const platform = @"mobile";
   
   // (2/7) Spawn tor with proper configuration
   
-  self.tor = [TorHandler new];
+  dispatch_time_t torPopTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.0 * NSEC_PER_SEC));
+  dispatch_after(torPopTime, dispatch_get_main_queue(), ^(void) {
+    self.tor = [TorHandler new];
     
-  self.torConfiguration = [self.tor getTorConfiguration:socksPort controlPort:controlPort httpTunnelPort:httpTunnelPort];
-  
-  [self.tor removeOldAuthCookieWithConfiguration:self.torConfiguration];
-  
-  [self.tor spawnWithConfiguration:self.torConfiguration];
+    self.torConfiguration = [self.tor getTorConfiguration:socksPort controlPort:controlPort httpTunnelPort:httpTunnelPort];
+    
+    [self.tor removeOldAuthCookieWithConfiguration:self.torConfiguration];
+    
+    [self.tor spawnWithConfiguration:self.torConfiguration];
+  });
   
   
   // (3/7) Wait for tor to initialize
