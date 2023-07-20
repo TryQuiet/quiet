@@ -113,15 +113,18 @@ export class Tor extends EventEmitter implements OnModuleInit {
           process.nextTick(tryToSpawnTor)
         }
       }
-      // setTimeout(this.checkTorBootstrap, 60000)
+      // setTimeout(this.checkTorBootstrap, 5000)
       // eslint-disable-next-line
+      // this.checkTorBootstrap()
       tryToSpawnTor()
     })
   }
 
-  // private checkTorBootstrap() {
-  //   this.sendCommand(checktorbootstrap)
-  // }
+  private async checkTorBootstrap() {
+    const res = await this.torControl.sendCommand('GETINFO status/bootstrap-phase')
+    console.log('!!!!!!!!!!!!!!!!!!!!!1', res)
+    this.logger('!!!!!!!!!!!!!!!!!!!!!1', res)
+  }
 
   private torProcessNameCommand(oldTorPid: string): string {
     const byPlatform = {

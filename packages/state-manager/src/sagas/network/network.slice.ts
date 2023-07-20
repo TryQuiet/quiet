@@ -7,7 +7,7 @@ export class NetworkState {
   public initializedCommunities: Record<string, boolean> = {}
   public initializedRegistrars: Record<string, boolean> = {}
   public connectedPeers: EntityState<string> = connectedPeersAdapter.getInitialState()
-  public loadingPanelType: LoadingPanelType = LoadingPanelType.Joining
+  public loadingPanelType: LoadingPanelType = LoadingPanelType.StartingApplication
 }
 
 export const networkSlice = createSlice({
