@@ -27,7 +27,7 @@ class BackendWorkManager(private val context: Context) {
         } catch (e: InterruptedException) {
             e.printStackTrace()
         }
-        println("Is this change visible?!")
+
         if(!running) {
             if(enqueued) {
                 stop()

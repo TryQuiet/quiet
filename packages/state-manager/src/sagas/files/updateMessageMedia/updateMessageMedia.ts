@@ -13,17 +13,12 @@ export function* updateMessageMediaSaga(
   )
 
   const message = channelMessages[action.payload.message.id]
-  // console.log('allmessages:', channelMessages)
-  // console.log('message:', message)
-
   if (!message || !instanceOfChannelMessage(message)) {
     console.error(
       `Cannot update message media. Message ${action.payload.message.id} from #${action.payload.message.channelId} does not exist in local storage.`
     )
     return
   }
-
-  console.log(`(updateMessageMediaSaga) Updating message media ${action.payload.message.id}`)
 
   yield* put(
     messagesActions.incomingMessages({

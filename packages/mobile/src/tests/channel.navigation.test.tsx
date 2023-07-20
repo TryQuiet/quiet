@@ -10,6 +10,8 @@ import { ChannelScreen } from '../screens/Channel/Channel.screen'
 import { FactoryGirl } from 'factory-girl'
 import { getFactory, communities, identity } from '@quiet/state-manager'
 
+// Mocked because of: "Invariant Violation: TurboModuleRegistry.getEnforcing(...): 'RNDocumentPicker'
+// could not be found. Verify that a module by this name is registered in the native binary."
 jest.mock('react-native-document-picker', () => {})
 
 describe('Channel navigation', () => {

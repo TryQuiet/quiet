@@ -133,7 +133,6 @@ export class IpfsFileManagerService extends EventEmitter {
   }
 
   public async uploadFile(metadata: FileMetadata) {
-    this.logger(`(${metadata.cid}) uploadFile start - ${metadata.path}`)
     let width: number | undefined
     let height: number | undefined
     if (!metadata.path) {
@@ -171,10 +170,8 @@ export class IpfsFileManagerService extends EventEmitter {
 
     // Save copy to separate directory
     const filePath = this.copyFile(metadata.path, filename)
-    this.logger(`(${metadata.cid}) uploadFile new path - ${filePath}`)
     console.time(`Writing ${filename} to ipfs`)
     const newCid = await this.ipfs.add(uploadedFileStreamIterable)
-    this.logger(`(${metadata.cid}) added to ipfs - ${filePath}`)
 
     console.timeEnd(`Writing ${filename} to ipfs`)
 
@@ -188,7 +185,6 @@ export class IpfsFileManagerService extends EventEmitter {
       height,
     }
 
-    this.logger(`(${metadata.cid} -> ${newCid.cid.toString()}) emitting UPLOADED_FILE - ${filePath}`)
     this.emit(StorageEvents.UPLOADED_FILE, fileMetadata)
 
     const statusReady: DownloadStatus = {
