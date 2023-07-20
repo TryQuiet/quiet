@@ -10,6 +10,8 @@ import { ChannelScreen } from '../screens/Channel/Channel.screen'
 import { FactoryGirl } from 'factory-girl'
 import { getFactory, communities, identity } from '@quiet/state-manager'
 
+jest.mock('react-native-document-picker', () => {})
+
 describe('Channel navigation', () => {
   let socket: MockedSocket
 

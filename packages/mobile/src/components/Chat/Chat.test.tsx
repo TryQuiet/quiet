@@ -6,6 +6,10 @@ import { DocumentPickerResponse } from 'react-native-document-picker'
 
 jest.useFakeTimers()
 
+// Mocked because of: "Invariant Violation: TurboModuleRegistry.getEnforcing(...): 'RNDocumentPicker'
+// could not be found. Verify that a module by this name is registered in the native binary."
+jest.mock('react-native-document-picker', () => {})
+
 describe('Chat component', () => {
   jest
     .spyOn(Keyboard, 'addListener')
@@ -3307,77 +3311,905 @@ describe('Chat component', () => {
             <View
               style={
                 {
-                  "flex": 9,
                   "paddingLeft": 20,
-                  "paddingRight": 20,
+                  "paddingRight": 0,
+                  "width": "100%",
                 }
               }
             >
-              <View>
+              <View
+                style={
+                  {
+                    "flexDirection": "row",
+                  }
+                }
+              >
                 <View
-                  accessibilityState={
-                    {
-                      "busy": undefined,
-                      "checked": undefined,
-                      "disabled": false,
-                      "expanded": undefined,
-                      "selected": undefined,
-                    }
-                  }
-                  accessibilityValue={
-                    {
-                      "max": undefined,
-                      "min": undefined,
-                      "now": undefined,
-                      "text": undefined,
-                    }
-                  }
-                  accessible={true}
-                  collapsable={false}
-                  focusable={true}
-                  onBlur={[Function]}
-                  onClick={[Function]}
-                  onFocus={[Function]}
-                  onResponderGrant={[Function]}
-                  onResponderMove={[Function]}
-                  onResponderRelease={[Function]}
-                  onResponderTerminate={[Function]}
-                  onResponderTerminationRequest={[Function]}
-                  onStartShouldSetResponder={[Function]}
                   style={
-                    [
-                      {
-                        "backgroundColor": "#ffffff",
-                        "borderColor": "#B3B3B3",
-                        "borderRadius": 4,
-                        "borderWidth": 1,
-                        "flexGrow": 1,
-                        "height": 60,
-                        "justifyContent": "center",
-                        "paddingLeft": 15,
-                        "paddingRight": 15,
-                      },
-                    ]
+                    {
+                      "flexGrow": 1,
+                    }
                   }
                 >
-                  <TextInput
-                    editable={true}
-                    multiline={true}
-                    onChangeText={[Function]}
-                    placeholder="Message #general"
+                  <View
+                    accessibilityState={
+                      {
+                        "busy": undefined,
+                        "checked": undefined,
+                        "disabled": false,
+                        "expanded": undefined,
+                        "selected": undefined,
+                      }
+                    }
+                    accessibilityValue={
+                      {
+                        "max": undefined,
+                        "min": undefined,
+                        "now": undefined,
+                        "text": undefined,
+                      }
+                    }
+                    accessible={true}
+                    collapsable={false}
+                    focusable={true}
+                    onBlur={[Function]}
+                    onClick={[Function]}
+                    onFocus={[Function]}
+                    onResponderGrant={[Function]}
+                    onResponderMove={[Function]}
+                    onResponderRelease={[Function]}
+                    onResponderTerminate={[Function]}
+                    onResponderTerminationRequest={[Function]}
+                    onStartShouldSetResponder={[Function]}
                     style={
                       [
                         {
-                          "paddingBottom": 12,
-                          "paddingTop": 12,
-                          "textAlignVertical": "center",
+                          "backgroundColor": "#ffffff",
+                          "borderColor": "#B3B3B3",
+                          "borderRadius": 4,
+                          "borderWidth": 1,
+                          "flexGrow": 1,
+                          "height": 60,
+                          "justifyContent": "center",
+                          "paddingLeft": 15,
+                          "paddingRight": 15,
                         },
                       ]
                     }
-                    testID="input"
-                  />
+                  >
+                    <TextInput
+                      editable={true}
+                      multiline={true}
+                      onChangeText={[Function]}
+                      placeholder="Message #general"
+                      style={
+                        [
+                          {
+                            "paddingBottom": 12,
+                            "paddingTop": 12,
+                            "textAlignVertical": "center",
+                          },
+                        ]
+                      }
+                      testID="input"
+                    />
+                  </View>
+                </View>
+                <View
+                  style={
+                    {
+                      "flexDirection": "row",
+                      "gap": 5,
+                      "paddingLeft": 10,
+                      "paddingRight": 10,
+                    }
+                  }
+                >
+                  <View
+                    accessibilityState={
+                      {
+                        "busy": undefined,
+                        "checked": undefined,
+                        "disabled": undefined,
+                        "expanded": undefined,
+                        "selected": undefined,
+                      }
+                    }
+                    accessible={true}
+                    focusable={true}
+                    onClick={[Function]}
+                    onResponderGrant={[Function]}
+                    onResponderMove={[Function]}
+                    onResponderRelease={[Function]}
+                    onResponderTerminate={[Function]}
+                    onResponderTerminationRequest={[Function]}
+                    onStartShouldSetResponder={[Function]}
+                    style={
+                      {
+                        "justifyContent": "center",
+                        "paddingLeft": 5,
+                        "paddingRight": 5,
+                      }
+                    }
+                    testID="attach_file_button"
+                  >
+                    <Image
+                      source={
+                        {
+                          "testUri": "../../../assets/icons/paperclip_black.png",
+                        }
+                      }
+                      style={
+                        {
+                          "alignSelf": "center",
+                          "height": 20,
+                          "width": 20,
+                        }
+                      }
+                    />
+                  </View>
                 </View>
               </View>
+            </View>
+          </View>
+        </View>
+      </View>
+    `)
+  })
+
+  it('should match inline snapshot with uploaded files previews', () => {
+    const { toJSON } = renderComponent(
+      <Chat
+        contextMenu={{
+          visible: false,
+          handleOpen: function (_args?: any): any {},
+          handleClose: function (_args?: any): any {},
+        }}
+        sendMessageAction={jest.fn()}
+        loadMessagesAction={jest.fn()}
+        handleBackButton={jest.fn()}
+        openImagePreview={() => {}}
+        openUrl={() => {}}
+        downloadFile={() => {}}
+        cancelDownload={() => {}}
+        channel={{
+          name: 'general',
+          description: '',
+          owner: '',
+          timestamp: 0,
+          id: '',
+        }}
+        pendingMessages={{}}
+        messages={{
+          count: 0,
+          groups: {},
+        }}
+        uploadedFiles={{
+          '123': {
+            name: 'image.png',
+            path: 'path/image.png',
+            ext: '.png',
+          },
+          '321': {
+            name: 'file.pdf',
+            path: 'path/file.pdf',
+            ext: '.pdf',
+          },
+        }}
+        updateUploadedFiles={function (filesData: DocumentPickerResponse[]): void {
+          throw new Error('Function not implemented.')
+        }}
+        removeFilePreview={function (id: string): void {
+          throw new Error('Function not implemented.')
+        }}
+      />
+    )
+    expect(toJSON()).toMatchInlineSnapshot(`
+      <View
+        style={
+          {
+            "flex": 1,
+          }
+        }
+        testID="chat_general"
+      >
+        <View
+          style={
+            [
+              {
+                "alignItems": "center",
+                "backgroundColor": "#ffffff",
+                "borderBottomColor": "#F0F0F0",
+                "borderBottomWidth": 1,
+                "display": "flex",
+                "flexDirection": "row",
+                "justifyContent": "center",
+                "maxHeight": 52,
+                "minHeight": 52,
+              },
+            ]
+          }
+        >
+          <View
+            style={
+              {
+                "flex": 1,
+              }
+            }
+          >
+            <View
+              accessibilityState={
+                {
+                  "busy": undefined,
+                  "checked": undefined,
+                  "disabled": undefined,
+                  "expanded": undefined,
+                  "selected": undefined,
+                }
+              }
+              accessibilityValue={
+                {
+                  "max": undefined,
+                  "min": undefined,
+                  "now": undefined,
+                  "text": undefined,
+                }
+              }
+              accessible={true}
+              collapsable={false}
+              focusable={true}
+              onClick={[Function]}
+              onResponderGrant={[Function]}
+              onResponderMove={[Function]}
+              onResponderRelease={[Function]}
+              onResponderTerminate={[Function]}
+              onResponderTerminationRequest={[Function]}
+              onStartShouldSetResponder={[Function]}
+              style={
+                {
+                  "opacity": 1,
+                }
+              }
+              testID="appbar_action_item"
+            >
+              <View
+                style={
+                  {
+                    "alignItems": "center",
+                    "justifyContent": "center",
+                    "width": 64,
+                  }
+                }
+              >
+                <Image
+                  resizeMethod="resize"
+                  resizeMode="cover"
+                  source={
+                    {
+                      "testUri": "../../../assets/icons/arrow_left.png",
+                    }
+                  }
+                  style={
+                    {
+                      "height": 16,
+                      "width": 16,
+                    }
+                  }
+                />
+              </View>
+            </View>
+          </View>
+          <View
+            style={
+              {
+                "alignItems": "center",
+                "flex": 4,
+              }
+            }
+          >
+            <Text
+              color="main"
+              fontSize={16}
+              fontWeight="medium"
+              horizontalTextAlign="left"
+              style={
+                [
+                  {
+                    "color": "#000000",
+                    "fontFamily": "Rubik-Medium",
+                    "fontSize": 16,
+                    "textAlign": "left",
+                    "textAlignVertical": "center",
+                  },
+                ]
+              }
+              verticalTextAlign="center"
+            >
+              #general
+            </Text>
+          </View>
+          <View
+            style={
+              {
+                "flex": 1,
+              }
+            }
+          >
+            <View
+              accessibilityState={
+                {
+                  "busy": undefined,
+                  "checked": undefined,
+                  "disabled": undefined,
+                  "expanded": undefined,
+                  "selected": undefined,
+                }
+              }
+              accessibilityValue={
+                {
+                  "max": undefined,
+                  "min": undefined,
+                  "now": undefined,
+                  "text": undefined,
+                }
+              }
+              accessible={true}
+              collapsable={false}
+              focusable={true}
+              onClick={[Function]}
+              onResponderGrant={[Function]}
+              onResponderMove={[Function]}
+              onResponderRelease={[Function]}
+              onResponderTerminate={[Function]}
+              onResponderTerminationRequest={[Function]}
+              onStartShouldSetResponder={[Function]}
+              style={
+                {
+                  "opacity": 1,
+                }
+              }
+              testID="open_menu"
+            >
+              <View
+                style={
+                  {
+                    "alignItems": "center",
+                    "justifyContent": "center",
+                    "width": 64,
+                  }
+                }
+              >
+                <Image
+                  resizeMethod="resize"
+                  resizeMode="contain"
+                  source={
+                    {
+                      "testUri": "../../../assets/icons/dots.png",
+                    }
+                  }
+                  style={
+                    {
+                      "height": 16,
+                      "width": 16,
+                    }
+                  }
+                />
+              </View>
+            </View>
+          </View>
+        </View>
+        <View
+          onLayout={[Function]}
+          style={
+            [
+              {
+                "backgroundColor": "#ffffff",
+                "flex": 1,
+                "flexDirection": "column",
+                "justifyContent": "flex-end",
+                "paddingBottom": 20,
+              },
+              {
+                "paddingBottom": 0,
+              },
+            ]
+          }
+        >
+          <View
+            style={
+              {
+                "alignItems": "center",
+                "backgroundColor": "#ffffff",
+                "flex": 1,
+                "justifyContent": "center",
+              }
+            }
+          >
+            <ActivityIndicator
+              color="#67BFD3"
+              size="large"
+            />
+            <Text
+              color="main"
+              fontSize={14}
+              horizontalTextAlign="center"
+              style={
+                [
+                  {
+                    "color": "#000000",
+                    "fontFamily": "Rubik-Regular",
+                    "fontSize": 14,
+                    "textAlign": "center",
+                    "textAlignVertical": "center",
+                  },
+                  {
+                    "margin": 10,
+                    "maxWidth": 200,
+                  },
+                ]
+              }
+              verticalTextAlign="center"
+            >
+              Replicating messages
+            </Text>
+          </View>
+          <View
+            style={
+              {
+                "flexDirection": "row",
+                "paddingBottom": 20,
+              }
+            }
+          >
+            <View
+              style={
+                {
+                  "paddingLeft": 20,
+                  "paddingRight": 0,
+                  "width": "100%",
+                }
+              }
+            >
+              <View
+                style={
+                  {
+                    "flexDirection": "row",
+                  }
+                }
+              >
+                <View
+                  style={
+                    {
+                      "flexGrow": 1,
+                    }
+                  }
+                >
+                  <View
+                    accessibilityState={
+                      {
+                        "busy": undefined,
+                        "checked": undefined,
+                        "disabled": false,
+                        "expanded": undefined,
+                        "selected": undefined,
+                      }
+                    }
+                    accessibilityValue={
+                      {
+                        "max": undefined,
+                        "min": undefined,
+                        "now": undefined,
+                        "text": undefined,
+                      }
+                    }
+                    accessible={true}
+                    collapsable={false}
+                    focusable={true}
+                    onBlur={[Function]}
+                    onClick={[Function]}
+                    onFocus={[Function]}
+                    onResponderGrant={[Function]}
+                    onResponderMove={[Function]}
+                    onResponderRelease={[Function]}
+                    onResponderTerminate={[Function]}
+                    onResponderTerminationRequest={[Function]}
+                    onStartShouldSetResponder={[Function]}
+                    style={
+                      [
+                        {
+                          "backgroundColor": "#ffffff",
+                          "borderColor": "#B3B3B3",
+                          "borderRadius": 4,
+                          "borderWidth": 1,
+                          "flexGrow": 1,
+                          "height": 60,
+                          "justifyContent": "center",
+                          "paddingLeft": 15,
+                          "paddingRight": 15,
+                        },
+                      ]
+                    }
+                  >
+                    <TextInput
+                      editable={true}
+                      multiline={true}
+                      onChangeText={[Function]}
+                      placeholder="Message #general"
+                      style={
+                        [
+                          {
+                            "paddingBottom": 12,
+                            "paddingTop": 12,
+                            "textAlignVertical": "center",
+                          },
+                        ]
+                      }
+                      testID="input"
+                    />
+                  </View>
+                </View>
+                <View
+                  style={
+                    {
+                      "flexDirection": "row",
+                      "gap": 5,
+                      "paddingLeft": 10,
+                      "paddingRight": 10,
+                    }
+                  }
+                >
+                  <View
+                    accessibilityState={
+                      {
+                        "busy": undefined,
+                        "checked": undefined,
+                        "disabled": undefined,
+                        "expanded": undefined,
+                        "selected": undefined,
+                      }
+                    }
+                    accessible={true}
+                    focusable={true}
+                    onClick={[Function]}
+                    onResponderGrant={[Function]}
+                    onResponderMove={[Function]}
+                    onResponderRelease={[Function]}
+                    onResponderTerminate={[Function]}
+                    onResponderTerminationRequest={[Function]}
+                    onStartShouldSetResponder={[Function]}
+                    style={
+                      {
+                        "justifyContent": "center",
+                        "paddingLeft": 5,
+                        "paddingRight": 5,
+                      }
+                    }
+                    testID="attach_file_button"
+                  >
+                    <Image
+                      source={
+                        {
+                          "testUri": "../../../assets/icons/paperclip_black.png",
+                        }
+                      }
+                      style={
+                        {
+                          "alignSelf": "center",
+                          "height": 20,
+                          "width": 20,
+                        }
+                      }
+                    />
+                  </View>
+                  <View
+                    accessibilityState={
+                      {
+                        "busy": undefined,
+                        "checked": undefined,
+                        "disabled": undefined,
+                        "expanded": undefined,
+                        "selected": undefined,
+                      }
+                    }
+                    accessible={true}
+                    focusable={true}
+                    onClick={[Function]}
+                    onResponderGrant={[Function]}
+                    onResponderMove={[Function]}
+                    onResponderRelease={[Function]}
+                    onResponderTerminate={[Function]}
+                    onResponderTerminationRequest={[Function]}
+                    onStartShouldSetResponder={[Function]}
+                    style={
+                      {
+                        "justifyContent": "center",
+                        "paddingLeft": 5,
+                        "paddingRight": 5,
+                      }
+                    }
+                    testID="send_message_button"
+                  >
+                    <Image
+                      resizeMethod="resize"
+                      resizeMode="cover"
+                      source={
+                        {
+                          "testUri": "../../../assets/icons/icon_send.png",
+                        }
+                      }
+                      style={
+                        {
+                          "alignSelf": "center",
+                          "height": 20,
+                          "width": 20,
+                        }
+                      }
+                    />
+                  </View>
+                </View>
+              </View>
+              <RCTScrollView
+                contentContainerStyle={
+                  {
+                    "flexDirection": "row",
+                    "flexWrap": "wrap",
+                    "justifyContent": "flex-start",
+                    "marginTop": 15,
+                  }
+                }
+                horizontal={true}
+              >
+                <View>
+                  <View
+                    style={
+                      {
+                        "alignItems": "flex-start",
+                        "flexWrap": "nowrap",
+                        "marginRight": 10,
+                        "marginTop": 10,
+                      }
+                    }
+                  >
+                    <View
+                      accessibilityState={
+                        {
+                          "busy": undefined,
+                          "checked": undefined,
+                          "disabled": undefined,
+                          "expanded": undefined,
+                          "selected": undefined,
+                        }
+                      }
+                      accessible={true}
+                      focusable={true}
+                      onClick={[Function]}
+                      onResponderGrant={[Function]}
+                      onResponderMove={[Function]}
+                      onResponderRelease={[Function]}
+                      onResponderTerminate={[Function]}
+                      onResponderTerminationRequest={[Function]}
+                      onStartShouldSetResponder={[Function]}
+                      style={
+                        {
+                          "backgroundColor": "#ffffff",
+                          "borderColor": "#B8B8B8",
+                          "borderRadius": 100,
+                          "borderWidth": 1,
+                          "height": 22,
+                          "justifyContent": "center",
+                          "marginLeft": 0,
+                          "padding": 0,
+                          "position": "absolute",
+                          "right": -10,
+                          "top": -10,
+                          "width": 22,
+                          "zIndex": 1000,
+                        }
+                      }
+                    >
+                      <Image
+                        source={
+                          {
+                            "testUri": "../../../assets/icons/icon_close.png",
+                          }
+                        }
+                        style={
+                          {
+                            "alignSelf": "center",
+                            "height": 10,
+                            "position": "relative",
+                            "width": 10,
+                          }
+                        }
+                      />
+                    </View>
+                    <View
+                      style={
+                        {
+                          "height": 64,
+                        }
+                      }
+                    >
+                      <Image
+                        alt="image.png"
+                        source={
+                          {
+                            "uri": "path/image.png",
+                          }
+                        }
+                        style={
+                          {
+                            "borderRadius": 15,
+                            "height": 64,
+                            "width": 64,
+                          }
+                        }
+                      />
+                    </View>
+                  </View>
+                  <View
+                    style={
+                      {
+                        "alignItems": "flex-start",
+                        "flexWrap": "nowrap",
+                        "marginRight": 10,
+                        "marginTop": 10,
+                      }
+                    }
+                  >
+                    <View
+                      accessibilityState={
+                        {
+                          "busy": undefined,
+                          "checked": undefined,
+                          "disabled": undefined,
+                          "expanded": undefined,
+                          "selected": undefined,
+                        }
+                      }
+                      accessible={true}
+                      focusable={true}
+                      onClick={[Function]}
+                      onResponderGrant={[Function]}
+                      onResponderMove={[Function]}
+                      onResponderRelease={[Function]}
+                      onResponderTerminate={[Function]}
+                      onResponderTerminationRequest={[Function]}
+                      onStartShouldSetResponder={[Function]}
+                      style={
+                        {
+                          "backgroundColor": "#ffffff",
+                          "borderColor": "#B8B8B8",
+                          "borderRadius": 100,
+                          "borderWidth": 1,
+                          "height": 22,
+                          "justifyContent": "center",
+                          "marginLeft": 0,
+                          "padding": 0,
+                          "position": "absolute",
+                          "right": -10,
+                          "top": -10,
+                          "width": 22,
+                          "zIndex": 1000,
+                        }
+                      }
+                    >
+                      <Image
+                        source={
+                          {
+                            "testUri": "../../../assets/icons/icon_close.png",
+                          }
+                        }
+                        style={
+                          {
+                            "alignSelf": "center",
+                            "height": 10,
+                            "position": "relative",
+                            "width": 10,
+                          }
+                        }
+                      />
+                    </View>
+                    <View
+                      style={
+                        {
+                          "height": 64,
+                        }
+                      }
+                    >
+                      <View
+                        style={
+                          {
+                            "alignItems": "center",
+                            "borderColor": "#F0F0F0",
+                            "borderRadius": 15,
+                            "borderStyle": "solid",
+                            "borderWidth": 1,
+                            "display": "flex",
+                            "height": 64,
+                            "justifyContent": "center",
+                          }
+                        }
+                      >
+                        <View
+                          style={
+                            {
+                              "flexDirection": "row",
+                            }
+                          }
+                        >
+                          <Image
+                            source={
+                              {
+                                "testUri": "../../../assets/icons/file_document.png",
+                              }
+                            }
+                            style={
+                              {
+                                "height": 40,
+                                "marginLeft": 5,
+                                "marginRight": 5,
+                                "width": 32,
+                              }
+                            }
+                          />
+                          <View
+                            style={
+                              {
+                                "marginRight": 5,
+                                "maxWidth": 100,
+                              }
+                            }
+                          >
+                            <Text
+                              color="main"
+                              fontSize={12}
+                              horizontalTextAlign="left"
+                              numberOfLines={1}
+                              style={
+                                [
+                                  {
+                                    "color": "#000000",
+                                    "fontFamily": "Rubik-Regular",
+                                    "fontSize": 12,
+                                    "textAlign": "left",
+                                    "textAlignVertical": "center",
+                                  },
+                                  {
+                                    "fontWeight": "bold",
+                                  },
+                                ]
+                              }
+                              verticalTextAlign="center"
+                            >
+                              file.pdf
+                            </Text>
+                            <Text
+                              color="main"
+                              fontSize={12}
+                              horizontalTextAlign="left"
+                              style={
+                                [
+                                  {
+                                    "color": "#000000",
+                                    "fontFamily": "Rubik-Regular",
+                                    "fontSize": 12,
+                                    "textAlign": "left",
+                                    "textAlignVertical": "center",
+                                  },
+                                ]
+                              }
+                              verticalTextAlign="center"
+                            >
+                              .pdf
+                            </Text>
+                          </View>
+                        </View>
+                      </View>
+                    </View>
+                  </View>
+                </View>
+              </RCTScrollView>
             </View>
           </View>
         </View>
