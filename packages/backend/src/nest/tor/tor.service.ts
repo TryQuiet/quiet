@@ -13,6 +13,7 @@ import { TorControl } from './tor-control.service'
 import { GetInfoTorSignal, TorParams, TorParamsProvider, TorPasswordProvider } from './tor.types'
 
 import Logger from '../common/logger'
+import { sleep } from '../common/sleep'
 
 export class Tor extends EventEmitter implements OnModuleInit {
   socksPort: number
@@ -23,6 +24,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
   controlPort: number | undefined
   private readonly logger = Logger(Tor.name)
   private hiddenServices: Map<string, string> = new Map()
+  private initializedHiddenServices: Map<string, string> = new Map()
   constructor(
     @Inject(CONFIG_OPTIONS) public configOptions: ConfigOptions,
     @Inject(QUIET_DIR) public readonly quietDir: string,
@@ -40,6 +42,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
   async onModuleInit() {
     if (!this.torParamsProvider.torPath) return
     await this.init()
+    console.log('----------------------------------------------------------tor initialized')
   }
 
   public setControlPort = (port: number) => {
@@ -110,10 +113,15 @@ export class Tor extends EventEmitter implements OnModuleInit {
           process.nextTick(tryToSpawnTor)
         }
       }
+      // setTimeout(this.checkTorBootstrap, 60000)
       // eslint-disable-next-line
       tryToSpawnTor()
     })
   }
+
+  // private checkTorBootstrap() {
+  //   this.sendCommand(checktorbootstrap)
+  // }
 
   private torProcessNameCommand(oldTorPid: string): string {
     const byPlatform = {
@@ -236,7 +244,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
       this.process.stdout.on('data', (data: any) => {
         this.logger(data.toString())
         this.serverIoProvider.io.emit(SocketActionTypes.TOR_BOOTSTRAP_PROCESS, data.toString())
-        const regexp = /Bootstrapped 100%/
+        const regexp = /Bootstrapped 0/
         if (regexp.test(data.toString())) {
           clearTimeout(timeout)
           resolve()
