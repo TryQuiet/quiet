@@ -157,6 +157,7 @@ export const currentChannelMessages = createSelector(currentChannel, channel => 
 })
 
 export const sortedCurrentChannelMessages = createSelector(currentChannelMessages, messages => {
+  console.log('AAAAAAAAAAAAAAA 1', messages.length)
   return messages.sort((a, b) => b.createdAt - a.createdAt).reverse()
 })
 
@@ -187,6 +188,7 @@ export const currentChannelMessagesCount = createSelector(displayableCurrentChan
 })
 
 export const dailyGroupedCurrentChannelMessages = createSelector(displayableCurrentChannelMessages, messages => {
+  console.log('AAAAAAAAAAAAAAA 2', messages.length)
   const result: MessagesGroupsType = messages.reduce((groups: MessagesGroupsType, message: DisplayableMessage) => {
     const date = formatMessageDisplayDay(message.date)
 
