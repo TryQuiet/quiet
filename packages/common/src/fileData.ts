@@ -1,9 +1,10 @@
 import path from 'path'
 import { FileContent, FilePreviewData } from '@quiet/types'
 
-export const getFileData = (filePath: string): FilePreviewData => {
+export const getFileData = (filePath: string, isTmpPath = false): FilePreviewData => {
   const fileContent: FileContent = {
     path: filePath,
+    tmpPath: isTmpPath ? filePath : undefined,
     name: path.basename(filePath, path.extname(filePath)),
     ext: path.extname(filePath).toLowerCase(),
   }
@@ -11,10 +12,15 @@ export const getFileData = (filePath: string): FilePreviewData => {
   return { [id]: fileContent }
 }
 
-export const getFilesData = (filePaths: string[]): FilePreviewData => {
+type FilePath = {
+  path: string
+  isTmp?: boolean
+}
+
+export const getFilesData = (filePaths: FilePath[]): FilePreviewData => {
   const data = {}
-  filePaths.forEach((filePath: string) => {
-    Object.assign(data, getFileData(filePath))
+  filePaths.forEach((filePath: FilePath) => {
+    Object.assign(data, getFileData(filePath.path, filePath.isTmp))
   })
   return data
 }

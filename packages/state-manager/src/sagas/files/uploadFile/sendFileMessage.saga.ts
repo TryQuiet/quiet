@@ -1,4 +1,3 @@
-import { type Socket } from '../../../types'
 import { type PayloadAction } from '@reduxjs/toolkit'
 import { select, call, put } from 'typed-redux-saga'
 import { identitySelectors } from '../../identity/identity.selectors'
@@ -16,10 +15,24 @@ export function* sendFileMessageSaga(
   const currentChannel = yield* select(publicChannelsSelectors.currentChannelId)
   if (!identity || !currentChannel) return
 
+  const fileProtocol = 'file://'
+  let filePath = action.payload.path
+  let tmpPath = action.payload.tmpPath
+  if (!filePath) return
+  try {
+    filePath = decodeURIComponent(filePath.startsWith(fileProtocol) ? filePath.slice(fileProtocol.length) : filePath)
+    tmpPath = tmpPath ? decodeURIComponent(tmpPath.slice(fileProtocol.length)) : undefined
+  } catch (e) {
+    console.error(`Can't send file with path ${filePath}, Details: ${e.message}`)
+    return
+  }
+
   const id = yield* call(generateMessageId)
 
   const media: FileMetadata = {
     ...action.payload,
+    path: filePath,
+    tmpPath: tmpPath,
     cid: `uploading_${id}`,
     message: {
       id,

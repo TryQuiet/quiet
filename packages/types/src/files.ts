@@ -2,6 +2,7 @@ import { type ChannelMessage } from './channel'
 
 export interface FileContent {
   path: string | null // Should it be nullable?
+  tmpPath?: string
   name: string
   ext: string
 }

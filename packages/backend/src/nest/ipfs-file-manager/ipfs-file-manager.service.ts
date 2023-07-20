@@ -132,6 +132,19 @@ export class IpfsFileManagerService extends EventEmitter {
     return filePath
   }
 
+  public deleteFile(filePath: string) {
+    // if (metadata.tmpPath) {
+    try {
+      if (fs.existsSync(filePath)) {
+        this.logger(`Removing file ${filePath}`)
+        fs.unlinkSync(filePath)
+      }
+    } catch (e) {
+      this.logger(`Could not remove file ${filePath}. Reason: ${e.messages}`)
+    }
+    // }
+  }
+
   public async uploadFile(metadata: FileMetadata) {
     let width: number | undefined
     let height: number | undefined
@@ -178,6 +191,7 @@ export class IpfsFileManagerService extends EventEmitter {
     this.emit(StorageEvents.REMOVE_DOWNLOAD_STATUS, { cid: metadata.cid })
     const fileMetadata: FileMetadata = {
       ...metadata,
+      tmpPath: undefined,
       path: filePath,
       cid: newCid.cid.toString(),
       size: newCid.size,
@@ -186,6 +200,10 @@ export class IpfsFileManagerService extends EventEmitter {
     }
 
     this.emit(StorageEvents.UPLOADED_FILE, fileMetadata)
+
+    if (metadata.tmpPath) {
+      this.deleteFile(metadata.tmpPath)
+    }
 
     const statusReady: DownloadStatus = {
       mid: fileMetadata.message.id,

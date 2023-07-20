@@ -59,14 +59,10 @@ describe('sendFileMessageSaga', () => {
     message = Math.random().toString(36).substr(2.9)
   })
 
-  test('uploading file', async () => {
-    const socket = { emit: jest.fn() } as unknown as Socket
-
+  test('saves message with media', async () => {
     const currentChannel = currentChannelId(store.getState())
 
     if (!currentChannel) throw new Error('no current channel id')
-
-    const peerId = alice.peerId.id
 
     const media: FileMetadata = {
       cid: `uploading_${message}`,
@@ -77,6 +73,7 @@ describe('sendFileMessageSaga', () => {
         id: message,
         channelId: currentChannel,
       },
+      tmpPath: undefined,
     }
     const reducer = combineReducers(reducers)
     await expectSaga(sendFileMessageSaga, filesActions.uploadFile(media))
@@ -89,6 +86,52 @@ describe('sendFileMessageSaga', () => {
           message: '',
           type: MessageType.File,
           media,
+        })
+      )
+      .put(
+        filesActions.updateDownloadStatus({
+          mid: message,
+          cid: `uploading_${message}`,
+          downloadState: DownloadState.Uploading,
+          downloadProgress: undefined,
+        })
+      )
+      .run()
+  })
+
+  test('saves message with media with updated path', async () => {
+    const currentChannel = currentChannelId(store.getState())
+
+    if (!currentChannel) throw new Error('no current channel id')
+
+    const media: FileMetadata = {
+      cid: `uploading_${message}`,
+      path: 'file://temp/name.ext',
+      tmpPath: 'file://temp/name.ext',
+      name: 'name',
+      ext: 'ext',
+      message: {
+        id: message,
+        channelId: currentChannel,
+      },
+    }
+    const updatedMedia: FileMetadata = {
+      ...media,
+      path: 'temp/name.ext',
+      tmpPath: 'temp/name.ext',
+    }
+
+    const reducer = combineReducers(reducers)
+    await expectSaga(sendFileMessageSaga, filesActions.uploadFile(media))
+      .withReducer(reducer)
+      .withState(store.getState())
+      .provide([[call.fn(generateMessageId), message]])
+      .put(
+        messagesActions.sendMessage({
+          id: message,
+          message: '',
+          type: MessageType.File,
+          media: updatedMedia,
         })
       )
       .put(

@@ -81,7 +81,14 @@ export const ChannelScreen: FC = () => {
 
   // Files
   const updateUploadedFiles = (files: DocumentPickerResponse[]) => {
-    const filesData: FilePreviewData = getFilesData(files.map(i => i.fileCopyUri || i.uri))
+    const filesData: FilePreviewData = getFilesData(
+      files.map(fileObj => {
+        return {
+          path: fileObj.fileCopyUri || fileObj.uri,
+          isTmp: !fileObj.copyError,
+        }
+      })
+    )
 
     // FilePreviewData
     setUploadingFiles(existingFiles => {
@@ -105,18 +112,8 @@ export const ChannelScreen: FC = () => {
       // Upload files, then send corresponding message (contaning cid) for each of them
       Object.values(filesRef.current).forEach(async (fileData: FileContent) => {
         if (!fileData.path) return
-        const updatedData = fileData
-        try {
-          const slicedURI = fileData.path.startsWith('file://') ? fileData.path.slice('file://'.length) : fileData.path
-          updatedData.path = decodeURIComponent(slicedURI)
-        } catch (e) {
-          console.error(`Can't send file with path ${fileData.path}, Details: ${e.message}`)
-          return
-        }
-
-        dispatch(files.actions.uploadFile(updatedData))
+        dispatch(files.actions.uploadFile(fileData))
       })
-      // TODO: remove copies from /data/user/0/com.quietmobile.+/cache/
       // Reset file previews for input state
       setUploadingFiles({})
     },

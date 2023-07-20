@@ -98,7 +98,13 @@ const Channel = () => {
 
   const handleFileDrop = useCallback((item: { files: any[] }) => {
     if (item) {
-      updateUploadingFiles(getFilesData(item.files.map(i => i.path)))
+      updateUploadingFiles(
+        getFilesData(
+          item.files.map(droppedFile => {
+            return { path: droppedFile.path }
+          })
+        )
+      )
     }
   }, [])
 
