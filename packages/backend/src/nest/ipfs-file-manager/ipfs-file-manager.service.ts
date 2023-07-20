@@ -133,7 +133,6 @@ export class IpfsFileManagerService extends EventEmitter {
   }
 
   public deleteFile(filePath: string) {
-    // if (metadata.tmpPath) {
     try {
       if (fs.existsSync(filePath)) {
         this.logger(`Removing file ${filePath}`)
@@ -142,7 +141,6 @@ export class IpfsFileManagerService extends EventEmitter {
     } catch (e) {
       this.logger(`Could not remove file ${filePath}. Reason: ${e.messages}`)
     }
-    // }
   }
 
   public async uploadFile(metadata: FileMetadata) {

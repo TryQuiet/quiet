@@ -21,7 +21,7 @@ describe('UploadingPreview component', () => {
       <UploadingPreview
         filesData={pickedFiles}
         removeFile={function (id: string): void {
-          throw new Error('Function not implemented.')
+          console.log(`removeFile ${id}`)
         }}
       />
     )

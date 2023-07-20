@@ -6,10 +6,6 @@ import { DocumentPickerResponse } from 'react-native-document-picker'
 
 jest.useFakeTimers()
 
-// Mocked because of: "Invariant Violation: TurboModuleRegistry.getEnforcing(...): 'RNDocumentPicker'
-// could not be found. Verify that a module by this name is registered in the native binary."
-jest.mock('react-native-document-picker', () => {})
-
 describe('Chat component', () => {
   jest
     .spyOn(Keyboard, 'addListener')
@@ -202,11 +198,11 @@ describe('Chat component', () => {
             ],
           },
         }}
-        updateUploadedFiles={function (filesData: DocumentPickerResponse[]): void {
-          throw new Error('Function not implemented.')
+        updateUploadedFiles={function (_filesData: DocumentPickerResponse[]): void {
+          console.log('updateUploadedFiles')
         }}
         removeFilePreview={function (id: string): void {
-          throw new Error('Function not implemented.')
+          console.log(`removeFilePreview ${id}`)
         }}
       />
     )
@@ -3496,11 +3492,11 @@ describe('Chat component', () => {
             ext: '.pdf',
           },
         }}
-        updateUploadedFiles={function (filesData: DocumentPickerResponse[]): void {
-          throw new Error('Function not implemented.')
+        updateUploadedFiles={function (_filesData: DocumentPickerResponse[]): void {
+          console.log('updateUploadedFiles')
         }}
         removeFilePreview={function (id: string): void {
-          throw new Error('Function not implemented.')
+          console.log(`removeFilePreview ${id}`)
         }}
       />
     )

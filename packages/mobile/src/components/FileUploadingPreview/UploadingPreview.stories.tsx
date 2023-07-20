@@ -28,7 +28,7 @@ storiesOf('File UploadingPreview', module).add('Default', () => (
   <UploadingPreview
     filesData={pickedFiles}
     removeFile={function (id: string): void {
-      throw new Error('Function not implemented.')
+      console.log(`removeFile ${id}`)
     }}
   />
 ))

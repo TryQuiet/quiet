@@ -190,11 +190,11 @@ storiesOf('Chat', module)
           ],
         },
       }}
-      updateUploadedFiles={function (filesData: DocumentPickerResponse[]): void {
-        throw new Error('Function not implemented.')
+      updateUploadedFiles={function (_filesData: DocumentPickerResponse[]): void {
+        console.log('updateUploadedFiles')
       }}
       removeFilePreview={function (id: string): void {
-        throw new Error('Function not implemented.')
+        console.log(`removeFilePreview ${id}`)
       }}
     />
   ))
@@ -219,11 +219,11 @@ storiesOf('Chat', module)
         timestamp: 0,
         id: '',
       }}
-      updateUploadedFiles={function (filesData: DocumentPickerResponse[]): void {
-        throw new Error('Function not implemented.')
+      updateUploadedFiles={function (_filesData: DocumentPickerResponse[]): void {
+        console.log('updateUploadedFiles')
       }}
       removeFilePreview={function (id: string): void {
-        throw new Error('Function not implemented.')
+        console.log(`removeFilePreview ${id}`)
       }}
     />
   ))
