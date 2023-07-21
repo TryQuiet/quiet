@@ -87,13 +87,15 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof connectionActions.setTorConnectionProcess>
     | ReturnType<typeof connectionActions.torBootstrapped>
     | ReturnType<typeof connectionActions.connectionManagerInit>
+    | ReturnType<typeof connectionActions.setTorInitialized>
   >(emit => {
     // UPDATE FOR APP
     socket.on(SocketActionTypes.TOR_BOOTSTRAP_PROCESS, (payload: string) => {
-      if (payload.toString().includes('Bootstrapped 100%')) {
-        emit(connectionActions.torBootstrapped(payload))
-      }
-      emit(connectionActions.setTorBootstrapProcess(payload))
+      emit(connectionActions.setTorInitialized())
+      // if (payload.toString().includes('Bootstrapped 100%')) {
+      //   emit(connectionActions.torBootstrapped(payload))
+      // }
+      // emit(connectionActions.setTorBootstrapProcess(payload))
     })
     socket.on(SocketActionTypes.CONNECTION_PROCESS_INFO, (payload: string) => {
       emit(connectionActions.setTorConnectionProcess(payload))
