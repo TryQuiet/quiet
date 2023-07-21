@@ -64,27 +64,12 @@ const StyledGrid = styled(Grid)(({ theme, width }) => ({
 export interface StartingPanelComponentProps {
   open: boolean
   handleClose: () => void
-  message: string
-  torBootstrapInfo: string
 }
 
-const StartingPanelComponent: React.FC<StartingPanelComponentProps> = ({
-  open,
-  handleClose,
-  message,
-  torBootstrapInfo,
-}) => {
-  const progressNumber = Number(torBootstrapInfo.replace(/\D/g, ''))
-
+const StartingPanelComponent: React.FC<StartingPanelComponentProps> = ({ open, handleClose }) => {
   return (
     <Modal open={open} handleClose={handleClose} isCloseDisabled={true}>
-      <StyledGrid
-        width={progressNumber * 3}
-        container
-        justifyContent='center'
-        alignItems='center'
-        className={classes.root}
-      >
+      <StyledGrid container justifyContent='center' alignItems='center' className={classes.root}>
         <Grid
           container
           alignItems='center'
