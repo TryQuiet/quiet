@@ -7,14 +7,18 @@ import { JoinCommunity } from '../../components/JoinCommunity/JoinCommunity.comp
 import { navigationActions } from '../../store/navigation/navigation.slice'
 import { ScreenNames } from '../../const/ScreenNames.enum'
 import { JoinCommunityScreenProps } from './JoinCommunity.types'
+import { initSelectors } from '../../store/init/init.selectors'
 
 export const JoinCommunityScreen: FC<JoinCommunityScreenProps> = ({ route }) => {
   const dispatch = useDispatch()
 
   const [invitationCode, setInvitationCode] = useState<string | undefined>(undefined)
 
+  const ready = useSelector(initSelectors.ready)
+
   const currentCommunity = useSelector(communities.selectors.currentCommunity)
   const currentIdentity = useSelector(identity.selectors.currentIdentity)
+
   const networkCreated = Boolean(currentCommunity && !currentIdentity?.userCertificate)
 
   const community = useSelector(communities.selectors.currentCommunity)
@@ -60,6 +64,7 @@ export const JoinCommunityScreen: FC<JoinCommunityScreenProps> = ({ route }) => 
       redirectionAction={redirectionAction}
       networkCreated={networkCreated}
       invitationCode={invitationCode}
+      ready={ready}
     />
   )
 }

@@ -15,6 +15,7 @@ export const JoinCommunity: FC<JoinCommunityProps> = ({
   redirectionAction,
   invitationCode,
   networkCreated,
+  ready = true
 }) => {
   const [joinCommunityInput, setJoinCommunityInput] = useState<string | undefined>()
   const [inputError, setInputError] = useState<string | undefined>()
@@ -86,7 +87,7 @@ export const JoinCommunity: FC<JoinCommunityProps> = ({
           onChangeText={onChangeText}
           label={'Paste your invite link to join an existing community'}
           placeholder={'Invite link'}
-          disabled={loading}
+          disabled={loading || !ready}
           validation={inputError}
           ref={inputRef}
         />
