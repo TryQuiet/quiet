@@ -53,7 +53,7 @@ export function* sendMessageSaga(
   // Grey out message until saved in db
   yield* put(
     messagesActions.addMessagesSendingStatus({
-      id: message.id,
+      message: message,
       status: SendingStatus.Pending,
     })
   )

@@ -18,7 +18,7 @@ export function* filesMasterSaga(socket: Socket): Generator {
     takeEvery(networkActions.addInitializedCommunity.type, resetTransferSpeedSaga),
     takeEvery(filesActions.checkForMissingFiles.type, checkForMissingFilesSaga, socket),
     takeEvery(filesActions.uploadFile.type, sendFileMessageSaga),
-    takeEvery(messagesActions.incomingMessages.type, uploadFileSaga, socket),
+    takeEvery(messagesActions.addMessagesSendingStatus.type, uploadFileSaga, socket),
     takeEvery(filesActions.cancelDownload.type, cancelDownloadSaga, socket),
     takeEvery(filesActions.updateMessageMedia.type, updateMessageMediaSaga),
     takeEvery(filesActions.downloadFile.type, downloadFileSaga, socket),

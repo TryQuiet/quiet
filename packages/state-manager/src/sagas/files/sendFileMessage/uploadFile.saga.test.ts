@@ -1,5 +1,4 @@
 import { setupCrypto } from '@quiet/identity'
-import { call } from 'redux-saga-test-plan/matchers'
 import { type Store } from '../../store.types'
 import { getFactory, MessageType } from '../../..'
 import { prepareStore, reducers } from '../../../utils/tests/prepareStore'
@@ -10,18 +9,16 @@ import { type communitiesActions } from '../../communities/communities.slice'
 import { type identityActions } from '../../identity/identity.slice'
 import { type FactoryGirl } from 'factory-girl'
 import { type publicChannelsActions } from '../../publicChannels/publicChannels.slice'
-import { filesActions } from '../files.slice'
-import { generateMessageId } from '../../messages/utils/message.utils'
 import { DateTime } from 'luxon'
 import { messagesActions } from '../../messages/messages.slice'
 import {
   type Community,
-  DownloadState,
   type FileMetadata,
   type Identity,
   type PublicChannel,
   SocketActionTypes,
   ChannelMessage,
+  SendingStatus,
 } from '@quiet/types'
 import { generateChannelId } from '@quiet/common'
 import { currentChannelId } from '../../publicChannels/publicChannels.selectors'
@@ -97,50 +94,24 @@ describe('uploadFileSaga', () => {
     ).message
   })
 
-  test('should upload file if message is in uploading state', async () => {
+  test('should upload file while message is being saved to db', async () => {
     const socket = { emit: jest.fn() } as unknown as Socket
 
     const currentChannel = currentChannelId(store.getState())
 
     if (!currentChannel) throw new Error('no current channel id')
 
-    await factory.create<ReturnType<typeof messagesActions.addMessagesSendingStatus>['payload']>(
-      'MessageSendingStatus',
-      {
-        id: message.id,
-      }
-    )
-
     const peerId = alice.peerId.id
 
     const reducer = combineReducers(reducers)
-    await expectSaga(uploadFileSaga, socket, messagesActions.incomingMessages({ messages: [message] }))
+    await expectSaga(
+      uploadFileSaga,
+      socket,
+      messagesActions.addMessagesSendingStatus({ message, status: SendingStatus.Pending })
+    )
       .withReducer(reducer)
       .withState(store.getState())
       .apply(socket, socket.emit, [
-        SocketActionTypes.UPLOAD_FILE,
-        {
-          file: media,
-          peerId,
-        },
-      ])
-      .run()
-  })
-
-  test('should not upload file if message is not in uploading state', async () => {
-    const socket = { emit: jest.fn() } as unknown as Socket
-
-    const currentChannel = currentChannelId(store.getState())
-
-    if (!currentChannel) throw new Error('no current channel id')
-
-    const peerId = alice.peerId.id
-
-    const reducer = combineReducers(reducers)
-    await expectSaga(uploadFileSaga, socket, messagesActions.incomingMessages({ messages: [message] }))
-      .withReducer(reducer)
-      .withState(store.getState())
-      .not.apply(socket, socket.emit, [
         SocketActionTypes.UPLOAD_FILE,
         {
           file: media,
@@ -157,12 +128,6 @@ describe('uploadFileSaga', () => {
 
     if (!currentChannel) throw new Error('no current channel id')
 
-    await factory.create<ReturnType<typeof messagesActions.addMessagesSendingStatus>['payload']>(
-      'MessageSendingStatus',
-      {
-        id: message.id,
-      }
-    )
     const peerId = alice.peerId.id
 
     const messageWithoutMedia = {
@@ -171,7 +136,11 @@ describe('uploadFileSaga', () => {
     }
 
     const reducer = combineReducers(reducers)
-    await expectSaga(uploadFileSaga, socket, messagesActions.incomingMessages({ messages: [messageWithoutMedia] }))
+    await expectSaga(
+      uploadFileSaga,
+      socket,
+      messagesActions.addMessagesSendingStatus({ message: messageWithoutMedia, status: SendingStatus.Pending })
+    )
       .withReducer(reducer)
       .withState(store.getState())
       .not.apply(socket, socket.emit, [
