@@ -3,4 +3,5 @@ export interface JoinCommunityProps {
   redirectionAction: () => void
   networkCreated: boolean
   invitationCode?: string
+  ready?: boolean
 }
