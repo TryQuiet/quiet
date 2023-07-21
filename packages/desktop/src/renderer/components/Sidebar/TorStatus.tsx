@@ -23,7 +23,7 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
   [`& .${classes.circleWrapper}`]: {
     width: '14px',
     height: '14px',
-    backgroundColor: 'white',
+    backgroundColor: 'rgba(256,256,256,1)',
     marginLeft: '12px',
     marginBottom: '3px',
     borderRadius: '100px',
@@ -34,8 +34,11 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
     borderRadius: '100px',
   },
 }))
-const TorStatus = () => {
-  const isTorInitialized = useSelector(connection.selectors.isTorInitialized)
+
+export interface TorStatusProps {
+  isTorInitialized: boolean
+}
+const TorStatus = ({ isTorInitialized }: TorStatusProps) => {
   return (
     <StyledGrid container className={classes.root}>
       <Grid container justifyContent='start' alignItems='center' className={classes.wrapper}>
