@@ -37,12 +37,11 @@ export const ChannelListScreen: FC = () => {
   const community = useSelector(communities.selectors.currentCommunity)
   const channelsStatusSorted = useSelector(publicChannels.selectors.channelsStatusSorted)
 
-  
   const tiles = channelsStatusSorted.map(status => {
     const newestMessage = status.newestMessage
     const message = newestMessage?.message || '...'
     const date = newestMessage?.createdAt ? formatMessageDisplayDate(newestMessage.createdAt) : undefined
-    
+
     const tile: ChannelTileProps = {
       name: getChannelNameFormChannelId(status.id),
       id: status.id,
@@ -51,10 +50,10 @@ export const ChannelListScreen: FC = () => {
       unread: status.unread,
       redirect,
     }
-    
+
     return tile
   })
-  
+
   const ready = useSelector(initSelectors.ready)
 
   let communityContextMenu = useContextMenu(MenuName.Community)

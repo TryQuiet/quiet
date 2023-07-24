@@ -15,7 +15,7 @@ export const JoinCommunity: FC<JoinCommunityProps> = ({
   redirectionAction,
   invitationCode,
   networkCreated,
-  ready = true
+  ready = true,
 }) => {
   const [joinCommunityInput, setJoinCommunityInput] = useState<string | undefined>()
   const [inputError, setInputError] = useState<string | undefined>()

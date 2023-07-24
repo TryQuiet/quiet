@@ -28,7 +28,7 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
   setImagePreview,
   openImagePreview,
   openUrl,
-  ready = true
+  ready = true,
 }) => {
   const [didKeyboardShow, setKeyboardShow] = useState(false)
   const [messageInput, setMessageInput] = useState<string | undefined>()

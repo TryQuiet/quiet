@@ -31,5 +31,5 @@ export const initSelectors = {
   initDescription,
   initChecks,
   deepLinking,
-  ready
+  ready,
 }
