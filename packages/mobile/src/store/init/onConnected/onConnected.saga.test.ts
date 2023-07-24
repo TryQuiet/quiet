@@ -49,27 +49,7 @@ describe('onConnectedSaga', () => {
     store = (await prepareStore()).store
   })
 
-  test('does nothing if app opened from url', async () => {
-    store.dispatch(initActions.deepLink('bidrmzr3ee6qa2vvrlcnqvvvsk2gmjktcqkunba326parszr44gibwyd'))
-
-    const reducer = combineReducers(reducers)
-    await expectSaga(onConnectedSaga)
-      .withReducer(reducer)
-      .withState(store.getState())
-      .not.put(
-        navigationActions.replaceScreen({
-          screen: ScreenNames.JoinCommunityScreen,
-        })
-      )
-      .not.put(
-        navigationActions.replaceScreen({
-          screen: ScreenNames.ChannelListScreen,
-        })
-      )
-      .run()
-  })
-
-  test('Redirects to joinCommunityScreen if there is no user certificate and community is not initialized', async () => {
+  test('redirects to join community screen if there is no user certificate and community is not initialized', async () => {
     const reducer = combineReducers(reducers)
 
     await expectSaga(onConnectedSaga)
@@ -82,7 +62,8 @@ describe('onConnectedSaga', () => {
       )
       .run()
   })
-  test('Redirects to channel list if user is part of community and community is initialized', async () => {
+
+  test('redirects to channel list if user is part of community and community is initialized', async () => {
     store.dispatch(
       initActions.setWebsocketConnected({
         dataPort: 5001,
@@ -96,19 +77,19 @@ describe('onConnectedSaga', () => {
       // @ts-expect-error
       identity.actions.addNewIdentity({ ..._identity, userCertificate: 'certificate' })
     )
+
     const reducer = combineReducers(reducers)
 
     await expectSaga(onConnectedSaga)
       .withReducer(reducer)
       .withState(store.getState())
       .put(
-        navigationActions.replaceScreen({
-          screen: ScreenNames.ChannelListScreen,
-        })
+        initActions.setReady(true)
       )
       .run()
   })
-  test('Takes addInitializedCommunties action before replacing screens', async () => {
+
+  test('takes addInitializedCommunties action before replacing screens', async () => {
     store.dispatch(
       initActions.setWebsocketConnected({
         dataPort: 5001,
@@ -121,6 +102,7 @@ describe('onConnectedSaga', () => {
       // @ts-expect-error
       identity.actions.addNewIdentity({ ..._identity, userCertificate: 'certificate' })
     )
+
     const reducer = combineReducers(reducers)
 
     await expectSaga(onConnectedSaga)
@@ -128,9 +110,7 @@ describe('onConnectedSaga', () => {
       .withState(store.getState())
       .dispatch(network.actions.addInitializedCommunity(community.id))
       .put(
-        navigationActions.replaceScreen({
-          screen: ScreenNames.ChannelListScreen,
-        })
+        initActions.setReady(true)
       )
       .run()
   })
