@@ -76,7 +76,7 @@ export const initSlice = createSlice({
     },
     setReady: (state, action: PayloadAction<boolean>) => {
       state.ready = action.payload
-    }
+    },
   },
 })
 

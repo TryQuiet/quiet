@@ -22,7 +22,7 @@ export function* onConnectedSaga(): Generator {
 
     // ...instead take him to the joining process (continue on a proper screen if paused on username registration)
     let destination = ScreenNames.JoinCommunityScreen
-    
+
     const currentScreen = yield* select(navigationSelectors.currentScreen)
 
     if (currentScreen != ScreenNames.SplashScreen) {
@@ -34,7 +34,7 @@ export function* onConnectedSaga(): Generator {
         screen: destination,
       })
     )
-    
+
     return
   }
 

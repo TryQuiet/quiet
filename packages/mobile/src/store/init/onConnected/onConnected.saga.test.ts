@@ -99,9 +99,7 @@ describe('onConnectedSaga', () => {
     await expectSaga(onConnectedSaga)
       .withReducer(reducer)
       .withState(store.getState())
-      .put(
-        initActions.setReady(true)
-      )
+      .put(initActions.setReady(true))
       .run()
   })
 
@@ -125,9 +123,7 @@ describe('onConnectedSaga', () => {
       .withReducer(reducer)
       .withState(store.getState())
       .dispatch(network.actions.addInitializedCommunity(community.id))
-      .put(
-        initActions.setReady(true)
-      )
+      .put(initActions.setReady(true))
       .run()
   })
 })

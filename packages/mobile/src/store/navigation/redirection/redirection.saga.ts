@@ -32,7 +32,7 @@ export function* redirectionSaga(): Generator {
   const currentIdentity = yield* select(identity.selectors.currentIdentity)
 
   // Before getting certificate, restore navigation to the last visited registration step. Otherwise go to the channel list screen
-  let destination = currentIdentity?.userCertificate ? ScreenNames.ChannelListScreen : currentScreen
+  const destination = currentIdentity?.userCertificate ? ScreenNames.ChannelListScreen : currentScreen
 
   yield* put(
     navigationActions.replaceScreen({
