@@ -30,16 +30,6 @@ export const JoinCommunityScreen: FC<JoinCommunityScreenProps> = ({ route }) => 
     setInvitationCode(code)
   }, [dispatch, community, route.params?.code])
 
-  useEffect(() => {
-    if (networkCreated) {
-      dispatch(
-        navigationActions.navigation({
-          screen: ScreenNames.UsernameRegistrationScreen,
-        })
-      )
-    }
-  }, [dispatch, currentCommunity])
-
   const joinCommunityAction = useCallback(
     (address: string) => {
       const payload: CreateNetworkPayload = {
@@ -47,6 +37,11 @@ export const JoinCommunityScreen: FC<JoinCommunityScreenProps> = ({ route }) => 
         registrar: address,
       }
       dispatch(communities.actions.createNetwork(payload))
+      dispatch(
+        navigationActions.navigation({
+          screen: ScreenNames.UsernameRegistrationScreen,
+        })
+      )
     },
     [dispatch]
   )

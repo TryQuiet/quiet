@@ -5,6 +5,8 @@ import { publicChannelsSelectors } from '../publicChannels.selectors'
 import { type messagesActions } from '../../messages/messages.slice'
 import { identitySelectors } from '../../identity/identity.selectors'
 import { type MarkUnreadChannelPayload } from '@quiet/types'
+import { identityActions } from '../../identity/identity.slice'
+import { communitiesSelectors } from '../../communities/communities.selectors'
 
 export function* markUnreadChannelsSaga(
   action: PayloadAction<ReturnType<typeof messagesActions.incomingMessages>['payload']>
@@ -12,6 +14,9 @@ export function* markUnreadChannelsSaga(
   const currentChannelId = yield* select(publicChannelsSelectors.currentChannelId)
 
   const { messages } = action.payload
+
+  // Fix for users whose has damaged property with join timestamp and problem with proper checking new message
+  yield* put(identityActions.verifyJoinTimestamp())
 
   for (const message of messages) {
     // Do not proceed for current channel

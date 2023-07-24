@@ -13,16 +13,6 @@ export const CreateCommunityScreen: FC = () => {
   const currentIdentity = useSelector(identity.selectors.currentIdentity)
   const networkCreated = Boolean(currentCommunity && !currentIdentity?.userCertificate)
 
-  useEffect(() => {
-    if (networkCreated) {
-      dispatch(
-        navigationActions.navigation({
-          screen: ScreenNames.UsernameRegistrationScreen,
-        })
-      )
-    }
-  }, [dispatch, currentCommunity])
-
   const createCommunityAction = useCallback(
     (name: string) => {
       const payload: CreateNetworkPayload = {
@@ -30,6 +20,11 @@ export const CreateCommunityScreen: FC = () => {
         name,
       }
       dispatch(communities.actions.createNetwork(payload))
+      dispatch(
+        navigationActions.navigation({
+          screen: ScreenNames.UsernameRegistrationScreen,
+        })
+      )
     },
     [dispatch]
   )

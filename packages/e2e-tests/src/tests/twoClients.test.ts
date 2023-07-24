@@ -18,6 +18,8 @@ describe('Two Clients', () => {
   let ownerApp: App
   let guestApp: App
 
+  let registerModal2: RegisterUsernameModal
+
   let generalChannel: Channel
   let generalChannel2: Channel
 
@@ -144,22 +146,35 @@ describe('Two Clients', () => {
       await joinCommunityModal.typeCommunityCode(invitationCode)
       await joinCommunityModal.submit()
     })
-    it('RegisterUsernameModal', async () => {
+
+    it('RegisterUsernameModal - User tries to register already taken username, sees error', async () => {
       console.log('new user - 4')
-      const registerModal2 = new RegisterUsernameModal(guestApp.driver)
+      registerModal2 = new RegisterUsernameModal(guestApp.driver)
       const isRegisterModal2 = await registerModal2.element.isDisplayed()
       expect(isRegisterModal2).toBeTruthy()
+      await registerModal2.typeUsername(ownerUsername)
+      await registerModal2.submit()
+      const usernameTakenError = await registerModal2.error.isDisplayed()
+      expect(usernameTakenError).toBeTruthy()
+    })
+
+    it('RegisterUsernameModal - User successfully register not taken username', async () => {
+      console.log('new user - 5')
+      const isRegisterModal = await registerModal2.element.isDisplayed()
+      expect(isRegisterModal).toBeTruthy()
+      await registerModal2.clearInput()
       await registerModal2.typeUsername(joiningUserUsername)
       await registerModal2.submit()
     })
+
     it.skip('JoiningLoadingPanel', async () => {
-      console.log('new user - 5')
+      console.log('new user - 6')
       const loadingPanelCommunity2 = new JoiningLoadingPanel(ownerApp.driver)
       const isLoadingPanelCommunity2 = await loadingPanelCommunity2.element.isDisplayed()
       expect(isLoadingPanelCommunity2).toBeTruthy()
     })
     it('User sends a message', async () => {
-      console.log('new user - 6')
+      console.log('new user - 7')
       generalChannel2 = new Channel(guestApp.driver, 'general')
       await generalChannel2.element.isDisplayed()
       const isMessageInput2 = await generalChannel2.messageInput.isDisplayed()
@@ -173,7 +188,7 @@ describe('Two Clients', () => {
       await generalChannel2.sendMessage(joiningUserMessages[0])
     })
     it('Sent message is visible in a channel', async () => {
-      console.log('new user - 7')
+      console.log('new user - 8')
       const messages2 = await generalChannel2.getUserMessages(joiningUserUsername)
       const messages1 = await generalChannel2.getUserMessages(ownerUsername)
 

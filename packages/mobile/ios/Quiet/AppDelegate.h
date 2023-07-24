@@ -12,9 +12,14 @@
 
 @property uint16_t dataPort;
 
+@property NSString *dataPath;
+
+@property RCTBridge *bridge;
+
+@property RNNodeJsMobile *nodeJsMobile;
+
 @property (nonatomic, strong) TorHandler *tor;
 @property (nonatomic, strong) TORConfiguration *torConfiguration;
-
-- (void) getAuthCookieAndLaunchBackend:(uint16_t)controlPort:(uint16_t)httpTunnelPort;
+@property (nonatomic, strong) TORController *torController;
 
 @end

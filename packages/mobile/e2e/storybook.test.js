@@ -9,6 +9,8 @@ import info from './utils/info'
 import checkVisualRegression from './utils/checkVisualRegression'
 import baseScreenshotsUpdate from './utils/baseScreenshotsUpdate'
 
+import { BASIC } from './utils/consts/timeouts'
+
 const { ios } = info
 
 jest.setTimeout(9000000)
@@ -94,7 +96,7 @@ describe('Storybook', () => {
 
       await waitFor(element(by.id('Storybook.ListView.SearchBar')))
         .toBeVisible()
-        .withTimeout(5000)
+        .withTimeout(BASIC)
 
       // Use Storybook's search section
       await press(element(by.id('Storybook.ListView.SearchBar')))

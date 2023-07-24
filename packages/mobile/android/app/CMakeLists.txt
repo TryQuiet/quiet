@@ -18,6 +18,7 @@ add_library( # Sets the name of the library.
 
              # Provides a relative path to your source file(s).
              src/main/cpp/own-native-lib.cpp
+             src/main/cpp/rn-bridge.cpp
            )
 
 include_directories(libnode/include/node/)
