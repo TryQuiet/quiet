@@ -49,6 +49,22 @@ describe('onConnectedSaga', () => {
     store = (await prepareStore()).store
   })
 
+  test('marks readiness and passes redirection resposibility to another saga if opened from url (quiet://)', async () => {
+    store.dispatch(initActions.deepLink('bidrmzr3ee6qa2vvrlcnqvvvsk2gmjktcqkunba326parszr44gibwyd'))
+    
+    const reducer = combineReducers(reducers)
+    await expectSaga(onConnectedSaga)
+      .withReducer(reducer)
+      .withState(store.getState())
+      .put(initActions.setReady(true))
+      .not.put(
+        navigationActions.replaceScreen({
+          screen: ScreenNames.JoinCommunityScreen,
+        })
+      )
+      .run()
+  })
+
   test('redirects to join community screen if there is no user certificate and community is not initialized', async () => {
     const reducer = combineReducers(reducers)
 

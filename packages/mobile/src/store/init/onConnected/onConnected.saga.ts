@@ -1,11 +1,19 @@
 import { select, put, take } from 'typed-redux-saga'
 import { identity, network } from '@quiet/state-manager'
+import { initSelectors } from '../init.selectors'
 import { initActions } from '../init.slice'
 import { navigationActions } from '../../navigation/navigation.slice'
 import { navigationSelectors } from '../../navigation/navigation.selectors'
 import { ScreenNames } from '../../../const/ScreenNames.enum'
 
 export function* onConnectedSaga(): Generator {
+  // Do not redirect if user opened the app from url (quiet://)
+  const deepLinking = yield* select(initSelectors.deepLinking)
+  if (deepLinking) {
+    yield* put(initActions.setReady(true))
+    return
+  }
+
   const communityMembership = yield* select(identity.selectors.communityMembership)
 
   if (!communityMembership) {
