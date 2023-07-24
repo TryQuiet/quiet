@@ -8,6 +8,7 @@ import { navigationActions } from '../../store/navigation/navigation.slice'
 import { ScreenNames } from '../../const/ScreenNames.enum'
 import { UseContextMenuType, useContextMenu } from '../../hooks/useContextMenu'
 import { MenuName } from '../../const/MenuNames.enum'
+import { initSelectors } from '../../store/init/init.selectors'
 
 export const ChannelScreen: FC = () => {
   const dispatch = useDispatch()
@@ -45,8 +46,10 @@ export const ChannelScreen: FC = () => {
 
   const downloadStatusesMapping = useSelector(files.selectors.downloadStatuses)
 
+  const ready = useSelector(initSelectors.ready)
+
   let contextMenu: UseContextMenuType<Record<string, unknown>> | null = useContextMenu(MenuName.Channel)
-  if (!community?.CA) {
+  if (!community?.CA || !ready) {
     contextMenu = null
   }
 
@@ -109,6 +112,7 @@ export const ChannelScreen: FC = () => {
       setImagePreview={setImagePreview}
       openImagePreview={setImagePreview}
       openUrl={openUrl}
+      ready={ready}
     />
   )
 }

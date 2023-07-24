@@ -12,6 +12,7 @@ import { reducers } from '../../root.reducer'
 
 import { redirectionSaga } from './redirection.saga'
 import { getFactory, identity } from '@quiet/state-manager'
+import { initActions, initReducer, InitState } from '../../init/init.slice'
 
 describe('redirectionSaga', () => {
   let store: Store
@@ -23,25 +24,36 @@ describe('redirectionSaga', () => {
     factory = await getFactory(store)
   })
 
-  test('do nothing if user already sees a splash screen', async () => {
-    const currentScreen = ScreenNames.SplashScreen
+  test('does nothing if app opened from url', async () => {
+    store.dispatch(initActions.deepLink('bidrmzr3ee6qa2vvrlcnqvvvsk2gmjktcqkunba326parszr44gibwyd'))
+
+    const reducer = combineReducers(reducers)
     await expectSaga(redirectionSaga)
-      .withReducer(
-        combineReducers({
-          [StoreKeys.Navigation]: navigationReducer,
-        }),
-        {
-          [StoreKeys.Navigation]: {
-            ...new NavigationState(),
-            currentScreen,
-          },
-        }
+      .withReducer(reducer)
+      .withState(store.getState())
+      .not.put(
+        navigationActions.replaceScreen({
+          screen: ScreenNames.JoinCommunityScreen,
+        })
       )
-      .not.put(navigationActions.replaceScreen({ screen: currentScreen }))
+      .not.put(
+        navigationActions.replaceScreen({
+          screen: ScreenNames.ChannelListScreen,
+        })
+      )
       .run()
   })
 
-  test('open channel list if user belongs to a community', async () => {
+  test('does nothing if user already sees a splash screen', async () => {
+    const reducer = combineReducers(reducers)
+    await expectSaga(redirectionSaga)
+      .withReducer(reducer)
+      .withState(store.getState())
+      .not.put(navigationActions.replaceScreen({ screen: ScreenNames.SplashScreen }))
+      .run()
+  })
+
+  test('opens channel list if user belongs to a community', async () => {
     store.dispatch(
       navigationActions.navigation({
         screen: ScreenNames.ChannelScreen,
@@ -58,7 +70,7 @@ describe('redirectionSaga', () => {
       .run()
   })
 
-  test('restore previously visited registration step', async () => {
+  test('restores previously visited registration step', async () => {
     store.dispatch(
       navigationActions.navigation({
         screen: ScreenNames.UsernameRegistrationScreen,

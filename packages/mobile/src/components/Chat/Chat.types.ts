@@ -25,6 +25,7 @@ export interface ChatProps {
   setImagePreview?: (media: FileMetadata | null) => void
   openImagePreview: (media: FileMetadata) => void
   openUrl: (url: string) => void
+  ready?: boolean
 }
 
 export interface ChannelMessagesComponentProps {
