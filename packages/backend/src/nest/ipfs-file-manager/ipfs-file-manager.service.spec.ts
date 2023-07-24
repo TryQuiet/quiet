@@ -503,6 +503,25 @@ describe('IpfsFileManagerService', () => {
     const newPath = ipfsFileManagerService.copyFile(originalPath, '12345_test-image.png')
     expect(originalPath).toEqual(newPath)
   })
+
+  it('copies file with filename containing whitespace but removes whitespace in the new path', () => {
+    const newFilePath = ipfsFileManagerService.copyFile(
+      path.join(dirname, '/testUtils/test-image.png'),
+      'test ima ge.png'
+    )
+    expect(newFilePath).toEqual(path.join(ipfsFileManagerService.quietDir, 'uploads', 'testimage.png'))
+  })
+
+  it('copies file with encoded filename containing whitespace but removes whitespace in the new path', () => {
+    const newFilePath = ipfsFileManagerService.copyFile(
+      path.join(dirname, '/testUtils/test-image.png'),
+      'Screenshot_%20with%20whitespace%2020230721-004943.png'
+    )
+    expect(newFilePath).toEqual(
+      path.join(ipfsFileManagerService.quietDir, 'uploads', 'Screenshot_withwhitespace20230721-004943.png')
+    )
+  })
+
   // it.skip('downloaded file chunk returns proper transferSpeed when no delay between entries', async () => {
   //   const fileSize = 52428800 // 50MB
   //   createFile(filePath, fileSize)

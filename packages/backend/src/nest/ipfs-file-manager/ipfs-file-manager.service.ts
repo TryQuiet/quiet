@@ -118,7 +118,15 @@ export class IpfsFileManagerService extends EventEmitter {
      * Copy file to a different directory and return the new path
      */
     const uploadsDir = path.join(this.quietDir, 'uploads')
-    const newPath = path.join(uploadsDir, filename)
+    let newFilename: string
+    try {
+      newFilename = decodeURIComponent(filename).replace(/\s/g, '')
+    } catch (e) {
+      this.logger(`Could not decode filename ${filename}`)
+      newFilename = filename
+    }
+
+    const newPath = path.join(uploadsDir, newFilename)
     let filePath = originalFilePath
     try {
       if (!fs.existsSync(uploadsDir)) {
