@@ -51,7 +51,7 @@ describe('onConnectedSaga', () => {
 
   test('marks readiness and passes redirection resposibility to another saga if opened from url (quiet://)', async () => {
     store.dispatch(initActions.deepLink('bidrmzr3ee6qa2vvrlcnqvvvsk2gmjktcqkunba326parszr44gibwyd'))
-    
+
     const reducer = combineReducers(reducers)
     await expectSaga(onConnectedSaga)
       .withReducer(reducer)
