@@ -40,7 +40,6 @@ export class Tor extends EventEmitter implements OnModuleInit {
   }
 
   async onModuleInit() {
-    this.socksPort = await getPort()
     if (!this.torParamsProvider.torPath) return
     await this.init()
 
@@ -62,6 +61,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
     return Array.from(Object.entries(this.extraTorProcessParams)).flat()
   }
   public async init({ timeout = 3600_000 } = {}): Promise<void> {
+    if (!this.socksPort) this.socksPort = await getPort()
     this.logger('Initializing tor...')
     console.log('this.controlPort', this.controlPort)
     console.log('this.torControl', this.torControl.torControlParams)
