@@ -43,8 +43,6 @@ export class Tor extends EventEmitter implements OnModuleInit {
   async onModuleInit() {
     if (!this.torParamsProvider.torPath) return
     await this.init()
-
-    console.log('----------------------------------------------------------tor initialized')
   }
 
   public setControlPort = (port: number) => {

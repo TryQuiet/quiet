@@ -14,11 +14,15 @@ const classes = {
   circle: `${PREFIX}circle`,
 }
 
-const StyledGrid = styled(Grid)(({ theme }) => ({
+interface StyledGridProps {
+  isDev: boolean
+}
+const StyledGrid = styled(Grid)(({ isDev }: StyledGridProps) => ({
   [`& .${classes.root}`]: {},
   [`& .${classes.wrapper}`]: {
     paddingBottom: '32px',
     paddingLeft: '18px',
+    opacity: isDev ? '100%' : '0%',
   },
   [`& .${classes.circleWrapper}`]: {
     width: '14px',
@@ -40,7 +44,7 @@ export interface TorStatusProps {
 }
 const TorStatus = ({ isTorInitialized }: TorStatusProps) => {
   return (
-    <StyledGrid container className={classes.root}>
+    <StyledGrid isDev={process.env.NODE_ENV === 'development'} container className={classes.root}>
       <Grid container justifyContent='start' alignItems='center' className={classes.wrapper}>
         <Typography variant='body2'>TOR</Typography>
         <Grid container justifyContent='center' alignItems='center' className={classes.circleWrapper}>

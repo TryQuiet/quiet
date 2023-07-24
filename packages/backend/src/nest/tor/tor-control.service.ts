@@ -26,8 +26,6 @@ export class TorControl implements OnModuleInit {
   }
 
   private async connect(): Promise<void> {
-    console.log('this.torControlParams', this.torControlParams)
-    console.log('configOptions.torControl', this.configOptions.torControlPort)
     return await new Promise((resolve, reject) => {
       if (this.connection) {
         reject(new Error('TOR: Connection already established'))
