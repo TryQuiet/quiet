@@ -437,7 +437,11 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
 
         // If the current line is empty, go directly to the next node.
         let nextNode: Node | null | undefined = null
-        if (anchorNode?.nodeValue === null || anchorNode?.nodeValue === '\n') {
+        if (anchorNode?.nodeValue === null ||
+            anchorNode?.nodeValue === '\r\n' ||
+            anchorNode?.nodeValue === '\r' ||
+            anchorNode?.nodeValue === '\n'
+        ) {
           nextNode = anchorNode?.nextSibling
         } else {
           // Otherwise skip the break node at the end of the current line.
@@ -450,7 +454,11 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
           return
         }
         // If the next line is empty, go the beginning
-        if (nextNode.nodeValue === null || nextNode.nodeValue === '\n') {
+        if (nextNode.nodeValue === null ||
+            nextNode.nodeValue === '\r\n' ||
+            nextNode.nodeValue === '\r' ||
+            nextNode.nodeValue === '\n'
+        ) {
           caretLineTraversal(nextNode, 0)
           return
         }
@@ -463,6 +471,8 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
         let previousNode: Node | null | undefined = null
         if (
           anchorNode?.previousSibling?.previousSibling?.nodeValue === null ||
+          anchorNode?.previousSibling?.previousSibling?.nodeValue === '\r\n' ||
+          anchorNode?.previousSibling?.previousSibling?.nodeValue === '\r' ||
           anchorNode?.previousSibling?.previousSibling?.nodeValue === '\n'
         ) {
           previousNode = anchorNode?.previousSibling
@@ -476,7 +486,11 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
           return
         }
         // If previous line is empty, go to the beginning
-        if (previousNode.nodeValue === null || previousNode.nodeValue === '\n') {
+        if (previousNode.nodeValue === null ||
+            previousNode.nodeValue === '\r\n' ||
+            previousNode.nodeValue === '\r' ||
+            previousNode.nodeValue === '\n'
+        ) {
           caretLineTraversal(previousNode, 0)
           return
         }
