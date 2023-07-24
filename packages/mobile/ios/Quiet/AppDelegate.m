@@ -104,7 +104,7 @@ static NSString *const platform = @"mobile";
    * Delay used below can't cause any race condition as websocket won't connect until data server starts listening anyway.
    */
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-    NSTimeInterval delayInSeconds = 0;
+    NSTimeInterval delayInSeconds = 5;
     dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
     dispatch_after(popTime, dispatch_get_main_queue(), ^(void) {
       [[self.bridge moduleForName:@"CommunicationModule"] sendDataPortWithPort:self.dataPort];
@@ -114,7 +114,7 @@ static NSString *const platform = @"mobile";
 
 - (void) spinupBackend:(BOOL)init {
   
-  // (1/7) Find ports to use in tor configuration
+  // (1/6) Find ports to use in tor configuration
   
   FindFreePort *findFreePort = [FindFreePort new];
     
@@ -123,7 +123,7 @@ static NSString *const platform = @"mobile";
   uint16_t httpTunnelPort   = [findFreePort getFirstStartingFromPort:16000];
     
   
-  // (2/7) Spawn tor with proper configuration
+  // (2/6) Spawn tor with proper configuration
   
   dispatch_time_t torPopTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.0 * NSEC_PER_SEC));
   dispatch_after(torPopTime, dispatch_get_main_queue(), ^(void) {
@@ -137,7 +137,7 @@ static NSString *const platform = @"mobile";
   });
   
   
-  // (3/7) Wait for tor to initialize
+  // (3/6) Wait for tor to initialize
   
   // Give tor time to spin up and update it's authorization cookie
   NSTimeInterval delayInSeconds = 0.0;
@@ -145,7 +145,7 @@ static NSString *const platform = @"mobile";
   dispatch_after(popTime, dispatch_get_main_queue(), ^(void) {
       
     
-    // (4/7) Connect to tor control port natively (so we can use it to shutdown tor when app goes idle)
+    // (4/6) Connect to tor control port natively (so we can use it to shutdown tor when app goes idle)
     
     NSData *authCookieData = [self getAuthCookieData];
       
@@ -163,12 +163,12 @@ static NSString *const platform = @"mobile";
     }];
       
     
-    // (5/7) Update data port information and broadcast it to frontend
+    // (5/6) Update data port information and broadcast it to frontend
     
     [self initWebsocketConnection];
     
     
-    // (7/7) Launch backend or reviwe services
+    // (6/6) Launch backend or reviwe services
     
     NSString *authCookie = [self getAuthCookie];
     
