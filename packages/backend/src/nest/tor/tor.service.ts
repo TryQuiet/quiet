@@ -13,7 +13,6 @@ import { TorControl } from './tor-control.service'
 import { GetInfoTorSignal, TorParams, TorParamsProvider, TorPasswordProvider } from './tor.types'
 
 import Logger from '../common/logger'
-import { sleep } from '../common/sleep'
 
 export class Tor extends EventEmitter implements OnModuleInit {
   socksPort: number
@@ -22,6 +21,8 @@ export class Tor extends EventEmitter implements OnModuleInit {
   torPidPath: string
   extraTorProcessParams: TorParams
   controlPort: number | undefined
+  interval: any
+  timeout: any
   private readonly logger = Logger(Tor.name)
   private hiddenServices: Map<string, any> = new Map()
   private initializedHiddenServices: Map<string, any> = new Map()
@@ -60,7 +61,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
   get torProcessParams(): string[] {
     return Array.from(Object.entries(this.extraTorProcessParams)).flat()
   }
-  public async init({ timeout = 3600_000 } = {}): Promise<void> {
+  public async init(timeout = 120_000): Promise<void> {
     if (!this.socksPort) this.socksPort = await getPort()
     this.logger('Initializing tor...')
     console.log('this.controlPort', this.controlPort)
@@ -88,22 +89,17 @@ export class Tor extends EventEmitter implements OnModuleInit {
 
       console.log(2)
 
-      setTimeout(async () => {
+      this.timeout = setTimeout(async () => {
         const log = await this.torControl.sendCommand('GETINFO status/bootstrap-phase')
         console.log({ log })
         if (log.messages[0] !== '250-status/bootstrap-phase=NOTICE BOOTSTRAP PROGRESS=100 TAG=done SUMMARY="Done"') {
           this.initializedHiddenServices = new Map()
+          clearInterval(this.interval)
           await this.init()
         }
-      }, 120000)
+      }, timeout)
 
       const tryToSpawnTor = async () => {
-        // this.logger(`Trying to spawn tor for the ${counter} time...`)
-        // if (counter > repeat) {
-        //   reject(new Error(`Failed to spawn tor ${counter} times`))
-        //   return
-        // }
-
         this.clearOldTorProcess(oldTorPid)
 
         try {
@@ -113,15 +109,15 @@ export class Tor extends EventEmitter implements OnModuleInit {
         }
 
         try {
-          await this.spawnTor(timeout)
+          await this.spawnTor()
           // ___________________________________________________________
-          const id = setInterval(async () => {
+          this.interval = setInterval(async () => {
             const log = await this.torControl.sendCommand('GETINFO status/bootstrap-phase')
             if (
               log.messages[0] === '250-status/bootstrap-phase=NOTICE BOOTSTRAP PROGRESS=100 TAG=done SUMMARY="Done"'
             ) {
               this.serverIoProvider.io.emit(SocketActionTypes.TOR_BOOTSTRAP_PROCESS)
-              clearInterval(id)
+              clearInterval(this.interval)
             }
           }, 1000)
           // ___________________________________________________________
@@ -144,25 +140,6 @@ export class Tor extends EventEmitter implements OnModuleInit {
   public resetHiddenServices() {
     this.hiddenServices = new Map()
   }
-  // private async getLogs() {
-  //   try {
-  //     const res = await this.torControl.sendCommand('GETINFO status/bootstrap-phase')
-  //     this.logger('res!!!!!!!!!!!!!!!!!!!!!', res)
-  //   } catch (e) {
-  //     this.logger.error(e)
-  //   }
-  // }
-  // private checkTorBootstrap() {
-  //   setInterval(this.getLogs, 500)
-  //   // // new Promise((resolve, reject) => {
-  //   // const interval = setInterval(() => {
-  //   //   const res = this.getStatus()
-  //   //   console.log({ res })
-  //   // }, 200)
-
-  //   // setTimeout(() => clearInterval(interval), 10000)
-  //   // // })
-  // }
 
   private torProcessNameCommand(oldTorPid: string): string {
     const byPlatform = {
@@ -224,7 +201,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
     )
   }
 
-  protected async spawnTor(timeoutMs: number): Promise<void> {
+  protected async spawnTor(): Promise<void> {
     return await new Promise((resolve, reject) => {
       if (!this.configOptions.httpTunnelPort) {
         this.logger.error("Can't spawn tor - no httpTunnelPort")
@@ -274,14 +251,6 @@ export class Tor extends EventEmitter implements OnModuleInit {
         this.torParamsProvider.options
       )
 
-      // const timeout = setTimeout(() => {
-      //   reject(new Error(`Timeout of ${timeoutMs / 1000} while waiting for tor to bootstrap`))
-      // }, timeoutMs)
-
-      // this.process.stdout.on('data', (data: any) => {
-      //   this.logger('Tor logs for state manager:', data.toString())
-      //   this.serverIoProvider.io.emit(SocketActionTypes.TOR_BOOTSTRAP_PROCESS, data.toString())
-      // })
       this.process.stdout.on('data', (data: any) => {
         this.logger(data.toString())
         const regexp = /Bootstrapped 0/
@@ -375,9 +344,6 @@ export class Tor extends EventEmitter implements OnModuleInit {
   }
 
   public async kill(): Promise<void> {
-    // for (const hs of this.hiddenServices.keys()) {
-    //   await this.destroyHiddenService(hs)
-    // }
     return await new Promise((resolve, reject) => {
       this.logger('Killing tor...')
       if (this.process === null) {
@@ -385,6 +351,8 @@ export class Tor extends EventEmitter implements OnModuleInit {
         resolve()
         return
       }
+      if (this.timeout) clearTimeout(this.timeout)
+      if (this.interval) clearInterval(this.interval)
       this.process?.on('close', () => {
         this.process = null
         resolve()

@@ -10,6 +10,7 @@ import { jest } from '@jest/globals'
 import { TorControlAuthType } from './tor.types'
 import { TorControl } from './tor-control.service'
 import crypto from 'crypto'
+import { sleep } from '../common/sleep'
 jest.setTimeout(200_000)
 describe('TorControl', () => {
   let module: TestingModule
@@ -121,22 +122,15 @@ describe('TorControl', () => {
     expect(hiddenServiceOnionAddress).toBe('u2rg2direy34dj77375h2fbhsc2tvxj752h4tlso64mjnlevcv54oaad.onion')
   })
 
-  // currently provider generate password
-  // it('generates hashed password', async () => {
-  //   await torService.init()
-  //   torService.generateHashedPassword()
-  //   console.log(torService.torHashedPassword)
-  //   console.log(torService.torPassword)
-  //   expect(tor.torHashedPassword).toHaveLength(61)
-  //   expect(tor.torPassword).toHaveLength(32)
-  // })
-
-  it('tor spawn repeating 3 times with 1 second timeout and repeating will stop after that', async () => {
-    await expect(torService.init({ timeout: 1000 })).rejects.toThrow('Failed to spawn tor 4 times')
+  it('tor spawn repeats', async () => {
+    const spyOnInit = jest.spyOn(torService, 'init')
+    await torService.init(1000)
+    await sleep(4000)
+    expect(spyOnInit).toHaveBeenCalledTimes(2)
   })
 
   it('tor is initializing correctly with 40 seconds timeout', async () => {
-    await torService.init({ timeout: 40000 })
+    await torService.init()
   })
 
   it('creates and destroys hidden service', async () => {
@@ -145,7 +139,6 @@ describe('TorControl', () => {
     const serviceId = hiddenService.onionAddress.split('.')[0]
     const status = await torService.destroyHiddenService(serviceId)
     expect(status).toBe(true)
-    // await torService.kill()
   })
 
   it('attempt destroy nonexistent hidden service', async () => {
