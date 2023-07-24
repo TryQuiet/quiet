@@ -15,6 +15,9 @@ export function* markUnreadChannelsSaga(
 
   const { messages } = action.payload
 
+  // Fix for users whose has damaged property with join timestamp and problem with proper checking new message
+  yield* put(identityActions.verifyJoinTimestamp())
+
   for (const message of messages) {
     // Do not proceed for current channel
     if (message.channelId !== currentChannelId) {
@@ -25,15 +28,7 @@ export function* markUnreadChannelsSaga(
 
       const statuses = yield* select(publicChannelsSelectors.channelsStatus)
 
-      // Fix for users whose has damaged property with join timestamp and problem with proper checking new message
-      let joinTimestamp: number | null | undefined
-      joinTimestamp = yield* select(identitySelectors.joinTimestamp)
-      console.log({ joinTimestamp })
-      if (!joinTimestamp) {
-        const communityId = yield* select(communitiesSelectors.currentCommunityId)
-        yield* put(identityActions.updateJoinTimestamp({ communityId }))
-        joinTimestamp = yield* select(identitySelectors.joinTimestamp)
-      }
+      const joinTimestamp = yield* select(identitySelectors.joinTimestamp)
 
       // For all messages created before user joined don't show notifications
       if (!joinTimestamp || joinTimestamp > message.createdAt * 1000) continue

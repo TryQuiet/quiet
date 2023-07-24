@@ -42,6 +42,7 @@ export const identitySlice = createSlice({
         },
       })
     },
+    verifyJoinTimestamp: state => state,
     updateJoinTimestamp: (state, action: PayloadAction<UpdateJoinTimestampPayload>) => {
       identityAdapter.updateOne(state.identities, {
         id: action.payload.communityId,

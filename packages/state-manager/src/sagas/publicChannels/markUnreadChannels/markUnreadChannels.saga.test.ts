@@ -15,350 +15,220 @@ import { generateChannelId } from '@quiet/common'
 import { type ChannelMessage, type Community, type Identity, MessageType } from '@quiet/types'
 
 describe('markUnreadChannelsSaga', () => {
-  describe('base', () => {
-    let store: Store
-    let factory: FactoryGirl
+  let store: Store
+  let factory: FactoryGirl
 
-    let community: Community
-    let alice: Identity
+  let community: Community
+  let alice: Identity
 
-    let channelIds: string[] = []
-    beforeAll(async () => {
-      setupCrypto()
+  let channelIds: string[] = []
 
-      store = prepareStore().store
+  beforeAll(async () => {
+    setupCrypto()
 
-      factory = await getFactory(store)
+    store = prepareStore().store
 
-      community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
+    factory = await getFactory(store)
 
-      alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
-        id: community.id,
-        nickname: 'alice',
-      })
+    community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
 
-      const channelNames = ['memes', 'enya', 'pets', 'travels']
-
-      // Automatically create channels
-      for (const name of channelNames) {
-        const channel = await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>(
-          'PublicChannel',
-          {
-            channel: {
-              name,
-              description: `Welcome to #${name}`,
-              timestamp: DateTime.utc().valueOf(),
-              owner: alice.nickname,
-              id: generateChannelId(name),
-            },
-          }
-        )
-        channelIds = [...channelIds, channel.channel.id]
-      }
+    alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
+      id: community.id,
+      nickname: 'alice',
     })
 
-    test('mark unread channels', async () => {
-      const messagesides = channelIds
-      const messages: ChannelMessage[] = []
+    const channelNames = ['memes', 'enya', 'pets', 'travels']
 
-      // Automatically create messages
-      for (const id of messagesides) {
-        const message = (
-          await factory.build<typeof publicChannelsActions.test_message>('Message', {
-            identity: alice,
-            message: {
-              id: Math.random().toString(36).substr(2.9),
-              type: MessageType.Basic,
-              message: 'message',
-              createdAt: DateTime.utc().valueOf(),
-              channelId: id,
-              signature: '',
-              pubKey: '',
-            },
-            verifyAutomatically: true,
-          })
-        ).payload.message
-        messages.push(message)
-      }
-
-      // Set the newest message
-      const channelId = channelIds.find(id => id.includes('enya'))
-      if (!channelId) throw new Error('no channel id')
-      const message = (
-        await factory.create<ReturnType<typeof publicChannelsActions.test_message>['payload']>('Message', {
-          identity: alice,
-          message: {
-            id: Math.random().toString(36).substr(2.9),
-            type: MessageType.Basic,
-            message: 'message',
-            createdAt: 99999999999999,
-            channelId,
-            signature: '',
-            pubKey: '',
+    // Automatically create channels
+    for (const name of channelNames) {
+      const channel = await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>(
+        'PublicChannel',
+        {
+          channel: {
+            name,
+            description: `Welcome to #${name}`,
+            timestamp: DateTime.utc().valueOf(),
+            owner: alice.nickname,
+            id: generateChannelId(name),
           },
-          verifyAutomatically: true,
-        })
-      ).message
-
-      store.dispatch(publicChannelsActions.updateNewestMessage({ message }))
-
-      const channelIdMemes = channelIds.find(id => id.includes('memes'))
-
-      const channelIdEnya = channelIds.find(id => id.includes('enya'))
-
-      const channelIdTravels = channelIds.find(id => id.includes('travels'))
-      if (!channelIdMemes || !channelIdEnya || !channelIdTravels) throw new Error('no channel id')
-
-      const reducer = combineReducers(reducers)
-      await expectSaga(
-        markUnreadChannelsSaga,
-        messagesActions.incomingMessages({
-          messages,
-        })
+        }
       )
-        .withReducer(reducer)
-        .withState(store.getState())
-        .put(
-          publicChannelsActions.markUnreadChannel({
-            channelId: channelIdMemes,
-            message: messages[0],
-          })
-        )
-        .not.put(
-          publicChannelsActions.markUnreadChannel({
-            channelId: channelIdEnya,
-            message: messages[2],
-          })
-        )
-        .put(
-          publicChannelsActions.markUnreadChannel({
-            channelId: channelIdTravels,
-            message: messages[3],
-          })
-        )
-        .run()
-    })
-
-    test('do not mark unread channels if message is older than user', async () => {
-      const messagesides = channelIds
-      const messages: ChannelMessage[] = []
-
-      const community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>(
-        'Community'
-      )
-
-      const alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
-        id: community.id,
-        nickname: 'alice',
-        joinTimestamp: 9239423949,
-      })
-
-      // Automatically create older messages
-      for (const id of messagesides) {
-        const message = (
-          await factory.build<typeof publicChannelsActions.test_message>('Message', {
-            identity: alice,
-            message: {
-              id: Math.random().toString(36).substr(2.9),
-              type: MessageType.Basic,
-              message: 'message',
-              createdAt: 123,
-              channelId: id,
-              signature: '',
-              pubKey: '',
-            },
-            verifyAutomatically: true,
-          })
-        ).payload.message
-        messages.push(message)
-      }
-
-      const channelId = channelIds.find(id => id.includes('enya'))
-      if (!channelId) throw new Error('no channel id')
-      // Set the newest message
-      const message = (
-        await factory.create<ReturnType<typeof publicChannelsActions.test_message>['payload']>('Message', {
-          identity: alice,
-          message: {
-            id: Math.random().toString(36).substr(2.9),
-            type: MessageType.Basic,
-            message: 'message',
-            createdAt: 99999999999999,
-            channelId,
-            signature: '',
-            pubKey: '',
-          },
-          verifyAutomatically: true,
-        })
-      ).message
-
-      messages.push(message)
-
-      const channelIdMemes = channelIds.find(id => id.includes('memes'))
-
-      const channelIdEnya = channelIds.find(id => id.includes('enya'))
-
-      const channelIdTravels = channelIds.find(id => id.includes('travels'))
-      if (!channelIdMemes || !channelIdEnya || !channelIdTravels) throw new Error('no channel id')
-      const reducer = combineReducers(reducers)
-      await expectSaga(
-        markUnreadChannelsSaga,
-        messagesActions.incomingMessages({
-          messages,
-        })
-      )
-        .withReducer(reducer)
-        .withState(store.getState())
-        .not.put(
-          publicChannelsActions.markUnreadChannel({
-            channelId: channelIdMemes,
-            message: messages[1],
-          })
-        )
-        .put(
-          publicChannelsActions.markUnreadChannel({
-            channelId: channelIdEnya,
-            message,
-          })
-        )
-        .not.put(
-          publicChannelsActions.markUnreadChannel({
-            channelId: channelIdTravels,
-            message: messages[3],
-          })
-        )
-        .run()
-    })
+      channelIds = [...channelIds, channel.channel.id]
+    }
   })
 
-  describe('update timestamp', () => {
-    let store: Store
-    let factory: FactoryGirl
+  test('mark unread channels', async () => {
+    const messagesides = channelIds
+    const messages: ChannelMessage[] = []
 
-    let community: Community
-    let alice: Identity
-
-    let channelIds: string[] = []
-    beforeAll(async () => {
-      setupCrypto()
-
-      store = prepareStore().store
-
-      factory = await getFactory(store)
-
-      community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
-
-      alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
-        id: community.id,
-        nickname: 'alice',
-        joinTimestamp: null,
-      })
-
-      const channelNames = ['memes', 'enya', 'pets', 'travels']
-
-      // Automatically create channels
-      for (const name of channelNames) {
-        const channel = await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>(
-          'PublicChannel',
-          {
-            channel: {
-              name,
-              description: `Welcome to #${name}`,
-              timestamp: DateTime.utc().valueOf(),
-              owner: alice.nickname,
-              id: generateChannelId(name),
-            },
-          }
-        )
-        channelIds = [...channelIds, channel.channel.id]
-      }
-    })
-
-    test('mark unread channels and update timestamp in identity', async () => {
-      const messagesides = channelIds
-      const messages: ChannelMessage[] = []
-
-      // Automatically create messages
-      for (const id of messagesides) {
-        const message = (
-          await factory.build<typeof publicChannelsActions.test_message>('Message', {
-            identity: alice,
-            message: {
-              id: Math.random().toString(36).substr(2.9),
-              type: MessageType.Basic,
-              message: 'message',
-              createdAt: DateTime.utc().valueOf(),
-              channelId: id,
-              signature: '',
-              pubKey: '',
-            },
-            verifyAutomatically: true,
-          })
-        ).payload.message
-        messages.push(message)
-      }
-
-      // Set the newest message
-      const channelId = channelIds.find(id => id.includes('enya'))
-      if (!channelId) throw new Error('no channel id')
+    // Automatically create messages
+    for (const id of messagesides) {
       const message = (
-        await factory.create<ReturnType<typeof publicChannelsActions.test_message>['payload']>('Message', {
+        await factory.build<typeof publicChannelsActions.test_message>('Message', {
           identity: alice,
           message: {
             id: Math.random().toString(36).substr(2.9),
             type: MessageType.Basic,
             message: 'message',
-            createdAt: 99999999999999,
-            channelId,
+            createdAt: DateTime.utc().valueOf(),
+            channelId: id,
             signature: '',
             pubKey: '',
           },
           verifyAutomatically: true,
         })
-      ).message
+      ).payload.message
+      messages.push(message)
+    }
 
-      store.dispatch(publicChannelsActions.updateNewestMessage({ message }))
+    // Set the newest message
+    const channelId = channelIds.find(id => id.includes('enya'))
+    if (!channelId) throw new Error('no channel id')
+    const message = (
+      await factory.create<ReturnType<typeof publicChannelsActions.test_message>['payload']>('Message', {
+        identity: alice,
+        message: {
+          id: Math.random().toString(36).substr(2.9),
+          type: MessageType.Basic,
+          message: 'message',
+          createdAt: 99999999999999,
+          channelId,
+          signature: '',
+          pubKey: '',
+        },
+        verifyAutomatically: true,
+      })
+    ).message
 
-      const channelIdMemes = channelIds.find(id => id.includes('memes'))
+    store.dispatch(publicChannelsActions.updateNewestMessage({ message }))
 
-      const channelIdEnya = channelIds.find(id => id.includes('enya'))
+    const channelIdMemes = channelIds.find(id => id.includes('memes'))
 
-      const channelIdTravels = channelIds.find(id => id.includes('travels'))
-      if (!channelIdMemes || !channelIdEnya || !channelIdTravels) throw new Error('no channel id')
+    const channelIdEnya = channelIds.find(id => id.includes('enya'))
 
-      const reducer = combineReducers(reducers)
-      await expectSaga(
-        markUnreadChannelsSaga,
-        messagesActions.incomingMessages({
-          messages,
+    const channelIdTravels = channelIds.find(id => id.includes('travels'))
+    if (!channelIdMemes || !channelIdEnya || !channelIdTravels) throw new Error('no channel id')
+
+    const reducer = combineReducers(reducers)
+    await expectSaga(
+      markUnreadChannelsSaga,
+      messagesActions.incomingMessages({
+        messages,
+      })
+    )
+      .withReducer(reducer)
+      .withState(store.getState())
+      .put(identityActions.verifyJoinTimestamp())
+      .put(
+        publicChannelsActions.markUnreadChannel({
+          channelId: channelIdMemes,
+          message: messages[0],
         })
       )
-        .withReducer(reducer)
-        .withState(store.getState())
-        .put(
-          identityActions.updateJoinTimestamp({
-            communityId: community.id,
-          })
-        )
-        .put(
-          publicChannelsActions.markUnreadChannel({
-            channelId: channelIdMemes,
-            message: messages[0],
-          })
-        )
-        .not.put(
-          publicChannelsActions.markUnreadChannel({
-            channelId: channelIdEnya,
-            message: messages[2],
-          })
-        )
-        .put(
-          publicChannelsActions.markUnreadChannel({
-            channelId: channelIdTravels,
-            message: messages[3],
-          })
-        )
-        .run()
+      .not.put(
+        publicChannelsActions.markUnreadChannel({
+          channelId: channelIdEnya,
+          message: messages[2],
+        })
+      )
+      .put(
+        publicChannelsActions.markUnreadChannel({
+          channelId: channelIdTravels,
+          message: messages[3],
+        })
+      )
+      .run()
+  })
+
+  test('do not mark unread channels if message is older than user', async () => {
+    const messagesides = channelIds
+    const messages: ChannelMessage[] = []
+
+    const community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>(
+      'Community'
+    )
+
+    const alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
+      id: community.id,
+      nickname: 'alice',
+      joinTimestamp: 9239423949,
     })
+
+    // Automatically create older messages
+    for (const id of messagesides) {
+      const message = (
+        await factory.build<typeof publicChannelsActions.test_message>('Message', {
+          identity: alice,
+          message: {
+            id: Math.random().toString(36).substr(2.9),
+            type: MessageType.Basic,
+            message: 'message',
+            createdAt: 123,
+            channelId: id,
+            signature: '',
+            pubKey: '',
+          },
+          verifyAutomatically: true,
+        })
+      ).payload.message
+      messages.push(message)
+    }
+
+    const channelId = channelIds.find(id => id.includes('enya'))
+    if (!channelId) throw new Error('no channel id')
+    // Set the newest message
+    const message = (
+      await factory.create<ReturnType<typeof publicChannelsActions.test_message>['payload']>('Message', {
+        identity: alice,
+        message: {
+          id: Math.random().toString(36).substr(2.9),
+          type: MessageType.Basic,
+          message: 'message',
+          createdAt: 99999999999999,
+          channelId,
+          signature: '',
+          pubKey: '',
+        },
+        verifyAutomatically: true,
+      })
+    ).message
+
+    messages.push(message)
+
+    const channelIdMemes = channelIds.find(id => id.includes('memes'))
+
+    const channelIdEnya = channelIds.find(id => id.includes('enya'))
+
+    const channelIdTravels = channelIds.find(id => id.includes('travels'))
+    if (!channelIdMemes || !channelIdEnya || !channelIdTravels) throw new Error('no channel id')
+    const reducer = combineReducers(reducers)
+    await expectSaga(
+      markUnreadChannelsSaga,
+      messagesActions.incomingMessages({
+        messages,
+      })
+    )
+      .withReducer(reducer)
+      .withState(store.getState())
+      .put(identityActions.verifyJoinTimestamp())
+      .not.put(
+        publicChannelsActions.markUnreadChannel({
+          channelId: channelIdMemes,
+          message: messages[1],
+        })
+      )
+      .put(
+        publicChannelsActions.markUnreadChannel({
+          channelId: channelIdEnya,
+          message,
+        })
+      )
+      .not.put(
+        publicChannelsActions.markUnreadChannel({
+          channelId: channelIdTravels,
+          message: messages[3],
+        })
+      )
+      .run()
   })
 })
