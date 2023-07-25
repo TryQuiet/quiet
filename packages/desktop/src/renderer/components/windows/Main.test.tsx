@@ -222,7 +222,7 @@ describe('Main', () => {
                         </div>
                       </div>
                       <div
-                        class="MuiGrid-root MuiGrid-container TorStatusroot css-1apgyq8-MuiGrid-root"
+                        class="MuiGrid-root MuiGrid-container TorStatusroot css-1xjxipu-MuiGrid-root"
                       >
                         <div
                           class="MuiGrid-root MuiGrid-container TorStatuswrapper css-1ki2u8z-MuiGrid-root"

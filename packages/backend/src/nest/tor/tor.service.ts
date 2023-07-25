@@ -67,10 +67,6 @@ export class Tor extends EventEmitter implements OnModuleInit {
     console.log('configOptions.torControl', this.configOptions.torControlPort)
 
     return await new Promise((resolve, reject) => {
-      if (this.process) {
-        // throw new Error('Tor already initialized')
-      }
-
       if (!fs.existsSync(this.quietDir)) {
         fs.mkdirSync(this.quietDir)
       }
@@ -108,7 +104,6 @@ export class Tor extends EventEmitter implements OnModuleInit {
 
         try {
           await this.spawnTor()
-          // ___________________________________________________________
           this.interval = setInterval(async () => {
             const log = await this.torControl.sendCommand('GETINFO status/bootstrap-phase')
             if (
@@ -118,13 +113,11 @@ export class Tor extends EventEmitter implements OnModuleInit {
               clearInterval(this.interval)
             }
           }, 1000)
-          // ___________________________________________________________
           resolve()
         } catch {
           this.logger('Killing tor')
           await this.process.kill()
           removeFilesFromDir(this.torDataDirectory)
-          // counter++
 
           // eslint-disable-next-line
           process.nextTick(tryToSpawnTor)
@@ -253,7 +246,6 @@ export class Tor extends EventEmitter implements OnModuleInit {
         this.logger(data.toString())
         const regexp = /Bootstrapped 0/
         if (regexp.test(data.toString())) {
-          // clearTimeout(timeout)
           this.spawnHiddenServices()
           resolve()
         }
