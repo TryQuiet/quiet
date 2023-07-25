@@ -3,6 +3,7 @@ import { spawn, exec, type ChildProcessWithoutNullStreams, execSync } from 'chil
 import { type SupportedPlatformDesktop } from '@quiet/types'
 import getPort from 'get-port'
 import path from 'path'
+import fs from 'fs'
 
 export interface BuildSetupInit {
   port?: number
@@ -29,6 +30,9 @@ export class BuildSetup {
     this.useDataDir = useDataDir
     this.dataDir = dataDir
     this.fileName = fileName
+    if (fileName) {
+      this.copyInstallerFile(fileName)
+    }
     if (this.useDataDir && !this.dataDir) {
       this.dataDir = `e2e_${(Math.random() * 10 ** 18).toString(36)}`
     }
@@ -37,6 +41,20 @@ export class BuildSetup {
   async initPorts() {
     this.port = await getPort()
     this.debugPort = await getPort()
+  }
+
+  public copyInstallerFile(copyName: string) {
+    if (process.platform === 'linux') {
+      const base = `${__dirname}/../Quiet/Quiet-1.2.0.AppImage`
+      const copy = `${__dirname}/../Quiet/${copyName}`
+      fs.copyFile(base, copy, err => {
+        if (err) {
+          console.log({ err })
+          throw err
+        }
+        console.log('complete')
+      })
+    }
   }
 
   private getBinaryLocation() {
