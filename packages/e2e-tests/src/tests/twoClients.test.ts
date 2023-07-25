@@ -190,6 +190,9 @@ describe('Two Clients', () => {
     it('Sent message is visible in a channel', async () => {
       console.log('new user - 8')
       const messages2 = await generalChannel2.getUserMessages(joiningUserUsername)
+      const messages1 = await generalChannel2.getUserMessages(ownerUsername)
+
+      console.log({ messages1, messages2 })
       const text2 = await messages2[0].getText()
       expect(text2).toEqual(joiningUserMessages[0])
     })

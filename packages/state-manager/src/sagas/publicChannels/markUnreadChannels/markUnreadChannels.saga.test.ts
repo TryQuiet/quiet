@@ -7,7 +7,7 @@ import { publicChannelsActions } from '../publicChannels.slice'
 import { type communitiesActions } from '../../communities/communities.slice'
 import { type FactoryGirl } from 'factory-girl'
 import { combineReducers } from 'redux'
-import { type identityActions } from '../../identity/identity.slice'
+import { identityActions } from '../../identity/identity.slice'
 import { DateTime } from 'luxon'
 import { markUnreadChannelsSaga } from './markUnreadChannels.saga'
 import { messagesActions } from '../../messages/messages.slice'
@@ -118,6 +118,7 @@ describe('markUnreadChannelsSaga', () => {
     )
       .withReducer(reducer)
       .withState(store.getState())
+      .put(identityActions.verifyJoinTimestamp())
       .put(
         publicChannelsActions.markUnreadChannel({
           channelId: channelIdMemes,
@@ -209,6 +210,7 @@ describe('markUnreadChannelsSaga', () => {
     )
       .withReducer(reducer)
       .withState(store.getState())
+      .put(identityActions.verifyJoinTimestamp())
       .not.put(
         publicChannelsActions.markUnreadChannel({
           channelId: channelIdMemes,
