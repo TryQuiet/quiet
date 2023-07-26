@@ -87,7 +87,6 @@ export class Tor extends EventEmitter implements OnModuleInit {
 
       setTimeout(async () => {
         const log = await this.torControl.sendCommand('GETINFO status/bootstrap-phase')
-        console.log({ log })
         if (log.messages[0] !== '250-status/bootstrap-phase=NOTICE BOOTSTRAP PROGRESS=100 TAG=done SUMMARY="Done"') {
           this.initializedHiddenServices = new Map()
           await this.init()
@@ -114,10 +113,13 @@ export class Tor extends EventEmitter implements OnModuleInit {
           // ___________________________________________________________
           const id = setInterval(async () => {
             const log = await this.torControl.sendCommand('GETINFO status/bootstrap-phase')
+            // KACPER
+            // this.serverIoProvider.io.emit(SocketActionTypes.TOR_BOOTSTRAP_PROCESS, data.toString())
+            this.logger('res!!!!!!!!!!!!!!!!!!!!!', log)
             if (
               log.messages[0] === '250-status/bootstrap-phase=NOTICE BOOTSTRAP PROGRESS=100 TAG=done SUMMARY="Done"'
             ) {
-              this.serverIoProvider.io.emit(SocketActionTypes.TOR_BOOTSTRAP_PROCESS)
+              console.log('!!!!!!!!!!11 end')
               clearInterval(id)
             }
           }, 1000)

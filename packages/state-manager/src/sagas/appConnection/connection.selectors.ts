@@ -15,7 +15,10 @@ export const lastConnectedTime = createSelector(connectionSlice, reducerState =>
 
 export const torBootstrapProcess = createSelector(connectionSlice, reducerState => reducerState.torBootstrapProcess)
 
-export const isTorInitialized = createSelector(connectionSlice, reducerState => reducerState.isTorInitialized)
+export const isTorInitialized = createSelector(
+  torBootstrapProcess,
+  torBootstrapProcessSelector => torBootstrapProcessSelector === TOR_BOOTSTRAP_COMPLETE
+)
 
 export const torConnectionProcess = createSelector(connectionSlice, reducerState => reducerState.torConnectionProcess)
 export const isConnectionManager = createSelector(connectionSlice, reducerState => reducerState.isConnectionManager)
