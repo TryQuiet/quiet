@@ -109,7 +109,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
             if (
               log.messages[0] === '250-status/bootstrap-phase=NOTICE BOOTSTRAP PROGRESS=100 TAG=done SUMMARY="Done"'
             ) {
-              this.serverIoProvider.io.emit(SocketActionTypes.TOR_BOOTSTRAP_PROCESS)
+              this.serverIoProvider.io.emit(SocketActionTypes.TOR_INITIALIZED)
               clearInterval(this.interval)
             }
           }, 1000)
