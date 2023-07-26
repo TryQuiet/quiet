@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useModal } from '../../containers/hooks'
 import { ModalName } from '../../sagas/modals/modals.types'
@@ -7,7 +7,7 @@ import { communities, publicChannels, users, identity, connection, network, erro
 import { modalsActions } from '../../sagas/modals/modals.slice'
 import { shell } from 'electron'
 import JoiningPanelComponent from './JoiningPanelComponent'
-import StartingPanelComponent from './StartingPanelComponent'
+// import StartingPanelComponent from './StartingPanelComponent'
 import { LoadingPanelType, ErrorCodes } from '@quiet/types'
 
 const LoadingPanel = () => {
