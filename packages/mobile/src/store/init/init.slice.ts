@@ -13,6 +13,7 @@ export class InitState {
   public lastKnownDataPort: number = 0
   public initDescription: string = 'Starting Quiet'
   public initChecks: EntityState<InitCheck> = initChecksAdapter.setAll(initChecksAdapter.getInitialState(), [])
+  public ready: boolean = false
 }
 
 export interface InitCheckPayload {
@@ -72,6 +73,9 @@ export const initSlice = createSlice({
     },
     deepLink: (state, _action: PayloadAction<string>) => {
       state.deepLinking = true
+    },
+    setReady: (state, action: PayloadAction<boolean>) => {
+      state.ready = action.payload
     },
   },
 })

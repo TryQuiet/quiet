@@ -26,6 +26,7 @@ const persistedReducer = persistReducer(
       StateManagerStoreKeys.Identity,
       StateManagerStoreKeys.Communities,
       StateManagerStoreKeys.PublicChannels,
+      StateManagerStoreKeys.Users,
       StateManagerStoreKeys.Messages,
       StateManagerStoreKeys.Files,
       StateManagerStoreKeys.Connection,

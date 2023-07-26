@@ -13,6 +13,7 @@ import { formatMessageDisplayDate } from '../../utils/functions/formatMessageDis
 import { useContextMenu } from '../../hooks/useContextMenu'
 import { MenuName } from '../../const/MenuNames.enum'
 import { getChannelNameFormChannelId } from '@quiet/common'
+import { initSelectors } from '../../store/init/init.selectors'
 
 export const ChannelListScreen: FC = () => {
   const dispatch = useDispatch()
@@ -53,7 +54,14 @@ export const ChannelListScreen: FC = () => {
     return tile
   })
 
-  const communityContextMenu = useContextMenu(MenuName.Community)
+  const ready = useSelector(initSelectors.ready)
+
+  let communityContextMenu = useContextMenu(MenuName.Community)
+
+  if (!ready) {
+    // @ts-expect-error
+    communityContextMenu = null
+  }
 
   return <ChannelListComponent community={community} tiles={tiles} communityContextMenu={communityContextMenu} />
 }

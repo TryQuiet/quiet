@@ -28,6 +28,7 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
   setImagePreview,
   openImagePreview,
   openUrl,
+  ready = true,
 }) => {
   const [didKeyboardShow, setKeyboardShow] = useState(false)
   const [messageInput, setMessageInput] = useState<string | undefined>()
@@ -104,7 +105,7 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
         }}
       >
         {messages.count === 0 ? (
-          <Spinner description='Replicating messages' />
+          <Spinner description='Loading messages' />
         ) : (
           <FlatList
             // There's a performance issue with inverted prop on FlatList, so we're double rotating the elements as a workaround
@@ -139,6 +140,7 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
               onChangeText={onInputTextChange}
               placeholder={`Message #${channel?.name}`}
               multiline={true}
+              disabled={!ready}
             />
           </View>
           {didKeyboardShow && <MessageSendButton onPress={onPress} disabled={isInputEmpty} />}
