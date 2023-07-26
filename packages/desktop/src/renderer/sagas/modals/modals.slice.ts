@@ -32,7 +32,7 @@ export class ModalsInitialState {
   [ModalName.leaveCommunity] = { open: false, args: {} };
   [ModalName.searchChannelModal] = { open: false, args: {} };
   [ModalName.warningModal] = { open: false, args: {} };
-  [ModalName.loadingPanel] = { open: true, args: {} }; // Loading modal is open by default and closes on websocket connection
+  [ModalName.loadingPanel] = { open: false, args: {} }; // Loading modal is open by default and closes on websocket connection
   [ModalName.channelCreationModal] = { open: false, args: {} }
 }
 
