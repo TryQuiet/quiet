@@ -24,6 +24,8 @@ const JoiningPanelArgs: JoiningPanelComponentProps = {
 const StartingPanelArgs: StartingPanelComponentProps = {
   open: true,
   handleClose: function (): void {},
+  message: 'Starting Quiet',
+  torBootstrapInfo: 'Bootstrapped 100% (done)',
 }
 
 JoiningPanel.args = JoiningPanelArgs
