@@ -21,8 +21,8 @@ const classes = {
 const StyledGrid = styled(Grid)(({ theme, width }) => ({
   [`&.${classes.root}`]: {
     textAlign: 'center',
+    marginTop: '24px',
     width: '100%',
-    height: '100%',
   },
   [`& .${classes.contentWrapper}`]: {
     maxWidth: '320px',
@@ -64,12 +64,21 @@ const StyledGrid = styled(Grid)(({ theme, width }) => ({
 export interface StartingPanelComponentProps {
   open: boolean
   handleClose: () => void
+  message: string
+  torBootstrapInfo: string
 }
 
-const StartingPanelComponent: React.FC<StartingPanelComponentProps> = ({ open, handleClose }) => {
+const StartingPanelComponent: React.FC<StartingPanelComponentProps> = ({
+  open,
+  handleClose,
+  message,
+  torBootstrapInfo,
+}) => {
+  const progressNumber = Number(torBootstrapInfo.replace(/\D/g, ''))
+
   return (
     <Modal open={open} handleClose={handleClose} isCloseDisabled={true}>
-      <StyledGrid container justifyContent='center' alignItems='center' className={classes.root}>
+      <StyledGrid width={progressNumber * 3} container justifyContent='center' className={classes.root}>
         <Grid
           container
           alignItems='center'
@@ -79,14 +88,14 @@ const StartingPanelComponent: React.FC<StartingPanelComponentProps> = ({ open, h
         >
           <img className={classes.image} src={QuietLogo} />
 
-          {/* <Grid container justifyContent='flex-start' alignItems='center' className={classes.progressBar}>
+          <Grid container justifyContent='flex-start' alignItems='center' className={classes.progressBar}>
             <div className={classes.progress}></div>
           </Grid>
 
           <Typography variant='body2'>{message}</Typography>
           <Typography variant='body2' className={classes.text}>
             {`Tor ${torBootstrapInfo}`}
-          </Typography> */}
+          </Typography>
         </Grid>
       </StyledGrid>
     </Modal>

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useModal } from '../../containers/hooks'
 import { ModalName } from '../../sagas/modals/modals.types'
@@ -71,7 +71,9 @@ const LoadingPanel = () => {
   }, [])
 
   if (message === LoadingPanelType.StartingApplication) {
-    return <StartingPanelComponent {...loadingPanelModal} />
+    return (
+      <StartingPanelComponent {...loadingPanelModal} message={message} torBootstrapInfo={torBootstrapProcessSelector} />
+    )
   } else {
     return (
       <JoiningPanelComponent

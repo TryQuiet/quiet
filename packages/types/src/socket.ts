@@ -62,7 +62,7 @@ export enum SocketActionTypes {
   SUBSCRIBE_FOR_ALL_CONVERSATIONS = 'subscribeToAllConversations',
   SUBSCRIBE_FOR_DIRECT_MESSAGE_THREAD = 'subscribeToDirectMessageThread',
   //  T
-  TOR_INITIALIZED = 'torInitialized',
+  TOR_BOOTSTRAP_PROCESS = 'torBootstrapProcess',
   CONNECTION_PROCESS_INFO = 'torConnectionProcess',
   // U
   UPDATE_MESSAGE_MEDIA = 'updateMessageMedia',
