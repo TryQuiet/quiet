@@ -22,8 +22,8 @@ export class Tor extends EventEmitter implements OnModuleInit {
   extraTorProcessParams: TorParams
   controlPort: number | undefined
   private readonly logger = Logger(Tor.name)
-  private hiddenServices: Map<string, any> = new Map()
-  private initializedHiddenServices: Map<string, any> = new Map()
+  private hiddenServices: Map<string, string> = new Map()
+  private initializedHiddenServices: Map<string, string> = new Map()
   constructor(
     @Inject(CONFIG_OPTIONS) public configOptions: ConfigOptions,
     @Inject(QUIET_DIR) public readonly quietDir: string,
@@ -39,10 +39,8 @@ export class Tor extends EventEmitter implements OnModuleInit {
   }
 
   async onModuleInit() {
-    this.socksPort = await getPort()
     if (!this.torParamsProvider.torPath) return
     await this.init()
-
     console.log('----------------------------------------------------------tor initialized')
   }
 
@@ -60,15 +58,15 @@ export class Tor extends EventEmitter implements OnModuleInit {
   get torProcessParams(): string[] {
     return Array.from(Object.entries(this.extraTorProcessParams)).flat()
   }
-  public async init({ timeout = 3600_000 } = {}): Promise<void> {
+  public async init({ repeat = 6, timeout = 3600_000 } = {}): Promise<void> {
     this.logger('Initializing tor...')
     console.log('this.controlPort', this.controlPort)
     console.log('this.torControl', this.torControl.torControlParams)
     console.log('configOptions.torControl', this.configOptions.torControlPort)
-
+    this.socksPort = await getPort()
     return await new Promise((resolve, reject) => {
       if (this.process) {
-        // throw new Error('Tor already initialized')
+        throw new Error('Tor already initialized')
       }
 
       if (!fs.existsSync(this.quietDir)) {
@@ -84,7 +82,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
         oldTorPid = Number(file.toString())
         this.logger(`${this.torPidPath} exists. Old tor pid: ${oldTorPid}`)
       }
-
+      let counter = 0
       console.log(2)
 
       setTimeout(async () => {
@@ -97,11 +95,11 @@ export class Tor extends EventEmitter implements OnModuleInit {
       }, 120000)
 
       const tryToSpawnTor = async () => {
-        // this.logger(`Trying to spawn tor for the ${counter} time...`)
-        // if (counter > repeat) {
-        //   reject(new Error(`Failed to spawn tor ${counter} times`))
-        //   return
-        // }
+        this.logger(`Trying to spawn tor for the ${counter} time...`)
+        if (counter > repeat) {
+          reject(new Error(`Failed to spawn tor ${counter} times`))
+          return
+        }
 
         this.clearOldTorProcess(oldTorPid)
 
@@ -129,7 +127,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
           this.logger('Killing tor')
           await this.process.kill()
           removeFilesFromDir(this.torDataDirectory)
-          // counter++
+          counter++
 
           // eslint-disable-next-line
           process.nextTick(tryToSpawnTor)
@@ -139,28 +137,11 @@ export class Tor extends EventEmitter implements OnModuleInit {
     })
   }
 
-  public resetHiddenServices() {
-    this.hiddenServices = new Map()
+  private async checkTorBootstrap() {
+    const res = await this.torControl.sendCommand('GETINFO status/bootstrap-phase')
+    console.log('!!!!!!!!!!!!!!!!!!!!!1', res)
+    this.logger('!!!!!!!!!!!!!!!!!!!!!1', res)
   }
-  // private async getLogs() {
-  //   try {
-  //     const res = await this.torControl.sendCommand('GETINFO status/bootstrap-phase')
-  //     this.logger('res!!!!!!!!!!!!!!!!!!!!!', res)
-  //   } catch (e) {
-  //     this.logger.error(e)
-  //   }
-  // }
-  // private checkTorBootstrap() {
-  //   setInterval(this.getLogs, 500)
-  //   // // new Promise((resolve, reject) => {
-  //   // const interval = setInterval(() => {
-  //   //   const res = this.getStatus()
-  //   //   console.log({ res })
-  //   // }, 200)
-
-  //   // setTimeout(() => clearInterval(interval), 10000)
-  //   // // })
-  // }
 
   private torProcessNameCommand(oldTorPid: string): string {
     const byPlatform = {
@@ -272,31 +253,24 @@ export class Tor extends EventEmitter implements OnModuleInit {
         this.torParamsProvider.options
       )
 
-      // const timeout = setTimeout(() => {
-      //   reject(new Error(`Timeout of ${timeoutMs / 1000} while waiting for tor to bootstrap`))
-      // }, timeoutMs)
+      const timeout = setTimeout(() => {
+        reject(new Error(`Timeout of ${timeoutMs / 1000} while waiting for tor to bootstrap`))
+      }, timeoutMs)
 
-      // this.process.stdout.on('data', (data: any) => {
-      //   this.logger('Tor logs for state manager:', data.toString())
-      //   this.serverIoProvider.io.emit(SocketActionTypes.TOR_BOOTSTRAP_PROCESS, data.toString())
+      // this.socketService.on(SocketActionTypes.CONNECTION_PROCESS_INFO, (data) => {
+      //   this.serverIoProvider.io.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, data)
       // })
+
       this.process.stdout.on('data', (data: any) => {
         this.logger(data.toString())
+        this.serverIoProvider.io.emit(SocketActionTypes.TOR_BOOTSTRAP_PROCESS, data.toString())
         const regexp = /Bootstrapped 0/
         if (regexp.test(data.toString())) {
-          // clearTimeout(timeout)
-          this.spawnHiddenServices()
+          clearTimeout(timeout)
           resolve()
         }
       })
     })
-  }
-
-  public async spawnHiddenServices() {
-    for (const el of this.hiddenServices.values()) {
-      console.log({ el })
-      await this.spawnHiddenService(el)
-    }
   }
 
   public async spawnHiddenService({
@@ -308,16 +282,11 @@ export class Tor extends EventEmitter implements OnModuleInit {
     privKey: string
     virtPort?: number
   }): Promise<string> {
-    if (this.initializedHiddenServices.get(privKey)) {
-      return this.initializedHiddenServices.get(privKey).onionAddres
-    }
     const status = await this.torControl.sendCommand(
       `ADD_ONION ${privKey} Flags=Detach Port=${virtPort},127.0.0.1:${targetPort}`
     )
     const onionAddress = status.messages[0].replace('250-ServiceID=', '')
-
-    this.hiddenServices.set(privKey, { targetPort, privKey, virtPort, onionAddress })
-    this.initializedHiddenServices.set(privKey, { targetPort, privKey, virtPort, onionAddress })
+    this.hiddenServices.set(onionAddress, onionAddress)
     return `${onionAddress}.onion`
   }
 

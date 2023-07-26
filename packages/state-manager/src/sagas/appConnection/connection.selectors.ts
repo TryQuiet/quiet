@@ -6,7 +6,7 @@ import { communitiesSelectors } from '../communities/communities.selectors'
 import { peersStatsAdapter } from './connection.adapter'
 import { connectedPeers } from '../network/network.selectors'
 import { sortPeers } from '../../utils/functions/sortPeers/sortPeers'
-import { TOR_BOOTSTRAP_COMPLETE, type NetworkStats } from './connection.types'
+import { type NetworkStats } from './connection.types'
 import { type User } from '../users/users.types'
 
 const connectionSlice: CreatedSelectors[StoreKeys.Connection] = (state: StoreState) => state[StoreKeys.Connection]
@@ -60,5 +60,4 @@ export const connectionSelectors = {
   torBootstrapProcess,
   torConnectionProcess,
   isConnectionManager,
-  isTorInitialized,
 }

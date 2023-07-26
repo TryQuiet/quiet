@@ -209,7 +209,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   }
 
   public async leaveCommunity() {
-    this.tor.resetHiddenServices()
     this.serverIoProvider.io.close()
     await this.localDbService.purge()
     await this.closeAllServices({ saveTor: true })
