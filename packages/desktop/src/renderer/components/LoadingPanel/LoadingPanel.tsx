@@ -71,7 +71,9 @@ const LoadingPanel = () => {
   }, [])
 
   if (message === LoadingPanelType.StartingApplication) {
-    return <StartingPanelComponent {...loadingPanelModal} />
+    return (
+      <StartingPanelComponent {...loadingPanelModal} message={message} torBootstrapInfo={torBootstrapProcessSelector} />
+    )
   } else {
     return (
       <JoiningPanelComponent
