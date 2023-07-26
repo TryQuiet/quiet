@@ -13,7 +13,6 @@ import { TorControl } from './tor-control.service'
 import { GetInfoTorSignal, TorParams, TorParamsProvider, TorPasswordProvider } from './tor.types'
 
 import Logger from '../common/logger'
-import { sleep } from '../common/sleep'
 
 export class Tor extends EventEmitter implements OnModuleInit {
   socksPort: number
@@ -136,7 +135,6 @@ export class Tor extends EventEmitter implements OnModuleInit {
           process.nextTick(tryToSpawnTor)
         }
       }
-
       tryToSpawnTor()
     })
   }
