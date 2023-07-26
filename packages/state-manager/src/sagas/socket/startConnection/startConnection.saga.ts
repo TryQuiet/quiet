@@ -90,9 +90,9 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof connectionActions.setTorInitialized>
   >(emit => {
     // UPDATE FOR APP
-    socket.on(SocketActionTypes.TOR_INITIALIZED, () => {
-      emit(connectionActions.setTorInitialized())
-    })
+    // socket.on(SocketActionTypes.TOR_INITIALIZED, () => {
+    //   emit(connectionActions.setTorInitialized())
+    // })
     socket.on(SocketActionTypes.CONNECTION_PROCESS_INFO, (payload: string) => {
       emit(connectionActions.setTorConnectionProcess(payload))
     })

@@ -33,7 +33,6 @@ export interface EmitEvents {
   [SocketActionTypes.ASK_FOR_MESSAGES]: EmitEvent<ReturnType<typeof messagesActions.askForMessages>['payload']>
   [SocketActionTypes.CREATE_CHANNEL]: EmitEvent<ReturnType<typeof publicChannelsActions.createChannel>['payload']>
   [SocketActionTypes.DELETE_CHANNEL]: EmitEvent<ReturnType<typeof publicChannelsActions.deleteChannel>['payload']>
-
   [SocketActionTypes.DELETE_FILES_FROM_CHANNEL]: EmitEvent<DeleteFilesFromChannelSocketPayload>
   [SocketActionTypes.CLOSE]: () => void
   [SocketActionTypes.LEAVE_COMMUNITY]: () => void
