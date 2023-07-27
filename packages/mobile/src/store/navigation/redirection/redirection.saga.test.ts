@@ -44,12 +44,23 @@ describe('redirectionSaga', () => {
       .run()
   })
 
-  test('does nothing if user already sees a splash screen', async () => {
+  test('does nothing if user sees a splash screen and is not a member of community', async () => {
     const reducer = combineReducers(reducers)
     await expectSaga(redirectionSaga)
       .withReducer(reducer)
       .withState(store.getState())
       .not.put(navigationActions.replaceScreen({ screen: ScreenNames.SplashScreen }))
+      .run()
+  })
+
+  test('redirect if user sees a splash screen being a member of community', async () => {
+    await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity')
+
+    const reducer = combineReducers(reducers)
+    await expectSaga(redirectionSaga)
+      .withReducer(reducer)
+      .withState(store.getState())
+      .put(navigationActions.replaceScreen({ screen: ScreenNames.ChannelListScreen }))
       .run()
   })
 

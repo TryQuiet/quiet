@@ -24,10 +24,14 @@ export function* redirectionSaga(): Generator {
     return
   }
 
+  const communityMembership = yield* select(identity.selectors.communityMembership)
+
   const currentScreen = yield* select(navigationSelectors.currentScreen)
 
   // Do not redirect to the splash screen if user is already there (continue after websocket connection (onConnectedSaga))
-  if (currentScreen === ScreenNames.SplashScreen) return
+  if (!communityMembership && currentScreen === ScreenNames.SplashScreen) {
+    return
+  }
 
   const currentIdentity = yield* select(identity.selectors.currentIdentity)
 
