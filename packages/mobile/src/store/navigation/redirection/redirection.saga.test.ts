@@ -1,18 +1,18 @@
 import { combineReducers } from 'redux'
 import { expectSaga } from 'redux-saga-test-plan'
-import { Store } from '../../store.types'
-import { StoreKeys } from '../../store.keys'
 import { FactoryGirl } from 'factory-girl'
+import { getFactory, identity } from '@quiet/state-manager'
 import { setupCrypto } from '@quiet/identity'
-import { navigationActions, navigationReducer, NavigationState } from '../navigation.slice'
+
+import { navigationActions } from '../navigation.slice'
 import { ScreenNames } from '../../../const/ScreenNames.enum'
 
+import { Store } from '../../store.types'
 import { prepareStore } from '../../../tests/utils/prepareStore'
 import { reducers } from '../../root.reducer'
 
 import { redirectionSaga } from './redirection.saga'
-import { getFactory, identity } from '@quiet/state-manager'
-import { initActions, initReducer, InitState } from '../../init/init.slice'
+import { initActions } from '../../init/init.slice'
 
 describe('redirectionSaga', () => {
   let store: Store
@@ -44,12 +44,17 @@ describe('redirectionSaga', () => {
       .run()
   })
 
-  test('does nothing if user sees a splash screen and is not a member of community', async () => {
+  test("holds until websocket connects if user doesn't belong to a community", async () => {
     const reducer = combineReducers(reducers)
+
     await expectSaga(redirectionSaga)
       .withReducer(reducer)
       .withState(store.getState())
-      .not.put(navigationActions.replaceScreen({ screen: ScreenNames.SplashScreen }))
+      .not.put(
+        navigationActions.replaceScreen({
+          screen: ScreenNames.JoinCommunityScreen,
+        })
+      )
       .run()
   })
 
@@ -61,42 +66,6 @@ describe('redirectionSaga', () => {
       .withReducer(reducer)
       .withState(store.getState())
       .put(navigationActions.replaceScreen({ screen: ScreenNames.ChannelListScreen }))
-      .run()
-  })
-
-  test('opens channel list if user belongs to a community', async () => {
-    store.dispatch(
-      navigationActions.navigation({
-        screen: ScreenNames.ChannelScreen,
-      })
-    )
-
-    await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity')
-
-    const reducer = combineReducers(reducers)
-    await expectSaga(redirectionSaga)
-      .withReducer(reducer)
-      .withState(store.getState())
-      .put(navigationActions.replaceScreen({ screen: ScreenNames.ChannelListScreen }))
-      .run()
-  })
-
-  test('restores previously visited registration step', async () => {
-    store.dispatch(
-      navigationActions.navigation({
-        screen: ScreenNames.UsernameRegistrationScreen,
-      })
-    )
-
-    await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
-      userCertificate: null,
-    })
-
-    const reducer = combineReducers(reducers)
-    await expectSaga(redirectionSaga)
-      .withReducer(reducer)
-      .withState(store.getState())
-      .put(navigationActions.replaceScreen({ screen: ScreenNames.UsernameRegistrationScreen }))
       .run()
   })
 })
