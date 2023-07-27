@@ -14,7 +14,7 @@ import url from 'url'
 
 import type { Server } from 'http'
 import https from 'https'
-
+import * as http from 'http'
 import { EventEmitter } from 'events'
 
 import pDefer from 'p-defer'
@@ -126,6 +126,8 @@ export class WebSockets extends EventEmitter {
     }
 
     const myUri = `${toUri(ma)}/?remoteAddress=${encodeURIComponent(this.localAddress)}`
+
+    console.log({ myUri, options })
     const rawSocket = connect(myUri, Object.assign({ binary: true }, options))
 
     if (rawSocket.socket.on) {
@@ -184,13 +186,14 @@ export class WebSockets extends EventEmitter {
       server.__connections?.push(maConn)
     }
 
-    const serverHttps = https.createServer({
-      enableTrace: false,
+    const serverHttp = http.createServer({
+      // enableTrace: false,
     })
 
     const optionsServ = {
-      server: serverHttps,
+      server: serverHttp,
       verifyClient: function (_info: any, done: (res: boolean) => void) {
+        console.log({ _info })
         done(true)
       },
     }
@@ -277,7 +280,7 @@ export class WebSockets extends EventEmitter {
       // we need to capture from the passed multiaddr
       if (listeningMultiaddr.toString().includes('ip4')) {
         let m = listeningMultiaddr.decapsulate('tcp')
-        m = m.encapsulate('/tcp/443/wss')
+        m = m.encapsulate('/tcp/443/ws')
         if (ipfsId) {
           m = m.encapsulate('/p2p/' + ipfsId)
         }
