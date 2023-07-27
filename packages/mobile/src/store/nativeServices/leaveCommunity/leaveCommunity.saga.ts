@@ -4,6 +4,8 @@ import { persistor } from '../../store'
 import { nativeServicesActions } from '../nativeServices.slice'
 import { initActions } from '../../init/init.slice'
 import { nativeServicesSelectors } from '../nativeServices.selectors'
+import { navigationActions } from '../../navigation/navigation.slice'
+import { ScreenNames } from '../../../../src/const/ScreenNames.enum'
 
 export function* leaveCommunitySaga(): Generator {
   // Restart backend
@@ -28,4 +30,6 @@ export function* clearReduxStore(): Generator {
 
   // Resume persistor
   yield* call(persistor.persist)
+
+  yield* put(navigationActions.replaceScreen({ screen: ScreenNames.JoinCommunityScreen }))
 }
