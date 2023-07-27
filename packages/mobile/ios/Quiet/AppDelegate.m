@@ -96,15 +96,12 @@ static NSString *const platform = @"mobile";
 }
 
 - (void) initWebsocketConnection {
-  FindFreePort *findFreePort = [FindFreePort new];
-  self.dataPort = [findFreePort getFirstStartingFromPort:11000];
-
   /*
    * We have to wait for RCTBridge listeners to be initialized, yet we must be sure to deliver the event containing data port information.
    * Delay used below can't cause any race condition as websocket won't connect until data server starts listening anyway.
    */
-  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-    NSTimeInterval delayInSeconds = 0;
+  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
+    NSTimeInterval delayInSeconds = 5;
     dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
     dispatch_after(popTime, dispatch_get_main_queue(), ^(void) {
       [[self.bridge moduleForName:@"CommunicationModule"] sendDataPortWithPort:self.dataPort];
@@ -114,36 +111,33 @@ static NSString *const platform = @"mobile";
 
 - (void) spinupBackend:(BOOL)init {
   
-  // (1/7) Find ports to use in tor configuration
+  // (1/6) Find ports to use in tor and backend configuration
   
   FindFreePort *findFreePort = [FindFreePort new];
     
+  self.dataPort             = [findFreePort getFirstStartingFromPort:11000];
+  
   uint16_t socksPort        = [findFreePort getFirstStartingFromPort:12000];
   uint16_t controlPort      = [findFreePort getFirstStartingFromPort:14000];
   uint16_t httpTunnelPort   = [findFreePort getFirstStartingFromPort:16000];
     
   
-  // (2/7) Spawn tor with proper configuration
+  // (2/6) Spawn tor with proper configuration
   
-  self.tor = [TorHandler new];
+  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    self.tor = [TorHandler new];
     
-  self.torConfiguration = [self.tor getTorConfiguration:socksPort controlPort:controlPort httpTunnelPort:httpTunnelPort];
-  
-  [self.tor removeOldAuthCookieWithConfiguration:self.torConfiguration];
-  
-  [self.tor spawnWithConfiguration:self.torConfiguration];
-  
-  
-  // (3/7) Wait for tor to initialize
-  
-  // Give tor time to spin up and update it's authorization cookie
-  NSTimeInterval delayInSeconds = 7.0;
-  dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
-  dispatch_after(popTime, dispatch_get_main_queue(), ^(void) {
-      
+    self.torConfiguration = [self.tor getTorConfiguration:socksPort controlPort:controlPort httpTunnelPort:httpTunnelPort];
     
-    // (4/7) Connect to tor control port natively (so we can use it to shutdown tor when app goes idle)
+    [self.tor removeOldAuthCookieWithConfiguration:self.torConfiguration];
     
+    [self.tor spawnWithConfiguration:self.torConfiguration];
+  });
+  
+  
+  // (4/6) Connect to tor control port natively (so we can use it to shutdown tor when app goes idle)
+  
+  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
     NSData *authCookieData = [self getAuthCookieData];
       
     self.torController = [[TORController alloc] initWithSocketHost:@"127.0.0.1" port:controlPort];
@@ -158,22 +152,26 @@ static NSString *const platform = @"mobile";
       NSLog(@"Tor control port auth success %@", res);
       NSLog(@"Tor control port auth error %@", error);
     }];
+  });
       
     
-    // (5/7) Update data port information and broadcast it to frontend
+  // (5/6) Update data port information and broadcast it to frontend
+  
+  [self initWebsocketConnection];
     
-    [self initWebsocketConnection];
     
-    
-    // (7/7) Launch backend or reviwe services
+  // (6/6) Launch backend or reviwe services
+  
+  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
     
     NSString *authCookie = [self getAuthCookie];
     
     if (init) {
       [self launchBackend:controlPort :httpTunnelPort :authCookie];
     } else {
-      [self reviweServices:controlPort :httpTunnelPort :authCookie];
+      [self reviweServices:controlPort :httpTunnelPort : authCookie];
     }
+    
   });
 }
 
@@ -198,10 +196,8 @@ static NSString *const platform = @"mobile";
 }
 
 - (void) launchBackend:(uint16_t)controlPort:(uint16_t)httpTunnelPort:(NSString *)authCookie {
-  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-    self.nodeJsMobile = [RNNodeJsMobile new];
-    [self.nodeJsMobile callStartNodeProject:[NSString stringWithFormat:@"bundle.cjs --dataPort %hu --dataPath %@ --controlPort %hu --httpTunnelPort %hu --authCookie %@ --platform %@", self.dataPort, self.dataPath, controlPort, httpTunnelPort, authCookie, platform]];
-  });
+  self.nodeJsMobile = [RNNodeJsMobile new];
+  [self.nodeJsMobile callStartNodeProject:[NSString stringWithFormat:@"bundle.cjs --dataPort %hu --dataPath %@ --controlPort %hu --httpTunnelPort %hu --authCookie %@ --platform %@", self.dataPort, self.dataPath, controlPort, httpTunnelPort, authCookie, platform]];
 }
 
 - (void) reviweServices:(uint16_t)controlPort:(uint16_t)httpTunnelPort:(NSString *)authCookie {
