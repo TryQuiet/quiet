@@ -47,6 +47,10 @@ import { DirectMessagesRepo, IMessageThread, PublicChannelsRepo } from '../commo
 import { removeFiles, removeDirs, createPaths, getUsersAddresses } from '../common/utils'
 import { StorageEvents } from './storage.types'
 
+interface DBOptions {
+  replicate: boolean
+}
+
 @Injectable()
 export class StorageService extends EventEmitter {
   public channels: KeyValueStore<PublicChannel>
@@ -113,6 +117,50 @@ export class StorageService extends EventEmitter {
 
     this.attachFileManagerEvents()
     await this.initDatabases()
+
+    this.startIpfs()
+  }
+
+  private startIpfs() {
+    this.ipfs.start().then(async () => {
+      try {
+        await this.startReplicate()
+      } catch (e) {
+        console.log(`Couldn't start store replication`)
+      }
+    }
+    ).catch(e => {
+      console.log(`Couldn't start ipfs node`, e.message)
+      throw new Error(e.message)
+    })
+  }
+
+  private async startReplicate() {
+
+    const dbs = []
+
+    if (this.channels?.address) {
+      dbs.push(this.channels.address)
+    }
+    if (this.certificates?.address) {
+      dbs.push(this.certificates.address)
+    }
+
+    const channels = this.publicChannelsRepos.values()
+
+    for (let channel of channels) {
+      dbs.push(channel.db.address)
+    }
+
+    const addresses = dbs.map(db => path.join('/', 'orbitdb', '/', db.root, '/', db.path))
+    await this.subscribeToPubSub(addresses)
+  }
+
+  private async subscribeToPubSub(addr: string[]) {
+    for (let a of addr) {
+      // @ts-ignore
+      await this.orbitDb._pubsub.subscribe(a, this.orbitDb._onMessage.bind(this.orbitDb), this.orbitDb._onPeerConnected.bind(this.orbitDb))
+    }
   }
 
   private async createOrbitDb(peerId: PeerId) {
@@ -312,7 +360,7 @@ export class StorageService extends EventEmitter {
       })
 
       channels.forEach(async (channel: PublicChannel) => {
-        await this.subscribeToChannel(channel)
+        await this.subscribeToChannel(channel, { replicate: true })
       })
     })
 
@@ -392,7 +440,7 @@ export class StorageService extends EventEmitter {
     return db.iterator({ limit: -1 }).collect()
   }
 
-  public async subscribeToChannel(channelData: PublicChannel): Promise<void> {
+  public async subscribeToChannel(channelData: PublicChannel, options = { replicate: false }): Promise<void> {
     let db: EventStore<ChannelMessage>
     // @ts-ignore
     if (channelData.address) {
@@ -404,7 +452,7 @@ export class StorageService extends EventEmitter {
       db = repo.db
     } else {
       try {
-        db = await this.createChannel(channelData)
+        db = await this.createChannel(channelData, options)
       } catch (e) {
         this.logger.error(`Can't subscribe to channel ${channelData.id}`, e.message)
         return
@@ -543,7 +591,7 @@ export class StorageService extends EventEmitter {
     this.emit(StorageEvents.CHECK_FOR_MISSING_FILES, community.id)
   }
 
-  private async createChannel(data: PublicChannel): Promise<EventStore<ChannelMessage>> {
+  private async createChannel(data: PublicChannel, options: DBOptions): Promise<EventStore<ChannelMessage>> {
     console.log('creating channel')
     if (!validate.isChannel(data)) {
       this.logger.error('STORAGE: Invalid channel format')
@@ -555,7 +603,7 @@ export class StorageService extends EventEmitter {
     const channelId = data.id || data.address
 
     const db: EventStore<ChannelMessage> = await this.orbitDb.log<ChannelMessage>(`channels.${channelId}`, {
-      replicate: false,
+      replicate: options.replicate,
       accessController: {
         type: 'messagesaccess',
         write: ['*'],
