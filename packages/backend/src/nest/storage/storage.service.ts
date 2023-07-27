@@ -122,6 +122,7 @@ export class StorageService extends EventEmitter {
     AccessControllers.addAccessController({ AccessController: channelsAccessController })
     // @ts-ignore
     const orbitDb = await OrbitDB.createInstance(this.ipfs, {
+      start: false,
       // @ts-ignore
       id: peerId.toString(),
       directory: this.orbitDbDir,
@@ -137,12 +138,12 @@ export class StorageService extends EventEmitter {
     await this.createDbForChannels()
     this.logger('2/6')
     await this.createDbForCertificates()
-    this.logger('3/6')
-    await this.createDbForMessageThreads()
+    // this.logger('3/6')
+    // await this.createDbForMessageThreads()
     this.logger('4/6')
     await this.initAllChannels()
-    this.logger('5/6')
-    await this.initAllConversations()
+    // this.logger('5/6')
+    // await this.initAllConversations()
     this.logger('6/6')
     this.logger('Initialized DBs')
     this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.INITIALIZED_DBS)
@@ -213,6 +214,7 @@ export class StorageService extends EventEmitter {
   public async createDbForCertificates() {
     this.logger('createDbForCertificates init')
     this.certificates = await this.orbitDb.log<string>('certificates', {
+      replicate: false,
       accessController: {
         write: ['*'],
       },
@@ -276,6 +278,7 @@ export class StorageService extends EventEmitter {
   private async createDbForChannels() {
     this.logger('createDbForChannels init')
     this.channels = await this.orbitDb.keyvalue<PublicChannel>('public-channels', {
+      replicate: false,
       accessController: {
         // type: 'channelsaccess',
         write: ['*'],
@@ -552,6 +555,7 @@ export class StorageService extends EventEmitter {
     const channelId = data.id || data.address
 
     const db: EventStore<ChannelMessage> = await this.orbitDb.log<ChannelMessage>(`channels.${channelId}`, {
+      replicate: false,
       accessController: {
         type: 'messagesaccess',
         write: ['*'],
