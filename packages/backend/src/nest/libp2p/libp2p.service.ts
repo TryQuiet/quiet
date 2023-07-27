@@ -77,9 +77,6 @@ export class Libp2pService extends EventEmitter {
             filter: all,
             websocket: {
               agent: params.agent,
-              cert: params.cert,
-              key: params.key,
-              ca: params.ca,
             },
             localAddress: params.localAddress,
             targetPort: params.targetPort,

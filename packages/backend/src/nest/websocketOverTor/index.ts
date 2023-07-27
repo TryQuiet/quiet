@@ -88,7 +88,6 @@ export class WebSockets extends EventEmitter {
       socket = await this._connect(ma, {
         websocket: {
           ...this._websocketOpts,
-          ...this.certData,
         },
       })
     } catch (e) {
@@ -110,24 +109,6 @@ export class WebSockets extends EventEmitter {
     } catch (e) {
       log.error('error upgrading outbound connection %s. Details: %s', maConn.remoteAddr, e.message)
       throw e
-    }
-  }
-
-  get certData() {
-    const { cert, key, ca } = this._websocketOpts
-    if (!cert || !key || !ca?.length || !ca[0]) {
-      throw new Error('No cert data in _websocketOpts')
-    }
-    let _ca: string | Buffer
-    if (Array.isArray(ca)) {
-      _ca = ca[0]
-    } else {
-      _ca = ca
-    }
-    return {
-      cert: dumpPEM('CERTIFICATE', cert.toString()),
-      key: dumpPEM('PRIVATE KEY', key.toString()),
-      ca: [dumpPEM('CERTIFICATE', _ca.toString())],
     }
   }
 
@@ -204,8 +185,6 @@ export class WebSockets extends EventEmitter {
     }
 
     const serverHttps = https.createServer({
-      ...this.certData,
-      requestCert: true,
       enableTrace: false,
     })
 
