@@ -140,7 +140,7 @@ describe('LeaveCommunity', () => {
                       tabindex="0"
                       type="button"
                     >
-                      Nevermind
+                      Never mind
                       <span
                         class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
                       />
