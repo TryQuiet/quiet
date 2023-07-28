@@ -26,7 +26,6 @@ import { Libp2pModule } from './libp2p/libp2p.module'
 import { TorModule } from './tor/tor.module'
 import express from 'express'
 import createHttpsProxyAgent from 'https-proxy-agent'
-import createHttpProxyAgent from 'http-proxy-agent'
 import getPort from 'get-port'
 import { createServer } from 'http'
 import { Server as SocketIO } from 'socket.io'
@@ -109,7 +108,7 @@ export class AppModule {
             if (!configOptions.httpTunnelPort) {
               configOptions.httpTunnelPort = await getPort()
             }
-            return createHttpProxyAgent({
+            return createHttpsProxyAgent({
               port: configOptions.httpTunnelPort,
               host: '127.0.0.1',
             })

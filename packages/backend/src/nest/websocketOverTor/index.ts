@@ -1,22 +1,15 @@
 import { socketToMaConn } from './socket-to-conn'
 import * as filters from './filters'
-
 import { type MultiaddrFilter, type CreateListenerOptions, type DialOptions } from '@libp2p/interface-transport'
 import type { AbortOptions } from '@libp2p/interfaces'
 import type { Multiaddr } from '@multiformats/multiaddr'
-
 import type { ClientOptions, ErrorEvent } from 'ws'
-
 import os from 'os'
 import PeerId from 'peer-id'
-
 import url from 'url'
-
 import type { Server } from 'http'
-import https from 'https'
 import * as http from 'http'
 import { EventEmitter } from 'events'
-
 import pDefer from 'p-defer'
 import { multiaddrToUri as toUri } from '@multiformats/multiaddr-to-uri'
 import { AbortError } from '@libp2p/interfaces/errors'
@@ -24,7 +17,6 @@ import { connect } from 'it-ws'
 import { type ServerOptions, type WebSocketServer as ItWsWebsocketServer } from 'it-ws/server'
 import { multiaddr } from '@multiformats/multiaddr'
 import { type MultiaddrConnection, type Connection } from '@libp2p/interface-connection'
-import { dumpPEM } from './utils'
 import logger from '../common/logger'
 
 const log = logger('libp2p:websockets')
@@ -127,7 +119,6 @@ export class WebSockets extends EventEmitter {
 
     const myUri = `${toUri(ma)}/?remoteAddress=${encodeURIComponent(this.localAddress)}`
 
-    console.log({ myUri, options })
     const rawSocket = connect(myUri, Object.assign({ binary: true }, options))
 
     if (rawSocket.socket.on) {
@@ -186,14 +177,11 @@ export class WebSockets extends EventEmitter {
       server.__connections?.push(maConn)
     }
 
-    const serverHttp = http.createServer({
-      // enableTrace: false,
-    })
+    const serverHttp = http.createServer()
 
     const optionsServ = {
       server: serverHttp,
       verifyClient: function (_info: any, done: (res: boolean) => void) {
-        console.log({ _info })
         done(true)
       },
     }
@@ -280,7 +268,7 @@ export class WebSockets extends EventEmitter {
       // we need to capture from the passed multiaddr
       if (listeningMultiaddr.toString().includes('ip4')) {
         let m = listeningMultiaddr.decapsulate('tcp')
-        m = m.encapsulate('/tcp/443/ws')
+        m = m.encapsulate('/tcp/80/ws')
         if (ipfsId) {
           m = m.encapsulate('/p2p/' + ipfsId)
         }
