@@ -23,7 +23,7 @@ export function* redirectionSaga(): Generator {
     yield* put(navigationActions.clearPendingNavigation())
     return
   }
-    
+
   // If user belongs to a community, let him directly into the app
   const communityMembership = yield* select(identity.selectors.communityMembership)
 

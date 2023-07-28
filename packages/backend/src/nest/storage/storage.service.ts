@@ -122,21 +122,22 @@ export class StorageService extends EventEmitter {
   }
 
   private startIpfs() {
-    this.ipfs.start().then(async () => {
-      try {
-        await this.startReplicate()
-      } catch (e) {
-        console.log(`Couldn't start store replication`)
-      }
-    }
-    ).catch(e => {
-      console.log(`Couldn't start ipfs node`, e.message)
-      throw new Error(e.message)
-    })
+    this.ipfs
+      .start()
+      .then(async () => {
+        try {
+          await this.startReplicate()
+        } catch (e) {
+          console.log(`Couldn't start store replication`)
+        }
+      })
+      .catch(e => {
+        console.log(`Couldn't start ipfs node`, e.message)
+        throw new Error(e.message)
+      })
   }
 
   private async startReplicate() {
-
     const dbs = []
 
     if (this.channels?.address) {
@@ -148,7 +149,7 @@ export class StorageService extends EventEmitter {
 
     const channels = this.publicChannelsRepos.values()
 
-    for (let channel of channels) {
+    for (const channel of channels) {
       dbs.push(channel.db.address)
     }
 
@@ -157,9 +158,13 @@ export class StorageService extends EventEmitter {
   }
 
   private async subscribeToPubSub(addr: string[]) {
-    for (let a of addr) {
+    for (const a of addr) {
       // @ts-ignore
-      await this.orbitDb._pubsub.subscribe(a, this.orbitDb._onMessage.bind(this.orbitDb), this.orbitDb._onPeerConnected.bind(this.orbitDb))
+      await this.orbitDb._pubsub.subscribe(
+        a,
+        this.orbitDb._onMessage.bind(this.orbitDb),
+        this.orbitDb._onPeerConnected.bind(this.orbitDb)
+      )
     }
   }
 
