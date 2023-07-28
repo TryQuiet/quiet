@@ -9,6 +9,9 @@ import { MessageSendButton } from '../MessageSendButton/MessageSendButton.compon
 import { ChannelMessagesComponentProps, ChatProps } from './Chat.types'
 import { FileActionsProps } from '../UploadedFile/UploadedFile.types'
 import { defaultTheme } from '../../styles/themes/default.theme'
+import { AttachmentButton } from '../AttachmentButton/AttachmentButton.component'
+import DocumentPicker, { DocumentPickerResponse, types } from 'react-native-document-picker'
+import UploadFilesPreviewsComponent from '../FileUploadingPreview/UploadingPreview.component'
 
 export const Chat: FC<ChatProps & FileActionsProps> = ({
   contextMenu,
@@ -27,15 +30,19 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
   imagePreview,
   setImagePreview,
   openImagePreview,
+  updateUploadedFiles,
+  removeFilePreview,
+  uploadedFiles,
   openUrl,
   ready = true,
 }) => {
   const [didKeyboardShow, setKeyboardShow] = useState(false)
-  const [messageInput, setMessageInput] = useState<string | undefined>()
+  const [messageInput, setMessageInput] = useState<string>('')
 
   const messageInputRef = useRef<null | TextInput>(null)
 
   const defaultPadding = 20
+  const areFilesUploaded = uploadedFiles && Object.keys(uploadedFiles).length > 0
 
   useEffect(() => {
     const onKeyboardDidShow = () => {
@@ -66,14 +73,34 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
     setMessageInput(value)
   }
 
-  const onPress = () => {
-    if (!messageInputRef.current || messageInput === undefined || messageInput?.length === 0) {
+  const openAttachments = async () => {
+    let response: DocumentPickerResponse[]
+    try {
+      response = await DocumentPicker.pick({
+        presentationStyle: 'fullScreen',
+        type: [types.allFiles],
+        allowMultiSelection: true,
+        copyTo: 'cachesDirectory',
+      })
+    } catch (e) {
+      if (!DocumentPicker.isCancel(e)) {
+        console.error(`Could not attach files: ${e.message}`)
+        // TODO: display error message to user
+      }
       return
     }
-    messageInputRef.current.clear()
-    sendMessageAction(messageInput)
-    setMessageInput('')
-    setInputEmpty(true)
+    if (response) {
+      updateUploadedFiles(response)
+    }
+  }
+
+  const onPress = () => {
+    if ((messageInputRef.current && messageInput?.length > 0) || areFilesUploaded) {
+      messageInputRef?.current?.clear()
+      sendMessageAction(messageInput)
+      setMessageInput('')
+      setInputEmpty(true)
+    }
   }
 
   const renderItem = ({ item }: { item: string }) => (
@@ -127,23 +154,49 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
             showsVerticalScrollIndicator={false}
           />
         )}
-        <View style={{ flexDirection: 'row', paddingBottom: Platform.select({ ios: 20, android: 0 }) }}>
+        <View
+          style={{
+            flexDirection: 'row',
+            paddingBottom: Platform.select({ ios: 20, android: 0 }),
+          }}
+        >
           <View
             style={{
-              flex: 9,
+              width: '100%',
               paddingLeft: defaultPadding,
-              paddingRight: !didKeyboardShow ? defaultPadding : 0,
+              paddingRight: 0,
             }}
           >
-            <Input
-              ref={messageInputRef}
-              onChangeText={onInputTextChange}
-              placeholder={`Message #${channel?.name}`}
-              multiline={true}
-              disabled={!ready}
-            />
+            <View
+              style={{
+                flexDirection: 'row',
+              }}
+            >
+              <Input
+                ref={messageInputRef}
+                onChangeText={onInputTextChange}
+                placeholder={`Message #${channel?.name}`}
+                multiline={true}
+                wrapperStyle={{ flexGrow: 1 }}
+                disabled={!ready}
+              />
+              <View
+                style={{
+                  paddingLeft: 10,
+                  paddingRight: 10,
+                  gap: 5,
+                  flexDirection: 'row',
+                }}
+              >
+                <AttachmentButton onPress={openAttachments} />
+                {(didKeyboardShow || areFilesUploaded) && (
+                  <MessageSendButton onPress={onPress} disabled={isInputEmpty && !areFilesUploaded} />
+                )}
+              </View>
+            </View>
+
+            {uploadedFiles && <UploadFilesPreviewsComponent filesData={uploadedFiles} removeFile={removeFilePreview} />}
           </View>
-          {didKeyboardShow && <MessageSendButton onPress={onPress} disabled={isInputEmpty} />}
         </View>
       </KeyboardAvoidingView>
       {imagePreview && setImagePreview && (

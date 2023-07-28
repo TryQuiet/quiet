@@ -759,7 +759,7 @@ describe('Channel', () => {
       'Community'
     )
 
-    await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+    const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
       id: community.id,
       nickname: 'alice',
     })
@@ -808,6 +808,15 @@ describe('Channel', () => {
           messages: [payload.message],
         })
       }
+      if (action === SocketActionTypes.INCOMING_MESSAGES) {
+        const data = input[1] as IncomingMessages
+        const media = data.messages[0].media
+        if (!media) return
+        return socket.socketClient.emit<UploadFilePayload>(SocketActionTypes.UPLOAD_FILE, {
+          file: media,
+          peerId: alice.peerId.id,
+        })
+      }
     })
 
     const { store, runSaga } = await prepareStore(
@@ -841,18 +850,18 @@ describe('Channel', () => {
 
     store.dispatch(files.actions.uploadFile(fileContent))
 
+    await act(async () => {
+      await new Promise(resolve => {
+        setTimeout(resolve, uploadingDelay)
+      })
+    })
+
     expect(cid).not.toEqual('')
     // Confirm image's placeholder never displays
     expect(screen.queryByTestId(`${cid}-imagePlaceholder`)).toBeNull()
 
     // Confirm image is visible (in uploading state)
     expect(await screen.findByTestId(`${cid}-imageVisual`)).toBeVisible()
-
-    await act(async () => {
-      await new Promise(resolve => {
-        setTimeout(resolve, uploadingDelay)
-      })
-    })
 
     expect(actions).toMatchInlineSnapshot(`
       Array [
@@ -1094,9 +1103,9 @@ describe('Channel', () => {
         "Files/uploadFile",
         "Messages/sendMessage",
         "Files/updateDownloadStatus",
+        "Messages/addMessagesSendingStatus",
         "Files/broadcastHostedFile",
         "Files/updateDownloadStatus",
-        "Messages/addMessagesSendingStatus",
         "Messages/addMessageVerificationStatus",
         "Messages/incomingMessages",
         "PublicChannels/cacheMessages",

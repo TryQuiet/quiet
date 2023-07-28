@@ -6,7 +6,7 @@ import { imagesExtensions } from '@quiet/state-manager'
 import Tooltip from '../../ui/Tooltip/Tooltip'
 import Icon from '../../ui/Icon/Icon'
 import fileIcon from '../../../static/images/fileIcon.svg'
-import { FileContent } from '@quiet/types'
+import { FileContent, FilePreviewData } from '@quiet/types'
 
 const PREFIX = 'UploadFilesPreviewsComponent'
 
@@ -94,10 +94,6 @@ const StyledUploadFilesPreviewsComponent = styled('div')(() => ({
   alignContent: 'stretch',
   paddingRight: '50px',
 }))
-
-export interface FilePreviewData {
-  [id: string]: FileContent
-}
 
 export interface FilePreviewComponentProps {
   fileData: FileContent

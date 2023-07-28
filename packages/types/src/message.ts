@@ -69,6 +69,11 @@ export interface MessageSendingStatus {
   status: SendingStatus
 }
 
+export interface MessageSendingStatusPayload {
+  message: ChannelMessage
+  status: SendingStatus
+}
+
 export interface AskForMessagesPayload {
   ids: string[]
   peerId: string
