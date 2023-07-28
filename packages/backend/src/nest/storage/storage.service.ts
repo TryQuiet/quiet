@@ -131,7 +131,7 @@ export class StorageService extends EventEmitter {
           console.log(`Couldn't start store replication`)
         }
       })
-      .catch(e => {
+      .catch((e: Error) => {
         console.log(`Couldn't start ipfs node`, e.message)
         throw new Error(e.message)
       })
@@ -162,7 +162,9 @@ export class StorageService extends EventEmitter {
       // @ts-ignore
       await this.orbitDb._pubsub.subscribe(
         a,
+        // @ts-ignore
         this.orbitDb._onMessage.bind(this.orbitDb),
+        // @ts-ignore
         this.orbitDb._onPeerConnected.bind(this.orbitDb)
       )
     }
@@ -175,8 +177,8 @@ export class StorageService extends EventEmitter {
     AccessControllers.addAccessController({ AccessController: channelsAccessController })
     // @ts-ignore
     const orbitDb = await OrbitDB.createInstance(this.ipfs, {
-      start: false,
       // @ts-ignore
+      start: false,
       id: peerId.toString(),
       directory: this.orbitDbDir,
       // @ts-ignore
