@@ -3,7 +3,7 @@ name: Deploy iOS to App Store
 on:
   release:
     types:
-      [prereleased]
+      [prereleased, released]
 
 jobs:
   build-ios:
