@@ -3573,6 +3573,7 @@ describe('Chat component', () => {
                 style={
                   {
                     "alignItems": "center",
+                    "height": 50,
                     "justifyContent": "center",
                     "width": 64,
                   }
@@ -3747,7 +3748,7 @@ describe('Chat component', () => {
               }
               verticalTextAlign="center"
             >
-              Replicating messages
+              Loading messages
             </Text>
           </View>
           <View
