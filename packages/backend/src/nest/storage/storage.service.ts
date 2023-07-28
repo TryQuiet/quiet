@@ -46,6 +46,7 @@ import Logger from '../common/logger'
 import { DirectMessagesRepo, IMessageThread, PublicChannelsRepo } from '../common/types'
 import { removeFiles, removeDirs, createPaths, getUsersAddresses } from '../common/utils'
 import { StorageEvents } from './storage.types'
+import { SlowBuffer } from 'buffer'
 
 interface DBOptions {
   replicate: boolean
@@ -118,13 +119,15 @@ export class StorageService extends EventEmitter {
     this.attachFileManagerEvents()
     await this.initDatabases()
 
-    this.startIpfs()
+    void this.startIpfs()
   }
 
-  private startIpfs() {
-    this.ipfs
+  private async startIpfs() {
+    console.log('starting ipfs')
+    return this.ipfs
       .start()
       .then(async () => {
+        console.log('then')
         try {
           await this.startReplicate()
         } catch (e) {
@@ -189,17 +192,13 @@ export class StorageService extends EventEmitter {
   }
 
   public async initDatabases() {
-    this.logger('1/6')
+    this.logger('1/4')
     await this.createDbForChannels()
-    this.logger('2/6')
+    this.logger('2/4')
     await this.createDbForCertificates()
-    // this.logger('3/6')
-    // await this.createDbForMessageThreads()
-    this.logger('4/6')
+    this.logger('3/4')
     await this.initAllChannels()
-    // this.logger('5/6')
-    // await this.initAllConversations()
-    this.logger('6/6')
+    this.logger('4/4')
     this.logger('Initialized DBs')
     this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.INITIALIZED_DBS)
   }
@@ -382,43 +381,10 @@ export class StorageService extends EventEmitter {
     this.logger('STORAGE: Finished createDbForChannels')
   }
 
-  private async createDbForMessageThreads() {
-    this.messageThreads = await this.orbitDb.keyvalue<IMessageThread>('msg-threads', {
-      accessController: {
-        write: ['*'],
-      },
-    })
-    this.messageThreads.events.on(
-      'replicated',
-      // eslint-disable-next-line
-      async () => {
-        // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
-        await this.messageThreads.load({ fetchEntryTimeout: 2000 })
-        const payload = this.messageThreads.all
-        // this.io.loadAllPrivateConversations(payload)
-        this.emit(StorageEvents.LOAD_ALL_PRIVATE_CONVERSATIONS, payload)
-        await this.initAllConversations()
-      }
-    )
-    // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
-    await this.messageThreads.load({ fetchEntryTimeout: 2000 })
-    this.logger('ALL MESSAGE THREADS COUNT:', Object.keys(this.messageThreads.all).length)
-  }
-
   async initAllChannels() {
     this.emit(StorageEvents.LOAD_PUBLIC_CHANNELS, {
       channels: this.channels.all as unknown as { [key: string]: PublicChannel },
     })
-  }
-
-  async initAllConversations() {
-    await Promise.all(
-      Object.keys(this.messageThreads.all).map(async conversation => {
-        if (!this.directMessagesRepos.has(conversation)) {
-          await this.createDirectMessageThread(conversation)
-        }
-      })
-    )
   }
 
   async verifyMessage(message: ChannelMessage): Promise<boolean> {
@@ -759,121 +725,6 @@ export class StorageService extends EventEmitter {
     this.filesManager.emit(IpfsFilesManagerEvents.CANCEL_DOWNLOAD, mid)
   }
 
-  public async initializeConversation(address: string, encryptedPhrase: string): Promise<void> {
-    if (!validate.isConversation(address, encryptedPhrase)) {
-      this.logger.error('STORAGE: Invalid conversation format')
-      return
-    }
-    const db: EventStore<string> = await this.orbitDb.log<string>(`dms.${address}`, {
-      accessController: {
-        write: ['*'],
-      },
-    })
-
-    this.directMessagesRepos.set(address, { db, eventsAttached: false })
-    await this.messageThreads.put(address, encryptedPhrase)
-    await this.subscribeToDirectMessageThread(address)
-  }
-
-  public async subscribeToAllConversations(conversations: string[]) {
-    await Promise.all(
-      conversations.map(async channel => {
-        await this.subscribeToDirectMessageThread(channel)
-      })
-    )
-  }
-
-  public async subscribeToDirectMessageThread(channelId: string) {
-    let db: EventStore<string>
-    let repo = this.directMessagesRepos.get(channelId)
-
-    if (repo) {
-      db = repo.db
-    } else {
-      db = await this.createDirectMessageThread(channelId)
-      if (!db) {
-        this.logger(`Can't subscribe to direct messages thread ${channelId}`)
-        return
-      }
-      repo = this.directMessagesRepos.get(channelId)
-    }
-
-    if (repo && !repo.eventsAttached) {
-      this.logger('Subscribing to direct messages thread ', channelId)
-      this.emit(StorageEvents.LOAD_ALL_DIRECT_MESSAGES, {
-        messages: this.getAllEventLogEntries(db),
-        channelId,
-      })
-      db.events.on('write', (_address, _entry) => {
-        this.logger('Writing')
-        this.emit(StorageEvents.LOAD_ALL_DIRECT_MESSAGES, {
-          messages: this.getAllEventLogEntries(db),
-          channelId,
-        })
-      })
-      db.events.on('replicated', () => {
-        this.logger('Message replicated')
-        this.emit(StorageEvents.LOAD_ALL_DIRECT_MESSAGES, {
-          messages: this.getAllEventLogEntries(db),
-          channelId,
-        })
-      })
-      db.events.on('ready', () => {
-        this.logger('DIRECT Messages thread ready')
-      })
-      repo.eventsAttached = true
-      this.logger('Subscription to channel ready', channelId)
-    }
-  }
-
-  private async createDirectMessageThread(channelId: string): Promise<EventStore<string>> {
-    if (!channelId) {
-      this.logger("No channel ID, can't create channel")
-      throw new Error("No channel ID, can't create channel")
-    }
-
-    this.logger(`creatin direct message thread for ${channelId}`)
-
-    const db: EventStore<string> = await this.orbitDb.log<string>(`dms.${channelId}`, {
-      accessController: {
-        write: ['*'],
-      },
-    })
-    db.events.on('replicated', () => {
-      this.logger('replicated some messages')
-    })
-    // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
-    await db.load({ fetchEntryTimeout: 2000 })
-
-    this.directMessagesRepos.set(channelId, { db, eventsAttached: false })
-    return db
-  }
-
-  public async sendDirectMessage(channelId: string, message: string) {
-    if (!validate.isDirectMessage(message)) {
-      this.logger.error('STORAGE: Invalid direct message format')
-      return
-    }
-    await this.subscribeToDirectMessageThread(channelId) // Is it necessary? Yes it is atm
-    this.logger('STORAGE: sendDirectMessage entered')
-    this.logger(`STORAGE: sendDirectMessage channelId is ${channelId}`)
-    this.logger(`STORAGE: sendDirectMessage message is ${JSON.stringify(message)}`)
-    const db = this.directMessagesRepos.get(channelId)?.db
-    if (!db) return
-    this.logger(`STORAGE: sendDirectMessage db is ${db.address.root}`)
-    this.logger(`STORAGE: sendDirectMessage db is ${db.address.path}`)
-    await db.add(message)
-  }
-
-  public async getPrivateConversations(): Promise<void> {
-    this.logger('STORAGE: getPrivateConversations enetered')
-    // @ts-expect-error - OrbitDB's type declaration of `load` arguments lacks 'options'
-    await this.messageThreads.load({ fetchEntryTimeout: 2000 })
-    const payload = this.messageThreads.all
-    this.logger('STORAGE: getPrivateConversations payload payload')
-    this.emit(StorageEvents.LOAD_ALL_PRIVATE_CONVERSATIONS, payload)
-  }
-
   public async saveCertificate(payload: SaveCertificatePayload): Promise<boolean> {
     this.logger('About to save certificate...')
     if (!payload.certificate) {
@@ -991,17 +842,5 @@ export class StorageService extends EventEmitter {
     // @ts-ignore
     this.filesManager = null
     this.peerId = null
-  }
-
-  private async deleteFilesFromTemporaryDir() {
-    const temporaryFilesDirectory = path.join(this.quietDir, '/../', 'temporaryFiles')
-    fs.readdir(temporaryFilesDirectory, (readDirErr, files) => {
-      if (readDirErr) this.logger(`deleteFilesFromTemporaryDir : readdir error - ${readDirErr}`)
-      for (const file of files) {
-        fs.unlink(path.join(temporaryFilesDirectory, file), unlinkError => {
-          if (unlinkError) this.logger(`deleteFilesFromTemporaryDir : unlink error - ${unlinkError}`)
-        })
-      }
-    })
   }
 }
