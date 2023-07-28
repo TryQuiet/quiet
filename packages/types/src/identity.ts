@@ -120,3 +120,7 @@ export interface StoreUserCertificatePayload {
   userCertificate: string
   communityId: string
 }
+
+export interface UpdateJoinTimestampPayload {
+  communityId: string
+}

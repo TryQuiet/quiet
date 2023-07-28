@@ -8,6 +8,7 @@ import { navigationActions } from '../../store/navigation/navigation.slice'
 import { ScreenNames } from '../../const/ScreenNames.enum'
 import { UseContextMenuType, useContextMenu } from '../../hooks/useContextMenu'
 import { MenuName } from '../../const/MenuNames.enum'
+import { initSelectors } from '../../store/init/init.selectors'
 import { DocumentPickerResponse } from 'react-native-document-picker'
 import { getFilesData } from '@quiet/common'
 
@@ -47,8 +48,10 @@ export const ChannelScreen: FC = () => {
 
   const downloadStatusesMapping = useSelector(files.selectors.downloadStatuses)
 
+  const ready = useSelector(initSelectors.ready)
+
   let contextMenu: UseContextMenuType<Record<string, unknown>> | null = useContextMenu(MenuName.Channel)
-  if (!community?.CA) {
+  if (!community?.CA || !ready) {
     contextMenu = null
   }
 
@@ -154,6 +157,7 @@ export const ChannelScreen: FC = () => {
       removeFilePreview={removeFilePreview}
       openUrl={openUrl}
       uploadedFiles={uploadingFiles}
+      ready={ready}
     />
   )
 }

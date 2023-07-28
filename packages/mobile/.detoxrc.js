@@ -46,7 +46,7 @@ module.exports = {
       type: 'ios.app',
       binaryPath: 'ios/build/release/Build/Products/Release-iphonesimulator/Quiet.app',
       build:
-        'xcodebuild -workspace ios/Quiet.xcworkspace -scheme Quiet -configuration Release -sdk iphonesimulator -derivedDataPath ios/build/release',
+        'xcodebuild -workspace ios/Quiet.xcworkspace -scheme Quiet -configuration Release -sdk iphonesimulator -derivedDataPath ios/build/release -arch x86_64',
     },
   },
   devices: {

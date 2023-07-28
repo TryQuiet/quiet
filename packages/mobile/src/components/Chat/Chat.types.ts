@@ -30,6 +30,7 @@ export interface ChatProps {
   removeFilePreview: (id: string) => void
   uploadedFiles?: FilePreviewData
   openUrl: (url: string) => void
+  ready?: boolean
 }
 
 export interface ChannelMessagesComponentProps {

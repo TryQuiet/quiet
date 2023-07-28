@@ -29,6 +29,10 @@ export class App {
     }
     await this.buildSetup.closeDriver()
     await this.buildSetup.killChromeDriver()
+    if (process.platform === 'win32') {
+      this.buildSetup.killNine()
+      await new Promise<void>(resolve => setTimeout(() => resolve(), 2000))
+    }
   }
 
   get saveStateButton() {
@@ -288,6 +292,23 @@ export class Sidebar {
     return new Channel(this.driver, name)
   }
 }
+export class UpdateModal {
+  private readonly driver: ThenableWebDriver
+  constructor(driver: ThenableWebDriver) {
+    this.driver = driver
+  }
+
+  get element() {
+    return this.driver.wait(until.elementLocated(By.xpath("//h3[text()='Software update']")))
+  }
+
+  async close() {
+    const closeButton = await this.driver
+      .findElement(By.xpath('//div[@data-testid="ModalActions"]'))
+      .findElement(By.css('button'))
+    await closeButton.click()
+  }
+}
 export class Settings {
   private readonly driver: ThenableWebDriver
   constructor(driver: ThenableWebDriver) {
@@ -296,6 +317,24 @@ export class Settings {
 
   get element() {
     return this.driver.wait(until.elementLocated(By.xpath("//h6[text()='Settings']")))
+  }
+
+  async getVersion() {
+    await this.switchTab('about')
+    await new Promise<void>(resolve => setTimeout(() => resolve(), 500))
+    const textWebElement = await this.driver.findElement(By.xpath('//p[contains(text(),"Version")]'))
+    const text = await textWebElement.getText()
+
+    const version = this.formatVersionText(text)
+
+    return version
+  }
+
+  private formatVersionText(text: string) {
+    const index1 = text.indexOf(':') + 1
+    const index2 = text.indexOf('\n')
+    const version = text.slice(index1, index2).trim()
+    return version
   }
 
   async openLeaveCommunityModal() {

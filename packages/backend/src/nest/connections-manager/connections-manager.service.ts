@@ -189,12 +189,12 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     }
     if (this.storageService) {
       this.logger('Stopping orbitdb')
-      await this.storageService.stopOrbitDb()
+      await this.storageService?.stopOrbitDb()
     }
     // if (this.storageService.ipfs) {
     //   this.storageService.ipfs = null
     // }
-    if (this.serverIoProvider.io) {
+    if (this.serverIoProvider?.io) {
       this.logger('Closing socket server')
       this.serverIoProvider.io.close()
     }
@@ -202,7 +202,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       this.logger('Closing local storage')
       await this.localDbService.close()
     }
-    if (this.libp2pService.libp2pInstance) {
+    if (this.libp2pService?.libp2pInstance) {
       this.logger('Stopping libp2p')
       await this.libp2pService.libp2pInstance.stop()
     }
