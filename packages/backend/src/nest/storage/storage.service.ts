@@ -65,6 +65,7 @@ export class StorageService extends EventEmitter {
   private orbitDb: OrbitDB
   private filesManager: IpfsFileManagerService
   private peerId: PeerId | null = null
+  private ipfsStarted: boolean
 
   private readonly logger = Logger(StorageService.name)
   constructor(
@@ -81,6 +82,7 @@ export class StorageService extends EventEmitter {
     this.logger('Initializing storage')
     removeFiles(this.quietDir, 'LOCK')
     removeDirs(this.quietDir, 'repo.lock')
+    this.ipfsStarted = false
 
     if (!['android', 'ios'].includes(process.platform)) {
       createPaths([this.ipfsRepoPath, this.orbitDbDir])
@@ -118,16 +120,18 @@ export class StorageService extends EventEmitter {
 
     this.attachFileManagerEvents()
     await this.initDatabases()
+    console.log('AFTER initDatabases')
 
     void this.startIpfs()
   }
 
   private async startIpfs() {
-    console.log('starting ipfs')
+    this.logger('Starting IPFS')
     return this.ipfs
       .start()
       .then(async () => {
-        console.log('then')
+        this.logger('IPFS started')
+        this.ipfsStarted = true
         try {
           await this.startReplicate()
         } catch (e) {
@@ -156,12 +160,21 @@ export class StorageService extends EventEmitter {
       dbs.push(channel.db.address)
     }
 
-    const addresses = dbs.map(db => path.join('/', 'orbitdb', '/', db.root, '/', db.path))
+    const addresses = dbs.map(db => this.dbAddress(db))
     await this.subscribeToPubSub(addresses)
   }
 
+  private dbAddress = (db: { root: string; path: string }) => {
+    return path.join('/', 'orbitdb', '/', db.root, '/', db.path)
+  }
+
   private async subscribeToPubSub(addr: string[]) {
+    if (!this.ipfsStarted) {
+      this.logger(`IPFS not started. Not subscribing to ${addr}`)
+      return
+    }
     for (const a of addr) {
+      this.logger(`Pubsub - subscribe to ${addr}`)
       // @ts-ignore
       await this.orbitDb._pubsub.subscribe(
         a,
@@ -228,6 +241,7 @@ export class StorageService extends EventEmitter {
       } catch (err) {
         this.logger.error(`Following error occured during closing ipfs database: ${err as string}`)
       }
+      this.ipfsStarted = false
     }
   }
 
@@ -600,6 +614,7 @@ export class StorageService extends EventEmitter {
     // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
     await db.load({ fetchEntryTimeout: 2000 })
     this.logger(`Created channel ${channelId}`)
+    await this.subscribeToPubSub([this.dbAddress(db.address)])
     return db
   }
 
