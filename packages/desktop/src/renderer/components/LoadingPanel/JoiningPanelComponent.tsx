@@ -117,14 +117,14 @@ const JoiningPanelComponent: React.FC<JoiningPanelComponentProps> = ({
           </div>
 
           <Typography variant='body2' className={classes.text}>
-            We'll notify you once you're connected.
+            <strong>
+              Please leave the app open. <br /> Joining the first time can take a few minutes or more.
+            </strong>
             <br />
-            <strong> This first time might take 30 seconds, 10 minutes, or even longer.</strong>
             <br />
-            <br />
-            There's a good reason why it's slow: Quiet stores data on your community’s devices (not Big Tech’s servers!)
-            and uses the battle-tested privacy tool Tor to protect your information. Tor is fast once connected, but can
-            take a long time to connect at first.
+            Quiet stores data on <i>your</i> community’s devices (not Big Tech’s servers!) using the battle-tested
+            privacy tool Tor to protect your information. Tor is fast once connected, but it can be slow at first, and
+            closing this window will stop the process of joining.
           </Typography>
           <a onClick={() => openUrl(Site.MAIN_PAGE)}>
             <Typography className={classes.link} variant='body2'>
