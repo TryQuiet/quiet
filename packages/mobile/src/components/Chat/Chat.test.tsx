@@ -3318,13 +3318,14 @@ describe('Chat component', () => {
                 style={
                   {
                     "flexDirection": "row",
+                    "width": "100%",
                   }
                 }
               >
                 <View
                   style={
                     {
-                      "flexGrow": 1,
+                      "width": "85%",
                     }
                   }
                 >
@@ -3399,6 +3400,7 @@ describe('Chat component', () => {
                       "gap": 5,
                       "paddingLeft": 10,
                       "paddingRight": 10,
+                      "width": "15%",
                     }
                   }
                 >
@@ -3772,13 +3774,14 @@ describe('Chat component', () => {
                 style={
                   {
                     "flexDirection": "row",
+                    "width": "100%",
                   }
                 }
               >
                 <View
                   style={
                     {
-                      "flexGrow": 1,
+                      "width": "75%",
                     }
                   }
                 >
@@ -3853,6 +3856,7 @@ describe('Chat component', () => {
                       "gap": 5,
                       "paddingLeft": 10,
                       "paddingRight": 10,
+                      "width": "25%",
                     }
                   }
                 >
