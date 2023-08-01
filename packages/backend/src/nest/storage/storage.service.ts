@@ -46,7 +46,6 @@ import Logger from '../common/logger'
 import { DirectMessagesRepo, IMessageThread, PublicChannelsRepo } from '../common/types'
 import { removeFiles, removeDirs, createPaths, getUsersAddresses } from '../common/utils'
 import { StorageEvents } from './storage.types'
-import { SlowBuffer } from 'buffer'
 
 interface DBOptions {
   replicate: boolean
@@ -55,7 +54,6 @@ interface DBOptions {
 @Injectable()
 export class StorageService extends EventEmitter {
   public channels: KeyValueStore<PublicChannel>
-  private messageThreads: KeyValueStore<IMessageThread>
   private certificates: EventStore<string>
   public publicChannelsRepos: Map<string, PublicChannelsRepo> = new Map()
   public directMessagesRepos: Map<string, DirectMessagesRepo> = new Map()
@@ -120,7 +118,6 @@ export class StorageService extends EventEmitter {
 
     this.attachFileManagerEvents()
     await this.initDatabases()
-    console.log('AFTER initDatabases')
 
     void this.startIpfs()
   }
@@ -160,11 +157,11 @@ export class StorageService extends EventEmitter {
       dbs.push(channel.db.address)
     }
 
-    const addresses = dbs.map(db => this.dbAddress(db))
+    const addresses = dbs.map(db => StorageService.dbAddress(db))
     await this.subscribeToPubSub(addresses)
   }
 
-  private dbAddress = (db: { root: string; path: string }) => {
+  static dbAddress = (db: { root: string; path: string }) => {
     return path.join('/', 'orbitdb', '/', db.root, '/', db.path)
   }
 
@@ -614,7 +611,7 @@ export class StorageService extends EventEmitter {
     // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
     await db.load({ fetchEntryTimeout: 2000 })
     this.logger(`Created channel ${channelId}`)
-    await this.subscribeToPubSub([this.dbAddress(db.address)])
+    await this.subscribeToPubSub([StorageService.dbAddress(db.address)])
     return db
   }
 
