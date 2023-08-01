@@ -170,6 +170,7 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
             <View
               style={{
                 flexDirection: 'row',
+                width: '100%',
               }}
             >
               <Input
@@ -177,15 +178,17 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
                 onChangeText={onInputTextChange}
                 placeholder={`Message #${channel?.name}`}
                 multiline={true}
-                wrapperStyle={{ flexGrow: 1 }}
+                wrapperStyle={{ width: didKeyboardShow || areFilesUploaded ? '75%' : '85%' }}
                 disabled={!ready}
               />
+
               <View
                 style={{
                   paddingLeft: 10,
                   paddingRight: 10,
                   gap: 5,
                   flexDirection: 'row',
+                  width: didKeyboardShow || areFilesUploaded ? '25%' : '15%',
                 }}
               >
                 <AttachmentButton onPress={openAttachments} />
