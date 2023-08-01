@@ -238,6 +238,29 @@ describe('StorageService', () => {
         channelId: channelio.id,
       })
     })
+
+    it('subscribes to pubsub on channel creation', async () => {
+      // @ts-expect-error 'subscribeToPubSub' is private
+      const subscribeToPubSubSpy = jest.spyOn(storageService, 'subscribeToPubSub')
+      await storageService.init(peerId)
+      await storageService.subscribeToChannel(channelio)
+      const db = storageService.publicChannelsRepos.get(channelio.id)?.db
+      expect(db).not.toBe(undefined)
+      if (!db) return // TS complaining
+      const channelsDbAddress = storageService.channels?.address
+      // @ts-expect-error 'certificates' is private
+      const certificatesDbAddress = storageService.certificates.address
+      expect(channelsDbAddress).not.toBeFalsy()
+      expect(certificatesDbAddress).not.toBeFalsy()
+      expect(subscribeToPubSubSpy).toBeCalledTimes(2)
+      // Storage initialization:
+      expect(subscribeToPubSubSpy).toHaveBeenNthCalledWith(1, [
+        StorageService.dbAddress(channelsDbAddress),
+        StorageService.dbAddress(certificatesDbAddress),
+      ])
+      // Creating channel:
+      expect(subscribeToPubSubSpy).toHaveBeenNthCalledWith(2, [StorageService.dbAddress(db.address)])
+    })
   })
 
   describe('Certificate', () => {
