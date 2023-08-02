@@ -80,6 +80,7 @@ export class TorControl implements OnModuleInit {
   }
 
   public async sendCommand(command: string): Promise<{ code: number; messages: string[] }> {
+    this.logger({ command })
     return await new Promise((resolve, reject) => {
       void this._sendCommand(command, resolve, reject)
     })

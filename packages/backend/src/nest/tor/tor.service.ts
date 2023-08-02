@@ -244,7 +244,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
 
       this.process.stdout.on('data', (data: any) => {
         this.logger(data.toString())
-        const regexp = /Bootstrapped 0/
+        const regexp = /Bootstrapped 10/
         if (regexp.test(data.toString())) {
           this.spawnHiddenServices()
           resolve()
@@ -259,7 +259,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
       await this.spawnHiddenService(el)
     }
   }
-
+  public counter = 0
   public async spawnHiddenService({
     targetPort,
     privKey,
@@ -269,7 +269,10 @@ export class Tor extends EventEmitter implements OnModuleInit {
     privKey: string
     virtPort?: number
   }): Promise<string> {
+    this.counter++
+    this.logger('counter', this.counter)
     if (this.initializedHiddenServices.get(privKey)) {
+      this.logger('IF - this.initializedHiddenServices.get(privKey)')
       return this.initializedHiddenServices.get(privKey).onionAddres
     }
     const status = await this.torControl.sendCommand(
