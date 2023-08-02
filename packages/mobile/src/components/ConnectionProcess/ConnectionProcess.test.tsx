@@ -128,30 +128,6 @@ describe('ConnectionProcessComponent', () => {
           <Text
             color="main"
             fontSize={14}
-            horizontalTextAlign="left"
-            style={
-              [
-                {
-                  "color": "#000000",
-                  "fontFamily": "Rubik-Regular",
-                  "fontSize": 14,
-                  "textAlign": "left",
-                  "textAlignVertical": "center",
-                },
-                {
-                  "lineHeight": 20,
-                  "marginTop": 40,
-                  "textAlign": "center",
-                },
-              ]
-            }
-            verticalTextAlign="center"
-          >
-            You can exit the app - we'll notify you once you're connected!
-          </Text>
-          <Text
-            color="main"
-            fontSize={14}
             fontWeight="medium"
             horizontalTextAlign="left"
             style={
@@ -165,13 +141,14 @@ describe('ConnectionProcessComponent', () => {
                 },
                 {
                   "lineHeight": 20,
+                  "marginTop": 40,
                   "textAlign": "center",
                 },
               ]
             }
             verticalTextAlign="center"
           >
-            This first time might take 30 seconds, 10 minutes, or even longer.
+            Please leave this screen open. Joining the first time can take a few minutes or more.
           </Text>
           <Text
             color="main"
@@ -195,7 +172,8 @@ describe('ConnectionProcessComponent', () => {
             }
             verticalTextAlign="center"
           >
-            There's a good reason why it's slow: Quiet stores data on your community’s devices (not Big Tech’s servers!) and uses the battle-tested privacy tool Tor to protect your information. Tor is fast once connected, but can take a long time to connect at first.
+            Quiet stores data on your community’s devices (not Big Tech’s servers!) using the battle-tested privacy tool Tor to protect your information. Tor is fast once connected, but it can be slow at first, and leaving this screen
+             will stop the process of joining.
           </Text>
           <Text
             accessibilityState={

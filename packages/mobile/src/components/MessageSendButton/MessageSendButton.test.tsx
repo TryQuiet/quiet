@@ -29,8 +29,9 @@ describe('MessageSendButton component', () => {
         onStartShouldSetResponder={[Function]}
         style={
           {
-            "flex": 1.5,
             "justifyContent": "center",
+            "paddingLeft": 5,
+            "paddingRight": 5,
           }
         }
         testID="send_message_button"

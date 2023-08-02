@@ -45,6 +45,11 @@ export const publicChannelMessagesEntities = (address: string) =>
     return channelMessagesAdapter.getSelectors().selectEntities(channelMessagesBase.messages)
   })
 
+export const messageSendingStatusById = (messageId: string) =>
+  createSelector(messagesSlice, reducerState => {
+    return messageSendingStatusAdapter.getSelectors().selectById(reducerState.messageSendingStatus, messageId)
+  })
+
 export const currentPublicChannelMessagesEntities = createSelector(currentPublicChannelMessagesBase, base => {
   if (!base) return {}
   return channelMessagesAdapter.getSelectors().selectEntities(base.messages)
@@ -118,4 +123,5 @@ export const messagesSelectors = {
   sortedCurrentPublicChannelMessagesEntries,
   messagesVerificationStatus,
   messagesSendingStatus,
+  messageSendingStatusById,
 }

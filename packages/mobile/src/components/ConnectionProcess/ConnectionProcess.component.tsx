@@ -1,5 +1,5 @@
 import React, { FC, useRef, useEffect } from 'react'
-import { View, TouchableWithoutFeedback, Animated, Easing } from 'react-native'
+import { View, TouchableWithoutFeedback, Animated, Easing, Platform } from 'react-native'
 import { defaultPalette } from '../../styles/palettes/default.palette'
 import { Typography } from '../Typography/Typography.component'
 import { ConnectionProcessComponentProps } from './ConnectionProcess.types'
@@ -64,18 +64,15 @@ const ConnectionProcessComponent: FC<ConnectionProcessComponentProps> = ({ conne
           {connectionProcess.text}
         </Typography>
 
-        <Typography fontSize={14} style={{ lineHeight: 20, textAlign: 'center', marginTop: 40 }}>
-          You can exit the app - we'll notify you once you're connected!
-        </Typography>
-
-        <Typography fontSize={14} fontWeight={'medium'} style={{ lineHeight: 20, textAlign: 'center' }}>
-          This first time might take 30 seconds, 10 minutes, or even longer.
+        <Typography fontSize={14} fontWeight={'medium'} style={{ lineHeight: 20, textAlign: 'center', marginTop: 40 }}>
+          Please leave this screen open. Joining the first time can take a few minutes or more.
         </Typography>
 
         <Typography fontSize={14} style={{ lineHeight: 20, textAlign: 'center', marginTop: 25 }}>
-          There's a good reason why it's slow: Quiet stores data on your community’s devices (not Big Tech’s servers!)
-          and uses the battle-tested privacy tool Tor to protect your information. Tor is fast once connected, but can
-          take a long time to connect at first.
+          Quiet stores data on your community’s devices (not Big Tech’s servers!) using the battle-tested privacy tool
+          Tor to protect your information. Tor is fast once connected, but it can be slow at first, and leaving this
+          screen
+          {Platform.OS === 'ios' ? ' will stop the process of joining.' : ' could stop the process of joining.'}
         </Typography>
 
         <TouchableWithoutFeedback onPress={() => openUrl(Site.MAIN_PAGE)} testID={'learn-more-link'}>

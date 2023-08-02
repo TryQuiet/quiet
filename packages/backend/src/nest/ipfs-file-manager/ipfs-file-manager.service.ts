@@ -118,7 +118,15 @@ export class IpfsFileManagerService extends EventEmitter {
      * Copy file to a different directory and return the new path
      */
     const uploadsDir = path.join(this.quietDir, 'uploads')
-    const newPath = path.join(uploadsDir, filename)
+    let newFilename: string
+    try {
+      newFilename = decodeURIComponent(filename).replace(/\s/g, '')
+    } catch (e) {
+      this.logger(`Could not decode filename ${filename}`)
+      newFilename = filename
+    }
+
+    const newPath = path.join(uploadsDir, newFilename)
     let filePath = originalFilePath
     try {
       if (!fs.existsSync(uploadsDir)) {
@@ -130,6 +138,17 @@ export class IpfsFileManagerService extends EventEmitter {
       console.error(`Couldn't copy file ${originalFilePath} to ${newPath}. Error: ${e.message}`)
     }
     return filePath
+  }
+
+  public deleteFile(filePath: string) {
+    try {
+      if (fs.existsSync(filePath)) {
+        this.logger(`Removing file ${filePath}`)
+        fs.unlinkSync(filePath)
+      }
+    } catch (e) {
+      this.logger(`Could not remove file ${filePath}. Reason: ${e.messages}`)
+    }
   }
 
   public async uploadFile(metadata: FileMetadata) {
@@ -178,6 +197,7 @@ export class IpfsFileManagerService extends EventEmitter {
     this.emit(StorageEvents.REMOVE_DOWNLOAD_STATUS, { cid: metadata.cid })
     const fileMetadata: FileMetadata = {
       ...metadata,
+      tmpPath: undefined,
       path: filePath,
       cid: newCid.cid.toString(),
       size: newCid.size,
@@ -186,6 +206,10 @@ export class IpfsFileManagerService extends EventEmitter {
     }
 
     this.emit(StorageEvents.UPLOADED_FILE, fileMetadata)
+
+    if (metadata.tmpPath) {
+      this.deleteFile(metadata.tmpPath)
+    }
 
     const statusReady: DownloadStatus = {
       mid: fileMetadata.message.id,
@@ -316,7 +340,7 @@ export class IpfsFileManagerService extends EventEmitter {
 
     const processBlock = async (block: CID, signal: AbortSignal) => {
       // eslint-disable-next-line
-            return await new Promise(async (resolve, reject) => {
+      return await new Promise(async (resolve, reject) => {
         const onAbort = () => {
           remainingBlocks.delete(block)
           reject(new AbortError('download cancelation'))

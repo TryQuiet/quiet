@@ -22,7 +22,6 @@ export function* sendMessageSaga(
   const parsedCertificate = yield* call(parseCertificate, certificate)
   const pubKey = yield* call(keyFromCertificate, parsedCertificate)
   const keyObject = yield* call(loadPrivateKey, identity.userCsr.userKey, config.signAlg)
-
   const signatureArrayBuffer = yield* call(sign, action.payload.message, keyObject)
   const signature = yield* call(arrayBufferToString, signatureArrayBuffer)
 
@@ -31,6 +30,7 @@ export function* sendMessageSaga(
   const createdAt = yield* call(getCurrentTime)
 
   const generatedMessageId = yield* call(generateMessageId)
+
   const id = action.payload.id || generatedMessageId
 
   const channelId = action.payload.channelId || currentChannelId
@@ -53,7 +53,7 @@ export function* sendMessageSaga(
   // Grey out message until saved in db
   yield* put(
     messagesActions.addMessagesSendingStatus({
-      id: message.id,
+      message: message,
       status: SendingStatus.Pending,
     })
   )
