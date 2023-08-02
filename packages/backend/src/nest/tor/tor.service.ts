@@ -130,6 +130,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
 
   public resetHiddenServices() {
     this.hiddenServices = new Map()
+    this.initializedHiddenServices = new Map()
   }
 
   private torProcessNameCommand(oldTorPid: string): string {
@@ -244,7 +245,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
 
       this.process.stdout.on('data', (data: any) => {
         this.logger(data.toString())
-        const regexp = /Bootstrapped 10/
+        const regexp = /Bootstrapped 0/
         if (regexp.test(data.toString())) {
           this.spawnHiddenServices()
           resolve()
@@ -310,7 +311,9 @@ export class Tor extends EventEmitter implements OnModuleInit {
     const onionAddress = status.messages[0].replace('250-ServiceID=', '')
     const privateKey = status.messages[1].replace('250-PrivateKey=', '')
 
-    this.hiddenServices.set(onionAddress, onionAddress)
+    // this.hiddenServices.set(onionAddress, onionAddress)
+    this.hiddenServices.set(privateKey, { targetPort, privateKey, virtPort, onionAddress })
+    this.initializedHiddenServices.set(privateKey, { targetPort, privateKey, virtPort, onionAddress })
     return {
       onionAddress: `${onionAddress}.onion`,
       privateKey,
