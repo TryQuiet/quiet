@@ -3,11 +3,12 @@ import path from 'path'
 import os from 'os'
 import { execSync } from 'child_process'
 import { BrowserWindow } from 'electron'
+import { InvitationPair } from '@quiet/types'
 
-export const processInvitationCode = (mainWindow: BrowserWindow, code: string) => {
-  if (!code) return
+export const processInvitationCode = (mainWindow: BrowserWindow, codes: InvitationPair[]) => {
+  if (codes.length === 0) return
   mainWindow.webContents.send('invitation', {
-    code,
+    codes,
   })
 }
 

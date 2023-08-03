@@ -21,7 +21,7 @@ import { IconButton, InputAdornment } from '@mui/material'
 import VisibilityOff from '@mui/icons-material/VisibilityOff'
 import Visibility from '@mui/icons-material/Visibility'
 import { ONION_ADDRESS_REGEX, parseName } from '@quiet/common'
-import { getInvitationCode } from '@quiet/state-manager'
+import { getInvitationCodes } from '@quiet/state-manager'
 
 const PREFIX = 'PerformCommunityActionComponent'
 
@@ -129,7 +129,7 @@ interface PerformCommunityActionFormValues {
 export interface PerformCommunityActionProps {
   open: boolean
   communityOwnership: CommunityOwnership
-  handleCommunityAction: (value: string) => void
+  handleCommunityAction: (value: any) => void
   handleRedirection: () => void
   handleClose: () => void
   isConnectionReady?: boolean
@@ -178,22 +178,30 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
   const onSubmit = (values: PerformCommunityActionFormValues) => submitForm(handleCommunityAction, values, setFormSent)
 
   const submitForm = (
-    handleSubmit: (value: string) => void,
+    handleSubmit: (value: any) => void,
     values: PerformCommunityActionFormValues,
     setFormSent: (value: boolean) => void
   ) => {
-    let submitValue = communityOwnership === CommunityOwnership.Owner ? parseName(values.name) : values.name.trim()
-
-    if (communityOwnership === CommunityOwnership.User) {
-      submitValue = getInvitationCode(submitValue)
-      if (!submitValue || !submitValue.match(ONION_ADDRESS_REGEX)) {
-        setError('name', { message: InviteLinkErrors.InvalidCode })
-        return
-      }
+    if (communityOwnership === CommunityOwnership.Owner) {
+      setFormSent(true)
+      handleSubmit(parseName(values.name))
+      return
     }
 
-    setFormSent(true)
-    handleSubmit(submitValue)
+    // let submitValue = communityOwnership === CommunityOwnership.Owner ? parseName(values.name) : values.name.trim()
+
+    if (communityOwnership === CommunityOwnership.User) {
+      const codes = getInvitationCodes(values.name.trim())
+      if (!codes.length) {
+        // if (!submitValue || !submitValue.match(ONION_ADDRESS_REGEX)) { // TODO: add basic validation
+        setError('name', { message: InviteLinkErrors.InvalidCode })
+        return
+        // }
+      }
+
+      setFormSent(true)
+      handleSubmit(codes)
+    }
   }
 
   const onChange = (name: string) => {

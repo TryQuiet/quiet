@@ -8,7 +8,7 @@ import { ModalName } from '../modals/modals.types'
 import { modalsActions } from '../modals/modals.slice'
 
 export function* handleInvitationCodeSaga(
-  action: PayloadAction<ReturnType<typeof communities.actions.handleInvitationCode>['payload']>
+  action: PayloadAction<ReturnType<typeof communities.actions.handleInvitationCodes>['payload']>
 ): Generator {
   while (true) {
     const connected = yield* select(socketSelectors.isConnected)
@@ -32,26 +32,27 @@ export function* handleInvitationCodeSaga(
     return
   }
 
-  const code = action.payload.trim()
+  // const code = action.payload.trim()
 
-  if (code.match(ONION_ADDRESS_REGEX)) {
-    const payload: CreateNetworkPayload = {
-      ownership: CommunityOwnership.User,
-      registrar: code,
-    }
-    yield* put(communities.actions.createNetwork(payload))
-    return
+  // if (code.match(ONION_ADDRESS_REGEX)) {
+  const payload: CreateNetworkPayload = {
+    ownership: CommunityOwnership.User,
+    peers: action.payload,
   }
+  yield* put(communities.actions.createNetwork(payload))
+  return
+  // }
 
-  yield* put(communities.actions.clearInvitationCode())
+  // TODO: handle invalid code
+  // yield* put(communities.actions.clearInvitationCode())
 
-  yield* put(
-    modalsActions.openModal({
-      name: ModalName.warningModal,
-      args: {
-        title: 'Invalid link',
-        subtitle: 'The invite link you received is not valid. Please check it and try again.',
-      },
-    })
-  )
+  // yield* put(
+  //   modalsActions.openModal({
+  //     name: ModalName.warningModal,
+  //     args: {
+  //       title: 'Invalid link',
+  //       subtitle: 'The invite link you received is not valid. Please check it and try again.',
+  //     },
+  //   })
+  // )
 }

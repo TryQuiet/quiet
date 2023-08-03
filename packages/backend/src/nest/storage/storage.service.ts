@@ -171,7 +171,7 @@ export class StorageService extends EventEmitter {
       return
     }
     for (const a of addr) {
-      this.logger(`Pubsub - subscribe to ${addr}`)
+      this.logger(`Pubsub - subscribe to ${a}`)
       // @ts-ignore
       await this.orbitDb._pubsub.subscribe(
         a,
