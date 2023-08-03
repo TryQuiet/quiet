@@ -120,7 +120,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
                 clearInterval(this.interval)
                 resolve(true)
               }
-            }, 1000)
+            }, 2500)
           })
 
           resolve()
