@@ -2,8 +2,13 @@ import { type ChannelMessage } from './channel'
 
 export interface FileContent {
   path: string | null // Should it be nullable?
+  tmpPath?: string
   name: string
   ext: string
+}
+
+export interface FilePreviewData {
+  [id: string]: FileContent
 }
 
 export interface FileMetadata extends FileContent {

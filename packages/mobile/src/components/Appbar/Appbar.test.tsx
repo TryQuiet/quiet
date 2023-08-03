@@ -73,6 +73,7 @@ describe('Appbar component', () => {
               style={
                 {
                   "alignItems": "center",
+                  "height": 50,
                   "justifyContent": "center",
                   "width": 64,
                 }
@@ -209,6 +210,7 @@ describe('Appbar component', () => {
               style={
                 {
                   "alignItems": "center",
+                  "height": 50,
                   "justifyContent": "center",
                   "width": 64,
                 }

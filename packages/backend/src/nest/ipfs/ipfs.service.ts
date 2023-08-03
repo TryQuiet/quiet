@@ -30,6 +30,7 @@ export class IpfsService {
         throw new Error('no libp2p instance')
       }
       ipfs = await create({
+        start: false,
         libp2p: async () => libp2pInstance,
         preload: { enabled: false },
         repo: this.ipfsRepoPath,

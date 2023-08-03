@@ -8,25 +8,18 @@ import { expectSaga } from 'redux-saga-test-plan'
 import { type Socket } from 'socket.io-client'
 import { type communitiesActions } from '../../communities/communities.slice'
 import { type identityActions } from '../../identity/identity.slice'
-import { uploadFileSaga } from './uploadFile.saga'
+import { sendFileMessageSaga } from './sendFileMessage.saga'
 import { type FactoryGirl } from 'factory-girl'
 import { type publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import { filesActions } from '../files.slice'
 import { generateMessageId } from '../../messages/utils/message.utils'
 import { DateTime } from 'luxon'
 import { messagesActions } from '../../messages/messages.slice'
-import {
-  type Community,
-  DownloadState,
-  type FileMetadata,
-  type Identity,
-  type PublicChannel,
-  SocketActionTypes,
-} from '@quiet/types'
+import { type Community, DownloadState, type FileMetadata, type Identity, type PublicChannel } from '@quiet/types'
 import { generateChannelId } from '@quiet/common'
 import { currentChannelId } from '../../publicChannels/publicChannels.selectors'
 
-describe('uploadFileSaga', () => {
+describe('sendFileMessageSaga', () => {
   let store: Store
   let factory: FactoryGirl
 
@@ -66,14 +59,10 @@ describe('uploadFileSaga', () => {
     message = Math.random().toString(36).substr(2.9)
   })
 
-  test('uploading file', async () => {
-    const socket = { emit: jest.fn() } as unknown as Socket
-
+  test('saves message with media', async () => {
     const currentChannel = currentChannelId(store.getState())
 
     if (!currentChannel) throw new Error('no current channel id')
-
-    const peerId = alice.peerId.id
 
     const media: FileMetadata = {
       cid: `uploading_${message}`,
@@ -84,9 +73,10 @@ describe('uploadFileSaga', () => {
         id: message,
         channelId: currentChannel,
       },
+      tmpPath: undefined,
     }
     const reducer = combineReducers(reducers)
-    await expectSaga(uploadFileSaga, socket, filesActions.uploadFile(media))
+    await expectSaga(sendFileMessageSaga, filesActions.uploadFile(media))
       .withReducer(reducer)
       .withState(store.getState())
       .provide([[call.fn(generateMessageId), message]])
@@ -106,13 +96,52 @@ describe('uploadFileSaga', () => {
           downloadProgress: undefined,
         })
       )
-      .apply(socket, socket.emit, [
-        SocketActionTypes.UPLOAD_FILE,
-        {
-          file: media,
-          peerId,
-        },
-      ])
+      .run()
+  })
+
+  test('saves message with media with updated path', async () => {
+    const currentChannel = currentChannelId(store.getState())
+
+    if (!currentChannel) throw new Error('no current channel id')
+
+    const media: FileMetadata = {
+      cid: `uploading_${message}`,
+      path: 'file://temp/name.ext',
+      tmpPath: 'file://temp/name.ext',
+      name: 'name',
+      ext: 'ext',
+      message: {
+        id: message,
+        channelId: currentChannel,
+      },
+    }
+    const updatedMedia: FileMetadata = {
+      ...media,
+      path: 'temp/name.ext',
+      tmpPath: 'temp/name.ext',
+    }
+
+    const reducer = combineReducers(reducers)
+    await expectSaga(sendFileMessageSaga, filesActions.uploadFile(media))
+      .withReducer(reducer)
+      .withState(store.getState())
+      .provide([[call.fn(generateMessageId), message]])
+      .put(
+        messagesActions.sendMessage({
+          id: message,
+          message: '',
+          type: MessageType.File,
+          media: updatedMedia,
+        })
+      )
+      .put(
+        filesActions.updateDownloadStatus({
+          mid: message,
+          cid: `uploading_${message}`,
+          downloadState: DownloadState.Uploading,
+          downloadProgress: undefined,
+        })
+      )
       .run()
   })
 })
