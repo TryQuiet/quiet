@@ -26,6 +26,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
   private readonly logger = Logger(Tor.name)
   private hiddenServices: Map<string, any> = new Map()
   private initializedHiddenServices: Map<string, any> = new Map()
+  public isInitialized: Promise<boolean>
   constructor(
     @Inject(CONFIG_OPTIONS) public configOptions: ConfigOptions,
     @Inject(QUIET_DIR) public readonly quietDir: string,
@@ -59,7 +60,11 @@ export class Tor extends EventEmitter implements OnModuleInit {
   get torProcessParams(): string[] {
     return Array.from(Object.entries(this.extraTorProcessParams)).flat()
   }
+
+  public torInitCounter = 0
   public async init(timeout = 120_000): Promise<void> {
+    this.torInitCounter++
+    this.logger('this.torInitCounter', this.torInitCounter)
     if (!this.socksPort) this.socksPort = await getPort()
     this.logger('Initializing tor...')
     console.log('this.controlPort', this.controlPort)
@@ -104,15 +109,20 @@ export class Tor extends EventEmitter implements OnModuleInit {
 
         try {
           await this.spawnTor()
-          this.interval = setInterval(async () => {
-            const log = await this.torControl.sendCommand('GETINFO status/bootstrap-phase')
-            if (
-              log.messages[0] === '250-status/bootstrap-phase=NOTICE BOOTSTRAP PROGRESS=100 TAG=done SUMMARY="Done"'
-            ) {
-              this.serverIoProvider.io.emit(SocketActionTypes.TOR_INITIALIZED)
-              clearInterval(this.interval)
-            }
-          }, 1000)
+          this.isInitialized = new Promise<boolean>((resolve, reject) => {
+            this.interval = setInterval(async () => {
+              const log = await this.torControl.sendCommand('GETINFO status/bootstrap-phase')
+              if (
+                log.messages[0] === '250-status/bootstrap-phase=NOTICE BOOTSTRAP PROGRESS=100 TAG=done SUMMARY="Done"'
+              ) {
+                this.serverIoProvider.io.emit(SocketActionTypes.TOR_INITIALIZED)
+
+                clearInterval(this.interval)
+                resolve(true)
+              }
+            }, 1000)
+          })
+
           resolve()
         } catch {
           this.logger('Killing tor')
