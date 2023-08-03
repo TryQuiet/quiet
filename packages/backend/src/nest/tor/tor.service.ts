@@ -120,7 +120,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
                 clearInterval(this.interval)
                 resolve(true)
               }
-            }, 2500)
+            }, 2000)
           })
 
           resolve()
@@ -255,7 +255,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
 
       this.process.stdout.on('data', (data: any) => {
         this.logger(data.toString())
-        const regexp = /Bootstrapped 5/
+        const regexp = /Bootstrapped 0/
         if (regexp.test(data.toString())) {
           this.spawnHiddenServices()
           resolve()
