@@ -81,8 +81,20 @@ export class TorControl implements OnModuleInit {
 
   public async sendCommand(command: string): Promise<{ code: number; messages: string[] }> {
     this.logger({ command })
+    this.logger('this.connection - before', this.connection)
+    await this.waitForDisconnect()
+    this.logger('this.connection - after', this.connection)
     return await new Promise((resolve, reject) => {
       void this._sendCommand(command, resolve, reject)
+    })
+  }
+
+  private async waitForDisconnect() {
+    await new Promise<void>(resolve => {
+      if (!this.connection) {
+        this.logger('waitForDisconnect - if')
+        resolve()
+      }
     })
   }
 }
