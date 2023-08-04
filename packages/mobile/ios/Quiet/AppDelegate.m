@@ -124,13 +124,13 @@ static NSString *const platform = @"mobile";
   
   // (2/6) Spawn tor with proper configuration
   
+  self.tor = [TorHandler new];
+  
+  self.torConfiguration = [self.tor getTorConfiguration:socksPort controlPort:controlPort httpTunnelPort:httpTunnelPort];
+  
+  [self.tor removeOldAuthCookieWithConfiguration:self.torConfiguration];
+  
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-    self.tor = [TorHandler new];
-    
-    self.torConfiguration = [self.tor getTorConfiguration:socksPort controlPort:controlPort httpTunnelPort:httpTunnelPort];
-    
-    [self.tor removeOldAuthCookieWithConfiguration:self.torConfiguration];
-    
     [self.tor spawnWithConfiguration:self.torConfiguration];
   });
   
@@ -163,9 +163,9 @@ static NSString *const platform = @"mobile";
   // (6/6) Launch backend or reviwe services
   
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
-    
+
     NSString *authCookie = [self getAuthCookie];
-    
+
     if (init) {
       [self launchBackend:controlPort :httpTunnelPort :authCookie];
     } else {
