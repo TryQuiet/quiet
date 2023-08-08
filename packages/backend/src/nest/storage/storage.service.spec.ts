@@ -206,6 +206,11 @@ describe('StorageService', () => {
         value: orgProcessPlatform,
       })
     })
+
+    it('db address should be the same on all platforms', () => {
+      const dbAddress = StorageService.dbAddress({ root: 'zdpuABCDefgh123', path: 'channels.general_abcd' })
+      expect(dbAddress).toEqual(`/orbitdb/zdpuABCDefgh123/channels.general_abcd`)
+    })
   })
 
   describe('Channels', () => {
