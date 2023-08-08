@@ -106,6 +106,7 @@ jobs:
         with:
           timeout_minutes: 25
           max_attempts: 3
+          shell: bash
           command: cd packages/e2e-tests && npm run test twoClients.test.ts
       #   # Old prod version
       # - name: Rename latest quiet
