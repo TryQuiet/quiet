@@ -60,15 +60,9 @@ export class Tor extends EventEmitter implements OnModuleInit {
     return Array.from(Object.entries(this.extraTorProcessParams)).flat()
   }
 
-  public torInitCounter = 0
   public async init(timeout = 120_000): Promise<void> {
-    this.torInitCounter++
-    this.logger('this.torInitCounter', this.torInitCounter)
     if (!this.socksPort) this.socksPort = await getPort()
     this.logger('Initializing tor...')
-    console.log('this.controlPort', this.controlPort)
-    console.log('this.torControl', this.torControl.torControlParams)
-    console.log('configOptions.torControl', this.configOptions.torControlPort)
 
     return await new Promise((resolve, reject) => {
       if (!fs.existsSync(this.quietDir)) {
@@ -76,7 +70,6 @@ export class Tor extends EventEmitter implements OnModuleInit {
       }
 
       this.torDataDirectory = path.join.apply(null, [this.quietDir, 'TorDataDirectory'])
-      console.log('this.torDataDirectory', this.torDataDirectory)
       this.torPidPath = path.join.apply(null, [this.quietDir, 'torPid.json'])
       let oldTorPid: number | null = null
       if (fs.existsSync(this.torPidPath)) {
@@ -85,11 +78,8 @@ export class Tor extends EventEmitter implements OnModuleInit {
         this.logger(`${this.torPidPath} exists. Old tor pid: ${oldTorPid}`)
       }
 
-      console.log(2)
-
       this.timeout = setTimeout(async () => {
         const log = await this.torControl.sendCommand('GETINFO status/bootstrap-phase')
-        console.log({ log })
         if (log.messages[0] !== '250-status/bootstrap-phase=NOTICE BOOTSTRAP PROGRESS=100 TAG=done SUMMARY="Done"') {
           this.initializedHiddenServices = new Map()
           clearInterval(this.interval)
@@ -263,11 +253,10 @@ export class Tor extends EventEmitter implements OnModuleInit {
 
   public async spawnHiddenServices() {
     for (const el of this.hiddenServices.values()) {
-      console.log({ el })
       await this.spawnHiddenService(el)
     }
   }
-  public counter = 0
+
   public async spawnHiddenService({
     targetPort,
     privKey,
@@ -277,8 +266,6 @@ export class Tor extends EventEmitter implements OnModuleInit {
     privKey: string
     virtPort?: number
   }): Promise<string> {
-    this.counter++
-    this.logger('counter', this.counter)
     if (this.initializedHiddenServices.get(privKey)) {
       this.logger('IF - this.initializedHiddenServices.get(privKey)')
       return this.initializedHiddenServices.get(privKey).onionAddres

@@ -2,7 +2,7 @@ import React from 'react'
 import { styled } from '@mui/material/styles'
 import Modal from '../ui/Modal/Modal'
 import QuietLogo from '../../static/images/quiet-logo.png'
-import { Grid, Typography } from '@mui/material'
+import { Grid } from '@mui/material'
 
 const PREFIX = 'StartingPanelComponent'
 
@@ -78,15 +78,6 @@ const StartingPanelComponent: React.FC<StartingPanelComponentProps> = ({ open, h
           data-testid='startingPanelComponent'
         >
           <img className={classes.image} src={QuietLogo} />
-
-          {/* <Grid container justifyContent='flex-start' alignItems='center' className={classes.progressBar}>
-            <div className={classes.progress}></div>
-          </Grid>
-
-          <Typography variant='body2'>{message}</Typography>
-          <Typography variant='body2' className={classes.text}>
-            {`Tor ${torBootstrapInfo}`}
-          </Typography> */}
         </Grid>
       </StyledGrid>
     </Modal>
