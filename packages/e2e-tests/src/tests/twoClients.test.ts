@@ -41,12 +41,23 @@ describe('Two Clients', () => {
   const joiningUserMessages = ['Nice to meet you all', 'Nice to meet you again']
   const newChannelName = 'mid-night-club'
 
+  const sleep = async (time = 1000) =>
+    await new Promise<void>(resolve =>
+      setTimeout(() => {
+        resolve()
+      }, time)
+    )
+
   beforeAll(async () => {
     ownerApp = new App()
   })
 
   afterAll(async () => {
     await ownerApp?.close()
+  })
+
+  beforeEach(async () => {
+    await sleep(1000)
   })
 
   describe('Stages:', () => {
