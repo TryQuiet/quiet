@@ -54,7 +54,7 @@ describe('Two Clients', () => {
       await new Promise<void>(resolve =>
         setTimeout(() => {
           resolve()
-        }, 5000)
+        }, 1000)
       )
     }
   })
