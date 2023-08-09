@@ -1,6 +1,6 @@
 exports.default = async function (configuration) {
   if (process.env.E2E) {
-    console.log('E2E workflow')
+    console.log('E2E workflow - no need to sign')
     return
   }
   console.log('config', configuration.path)
