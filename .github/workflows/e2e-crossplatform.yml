@@ -26,14 +26,6 @@ jobs:
         shell: bash
         run: cd packages/desktop && curl https://zbay-binaries.s3.us-east-2.amazonaws.com/jsign/jsign-2.1.jar --output ./jsign-2.1.jar
 
-
-      - name: "Add Windows certificate"
-        id: write_file
-        uses: TryQuiet/base64-to-file@main
-        with:
-          fileName: 'win-certificate.pfx'
-          encodedString: ${{ secrets.WIN_CSC_LINK }}
-
       - name: "Remove test files workaround (jest types conflicting with cypress types)"
         run: find packages/desktop/src -name '*.test.*' -delete
         shell: bash
@@ -44,13 +36,13 @@ jobs:
           source-path: win32
 
       - name: electron-builder
-        env:
-          CSC_IDENTITY_AUTO_DISCOVERY: false
         working-directory: ./packages/desktop
         run: node_modules/.bin/electron-builder --win 
         shell: bash
 
       - name: Extract version
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: false
         id: extract_version
         uses: Saionaro/extract-package-version@v1.1.1
         with:
