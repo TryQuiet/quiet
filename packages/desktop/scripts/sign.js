@@ -1,4 +1,8 @@
 exports.default = async function (configuration) {
+  if (process.env.E2E) {
+    console.log('E2E workflow')
+    return
+  }
   console.log('config', configuration.path)
   require('child_process').execSync(
     `java \
@@ -11,7 +15,7 @@ exports.default = async function (configuration) {
     "${configuration.path}"
     `,
     {
-      stdio: 'inherit'
+      stdio: 'inherit',
     }
   )
 }

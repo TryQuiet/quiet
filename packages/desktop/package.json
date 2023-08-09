@@ -33,7 +33,7 @@
     "win": {
       "icon": "./build/icon.png",
       "target": "NSIS",
-      "sign": null,
+      "sign": "scripts/sign.js",
       "files": [
         "dist/**/*",
         "build/icon.*",

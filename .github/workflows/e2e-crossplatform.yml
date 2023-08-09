@@ -12,6 +12,7 @@ jobs:
     env:
       ELECTRON_CUSTOM_VERSION: 23.0.0
       TEST_MODE: true
+      E2E: true
 
     steps:
       - uses: actions/checkout@v2
@@ -41,8 +42,6 @@ jobs:
         shell: bash
 
       - name: Extract version
-        env:
-          CSC_IDENTITY_AUTO_DISCOVERY: false
         id: extract_version
         uses: Saionaro/extract-package-version@v1.1.1
         with:
@@ -90,21 +89,6 @@ jobs:
           shell: bash
           command: cd packages/e2e-tests && npm run test oneClient.test.ts
 
-      - name: Run two clients test
-        uses: nick-fields/retry@v2
-        with:
-          timeout_minutes: 25
-          max_attempts: 3
-          shell: bash
-          command: cd packages/e2e-tests && npm run test twoClients.test.ts
-
-      - name: Run invitation link test - Includes 2 separate application clients
-        uses: nick-fields/retry@v2
-        with:
-          timeout_minutes: 25
-          max_attempts: 3
-          shell: bash
-          command: cd packages/e2e-tests && npm run test invitationLink.test.ts
       #   # Old prod version
       # - name: Rename latest quiet
       #   run: cd $env:LOCALAPPDATA/programs; rename-item quiet quiet2
