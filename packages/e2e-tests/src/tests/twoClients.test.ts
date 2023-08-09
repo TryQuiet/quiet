@@ -260,6 +260,7 @@ describe('Two Clients', () => {
       const channels = await sidebar.getChannelList()
       expect(channels.length).toEqual(2)
     })
+    // End of tests for Windows
     if (process.platform !== 'win32') {
       it('Leave community', async () => {
         console.log('TEST 2')
