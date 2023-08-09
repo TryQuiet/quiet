@@ -50,7 +50,7 @@ describe('Two Clients', () => {
   })
 
   afterEach(async () => {
-    if (process.platform !== 'win32') {
+    if (process.platform === 'win32') {
       await new Promise<void>(resolve =>
         setTimeout(() => {
           resolve()
