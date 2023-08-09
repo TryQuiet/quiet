@@ -49,6 +49,16 @@ describe('Two Clients', () => {
     await ownerApp?.close()
   })
 
+  afterEach(async () => {
+    if (process.platform !== 'win32') {
+      await new Promise<void>(resolve =>
+        setTimeout(() => {
+          resolve()
+        }, 5000)
+      )
+    }
+  })
+
   describe('Stages:', () => {
     it('Owner opens the app', async () => {
       await ownerApp.open()

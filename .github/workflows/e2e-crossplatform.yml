@@ -100,7 +100,6 @@ jobs:
           shell: bash
           command: cd packages/e2e-tests && npm run test oneClient.test.ts
 
-
       - name: Run two clients test
         uses: nick-fields/retry@v2
         with:
@@ -108,6 +107,14 @@ jobs:
           max_attempts: 3
           shell: bash
           command: cd packages/e2e-tests && npm run test twoClients.test.ts
+
+      - name: Run invitation link test - Includes 2 separate application clients
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 25
+          max_attempts: 3
+          shell: bash
+          command: cd packages/e2e-tests && npm run test invitationLink.test.ts
       #   # Old prod version
       # - name: Rename latest quiet
       #   run: cd $env:LOCALAPPDATA/programs; rename-item quiet quiet2
