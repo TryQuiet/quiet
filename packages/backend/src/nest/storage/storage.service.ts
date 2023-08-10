@@ -162,7 +162,8 @@ export class StorageService extends EventEmitter {
   }
 
   static dbAddress = (db: { root: string; path: string }) => {
-    return path.join('/', 'orbitdb', '/', db.root, '/', db.path)
+    // Note: Do not use path.join for creating db address!
+    return `/orbitdb/${db.root}/${db.path}`
   }
 
   private async subscribeToPubSub(addr: string[]) {
