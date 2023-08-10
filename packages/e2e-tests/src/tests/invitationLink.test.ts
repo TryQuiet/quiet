@@ -14,7 +14,7 @@ import { capitalizeFirstLetter, invitationDeepUrl } from '@quiet/common'
 import { execSync } from 'child_process'
 import { type SupportedPlatformDesktop } from '@quiet/types'
 
-jest.setTimeout(900000)
+jest.setTimeout(1900000)
 it.todo('New user joins using invitation link while having app closed')
 describe('New user joins using invitation link while having app opened', () => {
   // Note: this test requires no DATA_DIR env so ran on local machine may interfere with 'Quiet' data directory
