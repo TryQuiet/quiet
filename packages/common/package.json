@@ -26,6 +26,7 @@
   },
   "dependencies": {
     "@quiet/types": "^1.6.0",
+    "multiaddr": "^10.0.1",
     "cross-env": "^5.2.0",
     "debug": "^4.3.1"
   },

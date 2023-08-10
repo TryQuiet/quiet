@@ -11,7 +11,7 @@ import { Crypto } from '@peculiar/webcrypto'
 import logger from './logger'
 import { DATA_DIR, DEV_DATA_DIR } from '../shared/static'
 import { fork, ChildProcess } from 'child_process'
-import { argvInvitationCode, getFilesData, retrieveInvitationCodePairs } from '@quiet/common'
+import { argvInvitationCode, getFilesData, retrieveInvitationCode } from '@quiet/common'
 import { updateDesktopFile, processInvitationCode } from './invitation'
 const ElectronStore = require('electron-store')
 ElectronStore.initRenderer()
@@ -147,7 +147,7 @@ app.on('open-url', (event, url) => {
   event.preventDefault()
   if (mainWindow) {
     invitationUrl = null
-    const invitationCode = retrieveInvitationCodePairs(url)
+    const invitationCode = retrieveInvitationCode(url)
     processInvitationCode(mainWindow, invitationCode)
   }
 })
@@ -474,12 +474,12 @@ app.on('ready', async () => {
       throw new Error(`mainWindow is on unexpected type ${mainWindow}`)
     }
     if (process.platform === 'darwin' && invitationUrl) {
-      const invitationCode = retrieveInvitationCodePairs(invitationUrl)
+      const invitationCode = retrieveInvitationCode(invitationUrl)
       processInvitationCode(mainWindow, invitationCode)
       invitationUrl = null
     }
     if (process.platform !== 'darwin' && process.argv) {
-      const invitationCode = argvInvitationCodeMultipleAddresses(process.argv)
+      const invitationCode = argvInvitationCode(process.argv)
       processInvitationCode(mainWindow, invitationCode)
     }
 

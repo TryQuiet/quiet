@@ -34,7 +34,7 @@ export function* createNetworkSaga(
   const payload: Community = {
     id,
     name: action.payload.name,
-    registrarUrl,
+    // registrarUrl,
     CA,
     rootCa: CA?.rootCertString,
   }

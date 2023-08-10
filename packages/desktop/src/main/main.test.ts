@@ -243,14 +243,17 @@ describe('Invitation code', () => {
     const code = 'invitationCode'
     expect(mockAppOnCalls[1][0]).toBe('open-url')
     const event = { preventDefault: () => {} }
-    mockAppOnCalls[1][1](event, invitationDeepUrl(code))
+    mockAppOnCalls[1][1](event, invitationDeepUrl([{ peerId: 'peerId1', address: 'address' }]))
     expect(mockWindowWebContentsSend).toHaveBeenCalledWith('invitation', { code: code })
   })
 
   it('process invitation code on second-instance event', async () => {
     const code = 'invitationCodeArgv'
     await mockAppOnCalls[2][1]()
-    const commandLine = ['/tmp/.mount_Quiet-TVQc6s/quiet', invitationDeepUrl(code)]
+    const commandLine = [
+      '/tmp/.mount_Quiet-TVQc6s/quiet',
+      invitationDeepUrl([{ peerId: 'peerId1', address: 'address' }]),
+    ]
     expect(mockAppOnCalls[0][0]).toBe('second-instance')
     const event = { preventDefault: () => {} }
     mockAppOnCalls[0][1](event, commandLine)
