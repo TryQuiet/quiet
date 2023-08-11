@@ -344,11 +344,21 @@ describe('Two Clients', () => {
         const text2 = await messages2[0].getText()
         expect(text2).toEqual(joiningUserMessages[1])
       })
+      it('Owner close app', async () => {
+        await ownerApp?.close()
+        await new Promise<void>(resolve => setTimeout(() => resolve(), 20000))
+      })
 
       it('Guest close app', async () => {
         console.log('TEST 9')
         await guestApp?.close()
       })
+
+      it('Owner re-open app', async () => {
+        await ownerApp?.open()
+        await new Promise<void>(resolve => setTimeout(() => resolve(), 10000))
+      })
+
       it('Guest close app - Owner send another message after guest leave app', async () => {
         console.log('TEST 10')
         const isMessageInput = await generalChannel.messageInput.isDisplayed()
