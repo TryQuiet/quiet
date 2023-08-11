@@ -56,9 +56,9 @@ describe('Two Clients', () => {
     await ownerApp?.close()
   })
 
-  // beforeEach(async () => {
-  //   await sleep(1000)
-  // })
+  beforeEach(async () => {
+    await sleep(1000)
+  })
 
   describe('Stages:', () => {
     it('Owner opens the app', async () => {
@@ -368,6 +368,7 @@ describe('Two Clients', () => {
 
       it('Guest close app - Owner send another message after guest leave app', async () => {
         console.log('TEST 10')
+        generalChannel = new Channel(ownerApp.driver, 'general')
         const isMessageInput = await generalChannel.messageInput.isDisplayed()
         expect(isMessageInput).toBeTruthy()
         await generalChannel.sendMessage(ownerMessages[2])
