@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.8.1-alpha.2](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@1.8.1-alpha.1...@quiet/mobile@1.8.1-alpha.2) (2023-08-11)
+
+**Note:** Version bump only for package @quiet/mobile
+
+
+
+
+
 ## [1.8.1-alpha.1](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@1.8.1-alpha.0...@quiet/mobile@1.8.1-alpha.1) (2023-08-08)
 
 **Note:** Version bump only for package @quiet/mobile
