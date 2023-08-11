@@ -56,9 +56,9 @@ describe('Two Clients', () => {
     await ownerApp?.close()
   })
 
-  beforeEach(async () => {
-    await sleep(1000)
-  })
+  // beforeEach(async () => {
+  //   await sleep(1000)
+  // })
 
   describe('Stages:', () => {
     it('Owner opens the app', async () => {
@@ -345,7 +345,7 @@ describe('Two Clients', () => {
         expect(text2).toEqual(joiningUserMessages[1])
       })
       it('Owner close app', async () => {
-        await ownerApp?.close()
+        await ownerApp.close({ forceSaveState: true })
         await new Promise<void>(resolve => setTimeout(() => resolve(), 20000))
       })
 
@@ -358,6 +358,13 @@ describe('Two Clients', () => {
         await ownerApp?.open()
         await new Promise<void>(resolve => setTimeout(() => resolve(), 10000))
       })
+
+      if (process.env.TEST_MODE) {
+        it('Close debug modal', async () => {
+          const debugModal = new DebugModeModal(ownerApp.driver)
+          await debugModal.close()
+        })
+      }
 
       it('Guest close app - Owner send another message after guest leave app', async () => {
         console.log('TEST 10')
