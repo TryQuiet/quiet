@@ -3,7 +3,6 @@ import { select, put, delay } from 'typed-redux-saga'
 import { CommunityOwnership, CreateNetworkPayload } from '@quiet/types'
 import { communities } from '@quiet/state-manager'
 import { socketSelectors } from '../socket/socket.selectors'
-import { ONION_ADDRESS_REGEX } from '@quiet/common'
 import { ModalName } from '../modals/modals.types'
 import { modalsActions } from '../modals/modals.slice'
 

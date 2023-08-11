@@ -22,7 +22,7 @@ export const InvitationContextMenu: FC = () => {
 
   const screen = useSelector(navigationSelectors.currentScreen)
 
-  const community = useSelector(communities.selectors.currentCommunity)
+  // const community = useSelector(communities.selectors.currentCommunity)
   const invitationLink = useSelector(communities.selectors.invitationUrl)
 
   const invitationContextMenu = useContextMenu(MenuName.Invitation)

@@ -9,6 +9,7 @@ import { appImages } from '../../../assets'
 import { replaceScreen } from '../../../RootNavigation'
 import { UsernameRegistrationRouteProps } from '../../../route.params'
 import { CommunityOwnership, ConnectionProcessInfo, CreateNetworkPayload } from '@quiet/types'
+import { retrieveInvitationCode } from '@quiet/common'
 
 export function* deepLinkSaga(action: PayloadAction<ReturnType<typeof initActions.deepLink>['payload']>): Generator {
   const code = action.payload
@@ -48,14 +49,14 @@ export function* deepLinkSaga(action: PayloadAction<ReturnType<typeof initAction
   }
 
   // The same url has been used to open an app
-  if (community?.registrarUrl?.includes(code)) {
-    yield* put(
-      navigationActions.replaceScreen({
-        screen: ScreenNames.ChannelListScreen,
-      })
-    )
-    return
-  }
+  // if (community?.registrarUrl?.includes(code)) {
+  //   yield* put(
+  //     navigationActions.replaceScreen({
+  //       screen: ScreenNames.ChannelListScreen,
+  //     })
+  //   )
+  //   return
+  // }
 
   // User already belongs to a community
   if (community) {
@@ -84,7 +85,7 @@ export function* deepLinkSaga(action: PayloadAction<ReturnType<typeof initAction
 
   const payload: CreateNetworkPayload = {
     ownership: CommunityOwnership.User,
-    registrar: code,
+    peers: retrieveInvitationCode(code),
   }
 
   yield* put(communities.actions.createNetwork(payload))

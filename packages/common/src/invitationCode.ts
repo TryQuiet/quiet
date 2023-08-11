@@ -24,7 +24,7 @@ import { multiaddr } from 'multiaddr'
 
 export const retrieveInvitationCode = (url: string): InvitationPair[] => {
   /**
-   * Extract invitation code from deep url.
+   * Extract invitation codes from deep url.
    * Valid format: quiet://?<peerid1>=<address1>&<peerid2>=<addresss2>
    */
   let data: URL
@@ -36,7 +36,7 @@ export const retrieveInvitationCode = (url: string): InvitationPair[] => {
   if (!data || data.protocol !== 'quiet:') return []
   const params = data.searchParams
   const codes: InvitationPair[] = []
-  for (const [peerId, address] of params) {
+  for (const [peerId, address] of params.entries()) {
     // TODO: basic check if peerid and address have proper format?
     if (peerId.length !== 46 || address.length !== 56) {
       console.log(`peerId '${peerId}' or address ${address} is not valid`)
@@ -90,7 +90,7 @@ export const argvInvitationCode = (argv: string[]): InvitationPair[] => {
   /**
    * Extract invitation codes from deep url if url is present in argv
    */
-  let invitationCodes = []
+  let invitationCodes: InvitationPair[] = []
   for (const arg of argv) {
     invitationCodes = retrieveInvitationCode(arg)
     if (invitationCodes.length > 0) {
