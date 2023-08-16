@@ -673,84 +673,21 @@ describe('Chat component', () => {
                                   "paddingTop": 0,
                                 }
                               }
-                            >
-                              <Text
-                                color="main"
-                                fontSize={14}
-                                horizontalTextAlign="left"
-                                style={
-                                  [
-                                    {
-                                      "color": "#000000",
-                                      "fontFamily": "Rubik-Regular",
-                                      "fontSize": 14,
-                                      "textAlign": "left",
-                                      "textAlignVertical": "center",
-                                    },
-                                  ]
-                                }
-                                testID="Luck, I am your father!"
-                                verticalTextAlign="center"
-                              >
-                                Luck, I am your father!
-                              </Text>
-                            </View>
+                            />
                             <View
                               style={
                                 {
                                   "paddingTop": 4,
                                 }
                               }
-                            >
-                              <Text
-                                color="main"
-                                fontSize={14}
-                                horizontalTextAlign="left"
-                                style={
-                                  [
-                                    {
-                                      "color": "#000000",
-                                      "fontFamily": "Rubik-Regular",
-                                      "fontSize": 14,
-                                      "textAlign": "left",
-                                      "textAlignVertical": "center",
-                                    },
-                                  ]
-                                }
-                                testID="That's impossible!"
-                                verticalTextAlign="center"
-                              >
-                                That's impossible!
-                              </Text>
-                            </View>
+                            />
                             <View
                               style={
                                 {
                                   "paddingTop": 4,
                                 }
                               }
-                            >
-                              <Text
-                                color="main"
-                                fontSize={14}
-                                horizontalTextAlign="left"
-                                style={
-                                  [
-                                    {
-                                      "color": "#000000",
-                                      "fontFamily": "Rubik-Regular",
-                                      "fontSize": 14,
-                                      "textAlign": "left",
-                                      "textAlignVertical": "center",
-                                    },
-                                  ]
-                                }
-                                testID="Nooo!"
-                                verticalTextAlign="center"
-                              >
-                                Nooo!
-                              </Text>
-                            </View>
+                            />
                           </View>
                         </View>
                       </View>
@@ -954,28 +891,7 @@ describe('Chat component', () => {
                                   "paddingTop": 0,
                                 }
                               }
-                            >
-                              <Text
-                                color="main"
-                                fontSize={14}
-                                horizontalTextAlign="left"
-                                style={
-                                  [
-                                    {
-                                      "color": "#000000",
-                                      "fontFamily": "Rubik-Regular",
-                                      "fontSize": 14,
-                                      "textAlign": "left",
-                                      "textAlignVertical": "center",
-                                    },
-                                  ]
-                                }
-                                testID="Uhuhu!"
-                                verticalTextAlign="center"
-                              >
-                                Uhuhu!
-                              </Text>
-                            </View>
+                            />
                           </View>
                         </View>
                       </View>
@@ -1179,28 +1095,7 @@ describe('Chat component', () => {
                                   "paddingTop": 0,
                                 }
                               }
-                            >
-                              <Text
-                                color="main"
-                                fontSize={14}
-                                horizontalTextAlign="left"
-                                style={
-                                  [
-                                    {
-                                      "color": "#000000",
-                                      "fontFamily": "Rubik-Regular",
-                                      "fontSize": 14,
-                                      "textAlign": "left",
-                                      "textAlignVertical": "center",
-                                    },
-                                  ]
-                                }
-                                testID="Why?"
-                                verticalTextAlign="center"
-                              >
-                                Why?
-                              </Text>
-                            </View>
+                            />
                           </View>
                         </View>
                       </View>
@@ -1404,28 +1299,7 @@ describe('Chat component', () => {
                                   "paddingTop": 0,
                                 }
                               }
-                            >
-                              <Text
-                                color="main"
-                                fontSize={14}
-                                horizontalTextAlign="left"
-                                style={
-                                  [
-                                    {
-                                      "color": "#000000",
-                                      "fontFamily": "Rubik-Regular",
-                                      "fontSize": 14,
-                                      "textAlign": "left",
-                                      "textAlignVertical": "center",
-                                    },
-                                  ]
-                                }
-                                testID="Messages more there should be"
-                                verticalTextAlign="center"
-                              >
-                                Messages more there should be
-                              </Text>
-                            </View>
+                            />
                           </View>
                         </View>
                       </View>
@@ -1629,56 +1503,14 @@ describe('Chat component', () => {
                                   "paddingTop": 0,
                                 }
                               }
-                            >
-                              <Text
-                                color="main"
-                                fontSize={14}
-                                horizontalTextAlign="left"
-                                style={
-                                  [
-                                    {
-                                      "color": "#000000",
-                                      "fontFamily": "Rubik-Regular",
-                                      "fontSize": 14,
-                                      "textAlign": "left",
-                                      "textAlignVertical": "center",
-                                    },
-                                  ]
-                                }
-                                testID="I Agree"
-                                verticalTextAlign="center"
-                              >
-                                I Agree
-                              </Text>
-                            </View>
+                            />
                             <View
                               style={
                                 {
                                   "paddingTop": 4,
                                 }
                               }
-                            >
-                              <Text
-                                color="main"
-                                fontSize={14}
-                                horizontalTextAlign="left"
-                                style={
-                                  [
-                                    {
-                                      "color": "#000000",
-                                      "fontFamily": "Rubik-Regular",
-                                      "fontSize": 14,
-                                      "textAlign": "left",
-                                      "textAlignVertical": "center",
-                                    },
-                                  ]
-                                }
-                                testID="Of course, I Agree"
-                                verticalTextAlign="center"
-                              >
-                                Of course, I Agree
-                              </Text>
-                            </View>
+                            />
                           </View>
                         </View>
                       </View>
@@ -1882,28 +1714,7 @@ describe('Chat component', () => {
                                   "paddingTop": 0,
                                 }
                               }
-                            >
-                              <Text
-                                color="main"
-                                fontSize={14}
-                                horizontalTextAlign="left"
-                                style={
-                                  [
-                                    {
-                                      "color": "#000000",
-                                      "fontFamily": "Rubik-Regular",
-                                      "fontSize": 14,
-                                      "textAlign": "left",
-                                      "textAlignVertical": "center",
-                                    },
-                                  ]
-                                }
-                                testID="Wrough!"
-                                verticalTextAlign="center"
-                              >
-                                Wrough!
-                              </Text>
-                            </View>
+                            />
                           </View>
                         </View>
                       </View>
@@ -2107,28 +1918,7 @@ describe('Chat component', () => {
                                   "paddingTop": 0,
                                 }
                               }
-                            >
-                              <Text
-                                color="main"
-                                fontSize={14}
-                                horizontalTextAlign="left"
-                                style={
-                                  [
-                                    {
-                                      "color": "#000000",
-                                      "fontFamily": "Rubik-Regular",
-                                      "fontSize": 14,
-                                      "textAlign": "left",
-                                      "textAlignVertical": "center",
-                                    },
-                                  ]
-                                }
-                                testID="Yeah!"
-                                verticalTextAlign="center"
-                              >
-                                Yeah!
-                              </Text>
-                            </View>
+                            />
                           </View>
                         </View>
                       </View>
@@ -2332,28 +2122,7 @@ describe('Chat component', () => {
                                   "paddingTop": 0,
                                 }
                               }
-                            >
-                              <Text
-                                color="main"
-                                fontSize={14}
-                                horizontalTextAlign="left"
-                                style={
-                                  [
-                                    {
-                                      "color": "#000000",
-                                      "fontFamily": "Rubik-Regular",
-                                      "fontSize": 14,
-                                      "textAlign": "left",
-                                      "textAlignVertical": "center",
-                                    },
-                                  ]
-                                }
-                                testID="The more messages the better"
-                                verticalTextAlign="center"
-                              >
-                                The more messages the better
-                              </Text>
-                            </View>
+                            />
                           </View>
                         </View>
                       </View>
@@ -2543,28 +2312,7 @@ describe('Chat component', () => {
                                   "paddingTop": 0,
                                 }
                               }
-                            >
-                              <Text
-                                color="main"
-                                fontSize={14}
-                                horizontalTextAlign="left"
-                                style={
-                                  [
-                                    {
-                                      "color": "#000000",
-                                      "fontFamily": "Rubik-Regular",
-                                      "fontSize": 14,
-                                      "textAlign": "left",
-                                      "textAlignVertical": "center",
-                                    },
-                                  ]
-                                }
-                                testID="We cannot grant you the rank of messager"
-                                verticalTextAlign="center"
-                              >
-                                We cannot grant you the rank of messager
-                              </Text>
-                            </View>
+                            />
                           </View>
                         </View>
                       </View>
@@ -2768,28 +2516,7 @@ describe('Chat component', () => {
                                   "paddingTop": 0,
                                 }
                               }
-                            >
-                              <Text
-                                color="main"
-                                fontSize={14}
-                                horizontalTextAlign="left"
-                                style={
-                                  [
-                                    {
-                                      "color": "#000000",
-                                      "fontFamily": "Rubik-Regular",
-                                      "fontSize": 14,
-                                      "textAlign": "left",
-                                      "textAlignVertical": "center",
-                                    },
-                                  ]
-                                }
-                                testID="deathhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhstarrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrdeathstartttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr"
-                                verticalTextAlign="center"
-                              >
-                                deathhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhstarrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrdeathstartttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr
-                              </Text>
-                            </View>
+                            />
                           </View>
                         </View>
                       </View>
@@ -3013,56 +2740,14 @@ describe('Chat component', () => {
                                   "paddingTop": 0,
                                 }
                               }
-                            >
-                              <Text
-                                color="main"
-                                fontSize={14}
-                                horizontalTextAlign="left"
-                                style={
-                                  [
-                                    {
-                                      "color": "#000000",
-                                      "fontFamily": "Rubik-Regular",
-                                      "fontSize": 14,
-                                      "textAlign": "left",
-                                      "textAlignVertical": "center",
-                                    },
-                                  ]
-                                }
-                                testID="Hello"
-                                verticalTextAlign="center"
-                              >
-                                Hello
-                              </Text>
-                            </View>
+                            />
                             <View
                               style={
                                 {
                                   "paddingTop": 4,
                                 }
                               }
-                            >
-                              <Text
-                                color="main"
-                                fontSize={14}
-                                horizontalTextAlign="left"
-                                style={
-                                  [
-                                    {
-                                      "color": "#000000",
-                                      "fontFamily": "Rubik-Regular",
-                                      "fontSize": 14,
-                                      "textAlign": "left",
-                                      "textAlignVertical": "center",
-                                    },
-                                  ]
-                                }
-                                testID="How are you? My day was awesome. I removed a lot of unused props from container and I simplified code a lot. I like coding, coding is like building things with LEGO. I could admit it's a little bit harder and there's a lot that can go wrong but I like it anyway."
-                                verticalTextAlign="center"
-                              >
-                                How are you? My day was awesome. I removed a lot of unused props from container and I simplified code a lot. I like coding, coding is like building things with LEGO. I could admit it's a little bit harder and there's a lot that can go wrong but I like it anyway.
-                              </Text>
-                            </View>
+                            />
                           </View>
                         </View>
                       </View>
@@ -3266,28 +2951,7 @@ describe('Chat component', () => {
                                   "paddingTop": 0,
                                 }
                               }
-                            >
-                              <Text
-                                color="main"
-                                fontSize={14}
-                                horizontalTextAlign="left"
-                                style={
-                                  [
-                                    {
-                                      "color": "#000000",
-                                      "fontFamily": "Rubik-Regular",
-                                      "fontSize": 14,
-                                      "textAlign": "left",
-                                      "textAlignVertical": "center",
-                                    },
-                                  ]
-                                }
-                                testID="Great, thanks!"
-                                verticalTextAlign="center"
-                              >
-                                Great, thanks!
-                              </Text>
-                            </View>
+                            />
                           </View>
                         </View>
                       </View>
