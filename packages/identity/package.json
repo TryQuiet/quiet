@@ -49,15 +49,9 @@
   },
   "dependencies": {
     "@peculiar/webcrypto": "1.4.3",
-<<<<<<< HEAD
     "@quiet/eslint-config": "^1.1.0",
     "@quiet/logger": "^1.4.0",
     "@quiet/types": "^1.6.0",
-=======
-    "@quiet/eslint-config": "^1.4.0",
-    "@quiet/logger": "^1.4.0",
-    "@quiet/types": "^1.4.0",
->>>>>>> master
     "pkijs": "^3.0.8"
   },
   "devDependencies": {

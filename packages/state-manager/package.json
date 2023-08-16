@@ -43,13 +43,8 @@
     "@babel/preset-env": "^7.22.5",
     "@babel/preset-typescript": "^7.22.5",
     "@peculiar/webcrypto": "1.4.3",
-<<<<<<< HEAD
     "@quiet/eslint-config": "^1.1.0",
     "@quiet/identity": "^1.6.0",
-=======
-    "@quiet/eslint-config": "^1.4.0",
-    "@quiet/identity": "^1.4.0",
->>>>>>> master
     "@types/factory-girl": "^5.0.8",
     "@types/jest": "^26.0.24",
     "@types/luxon": "^2.0.0",

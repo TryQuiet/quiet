@@ -53,13 +53,8 @@
 		"@nestjs/cli": "^10.0.0",
 		"@nestjs/schematics": "^10.0.0",
 		"@nestjs/testing": "^10.0.0",
-<<<<<<< HEAD
 		"@quiet/eslint-config": "^1.1.0",
 		"@quiet/state-manager": "^1.7.1-alpha.1",
-=======
-		"@quiet/eslint-config": "^1.4.0",
-		"@quiet/state-manager": "^1.4.0",
->>>>>>> master
 		"@types/crypto-js": "^4.0.2",
 		"@types/express": "^4.17.9",
 		"@types/jest": "28.1.8",
