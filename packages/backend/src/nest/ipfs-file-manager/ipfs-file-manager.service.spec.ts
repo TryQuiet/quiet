@@ -197,6 +197,64 @@ describe('IpfsFileManagerService', () => {
     })
   })
 
+  it('removes temporary file', async () => {
+    // Create tmp file
+    const tmpFilePath = path.join(tmpDir.name, '/tmp-test-image.png')
+    fs.copyFileSync(path.join(dirname, '/testUtils/test-image.png'), tmpFilePath)
+    expect(fs.existsSync(tmpFilePath)).toBeTruthy()
+    // Uploading
+    const eventSpy = jest.spyOn(ipfsFileManagerService, 'emit')
+    const copyFileSpy = jest.spyOn(ipfsFileManagerService, 'copyFile')
+    const deleteFileSpy = jest.spyOn(ipfsFileManagerService, 'deleteFile')
+    const metadata: FileMetadata = {
+      path: path.join(dirname, '/testUtils/test-image.png'),
+      tmpPath: tmpFilePath,
+      name: 'test-image',
+      ext: '.png',
+      cid: 'uploading_id',
+      message: {
+        id: 'id',
+        channelId: 'channelId',
+      },
+    }
+
+    await ipfsFileManagerService.uploadFile(metadata)
+    expect(copyFileSpy).toHaveBeenCalled()
+    expect(deleteFileSpy).toHaveBeenCalled()
+    const newFilePath = copyFileSpy.mock.results[0].value as string
+    metadata.path = newFilePath
+
+    const cid = 'QmSaK2joeTBYukh8L7besrvm56wSzMhn64nqLqtvxS3ths'
+    await waitForExpect(() => {
+      expect(eventSpy).toHaveBeenNthCalledWith(1, StorageEvents.REMOVE_DOWNLOAD_STATUS, { cid: 'uploading_id' })
+    })
+    await waitForExpect(() => {
+      expect(eventSpy).toHaveBeenNthCalledWith(
+        2,
+        StorageEvents.UPLOADED_FILE,
+        expect.objectContaining({
+          cid,
+          ext: '.png',
+          height: 44,
+          message: { channelId: 'channelId', id: 'id' },
+          name: 'test-image',
+          size: 15858,
+          width: 824,
+          tmpPath: undefined,
+        })
+      )
+    })
+    await waitForExpect(() => {
+      expect(eventSpy).toHaveBeenNthCalledWith(3, StorageEvents.UPDATE_DOWNLOAD_PROGRESS, {
+        cid,
+        downloadProgress: undefined,
+        downloadState: 'hosted',
+        mid: 'id',
+      })
+    })
+    expect(fs.existsSync(tmpFilePath)).toBeFalsy()
+  })
+
   it("throws error if file doesn't exists", async () => {
     // Uploading
     const eventSpy = jest.spyOn(ipfsFileManagerService, 'emit')
@@ -445,6 +503,25 @@ describe('IpfsFileManagerService', () => {
     const newPath = ipfsFileManagerService.copyFile(originalPath, '12345_test-image.png')
     expect(originalPath).toEqual(newPath)
   })
+
+  it('copies file with filename containing whitespace but removes whitespace in the new path', () => {
+    const newFilePath = ipfsFileManagerService.copyFile(
+      path.join(dirname, '/testUtils/test-image.png'),
+      'test ima ge.png'
+    )
+    expect(newFilePath).toEqual(path.join(ipfsFileManagerService.quietDir, 'uploads', 'testimage.png'))
+  })
+
+  it('copies file with encoded filename containing whitespace but removes whitespace in the new path', () => {
+    const newFilePath = ipfsFileManagerService.copyFile(
+      path.join(dirname, '/testUtils/test-image.png'),
+      'Screenshot_%20with%20whitespace%2020230721-004943.png'
+    )
+    expect(newFilePath).toEqual(
+      path.join(ipfsFileManagerService.quietDir, 'uploads', 'Screenshot_withwhitespace20230721-004943.png')
+    )
+  })
+
   // it.skip('downloaded file chunk returns proper transferSpeed when no delay between entries', async () => {
   //   const fileSize = 52428800 // 50MB
   //   createFile(filePath, fileSize)

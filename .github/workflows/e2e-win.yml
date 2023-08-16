@@ -8,6 +8,7 @@ jobs:
     env:
       ELECTRON_CUSTOM_VERSION: 23.0.0
       TEST_MODE: true
+      E2E: true
 
     steps:
       - uses: actions/checkout@v2
@@ -22,13 +23,6 @@ jobs:
         shell: bash
         run: cd packages/desktop && curl https://zbay-binaries.s3.us-east-2.amazonaws.com/jsign/jsign-2.1.jar --output ./jsign-2.1.jar
 
-      - name: "Add Windows certificate"
-        id: write_file
-        uses: TryQuiet/base64-to-file@main
-        with:
-          fileName: 'win-certificate.pfx'
-          encodedString: ${{ secrets.WIN_CSC_LINK }}
-
       - name: "Remove test files workaround (jest types conflicting with cypress types)"
         run: find packages/desktop/src -name '*.test.*' -delete
         shell: bash
@@ -39,10 +33,6 @@ jobs:
           source-path: win32
 
       - name: electron-builder
-        env:
-          CERTIFICATE_PATH: ${{ steps.write_file.outputs.filePath }}
-          WIN_CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
-          WINDOWS_ALIAS: ${{ secrets.WIN_ALIAS }}
         working-directory: ./packages/desktop
         run: node_modules/.bin/electron-builder --win 
         shell: bash
@@ -63,14 +53,28 @@ jobs:
         run: chmod +x "$FILE_NAME"
         shell: bash
 
+      - name: "Upload built app"
+        uses: actions/upload-artifact@v2
+        with:
+          name: quiet-windows
+          path: ./packages/desktop/dist/Quiet Setup ${{ steps.extract_version.outputs.version }}.exe
+          retention-days: 2
+
       - name: Install exe
         run: Start-Process "Quiet Setup ${{ steps.extract_version.outputs.version }}.exe" -Wait
         working-directory: ./packages/desktop/dist
         shell: powershell
 
-      - name: Kill exe
+      - name: Kill Quiet
         run: Stop-Process -Name "Quiet" -Force
-        working-directory: ./packages/desktop/dist
+        shell: powershell
+
+      - name: Kill tor
+        run: Stop-Process -Name "tor" -Force
+        shell: powershell
+
+      - name: Delay
+        run: Start-Sleep -Seconds 10
         shell: powershell
 
       - name: Run one client test
@@ -78,4 +82,21 @@ jobs:
         with:
           timeout_minutes: 15
           max_attempts: 3
+          shell: bash
           command: cd packages/e2e-tests && npm run test oneClient.test.ts
+
+      - name: Run two clients test
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 30
+          max_attempts: 3
+          shell: bash
+          command: cd packages/e2e-tests && npm run test twoClients.test.ts
+
+      - name: Run invitation link test - Includes 2 separate application clients
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 25
+          max_attempts: 3
+          shell: bash
+          command: cd packages/e2e-tests && npm run test invitationLink.test.ts

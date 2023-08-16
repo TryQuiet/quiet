@@ -2,12 +2,14 @@ import {
   DisplayableMessage,
   DownloadStatus,
   FileMetadata,
+  FilePreviewData,
   MessagesDailyGroups,
   MessageSendingStatus,
   PublicChannel,
 } from '@quiet/types'
 import { Dictionary } from '@reduxjs/toolkit'
 import { useContextMenu } from '../../hooks/useContextMenu'
+import { DocumentPickerResponse } from 'react-native-document-picker'
 
 export interface ChatProps {
   contextMenu?: ReturnType<typeof useContextMenu> | null
@@ -24,7 +26,11 @@ export interface ChatProps {
   imagePreview?: FileMetadata | null
   setImagePreview?: (media: FileMetadata | null) => void
   openImagePreview: (media: FileMetadata) => void
+  updateUploadedFiles: (filesData: DocumentPickerResponse[]) => void
+  removeFilePreview: (id: string) => void
+  uploadedFiles?: FilePreviewData
   openUrl: (url: string) => void
+  ready?: boolean
 }
 
 export interface ChannelMessagesComponentProps {

@@ -17,7 +17,8 @@ export const MessageSendButton: FC<MessageSendButtonProps> = ({ onPress, disable
     <TouchableWithoutFeedback onPress={handlePress} testID={'send_message_button'}>
       <View
         style={{
-          flex: 1.5,
+          paddingLeft: 5,
+          paddingRight: 5,
           justifyContent: 'center',
         }}
       >

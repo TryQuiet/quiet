@@ -189,12 +189,12 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     }
     if (this.storageService) {
       this.logger('Stopping orbitdb')
-      await this.storageService.stopOrbitDb()
+      await this.storageService?.stopOrbitDb()
     }
     // if (this.storageService.ipfs) {
     //   this.storageService.ipfs = null
     // }
-    if (this.serverIoProvider.io) {
+    if (this.serverIoProvider?.io) {
       this.logger('Closing socket server')
       this.serverIoProvider.io.close()
     }
@@ -202,7 +202,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       this.logger('Closing local storage')
       await this.localDbService.close()
     }
-    if (this.libp2pService.libp2pInstance) {
+    if (this.libp2pService?.libp2pInstance) {
       this.logger('Stopping libp2p')
       await this.libp2pService.libp2pInstance.stop()
     }
@@ -377,6 +377,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       this.serverIoProvider.io.emit(SocketActionTypes.PEER_DISCONNECTED, payload)
     })
     await this.storageService.init(_peerId)
+    console.log('storage initialized')
   }
   private attachTorEventsListeners() {
     this.logger('attachTorEventsListeners')
@@ -507,23 +508,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     })
     this.socketService.on(SocketActionTypes.CANCEL_DOWNLOAD, mid => {
       this.storageService?.cancelDownload(mid)
-    })
-
-    // Direct Messages
-    this.socketService.on(SocketActionTypes.INITIALIZE_CONVERSATION, async (address, encryptedPhrase) => {
-      await this.storageService?.initializeConversation(address, encryptedPhrase)
-    })
-    this.socketService.on(SocketActionTypes.GET_PRIVATE_CONVERSATIONS, async () => {
-      await this.storageService?.getPrivateConversations()
-    })
-    this.socketService.on(SocketActionTypes.SEND_DIRECT_MESSAGE, async (channelId: string, messagePayload) => {
-      await this.storageService?.sendDirectMessage(channelId, messagePayload)
-    })
-    this.socketService.on(SocketActionTypes.SUBSCRIBE_FOR_DIRECT_MESSAGE_THREAD, async (address: string) => {
-      await this.storageService?.subscribeToDirectMessageThread(address)
-    })
-    this.socketService.on(SocketActionTypes.SUBSCRIBE_FOR_ALL_CONVERSATIONS, async (conversations: string[]) => {
-      await this.storageService?.subscribeToAllConversations(conversations)
     })
 
     this.socketService.on(SocketActionTypes.CLOSE, async () => {

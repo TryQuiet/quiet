@@ -3,6 +3,7 @@ import { DateTime } from 'luxon'
 import { StoreKeys } from '../store.keys'
 import { identityAdapter } from './identity.adapter'
 import {
+  type UpdateJoinTimestampPayload,
   type CreateUserCsrPayload,
   type Identity,
   type RegisterCertificatePayload,
@@ -37,6 +38,15 @@ export const identitySlice = createSlice({
         id: action.payload.communityId,
         changes: {
           userCertificate: action.payload.userCertificate,
+          joinTimestamp: DateTime.utc().valueOf(),
+        },
+      })
+    },
+    verifyJoinTimestamp: state => state,
+    updateJoinTimestamp: (state, action: PayloadAction<UpdateJoinTimestampPayload>) => {
+      identityAdapter.updateOne(state.identities, {
+        id: action.payload.communityId,
+        changes: {
           joinTimestamp: DateTime.utc().valueOf(),
         },
       })

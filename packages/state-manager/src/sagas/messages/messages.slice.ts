@@ -21,6 +21,7 @@ import {
   type SendDeletionMessagePayload,
   type SetDisplayedMessagesNumberPayload,
   type WriteMessagePayload,
+  MessageSendingStatusPayload,
 } from '@quiet/types'
 
 export class MessagesState {
@@ -57,9 +58,11 @@ export const messagesSlice = createSlice({
       const status = action.payload
       messageVerificationStatusAdapter.upsertOne(state.messageVerificationStatus, status)
     },
-    addMessagesSendingStatus: (state, action: PayloadAction<MessageSendingStatus>) => {
-      const status = action.payload
-      messageSendingStatusAdapter.upsertOne(state.messageSendingStatus, status)
+    addMessagesSendingStatus: (state, action: PayloadAction<MessageSendingStatusPayload>) => {
+      messageSendingStatusAdapter.upsertOne(state.messageSendingStatus, {
+        id: action.payload.message.id,
+        status: action.payload.status,
+      })
     },
     removePendingMessageStatus: (state, action: PayloadAction<string>) => {
       const id = action.payload

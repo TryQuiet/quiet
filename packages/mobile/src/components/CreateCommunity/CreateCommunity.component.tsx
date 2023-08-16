@@ -12,6 +12,7 @@ export const CreateCommunity: FC<CreateCommunityProps> = ({
   createCommunityAction,
   redirectionAction,
   networkCreated,
+  ready = true,
 }) => {
   const [createCommunityInput, setCreateCommunityInput] = useState<string | undefined>()
   const [inputError, setInputError] = useState<string | undefined>()
@@ -65,7 +66,7 @@ export const CreateCommunity: FC<CreateCommunityProps> = ({
           onChangeText={onChangeText}
           label={'Add a name for your community'}
           placeholder={'Community name'}
-          disabled={loading}
+          disabled={loading || !ready}
           validation={inputError}
           ref={inputRef}
         />

@@ -1,18 +1,22 @@
 import { expectSaga } from 'redux-saga-test-plan'
-import { onConnectedSaga } from './onConnected.saga'
+import { FactoryGirl } from 'factory-girl'
 import { combineReducers } from '@reduxjs/toolkit'
-import { reducers } from '../../root.reducer'
-import { prepareStore } from '../../../tests/utils/prepareStore'
-import { initActions } from '../init.slice'
 import { Store } from '../../store.types'
+import { prepareStore } from '../../../tests/utils/prepareStore'
+import { reducers } from '../../root.reducer'
 
+import { communities, Community, Identity, identity, network, getFactory } from '@quiet/state-manager'
+
+import { onConnectedSaga } from './onConnected.saga'
+
+import { initActions } from '../init.slice'
 import { navigationActions } from '../../navigation/navigation.slice'
-import { ScreenNames } from '../../../const/ScreenNames.enum'
 
-import { communities, Community, connection, Identity, identity, network, StoreKeys } from '@quiet/state-manager'
+import { ScreenNames } from '../../../const/ScreenNames.enum'
 
 describe('onConnectedSaga', () => {
   let store: Store
+  let factory: FactoryGirl
 
   const id = '00d045ab'
 
@@ -47,42 +51,26 @@ describe('onConnectedSaga', () => {
 
   beforeEach(async () => {
     store = (await prepareStore()).store
+    factory = await getFactory(store)
   })
 
-  test('does nothing if app opened from url', async () => {
+  test('marks readiness and passes redirection resposibility to another saga if opened from url (quiet://)', async () => {
     store.dispatch(initActions.deepLink('bidrmzr3ee6qa2vvrlcnqvvvsk2gmjktcqkunba326parszr44gibwyd'))
 
     const reducer = combineReducers(reducers)
     await expectSaga(onConnectedSaga)
       .withReducer(reducer)
       .withState(store.getState())
+      .put(initActions.setReady(true))
       .not.put(
-        navigationActions.replaceScreen({
-          screen: ScreenNames.JoinCommunityScreen,
-        })
-      )
-      .not.put(
-        navigationActions.replaceScreen({
-          screen: ScreenNames.ChannelListScreen,
-        })
-      )
-      .run()
-  })
-
-  test('Redirects to joinCommunityScreen if there is no user certificate and community is not initialized', async () => {
-    const reducer = combineReducers(reducers)
-
-    await expectSaga(onConnectedSaga)
-      .withReducer(reducer)
-      .withState(store.getState())
-      .put(
         navigationActions.replaceScreen({
           screen: ScreenNames.JoinCommunityScreen,
         })
       )
       .run()
   })
-  test('Redirects to channel list if user is part of community and community is initialized', async () => {
+
+  test('redirects to channel list if user belongs to a community and this community is initialized', async () => {
     store.dispatch(
       initActions.setWebsocketConnected({
         dataPort: 5001,
@@ -96,19 +84,17 @@ describe('onConnectedSaga', () => {
       // @ts-expect-error
       identity.actions.addNewIdentity({ ..._identity, userCertificate: 'certificate' })
     )
+
     const reducer = combineReducers(reducers)
 
     await expectSaga(onConnectedSaga)
       .withReducer(reducer)
       .withState(store.getState())
-      .put(
-        navigationActions.replaceScreen({
-          screen: ScreenNames.ChannelListScreen,
-        })
-      )
+      .put(initActions.setReady(true))
       .run()
   })
-  test('Takes addInitializedCommunties action before replacing screens', async () => {
+
+  test('waits until community initializes before redirection', async () => {
     store.dispatch(
       initActions.setWebsocketConnected({
         dataPort: 5001,
@@ -121,17 +107,14 @@ describe('onConnectedSaga', () => {
       // @ts-expect-error
       identity.actions.addNewIdentity({ ..._identity, userCertificate: 'certificate' })
     )
+
     const reducer = combineReducers(reducers)
 
     await expectSaga(onConnectedSaga)
       .withReducer(reducer)
       .withState(store.getState())
       .dispatch(network.actions.addInitializedCommunity(community.id))
-      .put(
-        navigationActions.replaceScreen({
-          screen: ScreenNames.ChannelListScreen,
-        })
-      )
+      .put(initActions.setReady(true))
       .run()
   })
 })
