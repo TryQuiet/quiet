@@ -673,21 +673,33 @@ describe('Chat component', () => {
                                   "paddingTop": 0,
                                 }
                               }
-                            />
+                            >
+                              <div>
+                                Luck, I am your father!
+                              </div>
+                            </View>
                             <View
                               style={
                                 {
                                   "paddingTop": 4,
                                 }
                               }
-                            />
+                            >
+                              <div>
+                                That's impossible!
+                              </div>
+                            </View>
                             <View
                               style={
                                 {
                                   "paddingTop": 4,
                                 }
                               }
-                            />
+                            >
+                              <div>
+                                Nooo!
+                              </div>
+                            </View>
                           </View>
                         </View>
                       </View>
@@ -891,7 +903,11 @@ describe('Chat component', () => {
                                   "paddingTop": 0,
                                 }
                               }
-                            />
+                            >
+                              <div>
+                                Uhuhu!
+                              </div>
+                            </View>
                           </View>
                         </View>
                       </View>
@@ -1095,7 +1111,11 @@ describe('Chat component', () => {
                                   "paddingTop": 0,
                                 }
                               }
-                            />
+                            >
+                              <div>
+                                Why?
+                              </div>
+                            </View>
                           </View>
                         </View>
                       </View>
@@ -1299,7 +1319,11 @@ describe('Chat component', () => {
                                   "paddingTop": 0,
                                 }
                               }
-                            />
+                            >
+                              <div>
+                                Messages more there should be
+                              </div>
+                            </View>
                           </View>
                         </View>
                       </View>
@@ -1503,14 +1527,22 @@ describe('Chat component', () => {
                                   "paddingTop": 0,
                                 }
                               }
-                            />
+                            >
+                              <div>
+                                I Agree
+                              </div>
+                            </View>
                             <View
                               style={
                                 {
                                   "paddingTop": 4,
                                 }
                               }
-                            />
+                            >
+                              <div>
+                                Of course, I Agree
+                              </div>
+                            </View>
                           </View>
                         </View>
                       </View>
@@ -1714,7 +1746,11 @@ describe('Chat component', () => {
                                   "paddingTop": 0,
                                 }
                               }
-                            />
+                            >
+                              <div>
+                                Wrough!
+                              </div>
+                            </View>
                           </View>
                         </View>
                       </View>
@@ -1918,7 +1954,11 @@ describe('Chat component', () => {
                                   "paddingTop": 0,
                                 }
                               }
-                            />
+                            >
+                              <div>
+                                Yeah!
+                              </div>
+                            </View>
                           </View>
                         </View>
                       </View>
@@ -2122,7 +2162,11 @@ describe('Chat component', () => {
                                   "paddingTop": 0,
                                 }
                               }
-                            />
+                            >
+                              <div>
+                                The more messages the better
+                              </div>
+                            </View>
                           </View>
                         </View>
                       </View>
@@ -2312,7 +2356,11 @@ describe('Chat component', () => {
                                   "paddingTop": 0,
                                 }
                               }
-                            />
+                            >
+                              <div>
+                                We cannot grant you the rank of messager
+                              </div>
+                            </View>
                           </View>
                         </View>
                       </View>
@@ -2516,7 +2564,11 @@ describe('Chat component', () => {
                                   "paddingTop": 0,
                                 }
                               }
-                            />
+                            >
+                              <div>
+                                deathhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhstarrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrdeathstartttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr
+                              </div>
+                            </View>
                           </View>
                         </View>
                       </View>
@@ -2740,14 +2792,22 @@ describe('Chat component', () => {
                                   "paddingTop": 0,
                                 }
                               }
-                            />
+                            >
+                              <div>
+                                Hello
+                              </div>
+                            </View>
                             <View
                               style={
                                 {
                                   "paddingTop": 4,
                                 }
                               }
-                            />
+                            >
+                              <div>
+                                How are you? My day was awesome. I removed a lot of unused props from container and I simplified code a lot. I like coding, coding is like building things with LEGO. I could admit it's a little bit harder and there's a lot that can go wrong but I like it anyway.
+                              </div>
+                            </View>
                           </View>
                         </View>
                       </View>
@@ -2951,7 +3011,11 @@ describe('Chat component', () => {
                                   "paddingTop": 0,
                                 }
                               }
-                            />
+                            >
+                              <div>
+                                Great, thanks!
+                              </div>
+                            </View>
                           </View>
                         </View>
                       </View>

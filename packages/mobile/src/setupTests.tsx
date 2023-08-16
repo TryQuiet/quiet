@@ -1,6 +1,7 @@
 /* eslint-disable */
 import { setEngine, CryptoEngine } from 'pkijs'
 import { Crypto } from '@peculiar/webcrypto'
+import React from 'react'
 
 import { io } from 'socket.io-client'
 
@@ -44,11 +45,14 @@ jest.mock('react-native-progress', () => ({
   CircleSnail: jest.fn(),
 }))
 
-jest.mock('@ronradtke/react-native-markdown-display', () => ({
-  __esModule: true,
-  default: jest.fn(),
-  MarkdownIt: jest.fn()
-}))
+jest.mock(
+  '@ronradtke/react-native-markdown-display', () => ({
+    __esModule: true,
+    default: (props: any) => {
+      return <div>{props.children}</div>
+    },
+    MarkdownIt: jest.fn()
+  }))
 
 jest.mock('socket.io-client', () => ({
   io: jest.fn(),

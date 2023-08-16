@@ -135,7 +135,7 @@
       "<rootDir>/codegen/"
     ],
     "setupFiles": [
-      "./src/setupTests.ts",
+      "./src/setupTests.tsx",
       "./node_modules/react-native-gesture-handler/jestSetup.js"
     ],
     "setupFilesAfterEnv": [
