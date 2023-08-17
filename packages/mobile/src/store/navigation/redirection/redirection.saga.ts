@@ -1,21 +1,47 @@
-import { put, select } from 'typed-redux-saga'
-import { ScreenNames } from '../../../const/ScreenNames.enum'
+import { put, take, select } from 'typed-redux-saga'
+import { initSelectors } from '../../init/init.selectors'
 import { navigationSelectors } from '../navigation.selectors'
-import { identity } from '@quiet/state-manager'
 import { navigationActions } from '../navigation.slice'
+import { ScreenNames } from '../../../const/ScreenNames.enum'
+import { identity } from '@quiet/state-manager'
+import { initActions } from '../../init/init.slice'
 
 export function* redirectionSaga(): Generator {
-  // Do not redirect to the splash screen if user is already there (first app run)
-  const currentScreen = yield* select(navigationSelectors.currentScreen)
-  if (currentScreen === ScreenNames.SplashScreen) return
+  // Do not redirect if user opened the app from url (quiet://)
+  const deepLinking = yield* select(initSelectors.deepLinking)
+  if (deepLinking) return
 
-  const currentIdentity = yield* select(identity.selectors.currentIdentity)
+  // Redirect if user opened the app from push notification
+  const pendingNavigation = yield* select(navigationSelectors.pendingNavigation)
 
-  // Before getting certificate, restore navigation to the last visited registration step. Otherwise go to the channel list screen
-  const destination = currentIdentity?.userCertificate ? ScreenNames.ChannelListScreen : currentScreen
+  if (pendingNavigation) {
+    yield* put(
+      navigationActions.replaceScreen({
+        screen: pendingNavigation,
+      })
+    )
+    yield* put(navigationActions.clearPendingNavigation())
+    return
+  }
+
+  // If user belongs to a community, let him directly into the app
+  const communityMembership = yield* select(identity.selectors.communityMembership)
+
+  if (communityMembership) {
+    yield* put(
+      navigationActions.replaceScreen({
+        screen: ScreenNames.ChannelListScreen,
+      })
+    )
+    return
+  }
+
+  // If user doesn't belong to a community, wait for websocket connection and redirect to welcome screen
+  yield* take(initActions.setWebsocketConnected)
+
   yield* put(
     navigationActions.replaceScreen({
-      screen: destination,
+      screen: ScreenNames.JoinCommunityScreen,
     })
   )
 }

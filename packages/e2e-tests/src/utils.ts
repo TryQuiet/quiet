@@ -3,12 +3,14 @@ import { spawn, exec, type ChildProcessWithoutNullStreams, execSync } from 'chil
 import { type SupportedPlatformDesktop } from '@quiet/types'
 import getPort from 'get-port'
 import path from 'path'
+import fs from 'fs'
 
 export interface BuildSetupInit {
   port?: number
   debugPort?: number
   useDataDir?: boolean
   dataDir?: string
+  fileName?: string
 }
 
 export class BuildSetup {
@@ -20,12 +22,17 @@ export class BuildSetup {
   public dataDir?: string
   private child?: ChildProcessWithoutNullStreams
   private useDataDir: boolean
+  private fileName?: string
 
-  constructor({ port, debugPort, useDataDir = true, dataDir }: BuildSetupInit) {
+  constructor({ port, debugPort, useDataDir = true, dataDir, fileName }: BuildSetupInit) {
     this.port = port
     this.debugPort = debugPort
     this.useDataDir = useDataDir
     this.dataDir = dataDir
+    this.fileName = fileName
+    if (fileName) {
+      this.copyInstallerFile(fileName)
+    }
     if (this.useDataDir && !this.dataDir) {
       this.dataDir = `e2e_${(Math.random() * 10 ** 18).toString(36)}`
     }
@@ -36,17 +43,65 @@ export class BuildSetup {
     this.debugPort = await getPort()
   }
 
+  public copyInstallerFile(copyName: string) {
+    if (process.platform === 'linux') {
+      const base = `${__dirname}/../Quiet/Quiet-1.2.0.AppImage`
+      const copy = `${__dirname}/../Quiet/${copyName}`
+      fs.copyFile(base, copy, err => {
+        if (err) {
+          console.log({ err })
+          throw err
+        }
+        console.log('complete')
+      })
+    }
+  }
+
   private getBinaryLocation() {
+    console.log('filename', this.fileName)
     switch (process.platform) {
       case 'linux':
-        return path.join(__dirname, '..', 'Quiet', `${process.env.FILE_NAME}`)
+        return `${__dirname}/../Quiet/${this.fileName ? this.fileName : process.env.FILE_NAME}`
       case 'win32':
+        // return `${process.env.LOCALAPPDATA}\\Programs\\${this.fileName ? 'quiet' : 'quiet2'}\\Quiet.exe`
         return `${process.env.LOCALAPPDATA}\\Programs\\quiet\\Quiet.exe`
       case 'darwin':
-        return '/Applications/Quiet.app/Contents/MacOS/Quiet'
+        return `${
+          this.fileName
+            ? '/Applications/Quiet.app/Contents/MacOS/Quiet'
+            : '/Applications/Quiet-Latest.app/Contents/MacOS/Quiet'
+        }`
       default:
         throw new Error('wrong SYSTEM env')
     }
+  }
+
+  public getVersionFromEnv() {
+    const envFileName = process.env.FILE_NAME
+    if (!envFileName) {
+      throw new Error('file name not specyfied')
+    }
+    switch (process.platform) {
+      case 'linux':
+        const linuxIndex = envFileName.indexOf('.AppImage')
+        const linuxVersion = envFileName.slice(6, linuxIndex)
+        return linuxVersion
+      case 'win32':
+        const winIndex = envFileName.indexOf('.exe')
+        const winVersion = envFileName.slice(12, winIndex)
+        return winVersion
+      case 'darwin':
+        const darwinIndex = envFileName.indexOf('.dmg')
+        const darwinVersion = envFileName.slice(6, darwinIndex)
+        return darwinVersion
+      default:
+        throw new Error('wrong SYSTEM env')
+    }
+  }
+
+  public killNine() {
+    exec(`kill -9 $(lsof -t -i:${this.port})`)
+    exec(`kill -9 $(lsof -t -i:${this.debugPort})`)
   }
 
   public async createChromeDriver() {
@@ -75,24 +130,19 @@ export class BuildSetup {
       }, 2000)
     )
 
-    const killNine = () => {
-      exec(`kill -9 $(lsof -t -i:${this.port})`)
-      exec(`kill -9 $(lsof -t -i:${this.debugPort})`)
-    }
-
     this.child.on('error', () => {
       console.log('ERROR')
-      killNine()
+      this.killNine()
     })
 
     this.child.on('exit', () => {
       console.log('EXIT')
-      killNine()
+      this.killNine()
     })
 
     this.child.on('close', () => {
       console.log('CLOSE')
-      killNine()
+      this.killNine()
     })
 
     this.child.on('message', data => {

@@ -147,7 +147,7 @@ export class SocketService extends EventEmitter implements OnModuleInit {
     })
   }
 
-  public listen = async (): Promise<void> => {
+  public listen = async (port = this.configOptions.socketIOPort): Promise<void> => {
     return await new Promise(resolve => {
       if (this.serverIoProvider.server.listening) resolve()
       this.serverIoProvider.server.listen(this.configOptions.socketIOPort, () => {

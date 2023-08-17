@@ -153,6 +153,15 @@ If changes are made to the native part of the project (java, kotlin, objc or swi
 
 React-native uses a tool called metro to bundle javascript files. It does it on runtime, before processing react-native code. Depending on the size of cached files it may take several seconds to fully load the bundled js code. When a change is made to the javascript codebase, it's usually enough to reload files with metro, by pressing `R` from within the console in which metro operates.
 
+
+### Access iOS simulator files system
+Find proper directory by running
+```
+xcrun simctl get_app_container booted com.quietmobile data
+```
+enter it and find directory data within `/Documents` folder
+
+
 ### The app is stuck on splash screen
 
 Sometimes metro loader takes long enough to cause a race condition failure with the native service notifying javascript code about the data of websocket server 

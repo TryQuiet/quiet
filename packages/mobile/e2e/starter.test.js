@@ -3,12 +3,12 @@ import write from './utils/write'
 import info from './utils/info'
 import checkVisualRegression from './utils/checkVisualRegression'
 import baseScreenshotsUpdate from './utils/baseScreenshotsUpdate'
+import { BASIC, LONG, STARTUP } from './utils/consts/timeouts'
 
 const { ios } = info
 
 /* eslint-disable no-undef */
 describe('User', () => {
-
   beforeAll(async () => {
     await device.launchApp({ newInstance: true, launchArgs: { detoxDebugVisibility: 'YES' } })
   })
@@ -21,7 +21,7 @@ describe('User', () => {
   test('should see join community screen', async () => {
     await waitFor(element(by.text('Join community')))
       .toBeVisible()
-      .withTimeout(20000)
+      .withTimeout(LONG)
 
     const componentName = 'join-community-component'
     await checkVisualRegression(componentName)
@@ -32,7 +32,7 @@ describe('User', () => {
 
     await waitFor(element(by.text('Create a community')))
       .toBeVisible()
-      .withTimeout(5000)
+      .withTimeout(BASIC)
 
     const componentName = 'create-community-component'
     await checkVisualRegression(componentName)
@@ -47,7 +47,7 @@ describe('User', () => {
 
     await waitFor(element(by.text('Register a username')))
       .toBeVisible()
-      .withTimeout(5000)
+      .withTimeout(BASIC)
   })
 
   test('enters username', async () => {
@@ -57,18 +57,33 @@ describe('User', () => {
     await write(element(by.id('input')), 'rick')
 
     await press(element(by.text('Continue')), true)
-
-    await waitFor(element(by.text('You created a username')))
-      .toBeVisible()
-      .withTimeout(10000)
-
-    await press(element(by.id('button')))
   })
+
+  // test('should see connection process screen', async () => {
+  //   await waitFor(element(by.id('connection-process-title')))
+  //     .toBeVisible()
+  //     .withTimeout(LONG)
+  // })
 
   test('sees channels list', async () => {
     await waitFor(element(by.id('channels_list')))
       .toBeVisible()
-      .withTimeout(20000)
+      .withTimeout(LONG)
+  })
+
+  test('minimizes and restores the app', async () => {
+    await device.sendToHome()
+
+    await new Promise((resolve) => {
+      setTimeout(() => { resolve() }, 3000)
+    })
+
+    await device.launchApp({ newInstance: false })
+
+    // User comes back to channel list
+    await waitFor(element(by.id('channels_list')))
+      .toBeVisible()
+      .withTimeout(STARTUP)
   })
 
   test('enters #general channel', async () => {
@@ -76,18 +91,18 @@ describe('User', () => {
 
     await waitFor(element(by.id('chat_general')))
       .toBeVisible()
-      .withTimeout(5000)
+      .withTimeout(BASIC)
   })
 
   test('sends message to #general channel', async () => {
     await press(element(by.id('input')))
-    await write(element(by.id('input')), "We're no strangers to love")
+    await write(element(by.id('input')), "We are no strangers to love")
 
     await press(element(by.id('send_message_button')), true)
 
-    await waitFor(element(by.id("We're no strangers to love")))
+    await waitFor(element(by.id("We are no strangers to love")))
       .toBeVisible()
-      .withTimeout(5000)
+      .withTimeout(BASIC)
 
     if (!ios) await device.pressBack()
   })
@@ -97,7 +112,7 @@ describe('User', () => {
 
     await waitFor(element(by.id('channels_list')))
       .toBeVisible()
-      .withTimeout(5000)
+      .withTimeout(BASIC)
   })
 
   test('opens context menu', async () => {
@@ -105,7 +120,7 @@ describe('User', () => {
 
     await waitFor(element(by.id('context_menu_Rockets')))
       .toBeVisible()
-      .withTimeout(5000)
+      .withTimeout(BASIC)
 
     const componentName = 'context_menu_Rockets'
     await checkVisualRegression(componentName)
@@ -124,7 +139,7 @@ describe('User', () => {
 
     await waitFor(element(by.id('chat_roll')))
       .toBeVisible()
-      .withTimeout(5000)
+      .withTimeout(BASIC)
   })
 
   test('deletes channel', async () => {
@@ -134,7 +149,7 @@ describe('User', () => {
 
     await waitFor(element(by.text('Are you sure?')))
       .toBeVisible()
-      .withTimeout(5000)
+      .withTimeout(BASIC)
 
     const componentName = 'delete-channel-component'
     await checkVisualRegression(componentName)
@@ -143,7 +158,7 @@ describe('User', () => {
 
     await waitFor(element(by.id('channels_list')))
       .toBeVisible()
-      .withTimeout(5000)
+      .withTimeout(BASIC)
   })
 
   test('sees channel deletion information in #general channel', async () => {
@@ -151,7 +166,7 @@ describe('User', () => {
 
     await waitFor(element(by.text('@rick deleted #roll')))
       .toBeVisible()
-      .withTimeout(5000)
+      .withTimeout(BASIC)
   })
 
   test('deletes #general channel', async () => {
@@ -161,13 +176,13 @@ describe('User', () => {
 
     await waitFor(element(by.text('Are you sure?')))
       .toBeVisible()
-      .withTimeout(5000)
+      .withTimeout(BASIC)
 
     await press(element(by.text('Delete channel')).atIndex(1))
 
     await waitFor(element(by.id('channels_list')))
       .toBeVisible()
-      .withTimeout(5000)
+      .withTimeout(BASIC)
   })
 
   test('sees channel recreation information in #general channel', async () => {
@@ -175,7 +190,7 @@ describe('User', () => {
 
     await waitFor(element(by.text('@rick deleted all messages in #general')))
       .toBeVisible()
-      .withTimeout(5000)
+      .withTimeout(BASIC)
   })
 
   test('leaves community', async () => {
@@ -187,7 +202,7 @@ describe('User', () => {
 
     await waitFor(element(by.text('Are you sure you want to leave?')))
       .toBeVisible()
-      .withTimeout(5000)
+      .withTimeout(BASIC)
 
     const componentName = 'leave-community-component'
     await checkVisualRegression(componentName)
@@ -196,6 +211,6 @@ describe('User', () => {
 
     await waitFor(element(by.text('Join community')))
       .toBeVisible()
-      .withTimeout(10000)
+      .withTimeout(STARTUP)
   })
 })

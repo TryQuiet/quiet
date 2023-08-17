@@ -11,7 +11,7 @@ import { Crypto } from '@peculiar/webcrypto'
 import logger from './logger'
 import { DATA_DIR, DEV_DATA_DIR } from '../shared/static'
 import { fork, ChildProcess } from 'child_process'
-import { getFilesData } from '../utils/functions/fileData'
+import { getFilesData } from '@quiet/common'
 import { updateDesktopFile, processInvitationCode } from './invitation'
 import { argvInvitationCode, retrieveInvitationCode } from '@quiet/common'
 const ElectronStore = require('electron-store')
@@ -114,7 +114,7 @@ export const applyDevTools = async () => {
   if (!isDev || isE2Etest) return
   /* eslint-disable */
   require('electron-debug')({
-    showDevTools: true
+    showDevTools: true,
   })
   const installer = require('electron-devtools-installer')
   const { REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS } = require('electron-devtools-installer')
@@ -208,7 +208,7 @@ export const createWindow = async () => {
       search: `dataPort=${ports.dataServer}`,
       protocol: 'file:',
       slashes: true,
-      hash: '/'
+      hash: '/',
     })
   )
   /* eslint-enable */
@@ -458,7 +458,14 @@ app.on('ready', async () => {
     }
 
     if (filesDialogResult.filePaths) {
-      mainWindow?.webContents.send('openedFiles', getFilesData(filesDialogResult.filePaths))
+      mainWindow?.webContents.send(
+        'openedFiles',
+        getFilesData(
+          filesDialogResult.filePaths.map(filePath => {
+            return { path: filePath }
+          })
+        )
+      )
     }
   })
 

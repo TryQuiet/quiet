@@ -2,13 +2,15 @@ import { Crypto } from '@peculiar/webcrypto'
 import { Command } from 'commander'
 import { NestFactory } from '@nestjs/core'
 import path from 'path'
+import getPort from 'get-port'
 import { AppModule } from './nest/app.module'
 import { ConnectionsManagerService } from './nest/connections-manager/connections-manager.service'
-import getPort from 'get-port'
 import { torBinForPlatform, torDirForPlatform } from './nest/common/utils'
-import logger from './nest/common/logger'
+import initRnBridge from './rn-bridge'
 
+import logger from './nest/common/logger'
 const log = logger('backendManager')
+
 const program = new Command()
 
 program
@@ -27,6 +29,15 @@ program.parse(process.argv)
 const options = program.opts()
 
 console.log('options', options)
+
+interface OpenServices {
+  torControlPort?: any
+  socketIOPort?: any
+  httpTunnelPort?: any
+  authCookie?: any
+}
+
+import { INestApplicationContext } from '@nestjs/common'
 
 export const runBackendDesktop = async () => {
   const isDev = process.env.NODE_ENV === 'development'
@@ -79,7 +90,11 @@ export const runBackendMobile = async (): Promise<any> => {
   // Enable triggering push notifications
   process.env['BACKEND'] = 'mobile'
   process.env['CONNECTION_TIME'] = (new Date().getTime() / 1000).toString() // Get time in seconds
-  const app = await NestFactory.createApplicationContext(
+
+  const rn_bridge = initRnBridge()
+
+  let app: INestApplicationContext
+  app = await NestFactory.createApplicationContext(
     AppModule.forOptions({
       socketIOPort: options.dataPort,
       httpTunnelPort: options.httpTunnelPort ? options.httpTunnelPort : null,
@@ -93,8 +108,33 @@ export const runBackendMobile = async (): Promise<any> => {
         createPaths: false,
       },
     }),
-    { logger: false }
+    { logger: ['warn', 'error', 'log', 'debug', 'verbose'] }
   )
+
+  rn_bridge.channel.on('close', async () => {
+    const connectionsManager = app.get<ConnectionsManagerService>(ConnectionsManagerService)
+    await connectionsManager.closeAllServices()
+    await app.close()
+  })
+  rn_bridge.channel.on('open', async (msg: OpenServices) => {
+    app = await NestFactory.createApplicationContext(
+      AppModule.forOptions({
+        socketIOPort: msg.socketIOPort,
+        httpTunnelPort: msg.httpTunnelPort ? msg.httpTunnelPort : null,
+        torAuthCookie: msg.authCookie ? msg.authCookie : null,
+        torControlPort: msg.torControlPort ? msg.torControlPort : await getPort(),
+        torBinaryPath: options.torBinary ? options.torBinary : null,
+        options: {
+          env: {
+            appDataPath: options.dataPath,
+          },
+          createPaths: false,
+        },
+      }),
+      { logger: ['warn', 'error', 'log', 'debug', 'verbose'] }
+    )
+    console.log('started backend wiktor little bastard ')
+  })
 }
 
 const platform = options.platform

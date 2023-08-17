@@ -1,4 +1,9 @@
-import { type ChannelMessage, type PublicChannelStatus, type PublicChannelStorage } from '@quiet/types'
+import {
+  INITIAL_CURRENT_CHANNEL_ID,
+  type ChannelMessage,
+  type PublicChannelStatus,
+  type PublicChannelStorage,
+} from '@quiet/types'
 import { type Dictionary, type EntityState } from '@reduxjs/toolkit'
 import { createTransform } from 'redux-persist'
 import { StoreKeys } from '../store.keys'
@@ -10,6 +15,7 @@ export const PublicChannelsTransform = createTransform(
     return { ...inboundState }
   },
   (outboundState: PublicChannelsState, _key: any) => {
+    console.log('OUTBOUND STATE PublicChannelsTransform')
     const generalChannelId = getGeneralChannelId(outboundState)
 
     const transformedOutboundState = { ...outboundState } as any
@@ -36,14 +42,16 @@ const getGeneralChannelId = (state: PublicChannelsState) => {
   const selectors = publicChannelsAdapter.getSelectors()
   const publicChannelStorage = selectors.selectAll(state.channels)
   const generalChannel = publicChannelStorage.find(channel => channel.name === 'general')
-  const generalChannelId = generalChannel?.id || 'general'
-
+  console.log('PublicChannelsTransform: existing general channel id', generalChannel?.id)
+  const generalChannelId = generalChannel?.id || INITIAL_CURRENT_CHANNEL_ID
+  console.log('PublicChannelsTransform: new general channel id', generalChannelId)
   return generalChannelId
 }
 
 const transformChannelsEntities = (channelsEntities: Dictionary<PublicChannelStorage>) => {
   const messagesRefactor = (messages: EntityState<ChannelMessage>) => {
     const transformedMessagesEntities = messages.entities
+    console.log('PublicChannelsTransform: transformedMessagesEntities', transformedMessagesEntities)
     for (const [key, _message] of Object.entries(transformedMessagesEntities)) {
       const message = { ..._message } as any
       if (message.channelAddress) {

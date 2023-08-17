@@ -22,6 +22,7 @@
 
 #import "Quiet-Swift.h"
 
+
 static NSString *const kRNConcurrentRoot = @"concurrentRoot";
 
 @interface AppDelegate () <RCTCxxBridgeDelegate, RCTTurboModuleManagerDelegate> {
@@ -34,6 +35,8 @@ static NSString *const kRNConcurrentRoot = @"concurrentRoot";
 #endif
 
 @implementation AppDelegate
+
+static NSString *const platform = @"mobile";
 
 - (BOOL)application:(UIApplication *)application
    openURL:(NSURL *)url
@@ -54,7 +57,7 @@ static NSString *const kRNConcurrentRoot = @"concurrentRoot";
 {
   RCTAppSetupPrepareApp(application, false);
 
-  RCTBridge *bridge = [[RCTBridge alloc] initWithDelegate:self launchOptions:launchOptions];
+  self.bridge = [[RCTBridge alloc] initWithDelegate:self launchOptions:launchOptions];
 
 #if RCT_NEW_ARCH_ENABLED
   _contextContainer = std::make_shared<facebook::react::ContextContainer const>();
@@ -65,7 +68,7 @@ static NSString *const kRNConcurrentRoot = @"concurrentRoot";
 #endif
 
   NSDictionary *initProps = [self prepareInitialProps];
-  UIView *rootView = RCTAppSetupDefaultRootView(bridge, @"QuietMobile", initProps, false);
+  UIView *rootView = RCTAppSetupDefaultRootView(self.bridge, @"QuietMobile", initProps, false);
 
   if (@available(iOS 13.0, *)) {
     rootView.backgroundColor = [UIColor systemBackgroundColor];
@@ -78,72 +81,185 @@ static NSString *const kRNConcurrentRoot = @"concurrentRoot";
   rootViewController.view = rootView;
   self.window.rootViewController = rootViewController;
   [self.window makeKeyAndVisible];
-
-  FindFreePort *findFreePort = [FindFreePort new];
-  self.dataPort = [findFreePort getFirstStartingFromPort:11000];
-
-  /*
-   * We have to wait for RCTBridge listeners to be initialized, yet we must be sure to deliver the event containing data port information.
-   * Delay used below can't cause any race condition as websocket won't connect until data server starts listening anyway.
-   */
-  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-    NSTimeInterval delayInSeconds = 7.0;
-    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
-    dispatch_after(popTime, dispatch_get_main_queue(), ^(void) {
-      [[bridge moduleForName:@"CommunicationModule"] sendDataPortWithPort:self.dataPort];
-    });
-  });
   
-  [self startTor];
+  // Call only once per nodejs thread
+  [self createDataDirectory];
+  
+  [self spinupBackend:true];
   
   return YES;
 };
 
-- (void) startTor {
+- (void) createDataDirectory {
+  DataDirectory *dataDirectory = [DataDirectory new];
+  self.dataPath = [dataDirectory create];
+}
+
+- (void) initWebsocketConnection {
+  /*
+   * We have to wait for RCTBridge listeners to be initialized, yet we must be sure to deliver the event containing data port information.
+   * Delay used below can't cause any race condition as websocket won't connect until data server starts listening anyway.
+   */
+  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
+    NSTimeInterval delayInSeconds = 5;
+    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
+    dispatch_after(popTime, dispatch_get_main_queue(), ^(void) {
+      [[self.bridge moduleForName:@"CommunicationModule"] sendDataPortWithPort:self.dataPort];
+    });
+  });
+}
+
+- (void) spinupBackend:(BOOL)init {
+  
+  // (1/6) Find ports to use in tor and backend configuration
+  
   FindFreePort *findFreePort = [FindFreePort new];
     
+  self.dataPort             = [findFreePort getFirstStartingFromPort:11000];
+  
   uint16_t socksPort        = [findFreePort getFirstStartingFromPort:12000];
   uint16_t controlPort      = [findFreePort getFirstStartingFromPort:14000];
   uint16_t httpTunnelPort   = [findFreePort getFirstStartingFromPort:16000];
     
+  
+  // (2/6) Spawn tor with proper configuration
+  
   self.tor = [TorHandler new];
-    
+  
   self.torConfiguration = [self.tor getTorConfiguration:socksPort controlPort:controlPort httpTunnelPort:httpTunnelPort];
   
   [self.tor removeOldAuthCookieWithConfiguration:self.torConfiguration];
   
-  [self.tor spawnWithConfiguration:self.torConfiguration];
+  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    [self.tor spawnWithConfiguration:self.torConfiguration];
+  });
+  
+  
+  // (4/6) Connect to tor control port natively (so we can use it to shutdown tor when app goes idle)
+  
+  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
+    NSData *authCookieData = [self getAuthCookieData];
+      
+    self.torController = [[TORController alloc] initWithSocketHost:@"127.0.0.1" port:controlPort];
+      
+    NSError *error = nil;
+    BOOL connected = [self.torController connect:&error];
+      
+    NSLog(@"Tor control port error %@", error);
+          
+    [self.torController authenticateWithData:authCookieData completion:^(BOOL success, NSError * _Nullable error) {
+      NSString *res = success ? @"YES" : @"NO";
+      NSLog(@"Tor control port auth success %@", res);
+      NSLog(@"Tor control port auth error %@", error);
+    }];
+  });
+      
     
-  /*
-   * Backend launch must be delayed, because otherwise it gets doomed by race condition
-   * (it uses deprecated tor data from previous run and additionally is unabled to connect to websocket)
-   *
-   * In the future we may want to switch to a callback after succesfully bootstraping tor
-   */
-  dispatch_after(700, dispatch_get_main_queue(), ^(void) {
-    [self getAuthCookieAndLaunchBackend:controlPort:httpTunnelPort];
+  // (5/6) Update data port information and broadcast it to frontend
+  
+  [self initWebsocketConnection];
+    
+    
+  // (6/6) Launch backend or reviwe services
+  
+  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+
+    NSString *authCookie = [self getAuthCookie];
+
+    if (init) {
+      [self launchBackend:controlPort :httpTunnelPort :authCookie];
+    } else {
+      [self reviweServices:controlPort :httpTunnelPort : authCookie];
+    }
   });
 }
 
-- (void) getAuthCookieAndLaunchBackend:(uint16_t)controlPort:(uint16_t)httpTunnelPort {
+- (NSString *) getAuthCookie {
   NSString *authCookie = [self.tor getAuthCookieWithConfiguration:self.torConfiguration];
   
-  if (authCookie == nil) {
-    dispatch_after(50, dispatch_get_main_queue(), ^(void) {
-      [self getAuthCookieAndLaunchBackend:controlPort:httpTunnelPort];
-    });
-    return;
+  while (authCookie == nil) {
+    authCookie = [self.tor getAuthCookieWithConfiguration:self.torConfiguration];
   };
   
-  DataDirectory *dataDirectory = [DataDirectory new];
-  NSString *dataPath = [dataDirectory create];
+  return authCookie;
+}
 
-  NSString* platform = @"mobile";
+- (NSData *) getAuthCookieData {
+  NSData *authCookie = [self.tor getAuthCookieDataWithConfiguration:self.torConfiguration];
+  
+  while (authCookie == nil) {
+    authCookie = [self.tor getAuthCookieDataWithConfiguration:self.torConfiguration];
+  };
+  
+  return authCookie;
+}
 
+- (void) launchBackend:(uint16_t)controlPort:(uint16_t)httpTunnelPort:(NSString *)authCookie {
+  self.nodeJsMobile = [RNNodeJsMobile new];
+  [self.nodeJsMobile callStartNodeProject:[NSString stringWithFormat:@"bundle.cjs --dataPort %hu --dataPath %@ --controlPort %hu --httpTunnelPort %hu --authCookie %@ --platform %@", self.dataPort, self.dataPath, controlPort, httpTunnelPort, authCookie, platform]];
+}
+
+- (void) reviweServices:(uint16_t)controlPort:(uint16_t)httpTunnelPort:(NSString *)authCookie {
+  NSString * dataPortPayload = [NSString stringWithFormat:@"%@:%hu", @"socketIOPort", self.dataPort];
+  NSString * controlPortPayload = [NSString stringWithFormat:@"%@:%hu", @"torControlPort", controlPort];
+  NSString * httpTunnelPortPayload = [NSString stringWithFormat:@"%@:%hu", @"httpTunnelPort", httpTunnelPort];
+  NSString * authCookiePayload = [NSString stringWithFormat:@"%@:%@", @"authCookie", authCookie];
+  
+  NSString * payload = [NSString stringWithFormat:@"%@|%@|%@|%@", dataPortPayload, controlPortPayload, httpTunnelPortPayload, authCookiePayload];
+  [self.nodeJsMobile sendMessageToNode:@"open":payload];
+}
+
+- (void) stopTor {
+  NSLog(@"Sending SIGNAL SHUTDOWN on Tor control port %d", (int)[self.torController isConnected]);
+  [self.torController sendCommand:@"SIGNAL SHUTDOWN" arguments:nil data:nil observer:^BOOL(NSArray<NSNumber *> *codes, NSArray<NSData *> *lines, BOOL *stop) {
+    NSUInteger code = codes.firstObject.unsignedIntegerValue;
+    
+    NSLog(@"Tor control port response code %lu", (unsigned long)code);
+    
+    if (code != TORControlReplyCodeOK && code != TORControlReplyCodeBadAuthentication)
+      return NO;
+
+    NSString *message = lines.firstObject ? [[NSString alloc] initWithData:(NSData * _Nonnull)lines.firstObject encoding:NSUTF8StringEncoding] : @"";
+    
+    NSLog(@"Tor control port response message %@", message);
+    
+    NSDictionary<NSString *, NSString *> *userInfo = [NSDictionary dictionaryWithObjectsAndKeys:message, NSLocalizedDescriptionKey, nil];
+    BOOL success = (code == TORControlReplyCodeOK && [message isEqualToString:@"OK"]);
+
+    *stop = YES;
+    return YES;
+  }];
+}
+
+- (void)applicationDidEnterBackground:(UIApplication *)application
+{
+  [self stopTor];
+  
+  NSString * message = [NSString stringWithFormat:@""];
+  [self.nodeJsMobile sendMessageToNode:@"close":message];
+  
+  // Flush persistor before app goes idle
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-    RNNodeJsMobile *nodeJsMobile = [RNNodeJsMobile new];
-    [nodeJsMobile callStartNodeProject:[NSString stringWithFormat:@"bundle.cjs --dataPort %hu --dataPath %@ --controlPort %hu --authCookie %@ --httpTunnelPort %hu --platform %@", self.dataPort, dataPath, controlPort, authCookie, httpTunnelPort, platform]];
+    NSTimeInterval delayInSeconds = 0;
+    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
+    dispatch_after(popTime, dispatch_get_main_queue(), ^(void) {
+      [[self.bridge moduleForName:@"CommunicationModule"] appPause];
+    });
   });
+}
+
+- (void)applicationWillEnterForeground:(UIApplication *)application
+{
+  // Display splash screen until services become available again
+  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    NSTimeInterval delayInSeconds = 0;
+    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
+    dispatch_after(popTime, dispatch_get_main_queue(), ^(void) {
+      [[self.bridge moduleForName:@"CommunicationModule"] appResume];
+    });
+  });
+  
+  [self spinupBackend:false];
 }
 
 /// This method controls whether the `concurrentRoot`feature of React18 is turned on or off.

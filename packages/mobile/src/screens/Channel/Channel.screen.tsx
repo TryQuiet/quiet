@@ -3,11 +3,14 @@ import { BackHandler, Linking } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux'
 import { Chat } from '../../components/Chat/Chat.component'
 import { communities, publicChannels, messages, files } from '@quiet/state-manager'
-import { CancelDownload, FileMetadata } from '@quiet/types'
+import { CancelDownload, FileContent, FileMetadata, FilePreviewData } from '@quiet/types'
 import { navigationActions } from '../../store/navigation/navigation.slice'
 import { ScreenNames } from '../../const/ScreenNames.enum'
 import { UseContextMenuType, useContextMenu } from '../../hooks/useContextMenu'
 import { MenuName } from '../../const/MenuNames.enum'
+import { initSelectors } from '../../store/init/init.selectors'
+import { DocumentPickerResponse } from 'react-native-document-picker'
+import { getFilesData } from '@quiet/common'
 
 export const ChannelScreen: FC = () => {
   const dispatch = useDispatch()
@@ -45,10 +48,18 @@ export const ChannelScreen: FC = () => {
 
   const downloadStatusesMapping = useSelector(files.selectors.downloadStatuses)
 
+  const ready = useSelector(initSelectors.ready)
+
   let contextMenu: UseContextMenuType<Record<string, unknown>> | null = useContextMenu(MenuName.Channel)
-  if (!community?.CA) {
+  if (!community?.CA || !ready) {
     contextMenu = null
   }
+
+  const [uploadingFiles, setUploadingFiles] = React.useState<FilePreviewData>({})
+  const filesRef = React.useRef<FilePreviewData>({})
+  React.useEffect(() => {
+    filesRef.current = uploadingFiles
+  }, [uploadingFiles])
 
   const downloadFile = useCallback(
     (media: FileMetadata) => {
@@ -64,16 +75,50 @@ export const ChannelScreen: FC = () => {
     [dispatch]
   )
 
-  const sendMessageAction = useCallback(
-    (message: string) => {
-      dispatch(messages.actions.sendMessage({ message }))
+  const loadMessages = useCallback(
+    (load: boolean) => {
+      dispatch(messages.actions.lazyLoading({ load }))
     },
     [dispatch]
   )
 
-  const loadMessages = useCallback(
-    (load: boolean) => {
-      dispatch(messages.actions.lazyLoading({ load }))
+  // Files
+  const updateUploadedFiles = (files: DocumentPickerResponse[]) => {
+    const filesData: FilePreviewData = getFilesData(
+      files.map(fileObj => {
+        return {
+          path: fileObj.fileCopyUri || fileObj.uri,
+          isTmp: !fileObj.copyError,
+        }
+      })
+    )
+
+    // FilePreviewData
+    setUploadingFiles(existingFiles => {
+      const updatedFiles = { ...existingFiles, ...filesData }
+      return updatedFiles
+    })
+  }
+
+  const removeFilePreview = (id: string) =>
+    setUploadingFiles(existingFiles => {
+      delete existingFiles[id]
+      const updatedExistingFiles = { ...existingFiles }
+      return updatedExistingFiles
+    })
+
+  const sendMessageAction = React.useCallback(
+    async (message: string) => {
+      if (message) {
+        dispatch(messages.actions.sendMessage({ message }))
+      }
+      // Upload files, then send corresponding message (contaning cid) for each of them
+      Object.values(filesRef.current).forEach(async (fileData: FileContent) => {
+        if (!fileData.path) return
+        dispatch(files.actions.uploadFile(fileData))
+      })
+      // Reset file previews for input state
+      setUploadingFiles({})
     },
     [dispatch]
   )
@@ -108,7 +153,11 @@ export const ChannelScreen: FC = () => {
       imagePreview={imagePreview}
       setImagePreview={setImagePreview}
       openImagePreview={setImagePreview}
+      updateUploadedFiles={updateUploadedFiles}
+      removeFilePreview={removeFilePreview}
       openUrl={openUrl}
+      uploadedFiles={uploadingFiles}
+      ready={ready}
     />
   )
 }

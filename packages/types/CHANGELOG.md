@@ -3,7 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-# [1.4.0](https://github.com/TryQuiet/quiet/compare/@quiet/types@1.4.0-alpha.1...@quiet/types@1.4.0) (2023-07-06)
+# [1.6.0](https://github.com/ZbayApp/monorepo/compare/@quiet/types@1.5.1-alpha.0...@quiet/types@1.6.0) (2023-07-28)
+
+**Note:** Version bump only for package @quiet/types
+
+
+
+
+
+## [1.5.1-alpha.0](https://github.com/ZbayApp/monorepo/compare/@quiet/types@1.5.0-alpha.0...@quiet/types@1.5.1-alpha.0) (2023-07-28)
+
+**Note:** Version bump only for package @quiet/types
+
+
+
+
+
+# [1.5.0-alpha.0](https://github.com/ZbayApp/monorepo/compare/@quiet/types@1.4.0-alpha.1...@quiet/types@1.5.0-alpha.0) (2023-07-26)
 
 **Note:** Version bump only for package @quiet/types
 

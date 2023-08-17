@@ -13,7 +13,6 @@ export function* updateMessageMediaSaga(
   )
 
   const message = channelMessages[action.payload.message.id]
-
   if (!message || !instanceOfChannelMessage(message)) {
     console.error(
       `Cannot update message media. Message ${action.payload.message.id} from #${action.payload.message.channelId} does not exist in local storage.`

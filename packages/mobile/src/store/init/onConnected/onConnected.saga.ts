@@ -1,21 +1,22 @@
-import { select, put } from 'typed-redux-saga'
-import { identity } from '@quiet/state-manager'
-import { initSelectors } from '../init.selectors'
-import { ScreenNames } from '../../../const/ScreenNames.enum'
-import { navigationActions } from '../../navigation/navigation.slice'
+import { select, put, take } from 'typed-redux-saga'
+import { identity, network } from '@quiet/state-manager'
+import { initActions } from '../init.slice'
 
 export function* onConnectedSaga(): Generator {
-  // Do not redirect if user opened the app from url (quiet://)
-  const deepLinking = yield* select(initSelectors.deepLinking)
-  if (deepLinking) return
+  // Is user doesn't belong to a community yet, let's not wait for any further initialization
+  const communityMembership = yield* select(identity.selectors.communityMembership)
 
-  const currentIdentity = yield* select(identity.selectors.currentIdentity)
+  if (!communityMembership) {
+    yield* put(initActions.setReady(true))
+    return
+  }
 
-  const screen = !currentIdentity?.userCertificate ? ScreenNames.JoinCommunityScreen : ScreenNames.ChannelListScreen
+  // If user belongs to a community, let's wait for it to initialize
+  const isCurrentCommunityInitialized = yield* select(network.selectors.isCurrentCommunityInitialized)
 
-  yield* put(
-    navigationActions.replaceScreen({
-      screen,
-    })
-  )
+  if (!isCurrentCommunityInitialized) {
+    yield* take(network.actions.addInitializedCommunity)
+  }
+
+  yield* put(initActions.setReady(true))
 }

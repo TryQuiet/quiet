@@ -194,7 +194,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
         '--SocksPort',
         this.socksPort.toString(),
         '--HTTPTunnelPort',
-        this.configOptions.httpTunnelPort.toString(),
+        this.configOptions.httpTunnelPort?.toString(),
         '--ControlPort',
         this.controlPort.toString(),
         '--PidFile',
@@ -211,7 +211,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
           '--SocksPort',
           this.socksPort.toString(),
           '--HTTPTunnelPort',
-          this.configOptions.httpTunnelPort.toString(),
+          this.configOptions.httpTunnelPort?.toString(),
           '--ControlPort',
           this.controlPort.toString(),
           '--PidFile',
@@ -265,6 +265,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
   public async destroyHiddenService(serviceId: string): Promise<boolean> {
     try {
       await this.torControl.sendCommand(`DEL_ONION ${serviceId}`)
+      this.hiddenServices.delete(serviceId)
       return true
     } catch (err) {
       this.logger.error(`Couldn't destroy hidden service ${serviceId}`, err)
@@ -287,7 +288,6 @@ export class Tor extends EventEmitter implements OnModuleInit {
     const privateKey = status.messages[1].replace('250-PrivateKey=', '')
 
     this.hiddenServices.set(onionAddress, onionAddress)
-
     return {
       onionAddress: `${onionAddress}.onion`,
       privateKey,

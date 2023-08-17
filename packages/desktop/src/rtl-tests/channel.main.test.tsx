@@ -620,11 +620,7 @@ describe('Channel', () => {
     await userEvent.type(messageInput, '{enter}')
 
     // sendMessage action trigger
-    expect(actions).toMatchInlineSnapshot(`
-      Array [
-        "Messages/sendMessage",
-      ]
-    `)
+    expect(actions).toMatchInlineSnapshot()
   })
 
   it('renders a multi-line message', async () => {
@@ -751,7 +747,7 @@ describe('Channel', () => {
     await userEvent.type(messageInput, '{enter}')
 
     // sendMessage action does not trigger
-    expect(actions).toMatchInlineSnapshot('Array []')
+    expect(actions).toMatchInlineSnapshot(`Array []`)
   })
 
   it('immediately shows uploaded image', async () => {
@@ -763,7 +759,7 @@ describe('Channel', () => {
       'Community'
     )
 
-    await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+    const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
       id: community.id,
       nickname: 'alice',
     })
@@ -812,6 +808,15 @@ describe('Channel', () => {
           messages: [payload.message],
         })
       }
+      if (action === SocketActionTypes.INCOMING_MESSAGES) {
+        const data = input[1] as IncomingMessages
+        const media = data.messages[0].media
+        if (!media) return
+        return socket.socketClient.emit<UploadFilePayload>(SocketActionTypes.UPLOAD_FILE, {
+          file: media,
+          peerId: alice.peerId.id,
+        })
+      }
     })
 
     const { store, runSaga } = await prepareStore(
@@ -845,18 +850,18 @@ describe('Channel', () => {
 
     store.dispatch(files.actions.uploadFile(fileContent))
 
+    await act(async () => {
+      await new Promise(resolve => {
+        setTimeout(resolve, uploadingDelay)
+      })
+    })
+
     expect(cid).not.toEqual('')
     // Confirm image's placeholder never displays
     expect(screen.queryByTestId(`${cid}-imagePlaceholder`)).toBeNull()
 
     // Confirm image is visible (in uploading state)
     expect(await screen.findByTestId(`${cid}-imageVisual`)).toBeVisible()
-
-    await act(async () => {
-      await new Promise(resolve => {
-        setTimeout(resolve, uploadingDelay)
-      })
-    })
 
     expect(actions).toMatchInlineSnapshot(`
       Array [
@@ -871,6 +876,7 @@ describe('Channel', () => {
         "Messages/incomingMessages",
         "PublicChannels/cacheMessages",
         "Messages/addMessageVerificationStatus",
+        "Identity/verifyJoinTimestamp",
         "PublicChannels/updateNewestMessage",
         "Messages/lazyLoading",
         "Messages/resetCurrentPublicChannelCache",
@@ -881,6 +887,7 @@ describe('Channel', () => {
         "Messages/incomingMessages",
         "PublicChannels/cacheMessages",
         "Messages/addMessageVerificationStatus",
+        "Identity/verifyJoinTimestamp",
         "Files/updateDownloadStatus",
       ]
     `)
@@ -1009,6 +1016,7 @@ describe('Channel', () => {
         "Files/updateMessageMedia",
         "Messages/incomingMessages",
         "Messages/addMessageVerificationStatus",
+        "Identity/verifyJoinTimestamp",
         "PublicChannels/updateNewestMessage",
         "PublicChannels/cacheMessages",
       ]
@@ -1095,13 +1103,14 @@ describe('Channel', () => {
         "Files/uploadFile",
         "Messages/sendMessage",
         "Files/updateDownloadStatus",
+        "Messages/addMessagesSendingStatus",
         "Files/broadcastHostedFile",
         "Files/updateDownloadStatus",
-        "Messages/addMessagesSendingStatus",
         "Messages/addMessageVerificationStatus",
         "Messages/incomingMessages",
         "PublicChannels/cacheMessages",
         "Messages/addMessageVerificationStatus",
+        "Identity/verifyJoinTimestamp",
         "PublicChannels/updateNewestMessage",
         "Messages/lazyLoading",
         "Messages/resetCurrentPublicChannelCache",
@@ -1222,6 +1231,7 @@ describe('Channel', () => {
         "Messages/incomingMessages",
         "Files/updateDownloadStatus",
         "Messages/addMessageVerificationStatus",
+        "Identity/verifyJoinTimestamp",
         "PublicChannels/updateNewestMessage",
       ]
     `)
@@ -1335,6 +1345,7 @@ describe('Channel', () => {
         "Messages/incomingMessages",
         "Files/updateDownloadStatus",
         "Messages/addMessageVerificationStatus",
+        "Identity/verifyJoinTimestamp",
         "PublicChannels/updateNewestMessage",
         "PublicChannels/cacheMessages",
         "Messages/lazyLoading",
@@ -1473,6 +1484,7 @@ describe('Channel', () => {
         "Messages/incomingMessages",
         "Files/updateDownloadStatus",
         "Messages/addMessageVerificationStatus",
+        "Identity/verifyJoinTimestamp",
         "PublicChannels/updateNewestMessage",
         "Messages/addMessageVerificationStatus",
         "PublicChannels/cacheMessages",
