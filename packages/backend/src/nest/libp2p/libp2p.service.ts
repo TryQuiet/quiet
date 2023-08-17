@@ -53,6 +53,7 @@ export class Libp2pService extends EventEmitter {
 
     try {
       libp2p = await createLibp2p({
+        start: false,
         connectionManager: {
           minConnections: 3,
           maxConnections: 8,

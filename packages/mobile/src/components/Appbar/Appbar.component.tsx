@@ -19,7 +19,14 @@ export const Appbar: FC<AppbarProps> = ({ title, prefix, position, style, back, 
           }}
           testID={'appbar_action_item'}
         >
-          <View style={{ justifyContent: 'center', alignItems: 'center', width: 64 }}>
+          <View
+            style={{
+              justifyContent: 'center',
+              alignItems: 'center',
+              width: 64,
+              height: 50,
+            }}
+          >
             {back ? (
               <Image
                 source={arrow_icon}

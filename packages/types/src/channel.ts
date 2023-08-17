@@ -136,6 +136,6 @@ export interface ChannelStructure {
   channelId: string | null
 }
 
-export function instanceOfChannelMessage(object: any): object is ChannelMessage {
+export function instanceOfChannelMessage(object: ChannelMessage): boolean {
   return 'channelId' in object
 }

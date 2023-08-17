@@ -80,10 +80,6 @@ describe('User', () => {
 
     await device.launchApp({ newInstance: false })
 
-    await waitFor(element(by.text('Starting Quiet')))
-      .toBeVisible()
-      .withTimeout(BASIC)
-
     // User comes back to channel list
     await waitFor(element(by.id('channels_list')))
       .toBeVisible()

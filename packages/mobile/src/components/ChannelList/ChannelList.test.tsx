@@ -124,6 +124,7 @@ describe('ChannelList component', () => {
                 style={
                   {
                     "alignItems": "center",
+                    "height": 50,
                     "justifyContent": "center",
                     "width": 64,
                   }
