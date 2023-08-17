@@ -38,11 +38,11 @@ describe('Libp2pService', () => {
 
   it('creates libp2p address with proper ws type (%s)', async () => {
     const libp2pAddress = libp2pService.createLibp2pAddress(params.localAddress, params.peerId.toString())
-    expect(libp2pAddress).toStrictEqual(`/dns4/${params.localAddress}/tcp/443/wss/p2p/${params.peerId.toString()}`)
+    expect(libp2pAddress).toStrictEqual(`/dns4/${params.localAddress}/tcp/80/ws/p2p/${params.peerId.toString()}`)
   })
 
   it('creates libp2p listen address', async () => {
     const libp2pListenAddress = libp2pService.createLibp2pListenAddress(params.listenAddresses[0])
-    expect(libp2pListenAddress).toStrictEqual(`/dns4/${params.listenAddresses}/tcp/443/wss`)
+    expect(libp2pListenAddress).toStrictEqual(`/dns4/${params.listenAddresses}/tcp/80/ws`)
   })
 })

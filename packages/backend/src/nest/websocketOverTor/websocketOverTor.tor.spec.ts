@@ -216,7 +216,7 @@ describe('websocketOverTor', () => {
     expect((onConnection.mock.calls[0][0] as any).remoteAddr).toEqual(remoteAddress)
   })
 
-  it('rejects connection if user cert is invalid', async () => {
+  it.skip('rejects connection if user cert is invalid', async () => {
     const pems = await createCertificatesTestHelper(`${service1.onionAddress}`, `${service2.onionAddress}`)
     const anotherPems = await createCertificatesTestHelper(`${service1.onionAddress}`, `${service2.onionAddress}`)
 
@@ -284,7 +284,7 @@ describe('websocketOverTor', () => {
     ).rejects.toBeTruthy()
   })
 
-  it('rejects connection if server cert is invalid', async () => {
+  it.skip('rejects connection if server cert is invalid', async () => {
     const pems = await createCertificatesTestHelper(`${service1.onionAddress}`, `${service2.onionAddress}`)
     const anotherPems = await createCertificatesTestHelper(`${service1.onionAddress}`, `${service2.onionAddress}`)
 

@@ -1,22 +1,15 @@
 import { socketToMaConn } from './socket-to-conn'
 import * as filters from './filters'
-
 import { type MultiaddrFilter, type CreateListenerOptions, type DialOptions } from '@libp2p/interface-transport'
 import type { AbortOptions } from '@libp2p/interfaces'
 import type { Multiaddr } from '@multiformats/multiaddr'
-
 import type { ClientOptions, ErrorEvent } from 'ws'
-
 import os from 'os'
 import PeerId from 'peer-id'
-
 import url from 'url'
-
 import type { Server } from 'http'
-import https from 'https'
-
+import * as http from 'http'
 import { EventEmitter } from 'events'
-
 import pDefer from 'p-defer'
 import { multiaddrToUri as toUri } from '@multiformats/multiaddr-to-uri'
 import { AbortError } from '@libp2p/interfaces/errors'
@@ -24,7 +17,6 @@ import { connect } from 'it-ws'
 import { type ServerOptions, type WebSocketServer as ItWsWebsocketServer } from 'it-ws/server'
 import { multiaddr } from '@multiformats/multiaddr'
 import { type MultiaddrConnection, type Connection } from '@libp2p/interface-connection'
-import { dumpPEM } from './utils'
 import logger from '../common/logger'
 
 const log = logger('libp2p:websockets')
@@ -88,7 +80,6 @@ export class WebSockets extends EventEmitter {
       socket = await this._connect(ma, {
         websocket: {
           ...this._websocketOpts,
-          ...this.certData,
         },
       })
     } catch (e) {
@@ -113,24 +104,6 @@ export class WebSockets extends EventEmitter {
     }
   }
 
-  get certData() {
-    const { cert, key, ca } = this._websocketOpts
-    if (!cert || !key || !ca?.length || !ca[0]) {
-      throw new Error('No cert data in _websocketOpts')
-    }
-    let _ca: string | Buffer
-    if (Array.isArray(ca)) {
-      _ca = ca[0]
-    } else {
-      _ca = ca
-    }
-    return {
-      cert: dumpPEM('CERTIFICATE', cert.toString()),
-      key: dumpPEM('PRIVATE KEY', key.toString()),
-      ca: [dumpPEM('CERTIFICATE', _ca.toString())],
-    }
-  }
-
   async _connect(ma: Multiaddr, options: any = {}) {
     if (options.signal?.aborted) {
       throw new AbortError()
@@ -145,6 +118,7 @@ export class WebSockets extends EventEmitter {
     }
 
     const myUri = `${toUri(ma)}/?remoteAddress=${encodeURIComponent(this.localAddress)}`
+
     const rawSocket = connect(myUri, Object.assign({ binary: true }, options))
 
     if (rawSocket.socket.on) {
@@ -203,14 +177,10 @@ export class WebSockets extends EventEmitter {
       server.__connections?.push(maConn)
     }
 
-    const serverHttps = https.createServer({
-      ...this.certData,
-      requestCert: true,
-      enableTrace: false,
-    })
+    const serverHttp = http.createServer()
 
     const optionsServ = {
-      server: serverHttps,
+      server: serverHttp,
       verifyClient: function (_info: any, done: (res: boolean) => void) {
         done(true)
       },
@@ -298,7 +268,7 @@ export class WebSockets extends EventEmitter {
       // we need to capture from the passed multiaddr
       if (listeningMultiaddr.toString().includes('ip4')) {
         let m = listeningMultiaddr.decapsulate('tcp')
-        m = m.encapsulate('/tcp/443/wss')
+        m = m.encapsulate('/tcp/80/ws')
         if (ipfsId) {
           m = m.encapsulate('/p2p/' + ipfsId)
         }
