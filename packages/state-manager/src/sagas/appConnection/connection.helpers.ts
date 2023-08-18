@@ -12,6 +12,7 @@ export function resetStateAndSaveTorConnectionData() {
     Connection: {
       torBootstrapProcess,
       torConnectionProcess,
+      peerStats: { ids: [], entities: {} },
     },
   }
 

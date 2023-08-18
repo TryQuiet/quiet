@@ -348,13 +348,31 @@ describe('Two Clients', () => {
         const text2 = await messages2[0].getText()
         expect(text2).toEqual(joiningUserMessages[1])
       })
+      it('Owner close app', async () => {
+        await ownerApp.close({ forceSaveState: true })
+        await new Promise<void>(resolve => setTimeout(() => resolve(), 20000))
+      })
 
       it('Guest close app', async () => {
         console.log('TEST 9')
         await guestApp?.close()
       })
+
+      it('Owner re-open app', async () => {
+        await ownerApp?.open()
+        await new Promise<void>(resolve => setTimeout(() => resolve(), 10000))
+      })
+
+      if (process.env.TEST_MODE) {
+        it('Close debug modal', async () => {
+          const debugModal = new DebugModeModal(ownerApp.driver)
+          await debugModal.close()
+        })
+      }
+
       it('Guest close app - Owner send another message after guest leave app', async () => {
         console.log('TEST 10')
+        generalChannel = new Channel(ownerApp.driver, 'general')
         const isMessageInput = await generalChannel.messageInput.isDisplayed()
         expect(isMessageInput).toBeTruthy()
         await generalChannel.sendMessage(ownerMessages[2])
