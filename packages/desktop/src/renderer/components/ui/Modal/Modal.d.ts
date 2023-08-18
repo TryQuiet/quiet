@@ -21,4 +21,5 @@ export interface IModalProps {
   children?: React.ReactNode
   isTransparent?: boolean
   withoutHeader?: boolean
+  isSentry?: boolean
 }

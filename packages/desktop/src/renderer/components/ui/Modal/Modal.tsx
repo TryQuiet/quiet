@@ -31,6 +31,7 @@ const classes = {
   none: `${PREFIX}none`,
   transparent: `${PREFIX}transparent`,
   withoutHeader: `${PREFIX}withoutHeader`,
+  sentry: `${PREFIX}sentry`,
 }
 
 const StyledMaterialModal = styled(MaterialModal)(({ theme }) => ({
@@ -118,6 +119,9 @@ const StyledMaterialModal = styled(MaterialModal)(({ theme }) => ({
   [`& .${classes.transparent}`]: {
     backgroundColor: 'transparent',
   },
+  [`& .${classes.sentry}`]: {
+    zIndex: 9000,
+  },
 }))
 
 const constants = {
@@ -143,6 +147,7 @@ export const Modal: React.FC<IModalProps> = ({
   fullPage = true,
   isTransparent = false,
   withoutHeader = false,
+  isSentry = false,
 }) => {
   return (
     <StyledMaterialModal
@@ -152,6 +157,7 @@ export const Modal: React.FC<IModalProps> = ({
         [classes.windowed]: windowed,
         [classes.root]: !windowed,
         [classes.transparent]: isTransparent,
+        [classes.sentry]: isSentry,
       })}
     >
       <Grid
@@ -162,6 +168,7 @@ export const Modal: React.FC<IModalProps> = ({
           [classes.centered]: fullPage,
           [classes.window]: !fullPage,
           [classes.transparent]: isTransparent,
+          [classes.sentry]: isSentry,
         })}
       >
         <Grid
