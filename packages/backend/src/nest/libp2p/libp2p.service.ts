@@ -15,10 +15,10 @@ import { multiaddr } from '@multiformats/multiaddr'
 import { ConnectionProcessInfo, PeerId, SocketActionTypes } from '@quiet/types'
 import { SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
 import { ServerIoProviderTypes } from '../types'
-import { createLibp2pListenAddress, createLibp2pAddress } from './libp2p.utils'
 import Logger from '../common/logger'
 import { webSockets } from '../websocketOverTor'
 import { all } from '../websocketOverTor/filters'
+import { createLibp2pAddress, createLibp2pListenAddress } from '@quiet/common'
 
 @Injectable()
 export class Libp2pService extends EventEmitter {
@@ -45,6 +45,7 @@ export class Libp2pService extends EventEmitter {
   }
 
   public async createInstance(params: Libp2pNodeParams): Promise<any> {
+    console.log('Libp2p.createInstance::: peers:::', params.peers)
     if (this.libp2pInstance) {
       return this.libp2pInstance
     }

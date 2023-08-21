@@ -1,10 +1,12 @@
 import { PayloadAction } from '@reduxjs/toolkit'
-import { call, put } from 'typed-redux-saga'
+import { call, put, select } from 'typed-redux-saga'
 import { Time } from 'pkijs'
 import { generateId } from '../../../utils/cryptography/cryptography'
 import { communitiesActions } from '../communities.slice'
 import { createRootCA } from '@quiet/identity'
 import { type Community, CommunityOwnership } from '@quiet/types'
+import { communitiesSelectors } from '../communities.selectors'
+import { connectionSelectors } from '../../appConnection/connection.selectors'
 
 export function* createNetworkSaga(
   action: PayloadAction<ReturnType<typeof communitiesActions.createNetwork>['payload']>
@@ -39,7 +41,11 @@ export function* createNetworkSaga(
     rootCa: CA?.rootCertString,
   }
 
-  yield* put(communitiesActions.clearInvitationCode())
+  const invitationPeers = action.payload.peers
+  if (invitationPeers) {
+    yield* put(communitiesActions.setInvitationCodes(invitationPeers))
+  }
+
   yield* put(communitiesActions.addNewCommunity(payload))
   yield* put(communitiesActions.setCurrentCommunity(id))
 }

@@ -15,6 +15,6 @@ export function* communitiesMasterSaga(socket: Socket): Generator {
     takeEvery(communitiesActions.updateCommunity.type, updateCommunitySaga),
     takeEvery(connectionActions.torBootstrapped.type, initCommunities),
     takeEvery(communitiesActions.launchCommunity.type, launchCommunitySaga, socket),
-    takeEvery(communitiesActions.launchRegistrar.type, launchRegistrarSaga, socket),
+    // takeEvery(communitiesActions.launchRegistrar.type, launchRegistrarSaga, socket),
   ])
 }

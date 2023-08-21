@@ -53,7 +53,7 @@ export interface InitCommunityPayload {
   id: string
   peerId: PeerId
   hiddenService: HiddenService
-  certs: Certificates
+  certs?: Certificates
   peers?: string[]
 }
 

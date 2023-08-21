@@ -91,13 +91,16 @@ export const communitiesSlice = createSlice({
         },
       })
     },
-    handleInvitationCode: (state, action: PayloadAction<string>) => {
-      state.invitationCode = action.payload
-    },
-    clearInvitationCode: state => {
-      state.invitationCode = ''
-    },
+    // handleInvitationCode: (state, action: PayloadAction<string>) => {
+    //   state.invitationCode = action.payload
+    // },
+    // clearInvitationCode: state => {
+    //   state.invitationCode = ''
+    // },
     handleInvitationCodes: (state, action: PayloadAction<InvitationPair[]>) => {
+      state.invitationCodes = action.payload
+    },
+    setInvitationCodes: (state, action: PayloadAction<InvitationPair[]>) => {
       state.invitationCodes = action.payload
     },
     clearInvitationCodes: state => {

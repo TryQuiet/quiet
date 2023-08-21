@@ -52,7 +52,7 @@ export class TorControl implements OnModuleInit {
     })
   }
 
-  private async disconnect() {
+  private disconnect() {
     try {
       this.connection?.end()
     } catch (e) {
@@ -63,12 +63,19 @@ export class TorControl implements OnModuleInit {
 
   // eslint-disable-next-line @typescript-eslint/ban-types
   private async _sendCommand(command: string, resolve: Function, reject: Function) {
-    await this.connect()
+    try {
+      await this.connect()
+    } catch (e) {
+      console.error(`ERROR for ${command}`, e)
+      this.disconnect()
+      await this.connect()
+    }
+
     const connectionTimeout = setTimeout(() => {
       reject('TOR: Send command timeout')
     }, 5000)
     this.connection?.on('data', async data => {
-      await this.disconnect()
+      this.disconnect()
       const dataArray = data.toString().split(/\r?\n/)
       if (dataArray[0].startsWith('250')) {
         resolve({ code: 250, messages: dataArray })

@@ -12,7 +12,7 @@ import { LoadingButton } from '../ui/LoadingButton/LoadingButton'
 
 import { CreateCommunityDictionary, JoinCommunityDictionary } from '../CreateJoinCommunity/community.dictionary'
 
-import { CommunityOwnership } from '@quiet/types'
+import { CommunityOwnership, InvitationPair } from '@quiet/types'
 
 import { Controller, useForm } from 'react-hook-form'
 import { TextInput } from '../../forms/components/textInput'
@@ -20,7 +20,7 @@ import { InviteLinkErrors } from '../../forms/fieldsErrors'
 import { IconButton, InputAdornment } from '@mui/material'
 import VisibilityOff from '@mui/icons-material/VisibilityOff'
 import Visibility from '@mui/icons-material/Visibility'
-import { ONION_ADDRESS_REGEX, parseName } from '@quiet/common'
+import { ONION_ADDRESS_REGEX, pairsToInvitationShareUrl, parseName } from '@quiet/common'
 import { getInvitationCodes } from '@quiet/state-manager'
 
 const PREFIX = 'PerformCommunityActionComponent'
@@ -137,7 +137,7 @@ export interface PerformCommunityActionProps {
   hasReceivedResponse: boolean
   revealInputValue?: boolean
   handleClickInputReveal?: () => void
-  invitationCode?: string
+  invitationCode?: InvitationPair[]
 }
 
 export const PerformCommunityActionComponent: React.FC<PerformCommunityActionProps> = ({
@@ -192,6 +192,7 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
 
     if (communityOwnership === CommunityOwnership.User) {
       const codes = getInvitationCodes(values.name.trim())
+      console.log('CODES PerformCommunityActionComponent', codes)
       if (!codes.length) {
         // if (!submitValue || !submitValue.match(ONION_ADDRESS_REGEX)) { // TODO: add basic validation
         setError('name', { message: InviteLinkErrors.InvalidCode })
@@ -214,9 +215,9 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
 
   // Lock the form if app's been open with custom protocol
   useEffect(() => {
-    if (communityOwnership === CommunityOwnership.User && invitationCode) {
+    if (communityOwnership === CommunityOwnership.User && invitationCode?.length) {
       setFormSent(true)
-      setValue('name', invitationCode)
+      setValue('name', pairsToInvitationShareUrl(invitationCode))
     }
   }, [communityOwnership, invitationCode])
 

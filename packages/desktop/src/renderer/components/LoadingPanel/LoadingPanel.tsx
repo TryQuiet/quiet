@@ -24,7 +24,7 @@ const LoadingPanel = () => {
 
   const community = useSelector(communities.selectors.currentCommunity)
   const owner = Boolean(community?.CA)
-  const currentIdentity = useSelector(identity.selectors.currentIdentity)
+  // const currentIdentity = useSelector(identity.selectors.currentIdentity)
   const usersData = Object.keys(useSelector(users.selectors.certificates))
   const isOnlyOneUser = usersData.length === 1
 

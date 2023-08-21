@@ -8,6 +8,7 @@ import { connectionActions } from '../../appConnection/connection.slice'
 import { getCurrentTime } from '../../messages/utils/message.utils'
 import { connectionSelectors } from '../../appConnection/connection.selectors'
 import { networkSelectors } from '../../network/network.selectors'
+import { pairsToP2pAddresses } from '@quiet/common'
 import { type InitCommunityPayload, SocketActionTypes } from '@quiet/types'
 
 export function* initCommunities(): Generator {
@@ -36,22 +37,29 @@ export function* launchCommunitySaga(
 
   const community = yield* select(communitiesSelectors.selectById(communityId))
   const identity = yield* select(identitySelectors.selectById(communityId))
-  if (!identity?.userCertificate || !identity.userCsr?.userKey || !community?.rootCa) {
+  if (!identity?.userCsr?.userKey) {
     console.error('Could not launch community, Community or Identity is lacking data')
     return
   }
 
-  const peerList = yield* select(connectionSelectors.peerList)
+  const invitationCodes = yield* select(communitiesSelectors.invitationCodes)
+  let peerList: string[] = []
+  if (invitationCodes) {
+    peerList = pairsToP2pAddresses(invitationCodes)
+  } else {
+    peerList = yield* select(connectionSelectors.peerList)
+  }
+  console.log('LAUNCH community peers', peerList)
 
   const payload: InitCommunityPayload = {
     id: identity.id,
     peerId: identity.peerId,
     hiddenService: identity.hiddenService,
-    certs: {
-      certificate: identity.userCertificate,
-      key: identity.userCsr.userKey,
-      CA: [community.rootCa],
-    },
+    // certs: {
+    //   certificate: identity.userCertificate,
+    //   key: identity.userCsr.userKey,
+    //   CA: [community.rootCa],
+    // },
     peers: peerList,
   }
 

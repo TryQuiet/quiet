@@ -10,6 +10,7 @@ import { modalsActions } from '../renderer/sagas/modals/modals.slice'
 import { ModalName } from '../renderer/sagas/modals/modals.types'
 import JoinCommunity from '../renderer/components/CreateJoinCommunity/JoinCommunity/JoinCommunity'
 import CreateUsername from '../renderer/components/CreateUsername/CreateUsername'
+import { InvitationPair } from '@quiet/types'
 
 jest.setTimeout(20_000)
 
@@ -64,9 +65,11 @@ describe('Opening app through custom protocol', () => {
       socket // Fork state manager's sagas
     )
 
-    const invitationCode = 'bidrmzr3ee6qa2vvrlcnqvvvsk2gmjktcqkunba326parszr44gibwyd'
+    const invitationCodes: InvitationPair[] = [
+      { peerId: 'abcdef', address: 'bidrmzr3ee6qa2vvrlcnqvvvsk2gmjktcqkunba326parszr44gibwyd' },
+    ]
 
-    store.dispatch(communities.actions.handleInvitationCode(invitationCode))
+    store.dispatch(communities.actions.handleInvitationCodes(invitationCodes))
 
     store.dispatch(modalsActions.openModal({ name: ModalName.joinCommunityModal }))
 

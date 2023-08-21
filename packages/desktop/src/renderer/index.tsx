@@ -25,11 +25,6 @@ ipcRenderer.on('invitation', (_event, invitation) => {
   store.dispatch(communities.actions.handleInvitationCodes(invitation.codes))
 })
 
-// ipcRenderer.on('invitationMA', (_event, invitation) => {
-//   console.log('invitation', invitation, 'dispatching action')
-//   store.dispatch(communities.actions.handleInvitationCodes(invitation.codes))
-// })
-
 const container = document.getElementById('root')
 if (!container) throw new Error('No root html element!')
 let root = createRoot(container)

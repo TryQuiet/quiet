@@ -1,6 +1,7 @@
 import { InvitationPair } from '@quiet/types'
 import { InvitationParams, Site } from './static'
 import { multiaddr } from 'multiaddr'
+import { createLibp2pAddress } from './libp2p'
 
 // export const retrieveInvitationCode = (url: string): string => {
 //   /**
@@ -52,7 +53,11 @@ export const retrieveInvitationCode = (url: string): InvitationPair[] => {
 }
 
 export const invitationShareUrl = (peers: string[] = []): string => {
-  // Valid format: https://tryquiet.org/join/#<peerid1>=<address1>&<peerid2>=<addresss2>
+  /**
+   * @arg {string[]} peers - List of peer's p2p addresses
+   * @returns {string} - Complete shareable invitation link, e.g. https://tryquiet.org/join/#<peerid1>=<address1>&<peerid2>=<addresss2>
+   */
+  // Valid format:
   const pairs = []
   for (const peerAddress of peers) {
     let addr
@@ -76,6 +81,22 @@ export const invitationShareUrl = (peers: string[] = []): string => {
   console.log('CODE', pairs.join('&'))
   const url = new URL(`https://${Site.DOMAIN}/${Site.JOIN_PAGE}#${pairs.join('&')}`)
   return url.href
+}
+
+export const pairsToP2pAddresses = (pairs: InvitationPair[]): string[] => {
+  const addresses: string[] = []
+  for (const pair of pairs) {
+    addresses.push(createLibp2pAddress(pair.address, pair.peerId))
+  }
+  return addresses
+}
+
+export const pairsToInvitationShareUrl = (pairs: InvitationPair[]) => {
+  const url = new URL(`https://${Site.DOMAIN}/${Site.JOIN_PAGE}`)
+  for (const pair of pairs) {
+    url.searchParams.append(pair.peerId, pair.address)
+  }
+  return url.href.replace('?', '#')
 }
 
 export const invitationDeepUrl = (pairs: InvitationPair[] = []): string => {

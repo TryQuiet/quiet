@@ -15,7 +15,7 @@ const JoinCommunity = () => {
   const currentCommunity = useSelector(communities.selectors.currentCommunity)
   const currentIdentity = useSelector(identity.selectors.currentIdentity)
 
-  const invitationCode = useSelector(communities.selectors.invitationCode)
+  const invitationCode = useSelector(communities.selectors.invitationCodes)
 
   const joinCommunityModal = useModal(ModalName.joinCommunityModal)
   const createCommunityModal = useModal(ModalName.createCommunityModal)
@@ -46,6 +46,7 @@ const JoinCommunity = () => {
       ownership: CommunityOwnership.User,
       peers: address,
     }
+    console.log('handleCommunityAction createNetwork')
     dispatch(communities.actions.createNetwork(payload))
   }
 

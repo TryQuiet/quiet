@@ -39,11 +39,11 @@ export function* handleInvitationCodeSaga(
     peers: action.payload,
   }
   yield* put(communities.actions.createNetwork(payload))
-  return
+  // return
   // }
 
   // TODO: handle invalid code
-  // yield* put(communities.actions.clearInvitationCode())
+  // yield* put(communities.actions.clearInvitationCodes())
 
   // yield* put(
   //   modalsActions.openModal({

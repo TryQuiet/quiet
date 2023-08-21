@@ -1,4 +1,4 @@
-import { argvInvitationCode, invitationDeepUrl, invitationShareUrl } from './invitationCode'
+import { argvInvitationCode, invitationDeepUrl, invitationShareUrl, pairsToInvitationShareUrl } from './invitationCode'
 import { Site } from './static'
 
 describe('Invitation code helper', () => {
@@ -25,6 +25,15 @@ describe('Invitation code helper', () => {
         { peerId: 'peerID2', address: 'address2' },
       ])
     ).toEqual('quiet://?peerID1=address1&peerID2=address2')
+  })
+
+  it('creates invitation share url based on invitation pairs', () => {
+    const pairs = [
+      { peerId: 'peerID1', address: 'address1' },
+      { peerId: 'peerID2', address: 'address2' },
+    ]
+    const expected = `https://${Site.DOMAIN}/${Site.JOIN_PAGE}#peerID1=address1&peerID2=address2`
+    expect(pairsToInvitationShareUrl(pairs)).toEqual(expected)
   })
 
   // it('builds proper invitation share url', () => {

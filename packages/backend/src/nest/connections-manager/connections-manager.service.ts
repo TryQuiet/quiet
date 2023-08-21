@@ -174,9 +174,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     if (community) {
       await this.launchCommunity(community)
     }
-    if (registrarData) {
-      await this.registrationService.launchRegistrar(registrarData)
-    }
   }
 
   public async closeAllServices(options: { saveTor: boolean } = { saveTor: false }) {
@@ -282,12 +279,14 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   }
 
   public async createCommunity(payload: InitCommunityPayload) {
+    console.log('ConnectionsManager.createCommunity peers:', payload.peers)
     await this.launchCommunity(payload)
     this.logger(`Created and launched community ${payload.id}`)
     this.serverIoProvider.io.emit(SocketActionTypes.NEW_COMMUNITY, { id: payload.id })
   }
 
   public async launchCommunity(payload: InitCommunityPayload) {
+    console.log('ConnectionsManager.launchCommunity peers:', payload.peers)
     this.communityState = ServiceState.LAUNCHING
     const communityData: InitCommunityPayload = await this.localDbService.get(LocalDBKeys.COMMUNITY)
     if (!communityData) {
@@ -336,6 +335,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     const _peerId = await peerIdFromKeys(restoredRsa.marshalPubKey(), restoredRsa.marshalPrivKey())
 
     let peers = payload.peers
+    console.log('LAUNCH COMMUNITY PAYLOAD PEERS', peers)
     if (!peers || peers.length === 0) {
       peers = [this.libp2pService.createLibp2pAddress(onionAddress, _peerId.toString())]
     }
@@ -344,9 +344,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       peerId: _peerId,
       listenAddresses: [this.libp2pService.createLibp2pListenAddress(onionAddress)],
       agent: this.socksProxyAgent,
-      cert: payload.certs.certificate,
-      key: payload.certs.key,
-      ca: payload.certs.CA,
       localAddress: this.libp2pService.createLibp2pAddress(onionAddress, _peerId.toString()),
       targetPort: this.ports.libp2pHiddenService,
       peers,
@@ -387,6 +384,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     })
 
     this.registrationService.on(SocketActionTypes.CONNECTION_PROCESS_INFO, data => {
+      console.log('CONNECTION_PROCESS_INFO', data)
       this.serverIoProvider.io.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, data)
     })
   }
@@ -395,24 +393,27 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       this.registrarState = payload
     })
     this.registrationService.on(SocketActionTypes.SAVED_OWNER_CERTIFICATE, payload => {
+      console.log('SAVED_OWNER_CERTIFICATE', payload)
       this.serverIoProvider.io.emit(SocketActionTypes.SAVED_OWNER_CERTIFICATE, payload)
     })
-    this.registrationService.on(RegistrationEvents.SPAWN_HS_FOR_REGISTRAR, async payload => {
-      await this.tor.spawnHiddenService({
-        targetPort: payload.port,
-        privKey: payload.privateKey,
-        virtPort: payload.targetPort,
-      })
-    })
+    // this.registrationService.on(RegistrationEvents.SPAWN_HS_FOR_REGISTRAR, async payload => {
+    //   await this.tor.spawnHiddenService({
+    //     targetPort: payload.port,
+    //     privKey: payload.privateKey,
+    //     virtPort: payload.targetPort,
+    //   })
+    // })
     this.registrationService.on(RegistrationEvents.ERROR, payload => {
       emitError(this.serverIoProvider.io, payload)
     })
-    this.registrationService.on(SocketActionTypes.SEND_USER_CERTIFICATE, payload => {
-      this.serverIoProvider.io.emit(SocketActionTypes.SEND_USER_CERTIFICATE, payload)
-    })
-    this.registrationService.on(RegistrationEvents.NEW_USER, async payload => {
-      await this.storageService?.saveCertificate(payload)
-    })
+    // this.registrationService.on(SocketActionTypes.SEND_USER_CERTIFICATE, payload => {
+    //   console.log('SEND_USER_CERTIFICATE', payload)
+    //   this.serverIoProvider.io.emit(SocketActionTypes.SEND_USER_CERTIFICATE, payload)
+    // })
+    // this.registrationService.on(RegistrationEvents.NEW_USER, async payload => {
+    //   console.log('NEW_USER', payload)
+    //   await this.storageService?.saveCertificate(payload)
+    // })
   }
   private attachsocketServiceListeners() {
     // Community
@@ -434,9 +435,11 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       }
     })
     this.socketService.on(SocketActionTypes.CREATE_NETWORK, async (args: Community) => {
+      console.log('SocketActionTypes.CREATE_NETWORK')
       await this.createNetwork(args)
     })
     this.socketService.on(SocketActionTypes.CREATE_COMMUNITY, async (args: InitCommunityPayload) => {
+      console.log('SocketActionTypes.CREATE_COMMUNITY')
       await this.createCommunity(args)
     })
     this.socketService.on(SocketActionTypes.LAUNCH_COMMUNITY, async (args: InitCommunityPayload) => {
@@ -446,19 +449,20 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       await this.launchCommunity(args)
     })
     // Registration
-    this.socketService.on(SocketActionTypes.LAUNCH_REGISTRAR, async (args: LaunchRegistrarPayload) => {
-      this.logger(`socketService - ${SocketActionTypes.LAUNCH_REGISTRAR}`)
+    // this.socketService.on(SocketActionTypes.LAUNCH_REGISTRAR, async (args: LaunchRegistrarPayload) => {
+    //   this.logger(`socketService - ${SocketActionTypes.LAUNCH_REGISTRAR}`)
 
-      const communityData = await this.localDbService.get(LocalDBKeys.REGISTRAR)
-      if (!communityData) {
-        await this.localDbService.put(LocalDBKeys.REGISTRAR, args)
-      }
-      console.log('this.registrarState', this.registrarState)
-      if ([ServiceState.LAUNCHING, ServiceState.LAUNCHED].includes(this.registrarState)) return
-      this.registrarState = ServiceState.LAUNCHING
-      await this.registrationService.launchRegistrar(args)
-    })
+    //   const communityData = await this.localDbService.get(LocalDBKeys.REGISTRAR)
+    //   if (!communityData) {
+    //     await this.localDbService.put(LocalDBKeys.REGISTRAR, args)
+    //   }
+    //   console.log('this.registrarState', this.registrarState)
+    //   if ([ServiceState.LAUNCHING, ServiceState.LAUNCHED].includes(this.registrarState)) return
+    //   this.registrarState = ServiceState.LAUNCHING
+    //   await this.registrationService.launchRegistrar(args)
+    // })
     this.socketService.on(SocketActionTypes.SAVED_OWNER_CERTIFICATE, async (args: SaveOwnerCertificatePayload) => {
+      console.log('SAVED_OWNER_CERTIFICATE')
       const saveCertificatePayload: SaveCertificatePayload = {
         certificate: args.certificate,
         rootPermsData: args.permsData,
@@ -466,17 +470,35 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       await this.storageService?.saveCertificate(saveCertificatePayload)
     })
     this.socketService.on(SocketActionTypes.REGISTER_USER_CERTIFICATE, async (args: RegisterUserCertificatePayload) => {
+      console.log('!!!! REGISTER_USER_CERTIFICATE')
       // if (!this.socksProxyAgent) {
       //   this.createAgent()
       // }
 
-      await this.registrationService.sendCertificateRegistrationRequest(
-        args.serviceAddress,
-        args.userCsr,
-        args.communityId,
-        120_000,
-        this.socksProxyAgent
-      )
+      // await this.registrationService.sendCertificateRegistrationRequest(
+      //   args.serviceAddress,
+      //   args.userCsr,
+      //   args.communityId,
+      //   120_000,
+      //   this.socksProxyAgent
+      // )
+      // const response = await this.registrationService.registerUser(args.userCsr)
+      this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CONNECTING_TO_COMMUNITY)
+      console.log('emitting SocketActionTypes.SEND_USER_CERTIFICATE')
+      this.serverIoProvider.io.emit(SocketActionTypes.SEND_USER_CERTIFICATE, {
+        // TEMPORARY
+        communityId: args.communityId,
+        payload: {
+          peers: [],
+        },
+      })
+      // this.emit(SocketActionTypes.SEND_USER_CERTIFICATE, {
+      //   // TEMPORARY
+      //   communityId: args.communityId,
+      //   payload: {
+      //     peers: [],
+      //   },
+      // })
     })
     this.socketService.on(
       SocketActionTypes.REGISTER_OWNER_CERTIFICATE,

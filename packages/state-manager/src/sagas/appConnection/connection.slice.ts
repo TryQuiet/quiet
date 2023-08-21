@@ -53,6 +53,7 @@ export const connectionSlice = createSlice({
     },
     setTorConnectionProcess: (state, action: PayloadAction<string>) => {
       const info = action.payload
+      console.log('----> setTorConnectionProcess', info)
       switch (info) {
         case ConnectionProcessInfo.CONNECTING_TO_COMMUNITY:
           state.torConnectionProcess = { number: 20, text: info }
