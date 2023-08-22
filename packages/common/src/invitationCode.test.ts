@@ -18,7 +18,15 @@ describe('Invitation code helper', () => {
     expect(invitationDeepUrl('validCode')).toEqual('quiet://?code=validCode')
   })
 
+  it('builds proper invitation deep url with empty code', () => {
+    expect(invitationDeepUrl()).toEqual('quiet://?code=')
+  })
+
   it('builds proper invitation share url', () => {
     expect(invitationShareUrl('validCode')).toEqual(`https://${Site.DOMAIN}/${Site.JOIN_PAGE}#validCode`)
+  })
+
+  it('builds proper invitation share url with empty code', () => {
+    expect(invitationShareUrl()).toEqual(`https://${Site.DOMAIN}/${Site.JOIN_PAGE}#`)
   })
 })
