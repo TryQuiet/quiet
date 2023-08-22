@@ -120,7 +120,7 @@ const StyledMaterialModal = styled(MaterialModal)(({ theme, zIndex }) => ({
   },
   [`& .${classes.transparent}`]: {
     backgroundColor: 'transparent',
-  }
+  },
 }))
 
 const constants = {
