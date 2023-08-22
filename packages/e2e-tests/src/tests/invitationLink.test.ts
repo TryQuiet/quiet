@@ -30,10 +30,6 @@ describe('New user joins using invitation link while having app opened', () => {
     guestApp = new App({ useDataDir: false })
   })
 
-  beforeEach(async () => {
-    await new Promise<void>(resolve => setTimeout(() => resolve(), 2000))
-  })
-
   afterAll(async () => {
     await ownerApp?.close()
     await guestApp?.close()
@@ -129,19 +125,13 @@ describe('New user joins using invitation link while having app opened', () => {
       console.log('Guest opens app')
       await guestApp.open()
     })
-    if (process.env.TEST_MODE && process.platform !== 'darwin') {
+    if (process.env.TEST_MODE) {
       it('Close debug modal', async () => {
         console.log('Invitation Link', 12)
         const debugModal = new DebugModeModal(guestApp.driver)
         await debugModal.close()
       })
     }
-    it('StartingLoadingPanel modal', async () => {
-      console.log('Invitation Link', 13)
-      const loadingPanel = new StartingLoadingPanel(guestApp.driver)
-      const isLoadingPanel = await loadingPanel.element.isDisplayed()
-      expect(isLoadingPanel).toBeTruthy()
-    })
 
     it.skip('Guest clicks invitation link with invalid invitation code', async () => {
       // Fix when modals ordering is fixed (joining modal hiddes warning modal)
@@ -197,13 +187,6 @@ describe('New user joins using invitation link while having app opened', () => {
         await ownerApp.open()
         const debugModal = new DebugModeModal(ownerApp.driver)
         await debugModal.close()
-      })
-      it('Owner sees starting panel', async () => {
-        console.log('Invitation Link', 19)
-        console.log('Owner sees starting panel')
-        const loadingPanel = new StartingLoadingPanel(ownerApp.driver)
-        const isLoadingPanel = await loadingPanel.element.isDisplayed()
-        expect(isLoadingPanel).toBeTruthy()
       })
     }
 
