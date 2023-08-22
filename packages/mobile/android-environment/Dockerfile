@@ -1,4 +1,4 @@
-FROM node:14-buster
+FROM node:14-buster@sha256:a158d3b9b4e3fa813fa6c8c590b8f0a860e015ad4e59bbce5744d2f6fd8461aa
 
 RUN apt-get update && apt-get install -y android-sdk openjdk-11-jdk wget zip
 
