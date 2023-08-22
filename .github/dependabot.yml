@@ -1,0 +1,106 @@
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: docker
+    directory: /3rd-party/tor
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: npm
+    directory: /packages/backend-bundle
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: docker
+    directory: /packages/backend
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: npm
+    directory: /packages/backend
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: npm
+    directory: /packages/common
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: npm
+    directory: /packages/desktop
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: docker
+    directory: /packages/e2e-tests/docker
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: npm
+    directory: /packages/e2e-tests
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: npm
+    directory: /packages/eslint-config-custom
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: npm
+    directory: /packages/identity
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: docker
+    directory: /packages/integration-tests
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: npm
+    directory: /packages/integration-tests
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: npm
+    directory: /packages/logger
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: bundler
+    directory: /packages/mobile
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: docker
+    directory: /packages/mobile/android-environment
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: npm
+    directory: /packages/mobile/nodejs-modules/builtin_modules/rn-bridge
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: npm
+    directory: /packages/mobile
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: npm
+    directory: /packages/state-manager
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: npm
+    directory: /packages/types
+    schedule:
+      interval: weekly
