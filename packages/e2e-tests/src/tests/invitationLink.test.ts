@@ -45,7 +45,7 @@ describe('New user joins using invitation link while having app opened', () => {
       await ownerApp.open()
     })
 
-    if (process.env.TEST_MODE && process.platform !== 'darwin') {
+    if (process.env.TEST_MODE) {
       it('Owner closes debug modal', async () => {
         console.log('Invitation Link', 2)
         const debugModal = new DebugModeModal(ownerApp.driver)
@@ -88,15 +88,9 @@ describe('New user joins using invitation link while having app opened', () => {
 
     it('Connecting to peers modal', async () => {
       console.log('Invitation Link', 7)
-      if (process.env.TEST_MODE && process.platform === 'darwin') {
-        const debugModal = new DebugModeModal(ownerApp.driver)
-        await debugModal.close()
-      }
-      if (process.platform !== 'darwin') {
-        const loadingPanelCommunity = new JoiningLoadingPanel(ownerApp.driver)
-        const isLoadingPanelCommunity = await loadingPanelCommunity.element.isDisplayed()
-        expect(isLoadingPanelCommunity).toBeTruthy()
-      }
+      const loadingPanelCommunity = new JoiningLoadingPanel(ownerApp.driver)
+      const isLoadingPanelCommunity = await loadingPanelCommunity.element.isDisplayed()
+      expect(isLoadingPanelCommunity).toBeTruthy()
     })
 
     it('Owner sees general channel', async () => {
@@ -144,11 +138,9 @@ describe('New user joins using invitation link while having app opened', () => {
     }
     it('StartingLoadingPanel modal', async () => {
       console.log('Invitation Link', 13)
-      if (process.platform !== 'darwin') {
-        const loadingPanel = new StartingLoadingPanel(guestApp.driver)
-        const isLoadingPanel = await loadingPanel.element.isDisplayed()
-        expect(isLoadingPanel).toBeTruthy()
-      }
+      const loadingPanel = new StartingLoadingPanel(guestApp.driver)
+      const isLoadingPanel = await loadingPanel.element.isDisplayed()
+      expect(isLoadingPanel).toBeTruthy()
     })
 
     it.skip('Guest clicks invitation link with invalid invitation code', async () => {
@@ -203,23 +195,15 @@ describe('New user joins using invitation link while having app opened', () => {
         console.log('Invitation Link', 17)
         console.log('Owner opens the app again')
         await ownerApp.open()
-        if (process.env.TEST_MODE && process.platform !== 'darwin') {
-          const debugModal = new DebugModeModal(ownerApp.driver)
-          await debugModal.close()
-        }
+        const debugModal = new DebugModeModal(ownerApp.driver)
+        await debugModal.close()
       })
       it('Owner sees starting panel', async () => {
         console.log('Invitation Link', 19)
         console.log('Owner sees starting panel')
-        if (process.env.TEST_MODE && process.platform === 'darwin') {
-          const debugModal = new DebugModeModal(ownerApp.driver)
-          await debugModal.close()
-        }
-        if (process.platform !== 'darwin') {
-          const loadingPanel = new StartingLoadingPanel(ownerApp.driver)
-          const isLoadingPanel = await loadingPanel.element.isDisplayed()
-          expect(isLoadingPanel).toBeTruthy()
-        }
+        const loadingPanel = new StartingLoadingPanel(ownerApp.driver)
+        const isLoadingPanel = await loadingPanel.element.isDisplayed()
+        expect(isLoadingPanel).toBeTruthy()
       })
     }
 
