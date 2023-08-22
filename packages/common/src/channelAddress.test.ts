@@ -1,4 +1,4 @@
-import { generateChannelId, getChannelNameFormChannelId } from './channelAddress'
+import { generateChannelId, getChannelNameFromChannelId } from './channelAddress'
 
 describe('Generate Channel Id', () => {
   it('name "rockets" is the channel name', () => {
@@ -18,12 +18,12 @@ describe('Get Channel Name From Channel Id', () => {
   it('Should return the channel name', () => {
     const channelId = 'rockets_1faff74afc8daff3256275ce89d30528'
     const channelName = 'rockets'
-    expect(getChannelNameFormChannelId(channelId)).toEqual(channelName)
+    expect(getChannelNameFromChannelId(channelId)).toEqual(channelName)
   })
   it('Should return the channel id fi does not match the structure', () => {
     const channelName = 'rockets'
     const invalidChannelId = 'rockets+1faff74afc8daff3256275ce89d30528'
-    expect(getChannelNameFormChannelId(channelName)).toEqual(channelName)
-    expect(getChannelNameFormChannelId(invalidChannelId)).toEqual(invalidChannelId)
+    expect(getChannelNameFromChannelId(channelName)).toEqual(channelName)
+    expect(getChannelNameFromChannelId(invalidChannelId)).toEqual(invalidChannelId)
   })
 })
