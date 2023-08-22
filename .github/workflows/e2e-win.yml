@@ -11,7 +11,7 @@ jobs:
       E2E: true
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@ee0669bd1cc54295c223e0bb666b733df41de1c5 # v2.7.0
 
       - name: "Setup environment"
         uses: ./.github/actions/setup-env
@@ -39,7 +39,7 @@ jobs:
 
       - name: Extract version
         id: extract_version
-        uses: Saionaro/extract-package-version@v1.1.1
+        uses: Saionaro/extract-package-version@de8268c348d3a9ed3514c86a9ad8d4568ab8b49e # v1.1.1
         with:
           path: packages/desktop
 
@@ -54,7 +54,7 @@ jobs:
         shell: bash
 
       - name: "Upload built app"
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@82c141cc518b40d92cc801eee768e7aafc9c2fa2 # v2.3.1
         with:
           name: quiet-windows
           path: ./packages/desktop/dist/Quiet Setup ${{ steps.extract_version.outputs.version }}.exe
@@ -78,7 +78,7 @@ jobs:
         shell: powershell
 
       - name: Run one client test
-        uses: nick-fields/retry@v2
+        uses: nick-fields/retry@943e742917ac94714d2f408a0e8320f2d1fcafcd # v2.8.3
         with:
           timeout_minutes: 15
           max_attempts: 3
@@ -86,7 +86,7 @@ jobs:
           command: cd packages/e2e-tests && npm run test oneClient.test.ts
 
       - name: Run two clients test
-        uses: nick-fields/retry@v2
+        uses: nick-fields/retry@943e742917ac94714d2f408a0e8320f2d1fcafcd # v2.8.3
         with:
           timeout_minutes: 30
           max_attempts: 3
@@ -94,7 +94,7 @@ jobs:
           command: cd packages/e2e-tests && npm run test twoClients.test.ts
 
       - name: Run invitation link test - Includes 2 separate application clients
-        uses: nick-fields/retry@v2
+        uses: nick-fields/retry@943e742917ac94714d2f408a0e8320f2d1fcafcd # v2.8.3
         with:
           timeout_minutes: 25
           max_attempts: 3

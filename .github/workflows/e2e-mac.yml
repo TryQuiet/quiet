@@ -11,7 +11,7 @@ jobs:
       IS_E2E: true
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@ee0669bd1cc54295c223e0bb666b733df41de1c5 # v2.7.0
 
       - name: "Setup environment"
         uses: ./.github/actions/setup-env
@@ -69,28 +69,28 @@ jobs:
 
       # OLD ver
       - name: Run one client test
-        uses: nick-fields/retry@v2
+        uses: nick-fields/retry@943e742917ac94714d2f408a0e8320f2d1fcafcd # v2.8.3
         with:
           timeout_minutes: 15
           max_attempts: 3
           command: cd packages/e2e-tests && npm run test oneClient.test.ts
 
       # - name: Run Backwards Compatibility test
-      #   uses: nick-fields/retry@v2
+      #   uses: nick-fields/retry@943e742917ac94714d2f408a0e8320f2d1fcafcd # v2.8.3
       #   with:
       #     timeout_minutes: 15
       #     max_attempts: 3
       #     command: cd packages/e2e-tests && npm run test backwardsCompatibility.test.ts
 
       - name: Run two clients test
-        uses: nick-fields/retry@v2
+        uses: nick-fields/retry@943e742917ac94714d2f408a0e8320f2d1fcafcd # v2.8.3
         with:
           timeout_minutes: 25
           max_attempts: 3
           command: cd packages/e2e-tests && npm run test twoClients.test.ts
 
       - name: Run invitation link test - Includes 2 separate application clients
-        uses: nick-fields/retry@v2
+        uses: nick-fields/retry@943e742917ac94714d2f408a0e8320f2d1fcafcd # v2.8.3
         with:
           timeout_minutes: 25
           max_attempts: 3

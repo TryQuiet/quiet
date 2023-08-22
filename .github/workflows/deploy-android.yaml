@@ -19,16 +19,16 @@ jobs:
       - name: "Print OS"
         run: echo ${{ matrix.os }}
 
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@ee0669bd1cc54295c223e0bb666b733df41de1c5 # v2.7.0
 
       - name: "Set up JDK"
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@cd89f46ac9d01407894225f350157564c9c7cee2 # v3.12.0
         with:
           distribution: 'temurin'
           java-version: 11
 
       - name: "Set up NDK"
-        uses: nttld/setup-ndk@v1
+        uses: nttld/setup-ndk@8c3b609ff4d54576ea420551943fd34b4d03b0dc # v1.2.0
         id: setup-ndk
         with:
           ndk-version: r21e
@@ -64,7 +64,7 @@ jobs:
         run: cd ./packages/mobile/android && ENVFILE=../.env.production ./gradlew bundleStandardRelease
 
       - name: "Upload Artifact"
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@82c141cc518b40d92cc801eee768e7aafc9c2fa2 # v2.3.1
         with:
           name: app-standard-release.aab
           path: ./packages/mobile/android/app/build/outputs/bundle/standardRelease/app-standard-release.aab
@@ -77,7 +77,7 @@ jobs:
           echo ${{ SECRETS.SERVICE_ACCOUNT_JSON }} | base64 --decode > google-play.json
       
       - name: "Upload to Google Play"
-        uses: r0adkll/upload-google-play@v1.0.17
+        uses: r0adkll/upload-google-play@7f42989517f00091bb49ec7cf5c68b673bf01205 # v1.0.17
         with:
           serviceAccountJson: google-play.json
           packageName: com.quietmobile
