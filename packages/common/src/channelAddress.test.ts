@@ -20,7 +20,7 @@ describe('Get Channel Name From Channel Id', () => {
     const channelName = 'rockets'
     expect(getChannelNameFromChannelId(channelId)).toEqual(channelName)
   })
-  it('Should return the channel id fi does not match the structure', () => {
+  it('Should return the channel id if does not match the structure', () => {
     const channelName = 'rockets'
     const invalidChannelId = 'rockets+1faff74afc8daff3256275ce89d30528'
     expect(getChannelNameFromChannelId(channelName)).toEqual(channelName)
