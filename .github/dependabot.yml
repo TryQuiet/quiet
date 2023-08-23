@@ -60,15 +60,17 @@ updates:
     schedule:
       interval: weekly
 
-  - package-ecosystem: docker
-    directory: /packages/integration-tests
-    schedule:
-      interval: weekly
+  # Currently, the integration tests pkg is waiting for a clean up.
+  # @SEE:  https://github.com/TryQuiet/quiet/pull/1734#discussion_r1302831794
+  # - package-ecosystem: docker
+  #   directory: /packages/integration-tests
+  #   schedule:
+  #     interval: weekly
 
-  - package-ecosystem: npm
-    directory: /packages/integration-tests
-    schedule:
-      interval: weekly
+  # - package-ecosystem: npm
+  #   directory: /packages/integration-tests
+  #   schedule:
+  #     interval: weekly
 
   - package-ecosystem: npm
     directory: /packages/logger
