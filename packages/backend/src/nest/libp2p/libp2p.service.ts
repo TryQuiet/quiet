@@ -44,7 +44,7 @@ export class Libp2pService extends EventEmitter {
     return createLibp2pListenAddress(address)
   }
 
-  public async createInstance(params: Libp2pNodeParams): Promise<any> {
+  public async createInstance(params: Libp2pNodeParams): Promise<Libp2p> {
     console.log('Libp2p.createInstance::: peers:::', params.peers)
     if (this.libp2pInstance) {
       return this.libp2pInstance
@@ -113,6 +113,7 @@ export class Libp2pService extends EventEmitter {
 
     this.libp2pInstance.addEventListener('peer:connect', async peer => {
       const remotePeerId = peer.detail.remotePeer.toString()
+      console.log('ADDRESS', peer.detail.remoteAddr)
       this.logger(`${peerId.toString()} connected to ${remotePeerId}`)
 
       // Stop dialing as soon as we connect to a peer

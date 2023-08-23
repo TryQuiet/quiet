@@ -42,6 +42,7 @@ import {
   StorePeerListPayload,
   UploadFilePayload,
   PeerId as PeerIdType,
+  SaveCSRPayload,
 } from '@quiet/types'
 import { CONFIG_OPTIONS, QUIET_DIR, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
 import { ConfigOptions, GetPorts, ServerIoProviderTypes } from '../types'
@@ -166,7 +167,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       if ([ServiceState.LAUNCHING, ServiceState.LAUNCHED].includes(this.communityState)) return
       this.communityState = ServiceState.LAUNCHING
     }
-    const registrarData: LaunchRegistrarPayload = await this.localDbService.get(LocalDBKeys.REGISTRAR)
+    const registrarData: LaunchRegistrarPayload = await this.localDbService.get(LocalDBKeys.REGISTRAR) // TODO: remove
     if (registrarData) {
       if ([ServiceState.LAUNCHING, ServiceState.LAUNCHED].includes(this.registrarState)) return
       this.registrarState = ServiceState.LAUNCHING
@@ -271,7 +272,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       community: {
         ...community,
         privateKey: network2.hiddenService.privateKey,
-        registrarUrl: community.registrarUrl || network2.hiddenService.onionAddress.split('.')[0],
+        registrarUrl: community.registrarUrl || network2.hiddenService.onionAddress.split('.')[0], // TODO: remove
       },
       network,
     }
@@ -469,37 +470,37 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       }
       await this.storageService?.saveCertificate(saveCertificatePayload)
     })
-    this.socketService.on(SocketActionTypes.REGISTER_USER_CERTIFICATE, async (args: RegisterUserCertificatePayload) => {
-      console.log('!!!! REGISTER_USER_CERTIFICATE')
-      // if (!this.socksProxyAgent) {
-      //   this.createAgent()
-      // }
-
-      // await this.registrationService.sendCertificateRegistrationRequest(
-      //   args.serviceAddress,
-      //   args.userCsr,
-      //   args.communityId,
-      //   120_000,
-      //   this.socksProxyAgent
-      // )
-      // const response = await this.registrationService.registerUser(args.userCsr)
-      this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CONNECTING_TO_COMMUNITY)
-      console.log('emitting SocketActionTypes.SEND_USER_CERTIFICATE')
-      this.serverIoProvider.io.emit(SocketActionTypes.SEND_USER_CERTIFICATE, {
-        // TEMPORARY
-        communityId: args.communityId,
-        payload: {
-          peers: [],
-        },
-      })
-      // this.emit(SocketActionTypes.SEND_USER_CERTIFICATE, {
-      //   // TEMPORARY
-      //   communityId: args.communityId,
-      //   payload: {
-      //     peers: [],
-      //   },
-      // })
+    this.socketService.on(SocketActionTypes.SAVE_USER_CSR, async (payload: SaveCSRPayload) => {
+      console.log('SAVE_USER_CSR backend', payload)
+      await this.storageService?.saveCSR(payload)
+      this.serverIoProvider.io.emit(SocketActionTypes.SAVED_USER_CSR, payload)
     })
+    // this.socketService.on(SocketActionTypes.REGISTER_USER_CERTIFICATE, async (args: RegisterUserCertificatePayload) => {
+    //   // Change to REGISTER_USER_CSR
+    //   console.log('!!!! REGISTER_USER_CERTIFICATE', args.userCsr)
+    //   // await this.storageService?.saveCSR({ csr: args.userCsr })
+    //   // if (!this.socksProxyAgent) {
+    //   //   this.createAgent()
+    //   // }
+
+    //   // await this.registrationService.sendCertificateRegistrationRequest(
+    //   //   args.serviceAddress,
+    //   //   args.userCsr,
+    //   //   args.communityId,
+    //   //   120_000,
+    //   //   this.socksProxyAgent
+    //   // )
+    //   // const response = await this.registrationService.registerUser(args.userCsr)
+    //   this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CONNECTING_TO_COMMUNITY)
+    //   console.log('emitting SocketActionTypes.SEND_USER_CERTIFICATE')
+    //   this.serverIoProvider.io.emit(SocketActionTypes.SEND_USER_CERTIFICATE, {
+    //     // TEMPORARY
+    //     communityId: args.communityId,
+    //     payload: {
+    //       peers: [],
+    //     },
+    //   })
+    // })
     this.socketService.on(
       SocketActionTypes.REGISTER_OWNER_CERTIFICATE,
       async (args: RegisterOwnerCertificatePayload) => {

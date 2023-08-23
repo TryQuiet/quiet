@@ -2,6 +2,7 @@ import { createRootCA, type RootCA } from './generateRootCA'
 import {
   extractPubKey,
   parseCertificate,
+  parseCertificationRequest,
   keyFromCertificate,
   keyObjectFromString,
   extractPubKeyString,
@@ -36,7 +37,14 @@ import {
 
 export { createRootCA }
 export type { RootCA }
-export { extractPubKey, parseCertificate, keyFromCertificate, keyObjectFromString, extractPubKeyString }
+export {
+  extractPubKey,
+  parseCertificate,
+  keyFromCertificate,
+  keyObjectFromString,
+  extractPubKeyString,
+  parseCertificationRequest,
+}
 export { verifyUserCert }
 export { verifySignature }
 export { sign }

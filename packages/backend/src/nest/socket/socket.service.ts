@@ -15,6 +15,7 @@ import {
   LaunchRegistrarPayload,
   Community,
   DeleteFilesFromChannelSocketPayload,
+  SaveCSRPayload,
 } from '@quiet/types'
 import cors, { CorsOptions } from 'cors'
 import EventEmitter from 'events'
@@ -100,12 +101,19 @@ export class SocketService extends EventEmitter implements OnModuleInit {
         this.emit(SocketActionTypes.ASK_FOR_MESSAGES, payload)
       })
 
-      socket.on(SocketActionTypes.REGISTER_USER_CERTIFICATE, async (payload: RegisterUserCertificatePayload) => {
-        this.logger(`Registering user CSR (${payload.communityId}) on ${payload.serviceAddress}`)
-        this.emit(SocketActionTypes.REGISTER_USER_CERTIFICATE, payload)
+      socket.on(SocketActionTypes.SAVE_USER_CSR, async (payload: SaveCSRPayload) => {
+        this.logger(`SAVING user CSR ${payload.csr}`)
+        this.emit(SocketActionTypes.SAVE_USER_CSR, payload)
         await new Promise<void>(resolve => setTimeout(() => resolve(), 2000))
-        this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.REGISTERING_USER_CERTIFICATE)
+        this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.SAVING_USER_CSR)
       })
+
+      // socket.on(SocketActionTypes.REGISTER_USER_CERTIFICATE, async (payload: RegisterUserCertificatePayload) => {
+      //   this.logger(`Registering user CSR (${payload.communityId}) on ${payload.serviceAddress}`)
+      //   this.emit(SocketActionTypes.REGISTER_USER_CERTIFICATE, payload)
+      //   await new Promise<void>(resolve => setTimeout(() => resolve(), 2000))
+      //   this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.REGISTERING_USER_CERTIFICATE)
+      // })
       socket.on(SocketActionTypes.REGISTER_OWNER_CERTIFICATE, async (payload: RegisterOwnerCertificatePayload) => {
         this.logger(`Registering owner certificate (${payload.communityId})`)
         this.emit(SocketActionTypes.REGISTER_OWNER_CERTIFICATE, payload)

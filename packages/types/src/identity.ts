@@ -79,6 +79,11 @@ export interface SaveCertificatePayload {
   rootPermsData: PermsData
 }
 
+export interface SaveCSRPayload {
+  // communityId: string
+  csr: string
+}
+
 export interface SaveOwnerCertificatePayload {
   id: string
   peerId: string

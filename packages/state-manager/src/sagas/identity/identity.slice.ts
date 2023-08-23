@@ -8,6 +8,7 @@ import {
   type Identity,
   type RegisterCertificatePayload,
   type StoreUserCertificatePayload,
+  SaveCSRPayload,
 } from '@quiet/types'
 export class IdentityState {
   public identities: EntityState<Identity> = identityAdapter.getInitialState()
@@ -42,6 +43,7 @@ export const identitySlice = createSlice({
         },
       })
     },
+    saveCsr: state => state,
     verifyJoinTimestamp: state => state,
     updateJoinTimestamp: (state, action: PayloadAction<UpdateJoinTimestampPayload>) => {
       identityAdapter.updateOne(state.identities, {

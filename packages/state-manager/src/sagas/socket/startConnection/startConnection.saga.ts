@@ -42,6 +42,7 @@ import {
   type SavedOwnerCertificatePayload,
   SendUserCertificatePayload,
   type SendOwnerCertificatePayload,
+  SaveCSRPayload,
 } from '@quiet/types'
 
 const log = logger('socket')
@@ -88,6 +89,7 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof connectionActions.torBootstrapped>
     | ReturnType<typeof connectionActions.connectionManagerInit>
     | ReturnType<typeof communitiesActions.clearInvitationCodes>
+    | ReturnType<typeof identityActions.saveCsr>
   >(emit => {
     // UPDATE FOR APP
     socket.on(SocketActionTypes.TOR_BOOTSTRAP_PROCESS, (payload: string) => {
@@ -182,7 +184,9 @@ export function subscribe(socket: Socket) {
       emit(communitiesActions.responseCreateNetwork(payload))
     })
     socket.on(SocketActionTypes.COMMUNITY, (payload: ResponseLaunchCommunityPayload) => {
+      console.log('on SocketActionTypes.COMMUNITY')
       // emit(communitiesActions.launchRegistrar(payload.id))
+      emit(identityActions.saveCsr())
       emit(filesActions.checkForMissingFiles(payload.id))
       emit(networkActions.addInitializedCommunity(payload.id))
       emit(communitiesActions.clearInvitationCodes())
@@ -202,37 +206,41 @@ export function subscribe(socket: Socket) {
       )
       emit(usersActions.responseSendCertificates(payload))
     })
+    socket.on(SocketActionTypes.SAVED_USER_CSR, (payload: SaveCSRPayload) => {
+      console.log('SAVEDD USER CSR')
 
-    socket.on(SocketActionTypes.SEND_USER_CERTIFICATE, (payload: SendOwnerCertificatePayload) => {
-      console.log('Received SEND_USER_CERTIFICATE', payload.communityId)
-
-      // emit(
-      //   communitiesActions.addOwnerCertificate({
-      //     communityId: payload.communityId,
-      //     ownerCertificate: payload.payload.ownerCert, // is it needed? Owner is just an admin now
-      //   })
-      // )
-
-      emit(
-        communitiesActions.storePeerList({
-          communityId: payload.communityId,
-          peerList: payload.payload.peers,
-        })
-      )
-      // emit(
-      //   identityActions.storeUserCertificate({
-      //     userCertificate: payload.payload.certificate, // is it needed?
-      //     communityId: payload.communityId,
-      //   })
-      // )
-      // emit(
-      //   communitiesActions.updateCommunity({
-      //     id: payload.communityId,
-      //     rootCa: payload.payload.rootCa, // is it needed?
-      //   })
-      // )
-      emit(communitiesActions.launchCommunity(payload.communityId))
+      // emit(communitiesActions.launchCommunity(payload.communityId))
     })
+    // socket.on(SocketActionTypes.SEND_USER_CERTIFICATE, (payload: SendOwnerCertificatePayload) => {
+    //   console.log('Received SEND_USER_CERTIFICATE', payload.communityId)
+
+    //   // emit(
+    //   //   communitiesActions.addOwnerCertificate({
+    //   //     communityId: payload.communityId,
+    //   //     ownerCertificate: payload.payload.ownerCert, // is it needed? Owner is just an admin now
+    //   //   })
+    //   // )
+
+    //   emit(
+    //     communitiesActions.storePeerList({
+    //       communityId: payload.communityId,
+    //       peerList: payload.payload.peers,
+    //     })
+    //   )
+    //   // emit(
+    //   //   identityActions.storeUserCertificate({
+    //   //     userCertificate: payload.payload.certificate, // is it needed?
+    //   //     communityId: payload.communityId,
+    //   //   })
+    //   // )
+    //   // emit(
+    //   //   communitiesActions.updateCommunity({
+    //   //     id: payload.communityId,
+    //   //     rootCa: payload.payload.rootCa, // is it needed?
+    //   //   })
+    //   // )
+    //   emit(communitiesActions.launchCommunity(payload.communityId))
+    // })
     socket.on(SocketActionTypes.SAVED_OWNER_CERTIFICATE, (payload: SavedOwnerCertificatePayload) => {
       console.log('Received SAVED_OWNER_CERTIFICATE', payload.communityId)
       emit(

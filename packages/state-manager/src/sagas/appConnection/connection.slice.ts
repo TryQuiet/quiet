@@ -58,9 +58,6 @@ export const connectionSlice = createSlice({
         case ConnectionProcessInfo.CONNECTING_TO_COMMUNITY:
           state.torConnectionProcess = { number: 20, text: info }
           break
-        case ConnectionProcessInfo.REGISTERING_USER_CERTIFICATE:
-          state.torConnectionProcess = { number: 20, text: info }
-          break
         case ConnectionProcessInfo.REGISTERING_OWNER_CERTIFICATE:
           state.torConnectionProcess = { number: 20, text: info }
           break
@@ -86,6 +83,9 @@ export const connectionSlice = createSlice({
           state.torConnectionProcess = { number: 80, text: info }
           break
         case ConnectionProcessInfo.LAUNCHED_COMMUNITY:
+          state.torConnectionProcess = { number: 85, text: info }
+          break
+        case ConnectionProcessInfo.SAVING_USER_CSR:
           state.torConnectionProcess = { number: 85, text: info }
           break
         case ConnectionProcessInfo.CHANNELS_REPLICATED:

@@ -6,6 +6,7 @@ import { type SendCertificatesResponse } from '@quiet/types'
 
 export class UsersState {
   public certificates: EntityState<any> = certificatesAdapter.getInitialState()
+  public csrs: EntityState<any> = certificatesAdapter.getInitialState()
 }
 
 export const usersSlice = createSlice({
