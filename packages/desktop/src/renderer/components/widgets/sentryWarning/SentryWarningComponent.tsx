@@ -46,7 +46,7 @@ export interface SentryWarningProps {
 
 export const SentryWarningComponent: React.FC<SentryWarningProps> = ({ open, handleClose }) => {
   return (
-    <Modal open={open} handleClose={handleClose} isCloseDisabled={true}>
+    <Modal open={open} handleClose={handleClose} isCloseDisabled={true} isSentry>
       <StyledModalContent container direction='column'>
         <>
           <Grid className={classes.title} item>
