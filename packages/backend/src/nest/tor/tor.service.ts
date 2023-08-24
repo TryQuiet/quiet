@@ -10,7 +10,7 @@ import { Inject, OnModuleInit } from '@nestjs/common'
 import { ConfigOptions, ServerIoProviderTypes } from '../types'
 import { CONFIG_OPTIONS, QUIET_DIR, SERVER_IO_PROVIDER, TOR_PARAMS_PROVIDER, TOR_PASSWORD_PROVIDER } from '../const'
 import { TorControl } from './tor-control.service'
-import { GetInfoTorSignal, TorParams, TorParamsProvider, TorPasswordProvider } from './tor.types'
+import { GetInfoTorSignal, HiddenServiceData, TorParams, TorParamsProvider, TorPasswordProvider } from './tor.types'
 
 import Logger from '../common/logger'
 
@@ -24,8 +24,8 @@ export class Tor extends EventEmitter implements OnModuleInit {
   interval: any
   timeout: any
   private readonly logger = Logger(Tor.name)
-  private hiddenServices: Map<string, any> = new Map()
-  private initializedHiddenServices: Map<string, any> = new Map()
+  private hiddenServices: Map<string, HiddenServiceData> = new Map()
+  private initializedHiddenServices: Map<string, HiddenServiceData> = new Map()
   constructor(
     @Inject(CONFIG_OPTIONS) public configOptions: ConfigOptions,
     @Inject(QUIET_DIR) public readonly quietDir: string,
@@ -266,17 +266,19 @@ export class Tor extends EventEmitter implements OnModuleInit {
     privKey: string
     virtPort?: number
   }): Promise<string> {
-    if (this.initializedHiddenServices.get(privKey)) {
-      this.logger('IF - this.initializedHiddenServices.get(privKey)')
-      return this.initializedHiddenServices.get(privKey).onionAddres
+    const initializedHiddenService = this.initializedHiddenServices.get(privKey)
+    if (initializedHiddenService) {
+      this.logger(`Hidden service already initialized for ${initializedHiddenService.onionAddress}`)
+      return initializedHiddenService.onionAddress
     }
     const status = await this.torControl.sendCommand(
       `ADD_ONION ${privKey} Flags=Detach Port=${virtPort},127.0.0.1:${targetPort}`
     )
     const onionAddress = status.messages[0].replace('250-ServiceID=', '')
 
-    this.hiddenServices.set(privKey, { targetPort, privKey, virtPort, onionAddress })
-    this.initializedHiddenServices.set(privKey, { targetPort, privKey, virtPort, onionAddress })
+    const hiddenService: HiddenServiceData = { targetPort, privKey, virtPort, onionAddress }
+    this.hiddenServices.set(privKey, hiddenService)
+    this.initializedHiddenServices.set(privKey, hiddenService)
     return `${onionAddress}.onion`
   }
 
@@ -304,8 +306,8 @@ export class Tor extends EventEmitter implements OnModuleInit {
 
     const onionAddress = status.messages[0].replace('250-ServiceID=', '')
     const privateKey = status.messages[1].replace('250-PrivateKey=', '')
-
-    this.hiddenServices.set(onionAddress, onionAddress)
+    const hiddenService: HiddenServiceData = { targetPort, privKey: privateKey, virtPort, onionAddress }
+    this.hiddenServices.set(onionAddress, hiddenService)
 
     return {
       onionAddress: `${onionAddress}.onion`,
