@@ -63,13 +63,7 @@ export class TorControl implements OnModuleInit {
 
   // eslint-disable-next-line @typescript-eslint/ban-types
   private async _sendCommand(command: string, resolve: Function, reject: Function) {
-    try {
-      await this.connect()
-    } catch (e) {
-      console.error(`ERROR for ${command}`, e)
-      this.disconnect()
-      await this.connect()
-    }
+    await this.connect()
 
     const connectionTimeout = setTimeout(() => {
       reject('TOR: Send command timeout')
