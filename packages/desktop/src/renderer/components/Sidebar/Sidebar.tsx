@@ -2,7 +2,7 @@ import React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useModal } from '../../containers/hooks'
 import { ModalName } from '../../sagas/modals/modals.types'
-import { communities, publicChannels } from '@quiet/state-manager'
+import { communities, connection, publicChannels } from '@quiet/state-manager'
 import SidebarComponent from './SidebarComponent'
 import { ChannelsPanelProps } from './ChannelsPanel/ChannelsPanel'
 import { IdentityPanelProps } from './IdentityPanel/IdentityPanel'
@@ -22,6 +22,7 @@ const Sidebar = () => {
   // Workaround for Redux bug, issue: https://github.com/TryQuiet/quiet/issues/1332
   useSelector(publicChannels.selectors.sortedChannels)
   const publicChannelsSelector = useSelector(publicChannels.selectors.publicChannels)
+  const isTorInitialized = useSelector(connection.selectors.isTorInitialized)
 
   const setCurrentChannel = (id: string) => {
     dispatch(
@@ -48,7 +49,7 @@ const Sidebar = () => {
     createChannelModal: createChannelModal,
   }
 
-  return <SidebarComponent {...identityPanelProps} {...channelsPanelProps} />
+  return <SidebarComponent {...identityPanelProps} {...channelsPanelProps} isTorInitialized={isTorInitialized} />
 }
 
 export default Sidebar

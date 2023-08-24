@@ -13,14 +13,15 @@ export function* redirectionSaga(): Generator {
 
   // Redirect if user opened the app from push notification
   const pendingNavigation = yield* select(navigationSelectors.pendingNavigation)
-
   if (pendingNavigation) {
     yield* put(
       navigationActions.replaceScreen({
         screen: pendingNavigation,
       })
     )
+
     yield* put(navigationActions.clearPendingNavigation())
+
     return
   }
 
