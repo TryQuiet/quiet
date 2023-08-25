@@ -259,7 +259,6 @@ export function subscribe(socket: Socket) {
           communityId: payload.communityId,
         })
       )
-      emit(identityActions.savedOwnerCertificate(payload.communityId))
     })
     return () => undefined
   })
