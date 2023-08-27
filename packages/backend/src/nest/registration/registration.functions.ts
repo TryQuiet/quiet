@@ -205,6 +205,7 @@ export const registerUser = async (
   let cert: string
   const userData = new UserCsrData()
   userData.csr = csr
+  console.log('USER DATA', userData)
   const validationErrors = await validate(userData)
   if (validationErrors.length > 0) {
     logger.error(`Received data is not valid: ${validationErrors.toString()}`)

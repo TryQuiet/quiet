@@ -356,22 +356,25 @@ export class StorageService extends EventEmitter {
         write: ['*'],
       },
     })
-    // this.certificates.events.on('replicate.progress', async (_address, _hash, entry, _progress, _total) => {
-    //   const certificate = entry.payload.value
+    this.certificatesRequests.events.on('replicate.progress', async (_address, _hash, entry, _progress, _total) => {
+      const csr = entry.payload.value
 
-    //   const parsedCertificate = parseCertificate(certificate)
-    //   const key = keyFromCertificate(parsedCertificate)
+      // const parsedCertificate = parseCertificationRequest(csr)
+      console.log('REPLICATED CSR', csr)
+      this.emit('REPLICATED_CSR', { csr: csr })
 
-    //   const username = getCertFieldValue(parsedCertificate, CertFieldsTypes.nickName)
-    //   if (!username) {
-    //     this.logger.error(
-    //       `Certificates replicate.progress: could not parse certificate for field type ${CertFieldsTypes.nickName}`
-    //     )
-    //     return
-    //   }
+      // const key = keyFromCertificate(parsedCertificate)
 
-    //   this.userNamesMap.set(key, username)
-    // })
+      // const username = getCertFieldValue(parsedCertificate, CertFieldsTypes.nickName)
+      // if (!username) {
+      //   this.logger.error(
+      //     `Certificates replicate.progress: could not parse certificate for field type ${CertFieldsTypes.nickName}`
+      //   )
+      //   return
+      // }
+
+      // this.userNamesMap.set(key, username)
+    })
     this.certificatesRequests.events.on('replicated', async () => {
       this.logger('REPLICATED: CSRs')
       // this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CSRS_REPLICATED)

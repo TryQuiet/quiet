@@ -132,10 +132,10 @@ export class SocketService extends EventEmitter implements OnModuleInit {
         this.emit(SocketActionTypes.LAUNCH_COMMUNITY, payload)
         this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.LAUNCHING_COMMUNITY)
       })
-      // socket.on(SocketActionTypes.LAUNCH_REGISTRAR, async (payload: LaunchRegistrarPayload) => {
-      //   this.logger(`Launching registrar for community ${payload.id}, user ${payload.peerId}`)
-      //   this.emit(SocketActionTypes.LAUNCH_REGISTRAR, payload)
-      // })
+      socket.on(SocketActionTypes.LAUNCH_REGISTRAR, async (payload: LaunchRegistrarPayload) => {
+        this.logger(`Launching registrar for community ${payload.id}, user ${payload.peerId}`)
+        this.emit(SocketActionTypes.LAUNCH_REGISTRAR, payload)
+      })
       socket.on(SocketActionTypes.CREATE_NETWORK, async (community: Community) => {
         this.logger(`Creating network for community ${community.id}`)
         this.emit(SocketActionTypes.CREATE_NETWORK, community)

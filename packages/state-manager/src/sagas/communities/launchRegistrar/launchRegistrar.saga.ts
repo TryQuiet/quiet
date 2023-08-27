@@ -11,6 +11,7 @@ export function* launchRegistrarSaga(
   socket: Socket,
   action: PayloadAction<ReturnType<typeof communitiesActions.launchRegistrar>['payload'] | undefined>
 ): Generator {
+  console.log('launchRegistrarSaga')
   let communityId: string | undefined = action.payload
 
   if (!communityId) {
@@ -18,10 +19,12 @@ export function* launchRegistrarSaga(
   }
 
   const community = yield* select(communitiesSelectors.selectById(communityId))
+  console.log('launchRegistrarSaga 1')
   if (!community?.privateKey) {
     console.error('Could not launch registrar, Community is lacking privateKey')
     return
   }
+  console.log('launchRegistrarSaga 2')
   if (community.CA?.rootCertString) {
     const identity = yield* select(identitySelectors.selectById(communityId))
     if (!identity) {
@@ -35,6 +38,7 @@ export function* launchRegistrarSaga(
       rootKeyString: community.CA.rootKeyString,
       privateKey: community.privateKey,
     }
+    console.log('Sending LAUNCH_REGISTRAR')
     yield* apply(socket, socket.emit, applyEmitParams(SocketActionTypes.LAUNCH_REGISTRAR, payload))
   }
 }

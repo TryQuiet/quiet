@@ -89,7 +89,7 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof connectionActions.torBootstrapped>
     | ReturnType<typeof connectionActions.connectionManagerInit>
     | ReturnType<typeof communitiesActions.clearInvitationCodes>
-    | ReturnType<typeof identityActions.saveCsr>
+    | ReturnType<typeof identityActions.saveUserCsr>
     | ReturnType<typeof connectionActions.setTorInitialized>
   >(emit => {
     // UPDATE FOR APP
@@ -165,6 +165,7 @@ export function subscribe(socket: Socket) {
 
     // Community
     socket.on(SocketActionTypes.NEW_COMMUNITY, (_payload: ResponseCreateCommunityPayload) => {
+      console.log('on SocketActionTypes.NEW_COMMUNITY')
       emit(identityActions.saveOwnerCertToDb())
       emit(publicChannelsActions.createGeneralChannel())
     })
@@ -183,8 +184,8 @@ export function subscribe(socket: Socket) {
     })
     socket.on(SocketActionTypes.COMMUNITY, (payload: ResponseLaunchCommunityPayload) => {
       console.log('on SocketActionTypes.COMMUNITY')
-      // emit(communitiesActions.launchRegistrar(payload.id))
-      emit(identityActions.saveCsr())
+      emit(communitiesActions.launchRegistrar(payload.id))
+      emit(identityActions.saveUserCsr())
       emit(filesActions.checkForMissingFiles(payload.id))
       emit(networkActions.addInitializedCommunity(payload.id))
       emit(communitiesActions.clearInvitationCodes())
@@ -209,36 +210,36 @@ export function subscribe(socket: Socket) {
 
       // emit(communitiesActions.launchCommunity(payload.communityId))
     })
-    // socket.on(SocketActionTypes.SEND_USER_CERTIFICATE, (payload: SendOwnerCertificatePayload) => {
-    //   console.log('Received SEND_USER_CERTIFICATE', payload.communityId)
+    socket.on(SocketActionTypes.SEND_USER_CERTIFICATE, (payload: SendOwnerCertificatePayload) => {
+      console.log('Received SEND_USER_CERTIFICATE', payload.communityId)
 
-    //   // emit(
-    //   //   communitiesActions.addOwnerCertificate({
-    //   //     communityId: payload.communityId,
-    //   //     ownerCertificate: payload.payload.ownerCert, // is it needed? Owner is just an admin now
-    //   //   })
-    //   // )
+      emit(
+        communitiesActions.addOwnerCertificate({
+          communityId: payload.communityId,
+          ownerCertificate: payload.payload.ownerCert,
+        })
+      )
 
-    //   emit(
-    //     communitiesActions.storePeerList({
-    //       communityId: payload.communityId,
-    //       peerList: payload.payload.peers,
-    //     })
-    //   )
-    //   // emit(
-    //   //   identityActions.storeUserCertificate({
-    //   //     userCertificate: payload.payload.certificate, // is it needed?
-    //   //     communityId: payload.communityId,
-    //   //   })
-    //   // )
-    //   // emit(
-    //   //   communitiesActions.updateCommunity({
-    //   //     id: payload.communityId,
-    //   //     rootCa: payload.payload.rootCa, // is it needed?
-    //   //   })
-    //   // )
-    //   emit(communitiesActions.launchCommunity(payload.communityId))
-    // })
+      emit(
+        communitiesActions.storePeerList({
+          communityId: payload.communityId,
+          peerList: payload.payload.peers,
+        })
+      )
+      emit(
+        identityActions.storeUserCertificate({
+          userCertificate: payload.payload.certificate, // is it needed?
+          communityId: payload.communityId,
+        })
+      )
+      emit(
+        communitiesActions.updateCommunity({
+          id: payload.communityId,
+          rootCa: payload.payload.rootCa, // is it needed?
+        })
+      )
+      emit(communitiesActions.launchCommunity(payload.communityId))
+    })
     socket.on(SocketActionTypes.SAVED_OWNER_CERTIFICATE, (payload: SavedOwnerCertificatePayload) => {
       console.log('Received SAVED_OWNER_CERTIFICATE', payload.communityId)
       emit(
@@ -259,6 +260,7 @@ export function subscribe(socket: Socket) {
           communityId: payload.communityId,
         })
       )
+      emit(identityActions.savedOwnerCertificate(payload.communityId))
     })
     return () => undefined
   })

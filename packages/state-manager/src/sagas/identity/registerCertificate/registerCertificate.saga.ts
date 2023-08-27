@@ -31,9 +31,9 @@ export function* registerCertificateSaga(
     }
 
     yield* apply(socket, socket.emit, applyEmitParams(SocketActionTypes.REGISTER_OWNER_CERTIFICATE, payload))
+  } else {
+    yield* put(communitiesActions.launchCommunity(action.payload.communityId))
   }
-
-  yield* put(communitiesActions.launchCommunity(action.payload.communityId))
 
   // else {
   //   if (!currentCommunity.registrarUrl) {

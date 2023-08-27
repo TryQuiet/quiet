@@ -43,7 +43,7 @@ export const identitySlice = createSlice({
         },
       })
     },
-    saveCsr: state => state,
+    saveUserCsr: state => state,
     verifyJoinTimestamp: state => state,
     updateJoinTimestamp: (state, action: PayloadAction<UpdateJoinTimestampPayload>) => {
       identityAdapter.updateOne(state.identities, {

@@ -43,6 +43,7 @@ import {
   UploadFilePayload,
   PeerId as PeerIdType,
   SaveCSRPayload,
+  SendUserCertificatePayload,
 } from '@quiet/types'
 import { CONFIG_OPTIONS, QUIET_DIR, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
 import { ConfigOptions, GetPorts, ServerIoProviderTypes } from '../types'
@@ -328,7 +329,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
     const { Libp2pModule } = await import('../libp2p/libp2p.module')
     const moduleRef = await this.lazyModuleLoader.load(() => Libp2pModule)
-    this.logger('launchCommunityFromStorage')
     const { Libp2pService } = await import('../libp2p/libp2p.service')
     const lazyService = moduleRef.get(Libp2pService)
     this.libp2pService = lazyService
@@ -398,13 +398,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       console.log('SAVED_OWNER_CERTIFICATE', payload)
       this.serverIoProvider.io.emit(SocketActionTypes.SAVED_OWNER_CERTIFICATE, payload)
     })
-    // this.registrationService.on(RegistrationEvents.SPAWN_HS_FOR_REGISTRAR, async payload => {
-    //   await this.tor.spawnHiddenService({
-    //     targetPort: payload.port,
-    //     privKey: payload.privateKey,
-    //     virtPort: payload.targetPort,
-    //   })
-    // })
     this.registrationService.on(RegistrationEvents.ERROR, payload => {
       emitError(this.serverIoProvider.io, payload)
     })
@@ -412,10 +405,10 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     //   console.log('SEND_USER_CERTIFICATE', payload)
     //   this.serverIoProvider.io.emit(SocketActionTypes.SEND_USER_CERTIFICATE, payload)
     // })
-    // this.registrationService.on(RegistrationEvents.NEW_USER, async payload => {
-    //   console.log('NEW_USER', payload)
-    //   await this.storageService?.saveCertificate(payload)
-    // })
+    this.registrationService.on(RegistrationEvents.NEW_USER, async payload => {
+      console.log('NEW_USER', payload)
+      await this.storageService?.saveCertificate(payload)
+    })
   }
   private attachsocketServiceListeners() {
     // Community
@@ -450,19 +443,14 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       this.communityState = ServiceState.LAUNCHING
       await this.launchCommunity(args)
     })
-    // Registration
-    // this.socketService.on(SocketActionTypes.LAUNCH_REGISTRAR, async (args: LaunchRegistrarPayload) => {
-    //   this.logger(`socketService - ${SocketActionTypes.LAUNCH_REGISTRAR}`)
-
-    //   const communityData = await this.localDbService.get(LocalDBKeys.REGISTRAR)
-    //   if (!communityData) {
-    //     await this.localDbService.put(LocalDBKeys.REGISTRAR, args)
-    //   }
-    //   console.log('this.registrarState', this.registrarState)
-    //   if ([ServiceState.LAUNCHING, ServiceState.LAUNCHED].includes(this.registrarState)) return
-    //   this.registrarState = ServiceState.LAUNCHING
-    //   await this.registrationService.launchRegistrar(args)
-    // })
+    this.socketService.on(SocketActionTypes.LAUNCH_REGISTRAR, async (args: LaunchRegistrarPayload) => {
+      // Event left for setting permsData purposes
+      this.logger(`socketService - ${SocketActionTypes.LAUNCH_REGISTRAR}`)
+      this.registrationService.permsData = {
+        certificate: args.rootCertString,
+        privKey: args.rootKeyString,
+      }
+    })
     this.socketService.on(SocketActionTypes.SAVED_OWNER_CERTIFICATE, async (args: SaveOwnerCertificatePayload) => {
       console.log('SAVED_OWNER_CERTIFICATE')
       const saveCertificatePayload: SaveCertificatePayload = {
@@ -479,28 +467,18 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     // this.socketService.on(SocketActionTypes.REGISTER_USER_CERTIFICATE, async (args: RegisterUserCertificatePayload) => {
     //   // Change to REGISTER_USER_CSR
     //   console.log('!!!! REGISTER_USER_CERTIFICATE', args.userCsr)
-    //   // await this.storageService?.saveCSR({ csr: args.userCsr })
-    //   // if (!this.socksProxyAgent) {
-    //   //   this.createAgent()
-    //   // }
 
-    //   // await this.registrationService.sendCertificateRegistrationRequest(
-    //   //   args.serviceAddress,
-    //   //   args.userCsr,
-    //   //   args.communityId,
-    //   //   120_000,
-    //   //   this.socksProxyAgent
-    //   // )
-    //   // const response = await this.registrationService.registerUser(args.userCsr)
-    //   this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CONNECTING_TO_COMMUNITY)
+    //   const registerResponse = await this.registrationService.registerUser(args.userCsr)
     //   console.log('emitting SocketActionTypes.SEND_USER_CERTIFICATE')
-    //   this.serverIoProvider.io.emit(SocketActionTypes.SEND_USER_CERTIFICATE, {
-    //     // TEMPORARY
+    //   const payload: SendUserCertificatePayload = {
     //     communityId: args.communityId,
     //     payload: {
+    //       certificate: registerResponse.body.certificate,
     //       peers: [],
+    //       rootCa: registerResponse.body.certificate,
     //     },
-    //   })
+    //   }
+    //   this.serverIoProvider.io.emit(SocketActionTypes.SEND_USER_CERTIFICATE, payload)
     // })
     this.socketService.on(
       SocketActionTypes.REGISTER_OWNER_CERTIFICATE,
@@ -614,6 +592,10 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.storageService.on(StorageEvents.CHANNEL_DELETION_RESPONSE, (payload: { channelId: string }) => {
       console.log('emitting deleted channel event back to state manager')
       this.serverIoProvider.io.emit(SocketActionTypes.CHANNEL_DELETION_RESPONSE, payload)
+    })
+    this.storageService.on('REPLICATED_CSR', async (payload: { csr: string }) => {
+      console.log('ON REPLICATED_CSR')
+      this.registrationService.emit('REGISTER_USER_CERTIFICATE', payload.csr)
     })
   }
 }
