@@ -26,8 +26,6 @@ export class TorControl implements OnModuleInit {
   }
 
   private async connect(): Promise<void> {
-    console.log('this.torControlParams', this.torControlParams)
-    console.log('configOptions.torControl', this.configOptions.torControlPort)
     return await new Promise((resolve, reject) => {
       if (this.connection) {
         reject(new Error('TOR: Connection already established'))
@@ -82,8 +80,17 @@ export class TorControl implements OnModuleInit {
   }
 
   public async sendCommand(command: string): Promise<{ code: number; messages: string[] }> {
+    await this.waitForDisconnect()
     return await new Promise((resolve, reject) => {
       void this._sendCommand(command, resolve, reject)
+    })
+  }
+
+  private async waitForDisconnect() {
+    await new Promise<void>(resolve => {
+      if (!this.connection) {
+        resolve()
+      }
     })
   }
 }

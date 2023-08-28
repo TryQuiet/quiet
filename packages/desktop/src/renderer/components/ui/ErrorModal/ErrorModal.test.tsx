@@ -23,8 +23,9 @@ describe('ErrorModal', () => {
           aria-hidden="true"
         />
         <div
-          class="Modalroot MuiModal-root css-1voaj9u-MuiModal-root"
+          class="MuiModal-root css-1vjugmr-MuiModal-root"
           role="presentation"
+          zindex="1300"
         >
           <div
             aria-hidden="true"

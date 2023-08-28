@@ -123,9 +123,13 @@ describe('Two Clients', () => {
       const settingsModal = await new Sidebar(ownerApp.driver).openSettings()
       const isSettingsModal = await settingsModal.element.isDisplayed()
       expect(isSettingsModal).toBeTruthy()
+      await sleep(1000)
       await settingsModal.switchTab('invite') // TODO: Fix - the invite tab should be default for the owner
+      await sleep(1000)
       const invitationCodeElement = await settingsModal.invitationCode()
+      await sleep(1000)
       invitationCode = await invitationCodeElement.getText()
+      await sleep(1000)
       console.log({ invitationCode })
       log('Received invitation code:', invitationCode)
       await settingsModal.close()
