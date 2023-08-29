@@ -260,7 +260,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
   public async spawnHiddenService({
     targetPort,
     privKey,
-    virtPort = 443,
+    virtPort = 80,
   }: {
     targetPort: number
     privKey: string
@@ -295,7 +295,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
 
   public async createNewHiddenService({
     targetPort,
-    virtPort = 443,
+    virtPort = 80,
   }: {
     targetPort: number
     virtPort?: number
