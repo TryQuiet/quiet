@@ -4,14 +4,7 @@ import StartingPanelComponent from './StartingPanelComponent'
 
 describe('Create StartingPanelComponent', () => {
   it('renders component', () => {
-    const result = renderComponent(
-      <StartingPanelComponent
-        handleClose={jest.fn()}
-        message={'Starting Quiet'}
-        torBootstrapInfo={'Bootstrapped 100% (done)'}
-        open={true}
-      />
-    )
+    const result = renderComponent(<StartingPanelComponent handleClose={jest.fn()} open={true} />)
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body
         style="padding-right: 1024px; overflow: hidden;"
@@ -20,8 +13,9 @@ describe('Create StartingPanelComponent', () => {
           aria-hidden="true"
         />
         <div
-          class="Modalroot MuiModal-root css-1voaj9u-MuiModal-root"
+          class="MuiModal-root css-1vjugmr-MuiModal-root"
           role="presentation"
+          zindex="1300"
         >
           <div
             aria-hidden="true"
@@ -68,7 +62,7 @@ describe('Create StartingPanelComponent', () => {
                 style="width: 600px;"
               >
                 <div
-                  class="MuiGrid-root MuiGrid-container StartingPanelComponentroot css-lho1b1-MuiGrid-root"
+                  class="MuiGrid-root MuiGrid-container StartingPanelComponentroot css-k5046p-MuiGrid-root"
                 >
                   <div
                     class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column StartingPanelComponentcontentWrapper css-t0zib5-MuiGrid-root"
@@ -78,23 +72,6 @@ describe('Create StartingPanelComponent', () => {
                       class="StartingPanelComponentimage"
                       src="test-file-stub"
                     />
-                    <div
-                      class="MuiGrid-root MuiGrid-container StartingPanelComponentprogressBar css-1e2bu2o-MuiGrid-root"
-                    >
-                      <div
-                        class="StartingPanelComponentprogress"
-                      />
-                    </div>
-                    <p
-                      class="MuiTypography-root MuiTypography-body2 css-16d47hw-MuiTypography-root"
-                    >
-                      Starting Quiet
-                    </p>
-                    <p
-                      class="MuiTypography-root MuiTypography-body2 StartingPanelComponenttext css-16d47hw-MuiTypography-root"
-                    >
-                      Tor Bootstrapped 100% (done)
-                    </p>
                   </div>
                 </div>
               </div>

@@ -397,5 +397,6 @@ export class DebugModeModal {
     } catch (e) {
       console.log('Probably click properly close modal')
     }
+    await new Promise<void>(resolve => setTimeout(() => resolve(), 2000))
   }
 }

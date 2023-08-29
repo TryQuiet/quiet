@@ -53,3 +53,10 @@ export interface TorPasswordProvider {
   torPassword: string
   torHashedPassword: string
 }
+
+export interface HiddenServiceData {
+  targetPort: number
+  privKey: string
+  virtPort: number
+  onionAddress: string
+}

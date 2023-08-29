@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.9.0](https://github.com/TryQuiet/backend/compare/@quiet/backend@1.9.0-alpha.0...@quiet/backend@1.9.0) (2023-08-28)
+
+**Note:** Version bump only for package @quiet/backend
+
+
+
+
+
+# [1.9.0-alpha.0](https://github.com/TryQuiet/backend/compare/@quiet/backend@1.8.0...@quiet/backend@1.9.0-alpha.0) (2023-08-25)
+
+**Note:** Version bump only for package @quiet/backend
+
+
+
+
+
 # [1.8.0](https://github.com/TryQuiet/backend/compare/@quiet/backend@1.7.1-alpha.3...@quiet/backend@1.8.0) (2023-08-17)
 
 **Note:** Version bump only for package @quiet/backend
