@@ -6,6 +6,7 @@ import { Scrollbars } from 'rc-scrollbars'
 import { AutoSizer } from 'react-virtualized'
 import IdentityPanel, { IdentityPanelProps } from './IdentityPanel/IdentityPanel'
 import ChannelsPanel, { ChannelsPanelProps } from './ChannelsPanel/ChannelsPanel'
+import TorStatus, { TorStatusProps } from './TorStatus'
 const PREFIX = 'SidebarComponent'
 
 const classes = {
@@ -43,7 +44,7 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
   },
 }))
 
-const SidebarComponent: React.FC<IdentityPanelProps & ChannelsPanelProps> = ({ ...props }) => {
+const SidebarComponent: React.FC<IdentityPanelProps & ChannelsPanelProps & TorStatusProps> = ({ ...props }) => {
   return (
     <StyledGrid container direction='column' className={classes.root}>
       <Grid item xs container direction='column' className={classes.padding}>
@@ -60,6 +61,7 @@ const SidebarComponent: React.FC<IdentityPanelProps & ChannelsPanelProps> = ({ .
             )}
           </AutoSizer>
         </Grid>
+        <TorStatus isTorInitialized={props.isTorInitialized} />
       </Grid>
     </StyledGrid>
   )

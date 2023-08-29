@@ -66,11 +66,7 @@ export class BuildSetup {
         // return `${process.env.LOCALAPPDATA}\\Programs\\${this.fileName ? 'quiet' : 'quiet2'}\\Quiet.exe`
         return `${process.env.LOCALAPPDATA}\\Programs\\quiet\\Quiet.exe`
       case 'darwin':
-        return `${
-          this.fileName
-            ? '/Applications/Quiet.app/Contents/MacOS/Quiet'
-            : '/Applications/Quiet-Latest.app/Contents/MacOS/Quiet'
-        }`
+        return '/Applications/Quiet.app/Contents/MacOS/Quiet'
       default:
         throw new Error('wrong SYSTEM env')
     }
