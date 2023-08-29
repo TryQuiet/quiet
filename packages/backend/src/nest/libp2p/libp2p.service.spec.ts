@@ -38,9 +38,7 @@ describe('Libp2pService', () => {
 
   it('creates libp2p address with proper ws type (%s)', async () => {
     const libp2pAddress = libp2pService.createLibp2pAddress(params.localAddress, params.peerId.toString())
-    expect(libp2pAddress).toStrictEqual(
-      `/dns4/${params.localAddress}.onion/tcp/80/wss/p2p/${params.peerId.toString()}`
-    )
+    expect(libp2pAddress).toStrictEqual(`/dns4/${params.localAddress}.onion/tcp/80/wss/p2p/${params.peerId.toString()}`)
   })
 
   it('creates libp2p listen address', async () => {
