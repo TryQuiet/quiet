@@ -31,6 +31,7 @@
     "@react-navigation/native": "^6.0.0",
     "@react-navigation/native-stack": "^6.9.0",
     "@reduxjs/toolkit": "^1.9.1",
+    "@ronradtke/react-native-markdown-display": "^8.0.0",
     "buffer": "^6.0.3",
     "events": "^1.1.1",
     "i18next": "^20.2.2",
@@ -134,7 +135,7 @@
       "<rootDir>/codegen/"
     ],
     "setupFiles": [
-      "./src/setupTests.ts",
+      "./src/setupTests.tsx",
       "./node_modules/react-native-gesture-handler/jestSetup.js"
     ],
     "setupFilesAfterEnv": [

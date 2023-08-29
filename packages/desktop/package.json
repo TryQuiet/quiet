@@ -137,7 +137,9 @@
     "get-port": "^5.1.1",
     "keymirror": "0.1.1",
     "pkijs": "^3.0.8",
+    "react-markdown": "^6.0.3",
     "react-qr-code": "^2.0.11",
+    "remark-gfm": "^1.0.0",
     "socket.io-client": "4.6.0"
   },
   "devDependencies": {
