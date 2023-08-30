@@ -32,8 +32,12 @@ describe('Backwards Compatibility', () => {
     ownerAppOldVersion = new App({ dataDir, fileName: 'Quiet-1.2.0-copy.AppImage' })
   })
 
+  beforeEach(async () => {
+    await new Promise<void>(resolve => setTimeout(() => resolve(), 1000))
+  })
+
   afterAll(async () => {
-    await new Promise<void>(resolve => setTimeout(() => resolve(), 15000))
+    await new Promise<void>(resolve => setTimeout(() => resolve(), 5000))
     await ownerAppNewVersion?.close()
   })
   describe('User opens app for the first time', () => {
