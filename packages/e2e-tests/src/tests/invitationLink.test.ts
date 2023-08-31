@@ -30,6 +30,10 @@ describe('New user joins using invitation link while having app opened', () => {
     guestApp = new App({ useDataDir: false })
   })
 
+  beforeEach(async () => {
+    await new Promise<void>(resolve => setTimeout(() => resolve(), 1000))
+  })
+
   afterAll(async () => {
     await ownerApp?.close()
     await guestApp?.close()

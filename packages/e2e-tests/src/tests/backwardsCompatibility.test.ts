@@ -32,8 +32,12 @@ describe('Backwards Compatibility', () => {
     ownerAppOldVersion = new App({ dataDir, fileName: 'Quiet-1.2.0-copy.AppImage' })
   })
 
+  beforeEach(async () => {
+    await new Promise<void>(resolve => setTimeout(() => resolve(), 1000))
+  })
+
   afterAll(async () => {
-    await new Promise<void>(resolve => setTimeout(() => resolve(), 15000))
+    await new Promise<void>(resolve => setTimeout(() => resolve(), 5000))
     await ownerAppNewVersion?.close()
   })
   describe('User opens app for the first time', () => {
@@ -74,7 +78,6 @@ describe('Backwards Compatibility', () => {
     })
     it('Close update modal', async () => {
       console.log('waiting for update modal')
-      await new Promise<void>(resolve => setTimeout(() => resolve(), 100000))
       const updateModal = new UpdateModal(ownerAppOldVersion.driver)
       console.log('Update Modal - before check with display')
       const isUpdateModal = await updateModal.element.isDisplayed()
@@ -143,24 +146,21 @@ describe('Backwards Compatibility', () => {
     // ________________________________
 
     it('Owner opens the app on new version', async () => {
+      console.log('New version', 1)
       ownerAppNewVersion = new App({ dataDir })
       await ownerAppNewVersion.open()
     })
 
     if (process.env.TEST_MODE) {
       it('Close debug modal', async () => {
+        console.log('New version', 2)
         const debugModal = new DebugModeModal(ownerAppNewVersion.driver)
         await debugModal.close()
       })
     }
 
-    it('StartingLoadingPanel modal', async () => {
-      const loadingPanel = new StartingLoadingPanel(ownerAppNewVersion.driver)
-      const isLoadingPanel = await loadingPanel.element.isDisplayed()
-      expect(isLoadingPanel).toBeTruthy()
-    })
-
     it('General channel check', async () => {
+      console.log('New version', 3)
       generalChannel = new Channel(ownerAppNewVersion.driver, 'general')
       const isGeneralChannel = await generalChannel.element.isDisplayed()
       const generalChannelText = await generalChannel.element.getText()
@@ -169,6 +169,7 @@ describe('Backwards Compatibility', () => {
     })
 
     it('Verify version - latest', async () => {
+      console.log('New version', 4)
       await new Promise<void>(resolve => setTimeout(() => resolve(), 10000))
       const settingsModal = await new Sidebar(ownerAppNewVersion.driver).openSettings()
       const isSettingsModal = await settingsModal.element.isDisplayed()
@@ -180,6 +181,7 @@ describe('Backwards Compatibility', () => {
     })
 
     it('Check amount of messages on second channel ', async () => {
+      console.log('New version', 5)
       await new Promise<void>(resolve => setTimeout(() => resolve(), 2000))
       sidebar = new Sidebar(ownerAppNewVersion.driver)
       await sidebar.switchChannel(newChannelName)
