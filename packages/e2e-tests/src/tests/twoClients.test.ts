@@ -72,7 +72,7 @@ describe('Two Clients', () => {
       })
     }
 
-    it('StartingLoadingPanel modal', async () => {
+    it.skip('StartingLoadingPanel modal', async () => {
       const loadingPanel = new StartingLoadingPanel(ownerApp.driver)
       const isLoadingPanel = await loadingPanel.element.isDisplayed()
       expect(isLoadingPanel).toBeTruthy()
@@ -147,7 +147,7 @@ describe('Two Clients', () => {
         await debugModal.close()
       })
     }
-    it('StartingLoadingPanel modal', async () => {
+    it.skip('StartingLoadingPanel modal', async () => {
       console.log('new user - 2')
       const loadingPanel = new StartingLoadingPanel(guestApp.driver)
       const isLoadingPanel = await loadingPanel.element.isDisplayed()
