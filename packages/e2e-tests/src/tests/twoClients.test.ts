@@ -8,7 +8,6 @@ import {
   JoiningLoadingPanel,
   RegisterUsernameModal,
   Sidebar,
-  StartingLoadingPanel,
 } from '../selectors'
 import logger from '../logger'
 const log = logger('Two Clients:')
@@ -72,11 +71,6 @@ describe('Two Clients', () => {
       })
     }
 
-    it.skip('StartingLoadingPanel modal', async () => {
-      const loadingPanel = new StartingLoadingPanel(ownerApp.driver)
-      const isLoadingPanel = await loadingPanel.element.isDisplayed()
-      expect(isLoadingPanel).toBeTruthy()
-    })
     it('JoinCommunityModal - owner switch to create community', async () => {
       const joinModal = new JoinCommunityModal(ownerApp.driver)
       const isJoinModal = await joinModal.element.isDisplayed()
@@ -147,12 +141,7 @@ describe('Two Clients', () => {
         await debugModal.close()
       })
     }
-    it.skip('StartingLoadingPanel modal', async () => {
-      console.log('new user - 2')
-      const loadingPanel = new StartingLoadingPanel(guestApp.driver)
-      const isLoadingPanel = await loadingPanel.element.isDisplayed()
-      expect(isLoadingPanel).toBeTruthy()
-    })
+
     it('Guest joins the new community successfully', async () => {
       console.log('new user - 3')
       const joinCommunityModal = new JoinCommunityModal(guestApp.driver)
