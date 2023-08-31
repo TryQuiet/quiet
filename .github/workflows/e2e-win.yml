@@ -3,8 +3,15 @@ name: E2E Windows
 on: [workflow_call]
 jobs:
   windows:
-    runs-on: windows-2019
+    # runs-on: windows-2019
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [windows-2019, windows-2022]
+    
     timeout-minutes: 180
+
     env:
       ELECTRON_CUSTOM_VERSION: 23.0.0
       TEST_MODE: true
