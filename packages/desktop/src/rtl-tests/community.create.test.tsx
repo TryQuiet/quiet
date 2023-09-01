@@ -62,7 +62,6 @@ describe('User', () => {
     )
 
     store.dispatch(modalsActions.openModal({ name: ModalName.createCommunityModal }))
-    store.dispatch(connection.actions.connectionManagerInit())
 
     window.HTMLElement.prototype.scrollTo = jest.fn()
 

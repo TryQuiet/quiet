@@ -1,7 +1,6 @@
 import React, { FC } from 'react'
 import { TouchableWithoutFeedback, View } from 'react-native'
 import { ButtonProps } from './Button.types'
-
 import * as Progress from 'react-native-progress'
 import { Typography } from '../Typography/Typography.component'
 import { defaultTheme } from '../../styles/themes/default.theme'
