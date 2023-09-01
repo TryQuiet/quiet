@@ -43,7 +43,7 @@ import AccessControllers from 'orbit-db-access-controllers'
 import { MessagesAccessController } from './MessagesAccessController'
 import { createChannelAccessController } from './ChannelsAccessController'
 import Logger from '../common/logger'
-import { DirectMessagesRepo, IMessageThread, PublicChannelsRepo } from '../common/types'
+import { DirectMessagesRepo, PublicChannelsRepo } from '../common/types'
 import { removeFiles, removeDirs, createPaths, getUsersAddresses } from '../common/utils'
 import { StorageEvents } from './storage.types'
 
@@ -361,9 +361,7 @@ export class StorageService extends EventEmitter {
       // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
       await this.channels.load({ fetchEntryTimeout: 2000 })
 
-      const channels = Object.values(this.channels.all).map(channel => {
-        return this.transformChannel(channel)
-      })
+      const channels = Object.values(this.channels.all)
 
       const keyValueChannels: {
         [key: string]: PublicChannel
@@ -387,7 +385,6 @@ export class StorageService extends EventEmitter {
     this.logger('ALL CHANNELS COUNT:', Object.keys(this.channels.all).length)
     this.logger('ALL CHANNELS COUNT:', Object.keys(this.channels.all))
     Object.values(this.channels.all).forEach(async (channel: PublicChannel) => {
-      channel = this.transformChannel(channel)
       await this.subscribeToChannel(channel)
     })
     this.logger('STORAGE: Finished createDbForChannels')
@@ -464,7 +461,7 @@ export class StorageService extends EventEmitter {
 
       db.events.on('replicate.progress', async (address, _hash, entry, progress, total) => {
         this.logger(`progress ${progress as string}/${total as string}. Address: ${address as string}`)
-        const messages = this.transformMessages([entry.payload.value])
+        const messages = [entry.payload.value]
 
         const verified = await this.verifyMessage(messages[0])
 
@@ -526,48 +523,14 @@ export class StorageService extends EventEmitter {
     })
   }
 
-  public transformMessages(msgs: ChannelMessage[]) {
-    console.log('---------------- TRANSFORMING MESSAGES ----------------------')
-    const messages = msgs.map(msg => {
-      console.log('processing message ', msg.id)
-      // @ts-ignore
-      if (msg.channelAddress) {
-        console.log('message before transformation ', msg)
-        // @ts-ignore
-        msg.channelId = msg.channelAddress
-        // @ts-ignore
-        delete msg.channelAddress
-        console.log('transformed message to new format ', msg)
-        return msg
-      }
-      return msg
-    })
-    return messages
-  }
-
-  public transformChannel(channel: PublicChannel) {
-    // @ts-ignore
-    if (channel.address) {
-      console.log('channel before transformation ', channel)
-      // @ts-ignore
-      channel.id = channel.address
-      // @ts-ignore
-      delete channel.address
-      console.log('transformed channel to new format ', channel)
-      return channel
-    }
-    return channel
-  }
-
   public async askForMessages(channelId: string, ids: string[]) {
     const repo = this.publicChannelsRepos.get(channelId)
     if (!repo) return
     const messages = this.getAllEventLogEntries<ChannelMessage>(repo.db)
-    let filteredMessages: ChannelMessage[] = []
+    const filteredMessages: ChannelMessage[] = []
     for (const id of ids) {
       filteredMessages.push(...messages.filter(i => i.id === id))
     }
-    filteredMessages = this.transformMessages(filteredMessages)
     this.emit(StorageEvents.LOAD_MESSAGES, {
       messages: filteredMessages,
       isVerified: true,
@@ -584,8 +547,7 @@ export class StorageService extends EventEmitter {
     }
     this.logger(`Creating channel ${data.id}`)
 
-    // @ts-ignore
-    const channelId = data.id || data.address
+    const channelId = data.id
 
     const db: EventStore<ChannelMessage> = await this.orbitDb.log<ChannelMessage>(`channels.${channelId}`, {
       replicate: options.replicate,
