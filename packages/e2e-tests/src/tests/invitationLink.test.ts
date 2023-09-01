@@ -7,12 +7,12 @@ import {
   RegisterUsernameModal,
   App,
   Sidebar,
+  StartingLoadingPanel,
   WarningModal,
 } from '../selectors'
 import { capitalizeFirstLetter, invitationDeepUrl } from '@quiet/common'
 import { execSync } from 'child_process'
 import { type SupportedPlatformDesktop } from '@quiet/types'
-import fs from 'fs'
 
 jest.setTimeout(1900000)
 it.todo('New user joins using invitation link while having app closed')
@@ -52,6 +52,13 @@ describe('New user joins using invitation link while having app opened', () => {
         await debugModal.close()
       })
     }
+
+    it.skip('StartingLoadingPanel modal', async () => {
+      console.log('Invitation Link', 3)
+      const loadingPanel = new StartingLoadingPanel(ownerApp.driver)
+      const isLoadingPanel = await loadingPanel.element.isDisplayed()
+      expect(isLoadingPanel).toBeTruthy()
+    })
 
     it('JoinCommunityModal - owner switches to create community', async () => {
       console.log('Invitation Link', 4)
@@ -187,25 +194,22 @@ describe('New user joins using invitation link while having app opened', () => {
       })
     }
 
-    it('Owner sees that guest joined community', async () => {
+    it('Guest joined a community and sees general channel', async () => {
       console.log('Invitation Link', 20)
+      console.log('guest sees general channel')
+
+      const generalChannel = new Channel(guestApp.driver, 'general')
+      await generalChannel.element.isDisplayed()
+    })
+
+    it('Owner sees that guest joined community', async () => {
+      console.log('Invitation Link', 21)
       const generalChannel = new Channel(ownerApp.driver, 'general')
       await generalChannel.element.isDisplayed()
       const userJoinedMessage = await generalChannel.getMessage(
         `@${joiningUserUsername} has joined ${capitalizeFirstLetter(communityName)}!`
       )
       expect(await userJoinedMessage.isDisplayed()).toBeTruthy()
-    })
-
-    it('Guest joined a community and sees general channel', async () => {
-      console.log('Invitation Link', 21)
-      console.log('guest sees general channel')
-      // await new Promise<void>(resolve => setTimeout(() => resolve(), 30000))
-      // const screenshot = await guestApp.driver.takeScreenshot()
-      // fs.writeFileSync('screenshot.png', screenshot, 'base64')
-      // console.log('Screenshot saved as screenshot.png')
-      const generalChannel = new Channel(guestApp.driver, 'general')
-      await generalChannel.element.isDisplayed()
     })
   })
 })

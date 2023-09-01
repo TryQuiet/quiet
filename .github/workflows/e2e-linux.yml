@@ -46,33 +46,27 @@ jobs:
         working-directory: ./packages/e2e-tests/Quiet
         run: chmod +x $FILE_NAME
 
-      # - name: Run one client test
-      #   uses: nick-fields/retry@v2
-      #   with:
-      #     timeout_minutes: 15
-      #     max_attempts: 3
-      #     command: cd packages/e2e-tests && npm run test oneClient.test.ts
+      - name: Run one client test
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 15
+          max_attempts: 3
+          command: cd packages/e2e-tests && npm run test oneClient.test.ts
 
-      # - name: Run two clients test
-      #   uses: nick-fields/retry@v2
-      #   with:
-      #     timeout_minutes: 25
-      #     max_attempts: 3
-      #     command: cd packages/e2e-tests && npm run test twoClients.test.ts
+      - name: Run two clients test
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 25
+          max_attempts: 3
+          command: cd packages/e2e-tests && npm run test twoClients.test.ts
 
       - name: Run invitation link test - Includes 2 separate application clients
-        # if: matrix.os == 'ubuntu-20.04'
+        if: matrix.os == 'ubuntu-20.04'
         uses: nick-fields/retry@v2
         with:
           timeout_minutes: 15
           max_attempts: 1
           command: cd packages/e2e-tests && npm run test invitationLink.test.ts
-
-      # - name: Upload Screenshot
-      #   uses: actions/upload-artifact@v2
-      #   with:
-      #     name: screenshot-invitation
-      #     path: ./packages/e2e-tests/screenshot.png
 
       - name: Download App Image 1.2.0
         working-directory: ./packages/e2e-tests/Quiet
