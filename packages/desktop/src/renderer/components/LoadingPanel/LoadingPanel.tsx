@@ -24,7 +24,6 @@ const LoadingPanel = () => {
 
   const community = useSelector(communities.selectors.currentCommunity)
   const owner = Boolean(community?.CA)
-  const currentIdentity = useSelector(identity.selectors.currentIdentity)
   const usersData = Object.keys(useSelector(users.selectors.certificates))
   const isOnlyOneUser = usersData.length === 1
 
@@ -41,6 +40,7 @@ const LoadingPanel = () => {
   useEffect(() => {
     console.log('HUNTING for haisenbug:')
     console.log('isConnected', isConnected)
+    console.log('communityId', communityId)
     console.log('isCommunityInitialized', isCommunityInitialized)
     console.log('areMessagesLoaded?', areMessagesLoaded)
     console.log('registrationError', registrationError)

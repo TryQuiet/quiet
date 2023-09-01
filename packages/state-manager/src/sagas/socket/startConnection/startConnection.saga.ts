@@ -178,6 +178,7 @@ export function subscribe(socket: Socket) {
       emit(communitiesActions.responseCreateNetwork(payload))
     })
     socket.on(SocketActionTypes.COMMUNITY, (payload: ResponseLaunchCommunityPayload) => {
+      console.log('Hunting for heisenbug: Community event received in state-manager')
       emit(communitiesActions.launchRegistrar(payload.id))
       emit(filesActions.checkForMissingFiles(payload.id))
       emit(networkActions.addInitializedCommunity(payload.id))
