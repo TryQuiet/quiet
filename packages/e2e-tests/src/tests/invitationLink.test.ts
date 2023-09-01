@@ -12,6 +12,7 @@ import {
 import { capitalizeFirstLetter, invitationDeepUrl } from '@quiet/common'
 import { execSync } from 'child_process'
 import { type SupportedPlatformDesktop } from '@quiet/types'
+import fs from 'fs'
 
 jest.setTimeout(1900000)
 it.todo('New user joins using invitation link while having app closed')
@@ -189,7 +190,10 @@ describe('New user joins using invitation link while having app opened', () => {
     it('Guest joined a community and sees general channel', async () => {
       console.log('Invitation Link', 20)
       console.log('guest sees general channel')
-
+      await new Promise<void>(resolve => setTimeout(() => resolve(), 30000))
+      const screenshot = await guestApp.driver.takeScreenshot()
+      fs.writeFileSync('screenshot.png', screenshot, 'base64')
+      console.log('Screenshot saved as screenshot.png')
       const generalChannel = new Channel(guestApp.driver, 'general')
       await generalChannel.element.isDisplayed()
     })
