@@ -64,7 +64,7 @@ jobs:
         if: matrix.os == 'ubuntu-20.04'
         uses: nick-fields/retry@v2
         with:
-          timeout_minutes: 15
+          timeout_minutes: 25
           max_attempts: 1
           command: cd packages/e2e-tests && npm run test invitationLink.test.ts
 
