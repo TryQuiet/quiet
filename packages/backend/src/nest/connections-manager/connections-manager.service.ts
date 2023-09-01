@@ -128,7 +128,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   }
 
   public async init() {
-    this.serverIoProvider.io.emit(SocketActionTypes.CONNECTION_MANAGER_INIT)
     console.log('init')
     this.communityState = ServiceState.DEFAULT
     this.registrarState = ServiceState.DEFAULT
@@ -222,7 +221,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.registrarState = ServiceState.DEFAULT
     await this.localDbService.open()
     await this.socketService.init()
-    this.serverIoProvider.io.emit(SocketActionTypes.CONNECTION_MANAGER_INIT)
   }
 
   public async purgeData() {
@@ -311,6 +309,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.serverIoProvider.io.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.LAUNCHED_COMMUNITY)
     this.communityId = payload.id
     this.communityState = ServiceState.LAUNCHED
+    console.log('Hunting for heisenbug: Backend initialized community and sent event to state manager')
     this.serverIoProvider.io.emit(SocketActionTypes.COMMUNITY, { id: payload.id })
   }
   public async launch(payload: InitCommunityPayload) {
@@ -423,6 +422,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.socketService.on(SocketActionTypes.CONNECTION, async () => {
       // Update Frontend with Initialized Communities
       if (this.communityId) {
+        console.log('Hunting for heisenbug: Backend initialized community and sent event to state manager')
         this.serverIoProvider.io.emit(SocketActionTypes.COMMUNITY, { id: this.communityId })
         console.log('this.libp2pService.connectedPeers', this.libp2pService.connectedPeers)
         console.log('this.libp2pservice', this.libp2pService)
