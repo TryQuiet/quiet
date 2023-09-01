@@ -39,7 +39,7 @@ describe('sendInitialChannelMessageSaga', () => {
       id: community.id,
       nickname: 'alice',
     })
-    
+
     const generalChannelState = publicChannelsSelectors.generalChannel(store.getState())
     if (generalChannelState) generalChannel = generalChannelState
     expect(generalChannel).not.toBeUndefined()
