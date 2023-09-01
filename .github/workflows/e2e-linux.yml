@@ -63,8 +63,8 @@ jobs:
       - name: Run invitation link test - Includes 2 separate application clients
         uses: nick-fields/retry@v2
         with:
-          timeout_minutes: 25
-          max_attempts: 3
+          timeout_minutes: 10
+          max_attempts: 1
           command: cd packages/e2e-tests && npm run test invitationLink.test.ts
 
       - name: Upload Screenshot
