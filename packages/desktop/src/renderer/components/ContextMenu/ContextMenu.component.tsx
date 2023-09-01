@@ -1,5 +1,4 @@
 import React, { FC, useEffect, useRef } from 'react'
-
 import { Grid, List, Typography } from '@mui/material'
 
 import { ContextMenuItemProps, ContextMenuProps } from './ContextMenu.types'
