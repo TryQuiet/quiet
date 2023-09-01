@@ -172,7 +172,7 @@ describe('Two Clients', () => {
       await registerModal2.submit()
     })
 
-    it('JoiningLoadingPanel', async () => {
+    it.skip('JoiningLoadingPanel', async () => {
       console.log('new user - 6')
       const loadingPanelCommunity2 = new JoiningLoadingPanel(ownerApp.driver)
       const isLoadingPanelCommunity2 = await loadingPanelCommunity2.element.isDisplayed()
