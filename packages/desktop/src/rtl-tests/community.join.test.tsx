@@ -63,7 +63,6 @@ describe('User', () => {
     )
 
     store.dispatch(modalsActions.openModal({ name: ModalName.joinCommunityModal }))
-    store.dispatch(connection.actions.connectionManagerInit())
     window.HTMLElement.prototype.scrollTo = jest.fn()
 
     renderComponent(
@@ -182,7 +181,7 @@ describe('User', () => {
     await userEvent.click(createUsernameButton)
 
     // Wait for the actions that updates the store
-    await act(async () => {})
+    await act(async () => { })
 
     // Check if join/username modals are gone
     expect(joinCommunityTitle).not.toBeVisible()
@@ -235,7 +234,6 @@ describe('User', () => {
     )
 
     store.dispatch(modalsActions.openModal({ name: ModalName.joinCommunityModal }))
-    store.dispatch(connection.actions.connectionManagerInit())
 
     renderComponent(
       <>
@@ -308,7 +306,7 @@ describe('User', () => {
     await userEvent.click(createUsernameButton)
 
     // Wait for the actions that updates the store
-    await act(async () => {})
+    await act(async () => { })
 
     // Check if 'username taken' error message is visible
     expect(createUsernameTitle).toBeVisible()
@@ -343,7 +341,6 @@ describe('User', () => {
       {},
       socket // Fork state manager's sagas
     )
-    store.dispatch(connection.actions.connectionManagerInit())
     store.dispatch(modalsActions.openModal({ name: ModalName.joinCommunityModal }))
 
     renderComponent(
@@ -422,7 +419,7 @@ describe('User', () => {
     await userEvent.click(createUsernameButton)
 
     // Wait for the actions that updates the store
-    await act(async () => {})
+    await act(async () => { })
 
     // Check if 'username taken' error message disappeared
     expect(await screen.queryByText(ErrorMessages.USERNAME_TAKEN)).toBeNull()
