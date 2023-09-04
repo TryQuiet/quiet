@@ -28,7 +28,8 @@
     "@quiet/types": "^2.0.0-alpha.0",
     "multiaddr": "^10.0.1",
     "cross-env": "^5.2.0",
-    "debug": "^4.3.1"
+    "debug": "^4.3.1",
+    "peer-id": "^0.16.0"
   },
   "jest": {
     "transform": {
