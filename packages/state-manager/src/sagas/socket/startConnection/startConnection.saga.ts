@@ -87,7 +87,6 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof connectionActions.setTorBootstrapProcess>
     | ReturnType<typeof connectionActions.setTorConnectionProcess>
     | ReturnType<typeof connectionActions.torBootstrapped>
-    | ReturnType<typeof connectionActions.connectionManagerInit>
     | ReturnType<typeof communitiesActions.clearInvitationCodes>
     | ReturnType<typeof identityActions.saveUserCsr>
     | ReturnType<typeof connectionActions.setTorInitialized>
@@ -98,9 +97,6 @@ export function subscribe(socket: Socket) {
     })
     socket.on(SocketActionTypes.CONNECTION_PROCESS_INFO, (payload: string) => {
       emit(connectionActions.setTorConnectionProcess(payload))
-    })
-    socket.on(SocketActionTypes.CONNECTION_MANAGER_INIT, () => {
-      emit(connectionActions.connectionManagerInit())
     })
     // Misc
     socket.on(SocketActionTypes.PEER_CONNECTED, (payload: { peers: string[] }) => {
@@ -183,7 +179,7 @@ export function subscribe(socket: Socket) {
       emit(communitiesActions.responseCreateNetwork(payload))
     })
     socket.on(SocketActionTypes.COMMUNITY, (payload: ResponseLaunchCommunityPayload) => {
-      console.log('on SocketActionTypes.COMMUNITY')
+      console.log('Hunting for heisenbug: Community event received in state-manager')
       emit(communitiesActions.launchRegistrar(payload.id))
       emit(identityActions.saveUserCsr())
       emit(filesActions.checkForMissingFiles(payload.id))

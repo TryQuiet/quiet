@@ -1,6 +1,6 @@
 {
   "name": "@quiet/types",
-  "version": "1.7.0",
+  "version": "2.0.0-alpha.0",
   "description": "Common monorepo types",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -17,7 +17,7 @@
     "rmDist": "rimraf lib/"
   },
   "devDependencies": {
-    "@quiet/eslint-config": "^1.2.0",
+    "@quiet/eslint-config": "^1.4.0-alpha.0",
     "@reduxjs/toolkit": "^1.9.1",
     "@types/jest": "^26.0.23",
     "@types/node": "^17.0.21",
