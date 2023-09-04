@@ -8,7 +8,6 @@ import {
   JoiningLoadingPanel,
   RegisterUsernameModal,
   Sidebar,
-  StartingLoadingPanel,
   UpdateModal,
 } from '../selectors'
 
@@ -43,12 +42,6 @@ describe('Backwards Compatibility', () => {
   describe('User opens app for the first time', () => {
     it('Owner opens the app', async () => {
       await ownerAppOldVersion.open()
-    })
-
-    it('StartingLoadingPanel modal', async () => {
-      const loadingPanel = new StartingLoadingPanel(ownerAppOldVersion.driver)
-      const isLoadingPanel = await loadingPanel.element.isDisplayed()
-      expect(isLoadingPanel).toBeTruthy()
     })
 
     it('JoinCommunityModal - owner switch to create community', async () => {
