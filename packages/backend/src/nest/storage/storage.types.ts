@@ -4,6 +4,7 @@ export enum StorageEvents {
   // Peers
   UPDATE_PEERS_LIST = 'updatePeersList',
   LOAD_CERTIFICATES = 'loadCertificates',
+  REPLICATED_CSR = 'replicatedCsr',
   // Public Channels
   LOAD_PUBLIC_CHANNELS = 'loadPublicChannels',
   LOAD_ALL_PRIVATE_CONVERSATIONS = 'loadAllPrivateConversations',

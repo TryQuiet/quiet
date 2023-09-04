@@ -17,7 +17,7 @@ import KeyValueStore from 'orbit-db-kvstore'
 import path from 'path'
 import { EventEmitter } from 'events'
 import PeerId from 'peer-id'
-import { getCrypto } from 'pkijs'
+import { CertificationRequest, getCrypto } from 'pkijs'
 import { stringToArrayBuffer } from 'pvutils'
 import validate from '../validation/validators'
 import { CID } from 'multiformats/cid'
@@ -274,14 +274,10 @@ export class StorageService extends EventEmitter {
   }
 
   public async updatePeersList() {
-    console.log('updatePeersList')
     const allUsers = this.getAllUsers()
-    console.log('updatePeersList allUsers', allUsers)
     const registeredUsers = this.getAllRegisteredUsers()
-    console.log('updatePeersList registeredUsers', registeredUsers)
     const peers = [...new Set(await getUsersAddresses(allUsers.concat(registeredUsers)))]
-    // const peers = [...new Set(await getUsersAddresses(registeredUsers))]
-    console.log('updatePeersList peers', peers)
+    console.log('updatePeersList, peers count:', peers.length)
     const community = await this.localDbService.get(LocalDBKeys.COMMUNITY)
     this.emit(StorageEvents.UPDATE_PEERS_LIST, { communityId: community.id, peerList: peers })
   }
@@ -358,46 +354,34 @@ export class StorageService extends EventEmitter {
     })
     this.certificatesRequests.events.on('replicate.progress', async (_address, _hash, entry, _progress, _total) => {
       const csr = entry.payload.value
+      this.logger('REPLICATED CSR', csr)
+      let parsedCSR: CertificationRequest
+      try {
+        parsedCSR = parseCertificationRequest(csr)
+      } catch (e) {
+        this.logger.error(`csrs replicate.progress: could not parse certificate request`)
+        return
+      }
 
-      // const parsedCertificate = parseCertificationRequest(csr)
-      console.log('REPLICATED CSR', csr)
-      this.emit('REPLICATED_CSR', { csr: csr })
+      const username = getReqFieldValue(parsedCSR, CertFieldsTypes.nickName)
+      if (!username) {
+        this.logger.error(
+          `csrs replicate.progress: could not parse certificate request for field type ${CertFieldsTypes.nickName}`
+        )
+        return
+      }
 
-      // const key = keyFromCertificate(parsedCertificate)
-
-      // const username = getCertFieldValue(parsedCertificate, CertFieldsTypes.nickName)
-      // if (!username) {
-      //   this.logger.error(
-      //     `Certificates replicate.progress: could not parse certificate for field type ${CertFieldsTypes.nickName}`
-      //   )
-      //   return
-      // }
-
-      // this.userNamesMap.set(key, username)
+      this.emit(StorageEvents.REPLICATED_CSR, { csr: csr })
     })
     this.certificatesRequests.events.on('replicated', async () => {
       this.logger('REPLICATED: CSRs')
-      // this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CSRS_REPLICATED)
-      // this.emit(StorageEvents.LOAD_CERTIFICATES, {
-      //   certificates: this.getAllEventLogEntries(this.certificatesRequests),
-      // })
       await this.updatePeersList()
     })
     this.certificatesRequests.events.on('write', async (_address, entry) => {
       this.logger('Saved CSR locally')
       this.logger(entry.payload.value)
-      // this.emit(StorageEvents.LOAD_CERTIFICATES, {
-      //   certificates: this.getAllEventLogEntries(this.certificates),
-      // })
       await this.updatePeersList()
     })
-    // this.certificates.events.on('ready', () => {
-    //   this.logger('Loaded certificates to memory')
-    //   this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.LOADED_CERTIFICATES)
-    //   this.emit(StorageEvents.LOAD_CERTIFICATES, {
-    //     certificates: this.getAllEventLogEntries(this.certificates),
-    //   })
-    // })
 
     // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
     await this.certificates.load({ fetchEntryTimeout: 15000 })
@@ -835,13 +819,14 @@ export class StorageService extends EventEmitter {
       this.logger('CSR is either null or undefined, not saving to db')
       return false
     }
-    // TODO: Verify CSR?
-    // const verification = await verifyUserCert(payload.rootPermsData.certificate, payload.certificate)
-    // if (verification.resultCode !== 0) {
-    //   this.logger.error('Certificate is not valid')
-    //   this.logger.error(verification.resultMessage)
-    //   return false
-    // }
+    // TODO: Verify CSR
+    try {
+      parseCertificationRequest(payload.csr)
+    } catch (e) {
+      this.logger.error(`Cannot save csr ${payload.csr}. Reason: ${e.message}`)
+      return false
+    }
+
     this.logger('Saving csr...')
     await this.certificatesRequests.add(payload.csr)
     return true

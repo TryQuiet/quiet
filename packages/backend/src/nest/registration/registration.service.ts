@@ -43,7 +43,7 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
       console.log('SET CERTIFICATES', certs)
       this.setCertificates(certs)
     })
-    this.on('REGISTER_USER_CERTIFICATE', async (csr: string) => {
+    this.on(RegistrationEvents.REGISTER_USER_CERTIFICATE, async (csr: string) => {
       if (!this._permsData) {
         console.log('NO PERMS DATA')
         return
