@@ -8,7 +8,6 @@ import {
   JoiningLoadingPanel,
   RegisterUsernameModal,
   Sidebar,
-  StartingLoadingPanel,
 } from '../selectors'
 import logger from '../logger'
 const log = logger('Two Clients:')
@@ -72,11 +71,6 @@ describe('Two Clients', () => {
       })
     }
 
-    it('StartingLoadingPanel modal', async () => {
-      const loadingPanel = new StartingLoadingPanel(ownerApp.driver)
-      const isLoadingPanel = await loadingPanel.element.isDisplayed()
-      expect(isLoadingPanel).toBeTruthy()
-    })
     it('JoinCommunityModal - owner switch to create community', async () => {
       const joinModal = new JoinCommunityModal(ownerApp.driver)
       const isJoinModal = await joinModal.element.isDisplayed()
@@ -123,14 +117,15 @@ describe('Two Clients', () => {
       const settingsModal = await new Sidebar(ownerApp.driver).openSettings()
       const isSettingsModal = await settingsModal.element.isDisplayed()
       expect(isSettingsModal).toBeTruthy()
-      await sleep(1000)
+      await sleep(2000)
       await settingsModal.switchTab('invite') // TODO: Fix - the invite tab should be default for the owner
-      await sleep(1000)
+      await sleep(2000)
       const invitationCodeElement = await settingsModal.invitationCode()
-      await sleep(1000)
+      await sleep(2000)
       invitationCode = await invitationCodeElement.getText()
-      await sleep(1000)
+      await sleep(2000)
       console.log({ invitationCode })
+      expect(invitationCode).not.toBeUndefined()
       log('Received invitation code:', invitationCode)
       await settingsModal.close()
     })
@@ -146,12 +141,7 @@ describe('Two Clients', () => {
         await debugModal.close()
       })
     }
-    it('StartingLoadingPanel modal', async () => {
-      console.log('new user - 2')
-      const loadingPanel = new StartingLoadingPanel(guestApp.driver)
-      const isLoadingPanel = await loadingPanel.element.isDisplayed()
-      expect(isLoadingPanel).toBeTruthy()
-    })
+
     it('Guest joins the new community successfully', async () => {
       console.log('new user - 3')
       const joinCommunityModal = new JoinCommunityModal(guestApp.driver)

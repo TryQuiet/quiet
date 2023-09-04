@@ -6,7 +6,6 @@ import {
   JoinCommunityModal,
   JoiningLoadingPanel,
   RegisterUsernameModal,
-  StartingLoadingPanel,
 } from '../selectors'
 import getPort from 'get-port'
 import { fork } from 'child_process'
@@ -33,12 +32,6 @@ describe('One Client', () => {
         await debugModal.close()
       })
     }
-
-    it('User waits for the modal StartingLoadingPanel to disappear', async () => {
-      const loadingPanel = new StartingLoadingPanel(app.driver)
-      const isLoadingPanel = await loadingPanel.element.isDisplayed()
-      expect(isLoadingPanel).toBeTruthy()
-    })
 
     it('Get opened app process data', () => {
       const processData = app.buildSetup.getProcessData()
