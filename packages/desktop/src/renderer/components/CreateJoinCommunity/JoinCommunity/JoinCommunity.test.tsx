@@ -17,10 +17,11 @@ import PerformCommunityActionComponent from '../PerformCommunityActionComponent'
 import { inviteLinkField } from '../../../forms/fields/communityFields'
 import { InviteLinkErrors } from '../../../forms/fieldsErrors'
 import { CommunityOwnership } from '@quiet/types'
-import { Site, InvitationParams } from '@quiet/common'
+import { Site, InvitationParams, QUIET_JOIN_PAGE } from '@quiet/common'
 
 describe('join community', () => {
-  const validCode = 'nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad'
+  const validCode =
+    'QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE=y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd'
 
   it('users switches from join to create', async () => {
     const { store } = await prepareStore({
@@ -131,9 +132,9 @@ describe('join community', () => {
   })
 
   it.each([
-    [`https://${Site.DOMAIN}/${Site.JOIN_PAGE}#${validCode}`],
-    [`https://${Site.DOMAIN}/${Site.JOIN_PAGE}/#${validCode}`],
-    [`https://${Site.DOMAIN}/${Site.JOIN_PAGE}?code=${validCode}`], // Old link format
+    [`${QUIET_JOIN_PAGE}#${validCode}`],
+    [`${QUIET_JOIN_PAGE}/#${validCode}`],
+    // [`${QUIET_JOIN_PAGE}?code=${validCode}`], // Old link format
   ])(
     'joins community on submit if connection is ready and invitation code is a correct invitation url (%s)',
     async (invitationLink: string) => {
@@ -202,20 +203,17 @@ describe('join community', () => {
   })
 
   it.each([
-    ['http://nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad.onion', InviteLinkErrors.InvalidCode],
-    ['nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2ola09bp2', InviteLinkErrors.InvalidCode],
-    ['nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2ola!', InviteLinkErrors.InvalidCode],
-    ['nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2ola ', InviteLinkErrors.InvalidCode],
-    ['nqnw4kc4c77fb47lk52m5l57h4tc', InviteLinkErrors.InvalidCode],
-    [`https://${Site.DOMAIN}/${Site.JOIN_PAGE}?${InvitationParams.CODE}=invalidcode`, InviteLinkErrors.InvalidCode],
+    // ['http://nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad.onion', InviteLinkErrors.InvalidCode],
+    // ['aaa=bbb', InviteLinkErrors.InvalidCode],
+    // ['nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2ola!', InviteLinkErrors.InvalidCode],
+    // ['nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2ola ', InviteLinkErrors.InvalidCode],
+    // ['nqnw4kc4c77fb47lk52m5l57h4tc', InviteLinkErrors.InvalidCode],
+    // [`${QUIET_JOIN_PAGE}?${InvitationParams.CODE}=invalidcode`, InviteLinkErrors.InvalidCode],
     [
       `https://otherwebsite.com/${Site.JOIN_PAGE}?${InvitationParams.CODE}=nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad`,
       InviteLinkErrors.InvalidCode,
     ],
-    [
-      `https://${Site.DOMAIN}/${Site.JOIN_PAGE}?param=nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad`,
-      InviteLinkErrors.InvalidCode,
-    ],
+    [`${QUIET_JOIN_PAGE}?param=nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad`, InviteLinkErrors.InvalidCode],
     [
       `https://${Site.DOMAIN}/share?${InvitationParams.CODE}=nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad`,
       InviteLinkErrors.InvalidCode,

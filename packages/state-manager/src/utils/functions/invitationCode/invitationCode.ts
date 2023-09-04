@@ -1,12 +1,16 @@
-import { Site } from '@quiet/common'
+import { Site, invitationCodeValid } from '@quiet/common'
 import { InvitationPair } from '@quiet/types'
 
 const getInvitationPairs = (code: string) => {
+  /**
+   * @param code <peerId1>=<address1>&<peerId2>=<address2>
+   */
   const pairs = code.split('&')
   const codes: InvitationPair[] = []
   for (const pair of pairs) {
     const [peerId, address] = pair.split('=')
     if (!peerId || !address) continue
+    if (!invitationCodeValid(peerId, address)) continue
     codes.push({
       peerId: peerId,
       address: address,
@@ -32,24 +36,6 @@ export const getInvitationCodes = (codeOrUrl: string): InvitationPair[] => {
 
   if (validUrl && validUrl.host === Site.DOMAIN && validUrl.pathname.includes(Site.JOIN_PAGE)) {
     const hash = validUrl.hash
-    // const params = validUrl.searchParams
-    // TODO: I don't think handling params is needed here as we only accept url with '#' and code without url
-
-    // if (params) {
-    //   // Type 'URLSearchParams' must have a '[Symbol.iterator]()' method that returns an iterator
-    //   for (const [peerId, address] of params) {
-    //     // TODO: basic check if peerid and address have proper format?
-    //     if (peerId.length !== 46 || address.length !== 56) {
-    //       console.log(`peerId '${peerId}' or address ${address} is not valid`)
-    //       continue
-    //     }
-    //     codes.push({
-    //       peerId,
-    //       address,
-    //     })
-    //   }
-    // }
-
     if (hash) {
       // Parse hash
       const pairs = hash.substring(1)

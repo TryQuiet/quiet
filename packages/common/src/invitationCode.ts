@@ -19,16 +19,7 @@ export const retrieveInvitationCode = (url: string): InvitationPair[] => {
   const params = data.searchParams
   const codes: InvitationPair[] = []
   for (const [peerId, address] of params.entries()) {
-    try {
-      PeerId.createFromB58String(peerId.trim())
-    } catch (e) {
-      console.log(`PeerId ${peerId} is not valid. ${e.message}`)
-      continue
-    }
-    if (!address.trim().match(ONION_ADDRESS_REGEX)) {
-      console.log(`Onion address ${address} is not valid`)
-      continue
-    }
+    if (!invitationCodeValid(peerId, address)) continue
     codes.push({
       peerId,
       address,
@@ -105,4 +96,18 @@ export const argvInvitationCode = (argv: string[]): InvitationPair[] => {
     }
   }
   return invitationCodes
+}
+
+export const invitationCodeValid = (peerId: string, onionAddress: string): boolean => {
+  try {
+    PeerId.createFromB58String(peerId.trim())
+  } catch (e) {
+    console.log(`PeerId ${peerId} is not valid. ${e.message}`)
+    return false
+  }
+  if (!onionAddress.trim().match(ONION_ADDRESS_REGEX)) {
+    console.log(`Onion address ${onionAddress} is not valid`)
+    return false
+  }
+  return true
 }

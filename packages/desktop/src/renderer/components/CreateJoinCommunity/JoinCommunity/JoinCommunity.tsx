@@ -41,7 +41,6 @@ const JoinCommunity = () => {
       ownership: CommunityOwnership.User,
       peers: address,
     }
-    console.log('handleCommunityAction createNetwork')
     dispatch(communities.actions.createNetwork(payload))
   }
 
