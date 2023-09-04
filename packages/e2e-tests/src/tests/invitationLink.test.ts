@@ -7,7 +7,6 @@ import {
   RegisterUsernameModal,
   App,
   Sidebar,
-  StartingLoadingPanel,
   WarningModal,
 } from '../selectors'
 import { capitalizeFirstLetter, invitationDeepUrl } from '@quiet/common'
@@ -52,13 +51,6 @@ describe('New user joins using invitation link while having app opened', () => {
         await debugModal.close()
       })
     }
-
-    it.skip('StartingLoadingPanel modal', async () => {
-      console.log('Invitation Link', 3)
-      const loadingPanel = new StartingLoadingPanel(ownerApp.driver)
-      const isLoadingPanel = await loadingPanel.element.isDisplayed()
-      expect(isLoadingPanel).toBeTruthy()
-    })
 
     it('JoinCommunityModal - owner switches to create community', async () => {
       console.log('Invitation Link', 4)
