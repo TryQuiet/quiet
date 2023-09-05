@@ -5,6 +5,7 @@ import {
   keyFromCertificate,
   keyObjectFromString,
   extractPubKeyString,
+  pubKeyFromCsr,
 } from './extractPubKey'
 import { verifyUserCert } from './verifyUserCertificate'
 import { verifySignature } from './verification'
@@ -36,7 +37,7 @@ import {
 
 export { createRootCA }
 export type { RootCA }
-export { extractPubKey, parseCertificate, keyFromCertificate, keyObjectFromString, extractPubKeyString }
+export { extractPubKey, parseCertificate, keyFromCertificate, keyObjectFromString, extractPubKeyString, pubKeyFromCsr }
 export { verifyUserCert }
 export { verifySignature }
 export { sign }

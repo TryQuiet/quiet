@@ -1,4 +1,4 @@
-import { setupCrypto, keyFromCertificate, loadPrivateKey, parseCertificate, sign } from '@quiet/identity'
+import { setupCrypto, keyFromCertificate, loadPrivateKey, parseCertificate, sign, pubKeyFromCsr } from '@quiet/identity'
 import { type Store } from '../../store.types'
 import { getFactory } from '../../..'
 import { prepareStore, reducers } from '../../../utils/tests/prepareStore'
@@ -74,8 +74,7 @@ describe('sendMessageSaga', () => {
       .withReducer(reducer)
       .withState(store.getState())
       .provide([
-        [call.fn(parseCertificate), 'certificate'],
-        [call.fn(keyFromCertificate), 'publicKey'],
+        [call.fn(pubKeyFromCsr), 'publicKey'],
         [call.fn(loadPrivateKey), 'privateKey'],
         [call.fn(sign), jest.fn() as unknown as ArrayBuffer],
         [call.fn(arrayBufferToString), 'signature'],
@@ -113,8 +112,7 @@ describe('sendMessageSaga', () => {
       .withReducer(reducer)
       .withState(store.getState())
       .provide([
-        [call.fn(parseCertificate), 'certificate'],
-        [call.fn(keyFromCertificate), 'publicKey'],
+        [call.fn(pubKeyFromCsr), 'publicKey'],
         [call.fn(loadPrivateKey), 'privateKey'],
         [call.fn(sign), jest.fn() as unknown as ArrayBuffer],
         [call.fn(arrayBufferToString), 'signature'],
@@ -165,8 +163,7 @@ describe('sendMessageSaga', () => {
       .withReducer(reducer)
       .withState(store.getState())
       .provide([
-        [call.fn(parseCertificate), 'certificate'],
-        [call.fn(keyFromCertificate), 'publicKey'],
+        [call.fn(pubKeyFromCsr), 'publicKey'],
         [call.fn(loadPrivateKey), 'privateKey'],
         [call.fn(sign), jest.fn() as unknown as ArrayBuffer],
         [call.fn(arrayBufferToString), 'signature'],
