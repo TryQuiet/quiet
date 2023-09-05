@@ -22,8 +22,8 @@ import information from '../../../static/images/updateIcon.svg'
 
 import Icon from '../../ui/Icon/Icon'
 import { UseModalType } from '../../../containers/hooks'
-import UserLabel from '../userLabel/UserLabel.component'
 import { UserLabelType } from '../userLabel/UserLabel.types'
+import UserLabelContainer from '../userLabel/UserLabel.container'
 
 const PREFIX = 'BasicMessageComponent'
 
@@ -213,7 +213,7 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
                   </Grid>
                   {userLabel && (
                     <Grid>
-                      <UserLabel type={userLabel} />
+                      <UserLabelContainer type={userLabel} />
                     </Grid>
                   )}
                   {status !== 'failed' && (

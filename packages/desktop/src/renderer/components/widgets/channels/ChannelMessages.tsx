@@ -153,7 +153,7 @@ export const ChannelMessagesComponent: React.FC<IChannelMessagesProps & FileActi
                     downloadFile={downloadFile}
                     cancelDownload={cancelDownload}
                     onMathMessageRendered={onMathMessageRendered}
-                    userLabel={UserLabelType.DUPLICATE}
+                    // userLabel={UserLabelType.UNREGISTERED}
                   />
                 )
               })}

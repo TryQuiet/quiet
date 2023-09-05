@@ -46,14 +46,15 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
 
 export type UserLabelProps = {
   type: UserLabelType
+  handleOpen: () => void
 }
 
-const UserLabel: React.FC<UserLabelProps> = ({ type }) => {
+const UserLabel: React.FC<UserLabelProps> = ({ type, handleOpen }) => {
   const isUnregistered = type === UserLabelType.UNREGISTERED
   return (
     <StyledGrid>
       <Grid
-        // onClick={handleOpen}
+        onClick={handleOpen}
         container
         item
         alignItems='center'
