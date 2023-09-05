@@ -22,7 +22,8 @@ import information from '../../../static/images/updateIcon.svg'
 
 import Icon from '../../ui/Icon/Icon'
 import { UseModalType } from '../../../containers/hooks'
-import UserLabel, { UserLabelType } from './UserLabel'
+import UserLabel from '../userLabel/UserLabel.component'
+import { UserLabelType } from '../userLabel/UserLabel.types'
 
 const PREFIX = 'BasicMessageComponent'
 

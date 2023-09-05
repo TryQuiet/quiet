@@ -4,6 +4,7 @@ import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
 import classNames from 'classnames'
 import WarnIcon from '../../../static/images/warning-icon.svg'
+import { UserLabelType } from './UserLabel.types'
 
 const PREFIX = 'UserLabel-'
 
@@ -22,6 +23,7 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
   [`& .${classes.wrapper}`]: {
     padding: '1px 6px',
     borderRadius: '8px',
+    cursor: 'pointer',
   },
   [`& .${classes.wrapperGray}`]: {
     backgroundColor: theme.palette.colors.gray03,
@@ -46,29 +48,26 @@ export type UserLabelProps = {
   type: UserLabelType
 }
 
-export enum UserLabelType {
-  DUPLICATE = 'Duplicate',
-  UNREGISTERED = 'Unregistered',
-}
-
 const UserLabel: React.FC<UserLabelProps> = ({ type }) => {
+  const isUnregistered = type === UserLabelType.UNREGISTERED
   return (
     <StyledGrid>
       <Grid
+        // onClick={handleOpen}
         container
         item
         alignItems='center'
         justifyContent='space-between'
         className={classNames(classes.wrapper, {
-          [classes.wrapperGray]: type === UserLabelType.UNREGISTERED,
-          [classes.wrapperRed]: type === UserLabelType.DUPLICATE,
+          [classes.wrapperGray]: isUnregistered,
+          [classes.wrapperRed]: !isUnregistered,
         })}
       >
-        {type === UserLabelType.DUPLICATE && <img className={classes.image} src={WarnIcon} />}
+        {!isUnregistered && <img className={classes.image} src={WarnIcon} />}
         <Typography
           className={classNames(classes.wrapper, {
-            [classes.textBlack]: type === UserLabelType.UNREGISTERED,
-            [classes.textWhite]: type === UserLabelType.DUPLICATE,
+            [classes.textBlack]: isUnregistered,
+            [classes.textWhite]: !isUnregistered,
           })}
           variant='caption'
         >

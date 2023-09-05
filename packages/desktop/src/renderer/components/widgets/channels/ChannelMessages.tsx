@@ -13,6 +13,7 @@ import { DownloadStatus, MessagesDailyGroups, MessageSendingStatus } from '@quie
 import { UseModalType } from '../../../containers/hooks'
 
 import { FileActionsProps } from '../../Channel/File/FileComponent/FileComponent'
+import { UserLabelType } from '../userLabel/UserLabel.types'
 
 const PREFIX = 'ChannelMessagesComponent'
 
@@ -152,6 +153,7 @@ export const ChannelMessagesComponent: React.FC<IChannelMessagesProps & FileActi
                     downloadFile={downloadFile}
                     cancelDownload={cancelDownload}
                     onMathMessageRendered={onMathMessageRendered}
+                    userLabel={UserLabelType.DUPLICATE}
                   />
                 )
               })}

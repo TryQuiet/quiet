@@ -4,7 +4,7 @@ import BasicMessageComponent, { BasicMessageProps } from './BasicMessage'
 import { FileActionsProps } from '../../Channel/File/FileComponent/FileComponent'
 import { DisplayableMessage } from '@quiet/types'
 import { withTheme } from '../../../storybook/decorators'
-import { UserLabelType } from './UserLabel'
+import { UserLabelType } from '../userLabel/UserLabel.types'
 
 const Template: ComponentStory<typeof BasicMessageComponent> = args => {
   return (
