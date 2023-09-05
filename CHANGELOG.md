@@ -7,3 +7,5 @@
 * Fixed bug with changing joining community/create community screens with required field.
 
 * Fixed bug with displaying incorrect default settings tab.
+
+* Replaced source of publicKey in sendMessage saga to CSR
