@@ -213,7 +213,7 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
                   </Grid>
                   {userLabel && (
                     <Grid>
-                      <UserLabelContainer type={userLabel} />
+                      <UserLabelContainer type={userLabel} username={messageDisplayData.nickname} />
                     </Grid>
                   )}
                   {status !== 'failed' && (

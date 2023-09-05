@@ -44,13 +44,14 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
   },
 }))
 
-export type UserLabelProps = {
+export interface UserLabelProps {
   type: UserLabelType
   handleOpen: () => void
 }
 
 const UserLabel: React.FC<UserLabelProps> = ({ type, handleOpen }) => {
   const isUnregistered = type === UserLabelType.UNREGISTERED
+
   return (
     <StyledGrid>
       <Grid

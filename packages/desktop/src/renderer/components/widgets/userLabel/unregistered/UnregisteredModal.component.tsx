@@ -35,9 +35,9 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
 export interface UnregisteredModalComponentProps {
   open: boolean
   handleClose: () => void
+  username: string
 }
-const UnregisteredModalComponent: React.FC<UnregisteredModalComponentProps> = ({ handleClose, open }) => {
-  const userName = 'sarah'
+const UnregisteredModalComponent: React.FC<UnregisteredModalComponentProps> = ({ handleClose, open, username }) => {
   return (
     <Modal
       open={open}
@@ -49,11 +49,11 @@ const UnregisteredModalComponent: React.FC<UnregisteredModalComponentProps> = ({
     >
       <StyledGrid container item direction='column' justifyContent='flex-start' alignItems='center'>
         <Typography className={classes.bodyText} variant='body2'>
-          The username <strong>@{userName}</strong> has not been registered yet with the community owner, so it’s still
+          The username <strong>@{username}</strong> has not been registered yet with the community owner, so it’s still
           possible for someone else to register the same username. When the community owner is online,{' '}
-          <strong>@{userName}</strong> will be registered automatically and this alert will go away.
+          <strong>@{username}</strong> will be registered automatically and this alert will go away.
         </Typography>
-        <Button className={classes.button} data-testid='unregistered-button'>
+        <Button className={classes.button} data-testid='unregistered-button' onClick={handleClose}>
           OK
         </Button>
       </StyledGrid>
