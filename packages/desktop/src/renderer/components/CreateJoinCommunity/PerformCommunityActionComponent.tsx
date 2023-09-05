@@ -171,6 +171,7 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
     setValue,
     setError,
     control,
+    clearErrors,
   } = useForm<PerformCommunityActionFormValues>({
     mode: 'onTouched',
   })
@@ -212,10 +213,11 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
     }
   }, [communityOwnership, invitationCode])
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!open) {
       setValue('name', '')
       setCommunityName('')
+      clearErrors('name')
     }
   }, [open])
 
@@ -250,6 +252,7 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
                       event.persist()
                       const value = event.target.value
                       onChange(value)
+                      setValue('name', value)
                       // Call default
                       field.onChange(event)
                     }}
