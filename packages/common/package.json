@@ -26,7 +26,7 @@
   },
   "dependencies": {
     "@quiet/types": "^2.0.0-alpha.0",
-    "multiaddr": "^10.0.1",
+    "@multiformats/multiaddr": "11.4.0",
     "cross-env": "^5.2.0",
     "debug": "^4.3.1",
     "peer-id": "^0.16.0"

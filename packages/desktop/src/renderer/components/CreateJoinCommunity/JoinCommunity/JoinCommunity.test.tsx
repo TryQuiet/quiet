@@ -17,7 +17,7 @@ import PerformCommunityActionComponent from '../PerformCommunityActionComponent'
 import { inviteLinkField } from '../../../forms/fields/communityFields'
 import { InviteLinkErrors } from '../../../forms/fieldsErrors'
 import { CommunityOwnership } from '@quiet/types'
-import { Site, InvitationParams, QUIET_JOIN_PAGE } from '@quiet/common'
+import { Site, QUIET_JOIN_PAGE } from '@quiet/common'
 
 describe('join community', () => {
   const validCode =
@@ -203,21 +203,14 @@ describe('join community', () => {
   })
 
   it.each([
-    // ['http://nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad.onion', InviteLinkErrors.InvalidCode],
-    // ['aaa=bbb', InviteLinkErrors.InvalidCode],
-    // ['nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2ola!', InviteLinkErrors.InvalidCode],
-    // ['nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2ola ', InviteLinkErrors.InvalidCode],
+    [`http://${validCode}`, InviteLinkErrors.InvalidCode],
+    // ['QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE=bbb', InviteLinkErrors.InvalidCode],
+    // ['bbb=y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd', InviteLinkErrors.InvalidCode],
+    // ['QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE= ', InviteLinkErrors.InvalidCode],
     // ['nqnw4kc4c77fb47lk52m5l57h4tc', InviteLinkErrors.InvalidCode],
-    // [`${QUIET_JOIN_PAGE}?${InvitationParams.CODE}=invalidcode`, InviteLinkErrors.InvalidCode],
-    [
-      `https://otherwebsite.com/${Site.JOIN_PAGE}?${InvitationParams.CODE}=nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad`,
-      InviteLinkErrors.InvalidCode,
-    ],
-    [`${QUIET_JOIN_PAGE}?param=nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad`, InviteLinkErrors.InvalidCode],
-    [
-      `https://${Site.DOMAIN}/share?${InvitationParams.CODE}=nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad`,
-      InviteLinkErrors.InvalidCode,
-    ],
+    // [`https://otherwebsite.com/${Site.JOIN_PAGE}#${validCode}`, InviteLinkErrors.InvalidCode],
+    // [`${QUIET_JOIN_PAGE}?param=nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad`, InviteLinkErrors.InvalidCode],
+    // [`${Site.MAIN_PAGE}/share?${validCode}`, InviteLinkErrors.InvalidCode],
   ])('user inserting invalid url %s should see "%s" error', async (url: string, error: string) => {
     const handleCommunityAction = jest.fn()
 

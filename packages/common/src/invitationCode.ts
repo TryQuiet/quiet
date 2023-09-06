@@ -1,9 +1,8 @@
 import { InvitationPair } from '@quiet/types'
 import { ONION_ADDRESS_REGEX, Site } from './static'
-import { multiaddr } from 'multiaddr'
 import { createLibp2pAddress } from './libp2p'
 import PeerId from 'peer-id'
-
+// import { multiaddr } from
 export const retrieveInvitationCode = (url: string): InvitationPair[] => {
   /**
    * Extract invitation codes from deep url.
@@ -35,11 +34,12 @@ export const invitationShareUrl = (peers: string[] = []): string => {
    * @returns {string} - Complete shareable invitation link, e.g. https://tryquiet.org/join/#<peerid1>=<address1>&<peerid2>=<addresss2>
    */
   // Valid format:
+  // const mulriaddr = (await import('@multiformats/multiaddr')).default
   const pairs = []
   for (const peerAddress of peers) {
     let addr
     try {
-      addr = multiaddr(peerAddress)
+      // addr = mulriaddr.multiaddr(peerAddress)
     } catch (e) {
       console.error(`Could not add peer address '${peerAddress}' to invitation url. Reason: ${e.message}`)
       continue

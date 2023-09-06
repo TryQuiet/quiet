@@ -53,7 +53,6 @@ export const connectionSlice = createSlice({
     },
     setTorConnectionProcess: (state, action: PayloadAction<string>) => {
       const info = action.payload
-      console.log('----> setTorConnectionProcess', info)
       switch (info) {
         case ConnectionProcessInfo.CONNECTING_TO_COMMUNITY:
           state.torConnectionProcess = { number: 20, text: info }
@@ -86,7 +85,7 @@ export const connectionSlice = createSlice({
           state.torConnectionProcess = { number: 85, text: info }
           break
         case ConnectionProcessInfo.SAVING_USER_CSR:
-          state.torConnectionProcess = { number: 85, text: info }
+          state.torConnectionProcess = { number: 87, text: info }
           break
         case ConnectionProcessInfo.CHANNELS_REPLICATED:
           state.torConnectionProcess = { number: 90, text: info }

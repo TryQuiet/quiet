@@ -12,7 +12,8 @@ import { TestConfig } from '../const'
 import logger from './logger'
 import { createCertificatesTestHelper } from './client-server'
 import { Libp2pNodeParams } from '../libp2p/libp2p.types'
-import { createLibp2pAddress, createLibp2pListenAddress } from '@quiet/common'
+import { ONION_ADDRESS_REGEX, Site, createLibp2pAddress, createLibp2pListenAddress } from '@quiet/common'
+import { multiaddr } from '@multiformats/multiaddr'
 const log = logger('test')
 
 export interface Ports {

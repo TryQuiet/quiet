@@ -182,6 +182,7 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
     values: PerformCommunityActionFormValues,
     setFormSent: (value: boolean) => void
   ) => {
+    console.log('SUBMIT FORM', communityOwnership, values.name)
     if (communityOwnership === CommunityOwnership.Owner) {
       setFormSent(true)
       handleSubmit(parseName(values.name))
@@ -190,6 +191,7 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
 
     if (communityOwnership === CommunityOwnership.User) {
       const codes = getInvitationCodes(values.name.trim())
+      console.log('SUBMIT FORM CODES', codes)
       if (!codes.length) {
         setError('name', { message: InviteLinkErrors.InvalidCode })
         return

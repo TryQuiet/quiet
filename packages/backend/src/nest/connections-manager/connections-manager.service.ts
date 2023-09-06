@@ -167,11 +167,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       if ([ServiceState.LAUNCHING, ServiceState.LAUNCHED].includes(this.communityState)) return
       this.communityState = ServiceState.LAUNCHING
     }
-    const registrarData: LaunchRegistrarPayload = await this.localDbService.get(LocalDBKeys.REGISTRAR) // TODO: remove
-    if (registrarData) {
-      if ([ServiceState.LAUNCHING, ServiceState.LAUNCHED].includes(this.registrarState)) return
-      this.registrarState = ServiceState.LAUNCHING
-    }
     if (community) {
       await this.launchCommunity(community)
     }
