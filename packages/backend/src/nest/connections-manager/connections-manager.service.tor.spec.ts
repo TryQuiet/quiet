@@ -4,14 +4,7 @@ import crypto from 'crypto'
 import { CustomEvent } from '@libp2p/interfaces/events'
 import { jest, beforeEach, describe, it, expect, afterEach } from '@jest/globals'
 import { communities, getFactory, identity, prepareStore, Store } from '@quiet/state-manager'
-import {
-  createLibp2pAddress,
-  createPeerId,
-  createTmpDir,
-  libp2pInstanceParams,
-  removeFilesFromDir,
-  tmpQuietDirPath,
-} from '../common/utils'
+import { createPeerId, createTmpDir, libp2pInstanceParams, removeFilesFromDir, tmpQuietDirPath } from '../common/utils'
 
 import { NetworkStats, type Community, type Identity, type InitCommunityPayload } from '@quiet/types'
 import { LazyModuleLoader } from '@nestjs/core'
@@ -37,6 +30,7 @@ import { DateTime } from 'luxon'
 import waitForExpect from 'wait-for-expect'
 import { Libp2pEvents } from '../libp2p/libp2p.types'
 import { sleep } from '../common/sleep'
+import { createLibp2pAddress } from '../libp2p/libp2p.utils'
 
 jest.setTimeout(100_000)
 
