@@ -73,7 +73,7 @@ describe('LocalDbService', () => {
 
   it('get sorted peers', async () => {
     const extraPeers = [
-      '/dns4/zl37gnntp64dhnisddftypxbt5cqx6cum65vdv6oeaffrbqmemwc52ad.onion/tcp/443/wss/p2p/QmPGdGDUV1PXaJky4V53KSvFszdqEcM7KCoDpF2uFPf5w6',
+      '/dns4/zl37gnntp64dhnisddftypxbt5cqx6cum65vdv6oeaffrbqmemwc52ad.onion/tcp/443/ws/p2p/QmPGdGDUV1PXaJky4V53KSvFszdqEcM7KCoDpF2uFPf5w6',
     ]
     await localDbService.put(LocalDBKeys.PEERS, {
       ...peer1Stats,

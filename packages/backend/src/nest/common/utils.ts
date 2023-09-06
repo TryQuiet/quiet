@@ -12,6 +12,7 @@ import { TestConfig } from '../const'
 import logger from './logger'
 import { createCertificatesTestHelper } from './client-server'
 import { Libp2pNodeParams } from '../libp2p/libp2p.types'
+import { createLibp2pAddress, createLibp2pListenAddress } from '../libp2p/libp2p.utils'
 const log = logger('test')
 
 export interface Ports {
@@ -141,14 +142,6 @@ export const torDirForPlatform = (basePath?: string): string => {
     }
   }
   return torPath
-}
-
-export const createLibp2pAddress = (address: string, peerId: string) => {
-  return `/dns4/${address}/tcp/80/ws/p2p/${peerId}`
-}
-
-export const createLibp2pListenAddress = (address: string) => {
-  return `/dns4/${address}/tcp/80/ws`
 }
 
 export const getUsersAddresses = async (users: User[]): Promise<string[]> => {
