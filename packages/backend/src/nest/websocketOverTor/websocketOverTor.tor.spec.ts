@@ -4,13 +4,7 @@ import { multiaddr } from '@multiformats/multiaddr'
 import getPort from 'get-port'
 import { type DirResult } from 'tmp'
 import { jest, describe, it, expect, afterEach, beforeAll, afterAll } from '@jest/globals'
-import {
-  createLibp2pAddress,
-  torBinForPlatform,
-  torDirForPlatform,
-  createTmpDir,
-  tmpQuietDirPath,
-} from '../common/utils'
+import { torBinForPlatform, torDirForPlatform, createTmpDir, tmpQuietDirPath } from '../common/utils'
 import { type CreateListenerOptions } from '@libp2p/interface-transport'
 import { createServer } from 'it-ws/server'
 import { createCertificatesTestHelper } from '../common/client-server'
@@ -22,6 +16,7 @@ import { Tor } from '../tor/tor.service'
 import crypto from 'crypto'
 import { TorControl } from '../tor/tor-control.service'
 import { TorControlAuthType } from '../tor/tor.types'
+import { createLibp2pAddress } from '../libp2p/libp2p.utils'
 jest.setTimeout(120000)
 
 describe('websocketOverTor', () => {
