@@ -12,7 +12,7 @@ if (window && process.env.DEBUG) {
 }
 
 ipcRenderer.on('newUpdateAvailable', _event => {
-  store.dispatch(updateHandlers.epics.checkForUpdate() as any)
+  store.dispatch(updateHandlers.epics.openUpdateModal() as any)
 })
 
 ipcRenderer.on('force-save-state', async _event => {

@@ -9,3 +9,5 @@
 * Fixed bug with displaying incorrect default settings tab.
 
 * Fixed LoadingPanel useEffect bug.
+
+* Clarify autoupdate language in update modal to let users know that the app will update on restart.
