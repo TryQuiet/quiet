@@ -6,6 +6,8 @@ Quiet Mobile is a React Native app for Android and iOS that shares a Node.js [ba
 
 ### Prerequisites
 
+Install `patch` (e.g. via your Linux package manager).
+
 In the root directory of `quiet/`, install the monorepo's dependencies and bootstrap the project with lerna. It will take care of the package's dependencies and trigger a prepublish script which builds them.
 
 ```
@@ -85,7 +87,7 @@ const watchFolders = [
 ```
 
 ## Running E2E tests (optional)
-We use Detox (https://wix.github.io/Detox/) for E2E testing on mobile.  
+We use Detox (https://wix.github.io/Detox/) for E2E testing on mobile.
 Detox recommends to install its `detox-cli` globally, enabling usage of the command line tools outside npm scripts.
 
 ```
@@ -100,7 +102,7 @@ Choose proper configuration depending on the os and target device and pass it wi
 There're two commands to use:
 (remember to prefix commands with `npx` if using globally installed `detox-cli`)
 
-The first one for building binary file to put under test:  
+The first one for building binary file to put under test:
 
 ```
 detox build --configuration android.att.debug
@@ -136,7 +138,7 @@ Tests can also be started at a particular story pointed out using `-starting-sto
 
 ## Development hints
 
-React-native projects consists of two parts: javascript code and native code. Native code lives within the `/android` and `/ios` folder.  
+React-native projects consists of two parts: javascript code and native code. Native code lives within the `/android` and `/ios` folder.
 
 ### IDE
 
@@ -146,7 +148,7 @@ Altough if you plan to modify the native code, Android Studio is recommended as 
 
 ### When to rebuild the project?
 
-Both Android and iOS manages their own dependencies with the help of `gradle` (Android) and `cocoapods` (iOS). They work similar to `npm`.  
+Both Android and iOS manages their own dependencies with the help of `gradle` (Android) and `cocoapods` (iOS). They work similar to `npm`.
 Whenewer there're changes to the dependencies in the native projects (`build.gradle` or `podfile`) there's a need to sync gradle files (it's fairly easy to do with Android Studio) or to run `pod install` command from the `/ios` directory. It doesn't happen very often but may be a case while attaching react-native modules getting use of the native methods (eg. for file management).
 
 If changes are made to the native part of the project (java, kotlin, objc or swift) it's neccessary to rebuild the project (`npm run android`, `npm run ios`)
@@ -164,13 +166,13 @@ enter it and find directory data within `/Documents` folder
 
 ### The app is stuck on splash screen
 
-Sometimes metro loader takes long enough to cause a race condition failure with the native service notifying javascript code about the data of websocket server 
+Sometimes metro loader takes long enough to cause a race condition failure with the native service notifying javascript code about the data of websocket server
 we use to communicate with backend. In this case, we should be able to observe a log informing us that an event has been emitted but there was nothing to receive it:
 ```
 WEBSOCKET CONNECTION: Starting on 11000
 RCTNativeAppEventEmitter: Tried to send an event but got NULL on reactContext
 ```
-The easiest solution is to close the app and open it again by tapping it's icon on the device (there's no need to rebuild the project) (Android/iOS)  
+The easiest solution is to close the app and open it again by tapping it's icon on the device (there's no need to rebuild the project) (Android/iOS)
 or to follow `Product -> Perform Action -> Run Without Building` in Xcode. (iOS)
 
 If it's not enough, you can locally increase the `WEBSOCKET_CONNECTION_DELAY` for emitting the event at `mobile/android/app/src/main/java/com/quietmobile/Utils/Const.kt` (Android)
@@ -188,7 +190,7 @@ Mobile package uses several patches for external dependencies. If you encounter 
 
 ### Invalid symlink at
 
-Built app bundle cannot contain symlinks linking outside the package (which sometimes happens when symlink uses absolute path). In this case one needs to change the symlink to relative path. It can be achieved by adding a custom built task either in Gradle or Xcode. 
+Built app bundle cannot contain symlinks linking outside the package (which sometimes happens when symlink uses absolute path). In this case one needs to change the symlink to relative path. It can be achieved by adding a custom built task either in Gradle or Xcode.
 
 ### Unable to resolve module
 

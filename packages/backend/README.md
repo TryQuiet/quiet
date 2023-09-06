@@ -4,10 +4,11 @@ Communication manager for Quiet project. Uses OrbitDB, Libp2p, Tor and websocket
 
 ### Installation
 
-Requirements: 
+Requirements:
 - node@12
 - typescript
 - ts-node
+- patch
 
 Install dependencies:
 
@@ -54,10 +55,10 @@ docker-compose helps to create a local network of nodes . This is purely for tes
 docker-compose build
 docker-compose up  // Run default - 3 peers
 
-docker-compose up --scale peer=3  // Run with scaled number of regular peers 
+docker-compose up --scale peer=3  // Run with scaled number of regular peers
 ```
 
-Currently there is no db data in this network - to be added. 
+Currently there is no db data in this network - to be added.
 
 ### Webpack
 
@@ -68,5 +69,3 @@ When your aim is to build the desktop app run the following command in packages/
 ### Architecture
 
 // TODO
-
-
