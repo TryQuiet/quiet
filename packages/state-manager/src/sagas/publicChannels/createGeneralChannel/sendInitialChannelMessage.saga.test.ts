@@ -71,7 +71,7 @@ describe('sendInitialChannelMessageSaga', () => {
       .put(
         messagesActions.sendMessage({
           type: 3,
-          message: `Created #${channel.name}`,
+          message: `@${owner.nickname} created #${channel.name}`,
           channelId: channel.id,
         })
       )

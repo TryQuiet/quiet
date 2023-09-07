@@ -1,7 +1,6 @@
 import React, { FC } from 'react'
 import { View, Image, TouchableOpacity } from 'react-native'
 import { Typography } from '../Typography/Typography.component'
-
 import { StyledAppbar } from './Appbar.styles'
 import { AppbarProps } from './Appbar.types'
 import { appImages } from '../../assets'

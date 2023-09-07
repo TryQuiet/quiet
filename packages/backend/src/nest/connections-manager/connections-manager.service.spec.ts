@@ -154,7 +154,7 @@ describe('ConnectionsManagerService', () => {
     await localDbService.put(LocalDBKeys.COMMUNITY, launchCommunityPayload)
     await localDbService.put(LocalDBKeys.REGISTRAR, launchRegistrarPayload)
 
-    const peerAddress = '/dns4/test.onion/tcp/443/wss/p2p/peerid'
+    const peerAddress = '/dns4/test.onion/tcp/80/ws/p2p/peerid'
     await localDbService.put(LocalDBKeys.PEERS, {
       [peerAddress]: {
         peerId: 'QmaEvCkpUG7GxhgvMkk8wxurfi1ehjHhSUNRksWTmXN2ix',
@@ -239,7 +239,7 @@ describe('ConnectionsManagerService', () => {
     await localDbService.put(LocalDBKeys.COMMUNITY, launchCommunityPayload)
     await localDbService.put(LocalDBKeys.REGISTRAR, launchRegistrarPayload)
 
-    const peerAddress = '/dns4/test.onion/tcp/443/wss/p2p/peerid'
+    const peerAddress = '/dns4/test.onion/tcp/80/ws/p2p/peerid'
     await localDbService.put(LocalDBKeys.PEERS, {
       [peerAddress]: {
         peerId: 'QmaEvCkpUG7GxhgvMkk8wxurfi1ehjHhSUNRksWTmXN2ix',

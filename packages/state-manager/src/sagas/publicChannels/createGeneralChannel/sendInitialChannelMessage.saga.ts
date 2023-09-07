@@ -5,6 +5,7 @@ import { messagesActions } from '../../messages/messages.slice'
 import { publicChannelsSelectors } from '../publicChannels.selectors'
 import { publicChannelsActions } from '../publicChannels.slice'
 import { MessageType, type WriteMessagePayload } from '@quiet/types'
+import { identitySelectors } from '../../identity/identity.selectors'
 
 export function* sendInitialChannelMessageSaga(
   action: PayloadAction<ReturnType<typeof publicChannelsActions.sendInitialChannelMessage>['payload']>
@@ -18,10 +19,12 @@ export function* sendInitialChannelMessageSaga(
 
   const ownerNickname = yield* select(communitiesSelectors.ownerNickname)
 
+  const user = yield* select(identitySelectors.currentIdentity)
+
   const message =
     pendingGeneralChannelRecreation && isGeneral
       ? `@${ownerNickname} deleted all messages in #general`
-      : `Created #${channelName}`
+      : `@${user?.nickname} created #${channelName}`
 
   const payload: WriteMessagePayload = {
     type: MessageType.Info,
