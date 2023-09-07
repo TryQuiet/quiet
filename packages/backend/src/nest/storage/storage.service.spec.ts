@@ -255,6 +255,10 @@ describe('StorageService', () => {
       const channelsDbAddress = storageService.channels?.address
       // @ts-expect-error 'certificates' is private
       const certificatesDbAddress = storageService.certificates.address
+      // @ts-expect-error 'certificatesRequests' is private
+      const certificatesRequestsDbAddress = storageService.certificatesRequests.address
+      // @ts-expect-error 'communityMetadata' is private
+      const communityMetadataDbAddress = storageService.communityMetadata.address
       expect(channelsDbAddress).not.toBeFalsy()
       expect(certificatesDbAddress).not.toBeFalsy()
       expect(subscribeToPubSubSpy).toBeCalledTimes(2)
@@ -262,6 +266,8 @@ describe('StorageService', () => {
       expect(subscribeToPubSubSpy).toHaveBeenNthCalledWith(1, [
         StorageService.dbAddress(channelsDbAddress),
         StorageService.dbAddress(certificatesDbAddress),
+        StorageService.dbAddress(certificatesRequestsDbAddress),
+        StorageService.dbAddress(communityMetadataDbAddress),
       ])
       // Creating channel:
       expect(subscribeToPubSubSpy).toHaveBeenNthCalledWith(2, [StorageService.dbAddress(db.address)])
