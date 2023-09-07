@@ -15,8 +15,8 @@ describe('Invitation code helper', () => {
 
   it('retrieves invitation code from argv', () => {
     const expectedCodes = [
-      { peerId: peerId1, address: address1 },
-      { peerId: peerId2, address: address2 },
+      { peerId: peerId1, onionAddress: address1 },
+      { peerId: peerId2, onionAddress: address2 },
     ]
     const result = argvInvitationCode([
       'something',
@@ -32,16 +32,16 @@ describe('Invitation code helper', () => {
   it('builds proper invitation deep url', () => {
     expect(
       invitationDeepUrl([
-        { peerId: 'peerID1', address: 'address1' },
-        { peerId: 'peerID2', address: 'address2' },
+        { peerId: 'peerID1', onionAddress: 'address1' },
+        { peerId: 'peerID2', onionAddress: 'address2' },
       ])
     ).toEqual('quiet://?peerID1=address1&peerID2=address2')
   })
 
   it('creates invitation share url based on invitation pairs', () => {
     const pairs = [
-      { peerId: 'peerID1', address: 'address1' },
-      { peerId: 'peerID2', address: 'address2' },
+      { peerId: 'peerID1', onionAddress: 'address1' },
+      { peerId: 'peerID2', onionAddress: 'address2' },
     ]
     const expected = `${QUIET_JOIN_PAGE}#peerID1=address1&peerID2=address2`
     expect(pairsToInvitationShareUrl(pairs)).toEqual(expected)
@@ -61,8 +61,8 @@ describe('Invitation code helper', () => {
   it('retrieves invitation codes from deep url', () => {
     const codes = retrieveInvitationCode(`quiet://?${peerId1}=${address1}&${peerId2}=${address2}`)
     expect(codes).toEqual([
-      { peerId: peerId1, address: address1 },
-      { peerId: peerId2, address: address2 },
+      { peerId: peerId1, onionAddress: address1 },
+      { peerId: peerId2, onionAddress: address2 },
     ])
   })
 
@@ -70,6 +70,6 @@ describe('Invitation code helper', () => {
     const peerId2 = 'QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLs'
     const address2 = 'y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd'
     const codes = retrieveInvitationCode(`quiet://?${peerId1}=${address1}&${peerId2}=${address2}}`)
-    expect(codes).toEqual([{ peerId: peerId1, address: address1 }])
+    expect(codes).toEqual([{ peerId: peerId1, onionAddress: address1 }])
   })
 })

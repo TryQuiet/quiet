@@ -5,5 +5,5 @@ export enum LoadingPanelType {
 
 export type InvitationPair = {
   peerId: string
-  address: string
+  onionAddress: string
 }

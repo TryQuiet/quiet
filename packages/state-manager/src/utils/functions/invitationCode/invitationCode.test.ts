@@ -10,8 +10,8 @@ describe('Invitation code helper', () => {
   it('retrieves invitation code if url is a proper share url', () => {
     const result = getInvitationCodes(`${QUIET_JOIN_PAGE}#${peerId1}=${address1}&${peerId2}=${address2}`)
     expect(result).toEqual([
-      { peerId: peerId1, address: address1 },
-      { peerId: peerId2, address: address2 },
+      { peerId: peerId1, onionAddress: address1 },
+      { peerId: peerId2, onionAddress: address2 },
     ])
   })
 
@@ -23,8 +23,8 @@ describe('Invitation code helper', () => {
   it('retrieves invitation code if url is a proper code', () => {
     const result = getInvitationCodes(`${peerId1}=${address1}&${peerId2}=${address2}`)
     expect(result).toEqual([
-      { peerId: peerId1, address: address1 },
-      { peerId: peerId2, address: address2 },
+      { peerId: peerId1, onionAddress: address1 },
+      { peerId: peerId2, onionAddress: address2 },
     ])
   })
 })

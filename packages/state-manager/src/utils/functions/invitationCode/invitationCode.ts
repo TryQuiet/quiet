@@ -13,7 +13,7 @@ const getInvitationPairs = (code: string) => {
     if (!invitationCodeValid(peerId, address)) continue
     codes.push({
       peerId: peerId,
-      address: address,
+      onionAddress: address,
     })
   }
   return codes

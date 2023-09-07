@@ -15,11 +15,11 @@ export const retrieveInvitationCode = (url: string): InvitationPair[] => {
   if (!data || data.protocol !== 'quiet:') return []
   const params = data.searchParams
   const codes: InvitationPair[] = []
-  for (const [peerId, address] of params.entries()) {
-    if (!invitationCodeValid(peerId, address)) continue
+  for (const [peerId, onionAddress] of params.entries()) {
+    if (!invitationCodeValid(peerId, onionAddress)) continue
     codes.push({
       peerId,
-      address,
+      onionAddress,
     })
   }
   console.log('Retrieved codes:', codes)
@@ -64,7 +64,7 @@ export const invitationShareUrl = (peers: string[] = []): string => {
 export const pairsToP2pAddresses = (pairs: InvitationPair[]): string[] => {
   const addresses: string[] = []
   for (const pair of pairs) {
-    addresses.push(createLibp2pAddress(pair.address, pair.peerId))
+    addresses.push(createLibp2pAddress(pair.onionAddress, pair.peerId))
   }
   return addresses
 }
@@ -72,7 +72,7 @@ export const pairsToP2pAddresses = (pairs: InvitationPair[]): string[] => {
 export const pairsToInvitationShareUrl = (pairs: InvitationPair[]) => {
   const url = new URL(`${Site.MAIN_PAGE}${Site.JOIN_PAGE}`)
   for (const pair of pairs) {
-    url.searchParams.append(pair.peerId, pair.address)
+    url.searchParams.append(pair.peerId, pair.onionAddress)
   }
   return url.href.replace('?', '#')
 }
@@ -80,7 +80,7 @@ export const pairsToInvitationShareUrl = (pairs: InvitationPair[]) => {
 export const invitationDeepUrl = (pairs: InvitationPair[] = []): string => {
   const url = new URL('quiet://')
   for (const pair of pairs) {
-    url.searchParams.append(pair.peerId, pair.address)
+    url.searchParams.append(pair.peerId, pair.onionAddress)
   }
   return url.href
 }
