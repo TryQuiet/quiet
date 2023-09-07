@@ -10,7 +10,6 @@ import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context'
 import { MenuProvider } from 'react-native-popup-menu'
 
 import { ScreenNames } from './const/ScreenNames.enum'
-
 import { SplashScreen } from './screens/Splash/Splash.screen'
 import { CreateCommunityScreen } from './screens/CreateCommunity/CreateCommunity.screen'
 import { JoinCommunityScreen } from './screens/JoinCommunity/JoinCommunity.screen'
