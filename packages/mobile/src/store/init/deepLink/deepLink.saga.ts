@@ -1,6 +1,6 @@
 import { PayloadAction } from '@reduxjs/toolkit'
 import { select, delay, put } from 'typed-redux-saga'
-import { communities, connection, identity } from '@quiet/state-manager'
+import { communities, connection, getInvitationCodes, identity } from '@quiet/state-manager'
 import { ScreenNames } from '../../../const/ScreenNames.enum'
 import { navigationActions } from '../../navigation/navigation.slice'
 import { initSelectors } from '../init.selectors'
@@ -28,6 +28,7 @@ export function* deepLinkSaga(action: PayloadAction<ReturnType<typeof initAction
   // Link opened mid registration
   if (_identity?.userCertificate === null) {
     const connectionProcess = yield* select(connection.selectors.torConnectionProcess)
+    // TODO: are tor connection process steps still used?
     const fetching = connectionProcess.text === ConnectionProcessInfo.REGISTERING_USER_CERTIFICATE
 
     let params: UsernameRegistrationRouteProps['params']
@@ -85,7 +86,7 @@ export function* deepLinkSaga(action: PayloadAction<ReturnType<typeof initAction
 
   const payload: CreateNetworkPayload = {
     ownership: CommunityOwnership.User,
-    peers: retrieveInvitationCode(code),
+    peers: getInvitationCodes(code),
   }
 
   yield* put(communities.actions.createNetwork(payload))
