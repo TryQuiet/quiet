@@ -106,7 +106,8 @@ describe('join community', () => {
   })
 
   it('joins community on submit if connection is ready and registrar url is correct', async () => {
-    const registrarUrl = 'nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad'
+    const registrarUrl =
+      'QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE=y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd'
 
     const handleCommunityAction = jest.fn()
 
@@ -134,7 +135,14 @@ describe('join community', () => {
     expect(submitButton).toBeEnabled()
     await userEvent.click(submitButton)
 
-    await waitFor(() => expect(handleCommunityAction).toBeCalledWith(registrarUrl))
+    await waitFor(() =>
+      expect(handleCommunityAction).toBeCalledWith([
+        {
+          peerId: 'QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE',
+          onionAddress: 'y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd',
+        },
+      ])
+    )
   })
 
   it.each([[`${QUIET_JOIN_PAGE}#${validCode}`], [`${QUIET_JOIN_PAGE}/#${validCode}`]])(
@@ -173,7 +181,8 @@ describe('join community', () => {
   )
 
   it('trims whitespaces from registrar url', async () => {
-    const registrarUrl = 'nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad    '
+    const registrarUrl =
+      'QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE=y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd    '
 
     const handleCommunityAction = jest.fn()
 
@@ -201,7 +210,14 @@ describe('join community', () => {
     expect(submitButton).toBeEnabled()
     await userEvent.click(submitButton)
 
-    await waitFor(() => expect(handleCommunityAction).toBeCalledWith(registrarUrl.trim()))
+    await waitFor(() =>
+      expect(handleCommunityAction).toBeCalledWith([
+        {
+          peerId: 'QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE',
+          onionAddress: 'y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd',
+        },
+      ])
+    )
   })
 
   it.each([
@@ -262,7 +278,7 @@ describe('join community', () => {
     const textInput = result.queryByPlaceholderText(inviteLinkField().fieldProps.placeholder)
     expect(textInput).not.toBeNull()
     // @ts-expect-error
-    await userEvent.type(textInput, 'nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad')
+    await userEvent.type(textInput, validCode)
 
     const submitButton = result.getByTestId('continue-joinCommunity')
     expect(submitButton).not.toBeNull()
@@ -286,7 +302,7 @@ describe('join community', () => {
     )
 
     const textInput = screen.getByPlaceholderText(inviteLinkField().fieldProps.placeholder)
-    await userEvent.type(textInput, 'nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad')
+    await userEvent.type(textInput, validCode)
 
     const submitButton = screen.getByText('Continue')
     expect(submitButton).toBeEnabled()

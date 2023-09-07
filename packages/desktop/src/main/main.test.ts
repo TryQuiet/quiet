@@ -240,23 +240,30 @@ describe('Invitation code', () => {
   it('handles invitation code on open-url event (on macos)', async () => {
     expect(mockAppOnCalls[2][0]).toBe('ready')
     await mockAppOnCalls[2][1]()
-    const code = 'invitationCode'
+    const codes = [
+      {
+        peerId: 'QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE',
+        onionAddress: 'y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd',
+      },
+    ]
     expect(mockAppOnCalls[1][0]).toBe('open-url')
     const event = { preventDefault: () => {} }
-    mockAppOnCalls[1][1](event, invitationDeepUrl([{ peerId: 'peerId1', onionAddress: 'address' }]))
-    expect(mockWindowWebContentsSend).toHaveBeenCalledWith('invitation', { code: code })
+    mockAppOnCalls[1][1](event, invitationDeepUrl(codes))
+    expect(mockWindowWebContentsSend).toHaveBeenCalledWith('invitation', { codes })
   })
 
   it('process invitation code on second-instance event', async () => {
-    const code = 'invitationCodeArgv'
-    await mockAppOnCalls[2][1]()
-    const commandLine = [
-      '/tmp/.mount_Quiet-TVQc6s/quiet',
-      invitationDeepUrl([{ peerId: 'peerId1', onionAddress: 'address' }]),
+    const codes = [
+      {
+        peerId: 'QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE',
+        onionAddress: 'y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd',
+      },
     ]
+    await mockAppOnCalls[2][1]()
+    const commandLine = ['/tmp/.mount_Quiet-TVQc6s/quiet', invitationDeepUrl(codes)]
     expect(mockAppOnCalls[0][0]).toBe('second-instance')
     const event = { preventDefault: () => {} }
     mockAppOnCalls[0][1](event, commandLine)
-    expect(mockWindowWebContentsSend).toHaveBeenCalledWith('invitation', { code: code })
+    expect(mockWindowWebContentsSend).toHaveBeenCalledWith('invitation', { codes })
   })
 })
