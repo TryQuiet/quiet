@@ -9,6 +9,7 @@ import { shell } from 'electron'
 import JoiningPanelComponent from './JoiningPanelComponent'
 import StartingPanelComponent from './StartingPanelComponent'
 import { LoadingPanelType, ErrorCodes } from '@quiet/types'
+import { current } from 'immer'
 
 const LoadingPanel = () => {
   const dispatch = useDispatch()
@@ -29,7 +30,6 @@ const LoadingPanel = () => {
 
   const torBootstrapProcessSelector = useSelector(connection.selectors.torBootstrapProcess)
   const torConnectionProcessSelector = useSelector(connection.selectors.torConnectionProcess)
-  const areMessagesLoaded = Object.values(currentChannelDisplayableMessages).length > 0
 
   const communityId = useSelector(communities.selectors.currentCommunityId)
   const initializedCommunities = useSelector(network.selectors.initializedCommunities)
@@ -38,6 +38,7 @@ const LoadingPanel = () => {
   const registrationError = error?.code === ErrorCodes.FORBIDDEN
 
   useEffect(() => {
+    const areMessagesLoaded = Object.values(currentChannelDisplayableMessages).length > 0
     console.log('HUNTING for haisenbug:')
     console.log('isConnected', isConnected)
     console.log('communityId', communityId)
@@ -47,7 +48,7 @@ const LoadingPanel = () => {
     if ((isConnected && isCommunityInitialized && areMessagesLoaded) || registrationError) {
       loadingPanelModal.handleClose()
     }
-  }, [isConnected, torBootstrapProcessSelector, isCommunityInitialized, areMessagesLoaded, error])
+  }, [isConnected, torBootstrapProcessSelector, isCommunityInitialized, currentChannelDisplayableMessages, error])
 
   useEffect(() => {
     if (isConnected) {
