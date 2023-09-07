@@ -113,13 +113,13 @@ export class Libp2pService extends EventEmitter {
 
     this.libp2pInstance.addEventListener('peer:connect', async peer => {
       const remotePeerId = peer.detail.remotePeer.toString()
-      console.log('ADDRESS', peer.detail.remoteAddr)
       this.logger(`${peerId.toString()} connected to ${remotePeerId}`)
 
       // Stop dialing as soon as we connect to a peer
       dialInChunks.stop()
 
       this.connectedPeers.set(remotePeerId, DateTime.utc().valueOf())
+      this.logger(`${this.connectedPeers.size} connected peers`)
 
       this.emit(Libp2pEvents.PEER_CONNECTED, {
         peers: [remotePeerId],
@@ -146,6 +146,7 @@ export class Libp2pService extends EventEmitter {
       const connectionDuration: number = connectionEndTime - connectionStartTime
 
       this.connectedPeers.delete(remotePeerId)
+      this.logger(`${this.connectedPeers.size} connected peers`)
 
       this.emit(Libp2pEvents.PEER_DISCONNECTED, {
         peer: remotePeerId,

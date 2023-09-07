@@ -1,7 +1,6 @@
 import { InvitationPair } from '@quiet/types'
 import { ONION_ADDRESS_REGEX, Site } from './static'
 import { createLibp2pAddress } from './libp2p'
-import PeerId from 'peer-id'
 export const retrieveInvitationCode = (url: string): InvitationPair[] => {
   /**
    * Extract invitation codes from deep url.
@@ -101,10 +100,9 @@ export const argvInvitationCode = (argv: string[]): InvitationPair[] => {
 }
 
 export const invitationCodeValid = (peerId: string, onionAddress: string): boolean => {
-  try {
-    PeerId.createFromB58String(peerId.trim())
-  } catch (e) {
-    console.log(`PeerId ${peerId} is not valid. ${e.message}`)
+  if (!peerId.match(/^[a-zA-Z0-9]{46}$/g)) {
+    // TODO: test it more properly e.g with PeerId.createFromB58String(peerId.trim())
+    console.log(`PeerId ${peerId} is not valid`)
     return false
   }
   if (!onionAddress.trim().match(ONION_ADDRESS_REGEX)) {

@@ -31,27 +31,22 @@ export function* handleInvitationCodeSaga(
     return
   }
 
-  // const code = action.payload.trim()
-
-  // if (code.match(ONION_ADDRESS_REGEX)) {
-  const payload: CreateNetworkPayload = {
-    ownership: CommunityOwnership.User,
-    peers: action.payload,
+  if (action.payload.length > 0) {
+    const payload: CreateNetworkPayload = {
+      ownership: CommunityOwnership.User,
+      peers: action.payload,
+    }
+    yield* put(communities.actions.createNetwork(payload))
+  } else {
+    yield* put(communities.actions.clearInvitationCodes())
+    yield* put(
+      modalsActions.openModal({
+        name: ModalName.warningModal,
+        args: {
+          title: 'Invalid link',
+          subtitle: 'The invite link you received is not valid. Please check it and try again.',
+        },
+      })
+    )
   }
-  yield* put(communities.actions.createNetwork(payload))
-  // return
-  // }
-
-  // TODO: handle invalid code
-  // yield* put(communities.actions.clearInvitationCodes())
-
-  // yield* put(
-  //   modalsActions.openModal({
-  //     name: ModalName.warningModal,
-  //     args: {
-  //       title: 'Invalid link',
-  //       subtitle: 'The invite link you received is not valid. Please check it and try again.',
-  //     },
-  //   })
-  // )
 }

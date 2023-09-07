@@ -203,9 +203,6 @@ export function subscribe(socket: Socket) {
       )
       emit(usersActions.responseSendCertificates(payload))
     })
-    // socket.on(SocketActionTypes.SAVED_USER_CSR, (payload: SaveCSRPayload) => {
-    //   console.log('SAVEDD USER CSR')
-    // })
     socket.on(SocketActionTypes.SEND_USER_CERTIFICATE, (payload: SendOwnerCertificatePayload) => {
       console.log('Received SEND_USER_CERTIFICATE', payload.communityId)
 
