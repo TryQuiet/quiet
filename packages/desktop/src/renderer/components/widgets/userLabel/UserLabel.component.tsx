@@ -4,7 +4,7 @@ import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
 import classNames from 'classnames'
 import WarnIcon from '../../../static/images/warning-icon.svg'
-import { UserLabelType } from './UserLabel.types'
+import { HandleOpenModalType, UserLabelType } from './UserLabel.types'
 
 const PREFIX = 'UserLabel-'
 
@@ -46,16 +46,24 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
 
 export interface UserLabelProps {
   type: UserLabelType
-  handleOpen: () => void
+  username: string
+  unregisteredUsernameModalHandleOpen?: HandleOpenModalType
+  duplicatedUsernameModalHandleOpen?: HandleOpenModalType
 }
 
-const UserLabel: React.FC<UserLabelProps> = ({ type, handleOpen }) => {
+const UserLabel: React.FC<UserLabelProps> = ({
+  type,
+  username,
+  unregisteredUsernameModalHandleOpen,
+  duplicatedUsernameModalHandleOpen,
+}) => {
   const isUnregistered = type === UserLabelType.UNREGISTERED
+  const handleOpen = isUnregistered ? unregisteredUsernameModalHandleOpen : duplicatedUsernameModalHandleOpen
 
   return (
     <StyledGrid>
       <Grid
-        onClick={handleOpen}
+        onClick={handleOpen ? () => handleOpen({ username }) : () => {}}
         container
         item
         alignItems='center'

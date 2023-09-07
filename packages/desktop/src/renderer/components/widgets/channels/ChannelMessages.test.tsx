@@ -30,6 +30,8 @@ describe('ChannelMessages', () => {
 
     const result = renderComponent(
       <ChannelMessagesComponent
+        duplicatedUsernameModalHandleOpen={jest.fn()}
+        unregisteredUsernameModalHandleOpen={jest.fn()}
         messages={messages}
         scrollbarRef={React.createRef()}
         onScroll={jest.fn()}

@@ -2,7 +2,9 @@ import React from 'react'
 import { ComponentStory, ComponentMeta } from '@storybook/react'
 import { withTheme } from '../../../storybook/decorators'
 import UserLabel, { UserLabelProps } from './UserLabel.component'
-import { UserLabelType } from './UserLabel.types'
+import { payloadDuplicated, payloadUnregistered, UserLabelType } from './UserLabel.types'
+import { ModalName } from '../../../sagas/modals/modals.types'
+import { modalsActions } from '../../../sagas/modals/modals.slice'
 
 const Template: ComponentStory<typeof UserLabel> = args => {
   return (
@@ -16,7 +18,9 @@ export const Duplicate = Template.bind({})
 export const Unregistered = Template.bind({})
 
 const baseArg = {
-  handleOpen: function (): void {},
+  duplicatedUsernameModalHandleOpen: () => payloadDuplicated,
+  unregisteredUsernameModalHandleOpen: () => payloadUnregistered,
+  username: 'johnny',
 }
 
 const argsDuplicate: UserLabelProps = {

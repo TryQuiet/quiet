@@ -3,13 +3,18 @@ import theme from '../../../theme'
 import { ThemeProvider } from '@mui/material/styles'
 import { renderComponent } from '../../../testUtils/renderComponent'
 import UserLabel from './UserLabel.component'
-import { UserLabelType } from './UserLabel.types'
+import { payloadDuplicated, payloadUnregistered, UserLabelType } from './UserLabel.types'
 
 describe('UserLabel', () => {
   it('duplicate', () => {
     const result = renderComponent(
       <ThemeProvider theme={theme}>
-        <UserLabel handleOpen={() => {}} type={UserLabelType.DUPLICATE} />
+        <UserLabel
+          duplicatedUsernameModalHandleOpen={() => payloadDuplicated}
+          unregisteredUsernameModalHandleOpen={() => payloadUnregistered}
+          username={'johnny'}
+          type={UserLabelType.DUPLICATE}
+        />
       </ThemeProvider>
     )
     expect(result.baseElement).toMatchInlineSnapshot(`
@@ -39,7 +44,12 @@ describe('UserLabel', () => {
   it('unregistered', () => {
     const result = renderComponent(
       <ThemeProvider theme={theme}>
-        <UserLabel handleOpen={() => {}} type={UserLabelType.UNREGISTERED} />
+        <UserLabel
+          duplicatedUsernameModalHandleOpen={() => payloadDuplicated}
+          unregisteredUsernameModalHandleOpen={() => payloadUnregistered}
+          username={'johnny'}
+          type={UserLabelType.UNREGISTERED}
+        />
       </ThemeProvider>
     )
     expect(result.baseElement).toMatchInlineSnapshot(`

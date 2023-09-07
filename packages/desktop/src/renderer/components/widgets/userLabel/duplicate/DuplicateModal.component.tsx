@@ -51,7 +51,7 @@ const DuplicateModalComponent: React.FC<DuplicateModalComponentProps> = ({ handl
           <br />
           These users will be marked
         </Typography>
-        <UserLabel type={UserLabelType.DUPLICATE} handleOpen={() => {}} />
+        <UserLabel type={UserLabelType.DUPLICATE} username={''} />
       </StyledGrid>
     </Modal>
   )

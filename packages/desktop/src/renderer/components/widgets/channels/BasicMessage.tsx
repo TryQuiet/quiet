@@ -22,8 +22,8 @@ import information from '../../../static/images/updateIcon.svg'
 
 import Icon from '../../ui/Icon/Icon'
 import { UseModalType } from '../../../containers/hooks'
-import { UserLabelType } from '../userLabel/UserLabel.types'
-import UserLabelContainer from '../userLabel/UserLabel.container'
+import { HandleOpenModalType, UserLabelType } from '../userLabel/UserLabel.types'
+import UserLabel from '../userLabel/UserLabel.component'
 
 const PREFIX = 'BasicMessageComponent'
 
@@ -154,6 +154,8 @@ export interface BasicMessageProps {
   }>
   onMathMessageRendered?: () => void
   userLabel?: UserLabelType
+  unregisteredUsernameModalHandleOpen: HandleOpenModalType
+  duplicatedUsernameModalHandleOpen: HandleOpenModalType
 }
 
 export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProps> = ({
@@ -166,6 +168,8 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
   openContainingFolder,
   downloadFile,
   cancelDownload,
+  unregisteredUsernameModalHandleOpen,
+  duplicatedUsernameModalHandleOpen,
   userLabel = null,
 }) => {
   const messageDisplayData = messages[0]
@@ -213,7 +217,12 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
                   </Grid>
                   {userLabel && (
                     <Grid>
-                      <UserLabelContainer type={userLabel} username={messageDisplayData.nickname} />
+                      <UserLabel
+                        username={messageDisplayData.nickname}
+                        type={userLabel}
+                        unregisteredUsernameModalHandleOpen={unregisteredUsernameModalHandleOpen}
+                        duplicatedUsernameModalHandleOpen={duplicatedUsernameModalHandleOpen}
+                      />
                     </Grid>
                   )}
                   {status !== 'failed' && (

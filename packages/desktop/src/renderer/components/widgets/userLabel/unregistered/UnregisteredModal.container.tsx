@@ -8,7 +8,7 @@ interface ModalArgs {
 }
 
 const UnregisteredModalContainer = () => {
-  const unregisteredModal = useModal<ModalArgs>(ModalName.unregisteredModal)
+  const unregisteredModal = useModal<ModalArgs>(ModalName.unregisteredUsernameModal)
   return <UnregisteredModalComponent {...unregisteredModal} />
 }
 
