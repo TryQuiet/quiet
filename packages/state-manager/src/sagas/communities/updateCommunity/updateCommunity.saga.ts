@@ -6,6 +6,7 @@ import { type PayloadAction } from '@reduxjs/toolkit'
 export function* updateCommunitySaga(
   action: PayloadAction<ReturnType<typeof communitiesActions.updateCommunity>['payload']>
 ): Generator {
+  console.log('updateCommunitySaga', action.payload)
   const rootCa = loadCertificate(action.payload.rootCa)
 
   const communityName = yield* call(getCertFieldValue, rootCa, CertFieldsTypes.commonName)
@@ -19,6 +20,7 @@ export function* updateCommunitySaga(
     rootCa: action.payload.rootCa,
     name: communityName,
   }
+  console.log('updateCommunitySaga::', payload)
 
   yield* put(communitiesActions.updateCommunityData(payload))
 }

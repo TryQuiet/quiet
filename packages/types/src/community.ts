@@ -103,3 +103,14 @@ export interface AddOwnerCertificatePayload {
   communityId: string
   ownerCertificate: string
 }
+
+export interface CommunityMetadata {
+  id: string
+  rootCa: string
+  ownerCertificate: string
+}
+
+export interface CommunityMetadataPayload {
+  rootCa: string
+  ownerCertificate: string
+}

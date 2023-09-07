@@ -43,6 +43,7 @@ import {
   SendUserCertificatePayload,
   type SendOwnerCertificatePayload,
   SaveCSRPayload,
+  CommunityMetadata,
 } from '@quiet/types'
 
 const log = logger('socket')
@@ -90,6 +91,7 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof communitiesActions.clearInvitationCodes>
     | ReturnType<typeof identityActions.saveUserCsr>
     | ReturnType<typeof connectionActions.setTorInitialized>
+    | ReturnType<typeof communitiesActions.saveCommunityMetadata>
   >(emit => {
     // UPDATE FOR APP
     socket.on(SocketActionTypes.TOR_INITIALIZED, () => {
@@ -201,11 +203,9 @@ export function subscribe(socket: Socket) {
       )
       emit(usersActions.responseSendCertificates(payload))
     })
-    socket.on(SocketActionTypes.SAVED_USER_CSR, (payload: SaveCSRPayload) => {
-      console.log('SAVEDD USER CSR')
-
-      // emit(communitiesActions.launchCommunity(payload.communityId))
-    })
+    // socket.on(SocketActionTypes.SAVED_USER_CSR, (payload: SaveCSRPayload) => {
+    //   console.log('SAVEDD USER CSR')
+    // })
     socket.on(SocketActionTypes.SEND_USER_CERTIFICATE, (payload: SendOwnerCertificatePayload) => {
       console.log('Received SEND_USER_CERTIFICATE', payload.communityId)
 
@@ -224,14 +224,14 @@ export function subscribe(socket: Socket) {
       )
       emit(
         identityActions.storeUserCertificate({
-          userCertificate: payload.payload.certificate, // is it needed?
+          userCertificate: payload.payload.certificate,
           communityId: payload.communityId,
         })
       )
       emit(
         communitiesActions.updateCommunity({
           id: payload.communityId,
-          rootCa: payload.payload.rootCa, // is it needed?
+          rootCa: payload.payload.rootCa,
         })
       )
       emit(communitiesActions.launchCommunity(payload.communityId))
@@ -257,6 +257,15 @@ export function subscribe(socket: Socket) {
         })
       )
       emit(identityActions.savedOwnerCertificate(payload.communityId))
+    })
+    socket.on(SocketActionTypes.SAVE_COMMUNITY_METADATA, (payload: CommunityMetadata) => {
+      console.log('SAVE COMMUNITY METADATA', payload)
+      emit(
+        communitiesActions.saveCommunityMetadata({
+          rootCa: payload.rootCa,
+          ownerCertificate: payload.ownerCertificate,
+        })
+      )
     })
     return () => undefined
   })

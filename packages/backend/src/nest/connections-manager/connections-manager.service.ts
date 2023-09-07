@@ -44,6 +44,8 @@ import {
   PeerId as PeerIdType,
   SaveCSRPayload,
   SendUserCertificatePayload,
+  CommunityMetadata,
+  CommunityMetadataPayload,
 } from '@quiet/types'
 import { CONFIG_OPTIONS, QUIET_DIR, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
 import { ConfigOptions, GetPorts, ServerIoProviderTypes } from '../types'
@@ -437,6 +439,9 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         privKey: args.rootKeyString,
       }
     })
+    this.socketService.on(SocketActionTypes.SEND_COMMUNITY_METADATA, async (payload: CommunityMetadata) => {
+      await this.storageService?.updateCommunityMetadata(payload)
+    })
     this.socketService.on(SocketActionTypes.SAVED_OWNER_CERTIFICATE, async (args: SaveOwnerCertificatePayload) => {
       const saveCertificatePayload: SaveCertificatePayload = {
         certificate: args.certificate,
@@ -565,6 +570,14 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.storageService.on(StorageEvents.REPLICATED_CSR, async (payload: { csr: string }) => {
       console.log(`On ${StorageEvents.REPLICATED_CSR}`)
       this.registrationService.emit(RegistrationEvents.REGISTER_USER_CERTIFICATE, payload.csr)
+    })
+    this.storageService.on(StorageEvents.REPLICATED_COMMUNITY_METADATA, (payload: CommunityMetadata) => {
+      console.log(`On ${StorageEvents.REPLICATED_COMMUNITY_METADATA}: ${payload}`)
+      const communityMetadataPayload: CommunityMetadataPayload = {
+        rootCa: payload.rootCa,
+        ownerCertificate: payload.ownerCertificate,
+      }
+      this.serverIoProvider.io.emit(SocketActionTypes.SAVE_COMMUNITY_METADATA, communityMetadataPayload)
     })
   }
 }

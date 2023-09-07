@@ -23,6 +23,8 @@ export enum StorageEvents {
   LOAD_ALL_DIRECT_MESSAGES = 'loadAllDirectMessages',
   // Misc
   SEND_PUSH_NOTIFICATION = 'sendPushNotification',
+  // Community
+  REPLICATED_COMMUNITY_METADATA = 'replicatedCommunityMetadata',
 }
 export interface InitStorageParams {
   communityId: string

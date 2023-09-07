@@ -2,7 +2,6 @@ import { InvitationPair } from '@quiet/types'
 import { ONION_ADDRESS_REGEX, Site } from './static'
 import { createLibp2pAddress } from './libp2p'
 import PeerId from 'peer-id'
-// import { multiaddr } from
 export const retrieveInvitationCode = (url: string): InvitationPair[] => {
   /**
    * Extract invitation codes from deep url.
@@ -33,25 +32,28 @@ export const invitationShareUrl = (peers: string[] = []): string => {
    * @arg {string[]} peers - List of peer's p2p addresses
    * @returns {string} - Complete shareable invitation link, e.g. https://tryquiet.org/join/#<peerid1>=<address1>&<peerid2>=<addresss2>
    */
-  // Valid format:
-  // const mulriaddr = (await import('@multiformats/multiaddr')).default
   const pairs = []
   for (const peerAddress of peers) {
-    let addr
+    let peerId: string
+    let onionAddress: string
     try {
-      // addr = mulriaddr.multiaddr(peerAddress)
+      peerId = peerAddress.split('/p2p/')[1]
     } catch (e) {
-      console.error(`Could not add peer address '${peerAddress}' to invitation url. Reason: ${e.message}`)
+      console.info(`Could not add peer address '${peerAddress}' to invitation url. Reason: ${e.message}`)
+      continue
+    }
+    try {
+      onionAddress = peerAddress.split('/tcp/')[0].split('/dns4/')[1]
+    } catch (e) {
+      console.info(`Could not add peer address '${peerAddress}' to invitation url. Reason: ${e.message}`)
       continue
     }
 
-    const peerId = addr.getPeerId()
-    const address: string = addr.nodeAddress().address
-    if (!peerId || !address) {
+    if (!peerId || !onionAddress) {
       console.error(`No peerId or address in ${peerAddress}`)
       continue
     }
-    const rawAddress = address.endsWith('.onion') ? address.split('.')[0] : address
+    const rawAddress = onionAddress.endsWith('.onion') ? onionAddress.split('.')[0] : onionAddress
     pairs.push(`${peerId}=${rawAddress}`)
   }
 

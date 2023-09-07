@@ -23,6 +23,7 @@ import validate from '../validation/validators'
 import { CID } from 'multiformats/cid'
 import {
   ChannelMessage,
+  CommunityMetadata,
   ConnectionProcessInfo,
   DeleteFilesFromChannelSocketPayload,
   FileMetadata,
@@ -63,6 +64,7 @@ export class StorageService extends EventEmitter {
   public directMessagesRepos: Map<string, DirectMessagesRepo> = new Map()
   private publicKeysMap: Map<string, CryptoKey> = new Map()
   private userNamesMap: Map<string, string> = new Map()
+  private communityMetadata: KeyValueStore<CommunityMetadata>
   private ipfs: IPFS
   private orbitDb: OrbitDB
   private filesManager: IpfsFileManagerService
@@ -157,6 +159,9 @@ export class StorageService extends EventEmitter {
     if (this.certificatesRequests?.address) {
       dbs.push(this.certificatesRequests.address)
     }
+    if (this.communityMetadata?.address) {
+      dbs.push(this.communityMetadata.address)
+    }
 
     const channels = this.publicChannelsRepos.values()
 
@@ -217,10 +222,45 @@ export class StorageService extends EventEmitter {
     this.logger('3/5')
     await this.createDbForCertificatesRequests()
     this.logger('4/5')
-    await this.initAllChannels()
+    await this.createDbForCommunityMetadata()
     this.logger('5/5')
+    await this.initAllChannels()
     this.logger('Initialized DBs')
     this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.INITIALIZED_DBS)
+  }
+  private async createDbForCommunityMetadata() {
+    this.logger('createDbForCommunityMetadata init')
+    this.communityMetadata = await this.orbitDb.keyvalue<CommunityMetadata>('community-metadata', {
+      replicate: false,
+      accessController: {
+        write: ['*'],
+      },
+    })
+
+    this.communityMetadata.events.on('write', async (_address, _entry) => {
+      this.logger('WRITE: communityMetadata')
+    })
+
+    this.communityMetadata.events.on('replicated', async () => {
+      this.logger('Replicated community metadata')
+      // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
+      await this.communityMetadata.load({ fetchEntryTimeout: 15000 })
+      this.emit(StorageEvents.REPLICATED_COMMUNITY_METADATA, Object.values(this.communityMetadata.all)[0])
+    })
+    // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
+    await this.communityMetadata.load({ fetchEntryTimeout: 15000 })
+  }
+
+  public async updateCommunityMetadata(communityMetadata: CommunityMetadata) {
+    this.logger(`Updating community metadata`)
+    if (!communityMetadata.id) return
+    const meta = this.communityMetadata.get(communityMetadata.id)
+    console.log('meta from db', meta)
+    if (meta?.ownerCertificate && meta?.rootCa) return
+    await this.communityMetadata.put(communityMetadata.id, {
+      ...meta,
+      ...communityMetadata,
+    })
   }
 
   private async __stopOrbitDb() {
@@ -268,6 +308,11 @@ export class StorageService extends EventEmitter {
       await this.certificatesRequests?.close()
     } catch (e) {
       this.logger.error('Error closing certificates db', e)
+    }
+    try {
+      await this.communityMetadata?.close()
+    } catch (e) {
+      this.logger.error('Error closing community metadata db', e)
     }
     await this.__stopOrbitDb()
     await this.__stopIPFS()

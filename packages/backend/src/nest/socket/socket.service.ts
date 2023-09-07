@@ -16,6 +16,7 @@ import {
   Community,
   DeleteFilesFromChannelSocketPayload,
   SaveCSRPayload,
+  CommunityMetadata,
 } from '@quiet/types'
 import cors, { CorsOptions } from 'cors'
 import EventEmitter from 'events'
@@ -115,6 +116,13 @@ export class SocketService extends EventEmitter implements OnModuleInit {
       socket.on(SocketActionTypes.SAVE_OWNER_CERTIFICATE, async (payload: SaveOwnerCertificatePayload) => {
         this.logger(`Saving owner certificate (${payload.peerId}), community: ${payload.id}`)
         this.emit(SocketActionTypes.SAVED_OWNER_CERTIFICATE, payload)
+        const communityMetadataPayload: CommunityMetadata = {
+          id: payload.id,
+          ownerCertificate: payload.certificate,
+          rootCa: payload.permsData.certificate,
+        }
+        console.log('meta from state-manager', communityMetadataPayload)
+        this.emit(SocketActionTypes.SEND_COMMUNITY_METADATA, communityMetadataPayload)
       })
       socket.on(SocketActionTypes.CREATE_COMMUNITY, async (payload: InitCommunityPayload) => {
         this.logger(`Creating community ${payload.id}`)

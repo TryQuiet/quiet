@@ -50,7 +50,6 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
       }
       console.log('CSR in registration service', csr)
       const response = await this.registerUser(csr)
-      // this.emit('REGISTER_USER_CERTIFICATE_RESPONSE', response)
     })
     this.setRouting()
   }

@@ -29,14 +29,12 @@ export function* launchCommunitySaga(
   socket: Socket,
   action: PayloadAction<ReturnType<typeof communitiesActions.launchCommunity>['payload'] | undefined>
 ): Generator {
-  console.log('LAUNCH COMMUNITY SAGA')
   let communityId: string | undefined = action.payload
 
   if (!communityId) {
     communityId = yield* select(communitiesSelectors.currentCommunityId)
   }
 
-  const community = yield* select(communitiesSelectors.selectById(communityId))
   const identity = yield* select(identitySelectors.selectById(communityId))
   if (!identity?.userCsr?.userKey) {
     console.error('Could not launch community, Community or Identity is lacking data')
@@ -50,17 +48,11 @@ export function* launchCommunitySaga(
   } else {
     peerList = yield* select(connectionSelectors.peerList)
   }
-  console.log('LAUNCH community peers', peerList)
 
   const payload: InitCommunityPayload = {
     id: identity.id,
     peerId: identity.peerId,
     hiddenService: identity.hiddenService,
-    // certs: {
-    //   certificate: identity.userCertificate,
-    //   key: identity.userCsr.userKey,
-    //   CA: [community.rootCa],
-    // },
     peers: peerList,
   }
 

@@ -11,6 +11,7 @@ import {
   type StorePeerListPayload,
   type UpdateCommunityPayload,
   type UpdateRegistrationAttemptsPayload,
+  CommunityMetadataPayload,
 } from '@quiet/types'
 
 export class CommunitiesState {
@@ -91,12 +92,6 @@ export const communitiesSlice = createSlice({
         },
       })
     },
-    // handleInvitationCode: (state, action: PayloadAction<string>) => {
-    //   state.invitationCode = action.payload
-    // },
-    // clearInvitationCode: state => {
-    //   state.invitationCode = ''
-    // },
     handleInvitationCodes: (state, action: PayloadAction<InvitationPair[]>) => {
       state.invitationCodes = action.payload
     },
@@ -115,6 +110,7 @@ export const communitiesSlice = createSlice({
         },
       })
     },
+    saveCommunityMetadata: (state, _action: PayloadAction<CommunityMetadataPayload>) => state,
   },
 })
 
