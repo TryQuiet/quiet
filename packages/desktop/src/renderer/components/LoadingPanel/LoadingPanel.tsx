@@ -9,7 +9,6 @@ import { shell } from 'electron'
 import JoiningPanelComponent from './JoiningPanelComponent'
 import StartingPanelComponent from './StartingPanelComponent'
 import { LoadingPanelType, ErrorCodes } from '@quiet/types'
-import { current } from 'immer'
 
 const LoadingPanel = () => {
   const dispatch = useDispatch()
