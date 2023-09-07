@@ -96,6 +96,11 @@ export const SettingsComponent: React.FC<SettingsComponentProps> = ({
     setCurrentTab(tab)
   }
 
+  // Workaround for default display of invite tab.
+  React.useEffect(() => {
+    setCurrentTab(defaultCurrentTab)
+  }, [isOwner])
+
   React.useEffect(() => {
     if (contentRef) {
       window.addEventListener('resize', adjustOffset)
