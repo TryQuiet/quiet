@@ -23,6 +23,7 @@ describe('New user joins using invitation link while having app opened', () => {
   let invitationCode: string
   let ownerApp: App
   let guestApp: App
+  let interval: NodeJS.Timeout
 
   beforeAll(async () => {
     ownerApp = new App()
@@ -189,12 +190,18 @@ describe('New user joins using invitation link while having app opened', () => {
     it('Guest joined a community and sees general channel', async () => {
       console.log('Invitation Link', 20)
       console.log('guest sees general channel')
-
+      interval = setInterval(async () => {
+        const screenShot = await guestApp.driver.takeScreenshot()
+        console.log('#######################')
+        console.log(JSON.stringify(screenShot))
+        console.log('#######################')
+      }, 10000)
       const generalChannel = new Channel(guestApp.driver, 'general')
       await generalChannel.element.isDisplayed()
     })
 
     it('Owner sees that guest joined community', async () => {
+      clearInterval(interval)
       console.log('Invitation Link', 21)
       const generalChannel = new Channel(ownerApp.driver, 'general')
       await generalChannel.element.isDisplayed()
