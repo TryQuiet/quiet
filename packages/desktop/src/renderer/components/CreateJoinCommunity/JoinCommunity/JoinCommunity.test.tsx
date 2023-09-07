@@ -22,6 +22,12 @@ import { Site, QUIET_JOIN_PAGE } from '@quiet/common'
 describe('join community', () => {
   const validCode =
     'QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE=y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd'
+  const validPair = [
+    {
+      onionAddress: 'y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd',
+      peerId: 'QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE',
+    },
+  ]
 
   it('users switches from join to create', async () => {
     const { store } = await prepareStore({
@@ -131,11 +137,7 @@ describe('join community', () => {
     await waitFor(() => expect(handleCommunityAction).toBeCalledWith(registrarUrl))
   })
 
-  it.each([
-    [`${QUIET_JOIN_PAGE}#${validCode}`],
-    [`${QUIET_JOIN_PAGE}/#${validCode}`],
-    // [`${QUIET_JOIN_PAGE}?code=${validCode}`], // Old link format
-  ])(
+  it.each([[`${QUIET_JOIN_PAGE}#${validCode}`], [`${QUIET_JOIN_PAGE}/#${validCode}`]])(
     'joins community on submit if connection is ready and invitation code is a correct invitation url (%s)',
     async (invitationLink: string) => {
       const registrarUrl = new URL(invitationLink)
@@ -166,7 +168,7 @@ describe('join community', () => {
       expect(submitButton).toBeEnabled()
       await userEvent.click(submitButton)
 
-      await waitFor(() => expect(handleCommunityAction).toBeCalledWith(validCode))
+      await waitFor(() => expect(handleCommunityAction).toBeCalledWith(validPair))
     }
   )
 

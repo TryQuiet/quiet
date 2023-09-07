@@ -1,12 +1,10 @@
 import { PayloadAction } from '@reduxjs/toolkit'
-import { call, put, select } from 'typed-redux-saga'
+import { call, put } from 'typed-redux-saga'
 import { Time } from 'pkijs'
 import { generateId } from '../../../utils/cryptography/cryptography'
 import { communitiesActions } from '../communities.slice'
 import { createRootCA } from '@quiet/identity'
 import { type Community, CommunityOwnership } from '@quiet/types'
-import { communitiesSelectors } from '../communities.selectors'
-import { connectionSelectors } from '../../appConnection/connection.selectors'
 
 export function* createNetworkSaga(
   action: PayloadAction<ReturnType<typeof communitiesActions.createNetwork>['payload']>
@@ -30,13 +28,9 @@ export function* createNetworkSaga(
   }
 
   const id = yield* call(generateId)
-
-  // const registrarUrl = action.payload.registrar ? `http://${action.payload.registrar}.onion` : undefined
-
   const payload: Community = {
     id,
     name: action.payload.name,
-    // registrarUrl,
     CA,
     rootCa: CA?.rootCertString,
   }

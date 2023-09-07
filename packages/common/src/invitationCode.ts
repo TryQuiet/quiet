@@ -31,6 +31,7 @@ export const invitationShareUrl = (peers: string[] = []): string => {
    * @arg {string[]} peers - List of peer's p2p addresses
    * @returns {string} - Complete shareable invitation link, e.g. https://tryquiet.org/join/#<peerid1>=<address1>&<peerid2>=<addresss2>
    */
+  console.log('Invitation share url, peers:', peers)
   const pairs = []
   for (const peerAddress of peers) {
     let peerId: string

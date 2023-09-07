@@ -37,7 +37,7 @@ export function* launchCommunitySaga(
 
   const identity = yield* select(identitySelectors.selectById(communityId))
   if (!identity?.userCsr?.userKey) {
-    console.error('Could not launch community, Community or Identity is lacking data')
+    console.error('Could not launch community, No identity private key')
     return
   }
 

@@ -17,12 +17,12 @@ export function* updateCertificateSaga(action: PayloadAction<SendCertificatesRes
   if (!csr?.userCsr) return
 
   const parsedCsr = yield* call(loadCSR, csr?.userCsr)
-  const username = getReqFieldValue(parsedCsr, CertFieldsTypes.nickName)
+  const pubKey = getReqFieldValue(parsedCsr, CertFieldsTypes.dmPublicKey)
 
   const cert = action.payload.certificates.find(cert => {
     const parsedCert = parseCertificate(cert)
-    const certUsername = getCertFieldValue(parsedCert, CertFieldsTypes.nickName)
-    if (certUsername === username) return cert
+    const certPubKey = getCertFieldValue(parsedCert, CertFieldsTypes.dmPublicKey)
+    if (certPubKey === pubKey) return cert
   })
 
   if (cert) {

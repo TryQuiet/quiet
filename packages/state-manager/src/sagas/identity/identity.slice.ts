@@ -8,7 +8,6 @@ import {
   type Identity,
   type RegisterCertificatePayload,
   type StoreUserCertificatePayload,
-  SaveCSRPayload,
 } from '@quiet/types'
 export class IdentityState {
   public identities: EntityState<Identity> = identityAdapter.getInitialState()

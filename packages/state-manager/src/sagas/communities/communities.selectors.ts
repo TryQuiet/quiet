@@ -65,17 +65,6 @@ export const invitationUrl = createSelector(currentCommunity, community => {
   const peerList = community?.peerList
   if (!peerList || peerList?.length === 0) return ''
   const initialPeers = peerList.slice(0, 4)
-
-  console.log('invitationUrl INITIAL PEERS', initialPeers)
-
-  // if (!community?.registrarUrl) return ''
-  // let registrarUrl = ''
-  // try {
-  //   const url = new URL(community.registrarUrl)
-  //   registrarUrl = url.hostname.split('.')[0]
-  // } catch (e) {
-  //   registrarUrl = community.registrarUrl
-  // }
   return invitationShareUrl(initialPeers)
 })
 

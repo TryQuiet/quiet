@@ -6,7 +6,7 @@ import { identitySelectors } from '../identity.selectors'
 export function* saveUserCsrSaga(socket: Socket): Generator {
   const identity = yield* select(identitySelectors.currentIdentity)
   if (!identity?.userCsr) {
-    console.error('Cannot save user csr, no identity')
+    console.error('Cannot save user csr to backend, no userCsr')
     return
   }
   const payload: SaveCSRPayload = {

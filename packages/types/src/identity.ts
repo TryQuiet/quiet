@@ -60,7 +60,6 @@ export interface RegisterCertificatePayload {
 export interface RegisterUserCertificatePayload {
   communityId: string
   userCsr: string
-  // serviceAddress?: string
 }
 
 export interface PermsData {

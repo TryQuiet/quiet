@@ -34,18 +34,4 @@ export function* registerCertificateSaga(
   } else {
     yield* put(communitiesActions.launchCommunity(action.payload.communityId))
   }
-
-  // else {
-  //   if (!currentCommunity.registrarUrl) {
-  //     console.error('Could not register certificate, no registrar url')
-  //     return
-  //   }
-  //   const payload: RegisterUserCertificatePayload = {
-  //     communityId: action.payload.communityId,
-  //     userCsr: action.payload.userCsr.userCsr,
-  //     serviceAddress: currentCommunity.registrarUrl,
-  //   }
-
-  //   yield* apply(socket, socket.emit, applyEmitParams(SocketActionTypes.REGISTER_USER_CERTIFICATE, payload))
-  // }
 }

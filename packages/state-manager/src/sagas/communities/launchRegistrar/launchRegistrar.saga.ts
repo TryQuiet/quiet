@@ -35,7 +35,6 @@ export function* launchRegistrarSaga(
       rootKeyString: community.CA.rootKeyString,
       privateKey: community.privateKey,
     }
-    console.log('Sending LAUNCH_REGISTRAR')
     yield* apply(socket, socket.emit, applyEmitParams(SocketActionTypes.LAUNCH_REGISTRAR, payload))
   }
 }
