@@ -872,6 +872,10 @@ export class StorageService extends EventEmitter {
       return false
     }
 
+    const csrs = this.getAllEventLogEntries(this.certificatesRequests)
+
+    if (csrs.includes(payload.csr)) return false
+
     this.logger('Saving csr...')
     await this.certificatesRequests.add(payload.csr)
     return true
