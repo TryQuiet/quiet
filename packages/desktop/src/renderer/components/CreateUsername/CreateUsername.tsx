@@ -19,11 +19,9 @@ const CreateUsername = () => {
 
   useEffect(() => {
     if (currentCommunity && !currentIdentity?.userCsr && !createUsernameModal.open) {
-      console.log('createUsernameModal.handleOpen()')
       createUsernameModal.handleOpen()
     }
     if (currentIdentity?.userCsr && createUsernameModal.open) {
-      console.log('createUsernameModal.handleClose()')
       createUsernameModal.handleClose()
     }
   }, [currentIdentity, currentCommunity])

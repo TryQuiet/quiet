@@ -424,7 +424,6 @@ export class StorageService extends EventEmitter {
     })
     this.certificatesRequests.events.on('write', async (_address, entry) => {
       this.logger('Saved CSR locally')
-      this.logger(entry.payload.value)
       await this.updatePeersList()
     })
 
@@ -906,7 +905,6 @@ export class StorageService extends EventEmitter {
       const peerId = getReqFieldValue(parsedCert, CertFieldsTypes.peerId)
       const username = getReqFieldValue(parsedCert, CertFieldsTypes.nickName)
       const dmPublicKey = getReqFieldValue(parsedCert, CertFieldsTypes.dmPublicKey)
-      console.log('DATA', onionAddress, peerId, username)
       if (!onionAddress || !peerId || !username || !dmPublicKey) continue
       allUsers.push({ onionAddress, peerId, username, dmPublicKey })
     }

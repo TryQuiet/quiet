@@ -201,9 +201,6 @@ export const libp2pInstanceParams = async (): Promise<Libp2pNodeParams> => {
     listenAddresses: [createLibp2pListenAddress('localhost')],
     agent: createHttpsProxyAgent({ port: 1234, host: 'localhost' }),
     localAddress: createLibp2pAddress('localhost', peerId.toString()),
-    cert: pems.userCert,
-    key: pems.userKey,
-    ca: [pems.ca],
     targetPort: port,
     peers: [remoteAddress],
   }

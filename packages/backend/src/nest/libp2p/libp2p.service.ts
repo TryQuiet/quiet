@@ -45,7 +45,6 @@ export class Libp2pService extends EventEmitter {
   }
 
   public async createInstance(params: Libp2pNodeParams): Promise<Libp2p> {
-    console.log('Libp2p.createInstance::: peers:::', params.peers)
     if (this.libp2pInstance) {
       return this.libp2pInstance
     }

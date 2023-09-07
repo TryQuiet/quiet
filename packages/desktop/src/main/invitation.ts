@@ -6,6 +6,10 @@ import { BrowserWindow } from 'electron'
 import { InvitationPair } from '@quiet/types'
 
 export const processInvitationCode = (mainWindow: BrowserWindow, codes: InvitationPair[]) => {
+  if (codes.length === 0) {
+    console.log('No valid invitation codes, not processing')
+    return
+  }
   mainWindow.webContents.send('invitation', {
     codes,
   })

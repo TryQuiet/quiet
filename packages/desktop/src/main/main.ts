@@ -470,6 +470,7 @@ app.on('ready', async () => {
 
   mainWindow.webContents.once('did-finish-load', async () => {
     log('Event: mainWindow did-finish-load')
+    log('---', process.argv, 'asdasd', invitationUrl)
     if (!isBrowserWindow(mainWindow)) {
       throw new Error(`mainWindow is on unexpected type ${mainWindow}`)
     }
