@@ -61,7 +61,6 @@ describe('responseCreateNetwork', () => {
       .withState(store.getState())
       .provide([[call.fn(generateDmKeyPair), dmKeys]])
       .call(generateDmKeyPair)
-      .put(communitiesActions.clearInvitationCodes())
       .put(communitiesActions.updateCommunityData(community))
       .put(identityActions.addNewIdentity(identity))
       .run()
