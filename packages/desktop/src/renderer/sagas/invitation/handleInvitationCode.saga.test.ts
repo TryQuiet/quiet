@@ -28,7 +28,7 @@ describe('Handle invitation code', () => {
     factory = await getFactory(store)
     validInvitationPair = [
       {
-        address: 'y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd',
+        onionAddress: 'y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd',
         peerId: 'QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE',
       },
     ]

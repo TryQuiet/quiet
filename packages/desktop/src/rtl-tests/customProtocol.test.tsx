@@ -66,7 +66,7 @@ describe('Opening app through custom protocol', () => {
     )
 
     const invitationCodes: InvitationPair[] = [
-      { peerId: 'abcdef', address: 'bidrmzr3ee6qa2vvrlcnqvvvsk2gmjktcqkunba326parszr44gibwyd' },
+      { peerId: 'abcdef', onionAddress: 'bidrmzr3ee6qa2vvrlcnqvvvsk2gmjktcqkunba326parszr44gibwyd' },
     ]
 
     store.dispatch(communities.actions.handleInvitationCodes(invitationCodes))
