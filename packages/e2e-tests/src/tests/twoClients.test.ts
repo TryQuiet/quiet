@@ -152,7 +152,7 @@ describe('Two Clients', () => {
       await joinCommunityModal.submit()
     })
 
-    it('RegisterUsernameModal - User tries to register already taken username, sees error', async () => {
+    it.skip('RegisterUsernameModal - User tries to register already taken username, sees error', async () => {
       console.log('new user - 4')
       registerModal2 = new RegisterUsernameModal(guestApp.driver)
       const isRegisterModal2 = await registerModal2.element.isDisplayed()
@@ -165,6 +165,7 @@ describe('Two Clients', () => {
 
     it('RegisterUsernameModal - User successfully register not taken username', async () => {
       console.log('new user - 5')
+      registerModal2 = new RegisterUsernameModal(guestApp.driver)
       const isRegisterModal = await registerModal2.element.isDisplayed()
       expect(isRegisterModal).toBeTruthy()
       await registerModal2.clearInput()

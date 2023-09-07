@@ -1,23 +1,5 @@
-import { Site, invitationCodeValid } from '@quiet/common'
+import { Site, getInvitationPairs, invitationCodeValid } from '@quiet/common'
 import { InvitationPair } from '@quiet/types'
-
-const getInvitationPairs = (code: string) => {
-  /**
-   * @param code <peerId1>=<address1>&<peerId2>=<address2>
-   */
-  const pairs = code.split('&')
-  const codes: InvitationPair[] = []
-  for (const pair of pairs) {
-    const [peerId, address] = pair.split('=')
-    if (!peerId || !address) continue
-    if (!invitationCodeValid(peerId, address)) continue
-    codes.push({
-      peerId: peerId,
-      onionAddress: address,
-    })
-  }
-  return codes
-}
 
 export const getInvitationCodes = (codeOrUrl: string): InvitationPair[] => {
   /**
