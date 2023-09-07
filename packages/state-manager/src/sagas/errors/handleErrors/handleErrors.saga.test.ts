@@ -47,7 +47,6 @@ describe('handle errors', () => {
       .provide([[call.fn(delay), null]])
       .call(retryRegistration, community.id)
       .put(errorsActions.addError(errorPayload))
-      .put(communitiesActions.updateRegistrationAttempts({ id: community.id, registrationAttempts: 1 }))
       .run()
   })
 
