@@ -23,8 +23,7 @@ describe('New user joins using invitation link while having app opened', () => {
   let invitationCode: string
   let ownerApp: App
   let guestApp: App
-  let interval: NodeJS.Timeout
-
+  let interval: any
   beforeAll(async () => {
     ownerApp = new App()
     guestApp = new App({ useDataDir: false })
