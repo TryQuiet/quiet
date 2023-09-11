@@ -630,6 +630,87 @@ describe('Chat component', () => {
                                 chad
                               </Text>
                             </View>
+                            <View>
+                              <View
+                                accessibilityState={
+                                  {
+                                    "busy": undefined,
+                                    "checked": undefined,
+                                    "disabled": undefined,
+                                    "expanded": undefined,
+                                    "selected": undefined,
+                                  }
+                                }
+                                accessible={true}
+                                focusable={true}
+                                onClick={[Function]}
+                                onResponderGrant={[Function]}
+                                onResponderMove={[Function]}
+                                onResponderRelease={[Function]}
+                                onResponderTerminate={[Function]}
+                                onResponderTerminationRequest={[Function]}
+                                onStartShouldSetResponder={[Function]}
+                                style={
+                                  {
+                                    "marginLeft": 8,
+                                  }
+                                }
+                                testID="user-label"
+                              >
+                                <View
+                                  style={
+                                    {
+                                      "backgroundColor": "#E42656",
+                                      "borderRadius": 8,
+                                      "cursor": "pointer",
+                                      "flexDirection": "row",
+                                      "paddingBottom": 3,
+                                      "paddingLeft": 8,
+                                      "paddingRight": 8,
+                                      "paddingTop": 3,
+                                    }
+                                  }
+                                >
+                                  <Image
+                                    source={
+                                      {
+                                        "testUri": "../../../assets/icons/warning-icon.png",
+                                      }
+                                    }
+                                    style={
+                                      {
+                                        "height": 12,
+                                        "marginRight": 4,
+                                        "merginLeft": 4,
+                                        "width": 13,
+                                      }
+                                    }
+                                  />
+                                  <Text
+                                    color="main"
+                                    fontSize={12}
+                                    horizontalTextAlign="left"
+                                    style={
+                                      [
+                                        {
+                                          "color": "#000000",
+                                          "fontFamily": "Rubik-Regular",
+                                          "fontSize": 12,
+                                          "textAlign": "left",
+                                          "textAlignVertical": "center",
+                                        },
+                                        {
+                                          "color": "white",
+                                        },
+                                      ]
+                                    }
+                                    verticalTextAlign="center"
+                                  >
+                                    Duplicate
+                                  </Text>
+                                </View>
+                              </View>
+                            </View>
                             <View
                               style={
                                 {
@@ -860,6 +941,87 @@ describe('Chat component', () => {
                                 anakin
                               </Text>
                             </View>
+                            <View>
+                              <View
+                                accessibilityState={
+                                  {
+                                    "busy": undefined,
+                                    "checked": undefined,
+                                    "disabled": undefined,
+                                    "expanded": undefined,
+                                    "selected": undefined,
+                                  }
+                                }
+                                accessible={true}
+                                focusable={true}
+                                onClick={[Function]}
+                                onResponderGrant={[Function]}
+                                onResponderMove={[Function]}
+                                onResponderRelease={[Function]}
+                                onResponderTerminate={[Function]}
+                                onResponderTerminationRequest={[Function]}
+                                onStartShouldSetResponder={[Function]}
+                                style={
+                                  {
+                                    "marginLeft": 8,
+                                  }
+                                }
+                                testID="user-label"
+                              >
+                                <View
+                                  style={
+                                    {
+                                      "backgroundColor": "#E42656",
+                                      "borderRadius": 8,
+                                      "cursor": "pointer",
+                                      "flexDirection": "row",
+                                      "paddingBottom": 3,
+                                      "paddingLeft": 8,
+                                      "paddingRight": 8,
+                                      "paddingTop": 3,
+                                    }
+                                  }
+                                >
+                                  <Image
+                                    source={
+                                      {
+                                        "testUri": "../../../assets/icons/warning-icon.png",
+                                      }
+                                    }
+                                    style={
+                                      {
+                                        "height": 12,
+                                        "marginRight": 4,
+                                        "merginLeft": 4,
+                                        "width": 13,
+                                      }
+                                    }
+                                  />
+                                  <Text
+                                    color="main"
+                                    fontSize={12}
+                                    horizontalTextAlign="left"
+                                    style={
+                                      [
+                                        {
+                                          "color": "#000000",
+                                          "fontFamily": "Rubik-Regular",
+                                          "fontSize": 12,
+                                          "textAlign": "left",
+                                          "textAlignVertical": "center",
+                                        },
+                                        {
+                                          "color": "white",
+                                        },
+                                      ]
+                                    }
+                                    verticalTextAlign="center"
+                                  >
+                                    Duplicate
+                                  </Text>
+                                </View>
+                              </View>
+                            </View>
                             <View
                               style={
                                 {
@@ -1067,6 +1229,87 @@ describe('Chat component', () => {
                               >
                                 anakin
                               </Text>
+                            </View>
+                            <View>
+                              <View
+                                accessibilityState={
+                                  {
+                                    "busy": undefined,
+                                    "checked": undefined,
+                                    "disabled": undefined,
+                                    "expanded": undefined,
+                                    "selected": undefined,
+                                  }
+                                }
+                                accessible={true}
+                                focusable={true}
+                                onClick={[Function]}
+                                onResponderGrant={[Function]}
+                                onResponderMove={[Function]}
+                                onResponderRelease={[Function]}
+                                onResponderTerminate={[Function]}
+                                onResponderTerminationRequest={[Function]}
+                                onStartShouldSetResponder={[Function]}
+                                style={
+                                  {
+                                    "marginLeft": 8,
+                                  }
+                                }
+                                testID="user-label"
+                              >
+                                <View
+                                  style={
+                                    {
+                                      "backgroundColor": "#E42656",
+                                      "borderRadius": 8,
+                                      "cursor": "pointer",
+                                      "flexDirection": "row",
+                                      "paddingBottom": 3,
+                                      "paddingLeft": 8,
+                                      "paddingRight": 8,
+                                      "paddingTop": 3,
+                                    }
+                                  }
+                                >
+                                  <Image
+                                    source={
+                                      {
+                                        "testUri": "../../../assets/icons/warning-icon.png",
+                                      }
+                                    }
+                                    style={
+                                      {
+                                        "height": 12,
+                                        "marginRight": 4,
+                                        "merginLeft": 4,
+                                        "width": 13,
+                                      }
+                                    }
+                                  />
+                                  <Text
+                                    color="main"
+                                    fontSize={12}
+                                    horizontalTextAlign="left"
+                                    style={
+                                      [
+                                        {
+                                          "color": "#000000",
+                                          "fontFamily": "Rubik-Regular",
+                                          "fontSize": 12,
+                                          "textAlign": "left",
+                                          "textAlignVertical": "center",
+                                        },
+                                        {
+                                          "color": "white",
+                                        },
+                                      ]
+                                    }
+                                    verticalTextAlign="center"
+                                  >
+                                    Duplicate
+                                  </Text>
+                                </View>
+                              </View>
                             </View>
                             <View
                               style={
@@ -1276,6 +1519,87 @@ describe('Chat component', () => {
                                 yoda
                               </Text>
                             </View>
+                            <View>
+                              <View
+                                accessibilityState={
+                                  {
+                                    "busy": undefined,
+                                    "checked": undefined,
+                                    "disabled": undefined,
+                                    "expanded": undefined,
+                                    "selected": undefined,
+                                  }
+                                }
+                                accessible={true}
+                                focusable={true}
+                                onClick={[Function]}
+                                onResponderGrant={[Function]}
+                                onResponderMove={[Function]}
+                                onResponderRelease={[Function]}
+                                onResponderTerminate={[Function]}
+                                onResponderTerminationRequest={[Function]}
+                                onStartShouldSetResponder={[Function]}
+                                style={
+                                  {
+                                    "marginLeft": 8,
+                                  }
+                                }
+                                testID="user-label"
+                              >
+                                <View
+                                  style={
+                                    {
+                                      "backgroundColor": "#E42656",
+                                      "borderRadius": 8,
+                                      "cursor": "pointer",
+                                      "flexDirection": "row",
+                                      "paddingBottom": 3,
+                                      "paddingLeft": 8,
+                                      "paddingRight": 8,
+                                      "paddingTop": 3,
+                                    }
+                                  }
+                                >
+                                  <Image
+                                    source={
+                                      {
+                                        "testUri": "../../../assets/icons/warning-icon.png",
+                                      }
+                                    }
+                                    style={
+                                      {
+                                        "height": 12,
+                                        "marginRight": 4,
+                                        "merginLeft": 4,
+                                        "width": 13,
+                                      }
+                                    }
+                                  />
+                                  <Text
+                                    color="main"
+                                    fontSize={12}
+                                    horizontalTextAlign="left"
+                                    style={
+                                      [
+                                        {
+                                          "color": "#000000",
+                                          "fontFamily": "Rubik-Regular",
+                                          "fontSize": 12,
+                                          "textAlign": "left",
+                                          "textAlignVertical": "center",
+                                        },
+                                        {
+                                          "color": "white",
+                                        },
+                                      ]
+                                    }
+                                    verticalTextAlign="center"
+                                  >
+                                    Duplicate
+                                  </Text>
+                                </View>
+                              </View>
+                            </View>
                             <View
                               style={
                                 {
@@ -1483,6 +1807,87 @@ describe('Chat component', () => {
                               >
                                 obi
                               </Text>
+                            </View>
+                            <View>
+                              <View
+                                accessibilityState={
+                                  {
+                                    "busy": undefined,
+                                    "checked": undefined,
+                                    "disabled": undefined,
+                                    "expanded": undefined,
+                                    "selected": undefined,
+                                  }
+                                }
+                                accessible={true}
+                                focusable={true}
+                                onClick={[Function]}
+                                onResponderGrant={[Function]}
+                                onResponderMove={[Function]}
+                                onResponderRelease={[Function]}
+                                onResponderTerminate={[Function]}
+                                onResponderTerminationRequest={[Function]}
+                                onStartShouldSetResponder={[Function]}
+                                style={
+                                  {
+                                    "marginLeft": 8,
+                                  }
+                                }
+                                testID="user-label"
+                              >
+                                <View
+                                  style={
+                                    {
+                                      "backgroundColor": "#E42656",
+                                      "borderRadius": 8,
+                                      "cursor": "pointer",
+                                      "flexDirection": "row",
+                                      "paddingBottom": 3,
+                                      "paddingLeft": 8,
+                                      "paddingRight": 8,
+                                      "paddingTop": 3,
+                                    }
+                                  }
+                                >
+                                  <Image
+                                    source={
+                                      {
+                                        "testUri": "../../../assets/icons/warning-icon.png",
+                                      }
+                                    }
+                                    style={
+                                      {
+                                        "height": 12,
+                                        "marginRight": 4,
+                                        "merginLeft": 4,
+                                        "width": 13,
+                                      }
+                                    }
+                                  />
+                                  <Text
+                                    color="main"
+                                    fontSize={12}
+                                    horizontalTextAlign="left"
+                                    style={
+                                      [
+                                        {
+                                          "color": "#000000",
+                                          "fontFamily": "Rubik-Regular",
+                                          "fontSize": 12,
+                                          "textAlign": "left",
+                                          "textAlignVertical": "center",
+                                        },
+                                        {
+                                          "color": "white",
+                                        },
+                                      ]
+                                    }
+                                    verticalTextAlign="center"
+                                  >
+                                    Duplicate
+                                  </Text>
+                                </View>
+                              </View>
                             </View>
                             <View
                               style={
@@ -1703,6 +2108,87 @@ describe('Chat component', () => {
                                 wookie
                               </Text>
                             </View>
+                            <View>
+                              <View
+                                accessibilityState={
+                                  {
+                                    "busy": undefined,
+                                    "checked": undefined,
+                                    "disabled": undefined,
+                                    "expanded": undefined,
+                                    "selected": undefined,
+                                  }
+                                }
+                                accessible={true}
+                                focusable={true}
+                                onClick={[Function]}
+                                onResponderGrant={[Function]}
+                                onResponderMove={[Function]}
+                                onResponderRelease={[Function]}
+                                onResponderTerminate={[Function]}
+                                onResponderTerminationRequest={[Function]}
+                                onStartShouldSetResponder={[Function]}
+                                style={
+                                  {
+                                    "marginLeft": 8,
+                                  }
+                                }
+                                testID="user-label"
+                              >
+                                <View
+                                  style={
+                                    {
+                                      "backgroundColor": "#E42656",
+                                      "borderRadius": 8,
+                                      "cursor": "pointer",
+                                      "flexDirection": "row",
+                                      "paddingBottom": 3,
+                                      "paddingLeft": 8,
+                                      "paddingRight": 8,
+                                      "paddingTop": 3,
+                                    }
+                                  }
+                                >
+                                  <Image
+                                    source={
+                                      {
+                                        "testUri": "../../../assets/icons/warning-icon.png",
+                                      }
+                                    }
+                                    style={
+                                      {
+                                        "height": 12,
+                                        "marginRight": 4,
+                                        "merginLeft": 4,
+                                        "width": 13,
+                                      }
+                                    }
+                                  />
+                                  <Text
+                                    color="main"
+                                    fontSize={12}
+                                    horizontalTextAlign="left"
+                                    style={
+                                      [
+                                        {
+                                          "color": "#000000",
+                                          "fontFamily": "Rubik-Regular",
+                                          "fontSize": 12,
+                                          "textAlign": "left",
+                                          "textAlignVertical": "center",
+                                        },
+                                        {
+                                          "color": "white",
+                                        },
+                                      ]
+                                    }
+                                    verticalTextAlign="center"
+                                  >
+                                    Duplicate
+                                  </Text>
+                                </View>
+                              </View>
+                            </View>
                             <View
                               style={
                                 {
@@ -1910,6 +2396,87 @@ describe('Chat component', () => {
                               >
                                 leah
                               </Text>
+                            </View>
+                            <View>
+                              <View
+                                accessibilityState={
+                                  {
+                                    "busy": undefined,
+                                    "checked": undefined,
+                                    "disabled": undefined,
+                                    "expanded": undefined,
+                                    "selected": undefined,
+                                  }
+                                }
+                                accessible={true}
+                                focusable={true}
+                                onClick={[Function]}
+                                onResponderGrant={[Function]}
+                                onResponderMove={[Function]}
+                                onResponderRelease={[Function]}
+                                onResponderTerminate={[Function]}
+                                onResponderTerminationRequest={[Function]}
+                                onStartShouldSetResponder={[Function]}
+                                style={
+                                  {
+                                    "marginLeft": 8,
+                                  }
+                                }
+                                testID="user-label"
+                              >
+                                <View
+                                  style={
+                                    {
+                                      "backgroundColor": "#E42656",
+                                      "borderRadius": 8,
+                                      "cursor": "pointer",
+                                      "flexDirection": "row",
+                                      "paddingBottom": 3,
+                                      "paddingLeft": 8,
+                                      "paddingRight": 8,
+                                      "paddingTop": 3,
+                                    }
+                                  }
+                                >
+                                  <Image
+                                    source={
+                                      {
+                                        "testUri": "../../../assets/icons/warning-icon.png",
+                                      }
+                                    }
+                                    style={
+                                      {
+                                        "height": 12,
+                                        "marginRight": 4,
+                                        "merginLeft": 4,
+                                        "width": 13,
+                                      }
+                                    }
+                                  />
+                                  <Text
+                                    color="main"
+                                    fontSize={12}
+                                    horizontalTextAlign="left"
+                                    style={
+                                      [
+                                        {
+                                          "color": "#000000",
+                                          "fontFamily": "Rubik-Regular",
+                                          "fontSize": 12,
+                                          "textAlign": "left",
+                                          "textAlignVertical": "center",
+                                        },
+                                        {
+                                          "color": "white",
+                                        },
+                                      ]
+                                    }
+                                    verticalTextAlign="center"
+                                  >
+                                    Duplicate
+                                  </Text>
+                                </View>
+                              </View>
                             </View>
                             <View
                               style={
@@ -2119,6 +2686,87 @@ describe('Chat component', () => {
                                 luke
                               </Text>
                             </View>
+                            <View>
+                              <View
+                                accessibilityState={
+                                  {
+                                    "busy": undefined,
+                                    "checked": undefined,
+                                    "disabled": undefined,
+                                    "expanded": undefined,
+                                    "selected": undefined,
+                                  }
+                                }
+                                accessible={true}
+                                focusable={true}
+                                onClick={[Function]}
+                                onResponderGrant={[Function]}
+                                onResponderMove={[Function]}
+                                onResponderRelease={[Function]}
+                                onResponderTerminate={[Function]}
+                                onResponderTerminationRequest={[Function]}
+                                onStartShouldSetResponder={[Function]}
+                                style={
+                                  {
+                                    "marginLeft": 8,
+                                  }
+                                }
+                                testID="user-label"
+                              >
+                                <View
+                                  style={
+                                    {
+                                      "backgroundColor": "#E42656",
+                                      "borderRadius": 8,
+                                      "cursor": "pointer",
+                                      "flexDirection": "row",
+                                      "paddingBottom": 3,
+                                      "paddingLeft": 8,
+                                      "paddingRight": 8,
+                                      "paddingTop": 3,
+                                    }
+                                  }
+                                >
+                                  <Image
+                                    source={
+                                      {
+                                        "testUri": "../../../assets/icons/warning-icon.png",
+                                      }
+                                    }
+                                    style={
+                                      {
+                                        "height": 12,
+                                        "marginRight": 4,
+                                        "merginLeft": 4,
+                                        "width": 13,
+                                      }
+                                    }
+                                  />
+                                  <Text
+                                    color="main"
+                                    fontSize={12}
+                                    horizontalTextAlign="left"
+                                    style={
+                                      [
+                                        {
+                                          "color": "#000000",
+                                          "fontFamily": "Rubik-Regular",
+                                          "fontSize": 12,
+                                          "textAlign": "left",
+                                          "textAlignVertical": "center",
+                                        },
+                                        {
+                                          "color": "white",
+                                        },
+                                      ]
+                                    }
+                                    verticalTextAlign="center"
+                                  >
+                                    Duplicate
+                                  </Text>
+                                </View>
+                              </View>
+                            </View>
                             <View
                               style={
                                 {
@@ -2312,6 +2960,87 @@ describe('Chat component', () => {
                               >
                                 windoo
                               </Text>
+                            </View>
+                            <View>
+                              <View
+                                accessibilityState={
+                                  {
+                                    "busy": undefined,
+                                    "checked": undefined,
+                                    "disabled": undefined,
+                                    "expanded": undefined,
+                                    "selected": undefined,
+                                  }
+                                }
+                                accessible={true}
+                                focusable={true}
+                                onClick={[Function]}
+                                onResponderGrant={[Function]}
+                                onResponderMove={[Function]}
+                                onResponderRelease={[Function]}
+                                onResponderTerminate={[Function]}
+                                onResponderTerminationRequest={[Function]}
+                                onStartShouldSetResponder={[Function]}
+                                style={
+                                  {
+                                    "marginLeft": 8,
+                                  }
+                                }
+                                testID="user-label"
+                              >
+                                <View
+                                  style={
+                                    {
+                                      "backgroundColor": "#E42656",
+                                      "borderRadius": 8,
+                                      "cursor": "pointer",
+                                      "flexDirection": "row",
+                                      "paddingBottom": 3,
+                                      "paddingLeft": 8,
+                                      "paddingRight": 8,
+                                      "paddingTop": 3,
+                                    }
+                                  }
+                                >
+                                  <Image
+                                    source={
+                                      {
+                                        "testUri": "../../../assets/icons/warning-icon.png",
+                                      }
+                                    }
+                                    style={
+                                      {
+                                        "height": 12,
+                                        "marginRight": 4,
+                                        "merginLeft": 4,
+                                        "width": 13,
+                                      }
+                                    }
+                                  />
+                                  <Text
+                                    color="main"
+                                    fontSize={12}
+                                    horizontalTextAlign="left"
+                                    style={
+                                      [
+                                        {
+                                          "color": "#000000",
+                                          "fontFamily": "Rubik-Regular",
+                                          "fontSize": 12,
+                                          "textAlign": "left",
+                                          "textAlignVertical": "center",
+                                        },
+                                        {
+                                          "color": "white",
+                                        },
+                                      ]
+                                    }
+                                    verticalTextAlign="center"
+                                  >
+                                    Duplicate
+                                  </Text>
+                                </View>
+                              </View>
                             </View>
                             <View
                               style={
@@ -2520,6 +3249,87 @@ describe('Chat component', () => {
                               >
                                 vader
                               </Text>
+                            </View>
+                            <View>
+                              <View
+                                accessibilityState={
+                                  {
+                                    "busy": undefined,
+                                    "checked": undefined,
+                                    "disabled": undefined,
+                                    "expanded": undefined,
+                                    "selected": undefined,
+                                  }
+                                }
+                                accessible={true}
+                                focusable={true}
+                                onClick={[Function]}
+                                onResponderGrant={[Function]}
+                                onResponderMove={[Function]}
+                                onResponderRelease={[Function]}
+                                onResponderTerminate={[Function]}
+                                onResponderTerminationRequest={[Function]}
+                                onStartShouldSetResponder={[Function]}
+                                style={
+                                  {
+                                    "marginLeft": 8,
+                                  }
+                                }
+                                testID="user-label"
+                              >
+                                <View
+                                  style={
+                                    {
+                                      "backgroundColor": "#E42656",
+                                      "borderRadius": 8,
+                                      "cursor": "pointer",
+                                      "flexDirection": "row",
+                                      "paddingBottom": 3,
+                                      "paddingLeft": 8,
+                                      "paddingRight": 8,
+                                      "paddingTop": 3,
+                                    }
+                                  }
+                                >
+                                  <Image
+                                    source={
+                                      {
+                                        "testUri": "../../../assets/icons/warning-icon.png",
+                                      }
+                                    }
+                                    style={
+                                      {
+                                        "height": 12,
+                                        "marginRight": 4,
+                                        "merginLeft": 4,
+                                        "width": 13,
+                                      }
+                                    }
+                                  />
+                                  <Text
+                                    color="main"
+                                    fontSize={12}
+                                    horizontalTextAlign="left"
+                                    style={
+                                      [
+                                        {
+                                          "color": "#000000",
+                                          "fontFamily": "Rubik-Regular",
+                                          "fontSize": 12,
+                                          "textAlign": "left",
+                                          "textAlignVertical": "center",
+                                        },
+                                        {
+                                          "color": "white",
+                                        },
+                                      ]
+                                    }
+                                    verticalTextAlign="center"
+                                  >
+                                    Duplicate
+                                  </Text>
+                                </View>
+                              </View>
                             </View>
                             <View
                               style={
@@ -2749,6 +3559,87 @@ describe('Chat component', () => {
                                 alice
                               </Text>
                             </View>
+                            <View>
+                              <View
+                                accessibilityState={
+                                  {
+                                    "busy": undefined,
+                                    "checked": undefined,
+                                    "disabled": undefined,
+                                    "expanded": undefined,
+                                    "selected": undefined,
+                                  }
+                                }
+                                accessible={true}
+                                focusable={true}
+                                onClick={[Function]}
+                                onResponderGrant={[Function]}
+                                onResponderMove={[Function]}
+                                onResponderRelease={[Function]}
+                                onResponderTerminate={[Function]}
+                                onResponderTerminationRequest={[Function]}
+                                onStartShouldSetResponder={[Function]}
+                                style={
+                                  {
+                                    "marginLeft": 8,
+                                  }
+                                }
+                                testID="user-label"
+                              >
+                                <View
+                                  style={
+                                    {
+                                      "backgroundColor": "#E42656",
+                                      "borderRadius": 8,
+                                      "cursor": "pointer",
+                                      "flexDirection": "row",
+                                      "paddingBottom": 3,
+                                      "paddingLeft": 8,
+                                      "paddingRight": 8,
+                                      "paddingTop": 3,
+                                    }
+                                  }
+                                >
+                                  <Image
+                                    source={
+                                      {
+                                        "testUri": "../../../assets/icons/warning-icon.png",
+                                      }
+                                    }
+                                    style={
+                                      {
+                                        "height": 12,
+                                        "marginRight": 4,
+                                        "merginLeft": 4,
+                                        "width": 13,
+                                      }
+                                    }
+                                  />
+                                  <Text
+                                    color="main"
+                                    fontSize={12}
+                                    horizontalTextAlign="left"
+                                    style={
+                                      [
+                                        {
+                                          "color": "#000000",
+                                          "fontFamily": "Rubik-Regular",
+                                          "fontSize": 12,
+                                          "textAlign": "left",
+                                          "textAlignVertical": "center",
+                                        },
+                                        {
+                                          "color": "white",
+                                        },
+                                      ]
+                                    }
+                                    verticalTextAlign="center"
+                                  >
+                                    Duplicate
+                                  </Text>
+                                </View>
+                              </View>
+                            </View>
                             <View
                               style={
                                 {
@@ -2967,6 +3858,87 @@ describe('Chat component', () => {
                               >
                                 john
                               </Text>
+                            </View>
+                            <View>
+                              <View
+                                accessibilityState={
+                                  {
+                                    "busy": undefined,
+                                    "checked": undefined,
+                                    "disabled": undefined,
+                                    "expanded": undefined,
+                                    "selected": undefined,
+                                  }
+                                }
+                                accessible={true}
+                                focusable={true}
+                                onClick={[Function]}
+                                onResponderGrant={[Function]}
+                                onResponderMove={[Function]}
+                                onResponderRelease={[Function]}
+                                onResponderTerminate={[Function]}
+                                onResponderTerminationRequest={[Function]}
+                                onStartShouldSetResponder={[Function]}
+                                style={
+                                  {
+                                    "marginLeft": 8,
+                                  }
+                                }
+                                testID="user-label"
+                              >
+                                <View
+                                  style={
+                                    {
+                                      "backgroundColor": "#E42656",
+                                      "borderRadius": 8,
+                                      "cursor": "pointer",
+                                      "flexDirection": "row",
+                                      "paddingBottom": 3,
+                                      "paddingLeft": 8,
+                                      "paddingRight": 8,
+                                      "paddingTop": 3,
+                                    }
+                                  }
+                                >
+                                  <Image
+                                    source={
+                                      {
+                                        "testUri": "../../../assets/icons/warning-icon.png",
+                                      }
+                                    }
+                                    style={
+                                      {
+                                        "height": 12,
+                                        "marginRight": 4,
+                                        "merginLeft": 4,
+                                        "width": 13,
+                                      }
+                                    }
+                                  />
+                                  <Text
+                                    color="main"
+                                    fontSize={12}
+                                    horizontalTextAlign="left"
+                                    style={
+                                      [
+                                        {
+                                          "color": "#000000",
+                                          "fontFamily": "Rubik-Regular",
+                                          "fontSize": 12,
+                                          "textAlign": "left",
+                                          "textAlignVertical": "center",
+                                        },
+                                        {
+                                          "color": "white",
+                                        },
+                                      ]
+                                    }
+                                    verticalTextAlign="center"
+                                  >
+                                    Duplicate
+                                  </Text>
+                                </View>
+                              </View>
                             </View>
                             <View
                               style={
