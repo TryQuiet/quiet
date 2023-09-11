@@ -2,7 +2,7 @@ import crypto from 'crypto'
 
 export const generateChannelId = (channelName: string) => `${channelName}_${crypto.randomBytes(16).toString('hex')}`
 
-export const getChannelNameFormChannelId = (channelId: string) => {
+export const getChannelNameFromChannelId = (channelId: string) => {
   const index = channelId.indexOf('_')
   if (index === -1) {
     return channelId
