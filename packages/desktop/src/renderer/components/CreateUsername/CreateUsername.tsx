@@ -18,10 +18,10 @@ const CreateUsername = () => {
   const error = useSelector(errors.selectors.registrarErrors)
 
   useEffect(() => {
-    if (currentCommunity && !currentIdentity?.userCertificate && !createUsernameModal.open) {
+    if (currentCommunity && !currentIdentity?.userCsr && !createUsernameModal.open) {
       createUsernameModal.handleOpen()
     }
-    if (currentIdentity?.userCertificate && createUsernameModal.open) {
+    if (currentIdentity?.userCsr && createUsernameModal.open) {
       createUsernameModal.handleClose()
     }
   }, [currentIdentity, currentCommunity])

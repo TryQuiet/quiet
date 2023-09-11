@@ -9,7 +9,7 @@ import {
   Sidebar,
   WarningModal,
 } from '../selectors'
-import { capitalizeFirstLetter, invitationDeepUrl } from '@quiet/common'
+import { capitalizeFirstLetter, getInvitationPairs, invitationDeepUrl } from '@quiet/common'
 import { execSync } from 'child_process'
 import { type SupportedPlatformDesktop } from '@quiet/types'
 
@@ -132,7 +132,7 @@ describe('New user joins using invitation link while having app opened', () => {
     it.skip('Guest clicks invitation link with invalid invitation code', async () => {
       // Fix when modals ordering is fixed (joining modal hiddes warning modal)
       console.log('opening invalid code')
-      execSync(`xdg-open ${invitationDeepUrl('invalidcode')}`)
+      execSync(`xdg-open ${invitationDeepUrl([{ peerId: 'invalid', onionAddress: 'alsoInvalid' }])}`)
     })
 
     it.skip('Guest sees modal with warning about invalid code, closes it', async () => {
@@ -155,7 +155,9 @@ describe('New user joins using invitation link while having app opened', () => {
         win32: 'start',
       }
 
-      execSync(`${command[process.platform as SupportedPlatformDesktop]} ${invitationDeepUrl(url.hash.substring(1))}`)
+      const pairs = getInvitationPairs(url.hash.substring(1))
+      expect(pairs).not.toBe([])
+      execSync(`${command[process.platform as SupportedPlatformDesktop]} ${invitationDeepUrl(pairs)}`)
       console.log('Guest opened invitation link')
     })
 

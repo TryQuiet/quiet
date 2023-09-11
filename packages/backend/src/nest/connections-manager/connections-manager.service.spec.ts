@@ -1,34 +1,23 @@
-import { Test, TestingModule } from '@nestjs/testing'
-import { TestModule } from '../common/test.module'
-import { QUIET_DIR, TOR_PASSWORD_PROVIDER } from '../const'
-import { ConnectionsManagerModule } from './connections-manager.module'
-import { ConnectionsManagerService } from './connections-manager.service'
-import PeerId from 'peer-id'
-import { libp2pInstanceParams } from '../common/utils'
 import { jest } from '@jest/globals'
-import { CustomEvent } from '@libp2p/interfaces/events'
-import { type communities, getFactory, prepareStore, type identity, type Store } from '@quiet/state-manager'
+import { LazyModuleLoader } from '@nestjs/core'
+import { Test, TestingModule } from '@nestjs/testing'
+import { getFactory, prepareStore, type Store, type communities, type identity } from '@quiet/state-manager'
+import { type Community, type Identity, type InitCommunityPayload, type LaunchRegistrarPayload } from '@quiet/types'
 import { type FactoryGirl } from 'factory-girl'
-import { DateTime } from 'luxon'
-import waitForExpect from 'wait-for-expect'
-import {
-  type Community,
-  type Identity,
-  type InitCommunityPayload,
-  type LaunchRegistrarPayload,
-  type NetworkStats,
-} from '@quiet/types'
-import { LocalDBKeys } from '../local-db/local-db.types'
+import PeerId from 'peer-id'
+import { TestModule } from '../common/test.module'
+import { libp2pInstanceParams, removeFilesFromDir } from '../common/utils'
+import { QUIET_DIR, TOR_PASSWORD_PROVIDER } from '../const'
+import { Libp2pModule } from '../libp2p/libp2p.module'
+import { Libp2pService } from '../libp2p/libp2p.service'
 import { LocalDbModule } from '../local-db/local-db.module'
 import { LocalDbService } from '../local-db/local-db.service'
-import { RegistrationService } from '../registration/registration.service'
+import { LocalDBKeys } from '../local-db/local-db.types'
 import { RegistrationModule } from '../registration/registration.module'
-import { LazyModuleLoader } from '@nestjs/core'
-import { Libp2pService } from '../libp2p/libp2p.service'
-import { Libp2pModule } from '../libp2p/libp2p.module'
+import { RegistrationService } from '../registration/registration.service'
 import { SocketModule } from '../socket/socket.module'
-import { removeFilesFromDir } from '../common/utils'
-import { Libp2pEvents } from '../libp2p/libp2p.types'
+import { ConnectionsManagerModule } from './connections-manager.module'
+import { ConnectionsManagerService } from './connections-manager.service'
 
 describe('ConnectionsManagerService', () => {
   let module: TestingModule
@@ -126,7 +115,7 @@ describe('ConnectionsManagerService', () => {
     expect(launchCommunitySpy).toHaveBeenCalledWith(launchCommunityPayload)
   })
 
-  it('launches community and registrar on init if their data exists in local db', async () => {
+  it('launches community on init if their data exists in local db', async () => {
     const launchCommunityPayload: InitCommunityPayload = {
       id: community.id,
       peerId: userIdentity.peerId,
@@ -141,20 +130,9 @@ describe('ConnectionsManagerService', () => {
       peers: community.peerList,
     }
 
-    const launchRegistrarPayload: LaunchRegistrarPayload = {
-      id: community.id,
-      peerId: userIdentity.peerId.id,
-      // @ts-expect-error
-      rootCertString: community.CA?.rootCertString,
-      // @ts-expect-error
-      rootKeyString: community.CA?.rootKeyString,
-      privateKey: 'privateKey',
-    }
-
     await localDbService.put(LocalDBKeys.COMMUNITY, launchCommunityPayload)
-    await localDbService.put(LocalDBKeys.REGISTRAR, launchRegistrarPayload)
 
-    const peerAddress = '/dns4/test.onion/tcp/443/wss/p2p/peerid'
+    const peerAddress = '/dns4/test.onion/tcp/80/ws/p2p/peerid'
     await localDbService.put(LocalDBKeys.PEERS, {
       [peerAddress]: {
         peerId: 'QmaEvCkpUG7GxhgvMkk8wxurfi1ehjHhSUNRksWTmXN2ix',
@@ -166,21 +144,17 @@ describe('ConnectionsManagerService', () => {
     await connectionsManagerService.closeAllServices()
 
     const launchCommunitySpy = jest.spyOn(connectionsManagerService, 'launchCommunity').mockResolvedValue()
-    const launchRegistrarSpy = jest.spyOn(registrationService, 'launchRegistrar').mockResolvedValue()
 
     await connectionsManagerService.init()
 
     expect(launchCommunitySpy).toHaveBeenCalledWith(Object.assign(launchCommunityPayload, { peers: [peerAddress] }))
-    expect(launchRegistrarSpy).toHaveBeenCalledWith(launchRegistrarPayload)
   })
 
   it('does not launch community on init if its data does not exist in local db', async () => {
     await connectionsManagerService.closeAllServices()
     await connectionsManagerService.init()
     const launchCommunitySpy = jest.spyOn(connectionsManagerService, 'launchCommunity')
-    const launchRegistrarSpy = jest.spyOn(registrationService, 'launchRegistrar')
     expect(launchCommunitySpy).not.toHaveBeenCalled()
-    expect(launchRegistrarSpy).not.toHaveBeenCalled()
   })
 
   // At this moment, that test have to be skipped, because checking statues is called before launchCommunity method
@@ -210,7 +184,7 @@ describe('ConnectionsManagerService', () => {
     expect(launchSpy).toBeCalledTimes(1)
   })
 
-  it('Bug reproduction - Error on startup - Error: TOR: Connection already established - Trigger launchCommunity and launchRegistrar from backend and state manager', async () => {
+  it('Bug reproduction - Error on startup - Error: TOR: Connection already established - Trigger launchCommunity from backend and state manager', async () => {
     const launchCommunityPayload: InitCommunityPayload = {
       id: community.id,
       peerId: userIdentity.peerId,
@@ -225,21 +199,10 @@ describe('ConnectionsManagerService', () => {
       peers: community.peerList,
     }
 
-    const launchRegistrarPayload: LaunchRegistrarPayload = {
-      id: community.id,
-      peerId: userIdentity.peerId.id,
-      // @ts-expect-error
-      rootCertString: community.CA?.rootCertString,
-      // @ts-expect-error
-      rootKeyString: community.CA?.rootKeyString,
-      privateKey: '',
-    }
-
     // await connectionsManager.init()
     await localDbService.put(LocalDBKeys.COMMUNITY, launchCommunityPayload)
-    await localDbService.put(LocalDBKeys.REGISTRAR, launchRegistrarPayload)
 
-    const peerAddress = '/dns4/test.onion/tcp/443/wss/p2p/peerid'
+    const peerAddress = '/dns4/test.onion/tcp/80/ws/p2p/peerid'
     await localDbService.put(LocalDBKeys.PEERS, {
       [peerAddress]: {
         peerId: 'QmaEvCkpUG7GxhgvMkk8wxurfi1ehjHhSUNRksWTmXN2ix',
@@ -251,11 +214,9 @@ describe('ConnectionsManagerService', () => {
     await connectionsManagerService.closeAllServices()
 
     const launchCommunitySpy = jest.spyOn(connectionsManagerService, 'launchCommunity').mockResolvedValue()
-    const launchRegistrarSpy = jest.spyOn(registrationService, 'launchRegistrar').mockResolvedValue()
 
     await connectionsManagerService.init()
 
     expect(launchCommunitySpy).toBeCalledTimes(1)
-    expect(launchRegistrarSpy).toBeCalledTimes(1)
   })
 })

@@ -28,18 +28,18 @@ export function* createNetworkSaga(
   }
 
   const id = yield* call(generateId)
-
-  const registrarUrl = action.payload.registrar ? `http://${action.payload.registrar}.onion` : undefined
-
   const payload: Community = {
     id,
     name: action.payload.name,
-    registrarUrl,
     CA,
     rootCa: CA?.rootCertString,
   }
 
-  yield* put(communitiesActions.clearInvitationCode())
+  const invitationPeers = action.payload.peers
+  if (invitationPeers) {
+    yield* put(communitiesActions.setInvitationCodes(invitationPeers))
+  }
+
   yield* put(communitiesActions.addNewCommunity(payload))
   yield* put(communitiesActions.setCurrentCommunity(id))
 }

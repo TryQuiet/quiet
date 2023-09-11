@@ -33,6 +33,10 @@ export const joinedCommunities = createSelector(selectCommunities, selectEntitie
 
 export const joinTimestamp = createSelector(currentIdentity, identity => identity?.joinTimestamp)
 
+export const csr = createSelector(communitiesSelectors.currentCommunityId, selectEntities, (id, identities) => {
+  return identities[id]?.userCsr
+})
+
 export const identitySelectors = {
   selectById,
   selectEntities,
@@ -40,4 +44,5 @@ export const identitySelectors = {
   communityMembership,
   joinedCommunities,
   joinTimestamp,
+  csr,
 }

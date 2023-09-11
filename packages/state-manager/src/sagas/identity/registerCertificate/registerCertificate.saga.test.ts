@@ -5,7 +5,7 @@ import { prepareStore } from '../../../utils/tests/prepareStore'
 import { getFactory } from '../../../utils/tests/factories'
 import { combineReducers } from '@reduxjs/toolkit'
 import { reducers } from '../../reducers'
-import { type communitiesActions } from '../../communities/communities.slice'
+import { communitiesActions } from '../../communities/communities.slice'
 import { identityActions } from '../identity.slice'
 import { registerCertificateSaga } from './registerCertificate.saga'
 import { type CertData, type RegisterCertificatePayload, SocketActionTypes, type UserCsr } from '@quiet/types'
@@ -51,7 +51,7 @@ describe('registerCertificateSaga', () => {
       .run()
   })
 
-  it('request certificate registration when user is not community owner', async () => {
+  it('launch community when user is not community owner', async () => {
     setupCrypto()
     const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
 
@@ -102,14 +102,7 @@ describe('registerCertificateSaga', () => {
       .withReducer(reducer)
       .withState(store.getState())
       .not.apply(socket, socket.emit, [SocketActionTypes.REGISTER_OWNER_CERTIFICATE])
-      .apply(socket, socket.emit, [
-        SocketActionTypes.REGISTER_USER_CERTIFICATE,
-        {
-          communityId: community.id,
-          userCsr: identity.userCsr.userCsr,
-          serviceAddress: community.registrarUrl,
-        },
-      ])
+      .put(communitiesActions.launchCommunity(community.id))
       .run()
   })
 })

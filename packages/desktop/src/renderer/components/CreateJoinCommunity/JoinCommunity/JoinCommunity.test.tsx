@@ -17,10 +17,17 @@ import PerformCommunityActionComponent from '../PerformCommunityActionComponent'
 import { inviteLinkField } from '../../../forms/fields/communityFields'
 import { InviteLinkErrors } from '../../../forms/fieldsErrors'
 import { CommunityOwnership } from '@quiet/types'
-import { Site, InvitationParams } from '@quiet/common'
+import { Site, QUIET_JOIN_PAGE } from '@quiet/common'
 
 describe('join community', () => {
-  const validCode = 'nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad'
+  const validCode =
+    'QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE=y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd'
+  const validPair = [
+    {
+      onionAddress: 'y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd',
+      peerId: 'QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE',
+    },
+  ]
 
   it('users switches from join to create', async () => {
     const { store } = await prepareStore({
@@ -99,7 +106,8 @@ describe('join community', () => {
   })
 
   it('joins community on submit if connection is ready and registrar url is correct', async () => {
-    const registrarUrl = 'nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad'
+    const registrarUrl =
+      'QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE=y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd'
 
     const handleCommunityAction = jest.fn()
 
@@ -127,14 +135,17 @@ describe('join community', () => {
     expect(submitButton).toBeEnabled()
     await userEvent.click(submitButton)
 
-    await waitFor(() => expect(handleCommunityAction).toBeCalledWith(registrarUrl))
+    await waitFor(() =>
+      expect(handleCommunityAction).toBeCalledWith([
+        {
+          peerId: 'QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE',
+          onionAddress: 'y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd',
+        },
+      ])
+    )
   })
 
-  it.each([
-    [`https://${Site.DOMAIN}/${Site.JOIN_PAGE}#${validCode}`],
-    [`https://${Site.DOMAIN}/${Site.JOIN_PAGE}/#${validCode}`],
-    [`https://${Site.DOMAIN}/${Site.JOIN_PAGE}?code=${validCode}`], // Old link format
-  ])(
+  it.each([[`${QUIET_JOIN_PAGE}#${validCode}`], [`${QUIET_JOIN_PAGE}/#${validCode}`]])(
     'joins community on submit if connection is ready and invitation code is a correct invitation url (%s)',
     async (invitationLink: string) => {
       const registrarUrl = new URL(invitationLink)
@@ -165,12 +176,13 @@ describe('join community', () => {
       expect(submitButton).toBeEnabled()
       await userEvent.click(submitButton)
 
-      await waitFor(() => expect(handleCommunityAction).toBeCalledWith(validCode))
+      await waitFor(() => expect(handleCommunityAction).toBeCalledWith(validPair))
     }
   )
 
   it('trims whitespaces from registrar url', async () => {
-    const registrarUrl = 'nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad    '
+    const registrarUrl =
+      'QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE=y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd    '
 
     const handleCommunityAction = jest.fn()
 
@@ -198,28 +210,25 @@ describe('join community', () => {
     expect(submitButton).toBeEnabled()
     await userEvent.click(submitButton)
 
-    await waitFor(() => expect(handleCommunityAction).toBeCalledWith(registrarUrl.trim()))
+    await waitFor(() =>
+      expect(handleCommunityAction).toBeCalledWith([
+        {
+          peerId: 'QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE',
+          onionAddress: 'y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd',
+        },
+      ])
+    )
   })
 
   it.each([
-    ['http://nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad.onion', InviteLinkErrors.InvalidCode],
-    ['nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2ola09bp2', InviteLinkErrors.InvalidCode],
-    ['nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2ola!', InviteLinkErrors.InvalidCode],
-    ['nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2ola ', InviteLinkErrors.InvalidCode],
+    [`http://${validCode}`, InviteLinkErrors.InvalidCode],
+    ['QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE=bbb', InviteLinkErrors.InvalidCode],
+    ['bbb=y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd', InviteLinkErrors.InvalidCode],
+    ['QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE= ', InviteLinkErrors.InvalidCode],
     ['nqnw4kc4c77fb47lk52m5l57h4tc', InviteLinkErrors.InvalidCode],
-    [`https://${Site.DOMAIN}/${Site.JOIN_PAGE}?${InvitationParams.CODE}=invalidcode`, InviteLinkErrors.InvalidCode],
-    [
-      `https://otherwebsite.com/${Site.JOIN_PAGE}?${InvitationParams.CODE}=nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad`,
-      InviteLinkErrors.InvalidCode,
-    ],
-    [
-      `https://${Site.DOMAIN}/${Site.JOIN_PAGE}?param=nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad`,
-      InviteLinkErrors.InvalidCode,
-    ],
-    [
-      `https://${Site.DOMAIN}/share?${InvitationParams.CODE}=nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad`,
-      InviteLinkErrors.InvalidCode,
-    ],
+    [`https://otherwebsite.com/${Site.JOIN_PAGE}#${validCode}`, InviteLinkErrors.InvalidCode],
+    [`${QUIET_JOIN_PAGE}?param=nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad`, InviteLinkErrors.InvalidCode],
+    [`${Site.MAIN_PAGE}/share?${validCode}`, InviteLinkErrors.InvalidCode],
   ])('user inserting invalid url %s should see "%s" error', async (url: string, error: string) => {
     const handleCommunityAction = jest.fn()
 
@@ -269,7 +278,7 @@ describe('join community', () => {
     const textInput = result.queryByPlaceholderText(inviteLinkField().fieldProps.placeholder)
     expect(textInput).not.toBeNull()
     // @ts-expect-error
-    await userEvent.type(textInput, 'nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad')
+    await userEvent.type(textInput, validCode)
 
     const submitButton = result.getByTestId('continue-joinCommunity')
     expect(submitButton).not.toBeNull()
@@ -293,7 +302,7 @@ describe('join community', () => {
     )
 
     const textInput = screen.getByPlaceholderText(inviteLinkField().fieldProps.placeholder)
-    await userEvent.type(textInput, 'nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad')
+    await userEvent.type(textInput, validCode)
 
     const submitButton = screen.getByText('Continue')
     expect(submitButton).toBeEnabled()

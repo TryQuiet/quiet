@@ -8,9 +8,7 @@ import WebviewCrypto from 'react-native-webview-crypto'
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context'
 
 import { MenuProvider } from 'react-native-popup-menu'
-
 import { ScreenNames } from './const/ScreenNames.enum'
-
 import { SplashScreen } from './screens/Splash/Splash.screen'
 import { CreateCommunityScreen } from './screens/CreateCommunity/CreateCommunity.screen'
 import { JoinCommunityScreen } from './screens/JoinCommunity/JoinCommunity.screen'
@@ -45,6 +43,8 @@ import { ConfirmationBox } from './components/ConfirmationBox/ConfirmationBox.co
 import StoreProvider from './Provider'
 import { RootStackParamList } from './route.params'
 import ConnectionProcessScreen from './screens/ConnectionProcess/ConnectionProcess.screen'
+import { DuplicatedUsernameScreen } from './screens/DuplicatedUsername/DuplicatedUsername.screen'
+import { UnregisteredUsernameScreen } from './screens/UnregisteredUsername/UnregisteredUsername.screen'
 
 LogBox.ignoreAllLogs()
 
@@ -99,6 +99,8 @@ function App(): JSX.Element {
                 <Screen component={QRCodeScreen} name={ScreenNames.QRCodeScreen} />
                 <Screen component={SuccessScreen} name={ScreenNames.SuccessScreen} />
                 <Screen component={ErrorScreen} name={ScreenNames.ErrorScreen} />
+                <Screen component={DuplicatedUsernameScreen} name={ScreenNames.DuplicatedUsernameScreen} />
+                <Screen component={UnregisteredUsernameScreen} name={ScreenNames.UnregisteredUsernameScreen} />
               </Navigator>
               <CommunityContextMenu />
               <ChannelContextMenu />

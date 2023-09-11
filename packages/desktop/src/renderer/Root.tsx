@@ -29,6 +29,8 @@ import { ChannelContextMenu } from './components/ContextMenu/menus/ChannelContex
 import { DeleteChannel } from './components/Channel/DeleteChannel/DeleteChannel'
 import ChannelCreationModal from './components/ChannelCreationModal/ChannelCreationModal'
 import { SaveStateComponent } from './components/SaveState/SaveStateComponent'
+import UnregisteredModalContainer from './components/widgets/userLabel/unregistered/UnregisteredModal.container'
+import DuplicateModalContainer from './components/widgets/userLabel/duplicate/DuplicateModal.container'
 // Trigger lerna
 
 export const persistor = persistStore(store)
@@ -42,6 +44,8 @@ export default () => {
               <PersistGate loading={null} persistor={persistor}>
                 <SentryWarning />
                 <WarningModal />
+                <UnregisteredModalContainer />
+                <DuplicateModalContainer />
                 <SearchModal />
                 <ErrorModal />
                 <LoadingPanel />

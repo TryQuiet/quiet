@@ -2,6 +2,7 @@ import { createRootCA, type RootCA } from './generateRootCA'
 import {
   extractPubKey,
   parseCertificate,
+  parseCertificationRequest,
   keyFromCertificate,
   keyObjectFromString,
   extractPubKeyString,
