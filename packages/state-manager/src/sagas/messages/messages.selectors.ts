@@ -3,7 +3,7 @@ import { channelMessagesAdapter } from '../publicChannels/publicChannels.adapter
 import { currentChannelId } from '../publicChannels/publicChannels.selectors'
 import { StoreKeys } from '../store.keys'
 import { type CreatedSelectors, type StoreState } from '../store.types'
-import { certificatesMapping } from '../users/users.selectors'
+import { csrsMapping } from '../users/users.selectors'
 import { downloadStatuses } from '../files/files.selectors'
 
 import {
@@ -66,7 +66,7 @@ export const currentPublicChannelMessagesEntries = createSelector(currentPublicC
 
 export const validCurrentPublicChannelMessagesEntries = createSelector(
   currentPublicChannelMessagesEntries,
-  certificatesMapping,
+  csrsMapping,
   messagesVerificationStatus,
   (messages, certificates, verification) => {
     const filtered = messages.filter(message => message.pubKey in certificates)

@@ -3,6 +3,7 @@ export interface User {
   onionAddress: string
   peerId: string
   dmPublicKey: string
+  isRegistered?: boolean
 }
 
 export interface SendCertificatesResponse {

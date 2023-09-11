@@ -27,7 +27,7 @@ export function* showNotificationSaga(
 
   const message = yield* call(JSON.stringify, messageWithChannelName)
 
-  const mapping = yield* select(users.selectors.certificatesMapping)
+  const mapping = yield* select(users.selectors.csrsMapping)
   let username: string
   try {
     username = mapping[_message.pubKey].username

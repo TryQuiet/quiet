@@ -17,6 +17,7 @@ import { MessageType, FileMetadata, DownloadState } from '@quiet/types'
 import { soundTypeToAudio } from '../../../shared/sounds'
 import { eventChannel } from 'redux-saga'
 import { takeEvery } from 'redux-saga/effects'
+import { csrsMapping } from 'packages/state-manager/src/sagas/users/users.selectors'
 
 // eslint-disable-next-line
 const remote = require('@electron/remote')
@@ -37,7 +38,7 @@ export function* displayMessageNotificationSaga(
   const publicChannelsSelector = yield* select(publicChannels.selectors.publicChannels)
 
   const currentIdentity = yield* select(identity.selectors.currentIdentity)
-  const certificatesMapping = yield* select(users.selectors.certificatesMapping)
+  const csrsMapping = yield* select(users.selectors.csrsMapping)
 
   const lastConnectedTime = yield* select(connection.selectors.lastConnectedTime)
 
@@ -54,7 +55,7 @@ export function* displayMessageNotificationSaga(
     if (focused && message.channelId === currentChannelId) return
 
     // Do not display notifications for own messages
-    const sender = certificatesMapping[message.pubKey]?.username
+    const sender = csrsMapping[message.pubKey]?.username
     if (!sender || sender === currentIdentity?.nickname) return
 
     // Do not display notifications if turned off in configuration

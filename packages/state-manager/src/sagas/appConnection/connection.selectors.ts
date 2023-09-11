@@ -1,12 +1,12 @@
 import { StoreKeys } from '../store.keys'
 import { createSelector } from 'reselect'
 import { type CreatedSelectors, type StoreState } from '../store.types'
-import { certificatesMapping } from '../users/users.selectors'
+import { csrsMapping } from '../users/users.selectors'
 import { communitiesSelectors } from '../communities/communities.selectors'
 import { peersStatsAdapter } from './connection.adapter'
 import { connectedPeers } from '../network/network.selectors'
 import { sortPeers } from '../../utils/functions/sortPeers/sortPeers'
-import { TOR_BOOTSTRAP_COMPLETE, type NetworkStats } from './connection.types'
+import { type NetworkStats } from './connection.types'
 import { type User } from '../users/users.types'
 
 const connectionSlice: CreatedSelectors[StoreKeys.Connection] = (state: StoreState) => state[StoreKeys.Connection]
@@ -37,7 +37,7 @@ export const peerList = createSelector(
   }
 )
 
-export const connectedPeersMapping = createSelector(certificatesMapping, connectedPeers, (certificates, peers) => {
+export const connectedPeersMapping = createSelector(csrsMapping, connectedPeers, (certificates, peers) => {
   const usersData = Object.values(certificates)
   return peers.reduce((peersMapping: Record<string, User>, peerId: string) => {
     for (const user of usersData) {

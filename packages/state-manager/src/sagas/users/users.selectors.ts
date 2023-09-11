@@ -1,5 +1,5 @@
 import { createSelector } from '@reduxjs/toolkit'
-import { getCertFieldValue } from '@quiet/identity'
+import { getCertFieldValue, getReqFieldValue } from '@quiet/identity'
 import { CertFieldsTypes } from './const/certFieldTypes'
 import { StoreKeys } from '../store.keys'
 import { certificatesAdapter } from './users.adapter'
@@ -11,6 +11,10 @@ const usersSlice: CreatedSelectors[StoreKeys.Users] = (state: StoreState) => sta
 
 export const certificates = createSelector(usersSlice, reducerState =>
   certificatesAdapter.getSelectors().selectEntities(reducerState.certificates)
+)
+
+export const csrs = createSelector(usersSlice, reducerState =>
+  certificatesAdapter.getSelectors().selectEntities(reducerState.csrs)
 )
 
 export const certificatesMapping = createSelector(certificates, certs => {
@@ -39,6 +43,47 @@ export const certificatesMapping = createSelector(certificates, certs => {
     })
   })
   return mapping
+})
+
+export const csrsMapping = createSelector(csrs, csrs => {
+  const mapping: Record<string, User> = {}
+  Object.keys(csrs).map(pubKey => {
+    const csr = csrs[pubKey]
+    if (!csr || csr.subject.typesAndValues.length < 1) {
+      return
+    }
+
+    getReqFieldValue
+
+    const username = getReqFieldValue(csr, CertFieldsTypes.nickName)
+    const onionAddress = getReqFieldValue(csr, CertFieldsTypes.commonName)
+    const peerId = getReqFieldValue(csr, CertFieldsTypes.peerId)
+    const dmPublicKey = getReqFieldValue(csr, CertFieldsTypes.dmPublicKey) || ''
+
+    if (!username || !onionAddress || !peerId) {
+      console.error(`Could not parse certificate for pubkey ${pubKey}`)
+      return
+    }
+
+    return (mapping[pubKey] = {
+      username,
+      onionAddress,
+      peerId,
+      dmPublicKey,
+    })
+  })
+  return mapping
+})
+
+export const users = createSelector(csrsMapping, certificatesMapping, (csrs, certs) => {
+  const users: Record<string, User> = {}
+  Object.keys(csrs).map(pubKey => {
+    users[pubKey] = {
+      ...csrs[pubKey],
+      isRegistered: Boolean(certs[pubKey]),
+    }
+  })
+  return users
 })
 
 export const getOldestParsedCerificate = createSelector(certificates, certs => {
@@ -73,6 +118,7 @@ export const ownerData = createSelector(getOldestParsedCerificate, ownerCert => 
 export const usersSelectors = {
   certificates,
   certificatesMapping,
+  csrsMapping,
   getOldestParsedCerificate,
   ownerData,
 }
