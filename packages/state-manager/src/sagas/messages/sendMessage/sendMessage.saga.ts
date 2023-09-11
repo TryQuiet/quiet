@@ -1,6 +1,6 @@
 import { type Socket, applyEmitParams } from '../../../types'
 import { type PayloadAction } from '@reduxjs/toolkit'
-import { keyFromCertificate, parseCertificate, sign, loadPrivateKey } from '@quiet/identity'
+import { sign, loadPrivateKey, pubKeyFromCsr } from '@quiet/identity'
 import { call, select, apply, put } from 'typed-redux-saga'
 import { arrayBufferToString } from 'pvutils'
 import { config } from '../../users/const/certFieldTypes'
@@ -15,15 +15,9 @@ export function* sendMessageSaga(
   action: PayloadAction<ReturnType<typeof messagesActions.sendMessage>['payload']>
 ): Generator {
   const identity = yield* select(identitySelectors.currentIdentity)
-  if (!identity?.userCsr || !identity?.userCertificate) {
-    console.info('No user CSR or user certificate')
-    return
-  }
+  if (!identity?.userCsr) return
 
-  const certificate = identity.userCertificate
-
-  const parsedCertificate = yield* call(parseCertificate, certificate)
-  const pubKey = yield* call(keyFromCertificate, parsedCertificate)
+  const pubKey = yield* call(pubKeyFromCsr, identity.userCsr.userCsr)
   const keyObject = yield* call(loadPrivateKey, identity.userCsr.userKey, config.signAlg)
   const signatureArrayBuffer = yield* call(sign, action.payload.message, keyObject)
   const signature = yield* call(arrayBufferToString, signatureArrayBuffer)

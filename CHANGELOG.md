@@ -10,6 +10,8 @@
 
 * Fixed bug with displaying incorrect default settings tab.
 
+* Replaced source of publicKey in sendMessage saga to CSR
+
 * Labels for unregistered and duplicate usernames with modals
 
 * Fixed LoadingPanel useEffect bug.
