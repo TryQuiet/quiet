@@ -22,6 +22,12 @@ export const keyFromCertificate = (certificate: Certificate | CertificationReque
   return Buffer.from(certificate.subjectPublicKeyInfo.subjectPublicKey.valueBlock.valueHex).toString('base64')
 }
 
+export const pubKeyFromCsr = (csr: string) => {
+  const parsedCsr = parseCertificationRequest(csr)
+  const derBuffer = Buffer.from(parsedCsr.subjectPublicKeyInfo.subjectPublicKey.valueBlock.valueHex).toString('base64')
+  return derBuffer
+}
+
 export const keyObjectFromString = async (pubKeyString: string, crypto: SubtleCrypto | null): Promise<CryptoKey> => {
   if (!crypto) throw new NoCryptoEngineError()
   let keyArray = new ArrayBuffer(0)
