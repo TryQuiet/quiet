@@ -8,4 +8,5 @@ export interface AppbarProps {
   style?: TextStyle
   back?: () => void
   contextMenu?: ReturnType<typeof useContextMenu> | null
+  crossBackIcon?: boolean
 }

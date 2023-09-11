@@ -21,4 +21,6 @@ export enum ModalName {
   searchChannelModal = 'searchChannelModal',
   warningModal = 'warningModal',
   channelCreationModal = 'channelCreationModal',
+  duplicatedUsernameModal = 'duplicatedUsernameModal',
+  unregisteredUsernameModal = 'unregisteredUsernameModal',
 }

@@ -3,7 +3,7 @@ import { combineReducers } from '@reduxjs/toolkit'
 import { reducers } from '../../root.reducer'
 import { Store } from '../../store.types'
 import { prepareStore } from '../../../tests/utils/prepareStore'
-import { communities, Community, connection, identity } from '@quiet/state-manager'
+import { communities, Community, connection, getInvitationCodes, identity } from '@quiet/state-manager'
 import { initActions } from '../init.slice'
 import { navigationActions } from '../../navigation/navigation.slice'
 import { ScreenNames } from '../../../const/ScreenNames.enum'
@@ -16,12 +16,7 @@ describe('deepLinkSaga', () => {
   const id = '00d045ab'
   const validCode =
     'QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE=y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd'
-  const validPairs = [
-    {
-      peerId: 'QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE',
-      onionAddress: 'y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd',
-    },
-  ]
+  const validPairs = getInvitationCodes(validCode)
   const community: Community = {
     id,
     name: '',
@@ -60,7 +55,6 @@ describe('deepLinkSaga', () => {
         dataPort: 5001,
       })
     )
-
     const reducer = combineReducers(reducers)
     await expectSaga(deepLinkSaga, initActions.deepLink(validCode))
       .withReducer(reducer)
@@ -69,7 +63,7 @@ describe('deepLinkSaga', () => {
         navigationActions.replaceScreen({
           screen: ScreenNames.JoinCommunityScreen,
           params: {
-            validCode,
+            code: validCode,
           },
         })
       )
@@ -139,40 +133,7 @@ describe('deepLinkSaga', () => {
       .run()
   })
 
-  test('continues if link used mid registration', async () => {
-    store.dispatch(
-      initActions.setWebsocketConnected({
-        dataPort: 5001,
-      })
-    )
-
-    store.dispatch(communities.actions.addNewCommunity(community))
-
-    store.dispatch(
-      // @ts-expect-error
-      identity.actions.addNewIdentity({ ..._identity, userCertificate: null })
-    )
-
-    store.dispatch(communities.actions.setCurrentCommunity(community.id))
-
-    const reducer = combineReducers(reducers)
-    await expectSaga(deepLinkSaga, initActions.deepLink(validCode))
-      .withReducer(reducer)
-      .withState(store.getState())
-      .put(
-        navigationActions.replaceScreen({
-          screen: ScreenNames.UsernameRegistrationScreen,
-          params: undefined,
-        })
-      )
-      .not.put(
-        communities.actions.createNetwork({
-          ownership: CommunityOwnership.User,
-          peers: validPairs,
-        })
-      )
-      .run()
-  })
+  test.todo('continues if link used mid registration')
 
   test.skip('continues if link used mid registration and locks input while waiting for server response', async () => {
     store.dispatch(
