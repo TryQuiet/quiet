@@ -1,7 +1,7 @@
 import { DuplicatedUsernameComponentProps } from '../../../screens/DuplicatedUsername/DuplicatedUsername.types'
 import { defaultTheme } from '../../../styles/themes/default.theme'
 import React from 'react'
-import { View, Image, StyleSheet, TouchableWithoutFeedback } from 'react-native'
+import { View, Image, StyleSheet } from 'react-native'
 import { Appbar } from '../../Appbar/Appbar.component'
 import { Typography } from '../../Typography/Typography.component'
 import ExclamationMark from '../../../../assets/icons/exclamationMark.png'
@@ -34,7 +34,7 @@ const DuplicatedUsernameComponent: React.FC<DuplicatedUsernameComponentProps> = 
       style={{ flex: 1, backgroundColor: defaultTheme.palette.background.white }}
       testID={'duplicated-username-component'}
     >
-      <Appbar title={'Warning!'} back={handleBackButton} />
+      <Appbar title={'Warning!'} back={handleBackButton} crossBackIcon />
       <View style={classes.mainWrapper}>
         <Image source={ExclamationMark} style={classes.image} />
 

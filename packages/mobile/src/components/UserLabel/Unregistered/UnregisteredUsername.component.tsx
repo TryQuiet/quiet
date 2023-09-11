@@ -15,7 +15,7 @@ const UnregisteredUsernameComponent: React.FC<UnregisteredUsernameComponentProps
       style={{ flex: 1, backgroundColor: defaultTheme.palette.background.white }}
       testID={'unregistered-username-component'}
     >
-      <Appbar title={'Unregistered username'} back={handleBackButton} />
+      <Appbar title={'Unregistered username'} back={handleBackButton} crossBackIcon />
       <View style={{ padding: 20, alignItems: 'center' }}>
         <Typography fontSize={14} style={{ textAlign: 'center' }}>
           The username @{username} has not been registered yet with the community owner, so it’s still possible for

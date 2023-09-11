@@ -88,7 +88,7 @@ describe('DuplicatedUsername component', () => {
                   resizeMode="cover"
                   source={
                     {
-                      "testUri": "../../../assets/icons/arrow_left.png",
+                      "testUri": "../../../assets/icons/icon_close.png",
                     }
                   }
                   style={
