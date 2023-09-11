@@ -40,10 +40,9 @@ import {
   type SetChannelSubscribedPayload,
   SocketActionTypes,
   type SavedOwnerCertificatePayload,
-  SendUserCertificatePayload,
   type SendOwnerCertificatePayload,
-  SaveCSRPayload,
   CommunityMetadata,
+  SendCsrsResponse,
 } from '@quiet/types'
 
 const log = logger('socket')
@@ -62,6 +61,7 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof publicChannelsActions.createGeneralChannel>
     | ReturnType<typeof publicChannelsActions.channelDeletionResponse>
     | ReturnType<typeof usersActions.responseSendCertificates>
+    | ReturnType<typeof usersActions.storeCsrs>
     | ReturnType<typeof communitiesActions.responseCreateNetwork>
     | ReturnType<typeof errorsActions.addError>
     | ReturnType<typeof errorsActions.handleError>
@@ -193,8 +193,10 @@ export function subscribe(socket: Socket) {
       log(payload)
       emit(errorsActions.handleError(payload))
     })
-
     // Certificates
+    socket.on(SocketActionTypes.RESPONSE_GET_CSRS, (payload: SendCsrsResponse) => {
+      emit(usersActions.storeCsrs(payload))
+    })
     socket.on(SocketActionTypes.RESPONSE_GET_CERTIFICATES, (payload: SendCertificatesResponse) => {
       emit(
         publicChannelsActions.sendNewUserInfoMessage({

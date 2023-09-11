@@ -398,7 +398,7 @@ export class StorageService extends EventEmitter {
       },
     })
     this.certificatesRequests.events.on('replicate.progress', async (_address, _hash, entry, _progress, _total) => {
-      const csr = entry.payload.value
+      const csr: string = entry.payload.value
       this.logger('REPLICATED CSR', csr)
       let parsedCSR: CertificationRequest
       try {
@@ -415,15 +415,16 @@ export class StorageService extends EventEmitter {
         )
         return
       }
-
-      this.emit(StorageEvents.REPLICATED_CSR, { csr: csr })
+      this.emit(StorageEvents.REPLICATED_CSR, { csr })
     })
     this.certificatesRequests.events.on('replicated', async () => {
       this.logger('REPLICATED: CSRs')
       await this.updatePeersList()
     })
     this.certificatesRequests.events.on('write', async (_address, entry) => {
-      this.logger('Saved CSR locally')
+      const csr: string = entry.payload.value
+      this.logger('Saved CSR locally', csr)
+      this.emit(StorageEvents.REPLICATED_CSR, { csr })
       await this.updatePeersList()
     })
 

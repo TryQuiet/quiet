@@ -8,3 +8,7 @@ export interface User {
 export interface SendCertificatesResponse {
   certificates: string[]
 }
+
+export interface SendCsrsResponse {
+  csrs: string[]
+}
