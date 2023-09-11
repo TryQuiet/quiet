@@ -12,6 +12,8 @@ import { FileActionsProps } from '../UploadedFile/UploadedFile.types'
 import { MathJaxSvg } from 'react-native-mathjax-html-to-svg'
 import Markdown, { MarkdownIt, ASTNode } from '@ronradtke/react-native-markdown-display'
 import { defaultTheme } from '../../styles/themes/default.theme'
+import UserLabel from '../UserLabel/UserLabel.component'
+import { UserLabelType } from '../UserLabel/UserLabel.types'
 
 export const Message: FC<MessageProps & FileActionsProps> = ({
   data, // Set of messages merged by sender
@@ -21,6 +23,8 @@ export const Message: FC<MessageProps & FileActionsProps> = ({
   openImagePreview,
   openUrl,
   pendingMessages,
+  duplicatedUsernameHandleBack,
+  unregisteredUsernameHandleBack,
 }) => {
   const renderMessage = (message: DisplayableMessage, pending: boolean) => {
     switch (message.type) {
@@ -134,6 +138,14 @@ export const Message: FC<MessageProps & FileActionsProps> = ({
               <Typography fontSize={16} fontWeight={'medium'} color={pending ? 'lightGray' : 'main'}>
                 {info ? 'Quiet' : representativeMessage.nickname}
               </Typography>
+            </View>
+            <View>
+              <UserLabel
+                username={representativeMessage.nickname}
+                type={UserLabelType.DUPLICATE}
+                duplicatedUsernameHandleBack={duplicatedUsernameHandleBack}
+                unregisteredUsernameHandleBack={unregisteredUsernameHandleBack}
+              />
             </View>
             <View
               style={{
