@@ -75,7 +75,7 @@ export const csrsMapping = createSelector(csrs, csrs => {
   return mapping
 })
 
-export const users = createSelector(csrsMapping, certificatesMapping, (csrs, certs) => {
+export const allUsers = createSelector(csrsMapping, certificatesMapping, (csrs, certs) => {
   const users: Record<string, User> = {}
   Object.keys(csrs).map(pubKey => {
     users[pubKey] = {
@@ -121,4 +121,5 @@ export const usersSelectors = {
   csrsMapping,
   getOldestParsedCerificate,
   ownerData,
+  allUsers,
 }

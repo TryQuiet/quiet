@@ -1,7 +1,7 @@
 import { StoreKeys } from '../store.keys'
 import { createSelector } from 'reselect'
 import { type CreatedSelectors, type StoreState } from '../store.types'
-import { csrsMapping } from '../users/users.selectors'
+import { allUsers } from '../users/users.selectors'
 import { communitiesSelectors } from '../communities/communities.selectors'
 import { peersStatsAdapter } from './connection.adapter'
 import { connectedPeers } from '../network/network.selectors'
@@ -37,7 +37,7 @@ export const peerList = createSelector(
   }
 )
 
-export const connectedPeersMapping = createSelector(csrsMapping, connectedPeers, (certificates, peers) => {
+export const connectedPeersMapping = createSelector(allUsers, connectedPeers, (certificates, peers) => {
   const usersData = Object.values(certificates)
   return peers.reduce((peersMapping: Record<string, User>, peerId: string) => {
     for (const user of usersData) {

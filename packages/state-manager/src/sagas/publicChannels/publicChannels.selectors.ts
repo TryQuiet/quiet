@@ -7,7 +7,7 @@ import {
   publicChannelsSubscriptionsAdapter,
 } from './publicChannels.adapter'
 import { type CreatedSelectors, type StoreState } from '../store.types'
-import { csrsMapping } from '../users/users.selectors'
+import { allUsers } from '../users/users.selectors'
 import { formatMessageDisplayDay } from '../../utils/functions/dates/formatMessageDisplayDate'
 import { displayableMessage } from '../../utils/functions/dates/formatDisplayableMessage'
 import { isDefined } from '@quiet/common'
@@ -168,7 +168,7 @@ export const newestCurrentChannelMessage = createSelector(sortedCurrentChannelMe
 
 export const displayableCurrentChannelMessages = createSelector(
   sortedCurrentChannelMessages,
-  csrsMapping,
+  allUsers,
   (messages, certificates) => {
     return messages.reduce((result: DisplayableMessage[], message: ChannelMessage) => {
       const user = certificates[message.pubKey]

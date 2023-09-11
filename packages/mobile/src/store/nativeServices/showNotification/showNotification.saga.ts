@@ -27,10 +27,10 @@ export function* showNotificationSaga(
 
   const message = yield* call(JSON.stringify, messageWithChannelName)
 
-  const mapping = yield* select(users.selectors.csrsMapping)
+  const allUsers = yield* select(users.selectors.allUsers)
   let username: string
   try {
-    username = mapping[_message.pubKey].username
+    username = allUsers[_message.pubKey].username
   } catch (e) {
     console.error(`Could not show notification for channel name ${channel.name} and message id ${_message.id}`, e)
     return
