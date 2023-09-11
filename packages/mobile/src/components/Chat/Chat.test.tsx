@@ -24,6 +24,8 @@ describe('Chat component', () => {
         loadMessagesAction={jest.fn()}
         handleBackButton={jest.fn()}
         openImagePreview={() => {}}
+        duplicatedUsernameHandleBack={function (): void {}}
+        unregisteredUsernameHandleBack={function (username: string): void {}}
         openUrl={() => {}}
         downloadFile={() => {}}
         cancelDownload={() => {}}
@@ -4171,6 +4173,8 @@ describe('Chat component', () => {
         openUrl={() => {}}
         downloadFile={() => {}}
         cancelDownload={() => {}}
+        duplicatedUsernameHandleBack={function (): void {}}
+        unregisteredUsernameHandleBack={function (username: string): void {}}
         channel={{
           name: 'general',
           description: '',
