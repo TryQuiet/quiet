@@ -144,7 +144,7 @@ jobs:
 
       - name: Extract version
         id: extract_version
-        uses: Saionaro/extract-package-version@v1.1.1
+        uses: Saionaro/extract-package-version@v1.2.1
         with:
           path: packages/desktop
 
@@ -208,7 +208,7 @@ jobs:
 
       # - name: E2E - Extract version
       #   id: extract_version
-      #   uses: Saionaro/extract-package-version@v1.1.1
+      #   uses: Saionaro/extract-package-version@v1.2.1
       #   with:
       #     path: packages/desktop
 
@@ -265,7 +265,7 @@ jobs:
 
       - name: Extract version
         id: extract_version
-        uses: Saionaro/extract-package-version@v1.1.1
+        uses: Saionaro/extract-package-version@v1.2.1
         with:
           path: packages/desktop
 
