@@ -22,7 +22,7 @@ npm run start
 
 ## Versioning packages
 
-Before trying to release a new version, make sure you have GH_TOKEN env set.
+Before trying to release a new version, make sure you have `GH_TOKEN` env set.
 
 The project uses independent versioning which means each package has its own version number. Only those packages in which something has changed since the last release will be bumped.
 
@@ -60,7 +60,7 @@ npm run lerna add luxon packages/state-manager
 
 ----
 
-Lerna takes care of all the packages. You can execute scripts is every pakcage by simpy running:
+Lerna takes care of all the packages. You can execute scripts is every package by simply running:
 
 ```
 npm run lerna run <script> --stream
@@ -94,7 +94,7 @@ Available package names are:
 
 ## Locally linking packages (mobile)
 
-Metro requires additional step for locally linking packages. After running standard ```npm link``` commands, update ```metro.config.js``` as follows
+Metro requires additional step for locally linking packages. After running standard `npm link` commands, update `metro.config.js` as follows
 
 ```
 const watchFolders = [
