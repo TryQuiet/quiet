@@ -23,41 +23,9 @@ export function* deepLinkSaga(action: PayloadAction<ReturnType<typeof initAction
   }
 
   const community = yield* select(communities.selectors.currentCommunity)
-  const _identity = yield* select(identity.selectors.currentIdentity)
 
   // Link opened mid registration
-  if (_identity?.userCertificate === null) {
-    const connectionProcess = yield* select(connection.selectors.torConnectionProcess)
-    // TODO: are tor connection process steps still used?
-    const fetching = connectionProcess.text === ConnectionProcessInfo.REGISTERING_USER_CERTIFICATE
-
-    let params: UsernameRegistrationRouteProps['params']
-
-    if (fetching) {
-      params = {
-        fetching: true,
-      }
-    }
-
-    yield* put(
-      navigationActions.replaceScreen({
-        screen: ScreenNames.UsernameRegistrationScreen,
-        params,
-      })
-    )
-
-    return
-  }
-
-  // The same url has been used to open an app
-  // if (community?.registrarUrl?.includes(code)) {
-  //   yield* put(
-  //     navigationActions.replaceScreen({
-  //       screen: ScreenNames.ChannelListScreen,
-  //     })
-  //   )
-  //   return
-  // }
+  // TODO: Check if csr is already saved to db (redux store)
 
   // User already belongs to a community
   if (community) {
