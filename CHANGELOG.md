@@ -10,4 +10,6 @@
 
 * Fixed bug with displaying incorrect default settings tab.
 
+* Labels for unregistered and duplicate usernames with modals
+
 * Fixed LoadingPanel useEffect bug.

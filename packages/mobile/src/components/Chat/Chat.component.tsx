@@ -34,6 +34,8 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
   removeFilePreview,
   uploadedFiles,
   openUrl,
+  duplicatedUsernameHandleBack,
+  unregisteredUsernameHandleBack,
   ready = true,
 }) => {
   const [didKeyboardShow, setKeyboardShow] = useState(false)
@@ -113,6 +115,8 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
       cancelDownload={cancelDownload}
       openImagePreview={openImagePreview}
       openUrl={openUrl}
+      duplicatedUsernameHandleBack={duplicatedUsernameHandleBack}
+      unregisteredUsernameHandleBack={unregisteredUsernameHandleBack}
     />
   )
 
@@ -222,6 +226,8 @@ export const ChannelMessagesComponent: React.FC<ChannelMessagesComponentProps & 
   cancelDownload,
   openImagePreview,
   openUrl,
+  duplicatedUsernameHandleBack,
+  unregisteredUsernameHandleBack,
 }) => {
   return (
     <View key={day}>
@@ -239,6 +245,8 @@ export const ChannelMessagesComponent: React.FC<ChannelMessagesComponentProps & 
             openImagePreview={openImagePreview}
             openUrl={openUrl}
             pendingMessages={pendingMessages}
+            duplicatedUsernameHandleBack={duplicatedUsernameHandleBack}
+            unregisteredUsernameHandleBack={unregisteredUsernameHandleBack}
           />
         )
       })}
