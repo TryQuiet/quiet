@@ -1,5 +1,7 @@
+import { InvitationPair } from '@quiet/types'
+
 export interface JoinCommunityProps {
-  joinCommunityAction: (address: string) => void
+  joinCommunityAction: (address: InvitationPair[]) => void
   redirectionAction: () => void
   networkCreated: boolean
   invitationCode?: string

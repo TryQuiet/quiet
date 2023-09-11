@@ -3,12 +3,11 @@ import { select, put, delay } from 'typed-redux-saga'
 import { CommunityOwnership, CreateNetworkPayload } from '@quiet/types'
 import { communities } from '@quiet/state-manager'
 import { socketSelectors } from '../socket/socket.selectors'
-import { ONION_ADDRESS_REGEX } from '@quiet/common'
 import { ModalName } from '../modals/modals.types'
 import { modalsActions } from '../modals/modals.slice'
 
 export function* handleInvitationCodeSaga(
-  action: PayloadAction<ReturnType<typeof communities.actions.handleInvitationCode>['payload']>
+  action: PayloadAction<ReturnType<typeof communities.actions.handleInvitationCodes>['payload']>
 ): Generator {
   while (true) {
     const connected = yield* select(socketSelectors.isConnected)
@@ -32,26 +31,22 @@ export function* handleInvitationCodeSaga(
     return
   }
 
-  const code = action.payload.trim()
-
-  if (code.match(ONION_ADDRESS_REGEX)) {
+  if (action.payload.length > 0) {
     const payload: CreateNetworkPayload = {
       ownership: CommunityOwnership.User,
-      registrar: code,
+      peers: action.payload,
     }
     yield* put(communities.actions.createNetwork(payload))
-    return
+  } else {
+    yield* put(communities.actions.clearInvitationCodes())
+    yield* put(
+      modalsActions.openModal({
+        name: ModalName.warningModal,
+        args: {
+          title: 'Invalid link',
+          subtitle: 'The invite link you received is not valid. Please check it and try again.',
+        },
+      })
+    )
   }
-
-  yield* put(communities.actions.clearInvitationCode())
-
-  yield* put(
-    modalsActions.openModal({
-      name: ModalName.warningModal,
-      args: {
-        title: 'Invalid link',
-        subtitle: 'The invite link you received is not valid. Please check it and try again.',
-      },
-    })
-  )
 }

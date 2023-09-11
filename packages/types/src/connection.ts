@@ -18,6 +18,7 @@ export interface NetworkStats {
 export enum ConnectionProcessInfo {
   CONNECTING_TO_COMMUNITY = 'Connecting to community owner via Tor',
   REGISTERING_USER_CERTIFICATE = 'Registering user certificate',
+  SAVING_USER_CSR = 'Saving user csr',
   REGISTERING_OWNER_CERTIFICATE = 'Registering owner certificate',
   LAUNCHING_COMMUNITY = 'Launching community',
   SPAWNING_HIDDEN_SERVICE = 'Spawning hidden service for community',

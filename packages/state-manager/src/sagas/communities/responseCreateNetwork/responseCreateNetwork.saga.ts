@@ -22,7 +22,6 @@ export function* responseCreateNetworkSaga(action: PayloadAction<ResponseCreateN
     joinTimestamp: null,
   }
 
-  yield* put(communitiesActions.clearInvitationCode())
   yield* put(communitiesActions.updateCommunityData(community))
   yield* put(identityActions.addNewIdentity(identity))
 }

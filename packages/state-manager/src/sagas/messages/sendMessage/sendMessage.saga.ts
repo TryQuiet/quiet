@@ -15,7 +15,10 @@ export function* sendMessageSaga(
   action: PayloadAction<ReturnType<typeof messagesActions.sendMessage>['payload']>
 ): Generator {
   const identity = yield* select(identitySelectors.currentIdentity)
-  if (!identity?.userCsr || !identity.userCertificate) return
+  if (!identity?.userCsr || !identity?.userCertificate) {
+    console.info('No user CSR or user certificate')
+    return
+  }
 
   const certificate = identity.userCertificate
 

@@ -118,7 +118,6 @@ describe('launchCommunity', () => {
           id: launchCommunityPayload.id,
           peerId: launchCommunityPayload.peerId,
           hiddenService: launchCommunityPayload.hiddenService,
-          certs: launchCommunityPayload.certs,
           peers: launchCommunityPayload.peers,
         },
       ])
@@ -182,7 +181,6 @@ describe('launchCommunity', () => {
           id: launchCommunityPayload.id,
           peerId: launchCommunityPayload.peerId,
           hiddenService: launchCommunityPayload.hiddenService,
-          certs: launchCommunityPayload.certs,
           peers: launchCommunityPayload.peers,
         },
       ])

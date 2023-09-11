@@ -15,6 +15,8 @@ import {
   LaunchRegistrarPayload,
   Community,
   DeleteFilesFromChannelSocketPayload,
+  SaveCSRPayload,
+  CommunityMetadata,
 } from '@quiet/types'
 import cors, { CorsOptions } from 'cors'
 import EventEmitter from 'events'
@@ -100,11 +102,11 @@ export class SocketService extends EventEmitter implements OnModuleInit {
         this.emit(SocketActionTypes.ASK_FOR_MESSAGES, payload)
       })
 
-      socket.on(SocketActionTypes.REGISTER_USER_CERTIFICATE, async (payload: RegisterUserCertificatePayload) => {
-        this.logger(`Registering user certificate (${payload.communityId}) on ${payload.serviceAddress}`)
-        this.emit(SocketActionTypes.REGISTER_USER_CERTIFICATE, payload)
+      socket.on(SocketActionTypes.SAVE_USER_CSR, async (payload: SaveCSRPayload) => {
+        this.logger(`SAVING user CSR ${payload.csr}`)
+        this.emit(SocketActionTypes.SAVE_USER_CSR, payload)
         await new Promise<void>(resolve => setTimeout(() => resolve(), 2000))
-        this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.REGISTERING_USER_CERTIFICATE)
+        this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.SAVING_USER_CSR)
       })
       socket.on(SocketActionTypes.REGISTER_OWNER_CERTIFICATE, async (payload: RegisterOwnerCertificatePayload) => {
         this.logger(`Registering owner certificate (${payload.communityId})`)
@@ -114,6 +116,13 @@ export class SocketService extends EventEmitter implements OnModuleInit {
       socket.on(SocketActionTypes.SAVE_OWNER_CERTIFICATE, async (payload: SaveOwnerCertificatePayload) => {
         this.logger(`Saving owner certificate (${payload.peerId}), community: ${payload.id}`)
         this.emit(SocketActionTypes.SAVED_OWNER_CERTIFICATE, payload)
+        const communityMetadataPayload: CommunityMetadata = {
+          id: payload.id,
+          ownerCertificate: payload.certificate,
+          rootCa: payload.permsData.certificate,
+        }
+        console.log('meta from state-manager', communityMetadataPayload)
+        this.emit(SocketActionTypes.SEND_COMMUNITY_METADATA, communityMetadataPayload)
       })
       socket.on(SocketActionTypes.CREATE_COMMUNITY, async (payload: InitCommunityPayload) => {
         this.logger(`Creating community ${payload.id}`)
