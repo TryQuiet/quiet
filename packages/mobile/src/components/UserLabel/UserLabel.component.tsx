@@ -2,7 +2,7 @@ import React from 'react'
 import { View, Image, StyleSheet, TouchableWithoutFeedback } from 'react-native'
 import { Typography } from '../Typography/Typography.component'
 import { defaultTheme } from '../../styles/themes/default.theme'
-import { UserLabelHandlers, UserLabelType } from './UserLabel.types'
+import { UserLabelHandlers, UserLabelProps, UserLabelType } from './UserLabel.types'
 import WarnIcon from '../../../assets/icons/warning-icon.png'
 
 const classes = StyleSheet.create({
@@ -41,11 +41,6 @@ const classes = StyleSheet.create({
     merginLeft: 4,
   },
 })
-
-export interface UserLabelProps extends UserLabelHandlers {
-  type: UserLabelType
-  username: string
-}
 
 const UserLabel: React.FC<UserLabelProps> = ({
   type,

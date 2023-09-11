@@ -142,7 +142,7 @@ export const Message: FC<MessageProps & FileActionsProps> = ({
             <View>
               <UserLabel
                 username={representativeMessage.nickname}
-                type={UserLabelType.UNREGISTERED}
+                type={UserLabelType.DUPLICATE}
                 duplicatedUsernameHandleBack={duplicatedUsernameHandleBack}
                 unregisteredUsernameHandleBack={unregisteredUsernameHandleBack}
               />
