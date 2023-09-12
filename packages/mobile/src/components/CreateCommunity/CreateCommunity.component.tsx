@@ -7,6 +7,7 @@ import { Typography } from '../Typography/Typography.component'
 import { TextWithLink } from '../TextWithLink/TextWithLink.component'
 
 import { CreateCommunityProps } from './CreateCommunity.types'
+import { Loading } from '../Loading/Loading.component'
 
 export const CreateCommunity: FC<CreateCommunityProps> = ({
   createCommunityAction,
@@ -46,46 +47,52 @@ export const CreateCommunity: FC<CreateCommunityProps> = ({
   }, [networkCreated])
 
   return (
-    <View
-      style={{ flex: 1, backgroundColor: defaultTheme.palette.background.white }}
-      testID={'create-community-component'}
-    >
-      <KeyboardAvoidingView
-        behavior='height'
-        style={{
-          flex: 1,
-          justifyContent: 'center',
-          paddingLeft: 20,
-          paddingRight: 20,
-        }}
-      >
-        <Typography fontSize={24} fontWeight={'medium'} style={{ marginBottom: 30 }}>
-          {'Create a community'}
-        </Typography>
-        <Input
-          onChangeText={onChangeText}
-          label={'Add a name for your community'}
-          placeholder={'Community name'}
-          disabled={loading || !ready}
-          validation={inputError}
-          ref={inputRef}
-        />
-        <View style={{ marginTop: 32 }}>
-          <TextWithLink
-            text={'You can %a instead'}
-            links={[
-              {
-                tag: 'a',
-                label: 'join a community',
-                action: redirectionAction,
-              },
-            ]}
-          />
+    <>
+      {ready ? (
+        <View
+          style={{ flex: 1, backgroundColor: defaultTheme.palette.background.white }}
+          testID={'create-community-component'}
+        >
+          <KeyboardAvoidingView
+            behavior='height'
+            style={{
+              flex: 1,
+              justifyContent: 'center',
+              paddingLeft: 20,
+              paddingRight: 20,
+            }}
+          >
+            <Typography fontSize={24} fontWeight={'medium'} style={{ marginBottom: 30 }}>
+              {'Create a community'}
+            </Typography>
+            <Input
+              onChangeText={onChangeText}
+              label={'Add a name for your community'}
+              placeholder={'Community name'}
+              disabled={loading}
+              validation={inputError}
+              ref={inputRef}
+            />
+            <View style={{ marginTop: 32 }}>
+              <TextWithLink
+                text={'You can %a instead'}
+                links={[
+                  {
+                    tag: 'a',
+                    label: 'join a community',
+                    action: redirectionAction,
+                  },
+                ]}
+              />
+            </View>
+            <View style={{ marginTop: 32 }}>
+              <Button onPress={onPress} title={'Continue'} loading={loading} />
+            </View>
+          </KeyboardAvoidingView>
         </View>
-        <View style={{ marginTop: 32 }}>
-          <Button onPress={onPress} title={'Continue'} loading={loading} />
-        </View>
-      </KeyboardAvoidingView>
-    </View>
+      ) : (
+        <Loading />
+      )}
+    </>
   )
 }

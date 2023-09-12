@@ -91,7 +91,7 @@ export const JoinCommunity: FC<JoinCommunityProps> = ({
               onChangeText={onChangeText}
               label={'Paste your invite link to join an existing community'}
               placeholder={'Invite link'}
-              disabled={loading || !ready}
+              disabled={loading}
               validation={inputError}
               ref={inputRef}
             />
