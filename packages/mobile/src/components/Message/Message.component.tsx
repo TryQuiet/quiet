@@ -105,6 +105,12 @@ export const Message: FC<MessageProps & FileActionsProps> = ({
 
   const info = representativeMessage.type === MessageType.Info
   const pending: boolean = pendingMessages?.[representativeMessage.id] !== undefined
+  console.log({ representativeMessage })
+  const userLabel = representativeMessage?.isDuplicated
+    ? UserLabelType.DUPLICATE
+    : !representativeMessage?.isRegistered
+    ? UserLabelType.UNREGISTERED
+    : null
 
   return (
     <View style={{ flex: 1 }}>
@@ -139,14 +145,18 @@ export const Message: FC<MessageProps & FileActionsProps> = ({
                 {info ? 'Quiet' : representativeMessage.nickname}
               </Typography>
             </View>
-            <View>
-              <UserLabel
-                username={representativeMessage.nickname}
-                type={UserLabelType.DUPLICATE}
-                duplicatedUsernameHandleBack={duplicatedUsernameHandleBack}
-                unregisteredUsernameHandleBack={unregisteredUsernameHandleBack}
-              />
-            </View>
+
+            {userLabel && (
+              <View>
+                <UserLabel
+                  username={representativeMessage.nickname}
+                  type={userLabel}
+                  duplicatedUsernameHandleBack={duplicatedUsernameHandleBack}
+                  unregisteredUsernameHandleBack={unregisteredUsernameHandleBack}
+                />
+              </View>
+            )}
+
             <View
               style={{
                 alignSelf: 'flex-start',

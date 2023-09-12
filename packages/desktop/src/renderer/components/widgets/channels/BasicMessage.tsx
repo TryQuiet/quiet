@@ -152,7 +152,6 @@ export interface BasicMessageProps {
     src: string
   }>
   onMathMessageRendered?: () => void
-  userLabel?: UserLabelType
   unregisteredUsernameModalHandleOpen: HandleOpenModalType
   duplicatedUsernameModalHandleOpen: HandleOpenModalType
 }
@@ -169,12 +168,14 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
   cancelDownload,
   unregisteredUsernameModalHandleOpen,
   duplicatedUsernameModalHandleOpen,
-  // KACPER
-  // userLabel = null,
 }) => {
   const messageDisplayData = messages[0]
 
-  const userLabel = messageDisplayData?.isRegistered ? null : UserLabelType.UNREGISTERED
+  const userLabel = messageDisplayData?.isDuplicated
+    ? UserLabelType.DUPLICATE
+    : !messageDisplayData?.isRegistered
+    ? UserLabelType.UNREGISTERED
+    : null
 
   const infoMessage = messageDisplayData.type === 3 // 3 stands for MessageType.Info
 
@@ -186,8 +187,8 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
       className={classNames({
         [classes.wrapper]: !infoMessage,
       })}
-      onMouseOver={() => { }}
-      onMouseLeave={() => { }}
+      onMouseOver={() => {}}
+      onMouseLeave={() => {}}
     >
       <ListItemText
         disableTypography
