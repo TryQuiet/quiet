@@ -20,6 +20,9 @@ describe('ChannelMessages', () => {
       createdAt: 1636995488.44,
       date: 'string',
       nickname: 'string',
+      isDuplicated: false,
+      isRegistered: true,
+      pubKey: 'string',
     }
 
     jest.spyOn(DateTime, 'utc').mockImplementationOnce(() => DateTime.utc(2019, 3, 7, 13, 3, 48))

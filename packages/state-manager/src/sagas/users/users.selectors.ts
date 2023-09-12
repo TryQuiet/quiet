@@ -98,7 +98,7 @@ export const allUsers = createSelector(csrsMapping, certificatesMapping, (csrs, 
       ...certs[pubKey],
       isRegistered: true,
       isDuplicated: false,
-      pubKey
+      pubKey,
     }
   })
   return users
