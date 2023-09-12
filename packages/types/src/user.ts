@@ -4,6 +4,7 @@ export interface User {
   peerId: string
   dmPublicKey: string
   isRegistered?: boolean
+  isDuplicated?: boolean
 }
 
 export interface SendCertificatesResponse {
