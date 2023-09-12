@@ -254,7 +254,9 @@ describe('publicChannelsSelectors', () => {
     // Convert regular messages to displayable messages
     const displayable: Record<string, DisplayableMessage> = {}
     for (const message of Object.values(msgs)) {
-      displayable[message.id] = displayableMessage(message, msgsOwners[message.id], true)
+      // BARTEK
+      // @ts-ignore
+      displayable[message.id] = displayableMessage(message, msgsOwners[message.id], alice)
     }
 
     // Get groups names

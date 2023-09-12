@@ -174,7 +174,7 @@ export const displayableCurrentChannelMessages = createSelector(
       const user = users[message.pubKey]
       if (user) {
         // @ts-ignore
-        result.push(displayableMessage(message, user.username, user.isRegistered))
+        result.push(displayableMessage(message, user))
       }
       return result
     }, [])
