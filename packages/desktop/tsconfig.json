@@ -10,6 +10,7 @@
     "allowJs": true,
     "lib": [
       "ES2020",
+      "DOM.Iterable",
       "dom"
     ],
     "typeRoots": [

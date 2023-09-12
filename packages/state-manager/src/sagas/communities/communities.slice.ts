@@ -2,6 +2,7 @@ import { createSlice, type EntityState, type PayloadAction } from '@reduxjs/tool
 import { StoreKeys } from '../store.keys'
 import { communitiesAdapter } from './communities.adapter'
 import {
+  InvitationPair,
   type AddOwnerCertificatePayload,
   type Community as CommunityType,
   type CreateNetworkPayload,
@@ -10,10 +11,12 @@ import {
   type StorePeerListPayload,
   type UpdateCommunityPayload,
   type UpdateRegistrationAttemptsPayload,
+  CommunityMetadataPayload,
 } from '@quiet/types'
 
 export class CommunitiesState {
   public invitationCode: string | undefined = undefined
+  public invitationCodes: InvitationPair[] = []
   public currentCommunity = ''
   public communities: EntityState<CommunityType> = communitiesAdapter.getInitialState()
 }
@@ -89,11 +92,14 @@ export const communitiesSlice = createSlice({
         },
       })
     },
-    handleInvitationCode: (state, action: PayloadAction<string>) => {
-      state.invitationCode = action.payload
+    handleInvitationCodes: (state, action: PayloadAction<InvitationPair[]>) => {
+      state.invitationCodes = action.payload
     },
-    clearInvitationCode: state => {
-      state.invitationCode = undefined
+    setInvitationCodes: (state, action: PayloadAction<InvitationPair[]>) => {
+      state.invitationCodes = action.payload
+    },
+    clearInvitationCodes: state => {
+      state.invitationCodes = []
     },
     addOwnerCertificate: (state, action: PayloadAction<AddOwnerCertificatePayload>) => {
       const { communityId, ownerCertificate } = action.payload
@@ -104,6 +110,7 @@ export const communitiesSlice = createSlice({
         },
       })
     },
+    saveCommunityMetadata: (state, _action: PayloadAction<CommunityMetadataPayload>) => state,
   },
 })
 

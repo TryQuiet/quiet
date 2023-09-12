@@ -83,7 +83,7 @@ export { formatBytes } from './utils/functions/formatBytes/formatBytes'
 
 export { sortPeers } from './utils/functions/sortPeers/sortPeers'
 
-export { getInvitationCode } from './utils/functions/invitationCode/invitationCode'
+export { getInvitationCodes } from './utils/functions/invitationCode/invitationCode'
 
 export type { Socket } from './types'
 

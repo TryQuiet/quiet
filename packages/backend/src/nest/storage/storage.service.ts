@@ -7,6 +7,8 @@ import {
   parseCertificate,
   verifySignature,
   verifyUserCert,
+  parseCertificationRequest,
+  getReqFieldValue,
 } from '@quiet/identity'
 import type { IPFS } from 'ipfs-core'
 import OrbitDB from 'orbit-db'
@@ -15,18 +17,20 @@ import KeyValueStore from 'orbit-db-kvstore'
 import path from 'path'
 import { EventEmitter } from 'events'
 import PeerId from 'peer-id'
-import { getCrypto } from 'pkijs'
+import { CertificationRequest, getCrypto } from 'pkijs'
 import { stringToArrayBuffer } from 'pvutils'
 import validate from '../validation/validators'
 import { CID } from 'multiformats/cid'
 import {
   ChannelMessage,
+  CommunityMetadata,
   ConnectionProcessInfo,
   DeleteFilesFromChannelSocketPayload,
   FileMetadata,
   NoCryptoEngineError,
   PublicChannel,
   PushNotificationPayload,
+  SaveCSRPayload,
   SaveCertificatePayload,
   SocketActionTypes,
   User,
@@ -43,7 +47,7 @@ import AccessControllers from 'orbit-db-access-controllers'
 import { MessagesAccessController } from './MessagesAccessController'
 import { createChannelAccessController } from './ChannelsAccessController'
 import Logger from '../common/logger'
-import { DirectMessagesRepo, IMessageThread, PublicChannelsRepo } from '../common/types'
+import { DirectMessagesRepo, PublicChannelsRepo } from '../common/types'
 import { removeFiles, removeDirs, createPaths, getUsersAddresses } from '../common/utils'
 import { StorageEvents } from './storage.types'
 
@@ -55,10 +59,12 @@ interface DBOptions {
 export class StorageService extends EventEmitter {
   public channels: KeyValueStore<PublicChannel>
   private certificates: EventStore<string>
+  private certificatesRequests: EventStore<string>
   public publicChannelsRepos: Map<string, PublicChannelsRepo> = new Map()
   public directMessagesRepos: Map<string, DirectMessagesRepo> = new Map()
   private publicKeysMap: Map<string, CryptoKey> = new Map()
   private userNamesMap: Map<string, string> = new Map()
+  private communityMetadata: KeyValueStore<CommunityMetadata>
   private ipfs: IPFS
   private orbitDb: OrbitDB
   private filesManager: IpfsFileManagerService
@@ -150,6 +156,12 @@ export class StorageService extends EventEmitter {
     if (this.certificates?.address) {
       dbs.push(this.certificates.address)
     }
+    if (this.certificatesRequests?.address) {
+      dbs.push(this.certificatesRequests.address)
+    }
+    if (this.communityMetadata?.address) {
+      dbs.push(this.communityMetadata.address)
+    }
 
     const channels = this.publicChannelsRepos.values()
 
@@ -172,7 +184,7 @@ export class StorageService extends EventEmitter {
       return
     }
     for (const a of addr) {
-      this.logger(`Pubsub - subscribe to ${addr}`)
+      this.logger(`Pubsub - subscribe to ${a}`)
       // @ts-ignore
       await this.orbitDb._pubsub.subscribe(
         a,
@@ -203,15 +215,52 @@ export class StorageService extends EventEmitter {
   }
 
   public async initDatabases() {
-    this.logger('1/4')
+    this.logger('1/5')
     await this.createDbForChannels()
-    this.logger('2/4')
+    this.logger('2/5')
     await this.createDbForCertificates()
-    this.logger('3/4')
+    this.logger('3/5')
+    await this.createDbForCertificatesRequests()
+    this.logger('4/5')
+    await this.createDbForCommunityMetadata()
+    this.logger('5/5')
     await this.initAllChannels()
-    this.logger('4/4')
     this.logger('Initialized DBs')
     this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.INITIALIZED_DBS)
+  }
+  private async createDbForCommunityMetadata() {
+    this.logger('createDbForCommunityMetadata init')
+    this.communityMetadata = await this.orbitDb.keyvalue<CommunityMetadata>('community-metadata', {
+      replicate: false,
+      accessController: {
+        write: ['*'],
+      },
+    })
+
+    this.communityMetadata.events.on('write', async (_address, _entry) => {
+      this.logger('WRITE: communityMetadata')
+    })
+
+    this.communityMetadata.events.on('replicated', async () => {
+      this.logger('Replicated community metadata')
+      // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
+      await this.communityMetadata.load({ fetchEntryTimeout: 15000 })
+      this.emit(StorageEvents.REPLICATED_COMMUNITY_METADATA, Object.values(this.communityMetadata.all)[0])
+    })
+    // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
+    await this.communityMetadata.load({ fetchEntryTimeout: 15000 })
+  }
+
+  public async updateCommunityMetadata(communityMetadata: CommunityMetadata) {
+    this.logger(`Updating community metadata`)
+    if (!communityMetadata.id) return
+    const meta = this.communityMetadata.get(communityMetadata.id)
+    console.log('meta from db', meta)
+    if (meta?.ownerCertificate && meta?.rootCa) return
+    await this.communityMetadata.put(communityMetadata.id, {
+      ...meta,
+      ...communityMetadata,
+    })
   }
 
   private async __stopOrbitDb() {
@@ -245,19 +294,25 @@ export class StorageService extends EventEmitter {
 
   public async stopOrbitDb() {
     try {
-      if (this.channels) {
-        await this.channels.close()
-      }
+      await this.channels?.close()
     } catch (e) {
-      this.logger.error('channels', e)
+      this.logger.error('Error closing channels db', e)
     }
 
     try {
-      if (this.certificates) {
-        await this.certificates.close()
-      }
+      await this.certificates?.close()
     } catch (e) {
-      this.logger.error('certificates', e)
+      this.logger.error('Error closing certificates db', e)
+    }
+    try {
+      await this.certificatesRequests?.close()
+    } catch (e) {
+      this.logger.error('Error closing certificates db', e)
+    }
+    try {
+      await this.communityMetadata?.close()
+    } catch (e) {
+      this.logger.error('Error closing community metadata db', e)
     }
     await this.__stopOrbitDb()
     await this.__stopIPFS()
@@ -265,7 +320,9 @@ export class StorageService extends EventEmitter {
 
   public async updatePeersList() {
     const allUsers = this.getAllUsers()
-    const peers = await getUsersAddresses(allUsers)
+    const registeredUsers = this.getAllRegisteredUsers()
+    const peers = [...new Set(await getUsersAddresses(allUsers.concat(registeredUsers)))]
+    console.log('updatePeersList, peers count:', peers.length)
     const community = await this.localDbService.get(LocalDBKeys.COMMUNITY)
     this.emit(StorageEvents.UPDATE_PEERS_LIST, { communityId: community.id, peerList: peers })
   }
@@ -330,6 +387,51 @@ export class StorageService extends EventEmitter {
     const allCertificates = this.getAllEventLogEntries(this.certificates)
     this.logger('ALL Certificates COUNT:', allCertificates.length)
     this.logger('STORAGE: Finished createDbForCertificates')
+  }
+
+  public async createDbForCertificatesRequests() {
+    this.logger('certificatesRequests db init')
+    this.certificatesRequests = await this.orbitDb.log<string>('csrs', {
+      replicate: false,
+      accessController: {
+        write: ['*'],
+      },
+    })
+    this.certificatesRequests.events.on('replicate.progress', async (_address, _hash, entry, _progress, _total) => {
+      const csr = entry.payload.value
+      this.logger('REPLICATED CSR', csr)
+      let parsedCSR: CertificationRequest
+      try {
+        parsedCSR = parseCertificationRequest(csr)
+      } catch (e) {
+        this.logger.error(`csrs replicate.progress: could not parse certificate request`)
+        return
+      }
+
+      const username = getReqFieldValue(parsedCSR, CertFieldsTypes.nickName)
+      if (!username) {
+        this.logger.error(
+          `csrs replicate.progress: could not parse certificate request for field type ${CertFieldsTypes.nickName}`
+        )
+        return
+      }
+
+      this.emit(StorageEvents.REPLICATED_CSR, { csr: csr })
+    })
+    this.certificatesRequests.events.on('replicated', async () => {
+      this.logger('REPLICATED: CSRs')
+      await this.updatePeersList()
+    })
+    this.certificatesRequests.events.on('write', async (_address, entry) => {
+      this.logger('Saved CSR locally')
+      await this.updatePeersList()
+    })
+
+    // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
+    await this.certificates.load({ fetchEntryTimeout: 15000 })
+    const allcsrs = this.getAllEventLogEntries(this.certificatesRequests)
+    this.logger('ALL Certificates COUNT:', allcsrs.length)
+    this.logger('STORAGE: Finished creating certificatesRequests db')
   }
 
   public async loadAllChannels() {
@@ -755,7 +857,30 @@ export class StorageService extends EventEmitter {
     return true
   }
 
-  public getAllUsers(): User[] {
+  public async saveCSR(payload: SaveCSRPayload): Promise<boolean> {
+    this.logger('About to save csr...')
+    if (!payload.csr) {
+      this.logger('CSR is either null or undefined, not saving to db')
+      return false
+    }
+    // TODO: Verify CSR
+    try {
+      parseCertificationRequest(payload.csr)
+    } catch (e) {
+      this.logger.error(`Cannot save csr ${payload.csr}. Reason: ${e.message}`)
+      return false
+    }
+
+    const csrs = this.getAllEventLogEntries(this.certificatesRequests)
+
+    if (csrs.includes(payload.csr)) return false
+
+    this.logger('Saving csr...')
+    await this.certificatesRequests.add(payload.csr)
+    return true
+  }
+
+  public getAllRegisteredUsers(): User[] {
     const certs = this.getAllEventLogEntries(this.certificates)
     const allUsers: User[] = []
     for (const cert of certs) {
@@ -764,6 +889,22 @@ export class StorageService extends EventEmitter {
       const peerId = getCertFieldValue(parsedCert, CertFieldsTypes.peerId)
       const username = getCertFieldValue(parsedCert, CertFieldsTypes.nickName)
       const dmPublicKey = getCertFieldValue(parsedCert, CertFieldsTypes.dmPublicKey)
+      if (!onionAddress || !peerId || !username || !dmPublicKey) continue
+      allUsers.push({ onionAddress, peerId, username, dmPublicKey })
+    }
+    return allUsers
+  }
+
+  public getAllUsers(): User[] {
+    const csrs = this.getAllEventLogEntries(this.certificatesRequests)
+    console.log('csrs', csrs.length)
+    const allUsers: User[] = []
+    for (const csr of csrs) {
+      const parsedCert = parseCertificationRequest(csr)
+      const onionAddress = getReqFieldValue(parsedCert, CertFieldsTypes.commonName)
+      const peerId = getReqFieldValue(parsedCert, CertFieldsTypes.peerId)
+      const username = getReqFieldValue(parsedCert, CertFieldsTypes.nickName)
+      const dmPublicKey = getReqFieldValue(parsedCert, CertFieldsTypes.dmPublicKey)
       if (!onionAddress || !peerId || !username || !dmPublicKey) continue
       allUsers.push({ onionAddress, peerId, username, dmPublicKey })
     }

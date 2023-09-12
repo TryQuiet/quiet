@@ -4,4 +4,5 @@ export enum RegistrationEvents {
   NEW_USER = 'newUser',
   SET_CERTIFICATES = 'setCertificates',
   REGISTRAR_STATE = 'registrarState',
+  REGISTER_USER_CERTIFICATE = 'registerUserCertificate',
 }

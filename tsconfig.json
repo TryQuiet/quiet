@@ -1,6 +1,6 @@
 {
     "compilerOptions": {
-      "target": "es6",
+      "target": "ES2020",
       "baseUrl": ".",
       "paths": {
         "@quiet/identity": ["packages/identity/src/index.ts"],
@@ -18,8 +18,9 @@
       "experimentalDecorators": true,
       "moduleResolution": "node",
       "lib": [
-        "es6",
-        "dom"
+        "dom",
+        "DOM.Iterable",
+        "ES2020"
       ]
     }
   }

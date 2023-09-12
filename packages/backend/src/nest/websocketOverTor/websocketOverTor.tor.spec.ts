@@ -16,7 +16,7 @@ import { Tor } from '../tor/tor.service'
 import crypto from 'crypto'
 import { TorControl } from '../tor/tor-control.service'
 import { TorControlAuthType } from '../tor/tor.types'
-import { createLibp2pAddress } from '../libp2p/libp2p.utils'
+import { createLibp2pAddress } from '@quiet/common'
 jest.setTimeout(120000)
 
 describe('websocketOverTor', () => {
@@ -263,75 +263,6 @@ describe('websocketOverTor', () => {
 
     const ws1 = webSockets(websocketsOverTorDataServer)()
     const ws2 = webSockets(websocketsOverTorDataClient)()
-
-    listener = await ws1.prepareListener(prepareListenerArg)
-
-    await listener.listen(multiAddress)
-
-    const onConnection = jest.fn()
-    listener.on('connection', onConnection)
-
-    await expect(
-      ws2.dial(multiAddress, {
-        signal,
-        upgrader: prepareListenerArg.upgrader,
-      })
-    ).rejects.toBeTruthy()
-  })
-
-  it.skip('rejects connection if server cert is invalid', async () => {
-    const pems = await createCertificatesTestHelper(`${service1.onionAddress}`, `${service2.onionAddress}`)
-    const anotherPems = await createCertificatesTestHelper(`${service1.onionAddress}`, `${service2.onionAddress}`)
-
-    const prepareListenerArg: CreateListenerOptions = {
-      handler: x => x,
-      upgrader: {
-        // @ts-expect-error
-        upgradeOutbound,
-        // @ts-expect-error
-        upgradeInbound,
-      },
-    }
-
-    const signal: AbortSignal = {
-      ...abortSignalOpts,
-      addEventListener,
-      removeEventListener,
-    }
-
-    const peerId1 = 'Qme5NiSQ6V3cc3nyfYVtkkXDPGBSYEVUNCN5sM4DbyYc7s'
-    const peerId2 = 'QmeCWxba5Yk1ZAKogQJsaHXoAermE7PgFZqpqyKNg65cSN'
-
-    const websocketsOverTorData1 = {
-      filter: all,
-      websocket: {
-        agent,
-        cert: anotherPems.servCert,
-        key: anotherPems.servKey,
-        ca: [pems.ca],
-      },
-      localAddress: createLibp2pAddress(service1.onionAddress, peerId1),
-      targetPort: port1Target,
-      createServer,
-    }
-
-    const websocketsOverTorData2 = {
-      filter: all,
-      websocket: {
-        agent,
-        cert: pems.servCert,
-        key: pems.servKey,
-        ca: [pems.ca],
-      },
-      localAddress: createLibp2pAddress(service2.onionAddress, peerId2),
-      targetPort: port2Target,
-      createServer,
-    }
-
-    const multiAddress = multiaddr(createLibp2pAddress(service1.onionAddress, peerId1))
-
-    const ws1 = webSockets(websocketsOverTorData1)()
-    const ws2 = webSockets(websocketsOverTorData2)()
 
     listener = await ws1.prepareListener(prepareListenerArg)
 

@@ -6,8 +6,17 @@ import { AppbarProps } from './Appbar.types'
 import { appImages } from '../../assets'
 import { defaultTheme } from '../../styles/themes/default.theme'
 
-export const Appbar: FC<AppbarProps> = ({ title, prefix, position, style, back, contextMenu }) => {
+export const Appbar: FC<AppbarProps> = ({
+  title,
+  prefix,
+  position,
+  style,
+  back,
+  contextMenu,
+  crossBackIcon = false,
+}) => {
   const arrow_icon = appImages.arrow_left
+  const cross_icon = appImages.icon_close
   const menu_icon = appImages.dots
   return (
     <StyledAppbar style={style}>
@@ -28,7 +37,7 @@ export const Appbar: FC<AppbarProps> = ({ title, prefix, position, style, back, 
           >
             {back ? (
               <Image
-                source={arrow_icon}
+                source={crossBackIcon ? cross_icon : arrow_icon}
                 resizeMode='cover'
                 resizeMethod='resize'
                 style={{
