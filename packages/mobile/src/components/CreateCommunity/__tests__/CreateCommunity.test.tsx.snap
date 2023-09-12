@@ -374,6 +374,7 @@ exports[`Spinner component renders loading screen if not ready 1`] = `
   style={
     {
       "alignItems": "center",
+      "backgroundColor": "#ffffff",
       "flex": 1,
       "justifyContent": "center",
     }
