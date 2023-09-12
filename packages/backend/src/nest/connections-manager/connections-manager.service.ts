@@ -570,9 +570,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.storageService.on(StorageEvents.REPLICATED_CSR, async (payload: string[]) => {
       console.log(`On ${StorageEvents.REPLICATED_CSR}`)
       this.serverIoProvider.io.emit(SocketActionTypes.RESPONSE_GET_CSRS, { csrs: payload })
-      payload.forEach(csr =>
-        this.registrationService.emit(RegistrationEvents.REGISTER_USER_CERTIFICATE, csr)
-      )
+      payload.forEach(csr => this.registrationService.emit(RegistrationEvents.REGISTER_USER_CERTIFICATE, csr))
     })
     this.storageService.on(StorageEvents.REPLICATED_COMMUNITY_METADATA, (payload: CommunityMetadata) => {
       console.log(`On ${StorageEvents.REPLICATED_COMMUNITY_METADATA}: ${payload}`)
