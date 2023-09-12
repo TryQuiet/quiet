@@ -5,6 +5,7 @@ export interface User {
   dmPublicKey: string
   isRegistered?: boolean
   isDuplicated?: boolean
+  pubKey?: string
 }
 
 export interface SendCertificatesResponse {

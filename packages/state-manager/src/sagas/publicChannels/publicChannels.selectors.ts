@@ -213,7 +213,7 @@ export const currentChannelMessagesMergedBySender = createSelector(dailyGroupedC
       const last = merged[index][0]
 
       if (
-        last.nickname === message.nickname &&
+        last?.pubKey === message?.pubKey &&
         message.createdAt - last.createdAt < 300 &&
         message.type !== MessageType.Info &&
         last.type !== MessageType.Info

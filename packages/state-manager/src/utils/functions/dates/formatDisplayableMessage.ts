@@ -12,6 +12,7 @@ export const displayableMessage = (message: ChannelMessage, user: User): Display
     nickname: user.username,
     isRegistered: user.isRegistered,
     isDuplicated: user.isDuplicated,
+    pubKey: user.pubKey,
     media: message.media,
   }
 }
