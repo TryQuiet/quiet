@@ -19,13 +19,8 @@ document.addEventListener(
       return
     }
 
-    if (invitationCode?.length !== 56) {
-      window.alert("Sorry, this doesn't seem to be a valid invitation code.")
-      return
-    }
-
     if (invitationCode) {
-      window.location = `quiet://?code=${invitationCode}`
+      window.location = `quiet://?${invitationCode}`
     }
   },
   false
