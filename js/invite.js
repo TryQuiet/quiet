@@ -13,20 +13,24 @@ document.addEventListener(
     if (hash.includes("code=")) {
       invitationCode = hash.substring(6)
     }
-
+    
     if (!invitationCode) {
       window.alert('Sorry, no invitation code has been passed with the URL.')
       return
     }
 
-    if (invitationCode?.length !== 56) {
+    if (invitationCode?.length < 56) {
       window.alert("Sorry, this doesn't seem to be a valid invitation code.")
       return
     }
 
-    if (invitationCode) {
+    // Backward compatibility for only-address invitation code
+    if (invitationCode?.length === 56) {
       window.location = `quiet://?code=${invitationCode}`
+      return
     }
+
+    window.location = `quiet://?${invitationCode}`
   },
   false
 )
