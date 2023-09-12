@@ -1,5 +1,7 @@
 [unreleased]
 
+* Fixes empty space between chat's input and a soft keyboard on iOS devices.
+
 * Changed registration process - user connects to the libp2p network directly instead of using registrar. Invitation link format changed. User csr is now saved to database.
 
 * Fixed android stucking on username registration screen introduced in previous alpha.
