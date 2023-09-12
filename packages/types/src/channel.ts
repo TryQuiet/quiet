@@ -50,6 +50,7 @@ export interface DisplayableMessage {
   date: string // displayable
   nickname: string
   media?: FileMetadata
+  isRegistered?: boolean
 }
 
 export type MessagesGroupsType = Record<string, DisplayableMessage[]>

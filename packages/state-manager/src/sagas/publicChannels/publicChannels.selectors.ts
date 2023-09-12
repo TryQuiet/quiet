@@ -169,11 +169,12 @@ export const newestCurrentChannelMessage = createSelector(sortedCurrentChannelMe
 export const displayableCurrentChannelMessages = createSelector(
   sortedCurrentChannelMessages,
   allUsers,
-  (messages, certificates) => {
+  (messages, users) => {
     return messages.reduce((result: DisplayableMessage[], message: ChannelMessage) => {
-      const user = certificates[message.pubKey]
+      const user = users[message.pubKey]
       if (user) {
-        result.push(displayableMessage(message, user.username))
+        // @ts-ignore
+        result.push(displayableMessage(message, user.username, user.isRegistered))
       }
       return result
     }, [])
