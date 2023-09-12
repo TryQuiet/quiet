@@ -5,7 +5,7 @@ import { StoreKeys } from '../store.keys'
 import { certificatesAdapter } from './users.adapter'
 import { type Certificate } from 'pkijs'
 import { type CreatedSelectors, type StoreState } from '../store.types'
-import { type User } from '@quiet/types'
+import { type UserData, User } from '@quiet/types'
 
 const usersSlice: CreatedSelectors[StoreKeys.Users] = (state: StoreState) => state[StoreKeys.Users]
 
@@ -18,7 +18,7 @@ export const csrs = createSelector(usersSlice, reducerState =>
 )
 
 export const certificatesMapping = createSelector(certificates, certs => {
-  const mapping: Record<string, User> = {}
+  const mapping: Record<string, UserData> = {}
   Object.keys(certs).map(pubKey => {
     const certificate = certs[pubKey]
     if (!certificate || certificate.subject.typesAndValues.length < 1) {
@@ -46,7 +46,7 @@ export const certificatesMapping = createSelector(certificates, certs => {
 })
 
 export const csrsMapping = createSelector(csrs, csrs => {
-  const mapping: Record<string, User> = {}
+  const mapping: Record<string, UserData> = {}
   Object.keys(csrs).map(pubKey => {
     const csr = csrs[pubKey]
     if (!csr || csr.subject.typesAndValues.length < 1) {
@@ -89,6 +89,16 @@ export const allUsers = createSelector(csrsMapping, certificatesMapping, (csrs, 
       isRegistered,
       isDuplicated,
       pubKey,
+    }
+  })
+  // Temporary backward compatiblility! Old communities do not have csrs
+  Object.keys(certs).map(pubKey => {
+    if (users[pubKey]) return
+    users[pubKey] = {
+      ...certs[pubKey],
+      isRegistered: true,
+      isDuplicated: false,
+      pubKey
     }
   })
   return users

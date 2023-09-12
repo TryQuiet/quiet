@@ -33,7 +33,7 @@ import {
   SaveCSRPayload,
   SaveCertificatePayload,
   SocketActionTypes,
-  User,
+  UserData,
 } from '@quiet/types'
 import { isDefined } from '@quiet/common'
 import fs from 'fs'
@@ -883,9 +883,9 @@ export class StorageService extends EventEmitter {
     return true
   }
 
-  public getAllRegisteredUsers(): User[] {
+  public getAllRegisteredUsers(): UserData[] {
     const certs = this.getAllEventLogEntries(this.certificates)
-    const allUsers: User[] = []
+    const allUsers: UserData[] = []
     for (const cert of certs) {
       const parsedCert = parseCertificate(cert)
       const onionAddress = getCertFieldValue(parsedCert, CertFieldsTypes.commonName)
@@ -898,10 +898,10 @@ export class StorageService extends EventEmitter {
     return allUsers
   }
 
-  public getAllUsers(): User[] {
+  public getAllUsers(): UserData[] {
     const csrs = this.getAllEventLogEntries(this.certificatesRequests)
     console.log('csrs', csrs.length)
-    const allUsers: User[] = []
+    const allUsers: UserData[] = []
     for (const csr of csrs) {
       const parsedCert = parseCertificationRequest(csr)
       const onionAddress = getReqFieldValue(parsedCert, CertFieldsTypes.commonName)
