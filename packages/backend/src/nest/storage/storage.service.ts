@@ -415,16 +415,18 @@ export class StorageService extends EventEmitter {
         )
         return
       }
-      this.emit(StorageEvents.REPLICATED_CSR, { csr })
+      this.emit(StorageEvents.REPLICATED_CSR, [csr])
     })
     this.certificatesRequests.events.on('replicated', async () => {
       this.logger('REPLICATED: CSRs')
+      const allCsrs = this.getAllEventLogEntries(this.certificatesRequests)
+      this.emit(StorageEvents.REPLICATED_CSR, allCsrs)
       await this.updatePeersList()
     })
     this.certificatesRequests.events.on('write', async (_address, entry) => {
       const csr: string = entry.payload.value
       this.logger('Saved CSR locally', csr)
-      this.emit(StorageEvents.REPLICATED_CSR, { csr })
+      this.emit(StorageEvents.REPLICATED_CSR, [csr])
       await this.updatePeersList()
     })
 
