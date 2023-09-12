@@ -1,11 +1,20 @@
 import React, { FC } from 'react'
 import { Image, View } from 'react-native'
 import { Typography } from '../Typography/Typography.component'
+import { defaultTheme } from '../../styles/themes/default.theme'
 import { appImages } from '../../assets'
 
 export const Loading: FC = () => {
   return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }} testID='loading'>
+    <View
+      style={{
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: defaultTheme.palette.background.white,
+      }}
+      testID='loading'
+    >
       <Image
         source={appImages.quiet_icon}
         style={{
