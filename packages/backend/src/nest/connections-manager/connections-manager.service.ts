@@ -442,13 +442,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.socketService.on(SocketActionTypes.SEND_COMMUNITY_METADATA, async (payload: CommunityMetadata) => {
       await this.storageService?.updateCommunityMetadata(payload)
     })
-    this.socketService.on(SocketActionTypes.SAVED_OWNER_CERTIFICATE, async (args: SaveOwnerCertificatePayload) => {
-      const saveCertificatePayload: SaveCertificatePayload = {
-        certificate: args.certificate,
-        rootPermsData: args.permsData,
-      }
-      await this.storageService?.saveCertificate(saveCertificatePayload)
-    })
     this.socketService.on(SocketActionTypes.SAVE_USER_CSR, async (payload: SaveCSRPayload) => {
       console.log(`On ${SocketActionTypes.SAVE_USER_CSR}: ${payload.csr}`)
       await this.storageService?.saveCSR(payload)
