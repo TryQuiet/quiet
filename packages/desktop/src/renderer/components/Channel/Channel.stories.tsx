@@ -43,8 +43,8 @@ const args: Partial<ChannelComponentProps & UploadFilesPreviewsProps> = {
   },
   uploadedFileModal: {
     open: false,
-    handleOpen: function (_args?: any): any { },
-    handleClose: function (): any { },
+    handleOpen: function (_args?: any): any {},
+    handleClose: function (): any {},
     src: 'images/butterfly.jpeg',
   },
   messages: mock_messages(),
@@ -60,9 +60,9 @@ const args: Partial<ChannelComponentProps & UploadFilesPreviewsProps> = {
   pendingMessages: {},
   channelId: 'general',
   channelName: 'general',
-  lazyLoading: function (_load: boolean): void { },
-  onInputChange: function (_value: string): void { },
-  onInputEnter: function (_message: string): void { },
+  lazyLoading: function (_load: boolean): void {},
+  onInputChange: function (_value: string): void {},
+  onInputEnter: function (_message: string): void {},
   filesData: {},
 }
 
@@ -129,7 +129,7 @@ ImagePlaceholder.args = {
     nickname: 'vader',
     isRegistered: true,
     isDuplicated: false,
-    pubKey: 'pubKey'
+    pubKey: 'pubKey',
   }),
   downloadStatuses: {
     32: {
@@ -163,7 +163,7 @@ SentImage.args = {
     nickname: 'vader',
     isRegistered: true,
     isDuplicated: false,
-    pubKey: 'pubKey'
+    pubKey: 'pubKey',
   }),
   downloadStatuses: {
     32: {
@@ -235,7 +235,7 @@ UploadingFile.args = {
     nickname: 'vader',
     isRegistered: true,
     isDuplicated: false,
-    pubKey: 'pubKey'
+    pubKey: 'pubKey',
   }),
   downloadStatuses: {
     32: {
@@ -270,7 +270,7 @@ HostedFile.args = {
     nickname: 'vader',
     isRegistered: true,
     isDuplicated: false,
-    pubKey: 'pubKey'
+    pubKey: 'pubKey',
   }),
   downloadStatuses: {
     32: {
@@ -305,7 +305,7 @@ ReadyDownload.args = {
     nickname: 'vader',
     isRegistered: true,
     isDuplicated: false,
-    pubKey: 'pubKey'
+    pubKey: 'pubKey',
   }),
   downloadStatuses: {
     32: {
@@ -340,7 +340,7 @@ Downloading.args = {
     nickname: 'vader',
     isRegistered: true,
     isDuplicated: false,
-    pubKey: 'pubKey'
+    pubKey: 'pubKey',
   }),
   downloadStatuses: {
     32: {
@@ -379,7 +379,7 @@ CompletedDownload.args = {
     nickname: 'vader',
     isRegistered: true,
     isDuplicated: false,
-    pubKey: 'pubKey'
+    pubKey: 'pubKey',
   }),
   downloadStatuses: {
     32: {
@@ -418,7 +418,7 @@ CancelingDownload.args = {
     nickname: 'vader',
     isRegistered: true,
     isDuplicated: false,
-    pubKey: 'pubKey'
+    pubKey: 'pubKey',
   }),
   downloadStatuses: {
     32: {
@@ -457,7 +457,7 @@ CanceledDownload.args = {
     nickname: 'vader',
     isRegistered: true,
     isDuplicated: false,
-    pubKey: 'pubKey'
+    pubKey: 'pubKey',
   }),
   downloadStatuses: {
     32: {
@@ -492,7 +492,7 @@ MaliciousDownload.args = {
     nickname: 'vader',
     isRegistered: true,
     isDuplicated: false,
-    pubKey: 'pubKey'
+    pubKey: 'pubKey',
   }),
   downloadStatuses: {
     32: {
@@ -519,7 +519,7 @@ NewUserMessage.args = {
     nickname: 'vader',
     isRegistered: true,
     isDuplicated: false,
-    pubKey: 'pubKey'
+    pubKey: 'pubKey',
   }),
 }
 
@@ -538,7 +538,7 @@ Link.args = {
     nickname: 'vader',
     isRegistered: true,
     isDuplicated: false,
-    pubKey: 'pubKey'
+    pubKey: 'pubKey',
   }),
 }
 
@@ -559,7 +559,7 @@ MathJaxMiddle.args = {
     nickname: 'vader',
     isRegistered: true,
     isDuplicated: false,
-    pubKey: 'pubKey'
+    pubKey: 'pubKey',
   }),
 }
 MathJaxPending.args = {
@@ -574,7 +574,7 @@ MathJaxPending.args = {
     nickname: 'vader',
     isRegistered: true,
     isDuplicated: false,
-    pubKey: 'pubKey'
+    pubKey: 'pubKey',
   }),
   pendingMessages: {
     32: {
@@ -595,7 +595,7 @@ MathJaxBeginning.args = {
     nickname: 'vader',
     isRegistered: true,
     isDuplicated: false,
-    pubKey: 'pubKey'
+    pubKey: 'pubKey',
   }),
 }
 

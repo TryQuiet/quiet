@@ -11,7 +11,7 @@ export const mock_messages = (message: DisplayableMessage | null = null) => {
     nickname: 'vader',
     isRegistered: true,
     isDuplicated: false,
-    pubKey: 'pubKey'
+    pubKey: 'pubKey',
   }
 
   if (message !== null) {
@@ -35,7 +35,7 @@ export const mock_messages = (message: DisplayableMessage | null = null) => {
             nickname: 'yoda',
             isRegistered: true,
             isDuplicated: false,
-            pubKey: 'pubKey'
+            pubKey: 'pubKey',
           },
         ],
         [
@@ -48,7 +48,7 @@ export const mock_messages = (message: DisplayableMessage | null = null) => {
             nickname: 'obi',
             isRegistered: true,
             isDuplicated: false,
-            pubKey: 'pubKey'
+            pubKey: 'pubKey',
           },
           {
             id: '3',
@@ -59,7 +59,7 @@ export const mock_messages = (message: DisplayableMessage | null = null) => {
             nickname: 'obi',
             isRegistered: true,
             isDuplicated: false,
-            pubKey: 'pubKey'
+            pubKey: 'pubKey',
           },
         ],
         [
@@ -72,7 +72,7 @@ export const mock_messages = (message: DisplayableMessage | null = null) => {
             nickname: 'wookie',
             isRegistered: true,
             isDuplicated: false,
-            pubKey: 'pubKey'
+            pubKey: 'pubKey',
           },
         ],
         [
@@ -85,7 +85,7 @@ export const mock_messages = (message: DisplayableMessage | null = null) => {
             nickname: 'leah',
             isRegistered: true,
             isDuplicated: false,
-            pubKey: 'pubKey'
+            pubKey: 'pubKey',
           },
         ],
         [
@@ -98,7 +98,7 @@ export const mock_messages = (message: DisplayableMessage | null = null) => {
             nickname: 'luke',
             isRegistered: true,
             isDuplicated: false,
-            pubKey: 'pubKey'
+            pubKey: 'pubKey',
           },
         ],
         [
@@ -111,7 +111,7 @@ export const mock_messages = (message: DisplayableMessage | null = null) => {
             nickname: 'windoo',
             isRegistered: true,
             isDuplicated: false,
-            pubKey: 'pubKey'
+            pubKey: 'pubKey',
           },
         ],
         [
@@ -125,7 +125,7 @@ export const mock_messages = (message: DisplayableMessage | null = null) => {
             nickname: 'vader',
             isRegistered: true,
             isDuplicated: false,
-            pubKey: 'pubKey'
+            pubKey: 'pubKey',
           },
         ],
       ],
@@ -140,7 +140,7 @@ export const mock_messages = (message: DisplayableMessage | null = null) => {
             nickname: 'chad',
             isRegistered: true,
             isDuplicated: false,
-            pubKey: 'pubKey'
+            pubKey: 'pubKey',
           },
           {
             id: '10',
@@ -151,7 +151,7 @@ export const mock_messages = (message: DisplayableMessage | null = null) => {
             nickname: 'chad',
             isRegistered: true,
             isDuplicated: false,
-            pubKey: 'pubKey'
+            pubKey: 'pubKey',
           },
           {
             id: '11',
@@ -162,7 +162,7 @@ export const mock_messages = (message: DisplayableMessage | null = null) => {
             nickname: 'chad',
             isRegistered: true,
             isDuplicated: false,
-            pubKey: 'pubKey'
+            pubKey: 'pubKey',
           },
         ],
         [
@@ -175,7 +175,7 @@ export const mock_messages = (message: DisplayableMessage | null = null) => {
             nickname: 'anakin',
             isRegistered: true,
             isDuplicated: false,
-            pubKey: 'pubKey'
+            pubKey: 'pubKey',
           },
         ],
         [
@@ -188,7 +188,7 @@ export const mock_messages = (message: DisplayableMessage | null = null) => {
             nickname: 'anakin',
             isRegistered: true,
             isDuplicated: false,
-            pubKey: 'pubKey'
+            pubKey: 'pubKey',
           },
         ],
         [
@@ -201,7 +201,7 @@ export const mock_messages = (message: DisplayableMessage | null = null) => {
             nickname: 'yoda',
             isRegistered: true,
             isDuplicated: false,
-            pubKey: 'pubKey'
+            pubKey: 'pubKey',
           },
         ],
         [
@@ -214,7 +214,7 @@ export const mock_messages = (message: DisplayableMessage | null = null) => {
             nickname: 'obi',
             isRegistered: true,
             isDuplicated: false,
-            pubKey: 'pubKey'
+            pubKey: 'pubKey',
           },
           {
             id: '16',
@@ -225,7 +225,7 @@ export const mock_messages = (message: DisplayableMessage | null = null) => {
             nickname: 'obi',
             isRegistered: true,
             isDuplicated: false,
-            pubKey: 'pubKey'
+            pubKey: 'pubKey',
           },
         ],
         [
@@ -238,7 +238,7 @@ export const mock_messages = (message: DisplayableMessage | null = null) => {
             nickname: 'wookie',
             isRegistered: true,
             isDuplicated: false,
-            pubKey: 'pubKey'
+            pubKey: 'pubKey',
           },
         ],
         [
@@ -251,7 +251,7 @@ export const mock_messages = (message: DisplayableMessage | null = null) => {
             nickname: 'leah',
             isRegistered: true,
             isDuplicated: false,
-            pubKey: 'pubKey'
+            pubKey: 'pubKey',
           },
         ],
         [
@@ -264,7 +264,7 @@ export const mock_messages = (message: DisplayableMessage | null = null) => {
             nickname: 'luke',
             isRegistered: true,
             isDuplicated: false,
-            pubKey: 'pubKey'
+            pubKey: 'pubKey',
           },
         ],
         [
@@ -277,7 +277,7 @@ export const mock_messages = (message: DisplayableMessage | null = null) => {
             nickname: 'windoo',
             isRegistered: true,
             isDuplicated: false,
-            pubKey: 'pubKey'
+            pubKey: 'pubKey',
           },
         ],
         [
@@ -291,7 +291,7 @@ export const mock_messages = (message: DisplayableMessage | null = null) => {
             nickname: 'vader',
             isRegistered: true,
             isDuplicated: false,
-            pubKey: 'pubKey'
+            pubKey: 'pubKey',
           },
         ],
       ],
@@ -306,7 +306,7 @@ export const mock_messages = (message: DisplayableMessage | null = null) => {
             nickname: 'alice',
             isRegistered: true,
             isDuplicated: false,
-            pubKey: 'pubKey'
+            pubKey: 'pubKey',
           },
           {
             id: '23',
@@ -318,7 +318,7 @@ export const mock_messages = (message: DisplayableMessage | null = null) => {
             nickname: 'alice',
             isRegistered: true,
             isDuplicated: false,
-            pubKey: 'pubKey'
+            pubKey: 'pubKey',
           },
         ],
         [
@@ -331,7 +331,7 @@ export const mock_messages = (message: DisplayableMessage | null = null) => {
             nickname: 'john',
             isRegistered: true,
             isDuplicated: false,
-            pubKey: 'pubKey'
+            pubKey: 'pubKey',
           },
         ],
       ],
@@ -346,7 +346,7 @@ export const mock_messages = (message: DisplayableMessage | null = null) => {
             nickname: 'chad',
             isRegistered: true,
             isDuplicated: false,
-            pubKey: 'pubKey'
+            pubKey: 'pubKey',
           },
           {
             id: '26',
@@ -357,7 +357,7 @@ export const mock_messages = (message: DisplayableMessage | null = null) => {
             nickname: 'chad',
             isRegistered: true,
             isDuplicated: false,
-            pubKey: 'pubKey'
+            pubKey: 'pubKey',
           },
           {
             id: '27',
@@ -368,7 +368,7 @@ export const mock_messages = (message: DisplayableMessage | null = null) => {
             nickname: 'chad',
             isRegistered: true,
             isDuplicated: false,
-            pubKey: 'pubKey'
+            pubKey: 'pubKey',
           },
         ],
         [
@@ -381,7 +381,7 @@ export const mock_messages = (message: DisplayableMessage | null = null) => {
             nickname: 'anakin',
             isRegistered: true,
             isDuplicated: false,
-            pubKey: 'pubKey'
+            pubKey: 'pubKey',
           },
         ],
         [
@@ -394,7 +394,7 @@ export const mock_messages = (message: DisplayableMessage | null = null) => {
             nickname: 'anakin',
             isRegistered: true,
             isDuplicated: false,
-            pubKey: 'pubKey'
+            pubKey: 'pubKey',
           },
         ],
         [
@@ -407,7 +407,7 @@ export const mock_messages = (message: DisplayableMessage | null = null) => {
             nickname: 'yoda',
             isRegistered: true,
             isDuplicated: false,
-            pubKey: 'pubKey'
+            pubKey: 'pubKey',
           },
         ],
         [
@@ -420,7 +420,7 @@ export const mock_messages = (message: DisplayableMessage | null = null) => {
             nickname: 'obi',
             isRegistered: true,
             isDuplicated: false,
-            pubKey: 'pubKey'
+            pubKey: 'pubKey',
           },
         ],
         [placeholder],
@@ -434,7 +434,7 @@ export const mock_messages = (message: DisplayableMessage | null = null) => {
             nickname: 'vader',
             isRegistered: true,
             isDuplicated: false,
-            pubKey: 'pubKey'
+            pubKey: 'pubKey',
           },
         ],
       ],
