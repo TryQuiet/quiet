@@ -252,11 +252,11 @@ export class StorageService extends EventEmitter {
   }
 
   public async updateCommunityMetadata(communityMetadata: CommunityMetadata) {
-    this.logger(`Updating community metadata`)
+    this.logger(`About to update community metadata`)
     if (!communityMetadata.id) return
     const meta = this.communityMetadata.get(communityMetadata.id)
-    console.log('meta from db', meta)
     if (meta?.ownerCertificate && meta?.rootCa) return
+    this.logger(`Updating community metadata`)
     await this.communityMetadata.put(communityMetadata.id, {
       ...meta,
       ...communityMetadata,
@@ -399,7 +399,7 @@ export class StorageService extends EventEmitter {
     })
     this.certificatesRequests.events.on('replicate.progress', async (_address, _hash, entry, _progress, _total) => {
       const csr: string = entry.payload.value
-      this.logger('REPLICATED CSR', csr)
+      this.logger('Replicated csr')
       let parsedCSR: CertificationRequest
       try {
         parsedCSR = parseCertificationRequest(csr)
@@ -425,7 +425,7 @@ export class StorageService extends EventEmitter {
     })
     this.certificatesRequests.events.on('write', async (_address, entry) => {
       const csr: string = entry.payload.value
-      this.logger('Saved CSR locally', csr)
+      this.logger('Saved CSR locally')
       this.emit(StorageEvents.REPLICATED_CSR, [csr])
       await this.updatePeersList()
     })
@@ -900,7 +900,7 @@ export class StorageService extends EventEmitter {
 
   public getAllUsers(): UserData[] {
     const csrs = this.getAllEventLogEntries(this.certificatesRequests)
-    console.log('csrs', csrs.length)
+    console.log('csrs count:', csrs.length)
     const allUsers: UserData[] = []
     for (const csr of csrs) {
       const parsedCert = parseCertificationRequest(csr)
