@@ -25,6 +25,7 @@ import {
   type Identity,
   MessageType,
   type PublicChannel,
+  User,
 } from '@quiet/types'
 import { type communitiesActions } from '../communities/communities.slice'
 
@@ -254,9 +255,16 @@ describe('publicChannelsSelectors', () => {
     // Convert regular messages to displayable messages
     const displayable: Record<string, DisplayableMessage> = {}
     for (const message of Object.values(msgs)) {
-      // BARTEK
-      // @ts-ignore
-      displayable[message.id] = displayableMessage(message, msgsOwners[message.id], alice)
+      const user: User = {
+        dmPublicKey: '',
+        isDuplicated: false,
+        isRegistered: true,
+        onionAddress: '',
+        peerId: '',
+        pubKey: msgs[message.id].pubKey,
+        username: msgsOwners[message.id],
+      }
+      displayable[message.id] = displayableMessage(message, user)
     }
 
     // Get groups names
