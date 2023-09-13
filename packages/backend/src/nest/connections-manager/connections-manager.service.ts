@@ -443,7 +443,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       await this.storageService?.updateCommunityMetadata(payload)
     })
     this.socketService.on(SocketActionTypes.SAVE_USER_CSR, async (payload: SaveCSRPayload) => {
-      console.log(`On ${SocketActionTypes.SAVE_USER_CSR}: ${payload.csr}`)
+      console.log(`On ${SocketActionTypes.SAVE_USER_CSR}`)
       await this.storageService?.saveCSR(payload)
       this.serverIoProvider.io.emit(SocketActionTypes.SAVED_USER_CSR, payload)
     })

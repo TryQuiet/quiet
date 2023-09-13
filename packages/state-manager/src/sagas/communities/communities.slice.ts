@@ -63,6 +63,7 @@ export const communitiesSlice = createSlice({
         },
       })
     },
+    sendCommunityMetadata: state => state,
     createNetwork: (state, _action: PayloadAction<CreateNetworkPayload>) => state,
     responseCreateNetwork: (state, _action: PayloadAction<ResponseCreateNetworkPayload>) => state,
     responseRegistrar: (state, action: PayloadAction<ResponseRegistrarPayload>) => {

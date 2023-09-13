@@ -40,7 +40,6 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
 
   onModuleInit() {
     this.on(RegistrationEvents.SET_CERTIFICATES, certs => {
-      console.log('SET CERTIFICATES', certs)
       this.setCertificates(certs)
     })
     this.on(RegistrationEvents.REGISTER_USER_CERTIFICATE, async (csr: string) => {
@@ -48,8 +47,7 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
         console.log('NO PERMS DATA')
         return
       }
-      console.log('CSR in registration service', csr)
-      const response = await this.registerUser(csr)
+      await this.registerUser(csr)
     })
     this.setRouting()
   }
