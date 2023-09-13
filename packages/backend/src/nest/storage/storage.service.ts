@@ -431,7 +431,7 @@ export class StorageService extends EventEmitter {
     })
 
     // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
-    await this.certificates.load({ fetchEntryTimeout: 15000 })
+    await this.certificatesRequests.load({ fetchEntryTimeout: 15000 })
     const allcsrs = this.getAllEventLogEntries(this.certificatesRequests)
     this.logger('ALL Certificates COUNT:', allcsrs.length)
     this.logger('STORAGE: Finished creating certificatesRequests db')
@@ -873,6 +873,8 @@ export class StorageService extends EventEmitter {
       this.logger.error(`Cannot save csr ${payload.csr}. Reason: ${e.message}`)
       return false
     }
+
+    await this.certificatesRequests.load()
 
     const csrs = this.getAllEventLogEntries(this.certificatesRequests)
 
