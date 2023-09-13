@@ -43,8 +43,8 @@ const args: Partial<ChannelComponentProps & UploadFilesPreviewsProps> = {
   },
   uploadedFileModal: {
     open: false,
-    handleOpen: function (_args?: any): any {},
-    handleClose: function (): any {},
+    handleOpen: function (_args?: any): any { },
+    handleClose: function (): any { },
     src: 'images/butterfly.jpeg',
   },
   messages: mock_messages(),
@@ -60,9 +60,9 @@ const args: Partial<ChannelComponentProps & UploadFilesPreviewsProps> = {
   pendingMessages: {},
   channelId: 'general',
   channelName: 'general',
-  lazyLoading: function (_load: boolean): void {},
-  onInputChange: function (_value: string): void {},
-  onInputEnter: function (_message: string): void {},
+  lazyLoading: function (_load: boolean): void { },
+  onInputChange: function (_value: string): void { },
+  onInputEnter: function (_message: string): void { },
   filesData: {},
 }
 
@@ -127,6 +127,9 @@ ImagePlaceholder.args = {
     createdAt: 0,
     date: '12:46',
     nickname: 'vader',
+    isRegistered: true,
+    isDuplicated: false,
+    pubKey: 'pubKey'
   }),
   downloadStatuses: {
     32: {
@@ -158,6 +161,9 @@ SentImage.args = {
     createdAt: 0,
     date: '12:46',
     nickname: 'vader',
+    isRegistered: true,
+    isDuplicated: false,
+    pubKey: 'pubKey'
   }),
   downloadStatuses: {
     32: {
@@ -227,6 +233,9 @@ UploadingFile.args = {
     createdAt: 0,
     date: '12:46',
     nickname: 'vader',
+    isRegistered: true,
+    isDuplicated: false,
+    pubKey: 'pubKey'
   }),
   downloadStatuses: {
     32: {
@@ -259,6 +268,9 @@ HostedFile.args = {
     createdAt: 0,
     date: '12:46',
     nickname: 'vader',
+    isRegistered: true,
+    isDuplicated: false,
+    pubKey: 'pubKey'
   }),
   downloadStatuses: {
     32: {
@@ -291,6 +303,9 @@ ReadyDownload.args = {
     createdAt: 0,
     date: '12:46',
     nickname: 'vader',
+    isRegistered: true,
+    isDuplicated: false,
+    pubKey: 'pubKey'
   }),
   downloadStatuses: {
     32: {
@@ -323,6 +338,9 @@ Downloading.args = {
     createdAt: 0,
     date: '12:46',
     nickname: 'vader',
+    isRegistered: true,
+    isDuplicated: false,
+    pubKey: 'pubKey'
   }),
   downloadStatuses: {
     32: {
@@ -359,6 +377,9 @@ CompletedDownload.args = {
     createdAt: 0,
     date: '12:46',
     nickname: 'vader',
+    isRegistered: true,
+    isDuplicated: false,
+    pubKey: 'pubKey'
   }),
   downloadStatuses: {
     32: {
@@ -395,6 +416,9 @@ CancelingDownload.args = {
     createdAt: 0,
     date: '12:46',
     nickname: 'vader',
+    isRegistered: true,
+    isDuplicated: false,
+    pubKey: 'pubKey'
   }),
   downloadStatuses: {
     32: {
@@ -431,6 +455,9 @@ CanceledDownload.args = {
     createdAt: 0,
     date: '12:46',
     nickname: 'vader',
+    isRegistered: true,
+    isDuplicated: false,
+    pubKey: 'pubKey'
   }),
   downloadStatuses: {
     32: {
@@ -463,6 +490,9 @@ MaliciousDownload.args = {
     createdAt: 0,
     date: '12:46',
     nickname: 'vader',
+    isRegistered: true,
+    isDuplicated: false,
+    pubKey: 'pubKey'
   }),
   downloadStatuses: {
     32: {
@@ -487,6 +517,9 @@ NewUserMessage.args = {
     createdAt: 0,
     date: '12:46',
     nickname: 'vader',
+    isRegistered: true,
+    isDuplicated: false,
+    pubKey: 'pubKey'
   }),
 }
 
@@ -503,6 +536,9 @@ Link.args = {
     createdAt: 0,
     date: '12:46',
     nickname: 'vader',
+    isRegistered: true,
+    isDuplicated: false,
+    pubKey: 'pubKey'
   }),
 }
 
@@ -521,6 +557,9 @@ MathJaxMiddle.args = {
     createdAt: 0,
     date: '12:46',
     nickname: 'vader',
+    isRegistered: true,
+    isDuplicated: false,
+    pubKey: 'pubKey'
   }),
 }
 MathJaxPending.args = {
@@ -533,6 +572,9 @@ MathJaxPending.args = {
     createdAt: 0,
     date: '12:46',
     nickname: 'vader',
+    isRegistered: true,
+    isDuplicated: false,
+    pubKey: 'pubKey'
   }),
   pendingMessages: {
     32: {
@@ -551,6 +593,9 @@ MathJaxBeginning.args = {
     createdAt: 0,
     date: '12:46',
     nickname: 'vader',
+    isRegistered: true,
+    isDuplicated: false,
+    pubKey: 'pubKey'
   }),
 }
 
