@@ -69,7 +69,7 @@ const StyledModalContent = styled(Grid)(({ theme }) => ({
   },
 }))
 
-interface UpdateModalProps {
+export interface UpdateModalProps {
   open: boolean
   handleClose: () => void
   handleUpdate: () => void
