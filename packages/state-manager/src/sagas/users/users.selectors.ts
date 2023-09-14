@@ -53,8 +53,6 @@ export const csrsMapping = createSelector(csrs, csrs => {
       return
     }
 
-    getReqFieldValue
-
     const username = getReqFieldValue(csr, CertFieldsTypes.nickName)
     const onionAddress = getReqFieldValue(csr, CertFieldsTypes.commonName)
     const peerId = getReqFieldValue(csr, CertFieldsTypes.peerId)
