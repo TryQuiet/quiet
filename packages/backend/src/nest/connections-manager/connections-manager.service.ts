@@ -203,6 +203,14 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     }
   }
 
+  public closeSocket() {
+    this.serverIoProvider.io.close()
+  }
+
+  public async openSocket() {
+    await this.socketService.init()
+  }
+
   public async leaveCommunity() {
     this.tor.resetHiddenServices()
     this.serverIoProvider.io.close()
