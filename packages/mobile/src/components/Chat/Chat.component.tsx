@@ -187,9 +187,7 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
                 placeholder={`Message #${channel?.name}`}
                 multiline={true}
                 wrapperStyle={{ width: didKeyboardShow || areFilesUploaded ? '75%' : '85%' }}
-                disabled={!ready}
               />
-
               <View
                 style={{
                   paddingLeft: 10,
@@ -201,7 +199,7 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
               >
                 <AttachmentButton onPress={openAttachments} />
                 {(didKeyboardShow || areFilesUploaded) && (
-                  <MessageSendButton onPress={onPress} disabled={isInputEmpty && !areFilesUploaded} />
+                  <MessageSendButton onPress={onPress} disabled={(isInputEmpty && !areFilesUploaded) || !ready} />
                 )}
               </View>
             </View>
