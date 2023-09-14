@@ -304,10 +304,17 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     }
 
     this.logger(`Launched community ${payload.id}`)
+
     this.serverIoProvider.io.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.LAUNCHED_COMMUNITY)
+
     this.communityId = payload.id
     this.communityState = ServiceState.LAUNCHED
+
     console.log('Hunting for heisenbug: Backend initialized community and sent event to state manager')
+
+    // Unblock websocket endpoints
+    this.socketService.resolveReadyness()
+
     this.serverIoProvider.io.emit(SocketActionTypes.COMMUNITY, { id: payload.id })
   }
   public async launch(payload: InitCommunityPayload) {
