@@ -46,6 +46,8 @@ export class TorControl implements OnModuleInit {
           reject(new Error(`TOR: Control port error: ${data.toString() as string}`))
         }
       })
+      // BARTEK - Add support for dynamic authCookie
+      this.onModuleInit()
       this.connection.write(this.authString)
     })
   }
