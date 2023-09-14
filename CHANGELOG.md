@@ -15,3 +15,7 @@
 * Labels for unregistered and duplicate usernames with modals
 
 * Fixed LoadingPanel useEffect bug.
+
+* Use csrs instead of certificates as a source of user data
+
+* Integration state manager layer with UI layer(desktop and mobile)

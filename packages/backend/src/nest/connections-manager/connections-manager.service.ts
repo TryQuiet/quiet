@@ -442,15 +442,8 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.socketService.on(SocketActionTypes.SEND_COMMUNITY_METADATA, async (payload: CommunityMetadata) => {
       await this.storageService?.updateCommunityMetadata(payload)
     })
-    this.socketService.on(SocketActionTypes.SAVED_OWNER_CERTIFICATE, async (args: SaveOwnerCertificatePayload) => {
-      const saveCertificatePayload: SaveCertificatePayload = {
-        certificate: args.certificate,
-        rootPermsData: args.permsData,
-      }
-      await this.storageService?.saveCertificate(saveCertificatePayload)
-    })
     this.socketService.on(SocketActionTypes.SAVE_USER_CSR, async (payload: SaveCSRPayload) => {
-      console.log(`On ${SocketActionTypes.SAVE_USER_CSR}: ${payload.csr}`)
+      console.log(`On ${SocketActionTypes.SAVE_USER_CSR}`)
       await this.storageService?.saveCSR(payload)
       this.serverIoProvider.io.emit(SocketActionTypes.SAVED_USER_CSR, payload)
     })
@@ -567,9 +560,10 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       console.log('emitting deleted channel event back to state manager')
       this.serverIoProvider.io.emit(SocketActionTypes.CHANNEL_DELETION_RESPONSE, payload)
     })
-    this.storageService.on(StorageEvents.REPLICATED_CSR, async (payload: { csr: string }) => {
+    this.storageService.on(StorageEvents.REPLICATED_CSR, async (payload: string[]) => {
       console.log(`On ${StorageEvents.REPLICATED_CSR}`)
-      this.registrationService.emit(RegistrationEvents.REGISTER_USER_CERTIFICATE, payload.csr)
+      this.serverIoProvider.io.emit(SocketActionTypes.RESPONSE_GET_CSRS, { csrs: payload })
+      payload.forEach(csr => this.registrationService.emit(RegistrationEvents.REGISTER_USER_CERTIFICATE, csr))
     })
     this.storageService.on(StorageEvents.REPLICATED_COMMUNITY_METADATA, (payload: CommunityMetadata) => {
       console.log(`On ${StorageEvents.REPLICATED_COMMUNITY_METADATA}: ${payload}`)

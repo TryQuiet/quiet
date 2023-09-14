@@ -20,6 +20,9 @@ describe('Message component', () => {
             createdAt: 0,
             date: '1:30pm',
             nickname: 'holmes',
+            isDuplicated: false,
+            isRegistered: true,
+            pubKey: 'test',
           },
         ]}
         pendingMessages={{}}
@@ -271,6 +274,9 @@ describe('Message component', () => {
             createdAt: 0,
             date: '1:30pm',
             nickname: 'somebody',
+            isDuplicated: false,
+            isRegistered: true,
+            pubKey: 'test',
           },
         ]}
         pendingMessages={{}}
