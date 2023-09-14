@@ -1,6 +1,6 @@
 {
   "name": "@quiet/identity",
-  "version": "2.0.0-alpha.0",
+  "version": "2.0.0-alpha.1",
   "description": "Quiet tools for creating certificates and signing messages",
   "main": "lib/index.js",
   "types": "lib/index.d.js",
@@ -50,8 +50,8 @@
   "dependencies": {
     "@peculiar/webcrypto": "1.4.3",
     "@quiet/eslint-config": "^1.4.0-alpha.0",
-    "@quiet/logger": "^1.7.0-alpha.0",
-    "@quiet/types": "^2.0.0-alpha.0",
+    "@quiet/logger": "^1.7.0-alpha.1",
+    "@quiet/types": "^2.0.0-alpha.1",
     "pkijs": "^3.0.8"
   },
   "devDependencies": {

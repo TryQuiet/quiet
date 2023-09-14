@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.0.0-alpha.8](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@2.0.0-alpha.7...@quiet/mobile@2.0.0-alpha.8) (2023-09-14)
+
+
+### Bug Fixes
+
+* typo in function name ([7e00db1](https://github.com/TryQuiet/quiet/commit/7e00db1eb8d868cfe6682a1fa75f7e90b3a496bb))
+
+
+
+
+
 # [2.0.0-alpha.7](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@2.0.0-alpha.6...@quiet/mobile@2.0.0-alpha.7) (2023-09-07)
 
 **Note:** Version bump only for package @quiet/mobile
