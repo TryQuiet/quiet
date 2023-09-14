@@ -94,8 +94,7 @@ export const runBackendMobile = async (): Promise<any> => {
 
   const rn_bridge = initRnBridge()
 
-  let app: INestApplicationContext
-  app = await NestFactory.createApplicationContext(
+  const app: INestApplicationContext = await NestFactory.createApplicationContext(
     AppModule.forOptions({
       socketIOPort: options.dataPort,
       httpTunnelPort: options.httpTunnelPort ? options.httpTunnelPort : null,
@@ -118,7 +117,6 @@ export const runBackendMobile = async (): Promise<any> => {
   })
   rn_bridge.channel.on('open', async (msg: OpenServices) => {
     const connectionsManager = app.get<ConnectionsManagerService>(ConnectionsManagerService)
-    // BARTEK: Ugly temporary solution - we should update provider instead directly replacing value!
     const torControlParams = app.get<TorControl>(TorControl)
     torControlParams.torControlParams.auth.value = msg.authCookie
     await connectionsManager.openSocket()
