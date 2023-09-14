@@ -1,6 +1,6 @@
 import React, { FC, useState, useEffect, useRef } from 'react'
 import { Keyboard, View, FlatList, TextInput, KeyboardAvoidingView, Platform } from 'react-native'
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Appbar } from '../../components/Appbar/Appbar.component'
 import { ImagePreviewModal } from '../../components/ImagePreview/ImagePreview.component'
 import { Spinner } from '../Spinner/Spinner.component'
@@ -44,7 +44,7 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
 
   const messageInputRef = useRef<null | TextInput>(null)
 
-  const insets = useSafeAreaInsets();
+  const insets = useSafeAreaInsets()
 
   const defaultPadding = 20
 
