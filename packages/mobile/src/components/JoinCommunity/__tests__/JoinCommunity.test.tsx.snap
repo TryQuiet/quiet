@@ -446,5 +446,32 @@ exports[`JoinCommunity component renders loading screen if not ready 1`] = `
       This can take some time
     </Text>
   </View>
+  <View
+    style={
+      {
+        "margin": 20,
+      }
+    }
+  >
+    <Text
+      color="grayDark"
+      fontSize={12}
+      horizontalTextAlign="left"
+      style={
+        [
+          {
+            "color": "#999999",
+            "fontFamily": "Rubik-Regular",
+            "fontSize": 12,
+            "textAlign": "left",
+            "textAlignVertical": "center",
+          },
+        ]
+      }
+      verticalTextAlign="center"
+    >
+      v 1.0.0
+    </Text>
+  </View>
 </View>
 `;

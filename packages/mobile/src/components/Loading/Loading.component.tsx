@@ -1,5 +1,6 @@
 import React, { FC } from 'react'
 import { Image, View } from 'react-native'
+import deviceInfoModule from 'react-native-device-info'
 import { Typography } from '../Typography/Typography.component'
 import { defaultTheme } from '../../styles/themes/default.theme'
 import { appImages } from '../../assets'
@@ -34,6 +35,11 @@ export const Loading: FC = () => {
           This can take some time
         </Typography>
       </View>
+      <View style={{ margin: 20 }}>
+         <Typography fontSize={12} color={'grayDark'}>
+           {`v ${deviceInfoModule.getVersion()}`}
+         </Typography>
+       </View>
     </View>
   )
 }
