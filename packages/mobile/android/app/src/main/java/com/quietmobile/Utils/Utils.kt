@@ -18,7 +18,7 @@ object Utils {
             outputStreamWriter.append("$data \n")
             outputStreamWriter.close()
         } catch (e: IOException) {
-            Log.e("Worker", "File write failed: $e")
+            Log.e("Worker", "File write failed at: $e")
         }
     }
 
