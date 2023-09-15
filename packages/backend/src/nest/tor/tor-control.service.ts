@@ -1,4 +1,4 @@
-import { Inject, Injectable, OnModuleInit } from '@nestjs/common'
+import { Inject, Injectable } from '@nestjs/common'
 import net from 'net'
 import { CONFIG_OPTIONS, TOR_CONTROL_PARAMS } from '../const'
 import { ConfigOptions } from '../types'
@@ -6,7 +6,7 @@ import { TorControlAuthType, TorControlParams } from './tor.types'
 import Logger from '../common/logger'
 
 @Injectable()
-export class TorControl implements OnModuleInit {
+export class TorControl {
   connection: net.Socket | null
   authString: string
   private readonly logger = Logger(TorControl.name)
@@ -15,7 +15,7 @@ export class TorControl implements OnModuleInit {
     @Inject(CONFIG_OPTIONS) public configOptions: ConfigOptions
   ) {}
 
-  onModuleInit() {
+  private updateAuthString() {
     if (this.torControlParams.auth.type === TorControlAuthType.PASSWORD) {
       this.authString = 'AUTHENTICATE "' + this.torControlParams.auth.value + '"\r\n'
     }
@@ -46,6 +46,7 @@ export class TorControl implements OnModuleInit {
           reject(new Error(`TOR: Control port error: ${data.toString() as string}`))
         }
       })
+      this.updateAuthString()
       this.connection.write(this.authString)
     })
   }
