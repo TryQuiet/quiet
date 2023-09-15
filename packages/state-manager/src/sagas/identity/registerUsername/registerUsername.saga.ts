@@ -12,13 +12,6 @@ import { connectionSelectors } from '../../appConnection/connection.selectors'
 export function* registerUsernameSaga(socket: Socket, action: PayloadAction<string>): Generator {
   // Nickname can differ between saga calls
 
-  while (true) {
-    const isConnectionManager = yield* select(connectionSelectors.isConnectionManager)
-    if (isConnectionManager) {
-      break
-    }
-    yield* delay(500)
-  }
   const nickname = action.payload
 
   const community = yield* select(communitiesSelectors.currentCommunity)
