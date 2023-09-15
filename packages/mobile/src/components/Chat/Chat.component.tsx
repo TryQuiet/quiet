@@ -48,16 +48,20 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
 
   const defaultPadding = 20
 
-  const areFilesUploaded = uploadedFiles && Object.keys(uploadedFiles).length > 0
-  
+  const areFilesUploaded = useCallback(() => {
+    if (!uploadedFiles) return false
+    if (Object.keys(uploadedFiles).length <= 0) return false
+    return true
+  }, [uploadedFiles])()
+
   const shouldDisableSubmit = useCallback(() => {
     if (!ready) return true
-    
+
     const isInputEmpty = messageInput.length === 0
     if (isInputEmpty && !areFilesUploaded) return true
-    
+
     return false
-  }, [messageInput, uploadedFiles, ready])
+  }, [messageInput, areFilesUploaded, ready])()
 
   useEffect(() => {
     const onKeyboardDidShow = () => {
@@ -76,7 +80,6 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
       hideSubscription.remove()
     }
   }, [messageInput?.length, setKeyboardShow])
-
 
   const onInputTextChange = (value: string) => {
     setMessageInput(value)
