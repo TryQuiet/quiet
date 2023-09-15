@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect } from 'react'
-
 import { shell, ipcRenderer } from 'electron'
 
 import { useDispatch, useSelector } from 'react-redux'
