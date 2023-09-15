@@ -38,6 +38,10 @@ export type RootStackParamList = {
     message?: string
   }
   [ScreenNames.ConnectionProcessScreen]: undefined
+  [ScreenNames.DuplicatedUsernameScreen]: undefined
+  [ScreenNames.UnregisteredUsernameScreen]: {
+    username: string
+  }
 }
 
 export type SplashRouteProp = RouteProp<RootStackParamList, ScreenNames.SplashScreen>
@@ -51,3 +55,7 @@ export type DeleteChannelRouteProps = RouteProp<RootStackParamList, ScreenNames.
 export type SuccessRouteProp = RouteProp<RootStackParamList, ScreenNames.SuccessScreen>
 
 export type ErrorRouteProp = RouteProp<RootStackParamList, ScreenNames.ErrorScreen>
+
+export type DuplicatedUsernameRouteProps = RouteProp<RootStackParamList, ScreenNames.DuplicatedUsernameScreen>
+
+export type UnregisteredUsernameRouteProps = RouteProp<RootStackParamList, ScreenNames.UnregisteredUsernameScreen>

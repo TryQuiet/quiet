@@ -25,6 +25,7 @@ import { NewMessagesInfoComponent } from './NewMessagesInfo/NewMessagesInfoCompo
 
 import { FileActionsProps } from './File/FileComponent/FileComponent'
 import { UseModalType } from '../../containers/hooks'
+import { HandleOpenModalType } from '../widgets/userLabel/UserLabel.types'
 
 const ChannelMessagesWrapperStyled = styled(Grid)(({ theme }) => ({
   position: 'relative',
@@ -57,6 +58,8 @@ export interface ChannelComponentProps {
   openContextMenu?: () => void
   enableContextMenu?: boolean
   pendingGeneralChannelRecreation: boolean
+  unregisteredUsernameModalHandleOpen: HandleOpenModalType
+  duplicatedUsernameModalHandleOpen: HandleOpenModalType
 }
 
 const enum ScrollPosition {
@@ -90,6 +93,8 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
   openContextMenu,
   enableContextMenu = false,
   pendingGeneralChannelRecreation,
+  unregisteredUsernameModalHandleOpen,
+  duplicatedUsernameModalHandleOpen,
 }) => {
   const [lastSeenMessage, setLastSeenMessage] = useState<string>()
   const [newMessagesInfo, setNewMessagesInfo] = useState<boolean>(false)
@@ -232,6 +237,8 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
             cancelDownload={cancelDownload}
             onMathMessageRendered={updateMathMessagesRendered}
             pendingGeneralChannelRecreation={pendingGeneralChannelRecreation}
+            unregisteredUsernameModalHandleOpen={unregisteredUsernameModalHandleOpen}
+            duplicatedUsernameModalHandleOpen={duplicatedUsernameModalHandleOpen}
           />
         </ChannelMessagesWrapperStyled>
         <Grid item>

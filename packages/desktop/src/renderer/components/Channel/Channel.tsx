@@ -55,6 +55,8 @@ const Channel = () => {
   const pendingMessages = useSelector(messages.selectors.messagesSendingStatus)
 
   const uploadedFileModal = useModal<{ src: string }>(ModalName.uploadedFileModal)
+  const { handleOpen: duplicatedUsernameModalHandleOpen } = useModal(ModalName.duplicatedUsernameModal)
+  const { handleOpen: unregisteredUsernameModalHandleOpen } = useModal(ModalName.unregisteredUsernameModal)
 
   const [uploadingFiles, setUploadingFiles] = React.useState<FilePreviewData>({})
 
@@ -220,6 +222,8 @@ const Channel = () => {
     openContextMenu: openContextMenu,
     enableContextMenu: enableContextMenu,
     pendingGeneralChannelRecreation: pendingGeneralChannelRecreation,
+    unregisteredUsernameModalHandleOpen,
+    duplicatedUsernameModalHandleOpen,
   }
 
   const uploadFilesPreviewProps: UploadFilesPreviewsProps = {

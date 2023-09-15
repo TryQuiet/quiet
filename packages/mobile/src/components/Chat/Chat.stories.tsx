@@ -196,6 +196,8 @@ storiesOf('Chat', module)
       removeFilePreview={function (id: string): void {
         console.log(`removeFilePreview ${id}`)
       }}
+      duplicatedUsernameHandleBack={function (): void {}}
+      unregisteredUsernameHandleBack={function (username: string): void {}}
     />
   ))
   .add('Empty', () => (
@@ -225,5 +227,7 @@ storiesOf('Chat', module)
       removeFilePreview={function (id: string): void {
         console.log(`removeFilePreview ${id}`)
       }}
+      duplicatedUsernameHandleBack={function (): void {}}
+      unregisteredUsernameHandleBack={function (username: string): void {}}
     />
   ))

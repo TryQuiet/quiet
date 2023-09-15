@@ -1,5 +1,5 @@
 import { communities, getFactory, Store } from '@quiet/state-manager'
-import { Community, CommunityOwnership, CreateNetworkPayload } from '@quiet/types'
+import { Community, CommunityOwnership, CreateNetworkPayload, InvitationPair } from '@quiet/types'
 import { FactoryGirl } from 'factory-girl'
 import { expectSaga } from 'redux-saga-test-plan'
 import { handleInvitationCodeSaga } from './handleInvitationCode.saga'
@@ -13,7 +13,7 @@ describe('Handle invitation code', () => {
   let store: Store
   let factory: FactoryGirl
   let community: Community
-  let validInvitationCode: string
+  let validInvitationPair: InvitationPair[]
 
   beforeEach(async () => {
     store = (
@@ -26,15 +26,20 @@ describe('Handle invitation code', () => {
     ).store
 
     factory = await getFactory(store)
-    validInvitationCode = 'bb5wacaftixjl3yhq2cp3ls2ife2e5wlwct3hjlb4lyk4iniypmgozyd'
+    validInvitationPair = [
+      {
+        onionAddress: 'y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd',
+        peerId: 'QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE',
+      },
+    ]
   })
 
   it('creates network if code is valid', async () => {
     const payload: CreateNetworkPayload = {
       ownership: CommunityOwnership.User,
-      registrar: validInvitationCode,
+      peers: validInvitationPair,
     }
-    await expectSaga(handleInvitationCodeSaga, communities.actions.handleInvitationCode(validInvitationCode))
+    await expectSaga(handleInvitationCodeSaga, communities.actions.handleInvitationCodes(validInvitationPair))
       .withState(store.getState())
       .put(communities.actions.createNetwork(payload))
       .run()
@@ -44,10 +49,10 @@ describe('Handle invitation code', () => {
     community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
     const payload: CreateNetworkPayload = {
       ownership: CommunityOwnership.User,
-      registrar: validInvitationCode,
+      peers: validInvitationPair,
     }
 
-    await expectSaga(handleInvitationCodeSaga, communities.actions.handleInvitationCode(validInvitationCode))
+    await expectSaga(handleInvitationCodeSaga, communities.actions.handleInvitationCodes(validInvitationPair))
       .withState(store.getState())
       .put(
         modalsActions.openModal({
@@ -63,15 +68,14 @@ describe('Handle invitation code', () => {
   })
 
   it('does not try to create network if code is invalid', async () => {
-    const code = 'invalid'
     const payload: CreateNetworkPayload = {
       ownership: CommunityOwnership.User,
-      registrar: code,
+      peers: [],
     }
 
-    await expectSaga(handleInvitationCodeSaga, communities.actions.handleInvitationCode(code))
+    await expectSaga(handleInvitationCodeSaga, communities.actions.handleInvitationCodes([]))
       .withState(store.getState())
-      .put(communities.actions.clearInvitationCode())
+      .put(communities.actions.clearInvitationCodes())
       .put(
         modalsActions.openModal({
           name: ModalName.warningModal,

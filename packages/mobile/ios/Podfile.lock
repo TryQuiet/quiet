@@ -248,6 +248,8 @@ PODS:
     - react-native-config/App (= 1.5.0)
   - react-native-config/App (1.5.0):
     - React-Core
+  - react-native-document-picker (9.0.1):
+    - React-Core
   - react-native-randombytes (3.6.1):
     - React-Core
   - react-native-safe-area-context (4.4.1):
@@ -357,7 +359,7 @@ PODS:
     - SDWebImageWebPCoder (~> 0.8.4)
   - RNFS (2.20.0):
     - React-Core
-  - RNGestureHandler (2.8.0):
+  - RNGestureHandler (2.12.0):
     - React-Core
   - RNScreens (3.18.2):
     - React-Core
@@ -406,6 +408,7 @@ DEPENDENCIES:
   - React-logger (from `../node_modules/react-native/ReactCommon/logger`)
   - react-native-blob-util (from `../node_modules/react-native-blob-util`)
   - react-native-config (from `../node_modules/react-native-config`)
+  - react-native-document-picker (from `../node_modules/react-native-document-picker`)
   - react-native-randombytes (from `../node_modules/react-native-randombytes`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - react-native-webview (from `../node_modules/react-native-webview`)
@@ -488,6 +491,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-blob-util"
   react-native-config:
     :path: "../node_modules/react-native-config"
+  react-native-document-picker:
+    :path: "../node_modules/react-native-document-picker"
   react-native-randombytes:
     :path: "../node_modules/react-native-randombytes"
   react-native-safe-area-context:
@@ -573,6 +578,7 @@ SPEC CHECKSUMS:
   React-logger: 9332c3e7b4ef007a0211c0a9868253aac3e1da82
   react-native-blob-util: 99f4d79189252f597fe0d810c57a3733b1b1dea6
   react-native-config: 5330c8258265c1e5fdb8c009d2cabd6badd96727
+  react-native-document-picker: 2b8f18667caee73a96708a82b284a4f40b30a156
   react-native-randombytes: 421f1c7d48c0af8dbcd471b0324393ebf8fe7846
   react-native-safe-area-context: 99b24a0c5acd0d5dcac2b1a7f18c49ea317be99a
   react-native-webview: 994b9f8fbb504d6314dc40d83f94f27c6831b3bf
@@ -596,7 +602,7 @@ SPEC CHECKSUMS:
   RNDevMenu: 72807568fe4188bd4c40ce32675d82434b43c45d
   RNFastImage: 5c9c9fed9c076e521b3f509fe79e790418a544e8
   RNFS: 4ac0f0ea233904cb798630b3c077808c06931688
-  RNGestureHandler: 62232ba8f562f7dea5ba1b3383494eb5bf97a4d3
+  RNGestureHandler: dec4645026e7401a0899f2846d864403478ff6a5
   RNScreens: 34cc502acf1b916c582c60003dc3089fa01dc66d
   RNShare: eaee3dd5a06dad397c7d3b14762007035c5de405
   RNSVG: c1e76b81c76cdcd34b4e1188852892dc280eb902

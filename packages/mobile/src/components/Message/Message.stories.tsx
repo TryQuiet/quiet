@@ -8,6 +8,8 @@ storiesOf('Message', module)
   .add('Default', () => {
     return (
       <Message
+        duplicatedUsernameHandleBack={function (): void {}}
+        unregisteredUsernameHandleBack={function (username: string): void {}}
         data={[
           {
             id: '1',
@@ -29,6 +31,8 @@ storiesOf('Message', module)
   .add('Info', () => {
     return (
       <Message
+        duplicatedUsernameHandleBack={function (): void {}}
+        unregisteredUsernameHandleBack={function (username: string): void {}}
         data={[
           {
             id: '1',
@@ -52,6 +56,8 @@ storiesOf('Message', module)
     }
     return (
       <Message
+        duplicatedUsernameHandleBack={function (): void {}}
+        unregisteredUsernameHandleBack={function (username: string): void {}}
         data={[
           {
             id: '1',
@@ -72,6 +78,8 @@ storiesOf('Message', module)
   .add('ValidInlineLatexExpression', () => {
     return (
       <Message
+        duplicatedUsernameHandleBack={function (): void {}}
+        unregisteredUsernameHandleBack={function (username: string): void {}}
         data={[
           {
             id: '1',
@@ -92,6 +100,8 @@ storiesOf('Message', module)
   .add('InvalidLatexExpression', () => {
     return (
       <Message
+        duplicatedUsernameHandleBack={function (): void {}}
+        unregisteredUsernameHandleBack={function (username: string): void {}}
         data={[
           {
             id: '1',

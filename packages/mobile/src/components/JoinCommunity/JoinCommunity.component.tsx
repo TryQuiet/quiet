@@ -7,7 +7,7 @@ import { Typography } from '../Typography/Typography.component'
 import { TextWithLink } from '../TextWithLink/TextWithLink.component'
 
 import { JoinCommunityProps } from './JoinCommunity.types'
-import { getInvitationCode } from '@quiet/state-manager'
+import { getInvitationCodes } from '@quiet/state-manager'
 import { ONION_ADDRESS_REGEX } from '@quiet/common'
 
 import { Loading } from '../Loading/Loading.component'
@@ -34,16 +34,14 @@ export const JoinCommunity: FC<JoinCommunityProps> = ({
     Keyboard.dismiss()
     setLoading(true)
 
-    let submitValue: string | undefined = joinCommunityInput
-
-    if (submitValue === undefined || submitValue?.length === 0) {
+    if (joinCommunityInput === undefined || joinCommunityInput?.length === 0) {
       setLoading(false)
       setInputError('Community address can not be empty')
       return
     }
 
-    submitValue = getInvitationCode(submitValue.trim())
-    if (!submitValue || !submitValue.match(ONION_ADDRESS_REGEX)) {
+    const submitValue = getInvitationCodes(joinCommunityInput.trim())
+    if (!submitValue?.length) {
       setLoading(false)
       setInputError('Please check your invitation code and try again')
       return
@@ -91,7 +89,7 @@ export const JoinCommunity: FC<JoinCommunityProps> = ({
               onChangeText={onChangeText}
               label={'Paste your invite link to join an existing community'}
               placeholder={'Invite link'}
-              disabled={loading || !ready}
+              disabled={loading}
               validation={inputError}
               ref={inputRef}
             />

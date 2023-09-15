@@ -12,7 +12,7 @@ import { formatMessageDisplayDate } from '../../utils/functions/formatMessageDis
 
 import { useContextMenu } from '../../hooks/useContextMenu'
 import { MenuName } from '../../const/MenuNames.enum'
-import { getChannelNameFormChannelId } from '@quiet/common'
+import { getChannelNameFromChannelId } from '@quiet/common'
 import { initSelectors } from '../../store/init/init.selectors'
 
 export const ChannelListScreen: FC = () => {
@@ -43,7 +43,7 @@ export const ChannelListScreen: FC = () => {
     const date = newestMessage?.createdAt ? formatMessageDisplayDate(newestMessage.createdAt) : undefined
 
     const tile: ChannelTileProps = {
-      name: getChannelNameFormChannelId(status.id),
+      name: getChannelNameFromChannelId(status.id),
       id: status.id,
       message,
       date,

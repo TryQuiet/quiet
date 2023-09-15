@@ -1,11 +1,21 @@
 import React, { FC } from 'react'
 import { Image, View } from 'react-native'
+import deviceInfoModule from 'react-native-device-info'
 import { Typography } from '../Typography/Typography.component'
+import { defaultTheme } from '../../styles/themes/default.theme'
 import { appImages } from '../../assets'
 
 export const Loading: FC = () => {
   return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }} testID='loading'>
+    <View
+      style={{
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: defaultTheme.palette.background.white,
+      }}
+      testID='loading'
+    >
       <Image
         source={appImages.quiet_icon}
         style={{
@@ -23,6 +33,11 @@ export const Loading: FC = () => {
         </Typography>
         <Typography fontSize={12} color={'gray50'}>
           This can take some time
+        </Typography>
+      </View>
+      <View style={{ margin: 20 }}>
+        <Typography fontSize={12} color={'grayDark'}>
+          {`v ${deviceInfoModule.getVersion()}`}
         </Typography>
       </View>
     </View>

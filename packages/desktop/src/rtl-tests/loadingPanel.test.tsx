@@ -133,7 +133,7 @@ describe('Loading panel', () => {
     expect(screen.queryByTestId('joiningPanelComponent')).toBeNull()
   })
 
-  it('Do not display Loading panel when community and identity are created but certificate is missing', async () => {
+  it('Do not display Loading panel when community and identity are created but user csr is missing', async () => {
     const { store } = await prepareStore(
       {},
       socket // Fork state manager's sagas
@@ -149,20 +149,11 @@ describe('Loading panel', () => {
     await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
       id: community.id,
       nickname: 'alice',
+      userCertificate: null,
+      userCsr: null,
     })
 
-    const aliceCertificate = store.getState().Identity.identities.entities[community.id]?.userCertificate
-
-    expect(aliceCertificate).not.toBeUndefined()
-    expect(aliceCertificate).not.toBeNull()
-
-    store.dispatch(
-      identity.actions.storeUserCertificate({
-        communityId: community.id,
-        // @ts-expect-error
-        userCertificate: null,
-      })
-    )
+    expect(store.getState().Identity.identities.entities[community.id]?.userCsr).toBeNull()
 
     renderComponent(
       <>
@@ -176,14 +167,8 @@ describe('Loading panel', () => {
     expect(screen.queryByTestId('createUsernameModalActions')).not.toBeNull()
     // Assertions that we don't see Loading Pannel
     expect(screen.queryByTestId('spinnerLoader')).toBeNull()
-    // 'Create username' modal should be closed after receiving certificate
-    store.dispatch(
-      identity.actions.storeUserCertificate({
-        communityId: community.id,
-        // @ts-expect-error
-        userCertificate: aliceCertificate,
-      })
-    )
+    // 'Create username' modal should be closed after creating csr
+    store.dispatch(identity.actions.registerUsername('alice'))
     await waitFor(() => expect(screen.queryByTestId('createUsernameModalActions')).toBeNull())
   })
 })

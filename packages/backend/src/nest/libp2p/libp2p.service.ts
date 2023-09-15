@@ -15,10 +15,10 @@ import { multiaddr } from '@multiformats/multiaddr'
 import { ConnectionProcessInfo, PeerId, SocketActionTypes } from '@quiet/types'
 import { SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
 import { ServerIoProviderTypes } from '../types'
-import { createLibp2pListenAddress, createLibp2pAddress } from './libp2p.utils'
 import Logger from '../common/logger'
 import { webSockets } from '../websocketOverTor'
 import { all } from '../websocketOverTor/filters'
+import { createLibp2pAddress, createLibp2pListenAddress } from '@quiet/common'
 
 @Injectable()
 export class Libp2pService extends EventEmitter {
@@ -44,7 +44,7 @@ export class Libp2pService extends EventEmitter {
     return createLibp2pListenAddress(address)
   }
 
-  public async createInstance(params: Libp2pNodeParams): Promise<any> {
+  public async createInstance(params: Libp2pNodeParams): Promise<Libp2p> {
     if (this.libp2pInstance) {
       return this.libp2pInstance
     }
@@ -118,6 +118,7 @@ export class Libp2pService extends EventEmitter {
       dialInChunks.stop()
 
       this.connectedPeers.set(remotePeerId, DateTime.utc().valueOf())
+      this.logger(`${this.connectedPeers.size} connected peers`)
 
       this.emit(Libp2pEvents.PEER_CONNECTED, {
         peers: [remotePeerId],
@@ -144,6 +145,7 @@ export class Libp2pService extends EventEmitter {
       const connectionDuration: number = connectionEndTime - connectionStartTime
 
       this.connectedPeers.delete(remotePeerId)
+      this.logger(`${this.connectedPeers.size} connected peers`)
 
       this.emit(Libp2pEvents.PEER_DISCONNECTED, {
         peer: remotePeerId,

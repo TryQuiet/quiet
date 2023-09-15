@@ -11,9 +11,6 @@ export interface Libp2pNodeParams {
   peerId: any
   listenAddresses: string[]
   agent: Agent
-  cert: string
-  key: string
-  ca: string[]
   localAddress: string
   targetPort: number
   peers: string[]

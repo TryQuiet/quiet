@@ -12,7 +12,7 @@ import { TestConfig } from '../const'
 import logger from './logger'
 import { createCertificatesTestHelper } from './client-server'
 import { Libp2pNodeParams } from '../libp2p/libp2p.types'
-import { createLibp2pAddress, createLibp2pListenAddress } from '../libp2p/libp2p.utils'
+import { createLibp2pAddress, createLibp2pListenAddress } from '@quiet/common'
 const log = logger('test')
 
 export interface Ports {
@@ -201,9 +201,6 @@ export const libp2pInstanceParams = async (): Promise<Libp2pNodeParams> => {
     listenAddresses: [createLibp2pListenAddress('localhost')],
     agent: createHttpsProxyAgent({ port: 1234, host: 'localhost' }),
     localAddress: createLibp2pAddress('localhost', peerId.toString()),
-    cert: pems.userCert,
-    key: pems.userKey,
-    ca: [pems.ca],
     targetPort: port,
     peers: [remoteAddress],
   }
