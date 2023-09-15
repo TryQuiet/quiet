@@ -23,3 +23,5 @@
 * Integration state manager layer with UI layer(desktop and mobile)
 
 * Clarify autoupdate language in update modal to let users know that the app will update on restart.
+
+* C4 for Quiet architecture. Context and Container diagrams.

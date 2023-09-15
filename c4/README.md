@@ -1,7 +1,9 @@
 # Quiet C4 Diagrams
 
 Quiet architecture presented on C4 diagrams. Currently it uses 2 diagrams - Context and Container.
+
 Made in Structurzir
+
 Current views saved in `/current`
 
 ## Run locally
@@ -14,10 +16,13 @@ Current views saved in `/current`
 ## Editing
 
 Everything is in file `workspace.dsl`
+
 After change, save file and reload page.
+
 Highly recommend extenstions for VSC: C4 DSL Extension and Structurizr.
 
 ## Docs
 
 https://c4model.com/
+
 https://docs.structurizr.com/
