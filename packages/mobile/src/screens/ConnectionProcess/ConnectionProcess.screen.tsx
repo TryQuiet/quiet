@@ -1,5 +1,5 @@
 import React, { FC, useCallback, useEffect } from 'react'
-import { communities, connection, ErrorCodes, errors, publicChannels } from '@quiet/state-manager'
+import { communities, connection, ErrorCodes, errors, publicChannels, users } from '@quiet/state-manager'
 import { useDispatch, useSelector } from 'react-redux'
 import ConnectionProcessComponent from '../../components/ConnectionProcess/ConnectionProcess.component'
 import { Linking } from 'react-native'
@@ -17,6 +17,9 @@ const ConnectionProcessScreen: FC = () => {
 
   const channelsStatusSorted = useSelector(publicChannels.selectors.channelsStatusSorted)
   const messageNotNull = channelsStatusSorted.filter(channel => channel.newestMessage !== undefined)
+  const currentChannelDisplayableMessages = useSelector(publicChannels.selectors.currentChannelMessagesMergedBySender)
+  const certificatesMapping = useSelector(users.selectors.certificatesMapping)
+
   const openUrl = useCallback((url: string) => {
     void Linking.openURL(url)
   }, [])
@@ -32,17 +35,18 @@ const ConnectionProcessScreen: FC = () => {
   }, [error, dispatch])
 
   useEffect(() => {
-    if (
-      (isOwner ? connectionProcessSelector.number == 85 : connectionProcessSelector.number == 95) &&
-      messageNotNull.length !== 0
-    ) {
+    const areMessagesLoaded = Object.values(currentChannelDisplayableMessages).length > 0
+    const areCertificatesLoaded = Object.values(certificatesMapping).length > 0
+    const isAllDataLoaded = areMessagesLoaded && areCertificatesLoaded
+    console.log({ areMessagesLoaded, areCertificatesLoaded })
+    if (isOwner ? connectionProcessSelector.number == 85 : isAllDataLoaded && messageNotNull.length !== 0) {
       dispatch(
         navigationActions.replaceScreen({
           screen: ScreenNames.ChannelListScreen,
         })
       )
     }
-  }, [connectionProcessSelector, messageNotNull])
+  }, [connectionProcessSelector, messageNotNull, currentChannelDisplayableMessages, certificatesMapping])
   return <ConnectionProcessComponent openUrl={openUrl} connectionProcess={connectionProcessSelector} />
 }
 
