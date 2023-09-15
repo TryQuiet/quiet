@@ -58,7 +58,7 @@ describe('registerUsernameSaga', () => {
       signAlg: config.signAlg,
       hashAlg: config.hashAlg,
     }
-    store.dispatch(connectionActions.connectionManagerInit())
+
     const reducer = combineReducers(reducers)
     await expectSaga(registerUsernameSaga, socket, identityActions.registerUsername('nickname'))
       .withReducer(reducer)
@@ -126,7 +126,7 @@ describe('registerUsernameSaga', () => {
     identity.userCsr = userCsr
 
     store.dispatch(identityActions.addNewIdentity(identity))
-    store.dispatch(connectionActions.connectionManagerInit())
+
     const reducer = combineReducers(reducers)
     await expectSaga(registerUsernameSaga, socket, identityActions.registerUsername(identity.nickname))
       .withReducer(reducer)
@@ -208,7 +208,7 @@ describe('registerUsernameSaga', () => {
       signAlg: config.signAlg,
       hashAlg: config.hashAlg,
     }
-    store.dispatch(connectionActions.connectionManagerInit())
+
     const reducer = combineReducers(reducers)
     await expectSaga(registerUsernameSaga, socket, identityActions.registerUsername('nickname'))
       .withReducer(reducer)

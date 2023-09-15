@@ -86,7 +86,6 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof connectionActions.setTorBootstrapProcess>
     | ReturnType<typeof connectionActions.setTorConnectionProcess>
     | ReturnType<typeof connectionActions.torBootstrapped>
-    | ReturnType<typeof connectionActions.connectionManagerInit>
     | ReturnType<typeof connectionActions.setTorInitialized>
   >(emit => {
     // UPDATE FOR APP
@@ -95,9 +94,6 @@ export function subscribe(socket: Socket) {
     })
     socket.on(SocketActionTypes.CONNECTION_PROCESS_INFO, (payload: string) => {
       emit(connectionActions.setTorConnectionProcess(payload))
-    })
-    socket.on(SocketActionTypes.CONNECTION_MANAGER_INIT, () => {
-      emit(connectionActions.connectionManagerInit())
     })
     // Misc
     socket.on(SocketActionTypes.PEER_CONNECTED, (payload: { peers: string[] }) => {
