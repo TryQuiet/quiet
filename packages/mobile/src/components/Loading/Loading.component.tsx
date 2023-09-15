@@ -1,15 +1,11 @@
 import React, { FC } from 'react'
 import { Image, View } from 'react-native'
 import deviceInfoModule from 'react-native-device-info'
-import * as Progress from 'react-native-progress'
-import { appImages } from '../../assets'
-import { defaultTheme } from '../../styles/themes/default.theme'
-import { InitCheck } from '../InitCheck/InitCheck.component'
 import { Typography } from '../Typography/Typography.component'
+import { defaultTheme } from '../../styles/themes/default.theme'
+import { appImages } from '../../assets'
 
-import { LoadingProps } from './Loading.types'
-
-export const Loading: FC<LoadingProps> = ({ progress, description, checks }) => {
+export const Loading: FC = () => {
   return (
     <View
       style={{
@@ -18,28 +14,26 @@ export const Loading: FC<LoadingProps> = ({ progress, description, checks }) => 
         justifyContent: 'center',
         backgroundColor: defaultTheme.palette.background.white,
       }}
+      testID='loading'
     >
       <Image
-        source={appImages.quiet_icon_round}
+        source={appImages.quiet_icon}
         style={{
-          margin: 20,
+          marginTop: 20,
+          marginBottom: 46,
           resizeMode: 'cover',
           width: 84,
           height: 84,
+          borderRadius: 16,
         }}
       />
-      <Typography fontSize={14} horizontalTextAlign={'center'} style={{ margin: 10, maxWidth: 200 }}>
-        {description}
-      </Typography>
-      <View>
-        {progress > 0 && progress < 0.95 && (
-          <Progress.Bar progress={progress} color={defaultTheme.palette.main.brand} />
-        )}
-      </View>
-      <View style={{ marginTop: 40, alignItems: 'flex-start' }}>
-        {checks?.map(item => (
-          <InitCheck key={item.event} event={item.event} passed={item.passed} />
-        ))}
+      <View style={{ gap: 6, alignItems: 'center' }}>
+        <Typography fontSize={14} fontWeight={'medium'}>
+          Starting backend
+        </Typography>
+        <Typography fontSize={12} color={'gray50'}>
+          This can take some time
+        </Typography>
       </View>
       <View style={{ margin: 20 }}>
         <Typography fontSize={12} color={'grayDark'}>

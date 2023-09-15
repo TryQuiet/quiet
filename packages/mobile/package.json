@@ -132,7 +132,8 @@
   "jest": {
     "preset": "react-native",
     "modulePathIgnorePatterns": [
-      "<rootDir>/codegen/"
+      "<rootDir>/codegen/",
+      "__snapshots__"
     ],
     "setupFiles": [
       "./src/setupTests.tsx",
