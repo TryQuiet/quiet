@@ -219,7 +219,7 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
                     </Typography>
                   </Grid>
                   {/* {userLabel && (
-                    <Grid>
+                    <Grid data-testid={`userLabel-${messageDisplayData.nickname}-${messageDisplayData.id}`}>
                       <UserLabel
                         username={messageDisplayData.nickname}
                         type={userLabel}

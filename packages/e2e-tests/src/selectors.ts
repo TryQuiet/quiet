@@ -16,6 +16,7 @@ export class App {
   }
 
   async open() {
+    console.log('Opening the app', this.buildSetup.dataDir)
     this.buildSetup.resetDriver()
     await this.buildSetup.createChromeDriver()
     this.thenableWebDriver = this.buildSetup.getDriver()
@@ -23,6 +24,7 @@ export class App {
   }
 
   async close(options?: { forceSaveState?: boolean }) {
+    console.log('Closing the app', this.buildSetup.dataDir)
     if (options?.forceSaveState) {
       await this.saveState() // Selenium creates community and closes app so fast that redux state may not be saved properly
       await this.waitForSavedState()
@@ -33,6 +35,7 @@ export class App {
       this.buildSetup.killNine()
       await new Promise<void>(resolve => setTimeout(() => resolve(), 2000))
     }
+    console.log('App closed', this.buildSetup.dataDir)
   }
 
   get saveStateButton() {
@@ -254,6 +257,14 @@ export class Channel {
     return await this.driver.wait(
       until.elementsLocated(By.xpath(`//*[contains(@data-testid, "userMessages-${username}")]`))
     )
+  }
+
+  async getUserLabels(username: string) {
+    const labels = await this.driver.wait(
+      until.elementsLocated(By.xpath(`//*[contains(@data-testid, "userLabel-${username}")]`))
+    )
+    console.log('labels', labels)
+    return labels.map(labelElement => labelElement.findElement(By.css('span')).getText())
   }
 
   async getMessage(text: string) {

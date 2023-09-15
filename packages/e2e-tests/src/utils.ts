@@ -15,8 +15,6 @@ export interface BuildSetupInit {
 
 export class BuildSetup {
   private driver?: ThenableWebDriver | null
-  public containerId?: string
-  public ipAddress?: string
   public port?: number
   public debugPort?: number
   public dataDir?: string
