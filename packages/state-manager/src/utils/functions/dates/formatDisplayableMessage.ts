@@ -1,7 +1,7 @@
-import { type ChannelMessage, type DisplayableMessage } from '@quiet/types'
+import { User, type ChannelMessage, type DisplayableMessage } from '@quiet/types'
 import { formatMessageDisplayDate } from './formatMessageDisplayDate'
 
-export const displayableMessage = (message: ChannelMessage, nickname: string): DisplayableMessage => {
+export const displayableMessage = (message: ChannelMessage, user: User): DisplayableMessage => {
   const date = formatMessageDisplayDate(message.createdAt)
   return {
     id: message.id,
@@ -9,7 +9,10 @@ export const displayableMessage = (message: ChannelMessage, nickname: string): D
     message: message.message,
     createdAt: message.createdAt,
     date,
-    nickname,
+    nickname: user.username,
+    isRegistered: user.isRegistered,
+    isDuplicated: user.isDuplicated,
+    pubKey: user.pubKey,
     media: message.media,
   }
 }

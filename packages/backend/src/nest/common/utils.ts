@@ -2,7 +2,7 @@ import fs from 'fs'
 import getPort from 'get-port'
 import path from 'path'
 import { Server } from 'socket.io'
-import { User } from '@quiet/types'
+import { UserData } from '@quiet/types'
 import createHttpsProxyAgent from 'https-proxy-agent'
 import PeerId from 'peer-id'
 import tmp from 'tmp'
@@ -144,8 +144,8 @@ export const torDirForPlatform = (basePath?: string): string => {
   return torPath
 }
 
-export const getUsersAddresses = async (users: User[]): Promise<string[]> => {
-  const peers = users.map(async (userData: User) => {
+export const getUsersAddresses = async (users: UserData[]): Promise<string[]> => {
+  const peers = users.map(async (userData: UserData) => {
     return createLibp2pAddress(userData.onionAddress, userData.peerId)
   })
 

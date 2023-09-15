@@ -238,6 +238,7 @@ describe('Two Clients', () => {
       expect(channels.length).toEqual(1)
     })
     it('Channel deletion - User see info about channel deletion in general channel', async () => {
+      await sleep(5000)
       const messages = await generalChannel2.getUserMessages(ownerUsername)
       const text = await messages[3].getText()
       expect(text).toEqual(`@${ownerUsername} deleted #${newChannelName}`)

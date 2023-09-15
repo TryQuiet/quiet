@@ -19,6 +19,9 @@ storiesOf('Message', module)
             createdAt: 0,
             date: '1:30pm',
             nickname: 'holmes',
+            isDuplicated: false,
+            isRegistered: true,
+            pubKey: 'test',
           },
         ]}
         openUrl={() => {}}
@@ -41,6 +44,9 @@ storiesOf('Message', module)
             createdAt: 0,
             date: '1:30pm',
             nickname: 'holmes',
+            isDuplicated: false,
+            isRegistered: true,
+            pubKey: 'test',
           },
         ]}
         openUrl={() => {}}
@@ -66,6 +72,9 @@ storiesOf('Message', module)
             createdAt: 0,
             date: '1:30pm',
             nickname: 'holmes',
+            isDuplicated: false,
+            isRegistered: true,
+            pubKey: 'test',
           },
         ]}
         openUrl={openUrl}
@@ -88,6 +97,9 @@ storiesOf('Message', module)
             createdAt: 0,
             date: '1:30pm',
             nickname: 'someone',
+            isDuplicated: false,
+            isRegistered: true,
+            pubKey: 'test',
           },
         ]}
         openUrl={() => {}}
@@ -110,6 +122,9 @@ storiesOf('Message', module)
             createdAt: 0,
             date: '1:30pm',
             nickname: 'someone',
+            isDuplicated: false,
+            isRegistered: true,
+            pubKey: 'test',
           },
         ]}
         openUrl={() => {}}

@@ -33,7 +33,7 @@ import {
   SaveCSRPayload,
   SaveCertificatePayload,
   SocketActionTypes,
-  User,
+  UserData,
 } from '@quiet/types'
 import { isDefined } from '@quiet/common'
 import fs from 'fs'
@@ -252,11 +252,11 @@ export class StorageService extends EventEmitter {
   }
 
   public async updateCommunityMetadata(communityMetadata: CommunityMetadata) {
-    this.logger(`Updating community metadata`)
+    this.logger(`About to update community metadata`)
     if (!communityMetadata.id) return
     const meta = this.communityMetadata.get(communityMetadata.id)
-    console.log('meta from db', meta)
     if (meta?.ownerCertificate && meta?.rootCa) return
+    this.logger(`Updating community metadata`)
     await this.communityMetadata.put(communityMetadata.id, {
       ...meta,
       ...communityMetadata,
@@ -398,8 +398,8 @@ export class StorageService extends EventEmitter {
       },
     })
     this.certificatesRequests.events.on('replicate.progress', async (_address, _hash, entry, _progress, _total) => {
-      const csr = entry.payload.value
-      this.logger('REPLICATED CSR', csr)
+      const csr: string = entry.payload.value
+      this.logger('Replicated csr')
       let parsedCSR: CertificationRequest
       try {
         parsedCSR = parseCertificationRequest(csr)
@@ -415,20 +415,23 @@ export class StorageService extends EventEmitter {
         )
         return
       }
-
-      this.emit(StorageEvents.REPLICATED_CSR, { csr: csr })
+      this.emit(StorageEvents.REPLICATED_CSR, [csr])
     })
     this.certificatesRequests.events.on('replicated', async () => {
       this.logger('REPLICATED: CSRs')
+      const allCsrs = this.getAllEventLogEntries(this.certificatesRequests)
+      this.emit(StorageEvents.REPLICATED_CSR, allCsrs)
       await this.updatePeersList()
     })
     this.certificatesRequests.events.on('write', async (_address, entry) => {
+      const csr: string = entry.payload.value
       this.logger('Saved CSR locally')
+      this.emit(StorageEvents.REPLICATED_CSR, [csr])
       await this.updatePeersList()
     })
 
     // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
-    await this.certificates.load({ fetchEntryTimeout: 15000 })
+    await this.certificatesRequests.load({ fetchEntryTimeout: 15000 })
     const allcsrs = this.getAllEventLogEntries(this.certificatesRequests)
     this.logger('ALL Certificates COUNT:', allcsrs.length)
     this.logger('STORAGE: Finished creating certificatesRequests db')
@@ -871,6 +874,8 @@ export class StorageService extends EventEmitter {
       return false
     }
 
+    await this.certificatesRequests.load()
+
     const csrs = this.getAllEventLogEntries(this.certificatesRequests)
 
     if (csrs.includes(payload.csr)) return false
@@ -880,9 +885,9 @@ export class StorageService extends EventEmitter {
     return true
   }
 
-  public getAllRegisteredUsers(): User[] {
+  public getAllRegisteredUsers(): UserData[] {
     const certs = this.getAllEventLogEntries(this.certificates)
-    const allUsers: User[] = []
+    const allUsers: UserData[] = []
     for (const cert of certs) {
       const parsedCert = parseCertificate(cert)
       const onionAddress = getCertFieldValue(parsedCert, CertFieldsTypes.commonName)
@@ -895,10 +900,10 @@ export class StorageService extends EventEmitter {
     return allUsers
   }
 
-  public getAllUsers(): User[] {
+  public getAllUsers(): UserData[] {
     const csrs = this.getAllEventLogEntries(this.certificatesRequests)
-    console.log('csrs', csrs.length)
-    const allUsers: User[] = []
+    console.log('csrs count:', csrs.length)
+    const allUsers: UserData[] = []
     for (const csr of csrs) {
       const parsedCert = parseCertificationRequest(csr)
       const onionAddress = getReqFieldValue(parsedCert, CertFieldsTypes.commonName)

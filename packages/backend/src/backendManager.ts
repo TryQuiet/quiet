@@ -5,6 +5,7 @@ import path from 'path'
 import getPort from 'get-port'
 import { AppModule } from './nest/app.module'
 import { ConnectionsManagerService } from './nest/connections-manager/connections-manager.service'
+import { TorControl } from './nest/tor/tor-control.service'
 import { torBinForPlatform, torDirForPlatform } from './nest/common/utils'
 import initRnBridge from './rn-bridge'
 
@@ -93,8 +94,7 @@ export const runBackendMobile = async (): Promise<any> => {
 
   const rn_bridge = initRnBridge()
 
-  let app: INestApplicationContext
-  app = await NestFactory.createApplicationContext(
+  const app: INestApplicationContext = await NestFactory.createApplicationContext(
     AppModule.forOptions({
       socketIOPort: options.dataPort,
       httpTunnelPort: options.httpTunnelPort ? options.httpTunnelPort : null,
@@ -113,27 +113,13 @@ export const runBackendMobile = async (): Promise<any> => {
 
   rn_bridge.channel.on('close', async () => {
     const connectionsManager = app.get<ConnectionsManagerService>(ConnectionsManagerService)
-    await connectionsManager.closeAllServices()
-    await app.close()
+    connectionsManager.closeSocket()
   })
   rn_bridge.channel.on('open', async (msg: OpenServices) => {
-    app = await NestFactory.createApplicationContext(
-      AppModule.forOptions({
-        socketIOPort: msg.socketIOPort,
-        httpTunnelPort: msg.httpTunnelPort ? msg.httpTunnelPort : null,
-        torAuthCookie: msg.authCookie ? msg.authCookie : null,
-        torControlPort: msg.torControlPort ? msg.torControlPort : await getPort(),
-        torBinaryPath: options.torBinary ? options.torBinary : null,
-        options: {
-          env: {
-            appDataPath: options.dataPath,
-          },
-          createPaths: false,
-        },
-      }),
-      { logger: ['warn', 'error', 'log', 'debug', 'verbose'] }
-    )
-    console.log('started backend wiktor little bastard ')
+    const connectionsManager = app.get<ConnectionsManagerService>(ConnectionsManagerService)
+    const torControlParams = app.get<TorControl>(TorControl)
+    torControlParams.torControlParams.auth.value = msg.authCookie
+    await connectionsManager.openSocket()
   })
 }
 

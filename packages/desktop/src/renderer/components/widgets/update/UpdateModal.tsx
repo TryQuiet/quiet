@@ -18,6 +18,8 @@ const classes = {
   updateIcon: `${PREFIX}updateIcon`,
   title: `${PREFIX}title`,
   subTitle: `${PREFIX}subTitle`,
+  secondaryButtonContainer: `${PREFIX}secondaryButtonContainer`,
+  secondaryButton: `${PREFIX}secondaryButton`,
 }
 
 const StyledModalContent = styled(Grid)(({ theme }) => ({
@@ -47,9 +49,27 @@ const StyledModalContent = styled(Grid)(({ theme }) => ({
   [`& .${classes.subTitle}`]: {
     marginBottom: 32,
   },
+
+  [`& .${classes.secondaryButtonContainer}`]: {
+    marginTop: 16,
+    marginBottom: 32,
+  },
+
+  [`& .${classes.secondaryButton}`]: {
+    width: 160,
+    height: 40,
+    color: theme.palette.colors.darkGray,
+    backgroundColor: theme.palette.colors.white,
+    padding: theme.spacing(2),
+    '&:hover': {
+      boxShadow: 'none',
+      cursor: 'pointer',
+      backgroundColor: theme.palette.colors.white,
+    },
+  },
 }))
 
-interface UpdateModalProps {
+export interface UpdateModalProps {
   open: boolean
   handleClose: () => void
   handleUpdate: () => void
@@ -71,9 +91,12 @@ export const UpdateModal: React.FC<UpdateModalProps> = ({ open, handleClose, han
         </Grid>
         <Grid container item justifyContent='center'>
           <Grid item className={classes.subTitle}>
-            <Typography variant='body2'>An update is available for Quiet.</Typography>
+            <Typography variant='body2'>
+              A new update for Quiet is available and will be applied on your next restart.
+            </Typography>
           </Grid>
         </Grid>
+
         <Grid container spacing={8} justifyContent='center'>
           <Grid item xs={4}>
             <Button
@@ -85,9 +108,15 @@ export const UpdateModal: React.FC<UpdateModalProps> = ({ open, handleClose, han
               fullWidth
               className={classes.button}
             >
-              Update now
+              Restart now
             </Button>
           </Grid>
+        </Grid>
+
+        <Grid container item className={classes.secondaryButtonContainer} justifyContent='center'>
+          <Button variant='contained' onClick={handleClose} size='small' fullWidth className={classes.secondaryButton}>
+            Later
+          </Button>
         </Grid>
       </StyledModalContent>
     </Modal>

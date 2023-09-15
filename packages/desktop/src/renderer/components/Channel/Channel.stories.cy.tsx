@@ -30,6 +30,9 @@ const Template: ComponentStory<typeof ChannelComponent> = () => {
       createdAt: 0,
       date: '12:46',
       nickname: 'vader',
+      isDuplicated: false,
+      isRegistered: true,
+      pubKey: 'string',
     }
     const _messages = mock_messages(_message)
     setMessages(_messages)

@@ -68,6 +68,14 @@ jest.mock('react-native-device-info', () => {
   }
 })
 
+jest.mock('react-native-safe-area-context', () => ({
+  useSafeAreaInsets: () => {
+    return {
+      bottom: 0
+    }
+  }
+}))
+
 export const ioMock = io as jest.Mock
 
 jest.resetAllMocks()

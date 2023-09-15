@@ -40,10 +40,9 @@ import {
   type SetChannelSubscribedPayload,
   SocketActionTypes,
   type SavedOwnerCertificatePayload,
-  SendUserCertificatePayload,
   type SendOwnerCertificatePayload,
-  SaveCSRPayload,
   CommunityMetadata,
+  SendCsrsResponse,
 } from '@quiet/types'
 
 const log = logger('socket')
@@ -62,6 +61,7 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof publicChannelsActions.createGeneralChannel>
     | ReturnType<typeof publicChannelsActions.channelDeletionResponse>
     | ReturnType<typeof usersActions.responseSendCertificates>
+    | ReturnType<typeof usersActions.storeCsrs>
     | ReturnType<typeof communitiesActions.responseCreateNetwork>
     | ReturnType<typeof errorsActions.addError>
     | ReturnType<typeof errorsActions.handleError>
@@ -92,6 +92,7 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof identityActions.saveUserCsr>
     | ReturnType<typeof connectionActions.setTorInitialized>
     | ReturnType<typeof communitiesActions.saveCommunityMetadata>
+    | ReturnType<typeof communitiesActions.sendCommunityMetadata>
   >(emit => {
     // UPDATE FOR APP
     socket.on(SocketActionTypes.TOR_INITIALIZED, () => {
@@ -187,14 +188,18 @@ export function subscribe(socket: Socket) {
       emit(filesActions.checkForMissingFiles(payload.id))
       emit(networkActions.addInitializedCommunity(payload.id))
       emit(communitiesActions.clearInvitationCodes())
+      // For backward compatibility (old community):
+      emit(communitiesActions.sendCommunityMetadata())
     })
     // Errors
     socket.on(SocketActionTypes.ERROR, (payload: ErrorPayload) => {
       log(payload)
       emit(errorsActions.handleError(payload))
     })
-
     // Certificates
+    socket.on(SocketActionTypes.RESPONSE_GET_CSRS, (payload: SendCsrsResponse) => {
+      emit(usersActions.storeCsrs(payload))
+    })
     socket.on(SocketActionTypes.RESPONSE_GET_CERTIFICATES, (payload: SendCertificatesResponse) => {
       emit(
         publicChannelsActions.sendNewUserInfoMessage({

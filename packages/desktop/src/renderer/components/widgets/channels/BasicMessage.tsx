@@ -152,7 +152,6 @@ export interface BasicMessageProps {
     src: string
   }>
   onMathMessageRendered?: () => void
-  userLabel?: UserLabelType
   unregisteredUsernameModalHandleOpen: HandleOpenModalType
   duplicatedUsernameModalHandleOpen: HandleOpenModalType
 }
@@ -169,9 +168,14 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
   cancelDownload,
   unregisteredUsernameModalHandleOpen,
   duplicatedUsernameModalHandleOpen,
-  userLabel = null,
 }) => {
   const messageDisplayData = messages[0]
+
+  const userLabel = messageDisplayData?.isDuplicated
+    ? UserLabelType.DUPLICATE
+    : !messageDisplayData?.isRegistered
+    ? UserLabelType.UNREGISTERED
+    : null
 
   const infoMessage = messageDisplayData.type === 3 // 3 stands for MessageType.Info
 
@@ -214,7 +218,7 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
                       {infoMessage ? 'Quiet' : messageDisplayData.nickname}
                     </Typography>
                   </Grid>
-                  {userLabel && (
+                  {/* {userLabel && (
                     <Grid>
                       <UserLabel
                         username={messageDisplayData.nickname}
@@ -223,7 +227,7 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
                         duplicatedUsernameModalHandleOpen={duplicatedUsernameModalHandleOpen}
                       />
                     </Grid>
-                  )}
+                  )} */}
                   {status !== 'failed' && (
                     <Grid item>
                       <Typography

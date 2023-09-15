@@ -8,6 +8,7 @@ import { setupCrypto } from '@quiet/identity'
 import { networkActions } from '../network/network.slice'
 import { networkSelectors } from '../network/network.selectors'
 import { type Identity } from '@quiet/types'
+import { usersSelectors } from '../users/users.selectors'
 
 describe('connectionReducer', () => {
   let store: Store
@@ -52,11 +53,21 @@ describe('connectionReducer', () => {
   })
 
   it('user data mapping by peerId', () => {
+    const allUsers = usersSelectors.allUsers(store.getState())
+    const _pubKey = Object.values(allUsers).map(item => {
+      if (item.username === 'alice') {
+        return item.pubKey
+      }
+    })
+    const pubKey = _pubKey[0]
     const aliceCertData = {
       username: alice.nickname,
       onionAddress: alice.hiddenService.onionAddress,
       peerId: alice.peerId.id,
       dmPublicKey: alice.dmKeys.publicKey,
+      isDuplicated: false,
+      isRegistered: true,
+      pubKey,
     }
 
     store.dispatch(networkActions.addConnectedPeers([alice.peerId.id]))

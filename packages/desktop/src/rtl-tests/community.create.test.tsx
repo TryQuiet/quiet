@@ -203,6 +203,7 @@ describe('User', () => {
         "Files/checkForMissingFiles",
         "Network/addInitializedCommunity",
         "Communities/clearInvitationCodes",
+        "Communities/sendCommunityMetadata",
         "Identity/saveOwnerCertToDb",
         "PublicChannels/createGeneralChannel",
         "PublicChannels/channelsReplicated",

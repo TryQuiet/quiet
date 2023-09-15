@@ -84,7 +84,7 @@ export const connectionSlice = createSlice({
         case ConnectionProcessInfo.LAUNCHED_COMMUNITY:
           state.torConnectionProcess = { number: 85, text: info }
           break
-        case ConnectionProcessInfo.SAVING_USER_CSR:
+        case ConnectionProcessInfo.WAITING_FOR_METADATA:
           state.torConnectionProcess = { number: 87, text: info }
           break
         case ConnectionProcessInfo.CHANNELS_REPLICATED:

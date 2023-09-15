@@ -103,10 +103,10 @@ export class SocketService extends EventEmitter implements OnModuleInit {
       })
 
       socket.on(SocketActionTypes.SAVE_USER_CSR, async (payload: SaveCSRPayload) => {
-        this.logger(`SAVING user CSR ${payload.csr}`)
+        this.logger(`On ${SocketActionTypes.SAVE_USER_CSR}`)
         this.emit(SocketActionTypes.SAVE_USER_CSR, payload)
         await new Promise<void>(resolve => setTimeout(() => resolve(), 2000))
-        this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.SAVING_USER_CSR)
+        this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.WAITING_FOR_METADATA)
       })
       socket.on(SocketActionTypes.REGISTER_OWNER_CERTIFICATE, async (payload: RegisterOwnerCertificatePayload) => {
         this.logger(`Registering owner certificate (${payload.communityId})`)
@@ -152,6 +152,9 @@ export class SocketService extends EventEmitter implements OnModuleInit {
       socket.on(SocketActionTypes.DELETE_FILES_FROM_CHANNEL, async (payload: DeleteFilesFromChannelSocketPayload) => {
         this.logger('DELETE_FILES_FROM_CHANNEL', payload)
         this.emit(SocketActionTypes.DELETE_FILES_FROM_CHANNEL, payload)
+      })
+      socket.on(SocketActionTypes.SEND_COMMUNITY_METADATA, (payload: CommunityMetadata) => {
+        this.emit(SocketActionTypes.SEND_COMMUNITY_METADATA, payload)
       })
     })
   }
