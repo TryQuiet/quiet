@@ -63,7 +63,7 @@ describe('User', () => {
     )
 
     store.dispatch(modalsActions.openModal({ name: ModalName.joinCommunityModal }))
-    store.dispatch(connection.actions.connectionManagerInit())
+
     window.HTMLElement.prototype.scrollTo = jest.fn()
 
     renderComponent(
@@ -235,7 +235,6 @@ describe('User', () => {
     )
 
     store.dispatch(modalsActions.openModal({ name: ModalName.joinCommunityModal }))
-    store.dispatch(connection.actions.connectionManagerInit())
 
     renderComponent(
       <>
@@ -343,7 +342,7 @@ describe('User', () => {
       {},
       socket // Fork state manager's sagas
     )
-    store.dispatch(connection.actions.connectionManagerInit())
+
     store.dispatch(modalsActions.openModal({ name: ModalName.joinCommunityModal }))
 
     renderComponent(
