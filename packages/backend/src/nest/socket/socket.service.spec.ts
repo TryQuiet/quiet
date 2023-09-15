@@ -19,9 +19,15 @@ describe('SocketService', () => {
     await module.close()
   })
 
-  it('start and stop data server', async () => {
-    expect(socketService.serverIoProvider.io.engine.opts.cors).toStrictEqual({}) // No cors should be set by default
+  beforeEach(async () => {
     await socketService.listen()
+  })
+
+  afterEach(async () => {
     await socketService.close()
+  })
+
+  it('sets no default cors', async () => {
+    expect(socketService.serverIoProvider.io.engine.opts.cors).toStrictEqual({}) // No cors should be set by default
   })
 })
