@@ -131,7 +131,6 @@
   },
   "jest": {
     "preset": "react-native",
-    "snapshotResolver": "./jest/snapshotResolver.js",
     "modulePathIgnorePatterns": [
       "<rootDir>/codegen/",
       "__snapshots__"
