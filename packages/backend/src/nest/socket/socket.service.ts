@@ -32,7 +32,7 @@ export class SocketService extends EventEmitter implements OnModuleInit {
 
   constructor(
     @Inject(SERVER_IO_PROVIDER) public readonly serverIoProvider: ServerIoProviderTypes,
-    @Inject(CONFIG_OPTIONS) public readonly configOptions: ConfigOptions,
+    @Inject(CONFIG_OPTIONS) public readonly configOptions: ConfigOptions
   ) {
     super()
   }
@@ -64,7 +64,6 @@ export class SocketService extends EventEmitter implements OnModuleInit {
   private readonly attachListeners = (): void => {
     // Attach listeners here
     this.serverIoProvider.io.on(SocketActionTypes.CONNECTION, socket => {
-
       this.logger('socket connection')
 
       // On websocket connection, update presentation service with network data
@@ -91,8 +90,6 @@ export class SocketService extends EventEmitter implements OnModuleInit {
         this.emit(SocketActionTypes.DELETE_CHANNEL, payload)
       })
 
-
-
       // ====== Messages ======
       socket.on(SocketActionTypes.SEND_MESSAGE, async (payload: SendMessagePayload) => {
         this.emit(SocketActionTypes.SEND_MESSAGE, payload)
@@ -105,8 +102,6 @@ export class SocketService extends EventEmitter implements OnModuleInit {
       socket.on(SocketActionTypes.ASK_FOR_MESSAGES, async (payload: AskForMessagesPayload) => {
         this.emit(SocketActionTypes.ASK_FOR_MESSAGES, payload)
       })
-
-
 
       // ====== Files ======
       socket.on(SocketActionTypes.UPLOAD_FILE, async (payload: UploadFilePayload) => {
@@ -124,8 +119,6 @@ export class SocketService extends EventEmitter implements OnModuleInit {
       socket.on(SocketActionTypes.DELETE_FILES_FROM_CHANNEL, async (payload: DeleteFilesFromChannelSocketPayload) => {
         this.emit(SocketActionTypes.DELETE_FILES_FROM_CHANNEL, payload)
       })
-
-
 
       // ====== Direct Messages ======
       socket.on(
@@ -149,8 +142,6 @@ export class SocketService extends EventEmitter implements OnModuleInit {
       socket.on(SocketActionTypes.SUBSCRIBE_FOR_DIRECT_MESSAGE_THREAD, async (peerId: string, channelId: string) => {
         this.emit(SocketActionTypes.SUBSCRIBE_FOR_DIRECT_MESSAGE_THREAD, { peerId, channelId })
       })
-
-
 
       // ====== Certificates ======
       socket.on(SocketActionTypes.SAVE_USER_CSR, async (payload: SaveCSRPayload) => {
@@ -185,8 +176,6 @@ export class SocketService extends EventEmitter implements OnModuleInit {
 
         this.emit(SocketActionTypes.SEND_COMMUNITY_METADATA, communityMetadataPayload)
       })
-
-
 
       // ====== Community ======
       socket.on(SocketActionTypes.SEND_COMMUNITY_METADATA, (payload: CommunityMetadata) => {

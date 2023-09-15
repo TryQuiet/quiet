@@ -1,4 +1,4 @@
-import { SocketActionTypes } from "@quiet/types";
+import { SocketActionTypes } from '@quiet/types'
 
 export const suspendableSocketEvents: string[] = [
   // A

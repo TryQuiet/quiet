@@ -53,7 +53,7 @@ export const ChannelListScreen: FC = () => {
     return tile
   })
 
-  let communityContextMenu = useContextMenu(MenuName.Community)
+  const communityContextMenu = useContextMenu(MenuName.Community)
 
   return <ChannelListComponent community={community} tiles={tiles} communityContextMenu={communityContextMenu} />
 }
