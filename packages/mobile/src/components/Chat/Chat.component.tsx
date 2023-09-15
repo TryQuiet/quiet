@@ -204,7 +204,7 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
               >
                 <AttachmentButton onPress={openAttachments} />
                 {(didKeyboardShow || areFilesUploaded) && (
-                  <MessageSendButton onPress={onPress} disabled={shouldDisableSubmit()} />
+                  <MessageSendButton onPress={onPress} disabled={shouldDisableSubmit} />
                 )}
               </View>
             </View>
