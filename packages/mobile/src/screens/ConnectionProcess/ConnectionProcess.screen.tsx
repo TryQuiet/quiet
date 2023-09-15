@@ -17,8 +17,9 @@ const ConnectionProcessScreen: FC = () => {
 
   const channelsStatusSorted = useSelector(publicChannels.selectors.channelsStatusSorted)
   const messageNotNull = channelsStatusSorted.filter(channel => channel.newestMessage !== undefined)
-  const currentChannelDisplayableMessages = useSelector(publicChannels.selectors.currentChannelMessagesMergedBySender)
+
   const certificatesMapping = useSelector(users.selectors.certificatesMapping)
+  const channels = useSelector(publicChannels.selectors.publicChannels)
 
   const openUrl = useCallback((url: string) => {
     void Linking.openURL(url)
@@ -35,10 +36,10 @@ const ConnectionProcessScreen: FC = () => {
   }, [error, dispatch])
 
   useEffect(() => {
-    const areMessagesLoaded = Object.values(currentChannelDisplayableMessages).length > 0
+    const areChannelsLoaded = channels.length > 0
     const areCertificatesLoaded = Object.values(certificatesMapping).length > 0
-    const isAllDataLoaded = areMessagesLoaded && areCertificatesLoaded
-    console.log({ areMessagesLoaded, areCertificatesLoaded })
+    const isAllDataLoaded = areChannelsLoaded && areCertificatesLoaded
+    console.log({ areChannelsLoaded, areCertificatesLoaded })
     if (isOwner ? connectionProcessSelector.number == 85 : isAllDataLoaded && messageNotNull.length !== 0) {
       dispatch(
         navigationActions.replaceScreen({
@@ -46,7 +47,7 @@ const ConnectionProcessScreen: FC = () => {
         })
       )
     }
-  }, [connectionProcessSelector, messageNotNull, currentChannelDisplayableMessages, certificatesMapping])
+  }, [connectionProcessSelector, messageNotNull, certificatesMapping, channels])
   return <ConnectionProcessComponent openUrl={openUrl} connectionProcess={connectionProcessSelector} />
 }
 
