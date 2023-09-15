@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.8.1](https://github.com/TryQuiet/identity/compare/@quiet/identity@1.8.0...@quiet/identity@1.8.1) (2023-09-15)
+
+**Note:** Version bump only for package @quiet/identity
+
+
+
+
+
 # [1.8.0](https://github.com/TryQuiet/identity/compare/@quiet/identity@1.8.0-alpha.0...@quiet/identity@1.8.0) (2023-08-28)
 
 **Note:** Version bump only for package @quiet/identity

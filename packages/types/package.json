@@ -1,6 +1,6 @@
 {
   "name": "@quiet/types",
-  "version": "1.8.0",
+  "version": "1.8.1",
   "description": "Common monorepo types",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
