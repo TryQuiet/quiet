@@ -12,7 +12,7 @@ import { LoadingButton } from '../ui/LoadingButton/LoadingButton'
 
 import { CreateCommunityDictionary, JoinCommunityDictionary } from '../CreateJoinCommunity/community.dictionary'
 
-import { CommunityOwnership } from '@quiet/types'
+import { CommunityOwnership, InvitationPair } from '@quiet/types'
 
 import { Controller, useForm } from 'react-hook-form'
 import { TextInput } from '../../forms/components/textInput'
@@ -20,8 +20,8 @@ import { InviteLinkErrors } from '../../forms/fieldsErrors'
 import { IconButton, InputAdornment } from '@mui/material'
 import VisibilityOff from '@mui/icons-material/VisibilityOff'
 import Visibility from '@mui/icons-material/Visibility'
-import { ONION_ADDRESS_REGEX, parseName } from '@quiet/common'
-import { getInvitationCode } from '@quiet/state-manager'
+import { ONION_ADDRESS_REGEX, pairsToInvitationShareUrl, parseName } from '@quiet/common'
+import { getInvitationCodes } from '@quiet/state-manager'
 
 const PREFIX = 'PerformCommunityActionComponent'
 
@@ -129,7 +129,7 @@ interface PerformCommunityActionFormValues {
 export interface PerformCommunityActionProps {
   open: boolean
   communityOwnership: CommunityOwnership
-  handleCommunityAction: (value: string) => void
+  handleCommunityAction: (value: any) => void
   handleRedirection: () => void
   handleClose: () => void
   isConnectionReady?: boolean
@@ -137,7 +137,7 @@ export interface PerformCommunityActionProps {
   hasReceivedResponse: boolean
   revealInputValue?: boolean
   handleClickInputReveal?: () => void
-  invitationCode?: string
+  invitationCode?: InvitationPair[]
 }
 
 export const PerformCommunityActionComponent: React.FC<PerformCommunityActionProps> = ({
@@ -171,6 +171,7 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
     setValue,
     setError,
     control,
+    clearErrors,
   } = useForm<PerformCommunityActionFormValues>({
     mode: 'onTouched',
   })
@@ -178,22 +179,26 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
   const onSubmit = (values: PerformCommunityActionFormValues) => submitForm(handleCommunityAction, values, setFormSent)
 
   const submitForm = (
-    handleSubmit: (value: string) => void,
+    handleSubmit: (value: any) => void,
     values: PerformCommunityActionFormValues,
     setFormSent: (value: boolean) => void
   ) => {
-    let submitValue = communityOwnership === CommunityOwnership.Owner ? parseName(values.name) : values.name.trim()
+    if (communityOwnership === CommunityOwnership.Owner) {
+      setFormSent(true)
+      handleSubmit(parseName(values.name))
+      return
+    }
 
     if (communityOwnership === CommunityOwnership.User) {
-      submitValue = getInvitationCode(submitValue)
-      if (!submitValue || !submitValue.match(ONION_ADDRESS_REGEX)) {
+      const codes = getInvitationCodes(values.name.trim())
+      if (!codes.length) {
         setError('name', { message: InviteLinkErrors.InvalidCode })
         return
       }
-    }
 
-    setFormSent(true)
-    handleSubmit(submitValue)
+      setFormSent(true)
+      handleSubmit(codes)
+    }
   }
 
   const onChange = (name: string) => {
@@ -206,16 +211,17 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
 
   // Lock the form if app's been open with custom protocol
   useEffect(() => {
-    if (communityOwnership === CommunityOwnership.User && invitationCode) {
+    if (communityOwnership === CommunityOwnership.User && invitationCode?.length) {
       setFormSent(true)
-      setValue('name', invitationCode)
+      setValue('name', pairsToInvitationShareUrl(invitationCode))
     }
   }, [communityOwnership, invitationCode])
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!open) {
       setValue('name', '')
       setCommunityName('')
+      clearErrors('name')
     }
   }, [open])
 
@@ -250,6 +256,7 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
                       event.persist()
                       const value = event.target.value
                       onChange(value)
+                      setValue('name', value)
                       // Call default
                       field.onChange(event)
                     }}

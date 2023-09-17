@@ -11,6 +11,9 @@ describe('FileComponent', () => {
         message={{
           id: '32',
           type: 2,
+          isDuplicated: false,
+          isRegistered: true,
+          pubKey: 'string',
           media: {
             cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
             message: {

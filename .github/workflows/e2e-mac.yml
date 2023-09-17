@@ -47,27 +47,13 @@ jobs:
       - name: Add App file to applications
         run: cd ~ && cp -R "/Volumes/Quiet $VERSION/Quiet.app" /Applications
 
-      - name: Change name dir 
-        run: cd ~ && mv /Applications/Quiet.app /Applications/Quiet-Latest.app 
+      - name: Run invitation link test - Includes 2 separate application clients
+        uses: nick-fields/retry@943e742917ac94714d2f408a0e8320f2d1fcafcd # v2.8.3
+        with:
+          timeout_minutes: 25
+          max_attempts: 3
+          command: cd packages/e2e-tests && npm run test invitationLink.test.ts
 
-        # OLD ver
-      - name: Download DMG 1.2.0
-        working-directory: ./packages/e2e-tests/Quiet
-        run: curl -LO https://github.com/TryQuiet/quiet/releases/download/quiet%401.2.0/Quiet-1.2.0.dmg
-
-      - name: Chmod 1.2.0
-        working-directory: ./packages/e2e-tests/Quiet
-        run: chmod +x Quiet-1.2.0.dmg
-
-      - name: Mount installer file in volume on system 1.2.0
-        working-directory: ./packages/e2e-tests/Quiet
-        run: hdiutil mount Quiet-1.2.0.dmg 
-
-      - name: Add App file to applications 1.2.0
-        run: cd ~ && cp -R "/Volumes/Quiet 1.2.0/Quiet.app" /Applications
-
-
-      # OLD ver
       - name: Run one client test
         uses: nick-fields/retry@943e742917ac94714d2f408a0e8320f2d1fcafcd # v2.8.3
         with:
@@ -75,23 +61,9 @@ jobs:
           max_attempts: 3
           command: cd packages/e2e-tests && npm run test oneClient.test.ts
 
-      # - name: Run Backwards Compatibility test
-      #   uses: nick-fields/retry@943e742917ac94714d2f408a0e8320f2d1fcafcd # v2.8.3
-      #   with:
-      #     timeout_minutes: 15
-      #     max_attempts: 3
-      #     command: cd packages/e2e-tests && npm run test backwardsCompatibility.test.ts
-
       - name: Run two clients test
         uses: nick-fields/retry@943e742917ac94714d2f408a0e8320f2d1fcafcd # v2.8.3
         with:
           timeout_minutes: 25
           max_attempts: 3
           command: cd packages/e2e-tests && npm run test twoClients.test.ts
-
-      - name: Run invitation link test - Includes 2 separate application clients
-        uses: nick-fields/retry@943e742917ac94714d2f408a0e8320f2d1fcafcd # v2.8.3
-        with:
-          timeout_minutes: 25
-          max_attempts: 3
-          command: cd packages/e2e-tests && npm run test invitationLink.test.ts

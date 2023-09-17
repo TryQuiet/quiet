@@ -1,4 +1,4 @@
-import { DisplayableMessage } from '@quiet/state-manager'
+import { DisplayableMessage } from '@quiet/types'
 
 interface IGenerateMessages {
   amount?: number
@@ -24,6 +24,9 @@ export const generateMessages = (options: IGenerateMessages = defaults) => {
       createdAt: 0,
       date: 'string',
       nickname,
+      isDuplicated: false,
+      isRegistered: true,
+      pubKey: 'string',
     })
   }
 

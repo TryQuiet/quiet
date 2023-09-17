@@ -1,5 +1,6 @@
 import React, { FC, useState, useEffect, useRef } from 'react'
 import { Keyboard, View, FlatList, TextInput, KeyboardAvoidingView, Platform } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Appbar } from '../../components/Appbar/Appbar.component'
 import { ImagePreviewModal } from '../../components/ImagePreview/ImagePreview.component'
 import { Spinner } from '../Spinner/Spinner.component'
@@ -34,6 +35,8 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
   removeFilePreview,
   uploadedFiles,
   openUrl,
+  duplicatedUsernameHandleBack,
+  unregisteredUsernameHandleBack,
   ready = true,
 }) => {
   const [didKeyboardShow, setKeyboardShow] = useState(false)
@@ -41,7 +44,10 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
 
   const messageInputRef = useRef<null | TextInput>(null)
 
+  const insets = useSafeAreaInsets()
+
   const defaultPadding = 20
+
   const areFilesUploaded = uploadedFiles && Object.keys(uploadedFiles).length > 0
 
   useEffect(() => {
@@ -113,6 +119,8 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
       cancelDownload={cancelDownload}
       openImagePreview={openImagePreview}
       openUrl={openUrl}
+      duplicatedUsernameHandleBack={duplicatedUsernameHandleBack}
+      unregisteredUsernameHandleBack={unregisteredUsernameHandleBack}
     />
   )
 
@@ -121,7 +129,7 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
       <Appbar title={`#${channel?.name}`} back={handleBackButton} contextMenu={contextMenu} />
       <KeyboardAvoidingView
         behavior={Platform.select({ ios: 'padding', android: undefined })}
-        keyboardVerticalOffset={Platform.select({ ios: 60, android: 0 })}
+        keyboardVerticalOffset={Platform.select({ ios: insets.bottom, android: 0 })}
         enabled={Platform.select({ ios: true, android: false })}
         style={{
           flex: 1,
@@ -222,6 +230,8 @@ export const ChannelMessagesComponent: React.FC<ChannelMessagesComponentProps & 
   cancelDownload,
   openImagePreview,
   openUrl,
+  duplicatedUsernameHandleBack,
+  unregisteredUsernameHandleBack,
 }) => {
   return (
     <View key={day}>
@@ -239,6 +249,8 @@ export const ChannelMessagesComponent: React.FC<ChannelMessagesComponentProps & 
             openImagePreview={openImagePreview}
             openUrl={openUrl}
             pendingMessages={pendingMessages}
+            duplicatedUsernameHandleBack={duplicatedUsernameHandleBack}
+            unregisteredUsernameHandleBack={unregisteredUsernameHandleBack}
           />
         )
       })}

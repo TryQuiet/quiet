@@ -7,18 +7,10 @@ import { config } from '../../users/const/certFieldTypes'
 import { Socket, applyEmitParams } from '../../../types'
 import { communitiesSelectors } from '../../communities/communities.selectors'
 import { CreateUserCsrPayload, RegisterCertificatePayload, SocketActionTypes, Community } from '@quiet/types'
-import { connectionSelectors } from '../../appConnection/connection.selectors'
 
 export function* registerUsernameSaga(socket: Socket, action: PayloadAction<string>): Generator {
   // Nickname can differ between saga calls
 
-  while (true) {
-    const isConnectionManager = yield* select(connectionSelectors.isConnectionManager)
-    if (isConnectionManager) {
-      break
-    }
-    yield* delay(500)
-  }
   const nickname = action.payload
 
   const community = yield* select(communitiesSelectors.currentCommunity)
@@ -67,7 +59,6 @@ export function* registerUsernameSaga(socket: Socket, action: PayloadAction<stri
         signAlg: config.signAlg,
         hashAlg: config.hashAlg,
       }
-      console.log('user csr saga payload', payload)
       userCsr = yield* call(createUserCsr, payload)
     } catch (e) {
       console.error(e)

@@ -1,5 +1,5 @@
-import React, { FC, ReactNode } from 'react'
-import { View, Image, StyleSheet } from 'react-native'
+import React, { Component, FC, ReactNode } from 'react'
+import { View, Text, Image, StyleSheet } from 'react-native'
 import { Typography } from '../Typography/Typography.component'
 import { MessageProps } from './Message.types'
 import { Jdenticon } from '../Jdenticon/Jdenticon.component'
@@ -9,9 +9,11 @@ import { AUTODOWNLOAD_SIZE_LIMIT } from '@quiet/state-manager'
 import { UploadedImage } from '../UploadedImage/UploadedImage.component'
 import { UploadedFile } from '../UploadedFile/UploadedFile.component'
 import { FileActionsProps } from '../UploadedFile/UploadedFile.types'
-import Linkify from 'react-linkify'
 import { MathJaxSvg } from 'react-native-mathjax-html-to-svg'
+import Markdown, { MarkdownIt, ASTNode } from '@ronradtke/react-native-markdown-display'
 import { defaultTheme } from '../../styles/themes/default.theme'
+import UserLabel from '../UserLabel/UserLabel.component'
+import { UserLabelType } from '../UserLabel/UserLabel.types'
 
 export const Message: FC<MessageProps & FileActionsProps> = ({
   data, // Set of messages merged by sender
@@ -21,15 +23,9 @@ export const Message: FC<MessageProps & FileActionsProps> = ({
   openImagePreview,
   openUrl,
   pendingMessages,
+  duplicatedUsernameHandleBack,
+  unregisteredUsernameHandleBack,
 }) => {
-  const componentDecorator = (decoratedHref: string, decoratedText: string, key: number): ReactNode => {
-    return (
-      <Typography fontSize={14} color={'link'} onPress={() => openUrl(decoratedHref)} key={key}>
-        {decoratedText}
-      </Typography>
-    )
-  }
-
   const renderMessage = (message: DisplayableMessage, pending: boolean) => {
     switch (message.type) {
       case 2: // MessageType.Image (cypress tests incompatibility with enums)
@@ -61,6 +57,31 @@ export const Message: FC<MessageProps & FileActionsProps> = ({
       default:
         const color = pending ? 'lightGray' : 'main'
 
+        const markdownRules = {
+          image: (
+            node: ASTNode,
+            children: ReactNode[],
+            parent: ASTNode[],
+            styles: any,
+            allowedImageHandlers: string[],
+            defaultImageHandler: string
+          ) => (
+            <Text key={node.key} style={styles.image}>
+              ![{node.attributes.alt}]({node.attributes.src})
+            </Text>
+          ),
+          link: (node: ASTNode, children: ReactNode[], parent: ASTNode[], styles: any) => (
+            <Text key={node.key} style={styles.link} onPress={() => openUrl(node.attributes.href)}>
+              {children}
+            </Text>
+          ),
+          paragraph: (node: ASTNode, children: ReactNode[], parent: ASTNode[], styles: any) => (
+            <Typography fontSize={14} color={color} testID={message.message}>
+              {children}
+            </Typography>
+          ),
+        }
+
         const containsLatex = /\$\$(.+)\$\$/.test(message.message)
         if (containsLatex) {
           // Input sanitization. react-native-mathjax-html-to-svg throws error when provided with empty "$$$$"
@@ -73,9 +94,9 @@ export const Message: FC<MessageProps & FileActionsProps> = ({
           )
         }
         return (
-          <Typography fontSize={14} color={color} testID={message.message}>
-            <Linkify componentDecorator={componentDecorator}>{message.message}</Linkify>
-          </Typography>
+          <Markdown markdownit={md} style={markdownStyle} rules={markdownRules}>
+            {message.message}
+          </Markdown>
         )
     }
   }
@@ -84,6 +105,12 @@ export const Message: FC<MessageProps & FileActionsProps> = ({
 
   const info = representativeMessage.type === MessageType.Info
   const pending: boolean = pendingMessages?.[representativeMessage.id] !== undefined
+  console.log({ representativeMessage })
+  const userLabel = representativeMessage?.isDuplicated
+    ? UserLabelType.DUPLICATE
+    : !representativeMessage?.isRegistered
+    ? UserLabelType.UNREGISTERED
+    : null
 
   return (
     <View style={{ flex: 1 }}>
@@ -118,6 +145,18 @@ export const Message: FC<MessageProps & FileActionsProps> = ({
                 {info ? 'Quiet' : representativeMessage.nickname}
               </Typography>
             </View>
+
+            {userLabel && (
+              <View>
+                <UserLabel
+                  username={representativeMessage.nickname}
+                  type={userLabel}
+                  duplicatedUsernameHandleBack={duplicatedUsernameHandleBack}
+                  unregisteredUsernameHandleBack={unregisteredUsernameHandleBack}
+                />
+              </View>
+            )}
+
             <View
               style={{
                 alignSelf: 'flex-start',
@@ -153,4 +192,46 @@ const classes = StyleSheet.create({
   nextMessage: {
     paddingTop: 4,
   },
+})
+
+const markdownStyle = StyleSheet.create({
+  blockquote: {
+    color: defaultTheme.palette.typography.lightGray,
+    backgroundColor: defaultTheme.palette.typography.white,
+    marginTop: 10,
+    marginBottom: 10,
+    marginLeft: 0,
+  },
+  bullet_list_icon: {
+    marginLeft: 0,
+  },
+  ordered_list_icon: {
+    marginLeft: 0,
+  },
+  hr: {
+    marginTop: 20,
+    marginBottom: 20,
+  },
+  link: {
+    color: defaultTheme.palette.typography.link,
+  },
+  table: {
+    borderWidth: 0,
+  },
+  th: {
+    borderBottom: 'solid',
+    borderBottomWidth: 1,
+    borderColor: defaultTheme.palette.typography.veryLightGray,
+  },
+  thead: {
+    fontWeight: 'bold',
+  },
+  tr: {
+    borderBottomWidth: 0,
+  },
+})
+
+const md = MarkdownIt({
+  typographer: false,
+  linkify: true,
 })

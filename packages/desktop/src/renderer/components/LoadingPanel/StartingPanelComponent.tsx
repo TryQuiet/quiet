@@ -2,7 +2,7 @@ import React from 'react'
 import { styled } from '@mui/material/styles'
 import Modal from '../ui/Modal/Modal'
 import QuietLogo from '../../static/images/quiet-logo.png'
-import { Grid, Typography } from '@mui/material'
+import { Grid } from '@mui/material'
 
 const PREFIX = 'StartingPanelComponent'
 
@@ -21,8 +21,8 @@ const classes = {
 const StyledGrid = styled(Grid)(({ theme, width }) => ({
   [`&.${classes.root}`]: {
     textAlign: 'center',
-    marginTop: '24px',
     width: '100%',
+    height: '100%',
   },
   [`& .${classes.contentWrapper}`]: {
     maxWidth: '320px',
@@ -64,21 +64,12 @@ const StyledGrid = styled(Grid)(({ theme, width }) => ({
 export interface StartingPanelComponentProps {
   open: boolean
   handleClose: () => void
-  message: string
-  torBootstrapInfo: string
 }
 
-const StartingPanelComponent: React.FC<StartingPanelComponentProps> = ({
-  open,
-  handleClose,
-  message,
-  torBootstrapInfo,
-}) => {
-  const progressNumber = Number(torBootstrapInfo.replace(/\D/g, ''))
-
+const StartingPanelComponent: React.FC<StartingPanelComponentProps> = ({ open, handleClose }) => {
   return (
     <Modal open={open} handleClose={handleClose} isCloseDisabled={true}>
-      <StyledGrid width={progressNumber * 3} container justifyContent='center' className={classes.root}>
+      <StyledGrid container justifyContent='center' alignItems='center' className={classes.root}>
         <Grid
           container
           alignItems='center'
@@ -87,15 +78,6 @@ const StartingPanelComponent: React.FC<StartingPanelComponentProps> = ({
           data-testid='startingPanelComponent'
         >
           <img className={classes.image} src={QuietLogo} />
-
-          <Grid container justifyContent='flex-start' alignItems='center' className={classes.progressBar}>
-            <div className={classes.progress}></div>
-          </Grid>
-
-          <Typography variant='body2'>{message}</Typography>
-          <Typography variant='body2' className={classes.text}>
-            {`Tor ${torBootstrapInfo}`}
-          </Typography>
         </Grid>
       </StyledGrid>
     </Modal>

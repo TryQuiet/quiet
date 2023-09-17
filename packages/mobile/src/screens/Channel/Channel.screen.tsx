@@ -107,6 +107,30 @@ export const ChannelScreen: FC = () => {
       return updatedExistingFiles
     })
 
+  //User Label
+
+  const duplicatedUsernameHandleBack = useCallback(() => {
+    dispatch(
+      navigationActions.navigation({
+        screen: ScreenNames.DuplicatedUsernameScreen,
+      })
+    )
+  }, [dispatch])
+
+  const unregisteredUsernameHandleBack = useCallback(
+    (username: string) => {
+      dispatch(
+        navigationActions.navigation({
+          screen: ScreenNames.UnregisteredUsernameScreen,
+          params: {
+            username,
+          },
+        })
+      )
+    },
+    [dispatch]
+  )
+
   const sendMessageAction = React.useCallback(
     async (message: string) => {
       if (message) {
@@ -158,6 +182,8 @@ export const ChannelScreen: FC = () => {
       openUrl={openUrl}
       uploadedFiles={uploadingFiles}
       ready={ready}
+      duplicatedUsernameHandleBack={duplicatedUsernameHandleBack}
+      unregisteredUsernameHandleBack={unregisteredUsernameHandleBack}
     />
   )
 }

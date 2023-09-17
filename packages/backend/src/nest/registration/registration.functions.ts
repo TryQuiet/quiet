@@ -20,8 +20,8 @@ import {
   PermsData,
   SocketActionTypes,
   SuccessfullRegistrarionResponse,
-  User,
   UserCertificatePayload,
+  UserData,
 } from '@quiet/types'
 import { CsrContainsFields, IsCsr } from './registration.validators'
 import { RegistrationEvents } from './registration.types'
@@ -252,7 +252,7 @@ export const registerUser = async (
     }
   }
 
-  const allUsers: User[] = []
+  const allUsers: UserData[] = []
   for (const cert of certificates) {
     const parsedCert = parseCertificate(cert)
     const onionAddress = getCertFieldValue(parsedCert, CertFieldsTypes.commonName)

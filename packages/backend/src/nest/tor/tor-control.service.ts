@@ -1,4 +1,4 @@
-import { Inject, Injectable, OnModuleInit } from '@nestjs/common'
+import { Inject, Injectable } from '@nestjs/common'
 import net from 'net'
 import { CONFIG_OPTIONS, TOR_CONTROL_PARAMS } from '../const'
 import { ConfigOptions } from '../types'
@@ -6,7 +6,7 @@ import { TorControlAuthType, TorControlParams } from './tor.types'
 import Logger from '../common/logger'
 
 @Injectable()
-export class TorControl implements OnModuleInit {
+export class TorControl {
   connection: net.Socket | null
   authString: string
   private readonly logger = Logger(TorControl.name)
@@ -15,7 +15,7 @@ export class TorControl implements OnModuleInit {
     @Inject(CONFIG_OPTIONS) public configOptions: ConfigOptions
   ) {}
 
-  onModuleInit() {
+  private updateAuthString() {
     if (this.torControlParams.auth.type === TorControlAuthType.PASSWORD) {
       this.authString = 'AUTHENTICATE "' + this.torControlParams.auth.value + '"\r\n'
     }
@@ -26,8 +26,6 @@ export class TorControl implements OnModuleInit {
   }
 
   private async connect(): Promise<void> {
-    console.log('this.torControlParams', this.torControlParams)
-    console.log('configOptions.torControl', this.configOptions.torControlPort)
     return await new Promise((resolve, reject) => {
       if (this.connection) {
         reject(new Error('TOR: Connection already established'))
@@ -48,11 +46,12 @@ export class TorControl implements OnModuleInit {
           reject(new Error(`TOR: Control port error: ${data.toString() as string}`))
         }
       })
+      this.updateAuthString()
       this.connection.write(this.authString)
     })
   }
 
-  private async disconnect() {
+  private disconnect() {
     try {
       this.connection?.end()
     } catch (e) {
@@ -64,11 +63,12 @@ export class TorControl implements OnModuleInit {
   // eslint-disable-next-line @typescript-eslint/ban-types
   private async _sendCommand(command: string, resolve: Function, reject: Function) {
     await this.connect()
+
     const connectionTimeout = setTimeout(() => {
       reject('TOR: Send command timeout')
     }, 5000)
     this.connection?.on('data', async data => {
-      await this.disconnect()
+      this.disconnect()
       const dataArray = data.toString().split(/\r?\n/)
       if (dataArray[0].startsWith('250')) {
         resolve({ code: 250, messages: dataArray })
@@ -82,8 +82,17 @@ export class TorControl implements OnModuleInit {
   }
 
   public async sendCommand(command: string): Promise<{ code: number; messages: string[] }> {
+    await this.waitForDisconnect()
     return await new Promise((resolve, reject) => {
       void this._sendCommand(command, resolve, reject)
+    })
+  }
+
+  private async waitForDisconnect() {
+    await new Promise<void>(resolve => {
+      if (!this.connection) {
+        resolve()
+      }
     })
   }
 }

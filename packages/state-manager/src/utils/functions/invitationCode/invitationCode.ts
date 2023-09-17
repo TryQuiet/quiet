@@ -1,37 +1,36 @@
-import { Site } from '@quiet/common'
+import { Site, getInvitationPairs, invitationCodeValid } from '@quiet/common'
+import { InvitationPair } from '@quiet/types'
 
-export const getInvitationCode = (codeOrUrl: string): string => {
+export const getInvitationCodes = (codeOrUrl: string): InvitationPair[] => {
   /**
-   * Extract code from invitation share url or return passed value for further validation
+   * Extract codes from invitation share url or return passed value for further validation
    */
-  let code = ''
+  let codes: InvitationPair[] = []
+  let potentialCode
   let validUrl: URL | null = null
 
   try {
     validUrl = new URL(codeOrUrl)
   } catch (e) {
-    code = codeOrUrl
+    // It may be just code, not URL
+    potentialCode = codeOrUrl
   }
+
   if (validUrl && validUrl.host === Site.DOMAIN && validUrl.pathname.includes(Site.JOIN_PAGE)) {
     const hash = validUrl.hash
-
-    let invitationCode: string = hash.substring(1)
-
-    // Ensure backward compatibility
-    if (hash.includes('code=')) {
-      // Mix of old and new link
-      invitationCode = hash.substring(6)
-    } else if (validUrl.searchParams.has('code')) {
-      // Old link
-      invitationCode = validUrl.searchParams.get('code') || ''
+    if (hash) {
+      // Parse hash
+      const pairs = hash.substring(1)
+      codes = getInvitationPairs(pairs)
     }
-
-    code = invitationCode
+  } else if (potentialCode) {
+    // Parse code just as hash value
+    codes = getInvitationPairs(potentialCode)
   }
 
-  if (!code) {
-    console.warn(`No invitation code. Code/url passed: ${codeOrUrl}`)
+  if (codes.length === 0) {
+    console.warn(`No invitation codes. Code/url passed: ${codeOrUrl}`)
   }
 
-  return code
+  return codes
 }

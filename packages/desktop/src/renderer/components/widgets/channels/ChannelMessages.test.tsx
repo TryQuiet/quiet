@@ -20,6 +20,9 @@ describe('ChannelMessages', () => {
       createdAt: 1636995488.44,
       date: 'string',
       nickname: 'string',
+      isDuplicated: false,
+      isRegistered: true,
+      pubKey: 'string',
     }
 
     jest.spyOn(DateTime, 'utc').mockImplementationOnce(() => DateTime.utc(2019, 3, 7, 13, 3, 48))
@@ -30,6 +33,8 @@ describe('ChannelMessages', () => {
 
     const result = renderComponent(
       <ChannelMessagesComponent
+        duplicatedUsernameModalHandleOpen={jest.fn()}
+        unregisteredUsernameModalHandleOpen={jest.fn()}
         messages={messages}
         scrollbarRef={React.createRef()}
         onScroll={jest.fn()}
@@ -78,7 +83,7 @@ describe('ChannelMessages', () => {
                   </div>
                 </div>
                 <li
-                  class="MuiListItem-root MuiListItem-gutters MuiListItem-padding BasicMessageComponentwrapper css-16u9k9h-MuiListItem-root"
+                  class="MuiListItem-root MuiListItem-gutters MuiListItem-padding BasicMessageComponentwrapper css-13gdcvl-MuiListItem-root"
                 >
                   <div
                     class="MuiListItemText-root BasicMessageComponentmessageCard css-tlelie-MuiListItemText-root"
@@ -99,10 +104,10 @@ describe('ChannelMessages', () => {
                         class="MuiGrid-root MuiGrid-container MuiGrid-item css-1f064cs-MuiGrid-root"
                       >
                         <div
-                          class="MuiGrid-root MuiGrid-container MuiGrid-item css-9pwih8-MuiGrid-root"
+                          class="MuiGrid-root MuiGrid-container MuiGrid-item css-89gxc5-MuiGrid-root"
                         >
                           <div
-                            class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-wrap-xs-nowrap MuiGrid-grid-xs-true css-1unmp8r-MuiGrid-root"
+                            class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-wrap-xs-nowrap MuiGrid-grid-xs-true css-181g0at-MuiGrid-root"
                           >
                             <div
                               class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
@@ -133,7 +138,7 @@ describe('ChannelMessages', () => {
                             class="MuiGrid-root MuiGrid-item css-15myz84-MuiGrid-root"
                           >
                             <span
-                              class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-mg0tit-MuiTypography-root"
+                              class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-1vefsqk-MuiTypography-root"
                               data-testid="messagesGroupContent-string"
                             >
                               string

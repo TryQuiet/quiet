@@ -1,6 +1,6 @@
 {
   "name": "@quiet/mobile",
-  "version": "1.9.0",
+  "version": "2.0.0-alpha.8",
   "scripts": {
     "build": "tsc -p tsconfig.build.json --noEmit",
     "storybook-android": "ENVFILE=.env.storybook react-native run-android --variant=storybookDebug --appIdSuffix=storybook.debug",
@@ -22,15 +22,16 @@
   },
   "dependencies": {
     "@peculiar/webcrypto": "^1.4.3",
-    "@quiet/backend": "^1.8.0",
-    "@quiet/common": "^1.7.0",
-    "@quiet/identity": "^1.7.0",
-    "@quiet/state-manager": "^1.8.0",
-    "@quiet/types": "^1.7.0",
+    "@quiet/backend": "^2.0.0-alpha.3",
+    "@quiet/common": "^2.0.0-alpha.1",
+    "@quiet/identity": "^2.0.0-alpha.1",
+    "@quiet/state-manager": "^2.0.0-alpha.2",
+    "@quiet/types": "^2.0.0-alpha.1",
     "@react-native-clipboard/clipboard": "^1.11.2",
     "@react-navigation/native": "^6.0.0",
     "@react-navigation/native-stack": "^6.9.0",
     "@reduxjs/toolkit": "^1.9.1",
+    "@ronradtke/react-native-markdown-display": "^8.0.0",
     "buffer": "^6.0.3",
     "events": "^1.1.1",
     "i18next": "^20.2.2",
@@ -81,7 +82,7 @@
     "@babel/plugin-transform-flow-strip-types": "^7.22.5",
     "@babel/preset-env": "^7.22.5",
     "@babel/runtime": "^7.22.5",
-    "@quiet/eslint-config": "^1.2.0",
+    "@quiet/eslint-config": "^1.4.0-alpha.0",
     "@react-native-async-storage/async-storage": "^1.18.1",
     "@react-native-community/eslint-config": "^2.0.0",
     "@react-native-community/push-notification-ios": "^1.10.1",
@@ -131,10 +132,11 @@
   "jest": {
     "preset": "react-native",
     "modulePathIgnorePatterns": [
-      "<rootDir>/codegen/"
+      "<rootDir>/codegen/",
+      "__snapshots__"
     ],
     "setupFiles": [
-      "./src/setupTests.ts",
+      "./src/setupTests.tsx",
       "./node_modules/react-native-gesture-handler/jestSetup.js"
     ],
     "setupFilesAfterEnv": [

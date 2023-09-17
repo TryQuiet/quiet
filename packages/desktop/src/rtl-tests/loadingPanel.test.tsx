@@ -133,7 +133,7 @@ describe('Loading panel', () => {
     expect(screen.queryByTestId('joiningPanelComponent')).toBeNull()
   })
 
-  it('Do not display Loading panel when community and identity are created but certificate is missing', async () => {
+  it('Do not display Loading panel when community and identity are created but user csr is missing', async () => {
     const { store } = await prepareStore(
       {},
       socket // Fork state manager's sagas
@@ -149,20 +149,11 @@ describe('Loading panel', () => {
     await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
       id: community.id,
       nickname: 'alice',
+      userCertificate: null,
+      userCsr: null,
     })
 
-    const aliceCertificate = store.getState().Identity.identities.entities[community.id]?.userCertificate
-
-    expect(aliceCertificate).not.toBeUndefined()
-    expect(aliceCertificate).not.toBeNull()
-
-    store.dispatch(
-      identity.actions.storeUserCertificate({
-        communityId: community.id,
-        // @ts-expect-error
-        userCertificate: null,
-      })
-    )
+    expect(store.getState().Identity.identities.entities[community.id]?.userCsr).toBeNull()
 
     renderComponent(
       <>
@@ -176,66 +167,8 @@ describe('Loading panel', () => {
     expect(screen.queryByTestId('createUsernameModalActions')).not.toBeNull()
     // Assertions that we don't see Loading Pannel
     expect(screen.queryByTestId('spinnerLoader')).toBeNull()
-    // 'Create username' modal should be closed after receiving certificate
-    store.dispatch(
-      identity.actions.storeUserCertificate({
-        communityId: community.id,
-        // @ts-expect-error
-        userCertificate: aliceCertificate,
-      })
-    )
+    // 'Create username' modal should be closed after creating csr
+    store.dispatch(identity.actions.registerUsername('alice'))
     await waitFor(() => expect(screen.queryByTestId('createUsernameModalActions')).toBeNull())
-  })
-
-  it('Display the loading panel until Tor is fully bootstrapped', async () => {
-    const { store } = await prepareStore(
-      {},
-      socket // Fork state manager's sagas
-    )
-
-    renderComponent(
-      <>
-        <LoadingPanel />
-      </>,
-      store
-    )
-
-    expect(screen.getByTestId('startingPanelComponent')).toBeVisible()
-
-    // 5%
-    store.dispatch(
-      connection.actions.setTorBootstrapProcess(
-        'Apr 05 17:36:02.000 [notice] Bootstrapped 5% (conn): Connecting to a relay'
-      )
-    )
-    await act(async () => {})
-    const bootstrapped5text = screen.getByText('Tor Bootstrapped 5% (conn)')
-    expect(bootstrapped5text).toBeVisible()
-
-    // 50%
-    store.dispatch(
-      connection.actions.setTorBootstrapProcess(
-        'Apr 05 17:36:08.000 [notice] Bootstrapped 50% (loading_descriptors): Loading relay descriptors'
-      )
-    )
-    await act(async () => {})
-    const bootstrapped50text = screen.getByText('Tor Bootstrapped 50% (loading_descriptors)')
-    expect(bootstrapped50text).toBeVisible()
-
-    // 95%
-    store.dispatch(
-      connection.actions.setTorBootstrapProcess('Bootstrapped 95% (circuit_create): Establishing a Tor circuit')
-    )
-    await act(async () => {})
-    const bootstrapped95text = screen.getByText('Tor Bootstrapped 95% (circuit_create)')
-    expect(bootstrapped95text).toBeVisible()
-
-    // 100%
-    store.dispatch(
-      connection.actions.setTorBootstrapProcess('Apr 05 17:36:10.000 [notice] Bootstrapped 100% (done): Done')
-    )
-    await act(async () => {})
-    const bootstrapped100text = screen.getByText('Tor Bootstrapped 100% (done)')
-    expect(bootstrapped100text).toBeVisible()
   })
 })

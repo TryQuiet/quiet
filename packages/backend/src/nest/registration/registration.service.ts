@@ -30,7 +30,7 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
   private _server: Server
   private _port: number
   public registrationService: any
-  public certificates: string[]
+  public certificates: string[] = []
   private _permsData: PermsData
   private _ownerCertificate: string
 
@@ -41,6 +41,13 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
   onModuleInit() {
     this.on(RegistrationEvents.SET_CERTIFICATES, certs => {
       this.setCertificates(certs)
+    })
+    this.on(RegistrationEvents.REGISTER_USER_CERTIFICATE, async (csr: string) => {
+      if (!this._permsData) {
+        console.log('NO PERMS DATA')
+        return
+      }
+      await this.registerUser(csr)
     })
     this.setRouting()
   }
@@ -84,6 +91,14 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
     })
   }
 
+  public set permsData(perms: PermsData) {
+    console.log('Setting owner perms data')
+    this._permsData = {
+      certificate: perms.certificate,
+      privKey: perms.privKey,
+    }
+  }
+
   public async registerOwnerCertificate(payload: RegisterOwnerCertificatePayload): Promise<void> {
     let cert: string
     try {
@@ -123,7 +138,7 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
     this.emit(response.eventType, response.data)
   }
 
-  private async registerUser(csr: string): Promise<{ status: number; body: any }> {
+  public async registerUser(csr: string): Promise<{ status: number; body: any }> {
     const result = await registerUser(csr, this._permsData, this.certificates, this._ownerCertificate)
     if (result?.status === 200) {
       this.emit(RegistrationEvents.NEW_USER, { certificate: result.body.certificate, rootPermsData: this._permsData })

@@ -7,7 +7,7 @@ export class ConnectionState {
   public lastConnectedTime = 0
   public uptime = 0
   public peersStats: EntityState<NetworkStats> = peersStatsAdapter.getInitialState()
-  public isConnectionManager = false
+  public isTorInitialized = false
   public torBootstrapProcess = 'Bootstrapped 0% (starting)'
   public torConnectionProcess: { number: number; text: string } = {
     number: 5,
@@ -48,16 +48,13 @@ export const connectionSlice = createSlice({
       }
     },
     torBootstrapped: (state, _action: PayloadAction<any>) => state,
-    connectionManagerInit: state => {
-      state.isConnectionManager = true
+    setTorInitialized: state => {
+      state.isTorInitialized = true
     },
     setTorConnectionProcess: (state, action: PayloadAction<string>) => {
       const info = action.payload
       switch (info) {
         case ConnectionProcessInfo.CONNECTING_TO_COMMUNITY:
-          state.torConnectionProcess = { number: 20, text: info }
-          break
-        case ConnectionProcessInfo.REGISTERING_USER_CERTIFICATE:
           state.torConnectionProcess = { number: 20, text: info }
           break
         case ConnectionProcessInfo.REGISTERING_OWNER_CERTIFICATE:
@@ -86,6 +83,9 @@ export const connectionSlice = createSlice({
           break
         case ConnectionProcessInfo.LAUNCHED_COMMUNITY:
           state.torConnectionProcess = { number: 85, text: info }
+          break
+        case ConnectionProcessInfo.WAITING_FOR_METADATA:
+          state.torConnectionProcess = { number: 87, text: info }
           break
         case ConnectionProcessInfo.CHANNELS_REPLICATED:
           state.torConnectionProcess = { number: 90, text: info }

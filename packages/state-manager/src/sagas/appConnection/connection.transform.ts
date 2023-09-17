@@ -14,7 +14,7 @@ export const ConnectionTransform = createTransform(
         number: 5,
         text: 'Connecting process started',
       },
-      isConnectionManager: false,
+      isTorInitialized: false,
     }
   },
   { whitelist: [StoreKeys.Connection] }

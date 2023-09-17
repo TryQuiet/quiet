@@ -13,6 +13,7 @@ import { DownloadStatus, MessagesDailyGroups, MessageSendingStatus } from '@quie
 import { UseModalType } from '../../../containers/hooks'
 
 import { FileActionsProps } from '../../Channel/File/FileComponent/FileComponent'
+import { HandleOpenModalType, UserLabelType } from '../userLabel/UserLabel.types'
 
 const PREFIX = 'ChannelMessagesComponent'
 
@@ -81,6 +82,8 @@ export interface IChannelMessagesProps {
   }>
   onMathMessageRendered?: () => void
   pendingGeneralChannelRecreation?: boolean
+  unregisteredUsernameModalHandleOpen: HandleOpenModalType
+  duplicatedUsernameModalHandleOpen: HandleOpenModalType
 }
 
 export const ChannelMessagesComponent: React.FC<IChannelMessagesProps & FileActionsProps> = ({
@@ -96,6 +99,8 @@ export const ChannelMessagesComponent: React.FC<IChannelMessagesProps & FileActi
   cancelDownload,
   onMathMessageRendered,
   pendingGeneralChannelRecreation = false,
+  unregisteredUsernameModalHandleOpen,
+  duplicatedUsernameModalHandleOpen,
 }) => {
   const spinnerMessage = pendingGeneralChannelRecreation ? deletingChannelMessage : fetchingChannelMessagesText
   const listRef = useRef<HTMLUListElement>(null)
@@ -152,6 +157,8 @@ export const ChannelMessagesComponent: React.FC<IChannelMessagesProps & FileActi
                     downloadFile={downloadFile}
                     cancelDownload={cancelDownload}
                     onMathMessageRendered={onMathMessageRendered}
+                    unregisteredUsernameModalHandleOpen={unregisteredUsernameModalHandleOpen}
+                    duplicatedUsernameModalHandleOpen={duplicatedUsernameModalHandleOpen}
                   />
                 )
               })}

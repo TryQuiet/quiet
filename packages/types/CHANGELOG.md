@@ -3,6 +3,46 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.0.0-alpha.1](https://github.com/TryQuiet/quiet/compare/@quiet/types@2.0.0-alpha.0...@quiet/types@2.0.0-alpha.1) (2023-09-14)
+
+**Note:** Version bump only for package @quiet/types
+
+
+
+
+
+# [2.0.0-alpha.0](https://github.com/TryQuiet/quiet/compare/@quiet/types@1.9.0-alpha.0...@quiet/types@2.0.0-alpha.0) (2023-09-01)
+
+**Note:** Version bump only for package @quiet/types
+
+
+
+
+
+# [1.9.0-alpha.0](/compare/@quiet/types@1.8.0...@quiet/types@1.9.0-alpha.0) (2023-08-29)
+
+**Note:** Version bump only for package @quiet/types
+
+
+
+
+
+# [1.8.0](/compare/@quiet/types@1.8.0-alpha.0...@quiet/types@1.8.0) (2023-08-28)
+
+**Note:** Version bump only for package @quiet/types
+
+
+
+
+
+# [1.8.0-alpha.0](https://github.com/TryQuiet/quiet/compare/@quiet/types@1.7.0...@quiet/types@1.8.0-alpha.0) (2023-08-25)
+
+**Note:** Version bump only for package @quiet/types
+
+
+
+
+
 # [1.7.0](https://github.com/TryQuiet/quiet/compare/@quiet/types@1.5.1-alpha.0...@quiet/types@1.7.0) (2023-08-17)
 
 **Note:** Version bump only for package @quiet/types

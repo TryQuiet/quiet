@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useModal } from '../../containers/hooks'
 import { ModalName } from '../../sagas/modals/modals.types'
@@ -24,13 +24,11 @@ const LoadingPanel = () => {
 
   const community = useSelector(communities.selectors.currentCommunity)
   const owner = Boolean(community?.CA)
-  const currentIdentity = useSelector(identity.selectors.currentIdentity)
   const usersData = Object.keys(useSelector(users.selectors.certificates))
   const isOnlyOneUser = usersData.length === 1
 
   const torBootstrapProcessSelector = useSelector(connection.selectors.torBootstrapProcess)
   const torConnectionProcessSelector = useSelector(connection.selectors.torConnectionProcess)
-  const areMessagesLoaded = Object.values(currentChannelDisplayableMessages).length > 0
 
   const communityId = useSelector(communities.selectors.currentCommunityId)
   const initializedCommunities = useSelector(network.selectors.initializedCommunities)
@@ -39,15 +37,17 @@ const LoadingPanel = () => {
   const registrationError = error?.code === ErrorCodes.FORBIDDEN
 
   useEffect(() => {
+    const areMessagesLoaded = Object.values(currentChannelDisplayableMessages).length > 0
     console.log('HUNTING for haisenbug:')
     console.log('isConnected', isConnected)
+    console.log('communityId', communityId)
     console.log('isCommunityInitialized', isCommunityInitialized)
     console.log('areMessagesLoaded?', areMessagesLoaded)
     console.log('registrationError', registrationError)
     if ((isConnected && isCommunityInitialized && areMessagesLoaded) || registrationError) {
       loadingPanelModal.handleClose()
     }
-  }, [isConnected, torBootstrapProcessSelector, isCommunityInitialized, areMessagesLoaded, error])
+  }, [isConnected, torBootstrapProcessSelector, isCommunityInitialized, currentChannelDisplayableMessages, error])
 
   useEffect(() => {
     if (isConnected) {
@@ -71,9 +71,7 @@ const LoadingPanel = () => {
   }, [])
 
   if (message === LoadingPanelType.StartingApplication) {
-    return (
-      <StartingPanelComponent {...loadingPanelModal} message={message} torBootstrapInfo={torBootstrapProcessSelector} />
-    )
+    return <StartingPanelComponent {...loadingPanelModal} />
   } else {
     return (
       <JoiningPanelComponent

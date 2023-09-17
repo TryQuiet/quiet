@@ -28,7 +28,7 @@ describe('createNetwork', () => {
       createNetworkSaga,
       communitiesActions.createNetwork({
         ownership: CommunityOwnership.User,
-        registrar: 'registrarUrl',
+        peers: [{ peerId: 'peerId', onionAddress: 'address' }],
       })
     )
       .withReducer(reducer)

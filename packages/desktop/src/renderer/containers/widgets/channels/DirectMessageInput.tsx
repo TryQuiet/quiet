@@ -1,6 +1,5 @@
 import React, { useCallback } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-
 import { identity, publicChannels } from '@quiet/state-manager'
 import ChannelInputComponent from '../../../components/widgets/channels/ChannelInput'
 

@@ -221,6 +221,27 @@ describe('Main', () => {
                           />
                         </div>
                       </div>
+                      <div
+                        class="MuiGrid-root MuiGrid-container TorStatusroot css-1xjxipu-MuiGrid-root"
+                      >
+                        <div
+                          class="MuiGrid-root MuiGrid-container TorStatuswrapper css-1ki2u8z-MuiGrid-root"
+                        >
+                          <p
+                            class="MuiTypography-root MuiTypography-body2 css-16d47hw-MuiTypography-root"
+                          >
+                            TOR
+                          </p>
+                          <div
+                            class="MuiGrid-root MuiGrid-container TorStatuscircleWrapper css-1hbmzt3-MuiGrid-root"
+                          >
+                            <div
+                              class="MuiGrid-root MuiGrid-item TorStatuscircle css-13i4rnv-MuiGrid-root"
+                              style="background: rgb(209, 49, 53);"
+                            />
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
