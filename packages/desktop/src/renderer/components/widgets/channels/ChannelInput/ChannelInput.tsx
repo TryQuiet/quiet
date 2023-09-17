@@ -481,6 +481,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
         } else if (inputStateRef.current === INPUT_STATE.AVAILABLE) {
           e.preventDefault()
           const target = e.target as HTMLInputElement
+          target.innerText = replaceEmojicodesWithEmoji(target.innerText);
           onChange(target.innerText)
           onKeyPress(target.innerText)
           setMessage('')
@@ -507,6 +508,16 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
       setSelected,
     ]
   )
+
+  const emojiMap: { [key: string]: string } = {
+    "smile": "😄",
+    "tada": "🎉",
+    "rocket": "🚀",
+  };
+
+  function replaceEmojicodesWithEmoji(text: string) {
+    return text.replace(/:(\w+):/g, (match, p1) => emojiMap[p1] || match);
+  }
 
   const handleFileInput = (event: React.ChangeEvent<HTMLInputElement>) => {
     const target = event.target as HTMLInputElement
