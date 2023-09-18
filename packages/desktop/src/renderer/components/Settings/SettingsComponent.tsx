@@ -82,7 +82,7 @@ export const SettingsComponent: React.FC<SettingsComponentProps> = ({
 
   const [offset, setOffset] = React.useState(0)
 
-  const defaultCurrentTab = isOwner ? 'invite' : 'notifications'
+  const defaultCurrentTab = 'invite'
   const [currentTab, setCurrentTab] = useState(defaultCurrentTab)
 
   const adjustOffset = () => {
