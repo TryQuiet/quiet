@@ -1,5 +1,7 @@
 [unreleased]
 
+* Suspends certain websocket events until backend becomes fully operative (faster and dumber frontend).
+
 * Replaced greying out inputs with splash screen on joining/creating screens.
 
 * Fixes empty space between chat's input and a soft keyboard on iOS devices.
