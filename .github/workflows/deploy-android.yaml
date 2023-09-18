@@ -63,12 +63,14 @@ jobs:
       - name: "Build for Android"
         run: cd ./packages/mobile/android && ENVFILE=../.env.production ./gradlew bundleStandardRelease
 
-      - name: "Upload Artifact"
-        uses: actions/upload-artifact@v2
-        with:
-          name: app-standard-release.aab
-          path: ./packages/mobile/android/app/build/outputs/bundle/standardRelease/app-standard-release.aab
-          retention-days: 5
+      # Temporary disable, failing on CI
+      # - name: "Upload Artifact"
+      #   continue-on-error: true
+      #   uses: actions/upload-artifact@v2
+      #   with:
+      #     name: app-standard-release.aab
+      #     path: ./packages/mobile/android/app/build/outputs/bundle/standardRelease/app-standard-release.aab
+      #     retention-days: 5
 
       - name: "Configure Google Play upload"
         run: |
