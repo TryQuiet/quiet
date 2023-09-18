@@ -5,6 +5,7 @@ import { SocketModule } from './socket.module'
 import { SocketService } from './socket.service'
 import { io, Socket } from 'socket.io-client'
 import waitForExpect from 'wait-for-expect'
+import { SocketActionTypes } from '@quiet/types'
 import { suspendableSocketEvents } from './suspendable.events'
 import { TEST_DATA_PORT } from '../const'
 
@@ -50,6 +51,24 @@ describe('SocketService', () => {
 
     await waitForExpect(() => {
       expect(spy).toHaveBeenCalledWith(event, undefined)
+    })
+  })
+
+  it('there are no fragile endpoints in the collection of suspendables', async () => {
+    const fragile: string[] = [
+      SocketActionTypes.CREATE_NETWORK.valueOf(),
+      SocketActionTypes.CREATE_COMMUNITY.valueOf(),
+      SocketActionTypes.LAUNCH_COMMUNITY.valueOf(),
+      SocketActionTypes.LAUNCH_REGISTRAR.valueOf(),
+      SocketActionTypes.REGISTER_OWNER_CERTIFICATE.valueOf(),
+      SocketActionTypes.REGISTER_USER_CERTIFICATE.valueOf(),
+      SocketActionTypes.SAVE_OWNER_CERTIFICATE.valueOf(),
+      SocketActionTypes.SAVE_USER_CSR.valueOf(),
+      SocketActionTypes.SEND_COMMUNITY_METADATA.valueOf(),
+    ]
+
+    fragile.forEach(event => {
+      expect(suspendableSocketEvents).not.toContain(event)
     })
   })
 })
