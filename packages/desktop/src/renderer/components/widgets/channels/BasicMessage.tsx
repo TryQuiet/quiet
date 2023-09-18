@@ -218,7 +218,7 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
                       {infoMessage ? 'Quiet' : messageDisplayData.nickname}
                     </Typography>
                   </Grid>
-                  {/* {userLabel && (
+                  {userLabel && (
                     <Grid data-testid={`userLabel-${messageDisplayData.nickname}-${messageDisplayData.id}`}>
                       <UserLabel
                         username={messageDisplayData.nickname}
@@ -227,7 +227,7 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
                         duplicatedUsernameModalHandleOpen={duplicatedUsernameModalHandleOpen}
                       />
                     </Grid>
-                  )} */}
+                  )}
                   {status !== 'failed' && (
                     <Grid item>
                       <Typography
