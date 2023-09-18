@@ -76,6 +76,7 @@ export class SocketService extends EventEmitter implements OnModuleInit {
       socket.use(async (event, next) => {
         const type = event[0]
         if (suspendableSocketEvents.includes(type)) {
+          this.logger('Awaiting readyness before emitting: ', type)
           await this.readyness
         }
         next()
