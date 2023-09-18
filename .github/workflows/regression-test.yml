@@ -38,7 +38,7 @@ jobs:
           working-directory: packages/desktop
 
       - name: Archive test screenshots
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         if: always()
         with:
           name: test-screenshots-linux

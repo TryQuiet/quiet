@@ -56,7 +56,7 @@ jobs:
         shell: bash
 
       - name: "Upload built app"
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: quiet-windows
           path: ./packages/desktop/dist/Quiet Setup ${{ steps.extract_version.outputs.version }}.exe
