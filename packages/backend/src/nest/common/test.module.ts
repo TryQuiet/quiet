@@ -14,6 +14,7 @@ import {
   SOCKS_PROXY_AGENT,
   DB_PATH,
   LEVEL_DB,
+  TEST_DATA_PORT,
 } from '../const'
 import { ConfigOptions } from '../types'
 import path from 'path'
@@ -27,7 +28,7 @@ const libPath = torDirForPlatform()
 // torBinaryPath: '../../../../../3rd-party/tor/linux/tor',
 // torResourcesPath: '../../../../../3rd-party/tor/linux',
 export const defaultConfigForTest = {
-  socketIOPort: await getPort(),
+  socketIOPort: TEST_DATA_PORT,
   torBinaryPath: torBinForPlatform(),
   torResourcesPath: torPath,
   torControlPort: await getPort(),

@@ -25,7 +25,6 @@ export enum SocketActionTypes {
   ERROR = 'error',
   // G
   GET_PRIVATE_CONVERSATIONS = 'getPrivateConversations',
-  GET_PUBLIC_CHANNELS = 'getPublicChannels',
   // I
   INCOMING_MESSAGES = 'incomingMessages',
   INITIALIZE_CONVERSATION = 'initializeConversation',
