@@ -42,39 +42,36 @@ workspace {
             
             mobiles = group "Mobiles" {
         
-                android = container "Android" "React Native - UI" "xd"{
+                android = container "Android" "UI layer" "React Native"{
                     userA -> this 
                 }
                 
-                iOS = container "iOS" "React Native - UI"{
+                iOS = container "iOS" "UI layer" "React Native"{
                     userA -> this 
                 }
 
-                androidWorker = group "Android Worker" {
+                androidBackgroundWorker = group "Android Background Worker" {
                  
                     cpp = container "CPP"  {
                         
                     }
                 
-                    nodeAndroid = container "Node Android"  {
+                    nodeJSAndroid = container "Node.js Android"  {
                         android -> this 
                         cpp -> this 
                     }
                     
                     notifications = container "Notifications" "Java"  {
-                        nodeAndroid -> this 
+                        nodeJSAndroid -> this "Conntected via WebSocket"
                     }
     
                 }
              
-                iOSWorker = group "iOS Worker" {
-                    
-                    nodeiOS = container "Node iOS"  {
-                        iOS -> this 
-                    }
-    
+                nodeJSiOS = container "Node.js iOS"  {
+                    iOS -> this 
                 }
-            
+    
+                
             }
 
             stateManager = container "State Manager" "Redux Toolkit & Redux Saga" {
@@ -90,8 +87,8 @@ workspace {
 
                 nest = container "Nest JS" "Connection Manager as a core mediator between other services" {
                     stateManager -> this "Conntected via Socket IO"
-                    nodeAndroid -> this "Conntected via Socket IO" 
-                    nodeiOS -> this 
+                    nodeJSAndroid -> this
+                    nodeJSiOS -> this 
                 }
                 
                 reigstration = container "Registration Service" {
