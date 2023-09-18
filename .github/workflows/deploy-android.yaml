@@ -64,6 +64,7 @@ jobs:
         run: cd ./packages/mobile/android && ENVFILE=../.env.production ./gradlew bundleStandardRelease
 
       - name: "Upload Artifact"
+        continue-on-error: true
         uses: actions/upload-artifact@v2
         with:
           name: app-standard-release.aab

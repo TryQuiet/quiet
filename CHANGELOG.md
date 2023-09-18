@@ -1,5 +1,7 @@
 [unreleased]
 
+* Replaced greying out inputs with splash screen on joining/creating screens.
+
 * Fixes empty space between chat's input and a soft keyboard on iOS devices.
 
 * Changed registration process - user connects to the libp2p network directly instead of using registrar. Invitation link format changed. User csr is now saved to database.
@@ -25,3 +27,5 @@
 * Clarify autoupdate language in update modal to let users know that the app will update on restart.
 
 * C4 for Quiet architecture. Context and Container diagrams.
+
+* Invite tab as default in settings

@@ -62,6 +62,12 @@ jest.mock('socket.io-client', () => ({
 // could not be found. Verify that a module by this name is registered in the native binary."
 jest.mock('react-native-document-picker', () => { })
 
+jest.mock('react-native-device-info', () => {
+  return {
+    getVersion: () => { return '1.0.0' }
+  }
+})
+
 jest.mock('react-native-safe-area-context', () => ({
   useSafeAreaInsets: () => {
     return {
