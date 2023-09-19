@@ -18,6 +18,7 @@ export const Input = forwardRef<TextInput, InputProps>(
       hint,
       multiline,
       disabled = false,
+      round = false,
       style,
       wrapperStyle,
       children,
@@ -39,7 +40,7 @@ export const Input = forwardRef<TextInput, InputProps>(
             {label}
           </Typography>
         )}
-        <StyledWrapper onPress={handleViewPress} disabled={disabled} style={style}>
+        <StyledWrapper onPress={handleViewPress} disabled={disabled} round={round} style={style}>
           <StyledTextInput
             onChangeText={onChangeText}
             ref={(instance: TextInput | null) => {

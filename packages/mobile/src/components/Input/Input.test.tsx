@@ -39,18 +39,19 @@ describe('MessageInput component', () => {
           onResponderTerminate={[Function]}
           onResponderTerminationRequest={[Function]}
           onStartShouldSetResponder={[Function]}
+          round={false}
           style={
             [
               {
                 "backgroundColor": "#ffffff",
-                "borderColor": "#B3B3B3",
+                "borderColor": "#C4C4C4",
                 "borderRadius": 4,
                 "borderWidth": 1,
                 "flexGrow": 1,
-                "height": 60,
+                "height": 56,
                 "justifyContent": "center",
-                "paddingLeft": 15,
-                "paddingRight": 15,
+                "paddingLeft": 16,
+                "paddingRight": 16,
               },
             ]
           }

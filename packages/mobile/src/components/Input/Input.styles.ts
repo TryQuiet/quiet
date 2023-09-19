@@ -15,17 +15,18 @@ export const StyledTextInput = styled(TextInput)`
 
 export const StyledWrapper = styled(Pressable)<{
   disabled: boolean
+  round: boolean
 }>`
-  ${({ disabled }) => css`
+  ${({ disabled, round }) => css`
     background-color: ${disabled
       ? defaultTheme.palette.input.backgroundDisabled
       : defaultTheme.palette.input.backgroundDefault};
     border-color: ${defaultTheme.palette.input.border};
-    border-radius: 4px;
+    border-radius: ${round ? '16px' : '4px'};
     border-width: 1px;
-    padding-left: 15px;
-    padding-right: 15px;
-    height: 60px;
+    padding-left: 16px;
+    padding-right: 16px;
+    height: 56px;
     justify-content: center;
     flex-grow: 1;
   `}

@@ -177,38 +177,38 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
             style={{
               width: '100%',
               paddingLeft: defaultPadding,
-              paddingRight: 0,
+              paddingRight: !didKeyboardShow && !areFilesUploaded ? defaultPadding : 0,
             }}
           >
             <View
               style={{
                 flexDirection: 'row',
-                width: '100%',
               }}
             >
-              <Input
-                ref={messageInputRef}
-                onChangeText={onInputTextChange}
-                placeholder={`Message #${channel?.name}`}
-                multiline={true}
-                wrapperStyle={{ width: didKeyboardShow || areFilesUploaded ? '75%' : '85%' }}
-              />
-              <View
-                style={{
-                  paddingLeft: 10,
-                  paddingRight: 10,
-                  gap: 5,
-                  flexDirection: 'row',
-                  width: didKeyboardShow || areFilesUploaded ? '25%' : '15%',
-                }}
-              >
-                <AttachmentButton onPress={openAttachments} />
-                {(didKeyboardShow || areFilesUploaded) && (
-                  <MessageSendButton onPress={onPress} disabled={shouldDisableSubmit} />
-                )}
+              <View style={{ flex: 1 }}>
+                <Input
+                  ref={messageInputRef}
+                  onChangeText={onInputTextChange}
+                  placeholder={`Message #${channel?.name}`}
+                  multiline={true}
+                  style={{ paddingRight: 50, height: 54 }}
+                  round
+                />
+                <View
+                  style={{
+                    position: 'absolute',
+                    height: '100%',
+                    right: 10,
+                    justifyContent: 'center',
+                  }}
+                >
+                  <AttachmentButton onPress={openAttachments} />
+                </View>
               </View>
+              {(didKeyboardShow || areFilesUploaded) && (
+                <MessageSendButton onPress={onPress} disabled={shouldDisableSubmit} />
+              )}
             </View>
-
             {uploadedFiles && <UploadFilesPreviewsComponent filesData={uploadedFiles} removeFile={removeFilePreview} />}
           </View>
         </View>
