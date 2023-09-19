@@ -1,5 +1,4 @@
 import { createSelector } from '@reduxjs/toolkit'
-
 import { StoreKeys } from '../store/store.keys'
 import { AnyObject } from '../../utils/types/AnyObject.interface'
 
