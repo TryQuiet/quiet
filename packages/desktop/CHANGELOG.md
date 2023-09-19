@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.0.0-alpha.10](https://github.com/TryQuiet/quiet/compare/quiet@2.0.0-alpha.9...quiet@2.0.0-alpha.10) (2023-09-19)
+
+**Note:** Version bump only for package quiet
+
+
+
+
+
 # [2.0.0-alpha.9](https://github.com/TryQuiet/quiet/compare/quiet@1.9.1...quiet@2.0.0-alpha.9) (2023-09-18)
 
 **Note:** Version bump only for package quiet
