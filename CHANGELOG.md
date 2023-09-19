@@ -1,8 +1,6 @@
-[unreleased]
+[2.0.0-alpha.11]
 
 * Customize Launch Screen on iOS
-
-[quiet@2.0.0-alpha.10]
 
 * Suspends certain websocket events until backend becomes fully operative (faster and dumber frontend).
 
