@@ -21,6 +21,13 @@ export class App {
     await this.buildSetup.createChromeDriver()
     this.thenableWebDriver = this.buildSetup.getDriver()
     await this.driver.getSession()
+
+    if (process.env.TEST_MODE) {
+      it('Close debug modal', async () => {
+        const debugModal = new DebugModeModal(this.driver)
+        await debugModal.close()
+      })
+    }
   }
 
   async close(options?: { forceSaveState?: boolean }) {

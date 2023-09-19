@@ -1,5 +1,5 @@
 import { Browser, Builder, type ThenableWebDriver } from 'selenium-webdriver'
-import { spawn, exec, type ChildProcessWithoutNullStreams, execSync } from 'child_process'
+import { spawn, exec, execSync, type ChildProcessWithoutNullStreams } from 'child_process'
 import { type SupportedPlatformDesktop } from '@quiet/types'
 import getPort from 'get-port'
 import path from 'path'
@@ -155,7 +155,7 @@ export class BuildSetup {
     })
 
     this.child.stdin.on('data', data => {
-      console.error(`stdin: ${data}`)
+      console.log(`stdin: ${data}`)
     })
   }
 
@@ -194,7 +194,7 @@ export class BuildSetup {
       }
     }
     if (this.driver == null || this.driver === undefined) {
-      throw new Error('elo')
+      throw new Error('No driver')
     }
 
     return this.driver
