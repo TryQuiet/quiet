@@ -1,4 +1,6 @@
-[unreleased]
+[quiet@2.0.0-alpha.10]
+
+* Suspends certain websocket events until backend becomes fully operative (faster and dumber frontend).
 
 * Replaced greying out inputs with splash screen on joining/creating screens.
 
@@ -25,5 +27,7 @@
 * Integration state manager layer with UI layer(desktop and mobile)
 
 * Clarify autoupdate language in update modal to let users know that the app will update on restart.
+
+* C4 for Quiet architecture. Context and Container diagrams.
 
 * Invite tab as default in settings
