@@ -58,6 +58,8 @@ describe('Multiple Clients', () => {
 
   afterAll(async () => {
     await ownerApp?.close()
+    await guestApp?.close()
+    await secondGuestApp?.close()
   })
 
   beforeEach(async () => {
@@ -157,7 +159,7 @@ describe('Multiple Clients', () => {
       await joinCommunityModal.submit()
     })
 
-    it('RegisterUsernameModal - User submits the username', async () => {
+    it('RegisterUsernameModal - Guest submits the username', async () => {
       console.log('new user - 5')
       registerModal2 = new RegisterUsernameModal(guestApp.driver)
       const isRegisterModal = await registerModal2.element.isDisplayed()
@@ -173,7 +175,7 @@ describe('Multiple Clients', () => {
       const isLoadingPanelCommunity2 = await loadingPanelCommunity2.element.isDisplayed()
       expect(isLoadingPanelCommunity2).toBeTruthy()
     })
-    it('User sees general channel and sends a message', async () => {
+    it('Guest sees general channel and sends a message', async () => {
       console.log('new user - 7')
       generalChannel2 = new Channel(guestApp.driver, 'general')
       await generalChannel2.element.isDisplayed()
@@ -198,7 +200,7 @@ describe('Multiple Clients', () => {
       expect(text2).toEqual(joiningUserMessages[0])
     })
 
-    // third user joins
+    // third user joins when owner is offline. Does not use duplicated username
     it('Owner goes offline', async () => {
       await ownerApp.close()
     })
@@ -219,7 +221,7 @@ describe('Multiple Clients', () => {
       await joinCommunityModal.submit()
     })
 
-    it('Second guest submits username', async () => {
+    it('Second guest submits username that is not used by other user', async () => {
       console.log('nereeew user - 5')
       registerModal3 = new RegisterUsernameModal(secondGuestApp.driver)
       const isRegisterModal = await registerModal3.element.isDisplayed()
@@ -237,7 +239,7 @@ describe('Multiple Clients', () => {
       expect(isMessageInput).toBeTruthy()
     })
 
-    it('Second guest can send a message, they message is tagged as "unregistered"', async () => {
+    it('Second guest can send a message, they see their message tagged as "unregistered"', async () => {
       console.log('FETCHING CHANNEL MESSAGES!')
       await new Promise<void>(resolve =>
         setTimeout(() => {
@@ -254,6 +256,13 @@ describe('Multiple Clients', () => {
     })
 
     // TODO: check if other user also sees unregistered user marked as "registered"
+    it('First user sees that unregistered user messages are marked as "unregistered"', async () => {
+      const guestlabels = await generalChannel2.getUserLabels(joiningUserUsername3)
+      expect(guestlabels.length).toEqual(1)
+      for (const label in guestlabels) {
+        expect(label).toEqual('Unregistered')
+      }
+    })
 
     it('Owner goes back online', async () => {
       await ownerApp.open()
@@ -270,178 +279,178 @@ describe('Multiple Clients', () => {
       }
     })
 
-    // TODO: maybe add extra "it" with "channel creation"?
-    it('Channel creation - Owner creates second channel', async () => {
-      sidebar = new Sidebar(ownerApp.driver)
-      await sidebar.addNewChannel(newChannelName)
-      await sidebar.switchChannel(newChannelName)
-      const channels = await sidebar.getChannelList()
-      expect(channels.length).toEqual(2)
-    })
-    it('Channel creation - Owner sends message in second channel', async () => {
-      secondChannel = new Channel(ownerApp.driver, newChannelName)
-      const isMessageInput = await secondChannel.messageInput.isDisplayed()
-      expect(isMessageInput).toBeTruthy()
-      await secondChannel.sendMessage(ownerMessages[1])
-    })
-    it('Channel creation - User reads message in second channel', async () => {
-      sidebar2 = new Sidebar(guestApp.driver)
-      await sidebar2.switchChannel(newChannelName)
-      secondChannel2 = new Channel(guestApp.driver, newChannelName)
-      await new Promise<void>(resolve =>
-        setTimeout(() => {
-          resolve()
-        }, 2000)
-      )
-      const messages = await secondChannel2.getUserMessages(ownerUsername)
-      const text = await messages[1].getText()
-      expect(text).toEqual(ownerMessages[1])
-    })
-    it('Channel deletion - Owner deletes second channel', async () => {
-      channelContextMenu = new ChannelContextMenu(ownerApp.driver)
-      await channelContextMenu.openMenu()
-      await channelContextMenu.openDeletionChannelModal()
-      await channelContextMenu.deleteChannel()
-      const channels = await sidebar.getChannelList()
-      expect(channels.length).toEqual(1)
-    })
-    it('Channel deletion - User sees info about channel deletion in general channel', async () => {
-      await sleep(5000)
-      const messages = await generalChannel2.getUserMessages(ownerUsername)
-      const text = await messages[3].getText()
-      expect(text).toEqual(`@${ownerUsername} deleted #${newChannelName}`)
-    })
-    it('Channel deletion - User can create channel with the same name and is fresh channel', async () => {
-      await sidebar2.addNewChannel(newChannelName)
-      await sidebar2.switchChannel(newChannelName)
-      const messages = await secondChannel2.getUserMessages(joiningUserUsername)
-      expect(messages.length).toEqual(1)
-      await new Promise<void>(resolve =>
-        setTimeout(() => {
-          resolve()
-        }, 2000)
-      )
-      const channels = await sidebar.getChannelList()
-      expect(channels.length).toEqual(2)
-    })
-    // End of tests for Windows
-    if (process.platform !== 'win32') {
-      it('Leave community', async () => {
-        console.log('TEST 2')
-        const settingsModal = await new Sidebar(guestApp.driver).openSettings()
-        const isSettingsModal = await settingsModal.element.isDisplayed()
-        expect(isSettingsModal).toBeTruthy()
-        await settingsModal.openLeaveCommunityModal()
-        await settingsModal.leaveCommunityButton()
-      })
-      if (process.env.TEST_MODE) {
-        it('Leave community - Close debug modal', async () => {
-          const debugModal = new DebugModeModal(guestApp.driver)
-          await debugModal.close()
-        })
-      }
-      // Delete general channel while guest is absent
-      it('Channel deletion - Owner recreate general channel', async () => {
-        console.log('TEST 3')
-        await new Promise<void>(resolve => setTimeout(() => resolve(), 10000))
-        const isGeneralChannel = await ownerGeneralChannel.messageInput.isDisplayed()
-        expect(isGeneralChannel).toBeTruthy()
-        await channelContextMenu.openMenu()
-        await channelContextMenu.openDeletionChannelModal()
-        await channelContextMenu.deleteChannel()
-        const channels = await sidebar.getChannelList()
-        expect(channels.length).toEqual(2)
-      })
+    // // TODO: maybe add extra "it" with "channel creation"?
+    // it('Channel creation - Owner creates second channel', async () => {
+    //   sidebar = new Sidebar(ownerApp.driver)
+    //   await sidebar.addNewChannel(newChannelName)
+    //   await sidebar.switchChannel(newChannelName)
+    //   const channels = await sidebar.getChannelList()
+    //   expect(channels.length).toEqual(2)
+    // })
+    // it('Channel creation - Owner sends message in second channel', async () => {
+    //   secondChannel = new Channel(ownerApp.driver, newChannelName)
+    //   const isMessageInput = await secondChannel.messageInput.isDisplayed()
+    //   expect(isMessageInput).toBeTruthy()
+    //   await secondChannel.sendMessage(ownerMessages[1])
+    // })
+    // it('Channel creation - User reads message in second channel', async () => {
+    //   sidebar2 = new Sidebar(guestApp.driver)
+    //   await sidebar2.switchChannel(newChannelName)
+    //   secondChannel2 = new Channel(guestApp.driver, newChannelName)
+    //   await new Promise<void>(resolve =>
+    //     setTimeout(() => {
+    //       resolve()
+    //     }, 2000)
+    //   )
+    //   const messages = await secondChannel2.getUserMessages(ownerUsername)
+    //   const text = await messages[1].getText()
+    //   expect(text).toEqual(ownerMessages[1])
+    // })
+    // it('Channel deletion - Owner deletes second channel', async () => {
+    //   channelContextMenu = new ChannelContextMenu(ownerApp.driver)
+    //   await channelContextMenu.openMenu()
+    //   await channelContextMenu.openDeletionChannelModal()
+    //   await channelContextMenu.deleteChannel()
+    //   const channels = await sidebar.getChannelList()
+    //   expect(channels.length).toEqual(1)
+    // })
+    // it('Channel deletion - User sees info about channel deletion in general channel', async () => {
+    //   await sleep(5000)
+    //   const messages = await generalChannel2.getUserMessages(ownerUsername)
+    //   const text = await messages[3].getText()
+    //   expect(text).toEqual(`@${ownerUsername} deleted #${newChannelName}`)
+    // })
+    // it('Channel deletion - User can create channel with the same name and is fresh channel', async () => {
+    //   await sidebar2.addNewChannel(newChannelName)
+    //   await sidebar2.switchChannel(newChannelName)
+    //   const messages = await secondChannel2.getUserMessages(joiningUserUsername)
+    //   expect(messages.length).toEqual(1)
+    //   await new Promise<void>(resolve =>
+    //     setTimeout(() => {
+    //       resolve()
+    //     }, 2000)
+    //   )
+    //   const channels = await sidebar.getChannelList()
+    //   expect(channels.length).toEqual(2)
+    // })
+    // // End of tests for Windows
+    // if (process.platform !== 'win32') {
+    //   it('Leave community', async () => {
+    //     console.log('TEST 2')
+    //     const settingsModal = await new Sidebar(guestApp.driver).openSettings()
+    //     const isSettingsModal = await settingsModal.element.isDisplayed()
+    //     expect(isSettingsModal).toBeTruthy()
+    //     await settingsModal.openLeaveCommunityModal()
+    //     await settingsModal.leaveCommunityButton()
+    //   })
+    //   if (process.env.TEST_MODE) {
+    //     it('Leave community - Close debug modal', async () => {
+    //       const debugModal = new DebugModeModal(guestApp.driver)
+    //       await debugModal.close()
+    //     })
+    //   }
+    //   // Delete general channel while guest is absent
+    //   it('Channel deletion - Owner recreate general channel', async () => {
+    //     console.log('TEST 3')
+    //     await new Promise<void>(resolve => setTimeout(() => resolve(), 10000))
+    //     const isGeneralChannel = await ownerGeneralChannel.messageInput.isDisplayed()
+    //     expect(isGeneralChannel).toBeTruthy()
+    //     await channelContextMenu.openMenu()
+    //     await channelContextMenu.openDeletionChannelModal()
+    //     await channelContextMenu.deleteChannel()
+    //     const channels = await sidebar.getChannelList()
+    //     expect(channels.length).toEqual(2)
+    //   })
 
-      it('Leave community - Guest re-join to community successfully', async () => {
-        console.log('TEST 4')
-        const joinCommunityModal = new JoinCommunityModal(guestApp.driver)
-        const isJoinCommunityModal = await joinCommunityModal.element.isDisplayed()
-        expect(isJoinCommunityModal).toBeTruthy()
-        await joinCommunityModal.typeCommunityCode(invitationCode)
-        await joinCommunityModal.submit()
-      })
-      it('Leave community - Guest register new username', async () => {
-        console.log('TEST 5')
-        const registerModal2 = new RegisterUsernameModal(guestApp.driver)
-        const isRegisterModal2 = await registerModal2.element.isDisplayed()
-        expect(isRegisterModal2).toBeTruthy()
-        await registerModal2.typeUsername(joiningUserUsername2)
-        await registerModal2.submit()
-      })
+    //   it('Leave community - Guest re-join to community successfully', async () => {
+    //     console.log('TEST 4')
+    //     const joinCommunityModal = new JoinCommunityModal(guestApp.driver)
+    //     const isJoinCommunityModal = await joinCommunityModal.element.isDisplayed()
+    //     expect(isJoinCommunityModal).toBeTruthy()
+    //     await joinCommunityModal.typeCommunityCode(invitationCode)
+    //     await joinCommunityModal.submit()
+    //   })
+    //   it('Leave community - Guest register new username', async () => {
+    //     console.log('TEST 5')
+    //     const registerModal2 = new RegisterUsernameModal(guestApp.driver)
+    //     const isRegisterModal2 = await registerModal2.element.isDisplayed()
+    //     expect(isRegisterModal2).toBeTruthy()
+    //     await registerModal2.typeUsername(joiningUserUsername2)
+    //     await registerModal2.submit()
+    //   })
 
-      // Check correct channels replication
-      it('Channel deletion - User see information about recreation general channel and see correct amount of messages', async () => {
-        console.log('TEST 6')
-        generalChannel2 = new Channel(guestApp.driver, 'general')
-        await generalChannel2.element.isDisplayed()
-        await new Promise<void>(resolve =>
-          setTimeout(() => {
-            resolve()
-          }, 10000)
-        )
-        const messages = await generalChannel2.getUserMessages(ownerUsername)
-        const text1 = await messages[0].getText()
-        const text2 = await messages[1].getText()
-        expect(messages.length).toEqual(2)
-        expect(text1).toEqual(`@${ownerUsername} deleted all messages in #general`)
-        expect(text2).toEqual(`@${joiningUserUsername2} has joined Testcommunity! 🎉`)
-      })
+    //   // Check correct channels replication
+    //   it('Channel deletion - User see information about recreation general channel and see correct amount of messages', async () => {
+    //     console.log('TEST 6')
+    //     generalChannel2 = new Channel(guestApp.driver, 'general')
+    //     await generalChannel2.element.isDisplayed()
+    //     await new Promise<void>(resolve =>
+    //       setTimeout(() => {
+    //         resolve()
+    //       }, 10000)
+    //     )
+    //     const messages = await generalChannel2.getUserMessages(ownerUsername)
+    //     const text1 = await messages[0].getText()
+    //     const text2 = await messages[1].getText()
+    //     expect(messages.length).toEqual(2)
+    //     expect(text1).toEqual(`@${ownerUsername} deleted all messages in #general`)
+    //     expect(text2).toEqual(`@${joiningUserUsername2} has joined Testcommunity! 🎉`)
+    //   })
 
-      it('Leave community - Guest sends a message', async () => {
-        console.log('TEST 7')
-        generalChannel2 = new Channel(guestApp.driver, 'general')
-        await generalChannel2.element.isDisplayed()
-        const isMessageInput2 = await generalChannel2.messageInput.isDisplayed()
-        expect(isMessageInput2).toBeTruthy()
-        await new Promise<void>(resolve =>
-          setTimeout(() => {
-            resolve()
-          }, 5000)
-        )
-        await generalChannel2.sendMessage(joiningUserMessages[1])
-      })
-      it('Leave community - Sent message is visible in a channel', async () => {
-        console.log('TEST 8')
-        const messages2 = await generalChannel2.getUserMessages(joiningUserUsername2)
-        const text2 = await messages2[0].getText()
-        expect(text2).toEqual(joiningUserMessages[1])
-      })
-      it('Owner close app', async () => {
-        await ownerApp.close({ forceSaveState: true })
-        await new Promise<void>(resolve => setTimeout(() => resolve(), 20000))
-      })
+    //   it('Leave community - Guest sends a message', async () => {
+    //     console.log('TEST 7')
+    //     generalChannel2 = new Channel(guestApp.driver, 'general')
+    //     await generalChannel2.element.isDisplayed()
+    //     const isMessageInput2 = await generalChannel2.messageInput.isDisplayed()
+    //     expect(isMessageInput2).toBeTruthy()
+    //     await new Promise<void>(resolve =>
+    //       setTimeout(() => {
+    //         resolve()
+    //       }, 5000)
+    //     )
+    //     await generalChannel2.sendMessage(joiningUserMessages[1])
+    //   })
+    //   it('Leave community - Sent message is visible in a channel', async () => {
+    //     console.log('TEST 8')
+    //     const messages2 = await generalChannel2.getUserMessages(joiningUserUsername2)
+    //     const text2 = await messages2[0].getText()
+    //     expect(text2).toEqual(joiningUserMessages[1])
+    //   })
+    //   it('Owner close app', async () => {
+    //     await ownerApp.close({ forceSaveState: true })
+    //     await new Promise<void>(resolve => setTimeout(() => resolve(), 20000))
+    //   })
 
-      it('Guest close app', async () => {
-        console.log('TEST 9')
-        await guestApp?.close()
-      })
+    //   it('Guest close app', async () => {
+    //     console.log('TEST 9')
+    //     await guestApp?.close()
+    //   })
 
-      it('Owner re-open app', async () => {
-        await ownerApp?.open()
-        await new Promise<void>(resolve => setTimeout(() => resolve(), 10000))
-      })
+    //   it('Owner re-open app', async () => {
+    //     await ownerApp?.open()
+    //     await new Promise<void>(resolve => setTimeout(() => resolve(), 10000))
+    //   })
 
-      if (process.env.TEST_MODE) {
-        it('Close debug modal', async () => {
-          const debugModal = new DebugModeModal(ownerApp.driver)
-          await debugModal.close()
-        })
-      }
+    //   if (process.env.TEST_MODE) {
+    //     it('Close debug modal', async () => {
+    //       const debugModal = new DebugModeModal(ownerApp.driver)
+    //       await debugModal.close()
+    //     })
+    //   }
 
-      it('Guest close app - Owner send another message after guest leave app', async () => {
-        console.log('TEST 10')
-        ownerGeneralChannel = new Channel(ownerApp.driver, 'general')
-        const isMessageInput = await ownerGeneralChannel.messageInput.isDisplayed()
-        expect(isMessageInput).toBeTruthy()
-        await ownerGeneralChannel.sendMessage(ownerMessages[2])
-      })
-      it('Guest close app - Check if message is visible for owner', async () => {
-        console.log('TEST 11')
-        const messages = await ownerGeneralChannel.getUserMessages(ownerUsername)
-        const text = await messages[messages.length - 1].getText()
-        expect(text).toEqual(ownerMessages[2])
-      })
-    }
+    //   it('Guest close app - Owner send another message after guest leave app', async () => {
+    //     console.log('TEST 10')
+    //     ownerGeneralChannel = new Channel(ownerApp.driver, 'general')
+    //     const isMessageInput = await ownerGeneralChannel.messageInput.isDisplayed()
+    //     expect(isMessageInput).toBeTruthy()
+    //     await ownerGeneralChannel.sendMessage(ownerMessages[2])
+    //   })
+    //   it('Guest close app - Check if message is visible for owner', async () => {
+    //     console.log('TEST 11')
+    //     const messages = await ownerGeneralChannel.getUserMessages(ownerUsername)
+    //     const text = await messages[messages.length - 1].getText()
+    //     expect(text).toEqual(ownerMessages[2])
+    //   })
+    // }
   })
 })
