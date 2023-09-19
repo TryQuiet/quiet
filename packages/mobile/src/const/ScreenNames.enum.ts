@@ -14,4 +14,5 @@ export enum ScreenNames {
   ConnectionProcessScreen = 'ConnectionProcessScreen',
   DuplicatedUsernameScreen = 'DuplicatedUsernameScreen',
   UnregisteredUsernameScreen = 'UnregisteredUsernameScreen',
+  AggressiveWarningScreen = 'AggressiveWarningScreen',
 }

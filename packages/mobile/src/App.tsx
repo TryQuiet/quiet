@@ -46,6 +46,7 @@ import { RootStackParamList } from './route.params'
 import ConnectionProcessScreen from './screens/ConnectionProcess/ConnectionProcess.screen'
 import { DuplicatedUsernameScreen } from './screens/DuplicatedUsername/DuplicatedUsername.screen'
 import { UnregisteredUsernameScreen } from './screens/UnregisteredUsername/UnregisteredUsername.screen'
+import { AggressiveWarningScreen } from './screens/AggressiveWarning/AggressiveWarning.screen'
 
 LogBox.ignoreAllLogs()
 
@@ -103,6 +104,7 @@ function App(): JSX.Element {
                 <Screen component={ErrorScreen} name={ScreenNames.ErrorScreen} />
                 <Screen component={DuplicatedUsernameScreen} name={ScreenNames.DuplicatedUsernameScreen} />
                 <Screen component={UnregisteredUsernameScreen} name={ScreenNames.UnregisteredUsernameScreen} />
+                <Screen component={AggressiveWarningScreen} name={ScreenNames.AggressiveWarningScreen} />
               </Navigator>
               <CommunityContextMenu />
               <ChannelContextMenu />
