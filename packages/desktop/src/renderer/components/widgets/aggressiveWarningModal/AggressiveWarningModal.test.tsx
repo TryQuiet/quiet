@@ -4,7 +4,7 @@ import { ThemeProvider } from '@mui/material/styles'
 import { renderComponent } from '../../../testUtils/renderComponent'
 import AggressiveWarningModalComponent from './AggressiveWarningModal.component'
 
-describe('UnregisteredModalComponent', () => {
+describe('AgressiveWarningModalComponent', () => {
   it('renderComponent', () => {
     const result = renderComponent(
       <ThemeProvider theme={theme}>
