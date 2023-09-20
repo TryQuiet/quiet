@@ -31,6 +31,7 @@ import ChannelCreationModal from './components/ChannelCreationModal/ChannelCreat
 import { SaveStateComponent } from './components/SaveState/SaveStateComponent'
 import UnregisteredModalContainer from './components/widgets/userLabel/unregistered/UnregisteredModal.container'
 import DuplicateModalContainer from './components/widgets/userLabel/duplicate/DuplicateModal.container'
+import UsernameTakenModalContainer from './components/widgets/usernameTakenModal/UsernameTakenModal.container'
 // Trigger lerna
 
 export const persistor = persistStore(store)
@@ -49,6 +50,7 @@ export default () => {
                 <SearchModal />
                 <ErrorModal />
                 <LoadingPanel />
+                <UsernameTakenModalContainer />
                 <ChannelCreationModal />
                 <CreateChannel />
                 <JoinCommunity />

@@ -15,7 +15,7 @@ import { userNameField } from '../../forms/fields/createUserFields'
 
 import { parseName } from '@quiet/common'
 
-const PREFIX = 'CreateUsernameComponent'
+const PREFIX = 'CreateUsernameComponent-'
 
 const classes = {
   focus: `${PREFIX}focus`,
@@ -31,6 +31,7 @@ const classes = {
   rootBar: `${PREFIX}rootBar`,
   progressBar: `${PREFIX}progressBar`,
   info: `${PREFIX}info`,
+  inputLabel: `${PREFIX}inputLabel`,
 }
 
 const StyledModalContent = styled(Grid)(({ theme }) => ({
@@ -113,6 +114,12 @@ const StyledModalContent = styled(Grid)(({ theme }) => ({
     lineHeight: '19px',
     color: theme.palette.colors.darkGray,
   },
+
+  [`& .${classes.inputLabel}`]: {
+    marginTop: 24,
+    marginBottom: 2,
+    color: theme.palette.colors.black30,
+  },
 }))
 
 const userFields = {
@@ -123,12 +130,19 @@ interface CreateUserValues {
   userName: string
 }
 
+enum UsernameVariant {
+  NEW_USER = 'new-user',
+  USERNAME_TAKEN = 'username-taken',
+}
+
 export interface CreateUsernameComponentProps {
   open: boolean
   registerUsername: (name: string) => void
   certificateRegistrationError?: string
   certificate?: string | null
   handleClose: () => void
+  currentUsername?: string
+  variant?: UsernameVariant
 }
 
 export const CreateUsernameComponent: React.FC<CreateUsernameComponentProps> = ({
@@ -137,7 +151,11 @@ export const CreateUsernameComponent: React.FC<CreateUsernameComponentProps> = (
   certificateRegistrationError,
   certificate,
   handleClose,
+  currentUsername,
+  variant = UsernameVariant.NEW_USER,
 }) => {
+  const isNewUser = variant === UsernameVariant.NEW_USER
+
   const [formSent, setFormSent] = useState(false)
   const [userName, setUserName] = useState('')
   const [parsedNameDiffers, setParsedNameDiffers] = useState(false)
@@ -193,10 +211,27 @@ export const CreateUsernameComponent: React.FC<CreateUsernameComponentProps> = (
         <>
           <form onSubmit={handleSubmit(onSubmit)}>
             <Grid container justifyContent='flex-start' direction='column' className={classes.fullContainer}>
-              <Typography variant='h3' className={classes.title}>
-                Register a username
-              </Typography>
-              <Typography variant='body2'>Choose your favorite username</Typography>
+              {isNewUser ? (
+                <>
+                  <Typography variant='h3' className={classes.title}>
+                    Register a username
+                  </Typography>
+                  <Typography variant='body2'>Choose your favorite username</Typography>
+                </>
+              ) : (
+                <>
+                  <Typography variant='body2'>
+                    We’re sorry, but the username <strong>{currentUsername && `@${currentUsername}`}</strong> was
+                    already claimed by someone else. <br />
+                    Can you choose another name?
+                  </Typography>
+
+                  <Typography variant='body2' className={classes.inputLabel}>
+                    Enter username
+                  </Typography>
+                </>
+              )}
+
               <Controller
                 control={control}
                 defaultValue={''}
@@ -211,7 +246,7 @@ export const CreateUsernameComponent: React.FC<CreateUsernameComponentProps> = (
                       [classes.margin]: true,
                       [classes.error]: errors.userName,
                     })}
-                    placeholder={'Enter a username'}
+                    placeholder={isNewUser ? 'Enter a username' : 'Username'}
                     errors={errors}
                     onPaste={e => e.preventDefault()}
                     variant='outlined'
@@ -253,7 +288,7 @@ export const CreateUsernameComponent: React.FC<CreateUsernameComponentProps> = (
                 inProgress={waitingForResponse}
                 disabled={waitingForResponse}
                 type='submit'
-                text={'Register'}
+                text={isNewUser ? 'Register' : 'Continue'}
                 classes={{ button: classes.button }}
               />
             </Grid>
