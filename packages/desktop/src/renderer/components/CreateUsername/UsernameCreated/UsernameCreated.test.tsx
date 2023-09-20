@@ -1,6 +1,5 @@
 import React from 'react'
 import { renderComponent } from '../../../testUtils/renderComponent'
-
 import { UsernameCreated } from './UsernameCreated'
 
 describe('UsernameCreated', () => {
