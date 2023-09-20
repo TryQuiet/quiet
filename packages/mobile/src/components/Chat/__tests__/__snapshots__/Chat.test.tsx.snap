@@ -2849,74 +2849,84 @@ exports[`Chat component renders component 1`] = `
               }
             }
           >
-            <View>
-              <View
-                accessibilityState={
-                  {
-                    "busy": undefined,
-                    "checked": undefined,
-                    "disabled": false,
-                    "expanded": undefined,
-                    "selected": undefined,
-                  }
+            <View
+              style={
+                {
+                  "justifyContent": "center",
                 }
-                accessibilityValue={
-                  {
-                    "max": undefined,
-                    "min": undefined,
-                    "now": undefined,
-                    "text": undefined,
-                  }
-                }
-                accessible={true}
-                collapsable={false}
-                focusable={true}
-                onBlur={[Function]}
-                onClick={[Function]}
-                onFocus={[Function]}
-                onResponderGrant={[Function]}
-                onResponderMove={[Function]}
-                onResponderRelease={[Function]}
-                onResponderTerminate={[Function]}
-                onResponderTerminationRequest={[Function]}
-                onStartShouldSetResponder={[Function]}
-                round={true}
-                style={
-                  [
+              }
+            >
+              <View>
+                <View
+                  accessibilityState={
                     {
-                      "backgroundColor": "#ffffff",
-                      "borderColor": "#C4C4C4",
-                      "borderRadius": 16,
-                      "borderWidth": 1,
-                      "flexGrow": 1,
-                      "height": 56,
-                      "justifyContent": "center",
-                      "paddingLeft": 16,
-                      "paddingRight": 16,
-                    },
+                      "busy": undefined,
+                      "checked": undefined,
+                      "disabled": false,
+                      "expanded": undefined,
+                      "selected": undefined,
+                    }
+                  }
+                  accessibilityValue={
                     {
-                      "height": 54,
-                      "paddingRight": 50,
-                    },
-                  ]
-                }
-              >
-                <TextInput
-                  editable={true}
-                  multiline={true}
-                  onChangeText={[Function]}
-                  placeholder="Message #general"
+                      "max": undefined,
+                      "min": undefined,
+                      "now": undefined,
+                      "text": undefined,
+                    }
+                  }
+                  accessible={true}
+                  collapsable={false}
+                  focusable={true}
+                  onBlur={[Function]}
+                  onClick={[Function]}
+                  onFocus={[Function]}
+                  onResponderGrant={[Function]}
+                  onResponderMove={[Function]}
+                  onResponderRelease={[Function]}
+                  onResponderTerminate={[Function]}
+                  onResponderTerminationRequest={[Function]}
+                  onStartShouldSetResponder={[Function]}
+                  round={true}
                   style={
                     [
                       {
-                        "paddingBottom": 12,
-                        "paddingTop": 12,
-                        "textAlignVertical": "center",
+                        "backgroundColor": "#ffffff",
+                        "borderColor": "#C4C4C4",
+                        "borderRadius": 16,
+                        "borderWidth": 1,
+                        "flexGrow": 1,
+                        "height": 56,
+                        "justifyContent": "center",
+                        "paddingLeft": 16,
+                        "paddingRight": 16,
+                      },
+                      {
+                        "height": 74,
+                        "paddingRight": 50,
                       },
                     ]
                   }
-                  testID="input"
-                />
+                >
+                  <TextInput
+                    editable={true}
+                    height={54}
+                    multiline={true}
+                    onChangeText={[Function]}
+                    onContentSizeChange={[Function]}
+                    placeholder="Message #general"
+                    style={
+                      [
+                        {
+                          "height": 54,
+                          "paddingTop": 12,
+                          "textAlignVertical": "center",
+                        },
+                      ]
+                    }
+                    testID="input"
+                  />
+                </View>
               </View>
             </View>
             <View

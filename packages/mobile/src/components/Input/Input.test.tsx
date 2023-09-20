@@ -53,17 +53,22 @@ describe('MessageInput component', () => {
                 "paddingLeft": 16,
                 "paddingRight": 16,
               },
+              {
+                "height": 54,
+              },
             ]
           }
         >
           <TextInput
             editable={true}
+            height={54}
             onChangeText={[Function]}
+            onContentSizeChange={[Function]}
             placeholder="Message #general as @holmes"
             style={
               [
                 {
-                  "paddingBottom": 12,
+                  "height": 54,
                   "paddingTop": 12,
                   "textAlignVertical": "center",
                 },

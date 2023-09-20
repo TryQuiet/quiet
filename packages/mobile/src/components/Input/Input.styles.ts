@@ -2,15 +2,19 @@ import { Platform, Pressable, TextInput } from 'react-native'
 import styled, { css } from 'styled-components/native'
 import { defaultTheme } from '../../styles/themes/default.theme'
 
-export const StyledTextInput = styled(TextInput)`
-  text-align-vertical: center;
-  ${Platform.select({
-    ios: {
-      paddingTop: 12,
-      paddingBottom: 12,
-    },
-    android: {},
-  })}
+export const StyledTextInput = styled(TextInput)<{
+  height: number
+}>`
+  ${({ height }) => css`
+    text-align-vertical: center;
+    height: ${Math.max(40, height)};
+    ${Platform.select({
+      ios: {
+        paddingTop: 12,
+      },
+      android: {},
+    })}
+  `}
 `
 
 export const StyledWrapper = styled(Pressable)<{

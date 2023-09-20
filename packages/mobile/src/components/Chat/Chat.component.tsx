@@ -186,14 +186,16 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
               }}
             >
               <View style={{ flex: 1 }}>
-                <Input
-                  ref={messageInputRef}
-                  onChangeText={onInputTextChange}
-                  placeholder={`Message #${channel?.name}`}
-                  multiline={true}
-                  style={{ paddingRight: 50, height: 54 }}
-                  round
-                />
+                <View style={{ justifyContent: 'center' }}>
+                  <Input
+                    ref={messageInputRef}
+                    onChangeText={onInputTextChange}
+                    placeholder={`Message #${channel?.name}`}
+                    multiline={true}
+                    style={{ paddingRight: 50 }}
+                    round
+                  />
+                </View>
                 <View
                   style={{
                     position: 'absolute',

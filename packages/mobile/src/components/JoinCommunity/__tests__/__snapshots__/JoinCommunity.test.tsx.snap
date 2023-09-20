@@ -112,17 +112,22 @@ exports[`JoinCommunity component renders component 1`] = `
               "paddingLeft": 16,
               "paddingRight": 16,
             },
+            {
+              "height": 54,
+            },
           ]
         }
       >
         <TextInput
           editable={true}
+          height={54}
           onChangeText={[Function]}
+          onContentSizeChange={[Function]}
           placeholder="Invite link"
           style={
             [
               {
-                "paddingBottom": 12,
+                "height": 54,
                 "paddingTop": 12,
                 "textAlignVertical": "center",
               },
