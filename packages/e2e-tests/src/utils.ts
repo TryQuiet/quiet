@@ -102,16 +102,16 @@ export class BuildSetup {
     await this.initPorts()
     const env = {
       DATA_DIR: this.dataDir || 'Quiet',
-      DEBUG: 'backend*',
+      DEBUG: 'backend*,desktop*',
     }
     if (process.platform === 'win32') {
       console.log('!WINDOWS!')
-      this.child = spawn(`cd node_modules/.bin & chromedriver.cmd --port=${this.port}`, [], {
+      this.child = spawn(`cd node_modules/.bin & chromedriver.cmd --port=${this.port} --verbose`, [], {
         shell: true,
         env: Object.assign(process.env, env),
       })
     } else {
-      this.child = spawn(`node_modules/.bin/chromedriver --port=${this.port}`, [], {
+      this.child = spawn(`node_modules/.bin/chromedriver --port=${this.port} --verbose`, [], {
         shell: true,
         detached: false,
         env: Object.assign(process.env, env),
@@ -125,7 +125,7 @@ export class BuildSetup {
     )
 
     this.child.on('error', () => {
-      console.log('ERROR')
+      console.error('ERROR')
       this.killNine()
     })
 
@@ -143,7 +143,7 @@ export class BuildSetup {
       console.log('message', data)
     })
     this.child.on('error', data => {
-      console.log('error', data)
+      console.error('error', data)
     })
 
     this.child.stdout.on('data', data => {
@@ -151,7 +151,13 @@ export class BuildSetup {
     })
 
     this.child.stderr.on('data', data => {
-      console.error(`stderr: ${data}`)
+      // Quiet logs (handled 'debug' package) are available in stderr and only with 'verbose' flag on chromedriver
+      const trashLogs = ['DevTools', 'COMMAND', 'INFO:CONSOLE', '[INFO]:']
+      const dataString = `${data}`
+      for (const l of trashLogs) {
+        if (dataString.includes(l)) return
+      }
+      console.log(dataString)
     })
 
     this.child.stdin.on('data', data => {
