@@ -10,7 +10,8 @@
     "lint-ci": "eslint --ext .js,.ts ./src/",
     "prettier:write": "prettier --write .",
     "prettier:check": "prettier --check .",
-    "test": "jest --runInBand --detectOpenHandles --forceExit",
+    "test": "cross-env TEST_MODE=true jest --runInBand --detectOpenHandles --forceExit",
+    "test:prod": "jest --runInBand --detectOpenHandles --forceExit",
     "test:watch": "jest --watchAll"
   },
   "devDependencies": {

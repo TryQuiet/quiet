@@ -151,8 +151,8 @@ export class BuildSetup {
     })
 
     this.child.stderr.on('data', data => {
-      // Quiet logs (handled 'debug' package) are available in stderr and only with 'verbose' flag on chromedriver
-      const trashLogs = ['DevTools', 'COMMAND', 'INFO:CONSOLE', '[INFO]:']
+      // Quiet logs (handled by 'debug' package) are available in stderr and only with 'verbose' flag on chromedriver
+      const trashLogs = ['DevTools', 'COMMAND', 'INFO:CONSOLE', '[INFO]:', 'libnotify-WARNING', 'ALSA lib']
       const dataString = `${data}`
       for (const l of trashLogs) {
         if (dataString.includes(l)) return
