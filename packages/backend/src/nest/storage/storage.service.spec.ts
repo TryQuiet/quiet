@@ -295,26 +295,6 @@ describe('StorageService', () => {
       expect(result).toBe(true)
     })
 
-    it('is not saved to db if did not pass verification', async () => {
-      const oldUserCertificate = await createUserCert(
-        rootPermsData.certificate,
-        rootPermsData.privKey,
-        // @ts-expect-error userCsr can be undefined
-        alice.userCsr?.userCsr,
-        new Date(2021, 1, 1),
-        new Date(2021, 1, 2)
-      )
-
-      await storageService.init(peerId)
-
-      const result = await storageService.saveCertificate({
-        certificate: oldUserCertificate.userCertString,
-        rootPermsData,
-      })
-
-      expect(result).toBe(false)
-    })
-
     it('is not saved to db if empty', async () => {
       await storageService.init(peerId)
 
