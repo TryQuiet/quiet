@@ -3,12 +3,10 @@ import {
   loadCSR,
   CertFieldsTypes,
   getReqFieldValue,
-  keyFromCertificate,
-  parseCertificate,
-  getCertFieldValue,
+  certificateByUsername,
+  pubKeyMatch,
 } from '@quiet/identity'
 import { IsBase64, IsNotEmpty, validate } from 'class-validator'
-import { CertificationRequest } from 'pkijs'
 import { ErrorPayload, PermsData, SocketActionTypes, SuccessfullRegistrarionResponse } from '@quiet/types'
 import { CsrContainsFields, IsCsr } from './registration.validators'
 import { RegistrationEvents } from './registration.types'
@@ -26,33 +24,6 @@ class UserCsrData {
 export interface RegistrarResponse {
   cert: string | null
   error: any
-}
-
-// REFACTORING: Move this method to identity package
-export const pubKeyMatch = (cert: string, parsedCsr: CertificationRequest): boolean => {
-  const parsedCertificate = parseCertificate(cert)
-  const pubKey = keyFromCertificate(parsedCertificate)
-  const pubKeyCsr = keyFromCertificate(parsedCsr)
-
-  if (pubKey === pubKeyCsr) {
-    return true
-  }
-  return false
-}
-
-// Change to certificateByField and move to identity
-const certificateByUsername = (username: string, certificates: string[]): string | null => {
-  /**
-   * Check if given username is already in use
-   */
-  for (const cert of certificates) {
-    const parsedCert = parseCertificate(cert)
-    const certUsername = getCertFieldValue(parsedCert, CertFieldsTypes.nickName)
-    if (certUsername?.localeCompare(username, undefined, { sensitivity: 'base' }) === 0) {
-      return cert
-    }
-  }
-  return null
 }
 
 export interface RegistrationResponse {
@@ -116,7 +87,7 @@ export const registerUser = async (
 
   return {
     cert,
-    error: null
+    error: null,
   }
 }
 
