@@ -849,12 +849,6 @@ export class StorageService extends EventEmitter {
       this.logger('Certificate is either null or undefined, not saving to db')
       return false
     }
-    const verification = await verifyUserCert(payload.rootPermsData.certificate, payload.certificate)
-    if (verification.resultCode !== 0) {
-      this.logger.error('Certificate is not valid')
-      this.logger.error(verification.resultMessage)
-      return false
-    }
     this.logger('Saving certificate...')
     await this.certificates.add(payload.certificate)
     return true

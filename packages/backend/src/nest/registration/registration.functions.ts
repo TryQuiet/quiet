@@ -41,23 +41,6 @@ export const pubKeyMatch = (cert: string, parsedCsr: CertificationRequest): bool
   return false
 }
 
-export const registerOwner = async (userCsr: string, permsData: PermsData): Promise<string> => {
-  const userData = new UserCsrData()
-  userData.csr = userCsr
-  const validationErrors = await validate(userData)
-  if (validationErrors.length > 0) {
-    throw new Error(`Validation errors: ${validationErrors}`)
-  }
-  const userCert = await createUserCert(
-    permsData.certificate,
-    permsData.privKey,
-    userCsr,
-    new Date(),
-    new Date(2030, 1, 1)
-  )
-  return userCert.userCertString
-}
-
 const certificateByUsername = (username: string, certificates: string[]): string | null => {
   /**
    * Check if given username is already in use
@@ -80,8 +63,7 @@ export interface RegistrationResponse {
 export const registerUser = async (
   csr: string,
   permsData: PermsData,
-  certificates: string[],
-  ownerCertificate: string
+  certificates: string[]
 ): Promise<RegistrarResponse> => {
   let cert: string
   const userData = new UserCsrData()
@@ -151,8 +133,6 @@ export const registerUser = async (
     body: {
       certificate: cert,
       peers: peerList,
-      rootCa: permsData.certificate,
-      ownerCert: ownerCertificate,
     },
   }
 }

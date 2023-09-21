@@ -14,7 +14,7 @@ import {
 import { type DirResult } from 'tmp'
 import { type PermsData } from '@quiet/types'
 import { Time } from 'pkijs'
-import { registerOwner, registerUser } from './registration.functions'
+import { registerUser } from './registration.functions'
 import { jest } from '@jest/globals'
 import { createTmpDir } from '../common/utils'
 
@@ -66,17 +66,8 @@ describe('RegistrationService', () => {
     await module.close()
   })
 
-  it('registerOwner should return certificate if csr is valid', async () => {
-    const result = await registerOwner(userCsr.userCsr, permsData)
-    expect(result).toBeTruthy()
-  })
-
-  it('registerOwner should throw error if csr is invalid', async () => {
-    await expect(registerOwner(invalidUserCsr, permsData)).rejects.toThrow()
-  })
-
   it('registerUser should return 200 status code', async () => {
-    const responseData = await registerUser(userCsr.userCsr, permsData, [], 'ownerCert')
+    const responseData = await registerUser(userCsr.userCsr, permsData, [])
     const isProperUserCert = await verifyUserCert(certRoot.rootCertString, responseData.body.certificate)
     expect(isProperUserCert.result).toBe(true)
   })
@@ -97,7 +88,7 @@ describe('RegistrationService', () => {
       new Date(),
       new Date(2030, 1, 1)
     )
-    const responseData = await registerUser(user.userCsr, permsData, [userCert.userCertString], 'ownerCert')
+    const responseData = await registerUser(user.userCsr, permsData, [userCert.userCertString])
     expect(responseData.status).toEqual(200)
     const isProperUserCert = await verifyUserCert(certRoot.rootCertString, responseData.body.certificate)
     expect(isProperUserCert.result).toBe(true)
@@ -129,13 +120,13 @@ describe('RegistrationService', () => {
       signAlg: configCrypto.signAlg,
       hashAlg: configCrypto.hashAlg,
     })
-    const response = await registerUser(userNew.userCsr, permsData, [userCert.userCertString], 'ownerCert')
+    const response = await registerUser(userNew.userCsr, permsData, [userCert.userCertString])
     expect(response.status).toEqual(403)
   })
 
   it('returns 400 if no csr in data or csr has wrong format', async () => {
     for (const invalidCsr of ['', 'abcd']) {
-      const response = await registerUser(invalidCsr, permsData, [], 'ownerCert')
+      const response = await registerUser(invalidCsr, permsData, [])
       expect(response.status).toEqual(400)
     }
   })
@@ -143,7 +134,7 @@ describe('RegistrationService', () => {
   it('returns 400 if csr is lacking a field', async () => {
     const csr =
       'MIIBFTCBvAIBADAqMSgwFgYKKwYBBAGDjBsCARMIdGVzdE5hbWUwDgYDVQQDEwdaYmF5IENBMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEGPGHpJzE/CvL7l/OmTSfYQrhhnWQrYw3GgWB1raCTSeFI/MDVztkBOlxwdUWSm10+1OtKVUWeMKaMtyIYFcPPqAwMC4GCSqGSIb3DQEJDjEhMB8wHQYDVR0OBBYEFLjaEh+cnNhsi5qDsiMB/ZTzZFfqMAoGCCqGSM49BAMCA0gAMEUCIFwlob/Igab05EozU0e/lsG7c9BxEy4M4c4Jzru2vasGAiEAqFTQuQr/mVqTHO5vybWm/iNDk8vh88K6aBCCGYqIfdw='
-    const response = await registerUser(csr, permsData, [], 'ownerCert')
+    const response = await registerUser(csr, permsData, [])
     expect(response.status).toEqual(400)
   })
 })

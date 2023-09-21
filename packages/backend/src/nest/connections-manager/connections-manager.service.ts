@@ -391,22 +391,17 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.socketService.on(SocketActionTypes.CONNECTION_PROCESS_INFO, data => {
       this.serverIoProvider.io.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, data)
     })
-
-    this.registrationService.on(SocketActionTypes.CONNECTION_PROCESS_INFO, data => {
-      this.serverIoProvider.io.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, data)
-    })
   }
   private attachRegistrationListeners() {
-    this.registrationService.on(RegistrationEvents.REGISTRAR_STATE, (payload: ServiceState) => {
-      this.registrarState = payload
-    })
     this.registrationService.on(SocketActionTypes.SAVED_OWNER_CERTIFICATE, payload => {
       this.serverIoProvider.io.emit(SocketActionTypes.SAVED_OWNER_CERTIFICATE, payload)
     })
+    // Not used atm
     this.registrationService.on(RegistrationEvents.ERROR, payload => {
       emitError(this.serverIoProvider.io, payload)
     })
     this.registrationService.on(RegistrationEvents.NEW_USER, async payload => {
+      console.log('conncetions manager payload ', payload)
       await this.storageService?.saveCertificate(payload)
     })
   }
@@ -442,14 +437,14 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       this.communityState = ServiceState.LAUNCHING
       await this.launchCommunity(args)
     })
-    this.socketService.on(SocketActionTypes.LAUNCH_REGISTRAR, async (args: LaunchRegistrarPayload) => {
-      // Event left for setting permsData purposes
-      this.logger(`socketService - ${SocketActionTypes.LAUNCH_REGISTRAR}`)
-      this.registrationService.permsData = {
-        certificate: args.rootCertString,
-        privKey: args.rootKeyString,
-      }
-    })
+    // this.socketService.on(SocketActionTypes.LAUNCH_REGISTRAR, async (args: LaunchRegistrarPayload) => {
+    //   // Event left for setting permsData purposes
+    //   this.logger(`socketService - ${SocketActionTypes.LAUNCH_REGISTRAR}`)
+    //   this.registrationService.permsData = {
+    //     certificate: args.rootCertString,
+    //     privKey: args.rootKeyString,
+    //   }
+    // })
     this.socketService.on(SocketActionTypes.SEND_COMMUNITY_METADATA, async (payload: CommunityMetadata) => {
       await this.storageService?.updateCommunityMetadata(payload)
     })

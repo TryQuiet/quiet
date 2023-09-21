@@ -1,6 +1,6 @@
 import { Injectable, OnModuleInit } from '@nestjs/common'
 import { EventEmitter } from 'events'
-import { registerOwner, registerUser } from './registration.functions'
+import { registerUser, RegistrarResponse } from './registration.functions'
 import { ErrorCodes, ErrorMessages, PermsData, RegisterOwnerCertificatePayload, SocketActionTypes } from '@quiet/types'
 import { RegistrationEvents } from './registration.types'
 import Logger from '../common/logger'
@@ -10,7 +10,6 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
   private readonly logger = Logger(RegistrationService.name)
   public certificates: string[] = []
   private _permsData: PermsData
-  private _ownerCertificate: string
 
   constructor() {
     super()
@@ -42,30 +41,27 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
   }
 
   public async registerOwnerCertificate(payload: RegisterOwnerCertificatePayload): Promise<void> {
-    let cert: string
-    try {
-      cert = await registerOwner(payload.userCsr.userCsr, payload.permsData)
-    } catch (e) {
-      this.logger.error(`Registering owner failed: ${e.message}`)
+    this._permsData = payload.permsData
+    const result = await registerUser(payload.userCsr.userCsr, this._permsData, this.certificates)
+    if (result?.status === 200) {
+      this.emit(SocketActionTypes.SAVED_OWNER_CERTIFICATE, {
+        communityId: payload.communityId,
+        network: { certificate: result.body.certificate, peers: [] },
+      })
+    } else {
       this.emit(SocketActionTypes.ERROR, {
         type: SocketActionTypes.REGISTRAR,
         code: ErrorCodes.SERVER_ERROR,
         message: ErrorMessages.REGISTRATION_FAILED,
         community: payload.communityId,
       })
-      return
     }
-    this.emit(SocketActionTypes.SAVED_OWNER_CERTIFICATE, {
-      communityId: payload.communityId,
-      network: { certificate: cert, peers: [] },
-    })
-    this._ownerCertificate = cert
   }
 
-  public async registerUser(csr: string): Promise<{ status: number; body: any }> {
-    const result = await registerUser(csr, this._permsData, this.certificates, this._ownerCertificate)
+  public async registerUser(csr: string): Promise<RegistrarResponse> {
+    const result = await registerUser(csr, this._permsData, this.certificates)
     if (result?.status === 200) {
-      this.emit(RegistrationEvents.NEW_USER, { certificate: result.body.certificate, rootPermsData: this._permsData })
+      this.emit(RegistrationEvents.NEW_USER, { certificate: result.body.certificate })
     }
     return result
   }
