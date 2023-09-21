@@ -34,6 +34,8 @@ import {
   SaveCertificatePayload,
   SocketActionTypes,
   UserData,
+  User,
+  UserProfile,
 } from '@quiet/types'
 import { isDefined } from '@quiet/common'
 import fs from 'fs'
@@ -50,6 +52,7 @@ import Logger from '../common/logger'
 import { DirectMessagesRepo, PublicChannelsRepo } from '../common/types'
 import { removeFiles, removeDirs, createPaths, getUsersAddresses } from '../common/utils'
 import { StorageEvents } from './storage.types'
+import { UserProfileStore } from './UserProfileStore'
 
 interface DBOptions {
   replicate: boolean
@@ -57,14 +60,18 @@ interface DBOptions {
 
 @Injectable()
 export class StorageService extends EventEmitter {
-  public channels: KeyValueStore<PublicChannel>
-  private certificates: EventStore<string>
-  private certificatesRequests: EventStore<string>
   public publicChannelsRepos: Map<string, PublicChannelsRepo> = new Map()
   public directMessagesRepos: Map<string, DirectMessagesRepo> = new Map()
   private publicKeysMap: Map<string, CryptoKey> = new Map()
   private userNamesMap: Map<string, string> = new Map()
+
+  public channels: KeyValueStore<PublicChannel>
+  private certificates: EventStore<string>
+  private certificatesRequests: EventStore<string>
   private communityMetadata: KeyValueStore<CommunityMetadata>
+
+  public userProfileStore: UserProfileStore
+
   private ipfs: IPFS
   private orbitDb: OrbitDB
   private filesManager: IpfsFileManagerService
@@ -162,6 +169,9 @@ export class StorageService extends EventEmitter {
     if (this.communityMetadata?.address) {
       dbs.push(this.communityMetadata.address)
     }
+    if (this.userProfileStore?.getAddress()) {
+      dbs.push(this.userProfileStore.getAddress())
+    }
 
     const channels = this.publicChannelsRepos.values()
 
@@ -215,15 +225,18 @@ export class StorageService extends EventEmitter {
   }
 
   public async initDatabases() {
-    this.logger('1/5')
+    this.logger('1/6')
     await this.createDbForChannels()
-    this.logger('2/5')
+    this.logger('2/6')
     await this.createDbForCertificates()
-    this.logger('3/5')
+    this.logger('3/6')
     await this.createDbForCertificatesRequests()
-    this.logger('4/5')
+    this.logger('4/6')
     await this.createDbForCommunityMetadata()
-    this.logger('5/5')
+    this.logger('5/6')
+    this.userProfileStore = new UserProfileStore(this.orbitDb)
+    await this.userProfileStore.init(this)
+    this.logger('6/6')
     await this.initAllChannels()
     this.logger('Initialized DBs')
     this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.INITIALIZED_DBS)
@@ -298,7 +311,6 @@ export class StorageService extends EventEmitter {
     } catch (e) {
       this.logger.error('Error closing channels db', e)
     }
-
     try {
       await this.certificates?.close()
     } catch (e) {
@@ -313,6 +325,11 @@ export class StorageService extends EventEmitter {
       await this.communityMetadata?.close()
     } catch (e) {
       this.logger.error('Error closing community metadata db', e)
+    }
+    try {
+      await this.userProfileStore?.close()
+    } catch (e) {
+      this.logger.error('Error closing user profiles db', e)
     }
     await this.__stopOrbitDb()
     await this.__stopIPFS()
@@ -725,6 +742,7 @@ export class StorageService extends EventEmitter {
           write: ['*'],
         },
       })
+
       repo = {
         db,
         eventsAttached: false,

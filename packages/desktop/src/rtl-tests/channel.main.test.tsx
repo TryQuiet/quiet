@@ -74,7 +74,6 @@ jest.mock('electron', () => {
 })
 
 jest.mock('../shared/sounds', () => ({
-  ...jest.requireActual('../shared/sounds'),
   soundTypeToAudio: {
     pow: {
       play: jest.fn(),

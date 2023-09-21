@@ -32,6 +32,7 @@ export enum SocketActionTypes {
   LAUNCH_COMMUNITY = 'launchCommunity',
   LAUNCH_REGISTRAR = 'launchRegistrar',
   LEAVE_COMMUNITY = 'leaveCommunity',
+  LOADED_USER_PROFILES = 'loadedUserProfiles',
   // N
   NETWORK = 'network',
   NEW_COMMUNITY = 'newCommunity',
@@ -55,6 +56,7 @@ export enum SocketActionTypes {
   SAVED_OWNER_CERTIFICATE = 'savedOwnerCertificate',
   SAVE_USER_CSR = 'saveUserCsr',
   SAVE_COMMUNITY_METADATA = 'saveCommunityMetadata',
+  SAVE_USER_PROFILE = 'saveUserProfile',
   SAVED_USER_CSR = 'savedUserCsr',
   SEND_DIRECT_MESSAGE = 'sendDirectMessage',
   SEND_MESSAGE = 'sendMessage',

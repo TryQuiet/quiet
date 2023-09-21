@@ -17,6 +17,7 @@ import {
   type SocketActionTypes,
   type UploadFilePayload,
   CommunityMetadata,
+  UserProfile,
 } from '@quiet/types'
 
 type EmitEvent<Payload> = (payload: Payload) => void
@@ -41,6 +42,7 @@ export interface EmitEvents {
   [SocketActionTypes.CREATE_NETWORK]: EmitEvent<Community>
   [SocketActionTypes.SAVE_USER_CSR]: EmitEvent<SaveCSRPayload>
   [SocketActionTypes.SEND_COMMUNITY_METADATA]: EmitEvent<CommunityMetadata>
+  [SocketActionTypes.SAVE_USER_PROFILE]: EmitEvent<UserProfile>
 }
 
 export type Socket = IOSocket<DefaultEventsMap, EmitEvents>

@@ -12,3 +12,14 @@ export const verifySignature = async (
   const algorithm = getAlgorithmParameters(config.signAlg, 'verify')
   return await crypto.verify(algorithm.algorithm as Algorithm, publicKey, signature, Buffer.from(message))
 }
+
+export const verifyDataSignature = async (
+  signature: ArrayBuffer,
+  data: Uint8Array,
+  publicKey: CryptoKey
+): Promise<boolean> => {
+  const crypto = getCrypto()
+  if (!crypto) throw new NoCryptoEngineError()
+  const algorithm = getAlgorithmParameters(config.signAlg, 'verify')
+  return await crypto.verify(algorithm.algorithm as Algorithm, publicKey, signature, Buffer.from(data))
+}

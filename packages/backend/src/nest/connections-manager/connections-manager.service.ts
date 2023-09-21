@@ -42,6 +42,8 @@ import {
   SaveCSRPayload,
   CommunityMetadata,
   CommunityMetadataPayload,
+  UserProfile,
+  UserProfilesLoadedEvent,
 } from '@quiet/types'
 import { CONFIG_OPTIONS, QUIET_DIR, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
 import { ConfigOptions, GetPorts, ServerIoProviderTypes } from '../types'
@@ -318,6 +320,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
     this.serverIoProvider.io.emit(SocketActionTypes.COMMUNITY, { id: payload.id })
   }
+
   public async launch(payload: InitCommunityPayload) {
     // Start existing community (community that user is already a part of)
     this.logger(`Spawning hidden service for community ${payload.id}, peer: ${payload.peerId.id}`)
@@ -381,6 +384,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     await this.storageService.init(_peerId)
     console.log('storage initialized')
   }
+
   private attachTorEventsListeners() {
     this.logger('attachTorEventsListeners')
 
@@ -388,6 +392,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       this.serverIoProvider.io.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, data)
     })
   }
+
   private attachRegistrationListeners() {
     this.registrationService.on(SocketActionTypes.SAVED_OWNER_CERTIFICATE, payload => {
       this.serverIoProvider.io.emit(SocketActionTypes.SAVED_OWNER_CERTIFICATE, payload)
@@ -399,6 +404,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       await this.storageService?.saveCertificate(payload)
     })
   }
+
   private attachsocketServiceListeners() {
     // Community
     this.socketService.on(SocketActionTypes.LEAVE_COMMUNITY, async () => {
@@ -497,7 +503,14 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         // await this.deleteFilesFromTemporaryDir() //crashes on mobile, will be fixes in next versions
       }
     )
+
+    // User Profile
+
+    this.socketService.on(SocketActionTypes.SAVE_USER_PROFILE, async (profile: UserProfile) => {
+      await this.storageService?.userProfileStore?.addUserProfile(profile)
+    })
   }
+
   private attachStorageListeners() {
     if (!this.storageService) return
     this.storageService.on(SocketActionTypes.CONNECTION_PROCESS_INFO, data => {
@@ -574,6 +587,12 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         ownerCertificate: payload.ownerCertificate,
       }
       this.serverIoProvider.io.emit(SocketActionTypes.SAVE_COMMUNITY_METADATA, communityMetadataPayload)
+    })
+
+    // User Profile
+
+    this.storageService.on(StorageEvents.LOADED_USER_PROFILES, (payload: UserProfilesLoadedEvent) => {
+      this.serverIoProvider.io.emit(SocketActionTypes.LOADED_USER_PROFILES, payload)
     })
   }
 }

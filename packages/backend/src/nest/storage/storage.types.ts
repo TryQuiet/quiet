@@ -25,7 +25,10 @@ export enum StorageEvents {
   SEND_PUSH_NOTIFICATION = 'sendPushNotification',
   // Community
   REPLICATED_COMMUNITY_METADATA = 'replicatedCommunityMetadata',
+  // User Profile
+  LOADED_USER_PROFILES = 'loadedUserProfiles',
 }
+
 export interface InitStorageParams {
   communityId: string
   peerId: any

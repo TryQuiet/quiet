@@ -8,6 +8,7 @@ import {
 } from './publicChannels.adapter'
 import { type CreatedSelectors, type StoreState } from '../store.types'
 import { allUsers } from '../users/users.selectors'
+import { userProfiles } from '../users/userProfile/userProfile.selectors'
 import { formatMessageDisplayDay } from '../../utils/functions/dates/formatMessageDisplayDate'
 import { displayableMessage } from '../../utils/functions/dates/formatDisplayableMessage'
 import { isDefined } from '@quiet/common'
@@ -20,6 +21,7 @@ import {
   type PublicChannel,
   type PublicChannelStatus,
   INITIAL_CURRENT_CHANNEL_ID,
+  UserProfile,
 } from '@quiet/types'
 
 const selectState: CreatedSelectors[StoreKeys.PublicChannels] = (state: StoreState) => state[StoreKeys.PublicChannels]
@@ -185,6 +187,9 @@ export const currentChannelMessagesCount = createSelector(displayableCurrentChan
   return messages.length
 })
 
+/**
+ * Channel messages grouped by day
+ */
 export const dailyGroupedCurrentChannelMessages = createSelector(displayableCurrentChannelMessages, messages => {
   const result: MessagesGroupsType = messages.reduce((groups: MessagesGroupsType, message: DisplayableMessage) => {
     const date = formatMessageDisplayDay(message.date)
@@ -200,35 +205,53 @@ export const dailyGroupedCurrentChannelMessages = createSelector(displayableCurr
   return result
 })
 
-export const currentChannelMessagesMergedBySender = createSelector(dailyGroupedCurrentChannelMessages, groups => {
-  const result: MessagesDailyGroups = {}
-  for (const day in groups) {
-    result[day] = groups[day].reduce((merged: DisplayableMessage[][], message: DisplayableMessage) => {
-      // Get last item from collected array for comparison
-      if (!merged.length) {
-        merged.push([message])
+/**
+ * Channel messages grouped by day and then additionally by sender (if
+ * there are successive messages by the same sender). Also adds a
+ * profile photo to the first message of each user.
+ */
+export const currentChannelMessagesMergedBySender = createSelector(
+  dailyGroupedCurrentChannelMessages,
+  userProfiles,
+  (groups: MessagesGroupsType, userProfiles: Record<string, UserProfile>) => {
+    const result: MessagesDailyGroups = {}
+    for (const day in groups) {
+      result[day] = groups[day].reduce((merged: DisplayableMessage[][], message: DisplayableMessage) => {
+        if (!merged.length) {
+          // Add profile photo to user's first message
+          if (message.pubKey in userProfiles) {
+            message.photo = userProfiles[message.pubKey].profile.photo
+          }
+          merged.push([message])
+          return merged
+        }
+
+        // Get last item from collected array for comparison
+        const index = merged.length && merged.length - 1
+        const last = merged[index][0]
+
+        if (
+          last?.pubKey === message?.pubKey &&
+          message.createdAt - last.createdAt < 300 &&
+          message.type !== MessageType.Info &&
+          last.type !== MessageType.Info
+        ) {
+          merged[index].push(message)
+        } else {
+          // Add profile photo to user's first message
+          if (message.pubKey in userProfiles) {
+            message.photo = userProfiles[message.pubKey].profile.photo
+          }
+          merged.push([message])
+        }
+
         return merged
-      }
-      const index = merged.length && merged.length - 1
-      const last = merged[index][0]
+      }, [])
+    }
 
-      if (
-        last?.pubKey === message?.pubKey &&
-        message.createdAt - last.createdAt < 300 &&
-        message.type !== MessageType.Info &&
-        last.type !== MessageType.Info
-      ) {
-        merged[index].push(message)
-      } else {
-        merged.push([message])
-      }
-
-      return merged
-    }, [])
+    return result
   }
-
-  return result
-})
+)
 
 export const channelsStatus = createSelector(selectState, state => {
   if (!state?.channelsStatus) return {}

@@ -23,6 +23,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@ipld/dag-cbor": "^9.0.5",
     "@quiet/common": "^2.0.1-alpha.3",
     "@quiet/logger": "^2.0.1-alpha.3",
     "@quiet/types": "^2.0.1-alpha.3",
@@ -53,7 +54,7 @@
     "babel-jest": "^29.3.1",
     "cross-env": "^7.0.3",
     "factory-girl": "^5.0.4",
-    "jest": "^27.0.6",
+    "jest": "^27.2.5",
     "libp2p-websockets": "*",
     "pkijs": "^3.0.8",
     "pvutils": "*",
@@ -76,6 +77,10 @@
     "rootDir": "src",
     "setupFiles": [
       "./setupTests.ts"
+    ],
+    "resolver": "<rootDir>/../jest/resolver.js",
+    "transformIgnorePatterns": [
+      "node_modules/(?!@ipld|cborg)"
     ]
   }
 }

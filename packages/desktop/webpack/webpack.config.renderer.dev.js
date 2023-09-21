@@ -17,7 +17,8 @@ module.exports = {
     extensions: ['.ts', '.tsx', '.js', '.jsx'],
     plugins: [
       new TsconfigPathsPlugin({ configFile: 'tsconfig.build.json' })
-    ]
+    ],
+    conditionNames: ["import", "node"]
   },
   module: {
     rules: [

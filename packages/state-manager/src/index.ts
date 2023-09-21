@@ -15,6 +15,7 @@ import { publicChannelsMasterSaga } from './sagas/publicChannels/publicChannels.
 
 import { usersReducer, usersActions, UsersState } from './sagas/users/users.slice'
 import { usersSelectors } from './sagas/users/users.selectors'
+import { userProfileSelectors } from './sagas/users/userProfile/userProfile.selectors'
 
 import { identityReducer, identityActions, IdentityState } from './sagas/identity/identity.slice'
 
@@ -127,7 +128,7 @@ export const users = {
   reducer: usersReducer,
   State: UsersState,
   actions: usersActions,
-  selectors: usersSelectors,
+  selectors: { ...usersSelectors, ...userProfileSelectors },
 }
 
 export const identity = {

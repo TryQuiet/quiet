@@ -2,7 +2,7 @@ import React from 'react'
 import { ComponentStory, ComponentMeta } from '@storybook/react'
 import { withTheme } from '../../storybook/decorators'
 
-import { ContextMenu } from './ContextMenu.component'
+import { ContextMenu, ContextMenuItemList } from './ContextMenu.component'
 import { ContextMenuItemProps, ContextMenuProps } from './ContextMenu.types'
 
 const Template: ComponentStory<typeof ContextMenu> = args => {
@@ -22,7 +22,7 @@ const channel_items: ContextMenuItemProps[] = [
 
 const args: ContextMenuProps = {
   title: 'Rockets',
-  items: channel_items,
+  children: <ContextMenuItemList items={channel_items} />,
   visible: true,
   handleClose: () => {
     console.log('closing menu')

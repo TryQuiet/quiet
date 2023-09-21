@@ -11,3 +11,12 @@ export const sign = async (message: string, privKey: CryptoKey): Promise<ArrayBu
 
   return await crypto.sign(algorithm.algorithm as Algorithm, privKey, messageBuffer)
 }
+
+export const signData = async (data: Uint8Array, privKey: CryptoKey): Promise<ArrayBuffer> => {
+  const crypto = getCrypto()
+  if (!crypto) throw new NoCryptoEngineError()
+  const dataBuffer = Buffer.from(data)
+  const algorithm = getAlgorithmParameters(config.signAlg, 'sign')
+
+  return await crypto.sign(algorithm.algorithm as Algorithm, privKey, dataBuffer)
+}

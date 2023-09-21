@@ -10,8 +10,8 @@ import {
   getPubKey,
 } from './extractPubKey'
 import { verifyUserCert } from './verifyUserCertificate'
-import { verifySignature } from './verifySignature'
-import { sign } from './sign'
+import { verifySignature, verifyDataSignature } from './verifySignature'
+import { sign, signData } from './sign'
 import { createUserCsr, type UserCsr } from './createUserCsr'
 import { createUserCert, type UserCert } from './createUserCert'
 import {
@@ -52,8 +52,8 @@ export {
   getPubKey,
 }
 export { verifyUserCert }
-export { verifySignature }
-export { sign }
+export { verifySignature, verifyDataSignature }
+export { sign, signData }
 export { createUserCsr, type UserCsr }
 export { createUserCert, type UserCert }
 export {
