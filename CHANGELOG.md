@@ -1,3 +1,7 @@
+[unreleased]
+
+* Update registrar service to match new registration flow.
+
 [2.0.0-alpha.11]
 
 * Customize Launch Screen on iOS
