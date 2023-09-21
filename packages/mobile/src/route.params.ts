@@ -42,6 +42,8 @@ export type RootStackParamList = {
   [ScreenNames.UnregisteredUsernameScreen]: {
     username: string
   }
+  [ScreenNames.UsernameTakenScreen]: undefined
+  [ScreenNames.NewUsernameRequestedScreen]: undefined
 }
 
 export type SplashRouteProp = RouteProp<RootStackParamList, ScreenNames.SplashScreen>
@@ -59,3 +61,7 @@ export type ErrorRouteProp = RouteProp<RootStackParamList, ScreenNames.ErrorScre
 export type DuplicatedUsernameRouteProps = RouteProp<RootStackParamList, ScreenNames.DuplicatedUsernameScreen>
 
 export type UnregisteredUsernameRouteProps = RouteProp<RootStackParamList, ScreenNames.UnregisteredUsernameScreen>
+
+export type UsernameTakenRouteProps = RouteProp<RootStackParamList, ScreenNames.UsernameTakenScreen>
+
+export type NewUsernameRequestedRouteProps = RouteProp<RootStackParamList, ScreenNames.NewUsernameRequestedScreen>

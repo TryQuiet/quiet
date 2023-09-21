@@ -19,7 +19,7 @@ export const Button: FC<ButtonProps> = ({ onPress, title, width, loading, negati
           paddingVertical: 12,
           marginVertical: !negative ? 12 : 0,
           backgroundColor: !negative ? defaultTheme.palette.main.brand : 'transparent',
-          borderRadius: 5,
+          borderRadius: 8,
           justifyContent: 'center',
           alignItems: 'center',
           minHeight: 45,

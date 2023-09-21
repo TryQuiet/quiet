@@ -1,14 +1,10 @@
 import React from 'react'
-
 import { renderComponent } from '../../utils/functions/renderComponent/renderComponent'
+import NewUsernameRequestedComponent from './NewUsernameRequested.component'
 
-import { QRCode } from './QRCode.component'
-
-describe('QRCode component', () => {
+describe('NewUsernameRequested component', () => {
   it('should match inline snapshot', () => {
-    const { toJSON } = renderComponent(
-      <QRCode value={'https://tryquiet.org/join#'} shareCode={jest.fn()} handleBackButton={jest.fn()} />
-    )
+    const { toJSON } = renderComponent(<NewUsernameRequestedComponent handler={jest.fn()} />)
 
     expect(toJSON()).toMatchInlineSnapshot(`
       <View
@@ -18,6 +14,7 @@ describe('QRCode component', () => {
             "flex": 1,
           }
         }
+        testID="new-username-requested-component"
       >
         <View
           style={
@@ -93,7 +90,7 @@ describe('QRCode component', () => {
                   resizeMode="cover"
                   source={
                     {
-                      "testUri": "../../../assets/icons/arrow_left.png",
+                      "testUri": "../../../assets/icons/icon_close.png",
                     }
                   }
                   style={
@@ -132,7 +129,7 @@ describe('QRCode component', () => {
               }
               verticalTextAlign="center"
             >
-              QR Code
+              Username taken
             </Text>
           </View>
           <View
@@ -146,114 +143,86 @@ describe('QRCode component', () => {
         <View
           style={
             {
-              "alignItems": "center",
-              "display": "flex",
-              "flexDirection": "column",
-              "padding": 16,
+              "paddingLeft": 20,
+              "paddingRight": 20,
             }
           }
         >
-          <View
+          <Text
+            color="main"
+            fontSize={14}
+            horizontalTextAlign="left"
             style={
+              [
+                {
+                  "color": "#000000",
+                  "fontFamily": "Rubik-Regular",
+                  "fontSize": 14,
+                  "textAlign": "left",
+                  "textAlignVertical": "center",
+                },
+                {
+                  "marginBottom": 30,
+                  "marginTop": 30,
+                },
+              ]
+            }
+            verticalTextAlign="center"
+          >
+            Great! Your new username should be registered automatically the next time the community owner is online.
+          </Text>
+          <View
+            accessibilityState={
               {
-                "margin": 16,
+                "busy": undefined,
+                "checked": undefined,
+                "disabled": undefined,
+                "expanded": undefined,
+                "selected": undefined,
               }
             }
-          />
-          <View
+            accessible={true}
+            focusable={true}
+            onClick={[Function]}
+            onResponderGrant={[Function]}
+            onResponderMove={[Function]}
+            onResponderRelease={[Function]}
+            onResponderTerminate={[Function]}
+            onResponderTerminationRequest={[Function]}
+            onStartShouldSetResponder={[Function]}
             style={
               {
-                "marginTop": 16,
-                "width": 340,
+                "alignItems": "center",
+                "backgroundColor": "#521C74",
+                "borderRadius": 8,
+                "justifyContent": "center",
+                "marginVertical": 12,
+                "minHeight": 45,
+                "paddingVertical": 12,
+                "width": 100,
               }
             }
+            testID="button"
           >
             <Text
-              color="main"
+              color="white"
               fontSize={14}
-              fontWeight="normal"
               horizontalTextAlign="left"
               style={
                 [
                   {
-                    "color": "#000000",
+                    "color": "#ffffff",
                     "fontFamily": "Rubik-Regular",
                     "fontSize": 14,
                     "textAlign": "left",
                     "textAlignVertical": "center",
                   },
-                  {
-                    "lineHeight": 20,
-                    "textAlign": "center",
-                  },
                 ]
               }
               verticalTextAlign="center"
             >
-              This community QR code is private. If it is shared with someone, they can scan it with their camera to join this community.
+              Continue
             </Text>
-          </View>
-          <View
-            style={
-              {
-                "marginTop": 16,
-                "width": 124,
-              }
-            }
-          >
-            <View
-              accessibilityState={
-                {
-                  "busy": undefined,
-                  "checked": undefined,
-                  "disabled": undefined,
-                  "expanded": undefined,
-                  "selected": undefined,
-                }
-              }
-              accessible={true}
-              focusable={true}
-              onClick={[Function]}
-              onResponderGrant={[Function]}
-              onResponderMove={[Function]}
-              onResponderRelease={[Function]}
-              onResponderTerminate={[Function]}
-              onResponderTerminationRequest={[Function]}
-              onStartShouldSetResponder={[Function]}
-              style={
-                {
-                  "alignItems": "center",
-                  "backgroundColor": "#521C74",
-                  "borderRadius": 8,
-                  "justifyContent": "center",
-                  "marginVertical": 12,
-                  "minHeight": 45,
-                  "paddingVertical": 12,
-                  "width": undefined,
-                }
-              }
-              testID="button"
-            >
-              <Text
-                color="white"
-                fontSize={14}
-                horizontalTextAlign="left"
-                style={
-                  [
-                    {
-                      "color": "#ffffff",
-                      "fontFamily": "Rubik-Regular",
-                      "fontSize": 14,
-                      "textAlign": "left",
-                      "textAlignVertical": "center",
-                    },
-                  ]
-                }
-                verticalTextAlign="center"
-              >
-                Share code
-              </Text>
-            </View>
           </View>
         </View>
       </View>
