@@ -33,3 +33,5 @@
 * C4 for Quiet architecture. Context and Container diagrams.
 
 * Invite tab as default in settings
+
+* UI layer for taken usernames for desktop and mobile
