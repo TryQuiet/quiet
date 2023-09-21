@@ -4,11 +4,8 @@ import classNames from 'classnames'
 import { Controller, useForm } from 'react-hook-form'
 import Typography from '@mui/material/Typography'
 import Grid from '@mui/material/Grid'
-
 import WarningIcon from '@mui/icons-material/Warning'
-
 import Modal from '../ui/Modal/Modal'
-
 import { LoadingButton } from '../ui/LoadingButton/LoadingButton'
 import { TextInput } from '../../forms/components/textInput'
 import { userNameField } from '../../forms/fields/createUserFields'
@@ -32,6 +29,9 @@ const classes = {
   progressBar: `${PREFIX}progressBar`,
   info: `${PREFIX}info`,
   inputLabel: `${PREFIX}inputLabel`,
+  marginMedium: `${PREFIX}marginMedium`,
+  buttonModern: `${PREFIX}buttonModern`,
+  buttonMargin: `${PREFIX}buttonMargin`,
 }
 
 const StyledModalContent = styled(Grid)(({ theme }) => ({
@@ -82,6 +82,11 @@ const StyledModalContent = styled(Grid)(({ theme }) => ({
     fontWeight: 'normal',
   },
 
+  [`& .${classes.buttonModern}`]: {
+    borderRadius: 8,
+    width: 110,
+  },
+
   [`& .${classes.title}`]: {
     marginBottom: 24,
   },
@@ -120,6 +125,10 @@ const StyledModalContent = styled(Grid)(({ theme }) => ({
     marginBottom: 2,
     color: theme.palette.colors.black30,
   },
+
+  [`& .${classes.marginMedium}`]: {
+    marginTop: 24,
+  },
 }))
 
 const userFields = {
@@ -130,9 +139,9 @@ interface CreateUserValues {
   userName: string
 }
 
-enum UsernameVariant {
-  NEW_USER = 'new-user',
-  USERNAME_TAKEN = 'username-taken',
+export enum UsernameVariant {
+  NEW = 'new',
+  TAKEN = 'taken',
 }
 
 export interface CreateUsernameComponentProps {
@@ -152,9 +161,10 @@ export const CreateUsernameComponent: React.FC<CreateUsernameComponentProps> = (
   certificate,
   handleClose,
   currentUsername,
-  variant = UsernameVariant.NEW_USER,
+  variant = UsernameVariant.NEW,
 }) => {
-  const isNewUser = variant === UsernameVariant.NEW_USER
+  const isNewUser = variant === UsernameVariant.NEW
+  const [isUsernameRequested, setIsUsernameRequested] = useState(false)
 
   const [formSent, setFormSent] = useState(false)
   const [userName, setUserName] = useState('')
@@ -174,7 +184,12 @@ export const CreateUsernameComponent: React.FC<CreateUsernameComponentProps> = (
   })
 
   const onSubmit = (values: CreateUserValues) => {
-    submitForm(registerUsername, values, setFormSent)
+    if (isNewUser) {
+      submitForm(registerUsername, values, setFormSent)
+    } else {
+      registerUsername(parseName(values.userName))
+      setIsUsernameRequested(true)
+    }
   }
 
   const submitForm = (
@@ -206,94 +221,137 @@ export const CreateUsernameComponent: React.FC<CreateUsernameComponentProps> = (
   }, [certificateRegistrationError])
 
   return (
-    <Modal open={open} handleClose={handleClose} testIdPrefix='createUsername' isCloseDisabled={true}>
+    <Modal
+      open={open}
+      handleClose={handleClose}
+      testIdPrefix='createUsername'
+      isCloseDisabled={isNewUser}
+      isBold={!isNewUser}
+      addBorder={!isNewUser}
+      title={isNewUser ? undefined : isUsernameRequested ? 'New username requested' : 'Username taken'}
+    >
       <StyledModalContent container direction='column'>
-        <>
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <Grid container justifyContent='flex-start' direction='column' className={classes.fullContainer}>
-              {isNewUser ? (
-                <>
-                  <Typography variant='h3' className={classes.title}>
-                    Register a username
-                  </Typography>
-                  <Typography variant='body2'>Choose your favorite username</Typography>
-                </>
-              ) : (
-                <>
-                  <Typography variant='body2'>
-                    We’re sorry, but the username <strong>{currentUsername && `@${currentUsername}`}</strong> was
-                    already claimed by someone else. <br />
-                    Can you choose another name?
-                  </Typography>
+        {!isUsernameRequested ? (
+          <>
+            <form onSubmit={handleSubmit(onSubmit)}>
+              <Grid container justifyContent='flex-start' direction='column' className={classes.fullContainer}>
+                {isNewUser ? (
+                  <>
+                    <Typography variant='h3' className={classes.title}>
+                      Register a username
+                    </Typography>
+                    <Typography variant='body2'>Choose your favorite username</Typography>
+                  </>
+                ) : (
+                  <>
+                    <Typography variant='body2' className={classes.marginMedium}>
+                      We’re sorry, but the username <strong>{currentUsername && `@${currentUsername}`}</strong> was
+                      already claimed by someone else. <br />
+                      Can you choose another name?
+                    </Typography>
 
-                  <Typography variant='body2' className={classes.inputLabel}>
-                    Enter username
-                  </Typography>
-                </>
-              )}
+                    <Typography variant='body2' className={classes.inputLabel}>
+                      Enter username
+                    </Typography>
+                  </>
+                )}
 
-              <Controller
-                control={control}
-                defaultValue={''}
-                rules={userFields.userName.validation}
-                name={'userName'}
-                render={({ field }) => (
-                  <TextInput
-                    {...userFields.userName.fieldProps}
-                    fullWidth
-                    classes={classNames({
-                      [classes.focus]: true,
-                      [classes.margin]: true,
-                      [classes.error]: errors.userName,
-                    })}
-                    placeholder={isNewUser ? 'Enter a username' : 'Username'}
-                    errors={errors}
-                    onPaste={e => e.preventDefault()}
-                    variant='outlined'
-                    onchange={event => {
-                      event.persist()
-                      const value = event.target.value
-                      onChange(value)
-                      // Call default
-                      field.onChange(event)
-                    }}
-                    onblur={() => {
-                      field.onBlur()
-                    }}
-                    value={field.value}
-                  />
+                <Controller
+                  control={control}
+                  defaultValue={''}
+                  rules={userFields.userName.validation}
+                  name={'userName'}
+                  render={({ field }) => (
+                    <TextInput
+                      {...userFields.userName.fieldProps}
+                      fullWidth
+                      classes={classNames({
+                        [classes.focus]: true,
+                        [classes.margin]: true,
+                        [classes.error]: errors.userName,
+                      })}
+                      placeholder={isNewUser ? 'Enter a username' : 'Username'}
+                      errors={errors}
+                      onPaste={e => e.preventDefault()}
+                      variant='outlined'
+                      onchange={event => {
+                        event.persist()
+                        const value = event.target.value
+                        onChange(value)
+                        // Call default
+                        field.onChange(event)
+                      }}
+                      onblur={() => {
+                        field.onBlur()
+                      }}
+                      value={field.value}
+                    />
+                  )}
+                />
+
+                {!isNewUser && (
+                  <Typography variant='caption' style={{ marginTop: 8 }}>
+                    Your username will be public, but you can choose any name you like. No spaces or special characters.
+                    Lowercase letters and numbers only.
+                  </Typography>
                 )}
-              />
-              <div className={classes.gutter}>
-                {!errors.userName && userName.length > 0 && parsedNameDiffers && (
-                  <Grid container alignItems='center' direction='row'>
-                    <Grid item className={classes.iconDiv}>
-                      <WarningIcon className={classes.warrningIcon} />
+                <div className={classes.gutter}>
+                  {!errors.userName && userName.length > 0 && parsedNameDiffers && (
+                    <Grid container alignItems='center' direction='row'>
+                      <Grid item className={classes.iconDiv}>
+                        <WarningIcon className={classes.warrningIcon} />
+                      </Grid>
+                      <Grid item xs>
+                        <Typography
+                          variant='body2'
+                          className={classes.warrningMessage}
+                          data-testid={'createUserNameWarning'}
+                        >
+                          Your username will be registered as <b>{`@${userName}`}</b>
+                        </Typography>
+                      </Grid>
                     </Grid>
-                    <Grid item xs>
-                      <Typography
-                        variant='body2'
-                        className={classes.warrningMessage}
-                        data-testid={'createUserNameWarning'}
-                      >
-                        Your username will be registered as <b>{`@${userName}`}</b>
-                      </Typography>
-                    </Grid>
-                  </Grid>
-                )}
-              </div>
-              <LoadingButton
-                variant='contained'
-                color='primary'
-                inProgress={waitingForResponse}
-                disabled={waitingForResponse}
-                type='submit'
-                text={isNewUser ? 'Register' : 'Continue'}
-                classes={{ button: classes.button }}
-              />
-            </Grid>
-          </form>
-        </>
+                  )}
+                </div>
+                <LoadingButton
+                  variant='contained'
+                  color='primary'
+                  inProgress={waitingForResponse}
+                  disabled={waitingForResponse}
+                  type='submit'
+                  text={isNewUser ? 'Register' : 'Continue'}
+                  classes={{
+                    button: classNames({
+                      [classes.button]: true,
+                      [classes.buttonModern]: !isNewUser,
+                    }),
+                  }}
+                />
+              </Grid>
+            </form>
+          </>
+        ) : (
+          <>
+            <Typography variant='body2' className={classes.marginMedium}>
+              Great! Your new username should be registered automatically the next time the community owner is online.
+            </Typography>
+
+            <LoadingButton
+              variant='contained'
+              color='primary'
+              type='submit'
+              text={'Continue'}
+              onClick={handleClose}
+              classes={{
+                button: classNames({
+                  [classes.button]: true,
+                  [classes.buttonModern]: true,
+                  [classes.marginMedium]: true,
+                }),
+              }}
+            />
+          </>
+        )}
       </StyledModalContent>
     </Modal>
   )
