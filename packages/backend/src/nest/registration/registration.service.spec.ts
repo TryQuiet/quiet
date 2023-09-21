@@ -66,9 +66,11 @@ describe('RegistrationService', () => {
     await module.close()
   })
 
-  it('registerUser should return 200 status code', async () => {
+  it('registerUser should return cert', async () => {
     const responseData = await registerUser(userCsr.userCsr, permsData, [])
-    const isProperUserCert = await verifyUserCert(certRoot.rootCertString, responseData.body.certificate)
+    expect(responseData.cert).toBeTruthy()
+    if (!responseData.cert) return null
+    const isProperUserCert = await verifyUserCert(certRoot.rootCertString, responseData.cert)
     expect(isProperUserCert.result).toBe(true)
   })
 
@@ -89,11 +91,10 @@ describe('RegistrationService', () => {
       new Date(2030, 1, 1)
     )
     const responseData = await registerUser(user.userCsr, permsData, [userCert.userCertString])
-    expect(responseData.status).toEqual(200)
-    const isProperUserCert = await verifyUserCert(certRoot.rootCertString, responseData.body.certificate)
+    expect(responseData.cert).toBeTruthy()
+    if (!responseData.cert) return null
+    const isProperUserCert = await verifyUserCert(certRoot.rootCertString, responseData.cert)
     expect(isProperUserCert.result).toBe(true)
-    expect(responseData.body.peers.length).toBe(1)
-    expect(responseData.body.rootCa).toBe(certRoot.rootCertString)
   })
 
   it('returns 403 if username already exists and csr and cert public keys dont match', async () => {
@@ -121,13 +122,13 @@ describe('RegistrationService', () => {
       hashAlg: configCrypto.hashAlg,
     })
     const response = await registerUser(userNew.userCsr, permsData, [userCert.userCertString])
-    expect(response.status).toEqual(403)
+    expect(response.cert).toEqual(null)
   })
 
   it('returns 400 if no csr in data or csr has wrong format', async () => {
     for (const invalidCsr of ['', 'abcd']) {
       const response = await registerUser(invalidCsr, permsData, [])
-      expect(response.status).toEqual(400)
+      expect(response.cert).toEqual(null)
     }
   })
 
@@ -135,6 +136,6 @@ describe('RegistrationService', () => {
     const csr =
       'MIIBFTCBvAIBADAqMSgwFgYKKwYBBAGDjBsCARMIdGVzdE5hbWUwDgYDVQQDEwdaYmF5IENBMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEGPGHpJzE/CvL7l/OmTSfYQrhhnWQrYw3GgWB1raCTSeFI/MDVztkBOlxwdUWSm10+1OtKVUWeMKaMtyIYFcPPqAwMC4GCSqGSIb3DQEJDjEhMB8wHQYDVR0OBBYEFLjaEh+cnNhsi5qDsiMB/ZTzZFfqMAoGCCqGSM49BAMCA0gAMEUCIFwlob/Igab05EozU0e/lsG7c9BxEy4M4c4Jzru2vasGAiEAqFTQuQr/mVqTHO5vybWm/iNDk8vh88K6aBCCGYqIfdw='
     const response = await registerUser(csr, permsData, [])
-    expect(response.status).toEqual(400)
+    expect(response.cert).toEqual(null)
   })
 })

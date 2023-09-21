@@ -437,14 +437,14 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       this.communityState = ServiceState.LAUNCHING
       await this.launchCommunity(args)
     })
-    // this.socketService.on(SocketActionTypes.LAUNCH_REGISTRAR, async (args: LaunchRegistrarPayload) => {
-    //   // Event left for setting permsData purposes
-    //   this.logger(`socketService - ${SocketActionTypes.LAUNCH_REGISTRAR}`)
-    //   this.registrationService.permsData = {
-    //     certificate: args.rootCertString,
-    //     privKey: args.rootKeyString,
-    //   }
-    // })
+    this.socketService.on(SocketActionTypes.LAUNCH_REGISTRAR, async (args: LaunchRegistrarPayload) => {
+      // Event left for setting permsData purposes
+      this.logger(`socketService - ${SocketActionTypes.LAUNCH_REGISTRAR}`)
+      this.registrationService.permsData = {
+        certificate: args.rootCertString,
+        privKey: args.rootKeyString,
+      }
+    })
     this.socketService.on(SocketActionTypes.SEND_COMMUNITY_METADATA, async (payload: CommunityMetadata) => {
       await this.storageService?.updateCommunityMetadata(payload)
     })

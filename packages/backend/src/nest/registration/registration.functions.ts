@@ -9,8 +9,7 @@ import {
 } from '@quiet/identity'
 import { IsBase64, IsNotEmpty, validate } from 'class-validator'
 import { CertificationRequest } from 'pkijs'
-import { getUsersAddresses } from '../common/utils'
-import { ErrorPayload, PermsData, SocketActionTypes, SuccessfullRegistrarionResponse, UserData } from '@quiet/types'
+import { ErrorPayload, PermsData, SocketActionTypes, SuccessfullRegistrarionResponse } from '@quiet/types'
 import { CsrContainsFields, IsCsr } from './registration.validators'
 import { RegistrationEvents } from './registration.types'
 import Logger from '../common/logger'
@@ -25,8 +24,8 @@ class UserCsrData {
 }
 
 export interface RegistrarResponse {
-  status: number
-  body: any
+  cert: string | null
+  error: any
 }
 
 // REFACTORING: Move this method to identity package
@@ -41,6 +40,7 @@ export const pubKeyMatch = (cert: string, parsedCsr: CertificationRequest): bool
   return false
 }
 
+// Change to certificateByField and move to identity
 const certificateByUsername = (username: string, certificates: string[]): string | null => {
   /**
    * Check if given username is already in use
@@ -66,25 +66,26 @@ export const registerUser = async (
   certificates: string[]
 ): Promise<RegistrarResponse> => {
   let cert: string
+
   const userData = new UserCsrData()
   userData.csr = csr
   const validationErrors = await validate(userData)
   if (validationErrors.length > 0) {
     logger.error(`Received data is not valid: ${validationErrors.toString()}`)
     return {
-      status: 400,
-      body: JSON.stringify(validationErrors),
+      cert: null,
+      error: JSON.stringify(validationErrors),
     }
   }
 
   const parsedCsr = await loadCSR(userData.csr)
+
   const username = getReqFieldValue(parsedCsr, CertFieldsTypes.nickName)
   if (!username) {
     logger.error(`Could not parse certificate for field type ${CertFieldsTypes.nickName}`)
     return {
-      // Should be internal server error code 500
-      status: 400,
-      body: null,
+      cert: null,
+      error: null,
     }
   }
   // Use map here
@@ -93,9 +94,8 @@ export const registerUser = async (
     if (!pubKeyMatch(usernameCert, parsedCsr)) {
       logger(`Username ${username} is taken`)
       return {
-        // Should be conflict code 409
-        status: 403,
-        body: null,
+        cert: null,
+        error: null,
       }
     } else {
       logger('Requesting same CSR again')
@@ -104,40 +104,23 @@ export const registerUser = async (
   } else {
     logger('username doesnt have existing cert, creating new')
     try {
-      cert = await registerCertificate(userData.csr, permsData)
+      cert = await issueCertificate(userData.csr, permsData)
     } catch (e) {
       logger.error(`Something went wrong with registering user: ${e.message as string}`)
       return {
-        // Should be internal server error code 500
-        status: 400,
-        body: null,
+        cert: null,
+        error: null,
       }
     }
   }
 
-  const allUsers: UserData[] = []
-  for (const cert of certificates) {
-    const parsedCert = parseCertificate(cert)
-    const onionAddress = getCertFieldValue(parsedCert, CertFieldsTypes.commonName)
-    const peerId = getCertFieldValue(parsedCert, CertFieldsTypes.peerId)
-    const username = getCertFieldValue(parsedCert, CertFieldsTypes.nickName)
-    const dmPublicKey = getCertFieldValue(parsedCert, CertFieldsTypes.dmPublicKey)
-    if (!onionAddress || !peerId || !username || !dmPublicKey) continue
-    allUsers.push({ onionAddress, peerId, username, dmPublicKey })
-  }
-
-  const peerList = await getUsersAddresses(allUsers)
-
   return {
-    status: 200,
-    body: {
-      certificate: cert,
-      peers: peerList,
-    },
+    cert,
+    error: null
   }
 }
 
-export const registerCertificate = async (userCsr: string, permsData: PermsData): Promise<string> => {
+export const issueCertificate = async (userCsr: string, permsData: PermsData): Promise<string> => {
   const userCert = await createUserCert(
     permsData.certificate,
     permsData.privKey,

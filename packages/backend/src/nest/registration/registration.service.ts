@@ -1,6 +1,6 @@
 import { Injectable, OnModuleInit } from '@nestjs/common'
 import { EventEmitter } from 'events'
-import { registerUser, RegistrarResponse } from './registration.functions'
+import { registerUser } from './registration.functions'
 import { ErrorCodes, ErrorMessages, PermsData, RegisterOwnerCertificatePayload, SocketActionTypes } from '@quiet/types'
 import { RegistrationEvents } from './registration.types'
 import Logger from '../common/logger'
@@ -24,7 +24,7 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
         console.log('NO PERMS DATA')
         return
       }
-      await this.registerUser(csr)
+      await this.registerUserCertificate(csr)
     })
   }
 
@@ -41,12 +41,13 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
   }
 
   public async registerOwnerCertificate(payload: RegisterOwnerCertificatePayload): Promise<void> {
+    // It should not be here.
     this._permsData = payload.permsData
     const result = await registerUser(payload.userCsr.userCsr, this._permsData, this.certificates)
-    if (result?.status === 200) {
+    if (result?.cert) {
       this.emit(SocketActionTypes.SAVED_OWNER_CERTIFICATE, {
         communityId: payload.communityId,
-        network: { certificate: result.body.certificate, peers: [] },
+        network: { certificate: result.cert, peers: [] },
       })
     } else {
       this.emit(SocketActionTypes.ERROR, {
@@ -58,11 +59,10 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
     }
   }
 
-  public async registerUser(csr: string): Promise<RegistrarResponse> {
+  public async registerUserCertificate(csr: string): Promise<void> {
     const result = await registerUser(csr, this._permsData, this.certificates)
-    if (result?.status === 200) {
-      this.emit(RegistrationEvents.NEW_USER, { certificate: result.body.certificate })
+    if (result?.cert) {
+      this.emit(RegistrationEvents.NEW_USER, { certificate: result.cert })
     }
-    return result
   }
 }
