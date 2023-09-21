@@ -3,6 +3,7 @@ import { createSelector } from '@reduxjs/toolkit'
 import { identityAdapter } from './identity.adapter'
 import { type CreatedSelectors, type StoreState } from '../store.types'
 import { communitiesSelectors, selectCommunities } from '../communities/communities.selectors'
+import { certificatesMapping } from '../users/users.selectors'
 
 const identitySlice: CreatedSelectors[StoreKeys.Identity] = (state: StoreState) => state[StoreKeys.Identity]
 
@@ -37,6 +38,19 @@ export const csr = createSelector(communitiesSelectors.currentCommunityId, selec
   return identities[id]?.userCsr
 })
 
+export const usernameTaken = createSelector(currentIdentity, certificatesMapping, (identity, certs) => {
+  if (identity?.userCertificate) return false
+  const username = identity?.nickname
+  if (!username) return false
+
+  const allUsernames: string[] = Object.values(certs).map(u => u.username)
+  const duplicateUsernames: string[] = allUsernames.filter((val, index) => allUsernames.indexOf(val) !== index)
+
+  if (duplicateUsernames.includes(username)) return true
+
+  return false
+})
+
 export const identitySelectors = {
   selectById,
   selectEntities,
@@ -45,4 +59,5 @@ export const identitySelectors = {
   joinedCommunities,
   joinTimestamp,
   csr,
+  usernameTaken
 }
