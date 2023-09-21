@@ -12,11 +12,9 @@ import {
   type UserCsr,
 } from '@quiet/identity'
 import { type DirResult } from 'tmp'
-import { ErrorCodes, ErrorMessages, type PermsData, SocketActionTypes } from '@quiet/types'
+import { type PermsData } from '@quiet/types'
 import { Time } from 'pkijs'
-import { registerOwner, registerUser, sendCertificateRegistrationRequest } from './registration.functions'
-import createHttpsProxyAgent from 'https-proxy-agent'
-import { RegistrationEvents } from './registration.types'
+import { registerOwner, registerUser } from './registration.functions'
 import { jest } from '@jest/globals'
 import { createTmpDir } from '../common/utils'
 
@@ -147,25 +145,5 @@ describe('RegistrationService', () => {
       'MIIBFTCBvAIBADAqMSgwFgYKKwYBBAGDjBsCARMIdGVzdE5hbWUwDgYDVQQDEwdaYmF5IENBMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEGPGHpJzE/CvL7l/OmTSfYQrhhnWQrYw3GgWB1raCTSeFI/MDVztkBOlxwdUWSm10+1OtKVUWeMKaMtyIYFcPPqAwMC4GCSqGSIb3DQEJDjEhMB8wHQYDVR0OBBYEFLjaEh+cnNhsi5qDsiMB/ZTzZFfqMAoGCCqGSM49BAMCA0gAMEUCIFwlob/Igab05EozU0e/lsG7c9BxEy4M4c4Jzru2vasGAiEAqFTQuQr/mVqTHO5vybWm/iNDk8vh88K6aBCCGYqIfdw='
     const response = await registerUser(csr, permsData, [], 'ownerCert')
     expect(response.status).toEqual(400)
-  })
-
-  it('returns 404 if fetching registrar address throws error', async () => {
-    console.log(fetch)
-    fetch.default.mockRejectedValue('User aborted request')
-    const communityId = 'communityID'
-    const response = await sendCertificateRegistrationRequest(
-      'QmS9vJkgbea9EgzHvVPqhj1u4tH7YKq7eteDN7gnG5zUmc',
-      userCsr.userCsr,
-      communityId,
-      1000,
-      createHttpsProxyAgent({ port: '12311', host: 'localhost' })
-    )
-    expect(response.eventType).toBe(RegistrationEvents.ERROR)
-    expect(response.data).toEqual({
-      type: SocketActionTypes.REGISTRAR,
-      code: ErrorCodes.NOT_FOUND,
-      message: ErrorMessages.REGISTRAR_NOT_FOUND,
-      community: communityId,
-    })
   })
 })

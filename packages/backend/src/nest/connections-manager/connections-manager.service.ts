@@ -178,10 +178,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     if (this.tor && !options.saveTor) {
       await this.tor.kill()
     }
-    if (this.registrationService) {
-      this.logger('Stopping registration service')
-      await this.registrationService.stop()
-    }
     if (this.storageService) {
       this.logger('Stopping orbitdb')
       await this.storageService?.stopOrbitDb()
