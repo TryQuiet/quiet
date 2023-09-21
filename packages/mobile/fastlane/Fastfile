@@ -17,7 +17,7 @@ platform :ios do
     desc 'Ship to Testflight.'
     lane :beta do
         build
-        pilot
+        # pilot
         # commit_version_bump(message: 'Bump build', xcodeproj: './ios/Quiet.xcodeproj')
         # push_to_git_remote
     end
