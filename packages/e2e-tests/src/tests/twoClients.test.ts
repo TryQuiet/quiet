@@ -46,12 +46,13 @@ describe('Multiple Clients', () => {
   const joiningUserMessages = ['Nice to meet you all', 'Nice to meet you again', 'Hi everyone']
   const newChannelName = 'mid-night-club'
 
-  const sleep = async (time = 1000) =>
+  const sleep = async (time = 1000) => {
     await new Promise<void>(resolve =>
       setTimeout(() => {
         resolve()
       }, time)
     )
+  }
 
   beforeAll(async () => {
     ownerApp = new App()
@@ -216,7 +217,6 @@ describe('Multiple Clients', () => {
     })
 
     it('Second guest starts to register when owner is offline', async () => {
-      // console.log('new user - 3')
       const joinCommunityModal = new JoinCommunityModal(secondGuestApp.driver)
       const isJoinCommunityModal = await joinCommunityModal.element.isDisplayed()
       expect(isJoinCommunityModal).toBeTruthy()
@@ -244,7 +244,7 @@ describe('Multiple Clients', () => {
     })
 
     it('Second guest can send a message, they see their message tagged as "unregistered"', async () => {
-      console.log('FETCHING CHANNEL MESSAGES!')
+      console.log('Second guest FETCHING CHANNEL MESSAGES!')
       await new Promise<void>(resolve =>
         setTimeout(() => {
           resolve()
@@ -252,20 +252,11 @@ describe('Multiple Clients', () => {
       )
       await secondGuestGeneralChannel.sendMessage(joiningUserMessages[2])
       secondGuestGeneralChannel = new Channel(secondGuestApp.driver, 'general')
-      const guestlabels = await ownerGeneralChannel.getUserLabels(joiningUserUsername3)
-      expect(guestlabels.length).toEqual(1)
-      for (const label of guestlabels) {
-        expect(label).toEqual('Unregistered')
-      }
+      await secondGuestGeneralChannel.waitForLabel(joiningUserUsername3, 'Unregistered')
     })
 
-    // TODO: check if other user also sees unregistered user marked as "registered"
     it('First user sees that unregistered user messages are marked as "unregistered"', async () => {
-      const guestlabels = await generalChannel2.getUserLabels(joiningUserUsername3)
-      expect(guestlabels.length).toEqual(1)
-      for (const label of guestlabels) {
-        expect(label).toEqual('Unregistered')
-      }
+      await generalChannel2.waitForLabel(joiningUserUsername3, 'Unregistered')
     })
 
     it('Owner goes back online', async () => {
@@ -283,11 +274,9 @@ describe('Multiple Clients', () => {
 
     it('"Unregistered" label is removed', async () => {
       ownerGeneralChannel = new Channel(ownerApp.driver, 'general')
-      const ownerAppLabels = await ownerGeneralChannel.getUserLabels(joiningUserUsername3)
-      expect(ownerAppLabels.length).toEqual(0)
+      await ownerGeneralChannel.waitForLabelsNotPresent(joiningUserUsername3)
     })
 
-    // TODO: maybe add extra "it" with "channel creation"?
     it('Channel creation - Owner creates second channel', async () => {
       sidebar = new Sidebar(ownerApp.driver)
       await sidebar.addNewChannel(newChannelName)
@@ -394,12 +383,6 @@ describe('Multiple Clients', () => {
 
         await generalChannel2.waitForUserMessage(ownerUsername, `@${ownerUsername} deleted all messages in #general`)
         await generalChannel2.waitForUserMessage(ownerUsername, `@${joiningUserUsername2} has joined Testcommunity! 🎉`)
-        // const messages = await generalChannel2.getUserMessages(ownerUsername)
-        // const text1 = await messages[0].getText()
-        // const text2 = await messages[1].getText()
-        // expect(messages.length).toEqual(2)
-        // expect(text1).toEqual(`@${ownerUsername} deleted all messages in #general`)
-        // expect(text2).toEqual(`@${joiningUserUsername2} has joined Testcommunity! 🎉`)
       })
 
       it('Leave community - Guest sends a message', async () => {
@@ -418,9 +401,6 @@ describe('Multiple Clients', () => {
       it('Leave community - Sent message is visible in a channel', async () => {
         console.log('TEST 8')
         await generalChannel2.waitForUserMessage(joiningUserUsername2, joiningUserMessages[1])
-        // const messages2 = await generalChannel2.getUserMessages(joiningUserUsername2)
-        // const text2 = await messages2[0].getText()
-        // expect(text2).toEqual(joiningUserMessages[1])
       })
       it('Owner closes app', async () => {
         await ownerApp.close({ forceSaveState: true })
@@ -447,10 +427,6 @@ describe('Multiple Clients', () => {
       it('Guest closes app - Check if message is visible for owner', async () => {
         console.log('TEST 11')
         await ownerGeneralChannel.waitForUserMessage(ownerUsername, ownerMessages[2])
-
-        // const messages = await ownerGeneralChannel.getUserMessages(ownerUsername)
-        // const text = await messages[messages.length - 1].getText()
-        // expect(text).toEqual(ownerMessages[2])
       })
     }
   })

@@ -278,23 +278,24 @@ export class Channel {
     )
   }
 
-  async getUserLabels(username: string) {
-    const messages = await this.getUserMessagesWrapper(username)
-    console.log(`getUserLabels, wrappers for ${username}`, messages.length)
-    const labelsElements = messages.filter(async msg => {
-      return (await msg.findElements(By.xpath(`//*[contains(@data-testid, "userLabel-${username}")]`))).length > 0
+  async waitForLabel(username: string, label: string) {
+    console.log(`Waiting for user's "${username}" label "${label}" label`)
+    await this.driver.wait(async () => {
+      const labels = await this.driver.findElements(By.xpath(`//*[contains(@data-testid, "userLabel-${username}")]`))
+      const properLabels = labels.filter(async labelElement => {
+        const labelText = await labelElement.getText()
+        return labelText === label
+      })
+      return properLabels.length > 0
     })
-    console.log(`getUserLabels, elements for ${username}`, labelsElements.length)
-    // console.log('get user labels', username)
-    // const labels = await this.driver.wait(
-    //   until.elementsLocated(By.xpath(`//*[contains(@data-testid, "userLabel-${username}")]`))
-    // )
-    // console.log('labels', labels.length)
-    const labelsText = await Promise.all(
-      labelsElements.map(async labelElement => labelElement.findElement(By.css('span')).getText())
-    )
-    console.log(`getUserLabels, labelsText for ${username}`, labelsText)
-    return labelsText
+  }
+
+  async waitForLabelsNotPresent(username: string) {
+    console.log(`Waiting for user's "${username}" label to not be present`)
+    await this.driver.wait(async () => {
+      const labels = await this.driver.findElements(By.xpath(`//*[contains(@data-testid, "userLabel-${username}")]`))
+      return labels.length === 0
+    })
   }
 
   async getMessage(text: string) {

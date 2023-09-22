@@ -82,6 +82,10 @@ export const allUsers = createSelector(csrsMapping, certificatesMapping, (csrs, 
     const username = csrs[pubKey].username
     const isDuplicated = duplicateUsernames.includes(username)
     const isRegistered = Boolean(certs[pubKey])
+    console.log('isRegistered', isRegistered)
+    console.log('certs[pubKey]', certs[pubKey])
+    console.log('pubKey', pubKey)
+    console.log('-----')
     users[pubKey] = {
       ...csrs[pubKey],
       isRegistered,
