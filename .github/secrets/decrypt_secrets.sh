@@ -1,6 +1,6 @@
 #!/bin/sh
 
-gpg --quiet --batch --yes --decrypt --passphrase="$IOS_PROFILE_KEY" --output ./.github/secrets/CI.mobileprovision ./.github/secrets/CI.mobileprovision.gpg
+gpg --quiet --batch --yes --decrypt --passphrase="$IOS_PROFILE_KEY" --output ./.github/secrets/match_AppStore_comquietmobile.mobileprovision ./.github/secrets/match_AppStore_comquietmobile.mobileprovision.gpg
 gpg --quiet --batch --yes --decrypt --passphrase="$IOS_CERTIFICATE_KEY" --output ./.github/secrets/Certificates.p12 ./.github/secrets/Certificates.p12.gpg
 
 mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
