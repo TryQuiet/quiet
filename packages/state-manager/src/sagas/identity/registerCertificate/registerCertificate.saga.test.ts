@@ -95,6 +95,7 @@ describe('registerCertificateSaga', () => {
       communityId: community.id,
       nickname: identity.nickname,
       userCsr: identity.userCsr,
+      isUsernameTaken: false,
     }
 
     const reducer = combineReducers(reducers)

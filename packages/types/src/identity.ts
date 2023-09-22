@@ -55,6 +55,12 @@ export interface RegisterCertificatePayload {
   communityId: string
   nickname: string
   userCsr: UserCsr
+  isUsernameTaken: boolean
+}
+
+export interface RegisterUsernamePayload {
+  nickname: string
+  isUsernameTaken: boolean
 }
 
 export interface RegisterUserCertificatePayload {

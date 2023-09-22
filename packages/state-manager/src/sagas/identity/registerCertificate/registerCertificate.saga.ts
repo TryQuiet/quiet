@@ -15,6 +15,7 @@ export function* registerCertificateSaga(
   action: PayloadAction<ReturnType<typeof identityActions.registerCertificate>['payload']>
 ): Generator {
   const currentCommunity = yield* select(communitiesSelectors.currentCommunity)
+  const isUsernameTaken = action.payload.isUsernameTaken
   if (!currentCommunity) {
     console.error('Could not register certificate, no current community')
     return
@@ -32,6 +33,8 @@ export function* registerCertificateSaga(
 
     yield* apply(socket, socket.emit, applyEmitParams(SocketActionTypes.REGISTER_OWNER_CERTIFICATE, payload))
   } else {
-    yield* put(communitiesActions.launchCommunity(action.payload.communityId))
+    if (!isUsernameTaken) {
+      yield* put(communitiesActions.launchCommunity(action.payload.communityId))
+    }
   }
 }

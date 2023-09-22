@@ -1,6 +1,6 @@
 import { PayloadAction } from '@reduxjs/toolkit'
 import { select, put, call, take, apply, delay } from 'typed-redux-saga'
-import { createUserCsr } from '@quiet/identity'
+import { createUserCsr, loadPrivateKey } from '@quiet/identity'
 import { identitySelectors } from '../identity.selectors'
 import { identityActions } from '../identity.slice'
 import { config } from '../../users/const/certFieldTypes'
@@ -8,10 +8,13 @@ import { Socket, applyEmitParams } from '../../../types'
 import { communitiesSelectors } from '../../communities/communities.selectors'
 import { CreateUserCsrPayload, RegisterCertificatePayload, SocketActionTypes, Community } from '@quiet/types'
 
-export function* registerUsernameSaga(socket: Socket, action: PayloadAction<string>): Generator {
+export function* registerUsernameSaga(
+  socket: Socket,
+  action: PayloadAction<ReturnType<typeof identityActions.registerUsername>['payload']>
+): Generator {
   // Nickname can differ between saga calls
 
-  const nickname = action.payload
+  const { nickname, isUsernameTaken } = action.payload
 
   const community = yield* select(communitiesSelectors.currentCommunity)
 
@@ -28,7 +31,9 @@ export function* registerUsernameSaga(socket: Socket, action: PayloadAction<stri
     rootCa: community.CA?.rootCertString,
   }
 
-  yield* apply(socket, socket.emit, applyEmitParams(SocketActionTypes.CREATE_NETWORK, networkPayload))
+  if (!isUsernameTaken) {
+    yield* apply(socket, socket.emit, applyEmitParams(SocketActionTypes.CREATE_NETWORK, networkPayload))
+  }
 
   let identity = yield* select(identitySelectors.currentIdentity)
 
@@ -70,6 +75,7 @@ export function* registerUsernameSaga(socket: Socket, action: PayloadAction<stri
     communityId: community.id,
     nickname,
     userCsr,
+    isUsernameTaken,
   }
 
   yield* put(identityActions.registerCertificate(payload))

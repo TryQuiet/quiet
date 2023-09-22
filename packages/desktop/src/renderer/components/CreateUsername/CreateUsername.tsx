@@ -32,7 +32,12 @@ const CreateUsername = () => {
       dispatch(errors.actions.clearError(error))
     }
 
-    dispatch(identity.actions.registerUsername(nickname))
+    dispatch(
+      identity.actions.registerUsername({
+        nickname,
+        isUsernameTaken: false,
+      })
+    )
     dispatch(network.actions.setLoadingPanelType(LoadingPanelType.Joining))
     loadingPanelModal.handleOpen()
   }

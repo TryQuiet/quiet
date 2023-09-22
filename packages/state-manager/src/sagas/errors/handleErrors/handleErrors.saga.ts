@@ -21,6 +21,7 @@ export function* retryRegistration(communityId: string) {
     communityId,
     nickname: identity.nickname,
     userCsr: identity.userCsr,
+    isUsernameTaken: false,
   }
 
   yield* put(identityActions.registerCertificate(payload))
