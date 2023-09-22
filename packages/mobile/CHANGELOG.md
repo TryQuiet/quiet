@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.0.0-alpha.13](https://github.com/ZbayApp/monorepo/compare/@quiet/mobile@2.0.0-alpha.12...@quiet/mobile@2.0.0-alpha.13) (2023-09-22)
+
+**Note:** Version bump only for package @quiet/mobile
+
+
+
+
+
 # [2.0.0-alpha.12](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@2.0.0-alpha.11...@quiet/mobile@2.0.0-alpha.12) (2023-09-20)
 
 **Note:** Version bump only for package @quiet/mobile
