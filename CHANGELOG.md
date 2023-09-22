@@ -1,4 +1,6 @@
-[2.0.0-alpha.11]
+[2.0.0-alpha.14]
+
+* Prettify loading component on Chat screen (mobile)
 
 * Customize Launch Screen on iOS
 
