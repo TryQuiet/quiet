@@ -1,6 +1,6 @@
 import { PayloadAction } from '@reduxjs/toolkit'
 import { select, put, call, take, apply, delay } from 'typed-redux-saga'
-import { createUserCsr, loadPrivateKey } from '@quiet/identity'
+import { createUserCsr, keyObjectFromString, loadPrivateKey, pubKeyFromCsr } from '@quiet/identity'
 import { identitySelectors } from '../identity.selectors'
 import { identityActions } from '../identity.slice'
 import { config } from '../../users/const/certFieldTypes'
@@ -48,6 +48,15 @@ export function* registerUsernameSaga(
   }
 
   let userCsr = null
+  // NEXT STEPS
+  // if (identity.userCsr !== null) {
+  //   const _pubKey = yield* call(pubKeyFromCsr, identity.userCsr.userCsr)
+  //   const priv = yield* call(loadPrivateKey, identity.userCsr.userKey, config.signAlg)
+  //   const crypto = getCrypto()
+  //   const pub = yield* call(keyObjectFromString, _pubKey, crypto)
+
+  //   console.log({ priv, pub })
+  // }
 
   // Reuse the same csr if nickname hasn't changed
   if (identity.nickname === nickname) {
