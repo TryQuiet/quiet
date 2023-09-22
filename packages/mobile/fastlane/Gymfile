@@ -1,0 +1,3 @@
+scheme('Quiet')
+configuration('Release')
+workspace('./ios/Quiet.xcworkspace')

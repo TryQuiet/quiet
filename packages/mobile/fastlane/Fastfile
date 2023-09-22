@@ -3,7 +3,7 @@ fastlane_version '2.216.0'
 platform :ios do
     desc 'Fetch certificates and provisioning profiles'
     lane :certificates do
-      match(app_identifier: 'com.quietmobile', type: 'development', readonly: true)
+      # match(app_identifier: 'com.quietmobile', type: 'development', readonly: true)
       match(app_identifier: 'com.quietmobile', type: 'appstore', readonly: true)
     end
 
@@ -11,7 +11,7 @@ platform :ios do
     private_lane :build do
         certificates
         # increment_build_number(xcodeproj: './ios/Quiet.xcodeproj')
-        build_app(scheme: 'Quiet', configuration: 'Release', workspace: './ios/Quiet.xcworkspace')
+        gym
     end
 
     desc 'Ship to Testflight.'
