@@ -14,7 +14,6 @@ jobs:
     uses: ./.github/workflows/e2e-win.yml
 
   build-linux:
-    needs: run-e2e-tests-linux
     runs-on: ubuntu-22.04
     if: |
       startsWith(github.ref, 'refs/tags/quiet')
@@ -196,14 +195,14 @@ jobs:
         with:
           source-path: win32
 
-      #E2E - Start 
+      #E2E - Start
       # - name: E2E - electron-builder
       #   env:
       #     CERTIFICATE_PATH: ${{ steps.write_file.outputs.filePath }}
       #     WIN_CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
       #     WINDOWS_ALIAS: ${{ secrets.WIN_ALIAS }}
       #   working-directory: ./packages/desktop
-      #   run: node_modules/.bin/electron-builder --win 
+      #   run: node_modules/.bin/electron-builder --win
       #   shell: bash
 
       # - name: E2E - Extract version
@@ -239,7 +238,7 @@ jobs:
       #     max_attempts: 3
       #     shell: bash
       #     command: cd packages/e2e-tests && npm run test smoke.crossplatform.test.ts
-      #E2E - End         
+      #E2E - End
 
       - name: "Set electron-builder props"
         shell: bash
