@@ -4,7 +4,9 @@ on: [workflow_call]
 jobs:
   windows:
     runs-on: windows-2019
+    
     timeout-minutes: 180
+
     env:
       ELECTRON_CUSTOM_VERSION: 23.0.0
       TEST_MODE: true
