@@ -87,6 +87,7 @@ describe('ChannelMessages', () => {
                 >
                   <div
                     class="MuiListItemText-root BasicMessageComponentmessageCard css-tlelie-MuiListItemText-root"
+                    data-testid="userMessagesWrapper-string-string"
                   >
                     <div
                       class="MuiGrid-root MuiGrid-container MuiGrid-wrap-xs-nowrap css-aii0rt-MuiGrid-root"
