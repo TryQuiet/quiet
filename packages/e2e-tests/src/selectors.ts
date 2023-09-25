@@ -28,8 +28,8 @@ export class App {
   }
 
   async close(options?: { forceSaveState?: boolean }) {
-    console.log('Closing the app', this.buildSetup.dataDir)
     if (!this.isOpened) return
+    console.log('Closing the app', this.buildSetup.dataDir)
     if (options?.forceSaveState) {
       await this.saveState() // Selenium creates community and closes app so fast that redux state may not be saved properly
       await this.waitForSavedState()
