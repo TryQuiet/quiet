@@ -11,5 +11,7 @@
         <key>com.quietmobile</key>
         <string>CI</string>
     </dict>
+    <key>uploadSymbols</key>
+    <false/>
 </dict>
 </plist>
