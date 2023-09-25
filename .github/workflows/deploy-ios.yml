@@ -1,6 +1,9 @@
 name: Build iOS
 
-on: push
+on:
+  release:
+    types: 
+      [prereleased, released]
 
 jobs:
   build-ios:
@@ -15,11 +18,11 @@ jobs:
         with:
           lfs: true
 
+      - name: Install GPG
+        run: brew install gnupg
+
       - name: Install Fastlane
         run: gem install fastlane
-
-      - name: Install gpg
-        run: brew install gnupg
 
       - name: Setup XCode
         uses: maxim-lobanov/setup-xcode@v1
@@ -44,3 +47,6 @@ jobs:
         env:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
+          APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
+          APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
+          APP_STORE_CONNECT_API_KEY_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY }}

@@ -1,3 +1,4 @@
 scheme('Quiet')
 configuration('Release')
 workspace('./ios/Quiet.xcworkspace')
+include_symbols(false)

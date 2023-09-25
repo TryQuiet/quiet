@@ -3,22 +3,19 @@ fastlane_version '2.216.0'
 platform :ios do
     desc 'Fetch certificates and provisioning profiles'
     lane :certificates do
-      # match(app_identifier: 'com.quietmobile', type: 'development', readonly: true)
+      match(app_identifier: 'com.quietmobile', type: 'development', readonly: true)
       match(app_identifier: 'com.quietmobile', type: 'appstore', readonly: true)
     end
 
     desc 'Build the iOS application.'
     private_lane :build do
         certificates
-        # increment_build_number(xcodeproj: './ios/Quiet.xcodeproj')
         gym
     end
 
     desc 'Ship to Testflight.'
     lane :beta do
         build
-        # pilot
-        # commit_version_bump(message: 'Bump build', xcodeproj: './ios/Quiet.xcodeproj')
-        # push_to_git_remote
+        pilot
     end
  end
