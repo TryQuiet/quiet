@@ -170,7 +170,6 @@ describe('Loading panel', () => {
     // 'Create username' modal should be closed after creating csr
     store.dispatch(
       identity.actions.registerUsername({
-        isUsernameTaken: false,
         nickname: 'alice',
       })
     )

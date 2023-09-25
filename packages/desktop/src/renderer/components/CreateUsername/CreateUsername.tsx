@@ -35,7 +35,6 @@ const CreateUsername = () => {
     dispatch(
       identity.actions.registerUsername({
         nickname,
-        isUsernameTaken: false,
       })
     )
     dispatch(network.actions.setLoadingPanelType(LoadingPanelType.Joining))

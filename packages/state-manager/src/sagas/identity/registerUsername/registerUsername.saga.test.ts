@@ -59,11 +59,7 @@ describe('registerUsernameSaga', () => {
       hashAlg: config.hashAlg,
     }
     const reducer = combineReducers(reducers)
-    await expectSaga(
-      registerUsernameSaga,
-      socket,
-      identityActions.registerUsername({ isUsernameTaken: false, nickname: 'nickname' })
-    )
+    await expectSaga(registerUsernameSaga, socket, identityActions.registerUsername({ nickname: 'nickname' }))
       .withReducer(reducer)
       .withState(store.getState())
       .provide([[call.fn(createUserCsr), userCsr]])
@@ -84,7 +80,6 @@ describe('registerUsernameSaga', () => {
           communityId: community.id,
           nickname: 'nickname',
           userCsr,
-          isUsernameTaken: false,
         })
       )
       .run()
@@ -131,11 +126,7 @@ describe('registerUsernameSaga', () => {
 
     store.dispatch(identityActions.addNewIdentity(identity))
     const reducer = combineReducers(reducers)
-    await expectSaga(
-      registerUsernameSaga,
-      socket,
-      identityActions.registerUsername({ isUsernameTaken: false, nickname: identity.nickname })
-    )
+    await expectSaga(registerUsernameSaga, socket, identityActions.registerUsername({ nickname: identity.nickname }))
       .withReducer(reducer)
       .withState(store.getState())
       .not.call(createUserCsr)
@@ -155,7 +146,6 @@ describe('registerUsernameSaga', () => {
           communityId: community.id,
           nickname: identity.nickname,
           userCsr,
-          isUsernameTaken: false,
         })
       )
       .run()
@@ -221,7 +211,6 @@ describe('registerUsernameSaga', () => {
       registerUsernameSaga,
       socket,
       identityActions.registerUsername({
-        isUsernameTaken: false,
         nickname: 'nickname',
       })
     )
@@ -245,7 +234,6 @@ describe('registerUsernameSaga', () => {
           communityId: community.id,
           nickname: 'nickname',
           userCsr,
-          isUsernameTaken: false,
         })
       )
       .run()

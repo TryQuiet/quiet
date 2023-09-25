@@ -21,6 +21,7 @@ export const createUserCsr = async ({
   commonName,
   peerId,
   dmPublicKey,
+  existingKeyPair,
 }: {
   nickname: string
   commonName: string
@@ -28,13 +29,16 @@ export const createUserCsr = async ({
   dmPublicKey: string
   signAlg: string
   hashAlg: string
+  existingKeyPair?: CryptoKeyPair
 }): Promise<UserCsr> => {
   const pkcs10 = await requestCertificate({
     nickname,
     commonName,
     peerId,
     dmPublicKey,
-    ...config,
+    signAlg: config.signAlg,
+    hashAlg: config.hashAlg,
+    existingKeyPair,
   })
   const crypto = getCrypto()
   if (!crypto) throw new NoCryptoEngineError()
@@ -58,6 +62,7 @@ async function requestCertificate({
   dmPublicKey,
   signAlg = config.signAlg,
   hashAlg = config.hashAlg,
+  existingKeyPair,
 }: {
   nickname: string
   commonName: string
@@ -65,8 +70,9 @@ async function requestCertificate({
   dmPublicKey: string
   signAlg: string
   hashAlg: string
+  existingKeyPair?: CryptoKeyPair
 }): Promise<CertData> {
-  const keyPair: CryptoKeyPair = await generateKeyPair({ signAlg })
+  const keyPair: CryptoKeyPair = existingKeyPair ? existingKeyPair : await generateKeyPair({ signAlg })
 
   const arrayBufferDmPubKey = hexStringToArrayBuffer(dmPublicKey)
 

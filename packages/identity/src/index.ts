@@ -7,6 +7,7 @@ import {
   keyObjectFromString,
   extractPubKeyString,
   pubKeyFromCsr,
+  getPubKey,
 } from './extractPubKey'
 import { verifyUserCert } from './verifyUserCertificate'
 import { verifySignature } from './verification'
@@ -46,6 +47,7 @@ export {
   extractPubKeyString,
   pubKeyFromCsr,
   parseCertificationRequest,
+  getPubKey,
 }
 export { verifyUserCert }
 export { verifySignature }

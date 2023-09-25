@@ -2,7 +2,7 @@ import { applyEmitParams, type Socket } from '../../../types'
 import { type PayloadAction } from '@reduxjs/toolkit'
 import { apply, select, put } from 'typed-redux-saga'
 import { communitiesSelectors } from '../../communities/communities.selectors'
-import { type identityActions } from '../identity.slice'
+import { identityActions } from '../identity.slice'
 import {
   type RegisterOwnerCertificatePayload,
   type RegisterUserCertificatePayload,
@@ -35,6 +35,8 @@ export function* registerCertificateSaga(
   } else {
     if (!isUsernameTaken) {
       yield* put(communitiesActions.launchCommunity(action.payload.communityId))
+    } else {
+      yield* put(identityActions.saveUserCsr())
     }
   }
 }

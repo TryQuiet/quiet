@@ -1,6 +1,6 @@
 import { PayloadAction } from '@reduxjs/toolkit'
 import { select, put, call, take, apply, delay } from 'typed-redux-saga'
-import { createUserCsr, keyObjectFromString, loadPrivateKey, pubKeyFromCsr } from '@quiet/identity'
+import { createUserCsr, getPubKey, keyObjectFromString, loadPrivateKey, pubKeyFromCsr } from '@quiet/identity'
 import { identitySelectors } from '../identity.selectors'
 import { identityActions } from '../identity.slice'
 import { config } from '../../users/const/certFieldTypes'
@@ -14,7 +14,7 @@ export function* registerUsernameSaga(
 ): Generator {
   // Nickname can differ between saga calls
 
-  const { nickname, isUsernameTaken } = action.payload
+  const { nickname, isUsernameTaken = false } = action.payload
 
   const community = yield* select(communitiesSelectors.currentCommunity)
 
@@ -47,23 +47,38 @@ export function* registerUsernameSaga(
     return
   }
 
-  let userCsr = null
-  // NEXT STEPS
-  // if (identity.userCsr !== null) {
-  //   const _pubKey = yield* call(pubKeyFromCsr, identity.userCsr.userCsr)
-  //   const priv = yield* call(loadPrivateKey, identity.userCsr.userKey, config.signAlg)
-  //   const crypto = getCrypto()
-  //   const pub = yield* call(keyObjectFromString, _pubKey, crypto)
+  let userCsr = identity.userCsr
+  if (userCsr !== null) {
+    console.log('userCsr !== null')
+    try {
+      if (identity.userCsr?.userCsr == null || identity.userCsr.userKey == null) {
+        console.error('identity.userCsr?.userCsr == null || identity.userCsr.userKey == null')
+        return
+      }
+      const _pubKey = yield* call(pubKeyFromCsr, identity.userCsr.userCsr)
+      const privateKey = yield* call(loadPrivateKey, identity.userCsr.userKey, config.signAlg)
+      const publicKey = yield* call(getPubKey, _pubKey)
 
-  //   console.log({ priv, pub })
-  // }
+      const existingKeyPair: CryptoKeyPair = { privateKey, publicKey }
 
-  // Reuse the same csr if nickname hasn't changed
-  if (identity.nickname === nickname) {
-    userCsr = identity.userCsr
-  }
-
-  if (userCsr === null) {
+      console.log({ existingKeyPair })
+      const payload: CreateUserCsrPayload = {
+        nickname,
+        commonName: identity.hiddenService.onionAddress,
+        peerId: identity.peerId.id,
+        dmPublicKey: identity.dmKeys.publicKey,
+        signAlg: config.signAlg,
+        hashAlg: config.hashAlg,
+        existingKeyPair,
+      }
+      userCsr = yield* call(createUserCsr, payload)
+      console.log({ userCsr })
+    } catch (e) {
+      console.error(e)
+      return
+    }
+  } else {
+    console.log('userCsr null', userCsr)
     try {
       const payload: CreateUserCsrPayload = {
         nickname,
