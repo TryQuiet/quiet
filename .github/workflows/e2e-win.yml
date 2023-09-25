@@ -74,10 +74,12 @@ jobs:
       - name: Kill tor
         run: Stop-Process -Name "tor" -Force
         shell: powershell
+        if: always()
 
       - name: Delay
         run: Start-Sleep -Seconds 10
         shell: powershell
+        if: always()
 
       - name: Run one client test
         uses: nick-fields/retry@v2
