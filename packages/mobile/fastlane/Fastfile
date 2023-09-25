@@ -8,7 +8,7 @@ platform :ios do
     end
 
     desc 'Build the iOS application.'
-    private_lane :build do
+    lane :build do
         certificates
         gym
     end
@@ -17,5 +17,23 @@ platform :ios do
     lane :beta do
         build
         pilot
+    end
+ end
+
+ platform :android do
+    desc 'Build the Android application.'
+    lane :build do
+        gradle(
+            task: 'assemble',
+            build_type: 'Release'
+        )
+    end
+
+    desc 'Ship to Google Play (internal track)'
+    lane :internal do
+        build
+        upload_to_play_store(
+            track: 'internal'
+        )
     end
  end
