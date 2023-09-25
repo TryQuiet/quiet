@@ -1,6 +1,6 @@
 {
   "name": "e2e-tests",
-  "version": "2.0.0-alpha.4",
+  "version": "2.0.0-alpha.16",
   "description": "For running end to end tests we use  Selenium WebDriver (https://www.selenium.dev/documentation/webdriver/) with Electron ChromeDriver (https://www.npmjs.com/package/electron-chromedriver) in Jest",
   "main": "index.js",
   "scripts": {
@@ -14,7 +14,7 @@
     "test:watch": "jest --watchAll"
   },
   "devDependencies": {
-    "@quiet/eslint-config": "^1.4.0-alpha.0",
+    "@quiet/eslint-config": "^2.0.0-alpha.16",
     "@types/jest": "^29.2.6",
     "@types/selenium-webdriver": "^4.1.10",
     "babel-jest": "^29.3.1",
@@ -22,10 +22,10 @@
     "typescript": "^4.9.3"
   },
   "dependencies": {
-    "@quiet/common": "^2.0.0-alpha.3",
-    "@quiet/logger": "^1.7.0-alpha.1",
-    "@quiet/types": "^2.0.0-alpha.3",
-    "backend-bundle": "^1.7.0-alpha.0",
+    "@quiet/common": "^2.0.0-alpha.16",
+    "@quiet/logger": "^2.0.0-alpha.16",
+    "@quiet/types": "^2.0.0-alpha.16",
+    "backend-bundle": "^2.0.0-alpha.16",
     "cross-env": "^5.2.0",
     "electron-chromedriver": "22.0.0",
     "get-port": "^5.1.1",
