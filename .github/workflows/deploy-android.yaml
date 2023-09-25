@@ -63,14 +63,13 @@ jobs:
       - name: "Build for Android"
         run: cd ./packages/mobile/android && ENVFILE=../.env.production ./gradlew bundleStandardRelease
 
-      # Temporary disable, failing on CI
-      # - name: "Upload Artifact"
-      #   continue-on-error: true
-      #   uses: actions/upload-artifact@v2
-      #   with:
-      #     name: app-standard-release.aab
-      #     path: ./packages/mobile/android/app/build/outputs/bundle/standardRelease/app-standard-release.aab
-      #     retention-days: 5
+      - name: "Upload Artifact"
+        continue-on-error: true
+        uses: actions/upload-artifact@v2
+        with:
+          name: app-standard-release.aab
+          path: ./packages/mobile/android/app/build/outputs/bundle/standardRelease/app-standard-release.aab
+          retention-days: 5
 
       - name: "Configure Google Play upload"
         run: |
@@ -79,7 +78,7 @@ jobs:
           echo ${{ SECRETS.SERVICE_ACCOUNT_JSON }} | base64 --decode > google-play.json
       
       - name: "Upload to Google Play"
-        uses: r0adkll/upload-google-play@v1.0.17
+        uses: r0adkll/upload-google-play@v1.1.2
         with:
           serviceAccountJson: google-play.json
           packageName: com.quietmobile
@@ -87,4 +86,3 @@ jobs:
           status: completed
           track: internal
           whatsNewDirectory: distribution/whatsnew
-          changesNotSentForReview: true
