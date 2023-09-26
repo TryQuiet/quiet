@@ -3,6 +3,54 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.1-alpha.1](https://github.com/ZbayApp/monorepo/compare/@quiet/mobile@2.0.1-alpha.0...@quiet/mobile@2.0.1-alpha.1) (2023-09-25)
+
+**Note:** Version bump only for package @quiet/mobile
+
+
+
+
+
+## [2.0.1-alpha.0](https://github.com/ZbayApp/monorepo/compare/@quiet/mobile@2.0.0-alpha.15...@quiet/mobile@2.0.1-alpha.0) (2023-09-25)
+
+**Note:** Version bump only for package @quiet/mobile
+
+
+
+
+
+# [2.0.0-alpha.15](https://github.com/ZbayApp/monorepo/compare/@quiet/mobile@2.0.0-alpha.14...@quiet/mobile@2.0.0-alpha.15) (2023-09-22)
+
+**Note:** Version bump only for package @quiet/mobile
+
+
+
+
+
+# [2.0.0-alpha.14](https://github.com/ZbayApp/monorepo/compare/@quiet/mobile@2.0.0-alpha.13...@quiet/mobile@2.0.0-alpha.14) (2023-09-22)
+
+**Note:** Version bump only for package @quiet/mobile
+
+
+
+
+
+# [2.0.0-alpha.13](https://github.com/ZbayApp/monorepo/compare/@quiet/mobile@2.0.0-alpha.12...@quiet/mobile@2.0.0-alpha.13) (2023-09-22)
+
+**Note:** Version bump only for package @quiet/mobile
+
+
+
+
+
+# [2.0.0-alpha.12](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@2.0.0-alpha.11...@quiet/mobile@2.0.0-alpha.12) (2023-09-20)
+
+**Note:** Version bump only for package @quiet/mobile
+
+
+
+
+
 # [2.0.0-alpha.11](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@2.0.0-alpha.10...@quiet/mobile@2.0.0-alpha.11) (2023-09-19)
 
 **Note:** Version bump only for package @quiet/mobile
