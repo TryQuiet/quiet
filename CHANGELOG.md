@@ -1,3 +1,11 @@
+[unreleased]
+
+* UI layer for taken usernames for desktop and mobile
+
+* Change nickname for taken username
+
+* Map messages sent before changing username
+
 [2.0.0-alpha.11]
 
 * Customize Launch Screen on iOS
@@ -33,5 +41,3 @@
 * C4 for Quiet architecture. Context and Container diagrams.
 
 * Invite tab as default in settings
-
-* UI layer for taken usernames for desktop and mobile
