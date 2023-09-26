@@ -31,4 +31,4 @@ jobs:
         with:
           workingDir: ./packages/desktop
           token: ${{ secrets.GH_TOKEN }}
-          projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
+          projectToken: 3218757eee04
