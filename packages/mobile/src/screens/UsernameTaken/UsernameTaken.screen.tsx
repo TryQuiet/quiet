@@ -27,8 +27,12 @@ const UsernameTakenScreen: React.FC<UsernameTakenScreenProps> = () => {
     if (error) {
       dispatch(errors.actions.clearError(error))
     }
-    // MAIN ACTION FOR SAVING NEW USERNAME
-
+    dispatch(
+      identity.actions.registerUsername({
+        nickname,
+        isUsernameTaken: true,
+      })
+    )
     dispatch(
       navigationActions.navigation({
         screen: ScreenNames.NewUsernameRequestedScreen,
