@@ -2,6 +2,8 @@
 
 * Running Chromatic tests for forked PRs
 
+* Added e2e test for user joining community when owner is offline. Improved e2e tests
+
 [2.0.0-alpha.11]
 
 * Customize Launch Screen on iOS
