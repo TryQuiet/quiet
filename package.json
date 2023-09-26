@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "lerna": "lerna",
-    "publish": "lerna version $npm_config_stage --no-private --force-publish"
+    "publish": "lerna version $npm_config_stage"
   },
   "engines": {
     "node": "18.12.1",

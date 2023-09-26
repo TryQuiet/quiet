@@ -17,8 +17,7 @@ jobs:
     # needs: run-e2e-tests-linux
     runs-on: ubuntu-22.04
     if: |
-      startsWith(github.ref, 'refs/tags/quiet') &&
-      !contains(github.ref, '/mobile')
+      startsWith(github.ref, 'refs/tags/@quiet/desktop')
 
     env:
       TEST_MODE: ${{ github.event.action == 'prereleased' }}
@@ -31,7 +30,7 @@ jobs:
       - name: Setup environment
         uses: ./.github/actions/setup-env
         with:
-          bootstrap-packages: "@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,backend-bundle"
+          bootstrap-packages: "@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/desktop,backend-bundle"
 
       - name: Install libfuse
         run: sudo apt install libfuse2
@@ -90,8 +89,7 @@ jobs:
     # needs: run-e2e-tests-mac
     runs-on: macos-latest
     if: |
-      startsWith(github.ref, 'refs/tags/quiet') &&
-      !contains(github.ref, '/mobile')
+      startsWith(github.ref, 'refs/tags/@quiet/desktop')
 
     env:
       TEST_MODE: ${{ github.event.action == 'prereleased' }}
@@ -113,7 +111,7 @@ jobs:
       - name: Setup environment
         uses: ./.github/actions/setup-env
         with:
-          bootstrap-packages: "@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,backend-bundle"
+          bootstrap-packages: "@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/desktop,backend-bundle"
 
       - name: Before build
         uses: ./.github/actions/before-build
@@ -164,8 +162,7 @@ jobs:
     # needs: run-e2e-tests-win
     runs-on: windows-2019
     if: |
-      startsWith(github.ref, 'refs/tags/quiet') &&
-      !contains(github.ref, '/mobile')
+      startsWith(github.ref, 'refs/tags/@quiet/desktop')
 
     env:
       TEST_MODE: ${{ github.event.action == 'prereleased' }}
@@ -192,7 +189,7 @@ jobs:
       - name: Setup environment
         uses: ./.github/actions/setup-env
         with:
-          bootstrap-packages: "@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,backend-bundle,e2e-tests"
+          bootstrap-packages: "@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/desktop,backend-bundle,e2e-tests"
 
       - name: Before build
         uses: ./.github/actions/before-build
