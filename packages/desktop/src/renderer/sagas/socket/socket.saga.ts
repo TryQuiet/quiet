@@ -46,7 +46,7 @@ function subscribeSocketLifecycle(socket?: Socket) {
     ReturnType<typeof socketActions.setConnected> | ReturnType<typeof socketActions.suspendConnection>
   >(emit => {
     socket?.on('connect', async () => {
-      console.log('web socket connected')
+      console.log('websocket connected')
       emit(socketActions.setConnected())
     })
     socket?.on('disconnect', () => {
