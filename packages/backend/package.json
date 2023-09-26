@@ -7,6 +7,7 @@
 	"exports": "lib/index.js",
 	"author": "",
 	"license": "MIT",
+	"private": true,
 	"scripts": {
 		"build": "tsc -p tsconfig.build.json",
 		"webpack": "webpack --env mode=development && cp ./lib/bundle.cjs ../backend-bundle/bundle.cjs",

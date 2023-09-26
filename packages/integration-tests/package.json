@@ -6,6 +6,7 @@
   "main": "lib/index.js",
   "author": "",
   "license": "ISC",
+  "private": true,
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "prepare": "npm run build",
