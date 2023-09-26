@@ -1,3 +1,7 @@
+[unreleased]
+
+* Running Chromatic tests for forked PRs
+
 [2.0.0-alpha.11]
 
 * Customize Launch Screen on iOS
