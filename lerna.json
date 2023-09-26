@@ -5,7 +5,7 @@
   "version": "independent",
   "command": {
     "version": {
-      "allowBranch": ["master", "develop", "workflows/require-e2e-before-build-release"],
+      "allowBranch": ["master", "develop", "workflows/require-e2e-before-build-release", "chore/lerna-publishing-config"],
       "conventionalCommits": true,
       "createRelease": "github"
     },

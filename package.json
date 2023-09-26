@@ -2,7 +2,8 @@
   "name": "root",
   "private": true,
   "scripts": {
-    "lerna": "lerna"
+    "lerna": "lerna",
+    "publish": "lerna run version --no-private"
   },
   "engines": {
     "node": "18.12.1",
