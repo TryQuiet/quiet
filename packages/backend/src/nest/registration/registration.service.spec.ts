@@ -2,26 +2,13 @@ import { Test, TestingModule } from '@nestjs/testing'
 import { TestModule } from '../common/test.module'
 import { RegistrationModule } from './registration.module'
 import { RegistrationService } from './registration.service'
-import {
-  configCrypto,
-  createRootCA,
-  createUserCert,
-  createUserCsr,
-  type RootCA,
-  verifyUserCert,
-  type UserCsr,
-} from '@quiet/identity'
+import { configCrypto, createRootCA, createUserCsr, type RootCA, verifyUserCert, type UserCsr } from '@quiet/identity'
 import { type DirResult } from 'tmp'
 import { type PermsData } from '@quiet/types'
 import { Time } from 'pkijs'
 import { registerUser } from './registration.functions'
 import { jest } from '@jest/globals'
 import { createTmpDir } from '../common/utils'
-
-// @ts-ignore
-const { Response } = jest.requireActual('node-fetch')
-
-jest.mock('node-fetch', () => jest.fn())
 
 describe('RegistrationService', () => {
   let module: TestingModule
@@ -32,7 +19,6 @@ describe('RegistrationService', () => {
   let permsData: PermsData
   let userCsr: UserCsr
   let invalidUserCsr: any
-  let fetch: any
 
   beforeEach(async () => {
     module = await Test.createTestingModule({
@@ -58,7 +44,6 @@ describe('RegistrationService', () => {
       hashAlg: configCrypto.hashAlg,
     })
     invalidUserCsr = 'invalidUserCsr'
-    fetch = await import('node-fetch')
   })
 
   afterEach(async () => {
@@ -67,7 +52,7 @@ describe('RegistrationService', () => {
   })
 
   it('registerUser should return cert', async () => {
-    const responseData = await registerUser(userCsr.userCsr, permsData, [])
+    const responseData = await registerUser(userCsr.userCsr, permsData)
     expect(responseData.cert).toBeTruthy()
     if (!responseData.cert) return null
     const isProperUserCert = await verifyUserCert(certRoot.rootCertString, responseData.cert)
@@ -83,14 +68,7 @@ describe('RegistrationService', () => {
       signAlg: configCrypto.signAlg,
       hashAlg: configCrypto.hashAlg,
     })
-    const userCert = await createUserCert(
-      certRoot.rootCertString,
-      certRoot.rootKeyString,
-      user.userCsr,
-      new Date(),
-      new Date(2030, 1, 1)
-    )
-    const responseData = await registerUser(user.userCsr, permsData, [userCert.userCertString])
+    const responseData = await registerUser(user.userCsr, permsData)
     expect(responseData.cert).toBeTruthy()
     if (!responseData.cert) return null
     const isProperUserCert = await verifyUserCert(certRoot.rootCertString, responseData.cert)
@@ -106,13 +84,6 @@ describe('RegistrationService', () => {
       signAlg: configCrypto.signAlg,
       hashAlg: configCrypto.hashAlg,
     })
-    const userCert = await createUserCert(
-      certRoot.rootCertString,
-      certRoot.rootKeyString,
-      user.userCsr,
-      new Date(),
-      new Date(2030, 1, 1)
-    )
     const userNew = await createUserCsr({
       nickname: 'username',
       commonName: 'abcd.onion',
@@ -121,13 +92,13 @@ describe('RegistrationService', () => {
       signAlg: configCrypto.signAlg,
       hashAlg: configCrypto.hashAlg,
     })
-    const response = await registerUser(userNew.userCsr, permsData, [userCert.userCertString])
+    const response = await registerUser(userNew.userCsr, permsData)
     expect(response.cert).toEqual(null)
   })
 
   it('returns 400 if no csr in data or csr has wrong format', async () => {
     for (const invalidCsr of ['', 'abcd']) {
-      const response = await registerUser(invalidCsr, permsData, [])
+      const response = await registerUser(invalidCsr, permsData)
       expect(response.cert).toEqual(null)
     }
   })
@@ -135,7 +106,7 @@ describe('RegistrationService', () => {
   it('returns 400 if csr is lacking a field', async () => {
     const csr =
       'MIIBFTCBvAIBADAqMSgwFgYKKwYBBAGDjBsCARMIdGVzdE5hbWUwDgYDVQQDEwdaYmF5IENBMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEGPGHpJzE/CvL7l/OmTSfYQrhhnWQrYw3GgWB1raCTSeFI/MDVztkBOlxwdUWSm10+1OtKVUWeMKaMtyIYFcPPqAwMC4GCSqGSIb3DQEJDjEhMB8wHQYDVR0OBBYEFLjaEh+cnNhsi5qDsiMB/ZTzZFfqMAoGCCqGSM49BAMCA0gAMEUCIFwlob/Igab05EozU0e/lsG7c9BxEy4M4c4Jzru2vasGAiEAqFTQuQr/mVqTHO5vybWm/iNDk8vh88K6aBCCGYqIfdw='
-    const response = await registerUser(csr, permsData, [])
+    const response = await registerUser(csr, permsData)
     expect(response.cert).toEqual(null)
   })
 })

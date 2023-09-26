@@ -4,7 +4,7 @@ import { registerUser } from './registration.functions'
 import { ErrorCodes, ErrorMessages, PermsData, RegisterOwnerCertificatePayload, SocketActionTypes } from '@quiet/types'
 import { RegistrationEvents } from './registration.types'
 import Logger from '../common/logger'
-
+import { loadCSR, CertFieldsTypes, getCertFieldValue, getReqFieldValue, parseCertificate } from '@quiet/identity'
 @Injectable()
 export class RegistrationService extends EventEmitter implements OnModuleInit {
   private readonly logger = Logger(RegistrationService.name)
@@ -16,24 +16,56 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
   }
 
   onModuleInit() {
-    this.on(RegistrationEvents.SET_CERTIFICATES, certs => {
-      this.setCertificates(certs)
-    })
-    this.on(RegistrationEvents.REGISTER_USER_CERTIFICATE, async (csr: string) => {
-      if (!this._permsData) {
-        console.log('NO PERMS DATA')
-        return
+    this.on(
+      RegistrationEvents.REGISTER_USER_CERTIFICATE,
+      async (payload: { csrs: string[]; certificates: string[] }) => {
+        // That means that we are not the owner of the community
+        if (!this._permsData) return
+        await this.issueCertificates(payload)
       }
+    )
+  }
+
+  private async issueCertificates(payload: { csrs: string[]; certificates: string[] }) {
+    const certNames: string[] = []
+    const pendingNames: string[] = []
+
+    payload.certificates.forEach(cert => {
+      // we probably should cache that
+      const parsedCert = parseCertificate(cert)
+      const username = getCertFieldValue(parsedCert, CertFieldsTypes.nickName)
+      console.log('certificates ')
+      if (!username) return false
+      certNames.push(username)
+    })
+
+    // Change type to CertificationRequest
+    const parsedCsrs: { [key: string]: any } = {}
+
+    for (const csr of payload.csrs) {
+      const parsedCsr = await loadCSR(csr)
+      parsedCsrs[csr] = parsedCsr
+    }
+
+    const pendingCsrs = payload.csrs.filter(csr => {
+      // we probably should cache that
+      const username = getReqFieldValue(parsedCsrs[csr], CertFieldsTypes.nickName)
+
+      if (!username) return false
+      if (certNames.includes(username)) return false
+      if (pendingNames.includes(username)) return false
+      pendingNames.push(username)
+      return true
+    })
+
+    console.log('pending csrs', pendingCsrs)
+
+    pendingCsrs.forEach(async csr => {
       await this.registerUserCertificate(csr)
     })
   }
 
-  public setCertificates(certs: string[]) {
-    this.certificates = certs
-  }
-
   public set permsData(perms: PermsData) {
-    console.log('Setting owner perms data')
     this._permsData = {
       certificate: perms.certificate,
       privKey: perms.privKey,
@@ -43,7 +75,7 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
   public async registerOwnerCertificate(payload: RegisterOwnerCertificatePayload): Promise<void> {
     // It should not be here.
     this._permsData = payload.permsData
-    const result = await registerUser(payload.userCsr.userCsr, this._permsData, this.certificates)
+    const result = await registerUser(payload.userCsr.userCsr, this._permsData)
     if (result?.cert) {
       this.emit(SocketActionTypes.SAVED_OWNER_CERTIFICATE, {
         communityId: payload.communityId,
@@ -60,7 +92,7 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
   }
 
   public async registerUserCertificate(csr: string): Promise<void> {
-    const result = await registerUser(csr, this._permsData, this.certificates)
+    const result = await registerUser(csr, this._permsData)
     if (result?.cert) {
       this.emit(RegistrationEvents.NEW_USER, { certificate: result.cert })
     }

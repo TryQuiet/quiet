@@ -397,36 +397,17 @@ export class StorageService extends EventEmitter {
         write: ['*'],
       },
     })
-    this.certificatesRequests.events.on('replicate.progress', async (_address, _hash, entry, _progress, _total) => {
-      const csr: string = entry.payload.value
-      this.logger('Replicated csr')
-      let parsedCSR: CertificationRequest
-      try {
-        parsedCSR = parseCertificationRequest(csr)
-      } catch (e) {
-        this.logger.error(`csrs replicate.progress: could not parse certificate request`)
-        return
-      }
-
-      const username = getReqFieldValue(parsedCSR, CertFieldsTypes.nickName)
-      if (!username) {
-        this.logger.error(
-          `csrs replicate.progress: could not parse certificate request for field type ${CertFieldsTypes.nickName}`
-        )
-        return
-      }
-      this.emit(StorageEvents.REPLICATED_CSR, [csr])
-    })
     this.certificatesRequests.events.on('replicated', async () => {
       this.logger('REPLICATED: CSRs')
       const allCsrs = this.getAllEventLogEntries(this.certificatesRequests)
-      this.emit(StorageEvents.REPLICATED_CSR, allCsrs)
+      const allCertificates = this.getAllEventLogEntries(this.certificates)
+      this.emit(StorageEvents.REPLICATED_CSR, { csrs: allCsrs, certificates: allCertificates })
       await this.updatePeersList()
     })
     this.certificatesRequests.events.on('write', async (_address, entry) => {
       const csr: string = entry.payload.value
       this.logger('Saved CSR locally')
-      this.emit(StorageEvents.REPLICATED_CSR, [csr])
+      this.emit(StorageEvents.REPLICATED_CSR, { csrs: [csr], certificates: [] })
       await this.updatePeersList()
     })
 
