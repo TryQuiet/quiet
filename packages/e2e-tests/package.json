@@ -3,6 +3,7 @@
   "version": "2.0.1-alpha.1",
   "description": "For running end to end tests we use  Selenium WebDriver (https://www.selenium.dev/documentation/webdriver/) with Electron ChromeDriver (https://www.npmjs.com/package/electron-chromedriver) in Jest",
   "main": "index.js",
+  "private": true,
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "prepare": "npm run build",
