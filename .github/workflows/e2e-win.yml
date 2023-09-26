@@ -68,18 +68,16 @@ jobs:
         shell: powershell
 
       - name: Kill Quiet
-        run: Stop-Process -Name "Quiet" -Force
+        run: Get-Process -Name "Quiet" -ErrorAction SilentlyContinue | Stop-Process -Force
         shell: powershell
 
       - name: Kill tor
-        run: Stop-Process -Name "tor" -Force
+        run: Get-Process -Name "tor" -ErrorAction SilentlyContinue | Stop-Process -Force
         shell: powershell
-        if: always()
 
       - name: Delay
         run: Start-Sleep -Seconds 10
         shell: powershell
-        if: always()
 
       - name: Run one client test
         uses: nick-fields/retry@v2
