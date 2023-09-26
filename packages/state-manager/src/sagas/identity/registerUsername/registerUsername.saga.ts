@@ -48,6 +48,8 @@ export function* registerUsernameSaga(
   }
 
   let userCsr = identity.userCsr
+
+  console.log({ identity })
   if (userCsr !== null) {
     console.log('userCsr !== null')
     try {
@@ -61,7 +63,6 @@ export function* registerUsernameSaga(
 
       const existingKeyPair: CryptoKeyPair = { privateKey, publicKey }
 
-      console.log({ existingKeyPair })
       const payload: CreateUserCsrPayload = {
         nickname,
         commonName: identity.hiddenService.onionAddress,
