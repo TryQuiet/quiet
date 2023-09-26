@@ -36,6 +36,7 @@ configure(() => {
   require('../src/components/Loading/Loading.stories')
   require('../src/components/Success/Success.stories')
   require('../src/components/Error/Error.stories')
+  require('../src/components/AggressiveWarning/AggressiveWarning.stories')
 }, module)
 
 const StorybookUIRoot = getStorybookUI({
