@@ -26,7 +26,8 @@
     "prepare:windows": "npm run prepare-backend-assets && npm run override-dlopen && npm run build",
     "version": "react-native-version --skip-tag"
   },
-  "dependencies": {    "@peculiar/webcrypto": "^1.4.3",
+  "dependencies": {
+    "@peculiar/webcrypto": "^1.4.3",
     "@quiet/backend": "^2.0.1-alpha.1",
     "@quiet/common": "^2.0.1-alpha.1",
     "@quiet/identity": "^2.0.1-alpha.1",
