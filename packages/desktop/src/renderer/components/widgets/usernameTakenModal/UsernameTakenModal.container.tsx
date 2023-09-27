@@ -1,4 +1,4 @@
-import { ErrorCodes, ErrorMessages, errors, identity, SocketActionTypes, users } from '@quiet/state-manager'
+import { identity, users } from '@quiet/state-manager'
 import React, { useCallback, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useModal } from '../../../containers/hooks'
@@ -10,7 +10,7 @@ const UsernameTakenModalContainer = () => {
 
   const isUsernameTaken = useSelector(identity.selectors.usernameTaken)
   const usernameTakenModal = useModal(ModalName.usernameTakenModal)
-  const allUsers = useSelector(users.selectors.allUsers)
+  const registeredUsers = useSelector(users.selectors.certificatesMapping)
   const user = useSelector(identity.selectors.currentIdentity)
 
   const registerUsername = useCallback(
@@ -40,7 +40,7 @@ const UsernameTakenModalContainer = () => {
       currentUsername={user?.nickname}
       registerUsername={registerUsername}
       variant={UsernameVariant.TAKEN}
-      allUsers={allUsers}
+      registeredUsers={registeredUsers}
       {...usernameTakenModal}
     />
   )

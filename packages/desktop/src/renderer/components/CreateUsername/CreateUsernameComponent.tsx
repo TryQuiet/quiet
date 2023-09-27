@@ -10,7 +10,7 @@ import { LoadingButton } from '../ui/LoadingButton/LoadingButton'
 import { TextInput } from '../../forms/components/textInput'
 import { userNameField } from '../../forms/fields/createUserFields'
 import { parseName } from '@quiet/common'
-import { User } from '@quiet/types'
+import { UserData } from '@quiet/types'
 
 const PREFIX = 'CreateUsernameComponent-'
 
@@ -150,7 +150,7 @@ export interface CreateUsernameComponentProps {
   certificateRegistrationError?: string
   certificate?: string | null
   handleClose: () => void
-  allUsers?: Record<string, User>
+  registeredUsers?: Record<string, UserData>
   currentUsername?: string
   variant?: UsernameVariant
 }
@@ -162,7 +162,7 @@ export const CreateUsernameComponent: React.FC<CreateUsernameComponentProps> = (
   certificate,
   handleClose,
   currentUsername,
-  allUsers,
+  registeredUsers,
   variant = UsernameVariant.NEW,
 }) => {
   const isNewUser = variant === UsernameVariant.NEW
@@ -209,8 +209,8 @@ export const CreateUsernameComponent: React.FC<CreateUsernameComponentProps> = (
     const parsedName = parseName(name)
     setUserName(parsedName)
     setParsedNameDiffers(name !== parsedName)
-    if (allUsers && !isNewUser) {
-      const allUsersArr = Object.values(allUsers).map(user => user.username)
+    if (registeredUsers && !isNewUser) {
+      const allUsersArr = Object.values(registeredUsers).map(user => user.username)
       if (allUsersArr.includes(name)) {
         setError('userName', { message: `${name} is already taken` })
       }

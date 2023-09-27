@@ -3,7 +3,7 @@ import { createSelector } from '@reduxjs/toolkit'
 import { identityAdapter } from './identity.adapter'
 import { type CreatedSelectors, type StoreState } from '../store.types'
 import { communitiesSelectors, selectCommunities } from '../communities/communities.selectors'
-import { certificatesMapping, csrsMapping } from '../users/users.selectors'
+import { certificatesMapping } from '../users/users.selectors'
 
 const identitySlice: CreatedSelectors[StoreKeys.Identity] = (state: StoreState) => state[StoreKeys.Identity]
 
