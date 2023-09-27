@@ -26,6 +26,7 @@ import { NavigationContainer } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { navigationRef } from './RootNavigation'
 import { navigationActions } from './store/navigation/navigation.slice'
+import { initActions } from './store/init/init.slice'
 
 import { sagaMiddleware } from './store/store'
 import { rootSaga } from './store/root.saga'
@@ -73,6 +74,7 @@ function App(): JSX.Element {
           ref={navigationRef}
           linking={linking}
           onReady={() => {
+            dispatch(initActions.blindWebsocketConnection())
             dispatch(navigationActions.redirection())
           }}
         >

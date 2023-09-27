@@ -1,4 +1,4 @@
-import React, { FC, useState, useEffect, useRef } from 'react'
+import React, { FC, useRef, useState, useEffect, useCallback } from 'react'
 import { Keyboard, View, FlatList, TextInput, KeyboardAvoidingView, Platform } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Appbar } from '../../components/Appbar/Appbar.component'
@@ -48,7 +48,20 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
 
   const defaultPadding = 20
 
-  const areFilesUploaded = uploadedFiles && Object.keys(uploadedFiles).length > 0
+  const areFilesUploaded = useCallback(() => {
+    if (!uploadedFiles) return false
+    if (Object.keys(uploadedFiles).length <= 0) return false
+    return true
+  }, [uploadedFiles])()
+
+  const shouldDisableSubmit = useCallback(() => {
+    if (!ready) return true
+
+    const isInputEmpty = messageInput.length === 0
+    if (isInputEmpty && !areFilesUploaded) return true
+
+    return false
+  }, [messageInput, areFilesUploaded, ready])()
 
   useEffect(() => {
     const onKeyboardDidShow = () => {
@@ -68,14 +81,7 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
     }
   }, [messageInput?.length, setKeyboardShow])
 
-  const [isInputEmpty, setInputEmpty] = useState(true)
-
   const onInputTextChange = (value: string) => {
-    if (value.length === 0) {
-      setInputEmpty(true)
-    } else {
-      setInputEmpty(false)
-    }
     setMessageInput(value)
   }
 
@@ -105,7 +111,6 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
       messageInputRef?.current?.clear()
       sendMessageAction(messageInput)
       setMessageInput('')
-      setInputEmpty(true)
     }
   }
 
@@ -187,9 +192,7 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
                 placeholder={`Message #${channel?.name}`}
                 multiline={true}
                 wrapperStyle={{ width: didKeyboardShow || areFilesUploaded ? '75%' : '85%' }}
-                disabled={!ready}
               />
-
               <View
                 style={{
                   paddingLeft: 10,
@@ -201,7 +204,7 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
               >
                 <AttachmentButton onPress={openAttachments} />
                 {(didKeyboardShow || areFilesUploaded) && (
-                  <MessageSendButton onPress={onPress} disabled={isInputEmpty && !areFilesUploaded} />
+                  <MessageSendButton onPress={onPress} disabled={shouldDisableSubmit} />
                 )}
               </View>
             </View>

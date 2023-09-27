@@ -3,6 +3,38 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.1-alpha.1](https://github.com/ZbayApp/monorepo/compare/@quiet/state-manager@2.0.1-alpha.0...@quiet/state-manager@2.0.1-alpha.1) (2023-09-25)
+
+**Note:** Version bump only for package @quiet/state-manager
+
+
+
+
+
+## [2.0.1-alpha.0](https://github.com/ZbayApp/monorepo/compare/@quiet/state-manager@2.0.0-alpha.4...@quiet/state-manager@2.0.1-alpha.0) (2023-09-25)
+
+**Note:** Version bump only for package @quiet/state-manager
+
+
+
+
+
+# [2.0.0-alpha.4](https://github.com/TryQuiet/quiet/compare/@quiet/state-manager@2.0.0-alpha.3...@quiet/state-manager@2.0.0-alpha.4) (2023-09-19)
+
+**Note:** Version bump only for package @quiet/state-manager
+
+
+
+
+
+# [2.0.0-alpha.3](https://github.com/TryQuiet/quiet/compare/@quiet/state-manager@1.9.1...@quiet/state-manager@2.0.0-alpha.3) (2023-09-18)
+
+**Note:** Version bump only for package @quiet/state-manager
+
+
+
+
+
 # [2.0.0-alpha.2](https://github.com/TryQuiet/quiet/compare/@quiet/state-manager@2.0.0-alpha.1...@quiet/state-manager@2.0.0-alpha.2) (2023-09-14)
 
 **Note:** Version bump only for package @quiet/state-manager
@@ -28,6 +60,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 # [1.10.0-alpha.0](/compare/@quiet/state-manager@1.9.0...@quiet/state-manager@1.10.0-alpha.0) (2023-08-29)
+## [1.9.1](https://github.com/TryQuiet/quiet/compare/@quiet/state-manager@1.9.0...@quiet/state-manager@1.9.1) (2023-09-15)
 
 **Note:** Version bump only for package @quiet/state-manager
 

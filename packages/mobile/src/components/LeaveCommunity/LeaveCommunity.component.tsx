@@ -1,7 +1,6 @@
 import React, { FC, useEffect, useState } from 'react'
 import { View } from 'react-native'
 import { defaultPalette } from '../../styles/palettes/default.palette'
-
 import { Appbar } from '../Appbar/Appbar.component'
 import { Button } from '../Button/Button.component'
 import { Typography } from '../Typography/Typography.component'

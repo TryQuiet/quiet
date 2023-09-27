@@ -15,6 +15,8 @@ export enum TestConfig {
   IPFS_REPO_PATH = 'Ipfs-test-nest-backend',
 }
 
+export const TEST_DATA_PORT = '9004'
+
 export const QUIET_DIR_PATH = path.join(os.homedir(), Config.QUIET_DIR)
 
 export const TEST_QUIET_DIR_PATH = path.join(os.homedir(), TestConfig.QUIET_DIR)

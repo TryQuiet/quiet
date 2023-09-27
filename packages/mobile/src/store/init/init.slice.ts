@@ -10,7 +10,7 @@ export class InitState {
   public deepLinking: boolean = false
   public isCryptoEngineInitialized: boolean = false
   public isWebsocketConnected: boolean = false
-  public lastKnownDataPort: number = 0
+  public lastKnownDataPort: number = 11000 // Default port used in native modules
   public initDescription: string = 'Starting Quiet'
   public initChecks: EntityState<InitCheck> = initChecksAdapter.setAll(initChecksAdapter.getInitialState(), [])
   public ready: boolean = false
@@ -54,6 +54,7 @@ export const initSlice = createSlice({
         id: event,
       })
     },
+    blindWebsocketConnection: state => state,
     startWebsocketConnection: (state, _action: PayloadAction<WebsocketConnectionPayload>) => state,
     suspendWebsocketConnection: state => {
       state.isWebsocketConnected = false

@@ -1,7 +1,6 @@
 import React, { FC, useCallback } from 'react'
 import { TouchableWithoutFeedback, View, Image } from 'react-native'
 import { appImages } from '../../assets'
-
 import { AttachmentButtonProps } from './AttachmentButton.types'
 
 export const AttachmentButton: FC<AttachmentButtonProps> = ({ onPress }) => {
