@@ -66,9 +66,7 @@ describe('RegistrationService', () => {
   })
 
   // Extract pending csrs should return all csrs if there are no certificates
-  it('extractPendingCsrs should return all csrs if there are no certificates and csrs do not contain duplicate usernames', () => {
-
-  })
+  it('extractPendingCsrs should return all csrs if there are no certificates and csrs do not contain duplicate usernames', () => {})
   // Extract pending csrs should return all csrs if there are certificates, but they do not contain any name that's in csr
   // Extract pending csrs should return filtered csrs, excluding those that try to register name that is already in certificate
   // Extrand pending csrs should return all csrs if there are no duplicates in requested usernames

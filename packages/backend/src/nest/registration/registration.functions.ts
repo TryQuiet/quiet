@@ -26,7 +26,7 @@ export interface RegistrationResponse {
   data: ErrorPayload | SuccessfullRegistrarionResponse
 }
 
-export const extractPendingCsrs = async (payload: { csrs: string[], certificates: string[] }) => {
+export const extractPendingCsrs = async (payload: { csrs: string[]; certificates: string[] }) => {
   const certNames: string[] = []
   const pendingNames: string[] = []
 
