@@ -6,7 +6,7 @@ import { configCrypto, createRootCA, createUserCsr, type RootCA, verifyUserCert,
 import { type DirResult } from 'tmp'
 import { type PermsData } from '@quiet/types'
 import { Time } from 'pkijs'
-import { registerUser } from './registration.functions'
+import { issueCertificate, extractPendingCsrs, validateCsr } from './registration.functions'
 import { jest } from '@jest/globals'
 import { createTmpDir } from '../common/utils'
 
@@ -51,11 +51,26 @@ describe('RegistrationService', () => {
     await module.close()
   })
 
-  it('registerUser should return cert', async () => {
-    const responseData = await registerUser(userCsr.userCsr, permsData)
+  it('registerUser should return cert if csr is valid and cert should pass the verification', async () => {
+    const responseData = await issueCertificate(userCsr.userCsr, permsData)
     expect(responseData.cert).toBeTruthy()
     if (!responseData.cert) return null
     const isProperUserCert = await verifyUserCert(certRoot.rootCertString, responseData.cert)
     expect(isProperUserCert.result).toBe(true)
   })
+
+  it('registrar should return errors array if csr is not valid and should not return any cert', async () => {
+    const responseData = await issueCertificate(invalidUserCsr, permsData)
+    expect(responseData.cert).toBeFalsy()
+    expect(responseData.error.length).toBeTruthy()
+  })
+
+  // Extract pending csrs should return all csrs if there are no certificates
+  it('extractPendingCsrs should return all csrs if there are no certificates and csrs do not contain duplicate usernames', () => {
+
+  })
+  // Extract pending csrs should return all csrs if there are certificates, but they do not contain any name that's in csr
+  // Extract pending csrs should return filtered csrs, excluding those that try to register name that is already in certificate
+  // Extrand pending csrs should return all csrs if there are no duplicates in requested usernames
+  // Extract pending csrs should return only one csrs that have unique usernames, if there are two or more csrs with same username, return just one
 })
