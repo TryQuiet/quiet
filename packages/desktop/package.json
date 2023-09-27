@@ -111,7 +111,7 @@
     "build:renderer:prod": "webpack --config webpack/webpack.config.renderer.prod.js",
     "postBuild": "node scripts/postBuild.js",
     "prestart": "npm run build:main",
-    "start": "cross-env DEBUG='backend*,quiet*,state-manager*,desktop*,libp2p:websockets:listener:backend' npm run start:renderer",
+    "start": "cross-env DATA_DIR=testwindn DEBUG='backend*,quiet*,state-manager*,desktop*,libp2p:websockets:listener:backend' npm run start:renderer",
     "start:main": "cross-env NODE_ENV=development electron .",
     "start:renderer": "cross-env NODE_ENV=development webpack-dev-server --config webpack/webpack.config.renderer.dev.js",
     "storybook": "export NODE_OPTIONS=--openssl-legacy-provider && start-storybook -p 6006",
@@ -120,7 +120,9 @@
     "rmDist": "rimraf dist/",
     "setMainEnvs": "node scripts/setMainEnvs.js",
     "copyMainEnvs": "cp mainEnvs.json dist/main",
-    "copyFonts": "cp src/renderer/fonts/* dist/main"
+    "copyFonts": "run-script-os",
+    "copyFonts:windows": "xcopy src\\renderer\\fonts\\* dist\\main /Y",
+    "copyFonts:default": "cp src/renderer/fonts/* dist/main"
   },
   "dependencies": {
     "@electron/remote": "^2.0.8",
@@ -256,6 +258,7 @@
     "redux-saga-test-plan": "^4.0.3",
     "redux-thunk": "^2.3.0",
     "reselect": "^4.1.5",
+    "run-script-os": "1.1.6",
     "socket.io-mock": "^1.3.2",
     "source-map-loader": "^4.0.1",
     "standard": "^12.0.1",

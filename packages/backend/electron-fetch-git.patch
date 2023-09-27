@@ -1,0 +1,17 @@
+diff --git a/index.js b/index.js
+index e7b50e189..3c51705a3 100644
+--- a/index.js
++++ b/index.js
+@@ -1283,11 +1283,7 @@ function getNodeRequestOptions(request) {
+
+ let electron; // istanbul ignore else
+
+-if (process.versions.electron) {
+-  electron = require('electron');
+-}
+-
+-const isReady = electron && electron.app && !electron.app.isReady() ? new Promise(resolve => electron.app.once('ready', resolve)) : Promise.resolve();
++const isReady = Promise.resolve();
+
+ /**
+  * Fetch function
