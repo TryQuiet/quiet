@@ -9,8 +9,8 @@ import Modal from '../ui/Modal/Modal'
 import { LoadingButton } from '../ui/LoadingButton/LoadingButton'
 import { TextInput } from '../../forms/components/textInput'
 import { userNameField } from '../../forms/fields/createUserFields'
-
 import { parseName } from '@quiet/common'
+import { User } from '@quiet/types'
 
 const PREFIX = 'CreateUsernameComponent-'
 
@@ -150,6 +150,7 @@ export interface CreateUsernameComponentProps {
   certificateRegistrationError?: string
   certificate?: string | null
   handleClose: () => void
+  allUsers?: Record<string, User>
   currentUsername?: string
   variant?: UsernameVariant
 }
@@ -161,6 +162,7 @@ export const CreateUsernameComponent: React.FC<CreateUsernameComponentProps> = (
   certificate,
   handleClose,
   currentUsername,
+  allUsers,
   variant = UsernameVariant.NEW,
 }) => {
   const isNewUser = variant === UsernameVariant.NEW
@@ -179,6 +181,7 @@ export const CreateUsernameComponent: React.FC<CreateUsernameComponentProps> = (
     setValue,
     setError,
     control,
+    clearErrors,
   } = useForm<CreateUserValues>({
     mode: 'onTouched',
   })
@@ -202,9 +205,16 @@ export const CreateUsernameComponent: React.FC<CreateUsernameComponentProps> = (
   }
 
   const onChange = (name: string) => {
+    clearErrors('userName')
     const parsedName = parseName(name)
     setUserName(parsedName)
     setParsedNameDiffers(name !== parsedName)
+    if (allUsers && !isNewUser) {
+      const allUsersArr = Object.values(allUsers).map(user => user.username)
+      if (allUsersArr.includes(name)) {
+        setError('userName', { message: `${name} is already taken` })
+      }
+    }
   }
 
   React.useEffect(() => {
@@ -317,7 +327,7 @@ export const CreateUsernameComponent: React.FC<CreateUsernameComponentProps> = (
                   variant='contained'
                   color='primary'
                   inProgress={waitingForResponse}
-                  disabled={waitingForResponse}
+                  disabled={waitingForResponse || Boolean(errors.userName)}
                   type='submit'
                   text={isNewUser ? 'Register' : 'Continue'}
                   classes={{

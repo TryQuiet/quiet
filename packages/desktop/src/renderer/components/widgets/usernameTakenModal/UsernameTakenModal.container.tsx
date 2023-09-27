@@ -1,4 +1,4 @@
-import { identity } from '@quiet/state-manager'
+import { ErrorCodes, ErrorMessages, errors, identity, SocketActionTypes, users } from '@quiet/state-manager'
 import React, { useCallback, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useModal } from '../../../containers/hooks'
@@ -7,8 +7,11 @@ import CreateUsernameComponent, { UsernameVariant } from '../../CreateUsername/C
 
 const UsernameTakenModalContainer = () => {
   const dispatch = useDispatch()
+
   const isUsernameTaken = useSelector(identity.selectors.usernameTaken)
   const usernameTakenModal = useModal(ModalName.usernameTakenModal)
+  const allUsers = useSelector(users.selectors.allUsers)
+  const user = useSelector(identity.selectors.currentIdentity)
 
   const registerUsername = useCallback(
     (nickname: string) => {
@@ -22,11 +25,13 @@ const UsernameTakenModalContainer = () => {
     [dispatch]
   )
 
-  const user = useSelector(identity.selectors.currentIdentity)
-
   useEffect(() => {
     if (isUsernameTaken) {
       usernameTakenModal.handleOpen()
+
+      //IMPORTANT: temporary solution if somehow user recive once wrong information from selector
+    } else {
+      usernameTakenModal.handleClose()
     }
   }, [isUsernameTaken])
 
@@ -35,6 +40,7 @@ const UsernameTakenModalContainer = () => {
       currentUsername={user?.nickname}
       registerUsername={registerUsername}
       variant={UsernameVariant.TAKEN}
+      allUsers={allUsers}
       {...usernameTakenModal}
     />
   )

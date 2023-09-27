@@ -38,21 +38,16 @@ export const csr = createSelector(communitiesSelectors.currentCommunityId, selec
   return identities[id]?.userCsr
 })
 
-export const usernameTaken = createSelector(currentIdentity, csrsMapping, (identity, csrs) => {
+export const usernameTaken = createSelector(currentIdentity, certificatesMapping, (identity, certs) => {
   const userCertificate = identity?.userCertificate
   if (userCertificate) return false
 
   const username = identity?.nickname
   if (!username) return false
 
-  const allUsernames: string[] = Object.values(csrs).map(u => u.username)
+  const allUsernames: string[] = Object.values(certs).map(u => u.username)
 
-  const usernamesCounter = allUsernames.reduce((prev: Record<string, number>, curr: string) => {
-    prev[curr] = ++prev[curr] || 1
-    return prev
-  }, {})
-
-  if (usernamesCounter[username] >= 2) {
+  if (allUsernames.includes(username)) {
     return true
   }
 
