@@ -6,7 +6,7 @@ import { configCrypto, createRootCA, createUserCsr, type RootCA, verifyUserCert,
 import { type DirResult } from 'tmp'
 import { type PermsData } from '@quiet/types'
 import { Time } from 'pkijs'
-import { issueCertificate, extractPendingCsrs, validateCsr } from './registration.functions'
+import { issueCertificate, extractPendingCsrs } from './registration.functions'
 import { jest } from '@jest/globals'
 import { createTmpDir } from '../common/utils'
 
@@ -65,12 +65,85 @@ describe('RegistrationService', () => {
     expect(responseData.error.length).toBeTruthy()
   })
 
-  // Extract pending csrs should return all csrs if there are no certificates
-  it('extractPendingCsrs should return all csrs if there are no certificates and csrs do not contain duplicate usernames', () => {
-
+  it('extractPendingCsrs should return all csrs if there are no certificates and csrs do not contain duplicate usernames', async () => {
+    const certificates: string[] = []
+    const csrs: string[] = [userCsr.userCsr]
+    const payload: { certificates: string[], csrs: string[] } = {
+      certificates: certificates,
+      csrs: csrs
+    }
+    const pendingCsrs = await extractPendingCsrs(payload)
+    expect(pendingCsrs).toEqual(csrs)
   })
-  // Extract pending csrs should return all csrs if there are certificates, but they do not contain any name that's in csr
-  // Extract pending csrs should return filtered csrs, excluding those that try to register name that is already in certificate
-  // Extrand pending csrs should return all csrs if there are no duplicates in requested usernames
-  // Extract pending csrs should return only one csrs that have unique usernames, if there are two or more csrs with same username, return just one
-})
+
+  it('extractPendingCsrs should return all csrs if there are certificates, and csrs do not contain any name that is in certificates already', async () => {
+    const aliceCsr = await createUserCsr({
+      nickname: 'alice',
+      commonName: 'nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad.onion',
+      peerId: 'Qmf3ySkYqLET9xtAtDzvAr5Pp3egK1H3C5iJAZm1SpLEp6',
+      dmPublicKey: 'testdmPublicKey',
+      signAlg: configCrypto.signAlg,
+      hashAlg: configCrypto.hashAlg,
+    })
+    const aliceCert = await issueCertificate(aliceCsr.userCsr, permsData)
+    if (!aliceCert.cert) return
+    const certificates: string[] = [aliceCert.cert]
+    const csrs: string[] = [userCsr.userCsr]
+    const payload: { certificates: string[], csrs: string[] } = {
+      certificates: certificates,
+      csrs: csrs
+    }
+    const pendingCsrs = await extractPendingCsrs(payload)
+    expect(pendingCsrs).toEqual(csrs)
+  })
+
+  it('extractPendingCsrs should return filtered csrs, excluding those that tries to claim username already present in certificate', async () => {
+    const userCert = await issueCertificate(userCsr.userCsr, permsData)
+    if (!userCert.cert) return
+    const certificates: string[] = [userCert.cert]
+    const csrs: string[] = [userCsr.userCsr]
+    const payload: { certificates: string[], csrs: string[] } = {
+      certificates: certificates,
+      csrs: csrs
+    }
+    const pendingCsrs = await extractPendingCsrs(payload)
+    expect(pendingCsrs.length).toEqual(0)
+  })
+
+  it('extractPendingCsrs should return all csrs if there are no duplicates in requested usernames', async () => {
+    const userCsr2 = await createUserCsr({
+      nickname: 'userName2',
+      commonName: 'nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad.onion',
+      peerId: 'Qmf3ySkYqLET9xtAtDzvAr5Pp3egK1H3C5iJAZm1SpLEp6',
+      dmPublicKey: 'testdmPublicKey',
+      signAlg: configCrypto.signAlg,
+      hashAlg: configCrypto.hashAlg,
+    })
+    const csrs: string[] = [userCsr.userCsr, userCsr2.userCsr]
+    const pendingCsrs = await extractPendingCsrs({ certificates: [], csrs: csrs })
+    expect(pendingCsrs.length).toEqual(csrs.length)
+  })
+
+  it('Extract pending csrs should return only csrs that have unique usernames', async () => {
+    const userCsr = await createUserCsr({
+      nickname: 'karol',
+      commonName: 'nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad.onion',
+      peerId: 'Qmf3ySkYqLET9xtAtDzvAr5Pp3egK1H3C5iJAZm1SpLEp6',
+      dmPublicKey: 'testdmPublicKey',
+      signAlg: configCrypto.signAlg,
+      hashAlg: configCrypto.hashAlg,
+    })
+    const userCsr2 = await createUserCsr({
+      nickname: 'karol',
+      commonName: 'nnnnnnc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad.onion',
+      peerId: 'QmffffffqLET9xtAtDzvAr5Pp3egK1H3C5iJAZm1SpLEp6',
+      dmPublicKey: 'testdmPublicKey',
+      signAlg: configCrypto.signAlg,
+      hashAlg: configCrypto.hashAlg,
+    })
+    const csrs: string[] = [userCsr.userCsr, userCsr2.userCsr]
+    const pendingCsrs = await extractPendingCsrs({ certificates: [], csrs: csrs })
+    expect(pendingCsrs.length).toEqual(1)
+    expect(pendingCsrs[0]).toBe(userCsr.userCsr)
+  })
+})    
