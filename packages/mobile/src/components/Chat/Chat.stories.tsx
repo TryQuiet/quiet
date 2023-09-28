@@ -21,7 +21,7 @@ storiesOf('Chat', module)
       downloadFile={() => {}}
       cancelDownload={() => {}}
       channel={{
-        name: 'general',
+        name: 'Zbay',
         description: '',
         owner: '',
         timestamp: 0,
@@ -216,6 +216,20 @@ storiesOf('Chat', module)
                 createdAt: 0,
                 date: '12:46',
                 nickname: 'windoo',
+                isDuplicated: false,
+                isRegistered: true,
+                pubKey: 'test',
+              },
+            ],
+            [
+              {
+                id: '16',
+                type: 1,
+                message:
+                  'deathhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhstarrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrdeathstartttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr',
+                createdAt: 0,
+                date: '12:46',
+                nickname: 'vader',
                 isDuplicated: false,
                 isRegistered: true,
                 pubKey: 'test',
