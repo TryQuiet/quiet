@@ -4,7 +4,7 @@ import { appImages } from '../../assets'
 import { AttachmentButtonProps } from './AttachmentButton.types'
 
 export const AttachmentButton: FC<AttachmentButtonProps> = ({ onPress }) => {
-  const icon = appImages.paperclip_gray
+  const icon = appImages.paperclip_active
 
   return (
     <TouchableWithoutFeedback onPress={onPress} testID={'attach_file_button'}>
@@ -19,8 +19,8 @@ export const AttachmentButton: FC<AttachmentButtonProps> = ({ onPress }) => {
           source={icon}
           style={{
             alignSelf: 'center',
-            width: 24,
-            height: 24,
+            width: 20,
+            height: 20,
           }}
         />
       </View>

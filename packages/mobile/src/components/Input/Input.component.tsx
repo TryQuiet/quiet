@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, forwardRef, useState } from 'react'
+import React, { useCallback, useRef, forwardRef } from 'react'
 import { TextInput, View } from 'react-native'
 import { Typography } from '../Typography/Typography.component'
 
@@ -18,15 +18,12 @@ export const Input = forwardRef<TextInput, InputProps>(
       hint,
       multiline,
       disabled = false,
-      round = false,
       style,
       wrapperStyle,
       children,
     },
     ref
   ) => {
-    const [height, setHeight] = useState(54)
-
     const textInputRef = useRef<null | TextInput>(null)
 
     const handleViewPress = useCallback(() => {
@@ -42,29 +39,15 @@ export const Input = forwardRef<TextInput, InputProps>(
             {label}
           </Typography>
         )}
-        <StyledWrapper
-          onPress={handleViewPress}
-          disabled={disabled}
-          round={round}
-          style={{
-            height: multiline ? Math.max(54, height + 20) : 54,
-            ...style,
-          }}
-        >
+        <StyledWrapper onPress={handleViewPress} disabled={disabled} style={style}>
           <StyledTextInput
             onChangeText={onChangeText}
-            onContentSizeChange={event => {
-              if (multiline) {
-                setHeight(event.nativeEvent.contentSize.height)
-              }
-            }}
             ref={(instance: TextInput | null) => {
               textInputRef.current = instance
               if (ref !== null && 'current' in ref) {
                 ref.current = instance
               }
             }}
-            height={height}
             multiline={multiline}
             editable={!disabled}
             placeholder={placeholder}

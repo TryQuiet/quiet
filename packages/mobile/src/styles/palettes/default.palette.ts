@@ -28,7 +28,7 @@ export const defaultPalette = {
     lightGray: '#B2B2B2',
   },
   input: {
-    border: '#C4C4C4',
+    border: '#B3B3B3',
     backgroundDefault: '#ffffff',
     backgroundDisabled: '#EBEBEB',
   },

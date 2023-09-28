@@ -39,14 +39,14 @@ describe('Attachment button component', () => {
         <Image
           source={
             {
-              "testUri": "../../../assets/icons/paperclip_gray.png",
+              "testUri": "../../../assets/icons/paperclip_black.png",
             }
           }
           style={
             {
               "alignSelf": "center",
-              "height": 24,
-              "width": 24,
+              "height": 20,
+              "width": 20,
             }
           }
         />
