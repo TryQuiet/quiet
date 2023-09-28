@@ -1,9 +1,8 @@
 import React, { useCallback } from 'react'
-import { errors, identity } from '@quiet/state-manager'
+import { errors, identity, users } from '@quiet/state-manager'
 import { useDispatch, useSelector } from 'react-redux'
 import { UsernameTakenScreenProps } from './UsernameTaken.types'
 import { UsernameRegistration } from '../../components/Registration/UsernameRegistration.component'
-import { ErrorCodes } from '@quiet/types'
 import { UsernameVariant } from '../../components/Registration/UsernameRegistration.types'
 import { ScreenNames } from '../../const/ScreenNames.enum'
 import { navigationActions } from '../../store/navigation/navigation.slice'
@@ -13,6 +12,7 @@ const UsernameTakenScreen: React.FC<UsernameTakenScreenProps> = () => {
   const currentIdentity = useSelector(identity.selectors.currentIdentity)
   const usernameRegistered = currentIdentity?.userCertificate != null
   const error = useSelector(errors.selectors.registrarErrors)
+  const registeredUsers = useSelector(users.selectors.certificatesMapping)
 
   const handleBackButton = useCallback(() => {
     dispatch(
@@ -43,12 +43,12 @@ const UsernameTakenScreen: React.FC<UsernameTakenScreenProps> = () => {
   return (
     <UsernameRegistration
       registerUsernameAction={handleAction}
-      registerUsernameError={error?.code === ErrorCodes.FORBIDDEN ? error.message : undefined}
       usernameRegistered={usernameRegistered}
       fetching={false}
       variant={UsernameVariant.TAKEN}
       handleBackButton={handleBackButton}
       currentUsername={currentIdentity?.nickname}
+      registeredUsers={registeredUsers}
     />
   )
 }

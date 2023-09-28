@@ -16,6 +16,7 @@ export const UsernameRegistration: FC<UsernameRegistrationProps> = ({
   fetching,
   currentUsername,
   handleBackButton,
+  registeredUsers,
   variant = UsernameVariant.NEW,
 }) => {
   const isNewUser = variant === UsernameVariant.NEW
@@ -46,6 +47,12 @@ export const UsernameRegistration: FC<UsernameRegistrationProps> = ({
     const parsedName = parseName(name)
     setUserName(parsedName)
     setParsedNameDiffers(name !== parsedName)
+    if (registeredUsers && !isNewUser) {
+      const allUsersArr = Object.values(registeredUsers).map(user => user.username)
+      if (allUsersArr.includes(name)) {
+        setInputError(`Username @${name} is already taken`)
+      }
+    }
   }
 
   const onPress = () => {
@@ -139,8 +146,15 @@ export const UsernameRegistration: FC<UsernameRegistrationProps> = ({
             </View>
           </View>
         )}
+
         <View style={{ marginTop: 20 }}>
-          <Button onPress={onPress} title={'Continue'} loading={loading} width={isNewUser ? undefined : 100} />
+          <Button
+            disabled={Boolean(inputError)}
+            onPress={onPress}
+            title={'Continue'}
+            loading={loading}
+            width={isNewUser ? undefined : 100}
+          />
         </View>
       </KeyboardAvoidingView>
     </View>

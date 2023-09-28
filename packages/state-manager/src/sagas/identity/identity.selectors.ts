@@ -23,7 +23,7 @@ export const currentIdentity = createSelector(
 )
 
 export const communityMembership = createSelector(currentIdentity, identity => {
-  return Boolean(identity?.userCertificate)
+  return Boolean(identity?.userCsr)
 })
 
 export const joinedCommunities = createSelector(selectCommunities, selectEntities, (communities, identities) => {

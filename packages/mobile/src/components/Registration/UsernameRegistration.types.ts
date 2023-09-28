@@ -1,3 +1,5 @@
+import { UserData } from '@quiet/types'
+
 export interface UsernameRegistrationProps {
   registerUsernameAction: (username: string) => void
   registerUsernameError?: string | undefined
@@ -5,6 +7,7 @@ export interface UsernameRegistrationProps {
   fetching?: boolean
   currentUsername?: string
   variant?: UsernameVariant
+  registeredUsers?: Record<string, UserData>
   handleBackButton?: () => void
 }
 
