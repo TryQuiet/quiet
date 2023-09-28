@@ -70,3 +70,8 @@ runs:
           lerna bootstrap
         }
       shell: powershell
+
+    - name: "Check backend output"
+      if: ${{ failure() && runner.os == 'Windows' }}
+      run: cd packages\backend; pwd; get-content node_modules/electron-fetch/lib/index.js; npm run prepare
+      shell: powershell
