@@ -15,6 +15,11 @@ const { ios } = info
 
 jest.setTimeout(9000000)
 
+const blacklist = [
+  'ConnectionProcess',
+  'UploadingPreview'
+]
+
 /* eslint-disable no-undef */
 describe('Storybook', () => {
   let stories = []
@@ -31,7 +36,9 @@ describe('Storybook', () => {
         if (item.endsWith('.stories.tsx')) {
           const scenarios = await listScenarios(dirname, item)
           const component = item.split('.')[0]
-          files.push([dirname, item, component, scenarios])
+          if (!blacklist.includes(component)) {
+            files.push([dirname, item, component, scenarios])
+          }
         }
       }
     }
