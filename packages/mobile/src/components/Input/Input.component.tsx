@@ -42,13 +42,18 @@ export const Input = forwardRef<TextInput, InputProps>(
             {label}
           </Typography>
         )}
-        <StyledWrapper onPress={handleViewPress} disabled={disabled} round={round} style={{
-          height: multiline ? Math.max(54, height+20) : 54,
-          ...style
-        }}>
+        <StyledWrapper
+          onPress={handleViewPress}
+          disabled={disabled}
+          round={round}
+          style={{
+            height: multiline ? Math.max(54, height + 20) : 54,
+            ...style,
+          }}
+        >
           <StyledTextInput
             onChangeText={onChangeText}
-            onContentSizeChange={(event) => {
+            onContentSizeChange={event => {
               if (multiline) {
                 setHeight(event.nativeEvent.contentSize.height)
               }
