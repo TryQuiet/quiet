@@ -1,0 +1,122 @@
+diff --git a/packages/backend/electron-fetch-git.patch b/packages/backend/electron-fetch-git.patch
+new file mode 100644
+index 000000000..45ea76414
+--- /dev/null
++++ b/packages/backend/electron-fetch-git.patch
+@@ -0,0 +1,17 @@
++diff --git a/index.js b/index.js
++index e7b50e189..3c51705a3 100644
++--- a/index.js
+++++ b/index.js
++@@ -1283,11 +1283,7 @@ function getNodeRequestOptions(request) {
++ 
++ let electron; // istanbul ignore else
++ 
++-if (process.versions.electron) {
++-  electron = require('electron');
++-}
++-
++-const isReady = electron && electron.app && !electron.app.isReady() ? new Promise(resolve => electron.app.once('ready', resolve)) : Promise.resolve();
+++const isReady = Promise.resolve();
++ 
++ /**
++  * Fetch function
+diff --git a/packages/backend/package.json b/packages/backend/package.json
+index 0fb305c40..54abecce4 100644
+--- a/packages/backend/package.json
++++ b/packages/backend/package.json
+@@ -9,10 +9,17 @@
+ 	"license": "MIT",
+ 	"scripts": {
+ 		"build": "tsc -p tsconfig.build.json",
+-		"webpack": "webpack --env mode=development && cp ./lib/bundle.cjs ../backend-bundle/bundle.cjs",
++		"webpack": "run-script-os",
++		"webpack:default": "webpack --env mode=development && cp ./lib/bundle.cjs ../backend-bundle/bundle.cjs",
+ 		"webpack:prod": "webpack --env mode=production && cp ./lib/bundle.cjs ../backend-bundle/bundle.cjs",
+-		"applyPatches": "patch -f -p0 < ./electron-fetch.patch || true && patch -f -p0 --forward --binary < ./parse-duration.patch || true && patch -f -p0 --forward --binary < ./parse-duration-esm.patch || true",
+-		"prepare": "npm run applyPatches && npm run webpack",
++		"webpack:windows": "webpack --env mode=development && xcopy .\\lib\\bundle.cjs ..\\backend-bundle\\ /Y",
++		"webpack:prod:windows": "webpack --env mode=production && xcopy .\\lib\\bundle.cjs ..\\backend-bundle\\ /Y",
++		"applyPatches": "run-script-os",
++		"applyPatches:default": "patch -f -p0 < ./electron-fetch.patch || true && patch -f -p0 --forward --binary < ./parse-duration.patch || true && patch -f -p0 --forward --binary < ./parse-duration-esm.patch || true",
++		"applyPatches:windows": "git apply ./electron-fetch-git.patch --unsafe-paths --whitespace=fix --reject --verbose --no-index --directory=packages/backend/node_modules/electron-fetch/lib/",
++		"prepare": "run-script-os",
++		"prepare:default": "npm run applyPatches && npm run webpack",
++		"prepare:windows": "npm run webpack",
+ 		"version": "git add -A src",
+ 		"lint": "eslint --ext .jsx,.js,.ts,.tsx ./src/ --fix",
+ 		"lint-ci": "eslint --ext .jsx,.js,.ts,.tsx ./src/",
+@@ -72,6 +79,7 @@
+ 		"fetch-mock-jest": "^1.5.1",
+ 		"jest": "^29.4.2",
+ 		"mock-fs": "^5.1.2",
++		"run-script-os": "1.1.6",
+ 		"tmp": "^0.2.1",
+ 		"ts-jest": "^29.0.3",
+ 		"ts-loader": "9.4.2",
+diff --git a/packages/desktop/package.json b/packages/desktop/package.json
+index d5b5dd0d8..f617c9aad 100644
+--- a/packages/desktop/package.json
++++ b/packages/desktop/package.json
+@@ -111,7 +111,7 @@
+     "build:renderer:prod": "webpack --config webpack/webpack.config.renderer.prod.js",
+     "postBuild": "node scripts/postBuild.js",
+     "prestart": "npm run build:main",
+-    "start": "cross-env DEBUG='backend*,quiet*,state-manager*,desktop*,libp2p:websockets:listener:backend' npm run start:renderer",
++    "start": "cross-env DATA_DIR=testwindn DEBUG='backend*,quiet*,state-manager*,desktop*,libp2p:websockets:listener:backend' npm run start:renderer",
+     "start:main": "cross-env NODE_ENV=development electron .",
+     "start:renderer": "cross-env NODE_ENV=development webpack-dev-server --config webpack/webpack.config.renderer.dev.js",
+     "storybook": "export NODE_OPTIONS=--openssl-legacy-provider && start-storybook -p 6006",
+@@ -120,7 +120,9 @@
+     "rmDist": "rimraf dist/",
+     "setMainEnvs": "node scripts/setMainEnvs.js",
+     "copyMainEnvs": "cp mainEnvs.json dist/main",
+-    "copyFonts": "cp src/renderer/fonts/* dist/main"
++    "copyFonts": "run-script-os",
++    "copyFonts:windows": "xcopy src\\renderer\\fonts\\* dist\\main /Y",
++    "copyFonts:default": "cp src/renderer/fonts/* dist/main"
+   },
+   "dependencies": {
+     "@electron/remote": "^2.0.8",
+@@ -256,6 +258,7 @@
+     "redux-saga-test-plan": "^4.0.3",
+     "redux-thunk": "^2.3.0",
+     "reselect": "^4.1.5",
++    "run-script-os": "1.1.6",
+     "socket.io-mock": "^1.3.2",
+     "source-map-loader": "^4.0.1",
+     "standard": "^12.0.1",
+diff --git a/packages/mobile/package.json b/packages/mobile/package.json
+index 7dd868eae..11bba2656 100644
+--- a/packages/mobile/package.json
++++ b/packages/mobile/package.json
+@@ -12,12 +12,18 @@
+     "lint": "eslint --ext .jsx,.js,.ts,.tsx ./src/ --fix",
+     "lint-ci": "eslint --ext .jsx,.js,.ts,.tsx ./src/",
+     "gen": "plop",
+-    "prepare-backend-assets": "mkdir -p ./nodejs-assets/nodejs-project && cp ../backend/lib/bundle.cjs ./nodejs-assets/nodejs-project/bundle.cjs",
++    "prepare-backend-assets": "run-script-os",
++    "prepare-backend-assets:default": "mkdir -p ./nodejs-assets/nodejs-project && cp ../backend/lib/bundle.cjs ./nodejs-assets/nodejs-project/bundle.cjs",
++    "prepare-backend-assets:windows": "mkdir .\\nodejs-assets\\nodejs-project || cd . && xcopy ..\\backend\\lib\\bundle.cjs .\\nodejs-assets\\nodejs-project\\ /Y",
+     "patch-state-manager": "node -e \"if (process.env.NODE_ENV !== 'production'){process.exit(1)} \" || patch -f -d ../state-manager -p0 < ./factory-girl.patch || true",
+     "patch-react-native": "patch -f -p0 --forward --binary < ./react-native.patch || true",
+     "patch-webview-crypto": "patch -f -p0 --forward --binary < ./react-native-webview-crypto.patch || true",
+-    "override-dlopen": "cd ./nodejs-assets/nodejs-project && cp ../override-dlopen-paths-preload.js ./ && cp ../override-dlopen-paths-data.json ./",
+-    "prepare": "npm run prepare-backend-assets && npm run override-dlopen && npm run patch-state-manager && npm run patch-react-native && npm run patch-webview-crypto && npm run build",
++    "override-dlopen": "run-script-os",
++    "override-dlopen:default": "cd ./nodejs-assets/nodejs-project && cp ../override-dlopen-paths-preload.js ./ && cp ../override-dlopen-paths-data.json ./",
++    "override-dlopen:windows": "cd ./nodejs-assets/nodejs-project && xcopy ..\\override-dlopen-paths-preload.js .\\ /Y && xcopy ..\\override-dlopen-paths-data.json .\\ /Y",
++    "prepare": "run-script-os",
++    "prepare:default": "npm run prepare-backend-assets && npm run override-dlopen && npm run patch-state-manager && npm run patch-react-native && npm run patch-webview-crypto && npm run build",
++    "prepare:windows": "npm run prepare-backend-assets && npm run override-dlopen && npm run build",
+     "version": "react-native-version --skip-tag"
+   },
+   "dependencies": {
+@@ -113,6 +119,7 @@
+     "node-libs-react-native": "^1.2.1",
+     "nodejs-mobile-gyp": "0.3.1",
+     "plop": "^2.7.4",
++    "run-script-os": "1.1.6",
+     "react-native-dev-menu": "^4.0.2",
+     "react-native-version": "^4.0.0",
+     "react-test-renderer": "18.1.0",
