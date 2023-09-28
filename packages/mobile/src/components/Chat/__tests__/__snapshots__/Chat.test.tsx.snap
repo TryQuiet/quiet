@@ -2880,37 +2880,31 @@ exports[`Chat component renders component 1`] = `
               onResponderTerminate={[Function]}
               onResponderTerminationRequest={[Function]}
               onStartShouldSetResponder={[Function]}
-              round={false}
               style={
                 [
                   {
                     "backgroundColor": "#ffffff",
-                    "borderColor": "#C4C4C4",
+                    "borderColor": "#B3B3B3",
                     "borderRadius": 4,
                     "borderWidth": 1,
                     "flexGrow": 1,
-                    "height": 56,
+                    "height": 60,
                     "justifyContent": "center",
-                    "paddingLeft": 16,
-                    "paddingRight": 16,
-                  },
-                  {
-                    "height": 74,
+                    "paddingLeft": 15,
+                    "paddingRight": 15,
                   },
                 ]
               }
             >
               <TextInput
                 editable={true}
-                height={54}
                 multiline={true}
                 onChangeText={[Function]}
-                onContentSizeChange={[Function]}
                 placeholder="Message #general"
                 style={
                   [
                     {
-                      "height": 54,
+                      "paddingBottom": 12,
                       "paddingTop": 12,
                       "textAlignVertical": "center",
                     },
@@ -2962,14 +2956,14 @@ exports[`Chat component renders component 1`] = `
               <Image
                 source={
                   {
-                    "testUri": "../../../assets/icons/paperclip_gray.png",
+                    "testUri": "../../../assets/icons/paperclip_black.png",
                   }
                 }
                 style={
                   {
                     "alignSelf": "center",
-                    "height": 24,
-                    "width": 24,
+                    "height": 20,
+                    "width": 20,
                   }
                 }
               />
