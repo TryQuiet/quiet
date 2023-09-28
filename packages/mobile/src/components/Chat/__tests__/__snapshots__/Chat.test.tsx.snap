@@ -2830,7 +2830,7 @@ exports[`Chat component renders component 1`] = `
         style={
           {
             "paddingLeft": 20,
-            "paddingRight": 20,
+            "paddingRight": 0,
             "width": "100%",
           }
         }
@@ -2839,149 +2839,134 @@ exports[`Chat component renders component 1`] = `
           style={
             {
               "flexDirection": "row",
+              "width": "100%",
             }
           }
         >
           <View
             style={
               {
-                "flex": 1,
+                "width": "85%",
               }
             }
           >
             <View
-              style={
+              accessibilityState={
                 {
-                  "justifyContent": "center",
+                  "busy": undefined,
+                  "checked": undefined,
+                  "disabled": false,
+                  "expanded": undefined,
+                  "selected": undefined,
                 }
               }
-            >
-              <View>
-                <View
-                  accessibilityState={
-                    {
-                      "busy": undefined,
-                      "checked": undefined,
-                      "disabled": false,
-                      "expanded": undefined,
-                      "selected": undefined,
-                    }
-                  }
-                  accessibilityValue={
-                    {
-                      "max": undefined,
-                      "min": undefined,
-                      "now": undefined,
-                      "text": undefined,
-                    }
-                  }
-                  accessible={true}
-                  collapsable={false}
-                  focusable={true}
-                  onBlur={[Function]}
-                  onClick={[Function]}
-                  onFocus={[Function]}
-                  onResponderGrant={[Function]}
-                  onResponderMove={[Function]}
-                  onResponderRelease={[Function]}
-                  onResponderTerminate={[Function]}
-                  onResponderTerminationRequest={[Function]}
-                  onStartShouldSetResponder={[Function]}
-                  round={true}
-                  style={
-                    [
-                      {
-                        "backgroundColor": "#ffffff",
-                        "borderColor": "#C4C4C4",
-                        "borderRadius": 16,
-                        "borderWidth": 1,
-                        "flexGrow": 1,
-                        "height": 56,
-                        "justifyContent": "center",
-                        "paddingLeft": 16,
-                        "paddingRight": 16,
-                      },
-                      {
-                        "height": 74,
-                        "paddingRight": 50,
-                      },
-                    ]
-                  }
-                >
-                  <TextInput
-                    editable={true}
-                    height={54}
-                    multiline={true}
-                    onChangeText={[Function]}
-                    onContentSizeChange={[Function]}
-                    placeholder="Message #general"
-                    style={
-                      [
-                        {
-                          "height": 54,
-                          "paddingTop": 12,
-                          "textAlignVertical": "center",
-                        },
-                      ]
-                    }
-                    testID="input"
-                  />
-                </View>
-              </View>
-            </View>
-            <View
-              style={
+              accessibilityValue={
                 {
-                  "height": "100%",
-                  "justifyContent": "center",
-                  "position": "absolute",
-                  "right": 10,
+                  "max": undefined,
+                  "min": undefined,
+                  "now": undefined,
+                  "text": undefined,
                 }
               }
-            >
-              <View
-                accessibilityState={
+              accessible={true}
+              collapsable={false}
+              focusable={true}
+              onBlur={[Function]}
+              onClick={[Function]}
+              onFocus={[Function]}
+              onResponderGrant={[Function]}
+              onResponderMove={[Function]}
+              onResponderRelease={[Function]}
+              onResponderTerminate={[Function]}
+              onResponderTerminationRequest={[Function]}
+              onStartShouldSetResponder={[Function]}
+              style={
+                [
                   {
-                    "busy": undefined,
-                    "checked": undefined,
-                    "disabled": undefined,
-                    "expanded": undefined,
-                    "selected": undefined,
+                    "backgroundColor": "#ffffff",
+                    "borderColor": "#B3B3B3",
+                    "borderRadius": 4,
+                    "borderWidth": 1,
+                    "flexGrow": 1,
+                    "height": 60,
+                    "justifyContent": "center",
+                    "paddingLeft": 15,
+                    "paddingRight": 15,
+                  },
+                ]
+              }
+            >
+              <TextInput
+                editable={true}
+                multiline={true}
+                onChangeText={[Function]}
+                placeholder="Message #general"
+                style={
+                  [
+                    {
+                      "paddingBottom": 12,
+                      "paddingTop": 12,
+                      "textAlignVertical": "center",
+                    },
+                  ]
+                }
+                testID="input"
+              />
+            </View>
+          </View>
+          <View
+            style={
+              {
+                "flexDirection": "row",
+                "gap": 5,
+                "paddingLeft": 10,
+                "paddingRight": 10,
+                "width": "15%",
+              }
+            }
+          >
+            <View
+              accessibilityState={
+                {
+                  "busy": undefined,
+                  "checked": undefined,
+                  "disabled": undefined,
+                  "expanded": undefined,
+                  "selected": undefined,
+                }
+              }
+              accessible={true}
+              focusable={true}
+              onClick={[Function]}
+              onResponderGrant={[Function]}
+              onResponderMove={[Function]}
+              onResponderRelease={[Function]}
+              onResponderTerminate={[Function]}
+              onResponderTerminationRequest={[Function]}
+              onStartShouldSetResponder={[Function]}
+              style={
+                {
+                  "justifyContent": "center",
+                  "paddingLeft": 5,
+                  "paddingRight": 5,
+                }
+              }
+              testID="attach_file_button"
+            >
+              <Image
+                source={
+                  {
+                    "testUri": "../../../assets/icons/paperclip_black.png",
                   }
                 }
-                accessible={true}
-                focusable={true}
-                onClick={[Function]}
-                onResponderGrant={[Function]}
-                onResponderMove={[Function]}
-                onResponderRelease={[Function]}
-                onResponderTerminate={[Function]}
-                onResponderTerminationRequest={[Function]}
-                onStartShouldSetResponder={[Function]}
                 style={
                   {
-                    "justifyContent": "center",
-                    "paddingLeft": 5,
-                    "paddingRight": 5,
+                    "alignSelf": "center",
+                    "height": 20,
+                    "width": 20,
                   }
                 }
-                testID="attach_file_button"
-              >
-                <Image
-                  source={
-                    {
-                      "testUri": "../../../assets/icons/paperclip_gray.png",
-                    }
-                  }
-                  style={
-                    {
-                      "alignSelf": "center",
-                      "height": 24,
-                      "width": 24,
-                    }
-                  }
-                />
-              </View>
+              />
             </View>
           </View>
         </View>

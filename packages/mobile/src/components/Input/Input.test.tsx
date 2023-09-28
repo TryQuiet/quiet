@@ -39,36 +39,30 @@ describe('MessageInput component', () => {
           onResponderTerminate={[Function]}
           onResponderTerminationRequest={[Function]}
           onStartShouldSetResponder={[Function]}
-          round={false}
           style={
             [
               {
                 "backgroundColor": "#ffffff",
-                "borderColor": "#C4C4C4",
+                "borderColor": "#B3B3B3",
                 "borderRadius": 4,
                 "borderWidth": 1,
                 "flexGrow": 1,
-                "height": 56,
+                "height": 60,
                 "justifyContent": "center",
-                "paddingLeft": 16,
-                "paddingRight": 16,
-              },
-              {
-                "height": 54,
+                "paddingLeft": 15,
+                "paddingRight": 15,
               },
             ]
           }
         >
           <TextInput
             editable={true}
-            height={54}
             onChangeText={[Function]}
-            onContentSizeChange={[Function]}
             placeholder="Message #general as @holmes"
             style={
               [
                 {
-                  "height": 54,
+                  "paddingBottom": 12,
                   "paddingTop": 12,
                   "textAlignVertical": "center",
                 },

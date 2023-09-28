@@ -12,7 +12,7 @@ import icon_warning from '../assets/icons/icon_warning.png'
 import icon_close from '../assets/icons/icon_close.png'
 import file_document from '../assets/icons/file_document.png'
 import dots from '../assets/icons/dots.png'
-import paperclip_gray from '../assets/icons/paperclip_gray.png'
+import paperclip_active from '../assets/icons/paperclip_black.png'
 
 /**
  * @description This assets are for the app.
@@ -32,7 +32,7 @@ export const appImages = {
   icon_close,
   file_document,
   dots,
-  paperclip_gray,
+  paperclip_active,
 }
 
 /**
