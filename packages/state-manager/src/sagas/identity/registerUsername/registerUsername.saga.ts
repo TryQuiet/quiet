@@ -42,6 +42,7 @@ export function* registerUsernameSaga(
   }
 
   identity = yield* select(identitySelectors.currentIdentity)
+
   if (!identity) {
     console.error('Could not register username, no identity')
     return
@@ -49,9 +50,7 @@ export function* registerUsernameSaga(
 
   let userCsr = identity.userCsr
 
-  console.log({ identity })
   if (userCsr !== null) {
-    console.log('userCsr !== null')
     try {
       if (identity.userCsr?.userCsr == null || identity.userCsr.userKey == null) {
         console.error('identity.userCsr?.userCsr == null || identity.userCsr.userKey == null')
@@ -72,14 +71,14 @@ export function* registerUsernameSaga(
         hashAlg: config.hashAlg,
         existingKeyPair,
       }
+
       userCsr = yield* call(createUserCsr, payload)
-      console.log({ userCsr })
+      // console.log({ userCsr })
     } catch (e) {
       console.error(e)
       return
     }
   } else {
-    console.log('userCsr null', userCsr)
     try {
       const payload: CreateUserCsrPayload = {
         nickname,
