@@ -16,7 +16,7 @@
 		"webpack:prod:windows": "webpack --env mode=production && xcopy .\\lib\\bundle.cjs ..\\backend-bundle\\ /Y",
 		"applyPatches": "run-script-os",
 		"applyPatches:default": "patch -f -p0 < ./electron-fetch.patch || true && patch -f -p0 --forward --binary < ./parse-duration.patch || true && patch -f -p0 --forward --binary < ./parse-duration-esm.patch || true",
-		"applyPatches:windows": "git apply ./another.patch --whitespace=fix --reject --verbose --no-index --ignore-space-change --inaccurate-eof",
+		"applyPatches:windows": "git apply ./electron-fetch-git.patch --whitespace=fix --reject --verbose --no-index --ignore-space-change --inaccurate-eof",
 		"prepare": "npm run applyPatches && npm run webpack",
 		"version": "git add -A src",
 		"lint": "eslint --ext .jsx,.js,.ts,.tsx ./src/ --fix",

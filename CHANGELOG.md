@@ -4,6 +4,8 @@
 
 * Bump github actions/* to versions using node16
 
+* Project can now be bootstraped on Windows (powershell)
+
 [2.0.0-alpha.11]
 
 * Customize Launch Screen on iOS
