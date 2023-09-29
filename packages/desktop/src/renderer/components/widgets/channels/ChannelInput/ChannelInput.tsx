@@ -577,7 +577,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
               justifyContent='center'
               alignItems='center'
             >
-              <Grid item xs className={classNames({ [classes.textArea]: true })}>
+              <Grid item xs className={classes.textArea}>
                 <ContentEditable
                   ref={inputRef}
                   placeholder={`Message ${inputPlaceholder}`}
@@ -629,7 +629,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
                       onChange={handleFileInput}
                       // Value needs to be cleared otherwise one can't upload same image twice
                       onClick={e => {
-                        ;(e.target as HTMLInputElement).value = ''
+                        ; (e.target as HTMLInputElement).value = ''
                       }} // TODO: check
                       accept='*'
                       multiple
