@@ -146,7 +146,7 @@ export const Message: FC<MessageProps & FileActionsProps> = ({
               </Typography>
             </View>
 
-            {userLabel && (
+            {userLabel && !info && (
               <View>
                 <UserLabel
                   username={representativeMessage.nickname}
