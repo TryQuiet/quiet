@@ -1,5 +1,7 @@
 [unreleased]
 
+* Fix truncated long messages in channelInput component
+
 * Prettify loading component on Chat screen (mobile)
 
 * Running Chromatic tests for forked PRs

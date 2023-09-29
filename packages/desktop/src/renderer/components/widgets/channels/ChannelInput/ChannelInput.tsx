@@ -41,7 +41,7 @@ const classes = {
   notAllowed: `${PREFIX}notAllowed`,
   inputFiles: `${PREFIX}inputFiles`,
   icons: `${PREFIX}icons`,
-  textArea: `${PREFIX}textArea`
+  textArea: `${PREFIX}textArea`,
 }
 
 const maxHeight = 300
@@ -201,8 +201,8 @@ const StyledChannelInput = styled(Grid)(({ theme }) => ({
     alignCntent: 'stretch',
   },
   [`& .${classes.textArea}`]: {
-    maxHeight: maxHeight
-  }
+    maxHeight: maxHeight,
+  },
 }))
 
 export interface ChannelInputProps {
@@ -629,7 +629,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
                       onChange={handleFileInput}
                       // Value needs to be cleared otherwise one can't upload same image twice
                       onClick={e => {
-                        ; (e.target as HTMLInputElement).value = ''
+                        ;(e.target as HTMLInputElement).value = ''
                       }} // TODO: check
                       accept='*'
                       multiple
