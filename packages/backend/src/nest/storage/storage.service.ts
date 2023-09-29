@@ -407,7 +407,8 @@ export class StorageService extends EventEmitter {
     this.certificatesRequests.events.on('write', async (_address, entry) => {
       const csr: string = entry.payload.value
       this.logger('Saved CSR locally')
-      this.emit(StorageEvents.REPLICATED_CSR, { csrs: [csr], certificates: [] })
+      const allCertificates = this.getAllEventLogEntries(this.certificates)
+      this.emit(StorageEvents.REPLICATED_CSR, { csrs: [csr], certificates: allCertificates })
       await this.updatePeersList()
     })
 

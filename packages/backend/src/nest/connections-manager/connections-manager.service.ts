@@ -392,12 +392,10 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.registrationService.on(SocketActionTypes.SAVED_OWNER_CERTIFICATE, payload => {
       this.serverIoProvider.io.emit(SocketActionTypes.SAVED_OWNER_CERTIFICATE, payload)
     })
-    // Not used atm
     this.registrationService.on(RegistrationEvents.ERROR, payload => {
       emitError(this.serverIoProvider.io, payload)
     })
     this.registrationService.on(RegistrationEvents.NEW_USER, async payload => {
-      console.log('conncetions manager payload ', payload)
       await this.storageService?.saveCertificate(payload)
     })
   }

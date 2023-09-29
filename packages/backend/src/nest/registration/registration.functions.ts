@@ -27,14 +27,15 @@ export interface RegistrationResponse {
 }
 
 export const extractPendingCsrs = async (payload: { csrs: string[]; certificates: string[] }) => {
-  const certNames: string[] = []
-  const pendingNames: string[] = []
+  const certNames = new Set<string>()
+  const pendingNames = new Set<string>()
 
   payload.certificates.forEach(cert => {
     const parsedCert = parseCertificate(cert)
     const username = getCertFieldValue(parsedCert, CertFieldsTypes.nickName)
-    if (!username) return false
-    certNames.push(username)
+    if (username) {
+      certNames.add(username)
+    }
   })
 
   const parsedCsrs: { [key: string]: CertificationRequest } = {}
@@ -47,11 +48,12 @@ export const extractPendingCsrs = async (payload: { csrs: string[]; certificates
   const pendingCsrs = payload.csrs.filter(csr => {
     const username = getReqFieldValue(parsedCsrs[csr], CertFieldsTypes.nickName)
 
-    if (!username) return false
-    if (certNames.includes(username)) return false
-    if (pendingNames.includes(username)) return false
-    pendingNames.push(username)
-    return true
+    if (username && !certNames.has(username) && !pendingNames.has(username)) {
+      pendingNames.add(username)
+      return true
+    } else {
+      return false
+    }
   })
 
   return pendingCsrs
@@ -64,6 +66,9 @@ export const validateCsr = async (csr: string) => {
   return validationErrors
 }
 
+/**
+ * This function should only be called with pending CSRs (by calling extractPendingCsrs first which prevents signing CSRs for duplicate usernames).
+ */
 export const issueCertificate = async (userCsr: string, permsData: PermsData): Promise<RegistrarResponse> => {
   const validationErrors = await validateCsr(userCsr)
   if (validationErrors.length > 0) {

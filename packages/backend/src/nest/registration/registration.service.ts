@@ -20,13 +20,13 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
       RegistrationEvents.REGISTER_USER_CERTIFICATE,
       async (payload: { csrs: string[]; certificates: string[] }) => {
         // Lack of permsData means that we are not the owner of the community
-        if (!this._permsData) return
         await this.issueCertificates(payload)
       }
     )
   }
 
   private async issueCertificates(payload: { csrs: string[]; certificates: string[] }) {
+    if (!this._permsData) return
     const pendingCsrs = await extractPendingCsrs(payload)
     pendingCsrs.forEach(async csr => {
       await this.registerUserCertificate(csr)
