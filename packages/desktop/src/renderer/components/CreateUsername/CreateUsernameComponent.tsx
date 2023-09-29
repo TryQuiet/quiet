@@ -210,8 +210,8 @@ export const CreateUsernameComponent: React.FC<CreateUsernameComponentProps> = (
     setUserName(parsedName)
     setParsedNameDiffers(name !== parsedName)
     if (registeredUsers && !isNewUser) {
-      const allUsersArr = Object.values(registeredUsers).map(user => user.username)
-      if (allUsersArr.includes(name)) {
+      const allUsersSet = new Set(Object.values(registeredUsers).map(user => user.username))
+      if (allUsersSet.has(name)) {
         setError('userName', { message: `${name} is already taken` })
       }
     }
@@ -301,8 +301,7 @@ export const CreateUsernameComponent: React.FC<CreateUsernameComponentProps> = (
 
                 {!isNewUser && (
                   <Typography variant='caption' style={{ marginTop: 8 }}>
-                    Your username will be public, but you can choose any name you like. No spaces or special characters.
-                    Lowercase letters and numbers only.
+                    You can choose any username you like. No spaces or special characters.
                   </Typography>
                 )}
                 <div className={classes.gutter}>

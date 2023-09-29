@@ -26,6 +26,10 @@ export const communityMembership = createSelector(currentIdentity, identity => {
   return Boolean(identity?.userCsr)
 })
 
+export const hasCertificate = createSelector(currentIdentity, identity => {
+  return Boolean(identity?.userCertificate)
+})
+
 export const joinedCommunities = createSelector(selectCommunities, selectEntities, (communities, identities) => {
   return communities.filter(community => {
     return identities[community.id]?.userCertificate
@@ -45,9 +49,8 @@ export const usernameTaken = createSelector(currentIdentity, certificatesMapping
   const username = identity?.nickname
   if (!username) return false
 
-  const allUsernames: string[] = Object.values(certs).map(u => u.username)
-
-  if (allUsernames.includes(username)) {
+  const allUsersSet = new Set(Object.values(certs).map(user => user.username))
+  if (allUsersSet.has(username)) {
     return true
   }
 
@@ -63,4 +66,5 @@ export const identitySelectors = {
   joinTimestamp,
   csr,
   usernameTaken,
+  hasCertificate,
 }
