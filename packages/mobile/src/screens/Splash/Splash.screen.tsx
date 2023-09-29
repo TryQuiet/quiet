@@ -2,7 +2,7 @@ import React, { FC, useEffect } from 'react'
 import { useDispatch } from 'react-redux'
 import { initActions } from '../../store/init/init.slice'
 import { SplashScreenProps } from './Splash.types'
-import { Loading } from '../../components/Loading/Loading.component'
+import { Splash } from '../../components/Splash/Splash.component'
 
 export const SplashScreen: FC<SplashScreenProps> = ({ route }) => {
   const dispatch = useDispatch()
@@ -16,5 +16,5 @@ export const SplashScreen: FC<SplashScreenProps> = ({ route }) => {
     dispatch(initActions.deepLink(code))
   }, [route.params?.code])
 
-  return <Loading />
+  return <Splash />
 }
