@@ -1,6 +1,6 @@
 import { capitalizeFirstLetter } from '@quiet/common'
-import { communities } from '@quiet/state-manager'
-import React from 'react'
+import { communities, users } from '@quiet/state-manager'
+import React, { useEffect } from 'react'
 import { useSelector } from 'react-redux'
 import { clearCommunity } from '../../..'
 import { useModal } from '../../../containers/hooks'
@@ -11,8 +11,9 @@ const AggressiveWarningModalContainer = () => {
   const aggressiveWarningModal = useModal(ModalName.aggressiveWarningModal)
 
   const community = useSelector(communities.selectors.currentCommunity)
+  const duplicateCerts = useSelector(users.selectors.duplicateCerts)
 
-  let communityName = ''
+  let communityName = '...'
 
   if (community?.name) {
     communityName = capitalizeFirstLetter(community.name)
@@ -21,6 +22,12 @@ const AggressiveWarningModalContainer = () => {
   const leaveCommunity = async () => {
     await clearCommunity()
   }
+
+  useEffect(() => {
+    if (duplicateCerts) {
+      aggressiveWarningModal.handleOpen()
+    }
+  }, [duplicateCerts])
 
   return (
     <AggressiveWarningModalComponent

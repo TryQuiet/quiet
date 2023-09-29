@@ -5,6 +5,7 @@ import { navigationActions } from '../navigation.slice'
 import { ScreenNames } from '../../../const/ScreenNames.enum'
 import { identity } from '@quiet/state-manager'
 import { initActions } from '../../init/init.slice'
+import { usersSelectors } from 'packages/state-manager/src/sagas/users/users.selectors'
 
 export function* redirectionSaga(): Generator {
   // Do not redirect if user opened the app from url (quiet://)
@@ -22,6 +23,17 @@ export function* redirectionSaga(): Generator {
 
     yield* put(navigationActions.clearPendingNavigation())
 
+    return
+  }
+
+  const duplicateCerts = yield* select(usersSelectors.duplicateCerts)
+
+  if (duplicateCerts) {
+    yield* put(
+      navigationActions.replaceScreen({
+        screen: ScreenNames.AggressiveWarningScreen,
+      })
+    )
     return
   }
 

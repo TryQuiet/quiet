@@ -13,7 +13,7 @@ export const AggressiveWarningScreen: FC<AggressiveWarningScreenProps> = ({ rout
 
   const community = useSelector(communities.selectors.currentCommunity)
 
-  let communityName = ''
+  let communityName = '...'
   if (community?.name) {
     communityName = capitalizeFirstLetter(community.name)
   }
