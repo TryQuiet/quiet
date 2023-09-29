@@ -1,5 +1,7 @@
 [unreleased]
 
+* Prettify loading component on Chat screen (mobile)
+
 * Running Chromatic tests for forked PRs
 
 * Bump github actions/* to versions using node16
