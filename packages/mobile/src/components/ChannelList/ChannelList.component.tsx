@@ -8,7 +8,7 @@ import { Spinner } from '../Spinner/Spinner.component'
 import { capitalizeFirstLetter } from '@quiet/common'
 
 export const ChannelList: FC<ChannelListProps> = ({ community, tiles, communityContextMenu }) => {
-  let communityName = ''
+  let communityName = '...'
   if (community?.name) {
     communityName = capitalizeFirstLetter(community.name)
   }
