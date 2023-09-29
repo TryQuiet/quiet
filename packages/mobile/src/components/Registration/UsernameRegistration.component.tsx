@@ -48,8 +48,8 @@ export const UsernameRegistration: FC<UsernameRegistrationProps> = ({
     setUserName(parsedName)
     setParsedNameDiffers(name !== parsedName)
     if (registeredUsers && !isNewUser) {
-      const allUsersArr = Object.values(registeredUsers).map(user => user.username)
-      if (allUsersArr.includes(name)) {
+      const allUsersSet = new Set(Object.values(registeredUsers).map(user => user.username))
+      if (allUsersSet.has(name)) {
         setInputError(`Username @${name} is already taken`)
       }
     }

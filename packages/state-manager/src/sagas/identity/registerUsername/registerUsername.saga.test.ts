@@ -87,7 +87,7 @@ describe('registerUsernameSaga', () => {
       .run()
   })
 
-  it.only('username taken - use current CSR and new nickname', async () => {
+  it('username taken - use current CSR and new nickname', async () => {
     setupCrypto()
     const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
 
