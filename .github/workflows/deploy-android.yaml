@@ -19,7 +19,7 @@ jobs:
       - name: "Print OS"
         run: echo ${{ matrix.os }}
 
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: "Set up JDK"
         uses: actions/setup-java@v3
@@ -65,7 +65,7 @@ jobs:
 
       - name: "Upload Artifact"
         continue-on-error: true
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: app-standard-release.aab
           path: ./packages/mobile/android/app/build/outputs/bundle/standardRelease/app-standard-release.aab
@@ -78,7 +78,7 @@ jobs:
           echo ${{ SECRETS.SERVICE_ACCOUNT_JSON }} | base64 --decode > google-play.json
       
       - name: "Upload to Google Play"
-        uses: r0adkll/upload-google-play@v1.0.17
+        uses: r0adkll/upload-google-play@v1.1.2
         with:
           serviceAccountJson: google-play.json
           packageName: com.quietmobile
@@ -86,4 +86,3 @@ jobs:
           status: completed
           track: internal
           whatsNewDirectory: distribution/whatsnew
-          changesNotSentForReview: true

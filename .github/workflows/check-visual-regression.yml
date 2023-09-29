@@ -17,7 +17,7 @@ jobs:
       - name: "Print OS"
         run: echo ${{ matrix.os }}
 
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0 # Required to retrieve git history
 
@@ -31,4 +31,4 @@ jobs:
         with:
           workingDir: ./packages/desktop
           token: ${{ secrets.GH_TOKEN }}
-          projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
+          projectToken: 3218757eee04

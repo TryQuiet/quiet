@@ -3,6 +3,10 @@
 
 * Aggressive warning UI for desktop and mobile
 
+* Running Chromatic tests for forked PRs
+
+* Bump github actions/* to versions using node16
+
 [2.0.0-alpha.11]
 
 * Customize Launch Screen on iOS
