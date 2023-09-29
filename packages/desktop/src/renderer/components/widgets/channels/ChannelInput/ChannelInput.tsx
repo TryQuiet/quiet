@@ -41,7 +41,10 @@ const classes = {
   notAllowed: `${PREFIX}notAllowed`,
   inputFiles: `${PREFIX}inputFiles`,
   icons: `${PREFIX}icons`,
+  textArea: `${PREFIX}textArea`
 }
+
+const maxHeight = 300
 
 const StyledChannelInput = styled(Grid)(({ theme }) => ({
   [`&.${classes.root}`]: {
@@ -78,7 +81,7 @@ const StyledChannelInput = styled(Grid)(({ theme }) => ({
   },
   [`& .${classes.textfield}`]: {
     border: `1px solid ${theme.palette.colors.veryLightGray}`,
-    maxHeight: 300,
+    maxHeight: maxHeight,
     overflowY: 'auto',
     borderRadius: 4,
     '&:hover': {
@@ -197,6 +200,9 @@ const StyledChannelInput = styled(Grid)(({ theme }) => ({
     alignItems: 'center',
     alignCntent: 'stretch',
   },
+  [`& .${classes.textArea}`]: {
+    maxHeight: maxHeight
+  }
 }))
 
 export interface ChannelInputProps {
@@ -571,7 +577,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
               justifyContent='center'
               alignItems='center'
             >
-              <Grid item xs>
+              <Grid item xs className={classNames({ [classes.textArea]: true })}>
                 <ContentEditable
                   ref={inputRef}
                   placeholder={`Message ${inputPlaceholder}`}
@@ -623,7 +629,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
                       onChange={handleFileInput}
                       // Value needs to be cleared otherwise one can't upload same image twice
                       onClick={e => {
-                        ;(e.target as HTMLInputElement).value = ''
+                        ; (e.target as HTMLInputElement).value = ''
                       }} // TODO: check
                       accept='*'
                       multiple
