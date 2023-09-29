@@ -1,5 +1,7 @@
 [unreleased]
 
+* Unblock mobile e2e tests
+
 * Running Chromatic tests for forked PRs
 
 * Bump github actions/* to versions using node16
