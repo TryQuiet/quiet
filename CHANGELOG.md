@@ -1,5 +1,7 @@
 [unreleased]
 
+* Unblock mobile e2e tests
+
 * Prettify loading component on Chat screen (mobile)
 
 * Running Chromatic tests for forked PRs
