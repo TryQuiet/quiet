@@ -3,14 +3,16 @@ import styled, { css } from 'styled-components/native'
 import { defaultTheme } from '../../styles/themes/default.theme'
 
 export const StyledTextInput = styled(TextInput)<{
-  height: number
+  height: number,
+  multiline?: boolean,
 }>`
-  ${({ height }) => css`
+  ${({ height, multiline }) => css`
     text-align-vertical: center;
     height: ${Math.max(40, height)};
     ${Platform.select({
       ios: {
         paddingTop: 12,
+        paddingBottom: multiline ? 0 : 12,
       },
       android: {},
     })}
