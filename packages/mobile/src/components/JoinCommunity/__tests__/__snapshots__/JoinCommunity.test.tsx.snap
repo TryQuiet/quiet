@@ -128,6 +128,7 @@ exports[`JoinCommunity component renders component 1`] = `
             [
               {
                 "height": 54,
+                "paddingBottom": 12,
                 "paddingTop": 12,
                 "textAlignVertical": "center",
               },

@@ -2919,6 +2919,7 @@ exports[`Chat component renders component 1`] = `
                       [
                         {
                           "height": 54,
+                          "paddingBottom": 0,
                           "paddingTop": 12,
                           "textAlignVertical": "center",
                         },

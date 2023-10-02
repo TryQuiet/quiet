@@ -69,6 +69,7 @@ describe('MessageInput component', () => {
               [
                 {
                   "height": 54,
+                  "paddingBottom": 12,
                   "paddingTop": 12,
                   "textAlignVertical": "center",
                 },
