@@ -186,24 +186,26 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
                   }}
                 >
                   <View style={{ flex: 1 }}>
-                    <View style={{ justifyContent: 'center' }}></View>
-                    <Input
-                      ref={messageInputRef}
-                      onChangeText={onInputTextChange}
-                      placeholder={`Message #${channel?.name}`}
-                      multiline={true}
-                      wrapperStyle={{ width: didKeyboardShow || areFilesUploaded ? '75%' : '85%' }}
-                    />
-                  </View>
-                  <View
-                    style={{
-                      position: 'absolute',
-                      height: '100%',
-                      right: 10,
-                      justifyContent: 'center',
-                    }}
-                  >
-                    <AttachmentButton onPress={openAttachments} />
+                    <View style={{ justifyContent: 'center' }}>
+                      <Input
+                        ref={messageInputRef}
+                        onChangeText={onInputTextChange}
+                        placeholder={`Message #${channel?.name}`}
+                        multiline={true}
+                        style={{ paddingRight: 50 }}
+                        round
+                      />
+                    </View>
+                    <View
+                      style={{
+                        position: 'absolute',
+                        height: '100%',
+                        right: 10,
+                        justifyContent: 'center',
+                      }}
+                    >
+                      <AttachmentButton onPress={openAttachments} />
+                    </View>
                   </View>
                   {(didKeyboardShow || areFilesUploaded) && (
                     <MessageSendButton onPress={onPress} disabled={shouldDisableSubmit} />
