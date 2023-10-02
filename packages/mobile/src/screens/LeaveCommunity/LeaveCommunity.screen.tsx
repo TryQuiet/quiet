@@ -16,7 +16,7 @@ export const LeaveCommunityScreen: FC = () => {
 
   const community = useSelector(communities.selectors.currentCommunity)
 
-  let communityName = ''
+  let communityName = '...'
   if (community?.name) {
     communityName = capitalizeFirstLetter(community.name)
   }
