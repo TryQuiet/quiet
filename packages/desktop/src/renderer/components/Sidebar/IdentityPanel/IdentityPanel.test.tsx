@@ -89,7 +89,9 @@ describe('IdentityPanel', () => {
             >
               <h4
                 class="MuiTypography-root MuiTypography-h4 IdentityPanelnickname css-ajdqea-MuiTypography-root"
-              />
+              >
+                ...
+              </h4>
               <svg
                 aria-hidden="true"
                 class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-ptiqhd-MuiSvgIcon-root"
@@ -144,7 +146,9 @@ describe('IdentityPanel', () => {
             >
               <h4
                 class="MuiTypography-root MuiTypography-h4 IdentityPanelnickname css-ajdqea-MuiTypography-root"
-              />
+              >
+                ...
+              </h4>
               <svg
                 aria-hidden="true"
                 class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-ptiqhd-MuiSvgIcon-root"

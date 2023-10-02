@@ -8,9 +8,8 @@ import { TextWithLink } from '../TextWithLink/TextWithLink.component'
 
 import { JoinCommunityProps } from './JoinCommunity.types'
 import { getInvitationCodes } from '@quiet/state-manager'
-import { ONION_ADDRESS_REGEX } from '@quiet/common'
 
-import { Loading } from '../Loading/Loading.component'
+import { Splash } from '../Splash/Splash.component'
 
 export const JoinCommunity: FC<JoinCommunityProps> = ({
   joinCommunityAction,
@@ -111,7 +110,7 @@ export const JoinCommunity: FC<JoinCommunityProps> = ({
           </KeyboardAvoidingView>
         </View>
       ) : (
-        <Loading />
+        <Splash />
       )}
     </>
   )
