@@ -10,6 +10,8 @@
 
 * Bump github actions/* to versions using node16
 
+* Project can now be bootstraped on Windows (powershell)
+
 * Placeholder(...) for community name
 
 * No unregistered/duplicated label for system messages
