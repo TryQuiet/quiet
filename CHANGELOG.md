@@ -1,5 +1,7 @@
 [unreleased]
 
+* Fix truncated long messages in channelInput component
+
 * Unblock mobile e2e tests
 
 * Prettify loading component on Chat screen (mobile)
