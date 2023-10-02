@@ -1,7 +1,7 @@
 
 [unreleased]
 
-* Aggressive warning UI for desktop and mobile
+* Add possible impersonation attack UI for desktop and mobile
 
 * Unblock mobile e2e tests
 
