@@ -3,8 +3,8 @@ import styled, { css } from 'styled-components/native'
 import { defaultTheme } from '../../styles/themes/default.theme'
 
 export const StyledTextInput = styled(TextInput)<{
-  height: number,
-  multiline?: boolean,
+  height: number
+  multiline?: boolean
 }>`
   ${({ height, multiline }) => css`
     text-align-vertical: center;
