@@ -1,4 +1,4 @@
-name: Scroll regression tests
+name: Desktop scroll regression tests
 
 on:
   pull_request:

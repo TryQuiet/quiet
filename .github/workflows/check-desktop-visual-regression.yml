@@ -1,4 +1,4 @@
-name: Visual regressions
+name: Desktop visual regressions
 
 on:
   pull_request:
