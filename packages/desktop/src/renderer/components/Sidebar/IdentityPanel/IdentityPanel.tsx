@@ -46,7 +46,7 @@ export interface IdentityPanelProps {
 }
 
 export const IdentityPanel: React.FC<IdentityPanelProps> = ({ currentCommunity, accountSettingsModal }) => {
-  const communityName = currentCommunity?.name || ''
+  const communityName = currentCommunity?.name || '...'
   return (
     <IdentityPanelButtonStyled>
       <Button

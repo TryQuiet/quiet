@@ -28,7 +28,7 @@ describe('ChannelInput', () => {
       <body>
         <div>
           <div
-            class="MuiGrid-root ChannelInputroot css-1rkz2j3-MuiGrid-root"
+            class="MuiGrid-root ChannelInputroot css-j3fbgh-MuiGrid-root"
           >
             <div
               class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column ChannelInputrootContent css-6gh8l0-MuiGrid-root"
@@ -40,7 +40,7 @@ describe('ChannelInput', () => {
                   class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-grid-xs-true ChannelInputtextfield css-1r61agb-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true css-1vd824g-MuiGrid-root"
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true ChannelInputtextArea css-1vd824g-MuiGrid-root"
                   >
                     <div
                       class="ChannelInputinput"
@@ -121,7 +121,7 @@ describe('ChannelInput', () => {
       <body>
         <div>
           <div
-            class="MuiGrid-root ChannelInputroot ChannelInputnotAllowed css-1rkz2j3-MuiGrid-root"
+            class="MuiGrid-root ChannelInputroot ChannelInputnotAllowed css-j3fbgh-MuiGrid-root"
           >
             <div
               class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column ChannelInputrootContent css-6gh8l0-MuiGrid-root"
@@ -133,7 +133,7 @@ describe('ChannelInput', () => {
                   class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-grid-xs-true ChannelInputtextfield css-1r61agb-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true css-1vd824g-MuiGrid-root"
+                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true ChannelInputtextArea css-1vd824g-MuiGrid-root"
                   >
                     <div
                       class="ChannelInputinput"

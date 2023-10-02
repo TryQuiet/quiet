@@ -7,7 +7,7 @@ import { Typography } from '../Typography/Typography.component'
 import { TextWithLink } from '../TextWithLink/TextWithLink.component'
 
 import { CreateCommunityProps } from './CreateCommunity.types'
-import { Loading } from '../Loading/Loading.component'
+import { Splash } from '../Splash/Splash.component'
 
 export const CreateCommunity: FC<CreateCommunityProps> = ({
   createCommunityAction,
@@ -91,7 +91,7 @@ export const CreateCommunity: FC<CreateCommunityProps> = ({
           </KeyboardAvoidingView>
         </View>
       ) : (
-        <Loading />
+        <Splash />
       )}
     </>
   )
