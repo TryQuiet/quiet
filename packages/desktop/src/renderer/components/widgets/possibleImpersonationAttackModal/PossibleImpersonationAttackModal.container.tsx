@@ -5,10 +5,10 @@ import { useSelector } from 'react-redux'
 import { clearCommunity } from '../../..'
 import { useModal } from '../../../containers/hooks'
 import { ModalName } from '../../../sagas/modals/modals.types'
-import AggressiveWarningModalComponent from './AggressiveWarningModal.component'
+import PossibleImpersonationAttackModalComponent from './PossibleImpersonationAttackModal.component'
 
-const AggressiveWarningModalContainer = () => {
-  const aggressiveWarningModal = useModal(ModalName.aggressiveWarningModal)
+const PossibleImpersonationAttackModalContainer = () => {
+  const possibleImpersonationAttackModal = useModal(ModalName.possibleImpersonationAttackModal)
 
   const community = useSelector(communities.selectors.currentCommunity)
   const duplicateCerts = useSelector(users.selectors.duplicateCerts)
@@ -25,17 +25,17 @@ const AggressiveWarningModalContainer = () => {
 
   useEffect(() => {
     if (duplicateCerts) {
-      aggressiveWarningModal.handleOpen()
+      possibleImpersonationAttackModal.handleOpen()
     }
   }, [duplicateCerts])
 
   return (
-    <AggressiveWarningModalComponent
+    <PossibleImpersonationAttackModalComponent
       communityName={communityName}
       leaveCommunity={leaveCommunity}
-      {...aggressiveWarningModal}
+      {...possibleImpersonationAttackModal}
     />
   )
 }
 
-export default AggressiveWarningModalContainer
+export default PossibleImpersonationAttackModalContainer

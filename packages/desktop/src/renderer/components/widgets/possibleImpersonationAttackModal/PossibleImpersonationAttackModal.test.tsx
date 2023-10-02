@@ -2,13 +2,13 @@ import React from 'react'
 import theme from '../../../theme'
 import { ThemeProvider } from '@mui/material/styles'
 import { renderComponent } from '../../../testUtils/renderComponent'
-import AggressiveWarningModalComponent from './AggressiveWarningModal.component'
+import PossibleImpersonationAttackModalComponent from './PossibleImpersonationAttackModal.component'
 
-describe('AgressiveWarningModalComponent', () => {
+describe('PossibleImpersonationAttackModal', () => {
   it('renderComponent', () => {
     const result = renderComponent(
       <ThemeProvider theme={theme}>
-        <AggressiveWarningModalComponent
+        <PossibleImpersonationAttackModalComponent
           handleClose={() => {}}
           open={true}
           communityName={'devteam'}
@@ -96,10 +96,10 @@ describe('AgressiveWarningModalComponent', () => {
                 style="width: 600px;"
               >
                 <div
-                  class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-direction-xs-column css-77dya-MuiGrid-root"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-direction-xs-column css-e4g1qd-MuiGrid-root"
                 >
                   <img
-                    class="AggressiveWarningModalComponent-image"
+                    class="PossibleImpersonationAttackModalComponent-image"
                     src="test-file-stub"
                   />
                   <h4
@@ -108,7 +108,7 @@ describe('AgressiveWarningModalComponent', () => {
                     Possible impersonation attack
                   </h4>
                   <p
-                    class="MuiTypography-root MuiTypography-body2 AggressiveWarningModalComponent-bodyText css-16d47hw-MuiTypography-root"
+                    class="MuiTypography-root MuiTypography-body2 PossibleImpersonationAttackModalComponent-bodyText css-16d47hw-MuiTypography-root"
                   >
                     The owner of 
                     <strong>
@@ -121,7 +121,7 @@ describe('AgressiveWarningModalComponent', () => {
                     </strong>
                   </p>
                   <button
-                    class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium AggressiveWarningModalComponent-button css-1skytee-MuiButtonBase-root-MuiButton-root"
+                    class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium PossibleImpersonationAttackModalComponent-button css-1skytee-MuiButtonBase-root-MuiButton-root"
                     data-testid="unregistered-button"
                     tabindex="0"
                     type="button"

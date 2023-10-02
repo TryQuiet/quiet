@@ -42,7 +42,7 @@ export type RootStackParamList = {
   [ScreenNames.UnregisteredUsernameScreen]: {
     username: string
   }
-  [ScreenNames.AggressiveWarningScreen]: undefined
+  [ScreenNames.PossibleImpersonationAttackScreen]: undefined
 }
 
 export type SplashRouteProp = RouteProp<RootStackParamList, ScreenNames.SplashScreen>
@@ -61,4 +61,7 @@ export type DuplicatedUsernameRouteProps = RouteProp<RootStackParamList, ScreenN
 
 export type UnregisteredUsernameRouteProps = RouteProp<RootStackParamList, ScreenNames.UnregisteredUsernameScreen>
 
-export type AggressiveWarningRouteProps = RouteProp<RootStackParamList, ScreenNames.AggressiveWarningScreen>
+export type PossibleImpersonationAttackRouteProps = RouteProp<
+  RootStackParamList,
+  ScreenNames.PossibleImpersonationAttackScreen
+>

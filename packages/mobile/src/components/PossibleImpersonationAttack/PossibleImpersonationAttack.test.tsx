@@ -1,22 +1,26 @@
 import React from 'react'
 import { renderComponent } from '../../utils/functions/renderComponent/renderComponent'
-import AggressiveWarningComponent from './AggressiveWarning.component'
+import PossibleImpersonationAttackComponent from './PossibleImpersonationAttack.component'
 
-describe('AggressiveWarning component', () => {
+describe('PossibleImpersonationAttack component', () => {
   it('renders properly', () => {
     const { toJSON } = renderComponent(
-      <AggressiveWarningComponent communityName={'dev'} handleBackButton={() => {}} leaveCommunity={() => {}} />
+      <PossibleImpersonationAttackComponent
+        communityName={'dev'}
+        handleBackButton={() => {}}
+        leaveCommunity={() => {}}
+      />
     )
 
     expect(toJSON()).toMatchInlineSnapshot(`
       <View
+        data-testid="possible-impersonation-attack-component"
         style={
           {
             "backgroundColor": "#ffffff",
             "flex": 1,
           }
         }
-        testID="aggressive-warning-component"
       >
         <View
           style={

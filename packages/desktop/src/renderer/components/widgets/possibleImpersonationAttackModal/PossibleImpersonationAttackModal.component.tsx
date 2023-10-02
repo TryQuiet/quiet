@@ -4,7 +4,7 @@ import { Button, Grid, Typography } from '@mui/material'
 import { styled } from '@mui/material/styles'
 import WarnIcon from '../../../static/images/exclamationMark.svg'
 
-const PREFIX = 'AggressiveWarningModalComponent-'
+const PREFIX = 'PossibleImpersonationAttackModalComponent-'
 
 const classes = {
   bodyText: `${PREFIX}bodyText`,
@@ -38,14 +38,14 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
   },
 }))
 
-export interface AggressiveWarningModalComponentProps {
+export interface PossibleImpersonationAttackModalComponentProps {
   communityName: string
   leaveCommunity: () => void
   open: boolean
   handleClose: () => void
 }
 
-const AggressiveWarningModalComponent: React.FC<AggressiveWarningModalComponentProps> = ({
+const PossibleImpersonationAttackModalComponent: React.FC<PossibleImpersonationAttackModalComponentProps> = ({
   communityName,
   leaveCommunity,
   handleClose,
@@ -55,7 +55,7 @@ const AggressiveWarningModalComponent: React.FC<AggressiveWarningModalComponentP
     <Modal
       open={open}
       handleClose={handleClose}
-      data-testid={'aggressiveWarningModalComponent'}
+      data-testid={'possible-impersonation-attack-modal-component'}
       title={'Warning!'}
       isBold
       addBorder
@@ -77,4 +77,4 @@ const AggressiveWarningModalComponent: React.FC<AggressiveWarningModalComponentP
   )
 }
 
-export default AggressiveWarningModalComponent
+export default PossibleImpersonationAttackModalComponent

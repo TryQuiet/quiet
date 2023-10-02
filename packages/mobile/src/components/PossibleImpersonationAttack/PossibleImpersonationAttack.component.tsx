@@ -4,8 +4,8 @@ import { View, Image, StyleSheet } from 'react-native'
 import { Appbar } from '../Appbar/Appbar.component'
 import { Typography } from '../Typography/Typography.component'
 import ExclamationMark from '../../../assets/icons/exclamationMark.png'
-import { AggressiveWarningComponentProps } from '../../screens/AggressiveWarning/AggressiveWarning.types'
 import { Button } from '../Button/Button.component'
+import { PossibleImpersonationAttackComponentProps } from '../../screens/PossibleImpersonationAttack/PossibleImpersonationAttack.types'
 
 const classes = StyleSheet.create({
   mainWrapper: {
@@ -32,7 +32,7 @@ const classes = StyleSheet.create({
   },
 })
 
-const AggressiveWarningComponent: React.FC<AggressiveWarningComponentProps> = ({
+const PossibleImpersonationAttackComponent: React.FC<PossibleImpersonationAttackComponentProps> = ({
   handleBackButton,
   communityName,
   leaveCommunity,
@@ -40,7 +40,7 @@ const AggressiveWarningComponent: React.FC<AggressiveWarningComponentProps> = ({
   return (
     <View
       style={{ flex: 1, backgroundColor: defaultTheme.palette.background.white }}
-      testID={'aggressive-warning-component'}
+      data-testid={'possible-impersonation-attack-component'}
     >
       <Appbar title={'Warning!'} back={handleBackButton} crossBackIcon />
       <View style={classes.mainWrapper}>
@@ -68,4 +68,4 @@ const AggressiveWarningComponent: React.FC<AggressiveWarningComponentProps> = ({
   )
 }
 
-export default AggressiveWarningComponent
+export default PossibleImpersonationAttackComponent
