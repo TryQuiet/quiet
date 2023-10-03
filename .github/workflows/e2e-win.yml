@@ -13,7 +13,7 @@ jobs:
       E2E: true
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: "Setup environment"
         uses: ./.github/actions/setup-env
@@ -41,7 +41,7 @@ jobs:
 
       - name: Extract version
         id: extract_version
-        uses: Saionaro/extract-package-version@v1.1.1
+        uses: Saionaro/extract-package-version@v1.2.1
         with:
           path: packages/desktop
 
@@ -56,7 +56,7 @@ jobs:
         shell: bash
 
       - name: "Upload built app"
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: quiet-windows
           path: ./packages/desktop/dist/Quiet Setup ${{ steps.extract_version.outputs.version }}.exe

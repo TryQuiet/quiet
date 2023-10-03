@@ -72,7 +72,7 @@ export const runBackendDesktop = async () => {
       try {
         await connectionsManager.closeAllServices()
       } catch (e) {
-        log.error('Error occured while closing backend services', e)
+        log.error('Error occurred while closing backend services', e)
       }
       if (process.send) process.send('closed-services')
     }
@@ -80,7 +80,7 @@ export const runBackendDesktop = async () => {
       try {
         await connectionsManager.leaveCommunity()
       } catch (e) {
-        log.error('Error occured while leaving community', e)
+        log.error('Error occurred while leaving community', e)
       }
       if (process.send) process.send('leftCommunity')
     }

@@ -219,7 +219,7 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
                       {infoMessage ? 'Quiet' : messageDisplayData.nickname}
                     </Typography>
                   </Grid>
-                  {userLabel && (
+                  {userLabel && !infoMessage && (
                     <Grid data-testid={`userLabel-${messageDisplayData.nickname}-${messageDisplayData.id}`}>
                       <UserLabel
                         username={messageDisplayData.nickname}
