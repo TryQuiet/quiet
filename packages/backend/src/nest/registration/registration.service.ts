@@ -27,6 +27,7 @@ import Logger from '../common/logger'
 @Injectable()
 export class RegistrationService extends EventEmitter implements OnModuleInit {
   private readonly logger = Logger(RegistrationService.name)
+  public onionAddress: string
   private _server: Server
   private _port: number
   public registrationService: any
@@ -42,7 +43,9 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
     this.on(RegistrationEvents.SET_CERTIFICATES, certs => {
       this.setCertificates(certs)
     })
-    this.setRouting()
+    // eslint-disable-next-line
+    const self = this
+    this.setRouting(self)
   }
 
   public setCertificates(certs: string[]) {
@@ -51,8 +54,17 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
 
   private pendingPromise: Promise<RegistrarResponse> | null = null
 
-  private setRouting() {
+  private setRouting(self: any) {
     // @ts-ignore
+    const middleware = function (req, res, next) {
+      const host = req.headers['host']
+      if (host !== self.onionAddress) {
+        return res.status(403).send('Access denied')
+      }
+      next()
+    }
+
+    this._app.use(middleware)
     this._app.use(express.json())
     this._app.post('/register', async (req, res): Promise<void> => {
       if (this.pendingPromise) return
