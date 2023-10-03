@@ -19,7 +19,8 @@ exports.default = async function (context) {
   childProcess.execSync(`${context.artifactPaths[0]} --appimage-extract`)
   childProcess.execSync(`mv ./squashfs-root ${context.outDir}/squashfs-root`)
   const data = fs.readFileSync(`${context.outDir}/squashfs-root/AppRun`, 'utf8').split('\n')
-  const index = data.findIndex(text => text === 'BIN="$APPDIR/quiet"')
+  console.log('APPDIR', $APPDIR)
+  const index = data.findIndex(text => text === 'BIN="$APPDIR/@quiet/desktop"')
   if (index !== -1) {
     data[index - 1] = 'export LD_PRELOAD="${APPDIR}/usr/lib/libssl.so"'
     fs.writeFileSync(`${context.outDir}/squashfs-root/AppRun`, data.join('\n'), 'utf8')
