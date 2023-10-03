@@ -1,9 +1,10 @@
-name: Desktop tests
+name: Desktop - state-manager bracket tests (RTL)
 
 on:
   pull_request:
     paths:
       - packages/desktop/**
+      - packages/state-manager/**
 
 jobs:
   desktop-tests:
@@ -26,5 +27,5 @@ jobs:
           cachePrefix: "desktop-tests"
           bootstrap-packages: "@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/desktop,backend-bundle"
 
-      - name: "Unit tests"
-        run: lerna run test --scope @quiet/desktop --stream
+      - name: "Desktop - state-manager bracket tests"
+        run: lerna run rtl-test --scope @quiet/desktop --stream
