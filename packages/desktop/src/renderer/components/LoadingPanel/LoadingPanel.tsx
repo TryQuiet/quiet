@@ -39,7 +39,7 @@ const LoadingPanel = () => {
   const registrationError = error?.code === ErrorCodes.FORBIDDEN
 
   useEffect(() => {
-    console.log('hunting for haisenbug:')
+    console.log('HUNTING for haisenbug:')
     console.log('isConnected', isConnected)
     console.log('isCommunityInitialized', isCommunityInitialized)
     console.log('areMessagesLoaded?', areMessagesLoaded)
