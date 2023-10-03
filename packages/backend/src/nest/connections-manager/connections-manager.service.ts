@@ -403,7 +403,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         virtPort: payload.targetPort,
       })
       this.registrationService.onionAddress = onionAddress
-
     })
     this.registrationService.on(RegistrationEvents.ERROR, payload => {
       emitError(this.serverIoProvider.io, payload)

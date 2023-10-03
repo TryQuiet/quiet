@@ -43,6 +43,7 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
     this.on(RegistrationEvents.SET_CERTIFICATES, certs => {
       this.setCertificates(certs)
     })
+    // eslint-disable-next-line
     const self = this
     this.setRouting(self)
   }
