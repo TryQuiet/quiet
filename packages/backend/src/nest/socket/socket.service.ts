@@ -150,7 +150,7 @@ export class SocketService extends EventEmitter implements OnModuleInit {
   public listen = async (port = this.configOptions.socketIOPort): Promise<void> => {
     return await new Promise(resolve => {
       if (this.serverIoProvider.server.listening) resolve()
-      this.serverIoProvider.server.listen(this.configOptions.socketIOPort, 'localhost', () => {
+      this.serverIoProvider.server.listen(this.configOptions.socketIOPort, '127.0.0.1', () => {
         this.logger(`Data server running on port ${this.configOptions.socketIOPort}`)
         resolve()
       })
