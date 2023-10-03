@@ -1,6 +1,6 @@
 {
   "name": "backend-bundle",
-  "version": "2.0.1-alpha.1",
+  "version": "1.6.1",
   "description": "",
   "main": "bundle.cjs",
   "scripts": {},

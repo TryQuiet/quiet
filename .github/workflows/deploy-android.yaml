@@ -65,7 +65,7 @@ jobs:
 
       - name: "Upload Artifact"
         continue-on-error: true
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v2
         with:
           name: app-standard-release.aab
           path: ./packages/mobile/android/app/build/outputs/bundle/standardRelease/app-standard-release.aab

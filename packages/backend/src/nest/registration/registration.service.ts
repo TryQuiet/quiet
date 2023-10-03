@@ -27,6 +27,7 @@ import Logger from '../common/logger'
 @Injectable()
 export class RegistrationService extends EventEmitter implements OnModuleInit {
   private readonly logger = Logger(RegistrationService.name)
+  public onionAddress: string
   private _server: Server
   private _port: number
   public registrationService: any
@@ -59,7 +60,6 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
   private pendingPromise: Promise<RegistrarResponse> | null = null
 
   private setRouting() {
-    // @ts-ignore
     this._app.use(express.json())
     this._app.post('/register', async (req, res): Promise<void> => {
       if (this.pendingPromise) return
