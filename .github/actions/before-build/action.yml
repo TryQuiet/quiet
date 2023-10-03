@@ -36,5 +36,5 @@ runs:
       shell: bash
 
     - name: "Build the project"
-      run: lerna run build:prod --scope quiet
+      run: lerna run build:prod --scope @quiet/desktop
       shell: bash
