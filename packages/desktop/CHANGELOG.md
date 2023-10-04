@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# 2.0.0-alpha.18 (2023-10-04)
+
+
+### Bug Fixes
+
+* add conditional checksum path ([8164b50](https://github.com/ZbayApp/monorepo/commit/8164b50774f32856d9886f75d1bb25788f1e03c4))
+
+
+### Reverts
+
+* Revert "Remove afterAllArtifactBuild for linux" ([975d0df](https://github.com/ZbayApp/monorepo/commit/975d0df58494bdfba1270f6845152af4969e77ea))
+
+
+
+
+
 # [2.0.0-alpha.10](https://github.com/TryQuiet/quiet/compare/quiet@2.0.0-alpha.9...quiet@2.0.0-alpha.10) (2023-09-19)
 
 **Note:** Version bump only for package quiet

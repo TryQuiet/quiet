@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.0.0-alpha.18](https://github.com/ZbayApp/monorepo/compare/@quiet/eslint-config@1.4.0-alpha.0...@quiet/eslint-config@2.0.0-alpha.18) (2023-10-04)
+
+**Note:** Version bump only for package @quiet/eslint-config
+
+
+
+
+
 # [1.4.0-alpha.0](/compare/@quiet/eslint-config@1.3.0...@quiet/eslint-config@1.4.0-alpha.0) (2023-08-29)
 
 **Note:** Version bump only for package @quiet/eslint-config
