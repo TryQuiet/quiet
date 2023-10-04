@@ -19,7 +19,7 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
     this.on(
       RegistrationEvents.REGISTER_USER_CERTIFICATE,
       async (payload: { csrs: string[]; certificates: string[] }) => {
-        // Lack of permsData means that we are not the owner of the community
+        // Lack of permsData means that we are not the owner of the community in the official model of the app, however anyone can modify the source code, put malicious permsData here, issue false certificates and try to trick other users.
         await this.issueCertificates(payload)
       }
     )
@@ -41,13 +41,13 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
   }
 
   public async registerOwnerCertificate(payload: RegisterOwnerCertificatePayload): Promise<void> {
-    // It should not be here.
+    // FIXME: We should resolve problems with events order and we should set permsData only on LAUNCH_REGISTRART socket event in connectionsManager.
     this._permsData = payload.permsData
     const result = await issueCertificate(payload.userCsr.userCsr, this._permsData)
     if (result?.cert) {
       this.emit(SocketActionTypes.SAVED_OWNER_CERTIFICATE, {
         communityId: payload.communityId,
-        network: { certificate: result.cert, peers: [] },
+        network: { certificate: result.cert },
       })
     } else {
       this.emit(SocketActionTypes.ERROR, {

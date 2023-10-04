@@ -38,24 +38,17 @@ export const extractPendingCsrs = async (payload: { csrs: string[]; certificates
     }
   })
 
-  const parsedCsrs: { [key: string]: CertificationRequest } = {}
+  const pendingCsrs: string[] = []
 
   for (const csr of payload.csrs) {
     const parsedCsr = await loadCSR(csr)
-    parsedCsrs[csr] = parsedCsr
-  }
-
-  const pendingCsrs = payload.csrs.filter(csr => {
-    const username = getReqFieldValue(parsedCsrs[csr], CertFieldsTypes.nickName)
+    const username = getReqFieldValue(parsedCsr, CertFieldsTypes.nickName)
 
     if (username && !certNames.has(username) && !pendingNames.has(username)) {
       pendingNames.add(username)
-      return true
-    } else {
-      return false
+      pendingCsrs.push(csr)
     }
-  })
-
+  }
   return pendingCsrs
 }
 

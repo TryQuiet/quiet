@@ -154,7 +154,7 @@ export const pubKeyMatch = (cert: string, parsedCsr: CertificationRequest): bool
   return false
 }
 
-// generalize to certificateByField
+// TODO: generalize to certificateByField
 export const certificateByUsername = (username: string, certificates: string[]): string | null => {
   /**
    * Check if given username is already in use

@@ -99,7 +99,7 @@ export interface SaveOwnerCertificatePayload {
 
 export interface SavedOwnerCertificatePayload {
   communityId: string
-  network: { certificate: string; peers: string[] }
+  network: { certificate: string }
 }
 
 export interface SuccessfullRegistrarionResponse {

@@ -99,7 +99,6 @@ describe('User', () => {
           communityId: payload.communityId,
           network: {
             certificate: payload.permsData.certificate,
-            peers: [],
           },
         })
       }
