@@ -1,8 +1,14 @@
 const os = require('os')
 const child_process = require('child_process')
+const path = require('path')
 console.log('applyPatches shell', os.userInfo().shell)
+const electronFetchPatch = path.join(__dirname, '..', 'electron-fetch.patch')
+const parseDurationPatch = path.join(__dirname, '..', 'parse-duration.patch')
+const parseDurationEsmPatch = path.join(__dirname, '..', 'parse-duration-esm.patch')
+let command = ''
 if (process.platform !== 'win32' || os.userInfo().shell !== null) {
-  child_process.execSync('patch -f -p0 < ./electron-fetch.patch || true && patch -f -p0 --forward --binary < ./parse-duration.patch || true && patch -f -p0 --forward --binary < ./parse-duration-esm.patch || true')
+  command = `patch -f -p0 < ${electronFetchPatch} || true && patch -f -p0 --forward --binary < ${parseDurationPatch} || true && patch -f -p0 --forward --binary < ${parseDurationEsmPatch} || true`
 } else {
-  child_process.execSync('git apply ./electron-fetch-git.patch --whitespace=fix --reject --verbose --no-index --ignore-space-change --inaccurate-eof || cd .')
+  command = `git apply ${electronFetchPatch} --whitespace=fix --reject --verbose --no-index --ignore-space-change --inaccurate-eof || cd .`
 }
+child_process.execSync(command, { stdio: 'inherit' })

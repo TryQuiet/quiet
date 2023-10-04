@@ -1,8 +1,13 @@
 const os = require('os')
 const child_process = require('child_process')
+const path = require('path')
 console.log('copyfonts shell', os.userInfo().shell)
+const source = path.join(__dirname, '..', 'src', 'renderer', 'fonts')
+const target = path.join(__dirname, '..', 'dist', 'main')
+let command = ''
 if (process.platform !== 'win32' || os.userInfo().shell !== null) {
-  child_process.execSync('cp src/renderer/fonts/* dist/main')
+  command = `cp ${source} ${target}`
 } else {
-  child_process.execSync('xcopy src\\renderer\\fonts\\* dist\\main /Y')
+  command = `xcopy ${source} ${target} /Y`
 }
+child_process.execSync(command, { stdio: 'inherit' })
