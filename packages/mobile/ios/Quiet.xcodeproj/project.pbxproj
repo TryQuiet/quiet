@@ -5405,7 +5405,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.quietmobile;
 				PRODUCT_NAME = Quiet;
-				PROVISIONING_PROFILE_SPECIFIER = CI;
+				PROVISIONING_PROFILE_SPECIFIER = "match AppStore com.quietmobile";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "match AppStore com.quietmobile";
 				SWIFT_OBJC_BRIDGING_HEADER = "Quiet-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
