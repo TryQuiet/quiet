@@ -50,7 +50,7 @@ export function* registerUsernameSaga(
 
   let userCsr = identity.userCsr
 
-  if (userCsr !== null) {
+  if (userCsr) {
     try {
       if (identity.userCsr?.userCsr == null || identity.userCsr.userKey == null) {
         console.error('identity.userCsr?.userCsr == null || identity.userCsr.userKey == null')
@@ -73,7 +73,6 @@ export function* registerUsernameSaga(
       }
 
       userCsr = yield* call(createUserCsr, payload)
-      // console.log({ userCsr })
     } catch (e) {
       console.error(e)
       return
