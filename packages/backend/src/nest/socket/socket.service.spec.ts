@@ -24,7 +24,7 @@ describe('SocketService', () => {
 
     module.init()
 
-    client = io(`http://localhost:${TEST_DATA_PORT}`)
+    client = io(`http://127.0.0.1:${TEST_DATA_PORT}`)
   })
 
   afterAll(async () => {
