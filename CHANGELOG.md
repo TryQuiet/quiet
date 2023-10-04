@@ -8,7 +8,21 @@
 
 * Update registrar service to match new registration flow.
 
+* Fix truncated long messages in channelInput component
+
+* Unblock mobile e2e tests
+
+* Prettify loading component on Chat screen (mobile)
+
 * Running Chromatic tests for forked PRs
+
+* Bump github actions/* to versions using node16
+
+* Project can now be bootstraped on Windows (powershell)
+
+* Placeholder(...) for community name
+
+* No unregistered/duplicated label for system messages
 
 [2.0.0-alpha.11]
 
