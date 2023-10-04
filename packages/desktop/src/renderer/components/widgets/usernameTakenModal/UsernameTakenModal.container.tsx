@@ -29,7 +29,6 @@ const UsernameTakenModalContainer = () => {
     if (isUsernameTaken) {
       usernameTakenModal.handleOpen()
 
-      //IMPORTANT: temporary solution if somehow user recive once wrong information from selector
     } else {
       usernameTakenModal.handleClose()
     }
