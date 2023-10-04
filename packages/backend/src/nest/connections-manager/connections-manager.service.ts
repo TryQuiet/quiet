@@ -407,6 +407,14 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.registrationService.on(SocketActionTypes.SAVED_OWNER_CERTIFICATE, payload => {
       this.serverIoProvider.io.emit(SocketActionTypes.SAVED_OWNER_CERTIFICATE, payload)
     })
+    this.registrationService.on(RegistrationEvents.SPAWN_HS_FOR_REGISTRAR, async payload => {
+      const onionAddress = await this.tor.spawnHiddenService({
+        targetPort: payload.port,
+        privKey: payload.privateKey,
+        virtPort: payload.targetPort,
+      })
+      this.registrationService.onionAddress = onionAddress
+    })
     this.registrationService.on(RegistrationEvents.ERROR, payload => {
       emitError(this.serverIoProvider.io, payload)
     })
