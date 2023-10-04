@@ -272,12 +272,6 @@ export class Channel {
     )
   }
 
-  async getUserMessagesWrapper(username: string) {
-    return await this.driver.wait(
-      until.elementsLocated(By.xpath(`//*[contains(@data-testid, "userMessagesWrapper-${username}")]`))
-    )
-  }
-
   async waitForLabel(username: string, label: string) {
     console.log(`Waiting for user's "${username}" label "${label}" label`)
     await this.driver.wait(async () => {
