@@ -91,7 +91,7 @@
     "pullLibs": "wget -N https://zbay-binaries.s3.us-east-2.amazonaws.com/$SOURCE_PATH/libssl.so -P ./ && chmod 775 ./libssl.so",
     "dist": "export SOURCE_PATH=darwin TEST_MODE=true && npm run copyBinariesDarwin && npm run build:prod && electron-builder --mac",
     "distUbuntu": "export SOURCE_PATH=linux TEST_MODE=true && npm run setMainEnvs && npm run copyBinaries && npm run pullLibs && npm run build:prod && electron-builder --linux",
-    "distwin": "export SOURCE_PATH=win32 && npm run copyBinariesWin && npm run build:prod && electron-builder --win",
+    "distwin": "cross-env SOURCE_PATH=win32 && npm run copyBinariesWin && npm run build:prod && electron-builder --win",
     "lint": "eslint --ext .jsx,.js,.ts,.tsx ./src/ --fix",
     "lint-ci": "eslint --ext .jsx,.js,.ts,.tsx ./src/",
     "type-check": "tsc -p tsconfig.build.json --noEmit",
@@ -120,9 +120,7 @@
     "rmDist": "rimraf dist/",
     "setMainEnvs": "node scripts/setMainEnvs.js",
     "copyMainEnvs": "cp mainEnvs.json dist/main",
-    "copyFonts": "run-script-os",
-    "copyFonts:windows": "xcopy src\\renderer\\fonts\\* dist\\main /Y",
-    "copyFonts:default": "cp src/renderer/fonts/* dist/main"
+    "copyFonts": "node scripts/copyFonts.js"
   },
   "dependencies": {
     "@electron/remote": "^2.0.8",

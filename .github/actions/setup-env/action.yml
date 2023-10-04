@@ -60,13 +60,3 @@ runs:
             lerna bootstrap
         fi
       shell: bash
-
-    - name: "Bootstrap project on windows"
-      if: ${{ runner.os == 'Windows' }}
-      run: |
-        if ( "${{ inputs.bootstrap-packages }}" ) {
-          lerna bootstrap --scope '{${{ inputs.bootstrap-packages }},}'
-        } else {
-          lerna bootstrap
-        }
-      shell: powershell
