@@ -28,7 +28,6 @@ const UsernameTakenModalContainer = () => {
   useEffect(() => {
     if (isUsernameTaken) {
       usernameTakenModal.handleOpen()
-
     } else {
       usernameTakenModal.handleClose()
     }
