@@ -35,20 +35,22 @@ export class SocketService extends EventEmitter implements OnModuleInit {
     @Inject(CONFIG_OPTIONS) public readonly configOptions: ConfigOptions
   ) {
     super()
+
+    this.readyness = new Promise<void>(resolve => {
+      this.resolveReadyness = resolve
+    })
   }
 
   async onModuleInit() {
     this.logger('init:started')
+    
     this.attachListeners()
     await this.init()
+
     this.logger('init:finished')
   }
 
   public async init() {
-    this.readyness = new Promise<void>(resolve => {
-      this.resolveReadyness = resolve
-    })
-
     const connection = new Promise<void>(resolve => {
       this.serverIoProvider.io.on(SocketActionTypes.CONNECTION, socket => {
         this.logger('init: connection')

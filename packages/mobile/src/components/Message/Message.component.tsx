@@ -105,7 +105,7 @@ export const Message: FC<MessageProps & FileActionsProps> = ({
 
   const info = representativeMessage.type === MessageType.Info
   const pending: boolean = pendingMessages?.[representativeMessage.id] !== undefined
-  console.log({ representativeMessage })
+
   const userLabel = representativeMessage?.isDuplicated
     ? UserLabelType.DUPLICATE
     : !representativeMessage?.isRegistered
