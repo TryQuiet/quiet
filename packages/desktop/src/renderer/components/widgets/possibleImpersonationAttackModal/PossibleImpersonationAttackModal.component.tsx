@@ -52,15 +52,15 @@ const PossibleImpersonationAttackModalComponent: React.FC<PossibleImpersonationA
   open,
 }) => {
   return (
-    <Modal
-      open={open}
-      handleClose={handleClose}
-      data-testid={'possible-impersonation-attack-modal-component'}
-      title={'Warning!'}
-      isBold
-      addBorder
-    >
-      <StyledGrid container item direction='column' justifyContent='flex-start' alignItems='center'>
+    <Modal open={open} handleClose={handleClose} title={'Warning!'} isBold addBorder>
+      <StyledGrid
+        container
+        item
+        direction='column'
+        justifyContent='flex-start'
+        alignItems='center'
+        data-testid={'possible-impersonation-attack-modal-component'}
+      >
         <img className={classes.image} src={WarnIcon} />
         <Typography variant='h4'>Possible impersonation attack</Typography>
         <Typography className={classes.bodyText} variant='body2'>
