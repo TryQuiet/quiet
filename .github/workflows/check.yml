@@ -16,7 +16,7 @@ jobs:
       - name: "Print OS"
         run: echo ${{ matrix.os }}
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: "Remove test files workaround (jest types conflicting with cypress types)"
         if: ${{ runner.os == 'Windows' }}
