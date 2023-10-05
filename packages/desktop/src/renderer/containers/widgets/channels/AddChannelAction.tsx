@@ -1,5 +1,4 @@
 import React from 'react'
-
 import AddChannelAction from '../../../components/widgets/channels/AddChannelAction'
 import { useModal } from '../../hooks'
 import { ModalName } from '../../../sagas/modals/modals.types'
