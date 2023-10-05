@@ -2,7 +2,7 @@ name: Deploy Android to Google Play
 
 on:
   release:
-    types: 
+    types:
       [prereleased, released]
 
 jobs:
@@ -13,7 +13,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-20.04]
+        os: [ubuntu-latest-m]
 
     steps:
       - name: "Print OS"
@@ -33,7 +33,7 @@ jobs:
         with:
           ndk-version: r21e
           add-to-path: false
-        
+
       - name: "Setup environment"
         uses: ./.github/actions/setup-env
         with:
@@ -47,7 +47,7 @@ jobs:
           printf "\
           NDK_PATH=${{ steps.setup-ndk.outputs.ndk-path }}\n\
           " > $HOME/.gradle/gradle.properties
-      
+
       - name: "Prepare signing configuration"
         run: |
           printf "\
@@ -76,7 +76,7 @@ jobs:
           mkdir -p distribution/whatsnew
           git log -1 --pretty=format:%s > distribution/whatsnew/whatsnew-pl-PL
           echo ${{ SECRETS.SERVICE_ACCOUNT_JSON }} | base64 --decode > google-play.json
-      
+
       - name: "Upload to Google Play"
         uses: r0adkll/upload-google-play@v1.1.2
         with:
