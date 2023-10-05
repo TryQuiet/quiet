@@ -194,7 +194,6 @@ describe('User', () => {
         "Modals/openModal",
         "Identity/registerCertificate",
         "Communities/addOwnerCertificate",
-        "Communities/storePeerList",
         "Identity/storeUserCertificate",
         "Identity/savedOwnerCertificate",
         "Communities/launchRegistrar",
