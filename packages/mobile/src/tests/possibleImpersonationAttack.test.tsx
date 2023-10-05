@@ -11,6 +11,7 @@ import { navigationActions } from '../store/navigation/navigation.slice'
 import { PossibleImpersonationAttackScreen } from '../screens/PossibleImpersonationAttack/PossibleImpersonationAttack.screen'
 import { ScreenNames } from '../const/ScreenNames.enum'
 import { navigationSelectors } from '../store/navigation/navigation.selectors'
+import { initActions } from '../store/init/init.slice'
 
 describe('Possible Impersonation Attack', () => {
   let socket: MockedSocket
@@ -24,7 +25,7 @@ describe('Possible Impersonation Attack', () => {
 
   it('Open modal when certifcates are duplicated', async () => {
     const { store, root } = await prepareStore({}, socket)
-
+    store.dispatch(initActions.setStoreReady())
     factory = await getFactory(store)
 
     const community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>(
@@ -68,6 +69,7 @@ describe('Possible Impersonation Attack', () => {
     await act(async () => {})
 
     store.dispatch(navigationActions.redirection())
+
     await act(async () => {})
 
     const duplicateCerts = users.selectors.duplicateCerts(store.getState())
@@ -75,7 +77,6 @@ describe('Possible Impersonation Attack', () => {
 
     expect(currentScreen).toBe(ScreenNames.PossibleImpersonationAttackScreen)
     expect(duplicateCerts).toBeTruthy()
-
     root?.cancel()
   })
 })
