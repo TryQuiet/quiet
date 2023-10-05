@@ -1,4 +1,4 @@
-FROM node:14-buster
+FROM node:20-buster
 
 RUN apt-get update && apt-get install -y android-sdk openjdk-11-jdk wget zip
 
