@@ -2,8 +2,7 @@ import { io, Socket } from 'socket.io-client'
 import Websockets from 'libp2p-websockets'
 import { PayloadAction } from '@reduxjs/toolkit'
 import { all, call, fork, takeEvery } from 'typed-redux-saga'
-// @ts-ignore
-import backend, { ConnectionsManager } from '@quiet/backend'
+import { app, connectionsManager } from '@quiet/backend'
 import { TestStore, StoreKeys, errors, prepareStore, useIO } from '@quiet/state-manager'
 import path from 'path'
 import assert from 'assert'
@@ -13,6 +12,7 @@ import logger from './logger'
 import { Saga, Task } from '@redux-saga/types'
 
 const log = logger('utils')
+const backend: any = {}
 
 export const createTmpDir = (prefix: string) => {
   return tmp.dirSync({ mode: 0o750, prefix, unsafeCleanup: true })
@@ -41,7 +41,7 @@ export const createApp = async (
   store: TestStore
   runSaga: <S extends Saga<any[]>>(saga: S, ...args: Parameters<S>) => Task
   rootTask: Task
-  manager: ConnectionsManager
+  manager: typeof connectionsManager
   appPath: string
 }> => {
   /**
@@ -70,7 +70,6 @@ export const createApp = async (
 
   function* root(): Generator {
     const socket = yield* call(connectToDataport, `http://localhost:${dataServerPort1}`, appName)
-    // @ts-expect-error
     yield* fork(useIO, socket)
   }
 
@@ -88,7 +87,7 @@ export const createAppWithoutTor = async (
   store: TestStore
   runSaga: <S extends Saga<any[]>>(saga: S, ...args: Parameters<S>) => Task
   rootTask: Task
-  manager: ConnectionsManager
+  manager:  typeof connectionsManager
   appPath: string
 }> => {
   /**
@@ -117,7 +116,6 @@ export const createAppWithoutTor = async (
 
   function* root(): Generator {
     const socket = yield* call(connectToDataport, `http://localhost:${dataServerPort1}`, appName)
-    // @ts-expect-error
     const task = yield* fork(useIO, socket)
   }
 

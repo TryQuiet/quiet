@@ -37,6 +37,6 @@ RUN mkdir /home/node/.gradle
 RUN chown -R 1000:1000 /home/node/.gradle
 RUN echo NDK_PATH=/usr/lib/android-sdk/android-ndk-r21e >> /home/node/.gradle/gradle.properties
 
-RUN npm i -g lerna@^4.0.0 rf-lerna
+RUN npm i -g lerna@^7.3.0
 
 WORKDIR /app/packages/mobile

@@ -4,12 +4,27 @@
   "scripts": {
     "lerna": "lerna"
   },
+  "workspaces": [
+    "packages/@types",
+    "packages/backend",
+    "packages/backend-bundle",
+    "packages/common",
+    "packages/desktop",
+    "packages/e2e-tests",
+    "packages/eslint-config-custom",
+    "packages/identity",
+    "packages/integration-tests",
+    "packages/logger",
+    "packages/mobile",
+    "packages/state-manager",
+    "packages/types"
+  ],
   "engines": {
     "node": "18.12.1",
     "npm": "8.19.2"
   },
   "devDependencies": {
-    "lerna": "^6.6.2",
+    "lerna": "^7.3.0",
     "typescript": "^4.9.3"
   }
 }
