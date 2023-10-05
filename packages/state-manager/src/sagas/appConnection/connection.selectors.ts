@@ -5,9 +5,9 @@ import { allUsers } from '../users/users.selectors'
 import { communitiesSelectors } from '../communities/communities.selectors'
 import { peersStatsAdapter } from './connection.adapter'
 import { connectedPeers } from '../network/network.selectors'
-import { sortPeers } from '../../utils/functions/sortPeers/sortPeers'
 import { type NetworkStats } from './connection.types'
 import { type User } from '../users/users.types'
+import { sortPeers } from '@quiet/common'
 
 const connectionSlice: CreatedSelectors[StoreKeys.Connection] = (state: StoreState) => state[StoreKeys.Connection]
 

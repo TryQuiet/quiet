@@ -18,7 +18,7 @@ jobs:
       - name: "Print OS"
         run: echo ${{ matrix.os }}
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup environment
         uses: ./.github/actions/setup-env
@@ -31,7 +31,7 @@ jobs:
       - name: "Remove test files workaround"
         run: find packages/desktop/src -name '*.test.*' -delete && find packages/backend/src -name '*.test.*' -delete
 
-      - uses: cypress-io/github-action@v2
+      - uses: cypress-io/github-action@v6
         with:
           install: false
           command: npm run regression-test:ci

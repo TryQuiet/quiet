@@ -8,7 +8,11 @@
 
 * Running Chromatic tests for forked PRs
 
+* Added e2e test for user joining community when owner is offline. Improved e2e tests
+
 * Bump github actions/* to versions using node16
+
+* Project can now be bootstraped on Windows (powershell)
 
 * Placeholder(...) for community name
 

@@ -25,7 +25,7 @@ jobs:
       CHECKSUM_PATH: ${{ github.event.action == 'released' && 'packages/desktop/dist/latest-linux.yml' || 'packages/desktop/dist/alpha-linux.yml' }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup environment
         uses: ./.github/actions/setup-env
@@ -96,7 +96,7 @@ jobs:
       S3_BUCKET: ${{ github.event.action == 'released' && 'quiet' || 'test.quiet' }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - uses: actions-rs/components-nightly@v1
         with:
@@ -169,7 +169,7 @@ jobs:
       S3_BUCKET: ${{ github.event.action == 'released' && 'quiet' || 'test.quiet' }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: "Fetch jsign"
         shell: bash
