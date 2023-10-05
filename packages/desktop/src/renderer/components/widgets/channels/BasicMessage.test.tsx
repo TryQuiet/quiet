@@ -36,6 +36,7 @@ describe('BasicMessage', () => {
           >
             <div
               class="MuiListItemText-root BasicMessageComponentmessageCard css-tlelie-MuiListItemText-root"
+              data-testid="userMessagesWrapper-gringo-0"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-wrap-xs-nowrap css-aii0rt-MuiGrid-root"
@@ -124,6 +125,7 @@ describe('BasicMessage', () => {
           >
             <div
               class="MuiListItemText-root BasicMessageComponentmessageCard css-tlelie-MuiListItemText-root"
+              data-testid="userMessagesWrapper-gringo-0"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-wrap-xs-nowrap css-aii0rt-MuiGrid-root"
@@ -222,6 +224,7 @@ describe('BasicMessage', () => {
           >
             <div
               class="MuiListItemText-root BasicMessageComponentmessageCard css-tlelie-MuiListItemText-root"
+              data-testid="userMessagesWrapper-gringo-0"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-wrap-xs-nowrap css-aii0rt-MuiGrid-root"
@@ -324,6 +327,7 @@ describe('BasicMessage', () => {
           >
             <div
               class="MuiListItemText-root BasicMessageComponentmessageCard css-tlelie-MuiListItemText-root"
+              data-testid="userMessagesWrapper-gringo-0"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-wrap-xs-nowrap css-aii0rt-MuiGrid-root"

@@ -353,7 +353,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       targetPort: this.ports.libp2pHiddenService,
       peers,
     }
-    this.logger('libp2p params', params)
 
     await this.libp2pService.createInstance(params)
     // KACPER

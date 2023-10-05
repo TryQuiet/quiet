@@ -26,13 +26,6 @@ describe('One Client', () => {
     await app.close()
   })
   describe('User opens app for the first time', () => {
-    if (process.env.TEST_MODE) {
-      it('Close debug modal', async () => {
-        const debugModal = new DebugModeModal(app.driver)
-        await debugModal.close()
-      })
-    }
-
     it('Get opened app process data', () => {
       const processData = app.buildSetup.getProcessData()
       dataDirPath = processData.dataDirPath
@@ -109,13 +102,6 @@ describe('One Client', () => {
       it('Opens app again', async () => {
         await app.open()
       })
-
-      if (process.env.TEST_MODE) {
-        it('Close debug modal', async () => {
-          const debugModal = new DebugModeModal(app.driver)
-          await debugModal.close()
-        })
-      }
 
       it('User sees "general channel" page', async () => {
         const generalChannel = new Channel(app.driver, 'general')

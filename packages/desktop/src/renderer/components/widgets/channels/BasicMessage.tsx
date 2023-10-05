@@ -193,6 +193,7 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
       <ListItemText
         disableTypography
         className={classes.messageCard}
+        data-testid={`userMessagesWrapper-${messageDisplayData.nickname}-${messageDisplayData.id}`}
         primary={
           <Grid container direction='row' justifyContent='flex-start' alignItems='flex-start' wrap={'nowrap'}>
             <Grid item className={classNames({ [classes.avatar]: true })}>
@@ -219,7 +220,7 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
                     </Typography>
                   </Grid>
                   {userLabel && !infoMessage && (
-                    <Grid>
+                    <Grid data-testid={`userLabel-${messageDisplayData.nickname}-${messageDisplayData.id}`}>
                       <UserLabel
                         username={messageDisplayData.nickname}
                         type={userLabel}

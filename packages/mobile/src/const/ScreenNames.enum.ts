@@ -16,4 +16,5 @@ export enum ScreenNames {
   UnregisteredUsernameScreen = 'UnregisteredUsernameScreen',
   UsernameTakenScreen = 'UsernameTakenScreen',
   NewUsernameRequestedScreen = 'NewUsernameRequestedScreen',
+  PossibleImpersonationAttackScreen = 'PossibleImpersonationAttackScreen',
 }

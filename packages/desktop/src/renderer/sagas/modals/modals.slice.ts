@@ -36,7 +36,8 @@ export class ModalsInitialState {
   [ModalName.channelCreationModal] = { open: false, args: {} };
   [ModalName.unregisteredUsernameModal] = { open: false, args: {} };
   [ModalName.duplicatedUsernameModal] = { open: false, args: {} };
-  [ModalName.usernameTakenModal] = { open: false, args: {} }
+  [ModalName.usernameTakenModal] = { open: false, args: {} };
+  [ModalName.possibleImpersonationAttackModal] = { open: false, args: {} }
 }
 
 export const modalsSlice = createSlice({

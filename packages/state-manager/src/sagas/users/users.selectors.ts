@@ -138,6 +138,12 @@ export const ownerData = createSelector(getOldestParsedCerificate, ownerCert => 
   }
 })
 
+export const duplicateCerts = createSelector(certificatesMapping, certs => {
+  const allUsernames: string[] = Object.values(certs).map(u => u.username)
+  const uniqueUsernames = [...new Set(allUsernames)]
+  return Boolean(allUsernames.length !== uniqueUsernames.length)
+})
+
 export const usersSelectors = {
   certificates,
   certificatesMapping,
@@ -145,4 +151,5 @@ export const usersSelectors = {
   getOldestParsedCerificate,
   ownerData,
   allUsers,
+  duplicateCerts,
 }
