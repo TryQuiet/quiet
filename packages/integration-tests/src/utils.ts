@@ -2,7 +2,6 @@ import { io, Socket } from 'socket.io-client'
 import Websockets from 'libp2p-websockets'
 import { PayloadAction } from '@reduxjs/toolkit'
 import { all, call, fork, takeEvery } from 'typed-redux-saga'
-import { app, connectionsManager } from '@quiet/backend'
 import { TestStore, StoreKeys, errors, prepareStore, useIO } from '@quiet/state-manager'
 import path from 'path'
 import assert from 'assert'
@@ -10,7 +9,7 @@ import getPort from 'get-port'
 import tmp from 'tmp'
 import logger from './logger'
 import { Saga, Task } from '@redux-saga/types'
-
+const app = {}
 const log = logger('utils')
 const backend: any = {}
 
@@ -41,7 +40,7 @@ export const createApp = async (
   store: TestStore
   runSaga: <S extends Saga<any[]>>(saga: S, ...args: Parameters<S>) => Task
   rootTask: Task
-  manager: typeof connectionsManager
+  manager: any
   appPath: string
 }> => {
   /**
@@ -87,7 +86,7 @@ export const createAppWithoutTor = async (
   store: TestStore
   runSaga: <S extends Saga<any[]>>(saga: S, ...args: Parameters<S>) => Task
   rootTask: Task
-  manager:  typeof connectionsManager
+  manager: any
   appPath: string
 }> => {
   /**
