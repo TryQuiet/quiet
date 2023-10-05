@@ -51,6 +51,8 @@ runs:
       shell: bash
 
     - name: "Bootstrap project"
+      env:
+        RUN_OS_WINBASH_IS_LINUX: 'true'
       run: |
         if [[ ! -z "${{ inputs.bootstrap-packages }}" ]]
         then
@@ -59,3 +61,4 @@ runs:
             lerna bootstrap
         fi
       shell: bash
+
