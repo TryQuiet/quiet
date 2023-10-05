@@ -97,6 +97,7 @@ describe('PossibleImpersonationAttackModal', () => {
               >
                 <div
                   class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-direction-xs-column css-e4g1qd-MuiGrid-root"
+                  data-testid="possible-impersonation-attack-modal-component"
                 >
                   <img
                     class="PossibleImpersonationAttackModalComponent-image"
