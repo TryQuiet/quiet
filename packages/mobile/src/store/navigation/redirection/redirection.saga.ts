@@ -3,7 +3,7 @@ import { initSelectors } from '../../init/init.selectors'
 import { navigationSelectors } from '../navigation.selectors'
 import { navigationActions } from '../navigation.slice'
 import { ScreenNames } from '../../../const/ScreenNames.enum'
-import { identity } from '@quiet/state-manager'
+import { identity, users } from '@quiet/state-manager'
 import { initActions } from '../../init/init.slice'
 
 export function* redirectionSaga(): Generator {
@@ -22,6 +22,17 @@ export function* redirectionSaga(): Generator {
 
     yield* put(navigationActions.clearPendingNavigation())
 
+    return
+  }
+
+  const duplicateCerts = yield* select(users.selectors.duplicateCerts)
+
+  if (duplicateCerts) {
+    yield* put(
+      navigationActions.replaceScreen({
+        screen: ScreenNames.PossibleImpersonationAttackScreen,
+      })
+    )
     return
   }
 

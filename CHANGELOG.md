@@ -1,4 +1,7 @@
+
 [unreleased]
+
+* Add possible impersonation attack UI for desktop and mobile
 
 * Fix truncated long messages in channelInput component
 
