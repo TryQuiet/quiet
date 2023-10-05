@@ -2,6 +2,7 @@ import { Inject, Injectable } from '@nestjs/common'
 import { EventEmitter, setMaxListeners } from 'events'
 import fs from 'fs'
 import path from 'path'
+import crypto from 'crypto'
 import PQueue, { AbortError } from 'p-queue'
 import { decode, PBNode } from '@ipld/dag-pb'
 import * as base58 from 'multiformats/bases/base58'
@@ -433,13 +434,20 @@ export class IpfsFileManagerService extends EventEmitter {
   private async assemblyFile(fileMetadata: FileMetadata) {
     const _CID = CID.parse(fileMetadata.cid)
 
-    const downloadDirectory = path.join(this.quietDir, 'downloads', fileMetadata.cid)
+    const downloadDirectory = path.join(this.quietDir, 'downloads')
     createPaths([downloadDirectory])
 
-    const fileName = fileMetadata.name + fileMetadata.ext
-    const filePath = `${path.join(downloadDirectory, fileName)}`
+    // As a quick fix, using a UUID for filename ensures that we never
+    // save a file with a malicious filename. Perhaps it's also
+    // possible to use the CID, however let's verify that first.
+    let fileName: string
+    let filePath: string
+    do {
+      fileName = crypto.randomUUID()
+      filePath = `${path.join(downloadDirectory, fileName)}`
+    } while (fs.existsSync(filePath))
 
-    const writeStream = fs.createWriteStream(filePath)
+    const writeStream = fs.createWriteStream(filePath, { flags: 'wx' })
 
     const entries = this.ipfs.cat(_CID)
 
