@@ -4,6 +4,7 @@
   "description": "Quiet tools for creating certificates and signing messages",
   "main": "lib/index.js",
   "types": "lib/index.d.js",
+  "private": true,
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "prepare": "npm run build",
