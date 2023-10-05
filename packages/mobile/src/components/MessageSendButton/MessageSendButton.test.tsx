@@ -30,8 +30,8 @@ describe('MessageSendButton component', () => {
         style={
           {
             "justifyContent": "center",
-            "paddingLeft": 5,
-            "paddingRight": 5,
+            "paddingLeft": 20,
+            "paddingRight": 20,
           }
         }
         testID="send_message_button"

@@ -41,7 +41,10 @@ const classes = {
   notAllowed: `${PREFIX}notAllowed`,
   inputFiles: `${PREFIX}inputFiles`,
   icons: `${PREFIX}icons`,
+  textArea: `${PREFIX}textArea`,
 }
+
+const maxHeight = 300
 
 const StyledChannelInput = styled(Grid)(({ theme }) => ({
   [`&.${classes.root}`]: {
@@ -78,7 +81,7 @@ const StyledChannelInput = styled(Grid)(({ theme }) => ({
   },
   [`& .${classes.textfield}`]: {
     border: `1px solid ${theme.palette.colors.veryLightGray}`,
-    maxHeight: 300,
+    maxHeight: maxHeight,
     overflowY: 'auto',
     borderRadius: 4,
     '&:hover': {
@@ -196,6 +199,9 @@ const StyledChannelInput = styled(Grid)(({ theme }) => ({
     justifyContent: 'flexStart',
     alignItems: 'center',
     alignCntent: 'stretch',
+  },
+  [`& .${classes.textArea}`]: {
+    maxHeight: maxHeight,
   },
 }))
 
@@ -571,7 +577,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
               justifyContent='center'
               alignItems='center'
             >
-              <Grid item xs>
+              <Grid item xs className={classes.textArea}>
                 <ContentEditable
                   ref={inputRef}
                   placeholder={`Message ${inputPlaceholder}`}

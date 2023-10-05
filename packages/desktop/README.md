@@ -20,6 +20,20 @@ npm run start
 ```
 ----
 
+## Running dev desktop on Windows
+
+Bootstrap scripts has been adjusted to work on Windows (powershell or cmd) hovewer there still may be a problem with patching.
+Getting error:
+
+```
+webpack://@quiet/backend/./node_modules/electron/index.js?:9
+  throw new Error('Electron failed to install correctly, please delete node_modules/electron and try installing again')
+```
+
+while running desktop may mean that applying patch in packages/backend (`npm run applyPatches`) did not work correctly.
+If that's the case file must be patched manually according to `electron-fetch-git.patch` and backend must be rebuilt by running  `npm run webpack` in packages/backend.
+
+
 ## Versioning packages
 
 Before trying to release a new version, make sure you have `GH_TOKEN` env set.

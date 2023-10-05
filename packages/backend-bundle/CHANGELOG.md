@@ -20,6 +20,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 # [1.7.0-alpha.0](/compare/backend-bundle@1.6.0...backend-bundle@1.7.0-alpha.0) (2023-08-29)
+## [1.6.1](https://github.com/TryQuiet/quiet/compare/backend-bundle@1.6.0...backend-bundle@1.6.1) (2023-09-25)
 
 **Note:** Version bump only for package backend-bundle
 
