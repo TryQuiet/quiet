@@ -53,6 +53,9 @@
 
 * Clarify autoupdate language in update modal to let users know that the app will update on restart.
 
+* Fixed UserLabelComponent styling typo
+
 * C4 for Quiet architecture. Context and Container diagrams.
 
 * Invite tab as default in settings
+
