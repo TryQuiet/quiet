@@ -7,6 +7,8 @@ import { identity } from '@quiet/state-manager'
 import { initActions } from '../../init/init.slice'
 
 export function* redirectionSaga(): Generator {
+  console.log('entered redirection saga')
+
   // Do not redirect if user opened the app from url (quiet://)
   const deepLinking = yield* select(initSelectors.deepLinking)
   if (deepLinking) return

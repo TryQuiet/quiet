@@ -58,5 +58,6 @@ export const store = configureStore({
 })
 
 export const persistor = persistStore(store, {}, () => {
+  console.log('store ready')
   store.dispatch(initActions.setStoreReady())
 })
