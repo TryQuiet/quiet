@@ -44,14 +44,6 @@ describe('New user joins using invitation link while having app opened', () => {
       await ownerApp.open()
     })
 
-    if (process.env.TEST_MODE) {
-      it('Owner closes debug modal', async () => {
-        console.log('Invitation Link', 2)
-        const debugModal = new DebugModeModal(ownerApp.driver)
-        await debugModal.close()
-      })
-    }
-
     it('JoinCommunityModal - owner switches to create community', async () => {
       console.log('Invitation Link', 4)
       const joinModal = new JoinCommunityModal(ownerApp.driver)
@@ -121,13 +113,6 @@ describe('New user joins using invitation link while having app opened', () => {
       console.log('Guest opens app')
       await guestApp.open()
     })
-    if (process.env.TEST_MODE) {
-      it('Close debug modal', async () => {
-        console.log('Invitation Link', 12)
-        const debugModal = new DebugModeModal(guestApp.driver)
-        await debugModal.close()
-      })
-    }
 
     it.skip('Guest clicks invitation link with invalid invitation code', async () => {
       // Fix when modals ordering is fixed (joining modal hiddes warning modal)
