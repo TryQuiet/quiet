@@ -13,6 +13,7 @@ import logger from './logger'
 import { createCertificatesTestHelper } from './client-server'
 import { Libp2pNodeParams } from '../libp2p/libp2p.types'
 import { createLibp2pAddress, createLibp2pListenAddress } from '@quiet/common'
+
 const log = logger('test')
 
 export interface Ports {
@@ -203,6 +204,7 @@ export const libp2pInstanceParams = async (): Promise<Libp2pNodeParams> => {
     localAddress: createLibp2pAddress('localhost', peerId.toString()),
     targetPort: port,
     peers: [remoteAddress],
+    psk: new Uint8Array(95),
   }
 }
 

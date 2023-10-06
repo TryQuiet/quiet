@@ -19,6 +19,7 @@ import Logger from '../common/logger'
 import { webSockets } from '../websocketOverTor'
 import { all } from '../websocketOverTor/filters'
 import { createLibp2pAddress, createLibp2pListenAddress } from '@quiet/common'
+import { preSharedKey } from 'libp2p/pnet'
 
 @Injectable()
 export class Libp2pService extends EventEmitter {
@@ -64,6 +65,9 @@ export class Libp2pService extends EventEmitter {
         addresses: {
           listen: params.listenAddresses,
         },
+        connectionProtector: preSharedKey({
+          psk: params.psk,
+        }),
         streamMuxers: [mplex()],
         connectionEncryption: [noise()],
         relay: {

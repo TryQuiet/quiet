@@ -59,6 +59,11 @@ import { StorageEvents } from '../storage/storage.types'
 import { LazyModuleLoader } from '@nestjs/core'
 import Logger from '../common/logger'
 import { emitError } from '../socket/socket.errors'
+import crypto from 'crypto'
+// import { randomBytes } from '@libp2p/crypto'
+import { generateKey } from 'libp2p/pnet'
+import { toString as uint8ArrayToString } from 'uint8arrays/to-string'
+import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
 
 @Injectable()
 export class ConnectionsManagerService extends EventEmitter implements OnModuleInit {
@@ -278,6 +283,14 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
   public async createCommunity(payload: InitCommunityPayload) {
     console.log('ConnectionsManager.createCommunity peers:', payload.peers)
+
+    if (!(await this.localDbService.get('psk'))) {
+      const psk = new Uint8Array(95)
+      generateKey(psk)
+      console.log('Saving psk', psk)
+      await this.localDbService.put('psk', psk)
+    }
+
     await this.launchCommunity(payload)
     this.logger(`Created and launched community ${payload.id}`)
     this.serverIoProvider.io.emit(SocketActionTypes.NEW_COMMUNITY, { id: payload.id })
@@ -344,6 +357,8 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     if (!peers || peers.length === 0) {
       peers = [this.libp2pService.createLibp2pAddress(onionAddress, _peerId.toString())]
     }
+    const pskValue = await this.localDbService.get('psk')
+    const psk = Uint8Array.from(Object.values(pskValue))
 
     const params: Libp2pNodeParams = {
       peerId: _peerId,
@@ -352,10 +367,10 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       localAddress: this.libp2pService.createLibp2pAddress(onionAddress, _peerId.toString()),
       targetPort: this.ports.libp2pHiddenService,
       peers,
+      psk,
     }
 
     await this.libp2pService.createInstance(params)
-    // KACPER
     // Libp2p event listeners
     this.libp2pService.on(Libp2pEvents.PEER_CONNECTED, (payload: { peers: string[] }) => {
       this.serverIoProvider.io.emit(SocketActionTypes.PEER_CONNECTED, payload)
