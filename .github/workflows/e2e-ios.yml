@@ -11,5 +11,8 @@ jobs:
     runs-on: self-hosted
 
     steps:
+
       - name: Run basic tests
-        run: npx detox test starter -c ios.sim.debug
+        run: |
+          cd ~/projects/quiet/packages/mobile
+          detox test starter -c ios.sim.debug
