@@ -31,9 +31,9 @@ jobs:
       - name: Build Detox
         run: |
           cd packages/mobile
-          detox build -c ios.sim.debug
+          detox build -c ios.sim.debug.ci
 
       - name: Run basic tests
         run: |
           cd packages/mobile
-          detox test starter -c ios.sim.debug
+          detox test starter -c ios.sim.debug.ci

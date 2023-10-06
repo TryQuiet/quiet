@@ -56,6 +56,12 @@ module.exports = {
         type: 'iPhone 15 Pro',
       },
     },
+    simulator_ci: {
+      type: 'ios.simulator',
+      device: {
+        type: 'iPhone 15'
+      }
+    },
     attached: {
       type: 'android.attached',
       device: {
@@ -72,6 +78,16 @@ module.exports = {
   configurations: {
     'ios.sim.debug': {
       device: 'simulator',
+      app: 'ios.debug',
+      artifacts: {
+        rootDir: './e2e/artifacts/ios',
+        plugins: {
+          instruments: 'all',
+        },
+      },
+    },
+    'ios.sim.debug.ci': {
+      device: 'simulator_ci',
       app: 'ios.debug',
       artifacts: {
         rootDir: './e2e/artifacts/ios',
