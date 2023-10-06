@@ -7,7 +7,7 @@ on:
 
 jobs:
   detox:
-    timeout-minutes: 25
+    timeout-minutes: 10
     runs-on: self-hosted
 
     steps:
