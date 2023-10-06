@@ -9,7 +9,10 @@ inputs:
     required: false
     default: 'prefix'
 
+
+
 runs:
+  timeout-minutes: 30
   using: "composite"
   steps:
     - uses: actions/setup-node@master
