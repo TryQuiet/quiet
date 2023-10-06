@@ -215,9 +215,6 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
                   <UploadFilesPreviewsComponent filesData={uploadedFiles} removeFile={removeFilePreview} />
                 )}
               </View>
-              {(didKeyboardShow || areFilesUploaded) && (
-                <MessageSendButton onPress={onPress} disabled={shouldDisableSubmit} />
-              )}
             </View>
           </>
         )}
