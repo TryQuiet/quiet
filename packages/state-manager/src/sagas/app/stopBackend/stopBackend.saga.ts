@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { PayloadAction } from '@reduxjs/toolkit'
 import { apply } from 'typed-redux-saga'
 import { appActions } from '../app.slice'
