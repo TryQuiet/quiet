@@ -5,7 +5,7 @@
   "version": "independent",
   "command": {
     "version": {
-      "allowBranch": ["master", "develop"],
+      "allowBranch": ["master", "develop", "lerna/7.3.0"],
       "conventionalCommits": true,
       "createRelease": "github"
     },
