@@ -37,16 +37,16 @@ runs:
       run: npm i -g lerna@7.3.0 typescript@4.9.3
       shell: bash
 
-    - name: "Cache NPM dependencies"
-      id: cache-nodemodules
-      uses: actions/cache@v3
-      with:
-        path: |
-          node_modules
-          */*/node_modules
-        key: ${{ inputs.cachePrefix }}-${{ runner.OS }}-npm-cache-${{ hashFiles('packages/*/package-lock.json') }}
-        restore-keys: |
-         ${{ inputs.cachePrefix }}-${{ runner.OS }}-npm-cache-
+    # - name: "Cache NPM dependencies"
+    #   id: cache-nodemodules
+    #   uses: actions/cache@v3
+    #   with:
+    #     path: |
+    #       node_modules
+    #       */*/node_modules
+    #     key: ${{ inputs.cachePrefix }}-${{ runner.OS }}-npm-cache-${{ hashFiles('packages/*/package-lock.json') }}
+    #     restore-keys: |
+    #      ${{ inputs.cachePrefix }}-${{ runner.OS }}-npm-cache-
 
     - name: "Install monorepo dependencies"
       # if: steps.cache-nodemodules.outputs.cache-hit != 'true'
