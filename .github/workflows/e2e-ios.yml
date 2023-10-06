@@ -11,6 +11,8 @@ jobs:
     runs-on: self-hosted
 
     steps:
+      - name: Use project directory
+        run: cd ~/projects/quiet/packages/mobile
 
       - uses: actions/checkout@v4
 
@@ -20,6 +22,4 @@ jobs:
           bootstrap-packages: "@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/mobile,backend-bundle"
 
       - name: Run basic tests
-        run: |
-          cd ~/projects/quiet/packages/mobile
-          detox test starter -c ios.sim.debug
+        run: detox test starter -c ios.sim.debug
