@@ -13,8 +13,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Bootstrap project
-        run: npm run lerna bootstrap --scope @quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/mobile,backend-bundle
+      - name: Install dependencies
+        run: |
+          npm i
+          npm run lerna bootstrap --scope @quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/mobile,backend-bundle
 
       - name: Run basic tests
         run: |
