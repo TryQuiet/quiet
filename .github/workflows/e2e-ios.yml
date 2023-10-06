@@ -1,0 +1,15 @@
+name: E2E iOS
+
+on:
+  pull_request:
+    paths:
+      - packages/mobile/**
+
+jobs:
+  detox:
+    timeout-minutes: 25
+    runs-on: self-hosted
+
+    steps:
+      - name: Run basic tests
+        run: npx detox test starter -c ios.sim.debug
