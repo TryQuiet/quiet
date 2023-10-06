@@ -63,10 +63,15 @@ runs:
 
     - name: "Bootstrap project on windows"
       if: ${{ runner.os == 'Windows' }}
+      env:
+        SHELL: '\bin\bash.exe'
+        RUN_OS_WINBASH_IS_LINUX: 'true'
       run: |
-        if ( "${{ inputs.bootstrap-packages }}" ) {
-          lerna bootstrap --scope '{${{ inputs.bootstrap-packages }},}'
-        } else {
-          lerna bootstrap
-        }
-      shell: powershell
+        if [[ ! -z "${{ inputs.bootstrap-packages }}" ]]
+        then
+            lerna bootstrap --scope '{${{ inputs.bootstrap-packages }},}'
+        else
+            lerna bootstrap
+        fi
+      shell: bash
+
