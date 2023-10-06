@@ -18,9 +18,8 @@ describe('registerCertificateSaga', () => {
 
     const factory = await getFactory(store)
 
-    const community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>(
-      'Community'
-    )
+    const community =
+      await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
 
     const identity = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
       id: community.id,

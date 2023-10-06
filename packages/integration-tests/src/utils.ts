@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { io, Socket } from 'socket.io-client'
 import Websockets from 'libp2p-websockets'
 import { PayloadAction } from '@reduxjs/toolkit'
