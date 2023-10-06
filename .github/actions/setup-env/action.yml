@@ -31,7 +31,7 @@ runs:
       shell: bash
 
     - name: "Install lerna and typescript globally"
-      run: npm i -g lerna@^7.3.0 typescript@4.9.3
+      run: npm i -g lerna@7.3.0 typescript@4.9.3
       shell: bash
 
     - name: "Cache NPM dependencies"
@@ -50,23 +50,23 @@ runs:
       run: npm ci
       shell: bash
 
-    - name: "Bootstrap project"
-      if: ${{ runner.os != 'Windows' }}
-      run: |
-        if [[ ! -z "${{ inputs.bootstrap-packages }}" ]]
-        then
-            lerna bootstrap --scope '{${{ inputs.bootstrap-packages }},}'
-        else
-            lerna bootstrap
-        fi
-      shell: bash
+    # - name: "Bootstrap project"
+    #   if: ${{ runner.os != 'Windows' }}
+    #   run: |
+    #     if [[ ! -z "${{ inputs.bootstrap-packages }}" ]]
+    #     then
+    #         lerna bootstrap --scope '{${{ inputs.bootstrap-packages }},}'
+    #     else
+    #         lerna bootstrap
+    #     fi
+    #   shell: bash
 
-    - name: "Bootstrap project on windows"
-      if: ${{ runner.os == 'Windows' }}
-      run: |
-        if ( "${{ inputs.bootstrap-packages }}" ) {
-          lerna bootstrap --scope '{${{ inputs.bootstrap-packages }},}'
-        } else {
-          lerna bootstrap
-        }
-      shell: powershell
+    # - name: "Bootstrap project on windows"
+    #   if: ${{ runner.os == 'Windows' }}
+    #   run: |
+    #     if ( "${{ inputs.bootstrap-packages }}" ) {
+    #       lerna bootstrap --scope '{${{ inputs.bootstrap-packages }},}'
+    #     } else {
+    #       lerna bootstrap
+    #     }
+    #   shell: powershell
