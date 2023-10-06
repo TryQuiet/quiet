@@ -104,7 +104,7 @@ describe('User', () => {
 
     await press(element(by.id('send_message_button')), true)
 
-    await waitFor(element(by.id("We are no strangers to love! You know the rules, and so do I!")))
+    await waitFor(element(by.id("We are no strangers to love")))
       .toBeVisible()
       .withTimeout(BASIC)
 
