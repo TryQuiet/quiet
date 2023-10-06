@@ -16,6 +16,9 @@ jobs:
 
       - uses: actions/checkout@v4
 
+      - name: Print location
+        run: pwd
+
       - name: Bootstrap project
         run: npm run lerna bootstrap --scope @quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/mobile,backend-bundle
 
