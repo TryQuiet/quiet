@@ -46,6 +46,7 @@ import { RootStackParamList } from './route.params'
 import ConnectionProcessScreen from './screens/ConnectionProcess/ConnectionProcess.screen'
 import { DuplicatedUsernameScreen } from './screens/DuplicatedUsername/DuplicatedUsername.screen'
 import { UnregisteredUsernameScreen } from './screens/UnregisteredUsername/UnregisteredUsername.screen'
+import { PossibleImpersonationAttackScreen } from './screens/PossibleImpersonationAttack/PossibleImpersonationAttack.screen'
 
 LogBox.ignoreAllLogs()
 
@@ -103,6 +104,10 @@ function App(): JSX.Element {
                 <Screen component={ErrorScreen} name={ScreenNames.ErrorScreen} />
                 <Screen component={DuplicatedUsernameScreen} name={ScreenNames.DuplicatedUsernameScreen} />
                 <Screen component={UnregisteredUsernameScreen} name={ScreenNames.UnregisteredUsernameScreen} />
+                <Screen
+                  component={PossibleImpersonationAttackScreen}
+                  name={ScreenNames.PossibleImpersonationAttackScreen}
+                />
               </Navigator>
               <CommunityContextMenu />
               <ChannelContextMenu />

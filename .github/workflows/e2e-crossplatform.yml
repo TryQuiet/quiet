@@ -1,6 +1,14 @@
 name: E2E cross platform
 
-on: [pull_request]
+on: 
+  pull_request:
+    paths:
+      - packages/desktop/**
+      - packages/backend/**
+      - packages/state-manager/**
+      - packages/identity/**
+      - packages/common/**
+
 jobs:
   mac:
     uses: ./.github/workflows/e2e-mac.yml

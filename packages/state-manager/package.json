@@ -3,6 +3,7 @@
   "version": "2.0.1-alpha.1",
   "description": "",
   "main": "lib/index.js",
+  "private": true,
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "prepare": "npm run build",
