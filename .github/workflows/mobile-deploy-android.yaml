@@ -1,4 +1,4 @@
-name: Deploy Android to Google Play (internal testing)
+name: Deploy Android to Google Play
 
 on:
   release:
