@@ -1,4 +1,4 @@
-import { createUserCert } from '@quiet/identity'
+import { createUserCert, keyFromCertificate } from '@quiet/identity'
 import { IsBase64, IsNotEmpty, validate } from 'class-validator'
 import { ErrorPayload, PermsData, SocketActionTypes, SuccessfullRegistrarionResponse } from '@quiet/types'
 import { CsrContainsFields, IsCsr } from './registration.validators'
@@ -6,6 +6,7 @@ import { RegistrationEvents } from './registration.types'
 import { loadCSR, CertFieldsTypes, getCertFieldValue, getReqFieldValue, parseCertificate } from '@quiet/identity'
 import { CertificationRequest } from 'pkijs'
 import Logger from '../common/logger'
+import { load } from 'mock-fs'
 
 const logger = Logger('registration.functions')
 class UserCsrData {
@@ -29,6 +30,8 @@ export interface RegistrationResponse {
 export const extractPendingCsrs = async (payload: { csrs: string[]; certificates: string[] }) => {
   const certNames = new Set<string>()
   const pendingNames = new Set<string>()
+  const parsedUniqueCsrs = new Map<string, string>()
+  const pendingCsrs: string[] = []
 
   payload.certificates.forEach(cert => {
     const parsedCert = parseCertificate(cert)
@@ -38,12 +41,19 @@ export const extractPendingCsrs = async (payload: { csrs: string[]; certificates
     }
   })
 
-  const pendingCsrs: string[] = []
+  for (const csr of payload.csrs.reverse()) {
+    const parsedCsr = await loadCSR(csr)
+    const pubKey = keyFromCertificate(parsedCsr)
+    if (!parsedUniqueCsrs.has(pubKey)) {
+      parsedUniqueCsrs.set(pubKey, csr)
+    }
+  }
 
-  for (const csr of payload.csrs) {
+  const uniqueCsrsArray = Array.from(parsedUniqueCsrs.values()).reverse()
+
+  for (const csr of uniqueCsrsArray) {
     const parsedCsr = await loadCSR(csr)
     const username = getReqFieldValue(parsedCsr, CertFieldsTypes.nickName)
-
     if (username && !certNames.has(username) && !pendingNames.has(username)) {
       pendingNames.add(username)
       pendingCsrs.push(csr)
