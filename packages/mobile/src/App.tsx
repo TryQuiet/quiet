@@ -75,8 +75,6 @@ function App(): JSX.Element {
           linking={linking}
           onReady={() => {
             dispatch(initActions.blindWebsocketConnection())
-
-            console.log('dispatch redirection action')
             dispatch(navigationActions.redirection())
           }}
         >
