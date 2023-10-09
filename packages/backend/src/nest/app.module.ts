@@ -94,9 +94,20 @@ export class AppModule {
             _app.use(cors())
             const server = createServer(_app)
             const io = new SocketIO(server, {
-              cors: getCors(),
+              cors: {
+                origin: '127.0.0.1',
+                allowedHeaders: ['authorization'],
+                credentials: true,
+              },
               pingInterval: 1000_000,
               pingTimeout: 1000_000,
+            })
+            io.use((socket, next) => {
+              const socketIOToken = socket.handshake.headers['authorization']
+              console.log('token - client side', socketIOToken)
+              console.log('token - server side', options.socketIOToken)
+              // validate JWT token
+              next()
             })
             return { server, io }
           },

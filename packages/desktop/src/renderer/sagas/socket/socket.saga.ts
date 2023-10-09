@@ -12,11 +12,17 @@ const log = logger('socket')
 export function* startConnectionSaga(
   action: PayloadAction<ReturnType<typeof socketActions.startConnection>['payload']>
 ): Generator {
-  const dataPort = action.payload.dataPort
+  const { dataPort, socketIOToken } = action.payload
   if (!dataPort) {
     log.error('About to start connection but no dataPort found')
   }
-  const socket = yield* call(io, `http://127.0.0.1:${dataPort}`)
+
+  const socket = yield* call(io, `http://127.0.0.1:${dataPort}`, {
+    withCredentials: true,
+    extraHeaders: {
+      authorization: `Bearer ${socketIOToken}`,
+    },
+  })
   yield* fork(handleSocketLifecycleActions, socket)
 
   // Handle opening/restoring connection

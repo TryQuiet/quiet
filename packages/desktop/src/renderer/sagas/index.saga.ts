@@ -6,11 +6,13 @@ import { socketActions } from './socket/socket.slice'
 
 export default function* root(): Generator {
   const dataPort = new URLSearchParams(window.location.search).get('dataPort') || ''
+  const socketIOToken = new URLSearchParams(window.location.search).get('socketIOToken') || ''
   yield all([
     takeEvery(communities.actions.handleInvitationCode.type, handleInvitationCodeSaga),
     startConnectionSaga(
       socketActions.startConnection({
         dataPort: parseInt(dataPort),
+        socketIOToken,
       })
     ),
   ])

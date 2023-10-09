@@ -119,5 +119,5 @@ function* mockSocketConnectionSaga(socket: MockedSocket): Generator {
       socket.socketClient.emit('connect')
     })
   })
-  yield* put(socketActions.startConnection({ dataPort: 4677 }))
+  yield* put(socketActions.startConnection({ dataPort: 4677, socketIOToken: 'testToken' }))
 }

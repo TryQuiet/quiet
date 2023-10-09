@@ -30,6 +30,8 @@ const updaterInterval = 15 * 60_000
 export const isDev = process.env.NODE_ENV === 'development'
 export const isE2Etest = process.env.E2E_TEST === 'true'
 
+const SOCKET_IO_TOKEN = 'testToken'
+
 const webcrypto = new Crypto()
 
 global.crypto = webcrypto
@@ -205,7 +207,7 @@ export const createWindow = async () => {
   mainWindow.loadURL(
     url.format({
       pathname: path.join(__dirname, './index.html'),
-      search: `dataPort=${ports.dataServer}`,
+      search: `dataPort=${ports.dataServer}&socketIOToken=${SOCKET_IO_TOKEN}`,
       protocol: 'file:',
       slashes: true,
       hash: '/',
@@ -362,6 +364,8 @@ app.on('ready', async () => {
     `${process.resourcesPath}`,
     '-p',
     'desktop',
+    '-tkn',
+    `${SOCKET_IO_TOKEN}`,
   ]
 
   const backendBundlePath = path.normalize(require.resolve('backend-bundle'))
