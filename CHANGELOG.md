@@ -1,3 +1,7 @@
+[unreleased]
+
+* Shorter dots-placeholder for invite link
+
 
 [2.0.1-alpha.2]
 
