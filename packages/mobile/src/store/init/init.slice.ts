@@ -37,7 +37,9 @@ export const initSlice = createSlice({
   initialState: { ...new InitState() },
   name: StoreKeys.Init,
   reducers: {
-    setStoreReady: state => state,
+    setStoreReady: (state) => {
+      state.ready = true
+    },
     setCryptoEngineInitialized: (state, action: PayloadAction<boolean>) => {
       state.isCryptoEngineInitialized = action.payload
     },
@@ -74,9 +76,6 @@ export const initSlice = createSlice({
     },
     deepLink: (state, _action: PayloadAction<string>) => {
       state.deepLinking = true
-    },
-    setReady: (state, action: PayloadAction<boolean>) => {
-      state.ready = action.payload
     },
   },
 })

@@ -10,7 +10,7 @@ import { CreateCommunity } from '../../components/CreateCommunity/CreateCommunit
 export const CreateCommunityScreen: FC = () => {
   const dispatch = useDispatch()
 
-  const ready = useSelector(initSelectors.ready)
+  const isWebsocketConnected = useSelector(initSelectors.isWebsocketConnected)
 
   const currentCommunity = useSelector(communities.selectors.currentCommunity)
   const currentIdentity = useSelector(identity.selectors.currentIdentity)
@@ -46,7 +46,7 @@ export const CreateCommunityScreen: FC = () => {
       createCommunityAction={createCommunityAction}
       redirectionAction={redirectionAction}
       networkCreated={networkCreated}
-      ready={ready}
+      ready={isWebsocketConnected}
     />
   )
 }
