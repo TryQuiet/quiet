@@ -1,26 +1,20 @@
 import React from 'react'
 import { renderComponent } from '../../utils/functions/renderComponent/renderComponent'
-import PossibleImpersonationAttackComponent from './PossibleImpersonationAttack.component'
+import NewUsernameRequestedComponent from './NewUsernameRequested.component'
 
-describe('PossibleImpersonationAttack component', () => {
-  it('renders properly', () => {
-    const { toJSON } = renderComponent(
-      <PossibleImpersonationAttackComponent
-        communityName={'dev'}
-        handleBackButton={() => {}}
-        leaveCommunity={() => {}}
-      />
-    )
+describe('NewUsernameRequested component', () => {
+  it('should match inline snapshot', () => {
+    const { toJSON } = renderComponent(<NewUsernameRequestedComponent handler={jest.fn()} />)
 
     expect(toJSON()).toMatchInlineSnapshot(`
       <View
-        data-testid="possible-impersonation-attack-component"
         style={
           {
             "backgroundColor": "#ffffff",
             "flex": 1,
           }
         }
+        testID="new-username-requested-component"
       >
         <View
           style={
@@ -135,7 +129,7 @@ describe('PossibleImpersonationAttack component', () => {
               }
               verticalTextAlign="center"
             >
-              Warning!
+              Username taken
             </Text>
           </View>
           <View
@@ -149,49 +143,11 @@ describe('PossibleImpersonationAttack component', () => {
         <View
           style={
             {
-              "alignItems": "center",
-              "marginTop": 10,
-              "padding": 20,
+              "paddingLeft": 20,
+              "paddingRight": 20,
             }
           }
         >
-          <Image
-            source={
-              {
-                "testUri": "../../../assets/icons/exclamationMark.png",
-              }
-            }
-            style={
-              {
-                "height": 83,
-                "width": 96,
-              }
-            }
-          />
-          <Text
-            color="main"
-            fontSize={16}
-            fontWeight="medium"
-            horizontalTextAlign="left"
-            style={
-              [
-                {
-                  "color": "#000000",
-                  "fontFamily": "Rubik-Medium",
-                  "fontSize": 16,
-                  "textAlign": "left",
-                  "textAlignVertical": "center",
-                },
-                {
-                  "marginBottom": 24,
-                  "marginTop": 32,
-                },
-              ]
-            }
-            verticalTextAlign="center"
-          >
-            Possible impersonation attack
-          </Text>
           <Text
             color="main"
             fontSize={14}
@@ -206,62 +162,14 @@ describe('PossibleImpersonationAttack component', () => {
                   "textAlignVertical": "center",
                 },
                 {
-                  "lineHeight": 20,
-                  "textAlign": "center",
+                  "marginBottom": 30,
+                  "marginTop": 30,
                 },
               ]
             }
             verticalTextAlign="center"
           >
-            The owner of
-             
-            <Text
-              color="main"
-              fontSize={14}
-              fontWeight="medium"
-              horizontalTextAlign="left"
-              style={
-                [
-                  {
-                    "color": "#000000",
-                    "fontFamily": "Rubik-Medium",
-                    "fontSize": 14,
-                    "textAlign": "left",
-                    "textAlignVertical": "center",
-                  },
-                ]
-              }
-              verticalTextAlign="center"
-            >
-              dev
-            </Text>
-             
-            has registered an invalid username. Either something is very broken, the community owner is trying to impersonate other users, or the community owner has been hacked.
-          </Text>
-          <Text
-            color="main"
-            fontSize={14}
-            fontWeight="bold"
-            horizontalTextAlign="left"
-            style={
-              [
-                {
-                  "color": "#000000",
-                  "fontFamily": "Rubik-Bold",
-                  "fontSize": 14,
-                  "textAlign": "left",
-                  "textAlignVertical": "center",
-                },
-                {
-                  "lineHeight": 20,
-                  "marginBottom": 16,
-                  "textAlign": "center",
-                },
-              ]
-            }
-            verticalTextAlign="center"
-          >
-            This should never happen and we recommend leaving this community immediately!
+            Great! Your new username should be registered automatically the next time the community owner is online.
           </Text>
           <View
             accessibilityState={
@@ -291,7 +199,7 @@ describe('PossibleImpersonationAttack component', () => {
                 "marginVertical": 12,
                 "minHeight": 45,
                 "paddingVertical": 12,
-                "width": 160,
+                "width": 100,
               }
             }
             testID="button"
@@ -313,7 +221,7 @@ describe('PossibleImpersonationAttack component', () => {
               }
               verticalTextAlign="center"
             >
-              Leave community
+              Continue
             </Text>
           </View>
         </View>

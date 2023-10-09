@@ -247,12 +247,6 @@ export function subscribe(socket: Socket) {
         })
       )
       emit(
-        communitiesActions.storePeerList({
-          communityId: payload.communityId,
-          peerList: payload.network.peers,
-        })
-      )
-      emit(
         identityActions.storeUserCertificate({
           userCertificate: payload.network.certificate,
           communityId: payload.communityId,

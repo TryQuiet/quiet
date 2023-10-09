@@ -1,4 +1,4 @@
-import { createRootCA, type RootCA } from './generateRootCA'
+import { createRootCA, type RootCA } from './createRootCA'
 import {
   extractPubKey,
   parseCertificate,
@@ -7,12 +7,13 @@ import {
   keyObjectFromString,
   extractPubKeyString,
   pubKeyFromCsr,
+  getPubKey,
 } from './extractPubKey'
 import { verifyUserCert } from './verifyUserCertificate'
-import { verifySignature } from './verification'
+import { verifySignature } from './verifySignature'
 import { sign } from './sign'
-import { createUserCsr, type UserCsr } from './requestCertificate'
-import { createUserCert, type UserCert } from './generateUserCertificate'
+import { createUserCsr, type UserCsr } from './createUserCsr'
+import { createUserCert, type UserCert } from './createUserCert'
 import {
   loadPrivateKey,
   loadCSR,
@@ -24,6 +25,8 @@ import {
   hexStringToArrayBuffer,
   arrayBufferToHexString,
   getReqFieldValue,
+  certificateByUsername,
+  pubKeyMatch,
 } from './common'
 import configCrypto from './config'
 import {
@@ -46,6 +49,7 @@ export {
   extractPubKeyString,
   pubKeyFromCsr,
   parseCertificationRequest,
+  getPubKey,
 }
 export { verifyUserCert }
 export { verifySignature }
@@ -62,6 +66,8 @@ export {
   CertFieldsTypes,
   hexStringToArrayBuffer,
   arrayBufferToHexString,
+  certificateByUsername,
+  pubKeyMatch,
 }
 export { configCrypto }
 export { setupCrypto }

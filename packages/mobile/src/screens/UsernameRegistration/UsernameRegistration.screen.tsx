@@ -34,7 +34,7 @@ export const UsernameRegistrationScreen: FC<UsernameRegistrationScreenProps> = (
     if (error) {
       dispatch(errors.actions.clearError(error))
     }
-    dispatch(identity.actions.registerUsername(nickname))
+    dispatch(identity.actions.registerUsername({ nickname: nickname, isUsernameTaken: false }))
     navigation(ScreenNames.ConnectionProcessScreen)
   }
 
