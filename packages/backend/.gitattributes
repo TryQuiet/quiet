@@ -1,5 +1,0 @@
-# Set the default behavior, in case people don't have core.autocrlf set.
-* text=auto
-
-# Declare files that will always have CRLF line endings on checkout.
-electron-fetch-git.patch text eol=crlf
