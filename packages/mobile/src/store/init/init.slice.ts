@@ -37,7 +37,7 @@ export const initSlice = createSlice({
   initialState: { ...new InitState() },
   name: StoreKeys.Init,
   reducers: {
-    setStoreReady: (state) => {
+    setStoreReady: state => {
       state.ready = true
     },
     setCryptoEngineInitialized: (state, action: PayloadAction<boolean>) => {

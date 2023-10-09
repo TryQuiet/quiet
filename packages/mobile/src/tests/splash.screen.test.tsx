@@ -22,7 +22,8 @@ describe('Splash screen', () => {
   test('waits for redux store to become ready, before storing invitation code', async () => {
     const { store, root, runSaga } = await prepareStore({}, socket)
 
-    const invitationCode = 'QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE=y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd'
+    const invitationCode =
+      'QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE=y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd'
 
     const route: { key: string; name: ScreenNames.SplashScreen; params: { code?: string } } = {
       key: '',
@@ -54,10 +55,10 @@ describe('Splash screen', () => {
       await runSaga(function* (): Generator {
         const action = yield* take(navigationActions.replaceScreen)
         expect(action.payload).toEqual({
-            screen: ScreenNames.JoinCommunityScreen,
-            params: {
-                code: invitationCode
-            }
+          screen: ScreenNames.JoinCommunityScreen,
+          params: {
+            code: invitationCode,
+          },
         })
       }).toPromise()
     })

@@ -43,7 +43,7 @@ export class SocketService extends EventEmitter implements OnModuleInit {
 
   async onModuleInit() {
     this.logger('init:started')
-    
+
     this.attachListeners()
     await this.init()
 
