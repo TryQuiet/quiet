@@ -17,7 +17,6 @@
 		"version": "git add -A src",
 		"lint": "eslint --ext .jsx,.js,.ts,.tsx ./src/ --fix",
 		"lint-ci": "eslint --ext .jsx,.js,.ts,.tsx ./src/",
-		"test2": "cross-env NODE_OPTIONS=--experimental-vm-modules DEBUG=ipfs:*,backend:* node_modules/jest/bin/jest.js",
 		"test-nest": "cross-env NODE_OPTIONS=--experimental-vm-modules DEBUG=ipfs:*,backend:* node_modules/jest/bin/jest.js --detectOpenHandles --forceExit   ./src/nest/**/*.spec.ts",
 		"test": "cross-env NODE_OPTIONS=--experimental-vm-modules DEBUG=ipfs:*,backend:* node_modules/jest/bin/jest.js ./src/**/* --runInBand --verbose --testPathIgnorePatterns=\".src/(!?nodeTest*)|(.node_modules*)\"",
 		"test-ci": "cross-env NODE_OPTIONS=--experimental-vm-modules jest ./src/**/* --runInBand --colors --ci --silent --verbose --testPathIgnorePatterns=\".src/nest/(!?nodeTest*)|(.node_modules*)|src/nest/.*\\.tor.spec\\.(t|j)s|src/nest/ipfs-file-manager/big-files.long.spec.ts$\"",
