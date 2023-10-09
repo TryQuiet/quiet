@@ -118,7 +118,6 @@ describe('launchCommunity', () => {
           id: launchCommunityPayload.id,
           peerId: launchCommunityPayload.peerId,
           hiddenService: launchCommunityPayload.hiddenService,
-          certs: launchCommunityPayload.certs,
           peers: launchCommunityPayload.peers,
         },
       ])
@@ -182,7 +181,6 @@ describe('launchCommunity', () => {
           id: launchCommunityPayload.id,
           peerId: launchCommunityPayload.peerId,
           hiddenService: launchCommunityPayload.hiddenService,
-          certs: launchCommunityPayload.certs,
           peers: launchCommunityPayload.peers,
         },
       ])
@@ -288,7 +286,7 @@ describe('launchCommunity', () => {
           },
         }
       )
-      .put(identityActions.registerUsername(identityAlpha.nickname))
+      .put(identityActions.registerUsername({ nickname: identityAlpha.nickname }))
       .put(communitiesActions.launchCommunity(community2.id))
       .run()
   })

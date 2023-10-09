@@ -3,7 +3,7 @@ import { ModalName } from '../../sagas/modals/modals.types'
 import { modalsActions } from '../../sagas/modals/modals.slice'
 import { AnyAction, Dispatch } from 'redux'
 
-export const checkForUpdate = () => async (dispatch: Dispatch<AnyAction>) => {
+export const openUpdateModal = () => async (dispatch: Dispatch<AnyAction>) => {
   dispatch(modalsActions.openModal({ name: ModalName.applicationUpdate }))
 }
 
@@ -17,7 +17,7 @@ export const declineUpdate = () => async (dispatch: Dispatch<AnyAction>) => {
 }
 
 export const epics = {
-  checkForUpdate,
+  openUpdateModal,
   startApplicationUpdate,
   declineUpdate,
 }

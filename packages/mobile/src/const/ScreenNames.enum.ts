@@ -12,4 +12,9 @@ export enum ScreenNames {
   QRCodeScreen = 'QRCodeScreen',
   LeaveCommunityScreen = 'LeaveCommunityScreen',
   ConnectionProcessScreen = 'ConnectionProcessScreen',
+  DuplicatedUsernameScreen = 'DuplicatedUsernameScreen',
+  UnregisteredUsernameScreen = 'UnregisteredUsernameScreen',
+  UsernameTakenScreen = 'UsernameTakenScreen',
+  NewUsernameRequestedScreen = 'NewUsernameRequestedScreen',
+  PossibleImpersonationAttackScreen = 'PossibleImpersonationAttackScreen',
 }

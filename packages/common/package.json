@@ -1,12 +1,13 @@
 {
   "name": "@quiet/common",
-  "version": "2.0.0-alpha.0",
+  "version": "2.0.1-alpha.2",
   "description": "Common monorepo utils",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "files": [
     "lib/**/*"
   ],
+  "private": true,
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "prepare": "npm run build",
@@ -17,7 +18,7 @@
     "rmDist": "rimraf lib/"
   },
   "devDependencies": {
-    "@quiet/eslint-config": "^1.4.0-alpha.0",
+    "@quiet/eslint-config": "^2.0.1-alpha.2",
     "@types/jest": "^26.0.23",
     "@types/node": "^17.0.21",
     "jest": "^26.6.3",
@@ -25,7 +26,7 @@
     "typescript": "^4.9.3"
   },
   "dependencies": {
-    "@quiet/types": "^2.0.0-alpha.0",
+    "@quiet/types": "^2.0.1-alpha.2",
     "cross-env": "^5.2.0",
     "debug": "^4.3.1"
   },

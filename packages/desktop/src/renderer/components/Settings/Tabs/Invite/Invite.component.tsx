@@ -60,7 +60,6 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
     alignItems: 'baseline',
     alignContent: 'stretch',
     maxWidth: '485px',
-    height: '48px',
     position: 'relative',
   },
 

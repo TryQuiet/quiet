@@ -12,8 +12,7 @@ import { formatMessageDisplayDate } from '../../utils/functions/formatMessageDis
 
 import { useContextMenu } from '../../hooks/useContextMenu'
 import { MenuName } from '../../const/MenuNames.enum'
-import { getChannelNameFormChannelId } from '@quiet/common'
-import { initSelectors } from '../../store/init/init.selectors'
+import { getChannelNameFromChannelId } from '@quiet/common'
 
 export const ChannelListScreen: FC = () => {
   const dispatch = useDispatch()
@@ -43,7 +42,7 @@ export const ChannelListScreen: FC = () => {
     const date = newestMessage?.createdAt ? formatMessageDisplayDate(newestMessage.createdAt) : undefined
 
     const tile: ChannelTileProps = {
-      name: getChannelNameFormChannelId(status.id),
+      name: getChannelNameFromChannelId(status.id),
       id: status.id,
       message,
       date,
@@ -54,14 +53,7 @@ export const ChannelListScreen: FC = () => {
     return tile
   })
 
-  const ready = useSelector(initSelectors.ready)
-
-  let communityContextMenu = useContextMenu(MenuName.Community)
-
-  if (!ready) {
-    // @ts-expect-error
-    communityContextMenu = null
-  }
+  const communityContextMenu = useContextMenu(MenuName.Community)
 
   return <ChannelListComponent community={community} tiles={tiles} communityContextMenu={communityContextMenu} />
 }

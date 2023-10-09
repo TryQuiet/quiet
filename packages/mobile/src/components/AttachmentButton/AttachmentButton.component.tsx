@@ -1,11 +1,10 @@
 import React, { FC, useCallback } from 'react'
 import { TouchableWithoutFeedback, View, Image } from 'react-native'
 import { appImages } from '../../assets'
-
 import { AttachmentButtonProps } from './AttachmentButton.types'
 
 export const AttachmentButton: FC<AttachmentButtonProps> = ({ onPress }) => {
-  const icon = appImages.paperclip_active
+  const icon = appImages.paperclip_gray
 
   return (
     <TouchableWithoutFeedback onPress={onPress} testID={'attach_file_button'}>
@@ -20,8 +19,8 @@ export const AttachmentButton: FC<AttachmentButtonProps> = ({ onPress }) => {
           source={icon}
           style={{
             alignSelf: 'center',
-            width: 20,
-            height: 20,
+            width: 24,
+            height: 24,
           }}
         />
       </View>

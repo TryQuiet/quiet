@@ -18,10 +18,10 @@ const CreateUsername = () => {
   const error = useSelector(errors.selectors.registrarErrors)
 
   useEffect(() => {
-    if (currentCommunity && !currentIdentity?.userCertificate && !createUsernameModal.open) {
+    if (currentCommunity && !currentIdentity?.userCsr && !createUsernameModal.open) {
       createUsernameModal.handleOpen()
     }
-    if (currentIdentity?.userCertificate && createUsernameModal.open) {
+    if (currentIdentity?.userCsr && createUsernameModal.open) {
       createUsernameModal.handleClose()
     }
   }, [currentIdentity, currentCommunity])
@@ -32,7 +32,11 @@ const CreateUsername = () => {
       dispatch(errors.actions.clearError(error))
     }
 
-    dispatch(identity.actions.registerUsername(nickname))
+    dispatch(
+      identity.actions.registerUsername({
+        nickname,
+      })
+    )
     dispatch(network.actions.setLoadingPanelType(LoadingPanelType.Joining))
     loadingPanelModal.handleOpen()
   }

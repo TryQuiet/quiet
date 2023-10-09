@@ -6,10 +6,10 @@ describe('Capitalize first letter', () => {
   })
 
   it("doesn't break if provided empty string", () => {
-    expect(capitalizeFirstLetter('')).toEqual(null)
+    expect(capitalizeFirstLetter('')).toEqual('')
   })
 
   it("doesn't break if string is undefined", () => {
-    expect(capitalizeFirstLetter(undefined)).toEqual(null)
+    expect(capitalizeFirstLetter(undefined)).toEqual('')
   })
 })

@@ -84,7 +84,7 @@ describe('UpdateModal', () => {
                 style="width: 600px;"
               >
                 <div
-                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-puyhqi-MuiGrid-root"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-1emakh5-MuiGrid-root"
                 >
                   <div
                     class="MuiGrid-root MuiGrid-container UpdateModalinfo css-1lym95h-MuiGrid-root"
@@ -119,7 +119,7 @@ describe('UpdateModal', () => {
                       <p
                         class="MuiTypography-root MuiTypography-body2 css-16d47hw-MuiTypography-root"
                       >
-                        An update is available for Quiet.
+                        A new update for Quiet is available and will be applied on your next restart.
                       </p>
                     </div>
                   </div>
@@ -134,12 +134,26 @@ describe('UpdateModal', () => {
                         tabindex="0"
                         type="submit"
                       >
-                        Update now
+                        Restart now
                         <span
                           class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
                         />
                       </button>
                     </div>
+                  </div>
+                  <div
+                    class="MuiGrid-root MuiGrid-container MuiGrid-item UpdateModalsecondaryButtonContainer css-1h16bbz-MuiGrid-root"
+                  >
+                    <button
+                      class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-fullWidth MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-fullWidth UpdateModalsecondaryButton css-14mi2mx-MuiButtonBase-root-MuiButton-root"
+                      tabindex="0"
+                      type="button"
+                    >
+                      Later
+                      <span
+                        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+                      />
+                    </button>
                   </div>
                 </div>
               </div>

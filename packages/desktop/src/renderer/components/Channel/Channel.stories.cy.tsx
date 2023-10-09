@@ -11,6 +11,7 @@ import { HTML5Backend } from 'react-dnd-html5-backend'
 import { DisplayableMessage } from '@quiet/types'
 
 import ChannelComponent from './ChannelComponent'
+import { payloadDuplicated, payloadUnregistered } from '../widgets/userLabel/UserLabel.types'
 
 const Template: ComponentStory<typeof ChannelComponent> = () => {
   const [messages, setMessages] = useState<{
@@ -28,7 +29,10 @@ const Template: ComponentStory<typeof ChannelComponent> = () => {
       message: message,
       createdAt: 0,
       date: '12:46',
-      nickname: 'vader'
+      nickname: 'vader',
+      isDuplicated: false,
+      isRegistered: true,
+      pubKey: 'string',
     }
     const _messages = mock_messages(_message)
     setMessages(_messages)
@@ -48,23 +52,23 @@ const Template: ComponentStory<typeof ChannelComponent> = () => {
             createdAt: 0,
             channelId: 'general',
             signature: 'signature',
-            pubKey: 'pubKey'
+            pubKey: 'pubKey',
           }}
           user={{
             id: 'id',
             nickname: 'vader',
             hiddenService: {
               onionAddress: 'onionAddress',
-              privateKey: 'privateKey'
+              privateKey: 'privateKey',
             },
             peerId: {
               id: 'id',
               privKey: 'privKey',
-              pubKey: 'pubKey'
+              pubKey: 'pubKey',
             },
             dmKeys: {
               publicKey: 'publicKey',
-              privateKey: 'privateKey'
+              privateKey: 'privateKey',
             },
             userCsr: {
               userCsr: 'userCsr',
@@ -72,18 +76,18 @@ const Template: ComponentStory<typeof ChannelComponent> = () => {
               pkcs10: {
                 publicKey: 'publicKey',
                 privateKey: 'privateKey',
-                pkcs10: 'pkcs10'
-              }
+                pkcs10: 'pkcs10',
+              },
             },
             userCertificate: 'userCertificate',
-            joinTimestamp: null
+            joinTimestamp: null,
           }}
           isCommunityInitialized={true}
           uploadedFileModal={{
             open: false,
             handleOpen: function (_args?: any): any {},
             handleClose: function (): any {},
-            src: 'images/butterfly.jpeg'
+            src: 'images/butterfly.jpeg',
           }}
           channelId={'general'}
           channelName={'general'}
@@ -107,6 +111,8 @@ const Template: ComponentStory<typeof ChannelComponent> = () => {
           handleClipboardFiles={function (arg: ArrayBuffer, ext: string, name: string): void {
             throw new Error('Function not implemented.')
           }}
+          duplicatedUsernameModalHandleOpen={() => payloadDuplicated}
+          unregisteredUsernameModalHandleOpen={() => payloadUnregistered}
         />
       </DndProvider>
     </>
@@ -118,7 +124,7 @@ export const Component = Template.bind({})
 const component: ComponentMeta<typeof ChannelComponent> = {
   title: 'Components/ChannelComponentCypress',
   decorators: [withTheme],
-  component: ChannelComponent
+  component: ChannelComponent,
 }
 
 export default component

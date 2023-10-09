@@ -97,33 +97,6 @@ describe('communitiesSelectors', () => {
     expect(invitationUrl).toEqual('')
   })
 
-  it('returns proper invitation url if registrationUrl is in old format', async () => {
-    const code = 'aznu6kiyutsgjhdue4i4xushjzey6boxf4i4isd53admsibvbt6qyiyd'
-    const registrarUrl = `http://${code}`
-    const { store } = prepareStore()
-    const factory = await getFactory(store)
-    await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community', {
-      registrarUrl,
-      port: 0,
-      onionAddress: '',
-    })
-    const invitationUrl = communitiesSelectors.invitationUrl(store.getState())
-    expect(invitationUrl).toEqual(invitationShareUrl(code))
-  })
-
-  it('returns proper invitation url if registrationUrl is just onion address', async () => {
-    const code = 'aznu6kiyutsgjhdue4i4xushjzey6boxf4i4isd53admsibvbt6qyiyd'
-    const { store } = prepareStore()
-    const factory = await getFactory(store)
-    await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community', {
-      registrarUrl: code,
-      port: 0,
-      onionAddress: '',
-    })
-    const invitationUrl = communitiesSelectors.invitationUrl(store.getState())
-    expect(invitationUrl).toEqual(invitationShareUrl(code))
-  })
-
   it('returns proper ownerNickname - ownerCertificate exist', async () => {
     const { store } = prepareStore()
     expect(identity.userCertificate).not.toBeUndefined()

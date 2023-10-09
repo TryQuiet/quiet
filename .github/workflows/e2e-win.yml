@@ -13,13 +13,13 @@ jobs:
       E2E: true
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: "Setup environment"
         uses: ./.github/actions/setup-env
         with:
           cachePrefix: "e2e-crossplatform-windows"
-          bootstrap-packages: "@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,backend-bundle,e2e-tests"
+          bootstrap-packages: "@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/desktop,backend-bundle,e2e-tests"
 
       - name: "Fetch jsign"
         shell: bash
@@ -41,7 +41,7 @@ jobs:
 
       - name: Extract version
         id: extract_version
-        uses: Saionaro/extract-package-version@v1.1.1
+        uses: Saionaro/extract-package-version@v1.2.1
         with:
           path: packages/desktop
 
@@ -56,7 +56,7 @@ jobs:
         shell: bash
 
       - name: "Upload built app"
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: quiet-windows
           path: ./packages/desktop/dist/Quiet Setup ${{ steps.extract_version.outputs.version }}.exe
@@ -68,11 +68,11 @@ jobs:
         shell: powershell
 
       - name: Kill Quiet
-        run: Stop-Process -Name "Quiet" -Force
+        run: Get-Process -Name "Quiet" -ErrorAction SilentlyContinue | Stop-Process -Force
         shell: powershell
 
       - name: Kill tor
-        run: Stop-Process -Name "tor" -Force
+        run: Get-Process -Name "tor" -ErrorAction SilentlyContinue | Stop-Process -Force
         shell: powershell
 
       - name: Delay
@@ -87,13 +87,13 @@ jobs:
           shell: bash
           command: cd packages/e2e-tests && npm run test oneClient.test.ts
 
-      - name: Run two clients test
+      - name: Run multiple clients test
         uses: nick-fields/retry@v2
         with:
           timeout_minutes: 30
           max_attempts: 3
           shell: bash
-          command: cd packages/e2e-tests && npm run test twoClients.test.ts
+          command: cd packages/e2e-tests && npm run test multipleClients.test.ts
 
       - name: Run invitation link test - Includes 2 separate application clients
         uses: nick-fields/retry@v2

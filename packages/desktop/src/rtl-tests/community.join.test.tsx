@@ -26,7 +26,6 @@ import {
   getFactory,
   errors,
   ResponseCreateNetworkPayload,
-  connection,
 } from '@quiet/state-manager'
 import Channel from '../renderer/components/Channel/Channel'
 import LoadingPanel from '../renderer/components/LoadingPanel/LoadingPanel'
@@ -37,14 +36,14 @@ import {
   ErrorPayload,
   ResponseLaunchCommunityPayload,
   SendOwnerCertificatePayload,
-  SendUserCertificatePayload,
 } from '@quiet/types'
-import { selectOptions } from 'mathjax-full/js/util/Options'
 
 jest.setTimeout(20_000)
 
 describe('User', () => {
   let socket: MockedSocket
+  const validCode =
+    'QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE=y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd'
   // trigger
   beforeEach(() => {
     socket = new MockedSocket()
@@ -167,7 +166,7 @@ describe('User', () => {
     // Enter community address and hit button
     const joinCommunityInput = screen.getByPlaceholderText(dictionary.placeholder)
     const joinCommunityButton = screen.getByText(dictionary.button)
-    await userEvent.type(joinCommunityInput, '3lyn5yjwwb74he5olv43eej7knt34folvrgrfsw6vzitvkxmc5wpe4yd')
+    await userEvent.type(joinCommunityInput, validCode)
     await userEvent.click(joinCommunityButton)
 
     // Confirm user is being redirected to username registration
@@ -194,28 +193,25 @@ describe('User', () => {
     expect(actions).toMatchInlineSnapshot(`
       Array [
         "Communities/createNetwork",
-        "Communities/clearInvitationCode",
+        "Communities/setInvitationCodes",
         "Communities/addNewCommunity",
         "Communities/setCurrentCommunity",
         "Modals/closeModal",
         "Modals/openModal",
         "Identity/registerUsername",
         "Communities/responseCreateNetwork",
-        "Communities/clearInvitationCode",
         "Communities/updateCommunityData",
         "Identity/addNewIdentity",
         "Network/setLoadingPanelType",
         "Modals/openModal",
         "Identity/registerCertificate",
-        "Communities/addOwnerCertificate",
-        "Communities/storePeerList",
-        "Identity/storeUserCertificate",
-        "Communities/updateCommunity",
-        "Communities/updateCommunityData",
         "Communities/launchCommunity",
         "Communities/launchRegistrar",
+        "Identity/saveUserCsr",
         "Files/checkForMissingFiles",
         "Network/addInitializedCommunity",
+        "Communities/clearInvitationCodes",
+        "Communities/sendCommunityMetadata",
         "PublicChannels/channelsReplicated",
         "PublicChannels/addChannel",
         "Messages/addPublicChannelsMessagesBase",
@@ -227,7 +223,8 @@ describe('User', () => {
     `)
   })
 
-  it('sees proper registration error when trying to join with already taken username', async () => {
+  // We don't display registration errors right now
+  it.skip('sees proper registration error when trying to join with already taken username', async () => {
     const { store, runSaga } = await prepareStore(
       {},
       socket // Fork state manager's sagas
@@ -292,7 +289,7 @@ describe('User', () => {
     // Enter community address and hit button
     const joinCommunityInput = screen.getByPlaceholderText(dictionary.placeholder)
     const joinCommunityButton = screen.getByText(dictionary.button)
-    await userEvent.type(joinCommunityInput, '3lyn5yjwwb74he5olv43eej7knt34folvrgrfsw6vzitvkxmc5wpe4yd')
+    await userEvent.type(joinCommunityInput, validCode)
     await userEvent.click(joinCommunityButton)
 
     // Confirm user is being redirected to username registration
@@ -336,7 +333,7 @@ describe('User', () => {
     `)
   })
 
-  it('clears error before sending another username registration request', async () => {
+  it.skip('clears error before sending another username registration request', async () => {
     const { store, runSaga } = await prepareStore(
       {},
       socket // Fork state manager's sagas
@@ -389,7 +386,7 @@ describe('User', () => {
     // Enter community address and hit button
     const joinCommunityInput = screen.getByPlaceholderText(dictionary.placeholder)
     const joinCommunityButton = screen.getByText(dictionary.button)
-    await userEvent.type(joinCommunityInput, '3lyn5yjwwb74he5olv43eej7knt34folvrgrfsw6vzitvkxmc5wpe4yd')
+    await userEvent.type(joinCommunityInput, validCode)
     await userEvent.click(joinCommunityButton)
 
     // Confirm user is being redirected to username registration

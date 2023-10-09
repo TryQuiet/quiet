@@ -1,0 +1,281 @@
+name: Desktop release build
+
+on:
+  release:
+    types:
+      [released, prereleased]
+
+jobs:
+  run-e2e-tests-linux:
+    uses: ./.github/workflows/e2e-linux.yml
+  run-e2e-tests-mac:
+    uses: ./.github/workflows/e2e-mac.yml
+  run-e2e-tests-win:
+    uses: ./.github/workflows/e2e-win.yml
+
+  build-linux:
+    # needs: run-e2e-tests-linux
+    runs-on: ubuntu-22.04
+    if: |
+      startsWith(github.ref, 'refs/tags/@quiet/desktop')
+
+    env:
+      TEST_MODE: ${{ github.event.action == 'prereleased' }}
+      S3_BUCKET: ${{ github.event.action == 'released' && 'quiet' || 'test.quiet' }}
+      CHECKSUM_PATH: ${{ github.event.action == 'released' && 'packages/desktop/dist/latest-linux.yml' || 'packages/desktop/dist/alpha-linux.yml' }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup environment
+        uses: ./.github/actions/setup-env
+        with:
+          bootstrap-packages: "@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/desktop,backend-bundle"
+
+      - name: Install libfuse
+        run: sudo apt install libfuse2
+
+      - name: Before build
+        uses: ./.github/actions/before-build
+        with:
+          source-path: linux
+
+      - name: "Set electron-builder props"
+        run: echo "ELECTRON_BUILDER_PROPS=-c.publish.bucket=$S3_BUCKET" >> $GITHUB_ENV
+
+      - name: "Release"
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          ARCH: x86_64
+        run: cd packages/desktop && USE_HARD_LINKS=false node_modules/.bin/electron-builder -p always --linux ${{ env.ELECTRON_BUILDER_PROPS }}
+
+      - name: "Calculate new checksum for electron updater"
+        run: lerna run postBuild --scope @quiet/desktop
+
+      - name: "Push electron-updater new checksum to S3"
+        uses: vinkabuki/upload-s3-action@master
+        with:
+          aws_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws_bucket: ${{ env.S3_BUCKET }}
+          source_dir: ${{ env.CHECKSUM_PATH }}
+          destination_dir: ''
+
+      - name: Get release
+        id: get_release
+        uses: bruceadams/get-release@v1.2.3
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: Get release version
+        id: package-version
+        uses: martinbeentjes/npm-get-version-action@main
+        with:
+          path: packages/desktop
+
+      - name: Upload Release Assets
+        uses: actions/upload-release-asset@v1.0.2
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.get_release.outputs.upload_url }}
+          asset_path: ./packages/desktop/dist/Quiet-${{ steps.package-version.outputs.current-version}}.AppImage
+          asset_name: Quiet-${{ steps.package-version.outputs.current-version}}.AppImage
+          asset_content_type: application/.AppImage
+
+  build-macos:
+    # needs: run-e2e-tests-mac
+    runs-on: macos-latest
+    if: |
+      startsWith(github.ref, 'refs/tags/@quiet/desktop')
+
+    env:
+      TEST_MODE: ${{ github.event.action == 'prereleased' }}
+      S3_BUCKET: ${{ github.event.action == 'released' && 'quiet' || 'test.quiet' }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions-rs/components-nightly@v1
+        with:
+          component: clippy
+
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly-2020-08-28
+          components: clippy
+          override: true
+
+      - name: Setup environment
+        uses: ./.github/actions/setup-env
+        with:
+          bootstrap-packages: "@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/desktop,backend-bundle"
+
+      - name: Before build
+        uses: ./.github/actions/before-build
+        with:
+          source-path: darwin
+
+      - name: "Remove crud files"
+        run: xattr -cr .
+
+      - name: "Set electron-builder props"
+        run: echo "ELECTRON_BUILDER_PROPS=-c.publish.bucket=$S3_BUCKET" >> $GITHUB_ENV
+
+      - name: "Release"
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          CSC_KEY_PASSWORD: ${{ secrets.MAC_CSC_KEY_PASSWORD }}
+          CSC_LINK: ${{ secrets.MAC_CSC_LINK }}
+          APPLEID: ${{ secrets.APPLE_ID }}
+          APPLEIDPASS: ${{ secrets.APPLE_ID_PASS }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          USE_HARD_LINKS: false
+        run: cd packages/desktop && node_modules/.bin/electron-builder -p always --mac ${{ env.ELECTRON_BUILDER_PROPS }}
+
+      - name: Get release
+        id: get_release
+        uses: bruceadams/get-release@v1.2.3
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: Extract version
+        id: extract_version
+        uses: Saionaro/extract-package-version@v1.2.1
+        with:
+          path: packages/desktop
+
+      - name: Upload Release Assets
+        uses: actions/upload-release-asset@v1.0.2
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.get_release.outputs.upload_url }}
+          asset_path: ./packages/desktop/dist/Quiet-${{ steps.extract_version.outputs.version}}.dmg
+          asset_name: Quiet-${{ steps.extract_version.outputs.version}}.dmg
+          asset_content_type: application/.dmg
+
+  build-windows:
+    # needs: run-e2e-tests-win
+    runs-on: windows-2019
+    if: |
+      startsWith(github.ref, 'refs/tags/@quiet/desktop')
+
+    env:
+      TEST_MODE: ${{ github.event.action == 'prereleased' }}
+      S3_BUCKET: ${{ github.event.action == 'released' && 'quiet' || 'test.quiet' }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: "Fetch jsign"
+        shell: bash
+        run: cd packages/desktop && curl https://zbay-binaries.s3.us-east-2.amazonaws.com/jsign/jsign-2.1.jar --output ./jsign-2.1.jar
+
+      - name: "Add Windows certificate"
+        id: write_file
+        uses: TryQuiet/base64-to-file@main
+        with:
+          fileName: 'win-certificate.pfx'
+          encodedString: ${{ secrets.WIN_CSC_LINK }}
+
+      - name: "Remove test files workaround (jest types conflicting with cypress types)"
+        run: find packages/desktop/src -name '*.test.*' -delete
+        shell: bash
+
+      - name: Setup environment
+        uses: ./.github/actions/setup-env
+        with:
+          bootstrap-packages: "@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/desktop,backend-bundle,e2e-tests"
+
+      - name: Before build
+        uses: ./.github/actions/before-build
+        with:
+          source-path: win32
+
+      #E2E - Start 
+      # - name: E2E - electron-builder
+      #   env:
+      #     CERTIFICATE_PATH: ${{ steps.write_file.outputs.filePath }}
+      #     WIN_CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
+      #     WINDOWS_ALIAS: ${{ secrets.WIN_ALIAS }}
+      #   working-directory: ./packages/desktop
+      #   run: node_modules/.bin/electron-builder --win 
+      #   shell: bash
+
+      # - name: E2E - Extract version
+      #   id: extract_version
+      #   uses: Saionaro/extract-package-version@v1.2.1
+      #   with:
+      #     path: packages/desktop
+
+      # - name: E2E - FILE_NAME env
+      #   working-directory: ./packages/desktop/dist
+      #   run: echo "FILE_NAME=Quiet Setup ${{ steps.extract_version.outputs.version }}.exe" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
+      #   shell: powershell
+
+      # - name: E2E - Chmod
+      #   working-directory: ./packages/desktop/dist
+      #   run: chmod +x "$FILE_NAME"
+      #   shell: bash
+
+      # - name: E2E - Install exe
+      #   run: Start-Process "Quiet Setup ${{ steps.extract_version.outputs.version }}.exe" -Wait
+      #   working-directory: ./packages/desktop/dist
+      #   shell: powershell
+
+      # - name: E2E - Kill exe
+      #   run: Stop-Process -Name "Quiet" -Force
+      #   working-directory: ./packages/desktop/dist
+      #   shell: powershell
+
+      # - name: E2E - Run smoke test
+      #   uses: nick-fields/retry@v2
+      #   with:
+      #     timeout_minutes: 25
+      #     max_attempts: 3
+      #     shell: bash
+      #     command: cd packages/e2e-tests && npm run test smoke.crossplatform.test.ts
+      #E2E - End         
+
+      - name: "Set electron-builder props"
+        shell: bash
+        run: echo "ELECTRON_BUILDER_PROPS=-c.publish.bucket=$S3_BUCKET" >> $GITHUB_ENV
+
+      - name: "Release"
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          CERTIFICATE_PATH: ${{ steps.write_file.outputs.filePath }}
+          WIN_CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
+          WINDOWS_ALIAS: ${{ secrets.WIN_ALIAS }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          USE_HARD_LINKS: false
+        run: cd packages/desktop && node_modules/.bin/electron-builder -p always --win ${{ env.ELECTRON_BUILDER_PROPS }}
+
+      - name: Get release
+        id: get_release
+        uses: bruceadams/get-release@v1.2.3
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: Extract version
+        id: extract_version
+        uses: Saionaro/extract-package-version@v1.2.1
+        with:
+          path: packages/desktop
+
+
+      - name: Upload Release Assets
+        uses: actions/upload-release-asset@v1.0.2
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.get_release.outputs.upload_url }}
+          asset_path: ./packages/desktop/dist/Quiet Setup ${{ steps.extract_version.outputs.version}}.exe
+          asset_name: Quiet Setup ${{ steps.extract_version.outputs.version}}.exe
+          asset_content_type: application/.exe

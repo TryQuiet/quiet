@@ -253,7 +253,7 @@ describe('DeleteChannel component', () => {
                 {
                   "alignItems": "center",
                   "backgroundColor": "#521C74",
-                  "borderRadius": 5,
+                  "borderRadius": 8,
                   "justifyContent": "center",
                   "marginVertical": 12,
                   "minHeight": 45,
@@ -308,7 +308,7 @@ describe('DeleteChannel component', () => {
                 {
                   "alignItems": "center",
                   "backgroundColor": "transparent",
-                  "borderRadius": 5,
+                  "borderRadius": 8,
                   "justifyContent": "center",
                   "marginVertical": 0,
                   "minHeight": 45,

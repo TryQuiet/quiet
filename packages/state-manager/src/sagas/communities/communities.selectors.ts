@@ -9,7 +9,7 @@ import { getOldestParsedCerificate } from '../users/users.selectors'
 // Workaround for "The inferred type of 'communitiesSelectors' cannot be named without a reference to
 // 'packages/identity/node_modules/pkijs/build'. This is likely not portable. A type annotation is necessary."
 // https://github.com/microsoft/TypeScript/issues/47663#issuecomment-1270716220
-import type {} from 'pkijs'
+import type { } from 'pkijs'
 
 const communitiesSlice: CreatedSelectors[StoreKeys.Communities] = (state: StoreState) => state[StoreKeys.Communities]
 
@@ -57,16 +57,15 @@ export const invitationCode = createSelector(communitiesSlice, reducerState => {
   return reducerState.invitationCode
 })
 
+export const invitationCodes = createSelector(communitiesSlice, reducerState => {
+  return reducerState.invitationCodes
+})
+
 export const invitationUrl = createSelector(currentCommunity, community => {
-  if (!community?.registrarUrl) return ''
-  let registrarUrl = ''
-  try {
-    const url = new URL(community.registrarUrl)
-    registrarUrl = url.hostname.split('.')[0]
-  } catch (e) {
-    registrarUrl = community.registrarUrl
-  }
-  return invitationShareUrl(registrarUrl)
+  const peerList = community?.peerList
+  if (!peerList || peerList?.length === 0) return ''
+  const initialPeers = peerList.slice(0, 4)
+  return invitationShareUrl(initialPeers)
 })
 
 export const ownerNickname = createSelector(
@@ -100,6 +99,7 @@ export const communitiesSelectors = {
   currentCommunity,
   currentCommunityId,
   registrarUrl,
+  invitationCodes,
   invitationCode,
   invitationUrl,
   ownerNickname,

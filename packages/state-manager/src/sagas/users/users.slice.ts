@@ -1,11 +1,12 @@
 import { createSlice, type EntityState, type PayloadAction } from '@reduxjs/toolkit'
-import { keyFromCertificate, parseCertificate } from '@quiet/identity'
+import { keyFromCertificate, parseCertificate, parseCertificationRequest } from '@quiet/identity'
 import { StoreKeys } from '../store.keys'
 import { certificatesAdapter } from './users.adapter'
-import { type SendCertificatesResponse } from '@quiet/types'
+import { SendCsrsResponse, type SendCertificatesResponse } from '@quiet/types'
 
 export class UsersState {
   public certificates: EntityState<any> = certificatesAdapter.getInitialState()
+  public csrs: EntityState<any> = certificatesAdapter.getInitialState()
 }
 
 export const usersSlice = createSlice({
@@ -24,6 +25,17 @@ export const usersSlice = createSlice({
             return
           }
           return parseCertificate(item)
+        })
+      )
+    },
+    storeCsrs: (state, action: PayloadAction<SendCsrsResponse>) => {
+      certificatesAdapter.upsertMany(
+        state.csrs,
+        Object.values(action.payload.csrs).map(item => {
+          if (!item) {
+            return
+          }
+          return parseCertificationRequest(item)
         })
       )
     },

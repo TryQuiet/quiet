@@ -10,6 +10,18 @@ import { InviteComponent } from './Tabs/Invite/Invite.component'
 import { LeaveCommunityComponent } from './Tabs/LeaveCommunity/LeaveCommunityComponent'
 import { Typography } from '@mui/material'
 import { QRCodeComponent } from './Tabs/QRCode/QRCode.component'
+import { pairsToInvitationShareUrl } from '@quiet/common'
+
+const invitationLink = pairsToInvitationShareUrl([
+  {
+    peerId: 'QmVTkUad2Gq3MkCa8gf12R1gsWDfk2yiTEqb6YGXDG2iQ3',
+    onionAddress: 'p3oqdr53dkgg3n5nuezlzyawhxvit5efxzlunvzp7n7lmva6fj3i43ad',
+  },
+  {
+    peerId: 'Qmd2Un9AynokZrcZGsMuaqgupTtidHGQnUkNVfFFAef97C',
+    onionAddress: 'vnywuiyl7p7ig2murcscdyzksko53e4k3dpdm2yoopvvu25p6wwjqbad',
+  },
+])
 
 const Template: ComponentStory<typeof SettingsComponent> = args => {
   return <SettingsComponent {...args} />
@@ -35,9 +47,10 @@ const Leave: FC = () => {
 
 const Invite: FC = () => {
   const [revealInputValue, setRevealInputValue] = useState<boolean>(false)
+
   return (
     <InviteComponent
-      invitationLink={'https://tryquiet.org/join#p7lrosb6fvtt7t3fhmuh5uj5twxirpngeipemdm5d32shgz46cbd3bad'}
+      invitationLink={invitationLink}
       revealInputValue={revealInputValue}
       handleClickInputReveal={() => {
         setRevealInputValue(!revealInputValue)
@@ -47,7 +60,7 @@ const Invite: FC = () => {
 }
 
 const QRCode: FC = () => {
-  return <QRCodeComponent value='https://tryquiet.org/join#ytzoaxku26gobduqogx6ydhezgf6aumpcted27qx7tz6z77lzj2zb6ad' />
+  return <QRCodeComponent value={invitationLink} />
 }
 
 const args: SettingsComponentProps = {

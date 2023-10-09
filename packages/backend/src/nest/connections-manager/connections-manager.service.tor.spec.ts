@@ -30,7 +30,7 @@ import { DateTime } from 'luxon'
 import waitForExpect from 'wait-for-expect'
 import { Libp2pEvents } from '../libp2p/libp2p.types'
 import { sleep } from '../common/sleep'
-import { createLibp2pAddress } from '../libp2p/libp2p.utils'
+import { createLibp2pAddress } from '@quiet/common'
 
 jest.setTimeout(100_000)
 

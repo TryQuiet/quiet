@@ -1,3 +1,4 @@
+import { DisplayableMessage } from '@quiet/types'
 import { type Dictionary, type EntityState } from '@reduxjs/toolkit'
 import { type FileMetadata } from '../files/files.types'
 
@@ -35,16 +36,6 @@ export interface ChannelMessage {
   channelId: string
   signature: string
   pubKey: string
-  media?: FileMetadata
-}
-
-export interface DisplayableMessage {
-  id: string
-  type: number
-  message: string
-  createdAt: number // seconds
-  date: string // displayable
-  nickname: string
   media?: FileMetadata
 }
 
