@@ -11,7 +11,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-## [2.0.1-alpha.1](https://github.com/ZbayApp/monorepo/compare/@quiet/types@2.0.1-alpha.0...@quiet/types@2.0.1-alpha.1) (2023-09-25)
+## [2.0.1-alpha.1](https://github.com/TryQuiet/quiet/compare/@quiet/types@2.0.1-alpha.0...@quiet/types@2.0.1-alpha.1) (2023-09-25)
 
 **Note:** Version bump only for package @quiet/types
 
@@ -19,7 +19,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-## [2.0.1-alpha.0](https://github.com/ZbayApp/monorepo/compare/@quiet/types@2.0.0-alpha.3...@quiet/types@2.0.1-alpha.0) (2023-09-25)
+## [2.0.1-alpha.0](https://github.com/TryQuiet/quiet/compare/@quiet/types@2.0.0-alpha.3...@quiet/types@2.0.1-alpha.0) (2023-09-25)
 
 **Note:** Version bump only for package @quiet/types
 
@@ -27,7 +27,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [2.0.0-alpha.18](https://github.com/ZbayApp/monorepo/compare/@quiet/types@2.0.0-alpha.3...@quiet/types@2.0.0-alpha.18) (2023-10-04)
+# [2.0.0-alpha.18](https://github.com/TryQuiet/quiet/compare/@quiet/types@2.0.0-alpha.3...@quiet/types@2.0.0-alpha.18) (2023-10-04)
 
 **Note:** Version bump only for package @quiet/types
 
@@ -100,7 +100,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [1.6.0](https://github.com/ZbayApp/monorepo/compare/@quiet/types@1.5.1-alpha.0...@quiet/types@1.6.0) (2023-07-28)
+# [1.6.0](https://github.com/TryQuiet/quiet/compare/@quiet/types@1.5.1-alpha.0...@quiet/types@1.6.0) (2023-07-28)
 
 **Note:** Version bump only for package @quiet/types
 
@@ -108,7 +108,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-## [1.5.1-alpha.0](https://github.com/ZbayApp/monorepo/compare/@quiet/types@1.5.0-alpha.0...@quiet/types@1.5.1-alpha.0) (2023-07-28)
+## [1.5.1-alpha.0](https://github.com/TryQuiet/quiet/compare/@quiet/types@1.5.0-alpha.0...@quiet/types@1.5.1-alpha.0) (2023-07-28)
 
 **Note:** Version bump only for package @quiet/types
 
@@ -116,7 +116,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [1.5.0-alpha.0](https://github.com/ZbayApp/monorepo/compare/@quiet/types@1.4.0-alpha.1...@quiet/types@1.5.0-alpha.0) (2023-07-26)
+# [1.5.0-alpha.0](https://github.com/TryQuiet/quiet/compare/@quiet/types@1.4.0-alpha.1...@quiet/types@1.5.0-alpha.0) (2023-07-26)
 
 **Note:** Version bump only for package @quiet/types
 
@@ -132,7 +132,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [1.4.0-alpha.0](https://github.com/ZbayApp/monorepo/compare/@quiet/types@1.3.1...@quiet/types@1.4.0-alpha.0) (2023-06-19)
+# [1.4.0-alpha.0](https://github.com/TryQuiet/quiet/compare/@quiet/types@1.3.1...@quiet/types@1.4.0-alpha.0) (2023-06-19)
 
 **Note:** Version bump only for package @quiet/types
 

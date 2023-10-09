@@ -11,7 +11,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-## [2.0.1-alpha.1](https://github.com/ZbayApp/monorepo/compare/@quiet/common@2.0.1-alpha.0...@quiet/common@2.0.1-alpha.1) (2023-09-25)
+## [2.0.1-alpha.1](https://github.com/TryQuiet/quiet/compare/@quiet/common@2.0.1-alpha.0...@quiet/common@2.0.1-alpha.1) (2023-09-25)
 
 **Note:** Version bump only for package @quiet/common
 
@@ -19,7 +19,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-## [2.0.1-alpha.0](https://github.com/ZbayApp/monorepo/compare/@quiet/common@2.0.0-alpha.3...@quiet/common@2.0.1-alpha.0) (2023-09-25)
+## [2.0.1-alpha.0](https://github.com/TryQuiet/quiet/compare/@quiet/common@2.0.0-alpha.3...@quiet/common@2.0.1-alpha.0) (2023-09-25)
 
 **Note:** Version bump only for package @quiet/common
 
@@ -27,7 +27,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [2.0.0-alpha.18](https://github.com/ZbayApp/monorepo/compare/@quiet/common@2.0.0-alpha.3...@quiet/common@2.0.0-alpha.18) (2023-10-04)
+# [2.0.0-alpha.18](https://github.com/TryQuiet/quiet/compare/@quiet/common@2.0.0-alpha.3...@quiet/common@2.0.0-alpha.18) (2023-10-04)
 
 **Note:** Version bump only for package @quiet/common
 
@@ -110,7 +110,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [1.6.0](https://github.com/ZbayApp/monorepo/compare/@quiet/common@1.5.1-alpha.0...@quiet/common@1.6.0) (2023-07-28)
+# [1.6.0](https://github.com/TryQuiet/quiet/compare/@quiet/common@1.5.1-alpha.0...@quiet/common@1.6.0) (2023-07-28)
 
 **Note:** Version bump only for package @quiet/common
 
@@ -118,7 +118,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-## [1.5.1-alpha.0](https://github.com/ZbayApp/monorepo/compare/@quiet/common@1.5.0-alpha.0...@quiet/common@1.5.1-alpha.0) (2023-07-28)
+## [1.5.1-alpha.0](https://github.com/TryQuiet/quiet/compare/@quiet/common@1.5.0-alpha.0...@quiet/common@1.5.1-alpha.0) (2023-07-28)
 
 **Note:** Version bump only for package @quiet/common
 
@@ -126,7 +126,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [1.5.0-alpha.0](https://github.com/ZbayApp/monorepo/compare/@quiet/common@1.4.0-alpha.1...@quiet/common@1.5.0-alpha.0) (2023-07-26)
+# [1.5.0-alpha.0](https://github.com/TryQuiet/quiet/compare/@quiet/common@1.4.0-alpha.1...@quiet/common@1.5.0-alpha.0) (2023-07-26)
 
 **Note:** Version bump only for package @quiet/common
 
@@ -142,7 +142,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [1.4.0-alpha.0](https://github.com/ZbayApp/monorepo/compare/@quiet/common@1.3.1...@quiet/common@1.4.0-alpha.0) (2023-06-19)
+# [1.4.0-alpha.0](https://github.com/TryQuiet/quiet/compare/@quiet/common@1.3.1...@quiet/common@1.4.0-alpha.0) (2023-06-19)
 
 **Note:** Version bump only for package @quiet/common
 
@@ -238,7 +238,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [1.2.0-alpha.21](https://github.com/ZbayApp/monorepo/compare/@quiet/common@1.2.0-alpha.20...@quiet/common@1.2.0-alpha.21) (2023-04-07)
+# [1.2.0-alpha.21](https://github.com/TryQuiet/quiet/compare/@quiet/common@1.2.0-alpha.20...@quiet/common@1.2.0-alpha.21) (2023-04-07)
 
 **Note:** Version bump only for package @quiet/common
 
