@@ -99,7 +99,6 @@ describe('User', () => {
           communityId: payload.communityId,
           network: {
             certificate: payload.permsData.certificate,
-            peers: [],
           },
         })
       }
@@ -195,7 +194,6 @@ describe('User', () => {
         "Modals/openModal",
         "Identity/registerCertificate",
         "Communities/addOwnerCertificate",
-        "Communities/storePeerList",
         "Identity/storeUserCertificate",
         "Identity/savedOwnerCertificate",
         "Communities/launchRegistrar",

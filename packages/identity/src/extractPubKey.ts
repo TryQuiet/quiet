@@ -1,7 +1,7 @@
 import { fromBase64, stringToArrayBuffer } from 'pvutils'
 import { fromBER } from 'asn1js'
 import config from './config'
-import { getAlgorithmParameters, Certificate, CertificationRequest } from 'pkijs'
+import { getAlgorithmParameters, Certificate, CertificationRequest, getCrypto } from 'pkijs'
 import { NoCryptoEngineError } from '@quiet/types'
 
 export const parseCertificate = (pem: string): Certificate => {
@@ -26,6 +26,11 @@ export const pubKeyFromCsr = (csr: string) => {
   const parsedCsr = parseCertificationRequest(csr)
   const derBuffer = Buffer.from(parsedCsr.subjectPublicKeyInfo.subjectPublicKey.valueBlock.valueHex).toString('base64')
   return derBuffer
+}
+
+export const getPubKey = async (pubKeyString: string): Promise<CryptoKey> => {
+  const crypto = getCrypto()
+  return keyObjectFromString(pubKeyString, crypto)
 }
 
 export const keyObjectFromString = async (pubKeyString: string, crypto: SubtleCrypto | null): Promise<CryptoKey> => {

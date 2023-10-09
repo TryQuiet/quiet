@@ -174,9 +174,6 @@ export class SocketService extends EventEmitter implements OnModuleInit {
           ownerCertificate: payload.certificate,
           rootCa: payload.permsData.certificate,
         }
-
-        console.log('Metadata from state-manager', communityMetadataPayload)
-
         this.emit(SocketActionTypes.SEND_COMMUNITY_METADATA, communityMetadataPayload)
       })
 

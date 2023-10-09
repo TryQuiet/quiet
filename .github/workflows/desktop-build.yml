@@ -34,7 +34,7 @@ jobs:
       CHECKSUM_PATH: ${{ github.event.action == 'released' && 'packages/desktop/dist/latest-linux.yml' || 'packages/desktop/dist/alpha-linux.yml' }}
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: Setup environment
         uses: ./.github/actions/setup-env
@@ -105,7 +105,7 @@ jobs:
       S3_BUCKET: ${{ github.event.action == 'released' && 'quiet' || 'test.quiet' }}
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - uses: actions-rs/components-nightly@v1
         with:
@@ -153,7 +153,7 @@ jobs:
 
       - name: Extract version
         id: extract_version
-        uses: Saionaro/extract-package-version@v1.1.1
+        uses: Saionaro/extract-package-version@v1.2.1
         with:
           path: packages/desktop
 
@@ -178,7 +178,7 @@ jobs:
       S3_BUCKET: ${{ github.event.action == 'released' && 'quiet' || 'test.quiet' }}
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: "Fetch jsign"
         shell: bash
@@ -217,7 +217,7 @@ jobs:
 
       # - name: E2E - Extract version
       #   id: extract_version
-      #   uses: Saionaro/extract-package-version@v1.1.1
+      #   uses: Saionaro/extract-package-version@v1.2.1
       #   with:
       #     path: packages/desktop
 
@@ -274,7 +274,7 @@ jobs:
 
       - name: Extract version
         id: extract_version
-        uses: Saionaro/extract-package-version@v1.1.1
+        uses: Saionaro/extract-package-version@v1.2.1
         with:
           path: packages/desktop
 

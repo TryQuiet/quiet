@@ -11,5 +11,7 @@
         <key>com.quietmobile</key>
         <string>match AppStore com.quietmobile</string>
     </dict>
+    <key>uploadSymbols</key>
+    <false/>
 </dict>
 </plist>
