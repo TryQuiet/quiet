@@ -1,7 +1,8 @@
-import React, { FC, useCallback } from 'react'
+import React, { FC, useCallback, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { communities, publicChannels } from '@quiet/state-manager'
+import { communities, identity, users, publicChannels } from '@quiet/state-manager'
+import { getChannelNameFromChannelId } from '@quiet/common'
 
 import { ChannelList as ChannelListComponent } from '../../components/ChannelList/ChannelList.component'
 import { ChannelTileProps } from '../../components/ChannelTile/ChannelTile.types'
@@ -12,10 +13,31 @@ import { formatMessageDisplayDate } from '../../utils/functions/formatMessageDis
 
 import { useContextMenu } from '../../hooks/useContextMenu'
 import { MenuName } from '../../const/MenuNames.enum'
-import { getChannelNameFromChannelId } from '@quiet/common'
 
 export const ChannelListScreen: FC = () => {
   const dispatch = useDispatch()
+
+  const usernameTaken = useSelector(identity.selectors.usernameTaken)
+  const duplicateCerts = useSelector(users.selectors.duplicateCerts)
+
+  useEffect(() => {
+    if (usernameTaken) {
+      dispatch(
+        navigationActions.replaceScreen({
+          screen: ScreenNames.UsernameTakenScreen,
+        })
+      )
+    }
+
+    if (duplicateCerts) {
+      dispatch(
+        navigationActions.replaceScreen({
+          screen: ScreenNames.PossibleImpersonationAttackScreen,
+        })
+      )
+      return
+    }
+  }, [dispatch])
 
   const redirect = useCallback(
     (id: string) => {
@@ -34,10 +56,12 @@ export const ChannelListScreen: FC = () => {
   )
 
   const community = useSelector(communities.selectors.currentCommunity)
+
   const channelsStatusSorted = useSelector(publicChannels.selectors.channelsStatusSorted)
 
   const tiles = channelsStatusSorted.map(status => {
     const newestMessage = status.newestMessage
+
     const message = newestMessage?.message || '...'
     const date = newestMessage?.createdAt ? formatMessageDisplayDate(newestMessage.createdAt) : undefined
 
