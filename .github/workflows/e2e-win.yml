@@ -68,7 +68,7 @@ jobs:
         shell: powershell
       
       - name: Check if Quiet installed properly
-        run: Get-ChildItem -Path C:\Users\runneradmin\AppData\Local\Programs
+        run: Get-ChildItem -Path C:\Users\runneradmin\AppData\Local\Programs\@quietdesktop
         shell: powershell
 
       - name: Kill Quiet
