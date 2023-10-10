@@ -14,7 +14,7 @@ export const JoinCommunityScreen: FC<JoinCommunityScreenProps> = ({ route }) => 
 
   const [invitationCode, setInvitationCode] = useState<string | undefined>(undefined)
 
-  const ready = useSelector(initSelectors.ready)
+  const isWebsocketConnected = useSelector(initSelectors.isWebsocketConnected)
 
   const currentCommunity = useSelector(communities.selectors.currentCommunity)
   const currentIdentity = useSelector(identity.selectors.currentIdentity)
@@ -64,7 +64,7 @@ export const JoinCommunityScreen: FC<JoinCommunityScreenProps> = ({ route }) => 
       redirectionAction={redirectionAction}
       networkCreated={networkCreated}
       invitationCode={invitationCode}
-      ready={ready}
+      ready={isWebsocketConnected}
     />
   )
 }

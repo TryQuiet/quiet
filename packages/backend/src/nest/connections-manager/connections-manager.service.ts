@@ -199,6 +199,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.serverIoProvider.io.close()
   }
 
+  // This method is only used on iOS through rn-bridge for reacting on lifecycle changes
   public async openSocket() {
     await this.socketService.init()
   }

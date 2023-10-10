@@ -1,6 +1,6 @@
 {
   "name": "@quiet/mobile",
-  "version": "2.0.1-alpha.2",
+  "version": "2.0.1-alpha.3",
   "scripts": {
     "build": "tsc -p tsconfig.build.json --noEmit",
     "storybook-android": "ENVFILE=.env.storybook react-native run-android --variant=storybookDebug --appIdSuffix=storybook.debug",
@@ -22,11 +22,11 @@
   },
   "dependencies": {
     "@peculiar/webcrypto": "^1.4.3",
-    "@quiet/backend": "^2.0.1-alpha.2",
-    "@quiet/common": "^2.0.1-alpha.2",
-    "@quiet/identity": "^2.0.1-alpha.2",
-    "@quiet/state-manager": "^2.0.1-alpha.2",
-    "@quiet/types": "^2.0.1-alpha.2",
+    "@quiet/backend": "^2.0.1-alpha.3",
+    "@quiet/common": "^2.0.1-alpha.3",
+    "@quiet/identity": "^2.0.1-alpha.3",
+    "@quiet/state-manager": "^2.0.1-alpha.3",
+    "@quiet/types": "^2.0.1-alpha.3",
     "@react-native-clipboard/clipboard": "^1.11.2",
     "@react-navigation/native": "^6.0.0",
     "@react-navigation/native-stack": "^6.9.0",
@@ -82,7 +82,7 @@
     "@babel/plugin-transform-flow-strip-types": "^7.22.5",
     "@babel/preset-env": "^7.22.5",
     "@babel/runtime": "^7.22.5",
-    "@quiet/eslint-config": "^2.0.1-alpha.2",
+    "@quiet/eslint-config": "^2.0.1-alpha.3",
     "@react-native-async-storage/async-storage": "^1.18.1",
     "@react-native-community/eslint-config": "^2.0.0",
     "@react-native-community/push-notification-ios": "^1.10.1",
@@ -119,7 +119,8 @@
     "redux-saga-test-plan": "^4.0.1",
     "run-script-os": "1.1.6",
     "socket.io-mock": "^1.3.2",
-    "typescript": "^4.9.3"
+    "typescript": "^4.9.3",
+    "wait-for-expect": "^3.0.2"
   },
   "resolve": {
     "@types/react": "^17"
