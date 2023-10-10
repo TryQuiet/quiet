@@ -105,14 +105,15 @@ export class AppModule {
             io.use((socket, next) => {
               const authToken = socket.handshake.headers['authorization']
               const socketIOToken = authToken && authToken.split(' ')[1]
-
               if (!socketIOToken) {
-                throw new Error('no auth token')
+                console.error('No auth token')
+                return
               }
+              console.error({ socketIOToken })
               if (verifyJWT(socketIOToken)) {
                 next()
               } else {
-                new Error('Socket authentication error')
+                return
               }
             })
             return { server, io }
