@@ -102,20 +102,35 @@ export class AppModule {
               pingInterval: 1000_000,
               pingTimeout: 1000_000,
             })
-            io.use((socket, next) => {
-              const authToken = socket.handshake.headers['authorization']
+            io.engine.use((req, res, next) => {
+              const authToken = req.headers['authorization']
+              if (!authToken) {
+                console.error('No authorization header')
+
+                res.writeHead(401, 'Unauthorized')
+                res.end()
+                return
+              }
+
               const socketIOToken = authToken && authToken.split(' ')[1]
               if (!socketIOToken) {
                 console.error('No auth token')
+
+                res.writeHead(401, 'Unauthorized')
+                res.end()
                 return
               }
-              console.error({ socketIOToken })
+
               if (verifyJWT(socketIOToken)) {
                 next()
               } else {
-                return
+                console.error('Wrong JWT')
+
+                res.writeHead(401, 'Unauthorized')
+                res.end()
               }
             })
+
             return { server, io }
           },
           inject: [EXPRESS_PROVIDER],
