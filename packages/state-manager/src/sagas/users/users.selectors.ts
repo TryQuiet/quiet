@@ -77,10 +77,17 @@ export const allUsers = createSelector(csrsMapping, certificatesMapping, (csrs, 
   const users: Record<string, User> = {}
   const allUsernames: string[] = Object.values(csrs).map(u => u.username)
   const duplicateUsernames: string[] = allUsernames.filter((val, index) => allUsernames.indexOf(val) !== index)
-  console.log('duplicate Usernames selector', duplicateUsernames)
+
   Object.keys(csrs).map(pubKey => {
     const username = csrs[pubKey].username
-    const isDuplicated = duplicateUsernames.includes(username)
+
+    let isDuplicated: boolean
+    if (certs[pubKey]?.username) {
+      isDuplicated = false
+    } else {
+      isDuplicated = duplicateUsernames.includes(username)
+    }
+
     const isRegistered = Boolean(certs[pubKey])
     users[pubKey] = {
       ...csrs[pubKey],

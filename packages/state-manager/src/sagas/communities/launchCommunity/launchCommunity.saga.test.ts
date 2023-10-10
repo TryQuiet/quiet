@@ -278,7 +278,7 @@ describe('launchCommunity', () => {
           },
         }
       )
-      .put(identityActions.registerUsername(identityAlpha.nickname))
+      .put(identityActions.registerUsername({ nickname: identityAlpha.nickname }))
       .put(communitiesActions.launchCommunity(community2.id))
       .run()
   })

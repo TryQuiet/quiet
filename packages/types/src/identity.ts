@@ -49,12 +49,19 @@ export interface CreateUserCsrPayload {
   dmPublicKey: string
   signAlg: string
   hashAlg: string
+  existingKeyPair?: CryptoKeyPair
 }
 
 export interface RegisterCertificatePayload {
   communityId: string
   nickname: string
   userCsr: UserCsr
+  isUsernameTaken?: boolean
+}
+
+export interface RegisterUsernamePayload {
+  nickname: string
+  isUsernameTaken?: boolean
 }
 
 export interface RegisterUserCertificatePayload {
@@ -92,7 +99,7 @@ export interface SaveOwnerCertificatePayload {
 
 export interface SavedOwnerCertificatePayload {
   communityId: string
-  network: { certificate: string; peers: string[] }
+  network: { certificate: string }
 }
 
 export interface SuccessfullRegistrarionResponse {

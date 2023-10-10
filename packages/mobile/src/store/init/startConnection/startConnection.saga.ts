@@ -53,5 +53,4 @@ function subscribeSocketLifecycle(socket: Socket, dataPort: number) {
 function* cancelRootTaskSaga(task: FixedTask<Generator>): Generator {
   console.log('canceling root task')
   yield* cancel(task)
-  yield* put(initActions.setReady(false))
 }

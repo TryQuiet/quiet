@@ -1,5 +1,13 @@
 
-[unreleased]
+[2.0.1-alpha.2]
+
+* UI layer for taken usernames for desktop and mobile
+
+* Change nickname for taken username
+
+* Map messages sent before changing username
+
+* Update registrar service to match new registration flow.
 
 * Add possible impersonation attack UI for desktop and mobile
 

@@ -48,10 +48,10 @@ export const ChannelScreen: FC = () => {
 
   const downloadStatusesMapping = useSelector(files.selectors.downloadStatuses)
 
-  const ready = useSelector(initSelectors.ready)
+  const isWebsocketConnected = useSelector(initSelectors.isWebsocketConnected)
 
   let contextMenu: UseContextMenuType<Record<string, unknown>> | null = useContextMenu(MenuName.Channel)
-  if (!community?.CA || !ready) {
+  if (!community?.CA || !isWebsocketConnected) {
     contextMenu = null
   }
 
@@ -181,7 +181,7 @@ export const ChannelScreen: FC = () => {
       removeFilePreview={removeFilePreview}
       openUrl={openUrl}
       uploadedFiles={uploadingFiles}
-      ready={ready}
+      ready={isWebsocketConnected}
       duplicatedUsernameHandleBack={duplicatedUsernameHandleBack}
       unregisteredUsernameHandleBack={unregisteredUsernameHandleBack}
     />
