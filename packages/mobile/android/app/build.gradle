@@ -139,8 +139,11 @@ def reactNativeArchitectures() {
     return value ? value.split(",") : ["arm64-v8a"]
 }
 
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
+
 android {
-    ndkPath NDK_PATH
+    ndkPath properties.getProperty('ndk.dir')
 
     ndkVersion rootProject.ext.ndkVersion
 
