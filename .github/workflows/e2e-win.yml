@@ -19,7 +19,7 @@ jobs:
         uses: ./.github/actions/setup-env
         with:
           cachePrefix: "e2e-crossplatform-windows"
-          bootstrap-packages: "@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,backend-bundle,e2e-tests"
+          bootstrap-packages: "@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/desktop,backend-bundle,e2e-tests"
 
       - name: "Fetch jsign"
         shell: bash
@@ -66,10 +66,15 @@ jobs:
         run: Start-Process "Quiet Setup ${{ steps.extract_version.outputs.version }}.exe" -Wait
         working-directory: ./packages/desktop/dist
         shell: powershell
+      
+      - name: Check if Quiet installed properly
+        run: Get-ChildItem -Path C:\Users\runneradmin\AppData\Local\Programs\@quietdesktop
+        shell: powershell
 
       - name: Kill Quiet
         run: Get-Process -Name "Quiet" -ErrorAction SilentlyContinue | Stop-Process -Force
         shell: powershell
+        if: always()
 
       - name: Kill tor
         run: Get-Process -Name "tor" -ErrorAction SilentlyContinue | Stop-Process -Force

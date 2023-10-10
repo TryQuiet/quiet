@@ -1,4 +1,4 @@
-name: Build release
+name: Desktop release build
 
 on:
   release:
@@ -6,18 +6,27 @@ on:
       [released, prereleased]
 
 jobs:
+
   run-e2e-tests-linux:
+    if: |
+      startsWith(github.ref, 'refs/tags/@quiet/desktop')
     uses: ./.github/workflows/e2e-linux.yml
+
   run-e2e-tests-mac:
+    if: |
+      startsWith(github.ref, 'refs/tags/@quiet/desktop')
     uses: ./.github/workflows/e2e-mac.yml
+
   run-e2e-tests-win:
+    if: |
+      startsWith(github.ref, 'refs/tags/@quiet/desktop')
     uses: ./.github/workflows/e2e-win.yml
 
   build-linux:
     # needs: run-e2e-tests-linux
     runs-on: ubuntu-22.04
     if: |
-      startsWith(github.ref, 'refs/tags/quiet')
+      startsWith(github.ref, 'refs/tags/@quiet/desktop')
 
     env:
       TEST_MODE: ${{ github.event.action == 'prereleased' }}
@@ -30,7 +39,7 @@ jobs:
       - name: Setup environment
         uses: ./.github/actions/setup-env
         with:
-          bootstrap-packages: "@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,backend-bundle"
+          bootstrap-packages: "@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/desktop,backend-bundle"
 
       - name: Install libfuse
         run: sudo apt install libfuse2
@@ -52,7 +61,7 @@ jobs:
         run: cd packages/desktop && USE_HARD_LINKS=false node_modules/.bin/electron-builder -p always --linux ${{ env.ELECTRON_BUILDER_PROPS }}
 
       - name: "Calculate new checksum for electron updater"
-        run: lerna run postBuild --scope quiet
+        run: lerna run postBuild --scope @quiet/desktop
 
       - name: "Push electron-updater new checksum to S3"
         uses: vinkabuki/upload-s3-action@master
@@ -89,7 +98,7 @@ jobs:
     # needs: run-e2e-tests-mac
     runs-on: macos-latest
     if: |
-      startsWith(github.ref, 'refs/tags/quiet')
+      startsWith(github.ref, 'refs/tags/@quiet/desktop')
 
     env:
       TEST_MODE: ${{ github.event.action == 'prereleased' }}
@@ -111,7 +120,7 @@ jobs:
       - name: Setup environment
         uses: ./.github/actions/setup-env
         with:
-          bootstrap-packages: "@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,backend-bundle"
+          bootstrap-packages: "@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/desktop,backend-bundle"
 
       - name: Before build
         uses: ./.github/actions/before-build
@@ -162,7 +171,7 @@ jobs:
     # needs: run-e2e-tests-win
     runs-on: windows-2019
     if: |
-      startsWith(github.ref, 'refs/tags/quiet')
+      startsWith(github.ref, 'refs/tags/@quiet/desktop')
 
     env:
       TEST_MODE: ${{ github.event.action == 'prereleased' }}
@@ -189,7 +198,7 @@ jobs:
       - name: Setup environment
         uses: ./.github/actions/setup-env
         with:
-          bootstrap-packages: "@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,backend-bundle,e2e-tests"
+          bootstrap-packages: "@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/desktop,backend-bundle,e2e-tests"
 
       - name: Before build
         uses: ./.github/actions/before-build

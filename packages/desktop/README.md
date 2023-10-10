@@ -1,6 +1,7 @@
 # Quiet Desktop
 
-Running the desktop version of Quiet should be straightforward on Mac, Windows, and Linux. Here are the steps:
+Running the desktop version of Quiet should be straightforward on Mac and Linux. On Windows we recommend using git-bash or just wsl.
+Here are the steps:
 
 0. Use `Node 18.12.1` and `npm 8.19.2`. We recommend [nvm](https://github.com/nvm-sh/nvm) for easily switching Node versions, and if this README gets out of date you can see the actual version used by CI [here](https://github.com/TryQuiet/quiet/blob/master/.github/actions/setup-env/action.yml). If you are using nvm, you can run `nvm use` in the project's root to switch to the correct version.
 1. In `quiet/` (project's root) install monorepo's dependencies and bootstrap the project with lerna. It will take care of the package's dependencies and trigger a prepublish script which builds them.
@@ -19,20 +20,6 @@ If you run into problems please double check if you have exact version Node and 
 npm run start
 ```
 ----
-
-## Running dev desktop on Windows
-
-Bootstrap scripts has been adjusted to work on Windows (powershell or cmd) hovewer there still may be a problem with patching.
-Getting error:
-
-```
-webpack://@quiet/backend/./node_modules/electron/index.js?:9
-  throw new Error('Electron failed to install correctly, please delete node_modules/electron and try installing again')
-```
-
-while running desktop may mean that applying patch in packages/backend (`npm run applyPatches`) did not work correctly.
-If that's the case file must be patched manually according to `electron-fetch-git.patch` and backend must be rebuilt by running  `npm run webpack` in packages/backend.
-
 
 ## Versioning packages
 
