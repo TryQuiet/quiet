@@ -66,10 +66,15 @@ jobs:
         run: Start-Process "Quiet Setup ${{ steps.extract_version.outputs.version }}.exe" -Wait
         working-directory: ./packages/desktop/dist
         shell: powershell
+      
+      - name: Check if Quiet installed properly
+        run: Get-ChildItem -Path C:\Users\runneradmin\AppData\Local\Programs\@quietdesktop
+        shell: powershell
 
       - name: Kill Quiet
         run: Get-Process -Name "Quiet" -ErrorAction SilentlyContinue | Stop-Process -Force
         shell: powershell
+        if: always()
 
       - name: Kill tor
         run: Get-Process -Name "tor" -ErrorAction SilentlyContinue | Stop-Process -Force
