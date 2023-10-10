@@ -11,7 +11,7 @@ import { Crypto } from '@peculiar/webcrypto'
 import logger from './logger'
 import { DATA_DIR, DEV_DATA_DIR } from '../shared/static'
 import { fork, ChildProcess } from 'child_process'
-import { getFilesData } from '@quiet/common'
+import { generateJWT, getFilesData } from '@quiet/common'
 import { updateDesktopFile, processInvitationCode } from './invitation'
 import { argvInvitationCode, retrieveInvitationCode } from '@quiet/common'
 const ElectronStore = require('electron-store')
@@ -30,7 +30,7 @@ const updaterInterval = 15 * 60_000
 export const isDev = process.env.NODE_ENV === 'development'
 export const isE2Etest = process.env.E2E_TEST === 'true'
 
-const SOCKET_IO_TOKEN = 'testToken'
+const SOCKET_IO_TOKEN = generateJWT()
 
 const webcrypto = new Crypto()
 

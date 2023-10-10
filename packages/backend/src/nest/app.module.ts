@@ -32,7 +32,7 @@ import { Server as SocketIO } from 'socket.io'
 import { StorageModule } from './storage/storage.module'
 import { IpfsModule } from './ipfs/ipfs.module'
 import { Level } from 'level'
-import { getCors } from './common/utils'
+import { verifyJWT } from '@quiet/common'
 
 @Global()
 @Module({
@@ -103,11 +103,17 @@ export class AppModule {
               pingTimeout: 1000_000,
             })
             io.use((socket, next) => {
-              const socketIOToken = socket.handshake.headers['authorization']
-              console.log('token - client side', socketIOToken)
-              console.log('token - server side', options.socketIOToken)
-              // validate JWT token
-              next()
+              const authToken = socket.handshake.headers['authorization']
+              const socketIOToken = authToken && authToken.split(' ')[1]
+
+              if (!socketIOToken) {
+                throw new Error('no auth token')
+              }
+              if (verifyJWT(socketIOToken)) {
+                next()
+              } else {
+                new Error('Socket authentication error')
+              }
             })
             return { server, io }
           },
