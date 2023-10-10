@@ -1,7 +1,7 @@
 {
   "name": "@quiet/eslint-config",
   "main": "index.js",
-  "version": "2.0.1-alpha.2",
+  "version": "2.0.1-alpha.3",
   "private": true,
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "6.7.4",
