@@ -11,7 +11,7 @@ import { Crypto } from '@peculiar/webcrypto'
 import logger from './logger'
 import { DATA_DIR, DEV_DATA_DIR } from '../shared/static'
 import { fork, ChildProcess } from 'child_process'
-import { generateJWT, generateSecret, getFilesData } from '@quiet/common'
+import { generateSecret, getFilesData } from '@quiet/common'
 import { updateDesktopFile, processInvitationCode } from './invitation'
 import { argvInvitationCode, retrieveInvitationCode } from '@quiet/common'
 const ElectronStore = require('electron-store')

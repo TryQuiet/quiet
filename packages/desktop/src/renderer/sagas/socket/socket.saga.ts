@@ -6,7 +6,7 @@ import { socketActions } from './socket.slice'
 import { eventChannel } from 'redux-saga'
 import { displayMessageNotificationSaga } from '../notifications/notifications.saga'
 import logger from '../../logger'
-import { generateJWT } from '@quiet/common'
+import { encodeSecret } from '@quiet/common'
 
 const log = logger('socket')
 
@@ -17,11 +17,11 @@ export function* startConnectionSaga(
   if (!dataPort) {
     log.error('About to start connection but no dataPort found')
   }
-  const jwtToken = generateJWT(socketIOSecret)
+  const token = encodeSecret(socketIOSecret)
   const socket = yield* call(io, `http://127.0.0.1:${dataPort}`, {
     withCredentials: true,
     extraHeaders: {
-      authorization: `Bearer ${jwtToken}`,
+      authorization: `Basic ${token}`,
     },
   })
   yield* fork(handleSocketLifecycleActions, socket)

@@ -32,7 +32,7 @@ import { Server as SocketIO } from 'socket.io'
 import { StorageModule } from './storage/storage.module'
 import { IpfsModule } from './ipfs/ipfs.module'
 import { Level } from 'level'
-import { verifyJWT } from '@quiet/common'
+import { verifyToken } from '@quiet/common'
 
 @Global()
 @Module({
@@ -103,16 +103,16 @@ export class AppModule {
               pingTimeout: 1000_000,
             })
             io.engine.use((req, res, next) => {
-              const authToken = req.headers['authorization']
-              if (!authToken) {
+              const authHeader = req.headers['authorization']
+              if (!authHeader) {
                 console.error('No authorization header')
                 res.writeHead(401, 'No authorization header')
                 res.end()
                 return
               }
 
-              const socketIOToken = authToken && authToken.split(' ')[1]
-              if (!socketIOToken) {
+              const token = authHeader && authHeader.split(' ')[1]
+              if (!token) {
                 console.error('No auth token')
                 res.writeHead(401, 'No authorization token')
                 res.end()
@@ -126,10 +126,10 @@ export class AppModule {
                 return
               }
 
-              if (verifyJWT(socketIOToken, options.socketIOSecret)) {
+              if (verifyToken(options.socketIOSecret, token)) {
                 next()
               } else {
-                console.error('Wrong JWT')
+                console.error('Wrong basic token')
                 res.writeHead(401, 'Unauthorized')
                 res.end()
               }
