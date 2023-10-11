@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.1-alpha.4](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@2.0.1-alpha.3...@quiet/mobile@2.0.1-alpha.4) (2023-10-11)
+
+
+### Reverts
+
+* Revert "Adjust project bootstrap scripts to be windows-friendly (#1870)" (#1937) ([0811ea3](https://github.com/TryQuiet/quiet/commit/0811ea3ea3f682dd763be72b12f626fe416bc036)), closes [#1870](https://github.com/TryQuiet/quiet/issues/1870) [#1937](https://github.com/TryQuiet/quiet/issues/1937) [#1870](https://github.com/TryQuiet/quiet/issues/1870)
+
+
+
+
+
 ## [2.0.1-alpha.3](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@2.0.1-alpha.2...@quiet/mobile@2.0.1-alpha.3) (2023-10-10)
 
 **Note:** Version bump only for package @quiet/mobile
