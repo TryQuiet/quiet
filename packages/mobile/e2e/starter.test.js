@@ -21,7 +21,7 @@ describe('User', () => {
   test('should see join community screen', async () => {
     await waitFor(element(by.text('Join community')))
       .toBeVisible()
-      .withTimeout(LONG)
+      .withTimeout(STARTUP)
 
     const componentName = 'join-community-component'
     await checkVisualRegression(componentName)
