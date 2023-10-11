@@ -74,6 +74,12 @@ module.exports = {
         avdName: 'emulator',
       },
     },
+    emulator_ci: {
+      type: 'android.emulator',
+      device: {
+        avdName: 'Pixel_3a_API_34_arm64-v8a',
+      },
+    },
   },
   configurations: {
     'ios.sim.debug': {
@@ -130,6 +136,13 @@ module.exports = {
     },
     'android.emu.debug': {
       device: 'emulator',
+      app: 'android.debug',
+      artifacts: {
+        rootDir: './e2e/artifacts/android',
+      },
+    },
+    'android.emu.debug.ci': {
+      device: 'emulator_ci',
       app: 'android.debug',
       artifacts: {
         rootDir: './e2e/artifacts/android',

@@ -61,8 +61,7 @@ export class BuildSetup {
       case 'linux':
         return `${__dirname}/../Quiet/${this.fileName ? this.fileName : process.env.FILE_NAME}`
       case 'win32':
-        // return `${process.env.LOCALAPPDATA}\\Programs\\${this.fileName ? 'quiet' : 'quiet2'}\\Quiet.exe`
-        return `${process.env.LOCALAPPDATA}\\Programs\\quiet\\Quiet.exe`
+        return `${process.env.LOCALAPPDATA}\\Programs\\@quietdesktop\\Quiet.exe`
       case 'darwin':
         return '/Applications/Quiet.app/Contents/MacOS/Quiet'
       default:
@@ -73,7 +72,7 @@ export class BuildSetup {
   public getVersionFromEnv() {
     const envFileName = process.env.FILE_NAME
     if (!envFileName) {
-      throw new Error('file name not specyfied')
+      throw new Error('file name not specified')
     }
     switch (process.platform) {
       case 'linux':

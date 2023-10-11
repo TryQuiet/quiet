@@ -3,6 +3,10 @@
 * Shorter dots-placeholder for invite link
 
 
+[Unreleased]
+
+* Revert adjusting bootstrap scripts for developing on Windows
+
 [2.0.1-alpha.2]
 
 * UI layer for taken usernames for desktop and mobile
