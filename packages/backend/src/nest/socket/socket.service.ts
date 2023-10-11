@@ -208,6 +208,12 @@ export class SocketService extends EventEmitter implements OnModuleInit {
         this.logger('Leaving community')
         this.emit(SocketActionTypes.LEAVE_COMMUNITY)
       })
+
+      // ====== Users ======
+
+      socket.on(SocketActionTypes.SAVE_USER_PROFILE, (profile: UserProfile) => {
+        this.emit(SocketActionTypes.SAVE_USER_PROFILE, profile)
+      })
     })
   }
 
