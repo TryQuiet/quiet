@@ -15,13 +15,11 @@ const UsernameTakenScreen: React.FC<UsernameTakenScreenProps> = () => {
   const usernameRegistered = currentIdentity?.userCertificate != null
 
   const registeredUsers = useSelector(users.selectors.certificatesMapping)
-  
+
   const error = useSelector(errors.selectors.registrarErrors)
 
   const handleBackButton = useCallback(() => {
-    dispatch(
-      navigationActions.pop()
-    )
+    dispatch(navigationActions.pop())
   }, [dispatch])
 
   const handleAction = (nickname: string) => {

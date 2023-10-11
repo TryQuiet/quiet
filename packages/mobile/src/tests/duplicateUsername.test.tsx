@@ -60,9 +60,7 @@ describe('Duplicate username warning', () => {
     const usernameTaken = identity.selectors.usernameTaken(store.getState())
     expect(usernameTaken).toBe(true)
 
-    let currentScreen
-
-    currentScreen = navigationSelectors.currentScreen(store.getState())
+    const currentScreen = navigationSelectors.currentScreen(store.getState())
     expect(currentScreen).toBe(ScreenNames.UsernameTakenScreen)
 
     root?.cancel()

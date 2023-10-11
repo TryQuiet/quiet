@@ -4,9 +4,7 @@ import { ScreenNames } from '../../const/ScreenNames.enum'
 import { MenuName } from '../../const/MenuNames.enum'
 
 export class NavigationState {
-  public backStack: ScreenNames[] = [
-    ScreenNames.SplashScreen
-  ]
+  public backStack: ScreenNames[] = [ScreenNames.SplashScreen]
   public confirmationBox: ConfirmationBox = {
     open: false,
     args: {},
@@ -63,7 +61,7 @@ export const navigationSlice = createSlice({
       state.backStack.pop()
       state.backStack.push(screen)
     },
-    pop: (state) => {
+    pop: state => {
       state.backStack.pop()
     },
     setPendingNavigation: (state, action: PayloadAction<PendingNavigationPayload>) => {
