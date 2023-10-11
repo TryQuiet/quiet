@@ -1,3 +1,7 @@
+[unreleased]
+
+* Shorter dots-placeholder for invite link
+
 
 [Unreleased]
 
