@@ -35,7 +35,6 @@ export const ChannelListScreen: FC = () => {
           screen: ScreenNames.PossibleImpersonationAttackScreen,
         })
       )
-      return
     }
   }, [dispatch, usernameTaken, duplicateCerts])
 
