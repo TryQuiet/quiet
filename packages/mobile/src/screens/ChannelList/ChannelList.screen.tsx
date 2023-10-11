@@ -37,7 +37,7 @@ export const ChannelListScreen: FC = () => {
       )
       return
     }
-  }, [dispatch])
+  }, [dispatch, usernameTaken, duplicateCerts])
 
   const redirect = useCallback(
     (id: string) => {
