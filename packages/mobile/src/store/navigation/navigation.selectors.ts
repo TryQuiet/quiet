@@ -5,7 +5,7 @@ import { CreatedSelectors, StoreState } from '../store.types'
 
 const navigationSlice: CreatedSelectors[StoreKeys.Navigation] = (state: StoreState) => state[StoreKeys.Navigation]
 
-export const currentScreen = createSelector(navigationSlice, reducerState => reducerState.currentScreen)
+export const currentScreen = createSelector(navigationSlice, reducerState => reducerState.backStack.slice(-1)[0])
 
 export const contextMenuVisibility = (menu: MenuName) =>
   createSelector(navigationSlice, reducerState => {

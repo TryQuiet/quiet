@@ -14,13 +14,13 @@ describe('PossibleImpersonationAttack component', () => {
 
     expect(toJSON()).toMatchInlineSnapshot(`
       <View
-        data-testid="possible-impersonation-attack-component"
         style={
           {
             "backgroundColor": "#ffffff",
             "flex": 1,
           }
         }
+        testID="possible-impersonation-attack-component"
       >
         <View
           style={
