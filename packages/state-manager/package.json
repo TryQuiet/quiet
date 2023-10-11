@@ -23,7 +23,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@ipld/dag-cbor": "^9.0.5",
+    "@ipld/dag-cbor": "^6.0.15",
     "@quiet/common": "^2.0.1-alpha.3",
     "@quiet/logger": "^2.0.1-alpha.3",
     "@quiet/types": "^2.0.1-alpha.3",
@@ -77,10 +77,6 @@
     "rootDir": "src",
     "setupFiles": [
       "./setupTests.ts"
-    ],
-    "resolver": "<rootDir>/../jest/resolver.js",
-    "transformIgnorePatterns": [
-      "node_modules/(?!@ipld|cborg)"
     ]
   }
 }

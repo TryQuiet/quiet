@@ -14,7 +14,6 @@ module.exports = {
   },
   resolve: {
     extensions: ['.ts', '.tsx', '.js', '.jsx']
-    conditionNames: ["import", "node"]
   },
   module: {
     rules: [

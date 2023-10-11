@@ -37,7 +37,6 @@ module.exports = {
       'electron-store-webpack-wrapper': path.resolve(__dirname, 'electronStoreMock.js'),
       net: path.resolve(__dirname, 'netMock.js')
     };
-    config.resolve.conditionNames = ["import", "node"]
     config.module.rules.push({
       test: /\.scss$/,
       use: ['style-loader', 'css-loader', 'sass-loader'],
