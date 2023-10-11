@@ -16,6 +16,7 @@ const notification = jest.fn().mockImplementation(() => {
 window.Notification = notification
 
 jest.mock('../../../shared/sounds', () => ({
+  ...jest.requireActual('../../../shared/sounds'),
   soundTypeToAudio: {
     pow: {
       play: jest.fn(),

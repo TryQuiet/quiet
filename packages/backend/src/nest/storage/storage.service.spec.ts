@@ -268,6 +268,7 @@ describe('StorageService', () => {
         StorageService.dbAddress(certificatesDbAddress),
         StorageService.dbAddress(certificatesRequestsDbAddress),
         StorageService.dbAddress(communityMetadataDbAddress),
+        '/orbitdb/zdpuAyScVHonV7KUdb3rdNmC9ZurssGdfgveYm3ds7KNJ6CpU/user-profiles',
       ])
       // Creating channel:
       expect(subscribeToPubSubSpy).toHaveBeenNthCalledWith(2, [StorageService.dbAddress(db.address)])

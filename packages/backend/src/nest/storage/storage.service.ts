@@ -34,8 +34,6 @@ import {
   SaveCertificatePayload,
   SocketActionTypes,
   UserData,
-  User,
-  UserProfile,
 } from '@quiet/types'
 import { isDefined } from '@quiet/common'
 import fs from 'fs'

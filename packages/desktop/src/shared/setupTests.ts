@@ -69,8 +69,8 @@ const mockFetch: typeof fetch = async () => await Promise.resolve({} as Response
 global.fetch = mockFetch
 
 // This helps with getting the @ipld/dag-cbor library working with
-// Jest. I'm not entirely sure why.
-import { TextEncoder, TextDecoder } from 'util';
-Object.assign(global, { TextDecoder, TextEncoder });
+// Jest.
+import { TextEncoder, TextDecoder } from 'util'
+Object.assign(global, { TextDecoder, TextEncoder })
 
 jest.resetAllMocks()

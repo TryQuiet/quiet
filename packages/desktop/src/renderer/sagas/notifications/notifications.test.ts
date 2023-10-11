@@ -47,6 +47,7 @@ jest.mock('@electron/remote', () => {
 })
 
 jest.mock('../../../shared/sounds', () => ({
+  ...jest.requireActual('../../../shared/sounds'),
   soundTypeToAudio: {
     librarianShhh: {
       play: jest.fn(),
