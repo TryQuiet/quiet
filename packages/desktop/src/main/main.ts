@@ -11,7 +11,7 @@ import { Crypto } from '@peculiar/webcrypto'
 import logger from './logger'
 import { DATA_DIR, DEV_DATA_DIR } from '../shared/static'
 import { fork, ChildProcess } from 'child_process'
-import { generateJWT, getFilesData } from '@quiet/common'
+import { generateJWT, generateSecret, getFilesData } from '@quiet/common'
 import { updateDesktopFile, processInvitationCode } from './invitation'
 import { argvInvitationCode, retrieveInvitationCode } from '@quiet/common'
 const ElectronStore = require('electron-store')
@@ -30,7 +30,7 @@ const updaterInterval = 15 * 60_000
 export const isDev = process.env.NODE_ENV === 'development'
 export const isE2Etest = process.env.E2E_TEST === 'true'
 
-const SOCKET_IO_TOKEN = generateJWT()
+const SOCKET_IO_SECRET = generateSecret()
 
 const webcrypto = new Crypto()
 
@@ -207,7 +207,7 @@ export const createWindow = async () => {
   mainWindow.loadURL(
     url.format({
       pathname: path.join(__dirname, './index.html'),
-      search: `dataPort=${ports.dataServer}&socketIOToken=${SOCKET_IO_TOKEN}`,
+      search: `dataPort=${ports.dataServer}&socketIOSecret=${SOCKET_IO_SECRET}`,
       protocol: 'file:',
       slashes: true,
       hash: '/',
@@ -364,8 +364,8 @@ app.on('ready', async () => {
     `${process.resourcesPath}`,
     '-p',
     'desktop',
-    '-tkn',
-    `${SOCKET_IO_TOKEN}`,
+    '-scrt',
+    `${SOCKET_IO_SECRET}`,
   ]
 
   const backendBundlePath = path.normalize(require.resolve('backend-bundle'))

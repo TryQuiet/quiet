@@ -5,22 +5,23 @@ import { socket as stateManager, messages } from '@quiet/state-manager'
 import { socketActions } from './socket.slice'
 import { eventChannel } from 'redux-saga'
 import { displayMessageNotificationSaga } from '../notifications/notifications.saga'
-
 import logger from '../../logger'
+import { generateJWT } from '@quiet/common'
+
 const log = logger('socket')
 
 export function* startConnectionSaga(
   action: PayloadAction<ReturnType<typeof socketActions.startConnection>['payload']>
 ): Generator {
-  const { dataPort, socketIOToken } = action.payload
+  const { dataPort, socketIOSecret } = action.payload
   if (!dataPort) {
     log.error('About to start connection but no dataPort found')
   }
-
+  const jwtToken = generateJWT(socketIOSecret)
   const socket = yield* call(io, `http://127.0.0.1:${dataPort}`, {
     withCredentials: true,
     extraHeaders: {
-      authorization: `Bearer ${socketIOToken}`,
+      authorization: `Bearer ${jwtToken}`,
     },
   })
   yield* fork(handleSocketLifecycleActions, socket)

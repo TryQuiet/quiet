@@ -24,7 +24,7 @@ program
   .option('-a, --appDataPath <string>', 'Path of application data directory')
   .option('-d, --socketIOPort <number>', 'Socket io data server port')
   .option('-r, --resourcesPath <string>', 'Application resources path')
-  .option('-tkn, --socketIOToken <string>', 'socketIO token')
+  .option('-scrt, --socketIOSecret <string>', 'socketIO secret')
 
 program.parse(process.argv)
 const options = program.opts()
@@ -53,7 +53,7 @@ export const runBackendDesktop = async () => {
   const app = await NestFactory.createApplicationContext(
     AppModule.forOptions({
       socketIOPort: options.socketIOPort,
-      socketIOToken: options.socketIOToken,
+      socketIOSecret: options.socketIOSecret,
       torBinaryPath: torBinForPlatform(resourcesPath),
       torResourcesPath: torDirForPlatform(resourcesPath),
       torControlPort: await getPort(),

@@ -9,7 +9,7 @@ export class SocketState {
 
 export interface WebsocketConnectionPayload {
   dataPort: number
-  socketIOToken: string
+  socketIOSecret: string
 }
 
 export interface CloseConnectionPayload {

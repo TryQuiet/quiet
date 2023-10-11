@@ -106,8 +106,7 @@ export class AppModule {
               const authToken = req.headers['authorization']
               if (!authToken) {
                 console.error('No authorization header')
-
-                res.writeHead(401, 'Unauthorized')
+                res.writeHead(401, 'No authorization header')
                 res.end()
                 return
               }
@@ -115,17 +114,22 @@ export class AppModule {
               const socketIOToken = authToken && authToken.split(' ')[1]
               if (!socketIOToken) {
                 console.error('No auth token')
-
-                res.writeHead(401, 'Unauthorized')
+                res.writeHead(401, 'No authorization token')
                 res.end()
                 return
               }
 
-              if (verifyJWT(socketIOToken)) {
+              if (!options.socketIOSecret) {
+                console.error('No socketIoSecret')
+                res.writeHead(401, 'No socketIoSecret')
+                res.end()
+                return
+              }
+
+              if (verifyJWT(socketIOToken, options.socketIOSecret)) {
                 next()
               } else {
                 console.error('Wrong JWT')
-
                 res.writeHead(401, 'Unauthorized')
                 res.end()
               }
