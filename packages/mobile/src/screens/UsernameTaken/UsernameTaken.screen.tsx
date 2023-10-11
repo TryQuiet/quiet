@@ -9,16 +9,18 @@ import { navigationActions } from '../../store/navigation/navigation.slice'
 
 const UsernameTakenScreen: React.FC<UsernameTakenScreenProps> = () => {
   const dispatch = useDispatch()
+
   const currentIdentity = useSelector(identity.selectors.currentIdentity)
+
   const usernameRegistered = currentIdentity?.userCertificate != null
-  const error = useSelector(errors.selectors.registrarErrors)
+
   const registeredUsers = useSelector(users.selectors.certificatesMapping)
+  
+  const error = useSelector(errors.selectors.registrarErrors)
 
   const handleBackButton = useCallback(() => {
     dispatch(
-      navigationActions.replaceScreen({
-        screen: ScreenNames.ChannelListScreen,
-      })
+      navigationActions.pop()
     )
   }, [dispatch])
 

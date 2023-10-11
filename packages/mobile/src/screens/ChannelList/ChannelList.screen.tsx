@@ -23,7 +23,7 @@ export const ChannelListScreen: FC = () => {
   useEffect(() => {
     if (usernameTaken) {
       dispatch(
-        navigationActions.replaceScreen({
+        navigationActions.navigation({
           screen: ScreenNames.UsernameTakenScreen,
         })
       )
@@ -31,12 +31,12 @@ export const ChannelListScreen: FC = () => {
 
     if (duplicateCerts) {
       dispatch(
-        navigationActions.replaceScreen({
+        navigationActions.navigation({
           screen: ScreenNames.PossibleImpersonationAttackScreen,
         })
       )
     }
-  }, [dispatch, usernameTaken, duplicateCerts])
+  }, [dispatch, duplicateCerts])
 
   const redirect = useCallback(
     (id: string) => {
