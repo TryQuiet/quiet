@@ -23,12 +23,6 @@ jobs:
           git lfs install
           git lfs pull
 
-      - name: Set NDK path in local.properties
-        run: |
-          printf "\
-          ndk.path=${{ env.NDK_PATH }}\n\
-          " > packages/mobile/android/local.properties
-
       - name: Build Detox
         run: |
           cd packages/mobile
