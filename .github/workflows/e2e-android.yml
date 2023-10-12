@@ -6,7 +6,7 @@ on:
       - packages/mobile/**
 
 jobs:
-  detox:
+  detox-android:
     timeout-minutes: 10
     runs-on: [self-hosted, macOS, ARM64, android]
 
