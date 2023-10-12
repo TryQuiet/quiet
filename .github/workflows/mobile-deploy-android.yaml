@@ -40,15 +40,15 @@ jobs:
         with:
           bootstrap-packages: "@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/mobile,backend-bundle"
 
-      - name: "Prepare ndk configuration"
-        run: |
-          printf "\
-          ndk.path=${{ steps.setup-ndk.outputs.ndk-path }}\n\
-          " > ./packages/mobile/android/local.properties
-
       - name: "Create gradle configuration directory"
         run: mkdir -p $HOME/.gradle
       
+      - name: "Prepare ndk configuration"
+        run: |
+          printf "\
+          NDK_PATH=${{ steps.setup-ndk.outputs.ndk-path }}\n\
+          " > $HOME/.gradle/gradle.properties
+
       - name: "Prepare signing configuration"
         run: |
           printf "\
