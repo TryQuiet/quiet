@@ -11,8 +11,7 @@ export const SplashScreen: FC<SplashScreenProps> = ({ route }) => {
   const ready = useSelector(initSelectors.ready)
 
   useEffect(() => {
-    const code = route.params?.code
-
+    const code = route.path
     // Screen hasn't been open through a link
     if (!code) return
 

@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { errors, identity, users } from '@quiet/state-manager'
 import { useDispatch, useSelector } from 'react-redux'
 import { UsernameTakenScreenProps } from './UsernameTaken.types'
@@ -11,6 +11,8 @@ const UsernameTakenScreen: React.FC<UsernameTakenScreenProps> = () => {
   const dispatch = useDispatch()
 
   const currentIdentity = useSelector(identity.selectors.currentIdentity)
+
+  const usernameTaken = useSelector(identity.selectors.usernameTaken)
 
   const usernameRegistered = currentIdentity?.userCertificate != null
 
@@ -39,6 +41,16 @@ const UsernameTakenScreen: React.FC<UsernameTakenScreenProps> = () => {
       })
     )
   }
+
+  useEffect(() => {
+    if (!usernameTaken) {
+      dispatch(
+        navigationActions.navigation({
+          screen: ScreenNames.ChannelListScreen,
+        })
+      )
+    }
+  }, [dispatch, usernameTaken])
 
   return (
     <UsernameRegistration
