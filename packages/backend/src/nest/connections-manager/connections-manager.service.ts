@@ -288,8 +288,11 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     if (!(await this.localDbService.get('psk'))) {
       const psk = new Uint8Array(95)
       generateKey(psk)
-      console.log('Saving psk', psk)
+      console.log('Saving psk')
       await this.localDbService.put('psk', psk)
+      const pskBase64 = uint8ArrayToString(psk, 'base64')
+      console.log('psk base64', pskBase64)
+      this.serverIoProvider.io.emit(SocketActionTypes.PSK, { psk: pskBase64 })
     }
 
     await this.launchCommunity(payload)

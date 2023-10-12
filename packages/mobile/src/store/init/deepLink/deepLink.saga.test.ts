@@ -9,13 +9,13 @@ import { navigationActions } from '../../navigation/navigation.slice'
 import { ScreenNames } from '../../../const/ScreenNames.enum'
 import { deepLinkSaga } from './deepLink.saga'
 import { CommunityOwnership, ConnectionProcessInfo, Identity } from '@quiet/types'
+import { Site } from '@quiet/common'
 
 describe('deepLinkSaga', () => {
   let store: Store
 
   const id = '00d045ab'
-  const validCode =
-    'QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE=y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd'
+  const validCode = `QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE=y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd&${Site.PSK_PARAM_KEY}=12345`
   const validPairs = getInvitationCodes(validCode)
   const community: Community = {
     id,
@@ -70,7 +70,8 @@ describe('deepLinkSaga', () => {
       .put(
         communities.actions.createNetwork({
           ownership: CommunityOwnership.User,
-          peers: validPairs,
+          peers: validPairs.pairs,
+          psk: validPairs.psk,
         })
       )
       .run()
@@ -104,7 +105,8 @@ describe('deepLinkSaga', () => {
       .not.put(
         communities.actions.createNetwork({
           ownership: CommunityOwnership.User,
-          peers: validPairs,
+          peers: validPairs.pairs,
+          psk: validPairs.psk,
         })
       )
       .run()
@@ -127,7 +129,8 @@ describe('deepLinkSaga', () => {
       .not.put(
         communities.actions.createNetwork({
           ownership: CommunityOwnership.User,
-          peers: validPairs,
+          peers: validPairs.pairs,
+          psk: validPairs.psk,
         })
       )
       .run()
@@ -166,7 +169,8 @@ describe('deepLinkSaga', () => {
       .not.put(
         communities.actions.createNetwork({
           ownership: CommunityOwnership.User,
-          peers: validPairs,
+          peers: validPairs.pairs,
+          psk: validPairs.psk,
         })
       )
       .run()

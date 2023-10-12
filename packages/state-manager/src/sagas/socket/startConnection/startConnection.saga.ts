@@ -93,6 +93,7 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof connectionActions.setTorInitialized>
     | ReturnType<typeof communitiesActions.saveCommunityMetadata>
     | ReturnType<typeof communitiesActions.sendCommunityMetadata>
+    | ReturnType<typeof communitiesActions.savePSK>
   >(emit => {
     // UPDATE FOR APP
     socket.on(SocketActionTypes.TOR_INITIALIZED, () => {
@@ -262,6 +263,10 @@ export function subscribe(socket: Socket) {
           ownerCertificate: payload.ownerCertificate,
         })
       )
+    })
+    socket.on(SocketActionTypes.PSK, (payload: { psk: string }) => {
+      console.log('save psk', payload)
+      emit(communitiesActions.savePSK(payload.psk))
     })
     return () => undefined
   })

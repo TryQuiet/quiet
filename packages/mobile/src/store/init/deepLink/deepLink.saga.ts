@@ -52,9 +52,12 @@ export function* deepLinkSaga(action: PayloadAction<ReturnType<typeof initAction
     })
   )
 
+  const data = getInvitationCodes(code) // TODO: handle thrown error
+
   const payload: CreateNetworkPayload = {
     ownership: CommunityOwnership.User,
-    peers: getInvitationCodes(code),
+    peers: data.pairs,
+    psk: data.psk,
   }
 
   yield* put(communities.actions.createNetwork(payload))

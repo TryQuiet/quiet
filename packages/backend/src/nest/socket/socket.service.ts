@@ -207,6 +207,10 @@ export class SocketService extends EventEmitter implements OnModuleInit {
         this.logger('Leaving community')
         this.emit(SocketActionTypes.LEAVE_COMMUNITY)
       })
+      socket.on(SocketActionTypes.PSK, payload => {
+        this.logger('Saving PSK', payload)
+        this.emit(SocketActionTypes.PSK, payload)
+      })
     })
   }
 

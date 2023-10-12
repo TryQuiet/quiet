@@ -1,4 +1,4 @@
-import { invitationShareUrl } from '@quiet/common'
+import { createLibp2pAddress, invitationShareUrl } from '@quiet/common'
 import { setupCrypto } from '@quiet/identity'
 import { type Store } from '@reduxjs/toolkit'
 import { getFactory } from '../../utils/tests/factories'
@@ -6,7 +6,7 @@ import { prepareStore } from '../../utils/tests/prepareStore'
 import { type identityActions } from '../identity/identity.slice'
 import { usersActions } from '../users/users.slice'
 import { communitiesSelectors } from './communities.selectors'
-import { type communitiesActions } from './communities.slice'
+import { communitiesActions } from './communities.slice'
 import { type Community, type Identity } from '@quiet/types'
 
 describe('communitiesSelectors', () => {
@@ -93,6 +93,41 @@ describe('communitiesSelectors', () => {
 
   it('invitationUrl selector does not break if there is no community', () => {
     const { store } = prepareStore()
+    const invitationUrl = communitiesSelectors.invitationUrl(store.getState())
+    expect(invitationUrl).toEqual('')
+  })
+
+  it('invitationUrl selector returns proper url', async () => {
+    const { store } = prepareStore()
+    const factory = await getFactory(store)
+    const peerList = [
+      createLibp2pAddress(
+        'gloao6h5plwjy4tdlze24zzgcxll6upq2ex2fmu2ohhyu4gtys4nrjad',
+        'QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSA'
+      ),
+    ]
+    const psk = '12345'
+    await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community', {
+      peerList,
+    })
+    store.dispatch(communitiesActions.savePSK(psk))
+    const selectorInvitationUrl = communitiesSelectors.invitationUrl(store.getState())
+    const expectedUrl = invitationShareUrl(peerList, psk)
+    expect(expectedUrl).not.toEqual('')
+    expect(selectorInvitationUrl).toEqual(expectedUrl)
+  })
+
+  it('invitationUrl selector returns empty string if state lacks psk', async () => {
+    const { store } = prepareStore()
+    const factory = await getFactory(store)
+    await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community', {
+      peerList: [
+        createLibp2pAddress(
+          'gloao6h5plwjy4tdlze24zzgcxll6upq2ex2fmu2ohhyu4gtys4nrjad',
+          'QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSA'
+        ),
+      ],
+    })
     const invitationUrl = communitiesSelectors.invitationUrl(store.getState())
     expect(invitationUrl).toEqual('')
   })

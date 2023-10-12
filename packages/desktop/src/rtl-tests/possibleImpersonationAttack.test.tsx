@@ -8,8 +8,9 @@ import { FactoryGirl } from 'factory-girl'
 import { ioMock } from '../shared/setupTests'
 import { renderComponent } from '../renderer/testUtils/renderComponent'
 import { prepareStore } from '../renderer/testUtils/prepareStore'
-import { getFactory, identity, communities, Community, Identity, Store, users } from '@quiet/state-manager'
+import { getFactory, identity, communities, Identity, Store, users } from '@quiet/state-manager'
 import PossibleImpersonationAttackModalContainer from '../renderer/components/widgets/possibleImpersonationAttackModal/PossibleImpersonationAttackModal.container'
+import { type Community } from '@quiet/types'
 
 jest.setTimeout(20_000)
 

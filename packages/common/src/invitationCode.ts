@@ -1,38 +1,53 @@
-import { InvitationPair } from '@quiet/types'
-import { ONION_ADDRESS_REGEX, Site } from './static'
+import { InvitationData, InvitationPair } from '@quiet/types'
+import { ONION_ADDRESS_REGEX, PEER_ID_REGEX, Site } from './static'
 import { createLibp2pAddress } from './libp2p'
-export const retrieveInvitationCode = (url: string): InvitationPair[] => {
+
+export const retrieveInvitationCode = (url: string): InvitationData => {
+  // TODO: rename to parseDeepUrl?
   /**
-   * Extract invitation codes from deep url.
-   * Valid format: quiet://?<peerid1>=<address1>&<peerid2>=<addresss2>
+   * Extract invitation data from deep url.
+   * Valid format: quiet://?<peerid1>=<address1>&<peerid2>=<addresss2>&k=<psk>
    */
   let data: URL
   try {
     data = new URL(url)
   } catch (e) {
-    return []
+    console.error(`Could not retrieve invitation code from deep url ${url}. Reason: ${e.message}`)
+    throw e
   }
-  if (!data || data.protocol !== 'quiet:') return []
+  if (!data || data.protocol !== 'quiet:') {
+    console.error(`Could not retrieve invitation code from deep url ${url}`)
+    throw new Error()
+  }
   const params = data.searchParams
   const codes: InvitationPair[] = []
-  for (const [peerId, onionAddress] of params.entries()) {
-    if (!invitationCodeValid(peerId, onionAddress)) continue
+  const psk = params.get(Site.PSK_PARAM_KEY)
+  if (!psk) throw new Error(`No psk found in invitation code ${url}`)
+
+  params.delete(Site.PSK_PARAM_KEY)
+
+  params.forEach((peerId, onionAddress) => {
+    if (!invitationCodeValid(peerId, onionAddress)) return
     codes.push({
       peerId,
       onionAddress,
     })
+  })
+  console.log('Retrieved data:', codes, psk)
+  return {
+    pairs: codes,
+    psk: psk,
   }
-  console.log('Retrieved codes:', codes)
-  return codes
 }
 
-export const invitationShareUrl = (peers: string[] = []): string => {
+export const invitationShareUrl = (peers: string[] = [], psk: string): string => {
+  // TODO: rename to 'composeInvitationShareUrl'
   /**
    * @arg {string[]} peers - List of peer's p2p addresses
-   * @returns {string} - Complete shareable invitation link, e.g. https://tryquiet.org/join/#<peerid1>=<address1>&<peerid2>=<addresss2>
+   * @returns {string} - Complete shareable invitation link, e.g. https://tryquiet.org/join/#<peerid1>=<address1>&<peerid2>=<addresss2>&k=<psk>
    */
   console.log('Invitation share url, peers:', peers)
-  const pairs = []
+  const pairs: InvitationPair[] = []
   for (const peerAddress of peers) {
     let peerId: string
     let onionAddress: string
@@ -54,11 +69,14 @@ export const invitationShareUrl = (peers: string[] = []): string => {
       continue
     }
     const rawAddress = onionAddress.endsWith('.onion') ? onionAddress.split('.')[0] : onionAddress
-    pairs.push(`${peerId}=${rawAddress}`)
+    pairs.push({ peerId: peerId, onionAddress: rawAddress })
   }
 
-  console.log('invitationShareUrl', pairs.join('&'))
-  const url = new URL(`${Site.MAIN_PAGE}${Site.JOIN_PAGE}#${pairs.join('&')}`)
+  const _url = pairsToInvitationShareUrl({ pairs: pairs, psk: psk })
+
+  // const _url = `${Site.MAIN_PAGE}${Site.JOIN_PAGE}#${pairs.join('&')}&${psk}`
+  console.log('invitationShareUrl', _url)
+  const url = new URL(_url)
   return url.href
 }
 
@@ -70,38 +88,49 @@ export const pairsToP2pAddresses = (pairs: InvitationPair[]): string[] => {
   return addresses
 }
 
-export const pairsToInvitationShareUrl = (pairs: InvitationPair[]) => {
+export const pairsToInvitationShareUrl = (data: InvitationData) => {
   const url = new URL(`${Site.MAIN_PAGE}${Site.JOIN_PAGE}`)
-  for (const pair of pairs) {
+  for (const pair of data.pairs) {
     url.searchParams.append(pair.peerId, pair.onionAddress)
   }
+  url.searchParams.append(Site.PSK_PARAM_KEY, data.psk)
   return url.href.replace('?', '#')
 }
 
-export const invitationDeepUrl = (pairs: InvitationPair[] = []): string => {
+export const invitationDeepUrl = (data: InvitationData): string => {
+  // TODO: rename to 'composeInvitationDeepUrl'
+  // TODO: refactor - unify with pairsToInvitationShareUrl
   const url = new URL('quiet://')
-  for (const pair of pairs) {
+  for (const pair of data.pairs) {
     url.searchParams.append(pair.peerId, pair.onionAddress)
   }
+  url.searchParams.append(Site.PSK_PARAM_KEY, data.psk)
   return url.href
 }
 
-export const argvInvitationCode = (argv: string[]): InvitationPair[] => {
+export const argvInvitationCode = (argv: string[]): InvitationData | null => {
   /**
    * Extract invitation codes from deep url if url is present in argv
    */
-  let invitationCodes: InvitationPair[] = []
+  let invitationData: InvitationData | null = null
   for (const arg of argv) {
-    invitationCodes = retrieveInvitationCode(arg)
-    if (invitationCodes.length > 0) {
+    try {
+      invitationData = retrieveInvitationCode(arg)
+    } catch (e) {
+      continue
+    }
+    if (invitationData.pairs.length > 0) {
       break
+    } else {
+      invitationData = null
     }
   }
-  return invitationCodes
+  return invitationData
 }
 
 export const invitationCodeValid = (peerId: string, onionAddress: string): boolean => {
-  if (!peerId.match(/^[a-zA-Z0-9]{46}$/g)) {
+  // TODO: rename to peerDataValid?
+  if (!peerId.match(PEER_ID_REGEX)) {
     // TODO: test it more properly e.g with PeerId.createFromB58String(peerId.trim())
     console.log(`PeerId ${peerId} is not valid`)
     return false
@@ -113,11 +142,18 @@ export const invitationCodeValid = (peerId: string, onionAddress: string): boole
   return true
 }
 
-export const getInvitationPairs = (code: string) => {
+export const getInvitationPairs = (code: string): InvitationData => {
   /**
-   * @param code <peerId1>=<address1>&<peerId2>=<address2>
+   * @param code <peerId1>=<address1>&<peerId2>=<address2>&k=<psk>
    */
-  const pairs = code.split('&')
+
+  // TODO: refactor - use parametrized retrieveInvitationCode instead
+  const elements = code.split('&')
+  if (elements.length <= 1) throw new Error(`Invitation link '${code}' has not enough data`)
+  const pairs = elements.slice(0, -1)
+  const psk = elements.slice(-1)[0]
+
+  // TODO: Verify psk format
   const codes: InvitationPair[] = []
   for (const pair of pairs) {
     const [peerId, address] = pair.split('=')
@@ -128,5 +164,8 @@ export const getInvitationPairs = (code: string) => {
       onionAddress: address,
     })
   }
-  return codes
+  return {
+    pairs: codes,
+    psk: psk,
+  }
 }

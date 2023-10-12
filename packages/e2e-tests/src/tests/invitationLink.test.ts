@@ -140,9 +140,9 @@ describe('New user joins using invitation link while having app opened', () => {
         win32: 'start',
       }
 
-      const pairs = getInvitationPairs(url.hash.substring(1))
-      expect(pairs).not.toBe([])
-      execSync(`${command[process.platform as SupportedPlatformDesktop]} ${invitationDeepUrl(pairs)}`)
+      const data = getInvitationPairs(url.hash.substring(1))
+      expect(data.pairs).not.toBe([])
+      execSync(`${command[process.platform as SupportedPlatformDesktop]} ${invitationDeepUrl(data)}`)
       console.log('Guest opened invitation link')
     })
 

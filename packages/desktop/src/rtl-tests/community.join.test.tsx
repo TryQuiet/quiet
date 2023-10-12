@@ -20,7 +20,6 @@ import {
   SocketActionTypes,
   RegisterUserCertificatePayload,
   InitCommunityPayload,
-  Community,
   ErrorCodes,
   ErrorMessages,
   getFactory,
@@ -32,10 +31,11 @@ import LoadingPanel from '../renderer/components/LoadingPanel/LoadingPanel'
 import { createUserCertificateTestHelper } from '@quiet/identity'
 import { AnyAction } from 'redux'
 import {
-  ChannelsReplicatedPayload,
-  ErrorPayload,
-  ResponseLaunchCommunityPayload,
-  SendOwnerCertificatePayload,
+  type ChannelsReplicatedPayload,
+  type Community,
+  type ErrorPayload,
+  type ResponseLaunchCommunityPayload,
+  type SendOwnerCertificatePayload,
 } from '@quiet/types'
 
 jest.setTimeout(20_000)

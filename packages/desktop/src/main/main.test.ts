@@ -6,6 +6,7 @@ import { BrowserWindow, app, ipcMain, Menu } from 'electron'
 import { waitFor } from '@testing-library/dom'
 import path from 'path'
 import { invitationDeepUrl } from '@quiet/common'
+import { InvitationData } from '@quiet/types'
 
 // eslint-disable-next-line
 const remote = require('@electron/remote/main')
@@ -237,15 +238,20 @@ describe('other electron app events ', () => {
 })
 
 describe('Invitation code', () => {
-  it('handles invitation code on open-url event (on macos)', async () => {
-    expect(mockAppOnCalls[2][0]).toBe('ready')
-    await mockAppOnCalls[2][1]()
-    const codes = [
+  const codes: InvitationData = {
+    pairs: [
       {
         peerId: 'QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE',
         onionAddress: 'y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd',
       },
-    ]
+    ],
+    psk: '12345',
+  }
+
+  it('handles invitation code on open-url event (on macos)', async () => {
+    expect(mockAppOnCalls[2][0]).toBe('ready')
+    await mockAppOnCalls[2][1]()
+
     expect(mockAppOnCalls[1][0]).toBe('open-url')
     const event = { preventDefault: () => {} }
     mockAppOnCalls[1][1](event, invitationDeepUrl(codes))
@@ -253,12 +259,6 @@ describe('Invitation code', () => {
   })
 
   it('process invitation code on second-instance event', async () => {
-    const codes = [
-      {
-        peerId: 'QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE',
-        onionAddress: 'y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd',
-      },
-    ]
     await mockAppOnCalls[2][1]()
     const commandLine = ['/tmp/.mount_Quiet-TVQc6s/quiet', invitationDeepUrl(codes)]
     expect(mockAppOnCalls[0][0]).toBe('second-instance')

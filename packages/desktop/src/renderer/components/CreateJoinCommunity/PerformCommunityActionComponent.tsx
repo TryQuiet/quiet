@@ -12,7 +12,7 @@ import { LoadingButton } from '../ui/LoadingButton/LoadingButton'
 
 import { CreateCommunityDictionary, JoinCommunityDictionary } from '../CreateJoinCommunity/community.dictionary'
 
-import { CommunityOwnership, InvitationPair } from '@quiet/types'
+import { CommunityOwnership, InvitationData, InvitationPair } from '@quiet/types'
 
 import { Controller, useForm } from 'react-hook-form'
 import { TextInput } from '../../forms/components/textInput'
@@ -138,6 +138,7 @@ export interface PerformCommunityActionProps {
   revealInputValue?: boolean
   handleClickInputReveal?: () => void
   invitationCode?: InvitationPair[]
+  psk?: string
 }
 
 export const PerformCommunityActionComponent: React.FC<PerformCommunityActionProps> = ({
@@ -152,6 +153,7 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
   revealInputValue,
   handleClickInputReveal,
   invitationCode,
+  psk,
 }) => {
   const [formSent, setFormSent] = useState(false)
 
@@ -190,14 +192,20 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
     }
 
     if (communityOwnership === CommunityOwnership.User) {
-      const codes = getInvitationCodes(values.name.trim())
-      if (!codes.length) {
+      let data
+      try {
+        data = getInvitationCodes(values.name.trim())
+      } catch (e) {
+        console.warn(`Could not parse invitation code, reason: ${e.message}`)
+      }
+
+      if (!data) {
         setError('name', { message: InviteLinkErrors.InvalidCode })
         return
       }
 
       setFormSent(true)
-      handleSubmit(codes)
+      handleSubmit(data)
     }
   }
 
@@ -211,9 +219,9 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
 
   // Lock the form if app's been open with custom protocol
   useEffect(() => {
-    if (communityOwnership === CommunityOwnership.User && invitationCode?.length) {
+    if (communityOwnership === CommunityOwnership.User && invitationCode?.length && psk) {
       setFormSent(true)
-      setValue('name', pairsToInvitationShareUrl(invitationCode))
+      setValue('name', pairsToInvitationShareUrl({ pairs: invitationCode, psk: psk }))
     }
   }, [communityOwnership, invitationCode])
 

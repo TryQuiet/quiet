@@ -1,11 +1,12 @@
 import { Site, getInvitationPairs, invitationCodeValid } from '@quiet/common'
 import { InvitationPair } from '@quiet/types'
 
-export const getInvitationCodes = (codeOrUrl: string): InvitationPair[] => {
+export const getInvitationCodes = (codeOrUrl: string): { pairs: InvitationPair[]; psk: string } => {
   /**
-   * Extract codes from invitation share url or return passed value for further validation
+   * Extract codes from invitation share url or return passed value for further error handling
+   * @param codeOrUrl: full invitation link or just the code part of the link
    */
-  let codes: InvitationPair[] = []
+  let data: { pairs: InvitationPair[]; psk: string } | null = null
   let potentialCode
   let validUrl: URL | null = null
 
@@ -21,16 +22,16 @@ export const getInvitationCodes = (codeOrUrl: string): InvitationPair[] => {
     if (hash) {
       // Parse hash
       const pairs = hash.substring(1)
-      codes = getInvitationPairs(pairs)
+      data = getInvitationPairs(pairs)
     }
   } else if (potentialCode) {
     // Parse code just as hash value
-    codes = getInvitationPairs(potentialCode)
+    data = getInvitationPairs(potentialCode)
   }
 
-  if (codes.length === 0) {
-    console.warn(`No invitation codes. Code/url passed: ${codeOrUrl}`)
+  if (!data || data?.pairs.length === 0) {
+    throw new Error(`No invitation codes. Code/url passed: ${codeOrUrl}`)
   }
 
-  return codes
+  return data
 }

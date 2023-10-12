@@ -39,8 +39,14 @@ export const JoinCommunity: FC<JoinCommunityProps> = ({
       return
     }
 
-    const submitValue = getInvitationCodes(joinCommunityInput.trim())
-    if (!submitValue?.length) {
+    let submitValue
+    try {
+      submitValue = getInvitationCodes(joinCommunityInput.trim())
+    } catch (e) {
+      console.warn(`Could not parse invitation code, reason: ${e.message}`)
+    }
+
+    if (!submitValue) {
       setLoading(false)
       setInputError('Please check your invitation code and try again')
       return

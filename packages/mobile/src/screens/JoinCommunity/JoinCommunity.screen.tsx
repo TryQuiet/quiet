@@ -35,10 +35,11 @@ export const JoinCommunityScreen: FC<JoinCommunityScreenProps> = ({ route }) => 
   }, [dispatch, community, route.params?.code])
 
   const joinCommunityAction = useCallback(
-    (pairs: InvitationPair[]) => {
+    (data: { pairs: InvitationPair[]; psk: string }) => {
       const payload: CreateNetworkPayload = {
         ownership: CommunityOwnership.User,
-        peers: pairs,
+        peers: data.pairs,
+        psk: data.psk,
       }
       dispatch(communities.actions.createNetwork(payload))
       dispatch(
