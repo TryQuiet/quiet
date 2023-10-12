@@ -2,17 +2,27 @@ import { io, Socket } from 'socket.io-client'
 import { put, call, cancel, fork, takeEvery, FixedTask } from 'typed-redux-saga'
 import { PayloadAction } from '@reduxjs/toolkit'
 import { socket as stateManager } from '@quiet/state-manager'
+import { encodeSecret } from '@quiet/common'
 import { initActions } from '../init.slice'
 import { eventChannel } from 'redux-saga'
 
 export function* startConnectionSaga(
   action: PayloadAction<ReturnType<typeof initActions.startWebsocketConnection>['payload']>
 ): Generator {
-  const { dataPort } = action.payload
+  const { dataPort, socketIOSecret } = action.payload
 
-  const socket = yield* call(io, `http://127.0.0.1:${dataPort}`)
+  console.log('socketIOSecret', socketIOSecret)
+
+  if (!socketIOSecret) return
+
+  const token = encodeSecret(socketIOSecret)
+  const socket = yield* call(io, `http://127.0.0.1:${dataPort}`, {
+    withCredentials: true,
+    extraHeaders: {
+      authorization: `Basic ${token}`,
+    },
+  })
   yield* fork(handleSocketLifecycleActions, socket, dataPort)
-
   // Handle opening/restoring connection
   yield* takeEvery(initActions.setWebsocketConnected, setConnectedSaga, socket)
 }
@@ -46,7 +56,7 @@ function subscribeSocketLifecycle(socket: Socket, dataPort: number) {
       console.log('closing socket connection')
       emit(initActions.suspendWebsocketConnection())
     })
-    return () => {}
+    return () => { }
   })
 }
 

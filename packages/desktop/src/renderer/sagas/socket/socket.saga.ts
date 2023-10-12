@@ -60,7 +60,7 @@ function subscribeSocketLifecycle(socket?: Socket) {
       console.log('closing socket connection')
       emit(socketActions.suspendConnection())
     })
-    return () => {}
+    return () => { }
   })
 }
 

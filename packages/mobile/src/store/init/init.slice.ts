@@ -23,6 +23,7 @@ export interface InitCheckPayload {
 
 export interface WebsocketConnectionPayload {
   dataPort: number
+  socketIOSecret?: string
 }
 
 export interface CloseConnectionPayload {

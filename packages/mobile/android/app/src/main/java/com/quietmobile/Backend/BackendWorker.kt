@@ -90,6 +90,7 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
         withContext(Dispatchers.IO) {
             // Get and store data port for usage in methods across the app
             val dataPort = Utils.getOpenPort(11000)
+            val socketIOSecret = "secret"
 
             // Init nodejs project
             launch {
@@ -112,7 +113,7 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
                  * In any case, websocket won't connect until data server starts listening
                  */
                 delay(WEBSOCKET_CONNECTION_DELAY)
-                startWebsocketConnection(dataPort)
+                startWebsocketConnection(dataPort, socketIOSecret)
             }
 
             val dataPath = Utils.createDirectory(context)
@@ -122,7 +123,7 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
 
             val platform = "mobile"
 
-            startNodeProjectWithArguments("bundle.cjs --torBinary $torBinary --dataPath $dataPath --dataPort $dataPort --platform $platform")
+            startNodeProjectWithArguments("bundle.cjs --torBinary $torBinary --dataPath $dataPath --dataPort $dataPort --platform $platform --socketIOSecret $socketIOSecret")
         }
 
         println("FINISHING BACKEND WORKER")
@@ -190,10 +191,10 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
             notificationHandler.notify(message, username)
         }
 
-    private fun startWebsocketConnection(port: Int) {
+    private fun startWebsocketConnection(port: Int, socketIOSecret: Any) {
         Log.d("WEBSOCKET CONNECTION", "Starting on $port")
         // Proceed only if data port is defined
-        val websocketConnectionPayload = WebsocketConnectionPayload(port)
+        val websocketConnectionPayload = WebsocketConnectionPayload(port, socketIOSecret)
         CommunicationModule.handleIncomingEvents(
             CommunicationModule.WEBSOCKET_CONNECTION_CHANNEL,
             Gson().toJson(websocketConnectionPayload),
