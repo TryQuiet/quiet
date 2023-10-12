@@ -26,7 +26,7 @@ jobs:
       - name: Set NDK path in local.properties
         run: |
           printf "\
-          ndk.path=${{ env.NDK_PATH }}\n\
+          ndk.dir=${{ env.NDK_PATH }}\n\
           " > packages/mobile/android/local.properties
 
       - name: Build Detox
