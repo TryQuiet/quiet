@@ -1,4 +1,4 @@
-name: E2E iOS
+name: E2E Android
 
 on:
   pull_request:
@@ -8,7 +8,7 @@ on:
 jobs:
   detox:
     timeout-minutes: 10
-    runs-on: [self-hosted, macOS, ARM64, iOS]
+    runs-on: [self-hosted, macOS, ARM64, android]
 
     steps:
       - uses: actions/checkout@v4
@@ -23,17 +23,18 @@ jobs:
           git lfs install
           git lfs pull
 
-      - name: Install pods
+      - name: Set NDK path in local.properties
         run: |
-          cd packages/mobile/ios
-          pod install
+          printf "\
+          ndk.path=${{ env.NDK_PATH }}\n\
+          " > packages/mobile/android/local.properties
 
       - name: Build Detox
         run: |
           cd packages/mobile
-          detox build -c ios.sim.debug.ci
+          detox build -c android.emu.debug.ci
 
       - name: Run basic tests
         run: |
           cd packages/mobile
-          detox test starter -c ios.sim.debug.ci
+          detox test starter -c android.emu.debug.ci
