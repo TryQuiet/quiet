@@ -10,26 +10,23 @@ import { usersActions } from '../../users/users.slice'
 export function* updateCertificateSaga(action: PayloadAction<SendCertificatesResponse>): Generator {
   const certificate = yield* select(identitySelectors.hasCertificate)
   const communityId = yield* select(communitiesSelectors.currentCommunityId)
-
-  if (certificate) return
-
   const csr = yield* select(identitySelectors.csr)
 
-  if (!csr?.userCsr) return
+  if (!certificate && csr?.userCsr) {
+    const parsedCsr = yield* call(loadCSR, csr?.userCsr)
 
-  const parsedCsr = yield* call(loadCSR, csr?.userCsr)
+    const cert = action.payload.certificates.find(cert => {
+      if (pubKeyMatch(cert, parsedCsr)) return cert
+    })
 
-  const cert = action.payload.certificates.find(cert => {
-    if (pubKeyMatch(cert, parsedCsr)) return cert
-  })
-
-  if (cert) {
-    yield* put(
-      identityActions.storeUserCertificate({
-        userCertificate: cert,
-        communityId,
-      })
-    )
+    if (cert) {
+      yield* put(
+        identityActions.storeUserCertificate({
+          userCertificate: cert,
+          communityId,
+        })
+      )
+    }
   }
 
   yield* put(usersActions.setAllCerts(action.payload))
