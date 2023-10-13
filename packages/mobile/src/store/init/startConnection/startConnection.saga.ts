@@ -35,7 +35,7 @@ function subscribeSocketLifecycle(socket: Socket, dataPort: number) {
     ReturnType<typeof initActions.setWebsocketConnected> | ReturnType<typeof initActions.suspendWebsocketConnection>
   >(emit => {
     socket.on('connect', async () => {
-      console.log('web socket connected')
+      console.log('websocket connected')
       emit(
         initActions.setWebsocketConnected({
           dataPort,
