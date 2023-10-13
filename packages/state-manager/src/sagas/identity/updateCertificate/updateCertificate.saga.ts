@@ -5,6 +5,7 @@ import { identitySelectors } from '../identity.selectors'
 import { loadCSR, pubKeyMatch } from '@quiet/identity'
 import { identityActions } from '../identity.slice'
 import { communitiesSelectors } from '../../communities/communities.selectors'
+import { usersActions } from '../../users/users.slice'
 
 export function* updateCertificateSaga(action: PayloadAction<SendCertificatesResponse>): Generator {
   const certificate = yield* select(identitySelectors.hasCertificate)
@@ -30,4 +31,6 @@ export function* updateCertificateSaga(action: PayloadAction<SendCertificatesRes
       })
     )
   }
+
+  yield* put(usersActions.setAllCerts(action.payload))
 }

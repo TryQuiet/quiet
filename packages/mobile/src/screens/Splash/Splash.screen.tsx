@@ -11,9 +11,14 @@ export const SplashScreen: FC<SplashScreenProps> = ({ route }) => {
   const ready = useSelector(initSelectors.ready)
 
   useEffect(() => {
-    const code = route.path
+    let code = route.path
+
     // Screen hasn't been open through a link
     if (!code) return
+
+    if (code.charAt(0) === '?') {
+      code = code.slice(1, code.length)
+    }
 
     if (ready) {
       dispatch(initActions.deepLink(code))
