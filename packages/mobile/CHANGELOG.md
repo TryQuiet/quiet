@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.1-alpha.6](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@2.0.1-alpha.5...@quiet/mobile@2.0.1-alpha.6) (2023-10-13)
+
+
+### Bug Fixes
+
+* fallback to gradle.properties for ndk path ([#1960](https://github.com/TryQuiet/quiet/issues/1960)) ([a1d341c](https://github.com/TryQuiet/quiet/commit/a1d341c9257d3fee93678655741d2ef7eb101c6c))
+
+
+
+
+
 ## [2.0.1-alpha.5](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@2.0.1-alpha.4...@quiet/mobile@2.0.1-alpha.5) (2023-10-12)
 
 **Note:** Version bump only for package @quiet/mobile

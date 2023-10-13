@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.1-alpha.6](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@2.0.1-alpha.5...@quiet/desktop@2.0.1-alpha.6) (2023-10-13)
+
+**Note:** Version bump only for package @quiet/desktop
+
+
+
+
+
 ## [2.0.1-alpha.5](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@2.0.1-alpha.4...@quiet/desktop@2.0.1-alpha.5) (2023-10-12)
 
 **Note:** Version bump only for package @quiet/desktop
