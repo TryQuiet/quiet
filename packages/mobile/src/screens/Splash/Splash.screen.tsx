@@ -18,7 +18,7 @@ export const SplashScreen: FC<SplashScreenProps> = ({ route }) => {
     if (ready) {
       dispatch(initActions.deepLink(code))
     }
-  }, [ready, route.params?.code])
+  }, [ready, route.path])
 
   return <Splash />
 }
