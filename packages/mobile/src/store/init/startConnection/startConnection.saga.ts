@@ -56,7 +56,7 @@ function subscribeSocketLifecycle(socket: Socket, dataPort: number) {
       console.log('closing socket connection')
       emit(initActions.suspendWebsocketConnection())
     })
-    return () => { }
+    return () => {}
   })
 }
 
