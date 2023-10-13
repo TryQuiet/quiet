@@ -1,9 +1,8 @@
 [unreleased]
 
+* Fixed mobile bugs - joining by QR code and not showing username taken screen for user who has unique name
+
 * Shorter dots-placeholder for invite link
-
-
-[Unreleased]
 
 * Revert adjusting bootstrap scripts for developing on Windows
 

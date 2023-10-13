@@ -25,12 +25,10 @@ describe('Splash screen', () => {
     const invitationCode =
       'QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE=y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd'
 
-    const route: { key: string; name: ScreenNames.SplashScreen; params: { code?: string } } = {
+    const route: { key: string; name: ScreenNames.SplashScreen; path: string } = {
       key: '',
       name: ScreenNames.SplashScreen,
-      params: {
-        code: invitationCode,
-      },
+      path: invitationCode,
     }
 
     renderComponent(
