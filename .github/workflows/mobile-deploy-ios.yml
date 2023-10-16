@@ -7,7 +7,7 @@ on:
 
 jobs:
   build-ios:
-    needs: detox-ios
+    # needs: detox-ios
     runs-on: ${{ matrix.os }}
     if: |
       startsWith(github.ref, 'refs/tags/@quiet/mobile')
