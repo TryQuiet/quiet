@@ -15,8 +15,8 @@ const JoinCommunity = () => {
   const currentCommunity = useSelector(communities.selectors.currentCommunity)
   const currentIdentity = useSelector(identity.selectors.currentIdentity)
 
+  // Invitation link data should be already available if user joined via deep link
   const invitationCodes = useSelector(communities.selectors.invitationCodes)
-  console.log('PSK SELECTOR', communities.selectors.psk)
   const psk = useSelector(communities.selectors.psk)
 
   const joinCommunityModal = useModal(ModalName.joinCommunityModal)
@@ -38,10 +38,11 @@ const JoinCommunity = () => {
     }
   }, [currentCommunity])
 
-  const handleCommunityAction = (address: InvitationPair[]) => {
+  const handleCommunityAction = (data: InvitationData) => {
     const payload: CreateNetworkPayload = {
       ownership: CommunityOwnership.User,
-      peers: address,
+      peers: data.pairs,
+      psk: data.psk,
     }
     dispatch(communities.actions.createNetwork(payload))
   }

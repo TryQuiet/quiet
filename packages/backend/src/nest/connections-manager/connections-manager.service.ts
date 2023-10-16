@@ -8,7 +8,7 @@ import { setEngine, CryptoEngine } from 'pkijs'
 import { EventEmitter } from 'events'
 import getPort from 'get-port'
 import PeerId from 'peer-id'
-import { removeFilesFromDir } from '../common/utils'
+import { generateKey, removeFilesFromDir } from '../common/utils'
 import {
   AskForMessagesPayload,
   ChannelMessagesIdsResponse,
@@ -59,9 +59,6 @@ import { StorageEvents } from '../storage/storage.types'
 import { LazyModuleLoader } from '@nestjs/core'
 import Logger from '../common/logger'
 import { emitError } from '../socket/socket.errors'
-import crypto from 'crypto'
-// import { randomBytes } from '@libp2p/crypto'
-import { generateKey } from 'libp2p/pnet'
 import { toString as uint8ArrayToString } from 'uint8arrays/to-string'
 import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
 
@@ -279,21 +276,30 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       },
       network,
     }
+    const psk = community.psk // Passed in base64
+    if (psk) {
+      console.log('createNetwork got psk', psk)
+      await this.localDbService.put(LocalDBKeys.PSK, psk) // Validate psk before saving?
+    }
+
     this.serverIoProvider.io.emit(SocketActionTypes.NETWORK, payload)
+  }
+
+  private async generatePSK() {
+    const libp2pPSK = new Uint8Array(95)
+    const psk = generateKey(libp2pPSK)
+    console.log('Generated new buffer psk', psk)
+    const pskBase64 = uint8ArrayToString(psk, 'base64')
+    await this.localDbService.put(LocalDBKeys.PSK, pskBase64)
+
+    console.log('psk base64 SAVED', pskBase64)
+    this.serverIoProvider.io.emit(SocketActionTypes.PSK, { psk: pskBase64 })
   }
 
   public async createCommunity(payload: InitCommunityPayload) {
     console.log('ConnectionsManager.createCommunity peers:', payload.peers)
 
-    if (!(await this.localDbService.get('psk'))) {
-      const psk = new Uint8Array(95)
-      generateKey(psk)
-      console.log('Saving psk')
-      await this.localDbService.put('psk', psk)
-      const pskBase64 = uint8ArrayToString(psk, 'base64')
-      console.log('psk base64', pskBase64)
-      this.serverIoProvider.io.emit(SocketActionTypes.PSK, { psk: pskBase64 })
-    }
+    await this.generatePSK()
 
     await this.launchCommunity(payload)
     this.logger(`Created and launched community ${payload.id}`)
@@ -361,8 +367,12 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     if (!peers || peers.length === 0) {
       peers = [this.libp2pService.createLibp2pAddress(onionAddress, _peerId.toString())]
     }
-    const pskValue = await this.localDbService.get('psk')
-    const psk = Uint8Array.from(Object.values(pskValue))
+    const pskValue = await this.localDbService.get(LocalDBKeys.PSK) // What if there is no psk in db?
+    console.log('psk base64 RETRIEVED', pskValue)
+    const psk = uint8ArrayFromString(pskValue, 'base64')
+    console.log('psk buffer retrieved', psk)
+    const libp2pPSK = new Uint8Array(95)
+    generateKey(libp2pPSK, psk)
 
     const params: Libp2pNodeParams = {
       peerId: _peerId,
@@ -371,7 +381,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       localAddress: this.libp2pService.createLibp2pAddress(onionAddress, _peerId.toString()),
       targetPort: this.ports.libp2pHiddenService,
       peers,
-      psk,
+      psk: libp2pPSK,
     }
 
     await this.libp2pService.createInstance(params)
@@ -380,7 +390,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       this.serverIoProvider.io.emit(SocketActionTypes.PEER_CONNECTED, payload)
     })
     this.libp2pService.on(Libp2pEvents.PEER_DISCONNECTED, async (payload: NetworkDataPayload) => {
-      console.log(' this.libp2pService.on(Libp2pEvents.PEER_DISCONNECTED')
       const peerPrevStats = await this.localDbService.find(LocalDBKeys.PEERS, payload.peer)
       const prev = peerPrevStats?.connectionTime || 0
 
@@ -438,6 +447,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       }
     })
     this.socketService.on(SocketActionTypes.CREATE_NETWORK, async (args: Community) => {
+      console.log('CREATE NETWORK', args)
       await this.createNetwork(args)
     })
     this.socketService.on(SocketActionTypes.CREATE_COMMUNITY, async (args: InitCommunityPayload) => {

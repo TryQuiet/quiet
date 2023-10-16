@@ -21,8 +21,11 @@ export const retrieveInvitationCode = (url: string): InvitationData => {
   }
   const params = data.searchParams
   const codes: InvitationPair[] = []
-  const psk = params.get(Site.PSK_PARAM_KEY)
+  let psk = params.get(Site.PSK_PARAM_KEY)
   if (!psk) throw new Error(`No psk found in invitation code ${url}`)
+
+  psk = decodeURIComponent(psk) // TODO: can be dangerous?
+  // Validate base64
 
   params.delete(Site.PSK_PARAM_KEY)
 
@@ -151,9 +154,11 @@ export const getInvitationPairs = (code: string): InvitationData => {
   const elements = code.split('&')
   if (elements.length <= 1) throw new Error(`Invitation link '${code}' has not enough data`)
   const pairs = elements.slice(0, -1)
-  const psk = elements.slice(-1)[0]
 
   // TODO: Verify psk format
+  const _psk = elements.slice(-1)[0]
+  const psk = decodeURIComponent(_psk.split('=')[1]) // FIXME
+
   const codes: InvitationPair[] = []
   for (const pair of pairs) {
     const [peerId, address] = pair.split('=')
@@ -164,6 +169,11 @@ export const getInvitationPairs = (code: string): InvitationData => {
       onionAddress: address,
     })
   }
+
+  console.log('getInvitationPairs', {
+    pairs: codes,
+    psk: psk,
+  })
   return {
     pairs: codes,
     psk: psk,

@@ -1,12 +1,12 @@
-import { Site, getInvitationPairs, invitationCodeValid } from '@quiet/common'
-import { InvitationPair } from '@quiet/types'
+import { Site, getInvitationPairs } from '@quiet/common'
+import { type InvitationData } from '@quiet/types'
 
-export const getInvitationCodes = (codeOrUrl: string): { pairs: InvitationPair[]; psk: string } => {
+export const getInvitationCodes = (codeOrUrl: string): InvitationData => {
   /**
    * Extract codes from invitation share url or return passed value for further error handling
    * @param codeOrUrl: full invitation link or just the code part of the link
    */
-  let data: { pairs: InvitationPair[]; psk: string } | null = null
+  let data: InvitationData | null = null
   let potentialCode
   let validUrl: URL | null = null
 
