@@ -21,9 +21,8 @@ describe('checkForMissingFilesSaga', () => {
 
     const factory = await getFactory(initialState)
 
-    const community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>(
-      'Community'
-    )
+    const community =
+      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
 
     const generalChannel = publicChannelsSelectors.generalChannel(initialState.getState())
     if (!generalChannel) return
@@ -100,9 +99,8 @@ describe('checkForMissingFilesSaga', () => {
 
     const factory = await getFactory(initialState)
 
-    const community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>(
-      'Community'
-    )
+    const community =
+      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
 
     const generalChannel = publicChannelsSelectors.generalChannel(initialState.getState())
     if (!generalChannel) return
@@ -178,9 +176,8 @@ describe('checkForMissingFilesSaga', () => {
 
     const factory = await getFactory(initialState)
 
-    const community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>(
-      'Community'
-    )
+    const community =
+      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
 
     const generalChannel = publicChannelsSelectors.generalChannel(initialState.getState())
     if (!generalChannel) return
@@ -306,9 +303,8 @@ describe('checkForMissingFilesSaga', () => {
 
     const factory = await getFactory(initialState)
 
-    const community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>(
-      'Community'
-    )
+    const community =
+      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
 
     const generalChannel = publicChannelsSelectors.generalChannel(initialState.getState())
     if (!generalChannel) return
@@ -384,9 +380,8 @@ describe('checkForMissingFilesSaga', () => {
 
     const factory = await getFactory(initialState)
 
-    const community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>(
-      'Community'
-    )
+    const community =
+      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
 
     const generalChannel = publicChannelsSelectors.generalChannel(initialState.getState())
     if (!generalChannel) return
@@ -462,9 +457,8 @@ describe('checkForMissingFilesSaga', () => {
 
     const factory = await getFactory(initialState)
 
-    const community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>(
-      'Community'
-    )
+    const community =
+      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
 
     const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
       id: community.id,
@@ -539,9 +533,8 @@ describe('checkForMissingFilesSaga', () => {
 
     const factory = await getFactory(initialState)
 
-    const community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>(
-      'Community'
-    )
+    const community =
+      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
 
     const generalChannel = publicChannelsSelectors.generalChannel(initialState.getState())
     if (!generalChannel) return
@@ -617,9 +610,8 @@ describe('checkForMissingFilesSaga', () => {
 
     const factory = await getFactory(initialState)
 
-    const community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>(
-      'Community'
-    )
+    const community =
+      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
 
     const generalChannel = publicChannelsSelectors.generalChannel(initialState.getState())
     if (!generalChannel) return
@@ -695,9 +687,8 @@ describe('checkForMissingFilesSaga', () => {
 
       const factory = await getFactory(initialState)
 
-      const community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>(
-        'Community'
-      )
+      const community =
+        await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
 
       const generalChannel = publicChannelsSelectors.generalChannel(initialState.getState())
       if (!generalChannel) return

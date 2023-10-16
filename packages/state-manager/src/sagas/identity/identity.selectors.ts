@@ -2,7 +2,7 @@ import { StoreKeys } from '../store.keys'
 import { createSelector } from '@reduxjs/toolkit'
 import { identityAdapter } from './identity.adapter'
 import { type CreatedSelectors, type StoreState } from '../store.types'
-import { communitiesSelectors, selectCommunities } from '../communities/communities.selectors'
+import { communitiesSelectors, selectCommunities, currentCommunity } from '../communities/communities.selectors'
 import { certificatesMapping } from '../users/users.selectors'
 
 const identitySlice: CreatedSelectors[StoreKeys.Identity] = (state: StoreState) => state[StoreKeys.Identity]
@@ -22,8 +22,8 @@ export const currentIdentity = createSelector(
   }
 )
 
-export const communityMembership = createSelector(currentIdentity, identity => {
-  return Boolean(identity?.userCsr)
+export const communityMembership = createSelector(currentIdentity, currentCommunity, (identity, community) => {
+  return Boolean(identity?.userCsr && community?.name)
 })
 
 export const hasCertificate = createSelector(currentIdentity, identity => {

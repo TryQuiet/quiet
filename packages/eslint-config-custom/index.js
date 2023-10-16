@@ -46,6 +46,7 @@ module.exports = {
     '@typescript-eslint/default-param-last': 'off',
     '@typescript-eslint/restrict-plus-operands': 'off',
     '@typescript-eslint/no-base-to-string': 'off',
+    '@typescript-eslint/no-explicit-any': 'off',
     '@typescript-eslint/no-redeclare': 'off',
     '@typescript-eslint/no-use-before-define': 'off',
     '@typescript-eslint/dot-notation': 'off',

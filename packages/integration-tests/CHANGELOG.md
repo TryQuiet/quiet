@@ -3,6 +3,30 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.1-alpha.6](https://github.com/TryQuiet/quiet/compare/integration-tests@2.0.1-alpha.5...integration-tests@2.0.1-alpha.6) (2023-10-13)
+
+**Note:** Version bump only for package integration-tests
+
+
+
+
+
+## [2.0.1-alpha.5](https://github.com/TryQuiet/quiet/compare/integration-tests@2.0.1-alpha.4...integration-tests@2.0.1-alpha.5) (2023-10-12)
+
+**Note:** Version bump only for package integration-tests
+
+
+
+
+
+## [2.0.1-alpha.4](https://github.com/TryQuiet/quiet/compare/integration-tests@2.0.1-alpha.3...integration-tests@2.0.1-alpha.4) (2023-10-11)
+
+**Note:** Version bump only for package integration-tests
+
+
+
+
+
 ## [2.0.1-alpha.3](https://github.com/TryQuiet/quiet/compare/integration-tests@2.0.1-alpha.2...integration-tests@2.0.1-alpha.3) (2023-10-10)
 
 **Note:** Version bump only for package integration-tests

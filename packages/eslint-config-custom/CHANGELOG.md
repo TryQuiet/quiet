@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.1-alpha.4](https://github.com/TryQuiet/quiet/compare/@quiet/eslint-config@2.0.1-alpha.3...@quiet/eslint-config@2.0.1-alpha.4) (2023-10-12)
+
+**Note:** Version bump only for package @quiet/eslint-config
+
+
+
+
+
 ## [2.0.1-alpha.3](https://github.com/TryQuiet/quiet/compare/@quiet/eslint-config@2.0.1-alpha.2...@quiet/eslint-config@2.0.1-alpha.3) (2023-10-10)
 
 **Note:** Version bump only for package @quiet/eslint-config
