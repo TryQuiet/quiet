@@ -27,9 +27,8 @@ export function* saveCommunityMetadataSaga(
   const community = yield* select(communitiesSelectors.currentCommunity)
   if (!community) return
   const isOwner = community.CA
-  console.log({ isOwner })
+
   if (!isOwner) {
-    console.log('why not run')
     yield* put(publicChannelsActions.sendUnregisteredInfoMessage())
   }
 }

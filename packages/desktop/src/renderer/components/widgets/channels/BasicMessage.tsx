@@ -11,7 +11,7 @@ import red from '@mui/material/colors/red'
 
 import Jdenticon from '../../Jdenticon/Jdenticon'
 
-import { DisplayableMessage, DownloadStatus, MessageSendingStatus } from '@quiet/types'
+import { DisplayableMessage, DownloadStatus, InfoMessagesType, MessageSendingStatus, MessageType } from '@quiet/types'
 
 import { NestedMessageContent } from './NestedMessageContent'
 
@@ -251,6 +251,19 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
                 {messages.map((message, index) => {
                   const pending = pendingMessages[message.id] !== undefined
                   const downloadStatus = downloadStatuses[message.id]
+
+                  if (
+                    message.type === MessageType.Info &&
+                    message.nickname !== 'owner' && // get owner nickname
+                    message.message === InfoMessagesType.USER_JOINED
+                  ) {
+                    const communityName = 'communityName' //temp
+                    const ownerNickname = 'ownerNickname' //temp
+
+                    message.message = `@${message.nickname} has joined ${communityName}! 🎉
+                    Note: @${message.nickname} is not yet registered, so they'll have the "unregistered" badge until the community creator (@${ownerNickname}) registers them, which will happen automatically when @${ownerNickname} next appears online. [Learn more]`
+                  }
+
                   return (
                     <NestedMessageContent
                       key={index}

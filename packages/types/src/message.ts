@@ -11,6 +11,10 @@ export enum MessageType {
   File = 4,
 }
 
+export enum InfoMessagesType {
+  USER_JOINED = 'user-joined',
+}
+
 export enum SendingStatus {
   Pending = 0,
   Sent = 1,
