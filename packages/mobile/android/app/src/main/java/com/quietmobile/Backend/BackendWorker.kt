@@ -1,6 +1,7 @@
 package com.quietmobile.Backend;
 
 import android.content.Context
+import android.util.Base64
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.work.CoroutineWorker
@@ -22,10 +23,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlin.random.Random
 import org.json.JSONException
 import org.json.JSONObject
 import org.torproject.android.binary.TorResourceInstaller
 import java.util.concurrent.ThreadLocalRandom
+import kotlin.collections.ArrayList
+import kotlin.math.pow
 
 
 class BackendWorker(private val context: Context, workerParams: WorkerParameters) : CoroutineWorker(context, workerParams) {
@@ -88,9 +92,10 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
         setForeground(createForegroundInfo())
 
         withContext(Dispatchers.IO) {
+
             // Get and store data port for usage in methods across the app
             val dataPort = Utils.getOpenPort(11000)
-            val socketIOSecret = "secret"
+            val socketIOSecret = Random.nextLong(0, 100.0.pow(10.0).toLong()).toString()
 
             // Init nodejs project
             launch {
@@ -99,7 +104,7 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
 
             launch {
                 notificationHandler = NotificationHandler(context)
-                subscribePushNotifications(dataPort)
+                subscribePushNotifications(dataPort, socketIOSecret)
             }
 
             launch {
@@ -168,8 +173,14 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
         )
     }
 
-    private fun subscribePushNotifications(port: Int) {
-        val webSocketClient = IO.socket("http://localhost:$port")
+    private fun subscribePushNotifications(port: Int, secret: String) {
+        val encodedSecret = Base64.encodeToString(secret.toByteArray(Charsets.UTF_8), Base64.NO_WRAP)
+        val options = IO.Options()
+        val headers = mutableMapOf<String, List<String>>()
+        headers["Authorization"] = listOf("Basic $encodedSecret")
+        options.extraHeaders = headers
+
+        val webSocketClient = IO.socket("http://127.0.0.1:$port", options)
         // Listen for events sent from nodejs
         webSocketClient.on("pushNotification", onPushNotification)
         // Client won't connect by itself (`connect()` method has to be called manually)
