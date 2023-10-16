@@ -4,6 +4,8 @@
 
 * Shorter dots-placeholder for invite link
 
+* Removed registration attempts selector and corresponding usage.
+
 * Revert adjusting bootstrap scripts for developing on Windows
 
 [2.0.1-alpha.2]
