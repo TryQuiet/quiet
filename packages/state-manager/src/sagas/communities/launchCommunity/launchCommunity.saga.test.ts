@@ -27,25 +27,22 @@ describe('launchCommunity', () => {
   })
 
   test('launch all remembered communities', async () => {
-    const community1 = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>(
-      'Community'
-    )
+    const community1 =
+      await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
     await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
       id: community1.id,
       nickname: 'alice1',
     })
 
-    const community2 = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>(
-      'Community'
-    )
+    const community2 =
+      await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
     await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
       id: community2.id,
       nickname: 'alice2',
     })
 
-    const community3 = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>(
-      'Community'
-    )
+    const community3 =
+      await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
     await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
       id: community3.id,
       nickname: 'alice3',
@@ -64,9 +61,8 @@ describe('launchCommunity', () => {
   test('launch certain community instead of current community', async () => {
     const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
 
-    const community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>(
-      'Community'
-    )
+    const community =
+      await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
 
     const identity = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
       id: community.id,
@@ -127,9 +123,8 @@ describe('launchCommunity', () => {
   test('launch current community', async () => {
     const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
 
-    const community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>(
-      'Community'
-    )
+    const community =
+      await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
     const communityWithRootCa = {
       ...community,
       rootCa: 'rootCA',
@@ -190,9 +185,8 @@ describe('launchCommunity', () => {
   test('do not launch current community if it does not have rootCa', async () => {
     const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
 
-    const community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>(
-      'Community'
-    )
+    const community =
+      await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
     expect(community.rootCa).toBeUndefined()
     const identity = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
       id: community.id,
@@ -254,13 +248,11 @@ describe('launchCommunity', () => {
     const store = prepareStore().store
     const factory = await getFactory(store)
 
-    const community1 = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>(
-      'Community'
-    )
+    const community1 =
+      await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
 
-    const community2 = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>(
-      'Community'
-    )
+    const community2 =
+      await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
 
     const identityAlpha = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
       'Identity',

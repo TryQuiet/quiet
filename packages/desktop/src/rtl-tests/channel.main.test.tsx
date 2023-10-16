@@ -151,9 +151,8 @@ describe('Channel', () => {
 
     const factory = await getFactory(store)
 
-    const community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>(
-      'Community'
-    )
+    const community =
+      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
 
     const entities = store.getState().PublicChannels.channels.entities
 
@@ -264,9 +263,8 @@ describe('Channel', () => {
 
     const factory = await getFactory(store)
 
-    const community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>(
-      'Community'
-    )
+    const community =
+      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
 
     const entities = store.getState().PublicChannels.channels.entities
 
@@ -329,9 +327,8 @@ describe('Channel', () => {
 
     const factory = await getFactory(store)
 
-    const community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>(
-      'Community'
-    )
+    const community =
+      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
     await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
       id: community.id,
       nickname: 'john',
@@ -361,9 +358,8 @@ describe('Channel', () => {
 
     const factory = await getFactory(store)
 
-    const community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>(
-      'Community'
-    )
+    const community =
+      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
 
     const entities = store.getState().PublicChannels.channels.entities
 
@@ -411,9 +407,8 @@ describe('Channel', () => {
 
     const factory = await getFactory(store)
 
-    const community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>(
-      'Community'
-    )
+    const community =
+      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
 
     const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
       id: community.id,
@@ -487,9 +482,8 @@ describe('Channel', () => {
 
     const factory = await getFactory(store)
 
-    const community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>(
-      'Community'
-    )
+    const community =
+      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
 
     const entities = store.getState().PublicChannels.channels.entities
 
@@ -577,9 +571,8 @@ describe('Channel', () => {
 
     const factory = await getFactory(store)
 
-    const community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>(
-      'Community'
-    )
+    const community =
+      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
 
     const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
       id: community.id,
@@ -707,9 +700,8 @@ describe('Channel', () => {
 
     const factory = await getFactory(store)
 
-    const community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>(
-      'Community'
-    )
+    const community =
+      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
 
     const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
       id: community.id,
@@ -755,9 +747,8 @@ describe('Channel', () => {
 
     const factory = await getFactory(initialState)
 
-    const community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>(
-      'Community'
-    )
+    const community =
+      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
 
     const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
       id: community.id,
@@ -1028,9 +1019,8 @@ describe('Channel', () => {
 
     const factory = await getFactory(initialState)
 
-    const community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>(
-      'Community'
-    )
+    const community =
+      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
 
     await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
       id: community.id,
@@ -1125,9 +1115,8 @@ describe('Channel', () => {
 
     const factory = await getFactory(initialState)
 
-    const community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>(
-      'Community'
-    )
+    const community =
+      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
 
     const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
       id: community.id,
@@ -1242,9 +1231,8 @@ describe('Channel', () => {
 
     const factory = await getFactory(initialState)
 
-    const community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>(
-      'Community'
-    )
+    const community =
+      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
 
     const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
       id: community.id,
@@ -1361,9 +1349,8 @@ describe('Channel', () => {
 
     const factory = await getFactory(initialState)
 
-    const community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>(
-      'Community'
-    )
+    const community =
+      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
 
     const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
       id: community.id,

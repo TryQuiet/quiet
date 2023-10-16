@@ -11,9 +11,8 @@ describe('IdentityPanel', () => {
 
     const factory = await getFactory(store)
 
-    const community: Community = await factory.create<
-      ReturnType<typeof communities.actions.addNewCommunity>['payload']
-    >('Community')
+    const community: Community =
+      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
 
     const result = renderComponent(
       <IdentityPanel
