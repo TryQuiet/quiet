@@ -99,6 +99,7 @@ export const runBackendMobile = async (): Promise<any> => {
   app = await NestFactory.createApplicationContext(
     AppModule.forOptions({
       socketIOPort: options.dataPort,
+      socketIOSecret: options.socketIOSecret,
       httpTunnelPort: options.httpTunnelPort ? options.httpTunnelPort : null,
       torAuthCookie: options.authCookie ? options.authCookie : null,
       torControlPort: options.controlPort ? options.controlPort : await getPort(),
