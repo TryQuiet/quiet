@@ -4,9 +4,7 @@ import { ScreenNames } from './const/ScreenNames.enum'
 
 // eslint-disable-next-line
 export type RootStackParamList = {
-  [ScreenNames.SplashScreen]: {
-    code?: string
-  }
+  [ScreenNames.SplashScreen]: undefined
   [ScreenNames.JoinCommunityScreen]: {
     code?: string
   }

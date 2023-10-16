@@ -140,10 +140,13 @@ def reactNativeArchitectures() {
 }
 
 Properties properties = new Properties()
-properties.load(project.rootProject.file('local.properties').newDataInputStream())
+def localPropertiesFile = project.rootProject.file('local.properties')
+if (localPropertiesFile.exists()) {
+    properties.load(localPropertiesFile.newDataInputStream())
+}
 
 android {
-    ndkPath properties.getProperty('ndk.dir')
+    ndkPath properties.getProperty('ndk.dir', project.property('NDK_PATH'))
 
     ndkVersion rootProject.ext.ndkVersion
 
@@ -169,8 +172,8 @@ android {
         applicationId "com.quietmobile"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 341
-        versionName "2.0.1-alpha.3"
+        versionCode 344
+        versionName "2.0.1-alpha.6"
         resValue "string", "build_config_package", "com.quietmobile"
         testBuildType System.getProperty('testBuildType', 'debug')
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'

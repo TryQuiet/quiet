@@ -40,7 +40,7 @@ const PossibleImpersonationAttackComponent: React.FC<PossibleImpersonationAttack
   return (
     <View
       style={{ flex: 1, backgroundColor: defaultTheme.palette.background.white }}
-      data-testid={'possible-impersonation-attack-component'}
+      testID={'possible-impersonation-attack-component'}
     >
       <Appbar title={'Warning!'} back={handleBackButton} crossBackIcon />
       <View style={classes.mainWrapper}>

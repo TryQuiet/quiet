@@ -3,6 +3,33 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.1-alpha.6](https://github.com/TryQuiet/backend/compare/@quiet/backend@2.0.1-alpha.5...@quiet/backend@2.0.1-alpha.6) (2023-10-13)
+
+**Note:** Version bump only for package @quiet/backend
+
+
+
+
+
+## [2.0.1-alpha.5](https://github.com/TryQuiet/backend/compare/@quiet/backend@2.0.1-alpha.4...@quiet/backend@2.0.1-alpha.5) (2023-10-12)
+
+**Note:** Version bump only for package @quiet/backend
+
+
+
+
+
+## [2.0.1-alpha.4](https://github.com/TryQuiet/backend/compare/@quiet/backend@2.0.1-alpha.3...@quiet/backend@2.0.1-alpha.4) (2023-10-11)
+
+
+### Reverts
+
+* Revert "Adjust project bootstrap scripts to be windows-friendly (#1870)" (#1937) ([0811ea3](https://github.com/TryQuiet/backend/commit/0811ea3ea3f682dd763be72b12f626fe416bc036)), closes [#1870](https://github.com/TryQuiet/backend/issues/1870) [#1937](https://github.com/TryQuiet/backend/issues/1937) [#1870](https://github.com/TryQuiet/backend/issues/1870)
+
+
+
+
+
 ## [2.0.1-alpha.3](https://github.com/TryQuiet/backend/compare/@quiet/backend@2.0.1-alpha.2...@quiet/backend@2.0.1-alpha.3) (2023-10-10)
 
 **Note:** Version bump only for package @quiet/backend

@@ -17,3 +17,10 @@ export const replaceScreen = <Params extends Record<string, unknown>>(screen: Sc
     navigationRef.dispatch(StackActions.replace(screen, params))
   }
 }
+
+export const pop = (): void => {
+  if (navigationRef.isReady()) {
+    // @ts-ignore
+    navigationRef.dispatch(StackActions.pop())
+  }
+}
