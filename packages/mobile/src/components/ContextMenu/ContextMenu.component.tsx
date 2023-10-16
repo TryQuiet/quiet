@@ -1,7 +1,6 @@
 import React, { FC } from 'react'
 import { View, Image, FlatList, TouchableWithoutFeedback, TouchableOpacity, Animated } from 'react-native'
 import { Typography } from '../Typography/Typography.component'
-
 import { ContextMenuItemProps, ContextMenuProps } from './ContextMenu.types'
 
 import { defaultPalette } from '../../styles/palettes/default.palette'

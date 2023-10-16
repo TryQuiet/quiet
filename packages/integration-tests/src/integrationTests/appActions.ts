@@ -99,7 +99,7 @@ export async function createCommunity({ userName, store }: CreateCommunity) {
     expect(store.getState().Identity.identities.entities[communityId].peerId.id).toHaveLength(46)
   }, timeout)
 
-  store.dispatch(identity.actions.registerUsername(userName))
+  store.dispatch(identity.actions.registerUsername({ nickname: userName }))
 
   await waitForExpect(() => {
     expect(store.getState().Identity.identities.entities[communityId].userCertificate).toBeTruthy()
@@ -159,7 +159,7 @@ export async function registerUsername(payload: Register) {
     expect(store.getState().Identity.identities.entities[communityId].peerId.id).toHaveLength(46)
   }, timeout)
 
-  store.dispatch(identity.actions.registerUsername(userName))
+  store.dispatch(identity.actions.registerUsername({ nickname: userName }))
 }
 
 export async function sendCsr(store: Store) {
@@ -307,5 +307,5 @@ export const sendRegistrationRequest = async (payload: SendRegistrationRequest) 
     expect(store.getState().Identity.identities.entities[communityId].peerId.id).toHaveLength(46)
   }, timeout)
 
-  store.dispatch(identity.actions.registerUsername(userName))
+  store.dispatch(identity.actions.registerUsername({ nickname: userName }))
 }

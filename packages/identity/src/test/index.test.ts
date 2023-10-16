@@ -1,7 +1,7 @@
 import { Crypto } from '@peculiar/webcrypto'
 import { sign } from '../sign'
 import { extractPubKey, parseCertificate, parseCertificationRequest } from '../extractPubKey'
-import { verifySignature } from '../verification'
+import { verifySignature } from '../verifySignature'
 import { verifyUserCert } from '../verifyUserCertificate'
 import { createTestRootCA, createTestUserCert, createTestUserCsr, userData } from './helpers'
 import { CertFieldsTypes, getCertFieldValue, getReqFieldValue } from '../common'

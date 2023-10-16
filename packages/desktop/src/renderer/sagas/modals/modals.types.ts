@@ -23,4 +23,6 @@ export enum ModalName {
   channelCreationModal = 'channelCreationModal',
   duplicatedUsernameModal = 'duplicatedUsernameModal',
   unregisteredUsernameModal = 'unregisteredUsernameModal',
+  usernameTakenModal = 'usernameTakenModal',
+  possibleImpersonationAttackModal = 'possibleImpersonationAttackModal',
 }

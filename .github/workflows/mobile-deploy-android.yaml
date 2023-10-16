@@ -1,4 +1,4 @@
-name: Deploy Android to Google Play (internal testing)
+name: Deploy Android to Google Play
 
 on:
   release:
@@ -7,19 +7,20 @@ on:
 
 jobs:
   build-android:
+    # needs: detox-android
     runs-on: ${{ matrix.os }}
     if: |
       startsWith(github.ref, 'refs/tags/@quiet/mobile')
 
     strategy:
       matrix:
-        os: [ubuntu-20.04]
+        os: [ubuntu-latest-m]
 
     steps:
       - name: "Print OS"
         run: echo ${{ matrix.os }}
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: "Set up JDK"
         uses: actions/setup-java@v3
@@ -41,13 +42,13 @@ jobs:
 
       - name: "Create gradle configuration directory"
         run: mkdir -p $HOME/.gradle
-
+      
       - name: "Prepare ndk configuration"
         run: |
           printf "\
           NDK_PATH=${{ steps.setup-ndk.outputs.ndk-path }}\n\
           " > $HOME/.gradle/gradle.properties
-      
+
       - name: "Prepare signing configuration"
         run: |
           printf "\

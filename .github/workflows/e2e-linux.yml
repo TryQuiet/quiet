@@ -18,7 +18,7 @@ jobs:
       TEST_MODE: true
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Install WM
         run: sudo apt install fluxbox
@@ -30,7 +30,7 @@ jobs:
         uses: ./.github/actions/setup-env
         with:
           cachePrefix: "e2e-crossplatform-linux"
-          bootstrap-packages: "@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,backend-bundle,e2e-tests"
+          bootstrap-packages: "@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/desktop,backend-bundle,e2e-tests"
 
       - name: Run X11
         run: |
@@ -53,12 +53,12 @@ jobs:
           max_attempts: 3
           command: cd packages/e2e-tests && npm run test oneClient.test.ts
 
-      - name: Run two clients test
+      - name: Run multiple clients test
         uses: nick-fields/retry@v2
         with:
           timeout_minutes: 25
           max_attempts: 3
-          command: cd packages/e2e-tests && npm run test twoClients.test.ts
+          command: cd packages/e2e-tests && npm run test multipleClients.test.ts
 
       - name: Run invitation link test - Includes 2 separate application clients
         uses: nick-fields/retry@v2

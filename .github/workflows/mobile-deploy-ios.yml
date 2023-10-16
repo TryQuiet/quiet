@@ -7,6 +7,7 @@ on:
 
 jobs:
   build-ios:
+    # needs: detox-ios
     runs-on: ${{ matrix.os }}
     if: |
       startsWith(github.ref, 'refs/tags/@quiet/mobile')
@@ -19,7 +20,7 @@ jobs:
       - name: "Print OS"
         run: echo ${{ matrix.os }}
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           lfs: true
 
@@ -57,7 +58,7 @@ jobs:
             -scheme Quiet \
             -configuration Release \
             -archivePath build/Quiet.xcarchive \
-            PROVISIONING_PROFILE="654a2214-095f-4939-a9e5-09f7a2ccf530" \
+            PROVISIONING_PROFILE="718ac015-309f-49b6-9653-f6cf84a6377c" \
             CODE_SIGN_IDENTITY="Apple Distribution: Zbay LLC (CTYKSWN9T4)"
 
       - name: Export .ipa

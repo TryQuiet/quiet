@@ -60,6 +60,12 @@ describe('users reducer', () => {
       })
     )
 
+    store.dispatch(
+      usersActions.setAllCerts({
+        certificates: [userCertString],
+      })
+    )
+
     const certificates = usersSelectors.certificates(store.getState())
 
     expect(certificates[userPubKey]).toEqual(parsedCert)

@@ -3,17 +3,24 @@ import { Image, Keyboard, KeyboardAvoidingView, TextInput, View } from 'react-na
 import { Button } from '../Button/Button.component'
 import { Input } from '../Input/Input.component'
 import { Typography } from '../Typography/Typography.component'
-import { UsernameRegistrationProps } from './UsernameRegistration.types'
+import { UsernameRegistrationProps, UsernameVariant } from './UsernameRegistration.types'
 import { appImages } from '../../assets'
 import { parseName } from '@quiet/common'
 import { defaultTheme } from '../../styles/themes/default.theme'
+import { Appbar } from '../Appbar/Appbar.component'
 
 export const UsernameRegistration: FC<UsernameRegistrationProps> = ({
   registerUsernameAction,
   registerUsernameError,
   usernameRegistered,
   fetching,
+  currentUsername,
+  handleBackButton,
+  registeredUsers,
+  variant = UsernameVariant.NEW,
 }) => {
+  const isNewUser = variant === UsernameVariant.NEW
+
   const [userName, setUserName] = useState<string | undefined>()
   const [parsedNameDiffers, setParsedNameDiffers] = useState<boolean>(false)
   const [inputError, setInputError] = useState<string | undefined>()
@@ -40,6 +47,12 @@ export const UsernameRegistration: FC<UsernameRegistrationProps> = ({
     const parsedName = parseName(name)
     setUserName(parsedName)
     setParsedNameDiffers(name !== parsedName)
+    if (registeredUsers && !isNewUser) {
+      const allUsersSet = new Set(Object.values(registeredUsers).map(user => user.username))
+      if (allUsersSet.has(name)) {
+        setInputError(`Username @${name} is already taken`)
+      }
+    }
   }
 
   const onPress = () => {
@@ -72,24 +85,40 @@ export const UsernameRegistration: FC<UsernameRegistrationProps> = ({
       }}
       testID={'username-registration-component'}
     >
+      {!isNewUser && <Appbar title={'Username taken'} back={handleBackButton} crossBackIcon />}
       <KeyboardAvoidingView
         behavior='height'
         style={{
           flex: 1,
-          justifyContent: 'center',
+          justifyContent: !isNewUser ? 'flex-start' : 'center',
           paddingLeft: 20,
           paddingRight: 20,
         }}
       >
-        <Typography fontSize={24} fontWeight={'medium'} style={{ marginBottom: 30 }}>
-          {'Register a username'}
-        </Typography>
+        {isNewUser ? (
+          <>
+            <Typography fontSize={24} fontWeight={'medium'} style={{ marginBottom: 30 }}>
+              {'Register a username'}
+            </Typography>
+          </>
+        ) : (
+          <>
+            <Typography fontSize={14} style={{ marginBottom: 30, marginTop: 30 }}>
+              We’re sorry, but the username{' '}
+              <Typography fontSize={14} fontWeight={'medium'}>{`@${currentUsername}`}</Typography> was already claimed
+              by someone else. Can you choose another name?
+            </Typography>
+          </>
+        )}
+
         <Input
           onChangeText={onChangeText}
-          label={'Choose your favorite username'}
-          placeholder={'Enter a username'}
+          label={isNewUser ? 'Choose your favorite username' : 'Enter a username'}
+          placeholder={isNewUser ? 'Enter a username' : 'Username'}
           hint={
-            'Your username cannot have any spaces or special characters, must be lowercase letters and numbers only.'
+            isNewUser
+              ? 'Your username cannot have any spaces or special characters, must be lowercase letters and numbers only.'
+              : 'Your username will be public, but you can choose any name you like. No spaces or special characters. Lowercase letters and numbers only. '
           }
           disabled={loading}
           validation={inputError}
@@ -117,8 +146,15 @@ export const UsernameRegistration: FC<UsernameRegistrationProps> = ({
             </View>
           </View>
         )}
+
         <View style={{ marginTop: 20 }}>
-          <Button onPress={onPress} title={'Continue'} loading={loading} />
+          <Button
+            disabled={Boolean(inputError)}
+            onPress={onPress}
+            title={'Continue'}
+            loading={loading}
+            width={isNewUser ? undefined : 100}
+          />
         </View>
       </KeyboardAvoidingView>
     </View>

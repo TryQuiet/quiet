@@ -197,7 +197,7 @@ describe('UnregisteredUsername component', () => {
               {
                 "alignItems": "center",
                 "backgroundColor": "#521C74",
-                "borderRadius": 5,
+                "borderRadius": 8,
                 "justifyContent": "center",
                 "marginVertical": 12,
                 "minHeight": 45,

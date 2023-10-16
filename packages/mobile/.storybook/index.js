@@ -38,6 +38,7 @@ configure(() => {
   require('../src/components/Splash/Splash.stories')
   require('../src/components/Success/Success.stories')
   require('../src/components/Error/Error.stories')
+  require('../src/components/PossibleImpersonationAttack/PossibleImpersonationAttack.stories')
   require('../src/components/FileUploadingPreview/UploadingPreview.stories')
 }, module)
 

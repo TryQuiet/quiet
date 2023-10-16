@@ -35,20 +35,22 @@ export class SocketService extends EventEmitter implements OnModuleInit {
     @Inject(CONFIG_OPTIONS) public readonly configOptions: ConfigOptions
   ) {
     super()
+
+    this.readyness = new Promise<void>(resolve => {
+      this.resolveReadyness = resolve
+    })
   }
 
   async onModuleInit() {
     this.logger('init:started')
+
     this.attachListeners()
     await this.init()
+
     this.logger('init:finished')
   }
 
   public async init() {
-    this.readyness = new Promise<void>(resolve => {
-      this.resolveReadyness = resolve
-    })
-
     const connection = new Promise<void>(resolve => {
       this.serverIoProvider.io.on(SocketActionTypes.CONNECTION, socket => {
         this.logger('init: connection')
@@ -172,9 +174,6 @@ export class SocketService extends EventEmitter implements OnModuleInit {
           ownerCertificate: payload.certificate,
           rootCa: payload.permsData.certificate,
         }
-
-        console.log('Metadata from state-manager', communityMetadataPayload)
-
         this.emit(SocketActionTypes.SEND_COMMUNITY_METADATA, communityMetadataPayload)
       })
 
@@ -214,7 +213,7 @@ export class SocketService extends EventEmitter implements OnModuleInit {
   public listen = async (port = this.configOptions.socketIOPort): Promise<void> => {
     return await new Promise(resolve => {
       if (this.serverIoProvider.server.listening) resolve()
-      this.serverIoProvider.server.listen(this.configOptions.socketIOPort, () => {
+      this.serverIoProvider.server.listen(this.configOptions.socketIOPort, '127.0.0.1', () => {
         this.logger(`Data server running on port ${this.configOptions.socketIOPort}`)
         resolve()
       })
