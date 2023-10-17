@@ -84,6 +84,8 @@ export interface IChannelMessagesProps {
   pendingGeneralChannelRecreation?: boolean
   unregisteredUsernameModalHandleOpen: HandleOpenModalType
   duplicatedUsernameModalHandleOpen: HandleOpenModalType
+  communityName: string
+  ownerNickname: string
 }
 
 export const ChannelMessagesComponent: React.FC<IChannelMessagesProps & FileActionsProps> = ({
@@ -101,6 +103,8 @@ export const ChannelMessagesComponent: React.FC<IChannelMessagesProps & FileActi
   pendingGeneralChannelRecreation = false,
   unregisteredUsernameModalHandleOpen,
   duplicatedUsernameModalHandleOpen,
+  communityName,
+  ownerNickname,
 }) => {
   const spinnerMessage = pendingGeneralChannelRecreation ? deletingChannelMessage : fetchingChannelMessagesText
   const listRef = useRef<HTMLUListElement>(null)
@@ -159,6 +163,8 @@ export const ChannelMessagesComponent: React.FC<IChannelMessagesProps & FileActi
                     onMathMessageRendered={onMathMessageRendered}
                     unregisteredUsernameModalHandleOpen={unregisteredUsernameModalHandleOpen}
                     duplicatedUsernameModalHandleOpen={duplicatedUsernameModalHandleOpen}
+                    communityName={communityName}
+                    ownerNickname={ownerNickname}
                   />
                 )
               })}

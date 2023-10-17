@@ -24,6 +24,8 @@ describe('BasicMessage', () => {
             unregisteredUsernameModalHandleOpen={jest.fn()}
             messages={messages}
             openUrl={jest.fn()}
+            communityName='communityName'
+            ownerNickname='ownerNickname'
           />
         </Provider>
       </HashRouter>
@@ -113,6 +115,8 @@ describe('BasicMessage', () => {
             unregisteredUsernameModalHandleOpen={jest.fn()}
             messages={messages}
             openUrl={jest.fn()}
+            communityName='communityName'
+            ownerNickname='ownerNickname'
           />
         </Provider>
       </HashRouter>
@@ -212,6 +216,8 @@ describe('BasicMessage', () => {
             unregisteredUsernameModalHandleOpen={jest.fn()}
             messages={messages}
             openUrl={jest.fn()}
+            communityName='communityName'
+            ownerNickname='ownerNickname'
           />
         </Provider>
       </HashRouter>
@@ -315,6 +321,8 @@ describe('BasicMessage', () => {
             unregisteredUsernameModalHandleOpen={jest.fn()}
             messages={[...message1, ...message2]}
             openUrl={jest.fn()}
+            communityName='communityName'
+            ownerNickname='ownerNickname'
           />
         </Provider>
       </HashRouter>

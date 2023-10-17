@@ -45,6 +45,8 @@ const Template: ComponentStory<typeof ChannelComponent> = () => {
           onInputEnter={onInputEnter}
           messages={messages}
           pendingMessages={{}}
+          communityName='communityName'
+          ownerNickname='ownerNickname'
           newestMessage={{
             id: '31',
             type: 1,

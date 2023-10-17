@@ -36,6 +36,8 @@ const Channel = () => {
 
   const community = useSelector(communities.selectors.currentCommunity)
 
+  const ownerNickname = useSelector(communities.selectors.ownerNickname)
+
   const initializedCommunities = useSelector(network.selectors.initializedCommunities)
   const isCommunityInitialized = Boolean(community && initializedCommunities[community.id])
 
@@ -224,6 +226,8 @@ const Channel = () => {
     pendingGeneralChannelRecreation: pendingGeneralChannelRecreation,
     unregisteredUsernameModalHandleOpen,
     duplicatedUsernameModalHandleOpen,
+    communityName: community?.name || '',
+    ownerNickname: ownerNickname || 'owner',
   }
 
   const uploadFilesPreviewProps: UploadFilesPreviewsProps = {

@@ -79,9 +79,10 @@ export const ownerNickname = createSelector(
   currentCommunity,
   getOldestParsedCerificate,
   (community, oldestParsedCerificate) => {
+    if (!community || !oldestParsedCerificate) return null
     const ownerCertificate = community?.ownerCertificate || undefined
 
-    let nickname: string | null
+    let nickname: string | null = null
 
     if (ownerCertificate) {
       const certificate = ownerCertificate

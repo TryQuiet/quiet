@@ -60,6 +60,8 @@ export interface ChannelComponentProps {
   pendingGeneralChannelRecreation: boolean
   unregisteredUsernameModalHandleOpen: HandleOpenModalType
   duplicatedUsernameModalHandleOpen: HandleOpenModalType
+  communityName: string
+  ownerNickname: string
 }
 
 const enum ScrollPosition {
@@ -95,6 +97,8 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
   pendingGeneralChannelRecreation,
   unregisteredUsernameModalHandleOpen,
   duplicatedUsernameModalHandleOpen,
+  communityName,
+  ownerNickname,
 }) => {
   const [lastSeenMessage, setLastSeenMessage] = useState<string>()
   const [newMessagesInfo, setNewMessagesInfo] = useState<boolean>(false)
@@ -239,6 +243,8 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
             pendingGeneralChannelRecreation={pendingGeneralChannelRecreation}
             unregisteredUsernameModalHandleOpen={unregisteredUsernameModalHandleOpen}
             duplicatedUsernameModalHandleOpen={duplicatedUsernameModalHandleOpen}
+            communityName={communityName}
+            ownerNickname={ownerNickname}
           />
         </ChannelMessagesWrapperStyled>
         <Grid item>

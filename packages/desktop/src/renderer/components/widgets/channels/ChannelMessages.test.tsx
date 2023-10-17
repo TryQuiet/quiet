@@ -39,6 +39,8 @@ describe('ChannelMessages', () => {
         scrollbarRef={React.createRef()}
         onScroll={jest.fn()}
         openUrl={jest.fn()}
+        communityName='communityName'
+        ownerNickname='ownerNickname'
       />
     )
 
