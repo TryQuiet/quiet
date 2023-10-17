@@ -258,7 +258,7 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
                   const downloadStatus = downloadStatuses[message.id]
                   console.log(message.message)
                   if (message.type === MessageType.Info && message.nickname !== ownerNickname) {
-                    message = transformUserInfoMessages(ownerNickname, communityName, message)
+                    message = transformUserInfoMessages(ownerNickname, communityName, message.nickname, message)
                   }
 
                   return (

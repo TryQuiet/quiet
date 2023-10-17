@@ -12,11 +12,13 @@ import {
   NotificationsOptions,
   NotificationsSounds,
   files,
+  communities,
 } from '@quiet/state-manager'
-import { MessageType, FileMetadata, DownloadState } from '@quiet/types'
+import { MessageType, FileMetadata, DownloadState, ChannelMessage } from '@quiet/types'
 import { soundTypeToAudio } from '../../../shared/sounds'
 import { eventChannel } from 'redux-saga'
 import { takeEvery } from 'redux-saga/effects'
+import { transformUserInfoMessages } from '@quiet/common'
 
 // eslint-disable-next-line
 const remote = require('@electron/remote')
@@ -46,7 +48,10 @@ export function* displayMessageNotificationSaga(
   const notificationsConfig = yield* select(settings.selectors.getNotificationsOption)
   const notificationsSound = yield* select(settings.selectors.getNotificationsSound)
 
-  for (const message of incomingMessages) {
+  const ownerNickname = yield* select(communities.selectors.ownerNickname)
+  const currentCommunity = yield* select(communities.selectors.currentCommunity)
+
+  for (let message of incomingMessages) {
     const focused = yield* call(isWindowFocused)
     const channelName = publicChannelsSelector.find(channel => channel.id === message.channelId)?.name
 
@@ -56,6 +61,17 @@ export function* displayMessageNotificationSaga(
     // Do not display notifications for own messages
     const sender = allUsers[message.pubKey]?.username
     if (!sender || sender === currentIdentity?.nickname) return
+
+    // Check is user info message
+    if (message.type === MessageType.Info && sender !== ownerNickname) {
+      message = yield* call<typeof transformUserInfoMessages<ChannelMessage>>(
+        transformUserInfoMessages,
+        ownerNickname || 'owner',
+        currentCommunity?.name || '',
+        sender,
+        message
+      )
+    }
 
     // Do not display notifications if turned off in configuration
     if (notificationsConfig === NotificationsOptions.doNotNotifyOfAnyMessages) return

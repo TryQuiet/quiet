@@ -1,16 +1,19 @@
-import { DisplayableMessage, InfoMessagesType } from '@quiet/types'
+import { ChannelMessage, DisplayableMessage, InfoMessagesType } from '@quiet/types'
 
-export const transformUserInfoMessages = (
+type MessageType = DisplayableMessage | ChannelMessage
+
+export function transformUserInfoMessages<T extends MessageType>(
   ownerNickname: string,
   communityName: string,
-  message: DisplayableMessage
-) => {
+  userNickname: string,
+  message: T
+): T {
   switch (message.message) {
     case InfoMessagesType.USER_JOINED:
       return {
         ...message,
-        message: `**@${message.nickname}** has joined ${communityName}! 🎉
-        Note: **@${message.nickname}** is not yet registered, so they'll have the "unregistered" badge until the community creator (**@${ownerNickname}**) registers them, which will happen automatically when **@${ownerNickname}** next appears online. 
+        message: `**@${userNickname}** has joined ${communityName}! 🎉
+        Note: **@${userNickname}** is not yet registered, so they'll have the "unregistered" badge until the community creator (**@${ownerNickname}**) registers them, which will happen automatically when **@${ownerNickname}** next appears online. 
         [Learn more](https://github.com/TryQuiet/quiet/wiki/Quiet-FAQ)`,
       }
     default:
