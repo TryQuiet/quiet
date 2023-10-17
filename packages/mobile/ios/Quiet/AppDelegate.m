@@ -95,6 +95,19 @@ static NSString *const platform = @"mobile";
   self.dataPath = [dataDirectory create];
 }
 
+  NSString* randomStringWithLength(int length) {
+    NSString *letters = @"0123456789";
+    NSMutableString *randomString = [NSMutableString stringWithCapacity:length];
+
+    for (int i=0; i<length; i++) {
+      uint32_t rand = arc4random_uniform((uint32_t)[letters length]);
+      unichar character = [letters characterAtIndex:rand];
+      [randomString appendFormat:@"%C", character];
+    }
+
+    return randomString;
+  }
+
 - (void) initWebsocketConnection {
   /*
    * We have to wait for RCTBridge listeners to be initialized, yet we must be sure to deliver the event containing data port information.
@@ -116,7 +129,7 @@ static NSString *const platform = @"mobile";
   FindFreePort *findFreePort = [FindFreePort new];
     
   self.dataPort             = [findFreePort getFirstStartingFromPort:11000];
-  self.socketIOSecret       = @"SECRET";
+  self.socketIOSecret       = randomStringWithLength(20);
   
   uint16_t socksPort        = [findFreePort getFirstStartingFromPort:12000];
   uint16_t controlPort      = [findFreePort getFirstStartingFromPort:14000];
