@@ -68,11 +68,12 @@ If you'd like to help develop Quiet, see [Contributing to Quiet](#contributing-t
 * **Keyboard Controls** - Navigate channels without using the mouse. 
 * **Desktop Apps** - Desktop apps for Mac, Windows, and Linux.
 * **Android App** - A fully peer-to-peer Android app with working notifications.
+* **iOS App** - A fully peer-to-peer iOS app (TestFlight) without notifications.
 * **No email or phone number required** - Unlike Slack, Discord, WhatsApp, Telegram, and Signal, no email or phone number is required to create or join a community.
 
 ## Planned (but still-missing) features
 
-* **iOS App** - Join communities and sync messages on iOS, with no central server.
+* **iOS Notifications** - Receive notifications on iOS, with help from a service Apple requires to be centralized.
 * **Direct Messages** - Send and receive direct messages that are encrypted to the recipient and unreadable by other community members.
 * **Mentions** - Send @ mentions that notify other users.
 * **Removal** - Remove users from your community.
@@ -87,7 +88,7 @@ If you'd like to help develop Quiet, see [Contributing to Quiet](#contributing-t
 ## Post-1.0 Features
 
 * **Large Communities** - Create a community with 1000 members or more (right now ~30-100 members is the limit.)
-* **Moderation** - Appoint moderators who can hide messages and shadowban or remove users. 
+* **Moderation** - Appoint moderators who can hide messages and silence or remove users. 
 * **Spam and Denial-of-Service Protection** - Settings to automatically remove users who send disruptive messages.
 * **Search** - Robust message search.
 * **Threads** - Reply to messages in threads.
