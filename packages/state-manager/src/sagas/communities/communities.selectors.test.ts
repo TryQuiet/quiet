@@ -6,8 +6,9 @@ import { prepareStore } from '../../utils/tests/prepareStore'
 import { type identityActions } from '../identity/identity.slice'
 import { usersActions } from '../users/users.slice'
 import { communitiesSelectors } from './communities.selectors'
-import { type communitiesActions } from './communities.slice'
+import { communitiesActions } from './communities.slice'
 import { type Community, type Identity } from '@quiet/types'
+import { certificatesAdapter } from '../users/users.adapter'
 
 describe('communitiesSelectors', () => {
   setupCrypto()
@@ -19,6 +20,7 @@ describe('communitiesSelectors', () => {
 
   beforeEach(async () => {
     store = prepareStore({}).store
+
     const factory = await getFactory(store)
     communityAlpha = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
     identity = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
@@ -100,6 +102,7 @@ describe('communitiesSelectors', () => {
   it('returns proper ownerNickname - ownerCertificate exist', async () => {
     const { store } = prepareStore()
     expect(identity.userCertificate).not.toBeUndefined()
+
     store.dispatch(
       usersActions.responseSendCertificates({
         certificates: [identity.userCertificate || ''],
@@ -110,9 +113,16 @@ describe('communitiesSelectors', () => {
       'MIIDdDCCAxugAwIBAgIGAYeiqwwYMAoGCCqGSM49BAMCMA8xDTALBgNVBAMTBHRlc3QwHhcNMjMwNDIxMDcxNTMxWhcNMzAwMTMxMjMwMDAwWjBJMUcwRQYDVQQDEz5qYm1zbXR4Z2Rhd241ZTdyZ3Z5ZGZ3bGFuY3c1bnZkcmZjdXdvdmltNzJqeXY2ZTN5eDR0ZXhxZC5vbmlvbjBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABBjP55M/p8QVQGdgjtAdGwLS8uyzyIaWzvnuCvOwLs/u+FHUdb0DU2+M4TYEZjVHmqn+hSERs4XHG0/tbaaGSyGjggInMIICIzAJBgNVHRMEAjAAMAsGA1UdDwQEAwIAgDAdBgNVHSUEFjAUBggrBgEFBQcDAgYIKwYBBQUHAwEwggFHBgkqhkiG9w0BCQwEggE4BIIBNCqfocsbSvEqAdeRObiywx0KV2r7xEnqFysFuc1InEpwF3707TZGrFxww74g/ccxHCZ9zda4EHawgLoU6oKdeyec8W7qAThnWCRzJcOPINdZaTR45g28jeWAXMAtVG6eYtEQS4t7g915QaB0uYUoM3Teqp/qaMhk/9Hs4jiKlN3wL9WFYRf14XQIIVu3Fb0f3sD2/ejNPRJztJeJCwYtcFNF3fhPpH5bSPlcy6IaxhQrMXboqAfSAUlnMD4PifHFxvQYbfvTEC65Gt+FzwJ956BA5PuKsGFf+NVznyp5/YtFrl0XRRdlBcTzp2jreqhxBCdsvCpPwvM2TRv4OPk+hjMPPzBdPgvs5tytiFFyK9hXemai2TTwP1qo+VuV5SYyAyZP4rPxc/XEDHk+W3QN0vF8Ff+iMBUGCisGAQQBg4wbAgEEBxMFYWxpY2UwPQYJKwYBAgEPAwEBBDATLlFtZVN0WFY5VERXVHhoYXZUd25DZWdaYnNvMndQZ3BYQ2lzdHlCTEo2b0MyZHcwSQYDVR0RBEIwQII+amJtc210eGdkYXduNWU3cmd2eWRmd2xhbmN3NW52ZHJmY3V3b3ZpbTcyanl2NmUzeXg0dGV4cWQub25pb24wCgYIKoZIzj0EAwIDRwAwRAIga3etWmNtiMT/SUZkG0Rf5kwl3HxsGDJXsU7X5aCQAvMCIFKVBnCbTPseU5gQwamWZDG9ZoMf0X1VGzYUixWvmzuc'
 
     const factory = await getFactory(store)
+    store.dispatch(
+      usersActions.storeUserCertificate({
+        certificate: ownerCertificate,
+      })
+    )
+
     await factory.create<ReturnType<typeof communitiesActions.addOwnerCertificate>['payload']>('Community', {
       ownerCertificate,
     })
+
     const ownerNickname = communitiesSelectors.ownerNickname(store.getState())
     expect(ownerNickname).toEqual(expexctedNickname)
   })
@@ -120,6 +130,7 @@ describe('communitiesSelectors', () => {
   it('returns proper ownerNickname - ownerCertificate not exist - backwards compatibility', async () => {
     const { store } = prepareStore()
     expect(identity.userCertificate).not.toBeUndefined()
+
     store.dispatch(
       usersActions.responseSendCertificates({
         certificates: [identity.userCertificate || ''],
