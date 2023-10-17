@@ -23,6 +23,7 @@ import Icon from '../../ui/Icon/Icon'
 import { UseModalType } from '../../../containers/hooks'
 import { HandleOpenModalType, UserLabelType } from '../userLabel/UserLabel.types'
 import UserLabel from '../userLabel/UserLabel.component'
+import { transformUserInfoMessages } from '@quiet/common'
 
 const PREFIX = 'BasicMessageComponent'
 
@@ -255,15 +256,9 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
                 {messages.map((message, index) => {
                   const pending = pendingMessages[message.id] !== undefined
                   const downloadStatus = downloadStatuses[message.id]
-
-                  if (
-                    message.type === MessageType.Info &&
-                    message.nickname !== 'owner' && // get owner nickname
-                    message.message === InfoMessagesType.USER_JOINED
-                  ) {
-                    message.message = `@${message.nickname} has joined ${communityName}! 🎉
-                    Note: @${message.nickname} is not yet registered, so they'll have the "unregistered" badge until the community creator (@${ownerNickname}) registers them, which will happen automatically when @${ownerNickname} next appears online. 
-                    [Learn more2 ]`
+                  console.log(message.message)
+                  if (message.type === MessageType.Info && message.nickname !== ownerNickname) {
+                    message = transformUserInfoMessages(ownerNickname, communityName, message)
                   }
 
                   return (
