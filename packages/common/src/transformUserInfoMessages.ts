@@ -6,15 +6,18 @@ export function transformUserInfoMessages<T extends MessageType>(
   ownerNickname: string,
   communityName: string,
   userNickname: string,
-  message: T
+  message: T,
+  isForNotification = false
 ): T {
   switch (message.message) {
     case InfoMessagesType.USER_JOINED:
       return {
         ...message,
-        message: `**@${userNickname}** has joined ${communityName}! 🎉
+        message: !isForNotification
+          ? `**@${userNickname}** has joined ${communityName}! 🎉
         Note: **@${userNickname}** is not yet registered, so they'll have the "unregistered" badge until the community creator (**@${ownerNickname}**) registers them, which will happen automatically when **@${ownerNickname}** next appears online. 
-        [Learn more](https://github.com/TryQuiet/quiet/wiki/Quiet-FAQ)`,
+        [Learn more](https://github.com/TryQuiet/quiet/wiki/Quiet-FAQ)`
+          : `@${userNickname} has joined ${communityName}! 🎉`,
       }
     default:
       return message

@@ -69,7 +69,8 @@ export function* displayMessageNotificationSaga(
         ownerNickname || 'owner',
         currentCommunity?.name || '',
         sender,
-        message
+        message,
+        true
       )
     }
 
