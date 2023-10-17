@@ -14,6 +14,7 @@ import emojiBlack from '../../../../static/images/emojiBlack.svg'
 import paperclipGray from '../../../../static/images/paperclipGray.svg'
 import paperclipBlack from '../../../../static/images/paperclipBlack.svg'
 import path from 'path'
+import sanitizeHtml from 'sanitize-html'
 
 const PREFIX = 'ChannelInput'
 
@@ -298,7 +299,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
     messageRef.current = message
   }, [message])
 
-  const sanitizedHtml = htmlMessage
+  const sanitizedHtml = React.useCallback((html: string) => sanitizeHtml(html), [htmlMessage])
 
   const caretLineTraversal = (focusLine: Node | null | undefined, anchorLinePosition = 0) => {
     if (!focusLine?.nodeValue) return
@@ -508,7 +509,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
                     }
                   }}
                   disabled={inputState !== INPUT_STATE.AVAILABLE}
-                  html={sanitizedHtml}
+                  html={sanitizedHtml(htmlMessage)}
                   onChange={onChangeCb}
                   onKeyDown={onKeyDownCb}
                   onPaste={async e => {
