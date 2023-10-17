@@ -14,7 +14,6 @@ import emojiBlack from '../../../../static/images/emojiBlack.svg'
 import paperclipGray from '../../../../static/images/paperclipGray.svg'
 import paperclipBlack from '../../../../static/images/paperclipBlack.svg'
 import path from 'path'
-import { isDefined } from '@quiet/common'
 
 const PREFIX = 'ChannelInput'
 
@@ -202,7 +201,6 @@ const StyledChannelInput = styled(Grid)(({ theme }) => ({
 export interface ChannelInputProps {
   channelId: string
   channelName?: string
-  channelParticipants?: Array<{ nickname: string }>
   inputPlaceholder: string
   inputState?: INPUT_STATE
   initialMessage?: string
@@ -218,7 +216,6 @@ export interface ChannelInputProps {
 
 export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
   channelId,
-  channelParticipants = [],
   inputPlaceholder,
   inputState = INPUT_STATE.AVAILABLE,
   initialMessage = '',
@@ -301,44 +298,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
     messageRef.current = message
   }, [message])
 
-  const findMentions = React.useCallback(
-    (text: string) => {
-      // Search for any mention in message string
-      const result: string = text.replace(
-        /(<span([^>]*)>)?@([a-z0-9]?\w*)(<\/span>)?/gi,
-        (match, span, _class, nickname) => {
-          // Ignore already established mentions
-          if (span?.includes('class')) {
-            return match
-          }
-
-          nickname = nickname ?? ''
-          const possibleMentions = channelParticipants
-            .filter(
-              user =>
-                user.nickname.startsWith(nickname) && !channelParticipants.find(user => user.nickname === nickname)
-            )
-            .filter(isDefined)
-
-          if (JSON.stringify(mentionsToSelect) !== JSON.stringify(possibleMentions)) {
-            setMentionsToSelect(possibleMentions)
-            setTimeout(() => {
-              setSelected(0)
-            }, 0)
-          }
-
-          // Wrap mention in spans to be able to treat it as an anchor for popper
-          console.log('Returning wrapped mentions', nickname)
-          return `<span>@${nickname}</span>`
-        }
-      )
-
-      return result
-    },
-    [mentionsToSelect, setMentionsToSelect]
-  )
-
-  const sanitizedHtml = findMentions(htmlMessage)
+  const sanitizedHtml = htmlMessage
 
   const caretLineTraversal = (focusLine: Node | null | undefined, anchorLinePosition = 0) => {
     if (!focusLine?.nodeValue) return
@@ -379,21 +339,6 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
     inputStateRef.current = inputState
   })
 
-  const mentionSelectAction = (e: React.MouseEvent | React.KeyboardEvent) => {
-    e.preventDefault()
-    if (!mentionsToSelectRef.current || !refSelected.current) return
-    const nickname = mentionsToSelectRef.current[refSelected.current].nickname
-    setHtmlMessage(htmlMessage => {
-      const wrapped = `<span class="${classes.highlight}">@${nickname}</span>&nbsp;`
-      return htmlMessage.replace(/<span>[^/]*<\/span>$/g, wrapped)
-    })
-    // Replace mentions characters with full nickname in original message string
-    setMessage(message.replace(/(\b(\w+)$)/, `${nickname} `))
-    // Clear popper items after choosing mention
-    setMentionsToSelect([])
-    inputRef.current?.el.current.focus()
-  }
-
   const onKeyDownCb = useCallback(
     (e: React.KeyboardEvent) => {
       if (!isRefSelected(refSelected.current)) {
@@ -418,9 +363,6 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
             setSelected(refSelected.current - 1)
           }
           e.preventDefault()
-        }
-        if (e.nativeEvent.keyCode === 13 || e.nativeEvent.keyCode === 9) {
-          mentionSelectAction(e)
         }
       }
 
