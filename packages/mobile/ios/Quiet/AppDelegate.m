@@ -104,7 +104,7 @@ static NSString *const platform = @"mobile";
     NSTimeInterval delayInSeconds = 5;
     dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
     dispatch_after(popTime, dispatch_get_main_queue(), ^(void) {
-      [[self.bridge moduleForName:@"CommunicationModule"] sendDataPortWithPort:self.dataPort];
+      [[self.bridge moduleForName:@"CommunicationModule"] sendDataPortWithPort:self.dataPort socketIOSecret:self.socketIOSecret];
     });
   });
 }
@@ -116,6 +116,7 @@ static NSString *const platform = @"mobile";
   FindFreePort *findFreePort = [FindFreePort new];
     
   self.dataPort             = [findFreePort getFirstStartingFromPort:11000];
+  self.socketIOSecret       = @"SECRET";
   
   uint16_t socksPort        = [findFreePort getFirstStartingFromPort:12000];
   uint16_t controlPort      = [findFreePort getFirstStartingFromPort:14000];
@@ -196,7 +197,7 @@ static NSString *const platform = @"mobile";
 
 - (void) launchBackend:(uint16_t)controlPort:(uint16_t)httpTunnelPort:(NSString *)authCookie {
   self.nodeJsMobile = [RNNodeJsMobile new];
-  [self.nodeJsMobile callStartNodeProject:[NSString stringWithFormat:@"bundle.cjs --dataPort %hu --dataPath %@ --controlPort %hu --httpTunnelPort %hu --authCookie %@ --platform %@", self.dataPort, self.dataPath, controlPort, httpTunnelPort, authCookie, platform]];
+  [self.nodeJsMobile callStartNodeProject:[NSString stringWithFormat:@"bundle.cjs --dataPort %hu --dataPath %@ --controlPort %hu --httpTunnelPort %hu --authCookie %@ --platform %@ --socketIOSecret %@", self.dataPort, self.dataPath, controlPort, httpTunnelPort, authCookie, platform, self.socketIOSecret]];
 }
 
 - (void) reviweServices:(uint16_t)controlPort:(uint16_t)httpTunnelPort:(NSString *)authCookie {
