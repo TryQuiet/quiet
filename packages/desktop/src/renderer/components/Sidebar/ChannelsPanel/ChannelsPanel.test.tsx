@@ -24,9 +24,8 @@ describe('Channels panel', () => {
 
     const factory = await getFactory(store)
 
-    const community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>(
-      'Community'
-    )
+    const community =
+      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
     const generalChannel = publicChannels.selectors.generalChannel(store.getState())
     expect(generalChannel).not.toBeUndefined()
     const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {

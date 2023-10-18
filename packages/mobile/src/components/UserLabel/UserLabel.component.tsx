@@ -38,7 +38,7 @@ const classes = StyleSheet.create({
     width: 13,
     height: 12,
     marginRight: 4,
-    merginLeft: 4,
+    marginLeft: 4,
   },
 })
 

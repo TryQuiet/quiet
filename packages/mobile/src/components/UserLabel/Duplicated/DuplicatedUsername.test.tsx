@@ -282,8 +282,8 @@ describe('DuplicatedUsername component', () => {
                   style={
                     {
                       "height": 12,
+                      "marginLeft": 4,
                       "marginRight": 4,
-                      "merginLeft": 4,
                       "width": 13,
                     }
                   }

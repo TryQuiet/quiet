@@ -26,9 +26,8 @@ describe('saveOwnerCertificateToDb', () => {
   test('save owner certificate to database', async () => {
     const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
 
-    const community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>(
-      'Community'
-    )
+    const community =
+      await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
 
     const identity = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
       id: community.id,

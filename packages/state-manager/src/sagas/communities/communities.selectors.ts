@@ -73,13 +73,6 @@ export const invitationUrl = createSelector(currentCommunity, psk, (community, c
   return invitationShareUrl(initialPeers, communityPsk)
 })
 
-export const registrationAttempts = (communityId: string) =>
-  createSelector(selectEntities, communities => {
-    const community = communities[communityId]
-    if (!community) return 0
-    return community.registrationAttempts || 0
-  })
-
 export const ownerNickname = createSelector(
   currentCommunity,
   getOldestParsedCerificate,
@@ -111,7 +104,6 @@ export const communitiesSelectors = {
   currentCommunity,
   currentCommunityId,
   registrarUrl,
-  registrationAttempts,
   invitationCodes,
   invitationUrl,
   ownerNickname,

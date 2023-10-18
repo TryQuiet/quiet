@@ -160,6 +160,12 @@ describe('communitiesSelectors', () => {
         certificates: [identity.userCertificate || ''],
       })
     )
+
+    store.dispatch(
+      usersActions.setAllCerts({
+        certificates: [identity.userCertificate || ''],
+      })
+    )
     const ownerNickname = communitiesSelectors.ownerNickname(store.getState())
     expect(ownerNickname).toEqual(identity.nickname)
   })

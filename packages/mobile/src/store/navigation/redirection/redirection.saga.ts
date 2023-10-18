@@ -3,7 +3,7 @@ import { initSelectors } from '../../init/init.selectors'
 import { navigationSelectors } from '../navigation.selectors'
 import { navigationActions } from '../navigation.slice'
 import { ScreenNames } from '../../../const/ScreenNames.enum'
-import { identity, publicChannels, users } from '@quiet/state-manager'
+import { identity } from '@quiet/state-manager'
 import { initActions } from '../../init/init.slice'
 
 export function* redirectionSaga(): Generator {
@@ -25,34 +25,10 @@ export function* redirectionSaga(): Generator {
     return
   }
 
-  const isUsernameTaken = yield* select(identity.selectors.usernameTaken)
-
-  if (isUsernameTaken) {
-    yield* put(
-      navigationActions.replaceScreen({
-        screen: ScreenNames.UsernameTakenScreen,
-      })
-    )
-  }
-
-  const duplicateCerts = yield* select(users.selectors.duplicateCerts)
-
-  if (duplicateCerts) {
-    yield* put(
-      navigationActions.replaceScreen({
-        screen: ScreenNames.PossibleImpersonationAttackScreen,
-      })
-    )
-    return
-  }
-
   // If user belongs to a community, let him directly into the app
-  // Check while QA session!
-  const currentChannelDisplayableMessages = yield* select(publicChannels.selectors.currentChannelMessagesMergedBySender)
-  const areMessagesLoaded = Object.values(currentChannelDisplayableMessages).length > 0
   const communityMembership = yield* select(identity.selectors.communityMembership)
 
-  if (communityMembership && areMessagesLoaded) {
+  if (communityMembership) {
     yield* put(
       navigationActions.replaceScreen({
         screen: ScreenNames.ChannelListScreen,

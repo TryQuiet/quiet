@@ -129,7 +129,7 @@ describe('showNotificationSaga', () => {
           },
           [StoreKeys.Navigation]: {
             ...new NavigationState(),
-            currentScreen: ScreenNames.ChannelScreen,
+            backStack: [ScreenNames.ChannelScreen],
           },
         }
       )
@@ -174,7 +174,7 @@ describe('showNotificationSaga', () => {
           },
           [StoreKeys.Navigation]: {
             ...new NavigationState(),
-            currentScreen: ScreenNames.ChannelScreen,
+            backStack: [ScreenNames.ChannelScreen],
           },
         }
       )
@@ -213,7 +213,7 @@ describe('showNotificationSaga', () => {
           },
           [StoreKeys.Navigation]: {
             ...new NavigationState(),
-            currentScreen: ScreenNames.ChannelScreen,
+            backStack: [ScreenNames.ChannelScreen],
           },
         }
       )
