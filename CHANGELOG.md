@@ -1,5 +1,7 @@
 [unreleased]
 
+* Send an info message immediately after a user joins the community
+
 * Fixed mobile bugs - joining by QR code and not showing username taken screen for user who has unique name
 
 * Shorter dots-placeholder for invite link
