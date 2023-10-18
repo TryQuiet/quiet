@@ -3,9 +3,9 @@ import { ComponentStory, ComponentMeta } from '@storybook/react'
 
 import { withTheme } from '../../../../storybook/decorators'
 import QRCodeComponent, { QRCodeProps } from './QRCode.component'
-import { pairsToInvitationShareUrl } from '@quiet/common'
+import { composeToInvitationShareUrl } from '@quiet/common'
 
-const invitationLink = pairsToInvitationShareUrl({
+const invitationLink = composeToInvitationShareUrl({
   pairs: [
     {
       peerId: 'QmVTkUad2Gq3MkCa8gf12R1gsWDfk2yiTEqb6YGXDG2iQ3',

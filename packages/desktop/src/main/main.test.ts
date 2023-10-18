@@ -5,7 +5,7 @@ import { autoUpdater } from 'electron-updater'
 import { BrowserWindow, app, ipcMain, Menu } from 'electron'
 import { waitFor } from '@testing-library/dom'
 import path from 'path'
-import { invitationDeepUrl } from '@quiet/common'
+import { composeInvitationDeepUrl } from '@quiet/common'
 import { InvitationData } from '@quiet/types'
 
 // eslint-disable-next-line
@@ -254,13 +254,13 @@ describe('Invitation code', () => {
 
     expect(mockAppOnCalls[1][0]).toBe('open-url')
     const event = { preventDefault: () => {} }
-    mockAppOnCalls[1][1](event, invitationDeepUrl(codes))
+    mockAppOnCalls[1][1](event, composeInvitationDeepUrl(codes))
     expect(mockWindowWebContentsSend).toHaveBeenCalledWith('invitation', { codes })
   })
 
   it('process invitation code on second-instance event', async () => {
     await mockAppOnCalls[2][1]()
-    const commandLine = ['/tmp/.mount_Quiet-TVQc6s/quiet', invitationDeepUrl(codes)]
+    const commandLine = ['/tmp/.mount_Quiet-TVQc6s/quiet', composeInvitationDeepUrl(codes)]
     expect(mockAppOnCalls[0][0]).toBe('second-instance')
     const event = { preventDefault: () => {} }
     mockAppOnCalls[0][1](event, commandLine)

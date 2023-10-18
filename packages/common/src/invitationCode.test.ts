@@ -1,10 +1,10 @@
 import { InvitationData } from '@quiet/types'
 import {
   argvInvitationCode,
-  invitationDeepUrl,
+  composeInvitationDeepUrl,
   invitationShareUrl,
-  pairsToInvitationShareUrl,
-  retrieveInvitationCode,
+  composeInvitationShareUrl,
+  parseInvitationCodeDeepUrl,
 } from './invitationCode'
 import { QUIET_JOIN_PAGE, Site } from './static'
 
@@ -28,14 +28,14 @@ describe('Invitation code helper', () => {
       'zbay://invalid',
       'quiet://invalid',
       'quiet://?param=invalid',
-      invitationDeepUrl(expectedCodes),
+      composeInvitationDeepUrl(expectedCodes),
     ])
     expect(result).toEqual(expectedCodes)
   })
 
   it('builds proper invitation deep url', () => {
     expect(
-      invitationDeepUrl({
+      composeInvitationDeepUrl({
         pairs: [
           { peerId: 'peerID1', onionAddress: 'address1' },
           { peerId: 'peerID2', onionAddress: 'address2' },
@@ -54,7 +54,7 @@ describe('Invitation code helper', () => {
       psk: '12345',
     }
     const expected = `${QUIET_JOIN_PAGE}#peerID1=address1&peerID2=address2&${Site.PSK_PARAM_KEY}=${pairs.psk}`
-    expect(pairsToInvitationShareUrl(pairs)).toEqual(expected)
+    expect(composeInvitationShareUrl(pairs)).toEqual(expected)
   })
 
   it('builds proper invitation share url', () => {
@@ -70,8 +70,8 @@ describe('Invitation code helper', () => {
   })
 
   it('retrieves invitation codes from deep url', () => {
-    const psk = 12345
-    const codes = retrieveInvitationCode(
+    const psk = '12345'
+    const codes = parseInvitationCodeDeepUrl(
       `quiet://?${peerId1}=${address1}&${peerId2}=${address2}&${Site.PSK_PARAM_KEY}=${psk}`
     )
     expect(codes).toEqual({
@@ -87,9 +87,9 @@ describe('Invitation code helper', () => {
     const psk = '12345'
     const peerId2 = 'QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLs'
     const address2 = 'y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd'
-    const codes = retrieveInvitationCode(
+    const parsed = parseInvitationCodeDeepUrl(
       `quiet://?${peerId1}=${address1}&${peerId2}=${address2}&${Site.PSK_PARAM_KEY}=${psk}`
     )
-    expect(codes).toEqual({ pairs: [{ peerId: peerId1, onionAddress: address1 }], psk: psk })
+    expect(parsed).toEqual({ pairs: [{ peerId: peerId1, onionAddress: address1 }], psk: psk })
   })
 })

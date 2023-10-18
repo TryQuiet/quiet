@@ -1,4 +1,4 @@
-import { Site, getInvitationPairs } from '@quiet/common'
+import { Site, parseInvitationCode } from '@quiet/common'
 import { type InvitationData } from '@quiet/types'
 
 export const getInvitationCodes = (codeOrUrl: string): InvitationData => {
@@ -9,6 +9,8 @@ export const getInvitationCodes = (codeOrUrl: string): InvitationData => {
   let data: InvitationData | null = null
   let potentialCode
   let validUrl: URL | null = null
+
+  let code = ''
 
   try {
     validUrl = new URL(codeOrUrl)
@@ -21,13 +23,14 @@ export const getInvitationCodes = (codeOrUrl: string): InvitationData => {
     const hash = validUrl.hash
     if (hash) {
       // Parse hash
-      const pairs = hash.substring(1)
-      data = getInvitationPairs(pairs)
+      code = hash.substring(1)
     }
   } else if (potentialCode) {
     // Parse code just as hash value
-    data = getInvitationPairs(potentialCode)
+    code = potentialCode
   }
+
+  data = parseInvitationCode(code)
 
   if (!data || data?.pairs.length === 0) {
     throw new Error(`No invitation codes. Code/url passed: ${codeOrUrl}`)
