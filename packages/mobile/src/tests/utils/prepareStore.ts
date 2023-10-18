@@ -92,5 +92,5 @@ function* mockSocketConnectionSaga(socket: MockedSocket): Generator {
       socket.socketClient.emit('connect')
     })
   })
-  yield* put(initActions.startWebsocketConnection({ dataPort: 4677 }))
+  yield* put(initActions.startWebsocketConnection({ dataPort: 4677, socketIOSecret: 'secret' }))
 }
