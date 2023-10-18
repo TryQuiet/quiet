@@ -1,14 +1,15 @@
-import { ChannelMessage, DisplayableMessage, InfoMessagesType } from '@quiet/types'
+import { ChannelMessage, DisplayableMessage, InfoMessagesType, MessageType } from '@quiet/types'
 
-type MessageType = DisplayableMessage | ChannelMessage
+type MessageVariants = DisplayableMessage | ChannelMessage
 
-export function transformUserInfoMessages<T extends MessageType>(
+export function transformUserInfoMessages<T extends MessageVariants>(
   ownerNickname: string,
   communityName: string,
   userNickname: string,
   message: T,
   isForNotification = false
 ): T {
+  if (message.type !== MessageType.Info) return message
   switch (message.message) {
     case InfoMessagesType.USER_JOINED:
       return {
@@ -20,6 +21,9 @@ export function transformUserInfoMessages<T extends MessageType>(
           : `@${userNickname} has joined ${communityName}! 🎉`,
       }
     default:
-      return message
+      return {
+        ...message,
+        message: '',
+      }
   }
 }
