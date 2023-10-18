@@ -11,8 +11,6 @@ export function* startConnectionSaga(
 ): Generator {
   const { dataPort, socketIOSecret } = action.payload
 
-  console.log('socketIOSecret', socketIOSecret)
-
   if (!socketIOSecret) return
 
   const token = encodeSecret(socketIOSecret)

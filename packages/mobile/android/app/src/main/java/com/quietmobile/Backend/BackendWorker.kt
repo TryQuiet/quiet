@@ -202,7 +202,7 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
             notificationHandler.notify(message, username)
         }
 
-    private fun startWebsocketConnection(port: Int, socketIOSecret: Any) {
+    private fun startWebsocketConnection(port: Int, socketIOSecret: String) {
         Log.d("WEBSOCKET CONNECTION", "Starting on $port")
         // Proceed only if data port is defined
         val websocketConnectionPayload = WebsocketConnectionPayload(port, socketIOSecret)
