@@ -207,7 +207,7 @@ describe('BasicMessage', () => {
     `)
   })
   it('renders with separate info messages', async () => {
-    const messages = generateMessages({ amount: 2, type: 3 })
+    const messages = generateMessages({ amount: 2, type: 3, nickname: 'ownerNickname' })
     const result = renderComponent(
       <HashRouter>
         <Provider store={store}>
@@ -230,7 +230,7 @@ describe('BasicMessage', () => {
           >
             <div
               class="MuiListItemText-root BasicMessageComponentmessageCard css-tlelie-MuiListItemText-root"
-              data-testid="userMessagesWrapper-gringo-0"
+              data-testid="userMessagesWrapper-ownerNickname-0"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-wrap-xs-nowrap css-aii0rt-MuiGrid-root"
@@ -278,7 +278,7 @@ describe('BasicMessage', () => {
                   </div>
                   <div
                     class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-1vpwcmr-MuiGrid-root"
-                    data-testid="userMessages-gringo-0"
+                    data-testid="userMessages-ownerNickname-0"
                     style="margin-top: -3px;"
                   >
                     <div
@@ -312,7 +312,7 @@ describe('BasicMessage', () => {
   })
   it('renders with basic message and info message', async () => {
     const message1 = generateMessages()
-    const message2 = generateMessages({ type: 3 })
+    const message2 = generateMessages({ type: 3, nickname: 'ownerNickname' })
     const result = renderComponent(
       <HashRouter>
         <Provider store={store}>
