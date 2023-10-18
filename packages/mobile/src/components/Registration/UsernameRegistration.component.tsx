@@ -146,7 +146,6 @@ export const UsernameRegistration: FC<UsernameRegistrationProps> = ({
             </View>
           </View>
         )}
-
         <View style={{ marginTop: 20 }}>
           <Button
             disabled={Boolean(inputError)}
