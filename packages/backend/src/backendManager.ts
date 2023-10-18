@@ -34,6 +34,7 @@ console.log('options', options)
 interface OpenServices {
   torControlPort?: any
   socketIOPort?: any
+  socketIOSecret?: any
   httpTunnelPort?: any
   authCookie?: any
 }
@@ -123,6 +124,7 @@ export const runBackendMobile = async (): Promise<any> => {
     app = await NestFactory.createApplicationContext(
       AppModule.forOptions({
         socketIOPort: msg.socketIOPort,
+        socketIOSecret: msg.socketIOSecret,
         httpTunnelPort: msg.httpTunnelPort ? msg.httpTunnelPort : null,
         torAuthCookie: msg.authCookie ? msg.authCookie : null,
         torControlPort: msg.torControlPort ? msg.torControlPort : await getPort(),
@@ -136,7 +138,6 @@ export const runBackendMobile = async (): Promise<any> => {
       }),
       { logger: ['warn', 'error', 'log', 'debug', 'verbose'] }
     )
-    console.log('started backend wiktor little bastard ')
   })
 }
 

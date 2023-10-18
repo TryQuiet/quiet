@@ -129,7 +129,9 @@ static NSString *const platform = @"mobile";
   FindFreePort *findFreePort = [FindFreePort new];
     
   self.dataPort             = [findFreePort getFirstStartingFromPort:11000];
-  self.socketIOSecret       = randomStringWithLength(20);
+  if (self.socketIOSecret == nil) {
+      self.socketIOSecret       = randomStringWithLength(20);
+  }
   
   uint16_t socksPort        = [findFreePort getFirstStartingFromPort:12000];
   uint16_t controlPort      = [findFreePort getFirstStartingFromPort:14000];
@@ -215,11 +217,12 @@ static NSString *const platform = @"mobile";
 
 - (void) reviweServices:(uint16_t)controlPort:(uint16_t)httpTunnelPort:(NSString *)authCookie {
   NSString * dataPortPayload = [NSString stringWithFormat:@"%@:%hu", @"socketIOPort", self.dataPort];
+  NSString * socketIOSecretPayload = [NSString stringWithFormat:@"%@:%@", @"socketIOSecret", self.socketIOSecret];
   NSString * controlPortPayload = [NSString stringWithFormat:@"%@:%hu", @"torControlPort", controlPort];
   NSString * httpTunnelPortPayload = [NSString stringWithFormat:@"%@:%hu", @"httpTunnelPort", httpTunnelPort];
   NSString * authCookiePayload = [NSString stringWithFormat:@"%@:%@", @"authCookie", authCookie];
   
-  NSString * payload = [NSString stringWithFormat:@"%@|%@|%@|%@", dataPortPayload, controlPortPayload, httpTunnelPortPayload, authCookiePayload];
+  NSString * payload = [NSString stringWithFormat:@"%@|%@|%@|%@|%@", dataPortPayload, socketIOSecretPayload, controlPortPayload, httpTunnelPortPayload, authCookiePayload];
   [self.nodeJsMobile sendMessageToNode:@"open":payload];
 }
 
