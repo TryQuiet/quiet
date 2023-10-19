@@ -9,6 +9,7 @@ import {
   verifyUserCert,
   parseCertificationRequest,
   getReqFieldValue,
+  loadCSR,
 } from '@quiet/identity'
 import type { IPFS } from 'ipfs-core'
 import OrbitDB from 'orbit-db'
@@ -59,7 +60,7 @@ interface DBOptions {
 export class StorageService extends EventEmitter {
   public channels: KeyValueStore<PublicChannel>
   private certificates: EventStore<string>
-  private certificatesRequests: EventStore<string>
+  private certificatesRequests: KeyValueStore<string>
   public publicChannelsRepos: Map<string, PublicChannelsRepo> = new Map()
   public directMessagesRepos: Map<string, DirectMessagesRepo> = new Map()
   private publicKeysMap: Map<string, CryptoKey> = new Map()
@@ -319,7 +320,7 @@ export class StorageService extends EventEmitter {
   }
 
   public async updatePeersList() {
-    const allUsers = this.getAllUsers()
+    const allUsers = await this.getAllUsers()
     const registeredUsers = this.getAllRegisteredUsers()
     const peers = [...new Set(await getUsersAddresses(allUsers.concat(registeredUsers)))]
     console.log('updatePeersList, peers count:', peers.length)
@@ -391,7 +392,7 @@ export class StorageService extends EventEmitter {
 
   public async createDbForCertificatesRequests() {
     this.logger('certificatesRequests db init')
-    this.certificatesRequests = await this.orbitDb.log<string>('csrs', {
+    this.certificatesRequests = await this.orbitDb.kvstore<string>('csrs', {
       replicate: false,
       accessController: {
         write: ['*'],
@@ -399,13 +400,15 @@ export class StorageService extends EventEmitter {
     })
     this.certificatesRequests.events.on('replicated', async () => {
       this.logger('REPLICATED: CSRs')
-      const allCsrs = this.getAllEventLogEntries(this.certificatesRequests)
+      await this.certificatesRequests.load()
+      const allCsrs = Object.values(this.certificatesRequests.all)
       const allCertificates = this.getAllEventLogEntries(this.certificates)
       this.emit(StorageEvents.REPLICATED_CSR, { csrs: allCsrs, certificates: allCertificates })
       await this.updatePeersList()
     })
     this.certificatesRequests.events.on('write', async (_address, entry) => {
       const csr: string = entry.payload.value
+
       this.logger('Saved CSR locally')
       const allCertificates = this.getAllEventLogEntries(this.certificates)
       this.emit(StorageEvents.REPLICATED_CSR, { csrs: [csr], certificates: allCertificates })
@@ -414,8 +417,8 @@ export class StorageService extends EventEmitter {
 
     // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
     await this.certificatesRequests.load({ fetchEntryTimeout: 15000 })
-    const allcsrs = this.getAllEventLogEntries(this.certificatesRequests)
-    this.logger('ALL Certificates COUNT:', allcsrs.length)
+    const allCsrs = Object.values(this.certificatesRequests)
+    this.logger('ALL Certificates COUNT:', allCsrs.length)
     this.logger('STORAGE: Finished creating certificatesRequests db')
   }
 
@@ -827,6 +830,7 @@ export class StorageService extends EventEmitter {
 
   public async saveCertificate(payload: SaveCertificatePayload): Promise<boolean> {
     this.logger('About to save certificate...')
+    this.logger('payload.certificate', payload.certificate)
     if (!payload.certificate) {
       this.logger('Certificate is either null or undefined, not saving to db')
       return false
@@ -851,13 +855,14 @@ export class StorageService extends EventEmitter {
     }
 
     await this.certificatesRequests.load()
-
-    const csrs = this.getAllEventLogEntries(this.certificatesRequests)
+    const csrs = Object.values(this.certificatesRequests.all)
 
     if (csrs.includes(payload.csr)) return false
 
     this.logger('Saving csr...')
-    await this.certificatesRequests.add(payload.csr)
+    const parsedCsr = await loadCSR(payload.csr)
+    const pubKey = keyFromCertificate(parsedCsr)
+    await this.certificatesRequests.put(pubKey, payload.csr)
     return true
   }
 
@@ -876,8 +881,9 @@ export class StorageService extends EventEmitter {
     return allUsers
   }
 
-  public getAllUsers(): UserData[] {
-    const csrs = this.getAllEventLogEntries(this.certificatesRequests)
+  public async getAllUsers(): Promise<UserData[]> {
+    await this.certificatesRequests.load()
+    const csrs = Object.values(this.certificatesRequests.all)
     console.log('csrs count:', csrs.length)
     const allUsers: UserData[] = []
     for (const csr of csrs) {
