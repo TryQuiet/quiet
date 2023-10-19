@@ -38,12 +38,12 @@ const LoadingPanel = () => {
 
   useEffect(() => {
     const areMessagesLoaded = Object.values(currentChannelDisplayableMessages).length > 0
-    // console.log('HUNTING for haisenbug:')
-    // console.log('isConnected', isConnected)
-    // console.log('communityId', communityId)
-    // console.log('isCommunityInitialized', isCommunityInitialized)
-    // console.log('areMessagesLoaded?', areMessagesLoaded)
-    // console.log('registrationError', registrationError)
+    console.log('HUNTING for haisenbug:')
+    console.log('isConnected', isConnected)
+    console.log('communityId', communityId)
+    console.log('isCommunityInitialized', isCommunityInitialized)
+    console.log('areMessagesLoaded?', areMessagesLoaded)
+    console.log('registrationError', registrationError)
     if ((isConnected && isCommunityInitialized && areMessagesLoaded) || registrationError) {
       loadingPanelModal.handleClose()
     }

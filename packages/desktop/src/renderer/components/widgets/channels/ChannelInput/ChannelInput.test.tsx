@@ -28,7 +28,7 @@ describe('ChannelInput', () => {
       <body>
         <div>
           <div
-            class="MuiGrid-root ChannelInputroot css-j3fbgh-MuiGrid-root"
+            class="MuiGrid-root ChannelInputroot css-1afzw4h-MuiGrid-root"
           >
             <div
               class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column ChannelInputrootContent css-6gh8l0-MuiGrid-root"
@@ -42,14 +42,11 @@ describe('ChannelInput', () => {
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true ChannelInputtextArea css-1vd824g-MuiGrid-root"
                   >
-                    <div
+                    <textarea
                       class="ChannelInputinput"
-                      contenteditable="true"
                       data-testid="messageInput"
                       placeholder="Message #channel as @user"
-                    >
-                      
-                    </div>
+                    />
                   </div>
                   <div
                     class="ChannelInputicons"
@@ -121,7 +118,7 @@ describe('ChannelInput', () => {
       <body>
         <div>
           <div
-            class="MuiGrid-root ChannelInputroot ChannelInputnotAllowed css-j3fbgh-MuiGrid-root"
+            class="MuiGrid-root ChannelInputroot ChannelInputnotAllowed css-1afzw4h-MuiGrid-root"
           >
             <div
               class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column ChannelInputrootContent css-6gh8l0-MuiGrid-root"
@@ -135,15 +132,12 @@ describe('ChannelInput', () => {
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true ChannelInputtextArea css-1vd824g-MuiGrid-root"
                   >
-                    <div
+                    <textarea
                       class="ChannelInputinput"
-                      contenteditable="false"
                       data-testid="messageInput"
                       disabled=""
                       placeholder="Message #channel as @user"
-                    >
-                      
-                    </div>
+                    />
                   </div>
                   <div
                     class="ChannelInputicons"
