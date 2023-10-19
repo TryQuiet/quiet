@@ -127,12 +127,13 @@ static NSString *const platform = @"mobile";
   // (1/6) Find ports to use in tor and backend configuration
   
   FindFreePort *findFreePort = [FindFreePort new];
+  Utils *utils = [Utils new];
     
-  self.dataPort             = [findFreePort getFirstStartingFromPort:11000];
   if (self.socketIOSecret == nil) {
-      self.socketIOSecret       = randomStringWithLength(20);
+      self.socketIOSecret       = [utils generateRandomStringWithLength:(20)];
   }
   
+  self.dataPort             = [findFreePort getFirstStartingFromPort:11000];
   uint16_t socksPort        = [findFreePort getFirstStartingFromPort:12000];
   uint16_t controlPort      = [findFreePort getFirstStartingFromPort:14000];
   uint16_t httpTunnelPort   = [findFreePort getFirstStartingFromPort:16000];
