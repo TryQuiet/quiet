@@ -17,19 +17,30 @@ export const UnregisteredUsernameContextMenu: FC = () => {
       <View
         style={{ padding: 20, alignItems: 'center', borderTopWidth: 1, borderColor: defaultPalette.background.gray06 }}
       >
-        <Typography fontSize={14} style={{ textAlign: 'center', lineHeight: 20 }}>
-          The username{' '}
-          <Typography fontSize={14} fontWeight={'bold'}>
-            @{usernameTakenContextMenu.username}
-          </Typography>{' '}
-          has not been registered yet with the community owner, so it’s still possible for someone else to register the
-          same username. When the community owner is online,{' '}
-          <Typography fontSize={14} fontWeight={'bold'}>
-            @{usernameTakenContextMenu.username}
-          </Typography>{' '}
-          will be registered automatically and this alert will go away.
-        </Typography>
-        <Button width={60} title={'OK'} onPress={usernameTakenContextMenu.handleClose} />
+        <View>
+          <Typography fontSize={14} style={{ textAlign: 'center', lineHeight: 20 }}>
+            The username{' '}
+            <Typography fontSize={14} fontWeight={'bold'}>
+              @{usernameTakenContextMenu.username}
+            </Typography>{' '}
+            has not been registered yet with the community owner, so it’s still possible for someone else to register
+            the same username.
+          </Typography>
+        </View>
+
+        <View style={{ marginTop: 20 }}>
+          <Typography fontSize={14} style={{ textAlign: 'center', lineHeight: 20 }}>
+            When the community owner is online,{' '}
+            <Typography fontSize={14} fontWeight={'bold'}>
+              @{usernameTakenContextMenu.username}
+            </Typography>{' '}
+            will be registered automatically and this alert will go away.
+          </Typography>
+        </View>
+
+        <View style={{ marginTop: 20 }}>
+          <Button width={160} title={'OK'} onPress={usernameTakenContextMenu.handleClose} />
+        </View>
       </View>
     </ContextMenu>
   )

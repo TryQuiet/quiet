@@ -15,7 +15,6 @@ export const ContextMenu: FC<ContextMenuProps> = ({
   linkAction = () => {
     console.log('No action attached for link tap gesture.')
   },
-
   children,
 }) => {
   const [show, setShow] = React.useState<boolean>(false)
@@ -162,6 +161,7 @@ export const ContextMenu: FC<ContextMenuProps> = ({
                 />
               </View>
             )}
+
             {children}
           </View>
         </TouchableWithoutFeedback>
