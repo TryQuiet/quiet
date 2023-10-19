@@ -6,6 +6,7 @@ import { UnregisteredUsernameArgs } from '../ContextMenu.types'
 import { View } from 'react-native'
 import { Typography } from '../../Typography/Typography.component'
 import { Button } from '../../Button/Button.component'
+import { defaultPalette } from '../../../styles/palettes/default.palette'
 
 export const UnregisteredUsernameContextMenu: FC = () => {
   const title = 'Unregistered username'
@@ -13,7 +14,9 @@ export const UnregisteredUsernameContextMenu: FC = () => {
 
   return (
     <ContextMenu title={title} items={[]} {...usernameTakenContextMenu}>
-      <View style={{ padding: 20, alignItems: 'center' }}>
+      <View
+        style={{ padding: 20, alignItems: 'center', borderTopWidth: 1, borderColor: defaultPalette.background.gray06 }}
+      >
         <Typography fontSize={14} style={{ textAlign: 'center', lineHeight: 20 }}>
           The username{' '}
           <Typography fontSize={14} fontWeight={'bold'}>
