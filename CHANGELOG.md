@@ -4,6 +4,8 @@
 
 * Shorter dots-placeholder for invite link
 
+* Display a shorter invite link on a mobile
+
 * Removed registration attempts selector and corresponding usage.
 
 * Revert adjusting bootstrap scripts for developing on Windows

@@ -82,7 +82,7 @@ export const InvitationContextMenu: FC = () => {
       title={'Add members'}
       items={items}
       hint={'Anyone with Quiet app can follow this link to join this community. Only share with people you trust.'}
-      link={invitationLink}
+      link={invitationLink.slice(0, 35) + '...'}
       linkAction={copyLink}
       {...invitationContextMenu}
     />
