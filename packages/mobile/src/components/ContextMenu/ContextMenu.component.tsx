@@ -4,7 +4,6 @@ import { Typography } from '../Typography/Typography.component'
 import { ContextMenuItemProps, ContextMenuProps } from './ContextMenu.types'
 import { defaultPalette } from '../../styles/palettes/default.palette'
 import { appImages } from '../../assets'
-import { Button } from '../Button/Button.component'
 
 export const ContextMenu: FC<ContextMenuProps> = ({
   visible,
@@ -16,8 +15,8 @@ export const ContextMenu: FC<ContextMenuProps> = ({
   linkAction = () => {
     console.log('No action attached for link tap gesture.')
   },
-  unregisteredUsername,
-  username,
+
+  children,
 }) => {
   const [show, setShow] = React.useState<boolean>(false)
   const slidingAnimation = React.useRef(new Animated.Value(0)).current
@@ -163,24 +162,7 @@ export const ContextMenu: FC<ContextMenuProps> = ({
                 />
               </View>
             )}
-
-            {unregisteredUsername && username && (
-              <View style={{ padding: 20, alignItems: 'center' }}>
-                <Typography fontSize={14} style={{ textAlign: 'center' }}>
-                  The username{' '}
-                  <Typography fontSize={14} fontWeight={'bold'}>
-                    @{username}
-                  </Typography>{' '}
-                  has not been registered yet with the community owner, so it’s still possible for someone else to
-                  register the same username. When the community owner is online,{' '}
-                  <Typography fontSize={14} fontWeight={'bold'}>
-                    @{username}
-                  </Typography>{' '}
-                  will be registered automatically and this alert will go away.
-                </Typography>
-                <Button width={60} title={'OK'} onPress={handleClose} />
-              </View>
-            )}
+            {children}
           </View>
         </TouchableWithoutFeedback>
       </Animated.View>
