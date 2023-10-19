@@ -2,9 +2,9 @@ import React, { FC } from 'react'
 import { View, Image, FlatList, TouchableWithoutFeedback, TouchableOpacity, Animated } from 'react-native'
 import { Typography } from '../Typography/Typography.component'
 import { ContextMenuItemProps, ContextMenuProps } from './ContextMenu.types'
-
 import { defaultPalette } from '../../styles/palettes/default.palette'
 import { appImages } from '../../assets'
+import { Button } from '../Button/Button.component'
 
 export const ContextMenu: FC<ContextMenuProps> = ({
   visible,
@@ -16,6 +16,8 @@ export const ContextMenu: FC<ContextMenuProps> = ({
   linkAction = () => {
     console.log('No action attached for link tap gesture.')
   },
+  unregisteredUsername,
+  username,
 }) => {
   const [show, setShow] = React.useState<boolean>(false)
   const slidingAnimation = React.useRef(new Animated.Value(0)).current
@@ -140,24 +142,45 @@ export const ContextMenu: FC<ContextMenuProps> = ({
                 </Typography>
               </View>
             )}
-            <View style={{ width: '100%', paddingBottom: 10 }}>
-              <FlatList
-                data={items}
-                keyExtractor={item => item.title}
-                renderItem={({ item, index }) => (
-                  <View
-                    style={[
-                      { borderTopWidth: 1, borderColor: defaultPalette.background.gray06 },
-                      index === items.length - 1 ? { borderBottomWidth: 1 } : { borderBottomWidth: 0 },
-                    ]}
-                  >
-                    <ContextMenuItem {...item} />
-                  </View>
-                )}
-                style={{ backgroundColor: defaultPalette.background.white }}
-                showsVerticalScrollIndicator={false}
-              />
-            </View>
+
+            {items.length !== 0 && (
+              <View style={{ width: '100%', paddingBottom: 10 }}>
+                <FlatList
+                  data={items}
+                  keyExtractor={item => item.title}
+                  renderItem={({ item, index }) => (
+                    <View
+                      style={[
+                        { borderTopWidth: 1, borderColor: defaultPalette.background.gray06 },
+                        index === items.length - 1 ? { borderBottomWidth: 1 } : { borderBottomWidth: 0 },
+                      ]}
+                    >
+                      <ContextMenuItem {...item} />
+                    </View>
+                  )}
+                  style={{ backgroundColor: defaultPalette.background.white }}
+                  showsVerticalScrollIndicator={false}
+                />
+              </View>
+            )}
+
+            {unregisteredUsername && username && (
+              <View style={{ padding: 20, alignItems: 'center' }}>
+                <Typography fontSize={14} style={{ textAlign: 'center' }}>
+                  The username{' '}
+                  <Typography fontSize={14} fontWeight={'bold'}>
+                    @{username}
+                  </Typography>{' '}
+                  has not been registered yet with the community owner, so it’s still possible for someone else to
+                  register the same username. When the community owner is online,{' '}
+                  <Typography fontSize={14} fontWeight={'bold'}>
+                    @{username}
+                  </Typography>{' '}
+                  will be registered automatically and this alert will go away.
+                </Typography>
+                <Button width={60} title={'OK'} onPress={handleClose} />
+              </View>
+            )}
           </View>
         </TouchableWithoutFeedback>
       </Animated.View>
