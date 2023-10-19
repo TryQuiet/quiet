@@ -60,6 +60,10 @@ const StyledChannelInput = styled(Grid)(({ theme }) => ({
     to: { opacity: 1 },
   },
   [`& .${classes.input}`]: {
+    display: 'block',
+    border: 0,
+    resize: 'none',
+    fontFamily: 'inherit',
     whiteSpace: 'break-spaces',
     width: '100%',
     fontSize: 14,
@@ -233,17 +237,10 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
   handleClipboardFiles,
   handleOpenFiles,
 }) => {
-  const [_anchorEl, setAnchorEl] = React.useState<HTMLDivElement>()
-  const messageRef = React.useRef<string>()
-  const refSelected = React.useRef<number>()
-  const isFirstRenderRef = React.useRef(true) // What is it for?
-
-  const mentionsToSelectRef = React.useRef<any[]>()
-
+  const textAreaRef = React.createRef<HTMLTextAreaElement>()
   const fileInput = React.useRef<HTMLInputElement>(null)
 
   const [focused, setFocused] = React.useState(false)
-  const [selected, setSelected] = React.useState(0)
 
   const [emojiHovered, setEmojiHovered] = React.useState(false)
   const [fileExplorerHovered, setFileExplorerHovered] = React.useState(false)
@@ -251,30 +248,13 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
 
   const [message, setMessage] = React.useState(initialMessage)
 
-  // Use reference to bypass memorization
-  React.useEffect(() => {
-    refSelected.current = selected
-  }, [selected])
-
-  const isRefSelected = (refSelected: number | undefined): refSelected is number => {
-    return typeof refSelected === 'number'
-  }
-
   React.useEffect(() => {
     setMessage(initialMessage)
-    // if (!isFirstRenderRef.current) {
-    //   return () => {
-    //     if (messageRef?.current) {
-    //       onChange(messageRef.current)
-    //     }
-    //   }
-    // }
-    // isFirstRenderRef.current = false
   }, [channelId])
 
-  // React.useEffect(() => {
-  //   messageRef.current = message // Do we need that?
-  // }, [message])
+  React.useEffect(() => {
+    textAreaRef.current?.focus()
+  }, [textAreaRef])
 
   const caretLineTraversal = (focusLine: Node | null | undefined, anchorLinePosition = 0) => {
     if (!focusLine?.nodeValue) return
@@ -294,13 +274,12 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
   }
 
   const onChangeCb = useCallback(
-    (e: any) => {
+    (e: React.ChangeEvent<HTMLTextAreaElement>) => {
       if (inputState === INPUT_STATE.AVAILABLE) {
         setMessage(e.target.value)
       }
-      setAnchorEl(e.currentTarget.lastElementChild)
     },
-    [setAnchorEl, onChange]
+    [onChange]
   )
 
   const inputStateRef = React.useRef(inputState)
@@ -310,9 +289,6 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
 
   const onKeyDownCb = useCallback(
     (e: React.KeyboardEvent) => {
-      if (!isRefSelected(refSelected.current)) {
-        throw new Error('refSelected is on unexpected type')
-      }
       if (e.key === 'ArrowDown') {
         const anchorNode: Node | null | undefined = window?.getSelection()?.anchorNode
 
@@ -373,7 +349,6 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
           onChange(target.value)
           onKeyPress(target.value)
           setMessage('')
-          target.value = ''
         } else {
           e.preventDefault()
           if (infoClass !== classNames(classes.backdrop, classes.blinkAnimation)) {
@@ -383,7 +358,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
         }
       }
     },
-    [inputState, message, mentionsToSelectRef, onChange, onKeyPress, setMessage, infoClass, setInfoClass, setSelected]
+    [inputState, message, onChange, onKeyPress, setMessage, infoClass, setInfoClass]
   )
 
   const handleFileInput = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -435,6 +410,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
             >
               <Grid item xs className={classes.textArea}>
                 <textarea
+                  ref={textAreaRef}
                   placeholder={`Message ${inputPlaceholder}`}
                   className={classes.input}
                   onClick={() => {
