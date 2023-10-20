@@ -15,7 +15,7 @@ export function transformUserInfoMessages<T extends MessageVariants>(
       return {
         ...message,
         message: !isForNotification
-          ? `**@${userNickname}** has joined and will be registered soon. 🎉 [Learn more](https://github.com/TryQuiet/quiet/wiki/Quiet-FAQ)`
+          ? `**@${userNickname}** has joined and will be registered soon. 🎉 [Learn more](https://github.com/TryQuiet/quiet/wiki/Quiet-FAQ#how-does-username-registration-work)`
           : `@${userNickname} has joined and will be registered soon. 🎉`,
       }
     default:

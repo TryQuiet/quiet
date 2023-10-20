@@ -24,7 +24,7 @@ describe('transformUserInfoMessages', () => {
       id: 'id',
       type: 3,
       message:
-        '**@bob** has joined and will be registered soon. 🎉 [Learn more](https://github.com/TryQuiet/quiet/wiki/Quiet-FAQ)',
+        '**@bob** has joined and will be registered soon. 🎉 [Learn more](https://github.com/TryQuiet/quiet/wiki/Quiet-FAQ#how-does-username-registration-work)',
       createdAt: 1,
       date: '1',
       nickname: 'bob',
