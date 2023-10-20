@@ -7,7 +7,7 @@ import { AppModule } from './nest/app.module'
 import { ConnectionsManagerService } from './nest/connections-manager/connections-manager.service'
 import { TorControl } from './nest/tor/tor-control.service'
 import { torBinForPlatform, torDirForPlatform } from './nest/common/utils'
-// import initRnBridge from './rn-bridge'
+import initRnBridge from './rn-bridge'
 
 import logger from './nest/common/logger'
 const log = logger('backendManager')
@@ -92,7 +92,7 @@ export const runBackendMobile = async (): Promise<any> => {
   process.env['BACKEND'] = 'mobile'
   process.env['CONNECTION_TIME'] = (new Date().getTime() / 1000).toString() // Get time in seconds
 
-  // const rn_bridge = initRnBridge()
+  const rn_bridge = initRnBridge()
 
   const app: INestApplicationContext = await NestFactory.createApplicationContext(
     AppModule.forOptions({
@@ -111,16 +111,16 @@ export const runBackendMobile = async (): Promise<any> => {
     { logger: ['warn', 'error', 'log', 'debug', 'verbose'] }
   )
 
-  // rn_bridge.channel.on('close', async () => {
-  //   const connectionsManager = app.get<ConnectionsManagerService>(ConnectionsManagerService)
-  //   connectionsManager.closeSocket()
-  // })
-  // rn_bridge.channel.on('open', async (msg: OpenServices) => {
-  //   const connectionsManager = app.get<ConnectionsManagerService>(ConnectionsManagerService)
-  //   const torControlParams = app.get<TorControl>(TorControl)
-  //   torControlParams.torControlParams.auth.value = msg.authCookie
-  //   await connectionsManager.openSocket()
-  // })
+  rn_bridge.channel.on('close', async () => {
+    const connectionsManager = app.get<ConnectionsManagerService>(ConnectionsManagerService)
+    connectionsManager.closeSocket()
+  })
+  rn_bridge.channel.on('open', async (msg: OpenServices) => {
+    const connectionsManager = app.get<ConnectionsManagerService>(ConnectionsManagerService)
+    const torControlParams = app.get<TorControl>(TorControl)
+    torControlParams.torControlParams.auth.value = msg.authCookie
+    await connectionsManager.openSocket()
+  })
 }
 
 const platform = options.platform
