@@ -15,10 +15,8 @@ export function transformUserInfoMessages<T extends MessageVariants>(
       return {
         ...message,
         message: !isForNotification
-          ? `**@${userNickname}** has joined ${communityName}! 🎉
-        Note: **@${userNickname}** is not yet registered, so they'll have the "unregistered" badge until the community creator (**@${ownerNickname}**) registers them, which will happen automatically when **@${ownerNickname}** next appears online. 
-        [Learn more](https://github.com/TryQuiet/quiet/wiki/Quiet-FAQ)`
-          : `@${userNickname} has joined ${communityName}! 🎉`,
+          ? `**@${userNickname}** has joined and will be registered soon. 🎉 [Learn more](https://github.com/TryQuiet/quiet/wiki/Quiet-FAQ)`
+          : `@${userNickname} has joined and will be registered soon. 🎉`,
       }
     default:
       return {

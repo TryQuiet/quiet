@@ -24,9 +24,7 @@ describe('transformUserInfoMessages', () => {
       id: 'id',
       type: 3,
       message:
-        '**@bob** has joined dev! 🎉\n' +
-        `        Note: **@bob** is not yet registered, so they'll have the "unregistered" badge until the community creator (**@owner**) registers them, which will happen automatically when **@owner** next appears online. \n` +
-        '        [Learn more](https://github.com/TryQuiet/quiet/wiki/Quiet-FAQ)',
+        '**@bob** has joined and will be registered soon. 🎉 [Learn more](https://github.com/TryQuiet/quiet/wiki/Quiet-FAQ)',
       createdAt: 1,
       date: '1',
       nickname: 'bob',
@@ -53,7 +51,7 @@ describe('transformUserInfoMessages', () => {
     const expectedTransformedMessage = {
       id: 'id',
       type: 3,
-      message: '@bob has joined dev! 🎉',
+      message: '@bob has joined and will be registered soon. 🎉',
       createdAt: 1,
       pubKey: 'pubKey',
       channelId: 'channelId',
