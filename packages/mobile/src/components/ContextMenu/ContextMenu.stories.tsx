@@ -60,7 +60,7 @@ storiesOf('ContextMenu', module)
         title={'Add members'}
         items={invitation_items}
         hint={'Anyone with Quiet app can follow this link to join this community. Only share with people you trust.'}
-        link={'https://chat.quiet.org/quiet://?code=bidrmzr3ee6qa2vvrlcnqvvvsk2gmjktcqkunba326parszr44gibwyd'}
+        link={`https://tryquiet.org/join#QmNzTe4kwwq7yDrC9GRXWFT5JoBSGukWAcLSTMYPmrensB=vag3ot2imv7lrwsqesv2qykyx2fxenvjfcawgngab6gjzo2gg5o5vqqd&QmZx8actcU9E49Dff3PDVyXTCrVor9iBQryxfasfN4Drxo=sdiy7sermcmtaomn4w3bnxlmdqoun5bxre34xfcaxckhy7obhphcypad&QmQGCuEB5ChnqYCGu5nuBhtyzd9BmDdVUH9neaHNuCDd1M=pr42dxkelrs5iy2a4n4ycv2ptzk4yur274hq2zfshvgxu5rpay6lghqd&QmZgT4AbyPZjEPvMkpjCvfRSDYcrcyUiwTMDNF8rEigqHT=ka5m3rho2gvldgmigp7jn5taok7nwyp5v2fix3jdirpsyf7rdm547cqd`}
         visible={true}
         handleClose={() => {
           console.log('closing menu')
