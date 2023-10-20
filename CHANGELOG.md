@@ -2,6 +2,8 @@
 
 * Fixed mobile bugs - joining by QR code and not showing username taken screen for user who has unique name
 
+* Use context menu for information about unregistered username instead screen
+
 * Shorter dots-placeholder for invite link
 
 * Removed registration attempts selector and corresponding usage.
