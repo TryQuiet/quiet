@@ -69,6 +69,7 @@ const StyledChannelInput = styled(Grid)(({ theme }) => ({
     fontSize: 14,
     outline: 'none',
     padding: '12px 16px',
+    height: '48px',
     lineHeight: '24px',
     '&:empty': {
       '&:before': {
@@ -76,6 +77,9 @@ const StyledChannelInput = styled(Grid)(({ theme }) => ({
         display: 'block',
         color: '#aaa',
       },
+    },
+    '&::placeholder': {
+      color: '#aaa',
     },
     wordBreak: 'break-word',
     position: 'relative',
@@ -274,9 +278,12 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
   }
 
   const onChangeCb = useCallback(
+    //this.style.height = "";this.style.height = this.scrollHeight + "px"
     (e: React.ChangeEvent<HTMLTextAreaElement>) => {
       if (inputState === INPUT_STATE.AVAILABLE) {
         setMessage(e.target.value)
+        e.target.style.height = ''
+        e.target.style.height = e.target.scrollHeight + 'px'
       }
     },
     [onChange]
@@ -349,6 +356,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
           onChange(target.value)
           onKeyPress(target.value)
           setMessage('')
+          target.style.height = ''
         } else {
           e.preventDefault()
           if (infoClass !== classNames(classes.backdrop, classes.blinkAnimation)) {
