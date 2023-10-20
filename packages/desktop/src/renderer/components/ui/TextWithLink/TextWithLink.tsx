@@ -26,7 +26,7 @@ export interface TextWithLinkProps {
       tag: string
       label: string
       action: () => void
-    },
+    }
   ]
 }
 

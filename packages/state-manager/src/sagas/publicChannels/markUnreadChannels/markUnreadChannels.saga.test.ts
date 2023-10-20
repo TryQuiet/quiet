@@ -144,8 +144,9 @@ describe('markUnreadChannelsSaga', () => {
     const messagesides = channelIds
     const messages: ChannelMessage[] = []
 
-    const community =
-      await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
+    const community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>(
+      'Community'
+    )
 
     const alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
       id: community.id,

@@ -33,8 +33,9 @@ describe('launchRegistrar', () => {
   test("launch certain registrar instead of current community's registrar", async () => {
     const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
 
-    const community =
-      await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
+    const community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>(
+      'Community'
+    )
 
     const identity = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
       id: community.id,
@@ -79,8 +80,9 @@ describe('launchRegistrar', () => {
   test("launch registrar if user is current community's owner", async () => {
     const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
 
-    const community =
-      await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
+    const community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>(
+      'Community'
+    )
 
     const identity = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
       id: community.id,

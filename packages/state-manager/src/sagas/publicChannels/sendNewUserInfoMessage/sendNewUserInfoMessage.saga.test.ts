@@ -34,8 +34,9 @@ describe('sendInitialChannelMessageSaga', () => {
   })
 
   test('send new user info message', async () => {
-    const community1 =
-      await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
+    const community1 = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>(
+      'Community'
+    )
     user = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
       id: community1.id,
     })
@@ -77,8 +78,9 @@ describe('sendInitialChannelMessageSaga', () => {
   })
 
   test('dont send new user info if user exists', async () => {
-    const community1 =
-      await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
+    const community1 = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>(
+      'Community'
+    )
     user = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
       id: community1.id,
     })
@@ -115,8 +117,9 @@ describe('sendInitialChannelMessageSaga', () => {
   })
 
   test('dont send new user info message if owner', async () => {
-    const community1 =
-      await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
+    const community1 = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>(
+      'Community'
+    )
     user = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
       id: community1.id,
     })
@@ -142,8 +145,9 @@ describe('sendInitialChannelMessageSaga', () => {
   })
 
   test('remove possible duplicates before sending info message', async () => {
-    const community1 =
-      await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
+    const community1 = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>(
+      'Community'
+    )
     user = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
       id: community1.id,
     })
