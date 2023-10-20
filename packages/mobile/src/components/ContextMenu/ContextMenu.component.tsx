@@ -133,6 +133,7 @@ export const ContextMenu: FC<ContextMenuProps> = ({
                 <Typography
                   fontSize={14}
                   fontWeight={'normal'}
+                  numberOfLines={1}
                   style={{ lineHeight: 20, color: defaultPalette.typography.gray50 }}
                   onPress={linkAction}
                 >
