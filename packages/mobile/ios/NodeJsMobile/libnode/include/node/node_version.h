@@ -22,14 +22,14 @@
 #ifndef SRC_NODE_VERSION_H_
 #define SRC_NODE_VERSION_H_
 
-#define NODE_MAJOR_VERSION 16
+#define NODE_MAJOR_VERSION 18
 #define NODE_MINOR_VERSION 17
 #define NODE_PATCH_VERSION 1
 
 #define NODE_VERSION_IS_LTS 1
-#define NODE_VERSION_LTS_CODENAME "Gallium"
+#define NODE_VERSION_LTS_CODENAME "Hydrogen"
 
-#define NODE_VERSION_IS_RELEASE 0
+#define NODE_VERSION_IS_RELEASE 1
 
 #ifndef NODE_STRINGIFY
 #define NODE_STRINGIFY(n) NODE_STRINGIFY_HELPER(n)
@@ -89,10 +89,14 @@
  * version matching should open a pull request to reserve a number in this
  * registry.
  */
-#define NODE_MODULE_VERSION 93
+#define NODE_MODULE_VERSION 108
 
 // The NAPI_VERSION provided by this version of the runtime. This is the version
 // which the Node binary being built supports.
-#define NAPI_VERSION  8
+#define NAPI_VERSION 9
+
+// Node API modules use NAPI_VERSION 8 by default if it is not explicitly
+// specified. It must be always 8.
+#define NODE_API_DEFAULT_MODULE_API_VERSION 8
 
 #endif  // SRC_NODE_VERSION_H_
