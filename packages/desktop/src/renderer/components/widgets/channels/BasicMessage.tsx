@@ -256,7 +256,7 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
                 {messages.map((message, index) => {
                   const pending = pendingMessages[message.id] !== undefined
                   const downloadStatus = downloadStatuses[message.id]
-                  console.log({ message })
+
                   if (message.type === MessageType.Info && message.nickname !== ownerNickname) {
                     message = transformUserInfoMessages(message.nickname, message)
                     if (message.message === '') return
