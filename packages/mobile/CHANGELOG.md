@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.1-alpha.12](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@2.0.1-alpha.11...@quiet/mobile@2.0.1-alpha.12) (2023-10-23)
+
+
+### Bug Fixes
+
+* use api key ([b1fc3f4](https://github.com/TryQuiet/quiet/commit/b1fc3f4d2dfd0d8716674c07712542e6dfa3016d))
+
+
+
+
+
 ## [2.0.1-alpha.11](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@2.0.1-alpha.10...@quiet/mobile@2.0.1-alpha.11) (2023-10-23)
 
 
