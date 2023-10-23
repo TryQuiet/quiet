@@ -24,7 +24,10 @@ jobs:
         with:
           lfs: true
 
-      - name: Install gpg
+      - name: Install Fastlane
+        run: gem install fastlane
+
+      - name: Install GPG
         run: brew install gnupg
 
       - name: Setup XCode
@@ -76,16 +79,11 @@ jobs:
           name: Quiet.ipa
           path: ./packages/mobile/ios/build/Quiet.ipa
 
-      - name: Submit to the store
+      - name: Submit to TestFlight
         run: |
-          cd ./packages/mobile/ios
-          xcrun altool \
-            --upload-app \
-            --type ios \
-            --file build/Quiet.ipa \
-            -u $APPSTORE_USER \
-            -p $APPSTORE_PASSWORD \
-            --verbose
+          cd ./packages/mobile
+          fastlane ios beta
         env:
-          APPSTORE_USER: ${{ secrets.APPSTORE_USER }}
-          APPSTORE_PASSWORD: ${{ secrets.APPSTORE_PASSWORD }}
+          APP_STORE_CONNECT_API_KEY_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY }}
+          APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
+          APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}

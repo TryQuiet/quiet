@@ -5,7 +5,7 @@
   "version": "independent",
   "command": {
     "version": {
-      "allowBranch": ["master", "develop"],
+      "allowBranch": ["master", "develop", "chore/ios-fastlane-upload"],
       "conventionalCommits": true,
       "createRelease": "github"
     },
