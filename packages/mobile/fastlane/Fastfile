@@ -1,8 +1,14 @@
 fastlane_version '2.216.0'
 
+api_key = {
+  key_id: ENV["APP_STORE_CONNECT_API_KEY_KEY_ID"],
+  issuer_id: ENV["APP_STORE_CONNECT_API_KEY_ISSUER_ID"],
+  key_content: ENV["APP_STORE_CONNECT_API_KEY"],
+}
+
 platform :ios do
     desc 'Ship to TestFlight'
     lane :beta do
-        pilot(api_key)
+        pilot(api_key: api_key)
     end
 end
