@@ -275,10 +275,10 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
   }
 
   const onChangeCb = useCallback(
-    //this.style.height = "";this.style.height = this.scrollHeight + "px"
     (e: React.ChangeEvent<HTMLTextAreaElement>) => {
       if (inputState === INPUT_STATE.AVAILABLE) {
         setMessage(e.target.value)
+        // Workaround for making textarea's height adapt to the content:
         e.target.style.height = ''
         e.target.style.height = e.target.scrollHeight + 'px'
       }
