@@ -5,8 +5,13 @@ import { defaultTheme } from '../../styles/themes/default.theme'
 import { truncateWords } from '../../utils/functions/truncateWords/truncateWords'
 import { Typography } from '../Typography/Typography.component'
 import { ChannelTileProps } from './ChannelTile.types'
+import { InfoMessagesType } from '@quiet/types'
 
-export const ChannelTile: FC<ChannelTileProps> = ({ name, id, message, date, unread, redirect }) => {
+export const ChannelTile: FC<ChannelTileProps> = ({ name, id, message, date, unread, redirect, nickname }) => {
+  if (message === InfoMessagesType.USER_JOINED) {
+    message = `@${nickname} has joined and will be registered soon. 🎉`
+  }
+
   const _leftSwipe = (_progress: any, dragX: any) => {
     const scale = dragX.interpolate({
       inputRange: [0, 100],

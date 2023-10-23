@@ -8,4 +8,5 @@ export interface MessageProps extends UserLabelHandlers {
   downloadStatus?: DownloadStatus
   openImagePreview: (media: FileMetadata) => void
   openUrl: (url: string) => void
+  ownerNickname: string | null | undefined
 }

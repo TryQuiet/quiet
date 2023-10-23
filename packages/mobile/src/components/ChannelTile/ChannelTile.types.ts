@@ -5,4 +5,5 @@ export interface ChannelTileProps {
   message?: string
   date?: string
   redirect: (id: string) => void
+  nickname: string
 }

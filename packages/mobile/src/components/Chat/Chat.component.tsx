@@ -37,6 +37,7 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
   openUrl,
   duplicatedUsernameHandleBack,
   unregisteredUsernameHandleBack,
+  ownerNickname,
   ready = true,
 }) => {
   const [didKeyboardShow, setKeyboardShow] = useState(false)
@@ -126,6 +127,7 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
       openUrl={openUrl}
       duplicatedUsernameHandleBack={duplicatedUsernameHandleBack}
       unregisteredUsernameHandleBack={unregisteredUsernameHandleBack}
+      ownerNickname={ownerNickname}
     />
   )
 
@@ -241,6 +243,7 @@ export const ChannelMessagesComponent: React.FC<ChannelMessagesComponentProps & 
   openUrl,
   duplicatedUsernameHandleBack,
   unregisteredUsernameHandleBack,
+  ownerNickname,
 }) => {
   return (
     <View key={day}>
@@ -260,6 +263,7 @@ export const ChannelMessagesComponent: React.FC<ChannelMessagesComponentProps & 
             pendingMessages={pendingMessages}
             duplicatedUsernameHandleBack={duplicatedUsernameHandleBack}
             unregisteredUsernameHandleBack={unregisteredUsernameHandleBack}
+            ownerNickname={ownerNickname}
           />
         )
       })}

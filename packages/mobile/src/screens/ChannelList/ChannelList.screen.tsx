@@ -19,6 +19,7 @@ export const ChannelListScreen: FC = () => {
 
   const usernameTaken = useSelector(identity.selectors.usernameTaken)
   const duplicateCerts = useSelector(users.selectors.duplicateCerts)
+  const allUsers = useSelector(users.selectors.allUsers)
 
   useEffect(() => {
     if (usernameTaken) {
@@ -63,6 +64,11 @@ export const ChannelListScreen: FC = () => {
 
     const message = newestMessage?.message || '...'
     const date = newestMessage?.createdAt ? formatMessageDisplayDate(newestMessage.createdAt) : undefined
+    const pubKey = newestMessage?.pubKey
+    let nickname = ''
+    if (pubKey) {
+      nickname = allUsers[newestMessage?.pubKey]?.username
+    }
 
     const tile: ChannelTileProps = {
       name: getChannelNameFromChannelId(status.id),
@@ -71,6 +77,7 @@ export const ChannelListScreen: FC = () => {
       date,
       unread: status.unread,
       redirect,
+      nickname,
     }
 
     return tile

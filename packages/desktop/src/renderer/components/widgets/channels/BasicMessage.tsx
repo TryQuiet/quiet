@@ -11,7 +11,7 @@ import red from '@mui/material/colors/red'
 
 import Jdenticon from '../../Jdenticon/Jdenticon'
 
-import { DisplayableMessage, DownloadStatus, InfoMessagesType, MessageSendingStatus, MessageType } from '@quiet/types'
+import { DisplayableMessage, DownloadStatus, MessageSendingStatus, MessageType } from '@quiet/types'
 
 import { NestedMessageContent } from './NestedMessageContent'
 
@@ -256,7 +256,7 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
                 {messages.map((message, index) => {
                   const pending = pendingMessages[message.id] !== undefined
                   const downloadStatus = downloadStatuses[message.id]
-
+                  console.log({ message })
                   if (message.type === MessageType.Info && message.nickname !== ownerNickname) {
                     message = transformUserInfoMessages(message.nickname, message)
                     if (message.message === '') return

@@ -50,6 +50,8 @@ export const ChannelScreen: FC = () => {
 
   const isWebsocketConnected = useSelector(initSelectors.isWebsocketConnected)
 
+  const ownerNickname = useSelector(communities.selectors.ownerNickname)
+
   let contextMenu: UseContextMenuType<Record<string, unknown>> | null = useContextMenu(MenuName.Channel)
   if (!community?.CA || !isWebsocketConnected) {
     contextMenu = null
@@ -184,6 +186,7 @@ export const ChannelScreen: FC = () => {
       ready={isWebsocketConnected}
       duplicatedUsernameHandleBack={duplicatedUsernameHandleBack}
       unregisteredUsernameHandleBack={unregisteredUsernameHandleBack}
+      ownerNickname={ownerNickname}
     />
   )
 }

@@ -32,6 +32,7 @@ export interface ChatProps extends UserLabelHandlers {
   uploadedFiles?: FilePreviewData
   openUrl: (url: string) => void
   ready?: boolean
+  ownerNickname: string | null | undefined
 }
 
 export interface ChannelMessagesComponentProps extends UserLabelHandlers {
@@ -41,4 +42,5 @@ export interface ChannelMessagesComponentProps extends UserLabelHandlers {
   downloadStatuses?: Dictionary<DownloadStatus>
   openImagePreview: (media: FileMetadata) => void
   openUrl: (url: string) => void
+  ownerNickname: string | null | undefined
 }

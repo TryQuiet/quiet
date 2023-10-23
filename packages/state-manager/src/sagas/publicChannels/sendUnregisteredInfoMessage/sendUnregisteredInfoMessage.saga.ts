@@ -11,7 +11,6 @@ export function* sendUnregisteredInfoMessage(): Generator {
   const generalChannel = yield* select(publicChannelsSelectors.generalChannel)
 
   if (!community?.name || !identity || !generalChannel) return
-
   const payload: WriteMessagePayload = {
     type: MessageType.Info,
     message: InfoMessagesType.USER_JOINED,

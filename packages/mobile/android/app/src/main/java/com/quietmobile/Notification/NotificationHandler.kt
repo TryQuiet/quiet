@@ -47,7 +47,15 @@ class NotificationHandler(private val context: Context) {
                 channelName = channelId.substring(0,channelId.indexOf('_'))
             }
             // Parse message content
-            val _content = _message.getString("message")
+            var _content = _message.getString("message")
+
+            // Transform message if it is info message about new user
+            val USER_JOINED = "user-joined"
+
+            if(_content == USER_JOINED){
+                _content =("has joined and will be registered soon")
+            }
+
             content = String.format("%s", _content)
         } catch (e: JSONException) {
             Log.e("NOTIFICATION", "incorrect NOTIFICATION payload", e)

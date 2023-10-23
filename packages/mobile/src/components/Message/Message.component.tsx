@@ -14,6 +14,7 @@ import Markdown, { MarkdownIt, ASTNode } from '@ronradtke/react-native-markdown-
 import { defaultTheme } from '../../styles/themes/default.theme'
 import UserLabel from '../UserLabel/UserLabel.component'
 import { UserLabelType } from '../UserLabel/UserLabel.types'
+import { transformUserInfoMessages } from '@quiet/common'
 
 export const Message: FC<MessageProps & FileActionsProps> = ({
   data, // Set of messages merged by sender
@@ -25,6 +26,7 @@ export const Message: FC<MessageProps & FileActionsProps> = ({
   pendingMessages,
   duplicatedUsernameHandleBack,
   unregisteredUsernameHandleBack,
+  ownerNickname,
 }) => {
   const renderMessage = (message: DisplayableMessage, pending: boolean) => {
     switch (message.type) {
@@ -172,6 +174,11 @@ export const Message: FC<MessageProps & FileActionsProps> = ({
           <View style={{ flexShrink: 1 }}>
             {data.map((message: DisplayableMessage, index: number) => {
               const outerDivStyle = index > 0 ? classes.nextMessage : classes.firstMessage
+
+              if (message.type === MessageType.Info && message.nickname !== ownerNickname) {
+                message = transformUserInfoMessages(message.nickname, message)
+                if (message.message === '') return
+              }
               return (
                 <View style={outerDivStyle} key={index}>
                   {renderMessage(message, pending)}
