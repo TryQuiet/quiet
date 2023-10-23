@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.1-alpha.13](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@2.0.1-alpha.12...@quiet/mobile@2.0.1-alpha.13) (2023-10-23)
+
+
+### Bug Fixes
+
+* correct pilot configuration ([5a32bb8](https://github.com/TryQuiet/quiet/commit/5a32bb8c41056cba20aa34e3b0488db17bd9c8c0))
+
+
+
+
+
 ## [2.0.1-alpha.12](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@2.0.1-alpha.11...@quiet/mobile@2.0.1-alpha.12) (2023-10-23)
 
 
