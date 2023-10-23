@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.1-alpha.11](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@2.0.1-alpha.10...@quiet/mobile@2.0.1-alpha.11) (2023-10-23)
+
+
+### Bug Fixes
+
+* try dotenv ([cf8c3dc](https://github.com/TryQuiet/quiet/commit/cf8c3dcf87d3c7fcca814b7ab3ea3d468e5a98a3))
+
+
+
+
+
 ## [2.0.1-alpha.10](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@2.0.1-alpha.9...@quiet/mobile@2.0.1-alpha.10) (2023-10-23)
 
 
