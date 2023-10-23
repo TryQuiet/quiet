@@ -252,7 +252,7 @@ export class Channel {
   }
 
   get messageInput() {
-    return this.driver.wait(until.elementLocated(By.xpath('//div[@data-testid="messageInput"]')))
+    return this.driver.wait(until.elementLocated(By.xpath('//textarea[@data-testid="messageInput"]')))
   }
 
   async sendMessage(message: string) {
