@@ -10,6 +10,8 @@
 
 * Channel input - replaced ContentEditable with textarea
 
+* Fix - up/down arrows now work properly inside channel input (textarea)
+
 [2.0.1-alpha.2]
 
 * UI layer for taken usernames for desktop and mobile
