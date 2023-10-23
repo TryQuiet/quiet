@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.1-alpha.10](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@2.0.1-alpha.9...@quiet/mobile@2.0.1-alpha.10) (2023-10-23)
+
+
+### Bug Fixes
+
+* pass username to pilot ([47fe74e](https://github.com/TryQuiet/quiet/commit/47fe74e7100cc562f33194e351f94097d29f3ef8))
+
+
+
+
+
 ## [2.0.1-alpha.9](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@2.0.1-alpha.8...@quiet/mobile@2.0.1-alpha.9) (2023-10-23)
 
 
