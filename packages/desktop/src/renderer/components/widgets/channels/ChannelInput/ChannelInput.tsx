@@ -413,31 +413,31 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
               justifyContent='center'
               alignItems='center'
             >
-                <textarea
-                  ref={textAreaRef}
-                  placeholder={`Message ${inputPlaceholder}`}
-                  className={classes.input}
-                  onClick={() => {
-                    if (!focused) {
-                      setFocused(true)
-                    }
-                  }}
-                  value={message}
-                  disabled={inputState !== INPUT_STATE.AVAILABLE}
-                  onChange={onChangeCb}
-                  onKeyDown={onKeyDownCb}
-                  onPaste={async e => {
-                    const files = e.clipboardData.files
-                    if (files.length) e.preventDefault()
-                    for (let i = 0; i < files.length; i++) {
-                      const fileExt = path.extname(files[i].name).toLowerCase()
-                      const fileName = path.basename(files[i].name, fileExt)
-                      const arrayBuffer = await files[i].arrayBuffer()
-                      handleClipboardFiles(arrayBuffer, fileExt, fileName)
-                    }
-                  }}
-                  data-testid='messageInput'
-                />
+              <textarea
+                ref={textAreaRef}
+                placeholder={`Message ${inputPlaceholder}`}
+                className={classes.input}
+                onClick={() => {
+                  if (!focused) {
+                    setFocused(true)
+                  }
+                }}
+                value={message}
+                disabled={inputState !== INPUT_STATE.AVAILABLE}
+                onChange={onChangeCb}
+                onKeyDown={onKeyDownCb}
+                onPaste={async e => {
+                  const files = e.clipboardData.files
+                  if (files.length) e.preventDefault()
+                  for (let i = 0; i < files.length; i++) {
+                    const fileExt = path.extname(files[i].name).toLowerCase()
+                    const fileName = path.basename(files[i].name, fileExt)
+                    const arrayBuffer = await files[i].arrayBuffer()
+                    handleClipboardFiles(arrayBuffer, fileExt, fileName)
+                  }
+                }}
+                data-testid='messageInput'
+              />
               {children}
               <div className={classes.icons}>
                 <Grid item className={classes.actions}>

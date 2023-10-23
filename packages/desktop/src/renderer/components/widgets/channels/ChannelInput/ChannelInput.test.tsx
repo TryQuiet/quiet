@@ -28,7 +28,7 @@ describe('ChannelInput', () => {
       <body>
         <div>
           <div
-            class="MuiGrid-root ChannelInputroot css-1afzw4h-MuiGrid-root"
+            class="MuiGrid-root ChannelInputroot css-1n4ubjj-MuiGrid-root"
           >
             <div
               class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column ChannelInputrootContent css-6gh8l0-MuiGrid-root"
@@ -39,15 +39,11 @@ describe('ChannelInput', () => {
                 <div
                   class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-grid-xs-true ChannelInputtextfield css-1r61agb-MuiGrid-root"
                 >
-                  <div
-                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true ChannelInputtextArea css-1vd824g-MuiGrid-root"
-                  >
-                    <textarea
-                      class="ChannelInputinput"
-                      data-testid="messageInput"
-                      placeholder="Message #channel as @user"
-                    />
-                  </div>
+                  <textarea
+                    class="ChannelInputinput"
+                    data-testid="messageInput"
+                    placeholder="Message #channel as @user"
+                  />
                   <div
                     class="ChannelInputicons"
                   >
@@ -118,7 +114,7 @@ describe('ChannelInput', () => {
       <body>
         <div>
           <div
-            class="MuiGrid-root ChannelInputroot ChannelInputnotAllowed css-1afzw4h-MuiGrid-root"
+            class="MuiGrid-root ChannelInputroot ChannelInputnotAllowed css-1n4ubjj-MuiGrid-root"
           >
             <div
               class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column ChannelInputrootContent css-6gh8l0-MuiGrid-root"
@@ -129,16 +125,12 @@ describe('ChannelInput', () => {
                 <div
                   class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-grid-xs-true ChannelInputtextfield css-1r61agb-MuiGrid-root"
                 >
-                  <div
-                    class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true ChannelInputtextArea css-1vd824g-MuiGrid-root"
-                  >
-                    <textarea
-                      class="ChannelInputinput"
-                      data-testid="messageInput"
-                      disabled=""
-                      placeholder="Message #channel as @user"
-                    />
-                  </div>
+                  <textarea
+                    class="ChannelInputinput"
+                    data-testid="messageInput"
+                    disabled=""
+                    placeholder="Message #channel as @user"
+                  />
                   <div
                     class="ChannelInputicons"
                   >
