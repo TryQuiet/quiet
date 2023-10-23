@@ -19,7 +19,7 @@ describe('transformUserInfoMessages', () => {
       pubKey: 'pubKey',
     }
 
-    const transformedMessage = transformUserInfoMessages(ownerNickname, communityName, userNickname, message)
+    const transformedMessage = transformUserInfoMessages(userNickname, message)
     const expectedTransformedMessage = {
       id: 'id',
       type: 3,
@@ -46,7 +46,7 @@ describe('transformUserInfoMessages', () => {
       signature: 'sig',
     }
 
-    const transformedMessage = transformUserInfoMessages(ownerNickname, communityName, userNickname, message, true)
+    const transformedMessage = transformUserInfoMessages(userNickname, message, true)
 
     const expectedTransformedMessage = {
       id: 'id',
@@ -73,7 +73,7 @@ describe('transformUserInfoMessages', () => {
       pubKey: 'pubKey',
     }
 
-    const transformedMessage = transformUserInfoMessages(ownerNickname, communityName, userNickname, message)
+    const transformedMessage = transformUserInfoMessages(userNickname, message)
 
     const expectedTransformedMessage = {
       id: 'id',
@@ -102,7 +102,7 @@ describe('transformUserInfoMessages', () => {
       pubKey: 'pubKey',
     }
 
-    const transformedMessage = transformUserInfoMessages(ownerNickname, communityName, userNickname, message)
+    const transformedMessage = transformUserInfoMessages(userNickname, message)
     const expectedTransformedMessage = {
       id: 'id',
       type: 3,

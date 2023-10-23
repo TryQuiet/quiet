@@ -66,8 +66,6 @@ export function* displayMessageNotificationSaga(
     if (message.type === MessageType.Info && sender !== ownerNickname) {
       message = yield* call<typeof transformUserInfoMessages<ChannelMessage>>(
         transformUserInfoMessages,
-        ownerNickname || 'owner',
-        currentCommunity?.name || '',
         sender,
         message,
         true

@@ -3,8 +3,6 @@ import { ChannelMessage, DisplayableMessage, InfoMessagesType, MessageType } fro
 type MessageVariants = DisplayableMessage | ChannelMessage
 
 export function transformUserInfoMessages<T extends MessageVariants>(
-  ownerNickname: string,
-  communityName: string,
   userNickname: string,
   message: T,
   isForNotification = false
