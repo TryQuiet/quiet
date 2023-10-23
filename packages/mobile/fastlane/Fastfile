@@ -3,6 +3,6 @@ fastlane_version '2.216.0'
 platform :ios do
     desc 'Ship to TestFlight'
     lane :beta do
-        pilot(username: "wiktor.sieprawski@rumblefish.pl")
+        pilot
     end
 end
