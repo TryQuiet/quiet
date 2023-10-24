@@ -198,7 +198,8 @@ export const libp2pInstanceParams = async (): Promise<Libp2pNodeParams> => {
   const address = '0.0.0.0'
   const peerIdRemote = await createPeerId()
   const remoteAddress = createLibp2pAddress(address, peerIdRemote.toString())
-
+  const key = new Uint8Array(95)
+  generateLibp2pPSK(key)
   return {
     peerId,
     listenAddresses: [createLibp2pListenAddress('localhost')],
@@ -206,7 +207,7 @@ export const libp2pInstanceParams = async (): Promise<Libp2pNodeParams> => {
     localAddress: createLibp2pAddress('localhost', peerId.toString()),
     targetPort: port,
     peers: [remoteAddress],
-    psk: new Uint8Array(95),
+    psk: key,
   }
 }
 
