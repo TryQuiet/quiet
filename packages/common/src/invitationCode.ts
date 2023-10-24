@@ -1,6 +1,6 @@
 import { InvitationData, InvitationPair } from '@quiet/types'
-import { ONION_ADDRESS_REGEX, PEER_ID_REGEX, QUIET_JOIN_PAGE, Site } from './static'
-import { createLibp2pAddress } from './libp2p'
+import { ONION_ADDRESS_REGEX, PEER_ID_REGEX, PSK_LENGTH, QUIET_JOIN_PAGE, Site } from './static'
+import { createLibp2pAddress, isPSKcodeValid } from './libp2p'
 import validator from 'validator'
 
 const parseDeepUrl = ({ url, expectedProtocol = `quiet:` }: { url: string; expectedProtocol?: string }) => {
@@ -29,7 +29,7 @@ const parseDeepUrl = ({ url, expectedProtocol = `quiet:` }: { url: string; expec
   if (!psk) throw new Error(`No psk found in invitation code '${url}'`)
 
   psk = decodeURIComponent(psk)
-  if (!validator.isBase64(psk)) throw new Error(`Invalid psk in invitation code '${url}'`)
+  if (!isPSKcodeValid(psk)) throw new Error(`Invalid psk in invitation code '${url}'`)
 
   params.delete(Site.PSK_PARAM_KEY)
 

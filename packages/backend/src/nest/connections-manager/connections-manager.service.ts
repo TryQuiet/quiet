@@ -62,6 +62,7 @@ import Logger from '../common/logger'
 import { emitError } from '../socket/socket.errors'
 import { toString as uint8ArrayToString } from 'uint8arrays/to-string'
 import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
+import { isPSKcodeValid } from '@quiet/common'
 
 @Injectable()
 export class ConnectionsManagerService extends EventEmitter implements OnModuleInit {
@@ -280,7 +281,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     const psk = community.psk
     if (psk) {
       console.log('createNetwork got psk', psk)
-      if (!validator.isBase64(psk)) {
+      if (!isPSKcodeValid(psk)) {
         emitError(this.serverIoProvider.io, {
           type: SocketActionTypes.NETWORK,
           message: ErrorMessages.NETWORK_SETUP_FAILED,

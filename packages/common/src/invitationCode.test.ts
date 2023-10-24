@@ -70,7 +70,7 @@ describe('Invitation code helper', () => {
     expect(composeInvitationShareUrl(pairs)).toEqual(expected)
   })
 
-  it('builds proper invitation share url', () => {
+  it('builds proper invitation share url from peers addresses', () => {
     const peerList = [
       '/dns4/gloao6h5plwjy4tdlze24zzgcxll6upq2ex2fmu2ohhyu4gtys4nrjad.onion/tcp/443/wss/p2p/QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE',
       'invalidAddress',
@@ -93,6 +93,17 @@ describe('Invitation code helper', () => {
       psk: pskDecoded,
     })
   })
+
+  it.each([['12345'], ['a2FzemE='], 'a2FycGllIHcgZ2FsYXJlY2llIGVjaWUgcGVjaWUgYWxlIGkgdGFrIHpqZWNpZQ=='])(
+    'parsing invitation code throws error if psk is invalid: (%s)',
+    (psk: string) => {
+      expect(() => {
+        parseInvitationCodeDeepUrl(
+          `quiet://?${peerId1}=${address1}&${peerId2}=${address2}&${Site.PSK_PARAM_KEY}=${psk}`
+        )
+      }).toThrow()
+    }
+  )
 
   it('retrieves invitation codes from deep url with partly invalid codes', () => {
     const peerId2 = 'QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLs'
