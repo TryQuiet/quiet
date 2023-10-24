@@ -20,7 +20,7 @@ Prefix commit messages with one of the following to signify the kind of change:
 - `chore`: tooling changes, e.g. change circle ci config.
 - `BREAKING`: for changes that break existing usage, e.g. change API.
 
-Here is the instruction for setting up a local git hook for verifying message convention:
+(optional) Here is the instruction for setting up a local git hook for verifying message convention:
 
 1. Navigate to git repository in your terminal.
 2. Go to the .git/hooks directory:
