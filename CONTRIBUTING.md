@@ -1,6 +1,6 @@
 # Contributing
 
-### Development workflow
+## Development workflow
 
 > **Working on your first pull request?** You can learn how from this _free_ series: [How to Contribute to an Open Source Project on GitHub](https://egghead.io/courses/how-to-contribute-to-an-open-source-project-on-github).
 
@@ -8,7 +8,7 @@
 2. Being in the root directory, run `npm i` and then `lerna bootstrap`, to setup the development environment.
 3. Check out [desktop](https://github.com/TryQuiet/quiet/blob/develop/packages/desktop/README.md) and [mobile](https://github.com/TryQuiet/quiet/blob/develop/packages/mobile/README.md) README.md for more instructions.
 
-### Commit message convention
+## Commit message convention
 
 Prefix commit messages with one of the following to signify the kind of change:
 
@@ -20,7 +20,10 @@ Prefix commit messages with one of the following to signify the kind of change:
 - `chore`: tooling changes, e.g. change circle ci config.
 - `BREAKING`: for changes that break existing usage, e.g. change API.
 
-(optional) Here is the instruction for setting up a local git hook for verifying message convention:
+Commit message should be followed by the issue number, eg.
+`fix: typo #2002`
+
+### (optional) Here is the instruction for setting up a local git hook for verifying message convention:
 
 1. Navigate to git repository in your terminal.
 2. Go to the .git/hooks directory:
