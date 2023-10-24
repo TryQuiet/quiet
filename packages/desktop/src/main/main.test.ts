@@ -245,7 +245,7 @@ describe('Invitation code', () => {
         onionAddress: 'y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd',
       },
     ],
-    psk: '12345',
+    psk: 'BNlxfE2WBF7LrlpIX0CvECN5o1oZtA16PkAb7GYiwYw=',
   }
 
   it('handles invitation code on open-url event (on macos)', async () => {
@@ -255,7 +255,7 @@ describe('Invitation code', () => {
     expect(mockAppOnCalls[1][0]).toBe('open-url')
     const event = { preventDefault: () => {} }
     mockAppOnCalls[1][1](event, composeInvitationDeepUrl(codes))
-    expect(mockWindowWebContentsSend).toHaveBeenCalledWith('invitation', { codes })
+    expect(mockWindowWebContentsSend).toHaveBeenCalledWith('invitation', { data: codes })
   })
 
   it('process invitation code on second-instance event', async () => {
@@ -264,6 +264,6 @@ describe('Invitation code', () => {
     expect(mockAppOnCalls[0][0]).toBe('second-instance')
     const event = { preventDefault: () => {} }
     mockAppOnCalls[0][1](event, commandLine)
-    expect(mockWindowWebContentsSend).toHaveBeenCalledWith('invitation', { codes })
+    expect(mockWindowWebContentsSend).toHaveBeenCalledWith('invitation', { data: codes })
   })
 })

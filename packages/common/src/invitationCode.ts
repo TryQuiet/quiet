@@ -1,7 +1,6 @@
 import { InvitationData, InvitationPair } from '@quiet/types'
-import { ONION_ADDRESS_REGEX, PEER_ID_REGEX, PSK_LENGTH, QUIET_JOIN_PAGE, Site } from './static'
+import { ONION_ADDRESS_REGEX, PEER_ID_REGEX, QUIET_JOIN_PAGE, Site } from './static'
 import { createLibp2pAddress, isPSKcodeValid } from './libp2p'
-import validator from 'validator'
 
 const parseDeepUrl = ({ url, expectedProtocol = `quiet:` }: { url: string; expectedProtocol?: string }) => {
   let _url = url
@@ -66,6 +65,7 @@ export const invitationShareUrl = (peers: string[] = [], psk: string): string =>
   // TODO: rename
   /**
    * @arg {string[]} peers - List of peer's p2p addresses
+   * @arg psk - Pre shared key in base64
    * @returns {string} - Complete shareable invitation link, e.g. https://tryquiet.org/join/#<peerid1>=<address1>&<peerid2>=<addresss2>&k=<psk>
    */
   const pairs: InvitationPair[] = []

@@ -9,7 +9,7 @@ import {
   Sidebar,
   WarningModal,
 } from '../selectors'
-import { capitalizeFirstLetter, getInvitationPairs, invitationDeepUrl } from '@quiet/common'
+import { capitalizeFirstLetter, composeInvitationDeepUrl, parseInvitationCode } from '@quiet/common'
 import { execSync } from 'child_process'
 import { type SupportedPlatformDesktop } from '@quiet/types'
 
@@ -115,9 +115,14 @@ describe('New user joins using invitation link while having app opened', () => {
     })
 
     it.skip('Guest clicks invitation link with invalid invitation code', async () => {
-      // Fix when modals ordering is fixed (joining modal hiddes warning modal)
+      // Fix when modals ordering is fixed (joining modal hides warning modal)
       console.log('opening invalid code')
-      execSync(`xdg-open ${invitationDeepUrl([{ peerId: 'invalid', onionAddress: 'alsoInvalid' }])}`)
+      execSync(
+        `xdg-open ${composeInvitationDeepUrl({
+          pairs: [{ peerId: 'invalid', onionAddress: 'alsoInvalid' }],
+          psk: '1234',
+        })}`
+      )
     })
 
     it.skip('Guest sees modal with warning about invalid code, closes it', async () => {
@@ -140,9 +145,10 @@ describe('New user joins using invitation link while having app opened', () => {
         win32: 'start',
       }
 
-      const data = getInvitationPairs(url.hash.substring(1))
-      expect(data.pairs).not.toBe([])
-      execSync(`${command[process.platform as SupportedPlatformDesktop]} ${invitationDeepUrl(data)}`)
+      const copiedCode = url.hash.substring(1)
+      expect(() => parseInvitationCode(copiedCode)).not.toThrow()
+      const data = parseInvitationCode(copiedCode)
+      execSync(`${command[process.platform as SupportedPlatformDesktop]} ${composeInvitationDeepUrl(data)}`)
       console.log('Guest opened invitation link')
     })
 

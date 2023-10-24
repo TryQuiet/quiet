@@ -33,7 +33,7 @@ describe('Handle invitation code', () => {
           peerId: 'QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE',
         },
       ],
-      psk: '',
+      psk: 'BNlxfE2WBF7LrlpIX0CvECN5o1oZtA16PkAb7GYiwYw=',
     }
   })
 
