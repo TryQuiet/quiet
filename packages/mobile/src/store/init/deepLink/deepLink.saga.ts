@@ -1,15 +1,13 @@
 import { PayloadAction } from '@reduxjs/toolkit'
 import { select, delay, put } from 'typed-redux-saga'
-import { communities, connection, getInvitationCodes, identity } from '@quiet/state-manager'
+import { communities, getInvitationCodes } from '@quiet/state-manager'
 import { ScreenNames } from '../../../const/ScreenNames.enum'
 import { navigationActions } from '../../navigation/navigation.slice'
 import { initSelectors } from '../init.selectors'
 import { initActions } from '../init.slice'
 import { appImages } from '../../../assets'
 import { replaceScreen } from '../../../RootNavigation'
-import { UsernameRegistrationRouteProps } from '../../../route.params'
-import { CommunityOwnership, ConnectionProcessInfo, CreateNetworkPayload } from '@quiet/types'
-import { retrieveInvitationCode } from '@quiet/common'
+import { CommunityOwnership, CreateNetworkPayload } from '@quiet/types'
 
 export function* deepLinkSaga(action: PayloadAction<ReturnType<typeof initActions.deepLink>['payload']>): Generator {
   const code = action.payload
