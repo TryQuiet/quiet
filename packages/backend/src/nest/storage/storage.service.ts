@@ -402,25 +402,10 @@ export class StorageService extends EventEmitter {
       this.logger('REPLICATED: CSRs')
       const allCsrs = this.getAllEventLogEntries(this.certificatesRequests)
 
-      const filteredCsrsMap: Map<string, string> = new Map()
-
-      await Promise.all(
-        allCsrs.map(async csr => {
-          const parsedCsr = await loadCSR(csr)
-          const pubKey = keyFromCertificate(parsedCsr)
-
-          if (filteredCsrsMap.has(pubKey)) {
-            filteredCsrsMap.delete(pubKey)
-          }
-
-          filteredCsrsMap.set(pubKey, csr)
-        })
-      )
-
-      const filteredCsrsArr = [...filteredCsrsMap.values()]
+      const filteredCsrs = await this.filterCsrs(allCsrs)
 
       const allCertificates = this.getAllEventLogEntries(this.certificates)
-      this.emit(StorageEvents.REPLICATED_CSR, { csrs: filteredCsrsArr, certificates: allCertificates })
+      this.emit(StorageEvents.REPLICATED_CSR, { csrs: filteredCsrs, certificates: allCertificates })
       await this.updatePeersList()
     })
     this.certificatesRequests.events.on('write', async (_address, entry) => {
@@ -436,6 +421,25 @@ export class StorageService extends EventEmitter {
     const allcsrs = this.getAllEventLogEntries(this.certificatesRequests)
     this.logger('ALL Certificates COUNT:', allcsrs.length)
     this.logger('STORAGE: Finished creating certificatesRequests db')
+  }
+
+  public async filterCsrs(allCsrs: string[]): Promise<string[]> {
+    const filteredCsrsMap: Map<string, string> = new Map()
+
+    await Promise.all(
+      allCsrs.map(async csr => {
+        const parsedCsr = await loadCSR(csr)
+        const pubKey = keyFromCertificate(parsedCsr)
+
+        if (filteredCsrsMap.has(pubKey)) {
+          filteredCsrsMap.delete(pubKey)
+        }
+
+        filteredCsrsMap.set(pubKey, csr)
+      })
+    )
+
+    return [...filteredCsrsMap.values()]
   }
 
   public async loadAllChannels() {

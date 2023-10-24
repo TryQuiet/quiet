@@ -1,5 +1,7 @@
 [unreleased]
 
+* Filter CSRs - remove old csrs and replace with new for each pubkey
+
 * Fixed mobile bugs - joining by QR code and not showing username taken screen for user who has unique name
 
 * Use context menu for information about unregistered username instead screen
