@@ -8,15 +8,25 @@ import { initActions } from '../init.slice'
 import { navigationActions } from '../../navigation/navigation.slice'
 import { ScreenNames } from '../../../const/ScreenNames.enum'
 import { deepLinkSaga } from './deepLink.saga'
-import { type Community, CommunityOwnership, ConnectionProcessInfo, type Identity } from '@quiet/types'
-import { Site } from '@quiet/common'
+import { type Community, CommunityOwnership, ConnectionProcessInfo, type Identity, InvitationData } from '@quiet/types'
+import { Site, composeInvitationShareUrl } from '@quiet/common'
+import { appImages } from '../../../assets'
+import { replaceScreen } from '../../../RootNavigation'
 
 describe('deepLinkSaga', () => {
   let store: Store
 
   const id = '00d045ab'
-  const validCode = `QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE=y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd&${Site.PSK_PARAM_KEY}=12345`
-  const validPairs = getInvitationCodes(validCode)
+  const validData: InvitationData = {
+    pairs: [
+      {
+        onionAddress: 'y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd',
+        peerId: 'QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE',
+      },
+    ],
+    psk: 'BNlxfE2WBF7LrlpIX0CvECN5o1oZtA16PkAb7GYiwYw=',
+  }
+  const validCode = composeInvitationShareUrl(validData)
   const community: Community = {
     id,
     name: '',
@@ -70,8 +80,8 @@ describe('deepLinkSaga', () => {
       .put(
         communities.actions.createNetwork({
           ownership: CommunityOwnership.User,
-          peers: validPairs.pairs,
-          psk: validPairs.psk,
+          peers: validData.pairs,
+          psk: validData.psk,
         })
       )
       .run()
@@ -105,8 +115,8 @@ describe('deepLinkSaga', () => {
       .not.put(
         communities.actions.createNetwork({
           ownership: CommunityOwnership.User,
-          peers: validPairs.pairs,
-          psk: validPairs.psk,
+          peers: validData.pairs,
+          psk: validData.psk,
         })
       )
       .run()
@@ -129,8 +139,38 @@ describe('deepLinkSaga', () => {
       .not.put(
         communities.actions.createNetwork({
           ownership: CommunityOwnership.User,
-          peers: validPairs.pairs,
-          psk: validPairs.psk,
+          peers: validData.pairs,
+          psk: validData.psk,
+        })
+      )
+      .run()
+  })
+
+  test('displays error if invitation code is invalid', async () => {
+    const invalidData: InvitationData = {
+      pairs: [
+        {
+          onionAddress: 'y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd',
+          peerId: 'QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE',
+        },
+      ],
+      psk: 'BNlxfE=',
+    }
+    const invalidCode = composeInvitationShareUrl(invalidData)
+    store.dispatch(
+      initActions.setWebsocketConnected({
+        dataPort: 5001,
+      })
+    )
+    const reducer = combineReducers(reducers)
+    await expectSaga(deepLinkSaga, initActions.deepLink(invalidCode))
+      .withReducer(reducer)
+      .withState(store.getState())
+      .not.put(
+        communities.actions.createNetwork({
+          ownership: CommunityOwnership.User,
+          peers: validData.pairs,
+          psk: validData.psk,
         })
       )
       .run()
@@ -169,8 +209,8 @@ describe('deepLinkSaga', () => {
       .not.put(
         communities.actions.createNetwork({
           ownership: CommunityOwnership.User,
-          peers: validPairs.pairs,
-          psk: validPairs.psk,
+          peers: validData.pairs,
+          psk: validData.psk,
         })
       )
       .run()

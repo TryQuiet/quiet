@@ -2,7 +2,7 @@
 import React, { FC, useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { identity, communities } from '@quiet/state-manager'
-import { CommunityOwnership, CreateNetworkPayload, InvitationPair } from '@quiet/types'
+import { CommunityOwnership, CreateNetworkPayload, InvitationData, InvitationPair } from '@quiet/types'
 import { JoinCommunity } from '../../components/JoinCommunity/JoinCommunity.component'
 import { navigationActions } from '../../store/navigation/navigation.slice'
 import { ScreenNames } from '../../const/ScreenNames.enum'
@@ -35,7 +35,7 @@ export const JoinCommunityScreen: FC<JoinCommunityScreenProps> = ({ route }) => 
   }, [dispatch, community, route.params?.code])
 
   const joinCommunityAction = useCallback(
-    (data: { pairs: InvitationPair[]; psk: string }) => {
+    (data: InvitationData) => {
       const payload: CreateNetworkPayload = {
         ownership: CommunityOwnership.User,
         peers: data.pairs,

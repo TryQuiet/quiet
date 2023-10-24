@@ -7,7 +7,7 @@ import { initSelectors } from '../init.selectors'
 import { initActions } from '../init.slice'
 import { appImages } from '../../../assets'
 import { replaceScreen } from '../../../RootNavigation'
-import { CommunityOwnership, CreateNetworkPayload } from '@quiet/types'
+import { CommunityOwnership, CreateNetworkPayload, InvitationData } from '@quiet/types'
 
 export function* deepLinkSaga(action: PayloadAction<ReturnType<typeof initActions.deepLink>['payload']>): Generator {
   const code = action.payload
@@ -50,7 +50,24 @@ export function* deepLinkSaga(action: PayloadAction<ReturnType<typeof initAction
     })
   )
 
-  const data = getInvitationCodes(code) // TODO: handle thrown error
+  let data: InvitationData
+  try {
+    data = getInvitationCodes(code)
+  } catch (e) {
+    console.error(e.message)
+    yield* put(
+      navigationActions.replaceScreen({
+        screen: ScreenNames.ErrorScreen,
+        params: {
+          onPress: () => replaceScreen(ScreenNames.JoinCommunityScreen),
+          icon: appImages.quiet_icon_round,
+          title: 'Invalid invitation link',
+          message: 'Please check your invitation link and try again',
+        },
+      })
+    )
+    return
+  }
 
   const payload: CreateNetworkPayload = {
     ownership: CommunityOwnership.User,
