@@ -65,7 +65,7 @@
 		"@types/orbit-db": "git+https://github.com/orbitdb/orbit-db-types.git",
 		"@types/supertest": "^2.0.11",
 		"@types/tmp": "^0.2.3",
-		"@types/validator": "^13.1.4",
+		"@types/validator": "^13.11.5",
 		"@types/ws": "8.5.3",
 		"babel-jest": "^29.3.1",
 		"cross-env": "^5.2.0",
@@ -134,7 +134,7 @@
 		"socks-proxy-agent": "^5.0.0",
 		"string-replace-loader": "3.1.0",
 		"ts-jest-resolver": "^2.0.0",
-		"validator": "^13.6.0"
+		"validator": "^13.11.0"
 	},
 	"overrides": {
 		"level": "$level",

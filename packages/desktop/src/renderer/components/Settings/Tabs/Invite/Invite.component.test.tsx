@@ -2,11 +2,11 @@ import '@testing-library/jest-dom'
 import React from 'react'
 import { renderComponent } from '../../../../testUtils/renderComponent'
 import { InviteComponent } from './Invite.component'
-import { composeToInvitationShareUrl } from '@quiet/common'
+import { composeInvitationShareUrl } from '@quiet/common'
 
 describe('CopyLink', () => {
   it('renderComponent - hidden long link', () => {
-    const invitationLink = composeToInvitationShareUrl({
+    const invitationLink = composeInvitationShareUrl({
       pairs: [
         {
           peerId: 'QmVTkUad2Gq3MkCa8gf12R1gsWDfk2yiTEqb6YGXDG2iQ3',
@@ -127,7 +127,7 @@ describe('CopyLink', () => {
   })
 
   it('renderComponent - revealed short link', () => {
-    const invitationLink = composeToInvitationShareUrl({
+    const invitationLink = composeInvitationShareUrl({
       pairs: [
         {
           peerId: 'QmVTkUad2Gq3MkCa8gf12R1gsWDfk2yiTEqb6YGXDG2iQ3',

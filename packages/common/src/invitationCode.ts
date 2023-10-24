@@ -1,12 +1,14 @@
 import { InvitationData, InvitationPair } from '@quiet/types'
 import { ONION_ADDRESS_REGEX, PEER_ID_REGEX, QUIET_JOIN_PAGE, Site } from './static'
 import { createLibp2pAddress } from './libp2p'
+import validator from 'validator'
 
 const parseDeepUrl = ({ url, expectedProtocol = `quiet:` }: { url: string; expectedProtocol?: string }) => {
   let _url = url
   let validUrl: URL | null = null
 
   if (!expectedProtocol) {
+    // Create a full url to be able to use the same URL parsing mechanism
     expectedProtocol = `${Site.DEEP_URL_SCHEME}:`
     _url = `${Site.DEEP_URL_SCHEME}://?${url}`
   }
@@ -14,20 +16,20 @@ const parseDeepUrl = ({ url, expectedProtocol = `quiet:` }: { url: string; expec
   try {
     validUrl = new URL(_url)
   } catch (e) {
-    console.error(`Could not retrieve invitation code from deep url ${url}. Reason: ${e.message}`)
+    console.error(`Could not retrieve invitation code from deep url '${url}'. Reason: ${e.message}`)
     throw e
   }
   if (!validUrl || validUrl.protocol !== expectedProtocol) {
-    console.error(`Could not retrieve invitation code from deep url ${url}`)
+    console.error(`Could not retrieve invitation code from deep url '${url}'`)
     throw new Error()
   }
   const params = validUrl.searchParams
   const codes: InvitationPair[] = []
   let psk = params.get(Site.PSK_PARAM_KEY)
-  if (!psk) throw new Error(`No psk found in invitation code ${url}`)
+  if (!psk) throw new Error(`No psk found in invitation code '${url}'`)
 
   psk = decodeURIComponent(psk)
-  // Validate base64
+  if (!validator.isBase64(psk)) throw new Error(`Invalid psk in invitation code '${url}'`)
 
   params.delete(Site.PSK_PARAM_KEY)
 
@@ -61,12 +63,11 @@ export const parseInvitationCode = (code: string): InvitationData => {
 }
 
 export const invitationShareUrl = (peers: string[] = [], psk: string): string => {
-  // TODO: rename to 'composeInvitationShareUrl'
+  // TODO: rename
   /**
    * @arg {string[]} peers - List of peer's p2p addresses
    * @returns {string} - Complete shareable invitation link, e.g. https://tryquiet.org/join/#<peerid1>=<address1>&<peerid2>=<addresss2>&k=<psk>
    */
-  console.log('Invitation share url, peers:', peers)
   const pairs: InvitationPair[] = []
   for (const peerAddress of peers) {
     let peerId: string
@@ -144,7 +145,7 @@ export const argvInvitationCode = (argv: string[]): InvitationData | null => {
   return invitationData
 }
 
-export const peerDataValid = ({ peerId, onionAddress }: { peerId: string; onionAddress: string }): boolean => {
+const peerDataValid = ({ peerId, onionAddress }: { peerId: string; onionAddress: string }): boolean => {
   // TODO: rename to peerDataValid?
   if (!peerId.match(PEER_ID_REGEX)) {
     // TODO: test it more properly e.g with PeerId.createFromB58String(peerId.trim())

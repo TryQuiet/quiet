@@ -10,9 +10,9 @@ import { InviteComponent } from './Tabs/Invite/Invite.component'
 import { LeaveCommunityComponent } from './Tabs/LeaveCommunity/LeaveCommunityComponent'
 import { Typography } from '@mui/material'
 import { QRCodeComponent } from './Tabs/QRCode/QRCode.component'
-import { composeToInvitationShareUrl } from '@quiet/common'
+import { composeInvitationShareUrl } from '@quiet/common'
 
-const invitationLink = composeToInvitationShareUrl({
+const invitationLink = composeInvitationShareUrl({
   pairs: [
     {
       peerId: 'QmVTkUad2Gq3MkCa8gf12R1gsWDfk2yiTEqb6YGXDG2iQ3',

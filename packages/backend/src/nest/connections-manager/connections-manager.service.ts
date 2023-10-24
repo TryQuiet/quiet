@@ -8,7 +8,8 @@ import { setEngine, CryptoEngine } from 'pkijs'
 import { EventEmitter } from 'events'
 import getPort from 'get-port'
 import PeerId from 'peer-id'
-import { generateKey, removeFilesFromDir } from '../common/utils'
+import { generateLibp2pPSK, removeFilesFromDir } from '../common/utils'
+import validator from 'validator'
 import {
   AskForMessagesPayload,
   ChannelMessagesIdsResponse,
@@ -276,10 +277,18 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       },
       network,
     }
-    const psk = community.psk // Passed in base64
+    const psk = community.psk
     if (psk) {
       console.log('createNetwork got psk', psk)
-      await this.localDbService.put(LocalDBKeys.PSK, psk) // Validate psk before saving?
+      if (!validator.isBase64(psk)) {
+        emitError(this.serverIoProvider.io, {
+          type: SocketActionTypes.NETWORK,
+          message: ErrorMessages.NETWORK_SETUP_FAILED,
+          community: community.id,
+        })
+        return
+      }
+      await this.localDbService.put(LocalDBKeys.PSK, psk)
     }
 
     this.serverIoProvider.io.emit(SocketActionTypes.NETWORK, payload)
@@ -287,11 +296,9 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
   private async generatePSK() {
     const libp2pPSK = new Uint8Array(95)
-    const psk = generateKey(libp2pPSK)
-    console.log('Generated new buffer psk', psk)
-    const pskBase64 = uint8ArrayToString(psk, 'base64')
+    const psk = generateLibp2pPSK(libp2pPSK)
+    const pskBase64 = psk.toString('base64')
     await this.localDbService.put(LocalDBKeys.PSK, pskBase64)
-
     console.log('psk base64 SAVED', pskBase64)
     this.serverIoProvider.io.emit(SocketActionTypes.PSK, { psk: pskBase64 })
   }
@@ -367,12 +374,14 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     if (!peers || peers.length === 0) {
       peers = [this.libp2pService.createLibp2pAddress(onionAddress, _peerId.toString())]
     }
-    const pskValue = await this.localDbService.get(LocalDBKeys.PSK) // What if there is no psk in db?
+    const pskValue = await this.localDbService.get(LocalDBKeys.PSK)
+    if (!pskValue) {
+      throw new Error('No psk in local db')
+    }
     console.log('psk base64 RETRIEVED', pskValue)
     const psk = uint8ArrayFromString(pskValue, 'base64')
-    console.log('psk buffer retrieved', psk)
     const libp2pPSK = new Uint8Array(95)
-    generateKey(libp2pPSK, psk)
+    generateLibp2pPSK(libp2pPSK, psk)
 
     const params: Libp2pNodeParams = {
       peerId: _peerId,

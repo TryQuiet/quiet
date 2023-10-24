@@ -13,7 +13,6 @@ import logger from './logger'
 import { createCertificatesTestHelper } from './client-server'
 import { Libp2pNodeParams } from '../libp2p/libp2p.types'
 import { createLibp2pAddress, createLibp2pListenAddress } from '@quiet/common'
-import { randomBytes } from '@libp2p/crypto'
 import { toString as uint8ArrayToString } from 'uint8arrays/to-string'
 import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
 
@@ -241,8 +240,11 @@ export async function createPeerId(): Promise<PeerId> {
 
 const KEY_LENGTH = 32
 
-export function generateKey(bytes: Uint8Array | NodeJS.WriteStream, key?: Uint8Array) {
-  const psk = key || randomBytes(KEY_LENGTH)
+export function generateLibp2pPSK(bytes: Uint8Array | NodeJS.WriteStream, key?: Uint8Array) {
+  /**
+   * Based on 'libp2p/pnet' generateKey
+   */
+  const psk = key || crypto.randomBytes(KEY_LENGTH)
   const base16StringKey = uint8ArrayToString(psk, 'base16')
   const fullKey = uint8ArrayFromString('/key/swarm/psk/1.0.0/\n/base16/\n' + base16StringKey)
 

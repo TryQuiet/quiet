@@ -13,6 +13,8 @@ describe('Invitation code helper', () => {
   const address1 = 'gloao6h5plwjy4tdlze24zzgcxll6upq2ex2fmu2ohhyu4gtys4nrjad'
   const peerId2 = 'QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE'
   const address2 = 'y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd'
+  const psk = 'BNlxfE2WBF7LrlpIX0CvECN5o1oZtA16PkAb7GYiwYw%3D'
+  const pskDecoded = 'BNlxfE2WBF7LrlpIX0CvECN5o1oZtA16PkAb7GYiwYw='
 
   it('retrieves invitation code from argv', () => {
     const expectedCodes: InvitationData = {
@@ -20,7 +22,7 @@ describe('Invitation code helper', () => {
         { peerId: peerId1, onionAddress: address1 },
         { peerId: peerId2, onionAddress: address2 },
       ],
-      psk: '12345',
+      psk: pskDecoded,
     }
     const result = argvInvitationCode([
       'something',
@@ -33,16 +35,27 @@ describe('Invitation code helper', () => {
     expect(result).toEqual(expectedCodes)
   })
 
-  it('builds proper invitation deep url', () => {
+  it('returns null if argv do not contain any valid invitation code', () => {
+    const result = argvInvitationCode([
+      'something',
+      'quiet:/invalid',
+      'zbay://invalid',
+      'quiet://invalid',
+      'quiet://?param=invalid',
+    ])
+    expect(result).toBeNull()
+  })
+
+  it('composes proper invitation deep url', () => {
     expect(
       composeInvitationDeepUrl({
         pairs: [
           { peerId: 'peerID1', onionAddress: 'address1' },
           { peerId: 'peerID2', onionAddress: 'address2' },
         ],
-        psk: '12345',
+        psk: pskDecoded,
       })
-    ).toEqual(`quiet://?peerID1=address1&peerID2=address2&${Site.PSK_PARAM_KEY}=12345`)
+    ).toEqual(`quiet://?peerID1=address1&peerID2=address2&${Site.PSK_PARAM_KEY}=${psk}`)
   })
 
   it('creates invitation share url based on invitation data', () => {
@@ -51,9 +64,9 @@ describe('Invitation code helper', () => {
         { peerId: 'peerID1', onionAddress: 'address1' },
         { peerId: 'peerID2', onionAddress: 'address2' },
       ],
-      psk: '12345',
+      psk: pskDecoded,
     }
-    const expected = `${QUIET_JOIN_PAGE}#peerID1=address1&peerID2=address2&${Site.PSK_PARAM_KEY}=${pairs.psk}`
+    const expected = `${QUIET_JOIN_PAGE}#peerID1=address1&peerID2=address2&${Site.PSK_PARAM_KEY}=${psk}`
     expect(composeInvitationShareUrl(pairs)).toEqual(expected)
   })
 
@@ -63,14 +76,12 @@ describe('Invitation code helper', () => {
       'invalidAddress',
       '/dns4/somethingElse.onion/tcp/443/wss/p2p/QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSA',
     ]
-    const psk = 'L2tleS9zd2FybS9wc2svMS'
-    expect(invitationShareUrl(peerList, psk)).toEqual(
+    expect(invitationShareUrl(peerList, pskDecoded)).toEqual(
       `${QUIET_JOIN_PAGE}#QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE=gloao6h5plwjy4tdlze24zzgcxll6upq2ex2fmu2ohhyu4gtys4nrjad&QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSA=somethingElse&${Site.PSK_PARAM_KEY}=${psk}`
     )
   })
 
   it('retrieves invitation codes from deep url', () => {
-    const psk = '12345'
     const codes = parseInvitationCodeDeepUrl(
       `quiet://?${peerId1}=${address1}&${peerId2}=${address2}&${Site.PSK_PARAM_KEY}=${psk}`
     )
@@ -79,17 +90,16 @@ describe('Invitation code helper', () => {
         { peerId: peerId1, onionAddress: address1 },
         { peerId: peerId2, onionAddress: address2 },
       ],
-      psk: psk,
+      psk: pskDecoded,
     })
   })
 
   it('retrieves invitation codes from deep url with partly invalid codes', () => {
-    const psk = '12345'
     const peerId2 = 'QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLs'
     const address2 = 'y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd'
     const parsed = parseInvitationCodeDeepUrl(
       `quiet://?${peerId1}=${address1}&${peerId2}=${address2}&${Site.PSK_PARAM_KEY}=${psk}`
     )
-    expect(parsed).toEqual({ pairs: [{ peerId: peerId1, onionAddress: address1 }], psk: psk })
+    expect(parsed).toEqual({ pairs: [{ peerId: peerId1, onionAddress: address1 }], psk: pskDecoded })
   })
 })

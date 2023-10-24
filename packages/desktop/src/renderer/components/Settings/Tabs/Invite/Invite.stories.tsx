@@ -2,7 +2,7 @@ import React from 'react'
 import { ComponentStory, ComponentMeta } from '@storybook/react'
 import { withTheme } from '../../../../storybook/decorators'
 import { InviteComponent, InviteComponentProps } from './Invite.component'
-import { composeToInvitationShareUrl } from '@quiet/common'
+import { composeInvitationShareUrl } from '@quiet/common'
 
 const Template: ComponentStory<typeof InviteComponent> = args => {
   return <InviteComponent {...args} />
@@ -10,7 +10,7 @@ const Template: ComponentStory<typeof InviteComponent> = args => {
 
 export const Component = Template.bind({})
 let revealInputValue = true
-const invitationLink = composeToInvitationShareUrl({
+const invitationLink = composeInvitationShareUrl({
   pairs: [
     {
       peerId: 'QmVTkUad2Gq3MkCa8gf12R1gsWDfk2yiTEqb6YGXDG2iQ3',

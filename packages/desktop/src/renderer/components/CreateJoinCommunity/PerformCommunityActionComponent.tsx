@@ -20,7 +20,7 @@ import { InviteLinkErrors } from '../../forms/fieldsErrors'
 import { IconButton, InputAdornment } from '@mui/material'
 import VisibilityOff from '@mui/icons-material/VisibilityOff'
 import Visibility from '@mui/icons-material/Visibility'
-import { ONION_ADDRESS_REGEX, composeToInvitationShareUrl, parseName } from '@quiet/common'
+import { ONION_ADDRESS_REGEX, composeInvitationShareUrl, parseName } from '@quiet/common'
 import { getInvitationCodes } from '@quiet/state-manager'
 
 const PREFIX = 'PerformCommunityActionComponent'
@@ -221,7 +221,7 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
   useEffect(() => {
     if (communityOwnership === CommunityOwnership.User && invitationCode?.length && psk) {
       setFormSent(true)
-      setValue('name', composeToInvitationShareUrl({ pairs: invitationCode, psk: psk }))
+      setValue('name', composeInvitationShareUrl({ pairs: invitationCode, psk: psk }))
     }
   }, [communityOwnership, invitationCode])
 
