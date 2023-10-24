@@ -12,18 +12,18 @@
 
 Prefix commit messages with one of the following to signify the kind of change:
 
-- `fix`: bug fixes, e.g. fix incorrect error message.
-- `feat`: new features, e.g. add useful API.
-- `refactor`: code/structure refactor, e.g. new folder structure.
-- `docs`: changes into documentation, e.g. add usage example for getByText.
-- `test`: adding or updating tests, eg unit, snapshot testing.
-- `chore`: tooling changes, e.g. change circle ci config.
-- `BREAKING`: for changes that break existing usage, e.g. change API.
+- `fix:` bug fixes, e.g. fix incorrect error message.
+- `feat:` new features, e.g. add useful API.
+- `refactor:` code/structure refactor, e.g. new folder structure.
+- `docs:` changes into documentation, e.g. add usage example for getByText.
+- `test:` adding or updating tests, eg unit, snapshot testing.
+- `chore:` tooling changes, e.g. change circle ci config.
+- `BREAKING:` for changes that break existing usage, e.g. change API.
 
 Commit message should be followed by the issue number, eg.
 `fix: typo #2002`
 
-### (optional) Here is the instruction for setting up a local git hook for verifying message convention:
+### (optional) Setting up a local git hook for verifying message convention:
 
 1. Navigate to git repository in your terminal.
 2. Go to the .git/hooks directory:
