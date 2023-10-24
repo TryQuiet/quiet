@@ -1,7 +1,6 @@
 import React, { CSSProperties, FC, useEffect, useRef, useState } from 'react'
 import { Animated, View, Image, Platform, StyleProp, ViewStyle } from 'react-native'
 import { ConfirmationBoxProps } from './ConfirmationBox.types'
-
 import { Typography } from '../Typography/Typography.component'
 
 import { defaultPalette } from '../../styles/palettes/default.palette'
