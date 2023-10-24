@@ -204,6 +204,7 @@ describe('User', () => {
       Array [
         "Communities/createNetwork",
         "Communities/setInvitationCodes",
+        "Communities/savePSK",
         "Communities/addNewCommunity",
         "Communities/setCurrentCommunity",
         "Modals/closeModal",
