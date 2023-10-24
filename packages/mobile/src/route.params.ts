@@ -37,9 +37,7 @@ export type RootStackParamList = {
   }
   [ScreenNames.ConnectionProcessScreen]: undefined
   [ScreenNames.DuplicatedUsernameScreen]: undefined
-  [ScreenNames.UnregisteredUsernameScreen]: {
-    username: string
-  }
+
   [ScreenNames.UsernameTakenScreen]: undefined
   [ScreenNames.NewUsernameRequestedScreen]: undefined
   [ScreenNames.PossibleImpersonationAttackScreen]: undefined
@@ -58,8 +56,6 @@ export type SuccessRouteProp = RouteProp<RootStackParamList, ScreenNames.Success
 export type ErrorRouteProp = RouteProp<RootStackParamList, ScreenNames.ErrorScreen>
 
 export type DuplicatedUsernameRouteProps = RouteProp<RootStackParamList, ScreenNames.DuplicatedUsernameScreen>
-
-export type UnregisteredUsernameRouteProps = RouteProp<RootStackParamList, ScreenNames.UnregisteredUsernameScreen>
 
 export type UsernameTakenRouteProps = RouteProp<RootStackParamList, ScreenNames.UsernameTakenScreen>
 
