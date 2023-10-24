@@ -20,7 +20,7 @@ const parseDeepUrl = ({ url, expectedProtocol = `quiet:` }: { url: string; expec
   }
   if (!validUrl || validUrl.protocol !== expectedProtocol) {
     console.error(`Could not retrieve invitation code from deep url '${url}'`)
-    throw new Error()
+    throw new Error(`Invalid url`)
   }
   const params = validUrl.searchParams
   const codes: InvitationPair[] = []
@@ -146,7 +146,6 @@ export const argvInvitationCode = (argv: string[]): InvitationData | null => {
 }
 
 const peerDataValid = ({ peerId, onionAddress }: { peerId: string; onionAddress: string }): boolean => {
-  // TODO: rename to peerDataValid?
   if (!peerId.match(PEER_ID_REGEX)) {
     // TODO: test it more properly e.g with PeerId.createFromB58String(peerId.trim())
     console.log(`PeerId ${peerId} is not valid`)

@@ -147,8 +147,12 @@ app.on('open-url', (event, url) => {
   event.preventDefault()
   if (mainWindow) {
     invitationUrl = null
-    const invitationCode = parseInvitationCodeDeepUrl(url) // TODO: handle thrown error
-    processInvitationCode(mainWindow, invitationCode)
+    try {
+      const invitationCode = parseInvitationCodeDeepUrl(url)
+      processInvitationCode(mainWindow, invitationCode)
+    } catch (e) {
+      console.warn(e)
+    }
   }
 })
 
@@ -474,13 +478,22 @@ app.on('ready', async () => {
       throw new Error(`mainWindow is on unexpected type ${mainWindow}`)
     }
     if (process.platform === 'darwin' && invitationUrl) {
-      const invitationCode = parseInvitationCodeDeepUrl(invitationUrl) // TODO: handle thrown error
-      processInvitationCode(mainWindow, invitationCode)
-      invitationUrl = null
+      try {
+        const invitationCode = parseInvitationCodeDeepUrl(invitationUrl)
+        processInvitationCode(mainWindow, invitationCode)
+      } catch (e) {
+        console.warn(e)
+      } finally {
+        invitationUrl = null
+      }
     }
     if (process.platform !== 'darwin' && process.argv) {
-      const invitationCode = argvInvitationCode(process.argv) // TODO: handle thrown error?
-      processInvitationCode(mainWindow, invitationCode)
+      try {
+        const invitationCode = argvInvitationCode(process.argv)
+        processInvitationCode(mainWindow, invitationCode)
+      } catch (e) {
+        console.warn(e)
+      }
     }
 
     await checkForUpdate(mainWindow)

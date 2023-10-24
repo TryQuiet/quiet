@@ -238,15 +238,19 @@ describe('other electron app events ', () => {
 })
 
 describe('Invitation code', () => {
-  const codes: InvitationData = {
-    pairs: [
-      {
-        peerId: 'QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE',
-        onionAddress: 'y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd',
-      },
-    ],
-    psk: 'BNlxfE2WBF7LrlpIX0CvECN5o1oZtA16PkAb7GYiwYw=',
-  }
+  let codes: InvitationData
+
+  beforeEach(() => {
+    codes = {
+      pairs: [
+        {
+          peerId: 'QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE',
+          onionAddress: 'y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd',
+        },
+      ],
+      psk: 'BNlxfE2WBF7LrlpIX0CvECN5o1oZtA16PkAb7GYiwYw=',
+    }
+  })
 
   it('handles invitation code on open-url event (on macos)', async () => {
     expect(mockAppOnCalls[2][0]).toBe('ready')
@@ -256,6 +260,17 @@ describe('Invitation code', () => {
     const event = { preventDefault: () => {} }
     mockAppOnCalls[1][1](event, composeInvitationDeepUrl(codes))
     expect(mockWindowWebContentsSend).toHaveBeenCalledWith('invitation', { data: codes })
+  })
+
+  it('do not process invitation code on open-url event (on macos) if url is invalid', async () => {
+    codes['psk'] = '12345'
+    expect(mockAppOnCalls[2][0]).toBe('ready')
+    await mockAppOnCalls[2][1]()
+
+    expect(mockAppOnCalls[1][0]).toBe('open-url')
+    const event = { preventDefault: () => {} }
+    mockAppOnCalls[1][1](event, composeInvitationDeepUrl(codes))
+    expect(mockWindowWebContentsSend).not.toHaveBeenCalledWith('invitation', { data: codes })
   })
 
   it('process invitation code on second-instance event', async () => {
