@@ -2,7 +2,7 @@
 
 ## Development workflow
 
-> **Working on your first pull request?** You can learn how from this _free_ series: [How to Contribute to an Open Source Project on GitHub](https://egghead.io/courses/how-to-contribute-to-an-open-source-project-on-github).
+> **New to open source?** You can learn how from this _free_ series: [How to Contribute to an Open Source Project on GitHub](https://egghead.io/courses/how-to-contribute-to-an-open-source-project-on-github).
 
 1. Fork the repo and create your branch from `develop` (a guide on [how to fork a repository](https://help.github.com/articles/fork-a-repo/)).
 2. Being in the root directory, run `npm i` and then `lerna bootstrap`, to setup the development environment.
