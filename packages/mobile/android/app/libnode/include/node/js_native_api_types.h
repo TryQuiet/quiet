@@ -8,7 +8,15 @@
 #include <stdint.h>  // NOLINT(modernize-deprecated-headers)
 
 #if !defined __cplusplus || (defined(_MSC_VER) && _MSC_VER < 1900)
-    typedef uint16_t char16_t;
+typedef uint16_t char16_t;
+#endif
+
+#ifndef NAPI_CDECL
+#ifdef _WIN32
+#define NAPI_CDECL __cdecl
+#else
+#define NAPI_CDECL
+#endif
 #endif
 
 // JSVM API types are all opaque pointers for ABI stability
@@ -30,6 +38,14 @@ typedef enum {
   // Used with napi_define_class to distinguish static properties
   // from instance properties. Ignored by napi_define_properties.
   napi_static = 1 << 10,
+
+#if NAPI_VERSION >= 8
+  // Default for class methods.
+  napi_default_method = napi_writable | napi_configurable,
+
+  // Default for object properties, like in JS obj[prop].
+  napi_default_jsproperty = napi_writable | napi_enumerable | napi_configurable,
+#endif  // NAPI_VERSION >= 8
 } napi_property_attributes;
 
 typedef enum {
@@ -82,17 +98,23 @@ typedef enum {
   napi_date_expected,
   napi_arraybuffer_expected,
   napi_detachable_arraybuffer_expected,
+  napi_would_deadlock,  // unused
+  napi_no_external_buffers_allowed,
+  napi_cannot_run_js,
 } napi_status;
 // Note: when adding a new enum value to `napi_status`, please also update
-// `const int last_status` in `napi_get_last_error_info()' definition,
-// in file js_native_api_v8.cc. Please also update the definition of
-// `napi_status` in doc/api/n-api.md to reflect the newly added value(s).
+//   * `const int last_status` in the definition of `napi_get_last_error_info()'
+//     in file js_native_api_v8.cc.
+//   * `const char* error_messages[]` in file js_native_api_v8.cc with a brief
+//     message explaining the error.
+//   * the definition of `napi_status` in doc/api/n-api.md to reflect the newly
+//     added value(s).
 
-typedef napi_value (*napi_callback)(napi_env env,
-                                    napi_callback_info info);
-typedef void (*napi_finalize)(napi_env env,
-                              void* finalize_data,
-                              void* finalize_hint);
+typedef napi_value(NAPI_CDECL* napi_callback)(napi_env env,
+                                              napi_callback_info info);
+typedef void(NAPI_CDECL* napi_finalize)(napi_env env,
+                                        void* finalize_data,
+                                        void* finalize_hint);
 
 typedef struct {
   // One of utf8name or name should be NULL.
@@ -136,11 +158,11 @@ typedef enum {
 } napi_key_conversion;
 #endif  // NAPI_VERSION >= 6
 
-#ifdef NAPI_EXPERIMENTAL
+#if NAPI_VERSION >= 8
 typedef struct {
   uint64_t lower;
   uint64_t upper;
 } napi_type_tag;
-#endif  // NAPI_EXPERIMENTAL
+#endif  // NAPI_VERSION >= 8
 
 #endif  // SRC_JS_NATIVE_API_TYPES_H_
