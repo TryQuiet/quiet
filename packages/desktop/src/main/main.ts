@@ -151,7 +151,7 @@ app.on('open-url', (event, url) => {
       const invitationCode = parseInvitationCodeDeepUrl(url)
       processInvitationCode(mainWindow, invitationCode)
     } catch (e) {
-      console.warn(e)
+      console.warn(e.message)
     }
   }
 })
@@ -482,7 +482,7 @@ app.on('ready', async () => {
         const invitationCode = parseInvitationCodeDeepUrl(invitationUrl)
         processInvitationCode(mainWindow, invitationCode)
       } catch (e) {
-        console.warn(e)
+        console.warn(e.message)
       } finally {
         invitationUrl = null
       }
@@ -492,7 +492,7 @@ app.on('ready', async () => {
         const invitationCode = argvInvitationCode(process.argv)
         processInvitationCode(mainWindow, invitationCode)
       } catch (e) {
-        console.warn(e)
+        console.warn(e.message)
       }
     }
 
