@@ -423,6 +423,8 @@ export class StorageService extends EventEmitter {
   }
 
   public async getCsrs(): Promise<string[]> {
+    // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
+    await this.certificatesRequests.load({ fetchEntryTimeout: 15000 })
     const allCsrs = this.getAllEventLogEntries(this.certificatesRequests)
     const filteredCsrsMap: Map<string, string> = new Map()
 

@@ -580,7 +580,8 @@ describe('StorageService', () => {
       ])
     })
 
-    it('getCsrs - remove old csrs and replace with new for each pubkey', async () => {
+    it.only('getCsrs - remove old csrs and replace with new for each pubkey', async () => {
+      await storageService.init(peerId)
       const allCsrs = [
         'MIIDITCCAsYCAQAwSTFHMEUGA1UEAxM+anR3c3hxMnZ1dWthY3JodWhvdnAzd2JxbzRxNXc0d2s3Nm1qbWJ3cXk3eGNma2FsdmRxb3hhYWQub25pb24wWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAAQE2q6iS+WCmIVCSFI2AjHrW6ujUdrceD5T2xkcTJBTn0y50WphcupUajCRgkXaTBkTsGNJ3qWRZAKX7CiuehBJoIICGTAuBgkqhkiG9w0BCQ4xITAfMB0GA1UdDgQWBBQuE5JgPY/BYBpgG5pnjMkEEIkrGjCCAUcGCSqGSIb3DQEJDDGCATgEggE0BDlx84glBl72q82F2a+y8iTVKM8IMiXYYrmNyhFPj6XsfVQpvLhNviZ5zHdMBWbFj44vTSUIasNP9I9eCWSEAaEJqjngEh18WCRS/XbvQxI/8qB5pzcfghvM8BCgSLbSEjK2GMYVhCXmRH1YGHIZu0+Ii9pe5nwG154JlPUsmIRgu6ruY6PQk65Aoo4OyhPn5CCUFInptHcz1JpAiCRe0Z6wuQHud03VY50fx4ETdmUNJBEIPOyd/Xn6lMOi6SaWGHbCWiufeJRm+mRdoHJAEt6kPLhGIYGyduNT/8cGoe2xKyQDvNoTr4dqqRZ2HgZ18nicsTHswpGqAlUnZXaA3V85Qu1cvaMAqEoPOUlGP9AriIVwtIZM0hdWHqKHgBCZrKfHb5oLxt6ourQ3+q19tvx+u6UwFAYKKwYBBAGDjBsCATEGEwRlbGxvMD0GCSsGAQIBDwMBATEwEy5RbVVvNXN0NXNqR3RFMUtQeXhOVW5pTWhnQXduV0JVNXk3TnpoMlpRRkdacVdiMEcGA1UdETFAEz5qdHdzeHEydnV1a2Fjcmh1aG92cDN3YnFvNHE1dzR3azc2bWptYndxeTd4Y2ZrYWx2ZHFveGFhZC5vbmlvbjAKBggqhkjOPQQDAgNJADBGAiEAt9udw7B7vnjJyWvkkRLb7DImFXwsrSxirqbmhIH+1rUCIQD86GWyfAE2d8gCNAn4h1t9B+mAx33ZdPLgFssHl1i3pA==',
 
