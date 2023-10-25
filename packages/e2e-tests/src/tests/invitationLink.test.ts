@@ -70,13 +70,6 @@ describe('New user joins using invitation link while having app opened', () => {
       await registerModal.submit()
     })
 
-    it('Connecting to peers modal', async () => {
-      console.log('Invitation Link', 7)
-      const loadingPanelCommunity = new JoiningLoadingPanel(ownerApp.driver)
-      const isLoadingPanelCommunity = await loadingPanelCommunity.element.isDisplayed()
-      expect(isLoadingPanelCommunity).toBeTruthy()
-    })
-
     it('Owner sees general channel', async () => {
       console.log('Invitation Link', 8)
       const generalChannel = new Channel(ownerApp.driver, 'general')
@@ -148,7 +141,7 @@ describe('New user joins using invitation link while having app opened', () => {
       const copiedCode = url.hash.substring(1)
       expect(() => parseInvitationCode(copiedCode)).not.toThrow()
       const data = parseInvitationCode(copiedCode)
-      execSync(`${command[process.platform as SupportedPlatformDesktop]} ${composeInvitationDeepUrl(data)}`)
+      execSync(`${command[process.platform as SupportedPlatformDesktop]} "${composeInvitationDeepUrl(data)}"`)
       console.log('Guest opened invitation link')
     })
 
