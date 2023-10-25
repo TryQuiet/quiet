@@ -634,8 +634,7 @@ describe('Channel', () => {
 
     const messageInput = screen.getByTestId('messageInput')
 
-    // Why does the first letter not get entered?
-    await userEvent.type(messageInput, 'mmulti-line{Shift>}{Enter}{/Shift}message{Shift>}{Enter}{/Shift}hello')
+    await userEvent.type(messageInput, 'multi-line{Shift>}{Enter}{/Shift}message{Shift>}{Enter}{/Shift}hello')
     expect(messageInput.textContent).toBe('multi-line\nmessage\nhello')
   })
 
