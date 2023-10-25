@@ -400,9 +400,8 @@ export class StorageService extends EventEmitter {
     })
     this.certificatesRequests.events.on('replicated', async () => {
       this.logger('REPLICATED: CSRs')
-      const allCsrs = this.getAllEventLogEntries(this.certificatesRequests)
 
-      const filteredCsrs = await this.filterCsrs(allCsrs)
+      const filteredCsrs = await this.getCsrs()
 
       const allCertificates = this.getAllEventLogEntries(this.certificates)
       this.emit(StorageEvents.REPLICATED_CSR, { csrs: filteredCsrs, certificates: allCertificates })
@@ -423,7 +422,8 @@ export class StorageService extends EventEmitter {
     this.logger('STORAGE: Finished creating certificatesRequests db')
   }
 
-  public async filterCsrs(allCsrs: string[]): Promise<string[]> {
+  public async getCsrs(): Promise<string[]> {
+    const allCsrs = this.getAllEventLogEntries(this.certificatesRequests)
     const filteredCsrsMap: Map<string, string> = new Map()
 
     await Promise.all(
