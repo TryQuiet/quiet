@@ -3,15 +3,13 @@ import { combineReducers } from '@reduxjs/toolkit'
 import { reducers } from '../../root.reducer'
 import { Store } from '../../store.types'
 import { prepareStore } from '../../../tests/utils/prepareStore'
-import { communities, connection, getInvitationCodes, identity } from '@quiet/state-manager'
+import { communities, connection, identity } from '@quiet/state-manager'
 import { initActions } from '../init.slice'
 import { navigationActions } from '../../navigation/navigation.slice'
 import { ScreenNames } from '../../../const/ScreenNames.enum'
 import { deepLinkSaga } from './deepLink.saga'
 import { type Community, CommunityOwnership, ConnectionProcessInfo, type Identity, InvitationData } from '@quiet/types'
-import { Site, composeInvitationShareUrl } from '@quiet/common'
-import { appImages } from '../../../assets'
-import { replaceScreen } from '../../../RootNavigation'
+import { composeInvitationShareUrl } from '@quiet/common'
 
 describe('deepLinkSaga', () => {
   let store: Store
@@ -136,6 +134,18 @@ describe('deepLinkSaga', () => {
     await expectSaga(deepLinkSaga, initActions.deepLink(validCode))
       .withReducer(reducer)
       .withState(store.getState())
+      .put.like({
+        action: {
+          type: navigationActions.replaceScreen.type,
+          payload: {
+            screen: ScreenNames.ErrorScreen,
+            params: {
+              title: 'You already belong to a community',
+              message: "We're sorry but for now you can only be a member of a single community at a time",
+            },
+          },
+        },
+      })
       .not.put(
         communities.actions.createNetwork({
           ownership: CommunityOwnership.User,
@@ -166,6 +176,18 @@ describe('deepLinkSaga', () => {
     await expectSaga(deepLinkSaga, initActions.deepLink(invalidCode))
       .withReducer(reducer)
       .withState(store.getState())
+      .put.like({
+        action: {
+          type: navigationActions.replaceScreen.type,
+          payload: {
+            screen: ScreenNames.ErrorScreen,
+            params: {
+              title: 'Invalid invitation link',
+              message: 'Please check your invitation link and try again',
+            },
+          },
+        },
+      })
       .not.put(
         communities.actions.createNetwork({
           ownership: CommunityOwnership.User,

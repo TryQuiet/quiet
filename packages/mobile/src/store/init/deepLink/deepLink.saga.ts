@@ -41,20 +41,11 @@ export function* deepLinkSaga(action: PayloadAction<ReturnType<typeof initAction
     return
   }
 
-  yield* put(
-    navigationActions.replaceScreen({
-      screen: ScreenNames.JoinCommunityScreen,
-      params: {
-        code,
-      },
-    })
-  )
-
   let data: InvitationData
   try {
     data = getInvitationCodes(code)
   } catch (e) {
-    console.error(e.message)
+    console.warn(e.message)
     yield* put(
       navigationActions.replaceScreen({
         screen: ScreenNames.ErrorScreen,
@@ -68,6 +59,15 @@ export function* deepLinkSaga(action: PayloadAction<ReturnType<typeof initAction
     )
     return
   }
+
+  yield* put(
+    navigationActions.replaceScreen({
+      screen: ScreenNames.JoinCommunityScreen,
+      params: {
+        code,
+      },
+    })
+  )
 
   const payload: CreateNetworkPayload = {
     ownership: CommunityOwnership.User,
