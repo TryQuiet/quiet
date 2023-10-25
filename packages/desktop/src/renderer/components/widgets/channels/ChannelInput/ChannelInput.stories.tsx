@@ -1,6 +1,6 @@
 import React from 'react'
 import { ComponentStory, ComponentMeta } from '@storybook/react'
-
+import CssBaseline from '@mui/material/CssBaseline'
 import { INPUT_STATE } from './InputState.enum'
 
 import { ChannelInputComponent, ChannelInputProps } from './ChannelInput'

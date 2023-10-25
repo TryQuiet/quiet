@@ -253,6 +253,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
     setMessage(initialMessage)
     const ref = textAreaRef.current
     if (!ref) return
+    if (!initialMessage) return
     adjustTextAreaHeight(ref)
   }, [channelId])
 
@@ -263,7 +264,9 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
   const adjustTextAreaHeight = (el: HTMLTextAreaElement) => {
     // Workaround for making textarea's height adapt to the content
     el.style.height = ''
-    el.style.height = el.scrollHeight + 'px'
+    if (el.scrollHeight > el.clientHeight) {
+      el.style.height = `${el.scrollHeight}px`
+    }
   }
 
   const caretLineTraversal = (focusLine: Node | null | undefined, anchorLinePosition = 0) => {
