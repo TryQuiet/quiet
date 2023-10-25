@@ -10,6 +10,6 @@ api_key = {
 platform :ios do
     desc 'Ship to TestFlight'
     lane :beta do
-        pilot(api_key: api_key)
+        pilot(api_key: api_key, ipa: './ios/build/Quiet.ipa')
     end
 end
