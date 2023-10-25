@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.1-alpha.16](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@2.0.1-alpha.15...@quiet/mobile@2.0.1-alpha.16) (2023-10-25)
+
+
+### Bug Fixes
+
+* point the exact location of .ipa file ([b2de74b](https://github.com/TryQuiet/quiet/commit/b2de74b84176a698159c38a4caedb689ce2cfb57))
+
+
+
+
+
 ## [2.0.1-alpha.15](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@2.0.1-alpha.14...@quiet/mobile@2.0.1-alpha.15) (2023-10-25)
 
 
