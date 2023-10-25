@@ -8,6 +8,7 @@ import { prepareStore } from '../../testUtils/prepareStore'
 import { StoreKeys } from '../../store/store.keys'
 import { modalsActions } from '../modals/modals.slice'
 import { ModalName } from '../modals/modals.types'
+import { validInvitationUrlTestData } from '@quiet/common'
 
 describe('Handle invitation code', () => {
   let store: Store
@@ -26,15 +27,7 @@ describe('Handle invitation code', () => {
     ).store
 
     factory = await getFactory(store)
-    validInvitationData = {
-      pairs: [
-        {
-          onionAddress: 'y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd',
-          peerId: 'QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE',
-        },
-      ],
-      psk: 'BNlxfE2WBF7LrlpIX0CvECN5o1oZtA16PkAb7GYiwYw=',
-    }
+    validInvitationData = validInvitationUrlTestData.data
   })
 
   it('creates network if code is valid', async () => {

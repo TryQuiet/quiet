@@ -9,22 +9,14 @@ import { navigationActions } from '../../navigation/navigation.slice'
 import { ScreenNames } from '../../../const/ScreenNames.enum'
 import { deepLinkSaga } from './deepLink.saga'
 import { type Community, CommunityOwnership, ConnectionProcessInfo, type Identity, InvitationData } from '@quiet/types'
-import { composeInvitationShareUrl } from '@quiet/common'
+import { composeInvitationShareUrl, validInvitationUrlTestData } from '@quiet/common'
 
 describe('deepLinkSaga', () => {
   let store: Store
 
   const id = '00d045ab'
-  const validData: InvitationData = {
-    pairs: [
-      {
-        onionAddress: 'y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd',
-        peerId: 'QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE',
-      },
-    ],
-    psk: 'BNlxfE2WBF7LrlpIX0CvECN5o1oZtA16PkAb7GYiwYw=',
-  }
-  const validCode = composeInvitationShareUrl(validData)
+  const validData: InvitationData = validInvitationUrlTestData.data
+  const validCode = validInvitationUrlTestData.code()
   const community: Community = {
     id,
     name: '',

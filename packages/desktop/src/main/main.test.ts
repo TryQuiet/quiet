@@ -5,7 +5,7 @@ import { autoUpdater } from 'electron-updater'
 import { BrowserWindow, app, ipcMain, Menu } from 'electron'
 import { waitFor } from '@testing-library/dom'
 import path from 'path'
-import { composeInvitationDeepUrl } from '@quiet/common'
+import { composeInvitationDeepUrl, validInvitationUrlTestData } from '@quiet/common'
 import { InvitationData } from '@quiet/types'
 
 // eslint-disable-next-line
@@ -241,15 +241,7 @@ describe('Invitation code', () => {
   let codes: InvitationData
 
   beforeEach(() => {
-    codes = {
-      pairs: [
-        {
-          peerId: 'QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE',
-          onionAddress: 'y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd',
-        },
-      ],
-      psk: 'BNlxfE2WBF7LrlpIX0CvECN5o1oZtA16PkAb7GYiwYw=',
-    }
+    codes = validInvitationUrlTestData.data
   })
 
   it('handles invitation code on open-url event (on macos)', async () => {
