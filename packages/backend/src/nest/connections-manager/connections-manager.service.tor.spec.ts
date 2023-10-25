@@ -4,7 +4,14 @@ import crypto from 'crypto'
 import { CustomEvent } from '@libp2p/interfaces/events'
 import { jest, beforeEach, describe, it, expect, afterEach } from '@jest/globals'
 import { communities, getFactory, identity, prepareStore, Store } from '@quiet/state-manager'
-import { createPeerId, createTmpDir, libp2pInstanceParams, removeFilesFromDir, tmpQuietDirPath } from '../common/utils'
+import {
+  createPeerId,
+  createTmpDir,
+  generateLibp2pPSK,
+  libp2pInstanceParams,
+  removeFilesFromDir,
+  tmpQuietDirPath,
+} from '../common/utils'
 
 import { NetworkStats, type Community, type Identity, type InitCommunityPayload } from '@quiet/types'
 import { LazyModuleLoader } from '@nestjs/core'
@@ -87,8 +94,6 @@ beforeEach(async () => {
   localDbService = await module.resolve(LocalDbService)
   registrationService = await module.resolve(RegistrationService)
   tor = await module.resolve(Tor)
-
-  console.log('tor ', tor)
   await tor.init()
 
   const torPassword = crypto.randomBytes(16).toString('hex')
@@ -106,6 +111,11 @@ beforeEach(async () => {
   connectionsManagerService.libp2pService = libp2pService
 
   quietDir = await module.resolve(QUIET_DIR)
+
+  const libp2pPSK = new Uint8Array(95)
+  const psk = generateLibp2pPSK(libp2pPSK)
+  const pskBase64 = psk.toString('base64')
+  await localDbService.put(LocalDBKeys.PSK, pskBase64)
 })
 
 afterEach(async () => {
@@ -117,11 +127,6 @@ afterEach(async () => {
 })
 
 describe('Connections manager', () => {
-  it('runs tor by default', async () => {
-    await connectionsManagerService.init()
-    console.log(connectionsManagerService.isTorInit)
-  })
-
   it('saves peer stats when peer has been disconnected', async () => {
     class RemotePeerEventDetail {
       peerId: string
@@ -135,7 +140,6 @@ describe('Connections manager', () => {
       }
     }
     const emitSpy = jest.spyOn(libp2pService, 'emit')
-    // const emitSpy = jest.spyOn(libp2pService, 'emit')
 
     const launchCommunityPayload: InitCommunityPayload = {
       id: community.id,
