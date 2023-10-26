@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.1-alpha.18](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@2.0.1-alpha.17...@quiet/mobile@2.0.1-alpha.18) (2023-10-26)
+
+
+### Bug Fixes
+
+* correct path in fastfile ([6b46a7f](https://github.com/TryQuiet/quiet/commit/6b46a7fd7ae4046d5420660c56d7d1c540c5c78d))
+
+
+
+
+
 ## [2.0.1-alpha.17](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@2.0.1-alpha.16...@quiet/mobile@2.0.1-alpha.17) (2023-10-26)
 
 **Note:** Version bump only for package @quiet/mobile
