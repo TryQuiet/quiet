@@ -12,6 +12,6 @@ puts `pwd`
 platform :ios do
     desc 'Ship to TestFlight'
     lane :beta do
-        pilot(api_key: api_key, ipa: '../ios/build/Quiet.ipa')
+        pilot(api_key: api_key, ipa: '../mobile/ios/build/Quiet.ipa')
     end
 end
