@@ -1,7 +1,7 @@
 /* eslint-disable no-unreachable */
-const { notarize } = require('electron-notarize')
+const { notarize } = require('@electron/notarize')
 
-exports.default = async function notarizing (context) {
+exports.default = async function notarizing(context) {
   const { electronPlatformName, appOutDir } = context
   if (electronPlatformName !== 'darwin' || process.env.IS_E2E) {
     console.log('skipping notarization')

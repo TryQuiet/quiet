@@ -58,7 +58,7 @@ const SearchModal = () => {
     }
   }, [handleKeyDown])
 
-  if (dynamicSearchedChannelsSelector.length === 0) return null
+  if (!searchChannelModal.open || dynamicSearchedChannelsSelector.length === 0) return null
   return (
     <SearchModalComponent
       {...searchChannelModal}

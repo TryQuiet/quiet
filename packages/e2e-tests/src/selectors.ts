@@ -7,6 +7,7 @@ export class App {
   isOpened: boolean
   constructor(buildSetupConfig?: BuildSetupInit) {
     this.buildSetup = new BuildSetup({ ...buildSetupConfig })
+    this.isOpened = false
   }
 
   get driver(): ThenableWebDriver {
@@ -252,7 +253,7 @@ export class Channel {
   }
 
   get messageInput() {
-    return this.driver.wait(until.elementLocated(By.xpath('//div[@data-testid="messageInput"]')))
+    return this.driver.wait(until.elementLocated(By.xpath('//*[@data-testid="messageInput"]')))
   }
 
   async sendMessage(message: string) {
