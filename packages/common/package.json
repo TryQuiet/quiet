@@ -26,6 +26,7 @@
   },
   "dependencies": {
     "@quiet/types": "^1.8.1",
+    "@peculiar/webcrypto": "1.4.3",
     "cross-env": "^5.2.0",
     "debug": "^4.3.1"
   },

@@ -7,8 +7,10 @@ import { AppModule } from './nest/app.module'
 import { ConnectionsManagerService } from './nest/connections-manager/connections-manager.service'
 import { torBinForPlatform, torDirForPlatform } from './nest/common/utils'
 import initRnBridge from './rn-bridge'
-
+import { INestApplicationContext } from '@nestjs/common'
 import logger from './nest/common/logger'
+import { validateOptions } from './utils'
+
 const log = logger('backendManager')
 
 const program = new Command()
@@ -39,8 +41,6 @@ interface OpenServices {
   authCookie?: any
 }
 
-import { INestApplicationContext } from '@nestjs/common'
-
 export const runBackendDesktop = async () => {
   const isDev = process.env.NODE_ENV === 'development'
 
@@ -48,6 +48,8 @@ export const runBackendDesktop = async () => {
 
   // @ts-ignore
   global.crypto = webcrypto
+
+  validateOptions(options)
 
   const resourcesPath = isDev ? null : options.resourcesPath.trim()
 
@@ -95,6 +97,8 @@ export const runBackendMobile = async (): Promise<any> => {
   process.env['CONNECTION_TIME'] = (new Date().getTime() / 1000).toString() // Get time in seconds
 
   const rn_bridge = initRnBridge()
+
+  validateOptions(options)
 
   let app: INestApplicationContext
   app = await NestFactory.createApplicationContext(

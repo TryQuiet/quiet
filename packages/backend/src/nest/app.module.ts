@@ -119,13 +119,6 @@ export class AppModule {
                 return
               }
 
-              if (!options.socketIOSecret) {
-                console.error('No socketIoSecret')
-                res.writeHead(401, 'No socketIoSecret')
-                res.end()
-                return
-              }
-
               if (verifyToken(options.socketIOSecret, token)) {
                 next()
               } else {
@@ -159,7 +152,7 @@ export class AppModule {
         },
         {
           provide: LEVEL_DB,
-          useFactory: (dbPath: string) => new Level<string, any>(dbPath, { valueEncoding: 'json' }),
+          useFactory: (dbPath: string) => new Level<string, unknown>(dbPath, { valueEncoding: 'json' }),
           inject: [DB_PATH],
         },
       ],
