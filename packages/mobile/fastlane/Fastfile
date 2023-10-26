@@ -7,6 +7,8 @@ api_key = {
   is_key_content_base64: true
 }
 
+puts `pwd`
+
 platform :ios do
     desc 'Ship to TestFlight'
     lane :beta do
