@@ -1,4 +1,4 @@
-[unreleased]
+[2.0.2-alpha.0]
 
 * Filter CSRs - remove old csrs and replace with new for each pubkey
 
