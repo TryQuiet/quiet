@@ -332,6 +332,7 @@ app.on('ready', async () => {
   await createWindow()
 
   mainWindow?.webContents.on('did-finish-load', () => {
+    mainWindow?.webContents.send('socketIOSecret', SOCKET_IO_SECRET)
     if (splash && !splash.isDestroyed()) {
       const [width, height] = splash.getSize()
       mainWindow?.setSize(width, height)
