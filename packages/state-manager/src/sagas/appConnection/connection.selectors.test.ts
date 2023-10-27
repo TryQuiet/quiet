@@ -78,4 +78,17 @@ describe('communitiesSelectors', () => {
     const peersList = connectionSelectors.peerList(store.getState())
     expect(peersList).toMatchObject(expectedArray)
   })
+
+  it('select socketIOSecret', async () => {
+    const secret = 'secret'
+    const socketIOSecret = connectionSelectors.socketIOSecret(store.getState())
+
+    expect(socketIOSecret).toBeNull()
+
+    store.dispatch(connectionActions.setSocketIOSecret(secret))
+
+    const socketIOSecret2 = connectionSelectors.socketIOSecret(store.getState())
+
+    expect(socketIOSecret2).toEqual(secret)
+  })
 })
