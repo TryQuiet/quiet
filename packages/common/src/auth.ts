@@ -1,9 +1,9 @@
 import { Crypto } from '@peculiar/webcrypto'
 
 const webcrypto = new Crypto()
-const array = new Uint32Array(10)
+const array = new Uint32Array(5)
 
-export const generateSecret = () => webcrypto.getRandomValues(array).toString()
+export const generateSecret = () => webcrypto.getRandomValues(array).join('')
 
 export const encodeSecret = (secret: string) => Buffer.from(secret).toString('base64')
 
