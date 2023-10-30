@@ -415,12 +415,6 @@ export class StorageService extends EventEmitter {
       this.emit(StorageEvents.REPLICATED_CSR, { csrs: [csr], certificates: allCertificates })
       await this.updatePeersList()
     })
-
-    // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
-    await this.certificatesRequests.load({ fetchEntryTimeout: 15000 })
-    const allcsrs = this.getAllEventLogEntries(this.certificatesRequests)
-    this.logger('ALL Certificates COUNT:', allcsrs.length)
-    this.logger('STORAGE: Finished creating certificatesRequests db')
   }
 
   public async loadAllChannels() {
