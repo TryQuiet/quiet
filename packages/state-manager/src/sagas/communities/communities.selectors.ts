@@ -53,10 +53,6 @@ export const registrarUrl = (communityId: string) =>
     return registrarAddress
   })
 
-// export const invitationCode = createSelector(communitiesSlice, reducerState => {
-//   return reducerState.invitationCode
-// })
-
 export const invitationCodes = createSelector(communitiesSlice, reducerState => {
   return reducerState.invitationCodes
 })

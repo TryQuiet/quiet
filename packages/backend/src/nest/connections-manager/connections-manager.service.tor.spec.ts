@@ -4,14 +4,7 @@ import crypto from 'crypto'
 import { CustomEvent } from '@libp2p/interfaces/events'
 import { jest, beforeEach, describe, it, expect, afterEach } from '@jest/globals'
 import { communities, getFactory, identity, prepareStore, Store } from '@quiet/state-manager'
-import {
-  createPeerId,
-  createTmpDir,
-  generateLibp2pPSK,
-  libp2pInstanceParams,
-  removeFilesFromDir,
-  tmpQuietDirPath,
-} from '../common/utils'
+import { createPeerId, createTmpDir, libp2pInstanceParams, removeFilesFromDir, tmpQuietDirPath } from '../common/utils'
 
 import { NetworkStats, type Community, type Identity, type InitCommunityPayload } from '@quiet/types'
 import { LazyModuleLoader } from '@nestjs/core'
@@ -112,9 +105,7 @@ beforeEach(async () => {
 
   quietDir = await module.resolve(QUIET_DIR)
 
-  const libp2pPSK = new Uint8Array(95)
-  const psk = generateLibp2pPSK(libp2pPSK)
-  const pskBase64 = psk.toString('base64')
+  const pskBase64 = Libp2pService.generateLibp2pPSK().psk
   await localDbService.put(LocalDBKeys.PSK, pskBase64)
 })
 

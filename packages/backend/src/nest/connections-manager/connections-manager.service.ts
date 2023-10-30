@@ -8,7 +8,7 @@ import { setEngine, CryptoEngine } from 'pkijs'
 import { EventEmitter } from 'events'
 import getPort from 'get-port'
 import PeerId from 'peer-id'
-import { generateLibp2pPSK, removeFilesFromDir } from '../common/utils'
+import { removeFilesFromDir } from '../common/utils'
 import validator from 'validator'
 import {
   AskForMessagesPayload,
@@ -296,9 +296,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   }
 
   private async generatePSK() {
-    const libp2pPSK = new Uint8Array(95)
-    const psk = generateLibp2pPSK(libp2pPSK)
-    const pskBase64 = psk.toString('base64')
+    const pskBase64 = Libp2pService.generateLibp2pPSK().psk
     await this.localDbService.put(LocalDBKeys.PSK, pskBase64)
     console.log('psk base64 SAVED', pskBase64)
     this.serverIoProvider.io.emit(SocketActionTypes.PSK, { psk: pskBase64 })
@@ -375,14 +373,13 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     if (!peers || peers.length === 0) {
       peers = [this.libp2pService.createLibp2pAddress(onionAddress, _peerId.toString())]
     }
-    const pskValue = await this.localDbService.get(LocalDBKeys.PSK)
+    const pskValue: string = await this.localDbService.get(LocalDBKeys.PSK)
     if (!pskValue) {
       throw new Error('No psk in local db')
     }
     console.log('psk base64 RETRIEVED', pskValue)
-    const psk = uint8ArrayFromString(pskValue, 'base64')
-    const libp2pPSK = new Uint8Array(95)
-    generateLibp2pPSK(libp2pPSK, psk)
+
+    const libp2pPSK = Libp2pService.generateLibp2pPSK(pskValue).fullKey
 
     const params: Libp2pNodeParams = {
       peerId: _peerId,

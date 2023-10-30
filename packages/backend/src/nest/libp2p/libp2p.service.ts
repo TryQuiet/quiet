@@ -20,6 +20,11 @@ import { webSockets } from '../websocketOverTor'
 import { all } from '../websocketOverTor/filters'
 import { createLibp2pAddress, createLibp2pListenAddress } from '@quiet/common'
 import { preSharedKey } from 'libp2p/pnet'
+import { toString as uint8ArrayToString } from 'uint8arrays/to-string'
+import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
+import crypto from 'crypto'
+
+const KEY_LENGTH = 32
 
 @Injectable()
 export class Libp2pService extends EventEmitter {
@@ -43,6 +48,28 @@ export class Libp2pService extends EventEmitter {
 
   public readonly createLibp2pListenAddress = (address: string): string => {
     return createLibp2pListenAddress(address)
+  }
+
+  public static generateLibp2pPSK(key?: string) {
+    /**
+     * Based on 'libp2p/pnet' generateKey
+     *
+     * @param key: base64 encoded psk
+     */
+    const libp2pPSK = new Uint8Array(95)
+    let psk
+    if (key) {
+      psk = uint8ArrayFromString(key, 'base64')
+    } else {
+      psk = crypto.randomBytes(KEY_LENGTH)
+    }
+
+    const base16StringKey = uint8ArrayToString(psk, 'base16')
+    const fullKey = uint8ArrayFromString('/key/swarm/psk/1.0.0/\n/base16/\n' + base16StringKey)
+
+    libp2pPSK.set(fullKey)
+
+    return { psk: psk.toString('base64'), fullKey }
   }
 
   public async createInstance(params: Libp2pNodeParams): Promise<Libp2p> {
