@@ -50,6 +50,7 @@ import Logger from '../common/logger'
 import { DirectMessagesRepo, PublicChannelsRepo } from '../common/types'
 import { removeFiles, removeDirs, createPaths, getUsersAddresses } from '../common/utils'
 import { StorageEvents } from './storage.types'
+import { CertificatesRequestsStore } from './certificatesRequestsStore'
 
 interface DBOptions {
   replicate: boolean
@@ -65,6 +66,7 @@ export class StorageService extends EventEmitter {
   private publicKeysMap: Map<string, CryptoKey> = new Map()
   private userNamesMap: Map<string, string> = new Map()
   private communityMetadata: KeyValueStore<CommunityMetadata>
+  public certificatesRequestsStore: CertificatesRequestsStore
   private ipfs: IPFS
   private orbitDb: OrbitDB
   private filesManager: IpfsFileManagerService
@@ -224,6 +226,8 @@ export class StorageService extends EventEmitter {
     this.logger('4/5')
     await this.createDbForCommunityMetadata()
     this.logger('5/5')
+    this.certificatesRequestsStore = new CertificatesRequestsStore(this.orbitDb)
+    await this.certificatesRequestsStore.init(this)
     await this.initAllChannels()
     this.logger('Initialized DBs')
     this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.INITIALIZED_DBS)
