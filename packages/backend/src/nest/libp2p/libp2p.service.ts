@@ -1,5 +1,4 @@
 import { Inject, Injectable } from '@nestjs/common'
-
 import { Agent } from 'https'
 import { createLibp2p, Libp2p } from 'libp2p'
 import { noise } from '@chainsafe/libp2p-noise'
@@ -25,6 +24,7 @@ import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
 import crypto from 'crypto'
 
 const KEY_LENGTH = 32
+export const LIBP2P_PSK_METADATA = '/key/swarm/psk/1.0.0/\n/base16/\n'
 
 @Injectable()
 export class Libp2pService extends EventEmitter {
@@ -59,17 +59,16 @@ export class Libp2pService extends EventEmitter {
     const libp2pPSK = new Uint8Array(95)
     let psk
     if (key) {
-      psk = uint8ArrayFromString(key, 'base64')
+      psk = Buffer.from(key, 'base64')
     } else {
       psk = crypto.randomBytes(KEY_LENGTH)
     }
 
     const base16StringKey = uint8ArrayToString(psk, 'base16')
-    const fullKey = uint8ArrayFromString('/key/swarm/psk/1.0.0/\n/base16/\n' + base16StringKey)
+    const fullKey = uint8ArrayFromString(LIBP2P_PSK_METADATA + base16StringKey)
 
     libp2pPSK.set(fullKey)
-
-    return { psk: psk.toString('base64'), fullKey }
+    return { psk: psk.toString('base64'), fullKey: libp2pPSK }
   }
 
   public async createInstance(params: Libp2pNodeParams): Promise<Libp2p> {
