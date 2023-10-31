@@ -23,11 +23,7 @@ export const PossibleImpersonationAttackScreen: FC<PossibleImpersonationAttackSc
   }, [dispatch])
 
   const handleBackButton = useCallback(() => {
-    dispatch(
-      navigationActions.replaceScreen({
-        screen: ScreenNames.ChannelListScreen,
-      })
-    )
+    dispatch(navigationActions.pop())
   }, [dispatch])
 
   return (
