@@ -171,12 +171,13 @@ export const newestCurrentChannelMessage = createSelector(sortedCurrentChannelMe
 export const displayableCurrentChannelMessages = createSelector(
   sortedCurrentChannelMessages,
   allUsers,
-  (messages, users) => {
+  userProfiles,
+  (messages, users, userProfiles: Record<string, UserProfile>) => {
     return messages.reduce((result: DisplayableMessage[], message: ChannelMessage) => {
       const user = users[message.pubKey]
       if (user) {
         // @ts-ignore
-        result.push(displayableMessage(message, user))
+        result.push(displayableMessage(message, user, userProfiles[message.pubKey]))
       }
       return result
     }, [])
@@ -212,16 +213,11 @@ export const dailyGroupedCurrentChannelMessages = createSelector(displayableCurr
  */
 export const currentChannelMessagesMergedBySender = createSelector(
   dailyGroupedCurrentChannelMessages,
-  userProfiles,
-  (groups: MessagesGroupsType, userProfiles: Record<string, UserProfile>) => {
+  (groups: MessagesGroupsType) => {
     const result: MessagesDailyGroups = {}
     for (const day in groups) {
       result[day] = groups[day].reduce((merged: DisplayableMessage[][], message: DisplayableMessage) => {
         if (!merged.length) {
-          // Add profile photo to user's first message
-          if (message.pubKey in userProfiles) {
-            message.photo = userProfiles[message.pubKey].profile.photo
-          }
           merged.push([message])
           return merged
         }
@@ -238,10 +234,6 @@ export const currentChannelMessagesMergedBySender = createSelector(
         ) {
           merged[index].push(message)
         } else {
-          // Add profile photo to user's first message
-          if (message.pubKey in userProfiles) {
-            message.photo = userProfiles[message.pubKey].profile.photo
-          }
           merged.push([message])
         }
 
