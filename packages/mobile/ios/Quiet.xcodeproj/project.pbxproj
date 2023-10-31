@@ -12,6 +12,7 @@
 		069DD1D7AEEE422CAA8DDBAD /* Rubik-Black.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 087527EFE5B6436EAB420BE2 /* Rubik-Black.ttf */; };
 		0FBBD0C07F80428D9985FB09 /* Rubik-LightItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F07611BD79814082A0C19928 /* Rubik-LightItalic.ttf */; };
 		1389B75C9E334BCFB4A3E58B /* Rubik-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F2CAE82B74814677AFF9779E /* Rubik-Regular.ttf */; };
+		180E120B2AEFB7F900804659 /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 180E120A2AEFB7F900804659 /* Utils.swift */; };
 		1827A9E229783D6E00245FD3 /* classic-level.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1827A9E129783D6E00245FD3 /* classic-level.framework */; platformFilter = ios; };
 		1827A9E329783D7600245FD3 /* classic-level.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1827A9E129783D6E00245FD3 /* classic-level.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		1827A9E429783D7600245FD3 /* classic-level.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 1827A9E129783D6E00245FD3 /* classic-level.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -35,15 +36,15 @@
 		18FD2A3E296F009E00A2B8C0 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 18FD2A37296F009E00A2B8C0 /* AppDelegate.m */; };
 		18FD2A3F296F009E00A2B8C0 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 18FD2A38296F009E00A2B8C0 /* Images.xcassets */; };
 		18FD2A40296F009E00A2B8C0 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 18FD2A39296F009E00A2B8C0 /* main.m */; };
-		3C78B58573E0D2A7A1622803 /* libPods-Quiet-QuietTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 865CA6E5185C29ABCD1914D9 /* libPods-Quiet-QuietTests.a */; };
 		43B99DB1C98D429295E8CB91 /* Rubik-SemiBoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2BB5F4B8D4F3462CB8AF6312 /* Rubik-SemiBoldItalic.ttf */; };
 		5CBDF3C0D937401A886684F8 /* Rubik-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 706E1601C7B649A8A40A7877 /* Rubik-Light.ttf */; };
 		62541AEC8BEC401EBAAF6198 /* Rubik-ExtraBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 18ED84D0299E4E55AB68AA3E /* Rubik-ExtraBold.ttf */; };
-		6CF8B0FBA0941F3F55F1AEC5 /* libPods-Quiet.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A741A825CDCBDA1C56FA789 /* libPods-Quiet.a */; };
 		7F80A59D9EC1440186E5D5CF /* Rubik-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = BF73B04135634980BC656D6C /* Rubik-SemiBold.ttf */; };
 		80CCB457674F4979A3C5DB06 /* Rubik-MediumItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = EBC2A7699E0A49059904DD8C /* Rubik-MediumItalic.ttf */; };
 		8A009A60D84E4B08AB0E8152 /* Rubik-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E820B3E5514B49EE8C72DECB /* Rubik-Bold.ttf */; };
 		9EC9E7C54868433990A479EC /* Rubik-ExtraBoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 182B8961416E4D4C8A29793D /* Rubik-ExtraBoldItalic.ttf */; };
+		9EFEA2C3C6AE0D6FA6A4C079 /* libPods-Quiet-QuietTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ED4D442ACC913B8E48E2C569 /* libPods-Quiet-QuietTests.a */; };
+		A43CD77BAC37717C692E6333 /* libPods-Quiet.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 47D3FEF6693D5638AD9D0AFF /* libPods-Quiet.a */; };
 		B4D947D797C747ABAC4EDB69 /* Rubik-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 378A1FDC610441568B568410 /* Rubik-Medium.ttf */; };
 		DB3A77793E604ACE8E52C67D /* Rubik-BlackItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 23AE2E9AAC824E76A9C4B3D5 /* Rubik-BlackItalic.ttf */; };
 		DCA6BD5DCC514EEF87705ACB /* Rubik-BoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 84720E58493F44BE8C4784E3 /* Rubik-BoldItalic.ttf */; };
@@ -81,7 +82,7 @@
 		00E356F21AD99517003FC87E /* QuietTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = QuietTests.m; sourceTree = "<group>"; };
 		087527EFE5B6436EAB420BE2 /* Rubik-Black.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-Black.ttf"; path = "../assets/fonts/Rubik-Black.ttf"; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* Quiet.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Quiet.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		149DA46FB928274C5FB2FB01 /* Pods-Quiet.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Quiet.debug.xcconfig"; path = "Target Support Files/Pods-Quiet/Pods-Quiet.debug.xcconfig"; sourceTree = "<group>"; };
+		180E120A2AEFB7F900804659 /* Utils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
 		1827A9E129783D6E00245FD3 /* classic-level.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = "classic-level.framework"; sourceTree = "<group>"; };
 		182B8961416E4D4C8A29793D /* Rubik-ExtraBoldItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-ExtraBoldItalic.ttf"; path = "../assets/fonts/Rubik-ExtraBoldItalic.ttf"; sourceTree = "<group>"; };
 		183C484F296C7B6700BA2D8B /* v8-platform.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "v8-platform.h"; sourceTree = "<group>"; };
@@ -596,21 +597,22 @@
 		18FD2A39296F009E00A2B8C0 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = Quiet/main.m; sourceTree = "<group>"; };
 		18FD2A3A296F009E00A2B8C0 /* Quiet.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; name = Quiet.entitlements; path = Quiet/Quiet.entitlements; sourceTree = "<group>"; };
 		18FD2A3B296F009E00A2B8C0 /* QuietDebug.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; name = QuietDebug.entitlements; path = Quiet/QuietDebug.entitlements; sourceTree = "<group>"; };
+		20C39A27A55F5BFF2B63BC14 /* Pods-Quiet-QuietTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Quiet-QuietTests.debug.xcconfig"; path = "Target Support Files/Pods-Quiet-QuietTests/Pods-Quiet-QuietTests.debug.xcconfig"; sourceTree = "<group>"; };
 		2386DA39D8B240D9A80ECBD9 /* Rubik-Italic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-Italic.ttf"; path = "../assets/fonts/Rubik-Italic.ttf"; sourceTree = "<group>"; };
 		23AE2E9AAC824E76A9C4B3D5 /* Rubik-BlackItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-BlackItalic.ttf"; path = "../assets/fonts/Rubik-BlackItalic.ttf"; sourceTree = "<group>"; };
-		262E5B8A9D4174F60C5940B1 /* Pods-Quiet-QuietTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Quiet-QuietTests.debug.xcconfig"; path = "Target Support Files/Pods-Quiet-QuietTests/Pods-Quiet-QuietTests.debug.xcconfig"; sourceTree = "<group>"; };
 		2BB5F4B8D4F3462CB8AF6312 /* Rubik-SemiBoldItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-SemiBoldItalic.ttf"; path = "../assets/fonts/Rubik-SemiBoldItalic.ttf"; sourceTree = "<group>"; };
 		378A1FDC610441568B568410 /* Rubik-Medium.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-Medium.ttf"; path = "../assets/fonts/Rubik-Medium.ttf"; sourceTree = "<group>"; };
-		4A741A825CDCBDA1C56FA789 /* libPods-Quiet.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Quiet.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		56957883430CB6A0A09E6740 /* Pods-Quiet.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Quiet.release.xcconfig"; path = "Target Support Files/Pods-Quiet/Pods-Quiet.release.xcconfig"; sourceTree = "<group>"; };
+		47D3FEF6693D5638AD9D0AFF /* libPods-Quiet.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Quiet.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		599527D61D41D1899FC6F87B /* Pods-Quiet-QuietTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Quiet-QuietTests.release.xcconfig"; path = "Target Support Files/Pods-Quiet-QuietTests/Pods-Quiet-QuietTests.release.xcconfig"; sourceTree = "<group>"; };
 		706E1601C7B649A8A40A7877 /* Rubik-Light.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-Light.ttf"; path = "../assets/fonts/Rubik-Light.ttf"; sourceTree = "<group>"; };
 		84720E58493F44BE8C4784E3 /* Rubik-BoldItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-BoldItalic.ttf"; path = "../assets/fonts/Rubik-BoldItalic.ttf"; sourceTree = "<group>"; };
-		865CA6E5185C29ABCD1914D9 /* libPods-Quiet-QuietTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Quiet-QuietTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		9CC7C58C143E70B860940210 /* Pods-Quiet-QuietTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Quiet-QuietTests.release.xcconfig"; path = "Target Support Files/Pods-Quiet-QuietTests/Pods-Quiet-QuietTests.release.xcconfig"; sourceTree = "<group>"; };
 		BF73B04135634980BC656D6C /* Rubik-SemiBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-SemiBold.ttf"; path = "../assets/fonts/Rubik-SemiBold.ttf"; sourceTree = "<group>"; };
+		CD39A872C9F80A6BA04B8A4A /* Pods-Quiet.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Quiet.release.xcconfig"; path = "Target Support Files/Pods-Quiet/Pods-Quiet.release.xcconfig"; sourceTree = "<group>"; };
 		E820B3E5514B49EE8C72DECB /* Rubik-Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-Bold.ttf"; path = "../assets/fonts/Rubik-Bold.ttf"; sourceTree = "<group>"; };
 		EBC2A7699E0A49059904DD8C /* Rubik-MediumItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-MediumItalic.ttf"; path = "../assets/fonts/Rubik-MediumItalic.ttf"; sourceTree = "<group>"; };
+		ED4D442ACC913B8E48E2C569 /* libPods-Quiet-QuietTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Quiet-QuietTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		F07611BD79814082A0C19928 /* Rubik-LightItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-LightItalic.ttf"; path = "../assets/fonts/Rubik-LightItalic.ttf"; sourceTree = "<group>"; };
+		F2C59D3CAFDB714D809D1115 /* Pods-Quiet.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Quiet.debug.xcconfig"; path = "Target Support Files/Pods-Quiet/Pods-Quiet.debug.xcconfig"; sourceTree = "<group>"; };
 		F2CAE82B74814677AFF9779E /* Rubik-Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-Regular.ttf"; path = "../assets/fonts/Rubik-Regular.ttf"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -622,7 +624,7 @@
 				18C5DE1329782326008036F4 /* leveldown.framework in Frameworks */,
 				1842897C295466AA00CA5039 /* NodeMobile.framework in Frameworks */,
 				1827A9E229783D6E00245FD3 /* classic-level.framework in Frameworks */,
-				3C78B58573E0D2A7A1622803 /* libPods-Quiet-QuietTests.a in Frameworks */,
+				9EFEA2C3C6AE0D6FA6A4C079 /* libPods-Quiet-QuietTests.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -633,7 +635,7 @@
 				18C5DE1829782334008036F4 /* leveldown.framework in Frameworks */,
 				1827A9E329783D7600245FD3 /* classic-level.framework in Frameworks */,
 				1842897D295466B500CA5039 /* NodeMobile.framework in Frameworks */,
-				6CF8B0FBA0941F3F55F1AEC5 /* libPods-Quiet.a in Frameworks */,
+				A43CD77BAC37717C692E6333 /* libPods-Quiet.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -660,6 +662,7 @@
 		13B07FAE1A68108700A75B9A /* Quiet */ = {
 			isa = PBXGroup;
 			children = (
+				180E120A2AEFB7F900804659 /* Utils.swift */,
 				18FD2A36296F009E00A2B8C0 /* AppDelegate.h */,
 				18FD2A37296F009E00A2B8C0 /* AppDelegate.m */,
 				18FD2A38296F009E00A2B8C0 /* Images.xcassets */,
@@ -4688,10 +4691,10 @@
 		1CEEDB4F07B9978C125775C5 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				149DA46FB928274C5FB2FB01 /* Pods-Quiet.debug.xcconfig */,
-				56957883430CB6A0A09E6740 /* Pods-Quiet.release.xcconfig */,
-				262E5B8A9D4174F60C5940B1 /* Pods-Quiet-QuietTests.debug.xcconfig */,
-				9CC7C58C143E70B860940210 /* Pods-Quiet-QuietTests.release.xcconfig */,
+				F2C59D3CAFDB714D809D1115 /* Pods-Quiet.debug.xcconfig */,
+				CD39A872C9F80A6BA04B8A4A /* Pods-Quiet.release.xcconfig */,
+				20C39A27A55F5BFF2B63BC14 /* Pods-Quiet-QuietTests.debug.xcconfig */,
+				599527D61D41D1899FC6F87B /* Pods-Quiet-QuietTests.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -4702,8 +4705,8 @@
 				1827A9E129783D6E00245FD3 /* classic-level.framework */,
 				18C5DE1029782326008036F4 /* leveldown.framework */,
 				1842897B295466AA00CA5039 /* NodeMobile.framework */,
-				4A741A825CDCBDA1C56FA789 /* libPods-Quiet.a */,
-				865CA6E5185C29ABCD1914D9 /* libPods-Quiet-QuietTests.a */,
+				47D3FEF6693D5638AD9D0AFF /* libPods-Quiet.a */,
+				ED4D442ACC913B8E48E2C569 /* libPods-Quiet-QuietTests.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -4769,12 +4772,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 00E357021AD99517003FC87E /* Build configuration list for PBXNativeTarget "QuietTests" */;
 			buildPhases = (
-				05887DFAA4618A6767326B2C /* [CP] Check Pods Manifest.lock */,
+				3A0DBD8E832195F1C96149E4 /* [CP] Check Pods Manifest.lock */,
 				00E356EA1AD99517003FC87E /* Sources */,
 				00E356EB1AD99517003FC87E /* Frameworks */,
 				00E356EC1AD99517003FC87E /* Resources */,
-				BCB5CD734D9D7837D92F6F6A /* [CP] Embed Pods Frameworks */,
-				96FE87B8CF60D56415A6D872 /* [CP] Copy Pods Resources */,
+				906843AE2BDF77EFA0025899 /* [CP] Embed Pods Frameworks */,
+				75398FB9BE83762F7A4A343B /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -4790,7 +4793,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "Quiet" */;
 			buildPhases = (
-				1A881985853DC9243FFCAD06 /* [CP] Check Pods Manifest.lock */,
+				A66CC1900B2FEB9695F131B5 /* [CP] Check Pods Manifest.lock */,
 				FD10A7F022414F080027D42C /* Start Packager */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
@@ -4802,8 +4805,8 @@
 				1827A9E0297837FE00245FD3 /* [CUSTOM NODEJS MOBILE] Remove prebuilds */,
 				1868C095292F8FE2001D6D5E /* Embed Frameworks */,
 				18D742A42A41DAD8007D4C4E /* Remove Simulator Strips */,
-				33EE387FBE8BC810E57CE73A /* [CP] Embed Pods Frameworks */,
-				C3B19D7F8A37CA1DEC5A8545 /* [CP] Copy Pods Resources */,
+				897206F7B8FF9B5DD7F5561D /* [CP] Embed Pods Frameworks */,
+				F76D7A280A8CDA06072C296A /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -4899,28 +4902,6 @@
 			shellPath = /bin/sh;
 			shellScript = "set -e\n\nexport NODE_BINARY=node\n../node_modules/react-native/scripts/react-native-xcode.sh\n";
 		};
-		05887DFAA4618A6767326B2C /* [CP] Check Pods Manifest.lock */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
-				"${PODS_ROOT}/Manifest.lock",
-			);
-			name = "[CP] Check Pods Manifest.lock";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-Quiet-QuietTests-checkManifestLockResult.txt",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
 		1827A9DE297828AB00245FD3 /* [CUSTOM NODEJS MOBILE] Mock .node files */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -5011,7 +4992,80 @@
 			shellPath = /bin/sh;
 			shellScript = "find \"$CODESIGNING_FOLDER_PATH/nodejs-project/node_modules/\" -name \"python3\" | xargs rm\n";
 		};
-		1A881985853DC9243FFCAD06 /* [CP] Check Pods Manifest.lock */ = {
+		3A0DBD8E832195F1C96149E4 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-Quiet-QuietTests-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		75398FB9BE83762F7A4A343B /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Quiet-QuietTests/Pods-Quiet-QuietTests-resources-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Quiet-QuietTests/Pods-Quiet-QuietTests-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Quiet-QuietTests/Pods-Quiet-QuietTests-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		897206F7B8FF9B5DD7F5561D /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Quiet/Pods-Quiet-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Quiet/Pods-Quiet-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Quiet/Pods-Quiet-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		906843AE2BDF77EFA0025899 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Quiet-QuietTests/Pods-Quiet-QuietTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Quiet-QuietTests/Pods-Quiet-QuietTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Quiet-QuietTests/Pods-Quiet-QuietTests-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		A66CC1900B2FEB9695F131B5 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -5033,58 +5087,7 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		33EE387FBE8BC810E57CE73A /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Quiet/Pods-Quiet-frameworks-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Quiet/Pods-Quiet-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Quiet/Pods-Quiet-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		96FE87B8CF60D56415A6D872 /* [CP] Copy Pods Resources */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Quiet-QuietTests/Pods-Quiet-QuietTests-resources-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Copy Pods Resources";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Quiet-QuietTests/Pods-Quiet-QuietTests-resources-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Quiet-QuietTests/Pods-Quiet-QuietTests-resources.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		BCB5CD734D9D7837D92F6F6A /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Quiet-QuietTests/Pods-Quiet-QuietTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-Quiet-QuietTests/Pods-Quiet-QuietTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Quiet-QuietTests/Pods-Quiet-QuietTests-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		C3B19D7F8A37CA1DEC5A8545 /* [CP] Copy Pods Resources */ = {
+		F76D7A280A8CDA06072C296A /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -5146,6 +5149,7 @@
 				18FD2A3E296F009E00A2B8C0 /* AppDelegate.m in Sources */,
 				1868BCED292E9212001D6D5E /* NodeRunner.mm in Sources */,
 				1868C43C2930E255001D6D5E /* CommunicationModule.swift in Sources */,
+				180E120B2AEFB7F900804659 /* Utils.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -5162,7 +5166,7 @@
 /* Begin XCBuildConfiguration section */
 		00E356F61AD99517003FC87E /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 262E5B8A9D4174F60C5940B1 /* Pods-Quiet-QuietTests.debug.xcconfig */;
+			baseConfigurationReference = 20C39A27A55F5BFF2B63BC14 /* Pods-Quiet-QuietTests.debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
@@ -5195,7 +5199,7 @@
 		};
 		00E356F71AD99517003FC87E /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 9CC7C58C143E70B860940210 /* Pods-Quiet-QuietTests.release.xcconfig */;
+			baseConfigurationReference = 599527D61D41D1899FC6F87B /* Pods-Quiet-QuietTests.release.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
@@ -5225,7 +5229,7 @@
 		};
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 149DA46FB928274C5FB2FB01 /* Pods-Quiet.debug.xcconfig */;
+			baseConfigurationReference = F2C59D3CAFDB714D809D1115 /* Pods-Quiet.debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ARCHS = "$(ARCHS_STANDARD)";
@@ -5319,7 +5323,7 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 56957883430CB6A0A09E6740 /* Pods-Quiet.release.xcconfig */;
+			baseConfigurationReference = CD39A872C9F80A6BA04B8A4A /* Pods-Quiet.release.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ARCHS = "$(ARCHS_STANDARD)";

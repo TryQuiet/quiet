@@ -23,13 +23,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlin.random.Random
 import org.json.JSONException
 import org.json.JSONObject
 import org.torproject.android.binary.TorResourceInstaller
 import java.util.concurrent.ThreadLocalRandom
 import kotlin.collections.ArrayList
-import kotlin.math.pow
 
 
 class BackendWorker(private val context: Context, workerParams: WorkerParameters) : CoroutineWorker(context, workerParams) {
@@ -95,7 +93,7 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
 
             // Get and store data port for usage in methods across the app
             val dataPort = Utils.getOpenPort(11000)
-            val socketIOSecret = Random.nextLong(0, 100.0.pow(10.0).toLong()).toString()
+            val socketIOSecret = Utils.generateRandomString(20)
 
             // Init nodejs project
             launch {
