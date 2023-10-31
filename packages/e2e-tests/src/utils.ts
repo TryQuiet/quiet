@@ -156,7 +156,7 @@ export class BuildSetup {
       for (const l of trashLogs) {
         if (dataString.includes(l)) return
       }
-      console.log(dataString)
+      console.log(`[${this.dataDir}]: ${dataString}`)
     })
 
     this.child.stdin.on('data', data => {
