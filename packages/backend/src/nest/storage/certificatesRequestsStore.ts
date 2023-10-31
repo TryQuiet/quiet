@@ -32,23 +32,23 @@ export class CertificatesRequestsStore {
     })
 
     this.store.events.on('write', (_address, entry) => {
-      logger('Saved user profile locally')
+      logger('STORE: Saved user csr locally')
       emitter.emit(StorageEvents.LOADED_USER_CSRS, {
         csrs: [entry.payload.value],
       })
     })
 
     this.store.events.on('ready', async () => {
-      logger('Loaded user profiles to memory')
+      logger('STORE: Loaded user csrs to memory')
       emitter.emit(StorageEvents.LOADED_USER_CSRS, {
-        csrs: await this.getCsrs(),
+        csrs: this.getCsrs(),
       })
     })
 
     this.store.events.on('replicated', async () => {
-      logger('Replicated user profiles')
+      logger('STORE: Replicated user csrs')
       emitter.emit(StorageEvents.LOADED_USER_CSRS, {
-        csrs: await this.getCsrs(),
+        csrs: this.getCsrs(),
       })
     })
 
@@ -66,17 +66,8 @@ export class CertificatesRequestsStore {
 
   public async addUserCsr(csr: string) {
     logger('Adding user profile')
-    try {
-      if (!CertificatesRequestsStore.validateUserCsr(csr)) {
-        // TODO: Send validation errors to frontend or replicate
-        // validation on frontend?
-        logger.error('Failed to add user profile')
-        return
-      }
-      await this.store.add(csr)
-    } catch (err) {
-      logger.error('Failed to add user profile', err)
-    }
+    await this.store.add(csr)
+    return true
   }
 
   public static async validateUserCsr(csr: string) {
@@ -139,8 +130,11 @@ export class CertificatesRequestsStore {
   // }
 
   // get all event log entries
-  public async getCsrs(): Promise<string[]> {
-    return Object.values(this.store.all)
+  protected getCsrs() {
+    return this.store
+      .iterator({ limit: -1 })
+      .collect()
+      .map(e => e.payload.value)
   }
 }
 

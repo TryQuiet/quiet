@@ -60,7 +60,6 @@ interface DBOptions {
 export class StorageService extends EventEmitter {
   public channels: KeyValueStore<PublicChannel>
   private certificates: EventStore<string>
-  private certificatesRequests: EventStore<string>
   public publicChannelsRepos: Map<string, PublicChannelsRepo> = new Map()
   public directMessagesRepos: Map<string, DirectMessagesRepo> = new Map()
   private publicKeysMap: Map<string, CryptoKey> = new Map()
@@ -158,8 +157,8 @@ export class StorageService extends EventEmitter {
     if (this.certificates?.address) {
       dbs.push(this.certificates.address)
     }
-    if (this.certificatesRequests?.address) {
-      dbs.push(this.certificatesRequests.address)
+    if (this.certificatesRequestsStore.getAddress()) {
+      dbs.push(this.certificatesRequestsStore.getAddress())
     }
     if (this.communityMetadata?.address) {
       dbs.push(this.communityMetadata.address)
@@ -222,7 +221,7 @@ export class StorageService extends EventEmitter {
     this.logger('2/5')
     await this.createDbForCertificates()
     this.logger('3/5')
-    await this.createDbForCertificatesRequests()
+    await this.attachCsrsStoreListeners()
     this.logger('4/5')
     await this.createDbForCommunityMetadata()
     this.logger('5/5')
@@ -309,7 +308,7 @@ export class StorageService extends EventEmitter {
       this.logger.error('Error closing certificates db', e)
     }
     try {
-      await this.certificatesRequests?.close()
+      await this.certificatesRequestsStore?.close()
     } catch (e) {
       this.logger.error('Error closing certificates db', e)
     }
@@ -393,26 +392,11 @@ export class StorageService extends EventEmitter {
     this.logger('STORAGE: Finished createDbForCertificates')
   }
 
-  public async createDbForCertificatesRequests() {
-    this.logger('certificatesRequests db init')
-    this.certificatesRequests = await this.orbitDb.log<string>('csrs', {
-      replicate: false,
-      accessController: {
-        write: ['*'],
-      },
-    })
-    this.certificatesRequests.events.on('replicated', async () => {
-      this.logger('REPLICATED: CSRs')
-      const allCsrs = this.getAllEventLogEntries(this.certificatesRequests)
+  public async attachCsrsStoreListeners() {
+    this.on(StorageEvents.LOADED_USER_CSRS, async (payload) => {
+      console.log('csrs', payload.csrs)
       const allCertificates = this.getAllEventLogEntries(this.certificates)
-      this.emit(StorageEvents.REPLICATED_CSR, { csrs: allCsrs, certificates: allCertificates })
-      await this.updatePeersList()
-    })
-    this.certificatesRequests.events.on('write', async (_address, entry) => {
-      const csr: string = entry.payload.value
-      this.logger('Saved CSR locally')
-      const allCertificates = this.getAllEventLogEntries(this.certificates)
-      this.emit(StorageEvents.REPLICATED_CSR, { csrs: [csr], certificates: allCertificates })
+      this.emit(StorageEvents.REPLICATED_CSR, { csrs: payload.csrs, certificates: allCertificates })
       await this.updatePeersList()
     })
   }
@@ -835,28 +819,8 @@ export class StorageService extends EventEmitter {
   }
 
   public async saveCSR(payload: SaveCSRPayload): Promise<boolean> {
-    this.logger('About to save csr...')
-    if (!payload.csr) {
-      this.logger('CSR is either null or undefined, not saving to db')
-      return false
-    }
-    // TODO: Verify CSR
-    try {
-      parseCertificationRequest(payload.csr)
-    } catch (e) {
-      this.logger.error(`Cannot save csr ${payload.csr}. Reason: ${e.message}`)
-      return false
-    }
-
-    await this.certificatesRequests.load()
-
-    const csrs = this.getAllEventLogEntries(this.certificatesRequests)
-
-    if (csrs.includes(payload.csr)) return false
-
-    this.logger('Saving csr...')
-    await this.certificatesRequests.add(payload.csr)
-    return true
+    const result = await this.certificatesRequestsStore.addUserCsr(payload.csr)
+    return result
   }
 
   public getAllRegisteredUsers(): UserData[] {
@@ -875,7 +839,7 @@ export class StorageService extends EventEmitter {
   }
 
   public getAllUsers(): UserData[] {
-    const csrs = this.getAllEventLogEntries(this.certificatesRequests)
+    const csrs = this.getAllEventLogEntries(this.certificatesRequestsStore.store)
     console.log('csrs count:', csrs.length)
     const allUsers: UserData[] = []
     for (const csr of csrs) {
