@@ -315,8 +315,8 @@ dependencies {
 
     implementation group: 'commons-io', name: 'commons-io', version: '2.6'
 
-    api 'info.guardianproject:jtorctl:0.4.5.7'
     implementation 'info.guardianproject:tor-android:0.4.5.7'
+    implementation 'info.guardianproject:jtorctl:0.4.5.7'
 
     // Websockets connection
     implementation ('io.socket:socket.io-client:2.0.0') {
