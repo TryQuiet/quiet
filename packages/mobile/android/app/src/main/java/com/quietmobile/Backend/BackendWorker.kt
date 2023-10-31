@@ -24,7 +24,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONException
 import org.json.JSONObject
-import org.torproject.android.binary.TorResourceInstaller
 import java.util.concurrent.ThreadLocalRandom
 
 
@@ -117,9 +116,9 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
 
             val dataPath = Utils.createDirectory(context)
 
-            val tor = TorResourceInstaller(context, context.filesDir).installResources()
-            val torBinary = tor.canonicalPath
-
+            val appInfo = context.packageManager.getApplicationInfo(context.packageName, 0)
+            val torBinary = appInfo.nativeLibraryDir + "/libtor.so"
+            
             val platform = "mobile"
 
             startNodeProjectWithArguments("bundle.cjs --torBinary $torBinary --dataPath $dataPath --dataPort $dataPort --platform $platform")
