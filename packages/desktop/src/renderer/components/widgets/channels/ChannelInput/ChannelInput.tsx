@@ -529,22 +529,6 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
         direction='column'
         justifyContent='center'
       >
-        {/* <MentionPoper anchorEl={anchorEl} selected={selected}>
-          {mentionsToSelect.map((target, index) => (
-            <MentionElement
-              key={index}
-              name={target.nickname}
-              highlight={index === selected}
-              onMouseEnter={() => {
-                setSelected(index)
-              }}
-              channelName={channelName}
-              onClick={e => {
-                mentionSelectAction(e)
-              }}
-            />
-          ))}
-        </MentionPoper> */}
         <Grid
           container
           direction='row'
@@ -586,17 +570,13 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
                   onChange={onChangeCb}
                   onKeyDown={onKeyDownCb}
                   onPaste={async e => {
-                    e.preventDefault()
                     const files = e.clipboardData.files
+                    if (files.length) e.preventDefault()
                     for (let i = 0; i < files.length; i++) {
                       const fileExt = path.extname(files[i].name).toLowerCase()
                       const fileName = path.basename(files[i].name, fileExt)
                       const arrayBuffer = await files[i].arrayBuffer()
                       handleClipboardFiles(arrayBuffer, fileExt, fileName)
-                    }
-                    if (!files.length) {
-                      const text = e.clipboardData.getData('text/plain').replace(/(\r\n|\r|\n)/g, '<br />')
-                      document.execCommand('insertHTML', false, text)
                     }
                   }}
                   data-testid='messageInput'
