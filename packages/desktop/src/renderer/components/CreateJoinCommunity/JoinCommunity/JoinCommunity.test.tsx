@@ -17,7 +17,7 @@ import PerformCommunityActionComponent from '../PerformCommunityActionComponent'
 import { inviteLinkField } from '../../../forms/fields/communityFields'
 import { InviteLinkErrors } from '../../../forms/fieldsErrors'
 import { CommunityOwnership } from '@quiet/types'
-import { Site, QUIET_JOIN_PAGE, validInvitationUrlTestData } from '@quiet/common'
+import { Site, QUIET_JOIN_PAGE, validInvitationUrlTestData, PSK_PARAM_KEY } from '@quiet/common'
 
 describe('join community', () => {
   const validCode = validInvitationUrlTestData.code()
@@ -199,7 +199,7 @@ describe('join community', () => {
 
   it.each([
     [`http://${validCode}`, InviteLinkErrors.InvalidCode],
-    [`QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE=bbb&${Site.PSK_PARAM_KEY}=${psk}`, InviteLinkErrors.InvalidCode],
+    [`QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE=bbb&${PSK_PARAM_KEY}=${psk}`, InviteLinkErrors.InvalidCode],
     ['bbb=y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd', InviteLinkErrors.InvalidCode],
     ['QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE= ', InviteLinkErrors.InvalidCode],
     ['nqnw4kc4c77fb47lk52m5l57h4tc', InviteLinkErrors.InvalidCode],

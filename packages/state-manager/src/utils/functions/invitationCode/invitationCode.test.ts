@@ -1,5 +1,5 @@
 import { getInvitationCodes } from './invitationCode'
-import { QUIET_JOIN_PAGE, Site } from '@quiet/common'
+import { PSK_PARAM_KEY, QUIET_JOIN_PAGE } from '@quiet/common'
 
 describe('Invitation code helper', () => {
   const peerId1 = 'QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSA'
@@ -11,7 +11,7 @@ describe('Invitation code helper', () => {
 
   it('retrieves invitation code if url is a proper share url', () => {
     const result = getInvitationCodes(
-      `${QUIET_JOIN_PAGE}#${peerId1}=${address1}&${peerId2}=${address2}&${Site.PSK_PARAM_KEY}=${encodedPsk}`
+      `${QUIET_JOIN_PAGE}#${peerId1}=${address1}&${peerId2}=${address2}&${PSK_PARAM_KEY}=${encodedPsk}`
     )
     expect(result).toEqual({
       pairs: [
@@ -31,15 +31,11 @@ describe('Invitation code helper', () => {
   })
 
   it('throws error if psk has invalid format', () => {
-    expect(() =>
-      getInvitationCodes(`${peerId1}=${address1}&${peerId2}=${address2}&${Site.PSK_PARAM_KEY}=12345`)
-    ).toThrow()
+    expect(() => getInvitationCodes(`${peerId1}=${address1}&${peerId2}=${address2}&${PSK_PARAM_KEY}=12345`)).toThrow()
   })
 
   it('retrieves invitation code if url is a proper code', () => {
-    const result = getInvitationCodes(
-      `${peerId1}=${address1}&${peerId2}=${address2}&${Site.PSK_PARAM_KEY}=${encodedPsk}`
-    )
+    const result = getInvitationCodes(`${peerId1}=${address1}&${peerId2}=${address2}&${PSK_PARAM_KEY}=${encodedPsk}`)
     expect(result).toEqual({
       pairs: [
         { peerId: peerId1, onionAddress: address1 },
@@ -50,9 +46,7 @@ describe('Invitation code helper', () => {
   })
 
   it('retrieves invitation code if url is a proper code', () => {
-    const result = getInvitationCodes(
-      `${peerId1}=${address1}&${peerId2}=${address2}&${Site.PSK_PARAM_KEY}=${encodedPsk}`
-    )
+    const result = getInvitationCodes(`${peerId1}=${address1}&${peerId2}=${address2}&${PSK_PARAM_KEY}=${encodedPsk}`)
     expect(result).toEqual({
       pairs: [
         { peerId: peerId1, onionAddress: address1 },

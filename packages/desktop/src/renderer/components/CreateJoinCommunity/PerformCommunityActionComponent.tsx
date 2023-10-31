@@ -20,7 +20,7 @@ import { InviteLinkErrors } from '../../forms/fieldsErrors'
 import { IconButton, InputAdornment } from '@mui/material'
 import VisibilityOff from '@mui/icons-material/VisibilityOff'
 import Visibility from '@mui/icons-material/Visibility'
-import { ONION_ADDRESS_REGEX, composeInvitationShareUrl, parseName } from '@quiet/common'
+import { composeInvitationShareUrl, parseName } from '@quiet/common'
 import { getInvitationCodes } from '@quiet/state-manager'
 
 const PREFIX = 'PerformCommunityActionComponent'

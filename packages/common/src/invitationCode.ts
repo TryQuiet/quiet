@@ -1,15 +1,26 @@
 import { InvitationData, InvitationPair } from '@quiet/types'
-import { ONION_ADDRESS_REGEX, PEER_ID_REGEX, QUIET_JOIN_PAGE, Site } from './static'
+import { QUIET_JOIN_PAGE } from './static'
 import { createLibp2pAddress, isPSKcodeValid } from './libp2p'
 
-const parseDeepUrl = ({ url, expectedProtocol = `quiet:` }: { url: string; expectedProtocol?: string }) => {
+export const PSK_PARAM_KEY = 'k'
+const DEEP_URL_SCHEME_WITH_SEPARATOR = 'quiet://'
+const DEEP_URL_SCHEME = 'quiet'
+const ONION_ADDRESS_REGEX = /^[a-z0-9]{56}$/g
+const PEER_ID_REGEX = /^[a-zA-Z0-9]{46}$/g
+
+interface ParseDeepUrlParams {
+  url: string
+  expectedProtocol?: string
+}
+
+const parseDeepUrl = ({ url, expectedProtocol = `${DEEP_URL_SCHEME}:` }: ParseDeepUrlParams): InvitationData => {
   let _url = url
   let validUrl: URL | null = null
 
   if (!expectedProtocol) {
     // Create a full url to be able to use the same URL parsing mechanism
-    expectedProtocol = `${Site.DEEP_URL_SCHEME}:`
-    _url = `${Site.DEEP_URL_SCHEME}://?${url}`
+    expectedProtocol = `${DEEP_URL_SCHEME}:`
+    _url = `${DEEP_URL_SCHEME}://?${url}`
   }
 
   try {
@@ -24,13 +35,13 @@ const parseDeepUrl = ({ url, expectedProtocol = `quiet:` }: { url: string; expec
   }
   const params = validUrl.searchParams
   const codes: InvitationPair[] = []
-  let psk = params.get(Site.PSK_PARAM_KEY)
+  let psk = params.get(PSK_PARAM_KEY)
   if (!psk) throw new Error(`No psk found in invitation code '${url}'`)
 
   psk = decodeURIComponent(psk)
   if (!isPSKcodeValid(psk)) throw new Error(`Invalid psk in invitation code '${url}'`)
 
-  params.delete(Site.PSK_PARAM_KEY)
+  params.delete(PSK_PARAM_KEY)
 
   params.forEach((onionAddress, peerId) => {
     if (!peerDataValid({ peerId, onionAddress })) return
@@ -110,7 +121,7 @@ export const composeInvitationShareUrl = (data: InvitationData) => {
 }
 
 export const composeInvitationDeepUrl = (data: InvitationData): string => {
-  return composeInvitationUrl(`${Site.DEEP_URL_SCHEME_WITH_SEPARATOR}`, data)
+  return composeInvitationUrl(`${DEEP_URL_SCHEME_WITH_SEPARATOR}`, data)
 }
 
 const composeInvitationUrl = (baseUrl: string, data: InvitationData): string => {
@@ -118,7 +129,7 @@ const composeInvitationUrl = (baseUrl: string, data: InvitationData): string => 
   for (const pair of data.pairs) {
     url.searchParams.append(pair.peerId, pair.onionAddress)
   }
-  url.searchParams.append(Site.PSK_PARAM_KEY, data.psk)
+  url.searchParams.append(PSK_PARAM_KEY, data.psk)
   return url.href
 }
 
