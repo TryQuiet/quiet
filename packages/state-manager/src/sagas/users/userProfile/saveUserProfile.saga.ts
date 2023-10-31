@@ -7,6 +7,7 @@ import { sha256 } from 'multiformats/hashes/sha2'
 
 import { signData, loadPrivateKey, pubKeyFromCsr } from '@quiet/identity'
 import { UserProfile, UserProfileData, SocketActionTypes } from '@quiet/types'
+import { fileToBase64String } from '@quiet/common'
 
 import { config } from '../../users/const/certFieldTypes'
 import { identitySelectors } from '../../identity/identity.selectors'
@@ -15,22 +16,6 @@ import { usersActions } from '../users.slice'
 import { type Socket, applyEmitParams } from '../../../types'
 
 const log = logger('saveUserProfileSaga')
-
-const fileToBase64String = (file: File): Promise<string> => {
-  return new Promise<string>((resolve, reject) => {
-    const reader = new FileReader()
-
-    reader.onload = () => {
-      if (reader.result) {
-        resolve(reader.result as string)
-      } else {
-        reject(new Error(`Failed to read file, result: ${reader.result}`))
-      }
-    }
-    reader.onerror = reject
-    reader.readAsDataURL(file)
-  })
-}
 
 export function* saveUserProfileSaga(socket: Socket, action: PayloadAction<{ photo?: File }>): Generator {
   const identity = yield* select(identitySelectors.currentIdentity)
