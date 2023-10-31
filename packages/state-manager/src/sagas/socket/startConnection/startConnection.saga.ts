@@ -264,7 +264,7 @@ export function subscribe(socket: Socket) {
         })
       )
     })
-    socket.on(SocketActionTypes.PSK, (payload: { psk: string }) => {
+    socket.on(SocketActionTypes.LIBP2P_PSK_SAVED, (payload: { psk: string }) => {
       console.log('save psk', payload)
       emit(communitiesActions.savePSK(payload.psk))
     })

@@ -46,28 +46,27 @@ const parseDeepUrl = ({ url, expectedProtocol = `quiet:` }: { url: string; expec
   }
 }
 
+/**
+ * Extract invitation data from deep url.
+ * Valid format: quiet://?<peerid1>=<address1>&<peerid2>=<addresss2>&k=<psk>
+ */
 export const parseInvitationCodeDeepUrl = (url: string): InvitationData => {
-  /**
-   * Extract invitation data from deep url.
-   * Valid format: quiet://?<peerid1>=<address1>&<peerid2>=<addresss2>&k=<psk>
-   */
   return parseDeepUrl({ url })
 }
 
+/**
+ * @param code <peerId1>=<address1>&<peerId2>=<address2>&k=<psk>
+ */
 export const parseInvitationCode = (code: string): InvitationData => {
-  /**
-   * @param code <peerId1>=<address1>&<peerId2>=<address2>&k=<psk>
-   */
   return parseDeepUrl({ url: code, expectedProtocol: '' })
 }
 
+/**
+ * @arg {string[]} peers - List of peer's p2p addresses
+ * @arg psk - Pre shared key in base64
+ * @returns {string} - Complete shareable invitation link, e.g. https://tryquiet.org/join/#<peerid1>=<address1>&<peerid2>=<addresss2>&k=<psk>
+ */
 export const invitationShareUrl = (peers: string[] = [], psk: string): string => {
-  // TODO: rename
-  /**
-   * @arg {string[]} peers - List of peer's p2p addresses
-   * @arg psk - Pre shared key in base64
-   * @returns {string} - Complete shareable invitation link, e.g. https://tryquiet.org/join/#<peerid1>=<address1>&<peerid2>=<addresss2>&k=<psk>
-   */
   const pairs: InvitationPair[] = []
   for (const peerAddress of peers) {
     let peerId: string
@@ -93,11 +92,9 @@ export const invitationShareUrl = (peers: string[] = [], psk: string): string =>
     pairs.push({ peerId: peerId, onionAddress: rawAddress })
   }
 
-  const _url = composeInvitationShareUrl({ pairs: pairs, psk: psk })
-
-  console.log('invitationShareUrl', _url)
-  const url = new URL(_url)
-  return url.href
+  const url = composeInvitationShareUrl({ pairs: pairs, psk: psk })
+  console.log('invitationShareUrl', url)
+  return url
 }
 
 export const pairsToP2pAddresses = (pairs: InvitationPair[]): string[] => {
@@ -125,10 +122,10 @@ const composeInvitationUrl = (baseUrl: string, data: InvitationData): string => 
   return url.href
 }
 
+/**
+ * Extract invitation codes from deep url if url is present in argv
+ */
 export const argvInvitationCode = (argv: string[]): InvitationData | null => {
-  /**
-   * Extract invitation codes from deep url if url is present in argv
-   */
   let invitationData: InvitationData | null = null
   for (const arg of argv) {
     try {

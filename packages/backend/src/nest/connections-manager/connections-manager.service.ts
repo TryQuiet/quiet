@@ -9,7 +9,7 @@ import { EventEmitter } from 'events'
 import getPort from 'get-port'
 import PeerId from 'peer-id'
 import { removeFilesFromDir } from '../common/utils'
-import validator from 'validator'
+
 import {
   AskForMessagesPayload,
   ChannelMessagesIdsResponse,
@@ -60,8 +60,6 @@ import { StorageEvents } from '../storage/storage.types'
 import { LazyModuleLoader } from '@nestjs/core'
 import Logger from '../common/logger'
 import { emitError } from '../socket/socket.errors'
-import { toString as uint8ArrayToString } from 'uint8arrays/to-string'
-import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
 import { isPSKcodeValid } from '@quiet/common'
 
 @Injectable()
@@ -168,8 +166,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       await this.localDbService.put(LocalDBKeys.COMMUNITY, community)
       if ([ServiceState.LAUNCHING, ServiceState.LAUNCHED].includes(this.communityState)) return
       this.communityState = ServiceState.LAUNCHING
-    }
-    if (community) {
       await this.launchCommunity(community)
     }
   }
@@ -299,7 +295,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     const pskBase64 = Libp2pService.generateLibp2pPSK().psk
     await this.localDbService.put(LocalDBKeys.PSK, pskBase64)
     console.log('psk base64 SAVED', pskBase64)
-    this.serverIoProvider.io.emit(SocketActionTypes.PSK, { psk: pskBase64 })
+    this.serverIoProvider.io.emit(SocketActionTypes.LIBP2P_PSK_SAVED, { psk: pskBase64 })
   }
 
   public async createCommunity(payload: InitCommunityPayload) {
@@ -369,7 +365,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     const _peerId = await peerIdFromKeys(restoredRsa.marshalPubKey(), restoredRsa.marshalPrivKey())
 
     let peers = payload.peers
-    console.log(`Launching community ${payload.id}, payload peers: ${peers}`)
+    console.log(`connections-manager.service, payload peers: ${peers}`)
     if (!peers || peers.length === 0) {
       peers = [this.libp2pService.createLibp2pAddress(onionAddress, _peerId.toString())]
     }
@@ -380,7 +376,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     console.log('psk base64 RETRIEVED', pskValue)
 
     const libp2pPSK = Libp2pService.generateLibp2pPSK(pskValue).fullKey
-
+    console.log('connections-manager.service before createLibp2pInstance', peers)
     const params: Libp2pNodeParams = {
       peerId: _peerId,
       listenAddresses: [this.libp2pService.createLibp2pListenAddress(onionAddress)],

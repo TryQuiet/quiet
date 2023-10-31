@@ -56,7 +56,6 @@ export class Libp2pService extends EventEmitter {
      *
      * @param key: base64 encoded psk
      */
-    const libp2pPSK = new Uint8Array(95)
     let psk
     if (key) {
       psk = Buffer.from(key, 'base64')
@@ -66,9 +65,7 @@ export class Libp2pService extends EventEmitter {
 
     const base16StringKey = uint8ArrayToString(psk, 'base16')
     const fullKey = uint8ArrayFromString(LIBP2P_PSK_METADATA + base16StringKey)
-
-    libp2pPSK.set(fullKey)
-    return { psk: psk.toString('base64'), fullKey: libp2pPSK }
+    return { psk: psk.toString('base64'), fullKey }
   }
 
   public async createInstance(params: Libp2pNodeParams): Promise<Libp2p> {

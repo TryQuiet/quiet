@@ -1,5 +1,5 @@
 import validator from 'validator'
-import { PSK_LENGTH } from './static'
+export const PSK_LENGTH = 44 // PSK is 256 bits/8 = 32 bytes which encodes to 44 characters base64
 
 const ONION = '.onion'
 
