@@ -9,7 +9,7 @@ import { Identity, UserProfile } from '@quiet/types'
 import { useContextMenu } from '../../../../hooks/useContextMenu'
 import Jdenticon from '../../Jdenticon/Jdenticon'
 
-const PREFIX = 'UserProfilePanel'
+const PREFIX = 'UserProfilePanel-'
 
 const classes = {
   root: `${PREFIX}root`,
