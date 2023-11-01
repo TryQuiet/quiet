@@ -28,7 +28,7 @@ export function* saveUserProfileSaga(socket: Socket, action: PayloadAction<{ pho
   try {
     base64EncodedPhoto = yield* call(fileToBase64String, action.payload.photo)
   } catch (err) {
-    log.error('Failed to base64 encode profile photo')
+    log.error('Failed to base64 encode profile photo', err)
     return
   }
 
