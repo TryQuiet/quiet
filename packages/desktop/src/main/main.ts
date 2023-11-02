@@ -34,8 +34,6 @@ const webcrypto = new Crypto()
 
 global.crypto = webcrypto
 
-const SOCKET_IO_SECRET = generateSecret()
-
 let dataDir = DATA_DIR
 let mainWindow: BrowserWindow | null
 let splash: BrowserWindow | null
@@ -104,6 +102,8 @@ setEngine(
     subtle: webcrypto.subtle,
   })
 )
+
+const SOCKET_IO_SECRET = generateSecret()
 
 export const isBrowserWindow = (window: BrowserWindow | null): window is BrowserWindow => {
   return window instanceof BrowserWindow
