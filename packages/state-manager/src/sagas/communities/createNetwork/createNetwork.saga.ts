@@ -33,7 +33,7 @@ export function* createNetworkSaga(
     name: action.payload.name,
     CA,
     rootCa: CA?.rootCertString,
-    psk: action.payload.psk, // TODO: What if backend says that psk is not valid?
+    psk: action.payload.psk,
   }
 
   const invitationPeers = action.payload.peers
