@@ -9,6 +9,7 @@ import {
   verifyUserCert,
   parseCertificationRequest,
   getReqFieldValue,
+  loadCSR,
 } from '@quiet/identity'
 import type { IPFS } from 'ipfs-core'
 import OrbitDB from 'orbit-db'

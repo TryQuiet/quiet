@@ -1,6 +1,6 @@
 import React from 'react'
 import { ComponentStory, ComponentMeta } from '@storybook/react'
-
+import CssBaseline from '@mui/material/CssBaseline'
 import { INPUT_STATE } from './InputState.enum'
 
 import { ChannelInputComponent, ChannelInputProps } from './ChannelInput'
@@ -20,7 +20,6 @@ export const LongMessage = Template.bind({})
 
 const args: ChannelInputProps = {
   channelId: 'channelId',
-  channelParticipants: [{ nickname: 'john' }, { nickname: 'emily' }],
   inputPlaceholder: '#general as @alice',
   onChange: function (_arg: string): void {},
   onKeyPress: function (input: string): void {
@@ -35,7 +34,6 @@ const args: ChannelInputProps = {
 
 const argsDisabledInput: ChannelInputProps = {
   channelId: 'channelId',
-  channelParticipants: [{ nickname: 'john' }, { nickname: 'emily' }],
   inputPlaceholder: '#general as @alice',
   onChange: function (_arg: string): void {},
   onKeyPress: function (input: string): void {
@@ -246,7 +244,6 @@ not easy being.
 
 const argsLongMessage: ChannelInputProps = {
   channelId: 'channelId',
-  channelParticipants: [{ nickname: 'john' }, { nickname: 'emily' }],
   inputPlaceholder: '#general as @alice',
   initialMessage: initialMessage,
   onChange: function (_arg: string): void {},

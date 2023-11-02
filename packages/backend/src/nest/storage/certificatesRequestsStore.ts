@@ -130,12 +130,31 @@ export class CertificatesRequestsStore {
   // }
 
   // get all event log entries
-  protected getCsrs() {
-    return this.store
+  protected async getCsrs() {
+    const filteredCsrsMap: Map<string, string> = new Map()
+    await this.store.load()
+
+    const allCsrs = this.store
       .iterator({ limit: -1 })
       .collect()
       .map(e => e.payload.value)
+    await Promise.all(
+      allCsrs.map(async csr => {
+        // const parsedCsr = await loadCSR(csr)
+        // const pubKey = keyFromCertificate(parsedCsr)
+
+        // if (filteredCsrsMap.has(pubKey)) {
+        //   filteredCsrsMap.delete(pubKey)
+        // }
+
+        // filteredCsrsMap.set(pubKey, csr)
+      })
+    )
+    return [...filteredCsrsMap.values()]
   }
+
+
+
 }
 
 /**

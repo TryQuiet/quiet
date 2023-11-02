@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.3-alpha.0](https://github.com/TryQuiet/backend/compare/@quiet/backend@2.0.2-alpha.0...@quiet/backend@2.0.3-alpha.0) (2023-10-26)
+
+
+### Features
+
+* version code 366 ([cebf886](https://github.com/TryQuiet/backend/commit/cebf886aee2c4ec6e0ef4e66219d9dc0afecb98c))
+
+
+
+
+
+## [2.0.2-alpha.0](https://github.com/TryQuiet/backend/compare/@quiet/backend@2.0.1-alpha.6...@quiet/backend@2.0.2-alpha.0) (2023-10-26)
+
+**Note:** Version bump only for package @quiet/backend
+
+
+
+
+
 ## [2.0.1-alpha.6](https://github.com/TryQuiet/backend/compare/@quiet/backend@2.0.1-alpha.5...@quiet/backend@2.0.1-alpha.6) (2023-10-13)
 
 **Note:** Version bump only for package @quiet/backend
