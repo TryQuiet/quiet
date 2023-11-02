@@ -166,9 +166,8 @@ describe('Add new channel', () => {
     )
     const factory = await getFactory(store)
 
-    const channel = await factory.create<ReturnType<typeof publicChannels.actions.addChannel>['payload']>(
-      'PublicChannel'
-    )
+    const channel =
+      await factory.create<ReturnType<typeof publicChannels.actions.addChannel>['payload']>('PublicChannel')
 
     renderComponent(<CreateChannel />, store)
 

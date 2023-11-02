@@ -3,6 +3,63 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.3-alpha.0](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@2.0.2-alpha.0...@quiet/mobile@2.0.3-alpha.0) (2023-10-26)
+
+
+### Features
+
+* version code 366 ([cebf886](https://github.com/TryQuiet/quiet/commit/cebf886aee2c4ec6e0ef4e66219d9dc0afecb98c))
+
+
+
+
+
+## [2.0.2-alpha.0](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@2.0.1-alpha.7...@quiet/mobile@2.0.2-alpha.0) (2023-10-26)
+
+**Note:** Version bump only for package @quiet/mobile
+
+
+
+
+
+## [2.0.1-alpha.7](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@2.0.1-alpha.6...@quiet/mobile@2.0.1-alpha.7) (2023-10-16)
+
+**Note:** Version bump only for package @quiet/mobile
+
+
+
+
+
+## [2.0.1-alpha.6](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@2.0.1-alpha.5...@quiet/mobile@2.0.1-alpha.6) (2023-10-13)
+
+
+### Bug Fixes
+
+* fallback to gradle.properties for ndk path ([#1960](https://github.com/TryQuiet/quiet/issues/1960)) ([a1d341c](https://github.com/TryQuiet/quiet/commit/a1d341c9257d3fee93678655741d2ef7eb101c6c))
+
+
+
+
+
+## [2.0.1-alpha.5](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@2.0.1-alpha.4...@quiet/mobile@2.0.1-alpha.5) (2023-10-12)
+
+**Note:** Version bump only for package @quiet/mobile
+
+
+
+
+
+## [2.0.1-alpha.4](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@2.0.1-alpha.3...@quiet/mobile@2.0.1-alpha.4) (2023-10-11)
+
+
+### Reverts
+
+* Revert "Adjust project bootstrap scripts to be windows-friendly (#1870)" (#1937) ([0811ea3](https://github.com/TryQuiet/quiet/commit/0811ea3ea3f682dd763be72b12f626fe416bc036)), closes [#1870](https://github.com/TryQuiet/quiet/issues/1870) [#1937](https://github.com/TryQuiet/quiet/issues/1937) [#1870](https://github.com/TryQuiet/quiet/issues/1870)
+
+
+
+
+
 ## [2.0.1-alpha.3](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@2.0.1-alpha.2...@quiet/mobile@2.0.1-alpha.3) (2023-10-10)
 
 **Note:** Version bump only for package @quiet/mobile
