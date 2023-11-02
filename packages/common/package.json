@@ -28,6 +28,7 @@
   },
   "dependencies": {
     "@quiet/types": "^2.0.2-alpha.0",
+    "@quiet/logger": "^2.0.2-alpha.0",
     "cross-env": "^5.2.0",
     "debug": "^4.3.1",
     "validator": "^13.11.0"

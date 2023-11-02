@@ -40,9 +40,10 @@ export function* createNetworkSaga(
   if (invitationPeers) {
     yield* put(communitiesActions.setInvitationCodes(invitationPeers))
   }
-  console.log('Create network saga', action.payload.psk)
+
   const psk = action.payload.psk
   if (psk) {
+    console.log('create network saga: saving PSK')
     yield* put(communitiesActions.savePSK(psk))
   }
 

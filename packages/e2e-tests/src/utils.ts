@@ -101,7 +101,7 @@ export class BuildSetup {
     await this.initPorts()
     const env = {
       DATA_DIR: this.dataDir || 'Quiet',
-      DEBUG: 'backend*,desktop*',
+      DEBUG: 'backend*,desktop*,utils*',
     }
     if (process.platform === 'win32') {
       console.log('!WINDOWS!')

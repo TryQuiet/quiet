@@ -23,7 +23,7 @@ ipcRenderer.on('force-save-state', async _event => {
 
 ipcRenderer.on('invitation', (_event, invitation: { data: InvitationData }) => {
   if (!invitation.data) return
-  console.log('invitation', invitation.data, 'dispatching action')
+  console.log('invitation', invitation.data.pairs, 'dispatching action')
   store.dispatch(communities.actions.handleInvitationCodes(invitation.data))
 })
 

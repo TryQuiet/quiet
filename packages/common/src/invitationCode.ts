@@ -1,6 +1,8 @@
 import { InvitationData, InvitationPair } from '@quiet/types'
 import { QUIET_JOIN_PAGE } from './static'
 import { createLibp2pAddress, isPSKcodeValid } from './libp2p'
+import Logger from './logger'
+const logger = Logger('invite')
 
 export const PSK_PARAM_KEY = 'k'
 const DEEP_URL_SCHEME_WITH_SEPARATOR = 'quiet://'
@@ -26,11 +28,11 @@ const parseDeepUrl = ({ url, expectedProtocol = `${DEEP_URL_SCHEME}:` }: ParseDe
   try {
     validUrl = new URL(_url)
   } catch (e) {
-    console.error(`Could not retrieve invitation code from deep url '${url}'. Reason: ${e.message}`)
+    logger.error(`Could not retrieve invitation code from deep url '${url}'. Reason: ${e.message}`)
     throw e
   }
   if (!validUrl || validUrl.protocol !== expectedProtocol) {
-    console.error(`Could not retrieve invitation code from deep url '${url}'`)
+    logger.error(`Could not retrieve invitation code from deep url '${url}'`)
     throw new Error(`Invalid url`)
   }
   const params = validUrl.searchParams
@@ -50,7 +52,7 @@ const parseDeepUrl = ({ url, expectedProtocol = `${DEEP_URL_SCHEME}:` }: ParseDe
       onionAddress,
     })
   })
-  console.log('Retrieved data:', codes, psk)
+  logger('Retrieved data:', codes)
   return {
     pairs: codes,
     psk: psk,
@@ -103,9 +105,7 @@ export const invitationShareUrl = (peers: string[] = [], psk: string): string =>
     pairs.push({ peerId: peerId, onionAddress: rawAddress })
   }
 
-  const url = composeInvitationShareUrl({ pairs: pairs, psk: psk })
-  console.log('invitationShareUrl', url)
-  return url
+  return composeInvitationShareUrl({ pairs: pairs, psk: psk })
 }
 
 export const pairsToP2pAddresses = (pairs: InvitationPair[]): string[] => {
@@ -156,11 +156,11 @@ export const argvInvitationCode = (argv: string[]): InvitationData | null => {
 const peerDataValid = ({ peerId, onionAddress }: { peerId: string; onionAddress: string }): boolean => {
   if (!peerId.match(PEER_ID_REGEX)) {
     // TODO: test it more properly e.g with PeerId.createFromB58String(peerId.trim())
-    console.log(`PeerId ${peerId} is not valid`)
+    logger(`PeerId ${peerId} is not valid`)
     return false
   }
   if (!onionAddress.trim().match(ONION_ADDRESS_REGEX)) {
-    console.log(`Onion address ${onionAddress} is not valid`)
+    logger(`Onion address ${onionAddress} is not valid`)
     return false
   }
   return true

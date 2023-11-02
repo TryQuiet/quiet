@@ -23,7 +23,6 @@ export function* registerUsernameSaga(
     return
   }
   const psk = yield* select(communitiesSelectors.psk)
-  console.log('PSK in registerUsernameSaga', psk)
   const networkPayload: Community = {
     id: community.id,
     name: community.name,

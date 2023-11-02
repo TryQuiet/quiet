@@ -157,7 +157,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.logger('launchCommunityFromStorage')
 
     const community: InitCommunityPayload = await this.localDbService.get(LocalDBKeys.COMMUNITY)
-    console.log('launchCommunityFromStorage - community', community)
+    this.logger('launchCommunityFromStorage - community:', community?.id)
     if (community) {
       const sortedPeers = await this.localDbService.getSortedPeers(community.peers)
       if (sortedPeers.length > 0) {
@@ -276,8 +276,9 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     }
     const psk = community.psk
     if (psk) {
-      console.log('createNetwork got psk', psk)
+      this.logger('Creating network: received Libp2p PSK')
       if (!isPSKcodeValid(psk)) {
+        this.logger.error('Creating network: received Libp2p PSK is not valid')
         emitError(this.serverIoProvider.io, {
           type: SocketActionTypes.NETWORK,
           message: ErrorMessages.NETWORK_SETUP_FAILED,
@@ -294,12 +295,12 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   private async generatePSK() {
     const pskBase64 = Libp2pService.generateLibp2pPSK().psk
     await this.localDbService.put(LocalDBKeys.PSK, pskBase64)
-    console.log('psk base64 SAVED', pskBase64)
+    this.logger('Generated Libp2p PSK')
     this.serverIoProvider.io.emit(SocketActionTypes.LIBP2P_PSK_SAVED, { psk: pskBase64 })
   }
 
   public async createCommunity(payload: InitCommunityPayload) {
-    console.log('ConnectionsManager.createCommunity peers:', payload.peers)
+    this.logger('Creating community: peers:', payload.peers)
 
     await this.generatePSK()
 
@@ -309,7 +310,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   }
 
   public async launchCommunity(payload: InitCommunityPayload) {
-    console.log('ConnectionsManager.launchCommunity peers:', payload.peers)
+    this.logger('Launching community: peers:', payload.peers)
     this.communityState = ServiceState.LAUNCHING
     const communityData: InitCommunityPayload = await this.localDbService.get(LocalDBKeys.COMMUNITY)
     if (!communityData) {
@@ -353,7 +354,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       targetPort: this.ports.libp2pHiddenService,
       privKey: payload.hiddenService.privateKey,
     })
-    this.logger(`Launching community ${payload.id}, peer: ${payload.peerId.id}`)
+    this.logger(`Launching community ${payload.id}: peer: ${payload.peerId.id}`)
 
     const { Libp2pModule } = await import('../libp2p/libp2p.module')
     const moduleRef = await this.lazyModuleLoader.load(() => Libp2pModule)
@@ -365,7 +366,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     const _peerId = await peerIdFromKeys(restoredRsa.marshalPubKey(), restoredRsa.marshalPrivKey())
 
     let peers = payload.peers
-    console.log(`connections-manager.service, payload peers: ${peers}`)
+    this.logger(`Launching community ${payload.id}: payload peers: ${peers}`)
     if (!peers || peers.length === 0) {
       peers = [this.libp2pService.createLibp2pAddress(onionAddress, _peerId.toString())]
     }
@@ -373,10 +374,9 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     if (!pskValue) {
       throw new Error('No psk in local db')
     }
-    console.log('psk base64 RETRIEVED', pskValue)
+    this.logger(`Launching community ${payload.id}: retrieved Libp2p PSK`)
 
     const libp2pPSK = Libp2pService.generateLibp2pPSK(pskValue).fullKey
-    console.log('connections-manager.service before createLibp2pInstance', peers)
     const params: Libp2pNodeParams = {
       peerId: _peerId,
       listenAddresses: [this.libp2pService.createLibp2pListenAddress(onionAddress)],
@@ -409,7 +409,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       this.serverIoProvider.io.emit(SocketActionTypes.PEER_DISCONNECTED, payload)
     })
     await this.storageService.init(_peerId)
-    console.log('storage initialized')
+    this.logger('storage initialized')
   }
   private attachTorEventsListeners() {
     this.logger('attachTorEventsListeners')
@@ -450,7 +450,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       }
     })
     this.socketService.on(SocketActionTypes.CREATE_NETWORK, async (args: Community) => {
-      console.log('CREATE NETWORK', args)
+      this.logger(`socketService - ${SocketActionTypes.CREATE_NETWORK}`)
       await this.createNetwork(args)
     })
     this.socketService.on(SocketActionTypes.CREATE_COMMUNITY, async (args: InitCommunityPayload) => {
@@ -474,7 +474,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       await this.storageService?.updateCommunityMetadata(payload)
     })
     this.socketService.on(SocketActionTypes.SAVE_USER_CSR, async (payload: SaveCSRPayload) => {
-      console.log(`On ${SocketActionTypes.SAVE_USER_CSR}`)
+      this.logger(`socketService - ${SocketActionTypes.SAVE_USER_CSR}`)
       await this.storageService?.saveCSR(payload)
       this.serverIoProvider.io.emit(SocketActionTypes.SAVED_USER_CSR, payload)
     })
@@ -523,7 +523,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.socketService.on(
       SocketActionTypes.DELETE_FILES_FROM_CHANNEL,
       async (payload: DeleteFilesFromChannelSocketPayload) => {
-        this.logger('DELETE_FILES_FROM_CHANNEL : payload', payload)
+        this.logger(`socketService - ${SocketActionTypes.DELETE_FILES_FROM_CHANNEL}`, payload)
         await this.storageService?.deleteFilesFromChannel(payload)
         // await this.deleteFilesFromTemporaryDir() //crashes on mobile, will be fixes in next versions
       }
@@ -556,7 +556,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       this.serverIoProvider.io.emit(SocketActionTypes.CHANNEL_SUBSCRIBED, payload)
     })
     this.storageService.on(StorageEvents.CREATED_CHANNEL, (payload: CreatedChannelResponse) => {
-      console.log('created channel in services')
+      this.logger(`Storage - ${StorageEvents.CREATED_CHANNEL}: ${payload.channel.name}`)
       this.serverIoProvider.io.emit(SocketActionTypes.CREATED_CHANNEL, payload)
     })
     this.storageService.on(StorageEvents.REMOVE_DOWNLOAD_STATUS, (payload: RemoveDownloadStatus) => {
@@ -587,19 +587,19 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       this.serverIoProvider.io.emit(SocketActionTypes.CHECK_FOR_MISSING_FILES, payload)
     })
     this.storageService.on(StorageEvents.CHANNEL_DELETION_RESPONSE, (payload: { channelId: string }) => {
-      console.log('emitting deleted channel event back to state manager')
+      this.logger(`Storage - ${StorageEvents.CHANNEL_DELETION_RESPONSE}`)
       this.serverIoProvider.io.emit(SocketActionTypes.CHANNEL_DELETION_RESPONSE, payload)
     })
     this.storageService.on(
       StorageEvents.REPLICATED_CSR,
       async (payload: { csrs: string[]; certificates: string[] }) => {
-        console.log(`On ${StorageEvents.REPLICATED_CSR}`)
+        this.logger(`Storage - ${StorageEvents.REPLICATED_CSR}`)
         this.serverIoProvider.io.emit(SocketActionTypes.RESPONSE_GET_CSRS, { csrs: payload.csrs })
         this.registrationService.emit(RegistrationEvents.REGISTER_USER_CERTIFICATE, payload)
       }
     )
     this.storageService.on(StorageEvents.REPLICATED_COMMUNITY_METADATA, (payload: CommunityMetadata) => {
-      console.log(`On ${StorageEvents.REPLICATED_COMMUNITY_METADATA}: ${payload}`)
+      this.logger(`Storage - ${StorageEvents.REPLICATED_COMMUNITY_METADATA}: ${payload}`)
       const communityMetadataPayload: CommunityMetadataPayload = {
         rootCa: payload.rootCa,
         ownerCertificate: payload.ownerCertificate,
