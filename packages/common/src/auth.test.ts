@@ -1,8 +1,8 @@
-import { encodeSecret, generateSecret, verifyToken } from './auth'
+import { encodeSecret, verifyToken } from './auth'
 
 describe('Auth', () => {
   it('correctly create secret, encode and decode', () => {
-    const secret = generateSecret()
+    const secret = 'secret'
     const token = encodeSecret(secret)
     const decodedSecret = verifyToken(secret, token)
 
@@ -10,7 +10,7 @@ describe('Auth', () => {
   })
 
   it('create token with wrong secret', () => {
-    const secret = generateSecret()
+    const secret = 'secret'
     const token = encodeSecret('test')
     const decodedSecret = verifyToken(secret, token)
 

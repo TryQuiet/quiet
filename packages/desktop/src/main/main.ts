@@ -11,7 +11,7 @@ import { Crypto } from '@peculiar/webcrypto'
 import logger from './logger'
 import { DATA_DIR, DEV_DATA_DIR } from '../shared/static'
 import { fork, ChildProcess } from 'child_process'
-import { generateSecret, getFilesData } from '@quiet/common'
+import { getFilesData } from '@quiet/common'
 import { updateDesktopFile, processInvitationCode } from './invitation'
 import { argvInvitationCode, retrieveInvitationCode } from '@quiet/common'
 const ElectronStore = require('electron-store')
@@ -103,7 +103,7 @@ setEngine(
   })
 )
 
-const SOCKET_IO_SECRET = generateSecret()
+const SOCKET_IO_SECRET = webcrypto.getRandomValues(new Uint32Array(5)).join('')
 
 export const isBrowserWindow = (window: BrowserWindow | null): window is BrowserWindow => {
   return window instanceof BrowserWindow
