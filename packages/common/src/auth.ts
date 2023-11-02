@@ -1,18 +1,6 @@
 import { Crypto } from '@peculiar/webcrypto'
-import { setEngine, CryptoEngine } from 'pkijs'
 
 const webcrypto = new Crypto()
-setEngine(
-  'newEngine',
-  webcrypto,
-  new CryptoEngine({
-    name: '',
-    crypto: webcrypto,
-    subtle: webcrypto.subtle,
-  })
-)
-
-global.crypto = webcrypto
 
 const array = new Uint32Array(5)
 
