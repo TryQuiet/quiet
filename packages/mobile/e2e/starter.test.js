@@ -71,8 +71,8 @@ describe('User', () => {
       .withTimeout(LONG)
   })
 
-  /* 
-   * The following step is currently commented out due to: https://github.com/TryQuiet/quiet/issues/1876 
+  /*
+   * The following step is currently commented out due to: https://github.com/TryQuiet/quiet/issues/1876
    */
 
   // test('minimizes and restores the app', async () => {
@@ -100,11 +100,11 @@ describe('User', () => {
 
   test('sends message to #general channel', async () => {
     await press(element(by.id('input')))
-    await write(element(by.id('input')), "We are no strangers to love")
+    await write(element(by.id('input')), 'We are no strangers to love')
 
     await press(element(by.id('send_message_button')), true)
 
-    await waitFor(element(by.id("We are no strangers to love")))
+    await waitFor(element(by.id('We are no strangers to love')))
       .toBeVisible()
       .withTimeout(BASIC)
 
@@ -112,8 +112,9 @@ describe('User', () => {
   })
 
   test('navigates back to channels list', async () => {
+    console.log('Before pressing appbar_action_item')
     await press(element(by.id('appbar_action_item')))
-
+    console.log('After pressing appbar_action_item')
     await waitFor(element(by.id('channels_list')))
       .toBeVisible()
       .withTimeout(BASIC)
