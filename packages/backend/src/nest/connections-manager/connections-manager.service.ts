@@ -398,6 +398,10 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.registrationService.on(RegistrationEvents.NEW_USER, async payload => {
       await this.storageService?.saveCertificate(payload)
     })
+
+    this.registrationService.on(RegistrationEvents.FINISHED_ISSUING_CERTIFICATES_FOR_ID, payload => {
+      this.storageService.emit(RegistrationEvents.FINISHED_ISSUING_CERTIFICATES_FOR_ID, { id: payload.id })
+    })
   }
   private attachsocketServiceListeners() {
     // Community
@@ -561,7 +565,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     })
     this.storageService.on(
       StorageEvents.REPLICATED_CSR,
-      async (payload: { csrs: string[]; certificates: string[] }) => {
+      async (payload: { csrs: string[]; certificates: string[]; id: string }) => {
         console.log(`On ${StorageEvents.REPLICATED_CSR}`)
         this.serverIoProvider.io.emit(SocketActionTypes.RESPONSE_GET_CSRS, { csrs: payload.csrs })
         this.registrationService.emit(RegistrationEvents.REGISTER_USER_CERTIFICATE, payload)

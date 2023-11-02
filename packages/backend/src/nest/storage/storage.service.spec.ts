@@ -40,6 +40,7 @@ import { LocalDbModule } from '../local-db/local-db.module'
 import { LocalDbService } from '../local-db/local-db.service'
 import { IPFS_REPO_PATCH, ORBIT_DB_DIR, QUIET_DIR } from '../const'
 import { LocalDBKeys } from '../local-db/local-db.types'
+import { RegistrationEvents } from '../registration/registration.types'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)

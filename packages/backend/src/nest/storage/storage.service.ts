@@ -51,6 +51,7 @@ import Logger from '../common/logger'
 import { DirectMessagesRepo, PublicChannelsRepo } from '../common/types'
 import { removeFiles, removeDirs, createPaths, getUsersAddresses } from '../common/utils'
 import { StorageEvents } from './storage.types'
+import { RegistrationEvents } from '../registration/registration.types'
 
 interface DBOptions {
   replicate: boolean
@@ -71,6 +72,7 @@ export class StorageService extends EventEmitter {
   private filesManager: IpfsFileManagerService
   private peerId: PeerId | null = null
   private ipfsStarted: boolean
+  private replicatedPromises: Promise<string | void>[] = []
 
   private readonly logger = Logger(StorageService.name)
   constructor(
@@ -398,13 +400,33 @@ export class StorageService extends EventEmitter {
         write: ['*'],
       },
     })
+
     this.certificatesRequests.events.on('replicated', async () => {
       this.logger('REPLICATED: CSRs')
+
+      const id = Math.random().toString(36).slice(2, 7)
+
+      const promiseForId = new Promise<string>(resolve => {
+        const listener = async (payload: { id: string }) => {
+          if (id === payload.id) {
+            this.removeListener(RegistrationEvents.FINISHED_ISSUING_CERTIFICATES_FOR_ID, listener)
+            resolve(id)
+          }
+        }
+
+        this.on(RegistrationEvents.FINISHED_ISSUING_CERTIFICATES_FOR_ID, listener)
+      })
+
+      this.replicatedPromises.push(promiseForId)
 
       const filteredCsrs = await this.getCsrs()
 
       const allCertificates = this.getAllEventLogEntries(this.certificates)
-      this.emit(StorageEvents.REPLICATED_CSR, { csrs: filteredCsrs, certificates: allCertificates })
+
+      await Promise.all(this.replicatedPromises)
+
+      this.emit(StorageEvents.REPLICATED_CSR, { csrs: filteredCsrs, certificates: allCertificates, id })
+
       await this.updatePeersList()
     })
     this.certificatesRequests.events.on('write', async (_address, entry) => {
