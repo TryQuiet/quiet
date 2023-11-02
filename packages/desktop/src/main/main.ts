@@ -30,11 +30,11 @@ const updaterInterval = 15 * 60_000
 export const isDev = process.env.NODE_ENV === 'development'
 export const isE2Etest = process.env.E2E_TEST === 'true'
 
-const SOCKET_IO_SECRET = generateSecret()
-
 const webcrypto = new Crypto()
 
 global.crypto = webcrypto
+
+const SOCKET_IO_SECRET = generateSecret()
 
 let dataDir = DATA_DIR
 let mainWindow: BrowserWindow | null
