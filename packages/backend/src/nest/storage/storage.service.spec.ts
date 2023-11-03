@@ -675,4 +675,48 @@ describe('StorageService', () => {
       await expect(storageService.deleteFilesFromChannel(messages)).resolves.not.toThrowError()
     })
   })
+
+  describe('replicate certificatesRequests event', () => {
+    const replicatedEvent = async () => {
+      // @ts-ignore - Property 'certificates' is private
+      storageService.certificatesRequests.events.emit('replicated')
+      await new Promise<void>(resolve => setTimeout(() => resolve(), 2000))
+    }
+
+    it('replicated event ', async () => {
+      await storageService.init(peerId)
+      const spyOnUpdatePeersList = jest.spyOn(storageService, 'updatePeersList')
+      await replicatedEvent()
+      expect(spyOnUpdatePeersList).toBeCalledTimes(1)
+    })
+
+    it('2 replicated events - first not resolved ', async () => {
+      await storageService.init(peerId)
+      const spyOnUpdatePeersList = jest.spyOn(storageService, 'updatePeersList')
+      await replicatedEvent()
+      await replicatedEvent()
+      expect(spyOnUpdatePeersList).toBeCalledTimes(1)
+    })
+
+    it('2 replicated events - first resolved ', async () => {
+      await storageService.init(peerId)
+      const spyOnUpdatePeersList = jest.spyOn(storageService, 'updatePeersList')
+      await replicatedEvent()
+      await replicatedEvent()
+      storageService.resolveCsrReplicatedPromise(1)
+      await new Promise<void>(resolve => setTimeout(() => resolve(), 500))
+      expect(spyOnUpdatePeersList).toBeCalledTimes(2)
+    })
+
+    it('3 replicated events - no resolved promises', async () => {
+      await storageService.init(peerId)
+      const spyOnUpdatePeersList = jest.spyOn(storageService, 'updatePeersList')
+
+      await replicatedEvent()
+      await replicatedEvent()
+      await replicatedEvent()
+
+      expect(spyOnUpdatePeersList).toBeCalledTimes(1)
+    })
+  })
 })
