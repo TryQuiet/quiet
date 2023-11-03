@@ -25,14 +25,17 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
     )
   }
 
-  private async issueCertificates(payload: { csrs: string[]; certificates: string[]; id: string }) {
-    if (!this._permsData) return
+  private async issueCertificates(payload: { csrs: string[]; certificates: string[]; id?: string }) {
+    if (!this._permsData) {
+      if (payload.id) this.emit(RegistrationEvents.FINISHED_ISSUING_CERTIFICATES_FOR_ID, { id: payload.id })
+      return
+    }
     const pendingCsrs = await extractPendingCsrs(payload)
     pendingCsrs.forEach(async csr => {
       await this.registerUserCertificate(csr)
     })
 
-    this.emit(RegistrationEvents.FINISHED_ISSUING_CERTIFICATES_FOR_ID, { id: payload.id })
+    if (payload.id) this.emit(RegistrationEvents.FINISHED_ISSUING_CERTIFICATES_FOR_ID, { id: payload.id })
   }
 
   public set permsData(perms: PermsData) {

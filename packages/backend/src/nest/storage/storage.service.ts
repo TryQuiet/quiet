@@ -57,6 +57,11 @@ interface DBOptions {
   replicate: boolean
 }
 
+interface CsrReplicatedPromiseValues {
+  promise: Promise<unknown>
+  resolveFunction: any
+}
+
 @Injectable()
 export class StorageService extends EventEmitter {
   public channels: KeyValueStore<PublicChannel>
@@ -72,7 +77,7 @@ export class StorageService extends EventEmitter {
   private filesManager: IpfsFileManagerService
   private peerId: PeerId | null = null
   private ipfsStarted: boolean
-  public csrReplicatedPromiseMap: Map<number, any> = new Map()
+  public csrReplicatedPromiseMap: Map<number, CsrReplicatedPromiseValues> = new Map()
   private csrReplicatedPromiseId: number = 0
 
   private readonly logger = Logger(StorageService.name)
@@ -403,10 +408,9 @@ export class StorageService extends EventEmitter {
   }
 
   public resolveCsrReplicatedPromise(id: number) {
-    console.log('rsolve promsie id', id)
     if (this.csrReplicatedPromiseMap.has(id)) {
-      const { resolveFunction } = this.csrReplicatedPromiseMap.get(id)
-      resolveFunction(id)
+      const csrReplicatedPromiseMap = this.csrReplicatedPromiseMap.get(id)
+      csrReplicatedPromiseMap?.resolveFunction(id)
       this.csrReplicatedPromiseMap.delete(id)
     } else {
       console.log(`No promise with ID ${id} found.`)
@@ -425,6 +429,7 @@ export class StorageService extends EventEmitter {
 
     this.certificatesRequests.events.on('replicated', async () => {
       this.logger('REPLICATED: CSRs')
+
       this.csrReplicatedPromiseId++
 
       const filteredCsrs = await this.getCsrs()
@@ -434,8 +439,11 @@ export class StorageService extends EventEmitter {
       this.createCsrReplicatedPromise(this.csrReplicatedPromiseId)
 
       if (this.csrReplicatedPromiseId > 1) {
-        const { promise } = this.csrReplicatedPromiseMap.get(this.csrReplicatedPromiseId - 1)
-        await promise
+        const csrReplicatedPromiseMap = this.csrReplicatedPromiseMap.get(this.csrReplicatedPromiseId - 1)
+
+        if (csrReplicatedPromiseMap?.promise) {
+          await csrReplicatedPromiseMap.promise
+        }
       }
 
       this.emit(StorageEvents.REPLICATED_CSR, {
