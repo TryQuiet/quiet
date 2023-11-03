@@ -400,7 +400,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     })
 
     this.registrationService.on(RegistrationEvents.FINISHED_ISSUING_CERTIFICATES_FOR_ID, payload => {
-      this.storageService.emit(RegistrationEvents.FINISHED_ISSUING_CERTIFICATES_FOR_ID, { id: payload.id })
+      this.storageService.resolveCsrReplicatedPromise(payload.id)
     })
   }
   private attachsocketServiceListeners() {

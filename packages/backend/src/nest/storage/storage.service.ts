@@ -72,7 +72,8 @@ export class StorageService extends EventEmitter {
   private filesManager: IpfsFileManagerService
   private peerId: PeerId | null = null
   private ipfsStarted: boolean
-  private replicatedPromises: Promise<string | void>[] = []
+  public csrReplicatedPromiseMap: Map<number, any> = new Map()
+  private csrReplicatedPromiseId: number = 0
 
   private readonly logger = Logger(StorageService.name)
   constructor(
@@ -392,6 +393,27 @@ export class StorageService extends EventEmitter {
     this.logger('STORAGE: Finished createDbForCertificates')
   }
 
+  private createCsrReplicatedPromise(id: number) {
+    let resolveFunction
+    const promise = new Promise(resolve => {
+      resolveFunction = resolve
+    })
+
+    this.csrReplicatedPromiseMap.set(id, { promise, resolveFunction })
+  }
+
+  public resolveCsrReplicatedPromise(id: number) {
+    console.log('rsolve promsie id', id)
+    if (this.csrReplicatedPromiseMap.has(id)) {
+      const { resolveFunction } = this.csrReplicatedPromiseMap.get(id)
+      resolveFunction(id)
+      this.csrReplicatedPromiseMap.delete(id)
+    } else {
+      console.log(`No promise with ID ${id} found.`)
+      return
+    }
+  }
+
   public async createDbForCertificatesRequests() {
     this.logger('certificatesRequests db init')
     this.certificatesRequests = await this.orbitDb.log<string>('csrs', {
@@ -403,29 +425,24 @@ export class StorageService extends EventEmitter {
 
     this.certificatesRequests.events.on('replicated', async () => {
       this.logger('REPLICATED: CSRs')
-
-      const id = Math.random().toString(36).slice(2, 7)
-
-      const promiseForId = new Promise<string>(resolve => {
-        const listener = async (payload: { id: string }) => {
-          if (id === payload.id) {
-            this.removeListener(RegistrationEvents.FINISHED_ISSUING_CERTIFICATES_FOR_ID, listener)
-            resolve(id)
-          }
-        }
-
-        this.on(RegistrationEvents.FINISHED_ISSUING_CERTIFICATES_FOR_ID, listener)
-      })
-
-      this.replicatedPromises.push(promiseForId)
+      this.csrReplicatedPromiseId++
 
       const filteredCsrs = await this.getCsrs()
 
       const allCertificates = this.getAllEventLogEntries(this.certificates)
 
-      await Promise.all(this.replicatedPromises)
+      this.createCsrReplicatedPromise(this.csrReplicatedPromiseId)
 
-      this.emit(StorageEvents.REPLICATED_CSR, { csrs: filteredCsrs, certificates: allCertificates, id })
+      if (this.csrReplicatedPromiseId > 1) {
+        const { promise } = this.csrReplicatedPromiseMap.get(this.csrReplicatedPromiseId - 1)
+        await promise
+      }
+
+      this.emit(StorageEvents.REPLICATED_CSR, {
+        csrs: filteredCsrs,
+        certificates: allCertificates,
+        id: this.csrReplicatedPromiseId,
+      })
 
       await this.updatePeersList()
     })
