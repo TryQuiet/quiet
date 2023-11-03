@@ -408,9 +408,9 @@ export class StorageService extends EventEmitter {
   }
 
   public resolveCsrReplicatedPromise(id: number) {
-    if (this.csrReplicatedPromiseMap.has(id)) {
-      const csrReplicatedPromiseMap = this.csrReplicatedPromiseMap.get(id)
-      csrReplicatedPromiseMap?.resolveFunction(id)
+    const csrReplicatedPromiseMapId = this.csrReplicatedPromiseMap.get(id)
+    if (csrReplicatedPromiseMapId) {
+      csrReplicatedPromiseMapId?.resolveFunction(id)
       this.csrReplicatedPromiseMap.delete(id)
     } else {
       console.log(`No promise with ID ${id} found.`)
@@ -439,10 +439,10 @@ export class StorageService extends EventEmitter {
       this.createCsrReplicatedPromise(this.csrReplicatedPromiseId)
 
       if (this.csrReplicatedPromiseId > 1) {
-        const csrReplicatedPromiseMap = this.csrReplicatedPromiseMap.get(this.csrReplicatedPromiseId - 1)
+        const csrReplicatedPromiseMapId = this.csrReplicatedPromiseMap.get(this.csrReplicatedPromiseId - 1)
 
-        if (csrReplicatedPromiseMap?.promise) {
-          await csrReplicatedPromiseMap.promise
+        if (csrReplicatedPromiseMapId?.promise) {
+          await csrReplicatedPromiseMapId.promise
         }
       }
 
