@@ -6,18 +6,18 @@
   },
   "workspaces": [
     "packages/@types",
+    "packages/eslint-config-custom",
+    "packages/types",
+    "packages/logger",
+    "packages/common",
+    "packages/identity",
     "packages/backend",
     "packages/backend-bundle",
-    "packages/common",
+    "packages/state-manager",
     "packages/desktop",
     "packages/e2e-tests",
-    "packages/eslint-config-custom",
-    "packages/identity",
-    "packages/integration-tests",
-    "packages/logger",
     "packages/mobile",
-    "packages/state-manager",
-    "packages/types"
+    "packages/integration-tests"
   ],
   "engines": {
     "node": "18.12.1",
