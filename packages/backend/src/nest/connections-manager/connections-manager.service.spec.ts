@@ -2,7 +2,7 @@ import { jest } from '@jest/globals'
 import { LazyModuleLoader } from '@nestjs/core'
 import { Test, TestingModule } from '@nestjs/testing'
 import { getFactory, prepareStore, type Store, type communities, type identity } from '@quiet/state-manager'
-import { type Community, type Identity, type InitCommunityPayload, type LaunchRegistrarPayload } from '@quiet/types'
+import { type Community, type Identity, type InitCommunityPayload } from '@quiet/types'
 import { type FactoryGirl } from 'factory-girl'
 import PeerId from 'peer-id'
 import { TestModule } from '../common/test.module'
@@ -108,10 +108,8 @@ describe('ConnectionsManagerService', () => {
     await connectionsManagerService.closeAllServices()
 
     const launchCommunitySpy = jest.spyOn(connectionsManagerService, 'launchCommunity').mockResolvedValue()
-    const launchRegistrarSpy = jest.spyOn(registrationService, 'launchRegistrar').mockResolvedValue()
 
     await connectionsManagerService.init()
-    expect(launchRegistrarSpy).not.toHaveBeenCalled()
     expect(launchCommunitySpy).toHaveBeenCalledWith(launchCommunityPayload)
   })
 

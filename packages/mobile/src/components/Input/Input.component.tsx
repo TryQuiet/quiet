@@ -80,7 +80,7 @@ export const Input = forwardRef<TextInput, InputProps>(
           </Typography>
         )}
         {hint && (
-          <Typography fontSize={10} color={'hint'} style={{ paddingTop: 10 }}>
+          <Typography fontSize={10} color={'hint'} style={{ paddingTop: 10, lineHeight: 16 }}>
             {hint}
           </Typography>
         )}

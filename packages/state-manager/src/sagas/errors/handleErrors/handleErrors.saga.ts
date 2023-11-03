@@ -1,8 +1,6 @@
 import { type PayloadAction } from '@reduxjs/toolkit'
-import { call, delay, put, select } from 'typed-redux-saga'
+import { call, put, select } from 'typed-redux-saga'
 import { identitySelectors } from '../../identity/identity.selectors'
-import { communitiesActions } from '../../communities/communities.slice'
-import { communitiesSelectors } from '../../communities/communities.selectors'
 import { identityActions } from '../../identity/identity.slice'
 import { errorsActions } from '../errors.slice'
 import logger from '../../../utils/logger'
@@ -44,14 +42,6 @@ export function* handleErrorsSaga(
         console.error(`Received error ${error} without community`)
         return
       }
-      // Leave for integration test assertions purposes
-      const registrationAttempts = yield* select(communitiesSelectors.registrationAttempts(error.community))
-      yield* put(
-        communitiesActions.updateRegistrationAttempts({
-          id: error.community,
-          registrationAttempts: registrationAttempts + 1,
-        })
-      )
       yield* call(retryRegistration, error.community)
     }
   }

@@ -9,6 +9,7 @@ import {
   verifyUserCert,
   parseCertificationRequest,
   getReqFieldValue,
+  loadCSR,
 } from '@quiet/identity'
 import type { IPFS } from 'ipfs-core'
 import OrbitDB from 'orbit-db'
@@ -397,36 +398,20 @@ export class StorageService extends EventEmitter {
         write: ['*'],
       },
     })
-    this.certificatesRequests.events.on('replicate.progress', async (_address, _hash, entry, _progress, _total) => {
-      const csr: string = entry.payload.value
-      this.logger('Replicated csr')
-      let parsedCSR: CertificationRequest
-      try {
-        parsedCSR = parseCertificationRequest(csr)
-      } catch (e) {
-        this.logger.error(`csrs replicate.progress: could not parse certificate request`)
-        return
-      }
-
-      const username = getReqFieldValue(parsedCSR, CertFieldsTypes.nickName)
-      if (!username) {
-        this.logger.error(
-          `csrs replicate.progress: could not parse certificate request for field type ${CertFieldsTypes.nickName}`
-        )
-        return
-      }
-      this.emit(StorageEvents.REPLICATED_CSR, [csr])
-    })
     this.certificatesRequests.events.on('replicated', async () => {
       this.logger('REPLICATED: CSRs')
-      const allCsrs = this.getAllEventLogEntries(this.certificatesRequests)
-      this.emit(StorageEvents.REPLICATED_CSR, allCsrs)
+
+      const filteredCsrs = await this.getCsrs()
+
+      const allCertificates = this.getAllEventLogEntries(this.certificates)
+      this.emit(StorageEvents.REPLICATED_CSR, { csrs: filteredCsrs, certificates: allCertificates })
       await this.updatePeersList()
     })
     this.certificatesRequests.events.on('write', async (_address, entry) => {
       const csr: string = entry.payload.value
       this.logger('Saved CSR locally')
-      this.emit(StorageEvents.REPLICATED_CSR, [csr])
+      const allCertificates = this.getAllEventLogEntries(this.certificates)
+      this.emit(StorageEvents.REPLICATED_CSR, { csrs: [csr], certificates: allCertificates })
       await this.updatePeersList()
     })
 
@@ -435,6 +420,28 @@ export class StorageService extends EventEmitter {
     const allcsrs = this.getAllEventLogEntries(this.certificatesRequests)
     this.logger('ALL Certificates COUNT:', allcsrs.length)
     this.logger('STORAGE: Finished creating certificatesRequests db')
+  }
+
+  public async getCsrs(): Promise<string[]> {
+    // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
+    await this.certificatesRequests.load({ fetchEntryTimeout: 15000 })
+    const allCsrs = this.getAllEventLogEntries(this.certificatesRequests)
+    const filteredCsrsMap: Map<string, string> = new Map()
+
+    await Promise.all(
+      allCsrs.map(async csr => {
+        const parsedCsr = await loadCSR(csr)
+        const pubKey = keyFromCertificate(parsedCsr)
+
+        if (filteredCsrsMap.has(pubKey)) {
+          filteredCsrsMap.delete(pubKey)
+        }
+
+        filteredCsrsMap.set(pubKey, csr)
+      })
+    )
+
+    return [...filteredCsrsMap.values()]
   }
 
   public async loadAllChannels() {
@@ -847,12 +854,6 @@ export class StorageService extends EventEmitter {
     this.logger('About to save certificate...')
     if (!payload.certificate) {
       this.logger('Certificate is either null or undefined, not saving to db')
-      return false
-    }
-    const verification = await verifyUserCert(payload.rootPermsData.certificate, payload.certificate)
-    if (verification.resultCode !== 0) {
-      this.logger.error('Certificate is not valid')
-      this.logger.error(verification.resultMessage)
       return false
     }
     this.logger('Saving certificate...')

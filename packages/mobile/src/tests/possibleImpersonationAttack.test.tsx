@@ -1,17 +1,15 @@
 import React from 'react'
 import '@testing-library/jest-native/extend-expect'
-import { act } from '@testing-library/react-native'
 import MockedSocket from 'socket.io-mock'
 import { ioMock } from '../setupTests'
 import { prepareStore } from './utils/prepareStore'
 import { renderComponent } from './utils/renderComponent'
 import { FactoryGirl } from 'factory-girl'
 import { getFactory, communities, identity, users } from '@quiet/state-manager'
-import { navigationActions } from '../store/navigation/navigation.slice'
-import { PossibleImpersonationAttackScreen } from '../screens/PossibleImpersonationAttack/PossibleImpersonationAttack.screen'
 import { ScreenNames } from '../const/ScreenNames.enum'
-import { navigationSelectors } from '../store/navigation/navigation.selectors'
+import { ChannelListScreen } from '../screens/ChannelList/ChannelList.screen'
 import { initActions } from '../store/init/init.slice'
+import { navigationSelectors } from '../store/navigation/navigation.selectors'
 
 describe('Possible Impersonation Attack', () => {
   let socket: MockedSocket
@@ -23,9 +21,11 @@ describe('Possible Impersonation Attack', () => {
     ioMock.mockImplementation(() => socket)
   })
 
-  it('Open modal when certifcates are duplicated', async () => {
+  it('Display warning when certifcates are duplicated', async () => {
     const { store, root } = await prepareStore({}, socket)
+
     store.dispatch(initActions.setStoreReady())
+
     factory = await getFactory(store)
 
     const community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>(
@@ -36,17 +36,6 @@ describe('Possible Impersonation Attack', () => {
       id: community.id,
       nickname: 'alice',
     })
-
-    const route: { key: string; name: ScreenNames.PossibleImpersonationAttackScreen; path?: string | undefined } = {
-      key: '',
-      name: ScreenNames.PossibleImpersonationAttackScreen,
-    }
-    renderComponent(
-      <>
-        <PossibleImpersonationAttackScreen route={route} />
-      </>,
-      store
-    )
 
     const cert1 =
       'MIIDeDCCAx6gAwIBAgIGAYr6Jw3hMAoGCCqGSM49BAMCMA8xDTALBgNVBAMTBGZyZmQwHhcNMjMxMDA0MTAwNjE4WhcNMzAwMTMxMjMwMDAwWjBJMUcwRQYDVQQDEz5tenhydWhyNWJzdGt3dmp3eWJnZ2Y2M2Jma2dreWw0aWs0bG5lanN1YnFlaG9td3Vpbm43d3JxZC5vbmlvbjBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABGcKhXLUNjkS9+xd0hYfJBOA7bXB5LwZojhzgBQps3SW/CSR6ABiAuirdP0x/byxTXSkZY23lBkvc5CqMjWe3lWjggIqMIICJjAJBgNVHRMEAjAAMAsGA1UdDwQEAwIAgDAdBgNVHSUEFjAUBggrBgEFBQcDAgYIKwYBBQUHAwEwggFHBgkqhkiG9w0BCQwEggE4BIIBNAXhwXxmLy7Gg5uonlWXiqRUimGLj2cPbAoK9DnKHkcohqdLvEzyz6rM7KBewO068fag0d/PR0uh37Oyb7d/JAbBjhJmf8wOl2HfLTThPEEH8isy3bxHXx4Ir5prVVk1zx8UiXtPAu6gK41FY5Oin6SpV07MBewqQGcbCovcbBSwkp6EXmLXPOGgmpFlQf5CNGIs3YqPD+Ll1vn8Lq5QIGCa210Pq/T65mrPsXVAw2vJO6DFRIAGrAF5VxDS8G2dSwnDnje+bD2NO8qlfwFdO3bkDeheOqZXCSxlPA6q1bY34qYR2zrwSiQCjRiCQjifRCmF2Jg4ojzLGUL0pKdvi+8fDQXollmazh5boJWN9GRy+1sDLTk01cW2kF7esew5PlDi8kX0v2hY+XsR5eQga1j3MkXkMBgGCisGAQQBg4wbAgEEChMIdXNlcm5hbWUwPQYJKwYBAgEPAwEBBDATLlFtUHF6THFheFk1UmI4VlpjM1VuZmlXZXRxVDZKWkp6SnRjWVFXNmhXTENvRXIwSQYDVR0RBEIwQII+bXp4cnVocjVic3Rrd3Zqd3liZ2dmNjNiZmtna3lsNGlrNGxuZWpzdWJxZWhvbXd1aW5uN3dycWQub25pb24wCgYIKoZIzj0EAwIDSAAwRQIhAJx4YX8KtOA4WGAWzW0M7FvuoblNOb370521GsfuHfbMAiBEYQ4l074oUEF2DTVK1agJlhMR5USRxav5xEpx2ujMeA=='
@@ -66,17 +55,14 @@ describe('Possible Impersonation Attack', () => {
       })
     )
 
-    await act(async () => {})
-
-    store.dispatch(navigationActions.redirection())
-
-    await act(async () => {})
+    renderComponent(<ChannelListScreen />, store)
 
     const duplicateCerts = users.selectors.duplicateCerts(store.getState())
-    const currentScreen = navigationSelectors.currentScreen(store.getState())
+    expect(duplicateCerts).toBe(true)
 
+    const currentScreen = navigationSelectors.currentScreen(store.getState())
     expect(currentScreen).toBe(ScreenNames.PossibleImpersonationAttackScreen)
-    expect(duplicateCerts).toBeTruthy()
+
     root?.cancel()
   })
 })

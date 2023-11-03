@@ -30,11 +30,8 @@ import {
   NetworkStats,
   PushNotificationPayload,
   RegisterOwnerCertificatePayload,
-  RegisterUserCertificatePayload,
   RemoveDownloadStatus,
   ResponseCreateNetworkPayload,
-  SaveCertificatePayload,
-  SaveOwnerCertificatePayload,
   SendCertificatesResponse,
   SendMessagePayload,
   SetChannelSubscribedPayload,
@@ -43,7 +40,6 @@ import {
   UploadFilePayload,
   PeerId as PeerIdType,
   SaveCSRPayload,
-  SendUserCertificatePayload,
   CommunityMetadata,
   CommunityMetadataPayload,
 } from '@quiet/types'
@@ -178,10 +174,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     if (this.tor && !options.saveTor) {
       await this.tor.kill()
     }
-    if (this.registrationService) {
-      this.logger('Stopping registration service')
-      await this.registrationService.stop()
-    }
     if (this.storageService) {
       this.logger('Stopping orbitdb')
       await this.storageService?.stopOrbitDb()
@@ -207,6 +199,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.serverIoProvider.io.close()
   }
 
+  // This method is only used on iOS through rn-bridge for reacting on lifecycle changes
   public async openSocket() {
     await this.socketService.init()
   }
@@ -394,25 +387,10 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.socketService.on(SocketActionTypes.CONNECTION_PROCESS_INFO, data => {
       this.serverIoProvider.io.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, data)
     })
-
-    this.registrationService.on(SocketActionTypes.CONNECTION_PROCESS_INFO, data => {
-      this.serverIoProvider.io.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, data)
-    })
   }
   private attachRegistrationListeners() {
-    this.registrationService.on(RegistrationEvents.REGISTRAR_STATE, (payload: ServiceState) => {
-      this.registrarState = payload
-    })
     this.registrationService.on(SocketActionTypes.SAVED_OWNER_CERTIFICATE, payload => {
       this.serverIoProvider.io.emit(SocketActionTypes.SAVED_OWNER_CERTIFICATE, payload)
-    })
-    this.registrationService.on(RegistrationEvents.SPAWN_HS_FOR_REGISTRAR, async payload => {
-      const onionAddress = await this.tor.spawnHiddenService({
-        targetPort: payload.port,
-        privKey: payload.privateKey,
-        virtPort: payload.targetPort,
-      })
-      this.registrationService.onionAddress = onionAddress
     })
     this.registrationService.on(RegistrationEvents.ERROR, payload => {
       emitError(this.serverIoProvider.io, payload)
@@ -527,7 +505,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     })
     this.storageService.on(StorageEvents.LOAD_CERTIFICATES, (payload: SendCertificatesResponse) => {
       this.serverIoProvider.io.emit(SocketActionTypes.RESPONSE_GET_CERTIFICATES, payload)
-      this.registrationService.emit(RegistrationEvents.SET_CERTIFICATES, payload.certificates)
     })
     this.storageService.on(StorageEvents.LOAD_PUBLIC_CHANNELS, (payload: ChannelsReplicatedPayload) => {
       this.serverIoProvider.io.emit(SocketActionTypes.CHANNELS_REPLICATED, payload)
@@ -582,11 +559,14 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       console.log('emitting deleted channel event back to state manager')
       this.serverIoProvider.io.emit(SocketActionTypes.CHANNEL_DELETION_RESPONSE, payload)
     })
-    this.storageService.on(StorageEvents.REPLICATED_CSR, async (payload: string[]) => {
-      console.log(`On ${StorageEvents.REPLICATED_CSR}`)
-      this.serverIoProvider.io.emit(SocketActionTypes.RESPONSE_GET_CSRS, { csrs: payload })
-      payload.forEach(csr => this.registrationService.emit(RegistrationEvents.REGISTER_USER_CERTIFICATE, csr))
-    })
+    this.storageService.on(
+      StorageEvents.REPLICATED_CSR,
+      async (payload: { csrs: string[]; certificates: string[] }) => {
+        console.log(`On ${StorageEvents.REPLICATED_CSR}`)
+        this.serverIoProvider.io.emit(SocketActionTypes.RESPONSE_GET_CSRS, { csrs: payload.csrs })
+        this.registrationService.emit(RegistrationEvents.REGISTER_USER_CERTIFICATE, payload)
+      }
+    )
     this.storageService.on(StorageEvents.REPLICATED_COMMUNITY_METADATA, (payload: CommunityMetadata) => {
       console.log(`On ${StorageEvents.REPLICATED_COMMUNITY_METADATA}: ${payload}`)
       const communityMetadataPayload: CommunityMetadataPayload = {

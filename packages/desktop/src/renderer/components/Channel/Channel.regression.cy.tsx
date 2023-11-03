@@ -43,16 +43,13 @@ describe('Scroll behavior test', () => {
 
   it('scroll should be at the bottom after entering channel', () => {
     cy.get(channelContent).compareSnapshot('after launch', {
-      capture: 'fullPage'
+      capture: 'fullPage',
     })
   })
 
   it('scroll should be at the bottom after sending messages', () => {
     cy.get(messageInput).focus().type('luke where are you?').type('{enter}')
-    cy.get(messageInput)
-      .focus()
-      .type('you underestimate the power of the force')
-      .type('{enter}')
+    cy.get(messageInput).focus().type('you underestimate the power of the force').type('{enter}')
     cy.get(channelContent).compareSnapshot('send after enter')
   })
 
@@ -62,10 +59,7 @@ describe('Scroll behavior test', () => {
     cy.get(channelContent).compareSnapshot('scroll to the middle')
 
     cy.get(messageInput).focus().type('obi wan was wrong').type('{enter}')
-    cy.get(messageInput)
-      .focus()
-      .type('actually, he is on the dark side')
-      .type('{enter}')
+    cy.get(messageInput).focus().type('actually, he is on the dark side').type('{enter}')
 
     cy.get(channelContent).compareSnapshot('send after scroll')
   })
@@ -91,7 +85,7 @@ describe('Scroll behavior test', () => {
   it('PageUp keydown should scroll message list up.', () => {
     cy.get(messageInput).focus().type('{pageup}')
     cy.get(channelContent).compareSnapshot('after pageup', {
-      capture: 'fullPage'
+      capture: 'fullPage',
     })
   })
 
@@ -99,7 +93,7 @@ describe('Scroll behavior test', () => {
     cy.get(channelContent).scrollTo(0, 0)
     cy.get(messageInput).focus().type('{pagedown}')
     cy.get(channelContent).compareSnapshot('after pagedown', {
-      capture: 'fullPage'
+      capture: 'fullPage',
     })
   })
 
@@ -109,7 +103,7 @@ describe('Scroll behavior test', () => {
       .type('luke where are you?')
       .type('{shift+enter}')
       .type('you underestimate the power of the force')
-      .should('have.text', 'luke where are you?you underestimate the power of the force')
+      .should('have.text', 'luke where are you?\nyou underestimate the power of the force')
   })
 
   it('Check words wrapping in message input', () => {
@@ -120,9 +114,7 @@ describe('Scroll behavior test', () => {
       }
       return word
     }
-    cy.get(messageInput)
-      .focus()
-      .type(longWord())
+    cy.get(messageInput).focus().type(longWord())
 
     cy.get(messageInput).compareSnapshot('message input words wrapping')
   })

@@ -1,5 +1,32 @@
+[2.0.3-alpha.0]
 
-[unreleased]
+* Filter CSRs - remove old csrs and replace with new for each pubkey
+
+* Fixed mobile bugs - joining by QR code and not showing username taken screen for user who has unique name
+
+* Use context menu for information about unregistered username instead screen
+
+* Shorter dots-placeholder for invite link
+
+* Display a shorter invite link on a mobile
+
+* Removed registration attempts selector and corresponding usage.
+
+* Revert adjusting bootstrap scripts for developing on Windows
+
+* Channel input - replaced ContentEditable with textarea
+
+* Fix - up/down arrows now work properly inside channel input (textarea)
+
+[2.0.1-alpha.2]
+
+* UI layer for taken usernames for desktop and mobile
+
+* Change nickname for taken username
+
+* Map messages sent before changing username
+
+* Update registrar service to match new registration flow.
 
 * Add possible impersonation attack UI for desktop and mobile
 

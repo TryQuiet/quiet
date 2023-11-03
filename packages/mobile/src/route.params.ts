@@ -4,9 +4,7 @@ import { ScreenNames } from './const/ScreenNames.enum'
 
 // eslint-disable-next-line
 export type RootStackParamList = {
-  [ScreenNames.SplashScreen]: {
-    code?: string
-  }
+  [ScreenNames.SplashScreen]: undefined
   [ScreenNames.JoinCommunityScreen]: {
     code?: string
   }
@@ -39,9 +37,9 @@ export type RootStackParamList = {
   }
   [ScreenNames.ConnectionProcessScreen]: undefined
   [ScreenNames.DuplicatedUsernameScreen]: undefined
-  [ScreenNames.UnregisteredUsernameScreen]: {
-    username: string
-  }
+
+  [ScreenNames.UsernameTakenScreen]: undefined
+  [ScreenNames.NewUsernameRequestedScreen]: undefined
   [ScreenNames.PossibleImpersonationAttackScreen]: undefined
 }
 
@@ -59,8 +57,9 @@ export type ErrorRouteProp = RouteProp<RootStackParamList, ScreenNames.ErrorScre
 
 export type DuplicatedUsernameRouteProps = RouteProp<RootStackParamList, ScreenNames.DuplicatedUsernameScreen>
 
-export type UnregisteredUsernameRouteProps = RouteProp<RootStackParamList, ScreenNames.UnregisteredUsernameScreen>
+export type UsernameTakenRouteProps = RouteProp<RootStackParamList, ScreenNames.UsernameTakenScreen>
 
+export type NewUsernameRequestedRouteProps = RouteProp<RootStackParamList, ScreenNames.NewUsernameRequestedScreen>
 export type PossibleImpersonationAttackRouteProps = RouteProp<
   RootStackParamList,
   ScreenNames.PossibleImpersonationAttackScreen

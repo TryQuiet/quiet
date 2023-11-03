@@ -1,9 +1,7 @@
 import React, { FC } from 'react'
 import { View, Image, FlatList, TouchableWithoutFeedback, TouchableOpacity, Animated } from 'react-native'
 import { Typography } from '../Typography/Typography.component'
-
 import { ContextMenuItemProps, ContextMenuProps } from './ContextMenu.types'
-
 import { defaultPalette } from '../../styles/palettes/default.palette'
 import { appImages } from '../../assets'
 
@@ -17,6 +15,7 @@ export const ContextMenu: FC<ContextMenuProps> = ({
   linkAction = () => {
     console.log('No action attached for link tap gesture.')
   },
+  children,
 }) => {
   const [show, setShow] = React.useState<boolean>(false)
   const slidingAnimation = React.useRef(new Animated.Value(0)).current
@@ -134,6 +133,7 @@ export const ContextMenu: FC<ContextMenuProps> = ({
                 <Typography
                   fontSize={14}
                   fontWeight={'normal'}
+                  numberOfLines={1}
                   style={{ lineHeight: 20, color: defaultPalette.typography.gray50 }}
                   onPress={linkAction}
                 >
@@ -141,24 +141,29 @@ export const ContextMenu: FC<ContextMenuProps> = ({
                 </Typography>
               </View>
             )}
-            <View style={{ width: '100%', paddingBottom: 10 }}>
-              <FlatList
-                data={items}
-                keyExtractor={item => item.title}
-                renderItem={({ item, index }) => (
-                  <View
-                    style={[
-                      { borderTopWidth: 1, borderColor: defaultPalette.background.gray06 },
-                      index === items.length - 1 ? { borderBottomWidth: 1 } : { borderBottomWidth: 0 },
-                    ]}
-                  >
-                    <ContextMenuItem {...item} />
-                  </View>
-                )}
-                style={{ backgroundColor: defaultPalette.background.white }}
-                showsVerticalScrollIndicator={false}
-              />
-            </View>
+
+            {items.length !== 0 && (
+              <View style={{ width: '100%', paddingBottom: 10 }}>
+                <FlatList
+                  data={items}
+                  keyExtractor={item => item.title}
+                  renderItem={({ item, index }) => (
+                    <View
+                      style={[
+                        { borderTopWidth: 1, borderColor: defaultPalette.background.gray06 },
+                        index === items.length - 1 ? { borderBottomWidth: 1 } : { borderBottomWidth: 0 },
+                      ]}
+                    >
+                      <ContextMenuItem {...item} />
+                    </View>
+                  )}
+                  style={{ backgroundColor: defaultPalette.background.white }}
+                  showsVerticalScrollIndicator={false}
+                />
+              </View>
+            )}
+
+            {children}
           </View>
         </TouchableWithoutFeedback>
       </Animated.View>

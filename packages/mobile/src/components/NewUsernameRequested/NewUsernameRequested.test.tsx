@@ -1,11 +1,11 @@
-import { renderComponent } from '../../../utils/functions/renderComponent/renderComponent'
-import UnregisteredUsernameComponent from './UnregisteredUsername.component'
+import React from 'react'
+import { renderComponent } from '../../utils/functions/renderComponent/renderComponent'
+import NewUsernameRequestedComponent from './NewUsernameRequested.component'
 
-describe('UnregisteredUsername component', () => {
-  it('renders component', () => {
-    const { toJSON } = renderComponent(
-      <UnregisteredUsernameComponent handleBackButton={function (): void {}} username={'johnny'} />
-    )
+describe('NewUsernameRequested component', () => {
+  it('should match inline snapshot', () => {
+    const { toJSON } = renderComponent(<NewUsernameRequestedComponent handler={jest.fn()} />)
+
     expect(toJSON()).toMatchInlineSnapshot(`
       <View
         style={
@@ -14,7 +14,7 @@ describe('UnregisteredUsername component', () => {
             "flex": 1,
           }
         }
-        testID="unregistered-username-component"
+        testID="new-username-requested-component"
       >
         <View
           style={
@@ -129,7 +129,7 @@ describe('UnregisteredUsername component', () => {
               }
               verticalTextAlign="center"
             >
-              Unregistered username
+              Username taken
             </Text>
           </View>
           <View
@@ -143,8 +143,8 @@ describe('UnregisteredUsername component', () => {
         <View
           style={
             {
-              "alignItems": "center",
-              "padding": 20,
+              "paddingLeft": 20,
+              "paddingRight": 20,
             }
           }
         >
@@ -162,17 +162,14 @@ describe('UnregisteredUsername component', () => {
                   "textAlignVertical": "center",
                 },
                 {
-                  "textAlign": "center",
+                  "marginBottom": 30,
+                  "marginTop": 30,
                 },
               ]
             }
             verticalTextAlign="center"
           >
-            The username @
-            johnny
-             has not been registered yet with the community owner, so it’s still possible for someone else to register the same username. When the community owner is online, @
-            johnny
-             will be registered automatically and this alert will go away.
+            Great! Your new username should be registered automatically the next time the community owner is online.
           </Text>
           <View
             accessibilityState={
@@ -197,12 +194,12 @@ describe('UnregisteredUsername component', () => {
               {
                 "alignItems": "center",
                 "backgroundColor": "#521C74",
-                "borderRadius": 5,
+                "borderRadius": 8,
                 "justifyContent": "center",
                 "marginVertical": 12,
                 "minHeight": 45,
                 "paddingVertical": 12,
-                "width": 50,
+                "width": 100,
               }
             }
             testID="button"
@@ -224,7 +221,7 @@ describe('UnregisteredUsername component', () => {
               }
               verticalTextAlign="center"
             >
-              OK
+              Continue
             </Text>
           </View>
         </View>

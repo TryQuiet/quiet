@@ -13,6 +13,7 @@ export enum ScreenNames {
   LeaveCommunityScreen = 'LeaveCommunityScreen',
   ConnectionProcessScreen = 'ConnectionProcessScreen',
   DuplicatedUsernameScreen = 'DuplicatedUsernameScreen',
-  UnregisteredUsernameScreen = 'UnregisteredUsernameScreen',
+  UsernameTakenScreen = 'UsernameTakenScreen',
+  NewUsernameRequestedScreen = 'NewUsernameRequestedScreen',
   PossibleImpersonationAttackScreen = 'PossibleImpersonationAttackScreen',
 }
