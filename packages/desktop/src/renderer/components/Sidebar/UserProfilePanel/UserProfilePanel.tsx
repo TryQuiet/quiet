@@ -77,7 +77,7 @@ export const UserProfilePanel: React.FC<UserProfilePanelProps> = ({
         }}
         component='div'
         classes={{ root: classes.button }}
-        data-testid={'settings-panel-button'}
+        data-testid={'user-profile-menu-button'}
       >
         {userProfile?.profile.photo ? (
           <img className={classes.profilePhoto} src={userProfile?.profile.photo} alt={'Your user profile image'} />

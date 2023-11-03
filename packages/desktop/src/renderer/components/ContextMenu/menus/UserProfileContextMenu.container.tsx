@@ -246,6 +246,7 @@ export const EditPhotoButton: FC<{ onChange: (photo?: File) => void }> = ({ onCh
       <input
         ref={fileInput}
         type='file'
+        data-testid='user-profile-edit-photo-input'
         onChange={evt => onChange(evt.target.files?.[0])}
         // Value needs to be cleared to allow the user
         // to upload the same image more than once

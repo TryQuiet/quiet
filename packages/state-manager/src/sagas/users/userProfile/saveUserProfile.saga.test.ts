@@ -11,7 +11,8 @@ import { usersActions } from '../users.slice'
 import { identityActions } from '../../identity/identity.slice'
 import { communitiesActions } from '../../communities/communities.slice'
 import { prepareStore, reducers } from '../../../utils/tests/prepareStore'
-import { StoreKeys } from '../../store/store.keys'
+import { type Socket } from '../../../types'
+import { type Identity } from '@quiet/types'
 
 import { createUserCsr, pubKeyFromCsr, keyObjectFromString, verifyDataSignature } from '@quiet/identity'
 
@@ -22,8 +23,15 @@ jest.mock('@quiet/common', () => ({
 describe('saveUserProfileSaga', () => {
   test('sends user profile to backend', async () => {
     const store = prepareStore().store
-    const socket = { emit: jest.fn() } as unknown as Socket
-    const csr = await createUserCsr({ nickname: '', commonName: '', peerId: '', dmPublicKey: '' })
+    const socket = { emit: jest.fn() }
+    const csr = await createUserCsr({
+      nickname: '',
+      commonName: '',
+      peerId: '',
+      dmPublicKey: '',
+      signAlg: '',
+      hashAlg: '',
+    })
 
     store.dispatch(
       identityActions.addNewIdentity({
@@ -41,7 +49,15 @@ describe('saveUserProfileSaga', () => {
     const pubKey = pubKeyFromCsr(csr.userCsr)
     const pubKeyObj = await keyObjectFromString(pubKey, getCrypto())
 
-    await expectSaga(saveUserProfileSaga, socket, usersActions.saveUserProfile({ photo: new Blob([]) }))
+    // We are testing browser-targeting code in NodeJS and this
+    // version of NodeJS doesn't have a File class, so we are using a
+    // Blob instead.
+    // @ts-ignore
+    await expectSaga(
+      saveUserProfileSaga,
+      socket as unknown as Socket,
+      usersActions.saveUserProfile({ photo: new Blob([]) })
+    )
       .withState(store.getState())
       .run()
 

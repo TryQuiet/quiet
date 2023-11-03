@@ -264,12 +264,7 @@ describe('publicChannelsSelectors', () => {
         pubKey: msgs[message.id].pubKey,
         username: msgsOwners[message.id],
       }
-      const profile = {
-        profile: { photo: '' },
-        profileSig: '',
-        pubKey: '',
-      }
-      displayable[message.id] = displayableMessage(message, user, profile)
+      displayable[message.id] = displayableMessage(message, user)
     }
 
     // Get groups names
