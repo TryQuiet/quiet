@@ -98,10 +98,5 @@ describe('Possible Impersonation Attack', () => {
 
     const modal = screen.getByTestId('possible-impersonation-attack-modal-component')
     expect(modal).toBeVisible()
-
-    // Temporarily hiding button - https://github.com/TryQuiet/quiet/issues/2025 */
-
-    // const button = screen.getByTestId('unregistered-button')
-    // expect(button).toBeVisible()
   })
 })
