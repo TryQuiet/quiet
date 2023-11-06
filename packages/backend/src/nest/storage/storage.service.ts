@@ -69,8 +69,6 @@ export class StorageService extends EventEmitter {
   private certificatesRequests: EventStore<string>
   private communityMetadata: KeyValueStore<CommunityMetadata>
 
-  public userProfileStore: UserProfileStore
-
   private ipfs: IPFS
   private orbitDb: OrbitDB
   private filesManager: IpfsFileManagerService
@@ -83,7 +81,8 @@ export class StorageService extends EventEmitter {
     @Inject(QUIET_DIR) public readonly quietDir: string,
     @Inject(ORBIT_DB_DIR) public readonly orbitDbDir: string,
     @Inject(IPFS_REPO_PATCH) public readonly ipfsRepoPath: string,
-    private readonly lazyModuleLoader: LazyModuleLoader
+    private readonly lazyModuleLoader: LazyModuleLoader,
+    public readonly userProfileStore: UserProfileStore
   ) {
     super()
   }
@@ -233,8 +232,7 @@ export class StorageService extends EventEmitter {
     this.logger('4/6')
     await this.createDbForCommunityMetadata()
     this.logger('5/6')
-    this.userProfileStore = new UserProfileStore(this.orbitDb)
-    await this.userProfileStore.init(this)
+    await this.userProfileStore.init(this.orbitDb, this)
     this.logger('6/6')
     await this.initAllChannels()
     this.logger('Initialized DBs')

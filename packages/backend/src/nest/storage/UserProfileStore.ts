@@ -1,3 +1,4 @@
+import { Injectable } from '@nestjs/common'
 import { EventEmitter } from 'events'
 import KeyValueStore from 'orbit-db-kvstore'
 import OrbitDB from 'orbit-db'
@@ -54,6 +55,7 @@ export const base64DataURLToByteArray = (contents: string): Uint8Array => {
   return new Uint8Array(bytes)
 }
 
+@Injectable()
 export class UserProfileStore {
   public orbitDb: OrbitDB
   public store: KeyValueStore<UserProfile>
@@ -65,12 +67,10 @@ export class UserProfileStore {
   public static readonly codec = dagCbor
   public static readonly hasher = sha256
 
-  constructor(orbitDb: OrbitDB) {
-    this.orbitDb = orbitDb
-  }
-
-  public async init(emitter: EventEmitter) {
+  public async init(orbitDb: OrbitDB, emitter: EventEmitter) {
     logger('Initializing user profiles key/value store')
+
+    this.orbitDb = orbitDb
 
     this.store = await this.orbitDb.keyvalue<UserProfile>('user-profiles', {
       replicate: false,
