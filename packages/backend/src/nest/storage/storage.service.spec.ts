@@ -718,5 +718,20 @@ describe('StorageService', () => {
 
       expect(spyOnUpdatePeersList).toBeCalledTimes(1)
     })
+
+    it('3 replicated events - two resolved promises ', async () => {
+      await storageService.init(peerId)
+      const spyOnUpdatePeersList = jest.spyOn(storageService, 'updatePeersList')
+
+      await replicatedEvent()
+      await replicatedEvent()
+      storageService.resolveCsrReplicatedPromise(1)
+      await new Promise<void>(resolve => setTimeout(() => resolve(), 500))
+      await replicatedEvent()
+      storageService.resolveCsrReplicatedPromise(2)
+      await new Promise<void>(resolve => setTimeout(() => resolve(), 500))
+
+      expect(spyOnUpdatePeersList).toBeCalledTimes(3)
+    })
   })
 })
