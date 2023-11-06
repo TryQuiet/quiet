@@ -5,11 +5,7 @@ import PossibleImpersonationAttackComponent from './PossibleImpersonationAttack.
 describe('PossibleImpersonationAttack component', () => {
   it('renders properly', () => {
     const { toJSON } = renderComponent(
-      <PossibleImpersonationAttackComponent
-        communityName={'dev'}
-        handleBackButton={() => {}}
-        leaveCommunity={() => {}}
-      />
+      <PossibleImpersonationAttackComponent communityName={'dev'} handleBackButton={() => {}} />
     )
 
     expect(toJSON()).toMatchInlineSnapshot(`
