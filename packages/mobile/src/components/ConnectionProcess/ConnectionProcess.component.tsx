@@ -1,5 +1,5 @@
 import React, { FC, useRef, useEffect } from 'react'
-import { View, TouchableWithoutFeedback, Animated, Easing, Platform } from 'react-native'
+import { View, TouchableWithoutFeedback, Animated, Easing, Platform, Image } from 'react-native'
 import { defaultPalette } from '../../styles/palettes/default.palette'
 import { Typography } from '../Typography/Typography.component'
 import { ConnectionProcessComponentProps } from './ConnectionProcess.types'
@@ -7,23 +7,23 @@ import JoinCommunityImg from '../../../assets/icons/join-community.png'
 import { Site } from '@quiet/common'
 
 const ConnectionProcessComponent: FC<ConnectionProcessComponentProps> = ({ connectionProcess, openUrl }) => {
-  const animationValue = useRef(new Animated.Value(0)).current
+  // const animationValue = useRef(new Animated.Value(0)).current
 
-  useEffect(() => {
-    Animated.loop(
-      Animated.timing(animationValue, {
-        toValue: 1,
-        duration: 7000,
-        easing: Easing.linear,
-        useNativeDriver: true,
-      })
-    ).start()
-  }, [])
+  // useEffect(() => {
+  //   Animated.loop(
+  //     Animated.timing(animationValue, {
+  //       toValue: 1,
+  //       duration: 7000,
+  //       easing: Easing.linear,
+  //       useNativeDriver: true,
+  //     })
+  //   ).start()
+  // }, [])
 
-  const transformValues = animationValue.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['0deg', '360deg'],
-  })
+  // const transformValues = animationValue.interpolate({
+  //   inputRange: [0, 1],
+  //   outputRange: ['0deg', '360deg'],
+  // })
 
   return (
     <View style={{ flex: 1, backgroundColor: defaultPalette.background.white }} testID={'connection-process-component'}>
@@ -38,9 +38,17 @@ const ConnectionProcessComponent: FC<ConnectionProcessComponentProps> = ({ conne
           width: '100%',
         }}
       >
-        <Animated.Image
+        {/* <Animated.Image
           style={{ transform: [{ rotate: transformValues }], width: 120, height: 120 }}
           source={JoinCommunityImg}
+        /> */}
+
+        <Image
+          source={JoinCommunityImg}
+          style={{
+            width: 120,
+            height: 120,
+          }}
         />
         <Typography
           fontSize={18}
