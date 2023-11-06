@@ -9,6 +9,9 @@ This is the very simple algorithm for evaluating the most wanted peers.
 4. We end up with mix of last seen and most uptime descending array of peers, the it is enchanced to libp2p address.
  */
 export const sortPeers = (peersAddresses: string[], stats: NetworkStats[]): string[] => {
+  peersAddresses = peersAddresses.filter(add =>
+    add.match(/^\/dns4\/[a-z0-9]{56}.onion\/tcp\/80\/ws\/p2p\/[a-zA-Z0-9]{46}$/g)
+  )
   const lastSeenSorted = [...stats].sort((a, b) => {
     return b.lastSeen - a.lastSeen
   })

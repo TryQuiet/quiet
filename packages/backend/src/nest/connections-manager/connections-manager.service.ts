@@ -158,6 +158,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     console.log('launchCommunityFromStorage - community', community)
     if (community) {
       const sortedPeers = await this.localDbService.getSortedPeers(community.peers)
+      console.log('launchCommunityFromStorage - sorted peers', sortedPeers)
       if (sortedPeers.length > 0) {
         community.peers = sortedPeers
       }
@@ -347,6 +348,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     if (!peers || peers.length === 0) {
       peers = [this.libp2pService.createLibp2pAddress(onionAddress, _peerId.toString())]
     }
+    console.log(`Launching community ${payload.id}, peers for libp2p: ${peers}`)
 
     const params: Libp2pNodeParams = {
       peerId: _peerId,
