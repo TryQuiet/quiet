@@ -8,12 +8,7 @@ describe('PossibleImpersonationAttackModal', () => {
   it('renderComponent', () => {
     const result = renderComponent(
       <ThemeProvider theme={theme}>
-        <PossibleImpersonationAttackModalComponent
-          handleClose={() => {}}
-          open={true}
-          communityName={'devteam'}
-          leaveCommunity={() => {}}
-        />
+        <PossibleImpersonationAttackModalComponent handleClose={() => {}} open={true} communityName={'devteam'} />
       </ThemeProvider>
     )
     expect(result.baseElement).toMatchInlineSnapshot(`

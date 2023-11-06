@@ -35,7 +35,6 @@ const classes = StyleSheet.create({
 const PossibleImpersonationAttackComponent: React.FC<PossibleImpersonationAttackComponentProps> = ({
   handleBackButton,
   communityName,
-  leaveCommunity,
 }) => {
   return (
     <View
@@ -63,7 +62,6 @@ const PossibleImpersonationAttackComponent: React.FC<PossibleImpersonationAttack
           This should never happen and we recommend leaving this community immediately!
         </Typography>
         {/* Temporarily hiding button - https://github.com/TryQuiet/quiet/issues/2025 */}
-        {/* <Button width={160} title={'Leave community'} onPress={leaveCommunity} /> */}
       </View>
     </View>
   )

@@ -40,14 +40,12 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
 
 export interface PossibleImpersonationAttackModalComponentProps {
   communityName: string
-  leaveCommunity: () => void
   open: boolean
   handleClose: () => void
 }
 
 const PossibleImpersonationAttackModalComponent: React.FC<PossibleImpersonationAttackModalComponentProps> = ({
   communityName,
-  leaveCommunity,
   handleClose,
   open,
 }) => {
@@ -70,9 +68,6 @@ const PossibleImpersonationAttackModalComponent: React.FC<PossibleImpersonationA
           <strong>This should never happen and we recommend leaving this community immediately!</strong>
         </Typography>
         {/* Temporarily hiding button - https://github.com/TryQuiet/quiet/issues/2025 */}
-        {/* <Button className={classes.button} data-testid='unregistered-button' onClick={leaveCommunity}>
-          Leave community
-        </Button> */}
       </StyledGrid>
     </Modal>
   )
