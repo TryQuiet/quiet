@@ -61,7 +61,7 @@ const PossibleImpersonationAttackComponent: React.FC<PossibleImpersonationAttack
         <Typography fontSize={14} fontWeight={'bold'} style={classes.text2}>
           This should never happen and we recommend leaving this community immediately!
         </Typography>
-        {/* Temporarily hiding button - https://github.com/TryQuiet/quiet/issues/2025 */}
+        {/* Temporarily hiding button - https://github.com/TryQuiet/quiet/issues/2025 , https://github.com/TryQuiet/quiet/pull/2037/commits/499a12ff5494611af5d302244bc05024bcbc4c82*/}
       </View>
     </View>
   )
