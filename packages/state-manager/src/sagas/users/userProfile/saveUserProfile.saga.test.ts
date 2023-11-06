@@ -52,10 +52,10 @@ describe('saveUserProfileSaga', () => {
     // We are testing browser-targeting code in NodeJS and this
     // version of NodeJS doesn't have a File class, so we are using a
     // Blob instead.
-    // @ts-ignore
     await expectSaga(
       saveUserProfileSaga,
       socket as unknown as Socket,
+      // @ts-ignore
       usersActions.saveUserProfile({ photo: new Blob([]) })
     )
       .withState(store.getState())
