@@ -1,3 +1,7 @@
+[unreleased]
+
+* Temporarily hiding leave community button from Possible impersonation attack
+
 [2.0.3-alpha.0]
 
 * Filter CSRs - remove old csrs and replace with new for each pubkey

@@ -62,7 +62,8 @@ const PossibleImpersonationAttackComponent: React.FC<PossibleImpersonationAttack
         <Typography fontSize={14} fontWeight={'bold'} style={classes.text2}>
           This should never happen and we recommend leaving this community immediately!
         </Typography>
-        <Button width={160} title={'Leave community'} onPress={leaveCommunity} />
+        {/* Temporarily hiding button - https://github.com/TryQuiet/quiet/issues/2025 */}
+        {/* <Button width={160} title={'Leave community'} onPress={leaveCommunity} /> */}
       </View>
     </View>
   )

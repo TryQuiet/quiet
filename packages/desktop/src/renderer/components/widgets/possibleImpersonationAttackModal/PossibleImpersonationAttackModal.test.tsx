@@ -121,17 +121,6 @@ describe('PossibleImpersonationAttackModal', () => {
                       This should never happen and we recommend leaving this community immediately!
                     </strong>
                   </p>
-                  <button
-                    class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium PossibleImpersonationAttackModalComponent-button css-1skytee-MuiButtonBase-root-MuiButton-root"
-                    data-testid="unregistered-button"
-                    tabindex="0"
-                    type="button"
-                  >
-                    Leave community
-                    <span
-                      class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                    />
-                  </button>
                 </div>
               </div>
             </div>

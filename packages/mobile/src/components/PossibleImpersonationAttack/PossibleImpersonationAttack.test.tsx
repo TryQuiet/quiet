@@ -263,59 +263,6 @@ describe('PossibleImpersonationAttack component', () => {
           >
             This should never happen and we recommend leaving this community immediately!
           </Text>
-          <View
-            accessibilityState={
-              {
-                "busy": undefined,
-                "checked": undefined,
-                "disabled": undefined,
-                "expanded": undefined,
-                "selected": undefined,
-              }
-            }
-            accessible={true}
-            focusable={true}
-            onClick={[Function]}
-            onResponderGrant={[Function]}
-            onResponderMove={[Function]}
-            onResponderRelease={[Function]}
-            onResponderTerminate={[Function]}
-            onResponderTerminationRequest={[Function]}
-            onStartShouldSetResponder={[Function]}
-            style={
-              {
-                "alignItems": "center",
-                "backgroundColor": "#521C74",
-                "borderRadius": 8,
-                "justifyContent": "center",
-                "marginVertical": 12,
-                "minHeight": 45,
-                "paddingVertical": 12,
-                "width": 160,
-              }
-            }
-            testID="button"
-          >
-            <Text
-              color="white"
-              fontSize={14}
-              horizontalTextAlign="left"
-              style={
-                [
-                  {
-                    "color": "#ffffff",
-                    "fontFamily": "Rubik-Regular",
-                    "fontSize": 14,
-                    "textAlign": "left",
-                    "textAlignVertical": "center",
-                  },
-                ]
-              }
-              verticalTextAlign="center"
-            >
-              Leave community
-            </Text>
-          </View>
         </View>
       </View>
     `)

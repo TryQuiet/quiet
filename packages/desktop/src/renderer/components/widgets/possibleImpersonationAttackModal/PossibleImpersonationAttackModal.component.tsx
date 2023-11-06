@@ -69,9 +69,10 @@ const PossibleImpersonationAttackModalComponent: React.FC<PossibleImpersonationA
           <br />
           <strong>This should never happen and we recommend leaving this community immediately!</strong>
         </Typography>
-        <Button className={classes.button} data-testid='unregistered-button' onClick={leaveCommunity}>
+        {/* Temporarily hiding button - https://github.com/TryQuiet/quiet/issues/2025 */}
+        {/* <Button className={classes.button} data-testid='unregistered-button' onClick={leaveCommunity}>
           Leave community
-        </Button>
+        </Button> */}
       </StyledGrid>
     </Modal>
   )
