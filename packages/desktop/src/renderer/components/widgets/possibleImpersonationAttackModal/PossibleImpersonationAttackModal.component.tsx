@@ -67,7 +67,7 @@ const PossibleImpersonationAttackModalComponent: React.FC<PossibleImpersonationA
           <br />
           <strong>This should never happen and we recommend leaving this community immediately!</strong>
         </Typography>
-        {/* Temporarily hiding button - https://github.com/TryQuiet/quiet/issues/2025 , https://github.com/TryQuiet/quiet/pull/2037/commits/499a12ff5494611af5d302244bc05024bcbc4c82*/}
+        {/* Temporarily hiding button - https://github.com/TryQuiet/quiet/issues/2025 */}
       </StyledGrid>
     </Modal>
   )
