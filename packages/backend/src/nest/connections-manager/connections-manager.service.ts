@@ -177,6 +177,8 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     if (this.storageService) {
       this.logger('Stopping orbitdb')
       await this.storageService?.stopOrbitDb()
+      this.logger('reset CsrReplicated map and id')
+      this.storageService.resetCsrReplicatedMapAndId()
     }
     // if (this.storageService.ipfs) {
     //   this.storageService.ipfs = null
@@ -428,6 +430,12 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.registrationService.on(RegistrationEvents.NEW_USER, async payload => {
       await this.storageService?.saveCertificate(payload)
     })
+
+    this.registrationService.on(RegistrationEvents.FINISHED_ISSUING_CERTIFICATES_FOR_ID, payload => {
+      if (payload.id) {
+        this.storageService.resolveCsrReplicatedPromise(payload.id)
+      }
+    })
   }
   private attachsocketServiceListeners() {
     // Community
@@ -592,8 +600,8 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     })
     this.storageService.on(
       StorageEvents.REPLICATED_CSR,
-      async (payload: { csrs: string[]; certificates: string[] }) => {
-        this.logger(`Storage - ${StorageEvents.REPLICATED_CSR}`)
+      async (payload: { csrs: string[]; certificates: string[]; id: string }) => {
+        console.log(`Storage - ${StorageEvents.REPLICATED_CSR}`)
         this.serverIoProvider.io.emit(SocketActionTypes.RESPONSE_GET_CSRS, { csrs: payload.csrs })
         this.registrationService.emit(RegistrationEvents.REGISTER_USER_CERTIFICATE, payload)
       }

@@ -65,6 +65,7 @@ describe.skip('Backwards Compatibility', () => {
       await registerModal.typeUsername(ownerUsername)
       await registerModal.submit()
     })
+
     it('Owner sees "update available" modal and closes it', async () => {
       console.log('waiting for update modal')
       const updateModal = new UpdateModal(ownerAppOldVersion.driver)
