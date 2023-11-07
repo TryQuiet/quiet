@@ -112,9 +112,8 @@ describe('User', () => {
   })
 
   test('navigates back to channels list', async () => {
-    console.log('Before pressing appbar_action_item')
     await press(element(by.id('appbar_action_item')))
-    console.log('After pressing appbar_action_item')
+
     await waitFor(element(by.id('channels_list')))
       .toBeVisible()
       .withTimeout(BASIC)
