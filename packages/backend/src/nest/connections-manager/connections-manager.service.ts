@@ -177,6 +177,8 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     if (this.storageService) {
       this.logger('Stopping orbitdb')
       await this.storageService?.stopOrbitDb()
+      this.logger('reset CsrReplicated map and id')
+      this.storageService.resetCsrReplicatedMapAndId()
     }
     // if (this.storageService.ipfs) {
     //   this.storageService.ipfs = null

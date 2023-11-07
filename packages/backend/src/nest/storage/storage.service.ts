@@ -156,6 +156,11 @@ export class StorageService extends EventEmitter {
       })
   }
 
+  public resetCsrReplicatedMapAndId() {
+    this.csrReplicatedPromiseMap = new Map()
+    this.csrReplicatedPromiseId = 0
+  }
+
   private async startReplicate() {
     const dbs = []
 
