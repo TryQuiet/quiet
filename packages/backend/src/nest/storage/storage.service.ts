@@ -1054,5 +1054,6 @@ export class StorageService extends EventEmitter {
     // @ts-ignore
     this.filesManager = null
     this.peerId = null
+    this.resetCsrReplicatedMapAndId()
   }
 }
