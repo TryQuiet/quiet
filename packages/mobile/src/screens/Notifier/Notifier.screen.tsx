@@ -2,12 +2,13 @@ import React, { FC, useCallback } from 'react'
 import { Notifier } from '../../components/Notifier/Notifier.component'
 import { appImages } from '../../assets'
 import { useDispatch } from 'react-redux'
+import { navigationActions } from '../../store/navigation/navigation.slice'
 
 export const NotifierScreen: FC = () => {
   const dispatch = useDispatch()
 
   const redirection = useCallback(() => {
-    console.log('redirection')
+    dispatch(navigationActions.pop())
   }, [dispatch])
 
   const helpline = useCallback(() => {
