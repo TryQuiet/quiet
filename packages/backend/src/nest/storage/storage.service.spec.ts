@@ -40,6 +40,7 @@ import { LocalDbModule } from '../local-db/local-db.module'
 import { LocalDbService } from '../local-db/local-db.service'
 import { IPFS_REPO_PATCH, ORBIT_DB_DIR, QUIET_DIR } from '../const'
 import { LocalDBKeys } from '../local-db/local-db.types'
+import { RegistrationEvents } from '../registration/registration.types'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -672,6 +673,65 @@ describe('StorageService', () => {
       }, 2000)
 
       await expect(storageService.deleteFilesFromChannel(messages)).resolves.not.toThrowError()
+    })
+  })
+
+  describe('replicate certificatesRequests event', () => {
+    const replicatedEvent = async () => {
+      // @ts-ignore - Property 'certificates' is private
+      storageService.certificatesRequests.events.emit('replicated')
+      await new Promise<void>(resolve => setTimeout(() => resolve(), 2000))
+    }
+
+    it('replicated event ', async () => {
+      await storageService.init(peerId)
+      const spyOnUpdatePeersList = jest.spyOn(storageService, 'updatePeersList')
+      await replicatedEvent()
+      expect(spyOnUpdatePeersList).toBeCalledTimes(1)
+    })
+
+    it('2 replicated events - first not resolved ', async () => {
+      await storageService.init(peerId)
+      const spyOnUpdatePeersList = jest.spyOn(storageService, 'updatePeersList')
+      await replicatedEvent()
+      await replicatedEvent()
+      expect(spyOnUpdatePeersList).toBeCalledTimes(1)
+    })
+
+    it('2 replicated events - first resolved ', async () => {
+      await storageService.init(peerId)
+      const spyOnUpdatePeersList = jest.spyOn(storageService, 'updatePeersList')
+      await replicatedEvent()
+      await replicatedEvent()
+      storageService.resolveCsrReplicatedPromise(1)
+      await new Promise<void>(resolve => setTimeout(() => resolve(), 500))
+      expect(spyOnUpdatePeersList).toBeCalledTimes(2)
+    })
+
+    it('3 replicated events - no resolved promises', async () => {
+      await storageService.init(peerId)
+      const spyOnUpdatePeersList = jest.spyOn(storageService, 'updatePeersList')
+
+      await replicatedEvent()
+      await replicatedEvent()
+      await replicatedEvent()
+
+      expect(spyOnUpdatePeersList).toBeCalledTimes(1)
+    })
+
+    it('3 replicated events - two resolved promises ', async () => {
+      await storageService.init(peerId)
+      const spyOnUpdatePeersList = jest.spyOn(storageService, 'updatePeersList')
+
+      await replicatedEvent()
+      await replicatedEvent()
+      storageService.resolveCsrReplicatedPromise(1)
+      await new Promise<void>(resolve => setTimeout(() => resolve(), 500))
+      await replicatedEvent()
+      storageService.resolveCsrReplicatedPromise(2)
+      await new Promise<void>(resolve => setTimeout(() => resolve(), 500))
+
+      expect(spyOnUpdatePeersList).toBeCalledTimes(3)
     })
   })
 })

@@ -51,9 +51,15 @@ import Logger from '../common/logger'
 import { DirectMessagesRepo, PublicChannelsRepo } from '../common/types'
 import { removeFiles, removeDirs, createPaths, getUsersAddresses } from '../common/utils'
 import { StorageEvents } from './storage.types'
+import { RegistrationEvents } from '../registration/registration.types'
 
 interface DBOptions {
   replicate: boolean
+}
+
+interface CsrReplicatedPromiseValues {
+  promise: Promise<unknown>
+  resolveFunction: any
 }
 
 @Injectable()
@@ -71,6 +77,8 @@ export class StorageService extends EventEmitter {
   private filesManager: IpfsFileManagerService
   private peerId: PeerId | null = null
   private ipfsStarted: boolean
+  public csrReplicatedPromiseMap: Map<number, CsrReplicatedPromiseValues> = new Map()
+  private csrReplicatedPromiseId: number = 0
 
   private readonly logger = Logger(StorageService.name)
   constructor(
@@ -146,6 +154,11 @@ export class StorageService extends EventEmitter {
         console.log(`Couldn't start ipfs node`, e.message)
         throw new Error(e.message)
       })
+  }
+
+  public resetCsrReplicatedMapAndId() {
+    this.csrReplicatedPromiseMap = new Map()
+    this.csrReplicatedPromiseId = 0
   }
 
   private async startReplicate() {
@@ -390,6 +403,26 @@ export class StorageService extends EventEmitter {
     this.logger('STORAGE: Finished createDbForCertificates')
   }
 
+  private createCsrReplicatedPromise(id: number) {
+    let resolveFunction
+    const promise = new Promise(resolve => {
+      resolveFunction = resolve
+    })
+
+    this.csrReplicatedPromiseMap.set(id, { promise, resolveFunction })
+  }
+
+  public resolveCsrReplicatedPromise(id: number) {
+    const csrReplicatedPromiseMapId = this.csrReplicatedPromiseMap.get(id)
+    if (csrReplicatedPromiseMapId) {
+      csrReplicatedPromiseMapId?.resolveFunction(id)
+      this.csrReplicatedPromiseMap.delete(id)
+    } else {
+      console.log(`No promise with ID ${id} found.`)
+      return
+    }
+  }
+
   public async createDbForCertificatesRequests() {
     this.logger('certificatesRequests db init')
     this.certificatesRequests = await this.orbitDb.log<string>('csrs', {
@@ -398,13 +431,32 @@ export class StorageService extends EventEmitter {
         write: ['*'],
       },
     })
+
     this.certificatesRequests.events.on('replicated', async () => {
       this.logger('REPLICATED: CSRs')
+
+      this.csrReplicatedPromiseId++
 
       const filteredCsrs = await this.getCsrs()
 
       const allCertificates = this.getAllEventLogEntries(this.certificates)
-      this.emit(StorageEvents.REPLICATED_CSR, { csrs: filteredCsrs, certificates: allCertificates })
+
+      this.createCsrReplicatedPromise(this.csrReplicatedPromiseId)
+
+      if (this.csrReplicatedPromiseId > 1) {
+        const csrReplicatedPromiseMapId = this.csrReplicatedPromiseMap.get(this.csrReplicatedPromiseId - 1)
+
+        if (csrReplicatedPromiseMapId?.promise) {
+          await csrReplicatedPromiseMapId.promise
+        }
+      }
+
+      this.emit(StorageEvents.REPLICATED_CSR, {
+        csrs: filteredCsrs,
+        certificates: allCertificates,
+        id: this.csrReplicatedPromiseId,
+      })
+
       await this.updatePeersList()
     })
     this.certificatesRequests.events.on('write', async (_address, entry) => {
@@ -1002,5 +1054,6 @@ export class StorageService extends EventEmitter {
     // @ts-ignore
     this.filesManager = null
     this.peerId = null
+    this.resetCsrReplicatedMapAndId()
   }
 }
