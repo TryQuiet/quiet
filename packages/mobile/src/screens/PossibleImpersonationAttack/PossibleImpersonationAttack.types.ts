@@ -6,5 +6,4 @@ export interface PossibleImpersonationAttackScreenProps {
 export interface PossibleImpersonationAttackComponentProps {
   handleBackButton: () => void
   communityName: string
-  leaveCommunity: () => void
 }
