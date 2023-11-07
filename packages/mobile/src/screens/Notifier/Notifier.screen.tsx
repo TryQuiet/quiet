@@ -1,4 +1,5 @@
 import React, { FC, useCallback } from 'react'
+import { Linking } from 'react-native'
 import { Notifier } from '../../components/Notifier/Notifier.component'
 import { appImages } from '../../assets'
 import { useDispatch } from 'react-redux'
@@ -11,8 +12,9 @@ export const NotifierScreen: FC = () => {
     dispatch(navigationActions.pop())
   }, [dispatch])
 
-  const helpline = useCallback(() => {
-    console.log('helpline')
+  const helpline = useCallback(async () => {
+    const link = 'mailto:help@quiet.chat'
+    await Linking.openURL(link);
   }, [])
 
   return (
