@@ -18,10 +18,10 @@ import { initSelectors } from '../../store/init/init.selectors'
 export const ChannelListScreen: FC = () => {
   const dispatch = useDispatch()
 
-  /* 
+  /*
    * Notify user about incoming lack of backwards compatiblity.
    * This should be removed in the next major release of the application (2.x)
-   * 
+   *
    * https://github.com/TryQuiet/quiet/issues/1980
    */
   useEffect(() => {

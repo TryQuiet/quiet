@@ -14,7 +14,7 @@ export const NotifierScreen: FC = () => {
 
   const helpline = useCallback(async () => {
     const link = 'mailto:help@quiet.chat'
-    await Linking.openURL(link);
+    await Linking.openURL(link)
   }, [])
 
   return (
