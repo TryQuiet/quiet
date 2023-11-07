@@ -11,21 +11,24 @@ import { MenuProvider } from 'react-native-popup-menu'
 
 import { ScreenNames } from './const/ScreenNames.enum'
 
-import { SplashScreen } from './screens/Splash/Splash.screen'
-import { CreateCommunityScreen } from './screens/CreateCommunity/CreateCommunity.screen'
-import { JoinCommunityScreen } from './screens/JoinCommunity/JoinCommunity.screen'
-import { UsernameRegistrationScreen } from './screens/UsernameRegistration/UsernameRegistration.screen'
-import { SuccessScreen } from './screens/Success/Success.screen'
-import { ErrorScreen } from './screens/Error/Error.screen'
 import { ChannelListScreen } from './screens/ChannelList/ChannelList.screen'
 import { ChannelScreen } from './screens/Channel/Channel.screen'
+import { ConnectionProcessScreen } from './screens/ConnectionProcess/ConnectionProcess.screen'
 import { CreateChannelScreen } from './screens/CreateChannel/CreateChannel.screen'
+import { CreateCommunityScreen } from './screens/CreateCommunity/CreateCommunity.screen'
 import { DeleteChannelScreen } from './screens/DeleteChannel/DeleteChannel.screen'
-import { QRCodeScreen } from './screens/QRCode/QRCode.screen'
+import { ErrorScreen } from './screens/Error/Error.screen'
+import { JoinCommunityScreen } from './screens/JoinCommunity/JoinCommunity.screen'
 import { LeaveCommunityScreen } from './screens/LeaveCommunity/LeaveCommunity.screen'
+import { NotifierScreen } from './screens/Notifier/Notifier.screen'
+import { QRCodeScreen } from './screens/QRCode/QRCode.screen'
+import { SplashScreen } from './screens/Splash/Splash.screen'
+import { SuccessScreen } from './screens/Success/Success.screen'
+import { UsernameRegistrationScreen } from './screens/UsernameRegistration/UsernameRegistration.screen'
 
 import { NavigationContainer } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
+
 import { navigationRef } from './RootNavigation'
 import { navigationActions } from './store/navigation/navigation.slice'
 
@@ -43,8 +46,8 @@ import { useConfirmationBox } from './hooks/useConfirmationBox'
 import { ConfirmationBox } from './components/ConfirmationBox/ConfirmationBox.component'
 
 import StoreProvider from './Provider'
+
 import { RootStackParamList } from './route.params'
-import ConnectionProcessScreen from './screens/ConnectionProcess/ConnectionProcess.screen'
 
 LogBox.ignoreAllLogs()
 
@@ -86,19 +89,20 @@ function App(): JSX.Element {
                   headerShown: false,
                 }}
               >
-                <Screen component={CreateCommunityScreen} name={ScreenNames.CreateCommunityScreen} />
-                <Screen component={SplashScreen} name={ScreenNames.SplashScreen} />
-                <Screen component={LeaveCommunityScreen} name={ScreenNames.LeaveCommunityScreen} />
-                <Screen component={JoinCommunityScreen} name={ScreenNames.JoinCommunityScreen} />
-                <Screen component={UsernameRegistrationScreen} name={ScreenNames.UsernameRegistrationScreen} />
                 <Screen component={ChannelListScreen} name={ScreenNames.ChannelListScreen} />
-                <Screen component={ConnectionProcessScreen} name={ScreenNames.ConnectionProcessScreen} />
                 <Screen component={ChannelScreen} name={ScreenNames.ChannelScreen} />
                 <Screen component={CreateChannelScreen} name={ScreenNames.CreateChannelScreen} />
+                <Screen component={CreateCommunityScreen} name={ScreenNames.CreateCommunityScreen} />
+                <Screen component={ConnectionProcessScreen} name={ScreenNames.ConnectionProcessScreen} />
                 <Screen component={DeleteChannelScreen} name={ScreenNames.DeleteChannelScreen} />
-                <Screen component={QRCodeScreen} name={ScreenNames.QRCodeScreen} />
-                <Screen component={SuccessScreen} name={ScreenNames.SuccessScreen} />
                 <Screen component={ErrorScreen} name={ScreenNames.ErrorScreen} />
+                <Screen component={JoinCommunityScreen} name={ScreenNames.JoinCommunityScreen} />
+                <Screen component={LeaveCommunityScreen} name={ScreenNames.LeaveCommunityScreen} />
+                <Screen component={NotifierScreen} name={ScreenNames.NotifierScreen} />
+                <Screen component={QRCodeScreen} name={ScreenNames.QRCodeScreen} />
+                <Screen component={SplashScreen} name={ScreenNames.SplashScreen} />
+                <Screen component={SuccessScreen} name={ScreenNames.SuccessScreen} />
+                <Screen component={UsernameRegistrationScreen} name={ScreenNames.UsernameRegistrationScreen} />
               </Navigator>
               <CommunityContextMenu />
               <ChannelContextMenu />
