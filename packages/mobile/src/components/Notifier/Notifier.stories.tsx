@@ -13,7 +13,7 @@ storiesOf('Notifier', module).add('Default', () => (
     icon={appImages.update_graphics}
     title={'Coming update will remove communities & messages'}
     message={
-      'Quiet’s next release makes joining communities faster and more reliable by letting people join when the owner is offline! 🎉 However, these changes required us to reset all communities, and both communities and messages will be lost on mobile. 😥 We apologize for the inconvenience, and please reach out immediately if you need help backing up messages.'
+      'Quiet’s next release makes joining communities faster and more reliable by letting people join when the owner is offline! However, these changes required us to reset all communities, and both communities and messages will be lost on mobile. We apologize for the inconvenience, and please reach out immediately if you need help backing up messages.'
     }
   />
 ))
