@@ -75,8 +75,9 @@ export const csrsMapping = createSelector(csrs, csrs => {
 
 export const allUsers = createSelector(csrsMapping, certificatesMapping, (csrs, certs) => {
   const users: Record<string, User> = {}
+
   const allUsernames: string[] = Object.values(csrs).map(u => u.username)
-  const duplicateUsernames: string[] = allUsernames.filter((val, index) => allUsernames.indexOf(val) !== index)
+  const duplicatedUsernames: string[] = allUsernames.filter((val, index) => allUsernames.indexOf(val) !== index)
 
   Object.keys(csrs).map(pubKey => {
     const username = csrs[pubKey].username
@@ -85,10 +86,11 @@ export const allUsers = createSelector(csrsMapping, certificatesMapping, (csrs, 
     if (certs[pubKey]?.username) {
       isDuplicated = false
     } else {
-      isDuplicated = duplicateUsernames.includes(username)
+      isDuplicated = duplicatedUsernames.includes(username)
     }
 
     const isRegistered = Boolean(certs[pubKey])
+
     users[pubKey] = {
       ...csrs[pubKey],
       isRegistered,
@@ -96,6 +98,7 @@ export const allUsers = createSelector(csrsMapping, certificatesMapping, (csrs, 
       pubKey,
     }
   })
+
   // Temporary backward compatiblility! Old communities do not have csrs
   Object.keys(certs).map(pubKey => {
     if (users[pubKey]) return
@@ -106,6 +109,7 @@ export const allUsers = createSelector(csrsMapping, certificatesMapping, (csrs, 
       pubKey,
     }
   })
+
   return users
 })
 
