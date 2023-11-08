@@ -152,6 +152,11 @@ export class UserProfileStore {
         return false
       }
 
+      if (typeof profile.photo === 'string' && !profile.photo.startsWith('data:image/png;base64')) {
+        logger.error('Expected PNG for user profile photo', userProfile.pubKey)
+        return false
+      }
+
       // We only accept PNG for now. I think some care needs to be used
       // with the Image element since it can make web requests and
       // accepts a variety of formats that we may want to limit. Some

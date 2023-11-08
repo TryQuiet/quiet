@@ -246,17 +246,17 @@ describe('Main', () => {
                         class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                       >
                         <div
-                          class="css-1oydlr3"
+                          class="css-9zw54k"
                         >
                           <div
-                            class="MuiButtonBase-root MuiButton-root UserProfilePanelbutton MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root UserProfilePanelbutton MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-1skytee-MuiButtonBase-root-MuiButton-root"
-                            data-testid="settings-panel-button"
+                            class="MuiButtonBase-root MuiButton-root UserProfilePanel-button MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root UserProfilePanel-button MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-1skytee-MuiButtonBase-root-MuiButton-root"
+                            data-testid="user-profile-menu-button"
                             role="button"
                             tabindex="0"
                           >
                             Jdenticon
                             <p
-                              class="MuiTypography-root MuiTypography-body2 UserProfilePanelnickname css-16d47hw-MuiTypography-root"
+                              class="MuiTypography-root MuiTypography-body2 UserProfilePanel-nickname css-16d47hw-MuiTypography-root"
                             />
                             <span
                               class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
