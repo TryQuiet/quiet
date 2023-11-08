@@ -1,4 +1,4 @@
-[unreleased]
+[2.0.3-alpha.1]
 
 * Temporarily hiding leave community button from Possible impersonation attack
 
