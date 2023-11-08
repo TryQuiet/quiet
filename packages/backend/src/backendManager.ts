@@ -9,7 +9,7 @@ import { torBinForPlatform, torDirForPlatform } from './nest/common/utils'
 import initRnBridge from './rn-bridge'
 import { INestApplicationContext } from '@nestjs/common'
 import logger from './nest/common/logger'
-import { validateOptions } from './utils'
+import { OpenServices, validateOptions } from './options'
 
 const log = logger('backendManager')
 
@@ -32,14 +32,6 @@ program.parse(process.argv)
 const options = program.opts()
 
 console.log('options', options)
-
-interface OpenServices {
-  torControlPort?: any
-  socketIOPort?: any
-  socketIOSecret?: any
-  httpTunnelPort?: any
-  authCookie?: any
-}
 
 export const runBackendDesktop = async () => {
   const isDev = process.env.NODE_ENV === 'development'
@@ -91,7 +83,7 @@ export const runBackendDesktop = async () => {
   })
 }
 
-export const runBackendMobile = async (): Promise<any> => {
+export const runBackendMobile = async () => {
   // Enable triggering push notifications
   process.env['BACKEND'] = 'mobile'
   process.env['CONNECTION_TIME'] = (new Date().getTime() / 1000).toString() // Get time in seconds

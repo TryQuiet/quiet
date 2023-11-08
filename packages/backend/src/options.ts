@@ -1,4 +1,13 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import commander from 'commander'
+
+export interface OpenServices {
+  torControlPort?: any
+  socketIOPort?: any
+  socketIOSecret?: any
+  httpTunnelPort?: any
+  authCookie?: any
+}
 
 interface Options {
   platform?: any
