@@ -4,7 +4,7 @@ import { prepareStore } from '../../utils/tests/prepareStore'
 import { FactoryGirl } from 'factory-girl'
 import { getFactory } from '../../utils/tests/factories'
 
-import { keyFromCertificate, parseCertificate } from '@quiet/identity'
+import { keyFromCertificate, parseCertificate, parseCertificationRequest } from '@quiet/identity'
 import { Identity, Community } from '@quiet/types'
 
 import { communitiesActions, communitiesReducer, CommunitiesState } from '../communities/communities.slice'
@@ -28,6 +28,9 @@ describe('users selectors', () => {
     peerId: 'Qmf3ySkYqLET9xtAtDzvAr5Pp3egK1H3C5iJAZm1SpLEp6',
     username: 'alice',
   }
+
+  let aliceUnregistered: Identity
+  let aliceUnregisteredPublicKey: string
 
   beforeAll(async () => {
     store = prepareStore().store
@@ -54,6 +57,15 @@ describe('users selectors', () => {
 
     const parsedAliceCertificate = parseCertificate(alice.userCertificate!)
     alicePublicKey = keyFromCertificate(parsedAliceCertificate)
+
+    aliceUnregistered = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
+      id: community.id,
+      nickname: aliceCertificateData.username,
+      userCertificate: null
+    })
+
+    const parsedAliceUnregisteredCertificationRequest = parseCertificationRequest(aliceUnregistered.userCsr!.userCsr)
+    aliceUnregisteredPublicKey = keyFromCertificate(parsedAliceUnregisteredCertificationRequest)
   })
 
   it('get proper user certificate from store', async () => {
@@ -76,6 +88,36 @@ describe('users selectors', () => {
         "username": "alice",
       }
     `)
+  })
+
+  it('gets registered user with proper \'isRegistered\' prop', async () => {
+    const users = usersSelectors.allUsers(store.getState())
+
+    expect(users[alicePublicKey]).toMatchObject({
+      isRegistered: true,
+    })
+  })
+
+  it('gets unregistered user with proper \'isRegistered\' prop', async () => {
+    const users = usersSelectors.allUsers(store.getState())
+
+    expect(users[aliceUnregisteredPublicKey]).toMatchObject({
+      isRegistered: false,
+    })
+  })
+
+  it('gets all users (registered users don\'t get \'duplicate\' label over unregistered ones)', async () => {
+    const users = usersSelectors.allUsers(store.getState())
+
+    expect(users[alicePublicKey]).toMatchObject({
+      isDuplicated: false,
+      isRegistered: true,
+    })
+
+    expect(users[aliceUnregisteredPublicKey]).toMatchObject({
+      isDuplicated: true,
+      isRegistered: false,
+    })
   })
 })
 

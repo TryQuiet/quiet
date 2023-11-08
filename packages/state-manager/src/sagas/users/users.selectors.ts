@@ -47,6 +47,7 @@ export const certificatesMapping = createSelector(certificates, certs => {
 
 export const csrsMapping = createSelector(csrs, csrs => {
   const mapping: Record<string, UserData> = {}
+  
   Object.keys(csrs).map(pubKey => {
     const csr = csrs[pubKey]
     if (!csr || csr.subject.typesAndValues.length < 1) {
@@ -70,6 +71,7 @@ export const csrsMapping = createSelector(csrs, csrs => {
       dmPublicKey,
     })
   })
+
   return mapping
 })
 
@@ -149,6 +151,7 @@ export const duplicateCerts = createSelector(certificatesMapping, certs => {
 })
 
 export const usersSelectors = {
+  csrs,
   certificates,
   certificatesMapping,
   csrsMapping,

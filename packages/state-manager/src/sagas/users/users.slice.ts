@@ -17,8 +17,7 @@ export const usersSlice = createSlice({
     storeUserCertificate: (state, action: PayloadAction<{ certificate: string }>) => {
       certificatesAdapter.addOne(state.certificates, parseCertificate(action.payload.certificate))
     },
-    responseSendCertificates: (state, action: PayloadAction<SendCertificatesResponse>) => {},
-
+    responseSendCertificates: (state, _action: PayloadAction<SendCertificatesResponse>) => state,
     setAllCerts: (state, action: PayloadAction<SendCertificatesResponse>) => {
       certificatesAdapter.setAll(
         state.certificates,
