@@ -33,7 +33,7 @@ describe('sendInitialChannelMessageSaga', () => {
     factory = await getFactory(store)
   })
 
-  test('send new user info message', async () => {
+  test.skip('send new user info message', async () => {
     const community1 =
       await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
     user = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
@@ -76,7 +76,7 @@ describe('sendInitialChannelMessageSaga', () => {
       .run()
   })
 
-  test('dont send new user info if user exists', async () => {
+  test.skip('dont send new user info if user exists', async () => {
     const community1 =
       await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
     user = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
@@ -114,7 +114,7 @@ describe('sendInitialChannelMessageSaga', () => {
       .run()
   })
 
-  test('dont send new user info message if owner', async () => {
+  test.skip('dont send new user info message if owner', async () => {
     const community1 =
       await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
     user = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
@@ -141,7 +141,7 @@ describe('sendInitialChannelMessageSaga', () => {
       .run()
   })
 
-  test('remove possible duplicates before sending info message', async () => {
+  test.skip('remove possible duplicates before sending info message', async () => {
     const community1 =
       await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
     user = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {

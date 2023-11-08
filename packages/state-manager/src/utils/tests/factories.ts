@@ -1,29 +1,36 @@
 import factoryGirl from 'factory-girl'
+
 import { CustomReduxAdapter } from './reduxAdapter'
-import { type Store } from '../../sagas/store.types'
-import { communities, identity, messages, publicChannels, users, errors } from '../..'
+
+import { Store } from '../../sagas/store.types'
+
 import { createMessageSignatureTestHelper, createPeerIdTestHelper } from './helpers'
+
 import { getCrypto } from 'pkijs'
 import { stringToArrayBuffer } from 'pvutils'
 
 import { DateTime } from 'luxon'
-import { messagesActions } from '../../sagas/messages/messages.slice'
-import { publicChannelsActions } from '../../sagas/publicChannels/publicChannels.slice'
+
+import { communities, identity, messages, publicChannels, users, errors } from '../..'
+
 import { generateChannelId } from '@quiet/common'
+
 import {
   createRootCertificateTestHelper,
   createUserCertificateTestHelper,
   keyObjectFromString,
   verifySignature,
 } from '@quiet/identity'
-import { type ChannelMessage, type FileMetadata, MessageType, SendingStatus } from '@quiet/types'
+
+import { ChannelMessage, FileMetadata, MessageType, SendingStatus } from '@quiet/types'
+
 
 export const generateMessageFactoryContentWithId = (
   channelId: string,
   type?: MessageType,
   media?: FileMetadata
-): ChannelMessage => {
-  return {
+  ): ChannelMessage => {
+    return {
     id: (Math.random() * 10 ** 18).toString(36),
     type: type || MessageType.Basic,
     message: (Math.random() * 10 ** 18).toString(36),
@@ -97,25 +104,48 @@ export const getFactory = async (store: Store) => {
     },
     {
       afterBuild: async (action: ReturnType<typeof identity.actions.addNewIdentity>) => {
+        const community = communities.selectors.selectEntities(store.getState())[action.payload.id]!
+
+        const userCertData = await createUserCertificateTestHelper(
+          {
+            nickname: action.payload.nickname,
+            commonName: action.payload.hiddenService.onionAddress,
+            peerId: action.payload.peerId.id,
+            dmPublicKey: action.payload.dmKeys.publicKey,
+          },
+          community.CA
+        )
+
+        action.payload.userCsr = userCertData.userCsr
+
+        const csrsObjects = users.selectors.csrs(store.getState())
+
+        // TODO: Converting CertificationRequest to string can be an util method
+        const csrsStrings = Object.values(csrsObjects).map(obj => {
+          let value
+          try {
+            value = Buffer.from(obj.toSchema(true).toBER(false)).toString('base64')
+          } catch {
+            console.error('ERROR: cannot parse CertificationRequest to base64')
+          }
+          return value
+        })
+
+        await factory.create('UserCSR', {
+          csrs: csrsStrings.concat([userCertData.userCsr.userCsr])
+        })
+
         const requestCertificate = action.payload.userCertificate === undefined
-        const community = communities.selectors.selectEntities(store.getState())[action.payload.id]
-        if (requestCertificate && community?.CA) {
-          const userCertData = await createUserCertificateTestHelper(
-            {
-              nickname: action.payload.nickname,
-              commonName: action.payload.hiddenService.onionAddress,
-              peerId: action.payload.peerId.id,
-              dmPublicKey: action.payload.dmKeys.publicKey,
-            },
-            community.CA
-          )
-          action.payload.userCsr = userCertData.userCsr
+
+        if (requestCertificate && userCertData.userCert?.userCertString) {       
           action.payload.userCertificate = userCertData.userCert.userCertString
+
           // Store user's certificate even if the user won't be stored itself
           // (to be able to display messages sent by this user)
           await factory.create('UserCertificate', {
             certificate: action.payload.userCertificate,
           })
+
           if (!community.ownerCertificate) {
             store.dispatch(
               communities.actions.addOwnerCertificate({
@@ -125,10 +155,15 @@ export const getFactory = async (store: Store) => {
             )
           }
         }
+
         return action
       },
     }
   )
+
+  factory.define('UserCSR', users.actions.storeCsrs, {
+    csrs: []
+  })
 
   factory.define('UserCertificate', users.actions.storeUserCertificate, {
     certificate: factory.assoc('Identity', 'userCertificate'),
@@ -224,7 +259,7 @@ export const getFactory = async (store: Store) => {
       },
       afterCreate: async (payload: ReturnType<typeof publicChannels.actions.test_message>['payload']) => {
         store.dispatch(
-          messagesActions.incomingMessages({
+          messages.actions.incomingMessages({
             messages: [payload.message],
           })
         )
@@ -234,7 +269,7 @@ export const getFactory = async (store: Store) => {
     }
   )
 
-  factory.define('CacheMessages', publicChannelsActions.cacheMessages, {
+  factory.define('CacheMessages', publicChannels.actions.cacheMessages, {
     messages: [],
     channelId: factory.assoc('PublicChannel', 'id'),
     communityId: factory.assoc('Community', 'id'),

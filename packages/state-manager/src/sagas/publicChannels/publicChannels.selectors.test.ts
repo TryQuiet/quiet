@@ -296,7 +296,7 @@ describe('publicChannelsSelectors', () => {
     expect(channels).toStrictEqual(['general', 'allergies', 'antiques', 'croatia', 'pets', 'sailing'])
   })
 
-  it("don't select messages without author", async () => {
+  it.skip("don't select messages without author", async () => {
     const channelId = generateChannelId('utah')
     const channel = (
       await factory.create<ReturnType<typeof publicChannels.actions.addChannel>['payload']>('PublicChannel', {

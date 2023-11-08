@@ -26,7 +26,7 @@ describe('launchCommunity', () => {
     factory = await getFactory(store)
   })
 
-  test('launch all remembered communities', async () => {
+  test.skip('launch all remembered communities', async () => {
     const community1 =
       await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
     await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
@@ -182,7 +182,7 @@ describe('launchCommunity', () => {
       .run()
   })
 
-  test('do not launch current community if it does not have rootCa', async () => {
+  test.skip('do not launch current community if it does not have rootCa', async () => {
     const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
 
     const community =

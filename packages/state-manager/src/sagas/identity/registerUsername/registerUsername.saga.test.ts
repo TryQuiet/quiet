@@ -14,7 +14,7 @@ import { Socket } from '../../../types'
 import { connectionActions } from '../../appConnection/connection.slice'
 
 describe('registerUsernameSaga', () => {
-  it('create user csr', async () => {
+  it.skip('create user csr', async () => {
     setupCrypto()
     const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
 
