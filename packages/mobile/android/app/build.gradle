@@ -166,7 +166,7 @@ android {
         applicationId "com.quietmobile"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 336
+        versionCode 371
         versionName "1.10.9"
         resValue "string", "build_config_package", "com.quietmobile"
         testBuildType System.getProperty('testBuildType', 'debug')
