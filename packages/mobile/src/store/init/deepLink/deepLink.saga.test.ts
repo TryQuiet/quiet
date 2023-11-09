@@ -52,6 +52,7 @@ describe('deepLinkSaga', () => {
     store.dispatch(
       initActions.setWebsocketConnected({
         dataPort: 5001,
+        socketIOSecret: 'secret',
       })
     )
 
@@ -82,6 +83,7 @@ describe('deepLinkSaga', () => {
     store.dispatch(
       initActions.setWebsocketConnected({
         dataPort: 5001,
+        socketIOSecret: 'secret',
       })
     )
 
@@ -118,6 +120,7 @@ describe('deepLinkSaga', () => {
     store.dispatch(
       initActions.setWebsocketConnected({
         dataPort: 5001,
+        socketIOSecret: 'secret',
       })
     )
 
@@ -144,6 +147,7 @@ describe('deepLinkSaga', () => {
     store.dispatch(
       initActions.setWebsocketConnected({
         dataPort: 5001,
+        socketIOSecret: 'secret',
       })
     )
 
@@ -181,6 +185,7 @@ describe('deepLinkSaga', () => {
     store.dispatch(
       initActions.setWebsocketConnected({
         dataPort: 5001,
+        socketIOSecret: 'secret',
       })
     )
 

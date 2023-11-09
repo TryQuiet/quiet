@@ -8,6 +8,7 @@ export class ConnectionState {
   public uptime = 0
   public peersStats: EntityState<NetworkStats> = peersStatsAdapter.getInitialState()
   public isTorInitialized = false
+  public socketIOSecret: string | null = null
   public torBootstrapProcess = 'Bootstrapped 0% (starting)'
   public torConnectionProcess: { number: number; text: string } = {
     number: 5,
@@ -51,6 +52,10 @@ export const connectionSlice = createSlice({
     setTorInitialized: state => {
       state.isTorInitialized = true
     },
+    setSocketIOSecret: (state, action: PayloadAction<string>) => {
+      state.socketIOSecret = action.payload
+    },
+
     setTorConnectionProcess: (state, action: PayloadAction<string>) => {
       const info = action.payload
       switch (info) {

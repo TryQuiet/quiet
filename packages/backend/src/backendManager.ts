@@ -7,8 +7,10 @@ import { AppModule } from './nest/app.module'
 import { ConnectionsManagerService } from './nest/connections-manager/connections-manager.service'
 import { torBinForPlatform, torDirForPlatform } from './nest/common/utils'
 import initRnBridge from './rn-bridge'
-
+import { INestApplicationContext } from '@nestjs/common'
 import logger from './nest/common/logger'
+import { OpenServices, validateOptions } from './options'
+
 const log = logger('backendManager')
 
 const program = new Command()
@@ -24,20 +26,12 @@ program
   .option('-a, --appDataPath <string>', 'Path of application data directory')
   .option('-d, --socketIOPort <number>', 'Socket io data server port')
   .option('-r, --resourcesPath <string>', 'Application resources path')
+  .option('-scrt, --socketIOSecret <string>', 'socketIO secret')
 
 program.parse(process.argv)
 const options = program.opts()
 
 console.log('options', options)
-
-interface OpenServices {
-  torControlPort?: any
-  socketIOPort?: any
-  httpTunnelPort?: any
-  authCookie?: any
-}
-
-import { INestApplicationContext } from '@nestjs/common'
 
 export const runBackendDesktop = async () => {
   const isDev = process.env.NODE_ENV === 'development'
@@ -47,11 +41,14 @@ export const runBackendDesktop = async () => {
   // @ts-ignore
   global.crypto = webcrypto
 
+  validateOptions(options)
+
   const resourcesPath = isDev ? null : options.resourcesPath.trim()
 
   const app = await NestFactory.createApplicationContext(
     AppModule.forOptions({
       socketIOPort: options.socketIOPort,
+      socketIOSecret: options.socketIOSecret,
       torBinaryPath: torBinForPlatform(resourcesPath),
       torResourcesPath: torDirForPlatform(resourcesPath),
       torControlPort: await getPort(),
@@ -86,17 +83,20 @@ export const runBackendDesktop = async () => {
   })
 }
 
-export const runBackendMobile = async (): Promise<any> => {
+export const runBackendMobile = async () => {
   // Enable triggering push notifications
   process.env['BACKEND'] = 'mobile'
   process.env['CONNECTION_TIME'] = (new Date().getTime() / 1000).toString() // Get time in seconds
 
   const rn_bridge = initRnBridge()
 
+  validateOptions(options)
+
   let app: INestApplicationContext
   app = await NestFactory.createApplicationContext(
     AppModule.forOptions({
       socketIOPort: options.dataPort,
+      socketIOSecret: options.socketIOSecret,
       httpTunnelPort: options.httpTunnelPort ? options.httpTunnelPort : null,
       torAuthCookie: options.authCookie ? options.authCookie : null,
       torControlPort: options.controlPort ? options.controlPort : await getPort(),
@@ -120,6 +120,7 @@ export const runBackendMobile = async (): Promise<any> => {
     app = await NestFactory.createApplicationContext(
       AppModule.forOptions({
         socketIOPort: msg.socketIOPort,
+        socketIOSecret: msg.socketIOSecret,
         httpTunnelPort: msg.httpTunnelPort ? msg.httpTunnelPort : null,
         torAuthCookie: msg.authCookie ? msg.authCookie : null,
         torControlPort: msg.torControlPort ? msg.torControlPort : await getPort(),
@@ -133,7 +134,6 @@ export const runBackendMobile = async (): Promise<any> => {
       }),
       { logger: ['warn', 'error', 'log', 'debug', 'verbose'] }
     )
-    console.log('started backend wiktor little bastard ')
   })
 }
 

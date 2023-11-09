@@ -16,7 +16,6 @@ import {
   Community,
   DeleteFilesFromChannelSocketPayload,
 } from '@quiet/types'
-import cors, { CorsOptions } from 'cors'
 import EventEmitter from 'events'
 import { CONFIG_OPTIONS, SERVER_IO_PROVIDER } from '../const'
 import { ConfigOptions, ServerIoProviderTypes } from '../types'
@@ -132,6 +131,7 @@ export class SocketService extends EventEmitter implements OnModuleInit {
         this.logger(`Creating network for community ${community.id}`)
         this.emit(SocketActionTypes.CREATE_NETWORK, community)
       })
+
       socket.on(SocketActionTypes.LEAVE_COMMUNITY, async () => {
         this.logger('leaving community')
         this.emit(SocketActionTypes.LEAVE_COMMUNITY)

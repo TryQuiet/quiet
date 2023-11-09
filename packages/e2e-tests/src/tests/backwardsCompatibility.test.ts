@@ -19,14 +19,16 @@ describe('Backwards Compatibility', () => {
   let generalChannel: Channel
   let secondChannel: Channel
   let messagesToCompare: WebElement[]
-
   let sidebar: Sidebar
+
   const dataDir = `e2e_${(Math.random() * 10 ** 18).toString(36)}`
   const communityName = 'testcommunity'
   const ownerUsername = 'bob'
   const ownerMessages = ['Hi', 'Hello', 'After guest leave app']
   const loopMessages = 'abc'.split('')
   const newChannelName = 'mid-night-club'
+
+  const isAlpha = process.env.FILE_NAME?.toString().includes('alpha')
 
   beforeAll(async () => {
     ownerAppOldVersion = new App({ dataDir, fileName: 'Quiet-1.2.0-copy.AppImage' })
@@ -147,7 +149,7 @@ describe('Backwards Compatibility', () => {
       await ownerAppNewVersion.open()
     })
 
-    if (process.env.TEST_MODE) {
+    if (process.env.TEST_MODE && isAlpha) {
       it('Close debug modal', async () => {
         const debugModal = new DebugModeModal(ownerAppNewVersion.driver)
         await debugModal.close()

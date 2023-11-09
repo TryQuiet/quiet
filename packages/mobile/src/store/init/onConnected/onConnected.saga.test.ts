@@ -74,6 +74,7 @@ describe('onConnectedSaga', () => {
     store.dispatch(
       initActions.setWebsocketConnected({
         dataPort: 5001,
+        socketIOSecret: 'secret',
       })
     )
 
@@ -98,6 +99,7 @@ describe('onConnectedSaga', () => {
     store.dispatch(
       initActions.setWebsocketConnected({
         dataPort: 5001,
+        socketIOSecret: 'secret',
       })
     )
 
