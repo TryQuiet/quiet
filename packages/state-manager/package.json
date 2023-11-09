@@ -1,6 +1,6 @@
 {
   "name": "@quiet/state-manager",
-  "version": "1.9.1",
+  "version": "1.9.2",
   "description": "",
   "main": "lib/index.js",
   "scripts": {
@@ -22,7 +22,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@quiet/common": "^1.8.1",
+    "@quiet/common": "^1.8.2",
     "@quiet/logger": "^1.6.0",
     "@quiet/types": "^1.8.1",
     "@reduxjs/toolkit": "^1.9.1",

@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.8.3](https://github.com/TryQuiet/quiet/compare/e2e-tests@1.8.2...e2e-tests@1.8.3) (2023-11-09)
+
+**Note:** Version bump only for package e2e-tests
+
+
+
+
+
 ## [1.8.2](https://github.com/TryQuiet/quiet/compare/e2e-tests@1.8.1...e2e-tests@1.8.2) (2023-09-25)
 
 **Note:** Version bump only for package e2e-tests
