@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.10.10](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@1.10.9...@quiet/mobile@1.10.10) (2023-11-09)
+
+
+### Features
+
+* bump versionCode ([08af810](https://github.com/TryQuiet/quiet/commit/08af81032b533beaea800cf1fd53035616c9d5d8))
+
+
+
+
+
 ## [1.10.9](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@1.10.8...@quiet/mobile@1.10.9) (2023-11-09)
 
 **Note:** Version bump only for package @quiet/mobile
