@@ -31,9 +31,12 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
       return
     }
     const pendingCsrs = await extractPendingCsrs(payload)
-    pendingCsrs.forEach(async csr => {
-      await this.registerUserCertificate(csr)
-    })
+
+    await Promise.all(
+      pendingCsrs.map(async csr => {
+        await this.registerUserCertificate(csr)
+      })
+    )
 
     if (payload.id) this.emit(RegistrationEvents.FINISHED_ISSUING_CERTIFICATES_FOR_ID, { id: payload.id })
   }
