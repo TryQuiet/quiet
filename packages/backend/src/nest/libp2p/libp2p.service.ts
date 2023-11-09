@@ -18,7 +18,8 @@ import { ServerIoProviderTypes } from '../types'
 import Logger from '../common/logger'
 import { webSockets } from '../websocketOverTor'
 import { all } from '../websocketOverTor/filters'
-import { createLibp2pAddress, createLibp2pListenAddress } from '@quiet/common'
+import { createLibp2pAddress, createLibp2pListenAddress, isDefined } from '@quiet/common'
+import { CertFieldsTypes, getReqFieldValue, loadCSR } from '@quiet/identity'
 
 @Injectable()
 export class Libp2pService extends EventEmitter {
@@ -33,6 +34,7 @@ export class Libp2pService extends EventEmitter {
   }
 
   private dialPeer = async (peerAddress: string) => {
+    console.log('------ dialing peer ', peerAddress)
     await this.libp2pInstance?.dial(multiaddr(peerAddress))
   }
 
@@ -101,8 +103,26 @@ export class Libp2pService extends EventEmitter {
       this.logger.error('libp2pInstance was not created')
       throw new Error('libp2pInstance was not created')
     }
+    this.on(Libp2pEvents.DIAL_PEERS, async (csrs: string[]) => {
+      console.log('DIALING PEERS, csrs', csrs)
+      const csrsPeersPromises = csrs.map(async csr => {
+        const parsedCsr = await loadCSR(csr)
+        const peerId = getReqFieldValue(parsedCsr, CertFieldsTypes.peerId)
+        const onionAddress = getReqFieldValue(parsedCsr, CertFieldsTypes.commonName)
+
+        if (peerId && onionAddress && !this.connectedPeers.get(peerId)) {
+          return this.createLibp2pAddress(onionAddress, peerId)
+        }
+      })
+
+      const csrsPeers = await Promise.all(csrsPeersPromises)
+      console.log('DIALING PEER, addresses', csrsPeers)
+      const dialInChunks = new ProcessInChunks<string>(csrsPeers.filter(isDefined), this.dialPeer)
+      await dialInChunks.process()
+    })
 
     this.logger(`Initializing libp2p for ${peerId.toString()}, bootstrapping with ${peers.length} peers`)
+    console.log('BOOTSTRAPPING WITH', peers)
     this.serverIoProvider.io.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.INITIALIZING_LIBP2P)
     const dialInChunks = new ProcessInChunks<string>(peers, this.dialPeer)
 
@@ -123,6 +143,12 @@ export class Libp2pService extends EventEmitter {
       this.emit(Libp2pEvents.PEER_CONNECTED, {
         peers: [remotePeerId],
       })
+      const latency = await this.libp2pInstance?.ping(peer.detail.remoteAddr)
+      console.log(`- - - - peer ${remotePeerId} latency: ${latency}`)
+      console.log(
+        'PEER STORE',
+        this.libp2pInstance?.peerStore.forEach(p => console.log('metadata for ', p.id, p.addresses, p.metadata))
+      )
     })
 
     this.libp2pInstance.addEventListener('peer:disconnect', async peer => {

@@ -155,7 +155,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.logger('launchCommunityFromStorage')
 
     const community: InitCommunityPayload = await this.localDbService.get(LocalDBKeys.COMMUNITY)
-    console.log('launchCommunityFromStorage - community', community)
+    console.log('launchCommunityFromStorage - community peers', community?.peers)
     if (community) {
       const sortedPeers = await this.localDbService.getSortedPeers(community.peers)
       console.log('launchCommunityFromStorage - sorted peers', sortedPeers)
@@ -366,7 +366,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       this.serverIoProvider.io.emit(SocketActionTypes.PEER_CONNECTED, payload)
     })
     this.libp2pService.on(Libp2pEvents.PEER_DISCONNECTED, async (payload: NetworkDataPayload) => {
-      console.log(' this.libp2pService.on(Libp2pEvents.PEER_DISCONNECTED')
+      console.log(' this.libp2pService.on(Libp2pEvents.PEER_DISCONNECTED', payload.peer)
       const peerPrevStats = await this.localDbService.find(LocalDBKeys.PEERS, payload.peer)
       const prev = peerPrevStats?.connectionTime || 0
 
@@ -573,6 +573,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       StorageEvents.REPLICATED_CSR,
       async (payload: { csrs: string[]; certificates: string[]; id: string }) => {
         console.log(`On ${StorageEvents.REPLICATED_CSR}`)
+        this.libp2pService.emit(Libp2pEvents.DIAL_PEERS, payload.csrs)
         this.serverIoProvider.io.emit(SocketActionTypes.RESPONSE_GET_CSRS, { csrs: payload.csrs })
         this.registrationService.emit(RegistrationEvents.REGISTER_USER_CERTIFICATE, payload)
       }
