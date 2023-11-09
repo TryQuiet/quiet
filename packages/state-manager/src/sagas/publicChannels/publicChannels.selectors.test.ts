@@ -59,14 +59,18 @@ describe('publicChannelsSelectors', () => {
       id: community.id,
       nickname: 'alice',
     })
+
     const generalChannelState = publicChannelsSelectors.generalChannel(store.getState())
     if (generalChannelState) generalChannel = generalChannelState
+
     expect(generalChannel).not.toBeUndefined()
+
     channelIdes = [...channelIdes, generalChannel.id]
     john = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
       id: community.id,
       nickname: 'john',
     })
+    
     store.dispatch(publicChannelsActions.setCurrentChannel({ channelId: generalChannel.id }))
     // Setup channels
     const channelNames = ['croatia', 'allergies', 'sailing', 'pets', 'antiques']
@@ -296,7 +300,7 @@ describe('publicChannelsSelectors', () => {
     expect(channels).toStrictEqual(['general', 'allergies', 'antiques', 'croatia', 'pets', 'sailing'])
   })
 
-  it.skip("don't select messages without author", async () => {
+  it("don't select messages without author", async () => {
     const channelId = generateChannelId('utah')
     const channel = (
       await factory.create<ReturnType<typeof publicChannels.actions.addChannel>['payload']>('PublicChannel', {
@@ -317,6 +321,7 @@ describe('publicChannelsSelectors', () => {
 
     if (!elouise.userCertificate) throw new Error('no elouise.userCertificate')
     store.dispatch(usersActions.test_remove_user_certificate({ certificate: elouise.userCertificate }))
+    store.dispatch(usersActions.test_remove_user_csr({ csr: elouise.userCsr?.userCsr! }))
 
     store.dispatch(
       publicChannelsActions.setCurrentChannel({

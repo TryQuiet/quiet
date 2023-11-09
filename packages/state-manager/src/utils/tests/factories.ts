@@ -6,7 +6,7 @@ import { Store } from '../../sagas/store.types'
 
 import { createMessageSignatureTestHelper, createPeerIdTestHelper } from './helpers'
 
-import { getCrypto } from 'pkijs'
+import { CertificationRequest, getCrypto } from 'pkijs'
 import { stringToArrayBuffer } from 'pvutils'
 
 import { DateTime } from 'luxon'
@@ -127,15 +127,10 @@ export const getFactory = async (store: Store) => {
   
           // TODO: Converting CertificationRequest to string can be an util method
           const csrsStrings = Object.values(csrsObjects).map(obj => {
-            let value
-            try {
-              value = Buffer.from(obj.toSchema(true).toBER(false)).toString('base64')
-            } catch {
-              console.error('ERROR: cannot parse CertificationRequest to base64')
-            }
-            return value
-          })
-  
+            if (!(obj instanceof CertificationRequest)) return
+            return Buffer.from(obj.toSchema(true).toBER(false)).toString('base64')
+          }).filter(Boolean) // Filter out possible `undefined` values
+
           await factory.create('UserCSR', {
             csrs: csrsStrings.concat([userCertData.userCsr.userCsr])
           })
