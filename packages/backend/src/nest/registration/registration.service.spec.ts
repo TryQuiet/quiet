@@ -148,7 +148,7 @@ describe('RegistrationService', () => {
     expect(pendingCsrs[0]).toBe(userCsr.userCsr)
   })
 
-  it('bug reproduction - wait for all NEW_USER events until emiting FINISHED_ISSUING_CERTIFICATES_FOR_ID', async () => {
+  it('wait for all NEW_USER events until emitting FINISHED_ISSUING_CERTIFICATES_FOR_ID', async () => {
     registrationService.permsData = permsData
 
     const eventSpy = jest.spyOn(registrationService, 'emit')
