@@ -52,6 +52,8 @@ import { DirectMessagesRepo, PublicChannelsRepo } from '../common/types'
 import { removeFiles, removeDirs, createPaths, getUsersAddresses } from '../common/utils'
 import { StorageEvents } from './storage.types'
 import { CertificatesRequestsStore } from './certificatesRequestsStore'
+import { RegistrationEvents } from '../registration/registration.types'
+import { throws } from 'assert'
 
 interface DBOptions {
   replicate: boolean
@@ -397,9 +399,18 @@ export class StorageService extends EventEmitter {
     this.on(StorageEvents.LOADED_USER_CSRS, async (payload) => {
       console.log('csrs', payload.csrs)
       const allCertificates = this.getAllEventLogEntries(this.certificates)
-      this.emit(StorageEvents.REPLICATED_CSR, { csrs: payload.csrs, certificates: allCertificates })
+      this.emit(StorageEvents.REPLICATED_CSR, { csrs: payload.csrs, certificates: allCertificates, id: payload.id })
+      // TODO
       await this.updatePeersList()
     })
+  }
+
+  public resetCsrReplicatedMapAndId() {
+    this.certificatesRequestsStore.resetCsrReplicatedMapAndId()
+  }
+
+  public resolveCsrReplicatedPromise(id: number) {
+    this.certificatesRequestsStore.resolveCsrReplicatedPromise(id)
   }
 
   public async loadAllChannels() {
@@ -940,5 +951,8 @@ export class StorageService extends EventEmitter {
     // @ts-ignore
     this.filesManager = null
     this.peerId = null
+    if (this.certificatesRequestsStore) {
+      this.certificatesRequestsStore.resetCsrReplicatedMapAndId()
+    }
   }
 }

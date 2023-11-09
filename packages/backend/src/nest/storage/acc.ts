@@ -16,8 +16,12 @@ import {
   configCrypto,
   loadCSR
 } from '@quiet/identity'
-import { consoleLogger } from '@quiet/logger'
-import { algo } from 'crypto-js'
+
+const config = {
+  signAlg: 'ECDSA',
+  hashAlg: 'sha-256',
+}
+
 
 export function IsCsr(validationOptions?: ValidationOptions) {
   return function (object: object, propertyName: string) {
@@ -101,6 +105,11 @@ setEngine(
   })
 )
 
+const main = async () => {
+  const csr = await generateCsr()
+  await validateCsr(csr.userCsr)
+}
+
 const generateCsr = async () => {
   const userData = {
     nickname: 'dev99damian1',
@@ -112,29 +121,46 @@ const generateCsr = async () => {
   }
 
   const csr = await createUserCsr(userData)
-  // console.log(csr)
-  console.log(csr.pkcs10.pkcs10.signatureValue)
 
-  // CSR is Valid.
-  const uData = new UserCsrData()
-  uData.csr = csr.userCsr
-  const validationErrors = await validate(userData)
-  // Empty strings are valid - what to do about this?
+  return csr
 
   // Username is valid.
   // Is signed by the right pubKey.
-  const algorithm = getAlgorithmParameters('ECDSA', 'verify')
-
-  const pubKey = keyFromCertificate(csr.pkcs10.pkcs10)
-  const cryptoKey = await keyObjectFromString(pubKey, crypto.subtle)
-
-
-  console.log(pubKey)
-
-  // await crypto.subtle.verify(algorithm.algorithm as Algorithm, cryptoKey, csr.pkcs10.pkcs10.signatureValue.valueBlock.valueHexView, csr.userCsr.)
+  // const algorithm = getAlgorithmParameters('ECDSA', 'verify')
 }
 
-// What is BitString
+export const validateCsr = async (csr: string) => {
+  const userData = new UserCsrData()
+  userData.csr = csr
+  const validationErrors = await validate(userData)
+  return validationErrors
+}
 
-await generateCsr()
+const verifyCSRSignature = async (csr: string) => {
+  const certificationRequest = parseCertificationRequest(csr)
 
+  const publicKeyBuffer = certificationRequest.subjectPublicKeyInfo.subjectPublicKey.valueBlock.valueHexView.buffer
+  // const cryptoKey = await keyObjectFromString(pubKey, crypto.subtle)
+
+  const publicKey = await crypto.subtle.importKey(
+    'spki',
+    publicKeyBuffer,
+    {
+      name: 'ECDSA',
+      namedCurve: "P-256"
+    },
+    true,
+    ['verify']
+  )
+
+  const data = certificationRequest.tbsView
+
+  const signature = new Uint8Array(certificationRequest.signatureValue.valueBlock.valueHexView).buffer
+
+  const algorithm = { name: 'ECDSA', hash: { name: 'SHA-256' } }
+
+  // await verifySignature(signature, data, publicKey)
+  // const isValid = await crypto.subtle.verify(algorithm, publicKey, signature, data)
+}
+
+await main()

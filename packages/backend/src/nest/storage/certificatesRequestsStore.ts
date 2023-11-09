@@ -13,12 +13,43 @@ import createLogger from '../common/logger'
 
 const logger = createLogger('UserProfileStore')
 
+interface CsrReplicatedPromiseValues {
+  promise: Promise<unknown>
+  resolveFunction: any
+}
+
 export class CertificatesRequestsStore {
   public orbitDb: OrbitDB
   public store: EventStore<string>
+  public csrReplicatedPromiseMap: Map<number, CsrReplicatedPromiseValues> = new Map()
+  private csrReplicatedPromiseId: number = 0
 
   constructor(orbitDb: OrbitDB) {
     this.orbitDb = orbitDb
+  }
+
+  public resetCsrReplicatedMapAndId() {
+    this.csrReplicatedPromiseMap = new Map()
+    this.csrReplicatedPromiseId = 0
+  }
+
+  private createCsrReplicatedPromise(id: number) {
+    let resolveFunction
+    const promise = new Promise(resolve => {
+      resolveFunction = resolve
+    })
+    this.csrReplicatedPromiseMap.set(id, { promise, resolveFunction })
+  }
+
+  public resolveCsrReplicatedPromise(id: number) {
+    const csrReplicatedPromiseMapId = this.csrReplicatedPromiseMap.get(id)
+    if (csrReplicatedPromiseMapId) {
+      csrReplicatedPromiseMapId?.resolveFunction(id)
+      this.csrReplicatedPromiseMap.delete(id)
+    } else {
+      console.log(`No promise with ID ${id} found.`)
+      return
+    }
   }
 
   public async init(emitter: EventEmitter) {
@@ -35,20 +66,43 @@ export class CertificatesRequestsStore {
       logger('STORE: Saved user csr locally')
       emitter.emit(StorageEvents.LOADED_USER_CSRS, {
         csrs: [entry.payload.value],
+        id: this.csrReplicatedPromiseId,
       })
     })
 
     this.store.events.on('ready', async () => {
       logger('STORE: Loaded user csrs to memory')
       emitter.emit(StorageEvents.LOADED_USER_CSRS, {
-        csrs: this.getCsrs(),
+        csrs: await this.getCsrs(),
+        id: this.csrReplicatedPromiseId,
       })
     })
 
     this.store.events.on('replicated', async () => {
+
+      // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
+      await this.store.load({ fetchEntryTimeout: 15000 })
+
+      console.log('REPLICATED: CSRs')
+
+      this.csrReplicatedPromiseId++
+
+      const filteredCsrs = await this.getCsrs()
+
+      this.createCsrReplicatedPromise(this.csrReplicatedPromiseId)
+
+      if (this.csrReplicatedPromiseId > 1) {
+        const csrReplicatedPromiseMapId = this.csrReplicatedPromiseMap.get(this.csrReplicatedPromiseId - 1)
+
+        if (csrReplicatedPromiseMapId?.promise) {
+          await csrReplicatedPromiseMapId.promise
+        }
+      }
+
       logger('STORE: Replicated user csrs')
       emitter.emit(StorageEvents.LOADED_USER_CSRS, {
-        csrs: this.getCsrs(),
+        csrs: filteredCsrs,
+        id: this.csrReplicatedPromiseId,
       })
     })
 
@@ -86,9 +140,6 @@ export class CertificatesRequestsStore {
       //   hasher: UserProfileStore.hasher,
       // })
       // const verify = await verifyDataSignature(profileSig, bytes, pubKey)
-
-
-
 
       // if (!verify) {
       //   logger.error('User profile contains invalid signature', userProfile.pubKey)
@@ -132,7 +183,7 @@ export class CertificatesRequestsStore {
   // get all event log entries
   protected async getCsrs() {
     const filteredCsrsMap: Map<string, string> = new Map()
-    await this.store.load()
+    // await this.store.load()
 
     const allCsrs = this.store
       .iterator({ limit: -1 })

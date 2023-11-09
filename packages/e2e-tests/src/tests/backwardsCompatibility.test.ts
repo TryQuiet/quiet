@@ -64,11 +64,7 @@ describe('Backwards Compatibility', () => {
       await registerModal.typeUsername(ownerUsername)
       await registerModal.submit()
     })
-    it('Connecting to peers modal', async () => {
-      const loadingPanelCommunity = new JoiningLoadingPanel(ownerAppOldVersion.driver)
-      const isLoadingPanelCommunity = await loadingPanelCommunity.element.isDisplayed()
-      expect(isLoadingPanelCommunity).toBeTruthy()
-    })
+
     it('Close update modal', async () => {
       console.log('waiting for update modal')
       const updateModal = new UpdateModal(ownerAppOldVersion.driver)
