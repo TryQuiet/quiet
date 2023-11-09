@@ -1,4 +1,4 @@
-import React, { FC, useCallback } from 'react'
+import React, { FC, useCallback, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { communities, publicChannels } from '@quiet/state-manager'
@@ -17,6 +17,16 @@ import { initSelectors } from '../../store/init/init.selectors'
 
 export const ChannelListScreen: FC = () => {
   const dispatch = useDispatch()
+
+  /*
+   * Notify user about incoming lack of backwards compatiblity.
+   * This should be removed in the next major release of the application (2.x)
+   *
+   * https://github.com/TryQuiet/quiet/issues/1980
+   */
+  useEffect(() => {
+    dispatch(navigationActions.navigation({ screen: ScreenNames.NotifierScreen }))
+  }, [])
 
   const redirect = useCallback(
     (id: string) => {
