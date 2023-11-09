@@ -48,10 +48,7 @@ export const usersSlice = createSlice({
       )
     },
     test_remove_user_csr: (state, action: PayloadAction<{ csr: string }>) => {
-      certificatesAdapter.removeOne(
-        state.csrs,
-        keyFromCertificate(parseCertificationRequest(action.payload.csr))
-      )
+      certificatesAdapter.removeOne(state.csrs, keyFromCertificate(parseCertificationRequest(action.payload.csr)))
     },
   },
 })

@@ -77,7 +77,7 @@ export const createUserCertificateTestHelper = async (
     signAlg: config.signAlg,
     hashAlg: config.hashAlg,
   })
-  
+
   let userCert
 
   if (rootCA) {

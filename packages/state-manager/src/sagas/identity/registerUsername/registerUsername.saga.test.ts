@@ -23,9 +23,10 @@ describe('registerUsernameSaga', () => {
     const factory = await getFactory(store)
 
     const community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>(
-      'Community', {
+      'Community',
+      {
         CA: null,
-        rootCa: 'rootCertString'
+        rootCa: 'rootCertString',
       }
     )
 
@@ -87,9 +88,8 @@ describe('registerUsernameSaga', () => {
 
     const factory = await getFactory(store)
 
-    const community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>(
-      'Community'
-    )
+    const community =
+      await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
 
     const oldNickname = 'john'
     const newNickname = 'paul'
@@ -163,9 +163,8 @@ describe('registerUsernameSaga', () => {
 
     const factory = await getFactory(store)
 
-    const community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>(
-      'Community'
-    )
+    const community =
+      await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
 
     const userCsr: UserCsr = {
       userCsr: 'userCsr',

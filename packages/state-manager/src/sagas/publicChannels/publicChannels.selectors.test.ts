@@ -70,7 +70,7 @@ describe('publicChannelsSelectors', () => {
       id: community.id,
       nickname: 'john',
     })
-    
+
     store.dispatch(publicChannelsActions.setCurrentChannel({ channelId: generalChannel.id }))
     // Setup channels
     const channelNames = ['croatia', 'allergies', 'sailing', 'pets', 'antiques']
@@ -321,7 +321,8 @@ describe('publicChannelsSelectors', () => {
 
     if (!elouise.userCertificate) throw new Error('no elouise.userCertificate')
     store.dispatch(usersActions.test_remove_user_certificate({ certificate: elouise.userCertificate }))
-    store.dispatch(usersActions.test_remove_user_csr({ csr: elouise.userCsr?.userCsr! }))
+    // @ts-expect-error - This is statically mocked data so it'll never be undefined
+    store.dispatch(usersActions.test_remove_user_csr({ csr: elouise.userCsr?.userCsr }))
 
     store.dispatch(
       publicChannelsActions.setCurrentChannel({

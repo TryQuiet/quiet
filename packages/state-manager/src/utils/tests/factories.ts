@@ -24,13 +24,12 @@ import {
 
 import { ChannelMessage, FileMetadata, MessageType, SendingStatus } from '@quiet/types'
 
-
 export const generateMessageFactoryContentWithId = (
   channelId: string,
   type?: MessageType,
   media?: FileMetadata
-  ): ChannelMessage => {
-    return {
+): ChannelMessage => {
+  return {
     id: (Math.random() * 10 ** 18).toString(36),
     type: type || MessageType.Basic,
     message: (Math.random() * 10 ** 18).toString(36),
@@ -107,7 +106,7 @@ export const getFactory = async (store: Store) => {
       afterBuild: async (action: ReturnType<typeof identity.actions.addNewIdentity>) => {
         const createCsr = action.payload.userCsr === undefined
         const requestCertificate = action.payload.userCertificate === undefined
-        
+
         const community = communities.selectors.selectEntities(store.getState())[action.payload.id]!
 
         const userCertData = await createUserCertificateTestHelper(
@@ -124,19 +123,21 @@ export const getFactory = async (store: Store) => {
           action.payload.userCsr = userCertData.userCsr
 
           const csrsObjects = users.selectors.csrs(store.getState())
-  
+
           // TODO: Converting CertificationRequest to string can be an util method
-          const csrsStrings = Object.values(csrsObjects).map(obj => {
-            if (!(obj instanceof CertificationRequest)) return
-            return Buffer.from(obj.toSchema(true).toBER(false)).toString('base64')
-          }).filter(Boolean) // Filter out possible `undefined` values
+          const csrsStrings = Object.values(csrsObjects)
+            .map(obj => {
+              if (!(obj instanceof CertificationRequest)) return
+              return Buffer.from(obj.toSchema(true).toBER(false)).toString('base64')
+            })
+            .filter(Boolean) // Filter out possible `undefined` values
 
           await factory.create('UserCSR', {
-            csrs: csrsStrings.concat([userCertData.userCsr.userCsr])
+            csrs: csrsStrings.concat([userCertData.userCsr.userCsr]),
           })
         }
 
-        if (requestCertificate && userCertData.userCert?.userCertString) {       
+        if (requestCertificate && userCertData.userCert?.userCertString) {
           action.payload.userCertificate = userCertData.userCert.userCertString
 
           // Store user's certificate even if the user won't be stored itself
@@ -161,7 +162,7 @@ export const getFactory = async (store: Store) => {
   )
 
   factory.define('UserCSR', users.actions.storeCsrs, {
-    csrs: []
+    csrs: [],
   })
 
   factory.define('UserCertificate', users.actions.storeUserCertificate, {

@@ -46,13 +46,13 @@ describe('users selectors', () => {
         onionAddress: aliceCertificateData.onionAddress,
         privateKey: '',
       },
-      peerId: { 
-        id: aliceCertificateData.peerId
+      peerId: {
+        id: aliceCertificateData.peerId,
       },
       dmKeys: {
         publicKey: aliceCertificateData.dmPublicKey,
-        privateKey: ''
-      }
+        privateKey: '',
+      },
     })
 
     const parsedAliceCertificate = parseCertificate(alice.userCertificate!)
@@ -61,7 +61,7 @@ describe('users selectors', () => {
     aliceUnregistered = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
       id: community.id,
       nickname: aliceCertificateData.username,
-      userCertificate: null
+      userCertificate: null,
     })
 
     const parsedAliceUnregisteredCertificationRequest = parseCertificationRequest(aliceUnregistered.userCsr!.userCsr)
@@ -90,7 +90,7 @@ describe('users selectors', () => {
     `)
   })
 
-  it('gets registered user with proper \'isRegistered\' prop', async () => {
+  it("gets registered user with proper 'isRegistered' prop", async () => {
     const users = usersSelectors.allUsers(store.getState())
 
     expect(users[alicePublicKey]).toMatchObject({
@@ -98,7 +98,7 @@ describe('users selectors', () => {
     })
   })
 
-  it('gets unregistered user with proper \'isRegistered\' prop', async () => {
+  it("gets unregistered user with proper 'isRegistered' prop", async () => {
     const users = usersSelectors.allUsers(store.getState())
 
     expect(users[aliceUnregisteredPublicKey]).toMatchObject({
@@ -106,7 +106,7 @@ describe('users selectors', () => {
     })
   })
 
-  it('gets all users (registered users don\'t get \'duplicate\' label over unregistered ones)', async () => {
+  it("gets all users (registered users don't get 'duplicate' label over unregistered ones)", async () => {
     const users = usersSelectors.allUsers(store.getState())
 
     expect(users[alicePublicKey]).toMatchObject({

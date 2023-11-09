@@ -47,7 +47,7 @@ export const certificatesMapping = createSelector(certificates, certs => {
 
 export const csrsMapping = createSelector(csrs, csrs => {
   const mapping: Record<string, UserData> = {}
-  
+
   Object.keys(csrs).map(pubKey => {
     const csr = csrs[pubKey]
     if (!csr || csr.subject.typesAndValues.length < 1) {
