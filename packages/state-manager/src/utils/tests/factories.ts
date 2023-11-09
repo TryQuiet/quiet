@@ -98,12 +98,16 @@ export const getFactory = async (store: Store) => {
         privateKey: '4dcebbf395c0e9415bc47e52c96fcfaf4bd2485a516f45118c2477036b45fc0b',
       },
       nickname: factory.sequence('Identity.nickname', (n: number) => `user_${n}`),
+      userCsr: undefined,
       userCertificate: undefined,
       // 21.09.2022 - may be useful for testing purposes
       joinTimestamp: 1663747464000,
     },
     {
       afterBuild: async (action: ReturnType<typeof identity.actions.addNewIdentity>) => {
+        const createCsr = action.payload.userCsr === undefined
+        const requestCertificate = action.payload.userCertificate === undefined
+        
         const community = communities.selectors.selectEntities(store.getState())[action.payload.id]!
 
         const userCertData = await createUserCertificateTestHelper(
@@ -116,26 +120,26 @@ export const getFactory = async (store: Store) => {
           community.CA
         )
 
-        action.payload.userCsr = userCertData.userCsr
+        if (createCsr) {
+          action.payload.userCsr = userCertData.userCsr
 
-        const csrsObjects = users.selectors.csrs(store.getState())
-
-        // TODO: Converting CertificationRequest to string can be an util method
-        const csrsStrings = Object.values(csrsObjects).map(obj => {
-          let value
-          try {
-            value = Buffer.from(obj.toSchema(true).toBER(false)).toString('base64')
-          } catch {
-            console.error('ERROR: cannot parse CertificationRequest to base64')
-          }
-          return value
-        })
-
-        await factory.create('UserCSR', {
-          csrs: csrsStrings.concat([userCertData.userCsr.userCsr])
-        })
-
-        const requestCertificate = action.payload.userCertificate === undefined
+          const csrsObjects = users.selectors.csrs(store.getState())
+  
+          // TODO: Converting CertificationRequest to string can be an util method
+          const csrsStrings = Object.values(csrsObjects).map(obj => {
+            let value
+            try {
+              value = Buffer.from(obj.toSchema(true).toBER(false)).toString('base64')
+            } catch {
+              console.error('ERROR: cannot parse CertificationRequest to base64')
+            }
+            return value
+          })
+  
+          await factory.create('UserCSR', {
+            csrs: csrsStrings.concat([userCertData.userCsr.userCsr])
+          })
+        }
 
         if (requestCertificate && userCertData.userCert?.userCertString) {       
           action.payload.userCertificate = userCertData.userCert.userCertString
