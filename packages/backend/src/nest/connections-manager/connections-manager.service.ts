@@ -85,10 +85,30 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     super()
   }
 
+  handleError(error: Error) {
+    let ignoreError = false
+    const ignoreErrors = { libp2p: ['ABORT_ERR', 'ERR_UNDER_READ'] }
+    for (const [key, errorCodes] of Object.entries(ignoreErrors)) {
+      if (error.message.includes(key)) {
+        for (const eCode of errorCodes) {
+          // @ts-expect-error
+          if (error.code === eCode) {
+            ignoreError = true
+            this.logger.error(`Ignoring unhandled error: ${error.message}`)
+            break
+          }
+        }
+      }
+    }
+    if (!ignoreError) {
+      this.logger.error(error.message)
+      throw new Error(error.message)
+    }
+  }
+
   async onModuleInit() {
-    process.on('unhandledRejection', error => {
-      console.error(error)
-      throw new Error()
+    process.on('unhandledRejection', (error: Error) => {
+      this.handleError(error)
     })
     // process.on('SIGINT', function () {
     //   // This is not graceful even in a single percent. we must close services first, not just kill process %
