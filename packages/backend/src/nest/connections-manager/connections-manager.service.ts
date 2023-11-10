@@ -226,7 +226,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   }
 
   public async purgeData() {
-    console.log('removing data')
+    this.logger('Purging community data')
     const dirsToRemove = fs
       .readdirSync(this.quietDir)
       .filter(
