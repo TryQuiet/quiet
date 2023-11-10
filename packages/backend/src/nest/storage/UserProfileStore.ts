@@ -152,7 +152,12 @@ export class UserProfileStore {
         return false
       }
 
-      if (typeof profile.photo === 'string' && !profile.photo.startsWith('data:image/png;base64')) {
+      if (typeof profile.photo !== 'string') {
+        logger.error('Expected PNG for user profile photo', userProfile.pubKey)
+        return false
+      }
+
+      if (!profile.photo.startsWith('data:image/png;base64,')) {
         logger.error('Expected PNG for user profile photo', userProfile.pubKey)
         return false
       }
