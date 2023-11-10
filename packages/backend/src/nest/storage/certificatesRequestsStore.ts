@@ -1,17 +1,15 @@
+import { CertificationRequest, getCrypto } from 'pkijs'
 import { EventEmitter } from 'events'
 import EventStore from 'orbit-db-eventstore'
 import OrbitDB from 'orbit-db'
-import { getCrypto } from 'pkijs'
-import { stringToArrayBuffer } from 'pvutils'
-import * as Block from 'multiformats/block'
 
 import { NoCryptoEngineError } from '@quiet/types'
-import { keyObjectFromString } from '@quiet/identity'
+import { loadCSR, keyFromCertificate } from '@quiet/identity'
 
 import { StorageEvents } from './storage.types'
 import createLogger from '../common/logger'
 
-const logger = createLogger('UserProfileStore')
+const logger = createLogger('CertificatesRequestsStore')
 
 interface CsrReplicatedPromiseValues {
   promise: Promise<unknown>
@@ -62,10 +60,10 @@ export class CertificatesRequestsStore {
       },
     })
 
-    this.store.events.on('write', (_address, entry) => {
+    this.store.events.on('write', async (_address, entry) => {
       logger('STORE: Saved user csr locally')
       emitter.emit(StorageEvents.LOADED_USER_CSRS, {
-        csrs: [entry.payload.value],
+        csrs: await this.getCsrs(),
         id: this.csrReplicatedPromiseId,
       })
     })
@@ -83,7 +81,7 @@ export class CertificatesRequestsStore {
       // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
       await this.store.load({ fetchEntryTimeout: 15000 })
 
-      console.log('REPLICATED: CSRs')
+      logger('REPLICATED: CSRs')
 
       this.csrReplicatedPromiseId++
 
@@ -124,146 +122,49 @@ export class CertificatesRequestsStore {
     return true
   }
 
-  public static async validateUserCsr(csr: string) {
+  private async validateUserCsr(csr: CertificationRequest) {
+    logger('validating user csr')
     try {
       const crypto = getCrypto()
       if (!crypto) {
         throw new NoCryptoEngineError()
       }
 
-      // const profile = userProfile.profile
-      // const pubKey = await keyObjectFromString(userProfile.pubKey, crypto)
-      // const profileSig = stringToArrayBuffer(userProfile.profileSig)
-      // const { bytes } = await Block.encode({
-      //   value: profile,
-      //   codec: UserProfileStore.codec,
-      //   hasher: UserProfileStore.hasher,
-      // })
-      // const verify = await verifyDataSignature(profileSig, bytes, pubKey)
+      // Validae Csr is valid
+      // Validate signature
+      // Validate fields
 
-      // if (!verify) {
-      //   logger.error('User profile contains invalid signature', userProfile.pubKey)
-      //   return false
-      // }
-
-      // We only accept PNG for now. I think some care needs to be used
-      // with the Image element since it can make web requests and
-      // accepts a variety of formats that we may want to limit. Some
-      // interesting thoughts:
-      // https://security.stackexchange.com/a/135636
-
-      // 200 KB = 204800 B limit
-      //
-      // TODO: Perhaps the compression matters and we should check
-      // actual dimensions in pixels?
     } catch (err) {
       logger.error('Failed to validate user profile:', csr, err?.message)
       return false
     }
-
     return true
   }
 
-  // public static async validateCsrEntry(entry: LogEntry<string>) {
-  //   let verify = false
-
-  //   try {
-  //     if (entry.payload.key !== entry.payload.value.pubKey) {
-  //       logger.error('Failed to verify user profile entry:', entry.hash, 'entry key != payload pubKey')
-  //       return false
-  //     }
-  //     verify = await CertificatesRequestsStore.validateUserCsr(entry.payload.value)
-  //   } catch (err) {
-  //     logger.error('Failed to verify user profile entry:', entry.hash, err?.message)
-  //   }
-
-  //   return verify
-  // }
-
-  // get all event log entries
   protected async getCsrs() {
+    logger('getCsrs')
     const filteredCsrsMap: Map<string, string> = new Map()
-    // await this.store.load()
 
     const allCsrs = this.store
       .iterator({ limit: -1 })
       .collect()
       .map(e => e.payload.value)
     await Promise.all(
-      allCsrs.map(async csr => {
-        // const parsedCsr = await loadCSR(csr)
-        // const pubKey = keyFromCertificate(parsedCsr)
+      allCsrs.filter(async csr => {
+        const parsedCsr = await loadCSR(csr)
+        const validation = await this.validateUserCsr(parsedCsr)
+        if (validation) return true
+        return false
+      }).map(async csr => {
+        const parsedCsr = await loadCSR(csr)
+        const pubKey = keyFromCertificate(parsedCsr)
 
-        // if (filteredCsrsMap.has(pubKey)) {
-        //   filteredCsrsMap.delete(pubKey)
-        // }
-
-        // filteredCsrsMap.set(pubKey, csr)
+        if (filteredCsrsMap.has(pubKey)) {
+          filteredCsrsMap.delete(pubKey)
+        }
+        filteredCsrsMap.set(pubKey, csr)
       })
     )
     return [...filteredCsrsMap.values()]
   }
-
-
-
 }
-
-/**
- * Modified from:
- * https://github.com/orbitdb/orbit-db-kvstore/blob/main/src/KeyValueIndex.js
- *
- * Adds validation function that validates each entry before adding it
- * to the index.
- *
- * TODO: Save latest entry and only iterate over new entries in updateIndex
- */
-// export class KeyValueIndex<T> {
-//   private _index: Record<string, any>
-//   private validateFn: (entry: LogEntry<T>) => Promise<boolean>
-
-//   constructor(validateFn: (entry: LogEntry<T>) => Promise<boolean>) {
-//     this._index = {}
-//     this.validateFn = validateFn
-//   }
-
-//   get(key: string) {
-//     return this._index[key]
-//   }
-
-//   async updateIndex(oplog: { values: LogEntry<T>[] }) {
-//     const values: LogEntry<T>[] = []
-//     const handled: Record<string, boolean> = {}
-
-//     for (const v of oplog.values) {
-//       if (await this.validateFn(v)) {
-//         values.push(v)
-//       }
-//     }
-
-//     for (let i = values.length - 1; i >= 0; i--) {
-//       const item = values[i]
-//       if (typeof item.payload.key === 'string') {
-//         if (handled[item.payload.key]) {
-//           continue
-//         }
-//         handled[item.payload.key] = true
-//         if (item.payload.op === 'PUT') {
-//           this._index[item.payload.key] = item.payload.value
-//           continue
-//         }
-//         if (item.payload.op === 'DEL') {
-//           delete this._index[item.payload.key]
-//           continue
-//         }
-//       } else {
-//         logger.error(`Failed to update key/value index - key is not string: ${item.payload.key}`)
-//       }
-//     }
-//   }
-// }
-
-// export class UserProfileKeyValueIndex extends KeyValueIndex<UserProfile> {
-//   constructor() {
-//     super(UserProfileStore.validateUserCsr)
-//   }
-// }
