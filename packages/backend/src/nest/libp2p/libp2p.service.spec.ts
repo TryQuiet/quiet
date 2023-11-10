@@ -30,9 +30,9 @@ describe('Libp2pService', () => {
     expect(libp2pService?.libp2pInstance?.peerId).toBe(params.peerId)
   })
 
-  it('destory instance libp2p', async () => {
+  it('close libp2p service', async () => {
     await libp2pService.createInstance(params)
-    await libp2pService.destroyInstance()
+    await libp2pService.close()
     expect(libp2pService.libp2pInstance).toBeNull()
   })
 

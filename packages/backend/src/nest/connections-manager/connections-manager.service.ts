@@ -192,9 +192,9 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       this.logger('Closing local storage')
       await this.localDbService.close()
     }
-    if (this.libp2pService?.libp2pInstance) {
+    if (this.libp2pService) {
       this.logger('Stopping libp2p')
-      await this.libp2pService.libp2pInstance.stop()
+      await this.libp2pService.close()
     }
   }
 
@@ -209,18 +209,20 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
   public async leaveCommunity() {
     this.tor.resetHiddenServices()
-    this.serverIoProvider.io.close()
+    this.closeSocket()
     await this.localDbService.purge()
     await this.closeAllServices({ saveTor: true })
     await this.purgeData()
-    this.communityId = ''
-    this.ports = { ...this.ports, libp2pHiddenService: await getPort() }
-    this.libp2pService.libp2pInstance = null
-    this.libp2pService.connectedPeers = new Map()
-    this.communityState = ServiceState.DEFAULT
-    this.registrarState = ServiceState.DEFAULT
+    await this.resetState()
     await this.localDbService.open()
     await this.socketService.init()
+  }
+
+  async resetState() {
+    this.communityId = ''
+    this.ports = { ...this.ports, libp2pHiddenService: await getPort() }
+    this.communityState = ServiceState.DEFAULT
+    this.registrarState = ServiceState.DEFAULT
   }
 
   public async purgeData() {
