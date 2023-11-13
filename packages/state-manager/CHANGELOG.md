@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.2-alpha.1](https://github.com/TryQuiet/quiet/compare/@quiet/state-manager@2.0.2-alpha.0...@quiet/state-manager@2.0.2-alpha.1) (2023-11-13)
+
+
+### Features
+
+* add debug logs ([#2057](https://github.com/TryQuiet/quiet/issues/2057)) ([aa3e777](https://github.com/TryQuiet/quiet/commit/aa3e777778b0861d5f96e6116bfc70031ed67929))
+
+
+
+
+
 ## [2.0.2-alpha.0](https://github.com/TryQuiet/quiet/compare/@quiet/state-manager@2.0.1-alpha.6...@quiet/state-manager@2.0.2-alpha.0) (2023-10-26)
 
 **Note:** Version bump only for package @quiet/state-manager

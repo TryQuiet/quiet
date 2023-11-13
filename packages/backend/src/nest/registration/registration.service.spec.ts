@@ -9,6 +9,7 @@ import { Time } from 'pkijs'
 import { issueCertificate, extractPendingCsrs } from './registration.functions'
 import { jest } from '@jest/globals'
 import { createTmpDir } from '../common/utils'
+import { RegistrationEvents } from './registration.types'
 
 describe('RegistrationService', () => {
   let module: TestingModule
@@ -145,5 +146,38 @@ describe('RegistrationService', () => {
     const pendingCsrs = await extractPendingCsrs({ certificates: [], csrs: csrs })
     expect(pendingCsrs.length).toEqual(1)
     expect(pendingCsrs[0]).toBe(userCsr.userCsr)
+  })
+
+  it('wait for all NEW_USER events until emitting FINISHED_ISSUING_CERTIFICATES_FOR_ID', async () => {
+    registrationService.permsData = permsData
+
+    const eventSpy = jest.spyOn(registrationService, 'emit')
+
+    const userCsr = await createUserCsr({
+      nickname: 'alice',
+      commonName: 'nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad.onion',
+      peerId: 'Qmf3ySkYqLET9xtAtDzvAr5Pp3egK1H3C5iJAZm1SpLEp6',
+      dmPublicKey: 'testdmPublicKey',
+      signAlg: configCrypto.signAlg,
+      hashAlg: configCrypto.hashAlg,
+    })
+    const userCsr2 = await createUserCsr({
+      nickname: 'karol',
+      commonName: 'nnnnnnc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad.onion',
+      peerId: 'QmffffffqLET9xtAtDzvAr5Pp3egK1H3C5iJAZm1SpLEp6',
+      dmPublicKey: 'testdmPublicKey',
+      signAlg: configCrypto.signAlg,
+      hashAlg: configCrypto.hashAlg,
+    })
+
+    const csrs: string[] = [userCsr.userCsr, userCsr2.userCsr]
+    // @ts-ignore - fn 'issueCertificates' is private
+    await registrationService.issueCertificates({ certificates: [], csrs, id: 1 })
+
+    expect(eventSpy).toHaveBeenLastCalledWith(RegistrationEvents.FINISHED_ISSUING_CERTIFICATES_FOR_ID, {
+      id: 1,
+    })
+
+    expect(eventSpy).toHaveBeenCalledTimes(3)
   })
 })
