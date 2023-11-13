@@ -78,7 +78,19 @@ export const allUsers = createSelector(csrsMapping, certificatesMapping, (csrs, 
   const allUsernames: string[] = Object.values(csrs).map(u => u.username)
   const duplicateUsernames: string[] = allUsernames.filter((val, index) => allUsernames.indexOf(val) !== index)
 
+  // Temporary backward compatiblility! Old communities do not have csrs
+  Object.keys(certs).map(pubKey => {
+    users[pubKey] = {
+      ...certs[pubKey],
+      isRegistered: true,
+      isDuplicated: false,
+      pubKey,
+    }
+    console.log('Unregistered Debug - allUsers selector - certs - user', users[pubKey])
+  })
+
   Object.keys(csrs).map(pubKey => {
+    if (users[pubKey]) return
     const username = csrs[pubKey].username
 
     let isDuplicated: boolean
@@ -89,23 +101,16 @@ export const allUsers = createSelector(csrsMapping, certificatesMapping, (csrs, 
     }
 
     const isRegistered = Boolean(certs[pubKey])
+    console.log('Unregistered Debug - allUsers selector - csrs - certs[pubKey]', certs[pubKey])
     users[pubKey] = {
       ...csrs[pubKey],
       isRegistered,
       isDuplicated,
       pubKey,
     }
+    console.log('Unregistered Debug - allUsers selector - csrs - user', users[pubKey])
   })
-  // Temporary backward compatiblility! Old communities do not have csrs
-  Object.keys(certs).map(pubKey => {
-    if (users[pubKey]) return
-    users[pubKey] = {
-      ...certs[pubKey],
-      isRegistered: true,
-      isDuplicated: false,
-      pubKey,
-    }
-  })
+
   return users
 })
 
