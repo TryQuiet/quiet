@@ -113,7 +113,7 @@ export const allUsers = createSelector(csrsMapping, certificatesMapping, (csrs, 
       isDuplicated,
       pubKey,
     }
-    
+
     console.log('Unregistered Debug - allUsers selector - csrs - user', users[pubKey])
   })
 
