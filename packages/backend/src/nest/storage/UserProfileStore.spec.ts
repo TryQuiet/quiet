@@ -65,9 +65,11 @@ describe('UserProfileStore/base64DataURLToByteArray', () => {
 const getUserProfile = async ({
   pngByteArray,
   signature,
+  photoUrl,
 }: {
   pngByteArray?: Uint8Array
   signature?: string
+  photoUrl?: string
 }): Promise<UserProfile> => {
   const crypto = getCrypto()
   if (!crypto) throw new NoCryptoEngineError()
@@ -78,7 +80,7 @@ const getUserProfile = async ({
   // e.g. od -t u1 ~/Pictures/test.png | less
   const png = pngByteArray || new Uint8Array([137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82])
   const pngBase64 = 'data:image/png;base64,' + Buffer.from(png).toString('base64')
-  const profile = { photo: pngBase64 }
+  const profile = { photo: photoUrl || pngBase64 }
 
   const codec = dagCbor
   const hasher = sha256
@@ -124,7 +126,7 @@ describe('UserProfileStore/validateUserProfile', () => {
     expect(await UserProfileStore.validateUserProfile(userProfile)).toBeFalsy()
   })
 
-  test('returns true if user profile is valid', async () => {
+  test('returns true if photo is less than 200KB', async () => {
     // 200,000 extra decimal bytes with values 1 - 254
     const extraData = Array.from({ length: 200_000 }, () => Math.floor(Math.random() * (255 - 1) + 1))
     // Valid PNG header
@@ -132,6 +134,37 @@ describe('UserProfileStore/validateUserProfile', () => {
     const pngByteArray = new Uint8Array(pngArray)
 
     const userProfile = await getUserProfile({ pngByteArray })
+    expect(await UserProfileStore.validateUserProfile(userProfile)).toBeTruthy()
+  })
+
+  test('returns false if photo URL prefix is unexpected', async () => {
+    const pngArray = [137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82]
+    // Capitalized I in image
+    const pngBase64 = 'data:Image/png;base64,' + Buffer.from(pngArray).toString('base64')
+    const userProfile = await getUserProfile({ photoUrl: pngBase64 })
+    expect(await UserProfileStore.validateUserProfile(userProfile)).toBeFalsy()
+  })
+
+  test('returns false if photo URL prefix is unexpected (trailing comma)', async () => {
+    const pngArray = [137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82]
+    // Missing trailing comma
+    const pngBase64 = 'data:image/png;base64' + Buffer.from(pngArray).toString('base64')
+    const userProfile = await getUserProfile({ photoUrl: pngBase64 })
+    expect(await UserProfileStore.validateUserProfile(userProfile)).toBeFalsy()
+  })
+
+  test('returns false if photo URL prefix is unexpected (invalid content-type)', async () => {
+    const pngArray = [137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82]
+    // Invalid content-type
+    const pngBase64 = 'data:text/html,' + Buffer.from(pngArray).toString('base64')
+    const userProfile = await getUserProfile({ photoUrl: pngBase64 })
+    expect(await UserProfileStore.validateUserProfile(userProfile)).toBeFalsy()
+  })
+
+  test('returns true if photo URL prefix is expected', async () => {
+    const pngArray = [137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82]
+    const pngBase64 = 'data:image/png;base64,' + Buffer.from(pngArray).toString('base64')
+    const userProfile = await getUserProfile({ photoUrl: pngBase64 })
     expect(await UserProfileStore.validateUserProfile(userProfile)).toBeTruthy()
   })
 })
