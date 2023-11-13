@@ -116,13 +116,14 @@ describe('User', () => {
           },
           communityHelper.CA
         )
-        const certificate = certificateHelper.userCert.userCertString
+        const certificate = certificateHelper.userCert?.userCertString
         const rootCa = communityHelper.CA?.rootCertString
         return socket.socketClient.emit<SendOwnerCertificatePayload>(SocketActionTypes.SEND_USER_CERTIFICATE, {
           communityId: payload.communityId,
           payload: {
+            // @ts-expect-error - This is statically mocked data so it'll never be undefined
             certificate: certificate,
-            // @ts-expect-error
+            // @ts-expect-error - This is statically mocked data so it'll never be undefined
             rootCa: rootCa,
             peers: [],
           },

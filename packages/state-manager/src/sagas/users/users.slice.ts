@@ -17,8 +17,7 @@ export const usersSlice = createSlice({
     storeUserCertificate: (state, action: PayloadAction<{ certificate: string }>) => {
       certificatesAdapter.addOne(state.certificates, parseCertificate(action.payload.certificate))
     },
-    responseSendCertificates: (state, action: PayloadAction<SendCertificatesResponse>) => {},
-
+    responseSendCertificates: (state, _action: PayloadAction<SendCertificatesResponse>) => state,
     setAllCerts: (state, action: PayloadAction<SendCertificatesResponse>) => {
       certificatesAdapter.setAll(
         state.certificates,
@@ -47,6 +46,9 @@ export const usersSlice = createSlice({
         state.certificates,
         keyFromCertificate(parseCertificate(action.payload.certificate))
       )
+    },
+    test_remove_user_csr: (state, action: PayloadAction<{ csr: string }>) => {
+      certificatesAdapter.removeOne(state.csrs, keyFromCertificate(parseCertificationRequest(action.payload.csr)))
     },
   },
 })
