@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.3-alpha.3](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@2.0.3-alpha.2...@quiet/desktop@2.0.3-alpha.3) (2023-11-13)
+
+
+### Features
+
+* add debug logs ([#2057](https://github.com/TryQuiet/quiet/issues/2057)) ([aa3e777](https://github.com/TryQuiet/quiet/commit/aa3e777778b0861d5f96e6116bfc70031ed67929))
+
+
+
+
+
 ## [2.0.3-alpha.2](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@2.0.3-alpha.1...@quiet/desktop@2.0.3-alpha.2) (2023-11-09)
 
 
