@@ -7,10 +7,9 @@ import {
   RegisterUsernameModal,
   App,
   Sidebar,
-  StartingLoadingPanel,
   WarningModal,
 } from '../selectors'
-import { capitalizeFirstLetter, invitationDeepUrl } from '@quiet/common'
+import { capitalizeFirstLetter, getInvitationPairs, invitationDeepUrl } from '@quiet/common'
 import { execSync } from 'child_process'
 import { type SupportedPlatformDesktop } from '@quiet/types'
 
@@ -43,21 +42,6 @@ describe('New user joins using invitation link while having app opened', () => {
     it('Owner opens the app', async () => {
       console.log('Invitation Link', 1)
       await ownerApp.open()
-    })
-
-    if (process.env.TEST_MODE) {
-      it('Owner closes debug modal', async () => {
-        console.log('Invitation Link', 2)
-        const debugModal = new DebugModeModal(ownerApp.driver)
-        await debugModal.close()
-      })
-    }
-
-    it('StartingLoadingPanel modal', async () => {
-      console.log('Invitation Link', 3)
-      const loadingPanel = new StartingLoadingPanel(ownerApp.driver)
-      const isLoadingPanel = await loadingPanel.element.isDisplayed()
-      expect(isLoadingPanel).toBeTruthy()
     })
 
     it('JoinCommunityModal - owner switches to create community', async () => {
@@ -129,18 +113,11 @@ describe('New user joins using invitation link while having app opened', () => {
       console.log('Guest opens app')
       await guestApp.open()
     })
-    if (process.env.TEST_MODE) {
-      it('Close debug modal', async () => {
-        console.log('Invitation Link', 12)
-        const debugModal = new DebugModeModal(guestApp.driver)
-        await debugModal.close()
-      })
-    }
 
     it.skip('Guest clicks invitation link with invalid invitation code', async () => {
       // Fix when modals ordering is fixed (joining modal hiddes warning modal)
       console.log('opening invalid code')
-      execSync(`xdg-open ${invitationDeepUrl('invalidcode')}`)
+      execSync(`xdg-open ${invitationDeepUrl([{ peerId: 'invalid', onionAddress: 'alsoInvalid' }])}`)
     })
 
     it.skip('Guest sees modal with warning about invalid code, closes it', async () => {
@@ -163,7 +140,9 @@ describe('New user joins using invitation link while having app opened', () => {
         win32: 'start',
       }
 
-      execSync(`${command[process.platform as SupportedPlatformDesktop]} ${invitationDeepUrl(url.hash.substring(1))}`)
+      const pairs = getInvitationPairs(url.hash.substring(1))
+      expect(pairs).not.toBe([])
+      execSync(`${command[process.platform as SupportedPlatformDesktop]} ${invitationDeepUrl(pairs)}`)
       console.log('Guest opened invitation link')
     })
 

@@ -4,9 +4,7 @@ import { ScreenNames } from './const/ScreenNames.enum'
 
 // eslint-disable-next-line
 export type RootStackParamList = {
-  [ScreenNames.SplashScreen]: {
-    code?: string
-  }
+  [ScreenNames.SplashScreen]: undefined
   [ScreenNames.JoinCommunityScreen]: {
     code?: string
   }
@@ -38,6 +36,11 @@ export type RootStackParamList = {
     message?: string
   }
   [ScreenNames.ConnectionProcessScreen]: undefined
+  [ScreenNames.DuplicatedUsernameScreen]: undefined
+
+  [ScreenNames.UsernameTakenScreen]: undefined
+  [ScreenNames.NewUsernameRequestedScreen]: undefined
+  [ScreenNames.PossibleImpersonationAttackScreen]: undefined
 }
 
 export type SplashRouteProp = RouteProp<RootStackParamList, ScreenNames.SplashScreen>
@@ -51,3 +54,13 @@ export type DeleteChannelRouteProps = RouteProp<RootStackParamList, ScreenNames.
 export type SuccessRouteProp = RouteProp<RootStackParamList, ScreenNames.SuccessScreen>
 
 export type ErrorRouteProp = RouteProp<RootStackParamList, ScreenNames.ErrorScreen>
+
+export type DuplicatedUsernameRouteProps = RouteProp<RootStackParamList, ScreenNames.DuplicatedUsernameScreen>
+
+export type UsernameTakenRouteProps = RouteProp<RootStackParamList, ScreenNames.UsernameTakenScreen>
+
+export type NewUsernameRequestedRouteProps = RouteProp<RootStackParamList, ScreenNames.NewUsernameRequestedScreen>
+export type PossibleImpersonationAttackRouteProps = RouteProp<
+  RootStackParamList,
+  ScreenNames.PossibleImpersonationAttackScreen
+>

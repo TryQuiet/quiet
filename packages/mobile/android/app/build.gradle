@@ -139,8 +139,14 @@ def reactNativeArchitectures() {
     return value ? value.split(",") : ["arm64-v8a"]
 }
 
+Properties properties = new Properties()
+def localPropertiesFile = project.rootProject.file('local.properties')
+if (localPropertiesFile.exists()) {
+    properties.load(localPropertiesFile.newDataInputStream())
+}
+
 android {
-    ndkPath NDK_PATH
+    ndkPath properties.getProperty('ndk.dir', project.property('NDK_PATH'))
 
     ndkVersion rootProject.ext.ndkVersion
 
@@ -166,8 +172,8 @@ android {
         applicationId "com.quietmobile"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 305
-        versionName "2.0.0-alpha.1"
+        versionCode 374
+        versionName "2.0.3-alpha.4"
         resValue "string", "build_config_package", "com.quietmobile"
         testBuildType System.getProperty('testBuildType', 'debug')
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
@@ -322,7 +328,7 @@ dependencies {
     // Work manager
     implementation("androidx.work:work-runtime:2.7.1")
     implementation("androidx.work:work-runtime-ktx:2.7.1")
-    
+
     // For animated GIF support
     implementation 'com.facebook.fresco:fresco:2.6.0'
     implementation 'com.facebook.fresco:animated-gif:2.6.0'
@@ -452,4 +458,3 @@ task "GenerateNodeNativeAssetsLists${abi_name}" {
 tasks.getByPath(":${project.name}:preBuild").dependsOn "GenerateNodeNativeAssetsLists${abi_name}"
 
 project.android.sourceSets.main.assets.srcDirs+="${rootProject.buildDir}/nodejs-native-assets/"
-

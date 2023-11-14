@@ -43,7 +43,7 @@ export async function registerUsername(payload: Register) {
   }, timeout)
 
   log(`User ${userName} starts registering username`)
-  store.dispatch(identity.actions.registerUsername(userName))
+  store.dispatch(identity.actions.registerUsername({ nickname: userName }))
 }
 
 export const createCommunity = async ({ username, communityName, store }): Promise<string> => {

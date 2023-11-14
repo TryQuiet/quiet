@@ -1,8 +1,8 @@
 import { Time, setEngine, CryptoEngine } from 'pkijs'
 import { Crypto } from '@peculiar/webcrypto'
-import { createRootCA, type RootCA } from '../generateRootCA'
-import { createUserCert, type UserCert } from '../generateUserCertificate'
-import { createUserCsr, type UserCsr } from '../requestCertificate'
+import { createRootCA, type RootCA } from '../createRootCA'
+import { createUserCert, type UserCert } from '../createUserCert'
+import { createUserCsr, type UserCsr } from '../createUserCsr'
 import config from '../config'
 
 export const userData = {
@@ -64,10 +64,10 @@ export const createUserCertificateTestHelper = async (
     peerId: string
     dmPublicKey: string
   },
-  rootCA: Pick<RootCA, 'rootCertString' | 'rootKeyString'>
+  rootCA?: Pick<RootCA, 'rootCertString' | 'rootKeyString'> | null
 ): Promise<{
-  userCert: UserCert
   userCsr: UserCsr
+  userCert?: UserCert
 }> => {
   const userCsr = await createUserCsr({
     nickname: user.nickname,
@@ -77,13 +77,19 @@ export const createUserCertificateTestHelper = async (
     signAlg: config.signAlg,
     hashAlg: config.hashAlg,
   })
-  const userCert = await createUserCert(
-    rootCA.rootCertString,
-    rootCA.rootKeyString,
-    userCsr.userCsr,
-    notBeforeDate,
-    notAfterDate
-  )
+
+  let userCert
+
+  if (rootCA) {
+    userCert = await createUserCert(
+      rootCA.rootCertString,
+      rootCA.rootKeyString,
+      userCsr.userCsr,
+      notBeforeDate,
+      notAfterDate
+    )
+  }
+
   return {
     userCsr,
     userCert,

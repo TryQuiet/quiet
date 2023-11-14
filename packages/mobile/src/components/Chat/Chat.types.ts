@@ -10,8 +10,9 @@ import {
 import { Dictionary } from '@reduxjs/toolkit'
 import { useContextMenu } from '../../hooks/useContextMenu'
 import { DocumentPickerResponse } from 'react-native-document-picker'
+import { UserLabelHandlers } from '../UserLabel/UserLabel.types'
 
-export interface ChatProps {
+export interface ChatProps extends UserLabelHandlers {
   contextMenu?: ReturnType<typeof useContextMenu> | null
   sendMessageAction: (message: string) => void
   loadMessagesAction: (load: boolean) => void
@@ -33,7 +34,7 @@ export interface ChatProps {
   ready?: boolean
 }
 
-export interface ChannelMessagesComponentProps {
+export interface ChannelMessagesComponentProps extends UserLabelHandlers {
   day: string
   messages: DisplayableMessage[][]
   pendingMessages?: Dictionary<MessageSendingStatus>

@@ -1,15 +1,8 @@
 import { NoCryptoEngineError } from '@quiet/types'
 import { fromBER, type ObjectIdentifier } from 'asn1js'
-import {
-  getAlgorithmParameters,
-  getCrypto,
-  CertificationRequest,
-  Certificate,
-  TSTInfo,
-  ECNamedCurves,
-  type AttributeTypeAndValue,
-} from 'pkijs'
+import { getAlgorithmParameters, getCrypto, CertificationRequest, Certificate, type AttributeTypeAndValue } from 'pkijs'
 import { stringToArrayBuffer, fromBase64 } from 'pvutils'
+import { keyFromCertificate, parseCertificate } from './extractPubKey'
 
 export enum CertFieldsTypes {
   commonName = '2.5.4.3',
@@ -148,4 +141,30 @@ export const getReqFieldValue = (
       return null
     }
   }
+}
+
+export const pubKeyMatch = (cert: string, parsedCsr: CertificationRequest): boolean => {
+  const parsedCertificate = parseCertificate(cert)
+  const pubKey = keyFromCertificate(parsedCertificate)
+  const pubKeyCsr = keyFromCertificate(parsedCsr)
+
+  if (pubKey === pubKeyCsr) {
+    return true
+  }
+  return false
+}
+
+// TODO: generalize to certificateByField
+export const certificateByUsername = (username: string, certificates: string[]): string | null => {
+  /**
+   * Check if given username is already in use
+   */
+  for (const cert of certificates) {
+    const parsedCert = parseCertificate(cert)
+    const certUsername = getCertFieldValue(parsedCert, CertFieldsTypes.nickName)
+    if (certUsername?.localeCompare(username, 'en', { sensitivity: 'base' }) === 0) {
+      return cert
+    }
+  }
+  return null
 }

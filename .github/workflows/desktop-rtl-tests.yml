@@ -1,0 +1,31 @@
+name: Desktop - state-manager bracket tests (RTL)
+
+on:
+  pull_request:
+    paths:
+      - packages/desktop/**
+      - packages/state-manager/**
+
+jobs:
+  desktop-tests:
+    timeout-minutes: 25
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-20.04, macos-latest]
+
+    steps:
+      - name: "Print OS"
+        run: echo ${{ matrix.os }}
+
+      - uses: actions/checkout@v3
+
+      - name: "Setup environment"
+        uses: ./.github/actions/setup-env
+        with:
+          cachePrefix: "desktop-tests"
+          bootstrap-packages: "@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/desktop,backend-bundle"
+
+      - name: "Desktop - state-manager bracket tests"
+        run: lerna run rtl-test --scope @quiet/desktop --stream

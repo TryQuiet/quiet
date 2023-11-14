@@ -8,6 +8,7 @@ import {
   type Identity,
   type RegisterCertificatePayload,
   type StoreUserCertificatePayload,
+  type RegisterUsernamePayload,
 } from '@quiet/types'
 export class IdentityState {
   public identities: EntityState<Identity> = identityAdapter.getInitialState()
@@ -23,7 +24,7 @@ export const identitySlice = createSlice({
     createUserCsr: (state, _action: PayloadAction<CreateUserCsrPayload>) => state,
     saveOwnerCertToDb: state => state,
     savedOwnerCertificate: (state, _action: PayloadAction<string>) => state,
-    registerUsername: (state, _action: PayloadAction<string>) => state,
+    registerUsername: (state, _action: PayloadAction<RegisterUsernamePayload>) => state,
     registerCertificate: (state, action: PayloadAction<RegisterCertificatePayload>) => {
       identityAdapter.updateOne(state.identities, {
         id: action.payload.communityId,
@@ -42,6 +43,7 @@ export const identitySlice = createSlice({
         },
       })
     },
+    saveUserCsr: state => state,
     verifyJoinTimestamp: state => state,
     updateJoinTimestamp: (state, action: PayloadAction<UpdateJoinTimestampPayload>) => {
       identityAdapter.updateOne(state.identities, {

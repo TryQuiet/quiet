@@ -1,4 +1,5 @@
 import { type HiddenService, type PeerId, type Identity } from './identity'
+import { InvitationPair } from './network'
 
 export interface Community {
   id: string
@@ -34,7 +35,7 @@ export interface NetworkData {
 export interface CreateNetworkPayload {
   ownership: CommunityOwnership
   name?: string
-  registrar?: string
+  peers?: InvitationPair[]
 }
 
 export interface ResponseCreateNetworkPayload {
@@ -52,7 +53,7 @@ export interface InitCommunityPayload {
   id: string
   peerId: PeerId
   hiddenService: HiddenService
-  certs: Certificates
+  certs?: Certificates
   peers?: string[]
 }
 
@@ -100,5 +101,16 @@ export interface UpdateRegistrationAttemptsPayload {
 
 export interface AddOwnerCertificatePayload {
   communityId: string
+  ownerCertificate: string
+}
+
+export interface CommunityMetadata {
+  id: string
+  rootCa: string
+  ownerCertificate: string
+}
+
+export interface CommunityMetadataPayload {
+  rootCa: string
   ownerCertificate: string
 }

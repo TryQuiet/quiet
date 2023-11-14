@@ -2,7 +2,7 @@ import fs from 'fs'
 import getPort from 'get-port'
 import path from 'path'
 import { Server } from 'socket.io'
-import { User } from '@quiet/types'
+import { UserData } from '@quiet/types'
 import createHttpsProxyAgent from 'https-proxy-agent'
 import PeerId from 'peer-id'
 import tmp from 'tmp'
@@ -12,6 +12,7 @@ import { TestConfig } from '../const'
 import logger from './logger'
 import { createCertificatesTestHelper } from './client-server'
 import { Libp2pNodeParams } from '../libp2p/libp2p.types'
+import { createLibp2pAddress, createLibp2pListenAddress } from '@quiet/common'
 const log = logger('test')
 
 export interface Ports {
@@ -143,16 +144,8 @@ export const torDirForPlatform = (basePath?: string): string => {
   return torPath
 }
 
-export const createLibp2pAddress = (address: string, peerId: string) => {
-  return `/dns4/${address}/tcp/80/ws/p2p/${peerId}`
-}
-
-export const createLibp2pListenAddress = (address: string) => {
-  return `/dns4/${address}/tcp/80/ws`
-}
-
-export const getUsersAddresses = async (users: User[]): Promise<string[]> => {
-  const peers = users.map(async (userData: User) => {
+export const getUsersAddresses = async (users: UserData[]): Promise<string[]> => {
+  const peers = users.map(async (userData: UserData) => {
     return createLibp2pAddress(userData.onionAddress, userData.peerId)
   })
 
@@ -208,9 +201,6 @@ export const libp2pInstanceParams = async (): Promise<Libp2pNodeParams> => {
     listenAddresses: [createLibp2pListenAddress('localhost')],
     agent: createHttpsProxyAgent({ port: 1234, host: 'localhost' }),
     localAddress: createLibp2pAddress('localhost', peerId.toString()),
-    cert: pems.userCert,
-    key: pems.userKey,
-    ca: [pems.ca],
     targetPort: port,
     peers: [remoteAddress],
   }

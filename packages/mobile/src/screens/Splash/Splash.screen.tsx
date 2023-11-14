@@ -3,22 +3,27 @@ import { useDispatch, useSelector } from 'react-redux'
 import { initSelectors } from '../../store/init/init.selectors'
 import { initActions } from '../../store/init/init.slice'
 import { SplashScreenProps } from './Splash.types'
-import { Loading } from '../../components/Loading/Loading.component'
+import { Splash } from '../../components/Splash/Splash.component'
 
 export const SplashScreen: FC<SplashScreenProps> = ({ route }) => {
   const dispatch = useDispatch()
 
-  const hint = useSelector(initSelectors.initDescription)
-  const checks = useSelector(initSelectors.initChecks)
+  const ready = useSelector(initSelectors.ready)
 
   useEffect(() => {
-    const code = route.params?.code
+    let code = route.path
 
     // Screen hasn't been open through a link
     if (!code) return
 
-    dispatch(initActions.deepLink(code))
-  }, [route.params?.code])
+    if (code.charAt(0) === '?') {
+      code = code.slice(1, code.length)
+    }
 
-  return <Loading progress={0} description={hint} checks={checks} />
+    if (ready) {
+      dispatch(initActions.deepLink(code))
+    }
+  }, [ready, route.path])
+
+  return <Splash />
 }

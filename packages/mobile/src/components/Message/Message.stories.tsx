@@ -8,6 +8,8 @@ storiesOf('Message', module)
   .add('Default', () => {
     return (
       <Message
+        duplicatedUsernameHandleBack={function (): void {}}
+        unregisteredUsernameHandleBack={function (username: string): void {}}
         data={[
           {
             id: '1',
@@ -17,6 +19,9 @@ storiesOf('Message', module)
             createdAt: 0,
             date: '1:30pm',
             nickname: 'holmes',
+            isDuplicated: false,
+            isRegistered: true,
+            pubKey: 'test',
           },
         ]}
         openUrl={() => {}}
@@ -29,6 +34,8 @@ storiesOf('Message', module)
   .add('Info', () => {
     return (
       <Message
+        duplicatedUsernameHandleBack={function (): void {}}
+        unregisteredUsernameHandleBack={function (username: string): void {}}
         data={[
           {
             id: '1',
@@ -37,6 +44,9 @@ storiesOf('Message', module)
             createdAt: 0,
             date: '1:30pm',
             nickname: 'holmes',
+            isDuplicated: false,
+            isRegistered: true,
+            pubKey: 'test',
           },
         ]}
         openUrl={() => {}}
@@ -52,6 +62,8 @@ storiesOf('Message', module)
     }
     return (
       <Message
+        duplicatedUsernameHandleBack={function (): void {}}
+        unregisteredUsernameHandleBack={function (username: string): void {}}
         data={[
           {
             id: '1',
@@ -60,6 +72,9 @@ storiesOf('Message', module)
             createdAt: 0,
             date: '1:30pm',
             nickname: 'holmes',
+            isDuplicated: false,
+            isRegistered: true,
+            pubKey: 'test',
           },
         ]}
         openUrl={openUrl}
@@ -72,6 +87,8 @@ storiesOf('Message', module)
   .add('ValidInlineLatexExpression', () => {
     return (
       <Message
+        duplicatedUsernameHandleBack={function (): void {}}
+        unregisteredUsernameHandleBack={function (username: string): void {}}
         data={[
           {
             id: '1',
@@ -80,6 +97,9 @@ storiesOf('Message', module)
             createdAt: 0,
             date: '1:30pm',
             nickname: 'someone',
+            isDuplicated: false,
+            isRegistered: true,
+            pubKey: 'test',
           },
         ]}
         openUrl={() => {}}
@@ -92,6 +112,8 @@ storiesOf('Message', module)
   .add('InvalidLatexExpression', () => {
     return (
       <Message
+        duplicatedUsernameHandleBack={function (): void {}}
+        unregisteredUsernameHandleBack={function (username: string): void {}}
         data={[
           {
             id: '1',
@@ -100,6 +122,9 @@ storiesOf('Message', module)
             createdAt: 0,
             date: '1:30pm',
             nickname: 'someone',
+            isDuplicated: false,
+            isRegistered: true,
+            pubKey: 'test',
           },
         ]}
         openUrl={() => {}}

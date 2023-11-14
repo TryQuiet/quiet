@@ -1,5 +1,5 @@
 import { Browser, Builder, type ThenableWebDriver } from 'selenium-webdriver'
-import { spawn, exec, type ChildProcessWithoutNullStreams, execSync } from 'child_process'
+import { spawn, exec, execSync, type ChildProcessWithoutNullStreams } from 'child_process'
 import { type SupportedPlatformDesktop } from '@quiet/types'
 import getPort from 'get-port'
 import path from 'path'
@@ -15,8 +15,6 @@ export interface BuildSetupInit {
 
 export class BuildSetup {
   private driver?: ThenableWebDriver | null
-  public containerId?: string
-  public ipAddress?: string
   public port?: number
   public debugPort?: number
   public dataDir?: string
@@ -63,8 +61,7 @@ export class BuildSetup {
       case 'linux':
         return `${__dirname}/../Quiet/${this.fileName ? this.fileName : process.env.FILE_NAME}`
       case 'win32':
-        // return `${process.env.LOCALAPPDATA}\\Programs\\${this.fileName ? 'quiet' : 'quiet2'}\\Quiet.exe`
-        return `${process.env.LOCALAPPDATA}\\Programs\\quiet\\Quiet.exe`
+        return `${process.env.LOCALAPPDATA}\\Programs\\@quietdesktop\\Quiet.exe`
       case 'darwin':
         return '/Applications/Quiet.app/Contents/MacOS/Quiet'
       default:
@@ -75,7 +72,7 @@ export class BuildSetup {
   public getVersionFromEnv() {
     const envFileName = process.env.FILE_NAME
     if (!envFileName) {
-      throw new Error('file name not specyfied')
+      throw new Error('file name not specified')
     }
     switch (process.platform) {
       case 'linux':
@@ -104,16 +101,16 @@ export class BuildSetup {
     await this.initPorts()
     const env = {
       DATA_DIR: this.dataDir || 'Quiet',
-      DEBUG: 'backend*',
+      DEBUG: 'backend*,desktop*',
     }
     if (process.platform === 'win32') {
       console.log('!WINDOWS!')
-      this.child = spawn(`cd node_modules/.bin & chromedriver.cmd --port=${this.port}`, [], {
+      this.child = spawn(`cd node_modules/.bin & chromedriver.cmd --port=${this.port} --verbose`, [], {
         shell: true,
         env: Object.assign(process.env, env),
       })
     } else {
-      this.child = spawn(`node_modules/.bin/chromedriver --port=${this.port}`, [], {
+      this.child = spawn(`node_modules/.bin/chromedriver --port=${this.port} --verbose`, [], {
         shell: true,
         detached: false,
         env: Object.assign(process.env, env),
@@ -127,7 +124,7 @@ export class BuildSetup {
     )
 
     this.child.on('error', () => {
-      console.log('ERROR')
+      console.error('ERROR')
       this.killNine()
     })
 
@@ -145,7 +142,7 @@ export class BuildSetup {
       console.log('message', data)
     })
     this.child.on('error', data => {
-      console.log('error', data)
+      console.error('error', data)
     })
 
     this.child.stdout.on('data', data => {
@@ -153,11 +150,17 @@ export class BuildSetup {
     })
 
     this.child.stderr.on('data', data => {
-      console.error(`stderr: ${data}`)
+      // Quiet logs (handled by 'debug' package) are available in stderr and only with 'verbose' flag on chromedriver
+      const trashLogs = ['DevTools', 'COMMAND', 'INFO:CONSOLE', '[INFO]:', 'libnotify-WARNING', 'ALSA lib']
+      const dataString = `${data}`
+      for (const l of trashLogs) {
+        if (dataString.includes(l)) return
+      }
+      console.log(dataString)
     })
 
     this.child.stdin.on('data', data => {
-      console.error(`stdin: ${data}`)
+      console.log(`stdin: ${data}`)
     })
   }
 
@@ -196,7 +199,7 @@ export class BuildSetup {
       }
     }
     if (this.driver == null || this.driver === undefined) {
-      throw new Error('elo')
+      throw new Error('No driver')
     }
 
     return this.driver

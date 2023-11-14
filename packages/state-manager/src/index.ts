@@ -76,14 +76,13 @@ export { PublicChannelsTransform } from './sagas/publicChannels/publicChannels.t
 export { MessagesTransform } from './sagas/messages/messages.transform'
 export { FilesTransform } from './sagas/files/files.transform'
 export { ConnectionTransform } from './sagas/appConnection/connection.transform'
+export { UsersTransform } from './sagas/users/users.transform'
 export { resetStateAndSaveTorConnectionData } from './sagas/appConnection/connection.helpers'
 export * from './constants'
 
 export { formatBytes } from './utils/functions/formatBytes/formatBytes'
 
-export { sortPeers } from './utils/functions/sortPeers/sortPeers'
-
-export { getInvitationCode } from './utils/functions/invitationCode/invitationCode'
+export { getInvitationCodes } from './utils/functions/invitationCode/invitationCode'
 
 export type { Socket } from './types'
 

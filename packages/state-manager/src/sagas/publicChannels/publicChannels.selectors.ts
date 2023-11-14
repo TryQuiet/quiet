@@ -7,7 +7,7 @@ import {
   publicChannelsSubscriptionsAdapter,
 } from './publicChannels.adapter'
 import { type CreatedSelectors, type StoreState } from '../store.types'
-import { certificatesMapping } from '../users/users.selectors'
+import { allUsers } from '../users/users.selectors'
 import { formatMessageDisplayDay } from '../../utils/functions/dates/formatMessageDisplayDate'
 import { displayableMessage } from '../../utils/functions/dates/formatDisplayableMessage'
 import { isDefined } from '@quiet/common'
@@ -20,8 +20,6 @@ import {
   type PublicChannel,
   type PublicChannelStatus,
   INITIAL_CURRENT_CHANNEL_ID,
-  PublicChannelStatusWithName,
-  PublicChannelStorage,
 } from '@quiet/types'
 
 const selectState: CreatedSelectors[StoreKeys.PublicChannels] = (state: StoreState) => state[StoreKeys.PublicChannels]
@@ -170,12 +168,13 @@ export const newestCurrentChannelMessage = createSelector(sortedCurrentChannelMe
 
 export const displayableCurrentChannelMessages = createSelector(
   sortedCurrentChannelMessages,
-  certificatesMapping,
-  (messages, certificates) => {
+  allUsers,
+  (messages, users) => {
     return messages.reduce((result: DisplayableMessage[], message: ChannelMessage) => {
-      const user = certificates[message.pubKey]
+      const user = users[message.pubKey]
       if (user) {
-        result.push(displayableMessage(message, user.username))
+        // @ts-ignore
+        result.push(displayableMessage(message, user))
       }
       return result
     }, [])
@@ -214,7 +213,7 @@ export const currentChannelMessagesMergedBySender = createSelector(dailyGroupedC
       const last = merged[index][0]
 
       if (
-        last.nickname === message.nickname &&
+        last?.pubKey === message?.pubKey &&
         message.createdAt - last.createdAt < 300 &&
         message.type !== MessageType.Info &&
         last.type !== MessageType.Info

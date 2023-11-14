@@ -2,7 +2,7 @@
 import React, { FC, useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { identity, communities } from '@quiet/state-manager'
-import { CommunityOwnership, CreateNetworkPayload } from '@quiet/types'
+import { CommunityOwnership, CreateNetworkPayload, InvitationPair } from '@quiet/types'
 import { JoinCommunity } from '../../components/JoinCommunity/JoinCommunity.component'
 import { navigationActions } from '../../store/navigation/navigation.slice'
 import { ScreenNames } from '../../const/ScreenNames.enum'
@@ -14,7 +14,7 @@ export const JoinCommunityScreen: FC<JoinCommunityScreenProps> = ({ route }) => 
 
   const [invitationCode, setInvitationCode] = useState<string | undefined>(undefined)
 
-  const ready = useSelector(initSelectors.ready)
+  const isWebsocketConnected = useSelector(initSelectors.isWebsocketConnected)
 
   const currentCommunity = useSelector(communities.selectors.currentCommunity)
   const currentIdentity = useSelector(identity.selectors.currentIdentity)
@@ -35,10 +35,10 @@ export const JoinCommunityScreen: FC<JoinCommunityScreenProps> = ({ route }) => 
   }, [dispatch, community, route.params?.code])
 
   const joinCommunityAction = useCallback(
-    (address: string) => {
+    (pairs: InvitationPair[]) => {
       const payload: CreateNetworkPayload = {
         ownership: CommunityOwnership.User,
-        registrar: address,
+        peers: pairs,
       }
       dispatch(communities.actions.createNetwork(payload))
       dispatch(
@@ -64,7 +64,7 @@ export const JoinCommunityScreen: FC<JoinCommunityScreenProps> = ({ route }) => 
       redirectionAction={redirectionAction}
       networkCreated={networkCreated}
       invitationCode={invitationCode}
-      ready={ready}
+      ready={isWebsocketConnected}
     />
   )
 }

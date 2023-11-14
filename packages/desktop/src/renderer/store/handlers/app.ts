@@ -1,7 +1,6 @@
 import { produce, immerable } from 'immer'
 import { createAction, handleActions } from 'redux-actions'
 import { actionTypes } from '../../../shared/static'
-
 import { ActionsType, PayloadType } from './types'
 
 export class App {

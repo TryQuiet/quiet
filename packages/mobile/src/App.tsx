@@ -8,9 +8,7 @@ import WebviewCrypto from 'react-native-webview-crypto'
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context'
 
 import { MenuProvider } from 'react-native-popup-menu'
-
 import { ScreenNames } from './const/ScreenNames.enum'
-
 import { SplashScreen } from './screens/Splash/Splash.screen'
 import { CreateCommunityScreen } from './screens/CreateCommunity/CreateCommunity.screen'
 import { JoinCommunityScreen } from './screens/JoinCommunity/JoinCommunity.screen'
@@ -28,6 +26,7 @@ import { NavigationContainer } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { navigationRef } from './RootNavigation'
 import { navigationActions } from './store/navigation/navigation.slice'
+import { initActions } from './store/init/init.slice'
 
 import { sagaMiddleware } from './store/store'
 import { rootSaga } from './store/root.saga'
@@ -45,6 +44,12 @@ import { ConfirmationBox } from './components/ConfirmationBox/ConfirmationBox.co
 import StoreProvider from './Provider'
 import { RootStackParamList } from './route.params'
 import ConnectionProcessScreen from './screens/ConnectionProcess/ConnectionProcess.screen'
+import { DuplicatedUsernameScreen } from './screens/DuplicatedUsername/DuplicatedUsername.screen'
+
+import UsernameTakenScreen from './screens/UsernameTaken/UsernameTaken.screen'
+import NewUsernameRequestedScreen from './screens/NewUsernameRequested/NewUsernameRequested.screen'
+import { PossibleImpersonationAttackScreen } from './screens/PossibleImpersonationAttack/PossibleImpersonationAttack.screen'
+import { UnregisteredUsernameContextMenu } from './components/ContextMenu/menus/UnregisteredUsernameContextMenu.container'
 
 LogBox.ignoreAllLogs()
 
@@ -73,6 +78,7 @@ function App(): JSX.Element {
           ref={navigationRef}
           linking={linking}
           onReady={() => {
+            dispatch(initActions.blindWebsocketConnection())
             dispatch(navigationActions.redirection())
           }}
         >
@@ -99,10 +105,18 @@ function App(): JSX.Element {
                 <Screen component={QRCodeScreen} name={ScreenNames.QRCodeScreen} />
                 <Screen component={SuccessScreen} name={ScreenNames.SuccessScreen} />
                 <Screen component={ErrorScreen} name={ScreenNames.ErrorScreen} />
+                <Screen component={DuplicatedUsernameScreen} name={ScreenNames.DuplicatedUsernameScreen} />
+                <Screen component={UsernameTakenScreen} name={ScreenNames.UsernameTakenScreen} />
+                <Screen component={NewUsernameRequestedScreen} name={ScreenNames.NewUsernameRequestedScreen} />
+                <Screen
+                  component={PossibleImpersonationAttackScreen}
+                  name={ScreenNames.PossibleImpersonationAttackScreen}
+                />
               </Navigator>
               <CommunityContextMenu />
               <ChannelContextMenu />
               <InvitationContextMenu />
+              <UnregisteredUsernameContextMenu />
               <ConfirmationBox {...confirmationBox} />
             </ThemeProvider>
           </MenuProvider>

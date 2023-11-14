@@ -4,8 +4,10 @@ import { BuildSetup, type BuildSetupInit } from './utils'
 export class App {
   thenableWebDriver?: ThenableWebDriver
   buildSetup: BuildSetup
+  isOpened: boolean
   constructor(buildSetupConfig?: BuildSetupInit) {
     this.buildSetup = new BuildSetup({ ...buildSetupConfig })
+    this.isOpened = false
   }
 
   get driver(): ThenableWebDriver {
@@ -16,13 +18,19 @@ export class App {
   }
 
   async open() {
+    console.log('Opening the app', this.buildSetup.dataDir)
     this.buildSetup.resetDriver()
     await this.buildSetup.createChromeDriver()
+    this.isOpened = true
     this.thenableWebDriver = this.buildSetup.getDriver()
     await this.driver.getSession()
+    const debugModal = new DebugModeModal(this.driver)
+    await debugModal.close()
   }
 
   async close(options?: { forceSaveState?: boolean }) {
+    if (!this.isOpened) return
+    console.log('Closing the app', this.buildSetup.dataDir)
     if (options?.forceSaveState) {
       await this.saveState() // Selenium creates community and closes app so fast that redux state may not be saved properly
       await this.waitForSavedState()
@@ -33,6 +41,8 @@ export class App {
       this.buildSetup.killNine()
       await new Promise<void>(resolve => setTimeout(() => resolve(), 2000))
     }
+    this.isOpened = false
+    console.log('App closed', this.buildSetup.dataDir)
   }
 
   get saveStateButton() {
@@ -59,12 +69,6 @@ export class StartingLoadingPanel {
   get element() {
     return this.driver.wait(until.elementLocated(By.xpath('//div[@data-testid="startingPanelComponent"]')))
   }
-  // get element() {
-  //   return this.driver.wait(until.elementLocated(By.xpath(`//span[text()="${this.text}"]`)))
-  // }
-  // get title() {
-  //   return this.driver.findElement(By.xpath(`//span[text()="${this.text}"]`))
-  // }
 }
 
 export class WarningModal {
@@ -227,6 +231,19 @@ export class Channel {
     return await messagesGroup.findElement(By.xpath('//p[@data-testid="/messagesGroupContent-/"]'))
   }
 
+  async waitForUserMessage(username: string, messageContent: string) {
+    console.log(`Waiting for user "${username}" message "${messageContent}"`)
+    return this.driver.wait(async () => {
+      const messages = await this.getUserMessages(username)
+      const hasMessage = messages.find(async msg => {
+        const messageText = await msg.getText()
+        console.log(`got message "${messageText}"`)
+        return messageText.includes(messageContent)
+      })
+      return hasMessage
+    })
+  }
+
   get getAllMessages() {
     return this.driver.wait(until.elementsLocated(By.xpath('//*[contains(@data-testid, "userMessages-")]')))
   }
@@ -236,7 +253,7 @@ export class Channel {
   }
 
   get messageInput() {
-    return this.driver.wait(until.elementLocated(By.xpath('//div[@data-testid="messageInput"]')))
+    return this.driver.wait(until.elementLocated(By.xpath('//*[@data-testid="messageInput"]')))
   }
 
   async sendMessage(message: string) {
@@ -254,6 +271,26 @@ export class Channel {
     return await this.driver.wait(
       until.elementsLocated(By.xpath(`//*[contains(@data-testid, "userMessages-${username}")]`))
     )
+  }
+
+  async waitForLabel(username: string, label: string) {
+    console.log(`Waiting for user's "${username}" label "${label}" label`)
+    await this.driver.wait(async () => {
+      const labels = await this.driver.findElements(By.xpath(`//*[contains(@data-testid, "userLabel-${username}")]`))
+      const properLabels = labels.filter(async labelElement => {
+        const labelText = await labelElement.getText()
+        return labelText === label
+      })
+      return properLabels.length > 0
+    })
+  }
+
+  async waitForLabelsNotPresent(username: string) {
+    console.log(`Waiting for user's "${username}" label to not be present`)
+    await this.driver.wait(async () => {
+      const labels = await this.driver.findElements(By.xpath(`//*[contains(@data-testid, "userLabel-${username}")]`))
+      return labels.length === 0
+    })
   }
 
   async getMessage(text: string) {
@@ -375,18 +412,27 @@ export class DebugModeModal {
   }
 
   get element() {
-    return this.driver.wait(until.elementLocated(By.xpath("//h3[text()='App is running in debug mode']")))
+    return this.driver.wait(until.elementLocated(By.xpath("//h3[text()='App is running in debug mode']")), 5000)
   }
 
   get button() {
-    return this.driver.wait(until.elementLocated(By.xpath("//button[text()='Understand']")))
+    return this.driver.wait(until.elementLocated(By.xpath("//button[text()='Understand']")), 5000)
   }
 
   async close() {
-    console.log('Closing debug modal')
-    await this.element.isDisplayed()
-    const button = await this.button
-    console.log('Debug modal title is displayed')
+    if (!process.env.TEST_MODE) return
+    let button
+    try {
+      console.log('Closing debug modal')
+      await this.element.isDisplayed()
+      console.log('Debug modal title is displayed')
+      button = await this.button
+      console.log('Debug modal button is displayed')
+    } catch (e) {
+      console.log('Debug modal might have been covered by "join community" modal', e.message)
+      return
+    }
+
     await button.isDisplayed()
     console.log('Button is displayed')
     await button.click()

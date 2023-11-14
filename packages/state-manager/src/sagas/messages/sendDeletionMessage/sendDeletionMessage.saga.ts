@@ -1,6 +1,7 @@
 import { type PayloadAction } from '@reduxjs/toolkit'
 import { put, select } from 'typed-redux-saga'
 import { communitiesSelectors } from '../../communities/communities.selectors'
+import { identitySelectors } from '../../identity/identity.selectors'
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
 import { messagesActions } from '../messages.slice'
 import { MessageType, type WriteMessagePayload } from '@quiet/types'
@@ -12,9 +13,9 @@ export function* sendDeletionMessageSaga(
   const generalChannel = yield* select(publicChannelsSelectors.generalChannel)
   if (!generalChannel) return
 
-  const isGeneral = channelId === generalChannel.id
+  const user = yield* select(identitySelectors.currentIdentity)
 
-  const ownerNickname = yield* select(communitiesSelectors.ownerNickname)
+  const isGeneral = channelId === generalChannel.id
 
   const community = yield* select(communitiesSelectors.currentCommunity)
 
@@ -22,7 +23,7 @@ export function* sendDeletionMessageSaga(
 
   const payload: WriteMessagePayload = {
     type: MessageType.Info,
-    message: `@${ownerNickname} deleted #${channelId.slice(0, channelId.indexOf('_'))}`, // TEMPORARY
+    message: `@${user?.nickname} deleted #${channelId.slice(0, channelId.indexOf('_'))}`, // TEMPORARY
     channelId: generalChannel.id,
   }
 

@@ -2,7 +2,6 @@ import React from 'react'
 import { styled } from '@mui/material/styles'
 import { Dictionary } from '@reduxjs/toolkit'
 import classNames from 'classnames'
-
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
 import ListItem from '@mui/material/ListItem'
@@ -22,6 +21,8 @@ import information from '../../../static/images/updateIcon.svg'
 
 import Icon from '../../ui/Icon/Icon'
 import { UseModalType } from '../../../containers/hooks'
+import { HandleOpenModalType, UserLabelType } from '../userLabel/UserLabel.types'
+import UserLabel from '../userLabel/UserLabel.component'
 
 const PREFIX = 'BasicMessageComponent'
 
@@ -91,8 +92,8 @@ const StyledListItem = styled(ListItem)(({ theme }) => ({
   },
 
   [`& .${classes.avatar}`]: {
-    minHeight: 36,
-    minWidth: 36,
+    minHeight: 40,
+    minWidth: 40,
     marginRight: 10,
     marginBottom: 4,
     borderRadius: 4,
@@ -102,8 +103,8 @@ const StyledListItem = styled(ListItem)(({ theme }) => ({
   [`& .${classes.alignAvatar}`]: {
     marginTop: 2,
     marginLeft: 2,
-    width: 32,
-    height: 32,
+    width: 38,
+    height: 38,
   },
 
   [`& .${classes.moderation}`]: {
@@ -114,8 +115,7 @@ const StyledListItem = styled(ListItem)(({ theme }) => ({
   [`& .${classes.time}`]: {
     color: theme.palette.colors.lightGray,
     fontSize: 14,
-    marginTop: -4,
-    marginRight: 5,
+    marginTop: -2,
   },
 
   [`& .${classes.iconBox}`]: {
@@ -131,7 +131,7 @@ const StyledListItem = styled(ListItem)(({ theme }) => ({
   },
 
   [`& .${classes.infoIcon}`]: {
-    width: 32,
+    width: 38,
   },
 }))
 
@@ -152,6 +152,8 @@ export interface BasicMessageProps {
     src: string
   }>
   onMathMessageRendered?: () => void
+  unregisteredUsernameModalHandleOpen: HandleOpenModalType
+  duplicatedUsernameModalHandleOpen: HandleOpenModalType
 }
 
 export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProps> = ({
@@ -164,13 +166,27 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
   openContainingFolder,
   downloadFile,
   cancelDownload,
+  unregisteredUsernameModalHandleOpen,
+  duplicatedUsernameModalHandleOpen,
 }) => {
   const messageDisplayData = messages[0]
 
+  const userLabel = messageDisplayData?.isDuplicated
+    ? UserLabelType.DUPLICATE
+    : !messageDisplayData?.isRegistered
+    ? UserLabelType.UNREGISTERED
+    : null
+
+  console.log('Unregistered Debug - Basic Message', { userLabel })
+
   const infoMessage = messageDisplayData.type === 3 // 3 stands for MessageType.Info
+
+  console.log('Unregistered Debug - Basic Message', { infoMessage })
 
   // Grey out sender name if the first message hasn't been sent yet
   const pending: boolean = pendingMessages[messageDisplayData.id] !== undefined
+
+  console.log('Unregistered Debug - Basic Message - condition to display label', userLabel && !infoMessage)
 
   return (
     <StyledListItem
@@ -183,6 +199,7 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
       <ListItemText
         disableTypography
         className={classes.messageCard}
+        data-testid={`userMessagesWrapper-${messageDisplayData.nickname}-${messageDisplayData.id}`}
         primary={
           <Grid container direction='row' justifyContent='flex-start' alignItems='flex-start' wrap={'nowrap'}>
             <Grid item className={classNames({ [classes.avatar]: true })}>
@@ -190,13 +207,13 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
                 {infoMessage ? (
                   <Icon src={information} className={classes.infoIcon} />
                 ) : (
-                  <Jdenticon size='32' value={messageDisplayData.nickname} />
+                  <Jdenticon size='36' value={messageDisplayData.nickname} />
                 )}
               </div>
             </Grid>
             <Grid container item direction='row'>
-              <Grid container item direction='row' justifyContent='space-between'>
-                <Grid container item xs alignItems='flex-start' wrap='nowrap'>
+              <Grid container item direction='row' justifyContent='space-between' alignItems='center'>
+                <Grid container item xs alignItems='center' wrap='nowrap'>
                   <Grid item>
                     <Typography
                       color='textPrimary'
@@ -208,6 +225,16 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
                       {infoMessage ? 'Quiet' : messageDisplayData.nickname}
                     </Typography>
                   </Grid>
+                  {userLabel && !infoMessage && (
+                    <Grid data-testid={`userLabel-${messageDisplayData.nickname}-${messageDisplayData.id}`}>
+                      <UserLabel
+                        username={messageDisplayData.nickname}
+                        type={userLabel}
+                        unregisteredUsernameModalHandleOpen={unregisteredUsernameModalHandleOpen}
+                        duplicatedUsernameModalHandleOpen={duplicatedUsernameModalHandleOpen}
+                      />
+                    </Grid>
+                  )}
                   {status !== 'failed' && (
                     <Grid item>
                       <Typography

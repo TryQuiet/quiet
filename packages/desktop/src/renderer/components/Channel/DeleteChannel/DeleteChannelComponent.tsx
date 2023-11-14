@@ -122,7 +122,7 @@ export const DeleteChannelComponent: React.FC<ReturnType<typeof useModal> & Dele
           justifyContent='center'
         >
           <Button variant='contained' onClick={handleClose} size='small' fullWidth className={classes.secondaryButton}>
-            Nevermind
+            Never mind
           </Button>
         </Grid>
       </StyledGrid>

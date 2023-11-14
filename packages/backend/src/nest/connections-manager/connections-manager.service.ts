@@ -30,11 +30,8 @@ import {
   NetworkStats,
   PushNotificationPayload,
   RegisterOwnerCertificatePayload,
-  RegisterUserCertificatePayload,
   RemoveDownloadStatus,
   ResponseCreateNetworkPayload,
-  SaveCertificatePayload,
-  SaveOwnerCertificatePayload,
   SendCertificatesResponse,
   SendMessagePayload,
   SetChannelSubscribedPayload,
@@ -42,6 +39,9 @@ import {
   StorePeerListPayload,
   UploadFilePayload,
   PeerId as PeerIdType,
+  SaveCSRPayload,
+  CommunityMetadata,
+  CommunityMetadataPayload,
 } from '@quiet/types'
 import { CONFIG_OPTIONS, QUIET_DIR, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
 import { ConfigOptions, GetPorts, ServerIoProviderTypes } from '../types'
@@ -165,16 +165,8 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       if ([ServiceState.LAUNCHING, ServiceState.LAUNCHED].includes(this.communityState)) return
       this.communityState = ServiceState.LAUNCHING
     }
-    const registrarData: LaunchRegistrarPayload = await this.localDbService.get(LocalDBKeys.REGISTRAR)
-    if (registrarData) {
-      if ([ServiceState.LAUNCHING, ServiceState.LAUNCHED].includes(this.registrarState)) return
-      this.registrarState = ServiceState.LAUNCHING
-    }
     if (community) {
       await this.launchCommunity(community)
-    }
-    if (registrarData) {
-      await this.registrationService.launchRegistrar(registrarData)
     }
   }
 
@@ -182,13 +174,11 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     if (this.tor && !options.saveTor) {
       await this.tor.kill()
     }
-    if (this.registrationService) {
-      this.logger('Stopping registration service')
-      await this.registrationService.stop()
-    }
     if (this.storageService) {
       this.logger('Stopping orbitdb')
       await this.storageService?.stopOrbitDb()
+      this.logger('reset CsrReplicated map and id')
+      this.storageService.resetCsrReplicatedMapAndId()
     }
     // if (this.storageService.ipfs) {
     //   this.storageService.ipfs = null
@@ -205,6 +195,15 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       this.logger('Stopping libp2p')
       await this.libp2pService.libp2pInstance.stop()
     }
+  }
+
+  public closeSocket() {
+    this.serverIoProvider.io.close()
+  }
+
+  // This method is only used on iOS through rn-bridge for reacting on lifecycle changes
+  public async openSocket() {
+    await this.socketService.init()
   }
 
   public async leaveCommunity() {
@@ -273,7 +272,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       community: {
         ...community,
         privateKey: network2.hiddenService.privateKey,
-        registrarUrl: community.registrarUrl || network2.hiddenService.onionAddress.split('.')[0],
+        registrarUrl: community.registrarUrl || network2.hiddenService.onionAddress.split('.')[0], // TODO: remove
       },
       network,
     }
@@ -281,12 +280,14 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   }
 
   public async createCommunity(payload: InitCommunityPayload) {
+    console.log('ConnectionsManager.createCommunity peers:', payload.peers)
     await this.launchCommunity(payload)
     this.logger(`Created and launched community ${payload.id}`)
     this.serverIoProvider.io.emit(SocketActionTypes.NEW_COMMUNITY, { id: payload.id })
   }
 
   public async launchCommunity(payload: InitCommunityPayload) {
+    console.log('ConnectionsManager.launchCommunity peers:', payload.peers)
     this.communityState = ServiceState.LAUNCHING
     const communityData: InitCommunityPayload = await this.localDbService.get(LocalDBKeys.COMMUNITY)
     if (!communityData) {
@@ -306,10 +307,17 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     }
 
     this.logger(`Launched community ${payload.id}`)
+
     this.serverIoProvider.io.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.LAUNCHED_COMMUNITY)
+
     this.communityId = payload.id
     this.communityState = ServiceState.LAUNCHED
+
     console.log('Hunting for heisenbug: Backend initialized community and sent event to state manager')
+
+    // Unblock websocket endpoints
+    this.socketService.resolveReadyness()
+
     this.serverIoProvider.io.emit(SocketActionTypes.COMMUNITY, { id: payload.id })
   }
   public async launch(payload: InitCommunityPayload) {
@@ -327,7 +335,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
     const { Libp2pModule } = await import('../libp2p/libp2p.module')
     const moduleRef = await this.lazyModuleLoader.load(() => Libp2pModule)
-    this.logger('launchCommunityFromStorage')
     const { Libp2pService } = await import('../libp2p/libp2p.service')
     const lazyService = moduleRef.get(Libp2pService)
     this.libp2pService = lazyService
@@ -336,6 +343,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     const _peerId = await peerIdFromKeys(restoredRsa.marshalPubKey(), restoredRsa.marshalPrivKey())
 
     let peers = payload.peers
+    console.log(`Launching community ${payload.id}, payload peers: ${peers}`)
     if (!peers || peers.length === 0) {
       peers = [this.libp2pService.createLibp2pAddress(onionAddress, _peerId.toString())]
     }
@@ -344,14 +352,10 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       peerId: _peerId,
       listenAddresses: [this.libp2pService.createLibp2pListenAddress(onionAddress)],
       agent: this.socksProxyAgent,
-      cert: payload.certs.certificate,
-      key: payload.certs.key,
-      ca: payload.certs.CA,
       localAddress: this.libp2pService.createLibp2pAddress(onionAddress, _peerId.toString()),
       targetPort: this.ports.libp2pHiddenService,
       peers,
     }
-    this.logger('libp2p params', params)
 
     await this.libp2pService.createInstance(params)
     // KACPER
@@ -385,33 +389,22 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.socketService.on(SocketActionTypes.CONNECTION_PROCESS_INFO, data => {
       this.serverIoProvider.io.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, data)
     })
-
-    this.registrationService.on(SocketActionTypes.CONNECTION_PROCESS_INFO, data => {
-      this.serverIoProvider.io.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, data)
-    })
   }
   private attachRegistrationListeners() {
-    this.registrationService.on(RegistrationEvents.REGISTRAR_STATE, (payload: ServiceState) => {
-      this.registrarState = payload
-    })
     this.registrationService.on(SocketActionTypes.SAVED_OWNER_CERTIFICATE, payload => {
       this.serverIoProvider.io.emit(SocketActionTypes.SAVED_OWNER_CERTIFICATE, payload)
-    })
-    this.registrationService.on(RegistrationEvents.SPAWN_HS_FOR_REGISTRAR, async payload => {
-      await this.tor.spawnHiddenService({
-        targetPort: payload.port,
-        privKey: payload.privateKey,
-        virtPort: payload.targetPort,
-      })
     })
     this.registrationService.on(RegistrationEvents.ERROR, payload => {
       emitError(this.serverIoProvider.io, payload)
     })
-    this.registrationService.on(SocketActionTypes.SEND_USER_CERTIFICATE, payload => {
-      this.serverIoProvider.io.emit(SocketActionTypes.SEND_USER_CERTIFICATE, payload)
-    })
     this.registrationService.on(RegistrationEvents.NEW_USER, async payload => {
       await this.storageService?.saveCertificate(payload)
+    })
+
+    this.registrationService.on(RegistrationEvents.FINISHED_ISSUING_CERTIFICATES_FOR_ID, payload => {
+      if (payload.id) {
+        this.storageService.resolveCsrReplicatedPromise(payload.id)
+      }
     })
   }
   private attachsocketServiceListeners() {
@@ -446,38 +439,21 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       this.communityState = ServiceState.LAUNCHING
       await this.launchCommunity(args)
     })
-    // Registration
     this.socketService.on(SocketActionTypes.LAUNCH_REGISTRAR, async (args: LaunchRegistrarPayload) => {
+      // Event left for setting permsData purposes
       this.logger(`socketService - ${SocketActionTypes.LAUNCH_REGISTRAR}`)
-
-      const communityData = await this.localDbService.get(LocalDBKeys.REGISTRAR)
-      if (!communityData) {
-        await this.localDbService.put(LocalDBKeys.REGISTRAR, args)
+      this.registrationService.permsData = {
+        certificate: args.rootCertString,
+        privKey: args.rootKeyString,
       }
-      console.log('this.registrarState', this.registrarState)
-      if ([ServiceState.LAUNCHING, ServiceState.LAUNCHED].includes(this.registrarState)) return
-      this.registrarState = ServiceState.LAUNCHING
-      await this.registrationService.launchRegistrar(args)
     })
-    this.socketService.on(SocketActionTypes.SAVED_OWNER_CERTIFICATE, async (args: SaveOwnerCertificatePayload) => {
-      const saveCertificatePayload: SaveCertificatePayload = {
-        certificate: args.certificate,
-        rootPermsData: args.permsData,
-      }
-      await this.storageService?.saveCertificate(saveCertificatePayload)
+    this.socketService.on(SocketActionTypes.SEND_COMMUNITY_METADATA, async (payload: CommunityMetadata) => {
+      await this.storageService?.updateCommunityMetadata(payload)
     })
-    this.socketService.on(SocketActionTypes.REGISTER_USER_CERTIFICATE, async (args: RegisterUserCertificatePayload) => {
-      // if (!this.socksProxyAgent) {
-      //   this.createAgent()
-      // }
-
-      await this.registrationService.sendCertificateRegistrationRequest(
-        args.serviceAddress,
-        args.userCsr,
-        args.communityId,
-        120_000,
-        this.socksProxyAgent
-      )
+    this.socketService.on(SocketActionTypes.SAVE_USER_CSR, async (payload: SaveCSRPayload) => {
+      console.log(`On ${SocketActionTypes.SAVE_USER_CSR}`)
+      await this.storageService?.saveCSR(payload)
+      this.serverIoProvider.io.emit(SocketActionTypes.SAVED_USER_CSR, payload)
     })
     this.socketService.on(
       SocketActionTypes.REGISTER_OWNER_CERTIFICATE,
@@ -537,7 +513,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     })
     this.storageService.on(StorageEvents.LOAD_CERTIFICATES, (payload: SendCertificatesResponse) => {
       this.serverIoProvider.io.emit(SocketActionTypes.RESPONSE_GET_CERTIFICATES, payload)
-      this.registrationService.emit(RegistrationEvents.SET_CERTIFICATES, payload.certificates)
     })
     this.storageService.on(StorageEvents.LOAD_PUBLIC_CHANNELS, (payload: ChannelsReplicatedPayload) => {
       this.serverIoProvider.io.emit(SocketActionTypes.CHANNELS_REPLICATED, payload)
@@ -591,6 +566,22 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.storageService.on(StorageEvents.CHANNEL_DELETION_RESPONSE, (payload: { channelId: string }) => {
       console.log('emitting deleted channel event back to state manager')
       this.serverIoProvider.io.emit(SocketActionTypes.CHANNEL_DELETION_RESPONSE, payload)
+    })
+    this.storageService.on(
+      StorageEvents.REPLICATED_CSR,
+      async (payload: { csrs: string[]; certificates: string[]; id: string }) => {
+        console.log(`On ${StorageEvents.REPLICATED_CSR}`)
+        this.serverIoProvider.io.emit(SocketActionTypes.RESPONSE_GET_CSRS, { csrs: payload.csrs })
+        this.registrationService.emit(RegistrationEvents.REGISTER_USER_CERTIFICATE, payload)
+      }
+    )
+    this.storageService.on(StorageEvents.REPLICATED_COMMUNITY_METADATA, (payload: CommunityMetadata) => {
+      console.log(`On ${StorageEvents.REPLICATED_COMMUNITY_METADATA}: ${payload}`)
+      const communityMetadataPayload: CommunityMetadataPayload = {
+        rootCa: payload.rootCa,
+        ownerCertificate: payload.ownerCertificate,
+      }
+      this.serverIoProvider.io.emit(SocketActionTypes.SAVE_COMMUNITY_METADATA, communityMetadataPayload)
     })
   }
 }

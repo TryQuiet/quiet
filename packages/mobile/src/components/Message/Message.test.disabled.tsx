@@ -9,6 +9,8 @@ describe('Message component', () => {
   it('should match inline snapshot', () => {
     const { toJSON } = renderComponent(
       <Message
+        duplicatedUsernameHandleBack={function (): void {}}
+        unregisteredUsernameHandleBack={function (username: string): void {}}
         data={[
           {
             id: 'id',
@@ -18,6 +20,9 @@ describe('Message component', () => {
             createdAt: 0,
             date: '1:30pm',
             nickname: 'holmes',
+            isDuplicated: false,
+            isRegistered: true,
+            pubKey: 'test',
           },
         ]}
         pendingMessages={{}}
@@ -259,6 +264,8 @@ describe('Message component', () => {
   it('should match inline snapshot for message with mathjax content', () => {
     const { toJSON } = renderComponent(
       <Message
+        duplicatedUsernameHandleBack={function (): void {}}
+        unregisteredUsernameHandleBack={function (username: string): void {}}
         data={[
           {
             id: 'id',
@@ -267,6 +274,9 @@ describe('Message component', () => {
             createdAt: 0,
             date: '1:30pm',
             nickname: 'somebody',
+            isDuplicated: false,
+            isRegistered: true,
+            pubKey: 'test',
           },
         ]}
         pendingMessages={{}}

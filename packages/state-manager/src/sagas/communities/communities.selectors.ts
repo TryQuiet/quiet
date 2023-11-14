@@ -57,24 +57,16 @@ export const invitationCode = createSelector(communitiesSlice, reducerState => {
   return reducerState.invitationCode
 })
 
-export const invitationUrl = createSelector(currentCommunity, community => {
-  if (!community?.registrarUrl) return ''
-  let registrarUrl = ''
-  try {
-    const url = new URL(community.registrarUrl)
-    registrarUrl = url.hostname.split('.')[0]
-  } catch (e) {
-    registrarUrl = community.registrarUrl
-  }
-  return invitationShareUrl(registrarUrl)
+export const invitationCodes = createSelector(communitiesSlice, reducerState => {
+  return reducerState.invitationCodes
 })
 
-export const registrationAttempts = (communityId: string) =>
-  createSelector(selectEntities, communities => {
-    const community = communities[communityId]
-    if (!community) return 0
-    return community.registrationAttempts || 0
-  })
+export const invitationUrl = createSelector(currentCommunity, community => {
+  const peerList = community?.peerList
+  if (!peerList || peerList?.length === 0) return ''
+  const initialPeers = peerList.slice(0, 4)
+  return invitationShareUrl(initialPeers)
+})
 
 export const ownerNickname = createSelector(
   currentCommunity,
@@ -107,7 +99,7 @@ export const communitiesSelectors = {
   currentCommunity,
   currentCommunityId,
   registrarUrl,
-  registrationAttempts,
+  invitationCodes,
   invitationCode,
   invitationUrl,
   ownerNickname,

@@ -25,7 +25,6 @@ export enum SocketActionTypes {
   ERROR = 'error',
   // G
   GET_PRIVATE_CONVERSATIONS = 'getPrivateConversations',
-  GET_PUBLIC_CHANNELS = 'getPublicChannels',
   // I
   INCOMING_MESSAGES = 'incomingMessages',
   INITIALIZE_CONVERSATION = 'initializeConversation',
@@ -48,16 +47,21 @@ export enum SocketActionTypes {
   REMOVE_DOWNLOAD_STATUS = 'removeDownloadStatus',
   RESPONSE_FETCH_ALL_DIRECT_MESSAGES = 'responseFetchAllDirectMessages',
   RESPONSE_GET_CERTIFICATES = 'responseGetCertificates',
+  RESPONSE_GET_CSRS = 'responseGetCsrs',
   RESPONSE_GET_PRIVATE_CONVERSATIONS = 'responseGetPrivateConversations',
   REQUEST_PEER_ID = 'requestPeerId',
   // S
   SAVE_OWNER_CERTIFICATE = 'saveOwnerCertificate',
   SAVED_OWNER_CERTIFICATE = 'savedOwnerCertificate',
+  SAVE_USER_CSR = 'saveUserCsr',
+  SAVE_COMMUNITY_METADATA = 'saveCommunityMetadata',
+  SAVED_USER_CSR = 'savedUserCsr',
   SEND_DIRECT_MESSAGE = 'sendDirectMessage',
   SEND_MESSAGE = 'sendMessage',
   SEND_MESSAGES_IDS = 'sendIds',
   SEND_PEER_ID = 'sendPeerId',
   SEND_USER_CERTIFICATE = 'sendUserCertificate',
+  SEND_COMMUNITY_METADATA = 'sendCommunityMetadata',
   SUBSCRIBE_FOR_ALL_CONVERSATIONS = 'subscribeToAllConversations',
   SUBSCRIBE_FOR_DIRECT_MESSAGE_THREAD = 'subscribeToDirectMessageThread',
   //  T

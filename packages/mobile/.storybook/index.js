@@ -15,6 +15,7 @@ addDecorator(withNavigation)
 configure(() => {
   require('../src/components/JoinCommunity/JoinCommunity.stories')
   require('../src/components/LeaveCommunity/LeaveCommunity.stories')
+  require('../src/components/ConnectionProcess/ConnectionProcess.stories')
   require('../src/components/ContextMenu/ContextMenu.stories')
   require('../src/components/ConfirmationBox/ConfirmationBox.stories')
   require('../src/components/CreateCommunity/CreateCommunity.stories')
@@ -34,8 +35,11 @@ configure(() => {
   require('../src/components/MessageSendButton/MessageSendButton.stories')
   require('../src/components/InitCheck/InitCheck.stories')
   require('../src/components/Loading/Loading.stories')
+  require('../src/components/Splash/Splash.stories')
   require('../src/components/Success/Success.stories')
   require('../src/components/Error/Error.stories')
+  require('../src/components/PossibleImpersonationAttack/PossibleImpersonationAttack.stories')
+  require('../src/components/FileUploadingPreview/UploadingPreview.stories')
 }, module)
 
 const StorybookUIRoot = getStorybookUI({

@@ -16,7 +16,7 @@ import { capitalizeFirstLetter } from '@quiet/common'
 export const LeaveCommunity: React.FC = () => {
   const community = useSelector(communities.selectors.currentCommunity)
 
-  let communityName = '' // Prevent error on initial app start
+  let communityName = '...' // Prevent error on initial app start
 
   if (community?.name) {
     communityName = capitalizeFirstLetter(community.name)

@@ -25,6 +25,7 @@ import {
   type Identity,
   MessageType,
   type PublicChannel,
+  User,
 } from '@quiet/types'
 import { type communitiesActions } from '../communities/communities.slice'
 
@@ -58,14 +59,18 @@ describe('publicChannelsSelectors', () => {
       id: community.id,
       nickname: 'alice',
     })
+
     const generalChannelState = publicChannelsSelectors.generalChannel(store.getState())
     if (generalChannelState) generalChannel = generalChannelState
+
     expect(generalChannel).not.toBeUndefined()
+
     channelIdes = [...channelIdes, generalChannel.id]
     john = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
       id: community.id,
       nickname: 'john',
     })
+
     store.dispatch(publicChannelsActions.setCurrentChannel({ channelId: generalChannel.id }))
     // Setup channels
     const channelNames = ['croatia', 'allergies', 'sailing', 'pets', 'antiques']
@@ -254,7 +259,16 @@ describe('publicChannelsSelectors', () => {
     // Convert regular messages to displayable messages
     const displayable: Record<string, DisplayableMessage> = {}
     for (const message of Object.values(msgs)) {
-      displayable[message.id] = displayableMessage(message, msgsOwners[message.id])
+      const user: User = {
+        dmPublicKey: '',
+        isDuplicated: false,
+        isRegistered: true,
+        onionAddress: '',
+        peerId: '',
+        pubKey: msgs[message.id].pubKey,
+        username: msgsOwners[message.id],
+      }
+      displayable[message.id] = displayableMessage(message, user)
     }
 
     // Get groups names
@@ -307,6 +321,8 @@ describe('publicChannelsSelectors', () => {
 
     if (!elouise.userCertificate) throw new Error('no elouise.userCertificate')
     store.dispatch(usersActions.test_remove_user_certificate({ certificate: elouise.userCertificate }))
+    // @ts-expect-error - This is statically mocked data so it'll never be undefined
+    store.dispatch(usersActions.test_remove_user_csr({ csr: elouise.userCsr?.userCsr }))
 
     store.dispatch(
       publicChannelsActions.setCurrentChannel({

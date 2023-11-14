@@ -1,0 +1,34 @@
+name: Desktop visual regressions
+
+on:
+  pull_request:
+    paths:
+      - packages/desktop/**
+
+jobs:
+  chromatic-deployment:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-20.04]
+
+    steps:
+      - name: "Print OS"
+        run: echo ${{ matrix.os }}
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Required to retrieve git history
+
+      - name: Setup environment
+        uses: ./.github/actions/setup-env
+        with:
+          bootstrap-packages: "@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/desktop,backend-bundle"
+
+      - name: "Publish to Chromatic"
+        uses: chromaui/action@v1
+        with:
+          workingDir: ./packages/desktop
+          token: ${{ secrets.GH_TOKEN }}
+          projectToken: 3218757eee04

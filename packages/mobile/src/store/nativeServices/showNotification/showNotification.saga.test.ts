@@ -129,13 +129,13 @@ describe('showNotificationSaga', () => {
           },
           [StoreKeys.Navigation]: {
             ...new NavigationState(),
-            currentScreen: ScreenNames.ChannelScreen,
+            backStack: [ScreenNames.ChannelScreen],
           },
         }
       )
       .provide([
         [call.fn(NativeModules.CommunicationModule.handleIncomingEvents), null],
-        [select(users.selectors.certificatesMapping), { pubKey: { username } }],
+        [select(users.selectors.allUsers), { pubKey: { username } }],
       ])
       .call(JSON.stringify, messageWithChannelName)
       .call(
@@ -174,7 +174,7 @@ describe('showNotificationSaga', () => {
           },
           [StoreKeys.Navigation]: {
             ...new NavigationState(),
-            currentScreen: ScreenNames.ChannelScreen,
+            backStack: [ScreenNames.ChannelScreen],
           },
         }
       )
@@ -213,7 +213,7 @@ describe('showNotificationSaga', () => {
           },
           [StoreKeys.Navigation]: {
             ...new NavigationState(),
-            currentScreen: ScreenNames.ChannelScreen,
+            backStack: [ScreenNames.ChannelScreen],
           },
         }
       )

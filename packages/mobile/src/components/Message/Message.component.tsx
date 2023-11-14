@@ -12,6 +12,8 @@ import { FileActionsProps } from '../UploadedFile/UploadedFile.types'
 import { MathJaxSvg } from 'react-native-mathjax-html-to-svg'
 import Markdown, { MarkdownIt, ASTNode } from '@ronradtke/react-native-markdown-display'
 import { defaultTheme } from '../../styles/themes/default.theme'
+import UserLabel from '../UserLabel/UserLabel.component'
+import { UserLabelType } from '../UserLabel/UserLabel.types'
 
 export const Message: FC<MessageProps & FileActionsProps> = ({
   data, // Set of messages merged by sender
@@ -21,6 +23,8 @@ export const Message: FC<MessageProps & FileActionsProps> = ({
   openImagePreview,
   openUrl,
   pendingMessages,
+  duplicatedUsernameHandleBack,
+  unregisteredUsernameHandleBack,
 }) => {
   const renderMessage = (message: DisplayableMessage, pending: boolean) => {
     switch (message.type) {
@@ -102,6 +106,12 @@ export const Message: FC<MessageProps & FileActionsProps> = ({
   const info = representativeMessage.type === MessageType.Info
   const pending: boolean = pendingMessages?.[representativeMessage.id] !== undefined
 
+  const userLabel = representativeMessage?.isDuplicated
+    ? UserLabelType.DUPLICATE
+    : !representativeMessage?.isRegistered
+    ? UserLabelType.UNREGISTERED
+    : null
+
   return (
     <View style={{ flex: 1 }}>
       <View
@@ -135,6 +145,18 @@ export const Message: FC<MessageProps & FileActionsProps> = ({
                 {info ? 'Quiet' : representativeMessage.nickname}
               </Typography>
             </View>
+
+            {userLabel && !info && (
+              <View>
+                <UserLabel
+                  username={representativeMessage.nickname}
+                  type={userLabel}
+                  duplicatedUsernameHandleBack={duplicatedUsernameHandleBack}
+                  unregisteredUsernameHandleBack={unregisteredUsernameHandleBack}
+                />
+              </View>
+            )}
+
             <View
               style={{
                 alignSelf: 'flex-start',

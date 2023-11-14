@@ -8,7 +8,6 @@ import {
   JoiningLoadingPanel,
   RegisterUsernameModal,
   Sidebar,
-  StartingLoadingPanel,
   UpdateModal,
 } from '../selectors'
 
@@ -45,12 +44,6 @@ describe('Backwards Compatibility', () => {
       await ownerAppOldVersion.open()
     })
 
-    it('StartingLoadingPanel modal', async () => {
-      const loadingPanel = new StartingLoadingPanel(ownerAppOldVersion.driver)
-      const isLoadingPanel = await loadingPanel.element.isDisplayed()
-      expect(isLoadingPanel).toBeTruthy()
-    })
-
     it('JoinCommunityModal - owner switch to create community', async () => {
       const joinModal = new JoinCommunityModal(ownerAppOldVersion.driver)
       const isJoinModal = await joinModal.element.isDisplayed()
@@ -71,11 +64,7 @@ describe('Backwards Compatibility', () => {
       await registerModal.typeUsername(ownerUsername)
       await registerModal.submit()
     })
-    it('Connecting to peers modal', async () => {
-      const loadingPanelCommunity = new JoiningLoadingPanel(ownerAppOldVersion.driver)
-      const isLoadingPanelCommunity = await loadingPanelCommunity.element.isDisplayed()
-      expect(isLoadingPanelCommunity).toBeTruthy()
-    })
+
     it('Close update modal', async () => {
       console.log('waiting for update modal')
       const updateModal = new UpdateModal(ownerAppOldVersion.driver)

@@ -19,7 +19,12 @@ describe('BasicMessage', () => {
     const result = renderComponent(
       <HashRouter>
         <Provider store={store}>
-          <BasicMessageComponent messages={messages} openUrl={jest.fn()} />
+          <BasicMessageComponent
+            duplicatedUsernameModalHandleOpen={jest.fn()}
+            unregisteredUsernameModalHandleOpen={jest.fn()}
+            messages={messages}
+            openUrl={jest.fn()}
+          />
         </Provider>
       </HashRouter>
     )
@@ -27,10 +32,11 @@ describe('BasicMessage', () => {
       <body>
         <div>
           <li
-            class="MuiListItem-root MuiListItem-gutters MuiListItem-padding BasicMessageComponentwrapper css-16u9k9h-MuiListItem-root"
+            class="MuiListItem-root MuiListItem-gutters MuiListItem-padding BasicMessageComponentwrapper css-13gdcvl-MuiListItem-root"
           >
             <div
               class="MuiListItemText-root BasicMessageComponentmessageCard css-tlelie-MuiListItemText-root"
+              data-testid="userMessagesWrapper-gringo-0"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-wrap-xs-nowrap css-aii0rt-MuiGrid-root"
@@ -48,10 +54,10 @@ describe('BasicMessage', () => {
                   class="MuiGrid-root MuiGrid-container MuiGrid-item css-1f064cs-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid-root MuiGrid-container MuiGrid-item css-9pwih8-MuiGrid-root"
+                    class="MuiGrid-root MuiGrid-container MuiGrid-item css-89gxc5-MuiGrid-root"
                   >
                     <div
-                      class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-wrap-xs-nowrap MuiGrid-grid-xs-true css-1unmp8r-MuiGrid-root"
+                      class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-wrap-xs-nowrap MuiGrid-grid-xs-true css-181g0at-MuiGrid-root"
                     >
                       <div
                         class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
@@ -102,7 +108,12 @@ describe('BasicMessage', () => {
     const result = renderComponent(
       <HashRouter>
         <Provider store={store}>
-          <BasicMessageComponent messages={messages} openUrl={jest.fn()} />
+          <BasicMessageComponent
+            duplicatedUsernameModalHandleOpen={jest.fn()}
+            unregisteredUsernameModalHandleOpen={jest.fn()}
+            messages={messages}
+            openUrl={jest.fn()}
+          />
         </Provider>
       </HashRouter>
     )
@@ -110,10 +121,11 @@ describe('BasicMessage', () => {
       <body>
         <div>
           <li
-            class="MuiListItem-root MuiListItem-gutters MuiListItem-padding BasicMessageComponentwrapper css-16u9k9h-MuiListItem-root"
+            class="MuiListItem-root MuiListItem-gutters MuiListItem-padding BasicMessageComponentwrapper css-13gdcvl-MuiListItem-root"
           >
             <div
               class="MuiListItemText-root BasicMessageComponentmessageCard css-tlelie-MuiListItemText-root"
+              data-testid="userMessagesWrapper-gringo-0"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-wrap-xs-nowrap css-aii0rt-MuiGrid-root"
@@ -131,10 +143,10 @@ describe('BasicMessage', () => {
                   class="MuiGrid-root MuiGrid-container MuiGrid-item css-1f064cs-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid-root MuiGrid-container MuiGrid-item css-9pwih8-MuiGrid-root"
+                    class="MuiGrid-root MuiGrid-container MuiGrid-item css-89gxc5-MuiGrid-root"
                   >
                     <div
-                      class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-wrap-xs-nowrap MuiGrid-grid-xs-true css-1unmp8r-MuiGrid-root"
+                      class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-wrap-xs-nowrap MuiGrid-grid-xs-true css-181g0at-MuiGrid-root"
                     >
                       <div
                         class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
@@ -195,7 +207,12 @@ describe('BasicMessage', () => {
     const result = renderComponent(
       <HashRouter>
         <Provider store={store}>
-          <BasicMessageComponent messages={messages} openUrl={jest.fn()} />
+          <BasicMessageComponent
+            duplicatedUsernameModalHandleOpen={jest.fn()}
+            unregisteredUsernameModalHandleOpen={jest.fn()}
+            messages={messages}
+            openUrl={jest.fn()}
+          />
         </Provider>
       </HashRouter>
     )
@@ -203,10 +220,11 @@ describe('BasicMessage', () => {
       <body>
         <div>
           <li
-            class="MuiListItem-root MuiListItem-gutters MuiListItem-padding  css-16u9k9h-MuiListItem-root"
+            class="MuiListItem-root MuiListItem-gutters MuiListItem-padding  css-13gdcvl-MuiListItem-root"
           >
             <div
               class="MuiListItemText-root BasicMessageComponentmessageCard css-tlelie-MuiListItemText-root"
+              data-testid="userMessagesWrapper-gringo-0"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-wrap-xs-nowrap css-aii0rt-MuiGrid-root"
@@ -227,10 +245,10 @@ describe('BasicMessage', () => {
                   class="MuiGrid-root MuiGrid-container MuiGrid-item css-1f064cs-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid-root MuiGrid-container MuiGrid-item css-9pwih8-MuiGrid-root"
+                    class="MuiGrid-root MuiGrid-container MuiGrid-item css-89gxc5-MuiGrid-root"
                   >
                     <div
-                      class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-wrap-xs-nowrap MuiGrid-grid-xs-true css-1unmp8r-MuiGrid-root"
+                      class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-wrap-xs-nowrap MuiGrid-grid-xs-true css-181g0at-MuiGrid-root"
                     >
                       <div
                         class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
@@ -292,7 +310,12 @@ describe('BasicMessage', () => {
     const result = renderComponent(
       <HashRouter>
         <Provider store={store}>
-          <BasicMessageComponent messages={[...message1, ...message2]} openUrl={jest.fn()} />
+          <BasicMessageComponent
+            duplicatedUsernameModalHandleOpen={jest.fn()}
+            unregisteredUsernameModalHandleOpen={jest.fn()}
+            messages={[...message1, ...message2]}
+            openUrl={jest.fn()}
+          />
         </Provider>
       </HashRouter>
     )
@@ -300,10 +323,11 @@ describe('BasicMessage', () => {
       <body>
         <div>
           <li
-            class="MuiListItem-root MuiListItem-gutters MuiListItem-padding BasicMessageComponentwrapper css-16u9k9h-MuiListItem-root"
+            class="MuiListItem-root MuiListItem-gutters MuiListItem-padding BasicMessageComponentwrapper css-13gdcvl-MuiListItem-root"
           >
             <div
               class="MuiListItemText-root BasicMessageComponentmessageCard css-tlelie-MuiListItemText-root"
+              data-testid="userMessagesWrapper-gringo-0"
             >
               <div
                 class="MuiGrid-root MuiGrid-container MuiGrid-wrap-xs-nowrap css-aii0rt-MuiGrid-root"
@@ -321,10 +345,10 @@ describe('BasicMessage', () => {
                   class="MuiGrid-root MuiGrid-container MuiGrid-item css-1f064cs-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid-root MuiGrid-container MuiGrid-item css-9pwih8-MuiGrid-root"
+                    class="MuiGrid-root MuiGrid-container MuiGrid-item css-89gxc5-MuiGrid-root"
                   >
                     <div
-                      class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-wrap-xs-nowrap MuiGrid-grid-xs-true css-1unmp8r-MuiGrid-root"
+                      class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-wrap-xs-nowrap MuiGrid-grid-xs-true css-181g0at-MuiGrid-root"
                     >
                       <div
                         class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"

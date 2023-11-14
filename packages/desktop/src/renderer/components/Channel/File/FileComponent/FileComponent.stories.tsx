@@ -1,6 +1,5 @@
 import React from 'react'
 import { ComponentStory, ComponentMeta } from '@storybook/react'
-
 import FileComponent, { FileComponentProps } from './FileComponent'
 import { withTheme } from '../../../../storybook/decorators'
 import { DownloadState } from '@quiet/types'
@@ -29,6 +28,9 @@ const cid = 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs'
 const args: FileComponentProps = {
   message: {
     id: '32',
+    isDuplicated: false,
+    isRegistered: true,
+    pubKey: 'pubKey',
     type: 2,
     media: {
       cid: cid,

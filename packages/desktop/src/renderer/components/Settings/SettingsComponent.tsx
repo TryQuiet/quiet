@@ -82,7 +82,7 @@ export const SettingsComponent: React.FC<SettingsComponentProps> = ({
 
   const [offset, setOffset] = React.useState(0)
 
-  const defaultCurrentTab = isOwner ? 'invite' : 'notifications'
+  const defaultCurrentTab = 'invite'
   const [currentTab, setCurrentTab] = useState(defaultCurrentTab)
 
   const adjustOffset = () => {
@@ -95,6 +95,11 @@ export const SettingsComponent: React.FC<SettingsComponentProps> = ({
   const handleChange = (tab: string) => {
     setCurrentTab(tab)
   }
+
+  // Workaround for default display of invite tab.
+  React.useEffect(() => {
+    setCurrentTab(defaultCurrentTab)
+  }, [isOwner])
 
   React.useEffect(() => {
     if (contentRef) {

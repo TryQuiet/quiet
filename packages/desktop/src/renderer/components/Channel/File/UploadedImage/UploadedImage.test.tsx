@@ -16,6 +16,9 @@ describe('UploadedFile', () => {
       createdAt: 1636995488.44,
       date: 'string',
       nickname: 'bob',
+      isDuplicated: false,
+      isRegistered: true,
+      pubKey: 'string',
       media: {
         path: null,
         name: 'test',
