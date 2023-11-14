@@ -87,8 +87,6 @@ beforeEach(async () => {
   localDbService = await module.resolve(LocalDbService)
   registrationService = await module.resolve(RegistrationService)
   tor = await module.resolve(Tor)
-
-  console.log('tor ', tor)
   await tor.init()
 
   const torPassword = crypto.randomBytes(16).toString('hex')
@@ -106,6 +104,9 @@ beforeEach(async () => {
   connectionsManagerService.libp2pService = libp2pService
 
   quietDir = await module.resolve(QUIET_DIR)
+
+  const pskBase64 = Libp2pService.generateLibp2pPSK().psk
+  await localDbService.put(LocalDBKeys.PSK, pskBase64)
 })
 
 afterEach(async () => {
@@ -117,11 +118,6 @@ afterEach(async () => {
 })
 
 describe('Connections manager', () => {
-  it('runs tor by default', async () => {
-    await connectionsManagerService.init()
-    console.log(connectionsManagerService.isTorInit)
-  })
-
   it('saves peer stats when peer has been disconnected', async () => {
     class RemotePeerEventDetail {
       peerId: string
@@ -135,7 +131,6 @@ describe('Connections manager', () => {
       }
     }
     const emitSpy = jest.spyOn(libp2pService, 'emit')
-    // const emitSpy = jest.spyOn(libp2pService, 'emit')
 
     const launchCommunityPayload: InitCommunityPayload = {
       id: community.id,

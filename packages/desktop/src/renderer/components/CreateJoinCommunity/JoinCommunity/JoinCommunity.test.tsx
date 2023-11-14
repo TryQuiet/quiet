@@ -17,17 +17,12 @@ import PerformCommunityActionComponent from '../PerformCommunityActionComponent'
 import { inviteLinkField } from '../../../forms/fields/communityFields'
 import { InviteLinkErrors } from '../../../forms/fieldsErrors'
 import { CommunityOwnership } from '@quiet/types'
-import { Site, QUIET_JOIN_PAGE } from '@quiet/common'
+import { Site, QUIET_JOIN_PAGE, validInvitationUrlTestData, PSK_PARAM_KEY } from '@quiet/common'
 
 describe('join community', () => {
-  const validCode =
-    'QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE=y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd'
-  const validPair = [
-    {
-      onionAddress: 'y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd',
-      peerId: 'QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE',
-    },
-  ]
+  const validCode = validInvitationUrlTestData.code()
+  const validData = validInvitationUrlTestData.data
+  const psk = validInvitationUrlTestData.data.psk
 
   it('users switches from join to create', async () => {
     const { store } = await prepareStore({
@@ -106,9 +101,6 @@ describe('join community', () => {
   })
 
   it('joins community on submit if connection is ready and registrar url is correct', async () => {
-    const registrarUrl =
-      'QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE=y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd'
-
     const handleCommunityAction = jest.fn()
 
     const component = (
@@ -129,20 +121,13 @@ describe('join community', () => {
     const textInput = result.queryByPlaceholderText(inviteLinkField().fieldProps.placeholder)
     expect(textInput).not.toBeNull()
     // @ts-expect-error
-    await userEvent.type(textInput, registrarUrl)
+    await userEvent.type(textInput, validCode)
 
     const submitButton = result.getByText('Continue')
     expect(submitButton).toBeEnabled()
     await userEvent.click(submitButton)
 
-    await waitFor(() =>
-      expect(handleCommunityAction).toBeCalledWith([
-        {
-          peerId: 'QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE',
-          onionAddress: 'y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd',
-        },
-      ])
-    )
+    await waitFor(() => expect(handleCommunityAction).toBeCalledWith(validData))
   })
 
   it.each([[`${QUIET_JOIN_PAGE}#${validCode}`], [`${QUIET_JOIN_PAGE}/#${validCode}`]])(
@@ -176,13 +161,12 @@ describe('join community', () => {
       expect(submitButton).toBeEnabled()
       await userEvent.click(submitButton)
 
-      await waitFor(() => expect(handleCommunityAction).toBeCalledWith(validPair))
+      await waitFor(() => expect(handleCommunityAction).toBeCalledWith(validData))
     }
   )
 
   it('trims whitespaces from registrar url', async () => {
-    const registrarUrl =
-      'QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE=y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd    '
+    const registrarUrl = validCode + '     '
 
     const handleCommunityAction = jest.fn()
 
@@ -210,19 +194,12 @@ describe('join community', () => {
     expect(submitButton).toBeEnabled()
     await userEvent.click(submitButton)
 
-    await waitFor(() =>
-      expect(handleCommunityAction).toBeCalledWith([
-        {
-          peerId: 'QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE',
-          onionAddress: 'y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd',
-        },
-      ])
-    )
+    await waitFor(() => expect(handleCommunityAction).toBeCalledWith(validData))
   })
 
   it.each([
     [`http://${validCode}`, InviteLinkErrors.InvalidCode],
-    ['QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE=bbb', InviteLinkErrors.InvalidCode],
+    [`QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE=bbb&${PSK_PARAM_KEY}=${psk}`, InviteLinkErrors.InvalidCode],
     ['bbb=y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd', InviteLinkErrors.InvalidCode],
     ['QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE= ', InviteLinkErrors.InvalidCode],
     ['nqnw4kc4c77fb47lk52m5l57h4tc', InviteLinkErrors.InvalidCode],

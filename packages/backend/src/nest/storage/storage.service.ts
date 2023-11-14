@@ -382,7 +382,6 @@ export class StorageService extends EventEmitter {
     })
     this.certificates.events.on('write', async (_address, entry) => {
       this.logger('Saved certificate locally')
-      this.logger(entry.payload.value)
       this.emit(StorageEvents.LOAD_CERTIFICATES, {
         certificates: this.getAllEventLogEntries(this.certificates),
       })
@@ -549,8 +548,8 @@ export class StorageService extends EventEmitter {
 
     // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
     await this.channels.load({ fetchEntryTimeout: 1000 })
-    this.logger('ALL CHANNELS COUNT:', Object.keys(this.channels.all).length)
-    this.logger('ALL CHANNELS COUNT:', Object.keys(this.channels.all))
+    this.logger('Channels count:', Object.keys(this.channels.all).length)
+    this.logger('Channels names:', Object.keys(this.channels.all))
     Object.values(this.channels.all).forEach(async (channel: PublicChannel) => {
       channel = this.transformChannel(channel)
       await this.subscribeToChannel(channel)
@@ -956,7 +955,7 @@ export class StorageService extends EventEmitter {
 
   public getAllUsers(): UserData[] {
     const csrs = this.getAllEventLogEntries(this.certificatesRequests)
-    console.log('csrs count:', csrs.length)
+    this.logger('CSRs count:', csrs.length)
     const allUsers: UserData[] = []
     for (const csr of csrs) {
       const parsedCert = parseCertificationRequest(csr)
@@ -1044,6 +1043,10 @@ export class StorageService extends EventEmitter {
     this.messageThreads = undefined
     // @ts-ignore
     this.certificates = undefined
+    // @ts-ignore
+    this.certificatesRequests = undefined
+    // @ts-ignore
+    this.communityMetadata = undefined
     this.publicChannelsRepos = new Map()
     this.directMessagesRepos = new Map()
     this.publicKeysMap = new Map()
