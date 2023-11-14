@@ -31,10 +31,7 @@ describe('Deep linking', () => {
       }
     })
 
-    renderComponent(
-      <></>,
-      store
-    )
+    renderComponent(<></>, store)
 
     store.dispatch(initActions.deepLink(getValidInvitationUrlTestData(validInvitationCodeTestData[0]).code()))
     await act(async () => {})

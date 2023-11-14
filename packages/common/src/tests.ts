@@ -20,7 +20,7 @@ export const validInvitationCodeTestData: InvitationData[] = [
       },
     ],
     psk: '5T9GBVpDoRpKJQK4caDTz5e5nym2zprtoySL2oLrzr4=',
-  }
+  },
 ]
 
 export const getValidInvitationUrlTestData = (data: InvitationData) => {

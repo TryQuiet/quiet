@@ -17,7 +17,13 @@ import PerformCommunityActionComponent from '../PerformCommunityActionComponent'
 import { inviteLinkField } from '../../../forms/fields/communityFields'
 import { InviteLinkErrors } from '../../../forms/fieldsErrors'
 import { CommunityOwnership } from '@quiet/types'
-import { Site, QUIET_JOIN_PAGE, validInvitationCodeTestData, getValidInvitationUrlTestData, PSK_PARAM_KEY } from '@quiet/common'
+import {
+  Site,
+  QUIET_JOIN_PAGE,
+  validInvitationCodeTestData,
+  getValidInvitationUrlTestData,
+  PSK_PARAM_KEY,
+} from '@quiet/common'
 
 describe('join community', () => {
   const { code, data } = getValidInvitationUrlTestData(validInvitationCodeTestData[0])
