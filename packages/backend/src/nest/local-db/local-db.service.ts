@@ -76,4 +76,12 @@ export class LocalDbService {
     const stats: NetworkStats[] = Object.values(peersStats)
     return filterAndSortPeers(peers, stats)
   }
+
+  public async putOwnerOrbitDbIdentity(id: string): Promise<void> {
+    this.put(LocalDBKeys.OWNER_ORBIT_DB_IDENTITY, id)
+  }
+
+  public async getOwnerOrbitDbIdentity(): Promise<string> {
+    return this.get(LocalDBKeys.OWNER_ORBIT_DB_IDENTITY)
+  }
 }

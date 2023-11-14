@@ -55,7 +55,6 @@ export enum SocketActionTypes {
   SAVE_OWNER_CERTIFICATE = 'saveOwnerCertificate',
   SAVED_OWNER_CERTIFICATE = 'savedOwnerCertificate',
   SAVE_USER_CSR = 'saveUserCsr',
-  SAVE_COMMUNITY_METADATA = 'saveCommunityMetadata',
   SAVED_USER_CSR = 'savedUserCsr',
   SEND_DIRECT_MESSAGE = 'sendDirectMessage',
   SEND_MESSAGE = 'sendMessage',
@@ -63,6 +62,7 @@ export enum SocketActionTypes {
   SEND_PEER_ID = 'sendPeerId',
   SEND_USER_CERTIFICATE = 'sendUserCertificate',
   SEND_COMMUNITY_METADATA = 'sendCommunityMetadata',
+  COMMUNITY_METADATA_SAVED = 'communityMetadataSaved',
   SUBSCRIBE_FOR_ALL_CONVERSATIONS = 'subscribeToAllConversations',
   SUBSCRIBE_FOR_DIRECT_MESSAGE_THREAD = 'subscribeToDirectMessageThread',
   //  T

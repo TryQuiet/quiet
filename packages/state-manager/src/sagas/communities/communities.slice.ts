@@ -9,9 +9,8 @@ import {
   type ResponseCreateNetworkPayload,
   type ResponseRegistrarPayload,
   type StorePeerListPayload,
-  type UpdateCommunityPayload,
   type UpdateRegistrationAttemptsPayload,
-  CommunityMetadataPayload,
+  CommunityMetadata,
   InvitationData,
 } from '@quiet/types'
 
@@ -32,7 +31,7 @@ export const communitiesSlice = createSlice({
     addNewCommunity: (state, action: PayloadAction<CommunityType>) => {
       communitiesAdapter.addOne(state.communities, action.payload)
     },
-    updateCommunity: (state, _action: PayloadAction<UpdateCommunityPayload>) => state,
+    updateCommunity: (state, _action: PayloadAction<CommunityType>) => state,
     updateCommunityData: (state, action: PayloadAction<CommunityType>) => {
       communitiesAdapter.updateOne(state.communities, {
         id: action.payload.id,
@@ -87,7 +86,7 @@ export const communitiesSlice = createSlice({
         },
       })
     },
-    saveCommunityMetadata: (state, _action: PayloadAction<CommunityMetadataPayload>) => state,
+    saveCommunityMetadata: (state, _action: PayloadAction<CommunityMetadata>) => state,
     savePSK: (state, action: PayloadAction<string>) => {
       state.psk = action.payload
     },

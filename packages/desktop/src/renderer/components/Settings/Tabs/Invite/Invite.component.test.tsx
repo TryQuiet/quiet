@@ -26,6 +26,7 @@ describe('CopyLink', () => {
         },
       ],
       psk: '123435',
+      ownerOrbitDbIdentity: 'testOwnerOrbitDbIdentity',
     })
     const result = renderComponent(
       <InviteComponent invitationLink={invitationLink} handleClickInputReveal={jest.fn()} revealInputValue={false} />
@@ -135,6 +136,7 @@ describe('CopyLink', () => {
         },
       ],
       psk: '12345',
+      ownerOrbitDbIdentity: 'testOwnerOrbitDbIdentity',
     })
     const result = renderComponent(
       <InviteComponent invitationLink={invitationLink} handleClickInputReveal={jest.fn()} revealInputValue={true} />

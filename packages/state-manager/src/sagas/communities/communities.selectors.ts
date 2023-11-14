@@ -61,13 +61,23 @@ export const psk = createSelector(communitiesSlice, reducerState => {
   return reducerState.psk
 })
 
-export const invitationUrl = createSelector(currentCommunity, psk, (community, communityPsk) => {
-  const peerList = community?.peerList
-  if (!peerList || peerList?.length === 0) return ''
-  if (!communityPsk) return ''
-  const initialPeers = peerList.slice(0, 4)
-  return invitationShareUrl(initialPeers, communityPsk)
+export const ownerOrbitDbIdentity = createSelector(currentCommunity, currentCommunity => {
+  return currentCommunity?.ownerOrbitDbIdentity
 })
+
+export const invitationUrl = createSelector(
+  currentCommunity,
+  psk,
+  ownerOrbitDbIdentity,
+  (community, communityPsk, ownerOrbitDbIdentity) => {
+    const peerList = community?.peerList
+    if (!peerList || peerList?.length === 0) return ''
+    if (!communityPsk) return ''
+    if (!ownerOrbitDbIdentity) return ''
+    const initialPeers = peerList.slice(0, 3)
+    return invitationShareUrl(initialPeers, communityPsk, ownerOrbitDbIdentity)
+  }
+)
 
 export const ownerNickname = createSelector(
   currentCommunity,
@@ -105,4 +115,5 @@ export const communitiesSelectors = {
   invitationUrl,
   ownerNickname,
   psk,
+  ownerOrbitDbIdentity,
 }

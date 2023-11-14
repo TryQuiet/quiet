@@ -150,8 +150,8 @@ app.on('open-url', (event, url) => {
   if (mainWindow) {
     invitationUrl = null
     try {
-      const invitationCode = parseInvitationCodeDeepUrl(url)
-      processInvitationCode(mainWindow, invitationCode)
+      const invitationData = parseInvitationCodeDeepUrl(url)
+      processInvitationCode(mainWindow, invitationData)
     } catch (e) {
       console.warn(e.message)
     }
@@ -484,8 +484,8 @@ app.on('ready', async () => {
     }
     if (process.platform === 'darwin' && invitationUrl) {
       try {
-        const invitationCode = parseInvitationCodeDeepUrl(invitationUrl)
-        processInvitationCode(mainWindow, invitationCode)
+        const invitationData = parseInvitationCodeDeepUrl(invitationUrl)
+        processInvitationCode(mainWindow, invitationData)
       } catch (e) {
         console.warn(e.message)
       } finally {

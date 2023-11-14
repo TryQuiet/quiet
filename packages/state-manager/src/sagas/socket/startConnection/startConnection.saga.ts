@@ -195,7 +195,12 @@ export function subscribe(socket: Socket) {
     })
     // Errors
     socket.on(SocketActionTypes.ERROR, (payload: ErrorPayload) => {
-      log(payload)
+      // FIXME: It doesn't look like log errors have the red error
+      // color in the console, which makes them difficult to find.
+      // Also when only printing the payload, the full trace is not
+      // available.
+      log.error(payload)
+      console.error(payload, payload.trace)
       emit(errorsActions.handleError(payload))
     })
     // Certificates
@@ -251,14 +256,9 @@ export function subscribe(socket: Socket) {
       )
       emit(identityActions.savedOwnerCertificate(payload.communityId))
     })
-    socket.on(SocketActionTypes.SAVE_COMMUNITY_METADATA, (payload: CommunityMetadata) => {
-      log(`${SocketActionTypes.SAVE_COMMUNITY_METADATA}: ${payload}`)
-      emit(
-        communitiesActions.saveCommunityMetadata({
-          rootCa: payload.rootCa,
-          ownerCertificate: payload.ownerCertificate,
-        })
-      )
+    socket.on(SocketActionTypes.COMMUNITY_METADATA_SAVED, (payload: CommunityMetadata) => {
+      log(`${SocketActionTypes.COMMUNITY_METADATA_SAVED}: ${payload}`)
+      emit(communitiesActions.saveCommunityMetadata(payload))
     })
     socket.on(SocketActionTypes.LIBP2P_PSK_SAVED, (payload: { psk: string }) => {
       log(`${SocketActionTypes.LIBP2P_PSK_SAVED}`)

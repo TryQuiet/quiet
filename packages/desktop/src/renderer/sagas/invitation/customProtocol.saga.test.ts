@@ -77,6 +77,7 @@ describe('Handle invitation code', () => {
       communities.actions.customProtocol({
         pairs: [],
         psk: '12345',
+        ownerOrbitDbIdentity: 'testOwnerOrbitDbIdentity',
       })
     )
       .withState(store.getState())
@@ -105,6 +106,7 @@ describe('Handle invitation code', () => {
       communities.actions.customProtocol({
         pairs: validInvitationData.pairs,
         psk: '',
+        ownerOrbitDbIdentity: 'testOwnerOrbitDbIdentity',
       })
     )
       .withState(store.getState())

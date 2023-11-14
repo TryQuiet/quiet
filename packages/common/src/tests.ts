@@ -11,6 +11,7 @@ export const validInvitationCodeTestData: InvitationData[] = [
       },
     ],
     psk: 'BNlxfE2WBF7LrlpIX0CvECN5o1oZtA16PkAb7GYiwYw=',
+    ownerOrbitDbIdentity: 'testOrbitDbIdentity1',
   },
   {
     pairs: [
@@ -20,6 +21,7 @@ export const validInvitationCodeTestData: InvitationData[] = [
       },
     ],
     psk: '5T9GBVpDoRpKJQK4caDTz5e5nym2zprtoySL2oLrzr4=',
+    ownerOrbitDbIdentity: 'testOrbitDbIdentity2',
   },
 ]
 
