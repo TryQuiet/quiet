@@ -27,7 +27,7 @@ describe('Handle invitation code', () => {
     ).store
 
     factory = await getFactory(store)
-    validInvitationData = validInvitationUrlTestData.data
+    validInvitationData = validInvitationUrlTestData[0].data
   })
 
   it('creates network if code is valid', async () => {

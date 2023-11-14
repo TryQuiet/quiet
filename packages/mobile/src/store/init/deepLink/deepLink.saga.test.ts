@@ -15,8 +15,8 @@ describe('deepLinkSaga', () => {
   let store: Store
 
   const id = '00d045ab'
-  const validData: InvitationData = validInvitationUrlTestData.data
-  const validCode = validInvitationUrlTestData.code()
+  const validData: InvitationData = validInvitationUrlTestData[0].data
+  const validCode = validInvitationUrlTestData[0].code()
   const community: Community = {
     id,
     name: '',

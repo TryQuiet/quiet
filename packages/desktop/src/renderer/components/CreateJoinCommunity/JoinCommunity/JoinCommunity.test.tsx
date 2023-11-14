@@ -20,9 +20,9 @@ import { CommunityOwnership } from '@quiet/types'
 import { Site, QUIET_JOIN_PAGE, validInvitationUrlTestData, PSK_PARAM_KEY } from '@quiet/common'
 
 describe('join community', () => {
-  const validCode = validInvitationUrlTestData.code()
-  const validData = validInvitationUrlTestData.data
-  const psk = validInvitationUrlTestData.data.psk
+  const validCode = validInvitationUrlTestData[0].code()
+  const validData = validInvitationUrlTestData[0].data
+  const psk = validInvitationUrlTestData[0].data.psk
 
   it('users switches from join to create', async () => {
     const { store } = await prepareStore({

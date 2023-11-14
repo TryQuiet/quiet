@@ -7,6 +7,7 @@ import MockedSocket from 'socket.io-mock'
 import { ioMock } from '../shared/setupTests'
 import { prepareStore } from '../renderer/testUtils/prepareStore'
 import { renderComponent } from '../renderer/testUtils/renderComponent'
+import { validInvitationCodeTestData } from '@quiet/common'
 import { communities } from '@quiet/state-manager'
 
 describe('Deep linking', () => {
@@ -31,31 +32,25 @@ describe('Deep linking', () => {
 
     renderComponent(<></>, store)
 
-    const validPair = [
-      {
-        onionAddress: 'y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd',
-        peerId: 'QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE',
-      },
-    ]
-
-    store.dispatch(communities.actions.customProtocol(validPair))
+    store.dispatch(communities.actions.customProtocol(validInvitationCodeTestData[0]))
     await act(async () => {})
 
-    const originalNetwork = communities.selectors.currentCommunity(store.getState())
+    const originalPair = communities.selectors.invitationCodes(store.getState())
 
     // Redo the action to provoke renewed saga runs
-    store.dispatch(communities.actions.customProtocol(validPair))
+    store.dispatch(communities.actions.customProtocol(validInvitationCodeTestData[1]))
     await act(async () => {})
 
-    const currentNetwork = communities.selectors.currentCommunity(store.getState())
+    const currentPair = communities.selectors.invitationCodes(store.getState())
 
-    expect(originalNetwork?.id).toEqual(currentNetwork?.id)
+    expect(originalPair).toEqual(currentPair)
 
     expect(actions).toMatchInlineSnapshot(`
       Array [
         "Communities/customProtocol",
         "Communities/createNetwork",
         "Communities/setInvitationCodes",
+        "Communities/savePSK",
         "Communities/addNewCommunity",
         "Communities/setCurrentCommunity",
         "Communities/customProtocol",

@@ -241,7 +241,7 @@ describe('Invitation code', () => {
   let codes: InvitationData
 
   beforeEach(() => {
-    codes = { ...validInvitationUrlTestData.data }
+    codes = { ...validInvitationUrlTestData[0].data }
   })
 
   it('handles invitation code on open-url event (on macos)', async () => {

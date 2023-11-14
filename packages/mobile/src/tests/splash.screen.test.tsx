@@ -23,7 +23,7 @@ describe('Splash screen', () => {
   test('waits for redux store to become ready, before storing invitation code', async () => {
     const { store, root, runSaga } = await prepareStore({}, socket)
 
-    const invitationCode = validInvitationUrlTestData.code()
+    const invitationCode = validInvitationUrlTestData[0].code()
 
     const route: { key: string; name: ScreenNames.SplashScreen; path: string } = {
       key: '',
