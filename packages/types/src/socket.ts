@@ -32,6 +32,7 @@ export enum SocketActionTypes {
   LAUNCH_COMMUNITY = 'launchCommunity',
   LAUNCH_REGISTRAR = 'launchRegistrar',
   LEAVE_COMMUNITY = 'leaveCommunity',
+  LIBP2P_PSK_SAVED = 'libp2pPskSaved',
   // N
   NETWORK = 'network',
   NEW_COMMUNITY = 'newCommunity',

@@ -2,8 +2,10 @@ import { Test, TestingModule } from '@nestjs/testing'
 import { TestModule } from '../common/test.module'
 import { libp2pInstanceParams } from '../common/utils'
 import { Libp2pModule } from './libp2p.module'
-import { Libp2pService } from './libp2p.service'
+import { LIBP2P_PSK_METADATA, Libp2pService } from './libp2p.service'
 import { Libp2pNodeParams } from './libp2p.types'
+import { toString as uint8ArrayToString } from 'uint8arrays/to-string'
+import validator from 'validator'
 
 describe('Libp2pService', () => {
   let module: TestingModule
@@ -44,5 +46,16 @@ describe('Libp2pService', () => {
   it('creates libp2p listen address', async () => {
     const libp2pListenAddress = libp2pService.createLibp2pListenAddress('onionAddress')
     expect(libp2pListenAddress).toStrictEqual(`/dns4/onionAddress.onion/tcp/80/ws`)
+  })
+
+  it('Generated libp2p psk matches psk composed from existing key', () => {
+    const generatedKey = Libp2pService.generateLibp2pPSK()
+    const retrievedKey = Libp2pService.generateLibp2pPSK(generatedKey.psk)
+    expect(generatedKey).toEqual(retrievedKey)
+    expect(validator.isBase64(generatedKey.psk)).toBeTruthy()
+
+    const generatedPskBuffer = Buffer.from(generatedKey.psk, 'base64')
+    const expectedFullKeyString = LIBP2P_PSK_METADATA + uint8ArrayToString(generatedPskBuffer, 'base16')
+    expect(uint8ArrayToString(generatedKey.fullKey)).toEqual(expectedFullKeyString)
   })
 })

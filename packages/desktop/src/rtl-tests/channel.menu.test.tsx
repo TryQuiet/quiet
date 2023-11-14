@@ -9,7 +9,6 @@ import { prepareStore } from '../renderer/testUtils/prepareStore'
 import Channel from '../renderer/components/Channel/Channel'
 import ChannelContextMenu from '../renderer/components/ContextMenu/menus/ChannelContextMenu.container'
 import DeleteChannel from '../renderer/components/Channel/DeleteChannel/DeleteChannel'
-
 import { identity, getFactory, communities } from '@quiet/state-manager'
 import { navigationActions } from '../renderer/store/navigation/navigation.slice'
 import { MenuName } from '../const/MenuNames.enum'

@@ -205,21 +205,6 @@ export class Tor extends EventEmitter implements OnModuleInit {
         return
       }
 
-      console.log([
-        '--SocksPort',
-        this.socksPort.toString(),
-        '--HTTPTunnelPort',
-        this.configOptions.httpTunnelPort?.toString(),
-        '--ControlPort',
-        this.controlPort.toString(),
-        '--PidFile',
-        this.torPidPath,
-        '--DataDirectory',
-        this.torDataDirectory,
-        '--HashedControlPassword',
-        this.torPasswordProvider.torHashedPassword,
-        // ...this.torProcessParams
-      ])
       this.process = child_process.spawn(
         this.torParamsProvider.torPath,
         [

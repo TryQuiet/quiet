@@ -93,6 +93,7 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof connectionActions.setTorInitialized>
     | ReturnType<typeof communitiesActions.saveCommunityMetadata>
     | ReturnType<typeof communitiesActions.sendCommunityMetadata>
+    | ReturnType<typeof communitiesActions.savePSK>
   >(emit => {
     // UPDATE FOR APP
     socket.on(SocketActionTypes.TOR_INITIALIZED, () => {
@@ -209,7 +210,7 @@ export function subscribe(socket: Socket) {
       emit(usersActions.responseSendCertificates(payload))
     })
     socket.on(SocketActionTypes.SEND_USER_CERTIFICATE, (payload: SendOwnerCertificatePayload) => {
-      console.log('Received SEND_USER_CERTIFICATE', payload.communityId)
+      log(`${SocketActionTypes.SEND_USER_CERTIFICATE}: ${payload.communityId}`)
 
       emit(
         communitiesActions.addOwnerCertificate({
@@ -239,7 +240,7 @@ export function subscribe(socket: Socket) {
       emit(communitiesActions.launchCommunity(payload.communityId))
     })
     socket.on(SocketActionTypes.SAVED_OWNER_CERTIFICATE, (payload: SavedOwnerCertificatePayload) => {
-      console.log('Received SAVED_OWNER_CERTIFICATE', payload.communityId)
+      log(`${SocketActionTypes.SAVED_OWNER_CERTIFICATE}: ${payload.communityId}`)
       emit(
         communitiesActions.addOwnerCertificate({
           communityId: payload.communityId,
@@ -255,13 +256,17 @@ export function subscribe(socket: Socket) {
       emit(identityActions.savedOwnerCertificate(payload.communityId))
     })
     socket.on(SocketActionTypes.SAVE_COMMUNITY_METADATA, (payload: CommunityMetadata) => {
-      console.log('SAVE COMMUNITY METADATA', payload)
+      log(`${SocketActionTypes.SAVE_COMMUNITY_METADATA}: ${payload}`)
       emit(
         communitiesActions.saveCommunityMetadata({
           rootCa: payload.rootCa,
           ownerCertificate: payload.ownerCertificate,
         })
       )
+    })
+    socket.on(SocketActionTypes.LIBP2P_PSK_SAVED, (payload: { psk: string }) => {
+      log(`${SocketActionTypes.LIBP2P_PSK_SAVED}`)
+      emit(communitiesActions.savePSK(payload.psk))
     })
     return () => undefined
   })
