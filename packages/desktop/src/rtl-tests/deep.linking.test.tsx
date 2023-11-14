@@ -38,13 +38,13 @@ describe('Deep linking', () => {
       },
     ]
 
-    store.dispatch(communities.actions.handleInvitationCodes(validPair))
+    store.dispatch(communities.actions.customProtocol(validPair))
     await act(async () => {})
 
     const originalNetwork = communities.selectors.currentCommunity(store.getState())
 
     // Redo the action to provoke renewed saga runs
-    store.dispatch(communities.actions.handleInvitationCodes(validPair))
+    store.dispatch(communities.actions.customProtocol(validPair))
     await act(async () => {})
 
     const currentNetwork = communities.selectors.currentCommunity(store.getState())
@@ -53,12 +53,12 @@ describe('Deep linking', () => {
 
     expect(actions).toMatchInlineSnapshot(`
       Array [
-        "Communities/handleInvitationCodes",
+        "Communities/customProtocol",
         "Communities/createNetwork",
         "Communities/setInvitationCodes",
         "Communities/addNewCommunity",
         "Communities/setCurrentCommunity",
-        "Communities/handleInvitationCodes",
+        "Communities/customProtocol",
         "Modals/openModal",
       ]
     `)

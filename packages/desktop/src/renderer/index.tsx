@@ -22,7 +22,7 @@ ipcRenderer.on('force-save-state', async _event => {
 
 ipcRenderer.on('invitation', (_event, invitation) => {
   console.log('invitation', invitation, 'dispatching action')
-  store.dispatch(communities.actions.handleInvitationCodes(invitation.codes))
+  store.dispatch(communities.actions.customProtocol(invitation.codes))
 })
 
 const container = document.getElementById('root')

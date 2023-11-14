@@ -69,7 +69,7 @@ describe('Opening app through custom protocol', () => {
       { peerId: 'abcdef', onionAddress: 'bidrmzr3ee6qa2vvrlcnqvvvsk2gmjktcqkunba326parszr44gibwyd' },
     ]
 
-    store.dispatch(communities.actions.handleInvitationCodes(invitationCodes))
+    store.dispatch(communities.actions.customProtocol(invitationCodes))
 
     store.dispatch(modalsActions.openModal({ name: ModalName.joinCommunityModal }))
 
