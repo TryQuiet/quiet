@@ -431,6 +431,7 @@ export class StorageService extends EventEmitter {
       },
     })
 
+    // DOCS -> handleCsrReplicationEvent.md
     this.certificatesRequests.events.on('replicated', async () => {
       this.logger('REPLICATED: CSRs')
 

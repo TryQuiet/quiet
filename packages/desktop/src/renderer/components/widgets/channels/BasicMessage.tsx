@@ -177,10 +177,16 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
     ? UserLabelType.UNREGISTERED
     : null
 
+  console.log('Unregistered Debug - Basic Message', { userLabel })
+
   const infoMessage = messageDisplayData.type === 3 // 3 stands for MessageType.Info
+
+  console.log('Unregistered Debug - Basic Message', { infoMessage })
 
   // Grey out sender name if the first message hasn't been sent yet
   const pending: boolean = pendingMessages[messageDisplayData.id] !== undefined
+
+  console.log('Unregistered Debug - Basic Message - condition to display label', userLabel && !infoMessage)
 
   return (
     <StyledListItem
