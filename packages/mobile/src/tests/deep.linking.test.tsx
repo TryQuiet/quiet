@@ -32,9 +32,7 @@ describe('Deep linking', () => {
     })
 
     renderComponent(
-      <>
-        <ChannelListScreen />
-      </>,
+      <></>,
       store
     )
 
