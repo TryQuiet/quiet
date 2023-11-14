@@ -51,7 +51,7 @@ export class CertificatesRequestsStore {
   }
 
   public async init(emitter: EventEmitter) {
-    logger('Initializing user profiles key/value store')
+    logger('Initializing user csrs log store')
 
     this.store = await this.orbitDb.log<string>('csrs', {
       replicate: false,
@@ -117,7 +117,7 @@ export class CertificatesRequestsStore {
   }
 
   public async addUserCsr(csr: string) {
-    logger('Adding user profile')
+    logger('Adding user csr')
     await this.store.add(csr)
     return true
   }
@@ -135,7 +135,7 @@ export class CertificatesRequestsStore {
       // Validate fields
 
     } catch (err) {
-      logger.error('Failed to validate user profile:', csr, err?.message)
+      logger.error('Failed to validate user csr:', csr, err?.message)
       return false
     }
     return true

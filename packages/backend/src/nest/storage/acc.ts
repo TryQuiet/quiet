@@ -107,7 +107,8 @@ setEngine(
 
 const main = async () => {
   const csr = await generateCsr()
-  await validateCsr(csr.userCsr)
+  // await validateCsr(csr.userCsr)
+  await verifyCSRSignature(csr.userCsr)
 }
 
 const generateCsr = async () => {
@@ -138,26 +139,27 @@ export const validateCsr = async (csr: string) => {
 
 const verifyCSRSignature = async (csr: string) => {
   const certificationRequest = parseCertificationRequest(csr)
-
-  const publicKeyBuffer = certificationRequest.subjectPublicKeyInfo.subjectPublicKey.valueBlock.valueHexView.buffer
+  console.log('vs')
+  const pubkey = await certificationRequest.getPublicKey()
+  // const publicKeyBuffer = certificationRequest.subjectPublicKeyInfo.subjectPublicKey.valueBlock.valueHexView.buffer
   // const cryptoKey = await keyObjectFromString(pubKey, crypto.subtle)
+  console.log(pubkey)
+  // const publicKey = await crypto.subtle.importKey(
+  //   'spki',
+  //   publicKeyBuffer,
+  //   {
+  //     name: 'ECDSA',
+  //     namedCurve: "P-256"
+  //   },
+  //   true,
+  //   ['verify']
+  // )
 
-  const publicKey = await crypto.subtle.importKey(
-    'spki',
-    publicKeyBuffer,
-    {
-      name: 'ECDSA',
-      namedCurve: "P-256"
-    },
-    true,
-    ['verify']
-  )
+  // const data = certificationRequest.tbsView
 
-  const data = certificationRequest.tbsView
+  // const signature = new Uint8Array(certificationRequest.signatureValue.valueBlock.valueHexView).buffer
 
-  const signature = new Uint8Array(certificationRequest.signatureValue.valueBlock.valueHexView).buffer
-
-  const algorithm = { name: 'ECDSA', hash: { name: 'SHA-256' } }
+  // const algorithm = { name: 'ECDSA', hash: { name: 'SHA-256' } }
 
   // await verifySignature(signature, data, publicKey)
   // const isValid = await crypto.subtle.verify(algorithm, publicKey, signature, data)
