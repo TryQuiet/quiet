@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.3-alpha.5](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@2.0.3-alpha.4...@quiet/mobile@2.0.3-alpha.5) (2023-11-14)
+
+
+### Bug Fixes
+
+* font in input validation and hint from 10px to 14px ([a3ce5cb](https://github.com/TryQuiet/quiet/commit/a3ce5cb76603042294685e3ad9ca82088a0d7561))
+
+
+
+
+
 ## [2.0.3-alpha.4](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@2.0.3-alpha.3...@quiet/mobile@2.0.3-alpha.4) (2023-11-13)
 
 
