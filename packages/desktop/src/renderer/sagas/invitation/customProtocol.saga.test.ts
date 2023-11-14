@@ -8,7 +8,7 @@ import { prepareStore } from '../../testUtils/prepareStore'
 import { StoreKeys } from '../../store/store.keys'
 import { modalsActions } from '../modals/modals.slice'
 import { ModalName } from '../modals/modals.types'
-import { validInvitationUrlTestData } from '@quiet/common'
+import { validInvitationCodeTestData, getValidInvitationUrlTestData } from '@quiet/common'
 
 describe('Handle invitation code', () => {
   let store: Store
@@ -27,7 +27,8 @@ describe('Handle invitation code', () => {
     ).store
 
     factory = await getFactory(store)
-    validInvitationData = validInvitationUrlTestData[0].data
+
+    validInvitationData = getValidInvitationUrlTestData(validInvitationCodeTestData[0]).data
   })
 
   it('creates network if code is valid', async () => {

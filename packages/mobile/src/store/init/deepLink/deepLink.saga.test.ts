@@ -9,14 +9,18 @@ import { navigationActions } from '../../navigation/navigation.slice'
 import { ScreenNames } from '../../../const/ScreenNames.enum'
 import { deepLinkSaga } from './deepLink.saga'
 import { type Community, CommunityOwnership, ConnectionProcessInfo, type Identity, InvitationData } from '@quiet/types'
-import { composeInvitationShareUrl, validInvitationUrlTestData } from '@quiet/common'
+import { composeInvitationShareUrl, validInvitationCodeTestData, getValidInvitationUrlTestData } from '@quiet/common'
 
 describe('deepLinkSaga', () => {
   let store: Store
 
+  const { code, data } = getValidInvitationUrlTestData(validInvitationCodeTestData[0])
+  
+  const validCode = code()
+  const validData = data
+  
   const id = '00d045ab'
-  const validData: InvitationData = validInvitationUrlTestData[0].data
-  const validCode = validInvitationUrlTestData[0].code()
+
   const community: Community = {
     id,
     name: '',

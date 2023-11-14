@@ -23,17 +23,11 @@ export const validInvitationCodeTestData: InvitationData[] = [
   }
 ]
 
-export const validInvitationUrlTestData = [
-  {
-    shareUrl: () => composeInvitationShareUrl(validInvitationCodeTestData[0]),
-    deepUrl: () => composeInvitationDeepUrl(validInvitationCodeTestData[0]),
-    code: () => composeInvitationShareUrl(validInvitationCodeTestData[0]).split(QUIET_JOIN_PAGE + '#')[1],
-    data: validInvitationCodeTestData[0],
-  },
-  {
-    shareUrl: () => composeInvitationShareUrl(validInvitationCodeTestData[1]),
-    deepUrl: () => composeInvitationDeepUrl(validInvitationCodeTestData[1]),
-    code: () => composeInvitationShareUrl(validInvitationCodeTestData[1]).split(QUIET_JOIN_PAGE + '#')[1],
-    data: validInvitationCodeTestData[1],
+export const getValidInvitationUrlTestData = (data: InvitationData) => {
+  return {
+    shareUrl: () => composeInvitationShareUrl(data),
+    deepUrl: () => composeInvitationDeepUrl(data),
+    code: () => composeInvitationShareUrl(data).split(QUIET_JOIN_PAGE + '#')[1],
+    data: data,
   }
-]
+}

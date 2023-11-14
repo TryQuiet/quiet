@@ -8,7 +8,7 @@ import { ioMock } from '../setupTests'
 import { prepareStore } from './utils/prepareStore'
 import { renderComponent } from './utils/renderComponent'
 import { initActions } from '../store/init/init.slice'
-import { validInvitationUrlTestData } from '@quiet/common'
+import { validInvitationCodeTestData, getValidInvitationUrlTestData } from '@quiet/common'
 import { communities } from '@quiet/state-manager'
 
 describe('Deep linking', () => {
@@ -36,13 +36,13 @@ describe('Deep linking', () => {
       store
     )
 
-    store.dispatch(initActions.deepLink(validInvitationUrlTestData[0].code()))
+    store.dispatch(initActions.deepLink(getValidInvitationUrlTestData(validInvitationCodeTestData[0]).code()))
     await act(async () => {})
 
     const originalPair = communities.selectors.invitationCodes(store.getState())
 
     // Redo the action to provoke renewed saga runs
-    store.dispatch(initActions.deepLink(validInvitationUrlTestData[1].code()))
+    store.dispatch(initActions.deepLink(getValidInvitationUrlTestData(validInvitationCodeTestData[1]).code()))
     await act(async () => {})
 
     const currentPair = communities.selectors.invitationCodes(store.getState())
