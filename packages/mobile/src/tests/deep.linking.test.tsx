@@ -52,6 +52,7 @@ describe('Deep linking', () => {
         "Navigation/replaceScreen",
         "Communities/createNetwork",
         "Communities/setInvitationCodes",
+        "Communities/savePSK",
         "Communities/addNewCommunity",
         "Communities/setCurrentCommunity",
         "Init/deepLink",
