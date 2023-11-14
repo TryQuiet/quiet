@@ -101,7 +101,7 @@ export class BuildSetup {
     await this.initPorts()
     const env = {
       DATA_DIR: this.dataDir || 'Quiet',
-      DEBUG: 'backend*,desktop*',
+      DEBUG: 'backend*,desktop*,utils*',
     }
     if (process.platform === 'win32') {
       console.log('!WINDOWS!')
@@ -156,7 +156,7 @@ export class BuildSetup {
       for (const l of trashLogs) {
         if (dataString.includes(l)) return
       }
-      console.log(dataString)
+      console.log(`[${this.dataDir}]: ${dataString}`)
     })
 
     this.child.stdin.on('data', data => {

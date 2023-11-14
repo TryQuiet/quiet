@@ -1,5 +1,5 @@
 import { communities, getFactory, Store } from '@quiet/state-manager'
-import { Community, CommunityOwnership, CreateNetworkPayload, InvitationPair } from '@quiet/types'
+import { Community, CommunityOwnership, CreateNetworkPayload, InvitationData } from '@quiet/types'
 import { FactoryGirl } from 'factory-girl'
 import { expectSaga } from 'redux-saga-test-plan'
 import { customProtocolSaga } from './customProtocol.saga'
@@ -8,12 +8,13 @@ import { prepareStore } from '../../testUtils/prepareStore'
 import { StoreKeys } from '../../store/store.keys'
 import { modalsActions } from '../modals/modals.slice'
 import { ModalName } from '../modals/modals.types'
+import { validInvitationUrlTestData } from '@quiet/common'
 
 describe('Handle invitation code', () => {
   let store: Store
   let factory: FactoryGirl
   let community: Community
-  let validInvitationPair: InvitationPair[]
+  let validInvitationData: InvitationData
 
   beforeEach(async () => {
     store = (
@@ -26,20 +27,16 @@ describe('Handle invitation code', () => {
     ).store
 
     factory = await getFactory(store)
-    validInvitationPair = [
-      {
-        onionAddress: 'y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd',
-        peerId: 'QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE',
-      },
-    ]
+    validInvitationData = validInvitationUrlTestData.data
   })
 
   it('creates network if code is valid', async () => {
     const payload: CreateNetworkPayload = {
       ownership: CommunityOwnership.User,
-      peers: validInvitationPair,
+      peers: validInvitationData.pairs,
+      psk: validInvitationData.psk,
     }
-    await expectSaga(customProtocolSaga, communities.actions.customProtocol(validInvitationPair))
+    await expectSaga(customProtocolSaga, communities.actions.customProtocol(validInvitationData))
       .withState(store.getState())
       .put(communities.actions.createNetwork(payload))
       .run()
@@ -49,10 +46,11 @@ describe('Handle invitation code', () => {
     community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
     const payload: CreateNetworkPayload = {
       ownership: CommunityOwnership.User,
-      peers: validInvitationPair,
+      peers: validInvitationData.pairs,
+      psk: validInvitationData.psk,
     }
 
-    await expectSaga(customProtocolSaga, communities.actions.customProtocol(validInvitationPair))
+    await expectSaga(customProtocolSaga, communities.actions.customProtocol(validInvitationData))
       .withState(store.getState())
       .put(
         modalsActions.openModal({
@@ -67,13 +65,47 @@ describe('Handle invitation code', () => {
       .run()
   })
 
-  it('does not try to create network if code is invalid', async () => {
+  it('does not try to create network if code is missing addresses', async () => {
     const payload: CreateNetworkPayload = {
       ownership: CommunityOwnership.User,
       peers: [],
     }
 
-    await expectSaga(customProtocolSaga, communities.actions.customProtocol([]))
+    await expectSaga(
+      customProtocolSaga,
+      communities.actions.customProtocol({
+        pairs: [],
+        psk: '12345',
+      })
+    )
+      .withState(store.getState())
+      .put(communities.actions.clearInvitationCodes())
+      .put(
+        modalsActions.openModal({
+          name: ModalName.warningModal,
+          args: {
+            title: 'Invalid link',
+            subtitle: 'The invite link you received is not valid. Please check it and try again.',
+          },
+        })
+      )
+      .not.put(communities.actions.createNetwork(payload))
+      .run()
+  })
+
+  it('does not try to create network if code is missing psk', async () => {
+    const payload: CreateNetworkPayload = {
+      ownership: CommunityOwnership.User,
+      peers: [],
+    }
+
+    await expectSaga(
+      customProtocolSaga,
+      communities.actions.customProtocol({
+        pairs: validInvitationData.pairs,
+        psk: '',
+      })
+    )
       .withState(store.getState())
       .put(communities.actions.clearInvitationCodes())
       .put(

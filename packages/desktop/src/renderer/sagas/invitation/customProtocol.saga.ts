@@ -30,11 +30,12 @@ export function* customProtocolSaga(
     )
     return
   }
-
-  if (action.payload.length > 0) {
+  const invitationData = action.payload
+  if (invitationData && invitationData.pairs.length > 0 && invitationData.psk) {
     const payload: CreateNetworkPayload = {
       ownership: CommunityOwnership.User,
-      peers: action.payload,
+      peers: invitationData.pairs,
+      psk: invitationData.psk,
     }
     yield* put(communities.actions.createNetwork(payload))
   } else {

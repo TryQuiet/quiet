@@ -8,7 +8,7 @@ import { reducers } from '../../reducers'
 import { expectSaga } from 'redux-saga-test-plan'
 import { type Identity } from '../../identity/identity.types'
 import { type identityActions } from '../../identity/identity.slice'
-import { type communitiesActions, type Community } from '../../communities/communities.slice'
+import { type communitiesActions } from '../../communities/communities.slice'
 import { DateTime } from 'luxon'
 import { type Socket } from 'socket.io-client'
 import { filesActions } from '../../files/files.slice'
@@ -16,6 +16,7 @@ import { deleteFilesFromChannelSaga } from './deleteFilesFromChannel.saga'
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
 import { type publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import { generateChannelId } from '@quiet/common'
+import { type Community } from '@quiet/types'
 
 describe('deleteFilesFromChannelSaga', () => {
   let store: Store

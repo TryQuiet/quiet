@@ -3,15 +3,15 @@ import path from 'path'
 import os from 'os'
 import { execSync } from 'child_process'
 import { BrowserWindow } from 'electron'
-import { InvitationPair } from '@quiet/types'
+import { InvitationData, InvitationPair } from '@quiet/types'
 
-export const processInvitationCode = (mainWindow: BrowserWindow, codes: InvitationPair[]) => {
-  if (codes.length === 0) {
+export const processInvitationCode = (mainWindow: BrowserWindow, data: InvitationData | null) => {
+  if (!data || data?.pairs.length === 0) {
     console.log('No valid invitation codes, not processing')
     return
   }
   mainWindow.webContents.send('invitation', {
-    codes,
+    data,
   })
 }
 

@@ -1,5 +1,4 @@
 import { Inject, Injectable } from '@nestjs/common'
-
 import { Agent } from 'https'
 import { createLibp2p, Libp2p } from 'libp2p'
 import { noise } from '@chainsafe/libp2p-noise'
@@ -19,6 +18,13 @@ import Logger from '../common/logger'
 import { webSockets } from '../websocketOverTor'
 import { all } from '../websocketOverTor/filters'
 import { createLibp2pAddress, createLibp2pListenAddress } from '@quiet/common'
+import { preSharedKey } from 'libp2p/pnet'
+import { toString as uint8ArrayToString } from 'uint8arrays/to-string'
+import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
+import crypto from 'crypto'
+
+const KEY_LENGTH = 32
+export const LIBP2P_PSK_METADATA = '/key/swarm/psk/1.0.0/\n/base16/\n'
 
 @Injectable()
 export class Libp2pService extends EventEmitter {
@@ -44,6 +50,24 @@ export class Libp2pService extends EventEmitter {
     return createLibp2pListenAddress(address)
   }
 
+  public static generateLibp2pPSK(key?: string) {
+    /**
+     * Based on 'libp2p/pnet' generateKey
+     *
+     * @param key: base64 encoded psk
+     */
+    let psk
+    if (key) {
+      psk = Buffer.from(key, 'base64')
+    } else {
+      psk = crypto.randomBytes(KEY_LENGTH)
+    }
+
+    const base16StringKey = uint8ArrayToString(psk, 'base16')
+    const fullKey = uint8ArrayFromString(LIBP2P_PSK_METADATA + base16StringKey)
+    return { psk: psk.toString('base64'), fullKey }
+  }
+
   public async createInstance(params: Libp2pNodeParams): Promise<Libp2p> {
     if (this.libp2pInstance) {
       return this.libp2pInstance
@@ -64,6 +88,9 @@ export class Libp2pService extends EventEmitter {
         addresses: {
           listen: params.listenAddresses,
         },
+        connectionProtector: preSharedKey({
+          psk: params.psk,
+        }),
         streamMuxers: [mplex()],
         connectionEncryption: [noise()],
         relay: {

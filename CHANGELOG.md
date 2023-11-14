@@ -1,3 +1,7 @@
+[unreleased]
+
+* Backward incompatible change: use pre shared key as connection protector in libp2p. Add libp2p psk to invitation link
+
 [2.0.3-alpha.1]
 
 * Temporarily hiding leave community button from Possible impersonation attack

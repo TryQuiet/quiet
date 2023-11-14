@@ -7,7 +7,7 @@ import { getFactory } from '../../../utils/tests/factories'
 import { reducers } from '../../reducers'
 import { identityActions } from '../identity.slice'
 import { registerUsernameSaga } from './registerUsername.saga'
-import { type communitiesActions } from '../../communities/communities.slice'
+import { communitiesActions } from '../../communities/communities.slice'
 import { config } from '../../users/const/certFieldTypes'
 import { CertData, CreateUserCsrPayload, SocketActionTypes } from '@quiet/types'
 import { Socket } from '../../../types'
@@ -53,6 +53,8 @@ describe('registerUsernameSaga', () => {
     }
 
     const reducer = combineReducers(reducers)
+    const psk = '12345'
+    store.dispatch(communitiesActions.savePSK(psk))
     await expectSaga(registerUsernameSaga, socket, identityActions.registerUsername({ nickname: 'nickname' }))
       .withReducer(reducer)
       .withState(store.getState())
@@ -65,6 +67,7 @@ describe('registerUsernameSaga', () => {
           registrarUrl: community.registrarUrl,
           CA: community.CA,
           rootCa: undefined,
+          psk: psk,
         },
       ])
       .dispatch(identityActions.addNewIdentity(identity))

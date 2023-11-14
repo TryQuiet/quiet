@@ -33,11 +33,18 @@ export function* createNetworkSaga(
     name: action.payload.name,
     CA,
     rootCa: CA?.rootCertString,
+    psk: action.payload.psk,
   }
 
   const invitationPeers = action.payload.peers
   if (invitationPeers) {
     yield* put(communitiesActions.setInvitationCodes(invitationPeers))
+  }
+
+  const psk = action.payload.psk
+  if (psk) {
+    console.log('create network saga: saving PSK')
+    yield* put(communitiesActions.savePSK(psk))
   }
 
   yield* put(communitiesActions.addNewCommunity(payload))
