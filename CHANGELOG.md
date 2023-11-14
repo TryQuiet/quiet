@@ -1,5 +1,7 @@
 [unreleased]
 
+* Fix network data proceeding when using custom protocol multiple times #1847
+
 * Backward incompatible change: use pre shared key as connection protector in libp2p. Add libp2p psk to invitation link
 
 [2.0.3-alpha.1]
