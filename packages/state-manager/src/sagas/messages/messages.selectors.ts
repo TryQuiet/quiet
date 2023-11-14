@@ -1,6 +1,6 @@
 import { createSelector } from 'reselect'
 import { channelMessagesAdapter } from '../publicChannels/publicChannels.adapter'
-import { currentChannelId } from '../publicChannels/publicChannels.selectors'
+import { currentChannelId, generalChannel } from '../publicChannels/publicChannels.selectors'
 import { StoreKeys } from '../store.keys'
 import { type CreatedSelectors, type StoreState } from '../store.types'
 import { allUsers } from '../users/users.selectors'
@@ -43,6 +43,22 @@ export const publicChannelMessagesEntities = (address: string) =>
     const channelMessagesBase = base[address]
     if (!channelMessagesBase) return {}
     return channelMessagesAdapter.getSelectors().selectEntities(channelMessagesBase.messages)
+  })
+
+export const getMessagesFromGeneralByPubKey = (pubkey: string) =>
+  createSelector(publicChannelsMessagesBase, generalChannel, (base, general) => {
+    if (!base || !general) return []
+
+    const generalMessagesBase = base[general.id]
+    if (!generalMessagesBase) return []
+
+    const channelMessages = channelMessagesAdapter.getSelectors().selectAll(generalMessagesBase.messages)
+
+    const messagesFromPubKey = channelMessages.filter(mess => mess.pubKey === pubkey)
+
+    const sortedMessages = messagesFromPubKey.sort((a, b) => a.createdAt - b.createdAt)
+
+    return sortedMessages
   })
 
 export const messageSendingStatusById = (messageId: string) =>
@@ -124,4 +140,5 @@ export const messagesSelectors = {
   messagesVerificationStatus,
   messagesSendingStatus,
   messageSendingStatusById,
+  getMessagesFromGeneralByPubKey,
 }
