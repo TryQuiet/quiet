@@ -4,9 +4,9 @@ import { StorageEvents } from '../storage.types'
 import EventStore from 'orbit-db-eventstore'
 import OrbitDB from 'orbit-db'
 
-import { loadCertificate, keyFromCertificate } from '@quiet/identity'
+import { keyFromCertificate, CertFieldsTypes, parseCertificate, getReqFieldValue, getCertFieldValue } from '@quiet/identity'
 
-import { ConnectionProcessInfo, SocketActionTypes } from '@quiet/types'
+import { ConnectionProcessInfo, SocketActionTypes, UserData } from '@quiet/types'
 
 import createLogger from '../../common/logger'
 
@@ -16,8 +16,12 @@ export class CertificatesStore {
     public orbitDb: OrbitDB
     public store: EventStore<string>
 
+    private filteredCertificatesMapping: Map<string, Partial<UserData>>
+    private usernameMapping: Map<string, string>
+
     constructor(orbitDb: OrbitDB) {
         this.orbitDb = orbitDb
+        this.filteredCertificatesMapping = new Map()
     }
 
     public async init(emitter: EventEmitter) {
@@ -30,38 +34,45 @@ export class CertificatesStore {
             },
         })
 
-        this.store.events.on('write', async (_address, entry) => {
-            logger('Saved certificate locally')
-
-            emitter.emit(StorageEvents.LOAD_CERTIFICATES, {
-                certificates: await this.getCertificates(),
-            })
-
-            // await this.updatePeersList()
-        })
-
         this.store.events.on('ready', async () => {
             logger('Loaded certificates to memory')
-
             emitter.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.LOADED_CERTIFICATES)
+        })
 
-            emitter.emit(StorageEvents.LOAD_CERTIFICATES, {
-              certificates: await this.getCertificates(),
-            })
+        this.store.events.on('write', async () => {
+            logger('Saved certificate locally')
+            await loadedCertificates()
         })
 
         this.store.events.on('replicated', async () => {
             logger('REPLICATED: Certificates')
-
             emitter.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CERTIFICATES_REPLICATED)
-
-            emitter.emit(StorageEvents.LOAD_CERTIFICATES, {
-              certificates: await this.getCertificates(),
-            })
-
-            // await this.updatePeersList()
+            await loadedCertificates()
         })
 
+        const loadedCertificates = async () => {
+            emitter.emit(StorageEvents.LOADED_CERTIFICATES, {
+                certificates: await this.getCertificates(),
+            })
+        }
+    }
+
+    public async close() {
+        await this.store?.close()
+    }
+
+    public getAddress() {
+        return this.store?.address
+    }
+
+    public async addCertificate(certificate: string) {
+        logger('Adding user certificate')
+        await this.store.add(certificate)
+        return true
+    }
+
+    public async loadAllCertificates() {
+        return this.getCertificates()
     }
 
     /*
@@ -79,30 +90,44 @@ export class CertificatesStore {
      * https://github.com/TryQuiet/quiet/issues/1899
      */
     protected async getCertificates() {
-        const filteredCertificatesMap: Map<string, string> = new Map()
-
+        
         const allCertificates = this.store
             .iterator({ limit: -1 })
             .collect()
             .map(e => e.payload.value)
 
-        await Promise.all(
-            allCertificates
-                .filter(async certificate => {
-                    const validation = await this.validateCertificate(certificate)
-                    return Boolean(validation)
-                }).map(async certificate => {
-                    const parsedCertificate = loadCertificate(certificate)
-                    const pubKey = keyFromCertificate(parsedCertificate)
+        const validCertificates = allCertificates.map(async (certificate) => {
+            if (this.filteredCertificatesMapping.has(certificate)) {
+                return certificate // Only validate certificates
+            }
 
-                    if (filteredCertificatesMap.has(pubKey)) {
-                        filteredCertificatesMap.delete(pubKey)
-                    }
+            const validation = await this.validateCertificate(certificate)
+            if (validation) {
 
-                    filteredCertificatesMap.set(pubKey, certificate)
-                })
-        )
-        return [...filteredCertificatesMap.values()]
+                const parsedCertificate = parseCertificate(certificate)
+                const pubkey = keyFromCertificate(parsedCertificate)
+
+                const username = getCertFieldValue(parsedCertificate, CertFieldsTypes.nickName)
+
+                // @ts-expect-error
+                this.usernameMapping.set(pubkey, username)
+
+                const data: Partial<UserData> =  {
+                    // @ts-expect-error
+                    username: username
+                }
+                
+                this.filteredCertificatesMapping.set(certificate, data)
+
+                return certificate
+            }
+        })
+
+        return validCertificates.filter(i => Boolean(i)) // Filter out undefineds
+    }
+
+    public getCertificateUsername(pubkey: string) {
+        return this.usernameMapping.get(pubkey)
     }
 
 }
