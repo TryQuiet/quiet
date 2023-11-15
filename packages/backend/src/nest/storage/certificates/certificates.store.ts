@@ -1,5 +1,3 @@
-import { getCrypto } from 'pkijs'
-
 import { EventEmitter } from 'events'
 import { StorageEvents } from '../storage.types'
 
@@ -8,20 +6,11 @@ import OrbitDB from 'orbit-db'
 
 import { loadCertificate, keyFromCertificate } from '@quiet/identity'
 
-import { ConnectionProcessInfo, NoCryptoEngineError, SocketActionTypes } from '@quiet/types'
-
-import { IsNotEmpty, IsBase64, validate } from 'class-validator'
-import { ValidationError } from '@nestjs/common'
+import { ConnectionProcessInfo, SocketActionTypes } from '@quiet/types'
 
 import createLogger from '../../common/logger'
 
 const logger = createLogger('CertificatesStore')
-
-class UserCertificateData {
-    @IsNotEmpty()
-    @IsBase64()
-    certificate: string
-}
 
 export class CertificatesStore {
     public orbitDb: OrbitDB
@@ -75,39 +64,20 @@ export class CertificatesStore {
 
     }
 
-    private async validateCertificate(certificate: string): Promise<boolean> {
+    /*
+     * In order to split up the work scope, we mock validating function,
+     * until we move the certificates section into it's own store
+     */
+    private async validateCertificate(_certificate: string): Promise<boolean> {
         logger('Validating certificate')
-        try {
-            const crypto = getCrypto()
-
-            if (!crypto) {
-                throw new NoCryptoEngineError()
-            }
-
-            const parsedCertificate = loadCertificate(certificate)
-            await parsedCertificate.verify()
-
-            await this.validateCertificateFormat(certificate)
-
-            // Validate
-
-        } catch (err) {
-            logger.error('Failed to validate user certificate:', certificate, err?.message)
-            return false
-        }
-
         return true
     }
 
-    private async validateCertificateFormat(certificate: string): Promise<ValidationError[]> {
-        const data = new UserCertificateData()
-        data.certificate = certificate
-
-        const validationErrors = await validate(data)
-
-        return validationErrors
-    }
-
+    /* 
+     * Method returning store entries, filtered by validation result
+     * as specified in the comment section of 
+     * https://github.com/TryQuiet/quiet/issues/1899
+     */
     protected async getCertificates() {
         const filteredCertificatesMap: Map<string, string> = new Map()
 
