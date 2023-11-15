@@ -1,4 +1,4 @@
-import { CertificationRequest, getCrypto } from 'pkijs'
+import { getCrypto } from 'pkijs'
 import { EventEmitter } from 'events'
 import EventStore from 'orbit-db-eventstore'
 import OrbitDB from 'orbit-db'
@@ -37,6 +37,8 @@ export class CertificatesRequestsStore {
   constructor(orbitDb: OrbitDB) {
     this.orbitDb = orbitDb
   }
+
+  // Lock replicated event until previous event is processed by registration service
 
   public resetCsrReplicatedMapAndId() {
     this.csrReplicatedPromiseMap = new Map()
@@ -117,12 +119,13 @@ export class CertificatesRequestsStore {
     await this.store.load({ fetchEntryTimeout: 15000 })
   }
 
-  public getAddress() {
-    return this.store?.address
-  }
 
   public async close() {
     await this.store?.close()
+  }
+
+  public getAddress() {
+    return this.store?.address
   }
 
   public async addUserCsr(csr: string) {
@@ -140,7 +143,7 @@ export class CertificatesRequestsStore {
       }
       const parsedCsr = await loadCSR(csr)
       await parsedCsr.verify()
-      await this.validateCsr(csr)
+      await this.validateCsrFormat(csr)
 
       // Validate fields
 
@@ -151,7 +154,7 @@ export class CertificatesRequestsStore {
     return true
   }
 
-  private async validateCsr(csr: string) {
+  private async validateCsrFormat(csr: string) {
     const userData = new UserCsrData()
     userData.csr = csr
     const validationErrors = await validate(userData)
