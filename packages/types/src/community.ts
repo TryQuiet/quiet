@@ -20,6 +20,7 @@ export interface Community {
   port?: number
   registrationAttempts?: number
   ownerCertificate?: string
+  psk?: string
 }
 
 export enum CommunityOwnership {
@@ -36,6 +37,7 @@ export interface CreateNetworkPayload {
   ownership: CommunityOwnership
   name?: string
   peers?: InvitationPair[]
+  psk?: string
 }
 
 export interface ResponseCreateNetworkPayload {

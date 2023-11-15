@@ -16,24 +16,20 @@ import { ioMock } from '../shared/setupTests'
 import { socketEventData } from '../renderer/testUtils/socket'
 import {
   ChannelsReplicatedPayload,
-  Community,
-  connection,
   InitCommunityPayload,
   LaunchRegistrarPayload,
   publicChannels,
   RegisterOwnerCertificatePayload,
-  ResponseCreateCommunityPayload,
   ResponseCreateNetworkPayload,
   ResponseLaunchCommunityPayload,
   ResponseRegistrarPayload,
-  SaveOwnerCertificatePayload,
   SocketActionTypes,
 } from '@quiet/state-manager'
 import Channel from '../renderer/components/Channel/Channel'
 import LoadingPanel from '../renderer/components/LoadingPanel/LoadingPanel'
 import { AnyAction } from 'redux'
 import { generateChannelId } from '@quiet/common'
-import { SavedOwnerCertificatePayload } from '@quiet/types'
+import { type Community, type SavedOwnerCertificatePayload } from '@quiet/types'
 
 jest.setTimeout(20_000)
 

@@ -1,9 +1,10 @@
 import React from 'react'
-import { getFactory, Community, communities } from '@quiet/state-manager'
+import { getFactory, communities } from '@quiet/state-manager'
 
 import { IdentityPanel } from './IdentityPanel'
 import { prepareStore } from '../../../testUtils/prepareStore'
 import { renderComponent } from '../../../testUtils/renderComponent'
+import { type Community } from '@quiet/types'
 
 describe('IdentityPanel', () => {
   it('renders component with username', async () => {

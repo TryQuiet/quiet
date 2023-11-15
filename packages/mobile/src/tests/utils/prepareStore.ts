@@ -73,6 +73,10 @@ export const prepareStore = async (
   // Fork State manager's sagas (require mocked socket.io-client)
   if (mockedSocket) {
     root = sagaMiddleware.run(rootSaga)
+
+    // This step is important (mobile-specific) due to combination of state-manager and local store structures
+    sagaMiddleware.run(mockStoreReadySignal)
+
     // Mock socket connected event
     await sagaMiddleware.run(mockSocketConnectionSaga, mockedSocket).toPromise()
   }
@@ -83,6 +87,10 @@ export const prepareStore = async (
     runSaga: sagaMiddleware.run,
     sagaMonitor,
   }
+}
+
+function* mockStoreReadySignal(): Generator {
+  yield* put(initActions.setStoreReady())
 }
 
 function* mockSocketConnectionSaga(socket: MockedSocket): Generator {
