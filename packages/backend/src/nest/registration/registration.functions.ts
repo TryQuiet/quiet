@@ -9,7 +9,7 @@ import Logger from '../common/logger'
 import { load } from 'mock-fs'
 
 const logger = Logger('registration.functions')
-class UserCsrData {
+export class UserCsrData {
   @IsNotEmpty()
   @IsBase64()
   @IsCsr()

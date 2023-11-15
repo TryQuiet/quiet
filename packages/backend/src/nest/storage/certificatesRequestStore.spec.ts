@@ -1,5 +1,6 @@
-describe('certificatesRequestsStore', () => {
-  it('asdf', () => { })
+describe('CertificatesRequestsStore csr validation methods', () => {
+  it('validateUserCsr')
+  it('validateCsrFormat')
 })
 
 // it('getCsrs - remove old csrs and replace with new for each pubkey', async () => {
@@ -35,8 +36,7 @@ describe('certificatesRequestsStore', () => {
 
 // describe('replicate certificatesRequests event', () => {
 //   const replicatedEvent = async () => {
-//     // @ts-ignore - Property 'certificates' is private
-//     storageService.certificatesRequestsStore.events.emit('replicated')
+//     certificatesRequestsStore.events.emit('replicated')
 //     await new Promise<void>(resolve => setTimeout(() => resolve(), 2000))
 //   }
 
