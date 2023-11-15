@@ -9,11 +9,23 @@ import { loadCSR, keyFromCertificate } from '@quiet/identity'
 import { StorageEvents } from './storage.types'
 import createLogger from '../common/logger'
 
+import { IsBase64, IsNotEmpty, validate } from 'class-validator'
+
+import { IsCsr, CsrContainsFields } from '../registration/registration.validators'
+
 const logger = createLogger('CertificatesRequestsStore')
 
 interface CsrReplicatedPromiseValues {
   promise: Promise<unknown>
   resolveFunction: any
+}
+
+class UserCsrData {
+  @IsNotEmpty()
+  @IsBase64()
+  @IsCsr()
+  @CsrContainsFields()
+  csr: string
 }
 
 export class CertificatesRequestsStore {
@@ -82,11 +94,8 @@ export class CertificatesRequestsStore {
       await this.store.load({ fetchEntryTimeout: 15000 })
 
       logger('REPLICATED: CSRs')
-
       this.csrReplicatedPromiseId++
-
       const filteredCsrs = await this.getCsrs()
-
       this.createCsrReplicatedPromise(this.csrReplicatedPromiseId)
 
       if (this.csrReplicatedPromiseId > 1) {
@@ -122,16 +131,17 @@ export class CertificatesRequestsStore {
     return true
   }
 
-  private async validateUserCsr(csr: CertificationRequest) {
+  private async validateUserCsr(csr: string) {
     logger('validating user csr')
     try {
       const crypto = getCrypto()
       if (!crypto) {
         throw new NoCryptoEngineError()
       }
+      const parsedCsr = await loadCSR(csr)
+      await parsedCsr.verify()
+      await this.validateCsr(csr)
 
-      // Validae Csr is valid
-      // Validate signature
       // Validate fields
 
     } catch (err) {
@@ -139,6 +149,13 @@ export class CertificatesRequestsStore {
       return false
     }
     return true
+  }
+
+  private async validateCsr(csr: string) {
+    const userData = new UserCsrData()
+    userData.csr = csr
+    const validationErrors = await validate(userData)
+    return validationErrors
   }
 
   protected async getCsrs() {
@@ -151,8 +168,8 @@ export class CertificatesRequestsStore {
       .map(e => e.payload.value)
     await Promise.all(
       allCsrs.filter(async csr => {
-        const parsedCsr = await loadCSR(csr)
-        const validation = await this.validateUserCsr(parsedCsr)
+        // const parsedCsr = await loadCSR(csr)
+        const validation = await this.validateUserCsr(csr)
         if (validation) return true
         return false
       }).map(async csr => {
