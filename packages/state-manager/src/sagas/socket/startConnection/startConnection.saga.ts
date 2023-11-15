@@ -202,6 +202,11 @@ export function subscribe(socket: Socket) {
       emit(usersActions.storeCsrs(payload))
     })
     socket.on(SocketActionTypes.RESPONSE_GET_CERTIFICATES, (payload: SendCertificatesResponse) => {
+      // emit(
+      //   publicChannelsActions.sendNewUserInfoMessage({
+      //     certificates: payload.certificates,
+      //   })
+      // )
       emit(usersActions.responseSendCertificates(payload))
     })
     socket.on(SocketActionTypes.SEND_USER_CERTIFICATE, (payload: SendOwnerCertificatePayload) => {
