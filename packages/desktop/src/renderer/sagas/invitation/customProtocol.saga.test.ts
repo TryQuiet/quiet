@@ -2,13 +2,13 @@ import { communities, getFactory, Store } from '@quiet/state-manager'
 import { Community, CommunityOwnership, CreateNetworkPayload, InvitationData } from '@quiet/types'
 import { FactoryGirl } from 'factory-girl'
 import { expectSaga } from 'redux-saga-test-plan'
-import { handleInvitationCodeSaga } from './handleInvitationCode.saga'
+import { customProtocolSaga } from './customProtocol.saga'
 import { SocketState } from '../socket/socket.slice'
 import { prepareStore } from '../../testUtils/prepareStore'
 import { StoreKeys } from '../../store/store.keys'
 import { modalsActions } from '../modals/modals.slice'
 import { ModalName } from '../modals/modals.types'
-import { validInvitationUrlTestData } from '@quiet/common'
+import { validInvitationCodeTestData, getValidInvitationUrlTestData } from '@quiet/common'
 
 describe('Handle invitation code', () => {
   let store: Store
@@ -27,7 +27,8 @@ describe('Handle invitation code', () => {
     ).store
 
     factory = await getFactory(store)
-    validInvitationData = validInvitationUrlTestData.data
+
+    validInvitationData = getValidInvitationUrlTestData(validInvitationCodeTestData[0]).data
   })
 
   it('creates network if code is valid', async () => {
@@ -36,7 +37,7 @@ describe('Handle invitation code', () => {
       peers: validInvitationData.pairs,
       psk: validInvitationData.psk,
     }
-    await expectSaga(handleInvitationCodeSaga, communities.actions.handleInvitationCodes(validInvitationData))
+    await expectSaga(customProtocolSaga, communities.actions.customProtocol(validInvitationData))
       .withState(store.getState())
       .put(communities.actions.createNetwork(payload))
       .run()
@@ -50,7 +51,7 @@ describe('Handle invitation code', () => {
       psk: validInvitationData.psk,
     }
 
-    await expectSaga(handleInvitationCodeSaga, communities.actions.handleInvitationCodes(validInvitationData))
+    await expectSaga(customProtocolSaga, communities.actions.customProtocol(validInvitationData))
       .withState(store.getState())
       .put(
         modalsActions.openModal({
@@ -72,8 +73,8 @@ describe('Handle invitation code', () => {
     }
 
     await expectSaga(
-      handleInvitationCodeSaga,
-      communities.actions.handleInvitationCodes({
+      customProtocolSaga,
+      communities.actions.customProtocol({
         pairs: [],
         psk: '12345',
       })
@@ -100,8 +101,8 @@ describe('Handle invitation code', () => {
     }
 
     await expectSaga(
-      handleInvitationCodeSaga,
-      communities.actions.handleInvitationCodes({
+      customProtocolSaga,
+      communities.actions.customProtocol({
         pairs: validInvitationData.pairs,
         psk: '',
       })
