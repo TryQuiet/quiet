@@ -60,6 +60,8 @@ const UserLabel: React.FC<UserLabelProps> = ({
   const isUnregistered = type === UserLabelType.UNREGISTERED
   const handleOpen = isUnregistered ? unregisteredUsernameModalHandleOpen : duplicatedUsernameModalHandleOpen
 
+  console.log('Unregistered Debug - UserLabel Component', { isUnregistered })
+
   return (
     <StyledGrid>
       <Grid

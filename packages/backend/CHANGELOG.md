@@ -3,6 +3,46 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.3-alpha.5](https://github.com/TryQuiet/backend/compare/@quiet/backend@2.0.3-alpha.4...@quiet/backend@2.0.3-alpha.5) (2023-11-14)
+
+**Note:** Version bump only for package @quiet/backend
+
+
+
+
+
+## [2.0.3-alpha.4](https://github.com/TryQuiet/backend/compare/@quiet/backend@2.0.3-alpha.3...@quiet/backend@2.0.3-alpha.4) (2023-11-14)
+
+**Note:** Version bump only for package @quiet/backend
+
+
+
+
+
+## [2.0.3-alpha.3](https://github.com/TryQuiet/backend/compare/@quiet/backend@2.0.3-alpha.2...@quiet/backend@2.0.3-alpha.3) (2023-11-13)
+
+**Note:** Version bump only for package @quiet/backend
+
+
+
+
+
+## [2.0.3-alpha.2](https://github.com/TryQuiet/backend/compare/@quiet/backend@2.0.3-alpha.1...@quiet/backend@2.0.3-alpha.2) (2023-11-09)
+
+**Note:** Version bump only for package @quiet/backend
+
+
+
+
+
+## [2.0.3-alpha.1](https://github.com/TryQuiet/backend/compare/@quiet/backend@2.0.3-alpha.0...@quiet/backend@2.0.3-alpha.1) (2023-11-08)
+
+**Note:** Version bump only for package @quiet/backend
+
+
+
+
+
 ## [2.0.3-alpha.0](https://github.com/TryQuiet/backend/compare/@quiet/backend@2.0.2-alpha.0...@quiet/backend@2.0.3-alpha.0) (2023-10-26)
 
 

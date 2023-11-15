@@ -5,7 +5,8 @@ import { autoUpdater } from 'electron-updater'
 import { BrowserWindow, app, ipcMain, Menu } from 'electron'
 import { waitFor } from '@testing-library/dom'
 import path from 'path'
-import { invitationDeepUrl } from '@quiet/common'
+import { composeInvitationDeepUrl, getValidInvitationUrlTestData, validInvitationCodeTestData } from '@quiet/common'
+import { InvitationData } from '@quiet/types'
 
 // eslint-disable-next-line
 const remote = require('@electron/remote/main')
@@ -237,33 +238,39 @@ describe('other electron app events ', () => {
 })
 
 describe('Invitation code', () => {
+  let codes: InvitationData
+
+  beforeEach(() => {
+    codes = { ...getValidInvitationUrlTestData(validInvitationCodeTestData[0]).data }
+  })
+
   it('handles invitation code on open-url event (on macos)', async () => {
     expect(mockAppOnCalls[2][0]).toBe('ready')
     await mockAppOnCalls[2][1]()
-    const codes = [
-      {
-        peerId: 'QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE',
-        onionAddress: 'y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd',
-      },
-    ]
+
     expect(mockAppOnCalls[1][0]).toBe('open-url')
     const event = { preventDefault: () => {} }
-    mockAppOnCalls[1][1](event, invitationDeepUrl(codes))
-    expect(mockWindowWebContentsSend).toHaveBeenCalledWith('invitation', { codes })
+    mockAppOnCalls[1][1](event, composeInvitationDeepUrl(codes))
+    expect(mockWindowWebContentsSend).toHaveBeenCalledWith('invitation', { data: codes })
+  })
+
+  it('do not process invitation code on open-url event (on macos) if url is invalid', async () => {
+    codes['psk'] = '12345'
+    expect(mockAppOnCalls[2][0]).toBe('ready')
+    await mockAppOnCalls[2][1]()
+
+    expect(mockAppOnCalls[1][0]).toBe('open-url')
+    const event = { preventDefault: () => {} }
+    mockAppOnCalls[1][1](event, composeInvitationDeepUrl(codes))
+    expect(mockWindowWebContentsSend).not.toHaveBeenCalledWith('invitation', { data: codes })
   })
 
   it('process invitation code on second-instance event', async () => {
-    const codes = [
-      {
-        peerId: 'QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE',
-        onionAddress: 'y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd',
-      },
-    ]
     await mockAppOnCalls[2][1]()
-    const commandLine = ['/tmp/.mount_Quiet-TVQc6s/quiet', invitationDeepUrl(codes)]
+    const commandLine = ['/tmp/.mount_Quiet-TVQc6s/quiet', composeInvitationDeepUrl(codes)]
     expect(mockAppOnCalls[0][0]).toBe('second-instance')
     const event = { preventDefault: () => {} }
     mockAppOnCalls[0][1](event, commandLine)
-    expect(mockWindowWebContentsSend).toHaveBeenCalledWith('invitation', { codes })
+    expect(mockWindowWebContentsSend).toHaveBeenCalledWith('invitation', { data: codes })
   })
 })

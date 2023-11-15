@@ -1,10 +1,8 @@
 import React, { FC, useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { navigationActions } from '../../store/navigation/navigation.slice'
-import { ScreenNames } from '../../const/ScreenNames.enum'
 import { capitalizeFirstLetter } from '@quiet/common'
 import { communities } from '@quiet/state-manager'
-import { nativeServicesActions } from '../../store/nativeServices/nativeServices.slice'
 import { PossibleImpersonationAttackScreenProps } from './PossibleImpersonationAttack.types'
 import PossibleImpersonationAttackComponent from '../../components/PossibleImpersonationAttack/PossibleImpersonationAttack.component'
 
@@ -18,19 +16,9 @@ export const PossibleImpersonationAttackScreen: FC<PossibleImpersonationAttackSc
     communityName = capitalizeFirstLetter(community.name)
   }
 
-  const leaveCommunity = useCallback(() => {
-    dispatch(nativeServicesActions.leaveCommunity())
-  }, [dispatch])
-
   const handleBackButton = useCallback(() => {
     dispatch(navigationActions.pop())
   }, [dispatch])
 
-  return (
-    <PossibleImpersonationAttackComponent
-      handleBackButton={handleBackButton}
-      leaveCommunity={leaveCommunity}
-      communityName={communityName}
-    />
-  )
+  return <PossibleImpersonationAttackComponent handleBackButton={handleBackButton} communityName={communityName} />
 }

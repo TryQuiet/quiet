@@ -14,6 +14,7 @@ export interface Libp2pNodeParams {
   localAddress: string
   targetPort: number
   peers: string[]
+  psk: Uint8Array
 }
 
 export interface InitLibp2pParams {

@@ -12,36 +12,14 @@ import {
   type UpdateCommunityPayload,
   type UpdateRegistrationAttemptsPayload,
   CommunityMetadataPayload,
+  InvitationData,
 } from '@quiet/types'
 
 export class CommunitiesState {
-  public invitationCode: string | undefined = undefined
   public invitationCodes: InvitationPair[] = []
   public currentCommunity = ''
   public communities: EntityState<CommunityType> = communitiesAdapter.getInitialState()
-}
-
-// TODO: remove after setting strict in 'desktop' and 'mobile' packages
-export interface Community {
-  // TODO: how to set default values for Community?
-  id: string
-  name?: string
-  CA?: null | {
-    rootCertString: string
-    rootKeyString: string
-  }
-  rootCa?: string
-  peerList?: string[]
-  registrarUrl?: string
-  registrar?: null | {
-    privateKey: string
-    address: string
-  }
-  onionAddress?: string
-  privateKey?: string
-  port?: number
-  registrationAttempts?: number
-  ownerCertificate?: string
+  public psk: string | undefined
 }
 
 export const communitiesSlice = createSlice({
@@ -93,9 +71,7 @@ export const communitiesSlice = createSlice({
         },
       })
     },
-    handleInvitationCodes: (state, action: PayloadAction<InvitationPair[]>) => {
-      state.invitationCodes = action.payload
-    },
+    customProtocol: (state, _action: PayloadAction<InvitationData>) => state,
     setInvitationCodes: (state, action: PayloadAction<InvitationPair[]>) => {
       state.invitationCodes = action.payload
     },
@@ -112,6 +88,9 @@ export const communitiesSlice = createSlice({
       })
     },
     saveCommunityMetadata: (state, _action: PayloadAction<CommunityMetadataPayload>) => state,
+    savePSK: (state, action: PayloadAction<string>) => {
+      state.psk = action.payload
+    },
   },
 })
 

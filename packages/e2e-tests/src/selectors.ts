@@ -17,6 +17,10 @@ export class App {
     return this.thenableWebDriver
   }
 
+  get name() {
+    return this.buildSetup.dataDir
+  }
+
   async open() {
     console.log('Opening the app', this.buildSetup.dataDir)
     this.buildSetup.resetDriver()

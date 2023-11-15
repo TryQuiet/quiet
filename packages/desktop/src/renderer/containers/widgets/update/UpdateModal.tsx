@@ -1,7 +1,6 @@
 import React from 'react'
 import { AnyAction, Dispatch, bindActionCreators } from 'redux'
 import { useDispatch } from 'react-redux'
-
 import UpdateModal from '../../../components/widgets/update/UpdateModal'
 import updateHandlers from '../../../store/handlers/update'
 import { useModal } from '../../hooks'

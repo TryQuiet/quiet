@@ -3,6 +3,64 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.3-alpha.6](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@2.0.3-alpha.5...@quiet/mobile@2.0.3-alpha.6) (2023-11-14)
+
+**Note:** Version bump only for package @quiet/mobile
+
+
+
+
+
+## [2.0.3-alpha.5](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@2.0.3-alpha.4...@quiet/mobile@2.0.3-alpha.5) (2023-11-14)
+
+
+### Bug Fixes
+
+* font in input validation and hint from 10px to 14px ([a3ce5cb](https://github.com/TryQuiet/quiet/commit/a3ce5cb76603042294685e3ad9ca82088a0d7561))
+
+
+
+
+
+## [2.0.3-alpha.4](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@2.0.3-alpha.3...@quiet/mobile@2.0.3-alpha.4) (2023-11-13)
+
+
+### Features
+
+* bump versionCode ([104c656](https://github.com/TryQuiet/quiet/commit/104c6569805efecffcc23a801a8ba91a352966fe))
+
+
+
+
+
+## [2.0.3-alpha.3](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@2.0.3-alpha.2...@quiet/mobile@2.0.3-alpha.3) (2023-11-13)
+
+**Note:** Version bump only for package @quiet/mobile
+
+
+
+
+
+## [2.0.3-alpha.2](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@2.0.3-alpha.1...@quiet/mobile@2.0.3-alpha.2) (2023-11-09)
+
+**Note:** Version bump only for package @quiet/mobile
+
+
+
+
+
+## [2.0.3-alpha.1](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@2.0.3-alpha.0...@quiet/mobile@2.0.3-alpha.1) (2023-11-08)
+
+
+### Bug Fixes
+
+* fix UI ([#2021](https://github.com/TryQuiet/quiet/issues/2021)) ([0aac01d](https://github.com/TryQuiet/quiet/commit/0aac01da5a02c2ebef6839a7ab4542b99896df68))
+* mobile popup back button ([#2023](https://github.com/TryQuiet/quiet/issues/2023)) ([b0c6e2d](https://github.com/TryQuiet/quiet/commit/b0c6e2d13f287124c52eec3ec85c07e80e2b057b))
+
+
+
+
+
 ## [2.0.3-alpha.0](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@2.0.2-alpha.0...@quiet/mobile@2.0.3-alpha.0) (2023-10-26)
 
 
