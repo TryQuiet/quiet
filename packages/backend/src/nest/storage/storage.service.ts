@@ -325,9 +325,7 @@ export class StorageService extends EventEmitter {
   }
 
   public async updatePeersList() {
-    const allUsers = this.getAllUsers()
-    const registeredUsers = this.getAllRegisteredUsers()
-    const peers = [...new Set(await getUsersAddresses(allUsers.concat(registeredUsers)))]
+    const peers = this.getAllUsers()
     console.log('updatePeersList, peers count:', peers.length)
     const community = await this.localDbService.get(LocalDBKeys.COMMUNITY)
     this.emit(StorageEvents.UPDATE_PEERS_LIST, { communityId: community.id, peerList: peers })
@@ -406,7 +404,9 @@ export class StorageService extends EventEmitter {
   }
 
   public resetCsrReplicatedMapAndId() {
-    this.certificatesRequestsStore.resetCsrReplicatedMapAndId()
+    if (this.certificatesRequestsStore) {
+      this.certificatesRequestsStore.resetCsrReplicatedMapAndId()
+    }
   }
 
   public resolveCsrReplicatedPromise(id: number) {
@@ -833,21 +833,6 @@ export class StorageService extends EventEmitter {
   public async saveCSR(payload: SaveCSRPayload): Promise<boolean> {
     const result = await this.certificatesRequestsStore.addUserCsr(payload.csr)
     return result
-  }
-
-  public getAllRegisteredUsers(): UserData[] {
-    const certs = this.getAllEventLogEntries(this.certificates)
-    const allUsers: UserData[] = []
-    for (const cert of certs) {
-      const parsedCert = parseCertificate(cert)
-      const onionAddress = getCertFieldValue(parsedCert, CertFieldsTypes.commonName)
-      const peerId = getCertFieldValue(parsedCert, CertFieldsTypes.peerId)
-      const username = getCertFieldValue(parsedCert, CertFieldsTypes.nickName)
-      const dmPublicKey = getCertFieldValue(parsedCert, CertFieldsTypes.dmPublicKey)
-      if (!onionAddress || !peerId || !username || !dmPublicKey) continue
-      allUsers.push({ onionAddress, peerId, username, dmPublicKey })
-    }
-    return allUsers
   }
 
   public getAllUsers(): UserData[] {
