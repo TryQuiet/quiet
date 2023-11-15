@@ -65,7 +65,6 @@ interface CsrReplicatedPromiseValues {
 @Injectable()
 export class StorageService extends EventEmitter {
   public channels: KeyValueStore<PublicChannel>
-  private certificates: EventStore<string>
   private certificatesRequests: EventStore<string>
   public publicChannelsRepos: Map<string, PublicChannelsRepo> = new Map()
   public directMessagesRepos: Map<string, DirectMessagesRepo> = new Map()
@@ -167,9 +166,6 @@ export class StorageService extends EventEmitter {
     if (this.channels?.address) {
       dbs.push(this.channels.address)
     }
-    if (this.certificates?.address) {
-      dbs.push(this.certificates.address)
-    }
     if (this.certificatesRequests?.address) {
       dbs.push(this.certificatesRequests.address)
     }
@@ -232,7 +228,7 @@ export class StorageService extends EventEmitter {
     this.logger('1/5')
     await this.createDbForChannels()
     this.logger('2/5')
-    await this.createDbForCertificates()
+    // await this.attachCertificatesStoreListeners()
     this.logger('3/5')
     await this.createDbForCertificatesRequests()
     this.logger('4/5')
@@ -313,94 +309,88 @@ export class StorageService extends EventEmitter {
       this.logger.error('Error closing channels db', e)
     }
 
-    try {
-      await this.certificates?.close()
-    } catch (e) {
-      this.logger.error('Error closing certificates db', e)
-    }
+    // try {
+    //   await this.certificates?.close()
+    // } catch (e) {
+    //   this.logger.error('Error closing certificates db', e)
+    // }
+
     try {
       await this.certificatesRequests?.close()
     } catch (e) {
       this.logger.error('Error closing certificates db', e)
     }
+
     try {
       await this.communityMetadata?.close()
     } catch (e) {
       this.logger.error('Error closing community metadata db', e)
     }
+
     await this.__stopOrbitDb()
     await this.__stopIPFS()
   }
 
-  public async updatePeersList() {
-    const allUsers = this.getAllUsers()
-    const registeredUsers = this.getAllRegisteredUsers()
-    const peers = [...new Set(await getUsersAddresses(allUsers.concat(registeredUsers)))]
-    console.log('updatePeersList, peers count:', peers.length)
-    const community = await this.localDbService.get(LocalDBKeys.COMMUNITY)
-    this.emit(StorageEvents.UPDATE_PEERS_LIST, { communityId: community.id, peerList: peers })
-  }
+  // public async loadAllCertificates() {
+  //   this.logger('Getting all certificates')
+  //   this.emit(StorageEvents.LOAD_CERTIFICATES, {
+  //     certificates: this.getAllEventLogEntries(this.certificates),
+  //   })
+  // }
 
-  public async loadAllCertificates() {
-    this.logger('Getting all certificates')
-    this.emit(StorageEvents.LOAD_CERTIFICATES, {
-      certificates: this.getAllEventLogEntries(this.certificates),
-    })
-  }
+  // public async createDbForCertificates() {
+  //   this.logger('createDbForCertificates init')
+  //   this.certificates = await this.orbitDb.log<string>('certificates', {
+  //     replicate: false,
+  //     accessController: {
+  //       write: ['*'],
+  //     },
+  //   })
+  //   this.certificates.events.on('replicate.progress', async (_address, _hash, entry, _progress, _total) => {
+  //     const certificate = entry.payload.value
 
-  public async createDbForCertificates() {
-    this.logger('createDbForCertificates init')
-    this.certificates = await this.orbitDb.log<string>('certificates', {
-      replicate: false,
-      accessController: {
-        write: ['*'],
-      },
-    })
-    this.certificates.events.on('replicate.progress', async (_address, _hash, entry, _progress, _total) => {
-      const certificate = entry.payload.value
+  //     const parsedCertificate = parseCertificate(certificate)
+  //     const key = keyFromCertificate(parsedCertificate)
 
-      const parsedCertificate = parseCertificate(certificate)
-      const key = keyFromCertificate(parsedCertificate)
+  //     const username = getCertFieldValue(parsedCertificate, CertFieldsTypes.nickName)
+  //     if (!username) {
+  //       this.logger.error(
+  //         `Certificates replicate.progress: could not parse certificate for field type ${CertFieldsTypes.nickName}`
+  //       )
+  //       return
+  //     }
 
-      const username = getCertFieldValue(parsedCertificate, CertFieldsTypes.nickName)
-      if (!username) {
-        this.logger.error(
-          `Certificates replicate.progress: could not parse certificate for field type ${CertFieldsTypes.nickName}`
-        )
-        return
-      }
+  //     this.userNamesMap.set(key, username)
+  //   })
+  //   this.certificates.events.on('replicated', async () => {
+  //     this.logger('REPLICATED: Certificates')
+  //     this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CERTIFICATES_REPLICATED)
+  //     this.emit(StorageEvents.LOAD_CERTIFICATES, {
+  //       certificates: this.getAllEventLogEntries(this.certificates),
+  //     })
+  //     await this.updatePeersList()
+  //   })
+  //   this.certificates.events.on('write', async (_address, entry) => {
+  //     this.logger('Saved certificate locally')
+  //     this.emit(StorageEvents.LOAD_CERTIFICATES, {
+  //       certificates: this.getAllEventLogEntries(this.certificates),
+  //     })
+  //     await this.updatePeersList()
+  //   })
+  //   this.certificates.events.on('ready', () => {
+  //     this.logger('Loaded certificates to memory')
+  //     this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.LOADED_CERTIFICATES)
+  //     this.emit(StorageEvents.LOAD_CERTIFICATES, {
+  //       certificates: this.getAllEventLogEntries(this.certificates),
+  //     })
+  //   })
 
-      this.userNamesMap.set(key, username)
-    })
-    this.certificates.events.on('replicated', async () => {
-      this.logger('REPLICATED: Certificates')
-      this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CERTIFICATES_REPLICATED)
-      this.emit(StorageEvents.LOAD_CERTIFICATES, {
-        certificates: this.getAllEventLogEntries(this.certificates),
-      })
-      await this.updatePeersList()
-    })
-    this.certificates.events.on('write', async (_address, entry) => {
-      this.logger('Saved certificate locally')
-      this.emit(StorageEvents.LOAD_CERTIFICATES, {
-        certificates: this.getAllEventLogEntries(this.certificates),
-      })
-      await this.updatePeersList()
-    })
-    this.certificates.events.on('ready', () => {
-      this.logger('Loaded certificates to memory')
-      this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.LOADED_CERTIFICATES)
-      this.emit(StorageEvents.LOAD_CERTIFICATES, {
-        certificates: this.getAllEventLogEntries(this.certificates),
-      })
-    })
-
-    // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
-    await this.certificates.load({ fetchEntryTimeout: 15000 })
-    const allCertificates = this.getAllEventLogEntries(this.certificates)
-    this.logger('ALL Certificates COUNT:', allCertificates.length)
-    this.logger('STORAGE: Finished createDbForCertificates')
-  }
+  //   // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
+  //   await this.certificates.load({ fetchEntryTimeout: 15000 })
+  //   const allCertificates = this.getAllEventLogEntries(this.certificates)
+  //   this.logger('ALL Certificates COUNT:', allCertificates.length)
+  //   this.logger('STORAGE: Finished createDbForCertificates')
+  // }
 
   private createCsrReplicatedPromise(id: number) {
     let resolveFunction
@@ -459,6 +449,7 @@ export class StorageService extends EventEmitter {
 
       await this.updatePeersList()
     })
+
     this.certificatesRequests.events.on('write', async (_address, entry) => {
       const csr: string = entry.payload.value
       this.logger('Saved CSR locally')
@@ -864,16 +855,16 @@ export class StorageService extends EventEmitter {
     this.filesManager.emit(IpfsFilesManagerEvents.CANCEL_DOWNLOAD, mid)
   }
 
-  public async saveCertificate(payload: SaveCertificatePayload): Promise<boolean> {
-    this.logger('About to save certificate...')
-    if (!payload.certificate) {
-      this.logger('Certificate is either null or undefined, not saving to db')
-      return false
-    }
-    this.logger('Saving certificate...')
-    await this.certificates.add(payload.certificate)
-    return true
-  }
+  // public async saveCertificate(payload: SaveCertificatePayload): Promise<boolean> {
+  //   this.logger('About to save certificate...')
+  //   if (!payload.certificate) {
+  //     this.logger('Certificate is either null or undefined, not saving to db')
+  //     return false
+  //   }
+  //   this.logger('Saving certificate...')
+  //   await this.certificates.add(payload.certificate)
+  //   return true
+  // }
 
   public async saveCSR(payload: SaveCSRPayload): Promise<boolean> {
     this.logger('About to save csr...')
@@ -909,22 +900,6 @@ export class StorageService extends EventEmitter {
       const peerId = getCertFieldValue(parsedCert, CertFieldsTypes.peerId)
       const username = getCertFieldValue(parsedCert, CertFieldsTypes.nickName)
       const dmPublicKey = getCertFieldValue(parsedCert, CertFieldsTypes.dmPublicKey)
-      if (!onionAddress || !peerId || !username || !dmPublicKey) continue
-      allUsers.push({ onionAddress, peerId, username, dmPublicKey })
-    }
-    return allUsers
-  }
-
-  public getAllUsers(): UserData[] {
-    const csrs = this.getAllEventLogEntries(this.certificatesRequests)
-    this.logger('CSRs count:', csrs.length)
-    const allUsers: UserData[] = []
-    for (const csr of csrs) {
-      const parsedCert = parseCertificationRequest(csr)
-      const onionAddress = getReqFieldValue(parsedCert, CertFieldsTypes.commonName)
-      const peerId = getReqFieldValue(parsedCert, CertFieldsTypes.peerId)
-      const username = getReqFieldValue(parsedCert, CertFieldsTypes.nickName)
-      const dmPublicKey = getReqFieldValue(parsedCert, CertFieldsTypes.dmPublicKey)
       if (!onionAddress || !peerId || !username || !dmPublicKey) continue
       allUsers.push({ onionAddress, peerId, username, dmPublicKey })
     }
