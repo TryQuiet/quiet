@@ -183,12 +183,17 @@ describe('New user joins using invitation link while having app opened', () => {
 
     it('Owner sees that guest joined community', async () => {
       console.log('Invitation Link', 21)
-      const generalChannel = new Channel(ownerApp.driver, 'general')
+      const generalChannel = new Channel(guestApp.driver, 'general')
       await generalChannel.element.isDisplayed()
-      const userJoinedMessage = await generalChannel.getMessage(
-        `@${joiningUserUsername} has joined ${capitalizeFirstLetter(communityName)}!`
+
+      const hasMessage = await generalChannel.waitForUserMessage(
+        joiningUserUsername,
+        `@${joiningUserUsername} has joined ${communityName}! 🎉
+      Note: @${joiningUserUsername} is not yet registered, so they'll have the "unregistered" badge until the community creator (@${ownerUsername}) registers them, which will happen automatically when @bob next appears online.
+      Learn more`
       )
-      expect(await userJoinedMessage.isDisplayed()).toBeTruthy()
+      const isMessageDisplayed = await hasMessage?.isDisplayed()
+      expect(isMessageDisplayed).toBeTruthy()
     })
   })
 })
