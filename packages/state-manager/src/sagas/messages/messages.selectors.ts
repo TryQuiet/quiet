@@ -45,11 +45,11 @@ export const publicChannelMessagesEntities = (address: string) =>
     return channelMessagesAdapter.getSelectors().selectEntities(channelMessagesBase.messages)
   })
 
-export const getMessagesFromGeneralByPubKey = (pubkey: string) =>
-  createSelector(publicChannelsMessagesBase, generalChannel, (base, general) => {
-    if (!base || !general) return []
+export const getMessagesFromChannelIdByPubKey = (channelId: string, pubkey: string) =>
+  createSelector(publicChannelsMessagesBase, base => {
+    if (!base) return []
 
-    const generalMessagesBase = base[general.id]
+    const generalMessagesBase = base[channelId]
     if (!generalMessagesBase) return []
 
     const channelMessages = channelMessagesAdapter.getSelectors().selectAll(generalMessagesBase.messages)
@@ -140,5 +140,5 @@ export const messagesSelectors = {
   messagesVerificationStatus,
   messagesSendingStatus,
   messageSendingStatusById,
-  getMessagesFromGeneralByPubKey,
+  getMessagesFromChannelIdByPubKey,
 }

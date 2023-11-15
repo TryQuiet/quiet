@@ -12,26 +12,30 @@ export function* verifyMessagesSaga(
   const messages = action.payload.messages
 
   for (const message of messages) {
-    // ----------------------------------------------------------------------------
     const generalChannel = yield* select(publicChannelsSelectors.generalChannel)
     if (!generalChannel) return
 
     if (message.type === MessageType.Info && message.channelId === generalChannel.id) {
       const getMessagesFromGeneralByPubKey = yield* select(
-        messagesSelectors.getMessagesFromGeneralByPubKey(message.pubKey)
+        messagesSelectors.getMessagesFromChannelIdByPubKey(generalChannel.id, message.pubKey)
       )
 
       const allUsers = yield* select(usersSelectors.allUsers)
 
       const username = allUsers[message.pubKey].username
 
-      const expectedMessage = yield* call(userJoinedMessage, username)
+      const { username: ownerUsername } = yield* select(usersSelectors.ownerData)
 
-      if (getMessagesFromGeneralByPubKey[0].message !== expectedMessage) {
-        console.log('black list logic here')
+      if (username !== ownerUsername) {
+        const expectedMessage = yield* call(userJoinedMessage, username)
+
+        if (getMessagesFromGeneralByPubKey[0].message !== expectedMessage) {
+          console.error(`${username} tried to send a malicious info message`)
+          return
+        }
       }
     }
-    // ----------------------------------------------------------------------------
+
     const verificationStatus: MessageVerificationStatus = {
       publicKey: message.pubKey,
       signature: message.signature,
