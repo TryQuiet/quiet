@@ -1,4 +1,4 @@
-import { put, select } from 'typed-redux-saga'
+import { put, select, call } from 'typed-redux-saga'
 import { messagesActions } from '../../messages/messages.slice'
 import { publicChannelsSelectors } from '../publicChannels.selectors'
 import { WriteMessagePayload, MessageType, userJoinedMessage } from '@quiet/types'
@@ -12,7 +12,7 @@ export function* sendUnregisteredInfoMessage(): Generator {
 
   if (!community?.name || !identity || !generalChannel) return
 
-  const message = userJoinedMessage(identity.nickname)
+  const message = yield* call(userJoinedMessage, identity.nickname)
 
   const payload: WriteMessagePayload = {
     type: MessageType.Info,
