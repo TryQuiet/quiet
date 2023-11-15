@@ -5,7 +5,7 @@ import { autoUpdater } from 'electron-updater'
 import { BrowserWindow, app, ipcMain, Menu } from 'electron'
 import { waitFor } from '@testing-library/dom'
 import path from 'path'
-import { composeInvitationDeepUrl, validInvitationUrlTestData } from '@quiet/common'
+import { composeInvitationDeepUrl, getValidInvitationUrlTestData, validInvitationCodeTestData } from '@quiet/common'
 import { InvitationData } from '@quiet/types'
 
 // eslint-disable-next-line
@@ -241,7 +241,7 @@ describe('Invitation code', () => {
   let codes: InvitationData
 
   beforeEach(() => {
-    codes = { ...validInvitationUrlTestData.data }
+    codes = { ...getValidInvitationUrlTestData(validInvitationCodeTestData[0]).data }
   })
 
   it('handles invitation code on open-url event (on macos)', async () => {

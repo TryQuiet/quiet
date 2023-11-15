@@ -71,9 +71,7 @@ export const communitiesSlice = createSlice({
         },
       })
     },
-    handleInvitationCodes: (state, action: PayloadAction<InvitationData>) => {
-      state.invitationCodes = action.payload.pairs
-    },
+    customProtocol: (state, _action: PayloadAction<InvitationData>) => state,
     setInvitationCodes: (state, action: PayloadAction<InvitationPair[]>) => {
       state.invitationCodes = action.payload
     },

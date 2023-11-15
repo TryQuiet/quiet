@@ -70,7 +70,7 @@ describe('Opening app through custom protocol', () => {
       psk: '12345',
     }
 
-    store.dispatch(communities.actions.handleInvitationCodes(invitationCodes))
+    store.dispatch(communities.actions.customProtocol(invitationCodes))
 
     store.dispatch(modalsActions.openModal({ name: ModalName.joinCommunityModal }))
 
