@@ -8,7 +8,7 @@ import { setEngine, CryptoEngine } from 'pkijs'
 import { EventEmitter } from 'events'
 import getPort from 'get-port'
 import PeerId from 'peer-id'
-import { removeFilesFromDir } from '../common/utils'
+import { getLibp2pAddressesFromCsrs, removeFilesFromDir } from '../common/utils'
 
 import {
   AskForMessagesPayload,
@@ -606,7 +606,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       StorageEvents.REPLICATED_CSR,
       async (payload: { csrs: string[]; certificates: string[]; id: string }) => {
         console.log(`On ${StorageEvents.REPLICATED_CSR}`)
-        this.libp2pService.emit(Libp2pEvents.DIAL_PEERS, payload.csrs)
+        this.libp2pService.emit(Libp2pEvents.DIAL_PEERS, await getLibp2pAddressesFromCsrs(payload.csrs))
         console.log(`Storage - ${StorageEvents.REPLICATED_CSR}`)
         this.serverIoProvider.io.emit(SocketActionTypes.RESPONSE_GET_CSRS, { csrs: payload.csrs })
         this.registrationService.emit(RegistrationEvents.REGISTER_USER_CERTIFICATE, payload)
