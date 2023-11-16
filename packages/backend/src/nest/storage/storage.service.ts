@@ -62,7 +62,7 @@ export class StorageService extends EventEmitter {
   public directMessagesRepos: Map<string, DirectMessagesRepo> = new Map()
   private publicKeysMap: Map<string, CryptoKey> = new Map()
   private communityMetadata: KeyValueStore<CommunityMetadata>
-  private certificatesStore: CertificatesStore
+  public certificatesStore: CertificatesStore
   public certificatesRequestsStore: CertificatesRequestsStore
   private ipfs: IPFS
   private orbitDb: OrbitDB
@@ -333,21 +333,20 @@ export class StorageService extends EventEmitter {
 
   public async loadAllCertificates() {
     this.logger('Loading all certificates')
-    this.emit(StorageEvents.LOAD_CERTIFICATES, {
+    this.emit(StorageEvents.REPLICATED_CERTIFICATES, {
       certificates: await this.certificatesStore.loadAllCertificates(),
     })
   }
 
   public async attachCertificatesStoreListeners() {
     this.on(StorageEvents.LOADED_CERTIFICATES, async (payload) => {
-      this.emit(StorageEvents.LOADED_CERTIFICATES, payload)
+      this.emit(StorageEvents.REPLICATED_CERTIFICATES, payload)
       await this.updatePeersList()
     })
   }
 
   public async attachCsrsStoreListeners() {
     this.on(StorageEvents.LOADED_USER_CSRS, async (payload) => {
-      console.log('csrs', payload.csrs)
       const allCertificates = this.getAllEventLogEntries(this.certificatesStore.store)
       this.emit(StorageEvents.REPLICATED_CSR, { csrs: payload.csrs, certificates: allCertificates, id: payload.id })
       // TODO

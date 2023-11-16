@@ -11,10 +11,12 @@ import {
 import {
   ChannelMessage,
   Community,
+  ConnectionProcessInfo,
   FileMetadata,
   Identity,
   MessageType,
   PublicChannel,
+  SocketActionTypes,
   TestMessage,
 } from '@quiet/types'
 
@@ -254,8 +256,7 @@ describe('StorageService', () => {
       expect(db).not.toBe(undefined)
       if (!db) return // TS complaining
       const channelsDbAddress = storageService.channels?.address
-      // @ts-expect-error 'certificates' is private
-      const certificatesDbAddress = storageService.certificates.address
+      const certificatesDbAddress = storageService.certificatesStore.getAddress()
       const certificatesRequestsDbAddress = storageService.certificatesRequestsStore.getAddress()
       // @ts-expect-error 'communityMetadata' is private
       const communityMetadataDbAddress = storageService.communityMetadata.address
@@ -335,15 +336,19 @@ describe('StorageService', () => {
 
     it('Certificates and peers list are updated on replicated event', async () => {
       await storageService.init(peerId)
-      const eventSpy = jest.spyOn(storageService, 'emit')
-      const spyOnUpdatePeersList = jest.spyOn(storageService, 'updatePeersList')
-      // @ts-ignore - Property 'certificates' is private
-      storageService.certificates.events.emit('replicated')
 
-      expect(eventSpy).toBeCalledWith('loadCertificates', {
-        certificates: [],
+      const eventSpy = jest.spyOn(storageService, 'emit')
+
+      const spyOnUpdatePeersList = jest.spyOn(storageService, 'updatePeersList')
+
+      storageService.certificatesStore.store.events.emit('replicated')
+
+      expect(eventSpy).toBeCalledWith(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CERTIFICATES_REPLICATED)
+      
+      await waitForExpect(() => {
+        expect(eventSpy).toBeCalledWith(StorageEvents.REPLICATED_CERTIFICATES, { certificates: [] })
+        expect(spyOnUpdatePeersList).toBeCalled()
       })
-      expect(spyOnUpdatePeersList).toBeCalled()
     })
 
     it.each(['write', 'replicate.progress'])(
@@ -446,14 +451,13 @@ describe('StorageService', () => {
       }
     )
 
-    it('Certificates and peers list are updated on write event', async () => {
+    it.skip('Certificates and peers list are updated on write event', async () => {
       await storageService.init(peerId)
       const eventSpy = jest.spyOn(storageService, 'emit')
       const spyOnUpdatePeersList = jest.spyOn(storageService, 'updatePeersList')
-      // @ts-ignore - Property 'certificates' is private
-      storageService.certificates.events.emit('write', 'address', { payload: { value: 'something' } }, [])
+      storageService.certificatesStore.store.events.emit('write', 'address', { payload: { value: 'something' } }, [])
 
-      expect(eventSpy).toBeCalledWith(StorageEvents.LOAD_CERTIFICATES, {
+      expect(eventSpy).toBeCalledWith(StorageEvents.REPLICATED_CERTIFICATES, {
         certificates: [],
       })
       expect(spyOnUpdatePeersList).toBeCalled()

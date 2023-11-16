@@ -22,6 +22,7 @@ export class CertificatesStore {
     constructor(orbitDb: OrbitDB) {
         this.orbitDb = orbitDb
         this.filteredCertificatesMapping = new Map()
+        this.usernameMapping = new Map()
     }
 
     public async init(emitter: EventEmitter) {
@@ -36,7 +37,7 @@ export class CertificatesStore {
 
         this.store.events.on('ready', async () => {
             logger('Loaded certificates to memory')
-            emitter.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.LOADED_CERTIFICATES)
+            emitter.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CERTIFICATES_REPLICATED)
         })
 
         this.store.events.on('write', async () => {
@@ -51,10 +52,16 @@ export class CertificatesStore {
         })
 
         const loadedCertificates = async () => {
+            console.log('dupa')
             emitter.emit(StorageEvents.LOADED_CERTIFICATES, {
                 certificates: await this.getCertificates(),
             })
         }
+
+        // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
+        await this.store.load({ fetchEntryTimeout: 15000 })
+        
+        logger('Initialized')
     }
 
     public async close() {
