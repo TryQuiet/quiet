@@ -23,6 +23,7 @@ import { preSharedKey } from 'libp2p/pnet'
 import { toString as uint8ArrayToString } from 'uint8arrays/to-string'
 import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
 import crypto from 'crypto'
+import { peerIdFromString } from '@libp2p/peer-id'
 
 const KEY_LENGTH = 32
 export const LIBP2P_PSK_METADATA = '/key/swarm/psk/1.0.0/\n/base16/\n'
@@ -32,6 +33,7 @@ export class Libp2pService extends EventEmitter {
   public libp2pInstance: Libp2p | null
   public connectedPeers: Map<string, number> = new Map()
   public dialedPeers: Set<string> = new Set()
+  // public knownPeers: Set<string> = new Set()
   private readonly logger = Logger(Libp2pService.name)
   constructor(
     @Inject(SERVER_IO_PROVIDER) public readonly serverIoProvider: ServerIoProviderTypes,
@@ -87,10 +89,11 @@ export class Libp2pService extends EventEmitter {
       libp2p = await createLibp2p({
         start: false,
         connectionManager: {
-          minConnections: 3,
-          maxConnections: 8,
+          minConnections: 3, // TODO: increase?
+          maxConnections: 8, // TODO: increase?
           dialTimeout: 120_000,
           maxParallelDials: 10,
+          autoDial: true, // It's a default but let's set it to have explicit information
         },
         peerId: params.peerId,
         addresses: {
@@ -131,11 +134,24 @@ export class Libp2pService extends EventEmitter {
     return libp2p
   }
 
+  private async addPeersToPeerBook(addresses: string[]) {
+    for (const address of addresses) {
+      const peerId = multiaddr(address).getPeerId()
+      console.log('PEER ID', peerId)
+      if (!peerId) return
+      console.log('PEER ID adding to peer book', peerId)
+      // @ts-expect-error
+      await this.libp2pInstance?.peerStore.addressBook.add(peerIdFromString(peerId), [multiaddr(address)])
+      console.log('ALL', await this.libp2pInstance?.peerStore.all())
+    }
+  }
+
   private async afterCreation(peers: string[], peerId: PeerId) {
     if (!this.libp2pInstance) {
       this.logger.error('libp2pInstance was not created')
       throw new Error('libp2pInstance was not created')
     }
+    this.logger(`Local peerId: ${peerId.toString()}`)
     this.on(Libp2pEvents.DIAL_PEERS, async (csrs: string[]) => {
       console.log('DIALING PEERS')
       const csrsPeersPromises = csrs.map(async csr => {
@@ -151,7 +167,8 @@ export class Libp2pService extends EventEmitter {
       })
 
       const csrsPeers = await Promise.all(csrsPeersPromises)
-      const dialInChunks = new ProcessInChunks<string>(csrsPeers.filter(isDefined), this.dialPeer)
+      const addresses = csrsPeers.filter(isDefined)
+      const dialInChunks = new ProcessInChunks<string>(addresses, this.dialPeer)
       await dialInChunks.process()
     })
 
@@ -165,27 +182,32 @@ export class Libp2pService extends EventEmitter {
 
     this.libp2pInstance.addEventListener('peer:connect', async peer => {
       const remotePeerId = peer.detail.remotePeer.toString()
-      this.logger(`${peerId.toString()} connected to ${remotePeerId}`)
+      const localPeerId = peerId.toString()
+      this.logger(`${localPeerId} connected to ${remotePeerId}`)
 
-      // Stop dialing as soon as we connect to a peer
-      dialInChunks.stop()
+      //// Stop dialing as soon as we connect to a peer
+      //dialInChunks.stop()
 
       this.connectedPeers.set(remotePeerId, DateTime.utc().valueOf())
-      this.logger(`${this.connectedPeers.size} connected peers`)
+      this.logger(`${localPeerId} is connected to ${this.connectedPeers.size} peers`)
+      this.logger(`${localPeerId} has ${this.libp2pInstance?.getConnections().length} open connections`)
 
       this.emit(Libp2pEvents.PEER_CONNECTED, {
         peers: [remotePeerId],
       })
+      const latency = await this.libp2pInstance?.ping(peer.detail.remoteAddr)
+      this.logger(`${localPeerId} ping to ${remotePeerId}. Latency: ${latency}`)
     })
 
     this.libp2pInstance.addEventListener('peer:disconnect', async peer => {
       const remotePeerId = peer.detail.remotePeer.toString()
-      this.logger(`${peerId.toString()} disconnected from ${remotePeerId}`)
+      const localPeerId = peerId.toString()
+      this.logger(`${localPeerId} disconnected from ${remotePeerId}`)
       if (!this.libp2pInstance) {
         this.logger.error('libp2pInstance was not created')
         throw new Error('libp2pInstance was not created')
       }
-      this.logger(`${this.libp2pInstance.getConnections().length} open connections`)
+      this.logger(`${localPeerId} has ${this.libp2pInstance.getConnections().length} open connections`)
 
       const connectionStartTime = this.connectedPeers.get(remotePeerId)
       if (!connectionStartTime) {
@@ -198,7 +220,7 @@ export class Libp2pService extends EventEmitter {
       const connectionDuration: number = connectionEndTime - connectionStartTime
 
       this.connectedPeers.delete(remotePeerId)
-      this.logger(`${this.connectedPeers.size} connected peers`)
+      this.logger(`${localPeerId} is connected to ${this.connectedPeers.size} peers`)
 
       this.emit(Libp2pEvents.PEER_DISCONNECTED, {
         peer: remotePeerId,
@@ -218,5 +240,6 @@ export class Libp2pService extends EventEmitter {
     this.libp2pInstance = null
     this.connectedPeers = new Map()
     this.dialedPeers = new Set()
+    // this.knownPeers = new Set()
   }
 }

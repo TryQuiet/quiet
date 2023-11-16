@@ -73,7 +73,6 @@ export class LocalDbService {
 
   public async getSortedPeers(peers: string[] = []): Promise<string[]> {
     const peersStats = (await this.get(LocalDBKeys.PEERS)) || {}
-    // const peersAddresses: string[] = [...new Set(Object.keys(peersStats).concat(peers))]
     const stats: NetworkStats[] = Object.values(peersStats)
     return sortPeers(peers, stats)
   }
