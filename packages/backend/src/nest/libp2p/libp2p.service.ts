@@ -171,7 +171,7 @@ export class Libp2pService extends EventEmitter {
       this.logger(`${localPeerId} connected to ${remotePeerId}`)
 
       // Stop dialing as soon as we connect to a peer
-      this.processInChunksService.stop()
+      // this.processInChunksService.stop()
 
       this.connectedPeers.set(remotePeerId, DateTime.utc().valueOf())
       this.logger(`${localPeerId} is connected to ${this.connectedPeers.size} peers`)

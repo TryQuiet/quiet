@@ -589,7 +589,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       this.serverIoProvider.io.emit(SocketActionTypes.RESPONSE_FETCH_ALL_DIRECT_MESSAGES, payload)
     })
     this.storageService.on(StorageEvents.UPDATE_PEERS_LIST, (payload: StorePeerListPayload) => {
-      this.libp2pService.emit(Libp2pEvents.UPDATE_KNOWN_PEERS_LIST, payload.peerList)
+      // this.libp2pService.emit(Libp2pEvents.UPDATE_KNOWN_PEERS_LIST, payload.peerList)
       this.serverIoProvider.io.emit(SocketActionTypes.PEER_LIST, payload)
     })
     this.storageService.on(StorageEvents.SEND_PUSH_NOTIFICATION, (payload: PushNotificationPayload) => {
