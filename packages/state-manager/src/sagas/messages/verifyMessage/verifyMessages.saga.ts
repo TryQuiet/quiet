@@ -1,10 +1,11 @@
 import { type PayloadAction } from '@reduxjs/toolkit'
-import { select, call, put } from 'typed-redux-saga'
+import { select, call, put, delay } from 'typed-redux-saga'
 import { messagesActions } from '../messages.slice'
 import { MessageType, userJoinedMessage, type MessageVerificationStatus } from '@quiet/types'
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
 import { messagesSelectors } from '../messages.selectors'
 import { usersSelectors } from '../../users/users.selectors'
+import { communitiesSelectors } from '../../communities/communities.selectors'
 
 export function* verifyMessagesSaga(
   action: PayloadAction<ReturnType<typeof messagesActions.incomingMessages>>['payload']
@@ -24,9 +25,17 @@ export function* verifyMessagesSaga(
 
       const username = allUsers[message.pubKey].username
 
-      const { username: ownerUsername } = yield* select(usersSelectors.ownerData)
+      let ownerNickname = yield* select(communitiesSelectors.ownerNickname)
 
-      if (username !== ownerUsername) {
+      while (true) {
+        ownerNickname = yield* select(communitiesSelectors.ownerNickname)
+        if (ownerNickname) {
+          break
+        }
+        yield* delay(500)
+      }
+
+      if (username !== ownerNickname) {
         const expectedMessage = yield* call(userJoinedMessage, username)
 
         if (getMessagesFromGeneralByPubKey[0].message !== expectedMessage) {
