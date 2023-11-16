@@ -33,7 +33,7 @@ import {
   SocketActionTypes,
   UserData,
 } from '@quiet/types'
-import { isDefined } from '@quiet/common'
+import { createLibp2pAddress, isDefined } from '@quiet/common'
 import fs from 'fs'
 import { IpfsFileManagerService } from '../ipfs-file-manager/ipfs-file-manager.service'
 import { IPFS_REPO_PATCH, ORBIT_DB_DIR, QUIET_DIR } from '../const'
@@ -325,7 +325,8 @@ export class StorageService extends EventEmitter {
   }
 
   public async updatePeersList() {
-    const peers = this.getAllUsers()
+    const users = this.getAllUsers()
+    const peers = users.map(peer => createLibp2pAddress(peer.onionAddress, peer.peerId))
     console.log('updatePeersList, peers count:', peers.length)
     const community = await this.localDbService.get(LocalDBKeys.COMMUNITY)
     this.emit(StorageEvents.UPDATE_PEERS_LIST, { communityId: community.id, peerList: peers })
