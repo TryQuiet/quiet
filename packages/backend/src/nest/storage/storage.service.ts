@@ -3,7 +3,9 @@ import {
   CertFieldsTypes,
   keyObjectFromString,
   verifySignature,
+  parseCertificate,
   parseCertificationRequest,
+  getCertFieldValue,
   getReqFieldValue,
 } from '@quiet/identity'
 import type { IPFS } from 'ipfs-core'
@@ -761,6 +763,21 @@ export class StorageService extends EventEmitter {
       allUsers.push({ onionAddress, peerId, username, dmPublicKey })
     }
     return allUsers
+  }
+
+  public usernameCert(username: string): string | null {
+    /**
+     * Check if given username is already in use
+     */
+    const certificates = this.getAllEventLogEntries(this.certificatesStore.store)
+    for (const cert of certificates) {
+      const parsedCert = parseCertificate(cert)
+      const certUsername = getCertFieldValue(parsedCert, CertFieldsTypes.nickName)
+      if (certUsername?.localeCompare(username, 'en', { sensitivity: 'base' }) === 0) {
+        return cert
+      }
+    }
+    return null
   }
 
   public async deleteFilesFromChannel(payload: DeleteFilesFromChannelSocketPayload) {
