@@ -26,6 +26,8 @@ export enum StorageEvents {
   SEND_PUSH_NOTIFICATION = 'sendPushNotification',
   // Community
   REPLICATED_COMMUNITY_METADATA = 'replicatedCommunityMetadata',
+  // Users
+  LOADED_USER_CSRS = 'loadedUserCsrs'
 }
 export interface InitStorageParams {
   communityId: string
