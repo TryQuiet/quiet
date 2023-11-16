@@ -37,7 +37,7 @@ export function* verifyMessagesSaga(
 
       if (username !== ownerNickname) {
         const expectedMessage = yield* call(userJoinedMessage, username)
-
+        // Checking first info message from user on general channel to check if he was trying to send a fake malicious if so, we do not process this message further
         if (getMessagesFromGeneralByPubKey[0].message !== expectedMessage) {
           console.error(`${username} tried to send a malicious info message`)
           return
