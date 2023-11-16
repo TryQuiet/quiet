@@ -8,7 +8,6 @@ import {
   keyFromCertificate,
   CertFieldsTypes,
   parseCertificate,
-  getReqFieldValue,
   getCertFieldValue,
 } from '@quiet/identity'
 
@@ -85,7 +84,8 @@ export class CertificatesStore {
   }
 
   public async loadAllCertificates() {
-    return this.getCertificates()
+    const certificates = await this.getCertificates()
+    return certificates
   }
 
   /*
@@ -108,12 +108,13 @@ export class CertificatesStore {
       .collect()
       .map(e => e.payload.value)
 
-    const validCertificates = allCertificates.map(async certificate => {
+    const validCertificates = await Promise.all(allCertificates.map(async certificate => {
       if (this.filteredCertificatesMapping.has(certificate)) {
         return certificate // Only validate certificates
       }
 
       const validation = await this.validateCertificate(certificate)
+
       if (validation) {
         const parsedCertificate = parseCertificate(certificate)
         const pubkey = keyFromCertificate(parsedCertificate)
@@ -132,9 +133,9 @@ export class CertificatesStore {
 
         return certificate
       }
-    })
+    }))
 
-    return validCertificates.filter(i => Boolean(i)) // Filter out undefineds
+    return validCertificates.filter(i => i != undefined)
   }
 
   public getCertificateUsername(pubkey: string) {
