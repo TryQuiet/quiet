@@ -149,20 +149,22 @@ export class CertificatesRequestsStore {
       .collect()
       .map(e => e.payload.value)
     await Promise.all(
-      allCsrs.filter(async csr => {
-        // const parsedCsr = await loadCSR(csr)
-        const validation = await CertificatesRequestsStore.validateUserCsr(csr)
-        if (validation) return true
-        return false
-      }).map(async csr => {
-        const parsedCsr = await loadCSR(csr)
-        const pubKey = keyFromCertificate(parsedCsr)
+      allCsrs
+        .filter(async csr => {
+          // const parsedCsr = await loadCSR(csr)
+          const validation = await CertificatesRequestsStore.validateUserCsr(csr)
+          if (validation) return true
+          return false
+        })
+        .map(async csr => {
+          const parsedCsr = await loadCSR(csr)
+          const pubKey = keyFromCertificate(parsedCsr)
 
-        if (filteredCsrsMap.has(pubKey)) {
-          filteredCsrsMap.delete(pubKey)
-        }
-        filteredCsrsMap.set(pubKey, csr)
-      })
+          if (filteredCsrsMap.has(pubKey)) {
+            filteredCsrsMap.delete(pubKey)
+          }
+          filteredCsrsMap.set(pubKey, csr)
+        })
     )
     return [...filteredCsrsMap.values()]
   }

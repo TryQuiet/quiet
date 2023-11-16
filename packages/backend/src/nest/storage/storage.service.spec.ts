@@ -343,8 +343,11 @@ describe('StorageService', () => {
 
       storageService.certificatesStore.store.events.emit('replicated')
 
-      expect(eventSpy).toBeCalledWith(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CERTIFICATES_REPLICATED)
-      
+      expect(eventSpy).toBeCalledWith(
+        SocketActionTypes.CONNECTION_PROCESS_INFO,
+        ConnectionProcessInfo.CERTIFICATES_REPLICATED
+      )
+
       await waitForExpect(() => {
         expect(eventSpy).toBeCalledWith(StorageEvents.REPLICATED_CERTIFICATES, { certificates: [] })
         expect(spyOnUpdatePeersList).toBeCalled()
