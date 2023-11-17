@@ -17,6 +17,7 @@ export class ProcessInChunksService<T> extends EventEmitter {
     this.data = data
     this.processItem = processItem
     this.chunkSize = chunkSize
+    // this.isActive = true
   }
 
   updateData(items: T[]) {
@@ -25,7 +26,7 @@ export class ProcessInChunksService<T> extends EventEmitter {
   }
 
   public async processOneItem() {
-    if (!this.isActive) return
+    // if (!this.isActive) return
     const toProcess = this.data.shift()
     if (toProcess) {
       try {
@@ -41,8 +42,8 @@ export class ProcessInChunksService<T> extends EventEmitter {
   }
 
   public async process() {
-    this.isActive = true
-    this.logger(`Processing ${Math.min(this.chunkSize, this.data.length)} items`)
+    // this.isActive = true
+    this.logger(`Processing ${this.data.length} items`)
     for (let i = 0; i < this.chunkSize; i++) {
       // Do not wait for this promise as items should be processed simultineously
       void this.processOneItem()

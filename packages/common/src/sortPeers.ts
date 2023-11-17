@@ -10,7 +10,7 @@ This is the very simple algorithm for evaluating the most wanted peers.
  */
 export const sortPeers = (peersAddresses: string[], stats: NetworkStats[]): string[] => {
   peersAddresses = peersAddresses.filter(add =>
-    add.match(/^\/dns4\/[a-z0-9]{56}.onion\/tcp\/80\/ws\/p2p\/[a-zA-Z0-9]{46}$/g)
+    add.match(/^\/dns4\/[a-z0-9]{56}.onion\/tcp\/(443|80)\/ws\/p2p\/[a-zA-Z0-9]{46}$/g)
   )
   const lastSeenSorted = [...stats].sort((a, b) => {
     return b.lastSeen - a.lastSeen
