@@ -129,9 +129,9 @@ jobs:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           CSC_KEY_PASSWORD: ${{ secrets.MAC_CSC_KEY_PASSWORD }}
           CSC_LINK: ${{ secrets.MAC_CSC_LINK }}
-          APPLEID: ${{ secrets.APPLE_ID }}
-          APPLEIDPASS: ${{ secrets.APPLE_ID_PASS }}
-          APPLETEAMID: ${{ secrets.APPLE_TEAM_ID }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_ID_PASS: ${{ secrets.APPLE_ID_PASS }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           USE_HARD_LINKS: false
