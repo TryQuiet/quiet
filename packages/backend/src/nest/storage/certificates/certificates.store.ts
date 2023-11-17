@@ -57,7 +57,6 @@ export class CertificatesStore {
     })
 
     const loadedCertificates = async () => {
-      console.log('dupa')
       emitter.emit(StorageEvents.LOADED_CERTIFICATES, {
         certificates: await this.getCertificates(),
       })
