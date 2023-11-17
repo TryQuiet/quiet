@@ -1,10 +1,11 @@
 import { type PayloadAction } from '@reduxjs/toolkit'
-import { put, select } from 'typed-redux-saga'
+import { put, select, call } from 'typed-redux-saga'
 import { messagesActions } from '../../messages/messages.slice'
 import { publicChannelsSelectors } from '../publicChannels.selectors'
 import { publicChannelsActions } from '../publicChannels.slice'
 import { MessageType, type WriteMessagePayload } from '@quiet/types'
 import { identitySelectors } from '../../identity/identity.selectors'
+import { userCreatedChannelMessage } from '@quiet/common'
 
 export function* sendInitialChannelMessageSaga(
   action: PayloadAction<ReturnType<typeof publicChannelsActions.sendInitialChannelMessage>['payload']>
@@ -21,7 +22,7 @@ export function* sendInitialChannelMessageSaga(
   const message =
     pendingGeneralChannelRecreation && isGeneral
       ? `@${user?.nickname} deleted all messages in #general`
-      : `@${user?.nickname} created #${channelName}`
+      : yield* call(userCreatedChannelMessage, user?.nickname || '', channelName)
 
   const payload: WriteMessagePayload = {
     type: MessageType.Info,

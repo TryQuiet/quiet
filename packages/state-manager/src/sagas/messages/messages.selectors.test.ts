@@ -2,7 +2,7 @@ import { keyFromCertificate, parseCertificate, pubKeyFromCsr, setupCrypto } from
 import { type Store } from '../store.types'
 import { getFactory, publicChannels } from '../..'
 import { prepareStore } from '../../utils/tests/prepareStore'
-import { getMessagesFromChannelIdByPubKey, validCurrentPublicChannelMessagesEntries } from './messages.selectors'
+import { validCurrentPublicChannelMessagesEntries } from './messages.selectors'
 import { type communitiesActions } from '../communities/communities.slice'
 import { type identityActions } from '../identity/identity.slice'
 import { type FactoryGirl } from 'factory-girl'
@@ -116,57 +116,5 @@ describe('messagesSelectors', () => {
     expect(messages.length).toBe(1)
 
     expect(messages[0].id).toBe(authenticMessage.id)
-  })
-
-  describe('getMessagesFromChannelIdByPubKey - return messages related to pubkey from the specific channel in chronological order', () => {
-    const generateMessage = async (identity: Identity, channelId: string) => {
-      await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>('Message', {
-        identity,
-        message: {
-          ...(
-            await factory.build<typeof publicChannels.actions.test_message>('Message', {
-              identity,
-            })
-          ).payload.message,
-          id: Math.random().toString(36).substr(2.9),
-          channelId,
-          createdAt: getCurrentTime(),
-        },
-        verifyAutomatically: true,
-      })
-    }
-    it('return only Alice messages from general channel - included John messages', async () => {
-      const aliceCsr = alice.userCsr?.userCsr
-      if (!aliceCsr) return
-
-      const arrLength = 3
-
-      for await (const _i of new Array(arrLength)) {
-        await new Promise<void>(resolve => setTimeout(() => resolve(), 500))
-        await generateMessage(alice, generalChannel.id)
-        await generateMessage(john, generalChannel.id)
-      }
-
-      const messages = getMessagesFromChannelIdByPubKey(generalChannel.id, pubKeyFromCsr(aliceCsr))(store.getState())
-      expect(messages.length).toEqual(arrLength)
-      expect(messages[0].createdAt).toBeLessThan(messages[2].createdAt)
-    })
-
-    it('return only Alice messages from general channel - included Alice messages on other channel', async () => {
-      const aliceCsr = alice.userCsr?.userCsr
-      if (!aliceCsr) return
-
-      const arrLength = 3
-
-      for await (const _i of new Array(arrLength)) {
-        await new Promise<void>(resolve => setTimeout(() => resolve(), 500))
-        await generateMessage(alice, generalChannel.id)
-        await generateMessage(alice, devChannel.id)
-      }
-
-      const messages = getMessagesFromChannelIdByPubKey(generalChannel.id, pubKeyFromCsr(aliceCsr))(store.getState())
-      expect(messages.length).toEqual(arrLength)
-      expect(messages[0].createdAt).toBeLessThan(messages[2].createdAt)
-    })
   })
 })

@@ -100,6 +100,3 @@ export interface TestMessage {
   identity: Identity
   verifyAutomatically: boolean
 }
-
-export const userJoinedMessage = (username: string) =>
-  `**@${username}** has joined and will be registered soon. 🎉 [Learn more](https://github.com/TryQuiet/quiet/wiki/Quiet-FAQ#how-does-username-registration-work)`

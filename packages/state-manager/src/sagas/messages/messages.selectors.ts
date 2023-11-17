@@ -45,22 +45,6 @@ export const publicChannelMessagesEntities = (address: string) =>
     return channelMessagesAdapter.getSelectors().selectEntities(channelMessagesBase.messages)
   })
 
-export const getMessagesFromChannelIdByPubKey = (channelId: string, pubkey: string) =>
-  createSelector(publicChannelsMessagesBase, base => {
-    if (!base) return []
-
-    const generalMessagesBase = base[channelId]
-    if (!generalMessagesBase) return []
-
-    const channelMessages = channelMessagesAdapter.getSelectors().selectAll(generalMessagesBase.messages)
-
-    const messagesFromPubKey = channelMessages.filter(mess => mess.pubKey === pubkey)
-
-    const sortedMessages = messagesFromPubKey.sort((a, b) => a.createdAt - b.createdAt)
-
-    return sortedMessages
-  })
-
 export const messageSendingStatusById = (messageId: string) =>
   createSelector(messagesSlice, reducerState => {
     return messageSendingStatusAdapter.getSelectors().selectById(reducerState.messageSendingStatus, messageId)
@@ -140,5 +124,4 @@ export const messagesSelectors = {
   messagesVerificationStatus,
   messagesSendingStatus,
   messageSendingStatusById,
-  getMessagesFromChannelIdByPubKey,
 }
