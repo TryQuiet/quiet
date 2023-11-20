@@ -34,7 +34,7 @@ export class ModalsInitialState {
   [ModalName.warningModal] = { open: false, args: {} };
   [ModalName.loadingPanel] = { open: true, args: {} }; // Loading modal is open by default and closes on websocket connection
   [ModalName.channelCreationModal] = { open: false, args: {} };
-  [ModalName.breakingChangesWarning] = { open: false, args: {} };
+  [ModalName.breakingChangesWarning] = { open: false, args: {} }
 }
 
 export const modalsSlice = createSlice({
