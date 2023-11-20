@@ -34,10 +34,12 @@ const StyledModalContent = styled(Grid)(({ theme }) => ({
   [`& .${classes.title}`]: {
     marginTop: 24,
     marginBottom: 16,
+    textAlign: 'center',
   },
 
   [`& .${classes.message}`]: {
     marginBottom: 32,
+    textAlign: 'center',
   },
 }))
 
@@ -52,23 +54,17 @@ export interface UpdateModalProps {
 export const UpdateModal: React.FC<UpdateModalProps> = ({ open, handleClose, buttons, title, message }) => {
   return (
     <Modal open={open} handleClose={handleClose}>
-      <StyledModalContent container direction='column' alignItems='center' justifyContent='flex-start'>
-        <Grid className={classes.info} container justifyContent='center'>
-          <Grid item>
-            <Icon src={updateIcon} />
-          </Grid>
+      <StyledModalContent container direction='column' alignItems='center' justifyContent='center'>
+        <Grid className={classes.info}>
+          <Icon src={updateIcon} />
         </Grid>
-        <Grid container item justifyContent='center'>
-          <Grid item className={classes.title}>
-            <Typography variant='h3'>{title}</Typography>
-          </Grid>
+        <Grid className={classes.title}>
+          <Typography variant='h3'>{title}</Typography>
         </Grid>
-        <Grid container item justifyContent='center'>
-          <Grid item className={classes.message}>
-            <Typography variant='body2'>{message}</Typography>
-          </Grid>
+        <Grid className={classes.message}>
+          <Typography variant='body2'>{message}</Typography>
         </Grid>
-        <Grid container spacing={8} justifyContent='center'>
+        <Grid container direction='column' alignItems='center' spacing={2}>
           {buttons.map((button, index) => (
             <Grid item xs={4} key={index}>
               {button}
