@@ -29,6 +29,7 @@ import { ChannelContextMenu } from './components/ContextMenu/menus/ChannelContex
 import { DeleteChannel } from './components/Channel/DeleteChannel/DeleteChannel'
 import ChannelCreationModal from './components/ChannelCreationModal/ChannelCreationModal'
 import { SaveStateComponent } from './components/SaveState/SaveStateComponent'
+import BreakingChangesWarning from './containers/widgets/breakingChangesWarning/BreakingChangesWarning'
 // Trigger lerna
 
 export const persistor = persistStore(store)
@@ -54,6 +55,7 @@ export default () => {
                 <CssBaseline />
                 <SettingsModal />
                 <UpdateModal />
+                <BreakingChangesWarning />
                 <QuitAppDialog />
                 <ChannelContextMenu />
                 <DeleteChannel />
