@@ -1,29 +1,27 @@
-import { Inject, Injectable } from '@nestjs/common'
-import { Agent } from 'https'
-import { createLibp2p, Libp2p } from 'libp2p'
-import { noise } from '@chainsafe/libp2p-noise'
 import { gossipsub } from '@chainsafe/libp2p-gossipsub'
-import { mplex } from '@libp2p/mplex'
+import { noise } from '@chainsafe/libp2p-noise'
 import { kadDHT } from '@libp2p/kad-dht'
-import { createServer } from 'it-ws'
-import { DateTime } from 'luxon'
-import { EventEmitter } from 'events'
-import { Libp2pEvents, Libp2pNodeParams } from './libp2p.types'
-import { ProcessInChunksService } from './process-in-chunks.service'
+import { mplex } from '@libp2p/mplex'
 import { multiaddr } from '@multiformats/multiaddr'
+import { Inject, Injectable } from '@nestjs/common'
+import { createLibp2pAddress, createLibp2pListenAddress } from '@quiet/common'
 import { ConnectionProcessInfo, PeerId, SocketActionTypes } from '@quiet/types'
+import crypto from 'crypto'
+import { EventEmitter } from 'events'
+import { Agent } from 'https'
+import { createServer } from 'it-ws'
+import { Libp2p, createLibp2p } from 'libp2p'
+import { preSharedKey } from 'libp2p/pnet'
+import { DateTime } from 'luxon'
+import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
+import { toString as uint8ArrayToString } from 'uint8arrays/to-string'
+import Logger from '../common/logger'
 import { SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
 import { ServerIoProviderTypes } from '../types'
-import Logger from '../common/logger'
 import { webSockets } from '../websocketOverTor'
 import { all } from '../websocketOverTor/filters'
-import { createLibp2pAddress, createLibp2pListenAddress, isDefined } from '@quiet/common'
-import { CertFieldsTypes, getReqFieldValue, loadCSR } from '@quiet/identity'
-import { preSharedKey } from 'libp2p/pnet'
-import { toString as uint8ArrayToString } from 'uint8arrays/to-string'
-import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
-import crypto from 'crypto'
-import { peerIdFromString } from '@libp2p/peer-id'
+import { Libp2pEvents, Libp2pNodeParams } from './libp2p.types'
+import { ProcessInChunksService } from './process-in-chunks.service'
 
 const KEY_LENGTH = 32
 export const LIBP2P_PSK_METADATA = '/key/swarm/psk/1.0.0/\n/base16/\n'
@@ -33,7 +31,6 @@ export class Libp2pService extends EventEmitter {
   public libp2pInstance: Libp2p | null
   public connectedPeers: Map<string, number> = new Map()
   public dialedPeers: Set<string> = new Set()
-  // public processInChunksService: ProcessInChunks<string>
   private readonly logger = Logger(Libp2pService.name)
   constructor(
     @Inject(SERVER_IO_PROVIDER) public readonly serverIoProvider: ServerIoProviderTypes,
@@ -45,7 +42,6 @@ export class Libp2pService extends EventEmitter {
 
   private dialPeer = async (peerAddress: string) => {
     if (this.dialedPeers.has(peerAddress)) {
-      console.log(`Peer ${peerAddress} already dialed, not dialing`) // TODO: remove log
       return
     }
     this.dialedPeers.add(peerAddress)
@@ -134,15 +130,6 @@ export class Libp2pService extends EventEmitter {
     return libp2p
   }
 
-  // private async addPeersToPeerBook(addresses: string[]) {
-  //   for (const address of addresses) {
-  //     const peerId = multiaddr(address).getPeerId()
-  //     if (!peerId) return
-  //     // @ts-expect-error
-  //     await this.libp2pInstance?.peerStore.addressBook.add(peerIdFromString(peerId), [multiaddr(address)])
-  //   }
-  // }
-
   private async afterCreation(peers: string[], peerId: PeerId) {
     if (!this.libp2pInstance) {
       this.logger.error('libp2pInstance was not created')
@@ -152,7 +139,7 @@ export class Libp2pService extends EventEmitter {
     this.logger(`Local peerId: ${peerId.toString()}`)
     this.on(Libp2pEvents.DIAL_PEERS, async (addresses: string[]) => {
       const nonDialedAddresses = addresses.filter(peerAddress => !this.dialedPeers.has(peerAddress))
-      console.log('DIALING PEERS', nonDialedAddresses.length, 'addresses')
+      this.logger('Dialing', nonDialedAddresses.length, 'addresses')
       this.processInChunksService.updateData(nonDialedAddresses)
       await this.processInChunksService.process()
     })
@@ -169,9 +156,6 @@ export class Libp2pService extends EventEmitter {
       const remotePeerId = peer.detail.remotePeer.toString()
       const localPeerId = peerId.toString()
       this.logger(`${localPeerId} connected to ${remotePeerId}`)
-
-      // Stop dialing as soon as we connect to a peer
-      // this.processInChunksService.stop()
 
       this.connectedPeers.set(remotePeerId, DateTime.utc().valueOf())
       this.logger(`${localPeerId} is connected to ${this.connectedPeers.size} peers`)

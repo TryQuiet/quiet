@@ -21,7 +21,7 @@ export class ProcessInChunksService<T> extends EventEmitter {
   }
 
   updateData(items: T[]) {
-    console.log('Updating data, previous', this.data, 'adding:', items)
+    this.logger(`Updating data with ${items.length} items`)
     this.data = [...new Set(this.data.concat(items))]
   }
 
