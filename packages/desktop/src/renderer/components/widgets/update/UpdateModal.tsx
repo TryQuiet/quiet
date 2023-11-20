@@ -49,13 +49,15 @@ const StyledModalContent = styled(Grid)(({ theme }) => ({
   },
 }))
 
-interface UpdateModalProps {
+export interface UpdateModalProps {
   open: boolean
   handleClose: () => void
   handleUpdate: () => void
+  title: string
+  message: string
 }
 
-export const UpdateModal: React.FC<UpdateModalProps> = ({ open, handleClose, handleUpdate }) => {
+export const UpdateModal: React.FC<UpdateModalProps> = ({ open, handleClose, handleUpdate, title, message }) => {
   return (
     <Modal open={open} handleClose={handleClose}>
       <StyledModalContent container direction='column' alignItems='center' justifyContent='flex-start'>
@@ -66,12 +68,12 @@ export const UpdateModal: React.FC<UpdateModalProps> = ({ open, handleClose, han
         </Grid>
         <Grid container item justifyContent='center'>
           <Grid item className={classes.title}>
-            <Typography variant='h3'>Software update</Typography>
+            <Typography variant='h3'>{title}</Typography>
           </Grid>
         </Grid>
         <Grid container item justifyContent='center'>
           <Grid item className={classes.subTitle}>
-            <Typography variant='body2'>An update is available for Quiet.</Typography>
+            <Typography variant='body2'>{message}</Typography>
           </Grid>
         </Grid>
         <Grid container spacing={8} justifyContent='center'>

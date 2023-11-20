@@ -18,8 +18,13 @@ export const mapDispatchToProps = (dispatch: Dispatch<AnyAction>) =>
 
 const ApplicationUpdateModal: React.FC = () => {
   const dispatch = useDispatch()
+
   const actions = mapDispatchToProps(dispatch)
   const modal = useModal(ModalName.applicationUpdate)
-  return <UpdateModal {...modal} {...actions} />
+
+  const title = "Software update"
+  const message = "An update is availale for Quiet."
+
+  return <UpdateModal {...modal} {...actions} title={title} message={message}/>
 }
 export default ApplicationUpdateModal
