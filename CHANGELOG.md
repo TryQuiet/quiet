@@ -1,3 +1,15 @@
+[2.0.3-alpha.5]
+
+* Fix network data proceeding when using custom protocol multiple times #1847
+
+* Backward incompatible change: use pre shared key as connection protector in libp2p. Add libp2p psk to invitation link
+
+* Removed code responsible for data translation from channel address to channel id from state manager transforms and storage service
+
+[2.0.3-alpha.1]
+
+* Temporarily hiding leave community button from Possible impersonation attack
+
 [2.0.3-alpha.0]
 
 * Filter CSRs - remove old csrs and replace with new for each pubkey

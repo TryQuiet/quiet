@@ -2,7 +2,6 @@ import { capitalizeFirstLetter } from '@quiet/common'
 import { communities, users } from '@quiet/state-manager'
 import React, { useEffect } from 'react'
 import { useSelector } from 'react-redux'
-import { clearCommunity } from '../../..'
 import { useModal } from '../../../containers/hooks'
 import { ModalName } from '../../../sagas/modals/modals.types'
 import PossibleImpersonationAttackModalComponent from './PossibleImpersonationAttackModal.component'
@@ -19,10 +18,6 @@ const PossibleImpersonationAttackModalContainer = () => {
     communityName = capitalizeFirstLetter(community.name)
   }
 
-  const leaveCommunity = async () => {
-    await clearCommunity()
-  }
-
   useEffect(() => {
     if (duplicateCerts) {
       possibleImpersonationAttackModal.handleOpen()
@@ -30,11 +25,7 @@ const PossibleImpersonationAttackModalContainer = () => {
   }, [duplicateCerts])
 
   return (
-    <PossibleImpersonationAttackModalComponent
-      communityName={communityName}
-      leaveCommunity={leaveCommunity}
-      {...possibleImpersonationAttackModal}
-    />
+    <PossibleImpersonationAttackModalComponent communityName={communityName} {...possibleImpersonationAttackModal} />
   )
 }
 

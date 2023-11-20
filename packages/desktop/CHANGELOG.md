@@ -3,6 +3,55 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.3-alpha.5](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@2.0.3-alpha.4...@quiet/desktop@2.0.3-alpha.5) (2023-11-14)
+
+**Note:** Version bump only for package @quiet/desktop
+
+
+
+
+
+## [2.0.3-alpha.4](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@2.0.3-alpha.3...@quiet/desktop@2.0.3-alpha.4) (2023-11-14)
+
+
+### Features
+
+* trigger desktop ([713e1b8](https://github.com/TryQuiet/quiet/commit/713e1b822b266c218f71742ed68616b8b1056c75))
+
+
+
+
+
+## [2.0.3-alpha.3](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@2.0.3-alpha.2...@quiet/desktop@2.0.3-alpha.3) (2023-11-13)
+
+
+### Features
+
+* add debug logs ([#2057](https://github.com/TryQuiet/quiet/issues/2057)) ([aa3e777](https://github.com/TryQuiet/quiet/commit/aa3e777778b0861d5f96e6116bfc70031ed67929))
+
+
+
+
+
+## [2.0.3-alpha.2](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@2.0.3-alpha.1...@quiet/desktop@2.0.3-alpha.2) (2023-11-09)
+
+
+### Bug Fixes
+
+* trigger desktop ([2898bee](https://github.com/TryQuiet/quiet/commit/2898bee80bbf2f16cbda67281a29e47716faa77c))
+
+
+
+
+
+## [2.0.3-alpha.1](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@2.0.3-alpha.0...@quiet/desktop@2.0.3-alpha.1) (2023-11-08)
+
+**Note:** Version bump only for package @quiet/desktop
+
+
+
+
+
 ## [2.0.3-alpha.0](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@2.0.2-alpha.0...@quiet/desktop@2.0.3-alpha.0) (2023-10-26)
 
 

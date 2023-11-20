@@ -15,7 +15,6 @@ import {
   identity,
   publicChannels,
   communities,
-  Community,
   Identity,
   Store,
   MessageType,
@@ -28,6 +27,7 @@ import SearchModal from '../renderer/components/SearchModal/SearchModal'
 import { modalsActions } from '../renderer/sagas/modals/modals.slice'
 import { ModalName } from '../renderer/sagas/modals/modals.types'
 import { DateTime } from 'luxon'
+import { type Community } from '@quiet/types'
 
 jest.setTimeout(20_000)
 

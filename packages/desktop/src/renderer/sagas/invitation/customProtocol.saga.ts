@@ -6,8 +6,8 @@ import { socketSelectors } from '../socket/socket.selectors'
 import { ModalName } from '../modals/modals.types'
 import { modalsActions } from '../modals/modals.slice'
 
-export function* handleInvitationCodeSaga(
-  action: PayloadAction<ReturnType<typeof communities.actions.handleInvitationCodes>['payload']>
+export function* customProtocolSaga(
+  action: PayloadAction<ReturnType<typeof communities.actions.customProtocol>['payload']>
 ): Generator {
   while (true) {
     const connected = yield* select(socketSelectors.isConnected)
@@ -17,8 +17,8 @@ export function* handleInvitationCodeSaga(
     yield* delay(500)
   }
 
-  const currentCommunityId = yield* select(communities.selectors.currentCommunityId)
-  if (currentCommunityId) {
+  const community = yield* select(communities.selectors.currentCommunity)
+  if (community) {
     yield* put(
       modalsActions.openModal({
         name: ModalName.warningModal,
@@ -30,11 +30,12 @@ export function* handleInvitationCodeSaga(
     )
     return
   }
-
-  if (action.payload.length > 0) {
+  const invitationData = action.payload
+  if (invitationData && invitationData.pairs.length > 0 && invitationData.psk) {
     const payload: CreateNetworkPayload = {
       ownership: CommunityOwnership.User,
-      peers: action.payload,
+      peers: invitationData.pairs,
+      psk: invitationData.psk,
     }
     yield* put(communities.actions.createNetwork(payload))
   } else {

@@ -10,9 +10,10 @@ import crypto from 'crypto'
 import { type PermsData } from '@quiet/types'
 import { TestConfig } from '../const'
 import logger from './logger'
-import { createCertificatesTestHelper } from './client-server'
 import { Libp2pNodeParams } from '../libp2p/libp2p.types'
 import { createLibp2pAddress, createLibp2pListenAddress } from '@quiet/common'
+import { Libp2pService } from '../libp2p/libp2p.service'
+
 const log = logger('test')
 
 export interface Ports {
@@ -189,13 +190,12 @@ export const testBootstrapMultiaddrs = [
 ]
 
 export const libp2pInstanceParams = async (): Promise<Libp2pNodeParams> => {
-  const pems = await createCertificatesTestHelper('address1.onion', 'address2.onion')
   const port = await getPort()
   const peerId = await createPeerId()
   const address = '0.0.0.0'
   const peerIdRemote = await createPeerId()
   const remoteAddress = createLibp2pAddress(address, peerIdRemote.toString())
-
+  const libp2pKey = Libp2pService.generateLibp2pPSK().fullKey
   return {
     peerId,
     listenAddresses: [createLibp2pListenAddress('localhost')],
@@ -203,6 +203,7 @@ export const libp2pInstanceParams = async (): Promise<Libp2pNodeParams> => {
     localAddress: createLibp2pAddress('localhost', peerId.toString()),
     targetPort: port,
     peers: [remoteAddress],
+    psk: libp2pKey,
   }
 }
 

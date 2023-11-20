@@ -51,9 +51,15 @@ import Logger from '../common/logger'
 import { DirectMessagesRepo, PublicChannelsRepo } from '../common/types'
 import { removeFiles, removeDirs, createPaths, getUsersAddresses } from '../common/utils'
 import { StorageEvents } from './storage.types'
+import { RegistrationEvents } from '../registration/registration.types'
 
 interface DBOptions {
   replicate: boolean
+}
+
+interface CsrReplicatedPromiseValues {
+  promise: Promise<unknown>
+  resolveFunction: any
 }
 
 @Injectable()
@@ -71,6 +77,8 @@ export class StorageService extends EventEmitter {
   private filesManager: IpfsFileManagerService
   private peerId: PeerId | null = null
   private ipfsStarted: boolean
+  public csrReplicatedPromiseMap: Map<number, CsrReplicatedPromiseValues> = new Map()
+  private csrReplicatedPromiseId: number = 0
 
   private readonly logger = Logger(StorageService.name)
   constructor(
@@ -146,6 +154,11 @@ export class StorageService extends EventEmitter {
         console.log(`Couldn't start ipfs node`, e.message)
         throw new Error(e.message)
       })
+  }
+
+  public resetCsrReplicatedMapAndId() {
+    this.csrReplicatedPromiseMap = new Map()
+    this.csrReplicatedPromiseId = 0
   }
 
   private async startReplicate() {
@@ -369,7 +382,6 @@ export class StorageService extends EventEmitter {
     })
     this.certificates.events.on('write', async (_address, entry) => {
       this.logger('Saved certificate locally')
-      this.logger(entry.payload.value)
       this.emit(StorageEvents.LOAD_CERTIFICATES, {
         certificates: this.getAllEventLogEntries(this.certificates),
       })
@@ -390,6 +402,26 @@ export class StorageService extends EventEmitter {
     this.logger('STORAGE: Finished createDbForCertificates')
   }
 
+  private createCsrReplicatedPromise(id: number) {
+    let resolveFunction
+    const promise = new Promise(resolve => {
+      resolveFunction = resolve
+    })
+
+    this.csrReplicatedPromiseMap.set(id, { promise, resolveFunction })
+  }
+
+  public resolveCsrReplicatedPromise(id: number) {
+    const csrReplicatedPromiseMapId = this.csrReplicatedPromiseMap.get(id)
+    if (csrReplicatedPromiseMapId) {
+      csrReplicatedPromiseMapId?.resolveFunction(id)
+      this.csrReplicatedPromiseMap.delete(id)
+    } else {
+      console.log(`No promise with ID ${id} found.`)
+      return
+    }
+  }
+
   public async createDbForCertificatesRequests() {
     this.logger('certificatesRequests db init')
     this.certificatesRequests = await this.orbitDb.log<string>('csrs', {
@@ -398,13 +430,33 @@ export class StorageService extends EventEmitter {
         write: ['*'],
       },
     })
+
+    // DOCS -> handleCsrReplicationEvent.md
     this.certificatesRequests.events.on('replicated', async () => {
       this.logger('REPLICATED: CSRs')
+
+      this.csrReplicatedPromiseId++
 
       const filteredCsrs = await this.getCsrs()
 
       const allCertificates = this.getAllEventLogEntries(this.certificates)
-      this.emit(StorageEvents.REPLICATED_CSR, { csrs: filteredCsrs, certificates: allCertificates })
+
+      this.createCsrReplicatedPromise(this.csrReplicatedPromiseId)
+
+      if (this.csrReplicatedPromiseId > 1) {
+        const csrReplicatedPromiseMapId = this.csrReplicatedPromiseMap.get(this.csrReplicatedPromiseId - 1)
+
+        if (csrReplicatedPromiseMapId?.promise) {
+          await csrReplicatedPromiseMapId.promise
+        }
+      }
+
+      this.emit(StorageEvents.REPLICATED_CSR, {
+        csrs: filteredCsrs,
+        certificates: allCertificates,
+        id: this.csrReplicatedPromiseId,
+      })
+
       await this.updatePeersList()
     })
     this.certificatesRequests.events.on('write', async (_address, entry) => {
@@ -473,9 +525,7 @@ export class StorageService extends EventEmitter {
       // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
       await this.channels.load({ fetchEntryTimeout: 2000 })
 
-      const channels = Object.values(this.channels.all).map(channel => {
-        return this.transformChannel(channel)
-      })
+      const channels = Object.values(this.channels.all)
 
       const keyValueChannels: {
         [key: string]: PublicChannel
@@ -496,10 +546,9 @@ export class StorageService extends EventEmitter {
 
     // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
     await this.channels.load({ fetchEntryTimeout: 1000 })
-    this.logger('ALL CHANNELS COUNT:', Object.keys(this.channels.all).length)
-    this.logger('ALL CHANNELS COUNT:', Object.keys(this.channels.all))
+    this.logger('Channels count:', Object.keys(this.channels.all).length)
+    this.logger('Channels names:', Object.keys(this.channels.all))
     Object.values(this.channels.all).forEach(async (channel: PublicChannel) => {
-      channel = this.transformChannel(channel)
       await this.subscribeToChannel(channel)
     })
     this.logger('STORAGE: Finished createDbForChannels')
@@ -576,7 +625,7 @@ export class StorageService extends EventEmitter {
 
       db.events.on('replicate.progress', async (address, _hash, entry, progress, total) => {
         this.logger(`progress ${progress as string}/${total as string}. Address: ${address as string}`)
-        const messages = this.transformMessages([entry.payload.value])
+        const messages = [entry.payload.value]
 
         const verified = await this.verifyMessage(messages[0])
 
@@ -638,48 +687,14 @@ export class StorageService extends EventEmitter {
     })
   }
 
-  public transformMessages(msgs: ChannelMessage[]) {
-    console.log('---------------- TRANSFORMING MESSAGES ----------------------')
-    const messages = msgs.map(msg => {
-      console.log('processing message ', msg.id)
-      // @ts-ignore
-      if (msg.channelAddress) {
-        console.log('message before transformation ', msg)
-        // @ts-ignore
-        msg.channelId = msg.channelAddress
-        // @ts-ignore
-        delete msg.channelAddress
-        console.log('transformed message to new format ', msg)
-        return msg
-      }
-      return msg
-    })
-    return messages
-  }
-
-  public transformChannel(channel: PublicChannel) {
-    // @ts-ignore
-    if (channel.address) {
-      console.log('channel before transformation ', channel)
-      // @ts-ignore
-      channel.id = channel.address
-      // @ts-ignore
-      delete channel.address
-      console.log('transformed channel to new format ', channel)
-      return channel
-    }
-    return channel
-  }
-
   public async askForMessages(channelId: string, ids: string[]) {
     const repo = this.publicChannelsRepos.get(channelId)
     if (!repo) return
     const messages = this.getAllEventLogEntries<ChannelMessage>(repo.db)
-    let filteredMessages: ChannelMessage[] = []
+    const filteredMessages: ChannelMessage[] = []
     for (const id of ids) {
       filteredMessages.push(...messages.filter(i => i.id === id))
     }
-    filteredMessages = this.transformMessages(filteredMessages)
     this.emit(StorageEvents.LOAD_MESSAGES, {
       messages: filteredMessages,
       isVerified: true,
@@ -696,8 +711,7 @@ export class StorageService extends EventEmitter {
     }
     this.logger(`Creating channel ${data.id}`)
 
-    // @ts-ignore
-    const channelId = data.id || data.address
+    const channelId = data.id
 
     const db: EventStore<ChannelMessage> = await this.orbitDb.log<ChannelMessage>(`channels.${channelId}`, {
       replicate: options.replicate,
@@ -903,7 +917,7 @@ export class StorageService extends EventEmitter {
 
   public getAllUsers(): UserData[] {
     const csrs = this.getAllEventLogEntries(this.certificatesRequests)
-    console.log('csrs count:', csrs.length)
+    this.logger('CSRs count:', csrs.length)
     const allUsers: UserData[] = []
     for (const csr of csrs) {
       const parsedCert = parseCertificationRequest(csr)
@@ -991,6 +1005,10 @@ export class StorageService extends EventEmitter {
     this.messageThreads = undefined
     // @ts-ignore
     this.certificates = undefined
+    // @ts-ignore
+    this.certificatesRequests = undefined
+    // @ts-ignore
+    this.communityMetadata = undefined
     this.publicChannelsRepos = new Map()
     this.directMessagesRepos = new Map()
     this.publicKeysMap = new Map()
@@ -1002,5 +1020,6 @@ export class StorageService extends EventEmitter {
     // @ts-ignore
     this.filesManager = null
     this.peerId = null
+    this.resetCsrReplicatedMapAndId()
   }
 }

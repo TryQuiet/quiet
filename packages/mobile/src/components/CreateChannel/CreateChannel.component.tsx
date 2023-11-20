@@ -1,5 +1,4 @@
 import React, { FC, useState, useRef, useEffect } from 'react'
-
 import { Keyboard, KeyboardAvoidingView, TextInput, View, Image } from 'react-native'
 
 import { defaultTheme } from '../../styles/themes/default.theme'

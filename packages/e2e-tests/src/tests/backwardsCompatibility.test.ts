@@ -5,14 +5,15 @@ import {
   CreateCommunityModal,
   DebugModeModal,
   JoinCommunityModal,
-  JoiningLoadingPanel,
   RegisterUsernameModal,
   Sidebar,
   UpdateModal,
 } from '../selectors'
 
 jest.setTimeout(450000)
-describe('Backwards Compatibility', () => {
+describe.skip('Backwards Compatibility', () => {
+  // Note: version that adds PSK is not backward compatible
+  // Skip until psk is released to production
   let ownerAppOldVersion: App
   let ownerAppNewVersion: App
   let generalChannel: Channel
@@ -57,19 +58,15 @@ describe('Backwards Compatibility', () => {
       await createModal.typeCommunityName(communityName)
       await createModal.submit()
     })
-    it('RegisterUsernameModal - owner has registered', async () => {
+    it('Owner sees "register username" modal and submits valid username', async () => {
       const registerModal = new RegisterUsernameModal(ownerAppOldVersion.driver)
       const isRegisterModal = await registerModal.element.isDisplayed()
       expect(isRegisterModal).toBeTruthy()
       await registerModal.typeUsername(ownerUsername)
       await registerModal.submit()
     })
-    it('Connecting to peers modal', async () => {
-      const loadingPanelCommunity = new JoiningLoadingPanel(ownerAppOldVersion.driver)
-      const isLoadingPanelCommunity = await loadingPanelCommunity.element.isDisplayed()
-      expect(isLoadingPanelCommunity).toBeTruthy()
-    })
-    it('Close update modal', async () => {
+
+    it('Owner sees "update available" modal and closes it', async () => {
       console.log('waiting for update modal')
       const updateModal = new UpdateModal(ownerAppOldVersion.driver)
       console.log('Update Modal - before check with display')
@@ -80,7 +77,7 @@ describe('Backwards Compatibility', () => {
       await updateModal.close()
       console.log('Update Modal - after close')
     })
-    it('General channel check', async () => {
+    it('Owner registers successfully and sees general channel', async () => {
       generalChannel = new Channel(ownerAppOldVersion.driver, 'general')
       const isGeneralChannel = await generalChannel.element.isDisplayed()
       const generalChannelText = await generalChannel.element.getText()
