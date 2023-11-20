@@ -1,3 +1,9 @@
+[unreleased]
+
+* Fix: filter out invalid peer addresses in peer list. Update peer list in localdb.
+
+* Fix: dial new peers on CSRs replication
+
 [2.0.3-alpha.5]
 
 * Fix network data proceeding when using custom protocol multiple times #1847
