@@ -1,9 +1,8 @@
-import React from 'react'
+import React, { ReactElement } from 'react'
 
 import { styled } from '@mui/material/styles'
 
 import Typography from '@mui/material/Typography'
-import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
 
 import Icon from '../../ui/Icon/Icon'
@@ -14,10 +13,9 @@ const PREFIX = 'UpdateModal'
 
 const classes = {
   info: `${PREFIX}info`,
-  button: `${PREFIX}button`,
   updateIcon: `${PREFIX}updateIcon`,
   title: `${PREFIX}title`,
-  subTitle: `${PREFIX}subTitle`,
+  message: `${PREFIX}message`,
 }
 
 const StyledModalContent = styled(Grid)(({ theme }) => ({
@@ -26,12 +24,6 @@ const StyledModalContent = styled(Grid)(({ theme }) => ({
 
   [`& .${classes.info}`]: {
     marginTop: 38,
-  },
-
-  [`& .${classes.button}`]: {
-    height: 55,
-    fontSize: '0.9rem',
-    backgroundColor: theme.palette.colors.quietBlue,
   },
 
   [`& .${classes.updateIcon}`]: {
@@ -44,7 +36,7 @@ const StyledModalContent = styled(Grid)(({ theme }) => ({
     marginBottom: 16,
   },
 
-  [`& .${classes.subTitle}`]: {
+  [`& .${classes.message}`]: {
     marginBottom: 32,
   },
 }))
@@ -52,12 +44,12 @@ const StyledModalContent = styled(Grid)(({ theme }) => ({
 export interface UpdateModalProps {
   open: boolean
   handleClose: () => void
-  handleUpdate: () => void
+  buttons: ReactElement[]
   title: string
   message: string
 }
 
-export const UpdateModal: React.FC<UpdateModalProps> = ({ open, handleClose, handleUpdate, title, message }) => {
+export const UpdateModal: React.FC<UpdateModalProps> = ({ open, handleClose, buttons, title, message }) => {
   return (
     <Modal open={open} handleClose={handleClose}>
       <StyledModalContent container direction='column' alignItems='center' justifyContent='flex-start'>
@@ -72,24 +64,16 @@ export const UpdateModal: React.FC<UpdateModalProps> = ({ open, handleClose, han
           </Grid>
         </Grid>
         <Grid container item justifyContent='center'>
-          <Grid item className={classes.subTitle}>
+          <Grid item className={classes.message}>
             <Typography variant='body2'>{message}</Typography>
           </Grid>
         </Grid>
         <Grid container spacing={8} justifyContent='center'>
-          <Grid item xs={4}>
-            <Button
-              variant='contained'
-              size='large'
-              color='primary'
-              type='submit'
-              onClick={handleUpdate}
-              fullWidth
-              className={classes.button}
-            >
-              Update now
-            </Button>
-          </Grid>
+          {buttons.map((button, index) => (
+            <Grid item xs={4} key={index}>
+              {button}
+            </Grid>
+          ))}
         </Grid>
       </StyledModalContent>
     </Modal>
