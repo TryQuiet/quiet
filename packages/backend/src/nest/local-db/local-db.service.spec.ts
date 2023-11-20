@@ -10,7 +10,9 @@ describe('LocalDbService', () => {
   let module: TestingModule
   let localDbService: LocalDbService
   let peer1Stats: Record<string, NetworkStats> = {}
+  let peer1ID: string
   let peer2Stats: Record<string, NetworkStats> = {}
+  let peer2ID: string
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
@@ -18,17 +20,18 @@ describe('LocalDbService', () => {
     }).compile()
 
     localDbService = await module.resolve(LocalDbService)
-
+    peer1ID = 'QmaEvCkpUG7GxhgvMkk8wxurfi1ehjHhSUNRksWTmXN2ix'
     peer1Stats = {
-      ['QmaEvCkpUG7GxhgvMkk8wxurfi1ehjHhSUNRksWTmXN2ix']: {
-        peerId: 'QmaEvCkpUG7GxhgvMkk8wxurfi1ehjHhSUNRksWTmXN2ix',
+      [peer1ID]: {
+        peerId: peer1ID,
         connectionTime: 50,
         lastSeen: 1000,
       },
     }
+    peer2ID = 'QmZB6pVafcvAQfy5R5LxvDXvB8xcDifD39Lp3XGDM9XDuQ'
     peer2Stats = {
-      ['QmZB6pVafcvAQfy5R5LxvDXvB8xcDifD39Lp3XGDM9XDuQ']: {
-        peerId: 'QmZB6pVafcvAQfy5R5LxvDXvB8xcDifD39Lp3XGDM9XDuQ',
+      [peer2ID]: {
+        peerId: peer2ID,
         connectionTime: 500,
         lastSeen: 500,
       },
@@ -78,8 +81,8 @@ describe('LocalDbService', () => {
 
   it('get sorted peers', async () => {
     const peers = [
-      createLibp2pAddress('nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad.onion', Object.keys(peer2Stats)[0]),
-      createLibp2pAddress('zl37gnntp64dhnisddftypxbt5cqx6cum65vdv6oeaffrbqmemwc52ad.onion', Object.keys(peer1Stats)[0]),
+      createLibp2pAddress('nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad.onion', peer2ID),
+      createLibp2pAddress('zl37gnntp64dhnisddftypxbt5cqx6cum65vdv6oeaffrbqmemwc52ad.onion', peer1ID),
     ]
     await localDbService.put(LocalDBKeys.PEERS, {
       ...peer1Stats,
@@ -100,7 +103,7 @@ describe('LocalDbService', () => {
     })
 
     const peer2StatsUpdated: NetworkStats = {
-      peerId: 'QmR7Qgd4tg2XrGD3kW647ZnYyazTwHQF3cqRBmSduhhusA',
+      peerId: peer2ID,
       connectionTime: 777,
       lastSeen: 678,
     }
