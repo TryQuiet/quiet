@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common'
 import { Level } from 'level'
 import { NetworkStats } from '@quiet/types'
-import { sortPeers } from '@quiet/common'
+import { filterAndSortPeers } from '@quiet/common'
 import { LEVEL_DB } from '../const'
 import { LocalDBKeys, LocalDbStatus } from './local-db.types'
 import Logger from '../common/logger'
@@ -75,6 +75,6 @@ export class LocalDbService {
     console.log('getSortedPeers peers got', peers)
     const peersStats = (await this.get(LocalDBKeys.PEERS)) || {}
     const stats: NetworkStats[] = Object.values(peersStats)
-    return sortPeers(peers, stats)
+    return filterAndSortPeers(peers, stats)
   }
 }
