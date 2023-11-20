@@ -157,10 +157,10 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.logger('launchCommunityFromStorage')
 
     const community: InitCommunityPayload = await this.localDbService.get(LocalDBKeys.COMMUNITY)
-    console.log('launchCommunityFromStorage - community peers', community?.peers)
+    this.logger('launchCommunityFromStorage - community peers', community?.peers)
     if (community) {
       const sortedPeers = await this.localDbService.getSortedPeers(community.peers)
-      console.log('launchCommunityFromStorage - sorted peers', sortedPeers)
+      this.logger('launchCommunityFromStorage - sorted peers', sortedPeers)
       if (sortedPeers.length > 0) {
         community.peers = sortedPeers
       }
@@ -589,7 +589,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       this.serverIoProvider.io.emit(SocketActionTypes.RESPONSE_FETCH_ALL_DIRECT_MESSAGES, payload)
     })
     this.storageService.on(StorageEvents.UPDATE_PEERS_LIST, (payload: StorePeerListPayload) => {
-      // this.libp2pService.emit(Libp2pEvents.UPDATE_KNOWN_PEERS_LIST, payload.peerList)
       this.serverIoProvider.io.emit(SocketActionTypes.PEER_LIST, payload)
     })
     this.storageService.on(StorageEvents.SEND_PUSH_NOTIFICATION, (payload: PushNotificationPayload) => {
@@ -605,9 +604,8 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.storageService.on(
       StorageEvents.REPLICATED_CSR,
       async (payload: { csrs: string[]; certificates: string[]; id: string }) => {
-        console.log(`On ${StorageEvents.REPLICATED_CSR}`)
+        this.logger(`Storage - ${StorageEvents.REPLICATED_CSR}`)
         this.libp2pService.emit(Libp2pEvents.DIAL_PEERS, await getLibp2pAddressesFromCsrs(payload.csrs))
-        console.log(`Storage - ${StorageEvents.REPLICATED_CSR}`)
         this.serverIoProvider.io.emit(SocketActionTypes.RESPONSE_GET_CSRS, { csrs: payload.csrs })
         this.registrationService.emit(RegistrationEvents.REGISTER_USER_CERTIFICATE, payload)
       }

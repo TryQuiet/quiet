@@ -337,12 +337,8 @@ export class StorageService extends EventEmitter {
     const allUsers = this.getAllUsers()
     const registeredUsers = this.getAllRegisteredUsers()
     const peers = [...new Set(await getUsersAddresses(allUsers.concat(registeredUsers)))]
-    console.log('updatePeersList, peers count:', peers.length)
-    console.log('STORATE peers', peers)
-
     const community: InitCommunityPayload = await this.localDbService.get(LocalDBKeys.COMMUNITY)
     const sortedPeers = await this.localDbService.getSortedPeers(peers)
-    console.log('STORAGE sortedPeers', sortedPeers)
     if (sortedPeers.length > 0) {
       community.peers = sortedPeers
       await this.localDbService.put(LocalDBKeys.COMMUNITY, community)
