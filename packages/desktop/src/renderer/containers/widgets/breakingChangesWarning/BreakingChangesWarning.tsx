@@ -6,6 +6,9 @@ import UpdateModal from '../../../components/widgets/update/UpdateModal'
 import Button from '@mui/material/Button'
 import theme from '../../../theme'
 
+import { shell } from 'electron'
+import { Site } from '@quiet/common'
+
 const BreakingChangesWarning = () => {
   const modal = useModal(ModalName.breakingChangesWarning)
 
@@ -18,7 +21,7 @@ const BreakingChangesWarning = () => {
     'Quiet’s next release makes joining communities faster and more reliable by letting people join when the owner is offline! 🎉 However, these changes are not backwards compatible, so you must re-install Quiet from tryquiet.org and re-create or re-join your community. 😥 This version of Quiet will no longer receive any updates or security fixes, so please re-install soon. We apologize for the inconvenience.'
 
   const updateAction = useCallback(() => {
-    console.log('implement me')
+    shell.openExternal(`${Site.MAIN_PAGE}#Downloads`)
   }, [])
 
   const updateButton = (
