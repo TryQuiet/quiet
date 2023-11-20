@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { UpdateModal } from './UpdateModal'
+import { UpdateModal } from './UpdateModalComponent'
 import { renderComponent } from '../../../testUtils/renderComponent'
 
 describe('UpdateModal', () => {

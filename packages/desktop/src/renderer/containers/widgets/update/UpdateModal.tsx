@@ -2,10 +2,12 @@ import React from 'react'
 import { AnyAction, Dispatch, bindActionCreators } from 'redux'
 import { useDispatch } from 'react-redux'
 
-import UpdateModal from '../../../components/widgets/update/UpdateModal'
 import updateHandlers from '../../../store/handlers/update'
+
 import { useModal } from '../../hooks'
 import { ModalName } from '../../../sagas/modals/modals.types'
+
+import UpdateModalComponent from '../../../components/widgets/update/UpdateModalComponent'
 
 import Button from '@mui/material/Button'
 import theme from '../../../theme'
@@ -46,7 +48,7 @@ const ApplicationUpdateModal: React.FC = () => {
     </Button>
   )
 
-  return <UpdateModal {...modal} {...actions} buttons={[button]} title={title} message={message} />
+  return <UpdateModalComponent {...modal} {...actions} buttons={[button]} title={title} message={message} />
 }
 
 export default ApplicationUpdateModal

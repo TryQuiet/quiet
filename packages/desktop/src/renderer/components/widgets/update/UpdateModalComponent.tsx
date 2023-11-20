@@ -51,7 +51,7 @@ export interface UpdateModalProps {
   message: string
 }
 
-export const UpdateModal: React.FC<UpdateModalProps> = ({ open, handleClose, buttons, title, message }) => {
+export const UpdateModalComponent: React.FC<UpdateModalProps> = ({ open, handleClose, buttons, title, message }) => {
   return (
     <Modal open={open} handleClose={handleClose}>
       <StyledModalContent container direction='column' alignItems='center' justifyContent='center'>
@@ -76,4 +76,4 @@ export const UpdateModal: React.FC<UpdateModalProps> = ({ open, handleClose, but
   )
 }
 
-export default UpdateModal
+export default UpdateModalComponent

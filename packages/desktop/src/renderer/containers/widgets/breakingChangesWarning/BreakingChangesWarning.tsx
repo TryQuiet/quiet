@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect } from 'react'
 import { ModalName } from '../../../sagas/modals/modals.types'
 import { useModal } from '../../hooks'
-import UpdateModal from '../../../components/widgets/update/UpdateModal'
+import UpdateModalComponent from '../../../components/widgets/update/UpdateModalComponent'
 
 import Button from '@mui/material/Button'
 import theme from '../../../theme'
@@ -61,7 +61,7 @@ const BreakingChangesWarning = () => {
     </Button>
   )
 
-  return <UpdateModal {...modal} buttons={[updateButton, dismissButton]} title={title} message={message} />
+  return <UpdateModalComponent {...modal} buttons={[updateButton, dismissButton]} title={title} message={message} />
 }
 
 export default BreakingChangesWarning

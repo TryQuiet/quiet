@@ -1,7 +1,7 @@
 import React from 'react'
 import { ComponentStory, ComponentMeta } from '@storybook/react'
 
-import UpdateModal, { UpdateModalProps } from './UpdateModal'
+import UpdateModal, { UpdateModalProps } from './UpdateModalComponent'
 
 import { withTheme } from '../../../storybook/decorators'
 import theme from '../../../theme'
