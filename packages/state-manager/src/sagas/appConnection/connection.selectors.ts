@@ -7,7 +7,7 @@ import { peersStatsAdapter } from './connection.adapter'
 import { connectedPeers } from '../network/network.selectors'
 import { type NetworkStats } from './connection.types'
 import { type User } from '../users/users.types'
-import { sortPeers } from '@quiet/common'
+import { filterAndSortPeers } from '@quiet/common'
 
 const connectionSlice: CreatedSelectors[StoreKeys.Connection] = (state: StoreState) => state[StoreKeys.Connection]
 
@@ -33,7 +33,7 @@ export const peerList = createSelector(
       stats = peersStatsAdapter.getSelectors().selectAll(reducerState.peersStats)
     }
 
-    return sortPeers(arr, stats)
+    return filterAndSortPeers(arr, stats)
   }
 )
 
