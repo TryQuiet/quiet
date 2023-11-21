@@ -8,6 +8,8 @@ import { userJoinedMessage } from '@quiet/common'
 
 export function* sendUnregisteredInfoMessage(): Generator {
   const community = yield* select(communitiesSelectors.currentCommunity)
+  if (community?.CA) return
+
   const identity = yield* select(identitySelectors.currentIdentity)
   const generalChannel = yield* select(publicChannelsSelectors.generalChannel)
 

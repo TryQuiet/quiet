@@ -12,16 +12,18 @@ export function* verifyMessagesSaga(
 ): Generator {
   const messages = action.payload.messages
 
-  for (const message of messages) {
-    let ownerData = yield* select(usersSelectors.ownerData)
+  let ownerData = yield* select(usersSelectors.ownerData)
 
-    while (true) {
-      ownerData = yield* select(usersSelectors.ownerData)
-      if (ownerData?.pubKey) {
-        break
-      }
-      yield* delay(500)
+  while (true) {
+    ownerData = yield* select(usersSelectors.ownerData)
+    if (ownerData?.pubKey) {
+      break
     }
+    yield* delay(500)
+  }
+
+  for (const message of messages) {
+    let isVerified = Boolean(action.payload.isVerified)
 
     if (message.type === MessageType.Info && message.pubKey !== ownerData.pubKey) {
       let user = yield* select(usersSelectors.getUserByPubKey(message.pubKey))
@@ -40,14 +42,14 @@ export function* verifyMessagesSaga(
 
       if (message.message !== expectedMessage) {
         console.error(`${user.username} tried to send a malicious info message`)
-        return
+        isVerified = false
       }
     }
 
     const verificationStatus: MessageVerificationStatus = {
       publicKey: message.pubKey,
       signature: message.signature,
-      isVerified: Boolean(action.payload.isVerified),
+      isVerified,
     }
 
     yield* put(messagesActions.addMessageVerificationStatus(verificationStatus))

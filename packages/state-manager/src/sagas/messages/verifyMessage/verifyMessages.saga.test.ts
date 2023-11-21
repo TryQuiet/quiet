@@ -34,6 +34,9 @@ describe('verifyMessage saga test', () => {
   let generalChannel: PublicChannel
   let sportChannel: PublicChannel
 
+  let bobCsr: string
+  let aliceCsr: string
+
   beforeAll(async () => {
     setupCrypto()
 
@@ -48,10 +51,14 @@ describe('verifyMessage saga test', () => {
       nickname: 'alice',
     })
 
+    aliceCsr = alice.userCsr?.userCsr || ''
+
     bob = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
       id: community.id,
       nickname: 'bob',
     })
+
+    bobCsr = bob.userCsr?.userCsr || ''
 
     generalChannel = (
       await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>('PublicChannel', {
@@ -79,8 +86,6 @@ describe('verifyMessage saga test', () => {
   })
 
   it('verify standard message ', async () => {
-    if (!alice.userCsr?.userCsr) throw Error('no Alice userCsr')
-
     const message: ChannelMessage = {
       id: 'id1',
       type: MessageType.Basic,
@@ -88,7 +93,7 @@ describe('verifyMessage saga test', () => {
       createdAt: 24,
       channelId: generalChannel.id,
       signature: 'signature',
-      pubKey: pubKeyFromCsr(alice.userCsr?.userCsr),
+      pubKey: pubKeyFromCsr(aliceCsr),
       media: undefined,
     }
 
@@ -113,8 +118,6 @@ describe('verifyMessage saga test', () => {
   })
 
   it('verify info message from owner on general', async () => {
-    if (!alice.userCsr?.userCsr) throw Error('no Alice userCsr')
-
     const message: ChannelMessage = {
       id: 'id1',
       type: MessageType.Info,
@@ -122,7 +125,7 @@ describe('verifyMessage saga test', () => {
       createdAt: 24,
       channelId: generalChannel.id,
       signature: 'signature',
-      pubKey: pubKeyFromCsr(alice.userCsr?.userCsr),
+      pubKey: pubKeyFromCsr(aliceCsr),
       media: undefined,
     }
 
@@ -147,8 +150,6 @@ describe('verifyMessage saga test', () => {
   })
 
   it('verify info message from user on general - fail', async () => {
-    if (!bob.userCsr?.userCsr) throw Error('no bob userCsr')
-
     const message: ChannelMessage = {
       id: 'id1',
       type: MessageType.Info,
@@ -156,7 +157,7 @@ describe('verifyMessage saga test', () => {
       createdAt: 24,
       channelId: generalChannel.id,
       signature: 'signature',
-      pubKey: pubKeyFromCsr(bob.userCsr?.userCsr),
+      pubKey: pubKeyFromCsr(bobCsr),
       media: undefined,
     }
 
@@ -185,8 +186,6 @@ describe('verifyMessage saga test', () => {
   })
 
   it('verify info message from user on general - success', async () => {
-    if (!bob.userCsr?.userCsr) throw Error('no bob userCsr')
-
     const message: ChannelMessage = {
       id: 'id1',
       type: MessageType.Info,
@@ -194,7 +193,7 @@ describe('verifyMessage saga test', () => {
       createdAt: 24,
       channelId: generalChannel.id,
       signature: 'signature',
-      pubKey: pubKeyFromCsr(bob.userCsr?.userCsr),
+      pubKey: pubKeyFromCsr(bobCsr),
       media: undefined,
     }
 
@@ -223,8 +222,6 @@ describe('verifyMessage saga test', () => {
   })
 
   it('verify info message from user on other channel - fail', async () => {
-    if (!bob.userCsr?.userCsr) throw Error('no bob userCsr')
-
     const message: ChannelMessage = {
       id: 'id1',
       type: MessageType.Info,
@@ -232,7 +229,7 @@ describe('verifyMessage saga test', () => {
       createdAt: 24,
       channelId: sportChannel.id,
       signature: 'signature',
-      pubKey: pubKeyFromCsr(bob.userCsr?.userCsr),
+      pubKey: pubKeyFromCsr(bobCsr),
       media: undefined,
     }
 
@@ -261,8 +258,6 @@ describe('verifyMessage saga test', () => {
   })
 
   it('verify info message from user on other channel - success', async () => {
-    if (!bob.userCsr?.userCsr) throw Error('no bob userCsr')
-
     const message: ChannelMessage = {
       id: 'id1',
       type: MessageType.Info,
@@ -270,7 +265,7 @@ describe('verifyMessage saga test', () => {
       createdAt: 24,
       channelId: sportChannel.id,
       signature: 'signature',
-      pubKey: pubKeyFromCsr(bob.userCsr?.userCsr),
+      pubKey: pubKeyFromCsr(bobCsr),
       media: undefined,
     }
 

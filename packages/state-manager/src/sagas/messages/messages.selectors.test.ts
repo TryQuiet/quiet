@@ -1,4 +1,4 @@
-import { keyFromCertificate, parseCertificate, pubKeyFromCsr, setupCrypto } from '@quiet/identity'
+import { keyFromCertificate, parseCertificate, setupCrypto } from '@quiet/identity'
 import { type Store } from '../store.types'
 import { getFactory, publicChannels } from '../..'
 import { prepareStore } from '../../utils/tests/prepareStore'
@@ -6,12 +6,8 @@ import { validCurrentPublicChannelMessagesEntries } from './messages.selectors'
 import { type communitiesActions } from '../communities/communities.slice'
 import { type identityActions } from '../identity/identity.slice'
 import { type FactoryGirl } from 'factory-girl'
-import { publicChannelsSelectors, selectGeneralChannel } from '../publicChannels/publicChannels.selectors'
+import { publicChannelsSelectors } from '../publicChannels/publicChannels.selectors'
 import { type Community, type Identity, type PublicChannel, type ChannelMessage } from '@quiet/types'
-import { getCurrentTime } from './utils/message.utils'
-import { publicChannelsActions } from '../publicChannels/publicChannels.slice'
-import { generateChannelId } from '@quiet/common'
-import { DateTime } from 'luxon'
 
 describe('messagesSelectors', () => {
   let store: Store
@@ -19,7 +15,6 @@ describe('messagesSelectors', () => {
 
   let community: Community
   let generalChannel: PublicChannel
-  let devChannel: PublicChannel
   let generalChannelId: string
 
   let alice: Identity
@@ -52,18 +47,6 @@ describe('messagesSelectors', () => {
       id: community.id,
       nickname: 'john',
     })
-
-    devChannel = (
-      await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>('PublicChannel', {
-        channel: {
-          name: 'general',
-          description: 'Welcome to #dev',
-          timestamp: DateTime.utc().valueOf(),
-          owner: alice.nickname,
-          id: generateChannelId('dev'),
-        },
-      })
-    ).channel
   })
 
   it('filter out unverified messages', async () => {

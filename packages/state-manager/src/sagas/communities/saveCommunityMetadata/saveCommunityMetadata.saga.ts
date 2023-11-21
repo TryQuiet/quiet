@@ -24,7 +24,5 @@ export function* saveCommunityMetadataSaga(
     })
   )
 
-  const community = yield* select(communitiesSelectors.currentCommunity)
-  if (community?.CA) return
   yield* put(publicChannelsActions.sendUnregisteredInfoMessage())
 }
