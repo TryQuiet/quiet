@@ -1,11 +1,19 @@
 import React from 'react'
 
-import { UpdateModal } from './UpdateModal'
 import { renderComponent } from '../../../testUtils/renderComponent'
+import UpdateModalComponent from './UpdateModalComponent'
 
 describe('UpdateModal', () => {
   it('renders component', () => {
-    const result = renderComponent(<UpdateModal open handleClose={jest.fn()} handleUpdate={jest.fn()} />)
+    const result = renderComponent(
+      <UpdateModalComponent
+        handleClose={jest.fn()}
+        title={'Software update'}
+        message={'Update is available for Quiet.'}
+        buttons={[]}
+        open
+      />
+    )
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body
         style="padding-right: 1024px; overflow: hidden;"
@@ -84,63 +92,36 @@ describe('UpdateModal', () => {
                 style="width: 600px;"
               >
                 <div
-                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-puyhqi-MuiGrid-root"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-1cz3wls-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid-root MuiGrid-container UpdateModalinfo css-1lym95h-MuiGrid-root"
+                    class="MuiGrid-root UpdateModalinfo css-vj1n65-MuiGrid-root"
                   >
-                    <div
-                      class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
-                    >
-                      <img
-                        src="test-file-stub"
-                      />
-                    </div>
+                    <img
+                      src="test-file-stub"
+                    />
                   </div>
                   <div
-                    class="MuiGrid-root MuiGrid-container MuiGrid-item css-1h16bbz-MuiGrid-root"
+                    class="MuiGrid-root UpdateModaltitle css-vj1n65-MuiGrid-root"
                   >
-                    <div
-                      class="MuiGrid-root MuiGrid-item UpdateModaltitle css-13i4rnv-MuiGrid-root"
+                    <h3
+                      class="MuiTypography-root MuiTypography-h3 css-ptjqt4-MuiTypography-root"
                     >
-                      <h3
-                        class="MuiTypography-root MuiTypography-h3 css-ptjqt4-MuiTypography-root"
-                      >
-                        Software update
-                      </h3>
-                    </div>
+                      Software update
+                    </h3>
                   </div>
                   <div
-                    class="MuiGrid-root MuiGrid-container MuiGrid-item css-1h16bbz-MuiGrid-root"
+                    class="MuiGrid-root UpdateModalmessage css-vj1n65-MuiGrid-root"
                   >
-                    <div
-                      class="MuiGrid-root MuiGrid-item UpdateModalsubTitle css-13i4rnv-MuiGrid-root"
+                    <p
+                      class="MuiTypography-root MuiTypography-body2 css-16d47hw-MuiTypography-root"
                     >
-                      <p
-                        class="MuiTypography-root MuiTypography-body2 css-16d47hw-MuiTypography-root"
-                      >
-                        An update is available for Quiet.
-                      </p>
-                    </div>
+                      Update is available for Quiet.
+                    </p>
                   </div>
                   <div
-                    class="MuiGrid-root MuiGrid-container MuiGrid-spacing-xs-8 css-m7r6nl-MuiGrid-root"
-                  >
-                    <div
-                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-gj1fbr-MuiGrid-root"
-                    >
-                      <button
-                        class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge MuiButton-fullWidth MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge MuiButton-fullWidth UpdateModalbutton css-n0wap0-MuiButtonBase-root-MuiButton-root"
-                        tabindex="0"
-                        type="submit"
-                      >
-                        Update now
-                        <span
-                          class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                        />
-                      </button>
-                    </div>
-                  </div>
+                    class="MuiGrid-root MuiGrid-container MuiGrid-spacing-xs-2 MuiGrid-direction-xs-column css-1bnhfwg-MuiGrid-root"
+                  />
                 </div>
               </div>
             </div>
