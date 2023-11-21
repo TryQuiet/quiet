@@ -32,6 +32,14 @@ export enum ConnectionProcessInfo {
   LAUNCHED_COMMUNITY = 'Launched community',
   CHANNELS_REPLICATED = 'Channels replicated',
   CERTIFICATES_REPLICATED = 'Certificates replicated',
+  // ____
+  LOADING_MESSAGES = 'Loading messages',
+  // ____
+  TOR_1 = 'Handshaking with a relay',
+  TOR_2 = 'Loading authority key certs',
+  TOR_3 = 'Loaded enough directory info to build circuits',
+  TOR_4 = 'Handshake finished with a relay to build circuits',
+  TOR_5 = 'Establishing a Tor circuit',
 }
 
 export const TOR_BOOTSTRAP_COMPLETE = 'Bootstrapped 100% (done)'

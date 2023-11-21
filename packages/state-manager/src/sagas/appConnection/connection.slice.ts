@@ -53,45 +53,46 @@ export const connectionSlice = createSlice({
     },
     setTorConnectionProcess: (state, action: PayloadAction<string>) => {
       const info = action.payload
+      console.log({ info })
       switch (info) {
-        case ConnectionProcessInfo.CONNECTING_TO_COMMUNITY:
-          state.torConnectionProcess = { number: 20, text: info }
-          break
         case ConnectionProcessInfo.REGISTERING_OWNER_CERTIFICATE:
+          state.torConnectionProcess = { number: 15, text: info }
+          break
+
+        // case ConnectionProcessInfo.INITIALIZING_IPFS:
+        //   state.torConnectionProcess = { number: 15, text: info }
+        //   break
+
+        case ConnectionProcessInfo.TOR_1:
           state.torConnectionProcess = { number: 20, text: info }
           break
-        case ConnectionProcessInfo.LAUNCHING_COMMUNITY:
+
+        case ConnectionProcessInfo.TOR_2:
+          state.torConnectionProcess = { number: 25, text: info }
+          break
+
+        case ConnectionProcessInfo.TOR_3:
           state.torConnectionProcess = { number: 30, text: info }
           break
-        case ConnectionProcessInfo.SPAWNING_HIDDEN_SERVICE:
+
+        case ConnectionProcessInfo.TOR_4:
+          state.torConnectionProcess = { number: 35, text: info }
+          break
+
+        case ConnectionProcessInfo.TOR_5:
           state.torConnectionProcess = { number: 40, text: info }
           break
-        case ConnectionProcessInfo.INITIALIZING_LIBP2P:
-          state.torConnectionProcess = { number: 50, text: info }
-          break
-        case ConnectionProcessInfo.INITIALIZING_STORAGE:
-          state.torConnectionProcess = { number: 60, text: info }
-          break
-        case ConnectionProcessInfo.INITIALIZING_IPFS:
-          state.torConnectionProcess = { number: 70, text: info }
-          break
-        case ConnectionProcessInfo.LOADED_CERTIFICATES:
-          state.torConnectionProcess = { number: 75, text: info }
-          break
-        case ConnectionProcessInfo.INITIALIZED_DBS:
-          state.torConnectionProcess = { number: 80, text: info }
-          break
-        case ConnectionProcessInfo.LAUNCHED_COMMUNITY:
-          state.torConnectionProcess = { number: 85, text: info }
-          break
+
+        // Bootstrapped 56% (loading_descriptors): Loading relay descriptors
+
         case ConnectionProcessInfo.WAITING_FOR_METADATA:
-          state.torConnectionProcess = { number: 87, text: info }
+          state.torConnectionProcess = { number: 50, text: ConnectionProcessInfo.CONNECTING_TO_COMMUNITY }
           break
         case ConnectionProcessInfo.CHANNELS_REPLICATED:
-          state.torConnectionProcess = { number: 90, text: info }
+          state.torConnectionProcess = { number: 80, text: ConnectionProcessInfo.LOADING_MESSAGES }
           break
         case ConnectionProcessInfo.CERTIFICATES_REPLICATED:
-          state.torConnectionProcess = { number: 95, text: info }
+          state.torConnectionProcess = { number: 90, text: ConnectionProcessInfo.LOADING_MESSAGES }
           break
       }
     },
