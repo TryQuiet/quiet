@@ -10,7 +10,7 @@ import { ContextMenuItemProps } from '../ContextMenu.types'
 
 import { useModal } from '../../../containers/hooks'
 import { ModalName } from '../../../sagas/modals/modals.types'
-import { exportChats } from 'packages/desktop/src/utils/functions/exportChats'
+import { exportChats } from '../../../../utils/functions/exportChats'
 
 export const ChannelContextMenu: FC = () => {
   const community = useSelector(communities.selectors.currentCommunity)
