@@ -1,10 +1,10 @@
 import { MessagesDailyGroups } from '@quiet/types'
-import { dialog, BrowserWindow } from '@electron/remote'
+import { dialog } from '@electron/remote'
 import fs from 'fs'
 
 export const exportChats = async (channelName: string, channelMessages: MessagesDailyGroups) => {
   dialog
-    .showSaveDialog(BrowserWindow.getAllWindows()[0], {
+    .showSaveDialog({
       title: 'Save file',
       defaultPath: `${channelName}.txt`,
       buttonLabel: 'Save',
@@ -25,7 +25,8 @@ export const exportChats = async (channelName: string, channelMessages: Messages
     })
 }
 
-const channelMessagesToText = (channelMessages: MessagesDailyGroups) => {
+// This function is exported just to test it
+export const channelMessagesToText = (channelMessages: MessagesDailyGroups) => {
   return Object.keys(channelMessages)
     .map(day => {
       return channelMessages[day]
