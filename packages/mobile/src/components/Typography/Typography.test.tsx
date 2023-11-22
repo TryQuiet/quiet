@@ -4,14 +4,14 @@ import { renderComponent } from '../../utils/functions/renderComponent/renderCom
 import { Typography } from './Typography.component'
 
 describe('Typography component', () => {
-  it('should match inline snapshot', () => {
-    const { toJSON } = renderComponent(
-      <Typography color={'main'} fontSize={20} fontWeight={'bold'}>
-        {'Typography'}
-      </Typography>
-    )
+    it('should match inline snapshot', () => {
+        const { toJSON } = renderComponent(
+            <Typography color={'main'} fontSize={20} fontWeight={'bold'}>
+                {'Typography'}
+            </Typography>
+        )
 
-    expect(toJSON()).toMatchInlineSnapshot(`
+        expect(toJSON()).toMatchInlineSnapshot(`
       <Text
         color="main"
         fontSize={20}
@@ -33,5 +33,5 @@ describe('Typography component', () => {
         Typography
       </Text>
     `)
-  })
+    })
 })

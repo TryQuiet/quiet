@@ -4,21 +4,21 @@ import { renderComponent } from '../../utils/functions/renderComponent/renderCom
 import { ChannelTile } from './ChannelTile.component'
 
 describe('ChannelList component', () => {
-  it('should match inline snapshot', () => {
-    const { toJSON } = renderComponent(
-      <ChannelTile
-        name={'general'}
-        id={'general'}
-        message={
-          'Text from latest chat message. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Id massa venenatis id eget massa commodo posuere faucibus aliquam. At scelerisque nisi mauris facilisis.'
-        }
-        date={'1:55pm'}
-        unread={false}
-        redirect={jest.fn()}
-      />
-    )
+    it('should match inline snapshot', () => {
+        const { toJSON } = renderComponent(
+            <ChannelTile
+                name={'general'}
+                id={'general'}
+                message={
+                    'Text from latest chat message. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Id massa venenatis id eget massa commodo posuere faucibus aliquam. At scelerisque nisi mauris facilisis.'
+                }
+                date={'1:55pm'}
+                unread={false}
+                redirect={jest.fn()}
+            />
+        )
 
-    expect(toJSON()).toMatchInlineSnapshot(`
+        expect(toJSON()).toMatchInlineSnapshot(`
       <View>
         <View
           accessibilityState={
@@ -234,23 +234,23 @@ describe('ChannelList component', () => {
         </View>
       </View>
     `)
-  })
+    })
 
-  it('should match inline snapshot (unread)', () => {
-    const { toJSON } = renderComponent(
-      <ChannelTile
-        name={'general'}
-        id={'general'}
-        message={
-          'Text from latest chat message. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Id massa venenatis id eget massa commodo posuere faucibus aliquam. At scelerisque nisi mauris facilisis.'
-        }
-        date={'1:55pm'}
-        unread={true}
-        redirect={jest.fn()}
-      />
-    )
+    it('should match inline snapshot (unread)', () => {
+        const { toJSON } = renderComponent(
+            <ChannelTile
+                name={'general'}
+                id={'general'}
+                message={
+                    'Text from latest chat message. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Id massa venenatis id eget massa commodo posuere faucibus aliquam. At scelerisque nisi mauris facilisis.'
+                }
+                date={'1:55pm'}
+                unread={true}
+                redirect={jest.fn()}
+            />
+        )
 
-    expect(toJSON()).toMatchInlineSnapshot(`
+        expect(toJSON()).toMatchInlineSnapshot(`
       <View>
         <View
           accessibilityState={
@@ -500,5 +500,5 @@ describe('ChannelList component', () => {
         </View>
       </View>
     `)
-  })
+    })
 })

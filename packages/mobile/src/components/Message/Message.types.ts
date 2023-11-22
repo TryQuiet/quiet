@@ -3,9 +3,9 @@ import { Dictionary } from '@reduxjs/toolkit'
 import { UserLabelHandlers } from '../UserLabel/UserLabel.types'
 
 export interface MessageProps extends UserLabelHandlers {
-  data: DisplayableMessage[]
-  pendingMessages?: Dictionary<MessageSendingStatus>
-  downloadStatus?: DownloadStatus
-  openImagePreview: (media: FileMetadata) => void
-  openUrl: (url: string) => void
+    data: DisplayableMessage[]
+    pendingMessages?: Dictionary<MessageSendingStatus>
+    downloadStatus?: DownloadStatus
+    openImagePreview: (media: FileMetadata) => void
+    openUrl: (url: string) => void
 }

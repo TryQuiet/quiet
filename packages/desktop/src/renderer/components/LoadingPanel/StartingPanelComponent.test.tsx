@@ -3,9 +3,9 @@ import { renderComponent } from '../../testUtils/renderComponent'
 import StartingPanelComponent from './StartingPanelComponent'
 
 describe('Create StartingPanelComponent', () => {
-  it('renders component', () => {
-    const result = renderComponent(<StartingPanelComponent handleClose={jest.fn()} open={true} />)
-    expect(result.baseElement).toMatchInlineSnapshot(`
+    it('renders component', () => {
+        const result = renderComponent(<StartingPanelComponent handleClose={jest.fn()} open={true} />)
+        expect(result.baseElement).toMatchInlineSnapshot(`
       <body
         style="padding-right: 1024px; overflow: hidden;"
       >
@@ -84,5 +84,5 @@ describe('Create StartingPanelComponent', () => {
         </div>
       </body>
     `)
-  })
+    })
 })

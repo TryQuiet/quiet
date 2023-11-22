@@ -5,34 +5,34 @@ import { appImages } from '../../assets'
 import { MessageSendButtonProps } from './MessageSendButton.types'
 
 export const MessageSendButton: FC<MessageSendButtonProps> = ({ onPress, disabled }) => {
-  const handlePress = useCallback(() => {
-    if (!disabled) {
-      onPress()
-    }
-  }, [disabled, onPress])
+    const handlePress = useCallback(() => {
+        if (!disabled) {
+            onPress()
+        }
+    }, [disabled, onPress])
 
-  const icon = disabled ? appImages.icon_send_disabled : appImages.icon_send
+    const icon = disabled ? appImages.icon_send_disabled : appImages.icon_send
 
-  return (
-    <TouchableWithoutFeedback onPress={handlePress} testID={'send_message_button'}>
-      <View
-        style={{
-          paddingLeft: 20,
-          paddingRight: 20,
-          justifyContent: 'center',
-        }}
-      >
-        <Image
-          source={icon}
-          resizeMode='cover'
-          resizeMethod='resize'
-          style={{
-            alignSelf: 'center',
-            width: 20,
-            height: 20,
-          }}
-        />
-      </View>
-    </TouchableWithoutFeedback>
-  )
+    return (
+        <TouchableWithoutFeedback onPress={handlePress} testID={'send_message_button'}>
+            <View
+                style={{
+                    paddingLeft: 20,
+                    paddingRight: 20,
+                    justifyContent: 'center',
+                }}
+            >
+                <Image
+                    source={icon}
+                    resizeMode='cover'
+                    resizeMethod='resize'
+                    style={{
+                        alignSelf: 'center',
+                        width: 20,
+                        height: 20,
+                    }}
+                />
+            </View>
+        </TouchableWithoutFeedback>
+    )
 }

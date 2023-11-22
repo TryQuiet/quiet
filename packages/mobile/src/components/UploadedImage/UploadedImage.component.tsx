@@ -5,19 +5,19 @@ import { UploadedImageProps } from './UploadedImage.types'
 import FastImage from 'react-native-fast-image'
 
 export const UploadedImage: FC<UploadedImageProps> = ({ media, openImagePreview }) => {
-  const { path, width, height } = media
+    const { path, width, height } = media
 
-  const maxWidth = width && width >= 400 ? 400 : width
+    const maxWidth = width && width >= 400 ? 400 : width
 
-  return (
-    <View>
-      {!path || !width || !height ? (
-        <ActivityIndicator size='small' color={defaultTheme.palette.main.brand} />
-      ) : (
-        <TouchableWithoutFeedback onPress={() => openImagePreview(media)}>
-          <FastImage source={{ uri: `file://${path}` }} style={{ maxWidth, aspectRatio: width / height }} />
-        </TouchableWithoutFeedback>
-      )}
-    </View>
-  )
+    return (
+        <View>
+            {!path || !width || !height ? (
+                <ActivityIndicator size='small' color={defaultTheme.palette.main.brand} />
+            ) : (
+                <TouchableWithoutFeedback onPress={() => openImagePreview(media)}>
+                    <FastImage source={{ uri: `file://${path}` }} style={{ maxWidth, aspectRatio: width / height }} />
+                </TouchableWithoutFeedback>
+            )}
+        </View>
+    )
 }

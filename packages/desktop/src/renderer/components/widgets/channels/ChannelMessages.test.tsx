@@ -4,45 +4,45 @@ import { DateTime } from 'luxon'
 import { ChannelMessagesComponent } from './ChannelMessages'
 
 describe('ChannelMessages', () => {
-  beforeEach(() => {
-    window.ResizeObserver = jest.fn().mockImplementation(() => ({
-      observe: jest.fn(),
-      unobserve: jest.fn(),
-      disconnect: jest.fn(),
-    }))
-  })
+    beforeEach(() => {
+        window.ResizeObserver = jest.fn().mockImplementation(() => ({
+            observe: jest.fn(),
+            unobserve: jest.fn(),
+            disconnect: jest.fn(),
+        }))
+    })
 
-  it('renders component', async () => {
-    const message = {
-      id: 'string',
-      type: 1,
-      message: 'string',
-      createdAt: 1636995488.44,
-      date: 'string',
-      nickname: 'string',
-      isDuplicated: false,
-      isRegistered: true,
-      pubKey: 'string',
-    }
+    it('renders component', async () => {
+        const message = {
+            id: 'string',
+            type: 1,
+            message: 'string',
+            createdAt: 1636995488.44,
+            date: 'string',
+            nickname: 'string',
+            isDuplicated: false,
+            isRegistered: true,
+            pubKey: 'string',
+        }
 
-    jest.spyOn(DateTime, 'utc').mockImplementationOnce(() => DateTime.utc(2019, 3, 7, 13, 3, 48))
+        jest.spyOn(DateTime, 'utc').mockImplementationOnce(() => DateTime.utc(2019, 3, 7, 13, 3, 48))
 
-    const messages = {
-      Today: [[message]],
-    }
+        const messages = {
+            Today: [[message]],
+        }
 
-    const result = renderComponent(
-      <ChannelMessagesComponent
-        duplicatedUsernameModalHandleOpen={jest.fn()}
-        unregisteredUsernameModalHandleOpen={jest.fn()}
-        messages={messages}
-        scrollbarRef={React.createRef()}
-        onScroll={jest.fn()}
-        openUrl={jest.fn()}
-      />
-    )
+        const result = renderComponent(
+            <ChannelMessagesComponent
+                duplicatedUsernameModalHandleOpen={jest.fn()}
+                unregisteredUsernameModalHandleOpen={jest.fn()}
+                messages={messages}
+                scrollbarRef={React.createRef()}
+                onScroll={jest.fn()}
+                openUrl={jest.fn()}
+            />
+        )
 
-    expect(result.baseElement).toMatchInlineSnapshot(`
+        expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
           <div
@@ -156,5 +156,5 @@ describe('ChannelMessages', () => {
         </div>
       </body>
     `)
-  })
+    })
 })

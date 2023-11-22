@@ -5,20 +5,23 @@ import { type AskForMessagesPayload, SocketActionTypes } from '@quiet/types'
 import { askForMessagesSaga } from './askForMessages.saga'
 
 describe('askForMessagesSaga', () => {
-  const socket = { emit: jest.fn() } as unknown as Socket
-  const askForMessagesPayload: AskForMessagesPayload = {
-    peerId: '',
-    communityId: '',
-    channelId: '',
-    ids: [],
-  }
-  const saga: TestApi = testSaga(askForMessagesSaga, socket, messagesActions.askForMessages(askForMessagesPayload))
+    const socket = { emit: jest.fn() } as unknown as Socket
+    const askForMessagesPayload: AskForMessagesPayload = {
+        peerId: '',
+        communityId: '',
+        channelId: '',
+        ids: [],
+    }
+    const saga: TestApi = testSaga(askForMessagesSaga, socket, messagesActions.askForMessages(askForMessagesPayload))
 
-  beforeEach(() => {
-    saga.restart()
-  })
+    beforeEach(() => {
+        saga.restart()
+    })
 
-  test('should be defined', () => {
-    saga.next().apply(socket, socket.emit, [SocketActionTypes.ASK_FOR_MESSAGES, askForMessagesPayload]).next().isDone()
-  })
+    test('should be defined', () => {
+        saga.next()
+            .apply(socket, socket.emit, [SocketActionTypes.ASK_FOR_MESSAGES, askForMessagesPayload])
+            .next()
+            .isDone()
+    })
 })

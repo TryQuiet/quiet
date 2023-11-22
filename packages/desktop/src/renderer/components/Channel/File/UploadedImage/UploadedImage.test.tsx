@@ -5,50 +5,50 @@ import { renderComponent } from '../../../../testUtils/renderComponent'
 import UploadedImage from './UploadedImage'
 
 describe('UploadedFile', () => {
-  let message: DisplayableMessage
-  let downloadStatus: DownloadStatus
+    let message: DisplayableMessage
+    let downloadStatus: DownloadStatus
 
-  beforeEach(() => {
-    message = {
-      id: 'string',
-      type: MessageType.Image,
-      message: '',
-      createdAt: 1636995488.44,
-      date: 'string',
-      nickname: 'bob',
-      isDuplicated: false,
-      isRegistered: true,
-      pubKey: 'string',
-      media: {
-        path: null,
-        name: 'test',
-        ext: '.png',
-        cid: 'abcd1234',
-        width: 500,
-        height: 600,
-        message: {
-          id: 'string',
-          channelId: 'general',
-        },
-      },
-    }
+    beforeEach(() => {
+        message = {
+            id: 'string',
+            type: MessageType.Image,
+            message: '',
+            createdAt: 1636995488.44,
+            date: 'string',
+            nickname: 'bob',
+            isDuplicated: false,
+            isRegistered: true,
+            pubKey: 'string',
+            media: {
+                path: null,
+                name: 'test',
+                ext: '.png',
+                cid: 'abcd1234',
+                width: 500,
+                height: 600,
+                message: {
+                    id: 'string',
+                    channelId: 'general',
+                },
+            },
+        }
 
-    downloadStatus = {
-      mid: 'string',
-      cid: 'abcd1234',
-      downloadState: DownloadState.Completed,
-    }
-  })
+        downloadStatus = {
+            mid: 'string',
+            cid: 'abcd1234',
+            downloadState: DownloadState.Completed,
+        }
+    })
 
-  it('renders a placeholder if image is not finished downloading yet', () => {
-    const result = renderComponent(
-      <UploadedImage
-        // @ts-expect-error
-        media={message.media}
-        downloadStatus={downloadStatus}
-      />
-    )
-    expect(result.baseElement).toMatchInlineSnapshot(`
+    it('renders a placeholder if image is not finished downloading yet', () => {
+        const result = renderComponent(
+            <UploadedImage
+                // @ts-expect-error
+                media={message.media}
+                downloadStatus={downloadStatus}
+            />
+        )
+        expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
           <div
@@ -109,23 +109,23 @@ describe('UploadedFile', () => {
         </div>
       </body>
     `)
-  })
-  it('renders image if image is downloaded', () => {
-    // @ts-expect-error
-    message.media.path = 'path/to/file/test.png'
-    // @ts-expect-error
-    message.media.message = {
-      id: 'string',
-      channelId: 'general',
-    }
-    const result = renderComponent(
-      <UploadedImage
+    })
+    it('renders image if image is downloaded', () => {
         // @ts-expect-error
-        media={message.media}
-        downloadStatus={downloadStatus}
-      />
-    )
-    expect(result.baseElement).toMatchInlineSnapshot(`
+        message.media.path = 'path/to/file/test.png'
+        // @ts-expect-error
+        message.media.message = {
+            id: 'string',
+            channelId: 'general',
+        }
+        const result = renderComponent(
+            <UploadedImage
+                // @ts-expect-error
+                media={message.media}
+                downloadStatus={downloadStatus}
+            />
+        )
+        expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
           <div
@@ -154,5 +154,5 @@ describe('UploadedFile', () => {
         </div>
       </body>
     `)
-  })
+    })
 })

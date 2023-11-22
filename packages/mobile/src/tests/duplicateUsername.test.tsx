@@ -13,56 +13,56 @@ import { navigationSelectors } from '../store/navigation/navigation.selectors'
 import { navigationActions } from '../store/navigation/navigation.slice'
 
 describe('Duplicate username warning', () => {
-  let socket: MockedSocket
+    let socket: MockedSocket
 
-  let factory: FactoryGirl
+    let factory: FactoryGirl
 
-  beforeEach(async () => {
-    socket = new MockedSocket()
-    ioMock.mockImplementation(() => socket)
-  })
-
-  it("Display prompt for username change if it's already taken", async () => {
-    const { store, root } = await prepareStore({}, socket)
-
-    store.dispatch(initActions.setStoreReady())
-
-    factory = await getFactory(store)
-
-    const community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>(
-      'Community'
-    )
-
-    const alice = (
-      await factory.build<typeof identity.actions.addNewIdentity>('Identity', {
-        id: community.id,
-        nickname: 'alice',
-      })
-    ).payload
-
-    store.dispatch(
-      users.actions.storeUserCertificate({
-        certificate: alice.userCertificate || 'certificate_alice',
-      })
-    )
-
-    await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
-      nickname: 'alice',
-      userCertificate: null,
+    beforeEach(async () => {
+        socket = new MockedSocket()
+        ioMock.mockImplementation(() => socket)
     })
 
-    store.dispatch(navigationActions.navigation({ screen: ScreenNames.ChannelListScreen }))
+    it("Display prompt for username change if it's already taken", async () => {
+        const { store, root } = await prepareStore({}, socket)
 
-    renderComponent(<ChannelListScreen />, store)
+        store.dispatch(initActions.setStoreReady())
 
-    // Confirm there's duplication of usernames
-    const usernameTaken = identity.selectors.usernameTaken(store.getState())
-    expect(usernameTaken).toBe(true)
+        factory = await getFactory(store)
 
-    const currentScreen = navigationSelectors.currentScreen(store.getState())
-    expect(currentScreen).toBe(ScreenNames.UsernameTakenScreen)
+        const community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>(
+            'Community'
+        )
 
-    root?.cancel()
-  })
+        const alice = (
+            await factory.build<typeof identity.actions.addNewIdentity>('Identity', {
+                id: community.id,
+                nickname: 'alice',
+            })
+        ).payload
+
+        store.dispatch(
+            users.actions.storeUserCertificate({
+                certificate: alice.userCertificate || 'certificate_alice',
+            })
+        )
+
+        await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+            id: community.id,
+            nickname: 'alice',
+            userCertificate: null,
+        })
+
+        store.dispatch(navigationActions.navigation({ screen: ScreenNames.ChannelListScreen }))
+
+        renderComponent(<ChannelListScreen />, store)
+
+        // Confirm there's duplication of usernames
+        const usernameTaken = identity.selectors.usernameTaken(store.getState())
+        expect(usernameTaken).toBe(true)
+
+        const currentScreen = navigationSelectors.currentScreen(store.getState())
+        expect(currentScreen).toBe(ScreenNames.UsernameTakenScreen)
+
+        root?.cancel()
+    })
 })

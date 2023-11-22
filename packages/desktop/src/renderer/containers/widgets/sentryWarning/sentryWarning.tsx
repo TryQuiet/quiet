@@ -4,15 +4,15 @@ import { ModalName } from '../../../sagas/modals/modals.types'
 import { useModal } from '../../hooks'
 
 const SentryWarning = () => {
-  const modal = useModal(ModalName.sentryWarningModal)
+    const modal = useModal(ModalName.sentryWarningModal)
 
-  useEffect(() => {
-    if (process.env.TEST_MODE === 'true') {
-      modal.handleOpen()
-    }
-  }, [process.env.TEST_MODE])
+    useEffect(() => {
+        if (process.env.TEST_MODE === 'true') {
+            modal.handleOpen()
+        }
+    }, [process.env.TEST_MODE])
 
-  return <SentryWarningComponent {...modal} />
+    return <SentryWarningComponent {...modal} />
 }
 
 export default SentryWarning

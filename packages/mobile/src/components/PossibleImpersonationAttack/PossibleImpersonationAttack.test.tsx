@@ -3,12 +3,12 @@ import { renderComponent } from '../../utils/functions/renderComponent/renderCom
 import PossibleImpersonationAttackComponent from './PossibleImpersonationAttack.component'
 
 describe('PossibleImpersonationAttack component', () => {
-  it('renders properly', () => {
-    const { toJSON } = renderComponent(
-      <PossibleImpersonationAttackComponent communityName={'dev'} handleBackButton={() => {}} />
-    )
+    it('renders properly', () => {
+        const { toJSON } = renderComponent(
+            <PossibleImpersonationAttackComponent communityName={'dev'} handleBackButton={() => {}} />
+        )
 
-    expect(toJSON()).toMatchInlineSnapshot(`
+        expect(toJSON()).toMatchInlineSnapshot(`
       <View
         style={
           {
@@ -262,5 +262,5 @@ describe('PossibleImpersonationAttack component', () => {
         </View>
       </View>
     `)
-  })
+    })
 })

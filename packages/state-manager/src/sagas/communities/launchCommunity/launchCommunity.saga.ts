@@ -12,49 +12,49 @@ import { pairsToP2pAddresses } from '@quiet/common'
 import { type InitCommunityPayload, SocketActionTypes } from '@quiet/types'
 
 export function* initCommunities(): Generator {
-  const joinedCommunities = yield* select(identitySelectors.joinedCommunities)
+    const joinedCommunities = yield* select(identitySelectors.joinedCommunities)
 
-  const initializedCommunities = yield* select(networkSelectors.initializedCommunities)
-  for (const community of joinedCommunities) {
-    if (!initializedCommunities[community.id]) {
-      yield* put(communitiesActions.launchCommunity(community.id))
+    const initializedCommunities = yield* select(networkSelectors.initializedCommunities)
+    for (const community of joinedCommunities) {
+        if (!initializedCommunities[community.id]) {
+            yield* put(communitiesActions.launchCommunity(community.id))
+        }
     }
-  }
 
-  const currentTime = yield* call(getCurrentTime)
-  yield* put(connectionActions.setLastConnectedTime(currentTime))
+    const currentTime = yield* call(getCurrentTime)
+    yield* put(connectionActions.setLastConnectedTime(currentTime))
 }
 
 export function* launchCommunitySaga(
-  socket: Socket,
-  action: PayloadAction<ReturnType<typeof communitiesActions.launchCommunity>['payload'] | undefined>
+    socket: Socket,
+    action: PayloadAction<ReturnType<typeof communitiesActions.launchCommunity>['payload'] | undefined>
 ): Generator {
-  let communityId: string | undefined = action.payload
+    let communityId: string | undefined = action.payload
 
-  if (!communityId) {
-    communityId = yield* select(communitiesSelectors.currentCommunityId)
-  }
+    if (!communityId) {
+        communityId = yield* select(communitiesSelectors.currentCommunityId)
+    }
 
-  const identity = yield* select(identitySelectors.selectById(communityId))
-  if (!identity?.userCsr?.userKey) {
-    console.error('Could not launch community, No identity private key')
-    return
-  }
+    const identity = yield* select(identitySelectors.selectById(communityId))
+    if (!identity?.userCsr?.userKey) {
+        console.error('Could not launch community, No identity private key')
+        return
+    }
 
-  const invitationCodes = yield* select(communitiesSelectors.invitationCodes)
-  let peerList: string[] = []
-  if (invitationCodes) {
-    peerList = pairsToP2pAddresses(invitationCodes)
-  } else {
-    peerList = yield* select(connectionSelectors.peerList)
-  }
+    const invitationCodes = yield* select(communitiesSelectors.invitationCodes)
+    let peerList: string[] = []
+    if (invitationCodes) {
+        peerList = pairsToP2pAddresses(invitationCodes)
+    } else {
+        peerList = yield* select(connectionSelectors.peerList)
+    }
 
-  const payload: InitCommunityPayload = {
-    id: identity.id,
-    peerId: identity.peerId,
-    hiddenService: identity.hiddenService,
-    peers: peerList,
-  }
+    const payload: InitCommunityPayload = {
+        id: identity.id,
+        peerId: identity.peerId,
+        hiddenService: identity.hiddenService,
+        peers: peerList,
+    }
 
-  yield* apply(socket, socket.emit, applyEmitParams(SocketActionTypes.LAUNCH_COMMUNITY, payload))
+    yield* apply(socket, socket.emit, applyEmitParams(SocketActionTypes.LAUNCH_COMMUNITY, payload))
 }

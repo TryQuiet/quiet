@@ -1,9 +1,9 @@
 import { DuplicatedUsernameRouteProps } from '../../route.params'
 
 export interface DuplicatedUsernameScreenProps {
-  route: DuplicatedUsernameRouteProps
+    route: DuplicatedUsernameRouteProps
 }
 
 export interface DuplicatedUsernameComponentProps {
-  handleBackButton: () => void
+    handleBackButton: () => void
 }

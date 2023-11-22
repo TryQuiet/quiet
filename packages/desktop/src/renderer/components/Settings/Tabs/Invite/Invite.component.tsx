@@ -11,122 +11,122 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff'
 const PREFIX = 'InviteToCommunity'
 
 const classes = {
-  title: `${PREFIX}title`,
-  titleDiv: `${PREFIX}titleDiv`,
-  link: `${PREFIX}link`,
-  button: `${PREFIX}button`,
-  bold: `${PREFIX}bold`,
-  linkContainer: `${PREFIX}linkContainer`,
-  eyeIcon: `${PREFIX}eyeIcon`,
-  wrapper: `${PREFIX}wrapper`,
+    title: `${PREFIX}title`,
+    titleDiv: `${PREFIX}titleDiv`,
+    link: `${PREFIX}link`,
+    button: `${PREFIX}button`,
+    bold: `${PREFIX}bold`,
+    linkContainer: `${PREFIX}linkContainer`,
+    eyeIcon: `${PREFIX}eyeIcon`,
+    wrapper: `${PREFIX}wrapper`,
 }
 
 const StyledGrid = styled(Grid)(({ theme }) => ({
-  [`& .${classes.title}`]: {},
-  [`& .${classes.wrapper}`]: {
-    maxWidth: '485px',
-  },
-  [`& .${classes.titleDiv}`]: {
-    marginBottom: 24,
-  },
-  [`& .${classes.link}`]: {
-    marginTop: '16px',
-    fontSize: '13px',
-    letterSpacing: '-0.4px',
-    overflowWrap: 'break-word',
-    inlineSize: '430px',
-  },
-  [`& .${classes.button}`]: {
-    marginTop: 24,
-    textTransform: 'none',
-    width: 480,
-    height: 60,
-    color: theme.palette.colors.white,
-    backgroundColor: theme.palette.colors.quietBlue,
-    '&:hover': {
-      opacity: 0.7,
-      backgroundColor: theme.palette.colors.quietBlue,
+    [`& .${classes.title}`]: {},
+    [`& .${classes.wrapper}`]: {
+        maxWidth: '485px',
     },
-  },
-  [`& .${classes.bold}`]: {
-    fontWeight: 'bold',
-  },
+    [`& .${classes.titleDiv}`]: {
+        marginBottom: 24,
+    },
+    [`& .${classes.link}`]: {
+        marginTop: '16px',
+        fontSize: '13px',
+        letterSpacing: '-0.4px',
+        overflowWrap: 'break-word',
+        inlineSize: '430px',
+    },
+    [`& .${classes.button}`]: {
+        marginTop: 24,
+        textTransform: 'none',
+        width: 480,
+        height: 60,
+        color: theme.palette.colors.white,
+        backgroundColor: theme.palette.colors.quietBlue,
+        '&:hover': {
+            opacity: 0.7,
+            backgroundColor: theme.palette.colors.quietBlue,
+        },
+    },
+    [`& .${classes.bold}`]: {
+        fontWeight: 'bold',
+    },
 
-  [`& .${classes.linkContainer}`]: {
-    display: 'flex',
-    flexDirection: 'row',
-    flexWrap: 'nowrap',
-    justifyContent: 'flex-start',
-    alignItems: 'baseline',
-    alignContent: 'stretch',
-    maxWidth: '485px',
-    position: 'relative',
-  },
+    [`& .${classes.linkContainer}`]: {
+        display: 'flex',
+        flexDirection: 'row',
+        flexWrap: 'nowrap',
+        justifyContent: 'flex-start',
+        alignItems: 'baseline',
+        alignContent: 'stretch',
+        maxWidth: '485px',
+        position: 'relative',
+    },
 
-  [`& .${classes.eyeIcon}`]: {
-    margin: '5px',
-    top: '8px',
-    position: 'absolute',
-    right: '0',
-  },
+    [`& .${classes.eyeIcon}`]: {
+        margin: '5px',
+        top: '8px',
+        position: 'absolute',
+        right: '0',
+    },
 }))
 
 export interface InviteComponentProps {
-  invitationLink: string
-  revealInputValue: boolean
-  handleClickInputReveal: () => void
+    invitationLink: string
+    revealInputValue: boolean
+    handleClickInputReveal: () => void
 }
 
 export const InviteComponent: FC<InviteComponentProps> = ({
-  invitationLink,
-  revealInputValue,
-  handleClickInputReveal,
+    invitationLink,
+    revealInputValue,
+    handleClickInputReveal,
 }) => {
-  const hiddenInvitationLink = invitationLink.slice(0, 90).replace(/./g, '•')
-  return (
-    <StyledGrid container direction='column'>
-      <Grid container item justifyContent='space-between' alignItems='center' className={classes.titleDiv}>
-        <Grid item className={classes.title}>
-          <Typography variant='h3' data-testid='invite-a-friend'>
-            Invite a friend
-          </Typography>
-        </Grid>
-      </Grid>
-      <Grid item className={classes.wrapper}>
-        <Grid item>
-          <Typography variant='h5'>Your community link</Typography>
-        </Grid>
-        <Grid item>
-          <Typography variant='body2'>
-            Anyone with Quiet app can follow this link to join this community.
-            <br /> Only share with people you trust.
-          </Typography>
-          <Grid item className={classes.linkContainer}>
-            <Typography variant='body2' className={classes.link} data-testid='invitation-link'>
-              {revealInputValue ? invitationLink : hiddenInvitationLink}
-            </Typography>
-            <IconButton
-              data-testid='show-invitation-link'
-              size='small'
-              onClick={handleClickInputReveal}
-              className={classes.eyeIcon}
-            >
-              {!revealInputValue ? (
-                <VisibilityOff color='primary' fontSize='small' />
-              ) : (
-                <Visibility color='primary' fontSize='small' />
-              )}
-            </IconButton>
-          </Grid>
-        </Grid>
-      </Grid>
-      <Grid>
-        <CopyToClipboard text={invitationLink}>
-          <Button data-testid='copy-invitation-link' className={classes.button}>
-            Copy to clipboard
-          </Button>
-        </CopyToClipboard>
-      </Grid>
-    </StyledGrid>
-  )
+    const hiddenInvitationLink = invitationLink.slice(0, 90).replace(/./g, '•')
+    return (
+        <StyledGrid container direction='column'>
+            <Grid container item justifyContent='space-between' alignItems='center' className={classes.titleDiv}>
+                <Grid item className={classes.title}>
+                    <Typography variant='h3' data-testid='invite-a-friend'>
+                        Invite a friend
+                    </Typography>
+                </Grid>
+            </Grid>
+            <Grid item className={classes.wrapper}>
+                <Grid item>
+                    <Typography variant='h5'>Your community link</Typography>
+                </Grid>
+                <Grid item>
+                    <Typography variant='body2'>
+                        Anyone with Quiet app can follow this link to join this community.
+                        <br /> Only share with people you trust.
+                    </Typography>
+                    <Grid item className={classes.linkContainer}>
+                        <Typography variant='body2' className={classes.link} data-testid='invitation-link'>
+                            {revealInputValue ? invitationLink : hiddenInvitationLink}
+                        </Typography>
+                        <IconButton
+                            data-testid='show-invitation-link'
+                            size='small'
+                            onClick={handleClickInputReveal}
+                            className={classes.eyeIcon}
+                        >
+                            {!revealInputValue ? (
+                                <VisibilityOff color='primary' fontSize='small' />
+                            ) : (
+                                <Visibility color='primary' fontSize='small' />
+                            )}
+                        </IconButton>
+                    </Grid>
+                </Grid>
+            </Grid>
+            <Grid>
+                <CopyToClipboard text={invitationLink}>
+                    <Button data-testid='copy-invitation-link' className={classes.button}>
+                        Copy to clipboard
+                    </Button>
+                </CopyToClipboard>
+            </Grid>
+        </StyledGrid>
+    )
 }

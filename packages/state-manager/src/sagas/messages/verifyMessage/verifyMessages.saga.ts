@@ -8,50 +8,50 @@ import { usersSelectors } from '../../users/users.selectors'
 import { verifyUserInfoMessage } from '@quiet/common'
 
 export function* verifyMessagesSaga(
-  action: PayloadAction<ReturnType<typeof messagesActions.incomingMessages>>['payload']
+    action: PayloadAction<ReturnType<typeof messagesActions.incomingMessages>>['payload']
 ): Generator {
-  const messages = action.payload.messages
+    const messages = action.payload.messages
 
-  let ownerData = yield* select(usersSelectors.ownerData)
+    let ownerData = yield* select(usersSelectors.ownerData)
 
-  while (true) {
-    ownerData = yield* select(usersSelectors.ownerData)
-    if (ownerData?.pubKey) {
-      break
-    }
-    yield* delay(500)
-  }
-
-  for (const message of messages) {
-    let isVerified = Boolean(action.payload.isVerified)
-
-    if (message.type === MessageType.Info && message.pubKey !== ownerData.pubKey) {
-      let user = yield* select(usersSelectors.getUserByPubKey(message.pubKey))
-
-      while (true) {
-        user = yield* select(usersSelectors.getUserByPubKey(message.pubKey))
-        if (user) {
-          break
+    while (true) {
+        ownerData = yield* select(usersSelectors.ownerData)
+        if (ownerData?.pubKey) {
+            break
         }
         yield* delay(500)
-      }
-      const channel = yield* select(publicChannelsSelectors.getChannelById(message.channelId))
-      if (!channel) return
-
-      const expectedMessage = yield* call(verifyUserInfoMessage, user.username, channel)
-
-      if (message.message !== expectedMessage) {
-        console.error(`${user.username} tried to send a malicious info message`)
-        isVerified = false
-      }
     }
 
-    const verificationStatus: MessageVerificationStatus = {
-      publicKey: message.pubKey,
-      signature: message.signature,
-      isVerified,
-    }
+    for (const message of messages) {
+        let isVerified = Boolean(action.payload.isVerified)
 
-    yield* put(messagesActions.addMessageVerificationStatus(verificationStatus))
-  }
+        if (message.type === MessageType.Info && message.pubKey !== ownerData.pubKey) {
+            let user = yield* select(usersSelectors.getUserByPubKey(message.pubKey))
+
+            while (true) {
+                user = yield* select(usersSelectors.getUserByPubKey(message.pubKey))
+                if (user) {
+                    break
+                }
+                yield* delay(500)
+            }
+            const channel = yield* select(publicChannelsSelectors.getChannelById(message.channelId))
+            if (!channel) return
+
+            const expectedMessage = yield* call(verifyUserInfoMessage, user.username, channel)
+
+            if (message.message !== expectedMessage) {
+                console.error(`${user.username} tried to send a malicious info message`)
+                isVerified = false
+            }
+        }
+
+        const verificationStatus: MessageVerificationStatus = {
+            publicKey: message.pubKey,
+            signature: message.signature,
+            isVerified,
+        }
+
+        yield* put(messagesActions.addMessageVerificationStatus(verificationStatus))
+    }
 }

@@ -5,42 +5,42 @@ import { renderComponent } from '../../../../testUtils/renderComponent'
 import FileComponent from './FileComponent'
 
 describe('FileComponent', () => {
-  it('renders component', () => {
-    const result = renderComponent(
-      <FileComponent
-        message={{
-          id: '32',
-          type: 2,
-          isDuplicated: false,
-          isRegistered: true,
-          pubKey: 'string',
-          media: {
-            cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
-            message: {
-              channelId: 'general',
-              id: 'wgtlstx3u7',
-            },
-            ext: '.zip',
-            name: 'my-file-name-goes-here-an-isnt-truncated',
-            size: 2048,
-            width: 1200,
-            height: 580,
-            path: 'files/my-file-name-goes-here-an-isnt-truncated.zip',
-          },
-          message: '',
-          createdAt: 0,
-          date: '12:46',
-          nickname: 'vader',
-        }}
-        downloadStatus={{
-          mid: '32',
-          cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
-          downloadState: DownloadState.Ready,
-          downloadProgress: undefined,
-        }}
-      />
-    )
-    expect(result.baseElement).toMatchInlineSnapshot(`
+    it('renders component', () => {
+        const result = renderComponent(
+            <FileComponent
+                message={{
+                    id: '32',
+                    type: 2,
+                    isDuplicated: false,
+                    isRegistered: true,
+                    pubKey: 'string',
+                    media: {
+                        cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
+                        message: {
+                            channelId: 'general',
+                            id: 'wgtlstx3u7',
+                        },
+                        ext: '.zip',
+                        name: 'my-file-name-goes-here-an-isnt-truncated',
+                        size: 2048,
+                        width: 1200,
+                        height: 580,
+                        path: 'files/my-file-name-goes-here-an-isnt-truncated.zip',
+                    },
+                    message: '',
+                    createdAt: 0,
+                    date: '12:46',
+                    nickname: 'vader',
+                }}
+                downloadStatus={{
+                    mid: '32',
+                    cid: 'QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs',
+                    downloadState: DownloadState.Ready,
+                    downloadProgress: undefined,
+                }}
+            />
+        )
+        expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
           <div
@@ -107,5 +107,5 @@ describe('FileComponent', () => {
         </div>
       </body>
     `)
-  })
+    })
 })

@@ -1,9 +1,9 @@
 import { PossibleImpersonationAttackRouteProps } from '../../route.params'
 
 export interface PossibleImpersonationAttackScreenProps {
-  route: PossibleImpersonationAttackRouteProps
+    route: PossibleImpersonationAttackRouteProps
 }
 export interface PossibleImpersonationAttackComponentProps {
-  handleBackButton: () => void
-  communityName: string
+    handleBackButton: () => void
+    communityName: string
 }

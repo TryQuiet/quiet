@@ -2,9 +2,9 @@ import { renderComponent } from '../../utils/functions/renderComponent/renderCom
 import { Spinner } from './Spinner.component'
 
 describe('Spinner component', () => {
-  it('renders component', () => {
-    const { toJSON } = renderComponent(<Spinner description='Connecting to peers' />)
-    expect(toJSON()).toMatchInlineSnapshot(`
+    it('renders component', () => {
+        const { toJSON } = renderComponent(<Spinner description='Connecting to peers' />)
+        expect(toJSON()).toMatchInlineSnapshot(`
       <View
         style={
           {
@@ -44,5 +44,5 @@ describe('Spinner component', () => {
         </Text>
       </View>
     `)
-  })
+    })
 })

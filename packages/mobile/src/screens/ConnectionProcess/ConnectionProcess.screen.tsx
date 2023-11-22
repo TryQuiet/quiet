@@ -7,48 +7,48 @@ import { navigationActions } from '../../store/navigation/navigation.slice'
 import { ScreenNames } from '../../const/ScreenNames.enum'
 
 const ConnectionProcessScreen: FC = () => {
-  const dispatch = useDispatch()
+    const dispatch = useDispatch()
 
-  const connectionProcessSelector = useSelector(connection.selectors.torConnectionProcess)
-  const error = useSelector(errors.selectors.registrarErrors)
+    const connectionProcessSelector = useSelector(connection.selectors.torConnectionProcess)
+    const error = useSelector(errors.selectors.registrarErrors)
 
-  const community = useSelector(communities.selectors.currentCommunity)
-  const isOwner = Boolean(community?.CA)
+    const community = useSelector(communities.selectors.currentCommunity)
+    const isOwner = Boolean(community?.CA)
 
-  const channelsStatusSorted = useSelector(publicChannels.selectors.channelsStatusSorted)
-  const messageNotNull = channelsStatusSorted.filter(channel => channel.newestMessage !== undefined)
+    const channelsStatusSorted = useSelector(publicChannels.selectors.channelsStatusSorted)
+    const messageNotNull = channelsStatusSorted.filter(channel => channel.newestMessage !== undefined)
 
-  const certificatesMapping = useSelector(users.selectors.certificatesMapping)
-  const channels = useSelector(publicChannels.selectors.publicChannels)
+    const certificatesMapping = useSelector(users.selectors.certificatesMapping)
+    const channels = useSelector(publicChannels.selectors.publicChannels)
 
-  const openUrl = useCallback((url: string) => {
-    void Linking.openURL(url)
-  }, [])
+    const openUrl = useCallback((url: string) => {
+        void Linking.openURL(url)
+    }, [])
 
-  useEffect(() => {
-    if (error?.code === ErrorCodes.FORBIDDEN) {
-      dispatch(
-        navigationActions.replaceScreen({
-          screen: ScreenNames.UsernameRegistrationScreen,
-        })
-      )
-    }
-  }, [error, dispatch])
+    useEffect(() => {
+        if (error?.code === ErrorCodes.FORBIDDEN) {
+            dispatch(
+                navigationActions.replaceScreen({
+                    screen: ScreenNames.UsernameRegistrationScreen,
+                })
+            )
+        }
+    }, [error, dispatch])
 
-  useEffect(() => {
-    const areChannelsLoaded = channels.length > 0
-    const areCertificatesLoaded = Object.values(certificatesMapping).length > 0
-    const isAllDataLoaded = areChannelsLoaded && areCertificatesLoaded
-    console.log({ areChannelsLoaded, areCertificatesLoaded })
-    if (isOwner ? connectionProcessSelector.number == 85 : isAllDataLoaded && messageNotNull.length !== 0) {
-      dispatch(
-        navigationActions.replaceScreen({
-          screen: ScreenNames.ChannelListScreen,
-        })
-      )
-    }
-  }, [connectionProcessSelector, messageNotNull, certificatesMapping, channels])
-  return <ConnectionProcessComponent openUrl={openUrl} connectionProcess={connectionProcessSelector} />
+    useEffect(() => {
+        const areChannelsLoaded = channels.length > 0
+        const areCertificatesLoaded = Object.values(certificatesMapping).length > 0
+        const isAllDataLoaded = areChannelsLoaded && areCertificatesLoaded
+        console.log({ areChannelsLoaded, areCertificatesLoaded })
+        if (isOwner ? connectionProcessSelector.number == 85 : isAllDataLoaded && messageNotNull.length !== 0) {
+            dispatch(
+                navigationActions.replaceScreen({
+                    screen: ScreenNames.ChannelListScreen,
+                })
+            )
+        }
+    }, [connectionProcessSelector, messageNotNull, certificatesMapping, channels])
+    return <ConnectionProcessComponent openUrl={openUrl} connectionProcess={connectionProcessSelector} />
 }
 
 export default ConnectionProcessScreen

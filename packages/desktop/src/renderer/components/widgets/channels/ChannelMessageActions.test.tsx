@@ -4,9 +4,9 @@ import { ChannelMessageActions } from './ChannelMessageActions'
 import { renderComponent } from '../../../testUtils/renderComponent'
 
 describe('ChannelMessageActions', () => {
-  it('renders component', () => {
-    const result = renderComponent(<ChannelMessageActions onResend={jest.fn()} />)
-    expect(result.baseElement).toMatchInlineSnapshot(`
+    it('renders component', () => {
+        const result = renderComponent(<ChannelMessageActions onResend={jest.fn()} />)
+        expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
           <div
@@ -37,5 +37,5 @@ describe('ChannelMessageActions', () => {
         </div>
       </body>
     `)
-  })
+    })
 })

@@ -8,9 +8,9 @@ import { downloadStatusAdapter } from './files.adapter'
 const filesSlice: CreatedSelectors[StoreKeys.Files] = (state: StoreState) => state[StoreKeys.Files]
 
 export const downloadStatuses = createSelector(filesSlice, state =>
-  downloadStatusAdapter.getSelectors().selectEntities(state.downloadStatus)
+    downloadStatusAdapter.getSelectors().selectEntities(state.downloadStatus)
 )
 
 export const filesSelectors = {
-  downloadStatuses,
+    downloadStatuses,
 }

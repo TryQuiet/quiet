@@ -12,27 +12,27 @@ import { nativeServicesActions } from '../../store/nativeServices/nativeServices
 import { capitalizeFirstLetter } from '@quiet/common'
 
 export const LeaveCommunityScreen: FC = () => {
-  const dispatch = useDispatch()
+    const dispatch = useDispatch()
 
-  const community = useSelector(communities.selectors.currentCommunity)
+    const community = useSelector(communities.selectors.currentCommunity)
 
-  let communityName = '...'
-  if (community?.name) {
-    communityName = capitalizeFirstLetter(community.name)
-  }
+    let communityName = '...'
+    if (community?.name) {
+        communityName = capitalizeFirstLetter(community.name)
+    }
 
-  const leaveCommunity = useCallback(() => {
-    dispatch(nativeServicesActions.leaveCommunity())
-  }, [dispatch])
+    const leaveCommunity = useCallback(() => {
+        dispatch(nativeServicesActions.leaveCommunity())
+    }, [dispatch])
 
-  const handleBackButton = useCallback(() => {
-    dispatch(
-      navigationActions.navigation({
-        screen: ScreenNames.ChannelListScreen,
-      })
-    )
-    return true
-  }, [dispatch])
+    const handleBackButton = useCallback(() => {
+        dispatch(
+            navigationActions.navigation({
+                screen: ScreenNames.ChannelListScreen,
+            })
+        )
+        return true
+    }, [dispatch])
 
-  return <LeaveCommunity name={communityName} leaveCommunity={leaveCommunity} handleBackButton={handleBackButton} />
+    return <LeaveCommunity name={communityName} leaveCommunity={leaveCommunity} handleBackButton={handleBackButton} />
 }

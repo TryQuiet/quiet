@@ -7,8 +7,8 @@ import { TorModule } from '../tor/tor.module'
 import { ConnectionsManagerService } from './connections-manager.service'
 
 @Module({
-  imports: [RegistrationModule, StorageModule, TorModule, SocketModule, LocalDbModule],
-  providers: [ConnectionsManagerService],
-  exports: [ConnectionsManagerService],
+    imports: [RegistrationModule, StorageModule, TorModule, SocketModule, LocalDbModule],
+    providers: [ConnectionsManagerService],
+    exports: [ConnectionsManagerService],
 })
 export class ConnectionsManagerModule {}

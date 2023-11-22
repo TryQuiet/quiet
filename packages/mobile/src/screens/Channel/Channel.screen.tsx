@@ -13,173 +13,173 @@ import { DocumentPickerResponse } from 'react-native-document-picker'
 import { getFilesData } from '@quiet/common'
 
 export const ChannelScreen: FC = () => {
-  const dispatch = useDispatch()
+    const dispatch = useDispatch()
 
-  const handleBackButton = useCallback(() => {
-    dispatch(
-      navigationActions.navigation({
-        screen: ScreenNames.ChannelListScreen,
-      })
-    )
-    dispatch(
-      publicChannels.actions.setCurrentChannel({
-        channelId: '', // Necessary for marking channels as unread on channel's list
-      })
-    )
-    return true
-  }, [dispatch])
+    const handleBackButton = useCallback(() => {
+        dispatch(
+            navigationActions.navigation({
+                screen: ScreenNames.ChannelListScreen,
+            })
+        )
+        dispatch(
+            publicChannels.actions.setCurrentChannel({
+                channelId: '', // Necessary for marking channels as unread on channel's list
+            })
+        )
+        return true
+    }, [dispatch])
 
-  useEffect(() => {
-    BackHandler.addEventListener('hardwareBackPress', handleBackButton)
-    return () => {
-      BackHandler.removeEventListener('hardwareBackPress', handleBackButton)
-    }
-  }, [handleBackButton])
-
-  const currentChannel = useSelector(publicChannels.selectors.currentChannel)
-
-  const community = useSelector(communities.selectors.currentCommunity)
-
-  const channelMessagesCount = useSelector(publicChannels.selectors.currentChannelMessagesCount)
-
-  const channelMessages = useSelector(publicChannels.selectors.currentChannelMessagesMergedBySender)
-
-  const pendingMessages = useSelector(messages.selectors.messagesSendingStatus)
-
-  const downloadStatusesMapping = useSelector(files.selectors.downloadStatuses)
-
-  const isWebsocketConnected = useSelector(initSelectors.isWebsocketConnected)
-
-  let contextMenu: UseContextMenuType<Record<string, unknown>> | null = useContextMenu(MenuName.Channel)
-
-  if (!community?.CA || !isWebsocketConnected) {
-    contextMenu = null
-  }
-
-  const unregisteredUsernameContextMenu = useContextMenu(MenuName.UnregisteredUsername)
-
-  const [uploadingFiles, setUploadingFiles] = React.useState<FilePreviewData>({})
-  const filesRef = React.useRef<FilePreviewData>({})
-  React.useEffect(() => {
-    filesRef.current = uploadingFiles
-  }, [uploadingFiles])
-
-  const downloadFile = useCallback(
-    (media: FileMetadata) => {
-      dispatch(files.actions.downloadFile(media))
-    },
-    [dispatch]
-  )
-
-  const cancelDownload = useCallback(
-    (cancelDownload: CancelDownload) => {
-      dispatch(files.actions.cancelDownload(cancelDownload))
-    },
-    [dispatch]
-  )
-
-  const loadMessages = useCallback(
-    (load: boolean) => {
-      dispatch(messages.actions.lazyLoading({ load }))
-    },
-    [dispatch]
-  )
-
-  // Files
-  const updateUploadedFiles = (files: DocumentPickerResponse[]) => {
-    const filesData: FilePreviewData = getFilesData(
-      files.map(fileObj => {
-        return {
-          path: fileObj.fileCopyUri || fileObj.uri,
-          isTmp: !fileObj.copyError,
+    useEffect(() => {
+        BackHandler.addEventListener('hardwareBackPress', handleBackButton)
+        return () => {
+            BackHandler.removeEventListener('hardwareBackPress', handleBackButton)
         }
-      })
+    }, [handleBackButton])
+
+    const currentChannel = useSelector(publicChannels.selectors.currentChannel)
+
+    const community = useSelector(communities.selectors.currentCommunity)
+
+    const channelMessagesCount = useSelector(publicChannels.selectors.currentChannelMessagesCount)
+
+    const channelMessages = useSelector(publicChannels.selectors.currentChannelMessagesMergedBySender)
+
+    const pendingMessages = useSelector(messages.selectors.messagesSendingStatus)
+
+    const downloadStatusesMapping = useSelector(files.selectors.downloadStatuses)
+
+    const isWebsocketConnected = useSelector(initSelectors.isWebsocketConnected)
+
+    let contextMenu: UseContextMenuType<Record<string, unknown>> | null = useContextMenu(MenuName.Channel)
+
+    if (!community?.CA || !isWebsocketConnected) {
+        contextMenu = null
+    }
+
+    const unregisteredUsernameContextMenu = useContextMenu(MenuName.UnregisteredUsername)
+
+    const [uploadingFiles, setUploadingFiles] = React.useState<FilePreviewData>({})
+    const filesRef = React.useRef<FilePreviewData>({})
+    React.useEffect(() => {
+        filesRef.current = uploadingFiles
+    }, [uploadingFiles])
+
+    const downloadFile = useCallback(
+        (media: FileMetadata) => {
+            dispatch(files.actions.downloadFile(media))
+        },
+        [dispatch]
     )
 
-    // FilePreviewData
-    setUploadingFiles(existingFiles => {
-      const updatedFiles = { ...existingFiles, ...filesData }
-      return updatedFiles
-    })
-  }
-
-  const removeFilePreview = (id: string) =>
-    setUploadingFiles(existingFiles => {
-      delete existingFiles[id]
-      const updatedExistingFiles = { ...existingFiles }
-      return updatedExistingFiles
-    })
-
-  //User Label
-
-  const duplicatedUsernameHandleBack = useCallback(() => {
-    dispatch(
-      navigationActions.navigation({
-        screen: ScreenNames.DuplicatedUsernameScreen,
-      })
+    const cancelDownload = useCallback(
+        (cancelDownload: CancelDownload) => {
+            dispatch(files.actions.cancelDownload(cancelDownload))
+        },
+        [dispatch]
     )
-  }, [dispatch])
 
-  const unregisteredUsernameHandleBack = useCallback(
-    (username: string) => {
-      unregisteredUsernameContextMenu.handleOpen({ username })
-    },
-    [unregisteredUsernameContextMenu]
-  )
+    const loadMessages = useCallback(
+        (load: boolean) => {
+            dispatch(messages.actions.lazyLoading({ load }))
+        },
+        [dispatch]
+    )
 
-  const sendMessageAction = React.useCallback(
-    async (message: string) => {
-      if (message) {
-        dispatch(messages.actions.sendMessage({ message }))
-      }
-      // Upload files, then send corresponding message (contaning cid) for each of them
-      Object.values(filesRef.current).forEach(async (fileData: FileContent) => {
-        if (!fileData.path) return
-        dispatch(files.actions.uploadFile(fileData))
-      })
-      // Reset file previews for input state
-      setUploadingFiles({})
-    },
-    [dispatch]
-  )
+    // Files
+    const updateUploadedFiles = (files: DocumentPickerResponse[]) => {
+        const filesData: FilePreviewData = getFilesData(
+            files.map(fileObj => {
+                return {
+                    path: fileObj.fileCopyUri || fileObj.uri,
+                    isTmp: !fileObj.copyError,
+                }
+            })
+        )
 
-  useEffect(() => {
-    dispatch(messages.actions.resetCurrentPublicChannelCache())
-  }, [currentChannel?.id])
+        // FilePreviewData
+        setUploadingFiles(existingFiles => {
+            const updatedFiles = { ...existingFiles, ...filesData }
+            return updatedFiles
+        })
+    }
 
-  const [imagePreview, setImagePreview] = useState<FileMetadata | null>(null)
+    const removeFilePreview = (id: string) =>
+        setUploadingFiles(existingFiles => {
+            delete existingFiles[id]
+            const updatedExistingFiles = { ...existingFiles }
+            return updatedExistingFiles
+        })
 
-  const openUrl = useCallback((url: string) => {
-    void Linking.openURL(url)
-  }, [])
+    //User Label
 
-  if (!currentChannel) return null
+    const duplicatedUsernameHandleBack = useCallback(() => {
+        dispatch(
+            navigationActions.navigation({
+                screen: ScreenNames.DuplicatedUsernameScreen,
+            })
+        )
+    }, [dispatch])
 
-  return (
-    <Chat
-      contextMenu={contextMenu}
-      sendMessageAction={sendMessageAction}
-      loadMessagesAction={loadMessages}
-      handleBackButton={handleBackButton}
-      channel={currentChannel}
-      messages={{
-        count: channelMessagesCount,
-        groups: channelMessages,
-      }}
-      pendingMessages={pendingMessages}
-      downloadStatuses={downloadStatusesMapping}
-      downloadFile={downloadFile}
-      cancelDownload={cancelDownload}
-      imagePreview={imagePreview}
-      setImagePreview={setImagePreview}
-      openImagePreview={setImagePreview}
-      updateUploadedFiles={updateUploadedFiles}
-      removeFilePreview={removeFilePreview}
-      openUrl={openUrl}
-      uploadedFiles={uploadingFiles}
-      ready={isWebsocketConnected}
-      duplicatedUsernameHandleBack={duplicatedUsernameHandleBack}
-      unregisteredUsernameHandleBack={unregisteredUsernameHandleBack}
-    />
-  )
+    const unregisteredUsernameHandleBack = useCallback(
+        (username: string) => {
+            unregisteredUsernameContextMenu.handleOpen({ username })
+        },
+        [unregisteredUsernameContextMenu]
+    )
+
+    const sendMessageAction = React.useCallback(
+        async (message: string) => {
+            if (message) {
+                dispatch(messages.actions.sendMessage({ message }))
+            }
+            // Upload files, then send corresponding message (contaning cid) for each of them
+            Object.values(filesRef.current).forEach(async (fileData: FileContent) => {
+                if (!fileData.path) return
+                dispatch(files.actions.uploadFile(fileData))
+            })
+            // Reset file previews for input state
+            setUploadingFiles({})
+        },
+        [dispatch]
+    )
+
+    useEffect(() => {
+        dispatch(messages.actions.resetCurrentPublicChannelCache())
+    }, [currentChannel?.id])
+
+    const [imagePreview, setImagePreview] = useState<FileMetadata | null>(null)
+
+    const openUrl = useCallback((url: string) => {
+        void Linking.openURL(url)
+    }, [])
+
+    if (!currentChannel) return null
+
+    return (
+        <Chat
+            contextMenu={contextMenu}
+            sendMessageAction={sendMessageAction}
+            loadMessagesAction={loadMessages}
+            handleBackButton={handleBackButton}
+            channel={currentChannel}
+            messages={{
+                count: channelMessagesCount,
+                groups: channelMessages,
+            }}
+            pendingMessages={pendingMessages}
+            downloadStatuses={downloadStatusesMapping}
+            downloadFile={downloadFile}
+            cancelDownload={cancelDownload}
+            imagePreview={imagePreview}
+            setImagePreview={setImagePreview}
+            openImagePreview={setImagePreview}
+            updateUploadedFiles={updateUploadedFiles}
+            removeFilePreview={removeFilePreview}
+            openUrl={openUrl}
+            uploadedFiles={uploadingFiles}
+            ready={isWebsocketConnected}
+            duplicatedUsernameHandleBack={duplicatedUsernameHandleBack}
+            unregisteredUsernameHandleBack={unregisteredUsernameHandleBack}
+        />
+    )
 }

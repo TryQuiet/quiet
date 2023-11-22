@@ -4,14 +4,14 @@ import { renderComponent } from '../../../testUtils/renderComponent'
 import { PopupMenu } from './PopupMenu'
 
 describe('PopupMenu', () => {
-  it('renders component', () => {
-    const Content = () => <div>Content</div>
-    const result = renderComponent(
-      <PopupMenu open>
-        <Content />
-      </PopupMenu>
-    )
-    expect(result.baseElement).toMatchInlineSnapshot(`
+    it('renders component', () => {
+        const Content = () => <div>Content</div>
+        const result = renderComponent(
+            <PopupMenu open>
+                <Content />
+            </PopupMenu>
+        )
+        expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
           <div
@@ -38,30 +38,30 @@ describe('PopupMenu', () => {
         </div>
       </body>
     `)
-  })
+    })
 
-  it('renders when closed', () => {
-    const Content = () => <div>Content</div>
-    const result = renderComponent(
-      <PopupMenu open={false}>
-        <Content />
-      </PopupMenu>
-    )
-    expect(result.baseElement).toMatchInlineSnapshot(`
+    it('renders when closed', () => {
+        const Content = () => <div>Content</div>
+        const result = renderComponent(
+            <PopupMenu open={false}>
+                <Content />
+            </PopupMenu>
+        )
+        expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div />
       </body>
     `)
-  })
+    })
 
-  it('renders with offset', () => {
-    const Content = () => <div>Content</div>
-    const result = renderComponent(
-      <PopupMenu open offset='0 10'>
-        <Content />
-      </PopupMenu>
-    )
-    expect(result.baseElement).toMatchInlineSnapshot(`
+    it('renders with offset', () => {
+        const Content = () => <div>Content</div>
+        const result = renderComponent(
+            <PopupMenu open offset='0 10'>
+                <Content />
+            </PopupMenu>
+        )
+        expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
           <div
@@ -88,5 +88,5 @@ describe('PopupMenu', () => {
         </div>
       </body>
     `)
-  })
+    })
 })

@@ -3,9 +3,9 @@ import { renderComponent } from '../../testUtils/renderComponent'
 import ChannelCreationModalComponent from './ChannelCreationModal.component'
 
 describe('Create ChannelCreationModalComponent', () => {
-  it('renders component', () => {
-    const result = renderComponent(<ChannelCreationModalComponent handleClose={jest.fn()} open={true} />)
-    expect(result.baseElement).toMatchInlineSnapshot(`
+    it('renders component', () => {
+        const result = renderComponent(<ChannelCreationModalComponent handleClose={jest.fn()} open={true} />)
+        expect(result.baseElement).toMatchInlineSnapshot(`
       <body
         style="padding-right: 1024px; overflow: hidden;"
       >
@@ -105,5 +105,5 @@ describe('Create ChannelCreationModalComponent', () => {
         </div>
       </body>
     `)
-  })
+    })
 })

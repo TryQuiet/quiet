@@ -15,68 +15,68 @@ import { useContextMenu } from '../../hooks/useContextMenu'
 import { MenuName } from '../../const/MenuNames.enum'
 
 export const ChannelListScreen: FC = () => {
-  const dispatch = useDispatch()
+    const dispatch = useDispatch()
 
-  const usernameTaken = useSelector(identity.selectors.usernameTaken)
-  const duplicateCerts = useSelector(users.selectors.duplicateCerts)
+    const usernameTaken = useSelector(identity.selectors.usernameTaken)
+    const duplicateCerts = useSelector(users.selectors.duplicateCerts)
 
-  useEffect(() => {
-    if (usernameTaken) {
-      dispatch(
-        navigationActions.navigation({
-          screen: ScreenNames.UsernameTakenScreen,
-        })
-      )
-    }
+    useEffect(() => {
+        if (usernameTaken) {
+            dispatch(
+                navigationActions.navigation({
+                    screen: ScreenNames.UsernameTakenScreen,
+                })
+            )
+        }
 
-    if (duplicateCerts) {
-      dispatch(
-        navigationActions.navigation({
-          screen: ScreenNames.PossibleImpersonationAttackScreen,
-        })
-      )
-    }
-  }, [dispatch, usernameTaken, duplicateCerts])
+        if (duplicateCerts) {
+            dispatch(
+                navigationActions.navigation({
+                    screen: ScreenNames.PossibleImpersonationAttackScreen,
+                })
+            )
+        }
+    }, [dispatch, usernameTaken, duplicateCerts])
 
-  const redirect = useCallback(
-    (id: string) => {
-      dispatch(
-        publicChannels.actions.setCurrentChannel({
-          channelId: id,
-        })
-      )
-      dispatch(
-        navigationActions.navigation({
-          screen: ScreenNames.ChannelScreen,
-        })
-      )
-    },
-    [dispatch]
-  )
+    const redirect = useCallback(
+        (id: string) => {
+            dispatch(
+                publicChannels.actions.setCurrentChannel({
+                    channelId: id,
+                })
+            )
+            dispatch(
+                navigationActions.navigation({
+                    screen: ScreenNames.ChannelScreen,
+                })
+            )
+        },
+        [dispatch]
+    )
 
-  const community = useSelector(communities.selectors.currentCommunity)
+    const community = useSelector(communities.selectors.currentCommunity)
 
-  const channelsStatusSorted = useSelector(publicChannels.selectors.channelsStatusSorted)
+    const channelsStatusSorted = useSelector(publicChannels.selectors.channelsStatusSorted)
 
-  const tiles = channelsStatusSorted.map(status => {
-    const newestMessage = status.newestMessage
+    const tiles = channelsStatusSorted.map(status => {
+        const newestMessage = status.newestMessage
 
-    const message = newestMessage?.message || '...'
-    const date = newestMessage?.createdAt ? formatMessageDisplayDate(newestMessage.createdAt) : undefined
+        const message = newestMessage?.message || '...'
+        const date = newestMessage?.createdAt ? formatMessageDisplayDate(newestMessage.createdAt) : undefined
 
-    const tile: ChannelTileProps = {
-      name: getChannelNameFromChannelId(status.id),
-      id: status.id,
-      message,
-      date,
-      unread: status.unread,
-      redirect,
-    }
+        const tile: ChannelTileProps = {
+            name: getChannelNameFromChannelId(status.id),
+            id: status.id,
+            message,
+            date,
+            unread: status.unread,
+            redirect,
+        }
 
-    return tile
-  })
+        return tile
+    })
 
-  const communityContextMenu = useContextMenu(MenuName.Community)
+    const communityContextMenu = useContextMenu(MenuName.Community)
 
-  return <ChannelListComponent community={community} tiles={tiles} communityContextMenu={communityContextMenu} />
+    return <ChannelListComponent community={community} tiles={tiles} communityContextMenu={communityContextMenu} />
 }

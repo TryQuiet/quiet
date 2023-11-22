@@ -4,14 +4,14 @@ import { renderComponent } from '../../../testUtils/renderComponent'
 import { IconButton } from './IconButton'
 
 describe('IconButton', () => {
-  const Icon = () => <div>Icon</div>
-  it('renders component', () => {
-    const result = renderComponent(
-      <IconButton onClick={jest.fn()}>
-        <Icon />
-      </IconButton>
-    )
-    expect(result.baseElement).toMatchInlineSnapshot(`
+    const Icon = () => <div>Icon</div>
+    it('renders component', () => {
+        const result = renderComponent(
+            <IconButton onClick={jest.fn()}>
+                <Icon />
+            </IconButton>
+        )
+        expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
           <button
@@ -29,5 +29,5 @@ describe('IconButton', () => {
         </div>
       </body>
     `)
-  })
+    })
 })

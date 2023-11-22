@@ -10,65 +10,65 @@ import { suspendableSocketEvents } from './suspendable.events'
 import { TEST_DATA_PORT } from '../const'
 
 describe('SocketService', () => {
-  let module: TestingModule
-  let socketService: SocketService
+    let module: TestingModule
+    let socketService: SocketService
 
-  let client: Socket
+    let client: Socket
 
-  beforeAll(async () => {
-    module = await Test.createTestingModule({
-      imports: [TestModule, SocketModule],
-    }).compile()
+    beforeAll(async () => {
+        module = await Test.createTestingModule({
+            imports: [TestModule, SocketModule],
+        }).compile()
 
-    socketService = await module.resolve(SocketService)
+        socketService = await module.resolve(SocketService)
 
-    module.init()
+        module.init()
 
-    client = io(`http://127.0.0.1:${TEST_DATA_PORT}`)
-  })
-
-  afterAll(async () => {
-    client.close()
-    socketService.close()
-
-    await module.close()
-  })
-
-  it('sets no default cors', async () => {
-    expect(socketService.serverIoProvider.io.engine.opts.cors).toStrictEqual({}) // No cors should be set by default
-  })
-
-  it('suspends events handling until backend is fully initialized', async () => {
-    const spy = jest.spyOn(socketService, 'emit')
-
-    const event = suspendableSocketEvents[0]
-
-    client.emit(event)
-
-    expect(spy).not.toBeCalledWith(event, undefined)
-
-    socketService.resolveReadyness()
-
-    await waitForExpect(() => {
-      expect(spy).toHaveBeenCalledWith(event, undefined)
+        client = io(`http://127.0.0.1:${TEST_DATA_PORT}`)
     })
-  })
 
-  it('there are no fragile endpoints in the collection of suspendables', async () => {
-    const fragile: string[] = [
-      SocketActionTypes.CREATE_NETWORK.valueOf(),
-      SocketActionTypes.CREATE_COMMUNITY.valueOf(),
-      SocketActionTypes.LAUNCH_COMMUNITY.valueOf(),
-      SocketActionTypes.LAUNCH_REGISTRAR.valueOf(),
-      SocketActionTypes.REGISTER_OWNER_CERTIFICATE.valueOf(),
-      SocketActionTypes.REGISTER_USER_CERTIFICATE.valueOf(),
-      SocketActionTypes.SAVE_OWNER_CERTIFICATE.valueOf(),
-      SocketActionTypes.SAVE_USER_CSR.valueOf(),
-      SocketActionTypes.SEND_COMMUNITY_METADATA.valueOf(),
-    ]
+    afterAll(async () => {
+        client.close()
+        socketService.close()
 
-    fragile.forEach(event => {
-      expect(suspendableSocketEvents).not.toContain(event)
+        await module.close()
     })
-  })
+
+    it('sets no default cors', async () => {
+        expect(socketService.serverIoProvider.io.engine.opts.cors).toStrictEqual({}) // No cors should be set by default
+    })
+
+    it('suspends events handling until backend is fully initialized', async () => {
+        const spy = jest.spyOn(socketService, 'emit')
+
+        const event = suspendableSocketEvents[0]
+
+        client.emit(event)
+
+        expect(spy).not.toBeCalledWith(event, undefined)
+
+        socketService.resolveReadyness()
+
+        await waitForExpect(() => {
+            expect(spy).toHaveBeenCalledWith(event, undefined)
+        })
+    })
+
+    it('there are no fragile endpoints in the collection of suspendables', async () => {
+        const fragile: string[] = [
+            SocketActionTypes.CREATE_NETWORK.valueOf(),
+            SocketActionTypes.CREATE_COMMUNITY.valueOf(),
+            SocketActionTypes.LAUNCH_COMMUNITY.valueOf(),
+            SocketActionTypes.LAUNCH_REGISTRAR.valueOf(),
+            SocketActionTypes.REGISTER_OWNER_CERTIFICATE.valueOf(),
+            SocketActionTypes.REGISTER_USER_CERTIFICATE.valueOf(),
+            SocketActionTypes.SAVE_OWNER_CERTIFICATE.valueOf(),
+            SocketActionTypes.SAVE_USER_CSR.valueOf(),
+            SocketActionTypes.SEND_COMMUNITY_METADATA.valueOf(),
+        ]
+
+        fragile.forEach(event => {
+            expect(suspendableSocketEvents).not.toContain(event)
+        })
+    })
 })

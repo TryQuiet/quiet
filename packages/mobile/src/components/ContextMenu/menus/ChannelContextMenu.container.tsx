@@ -14,51 +14,51 @@ import { navigationActions } from '../../../store/navigation/navigation.slice'
 import { ScreenNames } from '../../../const/ScreenNames.enum'
 
 export const ChannelContextMenu: FC = () => {
-  const dispatch = useDispatch()
+    const dispatch = useDispatch()
 
-  const screen = useSelector(navigationSelectors.currentScreen)
+    const screen = useSelector(navigationSelectors.currentScreen)
 
-  const community = useSelector(communities.selectors.currentCommunity)
-  const channel = useSelector(publicChannels.selectors.currentChannel)
+    const community = useSelector(communities.selectors.currentCommunity)
+    const channel = useSelector(publicChannels.selectors.currentChannel)
 
-  let title = ''
-  if (channel?.name) {
-    title = channel.name
-  }
+    let title = ''
+    if (channel?.name) {
+        title = channel.name
+    }
 
-  const channelContextMenu = useContextMenu(MenuName.Channel)
+    const channelContextMenu = useContextMenu(MenuName.Channel)
 
-  const redirect = useCallback(
-    (screen: ScreenNames, params: any) => {
-      dispatch(
-        navigationActions.navigation({
-          screen,
-          params,
-        })
-      )
-    },
-    [dispatch]
-  )
+    const redirect = useCallback(
+        (screen: ScreenNames, params: any) => {
+            dispatch(
+                navigationActions.navigation({
+                    screen,
+                    params,
+                })
+            )
+        },
+        [dispatch]
+    )
 
-  let items: ContextMenuItemProps[] = []
+    let items: ContextMenuItemProps[] = []
 
-  if (community?.CA) {
-    items = [
-      ...items,
-      {
-        title: 'Delete channel',
-        action: () =>
-          redirect(ScreenNames.DeleteChannelScreen, {
-            channelName: channel?.name,
-            channelId: channel?.id,
-          }),
-      },
-    ]
-  }
+    if (community?.CA) {
+        items = [
+            ...items,
+            {
+                title: 'Delete channel',
+                action: () =>
+                    redirect(ScreenNames.DeleteChannelScreen, {
+                        channelName: channel?.name,
+                        channelId: channel?.id,
+                    }),
+            },
+        ]
+    }
 
-  useEffect(() => {
-    channelContextMenu.handleClose()
-  }, [screen])
+    useEffect(() => {
+        channelContextMenu.handleClose()
+    }, [screen])
 
-  return <ContextMenu title={`#${title} settings`} items={items} {...channelContextMenu} />
+    return <ContextMenu title={`#${title} settings`} items={items} {...channelContextMenu} />
 }

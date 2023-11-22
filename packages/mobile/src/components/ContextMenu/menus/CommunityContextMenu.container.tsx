@@ -16,40 +16,40 @@ import { ScreenNames } from '../../../const/ScreenNames.enum'
 import { capitalizeFirstLetter } from '@quiet/common'
 
 export const CommunityContextMenu: FC = () => {
-  const dispatch = useDispatch()
+    const dispatch = useDispatch()
 
-  const screen = useSelector(navigationSelectors.currentScreen)
+    const screen = useSelector(navigationSelectors.currentScreen)
 
-  const community = useSelector(communities.selectors.currentCommunity)
+    const community = useSelector(communities.selectors.currentCommunity)
 
-  let title = '...'
-  if (community?.name) {
-    title = capitalizeFirstLetter(community.name)
-  }
+    let title = '...'
+    if (community?.name) {
+        title = capitalizeFirstLetter(community.name)
+    }
 
-  const communityContextMenu = useContextMenu(MenuName.Community)
-  const invitationContextMenu = useContextMenu(MenuName.Invitation)
+    const communityContextMenu = useContextMenu(MenuName.Community)
+    const invitationContextMenu = useContextMenu(MenuName.Invitation)
 
-  const redirect = useCallback(
-    (screen: ScreenNames) => {
-      dispatch(
-        navigationActions.navigation({
-          screen,
-        })
-      )
-    },
-    [dispatch]
-  )
+    const redirect = useCallback(
+        (screen: ScreenNames) => {
+            dispatch(
+                navigationActions.navigation({
+                    screen,
+                })
+            )
+        },
+        [dispatch]
+    )
 
-  const items: ContextMenuItemProps[] = [
-    { title: 'Create channel', action: () => redirect(ScreenNames.CreateChannelScreen) },
-    { title: 'Add members', action: () => invitationContextMenu.handleOpen() },
-    { title: 'Leave community', action: () => redirect(ScreenNames.LeaveCommunityScreen) },
-  ]
+    const items: ContextMenuItemProps[] = [
+        { title: 'Create channel', action: () => redirect(ScreenNames.CreateChannelScreen) },
+        { title: 'Add members', action: () => invitationContextMenu.handleOpen() },
+        { title: 'Leave community', action: () => redirect(ScreenNames.LeaveCommunityScreen) },
+    ]
 
-  useEffect(() => {
-    communityContextMenu.handleClose()
-  }, [screen, invitationContextMenu.visible])
+    useEffect(() => {
+        communityContextMenu.handleClose()
+    }, [screen, invitationContextMenu.visible])
 
-  return <ContextMenu title={title} items={items} {...communityContextMenu} />
+    return <ContextMenu title={title} items={items} {...communityContextMenu} />
 }

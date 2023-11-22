@@ -5,9 +5,9 @@ import { startConnectionSaga } from './startConnection/startConnection.saga'
 import { deepLinkSaga } from './deepLink/deepLink.saga'
 
 export function* initMasterSaga(): Generator {
-  yield all([
-    takeEvery(initActions.blindWebsocketConnection.type, blindConnectionSaga),
-    takeLatest(initActions.startWebsocketConnection.type, startConnectionSaga),
-    takeLeading(initActions.deepLink.type, deepLinkSaga),
-  ])
+    yield all([
+        takeEvery(initActions.blindWebsocketConnection.type, blindConnectionSaga),
+        takeLatest(initActions.startWebsocketConnection.type, startConnectionSaga),
+        takeLeading(initActions.deepLink.type, deepLinkSaga),
+    ])
 }

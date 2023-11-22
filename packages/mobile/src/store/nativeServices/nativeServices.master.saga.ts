@@ -5,9 +5,9 @@ import { flushPersistorSaga } from './flushPersistor/flushPersistor.saga'
 import { nativeServicesActions } from './nativeServices.slice'
 
 export function* nativeServicesMasterSaga(): Generator {
-  yield all([
-    fork(nativeServicesCallbacksSaga),
-    takeEvery(nativeServicesActions.leaveCommunity.type, leaveCommunitySaga),
-    takeEvery(nativeServicesActions.flushPersistor.type, flushPersistorSaga),
-  ])
+    yield all([
+        fork(nativeServicesCallbacksSaga),
+        takeEvery(nativeServicesActions.leaveCommunity.type, leaveCommunitySaga),
+        takeEvery(nativeServicesActions.flushPersistor.type, flushPersistorSaga),
+    ])
 }

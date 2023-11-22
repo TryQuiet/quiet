@@ -2,19 +2,19 @@ import { createSlice } from '@reduxjs/toolkit'
 import { StoreKeys } from '../store.keys'
 
 export class NativeServicesState {
-  shouldClearReduxStore: boolean = false
+    shouldClearReduxStore: boolean = false
 }
 
 export const nativeServicesSlice = createSlice({
-  initialState: { ...new NativeServicesState() },
-  name: StoreKeys.NativeServices,
-  reducers: {
-    leaveCommunity: state => {
-      state.shouldClearReduxStore = true
+    initialState: { ...new NativeServicesState() },
+    name: StoreKeys.NativeServices,
+    reducers: {
+        leaveCommunity: state => {
+            state.shouldClearReduxStore = true
+        },
+        flushPersistor: state => state,
+        resetApp: state => state,
     },
-    flushPersistor: state => state,
-    resetApp: state => state,
-  },
 })
 
 export const nativeServicesActions = nativeServicesSlice.actions

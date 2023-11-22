@@ -4,10 +4,10 @@ import { identitySelectors } from '../identity.selectors'
 import { identityActions } from '../identity.slice'
 
 export function* verifyJoinTimestampSaga(): Generator {
-  const joinTimestamp = yield* select(identitySelectors.joinTimestamp)
+    const joinTimestamp = yield* select(identitySelectors.joinTimestamp)
 
-  if (!joinTimestamp) {
-    const communityId = yield* select(communitiesSelectors.currentCommunityId)
-    yield* put(identityActions.updateJoinTimestamp({ communityId }))
-  }
+    if (!joinTimestamp) {
+        const communityId = yield* select(communitiesSelectors.currentCommunityId)
+        yield* put(identityActions.updateJoinTimestamp({ communityId }))
+    }
 }

@@ -4,10 +4,10 @@ import { renderComponent } from '../../utils/functions/renderComponent/renderCom
 import { InitCheck } from './InitCheck.component'
 
 describe('InitCheck component', () => {
-  it('should match inline snapshot', () => {
-    const { toJSON } = renderComponent(<InitCheck event={'websocket connected'} passed={true} />)
+    it('should match inline snapshot', () => {
+        const { toJSON } = renderComponent(<InitCheck event={'websocket connected'} passed={true} />)
 
-    expect(toJSON()).toMatchInlineSnapshot(`
+        expect(toJSON()).toMatchInlineSnapshot(`
       <View
         style={
           {
@@ -53,5 +53,5 @@ describe('InitCheck component', () => {
         </Text>
       </View>
     `)
-  })
+    })
 })

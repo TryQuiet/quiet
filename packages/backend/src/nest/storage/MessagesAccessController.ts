@@ -9,40 +9,40 @@ const type = 'messagesaccess'
 
 // @ts-ignore
 export class MessagesAccessController extends AccessController {
-  private readonly crypto = getCrypto()
+    private readonly crypto = getCrypto()
 
-  private readonly keyMapping: Map<string, CryptoKey> = new Map()
+    private readonly keyMapping: Map<string, CryptoKey> = new Map()
 
-  static get type() {
-    return type
-  }
-
-  async canAppend(entry: LogEntry<ChannelMessage>) {
-    if (!this.crypto) throw new NoCryptoEngineError()
-
-    const message: ChannelMessage = entry.payload.value
-
-    const signature = stringToArrayBuffer(message.signature)
-
-    let cryptoKey = this.keyMapping.get(message.pubKey)
-    if (!cryptoKey) {
-      cryptoKey = await keyObjectFromString(message.pubKey, this.crypto)
-      this.keyMapping.set(message.pubKey, cryptoKey)
+    static get type() {
+        return type
     }
 
-    const verify = await verifySignature(signature, message.message, cryptoKey)
-    return verify
-  }
+    async canAppend(entry: LogEntry<ChannelMessage>) {
+        if (!this.crypto) throw new NoCryptoEngineError()
 
-  async save() {
-    return ''
-  }
+        const message: ChannelMessage = entry.payload.value
 
-  async load() {
-    return ''
-  }
+        const signature = stringToArrayBuffer(message.signature)
 
-  static create(_orbitdb: OrbitDB, _type = type, _options: any) {
-    return new MessagesAccessController()
-  }
+        let cryptoKey = this.keyMapping.get(message.pubKey)
+        if (!cryptoKey) {
+            cryptoKey = await keyObjectFromString(message.pubKey, this.crypto)
+            this.keyMapping.set(message.pubKey, cryptoKey)
+        }
+
+        const verify = await verifySignature(signature, message.message, cryptoKey)
+        return verify
+    }
+
+    async save() {
+        return ''
+    }
+
+    async load() {
+        return ''
+    }
+
+    static create(_orbitdb: OrbitDB, _type = type, _options: any) {
+        return new MessagesAccessController()
+    }
 }

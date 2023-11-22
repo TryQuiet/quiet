@@ -4,10 +4,10 @@ import { renderComponent } from '../../utils/functions/renderComponent/renderCom
 import { MessageSendButton } from './MessageSendButton.component'
 
 describe('MessageSendButton component', () => {
-  it('should match inline snapshot', () => {
-    const { toJSON } = renderComponent(<MessageSendButton onPress={jest.fn()} disabled={false} />)
+    it('should match inline snapshot', () => {
+        const { toJSON } = renderComponent(<MessageSendButton onPress={jest.fn()} disabled={false} />)
 
-    expect(toJSON()).toMatchInlineSnapshot(`
+        expect(toJSON()).toMatchInlineSnapshot(`
       <View
         accessibilityState={
           {
@@ -54,5 +54,5 @@ describe('MessageSendButton component', () => {
         />
       </View>
     `)
-  })
+    })
 })

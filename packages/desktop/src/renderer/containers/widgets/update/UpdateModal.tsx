@@ -7,18 +7,18 @@ import { useModal } from '../../hooks'
 import { ModalName } from '../../../sagas/modals/modals.types'
 
 export const mapDispatchToProps = (dispatch: Dispatch<AnyAction>) =>
-  bindActionCreators(
-    {
-      handleUpdate: updateHandlers.epics.startApplicationUpdate,
-      rejectUpdate: updateHandlers.epics.declineUpdate,
-    },
-    dispatch
-  )
+    bindActionCreators(
+        {
+            handleUpdate: updateHandlers.epics.startApplicationUpdate,
+            rejectUpdate: updateHandlers.epics.declineUpdate,
+        },
+        dispatch
+    )
 
 const ApplicationUpdateModal: React.FC = () => {
-  const dispatch = useDispatch()
-  const actions = mapDispatchToProps(dispatch)
-  const modal = useModal(ModalName.applicationUpdate)
-  return <UpdateModal {...modal} {...actions} />
+    const dispatch = useDispatch()
+    const actions = mapDispatchToProps(dispatch)
+    const modal = useModal(ModalName.applicationUpdate)
+    return <UpdateModal {...modal} {...actions} />
 }
 export default ApplicationUpdateModal

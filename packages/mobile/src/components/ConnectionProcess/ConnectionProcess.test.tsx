@@ -4,15 +4,15 @@ import { renderComponent } from '../../utils/functions/renderComponent/renderCom
 import ConnectionProcessComponent from './ConnectionProcess.component'
 
 describe('ConnectionProcessComponent', () => {
-  it('should match inline snapshot', () => {
-    const { toJSON } = renderComponent(
-      <ConnectionProcessComponent
-        connectionProcess={{ number: 40, text: ConnectionProcessInfo.SPAWNING_HIDDEN_SERVICE }}
-        openUrl={jest.fn()}
-      />
-    )
+    it('should match inline snapshot', () => {
+        const { toJSON } = renderComponent(
+            <ConnectionProcessComponent
+                connectionProcess={{ number: 40, text: ConnectionProcessInfo.SPAWNING_HIDDEN_SERVICE }}
+                openUrl={jest.fn()}
+            />
+        )
 
-    expect(toJSON()).toMatchInlineSnapshot(`
+        expect(toJSON()).toMatchInlineSnapshot(`
       <View
         style={
           {
@@ -222,5 +222,5 @@ describe('ConnectionProcessComponent', () => {
         </View>
       </View>
     `)
-  })
+    })
 })

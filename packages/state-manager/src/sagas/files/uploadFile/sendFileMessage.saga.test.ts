@@ -20,128 +20,128 @@ import { generateChannelId } from '@quiet/common'
 import { currentChannelId } from '../../publicChannels/publicChannels.selectors'
 
 describe('sendFileMessageSaga', () => {
-  let store: Store
-  let factory: FactoryGirl
+    let store: Store
+    let factory: FactoryGirl
 
-  let community: Community
-  let alice: Identity
+    let community: Community
+    let alice: Identity
 
-  let sailingChannel: PublicChannel
+    let sailingChannel: PublicChannel
 
-  let message: string
+    let message: string
 
-  beforeAll(async () => {
-    setupCrypto()
+    beforeAll(async () => {
+        setupCrypto()
 
-    store = prepareStore().store
+        store = prepareStore().store
 
-    factory = await getFactory(store)
+        factory = await getFactory(store)
 
-    community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
+        community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
 
-    alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
-      nickname: 'alice',
+        alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
+            id: community.id,
+            nickname: 'alice',
+        })
+
+        sailingChannel = (
+            await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>('PublicChannel', {
+                channel: {
+                    name: 'sailing',
+                    description: 'Welcome to #sailing',
+                    timestamp: DateTime.utc().valueOf(),
+                    owner: alice.nickname,
+                    id: generateChannelId('sailing'),
+                },
+            })
+        ).channel
+
+        message = Math.random().toString(36).substr(2.9)
     })
 
-    sailingChannel = (
-      await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>('PublicChannel', {
-        channel: {
-          name: 'sailing',
-          description: 'Welcome to #sailing',
-          timestamp: DateTime.utc().valueOf(),
-          owner: alice.nickname,
-          id: generateChannelId('sailing'),
-        },
-      })
-    ).channel
+    test('saves message with media', async () => {
+        const currentChannel = currentChannelId(store.getState())
 
-    message = Math.random().toString(36).substr(2.9)
-  })
+        if (!currentChannel) throw new Error('no current channel id')
 
-  test('saves message with media', async () => {
-    const currentChannel = currentChannelId(store.getState())
+        const media: FileMetadata = {
+            cid: `uploading_${message}`,
+            path: 'temp/name.ext',
+            name: 'name',
+            ext: 'ext',
+            message: {
+                id: message,
+                channelId: currentChannel,
+            },
+            tmpPath: undefined,
+        }
+        const reducer = combineReducers(reducers)
+        await expectSaga(sendFileMessageSaga, filesActions.uploadFile(media))
+            .withReducer(reducer)
+            .withState(store.getState())
+            .provide([[call.fn(generateMessageId), message]])
+            .put(
+                messagesActions.sendMessage({
+                    id: message,
+                    message: '',
+                    type: MessageType.File,
+                    media,
+                })
+            )
+            .put(
+                filesActions.updateDownloadStatus({
+                    mid: message,
+                    cid: `uploading_${message}`,
+                    downloadState: DownloadState.Uploading,
+                    downloadProgress: undefined,
+                })
+            )
+            .run()
+    })
 
-    if (!currentChannel) throw new Error('no current channel id')
+    test('saves message with media with updated path', async () => {
+        const currentChannel = currentChannelId(store.getState())
 
-    const media: FileMetadata = {
-      cid: `uploading_${message}`,
-      path: 'temp/name.ext',
-      name: 'name',
-      ext: 'ext',
-      message: {
-        id: message,
-        channelId: currentChannel,
-      },
-      tmpPath: undefined,
-    }
-    const reducer = combineReducers(reducers)
-    await expectSaga(sendFileMessageSaga, filesActions.uploadFile(media))
-      .withReducer(reducer)
-      .withState(store.getState())
-      .provide([[call.fn(generateMessageId), message]])
-      .put(
-        messagesActions.sendMessage({
-          id: message,
-          message: '',
-          type: MessageType.File,
-          media,
-        })
-      )
-      .put(
-        filesActions.updateDownloadStatus({
-          mid: message,
-          cid: `uploading_${message}`,
-          downloadState: DownloadState.Uploading,
-          downloadProgress: undefined,
-        })
-      )
-      .run()
-  })
+        if (!currentChannel) throw new Error('no current channel id')
 
-  test('saves message with media with updated path', async () => {
-    const currentChannel = currentChannelId(store.getState())
+        const media: FileMetadata = {
+            cid: `uploading_${message}`,
+            path: 'file://temp/name.ext',
+            tmpPath: 'file://temp/name.ext',
+            name: 'name',
+            ext: 'ext',
+            message: {
+                id: message,
+                channelId: currentChannel,
+            },
+        }
+        const updatedMedia: FileMetadata = {
+            ...media,
+            path: 'temp/name.ext',
+            tmpPath: 'temp/name.ext',
+        }
 
-    if (!currentChannel) throw new Error('no current channel id')
-
-    const media: FileMetadata = {
-      cid: `uploading_${message}`,
-      path: 'file://temp/name.ext',
-      tmpPath: 'file://temp/name.ext',
-      name: 'name',
-      ext: 'ext',
-      message: {
-        id: message,
-        channelId: currentChannel,
-      },
-    }
-    const updatedMedia: FileMetadata = {
-      ...media,
-      path: 'temp/name.ext',
-      tmpPath: 'temp/name.ext',
-    }
-
-    const reducer = combineReducers(reducers)
-    await expectSaga(sendFileMessageSaga, filesActions.uploadFile(media))
-      .withReducer(reducer)
-      .withState(store.getState())
-      .provide([[call.fn(generateMessageId), message]])
-      .put(
-        messagesActions.sendMessage({
-          id: message,
-          message: '',
-          type: MessageType.File,
-          media: updatedMedia,
-        })
-      )
-      .put(
-        filesActions.updateDownloadStatus({
-          mid: message,
-          cid: `uploading_${message}`,
-          downloadState: DownloadState.Uploading,
-          downloadProgress: undefined,
-        })
-      )
-      .run()
-  })
+        const reducer = combineReducers(reducers)
+        await expectSaga(sendFileMessageSaga, filesActions.uploadFile(media))
+            .withReducer(reducer)
+            .withState(store.getState())
+            .provide([[call.fn(generateMessageId), message]])
+            .put(
+                messagesActions.sendMessage({
+                    id: message,
+                    message: '',
+                    type: MessageType.File,
+                    media: updatedMedia,
+                })
+            )
+            .put(
+                filesActions.updateDownloadStatus({
+                    mid: message,
+                    cid: `uploading_${message}`,
+                    downloadState: DownloadState.Uploading,
+                    downloadProgress: undefined,
+                })
+            )
+            .run()
+    })
 })

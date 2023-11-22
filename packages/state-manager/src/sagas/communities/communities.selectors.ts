@@ -14,95 +14,97 @@ import type {} from 'pkijs'
 const communitiesSlice: CreatedSelectors[StoreKeys.Communities] = (state: StoreState) => state[StoreKeys.Communities]
 
 export const selectById = (id: string) =>
-  createSelector(communitiesSlice, reducerState =>
-    communitiesAdapter.getSelectors().selectById(reducerState.communities, id)
-  )
+    createSelector(communitiesSlice, reducerState =>
+        communitiesAdapter.getSelectors().selectById(reducerState.communities, id)
+    )
 
 export const selectEntities = createSelector(communitiesSlice, reducerState =>
-  communitiesAdapter.getSelectors().selectEntities(reducerState.communities)
+    communitiesAdapter.getSelectors().selectEntities(reducerState.communities)
 )
 
 export const selectCommunities = createSelector(communitiesSlice, reducerState =>
-  communitiesAdapter.getSelectors().selectAll(reducerState.communities)
+    communitiesAdapter.getSelectors().selectAll(reducerState.communities)
 )
 
 export const currentCommunity = createSelector(communitiesSlice, selectEntities, (state, entities) => {
-  return entities[state.currentCommunity]
+    return entities[state.currentCommunity]
 })
 
 export const currentCommunityId = createSelector(communitiesSlice, reducerState => {
-  return reducerState.currentCommunity
+    return reducerState.currentCommunity
 })
 
 export const registrarUrl = (communityId: string) =>
-  createSelector(selectEntities, communities => {
-    const community = communities[communityId]
+    createSelector(selectEntities, communities => {
+        const community = communities[communityId]
 
-    let registrarAddress = ''
+        let registrarAddress = ''
 
-    if (!community) {
-      return
-    }
+        if (!community) {
+            return
+        }
 
-    if (community.onionAddress) {
-      registrarAddress = community.port ? `${community.onionAddress}:${community.port}` : `${community.onionAddress}`
-    } else if (community.registrarUrl) {
-      registrarAddress = community.registrarUrl
-    }
+        if (community.onionAddress) {
+            registrarAddress = community.port
+                ? `${community.onionAddress}:${community.port}`
+                : `${community.onionAddress}`
+        } else if (community.registrarUrl) {
+            registrarAddress = community.registrarUrl
+        }
 
-    return registrarAddress
-  })
+        return registrarAddress
+    })
 
 export const invitationCodes = createSelector(communitiesSlice, reducerState => {
-  return reducerState.invitationCodes
+    return reducerState.invitationCodes
 })
 
 export const psk = createSelector(communitiesSlice, reducerState => {
-  return reducerState.psk
+    return reducerState.psk
 })
 
 export const invitationUrl = createSelector(currentCommunity, psk, (community, communityPsk) => {
-  const peerList = community?.peerList
-  if (!peerList || peerList?.length === 0) return ''
-  if (!communityPsk) return ''
-  const initialPeers = peerList.slice(0, 4)
-  return invitationShareUrl(initialPeers, communityPsk)
+    const peerList = community?.peerList
+    if (!peerList || peerList?.length === 0) return ''
+    if (!communityPsk) return ''
+    const initialPeers = peerList.slice(0, 4)
+    return invitationShareUrl(initialPeers, communityPsk)
 })
 
 export const ownerNickname = createSelector(
-  currentCommunity,
-  getOldestParsedCerificate,
-  (community, oldestParsedCerificate) => {
-    if (!oldestParsedCerificate) return undefined
-    const ownerCertificate = community?.ownerCertificate || undefined
+    currentCommunity,
+    getOldestParsedCerificate,
+    (community, oldestParsedCerificate) => {
+        if (!oldestParsedCerificate) return undefined
+        const ownerCertificate = community?.ownerCertificate || undefined
 
-    let nickname: string | null = null
+        let nickname: string | null = null
 
-    if (ownerCertificate) {
-      const certificate = ownerCertificate
-      const parsedCert = parseCertificate(certificate)
-      nickname = getCertFieldValue(parsedCert, CertFieldsTypes.nickName)
-    } else {
-      nickname = getCertFieldValue(oldestParsedCerificate, CertFieldsTypes.nickName)
+        if (ownerCertificate) {
+            const certificate = ownerCertificate
+            const parsedCert = parseCertificate(certificate)
+            nickname = getCertFieldValue(parsedCert, CertFieldsTypes.nickName)
+        } else {
+            nickname = getCertFieldValue(oldestParsedCerificate, CertFieldsTypes.nickName)
+        }
+
+        if (!nickname) {
+            console.error('Could not retrieve owner nickname from certificate')
+        }
+
+        return nickname
     }
-
-    if (!nickname) {
-      console.error('Could not retrieve owner nickname from certificate')
-    }
-
-    return nickname
-  }
 )
 
 export const communitiesSelectors = {
-  selectById,
-  selectEntities,
-  selectCommunities,
-  currentCommunity,
-  currentCommunityId,
-  registrarUrl,
-  invitationCodes,
-  invitationUrl,
-  ownerNickname,
-  psk,
+    selectById,
+    selectEntities,
+    selectCommunities,
+    currentCommunity,
+    currentCommunityId,
+    registrarUrl,
+    invitationCodes,
+    invitationUrl,
+    ownerNickname,
+    psk,
 }

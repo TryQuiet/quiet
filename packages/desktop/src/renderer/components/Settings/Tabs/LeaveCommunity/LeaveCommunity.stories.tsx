@@ -5,24 +5,24 @@ import { withTheme } from '../../../../storybook/decorators'
 import LeaveCommunityComponent, { LeaveCommunityProps } from './LeaveCommunityComponent'
 
 const Template: ComponentStory<typeof LeaveCommunityComponent> = args => {
-  return <LeaveCommunityComponent {...args} />
+    return <LeaveCommunityComponent {...args} />
 }
 
 export const Component = Template.bind({})
 
 const args: LeaveCommunityProps = {
-  communityName: 'Rockets',
-  leaveCommunity: function (): void {},
-  open: true,
-  handleClose: function (): void {},
+    communityName: 'Rockets',
+    leaveCommunity: function (): void {},
+    open: true,
+    handleClose: function (): void {},
 }
 
 Component.args = args
 
 const component: ComponentMeta<typeof LeaveCommunityComponent> = {
-  title: 'Components/LeaveCommunity',
-  decorators: [withTheme],
-  component: LeaveCommunityComponent,
+    title: 'Components/LeaveCommunity',
+    decorators: [withTheme],
+    component: LeaveCommunityComponent,
 }
 
 export default component

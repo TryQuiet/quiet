@@ -11,48 +11,48 @@ import { FactoryGirl } from 'factory-girl'
 import { getFactory, communities, identity } from '@quiet/state-manager'
 
 describe('Channel navigation', () => {
-  let socket: MockedSocket
+    let socket: MockedSocket
 
-  let factory: FactoryGirl
+    let factory: FactoryGirl
 
-  beforeEach(async () => {
-    socket = new MockedSocket()
-    ioMock.mockImplementation(() => socket)
-  })
-
-  test('user opens channel screen, navigating from channel list', async () => {
-    const { store, root } = await prepareStore({}, socket)
-
-    factory = await getFactory(store)
-
-    const community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>(
-      'Community'
-    )
-
-    await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
-      nickname: 'alice',
+    beforeEach(async () => {
+        socket = new MockedSocket()
+        ioMock.mockImplementation(() => socket)
     })
 
-    renderComponent(
-      <>
-        <ChannelListScreen />
-        <ChannelScreen />
-      </>,
-      store
-    )
+    test('user opens channel screen, navigating from channel list', async () => {
+        const { store, root } = await prepareStore({}, socket)
 
-    const channel = screen.getByTestId('channel_tile_general')
+        factory = await getFactory(store)
 
-    expect(channel).toBeVisible()
+        const community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>(
+            'Community'
+        )
 
-    fireEvent.press(channel)
+        await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+            id: community.id,
+            nickname: 'alice',
+        })
 
-    const chat = screen.getByTestId('chat_general')
+        renderComponent(
+            <>
+                <ChannelListScreen />
+                <ChannelScreen />
+            </>,
+            store
+        )
 
-    expect(chat).toBeVisible()
+        const channel = screen.getByTestId('channel_tile_general')
 
-    // Stop state-manager sagas
-    root?.cancel()
-  })
+        expect(channel).toBeVisible()
+
+        fireEvent.press(channel)
+
+        const chat = screen.getByTestId('chat_general')
+
+        expect(chat).toBeVisible()
+
+        // Stop state-manager sagas
+        root?.cancel()
+    })
 })

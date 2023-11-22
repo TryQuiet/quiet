@@ -4,18 +4,18 @@ import { renderComponent } from '../../../testUtils/renderComponent'
 import { ErrorModalComponent } from './ErrorModalComponent'
 
 describe('ErrorModal', () => {
-  it('renders component', () => {
-    const result = renderComponent(
-      <ErrorModalComponent
-        open
-        message='Test error message'
-        traceback='Error: Test error message, error traceback'
-        handleClose={jest.fn()}
-        restartApp={jest.fn()}
-        testMode={true}
-      />
-    )
-    expect(result.baseElement).toMatchInlineSnapshot(`
+    it('renders component', () => {
+        const result = renderComponent(
+            <ErrorModalComponent
+                open
+                message='Test error message'
+                traceback='Error: Test error message, error traceback'
+                handleClose={jest.fn()}
+                restartApp={jest.fn()}
+                testMode={true}
+            />
+        )
+        expect(result.baseElement).toMatchInlineSnapshot(`
       <body
         style="padding-right: 1024px; overflow: hidden;"
       >
@@ -191,5 +191,5 @@ describe('ErrorModal', () => {
         </div>
       </body>
     `)
-  })
+    })
 })

@@ -5,16 +5,16 @@ import { Page } from './Page'
 import PageHeader from './PageHeader'
 
 describe('Page', () => {
-  it('renders component', () => {
-    const result = renderComponent(
-      <Page>
-        <PageHeader>
-          <div>Test header</div>
-        </PageHeader>
-        <div>Test header</div>
-      </Page>
-    )
-    expect(result.baseElement).toMatchInlineSnapshot(`
+    it('renders component', () => {
+        const result = renderComponent(
+            <Page>
+                <PageHeader>
+                    <div>Test header</div>
+                </PageHeader>
+                <div>Test header</div>
+            </Page>
+        )
+        expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
           <div
@@ -35,5 +35,5 @@ describe('Page', () => {
         </div>
       </body>
     `)
-  })
+    })
 })

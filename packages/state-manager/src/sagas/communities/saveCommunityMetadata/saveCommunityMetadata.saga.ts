@@ -6,23 +6,23 @@ import { communitiesSelectors } from '../communities.selectors'
 import { communitiesActions } from '../communities.slice'
 
 export function* saveCommunityMetadataSaga(
-  socket: Socket,
-  action: PayloadAction<ReturnType<typeof communitiesActions.saveCommunityMetadata>['payload']>
+    socket: Socket,
+    action: PayloadAction<ReturnType<typeof communitiesActions.saveCommunityMetadata>['payload']>
 ): Generator {
-  const communityId = yield* select(communitiesSelectors.currentCommunityId)
-  console.log('save community metadata', action.payload)
-  yield* put(
-    communitiesActions.updateCommunity({
-      id: communityId,
-      rootCa: action.payload.rootCa,
-    })
-  )
-  yield* put(
-    communitiesActions.addOwnerCertificate({
-      communityId: communityId,
-      ownerCertificate: action.payload.ownerCertificate,
-    })
-  )
+    const communityId = yield* select(communitiesSelectors.currentCommunityId)
+    console.log('save community metadata', action.payload)
+    yield* put(
+        communitiesActions.updateCommunity({
+            id: communityId,
+            rootCa: action.payload.rootCa,
+        })
+    )
+    yield* put(
+        communitiesActions.addOwnerCertificate({
+            communityId: communityId,
+            ownerCertificate: action.payload.ownerCertificate,
+        })
+    )
 
-  yield* put(publicChannelsActions.sendUnregisteredInfoMessage())
+    yield* put(publicChannelsActions.sendUnregisteredInfoMessage())
 }

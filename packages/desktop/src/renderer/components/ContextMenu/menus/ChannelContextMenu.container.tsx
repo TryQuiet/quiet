@@ -12,35 +12,35 @@ import { useModal } from '../../../containers/hooks'
 import { ModalName } from '../../../sagas/modals/modals.types'
 
 export const ChannelContextMenu: FC = () => {
-  const community = useSelector(communities.selectors.currentCommunity)
-  const channel = useSelector(publicChannels.selectors.currentChannel)
+    const community = useSelector(communities.selectors.currentCommunity)
+    const channel = useSelector(publicChannels.selectors.currentChannel)
 
-  let title = ''
-  if (channel) {
-    title = `#${channel.name}`
-  }
+    let title = ''
+    if (channel) {
+        title = `#${channel.name}`
+    }
 
-  const channelContextMenu = useContextMenu(MenuName.Channel)
+    const channelContextMenu = useContextMenu(MenuName.Channel)
 
-  const deleteChannelModal = useModal(ModalName.deleteChannel)
+    const deleteChannelModal = useModal(ModalName.deleteChannel)
 
-  let items: ContextMenuItemProps[] = []
+    let items: ContextMenuItemProps[] = []
 
-  if (community?.CA) {
-    items = [
-      ...items,
-      {
-        title: 'Delete',
-        action: () => {
-          channelContextMenu.handleClose() // Dismiss context menu before displaying modal
-          deleteChannelModal.handleOpen()
-        },
-      },
-    ]
-  }
+    if (community?.CA) {
+        items = [
+            ...items,
+            {
+                title: 'Delete',
+                action: () => {
+                    channelContextMenu.handleClose() // Dismiss context menu before displaying modal
+                    deleteChannelModal.handleOpen()
+                },
+            },
+        ]
+    }
 
-  // @ts-expect-error
-  return <ContextMenu title={title} items={items} {...channelContextMenu} />
+    // @ts-expect-error
+    return <ContextMenu title={title} items={items} {...channelContextMenu} />
 }
 
 export default ChannelContextMenu

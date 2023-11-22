@@ -2,17 +2,17 @@ import path from 'path'
 import os from 'os'
 
 export enum Config {
-  QUIET_DIR = '.quiet',
-  PEER_ID_FILENAME = 'peerIdKey',
-  ORBIT_DB_DIR = 'OrbitDB',
-  IPFS_REPO_PATH = 'Ipfs',
+    QUIET_DIR = '.quiet',
+    PEER_ID_FILENAME = 'peerIdKey',
+    ORBIT_DB_DIR = 'OrbitDB',
+    IPFS_REPO_PATH = 'Ipfs',
 }
 
 export enum TestConfig {
-  QUIET_DIR = '.quiet-test-nest-backend',
-  PEER_ID_FILENAME = 'peerIdKey-test-nest-backend',
-  ORBIT_DB_DIR = 'OrbitDB-test-nest-backend',
-  IPFS_REPO_PATH = 'Ipfs-test-nest-backend',
+    QUIET_DIR = '.quiet-test-nest-backend',
+    PEER_ID_FILENAME = 'peerIdKey-test-nest-backend',
+    ORBIT_DB_DIR = 'OrbitDB-test-nest-backend',
+    IPFS_REPO_PATH = 'Ipfs-test-nest-backend',
 }
 
 export const TEST_DATA_PORT = '9004'

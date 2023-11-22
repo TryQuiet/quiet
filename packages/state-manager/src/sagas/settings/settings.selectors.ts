@@ -9,6 +9,6 @@ export const getNotificationsOption = createSelector(settingsSlice, reducerState
 export const getNotificationsSound = createSelector(settingsSlice, reducerState => reducerState.notificationsSound)
 
 export const settingsSelectors = {
-  getNotificationsOption,
-  getNotificationsSound,
+    getNotificationsOption,
+    getNotificationsSound,
 }

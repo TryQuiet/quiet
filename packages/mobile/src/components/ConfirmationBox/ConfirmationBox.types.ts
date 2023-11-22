@@ -1,4 +1,4 @@
 export interface ConfirmationBoxProps {
-  toggle: boolean
-  title: string
+    toggle: boolean
+    title: string
 }

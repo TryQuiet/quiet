@@ -18,323 +18,329 @@ import { inviteLinkField } from '../../../forms/fields/communityFields'
 import { InviteLinkErrors } from '../../../forms/fieldsErrors'
 import { CommunityOwnership } from '@quiet/types'
 import {
-  Site,
-  QUIET_JOIN_PAGE,
-  validInvitationCodeTestData,
-  getValidInvitationUrlTestData,
-  PSK_PARAM_KEY,
+    Site,
+    QUIET_JOIN_PAGE,
+    validInvitationCodeTestData,
+    getValidInvitationUrlTestData,
+    PSK_PARAM_KEY,
 } from '@quiet/common'
 
 describe('join community', () => {
-  const { code, data } = getValidInvitationUrlTestData(validInvitationCodeTestData[0])
+    const { code, data } = getValidInvitationUrlTestData(validInvitationCodeTestData[0])
 
-  const validCode = code()
+    const validCode = code()
 
-  it('users switches from join to create', async () => {
-    const { store } = await prepareStore({
-      [StoreKeys.Socket]: {
-        ...new SocketState(),
-        isConnected: true,
-      },
-      [StoreKeys.Modals]: {
-        ...new ModalsInitialState(),
-        [ModalName.joinCommunityModal]: { open: true },
-      },
+    it('users switches from join to create', async () => {
+        const { store } = await prepareStore({
+            [StoreKeys.Socket]: {
+                ...new SocketState(),
+                isConnected: true,
+            },
+            [StoreKeys.Modals]: {
+                ...new ModalsInitialState(),
+                [ModalName.joinCommunityModal]: { open: true },
+            },
+        })
+
+        renderComponent(
+            <>
+                <JoinCommunity />
+                <CreateCommunity />
+            </>,
+            store
+        )
+
+        // Confirm proper modal title is displayed
+        const joinCommunityDictionary = JoinCommunityDictionary()
+        const joinCommunityTitle = screen.getByText(joinCommunityDictionary.header)
+        expect(joinCommunityTitle).toBeVisible()
+
+        // Click redirecting link
+        const link = screen.getByTestId('JoinCommunityLink')
+        await userEvent.click(link)
+
+        // Confirm user is being redirected to create community
+        const createCommunityDictionary = CreateCommunityDictionary()
+        const createCommunityTitle = await screen.findByText(createCommunityDictionary.header)
+        expect(createCommunityTitle).toBeVisible()
     })
 
-    renderComponent(
-      <>
-        <JoinCommunity />
-        <CreateCommunity />
-      </>,
-      store
-    )
+    it.skip('user goes from joning community to username registration, then comes back', async () => {
+        const { store } = await prepareStore({
+            [StoreKeys.Socket]: {
+                ...new SocketState(),
+                isConnected: true,
+            },
+            [StoreKeys.Modals]: {
+                ...new ModalsInitialState(),
+                [ModalName.joinCommunityModal]: { open: true },
+            },
+        })
 
-    // Confirm proper modal title is displayed
-    const joinCommunityDictionary = JoinCommunityDictionary()
-    const joinCommunityTitle = screen.getByText(joinCommunityDictionary.header)
-    expect(joinCommunityTitle).toBeVisible()
+        renderComponent(
+            <>
+                <JoinCommunity />
+                <CreateUsername />
+            </>,
+            store
+        )
 
-    // Click redirecting link
-    const link = screen.getByTestId('JoinCommunityLink')
-    await userEvent.click(link)
+        // Confirm proper modal title is displayed
+        const dictionary = JoinCommunityDictionary()
+        const joinCommunityTitle = screen.getByText(dictionary.header)
+        expect(joinCommunityTitle).toBeVisible()
 
-    // Confirm user is being redirected to create community
-    const createCommunityDictionary = CreateCommunityDictionary()
-    const createCommunityTitle = await screen.findByText(createCommunityDictionary.header)
-    expect(createCommunityTitle).toBeVisible()
-  })
+        // Enter community address and hit button
+        const joinCommunityInput = screen.getByPlaceholderText(dictionary.placeholder)
+        const joinCommunityButton = screen.getByText(dictionary.button)
+        await userEvent.type(joinCommunityInput, '3lyn5yjwwb74he5olv43eej7knt34folvrgrfsw6vzitvkxmc5wpe4yd')
+        await userEvent.click(joinCommunityButton)
 
-  it.skip('user goes from joning community to username registration, then comes back', async () => {
-    const { store } = await prepareStore({
-      [StoreKeys.Socket]: {
-        ...new SocketState(),
-        isConnected: true,
-      },
-      [StoreKeys.Modals]: {
-        ...new ModalsInitialState(),
-        [ModalName.joinCommunityModal]: { open: true },
-      },
+        // Confirm user is being redirected to username registration
+        const createUsernameTitle = await screen.findByText('Register a username')
+        expect(createUsernameTitle).toBeVisible()
+
+        // Close username registration modal
+        const closeButton = await screen.findByTestId('createUsernameModalActions')
+        await userEvent.click(closeButton)
+        expect(joinCommunityTitle).toBeVisible()
     })
 
-    renderComponent(
-      <>
-        <JoinCommunity />
-        <CreateUsername />
-      </>,
-      store
+    it('joins community on submit if connection is ready and registrar url is correct', async () => {
+        const handleCommunityAction = jest.fn()
+
+        const component = (
+            <PerformCommunityActionComponent
+                open={true}
+                handleClose={() => {}}
+                communityOwnership={CommunityOwnership.User}
+                handleCommunityAction={handleCommunityAction}
+                handleRedirection={() => {}}
+                isConnectionReady={true}
+                isCloseDisabled={true}
+                hasReceivedResponse={false}
+            />
+        )
+
+        const result = renderComponent(component)
+
+        const textInput = result.queryByPlaceholderText(inviteLinkField().fieldProps.placeholder)
+        expect(textInput).not.toBeNull()
+        // @ts-expect-error
+        await userEvent.type(textInput, validCode)
+
+        const submitButton = result.getByText('Continue')
+        expect(submitButton).toBeEnabled()
+        await userEvent.click(submitButton)
+
+        await waitFor(() => expect(handleCommunityAction).toBeCalledWith(data))
+    })
+
+    it.each([[`${QUIET_JOIN_PAGE}#${validCode}`], [`${QUIET_JOIN_PAGE}/#${validCode}`]])(
+        'joins community on submit if connection is ready and invitation code is a correct invitation url (%s)',
+        async (invitationLink: string) => {
+            const registrarUrl = new URL(invitationLink)
+
+            const handleCommunityAction = jest.fn()
+
+            const component = (
+                <PerformCommunityActionComponent
+                    open={true}
+                    handleClose={() => {}}
+                    communityOwnership={CommunityOwnership.User}
+                    handleCommunityAction={handleCommunityAction}
+                    handleRedirection={() => {}}
+                    isConnectionReady={true}
+                    isCloseDisabled={true}
+                    hasReceivedResponse={false}
+                />
+            )
+
+            const result = renderComponent(component)
+
+            const textInput = result.queryByPlaceholderText(inviteLinkField().fieldProps.placeholder)
+            expect(textInput).not.toBeNull()
+            // @ts-expect-error
+            await userEvent.type(textInput, registrarUrl.href)
+
+            const submitButton = result.getByText('Continue')
+            expect(submitButton).toBeEnabled()
+            await userEvent.click(submitButton)
+
+            await waitFor(() => expect(handleCommunityAction).toBeCalledWith(data))
+        }
     )
 
-    // Confirm proper modal title is displayed
-    const dictionary = JoinCommunityDictionary()
-    const joinCommunityTitle = screen.getByText(dictionary.header)
-    expect(joinCommunityTitle).toBeVisible()
+    it('trims whitespaces from registrar url', async () => {
+        const registrarUrl = validCode + '     '
 
-    // Enter community address and hit button
-    const joinCommunityInput = screen.getByPlaceholderText(dictionary.placeholder)
-    const joinCommunityButton = screen.getByText(dictionary.button)
-    await userEvent.type(joinCommunityInput, '3lyn5yjwwb74he5olv43eej7knt34folvrgrfsw6vzitvkxmc5wpe4yd')
-    await userEvent.click(joinCommunityButton)
+        const handleCommunityAction = jest.fn()
 
-    // Confirm user is being redirected to username registration
-    const createUsernameTitle = await screen.findByText('Register a username')
-    expect(createUsernameTitle).toBeVisible()
+        const component = (
+            <PerformCommunityActionComponent
+                open={true}
+                handleClose={() => {}}
+                communityOwnership={CommunityOwnership.User}
+                handleCommunityAction={handleCommunityAction}
+                handleRedirection={() => {}}
+                isConnectionReady={true}
+                isCloseDisabled={true}
+                hasReceivedResponse={false}
+            />
+        )
 
-    // Close username registration modal
-    const closeButton = await screen.findByTestId('createUsernameModalActions')
-    await userEvent.click(closeButton)
-    expect(joinCommunityTitle).toBeVisible()
-  })
+        const result = renderComponent(component)
 
-  it('joins community on submit if connection is ready and registrar url is correct', async () => {
-    const handleCommunityAction = jest.fn()
+        const textInput = result.queryByPlaceholderText(inviteLinkField().fieldProps.placeholder)
+        expect(textInput).not.toBeNull()
+        // @ts-expect-error
+        await userEvent.type(textInput, registrarUrl)
 
-    const component = (
-      <PerformCommunityActionComponent
-        open={true}
-        handleClose={() => {}}
-        communityOwnership={CommunityOwnership.User}
-        handleCommunityAction={handleCommunityAction}
-        handleRedirection={() => {}}
-        isConnectionReady={true}
-        isCloseDisabled={true}
-        hasReceivedResponse={false}
-      />
-    )
+        const submitButton = result.getByText('Continue')
+        expect(submitButton).toBeEnabled()
+        await userEvent.click(submitButton)
 
-    const result = renderComponent(component)
+        await waitFor(() => expect(handleCommunityAction).toBeCalledWith(data))
+    })
 
-    const textInput = result.queryByPlaceholderText(inviteLinkField().fieldProps.placeholder)
-    expect(textInput).not.toBeNull()
-    // @ts-expect-error
-    await userEvent.type(textInput, validCode)
+    it.each([
+        [`http://${validCode}`, InviteLinkErrors.InvalidCode],
+        [
+            `QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE=bbb&${PSK_PARAM_KEY}=${data.psk}`,
+            InviteLinkErrors.InvalidCode,
+        ],
+        ['bbb=y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd', InviteLinkErrors.InvalidCode],
+        ['QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE= ', InviteLinkErrors.InvalidCode],
+        ['nqnw4kc4c77fb47lk52m5l57h4tc', InviteLinkErrors.InvalidCode],
+        [`https://otherwebsite.com/${Site.JOIN_PAGE}#${validCode}`, InviteLinkErrors.InvalidCode],
+        [
+            `${QUIET_JOIN_PAGE}?param=nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad`,
+            InviteLinkErrors.InvalidCode,
+        ],
+        [`${Site.MAIN_PAGE}/share?${validCode}`, InviteLinkErrors.InvalidCode],
+    ])('user inserting invalid url %s should see "%s" error', async (url: string, error: string) => {
+        const handleCommunityAction = jest.fn()
 
-    const submitButton = result.getByText('Continue')
-    expect(submitButton).toBeEnabled()
-    await userEvent.click(submitButton)
+        renderComponent(
+            <PerformCommunityActionComponent
+                open={true}
+                handleClose={() => {}}
+                communityOwnership={CommunityOwnership.User}
+                handleCommunityAction={handleCommunityAction}
+                handleRedirection={() => {}}
+                isConnectionReady={true}
+                isCloseDisabled={true}
+                hasReceivedResponse={false}
+            />
+        )
 
-    await waitFor(() => expect(handleCommunityAction).toBeCalledWith(data))
-  })
+        const input = screen.getByPlaceholderText('Invite code')
+        const button = screen.getByText('Continue')
 
-  it.each([[`${QUIET_JOIN_PAGE}#${validCode}`], [`${QUIET_JOIN_PAGE}/#${validCode}`]])(
-    'joins community on submit if connection is ready and invitation code is a correct invitation url (%s)',
-    async (invitationLink: string) => {
-      const registrarUrl = new URL(invitationLink)
+        await userEvent.type(input, url)
+        await userEvent.click(button)
 
-      const handleCommunityAction = jest.fn()
+        await waitFor(() => expect(handleCommunityAction).not.toBeCalled())
 
-      const component = (
-        <PerformCommunityActionComponent
-          open={true}
-          handleClose={() => {}}
-          communityOwnership={CommunityOwnership.User}
-          handleCommunityAction={handleCommunityAction}
-          handleRedirection={() => {}}
-          isConnectionReady={true}
-          isCloseDisabled={true}
-          hasReceivedResponse={false}
-        />
-      )
+        const message = await screen.findByText(error)
+        expect(message).toBeVisible()
+    })
 
-      const result = renderComponent(component)
+    it('blocks submit button if connection is not ready', async () => {
+        const handleCommunityAction = jest.fn()
 
-      const textInput = result.queryByPlaceholderText(inviteLinkField().fieldProps.placeholder)
-      expect(textInput).not.toBeNull()
-      // @ts-expect-error
-      await userEvent.type(textInput, registrarUrl.href)
+        const component = (
+            <PerformCommunityActionComponent
+                open={true}
+                handleClose={() => {}}
+                communityOwnership={CommunityOwnership.User}
+                handleCommunityAction={handleCommunityAction}
+                handleRedirection={() => {}}
+                isConnectionReady={false}
+                isCloseDisabled={true}
+                hasReceivedResponse={false}
+            />
+        )
 
-      const submitButton = result.getByText('Continue')
-      expect(submitButton).toBeEnabled()
-      await userEvent.click(submitButton)
+        const result = renderComponent(component)
 
-      await waitFor(() => expect(handleCommunityAction).toBeCalledWith(data))
-    }
-  )
+        const textInput = result.queryByPlaceholderText(inviteLinkField().fieldProps.placeholder)
+        expect(textInput).not.toBeNull()
+        // @ts-expect-error
+        await userEvent.type(textInput, validCode)
 
-  it('trims whitespaces from registrar url', async () => {
-    const registrarUrl = validCode + '     '
+        const submitButton = result.getByTestId('continue-joinCommunity')
+        expect(submitButton).not.toBeNull()
+        expect(submitButton).toBeDisabled()
 
-    const handleCommunityAction = jest.fn()
+        expect(handleCommunityAction).not.toBeCalled()
+    })
 
-    const component = (
-      <PerformCommunityActionComponent
-        open={true}
-        handleClose={() => {}}
-        communityOwnership={CommunityOwnership.User}
-        handleCommunityAction={handleCommunityAction}
-        handleRedirection={() => {}}
-        isConnectionReady={true}
-        isCloseDisabled={true}
-        hasReceivedResponse={false}
-      />
-    )
+    it('shows loading spinner on submit button while waiting for the response', async () => {
+        const { rerender } = renderComponent(
+            <PerformCommunityActionComponent
+                open={true}
+                handleClose={() => {}}
+                communityOwnership={CommunityOwnership.User}
+                handleCommunityAction={() => {}}
+                handleRedirection={() => {}}
+                isConnectionReady={true}
+                isCloseDisabled={true}
+                hasReceivedResponse={false}
+            />
+        )
 
-    const result = renderComponent(component)
+        const textInput = screen.getByPlaceholderText(inviteLinkField().fieldProps.placeholder)
+        await userEvent.type(textInput, validCode)
 
-    const textInput = result.queryByPlaceholderText(inviteLinkField().fieldProps.placeholder)
-    expect(textInput).not.toBeNull()
-    // @ts-expect-error
-    await userEvent.type(textInput, registrarUrl)
+        const submitButton = screen.getByText('Continue')
+        expect(submitButton).toBeEnabled()
+        await userEvent.click(submitButton)
 
-    const submitButton = result.getByText('Continue')
-    expect(submitButton).toBeEnabled()
-    await userEvent.click(submitButton)
+        await act(async () => {})
 
-    await waitFor(() => expect(handleCommunityAction).toBeCalledWith(data))
-  })
+        expect(screen.queryByTestId('loading-button-progress')).toBeVisible()
 
-  it.each([
-    [`http://${validCode}`, InviteLinkErrors.InvalidCode],
-    [`QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE=bbb&${PSK_PARAM_KEY}=${data.psk}`, InviteLinkErrors.InvalidCode],
-    ['bbb=y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd', InviteLinkErrors.InvalidCode],
-    ['QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE= ', InviteLinkErrors.InvalidCode],
-    ['nqnw4kc4c77fb47lk52m5l57h4tc', InviteLinkErrors.InvalidCode],
-    [`https://otherwebsite.com/${Site.JOIN_PAGE}#${validCode}`, InviteLinkErrors.InvalidCode],
-    [`${QUIET_JOIN_PAGE}?param=nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad`, InviteLinkErrors.InvalidCode],
-    [`${Site.MAIN_PAGE}/share?${validCode}`, InviteLinkErrors.InvalidCode],
-  ])('user inserting invalid url %s should see "%s" error', async (url: string, error: string) => {
-    const handleCommunityAction = jest.fn()
+        // Rerender component to verify circular progress has dissapeared
+        rerender(
+            <PerformCommunityActionComponent
+                open={true}
+                handleClose={() => {}}
+                communityOwnership={CommunityOwnership.User}
+                handleCommunityAction={() => {}}
+                handleRedirection={() => {}}
+                isConnectionReady={true}
+                isCloseDisabled={true}
+                hasReceivedResponse={true}
+            />
+        )
 
-    renderComponent(
-      <PerformCommunityActionComponent
-        open={true}
-        handleClose={() => {}}
-        communityOwnership={CommunityOwnership.User}
-        handleCommunityAction={handleCommunityAction}
-        handleRedirection={() => {}}
-        isConnectionReady={true}
-        isCloseDisabled={true}
-        hasReceivedResponse={false}
-      />
-    )
+        expect(screen.queryByTestId('loading-button-progress')).toBeNull()
+    })
 
-    const input = screen.getByPlaceholderText('Invite code')
-    const button = screen.getByText('Continue')
+    it('handles redirection to create community page if user clicks on the link', async () => {
+        const handleRedirection = jest.fn()
 
-    await userEvent.type(input, url)
-    await userEvent.click(button)
+        const component = (
+            <PerformCommunityActionComponent
+                open={true}
+                handleClose={() => {}}
+                communityOwnership={CommunityOwnership.User}
+                handleCommunityAction={() => {}}
+                handleRedirection={handleRedirection}
+                isConnectionReady={true}
+                isCloseDisabled={true}
+                hasReceivedResponse={false}
+            />
+        )
 
-    await waitFor(() => expect(handleCommunityAction).not.toBeCalled())
+        const result = renderComponent(component)
 
-    const message = await screen.findByText(error)
-    expect(message).toBeVisible()
-  })
+        const switchLink = result.queryByText('create a new community')
+        expect(switchLink).not.toBeNull()
+        // @ts-expect-error
+        await userEvent.click(switchLink)
 
-  it('blocks submit button if connection is not ready', async () => {
-    const handleCommunityAction = jest.fn()
-
-    const component = (
-      <PerformCommunityActionComponent
-        open={true}
-        handleClose={() => {}}
-        communityOwnership={CommunityOwnership.User}
-        handleCommunityAction={handleCommunityAction}
-        handleRedirection={() => {}}
-        isConnectionReady={false}
-        isCloseDisabled={true}
-        hasReceivedResponse={false}
-      />
-    )
-
-    const result = renderComponent(component)
-
-    const textInput = result.queryByPlaceholderText(inviteLinkField().fieldProps.placeholder)
-    expect(textInput).not.toBeNull()
-    // @ts-expect-error
-    await userEvent.type(textInput, validCode)
-
-    const submitButton = result.getByTestId('continue-joinCommunity')
-    expect(submitButton).not.toBeNull()
-    expect(submitButton).toBeDisabled()
-
-    expect(handleCommunityAction).not.toBeCalled()
-  })
-
-  it('shows loading spinner on submit button while waiting for the response', async () => {
-    const { rerender } = renderComponent(
-      <PerformCommunityActionComponent
-        open={true}
-        handleClose={() => {}}
-        communityOwnership={CommunityOwnership.User}
-        handleCommunityAction={() => {}}
-        handleRedirection={() => {}}
-        isConnectionReady={true}
-        isCloseDisabled={true}
-        hasReceivedResponse={false}
-      />
-    )
-
-    const textInput = screen.getByPlaceholderText(inviteLinkField().fieldProps.placeholder)
-    await userEvent.type(textInput, validCode)
-
-    const submitButton = screen.getByText('Continue')
-    expect(submitButton).toBeEnabled()
-    await userEvent.click(submitButton)
-
-    await act(async () => {})
-
-    expect(screen.queryByTestId('loading-button-progress')).toBeVisible()
-
-    // Rerender component to verify circular progress has dissapeared
-    rerender(
-      <PerformCommunityActionComponent
-        open={true}
-        handleClose={() => {}}
-        communityOwnership={CommunityOwnership.User}
-        handleCommunityAction={() => {}}
-        handleRedirection={() => {}}
-        isConnectionReady={true}
-        isCloseDisabled={true}
-        hasReceivedResponse={true}
-      />
-    )
-
-    expect(screen.queryByTestId('loading-button-progress')).toBeNull()
-  })
-
-  it('handles redirection to create community page if user clicks on the link', async () => {
-    const handleRedirection = jest.fn()
-
-    const component = (
-      <PerformCommunityActionComponent
-        open={true}
-        handleClose={() => {}}
-        communityOwnership={CommunityOwnership.User}
-        handleCommunityAction={() => {}}
-        handleRedirection={handleRedirection}
-        isConnectionReady={true}
-        isCloseDisabled={true}
-        hasReceivedResponse={false}
-      />
-    )
-
-    const result = renderComponent(component)
-
-    const switchLink = result.queryByText('create a new community')
-    expect(switchLink).not.toBeNull()
-    // @ts-expect-error
-    await userEvent.click(switchLink)
-
-    expect(handleRedirection).toBeCalled()
-  })
+        expect(handleRedirection).toBeCalled()
+    })
 })

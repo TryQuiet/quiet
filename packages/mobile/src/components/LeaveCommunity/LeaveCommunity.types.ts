@@ -1,5 +1,5 @@
 export interface LeaveCommunityProps {
-  name: string
-  leaveCommunity: () => void
-  handleBackButton: () => void
+    name: string
+    leaveCommunity: () => void
+    handleBackButton: () => void
 }

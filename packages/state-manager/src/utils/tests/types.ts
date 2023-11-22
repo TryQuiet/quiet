@@ -6,11 +6,11 @@ const rootReducer = combineReducers(reducers)
 const sagaMiddleware = createSagaMiddleware()
 
 const store = configureStore({
-  reducer: rootReducer,
-  middleware: [
-    ...getDefaultMiddleware({ immutableCheck: false, serializableCheck: false, thunk: false }),
-    sagaMiddleware,
-  ],
+    reducer: rootReducer,
+    middleware: [
+        ...getDefaultMiddleware({ immutableCheck: false, serializableCheck: false, thunk: false }),
+        sagaMiddleware,
+    ],
 })
 
 export type TestStore = typeof store

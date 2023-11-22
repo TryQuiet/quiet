@@ -1,3 +1,3 @@
 export enum ThemeName {
-  Default = 'Default',
+    Default = 'Default',
 }

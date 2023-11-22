@@ -6,15 +6,15 @@ import { screen } from '@testing-library/dom'
 import userEvent from '@testing-library/user-event'
 
 describe('Notifications', () => {
-  it('renders component', () => {
-    const props = {
-      notificationsOption: NotificationsOptions.notifyForEveryMessage,
-      notificationsSound: NotificationsSounds.bang,
-      setNotificationsOption: jest.fn(),
-      setNotificationsSound: jest.fn(),
-    }
-    const result = renderComponent(<NotificationsComponent {...props} />)
-    expect(result.baseElement).toMatchInlineSnapshot(`
+    it('renders component', () => {
+        const props = {
+            notificationsOption: NotificationsOptions.notifyForEveryMessage,
+            notificationsSound: NotificationsSounds.bang,
+            setNotificationsOption: jest.fn(),
+            setNotificationsSound: jest.fn(),
+        }
+        const result = renderComponent(<NotificationsComponent {...props} />)
+        expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
           <div
@@ -310,23 +310,23 @@ describe('Notifications', () => {
         </div>
       </body>
     `)
-  })
+    })
 
-  it('plays sound when switching sound', async () => {
-    window.HTMLMediaElement.prototype.play = jest.fn()
-    const props = {
-      notificationsOption: NotificationsOptions.notifyForEveryMessage,
-      notificationsSound: NotificationsSounds.bang,
-      setNotificationsOption: jest.fn(),
-      setNotificationsSound: jest.fn(),
-    }
-    renderComponent(<NotificationsComponent {...props} />)
-    const sounds = Object.values(NotificationsSounds).filter(sound => sound !== NotificationsSounds.none)
-    for (const sound of sounds) {
-      const soundRadioButton = screen.getByTestId(`sound-${sound}-radio`)
-      await userEvent.click(soundRadioButton)
-    }
+    it('plays sound when switching sound', async () => {
+        window.HTMLMediaElement.prototype.play = jest.fn()
+        const props = {
+            notificationsOption: NotificationsOptions.notifyForEveryMessage,
+            notificationsSound: NotificationsSounds.bang,
+            setNotificationsOption: jest.fn(),
+            setNotificationsSound: jest.fn(),
+        }
+        renderComponent(<NotificationsComponent {...props} />)
+        const sounds = Object.values(NotificationsSounds).filter(sound => sound !== NotificationsSounds.none)
+        for (const sound of sounds) {
+            const soundRadioButton = screen.getByTestId(`sound-${sound}-radio`)
+            await userEvent.click(soundRadioButton)
+        }
 
-    expect(window.HTMLMediaElement.prototype.play).toHaveBeenCalledTimes(sounds.length)
-  })
+        expect(window.HTMLMediaElement.prototype.play).toHaveBeenCalledTimes(sounds.length)
+    })
 })

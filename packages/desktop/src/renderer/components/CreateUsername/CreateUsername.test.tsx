@@ -10,75 +10,77 @@ import { keyFromCertificate, parseCertificate } from '@quiet/identity'
 import { UserData } from '@quiet/types'
 
 describe('Create username', () => {
-  it.each([
-    ['double-hyp--hens', 'double-hyp-hens'],
-    ['-start-with-hyphen', 'start-with-hyphen'],
-    [' start-with-space', 'start-with-space'],
-    ['end-with-hyphen-', 'end-with-hyphen'],
-    ['end-with-space ', 'end-with-space'],
-    ['UpperCaseToLowerCase', 'uppercasetolowercase'],
-    ['spaces to hyphens', 'spaces-to-hyphens'],
-    ['----hyphens', 'hyphens'],
-  ])('user inserting wrong name "%s" gets corrected "%s"', async (name: string, corrected: string) => {
-    renderComponent(<CreateUsernameComponent open={true} registerUsername={() => {}} handleClose={() => {}} />)
+    it.each([
+        ['double-hyp--hens', 'double-hyp-hens'],
+        ['-start-with-hyphen', 'start-with-hyphen'],
+        [' start-with-space', 'start-with-space'],
+        ['end-with-hyphen-', 'end-with-hyphen'],
+        ['end-with-space ', 'end-with-space'],
+        ['UpperCaseToLowerCase', 'uppercasetolowercase'],
+        ['spaces to hyphens', 'spaces-to-hyphens'],
+        ['----hyphens', 'hyphens'],
+    ])('user inserting wrong name "%s" gets corrected "%s"', async (name: string, corrected: string) => {
+        renderComponent(<CreateUsernameComponent open={true} registerUsername={() => {}} handleClose={() => {}} />)
 
-    const input = screen.getByPlaceholderText('Enter a username')
+        const input = screen.getByPlaceholderText('Enter a username')
 
-    await userEvent.type(input, name)
-    expect(screen.getByTestId('createUserNameWarning')).toHaveTextContent(
-      `Your username will be registered as @${corrected}`
-    )
-  })
+        await userEvent.type(input, name)
+        expect(screen.getByTestId('createUserNameWarning')).toHaveTextContent(
+            `Your username will be registered as @${corrected}`
+        )
+    })
 
-  it.each([
-    ['   whitespaces', FieldErrors.Whitespaces],
-    ['!@#', UsernameErrors.WrongCharacter],
-  ])('user inserting invalid name "%s" should see "%s" error', async (name: string, error: string) => {
-    const registerUsername = jest.fn()
+    it.each([
+        ['   whitespaces', FieldErrors.Whitespaces],
+        ['!@#', UsernameErrors.WrongCharacter],
+    ])('user inserting invalid name "%s" should see "%s" error', async (name: string, error: string) => {
+        const registerUsername = jest.fn()
 
-    renderComponent(<CreateUsernameComponent open={true} registerUsername={registerUsername} handleClose={() => {}} />)
+        renderComponent(
+            <CreateUsernameComponent open={true} registerUsername={registerUsername} handleClose={() => {}} />
+        )
 
-    const input = screen.getByPlaceholderText('Enter a username')
-    const button = screen.getByText('Register')
+        const input = screen.getByPlaceholderText('Enter a username')
+        const button = screen.getByText('Register')
 
-    await userEvent.type(input, name)
-    await userEvent.click(button)
+        await userEvent.type(input, name)
+        await userEvent.click(button)
 
-    await waitFor(() => expect(registerUsername).not.toBeCalled())
+        await waitFor(() => expect(registerUsername).not.toBeCalled())
 
-    const message = await screen.findByText(error)
-    expect(message).toBeVisible()
-  })
+        const message = await screen.findByText(error)
+        expect(message).toBeVisible()
+    })
 })
 
 describe('Username taken', () => {
-  const userCertData = {
-    username: 'userName',
-    onionAddress: 'nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad.onion',
-    peerId: 'Qmf3ySkYqLET9xtAtDzvAr5Pp3egK1H3C5iJAZm1SpLEp6',
-    dmPublicKey: '0bfb475810c0e26c9fab590d47c3d60ec533bb3c451596acc3cd4f21602e9ad9',
-  }
+    const userCertData = {
+        username: 'userName',
+        onionAddress: 'nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad.onion',
+        peerId: 'Qmf3ySkYqLET9xtAtDzvAr5Pp3egK1H3C5iJAZm1SpLEp6',
+        dmPublicKey: '0bfb475810c0e26c9fab590d47c3d60ec533bb3c451596acc3cd4f21602e9ad9',
+    }
 
-  const userCertString =
-    'MIICaDCCAg6gAwIBAgIGAYBqyuV2MAoGCCqGSM49BAMCMBkxFzAVBgNVBAMTDnF1aWV0Y29tbXVuaXR5MB4XDTEwMTIyODEwMTAxMFoXDTMwMTIyODEwMTAxMFowSTFHMEUGA1UEAxM+bnFudzRrYzRjNzdmYjQ3bGs1Mm01bDU3aDR0Y3hjZW83eW14ZWtmbjd5aDVtNjZ0NGp2Mm9sYWQub25pb24wWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAAQZBMmiVmRBRvw+QiL5DYg7WGFUVgA7u90KMpJg4qCaCJJNh7wH2tl0EDsN4FeGmR9AkvtCGd+5vYL0nGcX/oLdo4IBEDCCAQwwCQYDVR0TBAIwADALBgNVHQ8EBAMCAIAwHQYDVR0lBBYwFAYIKwYBBQUHAwIGCCsGAQUFBwMBMC8GCSqGSIb3DQEJDAQiBCAL+0dYEMDibJ+rWQ1Hw9YOxTO7PEUVlqzDzU8hYC6a2TAYBgorBgEEAYOMGwIBBAoTCHVzZXJOYW1lMD0GCSsGAQIBDwMBAQQwEy5RbWYzeVNrWXFMRVQ5eHRBdER6dkFyNVBwM2VnSzFIM0M1aUpBWm0xU3BMRXA2MEkGA1UdEQRCMECCPm5xbnc0a2M0Yzc3ZmI0N2xrNTJtNWw1N2g0dGN4Y2VvN3lteGVrZm43eWg1bTY2dDRqdjJvbGFkLm9uaW9uMAoGCCqGSM49BAMCA0gAMEUCIF63rnIq8vd86NT9RHSFj7borwwODqyfE7Pw64tGElpIAiEA5ZDSdrDd8OGf+kv7wxByM1Xgmc5m/aydUk+WorbO3Gg='
-  const parsedCert = parseCertificate(userCertString)
-  const userPubKey = keyFromCertificate(parsedCert)
+    const userCertString =
+        'MIICaDCCAg6gAwIBAgIGAYBqyuV2MAoGCCqGSM49BAMCMBkxFzAVBgNVBAMTDnF1aWV0Y29tbXVuaXR5MB4XDTEwMTIyODEwMTAxMFoXDTMwMTIyODEwMTAxMFowSTFHMEUGA1UEAxM+bnFudzRrYzRjNzdmYjQ3bGs1Mm01bDU3aDR0Y3hjZW83eW14ZWtmbjd5aDVtNjZ0NGp2Mm9sYWQub25pb24wWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAAQZBMmiVmRBRvw+QiL5DYg7WGFUVgA7u90KMpJg4qCaCJJNh7wH2tl0EDsN4FeGmR9AkvtCGd+5vYL0nGcX/oLdo4IBEDCCAQwwCQYDVR0TBAIwADALBgNVHQ8EBAMCAIAwHQYDVR0lBBYwFAYIKwYBBQUHAwIGCCsGAQUFBwMBMC8GCSqGSIb3DQEJDAQiBCAL+0dYEMDibJ+rWQ1Hw9YOxTO7PEUVlqzDzU8hYC6a2TAYBgorBgEEAYOMGwIBBAoTCHVzZXJOYW1lMD0GCSsGAQIBDwMBAQQwEy5RbWYzeVNrWXFMRVQ5eHRBdER6dkFyNVBwM2VnSzFIM0M1aUpBWm0xU3BMRXA2MEkGA1UdEQRCMECCPm5xbnc0a2M0Yzc3ZmI0N2xrNTJtNWw1N2g0dGN4Y2VvN3lteGVrZm43eWg1bTY2dDRqdjJvbGFkLm9uaW9uMAoGCCqGSM49BAMCA0gAMEUCIF63rnIq8vd86NT9RHSFj7borwwODqyfE7Pw64tGElpIAiEA5ZDSdrDd8OGf+kv7wxByM1Xgmc5m/aydUk+WorbO3Gg='
+    const parsedCert = parseCertificate(userCertString)
+    const userPubKey = keyFromCertificate(parsedCert)
 
-  const registeredUsers: Record<string, UserData> = {
-    [userPubKey]: userCertData,
-  }
-  it('renders component ', () => {
-    const result = renderComponent(
-      <CreateUsernameComponent
-        handleClose={() => {}}
-        open={true}
-        currentUsername={'jack'}
-        variant={UsernameVariant.TAKEN}
-        registeredUsers={registeredUsers}
-        registerUsername={() => {}}
-      />
-    )
-    expect(result.baseElement).toMatchInlineSnapshot(`
+    const registeredUsers: Record<string, UserData> = {
+        [userPubKey]: userCertData,
+    }
+    it('renders component ', () => {
+        const result = renderComponent(
+            <CreateUsernameComponent
+                handleClose={() => {}}
+                open={true}
+                currentUsername={'jack'}
+                variant={UsernameVariant.TAKEN}
+                registeredUsers={registeredUsers}
+                registerUsername={() => {}}
+            />
+        )
+        expect(result.baseElement).toMatchInlineSnapshot(`
       <body
         style="padding-right: 1024px; overflow: hidden;"
       >
@@ -246,5 +248,5 @@ describe('Username taken', () => {
         </div>
       </body>
     `)
-  })
+    })
 })

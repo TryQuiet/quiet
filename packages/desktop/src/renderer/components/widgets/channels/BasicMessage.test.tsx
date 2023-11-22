@@ -9,26 +9,26 @@ import { Provider } from 'react-redux'
 import store from '../../../store'
 
 describe('BasicMessage', () => {
-  beforeEach(() => {
-    jest.clearAllMocks()
-    jest.spyOn(DateTime, 'utc').mockImplementationOnce(() => DateTime.utc(2019, 3, 7, 13, 3, 48))
-  })
+    beforeEach(() => {
+        jest.clearAllMocks()
+        jest.spyOn(DateTime, 'utc').mockImplementationOnce(() => DateTime.utc(2019, 3, 7, 13, 3, 48))
+    })
 
-  it('renders component', async () => {
-    const messages = generateMessages()
-    const result = renderComponent(
-      <HashRouter>
-        <Provider store={store}>
-          <BasicMessageComponent
-            duplicatedUsernameModalHandleOpen={jest.fn()}
-            unregisteredUsernameModalHandleOpen={jest.fn()}
-            messages={messages}
-            openUrl={jest.fn()}
-          />
-        </Provider>
-      </HashRouter>
-    )
-    expect(result.baseElement).toMatchInlineSnapshot(`
+    it('renders component', async () => {
+        const messages = generateMessages()
+        const result = renderComponent(
+            <HashRouter>
+                <Provider store={store}>
+                    <BasicMessageComponent
+                        duplicatedUsernameModalHandleOpen={jest.fn()}
+                        unregisteredUsernameModalHandleOpen={jest.fn()}
+                        messages={messages}
+                        openUrl={jest.fn()}
+                    />
+                </Provider>
+            </HashRouter>
+        )
+        expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
           <li
@@ -102,22 +102,22 @@ describe('BasicMessage', () => {
         </div>
       </body>
     `)
-  })
-  it('renders component with multiple messages', async () => {
-    const messages = generateMessages({ amount: 2 })
-    const result = renderComponent(
-      <HashRouter>
-        <Provider store={store}>
-          <BasicMessageComponent
-            duplicatedUsernameModalHandleOpen={jest.fn()}
-            unregisteredUsernameModalHandleOpen={jest.fn()}
-            messages={messages}
-            openUrl={jest.fn()}
-          />
-        </Provider>
-      </HashRouter>
-    )
-    expect(result.baseElement).toMatchInlineSnapshot(`
+    })
+    it('renders component with multiple messages', async () => {
+        const messages = generateMessages({ amount: 2 })
+        const result = renderComponent(
+            <HashRouter>
+                <Provider store={store}>
+                    <BasicMessageComponent
+                        duplicatedUsernameModalHandleOpen={jest.fn()}
+                        unregisteredUsernameModalHandleOpen={jest.fn()}
+                        messages={messages}
+                        openUrl={jest.fn()}
+                    />
+                </Provider>
+            </HashRouter>
+        )
+        expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
           <li
@@ -201,22 +201,22 @@ describe('BasicMessage', () => {
         </div>
       </body>
     `)
-  })
-  it('renders with separate info messages', async () => {
-    const messages = generateMessages({ amount: 2, type: 3 })
-    const result = renderComponent(
-      <HashRouter>
-        <Provider store={store}>
-          <BasicMessageComponent
-            duplicatedUsernameModalHandleOpen={jest.fn()}
-            unregisteredUsernameModalHandleOpen={jest.fn()}
-            messages={messages}
-            openUrl={jest.fn()}
-          />
-        </Provider>
-      </HashRouter>
-    )
-    expect(result.baseElement).toMatchInlineSnapshot(`
+    })
+    it('renders with separate info messages', async () => {
+        const messages = generateMessages({ amount: 2, type: 3 })
+        const result = renderComponent(
+            <HashRouter>
+                <Provider store={store}>
+                    <BasicMessageComponent
+                        duplicatedUsernameModalHandleOpen={jest.fn()}
+                        unregisteredUsernameModalHandleOpen={jest.fn()}
+                        messages={messages}
+                        openUrl={jest.fn()}
+                    />
+                </Provider>
+            </HashRouter>
+        )
+        expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
           <li
@@ -303,23 +303,23 @@ describe('BasicMessage', () => {
         </div>
       </body>
     `)
-  })
-  it('renders with basic message and info message', async () => {
-    const message1 = generateMessages()
-    const message2 = generateMessages({ type: 3 })
-    const result = renderComponent(
-      <HashRouter>
-        <Provider store={store}>
-          <BasicMessageComponent
-            duplicatedUsernameModalHandleOpen={jest.fn()}
-            unregisteredUsernameModalHandleOpen={jest.fn()}
-            messages={[...message1, ...message2]}
-            openUrl={jest.fn()}
-          />
-        </Provider>
-      </HashRouter>
-    )
-    expect(result.baseElement).toMatchInlineSnapshot(`
+    })
+    it('renders with basic message and info message', async () => {
+        const message1 = generateMessages()
+        const message2 = generateMessages({ type: 3 })
+        const result = renderComponent(
+            <HashRouter>
+                <Provider store={store}>
+                    <BasicMessageComponent
+                        duplicatedUsernameModalHandleOpen={jest.fn()}
+                        unregisteredUsernameModalHandleOpen={jest.fn()}
+                        messages={[...message1, ...message2]}
+                        openUrl={jest.fn()}
+                    />
+                </Provider>
+            </HashRouter>
+        )
+        expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
           <li
@@ -403,5 +403,5 @@ describe('BasicMessage', () => {
         </div>
       </body>
     `)
-  })
+    })
 })

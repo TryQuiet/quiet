@@ -5,11 +5,11 @@ import { store } from '../../store/store'
 import { render } from '@testing-library/react-native'
 
 interface Props {
-  children?: React.ReactNode
+    children?: React.ReactNode
 }
 
 export const renderComponent = (ui: ReactElement, state: Store = store): ReturnType<typeof render> => {
-  const Wrapper: FC<Props> = ({ children }) => <Provider store={state}>{children}</Provider>
+    const Wrapper: FC<Props> = ({ children }) => <Provider store={state}>{children}</Provider>
 
-  return render(ui, { wrapper: Wrapper })
+    return render(ui, { wrapper: Wrapper })
 }

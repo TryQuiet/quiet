@@ -12,144 +12,144 @@ import { type publicChannelsActions } from '../../publicChannels/publicChannels.
 import { DateTime } from 'luxon'
 import { messagesActions } from '../../messages/messages.slice'
 import {
-  type Community,
-  type FileMetadata,
-  type Identity,
-  type PublicChannel,
-  SocketActionTypes,
-  ChannelMessage,
-  SendingStatus,
+    type Community,
+    type FileMetadata,
+    type Identity,
+    type PublicChannel,
+    SocketActionTypes,
+    ChannelMessage,
+    SendingStatus,
 } from '@quiet/types'
 import { generateChannelId } from '@quiet/common'
 import { currentChannelId } from '../../publicChannels/publicChannels.selectors'
 import { uploadFileSaga } from './uploadFile.saga'
 
 describe('uploadFileSaga', () => {
-  let store: Store
-  let factory: FactoryGirl
+    let store: Store
+    let factory: FactoryGirl
 
-  let community: Community
-  let alice: Identity
+    let community: Community
+    let alice: Identity
 
-  let sailingChannel: PublicChannel
+    let sailingChannel: PublicChannel
 
-  let message: ChannelMessage
+    let message: ChannelMessage
 
-  let media: FileMetadata
+    let media: FileMetadata
 
-  beforeEach(async () => {
-    setupCrypto()
+    beforeEach(async () => {
+        setupCrypto()
 
-    store = prepareStore().store
+        store = prepareStore().store
 
-    factory = await getFactory(store)
+        factory = await getFactory(store)
 
-    community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
+        community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
 
-    alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
-      nickname: 'alice',
+        alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
+            id: community.id,
+            nickname: 'alice',
+        })
+
+        sailingChannel = (
+            await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>('PublicChannel', {
+                channel: {
+                    name: 'comics',
+                    description: 'Welcome to #comics',
+                    timestamp: DateTime.utc().valueOf(),
+                    owner: alice.nickname,
+                    id: generateChannelId('comics'),
+                },
+            })
+        ).channel
+
+        const messageId = Math.random().toString(36).substr(2.9)
+
+        media = {
+            cid: `uploading_${messageId}`,
+            path: 'temp/name.ext',
+            name: 'name',
+            ext: 'ext',
+            message: {
+                id: messageId,
+                channelId: sailingChannel.id,
+            },
+        }
+
+        message = (
+            await factory.create<ReturnType<typeof publicChannelsActions.test_message>['payload']>('Message', {
+                identity: alice,
+                message: {
+                    id: messageId,
+                    type: MessageType.Basic,
+                    message: 'message',
+                    createdAt: 99999999999999,
+                    channelId: sailingChannel.id,
+                    signature: '',
+                    pubKey: '',
+                    media: media,
+                },
+                verifyAutomatically: true,
+            })
+        ).message
     })
 
-    sailingChannel = (
-      await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>('PublicChannel', {
-        channel: {
-          name: 'comics',
-          description: 'Welcome to #comics',
-          timestamp: DateTime.utc().valueOf(),
-          owner: alice.nickname,
-          id: generateChannelId('comics'),
-        },
-      })
-    ).channel
+    test('should upload file while message is being saved to db', async () => {
+        const socket = { emit: jest.fn() } as unknown as Socket
 
-    const messageId = Math.random().toString(36).substr(2.9)
+        const currentChannel = currentChannelId(store.getState())
 
-    media = {
-      cid: `uploading_${messageId}`,
-      path: 'temp/name.ext',
-      name: 'name',
-      ext: 'ext',
-      message: {
-        id: messageId,
-        channelId: sailingChannel.id,
-      },
-    }
+        if (!currentChannel) throw new Error('no current channel id')
 
-    message = (
-      await factory.create<ReturnType<typeof publicChannelsActions.test_message>['payload']>('Message', {
-        identity: alice,
-        message: {
-          id: messageId,
-          type: MessageType.Basic,
-          message: 'message',
-          createdAt: 99999999999999,
-          channelId: sailingChannel.id,
-          signature: '',
-          pubKey: '',
-          media: media,
-        },
-        verifyAutomatically: true,
-      })
-    ).message
-  })
+        const peerId = alice.peerId.id
 
-  test('should upload file while message is being saved to db', async () => {
-    const socket = { emit: jest.fn() } as unknown as Socket
+        const reducer = combineReducers(reducers)
+        await expectSaga(
+            uploadFileSaga,
+            socket,
+            messagesActions.addMessagesSendingStatus({ message, status: SendingStatus.Pending })
+        )
+            .withReducer(reducer)
+            .withState(store.getState())
+            .apply(socket, socket.emit, [
+                SocketActionTypes.UPLOAD_FILE,
+                {
+                    file: media,
+                    peerId,
+                },
+            ])
+            .run()
+    })
 
-    const currentChannel = currentChannelId(store.getState())
+    test('should not upload file if message has no media', async () => {
+        const socket = { emit: jest.fn() } as unknown as Socket
 
-    if (!currentChannel) throw new Error('no current channel id')
+        const currentChannel = currentChannelId(store.getState())
 
-    const peerId = alice.peerId.id
+        if (!currentChannel) throw new Error('no current channel id')
 
-    const reducer = combineReducers(reducers)
-    await expectSaga(
-      uploadFileSaga,
-      socket,
-      messagesActions.addMessagesSendingStatus({ message, status: SendingStatus.Pending })
-    )
-      .withReducer(reducer)
-      .withState(store.getState())
-      .apply(socket, socket.emit, [
-        SocketActionTypes.UPLOAD_FILE,
-        {
-          file: media,
-          peerId,
-        },
-      ])
-      .run()
-  })
+        const peerId = alice.peerId.id
 
-  test('should not upload file if message has no media', async () => {
-    const socket = { emit: jest.fn() } as unknown as Socket
+        const messageWithoutMedia = {
+            ...message,
+            media: undefined,
+        }
 
-    const currentChannel = currentChannelId(store.getState())
-
-    if (!currentChannel) throw new Error('no current channel id')
-
-    const peerId = alice.peerId.id
-
-    const messageWithoutMedia = {
-      ...message,
-      media: undefined,
-    }
-
-    const reducer = combineReducers(reducers)
-    await expectSaga(
-      uploadFileSaga,
-      socket,
-      messagesActions.addMessagesSendingStatus({ message: messageWithoutMedia, status: SendingStatus.Pending })
-    )
-      .withReducer(reducer)
-      .withState(store.getState())
-      .not.apply(socket, socket.emit, [
-        SocketActionTypes.UPLOAD_FILE,
-        {
-          file: media,
-          peerId,
-        },
-      ])
-      .run()
-  })
+        const reducer = combineReducers(reducers)
+        await expectSaga(
+            uploadFileSaga,
+            socket,
+            messagesActions.addMessagesSendingStatus({ message: messageWithoutMedia, status: SendingStatus.Pending })
+        )
+            .withReducer(reducer)
+            .withState(store.getState())
+            .not.apply(socket, socket.emit, [
+                SocketActionTypes.UPLOAD_FILE,
+                {
+                    file: media,
+                    peerId,
+                },
+            ])
+            .run()
+    })
 })

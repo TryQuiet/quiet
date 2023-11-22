@@ -16,106 +16,106 @@ import { MenuName } from '../const/MenuNames.enum'
 jest.setTimeout(20_000)
 
 describe('Channel menu', () => {
-  let socket: MockedSocket
+    let socket: MockedSocket
 
-  beforeEach(() => {
-    socket = new MockedSocket()
-    ioMock.mockImplementation(() => socket)
-    window.ResizeObserver = jest.fn().mockImplementation(() => ({
-      observe: jest.fn(),
-      unobserve: jest.fn(),
-      disconnect: jest.fn(),
-    }))
-  })
-
-  it('hides channel deletion for non-owners', async () => {
-    const { store } = await prepareStore(
-      {},
-      socket // Fork state manager's sagas
-    )
-
-    const factory = await getFactory(store)
-
-    await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community', {
-      id: '0',
-      name: 'community',
-      CA: null,
-      registrarUrl: 'http://ugmx77q2tnm5fliyfxfeen5hsuzjtbsz44tsldui2ju7vl5xj4d447yd.onion',
-      rootCa: '',
-      peerList: [],
+    beforeEach(() => {
+        socket = new MockedSocket()
+        ioMock.mockImplementation(() => socket)
+        window.ResizeObserver = jest.fn().mockImplementation(() => ({
+            observe: jest.fn(),
+            unobserve: jest.fn(),
+            disconnect: jest.fn(),
+        }))
     })
 
-    /* Context menu is not visible to non-owners at all, for now */
-    store.dispatch(navigationActions.openMenu({ menu: MenuName.Channel }))
+    it('hides channel deletion for non-owners', async () => {
+        const { store } = await prepareStore(
+            {},
+            socket // Fork state manager's sagas
+        )
 
-    window.HTMLElement.prototype.scrollTo = jest.fn()
+        const factory = await getFactory(store)
 
-    renderComponent(
-      <>
-        <Channel />
-        <ChannelContextMenu />
-      </>,
-      store
-    )
+        await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community', {
+            id: '0',
+            name: 'community',
+            CA: null,
+            registrarUrl: 'http://ugmx77q2tnm5fliyfxfeen5hsuzjtbsz44tsldui2ju7vl5xj4d447yd.onion',
+            rootCa: '',
+            peerList: [],
+        })
 
-    /* Context menu is not visible to non-owners at all, for now */
+        /* Context menu is not visible to non-owners at all, for now */
+        store.dispatch(navigationActions.openMenu({ menu: MenuName.Channel }))
 
-    // const menu = screen.getByTestId('channelContextMenuButton')
-    // expect(menu).toBeVisible()
+        window.HTMLElement.prototype.scrollTo = jest.fn()
 
-    // await userEvent.click(menu)
+        renderComponent(
+            <>
+                <Channel />
+                <ChannelContextMenu />
+            </>,
+            store
+        )
 
-    const channelContextMenu = screen.getByTestId('contextMenu')
-    expect(channelContextMenu).toBeVisible()
+        /* Context menu is not visible to non-owners at all, for now */
 
-    const deleteChannelItem = screen.queryByTestId('contextMenuItemDelete')
-    expect(deleteChannelItem).not.toBeInTheDocument()
-  })
+        // const menu = screen.getByTestId('channelContextMenuButton')
+        // expect(menu).toBeVisible()
 
-  it('deletes channel', async () => {
-    const { store } = await prepareStore(
-      {},
-      socket // Fork state manager's sagas
-    )
+        // await userEvent.click(menu)
 
-    const factory = await getFactory(store)
+        const channelContextMenu = screen.getByTestId('contextMenu')
+        expect(channelContextMenu).toBeVisible()
 
-    const community =
-      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
-
-    await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
-      nickname: 'alice',
+        const deleteChannelItem = screen.queryByTestId('contextMenuItemDelete')
+        expect(deleteChannelItem).not.toBeInTheDocument()
     })
 
-    window.HTMLElement.prototype.scrollTo = jest.fn()
+    it('deletes channel', async () => {
+        const { store } = await prepareStore(
+            {},
+            socket // Fork state manager's sagas
+        )
 
-    renderComponent(
-      <>
-        <Channel />
-        <ChannelContextMenu />
-        <DeleteChannel />
-      </>,
-      store
-    )
+        const factory = await getFactory(store)
 
-    const menu = screen.getByTestId('channelContextMenuButton')
-    expect(menu).toBeVisible()
+        const community =
+            await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
 
-    await userEvent.click(menu)
+        await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+            id: community.id,
+            nickname: 'alice',
+        })
 
-    // Confirm context menu has opened
-    const deleteChannelItem = screen.getByTestId('contextMenuItemDelete')
-    expect(deleteChannelItem).toBeVisible()
+        window.HTMLElement.prototype.scrollTo = jest.fn()
 
-    await userEvent.click(deleteChannelItem)
+        renderComponent(
+            <>
+                <Channel />
+                <ChannelContextMenu />
+                <DeleteChannel />
+            </>,
+            store
+        )
 
-    // Confirm context menu hides automatically
-    const channelContextMenu = screen.getByTestId('contextMenu')
-    expect(channelContextMenu).not.toBeVisible()
+        const menu = screen.getByTestId('channelContextMenuButton')
+        expect(menu).toBeVisible()
 
-    // Confirm confirmation modal pops up
-    const deleteChannelModal = await screen.findByText('Are you sure?')
-    expect(deleteChannelModal).toBeVisible()
-  })
+        await userEvent.click(menu)
+
+        // Confirm context menu has opened
+        const deleteChannelItem = screen.getByTestId('contextMenuItemDelete')
+        expect(deleteChannelItem).toBeVisible()
+
+        await userEvent.click(deleteChannelItem)
+
+        // Confirm context menu hides automatically
+        const channelContextMenu = screen.getByTestId('contextMenu')
+        expect(channelContextMenu).not.toBeVisible()
+
+        // Confirm confirmation modal pops up
+        const deleteChannelModal = await screen.findByText('Are you sure?')
+        expect(deleteChannelModal).toBeVisible()
+    })
 })

@@ -6,14 +6,14 @@ import { renderComponent } from '../../../testUtils/renderComponent'
 import { Tooltip } from './Tooltip'
 
 describe('Tooltip', () => {
-  const TooltipContent = () => <div>TooltipContent</div>
-  it('renders component', () => {
-    const result = renderComponent(
-      <Tooltip title='test-title'>
-        <TooltipContent />
-      </Tooltip>
-    )
-    expect(result.baseElement).toMatchInlineSnapshot(`
+    const TooltipContent = () => <div>TooltipContent</div>
+    it('renders component', () => {
+        const result = renderComponent(
+            <Tooltip title='test-title'>
+                <TooltipContent />
+            </Tooltip>
+        )
+        expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
           <span>
@@ -24,15 +24,15 @@ describe('Tooltip', () => {
         </div>
       </body>
     `)
-  })
+    })
 
-  it('renders component with optional props', () => {
-    const result = renderComponent(
-      <Tooltip title='test-title' interactive>
-        <TooltipContent />
-      </Tooltip>
-    )
-    expect(result.baseElement).toMatchInlineSnapshot(`
+    it('renders component with optional props', () => {
+        const result = renderComponent(
+            <Tooltip title='test-title' interactive>
+                <TooltipContent />
+            </Tooltip>
+        )
+        expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
           <span>
@@ -43,17 +43,17 @@ describe('Tooltip', () => {
         </div>
       </body>
     `)
-  })
+    })
 
-  each(['bottom-start', 'bottom', 'bottom-end', 'top-start', 'top', 'top-end']).test(
-    'renders component with correct arrow placement - %s',
-    placement => {
-      const result = renderComponent(
-        <Tooltip title='test-title' placement={placement}>
-          <TooltipContent />
-        </Tooltip>
-      )
-      expect(result.baseElement).toMatchSnapshot()
-    }
-  )
+    each(['bottom-start', 'bottom', 'bottom-end', 'top-start', 'top', 'top-end']).test(
+        'renders component with correct arrow placement - %s',
+        placement => {
+            const result = renderComponent(
+                <Tooltip title='test-title' placement={placement}>
+                    <TooltipContent />
+                </Tooltip>
+            )
+            expect(result.baseElement).toMatchSnapshot()
+        }
+    )
 })

@@ -4,9 +4,9 @@ import { ModalName } from '../../sagas/modals/modals.types'
 import ChannelCreationModalComponent from './ChannelCreationModal.component'
 
 const ChannelCreationModal = () => {
-  const channelCreationModal = useModal(ModalName.channelCreationModal)
+    const channelCreationModal = useModal(ModalName.channelCreationModal)
 
-  return <ChannelCreationModalComponent {...channelCreationModal} />
+    return <ChannelCreationModalComponent {...channelCreationModal} />
 }
 
 export default ChannelCreationModal

@@ -8,45 +8,45 @@ import { ScreenNames } from '../../const/ScreenNames.enum'
 import { CreateCommunity } from '../../components/CreateCommunity/CreateCommunity.component'
 
 export const CreateCommunityScreen: FC = () => {
-  const dispatch = useDispatch()
+    const dispatch = useDispatch()
 
-  const isWebsocketConnected = useSelector(initSelectors.isWebsocketConnected)
+    const isWebsocketConnected = useSelector(initSelectors.isWebsocketConnected)
 
-  const currentCommunity = useSelector(communities.selectors.currentCommunity)
-  const currentIdentity = useSelector(identity.selectors.currentIdentity)
+    const currentCommunity = useSelector(communities.selectors.currentCommunity)
+    const currentIdentity = useSelector(identity.selectors.currentIdentity)
 
-  const networkCreated = Boolean(currentCommunity && !currentIdentity?.userCertificate)
+    const networkCreated = Boolean(currentCommunity && !currentIdentity?.userCertificate)
 
-  const createCommunityAction = useCallback(
-    (name: string) => {
-      const payload: CreateNetworkPayload = {
-        ownership: CommunityOwnership.Owner,
-        name,
-      }
-      dispatch(communities.actions.createNetwork(payload))
-      dispatch(
-        navigationActions.navigation({
-          screen: ScreenNames.UsernameRegistrationScreen,
-        })
-      )
-    },
-    [dispatch]
-  )
-
-  const redirectionAction = useCallback(() => {
-    dispatch(
-      navigationActions.navigation({
-        screen: ScreenNames.JoinCommunityScreen,
-      })
+    const createCommunityAction = useCallback(
+        (name: string) => {
+            const payload: CreateNetworkPayload = {
+                ownership: CommunityOwnership.Owner,
+                name,
+            }
+            dispatch(communities.actions.createNetwork(payload))
+            dispatch(
+                navigationActions.navigation({
+                    screen: ScreenNames.UsernameRegistrationScreen,
+                })
+            )
+        },
+        [dispatch]
     )
-  }, [dispatch])
 
-  return (
-    <CreateCommunity
-      createCommunityAction={createCommunityAction}
-      redirectionAction={redirectionAction}
-      networkCreated={networkCreated}
-      ready={isWebsocketConnected}
-    />
-  )
+    const redirectionAction = useCallback(() => {
+        dispatch(
+            navigationActions.navigation({
+                screen: ScreenNames.JoinCommunityScreen,
+            })
+        )
+    }, [dispatch])
+
+    return (
+        <CreateCommunity
+            createCommunityAction={createCommunityAction}
+            redirectionAction={redirectionAction}
+            networkCreated={networkCreated}
+            ready={isWebsocketConnected}
+        />
+    )
 }

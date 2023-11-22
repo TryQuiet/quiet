@@ -3,9 +3,9 @@ import { renderComponent } from '../../../testUtils/renderComponent'
 import { NewMessagesInfoComponent } from './NewMessagesInfoComponent'
 
 describe('NewMessagesInfoComponent', () => {
-  it('renders component', () => {
-    const result = renderComponent(<NewMessagesInfoComponent scrollBottom={() => {}} show={true} />)
-    expect(result.baseElement).toMatchInlineSnapshot(`
+    it('renders component', () => {
+        const result = renderComponent(<NewMessagesInfoComponent scrollBottom={() => {}} show={true} />)
+        expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
           <div
@@ -29,5 +29,5 @@ describe('NewMessagesInfoComponent', () => {
         </div>
       </body>
     `)
-  })
+    })
 })

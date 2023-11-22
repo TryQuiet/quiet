@@ -6,10 +6,10 @@ import { storybookLog } from '../../utils/functions/storybookLog/storybookLog.fu
 import { Success } from './Success.component'
 
 storiesOf('Success', module).add('Default', () => (
-  <Success
-    onPress={storybookLog('username registered')}
-    icon={appImages.username_registered}
-    title={'You created a username'}
-    message={'Your username will be registered shortly'}
-  />
+    <Success
+        onPress={storybookLog('username registered')}
+        icon={appImages.username_registered}
+        title={'You created a username'}
+        message={'Your username will be registered shortly'}
+    />
 ))

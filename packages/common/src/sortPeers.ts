@@ -11,41 +11,41 @@ This is the very simple algorithm for evaluating the most wanted peers.
 4. We end up with mix of last seen and most uptime descending array of peers, the it is enchanced to libp2p address.
  */
 export const filterAndSortPeers = (peersAddresses: string[], stats: NetworkStats[]): string[] => {
-  peersAddresses = filterValidAddresses(peersAddresses)
-  const lastSeenSorted = [...stats].sort((a, b) => {
-    return b.lastSeen - a.lastSeen
-  })
-  const mostUptimeSharedSorted = [...stats].sort((a, b) => {
-    return b.connectionTime - a.connectionTime
-  })
-
-  const mostWantedPeers: NetworkStats[] = []
-
-  for (let i = 0; i < stats.length; i++) {
-    const peerOne = lastSeenSorted[i]
-    const peerTwo = mostUptimeSharedSorted[i]
-
-    if (!mostWantedPeers.includes(peerOne)) {
-      mostWantedPeers.push(peerOne)
-    }
-
-    if (!mostWantedPeers.includes(peerTwo)) {
-      mostWantedPeers.push(peerTwo)
-    }
-  }
-
-  const peerList = mostWantedPeers.map(peerId => {
-    return peersAddresses.find(peerAddress => {
-      const id = peerAddress.split('/')[7]
-      if (id === peerId.peerId) {
-        peersAddresses.splice(peersAddresses.indexOf(peerAddress), 1)
-        return true
-      }
+    peersAddresses = filterValidAddresses(peersAddresses)
+    const lastSeenSorted = [...stats].sort((a, b) => {
+        return b.lastSeen - a.lastSeen
     })
-  })
+    const mostUptimeSharedSorted = [...stats].sort((a, b) => {
+        return b.connectionTime - a.connectionTime
+    })
 
-  return peerList
-    .concat(peersAddresses)
-    .filter(address => address !== null)
-    .filter(isDefined)
+    const mostWantedPeers: NetworkStats[] = []
+
+    for (let i = 0; i < stats.length; i++) {
+        const peerOne = lastSeenSorted[i]
+        const peerTwo = mostUptimeSharedSorted[i]
+
+        if (!mostWantedPeers.includes(peerOne)) {
+            mostWantedPeers.push(peerOne)
+        }
+
+        if (!mostWantedPeers.includes(peerTwo)) {
+            mostWantedPeers.push(peerTwo)
+        }
+    }
+
+    const peerList = mostWantedPeers.map(peerId => {
+        return peersAddresses.find(peerAddress => {
+            const id = peerAddress.split('/')[7]
+            if (id === peerId.peerId) {
+                peersAddresses.splice(peersAddresses.indexOf(peerAddress), 1)
+                return true
+            }
+        })
+    })
+
+    return peerList
+        .concat(peersAddresses)
+        .filter(address => address !== null)
+        .filter(isDefined)
 }

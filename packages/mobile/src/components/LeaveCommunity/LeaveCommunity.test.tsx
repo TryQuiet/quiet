@@ -4,12 +4,12 @@ import { renderComponent } from '../../utils/functions/renderComponent/renderCom
 import { LeaveCommunity } from './LeaveCommunity.component'
 
 describe('LeaveCommunity component', () => {
-  it('should match inline snapshot', () => {
-    const { toJSON } = renderComponent(
-      <LeaveCommunity name={'Rockets'} leaveCommunity={jest.fn()} handleBackButton={jest.fn()} />
-    )
+    it('should match inline snapshot', () => {
+        const { toJSON } = renderComponent(
+            <LeaveCommunity name={'Rockets'} leaveCommunity={jest.fn()} handleBackButton={jest.fn()} />
+        )
 
-    expect(toJSON()).toMatchInlineSnapshot(`
+        expect(toJSON()).toMatchInlineSnapshot(`
       <View
         style={
           {
@@ -341,5 +341,5 @@ describe('LeaveCommunity component', () => {
         </View>
       </View>
     `)
-  })
+    })
 })

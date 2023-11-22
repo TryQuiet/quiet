@@ -9,63 +9,63 @@ import { DateTime } from 'luxon'
 import { generateChannelId } from '@quiet/common'
 
 describe('Channels panel', () => {
-  let socket: MockedSocket
+    let socket: MockedSocket
 
-  beforeEach(() => {
-    socket = new MockedSocket()
-    ioMock.mockImplementation(() => socket)
-  })
-
-  it('displays channels in proper order', async () => {
-    const { store } = await prepareStore(
-      {},
-      socket // Fork State manager's sagas
-    )
-
-    const factory = await getFactory(store)
-
-    const community =
-      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
-    const generalChannel = publicChannels.selectors.generalChannel(store.getState())
-    expect(generalChannel).not.toBeUndefined()
-    const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
-      nickname: 'alice',
+    beforeEach(() => {
+        socket = new MockedSocket()
+        ioMock.mockImplementation(() => socket)
     })
 
-    // Setup channels
-    const channelNames = ['croatia', 'allergies', 'sailing', 'pets', 'antiques']
+    it('displays channels in proper order', async () => {
+        const { store } = await prepareStore(
+            {},
+            socket // Fork State manager's sagas
+        )
 
-    for (const name of channelNames) {
-      await factory.create<ReturnType<typeof publicChannels.actions.addChannel>['payload']>('PublicChannel', {
-        channel: {
-          name: name,
-          description: `Welcome to #${name}`,
-          timestamp: DateTime.utc().valueOf(),
-          owner: alice.nickname,
-          id: generateChannelId(name),
-        },
-      })
-    }
+        const factory = await getFactory(store)
 
-    const channels = publicChannels.selectors.publicChannels(store.getState())
+        const community =
+            await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
+        const generalChannel = publicChannels.selectors.generalChannel(store.getState())
+        expect(generalChannel).not.toBeUndefined()
+        const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+            id: community.id,
+            nickname: 'alice',
+        })
 
-    const result = renderComponent(
-      <ChannelsPanel
-        channels={channels}
-        unreadChannels={[]}
-        setCurrentChannel={function (_id: string): void {}}
-        // @ts-expect-error
-        currentChannelId={generalChannel.id}
-        createChannelModal={{
-          open: false,
-          handleOpen: function (_args?: any): any {},
-          handleClose: function (): any {},
-        }}
-      />
-    )
+        // Setup channels
+        const channelNames = ['croatia', 'allergies', 'sailing', 'pets', 'antiques']
 
-    expect(result).toMatchInlineSnapshot(`
+        for (const name of channelNames) {
+            await factory.create<ReturnType<typeof publicChannels.actions.addChannel>['payload']>('PublicChannel', {
+                channel: {
+                    name: name,
+                    description: `Welcome to #${name}`,
+                    timestamp: DateTime.utc().valueOf(),
+                    owner: alice.nickname,
+                    id: generateChannelId(name),
+                },
+            })
+        }
+
+        const channels = publicChannels.selectors.publicChannels(store.getState())
+
+        const result = renderComponent(
+            <ChannelsPanel
+                channels={channels}
+                unreadChannels={[]}
+                setCurrentChannel={function (_id: string): void {}}
+                // @ts-expect-error
+                currentChannelId={generalChannel.id}
+                createChannelModal={{
+                    open: false,
+                    handleOpen: function (_args?: any): any {},
+                    handleClose: function (): any {},
+                }}
+            />
+        )
+
+        expect(result).toMatchInlineSnapshot(`
       Object {
         "asFragment": [Function],
         "baseElement": <body>
@@ -643,5 +643,5 @@ describe('Channels panel', () => {
         "unmount": [Function],
       }
     `)
-  })
+    })
 })

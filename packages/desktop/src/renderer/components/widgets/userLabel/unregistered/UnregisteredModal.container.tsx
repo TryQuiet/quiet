@@ -4,12 +4,12 @@ import { ModalName } from '../../../../sagas/modals/modals.types'
 import UnregisteredModalComponent from './UnregisteredModal.component'
 
 interface ModalArgs {
-  username: string
+    username: string
 }
 
 const UnregisteredModalContainer = () => {
-  const unregisteredModal = useModal<ModalArgs>(ModalName.unregisteredUsernameModal)
-  return <UnregisteredModalComponent {...unregisteredModal} />
+    const unregisteredModal = useModal<ModalArgs>(ModalName.unregisteredUsernameModal)
+    return <UnregisteredModalComponent {...unregisteredModal} />
 }
 
 export default UnregisteredModalContainer

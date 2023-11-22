@@ -6,10 +6,10 @@ import { selectReducer } from '../store.utils'
 const reducer = selectReducer(StoreKeys.Socket)
 
 export const isConnected = createSelector(
-  reducer,
-  (reducerState: StoreState[StoreKeys.Socket]) => reducerState.isConnected
+    reducer,
+    (reducerState: StoreState[StoreKeys.Socket]) => reducerState.isConnected
 )
 
 export const socketSelectors = {
-  isConnected,
+    isConnected,
 }

@@ -13,56 +13,56 @@ import { navigationActions } from '../store/navigation/navigation.slice'
 import { validInvitationCodeTestData, getValidInvitationUrlTestData } from '@quiet/common'
 
 describe('Splash screen', () => {
-  let socket: MockedSocket
+    let socket: MockedSocket
 
-  beforeEach(async () => {
-    socket = new MockedSocket()
-    ioMock.mockImplementation(() => socket)
-  })
-
-  // Right now due to mocking store readyness in a different way, it's impossible to perform this kind of test
-  test.skip('waits for redux store to become ready, before storing invitation code', async () => {
-    const { store, root, runSaga } = await prepareStore({}, socket)
-
-    const invitationCode = getValidInvitationUrlTestData(validInvitationCodeTestData[0]).code()
-
-    const route: { key: string; name: ScreenNames.SplashScreen; path: string } = {
-      key: '',
-      name: ScreenNames.SplashScreen,
-      path: invitationCode,
-    }
-
-    renderComponent(
-      <>
-        <SplashScreen route={route} />
-      </>,
-      store
-    )
-
-    await act(async () => {
-      store.dispatch(initActions.setStoreReady())
+    beforeEach(async () => {
+        socket = new MockedSocket()
+        ioMock.mockImplementation(() => socket)
     })
 
-    const deepLink = store.getState().Init.deepLinking
-    expect(deepLink).toBe(true)
+    // Right now due to mocking store readyness in a different way, it's impossible to perform this kind of test
+    test.skip('waits for redux store to become ready, before storing invitation code', async () => {
+        const { store, root, runSaga } = await prepareStore({}, socket)
 
-    await act(async () => {
-      store.dispatch(initActions.setWebsocketConnected({ dataPort: 9700 }))
-    })
+        const invitationCode = getValidInvitationUrlTestData(validInvitationCodeTestData[0]).code()
 
-    await act(async () => {
-      await runSaga(function* (): Generator {
-        const action = yield* take(navigationActions.replaceScreen)
-        expect(action.payload).toEqual({
-          screen: ScreenNames.JoinCommunityScreen,
-          params: {
-            code: invitationCode,
-          },
+        const route: { key: string; name: ScreenNames.SplashScreen; path: string } = {
+            key: '',
+            name: ScreenNames.SplashScreen,
+            path: invitationCode,
+        }
+
+        renderComponent(
+            <>
+                <SplashScreen route={route} />
+            </>,
+            store
+        )
+
+        await act(async () => {
+            store.dispatch(initActions.setStoreReady())
         })
-      }).toPromise()
-    })
 
-    // Stop state-manager sagas
-    root?.cancel()
-  })
+        const deepLink = store.getState().Init.deepLinking
+        expect(deepLink).toBe(true)
+
+        await act(async () => {
+            store.dispatch(initActions.setWebsocketConnected({ dataPort: 9700 }))
+        })
+
+        await act(async () => {
+            await runSaga(function* (): Generator {
+                const action = yield* take(navigationActions.replaceScreen)
+                expect(action.payload).toEqual({
+                    screen: ScreenNames.JoinCommunityScreen,
+                    params: {
+                        code: invitationCode,
+                    },
+                })
+            }).toPromise()
+        })
+
+        // Stop state-manager sagas
+        root?.cancel()
+    })
 })

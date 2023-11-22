@@ -4,12 +4,12 @@ import { renderComponent } from '../../testUtils/renderComponent'
 import { MathMessageComponent } from './MathMessageComponent'
 
 describe('MathMessageComponent', () => {
-  it('renders tex', async () => {
-    const result = renderComponent(
-      <MathMessageComponent message={'$$a + b = c$$'} messageId={'1'} pending={false} openUrl={() => {}} />
-    )
-    await act(async () => {})
-    expect(result.baseElement).toMatchInlineSnapshot(`
+    it('renders tex', async () => {
+        const result = renderComponent(
+            <MathMessageComponent message={'$$a + b = c$$'} messageId={'1'} pending={false} openUrl={() => {}} />
+        )
+        await act(async () => {})
+        expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
           <span
@@ -89,21 +89,21 @@ describe('MathMessageComponent', () => {
         </div>
       </body>
     `)
-  })
-  it('renders message with regular text message and svg math formula', async () => {
-    const onMathMessageRendered = jest.fn()
-    // jest.spyOn()
-    const result = renderComponent(
-      <MathMessageComponent
-        message={'It is $$a + b = c$$ and $$a - b = d$$'}
-        messageId={'1'}
-        pending={false}
-        openUrl={() => {}}
-        onMathMessageRendered={onMathMessageRendered}
-      />
-    )
-    await act(async () => {})
-    expect(result.baseElement).toMatchInlineSnapshot(`
+    })
+    it('renders message with regular text message and svg math formula', async () => {
+        const onMathMessageRendered = jest.fn()
+        // jest.spyOn()
+        const result = renderComponent(
+            <MathMessageComponent
+                message={'It is $$a + b = c$$ and $$a - b = d$$'}
+                messageId={'1'}
+                pending={false}
+                openUrl={() => {}}
+                onMathMessageRendered={onMathMessageRendered}
+            />
+        )
+        await act(async () => {})
+        expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
           <span
@@ -269,21 +269,21 @@ describe('MathMessageComponent', () => {
         </div>
       </body>
     `)
-    expect(onMathMessageRendered).toBeCalledTimes(2)
-  })
-  it('renders pending message with regular text message and svg math formula', async () => {
-    const onMathMessageRendered = jest.fn()
-    const result = renderComponent(
-      <MathMessageComponent
-        message={String.raw`$$sum_{i=0}^n i = \frac{n(n+1)}{2}$$ - look`}
-        messageId={'1'}
-        pending={false}
-        openUrl={() => {}}
-        onMathMessageRendered={onMathMessageRendered}
-      />
-    )
-    await act(async () => {})
-    expect(result.baseElement).toMatchInlineSnapshot(`
+        expect(onMathMessageRendered).toBeCalledTimes(2)
+    })
+    it('renders pending message with regular text message and svg math formula', async () => {
+        const onMathMessageRendered = jest.fn()
+        const result = renderComponent(
+            <MathMessageComponent
+                message={String.raw`$$sum_{i=0}^n i = \frac{n(n+1)}{2}$$ - look`}
+                messageId={'1'}
+                pending={false}
+                openUrl={() => {}}
+                onMathMessageRendered={onMathMessageRendered}
+            />
+        )
+        await act(async () => {})
+        expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
           <span
@@ -503,6 +503,6 @@ describe('MathMessageComponent', () => {
         </div>
       </body>
     `)
-    expect(onMathMessageRendered).toBeCalledTimes(1)
-  })
+        expect(onMathMessageRendered).toBeCalledTimes(1)
+    })
 })

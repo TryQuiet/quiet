@@ -8,37 +8,37 @@ import { type filesActions } from '../files.slice'
 import { instanceOfChannelMessage, SocketActionTypes } from '@quiet/types'
 
 export function* broadcastHostedFileSaga(
-  socket: Socket,
-  action: PayloadAction<ReturnType<typeof filesActions.broadcastHostedFile>['payload']>
+    socket: Socket,
+    action: PayloadAction<ReturnType<typeof filesActions.broadcastHostedFile>['payload']>
 ): Generator {
-  const identity = yield* select(identitySelectors.currentIdentity)
-  if (!identity) return
+    const identity = yield* select(identitySelectors.currentIdentity)
+    if (!identity) return
 
-  const channelMessages = yield* select(
-    messagesSelectors.publicChannelMessagesEntities(action.payload.message.channelId)
-  )
-
-  const message = channelMessages[action.payload.message.id]
-
-  if (!message || !instanceOfChannelMessage(message)) {
-    console.error(
-      `Cannot broadcast message after uploading. Draft ${action.payload.message.id} from #${action.payload.message.channelId} does not exist in local storage.`
+    const channelMessages = yield* select(
+        messagesSelectors.publicChannelMessagesEntities(action.payload.message.channelId)
     )
-    return
-  }
 
-  yield* apply(
-    socket,
-    socket.emit,
-    applyEmitParams(SocketActionTypes.SEND_MESSAGE, {
-      peerId: identity.peerId.id,
-      message: {
-        ...message,
-        media: {
-          ...action.payload,
-          path: null,
-        },
-      },
-    })
-  )
+    const message = channelMessages[action.payload.message.id]
+
+    if (!message || !instanceOfChannelMessage(message)) {
+        console.error(
+            `Cannot broadcast message after uploading. Draft ${action.payload.message.id} from #${action.payload.message.channelId} does not exist in local storage.`
+        )
+        return
+    }
+
+    yield* apply(
+        socket,
+        socket.emit,
+        applyEmitParams(SocketActionTypes.SEND_MESSAGE, {
+            peerId: identity.peerId.id,
+            message: {
+                ...message,
+                media: {
+                    ...action.payload,
+                    path: null,
+                },
+            },
+        })
+    )
 }

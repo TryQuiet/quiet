@@ -9,62 +9,62 @@ import Sidebar from '../Sidebar/Sidebar'
 import Channel from '../Channel/Channel'
 
 const MainGridStyled = styled(Grid)(() => ({
-  minHeight: '100vh',
-  minWidth: '100vw',
-  overflow: 'hidden',
-  position: 'relative',
+    minHeight: '100vh',
+    minWidth: '100vw',
+    overflow: 'hidden',
+    position: 'relative',
 }))
 
 export const Main: React.FC = () => {
-  const debounce = (fn: () => void, ms: number) => {
-    let timer: ReturnType<typeof setTimeout> | null
-    return () => {
-      if (timer) {
-        clearTimeout(timer)
-      }
-      timer = setTimeout(() => {
-        timer = null
-        fn.apply(this)
-      }, ms)
+    const debounce = (fn: () => void, ms: number) => {
+        let timer: ReturnType<typeof setTimeout> | null
+        return () => {
+            if (timer) {
+                clearTimeout(timer)
+            }
+            timer = setTimeout(() => {
+                timer = null
+                fn.apply(this)
+            }, ms)
+        }
     }
-  }
 
-  const [_dimensions, setDimensions] = React.useState({
-    height: window.innerHeight,
-    width: window.innerWidth,
-  })
-
-  useEffect(() => {
-    const debouncedHandleResize = debounce(function handleResize() {
-      setDimensions({
+    const [_dimensions, setDimensions] = React.useState({
         height: window.innerHeight,
         width: window.innerWidth,
-      })
-    }, 1000)
+    })
 
-    window.addEventListener('resize', debouncedHandleResize)
+    useEffect(() => {
+        const debouncedHandleResize = debounce(function handleResize() {
+            setDimensions({
+                height: window.innerHeight,
+                width: window.innerWidth,
+            })
+        }, 1000)
 
-    return () => {
-      window.removeEventListener('resize', debouncedHandleResize)
-    }
-  })
+        window.addEventListener('resize', debouncedHandleResize)
 
-  return (
-    <div>
-      <WindowWrapper>
-        <MainGridStyled container direction='row' wrap='nowrap'>
-          <Grid item>
-            <Sidebar />
-          </Grid>
-          <Grid item xs>
-            <Routes>
-              <Route path={'channel/:id'} element={<Channel />} />
-            </Routes>
-          </Grid>
-        </MainGridStyled>
-      </WindowWrapper>
-    </div>
-  )
+        return () => {
+            window.removeEventListener('resize', debouncedHandleResize)
+        }
+    })
+
+    return (
+        <div>
+            <WindowWrapper>
+                <MainGridStyled container direction='row' wrap='nowrap'>
+                    <Grid item>
+                        <Sidebar />
+                    </Grid>
+                    <Grid item xs>
+                        <Routes>
+                            <Route path={'channel/:id'} element={<Channel />} />
+                        </Routes>
+                    </Grid>
+                </MainGridStyled>
+            </WindowWrapper>
+        </div>
+    )
 }
 
 export default Main

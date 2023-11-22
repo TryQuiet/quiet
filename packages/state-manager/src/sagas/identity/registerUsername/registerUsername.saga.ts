@@ -9,98 +9,98 @@ import { communitiesSelectors } from '../../communities/communities.selectors'
 import { CreateUserCsrPayload, RegisterCertificatePayload, SocketActionTypes, Community } from '@quiet/types'
 
 export function* registerUsernameSaga(
-  socket: Socket,
-  action: PayloadAction<ReturnType<typeof identityActions.registerUsername>['payload']>
+    socket: Socket,
+    action: PayloadAction<ReturnType<typeof identityActions.registerUsername>['payload']>
 ): Generator {
-  // Nickname can differ between saga calls
+    // Nickname can differ between saga calls
 
-  const { nickname, isUsernameTaken = false } = action.payload
+    const { nickname, isUsernameTaken = false } = action.payload
 
-  const community = yield* select(communitiesSelectors.currentCommunity)
+    const community = yield* select(communitiesSelectors.currentCommunity)
 
-  if (!community) {
-    console.error('Could not register username, no community data')
-    return
-  }
-  const psk = yield* select(communitiesSelectors.psk)
-  const networkPayload: Community = {
-    id: community.id,
-    name: community.name,
-    registrarUrl: community.registrarUrl,
-    CA: community.CA,
-    rootCa: community.CA?.rootCertString,
-    psk: psk,
-  }
-
-  if (!isUsernameTaken) {
-    yield* apply(socket, socket.emit, applyEmitParams(SocketActionTypes.CREATE_NETWORK, networkPayload))
-  }
-
-  let identity = yield* select(identitySelectors.currentIdentity)
-
-  if (!identity) {
-    yield* take(identityActions.addNewIdentity)
-  }
-
-  identity = yield* select(identitySelectors.currentIdentity)
-
-  if (!identity) {
-    console.error('Could not register username, no identity')
-    return
-  }
-
-  let userCsr = identity.userCsr
-
-  if (userCsr) {
-    try {
-      if (identity.userCsr?.userCsr == null || identity.userCsr.userKey == null) {
-        console.error('identity.userCsr?.userCsr == null || identity.userCsr.userKey == null')
+    if (!community) {
+        console.error('Could not register username, no community data')
         return
-      }
-      const _pubKey = yield* call(pubKeyFromCsr, identity.userCsr.userCsr)
-      const privateKey = yield* call(loadPrivateKey, identity.userCsr.userKey, config.signAlg)
-      const publicKey = yield* call(getPubKey, _pubKey)
-
-      const existingKeyPair: CryptoKeyPair = { privateKey, publicKey }
-
-      const payload: CreateUserCsrPayload = {
-        nickname,
-        commonName: identity.hiddenService.onionAddress,
-        peerId: identity.peerId.id,
-        dmPublicKey: identity.dmKeys.publicKey,
-        signAlg: config.signAlg,
-        hashAlg: config.hashAlg,
-        existingKeyPair,
-      }
-
-      userCsr = yield* call(createUserCsr, payload)
-    } catch (e) {
-      console.error(e)
-      return
     }
-  } else {
-    try {
-      const payload: CreateUserCsrPayload = {
-        nickname,
-        commonName: identity.hiddenService.onionAddress,
-        peerId: identity.peerId.id,
-        dmPublicKey: identity.dmKeys.publicKey,
-        signAlg: config.signAlg,
-        hashAlg: config.hashAlg,
-      }
-      userCsr = yield* call(createUserCsr, payload)
-    } catch (e) {
-      console.error(e)
-      return
+    const psk = yield* select(communitiesSelectors.psk)
+    const networkPayload: Community = {
+        id: community.id,
+        name: community.name,
+        registrarUrl: community.registrarUrl,
+        CA: community.CA,
+        rootCa: community.CA?.rootCertString,
+        psk: psk,
     }
-  }
 
-  const payload: RegisterCertificatePayload = {
-    communityId: community.id,
-    nickname,
-    userCsr,
-    isUsernameTaken,
-  }
+    if (!isUsernameTaken) {
+        yield* apply(socket, socket.emit, applyEmitParams(SocketActionTypes.CREATE_NETWORK, networkPayload))
+    }
 
-  yield* put(identityActions.registerCertificate(payload))
+    let identity = yield* select(identitySelectors.currentIdentity)
+
+    if (!identity) {
+        yield* take(identityActions.addNewIdentity)
+    }
+
+    identity = yield* select(identitySelectors.currentIdentity)
+
+    if (!identity) {
+        console.error('Could not register username, no identity')
+        return
+    }
+
+    let userCsr = identity.userCsr
+
+    if (userCsr) {
+        try {
+            if (identity.userCsr?.userCsr == null || identity.userCsr.userKey == null) {
+                console.error('identity.userCsr?.userCsr == null || identity.userCsr.userKey == null')
+                return
+            }
+            const _pubKey = yield* call(pubKeyFromCsr, identity.userCsr.userCsr)
+            const privateKey = yield* call(loadPrivateKey, identity.userCsr.userKey, config.signAlg)
+            const publicKey = yield* call(getPubKey, _pubKey)
+
+            const existingKeyPair: CryptoKeyPair = { privateKey, publicKey }
+
+            const payload: CreateUserCsrPayload = {
+                nickname,
+                commonName: identity.hiddenService.onionAddress,
+                peerId: identity.peerId.id,
+                dmPublicKey: identity.dmKeys.publicKey,
+                signAlg: config.signAlg,
+                hashAlg: config.hashAlg,
+                existingKeyPair,
+            }
+
+            userCsr = yield* call(createUserCsr, payload)
+        } catch (e) {
+            console.error(e)
+            return
+        }
+    } else {
+        try {
+            const payload: CreateUserCsrPayload = {
+                nickname,
+                commonName: identity.hiddenService.onionAddress,
+                peerId: identity.peerId.id,
+                dmPublicKey: identity.dmKeys.publicKey,
+                signAlg: config.signAlg,
+                hashAlg: config.hashAlg,
+            }
+            userCsr = yield* call(createUserCsr, payload)
+        } catch (e) {
+            console.error(e)
+            return
+        }
+    }
+
+    const payload: RegisterCertificatePayload = {
+        communityId: community.id,
+        nickname,
+        userCsr,
+        isUsernameTaken,
+    }
+
+    yield* put(identityActions.registerCertificate(payload))
 }

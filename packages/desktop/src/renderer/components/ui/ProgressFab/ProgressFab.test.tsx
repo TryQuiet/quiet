@@ -4,15 +4,15 @@ import { renderComponent } from '../../../testUtils/renderComponent'
 import { ProgressFab } from './ProgressFab'
 
 describe('ProgressFab', () => {
-  const Icon = () => <div>Icon</div>
+    const Icon = () => <div>Icon</div>
 
-  it('renders component', () => {
-    const result = renderComponent(
-      <ProgressFab onClick={jest.fn()}>
-        <Icon />
-      </ProgressFab>
-    )
-    expect(result.baseElement).toMatchInlineSnapshot(`
+    it('renders component', () => {
+        const result = renderComponent(
+            <ProgressFab onClick={jest.fn()}>
+                <Icon />
+            </ProgressFab>
+        )
+        expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
           <div
@@ -34,15 +34,15 @@ describe('ProgressFab', () => {
         </div>
       </body>
     `)
-  })
+    })
 
-  it('renders success', () => {
-    const result = renderComponent(
-      <ProgressFab onClick={jest.fn()} success>
-        <Icon />
-      </ProgressFab>
-    )
-    expect(result.baseElement).toMatchInlineSnapshot(`
+    it('renders success', () => {
+        const result = renderComponent(
+            <ProgressFab onClick={jest.fn()} success>
+                <Icon />
+            </ProgressFab>
+        )
+        expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
           <div
@@ -72,15 +72,15 @@ describe('ProgressFab', () => {
         </div>
       </body>
     `)
-  })
+    })
 
-  it('renders loading', () => {
-    const result = renderComponent(
-      <ProgressFab onClick={jest.fn()} loading>
-        <Icon />
-      </ProgressFab>
-    )
-    expect(result.baseElement).toMatchInlineSnapshot(`
+    it('renders loading', () => {
+        const result = renderComponent(
+            <ProgressFab onClick={jest.fn()} loading>
+                <Icon />
+            </ProgressFab>
+        )
+        expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
           <div
@@ -121,15 +121,15 @@ describe('ProgressFab', () => {
         </div>
       </body>
     `)
-  })
+    })
 
-  it('renders disabled', () => {
-    const result = renderComponent(
-      <ProgressFab onClick={jest.fn()} success disabled>
-        <Icon />
-      </ProgressFab>
-    )
-    expect(result.baseElement).toMatchInlineSnapshot(`
+    it('renders disabled', () => {
+        const result = renderComponent(
+            <ProgressFab onClick={jest.fn()} success disabled>
+                <Icon />
+            </ProgressFab>
+        )
+        expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
           <div
@@ -157,5 +157,5 @@ describe('ProgressFab', () => {
         </div>
       </body>
     `)
-  })
+    })
 })

@@ -9,65 +9,65 @@ import SearchModalComponent from './SearchModelComponent'
 import { generateChannelId } from '@quiet/common'
 
 describe('Search Modal', () => {
-  let socket: MockedSocket
+    let socket: MockedSocket
 
-  beforeEach(() => {
-    socket = new MockedSocket()
-    ioMock.mockImplementation(() => socket)
-  })
-
-  it('displays search modal with channels', async () => {
-    const { store } = await prepareStore(
-      {},
-      socket // Fork State manager's sagas
-    )
-
-    const factory = await getFactory(store)
-
-    const community =
-      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
-
-    const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
-      nickname: 'alice',
+    beforeEach(() => {
+        socket = new MockedSocket()
+        ioMock.mockImplementation(() => socket)
     })
 
-    const channelsMocks = [
-      { name: 'fun', timestamp: 1673857606990 },
-      { name: 'random', timestamp: 1673854900410 },
-      { name: 'test', timestamp: 1673623514097 },
-      { name: 'general', timestamp: 1673623514 },
-    ]
+    it('displays search modal with channels', async () => {
+        const { store } = await prepareStore(
+            {},
+            socket // Fork State manager's sagas
+        )
 
-    for (const channelMock of channelsMocks) {
-      await factory.create<ReturnType<typeof publicChannels.actions.addChannel>['payload']>('PublicChannel', {
-        channel: {
-          name: channelMock.name,
-          description: `Welcome to #${channelMock.name}`,
-          timestamp: channelMock.timestamp,
-          owner: alice.nickname,
-          id: generateChannelId(channelMock.name),
-        },
-      })
-    }
+        const factory = await getFactory(store)
 
-    const dynamicSearchedChannels = publicChannels.selectors.dynamicSearchedChannels('')(store.getState())
-    const publicChannelsSelector = publicChannels.selectors.publicChannels(store.getState())
+        const community =
+            await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
 
-    const result = renderComponent(
-      <SearchModalComponent
-        setCurrentChannel={function (_id: string): void {}}
-        setChannelInput={function (_id: React.SetStateAction<string>): void {}}
-        dynamicSearchedChannelsSelector={dynamicSearchedChannels}
-        publicChannelsSelector={publicChannelsSelector}
-        unreadChannelsSelector={[]}
-        channelInput={''}
-        handleClose={function (): any {}}
-        open={true}
-      />
-    )
+        const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+            id: community.id,
+            nickname: 'alice',
+        })
 
-    expect(result).toMatchInlineSnapshot(`
+        const channelsMocks = [
+            { name: 'fun', timestamp: 1673857606990 },
+            { name: 'random', timestamp: 1673854900410 },
+            { name: 'test', timestamp: 1673623514097 },
+            { name: 'general', timestamp: 1673623514 },
+        ]
+
+        for (const channelMock of channelsMocks) {
+            await factory.create<ReturnType<typeof publicChannels.actions.addChannel>['payload']>('PublicChannel', {
+                channel: {
+                    name: channelMock.name,
+                    description: `Welcome to #${channelMock.name}`,
+                    timestamp: channelMock.timestamp,
+                    owner: alice.nickname,
+                    id: generateChannelId(channelMock.name),
+                },
+            })
+        }
+
+        const dynamicSearchedChannels = publicChannels.selectors.dynamicSearchedChannels('')(store.getState())
+        const publicChannelsSelector = publicChannels.selectors.publicChannels(store.getState())
+
+        const result = renderComponent(
+            <SearchModalComponent
+                setCurrentChannel={function (_id: string): void {}}
+                setChannelInput={function (_id: React.SetStateAction<string>): void {}}
+                dynamicSearchedChannelsSelector={dynamicSearchedChannels}
+                publicChannelsSelector={publicChannelsSelector}
+                unreadChannelsSelector={[]}
+                channelInput={''}
+                handleClose={function (): any {}}
+                open={true}
+            />
+        )
+
+        expect(result).toMatchInlineSnapshot(`
       Object {
         "asFragment": [Function],
         "baseElement": <body
@@ -309,5 +309,5 @@ describe('Search Modal', () => {
         "unmount": [Function],
       }
     `)
-  })
+    })
 })

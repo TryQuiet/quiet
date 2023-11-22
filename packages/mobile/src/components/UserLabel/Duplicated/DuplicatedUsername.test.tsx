@@ -2,9 +2,9 @@ import { renderComponent } from '../../../utils/functions/renderComponent/render
 import DuplicatedUsernameComponent from './DuplicatedUsername.component'
 
 describe('DuplicatedUsername component', () => {
-  it('renders component', () => {
-    const { toJSON } = renderComponent(<DuplicatedUsernameComponent handleBackButton={function (): void {}} />)
-    expect(toJSON()).toMatchInlineSnapshot(`
+    it('renders component', () => {
+        const { toJSON } = renderComponent(<DuplicatedUsernameComponent handleBackButton={function (): void {}} />)
+        expect(toJSON()).toMatchInlineSnapshot(`
       <View
         style={
           {
@@ -316,5 +316,5 @@ describe('DuplicatedUsername component', () => {
         </View>
       </View>
     `)
-  })
+    })
 })

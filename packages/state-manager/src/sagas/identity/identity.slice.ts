@@ -3,58 +3,58 @@ import { DateTime } from 'luxon'
 import { StoreKeys } from '../store.keys'
 import { identityAdapter } from './identity.adapter'
 import {
-  type UpdateJoinTimestampPayload,
-  type CreateUserCsrPayload,
-  type Identity,
-  type RegisterCertificatePayload,
-  type StoreUserCertificatePayload,
-  type RegisterUsernamePayload,
+    type UpdateJoinTimestampPayload,
+    type CreateUserCsrPayload,
+    type Identity,
+    type RegisterCertificatePayload,
+    type StoreUserCertificatePayload,
+    type RegisterUsernamePayload,
 } from '@quiet/types'
 export class IdentityState {
-  public identities: EntityState<Identity> = identityAdapter.getInitialState()
+    public identities: EntityState<Identity> = identityAdapter.getInitialState()
 }
 
 export const identitySlice = createSlice({
-  initialState: { ...new IdentityState() },
-  name: StoreKeys.Identity,
-  reducers: {
-    addNewIdentity: (state, action: PayloadAction<Identity>) => {
-      identityAdapter.addOne(state.identities, action.payload)
-    },
-    createUserCsr: (state, _action: PayloadAction<CreateUserCsrPayload>) => state,
-    saveOwnerCertToDb: state => state,
-    savedOwnerCertificate: (state, _action: PayloadAction<string>) => state,
-    registerUsername: (state, _action: PayloadAction<RegisterUsernamePayload>) => state,
-    registerCertificate: (state, action: PayloadAction<RegisterCertificatePayload>) => {
-      identityAdapter.updateOne(state.identities, {
-        id: action.payload.communityId,
-        changes: {
-          nickname: action.payload.nickname,
-          userCsr: action.payload.userCsr,
+    initialState: { ...new IdentityState() },
+    name: StoreKeys.Identity,
+    reducers: {
+        addNewIdentity: (state, action: PayloadAction<Identity>) => {
+            identityAdapter.addOne(state.identities, action.payload)
         },
-      })
-    },
-    storeUserCertificate: (state, action: PayloadAction<StoreUserCertificatePayload>) => {
-      identityAdapter.updateOne(state.identities, {
-        id: action.payload.communityId,
-        changes: {
-          userCertificate: action.payload.userCertificate,
-          joinTimestamp: DateTime.utc().valueOf(),
+        createUserCsr: (state, _action: PayloadAction<CreateUserCsrPayload>) => state,
+        saveOwnerCertToDb: state => state,
+        savedOwnerCertificate: (state, _action: PayloadAction<string>) => state,
+        registerUsername: (state, _action: PayloadAction<RegisterUsernamePayload>) => state,
+        registerCertificate: (state, action: PayloadAction<RegisterCertificatePayload>) => {
+            identityAdapter.updateOne(state.identities, {
+                id: action.payload.communityId,
+                changes: {
+                    nickname: action.payload.nickname,
+                    userCsr: action.payload.userCsr,
+                },
+            })
         },
-      })
-    },
-    saveUserCsr: state => state,
-    verifyJoinTimestamp: state => state,
-    updateJoinTimestamp: (state, action: PayloadAction<UpdateJoinTimestampPayload>) => {
-      identityAdapter.updateOne(state.identities, {
-        id: action.payload.communityId,
-        changes: {
-          joinTimestamp: DateTime.utc().valueOf(),
+        storeUserCertificate: (state, action: PayloadAction<StoreUserCertificatePayload>) => {
+            identityAdapter.updateOne(state.identities, {
+                id: action.payload.communityId,
+                changes: {
+                    userCertificate: action.payload.userCertificate,
+                    joinTimestamp: DateTime.utc().valueOf(),
+                },
+            })
         },
-      })
+        saveUserCsr: state => state,
+        verifyJoinTimestamp: state => state,
+        updateJoinTimestamp: (state, action: PayloadAction<UpdateJoinTimestampPayload>) => {
+            identityAdapter.updateOne(state.identities, {
+                id: action.payload.communityId,
+                changes: {
+                    joinTimestamp: DateTime.utc().valueOf(),
+                },
+            })
+        },
+        throwIdentityError: (state, _action: PayloadAction<string>) => state,
     },
-    throwIdentityError: (state, _action: PayloadAction<string>) => state,
-  },
 })
 
 export const identityActions = identitySlice.actions

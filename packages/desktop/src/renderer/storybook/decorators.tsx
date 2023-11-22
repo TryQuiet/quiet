@@ -6,15 +6,15 @@ import theme from '../theme'
 import { Store } from '../sagas/store.types'
 
 export const withStore = (store: Store) => (Story: React.FC) => (
-  <Provider store={store}>
-    <Story />
-  </Provider>
+    <Provider store={store}>
+        <Story />
+    </Provider>
 )
 
 export const withTheme = (Story: React.FC) => (
-  <StyledEngineProvider injectFirst>
-    <ThemeProvider theme={theme}>
-      <Story />
-    </ThemeProvider>
-  </StyledEngineProvider>
+    <StyledEngineProvider injectFirst>
+        <ThemeProvider theme={theme}>
+            <Story />
+        </ThemeProvider>
+    </StyledEngineProvider>
 )

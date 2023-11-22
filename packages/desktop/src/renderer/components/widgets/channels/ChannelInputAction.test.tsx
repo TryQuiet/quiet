@@ -5,9 +5,9 @@ import { ChannelInputAction } from './ChannelInputAction'
 import { renderComponent } from '../../../testUtils/renderComponent'
 
 describe('ChannelInputAction', () => {
-  it('renders component', () => {
-    const result = renderComponent(<ChannelInputAction disabled={false} />)
-    expect(result.baseElement).toMatchInlineSnapshot(`
+    it('renders component', () => {
+        const result = renderComponent(<ChannelInputAction disabled={false} />)
+        expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
           <div
@@ -27,5 +27,5 @@ describe('ChannelInputAction', () => {
         </div>
       </body>
     `)
-  })
+    })
 })

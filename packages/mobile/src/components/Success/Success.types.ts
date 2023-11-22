@@ -1,6 +1,6 @@
 export interface SuccessProps {
-  onPress: () => void
-  icon: any
-  title: string
-  message?: string | undefined
+    onPress: () => void
+    icon: any
+    title: string
+    message?: string | undefined
 }

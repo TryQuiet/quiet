@@ -14,19 +14,19 @@ import { ModalName } from '../../../../sagas/modals/modals.types'
 import { capitalizeFirstLetter } from '@quiet/common'
 
 export const LeaveCommunity: React.FC = () => {
-  const community = useSelector(communities.selectors.currentCommunity)
+    const community = useSelector(communities.selectors.currentCommunity)
 
-  let communityName = '...' // Prevent error on initial app start
+    let communityName = '...' // Prevent error on initial app start
 
-  if (community?.name) {
-    communityName = capitalizeFirstLetter(community.name)
-  }
+    if (community?.name) {
+        communityName = capitalizeFirstLetter(community.name)
+    }
 
-  const leaveCommunity = async () => {
-    await clearCommunity()
-  }
+    const leaveCommunity = async () => {
+        await clearCommunity()
+    }
 
-  const modal = useModal(ModalName.leaveCommunity)
+    const modal = useModal(ModalName.leaveCommunity)
 
-  return <LeaveCommunityComponent communityName={communityName} leaveCommunity={leaveCommunity} {...modal} />
+    return <LeaveCommunityComponent communityName={communityName} leaveCommunity={leaveCommunity} {...modal} />
 }

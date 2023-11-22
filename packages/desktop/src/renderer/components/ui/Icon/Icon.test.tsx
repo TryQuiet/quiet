@@ -5,9 +5,9 @@ import { Icon } from './Icon'
 import icon from '../../static/images/zcash/zcash-icon-fullcolor.svg'
 
 describe('Icon', () => {
-  it('renders component', () => {
-    const result = renderComponent(<Icon src={icon} />)
-    expect(result.baseElement).toMatchInlineSnapshot(`
+    it('renders component', () => {
+        const result = renderComponent(<Icon src={icon} />)
+        expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
           <img
@@ -16,5 +16,5 @@ describe('Icon', () => {
         </div>
       </body>
     `)
-  })
+    })
 })

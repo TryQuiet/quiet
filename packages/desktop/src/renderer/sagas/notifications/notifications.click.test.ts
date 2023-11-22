@@ -9,103 +9,103 @@ import { createNotification, handleNotificationActions, NotificationData } from 
 import { generateChannelId } from '@quiet/common'
 
 const notification = jest.fn().mockImplementation(() => {
-  return jest.fn()
+    return jest.fn()
 })
 
 // @ts-expect-error
 window.Notification = notification
 
 jest.mock('../../../shared/sounds', () => ({
-  ...jest.requireActual('../../../shared/sounds'),
-  soundTypeToAudio: {
-    pow: {
-      play: jest.fn(),
+    ...jest.requireActual('../../../shared/sounds'),
+    soundTypeToAudio: {
+        pow: {
+            play: jest.fn(),
+        },
     },
-  },
 }))
 
 jest.mock('electron', () => {
-  return {
-    shell: {
-      showItemInFolder: jest.fn(),
-    },
-  }
+    return {
+        shell: {
+            showItemInFolder: jest.fn(),
+        },
+    }
 })
 
 beforeAll(async () => {
-  setupCrypto()
+    setupCrypto()
 })
 
 describe('clicking in notification', () => {
-  it('changes active channel', async () => {
-    const socket: MockedSocket = new MockedSocket()
-    ioMock.mockImplementation(() => socket)
+    it('changes active channel', async () => {
+        const socket: MockedSocket = new MockedSocket()
+        ioMock.mockImplementation(() => socket)
 
-    const { store, runSaga } = await prepareStore({}, socket)
+        const { store, runSaga } = await prepareStore({}, socket)
 
-    const generalId = generateChannelId('general')
-    const sailingId = generateChannelId('sailing')
+        const generalId = generateChannelId('general')
+        const sailingId = generateChannelId('sailing')
 
-    const notificationData: NotificationData = {
-      label: 'label',
-      body: 'body',
-      channel: sailingId,
-      sound: NotificationsSounds.splat,
-    }
+        const notificationData: NotificationData = {
+            label: 'label',
+            body: 'body',
+            channel: sailingId,
+            sound: NotificationsSounds.splat,
+        }
 
-    store.dispatch(publicChannels.actions.setCurrentChannel({ channelId: generalId }))
+        store.dispatch(publicChannels.actions.setCurrentChannel({ channelId: generalId }))
 
-    // Verify current channel is 'general
-    expect(publicChannels.selectors.currentChannelId(store.getState())).toBe(generalId)
+        // Verify current channel is 'general
+        expect(publicChannels.selectors.currentChannelId(store.getState())).toBe(generalId)
 
-    runSaga(function* (): Generator {
-      const notification = yield* call(createNotification, notificationData)
-      yield* fork(handleNotificationActions, notification, MessageType.Basic, sailingId)
-      const onClick = notification.onclick
-      expect(onClick).not.toBeNull()
-      if (onClick) yield* call(onClick, new Event(''))
+        runSaga(function* (): Generator {
+            const notification = yield* call(createNotification, notificationData)
+            yield* fork(handleNotificationActions, notification, MessageType.Basic, sailingId)
+            const onClick = notification.onclick
+            expect(onClick).not.toBeNull()
+            if (onClick) yield* call(onClick, new Event(''))
+        })
+
+        // Confirm current channel address has changed
+        expect(publicChannels.selectors.currentChannelId(store.getState())).toBe(sailingId)
     })
 
-    // Confirm current channel address has changed
-    expect(publicChannels.selectors.currentChannelId(store.getState())).toBe(sailingId)
-  })
+    it('opens file explorer', async () => {
+        const socket: MockedSocket = new MockedSocket()
+        ioMock.mockImplementation(() => socket)
 
-  it('opens file explorer', async () => {
-    const socket: MockedSocket = new MockedSocket()
-    ioMock.mockImplementation(() => socket)
+        const { runSaga } = await prepareStore({}, socket)
 
-    const { runSaga } = await prepareStore({}, socket)
+        const sailingId = generateChannelId('sailing')
 
-    const sailingId = generateChannelId('sailing')
+        const media: FileMetadata = {
+            cid: 'cid',
+            name: 'file',
+            ext: 'ext',
+            path: 'path/file.ext',
+            message: {
+                id: 'id',
+                channelId: sailingId,
+            },
+        }
 
-    const media: FileMetadata = {
-      cid: 'cid',
-      name: 'file',
-      ext: 'ext',
-      path: 'path/file.ext',
-      message: {
-        id: 'id',
-        channelId: sailingId,
-      },
-    }
+        const notificationData: NotificationData = {
+            label: 'label',
+            body: 'body',
+            channel: sailingId,
+            sound: NotificationsSounds.splat,
+        }
 
-    const notificationData: NotificationData = {
-      label: 'label',
-      body: 'body',
-      channel: sailingId,
-      sound: NotificationsSounds.splat,
-    }
+        const spy = jest.spyOn(shell, 'showItemInFolder')
 
-    const spy = jest.spyOn(shell, 'showItemInFolder')
+        runSaga(function* (): Generator {
+            const notification = yield* call(createNotification, notificationData)
+            yield* fork(handleNotificationActions, notification, MessageType.File, sailingId, media)
+            const onClick = notification.onclick
+            expect(onClick).not.toBeNull()
+            if (onClick) yield* call(onClick, new Event(''))
+        })
 
-    runSaga(function* (): Generator {
-      const notification = yield* call(createNotification, notificationData)
-      yield* fork(handleNotificationActions, notification, MessageType.File, sailingId, media)
-      const onClick = notification.onclick
-      expect(onClick).not.toBeNull()
-      if (onClick) yield* call(onClick, new Event(''))
+        expect(spy).toHaveBeenCalledWith(media.path)
     })
-
-    expect(spy).toHaveBeenCalledWith(media.path)
-  })
 })

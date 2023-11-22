@@ -5,5 +5,5 @@ import { storybookLog } from '../../utils/functions/storybookLog/storybookLog.fu
 import { UsernameRegistration } from './UsernameRegistration.component'
 
 storiesOf('UsernameRegistration', module).add('Default', () => (
-  <UsernameRegistration registerUsernameAction={storybookLog('Username registered!')} usernameRegistered={false} />
+    <UsernameRegistration registerUsernameAction={storybookLog('Username registered!')} usernameRegistered={false} />
 ))

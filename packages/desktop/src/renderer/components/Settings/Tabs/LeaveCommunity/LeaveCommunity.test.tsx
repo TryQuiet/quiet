@@ -5,16 +5,16 @@ import { renderComponent } from '../../../../testUtils/renderComponent'
 import LeaveCommunityComponent from './LeaveCommunityComponent'
 
 describe('LeaveCommunity', () => {
-  it('renders component', () => {
-    const result = renderComponent(
-      <LeaveCommunityComponent
-        communityName={'Rockets'}
-        leaveCommunity={jest.fn()}
-        open={true}
-        handleClose={jest.fn()}
-      />
-    )
-    expect(result.baseElement).toMatchInlineSnapshot(`
+    it('renders component', () => {
+        const result = renderComponent(
+            <LeaveCommunityComponent
+                communityName={'Rockets'}
+                leaveCommunity={jest.fn()}
+                open={true}
+                handleClose={jest.fn()}
+            />
+        )
+        expect(result.baseElement).toMatchInlineSnapshot(`
       <body
         style="padding-right: 1024px; overflow: hidden;"
       >
@@ -157,5 +157,5 @@ describe('LeaveCommunity', () => {
         </div>
       </body>
     `)
-  })
+    })
 })

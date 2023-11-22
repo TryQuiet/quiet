@@ -5,13 +5,13 @@ import { renderComponent } from '../../../../testUtils/renderComponent'
 import UnregisteredModalComponent from './UnregisteredModal.component'
 
 describe('UnregisteredModalComponent', () => {
-  it('renderComponent', () => {
-    const result = renderComponent(
-      <ThemeProvider theme={theme}>
-        <UnregisteredModalComponent handleClose={() => {}} open={true} username={'johnny'} />
-      </ThemeProvider>
-    )
-    expect(result.baseElement).toMatchInlineSnapshot(`
+    it('renderComponent', () => {
+        const result = renderComponent(
+            <ThemeProvider theme={theme}>
+                <UnregisteredModalComponent handleClose={() => {}} open={true} username={'johnny'} />
+            </ThemeProvider>
+        )
+        expect(result.baseElement).toMatchInlineSnapshot(`
       <body
         style="padding-right: 1024px; overflow: hidden;"
       >
@@ -131,5 +131,5 @@ describe('UnregisteredModalComponent', () => {
         </div>
       </body>
     `)
-  })
+    })
 })

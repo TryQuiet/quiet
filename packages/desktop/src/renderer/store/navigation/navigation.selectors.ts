@@ -5,19 +5,19 @@ import { StoreKeys } from '../store.keys'
 import { CreatedSelectors, StoreState } from '../../sagas/store.types'
 
 const navigationSlice: CreatedSelectors<StoreState[StoreKeys.Navigation]> = (state: StoreState) =>
-  state[StoreKeys.Navigation]
+    state[StoreKeys.Navigation]
 
 export const contextMenuVisibility = (menu: MenuName) =>
-  createSelector(navigationSlice, reducerState => {
-    return reducerState[menu]?.open
-  })
+    createSelector(navigationSlice, reducerState => {
+        return reducerState[menu]?.open
+    })
 
 export const contextMenuProps = (menu: MenuName) =>
-  createSelector(navigationSlice, reducerState => {
-    return reducerState[menu]?.args || {}
-  })
+    createSelector(navigationSlice, reducerState => {
+        return reducerState[menu]?.args || {}
+    })
 
 export const navigationSelectors = {
-  contextMenuVisibility,
-  contextMenuProps,
+    contextMenuVisibility,
+    contextMenuProps,
 }

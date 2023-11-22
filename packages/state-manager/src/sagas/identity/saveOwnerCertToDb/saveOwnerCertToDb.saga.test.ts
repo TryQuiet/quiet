@@ -14,61 +14,64 @@ import { getFactory } from '../../../utils/tests/factories'
 import { SocketActionTypes } from '@quiet/types'
 
 describe('saveOwnerCertificateToDb', () => {
-  let store: Store
-  let factory: FactoryGirl
+    let store: Store
+    let factory: FactoryGirl
 
-  beforeAll(async () => {
-    setupCrypto()
-    store = prepareStore().store
-    factory = await getFactory(store)
-  })
-
-  test('save owner certificate to database', async () => {
-    const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
-
-    const community =
-      await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
-
-    const identity = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
-      nickname: 'john',
+    beforeAll(async () => {
+        setupCrypto()
+        store = prepareStore().store
+        factory = await getFactory(store)
     })
 
-    await expectSaga(saveOwnerCertToDbSaga, socket)
-      .withReducer(
-        combineReducers({
-          [StoreKeys.Communities]: communitiesReducer,
-          [StoreKeys.Identity]: identityReducer,
-        }),
-        {
-          [StoreKeys.Communities]: {
-            ...new CommunitiesState(),
-            currentCommunity: community.id,
-            communities: {
-              ids: [community.id],
-              entities: {
-                [community.id]: community,
-              },
-            },
-          },
-          [StoreKeys.Identity]: {
-            ...new IdentityState(),
-            identities: identityAdapter.setAll(identityAdapter.getInitialState(), [identity]),
-          },
-        }
-      )
-      .apply(socket, socket.emit, [
-        SocketActionTypes.SAVE_OWNER_CERTIFICATE,
-        {
-          id: community.id,
-          peerId: identity.peerId.id,
-          certificate: identity.userCertificate,
-          permsData: {
-            certificate: community.CA?.rootCertString,
-            privKey: community.CA?.rootKeyString,
-          },
-        },
-      ])
-      .run()
-  })
+    test('save owner certificate to database', async () => {
+        const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
+
+        const community =
+            await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
+
+        const identity = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
+            'Identity',
+            {
+                id: community.id,
+                nickname: 'john',
+            }
+        )
+
+        await expectSaga(saveOwnerCertToDbSaga, socket)
+            .withReducer(
+                combineReducers({
+                    [StoreKeys.Communities]: communitiesReducer,
+                    [StoreKeys.Identity]: identityReducer,
+                }),
+                {
+                    [StoreKeys.Communities]: {
+                        ...new CommunitiesState(),
+                        currentCommunity: community.id,
+                        communities: {
+                            ids: [community.id],
+                            entities: {
+                                [community.id]: community,
+                            },
+                        },
+                    },
+                    [StoreKeys.Identity]: {
+                        ...new IdentityState(),
+                        identities: identityAdapter.setAll(identityAdapter.getInitialState(), [identity]),
+                    },
+                }
+            )
+            .apply(socket, socket.emit, [
+                SocketActionTypes.SAVE_OWNER_CERTIFICATE,
+                {
+                    id: community.id,
+                    peerId: identity.peerId.id,
+                    certificate: identity.userCertificate,
+                    permsData: {
+                        certificate: community.CA?.rootCertString,
+                        privKey: community.CA?.rootKeyString,
+                    },
+                },
+            ])
+            .run()
+    })
 })

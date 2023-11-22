@@ -5,9 +5,9 @@ import { storybookLog } from '../../utils/functions/storybookLog/storybookLog.fu
 import { CreateCommunity } from './CreateCommunity.component'
 
 storiesOf('CreateCommunity', module).add('Default', () => (
-  <CreateCommunity
-    createCommunityAction={storybookLog('Creating community!')}
-    redirectionAction={storybookLog('Navigating to join community.')}
-    networkCreated={false}
-  />
+    <CreateCommunity
+        createCommunityAction={storybookLog('Creating community!')}
+        redirectionAction={storybookLog('Navigating to join community.')}
+        networkCreated={false}
+    />
 ))

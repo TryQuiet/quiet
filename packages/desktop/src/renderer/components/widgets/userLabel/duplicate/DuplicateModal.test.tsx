@@ -5,13 +5,13 @@ import { renderComponent } from '../../../../testUtils/renderComponent'
 import DuplicateModalComponent from './DuplicateModal.component'
 
 describe('DuplicateModalComponent', () => {
-  it('renderComponent', () => {
-    const result = renderComponent(
-      <ThemeProvider theme={theme}>
-        <DuplicateModalComponent handleClose={() => {}} open={true} />
-      </ThemeProvider>
-    )
-    expect(result.baseElement).toMatchInlineSnapshot(`
+    it('renderComponent', () => {
+        const result = renderComponent(
+            <ThemeProvider theme={theme}>
+                <DuplicateModalComponent handleClose={() => {}} open={true} />
+            </ThemeProvider>
+        )
+        expect(result.baseElement).toMatchInlineSnapshot(`
       <body
         style="padding-right: 1024px; overflow: hidden;"
       >
@@ -138,5 +138,5 @@ describe('DuplicateModalComponent', () => {
         </div>
       </body>
     `)
-  })
+    })
 })

@@ -7,20 +7,20 @@ import { communities, getFactory } from '@quiet/state-manager'
 import { prepareStore } from '../../testUtils'
 
 describe('Main', () => {
-  it('renders component', async () => {
-    const store = (await prepareStore()).store
-    const factory = await getFactory(store)
-    await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community', {
-      rootCa: 'rootCa',
-    })
-    const result = renderComponent(
-      <HashRouter>
-        <Provider store={store}>
-          <Main />
-        </Provider>
-      </HashRouter>
-    )
-    expect(result.baseElement).toMatchInlineSnapshot(`
+    it('renders component', async () => {
+        const store = (await prepareStore()).store
+        const factory = await getFactory(store)
+        await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community', {
+            rootCa: 'rootCa',
+        })
+        const result = renderComponent(
+            <HashRouter>
+                <Provider store={store}>
+                    <Main />
+                </Provider>
+            </HashRouter>
+        )
+        expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
           <div>
@@ -254,5 +254,5 @@ describe('Main', () => {
         </div>
       </body>
     `)
-  })
+    })
 })

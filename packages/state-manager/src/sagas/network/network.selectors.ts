@@ -13,21 +13,21 @@ export const initializedRegistrars = createSelector(networkSlice, reducerState =
 export const initializedCommunities = createSelector(networkSlice, reducerState => reducerState.initializedCommunities)
 
 export const isCurrentCommunityInitialized = createSelector(
-  initializedCommunities,
-  currentCommunity,
-  (initializedCommunities, currentCommunity) => {
-    return currentCommunity && initializedCommunities[currentCommunity.id]
-  }
+    initializedCommunities,
+    currentCommunity,
+    (initializedCommunities, currentCommunity) => {
+        return currentCommunity && initializedCommunities[currentCommunity.id]
+    }
 )
 
 export const connectedPeers = createSelector(networkSlice, reducerState => {
-  return connectedPeersAdapter.getSelectors().selectAll(reducerState.connectedPeers)
+    return connectedPeersAdapter.getSelectors().selectAll(reducerState.connectedPeers)
 })
 
 export const networkSelectors = {
-  initializedRegistrars,
-  initializedCommunities,
-  isCurrentCommunityInitialized,
-  connectedPeers,
-  loadingPanelType,
+    initializedRegistrars,
+    initializedCommunities,
+    isCurrentCommunityInitialized,
+    connectedPeers,
+    loadingPanelType,
 }

@@ -5,8 +5,8 @@ import { Socket } from '../../../types'
 import { SocketActionTypes } from '@quiet/types'
 
 export function* stopBackendSaga(
-  socket: Socket,
-  _action: PayloadAction<ReturnType<typeof appActions.stopBackend>['payload']>
+    socket: Socket,
+    _action: PayloadAction<ReturnType<typeof appActions.stopBackend>['payload']>
 ): Generator {
-  yield* apply(socket, socket.emit, [SocketActionTypes.CLOSE])
+    yield* apply(socket, socket.emit, [SocketActionTypes.CLOSE])
 }

@@ -8,33 +8,36 @@ import { prepareStore } from '../../utils/tests/prepareStore'
 import { getFactory } from '../../utils/tests/factories'
 
 describe('communitiesSelectors will receive correct data', () => {
-  let store: Store
-  let factory: FactoryGirl
+    let store: Store
+    let factory: FactoryGirl
 
-  beforeAll(async () => {
-    setupCrypto()
-    store = prepareStore().store
-    factory = await getFactory(store)
-  })
-
-  it('select current identity', async () => {
-    const communityAlpha = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>(
-      'Community',
-      { name: 'alpha', id: 'communityAlpha' }
-    )
-
-    const identity = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
-      id: communityAlpha.id,
-      nickname: 'john',
+    beforeAll(async () => {
+        setupCrypto()
+        store = prepareStore().store
+        factory = await getFactory(store)
     })
 
-    const communityBeta = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>(
-      'Community',
-      { name: 'beta', id: 'communityBeta' }
-    )
+    it('select current identity', async () => {
+        const communityAlpha = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>(
+            'Community',
+            { name: 'alpha', id: 'communityAlpha' }
+        )
 
-    const currentIdentity = identitySelectors.currentIdentity(store.getState())
+        const identity = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
+            'Identity',
+            {
+                id: communityAlpha.id,
+                nickname: 'john',
+            }
+        )
 
-    expect(currentIdentity?.id).toEqual(communityAlpha.id)
-  })
+        const communityBeta = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>(
+            'Community',
+            { name: 'beta', id: 'communityBeta' }
+        )
+
+        const currentIdentity = identitySelectors.currentIdentity(store.getState())
+
+        expect(currentIdentity?.id).toEqual(communityAlpha.id)
+    })
 })

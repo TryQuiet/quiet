@@ -5,15 +5,15 @@ import { WelcomeMessage } from './WelcomeMessage'
 import { renderComponent } from '../../../testUtils/renderComponent'
 
 describe('WelcomeMessage', () => {
-  it('renders component', () => {
-    const result = renderComponent(
-      <StyledEngineProvider injectFirst>
-        <ThemeProvider theme={theme}>
-          <WelcomeMessage message={'random message'} timestamp={'string'} />
-        </ThemeProvider>
-      </StyledEngineProvider>
-    )
-    expect(result.baseElement).toMatchInlineSnapshot(`
+    it('renders component', () => {
+        const result = renderComponent(
+            <StyledEngineProvider injectFirst>
+                <ThemeProvider theme={theme}>
+                    <WelcomeMessage message={'random message'} timestamp={'string'} />
+                </ThemeProvider>
+            </StyledEngineProvider>
+        )
+        expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
           <li
@@ -74,5 +74,5 @@ describe('WelcomeMessage', () => {
         </div>
       </body>
     `)
-  })
+    })
 })
