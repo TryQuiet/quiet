@@ -1,7 +1,7 @@
 import { put, select, call, take } from 'typed-redux-saga'
 import { messagesActions } from '../../messages/messages.slice'
 import { publicChannelsSelectors } from '../publicChannels.selectors'
-import { WriteMessagePayload, MessageType } from '@quiet/types'
+import { WriteMessagePayload, MessageType, PublicChannel, PublicChannelStorage } from '@quiet/types'
 import { communitiesSelectors } from '../../communities/communities.selectors'
 import { identitySelectors } from '../../identity/identity.selectors'
 import { userJoinedMessage } from '@quiet/common'
@@ -12,15 +12,22 @@ export function* sendUnregisteredInfoMessage(): Generator {
   if (community?.CA) return
 
   const identity = yield* select(identitySelectors.currentIdentity)
-  let generalChannel = yield* select(publicChannelsSelectors.generalChannel)
 
-  if (!generalChannel) {
-    yield* take(publicChannelsActions.channelsReplicated)
+  let generalChannel: PublicChannelStorage | PublicChannel | undefined = yield* select(
+    publicChannelsSelectors.generalChannel
+  )
+
+  while (!generalChannel) {
+    const action = yield* take(publicChannelsActions.channelsReplicated)
+    const { channels: _channels } = action.payload
+    const channels = Object.values(_channels)
+    generalChannel = channels.find(channel => channel?.name === 'general')
+    if (generalChannel) {
+      break
+    }
   }
 
-  generalChannel = yield* select(publicChannelsSelectors.generalChannel)
-
-  if (!identity || !generalChannel) return
+  if (!identity) return
 
   const message = yield* call(userJoinedMessage, identity.nickname)
 
