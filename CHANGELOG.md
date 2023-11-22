@@ -2,13 +2,13 @@
 
 * Send an info message immediately after a user joins the community
 
+* Feature: add functionality to export chat to text document in desktop version
+
 [2.0.3-alpha.6]
 
 * Fix: filter out invalid peer addresses in peer list. Update peer list in localdb.
 
 * Fix: dial new peers on CSRs replication
-
-* Feature: add functionality to export chat to text document in desktop version
 
 [2.0.3-alpha.5]
 
