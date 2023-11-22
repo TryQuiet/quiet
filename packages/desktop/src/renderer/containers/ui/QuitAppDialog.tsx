@@ -1,5 +1,4 @@
 import React from 'react'
-
 import { useModal } from '../hooks'
 import { ModalName } from '../../sagas/modals/modals.types'
 import QuitAppDialog from '../../components/ui/QuitApp/QuitAppDialog'
