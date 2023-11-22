@@ -13,9 +13,7 @@ export function* sendUnregisteredInfoMessage(): Generator {
 
   const identity = yield* select(identitySelectors.currentIdentity)
 
-  let generalChannel: PublicChannelStorage | PublicChannel | undefined = yield* select(
-    publicChannelsSelectors.generalChannel
-  )
+  let generalChannel: PublicChannel | undefined = yield* select(publicChannelsSelectors.generalChannel)
 
   while (!generalChannel) {
     const action = yield* take(publicChannelsActions.channelsReplicated)
