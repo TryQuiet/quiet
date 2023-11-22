@@ -10,7 +10,7 @@ import { ContextMenuItemProps } from '../ContextMenu.types'
 
 import { useModal } from '../../../containers/hooks'
 import { ModalName } from '../../../sagas/modals/modals.types'
-import { exportChats } from '../../../../utils/functions/exportChats'
+import { exportChats } from '../../../../utils/functions/exportMessages'
 
 export const ChannelContextMenu: FC = () => {
   const community = useSelector(communities.selectors.currentCommunity)
@@ -39,7 +39,7 @@ export const ChannelContextMenu: FC = () => {
         },
       },
       {
-        title: 'Export chats',
+        title: 'Export messages',
         action: () => channel && exportChats(channel?.name, channelMessages),
       },
     ]

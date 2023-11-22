@@ -28,10 +28,12 @@ export const exportChats = async (channelName: string, channelMessages: Messages
 // This function is exported just to test it
 export const channelMessagesToText = (channelMessages: MessagesDailyGroups) => {
   return Object.keys(channelMessages)
-    .map(day => {
-      return channelMessages[day]
-        .map(messages => messages.map(message => `[${message.nickname} ${message.date}]\n${message.message}`))
-        .join('\n\n')
-    })
-    .join('\n\n\n')
+    .map(day =>
+      channelMessages[day]
+        .map(messages =>
+          messages.map(message => `[${message.nickname} ${message.date}]\n${message.message}\n\n`).join('')
+        )
+        .join('')
+    )
+    .join('\n')
 }
