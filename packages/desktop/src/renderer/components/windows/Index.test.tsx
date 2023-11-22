@@ -4,9 +4,9 @@ import { renderComponent } from '../../testUtils/renderComponent'
 import { Index } from './Index'
 
 describe('Index', () => {
-  it('renders component', () => {
-    const result = renderComponent(<Index bootstrapping bootstrappingMessage='Launching node' />)
-    expect(result.baseElement).toMatchInlineSnapshot(`
+    it('renders component', () => {
+        const result = renderComponent(<Index bootstrapping bootstrappingMessage='Launching node' />)
+        expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
           <div
@@ -52,11 +52,11 @@ describe('Index', () => {
         </div>
       </body>
     `)
-  })
+    })
 
-  it('renders when bootstrapping', () => {
-    const result = renderComponent(<Index bootstrapping bootstrappingMessage='Launching node' />)
-    expect(result.baseElement).toMatchInlineSnapshot(`
+    it('renders when bootstrapping', () => {
+        const result = renderComponent(<Index bootstrapping bootstrappingMessage='Launching node' />)
+        expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
           <div
@@ -102,5 +102,5 @@ describe('Index', () => {
         </div>
       </body>
     `)
-  })
+    })
 })

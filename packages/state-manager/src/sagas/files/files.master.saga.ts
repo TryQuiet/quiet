@@ -14,15 +14,15 @@ import { messagesActions } from '../messages/messages.slice'
 import { sendFileMessageSaga } from './uploadFile/sendFileMessage.saga'
 
 export function* filesMasterSaga(socket: Socket): Generator {
-  yield all([
-    takeEvery(networkActions.addInitializedCommunity.type, resetTransferSpeedSaga),
-    takeEvery(filesActions.checkForMissingFiles.type, checkForMissingFilesSaga, socket),
-    takeEvery(filesActions.uploadFile.type, sendFileMessageSaga),
-    takeEvery(messagesActions.addMessagesSendingStatus.type, uploadFileSaga, socket),
-    takeEvery(filesActions.cancelDownload.type, cancelDownloadSaga, socket),
-    takeEvery(filesActions.updateMessageMedia.type, updateMessageMediaSaga),
-    takeEvery(filesActions.downloadFile.type, downloadFileSaga, socket),
-    takeEvery(filesActions.broadcastHostedFile.type, broadcastHostedFileSaga, socket),
-    takeEvery(filesActions.deleteFilesFromChannel.type, deleteFilesFromChannelSaga, socket),
-  ])
+    yield all([
+        takeEvery(networkActions.addInitializedCommunity.type, resetTransferSpeedSaga),
+        takeEvery(filesActions.checkForMissingFiles.type, checkForMissingFilesSaga, socket),
+        takeEvery(filesActions.uploadFile.type, sendFileMessageSaga),
+        takeEvery(messagesActions.addMessagesSendingStatus.type, uploadFileSaga, socket),
+        takeEvery(filesActions.cancelDownload.type, cancelDownloadSaga, socket),
+        takeEvery(filesActions.updateMessageMedia.type, updateMessageMediaSaga),
+        takeEvery(filesActions.downloadFile.type, downloadFileSaga, socket),
+        takeEvery(filesActions.broadcastHostedFile.type, broadcastHostedFileSaga, socket),
+        takeEvery(filesActions.deleteFilesFromChannel.type, deleteFilesFromChannelSaga, socket),
+    ])
 }

@@ -4,9 +4,9 @@ import { renderComponent } from '../../../testUtils/renderComponent'
 import { IconCopy } from './IconCopy'
 
 describe('IconCopy', () => {
-  it('renders component', () => {
-    const result = renderComponent(<IconCopy />)
-    expect(result.baseElement).toMatchInlineSnapshot(`
+    it('renders component', () => {
+        const result = renderComponent(<IconCopy />)
+        expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
           <div
@@ -38,5 +38,5 @@ describe('IconCopy', () => {
         </div>
       </body>
     `)
-  })
+    })
 })

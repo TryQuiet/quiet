@@ -7,25 +7,25 @@ import { renderComponent } from '../../../testUtils/renderComponent'
 import { type Community } from '@quiet/types'
 
 describe('IdentityPanel', () => {
-  it('renders component with username', async () => {
-    const { store } = await prepareStore()
+    it('renders component with username', async () => {
+        const { store } = await prepareStore()
 
-    const factory = await getFactory(store)
+        const factory = await getFactory(store)
 
-    const community: Community =
-      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
+        const community: Community =
+            await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
 
-    const result = renderComponent(
-      <IdentityPanel
-        currentCommunity={community}
-        accountSettingsModal={{
-          open: false,
-          handleOpen: function (_args?: any): any {},
-          handleClose: function (): any {},
-        }}
-      />
-    )
-    expect(result.baseElement).toMatchInlineSnapshot(`
+        const result = renderComponent(
+            <IdentityPanel
+                currentCommunity={community}
+                accountSettingsModal={{
+                    open: false,
+                    handleOpen: function (_args?: any): any {},
+                    handleClose: function (): any {},
+                }}
+            />
+        )
+        expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
           <div
@@ -61,21 +61,21 @@ describe('IdentityPanel', () => {
         </div>
       </body>
     `)
-  })
+    })
 
-  it("doesn't break if there's no community", async () => {
-    const result = renderComponent(
-      <IdentityPanel
-        // @ts-expect-error
-        currentCommunity={undefined}
-        accountSettingsModal={{
-          open: false,
-          handleOpen: function (_args?: any): any {},
-          handleClose: function (): any {},
-        }}
-      />
-    )
-    expect(result.baseElement).toMatchInlineSnapshot(`
+    it("doesn't break if there's no community", async () => {
+        const result = renderComponent(
+            <IdentityPanel
+                // @ts-expect-error
+                currentCommunity={undefined}
+                accountSettingsModal={{
+                    open: false,
+                    handleOpen: function (_args?: any): any {},
+                    handleClose: function (): any {},
+                }}
+            />
+        )
+        expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
           <div
@@ -111,28 +111,29 @@ describe('IdentityPanel', () => {
         </div>
       </body>
     `)
-  })
+    })
 
-  it("doesn't break if there's a community without a name", async () => {
-    const { store } = await prepareStore()
+    it("doesn't break if there's a community without a name", async () => {
+        const { store } = await prepareStore()
 
-    const factory = await getFactory(store)
+        const factory = await getFactory(store)
 
-    const community: Community = (await factory.build<typeof communities.actions.addNewCommunity>('Community')).payload
+        const community: Community = (await factory.build<typeof communities.actions.addNewCommunity>('Community'))
+            .payload
 
-    community.name = undefined
+        community.name = undefined
 
-    const result = renderComponent(
-      <IdentityPanel
-        currentCommunity={community}
-        accountSettingsModal={{
-          open: false,
-          handleOpen: function (_args?: any): any {},
-          handleClose: function (): any {},
-        }}
-      />
-    )
-    expect(result.baseElement).toMatchInlineSnapshot(`
+        const result = renderComponent(
+            <IdentityPanel
+                currentCommunity={community}
+                accountSettingsModal={{
+                    open: false,
+                    handleOpen: function (_args?: any): any {},
+                    handleClose: function (): any {},
+                }}
+            />
+        )
+        expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
           <div
@@ -168,5 +169,5 @@ describe('IdentityPanel', () => {
         </div>
       </body>
     `)
-  })
+    })
 })

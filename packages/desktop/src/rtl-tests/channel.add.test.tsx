@@ -17,12 +17,12 @@ import Sidebar from '../renderer/components/Sidebar/Sidebar'
 
 import { getFactory, identity, publicChannels } from '@quiet/state-manager'
 import {
-  ChannelsReplicatedPayload,
-  CreateChannelPayload,
-  ErrorMessages,
-  IncomingMessages,
-  SendMessagePayload,
-  SocketActionTypes,
+    ChannelsReplicatedPayload,
+    CreateChannelPayload,
+    ErrorMessages,
+    IncomingMessages,
+    SendMessagePayload,
+    SocketActionTypes,
 } from '@quiet/types'
 
 import { modalsActions, ModalsInitialState } from '../renderer/sagas/modals/modals.slice'
@@ -32,434 +32,438 @@ import { FieldErrors } from '../renderer/forms/fieldsErrors'
 jest.setTimeout(20_000)
 
 describe('Add new channel', () => {
-  let socket: MockedSocket
+    let socket: MockedSocket
 
-  beforeEach(() => {
-    socket = new MockedSocket()
-    ioMock.mockImplementation(() => socket)
-    window.ResizeObserver = jest.fn().mockImplementation(() => ({
-      observe: jest.fn(),
-      unobserve: jest.fn(),
-      disconnect: jest.fn(),
-    }))
-  })
-
-  it('Opens modal on button click', async () => {
-    const { store } = await prepareStore(
-      {},
-      socket // Fork state manager's sagas
-    )
-
-    const factory = await getFactory(store)
-
-    await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
-      nickname: 'alice',
+    beforeEach(() => {
+        socket = new MockedSocket()
+        ioMock.mockImplementation(() => socket)
+        window.ResizeObserver = jest.fn().mockImplementation(() => ({
+            observe: jest.fn(),
+            unobserve: jest.fn(),
+            disconnect: jest.fn(),
+        }))
     })
 
-    renderComponent(
-      <>
-        <Sidebar />
-        <CreateChannel />
-      </>,
-      store
-    )
+    it('Opens modal on button click', async () => {
+        const { store } = await prepareStore(
+            {},
+            socket // Fork state manager's sagas
+        )
 
-    const addChannel = screen.getByTestId('addChannelButton')
-    await userEvent.click(addChannel)
+        const factory = await getFactory(store)
 
-    const title = await screen.findByText('Create a new public channel')
-    expect(title).toBeVisible()
-  })
-
-  it('Adds new channel and opens it. Sends initial message', async () => {
-    const { store, runSaga } = await prepareStore(
-      {
-        [StoreKeys.Modals]: {
-          ...new ModalsInitialState(),
-          [ModalName.createChannel]: { open: true },
-        },
-      },
-      socket // Fork state manager's sagas
-    )
-
-    const factory = await getFactory(store)
-    const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
-      nickname: 'alice',
-    })
-    const channelName = { input: 'my-Super Channel ', output: 'my-super-channel' }
-
-    jest.spyOn(socket, 'emit').mockImplementation(async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
-      const action = input[0]
-      if (action === SocketActionTypes.CREATE_CHANNEL) {
-        const payload = input[1] as CreateChannelPayload
-        expect(payload.channel.owner).toEqual(alice.nickname)
-        expect(payload.channel.name).toEqual(channelName.output)
-        const channels = store.getState().PublicChannels.channels.entities
-        return socket.socketClient.emit<ChannelsReplicatedPayload>(SocketActionTypes.CHANNELS_REPLICATED, {
-          channels: {
-            ...channels,
-            [payload.channel.name]: payload.channel,
-          },
+        await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+            nickname: 'alice',
         })
-      }
-      if (action === SocketActionTypes.SEND_MESSAGE) {
-        const data = input[1] as SendMessagePayload
-        const { message } = data
-        expect(message.channelId).toEqual(channelName.output)
-        expect(message.message).toEqual(`Created #${channelName.output}`)
-        return socket.socketClient.emit<IncomingMessages>(SocketActionTypes.INCOMING_MESSAGES, {
-          messages: [message],
-        })
-      }
+
+        renderComponent(
+            <>
+                <Sidebar />
+                <CreateChannel />
+            </>,
+            store
+        )
+
+        const addChannel = screen.getByTestId('addChannelButton')
+        await userEvent.click(addChannel)
+
+        const title = await screen.findByText('Create a new public channel')
+        expect(title).toBeVisible()
     })
 
-    window.HTMLElement.prototype.scrollTo = jest.fn()
-
-    renderComponent(
-      <>
-        <Sidebar />
-        <CreateChannel />
-        <Channel />
-      </>,
-      store
-    )
-    const user = userEvent.setup()
-    const input = screen.getByPlaceholderText('Enter a channel name')
-    await user.type(input, channelName.input)
-
-    // FIXME: await user.click(screen.getByText('Create Channel') causes this and few other tests to fail (hangs on taking createChannel action)
-    await act(
-      async () =>
-        await waitFor(() => {
-          user.click(screen.getByText('Create Channel')).catch(e => {
-            console.error(e)
-          })
-        })
-    )
-
-    function* testCreateChannelSaga(): Generator {
-      const createChannelAction = yield* take(publicChannels.actions.createChannel)
-      expect(createChannelAction.payload.channel.name).toEqual(channelName.output)
-      expect(createChannelAction.payload.channel.owner).toEqual(alice.nickname)
-      const addChannelAction = yield* take(publicChannels.actions.addChannel)
-      expect(addChannelAction.payload.channel).toEqual(createChannelAction.payload.channel)
-    }
-
-    await act(async () => {
-      await runSaga(testCreateChannelSaga).toPromise()
-    })
-
-    const createChannelModal = screen.queryByTestId('createChannelModal')
-    expect(createChannelModal).toBeNull()
-
-    // Check if newly created channel is present and selected
-    expect(screen.getByTestId('channelTitle')).toHaveTextContent(`#${channelName.output}`)
-    // Check if sidebar item displays as selected
-    const link = screen.getByTestId(`${channelName.output}-link`)
-    expect(link).toHaveStyle('backgroundColor: rgb(103, 191, 211)') // lushSky: '#67BFD3'
-  })
-
-  it('Displays error if trying to add channel with already taken name', async () => {
-    const { store } = await prepareStore(
-      {},
-      socket // Fork state manager's sagas
-    )
-    const factory = await getFactory(store)
-
-    const channel =
-      await factory.create<ReturnType<typeof publicChannels.actions.addChannel>['payload']>('PublicChannel')
-
-    renderComponent(<CreateChannel />, store)
-
-    store.dispatch(modalsActions.openModal({ name: ModalName.createChannel }))
-
-    const input = await screen.findByPlaceholderText('Enter a channel name')
-    await userEvent.type(input, channel.channel.name)
-
-    const button = screen.getByText('Create Channel')
-    await userEvent.click(button)
-
-    const error = await screen.findByText(ErrorMessages.CHANNEL_NAME_TAKEN)
-    expect(error).toBeVisible()
-  })
-
-  it('Input after reopen should be clear', async () => {
-    const channelName = 'san-fierro'
-    const { store } = await prepareStore(
-      {},
-      socket // Fork state manager's sagas
-    )
-
-    const factory = await getFactory(store)
-
-    await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
-      nickname: 'alice',
-    })
-
-    renderComponent(
-      <>
-        <Sidebar />
-        <CreateChannel />
-      </>,
-      store
-    )
-
-    const addChannel = screen.getByTestId('addChannelButton')
-    await userEvent.click(addChannel)
-
-    const title = await screen.findByText('Create a new public channel')
-    expect(title).toBeVisible()
-
-    const user = userEvent.setup()
-    const input = screen.getByPlaceholderText('Enter a channel name')
-    await user.type(input, channelName)
-    expect(input).toHaveValue(channelName)
-
-    const closeChannel = screen.getByTestId('ModalActions').querySelector('button')
-    expect(closeChannel).not.toBeNull()
-    // @ts-expect-error
-    await userEvent.click(closeChannel)
-
-    const isGeneral = await screen.findByText('# general')
-
-    expect(isGeneral).toBeVisible()
-
-    await userEvent.click(addChannel)
-    const input2 = screen.getByPlaceholderText('Enter a channel name')
-    expect(input2).toHaveValue('')
-  })
-
-  it('Bug reproduction - open and close modal and check there are any errors', async () => {
-    const channelName = '---'
-    const { store } = await prepareStore(
-      {},
-      socket // Fork state manager's sagas
-    )
-
-    const factory = await getFactory(store)
-
-    await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
-      nickname: 'alice',
-    })
-
-    renderComponent(
-      <>
-        <Sidebar />
-        <CreateChannel />
-      </>,
-      store
-    )
-
-    const addChannel = screen.getByTestId('addChannelButton')
-    await userEvent.click(addChannel)
-
-    const title = await screen.findByText('Create a new public channel')
-    expect(title).toBeVisible()
-
-    const user = userEvent.setup()
-    const input = screen.getByPlaceholderText('Enter a channel name')
-    await user.type(input, channelName)
-    expect(input).toHaveValue(channelName)
-
-    const button = screen.getByText('Create Channel')
-    await userEvent.click(button)
-
-    const error = await screen.findByText(FieldErrors.Whitespaces)
-    expect(error).toBeVisible()
-
-    const closeChannel = screen.getByTestId('ModalActions').querySelector('button')
-    expect(closeChannel).not.toBeNull()
-    // @ts-expect-error
-    await userEvent.click(closeChannel)
-
-    const isGeneral = await screen.findByText('# general')
-    expect(isGeneral).toBeVisible()
-
-    await userEvent.click(addChannel)
-    const title2 = await screen.findByText('Create a new public channel')
-    expect(title2).toBeVisible()
-
-    const isErrorStillExist = screen.queryByText(FieldErrors.Whitespaces)
-    expect(isErrorStillExist).toBeNull()
-  })
-
-  it('Bug reproduction - create channel and open modal again without requierd field error', async () => {
-    const channelName = 'las-venturas'
-
-    const { store, runSaga } = await prepareStore(
-      {},
-      socket // Fork state manager's sagas
-    )
-
-    const factory = await getFactory(store)
-
-    const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
-      nickname: 'alice',
-    })
-
-    jest.spyOn(socket, 'emit').mockImplementation(async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
-      const action = input[0]
-      if (action === SocketActionTypes.CREATE_CHANNEL) {
-        const payload = input[1] as CreateChannelPayload
-        // const payload = data[0]
-        expect(payload.channel.owner).toEqual(alice.nickname)
-        expect(payload.channel.name).toEqual(channelName)
-        const channels = store.getState().PublicChannels.channels.entities
-        return socket.socketClient.emit<ChannelsReplicatedPayload>(SocketActionTypes.CHANNELS_REPLICATED, {
-          channels: {
-            ...channels,
-            [payload.channel.name]: payload.channel,
-          },
-        })
-      }
-      if (action === SocketActionTypes.SEND_MESSAGE) {
-        const data = input[1] as SendMessagePayload
-        const { message } = data
-        expect(message.channelId).toEqual(channelName)
-        expect(message.message).toEqual(`Created #${channelName}`)
-        return socket.socketClient.emit<IncomingMessages>(SocketActionTypes.INCOMING_MESSAGES, {
-          messages: [message],
-        })
-      }
-    })
-
-    renderComponent(
-      <>
-        <Sidebar />
-        <CreateChannel />
-      </>,
-      store
-    )
-
-    const addChannel = screen.getByTestId('addChannelButton')
-    await userEvent.click(addChannel)
-
-    const title = await screen.findByText('Create a new public channel')
-    expect(title).toBeVisible()
-
-    const user = userEvent.setup()
-    const input = screen.getByPlaceholderText('Enter a channel name')
-    await user.type(input, channelName)
-    expect(input).toHaveValue(channelName)
-
-    await act(
-      async () =>
-        await waitFor(() => {
-          user.click(screen.getByText('Create Channel')).catch(e => {
-            console.error(e)
-          })
-        })
-    )
-
-    await act(async () => {
-      await runSaga(testCreateChannelSaga).toPromise()
-    })
-
-    function* testCreateChannelSaga(): Generator {
-      const createChannelAction = yield* take(publicChannels.actions.createChannel)
-      expect(createChannelAction.payload.channel.name).toEqual(channelName)
-      expect(createChannelAction.payload.channel.owner).toEqual(alice.nickname)
-      const addChannelAction = yield* take(publicChannels.actions.addChannel)
-      expect(addChannelAction.payload.channel).toEqual(createChannelAction.payload.channel)
-    }
-
-    const isNewChannel = await screen.findByText(`# ${channelName}`)
-    expect(isNewChannel).toBeVisible()
-
-    await userEvent.click(addChannel)
-    const title2 = await screen.findByText('Create a new public channel')
-    expect(title2).toBeVisible()
-
-    const isErrorExist = screen.queryByText(FieldErrors.Required)
-    expect(isErrorExist).toBeNull()
-  })
-
-  it('Adds few new channels and check order', async () => {
-    const { store, runSaga } = await prepareStore(
-      {
-        [StoreKeys.Modals]: {
-          ...new ModalsInitialState(),
-          [ModalName.createChannel]: { open: true },
-        },
-      },
-      socket // Fork state manager's sagas
-    )
-
-    const factory = await getFactory(store)
-    const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
-      nickname: 'alice',
-    })
-
-    const channels = ['zzz', 'abc', '12a']
-
-    jest
-      .spyOn(socket, 'emit')
-      .mockImplementation(async (...input: [SocketActionTypes, ...socketEventData<[CreateChannelPayload]>]) => {
-        const action = input[0]
-        if (action === SocketActionTypes.CREATE_CHANNEL) {
-          const data = input[1]
-          const payload = data
-          expect(payload.channel.owner).toEqual(alice.nickname)
-          const channels = store.getState().PublicChannels.channels.entities
-          // expect(payload.channel.name).toEqual(channelName.output)
-          return socket.socketClient.emit<ChannelsReplicatedPayload>(SocketActionTypes.CHANNELS_REPLICATED, {
-            channels: {
-              ...channels,
-              [payload.channel.name]: payload.channel,
+    it('Adds new channel and opens it. Sends initial message', async () => {
+        const { store, runSaga } = await prepareStore(
+            {
+                [StoreKeys.Modals]: {
+                    ...new ModalsInitialState(),
+                    [ModalName.createChannel]: { open: true },
+                },
             },
-          })
+            socket // Fork state manager's sagas
+        )
+
+        const factory = await getFactory(store)
+        const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+            nickname: 'alice',
+        })
+        const channelName = { input: 'my-Super Channel ', output: 'my-super-channel' }
+
+        jest.spyOn(socket, 'emit').mockImplementation(
+            async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
+                const action = input[0]
+                if (action === SocketActionTypes.CREATE_CHANNEL) {
+                    const payload = input[1] as CreateChannelPayload
+                    expect(payload.channel.owner).toEqual(alice.nickname)
+                    expect(payload.channel.name).toEqual(channelName.output)
+                    const channels = store.getState().PublicChannels.channels.entities
+                    return socket.socketClient.emit<ChannelsReplicatedPayload>(SocketActionTypes.CHANNELS_REPLICATED, {
+                        channels: {
+                            ...channels,
+                            [payload.channel.name]: payload.channel,
+                        },
+                    })
+                }
+                if (action === SocketActionTypes.SEND_MESSAGE) {
+                    const data = input[1] as SendMessagePayload
+                    const { message } = data
+                    expect(message.channelId).toEqual(channelName.output)
+                    expect(message.message).toEqual(`Created #${channelName.output}`)
+                    return socket.socketClient.emit<IncomingMessages>(SocketActionTypes.INCOMING_MESSAGES, {
+                        messages: [message],
+                    })
+                }
+            }
+        )
+
+        window.HTMLElement.prototype.scrollTo = jest.fn()
+
+        renderComponent(
+            <>
+                <Sidebar />
+                <CreateChannel />
+                <Channel />
+            </>,
+            store
+        )
+        const user = userEvent.setup()
+        const input = screen.getByPlaceholderText('Enter a channel name')
+        await user.type(input, channelName.input)
+
+        // FIXME: await user.click(screen.getByText('Create Channel') causes this and few other tests to fail (hangs on taking createChannel action)
+        await act(
+            async () =>
+                await waitFor(() => {
+                    user.click(screen.getByText('Create Channel')).catch(e => {
+                        console.error(e)
+                    })
+                })
+        )
+
+        function* testCreateChannelSaga(): Generator {
+            const createChannelAction = yield* take(publicChannels.actions.createChannel)
+            expect(createChannelAction.payload.channel.name).toEqual(channelName.output)
+            expect(createChannelAction.payload.channel.owner).toEqual(alice.nickname)
+            const addChannelAction = yield* take(publicChannels.actions.addChannel)
+            expect(addChannelAction.payload.channel).toEqual(createChannelAction.payload.channel)
         }
-      })
 
-    window.HTMLElement.prototype.scrollTo = jest.fn()
+        await act(async () => {
+            await runSaga(testCreateChannelSaga).toPromise()
+        })
 
-    renderComponent(
-      <>
-        <Sidebar />
-        <CreateChannel />
-        <Channel />
-      </>,
-      store
-    )
+        const createChannelModal = screen.queryByTestId('createChannelModal')
+        expect(createChannelModal).toBeNull()
 
-    for await (const channel of channels) {
-      const addChannel = screen.getByTestId('addChannelButton')
-      await userEvent.click(addChannel)
+        // Check if newly created channel is present and selected
+        expect(screen.getByTestId('channelTitle')).toHaveTextContent(`#${channelName.output}`)
+        // Check if sidebar item displays as selected
+        const link = screen.getByTestId(`${channelName.output}-link`)
+        expect(link).toHaveStyle('backgroundColor: rgb(103, 191, 211)') // lushSky: '#67BFD3'
+    })
 
-      const title = await screen.findByText('Create a new public channel')
-      expect(title).toBeVisible()
+    it('Displays error if trying to add channel with already taken name', async () => {
+        const { store } = await prepareStore(
+            {},
+            socket // Fork state manager's sagas
+        )
+        const factory = await getFactory(store)
 
-      const user = userEvent.setup()
-      const input = screen.getByPlaceholderText('Enter a channel name')
+        const channel =
+            await factory.create<ReturnType<typeof publicChannels.actions.addChannel>['payload']>('PublicChannel')
 
-      await user.type(input, channel)
-      await act(
-        async () =>
-          await waitFor(() => {
-            user.click(screen.getByText('Create Channel')).catch(e => {
-              console.error(e)
+        renderComponent(<CreateChannel />, store)
+
+        store.dispatch(modalsActions.openModal({ name: ModalName.createChannel }))
+
+        const input = await screen.findByPlaceholderText('Enter a channel name')
+        await userEvent.type(input, channel.channel.name)
+
+        const button = screen.getByText('Create Channel')
+        await userEvent.click(button)
+
+        const error = await screen.findByText(ErrorMessages.CHANNEL_NAME_TAKEN)
+        expect(error).toBeVisible()
+    })
+
+    it('Input after reopen should be clear', async () => {
+        const channelName = 'san-fierro'
+        const { store } = await prepareStore(
+            {},
+            socket // Fork state manager's sagas
+        )
+
+        const factory = await getFactory(store)
+
+        await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+            nickname: 'alice',
+        })
+
+        renderComponent(
+            <>
+                <Sidebar />
+                <CreateChannel />
+            </>,
+            store
+        )
+
+        const addChannel = screen.getByTestId('addChannelButton')
+        await userEvent.click(addChannel)
+
+        const title = await screen.findByText('Create a new public channel')
+        expect(title).toBeVisible()
+
+        const user = userEvent.setup()
+        const input = screen.getByPlaceholderText('Enter a channel name')
+        await user.type(input, channelName)
+        expect(input).toHaveValue(channelName)
+
+        const closeChannel = screen.getByTestId('ModalActions').querySelector('button')
+        expect(closeChannel).not.toBeNull()
+        // @ts-expect-error
+        await userEvent.click(closeChannel)
+
+        const isGeneral = await screen.findByText('# general')
+
+        expect(isGeneral).toBeVisible()
+
+        await userEvent.click(addChannel)
+        const input2 = screen.getByPlaceholderText('Enter a channel name')
+        expect(input2).toHaveValue('')
+    })
+
+    it('Bug reproduction - open and close modal and check there are any errors', async () => {
+        const channelName = '---'
+        const { store } = await prepareStore(
+            {},
+            socket // Fork state manager's sagas
+        )
+
+        const factory = await getFactory(store)
+
+        await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+            nickname: 'alice',
+        })
+
+        renderComponent(
+            <>
+                <Sidebar />
+                <CreateChannel />
+            </>,
+            store
+        )
+
+        const addChannel = screen.getByTestId('addChannelButton')
+        await userEvent.click(addChannel)
+
+        const title = await screen.findByText('Create a new public channel')
+        expect(title).toBeVisible()
+
+        const user = userEvent.setup()
+        const input = screen.getByPlaceholderText('Enter a channel name')
+        await user.type(input, channelName)
+        expect(input).toHaveValue(channelName)
+
+        const button = screen.getByText('Create Channel')
+        await userEvent.click(button)
+
+        const error = await screen.findByText(FieldErrors.Whitespaces)
+        expect(error).toBeVisible()
+
+        const closeChannel = screen.getByTestId('ModalActions').querySelector('button')
+        expect(closeChannel).not.toBeNull()
+        // @ts-expect-error
+        await userEvent.click(closeChannel)
+
+        const isGeneral = await screen.findByText('# general')
+        expect(isGeneral).toBeVisible()
+
+        await userEvent.click(addChannel)
+        const title2 = await screen.findByText('Create a new public channel')
+        expect(title2).toBeVisible()
+
+        const isErrorStillExist = screen.queryByText(FieldErrors.Whitespaces)
+        expect(isErrorStillExist).toBeNull()
+    })
+
+    it('Bug reproduction - create channel and open modal again without requierd field error', async () => {
+        const channelName = 'las-venturas'
+
+        const { store, runSaga } = await prepareStore(
+            {},
+            socket // Fork state manager's sagas
+        )
+
+        const factory = await getFactory(store)
+
+        const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+            nickname: 'alice',
+        })
+
+        jest.spyOn(socket, 'emit').mockImplementation(
+            async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
+                const action = input[0]
+                if (action === SocketActionTypes.CREATE_CHANNEL) {
+                    const payload = input[1] as CreateChannelPayload
+                    // const payload = data[0]
+                    expect(payload.channel.owner).toEqual(alice.nickname)
+                    expect(payload.channel.name).toEqual(channelName)
+                    const channels = store.getState().PublicChannels.channels.entities
+                    return socket.socketClient.emit<ChannelsReplicatedPayload>(SocketActionTypes.CHANNELS_REPLICATED, {
+                        channels: {
+                            ...channels,
+                            [payload.channel.name]: payload.channel,
+                        },
+                    })
+                }
+                if (action === SocketActionTypes.SEND_MESSAGE) {
+                    const data = input[1] as SendMessagePayload
+                    const { message } = data
+                    expect(message.channelId).toEqual(channelName)
+                    expect(message.message).toEqual(`Created #${channelName}`)
+                    return socket.socketClient.emit<IncomingMessages>(SocketActionTypes.INCOMING_MESSAGES, {
+                        messages: [message],
+                    })
+                }
+            }
+        )
+
+        renderComponent(
+            <>
+                <Sidebar />
+                <CreateChannel />
+            </>,
+            store
+        )
+
+        const addChannel = screen.getByTestId('addChannelButton')
+        await userEvent.click(addChannel)
+
+        const title = await screen.findByText('Create a new public channel')
+        expect(title).toBeVisible()
+
+        const user = userEvent.setup()
+        const input = screen.getByPlaceholderText('Enter a channel name')
+        await user.type(input, channelName)
+        expect(input).toHaveValue(channelName)
+
+        await act(
+            async () =>
+                await waitFor(() => {
+                    user.click(screen.getByText('Create Channel')).catch(e => {
+                        console.error(e)
+                    })
+                })
+        )
+
+        await act(async () => {
+            await runSaga(testCreateChannelSaga).toPromise()
+        })
+
+        function* testCreateChannelSaga(): Generator {
+            const createChannelAction = yield* take(publicChannels.actions.createChannel)
+            expect(createChannelAction.payload.channel.name).toEqual(channelName)
+            expect(createChannelAction.payload.channel.owner).toEqual(alice.nickname)
+            const addChannelAction = yield* take(publicChannels.actions.addChannel)
+            expect(addChannelAction.payload.channel).toEqual(createChannelAction.payload.channel)
+        }
+
+        const isNewChannel = await screen.findByText(`# ${channelName}`)
+        expect(isNewChannel).toBeVisible()
+
+        await userEvent.click(addChannel)
+        const title2 = await screen.findByText('Create a new public channel')
+        expect(title2).toBeVisible()
+
+        const isErrorExist = screen.queryByText(FieldErrors.Required)
+        expect(isErrorExist).toBeNull()
+    })
+
+    it('Adds few new channels and check order', async () => {
+        const { store, runSaga } = await prepareStore(
+            {
+                [StoreKeys.Modals]: {
+                    ...new ModalsInitialState(),
+                    [ModalName.createChannel]: { open: true },
+                },
+            },
+            socket // Fork state manager's sagas
+        )
+
+        const factory = await getFactory(store)
+        const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+            nickname: 'alice',
+        })
+
+        const channels = ['zzz', 'abc', '12a']
+
+        jest.spyOn(socket, 'emit').mockImplementation(
+            async (...input: [SocketActionTypes, ...socketEventData<[CreateChannelPayload]>]) => {
+                const action = input[0]
+                if (action === SocketActionTypes.CREATE_CHANNEL) {
+                    const data = input[1]
+                    const payload = data
+                    expect(payload.channel.owner).toEqual(alice.nickname)
+                    const channels = store.getState().PublicChannels.channels.entities
+                    // expect(payload.channel.name).toEqual(channelName.output)
+                    return socket.socketClient.emit<ChannelsReplicatedPayload>(SocketActionTypes.CHANNELS_REPLICATED, {
+                        channels: {
+                            ...channels,
+                            [payload.channel.name]: payload.channel,
+                        },
+                    })
+                }
+            }
+        )
+
+        window.HTMLElement.prototype.scrollTo = jest.fn()
+
+        renderComponent(
+            <>
+                <Sidebar />
+                <CreateChannel />
+                <Channel />
+            </>,
+            store
+        )
+
+        for await (const channel of channels) {
+            const addChannel = screen.getByTestId('addChannelButton')
+            await userEvent.click(addChannel)
+
+            const title = await screen.findByText('Create a new public channel')
+            expect(title).toBeVisible()
+
+            const user = userEvent.setup()
+            const input = screen.getByPlaceholderText('Enter a channel name')
+
+            await user.type(input, channel)
+            await act(
+                async () =>
+                    await waitFor(() => {
+                        user.click(screen.getByText('Create Channel')).catch(e => {
+                            console.error(e)
+                        })
+                    })
+            )
+            await act(async () => {
+                await runSaga(testCreateChannelSaga).toPromise()
             })
-          })
-      )
-      await act(async () => {
-        await runSaga(testCreateChannelSaga).toPromise()
-      })
-      await new Promise<void>(resolve => setTimeout(() => resolve(), 100))
-    }
+            await new Promise<void>(resolve => setTimeout(() => resolve(), 100))
+        }
 
-    function* testCreateChannelSaga(): Generator {
-      yield* take(publicChannels.actions.createChannel)
-      yield* take(publicChannels.actions.addChannel)
-    }
+        function* testCreateChannelSaga(): Generator {
+            yield* take(publicChannels.actions.createChannel)
+            yield* take(publicChannels.actions.addChannel)
+        }
 
-    const createChannelModal = screen.queryByTestId('createChannelModal')
-    expect(createChannelModal).toBeNull()
-    const list = await screen.findByTestId('channelsList')
-    const textContent = list.textContent
-    expect(textContent).not.toBeNull()
-    // @ts-expect-error
-    const textArray = textContent.replace(/#/g, '').split(' ')
-    const filteredArray = textArray.filter(item => item.length > 0)
-    expect(filteredArray).toEqual(['general', '12a', 'abc', 'zzz'])
-  })
+        const createChannelModal = screen.queryByTestId('createChannelModal')
+        expect(createChannelModal).toBeNull()
+        const list = await screen.findByTestId('channelsList')
+        const textContent = list.textContent
+        expect(textContent).not.toBeNull()
+        // @ts-expect-error
+        const textArray = textContent.replace(/#/g, '').split(' ')
+        const filteredArray = textArray.filter(item => item.length > 0)
+        expect(filteredArray).toEqual(['general', '12a', 'abc', 'zzz'])
+    })
 })

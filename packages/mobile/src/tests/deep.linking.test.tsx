@@ -12,41 +12,41 @@ import { validInvitationCodeTestData, getValidInvitationUrlTestData } from '@qui
 import { communities } from '@quiet/state-manager'
 
 describe('Deep linking', () => {
-  let socket: MockedSocket
+    let socket: MockedSocket
 
-  beforeEach(async () => {
-    socket = new MockedSocket()
-    ioMock.mockImplementation(() => socket)
-  })
-
-  test('does not override network data if triggered twice', async () => {
-    const { store, runSaga, root } = await prepareStore({}, socket)
-
-    // Log all the dispatched actions in order
-    const actions: AnyAction[] = []
-    runSaga(function* (): Generator {
-      while (true) {
-        const action = yield* take()
-        actions.push(action.type)
-      }
+    beforeEach(async () => {
+        socket = new MockedSocket()
+        ioMock.mockImplementation(() => socket)
     })
 
-    renderComponent(<></>, store)
+    test('does not override network data if triggered twice', async () => {
+        const { store, runSaga, root } = await prepareStore({}, socket)
 
-    store.dispatch(initActions.deepLink(getValidInvitationUrlTestData(validInvitationCodeTestData[0]).code()))
-    await act(async () => {})
+        // Log all the dispatched actions in order
+        const actions: AnyAction[] = []
+        runSaga(function* (): Generator {
+            while (true) {
+                const action = yield* take()
+                actions.push(action.type)
+            }
+        })
 
-    const originalPair = communities.selectors.invitationCodes(store.getState())
+        renderComponent(<></>, store)
 
-    // Redo the action to provoke renewed saga runs
-    store.dispatch(initActions.deepLink(getValidInvitationUrlTestData(validInvitationCodeTestData[1]).code()))
-    await act(async () => {})
+        store.dispatch(initActions.deepLink(getValidInvitationUrlTestData(validInvitationCodeTestData[0]).code()))
+        await act(async () => {})
 
-    const currentPair = communities.selectors.invitationCodes(store.getState())
+        const originalPair = communities.selectors.invitationCodes(store.getState())
 
-    expect(originalPair).toEqual(currentPair)
+        // Redo the action to provoke renewed saga runs
+        store.dispatch(initActions.deepLink(getValidInvitationUrlTestData(validInvitationCodeTestData[1]).code()))
+        await act(async () => {})
 
-    expect(actions).toMatchInlineSnapshot(`
+        const currentPair = communities.selectors.invitationCodes(store.getState())
+
+        expect(originalPair).toEqual(currentPair)
+
+        expect(actions).toMatchInlineSnapshot(`
       [
         "Init/deepLink",
         "Navigation/replaceScreen",
@@ -59,7 +59,7 @@ describe('Deep linking', () => {
       ]
     `)
 
-    // Stop state-manager sagas
-    root?.cancel()
-  })
+        // Stop state-manager sagas
+        root?.cancel()
+    })
 })

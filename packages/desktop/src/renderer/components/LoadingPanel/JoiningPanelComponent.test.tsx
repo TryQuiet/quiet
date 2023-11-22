@@ -3,17 +3,17 @@ import { renderComponent } from '../../testUtils/renderComponent'
 import JoiningPanelComponent from './JoiningPanelComponent'
 
 describe('Create JoiningPanelComponent', () => {
-  it('renders component - owner false', () => {
-    const result = renderComponent(
-      <JoiningPanelComponent
-        handleClose={jest.fn()}
-        openUrl={jest.fn()}
-        open={true}
-        isOwner={false}
-        torConnectionInfo={{ number: 50, text: 'Initializing storage' }}
-      />
-    )
-    expect(result.baseElement).toMatchInlineSnapshot(`
+    it('renders component - owner false', () => {
+        const result = renderComponent(
+            <JoiningPanelComponent
+                handleClose={jest.fn()}
+                openUrl={jest.fn()}
+                open={true}
+                isOwner={false}
+                torConnectionInfo={{ number: 50, text: 'Initializing storage' }}
+            />
+        )
+        expect(result.baseElement).toMatchInlineSnapshot(`
       <body
         style="padding-right: 1024px; overflow: hidden;"
       >
@@ -136,18 +136,18 @@ describe('Create JoiningPanelComponent', () => {
         </div>
       </body>
     `)
-  })
-  it('renders component - owner true', () => {
-    const result = renderComponent(
-      <JoiningPanelComponent
-        handleClose={jest.fn()}
-        openUrl={jest.fn()}
-        open={true}
-        isOwner={true}
-        torConnectionInfo={{ number: 50, text: 'Initializing storage' }}
-      />
-    )
-    expect(result.baseElement).toMatchInlineSnapshot(`
+    })
+    it('renders component - owner true', () => {
+        const result = renderComponent(
+            <JoiningPanelComponent
+                handleClose={jest.fn()}
+                openUrl={jest.fn()}
+                open={true}
+                isOwner={true}
+                torConnectionInfo={{ number: 50, text: 'Initializing storage' }}
+            />
+        )
+        expect(result.baseElement).toMatchInlineSnapshot(`
       <body
         style="padding-right: 1024px; overflow: hidden;"
       >
@@ -270,5 +270,5 @@ describe('Create JoiningPanelComponent', () => {
         </div>
       </body>
     `)
-  })
+    })
 })

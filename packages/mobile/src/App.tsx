@@ -58,76 +58,91 @@ const { Navigator, Screen } = createNativeStackNavigator<RootStackParamList>()
 sagaMiddleware.run(rootSaga)
 
 const linking = {
-  prefixes: ['quiet://'],
-  config: {
-    screens: {
-      SplashScreen: '',
+    prefixes: ['quiet://'],
+    config: {
+        screens: {
+            SplashScreen: '',
+        },
     },
-  },
 }
 
 function App(): JSX.Element {
-  const dispatch = useDispatch()
+    const dispatch = useDispatch()
 
-  const confirmationBox = useConfirmationBox()
+    const confirmationBox = useConfirmationBox()
 
-  return (
-    <SafeAreaProvider>
-      <SafeAreaView style={{ flex: 1 }}>
-        <NavigationContainer
-          ref={navigationRef}
-          linking={linking}
-          onReady={() => {
-            dispatch(initActions.blindWebsocketConnection())
-            dispatch(navigationActions.redirection())
-          }}
-        >
-          <WebviewCrypto />
-          <MenuProvider>
-            <ThemeProvider theme={defaultTheme}>
-              <StatusBar backgroundColor={defaultTheme.palette.background.white} barStyle={'dark-content'} />
-              <Navigator
-                initialRouteName={ScreenNames.SplashScreen}
-                screenOptions={{
-                  headerShown: false,
-                }}
-              >
-                <Screen component={CreateCommunityScreen} name={ScreenNames.CreateCommunityScreen} />
-                <Screen component={SplashScreen} name={ScreenNames.SplashScreen} />
-                <Screen component={LeaveCommunityScreen} name={ScreenNames.LeaveCommunityScreen} />
-                <Screen component={JoinCommunityScreen} name={ScreenNames.JoinCommunityScreen} />
-                <Screen component={UsernameRegistrationScreen} name={ScreenNames.UsernameRegistrationScreen} />
-                <Screen component={ChannelListScreen} name={ScreenNames.ChannelListScreen} />
-                <Screen component={ConnectionProcessScreen} name={ScreenNames.ConnectionProcessScreen} />
-                <Screen component={ChannelScreen} name={ScreenNames.ChannelScreen} />
-                <Screen component={CreateChannelScreen} name={ScreenNames.CreateChannelScreen} />
-                <Screen component={DeleteChannelScreen} name={ScreenNames.DeleteChannelScreen} />
-                <Screen component={QRCodeScreen} name={ScreenNames.QRCodeScreen} />
-                <Screen component={SuccessScreen} name={ScreenNames.SuccessScreen} />
-                <Screen component={ErrorScreen} name={ScreenNames.ErrorScreen} />
-                <Screen component={DuplicatedUsernameScreen} name={ScreenNames.DuplicatedUsernameScreen} />
-                <Screen component={UsernameTakenScreen} name={ScreenNames.UsernameTakenScreen} />
-                <Screen component={NewUsernameRequestedScreen} name={ScreenNames.NewUsernameRequestedScreen} />
-                <Screen
-                  component={PossibleImpersonationAttackScreen}
-                  name={ScreenNames.PossibleImpersonationAttackScreen}
-                />
-              </Navigator>
-              <CommunityContextMenu />
-              <ChannelContextMenu />
-              <InvitationContextMenu />
-              <UnregisteredUsernameContextMenu />
-              <ConfirmationBox {...confirmationBox} />
-            </ThemeProvider>
-          </MenuProvider>
-        </NavigationContainer>
-      </SafeAreaView>
-    </SafeAreaProvider>
-  )
+    return (
+        <SafeAreaProvider>
+            <SafeAreaView style={{ flex: 1 }}>
+                <NavigationContainer
+                    ref={navigationRef}
+                    linking={linking}
+                    onReady={() => {
+                        dispatch(initActions.blindWebsocketConnection())
+                        dispatch(navigationActions.redirection())
+                    }}
+                >
+                    <WebviewCrypto />
+                    <MenuProvider>
+                        <ThemeProvider theme={defaultTheme}>
+                            <StatusBar
+                                backgroundColor={defaultTheme.palette.background.white}
+                                barStyle={'dark-content'}
+                            />
+                            <Navigator
+                                initialRouteName={ScreenNames.SplashScreen}
+                                screenOptions={{
+                                    headerShown: false,
+                                }}
+                            >
+                                <Screen component={CreateCommunityScreen} name={ScreenNames.CreateCommunityScreen} />
+                                <Screen component={SplashScreen} name={ScreenNames.SplashScreen} />
+                                <Screen component={LeaveCommunityScreen} name={ScreenNames.LeaveCommunityScreen} />
+                                <Screen component={JoinCommunityScreen} name={ScreenNames.JoinCommunityScreen} />
+                                <Screen
+                                    component={UsernameRegistrationScreen}
+                                    name={ScreenNames.UsernameRegistrationScreen}
+                                />
+                                <Screen component={ChannelListScreen} name={ScreenNames.ChannelListScreen} />
+                                <Screen
+                                    component={ConnectionProcessScreen}
+                                    name={ScreenNames.ConnectionProcessScreen}
+                                />
+                                <Screen component={ChannelScreen} name={ScreenNames.ChannelScreen} />
+                                <Screen component={CreateChannelScreen} name={ScreenNames.CreateChannelScreen} />
+                                <Screen component={DeleteChannelScreen} name={ScreenNames.DeleteChannelScreen} />
+                                <Screen component={QRCodeScreen} name={ScreenNames.QRCodeScreen} />
+                                <Screen component={SuccessScreen} name={ScreenNames.SuccessScreen} />
+                                <Screen component={ErrorScreen} name={ScreenNames.ErrorScreen} />
+                                <Screen
+                                    component={DuplicatedUsernameScreen}
+                                    name={ScreenNames.DuplicatedUsernameScreen}
+                                />
+                                <Screen component={UsernameTakenScreen} name={ScreenNames.UsernameTakenScreen} />
+                                <Screen
+                                    component={NewUsernameRequestedScreen}
+                                    name={ScreenNames.NewUsernameRequestedScreen}
+                                />
+                                <Screen
+                                    component={PossibleImpersonationAttackScreen}
+                                    name={ScreenNames.PossibleImpersonationAttackScreen}
+                                />
+                            </Navigator>
+                            <CommunityContextMenu />
+                            <ChannelContextMenu />
+                            <InvitationContextMenu />
+                            <UnregisteredUsernameContextMenu />
+                            <ConfirmationBox {...confirmationBox} />
+                        </ThemeProvider>
+                    </MenuProvider>
+                </NavigationContainer>
+            </SafeAreaView>
+        </SafeAreaProvider>
+    )
 }
 
 export default () => (
-  <StoreProvider>
-    <App />
-  </StoreProvider>
+    <StoreProvider>
+        <App />
+    </StoreProvider>
 )

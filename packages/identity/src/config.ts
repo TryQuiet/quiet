@@ -1,4 +1,4 @@
 export default {
-  signAlg: 'ECDSA',
-  hashAlg: 'sha-256',
+    signAlg: 'ECDSA',
+    hashAlg: 'sha-256',
 }

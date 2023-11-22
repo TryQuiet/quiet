@@ -8,35 +8,35 @@ import { publicChannels } from '@quiet/state-manager'
 import { navigationSelectors } from '../../store/navigation/navigation.selectors'
 
 export const DeleteChannelScreen: FC<DeleteChannelScreenProps> = ({ route }) => {
-  const dispatch = useDispatch()
+    const dispatch = useDispatch()
 
-  const { channelName, channelId } = route.params
+    const { channelName, channelId } = route.params
 
-  const channels = useSelector(publicChannels.selectors.publicChannels)
+    const channels = useSelector(publicChannels.selectors.publicChannels)
 
-  const screen = useSelector(navigationSelectors.currentScreen)
+    const screen = useSelector(navigationSelectors.currentScreen)
 
-  useEffect(() => {
-    if (screen === ScreenNames.DeleteChannelScreen && !channels.find(c => c.name === channelName)) {
-      dispatch(navigationActions.replaceScreen({ screen: ScreenNames.ChannelListScreen }))
-    }
-  }, [dispatch, screen, channels])
+    useEffect(() => {
+        if (screen === ScreenNames.DeleteChannelScreen && !channels.find(c => c.name === channelName)) {
+            dispatch(navigationActions.replaceScreen({ screen: ScreenNames.ChannelListScreen }))
+        }
+    }, [dispatch, screen, channels])
 
-  const deleteChannel = useCallback(() => {
-    dispatch(
-      publicChannels.actions.deleteChannel({
-        channelId,
-      })
-    )
-  }, [dispatch, channels, channelName])
+    const deleteChannel = useCallback(() => {
+        dispatch(
+            publicChannels.actions.deleteChannel({
+                channelId,
+            })
+        )
+    }, [dispatch, channels, channelName])
 
-  const handleBackButton = useCallback(() => {
-    dispatch(
-      navigationActions.replaceScreen({
-        screen: ScreenNames.ChannelListScreen,
-      })
-    )
-  }, [dispatch])
+    const handleBackButton = useCallback(() => {
+        dispatch(
+            navigationActions.replaceScreen({
+                screen: ScreenNames.ChannelListScreen,
+            })
+        )
+    }, [dispatch])
 
-  return <DeleteChannel name={channelName} deleteChannel={deleteChannel} handleBackButton={handleBackButton} />
+    return <DeleteChannel name={channelName} deleteChannel={deleteChannel} handleBackButton={handleBackButton} />
 }

@@ -6,16 +6,16 @@ import { navigationActions } from '../../store/navigation/navigation.slice'
 import { NewUsernameRequestedScreenProps } from './NewUsernameRequested.types'
 
 const NewUsernameRequestedScreen: React.FC<NewUsernameRequestedScreenProps> = () => {
-  const dispatch = useDispatch()
+    const dispatch = useDispatch()
 
-  const handler = useCallback(() => {
-    dispatch(
-      navigationActions.replaceScreen({
-        screen: ScreenNames.ChannelListScreen,
-      })
-    )
-  }, [dispatch])
-  return <NewUsernameRequestedComponent handler={handler} />
+    const handler = useCallback(() => {
+        dispatch(
+            navigationActions.replaceScreen({
+                screen: ScreenNames.ChannelListScreen,
+            })
+        )
+    }, [dispatch])
+    return <NewUsernameRequestedComponent handler={handler} />
 }
 
 export default NewUsernameRequestedScreen

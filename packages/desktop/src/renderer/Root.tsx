@@ -36,44 +36,44 @@ import PossibleImpersonationAttackModalContainer from './components/widgets/poss
 
 export const persistor = persistStore(store)
 export default () => {
-  return (
-    <StyledEngineProvider injectFirst>
-      <ThemeProvider theme={theme}>
-        <DndProvider backend={HTML5Backend}>
-          <HashRouter>
-            <Provider store={store}>
-              <PersistGate loading={null} persistor={persistor}>
-                <SentryWarning />
-                <WarningModal />
-                <UnregisteredModalContainer />
-                <DuplicateModalContainer />
-                <SearchModal />
-                <ErrorModal />
-                <PossibleImpersonationAttackModalContainer />
-                <LoadingPanel />
-                <UsernameTakenModalContainer />
-                <ChannelCreationModal />
-                <CreateChannel />
-                <JoinCommunity />
-                <CreateCommunity />
-                <LeaveCommunity />
-                <CreateUsername />
-                <CssBaseline />
-                <SettingsModal />
-                <UpdateModal />
-                <QuitAppDialog />
-                <ChannelContextMenu />
-                <DeleteChannel />
-                <Routes>
-                  <Route index path='/' element={<Index />} />
-                  <Route path='/main/*' element={<Main />} />
-                </Routes>
-                <SaveStateComponent persistor={persistor} />
-              </PersistGate>
-            </Provider>
-          </HashRouter>
-        </DndProvider>
-      </ThemeProvider>
-    </StyledEngineProvider>
-  )
+    return (
+        <StyledEngineProvider injectFirst>
+            <ThemeProvider theme={theme}>
+                <DndProvider backend={HTML5Backend}>
+                    <HashRouter>
+                        <Provider store={store}>
+                            <PersistGate loading={null} persistor={persistor}>
+                                <SentryWarning />
+                                <WarningModal />
+                                <UnregisteredModalContainer />
+                                <DuplicateModalContainer />
+                                <SearchModal />
+                                <ErrorModal />
+                                <PossibleImpersonationAttackModalContainer />
+                                <LoadingPanel />
+                                <UsernameTakenModalContainer />
+                                <ChannelCreationModal />
+                                <CreateChannel />
+                                <JoinCommunity />
+                                <CreateCommunity />
+                                <LeaveCommunity />
+                                <CreateUsername />
+                                <CssBaseline />
+                                <SettingsModal />
+                                <UpdateModal />
+                                <QuitAppDialog />
+                                <ChannelContextMenu />
+                                <DeleteChannel />
+                                <Routes>
+                                    <Route index path='/' element={<Index />} />
+                                    <Route path='/main/*' element={<Main />} />
+                                </Routes>
+                                <SaveStateComponent persistor={persistor} />
+                            </PersistGate>
+                        </Provider>
+                    </HashRouter>
+                </DndProvider>
+            </ThemeProvider>
+        </StyledEngineProvider>
+    )
 }

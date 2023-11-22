@@ -1,6 +1,6 @@
 const defaults = {
-  timeout: 4500,
-  interval: 50,
+    timeout: 4500,
+    interval: 50,
 }
 
 /**
@@ -14,34 +14,34 @@ const defaults = {
  * @return  Promise  Promise to return a callback result
  */
 export const waitForExpect = async function waitForExpect(
-  expectation: () => void | Promise<void>,
-  timeout = defaults.timeout,
-  interval = defaults.interval
+    expectation: () => void | Promise<void>,
+    timeout = defaults.timeout,
+    interval = defaults.interval
 ) {
-  // eslint-disable-next-line no-param-reassign
-  if (interval < 1) interval = 1
-  const maxTries = Math.ceil(timeout / interval)
-  let tries = 0
-  return await new Promise((resolve, reject) => {
-    const rejectOrRerun = (error: Error) => {
-      if (tries > maxTries) {
-        reject(error)
-        return
-      }
-      // eslint-disable-next-line no-use-before-define
-      setTimeout(runExpectation, interval)
-    }
-    function runExpectation() {
-      tries += 1
-      try {
-        Promise.resolve(expectation())
-          // @ts-expect-error
-          .then(() => resolve())
-          .catch(rejectOrRerun)
-      } catch (error) {
-        rejectOrRerun(error)
-      }
-    }
-    setTimeout(runExpectation, 0)
-  })
+    // eslint-disable-next-line no-param-reassign
+    if (interval < 1) interval = 1
+    const maxTries = Math.ceil(timeout / interval)
+    let tries = 0
+    return await new Promise((resolve, reject) => {
+        const rejectOrRerun = (error: Error) => {
+            if (tries > maxTries) {
+                reject(error)
+                return
+            }
+            // eslint-disable-next-line no-use-before-define
+            setTimeout(runExpectation, interval)
+        }
+        function runExpectation() {
+            tries += 1
+            try {
+                Promise.resolve(expectation())
+                    // @ts-expect-error
+                    .then(() => resolve())
+                    .catch(rejectOrRerun)
+            } catch (error) {
+                rejectOrRerun(error)
+            }
+        }
+        setTimeout(runExpectation, 0)
+    })
 }

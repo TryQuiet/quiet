@@ -4,19 +4,19 @@ import { renderComponent } from '../../../testUtils/renderComponent'
 import { OpenlinkModal } from './OpenlinkModal'
 
 describe('OpenlinkModal', () => {
-  it('renders component', () => {
-    const result = renderComponent(
-      <OpenlinkModal
-        url='https://www.zbay.app/'
-        open
-        isImage
-        handleClose={jest.fn()}
-        handleConfirm={jest.fn()}
-        addToWhitelist={jest.fn()}
-        setWhitelistAll={jest.fn()}
-      />
-    )
-    expect(result.baseElement).toMatchInlineSnapshot(`
+    it('renders component', () => {
+        const result = renderComponent(
+            <OpenlinkModal
+                url='https://www.zbay.app/'
+                open
+                isImage
+                handleClose={jest.fn()}
+                handleConfirm={jest.fn()}
+                addToWhitelist={jest.fn()}
+                setWhitelistAll={jest.fn()}
+            />
+        )
+        expect(result.baseElement).toMatchInlineSnapshot(`
       <body
         style="padding-right: 1024px; overflow: hidden;"
       >
@@ -333,5 +333,5 @@ describe('OpenlinkModal', () => {
         </div>
       </body>
     `)
-  })
+    })
 })

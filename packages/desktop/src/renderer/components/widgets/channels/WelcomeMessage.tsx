@@ -15,108 +15,108 @@ import { IWelcomeMessageProps } from './WelcomeMessage.d'
 const PREFIX = 'WelcomeMessage'
 
 const classes = {
-  messageCard: `${PREFIX}messageCard`,
-  wrapper: `${PREFIX}wrapper`,
-  username: `${PREFIX}username`,
-  avatar: `${PREFIX}avatar`,
-  message: `${PREFIX}message`,
-  messageInput: `${PREFIX}messageInput`,
-  icon: `${PREFIX}icon`,
-  time: `${PREFIX}time`,
+    messageCard: `${PREFIX}messageCard`,
+    wrapper: `${PREFIX}wrapper`,
+    username: `${PREFIX}username`,
+    avatar: `${PREFIX}avatar`,
+    message: `${PREFIX}message`,
+    messageInput: `${PREFIX}messageInput`,
+    icon: `${PREFIX}icon`,
+    time: `${PREFIX}time`,
 }
 
 const StyledListItem = styled(ListItem)(({ theme }) => ({
-  [`& .${classes.messageCard}`]: {
-    padding: 0,
-  },
+    [`& .${classes.messageCard}`]: {
+        padding: 0,
+    },
 
-  [`&.${classes.wrapper}`]: {
-    backgroundColor: theme.palette.colors.white,
-  },
+    [`&.${classes.wrapper}`]: {
+        backgroundColor: theme.palette.colors.white,
+    },
 
-  [`& .${classes.username}`]: {
-    fontSize: 16,
-    fontWeight: 500,
-    marginTop: -4,
-    marginRight: 5,
-  },
+    [`& .${classes.username}`]: {
+        fontSize: 16,
+        fontWeight: 500,
+        marginTop: -4,
+        marginRight: 5,
+    },
 
-  [`& .${classes.avatar}`]: {
-    marginRight: 10,
-  },
+    [`& .${classes.avatar}`]: {
+        marginRight: 10,
+    },
 
-  [`& .${classes.message}`]: {
-    marginTop: 14,
-    marginLeft: -4,
-    whiteSpace: 'pre-line',
-    wordBreak: 'break-word',
-  },
+    [`& .${classes.message}`]: {
+        marginTop: 14,
+        marginLeft: -4,
+        whiteSpace: 'pre-line',
+        wordBreak: 'break-word',
+    },
 
-  [`& .${classes.messageInput}`]: {
-    marginTop: -35,
-    marginLeft: 50,
-  },
+    [`& .${classes.messageInput}`]: {
+        marginTop: -35,
+        marginLeft: 50,
+    },
 
-  [`& .${classes.icon}`]: {
-    width: 36,
-    height: 36,
-    borderRadius: 4,
-  },
+    [`& .${classes.icon}`]: {
+        width: 36,
+        height: 36,
+        borderRadius: 4,
+    },
 
-  [`& .${classes.time}`]: {
-    color: theme.palette.colors.lightGray,
-    fontSize: 14,
-    marginTop: -4,
-    marginRight: 5,
-  },
+    [`& .${classes.time}`]: {
+        color: theme.palette.colors.lightGray,
+        fontSize: 14,
+        marginTop: -4,
+        marginRight: 5,
+    },
 }))
 
 export const WelcomeMessage: React.FC<IWelcomeMessageProps> = ({ message, timestamp }) => {
-  const username = 'Quiet'
-  return (
-    <StyledListItem
-      className={classNames({
-        [classes.wrapper]: true,
-      })}
-    >
-      <ListItemText
-        disableTypography
-        className={classes.messageCard}
-        primary={
-          <Grid container direction='row' justifyContent='flex-start' alignItems='flex-start' wrap={'nowrap'}>
-            <Grid item className={classes.avatar}>
-              <Icon className={classes.icon} src={zbayLogo} />
-            </Grid>
-            <Grid container item direction='row' justifyContent='space-between'>
-              <Grid container item xs alignItems='flex-start' wrap='nowrap'>
-                <Grid item>
-                  <Typography color='textPrimary' className={classes.username}>
-                    {username}
-                  </Typography>
-                </Grid>
-                {!!timestamp && (
-                  <Grid item>
-                    <Typography className={classes.time}>{timestamp}</Typography>
-                  </Grid>
-                )}
-              </Grid>
-            </Grid>
-          </Grid>
-        }
-        secondary={
-          <Grid className={classes.messageInput} item>
-            <Typography variant='body2' className={classes.message}>
-              {message}
-            </Typography>
-          </Grid>
-        }
-      />
-    </StyledListItem>
-  )
+    const username = 'Quiet'
+    return (
+        <StyledListItem
+            className={classNames({
+                [classes.wrapper]: true,
+            })}
+        >
+            <ListItemText
+                disableTypography
+                className={classes.messageCard}
+                primary={
+                    <Grid container direction='row' justifyContent='flex-start' alignItems='flex-start' wrap={'nowrap'}>
+                        <Grid item className={classes.avatar}>
+                            <Icon className={classes.icon} src={zbayLogo} />
+                        </Grid>
+                        <Grid container item direction='row' justifyContent='space-between'>
+                            <Grid container item xs alignItems='flex-start' wrap='nowrap'>
+                                <Grid item>
+                                    <Typography color='textPrimary' className={classes.username}>
+                                        {username}
+                                    </Typography>
+                                </Grid>
+                                {!!timestamp && (
+                                    <Grid item>
+                                        <Typography className={classes.time}>{timestamp}</Typography>
+                                    </Grid>
+                                )}
+                            </Grid>
+                        </Grid>
+                    </Grid>
+                }
+                secondary={
+                    <Grid className={classes.messageInput} item>
+                        <Typography variant='body2' className={classes.message}>
+                            {message}
+                        </Typography>
+                    </Grid>
+                }
+            />
+        </StyledListItem>
+    )
 }
 
 WelcomeMessage.defaultProps = {
-  timestamp: '0',
+    timestamp: '0',
 }
 
 export default WelcomeMessage

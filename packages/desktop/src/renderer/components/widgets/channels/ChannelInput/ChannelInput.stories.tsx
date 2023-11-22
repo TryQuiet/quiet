@@ -7,11 +7,11 @@ import { ChannelInputComponent, ChannelInputProps } from './ChannelInput'
 import { withTheme } from '../../../../storybook/decorators'
 
 const Template: ComponentStory<typeof ChannelInputComponent> = args => {
-  return (
-    <div style={{ height: '400px', position: 'relative' }}>
-      <ChannelInputComponent {...args} />
-    </div>
-  )
+    return (
+        <div style={{ height: '400px', position: 'relative' }}>
+            <ChannelInputComponent {...args} />
+        </div>
+    )
 }
 
 export const Component = Template.bind({})
@@ -19,32 +19,32 @@ export const Disabled = Template.bind({})
 export const LongMessage = Template.bind({})
 
 const args: ChannelInputProps = {
-  channelId: 'channelId',
-  inputPlaceholder: '#general as @alice',
-  onChange: function (_arg: string): void {},
-  onKeyPress: function (input: string): void {
-    console.log('send message', input)
-  },
-  infoClass: '',
-  setInfoClass: function (_arg: string): void {},
-  openFilesDialog: () => {},
-  handleOpenFiles: _arg => {},
-  handleClipboardFiles: function (arg: ArrayBuffer, ext: string, name: string): void {},
+    channelId: 'channelId',
+    inputPlaceholder: '#general as @alice',
+    onChange: function (_arg: string): void {},
+    onKeyPress: function (input: string): void {
+        console.log('send message', input)
+    },
+    infoClass: '',
+    setInfoClass: function (_arg: string): void {},
+    openFilesDialog: () => {},
+    handleOpenFiles: _arg => {},
+    handleClipboardFiles: function (arg: ArrayBuffer, ext: string, name: string): void {},
 }
 
 const argsDisabledInput: ChannelInputProps = {
-  channelId: 'channelId',
-  inputPlaceholder: '#general as @alice',
-  onChange: function (_arg: string): void {},
-  onKeyPress: function (input: string): void {
-    console.log('send message', input)
-  },
-  infoClass: '',
-  setInfoClass: function (_arg: string): void {},
-  inputState: INPUT_STATE.NOT_CONNECTED,
-  openFilesDialog: () => {},
-  handleOpenFiles: _arg => {},
-  handleClipboardFiles: function (arg: ArrayBuffer, ext: string, name: string): void {},
+    channelId: 'channelId',
+    inputPlaceholder: '#general as @alice',
+    onChange: function (_arg: string): void {},
+    onKeyPress: function (input: string): void {
+        console.log('send message', input)
+    },
+    infoClass: '',
+    setInfoClass: function (_arg: string): void {},
+    inputState: INPUT_STATE.NOT_CONNECTED,
+    openFilesDialog: () => {},
+    handleOpenFiles: _arg => {},
+    handleClipboardFiles: function (arg: ArrayBuffer, ext: string, name: string): void {},
 }
 
 const initialMessage = `An h1 header
@@ -243,18 +243,18 @@ not easy being.
 -------- -----------------------`
 
 const argsLongMessage: ChannelInputProps = {
-  channelId: 'channelId',
-  inputPlaceholder: '#general as @alice',
-  initialMessage: initialMessage,
-  onChange: function (_arg: string): void {},
-  onKeyPress: function (input: string): void {
-    console.log('send message', input)
-  },
-  infoClass: '',
-  setInfoClass: function (_arg: string): void {},
-  openFilesDialog: () => {},
-  handleOpenFiles: _arg => {},
-  handleClipboardFiles: function (arg: ArrayBuffer, ext: string, name: string): void {},
+    channelId: 'channelId',
+    inputPlaceholder: '#general as @alice',
+    initialMessage: initialMessage,
+    onChange: function (_arg: string): void {},
+    onKeyPress: function (input: string): void {
+        console.log('send message', input)
+    },
+    infoClass: '',
+    setInfoClass: function (_arg: string): void {},
+    openFilesDialog: () => {},
+    handleOpenFiles: _arg => {},
+    handleClipboardFiles: function (arg: ArrayBuffer, ext: string, name: string): void {},
 }
 
 Component.args = args
@@ -262,9 +262,9 @@ Disabled.args = argsDisabledInput
 LongMessage.args = argsLongMessage
 
 const component: ComponentMeta<typeof ChannelInputComponent> = {
-  title: 'Components/ChannelInput',
-  decorators: [withTheme],
-  component: ChannelInputComponent,
+    title: 'Components/ChannelInput',
+    decorators: [withTheme],
+    component: ChannelInputComponent,
 }
 
 export default component

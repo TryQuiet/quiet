@@ -4,9 +4,9 @@ import { renderComponent } from '../../../testUtils/renderComponent'
 import { SpinnerLoader } from './SpinnerLoader'
 
 describe('SpinnerLoader', () => {
-  it('renders component', () => {
-    const result = renderComponent(<SpinnerLoader message='Test loading message' className='test-class-name' />)
-    expect(result.baseElement).toMatchInlineSnapshot(`
+    it('renders component', () => {
+        const result = renderComponent(<SpinnerLoader message='Test loading message' className='test-class-name' />)
+        expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
           <div
@@ -42,5 +42,5 @@ describe('SpinnerLoader', () => {
         </div>
       </body>
     `)
-  })
+    })
 })

@@ -4,11 +4,11 @@ import React from 'react'
 import ConnectionProcessComponent from './ConnectionProcess.component'
 
 storiesOf('ConnectionProcess', module).add('Default', () => (
-  <ConnectionProcessComponent
-    connectionProcess={{
-      number: 40,
-      text: ConnectionProcessInfo.SPAWNING_HIDDEN_SERVICE,
-    }}
-    openUrl={() => console.log('open')}
-  />
+    <ConnectionProcessComponent
+        connectionProcess={{
+            number: 40,
+            text: ConnectionProcessInfo.SPAWNING_HIDDEN_SERVICE,
+        }}
+        openUrl={() => console.log('open')}
+    />
 ))

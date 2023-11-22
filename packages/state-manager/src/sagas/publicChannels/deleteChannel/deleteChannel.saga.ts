@@ -11,39 +11,39 @@ import { usersSelectors } from '../../users/users.selectors'
 const log = logger('publicChannels')
 
 export function* deleteChannelSaga(
-  socket: Socket,
-  action: PayloadAction<ReturnType<typeof publicChannelsActions.deleteChannel>['payload']>
+    socket: Socket,
+    action: PayloadAction<ReturnType<typeof publicChannelsActions.deleteChannel>['payload']>
 ): Generator {
-  const channelId = action.payload.channelId
-  const generalChannel = yield* select(publicChannelsSelectors.generalChannel)
-  const currentChannelId = yield* select(publicChannelsSelectors.currentChannelId)
-  const ownerData = yield* select(usersSelectors.ownerData)
-  const payloadChannel = yield* select(publicChannelsSelectors.getChannelById(channelId))
+    const channelId = action.payload.channelId
+    const generalChannel = yield* select(publicChannelsSelectors.generalChannel)
+    const currentChannelId = yield* select(publicChannelsSelectors.currentChannelId)
+    const ownerData = yield* select(usersSelectors.ownerData)
+    const payloadChannel = yield* select(publicChannelsSelectors.getChannelById(channelId))
 
-  if (generalChannel === undefined) {
-    return
-  }
-
-  if (payloadChannel?.disabled) return
-
-  const isGeneral = channelId === generalChannel.id
-
-  log(`Deleting channel ${channelId}`)
-  yield* apply(
-    socket,
-    socket.emit,
-    applyEmitParams(SocketActionTypes.DELETE_CHANNEL, {
-      channelId,
-      ownerPeerId: ownerData.peerId,
-    })
-  )
-
-  yield* put(filesActions.deleteFilesFromChannel({ channelId }))
-
-  if (!isGeneral) {
-    if (currentChannelId === channelId) {
-      yield* put(publicChannelsActions.setCurrentChannel({ channelId: generalChannel.id }))
+    if (generalChannel === undefined) {
+        return
     }
-    yield* put(publicChannelsActions.disableChannel({ channelId }))
-  }
+
+    if (payloadChannel?.disabled) return
+
+    const isGeneral = channelId === generalChannel.id
+
+    log(`Deleting channel ${channelId}`)
+    yield* apply(
+        socket,
+        socket.emit,
+        applyEmitParams(SocketActionTypes.DELETE_CHANNEL, {
+            channelId,
+            ownerPeerId: ownerData.peerId,
+        })
+    )
+
+    yield* put(filesActions.deleteFilesFromChannel({ channelId }))
+
+    if (!isGeneral) {
+        if (currentChannelId === channelId) {
+            yield* put(publicChannelsActions.setCurrentChannel({ channelId: generalChannel.id }))
+        }
+        yield* put(publicChannelsActions.disableChannel({ channelId }))
+    }
 }

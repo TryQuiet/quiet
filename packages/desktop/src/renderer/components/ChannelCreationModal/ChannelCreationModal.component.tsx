@@ -7,26 +7,26 @@ import { styled } from '@mui/material/styles'
 const PREFIX = 'ChannelCreationModalComponent'
 
 const classes = {
-  wrapper: `${PREFIX}wrapper`,
+    wrapper: `${PREFIX}wrapper`,
 }
 
 const StyledGrid = styled(Grid)(() => ({
-  [`&.${classes.wrapper}`]: {},
+    [`&.${classes.wrapper}`]: {},
 }))
 
 export interface ChannelCreationModalComponentProps {
-  open: boolean
-  handleClose: () => void
+    open: boolean
+    handleClose: () => void
 }
 
 const ChannelCreationModalComponent: React.FC<ChannelCreationModalComponentProps> = ({ open, handleClose }) => {
-  return (
-    <Modal open={open} handleClose={handleClose} isCloseDisabled={true}>
-      <StyledGrid container justifyContent='center' className={classes.wrapper}>
-        <SpinnerLoader message='Channel recreation' />
-      </StyledGrid>
-    </Modal>
-  )
+    return (
+        <Modal open={open} handleClose={handleClose} isCloseDisabled={true}>
+            <StyledGrid container justifyContent='center' className={classes.wrapper}>
+                <SpinnerLoader message='Channel recreation' />
+            </StyledGrid>
+        </Modal>
+    )
 }
 
 export default ChannelCreationModalComponent

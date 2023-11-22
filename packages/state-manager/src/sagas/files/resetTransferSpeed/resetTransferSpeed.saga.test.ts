@@ -16,226 +16,226 @@ import { type Community, DownloadState, type FileMetadata, type Identity } from 
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
 
 describe('downloadFileSaga', () => {
-  let store: Store
-  let factory: FactoryGirl
+    let store: Store
+    let factory: FactoryGirl
 
-  let community: Community
-  let alice: Identity
+    let community: Community
+    let alice: Identity
 
-  let generalChannel: PublicChannel
+    let generalChannel: PublicChannel
 
-  beforeAll(async () => {
-    setupCrypto()
+    beforeAll(async () => {
+        setupCrypto()
 
-    store = prepareStore().store
+        store = prepareStore().store
 
-    factory = await getFactory(store)
+        factory = await getFactory(store)
 
-    community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
+        community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
 
-    const generalChannelState = publicChannelsSelectors.generalChannel(store.getState())
-    if (generalChannelState) generalChannel = generalChannelState
-    expect(generalChannel).not.toBeUndefined()
+        const generalChannelState = publicChannelsSelectors.generalChannel(store.getState())
+        if (generalChannelState) generalChannel = generalChannelState
+        expect(generalChannel).not.toBeUndefined()
 
-    alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
-      nickname: 'alice',
-    })
-  })
-
-  test('reset transfer speed for files with existing transfer speed', async () => {
-    store.dispatch(
-      publicChannelsActions.setCurrentChannel({
-        channelId: generalChannel.id,
-      })
-    )
-
-    const id = Math.random().toString(36).substr(2.9)
-    const media: FileMetadata = {
-      cid: 'cid',
-      path: null,
-      name: 'bot',
-      ext: 'zip',
-      message: {
-        id,
-        channelId: generalChannel.id,
-      },
-    }
-
-    const message = Math.random().toString(36).substr(2.9)
-
-    await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>('Message', {
-      identity: alice,
-      message: {
-        id: message,
-        type: MessageType.File,
-        message: '',
-        createdAt: DateTime.utc().valueOf(),
-        channelId: generalChannel.id,
-        signature: '',
-        pubKey: '',
-        media,
-      },
-    })
-
-    store.dispatch(
-      filesActions.updateDownloadStatus({
-        mid: media.message.id,
-        cid: media.cid,
-        downloadState: DownloadState.Downloading,
-        downloadProgress: {
-          size: 2048,
-          downloaded: 512,
-          transferSpeed: 128,
-        },
-      })
-    )
-
-    const reducer = combineReducers(reducers)
-    await expectSaga(resetTransferSpeedSaga, networkActions.addInitializedCommunity(community.id))
-      .withReducer(reducer)
-      .withState(store.getState())
-      .put(
-        filesActions.updateDownloadStatus({
-          mid: media.message.id,
-          cid: media.cid,
-          downloadState: DownloadState.Downloading,
-          downloadProgress: {
-            size: 2048,
-            downloaded: 512,
-            transferSpeed: 0,
-          },
+        alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
+            id: community.id,
+            nickname: 'alice',
         })
-      )
-      .run()
-  })
-
-  test('do not reset transfer speed for files without existing transfer speed', async () => {
-    store.dispatch(
-      publicChannelsActions.setCurrentChannel({
-        channelId: generalChannel.id,
-      })
-    )
-
-    const id = Math.random().toString(36).substr(2.9)
-    const media: FileMetadata = {
-      cid: 'cid',
-      path: null,
-      name: 'bot',
-      ext: 'zip',
-      message: {
-        id,
-        channelId: generalChannel.id,
-      },
-    }
-
-    const message = Math.random().toString(36).substr(2.9)
-
-    await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>('Message', {
-      identity: alice,
-      message: {
-        id: message,
-        type: MessageType.File,
-        message: '',
-        createdAt: DateTime.utc().valueOf(),
-        channelId: generalChannel.id,
-        signature: '',
-        pubKey: '',
-        media,
-      },
     })
 
-    store.dispatch(
-      filesActions.updateDownloadStatus({
-        mid: media.message.id,
-        cid: media.cid,
-        downloadState: DownloadState.Downloading,
-      })
-    )
+    test('reset transfer speed for files with existing transfer speed', async () => {
+        store.dispatch(
+            publicChannelsActions.setCurrentChannel({
+                channelId: generalChannel.id,
+            })
+        )
 
-    const reducer = combineReducers(reducers)
-    await expectSaga(resetTransferSpeedSaga, networkActions.addInitializedCommunity(community.id))
-      .withReducer(reducer)
-      .withState(store.getState())
-      .not.put(
-        filesActions.updateDownloadStatus({
-          mid: media.message.id,
-          cid: media.cid,
-          downloadState: DownloadState.Downloading,
-          downloadProgress: {
-            size: 2048,
-            downloaded: 512,
-            transferSpeed: 0,
-          },
+        const id = Math.random().toString(36).substr(2.9)
+        const media: FileMetadata = {
+            cid: 'cid',
+            path: null,
+            name: 'bot',
+            ext: 'zip',
+            message: {
+                id,
+                channelId: generalChannel.id,
+            },
+        }
+
+        const message = Math.random().toString(36).substr(2.9)
+
+        await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>('Message', {
+            identity: alice,
+            message: {
+                id: message,
+                type: MessageType.File,
+                message: '',
+                createdAt: DateTime.utc().valueOf(),
+                channelId: generalChannel.id,
+                signature: '',
+                pubKey: '',
+                media,
+            },
         })
-      )
-      .run()
-  })
 
-  test('do not reset transfer speed for files with download state other than downloading', async () => {
-    store.dispatch(
-      publicChannelsActions.setCurrentChannel({
-        channelId: generalChannel.id,
-      })
-    )
+        store.dispatch(
+            filesActions.updateDownloadStatus({
+                mid: media.message.id,
+                cid: media.cid,
+                downloadState: DownloadState.Downloading,
+                downloadProgress: {
+                    size: 2048,
+                    downloaded: 512,
+                    transferSpeed: 128,
+                },
+            })
+        )
 
-    const id = Math.random().toString(36).substr(2.9)
-    const media: FileMetadata = {
-      cid: 'cid',
-      path: null,
-      name: 'bot',
-      ext: 'zip',
-      message: {
-        id,
-        channelId: generalChannel.id,
-      },
-    }
-
-    const message = Math.random().toString(36).substr(2.9)
-
-    await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>('Message', {
-      identity: alice,
-      message: {
-        id: message,
-        type: MessageType.File,
-        message: '',
-        createdAt: DateTime.utc().valueOf(),
-        channelId: generalChannel.id,
-        signature: '',
-        pubKey: '',
-        media,
-      },
+        const reducer = combineReducers(reducers)
+        await expectSaga(resetTransferSpeedSaga, networkActions.addInitializedCommunity(community.id))
+            .withReducer(reducer)
+            .withState(store.getState())
+            .put(
+                filesActions.updateDownloadStatus({
+                    mid: media.message.id,
+                    cid: media.cid,
+                    downloadState: DownloadState.Downloading,
+                    downloadProgress: {
+                        size: 2048,
+                        downloaded: 512,
+                        transferSpeed: 0,
+                    },
+                })
+            )
+            .run()
     })
 
-    store.dispatch(
-      filesActions.updateDownloadStatus({
-        mid: media.message.id,
-        cid: media.cid,
-        downloadState: DownloadState.Canceling,
-        downloadProgress: {
-          size: 2048,
-          downloaded: 512,
-          transferSpeed: 0,
-        },
-      })
-    )
+    test('do not reset transfer speed for files without existing transfer speed', async () => {
+        store.dispatch(
+            publicChannelsActions.setCurrentChannel({
+                channelId: generalChannel.id,
+            })
+        )
 
-    const reducer = combineReducers(reducers)
-    await expectSaga(resetTransferSpeedSaga, networkActions.addInitializedCommunity(community.id))
-      .withReducer(reducer)
-      .withState(store.getState())
-      .not.put(
-        filesActions.updateDownloadStatus({
-          mid: media.message.id,
-          cid: media.cid,
-          downloadState: DownloadState.Canceling,
-          downloadProgress: {
-            size: 2048,
-            downloaded: 512,
-            transferSpeed: 0,
-          },
+        const id = Math.random().toString(36).substr(2.9)
+        const media: FileMetadata = {
+            cid: 'cid',
+            path: null,
+            name: 'bot',
+            ext: 'zip',
+            message: {
+                id,
+                channelId: generalChannel.id,
+            },
+        }
+
+        const message = Math.random().toString(36).substr(2.9)
+
+        await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>('Message', {
+            identity: alice,
+            message: {
+                id: message,
+                type: MessageType.File,
+                message: '',
+                createdAt: DateTime.utc().valueOf(),
+                channelId: generalChannel.id,
+                signature: '',
+                pubKey: '',
+                media,
+            },
         })
-      )
-      .run()
-  })
+
+        store.dispatch(
+            filesActions.updateDownloadStatus({
+                mid: media.message.id,
+                cid: media.cid,
+                downloadState: DownloadState.Downloading,
+            })
+        )
+
+        const reducer = combineReducers(reducers)
+        await expectSaga(resetTransferSpeedSaga, networkActions.addInitializedCommunity(community.id))
+            .withReducer(reducer)
+            .withState(store.getState())
+            .not.put(
+                filesActions.updateDownloadStatus({
+                    mid: media.message.id,
+                    cid: media.cid,
+                    downloadState: DownloadState.Downloading,
+                    downloadProgress: {
+                        size: 2048,
+                        downloaded: 512,
+                        transferSpeed: 0,
+                    },
+                })
+            )
+            .run()
+    })
+
+    test('do not reset transfer speed for files with download state other than downloading', async () => {
+        store.dispatch(
+            publicChannelsActions.setCurrentChannel({
+                channelId: generalChannel.id,
+            })
+        )
+
+        const id = Math.random().toString(36).substr(2.9)
+        const media: FileMetadata = {
+            cid: 'cid',
+            path: null,
+            name: 'bot',
+            ext: 'zip',
+            message: {
+                id,
+                channelId: generalChannel.id,
+            },
+        }
+
+        const message = Math.random().toString(36).substr(2.9)
+
+        await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>('Message', {
+            identity: alice,
+            message: {
+                id: message,
+                type: MessageType.File,
+                message: '',
+                createdAt: DateTime.utc().valueOf(),
+                channelId: generalChannel.id,
+                signature: '',
+                pubKey: '',
+                media,
+            },
+        })
+
+        store.dispatch(
+            filesActions.updateDownloadStatus({
+                mid: media.message.id,
+                cid: media.cid,
+                downloadState: DownloadState.Canceling,
+                downloadProgress: {
+                    size: 2048,
+                    downloaded: 512,
+                    transferSpeed: 0,
+                },
+            })
+        )
+
+        const reducer = combineReducers(reducers)
+        await expectSaga(resetTransferSpeedSaga, networkActions.addInitializedCommunity(community.id))
+            .withReducer(reducer)
+            .withState(store.getState())
+            .not.put(
+                filesActions.updateDownloadStatus({
+                    mid: media.message.id,
+                    cid: media.cid,
+                    downloadState: DownloadState.Canceling,
+                    downloadProgress: {
+                        size: 2048,
+                        downloaded: 512,
+                        transferSpeed: 0,
+                    },
+                })
+            )
+            .run()
+    })
 })

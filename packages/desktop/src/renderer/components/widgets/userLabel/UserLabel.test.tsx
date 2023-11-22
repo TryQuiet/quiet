@@ -6,18 +6,18 @@ import UserLabel from './UserLabel.component'
 import { payloadDuplicated, payloadUnregistered, UserLabelType } from './UserLabel.types'
 
 describe('UserLabel', () => {
-  it('duplicate', () => {
-    const result = renderComponent(
-      <ThemeProvider theme={theme}>
-        <UserLabel
-          duplicatedUsernameModalHandleOpen={() => payloadDuplicated}
-          unregisteredUsernameModalHandleOpen={() => payloadUnregistered}
-          username={'johnny'}
-          type={UserLabelType.DUPLICATE}
-        />
-      </ThemeProvider>
-    )
-    expect(result.baseElement).toMatchInlineSnapshot(`
+    it('duplicate', () => {
+        const result = renderComponent(
+            <ThemeProvider theme={theme}>
+                <UserLabel
+                    duplicatedUsernameModalHandleOpen={() => payloadDuplicated}
+                    unregisteredUsernameModalHandleOpen={() => payloadUnregistered}
+                    username={'johnny'}
+                    type={UserLabelType.DUPLICATE}
+                />
+            </ThemeProvider>
+        )
+        expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
           <div
@@ -40,19 +40,19 @@ describe('UserLabel', () => {
         </div>
       </body>
     `)
-  })
-  it('unregistered', () => {
-    const result = renderComponent(
-      <ThemeProvider theme={theme}>
-        <UserLabel
-          duplicatedUsernameModalHandleOpen={() => payloadDuplicated}
-          unregisteredUsernameModalHandleOpen={() => payloadUnregistered}
-          username={'johnny'}
-          type={UserLabelType.UNREGISTERED}
-        />
-      </ThemeProvider>
-    )
-    expect(result.baseElement).toMatchInlineSnapshot(`
+    })
+    it('unregistered', () => {
+        const result = renderComponent(
+            <ThemeProvider theme={theme}>
+                <UserLabel
+                    duplicatedUsernameModalHandleOpen={() => payloadDuplicated}
+                    unregisteredUsernameModalHandleOpen={() => payloadUnregistered}
+                    username={'johnny'}
+                    type={UserLabelType.UNREGISTERED}
+                />
+            </ThemeProvider>
+        )
+        expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
           <div
@@ -71,5 +71,5 @@ describe('UserLabel', () => {
         </div>
       </body>
     `)
-  })
+    })
 })

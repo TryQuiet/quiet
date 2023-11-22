@@ -8,49 +8,49 @@ import { ScreenNames } from '../../const/ScreenNames.enum'
 import { navigationActions } from '../../store/navigation/navigation.slice'
 
 const UsernameTakenScreen: React.FC<UsernameTakenScreenProps> = () => {
-  const dispatch = useDispatch()
+    const dispatch = useDispatch()
 
-  const currentIdentity = useSelector(identity.selectors.currentIdentity)
+    const currentIdentity = useSelector(identity.selectors.currentIdentity)
 
-  const usernameRegistered = currentIdentity?.userCertificate != null
+    const usernameRegistered = currentIdentity?.userCertificate != null
 
-  const registeredUsers = useSelector(users.selectors.certificatesMapping)
+    const registeredUsers = useSelector(users.selectors.certificatesMapping)
 
-  const error = useSelector(errors.selectors.registrarErrors)
+    const error = useSelector(errors.selectors.registrarErrors)
 
-  const handleBackButton = useCallback(() => {
-    dispatch(navigationActions.pop())
-  }, [dispatch])
+    const handleBackButton = useCallback(() => {
+        dispatch(navigationActions.pop())
+    }, [dispatch])
 
-  const handleAction = (nickname: string) => {
-    // Clear errors
-    if (error) {
-      dispatch(errors.actions.clearError(error))
+    const handleAction = (nickname: string) => {
+        // Clear errors
+        if (error) {
+            dispatch(errors.actions.clearError(error))
+        }
+        dispatch(
+            identity.actions.registerUsername({
+                nickname,
+                isUsernameTaken: true,
+            })
+        )
+        dispatch(
+            navigationActions.navigation({
+                screen: ScreenNames.NewUsernameRequestedScreen,
+            })
+        )
     }
-    dispatch(
-      identity.actions.registerUsername({
-        nickname,
-        isUsernameTaken: true,
-      })
-    )
-    dispatch(
-      navigationActions.navigation({
-        screen: ScreenNames.NewUsernameRequestedScreen,
-      })
-    )
-  }
 
-  return (
-    <UsernameRegistration
-      registerUsernameAction={handleAction}
-      usernameRegistered={usernameRegistered}
-      fetching={false}
-      variant={UsernameVariant.TAKEN}
-      handleBackButton={handleBackButton}
-      currentUsername={currentIdentity?.nickname}
-      registeredUsers={registeredUsers}
-    />
-  )
+    return (
+        <UsernameRegistration
+            registerUsernameAction={handleAction}
+            usernameRegistered={usernameRegistered}
+            fetching={false}
+            variant={UsernameVariant.TAKEN}
+            handleBackButton={handleBackButton}
+            currentUsername={currentIdentity?.nickname}
+            registeredUsers={registeredUsers}
+        />
+    )
 }
 
 export default UsernameTakenScreen

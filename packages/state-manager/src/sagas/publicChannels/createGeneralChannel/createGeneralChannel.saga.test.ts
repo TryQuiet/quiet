@@ -15,54 +15,54 @@ import { type communitiesActions } from '../../communities/communities.slice'
 import { type Community, type Identity } from '@quiet/types'
 
 describe('createGeneralChannelSaga', () => {
-  let store: Store
-  let factory: FactoryGirl
+    let store: Store
+    let factory: FactoryGirl
 
-  let community: Community
-  let alice: Identity
+    let community: Community
+    let alice: Identity
 
-  beforeAll(async () => {
-    setupCrypto()
+    beforeAll(async () => {
+        setupCrypto()
 
-    store = prepareStore().store
-    factory = await getFactory(store)
+        store = prepareStore().store
+        factory = await getFactory(store)
 
-    community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
+        community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
 
-    alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
-      nickname: 'alice',
+        alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
+            id: community.id,
+            nickname: 'alice',
+        })
     })
-  })
 
-  test('create general channel', async () => {
-    const reducer = combineReducers(reducers)
-    const generalId = generateChannelId('general')
-    const channel = {
-      name: 'general',
-      description: 'Welcome to #general',
-      owner: alice.nickname,
-      id: generalId,
-      timestamp: 0,
-    }
-    console.log({ channel })
-    await expectSaga(createGeneralChannelSaga)
-      .withReducer(reducer)
-      .withState(store.getState())
-      .provide([
-        [call.fn(getChannelTimestamp), 0],
-        [call.fn(generateChannelId), generalId],
-      ])
-      .put(
-        publicChannelsActions.createChannel({
-          channel,
-        })
-      )
-      .put(
-        publicChannelsActions.setCurrentChannel({
-          channelId: generalId,
-        })
-      )
-      .run()
-  })
+    test('create general channel', async () => {
+        const reducer = combineReducers(reducers)
+        const generalId = generateChannelId('general')
+        const channel = {
+            name: 'general',
+            description: 'Welcome to #general',
+            owner: alice.nickname,
+            id: generalId,
+            timestamp: 0,
+        }
+        console.log({ channel })
+        await expectSaga(createGeneralChannelSaga)
+            .withReducer(reducer)
+            .withState(store.getState())
+            .provide([
+                [call.fn(getChannelTimestamp), 0],
+                [call.fn(generateChannelId), generalId],
+            ])
+            .put(
+                publicChannelsActions.createChannel({
+                    channel,
+                })
+            )
+            .put(
+                publicChannelsActions.setCurrentChannel({
+                    channelId: generalId,
+                })
+            )
+            .run()
+    })
 })

@@ -6,21 +6,21 @@ import { messagesActions } from '../../messages/messages.slice'
 import { SocketActionTypes } from '@quiet/types'
 
 export function* uploadFileSaga(
-  socket: Socket,
-  action: PayloadAction<ReturnType<typeof messagesActions.addMessagesSendingStatus>['payload']>
+    socket: Socket,
+    action: PayloadAction<ReturnType<typeof messagesActions.addMessagesSendingStatus>['payload']>
 ) {
-  const message = action.payload.message
-  if (!message.media) return
+    const message = action.payload.message
+    if (!message.media) return
 
-  const identity = yield* select(identitySelectors.currentIdentity)
-  if (!identity) return
+    const identity = yield* select(identitySelectors.currentIdentity)
+    if (!identity) return
 
-  yield* apply(
-    socket,
-    socket.emit,
-    applyEmitParams(SocketActionTypes.UPLOAD_FILE, {
-      file: message.media,
-      peerId: identity.peerId.id,
-    })
-  )
+    yield* apply(
+        socket,
+        socket.emit,
+        applyEmitParams(SocketActionTypes.UPLOAD_FILE, {
+            file: message.media,
+            peerId: identity.peerId.id,
+        })
+    )
 }

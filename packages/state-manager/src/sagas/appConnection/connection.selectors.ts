@@ -20,43 +20,43 @@ export const isTorInitialized = createSelector(connectionSlice, reducerState => 
 export const torConnectionProcess = createSelector(connectionSlice, reducerState => reducerState.torConnectionProcess)
 
 export const peerList = createSelector(
-  connectionSlice,
-  communitiesSelectors.currentCommunity,
-  (reducerState, community) => {
-    if (!community) return []
-    const arr = [...(community.peerList || [])]
+    connectionSlice,
+    communitiesSelectors.currentCommunity,
+    (reducerState, community) => {
+        if (!community) return []
+        const arr = [...(community.peerList || [])]
 
-    let stats: NetworkStats[]
-    if (reducerState.peersStats === undefined) {
-      stats = []
-    } else {
-      stats = peersStatsAdapter.getSelectors().selectAll(reducerState.peersStats)
+        let stats: NetworkStats[]
+        if (reducerState.peersStats === undefined) {
+            stats = []
+        } else {
+            stats = peersStatsAdapter.getSelectors().selectAll(reducerState.peersStats)
+        }
+
+        return filterAndSortPeers(arr, stats)
     }
-
-    return filterAndSortPeers(arr, stats)
-  }
 )
 
 export const connectedPeersMapping = createSelector(allUsers, connectedPeers, (certificates, peers) => {
-  const usersData = Object.values(certificates)
-  return peers.reduce((peersMapping: Record<string, User>, peerId: string) => {
-    for (const user of usersData) {
-      if (peerId === user.peerId) {
-        return {
-          ...peersMapping,
-          [peerId]: user,
+    const usersData = Object.values(certificates)
+    return peers.reduce((peersMapping: Record<string, User>, peerId: string) => {
+        for (const user of usersData) {
+            if (peerId === user.peerId) {
+                return {
+                    ...peersMapping,
+                    [peerId]: user,
+                }
+            }
         }
-      }
-    }
-    return peersMapping
-  }, {})
+        return peersMapping
+    }, {})
 })
 
 export const connectionSelectors = {
-  lastConnectedTime,
-  connectedPeersMapping,
-  peerList,
-  torBootstrapProcess,
-  torConnectionProcess,
-  isTorInitialized,
+    lastConnectedTime,
+    connectedPeersMapping,
+    peerList,
+    torBootstrapProcess,
+    torConnectionProcess,
+    isTorInitialized,
 }

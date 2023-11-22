@@ -1,4 +1,4 @@
 export enum InitCheckKeys {
-  Tor = 'tor connected',
-  Backend = 'backend started',
+    Tor = 'tor connected',
+    Backend = 'backend started',
 }

@@ -1,4 +1,4 @@
 export interface InitCheck {
-  event: string
-  passed: boolean
+    event: string
+    passed: boolean
 }

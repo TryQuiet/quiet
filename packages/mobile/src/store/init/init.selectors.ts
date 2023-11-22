@@ -6,8 +6,8 @@ import { initChecksAdapter } from './init.adapter'
 const initSlice: CreatedSelectors[StoreKeys.Init] = (state: StoreState) => state[StoreKeys.Init]
 
 export const isCryptoEngineInitialized = createSelector(
-  initSlice,
-  reducerState => reducerState.isCryptoEngineInitialized
+    initSlice,
+    reducerState => reducerState.isCryptoEngineInitialized
 )
 
 export const isWebsocketConnected = createSelector(initSlice, reducerState => reducerState.isWebsocketConnected)
@@ -17,7 +17,7 @@ export const lastKnownDataPort = createSelector(initSlice, reducerState => reduc
 export const initDescription = createSelector(initSlice, reducerState => reducerState.initDescription)
 
 export const initChecks = createSelector(initSlice, reducerState =>
-  initChecksAdapter.getSelectors().selectAll(reducerState.initChecks)
+    initChecksAdapter.getSelectors().selectAll(reducerState.initChecks)
 )
 
 export const deepLinking = createSelector(initSlice, reducerState => reducerState.deepLinking)
@@ -25,11 +25,11 @@ export const deepLinking = createSelector(initSlice, reducerState => reducerStat
 export const ready = createSelector(initSlice, reducerState => reducerState.ready)
 
 export const initSelectors = {
-  isCryptoEngineInitialized,
-  isWebsocketConnected,
-  lastKnownDataPort,
-  initDescription,
-  initChecks,
-  deepLinking,
-  ready,
+    isCryptoEngineInitialized,
+    isWebsocketConnected,
+    lastKnownDataPort,
+    initDescription,
+    initChecks,
+    deepLinking,
+    ready,
 }

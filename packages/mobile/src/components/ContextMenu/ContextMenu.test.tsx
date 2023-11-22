@@ -7,32 +7,32 @@ import { ContextMenu } from './ContextMenu.component'
 import { ContextMenuItemProps } from './ContextMenu.types'
 
 describe('ContextMenu component', () => {
-  it('should match inline snapshot for visible menu', () => {
-    const items: ContextMenuItemProps[] = [
-      {
-        title: 'Create channel',
-        action: () => {
-          jest.fn()
-        },
-      },
-      {
-        title: 'Add members',
-        action: () => {
-          jest.fn()
-        },
-      },
-      {
-        title: 'Settings',
-        action: () => {
-          jest.fn()
-        },
-      },
-    ]
-    const { toJSON } = renderComponent(
-      <ContextMenu visible={true} handleClose={jest.fn()} title={'Rockets'} items={items} />
-    )
+    it('should match inline snapshot for visible menu', () => {
+        const items: ContextMenuItemProps[] = [
+            {
+                title: 'Create channel',
+                action: () => {
+                    jest.fn()
+                },
+            },
+            {
+                title: 'Add members',
+                action: () => {
+                    jest.fn()
+                },
+            },
+            {
+                title: 'Settings',
+                action: () => {
+                    jest.fn()
+                },
+            },
+        ]
+        const { toJSON } = renderComponent(
+            <ContextMenu visible={true} handleClose={jest.fn()} title={'Rockets'} items={items} />
+        )
 
-    expect(toJSON()).toMatchInlineSnapshot(`
+        expect(toJSON()).toMatchInlineSnapshot(`
       <View
         accessibilityState={
           {
@@ -675,34 +675,34 @@ describe('ContextMenu component', () => {
         </View>
       </View>
     `)
-  })
+    })
 
-  it('should match inline snapshot for closed menu', () => {
-    const items: ContextMenuItemProps[] = [
-      {
-        title: 'Create channel',
-        action: () => {
-          jest.fn()
-        },
-      },
-      {
-        title: 'Add members',
-        action: () => {
-          jest.fn()
-        },
-      },
-      {
-        title: 'Settings',
-        action: () => {
-          jest.fn()
-        },
-      },
-    ]
-    const { toJSON } = renderComponent(
-      <ContextMenu visible={false} handleClose={jest.fn()} title={'Rockets'} items={items} />
-    )
+    it('should match inline snapshot for closed menu', () => {
+        const items: ContextMenuItemProps[] = [
+            {
+                title: 'Create channel',
+                action: () => {
+                    jest.fn()
+                },
+            },
+            {
+                title: 'Add members',
+                action: () => {
+                    jest.fn()
+                },
+            },
+            {
+                title: 'Settings',
+                action: () => {
+                    jest.fn()
+                },
+            },
+        ]
+        const { toJSON } = renderComponent(
+            <ContextMenu visible={false} handleClose={jest.fn()} title={'Rockets'} items={items} />
+        )
 
-    expect(toJSON()).toMatchInlineSnapshot(`
+        expect(toJSON()).toMatchInlineSnapshot(`
       <View
         accessibilityState={
           {
@@ -1345,5 +1345,5 @@ describe('ContextMenu component', () => {
         </View>
       </View>
     `)
-  })
+    })
 })

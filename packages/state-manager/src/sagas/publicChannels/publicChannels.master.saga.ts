@@ -11,14 +11,14 @@ import { channelsReplicatedSaga } from './channelsReplicated/channelsReplicated.
 import { channelDeletionResponseSaga } from './channelDeletionResponse/channelDeletionResponse.saga'
 
 export function* publicChannelsMasterSaga(socket: Socket): Generator {
-  yield all([
-    takeEvery(publicChannelsActions.createChannel.type, createChannelSaga, socket),
-    takeEvery(publicChannelsActions.deleteChannel.type, deleteChannelSaga, socket),
-    takeEvery(publicChannelsActions.channelDeletionResponse.type, channelDeletionResponseSaga),
-    takeEvery(publicChannelsActions.createGeneralChannel.type, createGeneralChannelSaga),
-    takeEvery(publicChannelsActions.sendInitialChannelMessage.type, sendInitialChannelMessageSaga),
-    takeEvery(publicChannelsActions.channelsReplicated.type, channelsReplicatedSaga),
-    takeEvery(publicChannelsActions.setCurrentChannel.type, clearUnreadChannelsSaga),
-    takeEvery(publicChannelsActions.sendNewUserInfoMessage.type, sendNewUserInfoMessageSaga),
-  ])
+    yield all([
+        takeEvery(publicChannelsActions.createChannel.type, createChannelSaga, socket),
+        takeEvery(publicChannelsActions.deleteChannel.type, deleteChannelSaga, socket),
+        takeEvery(publicChannelsActions.channelDeletionResponse.type, channelDeletionResponseSaga),
+        takeEvery(publicChannelsActions.createGeneralChannel.type, createGeneralChannelSaga),
+        takeEvery(publicChannelsActions.sendInitialChannelMessage.type, sendInitialChannelMessageSaga),
+        takeEvery(publicChannelsActions.channelsReplicated.type, channelsReplicatedSaga),
+        takeEvery(publicChannelsActions.setCurrentChannel.type, clearUnreadChannelsSaga),
+        takeEvery(publicChannelsActions.sendNewUserInfoMessage.type, sendNewUserInfoMessageSaga),
+    ])
 }

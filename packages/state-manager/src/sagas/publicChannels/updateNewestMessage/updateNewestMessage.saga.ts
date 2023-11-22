@@ -5,16 +5,16 @@ import { publicChannelsSelectors } from '../publicChannels.selectors'
 import { type messagesActions } from '../../messages/messages.slice'
 
 export function* updateNewestMessageSaga(
-  action: PayloadAction<ReturnType<typeof messagesActions.incomingMessages>['payload']>
+    action: PayloadAction<ReturnType<typeof messagesActions.incomingMessages>['payload']>
 ): Generator {
-  const { messages } = action.payload
-  const statuses = yield* select(publicChannelsSelectors.channelsStatus)
+    const { messages } = action.payload
+    const statuses = yield* select(publicChannelsSelectors.channelsStatus)
 
-  for (const message of messages) {
-    const messageStatus = statuses[message.channelId]
-    if (!messageStatus) return
-    if (!messageStatus.newestMessage || messageStatus.newestMessage.createdAt < message.createdAt) {
-      yield* put(publicChannelsActions.updateNewestMessage({ message }))
+    for (const message of messages) {
+        const messageStatus = statuses[message.channelId]
+        if (!messageStatus) return
+        if (!messageStatus.newestMessage || messageStatus.newestMessage.createdAt < message.createdAt) {
+            yield* put(publicChannelsActions.updateNewestMessage({ message }))
+        }
     }
-  }
 }

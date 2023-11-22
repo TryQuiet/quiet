@@ -4,5 +4,5 @@ import { storybookLog } from '../../utils/functions/storybookLog/storybookLog.fu
 import NewUsernameRequestedComponent from './NewUsernameRequested.component'
 
 storiesOf('NewUsernameRequested', module).add('Default', () => (
-  <NewUsernameRequestedComponent handler={storybookLog('clicked')} />
+    <NewUsernameRequestedComponent handler={storybookLog('clicked')} />
 ))

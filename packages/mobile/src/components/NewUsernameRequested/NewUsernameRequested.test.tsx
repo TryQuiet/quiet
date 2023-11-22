@@ -3,10 +3,10 @@ import { renderComponent } from '../../utils/functions/renderComponent/renderCom
 import NewUsernameRequestedComponent from './NewUsernameRequested.component'
 
 describe('NewUsernameRequested component', () => {
-  it('should match inline snapshot', () => {
-    const { toJSON } = renderComponent(<NewUsernameRequestedComponent handler={jest.fn()} />)
+    it('should match inline snapshot', () => {
+        const { toJSON } = renderComponent(<NewUsernameRequestedComponent handler={jest.fn()} />)
 
-    expect(toJSON()).toMatchInlineSnapshot(`
+        expect(toJSON()).toMatchInlineSnapshot(`
       <View
         style={
           {
@@ -227,5 +227,5 @@ describe('NewUsernameRequested component', () => {
         </View>
       </View>
     `)
-  })
+    })
 })

@@ -7,18 +7,18 @@ import { PossibleImpersonationAttackScreenProps } from './PossibleImpersonationA
 import PossibleImpersonationAttackComponent from '../../components/PossibleImpersonationAttack/PossibleImpersonationAttack.component'
 
 export const PossibleImpersonationAttackScreen: FC<PossibleImpersonationAttackScreenProps> = ({ route }) => {
-  const dispatch = useDispatch()
+    const dispatch = useDispatch()
 
-  const community = useSelector(communities.selectors.currentCommunity)
+    const community = useSelector(communities.selectors.currentCommunity)
 
-  let communityName = '...'
-  if (community?.name) {
-    communityName = capitalizeFirstLetter(community.name)
-  }
+    let communityName = '...'
+    if (community?.name) {
+        communityName = capitalizeFirstLetter(community.name)
+    }
 
-  const handleBackButton = useCallback(() => {
-    dispatch(navigationActions.pop())
-  }, [dispatch])
+    const handleBackButton = useCallback(() => {
+        dispatch(navigationActions.pop())
+    }, [dispatch])
 
-  return <PossibleImpersonationAttackComponent handleBackButton={handleBackButton} communityName={communityName} />
+    return <PossibleImpersonationAttackComponent handleBackButton={handleBackButton} communityName={communityName} />
 }

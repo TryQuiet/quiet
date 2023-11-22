@@ -6,21 +6,21 @@ import { publicChannels } from '@quiet/state-manager'
 import DeleteChannelComponent from './DeleteChannelComponent'
 
 export const DeleteChannel: FC = () => {
-  const modal = useModal(ModalName.deleteChannel)
+    const modal = useModal(ModalName.deleteChannel)
 
-  const channel = useSelector(publicChannels.selectors.currentChannel)
+    const channel = useSelector(publicChannels.selectors.currentChannel)
 
-  const dispatch = useDispatch()
+    const dispatch = useDispatch()
 
-  const deleteChannel = useCallback(() => {
-    if (!channel) return
-    dispatch(publicChannels.actions.deleteChannel({ channelId: channel.id }))
-    modal.handleClose() // Close self
-  }, [modal])
+    const deleteChannel = useCallback(() => {
+        if (!channel) return
+        dispatch(publicChannels.actions.deleteChannel({ channelId: channel.id }))
+        modal.handleClose() // Close self
+    }, [modal])
 
-  if (!channel) return null
+    if (!channel) return null
 
-  return <DeleteChannelComponent channelName={channel.name} deleteChannel={deleteChannel} {...modal} />
+    return <DeleteChannelComponent channelName={channel.name} deleteChannel={deleteChannel} {...modal} />
 }
 
 export default DeleteChannel

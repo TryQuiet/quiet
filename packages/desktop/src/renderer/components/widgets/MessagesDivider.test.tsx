@@ -4,9 +4,9 @@ import { renderComponent } from '../../testUtils/renderComponent'
 import { MessagesDivider } from './MessagesDivider'
 
 describe('MessagesDivider', () => {
-  it('renders component', () => {
-    const result = renderComponent(<MessagesDivider title='test' />)
-    expect(result.baseElement).toMatchInlineSnapshot(`
+    it('renders component', () => {
+        const result = renderComponent(<MessagesDivider title='test' />)
+        expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
           <div
@@ -39,5 +39,5 @@ describe('MessagesDivider', () => {
         </div>
       </body>
     `)
-  })
+    })
 })

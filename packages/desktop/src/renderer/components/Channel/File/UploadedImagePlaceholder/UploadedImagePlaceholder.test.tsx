@@ -5,25 +5,25 @@ import { renderComponent } from '../../../../testUtils/renderComponent'
 import UploadedImagePlaceholder from './UploadedImagePlaceholder'
 
 describe('UploadedImagePlaceholder', () => {
-  let downloadStatus: DownloadStatus
+    let downloadStatus: DownloadStatus
 
-  it('renders component', () => {
-    downloadStatus = {
-      mid: 'test',
-      cid: 'hvb45FGa',
-      downloadState: DownloadState.Completed,
-    }
-    const result = renderComponent(
-      <UploadedImagePlaceholder
-        cid={'hvb45FGa'}
-        imageHeight={1000}
-        imageWidth={5000}
-        name={'test'}
-        ext={'.png'}
-        downloadStatus={downloadStatus}
-      />
-    )
-    expect(result.baseElement).toMatchInlineSnapshot(`
+    it('renders component', () => {
+        downloadStatus = {
+            mid: 'test',
+            cid: 'hvb45FGa',
+            downloadState: DownloadState.Completed,
+        }
+        const result = renderComponent(
+            <UploadedImagePlaceholder
+                cid={'hvb45FGa'}
+                imageHeight={1000}
+                imageWidth={5000}
+                name={'test'}
+                ext={'.png'}
+                downloadStatus={downloadStatus}
+            />
+        )
+        expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
           <div
@@ -80,30 +80,30 @@ describe('UploadedImagePlaceholder', () => {
         </div>
       </body>
     `)
-  })
+    })
 
-  it('Shows download speed and progress', () => {
-    downloadStatus = {
-      mid: 'test',
-      cid: 'hvb45FGa',
-      downloadState: DownloadState.Downloading,
-      downloadProgress: {
-        size: 12345,
-        downloaded: 1234,
-        transferSpeed: 123,
-      },
-    }
-    const result = renderComponent(
-      <UploadedImagePlaceholder
-        cid={'hvb45FGa'}
-        imageHeight={1000}
-        imageWidth={5000}
-        name={'test'}
-        ext={'.png'}
-        downloadStatus={downloadStatus}
-      />
-    )
-    expect(result.baseElement).toMatchInlineSnapshot(`
+    it('Shows download speed and progress', () => {
+        downloadStatus = {
+            mid: 'test',
+            cid: 'hvb45FGa',
+            downloadState: DownloadState.Downloading,
+            downloadProgress: {
+                size: 12345,
+                downloaded: 1234,
+                transferSpeed: 123,
+            },
+        }
+        const result = renderComponent(
+            <UploadedImagePlaceholder
+                cid={'hvb45FGa'}
+                imageHeight={1000}
+                imageWidth={5000}
+                name={'test'}
+                ext={'.png'}
+                downloadStatus={downloadStatus}
+            />
+        )
+        expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
           <div
@@ -182,5 +182,5 @@ describe('UploadedImagePlaceholder', () => {
         </div>
       </body>
     `)
-  })
+    })
 })

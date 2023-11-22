@@ -14,32 +14,32 @@ import { QRCode } from './Tabs/QRCode/QRCode'
 import SettingsComponent from './SettingsComponent'
 
 const Settings = () => {
-  const modal = useModal(ModalName.accountSettingsModal)
+    const modal = useModal(ModalName.accountSettingsModal)
 
-  const community = useSelector(communities.selectors.currentCommunity)
+    const community = useSelector(communities.selectors.currentCommunity)
 
-  const isOwner = Boolean(community?.CA)
+    const isOwner = Boolean(community?.CA)
 
-  const tabs = {
-    about: About,
-    notifications: Notifications,
-    invite: Invite,
-    qrcode: QRCode,
-  }
+    const tabs = {
+        about: About,
+        notifications: Notifications,
+        invite: Invite,
+        qrcode: QRCode,
+    }
 
-  const leaveCommunityModal = useModal(ModalName.leaveCommunity)
+    const leaveCommunityModal = useModal(ModalName.leaveCommunity)
 
-  const isWindows = process.platform === 'win32'
+    const isWindows = process.platform === 'win32'
 
-  return (
-    <SettingsComponent
-      isOwner={isOwner}
-      tabs={tabs}
-      leaveCommunityModal={leaveCommunityModal}
-      {...modal}
-      isWindows={isWindows}
-    />
-  )
+    return (
+        <SettingsComponent
+            isOwner={isOwner}
+            tabs={tabs}
+            leaveCommunityModal={leaveCommunityModal}
+            {...modal}
+            isWindows={isWindows}
+        />
+    )
 }
 
 export default Settings

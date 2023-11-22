@@ -6,5 +6,5 @@ const app = (s: StoreState) => s.app
 const version = createSelector(app, a => a.version)
 
 export default {
-  version,
+    version,
 }

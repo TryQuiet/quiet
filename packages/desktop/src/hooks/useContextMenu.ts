@@ -6,26 +6,26 @@ import { navigationActions, OpenMenuPayload } from '../renderer/store/navigation
 export type UseContextMenuType<T extends OpenMenuPayload['args']> = ReturnType<typeof useContextMenu<T>>
 
 export const useContextMenu = <T extends OpenMenuPayload['args']>(menu: MenuName) => {
-  const dispatch = useDispatch()
+    const dispatch = useDispatch()
 
-  const visible = useSelector(navigationSelectors.contextMenuVisibility(menu))
-  // @ts-expect-error
-  const props: T = useSelector(navigationSelectors.contextMenuProps(menu))
+    const visible = useSelector(navigationSelectors.contextMenuVisibility(menu))
+    // @ts-expect-error
+    const props: T = useSelector(navigationSelectors.contextMenuProps(menu))
 
-  const handleOpen = (args?: T) =>
-    dispatch(
-      navigationActions.openMenu({
-        menu: menu,
-        args: args,
-      })
-    )
+    const handleOpen = (args?: T) =>
+        dispatch(
+            navigationActions.openMenu({
+                menu: menu,
+                args: args,
+            })
+        )
 
-  const handleClose = () => dispatch(navigationActions.closeMenu(menu))
+    const handleClose = () => dispatch(navigationActions.closeMenu(menu))
 
-  return {
-    visible,
-    handleOpen,
-    handleClose,
-    ...props,
-  }
+    return {
+        visible,
+        handleOpen,
+        handleClose,
+        ...props,
+    }
 }

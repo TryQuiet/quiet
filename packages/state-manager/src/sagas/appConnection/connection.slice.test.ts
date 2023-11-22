@@ -11,95 +11,95 @@ import { type Identity } from '@quiet/types'
 import { usersSelectors } from '../users/users.selectors'
 
 describe('connectionReducer', () => {
-  let store: Store
-  let alice: Identity
+    let store: Store
+    let alice: Identity
 
-  beforeEach(async () => {
-    setupCrypto()
+    beforeEach(async () => {
+        setupCrypto()
 
-    store = prepareStore().store
+        store = prepareStore().store
 
-    const factory = await getFactory(store)
+        const factory = await getFactory(store)
 
-    alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
-      nickname: 'alice',
+        alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
+            nickname: 'alice',
+        })
     })
-  })
 
-  it('add initialized communities should add correctly data into the store', () => {
-    const communityId = 'communityId'
-    store.dispatch(networkActions.addInitializedCommunity(communityId))
+    it('add initialized communities should add correctly data into the store', () => {
+        const communityId = 'communityId'
+        store.dispatch(networkActions.addInitializedCommunity(communityId))
 
-    const communities = networkSelectors.initializedCommunities(store.getState())
-    expect(communities).toEqual({ [communityId]: true })
-  })
-
-  it('add initialized registrar should add correctly data into the store', () => {
-    const registrarId = 'registrarId'
-    store.dispatch(networkActions.addInitializedRegistrar(registrarId))
-
-    const registrars = networkSelectors.initializedRegistrars(store.getState())
-    expect(registrars).toEqual({ [registrarId]: true })
-  })
-
-  it('add connected users peerId from store and get it correctly', () => {
-    const peersIds = ['peerId1', 'peerId2']
-
-    store.dispatch(networkActions.addConnectedPeers(peersIds))
-
-    const connectedPeersFromStore = networkSelectors.connectedPeers(store.getState())
-
-    expect(connectedPeersFromStore).toEqual(['peerId1', 'peerId2'])
-  })
-
-  it('user data mapping by peerId', () => {
-    const allUsers = usersSelectors.allUsers(store.getState())
-    const _pubKey = Object.values(allUsers).map(item => {
-      if (item.username === 'alice') {
-        return item.pubKey
-      }
+        const communities = networkSelectors.initializedCommunities(store.getState())
+        expect(communities).toEqual({ [communityId]: true })
     })
-    const pubKey = _pubKey[0]
-    const aliceCertData = {
-      username: alice.nickname,
-      onionAddress: alice.hiddenService.onionAddress,
-      peerId: alice.peerId.id,
-      dmPublicKey: alice.dmKeys.publicKey,
-      isDuplicated: false,
-      isRegistered: true,
-      pubKey,
-    }
 
-    store.dispatch(networkActions.addConnectedPeers([alice.peerId.id]))
-    const userDataPerPeerId = connectionSelectors.connectedPeersMapping(store.getState())
-    expect(userDataPerPeerId[alice.peerId.id]).toEqual(aliceCertData)
-  })
+    it('add initialized registrar should add correctly data into the store', () => {
+        const registrarId = 'registrarId'
+        store.dispatch(networkActions.addInitializedRegistrar(registrarId))
 
-  it('setTorBootstrapProcess', () => {
-    const payload = 'Mar 29 15:15:38.000 [notice] Bootstrapped 10% (conn_done): Connected to a relay'
+        const registrars = networkSelectors.initializedRegistrars(store.getState())
+        expect(registrars).toEqual({ [registrarId]: true })
+    })
 
-    store.dispatch(connectionActions.setTorBootstrapProcess(payload))
+    it('add connected users peerId from store and get it correctly', () => {
+        const peersIds = ['peerId1', 'peerId2']
 
-    const torBootstrapInfo = connectionSelectors.torBootstrapProcess(store.getState())
+        store.dispatch(networkActions.addConnectedPeers(peersIds))
 
-    const expectedTorBootstrapInfo = 'Bootstrapped 10% (conn_done)'
+        const connectedPeersFromStore = networkSelectors.connectedPeers(store.getState())
 
-    expect(torBootstrapInfo).toEqual(expectedTorBootstrapInfo)
-  })
+        expect(connectedPeersFromStore).toEqual(['peerId1', 'peerId2'])
+    })
 
-  it('setTorConnectionProcess', () => {
-    const payload1 = 'Initializing storage'
+    it('user data mapping by peerId', () => {
+        const allUsers = usersSelectors.allUsers(store.getState())
+        const _pubKey = Object.values(allUsers).map(item => {
+            if (item.username === 'alice') {
+                return item.pubKey
+            }
+        })
+        const pubKey = _pubKey[0]
+        const aliceCertData = {
+            username: alice.nickname,
+            onionAddress: alice.hiddenService.onionAddress,
+            peerId: alice.peerId.id,
+            dmPublicKey: alice.dmKeys.publicKey,
+            isDuplicated: false,
+            isRegistered: true,
+            pubKey,
+        }
 
-    store.dispatch(connectionActions.setTorConnectionProcess(payload1))
+        store.dispatch(networkActions.addConnectedPeers([alice.peerId.id]))
+        const userDataPerPeerId = connectionSelectors.connectedPeersMapping(store.getState())
+        expect(userDataPerPeerId[alice.peerId.id]).toEqual(aliceCertData)
+    })
 
-    const payload2 = 'Initializing IPFS'
+    it('setTorBootstrapProcess', () => {
+        const payload = 'Mar 29 15:15:38.000 [notice] Bootstrapped 10% (conn_done): Connected to a relay'
 
-    store.dispatch(connectionActions.setTorConnectionProcess(payload2))
+        store.dispatch(connectionActions.setTorBootstrapProcess(payload))
 
-    const { number, text } = connectionSelectors.torConnectionProcess(store.getState())
+        const torBootstrapInfo = connectionSelectors.torBootstrapProcess(store.getState())
 
-    expect(number).toEqual(70)
+        const expectedTorBootstrapInfo = 'Bootstrapped 10% (conn_done)'
 
-    expect(text).toEqual(payload2)
-  })
+        expect(torBootstrapInfo).toEqual(expectedTorBootstrapInfo)
+    })
+
+    it('setTorConnectionProcess', () => {
+        const payload1 = 'Initializing storage'
+
+        store.dispatch(connectionActions.setTorConnectionProcess(payload1))
+
+        const payload2 = 'Initializing IPFS'
+
+        store.dispatch(connectionActions.setTorConnectionProcess(payload2))
+
+        const { number, text } = connectionSelectors.torConnectionProcess(store.getState())
+
+        expect(number).toEqual(70)
+
+        expect(text).toEqual(payload2)
+    })
 })

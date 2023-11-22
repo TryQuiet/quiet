@@ -4,19 +4,19 @@ import { renderComponent } from '../../../testUtils/renderComponent'
 import { Slider } from './Slider'
 
 describe('Slider', () => {
-  it('renders component', () => {
-    const result = renderComponent(
-      <Slider
-        value={23}
-        handleOnChange={jest.fn()}
-        title='this is a title of the slider'
-        minLabel={''}
-        maxLabel={''}
-        min={0}
-        max={0}
-      />
-    )
-    expect(result.baseElement).toMatchInlineSnapshot(`
+    it('renders component', () => {
+        const result = renderComponent(
+            <Slider
+                value={23}
+                handleOnChange={jest.fn()}
+                title='this is a title of the slider'
+                minLabel={''}
+                maxLabel={''}
+                min={0}
+                max={0}
+            />
+        )
+        expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
           <div
@@ -70,21 +70,21 @@ describe('Slider', () => {
         </div>
       </body>
     `)
-  })
+    })
 
-  it('renders with labels', () => {
-    const result = renderComponent(
-      <Slider
-        value={23}
-        handleOnChange={jest.fn()}
-        title='this is a title of the slider'
-        minLabel='$ MIN'
-        maxLabel='$ MAX'
-        min={0}
-        max={0}
-      />
-    )
-    expect(result.baseElement).toMatchInlineSnapshot(`
+    it('renders with labels', () => {
+        const result = renderComponent(
+            <Slider
+                value={23}
+                handleOnChange={jest.fn()}
+                title='this is a title of the slider'
+                minLabel='$ MIN'
+                maxLabel='$ MAX'
+                min={0}
+                max={0}
+            />
+        )
+        expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
           <div
@@ -142,21 +142,21 @@ describe('Slider', () => {
         </div>
       </body>
     `)
-  })
+    })
 
-  it('renders custom min/max', () => {
-    const result = renderComponent(
-      <Slider
-        value={8}
-        handleOnChange={jest.fn()}
-        title='this is a title of the slider'
-        minLabel={''}
-        maxLabel={''}
-        min={-20}
-        max={20}
-      />
-    )
-    expect(result.baseElement).toMatchInlineSnapshot(`
+    it('renders custom min/max', () => {
+        const result = renderComponent(
+            <Slider
+                value={8}
+                handleOnChange={jest.fn()}
+                title='this is a title of the slider'
+                minLabel={''}
+                maxLabel={''}
+                min={-20}
+                max={20}
+            />
+        )
+        expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
           <div
@@ -211,5 +211,5 @@ describe('Slider', () => {
         </div>
       </body>
     `)
-  })
+    })
 })

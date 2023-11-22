@@ -17,64 +17,67 @@ import { type PublicChannel, SocketActionTypes } from '@quiet/types'
 import { generateChannelId } from '@quiet/common'
 
 describe('createChannelSaga', () => {
-  let store: Store
-  let factory: FactoryGirl
+    let store: Store
+    let factory: FactoryGirl
 
-  beforeAll(async () => {
-    setupCrypto()
-    store = prepareStore().store
-    factory = await getFactory(store)
-  })
-
-  const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
-
-  const channel: PublicChannel = {
-    name: 'general',
-    description: 'desc',
-    owner: 'Howdy',
-    timestamp: Date.now(),
-    id: generateChannelId('general'),
-  }
-
-  test('ask for missing messages', async () => {
-    const community =
-      await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
-
-    const identity = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
-      nickname: 'john',
+    beforeAll(async () => {
+        setupCrypto()
+        store = prepareStore().store
+        factory = await getFactory(store)
     })
 
-    await expectSaga(
-      createChannelSaga,
-      socket,
-      publicChannelsActions.createChannel({
-        channel,
-      })
-    )
-      .withReducer(
-        combineReducers({
-          [StoreKeys.Identity]: identityReducer,
-          [StoreKeys.Communities]: communitiesReducer,
-        }),
-        {
-          [StoreKeys.Identity]: {
-            ...new IdentityState(),
-            identities: identityAdapter.setAll(identityAdapter.getInitialState(), [identity]),
-          },
-          [StoreKeys.Communities]: {
-            ...new CommunitiesState(),
-            currentCommunity: community.id,
-            communities: communitiesAdapter.setAll(communitiesAdapter.getInitialState(), [community]),
-          },
-        }
-      )
-      .apply(socket, socket.emit, [
-        SocketActionTypes.CREATE_CHANNEL,
-        {
-          channel,
-        },
-      ])
-      .run()
-  })
+    const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
+
+    const channel: PublicChannel = {
+        name: 'general',
+        description: 'desc',
+        owner: 'Howdy',
+        timestamp: Date.now(),
+        id: generateChannelId('general'),
+    }
+
+    test('ask for missing messages', async () => {
+        const community =
+            await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
+
+        const identity = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
+            'Identity',
+            {
+                id: community.id,
+                nickname: 'john',
+            }
+        )
+
+        await expectSaga(
+            createChannelSaga,
+            socket,
+            publicChannelsActions.createChannel({
+                channel,
+            })
+        )
+            .withReducer(
+                combineReducers({
+                    [StoreKeys.Identity]: identityReducer,
+                    [StoreKeys.Communities]: communitiesReducer,
+                }),
+                {
+                    [StoreKeys.Identity]: {
+                        ...new IdentityState(),
+                        identities: identityAdapter.setAll(identityAdapter.getInitialState(), [identity]),
+                    },
+                    [StoreKeys.Communities]: {
+                        ...new CommunitiesState(),
+                        currentCommunity: community.id,
+                        communities: communitiesAdapter.setAll(communitiesAdapter.getInitialState(), [community]),
+                    },
+                }
+            )
+            .apply(socket, socket.emit, [
+                SocketActionTypes.CREATE_CHANNEL,
+                {
+                    channel,
+                },
+            ])
+            .run()
+    })
 })

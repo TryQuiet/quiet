@@ -18,73 +18,75 @@ import { navigationActions } from '../../../store/navigation/navigation.slice'
 import { ScreenNames } from '../../../const/ScreenNames.enum'
 
 export const InvitationContextMenu: FC = () => {
-  const dispatch = useDispatch()
+    const dispatch = useDispatch()
 
-  const screen = useSelector(navigationSelectors.currentScreen)
-  const invitationLink = useSelector(communities.selectors.invitationUrl)
+    const screen = useSelector(navigationSelectors.currentScreen)
+    const invitationLink = useSelector(communities.selectors.invitationUrl)
 
-  const invitationContextMenu = useContextMenu(MenuName.Invitation)
+    const invitationContextMenu = useContextMenu(MenuName.Invitation)
 
-  const redirect = useCallback(
-    (screen: ScreenNames) => {
-      dispatch(
-        navigationActions.navigation({
-          screen,
-        })
-      )
-    },
-    [dispatch]
-  )
+    const redirect = useCallback(
+        (screen: ScreenNames) => {
+            dispatch(
+                navigationActions.navigation({
+                    screen,
+                })
+            )
+        },
+        [dispatch]
+    )
 
-  const copyLink = async () => {
-    Clipboard.setString(invitationLink)
-    await confirmationBox.flash()
-  }
-
-  const shareLink = async () => {
-    try {
-      await Share.share({
-        title: '"Quiet" invitation',
-        message: `Chat with me on "Quiet"!\n${invitationLink}`,
-      })
-    } catch (error) {
-      console.error(error)
+    const copyLink = async () => {
+        Clipboard.setString(invitationLink)
+        await confirmationBox.flash()
     }
-  }
 
-  const confirmationBox = useConfirmationBox('Link copied')
+    const shareLink = async () => {
+        try {
+            await Share.share({
+                title: '"Quiet" invitation',
+                message: `Chat with me on "Quiet"!\n${invitationLink}`,
+            })
+        } catch (error) {
+            console.error(error)
+        }
+    }
 
-  const items: ContextMenuItemProps[] = [
-    {
-      title: 'Copy link',
-      action: copyLink,
-    },
-    {
-      title: 'QR code',
-      action: () => redirect(ScreenNames.QRCodeScreen),
-    },
-    {
-      title: 'Share',
-      action: shareLink,
-    },
-    {
-      title: 'Cancel',
-      action: () => invitationContextMenu.handleClose(),
-    },
-  ]
+    const confirmationBox = useConfirmationBox('Link copied')
 
-  useEffect(() => {
-    invitationContextMenu.handleClose()
-  }, [screen])
+    const items: ContextMenuItemProps[] = [
+        {
+            title: 'Copy link',
+            action: copyLink,
+        },
+        {
+            title: 'QR code',
+            action: () => redirect(ScreenNames.QRCodeScreen),
+        },
+        {
+            title: 'Share',
+            action: shareLink,
+        },
+        {
+            title: 'Cancel',
+            action: () => invitationContextMenu.handleClose(),
+        },
+    ]
 
-  return (
-    <ContextMenu
-      title={'Add members'}
-      items={items}
-      hint={'Anyone with Quiet app can follow this link to join this community. Only share with people you trust.'}
-      link={invitationLink}
-      linkAction={copyLink}
-      {...invitationContextMenu}
-    />
-  )
+    useEffect(() => {
+        invitationContextMenu.handleClose()
+    }, [screen])
+
+    return (
+        <ContextMenu
+            title={'Add members'}
+            items={items}
+            hint={
+                'Anyone with Quiet app can follow this link to join this community. Only share with people you trust.'
+            }
+            link={invitationLink}
+            linkAction={copyLink}
+            {...invitationContextMenu}
+        />
+    )
 }

@@ -4,17 +4,17 @@ import { messagesActions } from '../messages.slice'
 import { type MessageVerificationStatus } from '@quiet/types'
 
 export function* verifyMessagesSaga(
-  action: PayloadAction<ReturnType<typeof messagesActions.incomingMessages>>['payload']
+    action: PayloadAction<ReturnType<typeof messagesActions.incomingMessages>>['payload']
 ): Generator {
-  const messages = action.payload.messages
+    const messages = action.payload.messages
 
-  for (const message of messages) {
-    const verificationStatus: MessageVerificationStatus = {
-      publicKey: message.pubKey,
-      signature: message.signature,
-      isVerified: Boolean(action.payload.isVerified),
+    for (const message of messages) {
+        const verificationStatus: MessageVerificationStatus = {
+            publicKey: message.pubKey,
+            signature: message.signature,
+            isVerified: Boolean(action.payload.isVerified),
+        }
+
+        yield* put(messagesActions.addMessageVerificationStatus(verificationStatus))
     }
-
-    yield* put(messagesActions.addMessageVerificationStatus(verificationStatus))
-  }
 }

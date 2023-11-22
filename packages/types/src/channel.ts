@@ -4,55 +4,55 @@ import { type FileMetadata } from './files'
 export const INITIAL_CURRENT_CHANNEL_ID = 'initialcurrentChannelId'
 
 export interface PublicChannel {
-  name: string
-  description: string
-  owner: string
-  timestamp: number
-  id: string
-  disabled?: boolean
+    name: string
+    description: string
+    owner: string
+    timestamp: number
+    id: string
+    disabled?: boolean
 }
 
 export interface PublicChannelStorage extends PublicChannel {
-  messages: EntityState<ChannelMessage>
+    messages: EntityState<ChannelMessage>
 }
 
 export interface PublicChannelStatus {
-  id: string
-  unread: boolean
-  newestMessage: ChannelMessage | null
+    id: string
+    unread: boolean
+    newestMessage: ChannelMessage | null
 }
 
 export interface PublicChannelStatusWithName extends PublicChannelStatus {
-  name: string
+    name: string
 }
 
 export interface PublicChannelSubscription {
-  id: string
-  subscribed: boolean
+    id: string
+    subscribed: boolean
 }
 
 export interface ChannelMessage {
-  id: string
-  type: number
-  message: string
-  createdAt: number
-  channelId: string
-  signature: string
-  pubKey: string
-  media?: FileMetadata
+    id: string
+    type: number
+    message: string
+    createdAt: number
+    channelId: string
+    signature: string
+    pubKey: string
+    media?: FileMetadata
 }
 
 export interface DisplayableMessage {
-  id: string
-  type: number
-  message: string
-  createdAt: number // seconds
-  date: string // displayable
-  nickname: string
-  media?: FileMetadata
-  isRegistered: boolean
-  isDuplicated: boolean
-  pubKey: string
+    id: string
+    type: number
+    message: string
+    createdAt: number // seconds
+    date: string // displayable
+    nickname: string
+    media?: FileMetadata
+    isRegistered: boolean
+    isDuplicated: boolean
+    pubKey: string
 }
 
 export type MessagesGroupsType = Record<string, DisplayableMessage[]>
@@ -60,85 +60,85 @@ export type MessagesGroupsType = Record<string, DisplayableMessage[]>
 export type MessagesDailyGroups = Record<string, DisplayableMessage[][]>
 
 export interface ChannelsReplicatedPayload {
-  channels: Dictionary<PublicChannel>
+    channels: Dictionary<PublicChannel>
 }
 
 export interface CreateChannelPayload {
-  channel: PublicChannel
+    channel: PublicChannel
 }
 
 export interface DeleteChannelPayload {
-  channelId: string
+    channelId: string
 }
 export interface ChannelDeletionResponsePayload {
-  channelId: string
+    channelId: string
 }
 
 export interface CreatedChannelResponse {
-  channel: PublicChannel
+    channel: PublicChannel
 }
 
 export interface SetChannelSubscribedPayload {
-  channelId: string
+    channelId: string
 }
 
 export interface SetCurrentChannelPayload {
-  channelId: string
+    channelId: string
 }
 
 export interface SetChannelMessagesSliceValuePayload {
-  messagesSlice: number
-  channelId: string
+    messagesSlice: number
+    channelId: string
 }
 
 export interface PendingMessage {
-  message: ChannelMessage
+    message: ChannelMessage
 }
 
 export interface SendInitialChannelMessagePayload {
-  channelName: string
-  channelId: string
+    channelName: string
+    channelId: string
 }
 export interface SendNewUserInfoMessagePayload {
-  certificates: string[]
+    certificates: string[]
 }
 
 export interface IncomingMessages {
-  messages: ChannelMessage[]
-  isVerified?: boolean
+    messages: ChannelMessage[]
+    isVerified?: boolean
 }
 
 export interface CacheMessagesPayload {
-  messages: ChannelMessage[]
-  channelId: string
+    messages: ChannelMessage[]
+    channelId: string
 }
 
 export interface MarkUnreadChannelPayload {
-  channelId: string
-  message?: ChannelMessage
+    channelId: string
+    message?: ChannelMessage
 }
 
 export interface UpdateNewestMessagePayload {
-  message: ChannelMessage
+    message: ChannelMessage
 }
 
 export interface DeleteChannelFromStorePayload {
-  channelId: string
+    channelId: string
 }
 
 export interface ClearMessagesCachePayload {
-  channelId: string
+    channelId: string
 }
 
 export interface DisableChannelPayload {
-  channelId: string
+    channelId: string
 }
 
 export interface ChannelStructure {
-  channelName: string | null
-  channelId: string | null
+    channelName: string | null
+    channelId: string | null
 }
 
 export function instanceOfChannelMessage(object: ChannelMessage): boolean {
-  return 'channelId' in object
+    return 'channelId' in object
 }

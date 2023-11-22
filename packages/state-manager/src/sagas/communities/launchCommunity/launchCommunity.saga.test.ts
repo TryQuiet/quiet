@@ -17,269 +17,285 @@ import { connectionReducer, ConnectionState } from '../../appConnection/connecti
 import { type InitCommunityPayload, SocketActionTypes } from '@quiet/types'
 
 describe('launchCommunity', () => {
-  let store: Store
-  let factory: FactoryGirl
+    let store: Store
+    let factory: FactoryGirl
 
-  beforeAll(async () => {
-    setupCrypto()
-    store = prepareStore().store
-    factory = await getFactory(store)
-  })
-
-  test('launch all remembered communities', async () => {
-    const community1 =
-      await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
-    await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
-      id: community1.id,
-      nickname: 'alice1',
+    beforeAll(async () => {
+        setupCrypto()
+        store = prepareStore().store
+        factory = await getFactory(store)
     })
 
-    const community2 =
-      await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
-    await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
-      id: community2.id,
-      nickname: 'alice2',
+    test('launch all remembered communities', async () => {
+        const community1 =
+            await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
+        await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
+            id: community1.id,
+            nickname: 'alice1',
+        })
+
+        const community2 =
+            await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
+        await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
+            id: community2.id,
+            nickname: 'alice2',
+        })
+
+        const community3 =
+            await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
+        await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
+            id: community3.id,
+            nickname: 'alice3',
+        })
+
+        const reducer = combineReducers(reducers)
+        await expectSaga(initCommunities)
+            .withReducer(reducer)
+            .withState(store.getState())
+            .put(communitiesActions.launchCommunity(community1.id))
+            .put(communitiesActions.launchCommunity(community2.id))
+            .put(communitiesActions.launchCommunity(community3.id))
+            .run()
     })
 
-    const community3 =
-      await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
-    await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
-      id: community3.id,
-      nickname: 'alice3',
-    })
+    test('launch certain community instead of current community', async () => {
+        const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
 
-    const reducer = combineReducers(reducers)
-    await expectSaga(initCommunities)
-      .withReducer(reducer)
-      .withState(store.getState())
-      .put(communitiesActions.launchCommunity(community1.id))
-      .put(communitiesActions.launchCommunity(community2.id))
-      .put(communitiesActions.launchCommunity(community3.id))
-      .run()
-  })
+        const community =
+            await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
 
-  test('launch certain community instead of current community', async () => {
-    const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
-
-    const community =
-      await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
-
-    const identity = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
-      nickname: 'john',
-    })
-    const communityWithRootCa = {
-      ...community,
-      rootCa: 'rootCA',
-    }
-    const launchCommunityPayload: InitCommunityPayload = {
-      id: community.id,
-      peerId: identity.peerId,
-      hiddenService: identity.hiddenService,
-      certs: {
-        // @ts-expect-error
-        certificate: identity.userCertificate,
-        // @ts-expect-error
-        key: identity.userCsr.userKey,
-        CA: [communityWithRootCa.rootCa],
-      },
-      peers: community.peerList,
-    }
-
-    await expectSaga(launchCommunitySaga, socket, communitiesActions.launchCommunity(community.id))
-      .withReducer(
-        combineReducers({
-          [StoreKeys.Communities]: communitiesReducer,
-          [StoreKeys.Identity]: identityReducer,
-          [StoreKeys.Connection]: connectionReducer,
-        }),
-        {
-          [StoreKeys.Communities]: {
-            ...new CommunitiesState(),
-            currentCommunity: community.id,
-            communities: communitiesAdapter.setAll(communitiesAdapter.getInitialState(), [communityWithRootCa]),
-          },
-          [StoreKeys.Identity]: {
-            ...new IdentityState(),
-            identities: identityAdapter.setAll(identityAdapter.getInitialState(), [identity]),
-          },
-          [StoreKeys.Connection]: {
-            ...new ConnectionState(),
-          },
+        const identity = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
+            'Identity',
+            {
+                id: community.id,
+                nickname: 'john',
+            }
+        )
+        const communityWithRootCa = {
+            ...community,
+            rootCa: 'rootCA',
         }
-      )
-      .apply(socket, socket.emit, [
-        SocketActionTypes.LAUNCH_COMMUNITY,
-        {
-          id: launchCommunityPayload.id,
-          peerId: launchCommunityPayload.peerId,
-          hiddenService: launchCommunityPayload.hiddenService,
-          peers: launchCommunityPayload.peers,
-        },
-      ])
-      .run()
-  })
+        const launchCommunityPayload: InitCommunityPayload = {
+            id: community.id,
+            peerId: identity.peerId,
+            hiddenService: identity.hiddenService,
+            certs: {
+                // @ts-expect-error
+                certificate: identity.userCertificate,
+                // @ts-expect-error
+                key: identity.userCsr.userKey,
+                CA: [communityWithRootCa.rootCa],
+            },
+            peers: community.peerList,
+        }
 
-  test('launch current community', async () => {
-    const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
-
-    const community =
-      await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
-    const communityWithRootCa = {
-      ...community,
-      rootCa: 'rootCA',
-    }
-    const identity = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
-      nickname: 'john',
+        await expectSaga(launchCommunitySaga, socket, communitiesActions.launchCommunity(community.id))
+            .withReducer(
+                combineReducers({
+                    [StoreKeys.Communities]: communitiesReducer,
+                    [StoreKeys.Identity]: identityReducer,
+                    [StoreKeys.Connection]: connectionReducer,
+                }),
+                {
+                    [StoreKeys.Communities]: {
+                        ...new CommunitiesState(),
+                        currentCommunity: community.id,
+                        communities: communitiesAdapter.setAll(communitiesAdapter.getInitialState(), [
+                            communityWithRootCa,
+                        ]),
+                    },
+                    [StoreKeys.Identity]: {
+                        ...new IdentityState(),
+                        identities: identityAdapter.setAll(identityAdapter.getInitialState(), [identity]),
+                    },
+                    [StoreKeys.Connection]: {
+                        ...new ConnectionState(),
+                    },
+                }
+            )
+            .apply(socket, socket.emit, [
+                SocketActionTypes.LAUNCH_COMMUNITY,
+                {
+                    id: launchCommunityPayload.id,
+                    peerId: launchCommunityPayload.peerId,
+                    hiddenService: launchCommunityPayload.hiddenService,
+                    peers: launchCommunityPayload.peers,
+                },
+            ])
+            .run()
     })
 
-    const launchCommunityPayload: InitCommunityPayload = {
-      id: community.id,
-      peerId: identity.peerId,
-      hiddenService: identity.hiddenService,
-      certs: {
-        // @ts-expect-error
-        certificate: identity.userCertificate,
-        // @ts-expect-error
-        key: identity.userCsr.userKey,
-        CA: [communityWithRootCa.rootCa],
-      },
-      peers: community.peerList,
-    }
+    test('launch current community', async () => {
+        const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
 
-    await expectSaga(launchCommunitySaga, socket, communitiesActions.launchCommunity(community.id))
-      .withReducer(
-        combineReducers({
-          [StoreKeys.Communities]: communitiesReducer,
-          [StoreKeys.Identity]: identityReducer,
-          [StoreKeys.Connection]: connectionReducer,
-        }),
-        {
-          [StoreKeys.Communities]: {
-            ...new CommunitiesState(),
-            currentCommunity: community.id,
-            communities: communitiesAdapter.setAll(communitiesAdapter.getInitialState(), [communityWithRootCa]),
-          },
-          [StoreKeys.Identity]: {
-            ...new IdentityState(),
-            identities: identityAdapter.setAll(identityAdapter.getInitialState(), [identity]),
-          },
-          [StoreKeys.Connection]: {
-            ...new ConnectionState(),
-          },
+        const community =
+            await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
+        const communityWithRootCa = {
+            ...community,
+            rootCa: 'rootCA',
         }
-      )
-      .apply(socket, socket.emit, [
-        SocketActionTypes.LAUNCH_COMMUNITY,
-        {
-          id: launchCommunityPayload.id,
-          peerId: launchCommunityPayload.peerId,
-          hiddenService: launchCommunityPayload.hiddenService,
-          peers: launchCommunityPayload.peers,
-        },
-      ])
-      .run()
-  })
+        const identity = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
+            'Identity',
+            {
+                id: community.id,
+                nickname: 'john',
+            }
+        )
 
-  test('do not launch current community if it does not have rootCa', async () => {
-    const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
+        const launchCommunityPayload: InitCommunityPayload = {
+            id: community.id,
+            peerId: identity.peerId,
+            hiddenService: identity.hiddenService,
+            certs: {
+                // @ts-expect-error
+                certificate: identity.userCertificate,
+                // @ts-expect-error
+                key: identity.userCsr.userKey,
+                CA: [communityWithRootCa.rootCa],
+            },
+            peers: community.peerList,
+        }
 
-    const community =
-      await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
-    expect(community.rootCa).toBeUndefined()
-    const identity = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
-      nickname: 'john',
+        await expectSaga(launchCommunitySaga, socket, communitiesActions.launchCommunity(community.id))
+            .withReducer(
+                combineReducers({
+                    [StoreKeys.Communities]: communitiesReducer,
+                    [StoreKeys.Identity]: identityReducer,
+                    [StoreKeys.Connection]: connectionReducer,
+                }),
+                {
+                    [StoreKeys.Communities]: {
+                        ...new CommunitiesState(),
+                        currentCommunity: community.id,
+                        communities: communitiesAdapter.setAll(communitiesAdapter.getInitialState(), [
+                            communityWithRootCa,
+                        ]),
+                    },
+                    [StoreKeys.Identity]: {
+                        ...new IdentityState(),
+                        identities: identityAdapter.setAll(identityAdapter.getInitialState(), [identity]),
+                    },
+                    [StoreKeys.Connection]: {
+                        ...new ConnectionState(),
+                    },
+                }
+            )
+            .apply(socket, socket.emit, [
+                SocketActionTypes.LAUNCH_COMMUNITY,
+                {
+                    id: launchCommunityPayload.id,
+                    peerId: launchCommunityPayload.peerId,
+                    hiddenService: launchCommunityPayload.hiddenService,
+                    peers: launchCommunityPayload.peers,
+                },
+            ])
+            .run()
     })
 
-    const launchCommunityPayload: InitCommunityPayload = {
-      id: community.id,
-      peerId: identity.peerId,
-      hiddenService: identity.hiddenService,
-      certs: {
-        // @ts-expect-error
-        certificate: identity.userCertificate,
-        // @ts-expect-error
-        key: identity.userCsr.userKey,
-        // @ts-expect-error
-        CA: [community.rootCa],
-      },
-      peers: community.peerList,
-    }
+    test('do not launch current community if it does not have rootCa', async () => {
+        const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
 
-    await expectSaga(launchCommunitySaga, socket, communitiesActions.launchCommunity(community.id))
-      .withReducer(
-        combineReducers({
-          [StoreKeys.Communities]: communitiesReducer,
-          [StoreKeys.Identity]: identityReducer,
-          [StoreKeys.Connection]: connectionReducer,
-        }),
-        {
-          [StoreKeys.Communities]: {
-            ...new CommunitiesState(),
-            currentCommunity: community.id,
-            communities: communitiesAdapter.setAll(communitiesAdapter.getInitialState(), [community]),
-          },
-          [StoreKeys.Identity]: {
-            ...new IdentityState(),
-            identities: identityAdapter.setAll(identityAdapter.getInitialState(), [identity]),
-          },
-          [StoreKeys.Connection]: {
-            ...new ConnectionState(),
-          },
+        const community =
+            await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
+        expect(community.rootCa).toBeUndefined()
+        const identity = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
+            'Identity',
+            {
+                id: community.id,
+                nickname: 'john',
+            }
+        )
+
+        const launchCommunityPayload: InitCommunityPayload = {
+            id: community.id,
+            peerId: identity.peerId,
+            hiddenService: identity.hiddenService,
+            certs: {
+                // @ts-expect-error
+                certificate: identity.userCertificate,
+                // @ts-expect-error
+                key: identity.userCsr.userKey,
+                // @ts-expect-error
+                CA: [community.rootCa],
+            },
+            peers: community.peerList,
         }
-      )
-      .not.apply(socket, socket.emit, [
-        SocketActionTypes.LAUNCH_COMMUNITY,
-        {
-          id: launchCommunityPayload.id,
-          peerId: launchCommunityPayload.peerId,
-          hiddenService: launchCommunityPayload.hiddenService,
-          certs: launchCommunityPayload.certs,
-          peers: launchCommunityPayload.peers,
-        },
-      ])
-      .run()
-  })
 
-  test.skip('launch and register unregistered member and launch registered member to community', async () => {
-    setupCrypto()
-    const store = prepareStore().store
-    const factory = await getFactory(store)
+        await expectSaga(launchCommunitySaga, socket, communitiesActions.launchCommunity(community.id))
+            .withReducer(
+                combineReducers({
+                    [StoreKeys.Communities]: communitiesReducer,
+                    [StoreKeys.Identity]: identityReducer,
+                    [StoreKeys.Connection]: connectionReducer,
+                }),
+                {
+                    [StoreKeys.Communities]: {
+                        ...new CommunitiesState(),
+                        currentCommunity: community.id,
+                        communities: communitiesAdapter.setAll(communitiesAdapter.getInitialState(), [community]),
+                    },
+                    [StoreKeys.Identity]: {
+                        ...new IdentityState(),
+                        identities: identityAdapter.setAll(identityAdapter.getInitialState(), [identity]),
+                    },
+                    [StoreKeys.Connection]: {
+                        ...new ConnectionState(),
+                    },
+                }
+            )
+            .not.apply(socket, socket.emit, [
+                SocketActionTypes.LAUNCH_COMMUNITY,
+                {
+                    id: launchCommunityPayload.id,
+                    peerId: launchCommunityPayload.peerId,
+                    hiddenService: launchCommunityPayload.hiddenService,
+                    certs: launchCommunityPayload.certs,
+                    peers: launchCommunityPayload.peers,
+                },
+            ])
+            .run()
+    })
 
-    const community1 =
-      await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
+    test.skip('launch and register unregistered member and launch registered member to community', async () => {
+        setupCrypto()
+        const store = prepareStore().store
+        const factory = await getFactory(store)
 
-    const community2 =
-      await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
+        const community1 =
+            await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
 
-    const identityAlpha = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
-      'Identity',
-      { id: community1.id, nickname: 'john' }
-    )
+        const community2 =
+            await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
 
-    const identityBeta = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
-      'Identity',
-      { id: community2.id, nickname: 'john' }
-    )
+        const identityAlpha = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
+            'Identity',
+            { id: community1.id, nickname: 'john' }
+        )
 
-    await expectSaga(initCommunities)
-      .withReducer(
-        combineReducers({
-          [StoreKeys.Communities]: communitiesReducer,
-          [StoreKeys.Identity]: identityReducer,
-        }),
-        {
-          [StoreKeys.Communities]: store.getState().Communities,
-          [StoreKeys.Identity]: {
-            ...new IdentityState(),
-            identities: identityAdapter.setAll(identityAdapter.getInitialState(), [identityAlpha, identityBeta]),
-          },
-        }
-      )
-      .put(identityActions.registerUsername({ nickname: identityAlpha.nickname }))
-      .put(communitiesActions.launchCommunity(community2.id))
-      .run()
-  })
+        const identityBeta = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>(
+            'Identity',
+            { id: community2.id, nickname: 'john' }
+        )
+
+        await expectSaga(initCommunities)
+            .withReducer(
+                combineReducers({
+                    [StoreKeys.Communities]: communitiesReducer,
+                    [StoreKeys.Identity]: identityReducer,
+                }),
+                {
+                    [StoreKeys.Communities]: store.getState().Communities,
+                    [StoreKeys.Identity]: {
+                        ...new IdentityState(),
+                        identities: identityAdapter.setAll(identityAdapter.getInitialState(), [
+                            identityAlpha,
+                            identityBeta,
+                        ]),
+                    },
+                }
+            )
+            .put(identityActions.registerUsername({ nickname: identityAlpha.nickname }))
+            .put(communitiesActions.launchCommunity(community2.id))
+            .run()
+    })
 })

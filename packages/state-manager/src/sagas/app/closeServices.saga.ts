@@ -5,8 +5,8 @@ import { type Socket } from '../../types'
 import { SocketActionTypes } from '@quiet/types'
 
 export function* closeServicesSaga(
-  socket: Socket,
-  _action: PayloadAction<ReturnType<typeof appActions.closeServices>['payload']>
+    socket: Socket,
+    _action: PayloadAction<ReturnType<typeof appActions.closeServices>['payload']>
 ): Generator {
-  yield* apply(socket, socket.emit, [SocketActionTypes.LEAVE_COMMUNITY])
+    yield* apply(socket, socket.emit, [SocketActionTypes.LEAVE_COMMUNITY])
 }

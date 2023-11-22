@@ -6,10 +6,10 @@ import { renderComponent } from '../../utils/functions/renderComponent/renderCom
 import { Appbar } from './Appbar.component'
 
 describe('Appbar component', () => {
-  it('renders for channel', () => {
-    const { toJSON } = renderComponent(<Appbar title={'general'} prefix={'#'} back={() => {}} />)
+    it('renders for channel', () => {
+        const { toJSON } = renderComponent(<Appbar title={'general'} prefix={'#'} back={() => {}} />)
 
-    expect(toJSON()).toMatchInlineSnapshot(`
+        expect(toJSON()).toMatchInlineSnapshot(`
       <View
         style={
           [
@@ -135,18 +135,18 @@ describe('Appbar component', () => {
         />
       </View>
     `)
-  })
+    })
 
-  it('renders for community', () => {
-    const contextMenu: ReturnType<typeof useContextMenu> = {
-      visible: false,
-      handleOpen: function (_args?: any): any {},
-      handleClose: function (): any {},
-    }
+    it('renders for community', () => {
+        const contextMenu: ReturnType<typeof useContextMenu> = {
+            visible: false,
+            handleOpen: function (_args?: any): any {},
+            handleClose: function (): any {},
+        }
 
-    const { toJSON } = renderComponent(<Appbar title={'quiet'} position={'flex-start'} contextMenu={contextMenu} />)
+        const { toJSON } = renderComponent(<Appbar title={'quiet'} position={'flex-start'} contextMenu={contextMenu} />)
 
-    expect(toJSON()).toMatchInlineSnapshot(`
+        expect(toJSON()).toMatchInlineSnapshot(`
       <View
         style={
           [
@@ -351,5 +351,5 @@ describe('Appbar component', () => {
         </View>
       </View>
     `)
-  })
+    })
 })

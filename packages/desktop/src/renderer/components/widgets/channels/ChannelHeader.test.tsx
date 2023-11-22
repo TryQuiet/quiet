@@ -4,9 +4,9 @@ import { renderComponent } from '../../../testUtils/renderComponent'
 import { ChannelHeaderComponent } from './ChannelHeader'
 
 describe('ChannelHeader', () => {
-  it('hides context menu', () => {
-    const result = renderComponent(<ChannelHeaderComponent channelName='general' enableContextMenu={false} />)
-    expect(result.baseElement).toMatchInlineSnapshot(`
+    it('hides context menu', () => {
+        const result = renderComponent(<ChannelHeaderComponent channelName='general' enableContextMenu={false} />)
+        expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
           <div
@@ -42,10 +42,10 @@ describe('ChannelHeader', () => {
         </div>
       </body>
     `)
-  })
-  it('reveals context menu', () => {
-    const result = renderComponent(<ChannelHeaderComponent channelName='general' enableContextMenu={true} />)
-    expect(result.baseElement).toMatchInlineSnapshot(`
+    })
+    it('reveals context menu', () => {
+        const result = renderComponent(<ChannelHeaderComponent channelName='general' enableContextMenu={true} />)
+        expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
           <div
@@ -90,5 +90,5 @@ describe('ChannelHeader', () => {
         </div>
       </body>
     `)
-  })
+    })
 })

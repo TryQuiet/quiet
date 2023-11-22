@@ -4,15 +4,15 @@ import { renderComponent } from '../../utils/functions/renderComponent/renderCom
 import { Loading } from './Loading.component'
 
 describe('Loading component', () => {
-  it('should match inline snapshot', () => {
-    const { toJSON } = renderComponent(
-      <Loading
-        title={'Creating community “Disco-fever”'}
-        caption={'Additional info if needed can go here otherwise this is hidden.'}
-      />
-    )
+    it('should match inline snapshot', () => {
+        const { toJSON } = renderComponent(
+            <Loading
+                title={'Creating community “Disco-fever”'}
+                caption={'Additional info if needed can go here otherwise this is hidden.'}
+            />
+        )
 
-    expect(toJSON()).toMatchInlineSnapshot(`
+        expect(toJSON()).toMatchInlineSnapshot(`
       <View
         style={
           {
@@ -105,5 +105,5 @@ describe('Loading component', () => {
         </View>
       </View>
     `)
-  })
+    })
 })

@@ -18,21 +18,21 @@ import paperclip_gray from '../assets/icons/paperclip_gray.png'
  * @description This assets are for the app.
  */
 export const appImages = {
-  quiet_icon,
-  quiet_icon_round,
-  icon_send,
-  icon_send_disabled,
-  icon_check_white,
-  check_circle_green,
-  check_circle_blank,
-  username_registered,
-  arrow_left,
-  arrow_right_short,
-  icon_warning,
-  icon_close,
-  file_document,
-  dots,
-  paperclip_gray,
+    quiet_icon,
+    quiet_icon_round,
+    icon_send,
+    icon_send_disabled,
+    icon_check_white,
+    check_circle_green,
+    check_circle_blank,
+    username_registered,
+    arrow_left,
+    arrow_right_short,
+    icon_warning,
+    icon_close,
+    file_document,
+    dots,
+    paperclip_gray,
 }
 
 /**

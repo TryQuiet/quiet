@@ -5,9 +5,9 @@ import { reducers } from './sagas/reducers'
 import { appActions } from './sagas/app/app.slice'
 
 import {
-  publicChannelsReducer,
-  publicChannelsActions,
-  PublicChannelsState,
+    publicChannelsReducer,
+    publicChannelsActions,
+    PublicChannelsState,
 } from './sagas/publicChannels/publicChannels.slice'
 
 import { publicChannelsSelectors } from './sagas/publicChannels/publicChannels.selectors'
@@ -103,77 +103,77 @@ export * from './sagas/settings/settings.types'
 export * from './sagas/appConnection/connection.types'
 
 export const app = {
-  actions: appActions,
+    actions: appActions,
 }
 
 export const settings = {
-  reducer: settingsReducer,
-  State: SettingsState,
-  selectors: settingsSelectors,
-  actions: settingsActions,
+    reducer: settingsReducer,
+    State: SettingsState,
+    selectors: settingsSelectors,
+    actions: settingsActions,
 }
 
 export const publicChannels = {
-  reducer: publicChannelsReducer,
-  State: PublicChannelsState,
-  selectors: publicChannelsSelectors,
-  actions: publicChannelsActions,
-  sagas: publicChannelsMasterSaga,
+    reducer: publicChannelsReducer,
+    State: PublicChannelsState,
+    selectors: publicChannelsSelectors,
+    actions: publicChannelsActions,
+    sagas: publicChannelsMasterSaga,
 }
 
 export const users = {
-  reducer: usersReducer,
-  State: UsersState,
-  actions: usersActions,
-  selectors: usersSelectors,
+    reducer: usersReducer,
+    State: UsersState,
+    actions: usersActions,
+    selectors: usersSelectors,
 }
 
 export const identity = {
-  reducer: identityReducer,
-  State: IdentityState,
-  actions: identityActions,
-  selectors: identitySelectors,
+    reducer: identityReducer,
+    State: IdentityState,
+    actions: identityActions,
+    selectors: identitySelectors,
 }
 
 export const messages = {
-  reducer: messagesReducer,
-  actions: messagesActions,
-  selectors: messagesSelectors,
+    reducer: messagesReducer,
+    actions: messagesActions,
+    selectors: messagesSelectors,
 }
 
 export const errors = {
-  reducer: errorsReducer,
-  actions: errorsActions,
-  selectors: errorsSelectors,
+    reducer: errorsReducer,
+    actions: errorsActions,
+    selectors: errorsSelectors,
 }
 
 export const communities = {
-  reducer: communitiesReducer,
-  State: CommunitiesState,
-  actions: communitiesActions,
-  selectors: communitiesSelectors,
+    reducer: communitiesReducer,
+    State: CommunitiesState,
+    actions: communitiesActions,
+    selectors: communitiesSelectors,
 }
 
 export const connection = {
-  reducer: connectionReducer,
-  actions: connectionActions,
-  selectors: connectionSelectors,
+    reducer: connectionReducer,
+    actions: connectionActions,
+    selectors: connectionSelectors,
 }
 
 export const files = {
-  reducer: filesReducer,
-  actions: filesActions,
-  selectors: filesSelectors,
+    reducer: filesReducer,
+    actions: filesActions,
+    selectors: filesSelectors,
 }
 
 export const network = {
-  reducer: networkReducer,
-  actions: networkActions,
-  selectors: networkSelectors,
+    reducer: networkReducer,
+    actions: networkActions,
+    selectors: networkSelectors,
 }
 
 export const socket = {
-  useIO,
+    useIO,
 }
 
 export const storeKeys = StoreKeys
@@ -181,16 +181,16 @@ export const storeKeys = StoreKeys
 export const socketActionTypes = SocketActionTypes
 
 export default {
-  app,
-  publicChannels,
-  users,
-  identity,
-  messages,
-  errors,
-  communities,
-  connection,
-  reducers,
-  storeKeys,
-  socketActionTypes,
-  settings,
+    app,
+    publicChannels,
+    users,
+    identity,
+    messages,
+    errors,
+    communities,
+    connection,
+    reducers,
+    storeKeys,
+    socketActionTypes,
+    settings,
 }

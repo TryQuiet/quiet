@@ -3,16 +3,16 @@ import UserLabel from './UserLabel.component'
 import { UserLabelType } from './UserLabel.types'
 
 describe('UserLabel component', () => {
-  it('UserLabelType.DUPLICATE', () => {
-    const { toJSON } = renderComponent(
-      <UserLabel
-        type={UserLabelType.DUPLICATE}
-        username={'johnny'}
-        duplicatedUsernameHandleBack={function (): void {}}
-        unregisteredUsernameHandleBack={function (username: string): void {}}
-      />
-    )
-    expect(toJSON()).toMatchInlineSnapshot(`
+    it('UserLabelType.DUPLICATE', () => {
+        const { toJSON } = renderComponent(
+            <UserLabel
+                type={UserLabelType.DUPLICATE}
+                username={'johnny'}
+                duplicatedUsernameHandleBack={function (): void {}}
+                unregisteredUsernameHandleBack={function (username: string): void {}}
+            />
+        )
+        expect(toJSON()).toMatchInlineSnapshot(`
       <View
         accessibilityState={
           {
@@ -93,17 +93,17 @@ describe('UserLabel component', () => {
         </View>
       </View>
     `)
-  })
-  it('UserLabelType.UNREGISTERED', () => {
-    const { toJSON } = renderComponent(
-      <UserLabel
-        type={UserLabelType.UNREGISTERED}
-        username={'johnny'}
-        duplicatedUsernameHandleBack={function (): void {}}
-        unregisteredUsernameHandleBack={function (username: string): void {}}
-      />
-    )
-    expect(toJSON()).toMatchInlineSnapshot(`
+    })
+    it('UserLabelType.UNREGISTERED', () => {
+        const { toJSON } = renderComponent(
+            <UserLabel
+                type={UserLabelType.UNREGISTERED}
+                username={'johnny'}
+                duplicatedUsernameHandleBack={function (): void {}}
+                unregisteredUsernameHandleBack={function (username: string): void {}}
+            />
+        )
+        expect(toJSON()).toMatchInlineSnapshot(`
       <View
         accessibilityState={
           {
@@ -168,5 +168,5 @@ describe('UserLabel component', () => {
         </View>
       </View>
     `)
-  })
+    })
 })

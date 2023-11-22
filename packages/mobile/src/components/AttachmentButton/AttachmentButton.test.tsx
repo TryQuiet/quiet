@@ -3,11 +3,11 @@ import { renderComponent } from '../../utils/functions/renderComponent/renderCom
 import { AttachmentButton } from './AttachmentButton.component'
 
 describe('Attachment button component', () => {
-  it('renders properly', () => {
-    const onPressMock = jest.fn()
-    const { toJSON } = renderComponent(<AttachmentButton onPress={onPressMock} />)
+    it('renders properly', () => {
+        const onPressMock = jest.fn()
+        const { toJSON } = renderComponent(<AttachmentButton onPress={onPressMock} />)
 
-    expect(toJSON()).toMatchInlineSnapshot(`
+        expect(toJSON()).toMatchInlineSnapshot(`
       <View
         accessibilityState={
           {
@@ -52,5 +52,5 @@ describe('Attachment button component', () => {
         />
       </View>
     `)
-  })
+    })
 })

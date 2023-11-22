@@ -7,69 +7,69 @@ import { ModalName } from '../../sagas/modals/modals.types'
 import { navigationActions } from '../../store/navigation/navigation.slice'
 
 const SearchModal = () => {
-  const dispatch = useDispatch()
-  const [channelInput, setChannelInput] = useState<string>('')
+    const dispatch = useDispatch()
+    const [channelInput, setChannelInput] = useState<string>('')
 
-  const searchChannelModal = useModal(ModalName.searchChannelModal)
+    const searchChannelModal = useModal(ModalName.searchChannelModal)
 
-  const dynamicSearchedChannelsSelector = useSelector(publicChannels.selectors.dynamicSearchedChannels(channelInput))
+    const dynamicSearchedChannelsSelector = useSelector(publicChannels.selectors.dynamicSearchedChannels(channelInput))
 
-  const unreadChannelsSelector = useSelector(publicChannels.selectors.unreadChannels)
+    const unreadChannelsSelector = useSelector(publicChannels.selectors.unreadChannels)
 
-  const publicChannelsSelector = useSelector(publicChannels.selectors.publicChannels)
+    const publicChannelsSelector = useSelector(publicChannels.selectors.publicChannels)
 
-  const setCurrentChannel = useCallback(
-    (id: string) => {
-      dispatch(
-        publicChannels.actions.setCurrentChannel({
-          channelId: id,
-        })
-      )
-      searchChannelModal.handleClose()
-    },
-    [dispatch]
-  )
+    const setCurrentChannel = useCallback(
+        (id: string) => {
+            dispatch(
+                publicChannels.actions.setCurrentChannel({
+                    channelId: id,
+                })
+            )
+            searchChannelModal.handleClose()
+        },
+        [dispatch]
+    )
 
-  const handleKeyDown = useCallback<(evt: KeyboardEvent) => void>(
-    evt => {
-      if ((evt.metaKey || evt.ctrlKey) && evt.key === 'k') {
-        evt.preventDefault()
-        dispatch(navigationActions.closeAllMenus())
-        searchChannelModal.handleOpen()
-      }
-      if ((evt.metaKey || evt.ctrlKey) && evt.key === 't') {
-        evt.preventDefault()
-        dispatch(navigationActions.closeAllMenus())
-        searchChannelModal.handleOpen()
-      }
-      if (evt.key === 'Escape') {
-        evt.preventDefault()
-        searchChannelModal.handleClose()
-      }
-    },
-    [dispatch]
-  )
+    const handleKeyDown = useCallback<(evt: KeyboardEvent) => void>(
+        evt => {
+            if ((evt.metaKey || evt.ctrlKey) && evt.key === 'k') {
+                evt.preventDefault()
+                dispatch(navigationActions.closeAllMenus())
+                searchChannelModal.handleOpen()
+            }
+            if ((evt.metaKey || evt.ctrlKey) && evt.key === 't') {
+                evt.preventDefault()
+                dispatch(navigationActions.closeAllMenus())
+                searchChannelModal.handleOpen()
+            }
+            if (evt.key === 'Escape') {
+                evt.preventDefault()
+                searchChannelModal.handleClose()
+            }
+        },
+        [dispatch]
+    )
 
-  useEffect(() => {
-    document.addEventListener('keydown', handleKeyDown, false)
+    useEffect(() => {
+        document.addEventListener('keydown', handleKeyDown, false)
 
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown, false)
-    }
-  }, [handleKeyDown])
+        return () => {
+            document.removeEventListener('keydown', handleKeyDown, false)
+        }
+    }, [handleKeyDown])
 
-  if (!searchChannelModal.open || dynamicSearchedChannelsSelector.length === 0) return null
-  return (
-    <SearchModalComponent
-      {...searchChannelModal}
-      setCurrentChannel={setCurrentChannel}
-      setChannelInput={setChannelInput}
-      dynamicSearchedChannelsSelector={dynamicSearchedChannelsSelector}
-      unreadChannelsSelector={unreadChannelsSelector}
-      publicChannelsSelector={publicChannelsSelector}
-      channelInput={channelInput}
-    />
-  )
+    if (!searchChannelModal.open || dynamicSearchedChannelsSelector.length === 0) return null
+    return (
+        <SearchModalComponent
+            {...searchChannelModal}
+            setCurrentChannel={setCurrentChannel}
+            setChannelInput={setChannelInput}
+            dynamicSearchedChannelsSelector={dynamicSearchedChannelsSelector}
+            unreadChannelsSelector={unreadChannelsSelector}
+            publicChannelsSelector={publicChannelsSelector}
+            channelInput={channelInput}
+        />
+    )
 }
 
 export default SearchModal

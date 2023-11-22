@@ -1,3 +1,3 @@
 export interface SpinnerProps {
-  description: string
+    description: string
 }

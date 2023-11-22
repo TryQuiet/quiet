@@ -5,13 +5,17 @@ import { renderComponent } from '../../../testUtils/renderComponent'
 import PossibleImpersonationAttackModalComponent from './PossibleImpersonationAttackModal.component'
 
 describe('PossibleImpersonationAttackModal', () => {
-  it('renderComponent', () => {
-    const result = renderComponent(
-      <ThemeProvider theme={theme}>
-        <PossibleImpersonationAttackModalComponent handleClose={() => {}} open={true} communityName={'devteam'} />
-      </ThemeProvider>
-    )
-    expect(result.baseElement).toMatchInlineSnapshot(`
+    it('renderComponent', () => {
+        const result = renderComponent(
+            <ThemeProvider theme={theme}>
+                <PossibleImpersonationAttackModalComponent
+                    handleClose={() => {}}
+                    open={true}
+                    communityName={'devteam'}
+                />
+            </ThemeProvider>
+        )
+        expect(result.baseElement).toMatchInlineSnapshot(`
       <body
         style="padding-right: 1024px; overflow: hidden;"
       >
@@ -127,5 +131,5 @@ describe('PossibleImpersonationAttackModal', () => {
         </div>
       </body>
     `)
-  })
+    })
 })

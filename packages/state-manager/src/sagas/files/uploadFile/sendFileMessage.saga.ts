@@ -8,61 +8,63 @@ import { publicChannelsSelectors } from '../../publicChannels/publicChannels.sel
 import { DownloadState, type FileMetadata, imagesExtensions, MessageType } from '@quiet/types'
 
 export function* sendFileMessageSaga(
-  action: PayloadAction<ReturnType<typeof filesActions.uploadFile>['payload']>
+    action: PayloadAction<ReturnType<typeof filesActions.uploadFile>['payload']>
 ): Generator {
-  const identity = yield* select(identitySelectors.currentIdentity)
+    const identity = yield* select(identitySelectors.currentIdentity)
 
-  const currentChannel = yield* select(publicChannelsSelectors.currentChannelId)
-  if (!identity || !currentChannel) return
+    const currentChannel = yield* select(publicChannelsSelectors.currentChannelId)
+    if (!identity || !currentChannel) return
 
-  const fileProtocol = 'file://'
-  let filePath = action.payload.path
-  let tmpPath = action.payload.tmpPath
-  if (!filePath) return
-  try {
-    filePath = decodeURIComponent(filePath.startsWith(fileProtocol) ? filePath.slice(fileProtocol.length) : filePath)
-    tmpPath = tmpPath ? decodeURIComponent(tmpPath.slice(fileProtocol.length)) : undefined
-  } catch (e) {
-    console.error(`Can't send file with path ${filePath}, Details: ${e.message}`)
-    return
-  }
+    const fileProtocol = 'file://'
+    let filePath = action.payload.path
+    let tmpPath = action.payload.tmpPath
+    if (!filePath) return
+    try {
+        filePath = decodeURIComponent(
+            filePath.startsWith(fileProtocol) ? filePath.slice(fileProtocol.length) : filePath
+        )
+        tmpPath = tmpPath ? decodeURIComponent(tmpPath.slice(fileProtocol.length)) : undefined
+    } catch (e) {
+        console.error(`Can't send file with path ${filePath}, Details: ${e.message}`)
+        return
+    }
 
-  const id = yield* call(generateMessageId)
+    const id = yield* call(generateMessageId)
 
-  const media: FileMetadata = {
-    ...action.payload,
-    path: filePath,
-    tmpPath: tmpPath,
-    cid: `uploading_${id}`,
-    message: {
-      id,
-      channelId: currentChannel,
-    },
-  }
+    const media: FileMetadata = {
+        ...action.payload,
+        path: filePath,
+        tmpPath: tmpPath,
+        cid: `uploading_${id}`,
+        message: {
+            id,
+            channelId: currentChannel,
+        },
+    }
 
-  let type: MessageType
+    let type: MessageType
 
-  if (imagesExtensions.includes(media.ext)) {
-    type = MessageType.Image
-  } else {
-    type = MessageType.File
-  }
+    if (imagesExtensions.includes(media.ext)) {
+        type = MessageType.Image
+    } else {
+        type = MessageType.File
+    }
 
-  yield* put(
-    messagesActions.sendMessage({
-      id,
-      message: '',
-      type,
-      media,
-    })
-  )
+    yield* put(
+        messagesActions.sendMessage({
+            id,
+            message: '',
+            type,
+            media,
+        })
+    )
 
-  yield* put(
-    filesActions.updateDownloadStatus({
-      mid: id,
-      cid: `uploading_${id}`,
-      downloadState: DownloadState.Uploading,
-      downloadProgress: undefined,
-    })
-  )
+    yield* put(
+        filesActions.updateDownloadStatus({
+            mid: id,
+            cid: `uploading_${id}`,
+            downloadState: DownloadState.Uploading,
+            downloadProgress: undefined,
+        })
+    )
 }

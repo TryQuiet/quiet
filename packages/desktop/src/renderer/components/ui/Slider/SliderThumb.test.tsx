@@ -4,9 +4,9 @@ import { renderComponent } from '../../../testUtils/renderComponent'
 import { SliderThumb } from './SliderThumb'
 
 describe('SliderThumb', () => {
-  it('renders component', () => {
-    const result = renderComponent(<SliderThumb />)
-    expect(result.baseElement).toMatchInlineSnapshot(`
+    it('renders component', () => {
+        const result = renderComponent(<SliderThumb />)
+        expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
           <div
@@ -15,5 +15,5 @@ describe('SliderThumb', () => {
         </div>
       </body>
     `)
-  })
+    })
 })

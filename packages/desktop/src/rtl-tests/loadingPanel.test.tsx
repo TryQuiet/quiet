@@ -10,13 +10,13 @@ import CreateUsername from '../renderer/components/CreateUsername/CreateUsername
 import MockedSocket from 'socket.io-mock'
 import { ioMock } from '../shared/setupTests'
 import {
-  communities,
-  identity,
-  getFactory,
-  publicChannels,
-  network,
-  LoadingPanelType,
-  connection,
+    communities,
+    identity,
+    getFactory,
+    publicChannels,
+    network,
+    LoadingPanelType,
+    connection,
 } from '@quiet/state-manager'
 import { DateTime } from 'luxon'
 import { act } from 'react-dom/test-utils'
@@ -26,153 +26,153 @@ import { ModalName } from '../renderer/sagas/modals/modals.types'
 jest.setTimeout(20_000)
 const mockNotification = jest.fn()
 const notification = jest.fn().mockImplementation(() => {
-  return mockNotification
+    return mockNotification
 })
 // @ts-expect-error
 window.Notification = notification
 
 describe('Loading panel', () => {
-  let socket: MockedSocket
+    let socket: MockedSocket
 
-  beforeEach(() => {
-    socket = new MockedSocket()
-    ioMock.mockImplementation(() => socket)
-    window.ResizeObserver = jest.fn().mockImplementation(() => ({
-      observe: jest.fn(),
-      unobserve: jest.fn(),
-      disconnect: jest.fn(),
-    }))
-  })
-
-  it.skip('Displays loading panel before connecting websocket', async () => {
-    // todo loading panel in other electron window
-
-    const { store } = await prepareStore({
-      [StoreKeys.Socket]: {
-        ...new SocketState(),
-        isConnected: false,
-      },
+    beforeEach(() => {
+        socket = new MockedSocket()
+        ioMock.mockImplementation(() => socket)
+        window.ResizeObserver = jest.fn().mockImplementation(() => ({
+            observe: jest.fn(),
+            unobserve: jest.fn(),
+            disconnect: jest.fn(),
+        }))
     })
 
-    renderComponent(
-      <>
-        <LoadingPanel />
-      </>,
-      store
-    )
+    it.skip('Displays loading panel before connecting websocket', async () => {
+        // todo loading panel in other electron window
 
-    // Verify loading panel is visible
-    expect(screen.getByTestId('startingPanelComponent')).toBeVisible()
+        const { store } = await prepareStore({
+            [StoreKeys.Socket]: {
+                ...new SocketState(),
+                isConnected: false,
+            },
+        })
 
-    // Verify proper messages is displayed
-    const startingApplicationMessage = screen.getByText(LoadingPanelType.StartingApplication)
-    expect(startingApplicationMessage).toBeVisible()
+        renderComponent(
+            <>
+                <LoadingPanel />
+            </>,
+            store
+        )
 
-    store.dispatch(socketActions.setConnected())
+        // Verify loading panel is visible
+        expect(screen.getByTestId('startingPanelComponent')).toBeVisible()
 
-    await act(async () => {})
+        // Verify proper messages is displayed
+        const startingApplicationMessage = screen.getByText(LoadingPanelType.StartingApplication)
+        expect(startingApplicationMessage).toBeVisible()
 
-    // Verify loading panel dissapeared
-    expect(screen.queryByTestId('startingPanelComponent')).toBeNull()
-  })
+        store.dispatch(socketActions.setConnected())
 
-  it('Displays loading panel between registering username and replicating data', async () => {
-    const { store } = await prepareStore(
-      {},
-      socket // Fork state manager's sagas
-    )
+        await act(async () => {})
 
-    const factory = await getFactory(store)
-
-    const community = (await factory.build<typeof communities.actions.addNewCommunity>('Community')).payload
-
-    store.dispatch(communities.actions.addNewCommunity(community))
-    store.dispatch(communities.actions.setCurrentCommunity(community.id))
-
-    const channel = (
-      await factory.build<typeof publicChannels.actions.addChannel>('PublicChannel', {
-        communityId: community.id,
-        channel: {
-          name: 'general',
-          description: 'Welcome to #general',
-          timestamp: DateTime.utc().valueOf(),
-          owner: 'owner',
-          id: 'general',
-        },
-      })
-    ).payload
-
-    await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
-      nickname: 'alice',
+        // Verify loading panel dissapeared
+        expect(screen.queryByTestId('startingPanelComponent')).toBeNull()
     })
 
-    store.dispatch(communities.actions.addNewCommunity(community))
-    store.dispatch(communities.actions.setCurrentCommunity(community.id))
-    store.dispatch(network.actions.setLoadingPanelType(LoadingPanelType.Joining))
-    store.dispatch(modalsActions.openModal({ name: ModalName.loadingPanel }))
-    renderComponent(
-      <>
-        <LoadingPanel />
-      </>,
-      store
-    )
+    it('Displays loading panel between registering username and replicating data', async () => {
+        const { store } = await prepareStore(
+            {},
+            socket // Fork state manager's sagas
+        )
 
-    // Verify loading panel is visible
-    expect(screen.getByTestId('joiningPanelComponent')).toBeVisible()
+        const factory = await getFactory(store)
 
-    // Verify proper messages is displayed
-    const startingApplicationMessage = screen.getByText('Joining now!')
-    expect(startingApplicationMessage).toBeVisible()
+        const community = (await factory.build<typeof communities.actions.addNewCommunity>('Community')).payload
 
-    store.dispatch(publicChannels.actions.addChannel(channel))
-    store.dispatch(modalsActions.closeModal(ModalName.loadingPanel))
-    await act(async () => {})
+        store.dispatch(communities.actions.addNewCommunity(community))
+        store.dispatch(communities.actions.setCurrentCommunity(community.id))
 
-    // Verify loading panel dissapeared
-    expect(screen.queryByTestId('joiningPanelComponent')).toBeNull()
-  })
+        const channel = (
+            await factory.build<typeof publicChannels.actions.addChannel>('PublicChannel', {
+                communityId: community.id,
+                channel: {
+                    name: 'general',
+                    description: 'Welcome to #general',
+                    timestamp: DateTime.utc().valueOf(),
+                    owner: 'owner',
+                    id: 'general',
+                },
+            })
+        ).payload
 
-  it('Do not display Loading panel when community and identity are created but user csr is missing', async () => {
-    const { store } = await prepareStore(
-      {},
-      socket // Fork state manager's sagas
-    )
+        await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+            id: community.id,
+            nickname: 'alice',
+        })
 
-    const factory = await getFactory(store)
+        store.dispatch(communities.actions.addNewCommunity(community))
+        store.dispatch(communities.actions.setCurrentCommunity(community.id))
+        store.dispatch(network.actions.setLoadingPanelType(LoadingPanelType.Joining))
+        store.dispatch(modalsActions.openModal({ name: ModalName.loadingPanel }))
+        renderComponent(
+            <>
+                <LoadingPanel />
+            </>,
+            store
+        )
 
-    const community = (await factory.build<typeof communities.actions.addNewCommunity>('Community')).payload
+        // Verify loading panel is visible
+        expect(screen.getByTestId('joiningPanelComponent')).toBeVisible()
 
-    store.dispatch(communities.actions.addNewCommunity(community))
-    store.dispatch(communities.actions.setCurrentCommunity(community.id))
+        // Verify proper messages is displayed
+        const startingApplicationMessage = screen.getByText('Joining now!')
+        expect(startingApplicationMessage).toBeVisible()
 
-    await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
-      nickname: 'alice',
-      userCertificate: null,
-      userCsr: null,
+        store.dispatch(publicChannels.actions.addChannel(channel))
+        store.dispatch(modalsActions.closeModal(ModalName.loadingPanel))
+        await act(async () => {})
+
+        // Verify loading panel dissapeared
+        expect(screen.queryByTestId('joiningPanelComponent')).toBeNull()
     })
 
-    expect(store.getState().Identity.identities.entities[community.id]?.userCsr).toBeNull()
+    it('Do not display Loading panel when community and identity are created but user csr is missing', async () => {
+        const { store } = await prepareStore(
+            {},
+            socket // Fork state manager's sagas
+        )
 
-    renderComponent(
-      <>
-        <LoadingPanel />
-        <CreateUsername />
-      </>,
-      store
-    )
+        const factory = await getFactory(store)
 
-    // 'Create username' modal should be opened
-    expect(screen.queryByTestId('createUsernameModalActions')).not.toBeNull()
-    // Assertions that we don't see Loading Pannel
-    expect(screen.queryByTestId('spinnerLoader')).toBeNull()
-    // 'Create username' modal should be closed after creating csr
-    store.dispatch(
-      identity.actions.registerUsername({
-        nickname: 'alice',
-      })
-    )
-    await waitFor(() => expect(screen.queryByTestId('createUsernameModalActions')).toBeNull())
-  })
+        const community = (await factory.build<typeof communities.actions.addNewCommunity>('Community')).payload
+
+        store.dispatch(communities.actions.addNewCommunity(community))
+        store.dispatch(communities.actions.setCurrentCommunity(community.id))
+
+        await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+            id: community.id,
+            nickname: 'alice',
+            userCertificate: null,
+            userCsr: null,
+        })
+
+        expect(store.getState().Identity.identities.entities[community.id]?.userCsr).toBeNull()
+
+        renderComponent(
+            <>
+                <LoadingPanel />
+                <CreateUsername />
+            </>,
+            store
+        )
+
+        // 'Create username' modal should be opened
+        expect(screen.queryByTestId('createUsernameModalActions')).not.toBeNull()
+        // Assertions that we don't see Loading Pannel
+        expect(screen.queryByTestId('spinnerLoader')).toBeNull()
+        // 'Create username' modal should be closed after creating csr
+        store.dispatch(
+            identity.actions.registerUsername({
+                nickname: 'alice',
+            })
+        )
+        await waitFor(() => expect(screen.queryByTestId('createUsernameModalActions')).toBeNull())
+    })
 })

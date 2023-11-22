@@ -7,9 +7,9 @@ export const sharp = new Audio(require('./sharp.mp3').default)
 export const librarianShhh = new Audio(require('./librarianShhh.mp3').default)
 
 export const soundTypeToAudio = {
-  [NotificationsSounds.bang]: sharp,
-  [NotificationsSounds.pow]: direct,
-  [NotificationsSounds.splat]: relentless,
-  [NotificationsSounds.librarianShhh]: librarianShhh,
-  [NotificationsSounds.none]: null,
+    [NotificationsSounds.bang]: sharp,
+    [NotificationsSounds.pow]: direct,
+    [NotificationsSounds.splat]: relentless,
+    [NotificationsSounds.librarianShhh]: librarianShhh,
+    [NotificationsSounds.none]: null,
 }

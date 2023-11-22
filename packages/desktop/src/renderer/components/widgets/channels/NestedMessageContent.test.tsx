@@ -9,10 +9,12 @@ import { screen } from '@testing-library/dom'
 import NestedMessageContent, { NestedMessageContentProps } from './NestedMessageContent'
 
 describe('NestedMessageContent', () => {
-  it('renders message', () => {
-    const messages = generateMessages()
-    const result = renderComponent(<NestedMessageContent pending={false} message={messages[0]} openUrl={jest.fn()} />)
-    expect(result.baseElement).toMatchInlineSnapshot(`
+    it('renders message', () => {
+        const messages = generateMessages()
+        const result = renderComponent(
+            <NestedMessageContent pending={false} message={messages[0]} openUrl={jest.fn()} />
+        )
+        expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
           <div
@@ -28,12 +30,14 @@ describe('NestedMessageContent', () => {
         </div>
       </body>
     `)
-  })
+    })
 
-  it('renders pending message', () => {
-    const messages = generateMessages()
-    const result = renderComponent(<NestedMessageContent pending={true} message={messages[0]} openUrl={jest.fn()} />)
-    expect(result.baseElement).toMatchInlineSnapshot(`
+    it('renders pending message', () => {
+        const messages = generateMessages()
+        const result = renderComponent(
+            <NestedMessageContent pending={true} message={messages[0]} openUrl={jest.fn()} />
+        )
+        expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
           <div
@@ -49,48 +53,55 @@ describe('NestedMessageContent', () => {
         </div>
       </body>
     `)
-  })
+    })
 
-  it('renders proper download status for malicious file', async () => {
-    // TODO: add tests for the rest of statuses
-    const messages = generateMessages({ type: 2 })
+    it('renders proper download status for malicious file', async () => {
+        // TODO: add tests for the rest of statuses
+        const messages = generateMessages({ type: 2 })
 
-    const message = {
-      ...messages[0],
-      media: {
-        path: 'path/to/file/test.png',
-        name: 'test',
-        ext: '.png',
-        cid: 'abcd1234',
-        width: 500,
-        height: 600,
-        size: AUTODOWNLOAD_SIZE_LIMIT - 2048,
-        message: {
-          id: 'string',
-          channelId: 'general',
-        },
-      },
-    }
-    const downloadStatus: DownloadStatus = {
-      mid: message.id,
-      cid: message.media.cid,
-      downloadState: DownloadState.Malicious,
-      downloadProgress: {
-        size: 10000,
-        downloaded: 10000,
-        transferSpeed: 500,
-      },
-    }
-    const result = renderComponent(
-      <NestedMessageContent pending={false} message={message} downloadStatus={downloadStatus} openUrl={jest.fn()} />
-    )
-    expect(await screen.findByText('File not valid. Download canceled.')).toBeVisible()
-  })
+        const message = {
+            ...messages[0],
+            media: {
+                path: 'path/to/file/test.png',
+                name: 'test',
+                ext: '.png',
+                cid: 'abcd1234',
+                width: 500,
+                height: 600,
+                size: AUTODOWNLOAD_SIZE_LIMIT - 2048,
+                message: {
+                    id: 'string',
+                    channelId: 'general',
+                },
+            },
+        }
+        const downloadStatus: DownloadStatus = {
+            mid: message.id,
+            cid: message.media.cid,
+            downloadState: DownloadState.Malicious,
+            downloadProgress: {
+                size: 10000,
+                downloaded: 10000,
+                transferSpeed: 500,
+            },
+        }
+        const result = renderComponent(
+            <NestedMessageContent
+                pending={false}
+                message={message}
+                downloadStatus={downloadStatus}
+                openUrl={jest.fn()}
+            />
+        )
+        expect(await screen.findByText('File not valid. Download canceled.')).toBeVisible()
+    })
 
-  it('renders info message', () => {
-    const messages = generateMessages({ type: 3 })
-    const result = renderComponent(<NestedMessageContent pending={true} message={messages[0]} openUrl={jest.fn()} />)
-    expect(result.baseElement).toMatchInlineSnapshot(`
+    it('renders info message', () => {
+        const messages = generateMessages({ type: 3 })
+        const result = renderComponent(
+            <NestedMessageContent pending={true} message={messages[0]} openUrl={jest.fn()} />
+        )
+        expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
           <div
@@ -106,29 +117,29 @@ describe('NestedMessageContent', () => {
         </div>
       </body>
     `)
-  })
+    })
 
-  it('renders file', () => {
-    const messages = generateMessages({ type: 2 })
+    it('renders file', () => {
+        const messages = generateMessages({ type: 2 })
 
-    const message = {
-      ...messages[0],
-      media: {
-        path: 'path/to/file/test.png',
-        name: 'test',
-        ext: '.png',
-        cid: 'abcd1234',
-        width: 500,
-        height: 600,
-        size: AUTODOWNLOAD_SIZE_LIMIT - 2048,
-        message: {
-          id: 'string',
-          channelId: 'general',
-        },
-      },
-    }
-    const result = renderComponent(<NestedMessageContent pending={false} message={message} openUrl={jest.fn()} />)
-    expect(result.baseElement).toMatchInlineSnapshot(`
+        const message = {
+            ...messages[0],
+            media: {
+                path: 'path/to/file/test.png',
+                name: 'test',
+                ext: '.png',
+                cid: 'abcd1234',
+                width: 500,
+                height: 600,
+                size: AUTODOWNLOAD_SIZE_LIMIT - 2048,
+                message: {
+                    id: 'string',
+                    channelId: 'general',
+                },
+            },
+        }
+        const result = renderComponent(<NestedMessageContent pending={false} message={message} openUrl={jest.fn()} />)
+        expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
           <div
@@ -166,49 +177,49 @@ describe('NestedMessageContent', () => {
         </div>
       </body>
     `)
-  })
+    })
 
-  it('renders large image as file', () => {
-    const messages = generateMessages({ type: 2 })
+    it('renders large image as file', () => {
+        const messages = generateMessages({ type: 2 })
 
-    const message = {
-      ...messages[0],
-      media: {
-        path: 'path/to/file/test.png',
-        name: 'test',
-        ext: '.png',
-        cid: 'abcd1234',
-        width: 500,
-        height: 600,
-        size: AUTODOWNLOAD_SIZE_LIMIT + 2048,
-        message: {
-          id: 'string',
-          channelId: 'general',
-        },
-      },
-    }
+        const message = {
+            ...messages[0],
+            media: {
+                path: 'path/to/file/test.png',
+                name: 'test',
+                ext: '.png',
+                cid: 'abcd1234',
+                width: 500,
+                height: 600,
+                size: AUTODOWNLOAD_SIZE_LIMIT + 2048,
+                message: {
+                    id: 'string',
+                    channelId: 'general',
+                },
+            },
+        }
 
-    const fileComponentProps: NestedMessageContentProps & FileActionsProps = {
-      downloadStatus: {
-        mid: 'mid',
-        cid: 'cid',
-        downloadState: DownloadState.Downloading,
-        downloadProgress: {
-          size: AUTODOWNLOAD_SIZE_LIMIT + 2048,
-          downloaded: AUTODOWNLOAD_SIZE_LIMIT / 2,
-          transferSpeed: 1000,
-        },
-      },
-      openUrl: jest.fn(),
-      openContainingFolder: jest.fn(),
-      downloadFile: jest.fn(),
-      cancelDownload: jest.fn(),
-      message: message,
-      pending: false,
-    }
+        const fileComponentProps: NestedMessageContentProps & FileActionsProps = {
+            downloadStatus: {
+                mid: 'mid',
+                cid: 'cid',
+                downloadState: DownloadState.Downloading,
+                downloadProgress: {
+                    size: AUTODOWNLOAD_SIZE_LIMIT + 2048,
+                    downloaded: AUTODOWNLOAD_SIZE_LIMIT / 2,
+                    transferSpeed: 1000,
+                },
+            },
+            openUrl: jest.fn(),
+            openContainingFolder: jest.fn(),
+            downloadFile: jest.fn(),
+            cancelDownload: jest.fn(),
+            message: message,
+            pending: false,
+        }
 
-    const result = renderComponent(<NestedMessageContent {...fileComponentProps} />)
-    expect(result.baseElement).toMatchInlineSnapshot(`
+        const result = renderComponent(<NestedMessageContent {...fileComponentProps} />)
+        expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
           <div
@@ -321,5 +332,5 @@ describe('NestedMessageContent', () => {
         </div>
       </body>
     `)
-  })
+    })
 })

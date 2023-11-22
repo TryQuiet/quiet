@@ -8,42 +8,42 @@ import { UsernameRegistration } from '../../components/Registration/UsernameRegi
 import { ErrorCodes } from '@quiet/types'
 
 export const UsernameRegistrationScreen: FC<UsernameRegistrationScreenProps> = ({ route }) => {
-  const dispatch = useDispatch()
+    const dispatch = useDispatch()
 
-  const fetching = route.params?.fetching
+    const fetching = route.params?.fetching
 
-  const currentIdentity = useSelector(identity.selectors.currentIdentity)
-  const usernameRegistered = currentIdentity?.userCertificate != null
+    const currentIdentity = useSelector(identity.selectors.currentIdentity)
+    const usernameRegistered = currentIdentity?.userCertificate != null
 
-  const error = useSelector(errors.selectors.registrarErrors)
+    const error = useSelector(errors.selectors.registrarErrors)
 
-  const navigation = useCallback(
-    (screen: ScreenNames, params?: any) => {
-      dispatch(
-        navigationActions.navigation({
-          screen,
-          params,
-        })
-      )
-    },
-    [dispatch]
-  )
+    const navigation = useCallback(
+        (screen: ScreenNames, params?: any) => {
+            dispatch(
+                navigationActions.navigation({
+                    screen,
+                    params,
+                })
+            )
+        },
+        [dispatch]
+    )
 
-  const handleAction = (nickname: string) => {
-    // Clear errors
-    if (error) {
-      dispatch(errors.actions.clearError(error))
+    const handleAction = (nickname: string) => {
+        // Clear errors
+        if (error) {
+            dispatch(errors.actions.clearError(error))
+        }
+        dispatch(identity.actions.registerUsername({ nickname: nickname, isUsernameTaken: false }))
+        navigation(ScreenNames.ConnectionProcessScreen)
     }
-    dispatch(identity.actions.registerUsername({ nickname: nickname, isUsernameTaken: false }))
-    navigation(ScreenNames.ConnectionProcessScreen)
-  }
 
-  return (
-    <UsernameRegistration
-      registerUsernameAction={handleAction}
-      registerUsernameError={error?.code === ErrorCodes.FORBIDDEN ? error.message : undefined}
-      usernameRegistered={usernameRegistered}
-      fetching={fetching}
-    />
-  )
+    return (
+        <UsernameRegistration
+            registerUsernameAction={handleAction}
+            registerUsernameError={error?.code === ErrorCodes.FORBIDDEN ? error.message : undefined}
+            usernameRegistered={usernameRegistered}
+            fetching={fetching}
+        />
+    )
 }

@@ -15,77 +15,77 @@ import { redirectionSaga } from './redirection.saga'
 import { initActions } from '../../init/init.slice'
 
 describe('redirectionSaga', () => {
-  let store: Store
-  let factory: FactoryGirl
+    let store: Store
+    let factory: FactoryGirl
 
-  beforeEach(async () => {
-    setupCrypto()
-    store = (await prepareStore()).store
-    factory = await getFactory(store)
-  })
+    beforeEach(async () => {
+        setupCrypto()
+        store = (await prepareStore()).store
+        factory = await getFactory(store)
+    })
 
-  test('does nothing if app opened from url', async () => {
-    store.dispatch(initActions.deepLink('bidrmzr3ee6qa2vvrlcnqvvvsk2gmjktcqkunba326parszr44gibwyd'))
+    test('does nothing if app opened from url', async () => {
+        store.dispatch(initActions.deepLink('bidrmzr3ee6qa2vvrlcnqvvvsk2gmjktcqkunba326parszr44gibwyd'))
 
-    const reducer = combineReducers(reducers)
-    await expectSaga(redirectionSaga)
-      .withReducer(reducer)
-      .withState(store.getState())
-      .not.put(
-        navigationActions.replaceScreen({
-          screen: ScreenNames.JoinCommunityScreen,
-        })
-      )
-      .not.put(
-        navigationActions.replaceScreen({
-          screen: ScreenNames.ChannelListScreen,
-        })
-      )
-      .run()
-  })
+        const reducer = combineReducers(reducers)
+        await expectSaga(redirectionSaga)
+            .withReducer(reducer)
+            .withState(store.getState())
+            .not.put(
+                navigationActions.replaceScreen({
+                    screen: ScreenNames.JoinCommunityScreen,
+                })
+            )
+            .not.put(
+                navigationActions.replaceScreen({
+                    screen: ScreenNames.ChannelListScreen,
+                })
+            )
+            .run()
+    })
 
-  test("holds until websocket connects if user doesn't belong to a community", async () => {
-    const reducer = combineReducers(reducers)
+    test("holds until websocket connects if user doesn't belong to a community", async () => {
+        const reducer = combineReducers(reducers)
 
-    await expectSaga(redirectionSaga)
-      .withReducer(reducer)
-      .withState(store.getState())
-      .not.put(
-        navigationActions.replaceScreen({
-          screen: ScreenNames.JoinCommunityScreen,
-        })
-      )
-      .run()
-  })
+        await expectSaga(redirectionSaga)
+            .withReducer(reducer)
+            .withState(store.getState())
+            .not.put(
+                navigationActions.replaceScreen({
+                    screen: ScreenNames.JoinCommunityScreen,
+                })
+            )
+            .run()
+    })
 
-  test('redirect if user sees a splash screen being a member of community', async () => {
-    const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity')
+    test('redirect if user sees a splash screen being a member of community', async () => {
+        const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity')
 
-    const _publicChannels = publicChannels.selectors.publicChannels(store.getState())
-    const _generalChannel = _publicChannels.find(c => c.name === 'general')
+        const _publicChannels = publicChannels.selectors.publicChannels(store.getState())
+        const _generalChannel = _publicChannels.find(c => c.name === 'general')
 
-    const generalChannel = {
-      ..._generalChannel,
-      // @ts-ignore
-      messages: undefined,
-      messagesSlice: undefined,
-    }
+        const generalChannel = {
+            ..._generalChannel,
+            // @ts-ignore
+            messages: undefined,
+            messagesSlice: undefined,
+        }
 
-    if (!generalChannel.id) return
+        if (!generalChannel.id) return
 
-    const message = (
-      await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>('Message', {
-        identity: alice,
-        message: generateMessageFactoryContentWithId(generalChannel.id),
-        verifyAutomatically: true,
-      })
-    ).message
+        const message = (
+            await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>('Message', {
+                identity: alice,
+                message: generateMessageFactoryContentWithId(generalChannel.id),
+                verifyAutomatically: true,
+            })
+        ).message
 
-    const reducer = combineReducers(reducers)
-    await expectSaga(redirectionSaga)
-      .withReducer(reducer)
-      .withState(store.getState())
-      .put(navigationActions.replaceScreen({ screen: ScreenNames.ChannelListScreen }))
-      .run()
-  })
+        const reducer = combineReducers(reducers)
+        await expectSaga(redirectionSaga)
+            .withReducer(reducer)
+            .withState(store.getState())
+            .put(navigationActions.replaceScreen({ screen: ScreenNames.ChannelListScreen }))
+            .run()
+    })
 })

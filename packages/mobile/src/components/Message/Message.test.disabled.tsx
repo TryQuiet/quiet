@@ -6,34 +6,34 @@ import { Message } from './Message.component'
 import { MessageType } from '@quiet/types'
 
 describe('Message component', () => {
-  it('should match inline snapshot', () => {
-    const { toJSON } = renderComponent(
-      <Message
-        duplicatedUsernameHandleBack={function (): void {}}
-        unregisteredUsernameHandleBack={function (username: string): void {}}
-        data={[
-          {
-            id: 'id',
-            type: MessageType.Basic,
-            message:
-              'Brownie powder marshmallow dessert carrot cake marzipan cake caramels. Muffin topping wafer jelly apple pie candy. Fruitcake chocolate pudding fruitcake candy lemon drops chocolate.',
-            createdAt: 0,
-            date: '1:30pm',
-            nickname: 'holmes',
-            isDuplicated: false,
-            isRegistered: true,
-            pubKey: 'test',
-          },
-        ]}
-        pendingMessages={{}}
-        openUrl={() => {}}
-        openImagePreview={() => {}}
-        downloadFile={() => {}}
-        cancelDownload={() => {}}
-      />
-    )
+    it('should match inline snapshot', () => {
+        const { toJSON } = renderComponent(
+            <Message
+                duplicatedUsernameHandleBack={function (): void {}}
+                unregisteredUsernameHandleBack={function (username: string): void {}}
+                data={[
+                    {
+                        id: 'id',
+                        type: MessageType.Basic,
+                        message:
+                            'Brownie powder marshmallow dessert carrot cake marzipan cake caramels. Muffin topping wafer jelly apple pie candy. Fruitcake chocolate pudding fruitcake candy lemon drops chocolate.',
+                        createdAt: 0,
+                        date: '1:30pm',
+                        nickname: 'holmes',
+                        isDuplicated: false,
+                        isRegistered: true,
+                        pubKey: 'test',
+                    },
+                ]}
+                pendingMessages={{}}
+                openUrl={() => {}}
+                openImagePreview={() => {}}
+                downloadFile={() => {}}
+                cancelDownload={() => {}}
+            />
+        )
 
-    expect(toJSON()).toMatchInlineSnapshot(`
+        expect(toJSON()).toMatchInlineSnapshot(`
       <View
         style={
           Object {
@@ -259,35 +259,35 @@ describe('Message component', () => {
         </View>
       </View>
     `)
-  })
+    })
 
-  it('should match inline snapshot for message with mathjax content', () => {
-    const { toJSON } = renderComponent(
-      <Message
-        duplicatedUsernameHandleBack={function (): void {}}
-        unregisteredUsernameHandleBack={function (username: string): void {}}
-        data={[
-          {
-            id: 'id',
-            type: MessageType.Basic,
-            message: 'Hello! Does in-line LaTeX work? $$sum_{i=0}^n i = \frac{n(n+1)}{2}$$',
-            createdAt: 0,
-            date: '1:30pm',
-            nickname: 'somebody',
-            isDuplicated: false,
-            isRegistered: true,
-            pubKey: 'test',
-          },
-        ]}
-        pendingMessages={{}}
-        openUrl={() => {}}
-        openImagePreview={() => {}}
-        downloadFile={() => {}}
-        cancelDownload={() => {}}
-      />
-    )
+    it('should match inline snapshot for message with mathjax content', () => {
+        const { toJSON } = renderComponent(
+            <Message
+                duplicatedUsernameHandleBack={function (): void {}}
+                unregisteredUsernameHandleBack={function (username: string): void {}}
+                data={[
+                    {
+                        id: 'id',
+                        type: MessageType.Basic,
+                        message: 'Hello! Does in-line LaTeX work? $$sum_{i=0}^n i = \frac{n(n+1)}{2}$$',
+                        createdAt: 0,
+                        date: '1:30pm',
+                        nickname: 'somebody',
+                        isDuplicated: false,
+                        isRegistered: true,
+                        pubKey: 'test',
+                    },
+                ]}
+                pendingMessages={{}}
+                openUrl={() => {}}
+                openImagePreview={() => {}}
+                downloadFile={() => {}}
+                cancelDownload={() => {}}
+            />
+        )
 
-    expect(toJSON()).toMatchInlineSnapshot(`
+        expect(toJSON()).toMatchInlineSnapshot(`
       <View
         style={
           Object {
@@ -1414,5 +1414,5 @@ describe('Message component', () => {
         </View>
       </View>
     `)
-  })
+    })
 })

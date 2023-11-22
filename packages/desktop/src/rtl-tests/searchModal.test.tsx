@@ -11,15 +11,15 @@ import { prepareStore } from '../renderer/testUtils/prepareStore'
 import { apply } from 'typed-redux-saga'
 
 import {
-  getFactory,
-  identity,
-  publicChannels,
-  communities,
-  Identity,
-  Store,
-  MessageType,
-  ChannelMessage,
-  SocketActionTypes,
+    getFactory,
+    identity,
+    publicChannels,
+    communities,
+    Identity,
+    Store,
+    MessageType,
+    ChannelMessage,
+    SocketActionTypes,
 } from '@quiet/state-manager'
 
 import { FactoryGirl } from 'factory-girl'
@@ -32,208 +32,208 @@ import { type Community } from '@quiet/types'
 jest.setTimeout(20_000)
 
 jest.mock('electron', () => {
-  return {
-    ipcRenderer: { on: () => {}, send: jest.fn(), sendSync: jest.fn() },
-    remote: {
-      BrowserWindow: {
-        getAllWindows: () => {
-          return [
-            {
-              show: jest.fn(),
-              isFocused: jest.fn(),
+    return {
+        ipcRenderer: { on: () => {}, send: jest.fn(), sendSync: jest.fn() },
+        remote: {
+            BrowserWindow: {
+                getAllWindows: () => {
+                    return [
+                        {
+                            show: jest.fn(),
+                            isFocused: jest.fn(),
+                        },
+                    ]
+                },
             },
-          ]
         },
-      },
-    },
-  }
+    }
 })
 
 describe('Switch channels', () => {
-  let socket: MockedSocket
+    let socket: MockedSocket
 
-  let redux: {
-    store: Store
-    runSaga: (saga: any) => Task
-  }
-  let factory: FactoryGirl
-
-  let community: Community
-  let alice: Identity
-
-  const channelFun = { name: 'fun', timestamp: 1673857606990 }
-  const channelsMocks = [
-    channelFun,
-    { name: 'random', timestamp: 1673854900410 },
-    { name: 'test', timestamp: 1673623514097 },
-  ]
-
-  beforeEach(async () => {
-    socket = new MockedSocket()
-    ioMock.mockImplementation(() => socket)
-    window.ResizeObserver = jest.fn().mockImplementation(() => ({
-      observe: jest.fn(),
-      unobserve: jest.fn(),
-      disconnect: jest.fn(),
-    }))
-
-    redux = await prepareStore({}, socket)
-    factory = await getFactory(redux.store)
-
-    community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
-
-    alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
-      nickname: 'alice',
-    })
-
-    // Automatically create channels
-    for (const channelMock of channelsMocks) {
-      await factory.create<ReturnType<typeof publicChannels.actions.addChannel>['payload']>('PublicChannel', {
-        channel: {
-          name: channelMock.name,
-          description: `Welcome to #${channelMock.name}`,
-          timestamp: channelMock.timestamp,
-          owner: alice.nickname,
-          id: channelMock.name,
-        },
-      })
+    let redux: {
+        store: Store
+        runSaga: (saga: any) => Task
     }
-  })
+    let factory: FactoryGirl
 
-  it('Select channel by writing name and pressing enter', async () => {
-    renderComponent(
-      <>
-        <SearchModal />
-      </>,
-      redux.store
-    )
-    redux.store.dispatch(modalsActions.openModal({ name: ModalName.searchChannelModal }))
+    let community: Community
+    let alice: Identity
 
-    const input = await screen.findByPlaceholderText('Channel name')
-    await userEvent.type(input, channelFun.name)
-    const tab = await screen.findByText('# fun')
-    await userEvent.type(tab, '{ArrowDown}')
-    await userEvent.type(tab, '{enter}')
+    const channelFun = { name: 'fun', timestamp: 1673857606990 }
+    const channelsMocks = [
+        channelFun,
+        { name: 'random', timestamp: 1673854900410 },
+        { name: 'test', timestamp: 1673623514097 },
+    ]
 
-    await act(async () => {})
+    beforeEach(async () => {
+        socket = new MockedSocket()
+        ioMock.mockImplementation(() => socket)
+        window.ResizeObserver = jest.fn().mockImplementation(() => ({
+            observe: jest.fn(),
+            unobserve: jest.fn(),
+            disconnect: jest.fn(),
+        }))
 
-    const currentChannel = publicChannels.selectors.currentChannel(redux.store.getState())
+        redux = await prepareStore({}, socket)
+        factory = await getFactory(redux.store)
 
-    expect(currentChannel?.name).toEqual(channelFun.name)
-  })
+        community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
 
-  it('Select channel by writing name and clicking', async () => {
-    renderComponent(
-      <>
-        <SearchModal />
-      </>,
-      redux.store
-    )
-    redux.store.dispatch(modalsActions.openModal({ name: ModalName.searchChannelModal }))
+        alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+            id: community.id,
+            nickname: 'alice',
+        })
 
-    const input = await screen.findByPlaceholderText('Channel name')
-    await userEvent.type(input, channelFun.name)
-    const tab = await screen.findByText('# fun')
-    fireEvent.click(tab)
-
-    await act(async () => {})
-
-    const currentChannel = publicChannels.selectors.currentChannel(redux.store.getState())
-
-    expect(currentChannel?.name).toEqual(channelFun.name)
-  })
-
-  it('Select most recent channel by clicking arrow down and enter', async () => {
-    const CHANNEL_NAME = 'fun'
-    renderComponent(
-      <>
-        <SearchModal />
-      </>,
-      redux.store
-    )
-    redux.store.dispatch(modalsActions.openModal({ name: ModalName.searchChannelModal }))
-
-    await act(async () => {
-      await userEvent.tab()
-
-      await userEvent.keyboard('[ArrowDown]')
-      await userEvent.keyboard('[Enter]')
+        // Automatically create channels
+        for (const channelMock of channelsMocks) {
+            await factory.create<ReturnType<typeof publicChannels.actions.addChannel>['payload']>('PublicChannel', {
+                channel: {
+                    name: channelMock.name,
+                    description: `Welcome to #${channelMock.name}`,
+                    timestamp: channelMock.timestamp,
+                    owner: alice.nickname,
+                    id: channelMock.name,
+                },
+            })
+        }
     })
 
-    const currentChannel = publicChannels.selectors.currentChannel(redux.store.getState())
+    it('Select channel by writing name and pressing enter', async () => {
+        renderComponent(
+            <>
+                <SearchModal />
+            </>,
+            redux.store
+        )
+        redux.store.dispatch(modalsActions.openModal({ name: ModalName.searchChannelModal }))
 
-    expect(currentChannel?.name).toEqual(CHANNEL_NAME)
-  })
+        const input = await screen.findByPlaceholderText('Channel name')
+        await userEvent.type(input, channelFun.name)
+        const tab = await screen.findByText('# fun')
+        await userEvent.type(tab, '{ArrowDown}')
+        await userEvent.type(tab, '{enter}')
 
-  it('Close by hitting escape', async () => {
-    renderComponent(
-      <>
-        <SearchModal />
-      </>,
-      redux.store
-    )
-    redux.store.dispatch(modalsActions.openModal({ name: ModalName.searchChannelModal }))
+        await act(async () => {})
 
-    const text = await screen.findByText('recent channels')
-    expect(text).toBeVisible()
-    await userEvent.type(text, '{escape}')
-    expect(text).not.toBeVisible()
-  })
+        const currentChannel = publicChannels.selectors.currentChannel(redux.store.getState())
 
-  it('Should render proper UI for state with unread message on channels and allow to switch by pressing enter', async () => {
-    const messages: ChannelMessage[] = []
-    const message = (
-      await factory.build<typeof publicChannels.actions.test_message>('Message', {
-        identity: alice,
-        message: {
-          id: Math.random().toString(36).substr(2.9),
-          type: MessageType.Basic,
-          message: 'message',
-          createdAt: DateTime.utc().valueOf(),
-          channelId: 'fun',
-          signature: '',
-          pubKey: '',
-        },
-        verifyAutomatically: true,
-      })
-    ).payload.message
-    messages.push(message)
-
-    renderComponent(
-      <>
-        <SearchModal />
-      </>,
-      redux.store
-    )
-
-    await act(async () => {
-      await redux.runSaga(mockIncomingMessages).toPromise()
+        expect(currentChannel?.name).toEqual(channelFun.name)
     })
 
-    redux.store.dispatch(modalsActions.openModal({ name: ModalName.searchChannelModal }))
+    it('Select channel by writing name and clicking', async () => {
+        renderComponent(
+            <>
+                <SearchModal />
+            </>,
+            redux.store
+        )
+        redux.store.dispatch(modalsActions.openModal({ name: ModalName.searchChannelModal }))
 
-    const text = await screen.findByText('unread messages')
-    expect(text).toBeVisible()
+        const input = await screen.findByPlaceholderText('Channel name')
+        await userEvent.type(input, channelFun.name)
+        const tab = await screen.findByText('# fun')
+        fireEvent.click(tab)
 
-    const funChannel = await screen.findByText('# fun')
-    expect(funChannel).toBeVisible()
+        await act(async () => {})
 
-    await userEvent.type(funChannel, '{enter}')
+        const currentChannel = publicChannels.selectors.currentChannel(redux.store.getState())
 
-    const currentChannel = publicChannels.selectors.currentChannel(redux.store.getState())
+        expect(currentChannel?.name).toEqual(channelFun.name)
+    })
 
-    expect(currentChannel?.name).toEqual('fun')
+    it('Select most recent channel by clicking arrow down and enter', async () => {
+        const CHANNEL_NAME = 'fun'
+        renderComponent(
+            <>
+                <SearchModal />
+            </>,
+            redux.store
+        )
+        redux.store.dispatch(modalsActions.openModal({ name: ModalName.searchChannelModal }))
 
-    function* mockIncomingMessages(): Generator {
-      yield* apply(socket.socketClient, socket.socketClient.emit, [
-        SocketActionTypes.INCOMING_MESSAGES,
-        {
-          messages: [message],
-          communityId: community.id,
-          isVerified: true,
-        },
-      ])
-    }
-  })
+        await act(async () => {
+            await userEvent.tab()
+
+            await userEvent.keyboard('[ArrowDown]')
+            await userEvent.keyboard('[Enter]')
+        })
+
+        const currentChannel = publicChannels.selectors.currentChannel(redux.store.getState())
+
+        expect(currentChannel?.name).toEqual(CHANNEL_NAME)
+    })
+
+    it('Close by hitting escape', async () => {
+        renderComponent(
+            <>
+                <SearchModal />
+            </>,
+            redux.store
+        )
+        redux.store.dispatch(modalsActions.openModal({ name: ModalName.searchChannelModal }))
+
+        const text = await screen.findByText('recent channels')
+        expect(text).toBeVisible()
+        await userEvent.type(text, '{escape}')
+        expect(text).not.toBeVisible()
+    })
+
+    it('Should render proper UI for state with unread message on channels and allow to switch by pressing enter', async () => {
+        const messages: ChannelMessage[] = []
+        const message = (
+            await factory.build<typeof publicChannels.actions.test_message>('Message', {
+                identity: alice,
+                message: {
+                    id: Math.random().toString(36).substr(2.9),
+                    type: MessageType.Basic,
+                    message: 'message',
+                    createdAt: DateTime.utc().valueOf(),
+                    channelId: 'fun',
+                    signature: '',
+                    pubKey: '',
+                },
+                verifyAutomatically: true,
+            })
+        ).payload.message
+        messages.push(message)
+
+        renderComponent(
+            <>
+                <SearchModal />
+            </>,
+            redux.store
+        )
+
+        await act(async () => {
+            await redux.runSaga(mockIncomingMessages).toPromise()
+        })
+
+        redux.store.dispatch(modalsActions.openModal({ name: ModalName.searchChannelModal }))
+
+        const text = await screen.findByText('unread messages')
+        expect(text).toBeVisible()
+
+        const funChannel = await screen.findByText('# fun')
+        expect(funChannel).toBeVisible()
+
+        await userEvent.type(funChannel, '{enter}')
+
+        const currentChannel = publicChannels.selectors.currentChannel(redux.store.getState())
+
+        expect(currentChannel?.name).toEqual('fun')
+
+        function* mockIncomingMessages(): Generator {
+            yield* apply(socket.socketClient, socket.socketClient.emit, [
+                SocketActionTypes.INCOMING_MESSAGES,
+                {
+                    messages: [message],
+                    communityId: community.id,
+                    isVerified: true,
+                },
+            ])
+        }
+    })
 })

@@ -4,10 +4,10 @@ import { renderComponent } from '../../../testUtils/renderComponent'
 import { QuitAppDialog } from './QuitAppDialog'
 
 describe('QuitAppDialog', () => {
-  it('renders component', () => {
-    const result = renderComponent(<QuitAppDialog open handleClose={jest.fn()} handleQuit={jest.fn()} />)
+    it('renders component', () => {
+        const result = renderComponent(<QuitAppDialog open handleClose={jest.fn()} handleQuit={jest.fn()} />)
 
-    expect(result.baseElement).toMatchInlineSnapshot(`
+        expect(result.baseElement).toMatchInlineSnapshot(`
       <body
         style="padding-right: 1024px; overflow: hidden;"
       >
@@ -82,5 +82,5 @@ describe('QuitAppDialog', () => {
         </div>
       </body>
     `)
-  })
+    })
 })

@@ -5,34 +5,34 @@ import classNames from 'classnames'
 const PREFIX = 'WindowWrapper'
 
 const classes = {
-  root: `${PREFIX}root`,
-  wrapper: `${PREFIX}wrapper`,
+    root: `${PREFIX}root`,
+    wrapper: `${PREFIX}wrapper`,
 }
 
 const Root = styled('div')(() => ({
-  [`& .${classes.root}`]: {},
+    [`& .${classes.root}`]: {},
 
-  [`&.${classes.wrapper}`]: {
-    minHeight: '100vh',
-  },
+    [`&.${classes.wrapper}`]: {
+        minHeight: '100vh',
+    },
 }))
 
 interface WindowWrapperProps {
-  children: ReactElement
-  className?: string
+    children: ReactElement
+    className?: string
 }
 
 export const WindowWrapper: React.FC<WindowWrapperProps> = ({ children, className = '' }) => {
-  return (
-    <Root
-      className={classNames({
-        [classes.wrapper]: true,
-        [className]: className,
-      })}
-    >
-      {children}
-    </Root>
-  )
+    return (
+        <Root
+            className={classNames({
+                [classes.wrapper]: true,
+                [className]: className,
+            })}
+        >
+            {children}
+        </Root>
+    )
 }
 
 export default WindowWrapper

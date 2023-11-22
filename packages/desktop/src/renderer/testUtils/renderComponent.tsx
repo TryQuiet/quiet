@@ -11,19 +11,19 @@ import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 
 interface Props {
-  children?: React.ReactNode
+    children?: React.ReactNode
 }
 
 export const renderComponent = (ui: ReactElement, storeState: Store = store): ReturnType<typeof render> => {
-  const Wrapper: FC<Props> = ({ children }) => (
-    <StyledEngineProvider injectFirst>
-      <ThemeProvider theme={theme}>
-        <DndProvider backend={HTML5Backend}>
-          <Provider store={storeState}>{children}</Provider>
-        </DndProvider>
-      </ThemeProvider>
-    </StyledEngineProvider>
-  )
+    const Wrapper: FC<Props> = ({ children }) => (
+        <StyledEngineProvider injectFirst>
+            <ThemeProvider theme={theme}>
+                <DndProvider backend={HTML5Backend}>
+                    <Provider store={storeState}>{children}</Provider>
+                </DndProvider>
+            </ThemeProvider>
+        </StyledEngineProvider>
+    )
 
-  return render(ui, { wrapper: Wrapper })
+    return render(ui, { wrapper: Wrapper })
 }

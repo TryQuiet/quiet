@@ -11,43 +11,43 @@ import { verifyJoinTimestampSaga } from './verifyJoinTimestamp.saga'
 import { identityActions } from '../identity.slice'
 
 describe('verifyJoinTimestampSaga', () => {
-  let store: Store
-  let factory: FactoryGirl
+    let store: Store
+    let factory: FactoryGirl
 
-  beforeEach(async () => {
-    setupCrypto()
-    store = prepareStore().store
-    factory = await getFactory(store)
-  })
-
-  it('user has valid timestamp', async () => {
-    const community =
-      await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
-
-    await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
-      nickname: 'john',
+    beforeEach(async () => {
+        setupCrypto()
+        store = prepareStore().store
+        factory = await getFactory(store)
     })
 
-    const reducer = combineReducers(reducers)
-    await expectSaga(verifyJoinTimestampSaga).withReducer(reducer).withState(store.getState()).run()
-  })
+    it('user has valid timestamp', async () => {
+        const community =
+            await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
 
-  it('user doesnt have timestamp', async () => {
-    const community =
-      await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
+        await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
+            id: community.id,
+            nickname: 'john',
+        })
 
-    await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
-      nickname: 'john',
-      joinTimestamp: null,
+        const reducer = combineReducers(reducers)
+        await expectSaga(verifyJoinTimestampSaga).withReducer(reducer).withState(store.getState()).run()
     })
 
-    const reducer = combineReducers(reducers)
-    await expectSaga(verifyJoinTimestampSaga)
-      .withReducer(reducer)
-      .withState(store.getState())
-      .put(identityActions.updateJoinTimestamp({ communityId: community.id }))
-      .run()
-  })
+    it('user doesnt have timestamp', async () => {
+        const community =
+            await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
+
+        await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
+            id: community.id,
+            nickname: 'john',
+            joinTimestamp: null,
+        })
+
+        const reducer = combineReducers(reducers)
+        await expectSaga(verifyJoinTimestampSaga)
+            .withReducer(reducer)
+            .withState(store.getState())
+            .put(identityActions.updateJoinTimestamp({ communityId: community.id }))
+            .run()
+    })
 })

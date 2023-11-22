@@ -9,56 +9,56 @@ import { applyEmitParams, type Socket } from '../../../types'
 import { DownloadState, MessageType, SocketActionTypes } from '@quiet/types'
 
 export function* autoDownloadFilesSaga(
-  socket: Socket,
-  action: PayloadAction<ReturnType<typeof messagesActions.incomingMessages>['payload']>
+    socket: Socket,
+    action: PayloadAction<ReturnType<typeof messagesActions.incomingMessages>['payload']>
 ): Generator {
-  const identity = yield* select(identitySelectors.currentIdentity)
-  if (!identity) {
-    console.error('Could not autodownload files, no identity')
-    return
-  }
-
-  const { messages } = action.payload
-
-  for (const message of messages) {
-    // Proceed for images and files only
-    if (!message.media || (message.type !== MessageType.Image && message.type !== MessageType.File)) return
-
-    const channelMessages = yield* select(messagesSelectors.publicChannelMessagesEntities(message.channelId))
-
-    const draft = channelMessages[message.id]
-
-    // Do not download if already present in local file system
-    if (draft?.media?.path) return
-
-    // Do not autodownload above certain size
-    const messageMediaSize = message.media.size || 0
-    if (messageMediaSize > AUTODOWNLOAD_SIZE_LIMIT) {
-      yield* put(
-        filesActions.updateDownloadStatus({
-          mid: message.id,
-          cid: message.media.cid,
-          downloadState: DownloadState.Ready,
-        })
-      )
-      return
+    const identity = yield* select(identitySelectors.currentIdentity)
+    if (!identity) {
+        console.error('Could not autodownload files, no identity')
+        return
     }
 
-    yield* put(
-      filesActions.updateDownloadStatus({
-        mid: message.id,
-        cid: message.media.cid,
-        downloadState: DownloadState.Queued,
-      })
-    )
+    const { messages } = action.payload
 
-    yield* apply(
-      socket,
-      socket.emit,
-      applyEmitParams(SocketActionTypes.DOWNLOAD_FILE, {
-        peerId: identity.peerId.id,
-        metadata: message.media,
-      })
-    )
-  }
+    for (const message of messages) {
+        // Proceed for images and files only
+        if (!message.media || (message.type !== MessageType.Image && message.type !== MessageType.File)) return
+
+        const channelMessages = yield* select(messagesSelectors.publicChannelMessagesEntities(message.channelId))
+
+        const draft = channelMessages[message.id]
+
+        // Do not download if already present in local file system
+        if (draft?.media?.path) return
+
+        // Do not autodownload above certain size
+        const messageMediaSize = message.media.size || 0
+        if (messageMediaSize > AUTODOWNLOAD_SIZE_LIMIT) {
+            yield* put(
+                filesActions.updateDownloadStatus({
+                    mid: message.id,
+                    cid: message.media.cid,
+                    downloadState: DownloadState.Ready,
+                })
+            )
+            return
+        }
+
+        yield* put(
+            filesActions.updateDownloadStatus({
+                mid: message.id,
+                cid: message.media.cid,
+                downloadState: DownloadState.Queued,
+            })
+        )
+
+        yield* apply(
+            socket,
+            socket.emit,
+            applyEmitParams(SocketActionTypes.DOWNLOAD_FILE, {
+                peerId: identity.peerId.id,
+                metadata: message.media,
+            })
+        )
+    }
 }

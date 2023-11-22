@@ -12,39 +12,39 @@ import { defaultTheme } from '../../styles/themes/default.theme'
 import { QRCodeProps } from './QRCode.types'
 
 export const QRCode: FC<QRCodeProps> = ({ value, svgRef, shareCode, handleBackButton }) => {
-  return (
-    <View
-      style={{
-        flex: 1,
-        backgroundColor: defaultTheme.palette.background.white,
-      }}
-    >
-      <Appbar title={'QR Code'} back={handleBackButton} />
-      <View
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          padding: 16,
-        }}
-      >
+    return (
         <View
-          style={{
-            margin: 16,
-          }}
+            style={{
+                flex: 1,
+                backgroundColor: defaultTheme.palette.background.white,
+            }}
         >
-          <QR value={value} size={172} getRef={svgRef} />
+            <Appbar title={'QR Code'} back={handleBackButton} />
+            <View
+                style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    padding: 16,
+                }}
+            >
+                <View
+                    style={{
+                        margin: 16,
+                    }}
+                >
+                    <QR value={value} size={172} getRef={svgRef} />
+                </View>
+                <View style={{ marginTop: 16, width: 340 }}>
+                    <Typography fontSize={14} fontWeight={'normal'} style={{ lineHeight: 20, textAlign: 'center' }}>
+                        This community QR code is private. If it is shared with someone, they can scan it with their
+                        camera to join this community.
+                    </Typography>
+                </View>
+                <View style={{ marginTop: 16, width: 124 }}>
+                    <Button title={'Share code'} onPress={shareCode} />
+                </View>
+            </View>
         </View>
-        <View style={{ marginTop: 16, width: 340 }}>
-          <Typography fontSize={14} fontWeight={'normal'} style={{ lineHeight: 20, textAlign: 'center' }}>
-            This community QR code is private. If it is shared with someone, they can scan it with their camera to join
-            this community.
-          </Typography>
-        </View>
-        <View style={{ marginTop: 16, width: 124 }}>
-          <Button title={'Share code'} onPress={shareCode} />
-        </View>
-      </View>
-    </View>
-  )
+    )
 }

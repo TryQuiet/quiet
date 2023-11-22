@@ -15,28 +15,28 @@ import { filesReducer } from '../../sagas/files/files.slice'
 import { networkReducer } from '../../sagas/network/network.slice'
 
 export const reducers = {
-  [StoreKeys.Communities]: communitiesReducer,
-  [StoreKeys.Identity]: identityReducer,
-  [StoreKeys.Users]: usersReducer,
-  [StoreKeys.Errors]: errorsReducer,
-  [StoreKeys.Messages]: messagesReducer,
-  [StoreKeys.PublicChannels]: publicChannelsReducer,
-  [StoreKeys.Connection]: connectionReducer,
-  [StoreKeys.Settings]: settingsReducer,
-  [StoreKeys.Files]: filesReducer,
-  [StoreKeys.LastAction]: lastActionReducer,
-  [StoreKeys.Network]: networkReducer,
-  // Only for data collectiong purposes
-  // [StoreKeys.CollectData]: collectDataReducer
+    [StoreKeys.Communities]: communitiesReducer,
+    [StoreKeys.Identity]: identityReducer,
+    [StoreKeys.Users]: usersReducer,
+    [StoreKeys.Errors]: errorsReducer,
+    [StoreKeys.Messages]: messagesReducer,
+    [StoreKeys.PublicChannels]: publicChannelsReducer,
+    [StoreKeys.Connection]: connectionReducer,
+    [StoreKeys.Settings]: settingsReducer,
+    [StoreKeys.Files]: filesReducer,
+    [StoreKeys.LastAction]: lastActionReducer,
+    [StoreKeys.Network]: networkReducer,
+    // Only for data collectiong purposes
+    // [StoreKeys.CollectData]: collectDataReducer
 }
 
 export const prepareStore = (mockedState?: { [key in StoreKeys]?: any }) => {
-  const combinedReducers = combineReducers(reducers)
-  const sagaMiddleware = createSagaMiddleware()
-  const store = createStore(combinedReducers, mockedState, applyMiddleware(...[sagaMiddleware, thunk]))
+    const combinedReducers = combineReducers(reducers)
+    const sagaMiddleware = createSagaMiddleware()
+    const store = createStore(combinedReducers, mockedState, applyMiddleware(...[sagaMiddleware, thunk]))
 
-  return {
-    store,
-    runSaga: sagaMiddleware.run,
-  }
+    return {
+        store,
+        runSaga: sagaMiddleware.run,
+    }
 }

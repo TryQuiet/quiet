@@ -8,55 +8,55 @@ import { initActions } from './init/init.slice'
 import { rootReducer } from './root.reducer'
 
 import {
-  storeKeys as StateManagerStoreKeys,
-  CommunitiesTransform,
-  PublicChannelsTransform,
-  MessagesTransform,
-  FilesTransform,
-  ConnectionTransform,
-  UsersTransform,
+    storeKeys as StateManagerStoreKeys,
+    CommunitiesTransform,
+    PublicChannelsTransform,
+    MessagesTransform,
+    FilesTransform,
+    ConnectionTransform,
+    UsersTransform,
 } from '@quiet/state-manager'
 import { StoreKeys } from './store.keys'
 import { InitTransform } from './init/init.transform'
 
 const persistedReducer = persistReducer(
-  {
-    key: 'persistedReducer',
-    storage: FilesystemStorage,
-    whitelist: [
-      StateManagerStoreKeys.Identity,
-      StateManagerStoreKeys.Communities,
-      StateManagerStoreKeys.PublicChannels,
-      StateManagerStoreKeys.Users,
-      StateManagerStoreKeys.Messages,
-      StateManagerStoreKeys.Files,
-      StateManagerStoreKeys.Connection,
-      StoreKeys.Init,
-    ],
-    transforms: [
-      CommunitiesTransform,
-      PublicChannelsTransform,
-      MessagesTransform,
-      FilesTransform,
-      InitTransform,
-      ConnectionTransform,
-      UsersTransform,
-    ],
-  },
-  rootReducer
+    {
+        key: 'persistedReducer',
+        storage: FilesystemStorage,
+        whitelist: [
+            StateManagerStoreKeys.Identity,
+            StateManagerStoreKeys.Communities,
+            StateManagerStoreKeys.PublicChannels,
+            StateManagerStoreKeys.Users,
+            StateManagerStoreKeys.Messages,
+            StateManagerStoreKeys.Files,
+            StateManagerStoreKeys.Connection,
+            StoreKeys.Init,
+        ],
+        transforms: [
+            CommunitiesTransform,
+            PublicChannelsTransform,
+            MessagesTransform,
+            FilesTransform,
+            InitTransform,
+            ConnectionTransform,
+            UsersTransform,
+        ],
+    },
+    rootReducer
 )
 
 export const sagaMiddleware = createSagaMiddleware()
 
 export const store = configureStore({
-  devTools: process.env.NODE_ENV === NodeEnv.Development,
-  middleware: [
-    ...getDefaultMiddleware({ immutableCheck: false, serializableCheck: false, thunk: false }),
-    sagaMiddleware,
-  ],
-  reducer: persistedReducer,
+    devTools: process.env.NODE_ENV === NodeEnv.Development,
+    middleware: [
+        ...getDefaultMiddleware({ immutableCheck: false, serializableCheck: false, thunk: false }),
+        sagaMiddleware,
+    ],
+    reducer: persistedReducer,
 })
 
 export const persistor = persistStore(store, {}, () => {
-  store.dispatch(initActions.setStoreReady())
+    store.dispatch(initActions.setStoreReady())
 })

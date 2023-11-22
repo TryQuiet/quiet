@@ -8,26 +8,26 @@ const navigationSlice: CreatedSelectors[StoreKeys.Navigation] = (state: StoreSta
 export const currentScreen = createSelector(navigationSlice, reducerState => reducerState.backStack.slice(-1)[0])
 
 export const contextMenuVisibility = (menu: MenuName) =>
-  createSelector(navigationSlice, reducerState => {
-    return reducerState[menu]?.open
-  })
+    createSelector(navigationSlice, reducerState => {
+        return reducerState[menu]?.open
+    })
 
 export const contextMenuProps = (menu: MenuName) =>
-  createSelector(navigationSlice, reducerState => {
-    return reducerState[menu]?.args || {}
-  })
+    createSelector(navigationSlice, reducerState => {
+        return reducerState[menu]?.args || {}
+    })
 
 export const confirmationBox = () =>
-  createSelector(navigationSlice, reducerState => {
-    return reducerState.confirmationBox
-  })
+    createSelector(navigationSlice, reducerState => {
+        return reducerState.confirmationBox
+    })
 
 export const pendingNavigation = createSelector(navigationSlice, reducerState => reducerState.pendingNavigation)
 
 export const navigationSelectors = {
-  currentScreen,
-  contextMenuVisibility,
-  contextMenuProps,
-  confirmationBox,
-  pendingNavigation,
+    currentScreen,
+    contextMenuVisibility,
+    contextMenuProps,
+    confirmationBox,
+    pendingNavigation,
 }

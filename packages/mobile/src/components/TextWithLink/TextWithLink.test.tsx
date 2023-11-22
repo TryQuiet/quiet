@@ -2,22 +2,22 @@ import { renderComponent } from '../../utils/functions/renderComponent/renderCom
 import { TextWithLink } from './TextWithLink.component'
 
 describe('Spinner component', () => {
-  it('renders component', () => {
-    const { toJSON } = renderComponent(
-      <TextWithLink
-        text={'Here is %a text'}
-        links={[
-          {
-            tag: 'a',
-            label: 'linked',
-            action: () => {
-              console.log('link clicked')
-            },
-          },
-        ]}
-      />
-    )
-    expect(toJSON()).toMatchInlineSnapshot(`
+    it('renders component', () => {
+        const { toJSON } = renderComponent(
+            <TextWithLink
+                text={'Here is %a text'}
+                links={[
+                    {
+                        tag: 'a',
+                        label: 'linked',
+                        action: () => {
+                            console.log('link clicked')
+                        },
+                    },
+                ]}
+            />
+        )
+        expect(toJSON()).toMatchInlineSnapshot(`
       <View
         style={
           {
@@ -184,5 +184,5 @@ describe('Spinner component', () => {
         </Text>
       </View>
     `)
-  })
+    })
 })

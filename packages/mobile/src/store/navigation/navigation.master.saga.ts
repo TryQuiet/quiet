@@ -6,10 +6,10 @@ import { replaceScreenSaga } from './replaceScreen/replaceScreen.saga'
 import { popSaga } from './pop/pop.saga'
 
 export function* navigationMasterSaga(): Generator {
-  yield all([
-    takeEvery(navigationActions.redirection.type, redirectionSaga),
-    takeEvery(navigationActions.navigation.type, navigationSaga),
-    takeEvery(navigationActions.replaceScreen.type, replaceScreenSaga),
-    takeEvery(navigationActions.pop.type, popSaga),
-  ])
+    yield all([
+        takeEvery(navigationActions.redirection.type, redirectionSaga),
+        takeEvery(navigationActions.navigation.type, navigationSaga),
+        takeEvery(navigationActions.replaceScreen.type, replaceScreenSaga),
+        takeEvery(navigationActions.pop.type, popSaga),
+    ])
 }

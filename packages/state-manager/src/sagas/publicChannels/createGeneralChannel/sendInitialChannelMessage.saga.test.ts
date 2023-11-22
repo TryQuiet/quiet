@@ -17,86 +17,86 @@ import { generateChannelId } from '@quiet/common'
 import { type Community, type PublicChannel } from '@quiet/types'
 
 describe('sendInitialChannelMessageSaga', () => {
-  let store: Store
-  let factory: FactoryGirl
+    let store: Store
+    let factory: FactoryGirl
 
-  let channel: PublicChannel
+    let channel: PublicChannel
 
-  let generalChannel: PublicChannel
+    let generalChannel: PublicChannel
 
-  let community: Community
-  let owner: Identity
+    let community: Community
+    let owner: Identity
 
-  beforeAll(async () => {
-    setupCrypto()
+    beforeAll(async () => {
+        setupCrypto()
 
-    store = prepareStore().store
-    factory = await getFactory(store)
+        store = prepareStore().store
+        factory = await getFactory(store)
 
-    community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
+        community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
 
-    owner = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
-      nickname: 'alice',
+        owner = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
+            id: community.id,
+            nickname: 'alice',
+        })
+
+        const generalChannelState = publicChannelsSelectors.generalChannel(store.getState())
+        if (generalChannelState) generalChannel = generalChannelState
+        expect(generalChannel).not.toBeUndefined()
+
+        channel = (
+            await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>('PublicChannel', {
+                channel: {
+                    name: 'photo',
+                    description: 'Welcome to #photo',
+                    timestamp: DateTime.utc().valueOf(),
+                    owner: owner.nickname,
+                    id: generateChannelId('photo'),
+                },
+            })
+        ).channel
     })
 
-    const generalChannelState = publicChannelsSelectors.generalChannel(store.getState())
-    if (generalChannelState) generalChannel = generalChannelState
-    expect(generalChannel).not.toBeUndefined()
+    test('send initial channel message', async () => {
+        const reducer = combineReducers(reducers)
+        await expectSaga(
+            sendInitialChannelMessageSaga,
+            publicChannelsActions.sendInitialChannelMessage({
+                channelName: channel.name,
+                channelId: channel.id,
+            })
+        )
+            .withReducer(reducer)
+            .withState(store.getState())
+            .put(
+                messagesActions.sendMessage({
+                    type: 3,
+                    message: `@${owner.nickname} created #${channel.name}`,
+                    channelId: channel.id,
+                })
+            )
+            .run()
+    })
 
-    channel = (
-      await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>('PublicChannel', {
-        channel: {
-          name: 'photo',
-          description: 'Welcome to #photo',
-          timestamp: DateTime.utc().valueOf(),
-          owner: owner.nickname,
-          id: generateChannelId('photo'),
-        },
-      })
-    ).channel
-  })
-
-  test('send initial channel message', async () => {
-    const reducer = combineReducers(reducers)
-    await expectSaga(
-      sendInitialChannelMessageSaga,
-      publicChannelsActions.sendInitialChannelMessage({
-        channelName: channel.name,
-        channelId: channel.id,
-      })
-    )
-      .withReducer(reducer)
-      .withState(store.getState())
-      .put(
-        messagesActions.sendMessage({
-          type: 3,
-          message: `@${owner.nickname} created #${channel.name}`,
-          channelId: channel.id,
-        })
-      )
-      .run()
-  })
-
-  test('send deletion message for general channel', async () => {
-    store.dispatch(publicChannelsActions.startGeneralRecreation())
-    const reducer = combineReducers(reducers)
-    await expectSaga(
-      sendInitialChannelMessageSaga,
-      publicChannelsActions.sendInitialChannelMessage({
-        channelName: generalChannel.name,
-        channelId: generalChannel.id,
-      })
-    )
-      .withReducer(reducer)
-      .withState(store.getState())
-      .put(
-        messagesActions.sendMessage({
-          type: 3,
-          message: `@${owner.nickname} deleted all messages in #general`,
-          channelId: generalChannel.id,
-        })
-      )
-      .run()
-  })
+    test('send deletion message for general channel', async () => {
+        store.dispatch(publicChannelsActions.startGeneralRecreation())
+        const reducer = combineReducers(reducers)
+        await expectSaga(
+            sendInitialChannelMessageSaga,
+            publicChannelsActions.sendInitialChannelMessage({
+                channelName: generalChannel.name,
+                channelId: generalChannel.id,
+            })
+        )
+            .withReducer(reducer)
+            .withState(store.getState())
+            .put(
+                messagesActions.sendMessage({
+                    type: 3,
+                    message: `@${owner.nickname} deleted all messages in #general`,
+                    channelId: generalChannel.id,
+                })
+            )
+            .run()
+    })
 })

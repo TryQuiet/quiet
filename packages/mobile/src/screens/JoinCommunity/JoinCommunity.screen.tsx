@@ -10,62 +10,62 @@ import { JoinCommunityScreenProps } from './JoinCommunity.types'
 import { initSelectors } from '../../store/init/init.selectors'
 
 export const JoinCommunityScreen: FC<JoinCommunityScreenProps> = ({ route }) => {
-  const dispatch = useDispatch()
+    const dispatch = useDispatch()
 
-  const [invitationCode, setInvitationCode] = useState<string | undefined>(undefined)
+    const [invitationCode, setInvitationCode] = useState<string | undefined>(undefined)
 
-  const isWebsocketConnected = useSelector(initSelectors.isWebsocketConnected)
+    const isWebsocketConnected = useSelector(initSelectors.isWebsocketConnected)
 
-  const currentCommunity = useSelector(communities.selectors.currentCommunity)
-  const currentIdentity = useSelector(identity.selectors.currentIdentity)
+    const currentCommunity = useSelector(communities.selectors.currentCommunity)
+    const currentIdentity = useSelector(identity.selectors.currentIdentity)
 
-  const networkCreated = Boolean(currentCommunity && !currentIdentity?.userCertificate)
+    const networkCreated = Boolean(currentCommunity && !currentIdentity?.userCertificate)
 
-  const community = useSelector(communities.selectors.currentCommunity)
+    const community = useSelector(communities.selectors.currentCommunity)
 
-  // Handle deep linking (opening app with quiet://)
-  useEffect(() => {
-    const code = route.params?.code
+    // Handle deep linking (opening app with quiet://)
+    useEffect(() => {
+        const code = route.params?.code
 
-    // Screen hasn't been open through a link
-    if (!code) return
+        // Screen hasn't been open through a link
+        if (!code) return
 
-    // Change component state
-    setInvitationCode(code)
-  }, [dispatch, community, route.params?.code])
+        // Change component state
+        setInvitationCode(code)
+    }, [dispatch, community, route.params?.code])
 
-  const joinCommunityAction = useCallback(
-    (data: InvitationData) => {
-      const payload: CreateNetworkPayload = {
-        ownership: CommunityOwnership.User,
-        peers: data.pairs,
-        psk: data.psk,
-      }
-      dispatch(communities.actions.createNetwork(payload))
-      dispatch(
-        navigationActions.navigation({
-          screen: ScreenNames.UsernameRegistrationScreen,
-        })
-      )
-    },
-    [dispatch]
-  )
-
-  const redirectionAction = useCallback(() => {
-    dispatch(
-      navigationActions.navigation({
-        screen: ScreenNames.CreateCommunityScreen,
-      })
+    const joinCommunityAction = useCallback(
+        (data: InvitationData) => {
+            const payload: CreateNetworkPayload = {
+                ownership: CommunityOwnership.User,
+                peers: data.pairs,
+                psk: data.psk,
+            }
+            dispatch(communities.actions.createNetwork(payload))
+            dispatch(
+                navigationActions.navigation({
+                    screen: ScreenNames.UsernameRegistrationScreen,
+                })
+            )
+        },
+        [dispatch]
     )
-  }, [dispatch])
 
-  return (
-    <JoinCommunity
-      joinCommunityAction={joinCommunityAction}
-      redirectionAction={redirectionAction}
-      networkCreated={networkCreated}
-      invitationCode={invitationCode}
-      ready={isWebsocketConnected}
-    />
-  )
+    const redirectionAction = useCallback(() => {
+        dispatch(
+            navigationActions.navigation({
+                screen: ScreenNames.CreateCommunityScreen,
+            })
+        )
+    }, [dispatch])
+
+    return (
+        <JoinCommunity
+            joinCommunityAction={joinCommunityAction}
+            redirectionAction={redirectionAction}
+            networkCreated={networkCreated}
+            invitationCode={invitationCode}
+            ready={isWebsocketConnected}
+        />
+    )
 }

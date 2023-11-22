@@ -3,11 +3,11 @@ import { renderComponent } from '../../../testUtils'
 import WarningModal from './WarningModal'
 
 describe('WarningModal', () => {
-  it('renders component', () => {
-    const result = renderComponent(
-      <WarningModal open handleClose={jest.fn()} title='Warning' subtitle='This is a warning' />
-    )
-    expect(result.baseElement).toMatchInlineSnapshot(`
+    it('renders component', () => {
+        const result = renderComponent(
+            <WarningModal open handleClose={jest.fn()} title='Warning' subtitle='This is a warning' />
+        )
+        expect(result.baseElement).toMatchInlineSnapshot(`
       <body
         style="padding-right: 1024px; overflow: hidden;"
       >
@@ -156,5 +156,5 @@ describe('WarningModal', () => {
         </div>
       </body>
     `)
-  })
+    })
 })

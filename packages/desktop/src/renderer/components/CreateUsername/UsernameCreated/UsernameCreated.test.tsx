@@ -3,9 +3,9 @@ import { renderComponent } from '../../../testUtils/renderComponent'
 import { UsernameCreated } from './UsernameCreated'
 
 describe('UsernameCreated', () => {
-  it('renders component', () => {
-    const result = renderComponent(<UsernameCreated handleClose={jest.fn()} setFormSent={jest.fn()} />)
-    expect(result.baseElement).toMatchInlineSnapshot(`
+    it('renders component', () => {
+        const result = renderComponent(<UsernameCreated handleClose={jest.fn()} setFormSent={jest.fn()} />)
+        expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
           <div
@@ -46,5 +46,5 @@ describe('UsernameCreated', () => {
         </div>
       </body>
     `)
-  })
+    })
 })

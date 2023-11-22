@@ -5,5 +5,5 @@ import { storybookLog } from '../../utils/functions/storybookLog/storybookLog.fu
 import { MessageSendButton } from './MessageSendButton.component'
 
 storiesOf('MessageSendButton', module)
-  .add('Default', () => <MessageSendButton onPress={storybookLog('Enabled button click')} disabled={false} />)
-  .add('Disabled', () => <MessageSendButton onPress={storybookLog('Disabled button click')} disabled={true} />)
+    .add('Default', () => <MessageSendButton onPress={storybookLog('Enabled button click')} disabled={false} />)
+    .add('Disabled', () => <MessageSendButton onPress={storybookLog('Disabled button click')} disabled={true} />)

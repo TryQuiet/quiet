@@ -4,10 +4,12 @@ import { renderComponent } from '../../utils/functions/renderComponent/renderCom
 import { Input } from './Input.component'
 
 describe('MessageInput component', () => {
-  it('should match inline snapshot', () => {
-    const { toJSON } = renderComponent(<Input onChangeText={() => {}} placeholder={'Message #general as @holmes'} />)
+    it('should match inline snapshot', () => {
+        const { toJSON } = renderComponent(
+            <Input onChangeText={() => {}} placeholder={'Message #general as @holmes'} />
+        )
 
-    expect(toJSON()).toMatchInlineSnapshot(`
+        expect(toJSON()).toMatchInlineSnapshot(`
       <View>
         <View
           accessibilityState={
@@ -80,5 +82,5 @@ describe('MessageInput component', () => {
         </View>
       </View>
     `)
-  })
+    })
 })

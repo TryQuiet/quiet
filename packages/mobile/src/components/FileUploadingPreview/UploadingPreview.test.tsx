@@ -4,29 +4,29 @@ import UploadingPreview from './UploadingPreview.component'
 import { FilePreviewData } from '@quiet/types'
 
 describe('UploadingPreview component', () => {
-  it('renders properly for image and document', () => {
-    const pickedFiles: FilePreviewData = {
-      '12345': {
-        path: 'file://data/0/myFile.jpg',
-        name: 'myFile.jpg',
-        ext: '.jpg',
-      },
-      '54321': {
-        path: 'file://data/0/otherfile.txt',
-        name: 'otherfile.txt',
-        ext: '.txt',
-      },
-    }
-    const { toJSON } = renderComponent(
-      <UploadingPreview
-        filesData={pickedFiles}
-        removeFile={function (id: string): void {
-          console.log(`removeFile ${id}`)
-        }}
-      />
-    )
+    it('renders properly for image and document', () => {
+        const pickedFiles: FilePreviewData = {
+            '12345': {
+                path: 'file://data/0/myFile.jpg',
+                name: 'myFile.jpg',
+                ext: '.jpg',
+            },
+            '54321': {
+                path: 'file://data/0/otherfile.txt',
+                name: 'otherfile.txt',
+                ext: '.txt',
+            },
+        }
+        const { toJSON } = renderComponent(
+            <UploadingPreview
+                filesData={pickedFiles}
+                removeFile={function (id: string): void {
+                    console.log(`removeFile ${id}`)
+                }}
+            />
+        )
 
-    expect(toJSON()).toMatchInlineSnapshot(`
+        expect(toJSON()).toMatchInlineSnapshot(`
       <RCTScrollView
         contentContainerStyle={
           {
@@ -290,5 +290,5 @@ describe('UploadingPreview component', () => {
         </View>
       </RCTScrollView>
     `)
-  })
+    })
 })

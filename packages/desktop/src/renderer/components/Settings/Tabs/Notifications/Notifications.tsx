@@ -6,54 +6,54 @@ import { NotificationsOptions, NotificationsSounds, settings } from '@quiet/stat
 import { NotificationsComponent } from './NotificationsComponent'
 
 interface useNotificationsDataReturnType {
-  notificationsOption: NotificationsOptions
-  notificationsSound: NotificationsSounds
+    notificationsOption: NotificationsOptions
+    notificationsSound: NotificationsSounds
 }
 
 export const useNotificationsData = (): useNotificationsDataReturnType => {
-  const data = {
-    notificationsOption: useSelector(settings.selectors.getNotificationsOption),
-    notificationsSound: useSelector(settings.selectors.getNotificationsSound),
-  }
-  return data
+    const data = {
+        notificationsOption: useSelector(settings.selectors.getNotificationsOption),
+        notificationsSound: useSelector(settings.selectors.getNotificationsSound),
+    }
+    return data
 }
 
 export const useNotificationsActions = (
-  notificationsOption: NotificationsOptions,
-  notificationsSound: NotificationsSounds
+    notificationsOption: NotificationsOptions,
+    notificationsSound: NotificationsSounds
 ) => {
-  const dispatch = useDispatch()
+    const dispatch = useDispatch()
 
-  const setNotificationsOption = useCallback(
-    (option: NotificationsOptions) => {
-      dispatch(settings.actions.setNotificationsOption(option))
-    },
-    [dispatch, notificationsOption]
-  )
+    const setNotificationsOption = useCallback(
+        (option: NotificationsOptions) => {
+            dispatch(settings.actions.setNotificationsOption(option))
+        },
+        [dispatch, notificationsOption]
+    )
 
-  const setNotificationsSound = useCallback(
-    (sound: NotificationsSounds) => {
-      dispatch(settings.actions.setNotificationsSound(sound))
-    },
-    [dispatch, notificationsSound]
-  )
+    const setNotificationsSound = useCallback(
+        (sound: NotificationsSounds) => {
+            dispatch(settings.actions.setNotificationsSound(sound))
+        },
+        [dispatch, notificationsSound]
+    )
 
-  return { setNotificationsOption, setNotificationsSound }
+    return { setNotificationsOption, setNotificationsSound }
 }
 
 export const Notifications: FC = () => {
-  const { notificationsOption, notificationsSound } = useNotificationsData()
-  const { setNotificationsOption, setNotificationsSound } = useNotificationsActions(
-    notificationsOption,
-    notificationsSound
-  )
+    const { notificationsOption, notificationsSound } = useNotificationsData()
+    const { setNotificationsOption, setNotificationsSound } = useNotificationsActions(
+        notificationsOption,
+        notificationsSound
+    )
 
-  return (
-    <NotificationsComponent
-      notificationsOption={notificationsOption}
-      notificationsSound={notificationsSound}
-      setNotificationsOption={setNotificationsOption}
-      setNotificationsSound={setNotificationsSound}
-    />
-  )
+    return (
+        <NotificationsComponent
+            notificationsOption={notificationsOption}
+            notificationsSound={notificationsSound}
+            setNotificationsOption={setNotificationsOption}
+            setNotificationsSound={setNotificationsSound}
+        />
+    )
 }

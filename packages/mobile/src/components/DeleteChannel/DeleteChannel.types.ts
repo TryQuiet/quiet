@@ -1,5 +1,5 @@
 export interface DeleteChannelProps {
-  name: string
-  deleteChannel: () => void
-  handleBackButton: () => void
+    name: string
+    deleteChannel: () => void
+    handleBackButton: () => void
 }

@@ -6,11 +6,11 @@ import { ConfirmationBox } from './ConfirmationBox.component'
 import { Platform } from 'react-native'
 
 describe('ConfirmationBox component', () => {
-  it('should match inline snapshot on android', () => {
-    Platform.OS = 'android'
-    const { toJSON } = renderComponent(<ConfirmationBox title={'Link copied!'} toggle />)
+    it('should match inline snapshot on android', () => {
+        Platform.OS = 'android'
+        const { toJSON } = renderComponent(<ConfirmationBox title={'Link copied!'} toggle />)
 
-    expect(toJSON()).toMatchInlineSnapshot(`
+        expect(toJSON()).toMatchInlineSnapshot(`
       <View
         collapsable={false}
         style={
@@ -97,13 +97,13 @@ describe('ConfirmationBox component', () => {
         </View>
       </View>
     `)
-  })
+    })
 
-  it('should match inline snapshot on ios', () => {
-    Platform.OS = 'ios'
-    const { toJSON } = renderComponent(<ConfirmationBox title={'Link copied!'} toggle />)
+    it('should match inline snapshot on ios', () => {
+        Platform.OS = 'ios'
+        const { toJSON } = renderComponent(<ConfirmationBox title={'Link copied!'} toggle />)
 
-    expect(toJSON()).toMatchInlineSnapshot(`
+        expect(toJSON()).toMatchInlineSnapshot(`
       <View
         collapsable={false}
         style={
@@ -191,5 +191,5 @@ describe('ConfirmationBox component', () => {
         </View>
       </View>
     `)
-  })
+    })
 })

@@ -3,17 +3,17 @@ import { renderComponent } from '../../../testUtils/renderComponent'
 import DeleteChannelComponent from './DeleteChannelComponent'
 
 describe('LeaveCommunity', () => {
-  it('renders component', () => {
-    const result = renderComponent(
-      <DeleteChannelComponent
-        channelName='general'
-        deleteChannel={jest.fn()}
-        open={true}
-        handleOpen={jest.fn()}
-        handleClose={jest.fn()}
-      />
-    )
-    expect(result.baseElement).toMatchInlineSnapshot(`
+    it('renders component', () => {
+        const result = renderComponent(
+            <DeleteChannelComponent
+                channelName='general'
+                deleteChannel={jest.fn()}
+                open={true}
+                handleOpen={jest.fn()}
+                handleClose={jest.fn()}
+            />
+        )
+        expect(result.baseElement).toMatchInlineSnapshot(`
       <body
         style="padding-right: 1024px; overflow: hidden;"
       >
@@ -158,5 +158,5 @@ describe('LeaveCommunity', () => {
         </div>
       </body>
     `)
-  })
+    })
 })

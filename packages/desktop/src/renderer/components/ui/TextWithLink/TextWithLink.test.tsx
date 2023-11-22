@@ -4,22 +4,22 @@ import { renderComponent } from '../../../testUtils/renderComponent'
 import { TextWithLink } from './TextWithLink'
 
 describe('TextWithLink', () => {
-  it('renders component', () => {
-    const result = renderComponent(
-      <TextWithLink
-        text={'Here is simple text'}
-        links={[
-          {
-            tag: 'simple',
-            label: 'simple',
-            action: () => {
-              console.log('linked clicked')
-            },
-          },
-        ]}
-      />
-    )
-    expect(result.baseElement).toMatchInlineSnapshot(`
+    it('renders component', () => {
+        const result = renderComponent(
+            <TextWithLink
+                text={'Here is simple text'}
+                links={[
+                    {
+                        tag: 'simple',
+                        label: 'simple',
+                        action: () => {
+                            console.log('linked clicked')
+                        },
+                    },
+                ]}
+            />
+        )
+        expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
           <p
@@ -50,5 +50,5 @@ describe('TextWithLink', () => {
         </div>
       </body>
     `)
-  })
+    })
 })

@@ -17,152 +17,152 @@ import { publicChannelsSelectors } from '../../publicChannels/publicChannels.sel
 import { generateChannelId } from '@quiet/common'
 
 describe('downloadedFileSaga', () => {
-  let store: Store
-  let factory: FactoryGirl
+    let store: Store
+    let factory: FactoryGirl
 
-  let community: Community
-  let alice: Identity
+    let community: Community
+    let alice: Identity
 
-  let sailingChannel: PublicChannel
+    let sailingChannel: PublicChannel
 
-  let generalChannel: PublicChannel
+    let generalChannel: PublicChannel
 
-  beforeAll(async () => {
-    setupCrypto()
+    beforeAll(async () => {
+        setupCrypto()
 
-    store = prepareStore().store
+        store = prepareStore().store
 
-    factory = await getFactory(store)
+        factory = await getFactory(store)
 
-    community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
+        community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
 
-    const generalChannelState = publicChannelsSelectors.generalChannel(store.getState())
-    if (generalChannelState) generalChannel = generalChannelState
-    expect(generalChannel).not.toBeUndefined()
+        const generalChannelState = publicChannelsSelectors.generalChannel(store.getState())
+        if (generalChannelState) generalChannel = generalChannelState
+        expect(generalChannel).not.toBeUndefined()
 
-    alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
-      nickname: 'alice',
+        alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
+            id: community.id,
+            nickname: 'alice',
+        })
+
+        sailingChannel = (
+            await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>('PublicChannel', {
+                channel: {
+                    name: 'sailing',
+                    description: 'Welcome to #sailing',
+                    timestamp: DateTime.utc().valueOf(),
+                    owner: alice.nickname,
+                    id: generateChannelId('sailing'),
+                },
+            })
+        ).channel
     })
 
-    sailingChannel = (
-      await factory.create<ReturnType<typeof publicChannelsActions.addChannel>['payload']>('PublicChannel', {
-        channel: {
-          name: 'sailing',
-          description: 'Welcome to #sailing',
-          timestamp: DateTime.utc().valueOf(),
-          owner: alice.nickname,
-          id: generateChannelId('sailing'),
-        },
-      })
-    ).channel
-  })
+    test('update message media', async () => {
+        store.dispatch(
+            publicChannelsActions.setCurrentChannel({
+                channelId: 'general',
+            })
+        )
 
-  test('update message media', async () => {
-    store.dispatch(
-      publicChannelsActions.setCurrentChannel({
-        channelId: 'general',
-      })
-    )
+        const id = Math.random().toString(36).substr(2.9)
 
-    const id = Math.random().toString(36).substr(2.9)
-
-    const metadata = {
-      cid: 'cid',
-      path: 'dir/image.png',
-      name: 'image',
-      ext: 'png',
-      message: {
-        id,
-        channelId: generalChannel.id,
-      },
-    }
-
-    const message = (
-      await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>('Message', {
-        identity: alice,
-        message: {
-          id,
-          type: MessageType.Basic,
-          message: '',
-          createdAt: DateTime.utc().valueOf(),
-          channelId: generalChannel.id,
-          signature: '',
-          pubKey: '',
-          media: metadata,
-        },
-      })
-    ).message
-
-    const reducer = combineReducers(reducers)
-    await expectSaga(updateMessageMediaSaga, filesActions.updateMessageMedia(metadata))
-      .withReducer(reducer)
-      .withState(store.getState())
-      .put(
-        messagesActions.incomingMessages({
-          messages: [
-            {
-              ...message,
-              media: metadata,
+        const metadata = {
+            cid: 'cid',
+            path: 'dir/image.png',
+            name: 'image',
+            ext: 'png',
+            message: {
+                id,
+                channelId: generalChannel.id,
             },
-          ],
-          isVerified: true,
-        })
-      )
-      .run()
-  })
+        }
 
-  test('update message media for non-active channel', async () => {
-    store.dispatch(
-      publicChannelsActions.setCurrentChannel({
-        channelId: sailingChannel.id,
-      })
-    )
+        const message = (
+            await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>('Message', {
+                identity: alice,
+                message: {
+                    id,
+                    type: MessageType.Basic,
+                    message: '',
+                    createdAt: DateTime.utc().valueOf(),
+                    channelId: generalChannel.id,
+                    signature: '',
+                    pubKey: '',
+                    media: metadata,
+                },
+            })
+        ).message
 
-    const id = Math.random().toString(36).substr(2.9)
+        const reducer = combineReducers(reducers)
+        await expectSaga(updateMessageMediaSaga, filesActions.updateMessageMedia(metadata))
+            .withReducer(reducer)
+            .withState(store.getState())
+            .put(
+                messagesActions.incomingMessages({
+                    messages: [
+                        {
+                            ...message,
+                            media: metadata,
+                        },
+                    ],
+                    isVerified: true,
+                })
+            )
+            .run()
+    })
 
-    const metadata = {
-      cid: 'cid',
-      path: 'dir/image.png',
-      name: 'image',
-      ext: 'png',
-      message: {
-        id,
-        channelId: generalChannel.id,
-      },
-    }
+    test('update message media for non-active channel', async () => {
+        store.dispatch(
+            publicChannelsActions.setCurrentChannel({
+                channelId: sailingChannel.id,
+            })
+        )
 
-    const message = (
-      await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>('Message', {
-        identity: alice,
-        message: {
-          id,
-          type: MessageType.Basic,
-          message: '',
-          createdAt: DateTime.utc().valueOf(),
-          channelId: generalChannel.id,
-          signature: '',
-          pubKey: '',
-          media: metadata,
-        },
-      })
-    ).message
+        const id = Math.random().toString(36).substr(2.9)
 
-    const reducer = combineReducers(reducers)
-    await expectSaga(updateMessageMediaSaga, filesActions.updateMessageMedia(metadata))
-      .withReducer(reducer)
-      .withState(store.getState())
-      .put(
-        messagesActions.incomingMessages({
-          messages: [
-            {
-              ...message,
-              media: metadata,
+        const metadata = {
+            cid: 'cid',
+            path: 'dir/image.png',
+            name: 'image',
+            ext: 'png',
+            message: {
+                id,
+                channelId: generalChannel.id,
             },
-          ],
-          isVerified: true,
-        })
-      )
-      .run()
-  })
+        }
+
+        const message = (
+            await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>('Message', {
+                identity: alice,
+                message: {
+                    id,
+                    type: MessageType.Basic,
+                    message: '',
+                    createdAt: DateTime.utc().valueOf(),
+                    channelId: generalChannel.id,
+                    signature: '',
+                    pubKey: '',
+                    media: metadata,
+                },
+            })
+        ).message
+
+        const reducer = combineReducers(reducers)
+        await expectSaga(updateMessageMediaSaga, filesActions.updateMessageMedia(metadata))
+            .withReducer(reducer)
+            .withState(store.getState())
+            .put(
+                messagesActions.incomingMessages({
+                    messages: [
+                        {
+                            ...message,
+                            media: metadata,
+                        },
+                    ],
+                    isVerified: true,
+                })
+            )
+            .run()
+    })
 })

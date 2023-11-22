@@ -7,48 +7,48 @@ import { ModalName } from '../../sagas/modals/modals.types'
 import { useModal } from '../../containers/hooks'
 
 const CreateUsername = () => {
-  const dispatch = useDispatch()
+    const dispatch = useDispatch()
 
-  const currentCommunity = useSelector(communities.selectors.currentCommunity)
-  const currentIdentity = useSelector(identity.selectors.currentIdentity)
+    const currentCommunity = useSelector(communities.selectors.currentCommunity)
+    const currentIdentity = useSelector(identity.selectors.currentIdentity)
 
-  const createUsernameModal = useModal(ModalName.createUsernameModal)
-  const loadingPanelModal = useModal(ModalName.loadingPanel)
+    const createUsernameModal = useModal(ModalName.createUsernameModal)
+    const loadingPanelModal = useModal(ModalName.loadingPanel)
 
-  const error = useSelector(errors.selectors.registrarErrors)
+    const error = useSelector(errors.selectors.registrarErrors)
 
-  useEffect(() => {
-    if (currentCommunity && !currentIdentity?.userCsr && !createUsernameModal.open) {
-      createUsernameModal.handleOpen()
+    useEffect(() => {
+        if (currentCommunity && !currentIdentity?.userCsr && !createUsernameModal.open) {
+            createUsernameModal.handleOpen()
+        }
+        if (currentIdentity?.userCsr && createUsernameModal.open) {
+            createUsernameModal.handleClose()
+        }
+    }, [currentIdentity, currentCommunity])
+
+    const handleAction = (nickname: string) => {
+        // Clear errors
+        if (error) {
+            dispatch(errors.actions.clearError(error))
+        }
+
+        dispatch(
+            identity.actions.registerUsername({
+                nickname,
+            })
+        )
+        dispatch(network.actions.setLoadingPanelType(LoadingPanelType.Joining))
+        loadingPanelModal.handleOpen()
     }
-    if (currentIdentity?.userCsr && createUsernameModal.open) {
-      createUsernameModal.handleClose()
-    }
-  }, [currentIdentity, currentCommunity])
 
-  const handleAction = (nickname: string) => {
-    // Clear errors
-    if (error) {
-      dispatch(errors.actions.clearError(error))
-    }
-
-    dispatch(
-      identity.actions.registerUsername({
-        nickname,
-      })
+    return (
+        <CreateUsernameComponent
+            {...createUsernameModal}
+            registerUsername={handleAction}
+            certificateRegistrationError={error?.code === ErrorCodes.FORBIDDEN ? error.message : undefined}
+            certificate={currentIdentity?.userCertificate}
+        />
     )
-    dispatch(network.actions.setLoadingPanelType(LoadingPanelType.Joining))
-    loadingPanelModal.handleOpen()
-  }
-
-  return (
-    <CreateUsernameComponent
-      {...createUsernameModal}
-      registerUsername={handleAction}
-      certificateRegistrationError={error?.code === ErrorCodes.FORBIDDEN ? error.message : undefined}
-      certificate={currentIdentity?.userCertificate}
-    />
-  )
 }
 
 export default CreateUsername

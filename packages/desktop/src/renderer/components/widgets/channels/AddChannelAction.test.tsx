@@ -4,11 +4,11 @@ import { AddChannelAction } from './AddChannelAction'
 import { renderComponent } from '../../../testUtils/renderComponent'
 
 describe('BaseChannelsList', () => {
-  // TODO: [refactoring] test useState when enzyme is up to date
-  it('renders component', () => {
-    const openModal = jest.fn()
-    const result = renderComponent(<AddChannelAction openCreateModal={openModal} />)
-    expect(result.baseElement).toMatchInlineSnapshot(`
+    // TODO: [refactoring] test useState when enzyme is up to date
+    it('renders component', () => {
+        const openModal = jest.fn()
+        const result = renderComponent(<AddChannelAction openCreateModal={openModal} />)
+        expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
           <div
@@ -28,5 +28,5 @@ describe('BaseChannelsList', () => {
         </div>
       </body>
     `)
-  })
+    })
 })

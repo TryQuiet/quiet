@@ -6,15 +6,15 @@ import DuplicatedUsernameComponent from '../../components/UserLabel/Duplicated/D
 import { DuplicatedUsernameScreenProps } from './DuplicatedUsername.types'
 
 export const DuplicatedUsernameScreen: FC<DuplicatedUsernameScreenProps> = ({ route }) => {
-  const dispatch = useDispatch()
+    const dispatch = useDispatch()
 
-  const handleBackButton = useCallback(() => {
-    dispatch(
-      navigationActions.replaceScreen({
-        screen: ScreenNames.ChannelScreen,
-      })
-    )
-  }, [dispatch])
+    const handleBackButton = useCallback(() => {
+        dispatch(
+            navigationActions.replaceScreen({
+                screen: ScreenNames.ChannelScreen,
+            })
+        )
+    }, [dispatch])
 
-  return <DuplicatedUsernameComponent handleBackButton={handleBackButton} />
+    return <DuplicatedUsernameComponent handleBackButton={handleBackButton} />
 }

@@ -12,17 +12,17 @@ const { Navigator, Screen } = createNativeStackNavigator()
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const renderScreen = (PassedScreen: React.FC<any>): RenderAPI => {
-  const RenderedScreen: React.FC = () => (
-    <Provider store={store}>
-      <ThemeProvider theme={defaultTheme}>
-        <NavigationContainer>
-          <Navigator>
-            <Screen component={PassedScreen} name={PassedScreen.name} />
-          </Navigator>
-        </NavigationContainer>
-      </ThemeProvider>
-    </Provider>
-  )
+    const RenderedScreen: React.FC = () => (
+        <Provider store={store}>
+            <ThemeProvider theme={defaultTheme}>
+                <NavigationContainer>
+                    <Navigator>
+                        <Screen component={PassedScreen} name={PassedScreen.name} />
+                    </Navigator>
+                </NavigationContainer>
+            </ThemeProvider>
+        </Provider>
+    )
 
-  return render(<RenderedScreen />)
+    return render(<RenderedScreen />)
 }

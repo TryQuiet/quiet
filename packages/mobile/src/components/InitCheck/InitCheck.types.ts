@@ -1,4 +1,4 @@
 export interface InitCheckProps {
-  event: string
-  passed: boolean
+    event: string
+    passed: boolean
 }

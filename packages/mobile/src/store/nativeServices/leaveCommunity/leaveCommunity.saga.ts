@@ -8,28 +8,28 @@ import { navigationActions } from '../../navigation/navigation.slice'
 import { ScreenNames } from '../../../../src/const/ScreenNames.enum'
 
 export function* leaveCommunitySaga(): Generator {
-  // Restart backend
-  yield* put(app.actions.closeServices())
+    // Restart backend
+    yield* put(app.actions.closeServices())
 
-  yield takeLeading(initActions.suspendWebsocketConnection.type, clearReduxStore)
+    yield takeLeading(initActions.suspendWebsocketConnection.type, clearReduxStore)
 }
 
 export function* clearReduxStore(): Generator {
-  const shouldClearReduxStore = yield* select(nativeServicesSelectors.shouldClearReduxStore())
-  if (!shouldClearReduxStore) return
+    const shouldClearReduxStore = yield* select(nativeServicesSelectors.shouldClearReduxStore())
+    if (!shouldClearReduxStore) return
 
-  console.info('Clearing redux store')
+    console.info('Clearing redux store')
 
-  // Stop persistor
-  yield* call(persistor.pause)
-  yield* call(persistor.flush)
-  yield* call(persistor.purge)
+    // Stop persistor
+    yield* call(persistor.pause)
+    yield* call(persistor.flush)
+    yield* call(persistor.purge)
 
-  // Clear redux store
-  yield* put(nativeServicesActions.resetApp())
+    // Clear redux store
+    yield* put(nativeServicesActions.resetApp())
 
-  // Resume persistor
-  yield* call(persistor.persist)
+    // Resume persistor
+    yield* call(persistor.persist)
 
-  yield* put(navigationActions.replaceScreen({ screen: ScreenNames.JoinCommunityScreen }))
+    yield* put(navigationActions.replaceScreen({ screen: ScreenNames.JoinCommunityScreen }))
 }

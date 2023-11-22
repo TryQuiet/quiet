@@ -4,12 +4,12 @@ import { renderComponent } from '../../utils/functions/renderComponent/renderCom
 import { DeleteChannel } from './DeleteChannel.component'
 
 describe('DeleteChannel component', () => {
-  it('should match inline snapshot', () => {
-    const { toJSON } = renderComponent(
-      <DeleteChannel name={'general'} deleteChannel={jest.fn()} handleBackButton={jest.fn()} />
-    )
+    it('should match inline snapshot', () => {
+        const { toJSON } = renderComponent(
+            <DeleteChannel name={'general'} deleteChannel={jest.fn()} handleBackButton={jest.fn()} />
+        )
 
-    expect(toJSON()).toMatchInlineSnapshot(`
+        expect(toJSON()).toMatchInlineSnapshot(`
       <View
         style={
           {
@@ -342,5 +342,5 @@ describe('DeleteChannel component', () => {
         </View>
       </View>
     `)
-  })
+    })
 })

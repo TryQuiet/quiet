@@ -4,9 +4,9 @@ import { renderComponent } from '../../testUtils/renderComponent'
 import { Loading } from './Loading'
 
 describe('Loading', () => {
-  it('renders component', () => {
-    const result = renderComponent(<Loading message='test Msg' />)
-    expect(result.baseElement).toMatchInlineSnapshot(`
+    it('renders component', () => {
+        const result = renderComponent(<Loading message='test Msg' />)
+        expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
           <div
@@ -48,5 +48,5 @@ describe('Loading', () => {
         </div>
       </body>
     `)
-  })
+    })
 })

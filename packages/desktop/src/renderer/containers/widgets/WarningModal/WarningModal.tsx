@@ -4,8 +4,8 @@ import { ModalName } from '../../../sagas/modals/modals.types'
 import { useModal } from '../../hooks'
 
 const Warning = () => {
-  const modal = useModal(ModalName.warningModal)
-  return <WarningModal {...modal} />
+    const modal = useModal(ModalName.warningModal)
+    return <WarningModal {...modal} />
 }
 
 export default Warning
