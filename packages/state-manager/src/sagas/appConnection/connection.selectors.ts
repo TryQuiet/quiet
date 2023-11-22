@@ -19,6 +19,8 @@ export const isTorInitialized = createSelector(connectionSlice, reducerState => 
 
 export const torConnectionProcess = createSelector(connectionSlice, reducerState => reducerState.torConnectionProcess)
 
+export const socketIOSecret = createSelector(connectionSlice, reducerState => reducerState.socketIOSecret)
+
 export const peerList = createSelector(
   connectionSlice,
   communitiesSelectors.currentCommunity,
@@ -59,4 +61,5 @@ export const connectionSelectors = {
   torBootstrapProcess,
   torConnectionProcess,
   isTorInitialized,
+  socketIOSecret,
 }

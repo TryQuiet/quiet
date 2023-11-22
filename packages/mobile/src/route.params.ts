@@ -4,7 +4,6 @@ import { ScreenNames } from './const/ScreenNames.enum'
 
 // eslint-disable-next-line
 export type RootStackParamList = {
-  [ScreenNames.SplashScreen]: undefined
   [ScreenNames.JoinCommunityScreen]: {
     code?: string
   }
@@ -19,15 +18,11 @@ export type RootStackParamList = {
   [ScreenNames.ChannelListScreen]: undefined
   [ScreenNames.ChannelScreen]: undefined
   [ScreenNames.CreateChannelScreen]: undefined
+  [ScreenNames.CreateCommunityScreen]: undefined
+  [ScreenNames.ConnectionProcessScreen]: undefined
   [ScreenNames.DeleteChannelScreen]: {
     channelName: string
     channelId: string
-  }
-  [ScreenNames.SuccessScreen]: {
-    onPress: () => void
-    icon: any
-    title: string
-    message?: string
   }
   [ScreenNames.ErrorScreen]: {
     onPress: (dispatch: Dispatch<any>) => void
@@ -41,19 +36,37 @@ export type RootStackParamList = {
   [ScreenNames.UsernameTakenScreen]: undefined
   [ScreenNames.NewUsernameRequestedScreen]: undefined
   [ScreenNames.PossibleImpersonationAttackScreen]: undefined
+  [ScreenNames.JoinCommunityScreen]: {
+    code?: string
+  }
+  [ScreenNames.LeaveCommunityScreen]: undefined
+  [ScreenNames.NotifierScreen]: undefined
+  [ScreenNames.QRCodeScreen]: undefined
+  [ScreenNames.SplashScreen]: {
+    code?: string
+  }
+  [ScreenNames.SuccessScreen]: {
+    onPress: () => void
+    icon: any
+    title: string
+    message?: string
+  }
+  [ScreenNames.UsernameRegistrationScreen]:
+    | {
+        fetching: boolean
+      }
+    | undefined
 }
-
-export type SplashRouteProp = RouteProp<RootStackParamList, ScreenNames.SplashScreen>
-
-export type JoinCommunityRouteProp = RouteProp<RootStackParamList, ScreenNames.JoinCommunityScreen>
-
-export type UsernameRegistrationRouteProps = RouteProp<RootStackParamList, ScreenNames.UsernameRegistrationScreen>
 
 export type DeleteChannelRouteProps = RouteProp<RootStackParamList, ScreenNames.DeleteChannelScreen>
 
-export type SuccessRouteProp = RouteProp<RootStackParamList, ScreenNames.SuccessScreen>
-
 export type ErrorRouteProp = RouteProp<RootStackParamList, ScreenNames.ErrorScreen>
+
+export type JoinCommunityRouteProp = RouteProp<RootStackParamList, ScreenNames.JoinCommunityScreen>
+
+export type SplashRouteProp = RouteProp<RootStackParamList, ScreenNames.SplashScreen>
+
+export type SuccessRouteProp = RouteProp<RootStackParamList, ScreenNames.SuccessScreen>
 
 export type DuplicatedUsernameRouteProps = RouteProp<RootStackParamList, ScreenNames.DuplicatedUsernameScreen>
 
@@ -64,3 +77,4 @@ export type PossibleImpersonationAttackRouteProps = RouteProp<
   RootStackParamList,
   ScreenNames.PossibleImpersonationAttackScreen
 >
+export type UsernameRegistrationRouteProps = RouteProp<RootStackParamList, ScreenNames.UsernameRegistrationScreen>

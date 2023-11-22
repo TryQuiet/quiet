@@ -23,6 +23,7 @@ export interface InitCheckPayload {
 
 export interface WebsocketConnectionPayload {
   dataPort: number
+  socketIOSecret: string
 }
 
 export interface CloseConnectionPayload {
@@ -62,9 +63,8 @@ export const initSlice = createSlice({
       state.isWebsocketConnected = false
     },
     setWebsocketConnected: (state, action: PayloadAction<WebsocketConnectionPayload>) => {
-      const { dataPort } = action.payload
       state.isWebsocketConnected = true
-      state.lastKnownDataPort = dataPort
+      state.lastKnownSocketIOData = action.payload
       const event = InitCheckKeys.Backend
       initChecksAdapter.updateOne(state.initChecks, {
         changes: {
