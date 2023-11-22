@@ -4,6 +4,8 @@
 
 * Fix: dial new peers on CSRs replication
 
+* Feature: add functionality to export chat to text document in desktop version
+
 [2.0.3-alpha.5]
 
 * Fix network data proceeding when using custom protocol multiple times #1847
