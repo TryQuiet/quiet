@@ -186,7 +186,7 @@ describe('Multiple Clients', () => {
       const messages2 = await generalChannelUser1.getUserMessages(users.user1.username)
       const messages1 = await generalChannelUser1.getUserMessages(users.owner.username)
       console.log({ messages1, messages2 })
-      const text2 = await messages2[0].getText()
+      const text2 = await messages2[1].getText()
       expect(text2).toEqual(users.user1.messages[0])
     })
     it('First user opens the settings tab and copies updated invitation code', async () => {

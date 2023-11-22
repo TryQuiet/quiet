@@ -6,7 +6,7 @@ import { validCurrentPublicChannelMessagesEntries } from './messages.selectors'
 import { type communitiesActions } from '../communities/communities.slice'
 import { type identityActions } from '../identity/identity.slice'
 import { type FactoryGirl } from 'factory-girl'
-import { publicChannelsSelectors, selectGeneralChannel } from '../publicChannels/publicChannels.selectors'
+import { publicChannelsSelectors } from '../publicChannels/publicChannels.selectors'
 import { type Community, type Identity, type PublicChannel, type ChannelMessage } from '@quiet/types'
 
 describe('messagesSelectors', () => {
@@ -20,7 +20,7 @@ describe('messagesSelectors', () => {
   let alice: Identity
   let john: Identity
 
-  beforeAll(async () => {
+  beforeEach(async () => {
     setupCrypto()
 
     // Set date display format
