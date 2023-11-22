@@ -1,19 +1,17 @@
 import { combineReducers } from '@reduxjs/toolkit'
 import { expectSaga } from 'redux-saga-test-plan'
 import { type Socket } from '../../../types'
-import { communitiesReducer, CommunitiesState, type communitiesActions } from '../../communities/communities.slice'
+import { communitiesReducer, type communitiesActions } from '../../communities/communities.slice'
 import { StoreKeys } from '../../store.keys'
-import { identityAdapter } from '../identity.adapter'
-import { identityReducer, IdentityState, type identityActions } from '../identity.slice'
+import { identityReducer, type identityActions } from '../identity.slice'
 import { saveUserCsrSaga } from './saveUserCsr.saga'
 import { type Store } from '../../store.types'
 import { type FactoryGirl } from 'factory-girl'
-import { setupCrypto } from '@quiet/identity'
+import { pubKeyFromCsr, setupCrypto, createUserCertificateTestHelper } from '@quiet/identity'
 import { prepareStore } from '../../../utils/tests/prepareStore'
 import { getFactory } from '../../../utils/tests/factories'
 import { SocketActionTypes } from '@quiet/types'
-import { usersReducer, UsersState } from '../../users/users.slice'
-import { certificatesAdapter } from '../../users/users.adapter'
+import { usersReducer } from '../../users/users.slice'
 
 describe('saveUserCsr', () => {
   let store: Store
@@ -31,38 +29,34 @@ describe('saveUserCsr', () => {
     const community =
       await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
 
+    const csr = (
+      await createUserCertificateTestHelper(
+        {
+          nickname: 'john',
+          commonName: 'commonName',
+          peerId: 'peerId',
+          dmPublicKey: 'dmPublicKey',
+        },
+        community.CA
+      )
+    ).userCsr
+
     const identity = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
       id: community.id,
       nickname: 'john',
+      userCsr: csr,
+    })
+
+    const reducer = combineReducers({
+      [StoreKeys.Communities]: communitiesReducer,
+      [StoreKeys.Identity]: identityReducer,
+      [StoreKeys.Users]: usersReducer,
     })
 
     await expectSaga(saveUserCsrSaga, socket)
-      .withReducer(
-        combineReducers({
-          [StoreKeys.Communities]: communitiesReducer,
-          [StoreKeys.Identity]: identityReducer,
-          [StoreKeys.Users]: usersReducer,
-        }),
-        {
-          [StoreKeys.Communities]: {
-            ...new CommunitiesState(),
-            currentCommunity: community.id,
-            communities: {
-              ids: [community.id],
-              entities: {
-                [community.id]: community,
-              },
-            },
-          },
-          [StoreKeys.Identity]: {
-            ...new IdentityState(),
-            identities: identityAdapter.setAll(identityAdapter.getInitialState(), [identity]),
-          },
-          [StoreKeys.Users]: {
-            ...new UsersState(),
-          },
-        }
-      )
+      .withReducer(reducer)
+      .withState(store.getState())
+      .call(pubKeyFromCsr, identity.userCsr?.userCsr)
       .apply(socket, socket.emit, [
         SocketActionTypes.SAVE_USER_CSR,
         {
@@ -82,36 +76,16 @@ describe('saveUserCsr', () => {
       nickname: 'john',
     })
 
-    console.log(identity.userCsr?.userCsr)
+    const reducer = combineReducers({
+      [StoreKeys.Communities]: communitiesReducer,
+      [StoreKeys.Identity]: identityReducer,
+      [StoreKeys.Users]: usersReducer,
+    })
 
     await expectSaga(saveUserCsrSaga, socket)
-      .withReducer(
-        combineReducers({
-          [StoreKeys.Communities]: communitiesReducer,
-          [StoreKeys.Identity]: identityReducer,
-          [StoreKeys.Users]: usersReducer,
-        }),
-        {
-          [StoreKeys.Communities]: {
-            ...new CommunitiesState(),
-            currentCommunity: community.id,
-            communities: {
-              ids: [community.id],
-              entities: {
-                [community.id]: community,
-              },
-            },
-          },
-          [StoreKeys.Identity]: {
-            ...new IdentityState(),
-            identities: identityAdapter.setAll(identityAdapter.getInitialState(), [identity]),
-          },
-          [StoreKeys.Users]: {
-            ...new UsersState(),
-            csrs: certificatesAdapter.setAll(certificatesAdapter.getInitialState(), [identity.userCsr?.pkcs10.pkcs10]),
-          },
-        }
-      )
+      .withReducer(reducer)
+      .withState(store.getState())
+      .call(pubKeyFromCsr, identity.userCsr?.userCsr)
       .not.apply(socket, socket.emit, [
         SocketActionTypes.SAVE_USER_CSR,
         {
