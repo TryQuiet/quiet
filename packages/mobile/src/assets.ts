@@ -10,7 +10,6 @@ import icon_close from '../assets/icons/icon_close.png'
 import icon_send from '../assets/icons/icon_send.png'
 import icon_send_disabled from '../assets/icons/icon_send_disabled.png'
 import icon_warning from '../assets/icons/icon_warning.png'
-import paperclip_active from '../assets/icons/paperclip_black.png'
 import quiet_icon from '../assets/icons/quiet_icon.png'
 import quiet_icon_round from '../assets/icons/quiet_icon_round.png'
 import update_graphics from '../assets/icons/update_graphics.png'
@@ -32,7 +31,6 @@ export const appImages = {
   icon_send,
   icon_send_disabled,
   icon_warning,
-  paperclip_active,
   quiet_icon,
   quiet_icon_round,
   update_graphics,
