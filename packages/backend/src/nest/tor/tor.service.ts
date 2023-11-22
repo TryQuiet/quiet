@@ -229,30 +229,27 @@ export class Tor extends EventEmitter implements OnModuleInit {
         this.logger(data.toString())
         const info = data.toString()
 
-        if (info.includes('Bootstrapped 100% (done): Done')) {
-          this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.WAITING_FOR_METADATA)
-        } else {
-          const textIndex = info.indexOf('):') + 2
-          const text = info.slice(textIndex).trim()
+        const textIndex = info.indexOf('):') + 2
+        const text = info.slice(textIndex).trim()
 
-          switch (text) {
-            case ConnectionProcessInfo.TOR_1:
-              this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.TOR_1)
-              break
-            case ConnectionProcessInfo.TOR_2:
-              this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.TOR_2)
-              break
-            case ConnectionProcessInfo.TOR_3:
-              this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.TOR_3)
-              break
-            case ConnectionProcessInfo.TOR_4:
-              this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.TOR_4)
-              break
-            case ConnectionProcessInfo.TOR_5:
-              this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.TOR_5)
-              break
-          }
+        switch (text) {
+          case ConnectionProcessInfo.TOR_1:
+            this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.TOR_1)
+            break
+          case ConnectionProcessInfo.TOR_2:
+            this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.TOR_2)
+            break
+          case ConnectionProcessInfo.TOR_3:
+            this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.TOR_3)
+            break
+          case ConnectionProcessInfo.TOR_4:
+            this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.TOR_4)
+            break
+          case ConnectionProcessInfo.TOR_5:
+            this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.TOR_5)
+            break
         }
+
         const regexp = /Bootstrapped 0/
         if (regexp.test(data.toString())) {
           this.spawnHiddenServices()

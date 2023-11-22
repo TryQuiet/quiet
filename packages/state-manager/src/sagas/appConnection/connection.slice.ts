@@ -51,48 +51,30 @@ export const connectionSlice = createSlice({
     setTorInitialized: state => {
       state.isTorInitialized = true
     },
-    setTorConnectionProcess: (state, action: PayloadAction<string>) => {
+    increaseLoadingProcess: state => state,
+    increaseConnectionToCommunityStep: state => {
+      let { number } = state.torConnectionProcess
+      number++
+      state.torConnectionProcess = { number, text: ConnectionProcessInfo.CONNECTING_TO_COMMUNITY }
+    },
+    setConnectionProcess: (state, action: PayloadAction<string>) => {
       const info = action.payload
       console.log({ info })
       switch (info) {
         case ConnectionProcessInfo.REGISTERING_OWNER_CERTIFICATE:
-          state.torConnectionProcess = { number: 15, text: info }
+          state.torConnectionProcess = { number: 30, text: ConnectionProcessInfo.REGISTERING_OWNER_CERTIFICATE }
           break
-
-        // case ConnectionProcessInfo.INITIALIZING_IPFS:
-        //   state.torConnectionProcess = { number: 15, text: info }
-        //   break
-
-        case ConnectionProcessInfo.TOR_1:
-          state.torConnectionProcess = { number: 20, text: info }
+        case ConnectionProcessInfo.INITIALIZING_IPFS:
+          if (state.torConnectionProcess.number > 30) break
+          state.torConnectionProcess = { number: 30, text: 'Initialized backend modules' }
           break
-
-        case ConnectionProcessInfo.TOR_2:
-          state.torConnectionProcess = { number: 25, text: info }
+        case ConnectionProcessInfo.CONNECTING_TO_COMMUNITY:
+          state.torConnectionProcess = { number: 40, text: ConnectionProcessInfo.CONNECTING_TO_COMMUNITY }
           break
-
-        case ConnectionProcessInfo.TOR_3:
-          state.torConnectionProcess = { number: 30, text: info }
-          break
-
-        case ConnectionProcessInfo.TOR_4:
-          state.torConnectionProcess = { number: 35, text: info }
-          break
-
-        case ConnectionProcessInfo.TOR_5:
-          state.torConnectionProcess = { number: 40, text: info }
-          break
-
-        // Bootstrapped 56% (loading_descriptors): Loading relay descriptors
-
-        case ConnectionProcessInfo.WAITING_FOR_METADATA:
-          state.torConnectionProcess = { number: 50, text: ConnectionProcessInfo.CONNECTING_TO_COMMUNITY }
-          break
-        case ConnectionProcessInfo.CHANNELS_REPLICATED:
-          state.torConnectionProcess = { number: 80, text: ConnectionProcessInfo.LOADING_MESSAGES }
-          break
-        case ConnectionProcessInfo.CERTIFICATES_REPLICATED:
-          state.torConnectionProcess = { number: 90, text: ConnectionProcessInfo.LOADING_MESSAGES }
+        case ConnectionProcessInfo.CHANNELS_REPLICATED || ConnectionProcessInfo.CERTIFICATES_REPLICATED:
+          let number = 90
+          if (state.torConnectionProcess.number == 90) number = 95
+          state.torConnectionProcess = { number, text: ConnectionProcessInfo.LOADING_MESSAGES }
           break
       }
     },

@@ -90,11 +90,11 @@ describe('connectionReducer', () => {
   it('setTorConnectionProcess', () => {
     const payload1 = 'Initializing storage'
 
-    store.dispatch(connectionActions.setTorConnectionProcess(payload1))
+    store.dispatch(connectionActions.setConnectionProcess(payload1))
 
     const payload2 = 'Initializing IPFS'
 
-    store.dispatch(connectionActions.setTorConnectionProcess(payload2))
+    store.dispatch(connectionActions.setConnectionProcess(payload2))
 
     const { number, text } = connectionSelectors.torConnectionProcess(store.getState())
 
