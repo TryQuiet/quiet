@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.3-alpha.8](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@2.0.3-alpha.7...@quiet/desktop@2.0.3-alpha.8) (2023-11-22)
+
+
+### Features
+
+* trigger lerna ([4ca8195](https://github.com/TryQuiet/quiet/commit/4ca81958c57e88f172e0d78f055e9008a5a4a90a))
+
+
+
+
+
+## [2.0.3-alpha.7](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@2.0.3-alpha.6...@quiet/desktop@2.0.3-alpha.7) (2023-11-22)
+
+**Note:** Version bump only for package @quiet/desktop
+
+
+
+
+
 ## [2.0.3-alpha.6](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@2.0.3-alpha.5...@quiet/desktop@2.0.3-alpha.6) (2023-11-21)
 
 **Note:** Version bump only for package @quiet/desktop

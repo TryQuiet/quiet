@@ -164,8 +164,6 @@ export class Libp2pService extends EventEmitter {
       this.emit(Libp2pEvents.PEER_CONNECTED, {
         peers: [remotePeerId],
       })
-      const latency = await this.libp2pInstance?.ping(peer.detail.remoteAddr)
-      this.logger(`${localPeerId} ping to ${remotePeerId}. Latency: ${latency}`)
     })
 
     this.libp2pInstance.addEventListener('peer:disconnect', async peer => {
