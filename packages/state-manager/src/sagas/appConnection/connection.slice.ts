@@ -9,9 +9,9 @@ export class ConnectionState {
   public peersStats: EntityState<NetworkStats> = peersStatsAdapter.getInitialState()
   public isTorInitialized = false
   public torBootstrapProcess = 'Bootstrapped 0% (starting)'
-  public torConnectionProcess: { number: number; text: string } = {
+  public connectionProcess: { number: number; text: ConnectionProcessInfo } = {
     number: 5,
-    text: 'Connecting process started',
+    text: ConnectionProcessInfo.CONNECTION_STARTED,
   }
 }
 
@@ -51,30 +51,24 @@ export const connectionSlice = createSlice({
     setTorInitialized: state => {
       state.isTorInitialized = true
     },
-    increaseLoadingProcess: state => state,
-    increaseConnectionToCommunityStep: state => {
-      let { number } = state.torConnectionProcess
-      number++
-      state.torConnectionProcess = { number, text: ConnectionProcessInfo.CONNECTING_TO_COMMUNITY }
-    },
     setConnectionProcess: (state, action: PayloadAction<string>) => {
       const info = action.payload
-      console.log({ info })
+
       switch (info) {
         case ConnectionProcessInfo.REGISTERING_OWNER_CERTIFICATE:
-          state.torConnectionProcess = { number: 30, text: ConnectionProcessInfo.REGISTERING_OWNER_CERTIFICATE }
+          state.connectionProcess = { number: 30, text: ConnectionProcessInfo.REGISTERING_OWNER_CERTIFICATE }
           break
         case ConnectionProcessInfo.INITIALIZING_IPFS:
-          if (state.torConnectionProcess.number > 30) break
-          state.torConnectionProcess = { number: 30, text: 'Initialized backend modules' }
+          if (state.connectionProcess.number > 30) break
+          state.connectionProcess = { number: 30, text: ConnectionProcessInfo.BACKEND_MODULES }
           break
         case ConnectionProcessInfo.CONNECTING_TO_COMMUNITY:
-          state.torConnectionProcess = { number: 40, text: ConnectionProcessInfo.CONNECTING_TO_COMMUNITY }
+          state.connectionProcess = { number: 50, text: ConnectionProcessInfo.CONNECTING_TO_COMMUNITY }
           break
         case ConnectionProcessInfo.CHANNELS_REPLICATED || ConnectionProcessInfo.CERTIFICATES_REPLICATED:
           let number = 90
-          if (state.torConnectionProcess.number == 90) number = 95
-          state.torConnectionProcess = { number, text: ConnectionProcessInfo.LOADING_MESSAGES }
+          if (state.connectionProcess.number == 90) number = 95
+          state.connectionProcess = { number, text: ConnectionProcessInfo.LOADING_MESSAGES }
           break
       }
     },

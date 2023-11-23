@@ -16,7 +16,7 @@ export interface NetworkStats {
 }
 
 export enum ConnectionProcessInfo {
-  CONNECTING_TO_COMMUNITY = 'Connecting to community owner via Tor',
+  CONNECTING_TO_COMMUNITY = 'Connecting to community members via Tor',
   REGISTERING_USER_CERTIFICATE = 'Registering user certificate',
   // SAVING_USER_CSR = 'Saving user csr',
   // WAITING_FOR_METADATA = 'Waiting for metadata',
@@ -33,7 +33,9 @@ export enum ConnectionProcessInfo {
   CHANNELS_REPLICATED = 'Channels replicated',
   CERTIFICATES_REPLICATED = 'Certificates replicated',
   // ____
+  CONNECTION_STARTED = 'Connecting process started',
   LOADING_MESSAGES = 'Loading messages',
+  BACKEND_MODULES = 'Initialized backend modules',
   // ____
   TOR_1 = 'Handshaking with a relay',
   TOR_2 = 'Loading authority key certs',

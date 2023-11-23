@@ -9,7 +9,7 @@ import { ScreenNames } from '../../const/ScreenNames.enum'
 const ConnectionProcessScreen: FC = () => {
   const dispatch = useDispatch()
 
-  const connectionProcessSelector = useSelector(connection.selectors.torConnectionProcess)
+  const connectionProcessSelector = useSelector(connection.selectors.connectionProcess)
   const error = useSelector(errors.selectors.registrarErrors)
 
   const community = useSelector(communities.selectors.currentCommunity)

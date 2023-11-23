@@ -87,19 +87,15 @@ describe('connectionReducer', () => {
     expect(torBootstrapInfo).toEqual(expectedTorBootstrapInfo)
   })
 
-  it('setTorConnectionProcess', () => {
-    const payload1 = 'Initializing storage'
-
-    store.dispatch(connectionActions.setConnectionProcess(payload1))
-
+  it('set connectionProcess', () => {
     const payload2 = 'Initializing IPFS'
 
     store.dispatch(connectionActions.setConnectionProcess(payload2))
 
-    const { number, text } = connectionSelectors.torConnectionProcess(store.getState())
+    const { number, text } = connectionSelectors.connectionProcess(store.getState())
 
-    expect(number).toEqual(70)
+    expect(number).toEqual(30)
 
-    expect(text).toEqual(payload2)
+    expect(text).toEqual('Initialized backend modules')
   })
 })

@@ -28,7 +28,7 @@ const LoadingPanel = () => {
   const isOnlyOneUser = usersData.length === 1
 
   const torBootstrapProcessSelector = useSelector(connection.selectors.torBootstrapProcess)
-  const torConnectionProcessSelector = useSelector(connection.selectors.torConnectionProcess)
+  const connectionProcessSelector = useSelector(connection.selectors.connectionProcess)
 
   const communityId = useSelector(communities.selectors.currentCommunityId)
   const initializedCommunities = useSelector(network.selectors.initializedCommunities)
@@ -77,7 +77,7 @@ const LoadingPanel = () => {
       <JoiningPanelComponent
         {...loadingPanelModal}
         openUrl={openUrl}
-        torConnectionInfo={torConnectionProcessSelector}
+        connectionInfo={connectionProcessSelector}
         isOwner={owner}
       />
     )

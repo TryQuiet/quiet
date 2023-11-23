@@ -17,7 +17,7 @@ export const torBootstrapProcess = createSelector(connectionSlice, reducerState 
 
 export const isTorInitialized = createSelector(connectionSlice, reducerState => reducerState.isTorInitialized)
 
-export const torConnectionProcess = createSelector(connectionSlice, reducerState => reducerState.torConnectionProcess)
+export const connectionProcess = createSelector(connectionSlice, reducerState => reducerState.connectionProcess)
 
 export const peerList = createSelector(
   connectionSlice,
@@ -57,6 +57,6 @@ export const connectionSelectors = {
   connectedPeersMapping,
   peerList,
   torBootstrapProcess,
-  torConnectionProcess,
+  connectionProcess,
   isTorInitialized,
 }

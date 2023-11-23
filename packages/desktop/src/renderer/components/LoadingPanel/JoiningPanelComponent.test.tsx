@@ -1,6 +1,7 @@
 import React from 'react'
 import { renderComponent } from '../../testUtils/renderComponent'
 import JoiningPanelComponent from './JoiningPanelComponent'
+import { ConnectionProcessInfo } from '@quiet/types'
 
 describe('Create JoiningPanelComponent', () => {
   it('renders component - owner false', () => {
@@ -10,7 +11,7 @@ describe('Create JoiningPanelComponent', () => {
         openUrl={jest.fn()}
         open={true}
         isOwner={false}
-        torConnectionInfo={{ number: 50, text: 'Initializing storage' }}
+        connectionInfo={{ number: 50, text: ConnectionProcessInfo.BACKEND_MODULES }}
       />
     )
     expect(result.baseElement).toMatchInlineSnapshot(`
@@ -144,7 +145,7 @@ describe('Create JoiningPanelComponent', () => {
         openUrl={jest.fn()}
         open={true}
         isOwner={true}
-        torConnectionInfo={{ number: 50, text: 'Initializing storage' }}
+        connectionInfo={{ number: 50, text: ConnectionProcessInfo.BACKEND_MODULES }}
       />
     )
     expect(result.baseElement).toMatchInlineSnapshot(`
