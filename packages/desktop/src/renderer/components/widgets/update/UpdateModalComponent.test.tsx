@@ -92,7 +92,7 @@ describe('UpdateModal', () => {
                 style="width: 600px;"
               >
                 <div
-                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-1emakh5-MuiGrid-root"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-1cz3wls-MuiGrid-root"
                 >
                   <div
                     class="MuiGrid-root UpdateModalinfo css-vj1n65-MuiGrid-root"
@@ -116,45 +116,12 @@ describe('UpdateModal', () => {
                     <p
                       class="MuiTypography-root MuiTypography-body2 css-16d47hw-MuiTypography-root"
                     >
-                      <p
-                        class="MuiTypography-root MuiTypography-body2 css-16d47hw-MuiTypography-root"
-                      >
-                        A new update for Quiet is available and will be applied on your next restart.
-                      </p>
-                    </div>
+                      Update is available for Quiet.
+                    </p>
                   </div>
                   <div
-                    class="MuiGrid-root MuiGrid-container MuiGrid-spacing-xs-8 css-m7r6nl-MuiGrid-root"
-                  >
-                    <div
-                      class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-4 css-gj1fbr-MuiGrid-root"
-                    >
-                      <button
-                        class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge MuiButton-fullWidth MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge MuiButton-fullWidth UpdateModalbutton css-n0wap0-MuiButtonBase-root-MuiButton-root"
-                        tabindex="0"
-                        type="submit"
-                      >
-                        Restart now
-                        <span
-                          class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                        />
-                      </button>
-                    </div>
-                  </div>
-                  <div
-                    class="MuiGrid-root MuiGrid-container MuiGrid-item UpdateModalsecondaryButtonContainer css-1h16bbz-MuiGrid-root"
-                  >
-                    <button
-                      class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-fullWidth MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-fullWidth UpdateModalsecondaryButton css-14mi2mx-MuiButtonBase-root-MuiButton-root"
-                      tabindex="0"
-                      type="button"
-                    >
-                      Later
-                      <span
-                        class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                      />
-                    </button>
-                  </div>
+                    class="MuiGrid-root MuiGrid-container MuiGrid-spacing-xs-2 MuiGrid-direction-xs-column css-1bnhfwg-MuiGrid-root"
+                  />
                 </div>
               </div>
             </div>
