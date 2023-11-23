@@ -12,10 +12,6 @@ import { Site } from '@quiet/common'
 const BreakingChangesWarning = () => {
   const modal = useModal(ModalName.breakingChangesWarning)
 
-  useEffect(() => {
-    modal.handleOpen() // Open modal once per app start
-  }, [])
-
   const title = 'Update available'
   const message =
     'Quiet’s next release makes joining communities faster and more reliable by letting people join when the owner is offline! 🎉 However, these changes are not backwards compatible, so you must re-install Quiet from tryquiet.org and re-create or re-join your community. 😥 This version of Quiet will no longer receive any updates or security fixes, so please re-install soon. We apologize for the inconvenience.'
