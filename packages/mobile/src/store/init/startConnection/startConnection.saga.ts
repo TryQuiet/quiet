@@ -11,10 +11,16 @@ export function* startConnectionSaga(
 ): Generator {
   const { dataPort, socketIOSecret } = action.payload
 
+  let _dataPort = dataPort
+
+  if (!dataPort || dataPort === 0) {
+    _dataPort = 11000
+  }
+
   if (!socketIOSecret) return
 
   const token = encodeSecret(socketIOSecret)
-  const socket = yield* call(io, `http://127.0.0.1:${dataPort}`, {
+  const socket = yield* call(io, `http://127.0.0.1:${_dataPort}`, {
     withCredentials: true,
     extraHeaders: {
       authorization: `Basic ${token}`,
