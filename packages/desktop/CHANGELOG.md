@@ -63,14 +63,6 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 ## [2.0.3-alpha.2](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@2.0.3-alpha.1...@quiet/desktop@2.0.3-alpha.2) (2023-11-09)
 
 
-### Bug Fixes
-
-* trigger desktop ([2898bee](https://github.com/TryQuiet/quiet/commit/2898bee80bbf2f16cbda67281a29e47716faa77c))
-
-
-
-
-
 ## [2.0.3-alpha.1](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@2.0.3-alpha.0...@quiet/desktop@2.0.3-alpha.1) (2023-11-08)
 
 **Note:** Version bump only for package @quiet/desktop
@@ -158,6 +150,19 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 ## [2.0.1-alpha.1](https://github.com/TryQuiet/quiet/compare/quiet@2.0.1-alpha.0...quiet@2.0.1-alpha.1) (2023-09-25)
+
+
+## [1.9.7](https://github.com/TryQuiet/quiet/compare/quiet@1.9.6...quiet@1.9.7) (2023-11-17)
+
+
+### Bug Fixes
+
+* trigger desktop ([2898bee](https://github.com/TryQuiet/quiet/commit/2898bee80bbf2f16cbda67281a29e47716faa77c))
+* pass team id for notarization ([ab86fc0](https://github.com/TryQuiet/quiet/commit/ab86fc0cefd5d8b3715712a4dd234bbe45f18cc2))
+
+
+
+## [1.9.6](https://github.com/TryQuiet/quiet/compare/quiet@1.9.5...quiet@1.9.6) (2023-11-09)
 
 **Note:** Version bump only for package quiet
 
