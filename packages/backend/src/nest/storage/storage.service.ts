@@ -393,7 +393,7 @@ export class StorageService extends EventEmitter {
   }
 
   public async attachCsrsStoreListeners() {
-    this.on(StorageEvents.LOADED_USER_CSRS, async (payload) => {
+    this.on(StorageEvents.LOADED_USER_CSRS, async payload => {
       console.log('csrs', payload.csrs)
       const allCertificates = this.getAllEventLogEntries(this.certificates)
       this.emit(StorageEvents.REPLICATED_CSR, { csrs: payload.csrs, certificates: allCertificates, id: payload.id })

@@ -12,7 +12,7 @@ export class IpfsService {
   constructor(
     @Inject(IPFS_REPO_PATCH) public readonly ipfsRepoPath: string,
     private readonly lazyModuleLoader: LazyModuleLoader
-  ) { }
+  ) {}
 
   public async createInstance(peerId: any) {
     this.counter++
