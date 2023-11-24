@@ -31,7 +31,7 @@
       ]
     },
     "win": {
-      "icon": "./build/icon.png",
+      "icon": "./build/icon.ico",
       "target": "NSIS",
       "sign": "scripts/sign.js",
       "files": [
