@@ -7,7 +7,7 @@ import { getFactory } from '../../utils/tests/factories'
 import { setupCrypto } from '@quiet/identity'
 import { networkActions } from '../network/network.slice'
 import { networkSelectors } from '../network/network.selectors'
-import { type Identity } from '@quiet/types'
+import { ConnectionProcessInfo, type Identity } from '@quiet/types'
 import { usersSelectors } from '../users/users.selectors'
 
 describe('connectionReducer', () => {
@@ -88,7 +88,7 @@ describe('connectionReducer', () => {
   })
 
   it('set connectionProcess', () => {
-    const payload2 = 'Initializing IPFS'
+    const payload2 = ConnectionProcessInfo.INITIALIZING_IPFS
 
     store.dispatch(connectionActions.setConnectionProcess(payload2))
 
@@ -96,6 +96,6 @@ describe('connectionReducer', () => {
 
     expect(number).toEqual(30)
 
-    expect(text).toEqual('Initialized backend modules')
+    expect(text).toEqual(ConnectionProcessInfo.BACKEND_MODULES)
   })
 })
