@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.3-alpha.10](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@2.0.3-alpha.9...@quiet/desktop@2.0.3-alpha.10) (2023-11-24)
+
+
+### Features
+
+* add appPath to notarize ([bd9a0dc](https://github.com/TryQuiet/quiet/commit/bd9a0dc69f9da99405317d8210a14b82e6ac4910))
+
+
+
+
+
 ## [2.0.3-alpha.9](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@2.0.3-alpha.8...@quiet/desktop@2.0.3-alpha.9) (2023-11-24)
 
 **Note:** Version bump only for package @quiet/desktop
