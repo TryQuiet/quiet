@@ -56,7 +56,7 @@ export const connectionSlice = createSlice({
 
       switch (info) {
         case ConnectionProcessInfo.REGISTERING_OWNER_CERTIFICATE:
-          state.connectionProcess = { number: 30, text: ConnectionProcessInfo.REGISTERING_OWNER_CERTIFICATE }
+          state.connectionProcess = { number: 50, text: ConnectionProcessInfo.REGISTERING_OWNER_CERTIFICATE }
           break
         case ConnectionProcessInfo.INITIALIZING_IPFS:
           if (state.connectionProcess.number > 30) break
