@@ -6,7 +6,7 @@ import { Linking } from 'react-native'
 import { navigationActions } from '../../store/navigation/navigation.slice'
 import { ScreenNames } from '../../const/ScreenNames.enum'
 
-const ConnectionProcessScreen: FC = () => {
+export const ConnectionProcessScreen: FC = () => {
   const dispatch = useDispatch()
 
   const connectionProcessSelector = useSelector(connection.selectors.connectionProcess)
@@ -50,5 +50,3 @@ const ConnectionProcessScreen: FC = () => {
   }, [connectionProcessSelector, messageNotNull, certificatesMapping, channels])
   return <ConnectionProcessComponent openUrl={openUrl} connectionProcess={connectionProcessSelector} />
 }
-
-export default ConnectionProcessScreen

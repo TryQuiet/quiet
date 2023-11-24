@@ -3,6 +3,33 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.3-alpha.8](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@2.0.3-alpha.7...@quiet/desktop@2.0.3-alpha.8) (2023-11-22)
+
+
+### Features
+
+* trigger lerna ([4ca8195](https://github.com/TryQuiet/quiet/commit/4ca81958c57e88f172e0d78f055e9008a5a4a90a))
+
+
+
+
+
+## [2.0.3-alpha.7](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@2.0.3-alpha.6...@quiet/desktop@2.0.3-alpha.7) (2023-11-22)
+
+**Note:** Version bump only for package @quiet/desktop
+
+
+
+
+
+## [2.0.3-alpha.6](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@2.0.3-alpha.5...@quiet/desktop@2.0.3-alpha.6) (2023-11-21)
+
+**Note:** Version bump only for package @quiet/desktop
+
+
+
+
+
 ## [2.0.3-alpha.5](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@2.0.3-alpha.4...@quiet/desktop@2.0.3-alpha.5) (2023-11-14)
 
 **Note:** Version bump only for package @quiet/desktop
@@ -34,14 +61,6 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 ## [2.0.3-alpha.2](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@2.0.3-alpha.1...@quiet/desktop@2.0.3-alpha.2) (2023-11-09)
-
-
-### Bug Fixes
-
-* trigger desktop ([2898bee](https://github.com/TryQuiet/quiet/commit/2898bee80bbf2f16cbda67281a29e47716faa77c))
-
-
-
 
 
 ## [2.0.3-alpha.1](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@2.0.3-alpha.0...@quiet/desktop@2.0.3-alpha.1) (2023-11-08)
@@ -131,6 +150,19 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 ## [2.0.1-alpha.1](https://github.com/TryQuiet/quiet/compare/quiet@2.0.1-alpha.0...quiet@2.0.1-alpha.1) (2023-09-25)
+
+
+## [1.9.7](https://github.com/TryQuiet/quiet/compare/quiet@1.9.6...quiet@1.9.7) (2023-11-17)
+
+
+### Bug Fixes
+
+* trigger desktop ([2898bee](https://github.com/TryQuiet/quiet/commit/2898bee80bbf2f16cbda67281a29e47716faa77c))
+* pass team id for notarization ([ab86fc0](https://github.com/TryQuiet/quiet/commit/ab86fc0cefd5d8b3715712a4dd234bbe45f18cc2))
+
+
+
+## [1.9.6](https://github.com/TryQuiet/quiet/compare/quiet@1.9.5...quiet@1.9.6) (2023-11-09)
 
 **Note:** Version bump only for package quiet
 

@@ -8,6 +8,7 @@ export class ConnectionState {
   public uptime = 0
   public peersStats: EntityState<NetworkStats> = peersStatsAdapter.getInitialState()
   public isTorInitialized = false
+  public socketIOSecret: string | null = null
   public torBootstrapProcess = 'Bootstrapped 0% (starting)'
   public connectionProcess: { number: number; text: ConnectionProcessInfo } = {
     number: 5,
@@ -24,11 +25,7 @@ export const connectionSlice = createSlice({
     },
     updateNetworkData: (state, action: PayloadAction<NetworkDataPayload>) => {
       const prev = state.peersStats?.entities[action.payload.peer]?.connectionTime || 0
-
-      console.log('prev peerStats', state.peersStats)
       const _peerStats = state.peersStats || peersStatsAdapter.getInitialState()
-      console.log('next peerStats', _peerStats)
-
       peersStatsAdapter.upsertOne(_peerStats, {
         peerId: action.payload.peer,
         lastSeen: action.payload.lastSeen,
@@ -50,6 +47,9 @@ export const connectionSlice = createSlice({
     torBootstrapped: (state, _action: PayloadAction<any>) => state,
     setTorInitialized: state => {
       state.isTorInitialized = true
+    },
+    setSocketIOSecret: (state, action: PayloadAction<string>) => {
+      state.socketIOSecret = action.payload
     },
     setConnectionProcess: (state, action: PayloadAction<string>) => {
       const info = action.payload

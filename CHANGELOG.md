@@ -2,6 +2,15 @@
 
 * Better descriptions of the joining process
 
+
+[2.0.3-alpha.6]
+
+* Fix: filter out invalid peer addresses in peer list. Update peer list in localdb.
+
+* Fix: dial new peers on CSRs replication
+
+* Send an info message immediately after a user joins the community
+
 [2.0.3-alpha.5]
 
 * Fix network data proceeding when using custom protocol multiple times #1847

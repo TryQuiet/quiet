@@ -32,7 +32,7 @@ import { Server as SocketIO } from 'socket.io'
 import { StorageModule } from './storage/storage.module'
 import { IpfsModule } from './ipfs/ipfs.module'
 import { Level } from 'level'
-import { getCors } from './common/utils'
+import { verifyToken } from '@quiet/common'
 
 @Global()
 @Module({
@@ -94,10 +94,40 @@ export class AppModule {
             _app.use(cors())
             const server = createServer(_app)
             const io = new SocketIO(server, {
-              cors: getCors(),
+              cors: {
+                origin: '127.0.0.1',
+                allowedHeaders: ['authorization'],
+                credentials: true,
+              },
               pingInterval: 1000_000,
               pingTimeout: 1000_000,
             })
+            io.engine.use((req, res, next) => {
+              const authHeader = req.headers['authorization']
+              if (!authHeader) {
+                console.error('No authorization header')
+                res.writeHead(401, 'No authorization header')
+                res.end()
+                return
+              }
+
+              const token = authHeader && authHeader.split(' ')[1]
+              if (!token) {
+                console.error('No auth token')
+                res.writeHead(401, 'No authorization token')
+                res.end()
+                return
+              }
+
+              if (verifyToken(options.socketIOSecret, token)) {
+                next()
+              } else {
+                console.error('Wrong basic token')
+                res.writeHead(401, 'Unauthorized')
+                res.end()
+              }
+            })
+
             return { server, io }
           },
           inject: [EXPRESS_PROVIDER],
@@ -122,7 +152,7 @@ export class AppModule {
         },
         {
           provide: LEVEL_DB,
-          useFactory: (dbPath: string) => new Level<string, any>(dbPath, { valueEncoding: 'json' }),
+          useFactory: (dbPath: string) => new Level<string, unknown>(dbPath, { valueEncoding: 'json' }),
           inject: [DB_PATH],
         },
       ],
