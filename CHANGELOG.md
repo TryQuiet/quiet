@@ -1,3 +1,7 @@
+[unreleased]
+
+* Fix saveUserCsr saga to trigger only if user csr is absent in user slice.
+
 [2.0.3-alpha.5]
 
 * Fix network data proceeding when using custom protocol multiple times #1847
