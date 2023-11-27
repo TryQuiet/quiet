@@ -9,7 +9,7 @@ import {
   Sidebar,
   WarningModal,
 } from '../selectors'
-import { capitalizeFirstLetter, composeInvitationDeepUrl, parseInvitationCode } from '@quiet/common'
+import { capitalizeFirstLetter, composeInvitationDeepUrl, parseInvitationCode, userJoinedMessage } from '@quiet/common'
 import { execSync } from 'child_process'
 import { type SupportedPlatformDesktop } from '@quiet/types'
 
@@ -184,10 +184,13 @@ describe('New user joins using invitation link while having app opened', () => {
       console.log('Invitation Link', 21)
       const generalChannel = new Channel(ownerApp.driver, 'general')
       await generalChannel.element.isDisplayed()
-      const userJoinedMessage = await generalChannel.getMessage(
-        `@${joiningUserUsername} has joined ${capitalizeFirstLetter(communityName)}!`
+
+      const hasMessage = await generalChannel.waitForUserMessage(
+        joiningUserUsername,
+        userJoinedMessage(joiningUserUsername)
       )
-      expect(await userJoinedMessage.isDisplayed()).toBeTruthy()
+      const isMessageDisplayed = await hasMessage?.isDisplayed()
+      expect(isMessageDisplayed).toBeTruthy()
     })
   })
 })

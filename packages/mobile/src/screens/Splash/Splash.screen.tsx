@@ -14,13 +14,17 @@ export const SplashScreen: FC<SplashScreenProps> = ({ route }) => {
     let code = route.path
 
     // Screen hasn't been open through a link
-    if (!code) return
+    if (!code) {
+      console.log('INIT_NAVIGATION: Skipping deep link flow.')
+      return
+    }
 
     if (code.charAt(0) === '?') {
       code = code.slice(1, code.length)
     }
 
     if (ready) {
+      console.log('INIT_NAVIGATION: Starting deep link flow.')
       dispatch(initActions.deepLink(code))
     }
   }, [ready, route.path])
