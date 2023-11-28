@@ -1,5 +1,7 @@
 [unreleased]
 
+* Update custom deps repositiries (upload-s3-action, ipfs-pubsub-peer-monitor)
+
 * Fix saveUserCsr saga to trigger only if user csr is absent in user slice.
 
 * Send an info message immediately after a user joins the community
