@@ -174,8 +174,8 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
   const userLabel = messageDisplayData?.isDuplicated
     ? UserLabelType.DUPLICATE
     : !messageDisplayData?.isRegistered
-    ? UserLabelType.UNREGISTERED
-    : null
+      ? UserLabelType.UNREGISTERED
+      : null
 
   console.log('Unregistered Debug - Basic Message', { userLabel })
 

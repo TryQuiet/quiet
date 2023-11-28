@@ -104,7 +104,7 @@ static NSString *const platform = @"mobile";
     NSTimeInterval delayInSeconds = 5;
     dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
     dispatch_after(popTime, dispatch_get_main_queue(), ^(void) {
-      [[self.bridge moduleForName:@"CommunicationModule"] sendDataPortWithPort:self.dataPort];
+      [[self.bridge moduleForName:@"CommunicationModule"] sendDataPortWithPort:self.dataPort socketIOSecret:self.socketIOSecret];
     });
   });
 }
@@ -114,9 +114,13 @@ static NSString *const platform = @"mobile";
   // (1/6) Find ports to use in tor and backend configuration
   
   FindFreePort *findFreePort = [FindFreePort new];
+  Utils *utils = [Utils new];
     
-  self.dataPort             = [findFreePort getFirstStartingFromPort:11000];
+  if (self.socketIOSecret == nil) {
+      self.socketIOSecret       = [utils generateSecretWithLength:(20)];
+  }
   
+  self.dataPort             = [findFreePort getFirstStartingFromPort:11000];
   uint16_t socksPort        = [findFreePort getFirstStartingFromPort:12000];
   uint16_t controlPort      = [findFreePort getFirstStartingFromPort:14000];
   uint16_t httpTunnelPort   = [findFreePort getFirstStartingFromPort:16000];
@@ -196,16 +200,17 @@ static NSString *const platform = @"mobile";
 
 - (void) launchBackend:(uint16_t)controlPort:(uint16_t)httpTunnelPort:(NSString *)authCookie {
   self.nodeJsMobile = [RNNodeJsMobile new];
-  [self.nodeJsMobile callStartNodeProject:[NSString stringWithFormat:@"bundle.cjs --dataPort %hu --dataPath %@ --controlPort %hu --httpTunnelPort %hu --authCookie %@ --platform %@", self.dataPort, self.dataPath, controlPort, httpTunnelPort, authCookie, platform]];
+  [self.nodeJsMobile callStartNodeProject:[NSString stringWithFormat:@"bundle.cjs --dataPort %hu --dataPath %@ --controlPort %hu --httpTunnelPort %hu --authCookie %@ --platform %@ --socketIOSecret %@", self.dataPort, self.dataPath, controlPort, httpTunnelPort, authCookie, platform, self.socketIOSecret]];
 }
 
 - (void) reviweServices:(uint16_t)controlPort:(uint16_t)httpTunnelPort:(NSString *)authCookie {
   NSString * dataPortPayload = [NSString stringWithFormat:@"%@:%hu", @"socketIOPort", self.dataPort];
+  NSString * socketIOSecretPayload = [NSString stringWithFormat:@"%@:%@", @"socketIOSecret", self.socketIOSecret];
   NSString * controlPortPayload = [NSString stringWithFormat:@"%@:%hu", @"torControlPort", controlPort];
   NSString * httpTunnelPortPayload = [NSString stringWithFormat:@"%@:%hu", @"httpTunnelPort", httpTunnelPort];
   NSString * authCookiePayload = [NSString stringWithFormat:@"%@:%@", @"authCookie", authCookie];
   
-  NSString * payload = [NSString stringWithFormat:@"%@|%@|%@|%@", dataPortPayload, controlPortPayload, httpTunnelPortPayload, authCookiePayload];
+  NSString * payload = [NSString stringWithFormat:@"%@|%@|%@|%@|%@", dataPortPayload, socketIOSecretPayload, controlPortPayload, httpTunnelPortPayload, authCookiePayload];
   [self.nodeJsMobile sendMessageToNode:@"open":payload];
 }
 

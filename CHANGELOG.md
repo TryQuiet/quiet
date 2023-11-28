@@ -1,3 +1,17 @@
+[unreleased]
+
+* Fix saveUserCsr saga to trigger only if user csr is absent in user slice.
+
+* Send an info message immediately after a user joins the community
+
+* Feature: add functionality to export chat to text document in desktop version
+
+[2.0.3-alpha.6]
+
+* Fix: filter out invalid peer addresses in peer list. Update peer list in localdb.
+
+* Fix: dial new peers on CSRs replication
+
 [2.0.3-alpha.5]
 
 * Fix network data proceeding when using custom protocol multiple times #1847
