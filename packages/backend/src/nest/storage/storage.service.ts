@@ -346,6 +346,11 @@ export class StorageService extends EventEmitter {
     const peers = users.map(peer => createLibp2pAddress(peer.onionAddress, peer.peerId))
     console.log('updatePeersList, peers count:', peers.length)
     const community = await this.localDbService.get(LocalDBKeys.COMMUNITY)
+    const sortedPeers = await this.localDbService.getSortedPeers(peers)
+    if (sortedPeers.length > 0) {
+      community.peers = sortedPeers
+      await this.localDbService.put(LocalDBKeys.COMMUNITY, community)
+    }
     this.emit(StorageEvents.UPDATE_PEERS_LIST, { communityId: community.id, peerList: peers })
   }
 
