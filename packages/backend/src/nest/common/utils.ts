@@ -127,7 +127,7 @@ export const torBinForPlatform = (basePath = '', binName = 'tor'): string => {
     return basePath
   }
   const ext = process.platform === 'win32' ? '.exe' : ''
-  return path.join(torDirForPlatform(basePath), `${binName}`.concat(ext))
+  return `"${path.join(torDirForPlatform(basePath), `${binName}`.concat(ext))}"`
 }
 
 export const torDirForPlatform = (basePath?: string): string => {

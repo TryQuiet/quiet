@@ -205,7 +205,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
         return
       }
       this.process = child_process.spawn(
-        `"${this.torParamsProvider.torPath}"`,
+        `${this.torParamsProvider.torPath}`,
         [
           '--SocksPort',
           this.socksPort.toString(),
