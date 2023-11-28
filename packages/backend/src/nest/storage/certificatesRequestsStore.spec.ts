@@ -30,7 +30,7 @@ describe('CertificatesRequestsStore', () => {
   let emitter: EventEmitter
 
   beforeEach(async () => {
-    ;({ orbitdb, ipfs } = await createOrbitDbInstance())
+    ; ({ orbitdb, ipfs } = await createOrbitDbInstance())
     store = new CertificatesRequestsStore(orbitdb)
     emitter = new EventEmitter()
     await store.init(emitter)
@@ -45,16 +45,20 @@ describe('CertificatesRequestsStore', () => {
     }
   })
 
-  // it('validateUserCsr', async () => {
-  //   const orbitdb = await createOrbitDbInstance()
-  //   const store = new CertificatesRequestsStore(orbitdb)
-  //   const emitter = new EventEmitter
-  //   await store.init(emitter)
-  // })
-  // it('validateCsrFormat')
+  it('validateUserCs, correct csr', async () => {
+    const cert =
+      'MIIDITCCAsYCAQAwSTFHMEUGA1UEAxM+anR3c3hxMnZ1dWthY3JodWhvdnAzd2JxbzRxNXc0d2s3Nm1qbWJ3cXk3eGNma2FsdmRxb3hhYWQub25pb24wWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAAQE2q6iS+WCmIVCSFI2AjHrW6ujUdrceD5T2xkcTJBTn0y50WphcupUajCRgkXaTBkTsGNJ3qWRZAKX7CiuehBJoIICGTAuBgkqhkiG9w0BCQ4xITAfMB0GA1UdDgQWBBQuE5JgPY/BYBpgG5pnjMkEEIkrGjCCAUcGCSqGSIb3DQEJDDGCATgEggE0BDlx84glBl72q82F2a+y8iTVKM8IMiXYYrmNyhFPj6XsfVQpvLhNviZ5zHdMBWbFj44vTSUIasNP9I9eCWSEAaEJqjngEh18WCRS/XbvQxI/8qB5pzcfghvM8BCgSLbSEjK2GMYVhCXmRH1YGHIZu0+Ii9pe5nwG154JlPUsmIRgu6ruY6PQk65Aoo4OyhPn5CCUFInptHcz1JpAiCRe0Z6wuQHud03VY50fx4ETdmUNJBEIPOyd/Xn6lMOi6SaWGHbCWiufeJRm+mRdoHJAEt6kPLhGIYGyduNT/8cGoe2xKyQDvNoTr4dqqRZ2HgZ18nicsTHswpGqAlUnZXaA3V85Qu1cvaMAqEoPOUlGP9AriIVwtIZM0hdWHqKHgBCZrKfHb5oLxt6ourQ3+q19tvx+u6UwFAYKKwYBBAGDjBsCATEGEwRlbGxvMD0GCSsGAQIBDwMBATEwEy5RbVVvNXN0NXNqR3RFMUtQeXhOVW5pTWhnQXduV0JVNXk3TnpoMlpRRkdacVdiMEcGA1UdETFAEz5qdHdzeHEydnV1a2Fjcmh1aG92cDN3YnFvNHE1dzR3azc2bWptYndxeTd4Y2ZrYWx2ZHFveGFhZC5vbmlvbjAKBggqhkjOPQQDAgNJADBGAiEAt9udw7B7vnjJyWvkkRLb7DImFXwsrSxirqbmhIH+1rUCIQD86GWyfAE2d8gCNAn4h1t9B+mAx33ZdPLgFssHl1i3pA=='
+    const result = await CertificatesRequestsStore.validateUserCsr(cert)
+    expect(result).toBe(true)
+  })
 
-  // TODO
-  it.skip('getCsrs - remove old csrs and replace with new for each pubkey', async () => {
+  it('validateUserCsr, malformed string', async () => {
+    const cert = 'notACsr'
+    const result = await CertificatesRequestsStore.validateUserCsr(cert)
+    expect(result).toBe(false)
+  })
+
+  it('getCsrs - remove old csrs and replace with new for each pubkey', async () => {
     const store = new CertificatesRequestsStore(orbitdb)
     const emitter = new EventEmitter()
     await store.init(emitter)
@@ -73,7 +77,11 @@ describe('CertificatesRequestsStore', () => {
 
     for (const csr of allCsrs) {
       await store.addUserCsr(csr)
+      // This should not be there, there's bug in orbitdb, it breaks if we add entries without artificial sleep, tho it's awaited.
+      await new Promise<void>(resolve => setTimeout(() => resolve(), 500))
     }
+
+    await store.getCsrs()
 
     const filteredCsrs = await store.getCsrs()
 
