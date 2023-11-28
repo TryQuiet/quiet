@@ -214,6 +214,12 @@ export class StorageService extends EventEmitter {
   }
 
   public async initDatabases() {
+    this.certificatesStore = new CertificatesStore(this.orbitDb)
+    await this.certificatesStore.init(this)
+    
+    this.certificatesRequestsStore = new CertificatesRequestsStore(this.orbitDb)
+    await this.certificatesRequestsStore.init(this)
+
     this.logger('1/5')
     await this.createDbForChannels()
     this.logger('2/5')
@@ -223,16 +229,16 @@ export class StorageService extends EventEmitter {
     this.logger('4/5')
     await this.createDbForCommunityMetadata()
     this.logger('5/5')
-    this.certificatesStore = new CertificatesStore(this.orbitDb)
-    await this.certificatesStore.init(this)
-    this.certificatesRequestsStore = new CertificatesRequestsStore(this.orbitDb)
-    await this.certificatesRequestsStore.init(this)
+    
     await this.initAllChannels()
+
     this.logger('Initialized DBs')
+
     this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.INITIALIZED_DBS)
   }
   private async createDbForCommunityMetadata() {
     this.logger('createDbForCommunityMetadata init')
+
     this.communityMetadata = await this.orbitDb.keyvalue<CommunityMetadata>('community-metadata', {
       replicate: false,
       accessController: {
@@ -242,16 +248,26 @@ export class StorageService extends EventEmitter {
 
     this.communityMetadata.events.on('write', async (_address, _entry) => {
       this.logger('WRITE: communityMetadata')
+      const metadata = Object.values(this.communityMetadata.all)[0]
+      this.certificatesStore.updateMetadata(metadata)
     })
 
     this.communityMetadata.events.on('replicated', async () => {
       this.logger('Replicated community metadata')
+
+      const metadata = Object.values(this.communityMetadata.all)[0]
+      this.certificatesStore.updateMetadata(metadata)
+      
       // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
       await this.communityMetadata.load({ fetchEntryTimeout: 15000 })
-      this.emit(StorageEvents.REPLICATED_COMMUNITY_METADATA, Object.values(this.communityMetadata.all)[0])
+      this.emit(StorageEvents.REPLICATED_COMMUNITY_METADATA, metadata)
     })
+
     // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
     await this.communityMetadata.load({ fetchEntryTimeout: 15000 })
+
+    const metadata = Object.values(this.communityMetadata.all)[0]
+    this.certificatesStore.updateMetadata(metadata)
   }
 
   public async updateCommunityMetadata(communityMetadata: CommunityMetadata) {
@@ -513,7 +529,7 @@ export class StorageService extends EventEmitter {
           // @ts-ignore
           if (parseInt(message.createdAt) < parseInt(process.env.CONNECTION_TIME || '')) return
 
-          const username = this.certificatesStore.getCertificateUsername(message.pubKey)
+          const username = await this.certificatesStore.getCertificateUsername(message.pubKey)
           if (!username) {
             this.logger.error(`Can't send push notification, no username found for public key '${message.pubKey}'`)
             return

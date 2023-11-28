@@ -1,10 +1,11 @@
 import OrbitDB from 'orbit-db'
 import fs from 'fs'
 import { jest } from '@jest/globals'
-import { create, IPFS } from 'ipfs-core'
-import { CertificatesStore } from './certificates.store'
 import { EventEmitter } from 'events'
+import { create, IPFS } from 'ipfs-core'
 import { ORBIT_DB_DIR } from '../../const'
+import { CommunityMetadata } from '@quiet/types'
+import { CertificatesStore } from './certificates.store'
 
 const createOrbitDbInstance = async () => {
   const ipfs: IPFS = await create()
@@ -16,23 +17,31 @@ const createOrbitDbInstance = async () => {
   return { orbitdb, ipfs }
 }
 
-type CetrificateData = {
+const communityMetadata: CommunityMetadata = {
+  id: '39F7485441861F4A2A1A512188F1E0AA',
+  rootCa:
+    'MIIBUDCB+KADAgECAgEBMAoGCCqGSM49BAMCMBIxEDAOBgNVBAMTB3JvY2tldHMwHhcNMTAxMjI4MTAxMDEwWhcNMzAxMjI4MTAxMDEwWjASMRAwDgYDVQQDEwdyb2NrZXRzMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE/ESHf6rXksyiuxSKpQgtiSAhVWNtx4vbFgW6knWfH7MR4dPyxiCNgSeCzRfreuhqVpVtv3U49tcwsqDGkoWHsKM/MD0wDwYDVR0TBAgwBgEB/wIBAzALBgNVHQ8EBAMCAIYwHQYDVR0lBBYwFAYIKwYBBQUHAwIGCCsGAQUFBwMBMAoGCCqGSM49BAMCA0cAMEQCIHrYMhgU/RluSsWoO205EjCQ8pE5MeBZ4Cp8PTgNkOW7AiA690+KIgobiObH6/1JDuS82R0NPO84Ttc8PY886AoKbA==',
+  ownerCertificate:
+    'MIIDeTCCAx6gAwIBAgIGAYwVp42mMAoGCCqGSM49BAMCMBIxEDAOBgNVBAMTB3JvY2tldHMwHhcNMjMxMTI4MTExOTExWhcNMzAwMTMxMjMwMDAwWjBJMUcwRQYDVQQDEz5jYXJhaTJ0d2phem50aW56bndtcnlqdzNlNzVmdXF0Z2xrd2hsemo2d3RlcWx4ano2NnRsZnhpZC5vbmlvbjBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABNMUauWsTJiuDGt4zoj4lKGgHMkTH96M11fCxMwIInhan0RUB5sv+PtGKbfEfawGjhSQiUaTLdwUGjyIdMs3OMWjggInMIICIzAJBgNVHRMEAjAAMAsGA1UdDwQEAwIAgDAdBgNVHSUEFjAUBggrBgEFBQcDAgYIKwYBBQUHAwEwggFHBgkqhkiG9w0BCQwEggE4BIIBNBETZ2k8vszIRvkuOUk/cNtOb8JcGmw5yVhs45/+e7To4t51nwcdAODj5juVi6+SpLCcHCHhE+g7KswEkC1ScFrW6CRinSgrNBOAUIjOtvWZ/GvK6lI4WTMf7xAaRaJSCF6H0m4cFoUY3JpklJleHhzj0re+NmFZEJ/hNRKochGFy4Xq9Z7StvPpGBlfxhmR7X2t/+HtZaAAbLRLLgbHtCQ7fecg0Qb9Ej58uc+T4Gd2+8ptWvebtOQVU70VAL7uT6aLkFXaDibgSt3kDNvGrwn3AxWlESgROTh5+OWWbfYIbFxjf0PkPDdUSAIOKS9qbYZ+bSYfVq+/0JFyZAa0zhPtgW8wjj0gDCLVm5joyW5Hz2eZ36W7u3cxFME2qmT9G2Dh6NGLn7G19ulVzoTkVmP5/tGPMBUGCisGAQQBg4wbAgEEBxMFZGF2aWQwPQYJKwYBAgEPAwEBBDATLlFtZE5GVjc3dXZOcTJBaWlqUEY0dzY2OU1ucWdiYVdMR1VhZlh0WTdlZjNRRFMwSQYDVR0RBEIwQII+Y2FyYWkydHdqYXpudGluem53bXJ5anczZTc1ZnVxdGdsa3dobHpqNnd0ZXFseGp6NjZ0bGZ4aWQub25pb24wCgYIKoZIzj0EAwIDSQAwRgIhAOafgBe5T0EFjyy0tCRrTHJ1+5ri0W6kAUfc6eRKHIZAAiEA7rFEfPDU+D8MiOF+w0QOdp46dqaWsHFjrDHYPSYGxQA=',
+}
+
+type CertificateData = {
   certificate: string
   pubkey: string
   username: string
 }
 
-const validCertificates: CetrificateData[] = [
+const validCertificates: CertificateData[] = [
   {
     certificate:
-      'MIIDeDCCAx6gAwIBAgIGAYwBBkidMAoGCCqGSM49BAMCMBIxEDAOBgNVBAMTB3JvY2tldHMwHhcNMjMxMTI0MTExMDM4WhcNMzAwMTMxMjMwMDAwWjBJMUcwRQYDVQQDEz4zZmRobWN1dmVvZWtnc3l3c3F3cjN4NGJrYWxyeGd5em0zeG5hdnVlNXZqMm40Ymhncmk1a29xZC5vbmlvbjBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABFDLlSJWtDJOBo1UxxJ5fEUqL4PzvrrOPJGzWyybFKoFV9mYOWuxZyY+MiQK70yCxz4rNKE2oOBi1QCwKM0uSyijggInMIICIzAJBgNVHRMEAjAAMAsGA1UdDwQEAwIAgDAdBgNVHSUEFjAUBggrBgEFBQcDAgYIKwYBBQUHAwEwggFHBgkqhkiG9w0BCQwEggE4BIIBNC1P3xhxPFjygy1aF+vafhAFzDXWaY3o++LJ3zUPKaHhYYkVJ5p2w5X8rirQcTwp15GHxOdVFm1cUlNqBN6FDBOj7XaryLOm02F52mb1kcLf9G+cJNgjhkj+wSPoSTgc30kEOg2XpUtOuNy7oS55RxHTfOME2gaXyHDR8MVTIn7BXZDphmFC0CGHx10o9tMPUa78sdj/fUBtu0htyXPoyLqMxaMgzQQG7zXj+EIVcMsF3iZ2XhUpqUcFvlHrgaMnm5twTYUU5/2111IHN+nwJGetWCz8MoluXWRn0NlGmNGIAGoo6XLLbTYZHyvGSxwq0pgnHLmANvoWeGdj/TSQYf5PBNEkP5q34GY85bIMwJw05xVng7WwhvcMnsyu8ciEmKNoc4WdKo8dXXEKby6mRYjXo/ccMBUGCisGAQQBg4wbAgEEBxMFZGF2aWQwPQYJKwYBAgEPAwEBBDATLlFtVmJ6RnkzbVRSTGFiV2EyeWZKWk5uYno1eVFyQ3NCeW5IYmdUazc5aE1TY0IwSQYDVR0RBEIwQII+M2ZkaG1jdXZlb2VrZ3N5d3Nxd3IzeDRia2FscnhneXptM3huYXZ1ZTV2ajJuNGJoZ3JpNWtvcWQub25pb24wCgYIKoZIzj0EAwIDSAAwRQIgQ2BjwCVyK45ijkBLTcwl++cH9vEWGwZteOkbXQqwiVsCIQDIfguozFosukiqY2FXJhu5Y+i4Y4KOZHyaiDskL7+T5A==',
-    pubkey: 'BFDLlSJWtDJOBo1UxxJ5fEUqL4PzvrrOPJGzWyybFKoFV9mYOWuxZyY+MiQK70yCxz4rNKE2oOBi1QCwKM0uSyg=',
+      'MIIDeTCCAx6gAwIBAgIGAYwVp42mMAoGCCqGSM49BAMCMBIxEDAOBgNVBAMTB3JvY2tldHMwHhcNMjMxMTI4MTExOTExWhcNMzAwMTMxMjMwMDAwWjBJMUcwRQYDVQQDEz5jYXJhaTJ0d2phem50aW56bndtcnlqdzNlNzVmdXF0Z2xrd2hsemo2d3RlcWx4ano2NnRsZnhpZC5vbmlvbjBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABNMUauWsTJiuDGt4zoj4lKGgHMkTH96M11fCxMwIInhan0RUB5sv+PtGKbfEfawGjhSQiUaTLdwUGjyIdMs3OMWjggInMIICIzAJBgNVHRMEAjAAMAsGA1UdDwQEAwIAgDAdBgNVHSUEFjAUBggrBgEFBQcDAgYIKwYBBQUHAwEwggFHBgkqhkiG9w0BCQwEggE4BIIBNBETZ2k8vszIRvkuOUk/cNtOb8JcGmw5yVhs45/+e7To4t51nwcdAODj5juVi6+SpLCcHCHhE+g7KswEkC1ScFrW6CRinSgrNBOAUIjOtvWZ/GvK6lI4WTMf7xAaRaJSCF6H0m4cFoUY3JpklJleHhzj0re+NmFZEJ/hNRKochGFy4Xq9Z7StvPpGBlfxhmR7X2t/+HtZaAAbLRLLgbHtCQ7fecg0Qb9Ej58uc+T4Gd2+8ptWvebtOQVU70VAL7uT6aLkFXaDibgSt3kDNvGrwn3AxWlESgROTh5+OWWbfYIbFxjf0PkPDdUSAIOKS9qbYZ+bSYfVq+/0JFyZAa0zhPtgW8wjj0gDCLVm5joyW5Hz2eZ36W7u3cxFME2qmT9G2Dh6NGLn7G19ulVzoTkVmP5/tGPMBUGCisGAQQBg4wbAgEEBxMFZGF2aWQwPQYJKwYBAgEPAwEBBDATLlFtZE5GVjc3dXZOcTJBaWlqUEY0dzY2OU1ucWdiYVdMR1VhZlh0WTdlZjNRRFMwSQYDVR0RBEIwQII+Y2FyYWkydHdqYXpudGluem53bXJ5anczZTc1ZnVxdGdsa3dobHpqNnd0ZXFseGp6NjZ0bGZ4aWQub25pb24wCgYIKoZIzj0EAwIDSQAwRgIhAOafgBe5T0EFjyy0tCRrTHJ1+5ri0W6kAUfc6eRKHIZAAiEA7rFEfPDU+D8MiOF+w0QOdp46dqaWsHFjrDHYPSYGxQA=',
+    pubkey: 'BNMUauWsTJiuDGt4zoj4lKGgHMkTH96M11fCxMwIInhan0RUB5sv+PtGKbfEfawGjhSQiUaTLdwUGjyIdMs3OMU=',
     username: 'david',
   },
   {
     certificate:
-      'MIIDdzCCAx2gAwIBAgIGAYwBCyPTMAoGCCqGSM49BAMCMBIxEDAOBgNVBAMTB3JvY2tldHMwHhcNMjMxMTI0MTExNTU2WhcNMzAwMTMxMjMwMDAwWjBJMUcwRQYDVQQDEz50ZHo2end2ZnRxNHNzaGNtaTV6Z3llN3YyenlzZGU1d2w2cnJvZG96Z21ucm54YnNzczd1NTZ5ZC5vbmlvbjBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABIuy4vcSwRbXAwevi0dfUFLgOeUltYKYSVIj5YkBtPh3eZqtxCAsh1nNf4Fh8ejFNPxOuLk0m//kzVBK8oAumx+jggImMIICIjAJBgNVHRMEAjAAMAsGA1UdDwQEAwIAgDAdBgNVHSUEFjAUBggrBgEFBQcDAgYIKwYBBQUHAwEwggFHBgkqhkiG9w0BCQwEggE4BIIBNC2+sMn3amTDx+iAEmrVLd0YlBG+5kMfKyvpa7SGE5W5IDVe2GU03gwVNpJZZzJ23DxkYoFQUJpShC4dHqgjRwJARarDRBly345O2n1FU+tRA3u4Z306lTVgb/lvjCseuoQYH0MKXojqsjYCRHRAvgpbZj+5GPdarMx5xtgig/PUdTKeGksrK8QVmdxejhLXzvQHOqaWj2bl21IQuOXbGmGK8wpTrfOT1BJ7i1uWx+d03MT+8ldwlnjkjHRqr07yX0O1jyawh4rCSEsG/9Xl7rgysaBQkKl6k9eGCR8aSIZXzVKFoYoFUjIBmrN3cPHSi9c76nL+6LK7XQgigYUpt1yxQrIbGBQM/EwVt+Z+yEKgpailm7UY4qdveDrOs7hiQ3d9DBwFEysndBGgo16VAWr0T7UxMBQGCisGAQQBg4wbAgEEBhMEam9objA9BgkrBgECAQ8DAQEEMBMuUW1SdGhWaTJhUFRoRWhnb1dxNG1EZ2pHNkd6dUxqZDJRbWo1d0JydktYTjFpdzBJBgNVHREEQjBAgj50ZHo2end2ZnRxNHNzaGNtaTV6Z3llN3YyenlzZGU1d2w2cnJvZG96Z21ucm54YnNzczd1NTZ5ZC5vbmlvbjAKBggqhkjOPQQDAgNIADBFAiEAkhyFBTgcyo56AvNMxvjDr8NCXjy3pRwDAwYFDDf9nLMCIBAA0IKGd3s0QgRfitNVeWrq5rxjxMayNdnaZejypXZT',
-    pubkey: 'BIuy4vcSwRbXAwevi0dfUFLgOeUltYKYSVIj5YkBtPh3eZqtxCAsh1nNf4Fh8ejFNPxOuLk0m//kzVBK8oAumx8=',
+      'MIIDdjCCAx2gAwIBAgIGAYwVqZ/fMAoGCCqGSM49BAMCMBIxEDAOBgNVBAMTB3JvY2tldHMwHhcNMjMxMTI4MTEyMTI3WhcNMzAwMTMxMjMwMDAwWjBJMUcwRQYDVQQDEz52cnB1ZGdnNGF4cmxobG1jN3c0dmdheTJta292ZGN6dnRtbTVoMjJ0ajZobWR3eXV1NDdhc3l5ZC5vbmlvbjBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABE2KvinBVv6mALtFfw2xIVJXu48q6Vaxsz1GJNUe1K6ysJT0hjyed3l0OOP8KGzUAc0OacEZuzSbDnkdP/gbmMOjggImMIICIjAJBgNVHRMEAjAAMAsGA1UdDwQEAwIAgDAdBgNVHSUEFjAUBggrBgEFBQcDAgYIKwYBBQUHAwEwggFHBgkqhkiG9w0BCQwEggE4BIIBNBHLSx5u5At8mlxe6cM+tnpx1rhcVQC8dA3M5OXIB1BO4NzM0o71IqL1mwlviMd9EeSTiqM3mOBJzGS/sG3m62ppdfSuxV2OfjILYF17NpHBY45y0nmQUer4geLlBxtvEZ6e0CiK/uD2oGks7BG78AsclP/97lXNf8ElH8DT+AskO91Zd1zS+8IQxmOr8/EpCnjR+7VMzpgIG57C6pdmZdmLLCJlKcr26XL91hH5cY/i1s2Yf36ScOJKSgz0GEzul0uoW2f+Oags6WYzcY527pGwFJTItmWZQHlC5weaX8mtqgl1/4Wb4lXB4ToMe0Kwj5z55fggG+OLbMkzMUimWJKmb7IcXfYZaZqKWL4jPeMahywxS88vuOYRjIbv5h3/7sdbClGWs7sFbBXaG++rRMINIFp0MBQGCisGAQQBg4wbAgEEBhMEam9objA9BgkrBgECAQ8DAQEEMBMuUW1aZnBpVnU2cnFEaTQ5QTR5Sk15elE3a25HdERGTllneWc4R1BKbjlnODRtZzBJBgNVHREEQjBAgj52cnB1ZGdnNGF4cmxobG1jN3c0dmdheTJta292ZGN6dnRtbTVoMjJ0ajZobWR3eXV1NDdhc3l5ZC5vbmlvbjAKBggqhkjOPQQDAgNHADBEAiBnUY9HiL5w3OM6Y5vVmOQD/GEYKgHZIYpTD9g3DDj+cgIgTULiWXUb6GSRZIQx1Lm0eqiwKZvp0MmwmhR+MyzXEW4=',
+    pubkey: 'BE2KvinBVv6mALtFfw2xIVJXu48q6Vaxsz1GJNUe1K6ysJT0hjyed3l0OOP8KGzUAc0OacEZuzSbDnkdP/gbmMM=',
     username: 'john',
   },
 ]
@@ -59,8 +68,53 @@ describe('CertificatesStore', () => {
     }
   })
 
+  test('update metadata property', async () => {
+    store.updateMetadata(communityMetadata)
+    // @ts-expect-error - metadata property is private
+    expect(store.metadata).toEqual(communityMetadata)
+  })
+
+  test('do not update metadata property with invalid value', async () => {
+    // @ts-expect-error - null is not a proper value
+    store.updateMetadata(null)
+    // @ts-expect-error - metadata property is private
+    const metadata = store.metadata
+    expect(metadata).not.toEqual(null)
+  })
+
+  test('validate certificate against root certificate', async () => {
+    const { certificate } = validCertificates[1]
+
+    store.updateMetadata(communityMetadata)
+
+    // @ts-expect-error - validateCertificate is private
+    const res = await store.validateCertificateAuthority(certificate)
+
+    expect(res).toBeTruthy()
+  })
+
+  test('validates certificate format properly (positive case)', async () => {
+    const { certificate } = validCertificates[1]
+
+    // @ts-expect-error - validateCertificate is private
+    const res = await store.validateCertificateFormat(certificate)
+
+    expect(res).toEqual([])
+  })
+
+  test('validates certificate format properly (negative case)', async () => {
+    const certificate = 'certificate'
+
+    // @ts-expect-error - validateCertificate is private
+    const res = await store.validateCertificateFormat(certificate)
+
+    expect(res).not.toEqual([])
+  })
+
   test('should add and get a valid certificate from the store', async () => {
-    const { certificate } = validCertificates[0]
+    const { certificate } = validCertificates[1]
+
+    store.updateMetadata(communityMetadata)
 
     await store.addCertificate(certificate)
 
@@ -71,13 +125,12 @@ describe('CertificatesStore', () => {
   })
 
   // Let's wait for actual validation
-  test.skip('should not get invalid certificate form the store', async () => {
+  test('should not get invalid certificate form the store', async () => {
     const certificate = 'certificate'
 
-    await store.addCertificate(certificate)
+    store.updateMetadata(communityMetadata)
 
-    // @ts-expect-error - validateCertificate is private
-    jest.spyOn(store, 'validateCertificate').mockResolvedValue(false)
+    await store.addCertificate(certificate)
 
     // @ts-expect-error - getCertificates is protected
     const certificates = await store.getCertificates()
@@ -89,6 +142,8 @@ describe('CertificatesStore', () => {
     const { certificate: certificate1 } = validCertificates[0]
     const { certificate: certificate2 } = validCertificates[1]
 
+    store.updateMetadata(communityMetadata)
+
     // @ts-expect-error - getCertificates is protected
     jest.spyOn(store, 'getCertificates').mockResolvedValue([certificate1, certificate2])
 
@@ -99,14 +154,13 @@ describe('CertificatesStore', () => {
   })
 
   test('should get the username for a given public key', async () => {
-    const { certificate, pubkey, username } = validCertificates[0]
+    const { certificate, pubkey, username } = validCertificates[1]
+
+    store.updateMetadata(communityMetadata)
 
     await store.addCertificate(certificate)
 
-    // @ts-expect-error - getCertificates is protected
-    jest.spyOn(store, 'getCertificates').mockResolvedValue([certificate])
-
-    const result = store.getCertificateUsername(pubkey)
+    const result = await store.getCertificateUsername(pubkey)
     expect(result).toBe(username)
   })
 })

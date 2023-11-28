@@ -1,17 +1,25 @@
+import { getCrypto } from 'pkijs'
+
 import { EventEmitter } from 'events'
 import { StorageEvents } from '../storage.types'
 
 import EventStore from 'orbit-db-eventstore'
 import OrbitDB from 'orbit-db'
 
+import { CommunityMetadata, NoCryptoEngineError } from '@quiet/types'
+
 import {
   keyFromCertificate,
   CertFieldsTypes,
   parseCertificate,
   getCertFieldValue,
+  loadCertificate,
 } from '@quiet/identity'
 
 import { ConnectionProcessInfo, SocketActionTypes, UserData } from '@quiet/types'
+
+import { validate } from 'class-validator'
+import { CertificateData } from '../../registration/registration.functions'
 
 import createLogger from '../../common/logger'
 
@@ -20,6 +28,8 @@ const logger = createLogger('CertificatesStore')
 export class CertificatesStore {
   public orbitDb: OrbitDB
   public store: EventStore<string>
+
+  private metadata: CommunityMetadata
 
   private filteredCertificatesMapping: Map<string, Partial<UserData>>
   private usernameMapping: Map<string, string>
@@ -87,13 +97,48 @@ export class CertificatesStore {
     return certificates
   }
 
-  /*
-   * In order to split up the work scope, we mock validating function,
-   * until we move the certificates section into it's own store
-   */
-  private async validateCertificate(_certificate: string): Promise<boolean> {
-    logger('Validating certificate')
+  public updateMetadata(metadata: CommunityMetadata) {
+    if (!metadata) return
+    this.metadata = metadata
+  }
+
+  private async validateCertificate(certificate: string) {
+    try {
+      await this.validateCertificateAuthority(certificate)
+      await this.validateCertificateFormat(certificate)
+    } catch (err) {
+      logger.error('Failed to validate user certificate:', certificate, err?.message)
+      return false
+    }
     return true
+  }
+
+  private async validateCertificateAuthority(certificate: string) {
+    const crypto = getCrypto()
+
+    if (!crypto) {
+      throw new NoCryptoEngineError()
+    }
+
+    const parsedCertificate = loadCertificate(certificate)
+
+    let metadata = this.metadata
+    while (!metadata) {
+      await new Promise<void>(res => setTimeout(res, 100))
+      metadata = this.metadata
+    }
+
+    const parsedRootCertificate = loadCertificate(metadata.rootCa)
+    const verification = await parsedCertificate.verify(parsedRootCertificate)
+
+    return verification
+  }
+
+  private async validateCertificateFormat(certificate: string) {
+    const certificateData = new CertificateData()
+    certificateData.certificate = certificate
+    const validationErrors = await validate(certificateData)
+    return validationErrors
   }
 
   /*
@@ -137,7 +182,14 @@ export class CertificatesStore {
     return validCertificates.filter(i => i != undefined)
   }
 
-  public getCertificateUsername(pubkey: string) {
+  public async getCertificateUsername(pubkey: string) {
+    const cache = this.usernameMapping.get(pubkey)
+    if (cache) return cache
+
+    // Perform cryptographic operations and populate cache
+    await this.getCertificates()
+
+    // Return desired data from updated cache
     return this.usernameMapping.get(pubkey)
   }
 }
