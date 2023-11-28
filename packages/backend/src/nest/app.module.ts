@@ -127,7 +127,7 @@ export class AppModule {
                 res.end()
               }
             })
-
+            console.log('ok')
             return { server, io }
           },
           inject: [EXPRESS_PROVIDER],

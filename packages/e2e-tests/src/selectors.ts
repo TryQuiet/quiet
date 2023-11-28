@@ -445,7 +445,7 @@ export class DebugModeModal {
       const log = await this.driver.executeScript('arguments[0].click();', button)
       console.log('executeScript', log)
     } catch (e) {
-      console.log('Probably click properly close modal')
+      console.log('Probably clicked hidden close button on debug modal', e)
     }
     await new Promise<void>(resolve => setTimeout(() => resolve(), 2000))
   }
