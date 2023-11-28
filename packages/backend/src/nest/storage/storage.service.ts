@@ -25,6 +25,7 @@ import {
   ConnectionProcessInfo,
   DeleteFilesFromChannelSocketPayload,
   FileMetadata,
+  InitCommunityPayload,
   NoCryptoEngineError,
   PublicChannel,
   PushNotificationPayload,

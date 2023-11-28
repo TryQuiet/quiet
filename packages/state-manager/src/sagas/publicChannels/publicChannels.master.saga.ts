@@ -9,6 +9,7 @@ import { sendNewUserInfoMessageSaga } from './sendNewUserInfoMessage/sendNewUser
 import { clearUnreadChannelsSaga } from './markUnreadChannels/markUnreadChannels.saga'
 import { channelsReplicatedSaga } from './channelsReplicated/channelsReplicated.saga'
 import { channelDeletionResponseSaga } from './channelDeletionResponse/channelDeletionResponse.saga'
+import { sendUnregisteredInfoMessage } from './sendUnregisteredInfoMessage/sendUnregisteredInfoMessage.saga'
 
 export function* publicChannelsMasterSaga(socket: Socket): Generator {
   yield all([
@@ -20,5 +21,6 @@ export function* publicChannelsMasterSaga(socket: Socket): Generator {
     takeEvery(publicChannelsActions.channelsReplicated.type, channelsReplicatedSaga),
     takeEvery(publicChannelsActions.setCurrentChannel.type, clearUnreadChannelsSaga),
     takeEvery(publicChannelsActions.sendNewUserInfoMessage.type, sendNewUserInfoMessageSaga),
+    takeEvery(publicChannelsActions.sendUnregisteredInfoMessage.type, sendUnregisteredInfoMessage),
   ])
 }
