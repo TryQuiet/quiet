@@ -217,7 +217,7 @@ export class StorageService extends EventEmitter {
   public async initDatabases() {
     this.certificatesStore = new CertificatesStore(this.orbitDb)
     await this.certificatesStore.init(this)
-    
+
     this.certificatesRequestsStore = new CertificatesRequestsStore(this.orbitDb)
     await this.certificatesRequestsStore.init(this)
 
@@ -230,7 +230,7 @@ export class StorageService extends EventEmitter {
     this.logger('4/5')
     await this.createDbForCommunityMetadata()
     this.logger('5/5')
-    
+
     await this.initAllChannels()
 
     this.logger('Initialized DBs')
@@ -258,7 +258,7 @@ export class StorageService extends EventEmitter {
 
       const metadata = Object.values(this.communityMetadata.all)[0]
       this.certificatesStore.updateMetadata(metadata)
-      
+
       // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
       await this.communityMetadata.load({ fetchEntryTimeout: 15000 })
       this.emit(StorageEvents.REPLICATED_COMMUNITY_METADATA, metadata)

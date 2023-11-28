@@ -152,32 +152,34 @@ export class CertificatesStore {
       .collect()
       .map(e => e.payload.value)
 
-    const validCertificates = await Promise.all(allCertificates.map(async certificate => {
-      if (this.filteredCertificatesMapping.has(certificate)) {
-        return certificate // Only validate certificates
-      }
-
-      const validation = await this.validateCertificate(certificate)
-
-      if (validation) {
-        const parsedCertificate = parseCertificate(certificate)
-        const pubkey = keyFromCertificate(parsedCertificate)
-
-        const username = getCertFieldValue(parsedCertificate, CertFieldsTypes.nickName)
-
-        // @ts-expect-error
-        this.usernameMapping.set(pubkey, username)
-
-        const data: Partial<UserData> = {
-          // @ts-expect-error
-          username: username,
+    const validCertificates = await Promise.all(
+      allCertificates.map(async certificate => {
+        if (this.filteredCertificatesMapping.has(certificate)) {
+          return certificate // Only validate certificates
         }
 
-        this.filteredCertificatesMapping.set(certificate, data)
+        const validation = await this.validateCertificate(certificate)
 
-        return certificate
-      }
-    }))
+        if (validation) {
+          const parsedCertificate = parseCertificate(certificate)
+          const pubkey = keyFromCertificate(parsedCertificate)
+
+          const username = getCertFieldValue(parsedCertificate, CertFieldsTypes.nickName)
+
+          // @ts-expect-error
+          this.usernameMapping.set(pubkey, username)
+
+          const data: Partial<UserData> = {
+            // @ts-expect-error
+            username: username,
+          }
+
+          this.filteredCertificatesMapping.set(certificate, data)
+
+          return certificate
+        }
+      })
+    )
 
     return validCertificates.filter(i => i != undefined)
   }
