@@ -204,9 +204,8 @@ export class Tor extends EventEmitter implements OnModuleInit {
         reject(new Error("Can't spawn tor - no controlPort"))
         return
       }
-
       this.process = child_process.spawn(
-        this.torParamsProvider.torPath,
+        `"${this.torParamsProvider.torPath}"`,
         [
           '--SocksPort',
           this.socksPort.toString(),
@@ -222,7 +221,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
           this.torPasswordProvider.torHashedPassword,
           // ...this.torProcessParams
         ],
-        this.torParamsProvider.options
+        Object.assign(this.torParamsProvider.options, { shell: true })
       )
 
       this.process.stdout.on('data', (data: any) => {
