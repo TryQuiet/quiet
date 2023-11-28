@@ -3,13 +3,12 @@ import {
   CreateCommunityModal,
   DebugModeModal,
   JoinCommunityModal,
-  JoiningLoadingPanel,
   RegisterUsernameModal,
   App,
   Sidebar,
   WarningModal,
 } from '../selectors'
-import { capitalizeFirstLetter, composeInvitationDeepUrl, parseInvitationCode, userJoinedMessage } from '@quiet/common'
+import { composeInvitationDeepUrl, parseInvitationCode, userJoinedMessage } from '@quiet/common'
 import { execSync } from 'child_process'
 import { type SupportedPlatformDesktop } from '@quiet/types'
 
@@ -26,7 +25,7 @@ describe('New user joins using invitation link while having app opened', () => {
 
   beforeAll(async () => {
     ownerApp = new App()
-    guestApp = new App({ useDataDir: false })
+    guestApp = new App({ defaultDataDir: true })
   })
 
   beforeEach(async () => {
@@ -141,7 +140,9 @@ describe('New user joins using invitation link while having app opened', () => {
       const copiedCode = url.hash.substring(1)
       expect(() => parseInvitationCode(copiedCode)).not.toThrow()
       const data = parseInvitationCode(copiedCode)
-      execSync(`${command[process.platform as SupportedPlatformDesktop]} "${composeInvitationDeepUrl(data)}"`)
+      const commandFull = `${command[process.platform as SupportedPlatformDesktop]} "${composeInvitationDeepUrl(data)}"`
+      console.log(`Calling ${commandFull}`)
+      execSync(commandFull)
       console.log('Guest opened invitation link')
     })
 

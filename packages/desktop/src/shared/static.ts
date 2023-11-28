@@ -1,8 +1,5 @@
 import mirrorKey from 'keymirror'
 
-export const DEV_DATA_DIR = 'Quietdev'
-export const DATA_DIR = 'Quiet2'
-
 export const actionTypes = mirrorKey({
   SET_APP_VERSION: undefined,
 })
