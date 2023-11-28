@@ -3,49 +3,6 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-## [2.0.3-alpha.11](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@2.0.3-alpha.10...@quiet/mobile@2.0.3-alpha.11) (2023-11-24)
-
-**Note:** Version bump only for package @quiet/mobile
-
-
-
-
-
-## [2.0.3-alpha.10](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@2.0.3-alpha.9...@quiet/mobile@2.0.3-alpha.10) (2023-11-24)
-
-**Note:** Version bump only for package @quiet/mobile
-
-
-
-
-
-## [2.0.3-alpha.9](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@2.0.3-alpha.8...@quiet/mobile@2.0.3-alpha.9) (2023-11-22)
-
-
-### Features
-
-* trigger lerna ([4ca8195](https://github.com/TryQuiet/quiet/commit/4ca81958c57e88f172e0d78f055e9008a5a4a90a))
-
-
-
-
-
-## [2.0.3-alpha.8](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@2.0.3-alpha.7...@quiet/mobile@2.0.3-alpha.8) (2023-11-22)
-
-**Note:** Version bump only for package @quiet/mobile
-
-
-
-
-
-## [2.0.3-alpha.7](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@2.0.3-alpha.6...@quiet/mobile@2.0.3-alpha.7) (2023-11-21)
-
-**Note:** Version bump only for package @quiet/mobile
-
-
-
-
-
 ## [2.0.3-alpha.6](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@2.0.3-alpha.5...@quiet/mobile@2.0.3-alpha.6) (2023-11-14)
 
 **Note:** Version bump only for package @quiet/mobile
@@ -66,13 +23,11 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 ## [2.0.3-alpha.4](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@2.0.3-alpha.3...@quiet/mobile@2.0.3-alpha.4) (2023-11-13)
-## [1.10.10](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@1.10.9...@quiet/mobile@1.10.10) (2023-11-09)
 
 
 ### Features
 
 * bump versionCode ([104c656](https://github.com/TryQuiet/quiet/commit/104c6569805efecffcc23a801a8ba91a352966fe))
-* bump versionCode ([08af810](https://github.com/TryQuiet/quiet/commit/08af81032b533beaea800cf1fd53035616c9d5d8))
 
 
 
@@ -364,7 +319,6 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 # [1.11.0-alpha.0](/compare/@quiet/mobile@1.10.0...@quiet/mobile@1.11.0-alpha.0) (2023-08-29)
-## [1.10.9](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@1.10.8...@quiet/mobile@1.10.9) (2023-11-09)
 
 **Note:** Version bump only for package @quiet/mobile
 

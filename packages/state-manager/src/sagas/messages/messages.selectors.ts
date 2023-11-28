@@ -1,6 +1,6 @@
 import { createSelector } from 'reselect'
 import { channelMessagesAdapter } from '../publicChannels/publicChannels.adapter'
-import { currentChannelId, generalChannel } from '../publicChannels/publicChannels.selectors'
+import { currentChannelId } from '../publicChannels/publicChannels.selectors'
 import { StoreKeys } from '../store.keys'
 import { type CreatedSelectors, type StoreState } from '../store.types'
 import { allUsers } from '../users/users.selectors'

@@ -27,7 +27,6 @@ configure(() => {
   require('../src/components/DeleteChannel/DeleteChannel.stories')
   require('../src/components/QRCode/QRCode.stories')
   require('../src/components/Message/Message.stories')
-  require('../src/components/Notifier/Notifier.stories')
   require('../src/components/Chat/Chat.stories')
   require('../src/components/TextWithLink/TextWithLink.stories')
   require('../src/components/Typography/Typography.stories')

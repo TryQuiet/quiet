@@ -12,7 +12,7 @@ export const isCryptoEngineInitialized = createSelector(
 
 export const isWebsocketConnected = createSelector(initSlice, reducerState => reducerState.isWebsocketConnected)
 
-export const lastKnownSocketIOData = createSelector(initSlice, reducerState => reducerState.lastKnownSocketIOData)
+export const lastKnownDataPort = createSelector(initSlice, reducerState => reducerState.lastKnownDataPort)
 
 export const initDescription = createSelector(initSlice, reducerState => reducerState.initDescription)
 
@@ -27,7 +27,7 @@ export const ready = createSelector(initSlice, reducerState => reducerState.read
 export const initSelectors = {
   isCryptoEngineInitialized,
   isWebsocketConnected,
-  lastKnownSocketIOData,
+  lastKnownDataPort,
   initDescription,
   initChecks,
   deepLinking,

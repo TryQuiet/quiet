@@ -4,15 +4,15 @@ import { TestModule } from '../common/test.module'
 import { LocalDbModule } from './local-db.module'
 import { LocalDbService } from './local-db.service'
 import { LocalDBKeys } from './local-db.types'
-import { createLibp2pAddress } from '@quiet/common'
 
 describe('LocalDbService', () => {
   let module: TestingModule
   let localDbService: LocalDbService
+
+  let peer1Address: string
   let peer1Stats: Record<string, NetworkStats> = {}
-  let peer1ID: string
+  let peer2Address: string
   let peer2Stats: Record<string, NetworkStats> = {}
-  let peer2ID: string
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
@@ -20,18 +20,21 @@ describe('LocalDbService', () => {
     }).compile()
 
     localDbService = await module.resolve(LocalDbService)
-    peer1ID = 'QmaEvCkpUG7GxhgvMkk8wxurfi1ehjHhSUNRksWTmXN2ix'
+
+    peer1Address =
+      '/dns4/mxtsfs4kzxzuisrw4tumdmycbyerqwakx37kj6om6azcjdaasifxmoqd.onion/tcp/443/wss/p2p/QmaEvCkpUG7GxhgvMkk8wxurfi1ehjHhSUNRksWTmXN2ix'
     peer1Stats = {
-      [peer1ID]: {
-        peerId: peer1ID,
+      [peer1Address]: {
+        peerId: 'QmaEvCkpUG7GxhgvMkk8wxurfi1ehjHhSUNRksWTmXN2ix',
         connectionTime: 50,
         lastSeen: 1000,
       },
     }
-    peer2ID = 'QmZB6pVafcvAQfy5R5LxvDXvB8xcDifD39Lp3XGDM9XDuQ'
+    peer2Address =
+      '/dns4/hxr74a76b4lerhov75a6ha6yprruvow3wfu4qmmeoc6ajs7m7323lyid.onion/tcp/443/wss/p2p/QmZB6pVafcvAQfy5R5LxvDXvB8xcDifD39Lp3XGDM9XDuQ'
     peer2Stats = {
-      [peer2ID]: {
-        peerId: peer2ID,
+      [peer2Address]: {
+        peerId: 'QmZB6pVafcvAQfy5R5LxvDXvB8xcDifD39Lp3XGDM9XDuQ',
         connectionTime: 500,
         lastSeen: 500,
       },
@@ -68,28 +71,16 @@ describe('LocalDbService', () => {
     expect(localDbService.getStatus()).toEqual('closed')
   })
 
-  it('get sorted peers returns peers list if no stats in db', async () => {
-    const peers = [
-      createLibp2pAddress(
-        'zl37gnntp64dhnisddftypxbt5cqx6cum65vdv6oeaffrbqmemwc52ad.onion',
-        'QmPGdGDUV1PXaJky4V53KSvFszdqEcM7KCoDpF2uFPf5w6'
-      ),
-    ]
-    const sortedPeers = await localDbService.getSortedPeers(peers)
-    expect(sortedPeers).toEqual(peers)
-  })
-
   it('get sorted peers', async () => {
-    const peers = [
-      createLibp2pAddress('nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad.onion', peer2ID),
-      createLibp2pAddress('zl37gnntp64dhnisddftypxbt5cqx6cum65vdv6oeaffrbqmemwc52ad.onion', peer1ID),
+    const extraPeers = [
+      '/dns4/zl37gnntp64dhnisddftypxbt5cqx6cum65vdv6oeaffrbqmemwc52ad.onion/tcp/443/ws/p2p/QmPGdGDUV1PXaJky4V53KSvFszdqEcM7KCoDpF2uFPf5w6',
     ]
     await localDbService.put(LocalDBKeys.PEERS, {
       ...peer1Stats,
       ...peer2Stats,
     })
-    const sortedPeers = await localDbService.getSortedPeers(peers.reverse())
-    expect(sortedPeers).toEqual(peers)
+    const sortedPeers = await localDbService.getSortedPeers(extraPeers)
+    expect(sortedPeers).toEqual([peer1Address, peer2Address, extraPeers[0]])
   })
 
   it('updates nested object', async () => {
@@ -103,19 +94,19 @@ describe('LocalDbService', () => {
     })
 
     const peer2StatsUpdated: NetworkStats = {
-      peerId: peer2ID,
+      peerId: 'QmR7Qgd4tg2XrGD3kW647ZnYyazTwHQF3cqRBmSduhhusA',
       connectionTime: 777,
       lastSeen: 678,
     }
 
     await localDbService.update(LocalDBKeys.PEERS, {
-      [peer2StatsUpdated.peerId]: peer2StatsUpdated,
+      [peer2Address]: peer2StatsUpdated,
     })
 
     const updatedPeersDBdata = await localDbService.get(LocalDBKeys.PEERS)
     expect(updatedPeersDBdata).toEqual({
       ...peer1Stats,
-      [peer2StatsUpdated.peerId]: peer2StatsUpdated,
+      [peer2Address]: peer2StatsUpdated,
     })
   })
 })

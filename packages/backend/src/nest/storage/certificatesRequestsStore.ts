@@ -48,6 +48,8 @@ export class CertificatesRequestsStore {
 
     this.store.events.on('replicated', async () => {
       logger('Replicated CSRS')
+      // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
+      await this.store.load({ fetchEntryTimeout: 15000 })
 
       this.csrReplicatedPromiseId++
       const filteredCsrs = await this.getCsrs()
@@ -68,6 +70,8 @@ export class CertificatesRequestsStore {
       })
     })
 
+    // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
+    await this.store.load({ fetchEntryTimeout: 15000 })
     emitter.emit(StorageEvents.LOADED_USER_CSRS, {
       csrs: await this.getCsrs(),
       id: this.csrReplicatedPromiseId,
@@ -137,19 +141,17 @@ export class CertificatesRequestsStore {
     return validationErrors
   }
 
-  public async getCsrs() {
+  protected async getCsrs() {
     const filteredCsrsMap: Map<string, string> = new Map()
-    await this.store.load()
-    const allEntries = this.store
+
+    const allCsrs = this.store
       .iterator({ limit: -1 })
       .collect()
-      .map(e => {
-        return e.payload.value
-      })
-    const allCsrsUnique = [...new Set(allEntries)]
+      .map(e => e.payload.value)
     await Promise.all(
-      allCsrsUnique
+      allCsrs
         .filter(async csr => {
+          // const parsedCsr = await loadCSR(csr)
           const validation = await CertificatesRequestsStore.validateUserCsr(csr)
           if (validation) return true
           return false

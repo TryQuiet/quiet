@@ -11,7 +11,6 @@ import { initActions } from '../store/init/init.slice'
 import { take } from 'typed-redux-saga'
 import { navigationActions } from '../store/navigation/navigation.slice'
 import { validInvitationCodeTestData, getValidInvitationUrlTestData } from '@quiet/common'
-import { SplashRouteProp } from '../route.params'
 
 describe('Splash screen', () => {
   let socket: MockedSocket
@@ -27,11 +26,10 @@ describe('Splash screen', () => {
 
     const invitationCode = getValidInvitationUrlTestData(validInvitationCodeTestData[0]).code()
 
-    const route: SplashRouteProp = {
+    const route: { key: string; name: ScreenNames.SplashScreen; path: string } = {
       key: '',
       name: ScreenNames.SplashScreen,
       path: invitationCode,
-      params: {},
     }
 
     renderComponent(
@@ -49,7 +47,7 @@ describe('Splash screen', () => {
     expect(deepLink).toBe(true)
 
     await act(async () => {
-      store.dispatch(initActions.setWebsocketConnected({ dataPort: 5001, socketIOSecret: 'secret' }))
+      store.dispatch(initActions.setWebsocketConnected({ dataPort: 9700 }))
     })
 
     await act(async () => {

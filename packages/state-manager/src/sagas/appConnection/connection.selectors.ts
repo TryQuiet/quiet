@@ -7,7 +7,7 @@ import { peersStatsAdapter } from './connection.adapter'
 import { connectedPeers } from '../network/network.selectors'
 import { type NetworkStats } from './connection.types'
 import { type User } from '../users/users.types'
-import { filterAndSortPeers } from '@quiet/common'
+import { sortPeers } from '@quiet/common'
 
 const connectionSlice: CreatedSelectors[StoreKeys.Connection] = (state: StoreState) => state[StoreKeys.Connection]
 
@@ -18,8 +18,6 @@ export const torBootstrapProcess = createSelector(connectionSlice, reducerState 
 export const isTorInitialized = createSelector(connectionSlice, reducerState => reducerState.isTorInitialized)
 
 export const torConnectionProcess = createSelector(connectionSlice, reducerState => reducerState.torConnectionProcess)
-
-export const socketIOSecret = createSelector(connectionSlice, reducerState => reducerState.socketIOSecret)
 
 export const peerList = createSelector(
   connectionSlice,
@@ -35,7 +33,7 @@ export const peerList = createSelector(
       stats = peersStatsAdapter.getSelectors().selectAll(reducerState.peersStats)
     }
 
-    return filterAndSortPeers(arr, stats)
+    return sortPeers(arr, stats)
   }
 )
 
@@ -61,5 +59,4 @@ export const connectionSelectors = {
   torBootstrapProcess,
   torConnectionProcess,
   isTorInitialized,
-  socketIOSecret,
 }

@@ -2,11 +2,10 @@ import React, { FC } from 'react'
 import { TouchableWithoutFeedback, View } from 'react-native'
 import { ButtonProps } from './Button.types'
 import * as Progress from 'react-native-progress'
-
 import { Typography } from '../Typography/Typography.component'
 import { defaultTheme } from '../../styles/themes/default.theme'
 
-export const Button: FC<ButtonProps> = ({ onPress, title, width, loading, negative, disabled, newDesign }) => {
+export const Button: FC<ButtonProps> = ({ onPress, title, width, loading, negative, disabled }) => {
   return (
     <TouchableWithoutFeedback
       onPress={event => {
@@ -23,12 +22,12 @@ export const Button: FC<ButtonProps> = ({ onPress, title, width, loading, negati
           borderRadius: 8,
           justifyContent: 'center',
           alignItems: 'center',
-          minHeight: newDesign ? 50 : 45,
+          minHeight: 45,
           width,
         }}
       >
         {!loading ? (
-          <Typography fontSize={newDesign ? 16 : 14} color={!negative ? 'white' : 'gray50'}>
+          <Typography fontSize={14} color={!negative ? 'white' : 'gray50'}>
             {title}
           </Typography>
         ) : (

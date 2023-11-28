@@ -10,8 +10,8 @@ class CommunicationModule: RCTEventEmitter {
   static let WEBSOCKET_CONNECTION_CHANNEL = "_WEBSOCKET_CONNECTION_"
   
   @objc
-  func sendDataPort(port: UInt16, socketIOSecret: String) {
-    self.sendEvent(withName: CommunicationModule.BACKEND_EVENT_IDENTIFIER, body: ["channelName": CommunicationModule.WEBSOCKET_CONNECTION_CHANNEL, "payload": ["dataPort": port, "socketIOSecret": socketIOSecret]])
+  func sendDataPort(port: UInt16) {
+    self.sendEvent(withName: CommunicationModule.BACKEND_EVENT_IDENTIFIER, body: ["channelName": CommunicationModule.WEBSOCKET_CONNECTION_CHANNEL, "payload": ["dataPort": port]])
   }
   
   @objc

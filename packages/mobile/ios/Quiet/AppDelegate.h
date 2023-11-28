@@ -12,8 +12,6 @@
 
 @property uint16_t dataPort;
 
-@property NSString *socketIOSecret;
-
 @property NSString *dataPath;
 
 @property RCTBridge *bridge;

@@ -10,12 +10,10 @@ import { ContextMenuItemProps } from '../ContextMenu.types'
 
 import { useModal } from '../../../containers/hooks'
 import { ModalName } from '../../../sagas/modals/modals.types'
-import { exportChats } from '../../../../utils/functions/exportMessages'
 
 export const ChannelContextMenu: FC = () => {
   const community = useSelector(communities.selectors.currentCommunity)
   const channel = useSelector(publicChannels.selectors.currentChannel)
-  const channelMessages = useSelector(publicChannels.selectors.currentChannelMessagesMergedBySender)
 
   let title = ''
   if (channel) {
@@ -37,10 +35,6 @@ export const ChannelContextMenu: FC = () => {
           channelContextMenu.handleClose() // Dismiss context menu before displaying modal
           deleteChannelModal.handleOpen()
         },
-      },
-      {
-        title: 'Export messages',
-        action: () => channel && exportChats(channel?.name, channelMessages),
       },
     ]
   }

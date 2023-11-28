@@ -3,6 +3,10 @@ import { initSelectors } from '../init.selectors'
 import { initActions } from '../init.slice'
 
 export function* blindConnectionSaga(): Generator {
-  const lastKnownSocketIOData = yield* select(initSelectors.lastKnownSocketIOData)
-  yield* put(initActions.startWebsocketConnection(lastKnownSocketIOData))
+  const lastKnownDataPort = yield* select(initSelectors.lastKnownDataPort)
+  yield* put(
+    initActions.startWebsocketConnection({
+      dataPort: lastKnownDataPort,
+    })
+  )
 }

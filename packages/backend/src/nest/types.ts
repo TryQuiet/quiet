@@ -5,7 +5,6 @@ import { Server as SocketIO } from 'socket.io'
 export class ConnectionsManagerTypes {
   options: Partial<ConnectionsManagerOptions>
   socketIOPort: number
-  socketIOSecret: string
   httpTunnelPort?: number
   torAuthCookie?: string
   torControlPort?: number

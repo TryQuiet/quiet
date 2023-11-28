@@ -1,7 +1,6 @@
 import { type PayloadAction } from '@reduxjs/toolkit'
 import { put, select } from 'typed-redux-saga'
 import { type Socket } from '../../../types'
-import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import { communitiesSelectors } from '../communities.selectors'
 import { communitiesActions } from '../communities.slice'
 
@@ -23,6 +22,4 @@ export function* saveCommunityMetadataSaga(
       ownerCertificate: action.payload.ownerCertificate,
     })
   )
-
-  yield* put(publicChannelsActions.sendUnregisteredInfoMessage())
 }

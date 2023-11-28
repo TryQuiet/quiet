@@ -53,7 +53,6 @@ export const publicChannelsSlice = createSlice({
     createChannel: (state, _action: PayloadAction<CreateChannelPayload>) => state,
     deleteChannel: (state, _action: PayloadAction<DeleteChannelPayload>) => state,
     completeChannelDeletion: (state, _action) => state,
-    sendUnregisteredInfoMessage: state => state,
     channelDeletionResponse: (state, _action: PayloadAction<ChannelDeletionResponsePayload>) => state,
     deleteChannelFromStore: (state, action: PayloadAction<DeleteChannelFromStorePayload>) => {
       const { channelId } = action.payload

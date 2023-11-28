@@ -1,6 +1,5 @@
 export enum ModalName {
   applicationUpdate = 'applicationUpdate',
-  breakingChangesWarning = 'breakingChangesWarning',
   createChannel = 'createChannel',
   deleteChannel = 'deleteChannel',
   accountSettingsModal = 'accountSettingsModal',

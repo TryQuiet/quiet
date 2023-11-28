@@ -28,8 +28,6 @@ export const IPFS_REPO_PATCH = 'ipfsRepoPath'
 export const CONFIG_OPTIONS = 'configOptions'
 export const SERVER_IO_PROVIDER = 'serverIoProvider'
 
-export const PROCESS_IN_CHUNKS_PROVIDER = 'processInChunksProvider'
-
 export const EXPRESS_PROVIDER = 'expressProvider'
 
 export const LEVEL_DB = 'levelDb'

@@ -7,11 +7,11 @@ import { prepareStore } from './utils/prepareStore'
 import { renderComponent } from './utils/renderComponent'
 import { FactoryGirl } from 'factory-girl'
 import { getFactory, communities, identity, connection } from '@quiet/state-manager'
-import { ScreenNames } from '../const/ScreenNames.enum'
-import { ChannelListScreen } from '../screens/ChannelList/ChannelList.screen'
-import { ConnectionProcessScreen } from '../screens/ConnectionProcess/ConnectionProcess.screen'
+import ConnectionProcessScreen from '../screens/ConnectionProcess/ConnectionProcess.screen'
 import { UsernameRegistrationScreen } from '../screens/UsernameRegistration/UsernameRegistration.screen'
+import { ScreenNames } from '../const/ScreenNames.enum'
 import { ConnectionProcessInfo } from '@quiet/types'
+import { ChannelListScreen } from '../screens/ChannelList/ChannelList.screen'
 
 describe('Joining process', () => {
   let socket: MockedSocket

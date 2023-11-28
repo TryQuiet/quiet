@@ -1,5 +1,5 @@
 import { createSelector } from '@reduxjs/toolkit'
-import { getCertFieldValue, getReqFieldValue, keyFromCertificate } from '@quiet/identity'
+import { getCertFieldValue, getReqFieldValue } from '@quiet/identity'
 import { CertFieldsTypes } from './const/certFieldTypes'
 import { StoreKeys } from '../store.keys'
 import { certificatesAdapter } from './users.adapter'
@@ -120,8 +120,6 @@ export const allUsers = createSelector(csrsMapping, certificatesMapping, (csrs, 
   return users
 })
 
-export const getUserByPubKey = (pubKey: string) => createSelector(allUsers, users => users[pubKey])
-
 export const getOldestParsedCerificate = createSelector(certificates, certs => {
   const getTimestamp = (cert: Certificate) => new Date(cert.notBefore.value).getTime()
   let certificates: Certificate[] = []
@@ -138,19 +136,16 @@ export const getOldestParsedCerificate = createSelector(certificates, certs => {
 })
 
 export const ownerData = createSelector(getOldestParsedCerificate, ownerCert => {
-  if (!ownerCert) return null
   const username = getCertFieldValue(ownerCert, CertFieldsTypes.nickName)
   const onionAddress = getCertFieldValue(ownerCert, CertFieldsTypes.commonName)
   const peerId = getCertFieldValue(ownerCert, CertFieldsTypes.peerId)
   const dmPublicKey = getCertFieldValue(ownerCert, CertFieldsTypes.dmPublicKey)
-  const pubKey = keyFromCertificate(ownerCert)
 
   return {
     username,
     onionAddress,
     peerId,
     dmPublicKey,
-    pubKey,
   }
 })
 
@@ -169,5 +164,4 @@ export const usersSelectors = {
   ownerData,
   allUsers,
   duplicateCerts,
-  getUserByPubKey,
 }

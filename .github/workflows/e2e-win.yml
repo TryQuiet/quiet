@@ -3,7 +3,7 @@ name: E2E Windows
 on: [workflow_call]
 jobs:
   windows:
-    runs-on: windows-2019
+    runs-on: windows-latest-l
 
     timeout-minutes: 180
 
@@ -66,7 +66,7 @@ jobs:
         run: Start-Process "Quiet Setup ${{ steps.extract_version.outputs.version }}.exe" -Wait
         working-directory: ./packages/desktop/dist
         shell: powershell
-
+      
       - name: Check if Quiet installed properly
         run: Get-ChildItem -Path C:\Users\runneradmin\AppData\Local\Programs\@quietdesktop
         shell: powershell

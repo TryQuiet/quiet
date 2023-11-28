@@ -30,7 +30,7 @@ jobs:
 
     env:
       TEST_MODE: ${{ github.event.action == 'prereleased' }}
-      S3_BUCKET: ${{ github.event.action == 'released' && 'quiet.2.x' || 'test.quiet' }}
+      S3_BUCKET: ${{ github.event.action == 'released' && 'quiet' || 'test.quiet' }}
       CHECKSUM_PATH: ${{ github.event.action == 'released' && 'packages/desktop/dist/latest-linux.yml' || 'packages/desktop/dist/alpha-linux.yml' }}
 
     steps:
@@ -102,7 +102,7 @@ jobs:
 
     env:
       TEST_MODE: ${{ github.event.action == 'prereleased' }}
-      S3_BUCKET: ${{ github.event.action == 'released' && 'quiet.2.x' || 'test.quiet' }}
+      S3_BUCKET: ${{ github.event.action == 'released' && 'quiet' || 'test.quiet' }}
 
     steps:
       - uses: actions/checkout@v4
@@ -138,9 +138,8 @@ jobs:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           CSC_KEY_PASSWORD: ${{ secrets.MAC_CSC_KEY_PASSWORD }}
           CSC_LINK: ${{ secrets.MAC_CSC_LINK }}
-          APPLE_ID: ${{ secrets.APPLE_ID }}
-          APPLE_ID_PASS: ${{ secrets.APPLE_ID_PASS }}
-          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          APPLEID: ${{ secrets.APPLE_ID }}
+          APPLEIDPASS: ${{ secrets.APPLE_ID_PASS }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           USE_HARD_LINKS: false
@@ -176,7 +175,7 @@ jobs:
 
     env:
       TEST_MODE: ${{ github.event.action == 'prereleased' }}
-      S3_BUCKET: ${{ github.event.action == 'released' && 'quiet.2.x' || 'test.quiet' }}
+      S3_BUCKET: ${{ github.event.action == 'released' && 'quiet' || 'test.quiet' }}
 
     steps:
       - uses: actions/checkout@v4

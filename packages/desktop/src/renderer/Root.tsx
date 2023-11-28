@@ -33,8 +33,6 @@ import UnregisteredModalContainer from './components/widgets/userLabel/unregiste
 import DuplicateModalContainer from './components/widgets/userLabel/duplicate/DuplicateModal.container'
 import UsernameTakenModalContainer from './components/widgets/usernameTakenModal/UsernameTakenModal.container'
 import PossibleImpersonationAttackModalContainer from './components/widgets/possibleImpersonationAttackModal/PossibleImpersonationAttackModal.container'
-import BreakingChangesWarning from './containers/widgets/breakingChangesWarning/BreakingChangesWarning'
-// Trigger lerna
 
 export const persistor = persistStore(store)
 export default () => {
@@ -63,7 +61,6 @@ export default () => {
                 <CssBaseline />
                 <SettingsModal />
                 <UpdateModal />
-                <BreakingChangesWarning />
                 <QuitAppDialog />
                 <ChannelContextMenu />
                 <DeleteChannel />

@@ -102,8 +102,6 @@ setEngine(
   })
 )
 
-const SOCKET_IO_SECRET = webcrypto.getRandomValues(new Uint32Array(5)).join('')
-
 export const isBrowserWindow = (window: BrowserWindow | null): window is BrowserWindow => {
   return window instanceof BrowserWindow
 }
@@ -210,7 +208,7 @@ export const createWindow = async () => {
   mainWindow.loadURL(
     url.format({
       pathname: path.join(__dirname, './index.html'),
-      search: `dataPort=${ports.dataServer}&socketIOSecret=${SOCKET_IO_SECRET}`,
+      search: `dataPort=${ports.dataServer}`,
       protocol: 'file:',
       slashes: true,
       hash: '/',
@@ -335,7 +333,6 @@ app.on('ready', async () => {
   await createWindow()
 
   mainWindow?.webContents.on('did-finish-load', () => {
-    mainWindow?.webContents.send('socketIOSecret', SOCKET_IO_SECRET)
     if (splash && !splash.isDestroyed()) {
       const [width, height] = splash.getSize()
       mainWindow?.setSize(width, height)
@@ -368,8 +365,6 @@ app.on('ready', async () => {
     `${process.resourcesPath}`,
     '-p',
     'desktop',
-    '-scrt',
-    `${SOCKET_IO_SECRET}`,
   ]
 
   const backendBundlePath = path.normalize(require.resolve('backend-bundle'))

@@ -23,11 +23,11 @@ describe('communitiesSelectors', () => {
   it('select peers sorted by quality', async () => {
     community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community', {
       peerList: [
-        '/dns4/ubapl2lfxci5cc35oegshdsjhlt656xo6vbmztpb2ndb6ftqjjuv5myd.onion/tcp/443/ws/p2p/QmQEk68gnPTRhfBvRAPWXjjXjPydV1MvvZGGJF7W7w2Sv5',
-        '/dns4/rjdhzqgrl3bzu4v5cwfla3tafjtdeuzeapk34qvf7mvfhc3hih5fmnqd.onion/tcp/443/ws/p2p/QmbrDuN2oCb8G2e1ajRzpfnALGbeFDYFSoVCBhUYGLSeRD',
-        '/dns4/kkzkv2u53aehfjz7mqgnt3mp2hemcr2h74vtmxpxuh4a5yna7kltsiqd.onion/tcp/443/ws/p2p/QmeiKGmfD64o3sTt6T4PVyvp1hnJ42Zki754rQgYr6fSnN',
-        '/dns4/hricycxramxkn4v46b3pllnozfop6fkl7xdfk2htboe3zakhq3ephjid.onion/tcp/443/ws/p2p/QmTjQLMxJq74yXWBabh1VM8hZsRNhci4wfbVz6vFhLH5am',
-        '/dns4/f3lupwnhaqplbn4djaut5rtipwmlotlb57flfvjzgexek2yezlpjddid.onion/tcp/443/ws/p2p/Qmd35TsAvtskei8zWY3A65ifNWcY4x4SdqkQDHMkH5xPF9',
+        '/dns4/ubapl2lfxci5cc35oegshdsjhlt656xo6vbmztpb2ndb6ftqjjuv5myd.onion/tcp/443/wss/p2p/QmQEk68gnPTRhfBvRAPWXjjXjPydV1MvvZGGJF7W7w2Sv5',
+        '/dns4/rjdhzqgrl3bzu4v5cwfla3tafjtdeuzeapk34qvf7mvfhc3hih5fmnqd.onion/tcp/443/wss/p2p/QmbrDuN2oCb8G2e1ajRzpfnALGbeFDYFSoVCBhUYGLSeRD',
+        '/dns4/kkzkv2u53aehfjz7mqgnt3mp2hemcr2h74vtmxpxuh4a5yna7kltsiqd.onion/tcp/443/wss/p2p/QmeiKGmfD64o3sTt6T4PVyvp1hnJ42Zki754rQgYr6fSnN',
+        '/dns4/hricycxramxkn4v46b3pllnozfop6fkl7xdfk2htboe3zakhq3ephjid.onion/tcp/443/wss/p2p/QmTjQLMxJq74yXWBabh1VM8hZsRNhci4wfbVz6vFhLH5am',
+        '/dns4/f3lupwnhaqplbn4djaut5rtipwmlotlb57flfvjzgexek2yezlpjddid.onion/tcp/443/wss/p2p/Qmd35TsAvtskei8zWY3A65ifNWcY4x4SdqkQDHMkH5xPF9',
       ],
     })
 
@@ -68,27 +68,14 @@ describe('communitiesSelectors', () => {
     )
 
     const expectedArray = [
-      '/dns4/f3lupwnhaqplbn4djaut5rtipwmlotlb57flfvjzgexek2yezlpjddid.onion/tcp/443/ws/p2p/Qmd35TsAvtskei8zWY3A65ifNWcY4x4SdqkQDHMkH5xPF9',
-      '/dns4/ubapl2lfxci5cc35oegshdsjhlt656xo6vbmztpb2ndb6ftqjjuv5myd.onion/tcp/443/ws/p2p/QmQEk68gnPTRhfBvRAPWXjjXjPydV1MvvZGGJF7W7w2Sv5',
-      '/dns4/rjdhzqgrl3bzu4v5cwfla3tafjtdeuzeapk34qvf7mvfhc3hih5fmnqd.onion/tcp/443/ws/p2p/QmbrDuN2oCb8G2e1ajRzpfnALGbeFDYFSoVCBhUYGLSeRD',
-      '/dns4/hricycxramxkn4v46b3pllnozfop6fkl7xdfk2htboe3zakhq3ephjid.onion/tcp/443/ws/p2p/QmTjQLMxJq74yXWBabh1VM8hZsRNhci4wfbVz6vFhLH5am',
-      '/dns4/kkzkv2u53aehfjz7mqgnt3mp2hemcr2h74vtmxpxuh4a5yna7kltsiqd.onion/tcp/443/ws/p2p/QmeiKGmfD64o3sTt6T4PVyvp1hnJ42Zki754rQgYr6fSnN',
+      '/dns4/f3lupwnhaqplbn4djaut5rtipwmlotlb57flfvjzgexek2yezlpjddid.onion/tcp/443/wss/p2p/Qmd35TsAvtskei8zWY3A65ifNWcY4x4SdqkQDHMkH5xPF9',
+      '/dns4/ubapl2lfxci5cc35oegshdsjhlt656xo6vbmztpb2ndb6ftqjjuv5myd.onion/tcp/443/wss/p2p/QmQEk68gnPTRhfBvRAPWXjjXjPydV1MvvZGGJF7W7w2Sv5',
+      '/dns4/rjdhzqgrl3bzu4v5cwfla3tafjtdeuzeapk34qvf7mvfhc3hih5fmnqd.onion/tcp/443/wss/p2p/QmbrDuN2oCb8G2e1ajRzpfnALGbeFDYFSoVCBhUYGLSeRD',
+      '/dns4/hricycxramxkn4v46b3pllnozfop6fkl7xdfk2htboe3zakhq3ephjid.onion/tcp/443/wss/p2p/QmTjQLMxJq74yXWBabh1VM8hZsRNhci4wfbVz6vFhLH5am',
+      '/dns4/kkzkv2u53aehfjz7mqgnt3mp2hemcr2h74vtmxpxuh4a5yna7kltsiqd.onion/tcp/443/wss/p2p/QmeiKGmfD64o3sTt6T4PVyvp1hnJ42Zki754rQgYr6fSnN',
     ]
 
     const peersList = connectionSelectors.peerList(store.getState())
     expect(peersList).toMatchObject(expectedArray)
-  })
-
-  it('select socketIOSecret', async () => {
-    const secret = 'secret'
-    const socketIOSecret = connectionSelectors.socketIOSecret(store.getState())
-
-    expect(socketIOSecret).toBeNull()
-
-    store.dispatch(connectionActions.setSocketIOSecret(secret))
-
-    const socketIOSecret2 = connectionSelectors.socketIOSecret(store.getState())
-
-    expect(socketIOSecret2).toEqual(secret)
   })
 })

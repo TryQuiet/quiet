@@ -11,9 +11,8 @@ import { type PermsData } from '@quiet/types'
 import { TestConfig } from '../const'
 import logger from './logger'
 import { Libp2pNodeParams } from '../libp2p/libp2p.types'
-import { createLibp2pAddress, createLibp2pListenAddress, isDefined } from '@quiet/common'
+import { createLibp2pAddress, createLibp2pListenAddress } from '@quiet/common'
 import { Libp2pService } from '../libp2p/libp2p.service'
-import { CertFieldsTypes, getReqFieldValue, loadCSR } from '@quiet/identity'
 
 const log = logger('test')
 
@@ -152,20 +151,6 @@ export const getUsersAddresses = async (users: UserData[]): Promise<string[]> =>
   })
 
   return await Promise.all(peers)
-}
-
-export const getLibp2pAddressesFromCsrs = async (csrs: string[]): Promise<string[]> => {
-  const addresses = await Promise.all(
-    csrs.map(async csr => {
-      const parsedCsr = await loadCSR(csr)
-      const peerId = getReqFieldValue(parsedCsr, CertFieldsTypes.peerId)
-      const onionAddress = getReqFieldValue(parsedCsr, CertFieldsTypes.commonName)
-      if (!peerId || !onionAddress) return
-
-      return createLibp2pAddress(onionAddress, peerId)
-    })
-  )
-  return addresses.filter(isDefined)
 }
 
 /**

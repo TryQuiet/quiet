@@ -29,12 +29,11 @@ describe('deleteChannelSaga', () => {
   let generalChannel: PublicChannel
 
   let ownerData: {
-    username: string | null
-    onionAddress: string | null
-    peerId: string | null
-    dmPublicKey: string | null
-    pubKey: string
-  } | null
+    peerId: any
+    username?: string | null
+    onionAddress?: string | null
+    dmPublicKey?: string | null
+  }
 
   const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
 
@@ -80,7 +79,7 @@ describe('deleteChannelSaga', () => {
         SocketActionTypes.DELETE_CHANNEL,
         {
           channelId,
-          ownerPeerId: ownerData?.peerId,
+          ownerPeerId: ownerData.peerId,
         },
       ])
       .put(publicChannelsActions.setCurrentChannel({ channelId: generalChannel.id }))
@@ -99,7 +98,7 @@ describe('deleteChannelSaga', () => {
         SocketActionTypes.DELETE_CHANNEL,
         {
           channelId,
-          ownerPeerId: ownerData?.peerId,
+          ownerPeerId: ownerData.peerId,
         },
       ])
       .put(filesActions.deleteFilesFromChannel({ channelId }))
@@ -118,7 +117,7 @@ describe('deleteChannelSaga', () => {
         SocketActionTypes.DELETE_CHANNEL,
         {
           channelId,
-          ownerPeerId: ownerData?.peerId,
+          ownerPeerId: ownerData.peerId,
         },
       ])
       .not.put(publicChannelsActions.setCurrentChannel({ channelId: generalChannel.id }))
@@ -137,7 +136,7 @@ describe('deleteChannelSaga', () => {
         SocketActionTypes.DELETE_CHANNEL,
         {
           channelId,
-          ownerPeerId: ownerData?.peerId,
+          ownerPeerId: ownerData.peerId,
         },
       ])
       .put(publicChannelsActions.disableChannel({ channelId }))
