@@ -354,6 +354,21 @@ describe('StorageService', () => {
       })
     })
 
+    it('Certificates and peers list are updated on write event', async () => {
+      await storageService.init(peerId)
+
+      const eventSpy = jest.spyOn(storageService, 'emit')
+
+      const spyOnUpdatePeersList = jest.spyOn(storageService, 'updatePeersList')
+
+      storageService.certificatesStore.store.events.emit('write', 'address', { payload: { value: 'something' } }, [])
+
+      await waitForExpect(() => {
+        expect(eventSpy).toBeCalledWith(StorageEvents.REPLICATED_CERTIFICATES, { certificates: [] })
+        expect(spyOnUpdatePeersList).toBeCalled()
+      })
+    })
+
     it.each(['write', 'replicate.progress'])(
       'The message is verified valid on "%s" db event',
       async (eventName: string) => {
@@ -453,18 +468,6 @@ describe('StorageService', () => {
         })
       }
     )
-
-    it.skip('Certificates and peers list are updated on write event', async () => {
-      await storageService.init(peerId)
-      const eventSpy = jest.spyOn(storageService, 'emit')
-      const spyOnUpdatePeersList = jest.spyOn(storageService, 'updatePeersList')
-      storageService.certificatesStore.store.events.emit('write', 'address', { payload: { value: 'something' } }, [])
-
-      expect(eventSpy).toBeCalledWith(StorageEvents.REPLICATED_CERTIFICATES, {
-        certificates: [],
-      })
-      expect(spyOnUpdatePeersList).toBeCalled()
-    })
   })
 
   describe('Message access controller', () => {
