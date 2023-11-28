@@ -46,6 +46,8 @@ const validCertificates: CertificateData[] = [
   },
 ]
 
+const foreignCertificate = "MIIDezCCAyCgAwIBAgIGAYwV+8kZMAoGCCqGSM49BAMCMBQxEjAQBgNVBAMTCWV4cGxvcmVyczAeFw0yMzExMjgxMjUxMTFaFw0zMDAxMzEyMzAwMDBaMEkxRzBFBgNVBAMTPnJ2azZkbmJ0Y2hucmpyczN4aml6ZnR3ZTJ3M3ZhMmttZTRsNjdkcmhvcG9pdnZxcjc3NWlwYnlkLm9uaW9uMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEx+78UmEHMbmBGP/9qnG2traRP3+38Aa5DpDQ/wQmEL0rkv/w3yZuCQRuUlna+NxeQq7zPO+lU5bx1/0jHY2fD6OCAicwggIjMAkGA1UdEwQCMAAwCwYDVR0PBAQDAgCAMB0GA1UdJQQWMBQGCCsGAQUFBwMCBggrBgEFBQcDATCCAUcGCSqGSIb3DQEJDASCATgEggE0JYcYxDr6VMiwA7g5BECx3lw2hQxFy0v2eB5SKSpadSGvI3en3sE/RQYq8jPn9az/zKDu4IzPZ9/wd+/OwvVPx8ZpfWy7JhOZXX6a3DSvtQo0VvWhDdMG4ruHp8W7+FOtvVRzp7kOz+JDIqL90s7GxC+IcN4lMgZVpnLmfHruuAd/Q88C6RGoS9NwGs+gSeWhcQfxQrUxY+e5TaJoaZAidNjZJdPt+pLxXi8lBr6ASc7UoHK5ZUf9UdzeoWLmIx+P2ihC/KtT+oHPZ1ovzFVRpXWK15/OX37uLCZzUBw3+VB0yH/KZ1ahieysksEZiQ+i3BYLzu5p1ofvZrLw62Py6S8Cwk7+Bn+Nh5Vq8zwvxx/xoM10fxTL6zzACMSvANOXEBvY2V7/yB9P7z6ngruGVHBPUPwwFQYKKwYBBAGDjBsCAQQHEwVkb3VnaDA9BgkrBgECAQ8DAQEEMBMuUW1jaW1iZHhjQTdSTWtVYXY5cXg1Nm9Ma1NGZUZTWlJ4SGNwYkF5ZEhCUm5paDBJBgNVHREEQjBAgj5ydms2ZG5idGNobnJqcnMzeGppemZ0d2UydzN2YTJrbWU0bDY3ZHJob3BvaXZ2cXI3NzVpcGJ5ZC5vbmlvbjAKBggqhkjOPQQDAgNJADBGAiEAwHKTNCKgVpOpCrTQXvIl9kfQ95VCnwW/pLMSgKPEQq0CIQD1w45OPg+nWHC+oKhe0pRb4GGH9oV0ZwonC8oFPa4Pjw=="
+
 describe('CertificatesStore', () => {
   let ipfs: IPFS
   let orbitdb: OrbitDB
@@ -82,7 +84,7 @@ describe('CertificatesStore', () => {
     expect(metadata).not.toEqual(null)
   })
 
-  test('validate certificate against root certificate', async () => {
+  test('validate certificate against root certificate (positive case)', async () => {
     const { certificate } = validCertificates[1]
 
     store.updateMetadata(communityMetadata)
@@ -91,6 +93,17 @@ describe('CertificatesStore', () => {
     const res = await store.validateCertificateAuthority(certificate)
 
     expect(res).toBeTruthy()
+  })
+
+  test('validate certificate against root certificate (negative case)', async () => {
+    const certificate = foreignCertificate
+
+    store.updateMetadata(communityMetadata)
+
+    // @ts-expect-error - validateCertificate is private
+    const res = await store.validateCertificateAuthority(certificate)
+
+    expect(res).toBeFalsy()
   })
 
   test('validates certificate format properly (positive case)', async () => {
