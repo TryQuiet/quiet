@@ -8,7 +8,7 @@ import { setEngine, CryptoEngine } from 'pkijs'
 import { EventEmitter } from 'events'
 import getPort from 'get-port'
 import PeerId from 'peer-id'
-import { removeFilesFromDir } from '../common/utils'
+import { getLibp2pAddressesFromCsrs, removeFilesFromDir } from '../common/utils'
 
 import {
   AskForMessagesPayload,
@@ -157,9 +157,10 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.logger('launchCommunityFromStorage')
 
     const community: InitCommunityPayload = await this.localDbService.get(LocalDBKeys.COMMUNITY)
-    this.logger('launchCommunityFromStorage - community:', community?.id)
+    this.logger('launchCommunityFromStorage - community peers', community?.peers)
     if (community) {
       const sortedPeers = await this.localDbService.getSortedPeers(community.peers)
+      this.logger('launchCommunityFromStorage - sorted peers', sortedPeers)
       if (sortedPeers.length > 0) {
         community.peers = sortedPeers
       }
@@ -191,9 +192,9 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       this.logger('Closing local storage')
       await this.localDbService.close()
     }
-    if (this.libp2pService?.libp2pInstance) {
+    if (this.libp2pService) {
       this.logger('Stopping libp2p')
-      await this.libp2pService.libp2pInstance.stop()
+      await this.libp2pService.close()
     }
   }
 
@@ -208,22 +209,24 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
   public async leaveCommunity() {
     this.tor.resetHiddenServices()
-    this.serverIoProvider.io.close()
+    this.closeSocket()
     await this.localDbService.purge()
     await this.closeAllServices({ saveTor: true })
     await this.purgeData()
-    this.communityId = ''
-    this.ports = { ...this.ports, libp2pHiddenService: await getPort() }
-    this.libp2pService.libp2pInstance = null
-    this.libp2pService.connectedPeers = new Map()
-    this.communityState = ServiceState.DEFAULT
-    this.registrarState = ServiceState.DEFAULT
+    await this.resetState()
     await this.localDbService.open()
     await this.socketService.init()
   }
 
+  async resetState() {
+    this.communityId = ''
+    this.ports = { ...this.ports, libp2pHiddenService: await getPort() }
+    this.communityState = ServiceState.DEFAULT
+    this.registrarState = ServiceState.DEFAULT
+  }
+
   public async purgeData() {
-    console.log('removing data')
+    this.logger('Purging community data')
     const dirsToRemove = fs
       .readdirSync(this.quietDir)
       .filter(
@@ -601,7 +604,8 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.storageService.on(
       StorageEvents.REPLICATED_CSR,
       async (payload: { csrs: string[]; certificates: string[]; id: string }) => {
-        console.log(`Storage - ${StorageEvents.REPLICATED_CSR}`)
+        this.logger(`Storage - ${StorageEvents.REPLICATED_CSR}`)
+        this.libp2pService.emit(Libp2pEvents.DIAL_PEERS, await getLibp2pAddressesFromCsrs(payload.csrs))
         this.serverIoProvider.io.emit(SocketActionTypes.RESPONSE_GET_CSRS, { csrs: payload.csrs })
         this.registrationService.emit(RegistrationEvents.REGISTER_USER_CERTIFICATE, payload)
       }

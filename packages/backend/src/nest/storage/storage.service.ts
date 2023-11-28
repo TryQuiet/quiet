@@ -25,6 +25,7 @@ import {
   ConnectionProcessInfo,
   DeleteFilesFromChannelSocketPayload,
   FileMetadata,
+  InitCommunityPayload,
   NoCryptoEngineError,
   PublicChannel,
   PushNotificationPayload,
@@ -341,8 +342,7 @@ export class StorageService extends EventEmitter {
   }
 
   public async updatePeersList() {
-    const users = this.getAllUsers()
-    const peers = users.map(peer => createLibp2pAddress(peer.onionAddress, peer.peerId))
+    const peers = this.getAllUsers()
     console.log('updatePeersList, peers count:', peers.length)
     const community = await this.localDbService.get(LocalDBKeys.COMMUNITY)
     this.emit(StorageEvents.UPDATE_PEERS_LIST, { communityId: community.id, peerList: peers })

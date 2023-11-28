@@ -34,7 +34,7 @@ export function* deleteChannelSaga(
     socket.emit,
     applyEmitParams(SocketActionTypes.DELETE_CHANNEL, {
       channelId,
-      ownerPeerId: ownerData.peerId,
+      ownerPeerId: ownerData?.peerId,
     })
   )
 
