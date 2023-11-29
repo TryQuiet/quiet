@@ -1,5 +1,4 @@
 import React from 'react'
-
 import { renderComponent } from '../../utils/functions/renderComponent/renderComponent'
 import { ChannelList } from './ChannelList.component'
 
