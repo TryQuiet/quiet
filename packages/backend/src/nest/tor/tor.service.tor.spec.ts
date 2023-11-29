@@ -19,7 +19,9 @@ describe('TorControl', () => {
   let tmpDir: DirResult
   let tmpAppDataPath: string
 
-  const torPassword = crypto.randomBytes(16).toString('hex')
+  const torPassword = 'b5e447c10b0d99e7871636ee5e0839b5'
+  const torHashedPassword = '16:FCFFE21F3D9138906021FAADD9E49703CC41848A95F829E0F6E1BDBE63'
+
 
   beforeEach(async () => {
     jest.clearAllMocks()
@@ -29,7 +31,7 @@ describe('TorControl', () => {
       imports: [TestModule, TorModule],
     })
       .overrideProvider(TOR_PASSWORD_PROVIDER)
-      .useValue({ torPassword: torPassword, torHashedPassword: '' })
+      .useValue({ torPassword, torHashedPassword })
       .overrideProvider(TOR_PARAMS_PROVIDER)
       .useValue({
         torPath: torBinForPlatform(),
