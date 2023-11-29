@@ -46,7 +46,7 @@ export const ConnectionProcessScreen: FC = () => {
     const areChannelsLoaded = channels.length > 0
     const areCertificatesLoaded = Object.values(certificatesMapping).length > 0
     const isAllDataLoaded = areChannelsLoaded && areCertificatesLoaded
-
+    console.log({ isCommunityInitialized, areMessagesLoaded, isAllDataLoaded })
     if (isCommunityInitialized && areMessagesLoaded && isAllDataLoaded) {
       dispatch(
         navigationActions.replaceScreen({
