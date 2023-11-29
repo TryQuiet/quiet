@@ -492,9 +492,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         privKey: args.rootKeyString,
       }
     })
-    this.socketService.on(SocketActionTypes.SEND_COMMUNITY_METADATA, async (payload: CommunityMetadata) => {
-      const meta = await this.storageService?.communityMetadataStore?.updateCommunityMetadata(payload)
-    })
     this.socketService.on(SocketActionTypes.SAVE_USER_CSR, async (payload: SaveCSRPayload) => {
       this.logger(`socketService - ${SocketActionTypes.SAVE_USER_CSR}`)
       await this.storageService?.saveCSR(payload)
@@ -621,8 +618,14 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         this.registrationService.emit(RegistrationEvents.REGISTER_USER_CERTIFICATE, payload)
       }
     )
-    this.storageService.on(StorageEvents.COMMUNITY_METADATA_SAVED, (meta: CommunityMetadata) => {
+
+    this.socketService.on(SocketActionTypes.SEND_COMMUNITY_METADATA, async (payload: CommunityMetadata) => {
+      const meta = await this.storageService?.communityMetadataStore?.updateCommunityMetadata(payload)
+    })
+
+    this.storageService.on(StorageEvents.COMMUNITY_METADATA_SAVED, async (meta: CommunityMetadata) => {
       this.logger(`Storage - ${StorageEvents.COMMUNITY_METADATA_SAVED}: ${meta}`)
+      await this.storageService?.certificatesStore?.updateMetadata(meta)
       this.serverIoProvider.io.emit(SocketActionTypes.COMMUNITY_METADATA_SAVED, meta)
     })
   }

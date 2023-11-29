@@ -1,16 +1,10 @@
-import { Injectable } from '@nestjs/common'
 import { EventEmitter } from 'events'
 import KeyValueStore from 'orbit-db-kvstore'
 import OrbitDB from 'orbit-db'
-import { getCrypto, ICryptoEngine } from 'pkijs'
-import { sha256 } from 'multiformats/hashes/sha2'
-import { stringToArrayBuffer } from 'pvutils'
-import * as Block from 'multiformats/block'
-import * as dagCbor from '@ipld/dag-cbor'
 import { IdentityProvider } from 'orbit-db-identity-provider'
 
-import { CommunityMetadata, NoCryptoEngineError } from '@quiet/types'
-import { keyFromCertificate, keyObjectFromString, loadCertificate } from '@quiet/identity'
+import { CommunityMetadata } from '@quiet/types'
+import { loadCertificate } from '@quiet/identity'
 
 import { StorageEvents } from '../storage.types'
 import createLogger from '../../common/logger'
@@ -36,13 +30,6 @@ export class CommunityMetadataStore {
   public orbitDb: OrbitDB
   public store: KeyValueStore<CommunityMetadata>
   private localDbService: LocalDbService
-
-  // Copying OrbitDB by using dag-cbor/sha256 for converting the
-  // profile to a byte array for signing:
-  // https://github.com/orbitdb/orbitdb/blob/3eee148510110a7b698036488c70c5c78f868cd9/src/oplog/entry.js#L75-L76
-  // I think any encoding would work here.
-  public static readonly codec = dagCbor
-  public static readonly hasher = sha256
 
   constructor() {}
 
@@ -141,9 +128,17 @@ export class CommunityMetadataStore {
         ...newMeta,
         ownerOrbitDbIdentity,
       }
-      await this.store.put(meta.id, meta)
 
+      // putOwnerOrbitDbIdentity goes before store.put because the
+      // store's KeyValueIndex calls getOwnerOrbitDbIdentity
       this.localDbService.putOwnerOrbitDbIdentity(ownerOrbitDbIdentity)
+
+      // FIXME: I think potentially there is a subtle developer
+      // experience bug here. Internally OrbitDB will call
+      // validateCommunityMetadataEntry and so validation may pass in
+      // this method, but still the entry is not added to the internal
+      // index. How can we detect that?
+      await this.store.put(meta.id, meta)
 
       return meta
     } catch (err) {
@@ -156,11 +151,6 @@ export class CommunityMetadataStore {
     // contains required fields.
 
     try {
-      const crypto = getCrypto()
-      if (!crypto) {
-        throw new NoCryptoEngineError()
-      }
-
       // TODO: Should we sign community metadata with root private key
       // and verify? I'm not sure it matters that much.
 
@@ -187,6 +177,11 @@ export class CommunityMetadataStore {
       }
 
       const ownerOrbitDbIdentity = await localDbService.getOwnerOrbitDbIdentity()
+      if (!ownerOrbitDbIdentity) {
+        logger.error('Failed to verify community metadata entry:', entry.hash, 'owner identity is invalid')
+        return false
+      }
+
       if (entry.identity.id !== ownerOrbitDbIdentity) {
         logger.error('Failed to verify community metadata entry:', entry.hash, 'entry identity != owner identity')
         return false

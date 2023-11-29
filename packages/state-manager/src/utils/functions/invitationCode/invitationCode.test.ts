@@ -38,7 +38,9 @@ describe('Invitation code helper', () => {
   })
 
   it('retrieves invitation code if url is a proper code', () => {
-    const result = getInvitationCodes(`${peerId1}=${address1}&${peerId2}=${address2}&${PSK_PARAM_KEY}=${encodedPsk}&${OWNER_ORBIT_DB_IDENTITY_PARAM_KEY}=${encodedOwnerOrbitDbIdentity}`)
+    const result = getInvitationCodes(
+      `${peerId1}=${address1}&${peerId2}=${address2}&${PSK_PARAM_KEY}=${encodedPsk}&${OWNER_ORBIT_DB_IDENTITY_PARAM_KEY}=${encodedOwnerOrbitDbIdentity}`
+    )
     expect(result).toEqual({
       pairs: [
         { peerId: peerId1, onionAddress: address1 },
@@ -50,7 +52,9 @@ describe('Invitation code helper', () => {
   })
 
   it('retrieves invitation code if url is a proper code', () => {
-    const result = getInvitationCodes(`${peerId1}=${address1}&${peerId2}=${address2}&${PSK_PARAM_KEY}=${encodedPsk}&${OWNER_ORBIT_DB_IDENTITY_PARAM_KEY}=${encodedOwnerOrbitDbIdentity}`)
+    const result = getInvitationCodes(
+      `${peerId1}=${address1}&${peerId2}=${address2}&${PSK_PARAM_KEY}=${encodedPsk}&${OWNER_ORBIT_DB_IDENTITY_PARAM_KEY}=${encodedOwnerOrbitDbIdentity}`
+    )
     expect(result).toEqual({
       pairs: [
         { peerId: peerId1, onionAddress: address1 },

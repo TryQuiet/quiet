@@ -1,32 +1,24 @@
 import { jest, beforeEach, describe, it, expect, afterEach, beforeAll, test } from '@jest/globals'
 import OrbitDB from 'orbit-db'
+import fs from 'fs'
 import { EventEmitter } from 'events'
 import { IdentityProvider } from 'orbit-db-identity-provider'
+import { create, IPFS } from 'ipfs-core'
 
 import { CommunityMetadataStore } from './communityMetadata.store'
 import { LocalDbService } from '../../local-db/local-db.service'
+import { TestConfig } from '../../const'
 
-const mockOrbitDbStore = {
-  load: jest.fn(),
-  get: jest.fn(),
-  put: jest.fn(),
-  events: { on: jest.fn() },
-  all: {},
+const createOrbitDbInstance = async () => {
+   const ipfs: IPFS = await create()
+   // @ts-ignore
+   const orbitDb = await OrbitDB.createInstance(ipfs, {
+     directory: TestConfig.ORBIT_DB_DIR,
+   })
+
+   return { orbitDb, ipfs }
 }
-const mockOrbitDb = {
-  identity: { id: 'theOwnerId', provider: jest.fn() },
-  keyvalue: jest.fn(
-    (): {
-      load: jest.Mock
-      get: jest.Mock
-      put: jest.Mock
-      events: { on: jest.Mock }
-      all: object
-    } => {
-      return mockOrbitDbStore
-    }
-  ),
-}
+
 const mockLocalDbService = { putOwnerOrbitDbIdentity: jest.fn(), getOwnerOrbitDbIdentity: jest.fn(() => 'theOwnerId') }
 const mockEmitter = { emit: jest.fn() }
 
@@ -68,17 +60,43 @@ const entryValid = {
 }
 
 describe('CommmunityMetadataStore/updateCommunityMetadata', () => {
-  test('updates community metadata if the metadata is valid', async () => {
-    const store = new CommunityMetadataStore()
+  let ipfs: IPFS
+  let orbitDb: OrbitDB
+  let store: CommunityMetadataStore
+
+  beforeEach(async () => {
+    ;({ orbitDb, ipfs } = await createOrbitDbInstance())
+    store = new CommunityMetadataStore()
     await store.init(
-      mockOrbitDb as unknown as OrbitDB,
-      mockLocalDbService as unknown as LocalDbService,
+      orbitDb,
+      {
+        ...mockLocalDbService,
+        // @ts-ignore - OrbitDB's type definition doesn't include identity
+        getOwnerOrbitDbIdentity: jest.fn(() => orbitDb.identity.id)
+      } as unknown as LocalDbService,
       mockEmitter as unknown as EventEmitter
     )
-    const ret = await store.updateCommunityMetadata(metaValid)
+  })
 
-    expect(ret).toStrictEqual(metaValidWithOwnerId)
-    expect(mockOrbitDb.keyvalue().put.mock.calls).toEqual([[metaValidWithOwnerId.id, metaValidWithOwnerId]])
+  afterEach(async () => {
+    await store.close()
+    await orbitDb.stop()
+    await ipfs.stop()
+    if (fs.existsSync(TestConfig.ORBIT_DB_DIR)) {
+      fs.rmSync(TestConfig.ORBIT_DB_DIR, { recursive: true })
+    }
+  })
+
+  test('updates community metadata if the metadata is valid', async () => {
+    const ret = await store.updateCommunityMetadata(metaValid)
+    const meta = await store.getCommunityMetadata()
+    // We are using an actual instance of OrbitDb in this case, so we
+    // can use the actual identity.
+    // @ts-ignore - OrbitDB's type definition doesn't include identity
+    const expected = {...metaValidWithOwnerId, ownerOrbitDbIdentity: orbitDb.identity.id}
+
+    expect(ret).toStrictEqual(expected)
+    expect(meta).toStrictEqual(expected)
   })
 
   test('does not update community metadata if the metadata is invalid', async () => {
@@ -86,16 +104,11 @@ describe('CommmunityMetadataStore/updateCommunityMetadata', () => {
       ...metaValid,
       rootCa: 'Something invalid!',
     }
-    const store = new CommunityMetadataStore()
-    await store.init(
-      mockOrbitDb as unknown as OrbitDB,
-      mockLocalDbService as unknown as LocalDbService,
-      mockEmitter as unknown as EventEmitter
-    )
     const ret = await store.updateCommunityMetadata(metaInvalid)
+    const meta = await store.getCommunityMetadata()
 
     expect(ret).toStrictEqual(undefined)
-    expect(mockOrbitDb.keyvalue().put.mock.calls).toEqual([])
+    expect(meta).toEqual(undefined)
   })
 })
 

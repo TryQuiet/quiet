@@ -221,12 +221,6 @@ export class StorageService extends EventEmitter {
   }
 
   public async initDatabases() {
-    // FIXME: I think we depend on the owner's public key from community
-    // metadata to validate certificates and so we can setup the
-    // community metadata first and if we depend on any piece of
-    // community metadata to validate any other stores, we can wait
-    // until community metadata has been replicated before
-    // initializing those other stores.
     this.logger('1/3')
     this.communityMetadataStore = new CommunityMetadataStore()
     await this.communityMetadataStore.init(this.orbitDb, this.localDbService, this)
