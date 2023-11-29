@@ -10,13 +10,13 @@ import { LocalDbService } from '../../local-db/local-db.service'
 import { TestConfig } from '../../const'
 
 const createOrbitDbInstance = async () => {
-   const ipfs: IPFS = await create()
-   // @ts-ignore
-   const orbitDb = await OrbitDB.createInstance(ipfs, {
-     directory: TestConfig.ORBIT_DB_DIR,
-   })
+  const ipfs: IPFS = await create()
+  // @ts-ignore
+  const orbitDb = await OrbitDB.createInstance(ipfs, {
+    directory: TestConfig.ORBIT_DB_DIR,
+  })
 
-   return { orbitDb, ipfs }
+  return { orbitDb, ipfs }
 }
 
 const mockLocalDbService = { putOwnerOrbitDbIdentity: jest.fn(), getOwnerOrbitDbIdentity: jest.fn(() => 'theOwnerId') }
@@ -72,7 +72,7 @@ describe('CommmunityMetadataStore/updateCommunityMetadata', () => {
       {
         ...mockLocalDbService,
         // @ts-ignore - OrbitDB's type definition doesn't include identity
-        getOwnerOrbitDbIdentity: jest.fn(() => orbitDb.identity.id)
+        getOwnerOrbitDbIdentity: jest.fn(() => orbitDb.identity.id),
       } as unknown as LocalDbService,
       mockEmitter as unknown as EventEmitter
     )
@@ -93,7 +93,7 @@ describe('CommmunityMetadataStore/updateCommunityMetadata', () => {
     // We are using an actual instance of OrbitDb in this case, so we
     // can use the actual identity.
     // @ts-ignore - OrbitDB's type definition doesn't include identity
-    const expected = {...metaValidWithOwnerId, ownerOrbitDbIdentity: orbitDb.identity.id}
+    const expected = { ...metaValidWithOwnerId, ownerOrbitDbIdentity: orbitDb.identity.id }
 
     expect(ret).toStrictEqual(expected)
     expect(meta).toStrictEqual(expected)
