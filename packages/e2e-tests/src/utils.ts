@@ -105,9 +105,6 @@ export class BuildSetup {
       DEBUG: 'backend*,desktop*,utils*',
       DATA_DIR: this.dataDir,
     }
-    // if (this.dataDir) {
-    //   env = Object.assign(env, { DATA_DIR: this.dataDir })
-    // }
     if (process.platform === 'win32') {
       console.log('!WINDOWS!')
       this.child = spawn(`cd node_modules/.bin & chromedriver.cmd --port=${this.port} --verbose`, [], {
