@@ -9,11 +9,15 @@ import { initActions } from '../../init/init.slice'
 export function* redirectionSaga(): Generator {
   // Do not redirect if user opened the app from url (quiet://)
   const deepLinking = yield* select(initSelectors.deepLinking)
-  if (deepLinking) return
+  if (deepLinking) {
+    console.log('INIT_NAVIGATION: Proceeding with deep link flow.')
+    return
+  }
 
   // Redirect if user opened the app from push notification
   const pendingNavigation = yield* select(navigationSelectors.pendingNavigation)
   if (pendingNavigation) {
+    console.log('INIT_NAVIGATION: Pending navigation redirection: ', pendingNavigation)
     yield* put(
       navigationActions.replaceScreen({
         screen: pendingNavigation,
@@ -29,6 +33,7 @@ export function* redirectionSaga(): Generator {
   const communityMembership = yield* select(identity.selectors.communityMembership)
 
   if (communityMembership) {
+    console.log('INIT_NAVIGATION: Switching to the channel list screen (community membership).')
     yield* put(
       navigationActions.replaceScreen({
         screen: ScreenNames.ChannelListScreen,
@@ -38,8 +43,10 @@ export function* redirectionSaga(): Generator {
   }
 
   // If user doesn't belong to a community, wait for websocket connection and redirect to welcome screen
+  console.log('INIT_NAVIGATION: Waiting for websocket connection before proceeding.')
   yield* take(initActions.setWebsocketConnected)
 
+  console.log('INIT_NAVIGATION: Switching to the join community screen.')
   yield* put(
     navigationActions.replaceScreen({
       screen: ScreenNames.JoinCommunityScreen,

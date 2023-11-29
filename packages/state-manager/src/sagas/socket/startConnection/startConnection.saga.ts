@@ -186,6 +186,7 @@ export function subscribe(socket: Socket) {
     socket.on(SocketActionTypes.COMMUNITY, (payload: ResponseLaunchCommunityPayload) => {
       console.log('Hunting for heisenbug: Community event received in state-manager')
       emit(communitiesActions.launchRegistrar(payload.id))
+      // Not sure about this saveUserCsr. It seems that we've added it to secure case when user closes the app unexpectedly before csr is saved to db, so we'll do that on restart.
       emit(identityActions.saveUserCsr())
       emit(filesActions.checkForMissingFiles(payload.id))
       emit(networkActions.addInitializedCommunity(payload.id))
