@@ -2,6 +2,10 @@
 
 * Better descriptions of the joining process
 
+* Add certificates validation.
+
+* Move certificates to separate store.
+
 * Move csrs to separate store.
 
 * Fix saveUserCsr saga to trigger only if user csr is absent in user slice.
