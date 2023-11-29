@@ -74,7 +74,6 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof communitiesActions.responseRegistrar>
     | ReturnType<typeof communitiesActions.launchRegistrar>
     | ReturnType<typeof communitiesActions.launchCommunity>
-    | ReturnType<typeof communitiesActions.addOwnerCertificate>
     | ReturnType<typeof networkActions.addInitializedCommunity>
     | ReturnType<typeof networkActions.addInitializedRegistrar>
     | ReturnType<typeof networkActions.removeConnectedPeer>
@@ -214,13 +213,6 @@ export function subscribe(socket: Socket) {
       log(`${SocketActionTypes.SEND_USER_CERTIFICATE}: ${payload.communityId}`)
 
       emit(
-        communitiesActions.addOwnerCertificate({
-          communityId: payload.communityId,
-          ownerCertificate: payload.payload.ownerCert,
-        })
-      )
-
-      emit(
         communitiesActions.storePeerList({
           communityId: payload.communityId,
           peerList: payload.payload.peers,
@@ -236,6 +228,7 @@ export function subscribe(socket: Socket) {
         communitiesActions.updateCommunity({
           id: payload.communityId,
           rootCa: payload.payload.rootCa,
+          ownerCertificate: payload.payload.ownerCert,
         })
       )
       emit(communitiesActions.launchCommunity(payload.communityId))
@@ -243,8 +236,8 @@ export function subscribe(socket: Socket) {
     socket.on(SocketActionTypes.SAVED_OWNER_CERTIFICATE, (payload: SavedOwnerCertificatePayload) => {
       log(`${SocketActionTypes.SAVED_OWNER_CERTIFICATE}: ${payload.communityId}`)
       emit(
-        communitiesActions.addOwnerCertificate({
-          communityId: payload.communityId,
+        communitiesActions.updateCommunity({
+          id: payload.communityId,
           ownerCertificate: payload.network.certificate,
         })
       )

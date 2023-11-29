@@ -21,7 +21,13 @@ export function* updateCommunitySaga(
     }
   }
 
-  const payload: { id: string; name?: string; rootCa?: string; ownerOrbitDbIdentity?: string } = {
+  const payload: {
+    id: string
+    name?: string
+    rootCa?: string
+    ownerCertificate?: string
+    ownerOrbitDbIdentity?: string
+  } = {
     id: action.payload.id,
   }
 
@@ -35,6 +41,10 @@ export function* updateCommunitySaga(
 
   if (action.payload.ownerOrbitDbIdentity) {
     payload.ownerOrbitDbIdentity = action.payload.ownerOrbitDbIdentity
+  }
+
+  if (action.payload.ownerCertificate) {
+    payload.ownerCertificate = action.payload.ownerCertificate
   }
 
   yield* put(communitiesActions.updateCommunityData(payload))

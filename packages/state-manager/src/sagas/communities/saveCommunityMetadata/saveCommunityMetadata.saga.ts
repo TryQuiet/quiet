@@ -16,11 +16,6 @@ export function* saveCommunityMetadataSaga(
       id: communityId,
       rootCa: action.payload.rootCa,
       ownerOrbitDbIdentity: action.payload.ownerOrbitDbIdentity,
-    })
-  )
-  yield* put(
-    communitiesActions.addOwnerCertificate({
-      communityId: communityId,
       ownerCertificate: action.payload.ownerCertificate,
     })
   )
