@@ -30,7 +30,7 @@ describe('CertificatesRequestsStore', () => {
   let emitter: EventEmitter
 
   beforeEach(async () => {
-    ; ({ orbitdb, ipfs } = await createOrbitDbInstance())
+    ;({ orbitdb, ipfs } = await createOrbitDbInstance())
     store = new CertificatesRequestsStore(orbitdb)
     emitter = new EventEmitter()
     await store.init(emitter)

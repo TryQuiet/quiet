@@ -1,15 +1,12 @@
 import { Inject, Injectable } from '@nestjs/common'
 import {
   CertFieldsTypes,
-  getCertFieldValue,
-  keyFromCertificate,
   keyObjectFromString,
-  parseCertificate,
   verifySignature,
-  verifyUserCert,
+  parseCertificate,
   parseCertificationRequest,
+  getCertFieldValue,
   getReqFieldValue,
-  loadCSR,
 } from '@quiet/identity'
 import type { IPFS } from 'ipfs-core'
 import OrbitDB from 'orbit-db'
@@ -18,7 +15,7 @@ import KeyValueStore from 'orbit-db-kvstore'
 import path from 'path'
 import { EventEmitter } from 'events'
 import PeerId from 'peer-id'
-import { CertificationRequest, getCrypto } from 'pkijs'
+import { getCrypto } from 'pkijs'
 import { stringToArrayBuffer } from 'pvutils'
 import validate from '../validation/validators'
 import { CID } from 'multiformats/cid'
@@ -50,11 +47,10 @@ import { MessagesAccessController } from './MessagesAccessController'
 import { createChannelAccessController } from './ChannelsAccessController'
 import Logger from '../common/logger'
 import { DirectMessagesRepo, PublicChannelsRepo } from '../common/types'
-import { removeFiles, removeDirs, createPaths, getUsersAddresses } from '../common/utils'
+import { removeFiles, removeDirs, createPaths } from '../common/utils'
 import { StorageEvents } from './storage.types'
+import { CertificatesStore } from './certificates/certificates.store'
 import { CertificatesRequestsStore } from './certificatesRequestsStore'
-import { RegistrationEvents } from '../registration/registration.types'
-import { throws } from 'assert'
 
 interface DBOptions {
   replicate: boolean
@@ -63,12 +59,11 @@ interface DBOptions {
 @Injectable()
 export class StorageService extends EventEmitter {
   public channels: KeyValueStore<PublicChannel>
-  private certificates: EventStore<string>
   public publicChannelsRepos: Map<string, PublicChannelsRepo> = new Map()
   public directMessagesRepos: Map<string, DirectMessagesRepo> = new Map()
   private publicKeysMap: Map<string, CryptoKey> = new Map()
-  private userNamesMap: Map<string, string> = new Map()
   private communityMetadata: KeyValueStore<CommunityMetadata>
+  public certificatesStore: CertificatesStore
   public certificatesRequestsStore: CertificatesRequestsStore
   private ipfs: IPFS
   private orbitDb: OrbitDB
@@ -158,8 +153,8 @@ export class StorageService extends EventEmitter {
     if (this.channels?.address) {
       dbs.push(this.channels.address)
     }
-    if (this.certificates?.address) {
-      dbs.push(this.certificates.address)
+    if (this.certificatesStore.getAddress()) {
+      dbs.push(this.certificatesStore.getAddress())
     }
     if (this.certificatesRequestsStore.getAddress()) {
       dbs.push(this.certificatesRequestsStore.getAddress())
@@ -220,23 +215,31 @@ export class StorageService extends EventEmitter {
   }
 
   public async initDatabases() {
+    this.certificatesStore = new CertificatesStore(this.orbitDb)
+    await this.certificatesStore.init(this)
+
+    this.certificatesRequestsStore = new CertificatesRequestsStore(this.orbitDb)
+    await this.certificatesRequestsStore.init(this)
+
     this.logger('1/5')
     await this.createDbForChannels()
     this.logger('2/5')
-    await this.createDbForCertificates()
+    await this.attachCertificatesStoreListeners()
     this.logger('3/5')
     await this.attachCsrsStoreListeners()
     this.logger('4/5')
     await this.createDbForCommunityMetadata()
     this.logger('5/5')
-    this.certificatesRequestsStore = new CertificatesRequestsStore(this.orbitDb)
-    await this.certificatesRequestsStore.init(this)
+
     await this.initAllChannels()
+
     this.logger('Initialized DBs')
+
     this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.INITIALIZED_DBS)
   }
   private async createDbForCommunityMetadata() {
     this.logger('createDbForCommunityMetadata init')
+
     this.communityMetadata = await this.orbitDb.keyvalue<CommunityMetadata>('community-metadata', {
       replicate: false,
       accessController: {
@@ -246,16 +249,26 @@ export class StorageService extends EventEmitter {
 
     this.communityMetadata.events.on('write', async (_address, _entry) => {
       this.logger('WRITE: communityMetadata')
+      const metadata = Object.values(this.communityMetadata.all)[0]
+      this.certificatesStore.updateMetadata(metadata)
     })
 
     this.communityMetadata.events.on('replicated', async () => {
       this.logger('Replicated community metadata')
+
+      const metadata = Object.values(this.communityMetadata.all)[0]
+      this.certificatesStore.updateMetadata(metadata)
+
       // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
       await this.communityMetadata.load({ fetchEntryTimeout: 15000 })
-      this.emit(StorageEvents.REPLICATED_COMMUNITY_METADATA, Object.values(this.communityMetadata.all)[0])
+      this.emit(StorageEvents.REPLICATED_COMMUNITY_METADATA, metadata)
     })
+
     // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
     await this.communityMetadata.load({ fetchEntryTimeout: 15000 })
+
+    const metadata = Object.values(this.communityMetadata.all)[0]
+    this.certificatesStore.updateMetadata(metadata)
   }
 
   public async updateCommunityMetadata(communityMetadata: CommunityMetadata) {
@@ -307,20 +320,23 @@ export class StorageService extends EventEmitter {
     }
 
     try {
-      await this.certificates?.close()
+      await this.certificatesStore?.close()
     } catch (e) {
       this.logger.error('Error closing certificates db', e)
     }
+
     try {
       await this.certificatesRequestsStore?.close()
     } catch (e) {
       this.logger.error('Error closing certificates db', e)
     }
+
     try {
       await this.communityMetadata?.close()
     } catch (e) {
       this.logger.error('Error closing community metadata db', e)
     }
+
     await this.__stopOrbitDb()
     await this.__stopIPFS()
   }
@@ -339,70 +355,22 @@ export class StorageService extends EventEmitter {
   }
 
   public async loadAllCertificates() {
-    this.logger('Getting all certificates')
-    this.emit(StorageEvents.LOAD_CERTIFICATES, {
-      certificates: this.getAllEventLogEntries(this.certificates),
+    this.logger('Loading all certificates')
+    this.emit(StorageEvents.REPLICATED_CERTIFICATES, {
+      certificates: await this.certificatesStore.loadAllCertificates(),
     })
   }
 
-  public async createDbForCertificates() {
-    this.logger('createDbForCertificates init')
-    this.certificates = await this.orbitDb.log<string>('certificates', {
-      replicate: false,
-      accessController: {
-        write: ['*'],
-      },
-    })
-    this.certificates.events.on('replicate.progress', async (_address, _hash, entry, _progress, _total) => {
-      const certificate = entry.payload.value
-
-      const parsedCertificate = parseCertificate(certificate)
-      const key = keyFromCertificate(parsedCertificate)
-
-      const username = getCertFieldValue(parsedCertificate, CertFieldsTypes.nickName)
-      if (!username) {
-        this.logger.error(
-          `Certificates replicate.progress: could not parse certificate for field type ${CertFieldsTypes.nickName}`
-        )
-        return
-      }
-
-      this.userNamesMap.set(key, username)
-    })
-    this.certificates.events.on('replicated', async () => {
-      this.logger('REPLICATED: Certificates')
-      this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CERTIFICATES_REPLICATED)
-      this.emit(StorageEvents.LOAD_CERTIFICATES, {
-        certificates: this.getAllEventLogEntries(this.certificates),
-      })
+  public async attachCertificatesStoreListeners() {
+    this.on(StorageEvents.LOADED_CERTIFICATES, async payload => {
+      this.emit(StorageEvents.REPLICATED_CERTIFICATES, payload)
       await this.updatePeersList()
     })
-    this.certificates.events.on('write', async (_address, entry) => {
-      this.logger('Saved certificate locally')
-      this.emit(StorageEvents.LOAD_CERTIFICATES, {
-        certificates: this.getAllEventLogEntries(this.certificates),
-      })
-      await this.updatePeersList()
-    })
-    this.certificates.events.on('ready', () => {
-      this.logger('Loaded certificates to memory')
-      this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.LOADED_CERTIFICATES)
-      this.emit(StorageEvents.LOAD_CERTIFICATES, {
-        certificates: this.getAllEventLogEntries(this.certificates),
-      })
-    })
-
-    // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
-    await this.certificates.load({ fetchEntryTimeout: 15000 })
-    const allCertificates = this.getAllEventLogEntries(this.certificates)
-    this.logger('ALL Certificates COUNT:', allCertificates.length)
-    this.logger('STORAGE: Finished createDbForCertificates')
   }
 
   public async attachCsrsStoreListeners() {
     this.on(StorageEvents.LOADED_USER_CSRS, async payload => {
-      console.log('csrs', payload.csrs)
-      const allCertificates = this.getAllEventLogEntries(this.certificates)
+      const allCertificates = this.getAllEventLogEntries(this.certificatesStore.store)
       this.emit(StorageEvents.REPLICATED_CSR, { csrs: payload.csrs, certificates: allCertificates, id: payload.id })
       // TODO
       await this.updatePeersList()
@@ -567,7 +535,7 @@ export class StorageService extends EventEmitter {
           // @ts-ignore
           if (parseInt(message.createdAt) < parseInt(process.env.CONNECTION_TIME || '')) return
 
-          const username = this.getUserNameFromCert(message.pubKey)
+          const username = await this.certificatesStore.getCertificateUsername(message.pubKey)
           if (!username) {
             this.logger.error(`Can't send push notification, no username found for public key '${message.pubKey}'`)
             return
@@ -794,8 +762,8 @@ export class StorageService extends EventEmitter {
       return false
     }
     this.logger('Saving certificate...')
-    await this.certificates.add(payload.certificate)
-    return true
+    const result = await this.certificatesStore.addCertificate(payload.certificate)
+    return result
   }
 
   public async saveCSR(payload: SaveCSRPayload): Promise<boolean> {
@@ -823,7 +791,7 @@ export class StorageService extends EventEmitter {
     /**
      * Check if given username is already in use
      */
-    const certificates = this.getAllEventLogEntries(this.certificates)
+    const certificates = this.getAllEventLogEntries(this.certificatesStore.store)
     for (const cert of certificates) {
       const parsedCert = parseCertificate(cert)
       const certUsername = getCertFieldValue(parsedCert, CertFieldsTypes.nickName)
@@ -832,28 +800,6 @@ export class StorageService extends EventEmitter {
       }
     }
     return null
-  }
-
-  public getUserNameFromCert(publicKey: string): string | undefined {
-    if (!this.userNamesMap.get(publicKey)) {
-      const certificates = this.getAllEventLogEntries(this.certificates)
-
-      for (const cert of certificates) {
-        const parsedCertificate = parseCertificate(cert)
-        const key = keyFromCertificate(parsedCertificate)
-
-        const value = getCertFieldValue(parsedCertificate, CertFieldsTypes.nickName)
-        if (!value) {
-          this.logger.error(
-            `Get user name from cert: Could not parse certificate for field type ${CertFieldsTypes.nickName}`
-          )
-          continue
-        }
-        this.userNamesMap.set(key, value)
-      }
-    }
-
-    return this.userNamesMap.get(publicKey)
   }
 
   public async deleteFilesFromChannel(payload: DeleteFilesFromChannelSocketPayload) {
@@ -900,7 +846,6 @@ export class StorageService extends EventEmitter {
     this.publicChannelsRepos = new Map()
     this.directMessagesRepos = new Map()
     this.publicKeysMap = new Map()
-    this.userNamesMap = new Map()
     // @ts-ignore
     this.ipfs = null
     // @ts-ignore

@@ -3,6 +3,7 @@ import { registerDecorator, ValidationArguments, ValidationOptions } from 'class
 import Logger from '../common/logger'
 
 const logger = Logger('registration.validators')
+
 export function IsCsr(validationOptions?: ValidationOptions) {
   return function (object: object, propertyName: string) {
     registerDecorator({

@@ -3,8 +3,6 @@ import { Certificates } from '@quiet/types'
 export enum StorageEvents {
   // Peers
   UPDATE_PEERS_LIST = 'updatePeersList',
-  LOAD_CERTIFICATES = 'loadCertificates',
-  REPLICATED_CSR = 'replicatedCsr',
   // Public Channels
   LOAD_PUBLIC_CHANNELS = 'loadPublicChannels',
   LOAD_ALL_PRIVATE_CONVERSATIONS = 'loadAllPrivateConversations',
@@ -27,6 +25,9 @@ export enum StorageEvents {
   REPLICATED_COMMUNITY_METADATA = 'replicatedCommunityMetadata',
   // Users
   LOADED_USER_CSRS = 'loadedUserCsrs',
+  REPLICATED_CSR = 'replicatedCsr',
+  LOADED_CERTIFICATES = 'loadedCertificates',
+  REPLICATED_CERTIFICATES = 'replicatedCertificates',
 }
 export interface InitStorageParams {
   communityId: string
