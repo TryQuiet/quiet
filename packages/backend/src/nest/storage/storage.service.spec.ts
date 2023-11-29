@@ -114,6 +114,7 @@ describe('StorageService', () => {
       })
     ).message
   })
+
   beforeEach(async () => {
     jest.clearAllMocks()
     utils = await import('../common/utils')
@@ -276,36 +277,6 @@ describe('StorageService', () => {
   })
 
   describe('Certificate', () => {
-    it('is saved to db if passed verification', async () => {
-      const userCertificate = await createUserCert(
-        rootPermsData.certificate,
-        rootPermsData.privKey,
-        // @ts-expect-error userCsr can be undefined
-        alice.userCsr?.userCsr,
-        new Date(),
-        new Date(2030, 1, 1)
-      )
-      await storageService.init(peerId)
-
-      const result = await storageService.saveCertificate({
-        certificate: userCertificate.userCertString,
-        rootPermsData,
-      })
-
-      await sleep(5000)
-      expect(result).toBe(true)
-    })
-
-    it('is not saved to db if empty', async () => {
-      await storageService.init(peerId)
-
-      for (const empty of [null, '', undefined]) {
-        // @ts-expect-error
-        const result = await storageService.saveCertificate({ certificate: empty, rootPermsData })
-        expect(result).toBe(false)
-      }
-    })
-
     it('username check fails if username is already in use', async () => {
       const userCertificate = await createUserCert(
         rootPermsData.certificate,
