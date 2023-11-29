@@ -754,6 +754,15 @@ describe('Channel', () => {
       nickname: 'alice',
     })
 
+    initialState.dispatch(
+      communities.actions.updateCommunityData({
+        id: community.id,
+        // null/undefined type mismatch here. Might make things easier
+        // to make it consistent.
+        ownerCertificate: alice.userCertificate || undefined,
+      })
+    )
+
     let cid = ''
 
     const uploadingDelay = 100
@@ -897,6 +906,15 @@ describe('Channel', () => {
       nickname: 'alice',
     })
 
+    initialState.dispatch(
+      communities.actions.updateCommunityData({
+        id: community.id,
+        // null/undefined type mismatch here. Might make things easier
+        // to make it consistent.
+        ownerCertificate: alice.userCertificate || undefined,
+      })
+    )
+
     const message = Math.random().toString(36).substr(2.9)
 
     const entities = initialState.getState().PublicChannels.channels.entities
@@ -1021,10 +1039,19 @@ describe('Channel', () => {
     const community =
       await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
 
-    await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+    const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
       id: community.id,
       nickname: 'alice',
     })
+
+    initialState.dispatch(
+      communities.actions.updateCommunityData({
+        id: community.id,
+        // null/undefined type mismatch here. Might make things easier
+        // to make it consistent.
+        ownerCertificate: alice.userCertificate || undefined,
+      })
+    )
 
     jest.spyOn(socket, 'emit').mockImplementation(async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
       const action = input[0]
@@ -1121,6 +1148,15 @@ describe('Channel', () => {
       id: community.id,
       nickname: 'alice',
     })
+
+    initialState.dispatch(
+      communities.actions.updateCommunityData({
+        id: community.id,
+        // null/undefined type mismatch here. Might make things easier
+        // to make it consistent.
+        ownerCertificate: alice.userCertificate || undefined,
+      })
+    )
 
     const messageId = Math.random().toString(36).substr(2.9)
     const entities = initialState.getState().PublicChannels.channels.entities
@@ -1237,6 +1273,15 @@ describe('Channel', () => {
       id: community.id,
       nickname: 'alice',
     })
+
+    initialState.dispatch(
+      communities.actions.updateCommunityData({
+        id: community.id,
+        // null/undefined type mismatch here. Might make things easier
+        // to make it consistent.
+        ownerCertificate: alice.userCertificate || undefined,
+      })
+    )
 
     const messageId = Math.random().toString(36).substr(2.9)
     const entities = initialState.getState().PublicChannels.channels.entities
@@ -1355,6 +1400,15 @@ describe('Channel', () => {
       id: community.id,
       nickname: 'alice',
     })
+
+    initialState.dispatch(
+      communities.actions.updateCommunityData({
+        id: community.id,
+        // null/undefined type mismatch here. Might make things easier
+        // to make it consistent.
+        ownerCertificate: alice.userCertificate || undefined,
+      })
+    )
 
     const messageId = Math.random().toString(36).substr(2.9)
     const entities = initialState.getState().PublicChannels.channels.entities

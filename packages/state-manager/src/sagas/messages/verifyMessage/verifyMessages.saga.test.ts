@@ -54,14 +54,12 @@ describe('verifyMessage saga test', () => {
     aliceCsr = alice.userCsr?.userCsr || ''
 
     store.dispatch(
-      communitiesActions.updateCommunityData(
-        {
-          id: community.id,
-          // null/undefined type mismatch here. Might make things easier
-          // to make it consistent.
-          ownerCertificate: alice.userCertificate || undefined,
-        }
-      )
+      communitiesActions.updateCommunityData({
+        id: community.id,
+        // null/undefined type mismatch here. Might make things easier
+        // to make it consistent.
+        ownerCertificate: alice.userCertificate || undefined,
+      })
     )
 
     bob = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {

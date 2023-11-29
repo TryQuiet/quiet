@@ -19,6 +19,7 @@ export function* verifyMessagesSaga(
     if (ownerData?.pubKey) {
       break
     }
+    console.warn('Owner certificate missing!')
     yield* delay(500)
   }
 
