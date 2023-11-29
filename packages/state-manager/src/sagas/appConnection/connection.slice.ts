@@ -63,6 +63,7 @@ export const connectionSlice = createSlice({
           state.connectionProcess = { number: 30, text: ConnectionProcessInfo.BACKEND_MODULES }
           break
         case ConnectionProcessInfo.CONNECTING_TO_COMMUNITY:
+          if (state.connectionProcess.number == 50) break
           state.connectionProcess = { number: 50, text: ConnectionProcessInfo.CONNECTING_TO_COMMUNITY }
           break
         case ConnectionProcessInfo.CHANNELS_REPLICATED || ConnectionProcessInfo.CERTIFICATES_REPLICATED:
