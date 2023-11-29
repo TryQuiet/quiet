@@ -44,7 +44,10 @@ export function* redirectionSaga(): Generator {
 
   // If user doesn't belong to a community, wait for websocket connection and redirect to welcome screen
   console.log('INIT_NAVIGATION: Waiting for websocket connection before proceeding.')
-  yield* take(initActions.setWebsocketConnected)
+  const connection = yield* select(initSelectors.isWebsocketConnected)
+  if (!connection) {
+    yield* take(initActions.setWebsocketConnected)
+  }
 
   console.log('INIT_NAVIGATION: Switching to the join community screen.')
   yield* put(
