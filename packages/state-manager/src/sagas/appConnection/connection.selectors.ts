@@ -1,13 +1,14 @@
 import { StoreKeys } from '../store.keys'
 import { createSelector } from 'reselect'
 import { type CreatedSelectors, type StoreState } from '../store.types'
-import { allUsers } from '../users/users.selectors'
+import { allUsers, areCertificatesLoaded } from '../users/users.selectors'
 import { communitiesSelectors } from '../communities/communities.selectors'
 import { peersStatsAdapter } from './connection.adapter'
-import { connectedPeers } from '../network/network.selectors'
+import { connectedPeers, isCurrentCommunityInitialized } from '../network/network.selectors'
 import { type NetworkStats } from './connection.types'
 import { type User } from '../users/users.types'
 import { filterAndSortPeers } from '@quiet/common'
+import { areMessagesLoaded, areChannelsLoaded } from '../publicChannels/publicChannels.selectors'
 
 const connectionSlice: CreatedSelectors[StoreKeys.Connection] = (state: StoreState) => state[StoreKeys.Connection]
 
@@ -54,6 +55,17 @@ export const connectedPeersMapping = createSelector(allUsers, connectedPeers, (c
   }, {})
 })
 
+export const isJoiningCompleted = createSelector(
+  isCurrentCommunityInitialized,
+  areMessagesLoaded,
+  areChannelsLoaded,
+  areCertificatesLoaded,
+  (isCommunity, areMessages, areChannels, areCertificates) => {
+    console.log({ isCommunity, areMessages, areChannels, areCertificates })
+    return isCommunity && areMessages && areChannels && areCertificates
+  }
+)
+
 export const connectionSelectors = {
   lastConnectedTime,
   connectedPeersMapping,
@@ -62,4 +74,5 @@ export const connectionSelectors = {
   connectionProcess,
   isTorInitialized,
   socketIOSecret,
+  isJoiningCompleted,
 }
