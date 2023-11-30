@@ -1,6 +1,7 @@
 import React from 'react'
 import { renderComponent } from '../../testUtils/renderComponent'
 import JoiningPanelComponent from './JoiningPanelComponent'
+import { ConnectionProcessInfo } from '@quiet/types'
 
 describe('Create JoiningPanelComponent', () => {
   it('renders component - owner false', () => {
@@ -10,7 +11,7 @@ describe('Create JoiningPanelComponent', () => {
         openUrl={jest.fn()}
         open={true}
         isOwner={false}
-        torConnectionInfo={{ number: 50, text: 'Initializing storage' }}
+        connectionInfo={{ number: 50, text: ConnectionProcessInfo.BACKEND_MODULES }}
       />
     )
     expect(result.baseElement).toMatchInlineSnapshot(`
@@ -70,7 +71,7 @@ describe('Create JoiningPanelComponent', () => {
                 style="width: 600px;"
               >
                 <div
-                  class="MuiGrid-root MuiGrid-container JoiningPanelComponentroot css-kpkqnh-MuiGrid-root"
+                  class="MuiGrid-root MuiGrid-container JoiningPanelComponentroot css-1vn3v3s-MuiGrid-root"
                 >
                   <div
                     class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column JoiningPanelComponentcontentWrapper css-t0zib5-MuiGrid-root"
@@ -94,11 +95,14 @@ describe('Create JoiningPanelComponent', () => {
                         <div
                           class="JoiningPanelComponentprogress"
                         />
+                        <div
+                          class=""
+                        />
                       </div>
                       <p
                         class="MuiTypography-root MuiTypography-body2 css-16d47hw-MuiTypography-root"
                       >
-                        Initializing storage
+                        Initialized backend modules
                       </p>
                     </div>
                     <p
@@ -144,7 +148,7 @@ describe('Create JoiningPanelComponent', () => {
         openUrl={jest.fn()}
         open={true}
         isOwner={true}
-        torConnectionInfo={{ number: 50, text: 'Initializing storage' }}
+        connectionInfo={{ number: 50, text: ConnectionProcessInfo.BACKEND_MODULES }}
       />
     )
     expect(result.baseElement).toMatchInlineSnapshot(`
@@ -204,7 +208,7 @@ describe('Create JoiningPanelComponent', () => {
                 style="width: 600px;"
               >
                 <div
-                  class="MuiGrid-root MuiGrid-container JoiningPanelComponentroot css-kpkqnh-MuiGrid-root"
+                  class="MuiGrid-root MuiGrid-container JoiningPanelComponentroot css-1vn3v3s-MuiGrid-root"
                 >
                   <div
                     class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column JoiningPanelComponentcontentWrapper css-t0zib5-MuiGrid-root"
@@ -228,11 +232,14 @@ describe('Create JoiningPanelComponent', () => {
                         <div
                           class="JoiningPanelComponentprogress"
                         />
+                        <div
+                          class=""
+                        />
                       </div>
                       <p
                         class="MuiTypography-root MuiTypography-body2 css-16d47hw-MuiTypography-root"
                       >
-                        Initializing storage
+                        Initialized backend modules
                       </p>
                     </div>
                     <p

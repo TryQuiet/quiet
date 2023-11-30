@@ -43,6 +43,7 @@ import {
   type SendOwnerCertificatePayload,
   CommunityMetadata,
   SendCsrsResponse,
+  ConnectionProcessInfo,
 } from '@quiet/types'
 
 const log = logger('socket')
@@ -85,7 +86,7 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof filesActions.removeDownloadStatus>
     | ReturnType<typeof filesActions.checkForMissingFiles>
     | ReturnType<typeof connectionActions.setTorBootstrapProcess>
-    | ReturnType<typeof connectionActions.setTorConnectionProcess>
+    | ReturnType<typeof connectionActions.setConnectionProcess>
     | ReturnType<typeof connectionActions.torBootstrapped>
     | ReturnType<typeof communitiesActions.clearInvitationCodes>
     | ReturnType<typeof identityActions.saveUserCsr>
@@ -99,7 +100,7 @@ export function subscribe(socket: Socket) {
       emit(connectionActions.setTorInitialized())
     })
     socket.on(SocketActionTypes.CONNECTION_PROCESS_INFO, (payload: string) => {
-      emit(connectionActions.setTorConnectionProcess(payload))
+      emit(connectionActions.setConnectionProcess(payload))
     })
     // Misc
     socket.on(SocketActionTypes.PEER_CONNECTED, (payload: { peers: string[] }) => {

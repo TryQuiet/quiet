@@ -142,7 +142,7 @@
     "leveldown": "^6",
     "go-ipfs": "npm:mocked-go-ipfs@0.17.0",
     "orbit-db": {
-      "ipfs-pubsub-peer-monitor": "vinkabuki/ipfs-pubsub-peer-monitor#038af76f22e6c902dab4a855b24273707ce17d94"
+      "ipfs-pubsub-peer-monitor": "TryQuiet/ipfs-pubsub-peer-monitor#038af76f22e6c902dab4a855b24273707ce17d94"
     }
   }
 }

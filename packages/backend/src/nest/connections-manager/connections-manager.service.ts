@@ -430,6 +430,9 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   private attachTorEventsListeners() {
     this.logger('attachTorEventsListeners')
 
+    this.tor.on(SocketActionTypes.CONNECTION_PROCESS_INFO, data => {
+      this.serverIoProvider.io.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, data)
+    })
     this.socketService.on(SocketActionTypes.CONNECTION_PROCESS_INFO, data => {
       this.serverIoProvider.io.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, data)
     })

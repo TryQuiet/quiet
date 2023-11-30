@@ -222,7 +222,7 @@ describe('deepLinkSaga', () => {
 
     store.dispatch(communities.actions.setCurrentCommunity(community.id))
 
-    store.dispatch(connection.actions.setTorConnectionProcess(ConnectionProcessInfo.REGISTERING_USER_CERTIFICATE))
+    store.dispatch(connection.actions.setConnectionProcess(ConnectionProcessInfo.REGISTERING_USER_CERTIFICATE))
 
     const reducer = combineReducers(reducers)
     await expectSaga(deepLinkSaga, initActions.deepLink(validCode))

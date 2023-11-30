@@ -154,7 +154,7 @@ export class SocketService extends EventEmitter implements OnModuleInit {
 
         await new Promise<void>(resolve => setTimeout(() => resolve(), 2000))
 
-        this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.WAITING_FOR_METADATA)
+        this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CONNECTING_TO_COMMUNITY)
       })
 
       socket.on(SocketActionTypes.REGISTER_OWNER_CERTIFICATE, async (payload: RegisterOwnerCertificatePayload) => {
