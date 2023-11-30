@@ -3,6 +3,7 @@ import { ComponentStory, ComponentMeta } from '@storybook/react'
 import { withTheme } from '../../storybook/decorators'
 import JoiningPanelComponent, { JoiningPanelComponentProps } from './JoiningPanelComponent'
 import StartingPanelComponent, { StartingPanelComponentProps } from './StartingPanelComponent'
+import { ConnectionProcessInfo } from '@quiet/types'
 
 const JoiningPanelTemplate: ComponentStory<typeof JoiningPanelComponent> = args => {
   return <JoiningPanelComponent {...args} />
@@ -18,7 +19,7 @@ const JoiningPanelArgs: JoiningPanelComponentProps = {
   open: true,
   handleClose: function (): void {},
   openUrl: () => console.log('OpenURL'),
-  torConnectionInfo: { number: 10, text: 'Fetching' },
+  connectionInfo: { number: 10, text: ConnectionProcessInfo.BACKEND_MODULES },
   isOwner: false,
 }
 const StartingPanelArgs: StartingPanelComponentProps = {

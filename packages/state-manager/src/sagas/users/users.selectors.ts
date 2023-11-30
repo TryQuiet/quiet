@@ -160,6 +160,11 @@ export const duplicateCerts = createSelector(certificatesMapping, certs => {
   return Boolean(allUsernames.length !== uniqueUsernames.length)
 })
 
+export const areCertificatesLoaded = createSelector(
+  certificatesMapping,
+  certificates => Object.values(certificates).length > 0
+)
+
 export const usersSelectors = {
   csrs,
   certificates,
@@ -170,4 +175,5 @@ export const usersSelectors = {
   allUsers,
   duplicateCerts,
   getUserByPubKey,
+  areCertificatesLoaded,
 }

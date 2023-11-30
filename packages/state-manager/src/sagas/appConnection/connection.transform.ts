@@ -1,6 +1,7 @@
 import { createTransform } from 'redux-persist'
 import { StoreKeys } from '../store.keys'
 import { type ConnectionState } from './connection.slice'
+import { ConnectionProcessInfo } from '@quiet/types'
 
 export const ConnectionTransform = createTransform(
   (inboundState: ConnectionState, _key: any) => {
@@ -10,9 +11,9 @@ export const ConnectionTransform = createTransform(
     return {
       ...outboundState,
       torBootstrapProcess: 'Bootstrapped 0% (starting)',
-      torConnectionProcess: {
+      connectionProcess: {
         number: 5,
-        text: 'Connecting process started',
+        text: ConnectionProcessInfo.CONNECTION_STARTED,
       },
       isTorInitialized: false,
       socketIOSecret: null,

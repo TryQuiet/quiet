@@ -52,16 +52,15 @@ describe('Joining process', () => {
     expect(connectionProcessScreen).toBeVisible()
 
     const processText = screen.getByTestId('connection-process-text')
-    expect(processText.props.children).toEqual('Connecting process started')
+    expect(processText.props.children).toEqual(ConnectionProcessInfo.CONNECTION_STARTED)
 
-    store.dispatch(connection.actions.setTorConnectionProcess(ConnectionProcessInfo.INITIALIZING_LIBP2P))
+    store.dispatch(connection.actions.setConnectionProcess(ConnectionProcessInfo.INITIALIZING_IPFS))
     await act(async () => {})
 
     const processText2 = screen.getByTestId('connection-process-text')
     console.log(processText2.props)
-    expect(processText2.props.children).toEqual('Initializing libp2p')
+    expect(processText2.props.children).toEqual(ConnectionProcessInfo.BACKEND_MODULES)
 
-    store.dispatch(connection.actions.setTorConnectionProcess(ConnectionProcessInfo.LAUNCHED_COMMUNITY))
     await act(async () => {})
 
     const channelList = screen.getByTestId('channels_list')

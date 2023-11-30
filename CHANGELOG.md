@@ -1,5 +1,7 @@
 [unreleased]
 
+* Better descriptions of the joining process
+
 * Update custom deps repositiries (upload-s3-action, ipfs-pubsub-peer-monitor)
 
 * Add certificates validation.

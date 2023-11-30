@@ -5,6 +5,7 @@ import { Typography } from '../Typography/Typography.component'
 import { ConnectionProcessComponentProps } from './ConnectionProcess.types'
 import JoinCommunityImg from '../../../assets/icons/join-community.png'
 import { Site } from '@quiet/common'
+import { ConnectionProcessInfo } from '@quiet/types'
 
 const ConnectionProcessComponent: FC<ConnectionProcessComponentProps> = ({ connectionProcess, openUrl }) => {
   const animationValue = useRef(new Animated.Value(0)).current
@@ -23,6 +24,28 @@ const ConnectionProcessComponent: FC<ConnectionProcessComponentProps> = ({ conne
   const transformValues = animationValue.interpolate({
     inputRange: [0, 1],
     outputRange: ['0deg', '360deg'],
+  })
+
+  const processAnimation = useRef(new Animated.Value(0)).current
+
+  useEffect(() => {
+    if (connectionProcess.text === ConnectionProcessInfo.CONNECTING_TO_COMMUNITY) {
+      Animated.loop(
+        Animated.timing(processAnimation, {
+          toValue: 1,
+          duration: 6000,
+          easing: Easing.linear,
+          useNativeDriver: false,
+        })
+      ).start()
+    } else {
+      processAnimation.stopAnimation()
+    }
+  }, [processAnimation, connectionProcess])
+
+  const processAnimationWidth = processAnimation.interpolate({
+    inputRange: [0, 1],
+    outputRange: [150, 300],
   })
 
   return (
@@ -51,10 +74,39 @@ const ConnectionProcessComponent: FC<ConnectionProcessComponentProps> = ({ conne
           Joining now!
         </Typography>
 
-        <View style={{ width: 300, height: 4, backgroundColor: '#F0F0F0', borderRadius: 4 }}>
+        <View
+          style={{
+            width: 300,
+            height: 4,
+            backgroundColor: '#F0F0F0',
+            borderRadius: 4,
+            position: 'relative',
+            zIndex: 1,
+          }}
+        >
           <View
-            style={{ backgroundColor: '#67BFD3', height: 4, width: connectionProcess.number * 3, borderRadius: 4 }}
+            style={{
+              backgroundColor: '#2196f3',
+              height: 4,
+              width: connectionProcess.number * 3,
+              borderRadius: 4,
+              position: 'relative',
+              zIndex: 3,
+            }}
           ></View>
+
+          {connectionProcess.text === ConnectionProcessInfo.CONNECTING_TO_COMMUNITY && (
+            <Animated.View
+              style={{
+                backgroundColor: '#67BFD3',
+                height: 4,
+                width: processAnimationWidth,
+                borderRadius: 4,
+                position: 'absolute',
+                zIndex: 2,
+              }}
+            />
+          )}
         </View>
         <Typography
           testID='connection-process-text'
