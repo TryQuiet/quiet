@@ -64,7 +64,7 @@ jobs:
         run: lerna run postBuild --scope @quiet/desktop
 
       - name: "Push electron-updater new checksum to S3"
-        uses: vinkabuki/upload-s3-action@master
+        uses: TryQuiet/upload-s3-action@master
         with:
           aws_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
