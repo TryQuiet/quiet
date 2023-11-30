@@ -125,7 +125,9 @@ export const getUserByPubKey = (pubKey: string) => createSelector(allUsers, user
 export const getOldestParsedCerificate = createSelector(certificates, certs => {
   const getTimestamp = (cert: Certificate) => new Date(cert.notBefore.value).getTime()
 
-  const certificates: [string, Certificate][] =
+  let certificates: [string, Certificate][] = []
+
+  certificates =
     Array.from(Object.entries(certs))
       .sort((a, b) => {
         const aTimestamp = getTimestamp(a[1])
