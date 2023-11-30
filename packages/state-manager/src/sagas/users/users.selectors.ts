@@ -124,26 +124,24 @@ export const getUserByPubKey = (pubKey: string) => createSelector(allUsers, user
 
 export const getOldestParsedCerificate = createSelector(certificates, certs => {
   const getTimestamp = (cert: Certificate) => new Date(cert.notBefore.value).getTime()
-  let certificates: Certificate[] = []
-  Object.keys(certs).map(pubKey => {
-    certificates = [...certificates, certs[pubKey]]
-  })
-  certificates.sort((a, b) => {
-    const aTimestamp = getTimestamp(a)
-    const bTimestamp = getTimestamp(b)
-    return aTimestamp - bTimestamp
-  })
 
+  const certificates: [string, Certificate][] =
+    Array.from(Object.entries(certs))
+      .sort((a, b) => {
+        const aTimestamp = getTimestamp(a[1])
+        const bTimestamp = getTimestamp(b[1])
+        return aTimestamp - bTimestamp
+      })
   return certificates[0]
 })
 
 export const ownerData = createSelector(getOldestParsedCerificate, ownerCert => {
   if (!ownerCert) return null
-  const username = getCertFieldValue(ownerCert, CertFieldsTypes.nickName)
-  const onionAddress = getCertFieldValue(ownerCert, CertFieldsTypes.commonName)
-  const peerId = getCertFieldValue(ownerCert, CertFieldsTypes.peerId)
-  const dmPublicKey = getCertFieldValue(ownerCert, CertFieldsTypes.dmPublicKey)
-  const pubKey = keyFromCertificate(ownerCert)
+  const username = getCertFieldValue(ownerCert[1], CertFieldsTypes.nickName)
+  const onionAddress = getCertFieldValue(ownerCert[1], CertFieldsTypes.commonName)
+  const peerId = getCertFieldValue(ownerCert[1], CertFieldsTypes.peerId)
+  const dmPublicKey = getCertFieldValue(ownerCert[1], CertFieldsTypes.dmPublicKey)
+  const pubKey = ownerCert[0]
 
   return {
     username,

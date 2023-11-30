@@ -9,7 +9,7 @@ import { getOldestParsedCerificate } from '../users/users.selectors'
 // Workaround for "The inferred type of 'communitiesSelectors' cannot be named without a reference to
 // 'packages/identity/node_modules/pkijs/build'. This is likely not portable. A type annotation is necessary."
 // https://github.com/microsoft/TypeScript/issues/47663#issuecomment-1270716220
-import type {} from 'pkijs'
+import type { } from 'pkijs'
 
 const communitiesSlice: CreatedSelectors[StoreKeys.Communities] = (state: StoreState) => state[StoreKeys.Communities]
 
@@ -83,7 +83,7 @@ export const ownerNickname = createSelector(
       const parsedCert = parseCertificate(certificate)
       nickname = getCertFieldValue(parsedCert, CertFieldsTypes.nickName)
     } else {
-      nickname = getCertFieldValue(oldestParsedCerificate, CertFieldsTypes.nickName)
+      nickname = getCertFieldValue(oldestParsedCerificate[1], CertFieldsTypes.nickName)
     }
 
     if (!nickname) {
