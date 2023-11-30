@@ -4,11 +4,12 @@ import { type SupportedPlatformDesktop } from '@quiet/types'
 import getPort from 'get-port'
 import path from 'path'
 import fs from 'fs'
+import { DESKTOP_DATA_DIR } from '@quiet/common'
 
 export interface BuildSetupInit {
   port?: number
   debugPort?: number
-  useDataDir?: boolean
+  defaultDataDir?: boolean
   dataDir?: string
   fileName?: string
 }
@@ -19,19 +20,20 @@ export class BuildSetup {
   public debugPort?: number
   public dataDir?: string
   private child?: ChildProcessWithoutNullStreams
-  private useDataDir: boolean
+  private defaultDataDir: boolean
   private fileName?: string
 
-  constructor({ port, debugPort, useDataDir = true, dataDir, fileName }: BuildSetupInit) {
+  constructor({ port, debugPort, defaultDataDir = false, dataDir, fileName }: BuildSetupInit) {
     this.port = port
     this.debugPort = debugPort
-    this.useDataDir = useDataDir
+    this.defaultDataDir = defaultDataDir
     this.dataDir = dataDir
     this.fileName = fileName
     if (fileName) {
       this.copyInstallerFile(fileName)
     }
-    if (this.useDataDir && !this.dataDir) {
+    if (this.defaultDataDir) this.dataDir = DESKTOP_DATA_DIR
+    if (!this.dataDir) {
       this.dataDir = `e2e_${(Math.random() * 10 ** 18).toString(36)}`
     }
   }
@@ -100,8 +102,8 @@ export class BuildSetup {
   public async createChromeDriver() {
     await this.initPorts()
     const env = {
-      DATA_DIR: this.dataDir || 'Quiet',
       DEBUG: 'backend*,desktop*,utils*',
+      DATA_DIR: this.dataDir,
     }
     if (process.platform === 'win32') {
       console.log('!WINDOWS!')

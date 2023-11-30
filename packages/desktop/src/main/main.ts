@@ -9,9 +9,14 @@ import { getPorts, ApplicationPorts, closeHangingBackendProcess } from './backen
 import pkijs, { setEngine, CryptoEngine } from 'pkijs'
 import { Crypto } from '@peculiar/webcrypto'
 import logger from './logger'
-import { DATA_DIR, DEV_DATA_DIR } from '../shared/static'
 import { fork, ChildProcess } from 'child_process'
-import { argvInvitationCode, getFilesData, parseInvitationCodeDeepUrl } from '@quiet/common'
+import {
+  DESKTOP_DATA_DIR,
+  DESKTOP_DEV_DATA_DIR,
+  argvInvitationCode,
+  getFilesData,
+  parseInvitationCodeDeepUrl,
+} from '@quiet/common'
 import { updateDesktopFile, processInvitationCode } from './invitation'
 const ElectronStore = require('electron-store')
 ElectronStore.initRenderer()
@@ -33,13 +38,13 @@ const webcrypto = new Crypto()
 
 global.crypto = webcrypto
 
-let dataDir = DATA_DIR
+let dataDir = DESKTOP_DATA_DIR
 let mainWindow: BrowserWindow | null
 let splash: BrowserWindow | null
 let invitationUrl: string | null
 
 if (isDev || process.env.DATA_DIR) {
-  dataDir = process.env.DATA_DIR || DEV_DATA_DIR
+  dataDir = process.env.DATA_DIR || DESKTOP_DEV_DATA_DIR
 }
 
 const appDataPath = path.join(app.getPath('appData'), dataDir)
