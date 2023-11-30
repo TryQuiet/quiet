@@ -2,6 +2,8 @@ import { EventEmitter } from 'events'
 import KeyValueStore from 'orbit-db-kvstore'
 import OrbitDB from 'orbit-db'
 import { IdentityProvider } from 'orbit-db-identity-provider'
+// @ts-ignore Hacking around ipfs-log not exporting Entry
+import Entry from '../../../../node_modules/ipfs-log/src/entry'
 
 import { CommunityMetadata } from '@quiet/types'
 import { loadCertificate } from '@quiet/identity'
@@ -187,9 +189,15 @@ export class CommunityMetadataStore {
         return false
       }
 
+      const entryVerified = await Entry.verify(identityProvider, entry)
+      if (!entryVerified) {
+        logger.error('Failed to verify community metadata entry:', entry.hash, 'invalid entry signature')
+        return false
+      }
+
       const identityVerified = await identityProvider.verifyIdentity(entry.identity)
       if (!identityVerified) {
-        logger.error('Failed to verify community metadata entry:', entry.hash, 'entry verification failed')
+        logger.error('Failed to verify community metadata entry:', entry.hash, 'entry identity verification failed')
         return false
       }
 

@@ -4,6 +4,10 @@ import fs from 'fs'
 import { EventEmitter } from 'events'
 import { IdentityProvider } from 'orbit-db-identity-provider'
 import { create, IPFS } from 'ipfs-core'
+// @ts-ignore Hacking around ipfs-log not exporting Entry
+import Entry from '../../../../node_modules/ipfs-log/src/entry'
+
+import { CommunityMetadata } from '@quiet/types'
 
 import { CommunityMetadataStore } from './communityMetadata.store'
 import { LocalDbService } from '../../local-db/local-db.service'
@@ -19,63 +23,46 @@ const createOrbitDbInstance = async () => {
   return { orbitDb, ipfs }
 }
 
-const mockLocalDbService = { putOwnerOrbitDbIdentity: jest.fn(), getOwnerOrbitDbIdentity: jest.fn(() => 'theOwnerId') }
 const mockEmitter = { emit: jest.fn() }
 
 const metaValid = {
   id: 'anId',
+  // These are valid certs and form a chain of trust
   rootCa:
     'MIIBRTCB7KADAgECAgEBMAoGCCqGSM49BAMCMAwxCjAIBgNVBAMTAWEwHhcNMTAxMjI4MTAxMDEwWhcNMzAxMjI4MTAxMDEwWjAMMQowCAYDVQQDEwFhMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEbifF9IqU0464LTet/71bqXFrIZN6mjQ/eXYEcVJU4nenXx1Br7ZavvtzS7q/wCdy0y4C4thy+5IfrJzxvSxqPqM/MD0wDwYDVR0TBAgwBgEB/wIBAzALBgNVHQ8EBAMCAIYwHQYDVR0lBBYwFAYIKwYBBQUHAwIGCCsGAQUFBwMBMAoGCCqGSM49BAMCA0gAMEUCIQDADbVTK4Tn4pqEffh3zMXgAgrw4lpndAvoa/VmJBeWcgIgVWoI6JC9xT3SKX2oaUoWrv5/hbi5s9+FOCHnAYrK+uo=',
   ownerCertificate:
     'MIIBRTCB7KADAgECAgEBMAoGCCqGSM49BAMCMAwxCjAIBgNVBAMTAWEwHhcNMTAxMjI4MTAxMDEwWhcNMzAxMjI4MTAxMDEwWjAMMQowCAYDVQQDEwFhMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEbifF9IqU0464LTet/71bqXFrIZN6mjQ/eXYEcVJU4nenXx1Br7ZavvtzS7q/wCdy0y4C4thy+5IfrJzxvSxqPqM/MD0wDwYDVR0TBAgwBgEB/wIBAzALBgNVHQ8EBAMCAIYwHQYDVR0lBBYwFAYIKwYBBQUHAwIGCCsGAQUFBwMBMAoGCCqGSM49BAMCA0gAMEUCIQDADbVTK4Tn4pqEffh3zMXgAgrw4lpndAvoa/VmJBeWcgIgVWoI6JC9xT3SKX2oaUoWrv5/hbi5s9+FOCHnAYrK+uo=',
 }
 
-const metaValidWithOwnerId = {
-  ...metaValid,
-  ownerOrbitDbIdentity: 'theOwnerId',
-}
-
-const entryValid = {
-  payload: { op: 'PUT', key: metaValidWithOwnerId.id, value: metaValidWithOwnerId },
-  // These fields are not checked currently
-  hash: '',
-  id: '',
-  next: [''],
-  v: 1,
-  clock: {
-    // Not sure why this type is defined like this:
-    // https://github.com/orbitdb/orbit-db-types/blob/ed41369e64c054952c1e47505d598342a4967d4c/LogEntry.d.ts#L8C9-L8C17
-    id: '' as 'string',
-    time: 1,
-  },
-  key: '',
-  identity: {
-    // NOTE: This is where the entry identity is defined!
-    id: 'theOwnerId',
-    publicKey: '',
-    signatures: { id: '', publicKey: '' },
-    type: '',
-  },
-  sig: '',
-}
-
-describe('CommmunityMetadataStore/updateCommunityMetadata', () => {
+describe('CommmunityMetadataStore', () => {
   let ipfs: IPFS
+  let mockLocalDbService: LocalDbService
   let orbitDb: OrbitDB
   let store: CommunityMetadataStore
+  let metaValidWithOwnerId: CommunityMetadata
+  let entryValid: Entry
 
   beforeEach(async () => {
     ;({ orbitDb, ipfs } = await createOrbitDbInstance())
+
+    mockLocalDbService = {
+      putOwnerOrbitDbIdentity: jest.fn(),
+      // @ts-ignore - OrbitDB's type definition doesn't include identity
+      getOwnerOrbitDbIdentity: jest.fn(() => orbitDb.identity.id),
+    } as unknown as LocalDbService
+
     store = new CommunityMetadataStore()
-    await store.init(
-      orbitDb,
-      {
-        ...mockLocalDbService,
-        // @ts-ignore - OrbitDB's type definition doesn't include identity
-        getOwnerOrbitDbIdentity: jest.fn(() => orbitDb.identity.id),
-      } as unknown as LocalDbService,
-      mockEmitter as unknown as EventEmitter
-    )
+    await store.init(orbitDb, mockLocalDbService, mockEmitter as unknown as EventEmitter)
+
+    metaValidWithOwnerId = {
+      ...metaValid,
+      // @ts-ignore
+      ownerOrbitDbIdentity: orbitDb.identity.id,
+    }
+
+    const op = { op: 'PUT', key: metaValidWithOwnerId.id, value: metaValidWithOwnerId }
+    // @ts-ignore
+    entryValid = await Entry.create(ipfs, orbitDb.identity, store.store.id, op, [], null, [], false)
   })
 
   afterEach(async () => {
@@ -87,78 +74,92 @@ describe('CommmunityMetadataStore/updateCommunityMetadata', () => {
     }
   })
 
-  test('updates community metadata if the metadata is valid', async () => {
-    const ret = await store.updateCommunityMetadata(metaValid)
-    const meta = await store.getCommunityMetadata()
-    // We are using an actual instance of OrbitDb in this case, so we
-    // can use the actual identity.
-    // @ts-ignore - OrbitDB's type definition doesn't include identity
-    const expected = { ...metaValidWithOwnerId, ownerOrbitDbIdentity: orbitDb.identity.id }
+  describe('updateCommunityMetadata', () => {
+    test('updates community metadata if the metadata is valid', async () => {
+      const ret = await store.updateCommunityMetadata(metaValid)
+      const meta = await store.getCommunityMetadata()
 
-    expect(ret).toStrictEqual(expected)
-    expect(meta).toStrictEqual(expected)
+      expect(ret).toStrictEqual(metaValidWithOwnerId)
+      expect(meta).toStrictEqual(metaValidWithOwnerId)
+    })
+
+    test('does not update community metadata if the metadata is invalid', async () => {
+      const metaInvalid = {
+        ...metaValid,
+        rootCa: 'Something invalid!',
+      }
+      const ret = await store.updateCommunityMetadata(metaInvalid)
+      const meta = await store.getCommunityMetadata()
+
+      expect(ret).toStrictEqual(undefined)
+      expect(meta).toEqual(undefined)
+    })
   })
 
-  test('does not update community metadata if the metadata is invalid', async () => {
-    const metaInvalid = {
-      ...metaValid,
-      rootCa: 'Something invalid!',
-    }
-    const ret = await store.updateCommunityMetadata(metaInvalid)
-    const meta = await store.getCommunityMetadata()
+  describe('validateCommunityMetadataEntry', () => {
+    test('returns true if the owner ID is expected and entry is otherwise valid', async () => {
+      const ret = await CommunityMetadataStore.validateCommunityMetadataEntry(
+        mockLocalDbService as unknown as LocalDbService,
+        { verify: jest.fn(() => true), verifyIdentity: jest.fn(() => true) } as unknown as typeof IdentityProvider,
+        entryValid
+      )
 
-    expect(ret).toStrictEqual(undefined)
-    expect(meta).toEqual(undefined)
-  })
-})
+      expect(ret).toEqual(true)
+    })
 
-describe('CommmunityMetadataStore/validateCommunityMetadataEntry', () => {
-  test('returns true if the owner ID is expected and entry is otherwise valid', async () => {
-    const ret = await CommunityMetadataStore.validateCommunityMetadataEntry(
-      mockLocalDbService as unknown as LocalDbService,
-      { verifyIdentity: jest.fn(() => true) } as unknown as typeof IdentityProvider,
-      entryValid
-    )
+    test('returns false if verify returns false and entry is otherwise valid', async () => {
+      const ret = await CommunityMetadataStore.validateCommunityMetadataEntry(
+        mockLocalDbService as unknown as LocalDbService,
+        { verify: jest.fn(() => false), verifyIdentity: jest.fn(() => true) } as unknown as typeof IdentityProvider,
+        entryValid
+      )
 
-    expect(ret).toEqual(true)
-  })
+      expect(ret).toEqual(false)
+    })
 
-  test('returns false if the owner ID is unexpected and entry is otherwise valid', async () => {
-    const entryInvalid = {
-      ...entryValid,
-      identity: {
-        // NOTE: This is where the entry identity is defined!
-        id: 'Not the owner!',
-        publicKey: '',
-        signatures: { id: '', publicKey: '' },
-        type: '',
-      },
-    }
-    const ret = await CommunityMetadataStore.validateCommunityMetadataEntry(
-      mockLocalDbService as unknown as LocalDbService,
-      { verifyIdentity: jest.fn(() => true) } as unknown as typeof IdentityProvider,
-      entryInvalid
-    )
-    expect(ret).toEqual(false)
-  })
+    test('returns false if verifyIdentity returns false and entry is otherwise valid', async () => {
+      const ret = await CommunityMetadataStore.validateCommunityMetadataEntry(
+        mockLocalDbService as unknown as LocalDbService,
+        { verify: jest.fn(() => true), verifyIdentity: jest.fn(() => false) } as unknown as typeof IdentityProvider,
+        entryValid
+      )
 
-  test('returns false if the owner cert is unexpected and entry is otherwise valid', async () => {
-    const entryInvalid = {
-      ...entryValid,
-      payload: {
-        op: 'PUT',
-        key: metaValidWithOwnerId.id,
-        value: {
-          ...metaValidWithOwnerId,
-          rootCa: 'Something invalid!',
+      expect(ret).toEqual(false)
+    })
+
+    test('returns false if the owner ID is unexpected and entry is otherwise valid', async () => {
+      const entryInvalid = {
+        ...entryValid,
+        identity: {
+          ...entryValid.identity,
+          // NOTE: This is where the entry identity is defined!
+          id: 'Not the owner!',
         },
-      },
-    }
-    const ret = await CommunityMetadataStore.validateCommunityMetadataEntry(
-      mockLocalDbService as unknown as LocalDbService,
-      { verifyIdentity: jest.fn(() => true) } as unknown as typeof IdentityProvider,
-      entryInvalid
-    )
-    expect(ret).toEqual(false)
+      }
+      const ret = await CommunityMetadataStore.validateCommunityMetadataEntry(
+        mockLocalDbService as unknown as LocalDbService,
+        { verify: jest.fn(() => true), verifyIdentity: jest.fn(() => true) } as unknown as typeof IdentityProvider,
+        entryInvalid
+      )
+
+      expect(ret).toEqual(false)
+    })
+
+    test('returns false if the owner cert is unexpected and entry is otherwise valid', async () => {
+      const metaInvalid = {
+        ...metaValidWithOwnerId,
+        rootCa: 'Something invalid!',
+      }
+      const opInvalid = { op: 'PUT', key: metaInvalid.id, value: metaInvalid }
+      // @ts-ignore
+      const entryInvalid = await Entry.create(ipfs, orbitDb.identity, store.store.id, opInvalid, [], null, [], false)
+      const ret = await CommunityMetadataStore.validateCommunityMetadataEntry(
+        mockLocalDbService as unknown as LocalDbService,
+        { verify: jest.fn(() => true), verifyIdentity: jest.fn(() => true) } as unknown as typeof IdentityProvider,
+        entryInvalid
+      )
+
+      expect(ret).toEqual(false)
+    })
   })
 })
