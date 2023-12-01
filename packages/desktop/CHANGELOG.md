@@ -1,3 +1,25 @@
+# Change Log
+
+All notable changes to this project will be documented in this file.
+See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+## [2.0.3-alpha.11](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@2.0.3-alpha.10...@quiet/desktop@2.0.3-alpha.11) (2023-12-01)
+
+
+### Bug Fixes
+
+* e2e test for invitation link; ([#2126](https://github.com/TryQuiet/quiet/issues/2126)) ([5ddbc6a](https://github.com/TryQuiet/quiet/commit/5ddbc6adbbd694b030e61dbde50d73c658b097c9))
+
+
+### Features
+
+* add Certificates store and validation ([#2072](https://github.com/TryQuiet/quiet/issues/2072)) ([47669f4](https://github.com/TryQuiet/quiet/commit/47669f42edb1366b24de96139891909d696ded6d)), closes [#1899](https://github.com/TryQuiet/quiet/issues/1899)
+* export chats per channel ([c3faf4f](https://github.com/TryQuiet/quiet/commit/c3faf4f46693c3c08da23d57b4e8a3b2f4aec0ec)), closes [#2102](https://github.com/TryQuiet/quiet/issues/2102)
+
+
+
+
+
 [unreleased]
 
 * Better descriptions of the joining process

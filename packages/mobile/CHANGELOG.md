@@ -1,3 +1,19 @@
+# Change Log
+
+All notable changes to this project will be documented in this file.
+See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+## [2.0.3-alpha.12](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@2.0.3-alpha.11...@quiet/mobile@2.0.3-alpha.12) (2023-12-01)
+
+
+### Bug Fixes
+
+* check websocket client connection status before blocking the flow [#1970](https://github.com/TryQuiet/quiet/issues/1970) ([#2125](https://github.com/TryQuiet/quiet/issues/2125)) ([faca03b](https://github.com/TryQuiet/quiet/commit/faca03ba9458e12ec41b85100d8de03ad64f3e03))
+
+
+
+
+
 [unreleased]
 
 * Better descriptions of the joining process
