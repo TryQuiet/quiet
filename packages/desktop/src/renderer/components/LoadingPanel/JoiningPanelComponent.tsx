@@ -4,6 +4,8 @@ import Modal from '../ui/Modal/Modal'
 import JoinCommunityImg from '../../static/images/join-community.png'
 import { Grid, Typography } from '@mui/material'
 import { Site } from '@quiet/common'
+import { ConnectionProcessInfo } from '@quiet/types'
+import classNames from 'classnames'
 
 const PREFIX = 'JoiningPanelComponent'
 
@@ -19,6 +21,7 @@ const classes = {
   progressBar: `${PREFIX}progressBar`,
   progress: `${PREFIX}progress`,
   progressBarWrapper: `${PREFIX}progressBarWrapper`,
+  animatedProgress: `${PREFIX}animatedProgress`,
 }
 
 const StyledGrid = styled(Grid)(({ theme, width }) => ({
@@ -67,14 +70,31 @@ const StyledGrid = styled(Grid)(({ theme, width }) => ({
     overflow: 'hidden',
     marginBottom: '8px',
   },
-  [`& .${classes.progress}`]: {
+  '@keyframes width': {
+    from: { width: '150px' },
+    to: { width: '300px' },
+  },
+  [`& .${classes.animatedProgress}`]: {
+    animationName: 'width',
+    animationDuration: '4s',
+    animationTimingFunction: 'linear',
+    animationIterationCount: 'infinite',
+    transition: '3s all',
     backgroundColor: theme.palette.colors.lushSky,
+    position: 'absolute',
+    zIndex: 1,
+    height: '4px',
+  },
+  [`& .${classes.progress}`]: {
+    backgroundColor: theme.palette.colors.blue,
     width: width,
     height: '4px',
     position: 'relative',
+    zIndex: 2,
   },
   [`& .${classes.progressBarWrapper}`]: {
-    // margin: '16px 0 40px'
+    // margin: '16px 0 40px',
+
     margin: '16px 0 20px',
   },
 }))
@@ -83,7 +103,7 @@ export interface JoiningPanelComponentProps {
   open: boolean
   handleClose: () => void
   openUrl: (url: string) => void
-  torConnectionInfo: { number: number; text: string }
+  connectionInfo: { number: number; text: ConnectionProcessInfo }
   isOwner: boolean
 }
 
@@ -91,12 +111,12 @@ const JoiningPanelComponent: React.FC<JoiningPanelComponentProps> = ({
   open,
   handleClose,
   openUrl,
-  torConnectionInfo,
+  connectionInfo,
   isOwner,
 }) => {
   return (
     <Modal open={open} handleClose={handleClose} isCloseDisabled={true} withoutHeader>
-      <StyledGrid container justifyContent='center' className={classes.root} width={torConnectionInfo.number * 3}>
+      <StyledGrid container justifyContent='center' className={classes.root} width={connectionInfo.number * 3}>
         <Grid
           container
           alignItems='center'
@@ -112,8 +132,14 @@ const JoiningPanelComponent: React.FC<JoiningPanelComponentProps> = ({
           <div className={classes.progressBarWrapper}>
             <Grid container justifyContent='flex-start' alignItems='center' className={classes.progressBar}>
               <div className={classes.progress}></div>
+
+              <div
+                className={classNames({
+                  [classes.animatedProgress]: connectionInfo.text === ConnectionProcessInfo.CONNECTING_TO_COMMUNITY,
+                })}
+              ></div>
             </Grid>
-            <Typography variant='body2'>{torConnectionInfo.text}</Typography>
+            <Typography variant='body2'>{connectionInfo.text}</Typography>
           </div>
 
           <Typography variant='body2' className={classes.text}>

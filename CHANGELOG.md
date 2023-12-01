@@ -1,5 +1,15 @@
 [unreleased]
 
+* Better descriptions of the joining process
+
+* Update custom deps repositiries (upload-s3-action, ipfs-pubsub-peer-monitor)
+
+* Add certificates validation.
+
+* Move certificates to separate store.
+
+* Move csrs to separate store.
+
 * Fix saveUserCsr saga to trigger only if user csr is absent in user slice.
 
 * Send an info message immediately after a user joins the community

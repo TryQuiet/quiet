@@ -4,17 +4,22 @@ import { ErrorPayload, PermsData, SocketActionTypes, SuccessfullRegistrarionResp
 import { CsrContainsFields, IsCsr } from './registration.validators'
 import { RegistrationEvents } from './registration.types'
 import { loadCSR, CertFieldsTypes, getCertFieldValue, getReqFieldValue, parseCertificate } from '@quiet/identity'
-import { CertificationRequest } from 'pkijs'
 import Logger from '../common/logger'
-import { load } from 'mock-fs'
 
 const logger = Logger('registration.functions')
-class UserCsrData {
+
+export class UserCsrData {
   @IsNotEmpty()
   @IsBase64()
   @IsCsr()
   @CsrContainsFields()
   csr: string
+}
+
+export class CertificateData {
+  @IsNotEmpty()
+  @IsBase64()
+  certificate: string
 }
 
 export interface RegistrarResponse {

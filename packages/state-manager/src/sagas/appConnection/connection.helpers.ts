@@ -1,17 +1,17 @@
-import { TOR_BOOTSTRAP_COMPLETE } from '@quiet/types'
+import { ConnectionProcessInfo, TOR_BOOTSTRAP_COMPLETE } from '@quiet/types'
 
 export function resetStateAndSaveTorConnectionData() {
   const torBootstrapProcess = TOR_BOOTSTRAP_COMPLETE
 
-  const torConnectionProcess = {
+  const connectionProcess = {
     number: 5,
-    text: 'Connecting process started',
+    text: ConnectionProcessInfo.CONNECTION_STARTED,
   }
 
   const freshState = {
     Connection: {
       torBootstrapProcess,
-      torConnectionProcess,
+      connectionProcess,
       peerStats: { ids: [], entities: {} },
     },
   }

@@ -6,8 +6,8 @@ import ConnectionProcessComponent from './ConnectionProcess.component'
 storiesOf('ConnectionProcess', module).add('Default', () => (
   <ConnectionProcessComponent
     connectionProcess={{
-      number: 40,
-      text: ConnectionProcessInfo.SPAWNING_HIDDEN_SERVICE,
+      number: 50,
+      text: ConnectionProcessInfo.CONNECTING_TO_COMMUNITY,
     }}
     openUrl={() => console.log('open')}
   />

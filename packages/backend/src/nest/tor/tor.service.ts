@@ -5,7 +5,7 @@ import path from 'path'
 import getPort from 'get-port'
 import { removeFilesFromDir } from '../common/utils'
 import { EventEmitter } from 'events'
-import { SocketActionTypes, SupportedPlatform } from '@quiet/types'
+import { ConnectionProcessInfo, SocketActionTypes, SupportedPlatform } from '@quiet/types'
 import { Inject, OnModuleInit } from '@nestjs/common'
 import { ConfigOptions, ServerIoProviderTypes } from '../types'
 import { CONFIG_OPTIONS, QUIET_DIR, SERVER_IO_PROVIDER, TOR_PARAMS_PROVIDER, TOR_PASSWORD_PROVIDER } from '../const'
@@ -226,6 +226,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
 
       this.process.stdout.on('data', (data: any) => {
         this.logger(data.toString())
+
         const regexp = /Bootstrapped 0/
         if (regexp.test(data.toString())) {
           this.spawnHiddenServices()

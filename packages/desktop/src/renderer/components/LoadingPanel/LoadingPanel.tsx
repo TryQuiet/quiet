@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useModal } from '../../containers/hooks'
 import { ModalName } from '../../sagas/modals/modals.types'
 import { socketSelectors } from '../../sagas/socket/socket.selectors'
-import { communities, publicChannels, users, identity, connection, network, errors } from '@quiet/state-manager'
+import { communities, publicChannels, users, connection, network, errors } from '@quiet/state-manager'
 import { modalsActions } from '../../sagas/modals/modals.slice'
 import { shell } from 'electron'
 import JoiningPanelComponent from './JoiningPanelComponent'
@@ -16,38 +16,23 @@ const LoadingPanel = () => {
   const loadingPanelModal = useModal(ModalName.loadingPanel)
 
   const isConnected = useSelector(socketSelectors.isConnected)
-
   const currentCommunity = useSelector(communities.selectors.currentCommunity)
   const isChannelReplicated = Boolean(useSelector(publicChannels.selectors.publicChannels)?.length > 0)
-
-  const currentChannelDisplayableMessages = useSelector(publicChannels.selectors.currentChannelMessagesMergedBySender)
-
   const community = useSelector(communities.selectors.currentCommunity)
   const owner = Boolean(community?.CA)
   const usersData = Object.keys(useSelector(users.selectors.certificates))
   const isOnlyOneUser = usersData.length === 1
+  const connectionProcessSelector = useSelector(connection.selectors.connectionProcess)
+  const isJoiningCompletedSelector = useSelector(connection.selectors.isJoiningCompleted)
 
-  const torBootstrapProcessSelector = useSelector(connection.selectors.torBootstrapProcess)
-  const torConnectionProcessSelector = useSelector(connection.selectors.torConnectionProcess)
-
-  const communityId = useSelector(communities.selectors.currentCommunityId)
-  const initializedCommunities = useSelector(network.selectors.initializedCommunities)
-  const isCommunityInitialized = Boolean(initializedCommunities[communityId])
   const error = useSelector(errors.selectors.registrarErrors)
   const registrationError = error?.code === ErrorCodes.FORBIDDEN
 
   useEffect(() => {
-    const areMessagesLoaded = Object.values(currentChannelDisplayableMessages).length > 0
-    console.log('HUNTING for haisenbug:')
-    console.log('isConnected', isConnected)
-    console.log('communityId', communityId)
-    console.log('isCommunityInitialized', isCommunityInitialized)
-    console.log('areMessagesLoaded?', areMessagesLoaded)
-    console.log('registrationError', registrationError)
-    if ((isConnected && isCommunityInitialized && areMessagesLoaded) || registrationError) {
+    if (isJoiningCompletedSelector || registrationError) {
       loadingPanelModal.handleClose()
     }
-  }, [isConnected, torBootstrapProcessSelector, isCommunityInitialized, currentChannelDisplayableMessages, error])
+  }, [isJoiningCompletedSelector, error])
 
   useEffect(() => {
     if (isConnected) {
@@ -77,7 +62,7 @@ const LoadingPanel = () => {
       <JoiningPanelComponent
         {...loadingPanelModal}
         openUrl={openUrl}
-        torConnectionInfo={torConnectionProcessSelector}
+        connectionInfo={connectionProcessSelector}
         isOwner={owner}
       />
     )
