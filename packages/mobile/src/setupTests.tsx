@@ -37,6 +37,18 @@ jest.mock('redux-persist', () => {
 
 jest.mock('react-native/Libraries/EventEmitter/NativeEventEmitter')
 
+jest.mock('redux-persist-filesystem-storage', () => ({
+  config: jest.fn()
+}))
+
+jest.mock('react-native-blob-util', () => ({
+  fs: {
+    dirs: {
+      DocumentDir: 'dir'
+    }
+  }
+}))
+
 jest.mock('react-native-mathjax-html-to-svg', () => { })
 
 jest.mock('react-native-qrcode-svg', () => jest.fn())
