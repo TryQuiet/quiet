@@ -139,14 +139,28 @@ def reactNativeArchitectures() {
     return value ? value.split(",") : ["arm64-v8a"]
 }
 
-Properties properties = new Properties()
-def localPropertiesFile = project.rootProject.file('local.properties')
-if (localPropertiesFile.exists()) {
-    properties.load(localPropertiesFile.newDataInputStream())
+def getNDK() {
+    // Load local.properties
+    Properties properties = new Properties()
+    def localPropertiesFile = rootProject.file('local.properties')
+    if (localPropertiesFile.exists()) {
+        properties.load(localPropertiesFile.newDataInputStream())
+    }
+
+    // Return ndk.dir if it exists
+    def localNDK = properties['ndk.path']
+    if (localNDK) {
+        return localNDK
+    }
+
+    // If ndk.dir doesn't exist, check for NDK_PATH in gradle.properties
+    return rootProject.ext.has('NDK_PATH') ? rootProject.ext.get('NDK_PATH') : null
 }
 
+def ndkDirectory = getNDK()
+
 android {
-    ndkPath properties.getProperty('ndk.dir', project.property('NDK_PATH'))
+    ndkPath ndkDirectory
 
     ndkVersion rootProject.ext.ndkVersion
 
@@ -172,8 +186,8 @@ android {
         applicationId "com.quietmobile"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 381
-        versionName "2.0.3-alpha.11"
+        versionCode 383
+        versionName "2.0.3-alpha.13"
         resValue "string", "build_config_package", "com.quietmobile"
         testBuildType System.getProperty('testBuildType', 'debug')
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'

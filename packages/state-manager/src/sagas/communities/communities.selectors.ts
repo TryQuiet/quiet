@@ -83,7 +83,7 @@ export const ownerNickname = createSelector(
       const parsedCert = parseCertificate(certificate)
       nickname = getCertFieldValue(parsedCert, CertFieldsTypes.nickName)
     } else {
-      nickname = getCertFieldValue(oldestParsedCerificate, CertFieldsTypes.nickName)
+      nickname = getCertFieldValue(oldestParsedCerificate.certificate, CertFieldsTypes.nickName)
     }
 
     if (!nickname) {
