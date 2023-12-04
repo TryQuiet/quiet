@@ -1,3 +1,20 @@
+# Change Log
+
+All notable changes to this project will be documented in this file.
+See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+## [2.0.3-alpha.13](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@2.0.3-alpha.12...@quiet/mobile@2.0.3-alpha.13) (2023-12-04)
+
+
+### Bug Fixes
+
+* correct getting ndk path ([#2130](https://github.com/TryQuiet/quiet/issues/2130)) ([f0a6336](https://github.com/TryQuiet/quiet/commit/f0a6336434d4f8ba829123ca6f24d3df3df557a8))
+* poin to a different directory after breaking changes ([#2132](https://github.com/TryQuiet/quiet/issues/2132)) ([07ef5bb](https://github.com/TryQuiet/quiet/commit/07ef5bb5a403ee52cf69982d19a9d0b14f11c969))
+
+
+
+
+
 [2.0.3-alpha.12]
 
 * Better descriptions of the joining process
