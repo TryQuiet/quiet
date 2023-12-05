@@ -25,11 +25,9 @@ import { createTmpDir, getCors, torBinForPlatform, torDirForPlatform } from './u
 
 const torPath = torBinForPlatform()
 const libPath = torDirForPlatform()
-// torBinaryPath: '../../../../../3rd-party/tor/linux/tor',
-// torResourcesPath: '../../../../../3rd-party/tor/linux',
 export const defaultConfigForTest = {
   socketIOPort: TEST_DATA_PORT,
-  torBinaryPath: torBinForPlatform(),
+  torBinaryPath: torPath,
   torResourcesPath: torPath,
   torControlPort: await getPort(),
   options: {
