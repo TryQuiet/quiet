@@ -11,7 +11,7 @@ export const validInvitationCodeTestData: InvitationData[] = [
       },
     ],
     psk: 'BNlxfE2WBF7LrlpIX0CvECN5o1oZtA16PkAb7GYiwYw=',
-    ownerOrbitDbIdentity: 'testOrbitDbIdentity1',
+    ownerOrbitDbIdentity: '018f9e87541d0b61cb4565af8df9699f658116afc54ae6790c31bbf6df3fc343b0',
   },
   {
     pairs: [
@@ -21,7 +21,7 @@ export const validInvitationCodeTestData: InvitationData[] = [
       },
     ],
     psk: '5T9GBVpDoRpKJQK4caDTz5e5nym2zprtoySL2oLrzr4=',
-    ownerOrbitDbIdentity: 'testOrbitDbIdentity2',
+    ownerOrbitDbIdentity: '028f9e87541d0b61cb4565af8df9699f658116afc54ae6790c31bbf6df3fc343b0',
   },
 ]
 
