@@ -14,7 +14,7 @@ import { Libp2pNodeParams } from '../libp2p/libp2p.types'
 import { createLibp2pAddress, createLibp2pListenAddress, isDefined } from '@quiet/common'
 import { Libp2pService } from '../libp2p/libp2p.service'
 import { CertFieldsTypes, getReqFieldValue, loadCSR } from '@quiet/identity'
-import { exec } from 'child_process'
+import { execFile } from 'child_process'
 
 const log = logger('test')
 
@@ -255,7 +255,7 @@ export function killAll(pid: number, signal: string | number = 'SIGTERM') {
   // Kills group of processes
   console.log(`Killing processes group with pid ${pid}. Signal: ${signal}`)
   if (process.platform == 'win32') {
-    exec(`taskkill /PID ${pid} /T /F`, (error, stdout, stderr) => {
+    execFile('taskkill /PID ' + pid + ' /T /F', (error, stdout, stderr) => {
       console.log('taskkill stdout: ' + stdout)
       console.log('taskkill stderr: ' + stderr)
       if (error) {
