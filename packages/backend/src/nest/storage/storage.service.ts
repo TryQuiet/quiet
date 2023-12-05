@@ -62,7 +62,6 @@ export class StorageService extends EventEmitter {
   public publicChannelsRepos: Map<string, PublicChannelsRepo> = new Map()
   public directMessagesRepos: Map<string, DirectMessagesRepo> = new Map()
   private publicKeysMap: Map<string, CryptoKey> = new Map()
-  private userNamesMap: Map<string, string> = new Map()
 
   public communityMetadataStore: CommunityMetadataStore
   public certificatesRequestsStore: CertificatesRequestsStore
