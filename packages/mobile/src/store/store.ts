@@ -23,10 +23,10 @@ import { InitTransform } from './init/init.transform'
 
 FilesystemStorage.config({
   storagePath: `${RNFetchBlob.fs.dirs.DocumentDir}/persistStore2`,
-  encoding: "utf8",
-  toFileName: (name: string) => name.split(":").join("-"),
-  fromFileName: (name: string) => name.split("-").join(":"),
-});
+  encoding: 'utf8',
+  toFileName: (name: string) => name.split(':').join('-'),
+  fromFileName: (name: string) => name.split('-').join(':'),
+})
 
 const persistedReducer = persistReducer(
   {
