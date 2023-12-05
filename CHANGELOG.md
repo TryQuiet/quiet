@@ -1,3 +1,7 @@
+[unreleased]
+
+* Handle spaces in tor process path. Run tor process in shell
+
 [2.0.3-alpha.12]
 
 * Better descriptions of the joining process
