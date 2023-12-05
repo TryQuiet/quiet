@@ -90,7 +90,6 @@ export const allUsers = createSelector(csrsMapping, certificatesMapping, (csrs, 
       isDuplicated: false,
       pubKey,
     }
-    console.log('Unregistered Debug - allUsers selector - certs - user', users[pubKey])
   })
 
   Object.keys(csrs).map(pubKey => {
@@ -106,16 +105,12 @@ export const allUsers = createSelector(csrsMapping, certificatesMapping, (csrs, 
 
     const isRegistered = Boolean(certs[pubKey])
 
-    console.log('Unregistered Debug - allUsers selector - csrs - certs[pubKey]', certs[pubKey])
-
     users[pubKey] = {
       ...csrs[pubKey],
       isRegistered,
       isDuplicated,
       pubKey,
     }
-
-    console.log('Unregistered Debug - allUsers selector - csrs - user', users[pubKey])
   })
 
   return users
