@@ -158,9 +158,10 @@ export class Tor extends EventEmitter implements OnModuleInit {
   public clearHangingTorProcess() {
     const torProcessId = child_process.execSync(this.hangingTorProcessCommand()).toString('utf8').trim()
     if (!torProcessId) return
-    this.logger(`Found tor process with pid ${torProcessId}. Killing...`)
+    const ids = torProcessId.split('\n') // Spawning with {shell:true} starts 2 processes
+    this.logger(`Found tor process(es) with pid(s) ${ids}. Killing...`)
     try {
-      killAll(Number(torProcessId))
+      killAll(Number(ids[0].trim()))
     } catch (e) {
       this.logger.error(`Tried killing hanging tor process. Failed. Reason: ${e.message}`)
     }
@@ -352,7 +353,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
       this.process?.on('error', () => {
         reject(new Error('TOR: Something went wrong with killing tor process'))
       })
-      this.process?.pid && killAll(this.process?.pid)
+      // this.process?.pid && killAll(this.process?.pid)
     })
   }
 }
