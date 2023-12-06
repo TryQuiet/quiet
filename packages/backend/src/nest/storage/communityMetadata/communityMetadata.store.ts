@@ -209,7 +209,7 @@ export class CommunityMetadataStore {
     }
   }
 
-  public async getCommunityMetadata(): Promise<CommunityMetadata | undefined> {
+  public getCommunityMetadata(): Promise<CommunityMetadata | undefined> {
     const metadata = Object.values(this.store.all)
 
     if (metadata.length > 0) {
