@@ -67,8 +67,7 @@ describe('registrar is offline, user tries to join, then registrar goes online',
   test('owner creates community', async () => {
     await createCommunity({ userName: 'placek', store: owner.store })
     await assertInitializedCommunity(owner.store)
-    const communityId = owner.store.getState().Communities.currentCommunity
-    registrarAddress = owner.store.getState().Communities.communities.entities[communityId].onionAddress
+    registrarAddress = owner.store.getState().Communities.community.onionAddress
     ownerOldState = storePersistor(owner.store.getState())
     ownerDataPath = owner.appPath
   })

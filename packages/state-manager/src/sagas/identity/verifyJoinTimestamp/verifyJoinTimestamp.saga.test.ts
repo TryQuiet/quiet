@@ -22,9 +22,9 @@ describe('verifyJoinTimestampSaga', () => {
 
   it('user has valid timestamp', async () => {
     const community =
-      await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
+      await factory.create<ReturnType<typeof communitiesActions.storeCommunity>['payload']>('Community')
 
-    await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
+    await factory.create<ReturnType<typeof identityActions.storeIdentity>['payload']>('Identity', {
       id: community.id,
       nickname: 'john',
     })
@@ -35,9 +35,9 @@ describe('verifyJoinTimestampSaga', () => {
 
   it('user doesnt have timestamp', async () => {
     const community =
-      await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
+      await factory.create<ReturnType<typeof communitiesActions.storeCommunity>['payload']>('Community')
 
-    await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
+    await factory.create<ReturnType<typeof identityActions.storeIdentity>['payload']>('Identity', {
       id: community.id,
       nickname: 'john',
       joinTimestamp: null,
@@ -47,7 +47,7 @@ describe('verifyJoinTimestampSaga', () => {
     await expectSaga(verifyJoinTimestampSaga)
       .withReducer(reducer)
       .withState(store.getState())
-      .put(identityActions.updateJoinTimestamp({ communityId: community.id }))
+      .put(identityActions.updateJoinTimestamp())
       .run()
   })
 })

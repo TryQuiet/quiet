@@ -276,7 +276,7 @@ describe('StorageService', () => {
     })
   })
 
-  describe.only('Certificate', () => {
+  describe('Certificate', () => {
     // FIXME: Due to moving certificates to a separate store and lack of proper nest configuration, this test is broken
     it.skip('username check fails if username is already in use', async () => {
       const userCertificate = await createUserCert(
@@ -290,7 +290,7 @@ describe('StorageService', () => {
 
       await storageService.init(peerId)
 
-      await storageService.saveCertificate({ certificate: userCertificate.userCertString, rootPermsData })
+      await storageService.saveCertificate({ certificate: userCertificate.userCertString, permsData: rootPermsData })
 
       for (const username of ['alice', 'Alice', 'Ąlicę', 'álicẽ']) {
         const usernameCert = storageService.usernameCert(username)

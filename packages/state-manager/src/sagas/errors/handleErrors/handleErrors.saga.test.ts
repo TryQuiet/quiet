@@ -25,10 +25,10 @@ describe('handle errors', () => {
 
   test('receiving registrar server error results in retrying registration', async () => {
     const factory = await getFactory(store)
-    community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community', {
+    community = await factory.create<ReturnType<typeof communitiesActions.storeCommunity>['payload']>('Community', {
       registrationAttempts: 0,
     })
-    identity = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
+    identity = await factory.create<ReturnType<typeof identityActions.storeIdentity>['payload']>('Identity', {
       id: community.id,
       nickname: 'alice',
     })
@@ -52,8 +52,8 @@ describe('handle errors', () => {
 
   test('taken username error does not trigger re-registration and puts error into store', async () => {
     const factory = await getFactory(store)
-    community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
-    identity = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
+    community = await factory.create<ReturnType<typeof communitiesActions.storeCommunity>['payload']>('Community')
+    identity = await factory.create<ReturnType<typeof identityActions.storeIdentity>['payload']>('Identity', {
       id: community.id,
       nickname: 'alice',
     })
@@ -72,12 +72,7 @@ describe('handle errors', () => {
       .withState(store.getState())
       .provide([[call.fn(delay), null]])
       .not.put(
-        identityActions.registerCertificate({
-          communityId: community.id,
-          nickname: identity.nickname,
-          // @ts-expect-error
-          userCsr: identity.userCsr,
-        })
+        identityActions.registerCertificate()
       )
       .put(errorsActions.addError(errorPayload))
       .run()

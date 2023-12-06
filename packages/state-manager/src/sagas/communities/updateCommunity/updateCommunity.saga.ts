@@ -1,7 +1,9 @@
 import { CertFieldsTypes, getCertFieldValue, loadCertificate } from '@quiet/identity'
-import { call, put } from 'typed-redux-saga'
+import { call, put, select } from 'typed-redux-saga'
 import { communitiesActions } from '../communities.slice'
+import { communitiesSelectors } from '../communities.selectors'
 import { type PayloadAction } from '@reduxjs/toolkit'
+import { Community } from '@quiet/types'
 
 export function* updateCommunitySaga(
   action: PayloadAction<ReturnType<typeof communitiesActions.updateCommunity>['payload']>
@@ -14,8 +16,10 @@ export function* updateCommunitySaga(
     return
   }
 
-  const payload = {
-    id: action.payload.id,
+  const community = yield* select(communitiesSelectors.currentCommunity)
+
+  const payload: Community = {
+    ...community,
     rootCa: action.payload.rootCa,
     name: communityName,
   }

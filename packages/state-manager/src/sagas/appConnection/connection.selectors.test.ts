@@ -21,7 +21,7 @@ describe('communitiesSelectors', () => {
   })
 
   it('select peers sorted by quality', async () => {
-    community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community', {
+    community = await factory.create<ReturnType<typeof communitiesActions.storeCommunity>['payload']>('Community', {
       peerList: [
         '/dns4/ubapl2lfxci5cc35oegshdsjhlt656xo6vbmztpb2ndb6ftqjjuv5myd.onion/tcp/443/ws/p2p/QmQEk68gnPTRhfBvRAPWXjjXjPydV1MvvZGGJF7W7w2Sv5',
         '/dns4/rjdhzqgrl3bzu4v5cwfla3tafjtdeuzeapk34qvf7mvfhc3hih5fmnqd.onion/tcp/443/ws/p2p/QmbrDuN2oCb8G2e1ajRzpfnALGbeFDYFSoVCBhUYGLSeRD',

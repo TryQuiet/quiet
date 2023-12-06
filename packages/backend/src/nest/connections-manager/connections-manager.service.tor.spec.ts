@@ -60,10 +60,10 @@ beforeEach(async () => {
   store = prepareStore().store
   factory = await getFactory(store)
   communityRootCa = 'rootCa'
-  community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community', {
+  community = await factory.create<ReturnType<typeof communities.actions.storeCommunity>['payload']>('Community', {
     rootCa: communityRootCa,
   })
-  userIdentity = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+  userIdentity = await factory.create<ReturnType<typeof identity.actions.storeIdentity>['payload']>('Identity', {
     id: community.id,
     nickname: 'john',
   })

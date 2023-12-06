@@ -1,4 +1,4 @@
-import React, { FC, useCallback } from 'react'
+import React, { FC, useCallback, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { identity, communities } from '@quiet/state-manager'
 import { CommunityOwnership, CreateNetworkPayload } from '@quiet/types'
@@ -15,7 +15,7 @@ export const CreateCommunityScreen: FC = () => {
   const currentCommunity = useSelector(communities.selectors.currentCommunity)
   const currentIdentity = useSelector(identity.selectors.currentIdentity)
 
-  const networkCreated = Boolean(currentCommunity && !currentIdentity?.userCertificate)
+  const networkCreated = Boolean(currentCommunity.CA)
 
   const createCommunityAction = useCallback(
     (name: string) => {
@@ -24,11 +24,6 @@ export const CreateCommunityScreen: FC = () => {
         name,
       }
       dispatch(communities.actions.createNetwork(payload))
-      dispatch(
-        navigationActions.navigation({
-          screen: ScreenNames.UsernameRegistrationScreen,
-        })
-      )
     },
     [dispatch]
   )
@@ -40,6 +35,16 @@ export const CreateCommunityScreen: FC = () => {
       })
     )
   }, [dispatch])
+
+  useEffect(() => {
+    if (networkCreated) {
+      dispatch(
+        navigationActions.navigation({
+          screen: ScreenNames.UsernameRegistrationScreen,
+        })
+      )
+    }
+  }, [networkCreated])
 
   return (
     <CreateCommunity

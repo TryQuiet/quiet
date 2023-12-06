@@ -82,11 +82,11 @@ describe('Opening app through custom protocol', () => {
       store
     )
 
-    store.dispatch(communities.actions.addNewCommunity(community))
+    store.dispatch(communities.actions.storeCommunity(community))
     store.dispatch(communities.actions.setCurrentCommunity(community.id))
 
     // @ts-expect-error
-    store.dispatch(identity.actions.addNewIdentity(_identity))
+    store.dispatch(identity.actions.storeIdentity(_identity))
 
     // Confirm user is being redirected to username registration
     const createUsernameTitle = await screen.findByText('Register a username')

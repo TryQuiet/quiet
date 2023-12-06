@@ -60,7 +60,6 @@ export interface InitCommunityPayload {
 }
 
 export interface UpdateCommunityPayload {
-  id: string
   rootCa: string
 }
 
@@ -78,12 +77,10 @@ export interface ResponseRegistrarPayload {
 }
 
 export interface StorePeerListPayload {
-  communityId: string
   peerList: string[]
 }
 
 export interface UpdatePeerListPayload {
-  communityId: string
   peerId: string
 }
 
@@ -97,12 +94,10 @@ export interface ResponseLaunchCommunityPayload {
 }
 
 export interface UpdateRegistrationAttemptsPayload {
-  id: string
   registrationAttempts: number
 }
 
 export interface AddOwnerCertificatePayload {
-  communityId: string
   ownerCertificate: string
 }
 

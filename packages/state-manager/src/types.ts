@@ -3,21 +3,22 @@ import { type DefaultEventsMap } from 'socket.io-client/build/typed-events'
 import { type messagesActions } from './sagas/messages/messages.slice'
 import { type publicChannelsActions } from './sagas/publicChannels/publicChannels.slice'
 import {
-  SaveCSRPayload,
   type CancelDownloadPayload,
   type Community,
   type DeleteFilesFromChannelSocketPayload,
   type DownloadFilePayload,
   type InitCommunityPayload,
   type LaunchRegistrarPayload,
-  type RegisterOwnerCertificatePayload,
-  type RegisterUserCertificatePayload,
   type SaveOwnerCertificatePayload,
   type SendMessagePayload,
   type SocketActionTypes,
   type UploadFilePayload,
+  type UserCsr,
   CommunityMetadata,
+  SaveCsrPayload,
 } from '@quiet/types'
+
+import { RegisterOwnerCertificatePayload } from './sagas/identity/identity.types'
 
 type EmitEvent<Payload> = (payload: Payload) => void
 
@@ -30,7 +31,7 @@ export interface EmitEvents {
   [SocketActionTypes.UPLOAD_FILE]: EmitEvent<UploadFilePayload>
   [SocketActionTypes.SAVE_OWNER_CERTIFICATE]: EmitEvent<SaveOwnerCertificatePayload>
   [SocketActionTypes.REGISTER_OWNER_CERTIFICATE]: EmitEvent<RegisterOwnerCertificatePayload>
-  [SocketActionTypes.REGISTER_USER_CERTIFICATE]: EmitEvent<RegisterUserCertificatePayload>
+  [SocketActionTypes.REGISTER_USER_CERTIFICATE]: void
   [SocketActionTypes.CREATE_COMMUNITY]: EmitEvent<InitCommunityPayload>
   [SocketActionTypes.ASK_FOR_MESSAGES]: EmitEvent<ReturnType<typeof messagesActions.askForMessages>['payload']>
   [SocketActionTypes.CREATE_CHANNEL]: EmitEvent<ReturnType<typeof publicChannelsActions.createChannel>['payload']>
@@ -39,7 +40,7 @@ export interface EmitEvents {
   [SocketActionTypes.CLOSE]: () => void
   [SocketActionTypes.LEAVE_COMMUNITY]: () => void
   [SocketActionTypes.CREATE_NETWORK]: EmitEvent<Community>
-  [SocketActionTypes.SAVE_USER_CSR]: EmitEvent<SaveCSRPayload>
+  [SocketActionTypes.SAVE_USER_CSR]: EmitEvent<SaveCsrPayload>
   [SocketActionTypes.SEND_COMMUNITY_METADATA]: EmitEvent<CommunityMetadata>
 }
 

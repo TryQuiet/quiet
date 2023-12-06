@@ -22,13 +22,13 @@ describe('checkForMissingFilesSaga', () => {
     const factory = await getFactory(initialState)
 
     const community =
-      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
+      await factory.create<ReturnType<typeof communities.actions.storeCommunity>['payload']>('Community')
 
     const generalChannel = publicChannelsSelectors.generalChannel(initialState.getState())
     if (!generalChannel) return
     expect(generalChannel).not.toBeUndefined()
 
-    const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+    const alice = await factory.create<ReturnType<typeof identity.actions.storeIdentity>['payload']>('Identity', {
       id: community.id,
       nickname: 'alice',
     })
@@ -100,12 +100,12 @@ describe('checkForMissingFilesSaga', () => {
     const factory = await getFactory(initialState)
 
     const community =
-      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
+      await factory.create<ReturnType<typeof communities.actions.storeCommunity>['payload']>('Community')
 
     const generalChannel = publicChannelsSelectors.generalChannel(initialState.getState())
     if (!generalChannel) return
     expect(generalChannel).not.toBeUndefined()
-    const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+    const alice = await factory.create<ReturnType<typeof identity.actions.storeIdentity>['payload']>('Identity', {
       id: community.id,
       nickname: 'alice',
     })
@@ -177,12 +177,12 @@ describe('checkForMissingFilesSaga', () => {
     const factory = await getFactory(initialState)
 
     const community =
-      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
+      await factory.create<ReturnType<typeof communities.actions.storeCommunity>['payload']>('Community')
 
     const generalChannel = publicChannelsSelectors.generalChannel(initialState.getState())
     if (!generalChannel) return
     expect(generalChannel).not.toBeUndefined()
-    const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+    const alice = await factory.create<ReturnType<typeof identity.actions.storeIdentity>['payload']>('Identity', {
       id: community.id,
       nickname: 'alice',
     })
@@ -304,12 +304,12 @@ describe('checkForMissingFilesSaga', () => {
     const factory = await getFactory(initialState)
 
     const community =
-      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
+      await factory.create<ReturnType<typeof communities.actions.storeCommunity>['payload']>('Community')
 
     const generalChannel = publicChannelsSelectors.generalChannel(initialState.getState())
     if (!generalChannel) return
     expect(generalChannel).not.toBeUndefined()
-    const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+    const alice = await factory.create<ReturnType<typeof identity.actions.storeIdentity>['payload']>('Identity', {
       id: community.id,
       nickname: 'alice',
     })
@@ -381,12 +381,12 @@ describe('checkForMissingFilesSaga', () => {
     const factory = await getFactory(initialState)
 
     const community =
-      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
+      await factory.create<ReturnType<typeof communities.actions.storeCommunity>['payload']>('Community')
 
     const generalChannel = publicChannelsSelectors.generalChannel(initialState.getState())
     if (!generalChannel) return
     expect(generalChannel).not.toBeUndefined()
-    const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+    const alice = await factory.create<ReturnType<typeof identity.actions.storeIdentity>['payload']>('Identity', {
       id: community.id,
       nickname: 'alice',
     })
@@ -458,9 +458,9 @@ describe('checkForMissingFilesSaga', () => {
     const factory = await getFactory(initialState)
 
     const community =
-      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
+      await factory.create<ReturnType<typeof communities.actions.storeCommunity>['payload']>('Community')
 
-    const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+    const alice = await factory.create<ReturnType<typeof identity.actions.storeIdentity>['payload']>('Identity', {
       id: community.id,
       nickname: 'alice',
     })
@@ -534,12 +534,12 @@ describe('checkForMissingFilesSaga', () => {
     const factory = await getFactory(initialState)
 
     const community =
-      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
+      await factory.create<ReturnType<typeof communities.actions.storeCommunity>['payload']>('Community')
 
     const generalChannel = publicChannelsSelectors.generalChannel(initialState.getState())
     if (!generalChannel) return
     expect(generalChannel).not.toBeUndefined()
-    const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+    const alice = await factory.create<ReturnType<typeof identity.actions.storeIdentity>['payload']>('Identity', {
       id: community.id,
       nickname: 'alice',
     })
@@ -611,12 +611,12 @@ describe('checkForMissingFilesSaga', () => {
     const factory = await getFactory(initialState)
 
     const community =
-      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
+      await factory.create<ReturnType<typeof communities.actions.storeCommunity>['payload']>('Community')
 
     const generalChannel = publicChannelsSelectors.generalChannel(initialState.getState())
     if (!generalChannel) return
     expect(generalChannel).not.toBeUndefined()
-    const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+    const alice = await factory.create<ReturnType<typeof identity.actions.storeIdentity>['payload']>('Identity', {
       id: community.id,
       nickname: 'alice',
     })
@@ -688,12 +688,12 @@ describe('checkForMissingFilesSaga', () => {
       const factory = await getFactory(initialState)
 
       const community =
-        await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
+        await factory.create<ReturnType<typeof communities.actions.storeCommunity>['payload']>('Community')
 
       const generalChannel = publicChannelsSelectors.generalChannel(initialState.getState())
       if (!generalChannel) return
       expect(generalChannel).not.toBeUndefined()
-      const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+      const alice = await factory.create<ReturnType<typeof identity.actions.storeIdentity>['payload']>('Identity', {
         id: community.id,
         nickname: 'alice',
       })

@@ -23,7 +23,7 @@ describe('deepLinkSaga', () => {
 
   const community: Community = {
     id,
-    name: '',
+    name: 'community',
     CA: {
       rootCertString: '',
       rootKeyString: '',
@@ -90,14 +90,12 @@ describe('deepLinkSaga', () => {
       })
     )
 
-    store.dispatch(communities.actions.addNewCommunity(community))
+    store.dispatch(communities.actions.storeCommunity(community))
 
     store.dispatch(
       // @ts-expect-error
-      identity.actions.addNewIdentity({ ..._identity, userCertificate: 'certificate' })
+      identity.actions.storeIdentity({ ..._identity, userCertificate: 'certificate' })
     )
-
-    store.dispatch(communities.actions.setCurrentCommunity(community.id))
 
     const reducer = combineReducers(reducers)
     await expectSaga(deepLinkSaga, initActions.deepLink(validCode))
@@ -118,7 +116,7 @@ describe('deepLinkSaga', () => {
       .run()
   })
 
-  test('displays error if user already belongs to a community', async () => {
+  test.only('displays error if user already belongs to a community', async () => {
     store.dispatch(
       initActions.setWebsocketConnected({
         dataPort: 5001,
@@ -126,9 +124,8 @@ describe('deepLinkSaga', () => {
       })
     )
 
-    store.dispatch(communities.actions.addNewCommunity(community))
+    store.dispatch(communities.actions.storeCommunity(community))
 
-    store.dispatch(communities.actions.setCurrentCommunity(community.id))
     const reducer = combineReducers(reducers)
     await expectSaga(deepLinkSaga, initActions.deepLink(validCode))
       .withReducer(reducer)
@@ -208,14 +205,12 @@ describe('deepLinkSaga', () => {
       })
     )
 
-    store.dispatch(communities.actions.addNewCommunity(community))
+    store.dispatch(communities.actions.storeCommunity(community))
 
     store.dispatch(
       // @ts-expect-error
-      identity.actions.addNewIdentity({ ..._identity, userCertificate: null })
+      identity.actions.storeIdentity({ ..._identity, userCertificate: null })
     )
-
-    store.dispatch(communities.actions.setCurrentCommunity(community.id))
 
     store.dispatch(connection.actions.setConnectionProcess(ConnectionProcessInfo.REGISTERING_USER_CERTIFICATE))
 

@@ -31,7 +31,7 @@ describe('checkForMessagesSaga', () => {
 
     factory = await getFactory(store)
 
-    community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
+    community = await factory.create<ReturnType<typeof communitiesActions.storeCommunity>['payload']>('Community')
 
     generalChannel = {
       ...selectGeneralChannel(store.getState()),
@@ -40,7 +40,7 @@ describe('checkForMessagesSaga', () => {
       messagesSlice: undefined,
     }
 
-    alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
+    alice = await factory.create<ReturnType<typeof identityActions.storeIdentity>['payload']>('Identity', {
       id: community.id,
       nickname: 'alice',
     })

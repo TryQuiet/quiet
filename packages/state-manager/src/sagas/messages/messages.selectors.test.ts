@@ -30,7 +30,7 @@ describe('messagesSelectors', () => {
 
     factory = await getFactory(store)
 
-    community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
+    community = await factory.create<ReturnType<typeof communitiesActions.storeCommunity>['payload']>('Community')
 
     const generalChannelState = publicChannelsSelectors.generalChannel(store.getState())
     if (generalChannelState) generalChannel = generalChannelState
@@ -38,12 +38,12 @@ describe('messagesSelectors', () => {
     expect(generalChannel).toBeDefined()
     generalChannelId = generalChannel?.id || ''
 
-    alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
+    alice = await factory.create<ReturnType<typeof identityActions.storeIdentity>['payload']>('Identity', {
       id: community.id,
       nickname: 'alice',
     })
 
-    john = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
+    john = await factory.create<ReturnType<typeof identityActions.storeIdentity>['payload']>('Identity', {
       id: community.id,
       nickname: 'john',
     })

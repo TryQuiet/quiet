@@ -7,7 +7,7 @@ import { identityReducer, type identityActions } from '../identity.slice'
 import { saveUserCsrSaga } from './saveUserCsr.saga'
 import { type Store } from '../../store.types'
 import { type FactoryGirl } from 'factory-girl'
-import { pubKeyFromCsr, setupCrypto, createUserCertificateTestHelper } from '@quiet/identity'
+import { setupCrypto, createUserCertificateTestHelper } from '@quiet/identity'
 import { prepareStore } from '../../../utils/tests/prepareStore'
 import { getFactory } from '../../../utils/tests/factories'
 import { SocketActionTypes } from '@quiet/types'
@@ -27,7 +27,7 @@ describe('saveUserCsr', () => {
     const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
 
     const community =
-      await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
+      await factory.create<ReturnType<typeof communitiesActions.storeCommunity>['payload']>('Community')
 
     const csr = (
       await createUserCertificateTestHelper(
@@ -35,13 +35,12 @@ describe('saveUserCsr', () => {
           nickname: 'john',
           commonName: 'commonName',
           peerId: 'peerId',
-          dmPublicKey: 'dmPublicKey',
         },
         community.CA
       )
     ).userCsr
 
-    const identity = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
+    const identity = await factory.create<ReturnType<typeof identityActions.storeIdentity>['payload']>('Identity', {
       id: community.id,
       nickname: 'john',
       userCsr: csr,
@@ -56,37 +55,7 @@ describe('saveUserCsr', () => {
     await expectSaga(saveUserCsrSaga, socket)
       .withReducer(reducer)
       .withState(store.getState())
-      .call(pubKeyFromCsr, identity.userCsr?.userCsr)
       .apply(socket, socket.emit, [
-        SocketActionTypes.SAVE_USER_CSR,
-        {
-          csr: identity.userCsr?.userCsr,
-        },
-      ])
-      .run()
-  })
-  test("do not save user csr if it's already included in csrs list", async () => {
-    const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
-
-    const community =
-      await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
-
-    const identity = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
-      id: community.id,
-      nickname: 'john',
-    })
-
-    const reducer = combineReducers({
-      [StoreKeys.Communities]: communitiesReducer,
-      [StoreKeys.Identity]: identityReducer,
-      [StoreKeys.Users]: usersReducer,
-    })
-
-    await expectSaga(saveUserCsrSaga, socket)
-      .withReducer(reducer)
-      .withState(store.getState())
-      .call(pubKeyFromCsr, identity.userCsr?.userCsr)
-      .not.apply(socket, socket.emit, [
         SocketActionTypes.SAVE_USER_CSR,
         {
           csr: identity.userCsr?.userCsr,

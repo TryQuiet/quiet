@@ -1,7 +1,7 @@
 import crypto from 'crypto'
 import { constants } from './constants'
 
-export const generateId = () => {
+export const generateID = () => {
   const id = crypto.randomBytes(16).toString('hex').toUpperCase()
   return id
 }

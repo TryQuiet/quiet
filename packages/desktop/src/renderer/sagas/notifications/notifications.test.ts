@@ -85,7 +85,7 @@ beforeAll(async () => {
 
   const factory = await getFactory(store)
 
-  community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
+  community = await factory.create<ReturnType<typeof communities.actions.storeCommunity>['payload']>('Community')
   const generalChannel = publicChannels.selectors.generalChannel(store.getState())
   expect(generalChannel).not.toBeUndefined()
   store.dispatch(
@@ -98,7 +98,7 @@ beforeAll(async () => {
     await factory.create<ReturnType<typeof publicChannels.actions.addChannel>['payload']>('PublicChannel')
   ).channel
 
-  alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+  alice = await factory.create<ReturnType<typeof identity.actions.storeIdentity>['payload']>('Identity', {
     id: community.id,
     nickname: 'alice',
   })
@@ -106,7 +106,7 @@ beforeAll(async () => {
   store.dispatch(connection.actions.setLastConnectedTime(lastConnectedTime))
 
   bob = (
-    await factory.build<typeof identity.actions.addNewIdentity>('Identity', {
+    await factory.build<typeof identity.actions.storeIdentity>('Identity', {
       id: community.id,
       nickname: 'bob',
     })

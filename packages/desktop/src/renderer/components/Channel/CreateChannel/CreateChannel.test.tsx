@@ -35,7 +35,7 @@ describe('Add new channel', () => {
 
     const factory = await getFactory(store)
 
-    await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+    await factory.create<ReturnType<typeof identity.actions.storeIdentity>['payload']>('Identity', {
       nickname: 'alice',
     })
 

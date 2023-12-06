@@ -62,7 +62,6 @@ export const createUserCertificateTestHelper = async (
     nickname: string
     commonName: string
     peerId: string
-    dmPublicKey: string
   },
   rootCA?: Pick<RootCA, 'rootCertString' | 'rootKeyString'> | null
 ): Promise<{
@@ -73,7 +72,6 @@ export const createUserCertificateTestHelper = async (
     nickname: user.nickname,
     commonName: user.commonName,
     peerId: user.peerId,
-    dmPublicKey: user.dmPublicKey,
     signAlg: config.signAlg,
     hashAlg: config.hashAlg,
   })

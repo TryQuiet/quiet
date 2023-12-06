@@ -84,9 +84,9 @@ describe('Loading panel', () => {
 
     const factory = await getFactory(store)
 
-    const community = (await factory.build<typeof communities.actions.addNewCommunity>('Community')).payload
+    const community = (await factory.build<typeof communities.actions.storeCommunity>('Community')).payload
 
-    store.dispatch(communities.actions.addNewCommunity(community))
+    store.dispatch(communities.actions.storeCommunity(community))
     store.dispatch(communities.actions.setCurrentCommunity(community.id))
 
     const channel = (
@@ -102,12 +102,12 @@ describe('Loading panel', () => {
       })
     ).payload
 
-    await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+    await factory.create<ReturnType<typeof identity.actions.storeIdentity>['payload']>('Identity', {
       id: community.id,
       nickname: 'alice',
     })
 
-    store.dispatch(communities.actions.addNewCommunity(community))
+    store.dispatch(communities.actions.storeCommunity(community))
     store.dispatch(communities.actions.setCurrentCommunity(community.id))
     store.dispatch(network.actions.setLoadingPanelType(LoadingPanelType.Joining))
     store.dispatch(modalsActions.openModal({ name: ModalName.loadingPanel }))
@@ -141,12 +141,12 @@ describe('Loading panel', () => {
 
     const factory = await getFactory(store)
 
-    const community = (await factory.build<typeof communities.actions.addNewCommunity>('Community')).payload
+    const community = (await factory.build<typeof communities.actions.storeCommunity>('Community')).payload
 
-    store.dispatch(communities.actions.addNewCommunity(community))
+    store.dispatch(communities.actions.storeCommunity(community))
     store.dispatch(communities.actions.setCurrentCommunity(community.id))
 
-    await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+    await factory.create<ReturnType<typeof identity.actions.storeIdentity>['payload']>('Identity', {
       id: community.id,
       nickname: 'alice',
       userCertificate: null,
@@ -169,7 +169,7 @@ describe('Loading panel', () => {
     expect(screen.queryByTestId('spinnerLoader')).toBeNull()
     // 'Create username' modal should be closed after creating csr
     store.dispatch(
-      identity.actions.registerUsername({
+      identity.actions.chooseUsername({
         nickname: 'alice',
       })
     )

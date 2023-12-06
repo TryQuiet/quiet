@@ -67,8 +67,6 @@ export { certificatesAdapter } from './sagas/users/users.adapter'
 
 export { publicChannelsAdapter, channelMessagesAdapter } from './sagas/publicChannels/publicChannels.adapter'
 
-export { identityAdapter } from './sagas/identity/identity.adapter'
-
 export { CommunitiesTransform } from './sagas/communities/communities.transform'
 export { PublicChannelsTransform } from './sagas/publicChannels/publicChannels.transform'
 export { MessagesTransform } from './sagas/messages/messages.transform'

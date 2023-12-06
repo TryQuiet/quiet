@@ -22,6 +22,7 @@ export function* sendNewUserInfoMessageSaga(
 ): Generator {
   const community = yield* select(communitiesSelectors.currentCommunity)
   const identity = yield* select(identitySelectors.currentIdentity)
+
   if (!community?.name || !identity) return
 
   const isOwner = community.CA

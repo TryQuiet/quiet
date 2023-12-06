@@ -4,24 +4,18 @@ import { identitySelectors } from '../../identity/identity.selectors'
 import { identityActions } from '../../identity/identity.slice'
 import { errorsActions } from '../errors.slice'
 import logger from '../../../utils/logger'
-import { type RegisterCertificatePayload, type ErrorPayload, ErrorCodes, SocketActionTypes } from '@quiet/types'
+import { type ErrorPayload, ErrorCodes, SocketActionTypes } from '@quiet/types'
 
 const log = logger('errors')
 
 export function* retryRegistration(communityId: string) {
-  const identity = yield* select(identitySelectors.selectById(communityId))
+  const identity = yield* select(identitySelectors.currentIdentity)
   if (!identity?.userCsr) {
     console.error('Error retrying registration. Lacking identity data')
     return
   }
 
-  const payload: RegisterCertificatePayload = {
-    communityId,
-    nickname: identity.nickname,
-    userCsr: identity.userCsr,
-  }
-
-  yield* put(identityActions.registerCertificate(payload))
+  yield* put(identityActions.registerCertificate())
   log(`registering certificate for community ${communityId} failed, trying again`)
 }
 

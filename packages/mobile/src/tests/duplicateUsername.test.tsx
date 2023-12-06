@@ -29,12 +29,12 @@ describe('Duplicate username warning', () => {
 
     factory = await getFactory(store)
 
-    const community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>(
+    const community = await factory.create<ReturnType<typeof communities.actions.storeCommunity>['payload']>(
       'Community'
     )
 
     const alice = (
-      await factory.build<typeof identity.actions.addNewIdentity>('Identity', {
+      await factory.build<typeof identity.actions.storeIdentity>('Identity', {
         id: community.id,
         nickname: 'alice',
       })
@@ -46,7 +46,7 @@ describe('Duplicate username warning', () => {
       })
     )
 
-    await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+    await factory.create<ReturnType<typeof identity.actions.storeIdentity>['payload']>('Identity', {
       id: community.id,
       nickname: 'alice',
       userCertificate: null,

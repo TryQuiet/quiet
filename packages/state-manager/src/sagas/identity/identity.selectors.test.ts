@@ -18,17 +18,17 @@ describe('communitiesSelectors will receive correct data', () => {
   })
 
   it('select current identity', async () => {
-    const communityAlpha = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>(
+    const communityAlpha = await factory.create<ReturnType<typeof communitiesActions.storeCommunity>['payload']>(
       'Community',
       { name: 'alpha', id: 'communityAlpha' }
     )
 
-    const identity = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
+    const identity = await factory.create<ReturnType<typeof identityActions.storeIdentity>['payload']>('Identity', {
       id: communityAlpha.id,
       nickname: 'john',
     })
 
-    const communityBeta = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>(
+    const communityBeta = await factory.create<ReturnType<typeof communitiesActions.storeCommunity>['payload']>(
       'Community',
       { name: 'beta', id: 'communityBeta' }
     )

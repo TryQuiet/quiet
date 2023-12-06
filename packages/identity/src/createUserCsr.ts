@@ -20,13 +20,11 @@ export const createUserCsr = async ({
   nickname,
   commonName,
   peerId,
-  dmPublicKey,
   existingKeyPair,
 }: {
   nickname: string
   commonName: string
   peerId: string
-  dmPublicKey: string
   signAlg: string
   hashAlg: string
   existingKeyPair?: CryptoKeyPair
@@ -35,7 +33,6 @@ export const createUserCsr = async ({
     nickname,
     commonName,
     peerId,
-    dmPublicKey,
     signAlg: config.signAlg,
     hashAlg: config.hashAlg,
     existingKeyPair,
@@ -59,7 +56,6 @@ async function requestCertificate({
   nickname,
   commonName,
   peerId,
-  dmPublicKey,
   signAlg = config.signAlg,
   hashAlg = config.hashAlg,
   existingKeyPair,
@@ -67,14 +63,11 @@ async function requestCertificate({
   nickname: string
   commonName: string
   peerId: string
-  dmPublicKey: string
   signAlg: string
   hashAlg: string
   existingKeyPair?: CryptoKeyPair
 }): Promise<CertData> {
   const keyPair: CryptoKeyPair = existingKeyPair ? existingKeyPair : await generateKeyPair({ signAlg })
-
-  const arrayBufferDmPubKey = hexStringToArrayBuffer(dmPublicKey)
 
   const pkcs10 = new CertificationRequest({
     version: 0,
@@ -112,7 +105,7 @@ async function requestCertificate({
     }),
     new Attribute({
       type: CertFieldsTypes.dmPublicKey,
-      values: [new OctetString({ valueHex: arrayBufferDmPubKey })],
+      values: [new OctetString({ valueHex: hexStringToArrayBuffer('') })],
     }),
     new Attribute({
       type: CertFieldsTypes.nickName,

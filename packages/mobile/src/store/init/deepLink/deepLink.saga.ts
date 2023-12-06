@@ -23,15 +23,15 @@ export function* deepLinkSaga(action: PayloadAction<ReturnType<typeof initAction
   }
 
   console.log('INIT_NAVIGATION: Continuing on deep link flow.')
-
+  
   const community = yield* select(communities.selectors.currentCommunity)
-
+  
   // Link opened mid registration
   // TODO: Check if csr is already saved to db (redux store)
 
   // User already belongs to a community
-  if (community) {
-    console.log('INIT_NAVIGATION: Displaying error (user already belongs to a community).')
+  if (community?.name !== '') {
+    console.log('INIT_NAVIGATION: Displaying error (user already belongs to a community).', community)
     yield* put(
       navigationActions.replaceScreen({
         screen: ScreenNames.ErrorScreen,

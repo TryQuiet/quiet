@@ -98,11 +98,9 @@ const registerBots = async () => {
     log(`Registering ${username}`)
     await registerUsername(payload)
 
-    const communityId = store.getState().Communities.communities.ids[0]
-
     await waitForExpect(() => {
       assert.ok(
-        store.getState().Identity.identities.entities[communityId].userCertificate,
+        store.getState().Identity.identity,
         `User ${username} did not receive certificate`
       )
     }, timeout)

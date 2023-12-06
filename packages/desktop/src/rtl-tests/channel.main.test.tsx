@@ -120,10 +120,10 @@ describe('Channel', () => {
     const factory = await getFactory(store)
 
     // const community = await factory.create<
-    // ReturnType<typeof communitiesActions.addNewCommunity>['payload']
+    // ReturnType<typeof communitiesActions.storeCommunity>['payload']
     // >('Community')
 
-    const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+    const alice = await factory.create<ReturnType<typeof identity.actions.storeIdentity>['payload']>('Identity', {
       nickname: 'alice',
     })
 
@@ -152,7 +152,7 @@ describe('Channel', () => {
     const factory = await getFactory(store)
 
     const community =
-      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
+      await factory.create<ReturnType<typeof communities.actions.storeCommunity>['payload']>('Community')
 
     const entities = store.getState().PublicChannels.channels.entities
 
@@ -168,12 +168,12 @@ describe('Channel', () => {
       )
     })
 
-    const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+    const alice = await factory.create<ReturnType<typeof identity.actions.storeIdentity>['payload']>('Identity', {
       id: community.id,
       nickname: 'alice',
     })
 
-    const john = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+    const john = await factory.create<ReturnType<typeof identity.actions.storeIdentity>['payload']>('Identity', {
       id: community.id,
       nickname: 'john',
     })
@@ -264,13 +264,13 @@ describe('Channel', () => {
     const factory = await getFactory(store)
 
     const community =
-      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
+      await factory.create<ReturnType<typeof communities.actions.storeCommunity>['payload']>('Community')
 
     const entities = store.getState().PublicChannels.channels.entities
 
     const generalId = Object.keys(entities).find(key => entities[key]?.name === 'general')
 
-    const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+    const alice = await factory.create<ReturnType<typeof identity.actions.storeIdentity>['payload']>('Identity', {
       id: community.id,
       nickname: 'alice',
     })
@@ -328,8 +328,8 @@ describe('Channel', () => {
     const factory = await getFactory(store)
 
     const community =
-      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
-    await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+      await factory.create<ReturnType<typeof communities.actions.storeCommunity>['payload']>('Community')
+    await factory.create<ReturnType<typeof identity.actions.storeIdentity>['payload']>('Identity', {
       id: community.id,
       nickname: 'john',
     })
@@ -359,14 +359,14 @@ describe('Channel', () => {
     const factory = await getFactory(store)
 
     const community =
-      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
+      await factory.create<ReturnType<typeof communities.actions.storeCommunity>['payload']>('Community')
 
     const entities = store.getState().PublicChannels.channels.entities
 
     const generalId = Object.keys(entities).find(key => entities[key]?.name === 'general')
     expect(generalId).not.toBeUndefined()
 
-    const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+    const alice = await factory.create<ReturnType<typeof identity.actions.storeIdentity>['payload']>('Identity', {
       id: community.id,
       nickname: 'alice',
     })
@@ -408,9 +408,9 @@ describe('Channel', () => {
     const factory = await getFactory(store)
 
     const community =
-      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
+      await factory.create<ReturnType<typeof communities.actions.storeCommunity>['payload']>('Community')
 
-    const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+    const alice = await factory.create<ReturnType<typeof identity.actions.storeIdentity>['payload']>('Identity', {
       id: community.id,
       nickname: 'alice',
     })
@@ -483,13 +483,13 @@ describe('Channel', () => {
     const factory = await getFactory(store)
 
     const community =
-      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
+      await factory.create<ReturnType<typeof communities.actions.storeCommunity>['payload']>('Community')
 
     const entities = store.getState().PublicChannels.channels.entities
 
     const generalId = Object.keys(entities).find(key => entities[key]?.name === 'general')
 
-    const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+    const alice = await factory.create<ReturnType<typeof identity.actions.storeIdentity>['payload']>('Identity', {
       id: community.id,
       nickname: 'alice',
     })
@@ -572,9 +572,9 @@ describe('Channel', () => {
     const factory = await getFactory(store)
 
     const community =
-      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
+      await factory.create<ReturnType<typeof communities.actions.storeCommunity>['payload']>('Community')
 
-    const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+    const alice = await factory.create<ReturnType<typeof identity.actions.storeIdentity>['payload']>('Identity', {
       id: community.id,
       nickname: 'alice',
     })
@@ -700,9 +700,9 @@ describe('Channel', () => {
     const factory = await getFactory(store)
 
     const community =
-      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
+      await factory.create<ReturnType<typeof communities.actions.storeCommunity>['payload']>('Community')
 
-    const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+    const alice = await factory.create<ReturnType<typeof identity.actions.storeIdentity>['payload']>('Identity', {
       id: community.id,
       nickname: 'alice',
     })
@@ -747,9 +747,9 @@ describe('Channel', () => {
     const factory = await getFactory(initialState)
 
     const community =
-      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
+      await factory.create<ReturnType<typeof communities.actions.storeCommunity>['payload']>('Community')
 
-    const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+    const alice = await factory.create<ReturnType<typeof identity.actions.storeIdentity>['payload']>('Identity', {
       id: community.id,
       nickname: 'alice',
     })
@@ -889,20 +889,24 @@ describe('Channel', () => {
     const factory = await getFactory(initialState)
 
     const community: Community = await factory.create<
-      ReturnType<typeof communities.actions.addNewCommunity>['payload']
+      ReturnType<typeof communities.actions.storeCommunity>['payload']
     >('Community', { rootCa: 'rootCa', privateKey: 'privateKey' })
 
-    const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+    const alice = await factory.create<ReturnType<typeof identity.actions.storeIdentity>['payload']>('Identity', {
       id: community.id,
       nickname: 'alice',
     })
+
+    initialState.dispatch(network.actions.addInitializedCommunity(community.id))
 
     const message = Math.random().toString(36).substr(2.9)
 
     const entities = initialState.getState().PublicChannels.channels.entities
 
     const generalId = Object.keys(entities).find(key => entities[key]?.name === 'general')
+
     expect(generalId).not.toBeUndefined()
+
     const missingFile: FileMetadata = {
       cid: Math.random().toString(36).substr(2.9),
       path: null,
@@ -1019,9 +1023,9 @@ describe('Channel', () => {
     const factory = await getFactory(initialState)
 
     const community =
-      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
+      await factory.create<ReturnType<typeof communities.actions.storeCommunity>['payload']>('Community')
 
-    await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+    await factory.create<ReturnType<typeof identity.actions.storeIdentity>['payload']>('Identity', {
       id: community.id,
       nickname: 'alice',
     })
@@ -1115,9 +1119,9 @@ describe('Channel', () => {
     const factory = await getFactory(initialState)
 
     const community =
-      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
+      await factory.create<ReturnType<typeof communities.actions.storeCommunity>['payload']>('Community')
 
-    const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+    const alice = await factory.create<ReturnType<typeof identity.actions.storeIdentity>['payload']>('Identity', {
       id: community.id,
       nickname: 'alice',
     })
@@ -1231,9 +1235,9 @@ describe('Channel', () => {
     const factory = await getFactory(initialState)
 
     const community =
-      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
+      await factory.create<ReturnType<typeof communities.actions.storeCommunity>['payload']>('Community')
 
-    const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+    const alice = await factory.create<ReturnType<typeof identity.actions.storeIdentity>['payload']>('Identity', {
       id: community.id,
       nickname: 'alice',
     })
@@ -1349,9 +1353,9 @@ describe('Channel', () => {
     const factory = await getFactory(initialState)
 
     const community =
-      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
+      await factory.create<ReturnType<typeof communities.actions.storeCommunity>['payload']>('Community')
 
-    const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+    const alice = await factory.create<ReturnType<typeof identity.actions.storeIdentity>['payload']>('Identity', {
       id: community.id,
       nickname: 'alice',
     })

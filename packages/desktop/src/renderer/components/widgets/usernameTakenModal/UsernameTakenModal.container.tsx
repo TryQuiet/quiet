@@ -16,7 +16,7 @@ const UsernameTakenModalContainer = () => {
   const registerUsername = useCallback(
     (nickname: string) => {
       dispatch(
-        identity.actions.registerUsername({
+        identity.actions.chooseUsername({
           nickname,
           isUsernameTaken: true,
         })

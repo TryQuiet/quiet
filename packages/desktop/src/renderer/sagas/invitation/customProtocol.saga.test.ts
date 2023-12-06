@@ -44,7 +44,7 @@ describe('Handle invitation code', () => {
   })
 
   it('does not try to create network if user is already in community', async () => {
-    community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
+    community = await factory.create<ReturnType<typeof communities.actions.storeCommunity>['payload']>('Community')
     const payload: CreateNetworkPayload = {
       ownership: CommunityOwnership.User,
       peers: validInvitationData.pairs,

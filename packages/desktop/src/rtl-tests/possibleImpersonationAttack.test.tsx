@@ -60,9 +60,9 @@ describe('Possible Impersonation Attack', () => {
     redux = await prepareStore({}, socket)
     factory = await getFactory(redux.store)
 
-    community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
+    community = await factory.create<ReturnType<typeof communities.actions.storeCommunity>['payload']>('Community')
 
-    alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+    alice = await factory.create<ReturnType<typeof identity.actions.storeIdentity>['payload']>('Identity', {
       id: community.id,
       nickname: 'alice',
     })

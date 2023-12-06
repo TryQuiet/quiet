@@ -12,8 +12,7 @@ import { type Community } from '@quiet/types'
 describe('users reducer', () => {
   let store: Store
 
-  const communityId: Community = {
-    // TODO CHECK
+  const community: Community = {
     name: 'communityId',
     id: 'communityId',
     CA: { rootCertString: 'certString', rootKeyString: 'keyString' },
@@ -37,8 +36,7 @@ describe('users reducer', () => {
       {
         [StoreKeys.Communities]: {
           ...new CommunitiesState(),
-          currentCommunity: 'communityId',
-          communities: communitiesAdapter.setAll(communitiesAdapter.getInitialState(), [communityId]),
+          community: community
         },
         [StoreKeys.Users]: {
           ...new UsersState(),

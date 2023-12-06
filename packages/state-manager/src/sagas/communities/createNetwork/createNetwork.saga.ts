@@ -1,15 +1,40 @@
-import { PayloadAction } from '@reduxjs/toolkit'
-import { call, put } from 'typed-redux-saga'
+import { Socket } from 'socket.io-client'
+import { call, put, apply, take } from 'typed-redux-saga'
 import { Time } from 'pkijs'
-import { generateId } from '../../../utils/cryptography/cryptography'
-import { communitiesActions } from '../communities.slice'
+import { PayloadAction } from '@reduxjs/toolkit'
 import { createRootCA } from '@quiet/identity'
-import { type Community, CommunityOwnership } from '@quiet/types'
+import { communitiesActions } from '../communities.slice'
+import { identityActions } from '../../identity/identity.slice'
+import { generateID } from '../../../utils/cryptography/cryptography'
+import { type Community, type Identity, CommunityOwnership, SocketActionTypes, InitCommunityPayload } from '@quiet/types'
+import { applyEmitParams } from '../../../types'
 
 export function* createNetworkSaga(
+  socket: Socket,
   action: PayloadAction<ReturnType<typeof communitiesActions.createNetwork>['payload']>
 ) {
-  console.log('create network saga')
+
+
+
+
+  /**
+   * Can it be moved somwhere else?
+   */
+  const invitationPeers = action.payload.peers
+
+  if (invitationPeers) {
+    yield* put(communitiesActions.setInvitationCodes(invitationPeers))
+  }
+  /** ==== **/
+
+
+
+
+  
+  const { name, psk } = action.payload
+
+  console.log('create network saga', name, psk)
+
   let CA: null | {
     rootCertString: string
     rootKeyString: string
@@ -26,27 +51,37 @@ export function* createNetworkSaga(
       action.payload.name
     )
   }
+  
+  const id = yield* call(generateID)
 
-  const id = yield* call(generateId)
   const payload: Community = {
-    id,
-    name: action.payload.name,
-    CA,
+    id: id,
+    name: name,
+    psk: psk,
+    CA: CA,
     rootCa: CA?.rootCertString,
-    psk: action.payload.psk,
   }
+  
+  yield* apply(socket, socket.emit, applyEmitParams(SocketActionTypes.CREATE_NETWORK, payload))
+  
+  // Wait for response create network and add Identity
+  const { network, community } = (yield* take(communitiesActions.responseCreateNetwork)).payload
+  
+  yield* put(communitiesActions.storeCommunity(community))
 
-  const invitationPeers = action.payload.peers
-  if (invitationPeers) {
-    yield* put(communitiesActions.setInvitationCodes(invitationPeers))
-  }
-
-  const psk = action.payload.psk
   if (psk) {
-    console.log('create network saga: saving PSK')
     yield* put(communitiesActions.savePSK(psk))
   }
+  
+  const identity: Identity = {
+    id: community.id,
+    nickname: '',
+    hiddenService: network.hiddenService,
+    peerId: network.peerId,
+    userCsr: null,
+    userCertificate: null,
+    joinTimestamp: null,
+  }
 
-  yield* put(communitiesActions.addNewCommunity(payload))
-  yield* put(communitiesActions.setCurrentCommunity(id))
+  yield* put(identityActions.storeIdentity(identity))
 }

@@ -13,7 +13,7 @@ describe('IdentityPanel', () => {
     const factory = await getFactory(store)
 
     const community: Community =
-      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
+      await factory.create<ReturnType<typeof communities.actions.storeCommunity>['payload']>('Community')
 
     const result = renderComponent(
       <IdentityPanel
@@ -118,7 +118,7 @@ describe('IdentityPanel', () => {
 
     const factory = await getFactory(store)
 
-    const community: Community = (await factory.build<typeof communities.actions.addNewCommunity>('Community')).payload
+    const community: Community = (await factory.build<typeof communities.actions.storeCommunity>('Community')).payload
 
     community.name = undefined
 

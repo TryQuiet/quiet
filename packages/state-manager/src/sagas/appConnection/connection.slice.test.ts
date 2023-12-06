@@ -6,10 +6,9 @@ import { prepareStore } from '../../utils/tests/prepareStore'
 
 import { setupCrypto } from '@quiet/identity'
 import { networkActions } from '../network/network.slice'
-import { initializedCommunities, networkSelectors } from '../network/network.selectors'
+import { networkSelectors } from '../network/network.selectors'
 import { Community, ConnectionProcessInfo, PublicChannel, type Identity, ChannelMessage } from '@quiet/types'
 import { usersSelectors } from '../users/users.selectors'
-import { communitiesSelectors } from '../communities/communities.selectors'
 import { communitiesActions } from '../communities/communities.slice'
 import { publicChannelsSelectors } from '../publicChannels/publicChannels.selectors'
 import { generateMessageFactoryContentWithId, getFactory, publicChannels } from '../..'
@@ -28,11 +27,11 @@ describe('connectionReducer', () => {
 
     const factory = await getFactory(store)
 
-    alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
+    alice = await factory.create<ReturnType<typeof identityActions.storeIdentity>['payload']>('Identity', {
       nickname: 'alice',
     })
 
-    community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
+    community = await factory.create<ReturnType<typeof communitiesActions.storeCommunity>['payload']>('Community')
 
     const generalChannelState = publicChannelsSelectors.generalChannel(store.getState())
     if (generalChannelState) generalChannel = generalChannelState
@@ -80,19 +79,23 @@ describe('connectionReducer', () => {
         return item.pubKey
       }
     })
+
     const pubKey = _pubKey[0]
+
     const aliceCertData = {
       username: alice.nickname,
       onionAddress: alice.hiddenService.onionAddress,
       peerId: alice.peerId.id,
-      dmPublicKey: alice.dmKeys.publicKey,
+      dmPublicKey: "",
       isDuplicated: false,
       isRegistered: true,
       pubKey,
     }
 
     store.dispatch(networkActions.addConnectedPeers([alice.peerId.id]))
+
     const userDataPerPeerId = connectionSelectors.connectedPeersMapping(store.getState())
+
     expect(userDataPerPeerId[alice.peerId.id]).toEqual(aliceCertData)
   })
 

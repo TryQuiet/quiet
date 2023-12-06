@@ -30,7 +30,6 @@ import {
   NetworkDataPayload,
   NetworkStats,
   PushNotificationPayload,
-  RegisterOwnerCertificatePayload,
   RemoveDownloadStatus,
   ResponseCreateNetworkPayload,
   SendCertificatesResponse,
@@ -39,10 +38,9 @@ import {
   SocketActionTypes,
   StorePeerListPayload,
   UploadFilePayload,
-  PeerId as PeerIdType,
-  SaveCSRPayload,
   CommunityMetadata,
   CommunityMetadataPayload,
+  SaveCsrPayload,
 } from '@quiet/types'
 import { CONFIG_OPTIONS, QUIET_DIR, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
 import { ConfigOptions, GetPorts, ServerIoProviderTypes } from '../types'
@@ -61,6 +59,7 @@ import { LazyModuleLoader } from '@nestjs/core'
 import Logger from '../common/logger'
 import { emitError } from '../socket/socket.errors'
 import { isPSKcodeValid } from '@quiet/common'
+import { RegisterOwnerCertificatePayload } from '@quiet/state-manager'
 
 @Injectable()
 export class ConnectionsManagerService extends EventEmitter implements OnModuleInit {
@@ -310,6 +309,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     await this.generatePSK()
 
     await this.launchCommunity(payload)
+    
     this.logger(`Created and launched community ${payload.id}`)
     this.serverIoProvider.io.emit(SocketActionTypes.NEW_COMMUNITY, { id: payload.id })
   }
@@ -487,7 +487,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.socketService.on(SocketActionTypes.SEND_COMMUNITY_METADATA, async (payload: CommunityMetadata) => {
       await this.storageService?.updateCommunityMetadata(payload)
     })
-    this.socketService.on(SocketActionTypes.SAVE_USER_CSR, async (payload: SaveCSRPayload) => {
+    this.socketService.on(SocketActionTypes.SAVE_USER_CSR, async (payload: SaveCsrPayload) => {
       this.logger(`socketService - ${SocketActionTypes.SAVE_USER_CSR}`)
       await this.storageService?.saveCSR(payload)
       this.serverIoProvider.io.emit(SocketActionTypes.SAVED_USER_CSR, payload)
@@ -549,6 +549,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       this.serverIoProvider.io.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, data)
     })
     this.storageService.on(StorageEvents.REPLICATED_CERTIFICATES, (payload: SendCertificatesResponse) => {
+      console.log('emitting replicated certificates', payload)
       this.serverIoProvider.io.emit(SocketActionTypes.RESPONSE_GET_CERTIFICATES, payload)
     })
     this.storageService.on(StorageEvents.LOAD_PUBLIC_CHANNELS, (payload: ChannelsReplicatedPayload) => {

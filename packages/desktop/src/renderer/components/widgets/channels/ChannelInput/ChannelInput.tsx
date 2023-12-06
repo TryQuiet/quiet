@@ -280,6 +280,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
   )
 
   const inputStateRef = React.useRef(inputState)
+  
   React.useEffect(() => {
     inputStateRef.current = inputState
   })

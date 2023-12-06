@@ -27,23 +27,14 @@ export async function registerUsername(payload: Register) {
   store.dispatch(communities.actions.createNetwork(createNetworkPayload))
 
   await waitForExpect(() => {
-    assert.equal(store.getState().Identity.identities.ids.length, 1)
+    assert.ok(store.getState().Identity.identity.hiddenService.onionAddress)
   }, timeout)
   await waitForExpect(() => {
-    assert.equal(store.getState().Communities.communities.ids.length, 1)
-  }, timeout)
-
-  const communityId = store.getState().Communities.communities.ids[0]
-
-  await waitForExpect(() => {
-    assert.ok(store.getState().Identity.identities.entities[communityId].hiddenService.onionAddress)
-  }, timeout)
-  await waitForExpect(() => {
-    assert.equal(store.getState().Identity.identities.entities[communityId].peerId.id.length, 46)
+    assert.equal(store.getState().Identity.identity.peerId.id.length, 46)
   }, timeout)
 
   log(`User ${userName} starts registering username`)
-  store.dispatch(identity.actions.registerUsername({ nickname: userName }))
+  store.dispatch(identity.actions.chooseUsername({ nickname: userName }))
 }
 
 export const createCommunity = async ({ username, communityName, store }): Promise<string> => {
@@ -69,7 +60,7 @@ export const createCommunity = async ({ username, communityName, store }): Promi
     assert.strictEqual(store.getState().Identity.identities.entities[communityId].peerId.id.length, 46)
   }, timeout)
 
-  store.dispatch(identity.actions.registerUsername(username))
+  store.dispatch(identity.actions.chooseUsername(username))
 
   await waitForExpect(() => {
     assert.ok(store.getState().Identity.identities.entities[communityId].userCertificate)

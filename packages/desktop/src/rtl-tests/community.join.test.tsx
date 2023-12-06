@@ -108,21 +108,19 @@ describe('User', () => {
         const user = identity.selectors.currentIdentity(store.getState())
         expect(user).not.toBeUndefined()
         // This community serves only as a mocked object for generating valid crytpo data (certificate, rootCA)
-        const communityHelper: ReturnType<typeof communities.actions.addNewCommunity>['payload'] = (
-          await factory.build<typeof communities.actions.addNewCommunity>('Community', {
+        const communityHelper: ReturnType<typeof communities.actions.storeCommunity>['payload'] = (
+          await factory.build<typeof communities.actions.storeCommunity>('Community', {
             id: payload.communityId,
           })
         ).payload
         const certificateHelper = await createUserCertificateTestHelper(
           {
-            // @ts-expect-error
             nickname: user.nickname,
-            // @ts-expect-error
-            commonName: communityHelper.registrarUrl,
-            // @ts-expect-error
             peerId: user.peerId.id,
             // @ts-expect-error
             dmPublicKey: user.dmKeys.publicKey,
+            // @ts-expect-error
+            commonName: communityHelper.registrarUrl,
           },
           communityHelper.CA
         )
@@ -213,7 +211,7 @@ describe('User', () => {
         "Identity/registerUsername",
         "Communities/responseCreateNetwork",
         "Communities/updateCommunityData",
-        "Identity/addNewIdentity",
+        "Identity/storeIdentity",
         "Network/setLoadingPanelType",
         "Modals/openModal",
         "Identity/registerCertificate",
@@ -334,7 +332,7 @@ describe('User', () => {
         "Communities/responseCreateNetwork",
         "Communities/clearInvitationCode",
         "Communities/updateCommunityData",
-        "Identity/addNewIdentity",
+        "Identity/storeIdentity",
         "Network/setLoadingPanelType",
         "Modals/openModal",
         "Identity/registerCertificate",
@@ -448,7 +446,7 @@ describe('User', () => {
         "Communities/responseCreateNetwork",
         "Communities/clearInvitationCode",
         "Communities/updateCommunityData",
-        "Identity/addNewIdentity",
+        "Identity/storeIdentity",
         "Network/setLoadingPanelType",
         "Modals/openModal",
         "Identity/registerCertificate",

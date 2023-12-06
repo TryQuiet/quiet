@@ -1,5 +1,4 @@
 import { apply, select, put, call } from 'typed-redux-saga'
-import { type PayloadAction } from '@reduxjs/toolkit'
 import { applyEmitParams, type Socket } from '../../../types'
 import { identitySelectors } from '../../identity/identity.selectors'
 import { communitiesSelectors } from '../communities.selectors'
@@ -12,30 +11,28 @@ import { pairsToP2pAddresses } from '@quiet/common'
 import { type InitCommunityPayload, SocketActionTypes } from '@quiet/types'
 
 export function* initCommunities(): Generator {
-  const joinedCommunities = yield* select(identitySelectors.joinedCommunities)
+  const joined = yield* select(identitySelectors.joinedCommunities)
+
+  if (!joined) {
+    console.error('Did not join the community')
+    return
+  }
 
   const initializedCommunities = yield* select(networkSelectors.initializedCommunities)
-  for (const community of joinedCommunities) {
-    if (!initializedCommunities[community.id]) {
-      yield* put(communitiesActions.launchCommunity(community.id))
-    }
-  }
+
+  if (!initializedCommunities[joined]) {
+    yield* put(communitiesActions.launchCommunity(joined))
+  }``
 
   const currentTime = yield* call(getCurrentTime)
   yield* put(connectionActions.setLastConnectedTime(currentTime))
 }
 
 export function* launchCommunitySaga(
-  socket: Socket,
-  action: PayloadAction<ReturnType<typeof communitiesActions.launchCommunity>['payload'] | undefined>
+  socket: Socket
 ): Generator {
-  let communityId: string | undefined = action.payload
+  const identity = yield* select(identitySelectors.currentIdentity)
 
-  if (!communityId) {
-    communityId = yield* select(communitiesSelectors.currentCommunityId)
-  }
-
-  const identity = yield* select(identitySelectors.selectById(communityId))
   if (!identity?.userCsr?.userKey) {
     console.error('Could not launch community, No identity private key')
     return

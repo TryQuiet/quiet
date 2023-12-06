@@ -29,7 +29,7 @@ describe('Joining process', () => {
 
     factory = await getFactory(store)
 
-    const community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>(
+    const community = await factory.create<ReturnType<typeof communities.actions.storeCommunity>['payload']>(
       'Community'
     )
 
@@ -41,7 +41,7 @@ describe('Joining process', () => {
       store
     )
 
-    await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+    await factory.create<ReturnType<typeof identity.actions.storeIdentity>['payload']>('Identity', {
       id: community.id,
       nickname: userName,
     })
@@ -77,7 +77,7 @@ describe('Joining process', () => {
 
     factory = await getFactory(store)
 
-    const community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>(
+    const community = await factory.create<ReturnType<typeof communities.actions.storeCommunity>['payload']>(
       'Community'
     )
 
@@ -106,7 +106,7 @@ describe('Joining process', () => {
 
     fireEvent.press(button)
 
-    await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+    await factory.create<ReturnType<typeof identity.actions.storeIdentity>['payload']>('Identity', {
       id: community.id,
       nickname: userName,
     })

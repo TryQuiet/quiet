@@ -7,10 +7,15 @@ import { communitiesActions } from '../communities.slice'
 import { createRootCA, setupCrypto } from '@quiet/identity'
 import { reducers } from '../../reducers'
 import { createNetworkSaga } from './createNetwork.saga'
-import { generateId } from '../../../utils/cryptography/cryptography'
+import { generateID } from '../../../utils/cryptography/cryptography'
 import { type Community, CommunityOwnership } from '@quiet/types'
 
 describe('createNetwork', () => {
+  const socket = {
+    on: jest.fn(),
+    emit: jest.fn(),
+  }
+
   it('create network for joining user', async () => {
     setupCrypto()
     const store = prepareStore().store
@@ -26,6 +31,8 @@ describe('createNetwork', () => {
     const reducer = combineReducers(reducers)
     await expectSaga(
       createNetworkSaga,
+      // @ts-expect-error
+      socket,
       communitiesActions.createNetwork({
         ownership: CommunityOwnership.User,
         peers: [{ peerId: 'peerId', onionAddress: 'address' }],
@@ -34,9 +41,9 @@ describe('createNetwork', () => {
     )
       .withReducer(reducer)
       .withState(store.getState())
-      .provide([[call.fn(generateId), community.id]])
+      .provide([[call.fn(generateID), community.id]])
       .not.call(createRootCA)
-      .call(generateId)
+      .call(generateID)
       .run()
   })
 
@@ -61,6 +68,8 @@ describe('createNetwork', () => {
     const reducer = combineReducers(reducers)
     await expectSaga(
       createNetworkSaga,
+      // @ts-expect-error
+      socket,
       communitiesActions.createNetwork({
         ownership: CommunityOwnership.Owner,
         name: 'rockets',
@@ -71,7 +80,7 @@ describe('createNetwork', () => {
       .withState(store.getState())
       .provide([
         [call.fn(createRootCA), CA],
-        [call.fn(generateId), community.id],
+        [call.fn(generateID), community.id],
       ])
       .call(
         createRootCA,
@@ -79,7 +88,7 @@ describe('createNetwork', () => {
         new Time({ type: 0, value: new Date(Date.UTC(2030, 11, 28, 10, 10, 10)) }),
         'rockets'
       )
-      .call(generateId)
+      .call(generateID)
       .run()
   })
 })

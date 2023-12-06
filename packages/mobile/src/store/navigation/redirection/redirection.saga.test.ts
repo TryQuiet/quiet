@@ -58,7 +58,7 @@ describe('redirectionSaga', () => {
   })
 
   test('redirect if user sees a splash screen being a member of community', async () => {
-    const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity')
+    const alice = await factory.create<ReturnType<typeof identity.actions.storeIdentity>['payload']>('Identity')
 
     const _publicChannels = publicChannels.selectors.publicChannels(store.getState())
     const _generalChannel = _publicChannels.find(c => c.name === 'general')

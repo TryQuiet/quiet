@@ -42,13 +42,13 @@ describe('Restart app works correctly', () => {
     const factory = await getFactory(store)
 
     const community =
-      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
+      await factory.create<ReturnType<typeof communities.actions.storeCommunity>['payload']>('Community')
 
-    await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
+    await factory.create<ReturnType<typeof identityActions.storeIdentity>['payload']>('Identity', {
       id: community.id,
     })
 
-    await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
+    await factory.create<ReturnType<typeof identityActions.storeIdentity>['payload']>('Identity', {
       id: community.id,
     })
 

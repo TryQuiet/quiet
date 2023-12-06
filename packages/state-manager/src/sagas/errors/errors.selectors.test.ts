@@ -19,7 +19,7 @@ describe('Errors', () => {
 
   it('Selects current community errors', async () => {
     const factory = await getFactory(store)
-    communityAlpha = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
+    communityAlpha = await factory.create<ReturnType<typeof communitiesActions.storeCommunity>['payload']>('Community')
 
     const registrarErrorPayload = {
       community: communityAlpha.id,
@@ -49,7 +49,7 @@ describe('Errors', () => {
 
   it('Selects current community registrar errors', async () => {
     const factory = await getFactory(store)
-    communityAlpha = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
+    communityAlpha = await factory.create<ReturnType<typeof communitiesActions.storeCommunity>['payload']>('Community')
 
     const registrarErrorPayload = {
       community: communityAlpha.id,

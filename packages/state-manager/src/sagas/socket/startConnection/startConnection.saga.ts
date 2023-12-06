@@ -38,13 +38,14 @@ import {
   type RemoveDownloadStatus,
   type SendCertificatesResponse,
   type SetChannelSubscribedPayload,
-  SocketActionTypes,
-  type SavedOwnerCertificatePayload,
   type SendOwnerCertificatePayload,
-  CommunityMetadata,
-  SendCsrsResponse,
-  ConnectionProcessInfo,
+  type CommunityMetadata,
+  type SendCsrsResponse,
+  SocketActionTypes,
+  StoreCsrPayload,
+  StoreCertificatePayload,
 } from '@quiet/types'
+import { identitySelectors } from '../../identity/identity.selectors'
 
 const log = logger('socket')
 
@@ -70,9 +71,9 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof identityActions.throwIdentityError>
     | ReturnType<typeof identityActions.saveOwnerCertToDb>
     | ReturnType<typeof identityActions.savedOwnerCertificate>
+    | ReturnType<typeof identityActions.storeUserCsr>
     | ReturnType<typeof communitiesActions.storePeerList>
     | ReturnType<typeof communitiesActions.updateCommunity>
-    | ReturnType<typeof communitiesActions.responseRegistrar>
     | ReturnType<typeof communitiesActions.launchRegistrar>
     | ReturnType<typeof communitiesActions.launchCommunity>
     | ReturnType<typeof communitiesActions.addOwnerCertificate>
@@ -170,12 +171,6 @@ export function subscribe(socket: Socket) {
       emit(identityActions.saveOwnerCertToDb())
       emit(publicChannelsActions.createGeneralChannel())
     })
-    socket.on(SocketActionTypes.REGISTRAR, (payload: ResponseRegistrarPayload) => {
-      console.log('SocketActionTypes.REGISTRAR')
-      log(SocketActionTypes.REGISTRAR, payload)
-      emit(communitiesActions.responseRegistrar(payload))
-      emit(networkActions.addInitializedRegistrar(payload.id))
-    })
     socket.on(SocketActionTypes.PEER_LIST, (payload: StorePeerListPayload) => {
       emit(communitiesActions.storePeerList(payload))
     })
@@ -186,8 +181,6 @@ export function subscribe(socket: Socket) {
     socket.on(SocketActionTypes.COMMUNITY, (payload: ResponseLaunchCommunityPayload) => {
       console.log('Hunting for heisenbug: Community event received in state-manager')
       emit(communitiesActions.launchRegistrar(payload.id))
-      // Not sure about this saveUserCsr. It seems that we've added it to secure case when user closes the app unexpectedly before csr is saved to db, so we'll do that on restart.
-      emit(identityActions.saveUserCsr())
       emit(filesActions.checkForMissingFiles(payload.id))
       emit(networkActions.addInitializedCommunity(payload.id))
       emit(communitiesActions.clearInvitationCodes())
@@ -211,46 +204,48 @@ export function subscribe(socket: Socket) {
 
       emit(
         communitiesActions.addOwnerCertificate({
-          communityId: payload.communityId,
           ownerCertificate: payload.payload.ownerCert,
         })
       )
 
       emit(
         communitiesActions.storePeerList({
-          communityId: payload.communityId,
           peerList: payload.payload.peers,
         })
       )
       emit(
         identityActions.storeUserCertificate({
-          userCertificate: payload.payload.certificate,
-          communityId: payload.communityId,
+          certificate: payload.payload.certificate,
         })
       )
       emit(
         communitiesActions.updateCommunity({
-          id: payload.communityId,
           rootCa: payload.payload.rootCa,
         })
       )
       emit(communitiesActions.launchCommunity(payload.communityId))
     })
-    socket.on(SocketActionTypes.SAVED_OWNER_CERTIFICATE, (payload: SavedOwnerCertificatePayload) => {
-      log(`${SocketActionTypes.SAVED_OWNER_CERTIFICATE}: ${payload.communityId}`)
+    socket.on(SocketActionTypes.SAVED_OWNER_CERTIFICATE, (payload: StoreCertificatePayload) => {
+      log(`${SocketActionTypes.SAVED_OWNER_CERTIFICATE}`)
       emit(
         communitiesActions.addOwnerCertificate({
-          communityId: payload.communityId,
-          ownerCertificate: payload.network.certificate,
+          ownerCertificate: payload.certificate,
         })
       )
       emit(
         identityActions.storeUserCertificate({
-          userCertificate: payload.network.certificate,
-          communityId: payload.communityId,
+          certificate: payload.certificate,
         })
       )
-      emit(identityActions.savedOwnerCertificate(payload.communityId))
+      emit(identityActions.savedOwnerCertificate())
+    })
+    socket.on(SocketActionTypes.SAVED_USER_CSR, (payload: StoreCsrPayload) => {
+      log(`${SocketActionTypes.SAVED_USER_CSR}`)
+      emit(
+        identityActions.storeUserCsr({
+          csr: payload.csr,
+        })
+      )
     })
     socket.on(SocketActionTypes.SAVE_COMMUNITY_METADATA, (payload: CommunityMetadata) => {
       log(`${SocketActionTypes.SAVE_COMMUNITY_METADATA}: ${payload}`)

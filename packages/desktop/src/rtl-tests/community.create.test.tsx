@@ -29,12 +29,13 @@ import Channel from '../renderer/components/Channel/Channel'
 import LoadingPanel from '../renderer/components/LoadingPanel/LoadingPanel'
 import { AnyAction } from 'redux'
 import { generateChannelId } from '@quiet/common'
-import { type Community, type SavedOwnerCertificatePayload } from '@quiet/types'
+import { type StoreCertificatePayload, type Community } from '@quiet/types'
 
 jest.setTimeout(20_000)
 
 describe('User', () => {
   let socket: MockedSocket
+  
   const generalId = generateChannelId('general')
 
   beforeEach(() => {
@@ -91,11 +92,8 @@ describe('User', () => {
       }
       if (action === SocketActionTypes.REGISTER_OWNER_CERTIFICATE) {
         const payload = input[1] as RegisterOwnerCertificatePayload
-        socket.socketClient.emit<SavedOwnerCertificatePayload>(SocketActionTypes.SAVED_OWNER_CERTIFICATE, {
-          communityId: payload.communityId,
-          network: {
-            certificate: payload.permsData.certificate,
-          },
+        socket.socketClient.emit<StoreCertificatePayload>(SocketActionTypes.SAVED_OWNER_CERTIFICATE, {
+          certificate: payload.permsData.certificate
         })
       }
       if (action === SocketActionTypes.CREATE_COMMUNITY) {
@@ -185,7 +183,7 @@ describe('User', () => {
         "Identity/registerUsername",
         "Communities/responseCreateNetwork",
         "Communities/updateCommunityData",
-        "Identity/addNewIdentity",
+        "Identity/storeIdentity",
         "Network/setLoadingPanelType",
         "Modals/openModal",
         "Identity/registerCertificate",

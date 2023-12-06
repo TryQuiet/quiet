@@ -6,7 +6,6 @@ import { publicChannelsActions } from '../publicChannels.slice'
 import { identityReducer, IdentityState, type identityActions } from '../../identity/identity.slice'
 import { CommunitiesState, communitiesReducer, type communitiesActions } from '../../communities/communities.slice'
 import { communitiesAdapter } from '../../communities/communities.adapter'
-import { identityAdapter } from '../../identity/identity.adapter'
 import { createChannelSaga } from './createChannel.saga'
 import { type Store } from '../../store.types'
 import { type FactoryGirl } from 'factory-girl'
@@ -38,9 +37,9 @@ describe('createChannelSaga', () => {
 
   test('ask for missing messages', async () => {
     const community =
-      await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
+      await factory.create<ReturnType<typeof communitiesActions.storeCommunity>['payload']>('Community')
 
-    const identity = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
+    const identity = await factory.create<ReturnType<typeof identityActions.storeIdentity>['payload']>('Identity', {
       id: community.id,
       nickname: 'john',
     })
@@ -60,12 +59,11 @@ describe('createChannelSaga', () => {
         {
           [StoreKeys.Identity]: {
             ...new IdentityState(),
-            identities: identityAdapter.setAll(identityAdapter.getInitialState(), [identity]),
+            identity: identity,
           },
           [StoreKeys.Communities]: {
             ...new CommunitiesState(),
-            currentCommunity: community.id,
-            communities: communitiesAdapter.setAll(communitiesAdapter.getInitialState(), [community]),
+            community: community
           },
         }
       )

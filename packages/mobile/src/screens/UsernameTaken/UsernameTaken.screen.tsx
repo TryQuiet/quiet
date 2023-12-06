@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { errors, identity, users } from '@quiet/state-manager'
 import { useDispatch, useSelector } from 'react-redux'
 import { UsernameTakenScreenProps } from './UsernameTaken.types'
@@ -10,9 +10,10 @@ import { navigationActions } from '../../store/navigation/navigation.slice'
 const UsernameTakenScreen: React.FC<UsernameTakenScreenProps> = () => {
   const dispatch = useDispatch()
 
-  const currentIdentity = useSelector(identity.selectors.currentIdentity)
+  const [ username, setUsername ] = useState<string | undefined>(undefined)
 
-  const usernameRegistered = currentIdentity?.userCertificate != null
+  const currentIdentity = useSelector(identity.selectors.currentIdentity)
+  const usernameRegistered = currentIdentity?.nickname == username
 
   const registeredUsers = useSelector(users.selectors.certificatesMapping)
 
@@ -22,23 +23,37 @@ const UsernameTakenScreen: React.FC<UsernameTakenScreenProps> = () => {
     dispatch(navigationActions.pop())
   }, [dispatch])
 
+  const navigation = useCallback(
+    (screen: ScreenNames, params?: any) => {
+      dispatch(
+        navigationActions.navigation({
+          screen,
+          params,
+        })
+      )
+    },
+    [dispatch]
+  )
+
   const handleAction = (nickname: string) => {
     // Clear errors
     if (error) {
       dispatch(errors.actions.clearError(error))
     }
+
+    setUsername(nickname)
+
     dispatch(
-      identity.actions.registerUsername({
-        nickname,
-        isUsernameTaken: true,
-      })
-    )
-    dispatch(
-      navigationActions.navigation({
-        screen: ScreenNames.NewUsernameRequestedScreen,
-      })
+      identity.actions.chooseUsername({ nickname: nickname })
     )
   }
+
+  useEffect(() => {
+    if (usernameRegistered) {
+      dispatch(identity.actions.saveUserCsr())
+      navigation(ScreenNames.NewUsernameRequestedScreen)
+    }
+  }, [dispatch, username, currentIdentity])
 
   return (
     <UsernameRegistration

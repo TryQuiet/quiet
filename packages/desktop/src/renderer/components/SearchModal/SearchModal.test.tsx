@@ -25,9 +25,9 @@ describe('Search Modal', () => {
     const factory = await getFactory(store)
 
     const community =
-      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
+      await factory.create<ReturnType<typeof communities.actions.storeCommunity>['payload']>('Community')
 
-    const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+    const alice = await factory.create<ReturnType<typeof identity.actions.storeIdentity>['payload']>('Identity', {
       id: community.id,
       nickname: 'alice',
     })

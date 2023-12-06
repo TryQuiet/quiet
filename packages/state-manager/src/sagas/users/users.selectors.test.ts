@@ -7,7 +7,7 @@ import { getFactory } from '../../utils/tests/factories'
 import { keyFromCertificate, parseCertificate, parseCertificationRequest } from '@quiet/identity'
 import { Identity, Community } from '@quiet/types'
 
-import { communitiesActions, communitiesReducer, CommunitiesState } from '../communities/communities.slice'
+import { communitiesActions } from '../communities/communities.slice'
 
 import { identityActions } from '../identity/identity.slice'
 
@@ -23,7 +23,7 @@ describe('users selectors', () => {
   let alicePublicKey: string
 
   const aliceCertificateData = {
-    dmPublicKey: '0bfb475810c0e26c9fab590d47c3d60ec533bb3c451596acc3cd4f21602e9ad9',
+    dmPublicKey: '',
     onionAddress: 'nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad.onion',
     peerId: 'Qmf3ySkYqLET9xtAtDzvAr5Pp3egK1H3C5iJAZm1SpLEp6',
     username: 'alice',
@@ -37,9 +37,9 @@ describe('users selectors', () => {
 
     factory = await getFactory(store)
 
-    community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
+    community = await factory.create<ReturnType<typeof communitiesActions.storeCommunity>['payload']>('Community')
 
-    alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
+    alice = await factory.create<ReturnType<typeof identityActions.storeIdentity>['payload']>('Identity', {
       id: community.id,
       nickname: aliceCertificateData.username,
       hiddenService: {
@@ -49,16 +49,12 @@ describe('users selectors', () => {
       peerId: {
         id: aliceCertificateData.peerId,
       },
-      dmKeys: {
-        publicKey: aliceCertificateData.dmPublicKey,
-        privateKey: '',
-      },
     })
 
     const parsedAliceCertificate = parseCertificate(alice.userCertificate!)
     alicePublicKey = keyFromCertificate(parsedAliceCertificate)
 
-    aliceUnregistered = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
+    aliceUnregistered = await factory.create<ReturnType<typeof identityActions.storeIdentity>['payload']>('Identity', {
       id: community.id,
       nickname: aliceCertificateData.username,
       userCertificate: null,
@@ -82,7 +78,7 @@ describe('users selectors', () => {
 
     expect(usersData[alicePublicKey]).toMatchInlineSnapshot(`
       Object {
-        "dmPublicKey": "0bfb475810c0e26c9fab590d47c3d60ec533bb3c451596acc3cd4f21602e9ad9",
+        "dmPublicKey": "",
         "onionAddress": "nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad.onion",
         "peerId": "Qmf3ySkYqLET9xtAtDzvAr5Pp3egK1H3C5iJAZm1SpLEp6",
         "username": "alice",

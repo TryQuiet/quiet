@@ -8,20 +8,20 @@ import {
   CancelDownloadPayload,
   AskForMessagesPayload,
   ConnectionProcessInfo,
-  RegisterOwnerCertificatePayload,
   SaveOwnerCertificatePayload,
   InitCommunityPayload,
   LaunchRegistrarPayload,
   Community,
   DeleteFilesFromChannelSocketPayload,
-  SaveCSRPayload,
   CommunityMetadata,
+  SaveCsrPayload,
 } from '@quiet/types'
 import EventEmitter from 'events'
 import { CONFIG_OPTIONS, SERVER_IO_PROVIDER } from '../const'
 import { ConfigOptions, ServerIoProviderTypes } from '../types'
 import { suspendableSocketEvents } from './suspendable.events'
 import Logger from '../common/logger'
+import { RegisterCertificatePayload } from '@quiet/state-manager'
 
 @Injectable()
 export class SocketService extends EventEmitter implements OnModuleInit {
@@ -147,7 +147,7 @@ export class SocketService extends EventEmitter implements OnModuleInit {
       })
 
       // ====== Certificates ======
-      socket.on(SocketActionTypes.SAVE_USER_CSR, async (payload: SaveCSRPayload) => {
+      socket.on(SocketActionTypes.SAVE_USER_CSR, async (payload: SaveCsrPayload) => {
         this.logger(`On ${SocketActionTypes.SAVE_USER_CSR}`)
 
         this.emit(SocketActionTypes.SAVE_USER_CSR, payload)
@@ -157,7 +157,7 @@ export class SocketService extends EventEmitter implements OnModuleInit {
         this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CONNECTING_TO_COMMUNITY)
       })
 
-      socket.on(SocketActionTypes.REGISTER_OWNER_CERTIFICATE, async (payload: RegisterOwnerCertificatePayload) => {
+      socket.on(SocketActionTypes.REGISTER_OWNER_CERTIFICATE, async (payload: RegisterCertificatePayload) => {
         this.logger(`Registering owner certificate (${payload.communityId})`)
 
         this.emit(SocketActionTypes.REGISTER_OWNER_CERTIFICATE, payload)

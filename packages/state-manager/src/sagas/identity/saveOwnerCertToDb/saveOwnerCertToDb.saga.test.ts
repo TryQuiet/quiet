@@ -3,7 +3,6 @@ import { expectSaga } from 'redux-saga-test-plan'
 import { type Socket } from '../../../types'
 import { communitiesReducer, CommunitiesState, type communitiesActions } from '../../communities/communities.slice'
 import { StoreKeys } from '../../store.keys'
-import { identityAdapter } from '../identity.adapter'
 import { identityReducer, IdentityState, type identityActions } from '../identity.slice'
 import { saveOwnerCertToDbSaga } from './saveOwnerCertToDb.saga'
 import { type Store } from '../../store.types'
@@ -27,9 +26,9 @@ describe('saveOwnerCertificateToDb', () => {
     const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
 
     const community =
-      await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
+      await factory.create<ReturnType<typeof communitiesActions.storeCommunity>['payload']>('Community')
 
-    const identity = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
+    const identity = await factory.create<ReturnType<typeof identityActions.storeIdentity>['payload']>('Identity', {
       id: community.id,
       nickname: 'john',
     })
@@ -43,17 +42,11 @@ describe('saveOwnerCertificateToDb', () => {
         {
           [StoreKeys.Communities]: {
             ...new CommunitiesState(),
-            currentCommunity: community.id,
-            communities: {
-              ids: [community.id],
-              entities: {
-                [community.id]: community,
-              },
-            },
+            community: community,
           },
           [StoreKeys.Identity]: {
             ...new IdentityState(),
-            identities: identityAdapter.setAll(identityAdapter.getInitialState(), [identity]),
+            identity: identity,
           },
         }
       )

@@ -36,7 +36,7 @@ describe('Channel menu', () => {
 
     const factory = await getFactory(store)
 
-    await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community', {
+    await factory.create<ReturnType<typeof communities.actions.storeCommunity>['payload']>('Community', {
       id: '0',
       name: 'community',
       CA: null,
@@ -81,9 +81,9 @@ describe('Channel menu', () => {
     const factory = await getFactory(store)
 
     const community =
-      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
+      await factory.create<ReturnType<typeof communities.actions.storeCommunity>['payload']>('Community')
 
-    await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+    await factory.create<ReturnType<typeof identity.actions.storeIdentity>['payload']>('Identity', {
       id: community.id,
       nickname: 'alice',
     })

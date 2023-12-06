@@ -53,9 +53,9 @@ describe('publicChannelsSelectors', () => {
 
     factory = await getFactory(store)
 
-    community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
+    community = await factory.create<ReturnType<typeof communitiesActions.storeCommunity>['payload']>('Community')
 
-    alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
+    alice = await factory.create<ReturnType<typeof identityActions.storeIdentity>['payload']>('Identity', {
       id: community.id,
       nickname: 'alice',
     })
@@ -66,7 +66,7 @@ describe('publicChannelsSelectors', () => {
     expect(generalChannel).not.toBeUndefined()
 
     channelIdes = [...channelIdes, generalChannel.id]
-    john = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
+    john = await factory.create<ReturnType<typeof identityActions.storeIdentity>['payload']>('Identity', {
       id: community.id,
       nickname: 'john',
     })
@@ -314,7 +314,7 @@ describe('publicChannelsSelectors', () => {
       })
     ).channel
 
-    const elouise = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
+    const elouise = await factory.create<ReturnType<typeof identityActions.storeIdentity>['payload']>('Identity', {
       id: community.id,
       nickname: 'elouise',
     })
@@ -353,7 +353,7 @@ describe('publicChannelsSelectors', () => {
     // This case occurred in a built app
     const store = prepareStore().store
     const factory = await getFactory(store)
-    await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
+    await factory.create<ReturnType<typeof communitiesActions.storeCommunity>['payload']>('Community')
 
     const oldState = store.getState()
     const channelId = oldState.PublicChannels.channels.ids[0]

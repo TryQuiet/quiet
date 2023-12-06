@@ -25,12 +25,11 @@ import {
   ConnectionProcessInfo,
   DeleteFilesFromChannelSocketPayload,
   FileMetadata,
-  InitCommunityPayload,
   NoCryptoEngineError,
   PublicChannel,
   PushNotificationPayload,
-  SaveCSRPayload,
   SaveCertificatePayload,
+  SaveCsrPayload,
   SocketActionTypes,
   UserData,
 } from '@quiet/types'
@@ -766,7 +765,7 @@ export class StorageService extends EventEmitter {
     return result
   }
 
-  public async saveCSR(payload: SaveCSRPayload): Promise<boolean> {
+  public async saveCSR(payload: SaveCsrPayload): Promise<boolean> {
     const result = await this.certificatesRequestsStore.addUserCsr(payload.csr)
     return result
   }

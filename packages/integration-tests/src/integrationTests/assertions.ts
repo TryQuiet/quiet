@@ -127,13 +127,13 @@ export async function assertDownloadedImage(
 }
 
 export const assertInitializedExistingCommunitiesAndRegistrars = async (store: TestStore) => {
-  const communityId = store.getState().Communities.communities.ids[0]
+  const community = store.getState().Communities.community
 
   await waitForExpect(() => {
-    expect(store.getState().Network.initializedCommunities[communityId]).toBeTruthy()
+    expect(store.getState().Network.initializedCommunities[community.id]).toBeTruthy()
   })
   await waitForExpect(() => {
-    expect(store.getState().Network.initializedRegistrars[communityId]).toBeTruthy()
+    expect(store.getState().Network.initializedRegistrars[community.id]).toBeTruthy()
   })
 }
 
@@ -155,9 +155,8 @@ export const assertNoRegistrationError = async (store: TestStore) => {
 }
 
 export const assertReceivedCertificate = async (store: TestStore) => {
-  const communityId = store.getState().Communities.communities.ids[0]
   await waitForExpect(() => {
-    expect(store.getState().Identity.identities.entities[communityId].userCertificate).toBeTruthy()
+    expect(store.getState().Identity.identity.userCertificate).toBeTruthy()
   }, 150_000)
 }
 
@@ -188,8 +187,7 @@ export const assertInitializedCommunity = async (store: TestStore) => {
 }
 
 export const assertRegistrationRequestSent = async (store: TestStore, count: number) => {
-  const communityId = store.getState().Communities.communities.ids[0]
   await waitForExpect(() => {
-    expect(store.getState().Communities.communities.entities[communityId].registrationAttempts).toEqual(count)
+    expect(store.getState().Communities.community.registrationAttempts).toEqual(count)
   }, 240_000)
 }

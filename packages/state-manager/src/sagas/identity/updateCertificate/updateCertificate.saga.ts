@@ -4,12 +4,12 @@ import { select, call, put } from 'typed-redux-saga'
 import { identitySelectors } from '../identity.selectors'
 import { loadCSR, pubKeyMatch } from '@quiet/identity'
 import { identityActions } from '../identity.slice'
-import { communitiesSelectors } from '../../communities/communities.selectors'
 import { usersActions } from '../../users/users.slice'
 
 export function* updateCertificateSaga(action: PayloadAction<SendCertificatesResponse>): Generator {
+  console.log('entered update certificate saga', action.payload)
+
   const certificate = yield* select(identitySelectors.hasCertificate)
-  const communityId = yield* select(communitiesSelectors.currentCommunityId)
   const csr = yield* select(identitySelectors.csr)
 
   if (!certificate && csr?.userCsr) {
@@ -22,8 +22,7 @@ export function* updateCertificateSaga(action: PayloadAction<SendCertificatesRes
     if (cert) {
       yield* put(
         identityActions.storeUserCertificate({
-          userCertificate: cert,
-          communityId,
+          certificate: cert
         })
       )
     }

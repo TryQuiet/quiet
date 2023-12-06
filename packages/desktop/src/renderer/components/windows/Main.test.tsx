@@ -10,7 +10,7 @@ describe('Main', () => {
   it('renders component', async () => {
     const store = (await prepareStore()).store
     const factory = await getFactory(store)
-    await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community', {
+    await factory.create<ReturnType<typeof communities.actions.storeCommunity>['payload']>('Community', {
       rootCa: 'rootCa',
     })
     const result = renderComponent(

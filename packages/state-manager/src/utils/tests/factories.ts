@@ -49,7 +49,7 @@ export const getFactory = async (store: Store) => {
   const registrarUrl = 'http://ugmx77q2tnm5fliyfxfeen5hsuzjtbsz44tsldui2ju7vl5xj4d447yd.onion'
   factory.define(
     'Community',
-    communities.actions.addNewCommunity,
+    communities.actions.storeCommunity,
     {
       id: factory.sequence('Community.id', (n: number) => n),
       name: factory.sequence('Community.name', (n: number) => `community_${n}`),
@@ -59,12 +59,7 @@ export const getFactory = async (store: Store) => {
       ownerCertificate: '',
     },
     {
-      afterCreate: async (payload: ReturnType<typeof communities.actions.addNewCommunity>['payload']) => {
-        // Set current community if there's no current community set yet
-        const currentCommunity = communities.selectors.currentCommunity(store.getState())
-        if (!currentCommunity) {
-          store.dispatch(communities.actions.setCurrentCommunity(payload.id))
-        }
+      afterCreate: async (payload: ReturnType<typeof communities.actions.storeCommunity>['payload']) => {
         // Create 'general' channel
         await factory.create('PublicChannel', {
           communityId: payload.id,
@@ -83,7 +78,7 @@ export const getFactory = async (store: Store) => {
 
   factory.define(
     'Identity',
-    identity.actions.addNewIdentity,
+    identity.actions.storeIdentity,
     {
       id: factory.assoc('Community', 'id'),
       hiddenService: {
@@ -103,18 +98,17 @@ export const getFactory = async (store: Store) => {
       joinTimestamp: 1663747464000,
     },
     {
-      afterBuild: async (action: ReturnType<typeof identity.actions.addNewIdentity>) => {
+      afterBuild: async (action: ReturnType<typeof identity.actions.storeIdentity>) => {
         const createCsr = action.payload.userCsr === undefined
         const requestCertificate = action.payload.userCertificate === undefined
 
-        const community = communities.selectors.selectEntities(store.getState())[action.payload.id]!
+        const community = communities.selectors.currentCommunity(store.getState())
 
         const userCertData = await createUserCertificateTestHelper(
           {
             nickname: action.payload.nickname,
             commonName: action.payload.hiddenService.onionAddress,
             peerId: action.payload.peerId.id,
-            dmPublicKey: action.payload.dmKeys.publicKey,
           },
           community.CA
         )
@@ -149,7 +143,6 @@ export const getFactory = async (store: Store) => {
           if (!community.ownerCertificate) {
             store.dispatch(
               communities.actions.addOwnerCertificate({
-                communityId: community.id,
                 ownerCertificate: action.payload.userCertificate,
               })
             )

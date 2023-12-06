@@ -15,7 +15,10 @@ export const initializedCommunities = createSelector(networkSlice, reducerState 
 export const isCurrentCommunityInitialized = createSelector(
   initializedCommunities,
   currentCommunity,
-  (initializedCommunities, currentCommunity) => currentCommunity && initializedCommunities[currentCommunity.id]
+  (initializedCommunities, currentCommunity) => {
+    
+    return currentCommunity && initializedCommunities[currentCommunity.id]
+  }
 )
 
 export const connectedPeers = createSelector(networkSlice, reducerState => {

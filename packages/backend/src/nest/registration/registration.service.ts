@@ -1,7 +1,8 @@
 import { Injectable, OnModuleInit } from '@nestjs/common'
 import { EventEmitter } from 'events'
 import { extractPendingCsrs, issueCertificate } from './registration.functions'
-import { ErrorCodes, ErrorMessages, PermsData, RegisterOwnerCertificatePayload, SocketActionTypes } from '@quiet/types'
+import { ErrorCodes, ErrorMessages, PermsData, SocketActionTypes } from '@quiet/types'
+import { RegisterOwnerCertificatePayload } from '@quiet/state-manager'
 import { RegistrationEvents } from './registration.types'
 import Logger from '../common/logger'
 
@@ -49,13 +50,14 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
   }
 
   public async registerOwnerCertificate(payload: RegisterOwnerCertificatePayload): Promise<void> {
+    console.log('registerOwnerCertificate', payload)
     // FIXME: We should resolve problems with events order and we should set permsData only on LAUNCH_REGISTRART socket event in connectionsManager.
     this._permsData = payload.permsData
     const result = await issueCertificate(payload.userCsr.userCsr, this._permsData)
+    console.log('registerOwnerCertificate result', result)
     if (result?.cert) {
       this.emit(SocketActionTypes.SAVED_OWNER_CERTIFICATE, {
-        communityId: payload.communityId,
-        network: { certificate: result.cert },
+        certificate: result.cert,
       })
     } else {
       this.emit(SocketActionTypes.ERROR, {

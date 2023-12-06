@@ -58,6 +58,7 @@
     "pkijs": "^3.0.8",
     "pvutils": "*",
     "redux-saga-test-plan": "^4.0.3",
+    "socket.io-mock": "^1.3.2",
     "tmp": "^0.2.1",
     "typescript": "^4.9.3"
   },
