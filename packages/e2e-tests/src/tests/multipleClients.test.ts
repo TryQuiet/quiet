@@ -224,7 +224,6 @@ describe('Multiple Clients', () => {
       await joinCommunityModal.typeCommunityCode(invitationCode)
       await joinCommunityModal.submit()
     })
-    // ______________
 
     it('Second user submits non-valid, duplicated username', async () => {
       console.log('duplicated user - 1')
@@ -247,8 +246,6 @@ describe('Multiple Clients', () => {
       await registerModal.submitUsernameTaken()
       console.time(`[${users.user3.app.name}] '${users.user3.username}' joining community time`)
     })
-
-    // ______________
 
     it('Second user sees general channel', async () => {
       console.log('new user - 7')
