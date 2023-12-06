@@ -60,8 +60,11 @@ describe('One Client', () => {
       const isRegisterModal = await registerModal.element.isDisplayed()
 
       expect(isRegisterModal).toBeTruthy()
+      console.log('Registration - vefore typeUsername')
       await registerModal.typeUsername('testuser')
+      console.log('Registration - before submit')
       await registerModal.submit()
+      console.log('Registration - after submit')
     })
 
     it.skip('User waits for the modal JoiningLoadingPanel to disappear', async () => {
@@ -71,9 +74,14 @@ describe('One Client', () => {
     })
 
     it('User sees general channel', async () => {
+      console.log('User sees general channel - test start')
+      console.log('PAGE SOURCE', await app.driver.getPageSource())
       const generalChannel = new Channel(app.driver, 'general')
+      console.log('User sees general channel - generalChannel')
       const isGeneralChannel = await generalChannel.element.isDisplayed()
+      console.log('User sees general channel - isGeneralChannel', isGeneralChannel)
       const generalChannelText = await generalChannel.element.getText()
+      console.log('User sees general channel - generalChannelText', generalChannelText)
       expect(isGeneralChannel).toBeTruthy()
       expect(generalChannelText).toEqual('# general')
     })
