@@ -215,9 +215,9 @@ export class Tor extends EventEmitter implements OnModuleInit {
         '--ControlPort',
         this.controlPort.toString(),
         '--PidFile',
-        this.torPidPath,
+        `"${this.torPidPath}"`,
         '--DataDirectory',
-        this.torDataDirectory,
+        `"${this.torDataDirectory}"`,
         '--HashedControlPassword',
         this.torPasswordProvider.torHashedPassword,
         // ...this.torProcessParams
