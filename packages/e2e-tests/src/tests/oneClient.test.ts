@@ -2,7 +2,6 @@ import {
   App,
   Channel,
   CreateCommunityModal,
-  DebugModeModal,
   JoinCommunityModal,
   JoiningLoadingPanel,
   RegisterUsernameModal,
