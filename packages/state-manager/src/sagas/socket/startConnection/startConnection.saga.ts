@@ -38,12 +38,11 @@ import {
   type RemoveDownloadStatus,
   type SendCertificatesResponse,
   type SetChannelSubscribedPayload,
-  SocketActionTypes,
   type SavedOwnerCertificatePayload,
   type SendOwnerCertificatePayload,
-  CommunityMetadata,
-  SendCsrsResponse,
-  ConnectionProcessInfo,
+  type SendCsrsResponse,
+  type CommunityMetadata,
+  SocketActionTypes,
 } from '@quiet/types'
 
 const log = logger('socket')
@@ -70,6 +69,7 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof identityActions.throwIdentityError>
     | ReturnType<typeof identityActions.saveOwnerCertToDb>
     | ReturnType<typeof identityActions.savedOwnerCertificate>
+    | ReturnType<typeof identityActions.checkLocalCsr>
     | ReturnType<typeof communitiesActions.storePeerList>
     | ReturnType<typeof communitiesActions.updateCommunity>
     | ReturnType<typeof communitiesActions.responseRegistrar>
@@ -186,8 +186,6 @@ export function subscribe(socket: Socket) {
     socket.on(SocketActionTypes.COMMUNITY, (payload: ResponseLaunchCommunityPayload) => {
       console.log('Hunting for heisenbug: Community event received in state-manager')
       emit(communitiesActions.launchRegistrar(payload.id))
-      // Not sure about this saveUserCsr. It seems that we've added it to secure case when user closes the app unexpectedly before csr is saved to db, so we'll do that on restart.
-      emit(identityActions.saveUserCsr())
       emit(filesActions.checkForMissingFiles(payload.id))
       emit(networkActions.addInitializedCommunity(payload.id))
       emit(communitiesActions.clearInvitationCodes())
@@ -201,6 +199,8 @@ export function subscribe(socket: Socket) {
     })
     // Certificates
     socket.on(SocketActionTypes.RESPONSE_GET_CSRS, (payload: SendCsrsResponse) => {
+      console.log('REPONSE_GET_CSRS')
+      emit(identityActions.checkLocalCsr(payload))
       emit(usersActions.storeCsrs(payload))
     })
     socket.on(SocketActionTypes.RESPONSE_GET_CERTIFICATES, (payload: SendCertificatesResponse) => {

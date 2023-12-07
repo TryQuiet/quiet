@@ -9,7 +9,9 @@ import {
   type RegisterCertificatePayload,
   type StoreUserCertificatePayload,
   type RegisterUsernamePayload,
+  SendCsrsResponse,
 } from '@quiet/types'
+
 export class IdentityState {
   public identities: EntityState<Identity> = identityAdapter.getInitialState()
 }
@@ -43,6 +45,7 @@ export const identitySlice = createSlice({
         },
       })
     },
+    checkLocalCsr: (state, _action: PayloadAction<SendCsrsResponse>) => state,
     saveUserCsr: state => state,
     verifyJoinTimestamp: state => state,
     updateJoinTimestamp: (state, action: PayloadAction<UpdateJoinTimestampPayload>) => {
