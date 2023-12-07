@@ -25,7 +25,7 @@ export function* checkLocalCsrSaga(
 
   const pubKey = yield* call(pubKeyFromCsr, identity.userCsr.userCsr)
 
-  const storedCsr = Object.keys(csrs).find(key => key === pubKey)
+  const storedCsr = csrs.find(csr => csr === identity.userCsr?.userCsr)
 
   if (storedCsr) {
     console.log('Stored CSR with the same public key found, checking for username integirty.', pubKey)

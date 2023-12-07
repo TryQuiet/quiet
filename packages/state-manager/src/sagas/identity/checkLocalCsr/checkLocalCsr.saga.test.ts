@@ -98,7 +98,7 @@ describe('checkLocalCsr', () => {
     await expectSaga(checkLocalCsrSaga, usersActions.storeCsrs(payload))
       .withReducer(reducer)
       .withState(store.getState())
-      .put(identityActions.saveUserCsr())
+      .not.put(identityActions.saveUserCsr())
       .run()
   })
 })

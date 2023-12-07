@@ -238,6 +238,7 @@ export function subscribe(socket: Socket) {
     })
     socket.on(SocketActionTypes.SAVED_OWNER_CERTIFICATE, (payload: SavedOwnerCertificatePayload) => {
       log(`${SocketActionTypes.SAVED_OWNER_CERTIFICATE}: ${payload.communityId}`)
+      emit(identityActions.saveUserCsr())
       emit(
         communitiesActions.addOwnerCertificate({
           communityId: payload.communityId,
