@@ -1,3 +1,7 @@
+[unreleased]
+
+* Fixed UI for Update Modal
+
 [2.0.3-alpha.12]
 
 * Better descriptions of the joining process
