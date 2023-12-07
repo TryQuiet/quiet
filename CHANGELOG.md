@@ -2,6 +2,8 @@
 
 * Initialize electron-store after setting appData to prevent creating empty "Quiet" data directory
 
+* Add test-case in e2e multiple test for using username taken modal
+
 [2.0.3-alpha.12]
 
 * Better descriptions of the joining process
