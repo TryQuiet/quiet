@@ -1,10 +1,7 @@
 import React, { ReactElement } from 'react'
-
 import { styled } from '@mui/material/styles'
-
 import Typography from '@mui/material/Typography'
 import Grid from '@mui/material/Grid'
-
 import Icon from '../../ui/Icon/Icon'
 import updateIcon from '../../../static/images/updateIcon.svg'
 import Modal from '../../ui/Modal/Modal'
@@ -12,19 +9,15 @@ import Modal from '../../ui/Modal/Modal'
 const PREFIX = 'UpdateModal'
 
 const classes = {
-  info: `${PREFIX}info`,
-  updateIcon: `${PREFIX}updateIcon`,
-  title: `${PREFIX}title`,
-  message: `${PREFIX}message`,
+  updateIcon: `${PREFIX}-updateIcon`,
+  title: `${PREFIX}-title`,
+  message: `${PREFIX}-message`,
 }
 
 const StyledModalContent = styled(Grid)(({ theme }) => ({
   backgroundColor: theme.palette.colors.white,
   border: 'none',
-
-  [`& .${classes.info}`]: {
-    marginTop: 38,
-  },
+  marginTop: '-60px',
 
   [`& .${classes.updateIcon}`]: {
     width: 102,
@@ -55,7 +48,7 @@ export const UpdateModalComponent: React.FC<UpdateModalProps> = ({ open, handleC
   return (
     <Modal open={open} handleClose={handleClose}>
       <StyledModalContent container direction='column' alignItems='center' justifyContent='center'>
-        <Grid className={classes.info}>
+        <Grid>
           <Icon src={updateIcon} />
         </Grid>
         <Grid className={classes.title}>

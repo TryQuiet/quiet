@@ -92,17 +92,17 @@ describe('UpdateModal', () => {
                 style="width: 600px;"
               >
                 <div
-                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-1cz3wls-MuiGrid-root"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-1xjw49x-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid-root UpdateModalinfo css-vj1n65-MuiGrid-root"
+                    class="MuiGrid-root css-vj1n65-MuiGrid-root"
                   >
                     <img
                       src="test-file-stub"
                     />
                   </div>
                   <div
-                    class="MuiGrid-root UpdateModaltitle css-vj1n65-MuiGrid-root"
+                    class="MuiGrid-root UpdateModal-title css-vj1n65-MuiGrid-root"
                   >
                     <h3
                       class="MuiTypography-root MuiTypography-h3 css-ptjqt4-MuiTypography-root"
@@ -111,7 +111,7 @@ describe('UpdateModal', () => {
                     </h3>
                   </div>
                   <div
-                    class="MuiGrid-root UpdateModalmessage css-vj1n65-MuiGrid-root"
+                    class="MuiGrid-root UpdateModal-message css-vj1n65-MuiGrid-root"
                   >
                     <p
                       class="MuiTypography-root MuiTypography-body2 css-16d47hw-MuiTypography-root"
