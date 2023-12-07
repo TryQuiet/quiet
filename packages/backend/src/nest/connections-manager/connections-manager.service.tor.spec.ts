@@ -31,6 +31,7 @@ import waitForExpect from 'wait-for-expect'
 import { Libp2pEvents } from '../libp2p/libp2p.types'
 import { sleep } from '../common/sleep'
 import { createLibp2pAddress } from '@quiet/common'
+import { StorageModule } from '../storage/storage.module'
 
 jest.setTimeout(100_000)
 
@@ -77,6 +78,7 @@ beforeEach(async () => {
       SocketModule,
       Libp2pModule,
       TorModule,
+      StorageModule,
     ],
   })
     .overrideProvider(TOR_PASSWORD_PROVIDER)
