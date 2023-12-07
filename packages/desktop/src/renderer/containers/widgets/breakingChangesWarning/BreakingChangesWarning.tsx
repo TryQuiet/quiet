@@ -46,7 +46,9 @@ const BreakingChangesWarning = () => {
       type='submit'
       onClick={modal.handleClose}
       style={{
-        height: 55,
+        height: 'auto',
+        padding: 0,
+        marginBottom: 0,
         fontSize: '0.9rem',
         color: theme.palette.colors.gray70,
         backgroundColor: theme.palette.colors.white,
