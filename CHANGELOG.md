@@ -2,6 +2,10 @@
 
 * Fixed UI for Update Modal
 
+* Fixed username taken logic
+
+* Add test-case in e2e multiple test for using username taken modal
+
 [2.0.3-alpha.12]
 
 * Better descriptions of the joining process

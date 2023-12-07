@@ -139,6 +139,10 @@ export class RegisterUsernameModal {
     return this.driver.wait(until.elementLocated(By.xpath("//h3[text()='Register a username']")))
   }
 
+  get elementUsernameTaken() {
+    return this.driver.wait(until.elementLocated(By.xpath("//h6[text()='Username taken']")))
+  }
+
   get error() {
     return this.driver.wait(until.elementLocated(By.xpath("//p[text()='Username already taken.']")))
   }
@@ -161,6 +165,11 @@ export class RegisterUsernameModal {
 
   async submit() {
     const submitButton = await this.driver.findElement(By.xpath('//button[text()="Register"]'))
+    await submitButton.click()
+  }
+
+  async submitUsernameTaken() {
+    const submitButton = await this.driver.findElement(By.xpath('//button[text()="Continue"]'))
     await submitButton.click()
   }
 }

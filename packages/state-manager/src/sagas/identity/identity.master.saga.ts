@@ -9,6 +9,7 @@ import { saveUserCsrSaga } from './saveUserCsr/saveUserCsr.saga'
 import { savedOwnerCertificateSaga } from './savedOwnerCertificate/savedOwnerCertificate.saga'
 import { usersActions } from '../users/users.slice'
 import { updateCertificateSaga } from './updateCertificate/updateCertificate.saga'
+import { checkLocalCsrSaga } from './checkLocalCsr/checkLocalCsr.saga'
 
 export function* identityMasterSaga(socket: Socket): Generator {
   yield all([
@@ -17,6 +18,7 @@ export function* identityMasterSaga(socket: Socket): Generator {
     takeEvery(identityActions.saveOwnerCertToDb.type, saveOwnerCertToDbSaga, socket),
     takeEvery(identityActions.savedOwnerCertificate.type, savedOwnerCertificateSaga, socket),
     takeEvery(identityActions.verifyJoinTimestamp.type, verifyJoinTimestampSaga),
+    takeEvery(identityActions.checkLocalCsr.type, checkLocalCsrSaga),
     takeEvery(identityActions.saveUserCsr.type, saveUserCsrSaga, socket),
     takeEvery(usersActions.responseSendCertificates.type, updateCertificateSaga),
   ])
