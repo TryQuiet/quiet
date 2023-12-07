@@ -1,3 +1,7 @@
+[unreleased]
+
+* Initialize electron-store after setting appData to prevent creating empty "Quiet" data directory
+
 [2.0.3-alpha.12]
 
 * Better descriptions of the joining process
