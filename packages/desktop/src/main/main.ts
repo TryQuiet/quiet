@@ -19,7 +19,6 @@ import {
 } from '@quiet/common'
 import { updateDesktopFile, processInvitationCode } from './invitation'
 const ElectronStore = require('electron-store')
-ElectronStore.initRenderer()
 
 // eslint-disable-next-line
 const remote = require('@electron/remote/main')
@@ -58,6 +57,9 @@ const newUserDataPath = path.join(appDataPath, 'Quiet')
 
 app.setPath('appData', appDataPath)
 app.setPath('userData', newUserDataPath)
+
+// Initialize electron store after setting new 'appData'
+ElectronStore.initRenderer()
 
 const gotTheLock = app.requestSingleInstanceLock()
 
