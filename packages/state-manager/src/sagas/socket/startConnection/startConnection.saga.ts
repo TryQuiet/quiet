@@ -169,6 +169,7 @@ export function subscribe(socket: Socket) {
       console.log('on SocketActionTypes.NEW_COMMUNITY')
       emit(identityActions.saveOwnerCertToDb())
       emit(publicChannelsActions.createGeneralChannel())
+      emit(identityActions.saveUserCsr())
     })
     socket.on(SocketActionTypes.REGISTRAR, (payload: ResponseRegistrarPayload) => {
       console.log('SocketActionTypes.REGISTRAR')
@@ -238,7 +239,6 @@ export function subscribe(socket: Socket) {
     })
     socket.on(SocketActionTypes.SAVED_OWNER_CERTIFICATE, (payload: SavedOwnerCertificatePayload) => {
       log(`${SocketActionTypes.SAVED_OWNER_CERTIFICATE}: ${payload.communityId}`)
-      emit(identityActions.saveUserCsr())
       emit(
         communitiesActions.addOwnerCertificate({
           communityId: payload.communityId,
