@@ -37,7 +37,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
     super()
     this.controlPort = configOptions.torControlPort
 
-    console.log('QUIRT DIR', this.quietDir)
+    console.log('QUIET DIR', this.quietDir)
   }
 
   async onModuleInit() {
@@ -233,6 +233,10 @@ export class Tor extends EventEmitter implements OnModuleInit {
           this.spawnHiddenServices()
           resolve()
         }
+      })
+
+      this.process.stderr.on('data', (data: any) => {
+        this.logger("ERROR:", data.toString())
       })
     })
   }
