@@ -99,20 +99,17 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
 
     const pendingCsrs = await extractPendingCsrs({ csrs: payload.csrs, certificates: certificates as string[] })
 
-    await Promise.all(
-      pendingCsrs.map(async csr => {
-        const result = await issueCertificate(csr, this._permsData)
-        if (result?.cert) {
-          await this.storageService.certificatesStore.addCertificate(result.cert)
-          // Not sure if this is necessary
-          const certs = await this.storageService.certificatesStore.loadAllCertificates()
-          if (!certs.includes(result.cert)) {
-            throw new Error("Cert wasn't added to CertificateStore correctly")
-          }
-          this.emit(RegistrationEvents.NEW_USER, { certificate: result.cert })
+    for (const csr of pendingCsrs) {
+      const result = await issueCertificate(csr, this._permsData)
+      if (result?.cert) {
+        await this.storageService.certificatesStore.addCertificate(result.cert)
+        // Not sure if this is necessary
+        const certs = await this.storageService.certificatesStore.loadAllCertificates()
+        if (!certs.includes(result.cert)) {
+          throw new Error("Cert wasn't added to CertificateStore correctly")
         }
-      })
-    )
+      }
+    }
 
     if (payload.id) this.emit(RegistrationEvents.FINISHED_ISSUING_CERTIFICATES_FOR_ID, { id: payload.id })
   }
