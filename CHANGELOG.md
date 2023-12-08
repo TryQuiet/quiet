@@ -1,4 +1,4 @@
-[unreleased]
+[2.0.3-alpha.13]
 
 * Initialize electron-store after setting appData to prevent creating empty "Quiet" data directory
 
