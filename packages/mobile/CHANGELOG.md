@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.3-alpha.15](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@2.0.3-alpha.14...@quiet/mobile@2.0.3-alpha.15) (2023-12-08)
+
+
+### Features
+
+* Add community metadata validation ([#2073](https://github.com/TryQuiet/quiet/issues/2073)) ([5780574](https://github.com/TryQuiet/quiet/commit/57805747f08261d0709554266e36fd0005eca839))
+
+
+
+
+
 ## [2.0.3-alpha.14](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@2.0.3-alpha.13...@quiet/mobile@2.0.3-alpha.14) (2023-12-07)
 
 
