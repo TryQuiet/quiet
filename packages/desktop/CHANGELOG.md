@@ -1,43 +1,18 @@
-# Change Log
+[2.0.3-alpha.14]
 
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+* Add community metadata validation.
 
-## [2.0.3-alpha.14](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@2.0.3-alpha.13...@quiet/desktop@2.0.3-alpha.14) (2023-12-08)
+* Move community metadata to separate store.
 
+[2.0.3-alpha.13]
 
-### Features
+* Initialize electron-store after setting appData to prevent creating empty "Quiet" data directory
 
-* Add community metadata validation ([#2073](https://github.com/TryQuiet/quiet/issues/2073)) ([5780574](https://github.com/TryQuiet/quiet/commit/57805747f08261d0709554266e36fd0005eca839))
+* Fixed UI for Update Modal
 
+* Fixed username taken logic
 
-
-
-
-## [2.0.3-alpha.13](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@2.0.3-alpha.12...@quiet/desktop@2.0.3-alpha.13) (2023-12-07)
-
-
-### Bug Fixes
-
-* initialize electron store after setting new appData, otherwise i… ([#2150](https://github.com/TryQuiet/quiet/issues/2150)) ([ed9eb26](https://github.com/TryQuiet/quiet/commit/ed9eb266dae0a41531bb048d4a997e870c6c92c2))
-* send csr if local and stored ones differs ([#2147](https://github.com/TryQuiet/quiet/issues/2147)) ([b640d16](https://github.com/TryQuiet/quiet/commit/b640d1617ec58bb93129adaf8dfebe09c8de625c))
-
-
-### Features
-
-* fixed UI for modal ([#2151](https://github.com/TryQuiet/quiet/issues/2151)) ([cf899d5](https://github.com/TryQuiet/quiet/commit/cf899d5983dd1f69605bbf622770a23884ad6f9f))
-
-
-
-
-
-## [2.0.3-alpha.12](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@2.0.3-alpha.11...@quiet/desktop@2.0.3-alpha.12) (2023-12-04)
-
-**Note:** Version bump only for package @quiet/desktop
-
-
-
-
+* Add test-case in e2e multiple test for using username taken modal
 
 [2.0.3-alpha.12]
 

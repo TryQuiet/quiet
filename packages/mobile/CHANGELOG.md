@@ -1,41 +1,18 @@
-# Change Log
+[2.0.3-alpha.14]
 
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+* Add community metadata validation.
 
-## [2.0.3-alpha.15](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@2.0.3-alpha.14...@quiet/mobile@2.0.3-alpha.15) (2023-12-08)
+* Move community metadata to separate store.
 
+[2.0.3-alpha.13]
 
-### Features
+* Initialize electron-store after setting appData to prevent creating empty "Quiet" data directory
 
-* Add community metadata validation ([#2073](https://github.com/TryQuiet/quiet/issues/2073)) ([5780574](https://github.com/TryQuiet/quiet/commit/57805747f08261d0709554266e36fd0005eca839))
+* Fixed UI for Update Modal
 
+* Fixed username taken logic
 
-
-
-
-## [2.0.3-alpha.14](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@2.0.3-alpha.13...@quiet/mobile@2.0.3-alpha.14) (2023-12-07)
-
-
-### Bug Fixes
-
-* send csr if local and stored ones differs ([#2147](https://github.com/TryQuiet/quiet/issues/2147)) ([b640d16](https://github.com/TryQuiet/quiet/commit/b640d1617ec58bb93129adaf8dfebe09c8de625c))
-
-
-
-
-
-## [2.0.3-alpha.13](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@2.0.3-alpha.12...@quiet/mobile@2.0.3-alpha.13) (2023-12-04)
-
-
-### Bug Fixes
-
-* correct getting ndk path ([#2130](https://github.com/TryQuiet/quiet/issues/2130)) ([f0a6336](https://github.com/TryQuiet/quiet/commit/f0a6336434d4f8ba829123ca6f24d3df3df557a8))
-* poin to a different directory after breaking changes ([#2132](https://github.com/TryQuiet/quiet/issues/2132)) ([07ef5bb](https://github.com/TryQuiet/quiet/commit/07ef5bb5a403ee52cf69982d19a9d0b14f11c969))
-
-
-
-
+* Add test-case in e2e multiple test for using username taken modal
 
 [2.0.3-alpha.12]
 
