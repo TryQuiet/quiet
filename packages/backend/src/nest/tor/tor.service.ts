@@ -236,7 +236,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
       })
 
       this.process.stderr.on('data', (data: any) => {
-        this.logger("ERROR:", data.toString())
+        this.logger('ERROR:', data.toString())
       })
     })
   }
