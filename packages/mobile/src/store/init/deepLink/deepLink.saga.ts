@@ -8,6 +8,7 @@ import { initActions } from '../init.slice'
 import { appImages } from '../../../assets'
 import { replaceScreen } from '../../../RootNavigation'
 import { CommunityOwnership, CreateNetworkPayload, InvitationData } from '@quiet/types'
+import { areObjectsEqual } from '../../../utils/functions/areObjectsEqual/areObjectsEqual'
 
 export function* deepLinkSaga(action: PayloadAction<ReturnType<typeof initActions.deepLink>['payload']>): Generator {
   const code = action.payload
@@ -24,28 +25,6 @@ export function* deepLinkSaga(action: PayloadAction<ReturnType<typeof initAction
 
   console.log('INIT_NAVIGATION: Continuing on deep link flow.')
 
-  const community = yield* select(communities.selectors.currentCommunity)
-
-  // Link opened mid registration
-  // TODO: Check if csr is already saved to db (redux store)
-
-  // User already belongs to a community
-  if (community) {
-    console.log('INIT_NAVIGATION: Displaying error (user already belongs to a community).')
-    yield* put(
-      navigationActions.replaceScreen({
-        screen: ScreenNames.ErrorScreen,
-        params: {
-          onPress: () => replaceScreen(ScreenNames.ChannelListScreen),
-          icon: appImages.quiet_icon_round,
-          title: 'You already belong to a community',
-          message: "We're sorry but for now you can only be a member of a single community at a time",
-        },
-      })
-    )
-    return
-  }
-
   let data: InvitationData
   try {
     data = getInvitationCodes(code)
@@ -59,6 +38,67 @@ export function* deepLinkSaga(action: PayloadAction<ReturnType<typeof initAction
           icon: appImages.quiet_icon_round,
           title: 'Invalid invitation link',
           message: 'Please check your invitation link and try again',
+        },
+      })
+    )
+    return
+  }
+
+  const community = yield* select(communities.selectors.currentCommunity)
+
+  const storedInvitationCodes = yield* select(communities.selectors.invitationCodes)
+  const currentInvitationCodes = data.pairs
+
+  console.log('Stored invitation codes', storedInvitationCodes)
+  console.log('Current invitation codes', currentInvitationCodes)
+
+  let isInvitationDataValid: boolean = false
+
+  if (storedInvitationCodes.length === 0) {
+    isInvitationDataValid = true
+  } else {
+    isInvitationDataValid = storedInvitationCodes.some(storedCode =>
+      currentInvitationCodes.some(currentCode => areObjectsEqual(storedCode, currentCode))
+    );
+  }
+
+  console.log('Is invitation data valid', isInvitationDataValid)
+
+  const isAlreadyConnected = Boolean(community?.name)
+
+  const alreadyBelongsWithAnotherCommunity = !isInvitationDataValid
+  const alreadyConnectedWithCurrentCommunity = isInvitationDataValid && isAlreadyConnected
+  const connectingWithCurrentCommunity = isInvitationDataValid && !isAlreadyConnected
+
+  if (alreadyBelongsWithAnotherCommunity) {
+    console.log('INIT_NAVIGATION: ABORTING: Already belongs with another community.')
+  }
+
+  if (alreadyConnectedWithCurrentCommunity) {
+    console.log('INIT_NAVIGATION: ABORTING: Already connected with the current community.')
+  }
+
+  if (connectingWithCurrentCommunity) {
+    console.log('INIT_NAVIGATION: Proceeding with connection to the community.')
+  }
+
+  // Link opened mid registration
+  // TODO: Check if csr is already saved to db (redux store)
+
+  // User already belongs to a community
+  if (alreadyBelongsWithAnotherCommunity || alreadyConnectedWithCurrentCommunity) {
+    console.log('INIT_NAVIGATION: Displaying error (user already belongs to a community).')
+
+    const destination = (alreadyBelongsWithAnotherCommunity || alreadyConnectedWithCurrentCommunity) ? ScreenNames.ChannelListScreen : ScreenNames.JoinCommunityScreen
+
+    yield* put(
+      navigationActions.replaceScreen({
+        screen: ScreenNames.ErrorScreen,
+        params: {
+          onPress: () => replaceScreen(destination),
+          icon: appImages.quiet_icon_round,
+          title: 'You already belong to a community',
+          message: "We're sorry but for now you can only be a member of a single community at a time",
         },
       })
     )

@@ -3,7 +3,7 @@ import { combineReducers } from '@reduxjs/toolkit'
 import { reducers } from '../../root.reducer'
 import { Store } from '../../store.types'
 import { prepareStore } from '../../../tests/utils/prepareStore'
-import { communities, connection, identity } from '@quiet/state-manager'
+import { communities, connection, getInvitationCodes, identity } from '@quiet/state-manager'
 import { initActions } from '../init.slice'
 import { navigationActions } from '../../navigation/navigation.slice'
 import { ScreenNames } from '../../../const/ScreenNames.enum'
@@ -129,6 +129,7 @@ describe('deepLinkSaga', () => {
     store.dispatch(communities.actions.addNewCommunity(community))
 
     store.dispatch(communities.actions.setCurrentCommunity(community.id))
+
     const reducer = combineReducers(reducers)
     await expectSaga(deepLinkSaga, initActions.deepLink(validCode))
       .withReducer(reducer)
@@ -146,6 +147,47 @@ describe('deepLinkSaga', () => {
         },
       })
       .not.put(
+        communities.actions.createNetwork({
+          ownership: CommunityOwnership.User,
+          peers: validData.pairs,
+          psk: validData.psk,
+        })
+      )
+      .run()
+  })
+
+  test('doesn\'t display error if user is connecting with the same community', async () => {
+    store.dispatch(
+      initActions.setWebsocketConnected({
+        dataPort: 5001,
+        socketIOSecret: 'secret',
+      })
+    )
+
+    store.dispatch(communities.actions.addNewCommunity(community))
+
+    store.dispatch(communities.actions.setCurrentCommunity(community.id))
+
+    const invitationCodes = getInvitationCodes(validCode)
+    store.dispatch(communities.actions.setInvitationCodes(invitationCodes.pairs))
+
+    const reducer = combineReducers(reducers)
+    await expectSaga(deepLinkSaga, initActions.deepLink(validCode))
+      .withReducer(reducer)
+      .withState(store.getState())
+      .not.put.like({
+        action: {
+          type: navigationActions.replaceScreen.type,
+          payload: {
+            screen: ScreenNames.ErrorScreen,
+            params: {
+              title: 'You already belong to a community',
+              message: "We're sorry but for now you can only be a member of a single community at a time",
+            },
+          },
+        },
+      })
+      .put(
         communities.actions.createNetwork({
           ownership: CommunityOwnership.User,
           peers: validData.pairs,
