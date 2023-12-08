@@ -318,11 +318,25 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     await this.launchCommunity(payload)
     this.logger(`Created and launched community ${payload.id}`)
     this.serverIoProvider.io.emit(SocketActionTypes.NEW_COMMUNITY, { id: payload.id })
+
+    if (!payload.ownerCsr || !payload.permsData) {
+      throw new Error("Owner CSR and PermsData required to create community!")
+    }
+    // In launchCommunity, we initialize the StorageService and also
+    // the RegistrationService for the first time. And then now, once
+    // those are ready, we register the owner's certificate.
+    const cert = await this.registrationService.registerOwnerCertificate({ communityId: payload.id, userCsr: payload.ownerCsr, permsData: payload.permsData })
+    if (payload.certs) {
+      // Hacking, perhaps make certs.certificate optional
+      payload.certs.certificate = cert || ''
+    }
+    await this.localDbService.put(LocalDBKeys.COMMUNITY, payload)
   }
 
   public async launchCommunity(payload: InitCommunityPayload) {
     this.logger('Launching community: peers:', payload.peers)
     this.communityState = ServiceState.LAUNCHING
+
     // Perhaps we should call this data something else, since we already have a Community type.
     // It seems like InitCommunityPayload is a mix of various connection metadata.
     const communityData: InitCommunityPayload = await this.localDbService.get(LocalDBKeys.COMMUNITY)
@@ -424,6 +438,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       this.serverIoProvider.io.emit(SocketActionTypes.PEER_DISCONNECTED, payload)
     })
     await this.storageService.init(_peerId)
+    await this.registrationService.init(this.storageService)
     this.logger('storage initialized')
   }
 
@@ -444,10 +459,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.registrationService.on(RegistrationEvents.ERROR, payload => {
       emitError(this.serverIoProvider.io, payload)
     })
-    this.registrationService.on(RegistrationEvents.NEW_USER, async payload => {
-      await this.storageService?.saveCertificate(payload)
-    })
-
     this.registrationService.on(RegistrationEvents.FINISHED_ISSUING_CERTIFICATES_FOR_ID, payload => {
       if (payload.id) {
         this.storageService.resolveCsrReplicatedPromise(payload.id)

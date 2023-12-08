@@ -1,4 +1,4 @@
-import { type HiddenService, type PeerId, type Identity } from './identity'
+import { type HiddenService, type PeerId, type PermsData, type Identity, type UserCsr } from './identity'
 import { InvitationPair } from './network'
 
 export interface Community {
@@ -59,6 +59,8 @@ export interface InitCommunityPayload {
   hiddenService: HiddenService
   certs?: Certificates
   peers?: string[]
+  ownerCsr?: UserCsr
+  permsData?: PermsData
 }
 
 export interface LaunchRegistrarPayload {
