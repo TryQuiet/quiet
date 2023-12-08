@@ -95,6 +95,7 @@ describe('General channel', () => {
       Array [
         "Identity/saveOwnerCertToDb",
         "PublicChannels/createGeneralChannel",
+        "Identity/saveUserCsr",
         "PublicChannels/createChannel",
         "PublicChannels/setCurrentChannel",
         "PublicChannels/clearUnreadChannel",

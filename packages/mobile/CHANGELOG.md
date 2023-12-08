@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.3-alpha.14](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@2.0.3-alpha.13...@quiet/mobile@2.0.3-alpha.14) (2023-12-07)
+
+
+### Bug Fixes
+
+* send csr if local and stored ones differs ([#2147](https://github.com/TryQuiet/quiet/issues/2147)) ([b640d16](https://github.com/TryQuiet/quiet/commit/b640d1617ec58bb93129adaf8dfebe09c8de625c))
+
+
+
+
+
 ## [2.0.3-alpha.13](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@2.0.3-alpha.12...@quiet/mobile@2.0.3-alpha.13) (2023-12-04)
 
 

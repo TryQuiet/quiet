@@ -14,6 +14,7 @@ import { CreateCommunityDictionary } from '../renderer/components/CreateJoinComm
 import MockedSocket from 'socket.io-mock'
 import { ioMock } from '../shared/setupTests'
 import { socketEventData } from '../renderer/testUtils/socket'
+import { Community, SavedOwnerCertificatePayload } from '@quiet/types'
 import {
   ChannelsReplicatedPayload,
   InitCommunityPayload,
@@ -29,7 +30,6 @@ import Channel from '../renderer/components/Channel/Channel'
 import LoadingPanel from '../renderer/components/LoadingPanel/LoadingPanel'
 import { AnyAction } from 'redux'
 import { generateChannelId } from '@quiet/common'
-import { type Community, type SavedOwnerCertificatePayload } from '@quiet/types'
 
 jest.setTimeout(20_000)
 
@@ -194,13 +194,13 @@ describe('User', () => {
         "Identity/savedOwnerCertificate",
         "Communities/updateCommunityData",
         "Communities/launchRegistrar",
-        "Identity/saveUserCsr",
         "Files/checkForMissingFiles",
         "Network/addInitializedCommunity",
         "Communities/clearInvitationCodes",
         "Communities/sendCommunityMetadata",
         "Identity/saveOwnerCertToDb",
         "PublicChannels/createGeneralChannel",
+        "Identity/saveUserCsr",
         "PublicChannels/channelsReplicated",
         "Communities/responseRegistrar",
         "Network/addInitializedRegistrar",
