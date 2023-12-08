@@ -51,6 +51,7 @@ import { removeFiles, removeDirs, createPaths } from '../common/utils'
 import { StorageEvents } from './storage.types'
 import { CertificatesStore } from './certificates/certificates.store'
 import { CertificatesRequestsStore } from './certificatesRequestsStore'
+import { CommunityMetadataStore } from './communityMetadata/communityMetadata.store'
 
 interface DBOptions {
   replicate: boolean
@@ -58,13 +59,16 @@ interface DBOptions {
 
 @Injectable()
 export class StorageService extends EventEmitter {
-  public channels: KeyValueStore<PublicChannel>
   public publicChannelsRepos: Map<string, PublicChannelsRepo> = new Map()
   public directMessagesRepos: Map<string, DirectMessagesRepo> = new Map()
   private publicKeysMap: Map<string, CryptoKey> = new Map()
-  private communityMetadata: KeyValueStore<CommunityMetadata>
-  public certificatesStore: CertificatesStore
+
+  public communityMetadataStore: CommunityMetadataStore
   public certificatesRequestsStore: CertificatesRequestsStore
+  public certificatesStore: CertificatesStore
+  public certificates: EventStore<string>
+  public channels: KeyValueStore<PublicChannel>
+
   private ipfs: IPFS
   private orbitDb: OrbitDB
   private filesManager: IpfsFileManagerService
@@ -72,6 +76,7 @@ export class StorageService extends EventEmitter {
   private ipfsStarted: boolean
 
   private readonly logger = Logger(StorageService.name)
+
   constructor(
     private readonly localDbService: LocalDbService,
     @Inject(QUIET_DIR) public readonly quietDir: string,
@@ -159,8 +164,8 @@ export class StorageService extends EventEmitter {
     if (this.certificatesRequestsStore.getAddress()) {
       dbs.push(this.certificatesRequestsStore.getAddress())
     }
-    if (this.communityMetadata?.address) {
-      dbs.push(this.communityMetadata.address)
+    if (this.communityMetadataStore?.getAddress()) {
+      dbs.push(this.communityMetadataStore.getAddress())
     }
 
     const channels = this.publicChannelsRepos.values()
@@ -215,72 +220,27 @@ export class StorageService extends EventEmitter {
   }
 
   public async initDatabases() {
+    this.logger('1/3')
+    this.communityMetadataStore = new CommunityMetadataStore()
+    await this.communityMetadataStore.init(this.orbitDb, this.localDbService, this)
+
     this.certificatesStore = new CertificatesStore(this.orbitDb)
     await this.certificatesStore.init(this)
 
     this.certificatesRequestsStore = new CertificatesRequestsStore(this.orbitDb)
     await this.certificatesRequestsStore.init(this)
 
-    this.logger('1/5')
-    await this.createDbForChannels()
-    this.logger('2/5')
+    this.logger('2/3')
     await this.attachCertificatesStoreListeners()
-    this.logger('3/5')
     await this.attachCsrsStoreListeners()
-    this.logger('4/5')
-    await this.createDbForCommunityMetadata()
-    this.logger('5/5')
 
+    this.logger('3/3')
+    await this.createDbForChannels()
     await this.initAllChannels()
 
     this.logger('Initialized DBs')
 
     this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.INITIALIZED_DBS)
-  }
-  private async createDbForCommunityMetadata() {
-    this.logger('createDbForCommunityMetadata init')
-
-    this.communityMetadata = await this.orbitDb.keyvalue<CommunityMetadata>('community-metadata', {
-      replicate: false,
-      accessController: {
-        write: ['*'],
-      },
-    })
-
-    this.communityMetadata.events.on('write', async (_address, _entry) => {
-      this.logger('WRITE: communityMetadata')
-      const metadata = Object.values(this.communityMetadata.all)[0]
-      this.certificatesStore.updateMetadata(metadata)
-    })
-
-    this.communityMetadata.events.on('replicated', async () => {
-      this.logger('Replicated community metadata')
-
-      const metadata = Object.values(this.communityMetadata.all)[0]
-      this.certificatesStore.updateMetadata(metadata)
-
-      // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
-      await this.communityMetadata.load({ fetchEntryTimeout: 15000 })
-      this.emit(StorageEvents.REPLICATED_COMMUNITY_METADATA, metadata)
-    })
-
-    // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
-    await this.communityMetadata.load({ fetchEntryTimeout: 15000 })
-
-    const metadata = Object.values(this.communityMetadata.all)[0]
-    this.certificatesStore.updateMetadata(metadata)
-  }
-
-  public async updateCommunityMetadata(communityMetadata: CommunityMetadata) {
-    this.logger(`About to update community metadata`)
-    if (!communityMetadata.id) return
-    const meta = this.communityMetadata.get(communityMetadata.id)
-    if (meta?.ownerCertificate && meta?.rootCa) return
-    this.logger(`Updating community metadata`)
-    await this.communityMetadata.put(communityMetadata.id, {
-      ...meta,
-      ...communityMetadata,
-    })
   }
 
   private async __stopOrbitDb() {
@@ -332,9 +292,9 @@ export class StorageService extends EventEmitter {
     }
 
     try {
-      await this.communityMetadata?.close()
+      await this.communityMetadataStore?.close()
     } catch (e) {
-      this.logger.error('Error closing community metadata db', e)
+      this.logger.error('Error closing community metadata store', e)
     }
 
     await this.__stopOrbitDb()
@@ -842,7 +802,7 @@ export class StorageService extends EventEmitter {
     // @ts-ignore
     this.certificatesRequests = undefined
     // @ts-ignore
-    this.communityMetadata = undefined
+    this.communityMetadataStore = undefined
     this.publicChannelsRepos = new Map()
     this.directMessagesRepos = new Map()
     this.publicKeysMap = new Map()

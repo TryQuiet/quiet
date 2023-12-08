@@ -171,8 +171,8 @@ export class SocketService extends EventEmitter implements OnModuleInit {
 
         const communityMetadataPayload: CommunityMetadata = {
           id: payload.id,
-          ownerCertificate: payload.certificate,
           rootCa: payload.permsData.certificate,
+          ownerCertificate: payload.certificate,
         }
         this.emit(SocketActionTypes.SEND_COMMUNITY_METADATA, communityMetadataPayload)
       })

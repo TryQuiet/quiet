@@ -3,7 +3,7 @@ import fs from 'fs'
 import { jest } from '@jest/globals'
 import { EventEmitter } from 'events'
 import { create, IPFS } from 'ipfs-core'
-import { ORBIT_DB_DIR } from '../../const'
+import { TestConfig } from '../../const'
 import { CommunityMetadata } from '@quiet/types'
 import { CertificatesStore } from './certificates.store'
 
@@ -11,7 +11,7 @@ const createOrbitDbInstance = async () => {
   const ipfs: IPFS = await create()
   // @ts-ignore
   const orbitdb = await OrbitDB.createInstance(ipfs, {
-    directory: ORBIT_DB_DIR,
+    directory: TestConfig.ORBIT_DB_DIR,
   })
 
   return { orbitdb, ipfs }
@@ -66,8 +66,8 @@ describe('CertificatesStore', () => {
     await store.close()
     await orbitdb.stop()
     await ipfs.stop()
-    if (fs.existsSync(ORBIT_DB_DIR)) {
-      fs.rmSync(ORBIT_DB_DIR, { recursive: true, force: true })
+    if (fs.existsSync(TestConfig.ORBIT_DB_DIR)) {
+      fs.rmSync(TestConfig.ORBIT_DB_DIR, { recursive: true })
     }
   })
 

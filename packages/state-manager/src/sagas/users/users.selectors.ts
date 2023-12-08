@@ -1,11 +1,12 @@
 import { createSelector } from '@reduxjs/toolkit'
-import { getCertFieldValue, getReqFieldValue, keyFromCertificate } from '@quiet/identity'
+import { getCertFieldValue, getReqFieldValue, keyFromCertificate, loadCertificate } from '@quiet/identity'
 import { CertFieldsTypes } from './const/certFieldTypes'
 import { StoreKeys } from '../store.keys'
 import { certificatesAdapter } from './users.adapter'
 import { type Certificate } from 'pkijs'
 import { type CreatedSelectors, type StoreState } from '../store.types'
 import { type UserData, User } from '@quiet/types'
+import { ownerCertificate } from '../communities/communities.selectors'
 
 const usersSlice: CreatedSelectors[StoreKeys.Users] = (state: StoreState) => state[StoreKeys.Users]
 
@@ -117,33 +118,15 @@ export const allUsers = createSelector(csrsMapping, certificatesMapping, (csrs, 
 
 export const getUserByPubKey = (pubKey: string) => createSelector(allUsers, users => users[pubKey])
 
-export const getOldestParsedCerificate = createSelector(certificates, certs => {
-  const getTimestamp = (cert: Certificate) => new Date(cert.notBefore.value).getTime()
-
-  let certificates: { pubkey: string; certificate: Certificate }[] = []
-
-  certificates = Array.from(Object.entries(certs))
-    .sort((a, b) => {
-      const aTimestamp = getTimestamp(a[1])
-      const bTimestamp = getTimestamp(b[1])
-      return aTimestamp - bTimestamp
-    })
-    .map(cert => {
-      return {
-        pubkey: cert[0],
-        certificate: cert[1],
-      }
-    })
-  return certificates[0]
-})
-
-export const ownerData = createSelector(getOldestParsedCerificate, ownerCert => {
-  if (!ownerCert) return null
-  const username = getCertFieldValue(ownerCert.certificate, CertFieldsTypes.nickName)
-  const onionAddress = getCertFieldValue(ownerCert.certificate, CertFieldsTypes.commonName)
-  const peerId = getCertFieldValue(ownerCert.certificate, CertFieldsTypes.peerId)
-  const dmPublicKey = getCertFieldValue(ownerCert.certificate, CertFieldsTypes.dmPublicKey)
-  const pubKey = ownerCert.pubkey
+// Perhaps we should move this to communities.selectors.ts?
+export const ownerData = createSelector(ownerCertificate, ownerCertificate => {
+  if (!ownerCertificate) return null
+  const ownerCert = loadCertificate(ownerCertificate)
+  const username = getCertFieldValue(ownerCert, CertFieldsTypes.nickName)
+  const onionAddress = getCertFieldValue(ownerCert, CertFieldsTypes.commonName)
+  const peerId = getCertFieldValue(ownerCert, CertFieldsTypes.peerId)
+  const dmPublicKey = getCertFieldValue(ownerCert, CertFieldsTypes.dmPublicKey)
+  const pubKey = keyFromCertificate(ownerCert)
 
   return {
     username,
@@ -170,7 +153,6 @@ export const usersSelectors = {
   certificates,
   certificatesMapping,
   csrsMapping,
-  getOldestParsedCerificate,
   ownerData,
   allUsers,
   duplicateCerts,

@@ -220,7 +220,10 @@ describe('Connections manager', () => {
     await connectionsManagerService.init()
     await connectionsManagerService.launchCommunity(launchCommunityPayload)
     await sleep(5000)
-    expect(spyOnDial).toHaveBeenCalledTimes(peersCount)
+    // It looks LibP2P dials peers initially when it's started and
+    // then IPFS service dials peers again when started, thus
+    // peersCount * 2
+    expect(spyOnDial).toHaveBeenCalledTimes(peersCount * 2)
     // Temporary fix for hanging test - websocketOverTor doesn't have abortController
     await sleep(5000)
   })

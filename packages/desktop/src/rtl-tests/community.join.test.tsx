@@ -52,6 +52,7 @@ describe('User', () => {
       },
     ],
     psk: 'BNlxfE2WBF7LrlpIX0CvECN5o1oZtA16PkAb7GYiwYw=',
+    ownerOrbitDbIdentity: 'testOrbitDbIdentity',
   }
   const validCode = composeInvitationShareUrl(validData)
   // trigger

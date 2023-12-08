@@ -19,13 +19,18 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
     this.on(
       RegistrationEvents.REGISTER_USER_CERTIFICATE,
       async (payload: { csrs: string[]; certificates: string[]; id: string }) => {
-        // Lack of permsData means that we are not the owner of the community in the official model of the app, however anyone can modify the source code, put malicious permsData here, issue false certificates and try to trick other users.
         await this.issueCertificates(payload)
       }
     )
   }
 
   private async issueCertificates(payload: { csrs: string[]; certificates: string[]; id?: string }) {
+    // Lack of permsData means that we are not the owner of the
+    // community in the official model of the app, however anyone can
+    // modify the source code, put malicious permsData here, issue
+    // false certificates and try to trick other users. To prevent
+    // that, peers verify that anything that is written to the
+    // certificate store is signed by the owner.
     if (!this._permsData) {
       if (payload.id) this.emit(RegistrationEvents.FINISHED_ISSUING_CERTIFICATES_FOR_ID, { id: payload.id })
       return

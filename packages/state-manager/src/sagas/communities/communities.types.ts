@@ -35,11 +35,6 @@ export interface InitCommunityPayload {
   peers?: string[]
 }
 
-export interface UpdateCommunityPayload {
-  id: string
-  rootCa: string
-}
-
 export interface LaunchRegistrarPayload {
   id: string
   peerId: string

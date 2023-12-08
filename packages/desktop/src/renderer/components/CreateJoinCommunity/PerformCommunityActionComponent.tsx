@@ -139,6 +139,7 @@ export interface PerformCommunityActionProps {
   handleClickInputReveal?: () => void
   invitationCode?: InvitationPair[]
   psk?: string
+  ownerOrbitDbIdentity?: string
 }
 
 export const PerformCommunityActionComponent: React.FC<PerformCommunityActionProps> = ({
@@ -154,6 +155,7 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
   handleClickInputReveal,
   invitationCode,
   psk,
+  ownerOrbitDbIdentity,
 }) => {
   const [formSent, setFormSent] = useState(false)
 
@@ -218,10 +220,14 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
   }
 
   // Lock the form if app's been open with custom protocol
+  //
+  // TODO: What does this mean and do we need this here? It might make
+  // sense to decouple the PSK from this component, since this is the
+  // only place PSK is used.
   useEffect(() => {
-    if (communityOwnership === CommunityOwnership.User && invitationCode?.length && psk) {
+    if (communityOwnership === CommunityOwnership.User && invitationCode?.length && psk && ownerOrbitDbIdentity) {
       setFormSent(true)
-      setValue('name', composeInvitationShareUrl({ pairs: invitationCode, psk: psk }))
+      setValue('name', composeInvitationShareUrl({ pairs: invitationCode, psk, ownerOrbitDbIdentity }))
     }
   }, [communityOwnership, invitationCode])
 

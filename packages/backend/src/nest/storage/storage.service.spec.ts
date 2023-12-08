@@ -259,8 +259,7 @@ describe('StorageService', () => {
       const channelsDbAddress = storageService.channels?.address
       const certificatesDbAddress = storageService.certificatesStore.getAddress()
       const certificatesRequestsDbAddress = storageService.certificatesRequestsStore.getAddress()
-      // @ts-expect-error 'communityMetadata' is private
-      const communityMetadataDbAddress = storageService.communityMetadata.address
+      const communityMetadataDbAddress = storageService.communityMetadataStore.getAddress()
       expect(channelsDbAddress).not.toBeFalsy()
       expect(certificatesDbAddress).not.toBeFalsy()
       expect(subscribeToPubSubSpy).toBeCalledTimes(2)
