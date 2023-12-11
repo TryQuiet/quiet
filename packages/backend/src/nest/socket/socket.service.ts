@@ -151,10 +151,6 @@ export class SocketService extends EventEmitter implements OnModuleInit {
         this.logger(`On ${SocketActionTypes.SAVE_USER_CSR}`)
 
         this.emit(SocketActionTypes.SAVE_USER_CSR, payload)
-
-        await new Promise<void>(resolve => setTimeout(() => resolve(), 2000))
-
-        this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CONNECTING_TO_COMMUNITY)
       })
 
       socket.on(SocketActionTypes.REGISTER_OWNER_CERTIFICATE, async (payload: RegisterOwnerCertificatePayload) => {
