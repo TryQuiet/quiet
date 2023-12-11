@@ -10,6 +10,11 @@ import { issueCertificate, extractPendingCsrs } from './registration.functions'
 import { jest } from '@jest/globals'
 import { createTmpDir } from '../common/utils'
 import { RegistrationEvents } from './registration.types'
+import { EventEmitter } from 'events'
+import { CertificatesStore } from '../storage/certificates/certificates.store'
+import { create, IPFS } from 'ipfs-core'
+import OrbitDB from 'orbit-db'
+import { TestConfig } from '../const'
 
 describe('RegistrationService', () => {
   let module: TestingModule
@@ -179,5 +184,72 @@ describe('RegistrationService', () => {
     })
 
     expect(eventSpy).toHaveBeenCalledTimes(3)
+  })
+
+  const createOrbitDbInstance = async () => {
+    const ipfs: IPFS = await create()
+    // @ts-ignore
+    const orbitdb = await OrbitDB.createInstance(ipfs, {
+      directory: TestConfig.ORBIT_DB_DIR,
+    })
+
+    return { orbitdb, ipfs }
+  }
+
+  it('race', async () => {
+    let { orbitdb, ipfs } = await createOrbitDbInstance()
+    let store = new CertificatesStore(orbitdb)
+    let emitter = new EventEmitter()
+    await store.init(emitter)
+
+    registrationService.permsData = permsData
+    // @ts-ignore
+    registrationService.storageService = { certificatesStore: store }
+
+    registrationService.onModuleInit()
+
+    const userCsr = await createUserCsr({
+      nickname: 'alice',
+      commonName: 'nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad.onion',
+      peerId: 'Qmf3ySkYqLET9xtAtDzvAr5Pp3egK1H3C5iJAZm1SpLEp6',
+      dmPublicKey: 'testdmPublicKey',
+      signAlg: configCrypto.signAlg,
+      hashAlg: configCrypto.hashAlg,
+    })
+
+    const userCsr2 = await createUserCsr({
+      nickname: 'alice',
+      commonName: 'nnnnnnc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad.onion',
+      peerId: 'QmffffffqLET9xtAtDzvAr5Pp3egK1H3C5iJAZm1SpLEp6',
+      dmPublicKey: 'testdmPublicKey',
+      signAlg: configCrypto.signAlg,
+      hashAlg: configCrypto.hashAlg,
+    })
+
+    const certificates: string[] = []
+    let calls = 0
+
+    registrationService.on('new', (p: any) => {
+      console.log(p)
+      calls++
+    })
+
+    registrationService.emit(
+      RegistrationEvents.REGISTER_USER_CERTIFICATE,
+      { csrs: [userCsr.userCsr], certificates: [], id: '1' }
+    )
+
+    registrationService.emit(
+      RegistrationEvents.REGISTER_USER_CERTIFICATE,
+      { csrs: [userCsr2.userCsr], certificates: [], id: '2' }
+    )
+
+    await new Promise(r => setTimeout(r, 10000))
+
+    await store.close()
+    await orbitdb.stop()
+    await ipfs.stop()
+
+    expect(calls).toEqual(1)
   })
 })

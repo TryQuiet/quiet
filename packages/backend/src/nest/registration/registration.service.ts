@@ -12,6 +12,8 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
   public certificates: string[] = []
   private _permsData: PermsData
   private storageService: StorageService
+  private registrationEvents: { csrs: string[], id?: string }[] = []
+  private registrationEventInProgress: boolean
 
   constructor() {
     super()
@@ -20,8 +22,9 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
   onModuleInit() {
     this.on(
       RegistrationEvents.REGISTER_USER_CERTIFICATE,
-      async (payload: { csrs: string[]; certificates: string[]; id: string }) => {
-        await this.registerUserCertificates({ csrs: payload.csrs, id: payload.id })
+      (payload: { csrs: string[]; certificates: string[]; id: string }) => {
+        this.registrationEvents.push({ csrs: payload.csrs, id: payload.id })
+        this.tryRegisterNextUserCertificates()
       }
     )
   }
@@ -67,6 +70,22 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
     }
   }
 
+  public async tryRegisterNextUserCertificates() {
+    if (!this.registrationEventInProgress) {
+      console.log("Registering next certificate")
+      this.registrationEventInProgress = true
+      const next = this.registrationEvents.shift()
+      if (next) {
+        await this.registerUserCertificates(next)
+      }
+      this.registrationEventInProgress = false
+
+      if (this.registrationEvents.length !== 0) {
+        setTimeout(this.tryRegisterNextUserCertificates.bind(this), 0)
+      }
+    }
+  }
+
   // Apparently, JS will run each function to completion. So assuming
   // we do not have multiple threads, this function should run to
   // completion before it is called again. Because we take the CSRs
@@ -83,6 +102,7 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
     if (!this.storageService) {
       throw new Error("Storage Service must be initialized before the Registration Service")
     }
+    console.log("Registering user certificates")
 
     // Lack of permsData means that we are not the owner of the
     // community in the official model of the app, however anyone can
@@ -95,19 +115,28 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
       return
     }
 
+    console.log("Loading all certificates")
     const certificates = await this.storageService.certificatesStore.loadAllCertificates()
+    console.log("Certificates loaded")
 
+    console.log("Extracting pending CSRs")
     const pendingCsrs = await extractPendingCsrs({ csrs: payload.csrs, certificates: certificates as string[] })
 
     for (const csr of pendingCsrs) {
+      console.log("Issuing certificate")
       const result = await issueCertificate(csr, this._permsData)
       if (result?.cert) {
+        console.log("Adding certificate")
         await this.storageService.certificatesStore.addCertificate(result.cert)
         // Not sure if this is necessary
         const certs = await this.storageService.certificatesStore.loadAllCertificates()
         if (!certs.includes(result.cert)) {
           throw new Error("Cert wasn't added to CertificateStore correctly")
         }
+        console.log("Certificate added")
+        this.emit('new', result?.cert)
+      } else {
+        console.log("Not adding certificate")
       }
     }
 
