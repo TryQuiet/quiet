@@ -180,4 +180,43 @@ describe('RegistrationService', () => {
 
     expect(eventSpy).toHaveBeenCalledTimes(3)
   })
+
+  it('race', async () => {
+    registrationService.permsData = permsData
+
+    const eventSpy = jest.spyOn(registrationService, 'emit')
+
+    const userCsr = await createUserCsr({
+      nickname: 'alice',
+      commonName: 'nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad.onion',
+      peerId: 'Qmf3ySkYqLET9xtAtDzvAr5Pp3egK1H3C5iJAZm1SpLEp6',
+      dmPublicKey: 'testdmPublicKey',
+      signAlg: configCrypto.signAlg,
+      hashAlg: configCrypto.hashAlg,
+    })
+    const userCsr2 = await createUserCsr({
+      nickname: 'alice',
+      commonName: 'nnnnnnc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad.onion',
+      peerId: 'QmffffffqLET9xtAtDzvAr5Pp3egK1H3C5iJAZm1SpLEp6',
+      dmPublicKey: 'testdmPublicKey',
+      signAlg: configCrypto.signAlg,
+      hashAlg: configCrypto.hashAlg,
+    })
+
+    const certificates: string[] = []
+    let calls = 0
+
+    registrationService.on(RegistrationEvents.NEW_USER, (p: { certificate: string }) => {
+      certificates.push(p.certificate)
+      calls++
+    })
+
+    // @ts-ignore - fn 'issueCertificates' is private
+    registrationService.issueCertificates({ certificates: certificates, csrs: [userCsr.userCsr], id: 1 })
+    // @ts-ignore - fn 'issueCertificates' is private
+    registrationService.issueCertificates({ certificates: certificates, csrs: [userCsr2.userCsr], id: 1 })
+
+    await new Promise(r => setTimeout(r, 2000))
+    expect(calls).toEqual(1)
+  })
 })

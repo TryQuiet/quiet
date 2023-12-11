@@ -31,6 +31,7 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
     // false certificates and try to trick other users. To prevent
     // that, peers verify that anything that is written to the
     // certificate store is signed by the owner.
+    console.log("Issuing certificate")
     if (!this._permsData) {
       if (payload.id) this.emit(RegistrationEvents.FINISHED_ISSUING_CERTIFICATES_FOR_ID, { id: payload.id })
       return
@@ -73,7 +74,9 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
   }
 
   public async registerUserCertificate(csr: string): Promise<void> {
+    console.log("Creating certificate")
     const result = await issueCertificate(csr, this._permsData)
+    console.log("Certificate created")
     if (result?.cert) {
       this.emit(RegistrationEvents.NEW_USER, { certificate: result.cert })
     }
