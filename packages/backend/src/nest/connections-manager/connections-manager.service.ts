@@ -425,6 +425,11 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     })
     await this.storageService.init(_peerId)
     this.logger('storage initialized')
+
+    this.serverIoProvider.io.emit(
+      SocketActionTypes.CONNECTION_PROCESS_INFO,
+      ConnectionProcessInfo.CONNECTING_TO_COMMUNITY
+    )
   }
 
   private attachTorEventsListeners() {
