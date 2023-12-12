@@ -35,8 +35,10 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
       if (payload.id) this.emit(RegistrationEvents.FINISHED_ISSUING_CERTIFICATES_FOR_ID, { id: payload.id })
       return
     }
-    const pendingCsrs = await extractPendingCsrs(payload)
 
+    this.logger('BUG - user registration concurrency', { payload })
+    const pendingCsrs = await extractPendingCsrs(payload)
+    this.logger('BUG - user registration concurrency', { pendingCsrs })
     await Promise.all(
       pendingCsrs.map(async csr => {
         await this.registerUserCertificate(csr)
@@ -74,6 +76,7 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
 
   public async registerUserCertificate(csr: string): Promise<void> {
     const result = await issueCertificate(csr, this._permsData)
+    this.logger('BUG - user registration concurrency', { result })
     if (result?.cert) {
       this.emit(RegistrationEvents.NEW_USER, { certificate: result.cert })
     }

@@ -139,18 +139,23 @@ export class CertificatesRequestsStore {
 
   public async getCsrs() {
     const filteredCsrsMap: Map<string, string> = new Map()
-    await this.store.load()
+    // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
+    await this.store.load({ fetchEntryTimeout: 15000 })
     const allEntries = this.store
       .iterator({ limit: -1 })
       .collect()
       .map(e => {
         return e.payload.value
       })
+
+    logger('BUG - user registration concurrency', { allEntries })
     const allCsrsUnique = [...new Set(allEntries)]
+    logger('BUG - user registration concurrency', { allCsrsUnique })
     await Promise.all(
       allCsrsUnique
         .filter(async csr => {
           const validation = await CertificatesRequestsStore.validateUserCsr(csr)
+          logger('BUG - user registration concurrency', { validation, csr })
           if (validation) return true
           return false
         })
@@ -164,6 +169,7 @@ export class CertificatesRequestsStore {
           filteredCsrsMap.set(pubKey, csr)
         })
     )
+    logger('BUG - user registration concurrency', '[...filteredCsrsMap.values()]', [...filteredCsrsMap.values()])
     return [...filteredCsrsMap.values()]
   }
 }
