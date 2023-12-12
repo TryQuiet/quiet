@@ -51,8 +51,8 @@ describe('CommmunityMetadataStore', () => {
       getOwnerOrbitDbIdentity: jest.fn(() => orbitDb.identity.id),
     } as unknown as LocalDbService
 
-    store = new CommunityMetadataStore()
-    await store.init(orbitDb, mockLocalDbService, mockEmitter as unknown as EventEmitter)
+    store = new CommunityMetadataStore(orbitDb)
+    await store.init(mockLocalDbService, mockEmitter as unknown as EventEmitter)
 
     metaValidWithOwnerId = {
       ...metaValid,

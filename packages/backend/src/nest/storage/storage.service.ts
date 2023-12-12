@@ -21,11 +21,9 @@ import validate from '../validation/validators'
 import { CID } from 'multiformats/cid'
 import {
   ChannelMessage,
-  CommunityMetadata,
   ConnectionProcessInfo,
   DeleteFilesFromChannelSocketPayload,
   FileMetadata,
-  InitCommunityPayload,
   NoCryptoEngineError,
   PublicChannel,
   PushNotificationPayload,
@@ -202,7 +200,7 @@ export class StorageService extends EventEmitter {
   }
 
   private async createOrbitDb(peerId: PeerId) {
-    console.log('createOrbitDb peer id ', peerId)
+    this.logger('Create orbitDB for peerId', peerId)
     const channelsAccessController = createChannelAccessController(peerId, this.orbitDbDir)
     AccessControllers.addAccessController({ AccessController: MessagesAccessController })
     AccessControllers.addAccessController({ AccessController: channelsAccessController })
@@ -221,13 +219,13 @@ export class StorageService extends EventEmitter {
 
   public async initDatabases() {
     this.logger('1/3')
-    this.communityMetadataStore = new CommunityMetadataStore()
-    await this.communityMetadataStore.init(this.orbitDb, this.localDbService, this)
-
+    console.time('Storage.initDatabases')
+    this.communityMetadataStore = new CommunityMetadataStore(this.orbitDb)
     this.certificatesStore = new CertificatesStore(this.orbitDb)
-    await this.certificatesStore.init(this)
-
     this.certificatesRequestsStore = new CertificatesRequestsStore(this.orbitDb)
+
+    await this.communityMetadataStore.init(this.localDbService, this)
+    await this.certificatesStore.init(this)
     await this.certificatesRequestsStore.init(this)
 
     this.logger('2/3')
@@ -238,6 +236,7 @@ export class StorageService extends EventEmitter {
     await this.createDbForChannels()
     await this.initAllChannels()
 
+    console.timeEnd('Storage.initDatabases')
     this.logger('Initialized DBs')
 
     this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.INITIALIZED_DBS)
