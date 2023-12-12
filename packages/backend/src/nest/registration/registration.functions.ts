@@ -64,6 +64,7 @@ export const extractPendingCsrs = async (payload: { csrs: string[]; certificates
       pendingCsrs.push(csr)
     }
   }
+  logger('BUG - user registration concurrency', { parsedUniqueCsrs, pendingNames, certNames })
   return pendingCsrs
 }
 

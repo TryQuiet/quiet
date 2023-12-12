@@ -2,6 +2,8 @@
 
 * Fix: construct all stores before initializing them - initializing community metadata store sets metadata in certificates store
 
+* Add debug logs.
+
 [2.0.3-alpha.14]
 
 * Add community metadata validation.
