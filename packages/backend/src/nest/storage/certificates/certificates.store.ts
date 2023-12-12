@@ -161,7 +161,7 @@ export class CertificatesStore {
         }
 
         const validation = await this.validateCertificate(certificate)
-        logger('BUG - user registration concurrency', { validation, certificate })
+        logger('DuplicatedCertBug', { validation, certificate })
         if (validation) {
           const parsedCertificate = parseCertificate(certificate)
           const pubkey = keyFromCertificate(parsedCertificate)

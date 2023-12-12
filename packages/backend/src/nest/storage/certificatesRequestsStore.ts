@@ -148,14 +148,14 @@ export class CertificatesRequestsStore {
         return e.payload.value
       })
 
-    logger('BUG - user registration concurrency', { allEntries })
+    logger('DuplicatedCertBug', { allEntries })
     const allCsrsUnique = [...new Set(allEntries)]
-    logger('BUG - user registration concurrency', { allCsrsUnique })
+    logger('DuplicatedCertBug', { allCsrsUnique })
     await Promise.all(
       allCsrsUnique
         .filter(async csr => {
           const validation = await CertificatesRequestsStore.validateUserCsr(csr)
-          logger('BUG - user registration concurrency', { validation, csr })
+          logger('DuplicatedCertBug', { validation, csr })
           if (validation) return true
           return false
         })
@@ -169,7 +169,7 @@ export class CertificatesRequestsStore {
           filteredCsrsMap.set(pubKey, csr)
         })
     )
-    logger('BUG - user registration concurrency', '[...filteredCsrsMap.values()]', [...filteredCsrsMap.values()])
+    logger('DuplicatedCertBug', '[...filteredCsrsMap.values()]', [...filteredCsrsMap.values()])
     return [...filteredCsrsMap.values()]
   }
 }
