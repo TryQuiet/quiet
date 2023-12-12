@@ -1,6 +1,8 @@
-[unreleased]
+[2.0.3-alpha.15]
 
 * Fix: construct all stores before initializing them - initializing community metadata store sets metadata in certificates store
+
+* Fix: joining community stuck on "initiation backend modules"
 
 * Add debug logs.
 
