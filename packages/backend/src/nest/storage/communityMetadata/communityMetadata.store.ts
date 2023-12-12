@@ -33,12 +33,12 @@ export class CommunityMetadataStore {
   public store: KeyValueStore<CommunityMetadata>
   private localDbService: LocalDbService
 
-  constructor() {}
-
-  public async init(orbitDb: OrbitDB, localDbService: LocalDbService, emitter: EventEmitter) {
-    logger('Initializing community metadata key/value store')
-
+  constructor(orbitDb: OrbitDB) {
     this.orbitDb = orbitDb
+  }
+
+  public async init(localDbService: LocalDbService, emitter: EventEmitter) {
+    logger('Initializing community metadata key/value store')
     this.localDbService = localDbService
 
     // If the owner initializes the CommunityMetadataStore, then the
@@ -62,7 +62,7 @@ export class CommunityMetadataStore {
       // Partially construct index so that we can include an
       // IdentityProvider in the index validation logic.
       // @ts-expect-error - OrbitDB's type declaration of OrbitDB lacks identity
-      Index: constructPartial(CommunityMetadataKeyValueIndex, [orbitDb.identity.provider, this.localDbService]),
+      Index: constructPartial(CommunityMetadataKeyValueIndex, [this.orbitDb.identity.provider, this.localDbService]),
       accessController: {
         write: ['*'],
       },
@@ -112,7 +112,7 @@ export class CommunityMetadataStore {
         return
       }
 
-      logger(`About to update community metadata`)
+      logger(`About to update community metadata`, newMeta?.id)
       if (!newMeta.id) return
 
       // FIXME: update community metadata if it has changed (so that

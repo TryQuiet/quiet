@@ -152,6 +152,7 @@ export class CertificatesStore {
       .collect()
       .map(e => e.payload.value)
 
+    logger(`All certificates: ${allCertificates.length}`)
     const validCertificates = await Promise.all(
       allCertificates.map(async certificate => {
         if (this.filteredCertificatesMapping.has(certificate)) {
@@ -181,7 +182,9 @@ export class CertificatesStore {
       })
     )
 
-    return validCertificates.filter(i => i != undefined)
+    const validCerts = validCertificates.filter(i => i != undefined)
+    logger(`Valid certificates: ${validCerts.length}`)
+    return validCerts
   }
 
   public async getCertificateUsername(pubkey: string) {
