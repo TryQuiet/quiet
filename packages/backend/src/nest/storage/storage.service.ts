@@ -12,6 +12,10 @@ import type { IPFS } from 'ipfs-core'
 import OrbitDB from 'orbit-db'
 import EventStore from 'orbit-db-eventstore'
 import KeyValueStore from 'orbit-db-kvstore'
+// @ts-ignore - needs declaration file?
+import Log from 'ipfs-log'
+// @ts-ignore - needs declaration file?
+import { read, write } from 'orbit-db-io'
 import path from 'path'
 import { EventEmitter } from 'events'
 import PeerId from 'peer-id'
@@ -128,7 +132,10 @@ export class StorageService extends EventEmitter {
     this.attachFileManagerEvents()
     await this.initDatabases()
 
+    // Should we await this?
     void this.startIpfs()
+
+    this.loadMessagesFromFile('test.json')
   }
 
   private async startIpfs() {
@@ -398,9 +405,9 @@ export class StorageService extends EventEmitter {
     await this.channels.load({ fetchEntryTimeout: 1000 })
     this.logger('Channels count:', Object.keys(this.channels.all).length)
     this.logger('Channels names:', Object.keys(this.channels.all))
-    Object.values(this.channels.all).forEach(async (channel: PublicChannel) => {
+    await Promise.all(Object.values(this.channels.all).map(async (channel: PublicChannel) => {
       await this.subscribeToChannel(channel)
-    })
+    }))
     this.logger('STORAGE: Finished createDbForChannels')
   }
 
@@ -673,7 +680,12 @@ export class StorageService extends EventEmitter {
       return
     }
     try {
-      await repo.db.add(message)
+      const hash = await repo.db.add(message)
+      // @ts-ignore
+      const entry = repo.db._oplog.get(hash)
+      console.log("ENTRY\n\n\n\n\n\n\n\n\n")
+      console.log(entry)
+      console.log(encodeURIComponent(JSON.stringify(entry)))
     } catch (e) {
       this.logger.error(
         `STORAGE: Could not append message (entry not allowed to write to the log). Details: ${e.message}`
@@ -789,6 +801,26 @@ export class StorageService extends EventEmitter {
         resolve(!error)
       })
     })
+  }
+
+  public async loadMessagesFromFile(filepath: string): Promise<void> {
+    this.logger('Loading messages from file', filepath)
+    const entryStrings = fs.readFileSync(filepath, 'utf8').split("\n")
+    const entries = entryStrings.map(e => e.length > 0 ? JSON.parse(decodeURIComponent(e)) : undefined).filter(e => e !== undefined)
+
+    // TODO: Group by repo and sync all messages for a specific repo at once
+    for (const entry of entries) {
+      const channelId = entry.payload.value.channelId
+      const repo = this.publicChannelsRepos.get(channelId)
+
+      if (repo) {
+        this.logger('Found channel, syncing entries')
+        // @ts-ignore
+        await repo.db.sync([entry])
+      } else {
+        this.logger.error(`Could not add entries. No '${channelId}' channel in saved public channels`)
+      }
+    }
   }
 
   private clean() {
