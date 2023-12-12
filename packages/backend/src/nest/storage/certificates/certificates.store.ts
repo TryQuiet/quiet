@@ -147,6 +147,8 @@ export class CertificatesStore {
    * https://github.com/TryQuiet/quiet/issues/1899
    */
   protected async getCertificates() {
+    // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
+    await this.store.load({ fetchEntryTimeout: 15000 })
     const allCertificates = this.store
       .iterator({ limit: -1 })
       .collect()
@@ -159,7 +161,7 @@ export class CertificatesStore {
         }
 
         const validation = await this.validateCertificate(certificate)
-
+        logger('BUG - user registration concurrency', { validation, certificate })
         if (validation) {
           const parsedCertificate = parseCertificate(certificate)
           const pubkey = keyFromCertificate(parsedCertificate)
