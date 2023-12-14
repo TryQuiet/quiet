@@ -82,9 +82,6 @@ export function* deepLinkSaga(action: PayloadAction<ReturnType<typeof initAction
     console.log('INIT_NAVIGATION: Proceeding with connection to the community.')
   }
 
-  // Link opened mid registration
-  // TODO: Check if csr is already saved to db (redux store)
-
   // User already belongs to a community
   if (alreadyBelongsWithAnotherCommunity || alreadyConnectedWithCurrentCommunity) {
     console.log('INIT_NAVIGATION: Displaying error (user already belongs to a community).')

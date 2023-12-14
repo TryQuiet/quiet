@@ -254,46 +254,4 @@ describe('deepLinkSaga', () => {
       )
       .run()
   })
-
-  test.todo('continues if link used mid registration')
-
-  test.skip('continues if link used mid registration and locks input while waiting for server response', async () => {
-    store.dispatch(
-      initActions.setWebsocketConnected({
-        dataPort: 5001,
-        socketIOSecret: 'secret',
-      })
-    )
-
-    store.dispatch(communities.actions.addNewCommunity(community))
-
-    store.dispatch(
-      // @ts-expect-error
-      identity.actions.addNewIdentity({ ..._identity, userCertificate: null })
-    )
-
-    store.dispatch(communities.actions.setCurrentCommunity(community.id))
-
-    store.dispatch(connection.actions.setConnectionProcess(ConnectionProcessInfo.REGISTERING_USER_CERTIFICATE))
-
-    const reducer = combineReducers(reducers)
-    await expectSaga(deepLinkSaga, initActions.deepLink(validCode))
-      .withReducer(reducer)
-      .withState(store.getState())
-      .put(
-        navigationActions.replaceScreen({
-          screen: ScreenNames.UsernameRegistrationScreen,
-          params: { fetching: true },
-        })
-      )
-      .not.put(
-        communities.actions.createNetwork({
-          ownership: CommunityOwnership.User,
-          peers: validData.pairs,
-          psk: validData.psk,
-          ownerOrbitDbIdentity: validData.ownerOrbitDbIdentity,
-        })
-      )
-      .run()
-  })
 })
