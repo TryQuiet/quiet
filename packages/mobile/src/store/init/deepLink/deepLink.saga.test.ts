@@ -93,10 +93,12 @@ describe('deepLinkSaga', () => {
     )
 
     store.dispatch(communities.actions.setInvitationCodes(validData.pairs))
-    store.dispatch(communities.actions.addNewCommunity({
-      ...community,
-      name: 'rockets'
-    }))
+    store.dispatch(
+      communities.actions.addNewCommunity({
+        ...community,
+        name: 'rockets',
+      })
+    )
 
     store.dispatch(
       // @ts-expect-error
@@ -132,10 +134,12 @@ describe('deepLinkSaga', () => {
     const invitationData = getValidInvitationUrlTestData(validInvitationCodeTestData[1])
     store.dispatch(communities.actions.setInvitationCodes(invitationData.data.pairs))
 
-    store.dispatch(communities.actions.addNewCommunity({
-      ...community,
-      name: 'rockets',
-    }))
+    store.dispatch(
+      communities.actions.addNewCommunity({
+        ...community,
+        name: 'rockets',
+      })
+    )
 
     store.dispatch(communities.actions.setCurrentCommunity(community.id))
 
@@ -162,7 +166,7 @@ describe('deepLinkSaga', () => {
       .run()
   })
 
-  test('doesn\'t display error if user is connecting with the same community', async () => {
+  test("doesn't display error if user is connecting with the same community", async () => {
     store.dispatch(
       initActions.setWebsocketConnected({
         dataPort: 5001,
@@ -200,8 +204,8 @@ describe('deepLinkSaga', () => {
             ownership: CommunityOwnership.User,
             peers: validData.pairs,
             psk: validData.psk,
-          }
-        }
+          },
+        },
       })
       .run()
   })

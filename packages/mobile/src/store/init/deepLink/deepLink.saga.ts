@@ -52,14 +52,14 @@ export function* deepLinkSaga(action: PayloadAction<ReturnType<typeof initAction
   console.log('Stored invitation codes', storedInvitationCodes)
   console.log('Current invitation codes', currentInvitationCodes)
 
-  let isInvitationDataValid: boolean = false
+  let isInvitationDataValid = false
 
   if (storedInvitationCodes.length === 0) {
     isInvitationDataValid = true
   } else {
     isInvitationDataValid = storedInvitationCodes.some(storedCode =>
       currentInvitationCodes.some(currentCode => areObjectsEqual(storedCode, currentCode))
-    );
+    )
   }
 
   console.log('Is invitation data valid', isInvitationDataValid)
@@ -89,7 +89,10 @@ export function* deepLinkSaga(action: PayloadAction<ReturnType<typeof initAction
   if (alreadyBelongsWithAnotherCommunity || alreadyConnectedWithCurrentCommunity) {
     console.log('INIT_NAVIGATION: Displaying error (user already belongs to a community).')
 
-    const destination = (alreadyBelongsWithAnotherCommunity || alreadyConnectedWithCurrentCommunity) ? ScreenNames.ChannelListScreen : ScreenNames.JoinCommunityScreen
+    const destination =
+      alreadyBelongsWithAnotherCommunity || alreadyConnectedWithCurrentCommunity
+        ? ScreenNames.ChannelListScreen
+        : ScreenNames.JoinCommunityScreen
 
     yield* put(
       navigationActions.replaceScreen({
