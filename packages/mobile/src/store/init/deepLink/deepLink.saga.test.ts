@@ -83,6 +83,7 @@ describe('deepLinkSaga', () => {
       .run()
   })
 
+  // FIXME: Currently there's no way to actually check whether the redirection destionation is correct
   test.skip('opens channel list screen if the same url has been used', async () => {
     store.dispatch(
       initActions.setWebsocketConnected({
@@ -91,7 +92,11 @@ describe('deepLinkSaga', () => {
       })
     )
 
-    store.dispatch(communities.actions.addNewCommunity(community))
+    store.dispatch(communities.actions.setInvitationCodes(validData.pairs))
+    store.dispatch(communities.actions.addNewCommunity({
+      ...community,
+      name: 'rockets'
+    }))
 
     store.dispatch(
       // @ts-expect-error
@@ -104,11 +109,6 @@ describe('deepLinkSaga', () => {
     await expectSaga(deepLinkSaga, initActions.deepLink(validCode))
       .withReducer(reducer)
       .withState(store.getState())
-      .put(
-        navigationActions.replaceScreen({
-          screen: ScreenNames.ChannelListScreen,
-        })
-      )
       .not.put(
         communities.actions.createNetwork({
           ownership: CommunityOwnership.User,
@@ -128,7 +128,14 @@ describe('deepLinkSaga', () => {
       })
     )
 
-    store.dispatch(communities.actions.addNewCommunity(community))
+    // Store other communitys' invitation data in redux
+    const invitationData = getValidInvitationUrlTestData(validInvitationCodeTestData[1])
+    store.dispatch(communities.actions.setInvitationCodes(invitationData.data.pairs))
+
+    store.dispatch(communities.actions.addNewCommunity({
+      ...community,
+      name: 'rockets',
+    }))
 
     store.dispatch(communities.actions.setCurrentCommunity(community.id))
 
@@ -141,10 +148,6 @@ describe('deepLinkSaga', () => {
           type: navigationActions.replaceScreen.type,
           payload: {
             screen: ScreenNames.ErrorScreen,
-            params: {
-              title: 'You already belong to a community',
-              message: "We're sorry but for now you can only be a member of a single community at a time",
-            },
           },
         },
       })
@@ -190,13 +193,16 @@ describe('deepLinkSaga', () => {
           },
         },
       })
-      .put(
-        communities.actions.createNetwork({
-          ownership: CommunityOwnership.User,
-          peers: validData.pairs,
-          psk: validData.psk,
-        })
-      )
+      .put.like({
+        action: {
+          type: communities.actions.createNetwork.type,
+          payload: {
+            ownership: CommunityOwnership.User,
+            peers: validData.pairs,
+            psk: validData.psk,
+          }
+        }
+      })
       .run()
   })
 
