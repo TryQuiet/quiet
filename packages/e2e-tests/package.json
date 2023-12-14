@@ -13,7 +13,10 @@
     "prettier:check": "prettier --check .",
     "test": "cross-env TEST_MODE=true jest --runInBand --detectOpenHandles --forceExit",
     "test:prod": "jest --runInBand --detectOpenHandles --forceExit",
-    "test:watch": "jest --watchAll"
+    "test:watch": "jest --watchAll",
+    "clean": "npm run rmDist && npm run clean:modules",
+    "clean:modules": "rimraf node_modules/",
+    "rmDist": "rimraf lib/"
   },
   "devDependencies": {
     "@quiet/eslint-config": "^2.0.2-alpha.0",
