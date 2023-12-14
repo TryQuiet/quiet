@@ -66,12 +66,14 @@ export class CommunityMetadataStore {
       // Partially construct index so that we can include an
       // IdentityProvider in the index validation logic.
 
-      // @ts-expect-error
-      Index: constructPartial(CommunityMetadataKeyValueIndex, [
-        // @ts-expect-error - OrbitDB's type declaration of OrbitDB lacks identity
-        this.orbitDbService.orbitDb.identity.provider,
-        this.validateCommunityMetadataEntry,
-      ]),
+      // TODO: bring it back !
+
+      // Index: constructPartial(CommunityMetadataKeyValueIndex, [
+      //   // @ts-expect-error - OrbitDB's type declaration of OrbitDB lacks identity
+      //   this.orbitDbService.orbitDb.identity.provider,
+      //   this.validateCommunityMetadataEntry,
+      // ]),
+
       accessController: {
         write: ['*'],
       },
@@ -111,6 +113,7 @@ export class CommunityMetadataStore {
   }
 
   public async updateCommunityMetadata(newMeta: CommunityMetadata): Promise<CommunityMetadata | undefined> {
+    console.log({ newMeta })
     try {
       // TODO: Also check OrbitDB identity when updating community metadata
       const valid = await this.validateCommunityMetadata(newMeta)
@@ -133,7 +136,7 @@ export class CommunityMetadataStore {
 
       this.logger(`Updating community metadata`)
       // @ts-expect-error - OrbitDB's type declaration of OrbitDB lacks identity
-      const ownerOrbitDbIdentity = this.orbitDb.identity.id
+      const ownerOrbitDbIdentity = this.orbitDbService.orbitDb.identity.id
       const meta = {
         ...oldMeta,
         ...newMeta,

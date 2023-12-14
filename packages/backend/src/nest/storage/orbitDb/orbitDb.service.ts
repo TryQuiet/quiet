@@ -26,7 +26,6 @@ export class OrbitDb {
   public async create(peerId: PeerId, ipfs: IPFS) {
     this.logger('[create]:started')
     if (this.orbitDbInstance) return
-    console.log('[create]', { peerId })
 
     const channelsAccessController = createChannelAccessController(peerId, this.orbitDbDir)
     AccessControllers.addAccessController({ AccessController: MessagesAccessController })
@@ -55,23 +54,5 @@ export class OrbitDb {
     }
 
     this.orbitDbInstance = null
-  }
-
-  public async subscribeToPubSub(addr: string[], ipfsStarted?: boolean) {
-    if (!ipfsStarted) {
-      this.logger(`IPFS not started. Not subscribing to ${addr}`)
-      return
-    }
-    for (const a of addr) {
-      this.logger(`Pubsub - subscribe to ${a}`)
-      // @ts-ignore
-      await this.orbitDbService.orbitDb._pubsub.subscribe(
-        a,
-        // @ts-ignore
-        this.orbitDbService.orbitDb._onMessage.bind(this.orbitDbService.orbitDb),
-        // @ts-ignore
-        this.orbitDbService.orbitDb._onPeerConnected.bind(this.orbitDbService.orbitDb)
-      )
-    }
   }
 }

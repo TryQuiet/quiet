@@ -2,7 +2,6 @@ import { jest, beforeEach, describe, it, expect, afterEach, beforeAll, test } fr
 import fs from 'fs'
 import { create, IPFS } from 'ipfs-core'
 import { EventEmitter } from 'events'
-import { StorageEvents } from '../storage.types'
 import { TestConfig } from '../../const'
 import { Test, TestingModule } from '@nestjs/testing'
 import { TestModule } from '../../common/test.module'
@@ -14,12 +13,9 @@ import { Community, CommunityMetadata } from '@quiet/types'
 import { LocalDbService } from '../../local-db/local-db.service'
 import { Store, getFactory, prepareStore } from '@quiet/state-manager'
 import { FactoryGirl } from 'factory-girl'
-import { LocalDBKeys } from '../../local-db/local-db.types'
 import { IdentityProvider } from 'orbit-db-identity-provider'
 // @ts-ignore Hacking around ipfs-log not exporting Entry
 import Entry from '../../../../node_modules/ipfs-log/src/entry'
-
-const mockEmitter = { emit: jest.fn() }
 
 const metaValid = {
   id: 'anId',
@@ -137,11 +133,6 @@ describe('CommmunityMetadataStore', () => {
         { verify: jest.fn(() => true), verifyIdentity: jest.fn(() => true) } as unknown as typeof IdentityProvider,
         entryValid
       )
-      // const ret = await CommunityMetadataStore.validateCommunityMetadataEntry(
-      //   mockLocalDbService as unknown as LocalDbService,
-      //   { verify: jest.fn(() => true), verifyIdentity: jest.fn(() => true) } as unknown as typeof IdentityProvider,
-      //   entryValid
-      // )
 
       expect(ret).toEqual(true)
     })
@@ -182,30 +173,32 @@ describe('CommmunityMetadataStore', () => {
       expect(ret).toEqual(false)
     })
 
-    // test('returns false if the owner cert is unexpected and entry is otherwise valid', async () => {
-    //   const metaInvalid = {
-    //     ...metaValidWithOwnerId,
-    //     rootCa: 'Something invalid!',
-    //   }
-    //   const opInvalid = { op: 'PUT', key: metaInvalid.id, value: metaInvalid }
-    //   // @ts-ignore
-    //   const entryInvalid = await Entry.create(
-    //     ipfs,
-    //     orbitDb.orbitDb.identity,
-    //     communityMetadataStore.store.id,
-    //     opInvalid,
-    //     [],
-    //     null,
-    //     [],
-    //     false
-    //   )
+    test('returns false if the owner cert is unexpected and entry is otherwise valid', async () => {
+      const metaInvalid = {
+        ...metaValidWithOwnerId,
+        rootCa: 'Something invalid!',
+      }
+      const opInvalid = { op: 'PUT', key: metaInvalid.id, value: metaInvalid }
+      // @ts-ignore
+      const entryInvalid = await Entry.create(
+        ipfs,
+        // @ts-ignore
+        orbitDb.orbitDb.identity,
+        // @ts-ignore
+        communityMetadataStore.store.id,
+        opInvalid,
+        [],
+        null,
+        [],
+        false
+      )
 
-    //   const ret = await communityMetadataStore.validateCommunityMetadataEntry(
-    //     { verify: jest.fn(() => true), verifyIdentity: jest.fn(() => true) } as unknown as typeof IdentityProvider,
-    //     entryInvalid
-    //   )
+      const ret = await communityMetadataStore.validateCommunityMetadataEntry(
+        { verify: jest.fn(() => true), verifyIdentity: jest.fn(() => true) } as unknown as typeof IdentityProvider,
+        entryInvalid
+      )
 
-    //   expect(ret).toEqual(false)
-    // })
+      expect(ret).toEqual(false)
+    })
   })
 })

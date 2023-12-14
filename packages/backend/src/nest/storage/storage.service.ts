@@ -9,7 +9,6 @@ import {
   getReqFieldValue,
 } from '@quiet/identity'
 import type { IPFS } from 'ipfs-core'
-import OrbitDB from 'orbit-db'
 import EventStore from 'orbit-db-eventstore'
 import KeyValueStore from 'orbit-db-kvstore'
 import path from 'path'
@@ -169,7 +168,7 @@ export class StorageService extends EventEmitter {
     }
 
     const addresses = dbs.map(db => StorageService.dbAddress(db))
-    await this.orbitDbService.subscribeToPubSub(addresses, this.ipfsStarted)
+    await this.subscribeToPubSub(addresses)
   }
 
   static dbAddress = (db: { root: string; path: string }) => {
@@ -197,6 +196,24 @@ export class StorageService extends EventEmitter {
     this.logger('Initialized DBs')
 
     this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.INITIALIZED_DBS)
+  }
+
+  private async subscribeToPubSub(addr: string[]) {
+    if (!this.ipfsStarted) {
+      this.logger(`IPFS not started. Not subscribing to ${addr}`)
+      return
+    }
+    for (const a of addr) {
+      this.logger(`Pubsub - subscribe to ${a}`)
+      // @ts-ignore
+      await this.orbitDbService.orbitDb._pubsub.subscribe(
+        a,
+        // @ts-ignore
+        this.orbitDbService.orbitDb._onMessage.bind(this.orbitDbService.orbitDb),
+        // @ts-ignore
+        this.orbitDbService.orbitDb._onPeerConnected.bind(this.orbitDbService.orbitDb)
+      )
+    }
   }
 
   private async __stopIPFS() {
@@ -545,7 +562,7 @@ export class StorageService extends EventEmitter {
     // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
     await db.load({ fetchEntryTimeout: 2000 })
     this.logger(`Created channel ${channelId}`)
-    await this.orbitDbService.subscribeToPubSub([StorageService.dbAddress(db.address)], this.ipfsStarted)
+    await this.subscribeToPubSub([StorageService.dbAddress(db.address)])
     return db
   }
 

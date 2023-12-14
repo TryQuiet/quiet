@@ -11,12 +11,10 @@ import {
 import {
   ChannelMessage,
   Community,
-  ConnectionProcessInfo,
   FileMetadata,
   Identity,
   MessageType,
   PublicChannel,
-  SocketActionTypes,
   TestMessage,
 } from '@quiet/types'
 
@@ -33,7 +31,6 @@ import { Libp2pService } from '../libp2p/libp2p.service'
 import { SocketModule } from '../socket/socket.module'
 import { StorageModule } from './storage.module'
 import { StorageService } from './storage.service'
-import { StorageEvents } from './storage.types'
 import fs from 'fs'
 import { type FactoryGirl } from 'factory-girl'
 import { fileURLToPath } from 'url'
@@ -42,10 +39,10 @@ import { LocalDbModule } from '../local-db/local-db.module'
 import { LocalDbService } from '../local-db/local-db.service'
 import { IPFS_REPO_PATCH, ORBIT_DB_DIR, QUIET_DIR } from '../const'
 import { LocalDBKeys } from '../local-db/local-db.types'
-import { RegistrationEvents } from '../registration/registration.types'
 import { CertificatesRequestsStore } from './certifacteRequests/certificatesRequestsStore'
 import { CertificatesStore } from './certificates/certificates.store'
 import { CommunityMetadataStore } from './communityMetadata/communityMetadata.store'
+import { OrbitDb } from './orbitDb/orbitDb.service'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -75,6 +72,7 @@ describe('StorageService', () => {
   let certificatesRequestsStore: CertificatesRequestsStore
   let certificatesStore: CertificatesStore
   let communityMetadataStore: CommunityMetadataStore
+  let orbitDbService: OrbitDb
   let peerId: PeerId
 
   let store: Store
@@ -132,6 +130,7 @@ describe('StorageService', () => {
 
     storageService = await module.resolve(StorageService)
     localDbService = await module.resolve(LocalDbService)
+    orbitDbService = await module.resolve(OrbitDb)
 
     certificatesRequestsStore = await module.resolve(CertificatesRequestsStore)
     certificatesStore = await module.resolve(CertificatesStore)
