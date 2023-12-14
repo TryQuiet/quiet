@@ -629,12 +629,12 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     )
 
     this.socketService.on(SocketActionTypes.SEND_COMMUNITY_METADATA, async (payload: CommunityMetadata) => {
-      await this.storageService?.communityMetadataStore?.updateCommunityMetadata(payload)
+      await this.storageService?.updateCommunityMetadata(payload)
     })
 
     this.storageService.on(StorageEvents.COMMUNITY_METADATA_SAVED, async (meta: CommunityMetadata) => {
       this.logger(`Storage - ${StorageEvents.COMMUNITY_METADATA_SAVED}: ${meta}`)
-      this.storageService?.certificatesStore?.updateMetadata(meta)
+      this.storageService?.updateMetadata(meta)
       this.serverIoProvider.io.emit(SocketActionTypes.COMMUNITY_METADATA_SAVED, meta)
     })
   }

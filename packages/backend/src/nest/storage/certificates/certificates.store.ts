@@ -1,13 +1,8 @@
 import { getCrypto } from 'pkijs'
-
 import { EventEmitter } from 'events'
 import { StorageEvents } from '../storage.types'
-
 import EventStore from 'orbit-db-eventstore'
-import OrbitDB from 'orbit-db'
-
 import { CommunityMetadata, NoCryptoEngineError } from '@quiet/types'
-
 import {
   keyFromCertificate,
   CertFieldsTypes,
@@ -15,35 +10,31 @@ import {
   getCertFieldValue,
   loadCertificate,
 } from '@quiet/identity'
-
 import { ConnectionProcessInfo, SocketActionTypes, UserData } from '@quiet/types'
-
 import { validate } from 'class-validator'
 import { CertificateData } from '../../registration/registration.functions'
+import { OrbitDb } from '../orbitDb/orbitDb.service'
+import { Injectable } from '@nestjs/common'
+import Logger from '../../common/logger'
 
-import createLogger from '../../common/logger'
-
-const logger = createLogger('CertificatesStore')
-
+@Injectable()
 export class CertificatesStore {
-  public orbitDb: OrbitDB
   public store: EventStore<string>
-
   private metadata: CommunityMetadata
-
   private filteredCertificatesMapping: Map<string, Partial<UserData>>
   private usernameMapping: Map<string, string>
 
-  constructor(orbitDb: OrbitDB) {
-    this.orbitDb = orbitDb
+  private readonly logger = Logger(CertificatesStore.name)
+
+  constructor(private readonly orbitDbService: OrbitDb) {
     this.filteredCertificatesMapping = new Map()
     this.usernameMapping = new Map()
   }
 
   public async init(emitter: EventEmitter) {
-    logger('Initializing certificates log store')
+    this.logger('Initializing certificates log store')
 
-    this.store = await this.orbitDb.log<string>('certificates', {
+    this.store = await this.orbitDbService.orbitDb.log<string>('certificates', {
       replicate: false,
       accessController: {
         write: ['*'],
@@ -51,17 +42,17 @@ export class CertificatesStore {
     })
 
     this.store.events.on('ready', async () => {
-      logger('Loaded certificates to memory')
+      this.logger('Loaded certificates to memory')
       emitter.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CERTIFICATES_REPLICATED)
     })
 
     this.store.events.on('write', async () => {
-      logger('Saved certificate locally')
+      this.logger('Saved certificate locally')
       await loadedCertificates()
     })
 
     this.store.events.on('replicated', async () => {
-      logger('REPLICATED: Certificates')
+      this.logger('REPLICATED: Certificates')
       emitter.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CERTIFICATES_REPLICATED)
       await loadedCertificates()
     })
@@ -75,7 +66,7 @@ export class CertificatesStore {
     // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
     await this.store.load({ fetchEntryTimeout: 15000 })
 
-    logger('Initialized')
+    this.logger('Initialized')
   }
 
   public async close() {
@@ -87,7 +78,7 @@ export class CertificatesStore {
   }
 
   public async addCertificate(certificate: string) {
-    logger('Adding user certificate')
+    this.logger('Adding user certificate')
     await this.store.add(certificate)
     return true
   }
@@ -107,7 +98,7 @@ export class CertificatesStore {
       await this.validateCertificateAuthority(certificate)
       await this.validateCertificateFormat(certificate)
     } catch (err) {
-      logger.error('Failed to validate user certificate:', certificate, err?.message)
+      this.logger.error('Failed to validate user certificate:', certificate, err?.message)
       return false
     }
     return true
@@ -154,7 +145,7 @@ export class CertificatesStore {
       .collect()
       .map(e => e.payload.value)
 
-    logger(`All certificates: ${allCertificates.length}`)
+    this.logger(`All certificates: ${allCertificates.length}`)
     const validCertificates = await Promise.all(
       allCertificates.map(async certificate => {
         if (this.filteredCertificatesMapping.has(certificate)) {
@@ -162,7 +153,7 @@ export class CertificatesStore {
         }
 
         const validation = await this.validateCertificate(certificate)
-        logger('DuplicatedCertBug', { validation, certificate })
+        this.logger('DuplicatedCertBug', { validation, certificate })
         if (validation) {
           const parsedCertificate = parseCertificate(certificate)
           const pubkey = keyFromCertificate(parsedCertificate)
@@ -185,7 +176,7 @@ export class CertificatesStore {
     )
 
     const validCerts = validCertificates.filter(i => i != undefined)
-    logger(`Valid certificates: ${validCerts.length}`)
+    this.logger(`Valid certificates: ${validCerts.length}`)
     return validCerts
   }
 

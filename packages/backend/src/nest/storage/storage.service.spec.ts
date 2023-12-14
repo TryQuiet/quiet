@@ -43,6 +43,9 @@ import { LocalDbService } from '../local-db/local-db.service'
 import { IPFS_REPO_PATCH, ORBIT_DB_DIR, QUIET_DIR } from '../const'
 import { LocalDBKeys } from '../local-db/local-db.types'
 import { RegistrationEvents } from '../registration/registration.types'
+import { CertificatesRequestsStore } from './certifacteRequests/certificatesRequestsStore'
+import { CertificatesStore } from './certificates/certificates.store'
+import { CommunityMetadataStore } from './communityMetadata/communityMetadata.store'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -69,6 +72,9 @@ describe('StorageService', () => {
   let libp2pService: Libp2pService
   let lazyModuleLoader: LazyModuleLoader
   let localDbService: LocalDbService
+  let certificatesRequestsStore: CertificatesRequestsStore
+  let certificatesStore: CertificatesStore
+  let communityMetadataStore: CommunityMetadataStore
   let peerId: PeerId
 
   let store: Store
@@ -127,6 +133,10 @@ describe('StorageService', () => {
     storageService = await module.resolve(StorageService)
     localDbService = await module.resolve(LocalDbService)
 
+    certificatesRequestsStore = await module.resolve(CertificatesRequestsStore)
+    certificatesStore = await module.resolve(CertificatesStore)
+    communityMetadataStore = await module.resolve(CommunityMetadataStore)
+    console.log({ communityMetadataStore })
     lazyModuleLoader = await module.resolve(LazyModuleLoader)
 
     orbitDbDir = await module.resolve(ORBIT_DB_DIR)
@@ -257,9 +267,9 @@ describe('StorageService', () => {
       expect(db).not.toBe(undefined)
       if (!db) return // TS complaining
       const channelsDbAddress = storageService.channels?.address
-      const certificatesDbAddress = storageService.certificatesStore.getAddress()
-      const certificatesRequestsDbAddress = storageService.certificatesRequestsStore.getAddress()
-      const communityMetadataDbAddress = storageService.communityMetadataStore.getAddress()
+      const certificatesDbAddress = certificatesStore.getAddress()
+      const certificatesRequestsDbAddress = certificatesRequestsStore.getAddress()
+      const communityMetadataDbAddress = communityMetadataStore.getAddress()
       expect(channelsDbAddress).not.toBeFalsy()
       expect(certificatesDbAddress).not.toBeFalsy()
       expect(subscribeToPubSubSpy).toBeCalledTimes(2)
@@ -275,7 +285,7 @@ describe('StorageService', () => {
     })
   })
 
-  describe.only('Certificate', () => {
+  describe('Certificate', () => {
     // FIXME: Due to moving certificates to a separate store and lack of proper nest configuration, this test is broken
     it.skip('username check fails if username is already in use', async () => {
       const userCertificate = await createUserCert(

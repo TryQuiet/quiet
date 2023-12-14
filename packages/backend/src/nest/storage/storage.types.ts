@@ -37,3 +37,12 @@ export interface InitStorageParams {
   peers?: string[]
   certs: Certificates
 }
+
+export interface CsrReplicatedPromiseValues {
+  promise: Promise<unknown>
+  resolveFunction: any
+}
+
+export interface DBOptions {
+  replicate: boolean
+}
