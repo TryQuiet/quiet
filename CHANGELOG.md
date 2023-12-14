@@ -1,3 +1,7 @@
+[unreleased]
+
+* Fix: joining with QR code after leaving community on mobile
+
 [2.0.3-alpha.15]
 
 * Fix: construct all stores before initializing them - initializing community metadata store sets metadata in certificates store
