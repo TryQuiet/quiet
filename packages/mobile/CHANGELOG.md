@@ -3,28 +3,37 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-## [2.0.3-alpha.14](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@2.0.3-alpha.13...@quiet/mobile@2.0.3-alpha.14) (2023-12-07)
+## [2.0.3-alpha.16](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@2.0.3-alpha.15...@quiet/mobile@2.0.3-alpha.16) (2023-12-12)
 
-
-### Bug Fixes
-
-* send csr if local and stored ones differs ([#2147](https://github.com/TryQuiet/quiet/issues/2147)) ([b640d16](https://github.com/TryQuiet/quiet/commit/b640d1617ec58bb93129adaf8dfebe09c8de625c))
+**Note:** Version bump only for package @quiet/mobile
 
 
 
 
 
-## [2.0.3-alpha.13](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@2.0.3-alpha.12...@quiet/mobile@2.0.3-alpha.13) (2023-12-04)
+[2.0.3-alpha.15]
 
+* Fix: construct all stores before initializing them - initializing community metadata store sets metadata in certificates store
 
-### Bug Fixes
+* Fix: joining community stuck on "initiation backend modules"
 
-* correct getting ndk path ([#2130](https://github.com/TryQuiet/quiet/issues/2130)) ([f0a6336](https://github.com/TryQuiet/quiet/commit/f0a6336434d4f8ba829123ca6f24d3df3df557a8))
-* poin to a different directory after breaking changes ([#2132](https://github.com/TryQuiet/quiet/issues/2132)) ([07ef5bb](https://github.com/TryQuiet/quiet/commit/07ef5bb5a403ee52cf69982d19a9d0b14f11c969))
+* Add debug logs.
 
+[2.0.3-alpha.14]
 
+* Add community metadata validation.
 
+* Move community metadata to separate store.
 
+[2.0.3-alpha.13]
+
+* Initialize electron-store after setting appData to prevent creating empty "Quiet" data directory
+
+* Fixed UI for Update Modal
+
+* Fixed username taken logic
+
+* Add test-case in e2e multiple test for using username taken modal
 
 [2.0.3-alpha.12]
 

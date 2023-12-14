@@ -77,6 +77,7 @@ describe('deepLinkSaga', () => {
           ownership: CommunityOwnership.User,
           peers: validData.pairs,
           psk: validData.psk,
+          ownerOrbitDbIdentity: validData.ownerOrbitDbIdentity,
         })
       )
       .run()
@@ -113,6 +114,7 @@ describe('deepLinkSaga', () => {
           ownership: CommunityOwnership.User,
           peers: validData.pairs,
           psk: validData.psk,
+          ownerOrbitDbIdentity: validData.ownerOrbitDbIdentity,
         })
       )
       .run()
@@ -151,6 +153,7 @@ describe('deepLinkSaga', () => {
           ownership: CommunityOwnership.User,
           peers: validData.pairs,
           psk: validData.psk,
+          ownerOrbitDbIdentity: validData.ownerOrbitDbIdentity,
         })
       )
       .run()
@@ -206,6 +209,7 @@ describe('deepLinkSaga', () => {
         },
       ],
       psk: 'BNlxfE=',
+      ownerOrbitDbIdentity: 'testId',
     }
     const invalidCode = composeInvitationShareUrl(invalidData)
     store.dispatch(
@@ -235,6 +239,7 @@ describe('deepLinkSaga', () => {
           ownership: CommunityOwnership.User,
           peers: validData.pairs,
           psk: validData.psk,
+          ownerOrbitDbIdentity: validData.ownerOrbitDbIdentity,
         })
       )
       .run()
@@ -276,6 +281,7 @@ describe('deepLinkSaga', () => {
           ownership: CommunityOwnership.User,
           peers: validData.pairs,
           psk: validData.psk,
+          ownerOrbitDbIdentity: validData.ownerOrbitDbIdentity,
         })
       )
       .run()

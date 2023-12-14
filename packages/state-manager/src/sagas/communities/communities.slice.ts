@@ -4,21 +4,20 @@ import { communitiesAdapter } from './communities.adapter'
 import {
   InvitationPair,
   type AddOwnerCertificatePayload,
-  type Community as CommunityType,
+  type Community,
   type CreateNetworkPayload,
   type ResponseCreateNetworkPayload,
   type ResponseRegistrarPayload,
   type StorePeerListPayload,
-  type UpdateCommunityPayload,
   type UpdateRegistrationAttemptsPayload,
-  CommunityMetadataPayload,
+  CommunityMetadata,
   InvitationData,
 } from '@quiet/types'
 
 export class CommunitiesState {
   public invitationCodes: InvitationPair[] = []
   public currentCommunity = ''
-  public communities: EntityState<CommunityType> = communitiesAdapter.getInitialState()
+  public communities: EntityState<Community> = communitiesAdapter.getInitialState()
   public psk: string | undefined
 }
 
@@ -29,11 +28,11 @@ export const communitiesSlice = createSlice({
     setCurrentCommunity: (state, action: PayloadAction<string>) => {
       state.currentCommunity = action.payload
     },
-    addNewCommunity: (state, action: PayloadAction<CommunityType>) => {
+    addNewCommunity: (state, action: PayloadAction<Community>) => {
       communitiesAdapter.addOne(state.communities, action.payload)
     },
-    updateCommunity: (state, _action: PayloadAction<UpdateCommunityPayload>) => state,
-    updateCommunityData: (state, action: PayloadAction<CommunityType>) => {
+    updateCommunity: (state, _action: PayloadAction<Community>) => state,
+    updateCommunityData: (state, action: PayloadAction<Community>) => {
       communitiesAdapter.updateOne(state.communities, {
         id: action.payload.id,
         changes: {
@@ -78,16 +77,7 @@ export const communitiesSlice = createSlice({
     clearInvitationCodes: state => {
       state.invitationCodes = []
     },
-    addOwnerCertificate: (state, action: PayloadAction<AddOwnerCertificatePayload>) => {
-      const { communityId, ownerCertificate } = action.payload
-      communitiesAdapter.updateOne(state.communities, {
-        id: communityId,
-        changes: {
-          ownerCertificate,
-        },
-      })
-    },
-    saveCommunityMetadata: (state, _action: PayloadAction<CommunityMetadataPayload>) => state,
+    saveCommunityMetadata: (state, _action: PayloadAction<CommunityMetadata>) => state,
     savePSK: (state, action: PayloadAction<string>) => {
       state.psk = action.payload
     },

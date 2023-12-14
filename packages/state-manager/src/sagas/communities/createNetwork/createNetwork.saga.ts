@@ -34,6 +34,7 @@ export function* createNetworkSaga(
     CA,
     rootCa: CA?.rootCertString,
     psk: action.payload.psk,
+    ownerOrbitDbIdentity: action.payload.ownerOrbitDbIdentity,
   }
 
   const invitationPeers = action.payload.peers

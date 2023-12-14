@@ -120,6 +120,7 @@ export function* deepLinkSaga(action: PayloadAction<ReturnType<typeof initAction
     ownership: CommunityOwnership.User,
     peers: data.pairs,
     psk: data.psk,
+    ownerOrbitDbIdentity: data.ownerOrbitDbIdentity,
   }
 
   yield* put(communities.actions.createNetwork(payload))

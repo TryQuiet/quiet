@@ -68,6 +68,7 @@ describe('Opening app through custom protocol', () => {
     const invitationCodes: InvitationData = {
       pairs: [{ peerId: 'abcdef', onionAddress: 'bidrmzr3ee6qa2vvrlcnqvvvsk2gmjktcqkunba326parszr44gibwyd' }],
       psk: '12345',
+      ownerOrbitDbIdentity: 'testOwnerOrbitDbIdentity',
     }
 
     store.dispatch(communities.actions.customProtocol(invitationCodes))

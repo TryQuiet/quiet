@@ -58,8 +58,7 @@ export const runBackendDesktop = async () => {
           appDataPath: path.join(options.appDataPath.trim(), 'Quiet'),
         },
       },
-    }),
-    { logger: false }
+    })
   )
 
   const connectionsManager = app.get<ConnectionsManagerService>(ConnectionsManagerService)

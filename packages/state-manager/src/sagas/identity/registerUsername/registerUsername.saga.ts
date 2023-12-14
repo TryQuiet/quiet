@@ -22,6 +22,10 @@ export function* registerUsernameSaga(
     console.error('Could not register username, no community data')
     return
   }
+
+  // Is there another way to reorganize the following code? Can we
+  // emit the CREATE_NETWORK event in the createNetworkSaga?
+
   const psk = yield* select(communitiesSelectors.psk)
   const networkPayload: Community = {
     id: community.id,
@@ -30,6 +34,7 @@ export function* registerUsernameSaga(
     CA: community.CA,
     rootCa: community.CA?.rootCertString,
     psk: psk,
+    ownerOrbitDbIdentity: community.ownerOrbitDbIdentity,
   }
 
   if (!isUsernameTaken) {

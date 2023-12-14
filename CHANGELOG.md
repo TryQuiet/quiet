@@ -1,4 +1,18 @@
-[unreleased]
+[2.0.3-alpha.15]
+
+* Fix: construct all stores before initializing them - initializing community metadata store sets metadata in certificates store
+
+* Fix: joining community stuck on "initiation backend modules"
+
+* Add debug logs.
+
+[2.0.3-alpha.14]
+
+* Add community metadata validation.
+
+* Move community metadata to separate store.
+
+[2.0.3-alpha.13]
 
 * Initialize electron-store after setting appData to prevent creating empty "Quiet" data directory
 

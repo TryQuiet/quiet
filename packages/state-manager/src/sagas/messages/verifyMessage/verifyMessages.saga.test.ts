@@ -4,7 +4,7 @@ import { getFactory } from '../../..'
 import { prepareStore, reducers } from '../../../utils/tests/prepareStore'
 import { combineReducers } from '@reduxjs/toolkit'
 import { expectSaga } from 'redux-saga-test-plan'
-import { type communitiesActions } from '../../communities/communities.slice'
+import { communitiesActions } from '../../communities/communities.slice'
 import { type identityActions } from '../../identity/identity.slice'
 import { type FactoryGirl } from 'factory-girl'
 import { generateChannelId, userCreatedChannelMessage, userJoinedMessage, verifyUserInfoMessage } from '@quiet/common'
@@ -52,6 +52,15 @@ describe('verifyMessage saga test', () => {
     })
 
     aliceCsr = alice.userCsr?.userCsr || ''
+
+    store.dispatch(
+      communitiesActions.updateCommunityData({
+        id: community.id,
+        // null/undefined type mismatch here. Might make things easier
+        // to make it consistent.
+        ownerCertificate: alice.userCertificate || undefined,
+      })
+    )
 
     bob = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
       id: community.id,

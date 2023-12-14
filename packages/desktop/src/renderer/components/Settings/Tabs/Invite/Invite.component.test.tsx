@@ -26,6 +26,7 @@ describe('CopyLink', () => {
         },
       ],
       psk: '123435',
+      ownerOrbitDbIdentity: 'testOwnerOrbitDbIdentity',
     })
     const result = renderComponent(
       <InviteComponent invitationLink={invitationLink} handleClickInputReveal={jest.fn()} revealInputValue={false} />
@@ -135,6 +136,7 @@ describe('CopyLink', () => {
         },
       ],
       psk: '12345',
+      ownerOrbitDbIdentity: 'testOwnerOrbitDbIdentity',
     })
     const result = renderComponent(
       <InviteComponent invitationLink={invitationLink} handleClickInputReveal={jest.fn()} revealInputValue={true} />
@@ -188,7 +190,7 @@ describe('CopyLink', () => {
                     class="MuiTypography-root MuiTypography-body2 InviteToCommunitylink css-16d47hw-MuiTypography-root"
                     data-testid="invitation-link"
                   >
-                    https://tryquiet.org/join#QmVTkUad2Gq3MkCa8gf12R1gsWDfk2yiTEqb6YGXDG2iQ3=p3oqdr53dkgg3n5nuezlzyawhxvit5efxzlunvzp7n7lmva6fj3i43ad&k=12345
+                    https://tryquiet.org/join#QmVTkUad2Gq3MkCa8gf12R1gsWDfk2yiTEqb6YGXDG2iQ3=p3oqdr53dkgg3n5nuezlzyawhxvit5efxzlunvzp7n7lmva6fj3i43ad&k=12345&o=testOwnerOrbitDbIdentity
                   </p>
                   <button
                     class="MuiButtonBase-root MuiIconButton-root MuiIconButton-sizeSmall InviteToCommunityeyeIcon css-1pe4mpk-MuiButtonBase-root-MuiIconButton-root"

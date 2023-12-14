@@ -27,6 +27,7 @@ describe('registerUsernameSaga', () => {
       {
         CA: null,
         rootCa: 'rootCertString',
+        ownerOrbitDbIdentity: 'ownerOrbitDbId',
       }
     )
 
@@ -68,6 +69,7 @@ describe('registerUsernameSaga', () => {
           CA: community.CA,
           rootCa: undefined,
           psk: psk,
+          ownerOrbitDbIdentity: 'ownerOrbitDbId',
         },
       ])
       .dispatch(identityActions.addNewIdentity(identity))

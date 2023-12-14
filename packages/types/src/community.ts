@@ -21,6 +21,7 @@ export interface Community {
   registrationAttempts?: number
   ownerCertificate?: string
   psk?: string
+  ownerOrbitDbIdentity?: string
 }
 
 export enum CommunityOwnership {
@@ -38,6 +39,7 @@ export interface CreateNetworkPayload {
   name?: string
   peers?: InvitationPair[]
   psk?: string
+  ownerOrbitDbIdentity?: string
 }
 
 export interface ResponseCreateNetworkPayload {
@@ -57,11 +59,6 @@ export interface InitCommunityPayload {
   hiddenService: HiddenService
   certs?: Certificates
   peers?: string[]
-}
-
-export interface UpdateCommunityPayload {
-  id: string
-  rootCa: string
 }
 
 export interface LaunchRegistrarPayload {
@@ -108,11 +105,10 @@ export interface AddOwnerCertificatePayload {
 
 export interface CommunityMetadata {
   id: string
+  // Perhaps we should rename this to rootCertificate? When I think of
+  // certificate authority, I think of the owner themselves.
   rootCa: string
   ownerCertificate: string
-}
-
-export interface CommunityMetadataPayload {
-  rootCa: string
-  ownerCertificate: string
+  // Owner's OrbitDB identity
+  ownerOrbitDbIdentity?: string
 }

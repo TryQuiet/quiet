@@ -36,6 +36,7 @@ describe('Handle invitation code', () => {
       ownership: CommunityOwnership.User,
       peers: validInvitationData.pairs,
       psk: validInvitationData.psk,
+      ownerOrbitDbIdentity: validInvitationData.ownerOrbitDbIdentity,
     }
     await expectSaga(customProtocolSaga, communities.actions.customProtocol(validInvitationData))
       .withState(store.getState())
@@ -77,6 +78,7 @@ describe('Handle invitation code', () => {
       communities.actions.customProtocol({
         pairs: [],
         psk: '12345',
+        ownerOrbitDbIdentity: 'testOwnerOrbitDbIdentity',
       })
     )
       .withState(store.getState())
@@ -105,6 +107,7 @@ describe('Handle invitation code', () => {
       communities.actions.customProtocol({
         pairs: validInvitationData.pairs,
         psk: '',
+        ownerOrbitDbIdentity: 'testOwnerOrbitDbIdentity',
       })
     )
       .withState(store.getState())

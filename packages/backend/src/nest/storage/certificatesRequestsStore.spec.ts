@@ -5,14 +5,14 @@ import { create, IPFS } from 'ipfs-core'
 import { CertificatesRequestsStore } from './certificatesRequestsStore'
 import { EventEmitter } from 'events'
 import { StorageEvents } from './storage.types'
-import { ORBIT_DB_DIR } from '../const'
+import { TestConfig } from '../const'
 
 // Futher improvement is creating 2 orbitdb instances, connect them and create 'real-life' tests.
 const createOrbitDbInstance = async () => {
   const ipfs: IPFS = await create()
   // @ts-ignore
   const orbitdb = await OrbitDB.createInstance(ipfs, {
-    directory: ORBIT_DB_DIR,
+    directory: TestConfig.ORBIT_DB_DIR,
   })
 
   return { orbitdb, ipfs }
@@ -40,8 +40,8 @@ describe('CertificatesRequestsStore', () => {
     await store.close()
     await orbitdb.stop()
     await ipfs.stop()
-    if (fs.existsSync(ORBIT_DB_DIR)) {
-      fs.rmSync(ORBIT_DB_DIR, { recursive: true, force: true })
+    if (fs.existsSync(TestConfig.ORBIT_DB_DIR)) {
+      fs.rmSync(TestConfig.ORBIT_DB_DIR, { recursive: true })
     }
   })
 
