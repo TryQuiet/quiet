@@ -32,7 +32,7 @@ describe('CommmunityMetadataStore', () => {
 
   let module: TestingModule
   let communityMetadataStore: CommunityMetadataStore
-  let orbitDb: OrbitDb
+  let orbitDbService: OrbitDb
   let localDbService: LocalDbService
   let ipfs: IPFS
 
@@ -43,7 +43,7 @@ describe('CommmunityMetadataStore', () => {
   const mockLocalDbService = {
     putOwnerOrbitDbIdentity: jest.fn(),
     // @ts-ignore - OrbitDB's type definition doesn't include identity
-    getOwnerOrbitDbIdentity: jest.fn(() => orbitDb.orbitDb.identity.id),
+    getOwnerOrbitDbIdentity: jest.fn(() => orbitDbService.orbitDb.identity.id),
   }
 
   beforeAll(async () => {
@@ -64,12 +64,12 @@ describe('CommmunityMetadataStore', () => {
 
     communityMetadataStore = await module.resolve(CommunityMetadataStore)
 
-    orbitDb = await module.resolve(OrbitDb)
+    orbitDbService = await module.resolve(OrbitDb)
     localDbService = await module.resolve(LocalDbService)
 
     const peerId = await PeerId.create()
     ipfs = await create()
-    await orbitDb.create(peerId, ipfs)
+    await orbitDbService.create(peerId, ipfs)
 
     const emitter = new EventEmitter()
     await communityMetadataStore.init(emitter)
@@ -77,7 +77,7 @@ describe('CommmunityMetadataStore', () => {
     metaValidWithOwnerId = {
       ...metaValid,
       // @ts-ignore
-      ownerOrbitDbIdentity: orbitDb.orbitDb.identity.id,
+      ownerOrbitDbIdentity: orbitDbService.orbitDb.identity.id,
     }
 
     const op = { op: 'PUT', key: metaValidWithOwnerId.id, value: metaValidWithOwnerId }
@@ -85,7 +85,7 @@ describe('CommmunityMetadataStore', () => {
     entryValid = await Entry.create(
       ipfs,
       // @ts-ignore
-      orbitDb.orbitDb.identity,
+      orbitDbService.orbitDb.identity,
       // @ts-ignore
       communityMetadataStore.store.id,
       op,
@@ -98,7 +98,7 @@ describe('CommmunityMetadataStore', () => {
 
   afterEach(async () => {
     await communityMetadataStore.close()
-    await orbitDb.stop()
+    await orbitDbService.stop()
     await ipfs.stop()
     if (fs.existsSync(TestConfig.ORBIT_DB_DIR)) {
       fs.rmSync(TestConfig.ORBIT_DB_DIR, { recursive: true })
@@ -183,7 +183,7 @@ describe('CommmunityMetadataStore', () => {
       const entryInvalid = await Entry.create(
         ipfs,
         // @ts-ignore
-        orbitDb.orbitDb.identity,
+        orbitDbService.orbitDb.identity,
         // @ts-ignore
         communityMetadataStore.store.id,
         opInvalid,

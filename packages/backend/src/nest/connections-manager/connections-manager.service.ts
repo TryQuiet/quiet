@@ -178,7 +178,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       this.logger('Stopping orbitdb')
       await this.storageService?.stopOrbitDb()
       this.logger('reset CsrReplicated map and id and certificate store values')
-      this.storageService.resetStoreValues()
+      this.storageService.resetCsrAndCertsValues()
     }
     if (this.serverIoProvider?.io) {
       this.logger('Closing socket server')

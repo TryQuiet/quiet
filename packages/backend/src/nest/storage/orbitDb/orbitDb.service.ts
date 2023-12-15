@@ -13,12 +13,13 @@ export class OrbitDb {
   private orbitDbInstance: OrbitDB | null = null
 
   private readonly logger = Logger(OrbitDb.name)
+
   constructor(@Inject(ORBIT_DB_DIR) public readonly orbitDbDir: string) {}
 
   get orbitDb() {
     if (!this.orbitDbInstance) {
       this.logger.error('[get orbitDb]:no orbitDbInstance')
-      throw new Error()
+      throw new Error('[get orbitDb]:no orbitDbInstance')
     }
     return this.orbitDbInstance
   }
