@@ -1,19 +1,16 @@
 import { EventEmitter } from 'events'
 import KeyValueStore from 'orbit-db-kvstore'
-import OrbitDB from 'orbit-db'
 import { IdentityProvider } from 'orbit-db-identity-provider'
 // @ts-ignore Hacking around ipfs-log not exporting Entry
 import Entry from '../../../../node_modules/ipfs-log/src/entry'
-
 import { CommunityMetadata } from '@quiet/types'
 import { loadCertificate } from '@quiet/identity'
-
 import { StorageEvents } from '../storage.types'
-import createLogger from '../../common/logger'
 import { KeyValueIndex } from '../orbitDb/keyValueIndex'
 import { LocalDbService } from '../../local-db/local-db.service'
-
-const logger = createLogger('CommunityMetadataStore')
+import { OrbitDb } from '../orbitDb/orbitDb.service'
+import { Injectable } from '@nestjs/common'
+import createLogger from '../../common/logger'
 
 /**
  * Helper function that allows one to use partial-application with a
@@ -24,22 +21,24 @@ const logger = createLogger('CommunityMetadataStore')
  * constructable with zero arguments, so they call it with the `new`
  * keyword.
  */
+
+const logger = createLogger('CommunityMetadataStore')
+
 function constructPartial(constructor: (...args: any[]) => any, args: any[]) {
   return constructor.bind.apply(constructor, [null, ...args])
 }
 
+@Injectable()
 export class CommunityMetadataStore {
-  public orbitDb: OrbitDB
   public store: KeyValueStore<CommunityMetadata>
-  private localDbService: LocalDbService
 
-  constructor(orbitDb: OrbitDB) {
-    this.orbitDb = orbitDb
-  }
+  constructor(
+    private readonly orbitDbService: OrbitDb,
+    private readonly localDbService: LocalDbService
+  ) {}
 
-  public async init(localDbService: LocalDbService, emitter: EventEmitter) {
+  public async init(emitter: EventEmitter) {
     logger('Initializing community metadata key/value store')
-    this.localDbService = localDbService
 
     // If the owner initializes the CommunityMetadataStore, then the
     // ID would be undefined at this point when they first create the
@@ -57,12 +56,19 @@ export class CommunityMetadataStore {
     // OrbitDB identity when creating the store. For this we need to
     // know at the time of initialization whether or not someone is
     // the owner.
-    this.store = await this.orbitDb.keyvalue<CommunityMetadata>('community-metadata', {
+
+    this.store = await this.orbitDbService.orbitDb.keyvalue<CommunityMetadata>('community-metadata', {
       replicate: false,
       // Partially construct index so that we can include an
       // IdentityProvider in the index validation logic.
-      // @ts-expect-error - OrbitDB's type declaration of OrbitDB lacks identity
-      Index: constructPartial(CommunityMetadataKeyValueIndex, [this.orbitDb.identity.provider, this.localDbService]),
+
+      // @ts-expect-error
+      Index: constructPartial(CommunityMetadataKeyValueIndex, [
+        // @ts-expect-error - OrbitDB's type declaration of OrbitDB lacks identity
+        this.orbitDbService.orbitDb.identity.provider,
+        this.localDbService,
+      ]),
+
       accessController: {
         write: ['*'],
       },
@@ -124,7 +130,7 @@ export class CommunityMetadataStore {
 
       logger(`Updating community metadata`)
       // @ts-expect-error - OrbitDB's type declaration of OrbitDB lacks identity
-      const ownerOrbitDbIdentity = this.orbitDb.identity.id
+      const ownerOrbitDbIdentity = this.orbitDbService.orbitDb.identity.id
       const meta = {
         ...oldMeta,
         ...newMeta,

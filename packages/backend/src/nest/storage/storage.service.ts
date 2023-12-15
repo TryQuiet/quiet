@@ -9,7 +9,6 @@ import {
   getReqFieldValue,
 } from '@quiet/identity'
 import type { IPFS } from 'ipfs-core'
-import OrbitDB from 'orbit-db'
 import EventStore from 'orbit-db-eventstore'
 import KeyValueStore from 'orbit-db-kvstore'
 import path from 'path'
@@ -21,6 +20,7 @@ import validate from '../validation/validators'
 import { CID } from 'multiformats/cid'
 import {
   ChannelMessage,
+  CommunityMetadata,
   ConnectionProcessInfo,
   DeleteFilesFromChannelSocketPayload,
   FileMetadata,
@@ -40,20 +40,14 @@ import { IpfsFilesManagerEvents } from '../ipfs-file-manager/ipfs-file-manager.t
 import { LocalDBKeys } from '../local-db/local-db.types'
 import { LocalDbService } from '../local-db/local-db.service'
 import { LazyModuleLoader } from '@nestjs/core'
-import AccessControllers from 'orbit-db-access-controllers'
-import { MessagesAccessController } from './MessagesAccessController'
-import { createChannelAccessController } from './ChannelsAccessController'
 import Logger from '../common/logger'
 import { DirectMessagesRepo, PublicChannelsRepo } from '../common/types'
 import { removeFiles, removeDirs, createPaths } from '../common/utils'
-import { StorageEvents } from './storage.types'
+import { DBOptions, StorageEvents } from './storage.types'
 import { CertificatesStore } from './certificates/certificates.store'
-import { CertificatesRequestsStore } from './certificatesRequestsStore'
+import { CertificatesRequestsStore } from './certifacteRequests/certificatesRequestsStore'
+import { OrbitDb } from './orbitDb/orbitDb.service'
 import { CommunityMetadataStore } from './communityMetadata/communityMetadata.store'
-
-interface DBOptions {
-  replicate: boolean
-}
 
 @Injectable()
 export class StorageService extends EventEmitter {
@@ -61,14 +55,10 @@ export class StorageService extends EventEmitter {
   public directMessagesRepos: Map<string, DirectMessagesRepo> = new Map()
   private publicKeysMap: Map<string, CryptoKey> = new Map()
 
-  public communityMetadataStore: CommunityMetadataStore
-  public certificatesRequestsStore: CertificatesRequestsStore
-  public certificatesStore: CertificatesStore
   public certificates: EventStore<string>
   public channels: KeyValueStore<PublicChannel>
 
   private ipfs: IPFS
-  private orbitDb: OrbitDB
   private filesManager: IpfsFileManagerService
   private peerId: PeerId | null = null
   private ipfsStarted: boolean
@@ -76,10 +66,14 @@ export class StorageService extends EventEmitter {
   private readonly logger = Logger(StorageService.name)
 
   constructor(
-    private readonly localDbService: LocalDbService,
     @Inject(QUIET_DIR) public readonly quietDir: string,
     @Inject(ORBIT_DB_DIR) public readonly orbitDbDir: string,
     @Inject(IPFS_REPO_PATCH) public readonly ipfsRepoPath: string,
+    private readonly localDbService: LocalDbService,
+    private readonly orbitDbService: OrbitDb,
+    private readonly certificatesRequestsStore: CertificatesRequestsStore,
+    private readonly certificatesStore: CertificatesStore,
+    private readonly communityMetadataStore: CommunityMetadataStore,
     private readonly lazyModuleLoader: LazyModuleLoader
   ) {
     super()
@@ -115,8 +109,9 @@ export class StorageService extends EventEmitter {
       throw new Error('no ipfs instance')
     }
     this.ipfs = ipfsInstance
+    await this.orbitDbService.create(peerId, this.ipfs)
+
     this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.INITIALIZING_IPFS)
-    await this.createOrbitDb(peerId)
 
     const { IpfsFileManagerModule } = await import('../ipfs-file-manager/ipfs-file-manager.module')
     const ipfsFileManagerModuleRef = await this.lazyModuleLoader.load(() => IpfsFileManagerModule)
@@ -181,50 +176,11 @@ export class StorageService extends EventEmitter {
     return `/orbitdb/${db.root}/${db.path}`
   }
 
-  private async subscribeToPubSub(addr: string[]) {
-    if (!this.ipfsStarted) {
-      this.logger(`IPFS not started. Not subscribing to ${addr}`)
-      return
-    }
-    for (const a of addr) {
-      this.logger(`Pubsub - subscribe to ${a}`)
-      // @ts-ignore
-      await this.orbitDb._pubsub.subscribe(
-        a,
-        // @ts-ignore
-        this.orbitDb._onMessage.bind(this.orbitDb),
-        // @ts-ignore
-        this.orbitDb._onPeerConnected.bind(this.orbitDb)
-      )
-    }
-  }
-
-  private async createOrbitDb(peerId: PeerId) {
-    this.logger('Create orbitDB for peerId', peerId)
-    const channelsAccessController = createChannelAccessController(peerId, this.orbitDbDir)
-    AccessControllers.addAccessController({ AccessController: MessagesAccessController })
-    AccessControllers.addAccessController({ AccessController: channelsAccessController })
-    // @ts-ignore
-    const orbitDb = await OrbitDB.createInstance(this.ipfs, {
-      // @ts-ignore
-      start: false,
-      id: peerId.toString(),
-      directory: this.orbitDbDir,
-      // @ts-ignore
-      AccessControllers,
-    })
-
-    this.orbitDb = orbitDb
-  }
-
   public async initDatabases() {
     this.logger('1/3')
     console.time('Storage.initDatabases')
-    this.communityMetadataStore = new CommunityMetadataStore(this.orbitDb)
-    this.certificatesStore = new CertificatesStore(this.orbitDb)
-    this.certificatesRequestsStore = new CertificatesRequestsStore(this.orbitDb)
 
-    await this.communityMetadataStore.init(this.localDbService, this)
+    await this.communityMetadataStore.init(this)
     await this.certificatesStore.init(this)
     await this.certificatesRequestsStore.init(this)
 
@@ -242,14 +198,21 @@ export class StorageService extends EventEmitter {
     this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.INITIALIZED_DBS)
   }
 
-  private async __stopOrbitDb() {
-    if (this.orbitDb) {
-      this.logger('Stopping OrbitDB')
-      try {
-        await this.orbitDb.stop()
-      } catch (err) {
-        this.logger.error(`Following error occured during closing orbitdb database: ${err as string}`)
-      }
+  private async subscribeToPubSub(addr: string[]) {
+    if (!this.ipfsStarted) {
+      this.logger(`IPFS not started. Not subscribing to ${addr}`)
+      return
+    }
+    for (const a of addr) {
+      this.logger(`Pubsub - subscribe to ${a}`)
+      // @ts-ignore
+      await this.orbitDbService.orbitDb._pubsub.subscribe(
+        a,
+        // @ts-ignore
+        this.orbitDbService.orbitDb._onMessage.bind(this.orbitDbService.orbitDb),
+        // @ts-ignore
+        this.orbitDbService.orbitDb._onPeerConnected.bind(this.orbitDbService.orbitDb)
+      )
     }
   }
 
@@ -296,8 +259,16 @@ export class StorageService extends EventEmitter {
       this.logger.error('Error closing community metadata store', e)
     }
 
-    await this.__stopOrbitDb()
+    await this.orbitDbService.stop()
     await this.__stopIPFS()
+  }
+
+  public async updateCommunityMetadata(communityMetadata: CommunityMetadata) {
+    await this.communityMetadataStore?.updateCommunityMetadata(communityMetadata)
+  }
+
+  public updateMetadata(meta: CommunityMetadata) {
+    this.certificatesStore.updateMetadata(meta)
   }
 
   public async updatePeersList() {
@@ -336,12 +307,6 @@ export class StorageService extends EventEmitter {
     })
   }
 
-  public resetCsrReplicatedMapAndId() {
-    if (this.certificatesRequestsStore) {
-      this.certificatesRequestsStore.resetCsrReplicatedMapAndId()
-    }
-  }
-
   public resolveCsrReplicatedPromise(id: number) {
     this.certificatesRequestsStore.resolveCsrReplicatedPromise(id)
   }
@@ -357,7 +322,7 @@ export class StorageService extends EventEmitter {
 
   private async createDbForChannels() {
     this.logger('createDbForChannels init')
-    this.channels = await this.orbitDb.keyvalue<PublicChannel>('public-channels', {
+    this.channels = await this.orbitDbService.orbitDb.keyvalue<PublicChannel>('public-channels', {
       replicate: false,
       accessController: {
         // type: 'channelsaccess',
@@ -563,13 +528,16 @@ export class StorageService extends EventEmitter {
 
     const channelId = data.id
 
-    const db: EventStore<ChannelMessage> = await this.orbitDb.log<ChannelMessage>(`channels.${channelId}`, {
-      replicate: options.replicate,
-      accessController: {
-        type: 'messagesaccess',
-        write: ['*'],
-      },
-    })
+    const db: EventStore<ChannelMessage> = await this.orbitDbService.orbitDb.log<ChannelMessage>(
+      `channels.${channelId}`,
+      {
+        replicate: options.replicate,
+        accessController: {
+          type: 'messagesaccess',
+          write: ['*'],
+        },
+      }
+    )
 
     const channel = this.channels.get(channelId)
     console.log('channel', channel)
@@ -608,7 +576,7 @@ export class StorageService extends EventEmitter {
     }
     let repo = this.publicChannelsRepos.get(channelId)
     if (!repo) {
-      const db = await this.orbitDb.log<ChannelMessage>(`channels.${channelId}`, {
+      const db = await this.orbitDbService.orbitDb.log<ChannelMessage>(`channels.${channelId}`, {
         accessController: {
           type: 'messagesaccess',
           write: ['*'],
@@ -791,29 +759,26 @@ export class StorageService extends EventEmitter {
     })
   }
 
+  public resetCsrAndCertsValues() {
+    this.certificatesRequestsStore.resetCsrReplicatedMapAndId()
+    this.certificatesStore.resetValues()
+  }
+
   private clean() {
     // @ts-ignore
     this.channels = undefined
     // @ts-ignore
     this.messageThreads = undefined
     // @ts-ignore
-    this.certificates = undefined
-    // @ts-ignore
-    this.certificatesRequests = undefined
-    // @ts-ignore
-    this.communityMetadataStore = undefined
     this.publicChannelsRepos = new Map()
     this.directMessagesRepos = new Map()
     this.publicKeysMap = new Map()
     // @ts-ignore
     this.ipfs = null
     // @ts-ignore
-    this.orbitDb = null
-    // @ts-ignore
     this.filesManager = null
     this.peerId = null
-    if (this.certificatesRequestsStore) {
-      this.certificatesRequestsStore.resetCsrReplicatedMapAndId()
-    }
+
+    this.resetCsrAndCertsValues()
   }
 }
