@@ -108,7 +108,6 @@ export class CommunityMetadataStore {
   }
 
   public async updateCommunityMetadata(newMeta: CommunityMetadata): Promise<CommunityMetadata | undefined> {
-    logger.log({ newMeta })
     try {
       // TODO: Also check OrbitDB identity when updating community metadata
       const valid = await CommunityMetadataStore.validateCommunityMetadata(newMeta)
