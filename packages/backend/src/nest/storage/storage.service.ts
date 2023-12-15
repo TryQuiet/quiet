@@ -307,12 +307,6 @@ export class StorageService extends EventEmitter {
     })
   }
 
-  public resetCsrReplicatedMapAndId() {
-    if (this.certificatesRequestsStore) {
-      this.certificatesRequestsStore.resetCsrReplicatedMapAndId()
-    }
-  }
-
   public resolveCsrReplicatedPromise(id: number) {
     this.certificatesRequestsStore.resolveCsrReplicatedPromise(id)
   }
@@ -765,15 +759,16 @@ export class StorageService extends EventEmitter {
     })
   }
 
+  public resetStoreValues() {
+    this.certificatesRequestsStore.resetCsrReplicatedMapAndId()
+    this.certificatesStore.resetValues()
+  }
+
   private clean() {
     // @ts-ignore
     this.channels = undefined
     // @ts-ignore
     this.messageThreads = undefined
-    // @ts-ignore
-    this.certificates = undefined
-    // @ts-ignore
-    this.certificatesRequests = undefined
     // @ts-ignore
     this.publicChannelsRepos = new Map()
     this.directMessagesRepos = new Map()
@@ -781,12 +776,9 @@ export class StorageService extends EventEmitter {
     // @ts-ignore
     this.ipfs = null
     // @ts-ignore
-    this.orbitDb = null
-    // @ts-ignore
     this.filesManager = null
     this.peerId = null
-    if (this.certificatesRequestsStore) {
-      this.certificatesRequestsStore.resetCsrReplicatedMapAndId()
-    }
+
+    this.resetStoreValues()
   }
 }

@@ -20,13 +20,19 @@ import Logger from '../../common/logger'
 @Injectable()
 export class CertificatesStore {
   public store: EventStore<string>
-  private metadata: CommunityMetadata
+  private metadata: CommunityMetadata | undefined
   private filteredCertificatesMapping: Map<string, Partial<UserData>>
   private usernameMapping: Map<string, string>
 
   private readonly logger = Logger(CertificatesStore.name)
 
   constructor(private readonly orbitDbService: OrbitDb) {
+    this.filteredCertificatesMapping = new Map()
+    this.usernameMapping = new Map()
+  }
+
+  public resetValues() {
+    this.metadata = undefined
     this.filteredCertificatesMapping = new Map()
     this.usernameMapping = new Map()
   }
