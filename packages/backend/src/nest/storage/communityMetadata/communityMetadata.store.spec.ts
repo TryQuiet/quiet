@@ -129,7 +129,8 @@ describe('CommmunityMetadataStore', () => {
 
   describe('validateCommunityMetadataEntry', () => {
     test('returns true if the owner ID is expected and entry is otherwise valid', async () => {
-      const ret = await communityMetadataStore.validateCommunityMetadataEntry(
+      const ret = await CommunityMetadataStore.validateCommunityMetadataEntry(
+        localDbService,
         { verify: jest.fn(() => true), verifyIdentity: jest.fn(() => true) } as unknown as typeof IdentityProvider,
         entryValid
       )
@@ -138,7 +139,8 @@ describe('CommmunityMetadataStore', () => {
     })
 
     test('returns false if verify returns false and entry is otherwise valid', async () => {
-      const ret = await communityMetadataStore.validateCommunityMetadataEntry(
+      const ret = await CommunityMetadataStore.validateCommunityMetadataEntry(
+        localDbService,
         { verify: jest.fn(() => false), verifyIdentity: jest.fn(() => true) } as unknown as typeof IdentityProvider,
         entryValid
       )
@@ -147,7 +149,8 @@ describe('CommmunityMetadataStore', () => {
     })
 
     test('returns false if verifyIdentity returns false and entry is otherwise valid', async () => {
-      const ret = await communityMetadataStore.validateCommunityMetadataEntry(
+      const ret = await CommunityMetadataStore.validateCommunityMetadataEntry(
+        localDbService,
         { verify: jest.fn(() => true), verifyIdentity: jest.fn(() => false) } as unknown as typeof IdentityProvider,
         entryValid
       )
@@ -165,7 +168,8 @@ describe('CommmunityMetadataStore', () => {
         },
       }
 
-      const ret = await communityMetadataStore.validateCommunityMetadataEntry(
+      const ret = await CommunityMetadataStore.validateCommunityMetadataEntry(
+        localDbService,
         { verify: jest.fn(() => true), verifyIdentity: jest.fn(() => true) } as unknown as typeof IdentityProvider,
         entryInvalid
       )
@@ -193,7 +197,8 @@ describe('CommmunityMetadataStore', () => {
         false
       )
 
-      const ret = await communityMetadataStore.validateCommunityMetadataEntry(
+      const ret = await CommunityMetadataStore.validateCommunityMetadataEntry(
+        localDbService,
         { verify: jest.fn(() => true), verifyIdentity: jest.fn(() => true) } as unknown as typeof IdentityProvider,
         entryInvalid
       )

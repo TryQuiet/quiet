@@ -55,24 +55,18 @@ export class CommunityMetadataStore {
     // OrbitDB identity when creating the store. For this we need to
     // know at the time of initialization whether or not someone is
     // the owner.
-    class CommunityMetadataKeyValueIndex extends KeyValueIndex<CommunityMetadata> {
-      constructor(identityProvider: typeof IdentityProvider, validateCommunityMetadataEntry: any) {
-        super(identityProvider, validateCommunityMetadataEntry.bind(null))
-      }
-    }
 
     this.store = await this.orbitDbService.orbitDb.keyvalue<CommunityMetadata>('community-metadata', {
       replicate: false,
       // Partially construct index so that we can include an
       // IdentityProvider in the index validation logic.
 
-      // TODO: bring it back !
-
-      // Index: constructPartial(CommunityMetadataKeyValueIndex, [
-      //   // @ts-expect-error - OrbitDB's type declaration of OrbitDB lacks identity
-      //   this.orbitDbService.orbitDb.identity.provider,
-      //   this.validateCommunityMetadataEntry,
-      // ]),
+      // @ts-expect-error
+      Index: constructPartial(CommunityMetadataKeyValueIndex, [
+        // @ts-expect-error - OrbitDB's type declaration of OrbitDB lacks identity
+        this.orbitDbService.orbitDb.identity.provider,
+        this.localDbService,
+      ]),
 
       accessController: {
         write: ['*'],
@@ -116,7 +110,7 @@ export class CommunityMetadataStore {
     console.log({ newMeta })
     try {
       // TODO: Also check OrbitDB identity when updating community metadata
-      const valid = await this.validateCommunityMetadata(newMeta)
+      const valid = await CommunityMetadataStore.validateCommunityMetadata(newMeta)
       if (!valid) {
         // TODO: Send validation errors to frontend or replicate
         // validation on frontend?
@@ -160,7 +154,7 @@ export class CommunityMetadataStore {
     }
   }
 
-  public async validateCommunityMetadata(communityMetadata: CommunityMetadata): Promise<boolean> {
+  public static async validateCommunityMetadata(communityMetadata: CommunityMetadata): Promise<boolean> {
     // FIXME: Add additional validation to verify communityMetadata
     // contains required fields.
 
@@ -174,52 +168,49 @@ export class CommunityMetadataStore {
       // Verify that owner certificate is signed by root certificate
       return await ownerCert.verify(rootCert)
     } catch (err) {
-      this.logger.error('Failed to validate community metadata:', communityMetadata.id, err?.message)
+      console.error('Failed to validate community metadata:', communityMetadata.id, err?.message)
       return false
     }
   }
 
-  public async validateCommunityMetadataEntry(
+  public static async validateCommunityMetadataEntry(
+    localDbService: LocalDbService,
     identityProvider: typeof IdentityProvider,
     entry: LogEntry<CommunityMetadata>
   ): Promise<boolean> {
     try {
       if (entry.payload.key !== entry.payload.value.id) {
-        this.logger.error('Failed to verify community metadata entry:', entry.hash, 'entry key != payload id')
+        console.error('Failed to verify community metadata entry:', entry.hash, 'entry key != payload id')
         return false
       }
 
-      const ownerOrbitDbIdentity = await this.localDbService.getOwnerOrbitDbIdentity()
+      const ownerOrbitDbIdentity = await localDbService.getOwnerOrbitDbIdentity()
       if (!ownerOrbitDbIdentity) {
-        this.logger.error('Failed to verify community metadata entry:', entry.hash, 'owner identity is invalid')
+        console.error('Failed to verify community metadata entry:', entry.hash, 'owner identity is invalid')
         return false
       }
 
       if (entry.identity.id !== ownerOrbitDbIdentity) {
-        this.logger.error('Failed to verify community metadata entry:', entry.hash, 'entry identity != owner identity')
+        console.error('Failed to verify community metadata entry:', entry.hash, 'entry identity != owner identity')
         return false
       }
 
       const entryVerified = await Entry.verify(identityProvider, entry)
       if (!entryVerified) {
-        this.logger.error('Failed to verify community metadata entry:', entry.hash, 'invalid entry signature')
+        console.error('Failed to verify community metadata entry:', entry.hash, 'invalid entry signature')
         return false
       }
 
       const identityVerified = await identityProvider.verifyIdentity(entry.identity)
       if (!identityVerified) {
-        this.logger.error(
-          'Failed to verify community metadata entry:',
-          entry.hash,
-          'entry identity verification failed'
-        )
+        console.error('Failed to verify community metadata entry:', entry.hash, 'entry identity verification failed')
         return false
       }
 
-      const valid = await this.validateCommunityMetadata(entry.payload.value)
+      const valid = await CommunityMetadataStore.validateCommunityMetadata(entry.payload.value)
       return valid
     } catch (err) {
-      this.logger.error('Failed to verify community metadata entry:', entry.hash, err?.message)
+      console.error('Failed to verify community metadata entry:', entry.hash, err?.message)
       return false
     }
   }
@@ -230,5 +221,11 @@ export class CommunityMetadataStore {
     if (metadata.length > 0) {
       return metadata[0]
     }
+  }
+}
+
+export class CommunityMetadataKeyValueIndex extends KeyValueIndex<CommunityMetadata> {
+  constructor(identityProvider: typeof IdentityProvider, localDbService: LocalDbService) {
+    super(identityProvider, CommunityMetadataStore.validateCommunityMetadataEntry.bind(null, localDbService))
   }
 }
