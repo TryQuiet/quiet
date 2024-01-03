@@ -25,6 +25,9 @@ export function* deepLinkSaga(action: PayloadAction<ReturnType<typeof initAction
 
   console.log('INIT_NAVIGATION: Continuing on deep link flow.')
 
+  // Reset deep link flag for future redirections sake
+  yield* put(initActions.resetDeepLink())
+
   let data: InvitationData
   try {
     data = getInvitationCodes(code)
