@@ -80,6 +80,9 @@ export const initSlice = createSlice({
     deepLink: (state, _action: PayloadAction<string>) => {
       state.deepLinking = true
     },
+    resetDeepLink: state => {
+      state.deepLinking = false
+    }
   },
 })
 
