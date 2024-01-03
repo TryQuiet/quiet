@@ -82,7 +82,7 @@ export const initSlice = createSlice({
     },
     resetDeepLink: state => {
       state.deepLinking = false
-    }
+    },
   },
 })
 
