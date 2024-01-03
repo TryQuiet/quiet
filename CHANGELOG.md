@@ -1,5 +1,9 @@
 [unreleased]
 
+* Fix: mobile app crashing on restart
+
+* Fix: joining with QR code after leaving community on mobile
+
 * Refactor: backend, storage module - extracting OrbitDB as another provider, refactor of  CertificatesRequestsStore, CommunityMetadataStore, CertificatesStore as Nest providers, store tests adjustments,  file structure
 
 [2.0.3-alpha.15]
