@@ -24,6 +24,9 @@ export function* deepLinkSaga(action: PayloadAction<ReturnType<typeof initAction
 
   console.log('INIT_NAVIGATION: Continuing on deep link flow.')
 
+  // Reset deep link flag for future redirections sake
+  yield* put(initActions.resetDeepLink())
+
   const community = yield* select(communities.selectors.currentCommunity)
 
   // Link opened mid registration
