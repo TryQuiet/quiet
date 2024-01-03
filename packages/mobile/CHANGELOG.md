@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.3-alpha.17](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@2.0.3-alpha.16...@quiet/mobile@2.0.3-alpha.17) (2024-01-03)
+
+
+### Bug Fixes
+
+* reset deep link flag ([#2191](https://github.com/TryQuiet/quiet/issues/2191)) ([9509f21](https://github.com/TryQuiet/quiet/commit/9509f213620c5bfc1ee518fe9d125e23531e8ba5))
+
+
+
+
+
 ## [2.0.3-alpha.16](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@2.0.3-alpha.15...@quiet/mobile@2.0.3-alpha.16) (2023-12-12)
 
 **Note:** Version bump only for package @quiet/mobile
