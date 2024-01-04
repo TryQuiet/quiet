@@ -113,6 +113,7 @@ describe('New user joins using invitation link while having app opened', () => {
         `xdg-open ${composeInvitationDeepUrl({
           pairs: [{ peerId: 'invalid', onionAddress: 'alsoInvalid' }],
           psk: '1234',
+          ownerOrbitDbIdentity: 'ownerId',
         })}`
       )
     })

@@ -42,7 +42,6 @@ import {
   PeerId as PeerIdType,
   SaveCSRPayload,
   CommunityMetadata,
-  CommunityMetadataPayload,
 } from '@quiet/types'
 import { CONFIG_OPTIONS, QUIET_DIR, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
 import { ConfigOptions, GetPorts, ServerIoProviderTypes } from '../types'
@@ -178,12 +177,9 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     if (this.storageService) {
       this.logger('Stopping orbitdb')
       await this.storageService?.stopOrbitDb()
-      this.logger('reset CsrReplicated map and id')
-      this.storageService.resetCsrReplicatedMapAndId()
+      this.logger('reset CsrReplicated map and id and certificate store values')
+      this.storageService.resetCsrAndCertsValues()
     }
-    // if (this.storageService.ipfs) {
-    //   this.storageService.ipfs = null
-    // }
     if (this.serverIoProvider?.io) {
       this.logger('Closing socket server')
       this.serverIoProvider.io.close()
@@ -271,14 +267,9 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
     this.logger(`Sending network data for ${community.id}`)
 
-    const payload: ResponseCreateNetworkPayload = {
-      community: {
-        ...community,
-        privateKey: network2.hiddenService.privateKey,
-        registrarUrl: community.registrarUrl || network2.hiddenService.onionAddress.split('.')[0], // TODO: remove
-      },
-      network,
-    }
+    // It might be nice to save the entire Community in LevelDB rather
+    // than specific pieces of information.
+
     const psk = community.psk
     if (psk) {
       this.logger('Creating network: received Libp2p PSK')
@@ -292,6 +283,21 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         return
       }
       await this.localDbService.put(LocalDBKeys.PSK, psk)
+    }
+
+    const ownerOrbitDbIdentity = community.ownerOrbitDbIdentity
+    if (ownerOrbitDbIdentity) {
+      this.logger("Creating network: received owner's OrbitDB identity")
+      await this.localDbService.putOwnerOrbitDbIdentity(ownerOrbitDbIdentity)
+    }
+
+    const payload: ResponseCreateNetworkPayload = {
+      community: {
+        ...community,
+        privateKey: network2.hiddenService.privateKey,
+        registrarUrl: community.registrarUrl || network2.hiddenService.onionAddress.split('.')[0], // TODO: remove
+      },
+      network,
     }
 
     this.serverIoProvider.io.emit(SocketActionTypes.NETWORK, payload)
@@ -317,6 +323,8 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   public async launchCommunity(payload: InitCommunityPayload) {
     this.logger('Launching community: peers:', payload.peers)
     this.communityState = ServiceState.LAUNCHING
+    // Perhaps we should call this data something else, since we already have a Community type.
+    // It seems like InitCommunityPayload is a mix of various connection metadata.
     const communityData: InitCommunityPayload = await this.localDbService.get(LocalDBKeys.COMMUNITY)
     if (!communityData) {
       await this.localDbService.put(LocalDBKeys.COMMUNITY, payload)
@@ -330,6 +338,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         type: SocketActionTypes.COMMUNITY,
         message: ErrorMessages.COMMUNITY_LAUNCH_FAILED,
         community: payload.id,
+        trace: e.stack,
       })
       return
     }
@@ -348,6 +357,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
     this.serverIoProvider.io.emit(SocketActionTypes.COMMUNITY, { id: payload.id })
   }
+
   public async launch(payload: InitCommunityPayload) {
     // Start existing community (community that user is already a part of)
     this.logger(`Spawning hidden service for community ${payload.id}, peer: ${payload.peerId.id}`)
@@ -415,7 +425,13 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     })
     await this.storageService.init(_peerId)
     this.logger('storage initialized')
+
+    this.serverIoProvider.io.emit(
+      SocketActionTypes.CONNECTION_PROCESS_INFO,
+      ConnectionProcessInfo.CONNECTING_TO_COMMUNITY
+    )
   }
+
   private attachTorEventsListeners() {
     this.logger('attachTorEventsListeners')
 
@@ -484,9 +500,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         privKey: args.rootKeyString,
       }
     })
-    this.socketService.on(SocketActionTypes.SEND_COMMUNITY_METADATA, async (payload: CommunityMetadata) => {
-      await this.storageService?.updateCommunityMetadata(payload)
-    })
     this.socketService.on(SocketActionTypes.SAVE_USER_CSR, async (payload: SaveCSRPayload) => {
       this.logger(`socketService - ${SocketActionTypes.SAVE_USER_CSR}`)
       await this.storageService?.saveCSR(payload)
@@ -549,6 +562,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       this.serverIoProvider.io.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, data)
     })
     this.storageService.on(StorageEvents.REPLICATED_CERTIFICATES, (payload: SendCertificatesResponse) => {
+      this.logger(`Storage - ${StorageEvents.REPLICATED_CERTIFICATES}`)
       this.serverIoProvider.io.emit(SocketActionTypes.RESPONSE_GET_CERTIFICATES, payload)
     })
     this.storageService.on(StorageEvents.LOAD_PUBLIC_CHANNELS, (payload: ChannelsReplicatedPayload) => {
@@ -613,13 +627,15 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         this.registrationService.emit(RegistrationEvents.REGISTER_USER_CERTIFICATE, payload)
       }
     )
-    this.storageService.on(StorageEvents.REPLICATED_COMMUNITY_METADATA, (payload: CommunityMetadata) => {
-      this.logger(`Storage - ${StorageEvents.REPLICATED_COMMUNITY_METADATA}: ${payload}`)
-      const communityMetadataPayload: CommunityMetadataPayload = {
-        rootCa: payload.rootCa,
-        ownerCertificate: payload.ownerCertificate,
-      }
-      this.serverIoProvider.io.emit(SocketActionTypes.SAVE_COMMUNITY_METADATA, communityMetadataPayload)
+
+    this.socketService.on(SocketActionTypes.SEND_COMMUNITY_METADATA, async (payload: CommunityMetadata) => {
+      await this.storageService?.updateCommunityMetadata(payload)
+    })
+
+    this.storageService.on(StorageEvents.COMMUNITY_METADATA_SAVED, async (meta: CommunityMetadata) => {
+      this.logger(`Storage - ${StorageEvents.COMMUNITY_METADATA_SAVED}: ${meta}`)
+      this.storageService?.updateMetadata(meta)
+      this.serverIoProvider.io.emit(SocketActionTypes.COMMUNITY_METADATA_SAVED, meta)
     })
   }
 }

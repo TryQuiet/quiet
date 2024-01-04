@@ -3,13 +3,37 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-## [2.0.3-alpha.12](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@2.0.3-alpha.11...@quiet/desktop@2.0.3-alpha.12) (2023-12-04)
+## [2.0.3-alpha.15](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@2.0.3-alpha.14...@quiet/desktop@2.0.3-alpha.15) (2023-12-12)
 
 **Note:** Version bump only for package @quiet/desktop
 
 
 
 
+
+[2.0.3-alpha.15]
+
+* Fix: construct all stores before initializing them - initializing community metadata store sets metadata in certificates store
+
+* Fix: joining community stuck on "initiation backend modules"
+
+* Add debug logs.
+
+[2.0.3-alpha.14]
+
+* Add community metadata validation.
+
+* Move community metadata to separate store.
+
+[2.0.3-alpha.13]
+
+* Initialize electron-store after setting appData to prevent creating empty "Quiet" data directory
+
+* Fixed UI for Update Modal
+
+* Fixed username taken logic
+
+* Add test-case in e2e multiple test for using username taken modal
 
 [2.0.3-alpha.12]
 

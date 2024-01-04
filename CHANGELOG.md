@@ -2,6 +2,36 @@
 
 * Handle spaces in tor process path. Run tor process in shell
 
+[2.0.3-alpha.16]
+
+* Fix: mobile app crashing on restart
+
+* Refactor: backend, storage module - extracting OrbitDB as another provider, refactor of  CertificatesRequestsStore, CommunityMetadataStore, CertificatesStore as Nest providers, store tests adjustments,  file structure
+
+[2.0.3-alpha.15]
+
+* Fix: construct all stores before initializing them - initializing community metadata store sets metadata in certificates store
+
+* Fix: joining community stuck on "initiation backend modules"
+
+* Add debug logs.
+
+[2.0.3-alpha.14]
+
+* Add community metadata validation.
+
+* Move community metadata to separate store.
+
+[2.0.3-alpha.13]
+
+* Initialize electron-store after setting appData to prevent creating empty "Quiet" data directory
+
+* Fixed UI for Update Modal
+
+* Fixed username taken logic
+
+* Add test-case in e2e multiple test for using username taken modal
+
 [2.0.3-alpha.12]
 
 * Better descriptions of the joining process

@@ -27,7 +27,7 @@ const ApplicationUpdateModal: React.FC = () => {
   const modal = useModal(ModalName.applicationUpdate)
 
   const title = 'Software update'
-  const message = 'An update is availale for Quiet.'
+  const message = 'An update is available for Quiet.'
 
   const button = (
     <Button

@@ -21,13 +21,13 @@ export enum StorageEvents {
   LOAD_ALL_DIRECT_MESSAGES = 'loadAllDirectMessages',
   // Misc
   SEND_PUSH_NOTIFICATION = 'sendPushNotification',
-  // Community
-  REPLICATED_COMMUNITY_METADATA = 'replicatedCommunityMetadata',
   // Users
   LOADED_USER_CSRS = 'loadedUserCsrs',
   REPLICATED_CSR = 'replicatedCsr',
   LOADED_CERTIFICATES = 'loadedCertificates',
   REPLICATED_CERTIFICATES = 'replicatedCertificates',
+  // Community
+  COMMUNITY_METADATA_SAVED = 'communityMetadataSaved',
 }
 export interface InitStorageParams {
   communityId: string
@@ -36,4 +36,13 @@ export interface InitStorageParams {
   targetPort: number
   peers?: string[]
   certs: Certificates
+}
+
+export interface CsrReplicatedPromiseValues {
+  promise: Promise<unknown>
+  resolveFunction: any
+}
+
+export interface DBOptions {
+  replicate: boolean
 }

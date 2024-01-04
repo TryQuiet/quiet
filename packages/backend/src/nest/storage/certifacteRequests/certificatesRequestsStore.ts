@@ -1,37 +1,28 @@
 import { getCrypto } from 'pkijs'
 import { EventEmitter } from 'events'
 import EventStore from 'orbit-db-eventstore'
-import OrbitDB from 'orbit-db'
-
 import { NoCryptoEngineError } from '@quiet/types'
 import { loadCSR, keyFromCertificate } from '@quiet/identity'
-
-import { StorageEvents } from './storage.types'
-import createLogger from '../common/logger'
-
+import { CsrReplicatedPromiseValues, StorageEvents } from '../storage.types'
 import { validate } from 'class-validator'
-import { UserCsrData } from '../registration/registration.functions'
+import { UserCsrData } from '../../registration/registration.functions'
+import { Injectable } from '@nestjs/common'
+import { OrbitDb } from '../orbitDb/orbitDb.service'
+import Logger from '../../common/logger'
 
-const logger = createLogger('CertificatesRequestsStore')
-
-interface CsrReplicatedPromiseValues {
-  promise: Promise<unknown>
-  resolveFunction: any
-}
-
+@Injectable()
 export class CertificatesRequestsStore {
-  public orbitDb: OrbitDB
   public store: EventStore<string>
   public csrReplicatedPromiseMap: Map<number, CsrReplicatedPromiseValues> = new Map()
   private csrReplicatedPromiseId: number = 0
 
-  constructor(orbitDb: OrbitDB) {
-    this.orbitDb = orbitDb
-  }
+  private readonly logger = Logger(CertificatesRequestsStore.name)
+
+  constructor(private readonly orbitDbService: OrbitDb) {}
 
   public async init(emitter: EventEmitter) {
-    logger('Initializing...')
-    this.store = await this.orbitDb.log<string>('csrs', {
+    this.logger('Initializing...')
+    this.store = await this.orbitDbService.orbitDb.log<string>('csrs', {
       replicate: false,
       accessController: {
         write: ['*'],
@@ -39,7 +30,7 @@ export class CertificatesRequestsStore {
     })
 
     this.store.events.on('write', async (_address, entry) => {
-      logger('Added CSR to database')
+      this.logger('Added CSR to database')
       emitter.emit(StorageEvents.LOADED_USER_CSRS, {
         csrs: await this.getCsrs(),
         id: this.csrReplicatedPromiseId,
@@ -47,9 +38,10 @@ export class CertificatesRequestsStore {
     })
 
     this.store.events.on('replicated', async () => {
-      logger('Replicated CSRS')
+      this.logger('Replicated CSRS')
 
       this.csrReplicatedPromiseId++
+
       const filteredCsrs = await this.getCsrs()
       this.createCsrReplicatedPromise(this.csrReplicatedPromiseId)
 
@@ -72,13 +64,13 @@ export class CertificatesRequestsStore {
       csrs: await this.getCsrs(),
       id: this.csrReplicatedPromiseId,
     })
-    logger('Initialized')
+    this.logger('Initialized')
   }
 
   public async close() {
-    logger('Closing...')
+    this.logger('Closing...')
     await this.store?.close()
-    logger('Closed')
+    this.logger('Closed')
   }
 
   public getAddress() {
@@ -104,7 +96,7 @@ export class CertificatesRequestsStore {
       csrReplicatedPromiseMapId?.resolveFunction(id)
       this.csrReplicatedPromiseMap.delete(id)
     } else {
-      logger.error(`No promise with ID ${id} found.`)
+      this.logger.error(`No promise with ID ${id} found.`)
       return
     }
   }
@@ -124,7 +116,7 @@ export class CertificatesRequestsStore {
       await parsedCsr.verify()
       await this.validateCsrFormat(csr)
     } catch (err) {
-      logger.error('Failed to validate user csr:', csr, err?.message)
+      console.error('Failed to validate user csr:', csr, err?.message)
       return false
     }
     return true
@@ -139,18 +131,23 @@ export class CertificatesRequestsStore {
 
   public async getCsrs() {
     const filteredCsrsMap: Map<string, string> = new Map()
-    await this.store.load()
+    // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
+    await this.store.load({ fetchEntryTimeout: 15000 })
     const allEntries = this.store
       .iterator({ limit: -1 })
       .collect()
       .map(e => {
         return e.payload.value
       })
+
+    this.logger('DuplicatedCertBug', { allEntries })
     const allCsrsUnique = [...new Set(allEntries)]
+    this.logger('DuplicatedCertBug', { allCsrsUnique })
     await Promise.all(
       allCsrsUnique
         .filter(async csr => {
           const validation = await CertificatesRequestsStore.validateUserCsr(csr)
+          this.logger('DuplicatedCertBug', { validation, csr })
           if (validation) return true
           return false
         })
@@ -164,6 +161,7 @@ export class CertificatesRequestsStore {
           filteredCsrsMap.set(pubKey, csr)
         })
     )
+    this.logger('DuplicatedCertBug', '[...filteredCsrsMap.values()]', [...filteredCsrsMap.values()])
     return [...filteredCsrsMap.values()]
   }
 }

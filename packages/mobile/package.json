@@ -1,6 +1,6 @@
 {
   "name": "@quiet/mobile",
-  "version": "2.0.3-alpha.13",
+  "version": "2.0.3-alpha.17",
   "scripts": {
     "build": "tsc -p tsconfig.build.json --noEmit",
     "storybook-android": "ENVFILE=.env.storybook react-native run-android --variant=storybookDebug --appIdSuffix=storybook.debug",

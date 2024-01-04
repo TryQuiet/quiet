@@ -31,12 +31,12 @@ import LoadingPanel from '../renderer/components/LoadingPanel/LoadingPanel'
 import { createUserCertificateTestHelper } from '@quiet/identity'
 import { AnyAction } from 'redux'
 import {
-  type InvitationData,
-  type ChannelsReplicatedPayload,
-  type Community,
-  type ErrorPayload,
-  type ResponseLaunchCommunityPayload,
-  type SendOwnerCertificatePayload,
+  InvitationData,
+  ChannelsReplicatedPayload,
+  Community,
+  ErrorPayload,
+  ResponseLaunchCommunityPayload,
+  SendOwnerCertificatePayload,
 } from '@quiet/types'
 import { composeInvitationShareUrl } from '@quiet/common'
 
@@ -52,6 +52,7 @@ describe('User', () => {
       },
     ],
     psk: 'BNlxfE2WBF7LrlpIX0CvECN5o1oZtA16PkAb7GYiwYw=',
+    ownerOrbitDbIdentity: 'testOrbitDbIdentity',
   }
   const validCode = composeInvitationShareUrl(validData)
   // trigger
@@ -219,7 +220,6 @@ describe('User', () => {
         "Identity/registerCertificate",
         "Communities/launchCommunity",
         "Communities/launchRegistrar",
-        "Identity/saveUserCsr",
         "Files/checkForMissingFiles",
         "Network/addInitializedCommunity",
         "Communities/clearInvitationCodes",
@@ -322,27 +322,7 @@ describe('User', () => {
     const usernameTakenErrorMessage = await screen.findByText(ErrorMessages.USERNAME_TAKEN)
     expect(usernameTakenErrorMessage).toBeVisible()
 
-    expect(actions).toMatchInlineSnapshot(`
-      Array [
-        "Communities/createNetwork",
-        "Communities/clearInvitationCode",
-        "Communities/addNewCommunity",
-        "Communities/setCurrentCommunity",
-        "Modals/closeModal",
-        "Modals/openModal",
-        "Identity/registerUsername",
-        "Communities/responseCreateNetwork",
-        "Communities/clearInvitationCode",
-        "Communities/updateCommunityData",
-        "Identity/addNewIdentity",
-        "Network/setLoadingPanelType",
-        "Modals/openModal",
-        "Identity/registerCertificate",
-        "Errors/handleError",
-        "Errors/addError",
-        "Modals/closeModal",
-      ]
-    `)
+    expect(actions).toMatchInlineSnapshot()
   })
 
   it.skip('clears error before sending another username registration request', async () => {
@@ -433,26 +413,6 @@ describe('User', () => {
     // Check if 'username taken' error message disappeared
     expect(await screen.queryByText(ErrorMessages.USERNAME_TAKEN)).toBeNull()
 
-    expect(actions).toMatchInlineSnapshot(`
-      Array [
-        "Communities/createNetwork",
-        "Communities/clearInvitationCode",
-        "Communities/addNewCommunity",
-        "Communities/setCurrentCommunity",
-        "Modals/closeModal",
-        "Modals/openModal",
-        "Errors/addError",
-        "Modals/closeModal",
-        "Errors/clearError",
-        "Identity/registerUsername",
-        "Communities/responseCreateNetwork",
-        "Communities/clearInvitationCode",
-        "Communities/updateCommunityData",
-        "Identity/addNewIdentity",
-        "Network/setLoadingPanelType",
-        "Modals/openModal",
-        "Identity/registerCertificate",
-      ]
-    `)
+    expect(actions).toMatchInlineSnapshot()
   })
 })

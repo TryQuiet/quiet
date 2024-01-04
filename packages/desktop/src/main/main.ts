@@ -19,7 +19,6 @@ import {
 } from '@quiet/common'
 import { updateDesktopFile, processInvitationCode } from './invitation'
 const ElectronStore = require('electron-store')
-ElectronStore.initRenderer()
 
 // eslint-disable-next-line
 const remote = require('@electron/remote/main')
@@ -58,6 +57,9 @@ const newUserDataPath = path.join(appDataPath, 'Quiet')
 
 app.setPath('appData', appDataPath)
 app.setPath('userData', newUserDataPath)
+
+// Initialize electron store after setting new 'appData'
+ElectronStore.initRenderer()
 
 const gotTheLock = app.requestSingleInstanceLock()
 
@@ -155,8 +157,8 @@ app.on('open-url', (event, url) => {
   if (mainWindow) {
     invitationUrl = null
     try {
-      const invitationCode = parseInvitationCodeDeepUrl(url)
-      processInvitationCode(mainWindow, invitationCode)
+      const invitationData = parseInvitationCodeDeepUrl(url)
+      processInvitationCode(mainWindow, invitationData)
     } catch (e) {
       console.warn(e.message)
     }
@@ -489,8 +491,8 @@ app.on('ready', async () => {
     }
     if (process.platform === 'darwin' && invitationUrl) {
       try {
-        const invitationCode = parseInvitationCodeDeepUrl(invitationUrl)
-        processInvitationCode(mainWindow, invitationCode)
+        const invitationData = parseInvitationCodeDeepUrl(invitationUrl)
+        processInvitationCode(mainWindow, invitationData)
       } catch (e) {
         console.warn(e.message)
       } finally {
