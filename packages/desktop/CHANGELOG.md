@@ -1,23 +1,49 @@
-# Change Log
-
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
-
 # [2.0.0](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@2.0.3-alpha.15...@quiet/desktop@2.0.0) (2024-01-09)
 
-**Note:** Version bump only for package @quiet/desktop
+# Breaking changes:
 
+* To let users join when the owner is offline we made changes that broke backwards compatibility, so you will need to create a new community and re-invite members. Need help migrating? [help@quiet.chat](mailto:help@quiet.chat)
 
+# New Features:
 
+* Users can join a community when its owner is offline. This was a big one!
+* Desktop and mobile users can send markdown messages. (Thanks again @josephlacey!)
+* Desktop users can now export chats to a text file. (Thanks @rajdip-b!)
 
+# Improvements:
 
-## [2.0.3-alpha.15](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@2.0.3-alpha.14...@quiet/desktop@2.0.3-alpha.15) (2023-12-12)
+* Prettier message loading indicator on mobile
+* Better descriptions of the joining process
+* Validation of community metadata and certificates 
+* A real iOS launch screen (so long, "Powered by React Native"!)
+* A nice splash screen on mobile until the joining/creating screens are ready
+* Clearer autoupdate language in the update modal, so users know that the app will update on restart
 
-**Note:** Version bump only for package @quiet/desktop
+# Fixes:
 
+* Mobile apps should no longer crash on restart.
+* Joining community no longer gets stuck on "initiating backend modules."
+* Invalid peer addresses in peer list are now filtered out, and peer list is updated in localdb.
+* Peers now dial new users without having to restart.
+* Up/down arrows are now working properly inside channel input. (Thanks @josephlacey!)
+* Long messages are no longer truncated in channelInput component.
+* Users can change between "join community" and "create community" screens without errors about a missing required field.
+* On iOS, there's more weird empty space between the input field and the soft keyboard.
+* The UI for users already in a community joining a new community is no longer misleading, so users will not accidentally leave a community by opening a new invite link.
+* Desktop settings now open the "invite" tab by default, as they were meant to.
+* We now initialize electron-store after setting appData to prevent creating an empty "Quiet" data directory.
 
+# Notes
 
+* Quiet now labels duplicate unregistered usernames
+* Quiet shows an full-screen warning for duplicate registered usernames, since these should never happen and indicate a potential compromise.
+* For authenticating connections, Quiet now uses libp2p's [Pre-shared Key Based Private Networks](https://github.com/libp2p/specs/blob/master/pnet/Private-Networks-PSK-V1.md) instead of X.509 certificates so peers can connect before registering.
 
+[2.0.3-alpha.16]
+
+* Fix: mobile app crashing on restart
+
+* Refactor: backend, storage module - extracting OrbitDB as another provider, refactor of  CertificatesRequestsStore, CommunityMetadataStore, CertificatesStore as Nest providers, store tests adjustments,  file structure
 
 [2.0.3-alpha.15]
 
