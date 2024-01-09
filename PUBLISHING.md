@@ -48,7 +48,7 @@ By the time release is ready, ask @holmes for <b>CHANGELOG.md</b> cosmetic revie
 1. Checkout to a branch named after the release version number
 1. Navigate to root project directory
 2. Use the following command (with proper release type):  
-  `npm run publish --release=[patch|minor|major]`
+  `npm run publish --release=[patch|minor|major|EXACT_VERSION]`
 
 
 ## Post-release checklist
@@ -60,7 +60,7 @@ By the time release is ready, ask @holmes for <b>CHANGELOG.md</b> cosmetic revie
 ## Changelog / Releases Page
 Root <b>CHANGELOG.md</b> file contents are being copied into each packages' ones.  
 This way, <a href='https://github.com/TryQuiet/quiet/releases' target='blank'>Releases Page</a> remains a source of clearly presented information.  
-This process is automated by `copy-changelog.js` script hooked on `postpublish` action.
+This process is automated by `copy-changelog.js` script hooked on `prepublish` action.
 
 
 ## QA
