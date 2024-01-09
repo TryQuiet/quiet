@@ -4,7 +4,7 @@
   "scripts": {
     "lerna": "lerna",
     "publish": "lerna version $npm_config_release --no-private",
-    "postpublish": "node copy-changelog.js"
+    "prepublish": "node copy-changelog.js"
   },
   "engines": {
     "node": "18.12.1",
