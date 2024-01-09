@@ -1,4 +1,4 @@
-[unreleased]
+[2.0.3-alpha.16]
 
 * Fix: mobile app crashing on restart
 
