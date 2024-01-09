@@ -3,9 +3,16 @@
     <b>Publishing instruction for the core team developers.</b>
   </h1>
 
+  <h3 align="center">
+    Current release owner 🎉⛸️🦆 <a href='https://github.com/siepra'>@siepra</a> (January 2024)
+  </h3>
+
   <br />
   <br />
 </p>
+
+## Trigger
+Release process begins when all issues from `Sprint` are merged and moved to `Ready for QA`.  
 
 ## Branching strategy
 Each release starts with it's own branch (based on develop).
@@ -20,6 +27,21 @@ From this moment, all the fixes (patches) for the last supported version are bei
 ```
 
 
+## Release candidates (alpha releases)
+Pre-release builds should only be triggered from the release branch and then delivered to QA.  
+If QA reports problems that needs to be solved, the fixes must be merged into the release and develop branches, then a patched pre-release is to be built.
+
+
+## Pre-release checklist
+- [ ] Build is working correctly, passes automated tests and self-QA
+- [ ] Release candidate is delivered for QA
+- [ ] Sprint column is free from QA reported blocking issues
+- [ ] QA approved the release
+- [ ] All hotfixes to previous releases have been merged into the release (and develop) branch
+- [ ] CHANGELOG.md is up to date
+- [ ] PM approved the release
+
+
 ## Publishing instruction
 
 By the time release is ready, ask @holmes for <b>CHANGELOG.md</b> cosmetic review, then:
@@ -28,12 +50,11 @@ By the time release is ready, ask @holmes for <b>CHANGELOG.md</b> cosmetic revie
 2. Use the following command (with proper release type):  
   `npm run publish --release=[patch|minor|major]`
 
-### Desktop:
-Update download links on https://tryquiet.org/
 
-### Android:
-1. Open Google Play Developer Console
-2. Promote newly uploaded version (internal track) to production
+## Post-release checklist
+- [ ] Download links are updated on a website and in README.md
+- [ ] App is promoted and sent for review on a production track in Google Play
+- [ ] App is promoted and sent for review on an external track in App Store (Test Flight)
 
 
 ## Changelog / Releases Page
@@ -42,8 +63,21 @@ This way, <a href='https://github.com/TryQuiet/quiet/releases' target='blank'>Re
 This process is automated by `copy-changelog.js` script hooked on `postpublish` action.
 
 
+## QA
+QA tests for issues on all the supported platforms and moves discovered blocking issues intoto the Sprint column, then mentions them in Slack <b>#qa</b> channel, following the criteria:  
+- regression,
+- new bug that creates a general feeling of unreliability,
+- issue that is incompletely implemented according to the issue description,
+
+### Book of laws
+1. Team drops any other work to work on new issues in the Sprint column
+2. PM can asynchronously decide a bug is not a blocker
+3. Team and QA can consult PM if they suspect a bug is not really a blocker despite meeting criteria
+4. PM can approve release in advance, pending completion of issues, or wait to give approval
 
 
+#### (TODO) Publishing Process Document
+1. Expand on post-release checklist
 
 
 
