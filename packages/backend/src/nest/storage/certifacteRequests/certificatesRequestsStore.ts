@@ -55,28 +55,24 @@ export class CertificatesRequestsStore {
 
   public async loadCsrs() {
     this.registrationEvents++
-    await this._tryLoadCsrs()
+    await this.tryEmitCsrsLoaded()
   }
 
-  public async _tryLoadCsrs() {
+  public async tryEmitCsrsLoaded() {
     console.log("Trying load CSRs", this.registrationEventInProgress, this.registrationEvents)
     if (!this.registrationEventInProgress) {
       if (this.registrationEvents > 0) {
         console.log("Running load CSRs")
         this.registrationEventInProgress = true
-        await this._loadCsrs()
+
+        this.emitter.emit(StorageEvents.LOADED_USER_CSRS, {
+          csrs: await this.getCsrs(),
+          id: this.csrReplicatedPromiseId,
+        })
       }
     }
   }
 
-  public async _loadCsrs() {
-    const filteredCsrs = await this.getCsrs()
-
-    this.emitter.emit(StorageEvents.LOADED_USER_CSRS, {
-      csrs: filteredCsrs,
-      id: this.csrReplicatedPromiseId,
-    })
-  }
 
   public async close() {
     this.logger('Closing...')
@@ -107,7 +103,7 @@ export class CertificatesRequestsStore {
     this.registrationEventInProgress = false
 
     if (this.registrationEvents > 0) {
-      setTimeout(this._tryLoadCsrs.bind(this), 0)
+      setTimeout(this.tryEmitCsrsLoaded.bind(this), 0)
     }
   }
 
