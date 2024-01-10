@@ -303,7 +303,7 @@ export class StorageService extends EventEmitter {
       const allCertificates = this.getAllEventLogEntries(this.certificatesStore.store)
       this.emit(StorageEvents.REPLICATED_CSR, { csrs: payload.csrs, certificates: allCertificates, id: payload.id })
       // TODO
-      await this.updatePeersList()
+      //await this.updatePeersList()
     })
   }
 
