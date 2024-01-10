@@ -174,8 +174,8 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
   const userLabel = messageDisplayData?.isDuplicated
     ? UserLabelType.DUPLICATE
     : !messageDisplayData?.isRegistered
-      ? UserLabelType.UNREGISTERED
-      : null
+    ? UserLabelType.UNREGISTERED
+    : null
 
   const infoMessage = messageDisplayData.type === 3 // 3 stands for MessageType.Info
 
@@ -201,7 +201,7 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
                 {infoMessage ? (
                   <Icon src={information} className={classes.infoIcon} />
                 ) : (
-                  <Jdenticon size='36' value={messageDisplayData.nickname} />
+                  <Jdenticon size='36' value={messageDisplayData.pubKey} />
                 )}
               </div>
             </Grid>
