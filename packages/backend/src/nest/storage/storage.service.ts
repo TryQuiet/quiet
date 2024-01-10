@@ -759,11 +759,6 @@ export class StorageService extends EventEmitter {
     })
   }
 
-  public resetCsrAndCertsValues() {
-    this.certificatesRequestsStore.resetCsrReplicatedMapAndId()
-    this.certificatesStore.resetValues()
-  }
-
   private clean() {
     // @ts-ignore
     this.channels = undefined
@@ -778,7 +773,5 @@ export class StorageService extends EventEmitter {
     // @ts-ignore
     this.filesManager = null
     this.peerId = null
-
-    this.resetCsrAndCertsValues()
   }
 }

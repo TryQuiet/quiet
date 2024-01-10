@@ -13,11 +13,7 @@ import Logger from '../../common/logger'
 @Injectable()
 export class CertificatesRequestsStore {
   public store: EventStore<string>
-  public csrReplicatedPromiseMap: Map<number, CsrReplicatedPromiseValues> = new Map()
-  private csrReplicatedPromiseId: number = 1
   private emitter: EventEmitter
-  private registrationEvents = 0
-  private registrationEventInProgress = false
 
   private readonly logger = Logger(CertificatesRequestsStore.name)
 
@@ -46,33 +42,11 @@ export class CertificatesRequestsStore {
     this.logger('Initialized')
   }
 
-  /**
-   * Why should the certificate request store be concerned about a
-   * registration event? To me, it makes more sense to refactor this
-   * so that the registration service deals with processing one thing
-   * at a time.
-   */
-
   public async loadCsrs() {
-    this.registrationEvents++
-    await this.tryEmitCsrsLoaded()
+    this.emitter.emit(StorageEvents.LOADED_USER_CSRS, {
+      csrs: await this.getCsrs(),
+    })
   }
-
-  public async tryEmitCsrsLoaded() {
-    console.log("Trying load CSRs", this.registrationEventInProgress, this.registrationEvents)
-    if (!this.registrationEventInProgress) {
-      if (this.registrationEvents > 0) {
-        console.log("Running load CSRs")
-        this.registrationEventInProgress = true
-
-        this.emitter.emit(StorageEvents.LOADED_USER_CSRS, {
-          csrs: await this.getCsrs(),
-          id: this.csrReplicatedPromiseId,
-        })
-      }
-    }
-  }
-
 
   public async close() {
     this.logger('Closing...')
@@ -84,27 +58,8 @@ export class CertificatesRequestsStore {
     return this.store?.address
   }
 
-  public resetCsrReplicatedMapAndId() {
-    this.csrReplicatedPromiseMap = new Map()
-    this.csrReplicatedPromiseId = 0
-  }
-
-  private createCsrReplicatedPromise(id: number) {
-    let resolveFunction
-    const promise = new Promise(resolve => {
-      resolveFunction = resolve
-    })
-    this.csrReplicatedPromiseMap.set(id, { promise, resolveFunction })
-  }
-
+  // TODO: Remove and fix tests
   public resolveCsrReplicatedPromise(id: number) {
-    console.log("Finished load CSRs")
-    this.registrationEvents--
-    this.registrationEventInProgress = false
-
-    if (this.registrationEvents > 0) {
-      setTimeout(this.tryEmitCsrsLoaded.bind(this), 0)
-    }
   }
 
   public async addUserCsr(csr: string) {

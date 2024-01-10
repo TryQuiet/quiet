@@ -12,6 +12,8 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
   public certificates: string[] = []
   private _permsData: PermsData
   private _storageService: StorageService
+  private registrationEvents: { csrs: string[] }[] = []
+  private registrationEventInProgress = false
 
   constructor() {
     super()
@@ -20,13 +22,39 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
   onModuleInit() {
     this.on(
       RegistrationEvents.REGISTER_USER_CERTIFICATE,
-      async (payload: { csrs: string[]; certificates: string[]; id: string }) => {
-        await this.issueCertificates(payload)
+      async (payload: { csrs: string[] }) => {
+        this.registrationEvents.push(payload)
+        await this.tryIssueCertificates()
       }
     )
   }
 
-  private async issueCertificates(payload: { csrs: string[]; certificates: string[]; id?: string }) {
+  public async tryIssueCertificates() {
+    console.log("Trying issue certificates", this.registrationEventInProgress, this.registrationEvents)
+    if (!this.registrationEventInProgress) {
+      const event = this.registrationEvents.shift()
+      if (event) {
+        console.log("Running issue certificates", event)
+        this.registrationEventInProgress = true
+        await this.issueCertificates({
+          ...event,
+          // @ts-ignore
+          certificates: await this._storageService.certificatesStore.loadAllCertificates() as string[],
+        })
+      }
+    }
+  }
+
+  public async finishIssueCertificates() {
+    console.log("Finished issue certificates")
+    this.registrationEventInProgress = false
+
+    if (this.registrationEvents.length > 0) {
+      setTimeout(this.tryIssueCertificates.bind(this), 0)
+    }
+  }
+
+  private async issueCertificates(payload: { csrs: string[]; certificates: string[] }) {
     // Lack of permsData means that we are not the owner of the
     // community in the official model of the app, however anyone can
     // modify the source code, put malicious permsData here, issue
@@ -34,7 +62,7 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
     // that, peers verify that anything that is written to the
     // certificate store is signed by the owner.
     if (!this._permsData) {
-      await this._storageService?.resolveCsrReplicatedPromise(1)
+      await this.finishIssueCertificates()
       return
     }
 
@@ -47,7 +75,7 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
       })
     )
 
-    await this._storageService?.resolveCsrReplicatedPromise(1)
+    await this.finishIssueCertificates()
   }
 
   public set permsData(perms: PermsData) {

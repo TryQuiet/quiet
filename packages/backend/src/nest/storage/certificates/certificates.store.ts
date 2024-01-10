@@ -31,12 +31,6 @@ export class CertificatesStore {
     this.usernameMapping = new Map()
   }
 
-  public resetValues() {
-    this.metadata = undefined
-    this.filteredCertificatesMapping = new Map()
-    this.usernameMapping = new Map()
-  }
-
   public async init(emitter: EventEmitter) {
     this.logger('Initializing certificates log store')
 
