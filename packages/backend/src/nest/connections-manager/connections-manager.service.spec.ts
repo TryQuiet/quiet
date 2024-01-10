@@ -274,28 +274,32 @@ describe('ConnectionsManagerService integration', () => {
   })
 
   it('should work well', async () => {
-    await connectionsManagerService.init()
-
     orbitDb = await module.resolve(OrbitDb)
     const peerId = await PeerId.create()
     ipfs = await create()
     await orbitDb.create(peerId, ipfs)
 
+    await connectionsManagerService.init()
     // @ts-ignore
     await connectionsManagerService.storageService.attachCsrsStoreListeners()
 
     // @ts-ignore
-    await connectionsManagerService.storageService.certificatesRequestsStore.init(connectionsManagerService.storageService)
-    // @ts-ignore
     await connectionsManagerService.storageService.certificatesStore.init(connectionsManagerService.storageService)
+    // @ts-ignore
+    await connectionsManagerService.storageService.certificatesStore.updateMetadata({
+      id: '39F7485441861F4A2A1A512188F1E0AA',
+      rootCa:
+    'MIIBUDCB+KADAgECAgEBMAoGCCqGSM49BAMCMBIxEDAOBgNVBAMTB3JvY2tldHMwHhcNMTAxMjI4MTAxMDEwWhcNMzAxMjI4MTAxMDEwWjASMRAwDgYDVQQDEwdyb2NrZXRzMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE/ESHf6rXksyiuxSKpQgtiSAhVWNtx4vbFgW6knWfH7MR4dPyxiCNgSeCzRfreuhqVpVtv3U49tcwsqDGkoWHsKM/MD0wDwYDVR0TBAgwBgEB/wIBAzALBgNVHQ8EBAMCAIYwHQYDVR0lBBYwFAYIKwYBBQUHAwIGCCsGAQUFBwMBMAoGCCqGSM49BAMCA0cAMEQCIHrYMhgU/RluSsWoO205EjCQ8pE5MeBZ4Cp8PTgNkOW7AiA690+KIgobiObH6/1JDuS82R0NPO84Ttc8PY886AoKbA==',
+      ownerCertificate:
+    'MIIDeTCCAx6gAwIBAgIGAYwVp42mMAoGCCqGSM49BAMCMBIxEDAOBgNVBAMTB3JvY2tldHMwHhcNMjMxMTI4MTExOTExWhcNMzAwMTMxMjMwMDAwWjBJMUcwRQYDVQQDEz5jYXJhaTJ0d2phem50aW56bndtcnlqdzNlNzVmdXF0Z2xrd2hsemo2d3RlcWx4ano2NnRsZnhpZC5vbmlvbjBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABNMUauWsTJiuDGt4zoj4lKGgHMkTH96M11fCxMwIInhan0RUB5sv+PtGKbfEfawGjhSQiUaTLdwUGjyIdMs3OMWjggInMIICIzAJBgNVHRMEAjAAMAsGA1UdDwQEAwIAgDAdBgNVHSUEFjAUBggrBgEFBQcDAgYIKwYBBQUHAwEwggFHBgkqhkiG9w0BCQwEggE4BIIBNBETZ2k8vszIRvkuOUk/cNtOb8JcGmw5yVhs45/+e7To4t51nwcdAODj5juVi6+SpLCcHCHhE+g7KswEkC1ScFrW6CRinSgrNBOAUIjOtvWZ/GvK6lI4WTMf7xAaRaJSCF6H0m4cFoUY3JpklJleHhzj0re+NmFZEJ/hNRKochGFy4Xq9Z7StvPpGBlfxhmR7X2t/+HtZaAAbLRLLgbHtCQ7fecg0Qb9Ej58uc+T4Gd2+8ptWvebtOQVU70VAL7uT6aLkFXaDibgSt3kDNvGrwn3AxWlESgROTh5+OWWbfYIbFxjf0PkPDdUSAIOKS9qbYZ+bSYfVq+/0JFyZAa0zhPtgW8wjj0gDCLVm5joyW5Hz2eZ36W7u3cxFME2qmT9G2Dh6NGLn7G19ulVzoTkVmP5/tGPMBUGCisGAQQBg4wbAgEEBxMFZGF2aWQwPQYJKwYBAgEPAwEBBDATLlFtZE5GVjc3dXZOcTJBaWlqUEY0dzY2OU1ucWdiYVdMR1VhZlh0WTdlZjNRRFMwSQYDVR0RBEIwQII+Y2FyYWkydHdqYXpudGluem53bXJ5anczZTc1ZnVxdGdsa3dobHpqNnd0ZXFseGp6NjZ0bGZ4aWQub25pb24wCgYIKoZIzj0EAwIDSQAwRgIhAOafgBe5T0EFjyy0tCRrTHJ1+5ri0W6kAUfc6eRKHIZAAiEA7rFEfPDU+D8MiOF+w0QOdp46dqaWsHFjrDHYPSYGxQA=',
+    })
 
+    // @ts-ignore
+    await connectionsManagerService.storageService.certificatesRequestsStore.init(connectionsManagerService.storageService)
     // @ts-ignore
     await connectionsManagerService.storageService.certificatesRequestsStore.addUserCsr(
       'MIIDITCCAsYCAQAwSTFHMEUGA1UEAxM+anR3c3hxMnZ1dWthY3JodWhvdnAzd2JxbzRxNXc0d2s3Nm1qbWJ3cXk3eGNma2FsdmRxb3hhYWQub25pb24wWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAAQE2q6iS+WCmIVCSFI2AjHrW6ujUdrceD5T2xkcTJBTn0y50WphcupUajCRgkXaTBkTsGNJ3qWRZAKX7CiuehBJoIICGTAuBgkqhkiG9w0BCQ4xITAfMB0GA1UdDgQWBBQuE5JgPY/BYBpgG5pnjMkEEIkrGjCCAUcGCSqGSIb3DQEJDDGCATgEggE0BDlx84glBl72q82F2a+y8iTVKM8IMiXYYrmNyhFPj6XsfVQpvLhNviZ5zHdMBWbFj44vTSUIasNP9I9eCWSEAaEJqjngEh18WCRS/XbvQxI/8qB5pzcfghvM8BCgSLbSEjK2GMYVhCXmRH1YGHIZu0+Ii9pe5nwG154JlPUsmIRgu6ruY6PQk65Aoo4OyhPn5CCUFInptHcz1JpAiCRe0Z6wuQHud03VY50fx4ETdmUNJBEIPOyd/Xn6lMOi6SaWGHbCWiufeJRm+mRdoHJAEt6kPLhGIYGyduNT/8cGoe2xKyQDvNoTr4dqqRZ2HgZ18nicsTHswpGqAlUnZXaA3V85Qu1cvaMAqEoPOUlGP9AriIVwtIZM0hdWHqKHgBCZrKfHb5oLxt6ourQ3+q19tvx+u6UwFAYKKwYBBAGDjBsCATEGEwRlbGxvMD0GCSsGAQIBDwMBATEwEy5RbVVvNXN0NXNqR3RFMUtQeXhOVW5pTWhnQXduV0JVNXk3TnpoMlpRRkdacVdiMEcGA1UdETFAEz5qdHdzeHEydnV1a2Fjcmh1aG92cDN3YnFvNHE1dzR3azc2bWptYndxeTd4Y2ZrYWx2ZHFveGFhZC5vbmlvbjAKBggqhkjOPQQDAgNJADBGAiEAt9udw7B7vnjJyWvkkRLb7DImFXwsrSxirqbmhIH+1rUCIQD86GWyfAE2d8gCNAn4h1t9B+mAx33ZdPLgFssHl1i3pA=='
     )
-
-    // @ts-ignore
-    console.log(await connectionsManagerService.storageService.certificatesRequestsStore.getCsrs())
 
     // @ts-ignore
     connectionsManagerService.storageService.certificatesRequestsStore.store.events.emit('replicated')
