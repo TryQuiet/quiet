@@ -449,15 +449,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.registrationService.on(RegistrationEvents.ERROR, payload => {
       emitError(this.serverIoProvider.io, payload)
     })
-    this.registrationService.on(RegistrationEvents.NEW_USER, async payload => {
-      await this.storageService?.saveCertificate(payload)
-    })
-
-    this.registrationService.on(RegistrationEvents.FINISHED_ISSUING_CERTIFICATES_FOR_ID, payload => {
-      if (payload.id) {
-        this.storageService.resolveCsrReplicatedPromise(payload.id)
-      }
-    })
   }
   private attachsocketServiceListeners() {
     // Community

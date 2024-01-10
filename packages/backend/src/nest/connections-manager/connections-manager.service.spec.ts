@@ -243,6 +243,8 @@ describe('ConnectionsManagerService integration', () => {
       'testRootCA'
     )
     registrationService.permsData = { certificate: certRoot.rootCertString, privKey: certRoot.rootKeyString }
+    // @ts-ignore
+    registrationService.storageService = connectionsManagerService.storageService
 
     lazyModuleLoader = await module.resolve(LazyModuleLoader)
     const { Libp2pModule: Module } = await import('../libp2p/libp2p.module')

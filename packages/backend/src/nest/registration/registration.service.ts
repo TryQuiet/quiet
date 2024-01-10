@@ -4,12 +4,14 @@ import { extractPendingCsrs, issueCertificate } from './registration.functions'
 import { ErrorCodes, ErrorMessages, PermsData, RegisterOwnerCertificatePayload, SocketActionTypes } from '@quiet/types'
 import { RegistrationEvents } from './registration.types'
 import Logger from '../common/logger'
+import { StorageService } from '../storage/storage.service'
 
 @Injectable()
 export class RegistrationService extends EventEmitter implements OnModuleInit {
   private readonly logger = Logger(RegistrationService.name)
   public certificates: string[] = []
   private _permsData: PermsData
+  private _storageService: StorageService
 
   constructor() {
     super()
@@ -32,7 +34,7 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
     // that, peers verify that anything that is written to the
     // certificate store is signed by the owner.
     if (!this._permsData) {
-      if (payload.id) this.emit(RegistrationEvents.FINISHED_ISSUING_CERTIFICATES_FOR_ID, { id: payload.id })
+      await this._storageService?.resolveCsrReplicatedPromise(1)
       return
     }
 
@@ -45,7 +47,7 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
       })
     )
 
-    if (payload.id) this.emit(RegistrationEvents.FINISHED_ISSUING_CERTIFICATES_FOR_ID, { id: payload.id })
+    await this._storageService?.resolveCsrReplicatedPromise(1)
   }
 
   public set permsData(perms: PermsData) {
@@ -53,6 +55,10 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
       certificate: perms.certificate,
       privKey: perms.privKey,
     }
+  }
+
+  public set storageService(storage: StorageService) {
+    this._storageService = storage
   }
 
   public async registerOwnerCertificate(payload: RegisterOwnerCertificatePayload): Promise<void> {
@@ -78,7 +84,8 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
     const result = await issueCertificate(csr, this._permsData)
     this.logger('DuplicatedCertBug', { result })
     if (result?.cert) {
-      this.emit(RegistrationEvents.NEW_USER, { certificate: result.cert })
+      // @ts-ignore
+      await this._storageService?.saveCertificate({ certificate: result.cert })
     }
   }
 }

@@ -14,7 +14,10 @@ import Logger from '../../common/logger'
 export class CertificatesRequestsStore {
   public store: EventStore<string>
   public csrReplicatedPromiseMap: Map<number, CsrReplicatedPromiseValues> = new Map()
-  private csrReplicatedPromiseId: number = 0
+  private csrReplicatedPromiseId: number = 1
+  private emitter: EventEmitter
+  private registrationEvents = 0
+  private registrationEventInProgress = false
 
   private readonly logger = Logger(CertificatesRequestsStore.name)
 
@@ -22,6 +25,7 @@ export class CertificatesRequestsStore {
 
   public async init(emitter: EventEmitter) {
     this.logger('Initializing...')
+    this.emitter = emitter
     this.store = await this.orbitDbService.orbitDb.log<string>('csrs', {
       replicate: false,
       accessController: {
@@ -31,40 +35,47 @@ export class CertificatesRequestsStore {
 
     this.store.events.on('write', async (_address, entry) => {
       this.logger('Added CSR to database')
-      emitter.emit(StorageEvents.LOADED_USER_CSRS, {
-        csrs: await this.getCsrs(),
-        id: this.csrReplicatedPromiseId,
-      })
+      await this.loadCsrs()
     })
 
     this.store.events.on('replicated', async () => {
-      this.logger('Replicated CSRS')
-
-      this.csrReplicatedPromiseId++
-
-      const filteredCsrs = await this.getCsrs()
-      this.createCsrReplicatedPromise(this.csrReplicatedPromiseId)
-
-      // Lock replicated event until previous event is processed by registration service
-      if (this.csrReplicatedPromiseId > 1) {
-        const csrReplicatedPromiseMapId = this.csrReplicatedPromiseMap.get(this.csrReplicatedPromiseId - 1)
-
-        if (csrReplicatedPromiseMapId?.promise) {
-          await csrReplicatedPromiseMapId.promise
-        }
-      }
-
-      emitter.emit(StorageEvents.LOADED_USER_CSRS, {
-        csrs: filteredCsrs,
-        id: this.csrReplicatedPromiseId,
-      })
+      await this.loadCsrs()
     })
 
-    emitter.emit(StorageEvents.LOADED_USER_CSRS, {
-      csrs: await this.getCsrs(),
+    await this.loadCsrs()
+    this.logger('Initialized')
+  }
+
+  /**
+   * Why should the certificate request store be concerned about a
+   * registration event? To me, it makes more sense to refactor this
+   * so that the registration service deals with processing one thing
+   * at a time.
+   */
+
+  public async loadCsrs() {
+    this.registrationEvents++
+    await this._tryLoadCsrs()
+  }
+
+  public async _tryLoadCsrs() {
+    console.log("Trying load CSRs", this.registrationEventInProgress, this.registrationEvents)
+    if (!this.registrationEventInProgress) {
+      if (this.registrationEvents > 0) {
+        console.log("Running load CSRs")
+        this.registrationEventInProgress = true
+        await this._loadCsrs()
+      }
+    }
+  }
+
+  public async _loadCsrs() {
+    const filteredCsrs = await this.getCsrs()
+
+    this.emitter.emit(StorageEvents.LOADED_USER_CSRS, {
+      csrs: filteredCsrs,
       id: this.csrReplicatedPromiseId,
     })
-    this.logger('Initialized')
   }
 
   public async close() {
@@ -91,13 +102,12 @@ export class CertificatesRequestsStore {
   }
 
   public resolveCsrReplicatedPromise(id: number) {
-    const csrReplicatedPromiseMapId = this.csrReplicatedPromiseMap.get(id)
-    if (csrReplicatedPromiseMapId) {
-      csrReplicatedPromiseMapId?.resolveFunction(id)
-      this.csrReplicatedPromiseMap.delete(id)
-    } else {
-      this.logger.error(`No promise with ID ${id} found.`)
-      return
+    console.log("Finished load CSRs")
+    this.registrationEvents--
+    this.registrationEventInProgress = false
+
+    if (this.registrationEvents > 0) {
+      setTimeout(this._tryLoadCsrs.bind(this), 0)
     }
   }
 
