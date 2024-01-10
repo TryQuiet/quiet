@@ -13,7 +13,6 @@ import Logger from '../../common/logger'
 @Injectable()
 export class CertificatesRequestsStore {
   public store: EventStore<string>
-  private emitter: EventEmitter
 
   private readonly logger = Logger(CertificatesRequestsStore.name)
 
@@ -21,7 +20,6 @@ export class CertificatesRequestsStore {
 
   public async init(emitter: EventEmitter) {
     this.logger('Initializing...')
-    this.emitter = emitter
     this.store = await this.orbitDbService.orbitDb.log<string>('csrs', {
       replicate: false,
       accessController: {
@@ -31,21 +29,22 @@ export class CertificatesRequestsStore {
 
     this.store.events.on('write', async (_address, entry) => {
       this.logger('Added CSR to database')
-      await this.loadCsrs()
+      emitter.emit(StorageEvents.LOADED_USER_CSRS, {
+        csrs: await this.getCsrs(),
+      })
     })
 
     this.store.events.on('replicated', async () => {
-      await this.loadCsrs()
+      this.logger('Replicated CSRs')
+      emitter.emit(StorageEvents.LOADED_USER_CSRS, {
+        csrs: await this.getCsrs(),
+      })
     })
 
-    await this.loadCsrs()
-    this.logger('Initialized')
-  }
-
-  public async loadCsrs() {
-    this.emitter.emit(StorageEvents.LOADED_USER_CSRS, {
+    emitter.emit(StorageEvents.LOADED_USER_CSRS, {
       csrs: await this.getCsrs(),
     })
+    this.logger('Initialized')
   }
 
   public async close() {
