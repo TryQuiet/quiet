@@ -2,8 +2,7 @@ name: E2E iOS
 
 on:
   push:
-    paths:
-      - packages/mobile/**
+    paths: [packages/mobile/**, packages/backend/**, packages/state-manager/**],
 
 jobs:
   detox-ios:
