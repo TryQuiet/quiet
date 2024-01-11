@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.10.1](https://github.com/TryQuiet/quiet/compare/quiet@1.10.0...quiet@1.10.1) (2024-01-11)
+
+
+### Bug Fixes
+
+* notarization config ([910193c](https://github.com/TryQuiet/quiet/commit/910193c0bd50639ed6273c3ade3d9447d647fbb0))
+
+
+
+
+
 # [1.10.0](https://github.com/TryQuiet/quiet/compare/quiet@1.9.7...quiet@1.10.0) (2024-01-09)
 
 **Note:** Version bump only for package quiet
