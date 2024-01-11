@@ -174,8 +174,8 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
   const userLabel = messageDisplayData?.isDuplicated
     ? UserLabelType.DUPLICATE
     : !messageDisplayData?.isRegistered
-    ? UserLabelType.UNREGISTERED
-    : null
+      ? UserLabelType.UNREGISTERED
+      : null
 
   const infoMessage = messageDisplayData.type === 3 // 3 stands for MessageType.Info
 
