@@ -34,11 +34,11 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
   }
 
   public async tryIssueCertificates() {
-    console.log("Trying to issue certificates", this.registrationEventInProgress, this.registrationEvents)
+    this.logger("Trying to issue certificates", this.registrationEventInProgress, this.registrationEvents)
     if (!this.registrationEventInProgress) {
       const event = this.registrationEvents.shift()
       if (event) {
-        console.log("Issuing certificates", event)
+        this.logger("Issuing certificates", event)
         this.registrationEventInProgress = true
         await this.issueCertificates({
           ...event,
@@ -49,7 +49,7 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
   }
 
   public async finishIssueCertificates() {
-    console.log("Finished issuing certificates")
+    this.logger("Finished issuing certificates")
     this.registrationEventInProgress = false
 
     if (this.registrationEvents.length > 0) {
@@ -65,6 +65,7 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
     // that, peers verify that anything that is written to the
     // certificate store is signed by the owner.
     if (!this.permsData) {
+      this.logger('Not issuing certificates due to missing perms data')
       await this.finishIssueCertificates()
       return
     }

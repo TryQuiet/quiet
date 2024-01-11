@@ -23,6 +23,7 @@ export class CertificatesStore {
   private metadata: CommunityMetadata | undefined
   private filteredCertificatesMapping: Map<string, Partial<UserData>>
   private usernameMapping: Map<string, string>
+  private emitter: EventEmitter
 
   private readonly logger = Logger(CertificatesStore.name)
 
@@ -40,6 +41,7 @@ export class CertificatesStore {
         write: ['*'],
       },
     })
+    this.emitter = emitter
 
     this.store.events.on('ready', async () => {
       this.logger('Loaded certificates to memory')
@@ -48,25 +50,24 @@ export class CertificatesStore {
 
     this.store.events.on('write', async () => {
       this.logger('Saved certificate locally')
-      await loadedCertificates()
+      await this.loadedCertificates()
     })
 
     this.store.events.on('replicated', async () => {
       this.logger('REPLICATED: Certificates')
       emitter.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CERTIFICATES_REPLICATED)
-      await loadedCertificates()
+      await this.loadedCertificates()
     })
 
-    const loadedCertificates = async () => {
-      emitter.emit(StorageEvents.LOADED_CERTIFICATES, {
-        certificates: await this.getCertificates(),
-      })
-    }
-
-    // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
-    await this.store.load({ fetchEntryTimeout: 15000 })
+    await this.loadedCertificates()
 
     this.logger('Initialized')
+  }
+
+  public async loadedCertificates() {
+    this.emitter.emit(StorageEvents.LOADED_CERTIFICATES, {
+      certificates: await this.getCertificates(),
+    })
   }
 
   public async close() {
@@ -91,6 +92,11 @@ export class CertificatesStore {
   public updateMetadata(metadata: CommunityMetadata) {
     if (!metadata) return
     this.metadata = metadata
+    // Community metadata is required for validating certificates, so
+    // we re-validate certificates once community metadata is set. It
+    // might also make sense to initialize CertificateStore after
+    // CommunityMetadata is received instead of doing this.
+    this.loadedCertificates()
   }
 
   private async validateCertificate(certificate: string) {
@@ -111,18 +117,12 @@ export class CertificatesStore {
       throw new NoCryptoEngineError()
     }
 
+    if (!this.metadata) {
+      throw new Error('Community metadata missing')
+    }
+
+    const parsedRootCertificate = loadCertificate(this.metadata.rootCa)
     const parsedCertificate = loadCertificate(certificate)
-
-    let metadata = this.metadata
-    if (!metadata) {
-      this.logger.error('Metadata missing, waiting...')
-    }
-    while (!metadata) {
-      await new Promise<void>(res => setTimeout(res, 100))
-      metadata = this.metadata
-    }
-
-    const parsedRootCertificate = loadCertificate(metadata.rootCa)
     const verification = await parsedCertificate.verify(parsedRootCertificate)
 
     return verification
