@@ -1,3 +1,7 @@
+[2.1.0] - unreleased
+
+* Fix for multiplicating "welcome" messages when joining a community
+
 [2.0.0]
 
 # Breaking changes:
