@@ -72,7 +72,7 @@ export class StorageService extends EventEmitter {
     private readonly localDbService: LocalDbService,
     private readonly orbitDbService: OrbitDb,
     private readonly certificatesRequestsStore: CertificatesRequestsStore,
-    private readonly certificatesStore: CertificatesStore,
+    public readonly certificatesStore: CertificatesStore,
     private readonly communityMetadataStore: CommunityMetadataStore,
     private readonly lazyModuleLoader: LazyModuleLoader
   ) {
@@ -299,11 +299,10 @@ export class StorageService extends EventEmitter {
   }
 
   public async attachCsrsStoreListeners() {
-    this.on(StorageEvents.LOADED_USER_CSRS, async payload => {
-      const allCertificates = this.getAllEventLogEntries(this.certificatesStore.store)
-      this.emit(StorageEvents.REPLICATED_CSR, { csrs: payload.csrs, certificates: allCertificates, id: payload.id })
+    this.on(StorageEvents.LOADED_USER_CSRS, async (payload: { csrs: string[] })  => {
+      this.emit(StorageEvents.REPLICATED_CSR, payload)
       // TODO
-      //await this.updatePeersList()
+      await this.updatePeersList()
     })
   }
 

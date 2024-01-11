@@ -114,6 +114,9 @@ export class CertificatesStore {
     const parsedCertificate = loadCertificate(certificate)
 
     let metadata = this.metadata
+    if (!metadata) {
+      this.logger.error('Metadata missing, waiting...')
+    }
     while (!metadata) {
       await new Promise<void>(res => setTimeout(res, 100))
       metadata = this.metadata

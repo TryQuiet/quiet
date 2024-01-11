@@ -422,6 +422,12 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       this.serverIoProvider.io.emit(SocketActionTypes.PEER_DISCONNECTED, payload)
     })
     await this.storageService.init(_peerId)
+    // We can use Nest for dependency injection, but I think since the
+    // registration service depends on the storage service being
+    // initialized, this is helpful to manually inject the storage
+    // service for now. Both object construction and object
+    // initialization need to happen in order based on dependencies.
+    await this.registrationService.init(this.storageService)
     this.logger('storage initialized')
 
     this.serverIoProvider.io.emit(
@@ -609,10 +615,10 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     })
     this.storageService.on(
       StorageEvents.REPLICATED_CSR,
-      async (payload: { csrs: string[]; certificates: string[]; id: string }) => {
+      async (payload: { csrs: string[] }) => {
         this.logger(`Storage - ${StorageEvents.REPLICATED_CSR}`)
         this.libp2pService.emit(Libp2pEvents.DIAL_PEERS, await getLibp2pAddressesFromCsrs(payload.csrs))
-        this.serverIoProvider.io.emit(SocketActionTypes.RESPONSE_GET_CSRS, { csrs: payload.csrs })
+        this.serverIoProvider.io.emit(SocketActionTypes.RESPONSE_GET_CSRS, payload)
         this.registrationService.emit(RegistrationEvents.REGISTER_USER_CERTIFICATE, payload)
       }
     )

@@ -10,8 +10,8 @@ import { StorageService } from '../storage/storage.service'
 export class RegistrationService extends EventEmitter implements OnModuleInit {
   private readonly logger = Logger(RegistrationService.name)
   public certificates: string[] = []
-  private _permsData: PermsData
-  private _storageService: StorageService
+  public permsData: PermsData
+  private storageService: StorageService
   private registrationEvents: { csrs: string[] }[] = []
   private registrationEventInProgress = false
 
@@ -29,24 +29,27 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
     )
   }
 
+  public init(storageService: StorageService) {
+    this.storageService = storageService
+  }
+
   public async tryIssueCertificates() {
-    console.log("Trying issue certificates", this.registrationEventInProgress, this.registrationEvents)
+    console.log("Trying to issue certificates", this.registrationEventInProgress, this.registrationEvents)
     if (!this.registrationEventInProgress) {
       const event = this.registrationEvents.shift()
       if (event) {
-        console.log("Running issue certificates", event)
+        console.log("Issuing certificates", event)
         this.registrationEventInProgress = true
         await this.issueCertificates({
           ...event,
-          // @ts-ignore
-          certificates: await this._storageService.certificatesStore.loadAllCertificates() as string[],
+          certificates: await this.storageService?.certificatesStore.loadAllCertificates() as string[],
         })
       }
     }
   }
 
   public async finishIssueCertificates() {
-    console.log("Finished issue certificates")
+    console.log("Finished issuing certificates")
     this.registrationEventInProgress = false
 
     if (this.registrationEvents.length > 0) {
@@ -61,7 +64,7 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
     // false certificates and try to trick other users. To prevent
     // that, peers verify that anything that is written to the
     // certificate store is signed by the owner.
-    if (!this._permsData) {
+    if (!this.permsData) {
       await this.finishIssueCertificates()
       return
     }
@@ -78,21 +81,10 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
     await this.finishIssueCertificates()
   }
 
-  public set permsData(perms: PermsData) {
-    this._permsData = {
-      certificate: perms.certificate,
-      privKey: perms.privKey,
-    }
-  }
-
-  public set storageService(storage: StorageService) {
-    this._storageService = storage
-  }
-
   public async registerOwnerCertificate(payload: RegisterOwnerCertificatePayload): Promise<void> {
     // FIXME: We should resolve problems with events order and we should set permsData only on LAUNCH_REGISTRART socket event in connectionsManager.
-    this._permsData = payload.permsData
-    const result = await issueCertificate(payload.userCsr.userCsr, this._permsData)
+    this.permsData = payload.permsData
+    const result = await issueCertificate(payload.userCsr.userCsr, this.permsData)
     if (result?.cert) {
       this.emit(SocketActionTypes.SAVED_OWNER_CERTIFICATE, {
         communityId: payload.communityId,
@@ -109,11 +101,11 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
   }
 
   public async registerUserCertificate(csr: string): Promise<void> {
-    const result = await issueCertificate(csr, this._permsData)
+    const result = await issueCertificate(csr, this.permsData)
     this.logger('DuplicatedCertBug', { result })
     if (result?.cert) {
       // @ts-ignore
-      await this._storageService?.saveCertificate({ certificate: result.cert })
+      await this.storageService?.saveCertificate({ certificate: result.cert })
     }
   }
 }
