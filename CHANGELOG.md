@@ -1,5 +1,7 @@
 [2.1.0] - unreleased
 
+* Fix channel creation message impersonation bug by removing username from channel creation message
+
 * Reduce file download concurrency as a quick fix for large file downloads
 
 * Fix for changing username modal form
