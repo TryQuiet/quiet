@@ -49,7 +49,7 @@ function subscribeSocketLifecycle(socket: Socket, socketIOData: WebsocketConnect
     ReturnType<typeof initActions.setWebsocketConnected> | ReturnType<typeof initActions.suspendWebsocketConnection>
   >(emit => {
     socket.on('connect', async () => {
-      console.log('websocket connected!')
+      console.log('websocket connected')
       emit(initActions.setWebsocketConnected(socketIOData))
     })
     socket.on('disconnect', () => {
