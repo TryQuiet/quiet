@@ -1,5 +1,7 @@
 [2.1.0] - unreleased
 
+* Reduce file download concurrency as a quick fix for large file downloads
+
 * Fix for changing username modal form
 
 * Ask push notifications runtime permission on Android app start
@@ -23,7 +25,7 @@
 
 * Prettier message loading indicator on mobile
 * Better descriptions of the joining process
-* Validation of community metadata and certificates 
+* Validation of community metadata and certificates
 * A real iOS launch screen (so long, "Powered by React Native"!)
 * A nice splash screen on mobile until the joining/creating screens are ready
 * Clearer autoupdate language in the update modal, so users know that the app will update on restart
