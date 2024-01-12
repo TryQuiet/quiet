@@ -299,7 +299,7 @@ export class StorageService extends EventEmitter {
   }
 
   public async attachCsrsStoreListeners() {
-    this.on(StorageEvents.LOADED_USER_CSRS, async (payload: { csrs: string[] })  => {
+    this.on(StorageEvents.LOADED_USER_CSRS, async (payload: { csrs: string[] }) => {
       this.emit(StorageEvents.REPLICATED_CSR, payload)
       // TODO
       await this.updatePeersList()

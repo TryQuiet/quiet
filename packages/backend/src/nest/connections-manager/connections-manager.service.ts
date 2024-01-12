@@ -613,15 +613,12 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       this.logger(`Storage - ${StorageEvents.CHANNEL_DELETION_RESPONSE}`)
       this.serverIoProvider.io.emit(SocketActionTypes.CHANNEL_DELETION_RESPONSE, payload)
     })
-    this.storageService.on(
-      StorageEvents.REPLICATED_CSR,
-      async (payload: { csrs: string[] }) => {
-        this.logger(`Storage - ${StorageEvents.REPLICATED_CSR}`)
-        this.libp2pService.emit(Libp2pEvents.DIAL_PEERS, await getLibp2pAddressesFromCsrs(payload.csrs))
-        this.serverIoProvider.io.emit(SocketActionTypes.RESPONSE_GET_CSRS, payload)
-        this.registrationService.emit(RegistrationEvents.REGISTER_USER_CERTIFICATE, payload)
-      }
-    )
+    this.storageService.on(StorageEvents.REPLICATED_CSR, async (payload: { csrs: string[] }) => {
+      this.logger(`Storage - ${StorageEvents.REPLICATED_CSR}`)
+      this.libp2pService.emit(Libp2pEvents.DIAL_PEERS, await getLibp2pAddressesFromCsrs(payload.csrs))
+      this.serverIoProvider.io.emit(SocketActionTypes.RESPONSE_GET_CSRS, payload)
+      this.registrationService.emit(RegistrationEvents.REGISTER_USER_CERTIFICATE, payload)
+    })
 
     this.socketService.on(SocketActionTypes.SEND_COMMUNITY_METADATA, async (payload: CommunityMetadata) => {
       await this.storageService?.updateCommunityMetadata(payload)

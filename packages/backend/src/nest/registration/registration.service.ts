@@ -20,13 +20,10 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
   }
 
   onModuleInit() {
-    this.on(
-      RegistrationEvents.REGISTER_USER_CERTIFICATE,
-      async (payload: { csrs: string[] }) => {
-        this.registrationEvents.push(payload)
-        await this.tryIssueCertificates()
-      }
-    )
+    this.on(RegistrationEvents.REGISTER_USER_CERTIFICATE, async (payload: { csrs: string[] }) => {
+      this.registrationEvents.push(payload)
+      await this.tryIssueCertificates()
+    })
   }
 
   public init(storageService: StorageService) {
@@ -34,22 +31,22 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
   }
 
   public async tryIssueCertificates() {
-    this.logger("Trying to issue certificates", this.registrationEventInProgress, this.registrationEvents)
+    this.logger('Trying to issue certificates', this.registrationEventInProgress, this.registrationEvents)
     if (!this.registrationEventInProgress) {
       const event = this.registrationEvents.shift()
       if (event) {
-        this.logger("Issuing certificates", event)
+        this.logger('Issuing certificates', event)
         this.registrationEventInProgress = true
         await this.issueCertificates({
           ...event,
-          certificates: await this.storageService?.certificatesStore.loadAllCertificates() as string[],
+          certificates: (await this.storageService?.certificatesStore.loadAllCertificates()) as string[],
         })
       }
     }
   }
 
   public async finishIssueCertificates() {
-    this.logger("Finished issuing certificates")
+    this.logger('Finished issuing certificates')
     this.registrationEventInProgress = false
 
     if (this.registrationEvents.length > 0) {

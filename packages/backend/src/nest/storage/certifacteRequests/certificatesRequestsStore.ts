@@ -60,8 +60,7 @@ export class CertificatesRequestsStore {
   }
 
   // TODO: Remove and fix tests
-  public resolveCsrReplicatedPromise(id: number) {
-  }
+  public resolveCsrReplicatedPromise(id: number) {}
 
   public async addUserCsr(csr: string) {
     await this.store.add(csr)
