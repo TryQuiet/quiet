@@ -306,10 +306,6 @@ export class StorageService extends EventEmitter {
     })
   }
 
-  public resolveCsrReplicatedPromise(id: number) {
-    this.certificatesRequestsStore.resolveCsrReplicatedPromise(id)
-  }
-
   public async loadAllChannels() {
     this.logger('Getting all channels')
     // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'

@@ -21,6 +21,9 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
 
   onModuleInit() {
     this.on(RegistrationEvents.REGISTER_USER_CERTIFICATE, async (payload: { csrs: string[] }) => {
+      // Save the registration event and then try to process it, but
+      // since we only process a single event at a time, it might not
+      // get processed until other events have been processed.
       this.registrationEvents.push(payload)
       await this.tryIssueCertificates()
     })
@@ -32,25 +35,32 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
 
   public async tryIssueCertificates() {
     this.logger('Trying to issue certificates', this.registrationEventInProgress, this.registrationEvents)
+    // Process only a single registration event at a time so that we
+    // do not register two certificates with the same name.
     if (!this.registrationEventInProgress) {
+      // Get the next event.
       const event = this.registrationEvents.shift()
       if (event) {
         this.logger('Issuing certificates', event)
+        // Event processing in progress
         this.registrationEventInProgress = true
+
+        // Await the processing function and make sure everything that
+        // needs to be done in order is awaited inside this function.
         await this.issueCertificates({
           ...event,
           certificates: (await this.storageService?.certificatesStore.loadAllCertificates()) as string[],
         })
+
+        this.logger('Finished issuing certificates')
+        // Event processing finished
+        this.registrationEventInProgress = false
+
+        // Re-run this function if there are more events to process
+        if (this.registrationEvents.length > 0) {
+          setTimeout(this.tryIssueCertificates.bind(this), 0)
+        }
       }
-    }
-  }
-
-  public async finishIssueCertificates() {
-    this.logger('Finished issuing certificates')
-    this.registrationEventInProgress = false
-
-    if (this.registrationEvents.length > 0) {
-      setTimeout(this.tryIssueCertificates.bind(this), 0)
     }
   }
 
@@ -63,7 +73,6 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
     // certificate store is signed by the owner.
     if (!this.permsData) {
       this.logger('Not issuing certificates due to missing perms data')
-      await this.finishIssueCertificates()
       return
     }
 
@@ -75,8 +84,6 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
         await this.registerUserCertificate(csr)
       })
     )
-
-    await this.finishIssueCertificates()
   }
 
   public async registerOwnerCertificate(payload: RegisterOwnerCertificatePayload): Promise<void> {
@@ -102,6 +109,10 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
     const result = await issueCertificate(csr, this.permsData)
     this.logger('DuplicatedCertBug', { result })
     if (result?.cert) {
+      // Save certificate (awaited) so that we are sure that the certs
+      // are saved before processing the next round of CSRs.
+      // Otherwise, we could issue a duplicate certificate.
+
       // @ts-ignore
       await this.storageService?.saveCertificate({ certificate: result.cert })
     }
