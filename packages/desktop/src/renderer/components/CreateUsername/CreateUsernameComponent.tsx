@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react'
+import React, { useState } from 'react'
 import { styled } from '@mui/material/styles'
 import classNames from 'classnames'
 import { Controller, useForm } from 'react-hook-form'
@@ -10,6 +10,7 @@ import { LoadingButton } from '../ui/LoadingButton/LoadingButton'
 import { TextInput } from '../../forms/components/textInput'
 import { userNameField } from '../../forms/fields/createUserFields'
 import { parseName } from '@quiet/common'
+import { UserData } from '@quiet/types'
 
 const PREFIX = 'CreateUsernameComponent-'
 
@@ -145,67 +146,75 @@ export enum UsernameVariant {
 
 export interface CreateUsernameComponentProps {
   open: boolean
-  currentUsername?: string
   registerUsername: (name: string) => void
-  registrationError?: string | null
-  variant?: UsernameVariant
+  certificateRegistrationError?: string
+  certificate?: string | null
   handleClose: () => void
+  registeredUsers?: Record<string, UserData>
+  currentUsername?: string
+  variant?: UsernameVariant
 }
 
 export const CreateUsernameComponent: React.FC<CreateUsernameComponentProps> = ({
   open,
-  currentUsername,
   registerUsername,
-  registrationError,
-  variant = UsernameVariant.NEW,
+  certificateRegistrationError,
+  certificate,
   handleClose,
+  currentUsername,
+  registeredUsers,
+  variant = UsernameVariant.NEW,
 }) => {
   const isNewUser = variant === UsernameVariant.NEW
+  const [isUsernameRequested, setIsUsernameRequested] = useState(false)
 
   const [formSent, setFormSent] = useState(false)
-
   const [userName, setUserName] = useState('')
   const [parsedNameDiffers, setParsedNameDiffers] = useState(false)
 
-  React.useEffect(() => {
-    if (registrationError) {
-      setError('userName', { message: registrationError }, { shouldFocus: true })
-    }
-  }, [registrationError])
+  const responseReceived = Boolean(certificateRegistrationError || certificate)
+  const waitingForResponse = formSent && !responseReceived
 
   const {
     handleSubmit,
     formState: { errors },
     setValue,
     setError,
-    clearErrors,
     control,
+    clearErrors,
   } = useForm<CreateUserValues>({
     mode: 'onTouched',
   })
 
-  const onSubmit = useCallback((values: CreateUserValues) => {
-    if (Boolean(errors.userName)) {
-      console.error('Cannot submit form with errors')
-      return
+  const onSubmit = (values: CreateUserValues) => {
+    if (isNewUser) {
+      submitForm(registerUsername, values, setFormSent)
+    } else {
+      registerUsername(parseName(values.userName))
+      setIsUsernameRequested(true)
     }
+  }
 
-    const parsedName = parseName(values.userName)
-    registerUsername(parsedName)
-
-    if (variant === UsernameVariant.TAKEN) {
-      // It switches to post-sent view (only for taken variant)
-      setFormSent(true)
-    }
-  }, [])
+  const submitForm = (
+    handleSubmit: (value: string) => void,
+    values: CreateUserValues,
+    setFormSent: (value: boolean) => void
+  ) => {
+    setFormSent(true)
+    handleSubmit(parseName(values.userName))
+  }
 
   const onChange = (name: string) => {
     clearErrors('userName')
-
     const parsedName = parseName(name)
     setUserName(parsedName)
-
     setParsedNameDiffers(name !== parsedName)
+    if (registeredUsers && !isNewUser) {
+      const allUsersSet = new Set(Object.values(registeredUsers).map(user => user.username))
+      if (allUsersSet.has(name)) {
+        setError('userName', { message: `${name} is already taken` })
+      }
+    }
   }
 
   React.useEffect(() => {
@@ -215,6 +224,12 @@ export const CreateUsernameComponent: React.FC<CreateUsernameComponentProps> = (
     }
   }, [open])
 
+  React.useEffect(() => {
+    if (certificateRegistrationError) {
+      setError('userName', { message: certificateRegistrationError })
+    }
+  }, [certificateRegistrationError])
+
   return (
     <Modal
       open={open}
@@ -223,10 +238,10 @@ export const CreateUsernameComponent: React.FC<CreateUsernameComponentProps> = (
       isCloseDisabled={isNewUser}
       isBold={!isNewUser}
       addBorder={!isNewUser}
-      title={isNewUser ? undefined : formSent ? 'New username requested' : 'Username taken'}
+      title={isNewUser ? undefined : isUsernameRequested ? 'New username requested' : 'Username taken'}
     >
       <StyledModalContent container direction='column'>
-        {!formSent ? (
+        {!isUsernameRequested ? (
           <>
             <form onSubmit={handleSubmit(onSubmit)}>
               <Grid container justifyContent='flex-start' direction='column' className={classes.fullContainer}>
@@ -310,7 +325,8 @@ export const CreateUsernameComponent: React.FC<CreateUsernameComponentProps> = (
                 <LoadingButton
                   variant='contained'
                   color='primary'
-                  disabled={Boolean(errors.userName)}
+                  inProgress={waitingForResponse}
+                  disabled={waitingForResponse || Boolean(errors.userName)}
                   type='submit'
                   text={isNewUser ? 'Register' : 'Continue'}
                   classes={{
