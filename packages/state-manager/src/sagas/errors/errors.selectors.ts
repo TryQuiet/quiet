@@ -3,7 +3,7 @@ import { currentCommunityId } from '../communities/communities.selectors'
 import { StoreKeys } from '../store.keys'
 import { type CreatedSelectors, type StoreState } from '../store.types'
 import { errorsAdapter } from './errors.adapter'
-import { type ErrorPayload, SocketActionTypes } from '@quiet/types'
+import { type ErrorPayload } from '@quiet/types'
 
 const errorSlice: CreatedSelectors[StoreKeys.Errors] = (state: StoreState) => state[StoreKeys.Errors]
 
@@ -31,12 +31,7 @@ export const currentCommunityErrors = createSelector(currentCommunityId, selectA
   }, {})
 })
 
-export const registrarErrors = createSelector(currentCommunityErrors, errors => {
-  return errors[SocketActionTypes.REGISTRAR]
-})
-
 export const errorsSelectors = {
   generalErrors,
   currentCommunityErrors,
-  registrarErrors,
 }
