@@ -1,5 +1,7 @@
 [2.1.0] - unreleased
 
+* Ask push notifications runtime permission on Android app start
+
 * Fix for multiplicating "welcome" messages when joining a community
 
 [2.0.0]
