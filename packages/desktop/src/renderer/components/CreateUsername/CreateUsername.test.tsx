@@ -6,8 +6,6 @@ import { renderComponent } from '../../testUtils/renderComponent'
 
 import CreateUsernameComponent, { UsernameVariant } from './CreateUsernameComponent'
 import { FieldErrors, UsernameErrors } from '../../forms/fieldsErrors'
-import { keyFromCertificate, parseCertificate } from '@quiet/identity'
-import { UserData } from '@quiet/types'
 
 describe('Create username', () => {
   it.each([
@@ -52,30 +50,14 @@ describe('Create username', () => {
 })
 
 describe('Username taken', () => {
-  const userCertData = {
-    username: 'userName',
-    onionAddress: 'nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad.onion',
-    peerId: 'Qmf3ySkYqLET9xtAtDzvAr5Pp3egK1H3C5iJAZm1SpLEp6',
-    dmPublicKey: '0bfb475810c0e26c9fab590d47c3d60ec533bb3c451596acc3cd4f21602e9ad9',
-  }
-
-  const userCertString =
-    'MIICaDCCAg6gAwIBAgIGAYBqyuV2MAoGCCqGSM49BAMCMBkxFzAVBgNVBAMTDnF1aWV0Y29tbXVuaXR5MB4XDTEwMTIyODEwMTAxMFoXDTMwMTIyODEwMTAxMFowSTFHMEUGA1UEAxM+bnFudzRrYzRjNzdmYjQ3bGs1Mm01bDU3aDR0Y3hjZW83eW14ZWtmbjd5aDVtNjZ0NGp2Mm9sYWQub25pb24wWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAAQZBMmiVmRBRvw+QiL5DYg7WGFUVgA7u90KMpJg4qCaCJJNh7wH2tl0EDsN4FeGmR9AkvtCGd+5vYL0nGcX/oLdo4IBEDCCAQwwCQYDVR0TBAIwADALBgNVHQ8EBAMCAIAwHQYDVR0lBBYwFAYIKwYBBQUHAwIGCCsGAQUFBwMBMC8GCSqGSIb3DQEJDAQiBCAL+0dYEMDibJ+rWQ1Hw9YOxTO7PEUVlqzDzU8hYC6a2TAYBgorBgEEAYOMGwIBBAoTCHVzZXJOYW1lMD0GCSsGAQIBDwMBAQQwEy5RbWYzeVNrWXFMRVQ5eHRBdER6dkFyNVBwM2VnSzFIM0M1aUpBWm0xU3BMRXA2MEkGA1UdEQRCMECCPm5xbnc0a2M0Yzc3ZmI0N2xrNTJtNWw1N2g0dGN4Y2VvN3lteGVrZm43eWg1bTY2dDRqdjJvbGFkLm9uaW9uMAoGCCqGSM49BAMCA0gAMEUCIF63rnIq8vd86NT9RHSFj7borwwODqyfE7Pw64tGElpIAiEA5ZDSdrDd8OGf+kv7wxByM1Xgmc5m/aydUk+WorbO3Gg='
-  const parsedCert = parseCertificate(userCertString)
-  const userPubKey = keyFromCertificate(parsedCert)
-
-  const registeredUsers: Record<string, UserData> = {
-    [userPubKey]: userCertData,
-  }
   it('renders component ', () => {
     const result = renderComponent(
       <CreateUsernameComponent
-        handleClose={() => {}}
-        open={true}
         currentUsername={'jack'}
-        variant={UsernameVariant.TAKEN}
-        registeredUsers={registeredUsers}
         registerUsername={() => {}}
+        handleClose={() => {}}
+        variant={UsernameVariant.TAKEN}
+        open={true}
       />
     )
     expect(result.baseElement).toMatchInlineSnapshot(`

@@ -35,12 +35,7 @@ const CreateUsername = () => {
     loadingPanelModal.handleOpen()
   }
 
-  return (
-    <CreateUsernameComponent
-      {...createUsernameModal}
-      registerUsername={registerUsername}
-    />
-  )
+  return <CreateUsernameComponent {...createUsernameModal} registerUsername={registerUsername} />
 }
 
 export default CreateUsername

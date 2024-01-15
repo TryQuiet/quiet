@@ -185,7 +185,7 @@ export const CreateUsernameComponent: React.FC<CreateUsernameComponentProps> = (
   })
 
   const onSubmit = useCallback((values: CreateUserValues) => {
-    if (Boolean(errors.userName)) {
+    if (errors.userName) {
       console.error('Cannot submit form with errors')
       return
     }

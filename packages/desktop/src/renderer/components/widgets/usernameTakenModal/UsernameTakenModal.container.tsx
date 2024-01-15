@@ -25,7 +25,7 @@ const UsernameTakenModalContainer = () => {
       // Trying to register the same username
       if (nickname === user?.nickname) {
         setRegistrationError('You cannot register with this username.')
-        return 
+        return
       }
 
       // Trying to register another already taken username
