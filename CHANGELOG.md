@@ -1,5 +1,7 @@
 [2.1.0] - unreleased
 
+* Fix for changing username modal form
+
 * Fix for multiplicating "welcome" messages when joining a community
 
 [2.0.0]
