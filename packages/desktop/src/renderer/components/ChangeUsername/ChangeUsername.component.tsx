@@ -244,7 +244,6 @@ export const ChangeUsername: React.FC<ChangeUsernameProps> = ({
                   field.onBlur()
                 }}
                 value={field.value}
-                data-testid={'username-input'}
               />
             )}
           />

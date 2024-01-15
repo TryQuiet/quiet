@@ -43,7 +43,7 @@ describe('Username taken', () => {
     community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
   })
 
-  it('Displays username taken modal', async () => {
+  it('Displays error if trying to register the same (taken) username', async () => {
     const alice = (
       await factory.build<typeof identity.actions.addNewIdentity>('Identity', {
         id: community.id,
