@@ -1,5 +1,5 @@
 import React, { FC, useCallback, useEffect } from 'react'
-import { connection, ErrorCodes, errors } from '@quiet/state-manager'
+import { connection } from '@quiet/state-manager'
 import { useDispatch, useSelector } from 'react-redux'
 import ConnectionProcessComponent from '../../components/ConnectionProcess/ConnectionProcess.component'
 import { Linking } from 'react-native'
@@ -12,21 +12,9 @@ export const ConnectionProcessScreen: FC = () => {
   const connectionProcessSelector = useSelector(connection.selectors.connectionProcess)
   const isJoiningCompletedSelector = useSelector(connection.selectors.isJoiningCompleted)
 
-  const error = useSelector(errors.selectors.registrarErrors)
-
   const openUrl = useCallback((url: string) => {
     void Linking.openURL(url)
   }, [])
-
-  useEffect(() => {
-    if (error?.code === ErrorCodes.FORBIDDEN) {
-      dispatch(
-        navigationActions.replaceScreen({
-          screen: ScreenNames.UsernameRegistrationScreen,
-        })
-      )
-    }
-  }, [error, dispatch])
 
   useEffect(() => {
     if (isJoiningCompletedSelector) {

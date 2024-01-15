@@ -25,14 +25,11 @@ const LoadingPanel = () => {
   const connectionProcessSelector = useSelector(connection.selectors.connectionProcess)
   const isJoiningCompletedSelector = useSelector(connection.selectors.isJoiningCompleted)
 
-  const error = useSelector(errors.selectors.registrarErrors)
-  const registrationError = error?.code === ErrorCodes.FORBIDDEN
-
   useEffect(() => {
-    if (isJoiningCompletedSelector || registrationError) {
+    if (isJoiningCompletedSelector) {
       loadingPanelModal.handleClose()
     }
-  }, [isJoiningCompletedSelector, error])
+  }, [isJoiningCompletedSelector])
 
   useEffect(() => {
     if (isConnected) {
