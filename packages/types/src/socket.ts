@@ -60,7 +60,6 @@ export enum SocketActionTypes {
   SEND_MESSAGE = 'sendMessage',
   SEND_MESSAGES_IDS = 'sendIds',
   SEND_PEER_ID = 'sendPeerId',
-  SEND_USER_CERTIFICATE = 'sendUserCertificate',
   SEND_COMMUNITY_METADATA = 'sendCommunityMetadata',
   COMMUNITY_METADATA_SAVED = 'communityMetadataSaved',
   //  T

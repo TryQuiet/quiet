@@ -68,7 +68,6 @@ export enum SocketActionTypes {
   SEND_MESSAGE = 'sendMessage',
   SEND_MESSAGES_IDS = 'sendIds',
   SEND_PEER_ID = 'sendPeerId',
-  SEND_USER_CERTIFICATE = 'sendUserCertificate',
   //  T
   TOR_INITIALIZED = 'torInitialized',
   CONNECTION_PROCESS_INFO = 'connectionProcess',
