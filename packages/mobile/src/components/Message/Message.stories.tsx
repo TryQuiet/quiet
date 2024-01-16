@@ -31,31 +31,6 @@ storiesOf('Message', module)
       />
     )
   })
-  .add('Duplicated username with different pubkey', () => {
-    return (
-      <Message
-        duplicatedUsernameHandleBack={function (): void {}}
-        unregisteredUsernameHandleBack={function (username: string): void {}}
-        data={[
-          {
-            id: '2',
-            type: MessageType.Basic,
-            message: 'The cake is a lie',
-            createdAt: 0,
-            date: '1:31pm',
-            nickname: 'holmes',
-            isDuplicated: true,
-            isRegistered: false,
-            pubKey: 'testDifferentPubKey',
-          },
-        ]}
-        openUrl={() => {}}
-        openImagePreview={() => {}}
-        downloadFile={() => {}}
-        cancelDownload={() => {}}
-      />
-    )
-  })
   .add('Info', () => {
     return (
       <Message
