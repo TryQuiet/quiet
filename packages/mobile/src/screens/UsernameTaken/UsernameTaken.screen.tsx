@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react'
-import { errors, identity, users } from '@quiet/state-manager'
+import { identity, users } from '@quiet/state-manager'
 import { useDispatch, useSelector } from 'react-redux'
 import { UsernameTakenScreenProps } from './UsernameTaken.types'
 import { UsernameRegistration } from '../../components/Registration/UsernameRegistration.component'
@@ -16,17 +16,11 @@ const UsernameTakenScreen: React.FC<UsernameTakenScreenProps> = () => {
 
   const registeredUsers = useSelector(users.selectors.certificatesMapping)
 
-  const error = useSelector(errors.selectors.registrarErrors)
-
   const handleBackButton = useCallback(() => {
     dispatch(navigationActions.pop())
   }, [dispatch])
 
   const handleAction = (nickname: string) => {
-    // Clear errors
-    if (error) {
-      dispatch(errors.actions.clearError(error))
-    }
     dispatch(
       identity.actions.registerUsername({
         nickname,

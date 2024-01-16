@@ -1,5 +1,7 @@
 [2.1.0] - unreleased
 
+* Fix for changing username modal form
+
 * Ask push notifications runtime permission on Android app start
 
 * Fix for multiplicating "welcome" messages when joining a community
