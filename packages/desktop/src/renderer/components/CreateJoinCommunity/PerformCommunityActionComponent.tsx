@@ -276,23 +276,21 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
                     }}
                     onblur={() => {}}
                     InputProps={
-                      communityOwnership === CommunityOwnership.User ? (
-                        {
-                          endAdornment: (
-                            <InputAdornment position='end'>
-                              <IconButton size='small' onClick={handleClickInputReveal}>
-                                {!revealInputValue ? (
-                                  <VisibilityOff color='primary' fontSize='small' />
-                                ) : (
-                                  <Visibility color='primary' fontSize='small' />
-                                )}
-                              </IconButton>
-                            </InputAdornment>
-                          ),
-                        }
-                      ) : (
-                        <></>
-                      )
+                      communityOwnership === CommunityOwnership.User
+                        ? {
+                            endAdornment: (
+                              <InputAdornment position='end'>
+                                <IconButton size='small' onClick={handleClickInputReveal}>
+                                  {!revealInputValue ? (
+                                    <VisibilityOff color='primary' fontSize='small' />
+                                  ) : (
+                                    <Visibility color='primary' fontSize='small' />
+                                  )}
+                                </IconButton>
+                              </InputAdornment>
+                            ),
+                          }
+                        : undefined
                     }
                     type={revealInputValue ? 'text' : 'password'}
                     value={communityOwnership === CommunityOwnership.User ? field.value.trim() : field.value}
