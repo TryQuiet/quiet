@@ -70,6 +70,7 @@ export class IpfsFileManagerService extends EventEmitter {
       await this.uploadFile(fileMetadata)
     })
     this.on(IpfsFilesManagerEvents.DOWNLOAD_FILE, async (fileMetadata: FileMetadata) => {
+      this.logger('Downloading file:', fileMetadata.cid, fileMetadata.size)
       if (this.files.get(fileMetadata.cid)) return
       this.files.set(fileMetadata.cid, {
         size: fileMetadata.size || 0,
@@ -114,10 +115,10 @@ export class IpfsFileManagerService extends EventEmitter {
     }
   }
 
+  /**
+   * Copy file to a different directory and return the new path
+   */
   public copyFile(originalFilePath: string, filename: string): string {
-    /**
-     * Copy file to a different directory and return the new path
-     */
     const uploadsDir = path.join(this.quietDir, 'uploads')
     let newFilename: string
     try {
@@ -256,17 +257,13 @@ export class IpfsFileManagerService extends EventEmitter {
 
   public async downloadBlocks(fileMetadata: FileMetadata) {
     const block = CID.parse(fileMetadata.cid)
-
     const localBlocks = await this.getLocalBlocks()
     const processedBlocks: PBNode[] = [] // TODO: Should it be CID or PBNode?
-
     const controller = new AbortController()
 
     setMaxListeners(MAX_EVENT_LISTENERS, controller.signal)
 
-    this.controllers.set(fileMetadata.cid, {
-      controller,
-    })
+    this.controllers.set(fileMetadata.cid, { controller })
 
     // Add try catch and return downloadBlocks with timeout
     const stat = await this.ipfs.files.stat(block)
@@ -282,6 +279,7 @@ export class IpfsFileManagerService extends EventEmitter {
             await processBlock(link, controller.signal)
           } catch (e) {
             if (!(e instanceof AbortError)) {
+              this.logger.error('Failed to process block. Re-adding to queue', link.toString())
               void addToQueue(link)
             }
           }
@@ -364,6 +362,7 @@ export class IpfsFileManagerService extends EventEmitter {
         try {
           fetchedBlock = await this.ipfs.block.get(block, { timeout: BLOCK_FETCH_TIMEOUT * 1000 })
         } catch (e) {
+          this.logger.error('Failed to fetch block', block.toString(), e)
           signal.removeEventListener('abort', onAbort)
           reject(new Error("couldn't fetch block"))
           return
