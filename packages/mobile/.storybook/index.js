@@ -1,10 +1,6 @@
 import { LogBox } from 'react-native'
 
-import {
-  configure,
-  addDecorator,
-  getStorybookUI,
-} from '@storybook/react-native'
+import { configure, addDecorator, getStorybookUI } from '@storybook/react-native'
 
 import { withNavigation } from './navigation'
 
@@ -41,6 +37,7 @@ configure(() => {
   require('../src/components/Error/Error.stories')
   require('../src/components/PossibleImpersonationAttack/PossibleImpersonationAttack.stories')
   require('../src/components/FileUploadingPreview/UploadingPreview.stories')
+  require('../src/components/NewUsernameRequested/NewUsernameRequested.stories')
 }, module)
 
 const StorybookUIRoot = getStorybookUI({

@@ -135,7 +135,7 @@ export const Message: FC<MessageProps & FileActionsProps> = ({
               style={{ width: 37, height: 37 }}
             />
           ) : (
-            <Jdenticon value={representativeMessage.nickname} size={37} />
+            <Jdenticon value={representativeMessage.pubKey} size={37} />
           )}
         </View>
         <View style={{ flex: 8 }}>
