@@ -1,5 +1,7 @@
 [2.1.0] - unreleased
 
+* refactor: Remove unused SUBSCRIBE_FOR events
+
 * Clean up desktop UI console errors/warnings
 
 * fix: Enable channel context menu for all users
