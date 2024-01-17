@@ -30,7 +30,6 @@ export enum SocketActionTypes {
   INITIALIZE_CONVERSATION = 'initializeConversation',
   // L
   LAUNCH_COMMUNITY = 'launchCommunity',
-  LAUNCH_REGISTRAR = 'launchRegistrar',
   LEAVE_COMMUNITY = 'leaveCommunity',
   LIBP2P_PSK_SAVED = 'libp2pPskSaved',
   // N
@@ -44,7 +43,6 @@ export enum SocketActionTypes {
   // R
   REGISTER_USER_CERTIFICATE = 'registerUserCertificate',
   REGISTER_OWNER_CERTIFICATE = 'registerOwnerCertificate',
-  REGISTRAR = 'registrar',
   REMOVE_DOWNLOAD_STATUS = 'removeDownloadStatus',
   RESPONSE_FETCH_ALL_DIRECT_MESSAGES = 'responseFetchAllDirectMessages',
   RESPONSE_GET_CERTIFICATES = 'responseGetCertificates',
@@ -61,6 +59,7 @@ export enum SocketActionTypes {
   SEND_MESSAGES_IDS = 'sendIds',
   SEND_PEER_ID = 'sendPeerId',
   SEND_COMMUNITY_METADATA = 'sendCommunityMetadata',
+  SEND_COMMUNITY_CA_DATA = 'sendCommunityCaData',
   COMMUNITY_METADATA_SAVED = 'communityMetadataSaved',
   //  T
   TOR_INITIALIZED = 'torInitialized',

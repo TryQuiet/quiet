@@ -25,7 +25,6 @@ import {
   FileMetadata,
   IncomingMessages,
   InitCommunityPayload,
-  LaunchRegistrarPayload,
   NetworkData,
   NetworkDataPayload,
   NetworkStats,
@@ -42,6 +41,7 @@ import {
   PeerId as PeerIdType,
   SaveCSRPayload,
   CommunityMetadata,
+  PermsData,
 } from '@quiet/types'
 import { CONFIG_OPTIONS, QUIET_DIR, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
 import { ConfigOptions, GetPorts, ServerIoProviderTypes } from '../types'
@@ -65,7 +65,6 @@ import { isPSKcodeValid } from '@quiet/common'
 export class ConnectionsManagerService extends EventEmitter implements OnModuleInit {
   public communityId: string
   public communityState: ServiceState
-  public registrarState: ServiceState
   public libp2pService: Libp2pService
   private ports: GetPorts
   isTorInit: TorInitState = TorInitState.NOT_STARTED
@@ -131,13 +130,12 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   public async init() {
     console.log('init')
     this.communityState = ServiceState.DEFAULT
-    this.registrarState = ServiceState.DEFAULT
     await this.generatePorts()
     if (!this.configOptions.httpTunnelPort) {
       this.configOptions.httpTunnelPort = await getPort()
     }
 
-    this.attachsocketServiceListeners()
+    this.attachSocketServiceListeners()
     this.attachRegistrationListeners()
     this.attachTorEventsListeners()
     this.attachStorageListeners()
@@ -218,7 +216,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.communityId = ''
     this.ports = { ...this.ports, libp2pHiddenService: await getPort() }
     this.communityState = ServiceState.DEFAULT
-    this.registrarState = ServiceState.DEFAULT
   }
 
   public async purgeData() {
@@ -251,6 +248,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   public async createNetwork(community: Community) {
     let network: NetworkData
     // For registrar service purposes, if community owner
+    // FIXME: Remove if obselete
     let network2: NetworkData
     try {
       network = await this.getNetwork()
@@ -295,7 +293,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       community: {
         ...community,
         privateKey: network2.hiddenService.privateKey,
-        registrarUrl: community.registrarUrl || network2.hiddenService.onionAddress.split('.')[0], // TODO: remove
       },
       network,
     }
@@ -459,11 +456,8 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       }
     })
   }
-  private attachsocketServiceListeners() {
+  private attachSocketServiceListeners() {
     // Community
-    this.socketService.on(SocketActionTypes.LEAVE_COMMUNITY, async () => {
-      await this.leaveCommunity()
-    })
     this.socketService.on(SocketActionTypes.CONNECTION, async () => {
       // Update Frontend with Initialized Communities
       if (this.communityId) {
@@ -492,14 +486,11 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       this.communityState = ServiceState.LAUNCHING
       await this.launchCommunity(args)
     })
-    this.socketService.on(SocketActionTypes.LAUNCH_REGISTRAR, async (args: LaunchRegistrarPayload) => {
-      // Event left for setting permsData purposes
-      this.logger(`socketService - ${SocketActionTypes.LAUNCH_REGISTRAR}`)
-      this.registrationService.permsData = {
-        certificate: args.rootCertString,
-        privKey: args.rootKeyString,
-      }
+    this.socketService.on(SocketActionTypes.LEAVE_COMMUNITY, async () => {
+      await this.leaveCommunity()
     })
+
+    // Username registration
     this.socketService.on(SocketActionTypes.SAVE_USER_CSR, async (payload: SaveCSRPayload) => {
       this.logger(`socketService - ${SocketActionTypes.SAVE_USER_CSR}`)
       await this.storageService?.saveCSR(payload)
@@ -511,11 +502,32 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         await this.registrationService.registerOwnerCertificate(args)
       }
     )
+    // TODO: Save community CA data in LevelDB. Perhaps save the
+    // entire Community type in LevelDB. We can probably do this once
+    // when creating the community.
+    this.socketService.on(SocketActionTypes.SEND_COMMUNITY_CA_DATA, async (payload: PermsData) => {
+      this.logger(`socketService - ${SocketActionTypes.SEND_COMMUNITY_CA_DATA}`)
+      this.registrationService.permsData = payload
+    })
 
     // Public Channels
     this.socketService.on(SocketActionTypes.CREATE_CHANNEL, async (args: CreateChannelPayload) => {
       await this.storageService?.subscribeToChannel(args.channel)
     })
+    this.socketService.on(
+      SocketActionTypes.DELETE_CHANNEL,
+      async (payload: { channelId: string; ownerPeerId: string }) => {
+        await this.storageService?.deleteChannel(payload)
+      }
+    )
+    this.socketService.on(
+      SocketActionTypes.DELETE_FILES_FROM_CHANNEL,
+      async (payload: DeleteFilesFromChannelSocketPayload) => {
+        this.logger(`socketService - ${SocketActionTypes.DELETE_FILES_FROM_CHANNEL}`, payload)
+        await this.storageService?.deleteFilesFromChannel(payload)
+        // await this.deleteFilesFromTemporaryDir() //crashes on mobile, will be fixes in next versions
+      }
+    )
     this.socketService.on(SocketActionTypes.SEND_MESSAGE, async (args: SendMessagePayload) => {
       await this.storageService?.sendMessage(args.message)
     })
@@ -537,24 +549,10 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       this.storageService?.cancelDownload(mid)
     })
 
+    // System
     this.socketService.on(SocketActionTypes.CLOSE, async () => {
       await this.closeAllServices()
     })
-    this.socketService.on(
-      SocketActionTypes.DELETE_CHANNEL,
-      async (payload: { channelId: string; ownerPeerId: string }) => {
-        await this.storageService?.deleteChannel(payload)
-      }
-    )
-
-    this.socketService.on(
-      SocketActionTypes.DELETE_FILES_FROM_CHANNEL,
-      async (payload: DeleteFilesFromChannelSocketPayload) => {
-        this.logger(`socketService - ${SocketActionTypes.DELETE_FILES_FROM_CHANNEL}`, payload)
-        await this.storageService?.deleteFilesFromChannel(payload)
-        // await this.deleteFilesFromTemporaryDir() //crashes on mobile, will be fixes in next versions
-      }
-    )
   }
   private attachStorageListeners() {
     if (!this.storageService) return

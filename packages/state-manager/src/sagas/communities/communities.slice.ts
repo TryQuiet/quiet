@@ -7,9 +7,7 @@ import {
   type Community,
   type CreateNetworkPayload,
   type ResponseCreateNetworkPayload,
-  type ResponseRegistrarPayload,
   type StorePeerListPayload,
-  type UpdateRegistrationAttemptsPayload,
   CommunityMetadata,
   InvitationData,
 } from '@quiet/types'
@@ -40,17 +38,10 @@ export const communitiesSlice = createSlice({
         },
       })
     },
+    sendCommunityCaData: state => state,
     sendCommunityMetadata: state => state,
     createNetwork: (state, _action: PayloadAction<CreateNetworkPayload>) => state,
     responseCreateNetwork: (state, _action: PayloadAction<ResponseCreateNetworkPayload>) => state,
-    responseRegistrar: (state, action: PayloadAction<ResponseRegistrarPayload>) => {
-      communitiesAdapter.updateOne(state.communities, {
-        id: action.payload.id,
-        changes: {
-          ...action.payload.payload,
-        },
-      })
-    },
     storePeerList: (state, action: PayloadAction<StorePeerListPayload>) => {
       communitiesAdapter.updateOne(state.communities, {
         id: action.payload.communityId,
@@ -61,15 +52,6 @@ export const communitiesSlice = createSlice({
     },
     resetApp: (state, _action) => state,
     launchCommunity: (state, _action: PayloadAction<string | undefined>) => state,
-    launchRegistrar: (state, _action: PayloadAction<string | undefined>) => state,
-    updateRegistrationAttempts: (state, action: PayloadAction<UpdateRegistrationAttemptsPayload>) => {
-      communitiesAdapter.updateOne(state.communities, {
-        id: action.payload.id,
-        changes: {
-          ...action.payload,
-        },
-      })
-    },
     customProtocol: (state, _action: PayloadAction<InvitationData>) => state,
     setInvitationCodes: (state, action: PayloadAction<InvitationPair[]>) => {
       state.invitationCodes = action.payload

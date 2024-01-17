@@ -32,7 +32,6 @@ export const deviceEvents = () => {
     | ReturnType<typeof nativeServicesActions.flushPersistor>
     | ReturnType<typeof app.actions.stopBackend>
     | ReturnType<typeof network.actions.removeInitializedCommunities>
-    | ReturnType<typeof network.actions.removeInitializedRegistrars>
   >(emit => {
     const subscriptions = [
       nativeEventEmitter?.addListener(NativeEventKeys.Backend, (event: BackendEvent) => {
@@ -67,7 +66,6 @@ export const deviceEvents = () => {
       nativeEventEmitter?.addListener(NativeEventKeys.AppPause, () => {
         emit(nativeServicesActions.flushPersistor())
         emit(network.actions.removeInitializedCommunities())
-        emit(network.actions.removeInitializedRegistrars())
       }),
       nativeEventEmitter?.addListener(NativeEventKeys.AppResume, () => {
         // emit(navigationActions.navigation({ screen: ScreenNames.SplashScreen }))
