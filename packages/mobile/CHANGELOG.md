@@ -1,21 +1,3 @@
-# Change Log
-
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
-
-## [2.0.1](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@2.0.0...@quiet/mobile@2.0.1) (2024-01-17)
-
-
-### Bug Fixes
-
-* ask push notification runtime permission on Android ([#2213](https://github.com/TryQuiet/quiet/issues/2213)) ([59415fa](https://github.com/TryQuiet/quiet/commit/59415faba1db43b8b7a7c87af1e04536eb287c91))
-* cleanup username creation component ([#2216](https://github.com/TryQuiet/quiet/issues/2216)) ([1082c57](https://github.com/TryQuiet/quiet/commit/1082c578eb2afc7c7f090a30c6aaa8141159607c))
-* create jdenticon from pubKey, not username - to distinguish user… ([#2207](https://github.com/TryQuiet/quiet/issues/2207)) ([41a6f59](https://github.com/TryQuiet/quiet/commit/41a6f5938e9ae7765269117b841be31d81fdb773))
-
-
-
-
-
 [2.0.1]
 
 # Fixes:
