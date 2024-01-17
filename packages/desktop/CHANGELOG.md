@@ -1,3 +1,22 @@
+# Change Log
+
+All notable changes to this project will be documented in this file.
+See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+## [2.0.1](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@2.0.0...@quiet/desktop@2.0.1) (2024-01-17)
+
+
+### Bug Fixes
+
+* Clean up desktop UI console errors/warnings ([#2226](https://github.com/TryQuiet/quiet/issues/2226)) ([0dd6349](https://github.com/TryQuiet/quiet/commit/0dd634918e9d83830a3cba68a15be348ce1c2704))
+* cleanup username creation component ([#2216](https://github.com/TryQuiet/quiet/issues/2216)) ([1082c57](https://github.com/TryQuiet/quiet/commit/1082c578eb2afc7c7f090a30c6aaa8141159607c))
+* create jdenticon from pubKey, not username - to distinguish user… ([#2207](https://github.com/TryQuiet/quiet/issues/2207)) ([41a6f59](https://github.com/TryQuiet/quiet/commit/41a6f5938e9ae7765269117b841be31d81fdb773))
+* Enable channel context menu for all users ([#2206](https://github.com/TryQuiet/quiet/issues/2206)) ([79135b7](https://github.com/TryQuiet/quiet/commit/79135b7a30d9e8ed67b88c5f90f9141eb81a634f))
+
+
+
+
+
 [2.0.1]
 
 # Fixes:
