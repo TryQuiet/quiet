@@ -1,4 +1,34 @@
-# [2.0.0](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@2.0.3-alpha.17...@quiet/mobile@2.0.0) (2024-01-09)
+# Change Log
+
+All notable changes to this project will be documented in this file.
+See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+## [2.0.1-alpha.0](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@2.0.1...@quiet/mobile@2.0.1-alpha.0) (2024-01-17)
+
+
+### Reverts
+
+* Revert "Publish" ([5a96eab](https://github.com/TryQuiet/quiet/commit/5a96eab6aabb3efdcf0c8f32428a106d40c0f186))
+* Revert "Update packages CHANGELOG.md" ([60edd5f](https://github.com/TryQuiet/quiet/commit/60edd5f509914427bd8fc6e3fc3138adada13eda))
+
+
+
+
+
+[2.0.1]
+
+# Fixes:
+
+* Desktop UI console errors/warnings have been cleaned up.
+* The channel context menu is now enabled for all users.
+* A bug that impersonated the channel creation message due to the removal of the username has been fixed.
+* Large file downloads are now slower but steadier.
+* The username changing form has been fixed.
+* Push notifications runtime permission is now requested on Android.
+* Users joining a community will no longer receive multiple "welcome" messages.
+* Users sharing the same nickname now have different profile images.
+
+[2.0.0]
 
 # Breaking changes:
 
