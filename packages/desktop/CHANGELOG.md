@@ -1,4 +1,17 @@
-# [2.0.0](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@2.0.3-alpha.15...@quiet/desktop@2.0.0) (2024-01-09)
+[2.0.1]
+
+# Fixes:
+
+* Desktop UI console errors/warnings have been cleaned up.
+* The channel context menu is now enabled for all users.
+* A bug that impersonated the channel creation message due to the removal of the username has been fixed.
+* Large file downloads are now slower but steadier.
+* The username changing form has been fixed.
+* Push notifications runtime permission is now requested on Android.
+* Users joining a community will no longer receive multiple "welcome" messages.
+* Users sharing the same nickname now have different profile images.
+
+[2.0.0]
 
 # Breaking changes:
 
@@ -14,7 +27,7 @@
 
 * Prettier message loading indicator on mobile
 * Better descriptions of the joining process
-* Validation of community metadata and certificates 
+* Validation of community metadata and certificates
 * A real iOS launch screen (so long, "Powered by React Native"!)
 * A nice splash screen on mobile until the joining/creating screens are ready
 * Clearer autoupdate language in the update modal, so users know that the app will update on restart
