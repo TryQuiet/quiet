@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "lerna": "lerna",
-    "publish": "lerna version $npm_config_release --no-private",
+    "publish": "lerna version $npm_config_release --no-private --no-changelog",
     "prepublish": "node copy-changelog.js"
   },
   "engines": {

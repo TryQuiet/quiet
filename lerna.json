@@ -6,7 +6,7 @@
   "command": {
     "version": {
       "allowBranch": ["*"],
-      "conventionalCommits": false,
+      "conventionalCommits": true,
       "createRelease": "github"
     },
     "bootstrap" : {
