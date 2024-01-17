@@ -1,3 +1,20 @@
+# Change Log
+
+All notable changes to this project will be documented in this file.
+See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+## [2.0.1-alpha.0](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@2.0.1...@quiet/desktop@2.0.1-alpha.0) (2024-01-17)
+
+
+### Reverts
+
+* Revert "Publish" ([5a96eab](https://github.com/TryQuiet/quiet/commit/5a96eab6aabb3efdcf0c8f32428a106d40c0f186))
+* Revert "Update packages CHANGELOG.md" ([60edd5f](https://github.com/TryQuiet/quiet/commit/60edd5f509914427bd8fc6e3fc3138adada13eda))
+
+
+
+
+
 [2.0.1]
 
 # Fixes:
