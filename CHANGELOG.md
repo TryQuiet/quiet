@@ -1,19 +1,15 @@
-[2.1.0] - unreleased
+[2.0.1]
 
-* Clean up desktop UI console errors/warnings
+# Fixes:
 
-* fix: Enable channel context menu for all users
-
-* Fix channel creation message impersonation bug by removing username from channel creation message
-
-* Reduce file download concurrency as a quick fix for large file downloads
-
-* Fix for changing username modal form
-
-* Ask push notifications runtime permission on Android app start
-
-* Fix for multiplicating "welcome" messages when joining a community
-* Fix: base jdenticon on pubkey instead of username - this way unregistered user with duplicated username will have different profile image
+* Desktop UI console errors/warnings have been cleaned up.
+* The channel context menu is now enabled for all users.
+* A bug that impersonated the channel creation message due to the removal of the username has been fixed.
+* Large file downloads are now slower but steadier.
+* The username changing form has been fixed.
+* Push notifications runtime permission is now requested on Android.
+* Users joining a community will no longer receive multiple "welcome" messages.
+* Users sharing the same nickname now have different profile images.
 
 [2.0.0]
 
