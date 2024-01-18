@@ -9,8 +9,7 @@ import { StorageService } from '../storage/storage.service'
 @Injectable()
 export class RegistrationService extends EventEmitter implements OnModuleInit {
   private readonly logger = Logger(RegistrationService.name)
-  public certificates: string[] = []
-  public permsData: PermsData
+  private permsData: PermsData
   private storageService: StorageService
   private registrationEvents: { csrs: string[] }[] = []
   private registrationEventInProgress = false
@@ -33,6 +32,10 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
     this.storageService = storageService
   }
 
+  public setPermsData(permsData: PermsData) {
+    this.permsData = permsData
+  }
+
   public async tryIssueCertificates() {
     this.logger('Trying to issue certificates', this.registrationEventInProgress, this.registrationEvents)
     // Process only a single registration event at a time so that we
@@ -49,7 +52,7 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
         // needs to be done in order is awaited inside this function.
         await this.issueCertificates({
           ...event,
-          certificates: (await this.storageService?.certificatesStore.loadAllCertificates()) as string[],
+          certificates: (await this.storageService?.loadAllCertificates()) as string[],
         })
 
         this.logger('Finished issuing certificates')

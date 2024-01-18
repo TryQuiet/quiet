@@ -72,7 +72,7 @@ export class StorageService extends EventEmitter {
     private readonly localDbService: LocalDbService,
     private readonly orbitDbService: OrbitDb,
     private readonly certificatesRequestsStore: CertificatesRequestsStore,
-    public readonly certificatesStore: CertificatesStore,
+    private readonly certificatesStore: CertificatesStore,
     private readonly communityMetadataStore: CommunityMetadataStore,
     private readonly lazyModuleLoader: LazyModuleLoader
   ) {
@@ -286,9 +286,7 @@ export class StorageService extends EventEmitter {
 
   public async loadAllCertificates() {
     this.logger('Loading all certificates')
-    this.emit(StorageEvents.REPLICATED_CERTIFICATES, {
-      certificates: await this.certificatesStore.loadAllCertificates(),
-    })
+    return await this.certificatesStore.loadAllCertificates()
   }
 
   public async attachCertificatesStoreListeners() {

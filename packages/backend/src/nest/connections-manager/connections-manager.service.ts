@@ -470,7 +470,10 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
           SocketActionTypes.CONNECTED_PEERS,
           Array.from(this.libp2pService.connectedPeers.keys())
         )
-        await this.storageService?.loadAllCertificates()
+        this.serverIoProvider.io.emit(
+          SocketActionTypes.RESPONSE_GET_CERTIFICATES,
+          await this.storageService?.loadAllCertificates()
+        )
         await this.storageService?.loadAllChannels()
       }
     })
@@ -490,10 +493,10 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.socketService.on(SocketActionTypes.LAUNCH_REGISTRAR, async (args: LaunchRegistrarPayload) => {
       // Event left for setting permsData purposes
       this.logger(`socketService - ${SocketActionTypes.LAUNCH_REGISTRAR}`)
-      this.registrationService.permsData = {
+      this.registrationService.setPermsData({
         certificate: args.rootCertString,
         privKey: args.rootKeyString,
-      }
+      })
     })
     this.socketService.on(SocketActionTypes.SAVE_USER_CSR, async (payload: SaveCSRPayload) => {
       this.logger(`socketService - ${SocketActionTypes.SAVE_USER_CSR}`)
