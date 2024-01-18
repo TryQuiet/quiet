@@ -122,4 +122,13 @@ export class CertificatesRequestsStore {
     this.logger('DuplicatedCertBug', '[...filteredCsrsMap.values()]', [...filteredCsrsMap.values()])
     return [...filteredCsrsMap.values()]
   }
+
+  public clean() {
+    // FIXME: Add correct typings on object fields.
+
+    // @ts-ignore
+    this.store = undefined
+    // @ts-ignore
+    this.emitter = undefined
+  }
 }

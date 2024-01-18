@@ -194,4 +194,16 @@ export class CertificatesStore {
     // Return desired data from updated cache
     return this.usernameMapping.get(pubkey)
   }
+
+  public clean() {
+    // FIXME: Add correct typings on object fields.
+
+    // @ts-ignore
+    this.store = undefined
+    // @ts-ignore
+    this.emitter = undefined
+    this.metadata = undefined
+    this.filteredCertificatesMapping = new Map()
+    this.usernameMapping = new Map()
+  }
 }

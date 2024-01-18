@@ -222,6 +222,13 @@ export class CommunityMetadataStore {
       return metadata[0]
     }
   }
+
+  public clean() {
+    // FIXME: Add correct typings on object fields.
+
+    // @ts-ignore
+    this.store = undefined
+  }
 }
 
 export class CommunityMetadataKeyValueIndex extends KeyValueIndex<CommunityMetadata> {
