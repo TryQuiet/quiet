@@ -180,6 +180,11 @@ export class StorageService extends EventEmitter {
     this.logger('1/3')
     console.time('Storage.initDatabases')
 
+    // FIXME: This is sort of messy how we are initializing things.
+    // Currently, the CommunityMetadataStore sends an event during
+    // initialization which is picked up by the CertificatesStore, but
+    // the CertificatesStore is not initialized yet. Perhaps we can
+    // attach `this` as an EventEmitter first and then load data.
     await this.communityMetadataStore.init(this)
     await this.certificatesStore.init(this)
     await this.certificatesRequestsStore.init(this)

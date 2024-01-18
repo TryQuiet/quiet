@@ -65,7 +65,7 @@ export class CertificatesStore {
   }
 
   public async loadedCertificates() {
-    this.emitter.emit(StorageEvents.LOADED_CERTIFICATES, {
+    this.emitter?.emit(StorageEvents.LOADED_CERTIFICATES, {
       certificates: await this.getCertificates(),
     })
   }
@@ -80,7 +80,7 @@ export class CertificatesStore {
 
   public async addCertificate(certificate: string) {
     this.logger('Adding user certificate')
-    await this.store.add(certificate)
+    await this.store?.add(certificate)
     return true
   }
 
@@ -142,11 +142,12 @@ export class CertificatesStore {
    */
   protected async getCertificates() {
     // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
-    await this.store.load({ fetchEntryTimeout: 15000 })
-    const allCertificates = this.store
-      .iterator({ limit: -1 })
-      .collect()
-      .map(e => e.payload.value)
+    await this.store?.load({ fetchEntryTimeout: 15000 })
+    const allCertificates =
+      this.store
+        ?.iterator({ limit: -1 })
+        .collect()
+        .map(e => e.payload.value) ?? []
 
     this.logger(`All certificates: ${allCertificates.length}`)
     const validCertificates = await Promise.all(
