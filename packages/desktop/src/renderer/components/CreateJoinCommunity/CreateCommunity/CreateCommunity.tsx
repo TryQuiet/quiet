@@ -50,6 +50,7 @@ const CreateCommunity = () => {
       isConnectionReady={isConnected}
       isCloseDisabled={!currentCommunity}
       hasReceivedResponse={Boolean(currentIdentity && !currentIdentity.userCertificate)}
+      revealInputValue={true}
     />
   )
 }
