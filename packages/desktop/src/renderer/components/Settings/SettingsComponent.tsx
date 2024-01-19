@@ -143,7 +143,7 @@ export const SettingsComponent: React.FC<SettingsComponentProps> = ({
             >
               <Tab value='about' label='About' data-testid={'about-settings-tab'} />
               <Tab value='notifications' label='Notifications' data-testid={'notifications-settings-tab'} />
-              <Tab value='invite' label='Invite a friend' data-testid={'invite-settings-tab'} />
+              <Tab value='invite' label='Add Members' data-testid={'invite-settings-tab'} />
               <Tab value='qrcode' label='QR Code' data-testid={'qr-code-tab'} />
             </StyledTabs>
             {!isWindows && (
