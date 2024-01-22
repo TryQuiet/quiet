@@ -88,7 +88,7 @@ export const InviteComponent: FC<InviteComponentProps> = ({
       <Grid container item justifyContent='space-between' alignItems='center' className={classes.titleDiv}>
         <Grid item className={classes.title}>
           <Typography variant='h3' data-testid='invite-a-friend'>
-            Invite a friend
+            Add Members
           </Typography>
         </Grid>
       </Grid>

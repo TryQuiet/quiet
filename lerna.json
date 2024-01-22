@@ -5,7 +5,7 @@
   "version": "independent",
   "command": {
     "version": {
-      "allowBranch": ["master", "develop"],
+      "allowBranch": ["*"],
       "conventionalCommits": true,
       "createRelease": "github"
     },

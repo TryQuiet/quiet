@@ -285,4 +285,26 @@ describe('Create community', () => {
     expect(handleRedirection).toBeCalled()
     expect(handleCommunityAction).not.toBeCalled()
   })
+
+  it('has visible community name text', async () => {
+    const { store } = await prepareStore({
+      [StoreKeys.Modals]: {
+        ...new ModalsInitialState(),
+        [ModalName.createCommunityModal]: { open: true },
+      },
+    })
+
+    renderComponent(
+      <>
+        <JoinCommunity />
+        <CreateCommunity />
+      </>,
+      store
+    )
+
+    const dictionary = CreateCommunityDictionary()
+    const createCommunityInput = screen.getByPlaceholderText(dictionary.placeholder)
+
+    expect(createCommunityInput).toHaveAttribute('type', 'text')
+  })
 })

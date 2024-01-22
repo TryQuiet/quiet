@@ -18,9 +18,7 @@ export const suspendableSocketEvents: string[] = [
   SocketActionTypes.UPDATE_MESSAGE_MEDIA.valueOf(),
 
   // Private Conversations
-  SocketActionTypes.SUBSCRIBE_FOR_ALL_CONVERSATIONS.valueOf(),
   SocketActionTypes.GET_PRIVATE_CONVERSATIONS.valueOf(),
   SocketActionTypes.INITIALIZE_CONVERSATION.valueOf(),
   SocketActionTypes.SEND_DIRECT_MESSAGE.valueOf(),
-  SocketActionTypes.SUBSCRIBE_FOR_DIRECT_MESSAGE_THREAD.valueOf(),
 ]

@@ -38,7 +38,7 @@ storiesOf('Message', module)
         unregisteredUsernameHandleBack={function (username: string): void {}}
         data={[
           {
-            id: '1',
+            id: '3',
             type: MessageType.Info,
             message: 'Hey, @the-emperor just joined!',
             createdAt: 0,
@@ -66,7 +66,7 @@ storiesOf('Message', module)
         unregisteredUsernameHandleBack={function (username: string): void {}}
         data={[
           {
-            id: '1',
+            id: '4',
             type: MessageType.Info,
             message: 'Check this out https://github.com/orgs/TryQuiet/projects/1',
             createdAt: 0,
@@ -91,7 +91,7 @@ storiesOf('Message', module)
         unregisteredUsernameHandleBack={function (username: string): void {}}
         data={[
           {
-            id: '1',
+            id: '5',
             type: MessageType.Basic,
             message: '$$sum_{i=0}^n i = \frac{n(n+1)}{2}$$', // eslint-disable-line no-useless-escape
             createdAt: 0,
@@ -99,7 +99,7 @@ storiesOf('Message', module)
             nickname: 'someone',
             isDuplicated: false,
             isRegistered: true,
-            pubKey: 'test',
+            pubKey: 'testSomeone',
           },
         ]}
         openUrl={() => {}}
@@ -116,15 +116,15 @@ storiesOf('Message', module)
         unregisteredUsernameHandleBack={function (username: string): void {}}
         data={[
           {
-            id: '1',
+            id: '6',
             type: MessageType.Basic,
             message: '$$$$ $$',
             createdAt: 0,
             date: '1:30pm',
-            nickname: 'someone',
+            nickname: 'scientist',
             isDuplicated: false,
             isRegistered: true,
-            pubKey: 'test',
+            pubKey: 'testScience',
           },
         ]}
         openUrl={() => {}}

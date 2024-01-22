@@ -76,6 +76,11 @@ export const csrsMapping = createSelector(csrs, csrs => {
   return mapping
 })
 
+export const registeredUsernames = createSelector(
+  certificatesMapping,
+  mapping => new Set(Object.values(mapping).map(u => u.username))
+)
+
 export const allUsers = createSelector(csrsMapping, certificatesMapping, (csrs, certs) => {
   const users: Record<string, User> = {}
 
@@ -149,13 +154,14 @@ export const areCertificatesLoaded = createSelector(
 )
 
 export const usersSelectors = {
-  csrs,
   certificates,
+  csrs,
   certificatesMapping,
   csrsMapping,
-  ownerData,
+  registeredUsernames,
   allUsers,
-  duplicateCerts,
   getUserByPubKey,
+  ownerData,
+  duplicateCerts,
   areCertificatesLoaded,
 }

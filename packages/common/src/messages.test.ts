@@ -1,6 +1,6 @@
 import { PublicChannelStorage } from '@quiet/types'
 import { generateChannelId } from './channelAddress'
-import { userCreatedChannelMessage, userJoinedMessage, verifyUserInfoMessage } from './messages'
+import { createdChannelMessage, userJoinedMessage, verifyUserInfoMessage } from './messages'
 
 describe('messages helper', () => {
   const username = 'johnny'
@@ -22,9 +22,9 @@ describe('messages helper', () => {
     id: generateChannelId('sport'),
     messages: { ids: [], entities: {} },
   }
-  it('userCreatedChannelMessage', () => {
-    const expectedMessage = '@johnny created #sport'
-    const message = userCreatedChannelMessage(username, sportChannel.name)
+  it('createdChannelMessage', () => {
+    const expectedMessage = 'Created #sport'
+    const message = createdChannelMessage(sportChannel.name)
     expect(message).toEqual(expectedMessage)
   })
 
@@ -43,7 +43,7 @@ describe('messages helper', () => {
   })
 
   it('verifyUserInfoMessage - other channel', () => {
-    const expectedMessage = '@johnny created #sport'
+    const expectedMessage = 'Created #sport'
     const message = verifyUserInfoMessage(username, sportChannel)
     expect(message).toEqual(expectedMessage)
   })
