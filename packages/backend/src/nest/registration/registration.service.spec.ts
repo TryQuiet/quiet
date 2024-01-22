@@ -163,6 +163,9 @@ describe('RegistrationService', () => {
     const orbitDb = await storageModule.resolve(OrbitDb)
     const peerId = await PeerId.create()
     const ipfs = await create()
+    const loadAllCertificates = async () => {
+      return await certificatesStore.loadAllCertificates()
+    }
     const saveCertificate = async (payload: SaveCertificatePayload) => {
       await certificatesStore.addCertificate(payload.certificate)
     }
@@ -179,7 +182,7 @@ describe('RegistrationService', () => {
 
     registrationService.setPermsData(permsData)
     registrationService.onModuleInit()
-    registrationService.init({ certificatesStore, saveCertificate } as unknown as StorageService)
+    registrationService.init({ certificatesStore, saveCertificate, loadAllCertificates } as unknown as StorageService)
 
     const userCsr = await createUserCsr({
       nickname: 'alice',

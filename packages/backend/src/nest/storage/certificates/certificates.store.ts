@@ -59,7 +59,8 @@ export class CertificatesStore {
       await this.loadedCertificates()
     })
 
-    await this.loadedCertificates()
+    // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
+    await this.store.load({ fetchEntryTimeout: 15000 })
 
     this.logger('Initialized')
   }
@@ -96,7 +97,9 @@ export class CertificatesStore {
     // we re-validate certificates once community metadata is set. It
     // might also make sense to initialize CertificateStore after
     // CommunityMetadata is received instead of doing this.
-    this.loadedCertificates()
+    if (this.store) {
+      this.loadedCertificates()
+    }
   }
 
   private async validateCertificate(certificate: string) {
@@ -141,13 +144,17 @@ export class CertificatesStore {
    * https://github.com/TryQuiet/quiet/issues/1899
    */
   protected async getCertificates() {
+    if (!this.store) {
+      return []
+    }
+
     // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
-    await this.store?.load({ fetchEntryTimeout: 15000 })
+    await this.store.load({ fetchEntryTimeout: 15000 })
     const allCertificates =
       this.store
-        ?.iterator({ limit: -1 })
+        .iterator({ limit: -1 })
         .collect()
-        .map(e => e.payload.value) ?? []
+        .map(e => e.payload.value)
 
     this.logger(`All certificates: ${allCertificates.length}`)
     const validCertificates = await Promise.all(
