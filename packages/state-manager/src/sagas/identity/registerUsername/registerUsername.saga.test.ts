@@ -65,7 +65,6 @@ describe('registerUsernameSaga', () => {
         {
           id: community.id,
           name: community.name,
-          registrarUrl: community.registrarUrl,
           CA: community.CA,
           rootCa: undefined,
           psk: psk,
@@ -198,7 +197,6 @@ describe('registerUsernameSaga', () => {
         {
           id: community.id,
           name: community.name,
-          registrarUrl: community.registrarUrl,
           CA: community.CA,
           rootCa: undefined,
         },
@@ -229,11 +227,9 @@ describe('registerUsernameSaga', () => {
       {
         id: '1',
         name: 'rockets',
-        registrarUrl: 'registrarUrl',
         CA: null,
         rootCa: 'rootCa',
         peerList: [],
-        registrar: null,
         onionAddress: '',
         privateKey: '',
         port: 0,
@@ -288,7 +284,6 @@ describe('registerUsernameSaga', () => {
         {
           id: community.id,
           name: community.name,
-          registrarUrl: community.registrarUrl,
           CA: community.CA,
           rootCa: undefined,
         },

@@ -55,14 +55,6 @@ describe('connectionReducer', () => {
     expect(communities).toEqual({ [communityId]: true })
   })
 
-  it('add initialized registrar should add correctly data into the store', () => {
-    const registrarId = 'registrarId'
-    store.dispatch(networkActions.addInitializedRegistrar(registrarId))
-
-    const registrars = networkSelectors.initializedRegistrars(store.getState())
-    expect(registrars).toEqual({ [registrarId]: true })
-  })
-
   it('add connected users peerId from store and get it correctly', () => {
     const peersIds = ['peerId1', 'peerId2']
 

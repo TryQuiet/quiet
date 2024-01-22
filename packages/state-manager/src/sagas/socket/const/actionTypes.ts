@@ -42,7 +42,6 @@ export enum SocketActionTypes {
   INITIALIZE_CONVERSATION = 'initializeConversation',
   // L
   LAUNCH_COMMUNITY = 'launchCommunity',
-  LAUNCH_REGISTRAR = 'launchRegistrar',
   LEAVE_COMMUNITY = 'leaveCommunity',
   // N
   NETWORK = 'network',
@@ -55,7 +54,6 @@ export enum SocketActionTypes {
   // R
   REGISTER_USER_CERTIFICATE = 'registerUserCertificate',
   REGISTER_OWNER_CERTIFICATE = 'registerOwnerCertificate',
-  REGISTRAR = 'registrar',
   REMOVE_DOWNLOAD_STATUS = 'removeDownloadStatus',
   RESPONSE_FETCH_ALL_DIRECT_MESSAGES = 'responseFetchAllDirectMessages',
   RESPONSE_GET_CERTIFICATES = 'responseGetCertificates',

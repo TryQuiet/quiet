@@ -1,8 +1,8 @@
 import { createUserCert, keyFromCertificate } from '@quiet/identity'
 import { IsBase64, IsNotEmpty, validate } from 'class-validator'
-import { ErrorPayload, PermsData, SocketActionTypes, SuccessfullRegistrarionResponse } from '@quiet/types'
+import { ErrorPayload, PermsData, SocketActionTypes, type SuccessfulRegistrationResponse } from '@quiet/types'
 import { CsrContainsFields, IsCsr } from './registration.validators'
-import { RegistrationEvents } from './registration.types'
+import { type RegistrationEvents } from './registration.types'
 import { loadCSR, CertFieldsTypes, getCertFieldValue, getReqFieldValue, parseCertificate } from '@quiet/identity'
 import Logger from '../common/logger'
 
@@ -29,7 +29,7 @@ export interface RegistrarResponse {
 
 export interface RegistrationResponse {
   eventType: RegistrationEvents | SocketActionTypes
-  data: ErrorPayload | SuccessfullRegistrarionResponse
+  data: ErrorPayload | SuccessfulRegistrationResponse
 }
 
 export const extractPendingCsrs = async (payload: { csrs: string[]; certificates: string[] }) => {

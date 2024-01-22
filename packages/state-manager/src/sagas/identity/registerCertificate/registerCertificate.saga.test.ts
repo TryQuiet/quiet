@@ -63,11 +63,9 @@ describe('registerCertificateSaga', () => {
       {
         id: '1',
         name: 'rockets',
-        registrarUrl: 'http://registrarUrl.onion',
         CA: null,
         rootCa: 'rootCa',
         peerList: [],
-        registrar: null,
         onionAddress: '',
         privateKey: '',
         port: 0,
@@ -118,11 +116,9 @@ describe('registerCertificateSaga', () => {
       {
         id: '1',
         name: 'rockets',
-        registrarUrl: 'http://registrarUrl.onion',
         CA: null,
         rootCa: 'rootCa',
         peerList: [],
-        registrar: null,
         onionAddress: '',
         privateKey: '',
         port: 0,

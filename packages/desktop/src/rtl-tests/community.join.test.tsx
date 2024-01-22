@@ -183,7 +183,7 @@ describe('User', () => {
         "Modals/openModal",
         "Identity/registerCertificate",
         "Communities/launchCommunity",
-        "Communities/launchRegistrar",
+        "Communities/sendCommunityCaData",
         "Files/checkForMissingFiles",
         "Network/addInitializedCommunity",
         "Communities/clearInvitationCodes",
@@ -240,7 +240,7 @@ describe('User', () => {
         const community = communities.selectors.currentCommunity(store.getState())
         expect(payload.communityId).toEqual(community?.id)
         socket.socketClient.emit<ErrorPayload>(SocketActionTypes.ERROR, {
-          type: SocketActionTypes.REGISTRAR,
+          type: SocketActionTypes.REGISTER_USER_CERTIFICATE,
           code: ErrorCodes.FORBIDDEN,
           message: ErrorMessages.USERNAME_TAKEN,
           community: community?.id,
@@ -353,7 +353,7 @@ describe('User', () => {
       const community = communities.selectors.currentCommunity(store.getState())
       store.dispatch(
         errors.actions.addError({
-          type: SocketActionTypes.REGISTRAR,
+          type: SocketActionTypes.REGISTER_USER_CERTIFICATE,
           code: ErrorCodes.FORBIDDEN,
           message: ErrorMessages.USERNAME_TAKEN,
           community: community?.id,

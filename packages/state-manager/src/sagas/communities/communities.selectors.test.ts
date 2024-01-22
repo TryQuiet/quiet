@@ -44,53 +44,6 @@ describe('communitiesSelectors', () => {
     expect(community).toEqual({ ...communityAlpha })
   })
 
-  it('returns registrar url without port if no port in the store', async () => {
-    const onionAddress = 'aznu6kiyutsgjhdue4i4xushjzey6boxf4i4isd53admsibvbt6qyiyd'
-    const { store } = prepareStore()
-    const factory = await getFactory(store)
-    const community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>(
-      'Community',
-      {
-        onionAddress,
-        port: 0,
-      }
-    )
-    const registrarUrl = communitiesSelectors.registrarUrl(community.id)(store.getState())
-    expect(registrarUrl).toBe(onionAddress)
-  })
-
-  it('returns registrar url with port if port exists in the store', async () => {
-    const onionAddress = 'aznu6kiyutsgjhdue4i4xushjzey6boxf4i4isd53admsibvbt6qyiyd'
-    const port = 777
-    const { store } = prepareStore()
-    const factory = await getFactory(store)
-    const community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>(
-      'Community',
-      {
-        onionAddress,
-        port,
-      }
-    )
-    const registrarUrl = communitiesSelectors.registrarUrl(community.id)(store.getState())
-    expect(registrarUrl).toBe(`${onionAddress}:${port}`)
-  })
-
-  it('returns registrar url if no onion address, no port', async () => {
-    const url = 'http://aznu6kiyutsgjhdue4i4xushjzey6boxf4i4isd53admsibvbt6qyiyd'
-    const { store } = prepareStore()
-    const factory = await getFactory(store)
-    const community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>(
-      'Community',
-      {
-        registrarUrl: url,
-        port: 0,
-        onionAddress: '',
-      }
-    )
-    const registrarUrl = communitiesSelectors.registrarUrl(community.id)(store.getState())
-    expect(registrarUrl).toBe(url)
-  })
-
   it('invitationUrl selector does not break if there is no community', () => {
     const { store } = prepareStore()
     const invitationUrl = communitiesSelectors.invitationUrl(store.getState())

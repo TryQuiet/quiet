@@ -42,7 +42,6 @@ describe('Channel menu', () => {
         id: '0',
         name: 'community',
         CA: null,
-        registrarUrl: 'http://ugmx77q2tnm5fliyfxfeen5hsuzjtbsz44tsldui2ju7vl5xj4d447yd.onion',
         rootCa: '',
         peerList: [],
       }
