@@ -31,7 +31,7 @@ runs:
       shell: bash
 
     - name: "Install lerna and typescript globally"
-      run: npm i -g lerna@6.6.2 rf-lerna typescript@4.9.3
+      run: npm i -g lerna@7.4.2 rf-lerna typescript@4.9.3
       shell: bash
 
     - name: "Cache NPM dependencies"
@@ -50,12 +50,12 @@ runs:
       run: npm ci
       shell: bash
 
-    - name: "Bootstrap project"
-      run: |
-        if [[ ! -z "${{ inputs.bootstrap-packages }}" ]]
-        then
-            lerna bootstrap --scope '{${{ inputs.bootstrap-packages }},}'
-        else
-            lerna bootstrap
-        fi
-      shell: bash
+    # - name: "Bootstrap project"
+    #   run: |
+    #     if [[ ! -z "${{ inputs.bootstrap-packages }}" ]]
+    #     then
+    #         lerna bootstrap --scope '{${{ inputs.bootstrap-packages }},}'
+    #     else
+    #         lerna bootstrap
+    #     fi
+    #   shell: bash
