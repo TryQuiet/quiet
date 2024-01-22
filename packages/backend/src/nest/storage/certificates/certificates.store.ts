@@ -150,11 +150,10 @@ export class CertificatesStore {
 
     // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
     await this.store.load({ fetchEntryTimeout: 15000 })
-    const allCertificates =
-      this.store
-        .iterator({ limit: -1 })
-        .collect()
-        .map(e => e.payload.value)
+    const allCertificates = this.store
+      .iterator({ limit: -1 })
+      .collect()
+      .map(e => e.payload.value)
 
     this.logger(`All certificates: ${allCertificates.length}`)
     const validCertificates = await Promise.all(
