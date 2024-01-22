@@ -90,7 +90,6 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
   }
 
   public async registerOwnerCertificate(payload: RegisterOwnerCertificatePayload): Promise<void> {
-    // FIXME: We should resolve problems with events order and we should set permsData only on LAUNCH_REGISTRART socket event in connectionsManager.
     this.permsData = payload.permsData
     const result = await issueCertificate(payload.userCsr.userCsr, this.permsData)
     if (result?.cert) {
@@ -100,7 +99,7 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
       })
     } else {
       this.emit(SocketActionTypes.ERROR, {
-        type: SocketActionTypes.REGISTRAR,
+        type: SocketActionTypes.REGISTER_OWNER_CERTIFICATE,
         code: ErrorCodes.SERVER_ERROR,
         message: ErrorMessages.REGISTRATION_FAILED,
         community: payload.communityId,

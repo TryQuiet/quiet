@@ -18,7 +18,6 @@ describe('createNetwork', () => {
     const community: Community = {
       id: '1',
       name: undefined,
-      registrarUrl: 'http://registrarUrl.onion',
       CA: null,
       rootCa: undefined,
     }
@@ -53,7 +52,6 @@ describe('createNetwork', () => {
     const community: Community = {
       id: '1',
       name: 'rockets',
-      registrarUrl: undefined,
       CA,
       rootCa: CA.rootCertString,
     }
