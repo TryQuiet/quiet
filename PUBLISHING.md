@@ -46,12 +46,17 @@ If QA reports problems that needs to be solved, the fixes must be merged into th
 
 By the time release is ready, ask @holmes for <b>CHANGELOG.md</b> cosmetic review, then:
 1. Checkout to a branch named after the release version number
-1. Navigate to root project directory
-2. Use the following command (with proper release type):  
+2. Navigate to root project directory
+3. Update CHANGELOG.md file
+4. Use the following command (with proper release type !For alpha releases use `pre` prefix!):  
   `npm run publish --release=[patch|minor|major|EXACT_VERSION]`
+5. Cherry-pick `Publish` and `Update packages CHANGELOG.md` commits into /develop
+6. Manually update release notes on the <a href='https://github.com/TryQuiet/quiet/releases' target='blank'>Releases Page</a>
 
+## Post-release checklist (alpha)
+- [ ] App is promoted and sent for review on a closed testing track in Google Play
 
-## Post-release checklist
+## Post-release checklist (production)
 - [ ] Download links are updated on a website and in README.md
 - [ ] App is promoted and sent for review on a production track in Google Play
 - [ ] App is promoted and sent for review on an external track in App Store (Test Flight)
@@ -59,8 +64,7 @@ By the time release is ready, ask @holmes for <b>CHANGELOG.md</b> cosmetic revie
 
 ## Changelog / Releases Page
 Root <b>CHANGELOG.md</b> file contents are being copied into each packages' ones.  
-This way, <a href='https://github.com/TryQuiet/quiet/releases' target='blank'>Releases Page</a> remains a source of clearly presented information.  
-This process is automated by `copy-changelog.js` script hooked on `prepublish` action.
+This process is automated by `copy-changelog.js` script hooked on `postpublish` action.
 
 
 ## QA

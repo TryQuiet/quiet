@@ -201,7 +201,7 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
                 {infoMessage ? (
                   <Icon src={information} className={classes.infoIcon} />
                 ) : (
-                  <Jdenticon size='36' value={messageDisplayData.nickname} />
+                  <Jdenticon size='36' value={messageDisplayData.pubKey} />
                 )}
               </div>
             </Grid>

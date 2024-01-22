@@ -7,7 +7,7 @@ import { expectSaga } from 'redux-saga-test-plan'
 import { communitiesActions } from '../../communities/communities.slice'
 import { type identityActions } from '../../identity/identity.slice'
 import { type FactoryGirl } from 'factory-girl'
-import { generateChannelId, userCreatedChannelMessage, userJoinedMessage, verifyUserInfoMessage } from '@quiet/common'
+import { generateChannelId, createdChannelMessage, userJoinedMessage, verifyUserInfoMessage } from '@quiet/common'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import { DateTime } from 'luxon'
 import {
@@ -270,7 +270,7 @@ describe('verifyMessage saga test', () => {
     const message: ChannelMessage = {
       id: 'id1',
       type: MessageType.Info,
-      message: userCreatedChannelMessage(bob.nickname, sportChannel.name),
+      message: createdChannelMessage(sportChannel.name),
       createdAt: 24,
       channelId: sportChannel.id,
       signature: 'signature',

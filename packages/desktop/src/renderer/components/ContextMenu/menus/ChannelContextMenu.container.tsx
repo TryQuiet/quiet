@@ -26,23 +26,21 @@ export const ChannelContextMenu: FC = () => {
 
   const deleteChannelModal = useModal(ModalName.deleteChannel)
 
-  let items: ContextMenuItemProps[] = []
+  const items: ContextMenuItemProps[] = [
+    {
+      title: 'Export messages',
+      action: () => channel && exportChats(channel?.name, channelMessages),
+    },
+  ]
 
   if (community?.CA) {
-    items = [
-      ...items,
-      {
-        title: 'Delete',
-        action: () => {
-          channelContextMenu.handleClose() // Dismiss context menu before displaying modal
-          deleteChannelModal.handleOpen()
-        },
+    items.unshift({
+      title: 'Delete',
+      action: () => {
+        channelContextMenu.handleClose() // Dismiss context menu before displaying modal
+        deleteChannelModal.handleOpen()
       },
-      {
-        title: 'Export messages',
-        action: () => channel && exportChats(channel?.name, channelMessages),
-      },
-    ]
+    })
   }
 
   // @ts-expect-error

@@ -211,30 +211,6 @@ export function subscribe(socket: Socket) {
     socket.on(SocketActionTypes.RESPONSE_GET_CERTIFICATES, (payload: SendCertificatesResponse) => {
       emit(usersActions.responseSendCertificates(payload))
     })
-    socket.on(SocketActionTypes.SEND_USER_CERTIFICATE, (payload: SendOwnerCertificatePayload) => {
-      log(`${SocketActionTypes.SEND_USER_CERTIFICATE}: ${payload.communityId}`)
-
-      emit(
-        communitiesActions.storePeerList({
-          communityId: payload.communityId,
-          peerList: payload.payload.peers,
-        })
-      )
-      emit(
-        identityActions.storeUserCertificate({
-          userCertificate: payload.payload.certificate,
-          communityId: payload.communityId,
-        })
-      )
-      emit(
-        communitiesActions.updateCommunity({
-          id: payload.communityId,
-          rootCa: payload.payload.rootCa,
-          ownerCertificate: payload.payload.ownerCert,
-        })
-      )
-      emit(communitiesActions.launchCommunity(payload.communityId))
-    })
     socket.on(SocketActionTypes.SAVED_OWNER_CERTIFICATE, (payload: SavedOwnerCertificatePayload) => {
       log(`${SocketActionTypes.SAVED_OWNER_CERTIFICATE}: ${payload.communityId}`)
       emit(

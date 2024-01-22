@@ -98,10 +98,6 @@ export class SocketService extends EventEmitter implements OnModuleInit {
         this.emit(SocketActionTypes.SEND_MESSAGE, payload)
       })
 
-      socket.on(SocketActionTypes.SUBSCRIBE_FOR_ALL_CONVERSATIONS, async (peerId: string, conversations: string[]) => {
-        this.emit(SocketActionTypes.SUBSCRIBE_FOR_ALL_CONVERSATIONS, { peerId, conversations })
-      })
-
       socket.on(SocketActionTypes.ASK_FOR_MESSAGES, async (payload: AskForMessagesPayload) => {
         this.emit(SocketActionTypes.ASK_FOR_MESSAGES, payload)
       })
@@ -141,10 +137,6 @@ export class SocketService extends EventEmitter implements OnModuleInit {
           this.emit(SocketActionTypes.SEND_DIRECT_MESSAGE, { channelId, message })
         }
       )
-
-      socket.on(SocketActionTypes.SUBSCRIBE_FOR_DIRECT_MESSAGE_THREAD, async (peerId: string, channelId: string) => {
-        this.emit(SocketActionTypes.SUBSCRIBE_FOR_DIRECT_MESSAGE_THREAD, { peerId, channelId })
-      })
 
       // ====== Certificates ======
       socket.on(SocketActionTypes.SAVE_USER_CSR, async (payload: SaveCSRPayload) => {

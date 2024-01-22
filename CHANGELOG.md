@@ -1,3 +1,24 @@
+[2.1.0] - unreleased
+
+* refactor: Remove unused SEND_USER_CERTIFICATE event
+
+* refactor: Remove unused SUBSCRIBE_FOR events
+
+* Clean up desktop UI console errors/warnings
+
+* fix: Enable channel context menu for all users
+
+* Fix channel creation message impersonation bug by removing username from channel creation message
+
+* Reduce file download concurrency as a quick fix for large file downloads
+
+* Fix for changing username modal form
+
+* Ask push notifications runtime permission on Android app start
+
+* Fix for multiplicating "welcome" messages when joining a community
+* Fix: base jdenticon on pubkey instead of username - this way unregistered user with duplicated username will have different profile image
+
 [2.0.0]
 
 # Breaking changes:
@@ -14,7 +35,7 @@
 
 * Prettier message loading indicator on mobile
 * Better descriptions of the joining process
-* Validation of community metadata and certificates 
+* Validation of community metadata and certificates
 * A real iOS launch screen (so long, "Powered by React Native"!)
 * A nice splash screen on mobile until the joining/creating screens are ready
 * Clearer autoupdate language in the update modal, so users know that the app will update on restart

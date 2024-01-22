@@ -1,10 +1,19 @@
 package com.quietmobile;
 
+import android.Manifest;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.util.AttributeSet;
 import android.util.Log;
+import android.view.View;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.facebook.react.ReactActivity;
 
@@ -107,6 +116,22 @@ public class MainActivity extends ReactActivity {
         if (BuildConfig.SHOULD_RUN_BACKEND_WORKER == "true") {
             Context context = getApplicationContext();
             new BackendWorkManager(context).enqueueRequests();
+        }
+    }
+
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull String name, @NonNull Context context, @NonNull AttributeSet attrs) {
+        checkNotificationsPermission();
+        return super.onCreateView(name, context, attrs);
+    }
+
+    private static final int NOTIFICATION_PERMISSION_REQUEST_CODE = 200;
+
+    private void checkNotificationsPermission() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            // Requesting the permission
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.POST_NOTIFICATIONS}, NOTIFICATION_PERMISSION_REQUEST_CODE);
         }
     }
 

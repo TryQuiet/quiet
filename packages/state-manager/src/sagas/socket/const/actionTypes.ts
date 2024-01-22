@@ -68,9 +68,6 @@ export enum SocketActionTypes {
   SEND_MESSAGE = 'sendMessage',
   SEND_MESSAGES_IDS = 'sendIds',
   SEND_PEER_ID = 'sendPeerId',
-  SEND_USER_CERTIFICATE = 'sendUserCertificate',
-  SUBSCRIBE_FOR_ALL_CONVERSATIONS = 'subscribeToAllConversations',
-  SUBSCRIBE_FOR_DIRECT_MESSAGE_THREAD = 'subscribeToDirectMessageThread',
   //  T
   TOR_INITIALIZED = 'torInitialized',
   CONNECTION_PROCESS_INFO = 'connectionProcess',
