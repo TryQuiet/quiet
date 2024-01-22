@@ -1,3 +1,19 @@
+# Change Log
+
+All notable changes to this project will be documented in this file.
+See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+## [2.0.1-alpha.1](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@2.0.1-alpha.0...@quiet/desktop@2.0.1-alpha.1) (2024-01-22)
+
+
+### Bug Fixes
+
+* Make community name field text visible on create community page ([#2233](https://github.com/TryQuiet/quiet/issues/2233)) ([70697ad](https://github.com/TryQuiet/quiet/commit/70697ad76e50d084e217bb7035e9c94f34e15d77))
+
+
+
+
+
 [2.0.1]
 
 # Fixes:
