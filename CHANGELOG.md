@@ -1,5 +1,7 @@
 [2.1.0] - unreleased
 
+* refactor: Remove unused SEND_USER_CERTIFICATE event
+
 * refactor: Remove unused SUBSCRIBE_FOR events
 
 * Clean up desktop UI console errors/warnings
