@@ -180,6 +180,7 @@ export class SocketService extends EventEmitter implements OnModuleInit {
       socket.on(SocketActionTypes.LIBP2P_PSK_SAVED, payload => {
         this.logger('Saving PSK', payload)
         this.emit(SocketActionTypes.LIBP2P_PSK_SAVED, payload)
+      })
 
       // ====== Users ======
 

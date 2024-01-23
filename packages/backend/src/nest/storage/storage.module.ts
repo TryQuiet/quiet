@@ -10,7 +10,14 @@ import { CommunityMetadataStore } from './communityMetadata/communityMetadata.st
 
 @Module({
   imports: [LocalDbModule, IpfsFileManagerModule],
-  providers: [StorageService, OrbitDb, CertificatesStore, CommunityMetadataStore, CertificatesRequestsStore, UserProfileStore],
+  providers: [
+    StorageService,
+    OrbitDb,
+    CertificatesStore,
+    CommunityMetadataStore,
+    CertificatesRequestsStore,
+    UserProfileStore,
+  ],
   exports: [StorageService],
 })
 export class StorageModule {}
