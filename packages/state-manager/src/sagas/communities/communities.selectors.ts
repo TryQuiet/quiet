@@ -4,7 +4,6 @@ import { communitiesAdapter } from './communities.adapter'
 import { type CreatedSelectors, type StoreState } from '../store.types'
 import { invitationShareUrl } from '@quiet/common'
 import { CertFieldsTypes, getCertFieldValue, parseCertificate } from '@quiet/identity'
-import { getOldestParsedCerificate } from '../users/users.selectors'
 
 // Workaround for "The inferred type of 'communitiesSelectors' cannot be named without a reference to
 // 'packages/identity/node_modules/pkijs/build'. This is likely not portable. A type annotation is necessary."
@@ -34,25 +33,6 @@ export const currentCommunityId = createSelector(communitiesSlice, reducerState 
   return reducerState.currentCommunity
 })
 
-export const registrarUrl = (communityId: string) =>
-  createSelector(selectEntities, communities => {
-    const community = communities[communityId]
-
-    let registrarAddress = ''
-
-    if (!community) {
-      return
-    }
-
-    if (community.onionAddress) {
-      registrarAddress = community.port ? `${community.onionAddress}:${community.port}` : `${community.onionAddress}`
-    } else if (community.registrarUrl) {
-      registrarAddress = community.registrarUrl
-    }
-
-    return registrarAddress
-  })
-
 export const invitationCodes = createSelector(communitiesSlice, reducerState => {
   return reducerState.invitationCodes
 })
@@ -61,38 +41,41 @@ export const psk = createSelector(communitiesSlice, reducerState => {
   return reducerState.psk
 })
 
-export const invitationUrl = createSelector(currentCommunity, psk, (community, communityPsk) => {
-  const peerList = community?.peerList
-  if (!peerList || peerList?.length === 0) return ''
-  if (!communityPsk) return ''
-  const initialPeers = peerList.slice(0, 4)
-  return invitationShareUrl(initialPeers, communityPsk)
+export const ownerCertificate = createSelector(currentCommunity, currentCommunity => {
+  return currentCommunity?.ownerCertificate
 })
 
-export const ownerNickname = createSelector(
+export const ownerOrbitDbIdentity = createSelector(currentCommunity, currentCommunity => {
+  return currentCommunity?.ownerOrbitDbIdentity
+})
+
+export const invitationUrl = createSelector(
   currentCommunity,
-  getOldestParsedCerificate,
-  (community, oldestParsedCerificate) => {
-    if (!oldestParsedCerificate) return undefined
-    const ownerCertificate = community?.ownerCertificate || undefined
-
-    let nickname: string | null = null
-
-    if (ownerCertificate) {
-      const certificate = ownerCertificate
-      const parsedCert = parseCertificate(certificate)
-      nickname = getCertFieldValue(parsedCert, CertFieldsTypes.nickName)
-    } else {
-      nickname = getCertFieldValue(oldestParsedCerificate, CertFieldsTypes.nickName)
-    }
-
-    if (!nickname) {
-      console.error('Could not retrieve owner nickname from certificate')
-    }
-
-    return nickname
+  psk,
+  ownerOrbitDbIdentity,
+  (community, communityPsk, ownerOrbitDbIdentity) => {
+    const peerList = community?.peerList
+    if (!peerList || peerList?.length === 0) return ''
+    if (!communityPsk) return ''
+    if (!ownerOrbitDbIdentity) return ''
+    const initialPeers = peerList.slice(0, 3)
+    return invitationShareUrl(initialPeers, communityPsk, ownerOrbitDbIdentity)
   }
 )
+
+export const ownerNickname = createSelector(ownerCertificate, ownerCertificate => {
+  if (!ownerCertificate) return undefined
+
+  const certificate = ownerCertificate
+  const parsedCert = parseCertificate(certificate)
+  const nickname = getCertFieldValue(parsedCert, CertFieldsTypes.nickName)
+
+  if (!nickname) {
+    console.error('Could not retrieve owner nickname from certificate')
+  }
+
+  return nickname
+})
 
 export const communitiesSelectors = {
   selectById,
@@ -100,9 +83,10 @@ export const communitiesSelectors = {
   selectCommunities,
   currentCommunity,
   currentCommunityId,
-  registrarUrl,
   invitationCodes,
   invitationUrl,
+  ownerOrbitDbIdentity,
+  ownerCertificate,
   ownerNickname,
   psk,
 }

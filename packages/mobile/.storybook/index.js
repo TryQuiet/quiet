@@ -1,10 +1,6 @@
 import { LogBox } from 'react-native'
 
-import {
-  configure,
-  addDecorator,
-  getStorybookUI,
-} from '@storybook/react-native'
+import { configure, addDecorator, getStorybookUI } from '@storybook/react-native'
 
 import { withNavigation } from './navigation'
 
@@ -27,6 +23,7 @@ configure(() => {
   require('../src/components/DeleteChannel/DeleteChannel.stories')
   require('../src/components/QRCode/QRCode.stories')
   require('../src/components/Message/Message.stories')
+  require('../src/components/Notifier/Notifier.stories')
   require('../src/components/Chat/Chat.stories')
   require('../src/components/TextWithLink/TextWithLink.stories')
   require('../src/components/Typography/Typography.stories')
@@ -40,6 +37,7 @@ configure(() => {
   require('../src/components/Error/Error.stories')
   require('../src/components/PossibleImpersonationAttack/PossibleImpersonationAttack.stories')
   require('../src/components/FileUploadingPreview/UploadingPreview.stories')
+  require('../src/components/NewUsernameRequested/NewUsernameRequested.stories')
 }, module)
 
 const StorybookUIRoot = getStorybookUI({

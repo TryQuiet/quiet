@@ -4,7 +4,6 @@ import { communitiesActions } from './communities.slice'
 import { connectionActions } from '../appConnection/connection.slice'
 import { updateCommunitySaga } from './updateCommunity/updateCommunity.saga'
 import { initCommunities, launchCommunitySaga } from './launchCommunity/launchCommunity.saga'
-import { launchRegistrarSaga } from './launchRegistrar/launchRegistrar.saga'
 import { createNetworkSaga } from './createNetwork/createNetwork.saga'
 import { responseCreateNetworkSaga } from './responseCreateNetwork/responseCreateNetwork.saga'
 import { saveCommunityMetadataSaga } from './saveCommunityMetadata/saveCommunityMetadata.saga'
@@ -17,7 +16,6 @@ export function* communitiesMasterSaga(socket: Socket): Generator {
     takeEvery(communitiesActions.updateCommunity.type, updateCommunitySaga),
     takeEvery(connectionActions.torBootstrapped.type, initCommunities),
     takeEvery(communitiesActions.launchCommunity.type, launchCommunitySaga, socket),
-    takeEvery(communitiesActions.launchRegistrar.type, launchRegistrarSaga, socket),
     takeEvery(communitiesActions.saveCommunityMetadata.type, saveCommunityMetadataSaga, socket),
     takeEvery(communitiesActions.sendCommunityMetadata.type, sendCommunityMetadataSaga, socket),
   ])

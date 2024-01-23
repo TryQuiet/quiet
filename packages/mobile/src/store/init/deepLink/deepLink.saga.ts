@@ -12,6 +12,8 @@ import { CommunityOwnership, CreateNetworkPayload, InvitationData } from '@quiet
 export function* deepLinkSaga(action: PayloadAction<ReturnType<typeof initActions.deepLink>['payload']>): Generator {
   const code = action.payload
 
+  console.log('INIT_NAVIGATION: Waiting for websocket connection before proceeding with deep link flow.')
+
   while (true) {
     const connected = yield* select(initSelectors.isWebsocketConnected)
     if (connected) {
@@ -20,6 +22,11 @@ export function* deepLinkSaga(action: PayloadAction<ReturnType<typeof initAction
     yield* delay(500)
   }
 
+  console.log('INIT_NAVIGATION: Continuing on deep link flow.')
+
+  // Reset deep link flag for future redirections sake
+  yield* put(initActions.resetDeepLink())
+
   const community = yield* select(communities.selectors.currentCommunity)
 
   // Link opened mid registration
@@ -27,6 +34,7 @@ export function* deepLinkSaga(action: PayloadAction<ReturnType<typeof initAction
 
   // User already belongs to a community
   if (community) {
+    console.log('INIT_NAVIGATION: Displaying error (user already belongs to a community).')
     yield* put(
       navigationActions.replaceScreen({
         screen: ScreenNames.ErrorScreen,
@@ -60,6 +68,8 @@ export function* deepLinkSaga(action: PayloadAction<ReturnType<typeof initAction
     return
   }
 
+  console.log('INIT_NAVIGATION: Switching to the join community screen.')
+
   yield* put(
     navigationActions.replaceScreen({
       screen: ScreenNames.JoinCommunityScreen,
@@ -73,11 +83,15 @@ export function* deepLinkSaga(action: PayloadAction<ReturnType<typeof initAction
     ownership: CommunityOwnership.User,
     peers: data.pairs,
     psk: data.psk,
+    ownerOrbitDbIdentity: data.ownerOrbitDbIdentity,
   }
 
   yield* put(communities.actions.createNetwork(payload))
+
   // It's time for the user to see the pasted code
   yield* delay(2000)
+
+  console.log('INIT_NAVIGATION: Switching to the username registration screen.')
   yield* put(
     navigationActions.replaceScreen({
       screen: ScreenNames.UsernameRegistrationScreen,

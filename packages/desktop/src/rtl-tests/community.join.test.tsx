@@ -31,12 +31,12 @@ import LoadingPanel from '../renderer/components/LoadingPanel/LoadingPanel'
 import { createUserCertificateTestHelper } from '@quiet/identity'
 import { AnyAction } from 'redux'
 import {
-  type InvitationData,
-  type ChannelsReplicatedPayload,
-  type Community,
-  type ErrorPayload,
-  type ResponseLaunchCommunityPayload,
-  type SendOwnerCertificatePayload,
+  InvitationData,
+  ChannelsReplicatedPayload,
+  Community,
+  ErrorPayload,
+  ResponseLaunchCommunityPayload,
+  SendOwnerCertificatePayload,
 } from '@quiet/types'
 import { composeInvitationShareUrl } from '@quiet/common'
 
@@ -52,6 +52,7 @@ describe('User', () => {
       },
     ],
     psk: 'BNlxfE2WBF7LrlpIX0CvECN5o1oZtA16PkAb7GYiwYw=',
+    ownerOrbitDbIdentity: 'testOrbitDbIdentity',
   }
   const validCode = composeInvitationShareUrl(validData)
   // trigger
@@ -100,42 +101,6 @@ describe('User', () => {
             peerId: {
               id: 'peerId',
             },
-          },
-        })
-      }
-      if (action === SocketActionTypes.REGISTER_USER_CERTIFICATE) {
-        const payload = input[1] as RegisterUserCertificatePayload
-        const user = identity.selectors.currentIdentity(store.getState())
-        expect(user).not.toBeUndefined()
-        // This community serves only as a mocked object for generating valid crytpo data (certificate, rootCA)
-        const communityHelper: ReturnType<typeof communities.actions.addNewCommunity>['payload'] = (
-          await factory.build<typeof communities.actions.addNewCommunity>('Community', {
-            id: payload.communityId,
-          })
-        ).payload
-        const certificateHelper = await createUserCertificateTestHelper(
-          {
-            // @ts-expect-error
-            nickname: user.nickname,
-            // @ts-expect-error
-            commonName: communityHelper.registrarUrl,
-            // @ts-expect-error
-            peerId: user.peerId.id,
-            // @ts-expect-error
-            dmPublicKey: user.dmKeys.publicKey,
-          },
-          communityHelper.CA
-        )
-        const certificate = certificateHelper.userCert?.userCertString
-        const rootCa = communityHelper.CA?.rootCertString
-        return socket.socketClient.emit<SendOwnerCertificatePayload>(SocketActionTypes.SEND_USER_CERTIFICATE, {
-          communityId: payload.communityId,
-          payload: {
-            // @ts-expect-error - This is statically mocked data so it'll never be undefined
-            certificate: certificate,
-            // @ts-expect-error - This is statically mocked data so it'll never be undefined
-            rootCa: rootCa,
-            peers: [],
           },
         })
       }
@@ -218,8 +183,7 @@ describe('User', () => {
         "Modals/openModal",
         "Identity/registerCertificate",
         "Communities/launchCommunity",
-        "Communities/launchRegistrar",
-        "Identity/saveUserCsr",
+        "Communities/sendCommunityCaData",
         "Files/checkForMissingFiles",
         "Network/addInitializedCommunity",
         "Communities/clearInvitationCodes",
@@ -276,7 +240,7 @@ describe('User', () => {
         const community = communities.selectors.currentCommunity(store.getState())
         expect(payload.communityId).toEqual(community?.id)
         socket.socketClient.emit<ErrorPayload>(SocketActionTypes.ERROR, {
-          type: SocketActionTypes.REGISTRAR,
+          type: SocketActionTypes.REGISTER_USER_CERTIFICATE,
           code: ErrorCodes.FORBIDDEN,
           message: ErrorMessages.USERNAME_TAKEN,
           community: community?.id,
@@ -322,27 +286,7 @@ describe('User', () => {
     const usernameTakenErrorMessage = await screen.findByText(ErrorMessages.USERNAME_TAKEN)
     expect(usernameTakenErrorMessage).toBeVisible()
 
-    expect(actions).toMatchInlineSnapshot(`
-      Array [
-        "Communities/createNetwork",
-        "Communities/clearInvitationCode",
-        "Communities/addNewCommunity",
-        "Communities/setCurrentCommunity",
-        "Modals/closeModal",
-        "Modals/openModal",
-        "Identity/registerUsername",
-        "Communities/responseCreateNetwork",
-        "Communities/clearInvitationCode",
-        "Communities/updateCommunityData",
-        "Identity/addNewIdentity",
-        "Network/setLoadingPanelType",
-        "Modals/openModal",
-        "Identity/registerCertificate",
-        "Errors/handleError",
-        "Errors/addError",
-        "Modals/closeModal",
-      ]
-    `)
+    expect(actions).toMatchInlineSnapshot()
   })
 
   it.skip('clears error before sending another username registration request', async () => {
@@ -409,7 +353,7 @@ describe('User', () => {
       const community = communities.selectors.currentCommunity(store.getState())
       store.dispatch(
         errors.actions.addError({
-          type: SocketActionTypes.REGISTRAR,
+          type: SocketActionTypes.REGISTER_USER_CERTIFICATE,
           code: ErrorCodes.FORBIDDEN,
           message: ErrorMessages.USERNAME_TAKEN,
           community: community?.id,
@@ -433,26 +377,6 @@ describe('User', () => {
     // Check if 'username taken' error message disappeared
     expect(await screen.queryByText(ErrorMessages.USERNAME_TAKEN)).toBeNull()
 
-    expect(actions).toMatchInlineSnapshot(`
-      Array [
-        "Communities/createNetwork",
-        "Communities/clearInvitationCode",
-        "Communities/addNewCommunity",
-        "Communities/setCurrentCommunity",
-        "Modals/closeModal",
-        "Modals/openModal",
-        "Errors/addError",
-        "Modals/closeModal",
-        "Errors/clearError",
-        "Identity/registerUsername",
-        "Communities/responseCreateNetwork",
-        "Communities/clearInvitationCode",
-        "Communities/updateCommunityData",
-        "Identity/addNewIdentity",
-        "Network/setLoadingPanelType",
-        "Modals/openModal",
-        "Identity/registerCertificate",
-      ]
-    `)
+    expect(actions).toMatchInlineSnapshot()
   })
 })

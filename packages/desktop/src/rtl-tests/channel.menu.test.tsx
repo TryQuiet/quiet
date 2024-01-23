@@ -36,17 +36,21 @@ describe('Channel menu', () => {
 
     const factory = await getFactory(store)
 
-    await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community', {
-      id: '0',
-      name: 'community',
-      CA: null,
-      registrarUrl: 'http://ugmx77q2tnm5fliyfxfeen5hsuzjtbsz44tsldui2ju7vl5xj4d447yd.onion',
-      rootCa: '',
-      peerList: [],
-    })
+    const community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>(
+      'Community',
+      {
+        id: '0',
+        name: 'community',
+        CA: null,
+        rootCa: '',
+        peerList: [],
+      }
+    )
 
-    /* Context menu is not visible to non-owners at all, for now */
-    store.dispatch(navigationActions.openMenu({ menu: MenuName.Channel }))
+    await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+      id: community.id,
+      nickname: 'alice',
+    })
 
     window.HTMLElement.prototype.scrollTo = jest.fn()
 
@@ -54,16 +58,15 @@ describe('Channel menu', () => {
       <>
         <Channel />
         <ChannelContextMenu />
+        <DeleteChannel />
       </>,
       store
     )
 
-    /* Context menu is not visible to non-owners at all, for now */
+    const menu = screen.getByTestId('channelContextMenuButton')
+    expect(menu).toBeVisible()
 
-    // const menu = screen.getByTestId('channelContextMenuButton')
-    // expect(menu).toBeVisible()
-
-    // await userEvent.click(menu)
+    await userEvent.click(menu)
 
     const channelContextMenu = screen.getByTestId('contextMenu')
     expect(channelContextMenu).toBeVisible()

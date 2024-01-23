@@ -9,7 +9,7 @@ export const InitTransform = createTransform(
   (outboundState: InitState, _key) => {
     return {
       ...new InitState(),
-      lastKnownDataPort: outboundState.lastKnownDataPort,
+      lastKnownSocketIOData: outboundState.lastKnownSocketIOData,
     }
   },
   { whitelist: [StoreKeys.Init] }

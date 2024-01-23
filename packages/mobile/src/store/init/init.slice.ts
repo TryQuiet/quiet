@@ -10,7 +10,10 @@ export class InitState {
   public deepLinking: boolean = false
   public isCryptoEngineInitialized: boolean = false
   public isWebsocketConnected: boolean = false
-  public lastKnownDataPort: number = 11000 // Default port used in native modules
+  public lastKnownSocketIOData: WebsocketConnectionPayload = {
+    dataPort: 0,
+    socketIOSecret: '',
+  }
   public initDescription: string = 'Starting Quiet'
   public initChecks: EntityState<InitCheck> = initChecksAdapter.setAll(initChecksAdapter.getInitialState(), [])
   public ready: boolean = false
@@ -23,6 +26,7 @@ export interface InitCheckPayload {
 
 export interface WebsocketConnectionPayload {
   dataPort: number
+  socketIOSecret: string
 }
 
 export interface CloseConnectionPayload {
@@ -62,9 +66,8 @@ export const initSlice = createSlice({
       state.isWebsocketConnected = false
     },
     setWebsocketConnected: (state, action: PayloadAction<WebsocketConnectionPayload>) => {
-      const { dataPort } = action.payload
       state.isWebsocketConnected = true
-      state.lastKnownDataPort = dataPort
+      state.lastKnownSocketIOData = action.payload
       const event = InitCheckKeys.Backend
       initChecksAdapter.updateOne(state.initChecks, {
         changes: {
@@ -76,6 +79,9 @@ export const initSlice = createSlice({
     },
     deepLink: (state, _action: PayloadAction<string>) => {
       state.deepLinking = true
+    },
+    resetDeepLink: state => {
+      state.deepLinking = false
     },
   },
 })

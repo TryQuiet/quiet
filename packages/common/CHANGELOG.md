@@ -1,283 +1,113 @@
-# Change Log
+[unreleased]
 
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+* Move csrs to separate store.
 
-## [2.0.2-alpha.1](https://github.com/TryQuiet/quiet/compare/@quiet/common@2.0.2-alpha.0...@quiet/common@2.0.2-alpha.1) (2023-11-14)
+* Fix saveUserCsr saga to trigger only if user csr is absent in user slice.
 
-**Note:** Version bump only for package @quiet/common
+* Send an info message immediately after a user joins the community
 
+* Feature: add functionality to export chat to text document in desktop version
 
+[2.0.3-alpha.6]
 
+* Fix: filter out invalid peer addresses in peer list. Update peer list in localdb.
 
+* Fix: dial new peers on CSRs replication
 
-## [2.0.2-alpha.0](https://github.com/TryQuiet/quiet/compare/@quiet/common@2.0.1-alpha.4...@quiet/common@2.0.2-alpha.0) (2023-10-26)
+[2.0.3-alpha.5]
 
-**Note:** Version bump only for package @quiet/common
+* Fix network data proceeding when using custom protocol multiple times #1847
 
+* Backward incompatible change: use pre shared key as connection protector in libp2p. Add libp2p psk to invitation link
 
+* Removed code responsible for data translation from channel address to channel id from state manager transforms and storage service
 
+[2.0.3-alpha.1]
 
+* Temporarily hiding leave community button from Possible impersonation attack
 
-## [2.0.1-alpha.4](https://github.com/TryQuiet/quiet/compare/@quiet/common@2.0.1-alpha.3...@quiet/common@2.0.1-alpha.4) (2023-10-12)
+[2.0.3-alpha.0]
 
-**Note:** Version bump only for package @quiet/common
+* Filter CSRs - remove old csrs and replace with new for each pubkey
 
+* Fixed mobile bugs - joining by QR code and not showing username taken screen for user who has unique name
 
+* Use context menu for information about unregistered username instead screen
 
+* Shorter dots-placeholder for invite link
 
+* Display a shorter invite link on a mobile
 
-## [2.0.1-alpha.3](https://github.com/TryQuiet/quiet/compare/@quiet/common@2.0.1-alpha.2...@quiet/common@2.0.1-alpha.3) (2023-10-10)
+* Removed registration attempts selector and corresponding usage.
 
-**Note:** Version bump only for package @quiet/common
+* Revert adjusting bootstrap scripts for developing on Windows
 
+* Channel input - replaced ContentEditable with textarea
 
+* Fix - up/down arrows now work properly inside channel input (textarea)
 
+[2.0.1-alpha.2]
 
+* UI layer for taken usernames for desktop and mobile
 
-## [2.0.1-alpha.2](https://github.com/TryQuiet/quiet/compare/@quiet/common@2.0.1-alpha.1...@quiet/common@2.0.1-alpha.2) (2023-10-09)
+* Change nickname for taken username
 
-**Note:** Version bump only for package @quiet/common
+* Map messages sent before changing username
 
+* Update registrar service to match new registration flow.
 
+* Add possible impersonation attack UI for desktop and mobile
 
+* Fix truncated long messages in channelInput component
 
+* Unblock mobile e2e tests
 
-## [2.0.1-alpha.1](https://github.com/TryQuiet/quiet/compare/@quiet/common@2.0.1-alpha.0...@quiet/common@2.0.1-alpha.1) (2023-09-25)
+* Prettify loading component on Chat screen (mobile)
 
-**Note:** Version bump only for package @quiet/common
+* Running Chromatic tests for forked PRs
 
+* Added e2e test for user joining community when owner is offline. Improved e2e tests
 
+* Bump github actions/* to versions using node16
 
+* Project can now be bootstraped on Windows (powershell)
 
+* Placeholder(...) for community name
 
-## [2.0.1-alpha.0](https://github.com/TryQuiet/quiet/compare/@quiet/common@2.0.0-alpha.3...@quiet/common@2.0.1-alpha.0) (2023-09-25)
+* No unregistered/duplicated label for system messages
 
-**Note:** Version bump only for package @quiet/common
+[2.0.0-alpha.11]
 
+* Customize Launch Screen on iOS
 
+* Suspends certain websocket events until backend becomes fully operative (faster and dumber frontend).
 
+* Replaced greying out inputs with splash screen on joining/creating screens.
 
+* Fixes empty space between chat's input and a soft keyboard on iOS devices.
 
-# [2.0.0-alpha.18](https://github.com/TryQuiet/quiet/compare/@quiet/common@2.0.0-alpha.3...@quiet/common@2.0.0-alpha.18) (2023-10-04)
+* Changed registration process - user connects to the libp2p network directly instead of using registrar. Invitation link format changed. User csr is now saved to database.
 
-**Note:** Version bump only for package @quiet/common
+* Fixed android stucking on username registration screen introduced in previous alpha.
 
+* Added creator username to initial channel message.
 
+* Fixed bug with changing joining community/create community screens with required field.
 
+* Fixed bug with displaying incorrect default settings tab.
 
+* Replaced source of publicKey in sendMessage saga to CSR
 
-# [2.0.0-alpha.3](https://github.com/TryQuiet/quiet/compare/@quiet/common@2.0.0-alpha.2...@quiet/common@2.0.0-alpha.3) (2023-09-19)
+* Labels for unregistered and duplicate usernames with modals
 
-**Note:** Version bump only for package @quiet/common
+* Fixed LoadingPanel useEffect bug.
 
+* Use csrs instead of certificates as a source of user data
 
+* Integration state manager layer with UI layer(desktop and mobile)
 
+* Clarify autoupdate language in update modal to let users know that the app will update on restart.
 
+* C4 for Quiet architecture. Context and Container diagrams.
 
-# [2.0.0-alpha.2](https://github.com/TryQuiet/quiet/compare/@quiet/common@1.8.1...@quiet/common@2.0.0-alpha.2) (2023-09-18)
-
-
-### Bug Fixes
-
-* common:  capitalize should return null if no string provided ([47269fd](https://github.com/TryQuiet/quiet/commit/47269fd48150c93cb6ede2bf833be05d5f893ab8))
-* typo ([62adb7e](https://github.com/TryQuiet/quiet/commit/62adb7e3a11cee2da9418f11a79d38c871fb684e)), closes [/github.com/TryQuiet/quiet/pull/1727#discussion_r1302471153](https://github.com//github.com/TryQuiet/quiet/pull/1727/issues/discussion_r1302471153)
-* typo in function name ([7e00db1](https://github.com/TryQuiet/quiet/commit/7e00db1eb8d868cfe6682a1fa75f7e90b3a496bb))
-
-
-
-
-
-# [2.0.0-alpha.1](https://github.com/TryQuiet/quiet/compare/@quiet/common@2.0.0-alpha.0...@quiet/common@2.0.0-alpha.1) (2023-09-14)
-
-
-### Bug Fixes
-
-* common:  capitalize should return null if no string provided ([47269fd](https://github.com/TryQuiet/quiet/commit/47269fd48150c93cb6ede2bf833be05d5f893ab8))
-* typo ([62adb7e](https://github.com/TryQuiet/quiet/commit/62adb7e3a11cee2da9418f11a79d38c871fb684e)), closes [/github.com/TryQuiet/quiet/pull/1727#discussion_r1302471153](https://github.com//github.com/TryQuiet/quiet/pull/1727/issues/discussion_r1302471153)
-* typo in function name ([7e00db1](https://github.com/TryQuiet/quiet/commit/7e00db1eb8d868cfe6682a1fa75f7e90b3a496bb))
-
-
-
-
-
-# [2.0.0-alpha.0](https://github.com/TryQuiet/quiet/compare/@quiet/common@1.9.0-alpha.0...@quiet/common@2.0.0-alpha.0) (2023-09-01)
-
-**Note:** Version bump only for package @quiet/common
-
-
-
-
-
-# [1.9.0-alpha.0](/compare/@quiet/common@1.8.0...@quiet/common@1.9.0-alpha.0) (2023-08-29)
-## [1.8.1](https://github.com/TryQuiet/quiet/compare/@quiet/common@1.8.0...@quiet/common@1.8.1) (2023-09-15)
-
-**Note:** Version bump only for package @quiet/common
-
-
-
-
-
-# [1.8.0](/compare/@quiet/common@1.8.0-alpha.0...@quiet/common@1.8.0) (2023-08-28)
-
-**Note:** Version bump only for package @quiet/common
-
-
-
-
-
-# [1.8.0-alpha.0](https://github.com/TryQuiet/quiet/compare/@quiet/common@1.7.0...@quiet/common@1.8.0-alpha.0) (2023-08-25)
-
-**Note:** Version bump only for package @quiet/common
-
-
-
-
-
-# [1.7.0](https://github.com/TryQuiet/quiet/compare/@quiet/common@1.6.0...@quiet/common@1.7.0) (2023-08-17)
-
-**Note:** Version bump only for package @quiet/common
-
-
-
-
-
-# [1.6.0](https://github.com/TryQuiet/quiet/compare/@quiet/common@1.5.1-alpha.0...@quiet/common@1.6.0) (2023-07-28)
-
-**Note:** Version bump only for package @quiet/common
-
-
-
-
-
-## [1.5.1-alpha.0](https://github.com/TryQuiet/quiet/compare/@quiet/common@1.5.0-alpha.0...@quiet/common@1.5.1-alpha.0) (2023-07-28)
-
-**Note:** Version bump only for package @quiet/common
-
-
-
-
-
-# [1.5.0-alpha.0](https://github.com/TryQuiet/quiet/compare/@quiet/common@1.4.0-alpha.1...@quiet/common@1.5.0-alpha.0) (2023-07-26)
-
-**Note:** Version bump only for package @quiet/common
-
-
-
-
-
-# [1.4.0-alpha.1](https://github.com/TryQuiet/quiet/compare/@quiet/common@1.4.0-alpha.0...@quiet/common@1.4.0-alpha.1) (2023-07-05)
-
-**Note:** Version bump only for package @quiet/common
-
-
-
-
-
-# [1.4.0-alpha.0](https://github.com/TryQuiet/quiet/compare/@quiet/common@1.3.1...@quiet/common@1.4.0-alpha.0) (2023-06-19)
-
-**Note:** Version bump only for package @quiet/common
-
-
-
-
-
-## [1.3.1](https://github.com/TryQuiet/quiet/compare/@quiet/common@1.3.1-alpha.0...@quiet/common@1.3.1) (2023-06-13)
-
-**Note:** Version bump only for package @quiet/common
-
-
-
-
-
-## [1.3.1-alpha.0](https://github.com/TryQuiet/quiet/compare/@quiet/common@1.3.0...@quiet/common@1.3.1-alpha.0) (2023-06-06)
-
-**Note:** Version bump only for package @quiet/common
-
-
-
-
-
-# [1.3.0](https://github.com/TryQuiet/quiet/compare/@quiet/common@1.2.1-alpha.5...@quiet/common@1.3.0) (2023-06-02)
-
-**Note:** Version bump only for package @quiet/common
-
-
-
-
-
-## [1.2.1-alpha.5](https://github.com/TryQuiet/quiet/compare/@quiet/common@1.2.1-alpha.4...@quiet/common@1.2.1-alpha.5) (2023-06-02)
-
-**Note:** Version bump only for package @quiet/common
-
-
-
-
-
-## [1.2.1-alpha.4](https://github.com/TryQuiet/quiet/compare/@quiet/common@1.2.1-alpha.3...@quiet/common@1.2.1-alpha.4) (2023-05-25)
-
-**Note:** Version bump only for package @quiet/common
-
-
-
-
-
-## [1.2.1-alpha.3](https://github.com/TryQuiet/quiet/compare/@quiet/common@1.2.1-alpha.2...@quiet/common@1.2.1-alpha.3) (2023-05-10)
-
-**Note:** Version bump only for package @quiet/common
-
-
-
-
-
-## [1.2.1-alpha.2](https://github.com/TryQuiet/quiet/compare/@quiet/common@1.2.1-alpha.1...@quiet/common@1.2.1-alpha.2) (2023-04-28)
-
-**Note:** Version bump only for package @quiet/common
-
-
-
-
-
-## [1.2.1-alpha.1](https://github.com/TryQuiet/quiet/compare/@quiet/common@1.2.1-alpha.0...@quiet/common@1.2.1-alpha.1) (2023-04-27)
-
-**Note:** Version bump only for package @quiet/common
-
-
-
-
-
-## [1.2.1-alpha.0](https://github.com/TryQuiet/quiet/compare/@quiet/common@1.2.0...@quiet/common@1.2.1-alpha.0) (2023-04-26)
-
-**Note:** Version bump only for package @quiet/common
-
-
-
-
-
-# [1.2.0](https://github.com/TryQuiet/quiet/compare/@quiet/common@1.2.0-alpha.22...@quiet/common@1.2.0) (2023-04-18)
-
-**Note:** Version bump only for package @quiet/common
-
-
-
-
-
-# [1.2.0-alpha.22](https://github.com/TryQuiet/quiet/compare/@quiet/common@1.2.0-alpha.21...@quiet/common@1.2.0-alpha.22) (2023-04-12)
-
-**Note:** Version bump only for package @quiet/common
-
-
-
-
-
-# [1.2.0-alpha.21](https://github.com/TryQuiet/quiet/compare/@quiet/common@1.2.0-alpha.20...@quiet/common@1.2.0-alpha.21) (2023-04-07)
-
-**Note:** Version bump only for package @quiet/common
-
-
-
-
-
-# 1.2.0-alpha.20 (2023-04-07)
-
-**Note:** Version bump only for package @quiet/common
+* Invite tab as default in settings

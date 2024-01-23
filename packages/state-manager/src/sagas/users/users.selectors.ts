@@ -1,11 +1,12 @@
 import { createSelector } from '@reduxjs/toolkit'
-import { getCertFieldValue, getReqFieldValue, keyFromCertificate } from '@quiet/identity'
+import { getCertFieldValue, getReqFieldValue, keyFromCertificate, loadCertificate } from '@quiet/identity'
 import { CertFieldsTypes } from './const/certFieldTypes'
 import { StoreKeys } from '../store.keys'
 import { certificatesAdapter } from './users.adapter'
 import { type Certificate } from 'pkijs'
 import { type CreatedSelectors, type StoreState } from '../store.types'
 import { type UserData, User } from '@quiet/types'
+import { ownerCertificate } from '../communities/communities.selectors'
 
 const usersSlice: CreatedSelectors[StoreKeys.Users] = (state: StoreState) => state[StoreKeys.Users]
 
@@ -75,6 +76,11 @@ export const csrsMapping = createSelector(csrs, csrs => {
   return mapping
 })
 
+export const registeredUsernames = createSelector(
+  certificatesMapping,
+  mapping => new Set(Object.values(mapping).map(u => u.username))
+)
+
 export const allUsers = createSelector(csrsMapping, certificatesMapping, (csrs, certs) => {
   const users: Record<string, User> = {}
 
@@ -89,7 +95,6 @@ export const allUsers = createSelector(csrsMapping, certificatesMapping, (csrs, 
       isDuplicated: false,
       pubKey,
     }
-    console.log('Unregistered Debug - allUsers selector - certs - user', users[pubKey])
   })
 
   Object.keys(csrs).map(pubKey => {
@@ -105,16 +110,12 @@ export const allUsers = createSelector(csrsMapping, certificatesMapping, (csrs, 
 
     const isRegistered = Boolean(certs[pubKey])
 
-    console.log('Unregistered Debug - allUsers selector - csrs - certs[pubKey]', certs[pubKey])
-
     users[pubKey] = {
       ...csrs[pubKey],
       isRegistered,
       isDuplicated,
       pubKey,
     }
-
-    console.log('Unregistered Debug - allUsers selector - csrs - user', users[pubKey])
   })
 
   return users
@@ -122,23 +123,10 @@ export const allUsers = createSelector(csrsMapping, certificatesMapping, (csrs, 
 
 export const getUserByPubKey = (pubKey: string) => createSelector(allUsers, users => users[pubKey])
 
-export const getOldestParsedCerificate = createSelector(certificates, certs => {
-  const getTimestamp = (cert: Certificate) => new Date(cert.notBefore.value).getTime()
-  let certificates: Certificate[] = []
-  Object.keys(certs).map(pubKey => {
-    certificates = [...certificates, certs[pubKey]]
-  })
-  certificates.sort((a, b) => {
-    const aTimestamp = getTimestamp(a)
-    const bTimestamp = getTimestamp(b)
-    return aTimestamp - bTimestamp
-  })
-
-  return certificates[0]
-})
-
-export const ownerData = createSelector(getOldestParsedCerificate, ownerCert => {
-  if (!ownerCert) return null
+// Perhaps we should move this to communities.selectors.ts?
+export const ownerData = createSelector(ownerCertificate, ownerCertificate => {
+  if (!ownerCertificate) return null
+  const ownerCert = loadCertificate(ownerCertificate)
   const username = getCertFieldValue(ownerCert, CertFieldsTypes.nickName)
   const onionAddress = getCertFieldValue(ownerCert, CertFieldsTypes.commonName)
   const peerId = getCertFieldValue(ownerCert, CertFieldsTypes.peerId)
@@ -160,14 +148,20 @@ export const duplicateCerts = createSelector(certificatesMapping, certs => {
   return Boolean(allUsernames.length !== uniqueUsernames.length)
 })
 
+export const areCertificatesLoaded = createSelector(
+  certificatesMapping,
+  certificates => Object.values(certificates).length > 0
+)
+
 export const usersSelectors = {
-  csrs,
   certificates,
+  csrs,
   certificatesMapping,
   csrsMapping,
-  getOldestParsedCerificate,
-  ownerData,
+  registeredUsernames,
   allUsers,
-  duplicateCerts,
   getUserByPubKey,
+  ownerData,
+  duplicateCerts,
+  areCertificatesLoaded,
 }

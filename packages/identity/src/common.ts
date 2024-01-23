@@ -66,8 +66,8 @@ export const formatPEM = (pemString: string): string => {
   return resultString
 }
 
-export const loadCertificate = (rootCert: string): Certificate => {
-  const certificateBuffer = stringToArrayBuffer(fromBase64(rootCert))
+export const loadCertificate = (cert: string): Certificate => {
+  const certificateBuffer = stringToArrayBuffer(fromBase64(cert))
   const asn1 = fromBER(certificateBuffer)
   return new Certificate({ schema: asn1.result })
 }

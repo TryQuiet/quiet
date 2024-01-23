@@ -30,14 +30,9 @@ describe('deepLinkSaga', () => {
     },
     rootCa: '',
     peerList: [],
-    registrar: {
-      privateKey: '',
-      address: '',
-    },
     onionAddress: '',
     privateKey: '',
     port: 0,
-    registrationAttempts: 0,
     ownerCertificate: '',
   }
 
@@ -57,6 +52,7 @@ describe('deepLinkSaga', () => {
     store.dispatch(
       initActions.setWebsocketConnected({
         dataPort: 5001,
+        socketIOSecret: 'secret',
       })
     )
     const reducer = combineReducers(reducers)
@@ -76,6 +72,7 @@ describe('deepLinkSaga', () => {
           ownership: CommunityOwnership.User,
           peers: validData.pairs,
           psk: validData.psk,
+          ownerOrbitDbIdentity: validData.ownerOrbitDbIdentity,
         })
       )
       .run()
@@ -85,6 +82,7 @@ describe('deepLinkSaga', () => {
     store.dispatch(
       initActions.setWebsocketConnected({
         dataPort: 5001,
+        socketIOSecret: 'secret',
       })
     )
 
@@ -111,6 +109,7 @@ describe('deepLinkSaga', () => {
           ownership: CommunityOwnership.User,
           peers: validData.pairs,
           psk: validData.psk,
+          ownerOrbitDbIdentity: validData.ownerOrbitDbIdentity,
         })
       )
       .run()
@@ -120,6 +119,7 @@ describe('deepLinkSaga', () => {
     store.dispatch(
       initActions.setWebsocketConnected({
         dataPort: 5001,
+        socketIOSecret: 'secret',
       })
     )
 
@@ -147,6 +147,7 @@ describe('deepLinkSaga', () => {
           ownership: CommunityOwnership.User,
           peers: validData.pairs,
           psk: validData.psk,
+          ownerOrbitDbIdentity: validData.ownerOrbitDbIdentity,
         })
       )
       .run()
@@ -161,11 +162,13 @@ describe('deepLinkSaga', () => {
         },
       ],
       psk: 'BNlxfE=',
+      ownerOrbitDbIdentity: 'testId',
     }
     const invalidCode = composeInvitationShareUrl(invalidData)
     store.dispatch(
       initActions.setWebsocketConnected({
         dataPort: 5001,
+        socketIOSecret: 'secret',
       })
     )
     const reducer = combineReducers(reducers)
@@ -189,6 +192,7 @@ describe('deepLinkSaga', () => {
           ownership: CommunityOwnership.User,
           peers: validData.pairs,
           psk: validData.psk,
+          ownerOrbitDbIdentity: validData.ownerOrbitDbIdentity,
         })
       )
       .run()
@@ -200,6 +204,7 @@ describe('deepLinkSaga', () => {
     store.dispatch(
       initActions.setWebsocketConnected({
         dataPort: 5001,
+        socketIOSecret: 'secret',
       })
     )
 
@@ -212,7 +217,7 @@ describe('deepLinkSaga', () => {
 
     store.dispatch(communities.actions.setCurrentCommunity(community.id))
 
-    store.dispatch(connection.actions.setTorConnectionProcess(ConnectionProcessInfo.REGISTERING_USER_CERTIFICATE))
+    store.dispatch(connection.actions.setConnectionProcess(ConnectionProcessInfo.REGISTERING_USER_CERTIFICATE))
 
     const reducer = combineReducers(reducers)
     await expectSaga(deepLinkSaga, initActions.deepLink(validCode))
@@ -229,6 +234,7 @@ describe('deepLinkSaga', () => {
           ownership: CommunityOwnership.User,
           peers: validData.pairs,
           psk: validData.psk,
+          ownerOrbitDbIdentity: validData.ownerOrbitDbIdentity,
         })
       )
       .run()

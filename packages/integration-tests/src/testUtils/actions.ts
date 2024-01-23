@@ -17,11 +17,10 @@ const log = logger('actions')
 const timeout = 120_000
 
 export async function registerUsername(payload: Register) {
-  const { registrarAddress, userName, store } = payload
+  const { userName, store } = payload
 
   const createNetworkPayload: CreateNetworkPayload = {
     ownership: CommunityOwnership.User,
-    registrar: registrarAddress,
   }
   log(`User ${userName} starts creating network`)
   store.dispatch(communities.actions.createNetwork(createNetworkPayload))
@@ -90,9 +89,6 @@ export const createCommunity = async ({ username, communityName, store }): Promi
     assert.ok(store.getState().Connection.initializedCommunities[communityId])
   }, timeout)
   log('initializedCommunity', store.getState().Connection.initializedCommunities[communityId])
-  await waitForExpect(() => {
-    assert.ok(store.getState().Connection.initializedRegistrars[communityId])
-  }, timeout)
 
   return store.getState().Communities.communities.entities[communityId].onionAddress
 }

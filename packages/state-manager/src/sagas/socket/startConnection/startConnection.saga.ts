@@ -21,7 +21,6 @@ import { filesActions } from '../../files/files.slice'
 import { networkActions } from '../../network/network.slice'
 import {
   type ResponseCreateCommunityPayload,
-  type ResponseRegistrarPayload,
   type StorePeerListPayload,
   type ResponseCreateNetworkPayload,
   type ResponseLaunchCommunityPayload,
@@ -38,11 +37,11 @@ import {
   type RemoveDownloadStatus,
   type SendCertificatesResponse,
   type SetChannelSubscribedPayload,
-  SocketActionTypes,
   type SavedOwnerCertificatePayload,
   type SendOwnerCertificatePayload,
-  CommunityMetadata,
-  SendCsrsResponse,
+  type SendCsrsResponse,
+  type CommunityMetadata,
+  SocketActionTypes,
 } from '@quiet/types'
 
 const log = logger('socket')
@@ -69,14 +68,11 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof identityActions.throwIdentityError>
     | ReturnType<typeof identityActions.saveOwnerCertToDb>
     | ReturnType<typeof identityActions.savedOwnerCertificate>
+    | ReturnType<typeof identityActions.checkLocalCsr>
     | ReturnType<typeof communitiesActions.storePeerList>
     | ReturnType<typeof communitiesActions.updateCommunity>
-    | ReturnType<typeof communitiesActions.responseRegistrar>
-    | ReturnType<typeof communitiesActions.launchRegistrar>
     | ReturnType<typeof communitiesActions.launchCommunity>
-    | ReturnType<typeof communitiesActions.addOwnerCertificate>
     | ReturnType<typeof networkActions.addInitializedCommunity>
-    | ReturnType<typeof networkActions.addInitializedRegistrar>
     | ReturnType<typeof networkActions.removeConnectedPeer>
     | ReturnType<typeof connectionActions.updateNetworkData>
     | ReturnType<typeof networkActions.addConnectedPeers>
@@ -86,7 +82,7 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof filesActions.removeDownloadStatus>
     | ReturnType<typeof filesActions.checkForMissingFiles>
     | ReturnType<typeof connectionActions.setTorBootstrapProcess>
-    | ReturnType<typeof connectionActions.setTorConnectionProcess>
+    | ReturnType<typeof connectionActions.setConnectionProcess>
     | ReturnType<typeof connectionActions.torBootstrapped>
     | ReturnType<typeof communitiesActions.clearInvitationCodes>
     | ReturnType<typeof identityActions.saveUserCsr>
@@ -94,13 +90,14 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof communitiesActions.saveCommunityMetadata>
     | ReturnType<typeof communitiesActions.sendCommunityMetadata>
     | ReturnType<typeof communitiesActions.savePSK>
+    | ReturnType<typeof communitiesActions.sendCommunityCaData>
   >(emit => {
     // UPDATE FOR APP
     socket.on(SocketActionTypes.TOR_INITIALIZED, () => {
       emit(connectionActions.setTorInitialized())
     })
     socket.on(SocketActionTypes.CONNECTION_PROCESS_INFO, (payload: string) => {
-      emit(connectionActions.setTorConnectionProcess(payload))
+      emit(connectionActions.setConnectionProcess(payload))
     })
     // Misc
     socket.on(SocketActionTypes.PEER_CONNECTED, (payload: { peers: string[] }) => {
@@ -168,12 +165,7 @@ export function subscribe(socket: Socket) {
       console.log('on SocketActionTypes.NEW_COMMUNITY')
       emit(identityActions.saveOwnerCertToDb())
       emit(publicChannelsActions.createGeneralChannel())
-    })
-    socket.on(SocketActionTypes.REGISTRAR, (payload: ResponseRegistrarPayload) => {
-      console.log('SocketActionTypes.REGISTRAR')
-      log(SocketActionTypes.REGISTRAR, payload)
-      emit(communitiesActions.responseRegistrar(payload))
-      emit(networkActions.addInitializedRegistrar(payload.id))
+      emit(identityActions.saveUserCsr())
     })
     socket.on(SocketActionTypes.PEER_LIST, (payload: StorePeerListPayload) => {
       emit(communitiesActions.storePeerList(payload))
@@ -184,8 +176,9 @@ export function subscribe(socket: Socket) {
     })
     socket.on(SocketActionTypes.COMMUNITY, (payload: ResponseLaunchCommunityPayload) => {
       console.log('Hunting for heisenbug: Community event received in state-manager')
-      emit(communitiesActions.launchRegistrar(payload.id))
-      emit(identityActions.saveUserCsr())
+      // TODO: We can send this once when creating the community and
+      // store it in the backend.
+      emit(communitiesActions.sendCommunityCaData())
       emit(filesActions.checkForMissingFiles(payload.id))
       emit(networkActions.addInitializedCommunity(payload.id))
       emit(communitiesActions.clearInvitationCodes())
@@ -194,51 +187,28 @@ export function subscribe(socket: Socket) {
     })
     // Errors
     socket.on(SocketActionTypes.ERROR, (payload: ErrorPayload) => {
-      log(payload)
+      // FIXME: It doesn't look like log errors have the red error
+      // color in the console, which makes them difficult to find.
+      // Also when only printing the payload, the full trace is not
+      // available.
+      log.error(payload)
+      console.error(payload, payload.trace)
       emit(errorsActions.handleError(payload))
     })
     // Certificates
     socket.on(SocketActionTypes.RESPONSE_GET_CSRS, (payload: SendCsrsResponse) => {
+      console.log('REPONSE_GET_CSRS')
+      emit(identityActions.checkLocalCsr(payload))
       emit(usersActions.storeCsrs(payload))
     })
     socket.on(SocketActionTypes.RESPONSE_GET_CERTIFICATES, (payload: SendCertificatesResponse) => {
       emit(usersActions.responseSendCertificates(payload))
     })
-    socket.on(SocketActionTypes.SEND_USER_CERTIFICATE, (payload: SendOwnerCertificatePayload) => {
-      log(`${SocketActionTypes.SEND_USER_CERTIFICATE}: ${payload.communityId}`)
-
-      emit(
-        communitiesActions.addOwnerCertificate({
-          communityId: payload.communityId,
-          ownerCertificate: payload.payload.ownerCert,
-        })
-      )
-
-      emit(
-        communitiesActions.storePeerList({
-          communityId: payload.communityId,
-          peerList: payload.payload.peers,
-        })
-      )
-      emit(
-        identityActions.storeUserCertificate({
-          userCertificate: payload.payload.certificate,
-          communityId: payload.communityId,
-        })
-      )
-      emit(
-        communitiesActions.updateCommunity({
-          id: payload.communityId,
-          rootCa: payload.payload.rootCa,
-        })
-      )
-      emit(communitiesActions.launchCommunity(payload.communityId))
-    })
     socket.on(SocketActionTypes.SAVED_OWNER_CERTIFICATE, (payload: SavedOwnerCertificatePayload) => {
       log(`${SocketActionTypes.SAVED_OWNER_CERTIFICATE}: ${payload.communityId}`)
       emit(
-        communitiesActions.addOwnerCertificate({
-          communityId: payload.communityId,
+        communitiesActions.updateCommunity({
+          id: payload.communityId,
           ownerCertificate: payload.network.certificate,
         })
       )
@@ -250,14 +220,9 @@ export function subscribe(socket: Socket) {
       )
       emit(identityActions.savedOwnerCertificate(payload.communityId))
     })
-    socket.on(SocketActionTypes.SAVE_COMMUNITY_METADATA, (payload: CommunityMetadata) => {
-      log(`${SocketActionTypes.SAVE_COMMUNITY_METADATA}: ${payload}`)
-      emit(
-        communitiesActions.saveCommunityMetadata({
-          rootCa: payload.rootCa,
-          ownerCertificate: payload.ownerCertificate,
-        })
-      )
+    socket.on(SocketActionTypes.COMMUNITY_METADATA_SAVED, (payload: CommunityMetadata) => {
+      log(`${SocketActionTypes.COMMUNITY_METADATA_SAVED}: ${payload}`)
+      emit(communitiesActions.saveCommunityMetadata(payload))
     })
     socket.on(SocketActionTypes.LIBP2P_PSK_SAVED, (payload: { psk: string }) => {
       log(`${SocketActionTypes.LIBP2P_PSK_SAVED}`)

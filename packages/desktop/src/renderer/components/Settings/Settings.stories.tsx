@@ -24,6 +24,7 @@ const invitationLink = composeInvitationShareUrl({
     },
   ],
   psk: '12345',
+  ownerOrbitDbIdentity: 'testOwnerOrbitDbIdentity',
 })
 
 const Template: ComponentStory<typeof SettingsComponent> = args => {

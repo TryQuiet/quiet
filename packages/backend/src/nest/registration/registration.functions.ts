@@ -1,20 +1,25 @@
 import { createUserCert, keyFromCertificate } from '@quiet/identity'
 import { IsBase64, IsNotEmpty, validate } from 'class-validator'
-import { ErrorPayload, PermsData, SocketActionTypes, SuccessfullRegistrarionResponse } from '@quiet/types'
+import { ErrorPayload, PermsData, SocketActionTypes, type SuccessfulRegistrationResponse } from '@quiet/types'
 import { CsrContainsFields, IsCsr } from './registration.validators'
-import { RegistrationEvents } from './registration.types'
+import { type RegistrationEvents } from './registration.types'
 import { loadCSR, CertFieldsTypes, getCertFieldValue, getReqFieldValue, parseCertificate } from '@quiet/identity'
-import { CertificationRequest } from 'pkijs'
 import Logger from '../common/logger'
-import { load } from 'mock-fs'
 
 const logger = Logger('registration.functions')
-class UserCsrData {
+
+export class UserCsrData {
   @IsNotEmpty()
   @IsBase64()
   @IsCsr()
   @CsrContainsFields()
   csr: string
+}
+
+export class CertificateData {
+  @IsNotEmpty()
+  @IsBase64()
+  certificate: string
 }
 
 export interface RegistrarResponse {
@@ -24,7 +29,7 @@ export interface RegistrarResponse {
 
 export interface RegistrationResponse {
   eventType: RegistrationEvents | SocketActionTypes
-  data: ErrorPayload | SuccessfullRegistrarionResponse
+  data: ErrorPayload | SuccessfulRegistrationResponse
 }
 
 export const extractPendingCsrs = async (payload: { csrs: string[]; certificates: string[] }) => {
@@ -59,6 +64,7 @@ export const extractPendingCsrs = async (payload: { csrs: string[]; certificates
       pendingCsrs.push(csr)
     }
   }
+  logger('DuplicatedCertBug', { parsedUniqueCsrs, pendingNames, certNames })
   return pendingCsrs
 }
 

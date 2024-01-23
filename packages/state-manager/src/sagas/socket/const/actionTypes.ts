@@ -42,7 +42,6 @@ export enum SocketActionTypes {
   INITIALIZE_CONVERSATION = 'initializeConversation',
   // L
   LAUNCH_COMMUNITY = 'launchCommunity',
-  LAUNCH_REGISTRAR = 'launchRegistrar',
   LEAVE_COMMUNITY = 'leaveCommunity',
   // N
   NETWORK = 'network',
@@ -55,7 +54,6 @@ export enum SocketActionTypes {
   // R
   REGISTER_USER_CERTIFICATE = 'registerUserCertificate',
   REGISTER_OWNER_CERTIFICATE = 'registerOwnerCertificate',
-  REGISTRAR = 'registrar',
   REMOVE_DOWNLOAD_STATUS = 'removeDownloadStatus',
   RESPONSE_FETCH_ALL_DIRECT_MESSAGES = 'responseFetchAllDirectMessages',
   RESPONSE_GET_CERTIFICATES = 'responseGetCertificates',
@@ -68,12 +66,9 @@ export enum SocketActionTypes {
   SEND_MESSAGE = 'sendMessage',
   SEND_MESSAGES_IDS = 'sendIds',
   SEND_PEER_ID = 'sendPeerId',
-  SEND_USER_CERTIFICATE = 'sendUserCertificate',
-  SUBSCRIBE_FOR_ALL_CONVERSATIONS = 'subscribeToAllConversations',
-  SUBSCRIBE_FOR_DIRECT_MESSAGE_THREAD = 'subscribeToDirectMessageThread',
   //  T
   TOR_INITIALIZED = 'torInitialized',
-  CONNECTION_PROCESS_INFO = 'torConnectionProcess',
+  CONNECTION_PROCESS_INFO = 'connectionProcess',
   // U
   UPDATE_MESSAGE_MEDIA = 'updateMessageMedia',
   UPLOAD_FILE = 'uploadFile',

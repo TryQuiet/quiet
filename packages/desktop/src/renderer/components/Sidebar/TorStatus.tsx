@@ -1,6 +1,6 @@
 import React from 'react'
 import { styled } from '@mui/material/styles'
-import Grid from '@mui/material/Grid'
+import { Grid, GridProps } from '@mui/material'
 import { Typography } from '@mui/material'
 import { connection } from '@quiet/state-manager'
 import { useSelector } from 'react-redux'
@@ -14,10 +14,16 @@ const classes = {
   circle: `${PREFIX}circle`,
 }
 
-interface StyledGridProps {
-  isDev: boolean
+type StyledGridProps = GridProps & { isDev: boolean }
+
+// Added to remove React warnings due to props getting added to the DOM.
+// See: https://github.com/mui/material-ui/issues/40336
+const StyledGridWithProps = (props: StyledGridProps) => {
+  const { isDev, ...rest } = props
+  return <Grid {...rest} />
 }
-const StyledGrid = styled(Grid)(({ isDev }: StyledGridProps) => ({
+
+const StyledGrid = styled(StyledGridWithProps)(({ isDev }: StyledGridProps) => ({
   [`& .${classes.root}`]: {},
   [`& .${classes.wrapper}`]: {
     paddingBottom: '32px',

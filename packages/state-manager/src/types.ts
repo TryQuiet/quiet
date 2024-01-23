@@ -3,26 +3,25 @@ import { type DefaultEventsMap } from 'socket.io-client/build/typed-events'
 import { type messagesActions } from './sagas/messages/messages.slice'
 import { type publicChannelsActions } from './sagas/publicChannels/publicChannels.slice'
 import {
-  SaveCSRPayload,
+  type SaveCSRPayload,
   type CancelDownloadPayload,
   type Community,
   type DeleteFilesFromChannelSocketPayload,
   type DownloadFilePayload,
   type InitCommunityPayload,
-  type LaunchRegistrarPayload,
   type RegisterOwnerCertificatePayload,
   type RegisterUserCertificatePayload,
   type SaveOwnerCertificatePayload,
   type SendMessagePayload,
   type SocketActionTypes,
   type UploadFilePayload,
-  CommunityMetadata,
+  type CommunityMetadata,
+  type PermsData,
 } from '@quiet/types'
 
 type EmitEvent<Payload> = (payload: Payload) => void
 
 export interface EmitEvents {
-  [SocketActionTypes.LAUNCH_REGISTRAR]: EmitEvent<LaunchRegistrarPayload>
   [SocketActionTypes.LAUNCH_COMMUNITY]: EmitEvent<InitCommunityPayload>
   [SocketActionTypes.DOWNLOAD_FILE]: EmitEvent<DownloadFilePayload>
   [SocketActionTypes.SEND_MESSAGE]: EmitEvent<SendMessagePayload>
@@ -41,6 +40,7 @@ export interface EmitEvents {
   [SocketActionTypes.CREATE_NETWORK]: EmitEvent<Community>
   [SocketActionTypes.SAVE_USER_CSR]: EmitEvent<SaveCSRPayload>
   [SocketActionTypes.SEND_COMMUNITY_METADATA]: EmitEvent<CommunityMetadata>
+  [SocketActionTypes.SEND_COMMUNITY_CA_DATA]: EmitEvent<PermsData>
 }
 
 export type Socket = IOSocket<DefaultEventsMap, EmitEvents>

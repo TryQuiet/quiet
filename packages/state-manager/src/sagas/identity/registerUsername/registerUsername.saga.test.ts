@@ -27,6 +27,7 @@ describe('registerUsernameSaga', () => {
       {
         CA: null,
         rootCa: 'rootCertString',
+        ownerOrbitDbIdentity: 'ownerOrbitDbId',
       }
     )
 
@@ -64,10 +65,10 @@ describe('registerUsernameSaga', () => {
         {
           id: community.id,
           name: community.name,
-          registrarUrl: community.registrarUrl,
           CA: community.CA,
           rootCa: undefined,
           psk: psk,
+          ownerOrbitDbIdentity: 'ownerOrbitDbId',
         },
       ])
       .dispatch(identityActions.addNewIdentity(identity))
@@ -196,7 +197,6 @@ describe('registerUsernameSaga', () => {
         {
           id: community.id,
           name: community.name,
-          registrarUrl: community.registrarUrl,
           CA: community.CA,
           rootCa: undefined,
         },
@@ -227,11 +227,9 @@ describe('registerUsernameSaga', () => {
       {
         id: '1',
         name: 'rockets',
-        registrarUrl: 'registrarUrl',
         CA: null,
         rootCa: 'rootCa',
         peerList: [],
-        registrar: null,
         onionAddress: '',
         privateKey: '',
         port: 0,
@@ -286,7 +284,6 @@ describe('registerUsernameSaga', () => {
         {
           id: community.id,
           name: community.name,
-          registrarUrl: community.registrarUrl,
           CA: community.CA,
           rootCa: undefined,
         },

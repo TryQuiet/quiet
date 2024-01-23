@@ -1,3 +1,7 @@
+/**
+ * TODO: I think we can unify this with common.ts. It seems like there
+ * is some overlap with the functions.
+ */
 import { fromBase64, stringToArrayBuffer } from 'pvutils'
 import { fromBER } from 'asn1js'
 import config from './config'

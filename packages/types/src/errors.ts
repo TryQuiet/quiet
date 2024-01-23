@@ -5,6 +5,7 @@ export interface ErrorPayload {
   code?: number
   message?: string
   community?: string
+  trace?: string
 }
 
 export enum ErrorTypes {

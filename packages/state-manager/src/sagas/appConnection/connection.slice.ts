@@ -8,10 +8,11 @@ export class ConnectionState {
   public uptime = 0
   public peersStats: EntityState<NetworkStats> = peersStatsAdapter.getInitialState()
   public isTorInitialized = false
+  public socketIOSecret: string | null = null
   public torBootstrapProcess = 'Bootstrapped 0% (starting)'
-  public torConnectionProcess: { number: number; text: string } = {
+  public connectionProcess: { number: number; text: ConnectionProcessInfo } = {
     number: 5,
-    text: 'Connecting process started',
+    text: ConnectionProcessInfo.CONNECTION_STARTED,
   }
 }
 
@@ -47,47 +48,28 @@ export const connectionSlice = createSlice({
     setTorInitialized: state => {
       state.isTorInitialized = true
     },
-    setTorConnectionProcess: (state, action: PayloadAction<string>) => {
+    setSocketIOSecret: (state, action: PayloadAction<string>) => {
+      state.socketIOSecret = action.payload
+    },
+    setConnectionProcess: (state, action: PayloadAction<string>) => {
       const info = action.payload
+
       switch (info) {
-        case ConnectionProcessInfo.CONNECTING_TO_COMMUNITY:
-          state.torConnectionProcess = { number: 20, text: info }
-          break
         case ConnectionProcessInfo.REGISTERING_OWNER_CERTIFICATE:
-          state.torConnectionProcess = { number: 20, text: info }
-          break
-        case ConnectionProcessInfo.LAUNCHING_COMMUNITY:
-          state.torConnectionProcess = { number: 30, text: info }
-          break
-        case ConnectionProcessInfo.SPAWNING_HIDDEN_SERVICE:
-          state.torConnectionProcess = { number: 40, text: info }
-          break
-        case ConnectionProcessInfo.INITIALIZING_LIBP2P:
-          state.torConnectionProcess = { number: 50, text: info }
-          break
-        case ConnectionProcessInfo.INITIALIZING_STORAGE:
-          state.torConnectionProcess = { number: 60, text: info }
+          state.connectionProcess = { number: 50, text: ConnectionProcessInfo.REGISTERING_OWNER_CERTIFICATE }
           break
         case ConnectionProcessInfo.INITIALIZING_IPFS:
-          state.torConnectionProcess = { number: 70, text: info }
+          if (state.connectionProcess.number > 30) break
+          state.connectionProcess = { number: 30, text: ConnectionProcessInfo.BACKEND_MODULES }
           break
-        case ConnectionProcessInfo.LOADED_CERTIFICATES:
-          state.torConnectionProcess = { number: 75, text: info }
+        case ConnectionProcessInfo.CONNECTING_TO_COMMUNITY:
+          if (state.connectionProcess.number == 50) break
+          state.connectionProcess = { number: 50, text: ConnectionProcessInfo.CONNECTING_TO_COMMUNITY }
           break
-        case ConnectionProcessInfo.INITIALIZED_DBS:
-          state.torConnectionProcess = { number: 80, text: info }
-          break
-        case ConnectionProcessInfo.LAUNCHED_COMMUNITY:
-          state.torConnectionProcess = { number: 85, text: info }
-          break
-        case ConnectionProcessInfo.WAITING_FOR_METADATA:
-          state.torConnectionProcess = { number: 87, text: info }
-          break
-        case ConnectionProcessInfo.CHANNELS_REPLICATED:
-          state.torConnectionProcess = { number: 90, text: info }
-          break
-        case ConnectionProcessInfo.CERTIFICATES_REPLICATED:
-          state.torConnectionProcess = { number: 95, text: info }
+        case ConnectionProcessInfo.CHANNELS_REPLICATED || ConnectionProcessInfo.CERTIFICATES_REPLICATED:
+          let number = 90
+          if (state.connectionProcess.number == 90) number = 95
+          state.connectionProcess = { number, text: ConnectionProcessInfo.LOADING_MESSAGES }
           break
       }
     },

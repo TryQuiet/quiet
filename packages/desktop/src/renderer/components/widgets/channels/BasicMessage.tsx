@@ -174,19 +174,13 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
   const userLabel = messageDisplayData?.isDuplicated
     ? UserLabelType.DUPLICATE
     : !messageDisplayData?.isRegistered
-    ? UserLabelType.UNREGISTERED
-    : null
-
-  console.log('Unregistered Debug - Basic Message', { userLabel })
+      ? UserLabelType.UNREGISTERED
+      : null
 
   const infoMessage = messageDisplayData.type === 3 // 3 stands for MessageType.Info
 
-  console.log('Unregistered Debug - Basic Message', { infoMessage })
-
   // Grey out sender name if the first message hasn't been sent yet
   const pending: boolean = pendingMessages[messageDisplayData.id] !== undefined
-
-  console.log('Unregistered Debug - Basic Message - condition to display label', userLabel && !infoMessage)
 
   return (
     <StyledListItem
@@ -207,7 +201,7 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
                 {infoMessage ? (
                   <Icon src={information} className={classes.infoIcon} />
                 ) : (
-                  <Jdenticon size='36' value={messageDisplayData.nickname} />
+                  <Jdenticon size='36' value={messageDisplayData.pubKey} />
                 )}
               </div>
             </Grid>

@@ -46,7 +46,9 @@ export const getFactory = async (store: Store) => {
   const factory = new factoryGirl.FactoryGirl()
 
   factory.setAdapter(new CustomReduxAdapter(store))
+
   const registrarUrl = 'http://ugmx77q2tnm5fliyfxfeen5hsuzjtbsz44tsldui2ju7vl5xj4d447yd.onion'
+
   factory.define(
     'Community',
     communities.actions.addNewCommunity,
@@ -54,7 +56,6 @@ export const getFactory = async (store: Store) => {
       id: factory.sequence('Community.id', (n: number) => n),
       name: factory.sequence('Community.name', (n: number) => `community_${n}`),
       CA: await createRootCertificateTestHelper(registrarUrl),
-      registrarUrl,
       peerList: [],
       ownerCertificate: '',
     },
@@ -148,8 +149,8 @@ export const getFactory = async (store: Store) => {
 
           if (!community.ownerCertificate) {
             store.dispatch(
-              communities.actions.addOwnerCertificate({
-                communityId: community.id,
+              communities.actions.updateCommunity({
+                id: community.id,
                 ownerCertificate: action.payload.userCertificate,
               })
             )

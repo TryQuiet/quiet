@@ -5,6 +5,7 @@ import Logger from './logger'
 const logger = Logger('invite')
 
 export const PSK_PARAM_KEY = 'k'
+export const OWNER_ORBIT_DB_IDENTITY_PARAM_KEY = 'o'
 const DEEP_URL_SCHEME_WITH_SEPARATOR = 'quiet://'
 const DEEP_URL_SCHEME = 'quiet'
 const ONION_ADDRESS_REGEX = /^[a-z0-9]{56}$/g
@@ -35,15 +36,20 @@ const parseDeepUrl = ({ url, expectedProtocol = `${DEEP_URL_SCHEME}:` }: ParseDe
     logger.error(`Could not retrieve invitation code from deep url '${url}'`)
     throw new Error(`Invalid url`)
   }
+
   const params = validUrl.searchParams
   const codes: InvitationPair[] = []
+
   let psk = params.get(PSK_PARAM_KEY)
   if (!psk) throw new Error(`No psk found in invitation code '${url}'`)
-
   psk = decodeURIComponent(psk)
   if (!isPSKcodeValid(psk)) throw new Error(`Invalid psk in invitation code '${url}'`)
-
   params.delete(PSK_PARAM_KEY)
+
+  let ownerOrbitDbIdentity = params.get(OWNER_ORBIT_DB_IDENTITY_PARAM_KEY)
+  if (!ownerOrbitDbIdentity) throw new Error(`No owner OrbitDB identity found in invitation code '${url}'`)
+  ownerOrbitDbIdentity = decodeURIComponent(ownerOrbitDbIdentity)
+  params.delete(OWNER_ORBIT_DB_IDENTITY_PARAM_KEY)
 
   params.forEach((onionAddress, peerId) => {
     if (!peerDataValid({ peerId, onionAddress })) return
@@ -55,7 +61,8 @@ const parseDeepUrl = ({ url, expectedProtocol = `${DEEP_URL_SCHEME}:` }: ParseDe
   logger('Retrieved data:', codes)
   return {
     pairs: codes,
-    psk: psk,
+    psk,
+    ownerOrbitDbIdentity,
   }
 }
 
@@ -77,9 +84,10 @@ export const parseInvitationCode = (code: string): InvitationData => {
 /**
  * @arg {string[]} peers - List of peer's p2p addresses
  * @arg psk - Pre shared key in base64
- * @returns {string} - Complete shareable invitation link, e.g. https://tryquiet.org/join/#<peerid1>=<address1>&<peerid2>=<addresss2>&k=<psk>
+ * @returns {string} - Complete shareable invitation link, e.g.
+ * https://tryquiet.org/join/#<peerid1>=<address1>&<peerid2>=<addresss2>&k=<psk>&o=<ownerOrbitDbIdentity>
  */
-export const invitationShareUrl = (peers: string[] = [], psk: string): string => {
+export const invitationShareUrl = (peers: string[] = [], psk: string, ownerOrbitDbIdentity: string): string => {
   const pairs: InvitationPair[] = []
   for (const peerAddress of peers) {
     let peerId: string
@@ -105,7 +113,7 @@ export const invitationShareUrl = (peers: string[] = [], psk: string): string =>
     pairs.push({ peerId: peerId, onionAddress: rawAddress })
   }
 
-  return composeInvitationShareUrl({ pairs: pairs, psk: psk })
+  return composeInvitationShareUrl({ pairs, psk, ownerOrbitDbIdentity })
 }
 
 export const pairsToP2pAddresses = (pairs: InvitationPair[]): string[] => {
@@ -130,6 +138,7 @@ const composeInvitationUrl = (baseUrl: string, data: InvitationData): string => 
     url.searchParams.append(pair.peerId, pair.onionAddress)
   }
   url.searchParams.append(PSK_PARAM_KEY, data.psk)
+  url.searchParams.append(OWNER_ORBIT_DB_IDENTITY_PARAM_KEY, data.ownerOrbitDbIdentity)
   return url.href
 }
 

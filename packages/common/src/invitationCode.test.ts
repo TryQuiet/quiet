@@ -16,6 +16,7 @@ describe('Invitation code helper', () => {
   const address2 = 'y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd'
   const psk = 'BNlxfE2WBF7LrlpIX0CvECN5o1oZtA16PkAb7GYiwYw%3D'
   const pskDecoded = 'BNlxfE2WBF7LrlpIX0CvECN5o1oZtA16PkAb7GYiwYw='
+  const ownerOrbitDbIdentity = 'testOwnerOrbitDbIdentity'
 
   it('retrieves invitation code from argv', () => {
     const expectedCodes: InvitationData = {
@@ -24,6 +25,7 @@ describe('Invitation code helper', () => {
         { peerId: peerId2, onionAddress: address2 },
       ],
       psk: pskDecoded,
+      ownerOrbitDbIdentity,
     }
     const result = argvInvitationCode([
       'something',
@@ -55,6 +57,7 @@ describe('Invitation code helper', () => {
           { peerId: 'peerID2', onionAddress: 'address2' },
         ],
         psk: pskDecoded,
+        ownerOrbitDbIdentity,
       })
     ).toEqual(`quiet://?peerID1=address1&peerID2=address2&${PSK_PARAM_KEY}=${psk}`)
   })
@@ -66,6 +69,7 @@ describe('Invitation code helper', () => {
         { peerId: 'peerID2', onionAddress: 'address2' },
       ],
       psk: pskDecoded,
+      ownerOrbitDbIdentity,
     }
     const expected = `${QUIET_JOIN_PAGE}#peerID1=address1&peerID2=address2&${PSK_PARAM_KEY}=${psk}`
     expect(composeInvitationShareUrl(pairs)).toEqual(expected)
@@ -77,7 +81,7 @@ describe('Invitation code helper', () => {
       'invalidAddress',
       '/dns4/somethingElse.onion/tcp/443/wss/p2p/QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSA',
     ]
-    expect(invitationShareUrl(peerList, pskDecoded)).toEqual(
+    expect(invitationShareUrl(peerList, pskDecoded, ownerOrbitDbIdentity)).toEqual(
       `${QUIET_JOIN_PAGE}#QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE=gloao6h5plwjy4tdlze24zzgcxll6upq2ex2fmu2ohhyu4gtys4nrjad&QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSA=somethingElse&${PSK_PARAM_KEY}=${psk}`
     )
   })
@@ -92,6 +96,7 @@ describe('Invitation code helper', () => {
         { peerId: peerId2, onionAddress: address2 },
       ],
       psk: pskDecoded,
+      ownerOrbitDbIdentity,
     })
   })
 

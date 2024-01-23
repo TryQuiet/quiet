@@ -40,6 +40,7 @@ export const JoinCommunityScreen: FC<JoinCommunityScreenProps> = ({ route }) => 
         ownership: CommunityOwnership.User,
         peers: data.pairs,
         psk: data.psk,
+        ownerOrbitDbIdentity: data.ownerOrbitDbIdentity,
       }
       dispatch(communities.actions.createNetwork(payload))
       dispatch(

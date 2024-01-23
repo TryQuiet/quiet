@@ -75,6 +75,12 @@ export const UsernameRegistration: FC<UsernameRegistrationProps> = ({
     }
   }, [usernameRegistered])
 
+  useEffect(() => {
+    if (variant === UsernameVariant.TAKEN && loading && userName === '') {
+      setLoading(false)
+    }
+  }, [variant, loading, userName])
+
   const icon = appImages.icon_warning
 
   return (
@@ -149,7 +155,7 @@ export const UsernameRegistration: FC<UsernameRegistrationProps> = ({
 
         <View style={{ marginTop: 20 }}>
           <Button
-            disabled={Boolean(inputError)}
+            disabled={Boolean(inputError) || loading}
             onPress={onPress}
             title={'Continue'}
             loading={loading}

@@ -11,4 +11,5 @@ export type InvitationPair = {
 export type InvitationData = {
   pairs: InvitationPair[]
   psk: string
+  ownerOrbitDbIdentity: string
 }

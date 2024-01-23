@@ -14,22 +14,20 @@ import { CreateCommunityDictionary } from '../renderer/components/CreateJoinComm
 import MockedSocket from 'socket.io-mock'
 import { ioMock } from '../shared/setupTests'
 import { socketEventData } from '../renderer/testUtils/socket'
+import { Community, SavedOwnerCertificatePayload } from '@quiet/types'
 import {
   ChannelsReplicatedPayload,
   InitCommunityPayload,
-  LaunchRegistrarPayload,
   publicChannels,
   RegisterOwnerCertificatePayload,
   ResponseCreateNetworkPayload,
   ResponseLaunchCommunityPayload,
-  ResponseRegistrarPayload,
   SocketActionTypes,
 } from '@quiet/state-manager'
 import Channel from '../renderer/components/Channel/Channel'
 import LoadingPanel from '../renderer/components/LoadingPanel/LoadingPanel'
 import { AnyAction } from 'redux'
 import { generateChannelId } from '@quiet/common'
-import { type Community, type SavedOwnerCertificatePayload } from '@quiet/types'
 
 jest.setTimeout(20_000)
 
@@ -119,17 +117,6 @@ describe('User', () => {
           },
         })
       }
-      if (action === SocketActionTypes.LAUNCH_REGISTRAR) {
-        const payload = input[1] as LaunchRegistrarPayload
-        socket.socketClient.emit<ResponseRegistrarPayload>(SocketActionTypes.REGISTRAR, {
-          id: payload.id,
-          payload: {
-            privateKey: 'privateKey',
-            onionAddress: 'onionAddress',
-            port: 7909,
-          },
-        })
-      }
     })
 
     // Log all the dispatched actions in order
@@ -189,20 +176,19 @@ describe('User', () => {
         "Network/setLoadingPanelType",
         "Modals/openModal",
         "Identity/registerCertificate",
-        "Communities/addOwnerCertificate",
+        "Communities/updateCommunity",
         "Identity/storeUserCertificate",
         "Identity/savedOwnerCertificate",
-        "Communities/launchRegistrar",
-        "Identity/saveUserCsr",
+        "Communities/updateCommunityData",
+        "Communities/sendCommunityCaData",
         "Files/checkForMissingFiles",
         "Network/addInitializedCommunity",
         "Communities/clearInvitationCodes",
         "Communities/sendCommunityMetadata",
         "Identity/saveOwnerCertToDb",
         "PublicChannels/createGeneralChannel",
+        "Identity/saveUserCsr",
         "PublicChannels/channelsReplicated",
-        "Communities/responseRegistrar",
-        "Network/addInitializedRegistrar",
         "PublicChannels/createChannel",
         "PublicChannels/addChannel",
         "PublicChannels/setCurrentChannel",

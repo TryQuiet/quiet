@@ -4,10 +4,10 @@ import { getFactory } from '../../..'
 import { prepareStore, reducers } from '../../../utils/tests/prepareStore'
 import { combineReducers } from '@reduxjs/toolkit'
 import { expectSaga } from 'redux-saga-test-plan'
-import { type communitiesActions } from '../../communities/communities.slice'
+import { communitiesActions } from '../../communities/communities.slice'
 import { type identityActions } from '../../identity/identity.slice'
 import { type FactoryGirl } from 'factory-girl'
-import { generateChannelId, userCreatedChannelMessage, userJoinedMessage, verifyUserInfoMessage } from '@quiet/common'
+import { generateChannelId, createdChannelMessage, userJoinedMessage, verifyUserInfoMessage } from '@quiet/common'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import { DateTime } from 'luxon'
 import {
@@ -52,6 +52,15 @@ describe('verifyMessage saga test', () => {
     })
 
     aliceCsr = alice.userCsr?.userCsr || ''
+
+    store.dispatch(
+      communitiesActions.updateCommunityData({
+        id: community.id,
+        // null/undefined type mismatch here. Might make things easier
+        // to make it consistent.
+        ownerCertificate: alice.userCertificate || undefined,
+      })
+    )
 
     bob = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
       id: community.id,
@@ -261,7 +270,7 @@ describe('verifyMessage saga test', () => {
     const message: ChannelMessage = {
       id: 'id1',
       type: MessageType.Info,
-      message: userCreatedChannelMessage(bob.nickname, sportChannel.name),
+      message: createdChannelMessage(sportChannel.name),
       createdAt: 24,
       channelId: sportChannel.id,
       signature: 'signature',
