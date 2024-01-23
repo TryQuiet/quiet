@@ -75,12 +75,12 @@ export const Input = forwardRef<TextInput, InputProps>(
           {children}
         </StyledWrapper>
         {validation && (
-          <Typography fontSize={10} color={'error'} style={{ paddingTop: 10 }}>
+          <Typography fontSize={14} color={'error'} style={{ paddingTop: 10 }}>
             {validation}
           </Typography>
         )}
         {hint && (
-          <Typography fontSize={10} color={'hint'} style={{ paddingTop: 10, lineHeight: 16 }}>
+          <Typography fontSize={14} color={'hint'} style={{ paddingTop: 10, lineHeight: 16 }}>
             {hint}
           </Typography>
         )}

@@ -1,11 +1,11 @@
 import React from 'react'
 import { createRoot } from 'react-dom/client'
 import { ipcRenderer } from 'electron'
-
 import Root, { persistor } from './Root'
 import store from './store'
 import updateHandlers from './store/handlers/update'
-import { communities } from '@quiet/state-manager'
+import { communities, connection } from '@quiet/state-manager'
+import { InvitationData } from '@quiet/types'
 
 if (window && process.env.DEBUG) {
   window.localStorage.setItem('debug', process.env.DEBUG)
@@ -20,9 +20,14 @@ ipcRenderer.on('force-save-state', async _event => {
   ipcRenderer.send('state-saved')
 })
 
-ipcRenderer.on('invitation', (_event, invitation) => {
-  console.log('invitation', invitation, 'dispatching action')
-  store.dispatch(communities.actions.handleInvitationCodes(invitation.codes))
+ipcRenderer.on('invitation', (_event, invitation: { data: InvitationData }) => {
+  if (!invitation.data) return
+  console.log('invitation', invitation.data.pairs, 'dispatching action')
+  store.dispatch(communities.actions.customProtocol(invitation.data))
+})
+
+ipcRenderer.on('socketIOSecret', (_event, socketIOSecret) => {
+  store.dispatch(connection.actions.setSocketIOSecret(socketIOSecret))
 })
 
 const container = document.getElementById('root')

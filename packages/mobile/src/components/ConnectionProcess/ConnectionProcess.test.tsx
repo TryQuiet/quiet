@@ -85,17 +85,21 @@ describe('ConnectionProcessComponent', () => {
                 "backgroundColor": "#F0F0F0",
                 "borderRadius": 4,
                 "height": 4,
+                "position": "relative",
                 "width": 300,
+                "zIndex": 1,
               }
             }
           >
             <View
               style={
                 {
-                  "backgroundColor": "#67BFD3",
+                  "backgroundColor": "#2196f3",
                   "borderRadius": 4,
                   "height": 4,
+                  "position": "relative",
                   "width": 120,
+                  "zIndex": 3,
                 }
               }
             />

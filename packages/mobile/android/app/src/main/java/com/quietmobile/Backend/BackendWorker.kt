@@ -1,6 +1,7 @@
 package com.quietmobile.Backend;
 
 import android.content.Context
+import android.util.Base64
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.work.CoroutineWorker
@@ -24,8 +25,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONException
 import org.json.JSONObject
-import org.torproject.android.binary.TorResourceInstaller
 import java.util.concurrent.ThreadLocalRandom
+import kotlin.collections.ArrayList
 
 
 class BackendWorker(private val context: Context, workerParams: WorkerParameters) : CoroutineWorker(context, workerParams) {
@@ -88,8 +89,10 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
         setForeground(createForegroundInfo())
 
         withContext(Dispatchers.IO) {
+
             // Get and store data port for usage in methods across the app
             val dataPort = Utils.getOpenPort(11000)
+            val socketIOSecret = Utils.generateRandomString(20)
 
             // Init nodejs project
             launch {
@@ -98,7 +101,7 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
 
             launch {
                 notificationHandler = NotificationHandler(context)
-                subscribePushNotifications(dataPort)
+                subscribePushNotifications(dataPort, socketIOSecret)
             }
 
             launch {
@@ -112,17 +115,17 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
                  * In any case, websocket won't connect until data server starts listening
                  */
                 delay(WEBSOCKET_CONNECTION_DELAY)
-                startWebsocketConnection(dataPort)
+                startWebsocketConnection(dataPort, socketIOSecret)
             }
 
             val dataPath = Utils.createDirectory(context)
 
-            val tor = TorResourceInstaller(context, context.filesDir).installResources()
-            val torBinary = tor.canonicalPath
-
+            val appInfo = context.packageManager.getApplicationInfo(context.packageName, 0)
+            val torBinary = appInfo.nativeLibraryDir + "/libtor.so"
+            
             val platform = "mobile"
 
-            startNodeProjectWithArguments("bundle.cjs --torBinary $torBinary --dataPath $dataPath --dataPort $dataPort --platform $platform")
+            startNodeProjectWithArguments("bundle.cjs --torBinary $torBinary --dataPath $dataPath --dataPort $dataPort --platform $platform --socketIOSecret $socketIOSecret")
         }
 
         println("FINISHING BACKEND WORKER")
@@ -167,8 +170,14 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
         )
     }
 
-    private fun subscribePushNotifications(port: Int) {
-        val webSocketClient = IO.socket("http://localhost:$port")
+    private fun subscribePushNotifications(port: Int, secret: String) {
+        val encodedSecret = Base64.encodeToString(secret.toByteArray(Charsets.UTF_8), Base64.NO_WRAP)
+        val options = IO.Options()
+        val headers = mutableMapOf<String, List<String>>()
+        headers["Authorization"] = listOf("Basic $encodedSecret")
+        options.extraHeaders = headers
+
+        val webSocketClient = IO.socket("http://127.0.0.1:$port", options)
         // Listen for events sent from nodejs
         webSocketClient.on("pushNotification", onPushNotification)
         // Client won't connect by itself (`connect()` method has to be called manually)
@@ -190,10 +199,10 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
             notificationHandler.notify(message, username)
         }
 
-    private fun startWebsocketConnection(port: Int) {
+    private fun startWebsocketConnection(port: Int, socketIOSecret: String) {
         Log.d("WEBSOCKET CONNECTION", "Starting on $port")
         // Proceed only if data port is defined
-        val websocketConnectionPayload = WebsocketConnectionPayload(port)
+        val websocketConnectionPayload = WebsocketConnectionPayload(port, socketIOSecret)
         CommunicationModule.handleIncomingEvents(
             CommunicationModule.WEBSOCKET_CONNECTION_CHANNEL,
             Gson().toJson(websocketConnectionPayload),

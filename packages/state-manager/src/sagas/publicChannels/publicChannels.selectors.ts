@@ -277,6 +277,13 @@ export const unreadChannels = createSelector(channelsStatus, status => {
     }, [])
 })
 
+export const areMessagesLoaded = createSelector(
+  currentChannelMessagesMergedBySender,
+  currentChannelMessages => Object.values(currentChannelMessages).length > 0
+)
+
+export const areChannelsLoaded = createSelector(publicChannels, channels => channels.length > 0)
+
 export const publicChannelsSelectors = {
   publicChannels,
   subscribedChannels,
@@ -298,4 +305,6 @@ export const publicChannelsSelectors = {
   pendingGeneralChannelRecreation,
   generalChannel,
   getChannelById,
+  areMessagesLoaded,
+  areChannelsLoaded,
 }

@@ -7,3 +7,9 @@ export type InvitationPair = {
   peerId: string
   onionAddress: string
 }
+
+export type InvitationData = {
+  pairs: InvitationPair[]
+  psk: string
+  ownerOrbitDbIdentity: string
+}

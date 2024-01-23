@@ -3,7 +3,6 @@ import { expectSaga } from 'redux-saga-test-plan'
 import { FactoryGirl } from 'factory-girl'
 import { generateMessageFactoryContentWithId, getFactory, identity, publicChannels } from '@quiet/state-manager'
 import { setupCrypto } from '@quiet/identity'
-
 import { navigationActions } from '../navigation.slice'
 import { ScreenNames } from '../../../const/ScreenNames.enum'
 

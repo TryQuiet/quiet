@@ -8,12 +8,7 @@ describe('PossibleImpersonationAttackModal', () => {
   it('renderComponent', () => {
     const result = renderComponent(
       <ThemeProvider theme={theme}>
-        <PossibleImpersonationAttackModalComponent
-          handleClose={() => {}}
-          open={true}
-          communityName={'devteam'}
-          leaveCommunity={() => {}}
-        />
+        <PossibleImpersonationAttackModalComponent handleClose={() => {}} open={true} communityName={'devteam'} />
       </ThemeProvider>
     )
     expect(result.baseElement).toMatchInlineSnapshot(`
@@ -26,7 +21,6 @@ describe('PossibleImpersonationAttackModal', () => {
         <div
           class="MuiModal-root css-1vjugmr-MuiModal-root"
           role="presentation"
-          zindex="1300"
         >
           <div
             aria-hidden="true"
@@ -121,17 +115,6 @@ describe('PossibleImpersonationAttackModal', () => {
                       This should never happen and we recommend leaving this community immediately!
                     </strong>
                   </p>
-                  <button
-                    class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium PossibleImpersonationAttackModalComponent-button css-1skytee-MuiButtonBase-root-MuiButton-root"
-                    data-testid="unregistered-button"
-                    tabindex="0"
-                    type="button"
-                  >
-                    Leave community
-                    <span
-                      class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
-                    />
-                  </button>
                 </div>
               </div>
             </div>

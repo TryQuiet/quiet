@@ -9,12 +9,16 @@ import { getPorts, ApplicationPorts, closeHangingBackendProcess } from './backen
 import pkijs, { setEngine, CryptoEngine } from 'pkijs'
 import { Crypto } from '@peculiar/webcrypto'
 import logger from './logger'
-import { DATA_DIR, DEV_DATA_DIR } from '../shared/static'
 import { fork, ChildProcess } from 'child_process'
-import { argvInvitationCode, getFilesData, retrieveInvitationCode } from '@quiet/common'
+import {
+  DESKTOP_DATA_DIR,
+  DESKTOP_DEV_DATA_DIR,
+  argvInvitationCode,
+  getFilesData,
+  parseInvitationCodeDeepUrl,
+} from '@quiet/common'
 import { updateDesktopFile, processInvitationCode } from './invitation'
 const ElectronStore = require('electron-store')
-ElectronStore.initRenderer()
 
 // eslint-disable-next-line
 const remote = require('@electron/remote/main')
@@ -33,13 +37,13 @@ const webcrypto = new Crypto()
 
 global.crypto = webcrypto
 
-let dataDir = DATA_DIR
+let dataDir = DESKTOP_DATA_DIR
 let mainWindow: BrowserWindow | null
 let splash: BrowserWindow | null
 let invitationUrl: string | null
 
 if (isDev || process.env.DATA_DIR) {
-  dataDir = process.env.DATA_DIR || DEV_DATA_DIR
+  dataDir = process.env.DATA_DIR || DESKTOP_DEV_DATA_DIR
 }
 
 const appDataPath = path.join(app.getPath('appData'), dataDir)
@@ -53,6 +57,9 @@ const newUserDataPath = path.join(appDataPath, 'Quiet')
 
 app.setPath('appData', appDataPath)
 app.setPath('userData', newUserDataPath)
+
+// Initialize electron store after setting new 'appData'
+ElectronStore.initRenderer()
 
 const gotTheLock = app.requestSingleInstanceLock()
 
@@ -102,6 +109,8 @@ setEngine(
   })
 )
 
+const SOCKET_IO_SECRET = webcrypto.getRandomValues(new Uint32Array(5)).join('')
+
 export const isBrowserWindow = (window: BrowserWindow | null): window is BrowserWindow => {
   return window instanceof BrowserWindow
 }
@@ -147,8 +156,12 @@ app.on('open-url', (event, url) => {
   event.preventDefault()
   if (mainWindow) {
     invitationUrl = null
-    const invitationCode = retrieveInvitationCode(url)
-    processInvitationCode(mainWindow, invitationCode)
+    try {
+      const invitationData = parseInvitationCodeDeepUrl(url)
+      processInvitationCode(mainWindow, invitationData)
+    } catch (e) {
+      console.warn(e.message)
+    }
   }
 })
 
@@ -204,7 +217,7 @@ export const createWindow = async () => {
   mainWindow.loadURL(
     url.format({
       pathname: path.join(__dirname, './index.html'),
-      search: `dataPort=${ports.dataServer}`,
+      search: `dataPort=${ports.dataServer}&socketIOSecret=${SOCKET_IO_SECRET}`,
       protocol: 'file:',
       slashes: true,
       hash: '/',
@@ -329,6 +342,7 @@ app.on('ready', async () => {
   await createWindow()
 
   mainWindow?.webContents.on('did-finish-load', () => {
+    mainWindow?.webContents.send('socketIOSecret', SOCKET_IO_SECRET)
     if (splash && !splash.isDestroyed()) {
       const [width, height] = splash.getSize()
       mainWindow?.setSize(width, height)
@@ -361,6 +375,8 @@ app.on('ready', async () => {
     `${process.resourcesPath}`,
     '-p',
     'desktop',
+    '-scrt',
+    `${SOCKET_IO_SECRET}`,
   ]
 
   const backendBundlePath = path.normalize(require.resolve('backend-bundle'))
@@ -474,13 +490,22 @@ app.on('ready', async () => {
       throw new Error(`mainWindow is on unexpected type ${mainWindow}`)
     }
     if (process.platform === 'darwin' && invitationUrl) {
-      const invitationCode = retrieveInvitationCode(invitationUrl)
-      processInvitationCode(mainWindow, invitationCode)
-      invitationUrl = null
+      try {
+        const invitationData = parseInvitationCodeDeepUrl(invitationUrl)
+        processInvitationCode(mainWindow, invitationData)
+      } catch (e) {
+        console.warn(e.message)
+      } finally {
+        invitationUrl = null
+      }
     }
     if (process.platform !== 'darwin' && process.argv) {
-      const invitationCode = argvInvitationCode(process.argv)
-      processInvitationCode(mainWindow, invitationCode)
+      try {
+        const invitationCode = argvInvitationCode(process.argv)
+        processInvitationCode(mainWindow, invitationCode)
+      } catch (e) {
+        console.warn(e.message)
+      }
     }
 
     await checkForUpdate(mainWindow)

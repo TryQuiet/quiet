@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { socketSelectors } from '../../../sagas/socket/socket.selectors'
-import { CommunityOwnership, CreateNetworkPayload, InvitationPair } from '@quiet/types'
-import { communities, identity, connection } from '@quiet/state-manager'
+import { CommunityOwnership, CreateNetworkPayload, InvitationData, InvitationPair } from '@quiet/types'
+import { communities, identity, connection, network } from '@quiet/state-manager'
 import PerformCommunityActionComponent from '../../../components/CreateJoinCommunity/PerformCommunityActionComponent'
 import { ModalName } from '../../../sagas/modals/modals.types'
 import { useModal } from '../../../containers/hooks'
@@ -15,7 +15,9 @@ const JoinCommunity = () => {
   const currentCommunity = useSelector(communities.selectors.currentCommunity)
   const currentIdentity = useSelector(identity.selectors.currentIdentity)
 
-  const invitationCode = useSelector(communities.selectors.invitationCodes)
+  // Invitation link data should be already available if user joined via deep link
+  const invitationCodes = useSelector(communities.selectors.invitationCodes)
+  const psk = useSelector(communities.selectors.psk)
 
   const joinCommunityModal = useModal(ModalName.joinCommunityModal)
   const createCommunityModal = useModal(ModalName.createCommunityModal)
@@ -36,10 +38,12 @@ const JoinCommunity = () => {
     }
   }, [currentCommunity])
 
-  const handleCommunityAction = (address: InvitationPair[]) => {
+  const handleCommunityAction = (data: InvitationData) => {
     const payload: CreateNetworkPayload = {
       ownership: CommunityOwnership.User,
-      peers: address,
+      peers: data.pairs,
+      psk: data.psk,
+      ownerOrbitDbIdentity: data.ownerOrbitDbIdentity,
     }
     dispatch(communities.actions.createNetwork(payload))
   }
@@ -68,7 +72,8 @@ const JoinCommunity = () => {
       hasReceivedResponse={Boolean(currentIdentity && !currentIdentity.userCertificate)}
       revealInputValue={revealInputValue}
       handleClickInputReveal={handleClickInputReveal}
-      invitationCode={invitationCode}
+      invitationCode={invitationCodes}
+      psk={psk}
     />
   )
 }

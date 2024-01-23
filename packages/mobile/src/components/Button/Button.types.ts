@@ -5,4 +5,5 @@ export interface ButtonProps {
   loading?: boolean
   negative?: boolean
   disabled?: boolean
+  newDesign?: boolean
 }

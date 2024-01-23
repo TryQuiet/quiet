@@ -24,13 +24,7 @@ export const UnregisteredUsernameContextMenu: FC = () => {
               @{usernameTakenContextMenu.username}
             </Typography>{' '}
             has not been registered yet with the community owner, so it’s still possible for someone else to register
-            the same username.
-          </Typography>
-        </View>
-
-        <View style={{ marginTop: 20 }}>
-          <Typography fontSize={14} style={{ textAlign: 'center', lineHeight: 20 }}>
-            When the community owner is online,{' '}
+            the same username. When the community owner is online,{' '}
             <Typography fontSize={14} fontWeight={'bold'}>
               @{usernameTakenContextMenu.username}
             </Typography>{' '}
@@ -38,8 +32,8 @@ export const UnregisteredUsernameContextMenu: FC = () => {
           </Typography>
         </View>
 
-        <View style={{ marginTop: 20 }}>
-          <Button width={160} title={'OK'} onPress={usernameTakenContextMenu.handleClose} />
+        <View style={{ marginTop: 12 }}>
+          <Button width={60} title={'Ok'} onPress={usernameTakenContextMenu.handleClose} />
         </View>
       </View>
     </ContextMenu>

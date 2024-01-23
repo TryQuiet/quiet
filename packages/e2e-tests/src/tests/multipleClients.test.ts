@@ -17,7 +17,7 @@ interface UserTestData {
   messages: string[]
 }
 
-jest.setTimeout(900000)
+jest.setTimeout(1200000) // 20 minutes
 describe('Multiple Clients', () => {
   let generalChannelOwner: Channel
   let generalChannelUser1: Channel
@@ -164,6 +164,7 @@ describe('Multiple Clients', () => {
       await registerModal.clearInput()
       await registerModal.typeUsername(users.user1.username)
       await registerModal.submit()
+      console.time(`[${users.user1.app.name}] '${users.user1.username}' joining community time`)
     })
 
     it('First user joins successfully sees general channel and sends a message', async () => {
@@ -172,6 +173,7 @@ describe('Multiple Clients', () => {
       await generalChannelUser1.element.isDisplayed()
       const isMessageInput2 = await generalChannelUser1.messageInput.isDisplayed()
       expect(isMessageInput2).toBeTruthy()
+      console.timeEnd(`[${users.user1.app.name}] '${users.user1.username}' joining community time`)
       console.log('FETCHING CHANNEL MESSAGES!')
       await new Promise<void>(resolve =>
         setTimeout(() => {
@@ -184,7 +186,7 @@ describe('Multiple Clients', () => {
       const messages2 = await generalChannelUser1.getUserMessages(users.user1.username)
       const messages1 = await generalChannelUser1.getUserMessages(users.owner.username)
       console.log({ messages1, messages2 })
-      const text2 = await messages2[0].getText()
+      const text2 = await messages2[1].getText()
       expect(text2).toEqual(users.user1.messages[0])
     })
     it('First user opens the settings tab and copies updated invitation code', async () => {
@@ -223,14 +225,26 @@ describe('Multiple Clients', () => {
       await joinCommunityModal.submit()
     })
 
-    it('Second user submits valid, not-duplicated username', async () => {
-      console.log('nereeew user - 5')
+    it('Second user submits non-valid, duplicated username', async () => {
+      console.log('duplicated user - 1')
       const registerModal = new RegisterUsernameModal(users.user3.app.driver)
       const isRegisterModal = await registerModal.element.isDisplayed()
       expect(isRegisterModal).toBeTruthy()
       await registerModal.clearInput()
-      await registerModal.typeUsername(users.user3.username)
+      await registerModal.typeUsername(users.user1.username)
       await registerModal.submit()
+      console.time(`[${users.user3.app.name}] '${users.user1.username}' duplicated joining community time`)
+    })
+
+    it('Second user submits valid username', async () => {
+      console.log('duplicated user - 2')
+      const registerModal = new RegisterUsernameModal(users.user3.app.driver)
+      const isRegisterModal = await registerModal.elementUsernameTaken.isDisplayed()
+      expect(isRegisterModal).toBeTruthy()
+      await registerModal.clearInput()
+      await registerModal.typeUsername(users.user3.username)
+      await registerModal.submitUsernameTaken()
+      console.time(`[${users.user3.app.name}] '${users.user3.username}' joining community time`)
     })
 
     it('Second user sees general channel', async () => {
@@ -239,6 +253,7 @@ describe('Multiple Clients', () => {
       await generalChannelUser3.element.isDisplayed()
       const isMessageInput = await generalChannelUser3.messageInput.isDisplayed()
       expect(isMessageInput).toBeTruthy()
+      console.timeEnd(`[${users.user3.app.name}] '${users.user3.username}' joining community time`)
     })
 
     it('Second user can send a message, they see their message tagged as "unregistered"', async () => {
@@ -367,6 +382,7 @@ describe('Multiple Clients', () => {
         expect(isRegisterModal2).toBeTruthy()
         await registerModal2.typeUsername(users.user2.username)
         await registerModal2.submit()
+        console.time(`[${users.user1.app.name}] '${users.user2.username}' joining community time`)
       })
 
       // Check correct channels replication
@@ -374,6 +390,7 @@ describe('Multiple Clients', () => {
         console.log('TEST 6')
         generalChannelUser1 = new Channel(users.user1.app.driver, 'general')
         await generalChannelUser1.element.isDisplayed()
+        console.timeEnd(`[${users.user1.app.name}] '${users.user2.username}' joining community time`)
         await new Promise<void>(resolve =>
           setTimeout(() => {
             resolve()

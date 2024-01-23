@@ -32,6 +32,7 @@ export enum SocketActionTypes {
   LAUNCH_COMMUNITY = 'launchCommunity',
   LAUNCH_REGISTRAR = 'launchRegistrar',
   LEAVE_COMMUNITY = 'leaveCommunity',
+  LIBP2P_PSK_SAVED = 'libp2pPskSaved',
   LOADED_USER_PROFILES = 'loadedUserProfiles',
   // N
   NETWORK = 'network',
@@ -55,7 +56,6 @@ export enum SocketActionTypes {
   SAVE_OWNER_CERTIFICATE = 'saveOwnerCertificate',
   SAVED_OWNER_CERTIFICATE = 'savedOwnerCertificate',
   SAVE_USER_CSR = 'saveUserCsr',
-  SAVE_COMMUNITY_METADATA = 'saveCommunityMetadata',
   SAVE_USER_PROFILE = 'saveUserProfile',
   SAVED_USER_CSR = 'savedUserCsr',
   SEND_DIRECT_MESSAGE = 'sendDirectMessage',
@@ -64,11 +64,10 @@ export enum SocketActionTypes {
   SEND_PEER_ID = 'sendPeerId',
   SEND_USER_CERTIFICATE = 'sendUserCertificate',
   SEND_COMMUNITY_METADATA = 'sendCommunityMetadata',
-  SUBSCRIBE_FOR_ALL_CONVERSATIONS = 'subscribeToAllConversations',
-  SUBSCRIBE_FOR_DIRECT_MESSAGE_THREAD = 'subscribeToDirectMessageThread',
+  COMMUNITY_METADATA_SAVED = 'communityMetadataSaved',
   //  T
   TOR_INITIALIZED = 'torInitialized',
-  CONNECTION_PROCESS_INFO = 'torConnectionProcess',
+  CONNECTION_PROCESS_INFO = 'connectionProcess',
   // U
   UPDATE_MESSAGE_MEDIA = 'updateMessageMedia',
   UPLOAD_FILE = 'uploadFile',

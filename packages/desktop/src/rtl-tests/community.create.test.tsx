@@ -14,26 +14,22 @@ import { CreateCommunityDictionary } from '../renderer/components/CreateJoinComm
 import MockedSocket from 'socket.io-mock'
 import { ioMock } from '../shared/setupTests'
 import { socketEventData } from '../renderer/testUtils/socket'
+import { Community, SavedOwnerCertificatePayload } from '@quiet/types'
 import {
   ChannelsReplicatedPayload,
-  Community,
-  connection,
   InitCommunityPayload,
   LaunchRegistrarPayload,
   publicChannels,
   RegisterOwnerCertificatePayload,
-  ResponseCreateCommunityPayload,
   ResponseCreateNetworkPayload,
   ResponseLaunchCommunityPayload,
   ResponseRegistrarPayload,
-  SaveOwnerCertificatePayload,
   SocketActionTypes,
 } from '@quiet/state-manager'
 import Channel from '../renderer/components/Channel/Channel'
 import LoadingPanel from '../renderer/components/LoadingPanel/LoadingPanel'
 import { AnyAction } from 'redux'
 import { generateChannelId } from '@quiet/common'
-import { SavedOwnerCertificatePayload } from '@quiet/types'
 
 jest.setTimeout(20_000)
 
@@ -193,17 +189,18 @@ describe('User', () => {
         "Network/setLoadingPanelType",
         "Modals/openModal",
         "Identity/registerCertificate",
-        "Communities/addOwnerCertificate",
+        "Communities/updateCommunity",
         "Identity/storeUserCertificate",
         "Identity/savedOwnerCertificate",
+        "Communities/updateCommunityData",
         "Communities/launchRegistrar",
-        "Identity/saveUserCsr",
         "Files/checkForMissingFiles",
         "Network/addInitializedCommunity",
         "Communities/clearInvitationCodes",
         "Communities/sendCommunityMetadata",
         "Identity/saveOwnerCertToDb",
         "PublicChannels/createGeneralChannel",
+        "Identity/saveUserCsr",
         "PublicChannels/channelsReplicated",
         "Communities/responseRegistrar",
         "Network/addInitializedRegistrar",

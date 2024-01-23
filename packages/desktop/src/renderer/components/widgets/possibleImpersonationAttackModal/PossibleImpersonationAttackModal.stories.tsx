@@ -19,7 +19,6 @@ const args: PossibleImpersonationAttackModalComponentProps = {
   handleClose: function (): void {},
   open: true,
   communityName: 'devteam',
-  leaveCommunity: function (): void {},
 }
 
 Component.args = args

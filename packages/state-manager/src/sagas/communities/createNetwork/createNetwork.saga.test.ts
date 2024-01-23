@@ -29,6 +29,7 @@ describe('createNetwork', () => {
       communitiesActions.createNetwork({
         ownership: CommunityOwnership.User,
         peers: [{ peerId: 'peerId', onionAddress: 'address' }],
+        psk: '12345',
       })
     )
       .withReducer(reducer)
@@ -63,6 +64,7 @@ describe('createNetwork', () => {
       communitiesActions.createNetwork({
         ownership: CommunityOwnership.Owner,
         name: 'rockets',
+        psk: '12345',
       })
     )
       .withReducer(reducer)

@@ -46,12 +46,6 @@ const Channel = () => {
     (currentChannelName === 'general' || currentChannelName === '') &&
     currentChannelMessagesCount === 0
 
-  let enableContextMenu = false
-  if (community) {
-    // Enable only for community owner
-    enableContextMenu = Boolean(community.CA)
-  }
-
   const pendingMessages = useSelector(messages.selectors.messagesSendingStatus)
 
   const uploadedFileModal = useModal<{ src: string }>(ModalName.uploadedFileModal)
@@ -220,7 +214,6 @@ const Channel = () => {
     handleClipboardFiles: handleClipboardFiles,
     uploadedFileModal: uploadedFileModal,
     openContextMenu: openContextMenu,
-    enableContextMenu: enableContextMenu,
     pendingGeneralChannelRecreation: pendingGeneralChannelRecreation,
     unregisteredUsernameModalHandleOpen,
     duplicatedUsernameModalHandleOpen,

@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common'
 import { Level } from 'level'
 import { NetworkStats } from '@quiet/types'
-import { sortPeers } from '@quiet/common'
+import { filterAndSortPeers } from '@quiet/common'
 import { LEVEL_DB } from '../const'
 import { LocalDBKeys, LocalDbStatus } from './local-db.types'
 import Logger from '../common/logger'
@@ -73,9 +73,15 @@ export class LocalDbService {
 
   public async getSortedPeers(peers: string[] = []): Promise<string[]> {
     const peersStats = (await this.get(LocalDBKeys.PEERS)) || {}
-    const peersAddresses: string[] = [...new Set(Object.keys(peersStats).concat(peers))]
     const stats: NetworkStats[] = Object.values(peersStats)
-    const sortedPeers = sortPeers(peersAddresses, stats)
-    return sortedPeers
+    return filterAndSortPeers(peers, stats)
+  }
+
+  public async putOwnerOrbitDbIdentity(id: string): Promise<void> {
+    this.put(LocalDBKeys.OWNER_ORBIT_DB_IDENTITY, id)
+  }
+
+  public async getOwnerOrbitDbIdentity(): Promise<string> {
+    return this.get(LocalDBKeys.OWNER_ORBIT_DB_IDENTITY)
   }
 }

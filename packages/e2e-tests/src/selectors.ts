@@ -18,6 +18,10 @@ export class App {
     return this.thenableWebDriver
   }
 
+  get name() {
+    return this.buildSetup.dataDir
+  }
+
   async open() {
     console.log('Opening the app', this.buildSetup.dataDir)
     this.buildSetup.resetDriver()
@@ -168,6 +172,10 @@ export class RegisterUsernameModal {
     return this.driver.wait(until.elementLocated(By.xpath("//h3[text()='Register a username']")))
   }
 
+  get elementUsernameTaken() {
+    return this.driver.wait(until.elementLocated(By.xpath("//h6[text()='Username taken']")))
+  }
+
   get error() {
     return this.driver.wait(until.elementLocated(By.xpath("//p[text()='Username already taken.']")))
   }
@@ -190,6 +198,11 @@ export class RegisterUsernameModal {
 
   async submit() {
     const submitButton = await this.driver.findElement(By.xpath('//button[text()="Register"]'))
+    await submitButton.click()
+  }
+
+  async submitUsernameTaken() {
+    const submitButton = await this.driver.findElement(By.xpath('//button[text()="Continue"]'))
     await submitButton.click()
   }
 }
@@ -488,7 +501,7 @@ export class DebugModeModal {
       const log = await this.driver.executeScript('arguments[0].click();', button)
       console.log('executeScript', log)
     } catch (e) {
-      console.log('Probably click properly close modal')
+      console.log('Probably clicked hidden close button on debug modal')
     }
     await new Promise<void>(resolve => setTimeout(() => resolve(), 2000))
   }

@@ -7,15 +7,15 @@ import { getFactory } from '../../../utils/tests/factories'
 import { reducers } from '../../reducers'
 import { identityActions } from '../identity.slice'
 import { registerUsernameSaga } from './registerUsername.saga'
-import { type communitiesActions } from '../../communities/communities.slice'
+import { communitiesActions } from '../../communities/communities.slice'
 import { config } from '../../users/const/certFieldTypes'
 import { CertData, CreateUserCsrPayload, SocketActionTypes } from '@quiet/types'
 import { Socket } from '../../../types'
-import { connectionActions } from '../../appConnection/connection.slice'
 
 describe('registerUsernameSaga', () => {
   it('create user csr', async () => {
     setupCrypto()
+
     const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
 
     const store = prepareStore().store
@@ -25,23 +25,16 @@ describe('registerUsernameSaga', () => {
     const community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>(
       'Community',
       {
-        id: '1',
-        name: 'rockets',
-        registrarUrl: 'registrarUrl',
         CA: null,
-        rootCa: 'rootCa',
-        peerList: [],
-        registrar: null,
-        onionAddress: '',
-        privateKey: '',
-        port: 0,
+        rootCa: 'rootCertString',
+        ownerOrbitDbIdentity: 'ownerOrbitDbId',
       }
     )
 
     // Identity won't have userCsr as long as its corresponding community has no CA (factory specific logic)
     const identity = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
-      nickname: undefined,
       id: community.id,
+      nickname: undefined,
       userCsr: null,
     })
 
@@ -59,7 +52,10 @@ describe('registerUsernameSaga', () => {
       signAlg: config.signAlg,
       hashAlg: config.hashAlg,
     }
+
     const reducer = combineReducers(reducers)
+    const psk = '12345'
+    store.dispatch(communitiesActions.savePSK(psk))
     await expectSaga(registerUsernameSaga, socket, identityActions.registerUsername({ nickname: 'nickname' }))
       .withReducer(reducer)
       .withState(store.getState())
@@ -72,6 +68,8 @@ describe('registerUsernameSaga', () => {
           registrarUrl: community.registrarUrl,
           CA: community.CA,
           rootCa: undefined,
+          psk: psk,
+          ownerOrbitDbIdentity: 'ownerOrbitDbId',
         },
       ])
       .dispatch(identityActions.addNewIdentity(identity))
@@ -95,23 +93,12 @@ describe('registerUsernameSaga', () => {
 
     const factory = await getFactory(store)
 
-    const community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>(
-      'Community',
-      {
-        id: '1',
-        name: 'rockets',
-        registrarUrl: 'registrarUrl',
-        CA: null,
-        rootCa: 'rootCa',
-        peerList: [],
-        registrar: null,
-        onionAddress: '',
-        privateKey: '',
-        port: 0,
-      }
-    )
+    const community =
+      await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
+
     const oldNickname = 'john'
     const newNickname = 'paul'
+
     const userCsr: UserCsr = {
       userCsr: 'userCsr',
       userKey: 'userKey',
@@ -123,6 +110,7 @@ describe('registerUsernameSaga', () => {
       id: community.id,
       userCsr: userCsr,
     })
+
     if (!identity.userCsr?.userCsr) return
     const pubKey = 'pubKey'
     const privateKey = 'privateKey'
@@ -140,6 +128,7 @@ describe('registerUsernameSaga', () => {
         publicKey: publicKey as unknown as CryptoKey,
       },
     }
+
     const reducer = combineReducers(reducers)
     await expectSaga(
       registerUsernameSaga,
@@ -168,30 +157,19 @@ describe('registerUsernameSaga', () => {
       )
       .run()
   })
-  //outdated
+
+  // Outdated
   it.skip("reuse existing csr if provided username hasn't changed", async () => {
     setupCrypto()
+
     const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
 
     const store = prepareStore().store
 
     const factory = await getFactory(store)
 
-    const community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>(
-      'Community',
-      {
-        id: '1',
-        name: 'rockets',
-        registrarUrl: 'registrarUrl',
-        CA: null,
-        rootCa: 'rootCa',
-        peerList: [],
-        registrar: null,
-        onionAddress: '',
-        privateKey: '',
-        port: 0,
-      }
-    )
+    const community =
+      await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
 
     const userCsr: UserCsr = {
       userCsr: 'userCsr',
@@ -209,6 +187,7 @@ describe('registerUsernameSaga', () => {
     identity.userCsr = userCsr
 
     store.dispatch(identityActions.addNewIdentity(identity))
+
     const reducer = combineReducers(reducers)
     await expectSaga(registerUsernameSaga, socket, identityActions.registerUsername({ nickname: identity.nickname }))
       .withReducer(reducer)
@@ -234,9 +213,11 @@ describe('registerUsernameSaga', () => {
       )
       .run()
   })
-  //outdated
+
+  // Outdated
   it.skip("don't reuse existing csr if provided username has changed", async () => {
     setupCrypto()
+
     const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
 
     const store = prepareStore().store
@@ -290,6 +271,7 @@ describe('registerUsernameSaga', () => {
       signAlg: config.signAlg,
       hashAlg: config.hashAlg,
     }
+
     const reducer = combineReducers(reducers)
     await expectSaga(
       registerUsernameSaga,

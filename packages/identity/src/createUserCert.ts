@@ -29,7 +29,7 @@ export const createUserCert = async (
   notAfterDate: Date
 ): Promise<UserCert> => {
   const { hashAlg, signAlg } = config
-  const userCertificate = await generateuserCertificate({
+  const userCertificate = await generateUserCertificate({
     issuerCert: loadCertificate(rootCA),
     issuerKey: await loadPrivateKey(rootKey, signAlg),
     pkcs10: await loadCSR(userCsr),
@@ -45,7 +45,7 @@ export const createUserCert = async (
   }
 }
 
-async function generateuserCertificate({
+async function generateUserCertificate({
   issuerCert,
   issuerKey,
   pkcs10,

@@ -8,6 +8,14 @@ export enum Config {
   IPFS_REPO_PATH = 'Ipfs',
 }
 
+/**
+ * WARNING! We may automatically delete directories and files listed
+ * in this configuration enum after certain tests. So you may want to
+ * be careful when changing any of these values. For example, you
+ * probably do not want to accidentally set ORBIT_DB_DIR to `/home/my`
+ * or `/home/my/favorite/files` or anything like that, otherwise those
+ * directories may be deleted.
+ */
 export enum TestConfig {
   QUIET_DIR = '.quiet-test-nest-backend',
   PEER_ID_FILENAME = 'peerIdKey-test-nest-backend',
@@ -27,6 +35,8 @@ export const IPFS_REPO_PATCH = 'ipfsRepoPath'
 
 export const CONFIG_OPTIONS = 'configOptions'
 export const SERVER_IO_PROVIDER = 'serverIoProvider'
+
+export const PROCESS_IN_CHUNKS_PROVIDER = 'processInChunksProvider'
 
 export const EXPRESS_PROVIDER = 'expressProvider'
 

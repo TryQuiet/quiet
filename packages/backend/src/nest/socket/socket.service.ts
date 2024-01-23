@@ -99,10 +99,6 @@ export class SocketService extends EventEmitter implements OnModuleInit {
         this.emit(SocketActionTypes.SEND_MESSAGE, payload)
       })
 
-      socket.on(SocketActionTypes.SUBSCRIBE_FOR_ALL_CONVERSATIONS, async (peerId: string, conversations: string[]) => {
-        this.emit(SocketActionTypes.SUBSCRIBE_FOR_ALL_CONVERSATIONS, { peerId, conversations })
-      })
-
       socket.on(SocketActionTypes.ASK_FOR_MESSAGES, async (payload: AskForMessagesPayload) => {
         this.emit(SocketActionTypes.ASK_FOR_MESSAGES, payload)
       })
@@ -143,19 +139,11 @@ export class SocketService extends EventEmitter implements OnModuleInit {
         }
       )
 
-      socket.on(SocketActionTypes.SUBSCRIBE_FOR_DIRECT_MESSAGE_THREAD, async (peerId: string, channelId: string) => {
-        this.emit(SocketActionTypes.SUBSCRIBE_FOR_DIRECT_MESSAGE_THREAD, { peerId, channelId })
-      })
-
       // ====== Certificates ======
       socket.on(SocketActionTypes.SAVE_USER_CSR, async (payload: SaveCSRPayload) => {
         this.logger(`On ${SocketActionTypes.SAVE_USER_CSR}`)
 
         this.emit(SocketActionTypes.SAVE_USER_CSR, payload)
-
-        await new Promise<void>(resolve => setTimeout(() => resolve(), 2000))
-
-        this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.WAITING_FOR_METADATA)
       })
 
       socket.on(SocketActionTypes.REGISTER_OWNER_CERTIFICATE, async (payload: RegisterOwnerCertificatePayload) => {
@@ -172,8 +160,8 @@ export class SocketService extends EventEmitter implements OnModuleInit {
 
         const communityMetadataPayload: CommunityMetadata = {
           id: payload.id,
-          ownerCertificate: payload.certificate,
           rootCa: payload.permsData.certificate,
+          ownerCertificate: payload.certificate,
         }
         this.emit(SocketActionTypes.SEND_COMMUNITY_METADATA, communityMetadataPayload)
       })
@@ -208,6 +196,9 @@ export class SocketService extends EventEmitter implements OnModuleInit {
         this.logger('Leaving community')
         this.emit(SocketActionTypes.LEAVE_COMMUNITY)
       })
+      socket.on(SocketActionTypes.LIBP2P_PSK_SAVED, payload => {
+        this.logger('Saving PSK', payload)
+        this.emit(SocketActionTypes.LIBP2P_PSK_SAVED, payload)
 
       // ====== Users ======
 
