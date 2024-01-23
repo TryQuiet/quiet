@@ -21,6 +21,8 @@
 * Fix for multiplicating "welcome" messages when joining a community
 * Fix: base jdenticon on pubkey instead of username - this way unregistered user with duplicated username will have different profile image
 
+* Updated old logo of Linux and Windows with rounded ones
+
 [2.0.0]
 
 # Breaking changes:
