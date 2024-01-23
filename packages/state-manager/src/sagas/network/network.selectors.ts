@@ -8,8 +8,6 @@ const networkSlice: CreatedSelectors[StoreKeys.Network] = (state: StoreState) =>
 
 export const loadingPanelType = createSelector(networkSlice, reducerState => reducerState.loadingPanelType)
 
-export const initializedRegistrars = createSelector(networkSlice, reducerState => reducerState.initializedRegistrars)
-
 export const initializedCommunities = createSelector(networkSlice, reducerState => reducerState.initializedCommunities)
 
 export const isCurrentCommunityInitialized = createSelector(
@@ -23,7 +21,6 @@ export const connectedPeers = createSelector(networkSlice, reducerState => {
 })
 
 export const networkSelectors = {
-  initializedRegistrars,
   initializedCommunities,
   isCurrentCommunityInitialized,
   connectedPeers,

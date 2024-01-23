@@ -19,12 +19,9 @@ describe('users reducer', () => {
     CA: { rootCertString: 'certString', rootKeyString: 'keyString' },
     rootCa: '',
     peerList: [],
-    registrarUrl: '',
-    registrar: null,
     onionAddress: '',
     privateKey: '',
     port: 0,
-    registrationAttempts: 0,
     ownerCertificate: '',
   }
 

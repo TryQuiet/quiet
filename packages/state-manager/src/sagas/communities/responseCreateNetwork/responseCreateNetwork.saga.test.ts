@@ -18,7 +18,6 @@ describe('responseCreateNetwork', () => {
     const community: Community = {
       id: '1',
       name: undefined,
-      registrarUrl: 'registrarUrl',
       CA: null,
       rootCa: undefined,
     }

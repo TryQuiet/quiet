@@ -104,42 +104,6 @@ describe('User', () => {
           },
         })
       }
-      if (action === SocketActionTypes.REGISTER_USER_CERTIFICATE) {
-        const payload = input[1] as RegisterUserCertificatePayload
-        const user = identity.selectors.currentIdentity(store.getState())
-        expect(user).not.toBeUndefined()
-        // This community serves only as a mocked object for generating valid crytpo data (certificate, rootCA)
-        const communityHelper: ReturnType<typeof communities.actions.addNewCommunity>['payload'] = (
-          await factory.build<typeof communities.actions.addNewCommunity>('Community', {
-            id: payload.communityId,
-          })
-        ).payload
-        const certificateHelper = await createUserCertificateTestHelper(
-          {
-            // @ts-expect-error
-            nickname: user.nickname,
-            // @ts-expect-error
-            commonName: communityHelper.registrarUrl,
-            // @ts-expect-error
-            peerId: user.peerId.id,
-            // @ts-expect-error
-            dmPublicKey: user.dmKeys.publicKey,
-          },
-          communityHelper.CA
-        )
-        const certificate = certificateHelper.userCert?.userCertString
-        const rootCa = communityHelper.CA?.rootCertString
-        return socket.socketClient.emit<SendOwnerCertificatePayload>(SocketActionTypes.SEND_USER_CERTIFICATE, {
-          communityId: payload.communityId,
-          payload: {
-            // @ts-expect-error - This is statically mocked data so it'll never be undefined
-            certificate: certificate,
-            // @ts-expect-error - This is statically mocked data so it'll never be undefined
-            rootCa: rootCa,
-            peers: [],
-          },
-        })
-      }
       if (action === SocketActionTypes.LAUNCH_COMMUNITY) {
         const payload = input[1] as InitCommunityPayload
         const community = communities.selectors.currentCommunity(store.getState())
@@ -219,11 +183,10 @@ describe('User', () => {
         "Modals/openModal",
         "Identity/registerCertificate",
         "Communities/launchCommunity",
-        "Communities/launchRegistrar",
+        "Communities/sendCommunityCaData",
         "Files/checkForMissingFiles",
         "Network/addInitializedCommunity",
         "Communities/clearInvitationCodes",
-        "Communities/sendCommunityMetadata",
         "PublicChannels/channelsReplicated",
         "PublicChannels/addChannel",
         "Messages/addPublicChannelsMessagesBase",
@@ -276,7 +239,7 @@ describe('User', () => {
         const community = communities.selectors.currentCommunity(store.getState())
         expect(payload.communityId).toEqual(community?.id)
         socket.socketClient.emit<ErrorPayload>(SocketActionTypes.ERROR, {
-          type: SocketActionTypes.REGISTRAR,
+          type: SocketActionTypes.REGISTER_USER_CERTIFICATE,
           code: ErrorCodes.FORBIDDEN,
           message: ErrorMessages.USERNAME_TAKEN,
           community: community?.id,
@@ -389,7 +352,7 @@ describe('User', () => {
       const community = communities.selectors.currentCommunity(store.getState())
       store.dispatch(
         errors.actions.addError({
-          type: SocketActionTypes.REGISTRAR,
+          type: SocketActionTypes.REGISTER_USER_CERTIFICATE,
           code: ErrorCodes.FORBIDDEN,
           message: ErrorMessages.USERNAME_TAKEN,
           community: community?.id,

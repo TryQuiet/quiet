@@ -11,7 +11,6 @@ import {
   RegisterOwnerCertificatePayload,
   SaveOwnerCertificatePayload,
   InitCommunityPayload,
-  LaunchRegistrarPayload,
   Community,
   DeleteFilesFromChannelSocketPayload,
   SaveCSRPayload,
@@ -153,19 +152,6 @@ export class SocketService extends EventEmitter implements OnModuleInit {
         this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.REGISTERING_OWNER_CERTIFICATE)
       })
 
-      socket.on(SocketActionTypes.SAVE_OWNER_CERTIFICATE, async (payload: SaveOwnerCertificatePayload) => {
-        this.logger(`Saving owner certificate (${payload.peerId}), community: ${payload.id}`)
-
-        this.emit(SocketActionTypes.SAVED_OWNER_CERTIFICATE, payload)
-
-        const communityMetadataPayload: CommunityMetadata = {
-          id: payload.id,
-          rootCa: payload.permsData.certificate,
-          ownerCertificate: payload.certificate,
-        }
-        this.emit(SocketActionTypes.SEND_COMMUNITY_METADATA, communityMetadataPayload)
-      })
-
       // ====== Community ======
       socket.on(SocketActionTypes.SEND_COMMUNITY_METADATA, (payload: CommunityMetadata) => {
         this.emit(SocketActionTypes.SEND_COMMUNITY_METADATA, payload)
@@ -180,11 +166,6 @@ export class SocketService extends EventEmitter implements OnModuleInit {
         this.logger(`Launching community ${payload.id} for ${payload.peerId.id}`)
         this.emit(SocketActionTypes.LAUNCH_COMMUNITY, payload)
         this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.LAUNCHING_COMMUNITY)
-      })
-
-      socket.on(SocketActionTypes.LAUNCH_REGISTRAR, async (payload: LaunchRegistrarPayload) => {
-        this.logger(`Launching registrar for community ${payload.id}, user ${payload.peerId}`)
-        this.emit(SocketActionTypes.LAUNCH_REGISTRAR, payload)
       })
 
       socket.on(SocketActionTypes.CREATE_NETWORK, async (community: Community) => {
