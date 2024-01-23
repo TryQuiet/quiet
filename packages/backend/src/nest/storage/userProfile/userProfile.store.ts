@@ -1,11 +1,12 @@
 import { Injectable } from '@nestjs/common'
 import { EventEmitter } from 'events'
 import KeyValueStore from 'orbit-db-kvstore'
+import { IdentityProvider } from 'orbit-db-identity-provider'
 import { getCrypto, ICryptoEngine } from 'pkijs'
 import { sha256 } from 'multiformats/hashes/sha2'
-import { stringToArrayBuffer } from 'pvutils'
 import * as Block from 'multiformats/block'
 import * as dagCbor from '@ipld/dag-cbor'
+import { stringToArrayBuffer } from 'pvutils'
 
 import { Logger } from '@quiet/logger'
 import { NoCryptoEngineError, UserProfile } from '@quiet/types'
@@ -199,7 +200,10 @@ export class UserProfileStore {
     return true
   }
 
-  public static async validateUserProfileEntry(entry: LogEntry<UserProfile>) {
+  public static async validateUserProfileEntry(
+    identityProvider: typeof IdentityProvider,
+    entry: LogEntry<UserProfile>
+  ) {
     try {
       if (entry.payload.key !== entry.payload.value.pubKey) {
         logger.error('Failed to verify user profile entry:', entry.hash, 'entry key != payload pubKey')

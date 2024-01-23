@@ -1,4 +1,5 @@
 import { jest, beforeEach, describe, it, expect, afterEach, beforeAll, test } from '@jest/globals'
+import { IdentityProvider } from 'orbit-db-identity-provider'
 import * as Block from 'multiformats/block'
 import { sha256 } from 'multiformats/hashes/sha2'
 import * as dagCbor from '@ipld/dag-cbor'
@@ -196,7 +197,9 @@ describe('UserProfileStore/validateUserProfileEntry', () => {
       },
       sig: '',
     }
-    expect(await UserProfileStore.validateUserProfileEntry(userProfileEntry)).toBeFalsy()
+    expect(
+      await UserProfileStore.validateUserProfileEntry(undefined as unknown as typeof IdentityProvider, userProfileEntry)
+    ).toBeFalsy()
   })
 
   test('returns true if user profile entry is valid', async () => {
@@ -225,7 +228,9 @@ describe('UserProfileStore/validateUserProfileEntry', () => {
       },
       sig: '',
     }
-    expect(await UserProfileStore.validateUserProfileEntry(userProfileEntry)).toBeTruthy()
+    expect(
+      await UserProfileStore.validateUserProfileEntry(undefined as unknown as typeof IdentityProvider, userProfileEntry)
+    ).toBeTruthy()
   })
 })
 
@@ -257,7 +262,7 @@ describe('UserProfileStore/UserProfileKeyValueIndex', () => {
       sig: '',
     }
 
-    const index = new UserProfileKeyValueIndex()
+    const index = new UserProfileKeyValueIndex(undefined as unknown as typeof IdentityProvider)
     await index.updateIndex({ values: [userProfileEntry] })
     expect(index.get('incorrect key')).toEqual(undefined)
   })
@@ -289,7 +294,7 @@ describe('UserProfileStore/UserProfileKeyValueIndex', () => {
       sig: '',
     }
 
-    const index = new UserProfileKeyValueIndex()
+    const index = new UserProfileKeyValueIndex(undefined as unknown as typeof IdentityProvider)
     await index.updateIndex({ values: [userProfileEntry] })
     expect(index.get(userProfile.pubKey)).toEqual(userProfile)
   })
