@@ -575,7 +575,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
     // User Profile
     this.socketService.on(SocketActionTypes.SAVE_USER_PROFILE, async (profile: UserProfile) => {
-      await this.storageService?.userProfileStore?.addUserProfile(profile)
+      await this.storageService?.addUserProfile(profile)
     })
   }
 

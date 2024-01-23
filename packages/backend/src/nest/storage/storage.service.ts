@@ -31,6 +31,7 @@ import {
   SaveCertificatePayload,
   SocketActionTypes,
   UserData,
+  type UserProfile,
 } from '@quiet/types'
 import { createLibp2pAddress, isDefined } from '@quiet/common'
 import fs from 'fs'
@@ -162,7 +163,7 @@ export class StorageService extends EventEmitter {
     if (this.communityMetadataStore?.getAddress()) {
       dbs.push(this.communityMetadataStore.getAddress())
     }
-    if (this.userProfileStore?.getAddress()) {
+    if (this.userProfileStore.getAddress()) {
       dbs.push(this.userProfileStore.getAddress())
     }
 
@@ -759,6 +760,10 @@ export class StorageService extends EventEmitter {
         }
       }
     })
+  }
+
+  public async addUserProfile(profile: UserProfile) {
+    await this.userProfileStore.addUserProfile(profile)
   }
 
   public async checkIfFileExist(filepath: string): Promise<boolean> {
