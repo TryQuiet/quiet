@@ -505,7 +505,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     // when creating the community.
     this.socketService.on(SocketActionTypes.SEND_COMMUNITY_CA_DATA, async (payload: PermsData) => {
       this.logger(`socketService - ${SocketActionTypes.SEND_COMMUNITY_CA_DATA}`)
-      this.registrationService.permsData = payload
+      this.registrationService.setPermsData(payload)
     })
 
     // Public Channels
