@@ -154,7 +154,7 @@ const MessageProfilePhoto: React.FC<{ message: DisplayableMessage }> = ({ messag
   return message.photo ? (
     <img style={imgStyle} src={message.photo} alt={"Message author's profile image"} />
   ) : (
-    <Jdenticon value={message.nickname} size='36' />
+    <Jdenticon value={message.pubKey} size='36' />
   )
 }
 
