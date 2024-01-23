@@ -50,7 +50,6 @@ export enum SocketActionTypes {
   RESPONSE_GET_PRIVATE_CONVERSATIONS = 'responseGetPrivateConversations',
   REQUEST_PEER_ID = 'requestPeerId',
   // S
-  SAVE_OWNER_CERTIFICATE = 'saveOwnerCertificate',
   SAVED_OWNER_CERTIFICATE = 'savedOwnerCertificate',
   SAVE_USER_CSR = 'saveUserCsr',
   SAVED_USER_CSR = 'savedUserCsr',
