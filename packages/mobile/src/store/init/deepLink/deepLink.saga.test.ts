@@ -30,14 +30,9 @@ describe('deepLinkSaga', () => {
     },
     rootCa: '',
     peerList: [],
-    registrar: {
-      privateKey: '',
-      address: '',
-    },
     onionAddress: '',
     privateKey: '',
     port: 0,
-    registrationAttempts: 0,
     ownerCertificate: '',
   }
 

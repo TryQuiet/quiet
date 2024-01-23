@@ -1,5 +1,9 @@
 [2.1.0] - unreleased
 
+* refactor: Remove registrar remainders and rename LAUNCH_REGISTRAR
+
+* refactor: Remove unused SEND_USER_CERTIFICATE event
+
 * refactor: Remove unused SUBSCRIBE_FOR events
 
 * Clean up desktop UI console errors/warnings
@@ -16,6 +20,8 @@
 
 * Fix for multiplicating "welcome" messages when joining a community
 * Fix: base jdenticon on pubkey instead of username - this way unregistered user with duplicated username will have different profile image
+
+* Updated old logo of Linux and Windows with rounded ones
 
 [2.0.0]
 

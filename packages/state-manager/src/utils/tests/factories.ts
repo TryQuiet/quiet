@@ -56,7 +56,6 @@ export const getFactory = async (store: Store) => {
       id: factory.sequence('Community.id', (n: number) => n),
       name: factory.sequence('Community.name', (n: number) => `community_${n}`),
       CA: await createRootCertificateTestHelper(registrarUrl),
-      registrarUrl,
       peerList: [],
       ownerCertificate: '',
     },

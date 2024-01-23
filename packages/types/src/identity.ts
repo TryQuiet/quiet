@@ -102,7 +102,7 @@ export interface SavedOwnerCertificatePayload {
   network: { certificate: string }
 }
 
-export interface SuccessfullRegistrarionResponse {
+export interface SuccessfulRegistrationResponse {
   communityId: string
   payload: UserCertificatePayload
 }

@@ -21,7 +21,6 @@ import { filesActions } from '../../files/files.slice'
 import { networkActions } from '../../network/network.slice'
 import {
   type ResponseCreateCommunityPayload,
-  type ResponseRegistrarPayload,
   type StorePeerListPayload,
   type ResponseCreateNetworkPayload,
   type ResponseLaunchCommunityPayload,
@@ -72,11 +71,8 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof identityActions.checkLocalCsr>
     | ReturnType<typeof communitiesActions.storePeerList>
     | ReturnType<typeof communitiesActions.updateCommunity>
-    | ReturnType<typeof communitiesActions.responseRegistrar>
-    | ReturnType<typeof communitiesActions.launchRegistrar>
     | ReturnType<typeof communitiesActions.launchCommunity>
     | ReturnType<typeof networkActions.addInitializedCommunity>
-    | ReturnType<typeof networkActions.addInitializedRegistrar>
     | ReturnType<typeof networkActions.removeConnectedPeer>
     | ReturnType<typeof connectionActions.updateNetworkData>
     | ReturnType<typeof networkActions.addConnectedPeers>
@@ -94,6 +90,7 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof communitiesActions.saveCommunityMetadata>
     | ReturnType<typeof communitiesActions.sendCommunityMetadata>
     | ReturnType<typeof communitiesActions.savePSK>
+    | ReturnType<typeof communitiesActions.sendCommunityCaData>
   >(emit => {
     // UPDATE FOR APP
     socket.on(SocketActionTypes.TOR_INITIALIZED, () => {
@@ -170,12 +167,6 @@ export function subscribe(socket: Socket) {
       emit(publicChannelsActions.createGeneralChannel())
       emit(identityActions.saveUserCsr())
     })
-    socket.on(SocketActionTypes.REGISTRAR, (payload: ResponseRegistrarPayload) => {
-      console.log('SocketActionTypes.REGISTRAR')
-      log(SocketActionTypes.REGISTRAR, payload)
-      emit(communitiesActions.responseRegistrar(payload))
-      emit(networkActions.addInitializedRegistrar(payload.id))
-    })
     socket.on(SocketActionTypes.PEER_LIST, (payload: StorePeerListPayload) => {
       emit(communitiesActions.storePeerList(payload))
     })
@@ -185,7 +176,9 @@ export function subscribe(socket: Socket) {
     })
     socket.on(SocketActionTypes.COMMUNITY, (payload: ResponseLaunchCommunityPayload) => {
       console.log('Hunting for heisenbug: Community event received in state-manager')
-      emit(communitiesActions.launchRegistrar(payload.id))
+      // TODO: We can send this once when creating the community and
+      // store it in the backend.
+      emit(communitiesActions.sendCommunityCaData())
       emit(filesActions.checkForMissingFiles(payload.id))
       emit(networkActions.addInitializedCommunity(payload.id))
       emit(communitiesActions.clearInvitationCodes())
@@ -210,30 +203,6 @@ export function subscribe(socket: Socket) {
     })
     socket.on(SocketActionTypes.RESPONSE_GET_CERTIFICATES, (payload: SendCertificatesResponse) => {
       emit(usersActions.responseSendCertificates(payload))
-    })
-    socket.on(SocketActionTypes.SEND_USER_CERTIFICATE, (payload: SendOwnerCertificatePayload) => {
-      log(`${SocketActionTypes.SEND_USER_CERTIFICATE}: ${payload.communityId}`)
-
-      emit(
-        communitiesActions.storePeerList({
-          communityId: payload.communityId,
-          peerList: payload.payload.peers,
-        })
-      )
-      emit(
-        identityActions.storeUserCertificate({
-          userCertificate: payload.payload.certificate,
-          communityId: payload.communityId,
-        })
-      )
-      emit(
-        communitiesActions.updateCommunity({
-          id: payload.communityId,
-          rootCa: payload.payload.rootCa,
-          ownerCertificate: payload.payload.ownerCert,
-        })
-      )
-      emit(communitiesActions.launchCommunity(payload.communityId))
     })
     socket.on(SocketActionTypes.SAVED_OWNER_CERTIFICATE, (payload: SavedOwnerCertificatePayload) => {
       log(`${SocketActionTypes.SAVED_OWNER_CERTIFICATE}: ${payload.communityId}`)

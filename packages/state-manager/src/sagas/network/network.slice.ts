@@ -1,11 +1,10 @@
 import { createSlice, type EntityState, type PayloadAction } from '@reduxjs/toolkit'
 import { StoreKeys } from '../store.keys'
 import { connectedPeersAdapter } from './network.adapter'
-import { type CommunityId, type ConnectedPeers, LoadingPanelType, type RegistrarId } from '@quiet/types'
+import { type CommunityId, type ConnectedPeers, LoadingPanelType } from '@quiet/types'
 
 export class NetworkState {
   public initializedCommunities: Record<string, boolean> = {}
-  public initializedRegistrars: Record<string, boolean> = {}
   public connectedPeers: EntityState<string> = connectedPeersAdapter.getInitialState()
   public loadingPanelType: LoadingPanelType = LoadingPanelType.StartingApplication
 }
@@ -21,17 +20,8 @@ export const networkSlice = createSlice({
         [action.payload]: true,
       }
     },
-    addInitializedRegistrar: (state, action: PayloadAction<RegistrarId>) => {
-      state.initializedRegistrars = {
-        ...state.initializedRegistrars,
-        [action.payload]: true,
-      }
-    },
     removeInitializedCommunities: state => {
       state.initializedCommunities = {}
-    },
-    removeInitializedRegistrars: state => {
-      state.initializedRegistrars = {}
     },
     addConnectedPeers: (state, action: PayloadAction<ConnectedPeers>) => {
       connectedPeersAdapter.upsertMany(state.connectedPeers, action.payload)

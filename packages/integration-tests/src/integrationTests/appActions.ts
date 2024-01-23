@@ -118,27 +118,16 @@ export async function createCommunity({ userName, store }: CreateCommunity) {
     expect(store.getState().Network.initializedCommunities[communityId]).toBeTruthy()
   }, timeout)
   log('initializedCommunity', store.getState().Network.initializedCommunities[communityId])
-  await waitForExpect(() => {
-    expect(store.getState().Network.initializedRegistrars[communityId]).toBeTruthy()
-  }, timeout)
 }
 
 export async function registerUsername(payload: Register) {
-  const { registrarAddress, userName, registrarPort, store } = payload
+  const { userName, store } = payload
 
   // Give it a huge timeout, it should never fail, but sometimes takes more time, depending on tor.
   const timeout = 600_000
 
-  let address: string
-  if (payload.registrarAddress === '0.0.0.0') {
-    address = `${registrarAddress}:${registrarPort}`
-  } else {
-    address = registrarAddress
-  }
-
   const createNetworkPayload: CreateNetworkPayload = {
     ownership: CommunityOwnership.User,
-    registrar: address,
   }
 
   store.dispatch(communities.actions.createNetwork(createNetworkPayload))
@@ -269,24 +258,15 @@ export const getCommunityOwnerData = (ownerStore: Store) => {
 
 export const clearInitializedCommunitiesAndRegistrars = (store: Store) => {
   store.dispatch(network.actions.removeInitializedCommunities)
-  store.dispatch(network.actions.removeInitializedRegistrars)
 }
 
 export const sendRegistrationRequest = async (payload: SendRegistrationRequest) => {
-  const { registrarAddress, userName, registrarPort, store } = payload
+  const { userName, store } = payload
 
   const timeout = 600_000
 
-  let address: string
-  if (registrarAddress === '0.0.0.0') {
-    address = `${registrarAddress}:${registrarPort}`
-  } else {
-    address = registrarAddress
-  }
-
   const createNetworkPayload: CreateNetworkPayload = {
     ownership: CommunityOwnership.User,
-    registrar: address,
   }
 
   store.dispatch(communities.actions.createNetwork(createNetworkPayload))

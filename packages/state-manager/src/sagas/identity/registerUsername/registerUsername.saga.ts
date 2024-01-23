@@ -30,7 +30,6 @@ export function* registerUsernameSaga(
   const networkPayload: Community = {
     id: community.id,
     name: community.name,
-    registrarUrl: community.registrarUrl,
     CA: community.CA,
     rootCa: community.CA?.rootCertString,
     psk: psk,
