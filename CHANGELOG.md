@@ -1,5 +1,7 @@
 [2.1.0] - unreleased
 
+* fix, refactor: Refactor registration service, replace promise waiting mechanism around certificate requests and help prevent duplicate username registration
+
 * refactor: Remove SAVE_OWNER_CERTIFICATE event
 
 * refactor: Remove registrar remainders and rename LAUNCH_REGISTRAR
