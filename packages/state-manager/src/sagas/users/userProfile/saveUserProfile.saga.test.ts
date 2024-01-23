@@ -14,7 +14,7 @@ import { prepareStore, reducers } from '../../../utils/tests/prepareStore'
 import { type Socket } from '../../../types'
 import { type Identity } from '@quiet/types'
 
-import { createUserCsr, pubKeyFromCsr, keyObjectFromString, verifyDataSignature } from '@quiet/identity'
+import { createUserCsr, pubKeyFromCsr, keyObjectFromString, verifySignature } from '@quiet/identity'
 
 jest.mock('@quiet/common', () => ({
   fileToBase64String: jest.fn(() => 'dGVzdAo='),
@@ -66,6 +66,6 @@ describe('saveUserProfileSaga', () => {
     delete actual['profileSig']
 
     expect(actual).toStrictEqual({ profile: profile, pubKey })
-    expect(await verifyDataSignature(stringToArrayBuffer(actualSig), bytes, pubKeyObj)).toBe(true)
+    expect(await verifySignature(stringToArrayBuffer(actualSig), bytes, pubKeyObj)).toBe(true)
   })
 })

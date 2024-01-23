@@ -10,7 +10,7 @@ import * as dagCbor from '@ipld/dag-cbor'
 
 import { Logger } from '@quiet/logger'
 import { NoCryptoEngineError, UserProfile } from '@quiet/types'
-import { keyObjectFromString, verifyDataSignature } from '@quiet/identity'
+import { keyObjectFromString, verifySignature } from '@quiet/identity'
 
 import { StorageEvents } from './storage.types'
 import createLogger from '../common/logger'
@@ -145,7 +145,7 @@ export class UserProfileStore {
         codec: UserProfileStore.codec,
         hasher: UserProfileStore.hasher,
       })
-      const verify = await verifyDataSignature(profileSig, bytes, pubKey)
+      const verify = await verifySignature(profileSig, bytes, pubKey)
 
       if (!verify) {
         logger.error('User profile contains invalid signature', userProfile.pubKey)

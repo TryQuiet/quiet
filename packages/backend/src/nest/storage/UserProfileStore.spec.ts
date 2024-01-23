@@ -6,7 +6,7 @@ import { arrayBufferToString } from 'pvutils'
 import { getCrypto, PublicKeyInfo } from 'pkijs'
 
 import { ChannelMessage, NoCryptoEngineError, PublicChannel, UserProfile } from '@quiet/types'
-import { configCrypto, generateKeyPair, signData } from '@quiet/identity'
+import { configCrypto, generateKeyPair, sign } from '@quiet/identity'
 
 import { isPng, base64DataURLToByteArray, UserProfileStore, UserProfileKeyValueIndex } from './UserProfileStore'
 
@@ -85,7 +85,7 @@ const getUserProfile = async ({
   const codec = dagCbor
   const hasher = sha256
   const { bytes } = await Block.encode({ value: profile, codec: codec, hasher: hasher })
-  const signatureArrayBuffer = await signData(bytes, keyPair.privateKey)
+  const signatureArrayBuffer = await sign(bytes, keyPair.privateKey)
   signature = signature || arrayBufferToString(signatureArrayBuffer)
 
   const pubKeyInfo = new PublicKeyInfo()

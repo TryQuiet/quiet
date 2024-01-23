@@ -5,7 +5,7 @@ import * as Block from 'multiformats/block'
 import * as dagCbor from '@ipld/dag-cbor'
 import { sha256 } from 'multiformats/hashes/sha2'
 
-import { signData, loadPrivateKey, pubKeyFromCsr } from '@quiet/identity'
+import { sign, loadPrivateKey, pubKeyFromCsr } from '@quiet/identity'
 import { UserProfile, UserProfileData, SocketActionTypes } from '@quiet/types'
 import { fileToBase64String } from '@quiet/common'
 
@@ -37,7 +37,7 @@ export function* saveUserProfileSaga(socket: Socket, action: PayloadAction<{ pho
   const hasher = sha256
   const { bytes } = yield* call(Block.encode, { value: profile, codec: codec, hasher: hasher })
   const keyObject = yield* call(loadPrivateKey, identity.userCsr.userKey, config.signAlg)
-  const signatureArrayBuffer = yield* call(signData, bytes, keyObject)
+  const signatureArrayBuffer = yield* call(sign, bytes, keyObject)
   const signature = yield* call(arrayBufferToString, signatureArrayBuffer)
   const pubKey = yield* call(pubKeyFromCsr, identity.userCsr.userCsr)
 
