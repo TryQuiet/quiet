@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { EventEmitter } from 'events'
 import KeyValueStore from 'orbit-db-kvstore'
-import { OrbitDb } from '../orbitDb/orbitDb.service'
 import { getCrypto, ICryptoEngine } from 'pkijs'
 import { sha256 } from 'multiformats/hashes/sha2'
 import { stringToArrayBuffer } from 'pvutils'
@@ -11,9 +10,12 @@ import * as dagCbor from '@ipld/dag-cbor'
 import { Logger } from '@quiet/logger'
 import { NoCryptoEngineError, UserProfile } from '@quiet/types'
 import { keyObjectFromString, verifySignature } from '@quiet/identity'
+import { constructPartial } from '@quiet/common'
 
-import { StorageEvents } from '../storage.types'
 import createLogger from '../../common/logger'
+import { OrbitDb } from '../orbitDb/orbitDb.service'
+import { StorageEvents } from '../storage.types'
+import { KeyValueIndex } from '../orbitDb/keyValueIndex'
 
 const logger = createLogger('UserProfileStore')
 
@@ -73,7 +75,16 @@ export class UserProfileStore {
 
     this.store = await this.orbitDbService.orbitDb.keyvalue<UserProfile>('user-profiles', {
       replicate: false,
-      Index: UserProfileKeyValueIndex,
+      // Partially construct index so that we can include an
+      // IdentityProvider in the index validation logic. OrbitDB
+      // expects the store index to be constructable with zero
+      // arguments.
+      //
+      // @ts-expect-error
+      Index: constructPartial(UserProfileKeyValueIndex, [
+        // @ts-expect-error - OrbitDB's type declaration of OrbitDB lacks identity
+        this.orbitDbService.orbitDb.identity.provider,
+      ]),
       accessController: {
         write: ['*'],
       },
@@ -89,14 +100,14 @@ export class UserProfileStore {
     this.store.events.on('ready', async () => {
       logger('Loaded user profiles to memory')
       emitter.emit(StorageEvents.LOADED_USER_PROFILES, {
-        profiles: await this.getUserProfiles(),
+        profiles: this.getUserProfiles(),
       })
     })
 
     this.store.events.on('replicated', async () => {
       logger('Replicated user profiles')
       emitter.emit(StorageEvents.LOADED_USER_PROFILES, {
-        profiles: await this.getUserProfiles(),
+        profiles: this.getUserProfiles(),
       })
     })
 
@@ -189,82 +200,26 @@ export class UserProfileStore {
   }
 
   public static async validateUserProfileEntry(entry: LogEntry<UserProfile>) {
-    let verify = false
-
     try {
       if (entry.payload.key !== entry.payload.value.pubKey) {
         logger.error('Failed to verify user profile entry:', entry.hash, 'entry key != payload pubKey')
         return false
       }
-      verify = await UserProfileStore.validateUserProfile(entry.payload.value)
-    } catch (err) {
-      logger.error('Failed to verify user profile entry:', entry.hash, err?.message)
-    }
 
-    return verify
+      return await UserProfileStore.validateUserProfile(entry.payload.value)
+    } catch (err) {
+      logger.error('Failed to validate user profile entry:', entry.hash, err?.message)
+      return false
+    }
   }
 
-  public async getUserProfiles(): Promise<UserProfile[]> {
+  public getUserProfiles(): UserProfile[] {
     return Object.values(this.store.all)
   }
 }
 
-/**
- * Modified from:
- * https://github.com/orbitdb/orbit-db-kvstore/blob/main/src/KeyValueIndex.js
- *
- * Adds validation function that validates each entry before adding it
- * to the index.
- *
- * TODO: Save latest entry and only iterate over new entries in updateIndex
- */
-export class KeyValueIndex<T> {
-  private _index: Record<string, any>
-  private validateFn: (entry: LogEntry<T>) => Promise<boolean>
-
-  constructor(validateFn: (entry: LogEntry<T>) => Promise<boolean>) {
-    this._index = {}
-    this.validateFn = validateFn
-  }
-
-  get(key: string) {
-    return this._index[key]
-  }
-
-  async updateIndex(oplog: { values: LogEntry<T>[] }) {
-    const values: LogEntry<T>[] = []
-    const handled: Record<string, boolean> = {}
-
-    for (const v of oplog.values) {
-      if (await this.validateFn(v)) {
-        values.push(v)
-      }
-    }
-
-    for (let i = values.length - 1; i >= 0; i--) {
-      const item = values[i]
-      if (typeof item.payload.key === 'string') {
-        if (handled[item.payload.key]) {
-          continue
-        }
-        handled[item.payload.key] = true
-        if (item.payload.op === 'PUT') {
-          this._index[item.payload.key] = item.payload.value
-          continue
-        }
-        if (item.payload.op === 'DEL') {
-          delete this._index[item.payload.key]
-          continue
-        }
-      } else {
-        logger.error(`Failed to update key/value index - key is not string: ${item.payload.key}`)
-      }
-    }
-  }
-}
-
 export class UserProfileKeyValueIndex extends KeyValueIndex<UserProfile> {
-  constructor() {
-    super(UserProfileStore.validateUserProfileEntry)
+  constructor(identityProvider: typeof IdentityProvider) {
+    super(identityProvider, UserProfileStore.validateUserProfileEntry)
   }
 }

@@ -247,6 +247,7 @@ export class StorageService extends EventEmitter {
     } catch (e) {
       this.logger.error('Error closing channels db', e)
     }
+
     try {
       await this.certificatesStore?.close()
     } catch (e) {
@@ -264,6 +265,7 @@ export class StorageService extends EventEmitter {
     } catch (e) {
       this.logger.error('Error closing community metadata store', e)
     }
+
     try {
       await this.userProfileStore?.close()
     } catch (e) {
@@ -593,7 +595,6 @@ export class StorageService extends EventEmitter {
           write: ['*'],
         },
       })
-
       repo = {
         db,
         eventsAttached: false,

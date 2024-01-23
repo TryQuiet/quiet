@@ -42,8 +42,8 @@ import {
   SaveCSRPayload,
   CommunityMetadata,
   PermsData,
-  UserProfile,
-  UserProfilesLoadedEvent,
+  type UserProfile,
+  type UserProfilesLoadedEvent,
 } from '@quiet/types'
 import { CONFIG_OPTIONS, QUIET_DIR, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
 import { ConfigOptions, GetPorts, ServerIoProviderTypes } from '../types'
@@ -557,21 +557,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.socketService.on(SocketActionTypes.CLOSE, async () => {
       await this.closeAllServices()
     })
-    this.socketService.on(
-      SocketActionTypes.DELETE_CHANNEL,
-      async (payload: { channelId: string; ownerPeerId: string }) => {
-        await this.storageService?.deleteChannel(payload)
-      }
-    )
-
-    this.socketService.on(
-      SocketActionTypes.DELETE_FILES_FROM_CHANNEL,
-      async (payload: DeleteFilesFromChannelSocketPayload) => {
-        this.logger(`socketService - ${SocketActionTypes.DELETE_FILES_FROM_CHANNEL}`, payload)
-        await this.storageService?.deleteFilesFromChannel(payload)
-        // await this.deleteFilesFromTemporaryDir() //crashes on mobile, will be fixes in next versions
-      }
-    )
 
     // User Profile
     this.socketService.on(SocketActionTypes.SAVE_USER_PROFILE, async (profile: UserProfile) => {
