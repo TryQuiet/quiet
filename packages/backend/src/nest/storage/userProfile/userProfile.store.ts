@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { EventEmitter } from 'events'
 import KeyValueStore from 'orbit-db-kvstore'
-import OrbitDB from 'orbit-db'
+import { OrbitDb } from '../orbitDb/orbitDb.service'
 import { getCrypto, ICryptoEngine } from 'pkijs'
 import { sha256 } from 'multiformats/hashes/sha2'
 import { stringToArrayBuffer } from 'pvutils'
@@ -12,8 +12,8 @@ import { Logger } from '@quiet/logger'
 import { NoCryptoEngineError, UserProfile } from '@quiet/types'
 import { keyObjectFromString, verifySignature } from '@quiet/identity'
 
-import { StorageEvents } from './storage.types'
-import createLogger from '../common/logger'
+import { StorageEvents } from '../storage.types'
+import createLogger from '../../common/logger'
 
 const logger = createLogger('UserProfileStore')
 
@@ -57,7 +57,6 @@ export const base64DataURLToByteArray = (contents: string): Uint8Array => {
 
 @Injectable()
 export class UserProfileStore {
-  public orbitDb: OrbitDB
   public store: KeyValueStore<UserProfile>
 
   // Copying OrbitDB by using dag-cbor/sha256 for converting the
@@ -67,12 +66,12 @@ export class UserProfileStore {
   public static readonly codec = dagCbor
   public static readonly hasher = sha256
 
-  public async init(orbitDb: OrbitDB, emitter: EventEmitter) {
+  constructor(private readonly orbitDbService: OrbitDb) {}
+
+  public async init(emitter: EventEmitter) {
     logger('Initializing user profiles key/value store')
 
-    this.orbitDb = orbitDb
-
-    this.store = await this.orbitDb.keyvalue<UserProfile>('user-profiles', {
+    this.store = await this.orbitDbService.orbitDb.keyvalue<UserProfile>('user-profiles', {
       replicate: false,
       Index: UserProfileKeyValueIndex,
       accessController: {

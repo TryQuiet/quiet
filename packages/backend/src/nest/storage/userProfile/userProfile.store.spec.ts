@@ -8,7 +8,7 @@ import { getCrypto, PublicKeyInfo } from 'pkijs'
 import { ChannelMessage, NoCryptoEngineError, PublicChannel, UserProfile } from '@quiet/types'
 import { configCrypto, generateKeyPair, sign } from '@quiet/identity'
 
-import { isPng, base64DataURLToByteArray, UserProfileStore, UserProfileKeyValueIndex } from './UserProfileStore'
+import { isPng, base64DataURLToByteArray, UserProfileStore, UserProfileKeyValueIndex } from './userProfile.store'
 
 describe('UserProfileStore/isPng', () => {
   test('returns true for a valid PNG', () => {

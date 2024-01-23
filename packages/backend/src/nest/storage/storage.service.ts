@@ -49,7 +49,7 @@ import { CertificatesStore } from './certificates/certificates.store'
 import { CertificatesRequestsStore } from './certifacteRequests/certificatesRequestsStore'
 import { OrbitDb } from './orbitDb/orbitDb.service'
 import { CommunityMetadataStore } from './communityMetadata/communityMetadata.store'
-import { UserProfileStore } from './UserProfileStore'
+import { UserProfileStore } from './userProfile/userProfile.store'
 
 @Injectable()
 export class StorageService extends EventEmitter {
@@ -189,6 +189,7 @@ export class StorageService extends EventEmitter {
     await this.communityMetadataStore.init(this)
     await this.certificatesStore.init(this)
     await this.certificatesRequestsStore.init(this)
+    await this.userProfileStore.init(this)
 
     this.logger('2/3')
     await this.attachCertificatesStoreListeners()
