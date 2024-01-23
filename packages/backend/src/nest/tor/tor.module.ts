@@ -19,7 +19,7 @@ const torParamsProvider = {
         LD_LIBRARY_PATH: configOptions.torResourcesPath,
         HOME: os.homedir(),
       },
-      detached: true,
+      // detached: true, // TODO: check if this is needed
     }
 
     return { torPath, options }
