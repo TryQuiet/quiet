@@ -80,7 +80,10 @@ beforeEach(async () => {
     ],
   })
     .overrideProvider(TOR_PASSWORD_PROVIDER)
-    .useValue({ torPassword: '', torHashedPassword: '' })
+    .useValue({
+      torPassword: 'b5e447c10b0d99e7871636ee5e0839b5',
+      torHashedPassword: '16:FCFFE21F3D9138906021FAADD9E49703CC41848A95F829E0F6E1BDBE63',
+    })
     .compile()
 
   connectionsManagerService = await module.resolve(ConnectionsManagerService)
