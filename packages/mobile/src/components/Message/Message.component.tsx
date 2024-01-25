@@ -23,7 +23,7 @@ const MessageProfilePhoto: React.FC<{ message: DisplayableMessage }> = ({ messag
     marginRight: '8px',
   }
   return message.photo ? (
-    <img style={imgStyle} src={message.photo} alt={"Message author's profile image"} />
+    <Image style={imgStyle} src={message.photo} alt={"Message author's profile image"} />
   ) : (
     <Jdenticon value={message.pubKey} size='37' />
   )
