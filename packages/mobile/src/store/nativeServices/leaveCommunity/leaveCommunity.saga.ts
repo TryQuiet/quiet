@@ -11,7 +11,7 @@ export function* leaveCommunitySaga(): Generator {
   // Restart backend
   yield* put(app.actions.closeServices())
 
-  yield takeLeading(initActions.suspendWebsocketConnection.type, clearReduxStore)
+  yield takeLeading(initActions.canceledRootTask.type, clearReduxStore)
 }
 
 export function* clearReduxStore(): Generator {
