@@ -19,8 +19,6 @@ const MessageProfilePhoto: React.FC<{ message: DisplayableMessage }> = ({ messag
   const imgStyle = {
     width: 37,
     height: 37,
-    borderRadius: 4,
-    marginRight: 8,
   }
   return message.photo ? (
     <Image style={imgStyle} src={message.photo} alt={"Message author's profile image"} />
