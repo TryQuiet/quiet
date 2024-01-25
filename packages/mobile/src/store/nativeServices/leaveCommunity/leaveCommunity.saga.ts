@@ -21,15 +21,15 @@ export function* clearReduxStore(): Generator {
   console.info('Clearing redux store')
 
   // Stop persistor
-  yield* call(persistor.pause)
-  yield* call(persistor.flush)
-  yield* call(persistor.purge)
+  // yield* call(persistor.pause)
+  // yield* call(persistor.flush)
+  // yield* call(persistor.purge)
 
   // Clear redux store
   yield* put(nativeServicesActions.resetApp())
 
   // Resume persistor
-  yield* call(persistor.persist)
+  // yield* call(persistor.persist)
 
   yield* put(navigationActions.replaceScreen({ screen: ScreenNames.JoinCommunityScreen }))
 }
