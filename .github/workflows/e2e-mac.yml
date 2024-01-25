@@ -68,4 +68,9 @@ jobs:
           max_attempts: 3
           command: cd packages/e2e-tests && npm run test multipleClients.test.ts
 
-
+      - name: Run user profile test
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 25
+          max_attempts: 3
+          command: cd packages/e2e-tests && npm run test userProfile.test.ts

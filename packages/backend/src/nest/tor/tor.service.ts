@@ -1,11 +1,10 @@
 import * as child_process from 'child_process'
-import crypto from 'crypto'
 import * as fs from 'fs'
 import path from 'path'
 import getPort from 'get-port'
 import { removeFilesFromDir } from '../common/utils'
 import { EventEmitter } from 'events'
-import { ConnectionProcessInfo, SocketActionTypes, SupportedPlatform } from '@quiet/types'
+import { SocketActionTypes, SupportedPlatform } from '@quiet/types'
 import { Inject, OnModuleInit } from '@nestjs/common'
 import { ConfigOptions, ServerIoProviderTypes } from '../types'
 import { CONFIG_OPTIONS, QUIET_DIR, SERVER_IO_PROVIDER, TOR_PARAMS_PROVIDER, TOR_PASSWORD_PROVIDER } from '../const'
@@ -16,7 +15,7 @@ import Logger from '../common/logger'
 
 export class Tor extends EventEmitter implements OnModuleInit {
   socksPort: number
-  process: child_process.ChildProcessWithoutNullStreams | any = null
+  process: child_process.ChildProcessWithoutNullStreams | null = null
   torDataDirectory: string
   torPidPath: string
   extraTorProcessParams: TorParams
@@ -93,7 +92,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
         try {
           this.clearHangingTorProcess()
         } catch (e) {
-          this.logger('Error occured while trying to clear hanging tor processes')
+          this.logger('Error occured while trying to clear hanging tor processes', e)
         }
 
         try {
@@ -113,7 +112,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
           resolve()
         } catch {
           this.logger('Killing tor')
-          await this.process.kill()
+          this.clearHangingTorProcess()
           removeFilesFromDir(this.torDataDirectory)
 
           // eslint-disable-next-line
@@ -159,11 +158,15 @@ export class Tor extends EventEmitter implements OnModuleInit {
   public clearHangingTorProcess() {
     const torProcessId = child_process.execSync(this.hangingTorProcessCommand()).toString('utf8').trim()
     if (!torProcessId) return
-    this.logger(`Found tor process with pid ${torProcessId}. Killing...`)
-    try {
-      process.kill(Number(torProcessId), 'SIGTERM')
-    } catch (e) {
-      this.logger.error(`Tried killing hanging tor process. Failed. Reason: ${e.message}`)
+    const ids = torProcessId.split('\n') // Spawning with {shell:true} starts 2 processes
+    this.logger(`Found tor process(es) with pid(s) ${ids}. Killing...`)
+
+    for (const id of ids) {
+      try {
+        process.kill(Number(id.trim()))
+      } catch (e) {
+        this.logger.error(`Tried killing hanging tor process with id ${id}. Failed. Reason: ${e.message}`)
+      }
     }
   }
 
@@ -204,6 +207,10 @@ export class Tor extends EventEmitter implements OnModuleInit {
         reject(new Error("Can't spawn tor - no controlPort"))
         return
       }
+      const options: child_process.SpawnOptionsWithoutStdio = {
+        ...this.torParamsProvider.options,
+        shell: true,
+      }
 
       this.process = child_process.spawn(
         this.torParamsProvider.torPath,
@@ -215,15 +222,26 @@ export class Tor extends EventEmitter implements OnModuleInit {
           '--ControlPort',
           this.controlPort.toString(),
           '--PidFile',
-          this.torPidPath,
+          `"${this.torPidPath}"`,
           '--DataDirectory',
-          this.torDataDirectory,
+          `"${this.torDataDirectory}"`,
           '--HashedControlPassword',
           this.torPasswordProvider.torHashedPassword,
           // ...this.torProcessParams
         ],
-        this.torParamsProvider.options
+        options
       )
+      this.process.stderr.on('data', e => {
+        this.logger.error('Tor process. Stderr:', e)
+      })
+
+      this.process.on('exit', (code, signal) => {
+        this.logger(`Tor exited with code ${code} and signal ${signal}`)
+      })
+
+      this.process.on('error', err => {
+        this.logger.error(`Tor process. Error occurred: ${err.message}`)
+      })
 
       this.process.stdout.on('data', (data: any) => {
         this.logger(data.toString())
@@ -326,7 +344,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
 
   public async kill(): Promise<void> {
     return await new Promise((resolve, reject) => {
-      this.logger('Killing tor...')
+      this.logger('Killing tor... with pid', this.process?.pid)
       if (this.process === null) {
         this.logger('TOR: Process is not initalized.')
         resolve()
@@ -342,7 +360,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
       this.process?.on('error', () => {
         reject(new Error('TOR: Something went wrong with killing tor process'))
       })
-      this.process?.kill()
+      this.clearHangingTorProcess()
     })
   }
 }

@@ -27,8 +27,8 @@ const torPath = torBinForPlatform()
 const libPath = torDirForPlatform()
 export const defaultConfigForTest = {
   socketIOPort: TEST_DATA_PORT,
-  torBinaryPath: torBinForPlatform(),
-  torResourcesPath: torDirForPlatform(),
+  torBinaryPath: torPath,
+  torResourcesPath: torPath,
   torControlPort: await getPort(),
   options: {
     env: {

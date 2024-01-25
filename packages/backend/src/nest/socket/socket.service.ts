@@ -16,6 +16,7 @@ import {
   SaveCSRPayload,
   CommunityMetadata,
   type PermsData,
+  type UserProfile,
 } from '@quiet/types'
 import EventEmitter from 'events'
 import { CONFIG_OPTIONS, SERVER_IO_PROVIDER } from '../const'
@@ -185,6 +186,12 @@ export class SocketService extends EventEmitter implements OnModuleInit {
 
       socket.on(SocketActionTypes.SEND_COMMUNITY_CA_DATA, (payload: PermsData) => {
         this.emit(SocketActionTypes.SEND_COMMUNITY_CA_DATA, payload)
+      })
+
+      // ====== Users ======
+
+      socket.on(SocketActionTypes.SAVE_USER_PROFILE, (profile: UserProfile) => {
+        this.emit(SocketActionTypes.SAVE_USER_PROFILE, profile)
       })
     })
   }

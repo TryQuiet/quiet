@@ -31,6 +31,7 @@ import {
   SaveCertificatePayload,
   SocketActionTypes,
   UserData,
+  type UserProfile,
 } from '@quiet/types'
 import { createLibp2pAddress, isDefined } from '@quiet/common'
 import fs from 'fs'
@@ -48,6 +49,7 @@ import { CertificatesStore } from './certificates/certificates.store'
 import { CertificatesRequestsStore } from './certifacteRequests/certificatesRequestsStore'
 import { OrbitDb } from './orbitDb/orbitDb.service'
 import { CommunityMetadataStore } from './communityMetadata/communityMetadata.store'
+import { UserProfileStore } from './userProfile/userProfile.store'
 
 @Injectable()
 export class StorageService extends EventEmitter {
@@ -74,6 +76,7 @@ export class StorageService extends EventEmitter {
     private readonly certificatesRequestsStore: CertificatesRequestsStore,
     private readonly certificatesStore: CertificatesStore,
     private readonly communityMetadataStore: CommunityMetadataStore,
+    private readonly userProfileStore: UserProfileStore,
     private readonly lazyModuleLoader: LazyModuleLoader
   ) {
     super()
@@ -160,6 +163,9 @@ export class StorageService extends EventEmitter {
     if (this.communityMetadataStore?.getAddress()) {
       dbs.push(this.communityMetadataStore.getAddress())
     }
+    if (this.userProfileStore.getAddress()) {
+      dbs.push(this.userProfileStore.getAddress())
+    }
 
     const channels = this.publicChannelsRepos.values()
 
@@ -188,6 +194,7 @@ export class StorageService extends EventEmitter {
     await this.communityMetadataStore.init(this)
     await this.certificatesStore.init(this)
     await this.certificatesRequestsStore.init(this)
+    await this.userProfileStore.init(this)
 
     this.logger('2/3')
     await this.attachCertificatesStoreListeners()
@@ -262,6 +269,12 @@ export class StorageService extends EventEmitter {
       await this.communityMetadataStore?.close()
     } catch (e) {
       this.logger.error('Error closing community metadata store', e)
+    }
+
+    try {
+      await this.userProfileStore?.close()
+    } catch (e) {
+      this.logger.error('Error closing user profiles db', e)
     }
 
     await this.orbitDbService.stop()
@@ -747,6 +760,10 @@ export class StorageService extends EventEmitter {
         }
       }
     })
+  }
+
+  public async addUserProfile(profile: UserProfile) {
+    await this.userProfileStore.addUserProfile(profile)
   }
 
   public async checkIfFileExist(filepath: string): Promise<boolean> {

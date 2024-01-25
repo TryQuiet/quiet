@@ -42,6 +42,8 @@ import {
   SaveCSRPayload,
   CommunityMetadata,
   type PermsData,
+  type UserProfile,
+  type UserProfilesLoadedEvent,
 } from '@quiet/types'
 import { CONFIG_OPTIONS, QUIET_DIR, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
 import { ConfigOptions, GetPorts, ServerIoProviderTypes } from '../types'
@@ -443,6 +445,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       this.serverIoProvider.io.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, data)
     })
   }
+
   private attachRegistrationListeners() {
     this.registrationService.on(SocketActionTypes.SAVED_OWNER_CERTIFICATE, payload => {
       this.serverIoProvider.io.emit(SocketActionTypes.SAVED_OWNER_CERTIFICATE, payload)
@@ -451,6 +454,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       emitError(this.serverIoProvider.io, payload)
     })
   }
+
   private attachSocketServiceListeners() {
     // Community
     this.socketService.on(SocketActionTypes.CONNECTION, async () => {
@@ -550,7 +554,13 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.socketService.on(SocketActionTypes.CLOSE, async () => {
       await this.closeAllServices()
     })
+
+    // User Profile
+    this.socketService.on(SocketActionTypes.SAVE_USER_PROFILE, async (profile: UserProfile) => {
+      await this.storageService?.addUserProfile(profile)
+    })
   }
+
   private attachStorageListeners() {
     if (!this.storageService) return
     this.storageService.on(SocketActionTypes.CONNECTION_PROCESS_INFO, data => {
@@ -628,6 +638,12 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       this.logger(`Storage - ${StorageEvents.COMMUNITY_METADATA_SAVED}: ${meta}`)
       this.storageService?.updateMetadata(meta)
       this.serverIoProvider.io.emit(SocketActionTypes.COMMUNITY_METADATA_SAVED, meta)
+    })
+
+    // User Profile
+
+    this.storageService.on(StorageEvents.LOADED_USER_PROFILES, (payload: UserProfilesLoadedEvent) => {
+      this.serverIoProvider.io.emit(SocketActionTypes.LOADED_USER_PROFILES, payload)
     })
   }
 }

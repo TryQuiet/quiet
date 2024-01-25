@@ -1,4 +1,10 @@
-[2.1.0] - unreleased
+[Unreleased]
+
+* Handle spaces in tor process path. Run tor process in shell
+
+[2.0.1]
+
+* feat: Add user profile feature
 
 * fix, refactor: Refactor registration service, replace promise waiting mechanism around certificate requests and help prevent duplicate username registration
 
@@ -23,6 +29,7 @@
 * Ask push notifications runtime permission on Android app start
 
 * Fix for multiplicating "welcome" messages when joining a community
+
 * Fix: base jdenticon on pubkey instead of username - this way unregistered user with duplicated username will have different profile image
 
 * Updated old logo of Linux and Windows with rounded ones

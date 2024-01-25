@@ -1,6 +1,6 @@
 {
   "name": "@quiet/mobile",
-  "version": "2.0.1-alpha.1",
+  "version": "2.0.1",
   "scripts": {
     "build": "tsc -p tsconfig.build.json --noEmit",
     "storybook-android": "ENVFILE=.env.storybook react-native run-android --variant=storybookDebug --appIdSuffix=storybook.debug",
@@ -32,8 +32,10 @@
     "@react-navigation/native-stack": "^6.9.0",
     "@reduxjs/toolkit": "^1.9.1",
     "@ronradtke/react-native-markdown-display": "^8.0.0",
+    "big-integer": "^1.6.52",
     "buffer": "^6.0.3",
     "events": "^1.1.1",
+    "fast-text-encoding": "^1.0.6",
     "i18next": "^20.2.2",
     "jdenticon": "^3.2.0",
     "luxon": "^1.27.0",

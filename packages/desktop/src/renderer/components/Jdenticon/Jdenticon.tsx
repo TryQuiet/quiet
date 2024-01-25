@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import * as jdenticon from 'jdenticon/browser'
 
 // Copied from react-jdenticon because its peer dependency clashes with react 18
-const Jdenticon = ({ value = 'test', size = '100%' }) => {
+const Jdenticon = ({ value = 'test', size = '100%', style = {} }) => {
   const icon = React.useRef(null)
   React.useEffect(() => {
     if (!icon.current) return
@@ -11,7 +11,7 @@ const Jdenticon = ({ value = 'test', size = '100%' }) => {
   }, [value])
 
   return (
-    <div>
+    <div style={style}>
       <svg data-jdenticon-value={value} height={size} ref={icon} width={size} />
     </div>
   )
