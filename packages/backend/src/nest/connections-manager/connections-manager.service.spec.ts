@@ -19,11 +19,6 @@ import { SocketModule } from '../socket/socket.module'
 import { ConnectionsManagerModule } from './connections-manager.module'
 import { ConnectionsManagerService } from './connections-manager.service'
 import { createLibp2pAddress } from '@quiet/common'
-import { OrbitDb } from '../storage/orbitDb/orbitDb.service'
-import { EventEmitter } from 'events'
-import { create, IPFS } from 'ipfs-core'
-import { createRootCA } from '@quiet/identity'
-import { Time } from 'pkijs'
 
 describe('ConnectionsManagerService', () => {
   let module: TestingModule
