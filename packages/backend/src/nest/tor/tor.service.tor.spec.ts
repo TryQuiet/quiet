@@ -150,19 +150,19 @@ describe('TorControl', () => {
     expect(status).toBe(false)
   })
 
-  it('should find hanging tor process and kill it', async () => {
+  it('should find hanging tor processes and kill them', async () => {
     const processKill = jest.spyOn(process, 'kill')
     await torService.init()
     torService.clearHangingTorProcess()
-    expect(processKill).toHaveBeenCalledTimes(1)
+    expect(processKill).toHaveBeenCalledTimes(2) // Spawning with {shell:true} starts 2 processes so we need to kill 2 processes
   })
 
-  it('should find hanging tor process and kill it if Quiet path includes space', async () => {
+  it('should find hanging tor processes and kill them if Quiet path includes space', async () => {
     tmpDir = createTmpDir('quietTest Tmp_') // On MacOS quiet data lands in '(...)/Application Support/(...)' which caused problems with grep
     tmpAppDataPath = tmpQuietDirPath(tmpDir.name)
     const processKill = jest.spyOn(process, 'kill')
     await torService.init()
     torService.clearHangingTorProcess()
-    expect(processKill).toHaveBeenCalledTimes(1)
+    expect(processKill).toHaveBeenCalledTimes(2) // Spawning with {shell:true} starts 2 processes so we need to kill 2 processes
   })
 })
