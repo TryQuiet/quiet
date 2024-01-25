@@ -9,9 +9,10 @@ import { type DirResult } from 'tmp'
 import { jest } from '@jest/globals'
 import { TorControlAuthType } from './tor.types'
 import { TorControl } from './tor-control.service'
-import crypto from 'crypto'
 import { sleep } from '../common/sleep'
+
 jest.setTimeout(200_000)
+
 describe('TorControl', () => {
   let module: TestingModule
   let torService: Tor
@@ -21,7 +22,6 @@ describe('TorControl', () => {
 
   const torPassword = 'b5e447c10b0d99e7871636ee5e0839b5'
   const torHashedPassword = '16:FCFFE21F3D9138906021FAADD9E49703CC41848A95F829E0F6E1BDBE63'
-
 
   beforeEach(async () => {
     jest.clearAllMocks()

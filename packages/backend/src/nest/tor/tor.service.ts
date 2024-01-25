@@ -2,7 +2,7 @@ import * as child_process from 'child_process'
 import * as fs from 'fs'
 import path from 'path'
 import getPort from 'get-port'
-import { killAll, removeFilesFromDir } from '../common/utils'
+import { removeFilesFromDir } from '../common/utils'
 import { EventEmitter } from 'events'
 import { SocketActionTypes, SupportedPlatform } from '@quiet/types'
 import { Inject, OnModuleInit } from '@nestjs/common'
@@ -112,7 +112,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
           resolve()
         } catch {
           this.logger('Killing tor')
-          this.process?.pid && killAll(this.process?.pid)
+          this.clearHangingTorProcess()
           removeFilesFromDir(this.torDataDirectory)
 
           // eslint-disable-next-line
@@ -160,10 +160,13 @@ export class Tor extends EventEmitter implements OnModuleInit {
     if (!torProcessId) return
     const ids = torProcessId.split('\n') // Spawning with {shell:true} starts 2 processes
     this.logger(`Found tor process(es) with pid(s) ${ids}. Killing...`)
-    try {
-      killAll(Number(ids[0].trim()))
-    } catch (e) {
-      this.logger.error(`Tried killing hanging tor process. Failed. Reason: ${e.message}`)
+
+    for (const id of ids) {
+      try {
+        process.kill(Number(id.trim()))
+      } catch (e) {
+        this.logger.error(`Tried killing hanging tor process with id ${id}. Failed. Reason: ${e.message}`)
+      }
     }
   }
 
@@ -357,7 +360,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
       this.process?.on('error', () => {
         reject(new Error('TOR: Something went wrong with killing tor process'))
       })
-      // this.process?.pid && killAll(this.process?.pid)
+      this.clearHangingTorProcess()
     })
   }
 }

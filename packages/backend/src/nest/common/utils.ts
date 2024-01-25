@@ -128,6 +128,7 @@ export const torBinForPlatform = (basePath = '', binName = 'tor'): string => {
     return basePath
   }
   const ext = process.platform === 'win32' ? '.exe' : ''
+  // Wrap path in quotes to handle spaces in path
   return `"${path.join(torDirForPlatform(basePath), `${binName}`.concat(ext))}"`
 }
 
@@ -249,22 +250,4 @@ export async function createPeerId(): Promise<PeerId> {
   const { peerIdFromKeys } = await eval("import('@libp2p/peer-id')")
   const peerId = await PeerId.create()
   return peerIdFromKeys(peerId.marshalPubKey(), peerId.marshalPrivKey())
-}
-
-export function killAll(pid: number, signal: string | number = 'SIGTERM') {
-  // Kills group of processes
-  console.log(`Killing processes group with pid ${pid}. Signal: ${signal}`)
-  if (process.platform == 'win32') {
-    execFile('taskkill /PID ' + pid + ' /T /F', (error, stdout, stderr) => {
-      console.log('taskkill stdout: ' + stdout)
-      console.log('taskkill stderr: ' + stderr)
-      if (error) {
-        console.log('error: ' + error.message)
-      }
-    })
-  } else {
-    // see https://nodejs.org/api/child_process.html#child_process_options_detached
-    // If pid is less than -1, then sig is sent to every process in the process group whose ID is -pid.
-    process.kill(-pid, signal)
-  }
 }

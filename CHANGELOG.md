@@ -1,4 +1,8 @@
-[2.1.0] - unreleased
+[Unreleased]
+
+* Handle spaces in tor process path. Run tor process in shell
+
+[2.0.1]
 
 * refactor: Remove SAVE_OWNER_CERTIFICATE event
 
@@ -21,6 +25,7 @@
 * Ask push notifications runtime permission on Android app start
 
 * Fix for multiplicating "welcome" messages when joining a community
+
 * Fix: base jdenticon on pubkey instead of username - this way unregistered user with duplicated username will have different profile image
 
 * Updated old logo of Linux and Windows with rounded ones
@@ -65,10 +70,6 @@
 * Quiet now labels duplicate unregistered usernames
 * Quiet shows an full-screen warning for duplicate registered usernames, since these should never happen and indicate a potential compromise.
 * For authenticating connections, Quiet now uses libp2p's [Pre-shared Key Based Private Networks](https://github.com/libp2p/specs/blob/master/pnet/Private-Networks-PSK-V1.md) instead of X.509 certificates so peers can connect before registering.
-
-[2.0.3-alpha.16]
-
-* Handle spaces in tor process path. Run tor process in shell
 
 [2.0.3-alpha.16]
 
