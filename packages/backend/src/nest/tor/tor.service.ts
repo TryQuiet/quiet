@@ -211,26 +211,26 @@ export class Tor extends EventEmitter implements OnModuleInit {
         ...this.torParamsProvider.options,
         shell: true,
       }
-      const args = [
-        '--SocksPort',
-        this.socksPort.toString(),
-        '--HTTPTunnelPort',
-        this.configOptions.httpTunnelPort?.toString(),
-        '--ControlPort',
-        this.controlPort.toString(),
-        '--PidFile',
-        `"${this.torPidPath}"`,
-        '--DataDirectory',
-        `"${this.torDataDirectory}"`,
-        '--HashedControlPassword',
-        this.torPasswordProvider.torHashedPassword,
-        // ...this.torProcessParams
-      ]
-      console.log('TOR ARGS', args)
-      console.log('TOR options', options)
-      console.log('TOR path', this.torParamsProvider.torPath)
-      console.log('TOR pid', this.process?.pid)
-      this.process = child_process.spawn(this.torParamsProvider.torPath, args, options)
+
+      this.process = child_process.spawn(
+        this.torParamsProvider.torPath,
+        [
+          '--SocksPort',
+          this.socksPort.toString(),
+          '--HTTPTunnelPort',
+          this.configOptions.httpTunnelPort?.toString(),
+          '--ControlPort',
+          this.controlPort.toString(),
+          '--PidFile',
+          `"${this.torPidPath}"`,
+          '--DataDirectory',
+          `"${this.torDataDirectory}"`,
+          '--HashedControlPassword',
+          this.torPasswordProvider.torHashedPassword,
+          // ...this.torProcessParams
+        ],
+        options
+      )
       this.process.stderr.on('data', e => {
         this.logger.error('Tor process. Stderr:', e)
       })

@@ -22,8 +22,6 @@ export function* verifyMessagesSaga(
     yield* delay(500)
   }
 
-  console.log('verifyMessagesSaga messages', messages)
-
   for (const message of messages) {
     let isVerified = Boolean(action.payload.isVerified)
 
@@ -42,8 +40,6 @@ export function* verifyMessagesSaga(
 
       const expectedMessage = yield* call(verifyUserInfoMessage, user.username, channel)
 
-      console.log('verifyMessagesSaga expectedMessage', expectedMessage)
-      console.log('verifyMessagesSaga message.message', message.message)
       if (message.message !== expectedMessage) {
         console.error(`${user.username} tried to send a malicious info message`)
         isVerified = false
