@@ -1,12 +1,12 @@
 [Unreleased]
 
-* Handle spaces in tor process path. Run tor process in shell
-
-[2.0.1]
+* fix, refactor: Refactor registration service, replace promise waiting mechanism around certificate requests and help prevent duplicate username registration
 
 * feat: Add user profile feature
 
-* fix, refactor: Refactor registration service, replace promise waiting mechanism around certificate requests and help prevent duplicate username registration
+* Handle spaces in tor process path. Run tor process in shell
+
+[2.0.1]
 
 * refactor: Remove SAVE_OWNER_CERTIFICATE event
 
