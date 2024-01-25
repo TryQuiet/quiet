@@ -40,6 +40,8 @@ export class CertificatesRequestsStore {
       this.loadedCertificateRequests()
     })
 
+    // TODO: Load CSRs in case the owner closes the app before issuing
+    // certificates
     this.logger('Initialized')
   }
 

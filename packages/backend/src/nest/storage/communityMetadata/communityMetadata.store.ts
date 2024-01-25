@@ -92,6 +92,10 @@ export class CommunityMetadataStore {
 
     // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
     await this.store.load({ fetchEntryTimeout: 15000 })
+    const meta = this.getCommunityMetadata()
+    if (meta) {
+      emitter.emit(StorageEvents.COMMUNITY_METADATA_SAVED, meta)
+    }
     logger('Loaded community metadata to memory')
   }
 

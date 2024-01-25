@@ -93,10 +93,14 @@ export class CertificatesStore {
   public updateMetadata(metadata: CommunityMetadata) {
     if (!metadata) return
     this.metadata = metadata
-    // Community metadata is required for validating certificates, so
-    // we re-validate certificates once community metadata is set. It
-    // might also make sense to initialize CertificateStore after
-    // CommunityMetadata is received instead of doing this.
+    // FIXME: Community metadata is required for validating
+    // certificates, so we re-validate certificates once community
+    // metadata is set. Currently the certificates store receives the
+    // community metadata via an event. Is there a better way to
+    // organize this so that the dependencies are clearer? Having
+    // CertificateStore depend on CommunityMetadataStore directly?
+    // Storing community metadata in LevelDB? Only initializing
+    // certificate store after community metadata is available?
     if (this.store) {
       this.loadedCertificates()
     }

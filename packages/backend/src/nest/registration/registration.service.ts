@@ -74,6 +74,10 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
     // false certificates and try to trick other users. To prevent
     // that, peers verify that anything that is written to the
     // certificate store is signed by the owner.
+    //
+    // NOTE: There may be a race condition here if we try to issue
+    // certs before permsData is set. We may want to refactor this or
+    // add the ability to retry.
     if (!this.permsData) {
       this.logger('Not issuing certificates due to missing perms data')
       return

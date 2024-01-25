@@ -41,7 +41,7 @@ import {
   PeerId as PeerIdType,
   SaveCSRPayload,
   CommunityMetadata,
-  PermsData,
+  type PermsData,
 } from '@quiet/types'
 import { CONFIG_OPTIONS, QUIET_DIR, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
 import { ConfigOptions, GetPorts, ServerIoProviderTypes } from '../types'
@@ -464,10 +464,9 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
           SocketActionTypes.CONNECTED_PEERS,
           Array.from(this.libp2pService.connectedPeers.keys())
         )
-        this.serverIoProvider.io.emit(
-          SocketActionTypes.RESPONSE_GET_CERTIFICATES,
-          await this.storageService?.loadAllCertificates()
-        )
+        this.serverIoProvider.io.emit(SocketActionTypes.RESPONSE_GET_CERTIFICATES, {
+          certificates: await this.storageService?.loadAllCertificates(),
+        })
         await this.storageService?.loadAllChannels()
       }
     })
