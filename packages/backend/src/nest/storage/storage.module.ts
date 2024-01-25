@@ -6,10 +6,18 @@ import { OrbitDb } from './orbitDb/orbitDb.service'
 import { CertificatesRequestsStore } from './certifacteRequests/certificatesRequestsStore'
 import { CertificatesStore } from './certificates/certificates.store'
 import { CommunityMetadataStore } from './communityMetadata/communityMetadata.store'
+import { UserProfileStore } from './userProfile/userProfile.store'
 
 @Module({
   imports: [LocalDbModule, IpfsFileManagerModule],
-  providers: [StorageService, OrbitDb, CertificatesStore, CommunityMetadataStore, CertificatesRequestsStore],
+  providers: [
+    StorageService,
+    OrbitDb,
+    CertificatesStore,
+    CommunityMetadataStore,
+    CertificatesRequestsStore,
+    UserProfileStore,
+  ],
   exports: [StorageService],
 })
 export class StorageModule {}

@@ -26,6 +26,7 @@ import { LeaveCommunity } from './components/Settings/Tabs/LeaveCommunity/LeaveC
 import SearchModal from './components/SearchModal/SearchModal'
 import WarningModal from './containers/widgets/WarningModal/WarningModal'
 import { ChannelContextMenu } from './components/ContextMenu/menus/ChannelContextMenu.container'
+import { UserProfileContextMenu } from './components/ContextMenu/menus/UserProfileContextMenu.container'
 import { DeleteChannel } from './components/Channel/DeleteChannel/DeleteChannel'
 import ChannelCreationModal from './components/ChannelCreationModal/ChannelCreationModal'
 import { SaveStateComponent } from './components/SaveState/SaveStateComponent'
@@ -66,6 +67,7 @@ export default () => {
                 <BreakingChangesWarning />
                 <QuitAppDialog />
                 <ChannelContextMenu />
+                <UserProfileContextMenu />
                 <DeleteChannel />
                 <Routes>
                   <Route index path='/' element={<Index />} />

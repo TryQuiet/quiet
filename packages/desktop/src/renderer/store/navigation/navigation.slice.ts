@@ -4,6 +4,7 @@ import { MenuName } from '../../../const/MenuNames.enum'
 
 export class NavigationState {
   public [MenuName.Channel] = { open: false, args: {} }
+  public [MenuName.UserProfile] = { open: false, args: {} }
 }
 
 export interface OpenMenuPayload {

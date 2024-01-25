@@ -143,6 +143,21 @@ export const transformToLowercase = (string: string) => {
   const hasPM = string.search('PM')
   return hasPM !== -1 ? string.replace('PM', 'pm') : string.replace('AM', 'am')
 }
+
+const MessageProfilePhoto: React.FC<{ message: DisplayableMessage }> = ({ message }) => {
+  const imgStyle = {
+    width: '36px',
+    height: '36px',
+    borderRadius: '4px',
+    marginRight: '8px',
+  }
+  return message.photo ? (
+    <img style={imgStyle} src={message.photo} alt={"Message author's profile image"} />
+  ) : (
+    <Jdenticon value={message.pubKey} size='36' />
+  )
+}
+
 export interface BasicMessageProps {
   messages: DisplayableMessage[]
   pendingMessages?: Dictionary<MessageSendingStatus>
@@ -201,7 +216,7 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
                 {infoMessage ? (
                   <Icon src={information} className={classes.infoIcon} />
                 ) : (
-                  <Jdenticon size='36' value={messageDisplayData.pubKey} />
+                  <MessageProfilePhoto message={messageDisplayData} />
                 )}
               </div>
             </Grid>

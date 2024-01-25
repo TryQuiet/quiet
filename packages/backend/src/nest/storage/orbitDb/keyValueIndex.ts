@@ -11,7 +11,13 @@ type ValidateFn<T> = (identityProvider: typeof IdentityProvider, entry: LogEntry
  * https://github.com/orbitdb/orbit-db-kvstore/blob/main/src/KeyValueIndex.js
  *
  * Adds validation function that validates each entry before adding it
- * to the index.
+ * to the index. This is used to validate each entry in OrbitDB upon
+ * retrieval (vs write). When this was written, OrbitDB access
+ * controllers didn't validate each entry which we want to do. In the
+ * latest version of OrbitDB, access controllers now validate each
+ * entry, but there might still be other reasons why we would want to
+ * continue using this (e.g. flexibility in how we treat "invalid"
+ * data).
  *
  * TODO: Save latest entry and only iterate over new entries in updateIndex
  */

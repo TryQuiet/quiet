@@ -15,6 +15,19 @@ import { defaultTheme } from '../../styles/themes/default.theme'
 import UserLabel from '../UserLabel/UserLabel.component'
 import { UserLabelType } from '../UserLabel/UserLabel.types'
 
+const MessageProfilePhoto: React.FC<{ message: DisplayableMessage }> = ({ message }) => {
+  const imgStyle = {
+    width: 37,
+    height: 37,
+    borderRadius: 2,
+  }
+  return message.photo ? (
+    <Image style={imgStyle} source={{ uri: message.photo }} alt={"Message author's profile image"} />
+  ) : (
+    <Jdenticon value={message.pubKey} size={37} />
+  )
+}
+
 export const Message: FC<MessageProps & FileActionsProps> = ({
   data, // Set of messages merged by sender
   downloadStatus,
@@ -135,7 +148,7 @@ export const Message: FC<MessageProps & FileActionsProps> = ({
               style={{ width: 37, height: 37 }}
             />
           ) : (
-            <Jdenticon value={representativeMessage.pubKey} size={37} />
+            <MessageProfilePhoto message={representativeMessage} />
           )}
         </View>
         <View style={{ flex: 8 }}>

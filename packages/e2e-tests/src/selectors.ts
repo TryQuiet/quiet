@@ -1,5 +1,6 @@
-import { By, Key, type ThenableWebDriver, until } from 'selenium-webdriver'
+import { By, Key, type ThenableWebDriver, type WebElement, until } from 'selenium-webdriver'
 import { BuildSetup, type BuildSetupInit } from './utils'
+import path from 'path'
 
 export class App {
   thenableWebDriver?: ThenableWebDriver
@@ -129,6 +130,38 @@ export class ChannelContextMenu {
     )
   }
 }
+
+export class UserProfileContextMenu {
+  private readonly driver: ThenableWebDriver
+
+  constructor(driver: ThenableWebDriver) {
+    this.driver = driver
+  }
+
+  async openMenu() {
+    const button = await this.driver.wait(
+      until.elementLocated(By.xpath('//div[@data-testid="user-profile-menu-button"]'))
+    )
+    await button.click()
+  }
+
+  async openEditProfileMenu() {
+    const button = await this.driver.wait(
+      until.elementLocated(By.xpath('//div[@data-testid="contextMenuItemEdit profile"]'))
+    )
+    await this.driver.wait(until.elementIsVisible(button))
+    await button.click()
+  }
+
+  async uploadPhoto() {
+    const input = await this.driver.wait(
+      until.elementLocated(By.xpath('//input[@data-testid="user-profile-edit-photo-input"]'))
+    )
+    const filePath = path.join(__dirname, '../assets/profile-photo.png')
+    await input.sendKeys(filePath)
+  }
+}
+
 export class RegisterUsernameModal {
   private readonly driver: ThenableWebDriver
   constructor(driver: ThenableWebDriver) {
@@ -286,6 +319,19 @@ export class Channel {
     )
   }
 
+  async getUserMessagesFull(username: string) {
+    return await this.driver.wait(
+      until.elementsLocated(By.xpath(`//*[contains(@data-testid, "userMessagesWrapper-${username}")]`))
+    )
+  }
+
+  async getAtleastNumUserMessages(username: string, num: number): Promise<WebElement[] | null> {
+    return await this.driver.wait(async (): Promise<WebElement[] | null> => {
+      const messages = await this.getUserMessages(username)
+      return messages.length >= num ? messages : null
+    })
+  }
+
   async waitForLabel(username: string, label: string) {
     console.log(`Waiting for user's "${username}" label "${label}" label`)
     await this.driver.wait(async () => {
@@ -342,6 +388,7 @@ export class Sidebar {
     return new Channel(this.driver, name)
   }
 }
+
 export class UpdateModal {
   private readonly driver: ThenableWebDriver
   constructor(driver: ThenableWebDriver) {

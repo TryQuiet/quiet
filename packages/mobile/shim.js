@@ -24,3 +24,8 @@ if (typeof localStorage !== 'undefined') {
 // If using the crypto shim, uncomment the following line to ensure
 // crypto is loaded first, so it can populate global.crypto
 // require('crypto')
+
+// It looks like dag-cbor depends on BigInt support and apparently the
+// version of react-native that we are using doesn't support it yet.
+// https://github.com/facebook/react-native/issues/28492
+if (typeof BigInt === 'undefined') global.BigInt = require('big-integer')

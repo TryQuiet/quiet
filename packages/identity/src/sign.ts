@@ -3,11 +3,11 @@ import { getAlgorithmParameters, getCrypto } from 'pkijs'
 import config from './config'
 import { NoCryptoEngineError } from '@quiet/types'
 
-export const sign = async (message: string, privKey: CryptoKey): Promise<ArrayBuffer> => {
+export const sign = async (data: string | Uint8Array, privKey: CryptoKey): Promise<ArrayBuffer> => {
   const crypto = getCrypto()
   if (!crypto) throw new NoCryptoEngineError()
-  const messageBuffer = Buffer.from(message)
+  const dataBuffer = Buffer.from(data)
   const algorithm = getAlgorithmParameters(config.signAlg, 'sign')
 
-  return await crypto.sign(algorithm.algorithm as Algorithm, privKey, messageBuffer)
+  return await crypto.sign(algorithm.algorithm as Algorithm, privKey, dataBuffer)
 }

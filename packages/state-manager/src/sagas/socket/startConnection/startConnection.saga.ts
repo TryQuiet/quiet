@@ -16,6 +16,7 @@ import { filesMasterSaga } from '../../files/files.master.saga'
 import { messagesActions } from '../../messages/messages.slice'
 import { publicChannelsMasterSaga } from '../../publicChannels/publicChannels.master.saga'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
+import { usersMasterSaga } from '../../users/users.master.saga'
 import { usersActions } from '../../users/users.slice'
 import { filesActions } from '../../files/files.slice'
 import { networkActions } from '../../network/network.slice'
@@ -41,6 +42,7 @@ import {
   type SendOwnerCertificatePayload,
   type SendCsrsResponse,
   type CommunityMetadata,
+  type UserProfilesLoadedEvent,
   SocketActionTypes,
 } from '@quiet/types'
 
@@ -90,6 +92,7 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof communitiesActions.sendCommunityMetadata>
     | ReturnType<typeof communitiesActions.savePSK>
     | ReturnType<typeof communitiesActions.sendCommunityCaData>
+    | ReturnType<typeof usersActions.setUserProfiles>
   >(emit => {
     // UPDATE FOR APP
     socket.on(SocketActionTypes.TOR_INITIALIZED, () => {
@@ -235,6 +238,14 @@ export function subscribe(socket: Socket) {
       log(`${SocketActionTypes.LIBP2P_PSK_SAVED}`)
       emit(communitiesActions.savePSK(payload.psk))
     })
+
+    // User Profile
+
+    socket.on(SocketActionTypes.LOADED_USER_PROFILES, (payload: UserProfilesLoadedEvent) => {
+      console.log('Loaded user profiles, saving to store')
+      emit(usersActions.setUserProfiles(payload.profiles))
+    })
+
     return () => undefined
   })
 }
@@ -254,6 +265,7 @@ export function* useIO(socket: Socket): Generator {
     fork(filesMasterSaga, socket),
     fork(identityMasterSaga, socket),
     fork(communitiesMasterSaga, socket),
+    fork(usersMasterSaga, socket),
     fork(appMasterSaga, socket),
     fork(connectionMasterSaga),
     fork(errorsMasterSaga),

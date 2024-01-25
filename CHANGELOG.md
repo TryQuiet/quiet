@@ -4,6 +4,8 @@
 
 [2.0.1]
 
+* feat: Add user profile feature
+
 * refactor: Remove SAVE_OWNER_CERTIFICATE event
 
 * refactor: Remove registrar remainders and rename LAUNCH_REGISTRAR

@@ -53,6 +53,7 @@ export interface DisplayableMessage {
   isRegistered: boolean
   isDuplicated: boolean
   pubKey: string
+  photo?: string // base64 encoded image
 }
 
 export type MessagesGroupsType = Record<string, DisplayableMessage[]>

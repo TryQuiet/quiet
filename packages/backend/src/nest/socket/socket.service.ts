@@ -15,6 +15,7 @@ import {
   DeleteFilesFromChannelSocketPayload,
   SaveCSRPayload,
   CommunityMetadata,
+  type UserProfile,
 } from '@quiet/types'
 import EventEmitter from 'events'
 import { CONFIG_OPTIONS, SERVER_IO_PROVIDER } from '../const'
@@ -179,6 +180,12 @@ export class SocketService extends EventEmitter implements OnModuleInit {
       socket.on(SocketActionTypes.LIBP2P_PSK_SAVED, payload => {
         this.logger('Saving PSK', payload)
         this.emit(SocketActionTypes.LIBP2P_PSK_SAVED, payload)
+      })
+
+      // ====== Users ======
+
+      socket.on(SocketActionTypes.SAVE_USER_PROFILE, (profile: UserProfile) => {
+        this.emit(SocketActionTypes.SAVE_USER_PROFILE, profile)
       })
     })
   }
