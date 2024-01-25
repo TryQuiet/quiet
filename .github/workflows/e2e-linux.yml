@@ -46,19 +46,6 @@ jobs:
         working-directory: ./packages/e2e-tests/Quiet
         run: chmod +x $FILE_NAME
 
-      - name: Extract version
-        id: extract_version
-        uses: Saionaro/extract-package-version@v1.2.1
-        with:
-          path: packages/desktop
-
-      - name: "Upload built app"
-        uses: actions/upload-artifact@v3
-        with:
-          name: quiet-linux
-          path: ./packages/desktop/dist/Quiet-${{ steps.extract_version.outputs.version }}.AppImage
-          retention-days: 2
-
       - name: Run one client test
         uses: nick-fields/retry@v2
         with:
