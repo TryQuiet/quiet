@@ -17,10 +17,10 @@ import { UserLabelType } from '../UserLabel/UserLabel.types'
 
 const MessageProfilePhoto: React.FC<{ message: DisplayableMessage }> = ({ message }) => {
   const imgStyle = {
-    width: '37px',
-    height: '37px',
-    borderRadius: '4px',
-    marginRight: '8px',
+    width: 37,
+    height: 37,
+    borderRadius: 4,
+    marginRight: 8,
   }
   return message.photo ? (
     <Image style={imgStyle} src={message.photo} alt={"Message author's profile image"} />
