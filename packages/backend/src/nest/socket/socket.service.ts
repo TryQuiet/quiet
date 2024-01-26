@@ -11,11 +11,11 @@ import {
   RegisterOwnerCertificatePayload,
   SaveOwnerCertificatePayload,
   InitCommunityPayload,
-  LaunchRegistrarPayload,
   Community,
   DeleteFilesFromChannelSocketPayload,
   SaveCSRPayload,
   CommunityMetadata,
+  type UserProfile,
 } from '@quiet/types'
 import EventEmitter from 'events'
 import { CONFIG_OPTIONS, SERVER_IO_PROVIDER } from '../const'
@@ -98,10 +98,6 @@ export class SocketService extends EventEmitter implements OnModuleInit {
         this.emit(SocketActionTypes.SEND_MESSAGE, payload)
       })
 
-      socket.on(SocketActionTypes.SUBSCRIBE_FOR_ALL_CONVERSATIONS, async (peerId: string, conversations: string[]) => {
-        this.emit(SocketActionTypes.SUBSCRIBE_FOR_ALL_CONVERSATIONS, { peerId, conversations })
-      })
-
       socket.on(SocketActionTypes.ASK_FOR_MESSAGES, async (payload: AskForMessagesPayload) => {
         this.emit(SocketActionTypes.ASK_FOR_MESSAGES, payload)
       })
@@ -142,10 +138,6 @@ export class SocketService extends EventEmitter implements OnModuleInit {
         }
       )
 
-      socket.on(SocketActionTypes.SUBSCRIBE_FOR_DIRECT_MESSAGE_THREAD, async (peerId: string, channelId: string) => {
-        this.emit(SocketActionTypes.SUBSCRIBE_FOR_DIRECT_MESSAGE_THREAD, { peerId, channelId })
-      })
-
       // ====== Certificates ======
       socket.on(SocketActionTypes.SAVE_USER_CSR, async (payload: SaveCSRPayload) => {
         this.logger(`On ${SocketActionTypes.SAVE_USER_CSR}`)
@@ -158,19 +150,6 @@ export class SocketService extends EventEmitter implements OnModuleInit {
 
         this.emit(SocketActionTypes.REGISTER_OWNER_CERTIFICATE, payload)
         this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.REGISTERING_OWNER_CERTIFICATE)
-      })
-
-      socket.on(SocketActionTypes.SAVE_OWNER_CERTIFICATE, async (payload: SaveOwnerCertificatePayload) => {
-        this.logger(`Saving owner certificate (${payload.peerId}), community: ${payload.id}`)
-
-        this.emit(SocketActionTypes.SAVED_OWNER_CERTIFICATE, payload)
-
-        const communityMetadataPayload: CommunityMetadata = {
-          id: payload.id,
-          rootCa: payload.permsData.certificate,
-          ownerCertificate: payload.certificate,
-        }
-        this.emit(SocketActionTypes.SEND_COMMUNITY_METADATA, communityMetadataPayload)
       })
 
       // ====== Community ======
@@ -189,11 +168,6 @@ export class SocketService extends EventEmitter implements OnModuleInit {
         this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.LAUNCHING_COMMUNITY)
       })
 
-      socket.on(SocketActionTypes.LAUNCH_REGISTRAR, async (payload: LaunchRegistrarPayload) => {
-        this.logger(`Launching registrar for community ${payload.id}, user ${payload.peerId}`)
-        this.emit(SocketActionTypes.LAUNCH_REGISTRAR, payload)
-      })
-
       socket.on(SocketActionTypes.CREATE_NETWORK, async (community: Community) => {
         this.logger(`Creating network for community ${community.id}`)
         this.emit(SocketActionTypes.CREATE_NETWORK, community)
@@ -206,6 +180,12 @@ export class SocketService extends EventEmitter implements OnModuleInit {
       socket.on(SocketActionTypes.LIBP2P_PSK_SAVED, payload => {
         this.logger('Saving PSK', payload)
         this.emit(SocketActionTypes.LIBP2P_PSK_SAVED, payload)
+      })
+
+      // ====== Users ======
+
+      socket.on(SocketActionTypes.SAVE_USER_PROFILE, (profile: UserProfile) => {
+        this.emit(SocketActionTypes.SAVE_USER_PROFILE, profile)
       })
     })
   }

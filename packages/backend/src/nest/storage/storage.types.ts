@@ -26,9 +26,11 @@ export enum StorageEvents {
   REPLICATED_CSR = 'replicatedCsr',
   LOADED_CERTIFICATES = 'loadedCertificates',
   REPLICATED_CERTIFICATES = 'replicatedCertificates',
+  LOADED_USER_PROFILES = 'loadedUserProfiles',
   // Community
   COMMUNITY_METADATA_SAVED = 'communityMetadataSaved',
 }
+
 export interface InitStorageParams {
   communityId: string
   peerId: any

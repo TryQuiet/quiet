@@ -4,7 +4,7 @@
   "scripts": {
     "lerna": "lerna",
     "publish": "lerna version $npm_config_release --no-private",
-    "postpublish": "node copy-changelog.js"
+    "postpublish": "node copy-changelog.js && git add . && git commit -m 'Update packages CHANGELOG.md' && git push"
   },
   "engines": {
     "node": "18.12.1",

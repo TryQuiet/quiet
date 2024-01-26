@@ -49,6 +49,7 @@ describe('Deep linking', () => {
     expect(actions).toMatchInlineSnapshot(`
       [
         "Init/deepLink",
+        "Init/resetDeepLink",
         "Navigation/replaceScreen",
         "Communities/createNetwork",
         "Communities/setInvitationCodes",

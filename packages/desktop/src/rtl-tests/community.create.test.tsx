@@ -18,12 +18,10 @@ import { Community, SavedOwnerCertificatePayload } from '@quiet/types'
 import {
   ChannelsReplicatedPayload,
   InitCommunityPayload,
-  LaunchRegistrarPayload,
   publicChannels,
   RegisterOwnerCertificatePayload,
   ResponseCreateNetworkPayload,
   ResponseLaunchCommunityPayload,
-  ResponseRegistrarPayload,
   SocketActionTypes,
 } from '@quiet/state-manager'
 import Channel from '../renderer/components/Channel/Channel'
@@ -119,17 +117,6 @@ describe('User', () => {
           },
         })
       }
-      if (action === SocketActionTypes.LAUNCH_REGISTRAR) {
-        const payload = input[1] as LaunchRegistrarPayload
-        socket.socketClient.emit<ResponseRegistrarPayload>(SocketActionTypes.REGISTRAR, {
-          id: payload.id,
-          payload: {
-            privateKey: 'privateKey',
-            onionAddress: 'onionAddress',
-            port: 7909,
-          },
-        })
-      }
     })
 
     // Log all the dispatched actions in order
@@ -193,17 +180,14 @@ describe('User', () => {
         "Identity/storeUserCertificate",
         "Identity/savedOwnerCertificate",
         "Communities/updateCommunityData",
-        "Communities/launchRegistrar",
+        "Communities/sendCommunityCaData",
         "Files/checkForMissingFiles",
         "Network/addInitializedCommunity",
         "Communities/clearInvitationCodes",
         "Communities/sendCommunityMetadata",
-        "Identity/saveOwnerCertToDb",
         "PublicChannels/createGeneralChannel",
         "Identity/saveUserCsr",
         "PublicChannels/channelsReplicated",
-        "Communities/responseRegistrar",
-        "Network/addInitializedRegistrar",
         "PublicChannels/createChannel",
         "PublicChannels/addChannel",
         "PublicChannels/setCurrentChannel",

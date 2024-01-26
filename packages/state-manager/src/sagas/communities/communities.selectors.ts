@@ -33,25 +33,6 @@ export const currentCommunityId = createSelector(communitiesSlice, reducerState 
   return reducerState.currentCommunity
 })
 
-export const registrarUrl = (communityId: string) =>
-  createSelector(selectEntities, communities => {
-    const community = communities[communityId]
-
-    let registrarAddress = ''
-
-    if (!community) {
-      return
-    }
-
-    if (community.onionAddress) {
-      registrarAddress = community.port ? `${community.onionAddress}:${community.port}` : `${community.onionAddress}`
-    } else if (community.registrarUrl) {
-      registrarAddress = community.registrarUrl
-    }
-
-    return registrarAddress
-  })
-
 export const invitationCodes = createSelector(communitiesSlice, reducerState => {
   return reducerState.invitationCodes
 })
@@ -102,7 +83,6 @@ export const communitiesSelectors = {
   selectCommunities,
   currentCommunity,
   currentCommunityId,
-  registrarUrl,
   invitationCodes,
   invitationUrl,
   ownerOrbitDbIdentity,

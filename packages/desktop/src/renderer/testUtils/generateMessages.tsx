@@ -26,7 +26,7 @@ export const generateMessages = (options: IGenerateMessages = defaults) => {
       nickname,
       isDuplicated: false,
       isRegistered: true,
-      pubKey: 'string',
+      pubKey: `${nickname}PubKey`,
     })
   }
 

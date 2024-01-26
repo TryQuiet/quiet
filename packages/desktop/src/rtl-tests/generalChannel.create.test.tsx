@@ -93,7 +93,7 @@ describe('General channel', () => {
 
     expect(actions).toMatchInlineSnapshot(`
       Array [
-        "Identity/saveOwnerCertToDb",
+        "Communities/sendCommunityMetadata",
         "PublicChannels/createGeneralChannel",
         "Identity/saveUserCsr",
         "PublicChannels/createChannel",

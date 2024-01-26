@@ -6,7 +6,7 @@ import { UserData } from '@quiet/types'
 import createHttpsProxyAgent from 'https-proxy-agent'
 import PeerId from 'peer-id'
 import tmp from 'tmp'
-import crypto from 'crypto'
+import crypto, { sign } from 'crypto'
 import { type PermsData } from '@quiet/types'
 import { TestConfig } from '../const'
 import logger from './logger'
@@ -14,6 +14,7 @@ import { Libp2pNodeParams } from '../libp2p/libp2p.types'
 import { createLibp2pAddress, createLibp2pListenAddress, isDefined } from '@quiet/common'
 import { Libp2pService } from '../libp2p/libp2p.service'
 import { CertFieldsTypes, getReqFieldValue, loadCSR } from '@quiet/identity'
+import { execFile } from 'child_process'
 
 const log = logger('test')
 
@@ -127,7 +128,8 @@ export const torBinForPlatform = (basePath = '', binName = 'tor'): string => {
     return basePath
   }
   const ext = process.platform === 'win32' ? '.exe' : ''
-  return path.join(torDirForPlatform(basePath), `${binName}`.concat(ext))
+  // Wrap path in quotes to handle spaces in path
+  return `"${path.join(torDirForPlatform(basePath), `${binName}`.concat(ext))}"`
 }
 
 export const torDirForPlatform = (basePath?: string): string => {

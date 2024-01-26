@@ -11,22 +11,9 @@ import { LocalDbService } from '../../local-db/local-db.service'
 import { OrbitDb } from '../orbitDb/orbitDb.service'
 import { Injectable } from '@nestjs/common'
 import createLogger from '../../common/logger'
-
-/**
- * Helper function that allows one to use partial-application with a
- * constructor. Given a classname and constructor params, returns a
- * new constructor which can be called like normal (`new x()`).
- *
- * This is useful because in OrbitDB they expect the store index to be
- * constructable with zero arguments, so they call it with the `new`
- * keyword.
- */
+import { constructPartial } from '@quiet/common'
 
 const logger = createLogger('CommunityMetadataStore')
-
-function constructPartial(constructor: (...args: any[]) => any, args: any[]) {
-  return constructor.bind.apply(constructor, [null, ...args])
-}
 
 @Injectable()
 export class CommunityMetadataStore {
@@ -60,8 +47,10 @@ export class CommunityMetadataStore {
     this.store = await this.orbitDbService.orbitDb.keyvalue<CommunityMetadata>('community-metadata', {
       replicate: false,
       // Partially construct index so that we can include an
-      // IdentityProvider in the index validation logic.
-
+      // IdentityProvider in the index validation logic. OrbitDB
+      // expects the store index to be constructable with zero
+      // arguments.
+      //
       // @ts-expect-error
       Index: constructPartial(CommunityMetadataKeyValueIndex, [
         // @ts-expect-error - OrbitDB's type declaration of OrbitDB lacks identity
@@ -93,10 +82,6 @@ export class CommunityMetadataStore {
     // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
     await this.store.load({ fetchEntryTimeout: 15000 })
     logger('Loaded community metadata to memory')
-    const meta = this.getCommunityMetadata()
-    if (meta) {
-      emitter.emit(StorageEvents.COMMUNITY_METADATA_SAVED, meta)
-    }
   }
 
   public getAddress() {

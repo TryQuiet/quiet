@@ -10,15 +10,9 @@ export interface Community {
   }
   rootCa?: string
   peerList?: string[]
-  registrarUrl?: string
-  registrar?: null | {
-    privateKey: string
-    address: string
-  }
   onionAddress?: string
   privateKey?: string
   port?: number
-  registrationAttempts?: number
   ownerCertificate?: string
   psk?: string
   ownerOrbitDbIdentity?: string
@@ -61,19 +55,6 @@ export interface InitCommunityPayload {
   peers?: string[]
 }
 
-export interface LaunchRegistrarPayload {
-  id: string
-  peerId: string
-  rootCertString: string
-  rootKeyString: string
-  privateKey: string
-}
-
-export interface ResponseRegistrarPayload {
-  id: string
-  payload: Partial<Community>
-}
-
 export interface StorePeerListPayload {
   communityId: string
   peerList: string[]
@@ -91,11 +72,6 @@ export interface ResponseCreateCommunityPayload {
 
 export interface ResponseLaunchCommunityPayload {
   id: string
-}
-
-export interface UpdateRegistrationAttemptsPayload {
-  id: string
-  registrationAttempts: number
 }
 
 export interface AddOwnerCertificatePayload {

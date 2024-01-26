@@ -2,7 +2,7 @@ import React from 'react'
 import { styled } from '@mui/material/styles'
 import classNames from 'classnames'
 
-import MaterialModal from '@mui/material/Modal'
+import { Modal as MaterialModal, ModalProps as MaterialModalProps } from '@mui/material'
 import Typography from '@mui/material/Typography'
 import Grid from '@mui/material/Grid'
 
@@ -34,8 +34,17 @@ const classes = {
   sentry: `${PREFIX}sentry`,
 }
 
+type StyledMaterialModalProps = MaterialModalProps & { zIndex: number }
+
+// Added to remove React warnings due to props getting added to the DOM.
+// See: https://github.com/mui/material-ui/issues/40336
+const StyledMaterialModalWithProps = (props: StyledMaterialModalProps) => {
+  const { zIndex, ...rest } = props
+  return <MaterialModal {...rest} />
+}
+
 // @ts-ignore
-const StyledMaterialModal = styled(MaterialModal)(({ theme, zIndex }) => ({
+const StyledMaterialModal = styled(StyledMaterialModalWithProps)(({ theme, zIndex }: StyledMaterialModalProps) => ({
   zIndex: zIndex,
   [`& .${classes.root}`]: {
     padding: '0 15%',
@@ -150,12 +159,7 @@ export const Modal: React.FC<IModalProps> = ({
 }) => {
   const zIndex = isSentry ? 9000 : 1300
   return (
-    <StyledMaterialModal
-      // @ts-ignore
-      zIndex={zIndex}
-      open={open}
-      onClose={handleClose}
-    >
+    <StyledMaterialModal zIndex={zIndex} open={open} onClose={handleClose}>
       <Grid
         container
         direction='column'

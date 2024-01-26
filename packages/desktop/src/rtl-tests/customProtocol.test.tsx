@@ -28,15 +28,9 @@ describe('Opening app through custom protocol', () => {
     },
     rootCa: '',
     peerList: [],
-    registrar: {
-      privateKey: '',
-      address: '',
-    },
-    registrarUrl: 'https://bidrmzr3ee6qa2vvrlcnqvvvsk2gmjktcqkunba326parszr44gibwyd.onion',
     onionAddress: '',
     privateKey: '',
     port: 0,
-    registrationAttempts: 0,
     ownerCertificate: '',
   }
 

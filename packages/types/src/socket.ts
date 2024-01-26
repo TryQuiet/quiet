@@ -30,9 +30,9 @@ export enum SocketActionTypes {
   INITIALIZE_CONVERSATION = 'initializeConversation',
   // L
   LAUNCH_COMMUNITY = 'launchCommunity',
-  LAUNCH_REGISTRAR = 'launchRegistrar',
   LEAVE_COMMUNITY = 'leaveCommunity',
   LIBP2P_PSK_SAVED = 'libp2pPskSaved',
+  LOADED_USER_PROFILES = 'loadedUserProfiles',
   // N
   NETWORK = 'network',
   NEW_COMMUNITY = 'newCommunity',
@@ -44,7 +44,6 @@ export enum SocketActionTypes {
   // R
   REGISTER_USER_CERTIFICATE = 'registerUserCertificate',
   REGISTER_OWNER_CERTIFICATE = 'registerOwnerCertificate',
-  REGISTRAR = 'registrar',
   REMOVE_DOWNLOAD_STATUS = 'removeDownloadStatus',
   RESPONSE_FETCH_ALL_DIRECT_MESSAGES = 'responseFetchAllDirectMessages',
   RESPONSE_GET_CERTIFICATES = 'responseGetCertificates',
@@ -52,19 +51,17 @@ export enum SocketActionTypes {
   RESPONSE_GET_PRIVATE_CONVERSATIONS = 'responseGetPrivateConversations',
   REQUEST_PEER_ID = 'requestPeerId',
   // S
-  SAVE_OWNER_CERTIFICATE = 'saveOwnerCertificate',
   SAVED_OWNER_CERTIFICATE = 'savedOwnerCertificate',
   SAVE_USER_CSR = 'saveUserCsr',
+  SAVE_USER_PROFILE = 'saveUserProfile',
   SAVED_USER_CSR = 'savedUserCsr',
   SEND_DIRECT_MESSAGE = 'sendDirectMessage',
   SEND_MESSAGE = 'sendMessage',
   SEND_MESSAGES_IDS = 'sendIds',
   SEND_PEER_ID = 'sendPeerId',
-  SEND_USER_CERTIFICATE = 'sendUserCertificate',
   SEND_COMMUNITY_METADATA = 'sendCommunityMetadata',
+  SEND_COMMUNITY_CA_DATA = 'sendCommunityCaData',
   COMMUNITY_METADATA_SAVED = 'communityMetadataSaved',
-  SUBSCRIBE_FOR_ALL_CONVERSATIONS = 'subscribeToAllConversations',
-  SUBSCRIBE_FOR_DIRECT_MESSAGE_THREAD = 'subscribeToDirectMessageThread',
   //  T
   TOR_INITIALIZED = 'torInitialized',
   CONNECTION_PROCESS_INFO = 'connectionProcess',

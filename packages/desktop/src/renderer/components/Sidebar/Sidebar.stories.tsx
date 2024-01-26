@@ -10,6 +10,7 @@ import SidebarComponent from './SidebarComponent'
 import { IdentityPanelProps } from './IdentityPanel/IdentityPanel'
 import { ChannelsPanelProps } from './ChannelsPanel/ChannelsPanel'
 import { TorStatusProps } from './TorStatus'
+import { UserProfilePanelProps } from './UserProfilePanel/UserProfilePanel'
 
 const Template: ComponentStory<typeof SidebarComponent> = args => {
   const [currentChannel, setCurrentChannel] = useState('general')
@@ -34,7 +35,7 @@ const Template: ComponentStory<typeof SidebarComponent> = args => {
   )
 }
 
-const args: IdentityPanelProps & ChannelsPanelProps & TorStatusProps = {
+const args: IdentityPanelProps & ChannelsPanelProps & TorStatusProps & UserProfilePanelProps = {
   // @ts-expect-error
   currentCommunity: {
     name: 'rockets',
@@ -71,6 +72,15 @@ const args: IdentityPanelProps & ChannelsPanelProps & TorStatusProps = {
     handleClose: function (): any {},
   },
   isTorInitialized: true,
+  // @ts-expect-error
+  currentIdentity: {
+    nickname: 'nick',
+  },
+  userProfileContextMenu: {
+    visible: false,
+    handleOpen: function (_args?: any): any {},
+    handleClose: function (): any {},
+  },
 }
 
 export const Component = Template.bind({})

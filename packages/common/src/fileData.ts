@@ -24,3 +24,19 @@ export const getFilesData = (filePaths: FilePath[]): FilePreviewData => {
   })
   return data
 }
+
+export const fileToBase64String = (file: File): Promise<string> => {
+  return new Promise<string>((resolve, reject) => {
+    const reader = new FileReader()
+
+    reader.onload = () => {
+      if (reader.result) {
+        resolve(reader.result as string)
+      } else {
+        reject(new Error(`Failed to read file, result: ${reader.result}`))
+      }
+    }
+    reader.onerror = reject
+    reader.readAsDataURL(file)
+  })
+}
