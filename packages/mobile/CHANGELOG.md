@@ -1,38 +1,34 @@
-# Change Log
+[2.1.0]
 
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+# New features:
 
-# [2.1.0-alpha.0](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@2.0.3-alpha.17...@quiet/mobile@2.1.0-alpha.0) (2024-01-26)
+* Added user profile feature.
+* Updated old logo of Linux and Windows with rounded ones.
 
+# Fixes:
 
-### Bug Fixes
+* Handle spaces in tor process path.
+* Run tor process in shell.
 
-* ask push notification runtime permission on Android ([#2213](https://github.com/TryQuiet/quiet/issues/2213)) ([2f92e88](https://github.com/TryQuiet/quiet/commit/2f92e88d488a5a98eae5bf6d42a5485b98c6be99))
-* cleanup username creation component ([#2216](https://github.com/TryQuiet/quiet/issues/2216)) ([1d03995](https://github.com/TryQuiet/quiet/commit/1d039952cf84e94fdcf8b66c395f634094ea3a6b))
-* create jdenticon from pubKey, not username - to distinguish user… ([#2207](https://github.com/TryQuiet/quiet/issues/2207)) ([fd8bd06](https://github.com/TryQuiet/quiet/commit/fd8bd06a5f226e0da8189581c076ba9976633e7d))
+# Refactorings:
 
-
-### Features
-
-* Add user profile feature for desktop ([#1923](https://github.com/TryQuiet/quiet/issues/1923)) ([d016be5](https://github.com/TryQuiet/quiet/commit/d016be5a162560962c6059d73db6ab005fb023e8))
-
-
-
-
+* Removed SAVE_OWNER_CERTIFICATE event.
+* Removed registrar reminders and rename LAUNCH_REGISTRAR.
+* Removed unused SEND_USER_CERTIFICATE event.
+* Removed unused SUBSCRIBE_FOR events.
 
 [2.0.1]
 
 # Fixes:
 
-* Desktop UI console errors/warnings have been cleaned up.
-* The channel context menu is now enabled for all users.
-* A bug that impersonated the channel creation message due to the removal of the username has been fixed.
-* Large file downloads are now slower but steadier.
-* The username changing form has been fixed.
-* Push notifications runtime permission is now requested on Android.
-* Users joining a community will no longer receive multiple "welcome" messages.
-* Users sharing the same nickname now have different profile images.
+ * Desktop UI console errors/warnings have been cleaned up.
+ * The channel context menu is now enabled for all users.
+ * A bug that impersonated the channel creation message due to the removal of the username has been fixed.
+ * Large file downloads are now slower but steadier.
+ * The username changing form has been fixed.
+ * Push notifications runtime permission is now requested on Android.
+ * Users joining a community will no longer receive multiple "welcome" messages.
+ * Users sharing the same nickname now have different profile images.
 
 [2.0.0]
 
@@ -50,7 +46,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 * Prettier message loading indicator on mobile
 * Better descriptions of the joining process
-* Validation of community metadata and certificates 
+* Validation of community metadata and certificates
 * A real iOS launch screen (so long, "Powered by React Native"!)
 * A nice splash screen on mobile until the joining/creating screens are ready
 * Clearer autoupdate language in the update modal, so users know that the app will update on restart
