@@ -573,9 +573,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.storageService.on(StorageEvents.LOAD_PUBLIC_CHANNELS, (payload: ChannelsReplicatedPayload) => {
       this.serverIoProvider.io.emit(SocketActionTypes.CHANNELS_REPLICATED, payload)
     })
-    this.storageService.on(StorageEvents.LOAD_ALL_PRIVATE_CONVERSATIONS, payload => {
-      this.serverIoProvider.io.emit(SocketActionTypes.RESPONSE_GET_PRIVATE_CONVERSATIONS, payload)
-    })
     this.storageService.on(StorageEvents.LOAD_MESSAGES, (payload: IncomingMessages) => {
       this.serverIoProvider.io.emit(SocketActionTypes.INCOMING_MESSAGES, payload)
     })
@@ -603,12 +600,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     })
     this.storageService.on(StorageEvents.UPDATE_MESSAGE_MEDIA, (payload: FileMetadata) => {
       this.serverIoProvider.io.emit(SocketActionTypes.UPDATE_MESSAGE_MEDIA, payload)
-    })
-    this.storageService.on(StorageEvents.LOAD_ALL_DIRECT_MESSAGES, payload => {
-      if (payload.messages.length === 0) {
-        return
-      }
-      this.serverIoProvider.io.emit(SocketActionTypes.RESPONSE_FETCH_ALL_DIRECT_MESSAGES, payload)
     })
     this.storageService.on(StorageEvents.UPDATE_PEERS_LIST, (payload: StorePeerListPayload) => {
       this.serverIoProvider.io.emit(SocketActionTypes.PEER_LIST, payload)

@@ -5,7 +5,6 @@ export enum StorageEvents {
   UPDATE_PEERS_LIST = 'updatePeersList',
   // Public Channels
   LOAD_PUBLIC_CHANNELS = 'loadPublicChannels',
-  LOAD_ALL_PRIVATE_CONVERSATIONS = 'loadAllPrivateConversations',
   LOAD_MESSAGES = 'loadMessages',
   MESSAGE_IDS_LOADED = 'messageIdsLoaded',
   MESSAGE_IDS_REPLICATED = 'messageIdsReplicated',
@@ -18,8 +17,6 @@ export enum StorageEvents {
   UPDATE_DOWNLOAD_PROGRESS = 'updateDownloadProgress',
   UPDATE_MESSAGE_MEDIA = 'updateMessageMedia',
   CHECK_FOR_MISSING_FILES = 'checkForMissingFiles',
-  // Direct Messages
-  LOAD_ALL_DIRECT_MESSAGES = 'loadAllDirectMessages',
   // Misc
   SEND_PUSH_NOTIFICATION = 'sendPushNotification',
   // Users
