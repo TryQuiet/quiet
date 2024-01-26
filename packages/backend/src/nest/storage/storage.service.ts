@@ -488,7 +488,8 @@ export class StorageService extends EventEmitter {
         this.logger('Replicated.', address)
         const ids = this.getAllEventLogEntries<ChannelMessage>(db).map(msg => msg.id)
         const community = await this.localDbService.get(LocalDBKeys.COMMUNITY)
-        this.emit(StorageEvents.SEND_MESSAGES_IDS, {
+
+        this.emit(StorageEvents.MESSAGE_IDS_REPLICATED, {
           ids,
           channelId: channelData.id,
           communityId: community.id,
@@ -497,11 +498,14 @@ export class StorageService extends EventEmitter {
       db.events.on('ready', async () => {
         const ids = this.getAllEventLogEntries<ChannelMessage>(db).map(msg => msg.id)
         const community = await this.localDbService.get(LocalDBKeys.COMMUNITY)
-        this.emit(StorageEvents.SEND_MESSAGES_IDS, {
-          ids,
-          channelId: channelData.id,
-          communityId: community.id,
-        })
+
+        if (ids.length > 0) {
+          this.emit(StorageEvents.MESSAGE_IDS_LOADED, {
+            ids,
+            channelId: channelData.id,
+            communityId: community.id,
+          })
+        }
       })
       await db.load()
       repo.eventsAttached = true

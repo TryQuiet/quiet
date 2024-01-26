@@ -43,6 +43,8 @@ export enum SocketActionTypes {
   // L
   LAUNCH_COMMUNITY = 'launchCommunity',
   LEAVE_COMMUNITY = 'leaveCommunity',
+  // M
+  MESSAGE_IDS_AVAILABLE = 'messageIdsAvailable',
   // N
   NETWORK = 'network',
   NEW_COMMUNITY = 'newCommunity',

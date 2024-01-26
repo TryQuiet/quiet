@@ -51,7 +51,7 @@ const log = logger('socket')
 export function subscribe(socket: Socket) {
   return eventChannel<
     | ReturnType<typeof messagesActions.incomingMessages>
-    | ReturnType<typeof messagesActions.responseSendMessagesIds>
+    | ReturnType<typeof messagesActions.checkForMessages>
     | ReturnType<typeof messagesActions.removePendingMessageStatus>
     | ReturnType<typeof messagesActions.addPublicChannelsMessagesBase>
     | ReturnType<typeof publicChannelsActions.addChannel>
@@ -148,8 +148,8 @@ export function subscribe(socket: Socket) {
       )
     })
     // Messages
-    socket.on(SocketActionTypes.SEND_MESSAGES_IDS, (payload: ChannelMessagesIdsResponse) => {
-      emit(messagesActions.responseSendMessagesIds(payload))
+    socket.on(SocketActionTypes.MESSAGE_IDS_AVAILABLE, (payload: ChannelMessageIds) => {
+      emit(messagesActions.checkForMessages(payload))
     })
     socket.on(SocketActionTypes.INCOMING_MESSAGES, (payload: IncomingMessages) => {
       const { messages } = payload

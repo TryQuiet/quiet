@@ -579,11 +579,11 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.storageService.on(StorageEvents.LOAD_MESSAGES, (payload: IncomingMessages) => {
       this.serverIoProvider.io.emit(SocketActionTypes.INCOMING_MESSAGES, payload)
     })
-    this.storageService.on(StorageEvents.SEND_MESSAGES_IDS, (payload: ChannelMessagesIdsResponse) => {
-      if (payload.ids.length === 0) {
-        return
-      }
-      this.serverIoProvider.io.emit(SocketActionTypes.SEND_MESSAGES_IDS, payload)
+    this.storageService.on(StorageEvents.MESSAGE_IDS_LOADED, (payload: ChannelMessageIds) => {
+      this.serverIoProvider.io.emit(SocketActionTypes.MESSAGE_IDS_AVAILABLE, payload)
+    })
+    this.storageService.on(StorageEvents.MESSAGE_IDS_REPLICATED, (payload: ChannelMessageIds) => {
+      this.serverIoProvider.io.emit(SocketActionTypes.MESSAGE_IDS_AVAILABLE, payload)
     })
     this.storageService.on(StorageEvents.SET_CHANNEL_SUBSCRIBED, (payload: SetChannelSubscribedPayload) => {
       this.serverIoProvider.io.emit(SocketActionTypes.CHANNEL_SUBSCRIBED, payload)

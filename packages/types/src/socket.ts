@@ -33,6 +33,8 @@ export enum SocketActionTypes {
   LEAVE_COMMUNITY = 'leaveCommunity',
   LIBP2P_PSK_SAVED = 'libp2pPskSaved',
   LOADED_USER_PROFILES = 'loadedUserProfiles',
+  // M
+  MESSAGE_IDS_AVAILABLE = 'messageIdsAvailable',
   // N
   NETWORK = 'network',
   NEW_COMMUNITY = 'newCommunity',
@@ -57,7 +59,6 @@ export enum SocketActionTypes {
   SAVED_USER_CSR = 'savedUserCsr',
   SEND_DIRECT_MESSAGE = 'sendDirectMessage',
   SEND_MESSAGE = 'sendMessage',
-  SEND_MESSAGES_IDS = 'sendIds',
   SEND_PEER_ID = 'sendPeerId',
   SEND_COMMUNITY_METADATA = 'sendCommunityMetadata',
   SEND_COMMUNITY_CA_DATA = 'sendCommunityCaData',

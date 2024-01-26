@@ -26,7 +26,7 @@ export function* messagesMasterSaga(socket: Socket): Generator {
     takeEvery(messagesActions.lazyLoading.type, lazyLoadingSaga),
     takeEvery(messagesActions.extendCurrentPublicChannelCache.type, extendCurrentPublicChannelCacheSaga),
     takeEvery(messagesActions.resetCurrentPublicChannelCache.type, resetCurrentPublicChannelCacheSaga),
-    takeEvery(messagesActions.responseSendMessagesIds.type, checkForMessagesSaga),
+    takeEvery(messagesActions.checkForMessages.type, checkForMessagesSaga),
     takeEvery(messagesActions.askForMessages.type, askForMessagesSaga, socket),
     takeEvery(messagesActions.sendDeletionMessage.type, sendDeletionMessageSaga),
   ])

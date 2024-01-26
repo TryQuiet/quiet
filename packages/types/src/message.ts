@@ -81,7 +81,7 @@ export interface AskForMessagesPayload {
   communityId: string
 }
 
-export interface ChannelMessagesIdsResponse {
+export interface ChannelMessageIds {
   ids: string[]
   channelId: string
   communityId: string

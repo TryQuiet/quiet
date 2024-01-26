@@ -108,7 +108,7 @@ export const messagesSlice = createSlice({
       })
     },
     askForMessages: (state, _action: PayloadAction<AskForMessagesPayload>) => state,
-    responseSendMessagesIds: (state, _action: PayloadAction<ChannelMessagesIdsResponse>) => state,
+    checkForMessages: (state, _action: PayloadAction<ChannelMessagesIds>) => state,
     lazyLoading: (state, _action: PayloadAction<LazyLoadingPayload>) => state,
     extendCurrentPublicChannelCache: state => state,
     resetCurrentPublicChannelCache: state => state,

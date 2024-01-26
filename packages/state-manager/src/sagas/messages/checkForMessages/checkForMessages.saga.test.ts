@@ -58,7 +58,7 @@ describe('checkForMessagesSaga', () => {
     const reducer = combineReducers(reducers)
     await expectSaga(
       checkForMessagesSaga,
-      messagesActions.responseSendMessagesIds({
+      messagesActions.checkForMessages({
         ids: [message.id, 'jf84hwwa', 'kl12sa0a'],
         channelId: generalChannel.id,
         communityId: community.id,
