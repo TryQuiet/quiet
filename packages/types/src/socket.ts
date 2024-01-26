@@ -23,11 +23,8 @@ export enum SocketActionTypes {
   CHANNEL_DELETION_RESPONSE = 'channelDeletionResponse',
   // E
   ERROR = 'error',
-  // G
-  GET_PRIVATE_CONVERSATIONS = 'getPrivateConversations',
   // I
   INCOMING_MESSAGES = 'incomingMessages',
-  INITIALIZE_CONVERSATION = 'initializeConversation',
   // L
   LAUNCH_COMMUNITY = 'launchCommunity',
   LEAVE_COMMUNITY = 'leaveCommunity',
@@ -45,17 +42,14 @@ export enum SocketActionTypes {
   REGISTER_USER_CERTIFICATE = 'registerUserCertificate',
   REGISTER_OWNER_CERTIFICATE = 'registerOwnerCertificate',
   REMOVE_DOWNLOAD_STATUS = 'removeDownloadStatus',
-  RESPONSE_FETCH_ALL_DIRECT_MESSAGES = 'responseFetchAllDirectMessages',
   RESPONSE_GET_CERTIFICATES = 'responseGetCertificates',
   RESPONSE_GET_CSRS = 'responseGetCsrs',
-  RESPONSE_GET_PRIVATE_CONVERSATIONS = 'responseGetPrivateConversations',
   REQUEST_PEER_ID = 'requestPeerId',
   // S
   SAVED_OWNER_CERTIFICATE = 'savedOwnerCertificate',
   SAVE_USER_CSR = 'saveUserCsr',
   SAVE_USER_PROFILE = 'saveUserProfile',
   SAVED_USER_CSR = 'savedUserCsr',
-  SEND_DIRECT_MESSAGE = 'sendDirectMessage',
   SEND_MESSAGE = 'sendMessage',
   SEND_MESSAGES_IDS = 'sendIds',
   SEND_PEER_ID = 'sendPeerId',

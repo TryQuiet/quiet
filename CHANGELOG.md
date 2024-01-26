@@ -4,6 +4,10 @@
 
 * Opening the mobile app with joining links has been corrected.
 
+# Refactorings:
+
+* Remove unused backend events and state-manager event types
+
 [2.1.0]
 
 # New features:

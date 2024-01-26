@@ -8,13 +8,8 @@ import MockedSocket from 'socket.io-mock'
 import { ioMock } from '../shared/setupTests'
 import { socketEventData } from '../renderer/testUtils/socket'
 import { AnyAction } from 'redux'
-import {
-  identity,
-  publicChannels,
-  getFactory,
-  SocketActionTypes,
-  ChannelsReplicatedPayload,
-} from '@quiet/state-manager'
+import { identity, publicChannels, getFactory, ChannelsReplicatedPayload } from '@quiet/state-manager'
+import { SocketActionTypes } from '@quiet/types'
 import Channel from '../renderer/components/Channel/Channel'
 import { waitFor } from '@testing-library/dom'
 

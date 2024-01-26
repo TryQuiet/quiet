@@ -14,7 +14,7 @@ import { CreateCommunityDictionary } from '../renderer/components/CreateJoinComm
 import MockedSocket from 'socket.io-mock'
 import { ioMock } from '../shared/setupTests'
 import { socketEventData } from '../renderer/testUtils/socket'
-import { Community, SavedOwnerCertificatePayload } from '@quiet/types'
+import { Community, SavedOwnerCertificatePayload, SocketActionTypes } from '@quiet/types'
 import {
   ChannelsReplicatedPayload,
   InitCommunityPayload,
@@ -22,7 +22,6 @@ import {
   RegisterOwnerCertificatePayload,
   ResponseCreateNetworkPayload,
   ResponseLaunchCommunityPayload,
-  SocketActionTypes,
 } from '@quiet/state-manager'
 import Channel from '../renderer/components/Channel/Channel'
 import LoadingPanel from '../renderer/components/LoadingPanel/LoadingPanel'

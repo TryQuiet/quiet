@@ -1,7 +1,7 @@
 import { setupCrypto } from '@quiet/identity'
 import { type Store } from '../../store.types'
 import { prepareStore } from '../../../utils/tests/prepareStore'
-import { getFactory, MessageType, type PublicChannel, type publicChannels, SocketActionTypes } from '../../..'
+import { getFactory, MessageType, type PublicChannel, type publicChannels } from '../../..'
 import { type FactoryGirl } from 'factory-girl'
 import { combineReducers } from 'redux'
 import { reducers } from '../../reducers'
@@ -16,7 +16,7 @@ import { deleteFilesFromChannelSaga } from './deleteFilesFromChannel.saga'
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
 import { type publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import { generateChannelId } from '@quiet/common'
-import { type Community } from '@quiet/types'
+import { type Community, SocketActionTypes } from '@quiet/types'
 
 describe('deleteFilesFromChannelSaga', () => {
   let store: Store

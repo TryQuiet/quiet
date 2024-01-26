@@ -17,7 +17,6 @@ import { socketEventData } from '../renderer/testUtils/socket'
 import {
   identity,
   communities,
-  SocketActionTypes,
   RegisterUserCertificatePayload,
   InitCommunityPayload,
   ErrorCodes,
@@ -37,6 +36,7 @@ import {
   ErrorPayload,
   ResponseLaunchCommunityPayload,
   SendOwnerCertificatePayload,
+  SocketActionTypes,
 } from '@quiet/types'
 import { composeInvitationShareUrl } from '@quiet/common'
 
