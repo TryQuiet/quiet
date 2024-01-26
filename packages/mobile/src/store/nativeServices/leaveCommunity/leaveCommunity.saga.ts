@@ -13,7 +13,7 @@ export function* leaveCommunitySaga(): Generator {
   // Restart backend
   yield* put(app.actions.closeServices())
 
-  yield takeLeading(initActions.suspendWebsocketConnection.type, clearReduxStore)
+  yield takeLeading(initActions.canceledRootTask.type, clearReduxStore)
 }
 
 export function* clearReduxStore(): Generator {
@@ -23,15 +23,15 @@ export function* clearReduxStore(): Generator {
   console.info('Clearing redux store')
 
   // Stop persistor
-  yield* call(persistor.pause)
-  yield* call(persistor.flush)
-  yield* call(persistor.purge)
+  // yield* call(persistor.pause)
+  // yield* call(persistor.flush)
+  // yield* call(persistor.purge)
 
   // Clear redux store
   yield* put(nativeServicesActions.resetApp())
 
   // Resume persistor
-  yield* call(persistor.persist)
+  // yield* call(persistor.persist)
 
   // Restarting persistor doesn't mark store as ready automatically
   yield* put(initActions.setStoreReady())
