@@ -9,11 +9,10 @@ import {
   Sidebar,
   UpdateModal,
 } from '../selectors'
+import { BACKWARD_COMPATIBILITY_BASE_VERSION } from '../utils'
 
 jest.setTimeout(450000)
-describe.skip('Backwards Compatibility', () => {
-  // Note: version that adds PSK is not backward compatible
-  // Skip until psk is released to production
+describe('Backwards Compatibility', () => {
   let ownerAppOldVersion: App
   let ownerAppNewVersion: App
   let generalChannel: Channel
@@ -31,7 +30,7 @@ describe.skip('Backwards Compatibility', () => {
   const isAlpha = process.env.FILE_NAME?.toString().includes('alpha')
 
   beforeAll(async () => {
-    ownerAppOldVersion = new App({ dataDir, fileName: 'Quiet-1.2.0-copy.AppImage' })
+    ownerAppOldVersion = new App({ dataDir, fileName: 'Quiet-2.0.0-copy.AppImage' })
   })
 
   beforeEach(async () => {
@@ -86,12 +85,12 @@ describe.skip('Backwards Compatibility', () => {
       expect(isGeneralChannel).toBeTruthy()
       expect(generalChannelText).toEqual('# general')
     })
-    it('Verify version - 1.2.0', async () => {
+    it(`Verify version - ${BACKWARD_COMPATIBILITY_BASE_VERSION}`, async () => {
       const settingsModal = await new Sidebar(ownerAppOldVersion.driver).openSettings()
       const isSettingsModal = await settingsModal.element.isDisplayed()
       expect(isSettingsModal).toBeTruthy()
       const settingVersion = await settingsModal.getVersion()
-      expect(settingVersion).toEqual('1.2.0')
+      expect(settingVersion).toEqual(BACKWARD_COMPATIBILITY_BASE_VERSION)
       await settingsModal.close()
     })
     it('Send message', async () => {

@@ -6,6 +6,8 @@ import path from 'path'
 import fs from 'fs'
 import { DESKTOP_DATA_DIR } from '@quiet/common'
 
+export const BACKWARD_COMPATIBILITY_BASE_VERSION = '2.0.0' // Oldest stable and forward compatible version
+
 export interface BuildSetupInit {
   port?: number
   debugPort?: number
@@ -45,7 +47,7 @@ export class BuildSetup {
 
   public copyInstallerFile(copyName: string) {
     if (process.platform === 'linux') {
-      const base = `${__dirname}/../Quiet/Quiet-1.2.0.AppImage`
+      const base = `${__dirname}/../Quiet/Quiet-${BACKWARD_COMPATIBILITY_BASE_VERSION}.AppImage`
       const copy = `${__dirname}/../Quiet/${copyName}`
       fs.copyFile(base, copy, err => {
         if (err) {
