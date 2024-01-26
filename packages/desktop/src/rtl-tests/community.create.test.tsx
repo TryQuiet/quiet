@@ -98,7 +98,7 @@ describe('User', () => {
       }
       if (action === SocketActionTypes.CREATE_COMMUNITY) {
         const payload = input[1] as InitCommunityPayload
-        socket.socketClient.emit<ResponseLaunchCommunityPayload>(SocketActionTypes.COMMUNITY, {
+        socket.socketClient.emit<ResponseLaunchCommunityPayload>(SocketActionTypes.COMMUNITY_LAUNCHED, {
           id: payload.id,
         })
         socket.socketClient.emit(SocketActionTypes.NEW_COMMUNITY, {

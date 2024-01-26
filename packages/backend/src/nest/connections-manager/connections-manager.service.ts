@@ -332,7 +332,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     } catch (e) {
       this.logger(`Couldn't launch community for peer ${payload.peerId.id}.`, e)
       emitError(this.serverIoProvider.io, {
-        type: SocketActionTypes.COMMUNITY,
+        type: SocketActionTypes.COMMUNITY_LAUNCHED,
         message: ErrorMessages.COMMUNITY_LAUNCH_FAILED,
         community: payload.id,
         trace: e.stack,
@@ -352,7 +352,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     // Unblock websocket endpoints
     this.socketService.resolveReadyness()
 
-    this.serverIoProvider.io.emit(SocketActionTypes.COMMUNITY, { id: payload.id })
+    this.serverIoProvider.io.emit(SocketActionTypes.COMMUNITY_LAUNCHED, { id: payload.id })
   }
 
   public async launch(payload: InitCommunityPayload) {
@@ -461,7 +461,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       // Update Frontend with Initialized Communities
       if (this.communityId) {
         console.log('Hunting for heisenbug: Backend initialized community and sent event to state manager')
-        this.serverIoProvider.io.emit(SocketActionTypes.COMMUNITY, { id: this.communityId })
+        this.serverIoProvider.io.emit(SocketActionTypes.COMMUNITY_LAUNCHED, { id: this.communityId })
         console.log('this.libp2pService.connectedPeers', this.libp2pService.connectedPeers)
         console.log('this.libp2pservice', this.libp2pService)
         this.serverIoProvider.io.emit(

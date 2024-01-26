@@ -186,7 +186,7 @@ export function subscribe(socket: Socket) {
       log(SocketActionTypes.NETWORK, payload)
       emit(communitiesActions.responseCreateNetwork(payload))
     })
-    socket.on(SocketActionTypes.COMMUNITY, (payload: ResponseLaunchCommunityPayload) => {
+    socket.on(SocketActionTypes.COMMUNITY_LAUNCHED, (payload: ResponseLaunchCommunityPayload) => {
       console.log('Hunting for heisenbug: Community event received in state-manager')
       // TODO: We can send this once when creating the community and
       // store it in the backend.

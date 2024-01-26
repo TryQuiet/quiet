@@ -108,7 +108,7 @@ describe('User', () => {
         const payload = input[1] as InitCommunityPayload
         const community = communities.selectors.currentCommunity(store.getState())
         expect(payload.id).toEqual(community?.id)
-        socket.socketClient.emit<ResponseLaunchCommunityPayload>(SocketActionTypes.COMMUNITY, {
+        socket.socketClient.emit<ResponseLaunchCommunityPayload>(SocketActionTypes.COMMUNITY_LAUNCHED, {
           id: payload.id,
         })
         socket.socketClient.emit<ChannelsReplicatedPayload>(SocketActionTypes.CHANNELS_REPLICATED, {
