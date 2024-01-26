@@ -1,36 +1,34 @@
-[Unreleased]
+[2.1.0]
 
-* Handle spaces in tor process path. Run tor process in shell
+# New features:
+
+* Added user profile feature.
+* Updated old logo of Linux and Windows with rounded ones.
+
+# Fixes:
+
+* Handle spaces in tor process path.
+* Run tor process in shell.
+
+# Refactorings:
+
+* Removed SAVE_OWNER_CERTIFICATE event.
+* Removed registrar reminders and rename LAUNCH_REGISTRAR.
+* Removed unused SEND_USER_CERTIFICATE event.
+* Removed unused SUBSCRIBE_FOR events.
 
 [2.0.1]
 
-* feat: Add user profile feature
+# Fixes:
 
-* refactor: Remove SAVE_OWNER_CERTIFICATE event
-
-* refactor: Remove registrar remainders and rename LAUNCH_REGISTRAR
-
-* refactor: Remove unused SEND_USER_CERTIFICATE event
-
-* refactor: Remove unused SUBSCRIBE_FOR events
-
-* Clean up desktop UI console errors/warnings
-
-* fix: Enable channel context menu for all users
-
-* Fix channel creation message impersonation bug by removing username from channel creation message
-
-* Reduce file download concurrency as a quick fix for large file downloads
-
-* Fix for changing username modal form
-
-* Ask push notifications runtime permission on Android app start
-
-* Fix for multiplicating "welcome" messages when joining a community
-
-* Fix: base jdenticon on pubkey instead of username - this way unregistered user with duplicated username will have different profile image
-
-* Updated old logo of Linux and Windows with rounded ones
+ * Desktop UI console errors/warnings have been cleaned up.
+ * The channel context menu is now enabled for all users.
+ * A bug that impersonated the channel creation message due to the removal of the username has been fixed.
+ * Large file downloads are now slower but steadier.
+ * The username changing form has been fixed.
+ * Push notifications runtime permission is now requested on Android.
+ * Users joining a community will no longer receive multiple "welcome" messages.
+ * Users sharing the same nickname now have different profile images.
 
 [2.0.0]
 
