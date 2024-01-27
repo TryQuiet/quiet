@@ -1,7 +1,7 @@
-import { io, Socket } from 'socket.io-client'
+import { io } from 'socket.io-client'
 import { all, fork, takeEvery, call, put, cancel, FixedTask, select, take } from 'typed-redux-saga'
 import { PayloadAction } from '@reduxjs/toolkit'
-import { socket as stateManager, messages, connection } from '@quiet/state-manager'
+import { socket as stateManager, messages, connection, Socket } from '@quiet/state-manager'
 import { socketActions } from './socket.slice'
 import { eventChannel } from 'redux-saga'
 import { displayMessageNotificationSaga } from '../notifications/notifications.saga'
@@ -41,7 +41,6 @@ export function* startConnectionSaga(
 }
 
 function* setConnectedSaga(socket: Socket): Generator {
-  // @ts-expect-error
   const root = yield* fork(stateManager.useIO, socket)
   const observers = yield* fork(initObservers)
   // Handle suspending current connection

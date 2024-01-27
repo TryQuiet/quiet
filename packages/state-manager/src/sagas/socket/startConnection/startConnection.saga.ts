@@ -25,7 +25,6 @@ import {
   type StorePeerListPayload,
   type ResponseCreateNetworkPayload,
   type ResponseLaunchCommunityPayload,
-  type ChannelDeletionResponsePayload,
   type ChannelMessagesIdsResponse,
   type ChannelsReplicatedPayload,
   type CommunityId,
@@ -130,9 +129,6 @@ export function subscribe(socket: Socket) {
     socket.on(SocketActionTypes.CHANNEL_SUBSCRIBED, (payload: SetChannelSubscribedPayload) => {
       emit(publicChannelsActions.setChannelSubscribed(payload))
     })
-    socket.on(SocketActionTypes.CHANNEL_DELETION_RESPONSE, (payload: ChannelDeletionResponsePayload) => {
-      emit(publicChannelsActions.channelDeletionResponse(payload))
-    })
     socket.on(SocketActionTypes.CREATED_CHANNEL, (payload: CreatedChannelResponse) => {
       emit(
         messagesActions.addPublicChannelsMessagesBase({
@@ -230,8 +226,8 @@ export function subscribe(socket: Socket) {
       )
       emit(identityActions.savedOwnerCertificate(payload.communityId))
     })
-    socket.on(SocketActionTypes.COMMUNITY_METADATA_SAVED, (payload: CommunityMetadata) => {
-      log(`${SocketActionTypes.COMMUNITY_METADATA_SAVED}: ${payload}`)
+    socket.on(SocketActionTypes.COMMUNITY_METADATA_LOADED, (payload: CommunityMetadata) => {
+      log(`${SocketActionTypes.COMMUNITY_METADATA_LOADED}: ${payload}`)
       emit(communitiesActions.saveCommunityMetadata(payload))
     })
     socket.on(SocketActionTypes.LIBP2P_PSK_SAVED, (payload: { psk: string }) => {

@@ -1,3 +1,9 @@
+[unreleased]
+
+# Refactorings:
+
+* refactor: Introduce socket.io acknowledgements
+
 [2.1.1]
 
 # Fixes:

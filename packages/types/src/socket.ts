@@ -7,6 +7,7 @@ export enum SocketActionTypes {
   CHANNEL_SUBSCRIBED = 'channelSubscribed',
   CLOSE = 'close',
   COMMUNITY = 'community',
+  COMMUNITY_METADATA_LOADED = 'communityMetadataLoaded',
   CONNECTED_PEERS = 'connectedPeers',
   CONNECT_TO_WEBSOCKET_SERVER = 'connectToWebsocketServer',
   CONNECTION = 'connection',
@@ -20,7 +21,6 @@ export enum SocketActionTypes {
   DOWNLOAD_PROGRESS = 'downloadProgress',
   DELETE_CHANNEL = 'deleteChannel',
   DELETE_FILES_FROM_CHANNEL = 'deleteFilesFromChannel',
-  CHANNEL_DELETION_RESPONSE = 'channelDeletionResponse',
   // E
   ERROR = 'error',
   // I
@@ -55,7 +55,6 @@ export enum SocketActionTypes {
   SEND_PEER_ID = 'sendPeerId',
   SEND_COMMUNITY_METADATA = 'sendCommunityMetadata',
   SEND_COMMUNITY_CA_DATA = 'sendCommunityCaData',
-  COMMUNITY_METADATA_SAVED = 'communityMetadataSaved',
   //  T
   TOR_INITIALIZED = 'torInitialized',
   CONNECTION_PROCESS_INFO = 'connectionProcess',

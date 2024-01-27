@@ -11,15 +11,16 @@ import { OrbitDb } from '../orbitDb/orbitDb.service'
 import Logger from '../../common/logger'
 
 @Injectable()
-export class CertificatesRequestsStore {
+export class CertificatesRequestsStore extends EventEmitter {
   public store: EventStore<string>
-  private emitter: EventEmitter
 
   private readonly logger = Logger(CertificatesRequestsStore.name)
 
-  constructor(private readonly orbitDbService: OrbitDb) {}
+  constructor(private readonly orbitDbService: OrbitDb) {
+    super()
+  }
 
-  public async init(emitter: EventEmitter) {
+  public async init() {
     this.logger('Initializing certificates requests store')
 
     this.store = await this.orbitDbService.orbitDb.log<string>('csrs', {
@@ -28,7 +29,6 @@ export class CertificatesRequestsStore {
         write: ['*'],
       },
     })
-    this.emitter = emitter
 
     this.store.events.on('write', async (_address, entry) => {
       this.logger('Added CSR to database')
@@ -46,7 +46,7 @@ export class CertificatesRequestsStore {
   }
 
   public async loadedCertificateRequests() {
-    this.emitter.emit(StorageEvents.LOADED_USER_CSRS, {
+    this.emit(StorageEvents.LOADED_USER_CSRS, {
       csrs: await this.getCsrs(),
     })
   }
@@ -130,7 +130,5 @@ export class CertificatesRequestsStore {
 
     // @ts-ignore
     this.store = undefined
-    // @ts-ignore
-    this.emitter = undefined
   }
 }

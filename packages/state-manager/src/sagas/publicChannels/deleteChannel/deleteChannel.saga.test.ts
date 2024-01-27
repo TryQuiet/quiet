@@ -14,7 +14,13 @@ import { deleteChannelSaga } from './deleteChannel.saga'
 import { type Socket } from 'socket.io-client'
 import { generateChannelId } from '@quiet/common'
 import { filesActions } from '../../files/files.slice'
-import { type Community, type Identity, type PublicChannel, SocketActionTypes } from '@quiet/types'
+import {
+  type Community,
+  type Identity,
+  type PublicChannel,
+  SocketActionTypes,
+  DeleteChannelResponse,
+} from '@quiet/types'
 import { publicChannelsSelectors } from '../publicChannels.selectors'
 import { usersSelectors } from '../../users/users.selectors'
 
@@ -36,7 +42,7 @@ describe('deleteChannelSaga', () => {
     pubKey: string
   } | null
 
-  const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
+  const socket = { emit: jest.fn(), emitWithAck: jest.fn(), on: jest.fn() } as unknown as Socket
 
   beforeEach(async () => {
     setupCrypto()
@@ -76,7 +82,7 @@ describe('deleteChannelSaga', () => {
     await expectSaga(deleteChannelSaga, socket, publicChannelsActions.deleteChannel({ channelId }))
       .withReducer(reducer)
       .withState(store.getState())
-      .apply(socket, socket.emit, [
+      .apply(socket, socket.emitWithAck, [
         SocketActionTypes.DELETE_CHANNEL,
         {
           channelId,
@@ -95,7 +101,7 @@ describe('deleteChannelSaga', () => {
     await expectSaga(deleteChannelSaga, socket, publicChannelsActions.deleteChannel({ channelId }))
       .withReducer(reducer)
       .withState(store.getState())
-      .apply(socket, socket.emit, [
+      .apply(socket, socket.emitWithAck, [
         SocketActionTypes.DELETE_CHANNEL,
         {
           channelId,
@@ -114,7 +120,7 @@ describe('deleteChannelSaga', () => {
     await expectSaga(deleteChannelSaga, socket, publicChannelsActions.deleteChannel({ channelId }))
       .withReducer(reducer)
       .withState(store.getState())
-      .not.apply(socket, socket.emit, [
+      .not.apply(socket, socket.emitWithAck, [
         SocketActionTypes.DELETE_CHANNEL,
         {
           channelId,
@@ -133,7 +139,7 @@ describe('deleteChannelSaga', () => {
     await expectSaga(deleteChannelSaga, socket, publicChannelsActions.deleteChannel({ channelId }))
       .withReducer(reducer)
       .withState(store.getState())
-      .apply(socket, socket.emit, [
+      .apply(socket, socket.emitWithAck, [
         SocketActionTypes.DELETE_CHANNEL,
         {
           channelId,

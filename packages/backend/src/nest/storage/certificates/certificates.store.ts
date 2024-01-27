@@ -18,21 +18,21 @@ import { Injectable } from '@nestjs/common'
 import Logger from '../../common/logger'
 
 @Injectable()
-export class CertificatesStore {
+export class CertificatesStore extends EventEmitter {
   public store: EventStore<string>
   private metadata: CommunityMetadata | undefined
   private filteredCertificatesMapping: Map<string, Partial<UserData>>
   private usernameMapping: Map<string, string>
-  private emitter: EventEmitter
 
   private readonly logger = Logger(CertificatesStore.name)
 
   constructor(private readonly orbitDbService: OrbitDb) {
+    super()
     this.filteredCertificatesMapping = new Map()
     this.usernameMapping = new Map()
   }
 
-  public async init(emitter: EventEmitter) {
+  public async init() {
     this.logger('Initializing certificates log store')
 
     this.store = await this.orbitDbService.orbitDb.log<string>('certificates', {
@@ -41,11 +41,10 @@ export class CertificatesStore {
         write: ['*'],
       },
     })
-    this.emitter = emitter
 
     this.store.events.on('ready', async () => {
       this.logger('Loaded certificates to memory')
-      emitter.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CERTIFICATES_REPLICATED)
+      this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CERTIFICATES_REPLICATED)
     })
 
     this.store.events.on('write', async () => {
@@ -55,7 +54,7 @@ export class CertificatesStore {
 
     this.store.events.on('replicated', async () => {
       this.logger('REPLICATED: Certificates')
-      emitter.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CERTIFICATES_REPLICATED)
+      this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CERTIFICATES_REPLICATED)
       await this.loadedCertificates()
     })
 
@@ -66,7 +65,7 @@ export class CertificatesStore {
   }
 
   public async loadedCertificates() {
-    this.emitter?.emit(StorageEvents.LOADED_CERTIFICATES, {
+    this.emit(StorageEvents.LOADED_CERTIFICATES, {
       certificates: await this.getCertificates(),
     })
   }
@@ -210,8 +209,6 @@ export class CertificatesStore {
 
     // @ts-ignore
     this.store = undefined
-    // @ts-ignore
-    this.emitter = undefined
     this.metadata = undefined
     this.filteredCertificatesMapping = new Map()
     this.usernameMapping = new Map()
