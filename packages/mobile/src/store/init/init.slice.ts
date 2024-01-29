@@ -83,7 +83,7 @@ export const initSlice = createSlice({
     resetDeepLink: state => {
       state.deepLinking = false
     },
-    canceledRootTask: state => state
+    canceledRootTask: state => state,
   },
 })
 

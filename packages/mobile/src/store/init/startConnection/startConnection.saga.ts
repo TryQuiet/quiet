@@ -70,5 +70,5 @@ function subscribeSocketLifecycle(socket: Socket, socketIOData: WebsocketConnect
 function* cancelRootTaskSaga(task: FixedTask<Generator>): Generator {
   console.log('Canceling root task')
   yield* cancel(task)
-  yield* put (initActions.canceledRootTask())
+  yield* put(initActions.canceledRootTask())
 }

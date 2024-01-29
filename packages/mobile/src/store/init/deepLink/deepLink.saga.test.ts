@@ -59,9 +59,7 @@ describe('deepLinkSaga', () => {
     await expectSaga(deepLinkSaga, initActions.deepLink(validCode))
       .withReducer(reducer)
       .withState(store.getState())
-      .put(
-        initActions.resetDeepLink()
-      )
+      .put(initActions.resetDeepLink())
       .put(
         communities.actions.createNetwork({
           ownership: CommunityOwnership.User,
@@ -72,7 +70,7 @@ describe('deepLinkSaga', () => {
       )
       .put(
         navigationActions.replaceScreen({
-          screen: ScreenNames.UsernameRegistrationScreen
+          screen: ScreenNames.UsernameRegistrationScreen,
         })
       )
       .run()
