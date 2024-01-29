@@ -69,15 +69,20 @@ export function* deepLinkSaga(action: PayloadAction<ReturnType<typeof initAction
 
   const isAlreadyConnected = Boolean(community?.name)
 
-  const alreadyBelongsWithAnotherCommunity = !isInvitationDataValid
-  const alreadyConnectedWithCurrentCommunity = isInvitationDataValid && isAlreadyConnected
+  const alreadyBelongsWithAnotherCommunity = !isInvitationDataValid && isAlreadyConnected
+  const connectingWithAnotherCommunity = !isInvitationDataValid && !isAlreadyConnected
+  const alreadyBelongsWithCurrentCommunity = isInvitationDataValid && isAlreadyConnected
   const connectingWithCurrentCommunity = isInvitationDataValid && !isAlreadyConnected
 
   if (alreadyBelongsWithAnotherCommunity) {
     console.log('INIT_NAVIGATION: ABORTING: Already belongs with another community.')
   }
 
-  if (alreadyConnectedWithCurrentCommunity) {
+  if (connectingWithAnotherCommunity) {
+    console.log('INIT_NAVIGATION: ABORTING: Proceeding with connection to another community.')
+  }
+
+  if (alreadyBelongsWithCurrentCommunity) {
     console.log('INIT_NAVIGATION: ABORTING: Already connected with the current community.')
   }
 
@@ -86,11 +91,11 @@ export function* deepLinkSaga(action: PayloadAction<ReturnType<typeof initAction
   }
 
   // User already belongs to a community
-  if (alreadyBelongsWithAnotherCommunity || alreadyConnectedWithCurrentCommunity) {
+  if (alreadyBelongsWithAnotherCommunity || alreadyBelongsWithCurrentCommunity) {
     console.log('INIT_NAVIGATION: Displaying error (user already belongs to a community).')
 
     const destination =
-      alreadyBelongsWithAnotherCommunity || alreadyConnectedWithCurrentCommunity
+      alreadyBelongsWithAnotherCommunity || alreadyBelongsWithCurrentCommunity
         ? ScreenNames.ChannelListScreen
         : ScreenNames.JoinCommunityScreen
 
@@ -109,16 +114,34 @@ export function* deepLinkSaga(action: PayloadAction<ReturnType<typeof initAction
     return
   }
 
-  console.log('INIT_NAVIGATION: Switching to the join community screen.')
+  if (connectingWithAnotherCommunity) {
+    console.log('INIT_NAVIGATION: Displaying error (user is already connecting to another community).')
 
-  yield* put(
-    navigationActions.replaceScreen({
-      screen: ScreenNames.JoinCommunityScreen,
-      params: {
-        code,
-      },
-    })
-  )
+    yield* put(
+      navigationActions.replaceScreen({
+        screen: ScreenNames.ErrorScreen,
+        params: {
+          onPress: () => replaceScreen(ScreenNames.UsernameRegistrationScreen),
+          icon: appImages.quiet_icon_round,
+          title: 'You already started to connect to another community',
+          message: "We're sorry but for now you can only be a member of a single community at a time",
+        },
+      })
+    )
+
+    return
+  }
+
+  // console.log('INIT_NAVIGATION: Switching to the join community screen.')
+
+  // yield* put(
+  //   navigationActions.replaceScreen({
+  //     screen: ScreenNames.JoinCommunityScreen,
+  //     params: {
+  //       code,
+  //     },
+  //   })
+  // )
 
   const payload: CreateNetworkPayload = {
     ownership: CommunityOwnership.User,
@@ -130,9 +153,10 @@ export function* deepLinkSaga(action: PayloadAction<ReturnType<typeof initAction
   yield* put(communities.actions.createNetwork(payload))
 
   // It's time for the user to see the pasted code
-  yield* delay(2000)
+  // yield* delay(2000)
 
   console.log('INIT_NAVIGATION: Switching to the username registration screen.')
+
   yield* put(
     navigationActions.replaceScreen({
       screen: ScreenNames.UsernameRegistrationScreen,
