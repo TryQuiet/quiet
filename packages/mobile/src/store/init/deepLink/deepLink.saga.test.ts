@@ -60,12 +60,7 @@ describe('deepLinkSaga', () => {
       .withReducer(reducer)
       .withState(store.getState())
       .put(
-        navigationActions.replaceScreen({
-          screen: ScreenNames.JoinCommunityScreen,
-          params: {
-            code: validCode,
-          },
-        })
+        initActions.resetDeepLink()
       )
       .put(
         communities.actions.createNetwork({
@@ -73,6 +68,11 @@ describe('deepLinkSaga', () => {
           peers: validData.pairs,
           psk: validData.psk,
           ownerOrbitDbIdentity: validData.ownerOrbitDbIdentity,
+        })
+      )
+      .put(
+        navigationActions.replaceScreen({
+          screen: ScreenNames.UsernameRegistrationScreen
         })
       )
       .run()
