@@ -132,17 +132,6 @@ export function* deepLinkSaga(action: PayloadAction<ReturnType<typeof initAction
     return
   }
 
-  // console.log('INIT_NAVIGATION: Switching to the join community screen.')
-
-  // yield* put(
-  //   navigationActions.replaceScreen({
-  //     screen: ScreenNames.JoinCommunityScreen,
-  //     params: {
-  //       code,
-  //     },
-  //   })
-  // )
-
   const payload: CreateNetworkPayload = {
     ownership: CommunityOwnership.User,
     peers: data.pairs,
@@ -151,9 +140,6 @@ export function* deepLinkSaga(action: PayloadAction<ReturnType<typeof initAction
   }
 
   yield* put(communities.actions.createNetwork(payload))
-
-  // It's time for the user to see the pasted code
-  // yield* delay(2000)
 
   console.log('INIT_NAVIGATION: Switching to the username registration screen.')
 

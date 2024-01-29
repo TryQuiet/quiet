@@ -129,8 +129,6 @@ class TorHandler: NSObject {
     }
     
     guard let cookie = auth else {
-      // print("[\(String(describing: type(of: self)))] Could not connect to Tor - cookie unreadable!")
-
       return nil
     }
     
@@ -148,8 +146,6 @@ class TorHandler: NSObject {
     }
     
     guard let cookie = auth else {
-      // print("[\(String(describing: type(of: self)))] Could not connect to Tor - cookie unreadable!")
-
       return nil
     }
     
