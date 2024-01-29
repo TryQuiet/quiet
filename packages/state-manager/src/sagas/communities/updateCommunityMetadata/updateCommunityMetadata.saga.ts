@@ -31,7 +31,7 @@ export function* sendCommunityMetadataSaga(
   const communityMetadataPayload: CommunityMetadata = {
     id: community.id,
     ownerCertificate: identity.userCertificate,
-    rootCa: community.rootCa,
+    rootCa: community.CA.rootCertString,
   }
 
   yield* apply(
