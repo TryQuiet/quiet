@@ -94,16 +94,11 @@ export function* deepLinkSaga(action: PayloadAction<ReturnType<typeof initAction
   if (alreadyBelongsWithAnotherCommunity || alreadyBelongsWithCurrentCommunity) {
     console.log('INIT_NAVIGATION: Displaying error (user already belongs to a community).')
 
-    const destination =
-      alreadyBelongsWithAnotherCommunity || alreadyBelongsWithCurrentCommunity
-        ? ScreenNames.ChannelListScreen
-        : ScreenNames.JoinCommunityScreen
-
     yield* put(
       navigationActions.replaceScreen({
         screen: ScreenNames.ErrorScreen,
         params: {
-          onPress: () => replaceScreen(destination),
+          onPress: () => replaceScreen(ScreenNames.ChannelListScreen),
           icon: appImages.quiet_icon_round,
           title: 'You already belong to a community',
           message: "We're sorry but for now you can only be a member of a single community at a time",
