@@ -1,3 +1,9 @@
+[2.1.1] - unreleased
+
+# Fixes:
+
+* Opening the mobile app with joining links has been corrected.
+
 [2.1.0]
 
 # New features:
