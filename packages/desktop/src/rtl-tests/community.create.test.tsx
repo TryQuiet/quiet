@@ -185,6 +185,7 @@ describe('User', () => {
         "Network/addInitializedCommunity",
         "Communities/clearInvitationCodes",
         "Communities/sendCommunityMetadata",
+        "Identity/saveOwnerCertToDb",
         "PublicChannels/createGeneralChannel",
         "Identity/saveUserCsr",
         "PublicChannels/channelsReplicated",

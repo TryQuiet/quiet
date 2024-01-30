@@ -66,6 +66,7 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof errorsActions.handleError>
     | ReturnType<typeof identityActions.storeUserCertificate>
     | ReturnType<typeof identityActions.throwIdentityError>
+    | ReturnType<typeof identityActions.saveOwnerCertToDb>
     | ReturnType<typeof identityActions.savedOwnerCertificate>
     | ReturnType<typeof identityActions.checkLocalCsr>
     | ReturnType<typeof communitiesActions.storePeerList>
@@ -160,20 +161,10 @@ export function subscribe(socket: Socket) {
     })
 
     // Community
-
-    socket.on(SocketActionTypes.NEW_COMMUNITY, async (payload: ResponseCreateCommunityPayload) => {
-      log(`${SocketActionTypes.NEW_COMMUNITY}: ${payload}`)
-      // We can also set community metadata when we register the
-      // owner's certificate. I think the only issue is that we
-      // register the owner's certificate before initializing the
-      // community and thus the storage service.
-      emit(communitiesActions.sendCommunityMetadata())
+    socket.on(SocketActionTypes.NEW_COMMUNITY, (_payload: ResponseCreateCommunityPayload) => {
+      console.log('on SocketActionTypes.NEW_COMMUNITY')
+      emit(identityActions.saveOwnerCertToDb())
       emit(publicChannelsActions.createGeneralChannel())
-      // We also save the owner's CSR after registering their
-      // certificate. It works, but it might make more sense to get
-      // all the backend services up and running and then save the
-      // CSR, register the owner's certificate and set community
-      // metadata.
       emit(identityActions.saveUserCsr())
     })
     socket.on(SocketActionTypes.PEER_LIST, (payload: StorePeerListPayload) => {
@@ -191,6 +182,8 @@ export function subscribe(socket: Socket) {
       emit(filesActions.checkForMissingFiles(payload.id))
       emit(networkActions.addInitializedCommunity(payload.id))
       emit(communitiesActions.clearInvitationCodes())
+      // For backward compatibility (old community):
+      emit(communitiesActions.sendCommunityMetadata())
     })
     // Errors
     socket.on(SocketActionTypes.ERROR, (payload: ErrorPayload) => {

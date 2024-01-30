@@ -1,7 +1,5 @@
 [2.1.0] - unreleased
 
-* refactor: Remove SAVE_OWNER_CERTIFICATE event
-
 * refactor: Remove registrar remainders and rename LAUNCH_REGISTRAR
 
 * refactor: Remove unused SEND_USER_CERTIFICATE event

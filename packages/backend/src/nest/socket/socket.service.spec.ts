@@ -61,6 +61,7 @@ describe('SocketService', () => {
       SocketActionTypes.LAUNCH_COMMUNITY.valueOf(),
       SocketActionTypes.REGISTER_OWNER_CERTIFICATE.valueOf(),
       SocketActionTypes.REGISTER_USER_CERTIFICATE.valueOf(),
+      SocketActionTypes.SAVE_OWNER_CERTIFICATE.valueOf(),
       SocketActionTypes.SAVE_USER_CSR.valueOf(),
       SocketActionTypes.SEND_COMMUNITY_METADATA.valueOf(),
     ]

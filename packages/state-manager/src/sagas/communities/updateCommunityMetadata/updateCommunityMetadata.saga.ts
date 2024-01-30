@@ -4,20 +4,12 @@ import { apply, select } from 'typed-redux-saga'
 import { applyEmitParams, type Socket } from '../../../types'
 import { communitiesSelectors } from '../communities.selectors'
 import { communitiesActions } from '../communities.slice'
-import { identitySelectors } from '../../identity/identity.selectors'
 
 export function* sendCommunityMetadataSaga(
   socket: Socket,
   _action: PayloadAction<ReturnType<typeof communitiesActions.sendCommunityMetadata>['payload']>
 ): Generator {
-  const identity = yield* select(identitySelectors.currentIdentity)
   const community = yield* select(communitiesSelectors.currentCommunity)
-
-  if (!identity?.userCertificate) {
-    console.error('Cannot send community metadata, no owner certificate')
-    return
-  }
-
   if (!community) {
     console.error('Cannot send community metadata, no community')
     return
@@ -33,7 +25,6 @@ export function* sendCommunityMetadataSaga(
     ownerCertificate: identity.userCertificate,
     rootCa: community.CA.rootCertString,
   }
-
   yield* apply(
     socket,
     socket.emit,
