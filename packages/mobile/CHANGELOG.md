@@ -1,3 +1,28 @@
+# Change Log
+
+All notable changes to this project will be documented in this file.
+See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+## [2.1.1-alpha.0](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@2.0.3-alpha.17...@quiet/mobile@2.1.1-alpha.0) (2024-01-31)
+
+
+### Bug Fixes
+
+* ask push notification runtime permission on Android ([#2213](https://github.com/TryQuiet/quiet/issues/2213)) ([2f92e88](https://github.com/TryQuiet/quiet/commit/2f92e88d488a5a98eae5bf6d42a5485b98c6be99))
+* calling init websocket connection ([#2261](https://github.com/TryQuiet/quiet/issues/2261)) ([fe1d9dd](https://github.com/TryQuiet/quiet/commit/fe1d9dda73ffaad585c87701bcb9658af0389362))
+* cleanup username creation component ([#2216](https://github.com/TryQuiet/quiet/issues/2216)) ([1d03995](https://github.com/TryQuiet/quiet/commit/1d039952cf84e94fdcf8b66c395f634094ea3a6b))
+* create jdenticon from pubKey, not username - to distinguish user… ([#2207](https://github.com/TryQuiet/quiet/issues/2207)) ([fd8bd06](https://github.com/TryQuiet/quiet/commit/fd8bd06a5f226e0da8189581c076ba9976633e7d))
+* deep linking issues ([#2154](https://github.com/TryQuiet/quiet/issues/2154)) ([2867264](https://github.com/TryQuiet/quiet/commit/28672643b4e91d4782cbd3b7aae04b769000d4c7)), closes [#1970](https://github.com/TryQuiet/quiet/issues/1970)
+
+
+### Features
+
+* Add user profile feature for desktop ([#1923](https://github.com/TryQuiet/quiet/issues/1923)) ([d016be5](https://github.com/TryQuiet/quiet/commit/d016be5a162560962c6059d73db6ab005fb023e8))
+
+
+
+
+
 [2.1.0]
 
 # New features:
