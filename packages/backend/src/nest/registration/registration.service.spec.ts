@@ -4,12 +4,19 @@ import { RegistrationModule } from './registration.module'
 import { RegistrationService } from './registration.service'
 import { configCrypto, createRootCA, createUserCsr, type RootCA, verifyUserCert, type UserCsr } from '@quiet/identity'
 import { type DirResult } from 'tmp'
-import { type PermsData } from '@quiet/types'
+import { type PermsData, type SaveCertificatePayload } from '@quiet/types'
 import { Time } from 'pkijs'
 import { issueCertificate, extractPendingCsrs } from './registration.functions'
 import { jest } from '@jest/globals'
 import { createTmpDir } from '../common/utils'
 import { RegistrationEvents } from './registration.types'
+import { EventEmitter } from 'events'
+import { CertificatesStore } from '../storage/certificates/certificates.store'
+import { StorageService } from '../storage/storage.service'
+import { StorageModule } from '../storage/storage.module'
+import { OrbitDb } from '../storage/orbitDb/orbitDb.service'
+import { create } from 'ipfs-core'
+import PeerId from 'peer-id'
 
 describe('RegistrationService', () => {
   let module: TestingModule
@@ -148,10 +155,34 @@ describe('RegistrationService', () => {
     expect(pendingCsrs[0]).toBe(userCsr.userCsr)
   })
 
-  it('wait for all NEW_USER events until emitting FINISHED_ISSUING_CERTIFICATES_FOR_ID', async () => {
-    registrationService.permsData = permsData
+  it('only issues one group of certs at a time', async () => {
+    const storageModule = await Test.createTestingModule({
+      imports: [TestModule, StorageModule],
+    }).compile()
+    const certificatesStore = await storageModule.resolve(CertificatesStore)
+    const orbitDb = await storageModule.resolve(OrbitDb)
+    const peerId = await PeerId.create()
+    const ipfs = await create()
+    const loadAllCertificates = async () => {
+      return await certificatesStore.loadAllCertificates()
+    }
+    const saveCertificate = async (payload: SaveCertificatePayload) => {
+      await certificatesStore.addCertificate(payload.certificate)
+    }
 
-    const eventSpy = jest.spyOn(registrationService, 'emit')
+    await orbitDb.create(peerId, ipfs)
+    await certificatesStore.init(new EventEmitter())
+    certificatesStore.updateMetadata({
+      id: '39F7485441861F4A2A1A512188F1E0AA',
+      rootCa:
+        'MIIBUDCB+KADAgECAgEBMAoGCCqGSM49BAMCMBIxEDAOBgNVBAMTB3JvY2tldHMwHhcNMTAxMjI4MTAxMDEwWhcNMzAxMjI4MTAxMDEwWjASMRAwDgYDVQQDEwdyb2NrZXRzMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE/ESHf6rXksyiuxSKpQgtiSAhVWNtx4vbFgW6knWfH7MR4dPyxiCNgSeCzRfreuhqVpVtv3U49tcwsqDGkoWHsKM/MD0wDwYDVR0TBAgwBgEB/wIBAzALBgNVHQ8EBAMCAIYwHQYDVR0lBBYwFAYIKwYBBQUHAwIGCCsGAQUFBwMBMAoGCCqGSM49BAMCA0cAMEQCIHrYMhgU/RluSsWoO205EjCQ8pE5MeBZ4Cp8PTgNkOW7AiA690+KIgobiObH6/1JDuS82R0NPO84Ttc8PY886AoKbA==',
+      ownerCertificate:
+        'MIIDeTCCAx6gAwIBAgIGAYwVp42mMAoGCCqGSM49BAMCMBIxEDAOBgNVBAMTB3JvY2tldHMwHhcNMjMxMTI4MTExOTExWhcNMzAwMTMxMjMwMDAwWjBJMUcwRQYDVQQDEz5jYXJhaTJ0d2phem50aW56bndtcnlqdzNlNzVmdXF0Z2xrd2hsemo2d3RlcWx4ano2NnRsZnhpZC5vbmlvbjBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABNMUauWsTJiuDGt4zoj4lKGgHMkTH96M11fCxMwIInhan0RUB5sv+PtGKbfEfawGjhSQiUaTLdwUGjyIdMs3OMWjggInMIICIzAJBgNVHRMEAjAAMAsGA1UdDwQEAwIAgDAdBgNVHSUEFjAUBggrBgEFBQcDAgYIKwYBBQUHAwEwggFHBgkqhkiG9w0BCQwEggE4BIIBNBETZ2k8vszIRvkuOUk/cNtOb8JcGmw5yVhs45/+e7To4t51nwcdAODj5juVi6+SpLCcHCHhE+g7KswEkC1ScFrW6CRinSgrNBOAUIjOtvWZ/GvK6lI4WTMf7xAaRaJSCF6H0m4cFoUY3JpklJleHhzj0re+NmFZEJ/hNRKochGFy4Xq9Z7StvPpGBlfxhmR7X2t/+HtZaAAbLRLLgbHtCQ7fecg0Qb9Ej58uc+T4Gd2+8ptWvebtOQVU70VAL7uT6aLkFXaDibgSt3kDNvGrwn3AxWlESgROTh5+OWWbfYIbFxjf0PkPDdUSAIOKS9qbYZ+bSYfVq+/0JFyZAa0zhPtgW8wjj0gDCLVm5joyW5Hz2eZ36W7u3cxFME2qmT9G2Dh6NGLn7G19ulVzoTkVmP5/tGPMBUGCisGAQQBg4wbAgEEBxMFZGF2aWQwPQYJKwYBAgEPAwEBBDATLlFtZE5GVjc3dXZOcTJBaWlqUEY0dzY2OU1ucWdiYVdMR1VhZlh0WTdlZjNRRFMwSQYDVR0RBEIwQII+Y2FyYWkydHdqYXpudGluem53bXJ5anczZTc1ZnVxdGdsa3dobHpqNnd0ZXFseGp6NjZ0bGZ4aWQub25pb24wCgYIKoZIzj0EAwIDSQAwRgIhAOafgBe5T0EFjyy0tCRrTHJ1+5ri0W6kAUfc6eRKHIZAAiEA7rFEfPDU+D8MiOF+w0QOdp46dqaWsHFjrDHYPSYGxQA=',
+    })
+
+    registrationService.setPermsData(permsData)
+    registrationService.onModuleInit()
+    registrationService.init({ certificatesStore, saveCertificate, loadAllCertificates } as unknown as StorageService)
 
     const userCsr = await createUserCsr({
       nickname: 'alice',
@@ -161,8 +192,9 @@ describe('RegistrationService', () => {
       signAlg: configCrypto.signAlg,
       hashAlg: configCrypto.hashAlg,
     })
+
     const userCsr2 = await createUserCsr({
-      nickname: 'karol',
+      nickname: 'alice',
       commonName: 'nnnnnnc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad.onion',
       peerId: 'QmffffffqLET9xtAtDzvAr5Pp3egK1H3C5iJAZm1SpLEp6',
       dmPublicKey: 'testdmPublicKey',
@@ -170,14 +202,18 @@ describe('RegistrationService', () => {
       hashAlg: configCrypto.hashAlg,
     })
 
-    const csrs: string[] = [userCsr.userCsr, userCsr2.userCsr]
-    // @ts-ignore - fn 'issueCertificates' is private
-    await registrationService.issueCertificates({ certificates: [], csrs, id: 1 })
+    const certificates: string[] = []
 
-    expect(eventSpy).toHaveBeenLastCalledWith(RegistrationEvents.FINISHED_ISSUING_CERTIFICATES_FOR_ID, {
-      id: 1,
-    })
+    registrationService.emit(RegistrationEvents.REGISTER_USER_CERTIFICATE, { csrs: [userCsr.userCsr] })
 
-    expect(eventSpy).toHaveBeenCalledTimes(3)
+    registrationService.emit(RegistrationEvents.REGISTER_USER_CERTIFICATE, { csrs: [userCsr2.userCsr] })
+
+    await new Promise(r => setTimeout(r, 2000))
+
+    expect((await certificatesStore.loadAllCertificates()).length).toEqual(1)
+
+    await orbitDb.stop()
+    await ipfs.stop()
+    await certificatesStore.close()
   })
 })

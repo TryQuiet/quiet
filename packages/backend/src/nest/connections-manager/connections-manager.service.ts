@@ -41,7 +41,7 @@ import {
   PeerId as PeerIdType,
   SaveCSRPayload,
   CommunityMetadata,
-  PermsData,
+  type PermsData,
   type UserProfile,
   type UserProfilesLoadedEvent,
 } from '@quiet/types'
@@ -177,8 +177,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     if (this.storageService) {
       this.logger('Stopping orbitdb')
       await this.storageService?.stopOrbitDb()
-      this.logger('reset CsrReplicated map and id and certificate store values')
-      this.storageService.resetCsrAndCertsValues()
     }
     if (this.serverIoProvider?.io) {
       this.logger('Closing socket server')
@@ -423,6 +421,12 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       this.serverIoProvider.io.emit(SocketActionTypes.PEER_DISCONNECTED, payload)
     })
     await this.storageService.init(_peerId)
+    // We can use Nest for dependency injection, but I think since the
+    // registration service depends on the storage service being
+    // initialized, this is helpful to manually inject the storage
+    // service for now. Both object construction and object
+    // initialization need to happen in order based on dependencies.
+    await this.registrationService.init(this.storageService)
     this.logger('storage initialized')
 
     this.serverIoProvider.io.emit(
@@ -449,15 +453,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.registrationService.on(RegistrationEvents.ERROR, payload => {
       emitError(this.serverIoProvider.io, payload)
     })
-    this.registrationService.on(RegistrationEvents.NEW_USER, async payload => {
-      await this.storageService?.saveCertificate(payload)
-    })
-
-    this.registrationService.on(RegistrationEvents.FINISHED_ISSUING_CERTIFICATES_FOR_ID, payload => {
-      if (payload.id) {
-        this.storageService.resolveCsrReplicatedPromise(payload.id)
-      }
-    })
   }
 
   private attachSocketServiceListeners() {
@@ -473,7 +468,9 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
           SocketActionTypes.CONNECTED_PEERS,
           Array.from(this.libp2pService.connectedPeers.keys())
         )
-        await this.storageService?.loadAllCertificates()
+        this.serverIoProvider.io.emit(SocketActionTypes.RESPONSE_GET_CERTIFICATES, {
+          certificates: await this.storageService?.loadAllCertificates(),
+        })
         await this.storageService?.loadAllChannels()
       }
     })
@@ -511,7 +508,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     // when creating the community.
     this.socketService.on(SocketActionTypes.SEND_COMMUNITY_CA_DATA, async (payload: PermsData) => {
       this.logger(`socketService - ${SocketActionTypes.SEND_COMMUNITY_CA_DATA}`)
-      this.registrationService.permsData = payload
+      this.registrationService.setPermsData(payload)
     })
 
     // Public Channels
@@ -626,15 +623,12 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       this.logger(`Storage - ${StorageEvents.CHANNEL_DELETION_RESPONSE}`)
       this.serverIoProvider.io.emit(SocketActionTypes.CHANNEL_DELETION_RESPONSE, payload)
     })
-    this.storageService.on(
-      StorageEvents.REPLICATED_CSR,
-      async (payload: { csrs: string[]; certificates: string[]; id: string }) => {
-        this.logger(`Storage - ${StorageEvents.REPLICATED_CSR}`)
-        this.libp2pService.emit(Libp2pEvents.DIAL_PEERS, await getLibp2pAddressesFromCsrs(payload.csrs))
-        this.serverIoProvider.io.emit(SocketActionTypes.RESPONSE_GET_CSRS, { csrs: payload.csrs })
-        this.registrationService.emit(RegistrationEvents.REGISTER_USER_CERTIFICATE, payload)
-      }
-    )
+    this.storageService.on(StorageEvents.REPLICATED_CSR, async (payload: { csrs: string[] }) => {
+      this.logger(`Storage - ${StorageEvents.REPLICATED_CSR}`)
+      this.libp2pService.emit(Libp2pEvents.DIAL_PEERS, await getLibp2pAddressesFromCsrs(payload.csrs))
+      this.serverIoProvider.io.emit(SocketActionTypes.RESPONSE_GET_CSRS, payload)
+      this.registrationService.emit(RegistrationEvents.REGISTER_USER_CERTIFICATE, payload)
+    })
 
     this.socketService.on(SocketActionTypes.SEND_COMMUNITY_METADATA, async (payload: CommunityMetadata) => {
       await this.storageService?.updateCommunityMetadata(payload)

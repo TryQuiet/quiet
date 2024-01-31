@@ -18,6 +18,7 @@
 
 # Refactorings:
 
+* Refactor registration service, replace promise waiting mechanism around certificate requests and help prevent duplicate username registration
 * Removed SAVE_OWNER_CERTIFICATE event.
 * Removed registrar reminders and rename LAUNCH_REGISTRAR.
 * Removed unused SEND_USER_CERTIFICATE event.

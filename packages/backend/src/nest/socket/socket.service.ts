@@ -15,6 +15,7 @@ import {
   DeleteFilesFromChannelSocketPayload,
   SaveCSRPayload,
   CommunityMetadata,
+  type PermsData,
   type UserProfile,
 } from '@quiet/types'
 import EventEmitter from 'events'
@@ -153,10 +154,6 @@ export class SocketService extends EventEmitter implements OnModuleInit {
       })
 
       // ====== Community ======
-      socket.on(SocketActionTypes.SEND_COMMUNITY_METADATA, (payload: CommunityMetadata) => {
-        this.emit(SocketActionTypes.SEND_COMMUNITY_METADATA, payload)
-      })
-
       socket.on(SocketActionTypes.CREATE_COMMUNITY, async (payload: InitCommunityPayload) => {
         this.logger(`Creating community ${payload.id}`)
         this.emit(SocketActionTypes.CREATE_COMMUNITY, payload)
@@ -177,9 +174,18 @@ export class SocketService extends EventEmitter implements OnModuleInit {
         this.logger('Leaving community')
         this.emit(SocketActionTypes.LEAVE_COMMUNITY)
       })
+
       socket.on(SocketActionTypes.LIBP2P_PSK_SAVED, payload => {
         this.logger('Saving PSK', payload)
         this.emit(SocketActionTypes.LIBP2P_PSK_SAVED, payload)
+      })
+
+      socket.on(SocketActionTypes.SEND_COMMUNITY_METADATA, (payload: CommunityMetadata) => {
+        this.emit(SocketActionTypes.SEND_COMMUNITY_METADATA, payload)
+      })
+
+      socket.on(SocketActionTypes.SEND_COMMUNITY_CA_DATA, (payload: PermsData) => {
+        this.emit(SocketActionTypes.SEND_COMMUNITY_CA_DATA, payload)
       })
 
       // ====== Users ======

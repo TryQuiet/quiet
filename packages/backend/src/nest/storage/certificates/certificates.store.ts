@@ -23,16 +23,11 @@ export class CertificatesStore {
   private metadata: CommunityMetadata | undefined
   private filteredCertificatesMapping: Map<string, Partial<UserData>>
   private usernameMapping: Map<string, string>
+  private emitter: EventEmitter
 
   private readonly logger = Logger(CertificatesStore.name)
 
   constructor(private readonly orbitDbService: OrbitDb) {
-    this.filteredCertificatesMapping = new Map()
-    this.usernameMapping = new Map()
-  }
-
-  public resetValues() {
-    this.metadata = undefined
     this.filteredCertificatesMapping = new Map()
     this.usernameMapping = new Map()
   }
@@ -46,6 +41,7 @@ export class CertificatesStore {
         write: ['*'],
       },
     })
+    this.emitter = emitter
 
     this.store.events.on('ready', async () => {
       this.logger('Loaded certificates to memory')
@@ -54,25 +50,25 @@ export class CertificatesStore {
 
     this.store.events.on('write', async () => {
       this.logger('Saved certificate locally')
-      await loadedCertificates()
+      await this.loadedCertificates()
     })
 
     this.store.events.on('replicated', async () => {
       this.logger('REPLICATED: Certificates')
       emitter.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CERTIFICATES_REPLICATED)
-      await loadedCertificates()
+      await this.loadedCertificates()
     })
-
-    const loadedCertificates = async () => {
-      emitter.emit(StorageEvents.LOADED_CERTIFICATES, {
-        certificates: await this.getCertificates(),
-      })
-    }
 
     // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
     await this.store.load({ fetchEntryTimeout: 15000 })
 
     this.logger('Initialized')
+  }
+
+  public async loadedCertificates() {
+    this.emitter?.emit(StorageEvents.LOADED_CERTIFICATES, {
+      certificates: await this.getCertificates(),
+    })
   }
 
   public async close() {
@@ -85,7 +81,7 @@ export class CertificatesStore {
 
   public async addCertificate(certificate: string) {
     this.logger('Adding user certificate')
-    await this.store.add(certificate)
+    await this.store?.add(certificate)
     return true
   }
 
@@ -97,6 +93,17 @@ export class CertificatesStore {
   public updateMetadata(metadata: CommunityMetadata) {
     if (!metadata) return
     this.metadata = metadata
+    // FIXME: Community metadata is required for validating
+    // certificates, so we re-validate certificates once community
+    // metadata is set. Currently the certificates store receives the
+    // community metadata via an event. Is there a better way to
+    // organize this so that the dependencies are clearer? Having
+    // CertificateStore depend on CommunityMetadataStore directly?
+    // Storing community metadata in LevelDB? Only initializing
+    // certificate store after community metadata is available?
+    if (this.store) {
+      this.loadedCertificates()
+    }
   }
 
   private async validateCertificate(certificate: string) {
@@ -117,15 +124,12 @@ export class CertificatesStore {
       throw new NoCryptoEngineError()
     }
 
-    const parsedCertificate = loadCertificate(certificate)
-
-    let metadata = this.metadata
-    while (!metadata) {
-      await new Promise<void>(res => setTimeout(res, 100))
-      metadata = this.metadata
+    if (!this.metadata) {
+      throw new Error('Community metadata missing')
     }
 
-    const parsedRootCertificate = loadCertificate(metadata.rootCa)
+    const parsedRootCertificate = loadCertificate(this.metadata.rootCa)
+    const parsedCertificate = loadCertificate(certificate)
     const verification = await parsedCertificate.verify(parsedRootCertificate)
 
     return verification
@@ -144,6 +148,10 @@ export class CertificatesStore {
    * https://github.com/TryQuiet/quiet/issues/1899
    */
   protected async getCertificates() {
+    if (!this.store) {
+      return []
+    }
+
     // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
     await this.store.load({ fetchEntryTimeout: 15000 })
     const allCertificates = this.store
@@ -195,5 +203,17 @@ export class CertificatesStore {
 
     // Return desired data from updated cache
     return this.usernameMapping.get(pubkey)
+  }
+
+  public clean() {
+    // FIXME: Add correct typings on object fields.
+
+    // @ts-ignore
+    this.store = undefined
+    // @ts-ignore
+    this.emitter = undefined
+    this.metadata = undefined
+    this.filteredCertificatesMapping = new Map()
+    this.usernameMapping = new Map()
   }
 }
