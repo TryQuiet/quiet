@@ -1,3 +1,29 @@
+# Change Log
+
+All notable changes to this project will be documented in this file.
+See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+## [2.1.1-alpha.0](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@2.0.3-alpha.15...@quiet/desktop@2.1.1-alpha.0) (2024-01-31)
+
+
+### Bug Fixes
+
+* "Invite A Friend" tab now reads "Add Members" ([#2234](https://github.com/TryQuiet/quiet/issues/2234)) ([049cd56](https://github.com/TryQuiet/quiet/commit/049cd560b7fbdd31353f3565ab0498b60fddefa2))
+* Clean up desktop UI console errors/warnings ([#2226](https://github.com/TryQuiet/quiet/issues/2226)) ([570a7a9](https://github.com/TryQuiet/quiet/commit/570a7a9ce61ce52fb05b86e84c91c4a5110e2f7b))
+* cleanup username creation component ([#2216](https://github.com/TryQuiet/quiet/issues/2216)) ([1d03995](https://github.com/TryQuiet/quiet/commit/1d039952cf84e94fdcf8b66c395f634094ea3a6b))
+* create jdenticon from pubKey, not username - to distinguish user… ([#2207](https://github.com/TryQuiet/quiet/issues/2207)) ([fd8bd06](https://github.com/TryQuiet/quiet/commit/fd8bd06a5f226e0da8189581c076ba9976633e7d))
+* Enable channel context menu for all users ([#2206](https://github.com/TryQuiet/quiet/issues/2206)) ([02f6809](https://github.com/TryQuiet/quiet/commit/02f680903bb66faf52c007f66523096e449d6d31))
+* Make community name field text visible on create community page ([#2233](https://github.com/TryQuiet/quiet/issues/2233)) ([0f4a33f](https://github.com/TryQuiet/quiet/commit/0f4a33f231797d2ee94fdafbbb7917c640556a6d))
+
+
+### Features
+
+* Add user profile feature for desktop ([#1923](https://github.com/TryQuiet/quiet/issues/1923)) ([d016be5](https://github.com/TryQuiet/quiet/commit/d016be5a162560962c6059d73db6ab005fb023e8))
+
+
+
+
+
 [2.1.0]
 
 # New features:
