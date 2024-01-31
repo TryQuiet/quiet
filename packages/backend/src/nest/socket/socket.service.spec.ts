@@ -45,12 +45,12 @@ describe('SocketService', () => {
 
     client.emit(event)
 
-    expect(spy).not.toBeCalledWith(event, undefined)
+    expect(spy).not.toBeCalledWith(event, undefined, undefined)
 
     socketService.resolveReadyness()
 
     await waitForExpect(() => {
-      expect(spy).toHaveBeenCalledWith(event, undefined)
+      expect(spy).toHaveBeenCalledWith(event, undefined, undefined)
     })
   })
 

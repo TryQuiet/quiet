@@ -15,7 +15,7 @@ import {
   type ChannelsReplicatedPayload,
   type ClearMessagesCachePayload,
   type CreateChannelPayload,
-  type CreatedChannelResponse,
+  type CreateChannelResponse,
   type DeleteChannelFromStorePayload,
   type DeleteChannelPayload,
   type DisableChannelPayload,
@@ -27,7 +27,7 @@ import {
   type PublicChannelSubscription,
   type SendInitialChannelMessagePayload,
   type SendNewUserInfoMessagePayload,
-  type SetChannelSubscribedPayload,
+  type ChannelSubscribedPayload,
   type SetCurrentChannelPayload,
   type UpdateNewestMessagePayload,
 } from '@quiet/types'
@@ -86,7 +86,7 @@ export const publicChannelsSlice = createSlice({
     createGeneralChannel: state => state,
     sendInitialChannelMessage: (state, _action: PayloadAction<SendInitialChannelMessagePayload>) => state,
     sendNewUserInfoMessage: (state, _action: PayloadAction<SendNewUserInfoMessagePayload>) => state,
-    addChannel: (state, action: PayloadAction<CreatedChannelResponse>) => {
+    addChannel: (state, action: PayloadAction<CreateChannelResponse>) => {
       const { channel } = action.payload
       publicChannelsAdapter.addOne(state.channels, {
         ...channel,
@@ -98,7 +98,7 @@ export const publicChannelsSlice = createSlice({
         newestMessage: null,
       })
     },
-    setChannelSubscribed: (state, action: PayloadAction<SetChannelSubscribedPayload>) => {
+    setChannelSubscribed: (state, action: PayloadAction<ChannelSubscribedPayload>) => {
       const { channelId } = action.payload
       publicChannelsSubscriptionsAdapter.upsertOne(state.channelsSubscriptions, {
         id: channelId,

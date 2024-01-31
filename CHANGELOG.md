@@ -2,6 +2,7 @@
 
 # Refactorings:
 
+* refactor: Use socket.io ack for CREATE_CHANNEL event
 * refactor: Introduce socket.io acknowledgements
 
 [2.1.1]

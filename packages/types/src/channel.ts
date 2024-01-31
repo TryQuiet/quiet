@@ -68,6 +68,10 @@ export interface CreateChannelPayload {
   channel: PublicChannel
 }
 
+export interface CreateChannelResponse {
+  channel: PublicChannel
+}
+
 export interface DeleteChannelPayload {
   channelId: string
 }
@@ -76,11 +80,7 @@ export interface DeleteChannelResponse {
   channelId: string
 }
 
-export interface CreatedChannelResponse {
-  channel: PublicChannel
-}
-
-export interface SetChannelSubscribedPayload {
+export interface ChannelSubscribedPayload {
   channelId: string
 }
 

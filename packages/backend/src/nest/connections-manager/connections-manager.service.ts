@@ -19,7 +19,7 @@ import {
   CommunityId,
   ConnectionProcessInfo,
   CreateChannelPayload,
-  CreatedChannelResponse,
+  CreateChannelResponse,
   DeleteFilesFromChannelSocketPayload,
   DownloadStatus,
   ErrorMessages,
@@ -35,7 +35,7 @@ import {
   ResponseCreateNetworkPayload,
   SendCertificatesResponse,
   SendMessagePayload,
-  SetChannelSubscribedPayload,
+  ChannelSubscribedPayload,
   SocketActionTypes,
   StorePeerListPayload,
   UploadFilePayload,
@@ -520,9 +520,12 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     })
 
     // Public Channels
-    this.socketService.on(SocketActionTypes.CREATE_CHANNEL, async (args: CreateChannelPayload) => {
-      await this.storageService?.subscribeToChannel(args.channel)
-    })
+    this.socketService.on(
+      SocketActionTypes.CREATE_CHANNEL,
+      async (args: CreateChannelPayload, callback: (response?: CreateChannelResponse) => void) => {
+        callback(await this.storageService?.subscribeToChannel(args.channel))
+      }
+    )
     this.socketService.on(
       SocketActionTypes.DELETE_CHANNEL,
       async (
@@ -593,12 +596,8 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       }
       this.serverIoProvider.io.emit(SocketActionTypes.SEND_MESSAGES_IDS, payload)
     })
-    this.storageService.on(StorageEvents.SET_CHANNEL_SUBSCRIBED, (payload: SetChannelSubscribedPayload) => {
+    this.storageService.on(StorageEvents.CHANNEL_SUBSCRIBED, (payload: ChannelSubscribedPayload) => {
       this.serverIoProvider.io.emit(SocketActionTypes.CHANNEL_SUBSCRIBED, payload)
-    })
-    this.storageService.on(StorageEvents.CREATED_CHANNEL, (payload: CreatedChannelResponse) => {
-      this.logger(`Storage - ${StorageEvents.CREATED_CHANNEL}: ${payload.channel.name}`)
-      this.serverIoProvider.io.emit(SocketActionTypes.CREATED_CHANNEL, payload)
     })
     this.storageService.on(StorageEvents.REMOVE_DOWNLOAD_STATUS, (payload: RemoveDownloadStatus) => {
       this.serverIoProvider.io.emit(SocketActionTypes.REMOVE_DOWNLOAD_STATUS, payload)
