@@ -4,7 +4,7 @@
   </h1>
 
   <h3 align="center">
-    Current release owner 🎉⛸️🦆 <a href='https://github.com/siepra'>@siepra</a> (January 2024)
+    Current release owner 🎉⛸️🦆 <a href='https://github.com/leblowl'>@leblowl</a> (February 2024)
   </h3>
 
   <br />
