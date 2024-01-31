@@ -186,6 +186,11 @@ export class StorageService extends EventEmitter {
     this.logger('1/3')
     console.time('Storage.initDatabases')
 
+    // FIXME: This is sort of messy how we are initializing things.
+    // Currently, the CommunityMetadataStore sends an event during
+    // initialization which is picked up by the CertificatesStore, but
+    // the CertificatesStore is not initialized yet. Perhaps we can
+    // attach `this` as an EventEmitter first and then load data.
     await this.communityMetadataStore.init(this)
     await this.certificatesStore.init(this)
     await this.certificatesRequestsStore.init(this)
@@ -299,9 +304,7 @@ export class StorageService extends EventEmitter {
 
   public async loadAllCertificates() {
     this.logger('Loading all certificates')
-    this.emit(StorageEvents.REPLICATED_CERTIFICATES, {
-      certificates: await this.certificatesStore.loadAllCertificates(),
-    })
+    return await this.certificatesStore.loadAllCertificates()
   }
 
   public async attachCertificatesStoreListeners() {
@@ -312,16 +315,11 @@ export class StorageService extends EventEmitter {
   }
 
   public async attachCsrsStoreListeners() {
-    this.on(StorageEvents.LOADED_USER_CSRS, async payload => {
-      const allCertificates = this.getAllEventLogEntries(this.certificatesStore.store)
-      this.emit(StorageEvents.REPLICATED_CSR, { csrs: payload.csrs, certificates: allCertificates, id: payload.id })
+    this.on(StorageEvents.LOADED_USER_CSRS, async (payload: { csrs: string[] }) => {
+      this.emit(StorageEvents.REPLICATED_CSR, payload)
       // TODO
       await this.updatePeersList()
     })
-  }
-
-  public resolveCsrReplicatedPromise(id: number) {
-    this.certificatesRequestsStore.resolveCsrReplicatedPromise(id)
   }
 
   public async loadAllChannels() {
@@ -776,11 +774,6 @@ export class StorageService extends EventEmitter {
     })
   }
 
-  public resetCsrAndCertsValues() {
-    this.certificatesRequestsStore.resetCsrReplicatedMapAndId()
-    this.certificatesStore.resetValues()
-  }
-
   private clean() {
     // @ts-ignore
     this.channels = undefined
@@ -796,6 +789,8 @@ export class StorageService extends EventEmitter {
     this.filesManager = null
     this.peerId = null
 
-    this.resetCsrAndCertsValues()
+    this.certificatesRequestsStore.clean()
+    this.certificatesStore.clean()
+    this.communityMetadataStore.clean()
   }
 }

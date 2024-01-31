@@ -13,58 +13,42 @@ import Logger from '../../common/logger'
 @Injectable()
 export class CertificatesRequestsStore {
   public store: EventStore<string>
-  public csrReplicatedPromiseMap: Map<number, CsrReplicatedPromiseValues> = new Map()
-  private csrReplicatedPromiseId: number = 0
+  private emitter: EventEmitter
 
   private readonly logger = Logger(CertificatesRequestsStore.name)
 
   constructor(private readonly orbitDbService: OrbitDb) {}
 
   public async init(emitter: EventEmitter) {
-    this.logger('Initializing...')
+    this.logger('Initializing certificates requests store')
+
     this.store = await this.orbitDbService.orbitDb.log<string>('csrs', {
       replicate: false,
       accessController: {
         write: ['*'],
       },
     })
+    this.emitter = emitter
 
     this.store.events.on('write', async (_address, entry) => {
       this.logger('Added CSR to database')
-      emitter.emit(StorageEvents.LOADED_USER_CSRS, {
-        csrs: await this.getCsrs(),
-        id: this.csrReplicatedPromiseId,
-      })
+      this.loadedCertificateRequests()
     })
 
     this.store.events.on('replicated', async () => {
-      this.logger('Replicated CSRS')
-
-      this.csrReplicatedPromiseId++
-
-      const filteredCsrs = await this.getCsrs()
-      this.createCsrReplicatedPromise(this.csrReplicatedPromiseId)
-
-      // Lock replicated event until previous event is processed by registration service
-      if (this.csrReplicatedPromiseId > 1) {
-        const csrReplicatedPromiseMapId = this.csrReplicatedPromiseMap.get(this.csrReplicatedPromiseId - 1)
-
-        if (csrReplicatedPromiseMapId?.promise) {
-          await csrReplicatedPromiseMapId.promise
-        }
-      }
-
-      emitter.emit(StorageEvents.LOADED_USER_CSRS, {
-        csrs: filteredCsrs,
-        id: this.csrReplicatedPromiseId,
-      })
+      this.logger('Replicated CSRs')
+      this.loadedCertificateRequests()
     })
 
-    emitter.emit(StorageEvents.LOADED_USER_CSRS, {
-      csrs: await this.getCsrs(),
-      id: this.csrReplicatedPromiseId,
-    })
+    // TODO: Load CSRs in case the owner closes the app before issuing
+    // certificates
     this.logger('Initialized')
+  }
+
+  public async loadedCertificateRequests() {
+    this.emitter.emit(StorageEvents.LOADED_USER_CSRS, {
+      csrs: await this.getCsrs(),
+    })
   }
 
   public async close() {
@@ -75,30 +59,6 @@ export class CertificatesRequestsStore {
 
   public getAddress() {
     return this.store?.address
-  }
-
-  public resetCsrReplicatedMapAndId() {
-    this.csrReplicatedPromiseMap = new Map()
-    this.csrReplicatedPromiseId = 0
-  }
-
-  private createCsrReplicatedPromise(id: number) {
-    let resolveFunction
-    const promise = new Promise(resolve => {
-      resolveFunction = resolve
-    })
-    this.csrReplicatedPromiseMap.set(id, { promise, resolveFunction })
-  }
-
-  public resolveCsrReplicatedPromise(id: number) {
-    const csrReplicatedPromiseMapId = this.csrReplicatedPromiseMap.get(id)
-    if (csrReplicatedPromiseMapId) {
-      csrReplicatedPromiseMapId?.resolveFunction(id)
-      this.csrReplicatedPromiseMap.delete(id)
-    } else {
-      this.logger.error(`No promise with ID ${id} found.`)
-      return
-    }
   }
 
   public async addUserCsr(csr: string) {
@@ -163,5 +123,14 @@ export class CertificatesRequestsStore {
     )
     this.logger('DuplicatedCertBug', '[...filteredCsrsMap.values()]', [...filteredCsrsMap.values()])
     return [...filteredCsrsMap.values()]
+  }
+
+  public clean() {
+    // FIXME: Add correct typings on object fields.
+
+    // @ts-ignore
+    this.store = undefined
+    // @ts-ignore
+    this.emitter = undefined
   }
 }
