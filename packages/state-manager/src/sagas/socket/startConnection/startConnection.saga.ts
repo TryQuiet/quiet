@@ -178,6 +178,7 @@ export function subscribe(socket: Socket) {
       console.log('Hunting for heisenbug: Community event received in state-manager')
       // TODO: We can send this once when creating the community and
       // store it in the backend.
+      throw new Error()
       emit(communitiesActions.sendCommunityCaData())
       emit(filesActions.checkForMissingFiles(payload.id))
       emit(networkActions.addInitializedCommunity(payload.id))
