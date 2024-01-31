@@ -1,15 +1,40 @@
+[2.1.1]
+
+# Fixes:
+
+* Opening the mobile app with joining links has been corrected.
+
+[2.1.0]
+
+# New features:
+
+* Added user profile feature.
+* Updated old logo of Linux and Windows with rounded ones.
+
+# Fixes:
+
+* Handle spaces in tor process path.
+* Run tor process in shell.
+
+# Refactorings:
+
+* Removed SAVE_OWNER_CERTIFICATE event.
+* Removed registrar reminders and rename LAUNCH_REGISTRAR.
+* Removed unused SEND_USER_CERTIFICATE event.
+* Removed unused SUBSCRIBE_FOR events.
+
 [2.0.1]
 
 # Fixes:
 
-* Desktop UI console errors/warnings have been cleaned up.
-* The channel context menu is now enabled for all users.
-* A bug that impersonated the channel creation message due to the removal of the username has been fixed.
-* Large file downloads are now slower but steadier.
-* The username changing form has been fixed.
-* Push notifications runtime permission is now requested on Android.
-* Users joining a community will no longer receive multiple "welcome" messages.
-* Users sharing the same nickname now have different profile images.
+ * Desktop UI console errors/warnings have been cleaned up.
+ * The channel context menu is now enabled for all users.
+ * A bug that impersonated the channel creation message due to the removal of the username has been fixed.
+ * Large file downloads are now slower but steadier.
+ * The username changing form has been fixed.
+ * Push notifications runtime permission is now requested on Android.
+ * Users joining a community will no longer receive multiple "welcome" messages.
+ * Users sharing the same nickname now have different profile images.
 
 [2.0.0]
 
@@ -27,7 +52,7 @@
 
 * Prettier message loading indicator on mobile
 * Better descriptions of the joining process
-* Validation of community metadata and certificates 
+* Validation of community metadata and certificates
 * A real iOS launch screen (so long, "Powered by React Native"!)
 * A nice splash screen on mobile until the joining/creating screens are ready
 * Clearer autoupdate language in the update modal, so users know that the app will update on restart

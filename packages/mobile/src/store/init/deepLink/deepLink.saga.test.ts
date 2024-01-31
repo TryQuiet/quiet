@@ -3,7 +3,7 @@ import { combineReducers } from '@reduxjs/toolkit'
 import { reducers } from '../../root.reducer'
 import { Store } from '../../store.types'
 import { prepareStore } from '../../../tests/utils/prepareStore'
-import { communities, connection, identity } from '@quiet/state-manager'
+import { communities, connection, getInvitationCodes, identity } from '@quiet/state-manager'
 import { initActions } from '../init.slice'
 import { navigationActions } from '../../navigation/navigation.slice'
 import { ScreenNames } from '../../../const/ScreenNames.enum'
@@ -59,14 +59,7 @@ describe('deepLinkSaga', () => {
     await expectSaga(deepLinkSaga, initActions.deepLink(validCode))
       .withReducer(reducer)
       .withState(store.getState())
-      .put(
-        navigationActions.replaceScreen({
-          screen: ScreenNames.JoinCommunityScreen,
-          params: {
-            code: validCode,
-          },
-        })
-      )
+      .put(initActions.resetDeepLink())
       .put(
         communities.actions.createNetwork({
           ownership: CommunityOwnership.User,
@@ -75,9 +68,15 @@ describe('deepLinkSaga', () => {
           ownerOrbitDbIdentity: validData.ownerOrbitDbIdentity,
         })
       )
+      .put(
+        navigationActions.replaceScreen({
+          screen: ScreenNames.UsernameRegistrationScreen,
+        })
+      )
       .run()
   })
 
+  // FIXME: Currently there's no way to actually check whether the redirection destionation is correct
   test.skip('opens channel list screen if the same url has been used', async () => {
     store.dispatch(
       initActions.setWebsocketConnected({
@@ -86,7 +85,13 @@ describe('deepLinkSaga', () => {
       })
     )
 
-    store.dispatch(communities.actions.addNewCommunity(community))
+    store.dispatch(communities.actions.setInvitationCodes(validData.pairs))
+    store.dispatch(
+      communities.actions.addNewCommunity({
+        ...community,
+        name: 'rockets',
+      })
+    )
 
     store.dispatch(
       // @ts-expect-error
@@ -99,11 +104,6 @@ describe('deepLinkSaga', () => {
     await expectSaga(deepLinkSaga, initActions.deepLink(validCode))
       .withReducer(reducer)
       .withState(store.getState())
-      .put(
-        navigationActions.replaceScreen({
-          screen: ScreenNames.ChannelListScreen,
-        })
-      )
       .not.put(
         communities.actions.createNetwork({
           ownership: CommunityOwnership.User,
@@ -123,9 +123,19 @@ describe('deepLinkSaga', () => {
       })
     )
 
-    store.dispatch(communities.actions.addNewCommunity(community))
+    // Store other communitys' invitation data in redux
+    const invitationData = getValidInvitationUrlTestData(validInvitationCodeTestData[1])
+    store.dispatch(communities.actions.setInvitationCodes(invitationData.data.pairs))
+
+    store.dispatch(
+      communities.actions.addNewCommunity({
+        ...community,
+        name: 'rockets',
+      })
+    )
 
     store.dispatch(communities.actions.setCurrentCommunity(community.id))
+
     const reducer = combineReducers(reducers)
     await expectSaga(deepLinkSaga, initActions.deepLink(validCode))
       .withReducer(reducer)
@@ -135,10 +145,6 @@ describe('deepLinkSaga', () => {
           type: navigationActions.replaceScreen.type,
           payload: {
             screen: ScreenNames.ErrorScreen,
-            params: {
-              title: 'You already belong to a community',
-              message: "We're sorry but for now you can only be a member of a single community at a time",
-            },
           },
         },
       })
@@ -150,6 +156,50 @@ describe('deepLinkSaga', () => {
           ownerOrbitDbIdentity: validData.ownerOrbitDbIdentity,
         })
       )
+      .run()
+  })
+
+  test("doesn't display error if user is connecting with the same community", async () => {
+    store.dispatch(
+      initActions.setWebsocketConnected({
+        dataPort: 5001,
+        socketIOSecret: 'secret',
+      })
+    )
+
+    store.dispatch(communities.actions.addNewCommunity(community))
+
+    store.dispatch(communities.actions.setCurrentCommunity(community.id))
+
+    const invitationCodes = getInvitationCodes(validCode)
+    store.dispatch(communities.actions.setInvitationCodes(invitationCodes.pairs))
+
+    const reducer = combineReducers(reducers)
+    await expectSaga(deepLinkSaga, initActions.deepLink(validCode))
+      .withReducer(reducer)
+      .withState(store.getState())
+      .not.put.like({
+        action: {
+          type: navigationActions.replaceScreen.type,
+          payload: {
+            screen: ScreenNames.ErrorScreen,
+            params: {
+              title: 'You already belong to a community',
+              message: "We're sorry but for now you can only be a member of a single community at a time",
+            },
+          },
+        },
+      })
+      .put.like({
+        action: {
+          type: communities.actions.createNetwork.type,
+          payload: {
+            ownership: CommunityOwnership.User,
+            peers: validData.pairs,
+            psk: validData.psk,
+          },
+        },
+      })
       .run()
   })
 
@@ -187,48 +237,6 @@ describe('deepLinkSaga', () => {
           },
         },
       })
-      .not.put(
-        communities.actions.createNetwork({
-          ownership: CommunityOwnership.User,
-          peers: validData.pairs,
-          psk: validData.psk,
-          ownerOrbitDbIdentity: validData.ownerOrbitDbIdentity,
-        })
-      )
-      .run()
-  })
-
-  test.todo('continues if link used mid registration')
-
-  test.skip('continues if link used mid registration and locks input while waiting for server response', async () => {
-    store.dispatch(
-      initActions.setWebsocketConnected({
-        dataPort: 5001,
-        socketIOSecret: 'secret',
-      })
-    )
-
-    store.dispatch(communities.actions.addNewCommunity(community))
-
-    store.dispatch(
-      // @ts-expect-error
-      identity.actions.addNewIdentity({ ..._identity, userCertificate: null })
-    )
-
-    store.dispatch(communities.actions.setCurrentCommunity(community.id))
-
-    store.dispatch(connection.actions.setConnectionProcess(ConnectionProcessInfo.REGISTERING_USER_CERTIFICATE))
-
-    const reducer = combineReducers(reducers)
-    await expectSaga(deepLinkSaga, initActions.deepLink(validCode))
-      .withReducer(reducer)
-      .withState(store.getState())
-      .put(
-        navigationActions.replaceScreen({
-          screen: ScreenNames.UsernameRegistrationScreen,
-          params: { fetching: true },
-        })
-      )
       .not.put(
         communities.actions.createNetwork({
           ownership: CommunityOwnership.User,
