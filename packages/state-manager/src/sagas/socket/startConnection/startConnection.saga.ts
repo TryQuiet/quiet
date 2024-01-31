@@ -31,7 +31,7 @@ import {
   type DownloadStatus,
   type ErrorPayload,
   type FileMetadata,
-  type IncomingMessages,
+  type MessagesLoadedPayload,
   type NetworkDataPayload,
   type RemoveDownloadStatus,
   type SendCertificatesResponse,
@@ -48,7 +48,7 @@ const log = logger('socket')
 
 export function subscribe(socket: Socket) {
   return eventChannel<
-    | ReturnType<typeof messagesActions.incomingMessages>
+    | ReturnType<typeof messagesActions.addMessages>
     | ReturnType<typeof messagesActions.responseSendMessagesIds>
     | ReturnType<typeof messagesActions.removePendingMessageStatus>
     | ReturnType<typeof messagesActions.addPublicChannelsMessagesBase>
@@ -132,12 +132,12 @@ export function subscribe(socket: Socket) {
     socket.on(SocketActionTypes.SEND_MESSAGES_IDS, (payload: ChannelMessagesIdsResponse) => {
       emit(messagesActions.responseSendMessagesIds(payload))
     })
-    socket.on(SocketActionTypes.INCOMING_MESSAGES, (payload: IncomingMessages) => {
+    socket.on(SocketActionTypes.MESSAGES_LOADED, (payload: MessagesLoadedPayload) => {
       const { messages } = payload
       for (const message of messages) {
         emit(messagesActions.removePendingMessageStatus(message.id))
       }
-      emit(messagesActions.incomingMessages(payload))
+      emit(messagesActions.addMessages(payload))
     })
     socket.on(SocketActionTypes.CHECK_FOR_MISSING_FILES, (payload: CommunityId) => {
       emit(filesActions.checkForMissingFiles(payload))

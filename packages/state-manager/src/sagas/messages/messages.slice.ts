@@ -12,7 +12,7 @@ import {
   type ChannelMessage,
   type ChannelMessagesIdsResponse,
   type DeleteChannelEntryPayload,
-  type IncomingMessages,
+  type MessagesLoadedPayload,
   instanceOfChannelMessage,
   type LazyLoadingPayload,
   type MessageSendingStatus,
@@ -72,18 +72,18 @@ export const messagesSlice = createSlice({
       const id = action.payload
       messageVerificationStatusAdapter.removeOne(state.messageVerificationStatus, id)
     },
-    incomingMessages: (state, action: PayloadAction<IncomingMessages>) => {
+    addMessages: (state, action: PayloadAction<MessagesLoadedPayload>) => {
       const { messages } = action.payload
       for (const message of messages) {
         if (!instanceOfChannelMessage(message)) return
         if (!state.publicChannelsMessagesBase.entities[message.channelId]) return
 
-        let incoming = message
+        let toAdd = message
 
         const draft = state.publicChannelsMessagesBase.entities[message.channelId]?.messages.entities[message.id]
 
         if (message.media && draft?.media?.path) {
-          incoming = {
+          toAdd = {
             ...message,
             media: {
               ...message.media,
@@ -95,7 +95,7 @@ export const messagesSlice = createSlice({
         const messagesBase = state.publicChannelsMessagesBase.entities[message.channelId]
         if (!messagesBase) return
 
-        channelMessagesAdapter.upsertOne(messagesBase.messages, incoming)
+        channelMessagesAdapter.upsertOne(messagesBase.messages, toAdd)
       }
     },
     setDisplayedMessagesNumber: (state, action: PayloadAction<SetDisplayedMessagesNumberPayload>) => {

@@ -6,8 +6,8 @@ import { publicChannelsSelectors } from '../../publicChannels/publicChannels.sel
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import { type CacheMessagesPayload, type ChannelMessage } from '@quiet/types'
 
-export function* incomingMessagesSaga(
-  action: PayloadAction<ReturnType<typeof messagesActions.incomingMessages>['payload']>
+export function* addMessagesSaga(
+  action: PayloadAction<ReturnType<typeof messagesActions.addMessages>['payload']>
 ): Generator {
   for (const incomingMessage of action.payload.messages) {
     // Proceed only for messages from current channel

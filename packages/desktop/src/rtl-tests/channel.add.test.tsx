@@ -20,7 +20,7 @@ import {
   ChannelsReplicatedPayload,
   CreateChannelPayload,
   ErrorMessages,
-  IncomingMessages,
+  type MessagesLoadedPayload,
   SendMessagePayload,
   SocketActionTypes,
 } from '@quiet/types'
@@ -107,7 +107,7 @@ describe('Add new channel', () => {
         const { message } = data
         expect(message.channelId).toEqual(channelName.output)
         expect(message.message).toEqual(`Created #${channelName.output}`)
-        return socket.socketClient.emit<IncomingMessages>(SocketActionTypes.INCOMING_MESSAGES, {
+        return socket.socketClient.emit<MessagesLoadedPayload>(SocketActionTypes.MESSAGES_LOADED, {
           messages: [message],
         })
       }
@@ -321,7 +321,7 @@ describe('Add new channel', () => {
         const { message } = data
         expect(message.channelId).toEqual(channelName)
         expect(message.message).toEqual(`Created #${channelName}`)
-        return socket.socketClient.emit<IncomingMessages>(SocketActionTypes.INCOMING_MESSAGES, {
+        return socket.socketClient.emit<MessagesLoadedPayload>(SocketActionTypes.MESSAGES_LOADED, {
           messages: [message],
         })
       }

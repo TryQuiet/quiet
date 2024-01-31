@@ -66,7 +66,7 @@ export function* sendMessageSaga(
 
   // Display sent message immediately, to improve user experience
   yield* put(
-    messagesActions.incomingMessages({
+    messagesActions.addMessages({
       messages: [message],
       isVerified: true,
     })
