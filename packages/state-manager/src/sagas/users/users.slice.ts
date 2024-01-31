@@ -54,6 +54,10 @@ export const usersSlice = createSlice({
     },
     saveUserProfile: (state, _action: PayloadAction<{ photo?: File }>) => state,
     setUserProfiles: (state, action: PayloadAction<UserProfile[]>) => {
+      // Creating user profiles object for backwards compatibility with 2.0.1
+      if (!state.userProfiles) {
+        state.userProfiles = {}
+      }
       for (const userProfile of action.payload) {
         state.userProfiles[userProfile.pubKey] = userProfile
       }
