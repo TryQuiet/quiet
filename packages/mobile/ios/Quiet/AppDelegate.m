@@ -162,8 +162,9 @@ static NSString *const platform = @"mobile";
       
     
   // (5/6) Update data port information and broadcast it to frontend
-  
-  [self initWebsocketConnection];
+  if (init) {
+    [self initWebsocketConnection];
+  }
     
     
   // (6/6) Launch backend or reviwe services
