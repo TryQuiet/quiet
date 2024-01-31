@@ -6,13 +6,6 @@ import { RegistrationEvents } from './registration.types'
 import Logger from '../common/logger'
 import { StorageService } from '../storage/storage.service'
 
-class PermsDataMissingError extends Error {
-  constructor(message?: string) {
-    super(message)
-    this.name = 'PermsDataMissingError'
-  }
-}
-
 @Injectable()
 export class RegistrationService extends EventEmitter implements OnModuleInit {
   private readonly logger = Logger(RegistrationService.name)
@@ -55,23 +48,12 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
         // Event processing in progress
         this.registrationEventInProgress = true
 
-        try {
-          // Await the processing function and make sure everything that
-          // needs to be done in order is awaited inside this function.
-          await this.issueCertificates({
-            ...event,
-            certificates: (await this.storageService?.loadAllCertificates()) as string[],
-          })
-        } catch (e) {
-          this.logger.error('Failed to issue one or more certificates. Reason:', e)
-          // Re-queue failed registration event
-          //
-          // FIXME: Given certain errors, we probably shouldn't
-          // retry some events and we should probably also only
-          // retry specific CSRs (currently the event is for a list
-          // of CSRs)
-          this.registrationEvents.push(event)
-        }
+        // Await the processing function and make sure everything that
+        // needs to be done in order is awaited inside this function.
+        await this.issueCertificates({
+          ...event,
+          certificates: (await this.storageService?.loadAllCertificates()) as string[],
+        })
 
         this.logger('Finished issuing certificates')
         // Event processing finished
@@ -98,7 +80,7 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
     // add the ability to retry.
     if (!this.permsData) {
       this.logger('Not issuing certificates due to missing perms data')
-      throw new PermsDataMissingError()
+      return
     }
 
     this.logger('DuplicatedCertBug', { payload })
