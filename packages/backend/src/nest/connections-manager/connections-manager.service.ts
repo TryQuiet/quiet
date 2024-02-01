@@ -11,8 +11,8 @@ import PeerId from 'peer-id'
 import { getLibp2pAddressesFromCsrs, removeFilesFromDir } from '../common/utils'
 
 import {
-  AskForMessagesPayload,
-  ChannelMessagesIdsResponse,
+  GetMessagesPayload,
+  ChannelMessageIdsResponse,
   type DeleteChannelResponse,
   ChannelsReplicatedPayload,
   Community,
@@ -546,9 +546,12 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.socketService.on(SocketActionTypes.SEND_MESSAGE, async (args: SendMessagePayload) => {
       await this.storageService?.sendMessage(args.message)
     })
-    this.socketService.on(SocketActionTypes.ASK_FOR_MESSAGES, async (args: AskForMessagesPayload) => {
-      await this.storageService?.askForMessages(args.channelId, args.ids)
-    })
+    this.socketService.on(
+      SocketActionTypes.GET_MESSAGES,
+      async (payload: GetMessagesPayload, callback: (response?: MessagesLoadedPayload) => void) => {
+        callback(await this.storageService?.getMessages(payload.channelId, payload.ids))
+      }
+    )
 
     // Files
     this.socketService.on(SocketActionTypes.DOWNLOAD_FILE, async (metadata: FileMetadata) => {
@@ -590,11 +593,11 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.storageService.on(StorageEvents.MESSAGES_LOADED, (payload: MessagesLoadedPayload) => {
       this.serverIoProvider.io.emit(SocketActionTypes.MESSAGES_LOADED, payload)
     })
-    this.storageService.on(StorageEvents.SEND_MESSAGES_IDS, (payload: ChannelMessagesIdsResponse) => {
+    this.storageService.on(StorageEvents.MESSAGE_IDS_LOADED, (payload: ChannelMessageIdsResponse) => {
       if (payload.ids.length === 0) {
         return
       }
-      this.serverIoProvider.io.emit(SocketActionTypes.SEND_MESSAGES_IDS, payload)
+      this.serverIoProvider.io.emit(SocketActionTypes.MESSAGE_IDS_LOADED, payload)
     })
     this.storageService.on(StorageEvents.CHANNEL_SUBSCRIBED, (payload: ChannelSubscribedPayload) => {
       this.serverIoProvider.io.emit(SocketActionTypes.CHANNEL_SUBSCRIBED, payload)
@@ -616,9 +619,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     })
     this.storageService.on(StorageEvents.SEND_PUSH_NOTIFICATION, (payload: PushNotificationPayload) => {
       this.serverIoProvider.io.emit(SocketActionTypes.PUSH_NOTIFICATION, payload)
-    })
-    this.storageService.on(StorageEvents.CHECK_FOR_MISSING_FILES, (payload: CommunityId) => {
-      this.serverIoProvider.io.emit(SocketActionTypes.CHECK_FOR_MISSING_FILES, payload)
     })
     this.storageService.on(StorageEvents.REPLICATED_CSR, async (payload: { csrs: string[] }) => {
       this.logger(`Storage - ${StorageEvents.REPLICATED_CSR}`)

@@ -1,6 +1,4 @@
 export enum SocketActionTypes {
-  // A
-  ASK_FOR_MESSAGES = 'askForMessages',
   // C
   CANCEL_DOWNLOAD = 'cancelDownload',
   CHANNELS_REPLICATED = 'channelsReplicated',
@@ -22,12 +20,15 @@ export enum SocketActionTypes {
   DELETE_FILES_FROM_CHANNEL = 'deleteFilesFromChannel',
   // E
   ERROR = 'error',
+  // G
+  GET_MESSAGES = 'getMessages',
   // L
   LAUNCH_COMMUNITY = 'launchCommunity',
   LEAVE_COMMUNITY = 'leaveCommunity',
   LIBP2P_PSK_SAVED = 'libp2pPskSaved',
   LOADED_USER_PROFILES = 'loadedUserProfiles',
   // M
+  MESSAGE_IDS_LOADED = 'messageIdsLoaded',
   MESSAGES_LOADED = 'messagesLoaded',
   // N
   NETWORK = 'network',
@@ -50,7 +51,6 @@ export enum SocketActionTypes {
   SAVE_USER_PROFILE = 'saveUserProfile',
   SAVED_USER_CSR = 'savedUserCsr',
   SEND_MESSAGE = 'sendMessage',
-  SEND_MESSAGES_IDS = 'sendIds',
   SEND_PEER_ID = 'sendPeerId',
   SEND_COMMUNITY_METADATA = 'sendCommunityMetadata',
   SEND_COMMUNITY_CA_DATA = 'sendCommunityCaData',
@@ -61,5 +61,4 @@ export enum SocketActionTypes {
   UPDATE_MESSAGE_MEDIA = 'updateMessageMedia',
   UPLOAD_FILE = 'uploadFile',
   UPLOADED_FILE = 'uploadedFile',
-  CHECK_FOR_MISSING_FILES = 'checkForMissingFiles',
 }

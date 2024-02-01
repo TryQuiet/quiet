@@ -74,14 +74,14 @@ export interface MessageSendingStatusPayload {
   status: SendingStatus
 }
 
-export interface AskForMessagesPayload {
+export interface GetMessagesPayload {
   ids: string[]
   peerId: string
   channelId: string
   communityId: string
 }
 
-export interface ChannelMessagesIdsResponse {
+export interface ChannelMessageIdsResponse {
   ids: string[]
   channelId: string
   communityId: string
