@@ -9,8 +9,13 @@ This is the very simple algorithm for evaluating the most wanted peers.
 2. Two sorted arrays are created - one sorted by last seen and other by most uptime shared.
 3. Arrays are merged taking one element from list one and one element from the second list. Duplicates are ommited
 4. We end up with mix of last seen and most uptime descending array of peers, the it is enchanced to libp2p address.
+5. Prioritize local peer
  */
-export const filterAndSortPeers = (peersAddresses: string[], stats: NetworkStats[]): string[] => {
+export const filterAndSortPeers = (
+  peersAddresses: string[],
+  stats: NetworkStats[],
+  localPeerAddress: string
+): string[] => {
   peersAddresses = filterValidAddresses(peersAddresses)
   const lastSeenSorted = [...stats].sort((a, b) => {
     return b.lastSeen - a.lastSeen
@@ -44,8 +49,15 @@ export const filterAndSortPeers = (peersAddresses: string[], stats: NetworkStats
     })
   })
 
-  return peerList
-    .concat(peersAddresses)
-    .filter(address => address !== null)
-    .filter(isDefined)
+  const result = [
+    ...new Set([
+      localPeerAddress, // Set local peer as first
+      ...peerList
+        .concat(peersAddresses)
+        .filter(address => address !== null && address !== '')
+        .filter(isDefined),
+    ]),
+  ]
+
+  return result
 }

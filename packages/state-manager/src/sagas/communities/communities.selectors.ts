@@ -2,7 +2,6 @@ import { StoreKeys } from '../store.keys'
 import { createSelector } from 'reselect'
 import { communitiesAdapter } from './communities.adapter'
 import { type CreatedSelectors, type StoreState } from '../store.types'
-import { invitationShareUrl } from '@quiet/common'
 import { CertFieldsTypes, getCertFieldValue, parseCertificate } from '@quiet/identity'
 
 // Workaround for "The inferred type of 'communitiesSelectors' cannot be named without a reference to
@@ -49,20 +48,6 @@ export const ownerOrbitDbIdentity = createSelector(currentCommunity, currentComm
   return currentCommunity?.ownerOrbitDbIdentity
 })
 
-export const invitationUrl = createSelector(
-  currentCommunity,
-  psk,
-  ownerOrbitDbIdentity,
-  (community, communityPsk, ownerOrbitDbIdentity) => {
-    const peerList = community?.peerList
-    if (!peerList || peerList?.length === 0) return ''
-    if (!communityPsk) return ''
-    if (!ownerOrbitDbIdentity) return ''
-    const initialPeers = peerList.slice(0, 3)
-    return invitationShareUrl(initialPeers, communityPsk, ownerOrbitDbIdentity)
-  }
-)
-
 export const ownerNickname = createSelector(ownerCertificate, ownerCertificate => {
   if (!ownerCertificate) return undefined
 
@@ -84,7 +69,6 @@ export const communitiesSelectors = {
   currentCommunity,
   currentCommunityId,
   invitationCodes,
-  invitationUrl,
   ownerOrbitDbIdentity,
   ownerCertificate,
   ownerNickname,

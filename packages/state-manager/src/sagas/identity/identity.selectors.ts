@@ -4,6 +4,7 @@ import { identityAdapter } from './identity.adapter'
 import { type CreatedSelectors, type StoreState } from '../store.types'
 import { communitiesSelectors, selectCommunities, currentCommunity } from '../communities/communities.selectors'
 import { certificatesMapping } from '../users/users.selectors'
+import { createLibp2pAddress } from '@quiet/common'
 
 const identitySlice: CreatedSelectors[StoreKeys.Identity] = (state: StoreState) => state[StoreKeys.Identity]
 
@@ -21,6 +22,11 @@ export const currentIdentity = createSelector(
     return identityAdapter.getSelectors().selectById(reducerState.identities, currentCommunityId)
   }
 )
+
+export const currentPeerAddress = createSelector(currentIdentity, identity => {
+  if (!identity) return ''
+  return createLibp2pAddress(identity?.hiddenService.onionAddress, identity?.peerId.id)
+})
 
 export const communityMembership = createSelector(currentIdentity, currentCommunity, (identity, community) => {
   return Boolean(identity?.userCsr && community?.name)
@@ -61,6 +67,7 @@ export const identitySelectors = {
   selectById,
   selectEntities,
   currentIdentity,
+  currentPeerAddress,
   communityMembership,
   joinedCommunities,
   joinTimestamp,
