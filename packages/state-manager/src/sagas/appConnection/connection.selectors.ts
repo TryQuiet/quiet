@@ -23,7 +23,7 @@ export const connectionProcess = createSelector(connectionSlice, reducerState =>
 
 export const socketIOSecret = createSelector(connectionSlice, reducerState => reducerState.socketIOSecret)
 
-export const peerStats = createSelector(connectionSlice, reducerState => {
+const peerStats = createSelector(connectionSlice, reducerState => {
   let stats: NetworkStats[]
   if (reducerState.peersStats === undefined) {
     stats = []
@@ -34,21 +34,13 @@ export const peerStats = createSelector(connectionSlice, reducerState => {
 })
 
 export const peerList = createSelector(
-  connectionSlice,
   communitiesSelectors.currentCommunity,
   identitySelectors.currentPeerAddress,
-  (reducerState, community, localPeerAddress) => {
+  peerStats,
+  (community, localPeerAddress, stats) => {
     if (!community) return []
+
     const arr = [...(community.peerList || [])]
-
-    let stats: NetworkStats[]
-    if (reducerState.peersStats === undefined) {
-      stats = []
-    } else {
-      stats = peersStatsAdapter.getSelectors().selectAll(reducerState.peersStats)
-    }
-    console.log({ stats })
-
     return filterAndSortPeers(arr, stats, localPeerAddress)
   }
 )
@@ -61,7 +53,6 @@ export const invitationUrl = createSelector(
     if (!sortedPeerList || sortedPeerList?.length === 0) return ''
     if (!communityPsk) return ''
     if (!ownerOrbitDbIdentity) return ''
-    console.log('peerList ->>>', sortedPeerList)
     const initialPeers = sortedPeerList.slice(0, 3)
     return invitationShareUrl(initialPeers, communityPsk, ownerOrbitDbIdentity)
   }
