@@ -21,7 +21,7 @@ import {
   type PublicChannel,
   type PublicChannelStatus,
   INITIAL_CURRENT_CHANNEL_ID,
-  UserProfile,
+  type UserProfile,
 } from '@quiet/types'
 
 const selectState: CreatedSelectors[StoreKeys.PublicChannels] = (state: StoreState) => state[StoreKeys.PublicChannels]

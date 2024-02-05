@@ -7,7 +7,8 @@ import { currentIdentity } from '../../identity/identity.selectors'
 
 const usersSlice: CreatedSelectors[StoreKeys.Users] = (state: StoreState) => state[StoreKeys.Users]
 
-export const userProfiles = createSelector(usersSlice, users => users.userProfiles)
+// Nullish coalescing operator for backwards compatibility with 2.0.1
+export const userProfiles = createSelector(usersSlice, users => users.userProfiles ?? {})
 
 export const myUserProfile = createSelector(userProfiles, currentIdentity, (userProfiles, identity) => {
   if (identity?.userCsr) {
