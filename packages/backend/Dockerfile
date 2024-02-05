@@ -1,4 +1,4 @@
-FROM node:18.12.1
+FROM node:21.6.1
 ARG zipbundle
 ENV PEERS_NUMBER 20
 ENV TOR_TEST_MODE regular
