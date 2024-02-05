@@ -2,7 +2,7 @@ import React, { FC, useCallback, useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import Share from 'react-native-share'
 import SVG from 'react-native-svg'
-import { communities } from '@quiet/state-manager'
+import { connection } from '@quiet/state-manager'
 import { navigationActions } from '../../store/navigation/navigation.slice'
 import { ScreenNames } from '../../const/ScreenNames.enum'
 
@@ -14,7 +14,7 @@ export const QRCodeScreen: FC = () => {
 
   const svgRef = useRef<SVG>()
 
-  const invitationLink = useSelector(communities.selectors.invitationUrl) || Site.MAIN_PAGE
+  const invitationLink = useSelector(connection.selectors.invitationUrl) || Site.MAIN_PAGE
 
   const handleBackButton = useCallback(() => {
     dispatch(

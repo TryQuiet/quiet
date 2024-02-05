@@ -3,10 +3,11 @@ import { type Store } from '@reduxjs/toolkit'
 import { getFactory } from '../../utils/tests/factories'
 import { prepareStore } from '../../utils/tests/prepareStore'
 import { connectionSelectors } from './connection.selectors'
-import { type communitiesActions } from '../communities/communities.slice'
+import { communitiesActions } from '../communities/communities.slice'
 import { connectionActions } from './connection.slice'
 import { type FactoryGirl } from 'factory-girl'
 import { type Community } from '@quiet/types'
+import { createLibp2pAddress, invitationShareUrl } from '@quiet/common'
 
 describe('communitiesSelectors', () => {
   setupCrypto()
@@ -31,7 +32,7 @@ describe('communitiesSelectors', () => {
       ],
     })
 
-    // This peer should be first in the list as it is the most revently seen one.
+    // This peer should be first in the list as it is the most recently seen one.
     store.dispatch(
       connectionActions.updateNetworkData({
         peer: 'Qmd35TsAvtskei8zWY3A65ifNWcY4x4SdqkQDHMkH5xPF9',
@@ -90,5 +91,48 @@ describe('communitiesSelectors', () => {
     const socketIOSecret2 = connectionSelectors.socketIOSecret(store.getState())
 
     expect(socketIOSecret2).toEqual(secret)
+  })
+
+  it('invitationUrl selector does not break if there is no community', () => {
+    const { store } = prepareStore()
+    const invitationUrl = connectionSelectors.invitationUrl(store.getState())
+    expect(invitationUrl).toEqual('')
+  })
+
+  it('invitationUrl selector returns proper url', async () => {
+    const { store } = prepareStore()
+    const factory = await getFactory(store)
+    const peerList = [
+      createLibp2pAddress(
+        'gloao6h5plwjy4tdlze24zzgcxll6upq2ex2fmu2ohhyu4gtys4nrjad',
+        'QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSA'
+      ),
+    ]
+    const psk = '12345'
+    const ownerOrbitDbIdentity = 'testOwnerOrbitDbIdentity'
+    await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community', {
+      peerList,
+      ownerOrbitDbIdentity,
+    })
+    store.dispatch(communitiesActions.savePSK(psk))
+    const selectorInvitationUrl = connectionSelectors.invitationUrl(store.getState())
+    const expectedUrl = invitationShareUrl(peerList, psk, ownerOrbitDbIdentity)
+    expect(expectedUrl).not.toEqual('')
+    expect(selectorInvitationUrl).toEqual(expectedUrl)
+  })
+
+  it('invitationUrl selector returns empty string if state lacks psk', async () => {
+    const { store } = prepareStore()
+    const factory = await getFactory(store)
+    await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community', {
+      peerList: [
+        createLibp2pAddress(
+          'gloao6h5plwjy4tdlze24zzgcxll6upq2ex2fmu2ohhyu4gtys4nrjad',
+          'QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSA'
+        ),
+      ],
+    })
+    const invitationUrl = connectionSelectors.invitationUrl(store.getState())
+    expect(invitationUrl).toEqual('')
   })
 })
