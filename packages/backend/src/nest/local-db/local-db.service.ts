@@ -36,7 +36,7 @@ export class LocalDbService {
     try {
       data = await this.db.get(key)
     } catch (e) {
-      this.logger.error(`Getting '${key}'`, e)
+      this.logger(`Getting '${key}'`, e)
       return null
     }
     return data
@@ -76,6 +76,9 @@ export class LocalDbService {
     const peersStats = (await this.get(LocalDBKeys.PEERS)) || {}
     const stats: NetworkStats[] = Object.values(peersStats)
     const community: InitCommunityPayload = await this.get(LocalDBKeys.COMMUNITY)
+    if (!community) {
+      return filterAndSortPeers(peers, stats)
+    }
     const localPeerAddress = createLibp2pAddress(community.hiddenService.onionAddress, community.peerId.id)
     this.logger('Local peer', localPeerAddress)
     return filterAndSortPeers(peers, stats, localPeerAddress)

@@ -32,7 +32,7 @@ describe('communitiesSelectors', () => {
       ],
     })
 
-    // This peer should be first in the list as it is the most revently seen one.
+    // This peer should be first in the list as it is the most recently seen one.
     store.dispatch(
       connectionActions.updateNetworkData({
         peer: 'Qmd35TsAvtskei8zWY3A65ifNWcY4x4SdqkQDHMkH5xPF9',
