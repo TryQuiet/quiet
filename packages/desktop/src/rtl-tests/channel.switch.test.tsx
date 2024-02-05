@@ -21,7 +21,6 @@ import {
   communities,
   Identity,
   Store,
-  SocketActionTypes,
   MessageType,
   ChannelMessage,
   messages,
@@ -31,7 +30,7 @@ import {
 import { DateTime } from 'luxon'
 
 import store from '../renderer/store'
-import { type Community } from '@quiet/types'
+import { type Community, SocketActionTypes } from '@quiet/types'
 
 jest.setTimeout(20_000)
 jest.mock('electron', () => {

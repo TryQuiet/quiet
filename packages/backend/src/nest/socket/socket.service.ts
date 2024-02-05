@@ -120,25 +120,6 @@ export class SocketService extends EventEmitter implements OnModuleInit {
         this.emit(SocketActionTypes.DELETE_FILES_FROM_CHANNEL, payload)
       })
 
-      // ====== Direct Messages ======
-      socket.on(
-        SocketActionTypes.INITIALIZE_CONVERSATION,
-        async (peerId: string, { address, encryptedPhrase }: { address: string; encryptedPhrase: string }) => {
-          this.emit(SocketActionTypes.INITIALIZE_CONVERSATION, { address, encryptedPhrase })
-        }
-      )
-
-      socket.on(SocketActionTypes.GET_PRIVATE_CONVERSATIONS, async (peerId: string) => {
-        this.emit(SocketActionTypes.GET_PRIVATE_CONVERSATIONS, { peerId })
-      })
-
-      socket.on(
-        SocketActionTypes.SEND_DIRECT_MESSAGE,
-        async (peerId: string, { channelId, message }: { channelId: string; message: string }) => {
-          this.emit(SocketActionTypes.SEND_DIRECT_MESSAGE, { channelId, message })
-        }
-      )
-
       // ====== Certificates ======
       socket.on(SocketActionTypes.SAVE_USER_CSR, async (payload: SaveCSRPayload) => {
         this.logger(`On ${SocketActionTypes.SAVE_USER_CSR}`)
