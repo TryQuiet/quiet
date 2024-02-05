@@ -105,6 +105,7 @@ jobs:
         with:
           timeout_minutes: 25
           max_attempts: 3
+          shell: bash
           command: cd packages/e2e-tests && npm run test userProfile.test.ts
 
       - name: Run invitation link test - Includes 2 separate application clients
