@@ -51,7 +51,7 @@
     "react-native-device-info": "^10.12.0",
     "react-native-document-picker": "^9.1.0",
     "react-native-fast-image": "git+https://github.com/siepra/react-native-fast-image.git#f98be76a06b8a4a57ae92de85975aad9053634c5",
-    "react-native-fs": "git+https://github.com/1nspir3d/react-native-fs.git#12d812686c375af54999e67557bd21931cdae3f7",
+    "react-native-fs": "git+https://github.com/siepra/react-native-fs.git#3be3f17040c1b2230ded7225550444c8f7c95b16",
     "react-native-gesture-handler": "^2.14.1",
     "react-native-level-fs": "^3.0.1",
     "react-native-mathjax-html-to-svg": "^1.1.0",
