@@ -1,13 +1,8 @@
-[unreleased]
-
-# Fixes:
-
-* Make sure address of the inviting peer is in the invitation link
-
 [2.1.1]
 
 # Fixes:
 
+* Make sure address of the inviting peer is in the invitation link
 * Opening the mobile app with joining links has been corrected.
 
 # Refactorings:
