@@ -22,13 +22,13 @@ export enum SocketActionTypes {
   DELETE_FILES_FROM_CHANNEL = 'deleteFilesFromChannel',
   // E
   ERROR = 'error',
-  // I
-  INCOMING_MESSAGES = 'incomingMessages',
   // L
   LAUNCH_COMMUNITY = 'launchCommunity',
   LEAVE_COMMUNITY = 'leaveCommunity',
   LIBP2P_PSK_SAVED = 'libp2pPskSaved',
   LOADED_USER_PROFILES = 'loadedUserProfiles',
+  // M
+  MESSAGES_LOADED = 'messagesLoaded',
   // N
   NETWORK = 'network',
   NEW_COMMUNITY = 'newCommunity',

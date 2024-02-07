@@ -15,7 +15,7 @@ import {
   publicChannels,
   settings,
 } from '@quiet/state-manager'
-import { Community, Identity, ChannelMessage, IncomingMessages, PublicChannel, MessageType } from '@quiet/types'
+import { Community, Identity, ChannelMessage, MessagesLoadedPayload, PublicChannel, MessageType } from '@quiet/types'
 import { createNotification, displayMessageNotificationSaga, isWindowFocused } from './notifications.saga'
 import { soundTypeToAudio } from '../../../shared/sounds'
 
@@ -164,7 +164,7 @@ describe('displayNotificationsSaga', () => {
     const reducer = combineReducers(reducers)
     await expectSaga(
       displayMessageNotificationSaga,
-      messages.actions.incomingMessages({
+      messages.actions.addMessages({
         messages: [message],
         isVerified: true,
       })
@@ -191,7 +191,7 @@ describe('displayNotificationsSaga', () => {
     const reducer = combineReducers(reducers)
     await expectSaga(
       displayMessageNotificationSaga,
-      messages.actions.incomingMessages({
+      messages.actions.addMessages({
         messages: [message],
         isVerified: false,
       })
@@ -209,7 +209,7 @@ describe('displayNotificationsSaga', () => {
     const reducer = combineReducers(reducers)
     await expectSaga(
       displayMessageNotificationSaga,
-      messages.actions.incomingMessages({
+      messages.actions.addMessages({
         messages: [message],
         isVerified: true,
       })
@@ -230,7 +230,7 @@ describe('displayNotificationsSaga', () => {
     const reducer = combineReducers(reducers)
     await expectSaga(
       displayMessageNotificationSaga,
-      messages.actions.incomingMessages({
+      messages.actions.addMessages({
         messages: [message],
         isVerified: true,
       })
@@ -249,7 +249,7 @@ describe('displayNotificationsSaga', () => {
     const reducer = combineReducers(reducers)
     await expectSaga(
       displayMessageNotificationSaga,
-      messages.actions.incomingMessages({
+      messages.actions.addMessages({
         messages: [message],
         isVerified: true,
       })
@@ -269,7 +269,7 @@ describe('displayNotificationsSaga', () => {
     const reducer = combineReducers(reducers)
     await expectSaga(
       displayMessageNotificationSaga,
-      messages.actions.incomingMessages({
+      messages.actions.addMessages({
         messages: [message],
         isVerified: true,
       })
@@ -298,7 +298,7 @@ describe('displayNotificationsSaga', () => {
     const reducer = combineReducers(reducers)
     await expectSaga(
       displayMessageNotificationSaga,
-      messages.actions.incomingMessages({
+      messages.actions.addMessages({
         messages: [message],
         isVerified: true,
       })
@@ -323,7 +323,7 @@ describe('displayNotificationsSaga', () => {
 
   test('do not display notification when the message was sent before last connection app time', async () => {
     // Mock messages sent before last connection time
-    const payload: IncomingMessages = {
+    const payload: MessagesLoadedPayload = {
       messages: [
         {
           ...message,
@@ -334,7 +334,7 @@ describe('displayNotificationsSaga', () => {
     }
 
     const reducer = combineReducers(reducers)
-    await expectSaga(displayMessageNotificationSaga, messages.actions.incomingMessages(payload))
+    await expectSaga(displayMessageNotificationSaga, messages.actions.addMessages(payload))
       .withReducer(reducer)
       .withState(store.getState())
       .provide([[call.fn(isWindowFocused), true]])
@@ -346,7 +346,7 @@ describe('displayNotificationsSaga', () => {
 
   test('do not display notification when there is no sender info', async () => {
     // Mock messages missing the author
-    const payload: IncomingMessages = {
+    const payload: MessagesLoadedPayload = {
       messages: [
         {
           ...message,
@@ -357,7 +357,7 @@ describe('displayNotificationsSaga', () => {
     }
 
     const reducer = combineReducers(reducers)
-    await expectSaga(displayMessageNotificationSaga, messages.actions.incomingMessages(payload))
+    await expectSaga(displayMessageNotificationSaga, messages.actions.addMessages(payload))
       .withReducer(reducer)
       .withState(store.getState())
       .provide([[call.fn(isWindowFocused), true]])
@@ -368,13 +368,13 @@ describe('displayNotificationsSaga', () => {
   })
 
   test('do not display notification for own messages', async () => {
-    const payload: IncomingMessages = {
+    const payload: MessagesLoadedPayload = {
       messages: [aliceMessage],
       isVerified: true,
     }
 
     const reducer = combineReducers(reducers)
-    await expectSaga(displayMessageNotificationSaga, messages.actions.incomingMessages(payload))
+    await expectSaga(displayMessageNotificationSaga, messages.actions.addMessages(payload))
       .withReducer(reducer)
       .withState(store.getState())
       .provide([[call.fn(isWindowFocused), false]])
@@ -390,7 +390,7 @@ describe('displayNotificationsSaga', () => {
     const reducer = combineReducers(reducers)
     await expectSaga(
       displayMessageNotificationSaga,
-      messages.actions.incomingMessages({
+      messages.actions.addMessages({
         messages: [message],
         isVerified: true,
       })
@@ -418,7 +418,7 @@ describe('displayNotificationsSaga', () => {
     const reducer = combineReducers(reducers)
     await expectSaga(
       displayMessageNotificationSaga,
-      messages.actions.incomingMessages({
+      messages.actions.addMessages({
         messages: [message],
         isVerified: true,
       })
@@ -433,7 +433,7 @@ describe('displayNotificationsSaga', () => {
   })
 
   test('display notification for incoming image', async () => {
-    const payload: IncomingMessages = {
+    const payload: MessagesLoadedPayload = {
       messages: [
         {
           ...message,
@@ -454,7 +454,7 @@ describe('displayNotificationsSaga', () => {
     }
 
     const reducer = combineReducers(reducers)
-    await expectSaga(displayMessageNotificationSaga, messages.actions.incomingMessages(payload))
+    await expectSaga(displayMessageNotificationSaga, messages.actions.addMessages(payload))
       .withReducer(reducer)
       .withState(store.getState())
       .provide([[call.fn(isWindowFocused), false]])
@@ -474,7 +474,7 @@ describe('displayNotificationsSaga', () => {
   })
 
   test('display notification for incoming file', async () => {
-    const payload: IncomingMessages = {
+    const payload: MessagesLoadedPayload = {
       messages: [
         {
           ...message,
@@ -495,7 +495,7 @@ describe('displayNotificationsSaga', () => {
     }
 
     const reducer = combineReducers(reducers)
-    await expectSaga(displayMessageNotificationSaga, messages.actions.incomingMessages(payload))
+    await expectSaga(displayMessageNotificationSaga, messages.actions.addMessages(payload))
       .withReducer(reducer)
       .withState(store.getState())
       .provide([[call.fn(isWindowFocused), false]])

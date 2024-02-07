@@ -112,7 +112,7 @@ describe('markUnreadChannelsSaga', () => {
     const reducer = combineReducers(reducers)
     await expectSaga(
       markUnreadChannelsSaga,
-      messagesActions.incomingMessages({
+      messagesActions.addMessages({
         messages,
       })
     )
@@ -203,7 +203,7 @@ describe('markUnreadChannelsSaga', () => {
     const reducer = combineReducers(reducers)
     await expectSaga(
       markUnreadChannelsSaga,
-      messagesActions.incomingMessages({
+      messagesActions.addMessages({
         messages,
       })
     )

@@ -24,7 +24,7 @@ import {
   DownloadStatus,
   ErrorMessages,
   FileMetadata,
-  IncomingMessages,
+  MessagesLoadedPayload,
   InitCommunityPayload,
   NetworkData,
   NetworkDataPayload,
@@ -587,8 +587,8 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.storageService.on(StorageEvents.LOAD_PUBLIC_CHANNELS, (payload: ChannelsReplicatedPayload) => {
       this.serverIoProvider.io.emit(SocketActionTypes.CHANNELS_REPLICATED, payload)
     })
-    this.storageService.on(StorageEvents.LOAD_MESSAGES, (payload: IncomingMessages) => {
-      this.serverIoProvider.io.emit(SocketActionTypes.INCOMING_MESSAGES, payload)
+    this.storageService.on(StorageEvents.MESSAGES_LOADED, (payload: MessagesLoadedPayload) => {
+      this.serverIoProvider.io.emit(SocketActionTypes.MESSAGES_LOADED, payload)
     })
     this.storageService.on(StorageEvents.SEND_MESSAGES_IDS, (payload: ChannelMessagesIdsResponse) => {
       if (payload.ids.length === 0) {

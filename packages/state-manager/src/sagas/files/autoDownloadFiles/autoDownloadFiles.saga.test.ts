@@ -91,7 +91,7 @@ describe('downloadFileSaga', () => {
     await expectSaga(
       autoDownloadFilesSaga,
       socket,
-      messagesActions.incomingMessages({
+      messagesActions.addMessages({
         messages: [
           {
             id,
@@ -144,7 +144,7 @@ describe('downloadFileSaga', () => {
     await expectSaga(
       autoDownloadFilesSaga,
       socket,
-      messagesActions.incomingMessages({
+      messagesActions.addMessages({
         messages: [
           {
             id,
@@ -204,7 +204,7 @@ describe('downloadFileSaga', () => {
     await expectSaga(
       autoDownloadFilesSaga,
       socket,
-      messagesActions.incomingMessages({
+      messagesActions.addMessages({
         messages: [message],
       })
     )
@@ -253,7 +253,7 @@ describe('downloadFileSaga', () => {
     await expectSaga(
       autoDownloadFilesSaga,
       socket,
-      messagesActions.incomingMessages({
+      messagesActions.addMessages({
         messages: [message],
       })
     )
@@ -296,7 +296,7 @@ describe('downloadFileSaga', () => {
     await expectSaga(
       autoDownloadFilesSaga,
       socket,
-      messagesActions.incomingMessages({
+      messagesActions.addMessages({
         messages: [
           {
             id,
@@ -350,7 +350,7 @@ describe('downloadFileSaga', () => {
     await expectSaga(
       autoDownloadFilesSaga,
       socket,
-      messagesActions.incomingMessages({
+      messagesActions.addMessages({
         messages: [
           {
             id,

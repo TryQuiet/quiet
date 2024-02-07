@@ -21,7 +21,7 @@ export function* updateMessageMediaSaga(
   }
 
   yield* put(
-    messagesActions.incomingMessages({
+    messagesActions.addMessages({
       messages: [
         {
           ...message,

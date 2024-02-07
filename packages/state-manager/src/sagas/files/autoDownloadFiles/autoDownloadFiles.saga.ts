@@ -10,7 +10,7 @@ import { DownloadState, MessageType, SocketActionTypes } from '@quiet/types'
 
 export function* autoDownloadFilesSaga(
   socket: Socket,
-  action: PayloadAction<ReturnType<typeof messagesActions.incomingMessages>['payload']>
+  action: PayloadAction<ReturnType<typeof messagesActions.addMessages>['payload']>
 ): Generator {
   const identity = yield* select(identitySelectors.currentIdentity)
   if (!identity) {

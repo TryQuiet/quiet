@@ -2,6 +2,7 @@
 
 # Refactorings:
 
+* refactor: Rename LOAD_MESSAGES event and incomingMessages reducer
 * refactor: Use socket.io ack for CREATE_CHANNEL event
 * refactor: Introduce socket.io acknowledgements
 

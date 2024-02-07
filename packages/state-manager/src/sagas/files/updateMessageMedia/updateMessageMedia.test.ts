@@ -99,7 +99,7 @@ describe('downloadedFileSaga', () => {
       .withReducer(reducer)
       .withState(store.getState())
       .put(
-        messagesActions.incomingMessages({
+        messagesActions.addMessages({
           messages: [
             {
               ...message,
@@ -153,7 +153,7 @@ describe('downloadedFileSaga', () => {
       .withReducer(reducer)
       .withState(store.getState())
       .put(
-        messagesActions.incomingMessages({
+        messagesActions.addMessages({
           messages: [
             {
               ...message,
