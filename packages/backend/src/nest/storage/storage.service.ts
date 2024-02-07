@@ -22,6 +22,7 @@ import {
   ChannelMessage,
   CommunityMetadata,
   ConnectionProcessInfo,
+  type CreateChannelResponse,
   DeleteFilesFromChannelSocketPayload,
   FileMetadata,
   NoCryptoEngineError,
@@ -418,7 +419,10 @@ export class StorageService extends EventEmitter {
     return db.iterator({ limit: -1 }).collect()
   }
 
-  public async subscribeToChannel(channelData: PublicChannel, options = { replicate: false }): Promise<void> {
+  public async subscribeToChannel(
+    channelData: PublicChannel,
+    options = { replicate: false }
+  ): Promise<CreateChannelResponse | undefined> {
     let db: EventStore<ChannelMessage>
     // @ts-ignore
     if (channelData.address) {
@@ -426,6 +430,7 @@ export class StorageService extends EventEmitter {
       channelData.id = channelData.address
     }
     let repo = this.publicChannelsRepos.get(channelData.id)
+
     if (repo) {
       db = repo.db
     } else {
@@ -490,6 +495,7 @@ export class StorageService extends EventEmitter {
           this.emit(StorageEvents.SEND_PUSH_NOTIFICATION, payload)
         }
       })
+
       db.events.on('replicated', async address => {
         this.logger('Replicated.', address)
         const ids = this.getAllEventLogEntries<ChannelMessage>(db).map(msg => msg.id)
@@ -500,6 +506,7 @@ export class StorageService extends EventEmitter {
           communityId: community.id,
         })
       })
+
       db.events.on('ready', async () => {
         const ids = this.getAllEventLogEntries<ChannelMessage>(db).map(msg => msg.id)
         const community = await this.localDbService.get(LocalDBKeys.COMMUNITY)
@@ -509,14 +516,16 @@ export class StorageService extends EventEmitter {
           communityId: community.id,
         })
       })
+
       await db.load()
       repo.eventsAttached = true
     }
 
     this.logger(`Subscribed to channel ${channelData.id}`)
-    this.emit(StorageEvents.SET_CHANNEL_SUBSCRIBED, {
+    this.emit(StorageEvents.CHANNEL_SUBSCRIBED, {
       channelId: channelData.id,
     })
+    return { channel: channelData }
   }
 
   public async askForMessages(channelId: string, ids: string[]) {
@@ -535,16 +544,15 @@ export class StorageService extends EventEmitter {
     this.emit(StorageEvents.CHECK_FOR_MISSING_FILES, community.id)
   }
 
-  private async createChannel(data: PublicChannel, options: DBOptions): Promise<EventStore<ChannelMessage>> {
-    console.log('creating channel')
-    if (!validate.isChannel(data)) {
-      this.logger.error('STORAGE: Invalid channel format')
+  private async createChannel(channelData: PublicChannel, options: DBOptions): Promise<EventStore<ChannelMessage>> {
+    if (!validate.isChannel(channelData)) {
+      this.logger.error('Invalid channel format')
       throw new Error('Create channel validation error')
     }
-    this.logger(`Creating channel ${data.id}`)
 
-    const channelId = data.id
+    this.logger(`Creating channel ${channelData.id}`)
 
+    const channelId = channelData.id
     const db: EventStore<ChannelMessage> = await this.orbitDbService.orbitDb.log<ChannelMessage>(
       `channels.${channelId}`,
       {
@@ -555,17 +563,12 @@ export class StorageService extends EventEmitter {
         },
       }
     )
-
     const channel = this.channels.get(channelId)
-    console.log('channel', channel)
+
+    this.logger(`Found existing channel: ${channel}`)
+
     if (channel === undefined) {
-      await this.channels.put(channelId, {
-        ...data,
-      })
-      console.log('emitting new channel')
-      this.emit(StorageEvents.CREATED_CHANNEL, {
-        channel: data,
-      })
+      await this.channels.put(channelId, { ...channelData })
     }
 
     this.publicChannelsRepos.set(channelId, { db, eventsAttached: false })
@@ -574,6 +577,7 @@ export class StorageService extends EventEmitter {
     await db.load({ fetchEntryTimeout: 2000 })
     this.logger(`Created channel ${channelId}`)
     await this.subscribeToPubSub([StorageService.dbAddress(db.address)])
+
     return db
   }
 

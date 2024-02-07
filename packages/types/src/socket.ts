@@ -12,7 +12,6 @@ export enum SocketActionTypes {
   CONNECT_TO_WEBSOCKET_SERVER = 'connectToWebsocketServer',
   CONNECTION = 'connection',
   CREATE_CHANNEL = 'createChannel',
-  CREATED_CHANNEL = 'createdChannel',
   CREATE_COMMUNITY = 'createCommunity',
   CREATE_NETWORK = 'createNetwork',
   // D

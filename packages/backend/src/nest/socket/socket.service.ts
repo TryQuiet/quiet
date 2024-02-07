@@ -1,7 +1,8 @@
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common'
 import {
   SocketActionTypes,
-  CreateChannelPayload,
+  type CreateChannelPayload,
+  type CreateChannelResponse,
   SendMessagePayload,
   UploadFilePayload,
   DownloadFilePayload,
@@ -87,9 +88,12 @@ export class SocketService extends EventEmitter implements OnModuleInit {
       })
 
       // ====== Channels =====
-      socket.on(SocketActionTypes.CREATE_CHANNEL, async (payload: CreateChannelPayload) => {
-        this.emit(SocketActionTypes.CREATE_CHANNEL, payload)
-      })
+      socket.on(
+        SocketActionTypes.CREATE_CHANNEL,
+        (payload: CreateChannelPayload, callback: (response: CreateChannelResponse) => void) => {
+          this.emit(SocketActionTypes.CREATE_CHANNEL, payload, callback)
+        }
+      )
 
       socket.on(
         SocketActionTypes.DELETE_CHANNEL,
