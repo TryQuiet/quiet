@@ -105,7 +105,7 @@ export interface SendNewUserInfoMessagePayload {
   certificates: string[]
 }
 
-export interface IncomingMessages {
+export interface MessagesLoadedPayload {
   messages: ChannelMessage[]
   isVerified?: boolean
 }

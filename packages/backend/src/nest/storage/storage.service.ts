@@ -454,7 +454,7 @@ export class StorageService extends EventEmitter {
         this.logger(`Writing to public channel db ${channelData.id}`)
         const verified = await this.verifyMessage(entry.payload.value)
 
-        this.emit(StorageEvents.LOAD_MESSAGES, {
+        this.emit(StorageEvents.MESSAGES_LOADED, {
           messages: [entry.payload.value],
           isVerified: verified,
         })
@@ -468,7 +468,7 @@ export class StorageService extends EventEmitter {
 
         const message = messages[0]
 
-        this.emit(StorageEvents.LOAD_MESSAGES, {
+        this.emit(StorageEvents.MESSAGES_LOADED, {
           messages: [message],
           isVerified: verified,
         })
@@ -536,7 +536,7 @@ export class StorageService extends EventEmitter {
     for (const id of ids) {
       filteredMessages.push(...messages.filter(i => i.id === id))
     }
-    this.emit(StorageEvents.LOAD_MESSAGES, {
+    this.emit(StorageEvents.MESSAGES_LOADED, {
       messages: filteredMessages,
       isVerified: true,
     })

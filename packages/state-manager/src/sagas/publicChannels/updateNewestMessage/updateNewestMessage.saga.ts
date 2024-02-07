@@ -5,7 +5,7 @@ import { publicChannelsSelectors } from '../publicChannels.selectors'
 import { type messagesActions } from '../../messages/messages.slice'
 
 export function* updateNewestMessageSaga(
-  action: PayloadAction<ReturnType<typeof messagesActions.incomingMessages>['payload']>
+  action: PayloadAction<ReturnType<typeof messagesActions.addMessages>['payload']>
 ): Generator {
   const { messages } = action.payload
   const statuses = yield* select(publicChannelsSelectors.channelsStatus)

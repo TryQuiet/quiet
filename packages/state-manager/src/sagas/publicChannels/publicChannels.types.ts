@@ -74,11 +74,6 @@ export interface SendNewUserInfoMessagePayload {
   certificates: string[]
 }
 
-export interface IncomingMessages {
-  messages: ChannelMessage[]
-  isVerified?: boolean
-}
-
 export interface CacheMessagesPayload {
   messages: ChannelMessage[]
   channelId: string

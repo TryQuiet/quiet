@@ -8,7 +8,7 @@ import { usersSelectors } from '../../users/users.selectors'
 import { verifyUserInfoMessage } from '@quiet/common'
 
 export function* verifyMessagesSaga(
-  action: PayloadAction<ReturnType<typeof messagesActions.incomingMessages>>['payload']
+  action: PayloadAction<ReturnType<typeof messagesActions.addMessages>>['payload']
 ): Generator {
   const messages = action.payload.messages
 

@@ -20,7 +20,7 @@ export enum SocketActionTypes {
 
   // ====== Messages ======
 
-  ASK_FOR_MESSAGES = 'askForMessages',
+  MESSAGES_LOADED = 'messagesLoaded',
   INCOMING_MESSAGES = 'incomingMessages',
   SEND_MESSAGE = 'sendMessage',
   SEND_MESSAGES_IDS = 'sendIds',

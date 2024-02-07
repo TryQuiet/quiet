@@ -84,5 +84,5 @@ function* cancelObservers(task: FixedTask<Generator>): Generator {
 }
 
 function* initObservers(): Generator {
-  yield all([takeEvery(messages.actions.incomingMessages.type, displayMessageNotificationSaga)])
+  yield all([takeEvery(messages.actions.addMessages.type, displayMessageNotificationSaga)])
 }
