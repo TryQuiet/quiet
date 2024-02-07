@@ -104,7 +104,7 @@ describe('IpfsFileManagerService', () => {
     await waitForExpect(() => {
       expect(eventSpy).toHaveBeenNthCalledWith(
         2,
-        StorageEvents.UPLOADED_FILE,
+        StorageEvents.FILE_UPLOADED,
         expect.objectContaining({
           ...metadata,
           cid: expect.stringContaining('Qm'),

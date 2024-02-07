@@ -132,10 +132,10 @@ export class SocketService extends EventEmitter implements OnModuleInit {
       })
 
       // ====== Certificates ======
-      socket.on(SocketActionTypes.SAVE_USER_CSR, async (payload: SaveCSRPayload) => {
-        this.logger(`On ${SocketActionTypes.SAVE_USER_CSR}`)
+      socket.on(SocketActionTypes.SEND_CSR, async (payload: SaveCSRPayload) => {
+        this.logger(`On ${SocketActionTypes.SEND_CSR}`)
 
-        this.emit(SocketActionTypes.SAVE_USER_CSR, payload)
+        this.emit(SocketActionTypes.SEND_CSR, payload)
       })
 
       socket.on(SocketActionTypes.REGISTER_OWNER_CERTIFICATE, async (payload: RegisterOwnerCertificatePayload) => {
@@ -167,9 +167,9 @@ export class SocketService extends EventEmitter implements OnModuleInit {
         this.emit(SocketActionTypes.LEAVE_COMMUNITY)
       })
 
-      socket.on(SocketActionTypes.LIBP2P_PSK_SAVED, payload => {
+      socket.on(SocketActionTypes.LIBP2P_PSK_LOADED, payload => {
         this.logger('Saving PSK', payload)
-        this.emit(SocketActionTypes.LIBP2P_PSK_SAVED, payload)
+        this.emit(SocketActionTypes.LIBP2P_PSK_LOADED, payload)
       })
 
       socket.on(
@@ -185,8 +185,8 @@ export class SocketService extends EventEmitter implements OnModuleInit {
 
       // ====== Users ======
 
-      socket.on(SocketActionTypes.SAVE_USER_PROFILE, (profile: UserProfile) => {
-        this.emit(SocketActionTypes.SAVE_USER_PROFILE, profile)
+      socket.on(SocketActionTypes.SEND_USER_PROFILE, (profile: UserProfile) => {
+        this.emit(SocketActionTypes.SEND_USER_PROFILE, profile)
       })
     })
   }

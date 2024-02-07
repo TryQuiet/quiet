@@ -94,7 +94,7 @@ export class StorageService extends EventEmitter {
       createPaths([this.ipfsRepoPath, this.orbitDbDir])
     }
 
-    this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.INITIALIZED_STORAGE)
+    this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.STORAGE_INITIALIZED)
 
     this.logger('Initialized storage')
   }
@@ -208,7 +208,7 @@ export class StorageService extends EventEmitter {
     console.timeEnd('Storage.initDatabases')
     this.logger('Initialized DBs')
 
-    this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.INITIALIZED_DBS)
+    this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.DBS_INITIALIZED)
   }
 
   private async subscribeToPubSub(addr: string[]) {
@@ -283,13 +283,13 @@ export class StorageService extends EventEmitter {
   }
 
   public attachStoreListeners() {
-    this.certificatesStore.on(StorageEvents.LOADED_CERTIFICATES, async payload => {
-      this.emit(StorageEvents.REPLICATED_CERTIFICATES, payload)
+    this.certificatesStore.on(StorageEvents.CERTIFICATES_LOADED, async payload => {
+      this.emit(StorageEvents.CERTIFICATES_LOADED, payload)
       await this.updatePeersList()
     })
 
-    this.certificatesRequestsStore.on(StorageEvents.LOADED_USER_CSRS, async (payload: { csrs: string[] }) => {
-      this.emit(StorageEvents.REPLICATED_CSR, payload)
+    this.certificatesRequestsStore.on(StorageEvents.CSRS_LOADED, async (payload: { csrs: string[] }) => {
+      this.emit(StorageEvents.CSRS_LOADED, payload)
       await this.updatePeersList()
     })
 
@@ -298,8 +298,8 @@ export class StorageService extends EventEmitter {
       this.emit(StorageEvents.COMMUNITY_METADATA_LOADED, meta)
     })
 
-    this.userProfileStore.on(StorageEvents.LOADED_USER_PROFILES, (payload: UserProfilesLoadedEvent) => {
-      this.emit(StorageEvents.LOADED_USER_PROFILES, payload)
+    this.userProfileStore.on(StorageEvents.USER_PROFILES_LOADED, (payload: UserProfilesLoadedEvent) => {
+      this.emit(StorageEvents.USER_PROFILES_LOADED, payload)
     })
   }
 
@@ -333,7 +333,7 @@ export class StorageService extends EventEmitter {
     this.logger('Getting all channels')
     // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
     await this.channels.load({ fetchEntryTimeout: 2000 })
-    this.emit(StorageEvents.LOAD_PUBLIC_CHANNELS, {
+    this.emit(StorageEvents.CHANNELS_LOADED, {
       channels: this.channels.all as unknown as { [key: string]: PublicChannel },
     })
   }
@@ -354,7 +354,7 @@ export class StorageService extends EventEmitter {
 
     this.channels.events.on('replicated', async () => {
       this.logger('REPLICATED: Channels')
-      this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CHANNELS_REPLICATED)
+      this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CHANNELS_LOADED)
       // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
       await this.channels.load({ fetchEntryTimeout: 2000 })
 
@@ -368,7 +368,7 @@ export class StorageService extends EventEmitter {
         keyValueChannels[channel.id] = channel
       })
 
-      this.emit(StorageEvents.LOAD_PUBLIC_CHANNELS, {
+      this.emit(StorageEvents.CHANNELS_LOADED, {
         channels: keyValueChannels,
       })
 
@@ -388,7 +388,7 @@ export class StorageService extends EventEmitter {
   }
 
   async initAllChannels() {
-    this.emit(StorageEvents.LOAD_PUBLIC_CHANNELS, {
+    this.emit(StorageEvents.CHANNELS_LOADED, {
       channels: this.channels.all as unknown as { [key: string]: PublicChannel },
     })
   }
@@ -679,8 +679,8 @@ export class StorageService extends EventEmitter {
     this.filesManager.on(StorageEvents.REMOVE_DOWNLOAD_STATUS, payload => {
       this.emit(StorageEvents.REMOVE_DOWNLOAD_STATUS, payload)
     })
-    this.filesManager.on(StorageEvents.UPLOADED_FILE, payload => {
-      this.emit(StorageEvents.UPLOADED_FILE, payload)
+    this.filesManager.on(StorageEvents.FILE_UPLOADED, payload => {
+      this.emit(StorageEvents.FILE_UPLOADED, payload)
     })
     this.filesManager.on(StorageEvents.UPDATE_DOWNLOAD_PROGRESS, payload => {
       this.emit(StorageEvents.UPDATE_DOWNLOAD_PROGRESS, payload)

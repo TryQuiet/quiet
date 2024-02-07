@@ -44,7 +44,7 @@ export class CertificatesStore extends EventEmitter {
 
     this.store.events.on('ready', async () => {
       this.logger('Loaded certificates to memory')
-      this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CERTIFICATES_REPLICATED)
+      this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CERTIFICATES_LOADED)
     })
 
     this.store.events.on('write', async () => {
@@ -54,7 +54,7 @@ export class CertificatesStore extends EventEmitter {
 
     this.store.events.on('replicated', async () => {
       this.logger('REPLICATED: Certificates')
-      this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CERTIFICATES_REPLICATED)
+      this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CERTIFICATES_LOADED)
       await this.loadedCertificates()
     })
 
@@ -65,7 +65,7 @@ export class CertificatesStore extends EventEmitter {
   }
 
   public async loadedCertificates() {
-    this.emit(StorageEvents.LOADED_CERTIFICATES, {
+    this.emit(StorageEvents.CERTIFICATES_LOADED, {
       certificates: await this.getCertificates(),
     })
   }

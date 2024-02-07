@@ -786,7 +786,7 @@ describe('Channel', () => {
           setTimeout(resolve, uploadingDelay)
         })
 
-        socket.socketClient.emit<FileMetadata>(SocketActionTypes.UPLOADED_FILE, {
+        socket.socketClient.emit<FileMetadata>(SocketActionTypes.FILE_UPLOADED, {
           ...payload.file,
           cid: cid,
           path: null,
@@ -1065,7 +1065,7 @@ describe('Channel', () => {
       if (action === SocketActionTypes.UPLOAD_FILE) {
         const data = input[1] as UploadFilePayload
         const payload = data
-        socket.socketClient.emit<FileMetadata>(SocketActionTypes.UPLOADED_FILE, {
+        socket.socketClient.emit<FileMetadata>(SocketActionTypes.FILE_UPLOADED, {
           ...payload.file,
           size: 1024,
         })

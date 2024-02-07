@@ -112,7 +112,7 @@ export function subscribe(socket: Socket) {
     socket.on(SocketActionTypes.UPDATE_MESSAGE_MEDIA, (payload: FileMetadata) => {
       emit(filesActions.updateMessageMedia(payload))
     })
-    socket.on(SocketActionTypes.UPLOADED_FILE, (payload: FileMetadata) => {
+    socket.on(SocketActionTypes.FILE_UPLOADED, (payload: FileMetadata) => {
       emit(filesActions.broadcastHostedFile(payload))
     })
     socket.on(SocketActionTypes.DOWNLOAD_PROGRESS, (payload: DownloadStatus) => {
@@ -122,7 +122,7 @@ export function subscribe(socket: Socket) {
       emit(filesActions.removeDownloadStatus(payload))
     })
     // Channels
-    socket.on(SocketActionTypes.CHANNELS_REPLICATED, (payload: ChannelsReplicatedPayload) => {
+    socket.on(SocketActionTypes.CHANNELS_LOADED, (payload: ChannelsReplicatedPayload) => {
       emit(publicChannelsActions.channelsReplicated(payload))
     })
     socket.on(SocketActionTypes.CHANNEL_SUBSCRIBED, (payload: ChannelSubscribedPayload) => {
@@ -163,8 +163,8 @@ export function subscribe(socket: Socket) {
     socket.on(SocketActionTypes.PEER_LIST, (payload: StorePeerListPayload) => {
       emit(communitiesActions.storePeerList(payload))
     })
-    socket.on(SocketActionTypes.NETWORK, (payload: ResponseCreateNetworkPayload) => {
-      log(SocketActionTypes.NETWORK, payload)
+    socket.on(SocketActionTypes.NETWORK_CREATED, (payload: ResponseCreateNetworkPayload) => {
+      log(SocketActionTypes.NETWORK_CREATED, payload)
       emit(communitiesActions.responseCreateNetwork(payload))
     })
     socket.on(SocketActionTypes.COMMUNITY_LAUNCHED, (payload: ResponseLaunchCommunityPayload) => {
@@ -187,16 +187,16 @@ export function subscribe(socket: Socket) {
       emit(errorsActions.handleError(payload))
     })
     // Certificates
-    socket.on(SocketActionTypes.RESPONSE_GET_CSRS, (payload: SendCsrsResponse) => {
+    socket.on(SocketActionTypes.CSRS_LOADED, (payload: SendCsrsResponse) => {
       console.log('REPONSE_GET_CSRS')
       emit(identityActions.checkLocalCsr(payload))
       emit(usersActions.storeCsrs(payload))
     })
-    socket.on(SocketActionTypes.RESPONSE_GET_CERTIFICATES, (payload: SendCertificatesResponse) => {
+    socket.on(SocketActionTypes.CERTIFICATES_LOADED, (payload: SendCertificatesResponse) => {
       emit(usersActions.responseSendCertificates(payload))
     })
-    socket.on(SocketActionTypes.SAVED_OWNER_CERTIFICATE, (payload: SavedOwnerCertificatePayload) => {
-      log(`${SocketActionTypes.SAVED_OWNER_CERTIFICATE}: ${payload.communityId}`)
+    socket.on(SocketActionTypes.OWNER_CERTIFICATE_ISSUED, (payload: SavedOwnerCertificatePayload) => {
+      log(`${SocketActionTypes.OWNER_CERTIFICATE_ISSUED}: ${payload.communityId}`)
       emit(
         communitiesActions.updateCommunity({
           id: payload.communityId,
@@ -215,14 +215,14 @@ export function subscribe(socket: Socket) {
       log(`${SocketActionTypes.COMMUNITY_METADATA_LOADED}: ${payload}`)
       emit(communitiesActions.saveCommunityMetadata(payload))
     })
-    socket.on(SocketActionTypes.LIBP2P_PSK_SAVED, (payload: { psk: string }) => {
-      log(`${SocketActionTypes.LIBP2P_PSK_SAVED}`)
+    socket.on(SocketActionTypes.LIBP2P_PSK_LOADED, (payload: { psk: string }) => {
+      log(`${SocketActionTypes.LIBP2P_PSK_LOADED}`)
       emit(communitiesActions.savePSK(payload.psk))
     })
 
     // User Profile
 
-    socket.on(SocketActionTypes.LOADED_USER_PROFILES, (payload: UserProfilesLoadedEvent) => {
+    socket.on(SocketActionTypes.USER_PROFILES_LOADED, (payload: UserProfilesLoadedEvent) => {
       console.log('Loaded user profiles, saving to store')
       emit(usersActions.setUserProfiles(payload.profiles))
     })

@@ -97,7 +97,7 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
     this.permsData = payload.permsData
     const result = await issueCertificate(payload.userCsr.userCsr, this.permsData)
     if (result?.cert) {
-      this.emit(SocketActionTypes.SAVED_OWNER_CERTIFICATE, {
+      this.emit(SocketActionTypes.OWNER_CERTIFICATE_ISSUED, {
         communityId: payload.communityId,
         network: { certificate: result.cert },
       })

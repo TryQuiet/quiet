@@ -73,7 +73,7 @@ describe('User', () => {
       if (action === SocketActionTypes.CREATE_NETWORK) {
         const data = input[1] as Community
         const payload = { ...data, privateKey: 'privateKey' }
-        socket.socketClient.emit<ResponseCreateNetworkPayload>(SocketActionTypes.NETWORK, {
+        socket.socketClient.emit<ResponseCreateNetworkPayload>(SocketActionTypes.NETWORK_CREATED, {
           community: payload,
           network: {
             hiddenService: {
@@ -88,7 +88,7 @@ describe('User', () => {
       }
       if (action === SocketActionTypes.REGISTER_OWNER_CERTIFICATE) {
         const payload = input[1] as RegisterOwnerCertificatePayload
-        socket.socketClient.emit<SavedOwnerCertificatePayload>(SocketActionTypes.SAVED_OWNER_CERTIFICATE, {
+        socket.socketClient.emit<SavedOwnerCertificatePayload>(SocketActionTypes.OWNER_CERTIFICATE_ISSUED, {
           communityId: payload.communityId,
           network: {
             certificate: payload.permsData.certificate,
@@ -104,7 +104,7 @@ describe('User', () => {
           id: payload.id,
         })
 
-        socket.socketClient.emit<ChannelsReplicatedPayload>(SocketActionTypes.CHANNELS_REPLICATED, {
+        socket.socketClient.emit<ChannelsReplicatedPayload>(SocketActionTypes.CHANNELS_LOADED, {
           channels: {
             general: {
               name: 'general',

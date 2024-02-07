@@ -207,7 +207,7 @@ export class IpfsFileManagerService extends EventEmitter {
       height,
     }
 
-    this.emit(StorageEvents.UPLOADED_FILE, fileMetadata)
+    this.emit(StorageEvents.FILE_UPLOADED, fileMetadata)
 
     if (metadata.tmpPath) {
       this.deleteFile(metadata.tmpPath)

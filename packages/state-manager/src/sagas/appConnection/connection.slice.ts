@@ -66,7 +66,7 @@ export const connectionSlice = createSlice({
           if (state.connectionProcess.number == 50) break
           state.connectionProcess = { number: 50, text: ConnectionProcessInfo.CONNECTING_TO_COMMUNITY }
           break
-        case ConnectionProcessInfo.CHANNELS_REPLICATED || ConnectionProcessInfo.CERTIFICATES_REPLICATED:
+        case ConnectionProcessInfo.CHANNELS_LOADED || ConnectionProcessInfo.CERTIFICATES_LOADED:
           let number = 90
           if (state.connectionProcess.number == 90) number = 95
           state.connectionProcess = { number, text: ConnectionProcessInfo.LOADING_MESSAGES }

@@ -1,5 +1,4 @@
 export enum SocketActionTypes {
-
   // ====== Community ======
 
   COMMUNITY_CREATED = 'communityCreated',
@@ -16,7 +15,6 @@ export enum SocketActionTypes {
   CHANNELS_LOADED = 'channelsLoaded',
   CHANNEL_SUBSCRIBED = 'channelSubscribed',
   CREATE_CHANNEL = 'createChannel',
-  CREATED_CHANNEL = 'createdChannel',
   DELETE_CHANNEL = 'deleteChannel',
   DELETE_FILES_FROM_CHANNEL = 'deleteFilesFromChannel',
 
@@ -39,19 +37,18 @@ export enum SocketActionTypes {
   CHECK_FOR_MISSING_FILES = 'checkForMissingFiles',
   DOWNLOAD_FILE = 'downloadFile',
   DOWNLOAD_PROGRESS = 'downloadProgress',
+  FILE_UPLOADED = 'fileUploaded',
   UPLOAD_FILE = 'uploadFile',
-  UPLOADED_FILE = 'uploadedFile',
   REMOVE_DOWNLOAD_STATUS = 'removeDownloadStatus',
 
   // ====== Certificates ======
 
   CERTIFICATES_LOADED = 'certificatesLoaded',
   CSRS_LOADED = 'csrsLoaded',
-  OWNER_CERTIFICATE_LOADED = 'ownerCertificateLoaded',
+  OWNER_CERTIFICATE_ISSUED = 'ownerCertificateIssued',
   REGISTER_USER_CERTIFICATE = 'registerUserCertificate',
   REGISTER_OWNER_CERTIFICATE = 'registerOwnerCertificate',
-  SEND_USER_CSR = 'sendUserCsr',
-  USER_CSR_LOADED = 'userCsrLoaded',
+  SEND_CSR = 'sendCsr',
 
   // ====== Network ======
 
@@ -71,5 +68,4 @@ export enum SocketActionTypes {
 
   PUSH_NOTIFICATION = 'pushNotification',
   ERROR = 'error',
-
 }

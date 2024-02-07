@@ -95,21 +95,21 @@ export class UserProfileStore extends EventEmitter {
 
     this.store.events.on('write', (_address, entry) => {
       logger('Saved user profile locally')
-      this.emit(StorageEvents.LOADED_USER_PROFILES, {
+      this.emit(StorageEvents.USER_PROFILES_LOADED, {
         profiles: [entry.payload.value],
       })
     })
 
     this.store.events.on('ready', async () => {
       logger('Loaded user profiles to memory')
-      this.emit(StorageEvents.LOADED_USER_PROFILES, {
+      this.emit(StorageEvents.USER_PROFILES_LOADED, {
         profiles: this.getUserProfiles(),
       })
     })
 
     this.store.events.on('replicated', async () => {
       logger('Replicated user profiles')
-      this.emit(StorageEvents.LOADED_USER_PROFILES, {
+      this.emit(StorageEvents.USER_PROFILES_LOADED, {
         profiles: this.getUserProfiles(),
       })
     })

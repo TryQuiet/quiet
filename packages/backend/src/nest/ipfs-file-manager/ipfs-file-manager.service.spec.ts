@@ -115,7 +115,7 @@ describe('IpfsFileManagerService', () => {
     await waitForExpect(() => {
       expect(eventSpy).toHaveBeenNthCalledWith(
         2,
-        StorageEvents.UPLOADED_FILE,
+        StorageEvents.FILE_UPLOADED,
         expect.objectContaining({
           cid,
           ext: '.png',
@@ -160,7 +160,7 @@ describe('IpfsFileManagerService', () => {
     await waitForExpect(() => {
       expect(eventSpy).toHaveBeenNthCalledWith(
         2,
-        StorageEvents.UPLOADED_FILE,
+        StorageEvents.FILE_UPLOADED,
         expect.objectContaining({
           cid,
           ext: '.pdf',
@@ -231,7 +231,7 @@ describe('IpfsFileManagerService', () => {
     await waitForExpect(() => {
       expect(eventSpy).toHaveBeenNthCalledWith(
         2,
-        StorageEvents.UPLOADED_FILE,
+        StorageEvents.FILE_UPLOADED,
         expect.objectContaining({
           cid,
           ext: '.png',
@@ -301,7 +301,7 @@ describe('IpfsFileManagerService', () => {
     await waitForExpect(() => {
       expect(eventSpy).toHaveBeenNthCalledWith(
         2,
-        StorageEvents.UPLOADED_FILE,
+        StorageEvents.FILE_UPLOADED,
         expect.objectContaining({
           cid,
           ext: '.pdf',
@@ -385,7 +385,7 @@ describe('IpfsFileManagerService', () => {
 
     expect(eventSpy).toHaveBeenNthCalledWith(
       2,
-      StorageEvents.UPLOADED_FILE,
+      StorageEvents.FILE_UPLOADED,
       expect.objectContaining({
         cid,
         ext: '.png',
