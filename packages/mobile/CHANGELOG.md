@@ -1,3 +1,19 @@
+# Change Log
+
+All notable changes to this project will be documented in this file.
+See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+## [2.1.1-alpha.1](/compare/@quiet/mobile@2.1.1-alpha.0...@quiet/mobile@2.1.1-alpha.1) (2024-02-07)
+
+
+### Bug Fixes
+
+* make sure local peer's address in in invitation link (#2268) 7c4043a, closes #2268
+
+
+
+
+
 [2.1.1]
 
 # Fixes:
