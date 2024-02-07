@@ -231,30 +231,22 @@ describe('StorageService', () => {
       await storageService.init(peerId)
       await storageService.subscribeToChannel(channelio)
 
-      const eventSpy = jest.spyOn(storageService, 'emit')
-
-      await storageService.deleteChannel({ channelId: channelio.id, ownerPeerId: peerId.toString() })
+      const result = await storageService.deleteChannel({ channelId: channelio.id, ownerPeerId: peerId.toString() })
+      expect(result).toEqual({ channelId: channelio.id })
 
       const channelFromKeyValueStore = storageService.channels.get(channelio.id)
       expect(channelFromKeyValueStore).toBeUndefined()
-      expect(eventSpy).toBeCalledWith('channelDeletionResponse', {
-        channelId: channelio.id,
-      })
     })
 
     it('delete channel as standard user', async () => {
       await storageService.init(peerId)
       await storageService.subscribeToChannel(channelio)
 
-      const eventSpy = jest.spyOn(storageService, 'emit')
-
-      await storageService.deleteChannel({ channelId: channelio.id, ownerPeerId: 'random peer id' })
+      const result = await storageService.deleteChannel({ channelId: channelio.id, ownerPeerId: 'random peer id' })
+      expect(result).toEqual({ channelId: channelio.id })
 
       const channelFromKeyValueStore = storageService.channels.get(channelio.id)
       expect(channelFromKeyValueStore).toEqual(channelio)
-      expect(eventSpy).toBeCalledWith('channelDeletionResponse', {
-        channelId: channelio.id,
-      })
     })
 
     it('subscribes to pubsub on channel creation', async () => {

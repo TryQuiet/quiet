@@ -32,6 +32,7 @@ import {
   SocketActionTypes,
   UserData,
   type UserProfile,
+  type UserProfilesLoadedEvent,
 } from '@quiet/types'
 import { createLibp2pAddress, isDefined } from '@quiet/common'
 import fs from 'fs'
@@ -183,22 +184,21 @@ export class StorageService extends EventEmitter {
   }
 
   public async initDatabases() {
-    this.logger('1/3')
     console.time('Storage.initDatabases')
+
+    this.logger('1/3')
+    this.attachStoreListeners()
 
     // FIXME: This is sort of messy how we are initializing things.
     // Currently, the CommunityMetadataStore sends an event during
     // initialization which is picked up by the CertificatesStore, but
     // the CertificatesStore is not initialized yet. Perhaps we can
-    // attach `this` as an EventEmitter first and then load data.
-    await this.communityMetadataStore.init(this)
-    await this.certificatesStore.init(this)
-    await this.certificatesRequestsStore.init(this)
-    await this.userProfileStore.init(this)
-
+    // initialize stores first and then load data/send events.
     this.logger('2/3')
-    await this.attachCertificatesStoreListeners()
-    await this.attachCsrsStoreListeners()
+    await this.communityMetadataStore.init()
+    await this.certificatesStore.init()
+    await this.certificatesRequestsStore.init()
+    await this.userProfileStore.init()
 
     this.logger('3/3')
     await this.createDbForChannels()
@@ -281,12 +281,33 @@ export class StorageService extends EventEmitter {
     await this.__stopIPFS()
   }
 
-  public async updateCommunityMetadata(communityMetadata: CommunityMetadata) {
-    await this.communityMetadataStore?.updateCommunityMetadata(communityMetadata)
+  public attachStoreListeners() {
+    this.certificatesStore.on(StorageEvents.LOADED_CERTIFICATES, async payload => {
+      this.emit(StorageEvents.REPLICATED_CERTIFICATES, payload)
+      await this.updatePeersList()
+    })
+
+    this.certificatesRequestsStore.on(StorageEvents.LOADED_USER_CSRS, async (payload: { csrs: string[] }) => {
+      this.emit(StorageEvents.REPLICATED_CSR, payload)
+      await this.updatePeersList()
+    })
+
+    this.communityMetadataStore.on(StorageEvents.COMMUNITY_METADATA_LOADED, (meta: CommunityMetadata) => {
+      this.certificatesStore.updateMetadata(meta)
+      this.emit(StorageEvents.COMMUNITY_METADATA_LOADED, meta)
+    })
+
+    this.userProfileStore.on(StorageEvents.LOADED_USER_PROFILES, (payload: UserProfilesLoadedEvent) => {
+      this.emit(StorageEvents.LOADED_USER_PROFILES, payload)
+    })
   }
 
-  public updateMetadata(meta: CommunityMetadata) {
-    this.certificatesStore.updateMetadata(meta)
+  public async updateCommunityMetadata(communityMetadata: CommunityMetadata): Promise<CommunityMetadata | undefined> {
+    const meta = await this.communityMetadataStore?.updateCommunityMetadata(communityMetadata)
+    if (meta) {
+      this.certificatesStore.updateMetadata(meta)
+    }
+    return meta
   }
 
   public async updatePeersList() {
@@ -305,21 +326,6 @@ export class StorageService extends EventEmitter {
   public async loadAllCertificates() {
     this.logger('Loading all certificates')
     return await this.certificatesStore.loadAllCertificates()
-  }
-
-  public async attachCertificatesStoreListeners() {
-    this.on(StorageEvents.LOADED_CERTIFICATES, async payload => {
-      this.emit(StorageEvents.REPLICATED_CERTIFICATES, payload)
-      await this.updatePeersList()
-    })
-  }
-
-  public async attachCsrsStoreListeners() {
-    this.on(StorageEvents.LOADED_USER_CSRS, async (payload: { csrs: string[] }) => {
-      this.emit(StorageEvents.REPLICATED_CSR, payload)
-      // TODO
-      await this.updatePeersList()
-    })
   }
 
   public async loadAllChannels() {
@@ -611,8 +617,7 @@ export class StorageService extends EventEmitter {
     // await this.deleteChannelFiles(files)
     // await this.deleteChannelMessages(hashes)
     this.publicChannelsRepos.delete(channelId)
-    const responsePayload = { channelId: payload.channelId }
-    this.emit(StorageEvents.CHANNEL_DELETION_RESPONSE, responsePayload)
+    return { channelId: payload.channelId }
   }
 
   public async deleteChannelFiles(files: FileMetadata[]) {

@@ -59,7 +59,7 @@ export const base64DataURLToByteArray = (contents: string): Uint8Array => {
 }
 
 @Injectable()
-export class UserProfileStore {
+export class UserProfileStore extends EventEmitter {
   public store: KeyValueStore<UserProfile>
 
   // Copying OrbitDB by using dag-cbor/sha256 for converting the
@@ -69,9 +69,11 @@ export class UserProfileStore {
   public static readonly codec = dagCbor
   public static readonly hasher = sha256
 
-  constructor(private readonly orbitDbService: OrbitDb) {}
+  constructor(private readonly orbitDbService: OrbitDb) {
+    super()
+  }
 
-  public async init(emitter: EventEmitter) {
+  public async init() {
     logger('Initializing user profiles key/value store')
 
     this.store = await this.orbitDbService.orbitDb.keyvalue<UserProfile>('user-profiles', {
@@ -93,21 +95,21 @@ export class UserProfileStore {
 
     this.store.events.on('write', (_address, entry) => {
       logger('Saved user profile locally')
-      emitter.emit(StorageEvents.LOADED_USER_PROFILES, {
+      this.emit(StorageEvents.LOADED_USER_PROFILES, {
         profiles: [entry.payload.value],
       })
     })
 
     this.store.events.on('ready', async () => {
       logger('Loaded user profiles to memory')
-      emitter.emit(StorageEvents.LOADED_USER_PROFILES, {
+      this.emit(StorageEvents.LOADED_USER_PROFILES, {
         profiles: this.getUserProfiles(),
       })
     })
 
     this.store.events.on('replicated', async () => {
       logger('Replicated user profiles')
-      emitter.emit(StorageEvents.LOADED_USER_PROFILES, {
+      this.emit(StorageEvents.LOADED_USER_PROFILES, {
         profiles: this.getUserProfiles(),
       })
     })

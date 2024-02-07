@@ -10,7 +10,7 @@ import {
 import logger from '../../utils/logger'
 import {
   type CacheMessagesPayload,
-  type ChannelDeletionResponsePayload,
+  type DeleteChannelResponse,
   type ChannelMessage,
   type ChannelsReplicatedPayload,
   type ClearMessagesCachePayload,
@@ -54,7 +54,7 @@ export const publicChannelsSlice = createSlice({
     deleteChannel: (state, _action: PayloadAction<DeleteChannelPayload>) => state,
     completeChannelDeletion: (state, _action) => state,
     sendUnregisteredInfoMessage: state => state,
-    channelDeletionResponse: (state, _action: PayloadAction<ChannelDeletionResponsePayload>) => state,
+    channelDeletionResponse: (state, _action: PayloadAction<DeleteChannelResponse>) => state,
     deleteChannelFromStore: (state, action: PayloadAction<DeleteChannelFromStorePayload>) => {
       const { channelId } = action.payload
 

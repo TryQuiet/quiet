@@ -16,15 +16,17 @@ import { constructPartial } from '@quiet/common'
 const logger = createLogger('CommunityMetadataStore')
 
 @Injectable()
-export class CommunityMetadataStore {
+export class CommunityMetadataStore extends EventEmitter {
   public store: KeyValueStore<CommunityMetadata>
 
   constructor(
     private readonly orbitDbService: OrbitDb,
     private readonly localDbService: LocalDbService
-  ) {}
+  ) {
+    super()
+  }
 
-  public async init(emitter: EventEmitter) {
+  public async init() {
     logger('Initializing community metadata key/value store')
 
     // If the owner initializes the CommunityMetadataStore, then the
@@ -63,11 +65,6 @@ export class CommunityMetadataStore {
       },
     })
 
-    this.store.events.on('write', (_address, entry) => {
-      logger('Saved community metadata locally')
-      emitter.emit(StorageEvents.COMMUNITY_METADATA_SAVED, entry.payload.value)
-    })
-
     this.store.events.on('replicated', async () => {
       logger('Replicated community metadata')
       // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
@@ -75,7 +72,7 @@ export class CommunityMetadataStore {
       await this.store.load({ fetchEntryTimeout: 15000 })
       const meta = this.getCommunityMetadata()
       if (meta) {
-        emitter.emit(StorageEvents.COMMUNITY_METADATA_SAVED, meta)
+        this.emit(StorageEvents.COMMUNITY_METADATA_LOADED, meta)
       }
     })
 
@@ -83,7 +80,7 @@ export class CommunityMetadataStore {
     await this.store.load({ fetchEntryTimeout: 15000 })
     const meta = this.getCommunityMetadata()
     if (meta) {
-      emitter.emit(StorageEvents.COMMUNITY_METADATA_SAVED, meta)
+      this.emit(StorageEvents.COMMUNITY_METADATA_LOADED, meta)
     }
     logger('Loaded community metadata to memory')
   }

@@ -68,7 +68,7 @@ describe('User', () => {
       store
     )
 
-    jest.spyOn(socket, 'emit').mockImplementation((...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
+    const mockEmitImpl = (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
       const action = input[0]
       if (action === SocketActionTypes.CREATE_NETWORK) {
         const data = input[1] as Community
@@ -116,7 +116,11 @@ describe('User', () => {
           },
         })
       }
-    })
+    }
+
+    jest.spyOn(socket, 'emit').mockImplementation(mockEmitImpl)
+    // @ts-ignore
+    socket.emitWithAck = mockEmitImpl
 
     // Log all the dispatched actions in order
     const actions: AnyAction[] = []
