@@ -164,8 +164,8 @@ export function subscribe(socket: Socket) {
 
     // Community
 
-    socket.on(SocketActionTypes.NEW_COMMUNITY, async (payload: ResponseCreateCommunityPayload) => {
-      log(`${SocketActionTypes.NEW_COMMUNITY}: ${payload}`)
+    socket.on(SocketActionTypes.COMMUNITY_CREATED, async (payload: ResponseCreateCommunityPayload) => {
+      log(`${SocketActionTypes.COMMUNITY_CREATED}: ${payload}`)
       // We can also set community metadata when we register the
       // owner's certificate. I think the only issue is that we
       // register the owner's certificate before initializing the
@@ -186,7 +186,7 @@ export function subscribe(socket: Socket) {
       log(SocketActionTypes.NETWORK, payload)
       emit(communitiesActions.responseCreateNetwork(payload))
     })
-    socket.on(SocketActionTypes.COMMUNITY, (payload: ResponseLaunchCommunityPayload) => {
+    socket.on(SocketActionTypes.COMMUNITY_LAUNCHED, (payload: ResponseLaunchCommunityPayload) => {
       console.log('Hunting for heisenbug: Community event received in state-manager')
       // TODO: We can send this once when creating the community and
       // store it in the backend.
@@ -230,8 +230,8 @@ export function subscribe(socket: Socket) {
       )
       emit(identityActions.savedOwnerCertificate(payload.communityId))
     })
-    socket.on(SocketActionTypes.COMMUNITY_METADATA_SAVED, (payload: CommunityMetadata) => {
-      log(`${SocketActionTypes.COMMUNITY_METADATA_SAVED}: ${payload}`)
+    socket.on(SocketActionTypes.COMMUNITY_METADATA_LOADED, (payload: CommunityMetadata) => {
+      log(`${SocketActionTypes.COMMUNITY_METADATA_LOADED}: ${payload}`)
       emit(communitiesActions.saveCommunityMetadata(payload))
     })
     socket.on(SocketActionTypes.LIBP2P_PSK_SAVED, (payload: { psk: string }) => {

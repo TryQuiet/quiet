@@ -13,7 +13,6 @@ export enum SocketActionTypes {
 
   // ====== Channels ======
 
-  CHANNEL_DELETION_RESPONSE = 'channelDeletionResponse',
   CHANNELS_LOADED = 'channelsLoaded',
   CHANNEL_SUBSCRIBED = 'channelSubscribed',
   CREATE_CHANNEL = 'createChannel',

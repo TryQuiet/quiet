@@ -73,7 +73,7 @@ describe('General channel', () => {
 
     function* mockNewCommunityEvent(): Generator {
       yield* apply(socket.socketClient, socket.socketClient.emit, [
-        SocketActionTypes.NEW_COMMUNITY,
+        SocketActionTypes.COMMUNITY_CREATED,
         {
           id: communityId,
         },

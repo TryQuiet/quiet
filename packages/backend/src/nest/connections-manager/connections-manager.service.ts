@@ -314,7 +314,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
     await this.launchCommunity(payload)
     this.logger(`Created and launched community ${payload.id}`)
-    this.serverIoProvider.io.emit(SocketActionTypes.NEW_COMMUNITY, { id: payload.id })
+    this.serverIoProvider.io.emit(SocketActionTypes.COMMUNITY_CREATED, { id: payload.id })
   }
 
   public async launchCommunity(payload: InitCommunityPayload) {
@@ -332,7 +332,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     } catch (e) {
       this.logger(`Couldn't launch community for peer ${payload.peerId.id}.`, e)
       emitError(this.serverIoProvider.io, {
-        type: SocketActionTypes.COMMUNITY,
+        type: SocketActionTypes.LAUNCH_COMMUNITY,
         message: ErrorMessages.COMMUNITY_LAUNCH_FAILED,
         community: payload.id,
         trace: e.stack,
@@ -352,7 +352,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     // Unblock websocket endpoints
     this.socketService.resolveReadyness()
 
-    this.serverIoProvider.io.emit(SocketActionTypes.COMMUNITY, { id: payload.id })
+    this.serverIoProvider.io.emit(SocketActionTypes.COMMUNITY_LAUNCHED, { id: payload.id })
   }
 
   public async launch(payload: InitCommunityPayload) {
@@ -461,7 +461,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       // Update Frontend with Initialized Communities
       if (this.communityId) {
         console.log('Hunting for heisenbug: Backend initialized community and sent event to state manager')
-        this.serverIoProvider.io.emit(SocketActionTypes.COMMUNITY, { id: this.communityId })
+        this.serverIoProvider.io.emit(SocketActionTypes.COMMUNITY_LAUNCHED, { id: this.communityId })
         console.log('this.libp2pService.connectedPeers', this.libp2pService.connectedPeers)
         console.log('this.libp2pservice', this.libp2pService)
         this.serverIoProvider.io.emit(
@@ -625,10 +625,10 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       await this.storageService?.updateCommunityMetadata(payload)
     })
 
-    this.storageService.on(StorageEvents.COMMUNITY_METADATA_SAVED, async (meta: CommunityMetadata) => {
-      this.logger(`Storage - ${StorageEvents.COMMUNITY_METADATA_SAVED}: ${meta}`)
+    this.storageService.on(StorageEvents.COMMUNITY_METADATA_LOADED, async (meta: CommunityMetadata) => {
+      this.logger(`Storage - ${StorageEvents.COMMUNITY_METADATA_LOADED}: ${meta}`)
       this.storageService?.updateMetadata(meta)
-      this.serverIoProvider.io.emit(SocketActionTypes.COMMUNITY_METADATA_SAVED, meta)
+      this.serverIoProvider.io.emit(SocketActionTypes.COMMUNITY_METADATA_LOADED, meta)
     })
 
     // User Profile

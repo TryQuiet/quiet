@@ -25,7 +25,7 @@ export enum StorageEvents {
   REPLICATED_CERTIFICATES = 'replicatedCertificates',
   LOADED_USER_PROFILES = 'loadedUserProfiles',
   // Community
-  COMMUNITY_METADATA_SAVED = 'communityMetadataSaved',
+  COMMUNITY_METADATA_LOADED = 'communityMetadataSaved',
 }
 
 export interface InitStorageParams {

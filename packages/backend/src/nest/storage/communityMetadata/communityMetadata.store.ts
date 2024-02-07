@@ -65,7 +65,7 @@ export class CommunityMetadataStore {
 
     this.store.events.on('write', (_address, entry) => {
       logger('Saved community metadata locally')
-      emitter.emit(StorageEvents.COMMUNITY_METADATA_SAVED, entry.payload.value)
+      emitter.emit(StorageEvents.COMMUNITY_METADATA_LOADED, entry.payload.value)
     })
 
     this.store.events.on('replicated', async () => {
@@ -75,7 +75,7 @@ export class CommunityMetadataStore {
       await this.store.load({ fetchEntryTimeout: 15000 })
       const meta = this.getCommunityMetadata()
       if (meta) {
-        emitter.emit(StorageEvents.COMMUNITY_METADATA_SAVED, meta)
+        emitter.emit(StorageEvents.COMMUNITY_METADATA_LOADED, meta)
       }
     })
 
@@ -83,7 +83,7 @@ export class CommunityMetadataStore {
     await this.store.load({ fetchEntryTimeout: 15000 })
     const meta = this.getCommunityMetadata()
     if (meta) {
-      emitter.emit(StorageEvents.COMMUNITY_METADATA_SAVED, meta)
+      emitter.emit(StorageEvents.COMMUNITY_METADATA_LOADED, meta)
     }
     logger('Loaded community metadata to memory')
   }
