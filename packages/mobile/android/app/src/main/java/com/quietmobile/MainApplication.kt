@@ -13,6 +13,7 @@ import com.facebook.react.defaults.DefaultReactHost.getDefaultReactHost
 import com.facebook.react.defaults.DefaultReactNativeHost
 import com.facebook.react.flipper.ReactNativeFlipper
 import com.facebook.soloader.SoLoader
+import com.quietmobile.Communication.CommunicationModulePackage
 import com.quietmobile.Utils.Const
 
 
@@ -24,6 +25,7 @@ class MainApplication : Application(), ReactApplication {
                         PackageList(this).packages.apply {
                             // Packages that cannot be autolinked yet can be added manually here, for example:
                             // add(MyReactNativePackage())
+                            add(CommunicationModulePackage())
                         }
 
                 override fun getJSMainModuleName(): String = "index"
