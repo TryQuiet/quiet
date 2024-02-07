@@ -1,5 +1,4 @@
 export enum SocketActionTypes {
-
   // ====== Community ======
 
   COMMUNITY_CREATED = 'communityCreated',

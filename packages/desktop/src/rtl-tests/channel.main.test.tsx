@@ -772,7 +772,7 @@ describe('Channel', () => {
       if (action === SocketActionTypes.LAUNCH_COMMUNITY) {
         const data = input[1] as InitCommunityPayload
         const payload = data
-        return socket.socketClient.emit<ResponseLaunchCommunityPayload>(SocketActionTypes.COMMUNITY_LAUNCHED_LAUNCHED, {
+        return socket.socketClient.emit<ResponseLaunchCommunityPayload>(SocketActionTypes.COMMUNITY_LAUNCHED, {
           id: payload.id,
         })
       }
@@ -969,7 +969,7 @@ describe('Channel', () => {
       if (action === SocketActionTypes.LAUNCH_COMMUNITY) {
         const data = input[1] as InitCommunityPayload
         const payload = data
-        return socket.socketClient.emit<ResponseLaunchCommunityPayload>(SocketActionTypes.COMMUNITY_LAUNCHED_LAUNCHED, {
+        return socket.socketClient.emit<ResponseLaunchCommunityPayload>(SocketActionTypes.COMMUNITY_LAUNCHED, {
           id: payload.id,
         })
       }
