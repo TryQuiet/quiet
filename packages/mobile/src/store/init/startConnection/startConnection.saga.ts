@@ -9,11 +9,10 @@ import { eventChannel } from 'redux-saga'
 
 export function* startConnectionSaga(
   action: PayloadAction<ReturnType<typeof initActions.startWebsocketConnection>['payload']>
-): Generator {
-  const isWebsocketConnected = yield* select(initSelectors.isWebsocketConnected)
-  console.log('WEBSOCKET', 'Entered start connection saga', isWebsocketConnected)
-
+): Generator {  
   const { dataPort, socketIOSecret } = action.payload
+
+  console.log('WEBSOCKET', 'Entered start connection saga', dataPort)
 
   let _dataPort = dataPort
 
@@ -21,7 +20,10 @@ export function* startConnectionSaga(
     _dataPort = 11000
   }
 
-  if (!socketIOSecret) return
+  if (!socketIOSecret) {
+    console.error('WEBSOCKET', 'Missing IO secret')
+    return
+  }
 
   const token = encodeSecret(socketIOSecret)
   const socket = yield* call(io, `http://127.0.0.1:${_dataPort}`, {
