@@ -1,13 +1,15 @@
 [unreleased]
 
-# Fixes:
+# Refactorings:
 
-* Make sure address of the inviting peer is in the invitation link
+* refactor: Use socket.io ack for CREATE_CHANNEL event
+* refactor: Introduce socket.io acknowledgements
 
 [2.1.1]
 
 # Fixes:
 
+* Make sure address of the inviting peer is in the invitation link
 * Opening the mobile app with joining links has been corrected.
 
 # Refactorings:

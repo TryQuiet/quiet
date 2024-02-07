@@ -1,7 +1,6 @@
 import fs from 'fs'
 import { jest } from '@jest/globals'
 import { create, IPFS } from 'ipfs-core'
-import { EventEmitter } from 'events'
 import { TestConfig } from '../../const'
 import { Test, TestingModule } from '@nestjs/testing'
 import { TestModule } from '../../common/test.module'
@@ -63,8 +62,7 @@ describe('CertificatesStore', () => {
     ipfs = await create()
     await orbitDb.create(peerId, ipfs)
 
-    const emitter = new EventEmitter()
-    await certificatesStore.init(emitter)
+    await certificatesStore.init()
   })
 
   afterEach(async () => {

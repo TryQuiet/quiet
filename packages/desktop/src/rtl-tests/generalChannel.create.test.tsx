@@ -50,13 +50,17 @@ describe('General channel', () => {
       nickname: 'alice',
     })
 
-    jest.spyOn(socket, 'emit').mockImplementation(async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
+    const mockImpl = async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
       const action = input[0]
       if (action === SocketActionTypes.CREATE_CHANNEL) {
         const payload = input[1] as ChannelsReplicatedPayload
         expect(payload.channels.channel?.name).toEqual('general')
       }
-    })
+    }
+
+    jest.spyOn(socket, 'emit').mockImplementation(mockImpl)
+    // @ts-ignore
+    socket.emitWithAck = mockImpl
 
     // Log all the dispatched actions in order
     const actions: AnyAction[] = []

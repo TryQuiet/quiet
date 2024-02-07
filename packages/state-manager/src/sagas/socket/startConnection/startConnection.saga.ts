@@ -25,11 +25,9 @@ import {
   type StorePeerListPayload,
   type ResponseCreateNetworkPayload,
   type ResponseLaunchCommunityPayload,
-  type ChannelDeletionResponsePayload,
   type ChannelMessagesIdsResponse,
   type ChannelsReplicatedPayload,
   type CommunityId,
-  type CreatedChannelResponse,
   type DownloadStatus,
   type ErrorPayload,
   type FileMetadata,
@@ -37,7 +35,7 @@ import {
   type NetworkDataPayload,
   type RemoveDownloadStatus,
   type SendCertificatesResponse,
-  type SetChannelSubscribedPayload,
+  type ChannelSubscribedPayload,
   type SavedOwnerCertificatePayload,
   type SendOwnerCertificatePayload,
   type SendCsrsResponse,
@@ -127,25 +125,8 @@ export function subscribe(socket: Socket) {
     socket.on(SocketActionTypes.CHANNELS_REPLICATED, (payload: ChannelsReplicatedPayload) => {
       emit(publicChannelsActions.channelsReplicated(payload))
     })
-    socket.on(SocketActionTypes.CHANNEL_SUBSCRIBED, (payload: SetChannelSubscribedPayload) => {
+    socket.on(SocketActionTypes.CHANNEL_SUBSCRIBED, (payload: ChannelSubscribedPayload) => {
       emit(publicChannelsActions.setChannelSubscribed(payload))
-    })
-    socket.on(SocketActionTypes.CHANNEL_DELETION_RESPONSE, (payload: ChannelDeletionResponsePayload) => {
-      emit(publicChannelsActions.channelDeletionResponse(payload))
-    })
-    socket.on(SocketActionTypes.CREATED_CHANNEL, (payload: CreatedChannelResponse) => {
-      emit(
-        messagesActions.addPublicChannelsMessagesBase({
-          channelId: payload.channel.id,
-        })
-      )
-      emit(publicChannelsActions.addChannel(payload))
-      emit(
-        publicChannelsActions.sendInitialChannelMessage({
-          channelName: payload.channel.name,
-          channelId: payload.channel.id,
-        })
-      )
     })
     // Messages
     socket.on(SocketActionTypes.SEND_MESSAGES_IDS, (payload: ChannelMessagesIdsResponse) => {

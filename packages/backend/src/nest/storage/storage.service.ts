@@ -22,6 +22,7 @@ import {
   ChannelMessage,
   CommunityMetadata,
   ConnectionProcessInfo,
+  type CreateChannelResponse,
   DeleteFilesFromChannelSocketPayload,
   FileMetadata,
   NoCryptoEngineError,
@@ -32,6 +33,7 @@ import {
   SocketActionTypes,
   UserData,
   type UserProfile,
+  type UserProfilesLoadedEvent,
 } from '@quiet/types'
 import { createLibp2pAddress, isDefined } from '@quiet/common'
 import fs from 'fs'
@@ -183,22 +185,21 @@ export class StorageService extends EventEmitter {
   }
 
   public async initDatabases() {
-    this.logger('1/3')
     console.time('Storage.initDatabases')
+
+    this.logger('1/3')
+    this.attachStoreListeners()
 
     // FIXME: This is sort of messy how we are initializing things.
     // Currently, the CommunityMetadataStore sends an event during
     // initialization which is picked up by the CertificatesStore, but
     // the CertificatesStore is not initialized yet. Perhaps we can
-    // attach `this` as an EventEmitter first and then load data.
-    await this.communityMetadataStore.init(this)
-    await this.certificatesStore.init(this)
-    await this.certificatesRequestsStore.init(this)
-    await this.userProfileStore.init(this)
-
+    // initialize stores first and then load data/send events.
     this.logger('2/3')
-    await this.attachCertificatesStoreListeners()
-    await this.attachCsrsStoreListeners()
+    await this.communityMetadataStore.init()
+    await this.certificatesStore.init()
+    await this.certificatesRequestsStore.init()
+    await this.userProfileStore.init()
 
     this.logger('3/3')
     await this.createDbForChannels()
@@ -281,12 +282,33 @@ export class StorageService extends EventEmitter {
     await this.__stopIPFS()
   }
 
-  public async updateCommunityMetadata(communityMetadata: CommunityMetadata) {
-    await this.communityMetadataStore?.updateCommunityMetadata(communityMetadata)
+  public attachStoreListeners() {
+    this.certificatesStore.on(StorageEvents.LOADED_CERTIFICATES, async payload => {
+      this.emit(StorageEvents.REPLICATED_CERTIFICATES, payload)
+      await this.updatePeersList()
+    })
+
+    this.certificatesRequestsStore.on(StorageEvents.LOADED_USER_CSRS, async (payload: { csrs: string[] }) => {
+      this.emit(StorageEvents.REPLICATED_CSR, payload)
+      await this.updatePeersList()
+    })
+
+    this.communityMetadataStore.on(StorageEvents.COMMUNITY_METADATA_LOADED, (meta: CommunityMetadata) => {
+      this.certificatesStore.updateMetadata(meta)
+      this.emit(StorageEvents.COMMUNITY_METADATA_LOADED, meta)
+    })
+
+    this.userProfileStore.on(StorageEvents.LOADED_USER_PROFILES, (payload: UserProfilesLoadedEvent) => {
+      this.emit(StorageEvents.LOADED_USER_PROFILES, payload)
+    })
   }
 
-  public updateMetadata(meta: CommunityMetadata) {
-    this.certificatesStore.updateMetadata(meta)
+  public async updateCommunityMetadata(communityMetadata: CommunityMetadata): Promise<CommunityMetadata | undefined> {
+    const meta = await this.communityMetadataStore?.updateCommunityMetadata(communityMetadata)
+    if (meta) {
+      this.certificatesStore.updateMetadata(meta)
+    }
+    return meta
   }
 
   public async updatePeersList() {
@@ -305,21 +327,6 @@ export class StorageService extends EventEmitter {
   public async loadAllCertificates() {
     this.logger('Loading all certificates')
     return await this.certificatesStore.loadAllCertificates()
-  }
-
-  public async attachCertificatesStoreListeners() {
-    this.on(StorageEvents.LOADED_CERTIFICATES, async payload => {
-      this.emit(StorageEvents.REPLICATED_CERTIFICATES, payload)
-      await this.updatePeersList()
-    })
-  }
-
-  public async attachCsrsStoreListeners() {
-    this.on(StorageEvents.LOADED_USER_CSRS, async (payload: { csrs: string[] }) => {
-      this.emit(StorageEvents.REPLICATED_CSR, payload)
-      // TODO
-      await this.updatePeersList()
-    })
   }
 
   public async loadAllChannels() {
@@ -412,7 +419,10 @@ export class StorageService extends EventEmitter {
     return db.iterator({ limit: -1 }).collect()
   }
 
-  public async subscribeToChannel(channelData: PublicChannel, options = { replicate: false }): Promise<void> {
+  public async subscribeToChannel(
+    channelData: PublicChannel,
+    options = { replicate: false }
+  ): Promise<CreateChannelResponse | undefined> {
     let db: EventStore<ChannelMessage>
     // @ts-ignore
     if (channelData.address) {
@@ -420,6 +430,7 @@ export class StorageService extends EventEmitter {
       channelData.id = channelData.address
     }
     let repo = this.publicChannelsRepos.get(channelData.id)
+
     if (repo) {
       db = repo.db
     } else {
@@ -484,6 +495,7 @@ export class StorageService extends EventEmitter {
           this.emit(StorageEvents.SEND_PUSH_NOTIFICATION, payload)
         }
       })
+
       db.events.on('replicated', async address => {
         this.logger('Replicated.', address)
         const ids = this.getAllEventLogEntries<ChannelMessage>(db).map(msg => msg.id)
@@ -494,6 +506,7 @@ export class StorageService extends EventEmitter {
           communityId: community.id,
         })
       })
+
       db.events.on('ready', async () => {
         const ids = this.getAllEventLogEntries<ChannelMessage>(db).map(msg => msg.id)
         const community = await this.localDbService.get(LocalDBKeys.COMMUNITY)
@@ -503,14 +516,16 @@ export class StorageService extends EventEmitter {
           communityId: community.id,
         })
       })
+
       await db.load()
       repo.eventsAttached = true
     }
 
     this.logger(`Subscribed to channel ${channelData.id}`)
-    this.emit(StorageEvents.SET_CHANNEL_SUBSCRIBED, {
+    this.emit(StorageEvents.CHANNEL_SUBSCRIBED, {
       channelId: channelData.id,
     })
+    return { channel: channelData }
   }
 
   public async askForMessages(channelId: string, ids: string[]) {
@@ -529,16 +544,15 @@ export class StorageService extends EventEmitter {
     this.emit(StorageEvents.CHECK_FOR_MISSING_FILES, community.id)
   }
 
-  private async createChannel(data: PublicChannel, options: DBOptions): Promise<EventStore<ChannelMessage>> {
-    console.log('creating channel')
-    if (!validate.isChannel(data)) {
-      this.logger.error('STORAGE: Invalid channel format')
+  private async createChannel(channelData: PublicChannel, options: DBOptions): Promise<EventStore<ChannelMessage>> {
+    if (!validate.isChannel(channelData)) {
+      this.logger.error('Invalid channel format')
       throw new Error('Create channel validation error')
     }
-    this.logger(`Creating channel ${data.id}`)
 
-    const channelId = data.id
+    this.logger(`Creating channel ${channelData.id}`)
 
+    const channelId = channelData.id
     const db: EventStore<ChannelMessage> = await this.orbitDbService.orbitDb.log<ChannelMessage>(
       `channels.${channelId}`,
       {
@@ -549,17 +563,12 @@ export class StorageService extends EventEmitter {
         },
       }
     )
-
     const channel = this.channels.get(channelId)
-    console.log('channel', channel)
+
+    this.logger(`Found existing channel: ${channel}`)
+
     if (channel === undefined) {
-      await this.channels.put(channelId, {
-        ...data,
-      })
-      console.log('emitting new channel')
-      this.emit(StorageEvents.CREATED_CHANNEL, {
-        channel: data,
-      })
+      await this.channels.put(channelId, { ...channelData })
     }
 
     this.publicChannelsRepos.set(channelId, { db, eventsAttached: false })
@@ -568,6 +577,7 @@ export class StorageService extends EventEmitter {
     await db.load({ fetchEntryTimeout: 2000 })
     this.logger(`Created channel ${channelId}`)
     await this.subscribeToPubSub([StorageService.dbAddress(db.address)])
+
     return db
   }
 
@@ -611,8 +621,7 @@ export class StorageService extends EventEmitter {
     // await this.deleteChannelFiles(files)
     // await this.deleteChannelMessages(hashes)
     this.publicChannelsRepos.delete(channelId)
-    const responsePayload = { channelId: payload.channelId }
-    this.emit(StorageEvents.CHANNEL_DELETION_RESPONSE, responsePayload)
+    return { channelId: payload.channelId }
   }
 
   public async deleteChannelFiles(files: FileMetadata[]) {

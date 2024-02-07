@@ -1,7 +1,8 @@
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common'
 import {
   SocketActionTypes,
-  CreateChannelPayload,
+  type CreateChannelPayload,
+  type CreateChannelResponse,
   SendMessagePayload,
   UploadFilePayload,
   DownloadFilePayload,
@@ -17,6 +18,7 @@ import {
   CommunityMetadata,
   type PermsData,
   type UserProfile,
+  type DeleteChannelResponse,
 } from '@quiet/types'
 import EventEmitter from 'events'
 import { CONFIG_OPTIONS, SERVER_IO_PROVIDER } from '../const'
@@ -86,13 +88,22 @@ export class SocketService extends EventEmitter implements OnModuleInit {
       })
 
       // ====== Channels =====
-      socket.on(SocketActionTypes.CREATE_CHANNEL, async (payload: CreateChannelPayload) => {
-        this.emit(SocketActionTypes.CREATE_CHANNEL, payload)
-      })
+      socket.on(
+        SocketActionTypes.CREATE_CHANNEL,
+        (payload: CreateChannelPayload, callback: (response: CreateChannelResponse) => void) => {
+          this.emit(SocketActionTypes.CREATE_CHANNEL, payload, callback)
+        }
+      )
 
-      socket.on(SocketActionTypes.DELETE_CHANNEL, async (payload: { channelId: string; ownerPeerId: string }) => {
-        this.emit(SocketActionTypes.DELETE_CHANNEL, payload)
-      })
+      socket.on(
+        SocketActionTypes.DELETE_CHANNEL,
+        async (
+          payload: { channelId: string; ownerPeerId: string },
+          callback: (response: DeleteChannelResponse) => void
+        ) => {
+          this.emit(SocketActionTypes.DELETE_CHANNEL, payload, callback)
+        }
+      )
 
       // ====== Messages ======
       socket.on(SocketActionTypes.SEND_MESSAGE, async (payload: SendMessagePayload) => {
@@ -161,9 +172,12 @@ export class SocketService extends EventEmitter implements OnModuleInit {
         this.emit(SocketActionTypes.LIBP2P_PSK_SAVED, payload)
       })
 
-      socket.on(SocketActionTypes.SEND_COMMUNITY_METADATA, (payload: CommunityMetadata) => {
-        this.emit(SocketActionTypes.SEND_COMMUNITY_METADATA, payload)
-      })
+      socket.on(
+        SocketActionTypes.SEND_COMMUNITY_METADATA,
+        (payload: CommunityMetadata, callback: (response?: CommunityMetadata) => void) => {
+          this.emit(SocketActionTypes.SEND_COMMUNITY_METADATA, payload, callback)
+        }
+      )
 
       socket.on(SocketActionTypes.SEND_COMMUNITY_CA_DATA, (payload: PermsData) => {
         this.emit(SocketActionTypes.SEND_COMMUNITY_CA_DATA, payload)

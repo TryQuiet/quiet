@@ -10,7 +10,6 @@ import { issueCertificate, extractPendingCsrs } from './registration.functions'
 import { jest } from '@jest/globals'
 import { createTmpDir } from '../common/utils'
 import { RegistrationEvents } from './registration.types'
-import { EventEmitter } from 'events'
 import { CertificatesStore } from '../storage/certificates/certificates.store'
 import { StorageService } from '../storage/storage.service'
 import { StorageModule } from '../storage/storage.module'
@@ -171,7 +170,7 @@ describe('RegistrationService', () => {
     }
 
     await orbitDb.create(peerId, ipfs)
-    await certificatesStore.init(new EventEmitter())
+    await certificatesStore.init()
     certificatesStore.updateMetadata({
       id: '39F7485441861F4A2A1A512188F1E0AA',
       rootCa:

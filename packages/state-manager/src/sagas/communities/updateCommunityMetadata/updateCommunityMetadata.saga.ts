@@ -1,6 +1,7 @@
 import { CommunityMetadata, SocketActionTypes } from '@quiet/types'
 import { type PayloadAction } from '@reduxjs/toolkit'
-import { apply, select } from 'typed-redux-saga'
+import { apply, select, put, take } from 'typed-redux-saga'
+import { channel } from 'redux-saga'
 import { applyEmitParams, type Socket } from '../../../types'
 import { communitiesSelectors } from '../communities.selectors'
 import { communitiesActions } from '../communities.slice'
@@ -34,9 +35,13 @@ export function* sendCommunityMetadataSaga(
     rootCa: community.rootCa,
   }
 
-  yield* apply(
+  const meta = yield* apply(
     socket,
-    socket.emit,
+    socket.emitWithAck,
     applyEmitParams(SocketActionTypes.SEND_COMMUNITY_METADATA, communityMetadataPayload)
   )
+
+  if (meta) {
+    yield* put(communitiesActions.saveCommunityMetadata(meta))
+  }
 }

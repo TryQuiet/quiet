@@ -7,9 +7,7 @@ export enum StorageEvents {
   LOAD_PUBLIC_CHANNELS = 'loadPublicChannels',
   LOAD_MESSAGES = 'loadMessages',
   SEND_MESSAGES_IDS = 'sendMessagesIds',
-  SET_CHANNEL_SUBSCRIBED = 'setChannelSubscribed',
-  CREATED_CHANNEL = 'createdChannel',
-  CHANNEL_DELETION_RESPONSE = 'channelDeletionResponse',
+  CHANNEL_SUBSCRIBED = 'channelSubscribed',
   // Files
   REMOVE_DOWNLOAD_STATUS = 'removeDownloadStatus',
   UPLOADED_FILE = 'uploadedFile',
@@ -25,7 +23,7 @@ export enum StorageEvents {
   REPLICATED_CERTIFICATES = 'replicatedCertificates',
   LOADED_USER_PROFILES = 'loadedUserProfiles',
   // Community
-  COMMUNITY_METADATA_LOADED = 'communityMetadataSaved',
+  COMMUNITY_METADATA_LOADED = 'communityMetadataLoaded',
 }
 
 export interface InitStorageParams {
