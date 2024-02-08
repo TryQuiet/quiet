@@ -2,8 +2,10 @@ import crypto from 'crypto'
 import { constants } from './constants'
 
 export const generateId = () => {
-  const id = crypto.randomBytes(16).toString('hex').toUpperCase()
-  return id
+  return Array(16)
+  .fill(null)
+  .map(() => Math.random().toString(36).charAt(2))
+  .join('');
 }
 
 export const generateDmKeyPair = () => {
