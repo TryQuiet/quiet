@@ -426,7 +426,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     // initialized, this is helpful to manually inject the storage
     // service for now. Both object construction and object
     // initialization need to happen in order based on dependencies.
-    await this.registrationService.init(this.storageService)
+    this.registrationService.init(this.storageService)
     this.logger('storage initialized')
 
     this.serverIoProvider.io.emit(

@@ -1,5 +1,5 @@
 import { By, Key, type ThenableWebDriver, type WebElement, until } from 'selenium-webdriver'
-import { BuildSetup, type BuildSetupInit } from './utils'
+import { BuildSetup, sleep, type BuildSetupInit } from './utils'
 import path from 'path'
 
 export class App {
@@ -62,6 +62,32 @@ export class App {
   async waitForSavedState() {
     const dataSaved = this.driver.wait(until.elementLocated(By.xpath('//div[@data-is-saved="true"]')))
     return await dataSaved
+  }
+
+  async waitForJoining(timeout = 10_000) {
+    const generalChannel = new Channel(this.driver, 'general')
+    console.log('------ before wait')
+    try {
+      await this.driver.wait(
+        async () => {
+          console.count('Waiting for general channel')
+          console.log('!!!!!!!! BEFORE')
+          const isGeneralChannel = await generalChannel.element.isDisplayed()
+          console.log('!!!!!!!! AFTER')
+          console.log('=== isGeneralChannel', isGeneralChannel)
+          return isGeneralChannel
+        },
+        timeout,
+        `General channel did not display n ${timeout / 1000} seconds`
+      )
+      console.log('------- after wait')
+    } catch (e) {
+      console.log('Error', e)
+      throw new Error('General channel did not display')
+    }
+
+    const generalChannelText = await generalChannel.element.getText()
+    expect(generalChannelText).toEqual('# general')
   }
 }
 
@@ -371,6 +397,23 @@ export class Sidebar {
     const button = await this.driver.findElement(By.xpath('//span[@data-testid="settings-panel-button"]'))
     await button.click()
     return new Settings(this.driver)
+  }
+
+  async copyInvitationCode(): Promise<string> {
+    const settingsModal = await this.openSettings()
+    const isSettingsModal = await settingsModal.element.isDisplayed()
+    expect(isSettingsModal).toBeTruthy()
+    await sleep(2000)
+    await settingsModal.switchTab('invite')
+    await sleep(2000)
+    const invitationCodeElement = await settingsModal.invitationCode()
+    await sleep(2000)
+    const invitationCode = await invitationCodeElement.getText()
+    await sleep(2000)
+    console.log({ invitationCode })
+    expect(invitationCode).not.toBeUndefined()
+    await settingsModal.close()
+    return invitationCode
   }
 
   async switchChannel(name: string) {

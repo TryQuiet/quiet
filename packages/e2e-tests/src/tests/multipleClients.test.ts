@@ -9,12 +9,18 @@ import {
   Sidebar,
 } from '../selectors'
 import logger from '../logger'
+import { sleep } from '../utils'
 const log = logger('ManyClients')
-
+let failed = false
 interface UserTestData {
   username: string
   app: App
   messages: string[]
+}
+
+const skipOnFail = () => {
+  if (failed) return it.skip
+  return it
 }
 
 jest.setTimeout(1200000) // 20 minutes
@@ -37,14 +43,6 @@ describe('Multiple Clients', () => {
   const communityName = 'testcommunity'
   const displayedCommunityName = 'Testcommunity'
   const newChannelName = 'mid-night-club'
-
-  const sleep = async (time = 1000) => {
-    await new Promise<void>(resolve =>
-      setTimeout(() => {
-        resolve()
-      }, time)
-    )
-  }
 
   beforeAll(async () => {
     const commonApp = new App()
@@ -108,13 +106,15 @@ describe('Multiple Clients', () => {
       await registerModal.submit()
     })
     it('Owner registers successfully and sees general channel', async () => {
-      generalChannelOwner = new Channel(users.owner.app.driver, 'general')
-      const isGeneralChannel = await generalChannelOwner.element.isDisplayed()
-      const generalChannelText = await generalChannelOwner.element.getText()
-      expect(isGeneralChannel).toBeTruthy()
-      expect(generalChannelText).toEqual('# general')
+      await users.owner.app.waitForJoining(5000)
+      // generalChannelOwner = new Channel(users.owner.app.driver, 'general')
+      // const isGeneralChannel = await generalChannelOwner.element.isDisplayed()
+      // const generalChannelText = await generalChannelOwner.element.getText()
+      // expect(isGeneralChannel).toBeTruthy()
+      // expect(generalChannelText).toEqual('# general')
     })
     it('Owner sends a message', async () => {
+      generalChannelOwner = new Channel(users.owner.app.driver, 'general')
       const isMessageInput = await generalChannelOwner.messageInput.isDisplayed()
       expect(isMessageInput).toBeTruthy()
       await generalChannelOwner.sendMessage(users.owner.messages[0])
@@ -125,20 +125,21 @@ describe('Multiple Clients', () => {
       expect(text).toEqual(users.owner.messages[0])
     })
     it('Owner opens the settings tab and gets an invitation code', async () => {
-      const settingsModal = await new Sidebar(users.owner.app.driver).openSettings()
-      const isSettingsModal = await settingsModal.element.isDisplayed()
-      expect(isSettingsModal).toBeTruthy()
-      await sleep(2000)
-      await settingsModal.switchTab('invite') // TODO: Fix - the invite tab should be default for the owner
-      await sleep(2000)
-      const invitationCodeElement = await settingsModal.invitationCode()
-      await sleep(2000)
-      invitationCode = await invitationCodeElement.getText()
-      await sleep(2000)
-      console.log({ invitationCode })
-      expect(invitationCode).not.toBeUndefined()
-      log('Received invitation code:', invitationCode)
-      await settingsModal.close()
+      const sidebar = new Sidebar(users.owner.app.driver)
+      invitationCode = await sidebar.copyInvitationCode()
+      // const isSettingsModal = await settingsModal.element.isDisplayed()
+      // expect(isSettingsModal).toBeTruthy()
+      // await sleep(2000)
+      // await settingsModal.switchTab('invite') // TODO: Fix - the invite tab should be default for the owner
+      // await sleep(2000)
+      // const invitationCodeElement = await settingsModal.invitationCode()
+      // await sleep(2000)
+      // invitationCode = await invitationCodeElement.getText()
+      // await sleep(2000)
+      // console.log({ invitationCode })
+      // expect(invitationCode).not.toBeUndefined()
+      // log('Received invitation code:', invitationCode)
+      // await settingsModal.close()
     })
 
     it('First user opens the app', async () => {
@@ -169,8 +170,9 @@ describe('Multiple Clients', () => {
 
     it('First user joins successfully sees general channel and sends a message', async () => {
       console.log('new user - 7')
+      await users.user1.app.waitForJoining(1000)
       generalChannelUser1 = new Channel(users.user1.app.driver, 'general')
-      await generalChannelUser1.element.isDisplayed()
+      // await generalChannelUser1.element.isDisplayed()
       const isMessageInput2 = await generalChannelUser1.messageInput.isDisplayed()
       expect(isMessageInput2).toBeTruthy()
       console.timeEnd(`[${users.user1.app.name}] '${users.user1.username}' joining community time`)
@@ -189,20 +191,11 @@ describe('Multiple Clients', () => {
       const text2 = await messages2[1].getText()
       expect(text2).toEqual(users.user1.messages[0])
     })
+
     it('First user opens the settings tab and copies updated invitation code', async () => {
-      const settingsModal = await new Sidebar(users.user1.app.driver).openSettings()
-      const isSettingsModal = await settingsModal.element.isDisplayed()
-      expect(isSettingsModal).toBeTruthy()
-      await sleep(2000)
-      await settingsModal.switchTab('invite')
-      await sleep(2000)
-      const invitationCodeElement = await settingsModal.invitationCode()
-      await sleep(2000)
-      invitationCode = await invitationCodeElement.getText()
-      await sleep(2000)
+      const sidebar = new Sidebar(users.user1.app.driver)
+      invitationCode = await sidebar.copyInvitationCode()
       console.log(`${invitationCode} copied from non owner`)
-      expect(invitationCode).not.toBeUndefined()
-      await settingsModal.close()
     })
 
     it('Owner goes offline', async () => {
@@ -249,6 +242,7 @@ describe('Multiple Clients', () => {
 
     it('Second user sees general channel', async () => {
       console.log('new user - 7')
+      await users.user3.app.waitForJoining(2000)
       generalChannelUser3 = new Channel(users.user3.app.driver, 'general')
       await generalChannelUser3.element.isDisplayed()
       const isMessageInput = await generalChannelUser3.messageInput.isDisplayed()
@@ -258,11 +252,8 @@ describe('Multiple Clients', () => {
 
     it('Second user can send a message, they see their message tagged as "unregistered"', async () => {
       console.log('Second guest FETCHING CHANNEL MESSAGES!')
-      await new Promise<void>(resolve =>
-        setTimeout(() => {
-          resolve()
-        }, 15000)
-      )
+      // TODO: reduce number of sleeps
+      await sleep(15000)
       await generalChannelUser3.sendMessage(users.user3.messages[0])
       generalChannelUser3 = new Channel(users.user3.app.driver, 'general')
       await generalChannelUser3.waitForLabel(users.user3.username, 'Unregistered')
@@ -307,11 +298,8 @@ describe('Multiple Clients', () => {
       sidebarUser1 = new Sidebar(users.user1.app.driver)
       await sidebarUser1.switchChannel(newChannelName)
       secondChannelUser1 = new Channel(users.user1.app.driver, newChannelName)
-      await new Promise<void>(resolve =>
-        setTimeout(() => {
-          resolve()
-        }, 2000)
-      )
+
+      // await sleep(2000)
       await secondChannelUser1.waitForUserMessage(users.owner.username, users.owner.messages[1])
     })
     it('Channel deletion - Owner deletes second channel', async () => {
@@ -413,11 +401,7 @@ describe('Multiple Clients', () => {
         await generalChannelUser1.element.isDisplayed()
         const isMessageInput2 = await generalChannelUser1.messageInput.isDisplayed()
         expect(isMessageInput2).toBeTruthy()
-        await new Promise<void>(resolve =>
-          setTimeout(() => {
-            resolve()
-          }, 5000)
-        )
+        await sleep(5000) // Why do we need sleep here?
         await generalChannelUser1.sendMessage(users.user2.messages[0])
       })
       it('Leave community - Sent message is visible in a channel', async () => {

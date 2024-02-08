@@ -15,6 +15,7 @@ describe('One Client', () => {
   let app: App
   let dataDirPath: string
   let resourcesPath: string
+  const joiningTimeout = 1000
 
   beforeAll(async () => {
     app = new App()
@@ -66,18 +67,8 @@ describe('One Client', () => {
       console.log('Registration - after submit')
     })
 
-    it.skip('User waits for the modal JoiningLoadingPanel to disappear', async () => {
-      const loadingPanelCommunity = new JoiningLoadingPanel(app.driver)
-      const isLoadingPanelCommunity = await loadingPanelCommunity.element.isDisplayed()
-      expect(isLoadingPanelCommunity).toBeTruthy()
-    })
-
-    it('User sees general channel', async () => {
-      const generalChannel = new Channel(app.driver, 'general')
-      const isGeneralChannel = await generalChannel.element.isDisplayed()
-      const generalChannelText = await generalChannel.element.getText()
-      expect(isGeneralChannel).toBeTruthy()
-      expect(generalChannelText).toEqual('# general')
+    it(`User waits no longer than ${joiningTimeout / 1000} second(s) to see general channel`, async () => {
+      await app.waitForJoining(200)
     })
   })
 
