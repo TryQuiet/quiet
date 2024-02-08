@@ -76,9 +76,6 @@
     "styled-components": "^5.3.0",
     "typed-redux-saga": "^1.3.1"
   },
-  "peerDependencies": {
-    "react-native-crypto": "git+https://github.com/siepra/react-native-crypto.git#e920180d68991bcd0a4d4c597686babe6c7e31f7"
-  },
   "devDependencies": {
     "@babel/core": "^7.22.5",
     "@babel/plugin-transform-flow-strip-types": "^7.22.5",
