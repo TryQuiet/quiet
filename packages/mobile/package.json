@@ -110,7 +110,7 @@
     "@types/styled-components-react-native": "^5.2.1",
     "babel-jest": "^29.0.0",
     "chalk": "^4.1.1",
-    "detox": "^20.13.1",
+    "detox": "^20.17.1",
     "emotion-theming": "^10.0.19",
     "factory-girl": "^5.0.4",
     "jest": "^29.0.0",
