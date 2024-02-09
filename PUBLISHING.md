@@ -29,6 +29,7 @@ From this moment, all the fixes (patches) for the last supported version are bei
 
 ## Release candidates (alpha releases)
 Pre-release builds should only be triggered from the release branch and then delivered to QA.  
+Alpha versions should be delivered to QA by updating GitHub with a link to the correct versions (for desktop) and numbers of current versions (for mobile). All GitHub issues included in the released alpha version should be moved to the Ready for QA column.
 If QA reports problems that needs to be solved, the fixes must be merged into the release and develop branches, then a patched pre-release is to be built.
 
 
