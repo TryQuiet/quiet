@@ -6,6 +6,10 @@
 * refactor: Use socket.io ack for CREATE_CHANNEL event
 * refactor: Introduce socket.io acknowledgements
 
+# Fixes:
+
+* Prevent channel creation with names that start with special character, then a hyphen
+
 [2.1.1]
 
 # Fixes:
