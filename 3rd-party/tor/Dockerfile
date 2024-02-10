@@ -1,4 +1,4 @@
-FROM alpine:3.10
+FROM alpine:3.19
 
 LABEL maintainer="Peter Dave Hello <hsu@peterdavehello.org>"
 LABEL name="tor-socks"
