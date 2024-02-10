@@ -13,6 +13,8 @@
     "lint": "eslint --ext .jsx,.js,.ts,.tsx ./src/ --fix",
     "lint-ci": "eslint --ext .jsx,.js,.ts,.tsx ./src/",
     "check-style": "prettier --check src/**",
+    "clean": "npm run rmDist && npm run clean:modules",
+    "clean:modules": "rimraf node_modules/",
     "rmDist": "rimraf lib/"
   },
   "repository": {

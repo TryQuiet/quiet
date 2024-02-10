@@ -14,6 +14,8 @@
     "lint": "eslint --ext .ts . --fix",
     "lint-ci": "eslint --ext .ts .",
     "prettier": "prettier",
+    "clean": "npm run rmDist && npm run clean:modules",
+    "clean:modules": "rimraf node_modules/",
     "rmDist": "rimraf lib/"
   },
   "devDependencies": {

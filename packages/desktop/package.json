@@ -117,6 +117,8 @@
     "storybook": "export NODE_OPTIONS=--openssl-legacy-provider && start-storybook -p 6006",
     "build-storybook": "export NODE_OPTIONS=--openssl-legacy-provider && build-storybook",
     "chromatic": "npx chromatic --exit-zero-on-changes=false",
+    "clean": "npm run rmDist && npm run clean:modules",
+    "clean:modules": "rimraf node_modules/",
     "rmDist": "rimraf dist/",
     "setMainEnvs": "node scripts/setMainEnvs.js",
     "copyMainEnvs": "cp mainEnvs.json dist/main",

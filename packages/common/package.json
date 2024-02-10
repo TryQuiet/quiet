@@ -15,6 +15,8 @@
     "lint-ci": "eslint --ext .ts .",
     "test": "jest --runInBand",
     "prettier": "prettier",
+    "clean": "npm run rmDist && npm run clean:modules",
+    "clean:modules": "rimraf node_modules/",
     "rmDist": "rimraf lib/"
   },
   "devDependencies": {
