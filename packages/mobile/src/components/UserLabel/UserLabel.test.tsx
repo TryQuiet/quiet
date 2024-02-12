@@ -44,7 +44,6 @@ describe('UserLabel component', () => {
             {
               "backgroundColor": "#E42656",
               "borderRadius": 8,
-              "cursor": "pointer",
               "flexDirection": "row",
               "paddingBottom": 3,
               "paddingLeft": 8,
@@ -135,7 +134,6 @@ describe('UserLabel component', () => {
             {
               "backgroundColor": "#F0F0F0",
               "borderRadius": 8,
-              "cursor": "pointer",
               "paddingBottom": 3,
               "paddingLeft": 8,
               "paddingRight": 8,
