@@ -1,6 +1,6 @@
 import { select, put, delay } from 'typed-redux-saga'
 import { type PayloadAction } from '@reduxjs/toolkit'
-import { type messagesActions } from '../messages.slice'
+import { messagesActions } from '../messages.slice'
 import { messagesSelectors } from '../messages.selectors'
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'

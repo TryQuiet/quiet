@@ -9,7 +9,9 @@ import {
   type CreateChannelResponse,
   type DeleteFilesFromChannelSocketPayload,
   type DownloadFilePayload,
+  type GetMessagesPayload,
   type InitCommunityPayload,
+  type MessagesLoadedPayload,
   type RegisterOwnerCertificatePayload,
   type RegisterUserCertificatePayload,
   type SaveOwnerCertificatePayload,
@@ -37,7 +39,7 @@ export interface EmitEvents {
   [SocketActionTypes.REGISTER_OWNER_CERTIFICATE]: EmitEvent<RegisterOwnerCertificatePayload>
   [SocketActionTypes.REGISTER_USER_CERTIFICATE]: EmitEvent<RegisterUserCertificatePayload>
   [SocketActionTypes.CREATE_COMMUNITY]: EmitEvent<InitCommunityPayload>
-  [SocketActionTypes.ASK_FOR_MESSAGES]: EmitEvent<ReturnType<typeof messagesActions.askForMessages>['payload']>
+  [SocketActionTypes.GET_MESSAGES]: EmitEvent<GetMessagesPayload, (response?: MessagesLoadedPayload) => void>
   [SocketActionTypes.CREATE_CHANNEL]: EmitEvent<CreateChannelPayload, (response?: CreateChannelResponse) => void>
   [SocketActionTypes.DELETE_CHANNEL]: EmitEvent<
     ReturnType<typeof publicChannelsActions.deleteChannel>['payload'],

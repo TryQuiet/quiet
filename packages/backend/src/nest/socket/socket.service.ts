@@ -7,7 +7,7 @@ import {
   UploadFilePayload,
   DownloadFilePayload,
   CancelDownloadPayload,
-  AskForMessagesPayload,
+  GetMessagesPayload,
   ConnectionProcessInfo,
   RegisterOwnerCertificatePayload,
   SaveOwnerCertificatePayload,
@@ -19,6 +19,7 @@ import {
   type PermsData,
   type UserProfile,
   type DeleteChannelResponse,
+  type MessagesLoadedPayload,
 } from '@quiet/types'
 import EventEmitter from 'events'
 import { CONFIG_OPTIONS, SERVER_IO_PROVIDER } from '../const'
@@ -110,9 +111,12 @@ export class SocketService extends EventEmitter implements OnModuleInit {
         this.emit(SocketActionTypes.SEND_MESSAGE, payload)
       })
 
-      socket.on(SocketActionTypes.ASK_FOR_MESSAGES, async (payload: AskForMessagesPayload) => {
-        this.emit(SocketActionTypes.ASK_FOR_MESSAGES, payload)
-      })
+      socket.on(
+        SocketActionTypes.GET_MESSAGES,
+        (payload: GetMessagesPayload, callback: (response?: MessagesLoadedPayload) => void) => {
+          this.emit(SocketActionTypes.GET_MESSAGES, payload, callback)
+        }
+      )
 
       // ====== Files ======
       socket.on(SocketActionTypes.UPLOAD_FILE, async (payload: UploadFilePayload) => {
