@@ -6,14 +6,12 @@ import React from 'react'
 import { io } from 'socket.io-client'
 
 const webcrypto = new Crypto()
-// @ts-ignore
 global.crypto = webcrypto
-// @ts-ignore
-global.window = undefined
 
 setEngine(
   'newEngine',
   webcrypto,
+  // @ts-expect-error
   new CryptoEngine({
     name: '',
     crypto: webcrypto,
