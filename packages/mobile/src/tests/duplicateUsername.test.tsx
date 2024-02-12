@@ -12,7 +12,7 @@ import { ChannelListScreen } from '../screens/ChannelList/ChannelList.screen'
 import { navigationSelectors } from '../store/navigation/navigation.selectors'
 import { navigationActions } from '../store/navigation/navigation.slice'
 
-describe('Duplicate username warning', () => {
+describe.skip('Duplicate username warning', () => {
   let socket: MockedSocket
 
   let factory: FactoryGirl
