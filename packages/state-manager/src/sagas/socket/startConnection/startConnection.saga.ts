@@ -55,7 +55,6 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof publicChannelsActions.addChannel>
     | ReturnType<typeof publicChannelsActions.setChannelSubscribed>
     | ReturnType<typeof publicChannelsActions.sendInitialChannelMessage>
-    | ReturnType<typeof publicChannelsActions.sendNewUserInfoMessage>
     | ReturnType<typeof publicChannelsActions.channelsReplicated>
     | ReturnType<typeof publicChannelsActions.createGeneralChannel>
     | ReturnType<typeof publicChannelsActions.channelDeletionResponse>
