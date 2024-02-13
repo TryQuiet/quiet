@@ -15,6 +15,10 @@
 
 * Prevent channel creation with names that start with special character, then a hyphen
 
+# Other:
+
+* Upgraded React-Native to 0.73.2
+
 [2.1.1]
 
 # Fixes:
