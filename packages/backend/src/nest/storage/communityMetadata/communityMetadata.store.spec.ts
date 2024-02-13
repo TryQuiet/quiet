@@ -1,7 +1,6 @@
 import { jest, beforeEach, describe, it, expect, afterEach, beforeAll, test } from '@jest/globals'
 import fs from 'fs'
 import { create, IPFS } from 'ipfs-core'
-import { EventEmitter } from 'events'
 import { TestConfig } from '../../const'
 import { Test, TestingModule } from '@nestjs/testing'
 import { TestModule } from '../../common/test.module'
@@ -71,8 +70,7 @@ describe('CommmunityMetadataStore', () => {
     ipfs = await create()
     await orbitDbService.create(peerId, ipfs)
 
-    const emitter = new EventEmitter()
-    await communityMetadataStore.init(emitter)
+    await communityMetadataStore.init()
 
     metaValidWithOwnerId = {
       ...metaValid,

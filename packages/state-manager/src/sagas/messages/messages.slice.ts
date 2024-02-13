@@ -8,11 +8,11 @@ import {
 } from './messages.adapter.ts'
 import {
   type AddPublicChannelsMessagesBasePayload,
-  type AskForMessagesPayload,
+  type GetMessagesPayload,
   type ChannelMessage,
-  type ChannelMessagesIdsResponse,
+  type ChannelMessageIdsResponse,
   type DeleteChannelEntryPayload,
-  type IncomingMessages,
+  type MessagesLoadedPayload,
   instanceOfChannelMessage,
   type LazyLoadingPayload,
   type MessageSendingStatus,
@@ -64,26 +64,29 @@ export const messagesSlice = createSlice({
         status: action.payload.status,
       })
     },
-    removePendingMessageStatus: (state, action: PayloadAction<string>) => {
-      const id = action.payload
-      messageSendingStatusAdapter.removeOne(state.messageSendingStatus, id)
+    removePendingMessageStatuses: (state, action: PayloadAction<MessagesLoadedPayload>) => {
+      const { messages } = action.payload
+
+      for (const message of messages) {
+        messageSendingStatusAdapter.removeOne(state.messageSendingStatus, message.id)
+      }
     },
     removeMessageVerificationStatus: (state, action: PayloadAction<string>) => {
       const id = action.payload
       messageVerificationStatusAdapter.removeOne(state.messageVerificationStatus, id)
     },
-    incomingMessages: (state, action: PayloadAction<IncomingMessages>) => {
+    addMessages: (state, action: PayloadAction<MessagesLoadedPayload>) => {
       const { messages } = action.payload
       for (const message of messages) {
         if (!instanceOfChannelMessage(message)) return
         if (!state.publicChannelsMessagesBase.entities[message.channelId]) return
 
-        let incoming = message
+        let toAdd = message
 
         const draft = state.publicChannelsMessagesBase.entities[message.channelId]?.messages.entities[message.id]
 
         if (message.media && draft?.media?.path) {
-          incoming = {
+          toAdd = {
             ...message,
             media: {
               ...message.media,
@@ -95,7 +98,7 @@ export const messagesSlice = createSlice({
         const messagesBase = state.publicChannelsMessagesBase.entities[message.channelId]
         if (!messagesBase) return
 
-        channelMessagesAdapter.upsertOne(messagesBase.messages, incoming)
+        channelMessagesAdapter.upsertOne(messagesBase.messages, toAdd)
       }
     },
     setDisplayedMessagesNumber: (state, action: PayloadAction<SetDisplayedMessagesNumberPayload>) => {
@@ -107,8 +110,8 @@ export const messagesSlice = createSlice({
         },
       })
     },
-    askForMessages: (state, _action: PayloadAction<AskForMessagesPayload>) => state,
-    responseSendMessagesIds: (state, _action: PayloadAction<ChannelMessagesIdsResponse>) => state,
+    getMessages: (state, _action: PayloadAction<GetMessagesPayload>) => state,
+    checkForMessages: (state, _action: PayloadAction<ChannelMessageIdsResponse>) => state,
     lazyLoading: (state, _action: PayloadAction<LazyLoadingPayload>) => state,
     extendCurrentPublicChannelCache: state => state,
     resetCurrentPublicChannelCache: state => state,

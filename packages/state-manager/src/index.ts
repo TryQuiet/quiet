@@ -30,8 +30,6 @@ import { errorsReducer, errorsActions } from './sagas/errors/errors.slice'
 
 import { communitiesActions, communitiesReducer, CommunitiesState } from './sagas/communities/communities.slice'
 
-import { SocketActionTypes } from './sagas/socket/const/actionTypes'
-
 import { communitiesSelectors } from './sagas/communities/communities.selectors'
 
 import { StoreKeys } from './sagas/store.keys'
@@ -52,7 +50,6 @@ import { networkSelectors } from './sagas/network/network.selectors'
 // https://github.com/microsoft/TypeScript/issues/47663#issuecomment-1270716220
 import type {} from 'pkijs'
 export { LoadingPanelType } from './sagas/network/network.types'
-export { SocketActionTypes } from './sagas/socket/const/actionTypes'
 export type { Store } from './sagas/store.types'
 export type { TestStore, TestStoreState } from './utils/tests/types'
 export { StoreKeys } from './sagas/store.keys'
@@ -179,8 +176,6 @@ export const socket = {
 
 export const storeKeys = StoreKeys
 
-export const socketActionTypes = SocketActionTypes
-
 export default {
   app,
   publicChannels,
@@ -192,6 +187,5 @@ export default {
   connection,
   reducers,
   storeKeys,
-  socketActionTypes,
   settings,
 }

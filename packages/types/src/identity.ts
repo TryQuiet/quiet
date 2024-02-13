@@ -40,6 +40,9 @@ export interface Identity {
   userCsr: UserCsr | null
   userCertificate: string | null
   joinTimestamp: number | null
+  // When a user first joins a community, they send a message
+  // introducing themselves.
+  introMessageSent?: boolean
 }
 
 export interface CreateUserCsrPayload {

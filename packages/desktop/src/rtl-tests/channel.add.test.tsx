@@ -20,7 +20,7 @@ import {
   ChannelsReplicatedPayload,
   CreateChannelPayload,
   ErrorMessages,
-  IncomingMessages,
+  type MessagesLoadedPayload,
   SendMessagePayload,
   SocketActionTypes,
 } from '@quiet/types'
@@ -88,7 +88,7 @@ describe('Add new channel', () => {
     })
     const channelName = { input: 'my-Super Channel ', output: 'my-super-channel' }
 
-    jest.spyOn(socket, 'emit').mockImplementation(async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
+    const mockImpl = async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
       const action = input[0]
       if (action === SocketActionTypes.CREATE_CHANNEL) {
         const payload = input[1] as CreateChannelPayload
@@ -107,11 +107,15 @@ describe('Add new channel', () => {
         const { message } = data
         expect(message.channelId).toEqual(channelName.output)
         expect(message.message).toEqual(`Created #${channelName.output}`)
-        return socket.socketClient.emit<IncomingMessages>(SocketActionTypes.INCOMING_MESSAGES, {
+        return socket.socketClient.emit<MessagesLoadedPayload>(SocketActionTypes.MESSAGES_LOADED, {
           messages: [message],
         })
       }
-    })
+    }
+
+    jest.spyOn(socket, 'emit').mockImplementation(mockImpl)
+    // @ts-ignore
+    socket.emitWithAck = mockImpl
 
     window.HTMLElement.prototype.scrollTo = jest.fn()
 
@@ -297,7 +301,7 @@ describe('Add new channel', () => {
       nickname: 'alice',
     })
 
-    jest.spyOn(socket, 'emit').mockImplementation(async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
+    const mockImpl = async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
       const action = input[0]
       if (action === SocketActionTypes.CREATE_CHANNEL) {
         const payload = input[1] as CreateChannelPayload
@@ -317,11 +321,15 @@ describe('Add new channel', () => {
         const { message } = data
         expect(message.channelId).toEqual(channelName)
         expect(message.message).toEqual(`Created #${channelName}`)
-        return socket.socketClient.emit<IncomingMessages>(SocketActionTypes.INCOMING_MESSAGES, {
+        return socket.socketClient.emit<MessagesLoadedPayload>(SocketActionTypes.MESSAGES_LOADED, {
           messages: [message],
         })
       }
-    })
+    }
+
+    jest.spyOn(socket, 'emit').mockImplementation(mockImpl)
+    // @ts-ignore
+    socket.emitWithAck = mockImpl
 
     renderComponent(
       <>
@@ -392,24 +400,26 @@ describe('Add new channel', () => {
 
     const channels = ['zzz', 'abc', '12a']
 
-    jest
-      .spyOn(socket, 'emit')
-      .mockImplementation(async (...input: [SocketActionTypes, ...socketEventData<[CreateChannelPayload]>]) => {
-        const action = input[0]
-        if (action === SocketActionTypes.CREATE_CHANNEL) {
-          const data = input[1]
-          const payload = data
-          expect(payload.channel.owner).toEqual(alice.nickname)
-          const channels = store.getState().PublicChannels.channels.entities
-          // expect(payload.channel.name).toEqual(channelName.output)
-          return socket.socketClient.emit<ChannelsReplicatedPayload>(SocketActionTypes.CHANNELS_REPLICATED, {
-            channels: {
-              ...channels,
-              [payload.channel.name]: payload.channel,
-            },
-          })
-        }
-      })
+    const mockImpl = async (...input: [SocketActionTypes, ...socketEventData<[CreateChannelPayload]>]) => {
+      const action = input[0]
+      if (action === SocketActionTypes.CREATE_CHANNEL) {
+        const data = input[1]
+        const payload = data
+        expect(payload.channel.owner).toEqual(alice.nickname)
+        const channels = store.getState().PublicChannels.channels.entities
+        // expect(payload.channel.name).toEqual(channelName.output)
+        return socket.socketClient.emit<ChannelsReplicatedPayload>(SocketActionTypes.CHANNELS_REPLICATED, {
+          channels: {
+            ...channels,
+            [payload.channel.name]: payload.channel,
+          },
+        })
+      }
+    }
+
+    jest.spyOn(socket, 'emit').mockImplementation(mockImpl)
+    // @ts-ignore
+    socket.emitWithAck = mockImpl
 
     window.HTMLElement.prototype.scrollTo = jest.fn()
 

@@ -16,7 +16,7 @@ import {
   MessageType,
   type PublicChannel,
   ChannelMessage,
-  IncomingMessages,
+  MessagesLoadedPayload,
 } from '@quiet/types'
 import { verifyMessagesSaga } from './verifyMessages.saga'
 import { messagesActions } from '../messages.slice'
@@ -106,13 +106,13 @@ describe('verifyMessage saga test', () => {
       media: undefined,
     }
 
-    const payload: IncomingMessages = {
+    const payload: MessagesLoadedPayload = {
       messages: [message],
       isVerified: true,
     }
 
     const reducer = combineReducers(reducers)
-    await expectSaga(verifyMessagesSaga, messagesActions.incomingMessages(payload))
+    await expectSaga(verifyMessagesSaga, messagesActions.addMessages(payload))
       .withReducer(reducer)
       .withState(store.getState())
       .not.call(verifyUserInfoMessage)
@@ -138,13 +138,13 @@ describe('verifyMessage saga test', () => {
       media: undefined,
     }
 
-    const payload: IncomingMessages = {
+    const payload: MessagesLoadedPayload = {
       messages: [message],
       isVerified: true,
     }
 
     const reducer = combineReducers(reducers)
-    await expectSaga(verifyMessagesSaga, messagesActions.incomingMessages(payload))
+    await expectSaga(verifyMessagesSaga, messagesActions.addMessages(payload))
       .withReducer(reducer)
       .withState(store.getState())
       .not.call(verifyUserInfoMessage)
@@ -170,14 +170,14 @@ describe('verifyMessage saga test', () => {
       media: undefined,
     }
 
-    const payload: IncomingMessages = {
+    const payload: MessagesLoadedPayload = {
       messages: [message],
       isVerified: true,
     }
 
-    store.dispatch(messagesActions.incomingMessages({ messages: [message] }))
+    store.dispatch(messagesActions.addMessages({ messages: [message] }))
     const reducer = combineReducers(reducers)
-    await expectSaga(verifyMessagesSaga, messagesActions.incomingMessages(payload))
+    await expectSaga(verifyMessagesSaga, messagesActions.addMessages(payload))
       .withReducer(reducer)
       .withState(store.getState())
       .call(verifyUserInfoMessage, 'bob', {
@@ -206,14 +206,14 @@ describe('verifyMessage saga test', () => {
       media: undefined,
     }
 
-    const payload: IncomingMessages = {
+    const payload: MessagesLoadedPayload = {
       messages: [message],
       isVerified: true,
     }
 
-    store.dispatch(messagesActions.incomingMessages({ messages: [message] }))
+    store.dispatch(messagesActions.addMessages({ messages: [message] }))
     const reducer = combineReducers(reducers)
-    await expectSaga(verifyMessagesSaga, messagesActions.incomingMessages(payload))
+    await expectSaga(verifyMessagesSaga, messagesActions.addMessages(payload))
       .withReducer(reducer)
       .withState(store.getState())
       .call(verifyUserInfoMessage, 'bob', {
@@ -242,14 +242,14 @@ describe('verifyMessage saga test', () => {
       media: undefined,
     }
 
-    const payload: IncomingMessages = {
+    const payload: MessagesLoadedPayload = {
       messages: [message],
       isVerified: true,
     }
 
-    store.dispatch(messagesActions.incomingMessages({ messages: [message] }))
+    store.dispatch(messagesActions.addMessages({ messages: [message] }))
     const reducer = combineReducers(reducers)
-    await expectSaga(verifyMessagesSaga, messagesActions.incomingMessages(payload))
+    await expectSaga(verifyMessagesSaga, messagesActions.addMessages(payload))
       .withReducer(reducer)
       .withState(store.getState())
       .call(verifyUserInfoMessage, 'bob', {
@@ -278,14 +278,14 @@ describe('verifyMessage saga test', () => {
       media: undefined,
     }
 
-    const payload: IncomingMessages = {
+    const payload: MessagesLoadedPayload = {
       messages: [message],
       isVerified: true,
     }
 
-    store.dispatch(messagesActions.incomingMessages({ messages: [message] }))
+    store.dispatch(messagesActions.addMessages({ messages: [message] }))
     const reducer = combineReducers(reducers)
-    await expectSaga(verifyMessagesSaga, messagesActions.incomingMessages(payload))
+    await expectSaga(verifyMessagesSaga, messagesActions.addMessages(payload))
       .withReducer(reducer)
       .withState(store.getState())
       .call(verifyUserInfoMessage, 'bob', {

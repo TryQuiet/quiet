@@ -91,6 +91,10 @@ describe('ConnectionsManagerService', () => {
   })
 
   it('launches community on init if its data exists in local db', async () => {
+    const remotePeer = createLibp2pAddress(
+      'y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd',
+      'QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE'
+    )
     const launchCommunityPayload: InitCommunityPayload = {
       id: community.id,
       peerId: userIdentity.peerId,
@@ -102,12 +106,7 @@ describe('ConnectionsManagerService', () => {
         key: userIdentity.userCsr?.userKey,
         CA: [communityRootCa],
       },
-      peers: [
-        createLibp2pAddress(
-          'y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd',
-          'QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE'
-        ),
-      ],
+      peers: [remotePeer],
     }
 
     await localDbService.put(LocalDBKeys.COMMUNITY, launchCommunityPayload)
@@ -116,7 +115,11 @@ describe('ConnectionsManagerService', () => {
     const launchCommunitySpy = jest.spyOn(connectionsManagerService, 'launchCommunity').mockResolvedValue()
 
     await connectionsManagerService.init()
-    expect(launchCommunitySpy).toHaveBeenCalledWith(launchCommunityPayload)
+
+    const localPeerAddress = createLibp2pAddress(userIdentity.hiddenService.onionAddress, userIdentity.peerId.id)
+    const updatedLaunchCommunityPayload = { ...launchCommunityPayload, peers: [localPeerAddress, remotePeer] }
+
+    expect(launchCommunitySpy).toHaveBeenCalledWith(updatedLaunchCommunityPayload)
   })
 
   it('does not launch community on init if its data does not exist in local db', async () => {

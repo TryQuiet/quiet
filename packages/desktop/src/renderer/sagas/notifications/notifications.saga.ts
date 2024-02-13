@@ -29,7 +29,7 @@ export interface NotificationData {
 }
 
 export function* displayMessageNotificationSaga(
-  action: PayloadAction<ReturnType<typeof messages.actions.incomingMessages>['payload']>
+  action: PayloadAction<ReturnType<typeof messages.actions.addMessages>['payload']>
 ): Generator {
   const incomingMessages = action.payload.messages
 

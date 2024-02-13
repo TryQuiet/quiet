@@ -38,7 +38,7 @@ import {
   SendMessagePayload,
   MessageVerificationStatus,
   DownloadStatus,
-  IncomingMessages,
+  type MessagesLoadedPayload,
   ResponseLaunchCommunityPayload,
   Community,
 } from '@quiet/types'
@@ -237,7 +237,7 @@ describe('Channel', () => {
 
     function* mockIncomingMessages(): Generator {
       yield* apply(socket.socketClient, socket.socketClient.emit, [
-        SocketActionTypes.INCOMING_MESSAGES,
+        SocketActionTypes.MESSAGES_LOADED,
         {
           messages: [authenticMessage],
           communityId: community.id,
@@ -245,7 +245,7 @@ describe('Channel', () => {
         },
       ])
       yield* apply(socket.socketClient, socket.socketClient.emit, [
-        SocketActionTypes.INCOMING_MESSAGES,
+        SocketActionTypes.MESSAGES_LOADED,
         {
           messages: [spoofedMessage],
           communityId: community.id,
@@ -309,7 +309,7 @@ describe('Channel', () => {
 
     function* mockIncomingMessages(): Generator {
       yield* apply(socket.socketClient, socket.socketClient.emit, [
-        SocketActionTypes.INCOMING_MESSAGES,
+        SocketActionTypes.MESSAGES_LOADED,
         {
           messages: [aliceMessage],
           communityId: community.id,
@@ -447,7 +447,7 @@ describe('Channel', () => {
 
     // Update message sending status
     store.dispatch(
-      messages.actions.incomingMessages({
+      messages.actions.addMessages({
         messages: [sentMessage],
       })
     )
@@ -458,7 +458,7 @@ describe('Channel', () => {
 
     function* mockIncomingMessages(): Generator {
       yield* apply(socket.socketClient, socket.socketClient.emit, [
-        SocketActionTypes.INCOMING_MESSAGES,
+        SocketActionTypes.MESSAGES_LOADED,
         {
           messages: [sentMessage],
           communityId: community.id,
@@ -532,7 +532,7 @@ describe('Channel', () => {
 
     function* mockIncomingMessages(): Generator {
       yield* apply(socket.socketClient, socket.socketClient.emit, [
-        SocketActionTypes.INCOMING_MESSAGES,
+        SocketActionTypes.MESSAGES_LOADED,
         {
           messages: [message1],
           communityId: community.id,
@@ -540,7 +540,7 @@ describe('Channel', () => {
         },
       ])
       yield* apply(socket.socketClient, socket.socketClient.emit, [
-        SocketActionTypes.INCOMING_MESSAGES,
+        SocketActionTypes.MESSAGES_LOADED,
         {
           messages: [message3],
           communityId: community.id,
@@ -548,7 +548,7 @@ describe('Channel', () => {
         },
       ])
       yield* apply(socket.socketClient, socket.socketClient.emit, [
-        SocketActionTypes.INCOMING_MESSAGES,
+        SocketActionTypes.MESSAGES_LOADED,
         {
           messages: [message2],
           communityId: community.id,
@@ -803,12 +803,12 @@ describe('Channel', () => {
       if (action === SocketActionTypes.SEND_MESSAGE) {
         const data = input[1] as SendMessagePayload
         const payload = data
-        return socket.socketClient.emit<IncomingMessages>(SocketActionTypes.INCOMING_MESSAGES, {
+        return socket.socketClient.emit<MessagesLoadedPayload>(SocketActionTypes.MESSAGES_LOADED, {
           messages: [payload.message],
         })
       }
-      if (action === SocketActionTypes.INCOMING_MESSAGES) {
-        const data = input[1] as IncomingMessages
+      if (action === SocketActionTypes.MESSAGES_LOADED) {
+        const data = input[1] as MessagesLoadedPayload
         const media = data.messages[0].media
         if (!media) return
         return socket.socketClient.emit<UploadFilePayload>(SocketActionTypes.UPLOAD_FILE, {
@@ -872,7 +872,7 @@ describe('Channel', () => {
         "Files/updateDownloadStatus",
         "Messages/addMessagesSendingStatus",
         "Messages/addMessageVerificationStatus",
-        "Messages/incomingMessages",
+        "Messages/addMessages",
         "PublicChannels/cacheMessages",
         "Messages/addMessageVerificationStatus",
         "Identity/verifyJoinTimestamp",
@@ -882,8 +882,8 @@ describe('Channel', () => {
         "PublicChannels/cacheMessages",
         "Messages/setDisplayedMessagesNumber",
         "Files/broadcastHostedFile",
-        "Messages/removePendingMessageStatus",
-        "Messages/incomingMessages",
+        "Messages/removePendingMessageStatuses",
+        "Messages/addMessages",
         "PublicChannels/cacheMessages",
         "Messages/addMessageVerificationStatus",
         "Identity/verifyJoinTimestamp",
@@ -1022,7 +1022,7 @@ describe('Channel', () => {
         "Messages/resetCurrentPublicChannelCache",
         "Messages/resetCurrentPublicChannelCache",
         "Files/updateMessageMedia",
-        "Messages/incomingMessages",
+        "Messages/addMessages",
         "Messages/addMessageVerificationStatus",
         "Identity/verifyJoinTimestamp",
         "PublicChannels/updateNewestMessage",
@@ -1123,7 +1123,7 @@ describe('Channel', () => {
         "Files/broadcastHostedFile",
         "Files/updateDownloadStatus",
         "Messages/addMessageVerificationStatus",
-        "Messages/incomingMessages",
+        "Messages/addMessages",
         "PublicChannels/cacheMessages",
         "Messages/addMessageVerificationStatus",
         "Identity/verifyJoinTimestamp",
@@ -1231,7 +1231,7 @@ describe('Channel', () => {
 
     function* mockIncomingMessages(): Generator {
       yield* apply(socket.socketClient, socket.socketClient.emit, [
-        SocketActionTypes.INCOMING_MESSAGES,
+        SocketActionTypes.MESSAGES_LOADED,
         {
           messages: [message],
           communityId: community.id,
@@ -1251,8 +1251,8 @@ describe('Channel', () => {
         "Messages/lazyLoading",
         "Messages/resetCurrentPublicChannelCache",
         "Messages/resetCurrentPublicChannelCache",
-        "Messages/removePendingMessageStatus",
-        "Messages/incomingMessages",
+        "Messages/removePendingMessageStatuses",
+        "Messages/addMessages",
         "Files/updateDownloadStatus",
         "Messages/addMessageVerificationStatus",
         "Identity/verifyJoinTimestamp",
@@ -1356,7 +1356,7 @@ describe('Channel', () => {
 
     function* mockIncomingMessages(): Generator {
       yield* apply(socket.socketClient, socket.socketClient.emit, [
-        SocketActionTypes.INCOMING_MESSAGES,
+        SocketActionTypes.MESSAGES_LOADED,
         {
           messages: [message],
           communityId: community.id,
@@ -1373,8 +1373,8 @@ describe('Channel', () => {
         "Messages/lazyLoading",
         "Messages/resetCurrentPublicChannelCache",
         "Messages/resetCurrentPublicChannelCache",
-        "Messages/removePendingMessageStatus",
-        "Messages/incomingMessages",
+        "Messages/removePendingMessageStatuses",
+        "Messages/addMessages",
         "Files/updateDownloadStatus",
         "Messages/addMessageVerificationStatus",
         "Identity/verifyJoinTimestamp",
@@ -1491,7 +1491,7 @@ describe('Channel', () => {
 
     function* mockIncomingMessages(): Generator {
       yield* apply(socket.socketClient, socket.socketClient.emit, [
-        SocketActionTypes.INCOMING_MESSAGES,
+        SocketActionTypes.MESSAGES_LOADED,
         {
           messages: [message],
           communityId: community.id,
@@ -1520,8 +1520,8 @@ describe('Channel', () => {
         "Messages/lazyLoading",
         "Messages/resetCurrentPublicChannelCache",
         "Messages/resetCurrentPublicChannelCache",
-        "Messages/removePendingMessageStatus",
-        "Messages/incomingMessages",
+        "Messages/removePendingMessageStatuses",
+        "Messages/addMessages",
         "Files/updateDownloadStatus",
         "Messages/addMessageVerificationStatus",
         "Identity/verifyJoinTimestamp",

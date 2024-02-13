@@ -2,13 +2,14 @@ import { StoreKeys } from '../store.keys'
 import { createSelector } from 'reselect'
 import { type CreatedSelectors, type StoreState } from '../store.types'
 import { allUsers, areCertificatesLoaded } from '../users/users.selectors'
-import { communitiesSelectors } from '../communities/communities.selectors'
 import { peersStatsAdapter } from './connection.adapter'
 import { connectedPeers, isCurrentCommunityInitialized } from '../network/network.selectors'
 import { type NetworkStats } from './connection.types'
 import { type User } from '../users/users.types'
-import { filterAndSortPeers } from '@quiet/common'
+import { filterAndSortPeers, invitationShareUrl } from '@quiet/common'
 import { areMessagesLoaded, areChannelsLoaded } from '../publicChannels/publicChannels.selectors'
+import { identitySelectors } from '../identity/identity.selectors'
+import { communitiesSelectors } from '../communities/communities.selectors'
 
 const connectionSlice: CreatedSelectors[StoreKeys.Connection] = (state: StoreState) => state[StoreKeys.Connection]
 
@@ -22,21 +23,38 @@ export const connectionProcess = createSelector(connectionSlice, reducerState =>
 
 export const socketIOSecret = createSelector(connectionSlice, reducerState => reducerState.socketIOSecret)
 
+const peerStats = createSelector(connectionSlice, reducerState => {
+  let stats: NetworkStats[]
+  if (reducerState.peersStats === undefined) {
+    stats = []
+  } else {
+    stats = peersStatsAdapter.getSelectors().selectAll(reducerState.peersStats)
+  }
+  return stats
+})
+
 export const peerList = createSelector(
-  connectionSlice,
   communitiesSelectors.currentCommunity,
-  (reducerState, community) => {
+  identitySelectors.currentPeerAddress,
+  peerStats,
+  (community, localPeerAddress, stats) => {
     if (!community) return []
+
     const arr = [...(community.peerList || [])]
+    return filterAndSortPeers(arr, stats, localPeerAddress)
+  }
+)
 
-    let stats: NetworkStats[]
-    if (reducerState.peersStats === undefined) {
-      stats = []
-    } else {
-      stats = peersStatsAdapter.getSelectors().selectAll(reducerState.peersStats)
-    }
-
-    return filterAndSortPeers(arr, stats)
+export const invitationUrl = createSelector(
+  communitiesSelectors.psk,
+  communitiesSelectors.ownerOrbitDbIdentity,
+  peerList,
+  (communityPsk, ownerOrbitDbIdentity, sortedPeerList) => {
+    if (!sortedPeerList || sortedPeerList?.length === 0) return ''
+    if (!communityPsk) return ''
+    if (!ownerOrbitDbIdentity) return ''
+    const initialPeers = sortedPeerList.slice(0, 3)
+    return invitationShareUrl(initialPeers, communityPsk, ownerOrbitDbIdentity)
   }
 )
 
@@ -70,6 +88,7 @@ export const connectionSelectors = {
   lastConnectedTime,
   connectedPeersMapping,
   peerList,
+  invitationUrl,
   torBootstrapProcess,
   connectionProcess,
   isTorInitialized,

@@ -260,7 +260,7 @@ export const getFactory = async (store: Store) => {
       },
       afterCreate: async (payload: ReturnType<typeof publicChannels.actions.test_message>['payload']) => {
         store.dispatch(
-          messages.actions.incomingMessages({
+          messages.actions.addMessages({
             messages: [payload.message],
           })
         )

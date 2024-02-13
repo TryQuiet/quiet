@@ -2,7 +2,12 @@
 
 # Fixes:
 
+* Make sure address of the inviting peer is in the invitation link
 * Opening the mobile app with joining links has been corrected.
+
+# Refactorings:
+
+* Remove unused backend events and state-manager event types
 
 [2.1.0]
 
@@ -18,6 +23,7 @@
 
 # Refactorings:
 
+* Refactor registration service, replace promise waiting mechanism around certificate requests and help prevent duplicate username registration
 * Removed SAVE_OWNER_CERTIFICATE event.
 * Removed registrar reminders and rename LAUNCH_REGISTRAR.
 * Removed unused SEND_USER_CERTIFICATE event.

@@ -5,7 +5,7 @@ import { mplex } from '@libp2p/mplex'
 import { multiaddr } from '@multiformats/multiaddr'
 import { Inject, Injectable } from '@nestjs/common'
 import { createLibp2pAddress, createLibp2pListenAddress } from '@quiet/common'
-import { ConnectionProcessInfo, PeerId, SocketActionTypes } from '@quiet/types'
+import { ConnectionProcessInfo, type NetworkDataPayload, PeerId, SocketActionTypes } from '@quiet/types'
 import crypto from 'crypto'
 import { EventEmitter } from 'events'
 import { Agent } from 'https'
@@ -188,12 +188,12 @@ export class Libp2pService extends EventEmitter {
 
       this.connectedPeers.delete(remotePeerId)
       this.logger(`${localPeerId} is connected to ${this.connectedPeers.size} peers`)
-
-      this.emit(Libp2pEvents.PEER_DISCONNECTED, {
+      const peerStat: NetworkDataPayload = {
         peer: remotePeerId,
         connectionDuration,
         lastSeen: connectionEndTime,
-      })
+      }
+      this.emit(Libp2pEvents.PEER_DISCONNECTED, peerStat)
     })
 
     await this.processInChunksService.process()

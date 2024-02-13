@@ -14,7 +14,7 @@ import { CreateCommunityDictionary } from '../renderer/components/CreateJoinComm
 import MockedSocket from 'socket.io-mock'
 import { ioMock } from '../shared/setupTests'
 import { socketEventData } from '../renderer/testUtils/socket'
-import { Community, SavedOwnerCertificatePayload } from '@quiet/types'
+import { Community, SavedOwnerCertificatePayload, SocketActionTypes } from '@quiet/types'
 import {
   ChannelsReplicatedPayload,
   InitCommunityPayload,
@@ -22,7 +22,6 @@ import {
   RegisterOwnerCertificatePayload,
   ResponseCreateNetworkPayload,
   ResponseLaunchCommunityPayload,
-  SocketActionTypes,
 } from '@quiet/state-manager'
 import Channel from '../renderer/components/Channel/Channel'
 import LoadingPanel from '../renderer/components/LoadingPanel/LoadingPanel'
@@ -69,7 +68,7 @@ describe('User', () => {
       store
     )
 
-    jest.spyOn(socket, 'emit').mockImplementation((...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
+    const mockEmitImpl = (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
       const action = input[0]
       if (action === SocketActionTypes.CREATE_NETWORK) {
         const data = input[1] as Community
@@ -117,7 +116,11 @@ describe('User', () => {
           },
         })
       }
-    })
+    }
+
+    jest.spyOn(socket, 'emit').mockImplementation(mockEmitImpl)
+    // @ts-ignore
+    socket.emitWithAck = mockEmitImpl
 
     // Log all the dispatched actions in order
     const actions: AnyAction[] = []

@@ -11,19 +11,20 @@ import PeerId from 'peer-id'
 import { getLibp2pAddressesFromCsrs, removeFilesFromDir } from '../common/utils'
 
 import {
-  AskForMessagesPayload,
-  ChannelMessagesIdsResponse,
+  GetMessagesPayload,
+  ChannelMessageIdsResponse,
+  type DeleteChannelResponse,
   ChannelsReplicatedPayload,
   Community,
   CommunityId,
   ConnectionProcessInfo,
   CreateChannelPayload,
-  CreatedChannelResponse,
+  CreateChannelResponse,
   DeleteFilesFromChannelSocketPayload,
   DownloadStatus,
   ErrorMessages,
   FileMetadata,
-  IncomingMessages,
+  MessagesLoadedPayload,
   InitCommunityPayload,
   NetworkData,
   NetworkDataPayload,
@@ -34,7 +35,7 @@ import {
   ResponseCreateNetworkPayload,
   SendCertificatesResponse,
   SendMessagePayload,
-  SetChannelSubscribedPayload,
+  ChannelSubscribedPayload,
   SocketActionTypes,
   StorePeerListPayload,
   UploadFilePayload,
@@ -487,6 +488,13 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       this.communityState = ServiceState.LAUNCHING
       await this.launchCommunity(args)
     })
+    this.socketService.on(
+      SocketActionTypes.SEND_COMMUNITY_METADATA,
+      async (payload: CommunityMetadata, callback: (response?: CommunityMetadata) => void) => {
+        const meta = await this.storageService?.updateCommunityMetadata(payload)
+        callback(meta)
+      }
+    )
     this.socketService.on(SocketActionTypes.LEAVE_COMMUNITY, async () => {
       await this.leaveCommunity()
     })
@@ -512,13 +520,19 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     })
 
     // Public Channels
-    this.socketService.on(SocketActionTypes.CREATE_CHANNEL, async (args: CreateChannelPayload) => {
-      await this.storageService?.subscribeToChannel(args.channel)
-    })
+    this.socketService.on(
+      SocketActionTypes.CREATE_CHANNEL,
+      async (args: CreateChannelPayload, callback: (response?: CreateChannelResponse) => void) => {
+        callback(await this.storageService?.subscribeToChannel(args.channel))
+      }
+    )
     this.socketService.on(
       SocketActionTypes.DELETE_CHANNEL,
-      async (payload: { channelId: string; ownerPeerId: string }) => {
-        await this.storageService?.deleteChannel(payload)
+      async (
+        payload: { channelId: string; ownerPeerId: string },
+        callback: (response: DeleteChannelResponse) => void
+      ) => {
+        callback(await this.storageService?.deleteChannel(payload))
       }
     )
     this.socketService.on(
@@ -532,9 +546,12 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.socketService.on(SocketActionTypes.SEND_MESSAGE, async (args: SendMessagePayload) => {
       await this.storageService?.sendMessage(args.message)
     })
-    this.socketService.on(SocketActionTypes.ASK_FOR_MESSAGES, async (args: AskForMessagesPayload) => {
-      await this.storageService?.askForMessages(args.channelId, args.ids)
-    })
+    this.socketService.on(
+      SocketActionTypes.GET_MESSAGES,
+      async (payload: GetMessagesPayload, callback: (response?: MessagesLoadedPayload) => void) => {
+        callback(await this.storageService?.getMessages(payload.channelId, payload.ids))
+      }
+    )
 
     // Files
     this.socketService.on(SocketActionTypes.DOWNLOAD_FILE, async (metadata: FileMetadata) => {
@@ -573,24 +590,17 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.storageService.on(StorageEvents.LOAD_PUBLIC_CHANNELS, (payload: ChannelsReplicatedPayload) => {
       this.serverIoProvider.io.emit(SocketActionTypes.CHANNELS_REPLICATED, payload)
     })
-    this.storageService.on(StorageEvents.LOAD_ALL_PRIVATE_CONVERSATIONS, payload => {
-      this.serverIoProvider.io.emit(SocketActionTypes.RESPONSE_GET_PRIVATE_CONVERSATIONS, payload)
+    this.storageService.on(StorageEvents.MESSAGES_LOADED, (payload: MessagesLoadedPayload) => {
+      this.serverIoProvider.io.emit(SocketActionTypes.MESSAGES_LOADED, payload)
     })
-    this.storageService.on(StorageEvents.LOAD_MESSAGES, (payload: IncomingMessages) => {
-      this.serverIoProvider.io.emit(SocketActionTypes.INCOMING_MESSAGES, payload)
-    })
-    this.storageService.on(StorageEvents.SEND_MESSAGES_IDS, (payload: ChannelMessagesIdsResponse) => {
+    this.storageService.on(StorageEvents.MESSAGE_IDS_LOADED, (payload: ChannelMessageIdsResponse) => {
       if (payload.ids.length === 0) {
         return
       }
-      this.serverIoProvider.io.emit(SocketActionTypes.SEND_MESSAGES_IDS, payload)
+      this.serverIoProvider.io.emit(SocketActionTypes.MESSAGE_IDS_LOADED, payload)
     })
-    this.storageService.on(StorageEvents.SET_CHANNEL_SUBSCRIBED, (payload: SetChannelSubscribedPayload) => {
+    this.storageService.on(StorageEvents.CHANNEL_SUBSCRIBED, (payload: ChannelSubscribedPayload) => {
       this.serverIoProvider.io.emit(SocketActionTypes.CHANNEL_SUBSCRIBED, payload)
-    })
-    this.storageService.on(StorageEvents.CREATED_CHANNEL, (payload: CreatedChannelResponse) => {
-      this.logger(`Storage - ${StorageEvents.CREATED_CHANNEL}: ${payload.channel.name}`)
-      this.serverIoProvider.io.emit(SocketActionTypes.CREATED_CHANNEL, payload)
     })
     this.storageService.on(StorageEvents.REMOVE_DOWNLOAD_STATUS, (payload: RemoveDownloadStatus) => {
       this.serverIoProvider.io.emit(SocketActionTypes.REMOVE_DOWNLOAD_STATUS, payload)
@@ -604,24 +614,11 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.storageService.on(StorageEvents.UPDATE_MESSAGE_MEDIA, (payload: FileMetadata) => {
       this.serverIoProvider.io.emit(SocketActionTypes.UPDATE_MESSAGE_MEDIA, payload)
     })
-    this.storageService.on(StorageEvents.LOAD_ALL_DIRECT_MESSAGES, payload => {
-      if (payload.messages.length === 0) {
-        return
-      }
-      this.serverIoProvider.io.emit(SocketActionTypes.RESPONSE_FETCH_ALL_DIRECT_MESSAGES, payload)
-    })
     this.storageService.on(StorageEvents.UPDATE_PEERS_LIST, (payload: StorePeerListPayload) => {
       this.serverIoProvider.io.emit(SocketActionTypes.PEER_LIST, payload)
     })
     this.storageService.on(StorageEvents.SEND_PUSH_NOTIFICATION, (payload: PushNotificationPayload) => {
       this.serverIoProvider.io.emit(SocketActionTypes.PUSH_NOTIFICATION, payload)
-    })
-    this.storageService.on(StorageEvents.CHECK_FOR_MISSING_FILES, (payload: CommunityId) => {
-      this.serverIoProvider.io.emit(SocketActionTypes.CHECK_FOR_MISSING_FILES, payload)
-    })
-    this.storageService.on(StorageEvents.CHANNEL_DELETION_RESPONSE, (payload: { channelId: string }) => {
-      this.logger(`Storage - ${StorageEvents.CHANNEL_DELETION_RESPONSE}`)
-      this.serverIoProvider.io.emit(SocketActionTypes.CHANNEL_DELETION_RESPONSE, payload)
     })
     this.storageService.on(StorageEvents.REPLICATED_CSR, async (payload: { csrs: string[] }) => {
       this.logger(`Storage - ${StorageEvents.REPLICATED_CSR}`)
@@ -629,19 +626,10 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       this.serverIoProvider.io.emit(SocketActionTypes.RESPONSE_GET_CSRS, payload)
       this.registrationService.emit(RegistrationEvents.REGISTER_USER_CERTIFICATE, payload)
     })
-
-    this.socketService.on(SocketActionTypes.SEND_COMMUNITY_METADATA, async (payload: CommunityMetadata) => {
-      await this.storageService?.updateCommunityMetadata(payload)
+    this.storageService.on(StorageEvents.COMMUNITY_METADATA_LOADED, async (meta: CommunityMetadata) => {
+      this.logger(`Storage - ${StorageEvents.COMMUNITY_METADATA_LOADED}: ${meta}`)
+      this.serverIoProvider.io.emit(SocketActionTypes.COMMUNITY_METADATA_LOADED, meta)
     })
-
-    this.storageService.on(StorageEvents.COMMUNITY_METADATA_SAVED, async (meta: CommunityMetadata) => {
-      this.logger(`Storage - ${StorageEvents.COMMUNITY_METADATA_SAVED}: ${meta}`)
-      this.storageService?.updateMetadata(meta)
-      this.serverIoProvider.io.emit(SocketActionTypes.COMMUNITY_METADATA_SAVED, meta)
-    })
-
-    // User Profile
-
     this.storageService.on(StorageEvents.LOADED_USER_PROFILES, (payload: UserProfilesLoadedEvent) => {
       this.serverIoProvider.io.emit(SocketActionTypes.LOADED_USER_PROFILES, payload)
     })
