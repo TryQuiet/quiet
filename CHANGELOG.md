@@ -1,9 +1,5 @@
 [unreleased]
 
-# Fixes:
-
-* Remove duplicate introduction messages once again
-
 # Refactorings:
 
 * Rename message retrieval events/sagas and use ack feature
@@ -13,7 +9,9 @@
 
 # Fixes:
 
+* Remove duplicate introduction messages once again
 * Prevent channel creation with names that start with special character, then a hyphen
+* Choose random ports for Tor services (iOS)
 
 [2.1.1]
 
