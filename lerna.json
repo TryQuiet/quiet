@@ -14,7 +14,8 @@
         "eslint*", 
         "@typescript-eslint/*",
         "prettier*",
-        "lerna"
+        "lerna",
+        "pkijs"
       ]
     }
   }
