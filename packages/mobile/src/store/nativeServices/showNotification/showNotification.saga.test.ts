@@ -29,7 +29,7 @@ import {
 import { generateChannelId } from '@quiet/common'
 import { DateTime } from 'luxon'
 
-describe.skip('showNotificationSaga', () => {
+describe('showNotificationSaga', () => {
   let payload: MarkUnreadChannelPayload
 
   let store: Store

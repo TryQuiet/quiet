@@ -10,7 +10,7 @@ import { ChannelScreen } from '../screens/Channel/Channel.screen'
 import { FactoryGirl } from 'factory-girl'
 import { getFactory, communities, identity } from '@quiet/state-manager'
 
-describe.skip('Channel navigation', () => {
+describe('Channel navigation', () => {
   let socket: MockedSocket
 
   let factory: FactoryGirl

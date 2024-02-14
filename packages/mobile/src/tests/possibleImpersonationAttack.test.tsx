@@ -11,7 +11,7 @@ import { ChannelListScreen } from '../screens/ChannelList/ChannelList.screen'
 import { initActions } from '../store/init/init.slice'
 import { navigationSelectors } from '../store/navigation/navigation.selectors'
 
-describe.skip('Possible Impersonation Attack', () => {
+describe('Possible Impersonation Attack', () => {
   let socket: MockedSocket
 
   let factory: FactoryGirl

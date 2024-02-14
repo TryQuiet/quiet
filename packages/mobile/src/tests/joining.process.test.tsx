@@ -13,7 +13,7 @@ import { ConnectionProcessScreen } from '../screens/ConnectionProcess/Connection
 import { UsernameRegistrationScreen } from '../screens/UsernameRegistration/UsernameRegistration.screen'
 import { ConnectionProcessInfo } from '@quiet/types'
 
-describe.skip('Joining process', () => {
+describe('Joining process', () => {
   let socket: MockedSocket
 
   let factory: FactoryGirl
