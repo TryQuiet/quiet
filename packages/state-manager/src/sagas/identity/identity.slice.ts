@@ -23,6 +23,12 @@ export const identitySlice = createSlice({
     addNewIdentity: (state, action: PayloadAction<Identity>) => {
       identityAdapter.addOne(state.identities, action.payload)
     },
+    updateIdentity: (state, action: PayloadAction<Identity>) => {
+      identityAdapter.updateOne(state.identities, {
+        id: action.payload.id,
+        changes: action.payload,
+      })
+    },
     createUserCsr: (state, _action: PayloadAction<CreateUserCsrPayload>) => state,
     savedOwnerCertificate: (state, _action: PayloadAction<string>) => state,
     registerUsername: (state, _action: PayloadAction<RegisterUsernamePayload>) => state,

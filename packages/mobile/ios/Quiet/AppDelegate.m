@@ -123,9 +123,9 @@ static NSString *const platform = @"mobile";
   
   self.dataPort             = [findFreePort getFirstStartingFromPort:11000];
   
-  uint16_t socksPort        = [findFreePort getFirstStartingFromPort:12000];
-  uint16_t controlPort      = [findFreePort getFirstStartingFromPort:14000];
-  uint16_t httpTunnelPort   = [findFreePort getFirstStartingFromPort:16000];
+  uint16_t socksPort        = [findFreePort getFirstStartingFromPort:arc4random_uniform(65535 - 1024) + 1024];
+  uint16_t controlPort      = [findFreePort getFirstStartingFromPort:arc4random_uniform(65535 - 1024) + 1024];
+  uint16_t httpTunnelPort   = [findFreePort getFirstStartingFromPort:arc4random_uniform(65535 - 1024) + 1024];
     
   
   // (2/6) Spawn tor with proper configuration

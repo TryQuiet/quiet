@@ -8,9 +8,9 @@ import {
 } from './messages.adapter.ts'
 import {
   type AddPublicChannelsMessagesBasePayload,
-  type AskForMessagesPayload,
+  type GetMessagesPayload,
   type ChannelMessage,
-  type ChannelMessagesIdsResponse,
+  type ChannelMessageIdsResponse,
   type DeleteChannelEntryPayload,
   type MessagesLoadedPayload,
   instanceOfChannelMessage,
@@ -64,9 +64,12 @@ export const messagesSlice = createSlice({
         status: action.payload.status,
       })
     },
-    removePendingMessageStatus: (state, action: PayloadAction<string>) => {
-      const id = action.payload
-      messageSendingStatusAdapter.removeOne(state.messageSendingStatus, id)
+    removePendingMessageStatuses: (state, action: PayloadAction<MessagesLoadedPayload>) => {
+      const { messages } = action.payload
+
+      for (const message of messages) {
+        messageSendingStatusAdapter.removeOne(state.messageSendingStatus, message.id)
+      }
     },
     removeMessageVerificationStatus: (state, action: PayloadAction<string>) => {
       const id = action.payload
@@ -107,8 +110,8 @@ export const messagesSlice = createSlice({
         },
       })
     },
-    askForMessages: (state, _action: PayloadAction<AskForMessagesPayload>) => state,
-    responseSendMessagesIds: (state, _action: PayloadAction<ChannelMessagesIdsResponse>) => state,
+    getMessages: (state, _action: PayloadAction<GetMessagesPayload>) => state,
+    checkForMessages: (state, _action: PayloadAction<ChannelMessageIdsResponse>) => state,
     lazyLoading: (state, _action: PayloadAction<LazyLoadingPayload>) => state,
     extendCurrentPublicChannelCache: state => state,
     resetCurrentPublicChannelCache: state => state,

@@ -70,9 +70,6 @@ export interface SendInitialChannelMessagePayload {
   channelName: string
   channelId: string
 }
-export interface SendNewUserInfoMessagePayload {
-  certificates: string[]
-}
 
 export interface CacheMessagesPayload {
   messages: ChannelMessage[]

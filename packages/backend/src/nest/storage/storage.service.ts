@@ -25,6 +25,7 @@ import {
   type CreateChannelResponse,
   DeleteFilesFromChannelSocketPayload,
   FileMetadata,
+  type MessagesLoadedPayload,
   NoCryptoEngineError,
   PublicChannel,
   PushNotificationPayload,
@@ -500,7 +501,7 @@ export class StorageService extends EventEmitter {
         this.logger('Replicated.', address)
         const ids = this.getAllEventLogEntries<ChannelMessage>(db).map(msg => msg.id)
         const community = await this.localDbService.get(LocalDBKeys.COMMUNITY)
-        this.emit(StorageEvents.SEND_MESSAGES_IDS, {
+        this.emit(StorageEvents.MESSAGE_IDS_LOADED, {
           ids,
           channelId: channelData.id,
           communityId: community.id,
@@ -510,7 +511,7 @@ export class StorageService extends EventEmitter {
       db.events.on('ready', async () => {
         const ids = this.getAllEventLogEntries<ChannelMessage>(db).map(msg => msg.id)
         const community = await this.localDbService.get(LocalDBKeys.COMMUNITY)
-        this.emit(StorageEvents.SEND_MESSAGES_IDS, {
+        this.emit(StorageEvents.MESSAGE_IDS_LOADED, {
           ids,
           channelId: channelData.id,
           communityId: community.id,
@@ -528,20 +529,21 @@ export class StorageService extends EventEmitter {
     return { channel: channelData }
   }
 
-  public async askForMessages(channelId: string, ids: string[]) {
+  public async getMessages(channelId: string, ids: string[]): Promise<MessagesLoadedPayload | undefined> {
     const repo = this.publicChannelsRepos.get(channelId)
     if (!repo) return
+
     const messages = this.getAllEventLogEntries<ChannelMessage>(repo.db)
     const filteredMessages: ChannelMessage[] = []
+
     for (const id of ids) {
       filteredMessages.push(...messages.filter(i => i.id === id))
     }
-    this.emit(StorageEvents.MESSAGES_LOADED, {
+
+    return {
       messages: filteredMessages,
       isVerified: true,
-    })
-    const community = await this.localDbService.get(LocalDBKeys.COMMUNITY)
-    this.emit(StorageEvents.CHECK_FOR_MISSING_FILES, community.id)
+    }
   }
 
   private async createChannel(channelData: PublicChannel, options: DBOptions): Promise<EventStore<ChannelMessage>> {

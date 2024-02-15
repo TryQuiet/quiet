@@ -4,10 +4,10 @@ export enum StorageEvents {
   // Peers
   UPDATE_PEERS_LIST = 'updatePeersList',
   // Public Channels
-  CHANNELS_LOADED = 'channelsLoaded',
-  MESSAGES_LOADED = 'messagesLoaded',
-  SEND_MESSAGES_IDS = 'sendMessagesIds',
   CHANNEL_SUBSCRIBED = 'channelSubscribed',
+  CHANNELS_LOADED = 'channelsLoaded',
+  MESSAGE_IDS_LOADED = 'messageIdsLoaded',
+  MESSAGES_LOADED = 'messagesLoaded',
   // Files
   REMOVE_DOWNLOAD_STATUS = 'removeDownloadStatus',
   FILE_UPLOADED = 'fileUploaded',

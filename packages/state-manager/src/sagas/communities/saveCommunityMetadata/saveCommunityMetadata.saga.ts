@@ -19,6 +19,4 @@ export function* saveCommunityMetadataSaga(
       ownerCertificate: action.payload.ownerCertificate,
     })
   )
-
-  yield* put(publicChannelsActions.sendUnregisteredInfoMessage())
 }

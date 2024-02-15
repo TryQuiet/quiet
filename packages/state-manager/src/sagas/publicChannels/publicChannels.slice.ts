@@ -26,7 +26,6 @@ import {
   type PublicChannelStorage,
   type PublicChannelSubscription,
   type SendInitialChannelMessagePayload,
-  type SendNewUserInfoMessagePayload,
   type ChannelSubscribedPayload,
   type SetCurrentChannelPayload,
   type UpdateNewestMessagePayload,
@@ -53,7 +52,7 @@ export const publicChannelsSlice = createSlice({
     createChannel: (state, _action: PayloadAction<CreateChannelPayload>) => state,
     deleteChannel: (state, _action: PayloadAction<DeleteChannelPayload>) => state,
     completeChannelDeletion: (state, _action) => state,
-    sendUnregisteredInfoMessage: state => state,
+    sendIntroductionMessage: state => state,
     channelDeletionResponse: (state, _action: PayloadAction<DeleteChannelResponse>) => state,
     deleteChannelFromStore: (state, action: PayloadAction<DeleteChannelFromStorePayload>) => {
       const { channelId } = action.payload
@@ -85,7 +84,6 @@ export const publicChannelsSlice = createSlice({
     },
     createGeneralChannel: state => state,
     sendInitialChannelMessage: (state, _action: PayloadAction<SendInitialChannelMessagePayload>) => state,
-    sendNewUserInfoMessage: (state, _action: PayloadAction<SendNewUserInfoMessagePayload>) => state,
     addChannel: (state, action: PayloadAction<CreateChannelResponse>) => {
       const { channel } = action.payload
       publicChannelsAdapter.addOne(state.channels, {
