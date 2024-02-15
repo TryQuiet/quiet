@@ -125,7 +125,10 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
             
             val platform = "mobile"
 
-            startNodeProjectWithArguments("bundle.cjs --torBinary $torBinary --dataPath $dataPath --dataPort $dataPort --platform $platform --socketIOSecret $socketIOSecret")
+            launch {
+                delay(500)
+                startNodeProjectWithArguments("bundle.cjs --torBinary $torBinary --dataPath $dataPath --dataPort $dataPort --platform $platform --socketIOSecret $socketIOSecret")
+            }
         }
 
         println("FINISHING BACKEND WORKER")
