@@ -38,7 +38,7 @@ export function* sendCommunityMetadataSaga(
   const meta = yield* apply(
     socket,
     socket.emitWithAck,
-    applyEmitParams(SocketActionTypes.UPDATE_COMMUNITY_METADATA, communityMetadataPayload)
+    applyEmitParams(SocketActionTypes.SET_COMMUNITY_METADATA, communityMetadataPayload)
   )
 
   if (meta) {

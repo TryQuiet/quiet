@@ -8,7 +8,7 @@ export enum SocketActionTypes {
   LAUNCH_COMMUNITY = 'launchCommunity',
   LEAVE_COMMUNITY = 'leaveCommunity',
   SET_COMMUNITY_CA_DATA = 'setCommunityCaData',
-  UPDATE_COMMUNITY_METADATA = 'updateCommunityMetadata',
+  SET_COMMUNITY_METADATA = 'setCommunityMetadata',
 
   // ====== Channels ======
 
@@ -22,13 +22,13 @@ export enum SocketActionTypes {
 
   GET_MESSAGES = 'getMessages',
   MESSAGE_IDS_STORED = 'messageIdsStored',
+  MESSAGE_MEDIA_UPDATED = 'messageMediaUpdated',
   MESSAGES_STORED = 'messagesStored',
   SEND_MESSAGE = 'sendMessage',
-  UPDATE_MESSAGE_MEDIA = 'updateMessageMedia',
 
   // ====== User ======
 
-  UPDATE_USER_PROFILE = 'updateUserProfile',
+  SET_USER_PROFILE = 'updateUserProfile',
   USER_PROFILES_STORED = 'userProfilesStored',
 
   // ====== Files ======
@@ -38,8 +38,8 @@ export enum SocketActionTypes {
   DOWNLOAD_FILE = 'downloadFile',
   DOWNLOAD_PROGRESS = 'downloadProgress',
   FILE_UPLOADED = 'fileUploaded',
-  UPLOAD_FILE = 'uploadFile',
   REMOVE_DOWNLOAD_STATUS = 'removeDownloadStatus',
+  UPLOAD_FILE = 'uploadFile',
 
   // ====== Certificates ======
 

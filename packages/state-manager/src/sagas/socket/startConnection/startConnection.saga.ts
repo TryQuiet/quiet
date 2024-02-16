@@ -108,7 +108,7 @@ export function subscribe(socket: Socket) {
       emit(connectionActions.updateNetworkData(payload))
     })
     // Files
-    socket.on(SocketActionTypes.UPDATE_MESSAGE_MEDIA, (payload: FileMetadata) => {
+    socket.on(SocketActionTypes.MESSAGE_MEDIA_UPDATED, (payload: FileMetadata) => {
       emit(filesActions.updateMessageMedia(payload))
     })
     socket.on(SocketActionTypes.FILE_UPLOADED, (payload: FileMetadata) => {

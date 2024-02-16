@@ -11,8 +11,8 @@ export enum StorageEvents {
   // Files
   REMOVE_DOWNLOAD_STATUS = 'removeDownloadStatus',
   FILE_UPLOADED = 'fileUploaded',
-  UPDATE_DOWNLOAD_PROGRESS = 'updateDownloadProgress',
-  UPDATE_MESSAGE_MEDIA = 'updateMessageMedia',
+  DOWNLOAD_PROGRESS = 'downloadProgress',
+  MESSAGE_MEDIA_UPDATED = 'messageMediaUpdated',
   CHECK_FOR_MISSING_FILES = 'checkForMissingFiles',
   // Misc
   SEND_PUSH_NOTIFICATION = 'sendPushNotification',

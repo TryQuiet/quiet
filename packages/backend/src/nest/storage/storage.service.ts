@@ -672,11 +672,11 @@ export class StorageService extends EventEmitter {
   }
 
   private attachFileManagerEvents = () => {
-    this.filesManager.on(IpfsFilesManagerEvents.UPDATE_DOWNLOAD_PROGRESS, status => {
-      this.emit(StorageEvents.UPDATE_DOWNLOAD_PROGRESS, status)
+    this.filesManager.on(IpfsFilesManagerEvents.DOWNLOAD_PROGRESS, status => {
+      this.emit(StorageEvents.DOWNLOAD_PROGRESS, status)
     })
-    this.filesManager.on(IpfsFilesManagerEvents.UPDATE_MESSAGE_MEDIA, messageMedia => {
-      this.emit(StorageEvents.UPDATE_MESSAGE_MEDIA, messageMedia)
+    this.filesManager.on(IpfsFilesManagerEvents.MESSAGE_MEDIA_UPDATED, messageMedia => {
+      this.emit(StorageEvents.MESSAGE_MEDIA_UPDATED, messageMedia)
     })
     this.filesManager.on(StorageEvents.REMOVE_DOWNLOAD_STATUS, payload => {
       this.emit(StorageEvents.REMOVE_DOWNLOAD_STATUS, payload)
@@ -684,11 +684,11 @@ export class StorageService extends EventEmitter {
     this.filesManager.on(StorageEvents.FILE_UPLOADED, payload => {
       this.emit(StorageEvents.FILE_UPLOADED, payload)
     })
-    this.filesManager.on(StorageEvents.UPDATE_DOWNLOAD_PROGRESS, payload => {
-      this.emit(StorageEvents.UPDATE_DOWNLOAD_PROGRESS, payload)
+    this.filesManager.on(StorageEvents.DOWNLOAD_PROGRESS, payload => {
+      this.emit(StorageEvents.DOWNLOAD_PROGRESS, payload)
     })
-    this.filesManager.on(StorageEvents.UPDATE_MESSAGE_MEDIA, payload => {
-      this.emit(StorageEvents.UPDATE_MESSAGE_MEDIA, payload)
+    this.filesManager.on(StorageEvents.MESSAGE_MEDIA_UPDATED, payload => {
+      this.emit(StorageEvents.MESSAGE_MEDIA_UPDATED, payload)
     })
   }
 

@@ -978,7 +978,7 @@ describe('Channel', () => {
         const payload = data
         expect(payload.metadata.cid).toEqual(missingFile.cid)
         await new Promise(resolve => setTimeout(resolve, 1000))
-        return socket.socketClient.emit<FileMetadata>(SocketActionTypes.UPDATE_MESSAGE_MEDIA, {
+        return socket.socketClient.emit<FileMetadata>(SocketActionTypes.MESSAGE_MEDIA_UPDATED, {
           ...missingFile,
           path: `${__dirname}/test-image.jpeg`,
         })

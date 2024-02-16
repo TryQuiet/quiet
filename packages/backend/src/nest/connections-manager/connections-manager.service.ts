@@ -489,7 +489,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       await this.launchCommunity(args)
     })
     this.socketService.on(
-      SocketActionTypes.UPDATE_COMMUNITY_METADATA,
+      SocketActionTypes.SET_COMMUNITY_METADATA,
       async (payload: CommunityMetadata, callback: (response?: CommunityMetadata) => void) => {
         const meta = await this.storageService?.updateCommunityMetadata(payload)
         callback(meta)
@@ -572,7 +572,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     })
 
     // User Profile
-    this.socketService.on(SocketActionTypes.UPDATE_USER_PROFILE, async (profile: UserProfile) => {
+    this.socketService.on(SocketActionTypes.SET_USER_PROFILE, async (profile: UserProfile) => {
       await this.storageService?.addUserProfile(profile)
     })
   }
@@ -607,11 +607,11 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.storageService.on(StorageEvents.FILE_UPLOADED, (payload: UploadFilePayload) => {
       this.serverIoProvider.io.emit(SocketActionTypes.FILE_UPLOADED, payload)
     })
-    this.storageService.on(StorageEvents.UPDATE_DOWNLOAD_PROGRESS, (payload: DownloadStatus) => {
+    this.storageService.on(StorageEvents.DOWNLOAD_PROGRESS, (payload: DownloadStatus) => {
       this.serverIoProvider.io.emit(SocketActionTypes.DOWNLOAD_PROGRESS, payload)
     })
-    this.storageService.on(StorageEvents.UPDATE_MESSAGE_MEDIA, (payload: FileMetadata) => {
-      this.serverIoProvider.io.emit(SocketActionTypes.UPDATE_MESSAGE_MEDIA, payload)
+    this.storageService.on(StorageEvents.MESSAGE_MEDIA_UPDATED, (payload: FileMetadata) => {
+      this.serverIoProvider.io.emit(SocketActionTypes.MESSAGE_MEDIA_UPDATED, payload)
     })
     this.storageService.on(StorageEvents.UPDATE_PEERS_LIST, (payload: StorePeerListPayload) => {
       this.serverIoProvider.io.emit(SocketActionTypes.PEER_LIST, payload)

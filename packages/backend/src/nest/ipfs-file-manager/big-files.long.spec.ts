@@ -116,7 +116,7 @@ describe('IpfsFileManagerService', () => {
     await waitForExpect(() => {
       expect(eventSpy).toHaveBeenNthCalledWith(
         3,
-        StorageEvents.UPDATE_DOWNLOAD_PROGRESS,
+        StorageEvents.DOWNLOAD_PROGRESS,
         expect.objectContaining({
           cid: expect.stringContaining('Qm'),
           downloadState: DownloadState.Hosted,
@@ -127,7 +127,7 @@ describe('IpfsFileManagerService', () => {
     await waitForExpect(() => {
       expect(eventSpy).toHaveBeenNthCalledWith(
         4,
-        StorageEvents.UPDATE_MESSAGE_MEDIA,
+        StorageEvents.MESSAGE_MEDIA_UPDATED,
         expect.objectContaining({
           ...metadata,
           cid: expect.stringContaining('Qm'),

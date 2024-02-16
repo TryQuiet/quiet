@@ -177,9 +177,9 @@ export class SocketService extends EventEmitter implements OnModuleInit {
       })
 
       socket.on(
-        SocketActionTypes.UPDATE_COMMUNITY_METADATA,
+        SocketActionTypes.SET_COMMUNITY_METADATA,
         (payload: CommunityMetadata, callback: (response?: CommunityMetadata) => void) => {
-          this.emit(SocketActionTypes.UPDATE_COMMUNITY_METADATA, payload, callback)
+          this.emit(SocketActionTypes.SET_COMMUNITY_METADATA, payload, callback)
         }
       )
 
@@ -189,8 +189,8 @@ export class SocketService extends EventEmitter implements OnModuleInit {
 
       // ====== Users ======
 
-      socket.on(SocketActionTypes.UPDATE_USER_PROFILE, (profile: UserProfile) => {
-        this.emit(SocketActionTypes.UPDATE_USER_PROFILE, profile)
+      socket.on(SocketActionTypes.SET_USER_PROFILE, (profile: UserProfile) => {
+        this.emit(SocketActionTypes.SET_USER_PROFILE, profile)
       })
     })
   }

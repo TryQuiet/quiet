@@ -220,10 +220,10 @@ export class IpfsFileManagerService extends EventEmitter {
       downloadProgress: undefined,
     }
 
-    this.emit(StorageEvents.UPDATE_DOWNLOAD_PROGRESS, statusReady)
+    this.emit(StorageEvents.DOWNLOAD_PROGRESS, statusReady)
 
     if (metadata.path !== filePath) {
-      this.emit(StorageEvents.UPDATE_MESSAGE_MEDIA, fileMetadata)
+      this.emit(StorageEvents.MESSAGE_MEDIA_UPDATED, fileMetadata)
     }
   }
 
@@ -473,7 +473,7 @@ export class IpfsFileManagerService extends EventEmitter {
       path: filePath,
     }
 
-    this.emit(IpfsFilesManagerEvents.UPDATE_MESSAGE_MEDIA, messageMedia)
+    this.emit(IpfsFilesManagerEvents.MESSAGE_MEDIA_UPDATED, messageMedia)
   }
 
   private async updateStatus(cid: string, downloadState = DownloadState.Downloading) {
@@ -498,6 +498,6 @@ export class IpfsFileManagerService extends EventEmitter {
       downloadProgress: progress,
     }
 
-    this.emit(IpfsFilesManagerEvents.UPDATE_DOWNLOAD_PROGRESS, status)
+    this.emit(IpfsFilesManagerEvents.DOWNLOAD_PROGRESS, status)
   }
 }
