@@ -318,11 +318,11 @@ describe('StorageService', () => {
 
     //   expect(eventSpy).toBeCalledWith(
     //     SocketActionTypes.CONNECTION_PROCESS_INFO,
-    //     ConnectionProcessInfo.CERTIFICATES_LOADED
+    //     ConnectionProcessInfo.CERTIFICATES_STORED
     //   )
 
     //   await waitForExpect(() => {
-    //     expect(eventSpy).toBeCalledWith(StorageEvents.CERTIFICATES_LOADED, { certificates: [] })
+    //     expect(eventSpy).toBeCalledWith(StorageEvents.CERTIFICATES_STORED, { certificates: [] })
     //     expect(spyOnUpdatePeersList).toBeCalled()
     //   })
     // })
@@ -337,7 +337,7 @@ describe('StorageService', () => {
     //   storageService.certificatesStore.store.events.emit('write', 'address', { payload: { value: 'something' } }, [])
 
     //   await waitForExpect(() => {
-    //     expect(eventSpy).toBeCalledWith(StorageEvents.CERTIFICATES_LOADED, { certificates: [] })
+    //     expect(eventSpy).toBeCalledWith(StorageEvents.CERTIFICATES_STORED, { certificates: [] })
     //     expect(spyOnUpdatePeersList).toBeCalled()
     //   })
     // })

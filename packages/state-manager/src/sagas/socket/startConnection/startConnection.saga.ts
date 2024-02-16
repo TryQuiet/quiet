@@ -40,7 +40,7 @@ import {
   type SendOwnerCertificatePayload,
   type SendCsrsResponse,
   type CommunityMetadata,
-  type UserProfilesLoadedEvent,
+  type UserProfilesStoredEvent,
   SocketActionTypes,
 } from '@quiet/types'
 
@@ -121,17 +121,17 @@ export function subscribe(socket: Socket) {
       emit(filesActions.removeDownloadStatus(payload))
     })
     // Channels
-    socket.on(SocketActionTypes.CHANNELS_LOADED, (payload: ChannelsReplicatedPayload) => {
+    socket.on(SocketActionTypes.CHANNELS_STORED, (payload: ChannelsReplicatedPayload) => {
       emit(publicChannelsActions.channelsReplicated(payload))
     })
     socket.on(SocketActionTypes.CHANNEL_SUBSCRIBED, (payload: ChannelSubscribedPayload) => {
       emit(publicChannelsActions.setChannelSubscribed(payload))
     })
     // Messages
-    socket.on(SocketActionTypes.MESSAGE_IDS_LOADED, (payload: ChannelMessageIdsResponse) => {
+    socket.on(SocketActionTypes.MESSAGE_IDS_STORED, (payload: ChannelMessageIdsResponse) => {
       emit(messagesActions.checkForMessages(payload))
     })
-    socket.on(SocketActionTypes.MESSAGES_LOADED, (payload: MessagesLoadedPayload) => {
+    socket.on(SocketActionTypes.MESSAGES_STORED, (payload: MessagesLoadedPayload) => {
       emit(messagesActions.removePendingMessageStatuses(payload))
       emit(messagesActions.addMessages(payload))
     })
@@ -180,12 +180,12 @@ export function subscribe(socket: Socket) {
       emit(errorsActions.handleError(payload))
     })
     // Certificates
-    socket.on(SocketActionTypes.CSRS_LOADED, (payload: SendCsrsResponse) => {
-      log(`${SocketActionTypes.CSRS_LOADED}`)
+    socket.on(SocketActionTypes.CSRS_STORED, (payload: SendCsrsResponse) => {
+      log(`${SocketActionTypes.CSRS_STORED}`)
       emit(identityActions.checkLocalCsr(payload))
       emit(usersActions.storeCsrs(payload))
     })
-    socket.on(SocketActionTypes.CERTIFICATES_LOADED, (payload: SendCertificatesResponse) => {
+    socket.on(SocketActionTypes.CERTIFICATES_STORED, (payload: SendCertificatesResponse) => {
       emit(usersActions.responseSendCertificates(payload))
     })
     socket.on(SocketActionTypes.OWNER_CERTIFICATE_ISSUED, (payload: SavedOwnerCertificatePayload) => {
@@ -204,19 +204,19 @@ export function subscribe(socket: Socket) {
       )
       emit(identityActions.savedOwnerCertificate(payload.communityId))
     })
-    socket.on(SocketActionTypes.COMMUNITY_METADATA_LOADED, (payload: CommunityMetadata) => {
-      log(`${SocketActionTypes.COMMUNITY_METADATA_LOADED}: ${payload}`)
+    socket.on(SocketActionTypes.COMMUNITY_METADATA_STORED, (payload: CommunityMetadata) => {
+      log(`${SocketActionTypes.COMMUNITY_METADATA_STORED}: ${payload}`)
       emit(communitiesActions.saveCommunityMetadata(payload))
     })
-    socket.on(SocketActionTypes.LIBP2P_PSK_LOADED, (payload: { psk: string }) => {
-      log(`${SocketActionTypes.LIBP2P_PSK_LOADED}`)
+    socket.on(SocketActionTypes.LIBP2P_PSK_STORED, (payload: { psk: string }) => {
+      log(`${SocketActionTypes.LIBP2P_PSK_STORED}`)
       emit(communitiesActions.savePSK(payload.psk))
     })
 
     // User Profile
 
-    socket.on(SocketActionTypes.USER_PROFILES_LOADED, (payload: UserProfilesLoadedEvent) => {
-      log(`${SocketActionTypes.LOADED_USER_PROFILES}`)
+    socket.on(SocketActionTypes.USER_PROFILES_STORED, (payload: UserProfilesStoredEvent) => {
+      log(`${SocketActionTypes.USER_PROFILES_STORED}`)
       emit(usersActions.setUserProfiles(payload.profiles))
     })
 

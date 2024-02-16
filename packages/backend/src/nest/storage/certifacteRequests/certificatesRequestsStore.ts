@@ -46,7 +46,7 @@ export class CertificatesRequestsStore extends EventEmitter {
   }
 
   public async loadedCertificateRequests() {
-    this.emit(StorageEvents.CSRS_LOADED, {
+    this.emit(StorageEvents.CSRS_STORED, {
       csrs: await this.getCsrs(),
     })
   }

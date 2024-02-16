@@ -61,8 +61,8 @@ describe('SocketService', () => {
       SocketActionTypes.LAUNCH_COMMUNITY.valueOf(),
       SocketActionTypes.REGISTER_OWNER_CERTIFICATE.valueOf(),
       SocketActionTypes.REGISTER_USER_CERTIFICATE.valueOf(),
-      SocketActionTypes.SEND_CSR.valueOf(),
-      SocketActionTypes.SEND_COMMUNITY_METADATA.valueOf(),
+      SocketActionTypes.ADD_CSR.valueOf(),
+      SocketActionTypes.UPDATE_COMMUNITY_METADATA.valueOf(),
     ]
 
     fragile.forEach(event => {

@@ -104,7 +104,7 @@ describe('User', () => {
           id: payload.id,
         })
 
-        socket.socketClient.emit<ChannelsReplicatedPayload>(SocketActionTypes.CHANNELS_LOADED, {
+        socket.socketClient.emit<ChannelsReplicatedPayload>(SocketActionTypes.CHANNELS_STORED, {
           channels: {
             general: {
               name: 'general',

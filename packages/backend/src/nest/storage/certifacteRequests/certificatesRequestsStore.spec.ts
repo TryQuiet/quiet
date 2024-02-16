@@ -102,7 +102,7 @@ describe('CertificatesRequestsStore', () => {
 
     const spy = jest.fn()
 
-    certificatesRequestsStore.on(StorageEvents.CSRS_LOADED, spy)
+    certificatesRequestsStore.on(StorageEvents.CSRS_STORED, spy)
     await replicatedEvent(certificatesRequestsStore.store)
 
     expect(spy).toBeCalledTimes(1)

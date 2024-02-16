@@ -44,7 +44,7 @@ import {
   CommunityMetadata,
   type PermsData,
   type UserProfile,
-  type UserProfilesLoadedEvent,
+  type UserProfilesStoredEvent,
 } from '@quiet/types'
 import { CONFIG_OPTIONS, QUIET_DIR, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
 import { ConfigOptions, GetPorts, ServerIoProviderTypes } from '../types'
@@ -305,7 +305,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     const pskBase64 = Libp2pService.generateLibp2pPSK().psk
     await this.localDbService.put(LocalDBKeys.PSK, pskBase64)
     this.logger('Generated Libp2p PSK')
-    this.serverIoProvider.io.emit(SocketActionTypes.LIBP2P_PSK_LOADED, { psk: pskBase64 })
+    this.serverIoProvider.io.emit(SocketActionTypes.LIBP2P_PSK_STORED, { psk: pskBase64 })
   }
 
   public async createCommunity(payload: InitCommunityPayload) {
@@ -469,7 +469,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
           SocketActionTypes.CONNECTED_PEERS,
           Array.from(this.libp2pService.connectedPeers.keys())
         )
-        this.serverIoProvider.io.emit(SocketActionTypes.CERTIFICATES_LOADED, {
+        this.serverIoProvider.io.emit(SocketActionTypes.CERTIFICATES_STORED, {
           certificates: await this.storageService?.loadAllCertificates(),
         })
         await this.storageService?.loadAllChannels()
@@ -489,7 +489,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       await this.launchCommunity(args)
     })
     this.socketService.on(
-      SocketActionTypes.SEND_COMMUNITY_METADATA,
+      SocketActionTypes.UPDATE_COMMUNITY_METADATA,
       async (payload: CommunityMetadata, callback: (response?: CommunityMetadata) => void) => {
         const meta = await this.storageService?.updateCommunityMetadata(payload)
         callback(meta)
@@ -500,8 +500,8 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     })
 
     // Username registration
-    this.socketService.on(SocketActionTypes.SEND_CSR, async (payload: SaveCSRPayload) => {
-      this.logger(`socketService - ${SocketActionTypes.SEND_CSR}`)
+    this.socketService.on(SocketActionTypes.ADD_CSR, async (payload: SaveCSRPayload) => {
+      this.logger(`socketService - ${SocketActionTypes.ADD_CSR}`)
       await this.storageService?.saveCSR(payload)
     })
     this.socketService.on(
@@ -513,8 +513,8 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     // TODO: Save community CA data in LevelDB. Perhaps save the
     // entire Community type in LevelDB. We can probably do this once
     // when creating the community.
-    this.socketService.on(SocketActionTypes.SEND_COMMUNITY_CA_DATA, async (payload: PermsData) => {
-      this.logger(`socketService - ${SocketActionTypes.SEND_COMMUNITY_CA_DATA}`)
+    this.socketService.on(SocketActionTypes.SET_COMMUNITY_CA_DATA, async (payload: PermsData) => {
+      this.logger(`socketService - ${SocketActionTypes.SET_COMMUNITY_CA_DATA}`)
       this.registrationService.setPermsData(payload)
     })
 
@@ -572,7 +572,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     })
 
     // User Profile
-    this.socketService.on(SocketActionTypes.SEND_USER_PROFILE, async (profile: UserProfile) => {
+    this.socketService.on(SocketActionTypes.UPDATE_USER_PROFILE, async (profile: UserProfile) => {
       await this.storageService?.addUserProfile(profile)
     })
   }
@@ -582,21 +582,21 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.storageService.on(SocketActionTypes.CONNECTION_PROCESS_INFO, data => {
       this.serverIoProvider.io.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, data)
     })
-    this.storageService.on(StorageEvents.CERTIFICATES_LOADED, (payload: SendCertificatesResponse) => {
-      this.logger(`Storage - ${StorageEvents.CERTIFICATES_LOADED}`)
-      this.serverIoProvider.io.emit(SocketActionTypes.CERTIFICATES_LOADED, payload)
+    this.storageService.on(StorageEvents.CERTIFICATES_STORED, (payload: SendCertificatesResponse) => {
+      this.logger(`Storage - ${StorageEvents.CERTIFICATES_STORED}`)
+      this.serverIoProvider.io.emit(SocketActionTypes.CERTIFICATES_STORED, payload)
     })
-    this.storageService.on(StorageEvents.CHANNELS_LOADED, (payload: ChannelsReplicatedPayload) => {
-      this.serverIoProvider.io.emit(SocketActionTypes.CHANNELS_LOADED, payload)
+    this.storageService.on(StorageEvents.CHANNELS_STORED, (payload: ChannelsReplicatedPayload) => {
+      this.serverIoProvider.io.emit(SocketActionTypes.CHANNELS_STORED, payload)
     })
-    this.storageService.on(StorageEvents.MESSAGES_LOADED, (payload: MessagesLoadedPayload) => {
-      this.serverIoProvider.io.emit(SocketActionTypes.MESSAGES_LOADED, payload)
+    this.storageService.on(StorageEvents.MESSAGES_STORED, (payload: MessagesLoadedPayload) => {
+      this.serverIoProvider.io.emit(SocketActionTypes.MESSAGES_STORED, payload)
     })
-    this.storageService.on(StorageEvents.MESSAGE_IDS_LOADED, (payload: ChannelMessageIdsResponse) => {
+    this.storageService.on(StorageEvents.MESSAGE_IDS_STORED, (payload: ChannelMessageIdsResponse) => {
       if (payload.ids.length === 0) {
         return
       }
-      this.serverIoProvider.io.emit(SocketActionTypes.MESSAGE_IDS_LOADED, payload)
+      this.serverIoProvider.io.emit(SocketActionTypes.MESSAGE_IDS_STORED, payload)
     })
     this.storageService.on(StorageEvents.CHANNEL_SUBSCRIBED, (payload: ChannelSubscribedPayload) => {
       this.serverIoProvider.io.emit(SocketActionTypes.CHANNEL_SUBSCRIBED, payload)
@@ -619,18 +619,18 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.storageService.on(StorageEvents.SEND_PUSH_NOTIFICATION, (payload: PushNotificationPayload) => {
       this.serverIoProvider.io.emit(SocketActionTypes.PUSH_NOTIFICATION, payload)
     })
-    this.storageService.on(StorageEvents.CSRS_LOADED, async (payload: { csrs: string[] }) => {
-      this.logger(`Storage - ${StorageEvents.CSRS_LOADED}`)
+    this.storageService.on(StorageEvents.CSRS_STORED, async (payload: { csrs: string[] }) => {
+      this.logger(`Storage - ${StorageEvents.CSRS_STORED}`)
       this.libp2pService.emit(Libp2pEvents.DIAL_PEERS, await getLibp2pAddressesFromCsrs(payload.csrs))
-      this.serverIoProvider.io.emit(SocketActionTypes.CSRS_LOADED, payload)
+      this.serverIoProvider.io.emit(SocketActionTypes.CSRS_STORED, payload)
       this.registrationService.emit(RegistrationEvents.REGISTER_USER_CERTIFICATE, payload)
     })
-    this.storageService.on(StorageEvents.COMMUNITY_METADATA_LOADED, async (meta: CommunityMetadata) => {
-      this.logger(`Storage - ${StorageEvents.COMMUNITY_METADATA_LOADED}: ${meta}`)
-      this.serverIoProvider.io.emit(SocketActionTypes.COMMUNITY_METADATA_LOADED, meta)
+    this.storageService.on(StorageEvents.COMMUNITY_METADATA_STORED, async (meta: CommunityMetadata) => {
+      this.logger(`Storage - ${StorageEvents.COMMUNITY_METADATA_STORED}: ${meta}`)
+      this.serverIoProvider.io.emit(SocketActionTypes.COMMUNITY_METADATA_STORED, meta)
     })
-    this.storageService.on(StorageEvents.USER_PROFILES_LOADED, (payload: UserProfilesLoadedEvent) => {
-      this.serverIoProvider.io.emit(SocketActionTypes.USER_PROFILES_LOADED, payload)
+    this.storageService.on(StorageEvents.USER_PROFILES_STORED, (payload: UserProfilesStoredEvent) => {
+      this.serverIoProvider.io.emit(SocketActionTypes.USER_PROFILES_STORED, payload)
     })
   }
 }

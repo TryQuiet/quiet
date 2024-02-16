@@ -14,6 +14,6 @@ export function* saveUserCsrSaga(socket: Socket): Generator {
     csr: identity.userCsr?.userCsr,
   }
 
-  console.log(`Send ${SocketActionTypes.SEND_CSR}`)
-  yield* apply(socket, socket.emit, applyEmitParams(SocketActionTypes.SEND_CSR, payload))
+  console.log(`Send ${SocketActionTypes.ADD_CSR}`)
+  yield* apply(socket, socket.emit, applyEmitParams(SocketActionTypes.ADD_CSR, payload))
 }

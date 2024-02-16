@@ -21,7 +21,7 @@ export interface UserProfile {
   pubKey: string
 }
 
-export interface UserProfilesLoadedEvent {
+export interface UserProfilesStoredEvent {
   profiles: UserProfile[]
 }
 

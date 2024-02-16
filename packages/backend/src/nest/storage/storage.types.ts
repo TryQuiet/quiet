@@ -5,9 +5,9 @@ export enum StorageEvents {
   UPDATE_PEERS_LIST = 'updatePeersList',
   // Public Channels
   CHANNEL_SUBSCRIBED = 'channelSubscribed',
-  CHANNELS_LOADED = 'channelsLoaded',
-  MESSAGE_IDS_LOADED = 'messageIdsLoaded',
-  MESSAGES_LOADED = 'messagesLoaded',
+  CHANNELS_STORED = 'channelsStored',
+  MESSAGE_IDS_STORED = 'messageIdsStored',
+  MESSAGES_STORED = 'messagesStored',
   // Files
   REMOVE_DOWNLOAD_STATUS = 'removeDownloadStatus',
   FILE_UPLOADED = 'fileUploaded',
@@ -17,11 +17,11 @@ export enum StorageEvents {
   // Misc
   SEND_PUSH_NOTIFICATION = 'sendPushNotification',
   // Users
-  CSRS_LOADED = 'csrsLoaded',
-  CERTIFICATES_LOADED = 'certificatesLoaded',
-  USER_PROFILES_LOADED = 'userProfilesLoaded',
+  CSRS_STORED = 'csrsStored',
+  CERTIFICATES_STORED = 'certificatesStored',
+  USER_PROFILES_STORED = 'userProfilesStored',
   // Community
-  COMMUNITY_METADATA_LOADED = 'communityMetadataLoaded',
+  COMMUNITY_METADATA_STORED = 'communityMetadataStored',
 }
 
 export interface InitStorageParams {

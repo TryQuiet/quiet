@@ -3,32 +3,32 @@ export enum SocketActionTypes {
 
   COMMUNITY_CREATED = 'communityCreated',
   COMMUNITY_LAUNCHED = 'communityLaunched',
-  COMMUNITY_METADATA_LOADED = 'communityMetadataLoaded',
+  COMMUNITY_METADATA_STORED = 'communityMetadataStored',
   CREATE_COMMUNITY = 'createCommunity',
   LAUNCH_COMMUNITY = 'launchCommunity',
   LEAVE_COMMUNITY = 'leaveCommunity',
-  SEND_COMMUNITY_METADATA = 'sendCommunityMetadata',
-  SEND_COMMUNITY_CA_DATA = 'sendCommunityCaData',
+  SET_COMMUNITY_CA_DATA = 'setCommunityCaData',
+  UPDATE_COMMUNITY_METADATA = 'updateCommunityMetadata',
 
   // ====== Channels ======
 
-  CHANNELS_LOADED = 'channelsLoaded',
   CHANNEL_SUBSCRIBED = 'channelSubscribed',
+  CHANNELS_STORED = 'channelsStored',
   CREATE_CHANNEL = 'createChannel',
   DELETE_CHANNEL = 'deleteChannel',
   DELETE_FILES_FROM_CHANNEL = 'deleteFilesFromChannel',
 
   // ====== Messages ======
 
-  MESSAGE_IDS_LOADED = 'messageIdsLoaded',
-  MESSAGES_LOADED = 'messagesLoaded',
+  MESSAGE_IDS_STORED = 'messageIdsStored',
+  MESSAGES_STORED = 'messagesStored',
   SEND_MESSAGE = 'sendMessage',
   UPDATE_MESSAGE_MEDIA = 'updateMessageMedia',
 
   // ====== User ======
 
-  SEND_USER_PROFILE = 'sendUserProfile',
-  USER_PROFILES_LOADED = 'userProfilesLoaded',
+  UPDATE_USER_PROFILE = 'updateUserProfile',
+  USER_PROFILES_STORED = 'userProfilesStored',
 
   // ====== Files ======
 
@@ -42,12 +42,12 @@ export enum SocketActionTypes {
 
   // ====== Certificates ======
 
-  CERTIFICATES_LOADED = 'certificatesLoaded',
-  CSRS_LOADED = 'csrsLoaded',
+  ADD_CSR = 'addCsr',
+  CERTIFICATES_STORED = 'certificatesStored',
+  CSRS_STORED = 'csrsStored',
   OWNER_CERTIFICATE_ISSUED = 'ownerCertificateIssued',
   REGISTER_USER_CERTIFICATE = 'registerUserCertificate',
   REGISTER_OWNER_CERTIFICATE = 'registerOwnerCertificate',
-  SEND_CSR = 'sendCsr',
 
   // ====== Network ======
 
@@ -56,7 +56,7 @@ export enum SocketActionTypes {
   CONNECTION = 'connection',
   CONNECTION_PROCESS_INFO = 'connectionProcess',
   CREATE_NETWORK = 'createNetwork',
-  LIBP2P_PSK_LOADED = 'libp2pPskLoaded',
+  LIBP2P_PSK_STORED = 'libp2pPskStored',
   NETWORK_CREATED = 'networkCreated',
   PEER_CONNECTED = 'peerConnected',
   PEER_DISCONNECTED = 'peerDisconnected',

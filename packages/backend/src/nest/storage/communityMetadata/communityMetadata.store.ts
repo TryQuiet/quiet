@@ -72,7 +72,7 @@ export class CommunityMetadataStore extends EventEmitter {
       await this.store.load({ fetchEntryTimeout: 15000 })
       const meta = this.getCommunityMetadata()
       if (meta) {
-        this.emit(StorageEvents.COMMUNITY_METADATA_LOADED, meta)
+        this.emit(StorageEvents.COMMUNITY_METADATA_STORED, meta)
       }
     })
 
@@ -80,7 +80,7 @@ export class CommunityMetadataStore extends EventEmitter {
     await this.store.load({ fetchEntryTimeout: 15000 })
     const meta = this.getCommunityMetadata()
     if (meta) {
-      this.emit(StorageEvents.COMMUNITY_METADATA_LOADED, meta)
+      this.emit(StorageEvents.COMMUNITY_METADATA_STORED, meta)
     }
     logger('Loaded community metadata to memory')
   }

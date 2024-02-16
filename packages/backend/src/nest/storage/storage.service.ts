@@ -34,7 +34,7 @@ import {
   SocketActionTypes,
   UserData,
   type UserProfile,
-  type UserProfilesLoadedEvent,
+  type UserProfilesStoredEvent,
 } from '@quiet/types'
 import { createLibp2pAddress, isDefined } from '@quiet/common'
 import fs from 'fs'
@@ -284,23 +284,23 @@ export class StorageService extends EventEmitter {
   }
 
   public attachStoreListeners() {
-    this.certificatesStore.on(StorageEvents.CERTIFICATES_LOADED, async payload => {
-      this.emit(StorageEvents.CERTIFICATES_LOADED, payload)
+    this.certificatesStore.on(StorageEvents.CERTIFICATES_STORED, async payload => {
+      this.emit(StorageEvents.CERTIFICATES_STORED, payload)
       await this.updatePeersList()
     })
 
-    this.certificatesRequestsStore.on(StorageEvents.CSRS_LOADED, async (payload: { csrs: string[] }) => {
-      this.emit(StorageEvents.CSRS_LOADED, payload)
+    this.certificatesRequestsStore.on(StorageEvents.CSRS_STORED, async (payload: { csrs: string[] }) => {
+      this.emit(StorageEvents.CSRS_STORED, payload)
       await this.updatePeersList()
     })
 
-    this.communityMetadataStore.on(StorageEvents.COMMUNITY_METADATA_LOADED, (meta: CommunityMetadata) => {
+    this.communityMetadataStore.on(StorageEvents.COMMUNITY_METADATA_STORED, (meta: CommunityMetadata) => {
       this.certificatesStore.updateMetadata(meta)
-      this.emit(StorageEvents.COMMUNITY_METADATA_LOADED, meta)
+      this.emit(StorageEvents.COMMUNITY_METADATA_STORED, meta)
     })
 
-    this.userProfileStore.on(StorageEvents.USER_PROFILES_LOADED, (payload: UserProfilesLoadedEvent) => {
-      this.emit(StorageEvents.USER_PROFILES_LOADED, payload)
+    this.userProfileStore.on(StorageEvents.USER_PROFILES_STORED, (payload: UserProfilesStoredEvent) => {
+      this.emit(StorageEvents.USER_PROFILES_STORED, payload)
     })
   }
 
@@ -334,7 +334,7 @@ export class StorageService extends EventEmitter {
     this.logger('Getting all channels')
     // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
     await this.channels.load({ fetchEntryTimeout: 2000 })
-    this.emit(StorageEvents.CHANNELS_LOADED, {
+    this.emit(StorageEvents.CHANNELS_STORED, {
       channels: this.channels.all as unknown as { [key: string]: PublicChannel },
     })
   }
@@ -355,7 +355,7 @@ export class StorageService extends EventEmitter {
 
     this.channels.events.on('replicated', async () => {
       this.logger('REPLICATED: Channels')
-      this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CHANNELS_LOADED)
+      this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CHANNELS_STORED)
       // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
       await this.channels.load({ fetchEntryTimeout: 2000 })
 
@@ -369,7 +369,7 @@ export class StorageService extends EventEmitter {
         keyValueChannels[channel.id] = channel
       })
 
-      this.emit(StorageEvents.CHANNELS_LOADED, {
+      this.emit(StorageEvents.CHANNELS_STORED, {
         channels: keyValueChannels,
       })
 
@@ -389,7 +389,7 @@ export class StorageService extends EventEmitter {
   }
 
   async initAllChannels() {
-    this.emit(StorageEvents.CHANNELS_LOADED, {
+    this.emit(StorageEvents.CHANNELS_STORED, {
       channels: this.channels.all as unknown as { [key: string]: PublicChannel },
     })
   }
@@ -455,7 +455,7 @@ export class StorageService extends EventEmitter {
         this.logger(`Writing to public channel db ${channelData.id}`)
         const verified = await this.verifyMessage(entry.payload.value)
 
-        this.emit(StorageEvents.MESSAGES_LOADED, {
+        this.emit(StorageEvents.MESSAGES_STORED, {
           messages: [entry.payload.value],
           isVerified: verified,
         })
@@ -469,7 +469,7 @@ export class StorageService extends EventEmitter {
 
         const message = messages[0]
 
-        this.emit(StorageEvents.MESSAGES_LOADED, {
+        this.emit(StorageEvents.MESSAGES_STORED, {
           messages: [message],
           isVerified: verified,
         })
@@ -501,7 +501,7 @@ export class StorageService extends EventEmitter {
         this.logger('Replicated.', address)
         const ids = this.getAllEventLogEntries<ChannelMessage>(db).map(msg => msg.id)
         const community = await this.localDbService.get(LocalDBKeys.COMMUNITY)
-        this.emit(StorageEvents.MESSAGE_IDS_LOADED, {
+        this.emit(StorageEvents.MESSAGE_IDS_STORED, {
           ids,
           channelId: channelData.id,
           communityId: community.id,
@@ -511,7 +511,7 @@ export class StorageService extends EventEmitter {
       db.events.on('ready', async () => {
         const ids = this.getAllEventLogEntries<ChannelMessage>(db).map(msg => msg.id)
         const community = await this.localDbService.get(LocalDBKeys.COMMUNITY)
-        this.emit(StorageEvents.MESSAGE_IDS_LOADED, {
+        this.emit(StorageEvents.MESSAGE_IDS_STORED, {
           ids,
           channelId: channelData.id,
           communityId: community.id,

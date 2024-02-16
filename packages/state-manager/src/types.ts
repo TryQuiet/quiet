@@ -49,10 +49,10 @@ export interface EmitEvents {
   [SocketActionTypes.CLOSE]: () => void
   [SocketActionTypes.LEAVE_COMMUNITY]: () => void
   [SocketActionTypes.CREATE_NETWORK]: EmitEvent<Community>
-  [SocketActionTypes.SEND_CSR]: EmitEvent<SaveCSRPayload>
-  [SocketActionTypes.SEND_COMMUNITY_METADATA]: EmitEvent<CommunityMetadata, (response: CommunityMetadata) => void>
-  [SocketActionTypes.SEND_COMMUNITY_CA_DATA]: EmitEvent<PermsData>
-  [SocketActionTypes.SEND_USER_PROFILE]: EmitEvent<UserProfile>
+  [SocketActionTypes.ADD_CSR]: EmitEvent<SaveCSRPayload>
+  [SocketActionTypes.UPDATE_COMMUNITY_METADATA]: EmitEvent<CommunityMetadata, (response: CommunityMetadata) => void>
+  [SocketActionTypes.SET_COMMUNITY_CA_DATA]: EmitEvent<PermsData>
+  [SocketActionTypes.UPDATE_USER_PROFILE]: EmitEvent<UserProfile>
 }
 
 export type Socket = IOSocket<EventsMap, EmitEvents>

@@ -24,8 +24,8 @@ export enum ConnectionProcessInfo {
   STORAGE_INITIALIZED = 'Initialized storage',
   DBS_INITIALIZED = 'Initialized DBs',
   COMMUNITY_LAUNCHED = 'Launched community',
-  CHANNELS_LOADED = 'Channels replicated',
-  CERTIFICATES_LOADED = 'Certificates replicated',
+  CHANNELS_STORED = 'Channels replicated',
+  CERTIFICATES_STORED = 'Certificates replicated',
 
   CONNECTION_STARTED = 'Connecting process started',
   LOADING_MESSAGES = 'Loading messages',

@@ -38,7 +38,7 @@ describe('saveUserCsr', () => {
       .withReducer(reducer)
       .withState(store.getState())
       .apply(socket, socket.emit, [
-        SocketActionTypes.SEND_CSR,
+        SocketActionTypes.ADD_CSR,
         {
           csr: identity.userCsr?.userCsr,
         },
