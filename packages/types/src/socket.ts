@@ -1,3 +1,12 @@
+/**
+ * Backend API event types. Currently, these are divided into two
+ * groups: pure events and actions. Pure events are emitted from the
+ * backend to notify the frontend of something and are generally named
+ * with the past tense (e.g. COMMUNITY_CREATED), while actions are
+ * emitted from the frontend in order to invoke the backend to do
+ * something on it's behalf and are generally named as a command (e.g.
+ * CREATE_COMMUNITY).
+ */
 export enum SocketActionTypes {
   // ====== Community ======
 
