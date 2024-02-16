@@ -66,7 +66,7 @@ By the time release is ready, ask @holmes for <b>CHANGELOG.md</b> cosmetic revie
 ## Changelog / Releases Page
 Root <b>CHANGELOG.md</b> file contents are being copied into each packages' ones.  
 This process is automated by `copy-changelog.js` script hooked on `postpublish` action.
-
+- [ ] Edit release notes to match style guide (See: [RELEASE_NOTES_GUIDE.md](RELEASE_NOTES_GUIDE.md))
 
 ## QA
 QA tests for issues on all the supported platforms and moves discovered blocking issues intoto the Sprint column, then mentions them in Slack <b>#qa</b> channel, following the criteria:  

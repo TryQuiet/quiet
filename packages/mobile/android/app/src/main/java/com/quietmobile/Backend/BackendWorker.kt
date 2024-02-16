@@ -132,7 +132,15 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
             
             val platform = "mobile"
 
-            startNodeProjectWithArguments("bundle.cjs --torBinary $torBinary --dataPath $dataPath --dataPort $dataPort --platform $platform --socketIOSecret $socketIOSecret")
+            launch {
+                /*
+                 * The point of this delay is to prevent startup race condition
+                 * which occurs particularly often when running Detox tests
+                 * https://github.com/TryQuiet/quiet/issues/2214
+                 */
+                delay(500)
+                startNodeProjectWithArguments("bundle.cjs --torBinary $torBinary --dataPath $dataPath --dataPort $dataPort --platform $platform --socketIOSecret $socketIOSecret")
+            }
         }
 
         println("FINISHING BACKEND WORKER")
