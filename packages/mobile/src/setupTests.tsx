@@ -1,5 +1,6 @@
 /* eslint-disable */
 import { setEngine, CryptoEngine } from 'pkijs'
+import { setEngine as setIdentityEngine } from '../../identity/node_modules/pkijs'
 import { Crypto } from '@peculiar/webcrypto'
 import React from 'react'
 
@@ -9,6 +10,16 @@ const webcrypto = new Crypto()
 global.crypto = webcrypto
 
 setEngine(
+  'newEngine',
+  webcrypto,
+  new CryptoEngine({
+    name: '',
+    crypto: webcrypto,
+    subtle: webcrypto.subtle,
+  })
+)
+
+setIdentityEngine(
   'newEngine',
   webcrypto,
   new CryptoEngine({
