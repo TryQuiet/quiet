@@ -21,7 +21,6 @@ import {
   communities,
   Identity,
   Store,
-  SocketActionTypes,
   MessageType,
   ChannelMessage,
   messages,
@@ -31,7 +30,7 @@ import {
 import { DateTime } from 'luxon'
 
 import store from '../renderer/store'
-import { type Community } from '@quiet/types'
+import { type Community, SocketActionTypes } from '@quiet/types'
 
 jest.setTimeout(20_000)
 jest.mock('electron', () => {
@@ -209,7 +208,7 @@ describe('Switch channels', () => {
 
     function* mockIncomingMessages(): Generator {
       yield* apply(socket.socketClient, socket.socketClient.emit, [
-        SocketActionTypes.INCOMING_MESSAGES,
+        SocketActionTypes.MESSAGES_LOADED,
         {
           messages: messages,
           communityId: community.id,
@@ -259,7 +258,7 @@ describe('Switch channels', () => {
 
     function* mockIncomingMessages(): Generator {
       yield* apply(socket.socketClient, socket.socketClient.emit, [
-        SocketActionTypes.INCOMING_MESSAGES,
+        SocketActionTypes.MESSAGES_LOADED,
         {
           messages: [message],
           communityId: community.id,
@@ -329,7 +328,7 @@ describe('Switch channels', () => {
 
     function* mockIncomingMessages(): Generator {
       yield* apply(socket.socketClient, socket.socketClient.emit, [
-        SocketActionTypes.INCOMING_MESSAGES,
+        SocketActionTypes.MESSAGES_LOADED,
         {
           messages: [message],
           communityId: community.id,

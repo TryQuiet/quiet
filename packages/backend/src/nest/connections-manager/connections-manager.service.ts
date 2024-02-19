@@ -11,19 +11,20 @@ import PeerId from 'peer-id'
 import { getLibp2pAddressesFromCsrs, removeFilesFromDir } from '../common/utils'
 
 import {
-  AskForMessagesPayload,
-  ChannelMessagesIdsResponse,
+  GetMessagesPayload,
+  ChannelMessageIdsResponse,
+  type DeleteChannelResponse,
   ChannelsReplicatedPayload,
   Community,
   CommunityId,
   ConnectionProcessInfo,
   CreateChannelPayload,
-  CreatedChannelResponse,
+  CreateChannelResponse,
   DeleteFilesFromChannelSocketPayload,
   DownloadStatus,
   ErrorMessages,
   FileMetadata,
-  IncomingMessages,
+  MessagesLoadedPayload,
   InitCommunityPayload,
   NetworkData,
   NetworkDataPayload,
@@ -34,14 +35,14 @@ import {
   ResponseCreateNetworkPayload,
   SendCertificatesResponse,
   SendMessagePayload,
-  SetChannelSubscribedPayload,
+  ChannelSubscribedPayload,
   SocketActionTypes,
   StorePeerListPayload,
   UploadFilePayload,
   PeerId as PeerIdType,
   SaveCSRPayload,
   CommunityMetadata,
-  PermsData,
+  type PermsData,
   type UserProfile,
   type UserProfilesLoadedEvent,
 } from '@quiet/types'
@@ -177,8 +178,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     if (this.storageService) {
       this.logger('Stopping orbitdb')
       await this.storageService?.stopOrbitDb()
-      this.logger('reset CsrReplicated map and id and certificate store values')
-      this.storageService.resetCsrAndCertsValues()
     }
     if (this.serverIoProvider?.io) {
       this.logger('Closing socket server')
@@ -423,6 +422,12 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       this.serverIoProvider.io.emit(SocketActionTypes.PEER_DISCONNECTED, payload)
     })
     await this.storageService.init(_peerId)
+    // We can use Nest for dependency injection, but I think since the
+    // registration service depends on the storage service being
+    // initialized, this is helpful to manually inject the storage
+    // service for now. Both object construction and object
+    // initialization need to happen in order based on dependencies.
+    await this.registrationService.init(this.storageService)
     this.logger('storage initialized')
 
     this.serverIoProvider.io.emit(
@@ -449,15 +454,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.registrationService.on(RegistrationEvents.ERROR, payload => {
       emitError(this.serverIoProvider.io, payload)
     })
-    this.registrationService.on(RegistrationEvents.NEW_USER, async payload => {
-      await this.storageService?.saveCertificate(payload)
-    })
-
-    this.registrationService.on(RegistrationEvents.FINISHED_ISSUING_CERTIFICATES_FOR_ID, payload => {
-      if (payload.id) {
-        this.storageService.resolveCsrReplicatedPromise(payload.id)
-      }
-    })
   }
 
   private attachSocketServiceListeners() {
@@ -473,7 +469,9 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
           SocketActionTypes.CONNECTED_PEERS,
           Array.from(this.libp2pService.connectedPeers.keys())
         )
-        await this.storageService?.loadAllCertificates()
+        this.serverIoProvider.io.emit(SocketActionTypes.RESPONSE_GET_CERTIFICATES, {
+          certificates: await this.storageService?.loadAllCertificates(),
+        })
         await this.storageService?.loadAllChannels()
       }
     })
@@ -490,6 +488,13 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       this.communityState = ServiceState.LAUNCHING
       await this.launchCommunity(args)
     })
+    this.socketService.on(
+      SocketActionTypes.SEND_COMMUNITY_METADATA,
+      async (payload: CommunityMetadata, callback: (response?: CommunityMetadata) => void) => {
+        const meta = await this.storageService?.updateCommunityMetadata(payload)
+        callback(meta)
+      }
+    )
     this.socketService.on(SocketActionTypes.LEAVE_COMMUNITY, async () => {
       await this.leaveCommunity()
     })
@@ -511,17 +516,23 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     // when creating the community.
     this.socketService.on(SocketActionTypes.SEND_COMMUNITY_CA_DATA, async (payload: PermsData) => {
       this.logger(`socketService - ${SocketActionTypes.SEND_COMMUNITY_CA_DATA}`)
-      this.registrationService.permsData = payload
+      this.registrationService.setPermsData(payload)
     })
 
     // Public Channels
-    this.socketService.on(SocketActionTypes.CREATE_CHANNEL, async (args: CreateChannelPayload) => {
-      await this.storageService?.subscribeToChannel(args.channel)
-    })
+    this.socketService.on(
+      SocketActionTypes.CREATE_CHANNEL,
+      async (args: CreateChannelPayload, callback: (response?: CreateChannelResponse) => void) => {
+        callback(await this.storageService?.subscribeToChannel(args.channel))
+      }
+    )
     this.socketService.on(
       SocketActionTypes.DELETE_CHANNEL,
-      async (payload: { channelId: string; ownerPeerId: string }) => {
-        await this.storageService?.deleteChannel(payload)
+      async (
+        payload: { channelId: string; ownerPeerId: string },
+        callback: (response: DeleteChannelResponse) => void
+      ) => {
+        callback(await this.storageService?.deleteChannel(payload))
       }
     )
     this.socketService.on(
@@ -535,9 +546,12 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.socketService.on(SocketActionTypes.SEND_MESSAGE, async (args: SendMessagePayload) => {
       await this.storageService?.sendMessage(args.message)
     })
-    this.socketService.on(SocketActionTypes.ASK_FOR_MESSAGES, async (args: AskForMessagesPayload) => {
-      await this.storageService?.askForMessages(args.channelId, args.ids)
-    })
+    this.socketService.on(
+      SocketActionTypes.GET_MESSAGES,
+      async (payload: GetMessagesPayload, callback: (response?: MessagesLoadedPayload) => void) => {
+        callback(await this.storageService?.getMessages(payload.channelId, payload.ids))
+      }
+    )
 
     // Files
     this.socketService.on(SocketActionTypes.DOWNLOAD_FILE, async (metadata: FileMetadata) => {
@@ -576,24 +590,17 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.storageService.on(StorageEvents.LOAD_PUBLIC_CHANNELS, (payload: ChannelsReplicatedPayload) => {
       this.serverIoProvider.io.emit(SocketActionTypes.CHANNELS_REPLICATED, payload)
     })
-    this.storageService.on(StorageEvents.LOAD_ALL_PRIVATE_CONVERSATIONS, payload => {
-      this.serverIoProvider.io.emit(SocketActionTypes.RESPONSE_GET_PRIVATE_CONVERSATIONS, payload)
+    this.storageService.on(StorageEvents.MESSAGES_LOADED, (payload: MessagesLoadedPayload) => {
+      this.serverIoProvider.io.emit(SocketActionTypes.MESSAGES_LOADED, payload)
     })
-    this.storageService.on(StorageEvents.LOAD_MESSAGES, (payload: IncomingMessages) => {
-      this.serverIoProvider.io.emit(SocketActionTypes.INCOMING_MESSAGES, payload)
-    })
-    this.storageService.on(StorageEvents.SEND_MESSAGES_IDS, (payload: ChannelMessagesIdsResponse) => {
+    this.storageService.on(StorageEvents.MESSAGE_IDS_LOADED, (payload: ChannelMessageIdsResponse) => {
       if (payload.ids.length === 0) {
         return
       }
-      this.serverIoProvider.io.emit(SocketActionTypes.SEND_MESSAGES_IDS, payload)
+      this.serverIoProvider.io.emit(SocketActionTypes.MESSAGE_IDS_LOADED, payload)
     })
-    this.storageService.on(StorageEvents.SET_CHANNEL_SUBSCRIBED, (payload: SetChannelSubscribedPayload) => {
+    this.storageService.on(StorageEvents.CHANNEL_SUBSCRIBED, (payload: ChannelSubscribedPayload) => {
       this.serverIoProvider.io.emit(SocketActionTypes.CHANNEL_SUBSCRIBED, payload)
-    })
-    this.storageService.on(StorageEvents.CREATED_CHANNEL, (payload: CreatedChannelResponse) => {
-      this.logger(`Storage - ${StorageEvents.CREATED_CHANNEL}: ${payload.channel.name}`)
-      this.serverIoProvider.io.emit(SocketActionTypes.CREATED_CHANNEL, payload)
     })
     this.storageService.on(StorageEvents.REMOVE_DOWNLOAD_STATUS, (payload: RemoveDownloadStatus) => {
       this.serverIoProvider.io.emit(SocketActionTypes.REMOVE_DOWNLOAD_STATUS, payload)
@@ -607,47 +614,22 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.storageService.on(StorageEvents.UPDATE_MESSAGE_MEDIA, (payload: FileMetadata) => {
       this.serverIoProvider.io.emit(SocketActionTypes.UPDATE_MESSAGE_MEDIA, payload)
     })
-    this.storageService.on(StorageEvents.LOAD_ALL_DIRECT_MESSAGES, payload => {
-      if (payload.messages.length === 0) {
-        return
-      }
-      this.serverIoProvider.io.emit(SocketActionTypes.RESPONSE_FETCH_ALL_DIRECT_MESSAGES, payload)
-    })
     this.storageService.on(StorageEvents.UPDATE_PEERS_LIST, (payload: StorePeerListPayload) => {
       this.serverIoProvider.io.emit(SocketActionTypes.PEER_LIST, payload)
     })
     this.storageService.on(StorageEvents.SEND_PUSH_NOTIFICATION, (payload: PushNotificationPayload) => {
       this.serverIoProvider.io.emit(SocketActionTypes.PUSH_NOTIFICATION, payload)
     })
-    this.storageService.on(StorageEvents.CHECK_FOR_MISSING_FILES, (payload: CommunityId) => {
-      this.serverIoProvider.io.emit(SocketActionTypes.CHECK_FOR_MISSING_FILES, payload)
+    this.storageService.on(StorageEvents.REPLICATED_CSR, async (payload: { csrs: string[] }) => {
+      this.logger(`Storage - ${StorageEvents.REPLICATED_CSR}`)
+      this.libp2pService.emit(Libp2pEvents.DIAL_PEERS, await getLibp2pAddressesFromCsrs(payload.csrs))
+      this.serverIoProvider.io.emit(SocketActionTypes.RESPONSE_GET_CSRS, payload)
+      this.registrationService.emit(RegistrationEvents.REGISTER_USER_CERTIFICATE, payload)
     })
-    this.storageService.on(StorageEvents.CHANNEL_DELETION_RESPONSE, (payload: { channelId: string }) => {
-      this.logger(`Storage - ${StorageEvents.CHANNEL_DELETION_RESPONSE}`)
-      this.serverIoProvider.io.emit(SocketActionTypes.CHANNEL_DELETION_RESPONSE, payload)
+    this.storageService.on(StorageEvents.COMMUNITY_METADATA_LOADED, async (meta: CommunityMetadata) => {
+      this.logger(`Storage - ${StorageEvents.COMMUNITY_METADATA_LOADED}: ${meta}`)
+      this.serverIoProvider.io.emit(SocketActionTypes.COMMUNITY_METADATA_LOADED, meta)
     })
-    this.storageService.on(
-      StorageEvents.REPLICATED_CSR,
-      async (payload: { csrs: string[]; certificates: string[]; id: string }) => {
-        this.logger(`Storage - ${StorageEvents.REPLICATED_CSR}`)
-        this.libp2pService.emit(Libp2pEvents.DIAL_PEERS, await getLibp2pAddressesFromCsrs(payload.csrs))
-        this.serverIoProvider.io.emit(SocketActionTypes.RESPONSE_GET_CSRS, { csrs: payload.csrs })
-        this.registrationService.emit(RegistrationEvents.REGISTER_USER_CERTIFICATE, payload)
-      }
-    )
-
-    this.socketService.on(SocketActionTypes.SEND_COMMUNITY_METADATA, async (payload: CommunityMetadata) => {
-      await this.storageService?.updateCommunityMetadata(payload)
-    })
-
-    this.storageService.on(StorageEvents.COMMUNITY_METADATA_SAVED, async (meta: CommunityMetadata) => {
-      this.logger(`Storage - ${StorageEvents.COMMUNITY_METADATA_SAVED}: ${meta}`)
-      this.storageService?.updateMetadata(meta)
-      this.serverIoProvider.io.emit(SocketActionTypes.COMMUNITY_METADATA_SAVED, meta)
-    })
-
-    // User Profile
-
     this.storageService.on(StorageEvents.LOADED_USER_PROFILES, (payload: UserProfilesLoadedEvent) => {
       this.serverIoProvider.io.emit(SocketActionTypes.LOADED_USER_PROFILES, payload)
     })

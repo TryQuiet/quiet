@@ -68,19 +68,6 @@ export interface MessageSendingStatus {
   status: SendingStatus
 }
 
-export interface AskForMessagesPayload {
-  ids: string[]
-  peerId: string
-  channelId: string
-  communityId: string
-}
-
-export interface ChannelMessagesIdsResponse {
-  ids: string[]
-  channelId: string
-  communityId: string
-}
-
 export interface DeleteChannelEntryPayload {
   channelId: string
 }

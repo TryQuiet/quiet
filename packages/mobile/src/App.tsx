@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useDispatch } from 'react-redux'
 
 import { LogBox, StatusBar } from 'react-native'
@@ -73,6 +73,10 @@ function App(): JSX.Element {
   const dispatch = useDispatch()
 
   const confirmationBox = useConfirmationBox()
+
+  useEffect(() => {
+    console.log('LAUNCHED APPLICATION: ', (Math.random() + 1).toString(36).substring(7))
+  }, [])
 
   return (
     <SafeAreaProvider>

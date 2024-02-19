@@ -17,7 +17,6 @@ import { socketEventData } from '../renderer/testUtils/socket'
 import {
   identity,
   communities,
-  SocketActionTypes,
   RegisterUserCertificatePayload,
   InitCommunityPayload,
   ErrorCodes,
@@ -37,6 +36,7 @@ import {
   ErrorPayload,
   ResponseLaunchCommunityPayload,
   SendOwnerCertificatePayload,
+  SocketActionTypes,
 } from '@quiet/types'
 import { composeInvitationShareUrl } from '@quiet/common'
 
@@ -190,10 +190,20 @@ describe('User', () => {
         "PublicChannels/channelsReplicated",
         "PublicChannels/addChannel",
         "Messages/addPublicChannelsMessagesBase",
+        "PublicChannels/sendIntroductionMessage",
+        "Messages/sendMessage",
+        "Identity/updateIdentity",
         "Modals/closeModal",
         "Messages/lazyLoading",
         "Messages/resetCurrentPublicChannelCache",
         "Messages/resetCurrentPublicChannelCache",
+        "Messages/addMessagesSendingStatus",
+        "Messages/addMessageVerificationStatus",
+        "Messages/addMessages",
+        "PublicChannels/cacheMessages",
+        "Identity/verifyJoinTimestamp",
+        "PublicChannels/updateNewestMessage",
+        "Identity/updateJoinTimestamp",
       ]
     `)
   })

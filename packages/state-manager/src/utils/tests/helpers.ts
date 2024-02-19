@@ -85,7 +85,7 @@ export const lastActionReducer = (state: any[] = [], action: any) => {
 //       peersArr = action.payload
 //       connectionTime = getCurrentTime()
 //       break
-//     case 'Messages/incomingMessages':
+//     case 'Messages/addMessages':
 //       const publicKey = state[0].pubKey
 //       const messages: ChannelMessage[] = action.payload.messages
 

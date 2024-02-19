@@ -25,19 +25,17 @@ import {
   type StorePeerListPayload,
   type ResponseCreateNetworkPayload,
   type ResponseLaunchCommunityPayload,
-  type ChannelDeletionResponsePayload,
-  type ChannelMessagesIdsResponse,
+  type ChannelMessageIdsResponse,
   type ChannelsReplicatedPayload,
   type CommunityId,
-  type CreatedChannelResponse,
   type DownloadStatus,
   type ErrorPayload,
   type FileMetadata,
-  type IncomingMessages,
+  type MessagesLoadedPayload,
   type NetworkDataPayload,
   type RemoveDownloadStatus,
   type SendCertificatesResponse,
-  type SetChannelSubscribedPayload,
+  type ChannelSubscribedPayload,
   type SavedOwnerCertificatePayload,
   type SendOwnerCertificatePayload,
   type SendCsrsResponse,
@@ -50,14 +48,13 @@ const log = logger('socket')
 
 export function subscribe(socket: Socket) {
   return eventChannel<
-    | ReturnType<typeof messagesActions.incomingMessages>
-    | ReturnType<typeof messagesActions.responseSendMessagesIds>
-    | ReturnType<typeof messagesActions.removePendingMessageStatus>
+    | ReturnType<typeof messagesActions.addMessages>
+    | ReturnType<typeof messagesActions.removePendingMessageStatuses>
+    | ReturnType<typeof messagesActions.checkForMessages>
     | ReturnType<typeof messagesActions.addPublicChannelsMessagesBase>
     | ReturnType<typeof publicChannelsActions.addChannel>
     | ReturnType<typeof publicChannelsActions.setChannelSubscribed>
     | ReturnType<typeof publicChannelsActions.sendInitialChannelMessage>
-    | ReturnType<typeof publicChannelsActions.sendNewUserInfoMessage>
     | ReturnType<typeof publicChannelsActions.channelsReplicated>
     | ReturnType<typeof publicChannelsActions.createGeneralChannel>
     | ReturnType<typeof publicChannelsActions.channelDeletionResponse>
@@ -103,7 +100,7 @@ export function subscribe(socket: Socket) {
     })
     // Misc
     socket.on(SocketActionTypes.PEER_CONNECTED, (payload: { peers: string[] }) => {
-      log({ payload })
+      log(`${SocketActionTypes.PEER_CONNECTED}: ${payload}`)
       emit(networkActions.addConnectedPeers(payload.peers))
     })
     socket.on(SocketActionTypes.PEER_DISCONNECTED, (payload: NetworkDataPayload) => {
@@ -127,39 +124,16 @@ export function subscribe(socket: Socket) {
     socket.on(SocketActionTypes.CHANNELS_REPLICATED, (payload: ChannelsReplicatedPayload) => {
       emit(publicChannelsActions.channelsReplicated(payload))
     })
-    socket.on(SocketActionTypes.CHANNEL_SUBSCRIBED, (payload: SetChannelSubscribedPayload) => {
+    socket.on(SocketActionTypes.CHANNEL_SUBSCRIBED, (payload: ChannelSubscribedPayload) => {
       emit(publicChannelsActions.setChannelSubscribed(payload))
     })
-    socket.on(SocketActionTypes.CHANNEL_DELETION_RESPONSE, (payload: ChannelDeletionResponsePayload) => {
-      emit(publicChannelsActions.channelDeletionResponse(payload))
-    })
-    socket.on(SocketActionTypes.CREATED_CHANNEL, (payload: CreatedChannelResponse) => {
-      emit(
-        messagesActions.addPublicChannelsMessagesBase({
-          channelId: payload.channel.id,
-        })
-      )
-      emit(publicChannelsActions.addChannel(payload))
-      emit(
-        publicChannelsActions.sendInitialChannelMessage({
-          channelName: payload.channel.name,
-          channelId: payload.channel.id,
-        })
-      )
-    })
     // Messages
-    socket.on(SocketActionTypes.SEND_MESSAGES_IDS, (payload: ChannelMessagesIdsResponse) => {
-      emit(messagesActions.responseSendMessagesIds(payload))
+    socket.on(SocketActionTypes.MESSAGE_IDS_LOADED, (payload: ChannelMessageIdsResponse) => {
+      emit(messagesActions.checkForMessages(payload))
     })
-    socket.on(SocketActionTypes.INCOMING_MESSAGES, (payload: IncomingMessages) => {
-      const { messages } = payload
-      for (const message of messages) {
-        emit(messagesActions.removePendingMessageStatus(message.id))
-      }
-      emit(messagesActions.incomingMessages(payload))
-    })
-    socket.on(SocketActionTypes.CHECK_FOR_MISSING_FILES, (payload: CommunityId) => {
-      emit(filesActions.checkForMissingFiles(payload))
+    socket.on(SocketActionTypes.MESSAGES_LOADED, (payload: MessagesLoadedPayload) => {
+      emit(messagesActions.removePendingMessageStatuses(payload))
+      emit(messagesActions.addMessages(payload))
     })
 
     // Community
@@ -207,7 +181,7 @@ export function subscribe(socket: Socket) {
     })
     // Certificates
     socket.on(SocketActionTypes.RESPONSE_GET_CSRS, (payload: SendCsrsResponse) => {
-      console.log('REPONSE_GET_CSRS')
+      log(`${SocketActionTypes.RESPONSE_GET_CSRS}`)
       emit(identityActions.checkLocalCsr(payload))
       emit(usersActions.storeCsrs(payload))
     })
@@ -230,8 +204,8 @@ export function subscribe(socket: Socket) {
       )
       emit(identityActions.savedOwnerCertificate(payload.communityId))
     })
-    socket.on(SocketActionTypes.COMMUNITY_METADATA_SAVED, (payload: CommunityMetadata) => {
-      log(`${SocketActionTypes.COMMUNITY_METADATA_SAVED}: ${payload}`)
+    socket.on(SocketActionTypes.COMMUNITY_METADATA_LOADED, (payload: CommunityMetadata) => {
+      log(`${SocketActionTypes.COMMUNITY_METADATA_LOADED}: ${payload}`)
       emit(communitiesActions.saveCommunityMetadata(payload))
     })
     socket.on(SocketActionTypes.LIBP2P_PSK_SAVED, (payload: { psk: string }) => {
@@ -242,7 +216,7 @@ export function subscribe(socket: Socket) {
     // User Profile
 
     socket.on(SocketActionTypes.LOADED_USER_PROFILES, (payload: UserProfilesLoadedEvent) => {
-      console.log('Loaded user profiles, saving to store')
+      log(`${SocketActionTypes.LOADED_USER_PROFILES}`)
       emit(usersActions.setUserProfiles(payload.profiles))
     })
 

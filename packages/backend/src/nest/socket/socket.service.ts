@@ -1,12 +1,13 @@
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common'
 import {
   SocketActionTypes,
-  CreateChannelPayload,
+  type CreateChannelPayload,
+  type CreateChannelResponse,
   SendMessagePayload,
   UploadFilePayload,
   DownloadFilePayload,
   CancelDownloadPayload,
-  AskForMessagesPayload,
+  GetMessagesPayload,
   ConnectionProcessInfo,
   RegisterOwnerCertificatePayload,
   SaveOwnerCertificatePayload,
@@ -15,7 +16,10 @@ import {
   DeleteFilesFromChannelSocketPayload,
   SaveCSRPayload,
   CommunityMetadata,
+  type PermsData,
   type UserProfile,
+  type DeleteChannelResponse,
+  type MessagesLoadedPayload,
 } from '@quiet/types'
 import EventEmitter from 'events'
 import { CONFIG_OPTIONS, SERVER_IO_PROVIDER } from '../const'
@@ -85,22 +89,34 @@ export class SocketService extends EventEmitter implements OnModuleInit {
       })
 
       // ====== Channels =====
-      socket.on(SocketActionTypes.CREATE_CHANNEL, async (payload: CreateChannelPayload) => {
-        this.emit(SocketActionTypes.CREATE_CHANNEL, payload)
-      })
+      socket.on(
+        SocketActionTypes.CREATE_CHANNEL,
+        (payload: CreateChannelPayload, callback: (response: CreateChannelResponse) => void) => {
+          this.emit(SocketActionTypes.CREATE_CHANNEL, payload, callback)
+        }
+      )
 
-      socket.on(SocketActionTypes.DELETE_CHANNEL, async (payload: { channelId: string; ownerPeerId: string }) => {
-        this.emit(SocketActionTypes.DELETE_CHANNEL, payload)
-      })
+      socket.on(
+        SocketActionTypes.DELETE_CHANNEL,
+        async (
+          payload: { channelId: string; ownerPeerId: string },
+          callback: (response: DeleteChannelResponse) => void
+        ) => {
+          this.emit(SocketActionTypes.DELETE_CHANNEL, payload, callback)
+        }
+      )
 
       // ====== Messages ======
       socket.on(SocketActionTypes.SEND_MESSAGE, async (payload: SendMessagePayload) => {
         this.emit(SocketActionTypes.SEND_MESSAGE, payload)
       })
 
-      socket.on(SocketActionTypes.ASK_FOR_MESSAGES, async (payload: AskForMessagesPayload) => {
-        this.emit(SocketActionTypes.ASK_FOR_MESSAGES, payload)
-      })
+      socket.on(
+        SocketActionTypes.GET_MESSAGES,
+        (payload: GetMessagesPayload, callback: (response?: MessagesLoadedPayload) => void) => {
+          this.emit(SocketActionTypes.GET_MESSAGES, payload, callback)
+        }
+      )
 
       // ====== Files ======
       socket.on(SocketActionTypes.UPLOAD_FILE, async (payload: UploadFilePayload) => {
@@ -119,25 +135,6 @@ export class SocketService extends EventEmitter implements OnModuleInit {
         this.emit(SocketActionTypes.DELETE_FILES_FROM_CHANNEL, payload)
       })
 
-      // ====== Direct Messages ======
-      socket.on(
-        SocketActionTypes.INITIALIZE_CONVERSATION,
-        async (peerId: string, { address, encryptedPhrase }: { address: string; encryptedPhrase: string }) => {
-          this.emit(SocketActionTypes.INITIALIZE_CONVERSATION, { address, encryptedPhrase })
-        }
-      )
-
-      socket.on(SocketActionTypes.GET_PRIVATE_CONVERSATIONS, async (peerId: string) => {
-        this.emit(SocketActionTypes.GET_PRIVATE_CONVERSATIONS, { peerId })
-      })
-
-      socket.on(
-        SocketActionTypes.SEND_DIRECT_MESSAGE,
-        async (peerId: string, { channelId, message }: { channelId: string; message: string }) => {
-          this.emit(SocketActionTypes.SEND_DIRECT_MESSAGE, { channelId, message })
-        }
-      )
-
       // ====== Certificates ======
       socket.on(SocketActionTypes.SAVE_USER_CSR, async (payload: SaveCSRPayload) => {
         this.logger(`On ${SocketActionTypes.SAVE_USER_CSR}`)
@@ -153,10 +150,6 @@ export class SocketService extends EventEmitter implements OnModuleInit {
       })
 
       // ====== Community ======
-      socket.on(SocketActionTypes.SEND_COMMUNITY_METADATA, (payload: CommunityMetadata) => {
-        this.emit(SocketActionTypes.SEND_COMMUNITY_METADATA, payload)
-      })
-
       socket.on(SocketActionTypes.CREATE_COMMUNITY, async (payload: InitCommunityPayload) => {
         this.logger(`Creating community ${payload.id}`)
         this.emit(SocketActionTypes.CREATE_COMMUNITY, payload)
@@ -177,9 +170,21 @@ export class SocketService extends EventEmitter implements OnModuleInit {
         this.logger('Leaving community')
         this.emit(SocketActionTypes.LEAVE_COMMUNITY)
       })
+
       socket.on(SocketActionTypes.LIBP2P_PSK_SAVED, payload => {
         this.logger('Saving PSK', payload)
         this.emit(SocketActionTypes.LIBP2P_PSK_SAVED, payload)
+      })
+
+      socket.on(
+        SocketActionTypes.SEND_COMMUNITY_METADATA,
+        (payload: CommunityMetadata, callback: (response?: CommunityMetadata) => void) => {
+          this.emit(SocketActionTypes.SEND_COMMUNITY_METADATA, payload, callback)
+        }
+      )
+
+      socket.on(SocketActionTypes.SEND_COMMUNITY_CA_DATA, (payload: PermsData) => {
+        this.emit(SocketActionTypes.SEND_COMMUNITY_CA_DATA, payload)
       })
 
       // ====== Users ======

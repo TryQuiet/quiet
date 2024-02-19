@@ -1,13 +1,13 @@
 import { select, put, delay } from 'typed-redux-saga'
 import { type PayloadAction } from '@reduxjs/toolkit'
-import { type messagesActions } from '../messages.slice'
+import { messagesActions } from '../messages.slice'
 import { messagesSelectors } from '../messages.selectors'
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import { type CacheMessagesPayload, type ChannelMessage } from '@quiet/types'
 
-export function* incomingMessagesSaga(
-  action: PayloadAction<ReturnType<typeof messagesActions.incomingMessages>['payload']>
+export function* addMessagesSaga(
+  action: PayloadAction<ReturnType<typeof messagesActions.addMessages>['payload']>
 ): Generator {
   for (const incomingMessage of action.payload.messages) {
     // Proceed only for messages from current channel

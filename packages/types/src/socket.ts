@@ -1,17 +1,15 @@
 export enum SocketActionTypes {
-  // A
-  ASK_FOR_MESSAGES = 'askForMessages',
   // C
   CANCEL_DOWNLOAD = 'cancelDownload',
   CHANNELS_REPLICATED = 'channelsReplicated',
   CHANNEL_SUBSCRIBED = 'channelSubscribed',
   CLOSE = 'close',
   COMMUNITY = 'community',
+  COMMUNITY_METADATA_LOADED = 'communityMetadataLoaded',
   CONNECTED_PEERS = 'connectedPeers',
   CONNECT_TO_WEBSOCKET_SERVER = 'connectToWebsocketServer',
   CONNECTION = 'connection',
   CREATE_CHANNEL = 'createChannel',
-  CREATED_CHANNEL = 'createdChannel',
   CREATE_COMMUNITY = 'createCommunity',
   CREATE_NETWORK = 'createNetwork',
   // D
@@ -20,19 +18,18 @@ export enum SocketActionTypes {
   DOWNLOAD_PROGRESS = 'downloadProgress',
   DELETE_CHANNEL = 'deleteChannel',
   DELETE_FILES_FROM_CHANNEL = 'deleteFilesFromChannel',
-  CHANNEL_DELETION_RESPONSE = 'channelDeletionResponse',
   // E
   ERROR = 'error',
   // G
-  GET_PRIVATE_CONVERSATIONS = 'getPrivateConversations',
-  // I
-  INCOMING_MESSAGES = 'incomingMessages',
-  INITIALIZE_CONVERSATION = 'initializeConversation',
+  GET_MESSAGES = 'getMessages',
   // L
   LAUNCH_COMMUNITY = 'launchCommunity',
   LEAVE_COMMUNITY = 'leaveCommunity',
   LIBP2P_PSK_SAVED = 'libp2pPskSaved',
   LOADED_USER_PROFILES = 'loadedUserProfiles',
+  // M
+  MESSAGE_IDS_LOADED = 'messageIdsLoaded',
+  MESSAGES_LOADED = 'messagesLoaded',
   // N
   NETWORK = 'network',
   NEW_COMMUNITY = 'newCommunity',
@@ -45,23 +42,18 @@ export enum SocketActionTypes {
   REGISTER_USER_CERTIFICATE = 'registerUserCertificate',
   REGISTER_OWNER_CERTIFICATE = 'registerOwnerCertificate',
   REMOVE_DOWNLOAD_STATUS = 'removeDownloadStatus',
-  RESPONSE_FETCH_ALL_DIRECT_MESSAGES = 'responseFetchAllDirectMessages',
   RESPONSE_GET_CERTIFICATES = 'responseGetCertificates',
   RESPONSE_GET_CSRS = 'responseGetCsrs',
-  RESPONSE_GET_PRIVATE_CONVERSATIONS = 'responseGetPrivateConversations',
   REQUEST_PEER_ID = 'requestPeerId',
   // S
   SAVED_OWNER_CERTIFICATE = 'savedOwnerCertificate',
   SAVE_USER_CSR = 'saveUserCsr',
   SAVE_USER_PROFILE = 'saveUserProfile',
   SAVED_USER_CSR = 'savedUserCsr',
-  SEND_DIRECT_MESSAGE = 'sendDirectMessage',
   SEND_MESSAGE = 'sendMessage',
-  SEND_MESSAGES_IDS = 'sendIds',
   SEND_PEER_ID = 'sendPeerId',
   SEND_COMMUNITY_METADATA = 'sendCommunityMetadata',
   SEND_COMMUNITY_CA_DATA = 'sendCommunityCaData',
-  COMMUNITY_METADATA_SAVED = 'communityMetadataSaved',
   //  T
   TOR_INITIALIZED = 'torInitialized',
   CONNECTION_PROCESS_INFO = 'connectionProcess',
@@ -69,5 +61,4 @@ export enum SocketActionTypes {
   UPDATE_MESSAGE_MEDIA = 'updateMessageMedia',
   UPLOAD_FILE = 'uploadFile',
   UPLOADED_FILE = 'uploadedFile',
-  CHECK_FOR_MISSING_FILES = 'checkForMissingFiles',
 }

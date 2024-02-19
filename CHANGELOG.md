@@ -1,3 +1,29 @@
+[unreleased]
+
+# Refactorings:
+
+* Rename message retrieval events/sagas and use ack feature
+* Rename LOAD_MESSAGES event and incomingMessages reducer
+* Use socket.io ack for CREATE_CHANNEL event
+* Introduce socket.io acknowledgements
+
+# Fixes:
+
+* Remove duplicate introduction messages once again
+* Prevent channel creation with names that start with special character, then a hyphen
+* Choose random ports for Tor services (iOS)
+
+[2.1.1]
+
+# Fixes:
+
+* Make sure address of the inviting peer is in the invitation link
+* Opening the mobile app with joining links has been corrected.
+
+# Refactorings:
+
+* Remove unused backend events and state-manager event types
+
 [2.1.0]
 
 # New features:
@@ -12,6 +38,7 @@
 
 # Refactorings:
 
+* Refactor registration service, replace promise waiting mechanism around certificate requests and help prevent duplicate username registration
 * Removed SAVE_OWNER_CERTIFICATE event.
 * Removed registrar reminders and rename LAUNCH_REGISTRAR.
 * Removed unused SEND_USER_CERTIFICATE event.

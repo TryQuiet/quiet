@@ -5,20 +5,15 @@ export enum StorageEvents {
   UPDATE_PEERS_LIST = 'updatePeersList',
   // Public Channels
   LOAD_PUBLIC_CHANNELS = 'loadPublicChannels',
-  LOAD_ALL_PRIVATE_CONVERSATIONS = 'loadAllPrivateConversations',
-  LOAD_MESSAGES = 'loadMessages',
-  SEND_MESSAGES_IDS = 'sendMessagesIds',
-  SET_CHANNEL_SUBSCRIBED = 'setChannelSubscribed',
-  CREATED_CHANNEL = 'createdChannel',
-  CHANNEL_DELETION_RESPONSE = 'channelDeletionResponse',
+  MESSAGES_LOADED = 'loadMessages',
+  MESSAGE_IDS_LOADED = 'messageIdsLoaded',
+  CHANNEL_SUBSCRIBED = 'channelSubscribed',
   // Files
   REMOVE_DOWNLOAD_STATUS = 'removeDownloadStatus',
   UPLOADED_FILE = 'uploadedFile',
   UPDATE_DOWNLOAD_PROGRESS = 'updateDownloadProgress',
   UPDATE_MESSAGE_MEDIA = 'updateMessageMedia',
   CHECK_FOR_MISSING_FILES = 'checkForMissingFiles',
-  // Direct Messages
-  LOAD_ALL_DIRECT_MESSAGES = 'loadAllDirectMessages',
   // Misc
   SEND_PUSH_NOTIFICATION = 'sendPushNotification',
   // Users
@@ -28,7 +23,7 @@ export enum StorageEvents {
   REPLICATED_CERTIFICATES = 'replicatedCertificates',
   LOADED_USER_PROFILES = 'loadedUserProfiles',
   // Community
-  COMMUNITY_METADATA_SAVED = 'communityMetadataSaved',
+  COMMUNITY_METADATA_LOADED = 'communityMetadataLoaded',
 }
 
 export interface InitStorageParams {

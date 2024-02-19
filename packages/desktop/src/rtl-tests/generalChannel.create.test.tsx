@@ -8,13 +8,8 @@ import MockedSocket from 'socket.io-mock'
 import { ioMock } from '../shared/setupTests'
 import { socketEventData } from '../renderer/testUtils/socket'
 import { AnyAction } from 'redux'
-import {
-  identity,
-  publicChannels,
-  getFactory,
-  SocketActionTypes,
-  ChannelsReplicatedPayload,
-} from '@quiet/state-manager'
+import { identity, publicChannels, getFactory, ChannelsReplicatedPayload } from '@quiet/state-manager'
+import { SocketActionTypes } from '@quiet/types'
 import Channel from '../renderer/components/Channel/Channel'
 import { waitFor } from '@testing-library/dom'
 
@@ -55,13 +50,17 @@ describe('General channel', () => {
       nickname: 'alice',
     })
 
-    jest.spyOn(socket, 'emit').mockImplementation(async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
+    const mockImpl = async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
       const action = input[0]
       if (action === SocketActionTypes.CREATE_CHANNEL) {
         const payload = input[1] as ChannelsReplicatedPayload
         expect(payload.channels.channel?.name).toEqual('general')
       }
-    })
+    }
+
+    jest.spyOn(socket, 'emit').mockImplementation(mockImpl)
+    // @ts-ignore
+    socket.emitWithAck = mockImpl
 
     // Log all the dispatched actions in order
     const actions: AnyAction[] = []

@@ -4,7 +4,7 @@
   </h1>
 
   <h3 align="center">
-    Current release owner 🎉⛸️🦆 <a href='https://github.com/siepra'>@siepra</a> (January 2024)
+    Current release owner 🎉⛸️🦆 <a href='https://github.com/leblowl'>@leblowl</a> (February 2024)
   </h3>
 
   <br />
@@ -29,6 +29,7 @@ From this moment, all the fixes (patches) for the last supported version are bei
 
 ## Release candidates (alpha releases)
 Pre-release builds should only be triggered from the release branch and then delivered to QA.  
+Alpha versions should be delivered to QA by updating GitHub with a link to the correct versions (for desktop) and numbers of current versions (for mobile). All GitHub issues included in the released alpha version should be moved to the Ready for QA column.
 If QA reports problems that needs to be solved, the fixes must be merged into the release and develop branches, then a patched pre-release is to be built.
 
 
@@ -65,7 +66,7 @@ By the time release is ready, ask @holmes for <b>CHANGELOG.md</b> cosmetic revie
 ## Changelog / Releases Page
 Root <b>CHANGELOG.md</b> file contents are being copied into each packages' ones.  
 This process is automated by `copy-changelog.js` script hooked on `postpublish` action.
-
+- [ ] Edit release notes to match style guide (See: [RELEASE_NOTES_GUIDE.md](RELEASE_NOTES_GUIDE.md))
 
 ## QA
 QA tests for issues on all the supported platforms and moves discovered blocking issues intoto the Sprint column, then mentions them in Slack <b>#qa</b> channel, following the criteria:  

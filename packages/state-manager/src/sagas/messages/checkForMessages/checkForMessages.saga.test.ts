@@ -58,7 +58,7 @@ describe('checkForMessagesSaga', () => {
     const reducer = combineReducers(reducers)
     await expectSaga(
       checkForMessagesSaga,
-      messagesActions.responseSendMessagesIds({
+      messagesActions.checkForMessages({
         ids: [message.id, 'jf84hwwa', 'kl12sa0a'],
         channelId: generalChannel.id,
         communityId: community.id,
@@ -67,7 +67,7 @@ describe('checkForMessagesSaga', () => {
       .withReducer(reducer)
       .withState(store.getState())
       .put(
-        messagesActions.askForMessages({
+        messagesActions.getMessages({
           peerId: alice.peerId.id,
           communityId: community.id,
           channelId: generalChannel.id,

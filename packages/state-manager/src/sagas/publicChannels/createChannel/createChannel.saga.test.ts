@@ -26,7 +26,7 @@ describe('createChannelSaga', () => {
     factory = await getFactory(store)
   })
 
-  const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
+  const socket = { emit: jest.fn(), emitWithAck: jest.fn(), on: jest.fn() } as unknown as Socket
 
   const channel: PublicChannel = {
     name: 'general',
@@ -69,7 +69,7 @@ describe('createChannelSaga', () => {
           },
         }
       )
-      .apply(socket, socket.emit, [
+      .apply(socket, socket.emitWithAck, [
         SocketActionTypes.CREATE_CHANNEL,
         {
           channel,

@@ -231,30 +231,22 @@ describe('StorageService', () => {
       await storageService.init(peerId)
       await storageService.subscribeToChannel(channelio)
 
-      const eventSpy = jest.spyOn(storageService, 'emit')
-
-      await storageService.deleteChannel({ channelId: channelio.id, ownerPeerId: peerId.toString() })
+      const result = await storageService.deleteChannel({ channelId: channelio.id, ownerPeerId: peerId.toString() })
+      expect(result).toEqual({ channelId: channelio.id })
 
       const channelFromKeyValueStore = storageService.channels.get(channelio.id)
       expect(channelFromKeyValueStore).toBeUndefined()
-      expect(eventSpy).toBeCalledWith('channelDeletionResponse', {
-        channelId: channelio.id,
-      })
     })
 
     it('delete channel as standard user', async () => {
       await storageService.init(peerId)
       await storageService.subscribeToChannel(channelio)
 
-      const eventSpy = jest.spyOn(storageService, 'emit')
-
-      await storageService.deleteChannel({ channelId: channelio.id, ownerPeerId: 'random peer id' })
+      const result = await storageService.deleteChannel({ channelId: channelio.id, ownerPeerId: 'random peer id' })
+      expect(result).toEqual({ channelId: channelio.id })
 
       const channelFromKeyValueStore = storageService.channels.get(channelio.id)
       expect(channelFromKeyValueStore).toEqual(channelio)
-      expect(eventSpy).toBeCalledWith('channelDeletionResponse', {
-        channelId: channelio.id,
-      })
     })
 
     it('subscribes to pubsub on channel creation', async () => {
@@ -607,65 +599,6 @@ describe('StorageService', () => {
       }, 2000)
 
       await expect(storageService.deleteFilesFromChannel(messages)).resolves.not.toThrowError()
-    })
-  })
-
-  describe.skip('replicate certificatesRequests event', () => {
-    const replicatedEvent = async () => {
-      // @ts-ignore - Property 'certificates' is private
-      storageService.certificatesRequestsStore.events.emit('replicated')
-      await new Promise<void>(resolve => setTimeout(() => resolve(), 2000))
-    }
-
-    it('replicated event ', async () => {
-      await storageService.init(peerId)
-      const spyOnUpdatePeersList = jest.spyOn(storageService, 'updatePeersList')
-      await replicatedEvent()
-      expect(spyOnUpdatePeersList).toBeCalledTimes(1)
-    })
-
-    it('2 replicated events - first not resolved ', async () => {
-      await storageService.init(peerId)
-      const spyOnUpdatePeersList = jest.spyOn(storageService, 'updatePeersList')
-      await replicatedEvent()
-      await replicatedEvent()
-      expect(spyOnUpdatePeersList).toBeCalledTimes(1)
-    })
-
-    it('2 replicated events - first resolved ', async () => {
-      await storageService.init(peerId)
-      const spyOnUpdatePeersList = jest.spyOn(storageService, 'updatePeersList')
-      await replicatedEvent()
-      await replicatedEvent()
-      storageService.resolveCsrReplicatedPromise(1)
-      await new Promise<void>(resolve => setTimeout(() => resolve(), 500))
-      expect(spyOnUpdatePeersList).toBeCalledTimes(2)
-    })
-
-    it('3 replicated events - no resolved promises', async () => {
-      await storageService.init(peerId)
-      const spyOnUpdatePeersList = jest.spyOn(storageService, 'updatePeersList')
-
-      await replicatedEvent()
-      await replicatedEvent()
-      await replicatedEvent()
-
-      expect(spyOnUpdatePeersList).toBeCalledTimes(1)
-    })
-
-    it('3 replicated events - two resolved promises ', async () => {
-      await storageService.init(peerId)
-      const spyOnUpdatePeersList = jest.spyOn(storageService, 'updatePeersList')
-
-      await replicatedEvent()
-      await replicatedEvent()
-      storageService.resolveCsrReplicatedPromise(1)
-      await new Promise<void>(resolve => setTimeout(() => resolve(), 500))
-      await replicatedEvent()
-      storageService.resolveCsrReplicatedPromise(2)
-      await new Promise<void>(resolve => setTimeout(() => resolve(), 500))
-
-      expect(spyOnUpdatePeersList).toBeCalledTimes(3)
     })
   })
 })

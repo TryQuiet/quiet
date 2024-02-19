@@ -5,11 +5,10 @@ import { createChannelSaga } from './createChannel/createChannel.saga'
 import { deleteChannelSaga } from './deleteChannel/deleteChannel.saga'
 import { createGeneralChannelSaga } from './createGeneralChannel/createGeneralChannel.saga'
 import { sendInitialChannelMessageSaga } from './createGeneralChannel/sendInitialChannelMessage.saga'
-import { sendNewUserInfoMessageSaga } from './sendNewUserInfoMessage/sendNewUserInfoMessage.saga'
 import { clearUnreadChannelsSaga } from './markUnreadChannels/markUnreadChannels.saga'
 import { channelsReplicatedSaga } from './channelsReplicated/channelsReplicated.saga'
 import { channelDeletionResponseSaga } from './channelDeletionResponse/channelDeletionResponse.saga'
-import { sendUnregisteredInfoMessage } from './sendUnregisteredInfoMessage/sendUnregisteredInfoMessage.saga'
+import { sendIntroductionMessageSaga } from './sendIntroductionMessage/sendIntroductionMessage.saga'
 
 export function* publicChannelsMasterSaga(socket: Socket): Generator {
   yield all([
@@ -20,7 +19,6 @@ export function* publicChannelsMasterSaga(socket: Socket): Generator {
     takeEvery(publicChannelsActions.sendInitialChannelMessage.type, sendInitialChannelMessageSaga),
     takeEvery(publicChannelsActions.channelsReplicated.type, channelsReplicatedSaga),
     takeEvery(publicChannelsActions.setCurrentChannel.type, clearUnreadChannelsSaga),
-    takeEvery(publicChannelsActions.sendNewUserInfoMessage.type, sendNewUserInfoMessageSaga),
-    takeEvery(publicChannelsActions.sendUnregisteredInfoMessage.type, sendUnregisteredInfoMessage),
+    takeEvery(publicChannelsActions.sendIntroductionMessage.type, sendIntroductionMessageSaga),
   ])
 }

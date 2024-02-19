@@ -9,7 +9,7 @@ import { type identityActions } from '../../identity/identity.slice'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import { publicChannelsSelectors, selectGeneralChannel } from '../../publicChannels/publicChannels.selectors'
 import { DateTime } from 'luxon'
-import { incomingMessagesSaga } from './incomingMessages.saga'
+import { addMessagesSaga } from './addMessages.saga'
 import { messagesActions } from '../messages.slice'
 import { reducers } from '../../reducers'
 import {
@@ -22,7 +22,7 @@ import {
 } from '@quiet/types'
 import { generateChannelId } from '@quiet/common'
 
-describe('incomingMessagesSaga', () => {
+describe('addMessagesSaga', () => {
   let store: Store
   let factory: FactoryGirl
 
@@ -105,8 +105,8 @@ describe('incomingMessagesSaga', () => {
 
     const reducer = combineReducers(reducers)
     await expectSaga(
-      incomingMessagesSaga,
-      messagesActions.incomingMessages({
+      addMessagesSaga,
+      messagesActions.addMessages({
         messages: [message],
       })
     )
@@ -182,8 +182,8 @@ describe('incomingMessagesSaga', () => {
 
     const reducer = combineReducers(reducers)
     await expectSaga(
-      incomingMessagesSaga,
-      messagesActions.incomingMessages({
+      addMessagesSaga,
+      messagesActions.addMessages({
         messages: [message],
       })
     )
@@ -253,8 +253,8 @@ describe('incomingMessagesSaga', () => {
 
     const reducer = combineReducers(reducers)
     await expectSaga(
-      incomingMessagesSaga,
-      messagesActions.incomingMessages({
+      addMessagesSaga,
+      messagesActions.addMessages({
         messages: [
           {
             ...message,
@@ -313,8 +313,8 @@ describe('incomingMessagesSaga', () => {
 
     const reducer = combineReducers(reducers)
     await expectSaga(
-      incomingMessagesSaga,
-      messagesActions.incomingMessages({
+      addMessagesSaga,
+      messagesActions.addMessages({
         messages: [message],
       })
     )
@@ -364,8 +364,8 @@ describe('incomingMessagesSaga', () => {
 
     const reducer = combineReducers(reducers)
     await expectSaga(
-      incomingMessagesSaga,
-      messagesActions.incomingMessages({
+      addMessagesSaga,
+      messagesActions.addMessages({
         messages: [message],
       })
     )
@@ -443,8 +443,8 @@ describe('incomingMessagesSaga', () => {
 
     const reducer = combineReducers(reducers)
     await expectSaga(
-      incomingMessagesSaga,
-      messagesActions.incomingMessages({
+      addMessagesSaga,
+      messagesActions.addMessages({
         messages: [message],
       })
     )
@@ -524,8 +524,8 @@ describe('incomingMessagesSaga', () => {
 
     const reducer = combineReducers(reducers)
     await expectSaga(
-      incomingMessagesSaga,
-      messagesActions.incomingMessages({
+      addMessagesSaga,
+      messagesActions.addMessages({
         messages: [message],
       })
     )
