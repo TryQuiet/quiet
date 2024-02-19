@@ -237,7 +237,7 @@ describe('Channel', () => {
 
     function* mockIncomingMessages(): Generator {
       yield* apply(socket.socketClient, socket.socketClient.emit, [
-        SocketActionTypes.MESSAGES_LOADED,
+        SocketActionTypes.MESSAGES_STORED,
         {
           messages: [authenticMessage],
           communityId: community.id,
@@ -245,7 +245,7 @@ describe('Channel', () => {
         },
       ])
       yield* apply(socket.socketClient, socket.socketClient.emit, [
-        SocketActionTypes.MESSAGES_LOADED,
+        SocketActionTypes.MESSAGES_STORED,
         {
           messages: [spoofedMessage],
           communityId: community.id,
@@ -309,7 +309,7 @@ describe('Channel', () => {
 
     function* mockIncomingMessages(): Generator {
       yield* apply(socket.socketClient, socket.socketClient.emit, [
-        SocketActionTypes.MESSAGES_LOADED,
+        SocketActionTypes.MESSAGES_STORED,
         {
           messages: [aliceMessage],
           communityId: community.id,
@@ -458,7 +458,7 @@ describe('Channel', () => {
 
     function* mockIncomingMessages(): Generator {
       yield* apply(socket.socketClient, socket.socketClient.emit, [
-        SocketActionTypes.MESSAGES_LOADED,
+        SocketActionTypes.MESSAGES_STORED,
         {
           messages: [sentMessage],
           communityId: community.id,
@@ -532,7 +532,7 @@ describe('Channel', () => {
 
     function* mockIncomingMessages(): Generator {
       yield* apply(socket.socketClient, socket.socketClient.emit, [
-        SocketActionTypes.MESSAGES_LOADED,
+        SocketActionTypes.MESSAGES_STORED,
         {
           messages: [message1],
           communityId: community.id,
@@ -540,7 +540,7 @@ describe('Channel', () => {
         },
       ])
       yield* apply(socket.socketClient, socket.socketClient.emit, [
-        SocketActionTypes.MESSAGES_LOADED,
+        SocketActionTypes.MESSAGES_STORED,
         {
           messages: [message3],
           communityId: community.id,
@@ -548,7 +548,7 @@ describe('Channel', () => {
         },
       ])
       yield* apply(socket.socketClient, socket.socketClient.emit, [
-        SocketActionTypes.MESSAGES_LOADED,
+        SocketActionTypes.MESSAGES_STORED,
         {
           messages: [message2],
           communityId: community.id,
@@ -772,7 +772,7 @@ describe('Channel', () => {
       if (action === SocketActionTypes.LAUNCH_COMMUNITY) {
         const data = input[1] as InitCommunityPayload
         const payload = data
-        return socket.socketClient.emit<ResponseLaunchCommunityPayload>(SocketActionTypes.COMMUNITY, {
+        return socket.socketClient.emit<ResponseLaunchCommunityPayload>(SocketActionTypes.COMMUNITY_LAUNCHED, {
           id: payload.id,
         })
       }
@@ -786,7 +786,7 @@ describe('Channel', () => {
           setTimeout(resolve, uploadingDelay)
         })
 
-        socket.socketClient.emit<FileMetadata>(SocketActionTypes.UPLOADED_FILE, {
+        socket.socketClient.emit<FileMetadata>(SocketActionTypes.FILE_UPLOADED, {
           ...payload.file,
           cid: cid,
           path: null,
@@ -803,11 +803,11 @@ describe('Channel', () => {
       if (action === SocketActionTypes.SEND_MESSAGE) {
         const data = input[1] as SendMessagePayload
         const payload = data
-        return socket.socketClient.emit<MessagesLoadedPayload>(SocketActionTypes.MESSAGES_LOADED, {
+        return socket.socketClient.emit<MessagesLoadedPayload>(SocketActionTypes.MESSAGES_STORED, {
           messages: [payload.message],
         })
       }
-      if (action === SocketActionTypes.MESSAGES_LOADED) {
+      if (action === SocketActionTypes.MESSAGES_STORED) {
         const data = input[1] as MessagesLoadedPayload
         const media = data.messages[0].media
         if (!media) return
@@ -969,7 +969,7 @@ describe('Channel', () => {
       if (action === SocketActionTypes.LAUNCH_COMMUNITY) {
         const data = input[1] as InitCommunityPayload
         const payload = data
-        return socket.socketClient.emit<ResponseLaunchCommunityPayload>(SocketActionTypes.COMMUNITY, {
+        return socket.socketClient.emit<ResponseLaunchCommunityPayload>(SocketActionTypes.COMMUNITY_LAUNCHED, {
           id: payload.id,
         })
       }
@@ -978,7 +978,7 @@ describe('Channel', () => {
         const payload = data
         expect(payload.metadata.cid).toEqual(missingFile.cid)
         await new Promise(resolve => setTimeout(resolve, 1000))
-        return socket.socketClient.emit<FileMetadata>(SocketActionTypes.UPDATE_MESSAGE_MEDIA, {
+        return socket.socketClient.emit<FileMetadata>(SocketActionTypes.MESSAGE_MEDIA_UPDATED, {
           ...missingFile,
           path: `${__dirname}/test-image.jpeg`,
         })
@@ -1058,14 +1058,14 @@ describe('Channel', () => {
       if (action === SocketActionTypes.LAUNCH_COMMUNITY) {
         const data = input[1] as InitCommunityPayload
         const payload = data
-        return socket.socketClient.emit<ResponseLaunchCommunityPayload>(SocketActionTypes.COMMUNITY, {
+        return socket.socketClient.emit<ResponseLaunchCommunityPayload>(SocketActionTypes.COMMUNITY_LAUNCHED, {
           id: payload.id,
         })
       }
       if (action === SocketActionTypes.UPLOAD_FILE) {
         const data = input[1] as UploadFilePayload
         const payload = data
-        socket.socketClient.emit<FileMetadata>(SocketActionTypes.UPLOADED_FILE, {
+        socket.socketClient.emit<FileMetadata>(SocketActionTypes.FILE_UPLOADED, {
           ...payload.file,
           size: 1024,
         })
@@ -1196,7 +1196,7 @@ describe('Channel', () => {
       if (action === SocketActionTypes.LAUNCH_COMMUNITY) {
         const data = input[1] as InitCommunityPayload
         const payload = data
-        return socket.socketClient.emit<ResponseLaunchCommunityPayload>(SocketActionTypes.COMMUNITY, {
+        return socket.socketClient.emit<ResponseLaunchCommunityPayload>(SocketActionTypes.COMMUNITY_LAUNCHED, {
           id: payload.id,
         })
       }
@@ -1231,7 +1231,7 @@ describe('Channel', () => {
 
     function* mockIncomingMessages(): Generator {
       yield* apply(socket.socketClient, socket.socketClient.emit, [
-        SocketActionTypes.MESSAGES_LOADED,
+        SocketActionTypes.MESSAGES_STORED,
         {
           messages: [message],
           communityId: community.id,
@@ -1321,7 +1321,7 @@ describe('Channel', () => {
       if (action === SocketActionTypes.LAUNCH_COMMUNITY) {
         const data = input[1] as InitCommunityPayload
         const payload = data
-        return socket.socketClient.emit<ResponseLaunchCommunityPayload>(SocketActionTypes.COMMUNITY, {
+        return socket.socketClient.emit<ResponseLaunchCommunityPayload>(SocketActionTypes.COMMUNITY_LAUNCHED, {
           id: payload.id,
         })
       }
@@ -1356,7 +1356,7 @@ describe('Channel', () => {
 
     function* mockIncomingMessages(): Generator {
       yield* apply(socket.socketClient, socket.socketClient.emit, [
-        SocketActionTypes.MESSAGES_LOADED,
+        SocketActionTypes.MESSAGES_STORED,
         {
           messages: [message],
           communityId: community.id,
@@ -1448,7 +1448,7 @@ describe('Channel', () => {
       if (action === SocketActionTypes.LAUNCH_COMMUNITY) {
         const data = input[1] as InitCommunityPayload
         const payload = data
-        return socket.socketClient.emit<ResponseLaunchCommunityPayload>(SocketActionTypes.COMMUNITY, {
+        return socket.socketClient.emit<ResponseLaunchCommunityPayload>(SocketActionTypes.COMMUNITY_LAUNCHED, {
           id: payload.id,
         })
       }
@@ -1491,7 +1491,7 @@ describe('Channel', () => {
 
     function* mockIncomingMessages(): Generator {
       yield* apply(socket.socketClient, socket.socketClient.emit, [
-        SocketActionTypes.MESSAGES_LOADED,
+        SocketActionTypes.MESSAGES_STORED,
         {
           messages: [message],
           communityId: community.id,

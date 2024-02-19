@@ -91,7 +91,7 @@ describe('User', () => {
       const action = input[0]
       if (action === SocketActionTypes.CREATE_NETWORK) {
         const payload = input[1] as Community
-        return socket.socketClient.emit<ResponseCreateNetworkPayload>(SocketActionTypes.NETWORK, {
+        return socket.socketClient.emit<ResponseCreateNetworkPayload>(SocketActionTypes.NETWORK_CREATED, {
           community: payload,
           network: {
             hiddenService: {
@@ -108,10 +108,10 @@ describe('User', () => {
         const payload = input[1] as InitCommunityPayload
         const community = communities.selectors.currentCommunity(store.getState())
         expect(payload.id).toEqual(community?.id)
-        socket.socketClient.emit<ResponseLaunchCommunityPayload>(SocketActionTypes.COMMUNITY, {
+        socket.socketClient.emit<ResponseLaunchCommunityPayload>(SocketActionTypes.COMMUNITY_LAUNCHED, {
           id: payload.id,
         })
-        socket.socketClient.emit<ChannelsReplicatedPayload>(SocketActionTypes.CHANNELS_REPLICATED, {
+        socket.socketClient.emit<ChannelsReplicatedPayload>(SocketActionTypes.CHANNELS_STORED, {
           channels: {
             general: {
               name: 'general',
@@ -231,7 +231,7 @@ describe('User', () => {
       const action = input[0]
       if (action === SocketActionTypes.CREATE_NETWORK) {
         const payload = input[1] as Community
-        return socket.socketClient.emit<ResponseCreateNetworkPayload>(SocketActionTypes.NETWORK, {
+        return socket.socketClient.emit<ResponseCreateNetworkPayload>(SocketActionTypes.NETWORK_CREATED, {
           community: payload,
           network: {
             hiddenService: {
@@ -319,7 +319,7 @@ describe('User', () => {
       const action = input[0]
       if (action === SocketActionTypes.CREATE_NETWORK) {
         const payload = input[1] as Community
-        return socket.socketClient.emit<ResponseCreateNetworkPayload>(SocketActionTypes.NETWORK, {
+        return socket.socketClient.emit<ResponseCreateNetworkPayload>(SocketActionTypes.NETWORK_CREATED, {
           community: payload,
           network: {
             hiddenService: {

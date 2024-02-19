@@ -95,7 +95,7 @@ describe('Add new channel', () => {
         expect(payload.channel.owner).toEqual(alice.nickname)
         expect(payload.channel.name).toEqual(channelName.output)
         const channels = store.getState().PublicChannels.channels.entities
-        return socket.socketClient.emit<ChannelsReplicatedPayload>(SocketActionTypes.CHANNELS_REPLICATED, {
+        return socket.socketClient.emit<ChannelsReplicatedPayload>(SocketActionTypes.CHANNELS_STORED, {
           channels: {
             ...channels,
             [payload.channel.name]: payload.channel,
@@ -107,7 +107,7 @@ describe('Add new channel', () => {
         const { message } = data
         expect(message.channelId).toEqual(channelName.output)
         expect(message.message).toEqual(`Created #${channelName.output}`)
-        return socket.socketClient.emit<MessagesLoadedPayload>(SocketActionTypes.MESSAGES_LOADED, {
+        return socket.socketClient.emit<MessagesLoadedPayload>(SocketActionTypes.MESSAGES_STORED, {
           messages: [message],
         })
       }
@@ -309,7 +309,7 @@ describe('Add new channel', () => {
         expect(payload.channel.owner).toEqual(alice.nickname)
         expect(payload.channel.name).toEqual(channelName)
         const channels = store.getState().PublicChannels.channels.entities
-        return socket.socketClient.emit<ChannelsReplicatedPayload>(SocketActionTypes.CHANNELS_REPLICATED, {
+        return socket.socketClient.emit<ChannelsReplicatedPayload>(SocketActionTypes.CHANNELS_STORED, {
           channels: {
             ...channels,
             [payload.channel.name]: payload.channel,
@@ -321,7 +321,7 @@ describe('Add new channel', () => {
         const { message } = data
         expect(message.channelId).toEqual(channelName)
         expect(message.message).toEqual(`Created #${channelName}`)
-        return socket.socketClient.emit<MessagesLoadedPayload>(SocketActionTypes.MESSAGES_LOADED, {
+        return socket.socketClient.emit<MessagesLoadedPayload>(SocketActionTypes.MESSAGES_STORED, {
           messages: [message],
         })
       }
@@ -408,7 +408,7 @@ describe('Add new channel', () => {
         expect(payload.channel.owner).toEqual(alice.nickname)
         const channels = store.getState().PublicChannels.channels.entities
         // expect(payload.channel.name).toEqual(channelName.output)
-        return socket.socketClient.emit<ChannelsReplicatedPayload>(SocketActionTypes.CHANNELS_REPLICATED, {
+        return socket.socketClient.emit<ChannelsReplicatedPayload>(SocketActionTypes.CHANNELS_STORED, {
           channels: {
             ...channels,
             [payload.channel.name]: payload.channel,

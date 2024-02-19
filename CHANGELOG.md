@@ -2,6 +2,7 @@
 
 # Refactorings:
 
+* Rename and reorganize frontend/backend events API
 * Rename message retrieval events/sagas and use ack feature
 * Rename LOAD_MESSAGES event and incomingMessages reducer
 * Use socket.io ack for CREATE_CHANNEL event

@@ -40,7 +40,7 @@ import {
   type SendOwnerCertificatePayload,
   type SendCsrsResponse,
   type CommunityMetadata,
-  type UserProfilesLoadedEvent,
+  type UserProfilesStoredEvent,
   SocketActionTypes,
 } from '@quiet/types'
 
@@ -108,10 +108,10 @@ export function subscribe(socket: Socket) {
       emit(connectionActions.updateNetworkData(payload))
     })
     // Files
-    socket.on(SocketActionTypes.UPDATE_MESSAGE_MEDIA, (payload: FileMetadata) => {
+    socket.on(SocketActionTypes.MESSAGE_MEDIA_UPDATED, (payload: FileMetadata) => {
       emit(filesActions.updateMessageMedia(payload))
     })
-    socket.on(SocketActionTypes.UPLOADED_FILE, (payload: FileMetadata) => {
+    socket.on(SocketActionTypes.FILE_UPLOADED, (payload: FileMetadata) => {
       emit(filesActions.broadcastHostedFile(payload))
     })
     socket.on(SocketActionTypes.DOWNLOAD_PROGRESS, (payload: DownloadStatus) => {
@@ -121,25 +121,25 @@ export function subscribe(socket: Socket) {
       emit(filesActions.removeDownloadStatus(payload))
     })
     // Channels
-    socket.on(SocketActionTypes.CHANNELS_REPLICATED, (payload: ChannelsReplicatedPayload) => {
+    socket.on(SocketActionTypes.CHANNELS_STORED, (payload: ChannelsReplicatedPayload) => {
       emit(publicChannelsActions.channelsReplicated(payload))
     })
     socket.on(SocketActionTypes.CHANNEL_SUBSCRIBED, (payload: ChannelSubscribedPayload) => {
       emit(publicChannelsActions.setChannelSubscribed(payload))
     })
     // Messages
-    socket.on(SocketActionTypes.MESSAGE_IDS_LOADED, (payload: ChannelMessageIdsResponse) => {
+    socket.on(SocketActionTypes.MESSAGE_IDS_STORED, (payload: ChannelMessageIdsResponse) => {
       emit(messagesActions.checkForMessages(payload))
     })
-    socket.on(SocketActionTypes.MESSAGES_LOADED, (payload: MessagesLoadedPayload) => {
+    socket.on(SocketActionTypes.MESSAGES_STORED, (payload: MessagesLoadedPayload) => {
       emit(messagesActions.removePendingMessageStatuses(payload))
       emit(messagesActions.addMessages(payload))
     })
 
     // Community
 
-    socket.on(SocketActionTypes.NEW_COMMUNITY, async (payload: ResponseCreateCommunityPayload) => {
-      log(`${SocketActionTypes.NEW_COMMUNITY}: ${payload}`)
+    socket.on(SocketActionTypes.COMMUNITY_CREATED, async (payload: ResponseCreateCommunityPayload) => {
+      log(`${SocketActionTypes.COMMUNITY_CREATED}: ${payload}`)
       // We can also set community metadata when we register the
       // owner's certificate. I think the only issue is that we
       // register the owner's certificate before initializing the
@@ -156,11 +156,11 @@ export function subscribe(socket: Socket) {
     socket.on(SocketActionTypes.PEER_LIST, (payload: StorePeerListPayload) => {
       emit(communitiesActions.storePeerList(payload))
     })
-    socket.on(SocketActionTypes.NETWORK, (payload: ResponseCreateNetworkPayload) => {
-      log(SocketActionTypes.NETWORK, payload)
+    socket.on(SocketActionTypes.NETWORK_CREATED, (payload: ResponseCreateNetworkPayload) => {
+      log(SocketActionTypes.NETWORK_CREATED, payload)
       emit(communitiesActions.responseCreateNetwork(payload))
     })
-    socket.on(SocketActionTypes.COMMUNITY, (payload: ResponseLaunchCommunityPayload) => {
+    socket.on(SocketActionTypes.COMMUNITY_LAUNCHED, (payload: ResponseLaunchCommunityPayload) => {
       console.log('Hunting for heisenbug: Community event received in state-manager')
       // TODO: We can send this once when creating the community and
       // store it in the backend.
@@ -180,16 +180,16 @@ export function subscribe(socket: Socket) {
       emit(errorsActions.handleError(payload))
     })
     // Certificates
-    socket.on(SocketActionTypes.RESPONSE_GET_CSRS, (payload: SendCsrsResponse) => {
-      log(`${SocketActionTypes.RESPONSE_GET_CSRS}`)
+    socket.on(SocketActionTypes.CSRS_STORED, (payload: SendCsrsResponse) => {
+      log(`${SocketActionTypes.CSRS_STORED}`)
       emit(identityActions.checkLocalCsr(payload))
       emit(usersActions.storeCsrs(payload))
     })
-    socket.on(SocketActionTypes.RESPONSE_GET_CERTIFICATES, (payload: SendCertificatesResponse) => {
+    socket.on(SocketActionTypes.CERTIFICATES_STORED, (payload: SendCertificatesResponse) => {
       emit(usersActions.responseSendCertificates(payload))
     })
-    socket.on(SocketActionTypes.SAVED_OWNER_CERTIFICATE, (payload: SavedOwnerCertificatePayload) => {
-      log(`${SocketActionTypes.SAVED_OWNER_CERTIFICATE}: ${payload.communityId}`)
+    socket.on(SocketActionTypes.OWNER_CERTIFICATE_ISSUED, (payload: SavedOwnerCertificatePayload) => {
+      log(`${SocketActionTypes.OWNER_CERTIFICATE_ISSUED}: ${payload.communityId}`)
       emit(
         communitiesActions.updateCommunity({
           id: payload.communityId,
@@ -204,19 +204,19 @@ export function subscribe(socket: Socket) {
       )
       emit(identityActions.savedOwnerCertificate(payload.communityId))
     })
-    socket.on(SocketActionTypes.COMMUNITY_METADATA_LOADED, (payload: CommunityMetadata) => {
-      log(`${SocketActionTypes.COMMUNITY_METADATA_LOADED}: ${payload}`)
+    socket.on(SocketActionTypes.COMMUNITY_METADATA_STORED, (payload: CommunityMetadata) => {
+      log(`${SocketActionTypes.COMMUNITY_METADATA_STORED}: ${payload}`)
       emit(communitiesActions.saveCommunityMetadata(payload))
     })
-    socket.on(SocketActionTypes.LIBP2P_PSK_SAVED, (payload: { psk: string }) => {
-      log(`${SocketActionTypes.LIBP2P_PSK_SAVED}`)
+    socket.on(SocketActionTypes.LIBP2P_PSK_STORED, (payload: { psk: string }) => {
+      log(`${SocketActionTypes.LIBP2P_PSK_STORED}`)
       emit(communitiesActions.savePSK(payload.psk))
     })
 
     // User Profile
 
-    socket.on(SocketActionTypes.LOADED_USER_PROFILES, (payload: UserProfilesLoadedEvent) => {
-      log(`${SocketActionTypes.LOADED_USER_PROFILES}`)
+    socket.on(SocketActionTypes.USER_PROFILES_STORED, (payload: UserProfilesStoredEvent) => {
+      log(`${SocketActionTypes.USER_PROFILES_STORED}`)
       emit(usersActions.setUserProfiles(payload.profiles))
     })
 

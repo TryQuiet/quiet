@@ -5,8 +5,8 @@ export enum IpfsFilesManagerEvents {
   UPLOAD_FILE = 'uploadFile',
   DELETE_FILE = 'deleteFile',
   // Outgoing evnets
-  UPDATE_MESSAGE_MEDIA = 'updateMessageMedia',
-  UPDATE_DOWNLOAD_PROGRESS = 'updateDownloadProgress',
+  MESSAGE_MEDIA_UPDATED = 'messageMediaUpdated',
+  DOWNLOAD_PROGRESS = 'downloadProgress',
 }
 export interface FilesData {
   size: number

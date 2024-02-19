@@ -26,5 +26,5 @@ export function* sendCommunityCaDataSaga(
     certificate: community.CA.rootCertString,
     privKey: community.CA.rootKeyString,
   }
-  yield* apply(socket, socket.emit, applyEmitParams(SocketActionTypes.SEND_COMMUNITY_CA_DATA, payload))
+  yield* apply(socket, socket.emit, applyEmitParams(SocketActionTypes.SET_COMMUNITY_CA_DATA, payload))
 }

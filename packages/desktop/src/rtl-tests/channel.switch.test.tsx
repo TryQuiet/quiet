@@ -208,7 +208,7 @@ describe('Switch channels', () => {
 
     function* mockIncomingMessages(): Generator {
       yield* apply(socket.socketClient, socket.socketClient.emit, [
-        SocketActionTypes.MESSAGES_LOADED,
+        SocketActionTypes.MESSAGES_STORED,
         {
           messages: messages,
           communityId: community.id,
@@ -258,7 +258,7 @@ describe('Switch channels', () => {
 
     function* mockIncomingMessages(): Generator {
       yield* apply(socket.socketClient, socket.socketClient.emit, [
-        SocketActionTypes.MESSAGES_LOADED,
+        SocketActionTypes.MESSAGES_STORED,
         {
           messages: [message],
           communityId: community.id,
@@ -328,7 +328,7 @@ describe('Switch channels', () => {
 
     function* mockIncomingMessages(): Generator {
       yield* apply(socket.socketClient, socket.socketClient.emit, [
-        SocketActionTypes.MESSAGES_LOADED,
+        SocketActionTypes.MESSAGES_STORED,
         {
           messages: [message],
           communityId: community.id,

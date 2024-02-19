@@ -4,26 +4,24 @@ export enum StorageEvents {
   // Peers
   UPDATE_PEERS_LIST = 'updatePeersList',
   // Public Channels
-  LOAD_PUBLIC_CHANNELS = 'loadPublicChannels',
-  MESSAGES_LOADED = 'loadMessages',
-  MESSAGE_IDS_LOADED = 'messageIdsLoaded',
   CHANNEL_SUBSCRIBED = 'channelSubscribed',
+  CHANNELS_STORED = 'channelsStored',
+  MESSAGE_IDS_STORED = 'messageIdsStored',
+  MESSAGES_STORED = 'messagesStored',
   // Files
   REMOVE_DOWNLOAD_STATUS = 'removeDownloadStatus',
-  UPLOADED_FILE = 'uploadedFile',
-  UPDATE_DOWNLOAD_PROGRESS = 'updateDownloadProgress',
-  UPDATE_MESSAGE_MEDIA = 'updateMessageMedia',
+  FILE_UPLOADED = 'fileUploaded',
+  DOWNLOAD_PROGRESS = 'downloadProgress',
+  MESSAGE_MEDIA_UPDATED = 'messageMediaUpdated',
   CHECK_FOR_MISSING_FILES = 'checkForMissingFiles',
   // Misc
   SEND_PUSH_NOTIFICATION = 'sendPushNotification',
   // Users
-  LOADED_USER_CSRS = 'loadedUserCsrs',
-  REPLICATED_CSR = 'replicatedCsr',
-  LOADED_CERTIFICATES = 'loadedCertificates',
-  REPLICATED_CERTIFICATES = 'replicatedCertificates',
-  LOADED_USER_PROFILES = 'loadedUserProfiles',
+  CSRS_STORED = 'csrsStored',
+  CERTIFICATES_STORED = 'certificatesStored',
+  USER_PROFILES_STORED = 'userProfilesStored',
   // Community
-  COMMUNITY_METADATA_LOADED = 'communityMetadataLoaded',
+  COMMUNITY_METADATA_STORED = 'communityMetadataStored',
 }
 
 export interface InitStorageParams {

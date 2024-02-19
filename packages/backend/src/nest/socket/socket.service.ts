@@ -136,10 +136,10 @@ export class SocketService extends EventEmitter implements OnModuleInit {
       })
 
       // ====== Certificates ======
-      socket.on(SocketActionTypes.SAVE_USER_CSR, async (payload: SaveCSRPayload) => {
-        this.logger(`On ${SocketActionTypes.SAVE_USER_CSR}`)
+      socket.on(SocketActionTypes.ADD_CSR, async (payload: SaveCSRPayload) => {
+        this.logger(`On ${SocketActionTypes.ADD_CSR}`)
 
-        this.emit(SocketActionTypes.SAVE_USER_CSR, payload)
+        this.emit(SocketActionTypes.ADD_CSR, payload)
       })
 
       socket.on(SocketActionTypes.REGISTER_OWNER_CERTIFICATE, async (payload: RegisterOwnerCertificatePayload) => {
@@ -171,26 +171,26 @@ export class SocketService extends EventEmitter implements OnModuleInit {
         this.emit(SocketActionTypes.LEAVE_COMMUNITY)
       })
 
-      socket.on(SocketActionTypes.LIBP2P_PSK_SAVED, payload => {
+      socket.on(SocketActionTypes.LIBP2P_PSK_STORED, payload => {
         this.logger('Saving PSK', payload)
-        this.emit(SocketActionTypes.LIBP2P_PSK_SAVED, payload)
+        this.emit(SocketActionTypes.LIBP2P_PSK_STORED, payload)
       })
 
       socket.on(
-        SocketActionTypes.SEND_COMMUNITY_METADATA,
+        SocketActionTypes.SET_COMMUNITY_METADATA,
         (payload: CommunityMetadata, callback: (response?: CommunityMetadata) => void) => {
-          this.emit(SocketActionTypes.SEND_COMMUNITY_METADATA, payload, callback)
+          this.emit(SocketActionTypes.SET_COMMUNITY_METADATA, payload, callback)
         }
       )
 
-      socket.on(SocketActionTypes.SEND_COMMUNITY_CA_DATA, (payload: PermsData) => {
-        this.emit(SocketActionTypes.SEND_COMMUNITY_CA_DATA, payload)
+      socket.on(SocketActionTypes.SET_COMMUNITY_CA_DATA, (payload: PermsData) => {
+        this.emit(SocketActionTypes.SET_COMMUNITY_CA_DATA, payload)
       })
 
       // ====== Users ======
 
-      socket.on(SocketActionTypes.SAVE_USER_PROFILE, (profile: UserProfile) => {
-        this.emit(SocketActionTypes.SAVE_USER_PROFILE, profile)
+      socket.on(SocketActionTypes.SET_USER_PROFILE, (profile: UserProfile) => {
+        this.emit(SocketActionTypes.SET_USER_PROFILE, profile)
       })
     })
   }

@@ -14,5 +14,5 @@ export const suspendableSocketEvents: string[] = [
   // Messages
   SocketActionTypes.SEND_MESSAGE.valueOf(),
   SocketActionTypes.GET_MESSAGES.valueOf(),
-  SocketActionTypes.UPDATE_MESSAGE_MEDIA.valueOf(),
+  SocketActionTypes.MESSAGE_MEDIA_UPDATED.valueOf(),
 ]
