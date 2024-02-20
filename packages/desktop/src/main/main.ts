@@ -445,12 +445,15 @@ app.on('ready', async () => {
   ipcMain.on('writeTempFile', (event, arg) => {
     const temporaryFilesDirectory = path.join(appDataPath, 'temporaryFiles')
     fs.mkdirSync(temporaryFilesDirectory, { recursive: true })
-    const filePath = `${path.join(temporaryFilesDirectory, arg.fileName)}`
+    const id = `${Date.now()}_${Math.random().toString(36).substring(0, 20)}`
+    const name = arg.ext ? arg.fileName.split(arg.ext)[0] : arg.fileName
+    const filePath = `${path.join(temporaryFilesDirectory, `${name}_${id}${arg.ext}`)}`
     fs.writeFileSync(filePath, arg.fileBuffer)
 
     event.reply('writeTempFileReply', {
       path: filePath,
-      id: arg.fileName.split(arg.ext)[0],
+      id,
+      name,
       ext: arg.ext,
     })
   })

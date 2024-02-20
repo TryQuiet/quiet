@@ -140,7 +140,7 @@ const Channel = () => {
           ...existingFiles,
           [arg.id]: {
             ext: arg.ext,
-            name: arg.id,
+            name: arg.name,
             path: arg.path,
           },
         }
