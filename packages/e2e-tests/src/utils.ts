@@ -268,7 +268,11 @@ export const downloadInstaller = (version = BACKWARD_COMPATIBILITY_BASE_VERSION)
   }
   const downloadUrl = `https://github.com/TryQuiet/quiet/releases/download/%40quiet%2Fdesktop%40${version}/${appImage}`
   console.log(`Downloading Quiet version: ${version} from ${downloadUrl}`)
-  execSync(`curl -LO --output-dir ${appImagesPath} ${downloadUrl}`)
+  // execSync(`curl -LO --output-dir ${appImagesPath} ${downloadUrl}`)
+  execSync(`curl -LO ${downloadUrl}`)
+  const appImageDownloadPath = path.join(process.cwd(), appImage)
+  console.log(`Downloaded to ${appImageDownloadPath}`)
+  fs.renameSync(appImageDownloadPath, appImageTargetPath)
   // Make it executable
   fs.chmodSync(appImageTargetPath, 0o755)
   return appImage
