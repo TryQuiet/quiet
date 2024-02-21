@@ -9,7 +9,7 @@ import {
   Sidebar,
   UpdateModal,
 } from '../selectors'
-import { BACKWARD_COMPATIBILITY_BASE_VERSION } from '../utils'
+import { BACKWARD_COMPATIBILITY_BASE_VERSION, copyInstallerFile, downloadInstaller } from '../utils'
 
 jest.setTimeout(450000)
 describe('Backwards Compatibility', () => {
@@ -30,7 +30,10 @@ describe('Backwards Compatibility', () => {
   const isAlpha = process.env.FILE_NAME?.toString().includes('alpha')
 
   beforeAll(async () => {
-    ownerAppOldVersion = new App({ dataDir, fileName: `Quiet-${BACKWARD_COMPATIBILITY_BASE_VERSION}-copy.AppImage` })
+    // download the old version of the app
+    const appFilename = downloadInstaller()
+    const copiedFilename = copyInstallerFile(appFilename)
+    ownerAppOldVersion = new App({ dataDir, fileName: copiedFilename })
   })
 
   beforeEach(async () => {
