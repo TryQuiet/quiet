@@ -91,6 +91,10 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof communitiesActions.sendCommunityCaData>
     | ReturnType<typeof usersActions.setUserProfiles>
   >(emit => {
+    socket.on('dataRequested', async (data: string[], callback: () => void) => {
+      await new Promise(r => setTimeout(r, 5000));
+      callback()
+    })
     // UPDATE FOR APP
     socket.on(SocketActionTypes.TOR_INITIALIZED, () => {
       emit(connectionActions.setTorInitialized())

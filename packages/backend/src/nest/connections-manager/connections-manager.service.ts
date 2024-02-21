@@ -149,6 +149,14 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
     if (this.configOptions.torControlPort) {
       console.log('launch 1')
+
+      console.log('GET FRONTEND DATA\n\n\n\n\n\n\n')
+      const data = [ 'identity' ]
+      const response = await this.serverIoProvider.io.timeout(10000).emitWithAck('dataRequested', data)
+
+      // TODO: Make local-db migrate function
+      // TODO: Load data
+      console.log('Received data\n\n\n\n\n\n\n\n', response)
       await this.launchCommunityFromStorage()
     }
   }
