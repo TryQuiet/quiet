@@ -88,7 +88,7 @@ export class BuildSetup {
   public async createChromeDriver() {
     await this.initPorts()
     const env = {
-      DEBUG: 'backend*,desktop*,utils*',
+      DEBUG: 'backend*,desktop*,utils*,main*',
       DATA_DIR: this.dataDir,
     }
     if (process.platform === 'win32') {
@@ -273,6 +273,7 @@ export const downloadInstaller = (version = BACKWARD_COMPATIBILITY_BASE_VERSION)
   const appImageDownloadPath = path.join(process.cwd(), appImage)
   console.log(`Downloaded to ${appImageDownloadPath}`)
   fs.renameSync(appImageDownloadPath, appImageTargetPath)
+  console.log('Moved to', appImageTargetPath)
   // Make it executable
   fs.chmodSync(appImageTargetPath, 0o755)
   return appImage

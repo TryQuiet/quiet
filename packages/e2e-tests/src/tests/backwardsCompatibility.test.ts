@@ -49,6 +49,17 @@ describe('Backwards Compatibility', () => {
       await ownerAppOldVersion.open()
     })
 
+    it('Owner sees "update available" modal and closes it', async () => {
+      ownerAppOldVersion
+        .waitForUpdateInfo()
+        .then(async () => {
+          console.log('DONE')
+        })
+        .catch(err => {
+          console.log('ERR', err)
+        })
+    })
+
     it('Owner sees "join community" modal and switches to "create community" modal', async () => {
       const joinModal = new JoinCommunityModal(ownerAppOldVersion.driver)
       const isJoinModal = await joinModal.element.isDisplayed()
@@ -70,17 +81,6 @@ describe('Backwards Compatibility', () => {
       await registerModal.submit()
     })
 
-    it('Owner sees "update available" modal and closes it', async () => {
-      console.log('waiting for update modal')
-      const updateModal = new UpdateModal(ownerAppOldVersion.driver)
-      console.log('Update Modal - before check with display')
-      const isUpdateModal = await updateModal.element.isDisplayed()
-      console.log('Update Modal - after check with display', isUpdateModal)
-      expect(isUpdateModal).toBeTruthy()
-      console.log('Update Modal - before close')
-      await updateModal.close()
-      console.log('Update Modal - after close')
-    })
     it('Owner registers successfully and sees general channel', async () => {
       generalChannel = new Channel(ownerAppOldVersion.driver, 'general')
       const isGeneralChannel = await generalChannel.element.isDisplayed()

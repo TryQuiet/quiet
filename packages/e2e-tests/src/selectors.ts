@@ -54,6 +54,18 @@ export class App {
     return this.driver.wait(until.elementLocated(By.xpath('//div[@data-testid="save-state-button"]')))
   }
 
+  async waitForUpdateInfo() {
+    console.log('waiting for update modal')
+    const updateModal = new UpdateModal(this.driver)
+    console.log('Update Modal - before check with display')
+    const isUpdateModal = await updateModal.element.isDisplayed()
+    console.log('Update Modal - after check with display', isUpdateModal)
+    expect(isUpdateModal).toBeTruthy()
+    console.log('Update Modal - before close')
+    await updateModal.close()
+    console.log('Update Modal - after close')
+  }
+
   async saveState() {
     const stateButton = await this.saveStateButton
     await this.driver.executeScript('arguments[0].click();', stateButton)
