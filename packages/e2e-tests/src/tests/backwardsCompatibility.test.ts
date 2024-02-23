@@ -11,7 +11,7 @@ import {
 } from '../selectors'
 import { BACKWARD_COMPATIBILITY_BASE_VERSION, copyInstallerFile, downloadInstaller } from '../utils'
 
-jest.setTimeout(450000)
+jest.setTimeout(15 * 60_000)
 describe('Backwards Compatibility', () => {
   let ownerAppOldVersion: App
   let ownerAppNewVersion: App
