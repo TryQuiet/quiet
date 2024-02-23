@@ -55,12 +55,22 @@ export class App {
   }
 
   async waitForUpdateInfo() {
-    console.log('waiting for update modal')
     const updateModal = new UpdateModal(this.driver)
-    console.log('Update Modal - before check with display')
-    const isUpdateModal = await updateModal.element.isDisplayed()
-    console.log('Update Modal - after check with display', isUpdateModal)
-    expect(isUpdateModal).toBeTruthy()
+    console.log('Update Modal - before element located')
+    const modalElement = await updateModal.element
+    console.log('Update Modal - after element located')
+    await this.driver.wait(until.elementIsVisible(modalElement))
+    console.log('Update Modal - after element visible')
+
+    // await this.driver.wait(async () => {
+    //   console.log('waiting for update modal')
+
+    //   console.log('Update Modal - before check with display')
+    //   const isUpdateModal = await updateModal.element.isDisplayed()
+    //   console.log('Update Modal - after check with display', isUpdateModal)
+    //   return isUpdateModal
+    // })
+
     console.log('Update Modal - before close')
     await updateModal.close()
     console.log('Update Modal - after close')
