@@ -23,11 +23,6 @@ export enum CommunityOwnership {
   User = 'user',
 }
 
-export interface NetworkData {
-  hiddenService: HiddenService
-  peerId: PeerId
-}
-
 export interface CreateNetworkPayload {
   ownership: CommunityOwnership
   name?: string
@@ -36,9 +31,9 @@ export interface CreateNetworkPayload {
   ownerOrbitDbIdentity?: string
 }
 
-export interface ResponseCreateNetworkPayload {
-  community: Community
-  network: NetworkData
+export interface NetworkInfo {
+  hiddenService: HiddenService
+  peerId: PeerId
 }
 
 export interface Certificates {
@@ -53,6 +48,8 @@ export interface InitCommunityPayload {
   hiddenService: HiddenService
   certs?: Certificates
   peers?: string[]
+  psk?: string
+  ownerOrbitDbIdentity?: string
 }
 
 export interface StorePeerListPayload {

@@ -26,13 +26,12 @@ import {
   FileMetadata,
   MessagesLoadedPayload,
   InitCommunityPayload,
-  NetworkData,
   NetworkDataPayload,
+  NetworkInfo,
   NetworkStats,
   PushNotificationPayload,
   RegisterOwnerCertificatePayload,
   RemoveDownloadStatus,
-  ResponseCreateNetworkPayload,
   SendCertificatesResponse,
   SendMessagePayload,
   ChannelSubscribedPayload,
@@ -232,7 +231,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     }
   }
 
-  public async getNetwork() {
+  public async getNetwork(): Promise<NetworkInfo> {
     const hiddenService = await this.tor.createNewHiddenService({ targetPort: this.ports.libp2pHiddenService })
 
     await this.tor.destroyHiddenService(hiddenService.onionAddress.split('.')[0])
@@ -246,59 +245,22 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     }
   }
 
-  public async createNetwork(community: Community) {
-    let network: NetworkData
-    // For registrar service purposes, if community owner
-    // FIXME: Remove if obselete
-    let network2: NetworkData
+  public async createNetwork(communityId: string): Promise<NetworkInfo | undefined> {
+    let network: NetworkInfo
+
     try {
       network = await this.getNetwork()
-      network2 = await this.getNetwork()
     } catch (e) {
-      this.logger.error(`Creating network for community ${community.id} failed`, e)
+      this.logger.error(`Creating network for community ${communityId} failed`, e)
       emitError(this.serverIoProvider.io, {
         type: SocketActionTypes.CREATE_NETWORK,
         message: ErrorMessages.NETWORK_SETUP_FAILED,
-        community: community.id,
+        community: communityId,
       })
       return
     }
 
-    this.logger(`Sending network data for ${community.id}`)
-
-    // It might be nice to save the entire Community in LevelDB rather
-    // than specific pieces of information.
-
-    const psk = community.psk
-    if (psk) {
-      this.logger('Creating network: received Libp2p PSK')
-      if (!isPSKcodeValid(psk)) {
-        this.logger.error('Creating network: received Libp2p PSK is not valid')
-        emitError(this.serverIoProvider.io, {
-          type: SocketActionTypes.CREATE_NETWORK,
-          message: ErrorMessages.NETWORK_SETUP_FAILED,
-          community: community.id,
-        })
-        return
-      }
-      await this.localDbService.put(LocalDBKeys.PSK, psk)
-    }
-
-    const ownerOrbitDbIdentity = community.ownerOrbitDbIdentity
-    if (ownerOrbitDbIdentity) {
-      this.logger("Creating network: received owner's OrbitDB identity")
-      await this.localDbService.putOwnerOrbitDbIdentity(ownerOrbitDbIdentity)
-    }
-
-    const payload: ResponseCreateNetworkPayload = {
-      community: {
-        ...community,
-        privateKey: network2.hiddenService.privateKey,
-      },
-      network,
-    }
-
-    this.serverIoProvider.io.emit(SocketActionTypes.NETWORK_CREATED, payload)
+    return network
   }
 
   private async generatePSK() {
@@ -321,11 +283,37 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   public async launchCommunity(payload: InitCommunityPayload) {
     this.logger('Launching community: peers:', payload.peers)
     this.communityState = ServiceState.LAUNCHING
-    // Perhaps we should call this data something else, since we already have a Community type.
-    // It seems like InitCommunityPayload is a mix of various connection metadata.
+
+    // TODO: Move community creation to the backend so that
+    // launchCommunity/createCommunity return a Community object to the
+    // frontend. Also deprecate the COMMUNITY/PSK/OWNER_ORBIT_DB_IDENTITY
+    // IndexDB keys in favor of COMMUNITIES/CURRENT_COMMUNITY_ID/IDENTITIES,
+    // mirroring the frontend state so that we can easily move things from the
+    // frontend to the backend.
     const communityData: InitCommunityPayload = await this.localDbService.get(LocalDBKeys.COMMUNITY)
     if (!communityData) {
       await this.localDbService.put(LocalDBKeys.COMMUNITY, payload)
+    }
+
+    const psk = payload.psk
+    if (psk) {
+      this.logger('Launching community: received Libp2p PSK')
+      if (!isPSKcodeValid(psk)) {
+        this.logger.error('Launching community: received Libp2p PSK is not valid')
+        emitError(this.serverIoProvider.io, {
+          type: SocketActionTypes.LAUNCH_COMMUNITY,
+          message: ErrorMessages.NETWORK_SETUP_FAILED,
+          community: payload.id,
+        })
+        return
+      }
+      await this.localDbService.put(LocalDBKeys.PSK, psk)
+    }
+
+    const ownerOrbitDbIdentity = payload.ownerOrbitDbIdentity
+    if (ownerOrbitDbIdentity) {
+      this.logger("Creating network: received owner's OrbitDB identity")
+      await this.localDbService.putOwnerOrbitDbIdentity(ownerOrbitDbIdentity)
     }
 
     try {
@@ -356,18 +344,22 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.serverIoProvider.io.emit(SocketActionTypes.COMMUNITY_LAUNCHED, { id: payload.id })
   }
 
-  public async launch(payload: InitCommunityPayload) {
-    // Start existing community (community that user is already a part of)
+  public async spawnTorHiddenService(payload: InitCommunityPayload): Promise<string> {
     this.logger(`Spawning hidden service for community ${payload.id}, peer: ${payload.peerId.id}`)
     this.serverIoProvider.io.emit(
       SocketActionTypes.CONNECTION_PROCESS_INFO,
       ConnectionProcessInfo.SPAWNING_HIDDEN_SERVICE
     )
-    const onionAddress: string = await this.tor.spawnHiddenService({
+    return await this.tor.spawnHiddenService({
       targetPort: this.ports.libp2pHiddenService,
       privKey: payload.hiddenService.privateKey,
     })
+  }
+
+  public async launch(payload: InitCommunityPayload) {
     this.logger(`Launching community ${payload.id}: peer: ${payload.peerId.id}`)
+
+    const onionAddress = await this.spawnTorHiddenService(payload)
 
     const { Libp2pModule } = await import('../libp2p/libp2p.module')
     const moduleRef = await this.lazyModuleLoader.load(() => Libp2pModule)
@@ -383,6 +375,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     if (!peers || peers.length === 0) {
       peers = [this.libp2pService.createLibp2pAddress(onionAddress, _peerId.toString())]
     }
+
     const pskValue: string = await this.localDbService.get(LocalDBKeys.PSK)
     if (!pskValue) {
       throw new Error('No psk in local db')
@@ -475,10 +468,13 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         await this.storageService?.loadAllChannels()
       }
     })
-    this.socketService.on(SocketActionTypes.CREATE_NETWORK, async (args: Community) => {
-      this.logger(`socketService - ${SocketActionTypes.CREATE_NETWORK}`)
-      await this.createNetwork(args)
-    })
+    this.socketService.on(
+      SocketActionTypes.CREATE_NETWORK,
+      async (communityId: string, callback: (response?: NetworkInfo) => void) => {
+        this.logger(`socketService - ${SocketActionTypes.CREATE_NETWORK}`)
+        callback(await this.createNetwork(communityId))
+      }
+    )
     this.socketService.on(SocketActionTypes.CREATE_COMMUNITY, async (args: InitCommunityPayload) => {
       await this.createCommunity(args)
     })

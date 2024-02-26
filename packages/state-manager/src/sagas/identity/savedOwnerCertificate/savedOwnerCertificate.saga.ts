@@ -29,6 +29,8 @@ export function* savedOwnerCertificateSaga(
       key: identity.userCsr.userKey,
       CA: [community.rootCa],
     },
+    psk: community?.psk,
+    ownerOrbitDbIdentity: community?.ownerOrbitDbIdentity,
   }
 
   yield* apply(socket, socket.emit, applyEmitParams(SocketActionTypes.CREATE_COMMUNITY, payload))

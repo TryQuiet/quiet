@@ -6,7 +6,6 @@ import {
   type AddOwnerCertificatePayload,
   type Community,
   type CreateNetworkPayload,
-  type ResponseCreateNetworkPayload,
   type StorePeerListPayload,
   CommunityMetadata,
   InvitationData,
@@ -41,7 +40,6 @@ export const communitiesSlice = createSlice({
     sendCommunityCaData: state => state,
     sendCommunityMetadata: state => state,
     createNetwork: (state, _action: PayloadAction<CreateNetworkPayload>) => state,
-    responseCreateNetwork: (state, _action: PayloadAction<ResponseCreateNetworkPayload>) => state,
     storePeerList: (state, action: PayloadAction<StorePeerListPayload>) => {
       communitiesAdapter.updateOne(state.communities, {
         id: action.payload.communityId,
@@ -51,7 +49,7 @@ export const communitiesSlice = createSlice({
       })
     },
     resetApp: (state, _action) => state,
-    launchCommunity: (state, _action: PayloadAction<string | undefined>) => state,
+    launchCommunity: (state, _action: PayloadAction<string>) => state,
     customProtocol: (state, _action: PayloadAction<InvitationData>) => state,
     setInvitationCodes: (state, action: PayloadAction<InvitationPair[]>) => {
       state.invitationCodes = action.payload

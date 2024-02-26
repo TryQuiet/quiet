@@ -23,7 +23,6 @@ import { networkActions } from '../../network/network.slice'
 import {
   type ResponseCreateCommunityPayload,
   type StorePeerListPayload,
-  type ResponseCreateNetworkPayload,
   type ResponseLaunchCommunityPayload,
   type ChannelMessageIdsResponse,
   type ChannelsReplicatedPayload,
@@ -60,7 +59,6 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof publicChannelsActions.channelDeletionResponse>
     | ReturnType<typeof usersActions.responseSendCertificates>
     | ReturnType<typeof usersActions.storeCsrs>
-    | ReturnType<typeof communitiesActions.responseCreateNetwork>
     | ReturnType<typeof errorsActions.addError>
     | ReturnType<typeof errorsActions.handleError>
     | ReturnType<typeof identityActions.storeUserCertificate>
@@ -155,10 +153,6 @@ export function subscribe(socket: Socket) {
     })
     socket.on(SocketActionTypes.PEER_LIST, (payload: StorePeerListPayload) => {
       emit(communitiesActions.storePeerList(payload))
-    })
-    socket.on(SocketActionTypes.NETWORK_CREATED, (payload: ResponseCreateNetworkPayload) => {
-      log(SocketActionTypes.NETWORK_CREATED, payload)
-      emit(communitiesActions.responseCreateNetwork(payload))
     })
     socket.on(SocketActionTypes.COMMUNITY_LAUNCHED, (payload: ResponseLaunchCommunityPayload) => {
       console.log('Hunting for heisenbug: Community event received in state-manager')
