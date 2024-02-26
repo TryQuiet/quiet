@@ -6,6 +6,7 @@ on:
       - packages/mobile/**
       - packages/backend/**
       - packages/state-manager/**
+      - .github/workflows/e2e-android.yml
 
 jobs:
   detox-android:
@@ -25,8 +26,15 @@ jobs:
           git lfs install
           git lfs pull
 
+      - name: Pass local config
+        run : |
+          cat << EOF >> packages/mobile/android/local.properties
+          ndk.path=/Users/quiet/Library/Android/sdk/ndk/25.1.8937393
+          EOF
+
       - name: Build Detox
         run: |
+          export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk-17.jdk/Contents/Home
           cd packages/mobile
           detox build -c android.emu.debug.ci
 
