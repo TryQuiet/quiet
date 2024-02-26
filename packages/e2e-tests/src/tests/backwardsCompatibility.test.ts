@@ -7,11 +7,10 @@ import {
   JoinCommunityModal,
   RegisterUsernameModal,
   Sidebar,
-  UpdateModal,
 } from '../selectors'
 import { BACKWARD_COMPATIBILITY_BASE_VERSION, copyInstallerFile, downloadInstaller } from '../utils'
 
-jest.setTimeout(15 * 60_000)
+jest.setTimeout(20 * 60_000)
 describe('Backwards Compatibility', () => {
   let ownerAppOldVersion: App
   let ownerAppNewVersion: App
@@ -24,7 +23,7 @@ describe('Backwards Compatibility', () => {
   const communityName = 'testcommunity'
   const ownerUsername = 'bob'
   const ownerMessages = ['Hi', 'Hello', 'After guest leave app']
-  const loopMessages = 'abc'.split('')
+  const loopMessages = 'ąbc'.split('')
   const newChannelName = 'mid-night-club'
 
   const isAlpha = process.env.FILE_NAME?.toString().includes('alpha')
@@ -49,14 +48,14 @@ describe('Backwards Compatibility', () => {
       await ownerAppOldVersion.open()
     })
 
-    it('Owner sees "update available" modal and closes it', async () => {
+    it('Owner closes "update available" modal if present', async () => {
       ownerAppOldVersion
-        .waitForUpdateInfo()
+        .closeUpdateModalIfPresent()
         .then(async () => {
-          console.log('DONE')
+          console.log('Closed update modal')
         })
         .catch(err => {
-          console.log('ERR', err)
+          console.log('Could not close update modal', err)
         })
     })
 

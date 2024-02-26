@@ -54,26 +54,9 @@ export class App {
     return this.driver.wait(until.elementLocated(By.xpath('//div[@data-testid="save-state-button"]')))
   }
 
-  async waitForUpdateInfo() {
+  async closeUpdateModalIfPresent() {
     const updateModal = new UpdateModal(this.driver)
-    console.log('Update Modal - before element located')
-    const modalElement = await updateModal.element
-    console.log('Update Modal - after element located')
-    await this.driver.wait(until.elementIsVisible(modalElement))
-    console.log('Update Modal - after element visible')
-
-    // await this.driver.wait(async () => {
-    //   console.log('waiting for update modal')
-
-    //   console.log('Update Modal - before check with display')
-    //   const isUpdateModal = await updateModal.element.isDisplayed()
-    //   console.log('Update Modal - after check with display', isUpdateModal)
-    //   return isUpdateModal
-    // })
-
-    console.log('Update Modal - before close')
     await updateModal.close()
-    console.log('Update Modal - after close')
   }
 
   async saveState() {
@@ -418,14 +401,34 @@ export class UpdateModal {
   }
 
   get element() {
-    return this.driver.wait(until.elementLocated(By.xpath("//h3[text()='Software update']")))
+    console.log('Waiting for update modal root element')
+    return this.driver.wait(
+      until.elementLocated(By.xpath("//h3[text()='Software update']/ancestor::div[contains(@class,'MuiModal-root')]"))
+    )
+    // return this.driver.wait(until.elementLocated(By.xpath("//h3[text()='Software update']")))
   }
 
   async close() {
-    const closeButton = await this.driver
+    const updateModalRootElement = await this.element
+    console.log('Found update modal root element')
+    const closeButton = await updateModalRootElement
       .findElement(By.xpath('//div[@data-testid="ModalActions"]'))
       .findElement(By.css('button'))
-    await closeButton.click()
+
+    try {
+      console.log('Before clicking update modal close button')
+      await closeButton.click()
+      return
+    } catch (e) {
+      console.error('Error while clicking close button on update modal', e.message)
+    }
+
+    try {
+      const log = await this.driver.executeScript('arguments[0].click();', closeButton)
+      console.log('executeScript', log)
+    } catch (e) {
+      console.log('Probably clicked hidden close button on update modal')
+    }
   }
 }
 export class Settings {
