@@ -27,10 +27,10 @@ jobs:
 
       - name: Pass local config
         run : |
-        cat << EOF >> packages/mobile/android/local.properties
-        org.gradle.java.home=/Library/Java/JavaVirtualMachines/jdk-17.jdk/Contents/Home
-        ndk.path=/Users/quiet/Library/Android/sdk/ndk/25.1.8937393
-        EOF
+          cat << EOF >> packages/mobile/android/local.properties
+          org.gradle.java.home=/Library/Java/JavaVirtualMachines/jdk-17.jdk/Contents/Home
+          ndk.path=/Users/quiet/Library/Android/sdk/ndk/25.1.8937393
+          EOF
 
       - name: Build Detox
         run: |
