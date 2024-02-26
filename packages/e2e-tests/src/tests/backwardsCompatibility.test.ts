@@ -56,6 +56,7 @@ describe('Backwards Compatibility', () => {
         })
         .catch(err => {
           console.log('Could not close update modal', err)
+          console.log(ownerAppOldVersion.driver.getPageSource())
         })
     })
 

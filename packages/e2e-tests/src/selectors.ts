@@ -411,9 +411,10 @@ export class UpdateModal {
   async close() {
     const updateModalRootElement = await this.element
     console.log('Found update modal root element')
-    const closeButton = await updateModalRootElement
-      .findElement(By.xpath('//div[@data-testid="ModalActions"]'))
-      .findElement(By.css('button'))
+    const closeButton = await updateModalRootElement.findElement(
+      By.xpath("//*[self::div[@data-testid='ModalActions']]/button")
+    )
+    // .findElement(By.css('button'))
 
     try {
       console.log('Before clicking update modal close button')
