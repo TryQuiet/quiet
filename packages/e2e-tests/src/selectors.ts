@@ -405,7 +405,6 @@ export class UpdateModal {
     return this.driver.wait(
       until.elementLocated(By.xpath("//h3[text()='Software update']/ancestor::div[contains(@class,'MuiModal-root')]"))
     )
-    // return this.driver.wait(until.elementLocated(By.xpath("//h3[text()='Software update']")))
   }
 
   async close() {
@@ -414,7 +413,6 @@ export class UpdateModal {
     const closeButton = await updateModalRootElement.findElement(
       By.xpath("//*[self::div[@data-testid='ModalActions']]/button")
     )
-    // .findElement(By.css('button'))
 
     try {
       console.log('Before clicking update modal close button')

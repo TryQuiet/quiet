@@ -10,7 +10,7 @@ import {
 } from '../selectors'
 import { BACKWARD_COMPATIBILITY_BASE_VERSION, copyInstallerFile, downloadInstaller } from '../utils'
 
-jest.setTimeout(20 * 60_000)
+jest.setTimeout(1200000)
 describe('Backwards Compatibility', () => {
   let ownerAppOldVersion: App
   let ownerAppNewVersion: App
@@ -56,7 +56,6 @@ describe('Backwards Compatibility', () => {
         })
         .catch(err => {
           console.log('Could not close update modal', err)
-          console.log(ownerAppOldVersion.driver.getPageSource())
         })
     })
 
