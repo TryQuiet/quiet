@@ -6,6 +6,7 @@ on:
       - packages/mobile/**
       - packages/backend/**
       - packages/state-manager/**
+      - .github/workflows/e2e-android.yml
 
 jobs:
   detox-android:
