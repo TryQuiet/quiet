@@ -59,7 +59,7 @@ function subscribeSocketLifecycle(socket: Socket, socketIOData: WebsocketConnect
   >(emit => {
     socket.on('connect', async () => {
       socket_id = socket.id
-      console.log('client: Websocket connected', socket_id)
+      console.log('client: Websocket connected!', socket_id)
       emit(initActions.setWebsocketConnected(socketIOData))
     })
     socket.on('disconnect', () => {
