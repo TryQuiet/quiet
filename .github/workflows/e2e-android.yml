@@ -34,6 +34,7 @@ jobs:
 
       - name: Build Detox
         run: |
+          export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk-17.jdk/Contents/Home
           cd packages/mobile
           detox build -c android.emu.debug.ci
 
