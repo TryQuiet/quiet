@@ -264,7 +264,6 @@ describe('DuplicatedUsername component', () => {
                   {
                     "backgroundColor": "#E42656",
                     "borderRadius": 8,
-                    "cursor": "pointer",
                     "flexDirection": "row",
                     "paddingBottom": 3,
                     "paddingLeft": 8,

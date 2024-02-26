@@ -1,4 +1,5 @@
 apply plugin: "com.android.application"
+apply plugin: "org.jetbrains.kotlin.android"
 apply plugin: "kotlin-android"
 
 apply plugin: "com.facebook.react"
@@ -84,8 +85,6 @@ project.ext.react = [
     enableHermes: false,  // clean and rebuild if changing
 ]
 
-apply from: "../../node_modules/react-native/react.gradle"
-
 /**
  * Set this to true to create two separate APKs instead of one:
  *   - An APK that only works on ARM devices
@@ -164,6 +163,7 @@ android {
 
     ndkVersion rootProject.ext.ndkVersion
 
+    buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdkVersion rootProject.ext.compileSdkVersion
 
     compileOptions {
@@ -181,6 +181,8 @@ android {
         pickFirst 'lib/armeabi-v7a/libfbjni.so'
         pickFirst 'lib/arm64-v8a/libfbjni.so'
     }
+
+    namespace "com.quietmobile"
 
     defaultConfig {
         applicationId "com.quietmobile"
@@ -295,20 +297,9 @@ dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
 
+    implementation("com.facebook.react:flipper-integration")
+
     implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.0.0"
-
-    debugImplementation("com.facebook.flipper:flipper:${FLIPPER_VERSION}") {
-      exclude group:'com.facebook.fbjni'
-    }
-
-    debugImplementation("com.facebook.flipper:flipper-network-plugin:${FLIPPER_VERSION}") {
-        exclude group:'com.facebook.flipper'
-        exclude group:'com.squareup.okhttp3', module:'okhttp'
-    }
-
-    debugImplementation("com.facebook.flipper:flipper-fresco-plugin:${FLIPPER_VERSION}") {
-        exclude group:'com.facebook.flipper'
-    }
 
     if (enableHermes) {
         //noinspection GradleDynamicVersion

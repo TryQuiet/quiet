@@ -126,7 +126,7 @@
     "orbit-db-store": "4.3.4",
     "p-queue": "7.3.4",
     "peer-id": "^0.16.0",
-    "pkijs": "3.0.8",
+    "pkijs": "3.0.15",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^7.2.0",

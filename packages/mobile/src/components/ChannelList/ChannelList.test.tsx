@@ -251,7 +251,7 @@ describe('ChannelList component', () => {
           onScrollEndDrag={[Function]}
           removeClippedSubviews={false}
           renderItem={[Function]}
-          scrollEventThrottle={50}
+          scrollEventThrottle={0.0001}
           stickyHeaderIndices={[]}
           style={
             {

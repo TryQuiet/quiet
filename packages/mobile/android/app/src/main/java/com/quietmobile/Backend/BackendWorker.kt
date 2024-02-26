@@ -1,6 +1,8 @@
 package com.quietmobile.Backend;
 
 import android.content.Context
+import android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
+import android.os.Build
 import android.util.Base64
 import android.util.Log
 import androidx.core.app.NotificationCompat
@@ -26,7 +28,6 @@ import kotlinx.coroutines.withContext
 import org.json.JSONException
 import org.json.JSONObject
 import java.util.concurrent.ThreadLocalRandom
-import kotlin.collections.ArrayList
 
 
 class BackendWorker(private val context: Context, workerParams: WorkerParameters) : CoroutineWorker(context, workerParams) {
@@ -76,7 +77,13 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
 
         val id = ThreadLocalRandom.current().nextInt(0, 9000 + 1)
 
-        return ForegroundInfo(id, notification)
+        val foregroundInfo: ForegroundInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            ForegroundInfo(id, notification, FOREGROUND_SERVICE_TYPE_DATA_SYNC)
+        } else {
+            ForegroundInfo(id, notification)
+        }
+
+        return foregroundInfo
     }
 
     override suspend fun doWork(): Result {
@@ -86,7 +93,7 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
         if (running) return Result.success()
         running = true
 
-        setForeground(createForegroundInfo())
+        setForegroundAsync(createForegroundInfo())
 
         withContext(Dispatchers.IO) {
 
