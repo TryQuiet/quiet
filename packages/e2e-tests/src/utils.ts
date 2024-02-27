@@ -6,6 +6,9 @@ import path from 'path'
 import fs from 'fs'
 import { DESKTOP_DATA_DIR } from '@quiet/common'
 
+export const BACKWARD_COMPATIBILITY_BASE_VERSION = '2.0.1' // Pre-latest production version
+const appImagesPath = `${__dirname}/../Quiet`
+
 export interface BuildSetupInit {
   port?: number
   debugPort?: number
@@ -29,9 +32,6 @@ export class BuildSetup {
     this.defaultDataDir = defaultDataDir
     this.dataDir = dataDir
     this.fileName = fileName
-    if (fileName) {
-      this.copyInstallerFile(fileName)
-    }
     if (this.defaultDataDir) this.dataDir = DESKTOP_DATA_DIR
     if (!this.dataDir) {
       this.dataDir = `e2e_${(Math.random() * 10 ** 18).toString(36)}`
@@ -41,20 +41,6 @@ export class BuildSetup {
   async initPorts() {
     this.port = await getPort()
     this.debugPort = await getPort()
-  }
-
-  public copyInstallerFile(copyName: string) {
-    if (process.platform === 'linux') {
-      const base = `${__dirname}/../Quiet/Quiet-1.2.0.AppImage`
-      const copy = `${__dirname}/../Quiet/${copyName}`
-      fs.copyFile(base, copy, err => {
-        if (err) {
-          console.log({ err })
-          throw err
-        }
-        console.log('complete')
-      })
-    }
   }
 
   private getBinaryLocation() {
@@ -102,7 +88,7 @@ export class BuildSetup {
   public async createChromeDriver() {
     await this.initPorts()
     const env = {
-      DEBUG: 'backend*,desktop*,utils*',
+      DEBUG: 'backend*,desktop*,utils*,main*',
       DATA_DIR: this.dataDir,
     }
     if (process.platform === 'win32') {
@@ -265,4 +251,47 @@ export class BuildSetup {
       resourcesPath,
     }
   }
+}
+
+const quietAppImage = (version = BACKWARD_COMPATIBILITY_BASE_VERSION) => {
+  return `Quiet-${version}.AppImage`
+}
+
+export const downloadInstaller = (version = BACKWARD_COMPATIBILITY_BASE_VERSION) => {
+  if (process.platform !== 'linux') throw new Error('Linux support only')
+
+  const appImage = quietAppImage(version)
+  const appImageTargetPath = path.join(appImagesPath, appImage)
+  if (fs.existsSync(appImageTargetPath)) {
+    console.log(`${appImage} already exists. Skipping download.`)
+    return appImage
+  }
+  const downloadUrl = `https://github.com/TryQuiet/quiet/releases/download/%40quiet%2Fdesktop%40${version}/${appImage}`
+  console.log(`Downloading Quiet version: ${version} from ${downloadUrl}`)
+  // With newer curl: execSync(`curl -LO --output-dir ${appImagesPath} ${downloadUrl}`)
+  execSync(`curl -LO ${downloadUrl}`)
+  const appImageDownloadPath = path.join(process.cwd(), appImage)
+  console.log(`Downloaded to ${appImageDownloadPath}`)
+  fs.renameSync(appImageDownloadPath, appImageTargetPath)
+  console.log('Moved to', appImageTargetPath)
+  // Make it executable
+  fs.chmodSync(appImageTargetPath, 0o755)
+  return appImage
+}
+
+export const copyInstallerFile = (file: string) => {
+  if (process.platform !== 'linux') throw new Error('Linux support only')
+
+  const base = path.join(appImagesPath, file)
+  const parsedBase = path.parse(file)
+  const copiedFileName = `${parsedBase.name}-copy${parsedBase.ext}`
+  const copiedFilePath = path.join(appImagesPath, copiedFileName)
+  if (fs.existsSync(copiedFilePath)) {
+    console.log(`${copiedFileName} already exists. Skipping copy.`)
+    return copiedFileName
+  }
+
+  fs.copyFileSync(base, copiedFilePath)
+  console.log(`Copied ${base} to ${copiedFilePath}`)
+  return copiedFileName
 }

@@ -54,6 +54,11 @@ export class App {
     return this.driver.wait(until.elementLocated(By.xpath('//div[@data-testid="save-state-button"]')))
   }
 
+  async closeUpdateModalIfPresent() {
+    const updateModal = new UpdateModal(this.driver)
+    await updateModal.close()
+  }
+
   async saveState() {
     const stateButton = await this.saveStateButton
     await this.driver.executeScript('arguments[0].click();', stateButton)
@@ -396,14 +401,33 @@ export class UpdateModal {
   }
 
   get element() {
-    return this.driver.wait(until.elementLocated(By.xpath("//h3[text()='Software update']")))
+    console.log('Waiting for update modal root element')
+    return this.driver.wait(
+      until.elementLocated(By.xpath("//h3[text()='Software update']/ancestor::div[contains(@class,'MuiModal-root')]"))
+    )
   }
 
   async close() {
-    const closeButton = await this.driver
-      .findElement(By.xpath('//div[@data-testid="ModalActions"]'))
-      .findElement(By.css('button'))
-    await closeButton.click()
+    const updateModalRootElement = await this.element
+    console.log('Found update modal root element')
+    const closeButton = await updateModalRootElement.findElement(
+      By.xpath("//*[self::div[@data-testid='ModalActions']]/button")
+    )
+
+    try {
+      console.log('Before clicking update modal close button')
+      await closeButton.click()
+      return
+    } catch (e) {
+      console.error('Error while clicking close button on update modal', e.message)
+    }
+
+    try {
+      const log = await this.driver.executeScript('arguments[0].click();', closeButton)
+      console.log('executeScript', log)
+    } catch (e) {
+      console.log('Probably clicked hidden close button on update modal')
+    }
   }
 }
 export class Settings {

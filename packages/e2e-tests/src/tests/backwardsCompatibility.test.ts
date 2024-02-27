@@ -7,13 +7,11 @@ import {
   JoinCommunityModal,
   RegisterUsernameModal,
   Sidebar,
-  UpdateModal,
 } from '../selectors'
+import { BACKWARD_COMPATIBILITY_BASE_VERSION, copyInstallerFile, downloadInstaller } from '../utils'
 
-jest.setTimeout(450000)
-describe.skip('Backwards Compatibility', () => {
-  // Note: version that adds PSK is not backward compatible
-  // Skip until psk is released to production
+jest.setTimeout(1200000)
+describe('Backwards Compatibility', () => {
   let ownerAppOldVersion: App
   let ownerAppNewVersion: App
   let generalChannel: Channel
@@ -25,13 +23,16 @@ describe.skip('Backwards Compatibility', () => {
   const communityName = 'testcommunity'
   const ownerUsername = 'bob'
   const ownerMessages = ['Hi', 'Hello', 'After guest leave app']
-  const loopMessages = 'abc'.split('')
+  const loopMessages = 'ąbc'.split('')
   const newChannelName = 'mid-night-club'
 
   const isAlpha = process.env.FILE_NAME?.toString().includes('alpha')
 
   beforeAll(async () => {
-    ownerAppOldVersion = new App({ dataDir, fileName: 'Quiet-1.2.0-copy.AppImage' })
+    // download the old version of the app
+    const appFilename = downloadInstaller()
+    const copiedFilename = copyInstallerFile(appFilename)
+    ownerAppOldVersion = new App({ dataDir, fileName: copiedFilename })
   })
 
   beforeEach(async () => {
@@ -47,13 +48,24 @@ describe.skip('Backwards Compatibility', () => {
       await ownerAppOldVersion.open()
     })
 
-    it('JoinCommunityModal - owner switch to create community', async () => {
+    it('Owner closes "update available" modal if present', async () => {
+      ownerAppOldVersion
+        .closeUpdateModalIfPresent()
+        .then(async () => {
+          console.log('Closed update modal')
+        })
+        .catch(err => {
+          console.log('Could not close update modal', err)
+        })
+    })
+
+    it('Owner sees "join community" modal and switches to "create community" modal', async () => {
       const joinModal = new JoinCommunityModal(ownerAppOldVersion.driver)
       const isJoinModal = await joinModal.element.isDisplayed()
       expect(isJoinModal).toBeTruthy()
       await joinModal.switchToCreateCommunity()
     })
-    it('CreateCommunityModal - owner create his community', async () => {
+    it('Owner submits valid community name', async () => {
       const createModal = new CreateCommunityModal(ownerAppOldVersion.driver)
       const isCreateModal = await createModal.element.isDisplayed()
       expect(isCreateModal).toBeTruthy()
@@ -68,17 +80,6 @@ describe.skip('Backwards Compatibility', () => {
       await registerModal.submit()
     })
 
-    it('Owner sees "update available" modal and closes it', async () => {
-      console.log('waiting for update modal')
-      const updateModal = new UpdateModal(ownerAppOldVersion.driver)
-      console.log('Update Modal - before check with display')
-      const isUpdateModal = await updateModal.element.isDisplayed()
-      console.log('Update Modal - after check with display', isUpdateModal)
-      expect(isUpdateModal).toBeTruthy()
-      console.log('Update Modal - before close')
-      await updateModal.close()
-      console.log('Update Modal - after close')
-    })
     it('Owner registers successfully and sees general channel', async () => {
       generalChannel = new Channel(ownerAppOldVersion.driver, 'general')
       const isGeneralChannel = await generalChannel.element.isDisplayed()
@@ -86,72 +87,72 @@ describe.skip('Backwards Compatibility', () => {
       expect(isGeneralChannel).toBeTruthy()
       expect(generalChannelText).toEqual('# general')
     })
-    it('Verify version - 1.2.0', async () => {
+    it(`Verify version - ${BACKWARD_COMPATIBILITY_BASE_VERSION}`, async () => {
       const settingsModal = await new Sidebar(ownerAppOldVersion.driver).openSettings()
       const isSettingsModal = await settingsModal.element.isDisplayed()
       expect(isSettingsModal).toBeTruthy()
       const settingVersion = await settingsModal.getVersion()
-      expect(settingVersion).toEqual('1.2.0')
+      expect(settingVersion).toEqual(BACKWARD_COMPATIBILITY_BASE_VERSION)
       await settingsModal.close()
     })
-    it('Send message', async () => {
+    it('Sends a message', async () => {
       const isMessageInput = await generalChannel.messageInput.isDisplayed()
       expect(isMessageInput).toBeTruthy()
       await generalChannel.sendMessage(ownerMessages[0])
     })
-    it('Visible message', async () => {
+    it('Sent message is visible on general channel', async () => {
       const messages = await generalChannel.getUserMessages(ownerUsername)
       const text = await messages[1].getText()
       expect(text).toEqual(ownerMessages[0])
     })
-    it('Channel creation - Owner create second channel', async () => {
+    it('Owner creates second channel', async () => {
       sidebar = new Sidebar(ownerAppOldVersion.driver)
       await sidebar.addNewChannel(newChannelName)
       await sidebar.switchChannel(newChannelName)
       const channels = await sidebar.getChannelList()
       expect(channels.length).toEqual(2)
     })
-    it('Channel creation - Owner send message in second channel', async () => {
+    it('Owner sends a message in second channel', async () => {
       secondChannel = new Channel(ownerAppOldVersion.driver, newChannelName)
       const isMessageInput = await secondChannel.messageInput.isDisplayed()
       expect(isMessageInput).toBeTruthy()
       await secondChannel.sendMessage(ownerMessages[1])
     })
-    it('Visible message in second channel', async () => {
+    it('Message is visible in second channel', async () => {
       const messages = await secondChannel.getUserMessages(ownerUsername)
       const text = await messages[1].getText()
       expect(text).toEqual(ownerMessages[1])
     })
 
-    it('Generate random messages on second channel', async () => {
+    it(`User sends another ${loopMessages.length} messages to second channel`, async () => {
       for (const message of loopMessages) {
         await secondChannel.sendMessage(message)
       }
 
       messagesToCompare = await secondChannel.getUserMessages(ownerUsername)
     })
-    it('Close old app', async () => {
+    it('User closes the old app', async () => {
       await ownerAppOldVersion.close()
       await new Promise<void>(resolve => setTimeout(() => resolve(), 5000))
     })
 
     // ________________________________
 
-    it('Owner opens the app on new version', async () => {
+    it('Owner opens the app in new version', async () => {
       console.log('New version', 1)
       ownerAppNewVersion = new App({ dataDir })
       await ownerAppNewVersion.open()
     })
 
-    if (process.env.TEST_MODE && isAlpha) {
-      it('Close debug modal', async () => {
+    if (isAlpha) {
+      it('Owner closes debug modal if opened', async () => {
         console.log('New version', 2)
         const debugModal = new DebugModeModal(ownerAppNewVersion.driver)
         await debugModal.close()
       })
     }
 
-    it('General channel check', async () => {
+    it('Owener sees general channel', async () => {
       console.log('New version', 3)
       generalChannel = new Channel(ownerAppNewVersion.driver, 'general')
       const isGeneralChannel = await generalChannel.element.isDisplayed()
@@ -160,7 +161,7 @@ describe.skip('Backwards Compatibility', () => {
       expect(generalChannelText).toEqual('# general')
     })
 
-    it('Verify version - latest', async () => {
+    it('Confirm that the opened app is the latest version', async () => {
       console.log('New version', 4)
       await new Promise<void>(resolve => setTimeout(() => resolve(), 10000))
       const settingsModal = await new Sidebar(ownerAppNewVersion.driver).openSettings()
@@ -172,7 +173,7 @@ describe.skip('Backwards Compatibility', () => {
       await settingsModal.close()
     })
 
-    it('Check amount of messages on second channel ', async () => {
+    it('Check number of messages on second channel', async () => {
       console.log('New version', 5)
       await new Promise<void>(resolve => setTimeout(() => resolve(), 2000))
       sidebar = new Sidebar(ownerAppNewVersion.driver)

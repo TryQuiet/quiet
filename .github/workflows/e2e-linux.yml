@@ -74,14 +74,6 @@ jobs:
           max_attempts: 1
           command: cd packages/e2e-tests && npm run test invitationLink.test.ts
 
-      - name: Download App Image 1.2.0
-        working-directory: ./packages/e2e-tests/Quiet
-        run: curl -LO https://github.com/TryQuiet/quiet/releases/download/quiet%401.2.0/Quiet-1.2.0.AppImage
-
-      - name: Chmod App Image 1.2.0
-        working-directory: ./packages/e2e-tests/Quiet
-        run: chmod +x Quiet-1.2.0.AppImage
-
       - name: Run Backwards Compatibility test
         uses: nick-fields/retry@v2
         with:
