@@ -5,6 +5,7 @@ import { type CreatedSelectors, type StoreState } from '../store.types'
 import { communitiesSelectors, selectCommunities, currentCommunity } from '../communities/communities.selectors'
 import { certificatesMapping } from '../users/users.selectors'
 import { createLibp2pAddress } from '@quiet/common'
+import { pubKeyFromCsr } from '@quiet/identity'
 
 const identitySlice: CreatedSelectors[StoreKeys.Identity] = (state: StoreState) => state[StoreKeys.Identity]
 
@@ -22,6 +23,13 @@ export const currentIdentity = createSelector(
     return identityAdapter.getSelectors().selectById(reducerState.identities, currentCommunityId)
   }
 )
+
+export const currentPubKey = createSelector(currentIdentity, identity => {
+  if (identity?.userCsr) {
+    return pubKeyFromCsr(identity.userCsr.userCsr)
+  }
+  return undefined
+})
 
 export const currentPeerAddress = createSelector(currentIdentity, identity => {
   if (!identity) return ''
@@ -68,6 +76,7 @@ export const identitySelectors = {
   selectEntities,
   currentIdentity,
   currentPeerAddress,
+  currentPubKey,
   communityMembership,
   joinedCommunities,
   joinTimestamp,
