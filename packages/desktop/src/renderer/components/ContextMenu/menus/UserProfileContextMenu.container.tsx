@@ -113,11 +113,13 @@ export const UserProfileMenuProfileComponent: FC<{ setRoute: (route: string) => 
   const currentIdentity = useSelector(identity.selectors.currentIdentity)
   const userProfile = useSelector(users.selectors.myUserProfile)
   const username = currentIdentity?.nickname || ''
+  const pubKey = useSelector(identity.selectors.currentPubKey)
   const contextMenu = useContextMenu(MenuName.UserProfile)
 
   return (
     <UserProfileMenuProfileView
       username={username}
+      pubKey={pubKey}
       userProfile={userProfile}
       contextMenu={contextMenu}
       setRoute={setRoute}
@@ -127,6 +129,7 @@ export const UserProfileMenuProfileComponent: FC<{ setRoute: (route: string) => 
 
 export interface UserProfileMenuProfileViewProps {
   username: string
+  pubKey?: string
   userProfile?: { profile: { photo: string } }
   contextMenu: {
     // FIXME: should be boolean; useContextMenu typing is broken
@@ -139,6 +142,7 @@ export interface UserProfileMenuProfileViewProps {
 
 export const UserProfileMenuProfileView: FC<UserProfileMenuProfileViewProps> = ({
   username,
+  pubKey,
   userProfile,
   contextMenu,
   setRoute,
@@ -202,7 +206,7 @@ export const UserProfileMenuProfileView: FC<UserProfileMenuProfileViewProps> = (
                         />
                       ) : (
                         <Jdenticon
-                          value={username}
+                          value={pubKey}
                           size='96'
                           style={{
                             width: '96px',
@@ -268,6 +272,7 @@ export const UserProfileMenuEditComponent: FC<{ setRoute: (route: string) => voi
   const currentIdentity = useSelector(identity.selectors.currentIdentity)
   const userProfile = useSelector(users.selectors.myUserProfile)
   const username = currentIdentity?.nickname || ''
+  const pubKey = useSelector(identity.selectors.currentPubKey)
   const contextMenu = useContextMenu(MenuName.UserProfile)
   const onSaveUserProfile = ({ photo }: { photo: File }) => {
     dispatch(users.actions.saveUserProfile({ photo }))
@@ -276,6 +281,7 @@ export const UserProfileMenuEditComponent: FC<{ setRoute: (route: string) => voi
   return (
     <UserProfileMenuEditView
       username={username}
+      pubKey={pubKey}
       userProfile={userProfile}
       contextMenu={contextMenu}
       setRoute={setRoute}
@@ -286,6 +292,7 @@ export const UserProfileMenuEditComponent: FC<{ setRoute: (route: string) => voi
 
 export interface UserProfileMenuEditViewProps {
   username: string
+  pubKey?: string
   userProfile?: { profile: { photo: string } }
   contextMenu: {
     // FIXME: should be boolean; useContextMenu typing is broken
@@ -299,6 +306,7 @@ export interface UserProfileMenuEditViewProps {
 
 export const UserProfileMenuEditView: FC<UserProfileMenuEditViewProps> = ({
   username,
+  pubKey,
   userProfile,
   contextMenu,
   setRoute,
@@ -410,7 +418,7 @@ export const UserProfileMenuEditView: FC<UserProfileMenuEditViewProps> = ({
                         />
                       ) : (
                         <Jdenticon
-                          value={username}
+                          value={pubKey}
                           size='96'
                           style={{
                             width: '96px',
