@@ -1,3 +1,32 @@
+# Change Log
+
+All notable changes to this project will be documented in this file.
+See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+## [2.1.2-alpha.0](/compare/@quiet/desktop@2.0.3-alpha.15...@quiet/desktop@2.1.2-alpha.0) (2024-02-28)
+
+
+### Bug Fixes
+
+* "Invite A Friend" tab now reads "Add Members" (#2234) 049cd56, closes #2234
+* Clean up desktop UI console errors/warnings (#2226) 570a7a9, closes #2226
+* cleanup username creation component (#2216) 1d03995, closes #2216
+* create jdenticon from pubKey, not username - to distinguish user… (#2207) fd8bd06, closes #2207
+* Enable channel context menu for all users (#2206) 02f6809, closes #2206
+* Make community name field text visible on create community page (#2233) 0f4a33f, closes #2233
+* make sure local peer's address in in invitation link (#2268) 53f1ec9, closes #2268
+* pasting multiple files #1987 (#2306) 7c6b669, closes #1987 #2306
+* Remove duplicate introduction messages once again (#2296) 655a812, closes #2296
+
+
+### Features
+
+* Add user profile feature for desktop (#1923) d016be5, closes #1923
+
+
+
+
+
 [2.1.1]
 
 # Fixes:
