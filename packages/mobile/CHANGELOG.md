@@ -1,3 +1,19 @@
+# Change Log
+
+All notable changes to this project will be documented in this file.
+See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+## [2.1.2-alpha.2](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@2.1.2-alpha.1...@quiet/mobile@2.1.2-alpha.2) (2024-02-28)
+
+
+### Bug Fixes
+
+* Android Play Store upload requires permissions ([60676de](https://github.com/TryQuiet/quiet/commit/60676decc0d448c306c2ea996dc4cf804bdd9634))
+
+
+
+
+
 [unreleased]
 
 
