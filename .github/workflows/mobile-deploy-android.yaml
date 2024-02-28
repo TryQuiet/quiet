@@ -26,13 +26,13 @@ jobs:
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
-          java-version: 11
+          java-version: 17
 
       - name: "Set up NDK"
         uses: nttld/setup-ndk@v1
         id: setup-ndk
         with:
-          ndk-version: r21e
+          ndk-version: r25b
           add-to-path: false
 
       - name: "Setup environment"
@@ -42,7 +42,7 @@ jobs:
 
       - name: "Create gradle configuration directory"
         run: mkdir -p $HOME/.gradle
-      
+
       - name: "Prepare ndk configuration"
         run: |
           printf "\
