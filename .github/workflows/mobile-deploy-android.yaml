@@ -37,8 +37,7 @@ jobs:
 
       - name: "Install Bundletool"
         run: |
-          wget https://github.com/google/bundletool/releases/download/1.15.6/bundletool-all-1.15.6.jar -O bundletool.jar
-          echo alias bundletool='java -jar /usr/local/bin/bundletool.jar' > ~/.bashrc
+          wget https://github.com/google/bundletool/releases/download/1.15.6/bundletool-all-1.15.6.jar -O /usr/local/bin/bundletool.jar
 
       - name: "Setup environment"
         uses: ./.github/actions/setup-env
@@ -79,7 +78,7 @@ jobs:
 
       - name: "Build .apks"
         run: |
-          bundletool build-apks \
+          java -jar /usr/local/bin/bundletool.jar build-apks \
             --bundle=./packages/mobile/android/app/build/outputs/bundle/standardRelease/app-standard-release.aab \
             --output=./packages/mobile/android/app/build/outputs/bundle/standardRelease/app-standard-release.apks \
             --ks=./packages/mobile/android/app/quietmobile.keystore \
