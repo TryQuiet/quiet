@@ -188,8 +188,8 @@ android {
         applicationId "com.quietmobile"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 403
-        versionName "2.1.2-alpha.7"
+        versionCode 404
+        versionName "2.1.2-alpha.8"
         resValue "string", "build_config_package", "com.quietmobile"
         testBuildType System.getProperty('testBuildType', 'debug')
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
