@@ -35,6 +35,12 @@ jobs:
           ndk-version: r25b
           add-to-path: false
 
+      - name: "Install Bundletool"
+        run: |
+          apt install wget
+          wget https://github.com/google/bundletool/releases/download/1.15.6/bundletool-all-1.15.6.jar -O bundletool.jar
+          echo alias bundletool='java -jar /usr/local/bin/bundletool.jar' > ~/.bashrc
+
       - name: "Setup environment"
         uses: ./.github/actions/setup-env
         with:
