@@ -69,7 +69,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: app-standard-release.apk
-          path: ./packages/mobile/android/app/build/outputs/apk/standard/app-standard-release.apk
+          path: ./packages/mobile/android/app/build/outputs/apk/standard/release/app-standard-release.apk
 
       - name: "Get release"
         id: get_release
@@ -83,6 +83,6 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           upload_url: ${{ steps.get_release.outputs.upload_url }}
-          asset_path: ./packages/mobile/android/app/build/outputs/apk/standard/app-standard-release.apk
+          asset_path: ./packages/mobile/android/app/build/outputs/apk/standard/release/app-standard-release.apk
           asset_name: app-standard-release.apk
           asset_content_type: application/.apk
