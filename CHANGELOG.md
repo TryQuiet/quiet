@@ -1,5 +1,9 @@
 [unreleased]
 
+
+
+[2.1.2]
+
 # Refactorings:
 
 * Rename and reorganize frontend/backend events API

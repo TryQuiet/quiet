@@ -1,31 +1,23 @@
-# Change Log
+[2.1.2]
 
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+# Refactorings:
 
-## [2.1.2-alpha.0](/compare/@quiet/desktop@2.0.3-alpha.15...@quiet/desktop@2.1.2-alpha.0) (2024-02-28)
+* Rename and reorganize frontend/backend events API
+* Rename message retrieval events/sagas and use ack feature
+* Rename LOAD_MESSAGES event and incomingMessages reducer
+* Use socket.io ack for CREATE_CHANNEL event
+* Introduce socket.io acknowledgements
 
+# Fixes:
 
-### Bug Fixes
+* Remove duplicate introduction messages once again
+* Prevent channel creation with names that start with special character, then a hyphen
+* Choose random ports for Tor services (iOS)
+* Use consistent identicons for messages and profile
 
-* "Invite A Friend" tab now reads "Add Members" (#2234) 049cd56, closes #2234
-* Clean up desktop UI console errors/warnings (#2226) 570a7a9, closes #2226
-* cleanup username creation component (#2216) 1d03995, closes #2216
-* create jdenticon from pubKey, not username - to distinguish user… (#2207) fd8bd06, closes #2207
-* Enable channel context menu for all users (#2206) 02f6809, closes #2206
-* Make community name field text visible on create community page (#2233) 0f4a33f, closes #2233
-* make sure local peer's address in in invitation link (#2268) 53f1ec9, closes #2268
-* pasting multiple files #1987 (#2306) 7c6b669, closes #1987 #2306
-* Remove duplicate introduction messages once again (#2296) 655a812, closes #2296
+# Other:
 
-
-### Features
-
-* Add user profile feature for desktop (#1923) d016be5, closes #1923
-
-
-
-
+* Upgraded React-Native to 0.73.2
 
 [2.1.1]
 
