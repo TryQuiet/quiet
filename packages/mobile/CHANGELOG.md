@@ -1,29 +1,23 @@
-# Change Log
+[2.1.2]
 
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+# Refactorings:
 
-## [2.1.2-alpha.0](/compare/@quiet/mobile@2.0.3-alpha.17...@quiet/mobile@2.1.2-alpha.0) (2024-02-28)
+* Rename and reorganize frontend/backend events API
+* Rename message retrieval events/sagas and use ack feature
+* Rename LOAD_MESSAGES event and incomingMessages reducer
+* Use socket.io ack for CREATE_CHANNEL event
+* Introduce socket.io acknowledgements
 
+# Fixes:
 
-### Bug Fixes
+* Remove duplicate introduction messages once again
+* Prevent channel creation with names that start with special character, then a hyphen
+* Choose random ports for Tor services (iOS)
+* Use consistent identicons for messages and profile
 
-* ask push notification runtime permission on Android (#2213) 2f92e88, closes #2213
-* calling init websocket connection (#2261) fe1d9dd, closes #2261
-* cleanup username creation component (#2216) 1d03995, closes #2216
-* create jdenticon from pubKey, not username - to distinguish user… (#2207) fd8bd06, closes #2207
-* deep linking issues (#2154) 2867264, closes #2154 #1970
-* delay node start (#2300) 810f7c3, closes #2300
-* make sure local peer's address in in invitation link (#2268) 53f1ec9, closes #2268
+# Other:
 
-
-### Features
-
-* Add user profile feature for desktop (#1923) d016be5, closes #1923
-
-
-
-
+* Upgraded React-Native to 0.73.2
 
 [2.1.1]
 
