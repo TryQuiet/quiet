@@ -61,16 +61,32 @@ jobs:
       - name: "Decode keystore"
         run: echo ${{ SECRETS.GOOGLE_KEYSTORE }} | base64 --decode > ./packages/mobile/android/app/quietmobile.keystore
 
-      - name: "Build for Android"
+      - name: "Build .aab"
         run: cd ./packages/mobile/android && ENVFILE=../.env.production ./gradlew bundleStandardRelease
 
-      - name: "Upload Artifact"
+      - name: "Upload .abb to artifacts"
         continue-on-error: true
         uses: actions/upload-artifact@v3
         with:
           name: app-standard-release.aab
           path: ./packages/mobile/android/app/build/outputs/bundle/standardRelease/app-standard-release.aab
           retention-days: 5
+
+      - name: "Build .apks"
+        run: |
+          bundletool build-apks \
+            --bundle=./packages/mobile/android/app/build/outputs/bundle/standardRelease/app-standard-release.aab \
+            --output=./packages/mobile/android/app/build/outputs/bundle/standardRelease/app-standard-release.apks \
+            --ks=./packages/mobile/android/app/quietmobile.keystore \
+            --ks-pass=pass:${{ SECRETS.GOOGLE_KEYSTORE_PASSWORD }} \
+            --ks-key-alias=${{ SECRETS.GOOGLE_KEYSTORE_ALIAS }}
+
+      - name: "Upload .apks to artifacts"
+        continue-on-error: true
+        uses: actions/upload-artifact@v3
+        with:
+          name: app-standard-release.apks
+          path: ./packages/mobile/android/app/build/outputs/bundle/standardRelease/app-standard-release.apks
 
       - name: "Configure Google Play upload"
         run: |
