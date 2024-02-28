@@ -1,19 +1,16 @@
 name: Deploy Android to Google Play
 
-# on:
-#   release:
-#     types:
-#       [prereleased, released]
-
 on:
-  push:
+  release:
+    types:
+      [prereleased, released]
 
 jobs:
   build-android:
     # needs: detox-android
     runs-on: ${{ matrix.os }}
-    # if: |
-    #   startsWith(github.ref, 'refs/tags/@quiet/mobile')
+    if: |
+      startsWith(github.ref, 'refs/tags/@quiet/mobile')
 
     strategy:
       matrix:
