@@ -4,5 +4,5 @@
  * @returns string with special characters replaced with a hyphen
  */
 export const parseName = (name = '') => {
-  return name.replace(/[^\w._-]/g, '-')
+  return name.replace(/[^\w._-]/g, '-').toLowerCase()
 }

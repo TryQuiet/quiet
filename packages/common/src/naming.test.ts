@@ -4,7 +4,7 @@ describe('Naming policy utility functions', () => {
   it.each([
     ['---', '---'],
     [' ', '-'],
-    ['UPPERCASE', 'UPPERCASE'],
+    ['UPPERCASE', 'uppercase'],
     ['lowercase', 'lowercase'],
     ['!@#$%^&*()', '----------'],
   ])('name "%s" gets corrected to "%s"', async (name: string, corrected: string) => {

@@ -1,4 +1,4 @@
-import { FieldErrors, CommunityNameErrors, InviteLinkErrors } from '../fieldsErrors'
+import { FieldErrors, CommunityNameErrors } from '../fieldsErrors'
 import { FieldData } from '../types'
 
 export const communityNameField = (name = 'name'): FieldData => {
@@ -18,9 +18,6 @@ export const communityNameField = (name = 'name'): FieldData => {
       pattern: {
         value: /^[-a-zA-Z0-9 ]+$/g,
         message: CommunityNameErrors.WrongCharacter,
-      },
-      validate: {
-        whitespaces: value => /^(?![\s-])[\w\s-]+$/.test(value) || FieldErrors.Whitespaces,
       },
     },
   }

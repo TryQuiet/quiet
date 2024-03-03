@@ -86,7 +86,7 @@ describe('Add new channel', () => {
     const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
       nickname: 'alice',
     })
-    const channelName = { input: 'my-Super Channel ', output: 'my-super-channel' }
+    const channelName = { input: 'my-Super Channel ', output: 'my-super-channel-' }
 
     const mockImpl = async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
       const action = input[0]
@@ -234,7 +234,7 @@ describe('Add new channel', () => {
   })
 
   it('Bug reproduction - open and close modal and check there are any errors', async () => {
-    const channelName = '---'
+    const channelName = ''
     const { store } = await prepareStore(
       {},
       socket // Fork state manager's sagas
@@ -268,7 +268,7 @@ describe('Add new channel', () => {
     const button = screen.getByText('Create Channel')
     await userEvent.click(button)
 
-    const error = await screen.findByText(FieldErrors.Whitespaces)
+    const error = await screen.findByText(FieldErrors.Required)
     expect(error).toBeVisible()
 
     const closeChannel = screen.getByTestId('ModalActions').querySelector('button')
@@ -283,7 +283,7 @@ describe('Add new channel', () => {
     const title2 = await screen.findByText('Create a new public channel')
     expect(title2).toBeVisible()
 
-    const isErrorStillExist = screen.queryByText(FieldErrors.Whitespaces)
+    const isErrorStillExist = screen.queryByText(FieldErrors.Required)
     expect(isErrorStillExist).toBeNull()
   })
 
