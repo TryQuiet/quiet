@@ -23,7 +23,6 @@ import {
   ErrorMessages,
   getFactory,
   errors,
-  ResponseCreateNetworkPayload,
 } from '@quiet/state-manager'
 import Channel from '../renderer/components/Channel/Channel'
 import LoadingPanel from '../renderer/components/LoadingPanel/LoadingPanel'
@@ -34,6 +33,7 @@ import {
   ChannelsReplicatedPayload,
   Community,
   ErrorPayload,
+  type NetworkInfo,
   ResponseLaunchCommunityPayload,
   SendOwnerCertificatePayload,
   SocketActionTypes,
@@ -87,22 +87,19 @@ describe('User', () => {
 
     const factory = await getFactory(store)
 
-    jest.spyOn(socket, 'emit').mockImplementation(async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
+    const mockImpl = async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
       const action = input[0]
       if (action === SocketActionTypes.CREATE_NETWORK) {
         const payload = input[1] as Community
-        return socket.socketClient.emit<ResponseCreateNetworkPayload>(SocketActionTypes.NETWORK_CREATED, {
-          community: payload,
-          network: {
-            hiddenService: {
-              onionAddress: 'onionAddress',
-              privateKey: 'privKey',
-            },
-            peerId: {
-              id: 'peerId',
-            },
+        return {
+          hiddenService: {
+            onionAddress: 'onionAddress',
+            privateKey: 'privKey',
           },
-        })
+          peerId: {
+            id: 'peerId',
+          },
+        }
       }
       if (action === SocketActionTypes.LAUNCH_COMMUNITY) {
         const payload = input[1] as InitCommunityPayload
@@ -123,7 +120,11 @@ describe('User', () => {
           },
         })
       }
-    })
+    }
+
+    jest.spyOn(socket, 'emit').mockImplementation(mockImpl)
+    // @ts-ignore
+    socket.emitWithAck = mockImpl
 
     // Log all the dispatched actions in order
     const actions: AnyAction[] = []
@@ -175,10 +176,8 @@ describe('User', () => {
         "Communities/setCurrentCommunity",
         "Modals/closeModal",
         "Modals/openModal",
-        "Identity/registerUsername",
-        "Communities/responseCreateNetwork",
-        "Communities/updateCommunityData",
         "Identity/addNewIdentity",
+        "Identity/registerUsername",
         "Network/setLoadingPanelType",
         "Modals/openModal",
         "Identity/registerCertificate",
@@ -231,16 +230,13 @@ describe('User', () => {
       const action = input[0]
       if (action === SocketActionTypes.CREATE_NETWORK) {
         const payload = input[1] as Community
-        return socket.socketClient.emit<ResponseCreateNetworkPayload>(SocketActionTypes.NETWORK_CREATED, {
-          community: payload,
-          network: {
-            hiddenService: {
-              onionAddress: 'onionAddress',
-              privateKey: 'privKey',
-            },
-            peerId: {
-              id: 'peerId',
-            },
+        return socket.socketClient.emit<NetworkInfo>(SocketActionTypes.NETWORK_CREATED, {
+          hiddenService: {
+            onionAddress: 'onionAddress',
+            privateKey: 'privKey',
+          },
+          peerId: {
+            id: 'peerId',
           },
         })
       }
@@ -319,16 +315,13 @@ describe('User', () => {
       const action = input[0]
       if (action === SocketActionTypes.CREATE_NETWORK) {
         const payload = input[1] as Community
-        return socket.socketClient.emit<ResponseCreateNetworkPayload>(SocketActionTypes.NETWORK_CREATED, {
-          community: payload,
-          network: {
-            hiddenService: {
-              onionAddress: 'onionAddress',
-              privateKey: 'privKey',
-            },
-            peerId: {
-              id: 'peerId',
-            },
+        return socket.socketClient.emit<NetworkInfo>(SocketActionTypes.NETWORK_CREATED, {
+          hiddenService: {
+            onionAddress: 'onionAddress',
+            privateKey: 'privKey',
+          },
+          peerId: {
+            id: 'peerId',
           },
         })
       }

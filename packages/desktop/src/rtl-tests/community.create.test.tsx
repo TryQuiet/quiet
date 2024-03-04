@@ -14,13 +14,12 @@ import { CreateCommunityDictionary } from '../renderer/components/CreateJoinComm
 import MockedSocket from 'socket.io-mock'
 import { ioMock } from '../shared/setupTests'
 import { socketEventData } from '../renderer/testUtils/socket'
-import { Community, SavedOwnerCertificatePayload, SocketActionTypes } from '@quiet/types'
+import { Community, type NetworkInfo, SavedOwnerCertificatePayload, SocketActionTypes } from '@quiet/types'
 import {
   ChannelsReplicatedPayload,
   InitCommunityPayload,
   publicChannels,
   RegisterOwnerCertificatePayload,
-  ResponseCreateNetworkPayload,
   ResponseLaunchCommunityPayload,
 } from '@quiet/state-manager'
 import Channel from '../renderer/components/Channel/Channel'
@@ -73,18 +72,15 @@ describe('User', () => {
       if (action === SocketActionTypes.CREATE_NETWORK) {
         const data = input[1] as Community
         const payload = { ...data, privateKey: 'privateKey' }
-        socket.socketClient.emit<ResponseCreateNetworkPayload>(SocketActionTypes.NETWORK_CREATED, {
-          community: payload,
-          network: {
-            hiddenService: {
-              onionAddress: 'onionAddress',
-              privateKey: 'privKey',
-            },
-            peerId: {
-              id: 'peerId',
-            },
+        return {
+          hiddenService: {
+            onionAddress: 'onionAddress',
+            privateKey: 'privKey',
           },
-        })
+          peerId: {
+            id: 'peerId',
+          },
+        }
       }
       if (action === SocketActionTypes.REGISTER_OWNER_CERTIFICATE) {
         const payload = input[1] as RegisterOwnerCertificatePayload
@@ -170,12 +166,10 @@ describe('User', () => {
         "Communities/createNetwork",
         "Communities/addNewCommunity",
         "Communities/setCurrentCommunity",
+        "Identity/addNewIdentity",
         "Modals/closeModal",
         "Modals/openModal",
         "Identity/registerUsername",
-        "Communities/responseCreateNetwork",
-        "Communities/updateCommunityData",
-        "Identity/addNewIdentity",
         "Network/setLoadingPanelType",
         "Modals/openModal",
         "Identity/registerCertificate",

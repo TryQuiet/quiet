@@ -1,6 +1,8 @@
 [unreleased]
 
+# Refactorings:
 
+* Use ack for CREATE_NETWORK and simplify
 
 [2.1.2]
 
