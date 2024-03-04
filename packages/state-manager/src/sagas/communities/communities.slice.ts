@@ -15,7 +15,6 @@ export class CommunitiesState {
   public invitationCodes: InvitationPair[] = []
   public currentCommunity = ''
   public communities: EntityState<Community> = communitiesAdapter.getInitialState()
-  public psk: string | undefined
 }
 
 export const communitiesSlice = createSlice({
@@ -58,8 +57,35 @@ export const communitiesSlice = createSlice({
       state.invitationCodes = []
     },
     saveCommunityMetadata: (state, _action: PayloadAction<CommunityMetadata>) => state,
-    savePSK: (state, action: PayloadAction<string>) => {
-      state.psk = action.payload
+    /**
+     * Migrate data in this store. This is necessary because we persist the
+     * Redux data to disk (it's not reset on each app start). Another option for
+     * migrations might be to migrate fields when we access them, but not sure
+     * how that would work with Redux since it is particular about the data
+     * flow. If there is an action that is called each time the app runs, that
+     * is another place where migrations can happen. This function is meant to
+     * be called once the store has been rehydrated from storage.
+     */
+    migrate: state => {
+      // MIGRATION: Move CommunitiesState.psk to Community.psk
+
+      // Removing psk from the CommunitiesState class causes type errors. Below
+      // is one solution. Another alternative is making CommunitiesState a union
+      // type, e.g. CommunitiesStateV1 | CommunitiesStateV2, or simply leaving
+      // the psk field in CommunitiesState and marking it deprecated in a
+      // comment.
+      const prevState = state as CommunitiesState & { psk?: string | undefined }
+
+      if (prevState.psk) {
+        communitiesAdapter.updateOne(prevState.communities, {
+          // At this time we only have a single community
+          id: prevState.currentCommunity,
+          changes: {
+            psk: prevState.psk,
+          },
+        })
+      }
+      delete prevState.psk
     },
   },
 })

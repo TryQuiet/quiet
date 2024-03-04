@@ -2,6 +2,7 @@ import { eventChannel } from 'redux-saga'
 import { type Socket } from '../../../types'
 import { all, call, fork, put, takeEvery } from 'typed-redux-saga'
 import logger from '../../../utils/logger'
+import { appActions } from '../../app/app.slice'
 import { appMasterSaga } from '../../app/app.master.saga'
 import { connectionActions } from '../../appConnection/connection.slice'
 import { communitiesMasterSaga } from '../../communities/communities.master.saga'
@@ -85,9 +86,9 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof connectionActions.setTorInitialized>
     | ReturnType<typeof communitiesActions.saveCommunityMetadata>
     | ReturnType<typeof communitiesActions.sendCommunityMetadata>
-    | ReturnType<typeof communitiesActions.savePSK>
     | ReturnType<typeof communitiesActions.sendCommunityCaData>
     | ReturnType<typeof usersActions.setUserProfiles>
+    | ReturnType<typeof appActions.loadMigrationData>
   >(emit => {
     // UPDATE FOR APP
     socket.on(SocketActionTypes.TOR_INITIALIZED, () => {
@@ -104,6 +105,9 @@ export function subscribe(socket: Socket) {
     socket.on(SocketActionTypes.PEER_DISCONNECTED, (payload: NetworkDataPayload) => {
       emit(networkActions.removeConnectedPeer(payload.peer))
       emit(connectionActions.updateNetworkData(payload))
+    })
+    socket.on(SocketActionTypes.MIGRATION_DATA_REQUIRED, (keys: string[]) => {
+      emit(appActions.loadMigrationData(keys))
     })
     // Files
     socket.on(SocketActionTypes.MESSAGE_MEDIA_UPDATED, (payload: FileMetadata) => {
@@ -136,21 +140,6 @@ export function subscribe(socket: Socket) {
 
     // Community
 
-    socket.on(SocketActionTypes.COMMUNITY_CREATED, async (payload: ResponseCreateCommunityPayload) => {
-      log(`${SocketActionTypes.COMMUNITY_CREATED}: ${payload}`)
-      // We can also set community metadata when we register the
-      // owner's certificate. I think the only issue is that we
-      // register the owner's certificate before initializing the
-      // community and thus the storage service.
-      emit(communitiesActions.sendCommunityMetadata())
-      emit(publicChannelsActions.createGeneralChannel())
-      // We also save the owner's CSR after registering their
-      // certificate. It works, but it might make more sense to get
-      // all the backend services up and running and then save the
-      // CSR, register the owner's certificate and set community
-      // metadata.
-      emit(identityActions.saveUserCsr())
-    })
     socket.on(SocketActionTypes.PEER_LIST, (payload: StorePeerListPayload) => {
       emit(communitiesActions.storePeerList(payload))
     })
@@ -201,10 +190,6 @@ export function subscribe(socket: Socket) {
     socket.on(SocketActionTypes.COMMUNITY_METADATA_STORED, (payload: CommunityMetadata) => {
       log(`${SocketActionTypes.COMMUNITY_METADATA_STORED}: ${payload}`)
       emit(communitiesActions.saveCommunityMetadata(payload))
-    })
-    socket.on(SocketActionTypes.LIBP2P_PSK_STORED, (payload: { psk: string }) => {
-      log(`${SocketActionTypes.LIBP2P_PSK_STORED}`)
-      emit(communitiesActions.savePSK(payload.psk))
     })
 
     // User Profile

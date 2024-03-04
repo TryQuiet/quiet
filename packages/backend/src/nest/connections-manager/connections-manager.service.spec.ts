@@ -95,21 +95,23 @@ describe('ConnectionsManagerService', () => {
       'y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd',
       'QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE'
     )
-    const launchCommunityPayload: InitCommunityPayload = {
+
+    // Using the factory includes extra properties that affect the assertion
+    // below
+    const actualCommunity = {
       id: community.id,
+      peerList: [remotePeer],
+    }
+    await localDbService.setCommunity(actualCommunity)
+    await localDbService.setCurrentCommunityId(community.id)
+    // TODO: Revisit this when we move the Identity model to the backend, since
+    // this network data lives in that model.
+    const network = {
       peerId: userIdentity.peerId,
       hiddenService: userIdentity.hiddenService,
-      certs: {
-        // @ts-expect-error
-        certificate: userIdentity.userCertificate,
-        // @ts-expect-error
-        key: userIdentity.userCsr?.userKey,
-        CA: [communityRootCa],
-      },
-      peers: [remotePeer],
     }
+    await localDbService.setNetworkInfo(network)
 
-    await localDbService.put(LocalDBKeys.COMMUNITY, launchCommunityPayload)
     await connectionsManagerService.closeAllServices()
 
     const launchCommunitySpy = jest.spyOn(connectionsManagerService, 'launchCommunity').mockResolvedValue()
@@ -117,7 +119,10 @@ describe('ConnectionsManagerService', () => {
     await connectionsManagerService.init()
 
     const localPeerAddress = createLibp2pAddress(userIdentity.hiddenService.onionAddress, userIdentity.peerId.id)
-    const updatedLaunchCommunityPayload = { ...launchCommunityPayload, peers: [localPeerAddress, remotePeer] }
+    const updatedLaunchCommunityPayload = {
+      community: { ...actualCommunity, peerList: [localPeerAddress, remotePeer] },
+      network,
+    }
 
     expect(launchCommunitySpy).toHaveBeenCalledWith(updatedLaunchCommunityPayload)
   })
@@ -129,50 +134,16 @@ describe('ConnectionsManagerService', () => {
     expect(launchCommunitySpy).not.toHaveBeenCalled()
   })
 
-  // At this moment, that test have to be skipped, because checking statues is called before launchCommunity method
-  it.skip('community is only launched once', async () => {
-    const launchCommunityPayload: InitCommunityPayload = {
-      id: community.id,
-      peerId: userIdentity.peerId,
-      hiddenService: userIdentity.hiddenService,
-      certs: {
-        // @ts-expect-error
-        certificate: userIdentity.userCertificate,
-        // @ts-expect-error
-        key: userIdentity.userCsr?.userKey,
-        CA: [communityRootCa],
-      },
-      peers: community.peerList,
-    }
-
-    //@ts-ignore
-    const launchSpy = jest.spyOn(connectionsManagerService, 'launch').mockResolvedValue('address')
-
-    await Promise.all([
-      connectionsManagerService.launchCommunity(launchCommunityPayload),
-      connectionsManagerService.launchCommunity(launchCommunityPayload),
-    ])
-
-    expect(launchSpy).toBeCalledTimes(1)
-  })
-
   it('Bug reproduction - Error on startup - Error: TOR: Connection already established - Trigger launchCommunity from backend and state manager', async () => {
-    const launchCommunityPayload: InitCommunityPayload = {
-      id: community.id,
+    await localDbService.setCommunity(community)
+    await localDbService.setCurrentCommunityId(community.id)
+    // TODO: Revisit this when we move the Identity model to the backend, since
+    // this network data lives in that model.
+    const network = {
       peerId: userIdentity.peerId,
       hiddenService: userIdentity.hiddenService,
-      certs: {
-        // @ts-expect-error
-        certificate: userIdentity.userCertificate,
-        // @ts-expect-error
-        key: userIdentity.userCsr?.userKey,
-        CA: [communityRootCa],
-      },
-      peers: community.peerList,
     }
-
-    // await connectionsManager.init()
-    await localDbService.put(LocalDBKeys.COMMUNITY, launchCommunityPayload)
+    await localDbService.setNetworkInfo(network)
 
     const peerid = 'QmaEvCkpUG7GxhgvMkk8wxurfi1ehjHhSUNRksWTmXN2ix'
     await localDbService.put(LocalDBKeys.PEERS, {

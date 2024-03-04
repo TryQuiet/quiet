@@ -18,14 +18,6 @@ export interface Certificates {
   CA: string[]
 }
 
-export interface InitCommunityPayload {
-  id: string
-  peerId: PeerId
-  hiddenService: HiddenService
-  certs: Certificates
-  peers?: string[]
-}
-
 export interface StorePeerListPayload {
   communityId: string
   peerList: string[]
