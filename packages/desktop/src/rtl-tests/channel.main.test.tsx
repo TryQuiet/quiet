@@ -767,7 +767,7 @@ describe('Channel', () => {
 
     const uploadingDelay = 100
 
-    jest.spyOn(socket, 'emit').mockImplementation(async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
+    const mockEmitImpl = async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
       const action = input[0]
       if (action === SocketActionTypes.LAUNCH_COMMUNITY) {
         const data = input[1] as InitCommunityPayload
@@ -816,7 +816,11 @@ describe('Channel', () => {
           peerId: alice.peerId.id,
         })
       }
-    })
+    }
+
+    jest.spyOn(socket, 'emit').mockImplementation(mockEmitImpl)
+    // @ts-ignore
+    socket.emitWithAck = mockEmitImpl
 
     const { store, runSaga } = await prepareStore(
       initialState.getState(),
@@ -964,7 +968,7 @@ describe('Channel', () => {
       })
     )
 
-    jest.spyOn(socket, 'emit').mockImplementation(async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
+    const mockEmitImpl = async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
       const action = input[0]
       if (action === SocketActionTypes.LAUNCH_COMMUNITY) {
         const data = input[1] as InitCommunityPayload
@@ -983,7 +987,11 @@ describe('Channel', () => {
           path: `${__dirname}/test-image.jpeg`,
         })
       }
-    })
+    }
+
+    jest.spyOn(socket, 'emit').mockImplementation(mockEmitImpl)
+    // @ts-ignore
+    socket.emitWithAck = mockEmitImpl
 
     const { store, runSaga } = await prepareStore(
       initialState.getState(),

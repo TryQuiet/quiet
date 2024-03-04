@@ -44,6 +44,7 @@ export interface Certificates {
 
 export interface InitCommunityPayload {
   id: string
+  name?: string
   peerId: PeerId
   hiddenService: HiddenService
   certs?: Certificates

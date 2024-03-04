@@ -151,20 +151,26 @@ export class SocketService extends EventEmitter implements OnModuleInit {
       })
 
       // ====== Community ======
-      socket.on(SocketActionTypes.CREATE_COMMUNITY, async (payload: InitCommunityPayload) => {
-        this.logger(`Creating community ${payload.id}`)
-        this.emit(SocketActionTypes.CREATE_COMMUNITY, payload)
-      })
+      socket.on(
+        SocketActionTypes.CREATE_COMMUNITY,
+        async (payload: InitCommunityPayload, callback: (response: Community) => void) => {
+          this.logger(`Creating community ${payload.id}`)
+          this.emit(SocketActionTypes.CREATE_COMMUNITY, payload, callback)
+        }
+      )
 
-      socket.on(SocketActionTypes.LAUNCH_COMMUNITY, async (payload: InitCommunityPayload) => {
-        this.logger(`Launching community ${payload.id} for ${payload.peerId.id}`)
-        this.emit(SocketActionTypes.LAUNCH_COMMUNITY, payload)
-        this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.LAUNCHING_COMMUNITY)
-      })
+      socket.on(
+        SocketActionTypes.LAUNCH_COMMUNITY,
+        async (payload: InitCommunityPayload, callback: (response: Community | undefined) => void) => {
+          this.logger(`Launching community ${payload.id} for ${payload.peerId.id}`)
+          this.emit(SocketActionTypes.LAUNCH_COMMUNITY, payload, callback)
+          this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.LAUNCHING_COMMUNITY)
+        }
+      )
 
       socket.on(
         SocketActionTypes.CREATE_NETWORK,
-        async (communityId: string, callback: (response?: NetworkInfo) => void) => {
+        async (communityId: string, callback: (response: NetworkInfo | undefined) => void) => {
           this.logger(`Creating network for community ${communityId}`)
           this.emit(SocketActionTypes.CREATE_NETWORK, communityId, callback)
         }
@@ -195,6 +201,12 @@ export class SocketService extends EventEmitter implements OnModuleInit {
 
       socket.on(SocketActionTypes.SET_USER_PROFILE, (profile: UserProfile) => {
         this.emit(SocketActionTypes.SET_USER_PROFILE, profile)
+      })
+
+      // ====== Misc ======
+
+      socket.on(SocketActionTypes.LOAD_MIGRATION_DATA, async (data: Record<string, any>) => {
+        this.emit(SocketActionTypes.LOAD_MIGRATION_DATA, data)
       })
     })
   }

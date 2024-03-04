@@ -52,7 +52,6 @@ describe('Deep linking', () => {
         "Communities/customProtocol",
         "Communities/createNetwork",
         "Communities/setInvitationCodes",
-        "Communities/savePSK",
         "Communities/addNewCommunity",
         "Communities/setCurrentCommunity",
         "Communities/customProtocol",

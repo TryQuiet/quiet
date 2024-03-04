@@ -2,15 +2,20 @@
  * Backend API event types. Currently, these are divided into two
  * groups: pure events and actions. Pure events are emitted from the
  * backend to notify the frontend of something and are generally named
- * with the past tense (e.g. COMMUNITY_CREATED), while actions are
- * emitted from the frontend in order to invoke the backend to do
- * something on it's behalf and are generally named as a command (e.g.
- * CREATE_COMMUNITY).
+ * with the past tense (e.g. COMMUNITY_LAUNCHED) or as a noun (e.g.
+ * CONNECTION_PROCESS_INFO), while actions are emitted from the
+ * frontend in order to invoke the backend to do something on it's
+ * behalf and are generally named as a command (e.g.
+ * CREATE_COMMUNITY). Events generally don't expect a response, while
+ * actions tend to have a callback for returning data (using Socket.IO
+ * acknowledgements feature to reduce the amount of events like
+ * EVENT_REQUEST/EVENT_RESPONSE).
+ *
+ * NOTE: I've been adding docstrings to document the events here.
  */
 export enum SocketActionTypes {
   // ====== Community ======
 
-  COMMUNITY_CREATED = 'communityCreated',
   COMMUNITY_LAUNCHED = 'communityLaunched',
   COMMUNITY_METADATA_STORED = 'communityMetadataStored',
   CREATE_COMMUNITY = 'createCommunity',
@@ -67,7 +72,6 @@ export enum SocketActionTypes {
   CONNECTION_PROCESS_INFO = 'connectionProcess',
   CREATE_NETWORK = 'createNetwork',
   LIBP2P_PSK_STORED = 'libp2pPskStored',
-  NETWORK_CREATED = 'networkCreated',
   PEER_CONNECTED = 'peerConnected',
   PEER_DISCONNECTED = 'peerDisconnected',
   PEER_LIST = 'peerList',
@@ -75,6 +79,17 @@ export enum SocketActionTypes {
 
   // ====== Misc ======
 
+  /**
+   * For moving data from the frontend to the backend. Load migration
+   * data into the backend.
+   */
+  LOAD_MIGRATION_DATA = 'loadMigrationData',
+  /**
+   * For moving data from the frontend to the backend. The backend may
+   * require frontend data for migrations when loading an existing
+   * community from storage.
+   */
+  MIGRATION_DATA_REQUIRED = 'migrationDataRequired',
   PUSH_NOTIFICATION = 'pushNotification',
   ERROR = 'error',
 }

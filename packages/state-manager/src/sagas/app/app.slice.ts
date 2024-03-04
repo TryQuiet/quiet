@@ -1,4 +1,4 @@
-import { createSlice } from '@reduxjs/toolkit'
+import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
 import { StoreKeys } from '../store.keys'
 
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
@@ -10,6 +10,7 @@ export const appSlice = createSlice({
   reducers: {
     closeServices: state => state,
     stopBackend: state => state,
+    loadMigrationData: (state, action: PayloadAction<string[]>) => state,
   },
 })
 

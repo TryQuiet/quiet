@@ -16,6 +16,7 @@ import {
   FilesTransform,
   ConnectionTransform,
   UsersTransform,
+  communities,
 } from '@quiet/state-manager'
 
 import { StoreKeys } from './store.keys'
@@ -68,4 +69,5 @@ export const store = configureStore({
 
 export const persistor = persistStore(store, {}, () => {
   store.dispatch(initActions.setStoreReady())
+  store.dispatch(communities.actions.migrate())
 })
