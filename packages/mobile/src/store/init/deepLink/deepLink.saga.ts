@@ -8,7 +8,7 @@ import { initActions } from '../init.slice'
 import { appImages } from '../../../assets'
 import { replaceScreen } from '../../../RootNavigation'
 import { CommunityOwnership, CreateNetworkPayload, InvitationData } from '@quiet/types'
-import { areObjectsEqual } from '../../../utils/functions/areObjectsEqual/areObjectsEqual'
+import { areObjectsEqual } from '@quiet/common'
 
 export function* deepLinkSaga(action: PayloadAction<ReturnType<typeof initActions.deepLink>['payload']>): Generator {
   const code = action.payload

@@ -79,8 +79,9 @@ if (!gotTheLock) {
     if (mainWindow) {
       if (mainWindow.isMinimized()) mainWindow.restore()
       mainWindow.focus()
-      const invitationCode = argvInvitationCode(commandLine)
-      processInvitationCode(mainWindow, invitationCode)
+      // const invitationCode = argvInvitationCode(commandLine)
+      // TODO: what should we do if there is no invitation code? Do nothing?
+      processInvitationCode(mainWindow, commandLine)
     }
   })
 }
@@ -157,8 +158,8 @@ app.on('open-url', (event, url) => {
   if (mainWindow) {
     invitationUrl = null
     try {
-      const invitationData = parseInvitationCodeDeepUrl(url)
-      processInvitationCode(mainWindow, invitationData)
+      // const invitationData = parseInvitationCodeDeepUrl(url)
+      processInvitationCode(mainWindow, url)
     } catch (e) {
       console.warn(e.message)
     }
@@ -494,8 +495,8 @@ app.on('ready', async () => {
     }
     if (process.platform === 'darwin' && invitationUrl) {
       try {
-        const invitationData = parseInvitationCodeDeepUrl(invitationUrl)
-        processInvitationCode(mainWindow, invitationData)
+        // const invitationData = parseInvitationCodeDeepUrl(invitationUrl)
+        processInvitationCode(mainWindow, invitationUrl)
       } catch (e) {
         console.warn(e.message)
       } finally {
@@ -503,9 +504,10 @@ app.on('ready', async () => {
       }
     }
     if (process.platform !== 'darwin' && process.argv) {
+      // TODO: when argv is used?
       try {
-        const invitationCode = argvInvitationCode(process.argv)
-        processInvitationCode(mainWindow, invitationCode)
+        // const invitationCode = argvInvitationCode(process.argv)
+        processInvitationCode(mainWindow, process.argv)
       } catch (e) {
         console.warn(e.message)
       }

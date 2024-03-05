@@ -20,10 +20,18 @@ ipcRenderer.on('force-save-state', async _event => {
   ipcRenderer.send('state-saved')
 })
 
-ipcRenderer.on('invitation', (_event, invitation: { data: InvitationData }) => {
-  if (!invitation.data) return
-  console.log('invitation', invitation.data.pairs, 'dispatching action')
-  store.dispatch(communities.actions.customProtocol(invitation.data))
+ipcRenderer.on('invitation', (_event, invitation: { code: string | string[] }) => {
+  console.log('ipcRenderer.on(invitation)', invitation)
+  if (!invitation.code) return
+
+  let invitationData: string[]
+  if (typeof invitation.code === 'string') {
+    invitationData = [invitation.code]
+  } else {
+    invitationData = invitation.code
+  }
+  console.log('invitation', invitationData, 'dispatching action')
+  store.dispatch(communities.actions.customProtocol(invitationData))
 })
 
 ipcRenderer.on('socketIOSecret', (_event, socketIOSecret) => {

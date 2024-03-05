@@ -52,7 +52,7 @@ export const communitiesSlice = createSlice({
     },
     resetApp: (state, _action) => state,
     launchCommunity: (state, _action: PayloadAction<string | undefined>) => state,
-    customProtocol: (state, _action: PayloadAction<InvitationData>) => state,
+    customProtocol: (state, _action: PayloadAction<string[]>) => state,
     setInvitationCodes: (state, action: PayloadAction<InvitationPair[]>) => {
       state.invitationCodes = action.payload
     },

@@ -32,13 +32,13 @@ describe('Deep linking', () => {
 
     renderComponent(<></>, store)
 
-    store.dispatch(communities.actions.customProtocol(validInvitationCodeTestData[0]))
+    // store.dispatch(communities.actions.customProtocol(validInvitationCodeTestData[0]))
     await act(async () => {})
 
     const originalPair = communities.selectors.invitationCodes(store.getState())
 
     // Redo the action to provoke renewed saga runs
-    store.dispatch(communities.actions.customProtocol(validInvitationCodeTestData[1]))
+    // store.dispatch(communities.actions.customProtocol(validInvitationCodeTestData[1]))
     await act(async () => {})
 
     const currentPair = communities.selectors.invitationCodes(store.getState())

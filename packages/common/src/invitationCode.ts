@@ -23,7 +23,7 @@ const parseDeepUrl = ({ url, expectedProtocol = `${DEEP_URL_SCHEME}:` }: ParseDe
   if (!expectedProtocol) {
     // Create a full url to be able to use the same URL parsing mechanism
     expectedProtocol = `${DEEP_URL_SCHEME}:`
-    _url = `${DEEP_URL_SCHEME}://?${url}`
+    _url = `${DEEP_URL_SCHEME_WITH_SEPARATOR}?${url}`
   }
 
   try {
@@ -148,11 +148,12 @@ const composeInvitationUrl = (baseUrl: string, data: InvitationData): string => 
 export const argvInvitationCode = (argv: string[]): InvitationData | null => {
   let invitationData: InvitationData | null = null
   for (const arg of argv) {
-    try {
-      invitationData = parseInvitationCodeDeepUrl(arg)
-    } catch (e) {
+    if (!arg.startsWith(DEEP_URL_SCHEME_WITH_SEPARATOR)) {
+      console.log('Not a deep url, not parsing', arg)
       continue
     }
+    console.log('Parsing deep url', arg)
+    invitationData = parseInvitationCodeDeepUrl(arg)
     if (invitationData.pairs.length > 0) {
       break
     } else {

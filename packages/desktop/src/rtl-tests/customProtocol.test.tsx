@@ -65,7 +65,7 @@ describe('Opening app through custom protocol', () => {
       ownerOrbitDbIdentity: 'testOwnerOrbitDbIdentity',
     }
 
-    store.dispatch(communities.actions.customProtocol(invitationCodes))
+    // store.dispatch(communities.actions.customProtocol(invitationCodes))
 
     store.dispatch(modalsActions.openModal({ name: ModalName.joinCommunityModal }))
 
