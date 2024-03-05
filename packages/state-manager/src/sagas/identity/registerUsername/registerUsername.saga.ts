@@ -4,9 +4,9 @@ import { createUserCsr, getPubKey, keyObjectFromString, loadPrivateKey, pubKeyFr
 import { identitySelectors } from '../identity.selectors'
 import { identityActions } from '../identity.slice'
 import { config } from '../../users/const/certFieldTypes'
-import { Socket, applyEmitParams } from '../../../types'
+import { Socket } from '../../../types'
 import { communitiesSelectors } from '../../communities/communities.selectors'
-import { CreateUserCsrPayload, RegisterCertificatePayload, SocketActionTypes, Community } from '@quiet/types'
+import { CreateUserCsrPayload, RegisterCertificatePayload, Community } from '@quiet/types'
 
 export function* registerUsernameSaga(
   socket: Socket,
@@ -21,23 +21,6 @@ export function* registerUsernameSaga(
   if (!community) {
     console.error('Could not register username, no community data')
     return
-  }
-
-  // Is there another way to reorganize the following code? Can we
-  // emit the CREATE_NETWORK event in the createNetworkSaga?
-
-  const psk = yield* select(communitiesSelectors.psk)
-  const networkPayload: Community = {
-    id: community.id,
-    name: community.name,
-    CA: community.CA,
-    rootCa: community.CA?.rootCertString,
-    psk: psk,
-    ownerOrbitDbIdentity: community.ownerOrbitDbIdentity,
-  }
-
-  if (!isUsernameTaken) {
-    yield* apply(socket, socket.emit, applyEmitParams(SocketActionTypes.CREATE_NETWORK, networkPayload))
   }
 
   let identity = yield* select(identitySelectors.currentIdentity)

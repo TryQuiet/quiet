@@ -60,18 +60,6 @@ describe('registerUsernameSaga', () => {
       .withReducer(reducer)
       .withState(store.getState())
       .provide([[call.fn(createUserCsr), userCsr]])
-      .apply(socket, socket.emit, [
-        SocketActionTypes.CREATE_NETWORK,
-        {
-          id: community.id,
-          name: community.name,
-          CA: community.CA,
-          rootCa: undefined,
-          psk: psk,
-          ownerOrbitDbIdentity: 'ownerOrbitDbId',
-        },
-      ])
-      .dispatch(identityActions.addNewIdentity(identity))
       .call(createUserCsr, createUserCsrPayload)
       .put(
         identityActions.registerCertificate({

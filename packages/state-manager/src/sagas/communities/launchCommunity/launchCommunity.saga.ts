@@ -11,6 +11,7 @@ import { networkSelectors } from '../../network/network.selectors'
 import { pairsToP2pAddresses } from '@quiet/common'
 import { type InitCommunityPayload, SocketActionTypes } from '@quiet/types'
 
+// TODO: Remove if unused
 export function* initCommunities(): Generator {
   const joinedCommunities = yield* select(identitySelectors.joinedCommunities)
 
@@ -27,15 +28,12 @@ export function* initCommunities(): Generator {
 
 export function* launchCommunitySaga(
   socket: Socket,
-  action: PayloadAction<ReturnType<typeof communitiesActions.launchCommunity>['payload'] | undefined>
+  action: PayloadAction<ReturnType<typeof communitiesActions.launchCommunity>['payload']>
 ): Generator {
-  let communityId: string | undefined = action.payload
-
-  if (!communityId) {
-    communityId = yield* select(communitiesSelectors.currentCommunityId)
-  }
-
+  const communityId = action.payload
+  const community = yield* select(communitiesSelectors.selectById(communityId))
   const identity = yield* select(identitySelectors.selectById(communityId))
+
   if (!identity?.userCsr?.userKey) {
     console.error('Could not launch community, No identity private key')
     return
@@ -43,6 +41,7 @@ export function* launchCommunitySaga(
 
   const invitationCodes = yield* select(communitiesSelectors.invitationCodes)
   let peerList: string[] = []
+
   if (invitationCodes) {
     peerList = pairsToP2pAddresses(invitationCodes)
   } else {
@@ -54,6 +53,8 @@ export function* launchCommunitySaga(
     peerId: identity.peerId,
     hiddenService: identity.hiddenService,
     peers: peerList,
+    psk: community?.psk,
+    ownerOrbitDbIdentity: community?.ownerOrbitDbIdentity,
   }
 
   yield* apply(socket, socket.emit, applyEmitParams(SocketActionTypes.LAUNCH_COMMUNITY, payload))

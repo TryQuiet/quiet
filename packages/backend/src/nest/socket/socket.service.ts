@@ -20,6 +20,7 @@ import {
   type UserProfile,
   type DeleteChannelResponse,
   type MessagesLoadedPayload,
+  type NetworkInfo,
 } from '@quiet/types'
 import EventEmitter from 'events'
 import { CONFIG_OPTIONS, SERVER_IO_PROVIDER } from '../const'
@@ -161,10 +162,13 @@ export class SocketService extends EventEmitter implements OnModuleInit {
         this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.LAUNCHING_COMMUNITY)
       })
 
-      socket.on(SocketActionTypes.CREATE_NETWORK, async (community: Community) => {
-        this.logger(`Creating network for community ${community.id}`)
-        this.emit(SocketActionTypes.CREATE_NETWORK, community)
-      })
+      socket.on(
+        SocketActionTypes.CREATE_NETWORK,
+        async (communityId: string, callback: (response?: NetworkInfo) => void) => {
+          this.logger(`Creating network for community ${communityId}`)
+          this.emit(SocketActionTypes.CREATE_NETWORK, communityId, callback)
+        }
+      )
 
       socket.on(SocketActionTypes.LEAVE_COMMUNITY, async () => {
         this.logger('Leaving community')

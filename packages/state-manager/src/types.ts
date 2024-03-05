@@ -12,6 +12,7 @@ import {
   type GetMessagesPayload,
   type InitCommunityPayload,
   type MessagesLoadedPayload,
+  type NetworkInfo,
   type RegisterOwnerCertificatePayload,
   type RegisterUserCertificatePayload,
   type SaveOwnerCertificatePayload,
@@ -48,7 +49,7 @@ export interface EmitEvents {
   [SocketActionTypes.DELETE_FILES_FROM_CHANNEL]: EmitEvent<DeleteFilesFromChannelSocketPayload>
   [SocketActionTypes.CLOSE]: () => void
   [SocketActionTypes.LEAVE_COMMUNITY]: () => void
-  [SocketActionTypes.CREATE_NETWORK]: EmitEvent<Community>
+  [SocketActionTypes.CREATE_NETWORK]: EmitEvent<string, (response?: NetworkInfo) => void>
   [SocketActionTypes.ADD_CSR]: EmitEvent<SaveCSRPayload>
   [SocketActionTypes.SET_COMMUNITY_METADATA]: EmitEvent<CommunityMetadata, (response: CommunityMetadata) => void>
   [SocketActionTypes.SET_COMMUNITY_CA_DATA]: EmitEvent<PermsData>

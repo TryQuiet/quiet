@@ -115,6 +115,8 @@ describe('launchCommunity', () => {
           peerId: launchCommunityPayload.peerId,
           hiddenService: launchCommunityPayload.hiddenService,
           peers: launchCommunityPayload.peers,
+          psk: undefined,
+          ownerOrbitDbIdentity: undefined,
         },
       ])
       .run()
@@ -177,6 +179,8 @@ describe('launchCommunity', () => {
           peerId: launchCommunityPayload.peerId,
           hiddenService: launchCommunityPayload.hiddenService,
           peers: launchCommunityPayload.peers,
+          psk: undefined,
+          ownerOrbitDbIdentity: undefined,
         },
       ])
       .run()
@@ -238,6 +242,8 @@ describe('launchCommunity', () => {
           hiddenService: launchCommunityPayload.hiddenService,
           certs: launchCommunityPayload.certs,
           peers: launchCommunityPayload.peers,
+          psk: undefined,
+          ownerOrbitDbIdentity: undefined,
         },
       ])
       .run()
