@@ -15,7 +15,6 @@ import MockedSocket from 'socket.io-mock'
 import { ioMock } from '../shared/setupTests'
 import { socketEventData } from '../renderer/testUtils/socket'
 import {
-  identity,
   communities,
   RegisterUserCertificatePayload,
   InitCommunityPayload,
@@ -26,7 +25,6 @@ import {
 } from '@quiet/state-manager'
 import Channel from '../renderer/components/Channel/Channel'
 import LoadingPanel from '../renderer/components/LoadingPanel/LoadingPanel'
-import { createUserCertificateTestHelper } from '@quiet/identity'
 import { AnyAction } from 'redux'
 import {
   InvitationData,
@@ -35,7 +33,6 @@ import {
   ErrorPayload,
   type NetworkInfo,
   ResponseLaunchCommunityPayload,
-  SendOwnerCertificatePayload,
   SocketActionTypes,
 } from '@quiet/types'
 import { composeInvitationShareUrl } from '@quiet/common'

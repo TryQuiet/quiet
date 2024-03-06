@@ -11,7 +11,6 @@ import { AnyAction } from 'redux'
 import { identity, publicChannels, getFactory, ChannelsReplicatedPayload } from '@quiet/state-manager'
 import { SocketActionTypes } from '@quiet/types'
 import Channel from '../renderer/components/Channel/Channel'
-import { waitFor } from '@testing-library/dom'
 
 jest.setTimeout(20_000)
 

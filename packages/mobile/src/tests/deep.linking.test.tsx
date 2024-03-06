@@ -57,8 +57,6 @@ describe('Deep linking', () => {
         "Communities/addNewCommunity",
         "Communities/setCurrentCommunity",
         "Init/deepLink",
-        "Init/resetDeepLink",
-        "Navigation/replaceScreen",
       ]
     `)
 
