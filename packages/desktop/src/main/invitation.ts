@@ -6,6 +6,7 @@ import { BrowserWindow } from 'electron'
 
 export const processInvitationCode = (mainWindow: BrowserWindow, code: string | string[]) => {
   console.log('processInvitationCode:', code)
+  if (!code || !code.length) return
   mainWindow.webContents.send('invitation', {
     code,
   })
