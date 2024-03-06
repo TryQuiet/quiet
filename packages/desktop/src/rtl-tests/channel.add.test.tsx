@@ -262,7 +262,6 @@ describe('Add new channel', () => {
 
     const user = userEvent.setup()
     const input = screen.getByPlaceholderText('Enter a channel name')
-    await user.type(input, channelName)
     expect(input).toHaveValue(channelName)
 
     const button = screen.getByText('Create Channel')
