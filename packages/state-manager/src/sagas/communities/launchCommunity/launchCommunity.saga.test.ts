@@ -171,14 +171,6 @@ describe('launchCommunity', () => {
       id: community.id,
       peerId: identity.peerId,
       hiddenService: identity.hiddenService,
-      certs: {
-        // @ts-expect-error
-        certificate: identity.userCertificate,
-        // @ts-expect-error
-        key: identity.userCsr.userKey,
-        // @ts-expect-error
-        CA: [community.rootCa],
-      },
       peers: community.peerList,
     }
 

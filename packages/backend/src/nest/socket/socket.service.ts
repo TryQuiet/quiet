@@ -143,17 +143,10 @@ export class SocketService extends EventEmitter implements OnModuleInit {
         this.emit(SocketActionTypes.ADD_CSR, payload)
       })
 
-      socket.on(SocketActionTypes.REGISTER_OWNER_CERTIFICATE, async (payload: RegisterOwnerCertificatePayload) => {
-        this.logger(`Registering owner certificate (${payload.communityId})`)
-
-        this.emit(SocketActionTypes.REGISTER_OWNER_CERTIFICATE, payload)
-        this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.REGISTERING_OWNER_CERTIFICATE)
-      })
-
       // ====== Community ======
       socket.on(
         SocketActionTypes.CREATE_COMMUNITY,
-        async (payload: InitCommunityPayload, callback: (response: Community) => void) => {
+        async (payload: InitCommunityPayload, callback: (response: Community | undefined) => void) => {
           this.logger(`Creating community ${payload.id}`)
           this.emit(SocketActionTypes.CREATE_COMMUNITY, payload, callback)
         }

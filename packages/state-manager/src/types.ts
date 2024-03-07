@@ -37,9 +37,8 @@ export interface EmitEvents {
   [SocketActionTypes.SEND_MESSAGE]: EmitEvent<SendMessagePayload>
   [SocketActionTypes.CANCEL_DOWNLOAD]: EmitEvent<CancelDownloadPayload>
   [SocketActionTypes.UPLOAD_FILE]: EmitEvent<UploadFilePayload>
-  [SocketActionTypes.REGISTER_OWNER_CERTIFICATE]: EmitEvent<RegisterOwnerCertificatePayload>
   [SocketActionTypes.REGISTER_USER_CERTIFICATE]: EmitEvent<RegisterUserCertificatePayload>
-  [SocketActionTypes.CREATE_COMMUNITY]: EmitEvent<InitCommunityPayload, (response: Community) => void>
+  [SocketActionTypes.CREATE_COMMUNITY]: EmitEvent<InitCommunityPayload, (response: Community | undefined) => void>
   [SocketActionTypes.GET_MESSAGES]: EmitEvent<GetMessagesPayload, (response?: MessagesLoadedPayload) => void>
   [SocketActionTypes.CREATE_CHANNEL]: EmitEvent<CreateChannelPayload, (response?: CreateChannelResponse) => void>
   [SocketActionTypes.DELETE_CHANNEL]: EmitEvent<

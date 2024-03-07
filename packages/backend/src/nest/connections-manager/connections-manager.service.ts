@@ -29,6 +29,7 @@ import {
   NetworkDataPayload,
   NetworkInfo,
   NetworkStats,
+  type SavedOwnerCertificatePayload,
   PushNotificationPayload,
   RegisterOwnerCertificatePayload,
   RemoveDownloadStatus,
@@ -61,7 +62,7 @@ import { StorageEvents } from '../storage/storage.types'
 import { LazyModuleLoader } from '@nestjs/core'
 import Logger from '../common/logger'
 import { emitError } from '../socket/socket.errors'
-import { isPSKcodeValid } from '@quiet/common'
+import { createLibp2pAddress, isPSKcodeValid } from '@quiet/common'
 import { createRootCA } from '@quiet/identity'
 
 @Injectable()
@@ -139,7 +140,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     }
 
     this.attachSocketServiceListeners()
-    this.attachRegistrationListeners()
     this.attachTorEventsListeners()
     this.attachStorageListeners()
 
@@ -284,8 +284,8 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     const hiddenService = await this.tor.createNewHiddenService({ targetPort: this.ports.libp2pHiddenService })
     await this.tor.destroyHiddenService(hiddenService.onionAddress.split('.')[0])
 
-    // Do we want to create the PeerId here? It doesn't necessarily
-    // have anything to do with Tor.
+    // TODO: Do we want to create the PeerId here? It doesn't necessarily have
+    // anything to do with Tor.
     const peerId: PeerId = await PeerId.create()
     const peerIdJson = peerId.toJSON()
     this.logger(`Created network for peer ${peerId.toString()}. Address: ${hiddenService.onionAddress}`)
@@ -311,26 +311,50 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       return
     }
 
+    // TODO: Should we save this network info in LevelDB at this point?
     return network
   }
 
-  public async createCommunity(payload: InitCommunityPayload): Promise<Community> {
+  public async createCommunity(payload: InitCommunityPayload): Promise<Community | undefined> {
     this.logger('Creating community: peers:', payload.peers)
 
-    const notBeforeDate = new Date(Date.UTC(2010, 11, 28, 10, 10, 10))
-    const notAfterDate = new Date(Date.UTC(2030, 11, 28, 10, 10, 10))
-    const CA = createRootCA(
-      new Time({ type: 0, value: notBeforeDate }),
-      new Time({ type: 0, value: notAfterDate }),
-      payload.name
-    )
+    if (!payload.CA || !payload.rootCa) {
+      this.logger.error('CA and rootCa are required to create community')
+      return
+    }
+
+    if (!payload.ownerCsr) {
+      this.logger.error('ownerCsr is required to create community')
+      return
+    }
+
     const psk = Libp2pService.generateLibp2pPSK().psk
+    let ownerCertResult: SavedOwnerCertificatePayload
+
+    try {
+      this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.REGISTERING_OWNER_CERTIFICATE)
+      ownerCertResult = await this.registrationService.registerOwnerCertificate({
+        communityId: payload.id,
+        userCsr: payload.ownerCsr,
+        permsData: {
+          certificate: payload.CA.rootCertString,
+          privKey: payload.CA.rootKeyString,
+        },
+      })
+    } catch (e) {
+      this.logger.error('Failed to register owner certificate')
+      return
+    }
+
+    const localAddress = createLibp2pAddress(payload.hiddenService.onionAddress, payload.peerId.id)
 
     const community = {
       id: payload.id,
       name: payload.name,
-      CA,
-      rootCa: CA.rootCertString,
+      CA: payload.CA,
+      rootCa: payload.rootCa,
+      peerList: [localAddress],
+      ownerCertificate: ownerCertResult.network.certificate,
       psk: psk,
     }
 
@@ -354,6 +378,11 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   public async joinCommunity(payload: InitCommunityPayload): Promise<Community | undefined> {
     this.logger('Joining community: peers:', payload.peers)
 
+    if (!payload.peers || payload.peers.length === 0) {
+      this.logger.error('Joining community: Peers required')
+      return
+    }
+
     if (!payload.psk || !isPSKcodeValid(payload.psk)) {
       this.logger.error('Joining community: Libp2p PSK is not valid')
       emitError(this.serverIoProvider.io, {
@@ -374,8 +403,11 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       return
     }
 
+    const localAddress = createLibp2pAddress(payload.hiddenService.onionAddress, payload.peerId.id)
+
     const community = {
       id: payload.id,
+      peerList: [...new Set([localAddress, ...payload.peers])],
       psk: payload.psk,
       ownerOrbitDbIdentity: payload.ownerOrbitDbIdentity,
     }
@@ -459,11 +491,8 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     const restoredRsa = await PeerId.createFromJSON(network.peerId)
     const peerId = await peerIdFromKeys(restoredRsa.marshalPubKey(), restoredRsa.marshalPrivKey())
 
-    let peers = community.peerList
+    const peers = community.peerList
     this.logger(`Launching community ${community.id}: payload peers: ${peers}`)
-    if (!peers || peers.length === 0) {
-      peers = [this.libp2pService.createLibp2pAddress(onionAddress, peerId.toString())]
-    }
 
     const params: Libp2pNodeParams = {
       peerId,
@@ -471,7 +500,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       agent: this.socksProxyAgent,
       localAddress: this.libp2pService.createLibp2pAddress(onionAddress, peerId.toString()),
       targetPort: this.ports.libp2pHiddenService,
-      peers,
+      peers: peers ?? [],
       psk: Libp2pService.generateLibp2pPSK(community.psk).fullKey,
     }
     await this.libp2pService.createInstance(params)
@@ -524,16 +553,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     })
   }
 
-  private attachRegistrationListeners() {
-    this.registrationService.on(SocketActionTypes.OWNER_CERTIFICATE_ISSUED, payload => {
-      // TODO: Update community in local DB and emit COMMUNITY_UPDATED event
-      this.serverIoProvider.io.emit(SocketActionTypes.OWNER_CERTIFICATE_ISSUED, payload)
-    })
-    this.registrationService.on(RegistrationEvents.ERROR, payload => {
-      emitError(this.serverIoProvider.io, payload)
-    })
-  }
-
   private attachSocketServiceListeners() {
     // Community
     this.socketService.on(SocketActionTypes.CONNECTION, async () => {
@@ -562,7 +581,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     )
     this.socketService.on(
       SocketActionTypes.CREATE_COMMUNITY,
-      async (args: InitCommunityPayload, callback: (response: Community) => void) => {
+      async (args: InitCommunityPayload, callback: (response: Community | undefined) => void) => {
         this.logger(`socketService - ${SocketActionTypes.CREATE_COMMUNITY}`)
         callback(await this.createCommunity(args))
       }
@@ -596,12 +615,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       this.logger(`socketService - ${SocketActionTypes.ADD_CSR}`)
       await this.storageService?.saveCSR(payload)
     })
-    this.socketService.on(
-      SocketActionTypes.REGISTER_OWNER_CERTIFICATE,
-      async (args: RegisterOwnerCertificatePayload) => {
-        await this.registrationService.registerOwnerCertificate(args)
-      }
-    )
     // TODO: With the Community model on the backend, there is no need to call
     // SET_COMMUNITY_CA_DATA anymore. We can call setPermsData when
     // creating the community.
