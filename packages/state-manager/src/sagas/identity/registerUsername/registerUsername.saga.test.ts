@@ -217,8 +217,6 @@ describe('registerUsernameSaga', () => {
         rootCa: 'rootCa',
         peerList: [],
         onionAddress: '',
-        privateKey: '',
-        port: 0,
       }
     )
 

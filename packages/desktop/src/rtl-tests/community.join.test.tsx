@@ -170,12 +170,12 @@ describe('User', () => {
     expect(actions).toMatchInlineSnapshot(`
       Array [
         "Communities/createNetwork",
-        "Communities/setInvitationCodes",
         "Communities/addNewCommunity",
         "Communities/setCurrentCommunity",
+        "Communities/setInvitationCodes",
+        "Identity/addNewIdentity",
         "Modals/closeModal",
         "Modals/openModal",
-        "Identity/addNewIdentity",
         "Identity/registerUsername",
         "Network/setLoadingPanelType",
         "Modals/openModal",

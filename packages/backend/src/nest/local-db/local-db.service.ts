@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common'
 import { Level } from 'level'
-import { InitCommunityPayload, NetworkInfo, NetworkStats, Identity, Community } from '@quiet/types'
+import { type Community, type Identity, InitCommunityPayload, type NetworkInfo, NetworkStats } from '@quiet/types'
 import { createLibp2pAddress, filterAndSortPeers } from '@quiet/common'
 import { LEVEL_DB } from '../const'
 import { LocalDBKeys, LocalDbStatus } from './local-db.types'

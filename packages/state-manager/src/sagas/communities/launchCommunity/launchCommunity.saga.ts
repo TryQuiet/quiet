@@ -11,7 +11,6 @@ import { networkSelectors } from '../../network/network.selectors'
 import { pairsToP2pAddresses } from '@quiet/common'
 import { type Community, type InitCommunityPayload, SocketActionTypes } from '@quiet/types'
 
-// TODO: Remove if unused
 export function* initCommunities(): Generator {
   const joinedCommunities = yield* select(identitySelectors.joinedCommunities)
 

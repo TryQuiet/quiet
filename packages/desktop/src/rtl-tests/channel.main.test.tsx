@@ -903,7 +903,7 @@ describe('Channel', () => {
 
     const community: Community = await factory.create<
       ReturnType<typeof communities.actions.addNewCommunity>['payload']
-    >('Community', { rootCa: 'rootCa', privateKey: 'privateKey' })
+    >('Community', { rootCa: 'rootCa' })
 
     const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
       id: community.id,

@@ -24,15 +24,6 @@ export enum StorageEvents {
   COMMUNITY_METADATA_STORED = 'communityMetadataStored',
 }
 
-export interface InitStorageParams {
-  communityId: string
-  peerId: any
-  onionAddress: string
-  targetPort: number
-  peers?: string[]
-  certs: Certificates
-}
-
 export interface CsrReplicatedPromiseValues {
   promise: Promise<unknown>
   resolveFunction: any

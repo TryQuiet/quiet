@@ -48,6 +48,7 @@ export const communitiesSlice = createSlice({
       })
     },
     resetApp: (state, _action) => state,
+    createCommunity: (state, _action: PayloadAction<string>) => state,
     launchCommunity: (state, _action: PayloadAction<string>) => state,
     customProtocol: (state, _action: PayloadAction<InvitationData>) => state,
     setInvitationCodes: (state, action: PayloadAction<InvitationPair[]>) => {
@@ -59,12 +60,8 @@ export const communitiesSlice = createSlice({
     saveCommunityMetadata: (state, _action: PayloadAction<CommunityMetadata>) => state,
     /**
      * Migrate data in this store. This is necessary because we persist the
-     * Redux data to disk (it's not reset on each app start). Another option for
-     * migrations might be to migrate fields when we access them, but not sure
-     * how that would work with Redux since it is particular about the data
-     * flow. If there is an action that is called each time the app runs, that
-     * is another place where migrations can happen. This function is meant to
-     * be called once the store has been rehydrated from storage.
+     * Redux data to disk (it's not reset on each app start). This function is
+     * meant to be called once the store has been rehydrated from storage.
      */
     migrate: state => {
       // MIGRATION: Move CommunitiesState.psk to Community.psk

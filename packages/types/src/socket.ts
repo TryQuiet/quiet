@@ -60,9 +60,7 @@ export enum SocketActionTypes {
   ADD_CSR = 'addCsr',
   CERTIFICATES_STORED = 'certificatesStored',
   CSRS_STORED = 'csrsStored',
-  OWNER_CERTIFICATE_ISSUED = 'ownerCertificateIssued',
   REGISTER_USER_CERTIFICATE = 'registerUserCertificate',
-  REGISTER_OWNER_CERTIFICATE = 'registerOwnerCertificate',
 
   // ====== Network ======
 

@@ -64,10 +64,10 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof errorsActions.handleError>
     | ReturnType<typeof identityActions.storeUserCertificate>
     | ReturnType<typeof identityActions.throwIdentityError>
-    | ReturnType<typeof identityActions.savedOwnerCertificate>
     | ReturnType<typeof identityActions.checkLocalCsr>
     | ReturnType<typeof communitiesActions.storePeerList>
     | ReturnType<typeof communitiesActions.updateCommunity>
+    | ReturnType<typeof communitiesActions.createCommunity>
     | ReturnType<typeof communitiesActions.launchCommunity>
     | ReturnType<typeof networkActions.addInitializedCommunity>
     | ReturnType<typeof networkActions.removeConnectedPeer>
@@ -170,22 +170,6 @@ export function subscribe(socket: Socket) {
     })
     socket.on(SocketActionTypes.CERTIFICATES_STORED, (payload: SendCertificatesResponse) => {
       emit(usersActions.responseSendCertificates(payload))
-    })
-    socket.on(SocketActionTypes.OWNER_CERTIFICATE_ISSUED, (payload: SavedOwnerCertificatePayload) => {
-      log(`${SocketActionTypes.OWNER_CERTIFICATE_ISSUED}: ${payload.communityId}`)
-      emit(
-        communitiesActions.updateCommunity({
-          id: payload.communityId,
-          ownerCertificate: payload.network.certificate,
-        })
-      )
-      emit(
-        identityActions.storeUserCertificate({
-          userCertificate: payload.network.certificate,
-          communityId: payload.communityId,
-        })
-      )
-      emit(identityActions.savedOwnerCertificate(payload.communityId))
     })
     socket.on(SocketActionTypes.COMMUNITY_METADATA_STORED, (payload: CommunityMetadata) => {
       log(`${SocketActionTypes.COMMUNITY_METADATA_STORED}: ${payload}`)

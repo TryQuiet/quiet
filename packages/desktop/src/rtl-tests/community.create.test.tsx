@@ -85,15 +85,6 @@ describe('User', () => {
           },
         }
       }
-      if (action === SocketActionTypes.REGISTER_OWNER_CERTIFICATE) {
-        const payload = input[1] as RegisterOwnerCertificatePayload
-        socket.socketClient.emit<SavedOwnerCertificatePayload>(SocketActionTypes.OWNER_CERTIFICATE_ISSUED, {
-          communityId: payload.communityId,
-          network: {
-            certificate: payload.permsData.certificate,
-          },
-        })
-      }
       if (action === SocketActionTypes.CREATE_COMMUNITY) {
         const payload = input[1] as InitCommunityPayload
         socket.socketClient.emit<ResponseLaunchCommunityPayload>(SocketActionTypes.COMMUNITY_LAUNCHED, {
@@ -112,7 +103,7 @@ describe('User', () => {
           },
         })
 
-        return { id: payload.id }
+        return { id: payload.id, ownerCertificate: 'cert' }
       }
     }
 
@@ -175,10 +166,7 @@ describe('User', () => {
         "Network/setLoadingPanelType",
         "Modals/openModal",
         "Identity/registerCertificate",
-        "Communities/updateCommunity",
-        "Identity/storeUserCertificate",
-        "Identity/savedOwnerCertificate",
-        "Communities/updateCommunityData",
+        "Communities/createCommunity",
         "Communities/sendCommunityCaData",
         "Files/checkForMissingFiles",
         "Network/addInitializedCommunity",
@@ -186,8 +174,9 @@ describe('User', () => {
         "PublicChannels/channelsReplicated",
         "Communities/updateCommunityData",
         "PublicChannels/addChannel",
-        "Communities/sendCommunityMetadata",
+        "Identity/storeUserCertificate",
         "Messages/addPublicChannelsMessagesBase",
+        "Communities/sendCommunityMetadata",
         "PublicChannels/createGeneralChannel",
         "PublicChannels/createChannel",
         "Identity/saveUserCsr",
