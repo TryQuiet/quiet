@@ -1,11 +1,19 @@
-import { InvitationData, InvitationPair } from '@quiet/types'
+import { InvitationData, InvitationDataV1, InvitationDataV2, InvitationDataVersion, InvitationPair } from '@quiet/types'
 import { QUIET_JOIN_PAGE } from './static'
 import { createLibp2pAddress, isPSKcodeValid } from './libp2p'
 import Logger from './logger'
 const logger = Logger('invite')
 
+// V1 invitation code format (current)
 export const PSK_PARAM_KEY = 'k'
 export const OWNER_ORBIT_DB_IDENTITY_PARAM_KEY = 'o'
+
+// V2 invitation code format (new)
+export const CID_PARAM_KEY = 'c'
+export const TOKEN_PARAM_KEY = 't'
+export const INVITER_ADDRESS_PARAM_KEY = 'i'
+export const SERVER_ADDRESS_PARAM_KEY = 's'
+
 const DEEP_URL_SCHEME_WITH_SEPARATOR = 'quiet://'
 const DEEP_URL_SCHEME = 'quiet'
 const ONION_ADDRESS_REGEX = /^[a-z0-9]{56}$/g
@@ -14,6 +22,77 @@ const PEER_ID_REGEX = /^[a-zA-Z0-9]{46}$/g
 interface ParseDeepUrlParams {
   url: string
   expectedProtocol?: string
+}
+
+const parseCodeV2 = (url: string): InvitationDataV2 => {
+  const params = new URL(url).searchParams
+
+  const cid = params.get(CID_PARAM_KEY)
+  if (!cid) throw new Error(`No cid found in invitation code '${url}'`)
+  // TODO: Validate CID format
+  params.delete(CID_PARAM_KEY)
+
+  let token = params.get(TOKEN_PARAM_KEY)
+  if (!token) throw new Error(`No token found in invitation code '${url}'`)
+  token = decodeURIComponent(token)
+  // TODO: validate token format
+  params.delete(TOKEN_PARAM_KEY)
+
+  let serverAddress = params.get(SERVER_ADDRESS_PARAM_KEY)
+  if (!serverAddress) throw new Error(`No server address found in invitation code '${url}'`)
+  serverAddress = decodeURIComponent(serverAddress)
+  try {
+    new URL(url)
+  } catch (e) {
+    throw new Error(`Invalid server address format '${url}'`)
+  }
+  params.delete(SERVER_ADDRESS_PARAM_KEY)
+
+  let inviterAddress = params.get(INVITER_ADDRESS_PARAM_KEY) // TODO: can it be also peerId-onionAddress pair?
+  if (!inviterAddress) throw new Error(`No inviter address in invitation code '${url}'`)
+  inviterAddress = decodeURIComponent(inviterAddress)
+  if (!inviterAddress.trim().match(ONION_ADDRESS_REGEX)) {
+    throw new Error(`No inviter address in invitation code '${url}'`)
+  }
+  params.delete(INVITER_ADDRESS_PARAM_KEY)
+
+  return {
+    version: InvitationDataVersion.v2,
+    cid,
+    token,
+    serverAddress,
+    inviterAddress,
+  }
+}
+
+const parseCodeV1 = (url: string): InvitationDataV1 => {
+  const params = new URL(url).searchParams
+
+  let psk = params.get(PSK_PARAM_KEY)
+  const codes: InvitationPair[] = []
+  if (!psk) throw new Error(`No psk found in invitation code '${url}'`)
+  psk = decodeURIComponent(psk)
+  if (!isPSKcodeValid(psk)) throw new Error(`Invalid psk in invitation code '${url}'`)
+  params.delete(PSK_PARAM_KEY)
+
+  let ownerOrbitDbIdentity = params.get(OWNER_ORBIT_DB_IDENTITY_PARAM_KEY)
+  if (!ownerOrbitDbIdentity) throw new Error(`No owner OrbitDB identity found in invitation code '${url}'`)
+  ownerOrbitDbIdentity = decodeURIComponent(ownerOrbitDbIdentity)
+  params.delete(OWNER_ORBIT_DB_IDENTITY_PARAM_KEY)
+
+  params.forEach((onionAddress, peerId) => {
+    if (!peerDataValid({ peerId, onionAddress })) return
+    codes.push({
+      peerId,
+      onionAddress,
+    })
+  })
+  return {
+    version: InvitationDataVersion.v1,
+    pairs: codes,
+    psk,
+    ownerOrbitDbIdentity,
+  }
 }
 
 const parseDeepUrl = ({ url, expectedProtocol = `${DEEP_URL_SCHEME}:` }: ParseDeepUrlParams): InvitationData => {
@@ -38,32 +117,22 @@ const parseDeepUrl = ({ url, expectedProtocol = `${DEEP_URL_SCHEME}:` }: ParseDe
   }
 
   const params = validUrl.searchParams
-  const codes: InvitationPair[] = []
 
-  let psk = params.get(PSK_PARAM_KEY)
-  if (!psk) throw new Error(`No psk found in invitation code '${url}'`)
-  psk = decodeURIComponent(psk)
-  if (!isPSKcodeValid(psk)) throw new Error(`Invalid psk in invitation code '${url}'`)
-  params.delete(PSK_PARAM_KEY)
+  const psk = params.get(PSK_PARAM_KEY)
+  const cid = params.get(CID_PARAM_KEY)
+  if (!psk && !cid) throw new Error(`Invitation code does not match either v1 or v2 format '${url}'`)
 
-  let ownerOrbitDbIdentity = params.get(OWNER_ORBIT_DB_IDENTITY_PARAM_KEY)
-  if (!ownerOrbitDbIdentity) throw new Error(`No owner OrbitDB identity found in invitation code '${url}'`)
-  ownerOrbitDbIdentity = decodeURIComponent(ownerOrbitDbIdentity)
-  params.delete(OWNER_ORBIT_DB_IDENTITY_PARAM_KEY)
-
-  params.forEach((onionAddress, peerId) => {
-    if (!peerDataValid({ peerId, onionAddress })) return
-    codes.push({
-      peerId,
-      onionAddress,
-    })
-  })
-  logger('Retrieved data:', codes)
-  return {
-    pairs: codes,
-    psk,
-    ownerOrbitDbIdentity,
+  let data: InvitationData
+  if (psk) {
+    data = parseCodeV1(_url)
+  } else {
+    data = parseCodeV2(_url)
   }
+
+  if (!data) throw new Error(`Could not parse invitation code from deep url '${url}'`)
+
+  logger(`Invitation data '${data}' parsed`)
+  return data
 }
 
 /**
@@ -81,15 +150,12 @@ export const parseInvitationCode = (code: string): InvitationData => {
   return parseDeepUrl({ url: code, expectedProtocol: '' })
 }
 
-/**
- * @arg {string[]} peers - List of peer's p2p addresses
- * @arg psk - Pre shared key in base64
- * @returns {string} - Complete shareable invitation link, e.g.
- * https://tryquiet.org/join/#<peerid1>=<address1>&<peerid2>=<addresss2>&k=<psk>&o=<ownerOrbitDbIdentity>
- */
-export const invitationShareUrl = (peers: string[] = [], psk: string, ownerOrbitDbIdentity: string): string => {
+export const p2pAddressesToPairs = (addresses: string[]): InvitationPair[] => {
+  /**
+   * @arg {string[]} addresses - List of peer's p2p addresses
+   */
   const pairs: InvitationPair[] = []
-  for (const peerAddress of peers) {
+  for (const peerAddress of addresses) {
     let peerId: string
     let onionAddress: string
     try {
@@ -112,8 +178,7 @@ export const invitationShareUrl = (peers: string[] = [], psk: string, ownerOrbit
     const rawAddress = onionAddress.endsWith('.onion') ? onionAddress.split('.')[0] : onionAddress
     pairs.push({ peerId: peerId, onionAddress: rawAddress })
   }
-
-  return composeInvitationShareUrl({ pairs, psk, ownerOrbitDbIdentity })
+  return pairs
 }
 
 export const pairsToP2pAddresses = (pairs: InvitationPair[]): string[] => {
@@ -125,6 +190,10 @@ export const pairsToP2pAddresses = (pairs: InvitationPair[]): string[] => {
 }
 
 export const composeInvitationShareUrl = (data: InvitationData) => {
+  /**
+   * @returns {string} - Complete shareable invitation link, e.g.
+   * https://tryquiet.org/join/#<peerid1>=<address1>&<peerid2>=<addresss2>&k=<psk>&o=<ownerOrbitDbIdentity>
+   */
   return composeInvitationUrl(`${QUIET_JOIN_PAGE}`, data).replace('?', '#')
 }
 
@@ -134,11 +203,21 @@ export const composeInvitationDeepUrl = (data: InvitationData): string => {
 
 const composeInvitationUrl = (baseUrl: string, data: InvitationData): string => {
   const url = new URL(baseUrl)
-  for (const pair of data.pairs) {
-    url.searchParams.append(pair.peerId, pair.onionAddress)
+
+  if (!data.version || data.version === InvitationDataVersion.v1) {
+    if (!data.pairs || !data.psk || !data.ownerOrbitDbIdentity) return '' // TODO: temporary until better solution is found
+    for (const pair of data.pairs) {
+      url.searchParams.append(pair.peerId, pair.onionAddress)
+    }
+    url.searchParams.append(PSK_PARAM_KEY, data.psk)
+    url.searchParams.append(OWNER_ORBIT_DB_IDENTITY_PARAM_KEY, data.ownerOrbitDbIdentity)
+  } else if (data.version === InvitationDataVersion.v2) {
+    if (!data.cid || !data.token || !data.serverAddress || !data.inviterAddress) return '' // TODO: temporary until better solution is found
+    url.searchParams.append(CID_PARAM_KEY, data.cid)
+    url.searchParams.append(TOKEN_PARAM_KEY, data.token)
+    url.searchParams.append(SERVER_ADDRESS_PARAM_KEY, data.serverAddress)
+    url.searchParams.append(INVITER_ADDRESS_PARAM_KEY, data.inviterAddress)
   }
-  url.searchParams.append(PSK_PARAM_KEY, data.psk)
-  url.searchParams.append(OWNER_ORBIT_DB_IDENTITY_PARAM_KEY, data.ownerOrbitDbIdentity)
   return url.href
 }
 
@@ -154,7 +233,7 @@ export const argvInvitationCode = (argv: string[]): InvitationData | null => {
     }
     console.log('Parsing deep url', arg)
     invitationData = parseInvitationCodeDeepUrl(arg)
-    if (invitationData.pairs.length > 0) {
+    if (invitationData.pairs && invitationData.pairs.length > 0) {
       break
     } else {
       invitationData = null

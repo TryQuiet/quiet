@@ -32,7 +32,7 @@ export const getInvitationCodes = (codeOrUrl: string): InvitationData => {
 
   data = parseInvitationCode(code)
 
-  if (!data || data?.pairs.length === 0) {
+  if (!data || data?.pairs?.length === 0) {
     throw new Error(`No invitation codes. Code/url passed: ${codeOrUrl}`)
   }
 

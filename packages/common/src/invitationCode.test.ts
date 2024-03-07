@@ -1,11 +1,11 @@
-import { InvitationData } from '@quiet/types'
+import { InvitationData, InvitationPair } from '@quiet/types'
 import {
   argvInvitationCode,
   composeInvitationDeepUrl,
-  invitationShareUrl,
   composeInvitationShareUrl,
   parseInvitationCodeDeepUrl,
   PSK_PARAM_KEY,
+  p2pAddressesToPairs,
 } from './invitationCode'
 import { QUIET_JOIN_PAGE } from './static'
 
@@ -75,15 +75,17 @@ describe('Invitation code helper', () => {
     expect(composeInvitationShareUrl(pairs)).toEqual(expected)
   })
 
-  it('builds proper invitation share url from peers addresses', () => {
+  it('converts list of p2p addresses to invitation pairs', () => {
+    const pair: InvitationPair = {
+      peerId: 'QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE',
+      onionAddress: 'gloao6h5plwjy4tdlze24zzgcxll6upq2ex2fmu2ohhyu4gtys4nrjad',
+    }
     const peerList = [
-      '/dns4/gloao6h5plwjy4tdlze24zzgcxll6upq2ex2fmu2ohhyu4gtys4nrjad.onion/tcp/443/wss/p2p/QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE',
+      `/dns4/${pair.onionAddress}.onion/tcp/443/wss/p2p/${pair.peerId}`,
       'invalidAddress',
       '/dns4/somethingElse.onion/tcp/443/wss/p2p/QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSA',
     ]
-    expect(invitationShareUrl(peerList, pskDecoded, ownerOrbitDbIdentity)).toEqual(
-      `${QUIET_JOIN_PAGE}#QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE=gloao6h5plwjy4tdlze24zzgcxll6upq2ex2fmu2ohhyu4gtys4nrjad&QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSA=somethingElse&${PSK_PARAM_KEY}=${psk}`
-    )
+    expect(p2pAddressesToPairs(peerList)).toEqual([pair])
   })
 
   it('retrieves invitation codes from deep url', () => {

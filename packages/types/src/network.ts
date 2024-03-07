@@ -8,8 +8,31 @@ export type InvitationPair = {
   onionAddress: string
 }
 
-export type InvitationData = {
+export enum InvitationDataVersion {
+  v1 = 'v1',
+  v2 = 'v2',
+}
+
+export type InvitationDataV1 = {
+  version?: InvitationDataVersion
   pairs: InvitationPair[]
   psk: string
   ownerOrbitDbIdentity: string
 }
+
+export type InvitationDataV2 = {
+  version?: InvitationDataVersion
+  cid: string
+  token: string
+  serverAddress: string
+  inviterAddress: string
+}
+
+// export type InvitationData = {
+//   version?: InvitationDataVersion
+//   pairs: InvitationPair[]
+//   psk: string
+//   ownerOrbitDbIdentity: string
+// }
+
+export type InvitationData = Partial<InvitationDataV1> & Partial<InvitationDataV2>
