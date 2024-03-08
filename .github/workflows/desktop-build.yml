@@ -74,7 +74,7 @@ jobs:
 
       - name: Get release
         id: get_release
-        uses: bruceadams/get-release@3a8733307b85cd96d52772b037617bd63d99522e # v1.2.3
+        uses: bruceadams/get-release@74c3d60f5a28f358ccf241a00c9021ea16f0569f # v1.3.2
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
@@ -148,7 +148,7 @@ jobs:
 
       - name: Get release
         id: get_release
-        uses: bruceadams/get-release@3a8733307b85cd96d52772b037617bd63d99522e # v1.2.3
+        uses: bruceadams/get-release@74c3d60f5a28f358ccf241a00c9021ea16f0569f # v1.3.2
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
@@ -224,7 +224,7 @@ jobs:
 
       - name: Get release
         id: get_release
-        uses: bruceadams/get-release@3a8733307b85cd96d52772b037617bd63d99522e # v1.2.3
+        uses: bruceadams/get-release@74c3d60f5a28f358ccf241a00c9021ea16f0569f # v1.3.2
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
