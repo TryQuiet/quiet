@@ -21,7 +21,6 @@ export enum SocketActionTypes {
   CREATE_COMMUNITY = 'createCommunity',
   LAUNCH_COMMUNITY = 'launchCommunity',
   LEAVE_COMMUNITY = 'leaveCommunity',
-  SET_COMMUNITY_CA_DATA = 'setCommunityCaData',
 
   // ====== Channels ======
 

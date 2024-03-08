@@ -84,7 +84,6 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof communitiesActions.clearInvitationCodes>
     | ReturnType<typeof identityActions.saveUserCsr>
     | ReturnType<typeof connectionActions.setTorInitialized>
-    | ReturnType<typeof communitiesActions.sendCommunityCaData>
     | ReturnType<typeof usersActions.setUserProfiles>
     | ReturnType<typeof appActions.loadMigrationData>
   >(emit => {
@@ -139,10 +138,6 @@ export function subscribe(socket: Socket) {
     // Community
 
     socket.on(SocketActionTypes.COMMUNITY_LAUNCHED, (payload: ResponseLaunchCommunityPayload) => {
-      console.log('Hunting for heisenbug: Community event received in state-manager')
-      // TODO: We can send this once when creating the community and
-      // store it in the backend.
-      emit(communitiesActions.sendCommunityCaData())
       emit(filesActions.checkForMissingFiles(payload.id))
       emit(networkActions.addInitializedCommunity(payload.id))
       emit(communitiesActions.clearInvitationCodes())

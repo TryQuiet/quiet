@@ -546,7 +546,15 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     // service for now. Both object construction and object
     // initialization need to happen in order based on dependencies.
     await this.registrationService.init(this.storageService)
-    this.logger('storage initialized')
+
+    if (community.CA) {
+      this.registrationService.setPermsData({
+        certificate: community.CA.rootCertString,
+        privKey: community.CA.rootKeyString,
+      })
+    }
+
+    this.logger('Storage initialized')
 
     this.serverIoProvider.io.emit(
       SocketActionTypes.CONNECTION_PROCESS_INFO,
@@ -570,7 +578,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.socketService.on(SocketActionTypes.CONNECTION, async () => {
       // Update Frontend with Initialized Communities
       if (this.communityId) {
-        console.log('Hunting for heisenbug: Backend initialized community and sent event to state manager')
         this.serverIoProvider.io.emit(SocketActionTypes.COMMUNITY_LAUNCHED, { id: this.communityId })
         console.log('this.libp2pService.connectedPeers', this.libp2pService.connectedPeers)
         console.log('this.libp2pservice', this.libp2pService)
@@ -614,13 +621,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.socketService.on(SocketActionTypes.ADD_CSR, async (payload: SaveCSRPayload) => {
       this.logger(`socketService - ${SocketActionTypes.ADD_CSR}`)
       await this.storageService?.saveCSR(payload)
-    })
-    // TODO: With the Community model on the backend, there is no need to call
-    // SET_COMMUNITY_CA_DATA anymore. We can call setPermsData when
-    // creating the community.
-    this.socketService.on(SocketActionTypes.SET_COMMUNITY_CA_DATA, async (payload: PermsData) => {
-      this.logger(`socketService - ${SocketActionTypes.SET_COMMUNITY_CA_DATA}`)
-      this.registrationService.setPermsData(payload)
     })
 
     // Public Channels
