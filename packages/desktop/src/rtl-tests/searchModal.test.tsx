@@ -15,12 +15,10 @@ import {
   identity,
   publicChannels,
   communities,
-  Community,
   Identity,
   Store,
   MessageType,
   ChannelMessage,
-  SocketActionTypes,
 } from '@quiet/state-manager'
 
 import { FactoryGirl } from 'factory-girl'
@@ -28,6 +26,7 @@ import SearchModal from '../renderer/components/SearchModal/SearchModal'
 import { modalsActions } from '../renderer/sagas/modals/modals.slice'
 import { ModalName } from '../renderer/sagas/modals/modals.types'
 import { DateTime } from 'luxon'
+import { type Community, SocketActionTypes } from '@quiet/types'
 
 jest.setTimeout(20_000)
 
@@ -227,7 +226,7 @@ describe('Switch channels', () => {
 
     function* mockIncomingMessages(): Generator {
       yield* apply(socket.socketClient, socket.socketClient.emit, [
-        SocketActionTypes.INCOMING_MESSAGES,
+        SocketActionTypes.MESSAGES_STORED,
         {
           messages: [message],
           communityId: community.id,

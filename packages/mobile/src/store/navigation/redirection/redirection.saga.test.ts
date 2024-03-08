@@ -1,9 +1,8 @@
 import { combineReducers } from 'redux'
 import { expectSaga } from 'redux-saga-test-plan'
 import { FactoryGirl } from 'factory-girl'
-import { getFactory, identity } from '@quiet/state-manager'
+import { generateMessageFactoryContentWithId, getFactory, identity, publicChannels } from '@quiet/state-manager'
 import { setupCrypto } from '@quiet/identity'
-
 import { navigationActions } from '../navigation.slice'
 import { ScreenNames } from '../../../const/ScreenNames.enum'
 
@@ -59,7 +58,27 @@ describe('redirectionSaga', () => {
   })
 
   test('redirect if user sees a splash screen being a member of community', async () => {
-    await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity')
+    const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity')
+
+    const _publicChannels = publicChannels.selectors.publicChannels(store.getState())
+    const _generalChannel = _publicChannels.find(c => c.name === 'general')
+
+    const generalChannel = {
+      ..._generalChannel,
+      // @ts-ignore
+      messages: undefined,
+      messagesSlice: undefined,
+    }
+
+    if (!generalChannel.id) return
+
+    const message = (
+      await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>('Message', {
+        identity: alice,
+        message: generateMessageFactoryContentWithId(generalChannel.id),
+        verifyAutomatically: true,
+      })
+    ).message
 
     const reducer = combineReducers(reducers)
     await expectSaga(redirectionSaga)

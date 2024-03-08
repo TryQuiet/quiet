@@ -9,9 +9,11 @@ export function* saveUserCsrSaga(socket: Socket): Generator {
     console.error('Cannot save user csr to backend, no userCsr')
     return
   }
+
   const payload: SaveCSRPayload = {
     csr: identity.userCsr?.userCsr,
   }
-  console.log(`Send ${SocketActionTypes.SAVE_USER_CSR}`)
-  yield* apply(socket, socket.emit, applyEmitParams(SocketActionTypes.SAVE_USER_CSR, payload))
+
+  console.log(`Send ${SocketActionTypes.ADD_CSR}`)
+  yield* apply(socket, socket.emit, applyEmitParams(SocketActionTypes.ADD_CSR, payload))
 }

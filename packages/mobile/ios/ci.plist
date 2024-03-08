@@ -9,7 +9,9 @@
     <key>provisioningProfiles</key>
     <dict>
         <key>com.quietmobile</key>
-        <string>CI</string>
+        <string>match AppStore com.quietmobile</string>
     </dict>
+    <key>uploadSymbols</key>
+    <false/>
 </dict>
 </plist>

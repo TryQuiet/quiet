@@ -23,7 +23,7 @@ export const CreateChannelScreen: FC = () => {
   const channels = useSelector(publicChannels.selectors.publicChannels)
 
   const communityErrors = useSelector(errors.selectors.currentCommunityErrors)
-  const error = communityErrors[SocketActionTypes.CREATED_CHANNEL]
+  const error = communityErrors[SocketActionTypes.CREATE_CHANNEL]
 
   const currentScreen = useSelector(navigationSelectors.currentScreen)
 
@@ -63,7 +63,7 @@ export const CreateChannelScreen: FC = () => {
       if (channels.some(channel => channel.name === name)) {
         dispatch(
           errors.actions.addError({
-            type: SocketActionTypes.CREATED_CHANNEL,
+            type: SocketActionTypes.CREATE_CHANNEL,
             code: ErrorCodes.FORBIDDEN,
             message: ErrorMessages.CHANNEL_NAME_TAKEN,
             community: community?.id,
@@ -74,7 +74,7 @@ export const CreateChannelScreen: FC = () => {
       if (!user) {
         dispatch(
           errors.actions.addError({
-            type: SocketActionTypes.CREATED_CHANNEL,
+            type: SocketActionTypes.CREATE_CHANNEL,
             code: ErrorCodes.NOT_FOUND,
             message: ErrorMessages.GENERAL,
             community: community?.id,

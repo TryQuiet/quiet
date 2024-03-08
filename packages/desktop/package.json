@@ -1,5 +1,5 @@
 {
-  "name": "quiet",
+  "name": "@quiet/desktop",
   "productName": "Quiet",
   "author": {
     "name": "Zbay LLC",
@@ -31,7 +31,7 @@
       ]
     },
     "win": {
-      "icon": "./build/icon.png",
+      "icon": "./build/icon.ico",
       "target": "NSIS",
       "sign": "scripts/sign.js",
       "files": [
@@ -80,7 +80,7 @@
   },
   "homepage": "https://github.com/TryQuiet",
   "@comment version": "To build new version for specific platform, just replace platform in version tag to one of following linux, mac, windows",
-  "version": "2.0.0-alpha.8",
+  "version": "2.1.2-alpha.9",
   "description": "Decentralized team chat",
   "main": "dist/main/main.js",
   "scripts": {
@@ -111,7 +111,7 @@
     "build:renderer:prod": "webpack --config webpack/webpack.config.renderer.prod.js",
     "postBuild": "node scripts/postBuild.js",
     "prestart": "npm run build:main",
-    "start": "cross-env DEBUG='backend*,quiet*,state-manager*,desktop*,libp2p:websockets:listener:backend' npm run start:renderer",
+    "start": "cross-env DEBUG='backend*,quiet*,state-manager*,desktop*,utils*,libp2p:websockets:listener:backend,libp2p:connection-manager:auto-dialler' npm run start:renderer",
     "start:main": "cross-env NODE_ENV=development electron .",
     "start:renderer": "cross-env NODE_ENV=development webpack-dev-server --config webpack/webpack.config.renderer.dev.js",
     "storybook": "export NODE_OPTIONS=--openssl-legacy-provider && start-storybook -p 6006",
@@ -125,11 +125,11 @@
   "dependencies": {
     "@electron/remote": "^2.0.8",
     "@peculiar/webcrypto": "1.4.3",
-    "@quiet/common": "^2.0.0-alpha.1",
-    "@quiet/logger": "^1.7.0-alpha.1",
-    "@quiet/types": "^2.0.0-alpha.1",
+    "@quiet/common": "^2.0.2-alpha.1",
+    "@quiet/logger": "^2.0.2-alpha.0",
+    "@quiet/types": "^2.0.2-alpha.1",
     "@sentry/electron": "^2.5.4",
-    "backend-bundle": "^1.7.0-alpha.0",
+    "backend-bundle": "^2.0.1-alpha.4",
     "electron-debug": "^3.0.1",
     "electron-localshortcut": "^3.2.1",
     "electron-store": "^8.0.1",
@@ -140,7 +140,7 @@
     "react-markdown": "^6.0.3",
     "react-qr-code": "^2.0.11",
     "remark-gfm": "^1.0.0",
-    "socket.io-client": "4.6.0"
+    "socket.io-client": "^4.7.4"
   },
   "devDependencies": {
     "@babel/core": "^7.22.5",
@@ -150,14 +150,15 @@
     "@babel/preset-react": "^7.22.5",
     "@cypress/react18": "2.0.0",
     "@cypress/webpack-dev-server": "3.1.0",
+    "@electron/notarize": "2.1.0",
     "@emotion/react": "~11.10.5",
     "@emotion/styled": "~11.10.5",
     "@mui/icons-material": "^5.10.15",
     "@mui/lab": "^5.0.0-alpha.109",
     "@mui/material": "~5.10.15",
-    "@quiet/eslint-config": "^1.4.0-alpha.0",
-    "@quiet/identity": "^2.0.0-alpha.1",
-    "@quiet/state-manager": "^2.0.0-alpha.2",
+    "@quiet/eslint-config": "^2.0.2-alpha.0",
+    "@quiet/identity": "^2.0.2-alpha.2",
+    "@quiet/state-manager": "^2.0.2-alpha.3",
     "@redux-saga/types": "^1.1.0",
     "@reduxjs/toolkit": "^1.9.1",
     "@sentry/browser": "^6.19.7",
@@ -207,7 +208,6 @@
     "electron-build-env": "^0.2.0",
     "electron-builder": "^23.6.0",
     "electron-devtools-installer": "^3.1.1",
-    "electron-notarize": "^0.2.1",
     "electron-store": "^5.2.0",
     "electron-store-webpack-wrapper": "^0.0.2",
     "emoji-picker-react": "^4.4.5",
@@ -231,7 +231,6 @@
     "rc-scrollbars": "^1.1.5",
     "react": "18.1.0",
     "react-alice-carousel": "^1.15.3",
-    "react-contenteditable": "^3.3.3",
     "react-copy-to-clipboard": "^5.1.0",
     "react-dnd": "^16.0.1",
     "react-dnd-html5-backend": "^16.0.1",

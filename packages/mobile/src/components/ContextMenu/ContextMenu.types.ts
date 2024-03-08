@@ -9,9 +9,15 @@ export interface ContextMenuProps {
   link?: string
   linkAction?: () => void
   style?: TextStyle
+  unregisteredUsername?: boolean
+  username?: string
 }
 
 export interface ContextMenuItemProps {
   title: string
   action: () => void
+}
+
+export type UnregisteredUsernameArgs = {
+  username: string
 }

@@ -2,7 +2,7 @@ import { jest } from '@jest/globals'
 import { LazyModuleLoader } from '@nestjs/core'
 import { Test, TestingModule } from '@nestjs/testing'
 import { getFactory, prepareStore, type Store, type communities, type identity } from '@quiet/state-manager'
-import { type Community, type Identity, type InitCommunityPayload, type LaunchRegistrarPayload } from '@quiet/types'
+import { type Community, type Identity, type InitCommunityPayload } from '@quiet/types'
 import { type FactoryGirl } from 'factory-girl'
 import PeerId from 'peer-id'
 import { TestModule } from '../common/test.module'
@@ -18,6 +18,7 @@ import { RegistrationService } from '../registration/registration.service'
 import { SocketModule } from '../socket/socket.module'
 import { ConnectionsManagerModule } from './connections-manager.module'
 import { ConnectionsManagerService } from './connections-manager.service'
+import { createLibp2pAddress } from '@quiet/common'
 
 describe('ConnectionsManagerService', () => {
   let module: TestingModule
@@ -90,6 +91,10 @@ describe('ConnectionsManagerService', () => {
   })
 
   it('launches community on init if its data exists in local db', async () => {
+    const remotePeer = createLibp2pAddress(
+      'y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd',
+      'QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE'
+    )
     const launchCommunityPayload: InitCommunityPayload = {
       id: community.id,
       peerId: userIdentity.peerId,
@@ -101,53 +106,20 @@ describe('ConnectionsManagerService', () => {
         key: userIdentity.userCsr?.userKey,
         CA: [communityRootCa],
       },
-      peers: community.peerList,
+      peers: [remotePeer],
     }
 
     await localDbService.put(LocalDBKeys.COMMUNITY, launchCommunityPayload)
     await connectionsManagerService.closeAllServices()
 
     const launchCommunitySpy = jest.spyOn(connectionsManagerService, 'launchCommunity').mockResolvedValue()
-    const launchRegistrarSpy = jest.spyOn(registrationService, 'launchRegistrar').mockResolvedValue()
-
-    await connectionsManagerService.init()
-    expect(launchRegistrarSpy).not.toHaveBeenCalled()
-    expect(launchCommunitySpy).toHaveBeenCalledWith(launchCommunityPayload)
-  })
-
-  it('launches community on init if their data exists in local db', async () => {
-    const launchCommunityPayload: InitCommunityPayload = {
-      id: community.id,
-      peerId: userIdentity.peerId,
-      hiddenService: userIdentity.hiddenService,
-      certs: {
-        // @ts-expect-error
-        certificate: userIdentity.userCertificate,
-        // @ts-expect-error
-        key: userIdentity.userCsr?.userKey,
-        CA: [communityRootCa],
-      },
-      peers: community.peerList,
-    }
-
-    await localDbService.put(LocalDBKeys.COMMUNITY, launchCommunityPayload)
-
-    const peerAddress = '/dns4/test.onion/tcp/80/ws/p2p/peerid'
-    await localDbService.put(LocalDBKeys.PEERS, {
-      [peerAddress]: {
-        peerId: 'QmaEvCkpUG7GxhgvMkk8wxurfi1ehjHhSUNRksWTmXN2ix',
-        connectionTime: 50,
-        lastSeen: 1000,
-      },
-    })
-
-    await connectionsManagerService.closeAllServices()
-
-    const launchCommunitySpy = jest.spyOn(connectionsManagerService, 'launchCommunity').mockResolvedValue()
 
     await connectionsManagerService.init()
 
-    expect(launchCommunitySpy).toHaveBeenCalledWith(Object.assign(launchCommunityPayload, { peers: [peerAddress] }))
+    const localPeerAddress = createLibp2pAddress(userIdentity.hiddenService.onionAddress, userIdentity.peerId.id)
+    const updatedLaunchCommunityPayload = { ...launchCommunityPayload, peers: [localPeerAddress, remotePeer] }
+
+    expect(launchCommunitySpy).toHaveBeenCalledWith(updatedLaunchCommunityPayload)
   })
 
   it('does not launch community on init if its data does not exist in local db', async () => {
@@ -202,10 +174,10 @@ describe('ConnectionsManagerService', () => {
     // await connectionsManager.init()
     await localDbService.put(LocalDBKeys.COMMUNITY, launchCommunityPayload)
 
-    const peerAddress = '/dns4/test.onion/tcp/80/ws/p2p/peerid'
+    const peerid = 'QmaEvCkpUG7GxhgvMkk8wxurfi1ehjHhSUNRksWTmXN2ix'
     await localDbService.put(LocalDBKeys.PEERS, {
-      [peerAddress]: {
-        peerId: 'QmaEvCkpUG7GxhgvMkk8wxurfi1ehjHhSUNRksWTmXN2ix',
+      [peerid]: {
+        peerId: peerid,
         connectionTime: 50,
         lastSeen: 1000,
       },

@@ -7,6 +7,7 @@ import java.io.*
 import java.net.ConnectException
 import java.net.InetSocketAddress
 import java.net.Socket
+import java.security.SecureRandom
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
@@ -18,15 +19,28 @@ object Utils {
             outputStreamWriter.append("$data \n")
             outputStreamWriter.close()
         } catch (e: IOException) {
-            Log.e("Worker", "File write failed: $e")
+            Log.e("Worker", "File write failed at: $e")
         }
     }
 
     fun createDirectory(context: Context): String {
-        val dataDirectory = File(context.filesDir, "backend/files")
+        val dataDirectory = File(context.filesDir, "backend/files2")
         dataDirectory.mkdirs()
 
         return dataDirectory.absolutePath
+    }
+
+    fun generateRandomString(length: Int): String {
+        val CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+        val secureRandom = SecureRandom()
+        val randomString = StringBuilder(length)
+
+        repeat(length) {
+            val randomIndex = secureRandom.nextInt(CHARACTERS.length)
+            randomString.append(CHARACTERS[randomIndex])
+        }
+
+        return randomString.toString()
     }
 
     suspend fun getOpenPort(starting: Int) = suspendCoroutine<Int> { continuation ->

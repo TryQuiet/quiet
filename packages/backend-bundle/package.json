@@ -1,10 +1,11 @@
 {
   "name": "backend-bundle",
-  "version": "1.7.0-alpha.0",
+  "version": "2.0.1-alpha.4",
   "description": "",
   "main": "bundle.cjs",
   "scripts": {},
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "private": true
 }

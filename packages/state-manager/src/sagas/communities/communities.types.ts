@@ -1,24 +1,15 @@
 import { type Community, type HiddenService, type Identity, type PeerId } from '@quiet/types'
 
+// TODO: Remove this file in favor of @quiet/types
+
 export enum CommunityOwnership {
   Owner = 'owner',
   User = 'user',
 }
 
-export interface NetworkData {
-  hiddenService: HiddenService
-  peerId: PeerId
-}
-
 export interface CreateNetworkPayload {
   ownership: CommunityOwnership
   name?: string
-  registrar?: string
-}
-
-export interface ResponseCreateNetworkPayload {
-  community: Community
-  network: NetworkData
 }
 
 export interface Certificates {
@@ -33,24 +24,6 @@ export interface InitCommunityPayload {
   hiddenService: HiddenService
   certs: Certificates
   peers?: string[]
-}
-
-export interface UpdateCommunityPayload {
-  id: string
-  rootCa: string
-}
-
-export interface LaunchRegistrarPayload {
-  id: string
-  peerId: string
-  rootCertString: string
-  rootKeyString: string
-  privateKey: string
-}
-
-export interface ResponseRegistrarPayload {
-  id: string
-  payload: Partial<Community>
 }
 
 export interface StorePeerListPayload {
@@ -70,11 +43,6 @@ export interface ResponseCreateCommunityPayload {
 
 export interface ResponseLaunchCommunityPayload {
   id: string
-}
-
-export interface UpdateRegistrationAttemptsPayload {
-  id: string
-  registrationAttempts: number
 }
 
 export interface AddOwnerCertificatePayload {

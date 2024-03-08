@@ -1,240 +1,113 @@
-# Change Log
+[unreleased]
 
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+* Move csrs to separate store.
 
-# [1.7.0-alpha.0](/compare/backend-bundle@1.6.0...backend-bundle@1.7.0-alpha.0) (2023-08-29)
+* Fix saveUserCsr saga to trigger only if user csr is absent in user slice.
 
-**Note:** Version bump only for package backend-bundle
+* Send an info message immediately after a user joins the community
 
+* Feature: add functionality to export chat to text document in desktop version
 
+[2.0.3-alpha.6]
 
+* Fix: filter out invalid peer addresses in peer list. Update peer list in localdb.
 
+* Fix: dial new peers on CSRs replication
 
-# [1.6.0](/compare/backend-bundle@1.6.0-alpha.0...backend-bundle@1.6.0) (2023-08-28)
+[2.0.3-alpha.5]
 
-**Note:** Version bump only for package backend-bundle
+* Fix network data proceeding when using custom protocol multiple times #1847
 
+* Backward incompatible change: use pre shared key as connection protector in libp2p. Add libp2p psk to invitation link
 
+* Removed code responsible for data translation from channel address to channel id from state manager transforms and storage service
 
+[2.0.3-alpha.1]
 
+* Temporarily hiding leave community button from Possible impersonation attack
 
-# [1.6.0-alpha.0](https://github.com/TryQuiet/quiet/compare/backend-bundle@1.5.0...backend-bundle@1.6.0-alpha.0) (2023-08-25)
+[2.0.3-alpha.0]
 
-**Note:** Version bump only for package backend-bundle
+* Filter CSRs - remove old csrs and replace with new for each pubkey
 
+* Fixed mobile bugs - joining by QR code and not showing username taken screen for user who has unique name
 
+* Use context menu for information about unregistered username instead screen
 
+* Shorter dots-placeholder for invite link
 
+* Display a shorter invite link on a mobile
 
-# [1.5.0](https://github.com/TryQuiet/quiet/compare/backend-bundle@1.4.0...backend-bundle@1.5.0) (2023-08-17)
+* Removed registration attempts selector and corresponding usage.
 
-**Note:** Version bump only for package backend-bundle
+* Revert adjusting bootstrap scripts for developing on Windows
 
+* Channel input - replaced ContentEditable with textarea
 
+* Fix - up/down arrows now work properly inside channel input (textarea)
 
+[2.0.1-alpha.2]
 
+* UI layer for taken usernames for desktop and mobile
 
-# [1.4.0](https://github.com/ZbayApp/monorepo/compare/backend-bundle@1.4.0-alpha.1...backend-bundle@1.4.0) (2023-07-28)
+* Change nickname for taken username
 
-**Note:** Version bump only for package backend-bundle
+* Map messages sent before changing username
 
+* Update registrar service to match new registration flow.
 
+* Add possible impersonation attack UI for desktop and mobile
 
+* Fix truncated long messages in channelInput component
 
+* Unblock mobile e2e tests
 
-# [1.4.0-alpha.1](https://github.com/TryQuiet/quiet/compare/backend-bundle@1.4.0-alpha.0...backend-bundle@1.4.0-alpha.1) (2023-07-05)
+* Prettify loading component on Chat screen (mobile)
 
-**Note:** Version bump only for package backend-bundle
+* Running Chromatic tests for forked PRs
 
+* Added e2e test for user joining community when owner is offline. Improved e2e tests
 
+* Bump github actions/* to versions using node16
 
+* Project can now be bootstraped on Windows (powershell)
 
+* Placeholder(...) for community name
 
-# [1.4.0-alpha.0](https://github.com/ZbayApp/monorepo/compare/backend-bundle@1.3.1...backend-bundle@1.4.0-alpha.0) (2023-06-19)
+* No unregistered/duplicated label for system messages
 
-**Note:** Version bump only for package backend-bundle
+[2.0.0-alpha.11]
 
+* Customize Launch Screen on iOS
 
+* Suspends certain websocket events until backend becomes fully operative (faster and dumber frontend).
 
+* Replaced greying out inputs with splash screen on joining/creating screens.
 
+* Fixes empty space between chat's input and a soft keyboard on iOS devices.
 
-## [1.3.1](https://github.com/TryQuiet/quiet/compare/backend-bundle@1.3.1-alpha.0...backend-bundle@1.3.1) (2023-06-13)
+* Changed registration process - user connects to the libp2p network directly instead of using registrar. Invitation link format changed. User csr is now saved to database.
 
-**Note:** Version bump only for package backend-bundle
+* Fixed android stucking on username registration screen introduced in previous alpha.
 
+* Added creator username to initial channel message.
 
+* Fixed bug with changing joining community/create community screens with required field.
 
+* Fixed bug with displaying incorrect default settings tab.
 
+* Replaced source of publicKey in sendMessage saga to CSR
 
-## [1.3.1-alpha.0](https://github.com/TryQuiet/quiet/compare/backend-bundle@1.3.0...backend-bundle@1.3.1-alpha.0) (2023-06-06)
+* Labels for unregistered and duplicate usernames with modals
 
-**Note:** Version bump only for package backend-bundle
+* Fixed LoadingPanel useEffect bug.
 
+* Use csrs instead of certificates as a source of user data
 
+* Integration state manager layer with UI layer(desktop and mobile)
 
+* Clarify autoupdate language in update modal to let users know that the app will update on restart.
 
+* C4 for Quiet architecture. Context and Container diagrams.
 
-# [1.3.0](https://github.com/TryQuiet/quiet/compare/backend-bundle@1.0.1-alpha.0...backend-bundle@1.3.0) (2023-06-02)
-
-**Note:** Version bump only for package backend-bundle
-
-
-
-
-
-## [1.0.1-alpha.0](https://github.com/TryQuiet/quiet/compare/backend-bundle@1.0.0...backend-bundle@1.0.1-alpha.0) (2023-04-28)
-
-**Note:** Version bump only for package backend-bundle
-
-
-
-
-
-# [1.0.0](https://github.com/TryQuiet/quiet/compare/backend-bundle@1.0.0-alpha.20...backend-bundle@1.0.0) (2023-03-02)
-
-**Note:** Version bump only for package backend-bundle
-
-
-
-
-
-# [1.0.0-alpha.20](/compare/backend-bundle@1.0.0-alpha.2...backend-bundle@1.0.0-alpha.20) (2023-02-28)
-
-**Note:** Version bump only for package backend-bundle
-
-
-
-
-
-# [1.0.0-alpha.2](https://github.com/TryQuiet/quiet/compare/backend-bundle@1.0.0-alpha.1...backend-bundle@1.0.0-alpha.2) (2023-02-13)
-
-**Note:** Version bump only for package backend-bundle
-
-
-
-
-
-# [1.0.0-alpha.1](https://github.com/TryQuiet/quiet/compare/backend-bundle@1.0.0-alpha.0...backend-bundle@1.0.0-alpha.1) (2023-02-09)
-
-**Note:** Version bump only for package backend-bundle
-
-
-
-
-
-# [1.0.0-alpha.0](https://github.com/TryQuiet/quiet/compare/backend-bundle@0.19.19-alpha.14...backend-bundle@1.0.0-alpha.0) (2023-02-09)
-
-**Note:** Version bump only for package backend-bundle
-
-
-
-
-
-## [0.19.19-alpha.14](https://github.com/TryQuiet/quiet/compare/backend-bundle@0.19.19-alpha.13...backend-bundle@0.19.19-alpha.14) (2023-02-08)
-
-**Note:** Version bump only for package backend-bundle
-
-
-
-
-
-## [0.19.19-alpha.13](https://github.com/TryQuiet/quiet/compare/backend-bundle@0.19.19-alpha.12...backend-bundle@0.19.19-alpha.13) (2023-02-08)
-
-**Note:** Version bump only for package backend-bundle
-
-
-
-
-
-## [0.19.19-alpha.12](https://github.com/TryQuiet/quiet/compare/backend-bundle@0.19.19-alpha.5...backend-bundle@0.19.19-alpha.12) (2023-02-07)
-
-**Note:** Version bump only for package backend-bundle
-
-
-
-
-
-## [0.19.19-alpha.5](https://github.com/TryQuiet/quiet/compare/backend-bundle@0.19.19-alpha.4...backend-bundle@0.19.19-alpha.5) (2023-02-07)
-
-**Note:** Version bump only for package backend-bundle
-
-
-
-
-
-## [0.19.19-alpha.4](https://github.com/TryQuiet/quiet/compare/backend-bundle@0.19.19-alpha.3...backend-bundle@0.19.19-alpha.4) (2023-02-06)
-
-**Note:** Version bump only for package backend-bundle
-
-
-
-
-
-## [0.19.19-alpha.3](https://github.com/TryQuiet/quiet/compare/backend-bundle@0.19.19-alpha.2...backend-bundle@0.19.19-alpha.3) (2023-02-06)
-
-**Note:** Version bump only for package backend-bundle
-
-
-
-
-
-## [0.19.19-alpha.2](https://github.com/TryQuiet/quiet/compare/backend-bundle@0.19.4-alpha.0...backend-bundle@0.19.19-alpha.2) (2023-02-06)
-
-**Note:** Version bump only for package backend-bundle
-
-
-
-
-
-## [0.19.4-alpha.0](https://github.com/TryQuiet/quiet/compare/backend-bundle@0.19.3-alpha.0...backend-bundle@0.19.4-alpha.0) (2023-02-01)
-
-**Note:** Version bump only for package backend-bundle
-
-
-
-
-
-## [0.19.3-alpha.0](https://github.com/TryQuiet/quiet/compare/backend-bundle@0.19.0-alpha.2...backend-bundle@0.19.3-alpha.0) (2023-01-31)
-
-**Note:** Version bump only for package backend-bundle
-
-
-
-
-
-## [0.19.2-alpha.0](https://github.com/TryQuiet/quiet/compare/backend-bundle@0.19.0-alpha.2...backend-bundle@0.19.2-alpha.0) (2023-01-30)
-
-**Note:** Version bump only for package backend-bundle
-
-
-
-
-
-## [0.19.1-alpha.0](https://github.com/TryQuiet/quiet/compare/backend-bundle@0.19.0-alpha.2...backend-bundle@0.19.1-alpha.0) (2023-01-30)
-
-**Note:** Version bump only for package backend-bundle
-
-
-
-
-
-# 0.19.0-alpha.2 (2023-01-27)
-
-**Note:** Version bump only for package backend-bundle
-
-
-
-
-
-# [0.19.0-alpha.1](https://github.com/ZbayApp/monorepo/compare/backend-bundle@0.19.0-alpha.0...backend-bundle@0.19.0-alpha.1) (2023-01-27)
-
-**Note:** Version bump only for package backend-bundle
-
-
-
-
-
-# 0.19.0-alpha.0 (2023-01-27)
-
-**Note:** Version bump only for package backend-bundle
+* Invite tab as default in settings

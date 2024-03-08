@@ -1,13 +1,15 @@
 import { StoreKeys } from '../store.keys'
 import { createSelector } from 'reselect'
 import { type CreatedSelectors, type StoreState } from '../store.types'
-import { allUsers } from '../users/users.selectors'
-import { communitiesSelectors } from '../communities/communities.selectors'
+import { allUsers, areCertificatesLoaded } from '../users/users.selectors'
 import { peersStatsAdapter } from './connection.adapter'
-import { connectedPeers } from '../network/network.selectors'
-import { sortPeers } from '../../utils/functions/sortPeers/sortPeers'
+import { connectedPeers, isCurrentCommunityInitialized } from '../network/network.selectors'
 import { type NetworkStats } from './connection.types'
 import { type User } from '../users/users.types'
+import { filterAndSortPeers, invitationShareUrl } from '@quiet/common'
+import { areMessagesLoaded, areChannelsLoaded } from '../publicChannels/publicChannels.selectors'
+import { identitySelectors } from '../identity/identity.selectors'
+import { communitiesSelectors } from '../communities/communities.selectors'
 
 const connectionSlice: CreatedSelectors[StoreKeys.Connection] = (state: StoreState) => state[StoreKeys.Connection]
 
@@ -17,23 +19,42 @@ export const torBootstrapProcess = createSelector(connectionSlice, reducerState 
 
 export const isTorInitialized = createSelector(connectionSlice, reducerState => reducerState.isTorInitialized)
 
-export const torConnectionProcess = createSelector(connectionSlice, reducerState => reducerState.torConnectionProcess)
+export const connectionProcess = createSelector(connectionSlice, reducerState => reducerState.connectionProcess)
+
+export const socketIOSecret = createSelector(connectionSlice, reducerState => reducerState.socketIOSecret)
+
+const peerStats = createSelector(connectionSlice, reducerState => {
+  let stats: NetworkStats[]
+  if (reducerState.peersStats === undefined) {
+    stats = []
+  } else {
+    stats = peersStatsAdapter.getSelectors().selectAll(reducerState.peersStats)
+  }
+  return stats
+})
 
 export const peerList = createSelector(
-  connectionSlice,
   communitiesSelectors.currentCommunity,
-  (reducerState, community) => {
+  identitySelectors.currentPeerAddress,
+  peerStats,
+  (community, localPeerAddress, stats) => {
     if (!community) return []
+
     const arr = [...(community.peerList || [])]
+    return filterAndSortPeers(arr, stats, localPeerAddress)
+  }
+)
 
-    let stats: NetworkStats[]
-    if (reducerState.peersStats === undefined) {
-      stats = []
-    } else {
-      stats = peersStatsAdapter.getSelectors().selectAll(reducerState.peersStats)
-    }
-
-    return sortPeers(arr, stats)
+export const invitationUrl = createSelector(
+  communitiesSelectors.psk,
+  communitiesSelectors.ownerOrbitDbIdentity,
+  peerList,
+  (communityPsk, ownerOrbitDbIdentity, sortedPeerList) => {
+    if (!sortedPeerList || sortedPeerList?.length === 0) return ''
+    if (!communityPsk) return ''
+    if (!ownerOrbitDbIdentity) return ''
+    const initialPeers = sortedPeerList.slice(0, 3)
+    return invitationShareUrl(initialPeers, communityPsk, ownerOrbitDbIdentity)
   }
 )
 
@@ -52,11 +73,25 @@ export const connectedPeersMapping = createSelector(allUsers, connectedPeers, (c
   }, {})
 })
 
+export const isJoiningCompleted = createSelector(
+  isCurrentCommunityInitialized,
+  areMessagesLoaded,
+  areChannelsLoaded,
+  areCertificatesLoaded,
+  (isCommunity, areMessages, areChannels, areCertificates) => {
+    console.log({ isCommunity, areMessages, areChannels, areCertificates })
+    return isCommunity && areMessages && areChannels && areCertificates
+  }
+)
+
 export const connectionSelectors = {
   lastConnectedTime,
   connectedPeersMapping,
   peerList,
+  invitationUrl,
   torBootstrapProcess,
-  torConnectionProcess,
+  connectionProcess,
   isTorInitialized,
+  socketIOSecret,
+  isJoiningCompleted,
 }

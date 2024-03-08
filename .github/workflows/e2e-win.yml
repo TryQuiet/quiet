@@ -4,7 +4,7 @@ on: [workflow_call]
 jobs:
   windows:
     runs-on: windows-2019
-    
+
     timeout-minutes: 180
 
     env:
@@ -13,13 +13,13 @@ jobs:
       E2E: true
 
     steps:
-      - uses: actions/checkout@ee0669bd1cc54295c223e0bb666b733df41de1c5 # v2.7.0
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: "Setup environment"
         uses: ./.github/actions/setup-env
         with:
           cachePrefix: "e2e-crossplatform-windows"
-          bootstrap-packages: "@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,quiet,backend-bundle,e2e-tests"
+          bootstrap-packages: "@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/desktop,backend-bundle,e2e-tests"
 
       - name: "Fetch jsign"
         shell: bash
@@ -36,12 +36,12 @@ jobs:
 
       - name: electron-builder
         working-directory: ./packages/desktop
-        run: node_modules/.bin/electron-builder --win 
+        run: node_modules/.bin/electron-builder --win
         shell: bash
 
       - name: Extract version
         id: extract_version
-        uses: Saionaro/extract-package-version@de8268c348d3a9ed3514c86a9ad8d4568ab8b49e # v1.1.1
+        uses: Saionaro/extract-package-version@fdb5b74adc1278ddb777dfed4c988b9d098bb48d # v1.2.1
         with:
           path: packages/desktop
 
@@ -56,7 +56,7 @@ jobs:
         shell: bash
 
       - name: "Upload built app"
-        uses: actions/upload-artifact@82c141cc518b40d92cc801eee768e7aafc9c2fa2 # v2.3.1
+        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
         with:
           name: quiet-windows
           path: ./packages/desktop/dist/Quiet Setup ${{ steps.extract_version.outputs.version }}.exe
@@ -67,12 +67,17 @@ jobs:
         working-directory: ./packages/desktop/dist
         shell: powershell
 
-      - name: Kill Quiet
-        run: Stop-Process -Name "Quiet" -Force
+      - name: Check if Quiet installed properly
+        run: Get-ChildItem -Path C:\Users\runneradmin\AppData\Local\Programs\@quietdesktop
         shell: powershell
 
+      - name: Kill Quiet
+        run: Get-Process -Name "Quiet" -ErrorAction SilentlyContinue | Stop-Process -Force
+        shell: powershell
+        if: always()
+
       - name: Kill tor
-        run: Stop-Process -Name "tor" -Force
+        run: Get-Process -Name "tor" -ErrorAction SilentlyContinue | Stop-Process -Force
         shell: powershell
 
       - name: Delay
@@ -88,12 +93,20 @@ jobs:
           command: cd packages/e2e-tests && npm run test oneClient.test.ts
 
       - name: Run two clients test
-        uses: nick-fields/retry@943e742917ac94714d2f408a0e8320f2d1fcafcd # v2.8.3
+        uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4 # v2.9.0
         with:
           timeout_minutes: 30
           max_attempts: 3
           shell: bash
-          command: cd packages/e2e-tests && npm run test twoClients.test.ts
+          command: cd packages/e2e-tests && npm run test multipleClients.test.ts
+
+      - name: Run user profile test
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 25
+          max_attempts: 3
+          shell: bash
+          command: cd packages/e2e-tests && npm run test userProfile.test.ts
 
       - name: Run invitation link test - Includes 2 separate application clients
         uses: nick-fields/retry@943e742917ac94714d2f408a0e8320f2d1fcafcd # v2.8.3

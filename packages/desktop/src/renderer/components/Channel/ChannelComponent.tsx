@@ -91,7 +91,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
   downloadFile,
   cancelDownload,
   openContextMenu,
-  enableContextMenu = false,
+  enableContextMenu = true,
   pendingGeneralChannelRecreation,
   unregisteredUsernameModalHandleOpen,
   duplicatedUsernameModalHandleOpen,

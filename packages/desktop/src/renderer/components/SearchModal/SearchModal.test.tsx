@@ -24,9 +24,8 @@ describe('Search Modal', () => {
 
     const factory = await getFactory(store)
 
-    const community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>(
-      'Community'
-    )
+    const community =
+      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
 
     const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
       id: community.id,
@@ -80,7 +79,6 @@ describe('Search Modal', () => {
           <div
             class="MuiModal-root css-1vjugmr-MuiModal-root"
             role="presentation"
-            zindex="1300"
           >
             <div
               aria-hidden="true"

@@ -38,7 +38,7 @@ import {
   SendMessagePayload,
   MessageVerificationStatus,
   DownloadStatus,
-  IncomingMessages,
+  type MessagesLoadedPayload,
   ResponseLaunchCommunityPayload,
   Community,
 } from '@quiet/types'
@@ -151,9 +151,8 @@ describe('Channel', () => {
 
     const factory = await getFactory(store)
 
-    const community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>(
-      'Community'
-    )
+    const community =
+      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
 
     const entities = store.getState().PublicChannels.channels.entities
 
@@ -238,7 +237,7 @@ describe('Channel', () => {
 
     function* mockIncomingMessages(): Generator {
       yield* apply(socket.socketClient, socket.socketClient.emit, [
-        SocketActionTypes.INCOMING_MESSAGES,
+        SocketActionTypes.MESSAGES_STORED,
         {
           messages: [authenticMessage],
           communityId: community.id,
@@ -246,7 +245,7 @@ describe('Channel', () => {
         },
       ])
       yield* apply(socket.socketClient, socket.socketClient.emit, [
-        SocketActionTypes.INCOMING_MESSAGES,
+        SocketActionTypes.MESSAGES_STORED,
         {
           messages: [spoofedMessage],
           communityId: community.id,
@@ -264,9 +263,8 @@ describe('Channel', () => {
 
     const factory = await getFactory(store)
 
-    const community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>(
-      'Community'
-    )
+    const community =
+      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
 
     const entities = store.getState().PublicChannels.channels.entities
 
@@ -311,7 +309,7 @@ describe('Channel', () => {
 
     function* mockIncomingMessages(): Generator {
       yield* apply(socket.socketClient, socket.socketClient.emit, [
-        SocketActionTypes.INCOMING_MESSAGES,
+        SocketActionTypes.MESSAGES_STORED,
         {
           messages: [aliceMessage],
           communityId: community.id,
@@ -329,9 +327,8 @@ describe('Channel', () => {
 
     const factory = await getFactory(store)
 
-    const community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>(
-      'Community'
-    )
+    const community =
+      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
     await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
       id: community.id,
       nickname: 'john',
@@ -361,9 +358,8 @@ describe('Channel', () => {
 
     const factory = await getFactory(store)
 
-    const community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>(
-      'Community'
-    )
+    const community =
+      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
 
     const entities = store.getState().PublicChannels.channels.entities
 
@@ -411,9 +407,8 @@ describe('Channel', () => {
 
     const factory = await getFactory(store)
 
-    const community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>(
-      'Community'
-    )
+    const community =
+      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
 
     const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
       id: community.id,
@@ -452,7 +447,7 @@ describe('Channel', () => {
 
     // Update message sending status
     store.dispatch(
-      messages.actions.incomingMessages({
+      messages.actions.addMessages({
         messages: [sentMessage],
       })
     )
@@ -463,7 +458,7 @@ describe('Channel', () => {
 
     function* mockIncomingMessages(): Generator {
       yield* apply(socket.socketClient, socket.socketClient.emit, [
-        SocketActionTypes.INCOMING_MESSAGES,
+        SocketActionTypes.MESSAGES_STORED,
         {
           messages: [sentMessage],
           communityId: community.id,
@@ -487,9 +482,8 @@ describe('Channel', () => {
 
     const factory = await getFactory(store)
 
-    const community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>(
-      'Community'
-    )
+    const community =
+      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
 
     const entities = store.getState().PublicChannels.channels.entities
 
@@ -538,7 +532,7 @@ describe('Channel', () => {
 
     function* mockIncomingMessages(): Generator {
       yield* apply(socket.socketClient, socket.socketClient.emit, [
-        SocketActionTypes.INCOMING_MESSAGES,
+        SocketActionTypes.MESSAGES_STORED,
         {
           messages: [message1],
           communityId: community.id,
@@ -546,7 +540,7 @@ describe('Channel', () => {
         },
       ])
       yield* apply(socket.socketClient, socket.socketClient.emit, [
-        SocketActionTypes.INCOMING_MESSAGES,
+        SocketActionTypes.MESSAGES_STORED,
         {
           messages: [message3],
           communityId: community.id,
@@ -554,7 +548,7 @@ describe('Channel', () => {
         },
       ])
       yield* apply(socket.socketClient, socket.socketClient.emit, [
-        SocketActionTypes.INCOMING_MESSAGES,
+        SocketActionTypes.MESSAGES_STORED,
         {
           messages: [message2],
           communityId: community.id,
@@ -577,9 +571,8 @@ describe('Channel', () => {
 
     const factory = await getFactory(store)
 
-    const community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>(
-      'Community'
-    )
+    const community =
+      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
 
     const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
       id: community.id,
@@ -641,8 +634,7 @@ describe('Channel', () => {
 
     const messageInput = screen.getByTestId('messageInput')
 
-    // Why does the first letter not get entered?
-    await userEvent.type(messageInput, 'mmulti-line{Shift>}{Enter}{/Shift}message{Shift>}{Enter}{/Shift}hello')
+    await userEvent.type(messageInput, 'multi-line{Shift>}{Enter}{/Shift}message{Shift>}{Enter}{/Shift}hello')
     expect(messageInput.textContent).toBe('multi-line\nmessage\nhello')
   })
 
@@ -707,9 +699,8 @@ describe('Channel', () => {
 
     const factory = await getFactory(store)
 
-    const community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>(
-      'Community'
-    )
+    const community =
+      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
 
     const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
       id: community.id,
@@ -755,14 +746,22 @@ describe('Channel', () => {
 
     const factory = await getFactory(initialState)
 
-    const community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>(
-      'Community'
-    )
+    const community =
+      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
 
     const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
       id: community.id,
       nickname: 'alice',
     })
+
+    initialState.dispatch(
+      communities.actions.updateCommunityData({
+        id: community.id,
+        // null/undefined type mismatch here. Might make things easier
+        // to make it consistent.
+        ownerCertificate: alice.userCertificate || undefined,
+      })
+    )
 
     let cid = ''
 
@@ -773,7 +772,7 @@ describe('Channel', () => {
       if (action === SocketActionTypes.LAUNCH_COMMUNITY) {
         const data = input[1] as InitCommunityPayload
         const payload = data
-        return socket.socketClient.emit<ResponseLaunchCommunityPayload>(SocketActionTypes.COMMUNITY, {
+        return socket.socketClient.emit<ResponseLaunchCommunityPayload>(SocketActionTypes.COMMUNITY_LAUNCHED, {
           id: payload.id,
         })
       }
@@ -787,7 +786,7 @@ describe('Channel', () => {
           setTimeout(resolve, uploadingDelay)
         })
 
-        socket.socketClient.emit<FileMetadata>(SocketActionTypes.UPLOADED_FILE, {
+        socket.socketClient.emit<FileMetadata>(SocketActionTypes.FILE_UPLOADED, {
           ...payload.file,
           cid: cid,
           path: null,
@@ -804,12 +803,12 @@ describe('Channel', () => {
       if (action === SocketActionTypes.SEND_MESSAGE) {
         const data = input[1] as SendMessagePayload
         const payload = data
-        return socket.socketClient.emit<IncomingMessages>(SocketActionTypes.INCOMING_MESSAGES, {
+        return socket.socketClient.emit<MessagesLoadedPayload>(SocketActionTypes.MESSAGES_STORED, {
           messages: [payload.message],
         })
       }
-      if (action === SocketActionTypes.INCOMING_MESSAGES) {
-        const data = input[1] as IncomingMessages
+      if (action === SocketActionTypes.MESSAGES_STORED) {
+        const data = input[1] as MessagesLoadedPayload
         const media = data.messages[0].media
         if (!media) return
         return socket.socketClient.emit<UploadFilePayload>(SocketActionTypes.UPLOAD_FILE, {
@@ -873,7 +872,7 @@ describe('Channel', () => {
         "Files/updateDownloadStatus",
         "Messages/addMessagesSendingStatus",
         "Messages/addMessageVerificationStatus",
-        "Messages/incomingMessages",
+        "Messages/addMessages",
         "PublicChannels/cacheMessages",
         "Messages/addMessageVerificationStatus",
         "Identity/verifyJoinTimestamp",
@@ -883,8 +882,8 @@ describe('Channel', () => {
         "PublicChannels/cacheMessages",
         "Messages/setDisplayedMessagesNumber",
         "Files/broadcastHostedFile",
-        "Messages/removePendingMessageStatus",
-        "Messages/incomingMessages",
+        "Messages/removePendingMessageStatuses",
+        "Messages/addMessages",
         "PublicChannels/cacheMessages",
         "Messages/addMessageVerificationStatus",
         "Identity/verifyJoinTimestamp",
@@ -906,6 +905,15 @@ describe('Channel', () => {
       id: community.id,
       nickname: 'alice',
     })
+
+    initialState.dispatch(
+      communities.actions.updateCommunityData({
+        id: community.id,
+        // null/undefined type mismatch here. Might make things easier
+        // to make it consistent.
+        ownerCertificate: alice.userCertificate || undefined,
+      })
+    )
 
     const message = Math.random().toString(36).substr(2.9)
 
@@ -961,7 +969,7 @@ describe('Channel', () => {
       if (action === SocketActionTypes.LAUNCH_COMMUNITY) {
         const data = input[1] as InitCommunityPayload
         const payload = data
-        return socket.socketClient.emit<ResponseLaunchCommunityPayload>(SocketActionTypes.COMMUNITY, {
+        return socket.socketClient.emit<ResponseLaunchCommunityPayload>(SocketActionTypes.COMMUNITY_LAUNCHED, {
           id: payload.id,
         })
       }
@@ -970,7 +978,7 @@ describe('Channel', () => {
         const payload = data
         expect(payload.metadata.cid).toEqual(missingFile.cid)
         await new Promise(resolve => setTimeout(resolve, 1000))
-        return socket.socketClient.emit<FileMetadata>(SocketActionTypes.UPDATE_MESSAGE_MEDIA, {
+        return socket.socketClient.emit<FileMetadata>(SocketActionTypes.MESSAGE_MEDIA_UPDATED, {
           ...missingFile,
           path: `${__dirname}/test-image.jpeg`,
         })
@@ -1014,7 +1022,7 @@ describe('Channel', () => {
         "Messages/resetCurrentPublicChannelCache",
         "Messages/resetCurrentPublicChannelCache",
         "Files/updateMessageMedia",
-        "Messages/incomingMessages",
+        "Messages/addMessages",
         "Messages/addMessageVerificationStatus",
         "Identity/verifyJoinTimestamp",
         "PublicChannels/updateNewestMessage",
@@ -1028,28 +1036,36 @@ describe('Channel', () => {
 
     const factory = await getFactory(initialState)
 
-    const community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>(
-      'Community'
-    )
+    const community =
+      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
 
-    await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
+    const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
       id: community.id,
       nickname: 'alice',
     })
+
+    initialState.dispatch(
+      communities.actions.updateCommunityData({
+        id: community.id,
+        // null/undefined type mismatch here. Might make things easier
+        // to make it consistent.
+        ownerCertificate: alice.userCertificate || undefined,
+      })
+    )
 
     jest.spyOn(socket, 'emit').mockImplementation(async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
       const action = input[0]
       if (action === SocketActionTypes.LAUNCH_COMMUNITY) {
         const data = input[1] as InitCommunityPayload
         const payload = data
-        return socket.socketClient.emit<ResponseLaunchCommunityPayload>(SocketActionTypes.COMMUNITY, {
+        return socket.socketClient.emit<ResponseLaunchCommunityPayload>(SocketActionTypes.COMMUNITY_LAUNCHED, {
           id: payload.id,
         })
       }
       if (action === SocketActionTypes.UPLOAD_FILE) {
         const data = input[1] as UploadFilePayload
         const payload = data
-        socket.socketClient.emit<FileMetadata>(SocketActionTypes.UPLOADED_FILE, {
+        socket.socketClient.emit<FileMetadata>(SocketActionTypes.FILE_UPLOADED, {
           ...payload.file,
           size: 1024,
         })
@@ -1107,7 +1123,7 @@ describe('Channel', () => {
         "Files/broadcastHostedFile",
         "Files/updateDownloadStatus",
         "Messages/addMessageVerificationStatus",
-        "Messages/incomingMessages",
+        "Messages/addMessages",
         "PublicChannels/cacheMessages",
         "Messages/addMessageVerificationStatus",
         "Identity/verifyJoinTimestamp",
@@ -1125,14 +1141,22 @@ describe('Channel', () => {
 
     const factory = await getFactory(initialState)
 
-    const community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>(
-      'Community'
-    )
+    const community =
+      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
 
     const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
       id: community.id,
       nickname: 'alice',
     })
+
+    initialState.dispatch(
+      communities.actions.updateCommunityData({
+        id: community.id,
+        // null/undefined type mismatch here. Might make things easier
+        // to make it consistent.
+        ownerCertificate: alice.userCertificate || undefined,
+      })
+    )
 
     const messageId = Math.random().toString(36).substr(2.9)
     const entities = initialState.getState().PublicChannels.channels.entities
@@ -1172,7 +1196,7 @@ describe('Channel', () => {
       if (action === SocketActionTypes.LAUNCH_COMMUNITY) {
         const data = input[1] as InitCommunityPayload
         const payload = data
-        return socket.socketClient.emit<ResponseLaunchCommunityPayload>(SocketActionTypes.COMMUNITY, {
+        return socket.socketClient.emit<ResponseLaunchCommunityPayload>(SocketActionTypes.COMMUNITY_LAUNCHED, {
           id: payload.id,
         })
       }
@@ -1207,7 +1231,7 @@ describe('Channel', () => {
 
     function* mockIncomingMessages(): Generator {
       yield* apply(socket.socketClient, socket.socketClient.emit, [
-        SocketActionTypes.INCOMING_MESSAGES,
+        SocketActionTypes.MESSAGES_STORED,
         {
           messages: [message],
           communityId: community.id,
@@ -1227,8 +1251,8 @@ describe('Channel', () => {
         "Messages/lazyLoading",
         "Messages/resetCurrentPublicChannelCache",
         "Messages/resetCurrentPublicChannelCache",
-        "Messages/removePendingMessageStatus",
-        "Messages/incomingMessages",
+        "Messages/removePendingMessageStatuses",
+        "Messages/addMessages",
         "Files/updateDownloadStatus",
         "Messages/addMessageVerificationStatus",
         "Identity/verifyJoinTimestamp",
@@ -1242,14 +1266,22 @@ describe('Channel', () => {
 
     const factory = await getFactory(initialState)
 
-    const community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>(
-      'Community'
-    )
+    const community =
+      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
 
     const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
       id: community.id,
       nickname: 'alice',
     })
+
+    initialState.dispatch(
+      communities.actions.updateCommunityData({
+        id: community.id,
+        // null/undefined type mismatch here. Might make things easier
+        // to make it consistent.
+        ownerCertificate: alice.userCertificate || undefined,
+      })
+    )
 
     const messageId = Math.random().toString(36).substr(2.9)
     const entities = initialState.getState().PublicChannels.channels.entities
@@ -1289,7 +1321,7 @@ describe('Channel', () => {
       if (action === SocketActionTypes.LAUNCH_COMMUNITY) {
         const data = input[1] as InitCommunityPayload
         const payload = data
-        return socket.socketClient.emit<ResponseLaunchCommunityPayload>(SocketActionTypes.COMMUNITY, {
+        return socket.socketClient.emit<ResponseLaunchCommunityPayload>(SocketActionTypes.COMMUNITY_LAUNCHED, {
           id: payload.id,
         })
       }
@@ -1324,7 +1356,7 @@ describe('Channel', () => {
 
     function* mockIncomingMessages(): Generator {
       yield* apply(socket.socketClient, socket.socketClient.emit, [
-        SocketActionTypes.INCOMING_MESSAGES,
+        SocketActionTypes.MESSAGES_STORED,
         {
           messages: [message],
           communityId: community.id,
@@ -1341,8 +1373,8 @@ describe('Channel', () => {
         "Messages/lazyLoading",
         "Messages/resetCurrentPublicChannelCache",
         "Messages/resetCurrentPublicChannelCache",
-        "Messages/removePendingMessageStatus",
-        "Messages/incomingMessages",
+        "Messages/removePendingMessageStatuses",
+        "Messages/addMessages",
         "Files/updateDownloadStatus",
         "Messages/addMessageVerificationStatus",
         "Identity/verifyJoinTimestamp",
@@ -1361,14 +1393,22 @@ describe('Channel', () => {
 
     const factory = await getFactory(initialState)
 
-    const community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>(
-      'Community'
-    )
+    const community =
+      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
 
     const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
       id: community.id,
       nickname: 'alice',
     })
+
+    initialState.dispatch(
+      communities.actions.updateCommunityData({
+        id: community.id,
+        // null/undefined type mismatch here. Might make things easier
+        // to make it consistent.
+        ownerCertificate: alice.userCertificate || undefined,
+      })
+    )
 
     const messageId = Math.random().toString(36).substr(2.9)
     const entities = initialState.getState().PublicChannels.channels.entities
@@ -1408,7 +1448,7 @@ describe('Channel', () => {
       if (action === SocketActionTypes.LAUNCH_COMMUNITY) {
         const data = input[1] as InitCommunityPayload
         const payload = data
-        return socket.socketClient.emit<ResponseLaunchCommunityPayload>(SocketActionTypes.COMMUNITY, {
+        return socket.socketClient.emit<ResponseLaunchCommunityPayload>(SocketActionTypes.COMMUNITY_LAUNCHED, {
           id: payload.id,
         })
       }
@@ -1451,7 +1491,7 @@ describe('Channel', () => {
 
     function* mockIncomingMessages(): Generator {
       yield* apply(socket.socketClient, socket.socketClient.emit, [
-        SocketActionTypes.INCOMING_MESSAGES,
+        SocketActionTypes.MESSAGES_STORED,
         {
           messages: [message],
           communityId: community.id,
@@ -1480,8 +1520,8 @@ describe('Channel', () => {
         "Messages/lazyLoading",
         "Messages/resetCurrentPublicChannelCache",
         "Messages/resetCurrentPublicChannelCache",
-        "Messages/removePendingMessageStatus",
-        "Messages/incomingMessages",
+        "Messages/removePendingMessageStatuses",
+        "Messages/addMessages",
         "Files/updateDownloadStatus",
         "Messages/addMessageVerificationStatus",
         "Identity/verifyJoinTimestamp",

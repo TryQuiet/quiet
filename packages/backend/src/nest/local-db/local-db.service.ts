@@ -1,10 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common'
 import { Level } from 'level'
-import { NetworkStats } from '@quiet/types'
-import { sortPeers } from '@quiet/common'
+import { InitCommunityPayload, NetworkStats } from '@quiet/types'
+import { createLibp2pAddress, filterAndSortPeers } from '@quiet/common'
 import { LEVEL_DB } from '../const'
 import { LocalDBKeys, LocalDbStatus } from './local-db.types'
 import Logger from '../common/logger'
+import { create } from 'mock-fs/lib/filesystem'
 
 @Injectable()
 export class LocalDbService {
@@ -35,7 +36,7 @@ export class LocalDbService {
     try {
       data = await this.db.get(key)
     } catch (e) {
-      this.logger.error(`Getting '${key}'`, e)
+      this.logger(`Getting '${key}'`, e)
       return null
     }
     return data
@@ -73,9 +74,21 @@ export class LocalDbService {
 
   public async getSortedPeers(peers: string[] = []): Promise<string[]> {
     const peersStats = (await this.get(LocalDBKeys.PEERS)) || {}
-    const peersAddresses: string[] = [...new Set(Object.keys(peersStats).concat(peers))]
     const stats: NetworkStats[] = Object.values(peersStats)
-    const sortedPeers = sortPeers(peersAddresses, stats)
-    return sortedPeers
+    const community: InitCommunityPayload = await this.get(LocalDBKeys.COMMUNITY)
+    if (!community) {
+      return filterAndSortPeers(peers, stats)
+    }
+    const localPeerAddress = createLibp2pAddress(community.hiddenService.onionAddress, community.peerId.id)
+    this.logger('Local peer', localPeerAddress)
+    return filterAndSortPeers(peers, stats, localPeerAddress)
+  }
+
+  public async putOwnerOrbitDbIdentity(id: string): Promise<void> {
+    this.put(LocalDBKeys.OWNER_ORBIT_DB_IDENTITY, id)
+  }
+
+  public async getOwnerOrbitDbIdentity(): Promise<string> {
+    return this.get(LocalDBKeys.OWNER_ORBIT_DB_IDENTITY)
   }
 }

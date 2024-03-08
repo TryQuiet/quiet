@@ -8,10 +8,12 @@ import { navigationActions } from '../../navigation/navigation.slice'
 import { ScreenNames } from '../../../../src/const/ScreenNames.enum'
 
 export function* leaveCommunitySaga(): Generator {
+  console.log('Leaving community')
+
   // Restart backend
   yield* put(app.actions.closeServices())
 
-  yield takeLeading(initActions.suspendWebsocketConnection.type, clearReduxStore)
+  yield takeLeading(initActions.canceledRootTask.type, clearReduxStore)
 }
 
 export function* clearReduxStore(): Generator {
@@ -30,6 +32,9 @@ export function* clearReduxStore(): Generator {
 
   // Resume persistor
   yield* call(persistor.persist)
+
+  // Restarting persistor doesn't mark store as ready automatically
+  yield* put(initActions.setStoreReady())
 
   yield* put(navigationActions.replaceScreen({ screen: ScreenNames.JoinCommunityScreen }))
 }

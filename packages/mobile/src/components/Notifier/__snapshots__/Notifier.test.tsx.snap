@@ -1,0 +1,163 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Notifier component should match inline snapshot 1`] = `
+<View
+  style={
+    {
+      "alignItems": "center",
+      "backgroundColor": "#ffffff",
+      "flex": 1,
+      "justifyContent": "center",
+    }
+  }
+>
+  <Image
+    source={
+      {
+        "testUri": "../../../assets/icons/update_graphics.png",
+      }
+    }
+    style={
+      {
+        "height": 135,
+        "margin": 20,
+        "resizeMode": "cover",
+        "width": 375,
+      }
+    }
+  />
+  <View
+    style={
+      {
+        "alignItems": "center",
+        "flexDirection": "column",
+        "gap": 20,
+        "maxWidth": 330,
+      }
+    }
+  >
+    <Text
+      color="main"
+      fontSize={28}
+      fontWeight="medium"
+      horizontalTextAlign="center"
+      style={
+        [
+          {
+            "color": "#000000",
+            "fontFamily": "Rubik-Medium",
+            "fontSize": 28,
+            "textAlign": "center",
+            "textAlignVertical": "center",
+          },
+        ]
+      }
+      verticalTextAlign="center"
+    >
+      Coming update will remove communities & messages
+    </Text>
+    <Text
+      color="main"
+      fontSize={14}
+      fontWeight="normal"
+      horizontalTextAlign="center"
+      style={
+        [
+          {
+            "color": "#000000",
+            "fontFamily": "Rubik-Regular",
+            "fontSize": 14,
+            "textAlign": "center",
+            "textAlignVertical": "center",
+          },
+        ]
+      }
+      verticalTextAlign="center"
+    >
+      Quiet’s next release makes joining communities faster and more reliable by letting people join when the owner is offline! However, these changes required us to reset all communities, and both communities and messages will be lost on mobile. We apologize for the inconvenience, and please reach out immediately if you need help backing up messages.
+    </Text>
+    <View
+      accessibilityState={
+        {
+          "busy": undefined,
+          "checked": undefined,
+          "disabled": undefined,
+          "expanded": undefined,
+          "selected": undefined,
+        }
+      }
+      accessible={true}
+      focusable={true}
+      onClick={[Function]}
+      onResponderGrant={[Function]}
+      onResponderMove={[Function]}
+      onResponderRelease={[Function]}
+      onResponderTerminate={[Function]}
+      onResponderTerminationRequest={[Function]}
+      onStartShouldSetResponder={[Function]}
+      style={
+        {
+          "alignItems": "center",
+          "backgroundColor": "#521C74",
+          "borderRadius": 8,
+          "justifyContent": "center",
+          "marginVertical": 12,
+          "minHeight": 50,
+          "paddingVertical": 12,
+          "width": 135,
+        }
+      }
+      testID="button"
+    >
+      <Text
+        color="white"
+        fontSize={16}
+        horizontalTextAlign="left"
+        style={
+          [
+            {
+              "color": "#ffffff",
+              "fontFamily": "Rubik-Regular",
+              "fontSize": 16,
+              "textAlign": "left",
+              "textAlignVertical": "center",
+            },
+          ]
+        }
+        verticalTextAlign="center"
+      >
+        I understand
+      </Text>
+    </View>
+    <Text
+      color="gray50"
+      fontSize={16}
+      horizontalTextAlign="left"
+      onPress={[MockFunction]}
+      style={
+        [
+          {
+            "color": "#7F7F7F",
+            "fontFamily": "Rubik-Regular",
+            "fontSize": 16,
+            "textAlign": "left",
+            "textAlignVertical": "center",
+          },
+        ]
+      }
+      verticalTextAlign="center"
+    >
+      Need help? 
+      <Text
+        style={
+          {
+            "textDecorationLine": "underline",
+          }
+        }
+      >
+        help@quiet.chat
+      </Text>
+    </Text>
+  </View>
+</View>
+`;

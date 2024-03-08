@@ -15,35 +15,43 @@ import MockedSocket from 'socket.io-mock'
 import { ioMock } from '../shared/setupTests'
 import { socketEventData } from '../renderer/testUtils/socket'
 import {
-  identity,
   communities,
-  SocketActionTypes,
   RegisterUserCertificatePayload,
   InitCommunityPayload,
-  Community,
   ErrorCodes,
   ErrorMessages,
   getFactory,
   errors,
-  ResponseCreateNetworkPayload,
 } from '@quiet/state-manager'
 import Channel from '../renderer/components/Channel/Channel'
 import LoadingPanel from '../renderer/components/LoadingPanel/LoadingPanel'
-import { createUserCertificateTestHelper } from '@quiet/identity'
 import { AnyAction } from 'redux'
 import {
+  InvitationData,
   ChannelsReplicatedPayload,
+  Community,
   ErrorPayload,
+  type NetworkInfo,
   ResponseLaunchCommunityPayload,
-  SendOwnerCertificatePayload,
+  SocketActionTypes,
 } from '@quiet/types'
+import { composeInvitationShareUrl } from '@quiet/common'
 
 jest.setTimeout(20_000)
 
 describe('User', () => {
   let socket: MockedSocket
-  const validCode =
-    'QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE=y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd'
+  const validData: InvitationData = {
+    pairs: [
+      {
+        onionAddress: 'y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd',
+        peerId: 'QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE',
+      },
+    ],
+    psk: 'BNlxfE2WBF7LrlpIX0CvECN5o1oZtA16PkAb7GYiwYw=',
+    ownerOrbitDbIdentity: 'testOrbitDbIdentity',
+  }
+  const validCode = composeInvitationShareUrl(validData)
   // trigger
   beforeEach(() => {
     socket = new MockedSocket()
@@ -76,66 +84,28 @@ describe('User', () => {
 
     const factory = await getFactory(store)
 
-    jest.spyOn(socket, 'emit').mockImplementation(async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
+    const mockImpl = async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
       const action = input[0]
       if (action === SocketActionTypes.CREATE_NETWORK) {
         const payload = input[1] as Community
-        return socket.socketClient.emit<ResponseCreateNetworkPayload>(SocketActionTypes.NETWORK, {
-          community: payload,
-          network: {
-            hiddenService: {
-              onionAddress: 'onionAddress',
-              privateKey: 'privKey',
-            },
-            peerId: {
-              id: 'peerId',
-            },
+        return {
+          hiddenService: {
+            onionAddress: 'onionAddress',
+            privateKey: 'privKey',
           },
-        })
-      }
-      if (action === SocketActionTypes.REGISTER_USER_CERTIFICATE) {
-        const payload = input[1] as RegisterUserCertificatePayload
-        const user = identity.selectors.currentIdentity(store.getState())
-        expect(user).not.toBeUndefined()
-        // This community serves only as a mocked object for generating valid crytpo data (certificate, rootCA)
-        const communityHelper: ReturnType<typeof communities.actions.addNewCommunity>['payload'] = (
-          await factory.build<typeof communities.actions.addNewCommunity>('Community', {
-            id: payload.communityId,
-          })
-        ).payload
-        const certificateHelper = await createUserCertificateTestHelper(
-          {
-            // @ts-expect-error
-            nickname: user.nickname,
-            // @ts-expect-error
-            commonName: communityHelper.registrarUrl,
-            // @ts-expect-error
-            peerId: user.peerId.id,
-            // @ts-expect-error
-            dmPublicKey: user.dmKeys.publicKey,
+          peerId: {
+            id: 'peerId',
           },
-          communityHelper.CA
-        )
-        const certificate = certificateHelper.userCert.userCertString
-        const rootCa = communityHelper.CA?.rootCertString
-        return socket.socketClient.emit<SendOwnerCertificatePayload>(SocketActionTypes.SEND_USER_CERTIFICATE, {
-          communityId: payload.communityId,
-          payload: {
-            certificate: certificate,
-            // @ts-expect-error
-            rootCa: rootCa,
-            peers: [],
-          },
-        })
+        }
       }
       if (action === SocketActionTypes.LAUNCH_COMMUNITY) {
         const payload = input[1] as InitCommunityPayload
         const community = communities.selectors.currentCommunity(store.getState())
         expect(payload.id).toEqual(community?.id)
-        socket.socketClient.emit<ResponseLaunchCommunityPayload>(SocketActionTypes.COMMUNITY, {
+        socket.socketClient.emit<ResponseLaunchCommunityPayload>(SocketActionTypes.COMMUNITY_LAUNCHED, {
           id: payload.id,
         })
-        socket.socketClient.emit<ChannelsReplicatedPayload>(SocketActionTypes.CHANNELS_REPLICATED, {
+        socket.socketClient.emit<ChannelsReplicatedPayload>(SocketActionTypes.CHANNELS_STORED, {
           channels: {
             general: {
               name: 'general',
@@ -147,7 +117,11 @@ describe('User', () => {
           },
         })
       }
-    })
+    }
+
+    jest.spyOn(socket, 'emit').mockImplementation(mockImpl)
+    // @ts-ignore
+    socket.emitWithAck = mockImpl
 
     // Log all the dispatched actions in order
     const actions: AnyAction[] = []
@@ -194,31 +168,38 @@ describe('User', () => {
       Array [
         "Communities/createNetwork",
         "Communities/setInvitationCodes",
+        "Communities/savePSK",
         "Communities/addNewCommunity",
         "Communities/setCurrentCommunity",
         "Modals/closeModal",
         "Modals/openModal",
-        "Identity/registerUsername",
-        "Communities/responseCreateNetwork",
-        "Communities/updateCommunityData",
         "Identity/addNewIdentity",
+        "Identity/registerUsername",
         "Network/setLoadingPanelType",
         "Modals/openModal",
         "Identity/registerCertificate",
         "Communities/launchCommunity",
-        "Communities/launchRegistrar",
-        "Identity/saveUserCsr",
+        "Communities/sendCommunityCaData",
         "Files/checkForMissingFiles",
         "Network/addInitializedCommunity",
         "Communities/clearInvitationCodes",
-        "Communities/sendCommunityMetadata",
         "PublicChannels/channelsReplicated",
         "PublicChannels/addChannel",
         "Messages/addPublicChannelsMessagesBase",
+        "PublicChannels/sendIntroductionMessage",
+        "Messages/sendMessage",
+        "Identity/updateIdentity",
         "Modals/closeModal",
         "Messages/lazyLoading",
         "Messages/resetCurrentPublicChannelCache",
         "Messages/resetCurrentPublicChannelCache",
+        "Messages/addMessagesSendingStatus",
+        "Messages/addMessageVerificationStatus",
+        "Messages/addMessages",
+        "PublicChannels/cacheMessages",
+        "Identity/verifyJoinTimestamp",
+        "PublicChannels/updateNewestMessage",
+        "Identity/updateJoinTimestamp",
       ]
     `)
   })
@@ -246,16 +227,13 @@ describe('User', () => {
       const action = input[0]
       if (action === SocketActionTypes.CREATE_NETWORK) {
         const payload = input[1] as Community
-        return socket.socketClient.emit<ResponseCreateNetworkPayload>(SocketActionTypes.NETWORK, {
-          community: payload,
-          network: {
-            hiddenService: {
-              onionAddress: 'onionAddress',
-              privateKey: 'privKey',
-            },
-            peerId: {
-              id: 'peerId',
-            },
+        return socket.socketClient.emit<NetworkInfo>(SocketActionTypes.NETWORK_CREATED, {
+          hiddenService: {
+            onionAddress: 'onionAddress',
+            privateKey: 'privKey',
+          },
+          peerId: {
+            id: 'peerId',
           },
         })
       }
@@ -264,7 +242,7 @@ describe('User', () => {
         const community = communities.selectors.currentCommunity(store.getState())
         expect(payload.communityId).toEqual(community?.id)
         socket.socketClient.emit<ErrorPayload>(SocketActionTypes.ERROR, {
-          type: SocketActionTypes.REGISTRAR,
+          type: SocketActionTypes.REGISTER_USER_CERTIFICATE,
           code: ErrorCodes.FORBIDDEN,
           message: ErrorMessages.USERNAME_TAKEN,
           community: community?.id,
@@ -310,27 +288,7 @@ describe('User', () => {
     const usernameTakenErrorMessage = await screen.findByText(ErrorMessages.USERNAME_TAKEN)
     expect(usernameTakenErrorMessage).toBeVisible()
 
-    expect(actions).toMatchInlineSnapshot(`
-      Array [
-        "Communities/createNetwork",
-        "Communities/clearInvitationCode",
-        "Communities/addNewCommunity",
-        "Communities/setCurrentCommunity",
-        "Modals/closeModal",
-        "Modals/openModal",
-        "Identity/registerUsername",
-        "Communities/responseCreateNetwork",
-        "Communities/clearInvitationCode",
-        "Communities/updateCommunityData",
-        "Identity/addNewIdentity",
-        "Network/setLoadingPanelType",
-        "Modals/openModal",
-        "Identity/registerCertificate",
-        "Errors/handleError",
-        "Errors/addError",
-        "Modals/closeModal",
-      ]
-    `)
+    expect(actions).toMatchInlineSnapshot()
   })
 
   it.skip('clears error before sending another username registration request', async () => {
@@ -354,16 +312,13 @@ describe('User', () => {
       const action = input[0]
       if (action === SocketActionTypes.CREATE_NETWORK) {
         const payload = input[1] as Community
-        return socket.socketClient.emit<ResponseCreateNetworkPayload>(SocketActionTypes.NETWORK, {
-          community: payload,
-          network: {
-            hiddenService: {
-              onionAddress: 'onionAddress',
-              privateKey: 'privKey',
-            },
-            peerId: {
-              id: 'peerId',
-            },
+        return socket.socketClient.emit<NetworkInfo>(SocketActionTypes.NETWORK_CREATED, {
+          hiddenService: {
+            onionAddress: 'onionAddress',
+            privateKey: 'privKey',
+          },
+          peerId: {
+            id: 'peerId',
           },
         })
       }
@@ -397,7 +352,7 @@ describe('User', () => {
       const community = communities.selectors.currentCommunity(store.getState())
       store.dispatch(
         errors.actions.addError({
-          type: SocketActionTypes.REGISTRAR,
+          type: SocketActionTypes.REGISTER_USER_CERTIFICATE,
           code: ErrorCodes.FORBIDDEN,
           message: ErrorMessages.USERNAME_TAKEN,
           community: community?.id,
@@ -421,26 +376,6 @@ describe('User', () => {
     // Check if 'username taken' error message disappeared
     expect(await screen.queryByText(ErrorMessages.USERNAME_TAKEN)).toBeNull()
 
-    expect(actions).toMatchInlineSnapshot(`
-      Array [
-        "Communities/createNetwork",
-        "Communities/clearInvitationCode",
-        "Communities/addNewCommunity",
-        "Communities/setCurrentCommunity",
-        "Modals/closeModal",
-        "Modals/openModal",
-        "Errors/addError",
-        "Modals/closeModal",
-        "Errors/clearError",
-        "Identity/registerUsername",
-        "Communities/responseCreateNetwork",
-        "Communities/clearInvitationCode",
-        "Communities/updateCommunityData",
-        "Identity/addNewIdentity",
-        "Network/setLoadingPanelType",
-        "Modals/openModal",
-        "Identity/registerCertificate",
-      ]
-    `)
+    expect(actions).toMatchInlineSnapshot()
   })
 })

@@ -26,7 +26,7 @@ describe('createChannelSaga', () => {
     factory = await getFactory(store)
   })
 
-  const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
+  const socket = { emit: jest.fn(), emitWithAck: jest.fn(), on: jest.fn() } as unknown as Socket
 
   const channel: PublicChannel = {
     name: 'general',
@@ -37,9 +37,8 @@ describe('createChannelSaga', () => {
   }
 
   test('ask for missing messages', async () => {
-    const community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>(
-      'Community'
-    )
+    const community =
+      await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
 
     const identity = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
       id: community.id,
@@ -70,7 +69,7 @@ describe('createChannelSaga', () => {
           },
         }
       )
-      .apply(socket, socket.emit, [
+      .apply(socket, socket.emitWithAck, [
         SocketActionTypes.CREATE_CHANNEL,
         {
           channel,

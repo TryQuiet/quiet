@@ -4,44 +4,18 @@ import { communitiesAdapter } from './communities.adapter'
 import {
   InvitationPair,
   type AddOwnerCertificatePayload,
-  type Community as CommunityType,
+  type Community,
   type CreateNetworkPayload,
-  type ResponseCreateNetworkPayload,
-  type ResponseRegistrarPayload,
   type StorePeerListPayload,
-  type UpdateCommunityPayload,
-  type UpdateRegistrationAttemptsPayload,
-  CommunityMetadataPayload,
+  CommunityMetadata,
+  InvitationData,
 } from '@quiet/types'
 
 export class CommunitiesState {
-  public invitationCode: string | undefined = undefined
   public invitationCodes: InvitationPair[] = []
   public currentCommunity = ''
-  public communities: EntityState<CommunityType> = communitiesAdapter.getInitialState()
-}
-
-// TODO: remove after setting strict in 'desktop' and 'mobile' packages
-export interface Community {
-  // TODO: how to set default values for Community?
-  id: string
-  name?: string
-  CA?: null | {
-    rootCertString: string
-    rootKeyString: string
-  }
-  rootCa?: string
-  peerList?: string[]
-  registrarUrl?: string
-  registrar?: null | {
-    privateKey: string
-    address: string
-  }
-  onionAddress?: string
-  privateKey?: string
-  port?: number
-  registrationAttempts?: number
-  ownerCertificate?: string
+  public communities: EntityState<Community> = communitiesAdapter.getInitialState()
+  public psk: string | undefined
 }
 
 export const communitiesSlice = createSlice({
@@ -51,11 +25,11 @@ export const communitiesSlice = createSlice({
     setCurrentCommunity: (state, action: PayloadAction<string>) => {
       state.currentCommunity = action.payload
     },
-    addNewCommunity: (state, action: PayloadAction<CommunityType>) => {
+    addNewCommunity: (state, action: PayloadAction<Community>) => {
       communitiesAdapter.addOne(state.communities, action.payload)
     },
-    updateCommunity: (state, _action: PayloadAction<UpdateCommunityPayload>) => state,
-    updateCommunityData: (state, action: PayloadAction<CommunityType>) => {
+    updateCommunity: (state, _action: PayloadAction<Community>) => state,
+    updateCommunityData: (state, action: PayloadAction<Community>) => {
       communitiesAdapter.updateOne(state.communities, {
         id: action.payload.id,
         changes: {
@@ -63,17 +37,9 @@ export const communitiesSlice = createSlice({
         },
       })
     },
+    sendCommunityCaData: state => state,
     sendCommunityMetadata: state => state,
     createNetwork: (state, _action: PayloadAction<CreateNetworkPayload>) => state,
-    responseCreateNetwork: (state, _action: PayloadAction<ResponseCreateNetworkPayload>) => state,
-    responseRegistrar: (state, action: PayloadAction<ResponseRegistrarPayload>) => {
-      communitiesAdapter.updateOne(state.communities, {
-        id: action.payload.id,
-        changes: {
-          ...action.payload.payload,
-        },
-      })
-    },
     storePeerList: (state, action: PayloadAction<StorePeerListPayload>) => {
       communitiesAdapter.updateOne(state.communities, {
         id: action.payload.communityId,
@@ -83,35 +49,18 @@ export const communitiesSlice = createSlice({
       })
     },
     resetApp: (state, _action) => state,
-    launchCommunity: (state, _action: PayloadAction<string | undefined>) => state,
-    launchRegistrar: (state, _action: PayloadAction<string | undefined>) => state,
-    updateRegistrationAttempts: (state, action: PayloadAction<UpdateRegistrationAttemptsPayload>) => {
-      communitiesAdapter.updateOne(state.communities, {
-        id: action.payload.id,
-        changes: {
-          ...action.payload,
-        },
-      })
-    },
-    handleInvitationCodes: (state, action: PayloadAction<InvitationPair[]>) => {
-      state.invitationCodes = action.payload
-    },
+    launchCommunity: (state, _action: PayloadAction<string>) => state,
+    customProtocol: (state, _action: PayloadAction<InvitationData>) => state,
     setInvitationCodes: (state, action: PayloadAction<InvitationPair[]>) => {
       state.invitationCodes = action.payload
     },
     clearInvitationCodes: state => {
       state.invitationCodes = []
     },
-    addOwnerCertificate: (state, action: PayloadAction<AddOwnerCertificatePayload>) => {
-      const { communityId, ownerCertificate } = action.payload
-      communitiesAdapter.updateOne(state.communities, {
-        id: communityId,
-        changes: {
-          ownerCertificate,
-        },
-      })
+    saveCommunityMetadata: (state, _action: PayloadAction<CommunityMetadata>) => state,
+    savePSK: (state, action: PayloadAction<string>) => {
+      state.psk = action.payload
     },
-    saveCommunityMetadata: (state, _action: PayloadAction<CommunityMetadataPayload>) => state,
   },
 })
 

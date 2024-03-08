@@ -1,22 +1,39 @@
-import { io, Socket } from 'socket.io-client'
-import { all, fork, takeEvery, call, put, cancel, FixedTask } from 'typed-redux-saga'
+import { io } from 'socket.io-client'
+import { all, fork, takeEvery, call, put, cancel, FixedTask, select, take } from 'typed-redux-saga'
 import { PayloadAction } from '@reduxjs/toolkit'
-import { socket as stateManager, messages } from '@quiet/state-manager'
+import { socket as stateManager, messages, connection, Socket } from '@quiet/state-manager'
 import { socketActions } from './socket.slice'
 import { eventChannel } from 'redux-saga'
 import { displayMessageNotificationSaga } from '../notifications/notifications.saga'
-
 import logger from '../../logger'
+import { encodeSecret } from '@quiet/common'
+
 const log = logger('socket')
 
 export function* startConnectionSaga(
   action: PayloadAction<ReturnType<typeof socketActions.startConnection>['payload']>
 ): Generator {
-  const dataPort = action.payload.dataPort
+  const { dataPort } = action.payload
   if (!dataPort) {
     log.error('About to start connection but no dataPort found')
   }
-  const socket = yield* call(io, `http://127.0.0.1:${dataPort}`)
+
+  let socketIOSecret = yield* select(connection.selectors.socketIOSecret)
+
+  if (!socketIOSecret) {
+    yield* take(connection.actions.setSocketIOSecret)
+    socketIOSecret = yield* select(connection.selectors.socketIOSecret)
+  }
+
+  if (!socketIOSecret) return
+
+  const token = encodeSecret(socketIOSecret)
+  const socket = yield* call(io, `http://127.0.0.1:${dataPort}`, {
+    withCredentials: true,
+    extraHeaders: {
+      authorization: `Basic ${token}`,
+    },
+  })
   yield* fork(handleSocketLifecycleActions, socket)
 
   // Handle opening/restoring connection
@@ -24,7 +41,6 @@ export function* startConnectionSaga(
 }
 
 function* setConnectedSaga(socket: Socket): Generator {
-  // @ts-expect-error
   const root = yield* fork(stateManager.useIO, socket)
   const observers = yield* fork(initObservers)
   // Handle suspending current connection
@@ -68,5 +84,5 @@ function* cancelObservers(task: FixedTask<Generator>): Generator {
 }
 
 function* initObservers(): Generator {
-  yield all([takeEvery(messages.actions.incomingMessages.type, displayMessageNotificationSaga)])
+  yield all([takeEvery(messages.actions.addMessages.type, displayMessageNotificationSaga)])
 }

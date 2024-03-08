@@ -143,6 +143,21 @@ export const transformToLowercase = (string: string) => {
   const hasPM = string.search('PM')
   return hasPM !== -1 ? string.replace('PM', 'pm') : string.replace('AM', 'am')
 }
+
+const MessageProfilePhoto: React.FC<{ message: DisplayableMessage }> = ({ message }) => {
+  const imgStyle = {
+    width: '36px',
+    height: '36px',
+    borderRadius: '4px',
+    marginRight: '8px',
+  }
+  return message.photo ? (
+    <img style={imgStyle} src={message.photo} alt={"Message author's profile image"} />
+  ) : (
+    <Jdenticon value={message.pubKey} size='36' />
+  )
+}
+
 export interface BasicMessageProps {
   messages: DisplayableMessage[]
   pendingMessages?: Dictionary<MessageSendingStatus>
@@ -174,8 +189,8 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
   const userLabel = messageDisplayData?.isDuplicated
     ? UserLabelType.DUPLICATE
     : !messageDisplayData?.isRegistered
-    ? UserLabelType.UNREGISTERED
-    : null
+      ? UserLabelType.UNREGISTERED
+      : null
 
   const infoMessage = messageDisplayData.type === 3 // 3 stands for MessageType.Info
 
@@ -193,6 +208,7 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
       <ListItemText
         disableTypography
         className={classes.messageCard}
+        data-testid={`userMessagesWrapper-${messageDisplayData.nickname}-${messageDisplayData.id}`}
         primary={
           <Grid container direction='row' justifyContent='flex-start' alignItems='flex-start' wrap={'nowrap'}>
             <Grid item className={classNames({ [classes.avatar]: true })}>
@@ -200,7 +216,7 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
                 {infoMessage ? (
                   <Icon src={information} className={classes.infoIcon} />
                 ) : (
-                  <Jdenticon size='36' value={messageDisplayData.nickname} />
+                  <MessageProfilePhoto message={messageDisplayData} />
                 )}
               </div>
             </Grid>
@@ -218,8 +234,8 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
                       {infoMessage ? 'Quiet' : messageDisplayData.nickname}
                     </Typography>
                   </Grid>
-                  {/* {userLabel && (
-                    <Grid>
+                  {userLabel && !infoMessage && (
+                    <Grid data-testid={`userLabel-${messageDisplayData.nickname}-${messageDisplayData.id}`}>
                       <UserLabel
                         username={messageDisplayData.nickname}
                         type={userLabel}
@@ -227,7 +243,7 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
                         duplicatedUsernameModalHandleOpen={duplicatedUsernameModalHandleOpen}
                       />
                     </Grid>
-                  )} */}
+                  )}
                   {status !== 'failed' && (
                     <Grid item>
                       <Typography

@@ -1,4 +1,4 @@
-#import <React/RCTBridgeDelegate.h>
+#import <RCTAppDelegate.h>
 #import <UIKit/UIKit.h>
 #import <Tor/Tor.h>
 
@@ -6,15 +6,13 @@
 
 #import "Quiet-Swift.h"
 
-@interface AppDelegate : UIResponder <UIApplicationDelegate, RCTBridgeDelegate>
-
-@property (nonatomic, strong) UIWindow *window;
+@interface AppDelegate : RCTAppDelegate
 
 @property uint16_t dataPort;
 
-@property NSString *dataPath;
+@property NSString *socketIOSecret;
 
-@property RCTBridge *bridge;
+@property NSString *dataPath;
 
 @property RNNodeJsMobile *nodeJsMobile;
 

@@ -1,5 +1,6 @@
 export enum ModalName {
   applicationUpdate = 'applicationUpdate',
+  breakingChangesWarning = 'breakingChangesWarning',
   createChannel = 'createChannel',
   deleteChannel = 'deleteChannel',
   accountSettingsModal = 'accountSettingsModal',
@@ -23,4 +24,6 @@ export enum ModalName {
   channelCreationModal = 'channelCreationModal',
   duplicatedUsernameModal = 'duplicatedUsernameModal',
   unregisteredUsernameModal = 'unregisteredUsernameModal',
+  usernameTakenModal = 'usernameTakenModal',
+  possibleImpersonationAttackModal = 'possibleImpersonationAttackModal',
 }

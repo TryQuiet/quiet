@@ -1,18 +1,18 @@
-import React, { FC, useState, useEffect, useRef } from 'react'
+import React, { FC, useRef, useState, useEffect, useCallback } from 'react'
 import { Keyboard, View, FlatList, TextInput, KeyboardAvoidingView, Platform } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Appbar } from '../../components/Appbar/Appbar.component'
+import { Loading } from '../Loading/Loading.component'
 import { ImagePreviewModal } from '../../components/ImagePreview/ImagePreview.component'
-import { Spinner } from '../Spinner/Spinner.component'
 import { Message } from '../Message/Message.component'
 import { Input } from '../Input/Input.component'
 import { MessageSendButton } from '../MessageSendButton/MessageSendButton.component'
 import { ChannelMessagesComponentProps, ChatProps } from './Chat.types'
 import { FileActionsProps } from '../UploadedFile/UploadedFile.types'
-import { defaultTheme } from '../../styles/themes/default.theme'
 import { AttachmentButton } from '../AttachmentButton/AttachmentButton.component'
 import DocumentPicker, { DocumentPickerResponse, types } from 'react-native-document-picker'
 import UploadFilesPreviewsComponent from '../FileUploadingPreview/UploadingPreview.component'
+import { defaultTheme } from '../../styles/themes/default.theme'
 
 export const Chat: FC<ChatProps & FileActionsProps> = ({
   contextMenu,
@@ -48,7 +48,20 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
 
   const defaultPadding = 20
 
-  const areFilesUploaded = uploadedFiles && Object.keys(uploadedFiles).length > 0
+  const areFilesUploaded = useCallback(() => {
+    if (!uploadedFiles) return false
+    if (Object.keys(uploadedFiles).length <= 0) return false
+    return true
+  }, [uploadedFiles])()
+
+  const shouldDisableSubmit = useCallback(() => {
+    if (!ready) return true
+
+    const isInputEmpty = messageInput.length === 0
+    if (isInputEmpty && !areFilesUploaded) return true
+
+    return false
+  }, [messageInput, areFilesUploaded, ready])()
 
   useEffect(() => {
     const onKeyboardDidShow = () => {
@@ -68,14 +81,7 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
     }
   }, [messageInput?.length, setKeyboardShow])
 
-  const [isInputEmpty, setInputEmpty] = useState(true)
-
   const onInputTextChange = (value: string) => {
-    if (value.length === 0) {
-      setInputEmpty(true)
-    } else {
-      setInputEmpty(false)
-    }
     setMessageInput(value)
   }
 
@@ -105,7 +111,6 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
       messageInputRef?.current?.clear()
       sendMessageAction(messageInput)
       setMessageInput('')
-      setInputEmpty(true)
     }
   }
 
@@ -140,75 +145,79 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
         }}
       >
         {messages.count === 0 ? (
-          <Spinner description='Loading messages' />
+          <Loading title={'Loading messages'} caption={'Chat will become available shortly'} />
         ) : (
-          <FlatList
-            // There's a performance issue with inverted prop on FlatList, so we're double rotating the elements as a workaround
-            // https://github.com/facebook/react-native/issues/30034
-            style={{
-              transform: [{ rotate: '180deg' }],
-              paddingLeft: defaultPadding,
-              paddingRight: defaultPadding,
-            }}
-            data={Object.keys(messages.groups).reverse()}
-            keyExtractor={item => item}
-            renderItem={item => {
-              return <View style={{ transform: [{ rotate: '180deg' }] }}>{renderItem(item)}</View>
-            }}
-            onEndReached={() => {
-              loadMessagesAction(true)
-            }}
-            onEndReachedThreshold={0.7}
-            showsVerticalScrollIndicator={false}
-          />
-        )}
-        <View
-          style={{
-            flexDirection: 'row',
-            paddingBottom: Platform.select({ ios: 20, android: 0 }),
-          }}
-        >
-          <View
-            style={{
-              width: '100%',
-              paddingLeft: defaultPadding,
-              paddingRight: 0,
-            }}
-          >
+          <>
+            <FlatList
+              // There's a performance issue with inverted prop on FlatList, so we're double rotating the elements as a workaround
+              // https://github.com/facebook/react-native/issues/30034
+              style={{
+                transform: [{ rotate: '180deg' }],
+                paddingLeft: defaultPadding,
+                paddingRight: defaultPadding,
+              }}
+              data={Object.keys(messages.groups).reverse()}
+              keyExtractor={item => item}
+              renderItem={item => {
+                return <View style={{ transform: [{ rotate: '180deg' }] }}>{renderItem(item)}</View>
+              }}
+              onEndReached={() => {
+                loadMessagesAction(true)
+              }}
+              onEndReachedThreshold={0.7}
+              showsVerticalScrollIndicator={false}
+            />
             <View
               style={{
                 flexDirection: 'row',
-                width: '100%',
+                paddingBottom: Platform.select({ ios: 20, android: 0 }),
               }}
             >
-              <Input
-                ref={messageInputRef}
-                onChangeText={onInputTextChange}
-                placeholder={`Message #${channel?.name}`}
-                multiline={true}
-                wrapperStyle={{ width: didKeyboardShow || areFilesUploaded ? '75%' : '85%' }}
-                disabled={!ready}
-              />
-
               <View
                 style={{
-                  paddingLeft: 10,
-                  paddingRight: 10,
-                  gap: 5,
-                  flexDirection: 'row',
-                  width: didKeyboardShow || areFilesUploaded ? '25%' : '15%',
+                  width: '100%',
+                  paddingLeft: defaultPadding,
+                  paddingRight: !didKeyboardShow && !areFilesUploaded ? defaultPadding : 0,
                 }}
               >
-                <AttachmentButton onPress={openAttachments} />
-                {(didKeyboardShow || areFilesUploaded) && (
-                  <MessageSendButton onPress={onPress} disabled={isInputEmpty && !areFilesUploaded} />
+                <View
+                  style={{
+                    flexDirection: 'row',
+                  }}
+                >
+                  <View style={{ flex: 1 }}>
+                    <View style={{ justifyContent: 'center' }}>
+                      <Input
+                        ref={messageInputRef}
+                        onChangeText={onInputTextChange}
+                        placeholder={`Message #${channel?.name}`}
+                        multiline={true}
+                        style={{ paddingRight: 50 }}
+                        round
+                      />
+                    </View>
+                    <View
+                      style={{
+                        position: 'absolute',
+                        height: '100%',
+                        right: 10,
+                        justifyContent: 'center',
+                      }}
+                    >
+                      <AttachmentButton onPress={openAttachments} />
+                    </View>
+                  </View>
+                  {(didKeyboardShow || areFilesUploaded) && (
+                    <MessageSendButton onPress={onPress} disabled={shouldDisableSubmit} />
+                  )}
+                </View>
+                {uploadedFiles && (
+                  <UploadFilesPreviewsComponent filesData={uploadedFiles} removeFile={removeFilePreview} />
                 )}
               </View>
             </View>
-
-            {uploadedFiles && <UploadFilesPreviewsComponent filesData={uploadedFiles} removeFile={removeFilePreview} />}
-          </View>
-        </View>
+          </>
+        )}
       </KeyboardAvoidingView>
       {imagePreview && setImagePreview && (
         <ImagePreviewModal

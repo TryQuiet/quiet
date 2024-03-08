@@ -1,11 +1,11 @@
-/**
- * Metro configuration for React Native
- * https://github.com/facebook/react-native
- *
- * @format
- */
+const {getDefaultConfig, mergeConfig} = require('@react-native/metro-config');
 
-const blacklist = require('metro-config/src/defaults/exclusionList')
+/**
+ * Metro configuration
+ * https://facebook.github.io/metro/docs/configuration
+ *
+ * @type {import('metro-config').MetroConfig}
+ */
 
 const path = require('path')
 
@@ -30,9 +30,8 @@ const extraNodeModules = {
   ...require('node-libs-react-native'),
 }
 
-module.exports = {
+const config = {
   resolver: {
-    blacklistRE: blacklist([/\/nodejs-assets\/.*/, /\/android\/.*/, /\/ios\/.*/]),
     extraNodeModules: new Proxy(extraNodeModules, {
       get: (target, name) =>
         // redirects dependencies referenced from common packages to local node_modules
@@ -50,3 +49,5 @@ module.exports = {
   sourceExts: ['js', 'jsx', 'ts', 'tsx'],
   watchFolders,
 }
+
+module.exports = mergeConfig(getDefaultConfig(__dirname), config);

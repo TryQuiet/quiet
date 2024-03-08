@@ -1,9 +1,10 @@
 import React from 'react'
-import { getFactory, Community, communities } from '@quiet/state-manager'
+import { getFactory, communities } from '@quiet/state-manager'
 
 import { IdentityPanel } from './IdentityPanel'
 import { prepareStore } from '../../../testUtils/prepareStore'
 import { renderComponent } from '../../../testUtils/renderComponent'
+import { type Community } from '@quiet/types'
 
 describe('IdentityPanel', () => {
   it('renders component with username', async () => {
@@ -11,9 +12,8 @@ describe('IdentityPanel', () => {
 
     const factory = await getFactory(store)
 
-    const community: Community = await factory.create<
-      ReturnType<typeof communities.actions.addNewCommunity>['payload']
-    >('Community')
+    const community: Community =
+      await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
 
     const result = renderComponent(
       <IdentityPanel
@@ -89,7 +89,9 @@ describe('IdentityPanel', () => {
             >
               <h4
                 class="MuiTypography-root MuiTypography-h4 IdentityPanelnickname css-ajdqea-MuiTypography-root"
-              />
+              >
+                ...
+              </h4>
               <svg
                 aria-hidden="true"
                 class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-ptiqhd-MuiSvgIcon-root"
@@ -144,7 +146,9 @@ describe('IdentityPanel', () => {
             >
               <h4
                 class="MuiTypography-root MuiTypography-h4 IdentityPanelnickname css-ajdqea-MuiTypography-root"
-              />
+              >
+                ...
+              </h4>
               <svg
                 aria-hidden="true"
                 class="MuiSvgIcon-root MuiSvgIcon-fontSizeSmall css-ptiqhd-MuiSvgIcon-root"

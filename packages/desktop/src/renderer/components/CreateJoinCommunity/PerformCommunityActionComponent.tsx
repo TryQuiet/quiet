@@ -12,7 +12,7 @@ import { LoadingButton } from '../ui/LoadingButton/LoadingButton'
 
 import { CreateCommunityDictionary, JoinCommunityDictionary } from '../CreateJoinCommunity/community.dictionary'
 
-import { CommunityOwnership, InvitationPair } from '@quiet/types'
+import { CommunityOwnership, InvitationData, InvitationPair } from '@quiet/types'
 
 import { Controller, useForm } from 'react-hook-form'
 import { TextInput } from '../../forms/components/textInput'
@@ -20,7 +20,7 @@ import { InviteLinkErrors } from '../../forms/fieldsErrors'
 import { IconButton, InputAdornment } from '@mui/material'
 import VisibilityOff from '@mui/icons-material/VisibilityOff'
 import Visibility from '@mui/icons-material/Visibility'
-import { ONION_ADDRESS_REGEX, pairsToInvitationShareUrl, parseName } from '@quiet/common'
+import { composeInvitationShareUrl, parseName } from '@quiet/common'
 import { getInvitationCodes } from '@quiet/state-manager'
 
 const PREFIX = 'PerformCommunityActionComponent'
@@ -138,6 +138,8 @@ export interface PerformCommunityActionProps {
   revealInputValue?: boolean
   handleClickInputReveal?: () => void
   invitationCode?: InvitationPair[]
+  psk?: string
+  ownerOrbitDbIdentity?: string
 }
 
 export const PerformCommunityActionComponent: React.FC<PerformCommunityActionProps> = ({
@@ -152,10 +154,12 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
   revealInputValue,
   handleClickInputReveal,
   invitationCode,
+  psk,
+  ownerOrbitDbIdentity,
 }) => {
   const [formSent, setFormSent] = useState(false)
 
-  const [communityName, setCommunityName] = useState('')
+  const [communityName, setCommunityName] = useState('...')
   const [parsedNameDiffers, setParsedNameDiffers] = useState(false)
 
   const waitingForResponse = formSent && !hasReceivedResponse
@@ -190,14 +194,20 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
     }
 
     if (communityOwnership === CommunityOwnership.User) {
-      const codes = getInvitationCodes(values.name.trim())
-      if (!codes.length) {
+      let data
+      try {
+        data = getInvitationCodes(values.name.trim())
+      } catch (e) {
+        console.warn(`Could not parse invitation code, reason: ${e.message}`)
+      }
+
+      if (!data) {
         setError('name', { message: InviteLinkErrors.InvalidCode })
         return
       }
 
       setFormSent(true)
-      handleSubmit(codes)
+      handleSubmit(data)
     }
   }
 
@@ -210,10 +220,14 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
   }
 
   // Lock the form if app's been open with custom protocol
+  //
+  // TODO: What does this mean and do we need this here? It might make
+  // sense to decouple the PSK from this component, since this is the
+  // only place PSK is used.
   useEffect(() => {
-    if (communityOwnership === CommunityOwnership.User && invitationCode?.length) {
+    if (communityOwnership === CommunityOwnership.User && invitationCode?.length && psk && ownerOrbitDbIdentity) {
       setFormSent(true)
-      setValue('name', pairsToInvitationShareUrl(invitationCode))
+      setValue('name', composeInvitationShareUrl({ pairs: invitationCode, psk, ownerOrbitDbIdentity }))
     }
   }, [communityOwnership, invitationCode])
 
@@ -262,23 +276,21 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
                     }}
                     onblur={() => {}}
                     InputProps={
-                      communityOwnership === CommunityOwnership.User ? (
-                        {
-                          endAdornment: (
-                            <InputAdornment position='end'>
-                              <IconButton size='small' onClick={handleClickInputReveal}>
-                                {!revealInputValue ? (
-                                  <VisibilityOff color='primary' fontSize='small' />
-                                ) : (
-                                  <Visibility color='primary' fontSize='small' />
-                                )}
-                              </IconButton>
-                            </InputAdornment>
-                          ),
-                        }
-                      ) : (
-                        <></>
-                      )
+                      communityOwnership === CommunityOwnership.User
+                        ? {
+                            endAdornment: (
+                              <InputAdornment position='end'>
+                                <IconButton size='small' onClick={handleClickInputReveal}>
+                                  {!revealInputValue ? (
+                                    <VisibilityOff color='primary' fontSize='small' />
+                                  ) : (
+                                    <Visibility color='primary' fontSize='small' />
+                                  )}
+                                </IconButton>
+                              </InputAdornment>
+                            ),
+                          }
+                        : undefined
                     }
                     type={revealInputValue ? 'text' : 'password'}
                     value={communityOwnership === CommunityOwnership.User ? field.value.trim() : field.value}

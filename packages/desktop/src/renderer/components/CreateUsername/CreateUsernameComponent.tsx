@@ -1,21 +1,25 @@
-import React, { useState } from 'react'
+import React, { useCallback, useState } from 'react'
+
 import { styled } from '@mui/material/styles'
 import classNames from 'classnames'
+
 import { Controller, useForm } from 'react-hook-form'
+
 import Typography from '@mui/material/Typography'
 import Grid from '@mui/material/Grid'
-
 import WarningIcon from '@mui/icons-material/Warning'
 
 import Modal from '../ui/Modal/Modal'
 
 import { LoadingButton } from '../ui/LoadingButton/LoadingButton'
+
 import { TextInput } from '../../forms/components/textInput'
+
 import { userNameField } from '../../forms/fields/createUserFields'
 
 import { parseName } from '@quiet/common'
 
-const PREFIX = 'CreateUsernameComponent'
+const PREFIX = 'CreateUsernameComponent-'
 
 const classes = {
   focus: `${PREFIX}focus`,
@@ -31,9 +35,13 @@ const classes = {
   rootBar: `${PREFIX}rootBar`,
   progressBar: `${PREFIX}progressBar`,
   info: `${PREFIX}info`,
+  inputLabel: `${PREFIX}inputLabel`,
+  marginMedium: `${PREFIX}marginMedium`,
+  buttonModern: `${PREFIX}buttonModern`,
+  buttonMargin: `${PREFIX}buttonMargin`,
 }
 
-const StyledModalContent = styled(Grid)(({ theme }) => ({
+const StyledGrid = styled(Grid)(({ theme }) => ({
   backgroundColor: theme.palette.colors.white,
   padding: '0px 32px',
 
@@ -81,6 +89,11 @@ const StyledModalContent = styled(Grid)(({ theme }) => ({
     fontWeight: 'normal',
   },
 
+  [`& .${classes.buttonModern}`]: {
+    borderRadius: 8,
+    width: 110,
+  },
+
   [`& .${classes.title}`]: {
     marginBottom: 24,
   },
@@ -113,6 +126,16 @@ const StyledModalContent = styled(Grid)(({ theme }) => ({
     lineHeight: '19px',
     color: theme.palette.colors.darkGray,
   },
+
+  [`& .${classes.inputLabel}`]: {
+    marginTop: 24,
+    marginBottom: 2,
+    color: theme.palette.colors.black30,
+  },
+
+  [`& .${classes.marginMedium}`]: {
+    marginTop: 24,
+  },
 }))
 
 const userFields = {
@@ -125,52 +148,48 @@ interface CreateUserValues {
 
 export interface CreateUsernameComponentProps {
   open: boolean
-  registerUsername: (name: string) => void
-  certificateRegistrationError?: string
-  certificate?: string | null
   handleClose: () => void
+  registerUsername: (name: string) => void
 }
 
 export const CreateUsernameComponent: React.FC<CreateUsernameComponentProps> = ({
   open,
   registerUsername,
-  certificateRegistrationError,
-  certificate,
   handleClose,
 }) => {
-  const [formSent, setFormSent] = useState(false)
   const [userName, setUserName] = useState('')
   const [parsedNameDiffers, setParsedNameDiffers] = useState(false)
-
-  const responseReceived = Boolean(certificateRegistrationError || certificate)
-  const waitingForResponse = formSent && !responseReceived
 
   const {
     handleSubmit,
     formState: { errors },
     setValue,
     setError,
+    clearErrors,
     control,
   } = useForm<CreateUserValues>({
     mode: 'onTouched',
   })
 
-  const onSubmit = (values: CreateUserValues) => {
-    submitForm(registerUsername, values, setFormSent)
-  }
+  const onSubmit = useCallback(
+    (values: CreateUserValues) => {
+      if (errors.userName) {
+        console.error('Cannot submit form with errors')
+        return
+      }
 
-  const submitForm = (
-    handleSubmit: (value: string) => void,
-    values: CreateUserValues,
-    setFormSent: (value: boolean) => void
-  ) => {
-    setFormSent(true)
-    handleSubmit(parseName(values.userName))
-  }
+      const parsedName = parseName(values.userName)
+      registerUsername(parsedName)
+    },
+    [errors]
+  )
 
   const onChange = (name: string) => {
+    clearErrors('userName')
+
     const parsedName = parseName(name)
     setUserName(parsedName)
+
     setParsedNameDiffers(name !== parsedName)
   }
 
@@ -181,22 +200,18 @@ export const CreateUsernameComponent: React.FC<CreateUsernameComponentProps> = (
     }
   }, [open])
 
-  React.useEffect(() => {
-    if (certificateRegistrationError) {
-      setError('userName', { message: certificateRegistrationError })
-    }
-  }, [certificateRegistrationError])
-
   return (
-    <Modal open={open} handleClose={handleClose} testIdPrefix='createUsername' isCloseDisabled={true}>
-      <StyledModalContent container direction='column'>
+    <Modal open={open} handleClose={handleClose} isCloseDisabled={true} testIdPrefix={'createUsername'}>
+      <StyledGrid container direction='column'>
         <>
           <form onSubmit={handleSubmit(onSubmit)}>
             <Grid container justifyContent='flex-start' direction='column' className={classes.fullContainer}>
-              <Typography variant='h3' className={classes.title}>
-                Register a username
-              </Typography>
-              <Typography variant='body2'>Choose your favorite username</Typography>
+              <Grid>
+                <Typography variant='h3' className={classes.title}>
+                  Register a username
+                </Typography>
+                <Typography variant='body2'>Choose your favorite username</Typography>
+              </Grid>
               <Controller
                 control={control}
                 defaultValue={''}
@@ -250,16 +265,19 @@ export const CreateUsernameComponent: React.FC<CreateUsernameComponentProps> = (
               <LoadingButton
                 variant='contained'
                 color='primary'
-                inProgress={waitingForResponse}
-                disabled={waitingForResponse}
+                disabled={Boolean(errors.userName)}
                 type='submit'
                 text={'Register'}
-                classes={{ button: classes.button }}
+                classes={{
+                  button: classNames({
+                    [classes.button]: true,
+                  }),
+                }}
               />
             </Grid>
           </form>
         </>
-      </StyledModalContent>
+      </StyledGrid>
     </Modal>
   )
 }

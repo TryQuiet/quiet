@@ -9,16 +9,25 @@ import { reducers } from '../../reducers'
 import { createNetworkSaga } from './createNetwork.saga'
 import { generateId } from '../../../utils/cryptography/cryptography'
 import { type Community, CommunityOwnership } from '@quiet/types'
+import { Socket } from '../../../types'
 
 describe('createNetwork', () => {
   it('create network for joining user', async () => {
     setupCrypto()
+
+    const socket = {
+      emit: jest.fn(),
+      emitWithAck: jest.fn(() => {
+        return {}
+      }),
+      on: jest.fn(),
+    } as unknown as Socket
+
     const store = prepareStore().store
 
     const community: Community = {
       id: '1',
       name: undefined,
-      registrarUrl: 'http://registrarUrl.onion',
       CA: null,
       rootCa: undefined,
     }
@@ -26,9 +35,11 @@ describe('createNetwork', () => {
     const reducer = combineReducers(reducers)
     await expectSaga(
       createNetworkSaga,
+      socket,
       communitiesActions.createNetwork({
         ownership: CommunityOwnership.User,
         peers: [{ peerId: 'peerId', onionAddress: 'address' }],
+        psk: '12345',
       })
     )
       .withReducer(reducer)
@@ -42,6 +53,14 @@ describe('createNetwork', () => {
   it('create network for owner', async () => {
     setupCrypto()
 
+    const socket = {
+      emit: jest.fn(),
+      emitWithAck: jest.fn(() => {
+        return {}
+      }),
+      on: jest.fn(),
+    } as unknown as Socket
+
     const store = prepareStore().store
 
     const CA = {
@@ -52,7 +71,6 @@ describe('createNetwork', () => {
     const community: Community = {
       id: '1',
       name: 'rockets',
-      registrarUrl: undefined,
       CA,
       rootCa: CA.rootCertString,
     }
@@ -60,9 +78,11 @@ describe('createNetwork', () => {
     const reducer = combineReducers(reducers)
     await expectSaga(
       createNetworkSaga,
+      socket,
       communitiesActions.createNetwork({
         ownership: CommunityOwnership.Owner,
         name: 'rockets',
+        psk: '12345',
       })
     )
       .withReducer(reducer)

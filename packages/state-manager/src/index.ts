@@ -15,6 +15,7 @@ import { publicChannelsMasterSaga } from './sagas/publicChannels/publicChannels.
 
 import { usersReducer, usersActions, UsersState } from './sagas/users/users.slice'
 import { usersSelectors } from './sagas/users/users.selectors'
+import { userProfileSelectors } from './sagas/users/userProfile/userProfile.selectors'
 
 import { identityReducer, identityActions, IdentityState } from './sagas/identity/identity.slice'
 
@@ -28,8 +29,6 @@ import { errorsSelectors } from './sagas/errors/errors.selectors'
 import { errorsReducer, errorsActions } from './sagas/errors/errors.slice'
 
 import { communitiesActions, communitiesReducer, CommunitiesState } from './sagas/communities/communities.slice'
-
-import { SocketActionTypes } from './sagas/socket/const/actionTypes'
 
 import { communitiesSelectors } from './sagas/communities/communities.selectors'
 
@@ -51,7 +50,6 @@ import { networkSelectors } from './sagas/network/network.selectors'
 // https://github.com/microsoft/TypeScript/issues/47663#issuecomment-1270716220
 import type {} from 'pkijs'
 export { LoadingPanelType } from './sagas/network/network.types'
-export { SocketActionTypes } from './sagas/socket/const/actionTypes'
 export type { Store } from './sagas/store.types'
 export type { TestStore, TestStoreState } from './utils/tests/types'
 export { StoreKeys } from './sagas/store.keys'
@@ -61,8 +59,6 @@ export { useIO } from './sagas/socket/startConnection/startConnection.saga'
 
 export { getFactory, generateMessageFactoryContentWithId } from './utils/tests/factories'
 export * from './utils/tests/helpers'
-
-export type { Community } from './sagas/communities/communities.slice' // TODO: remove after setting strict in 'desktop' and 'mobile' packages
 
 export { communitiesAdapter } from './sagas/communities/communities.adapter'
 export { certificatesAdapter } from './sagas/users/users.adapter'
@@ -81,8 +77,6 @@ export { resetStateAndSaveTorConnectionData } from './sagas/appConnection/connec
 export * from './constants'
 
 export { formatBytes } from './utils/functions/formatBytes/formatBytes'
-
-export { sortPeers } from './utils/functions/sortPeers/sortPeers'
 
 export { getInvitationCodes } from './utils/functions/invitationCode/invitationCode'
 
@@ -129,7 +123,7 @@ export const users = {
   reducer: usersReducer,
   State: UsersState,
   actions: usersActions,
-  selectors: usersSelectors,
+  selectors: { ...usersSelectors, ...userProfileSelectors },
 }
 
 export const identity = {
@@ -182,8 +176,6 @@ export const socket = {
 
 export const storeKeys = StoreKeys
 
-export const socketActionTypes = SocketActionTypes
-
 export default {
   app,
   publicChannels,
@@ -195,6 +187,5 @@ export default {
   connection,
   reducers,
   storeKeys,
-  socketActionTypes,
   settings,
 }

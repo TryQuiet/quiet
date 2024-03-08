@@ -168,7 +168,11 @@ describe('Loading panel', () => {
     // Assertions that we don't see Loading Pannel
     expect(screen.queryByTestId('spinnerLoader')).toBeNull()
     // 'Create username' modal should be closed after creating csr
-    store.dispatch(identity.actions.registerUsername('alice'))
+    store.dispatch(
+      identity.actions.registerUsername({
+        nickname: 'alice',
+      })
+    )
     await waitFor(() => expect(screen.queryByTestId('createUsernameModalActions')).toBeNull())
   })
 })

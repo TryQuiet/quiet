@@ -6,7 +6,7 @@ import { currentCommunity } from '../../communities/communities.selectors'
 import { currentIdentity } from '../../identity/identity.selectors'
 
 export function* checkForMessagesSaga(
-  action: PayloadAction<ReturnType<typeof messagesActions.responseSendMessagesIds>['payload']>
+  action: PayloadAction<ReturnType<typeof messagesActions.checkForMessages>['payload']>
 ): Generator {
   const { ids, channelId } = action.payload
 
@@ -19,7 +19,7 @@ export function* checkForMessagesSaga(
 
   if (missingMessages?.length > 0) {
     yield* put(
-      messagesActions.askForMessages({
+      messagesActions.getMessages({
         peerId: identity.peerId.id,
         communityId: community.id,
         channelId,

@@ -4,7 +4,7 @@ import { ScreenNames } from '../../const/ScreenNames.enum'
 import { MenuName } from '../../const/MenuNames.enum'
 
 export class NavigationState {
-  public currentScreen: ScreenNames = ScreenNames.SplashScreen
+  public backStack: ScreenNames[] = [ScreenNames.SplashScreen]
   public confirmationBox: ConfirmationBox = {
     open: false,
     args: {},
@@ -13,6 +13,7 @@ export class NavigationState {
   public [MenuName.Community] = { open: false, args: {} }
   public [MenuName.Channel] = { open: false, args: {} }
   public [MenuName.Invitation] = { open: false, args: {} }
+  public [MenuName.UnregisteredUsername] = { open: false, args: {} }
   public pendingNavigation: ScreenNames | null = null
 }
 
@@ -53,16 +54,19 @@ export const navigationSlice = createSlice({
     redirection: state => state,
     navigation: (state, action: PayloadAction<NavigationPayload>) => {
       const { screen } = action.payload
-      state.currentScreen = screen
+      state.backStack.push(screen)
     },
     // Replace screen overrides last screen in backstack
     replaceScreen: (state, action: PayloadAction<NavigationPayload>) => {
       const { screen } = action.payload
-      state.currentScreen = screen
+      state.backStack.pop()
+      state.backStack.push(screen)
+    },
+    pop: state => {
+      state.backStack.pop()
     },
     setPendingNavigation: (state, action: PayloadAction<PendingNavigationPayload>) => {
       const { screen } = action.payload
-      state.currentScreen = screen
       state.pendingNavigation = screen
     },
     clearPendingNavigation: state => {

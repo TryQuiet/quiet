@@ -45,22 +45,11 @@ export interface ChannelsReplicatedPayload {
   channels: Dictionary<PublicChannel>
 }
 
-export interface CreateChannelPayload {
-  channel: PublicChannel
-}
-
 export interface DeleteChannelPayload {
   channelId: string
 }
-export interface ChannelDeletionResponsePayload {
-  channelId: string
-}
 
-export interface CreatedChannelResponse {
-  channel: PublicChannel
-}
-
-export interface SetChannelSubscribedPayload {
+export interface DeleteChannelResponse {
   channelId: string
 }
 
@@ -80,14 +69,6 @@ export interface PendingMessage {
 export interface SendInitialChannelMessagePayload {
   channelName: string
   channelId: string
-}
-export interface SendNewUserInfoMessagePayload {
-  certificates: string[]
-}
-
-export interface IncomingMessages {
-  messages: ChannelMessage[]
-  isVerified?: boolean
 }
 
 export interface CacheMessagesPayload {

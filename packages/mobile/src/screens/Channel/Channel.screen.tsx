@@ -48,12 +48,15 @@ export const ChannelScreen: FC = () => {
 
   const downloadStatusesMapping = useSelector(files.selectors.downloadStatuses)
 
-  const ready = useSelector(initSelectors.ready)
+  const isWebsocketConnected = useSelector(initSelectors.isWebsocketConnected)
 
   let contextMenu: UseContextMenuType<Record<string, unknown>> | null = useContextMenu(MenuName.Channel)
-  if (!community?.CA || !ready) {
+
+  if (!community?.CA || !isWebsocketConnected) {
     contextMenu = null
   }
+
+  const unregisteredUsernameContextMenu = useContextMenu(MenuName.UnregisteredUsername)
 
   const [uploadingFiles, setUploadingFiles] = React.useState<FilePreviewData>({})
   const filesRef = React.useRef<FilePreviewData>({})
@@ -119,16 +122,9 @@ export const ChannelScreen: FC = () => {
 
   const unregisteredUsernameHandleBack = useCallback(
     (username: string) => {
-      dispatch(
-        navigationActions.navigation({
-          screen: ScreenNames.UnregisteredUsernameScreen,
-          params: {
-            username,
-          },
-        })
-      )
+      unregisteredUsernameContextMenu.handleOpen({ username })
     },
-    [dispatch]
+    [unregisteredUsernameContextMenu]
   )
 
   const sendMessageAction = React.useCallback(
@@ -181,7 +177,7 @@ export const ChannelScreen: FC = () => {
       removeFilePreview={removeFilePreview}
       openUrl={openUrl}
       uploadedFiles={uploadingFiles}
-      ready={ready}
+      ready={isWebsocketConnected}
       duplicatedUsernameHandleBack={duplicatedUsernameHandleBack}
       unregisteredUsernameHandleBack={unregisteredUsernameHandleBack}
     />

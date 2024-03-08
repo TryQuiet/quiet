@@ -3,16 +3,23 @@ import { connectionSelectors } from './connection.selectors'
 import { connectionActions } from './connection.slice'
 import { type identityActions } from '../identity/identity.slice'
 import { prepareStore } from '../../utils/tests/prepareStore'
-import { getFactory } from '../../utils/tests/factories'
+
 import { setupCrypto } from '@quiet/identity'
 import { networkActions } from '../network/network.slice'
-import { networkSelectors } from '../network/network.selectors'
-import { type Identity } from '@quiet/types'
+import { initializedCommunities, networkSelectors } from '../network/network.selectors'
+import { Community, ConnectionProcessInfo, PublicChannel, type Identity, ChannelMessage } from '@quiet/types'
 import { usersSelectors } from '../users/users.selectors'
+import { communitiesSelectors } from '../communities/communities.selectors'
+import { communitiesActions } from '../communities/communities.slice'
+import { publicChannelsSelectors } from '../publicChannels/publicChannels.selectors'
+import { generateMessageFactoryContentWithId, getFactory, publicChannels } from '../..'
 
 describe('connectionReducer', () => {
   let store: Store
   let alice: Identity
+  let community: Community
+  let generalChannel: PublicChannel
+  let generalChannelId: string
 
   beforeEach(async () => {
     setupCrypto()
@@ -24,6 +31,20 @@ describe('connectionReducer', () => {
     alice = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
       nickname: 'alice',
     })
+
+    community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
+
+    const generalChannelState = publicChannelsSelectors.generalChannel(store.getState())
+    if (generalChannelState) generalChannel = generalChannelState
+    expect(generalChannel).not.toBeUndefined()
+    expect(generalChannel).toBeDefined()
+    generalChannelId = generalChannel?.id || ''
+
+    await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>('Message', {
+      identity: alice,
+      message: generateMessageFactoryContentWithId(generalChannelId),
+      verifyAutomatically: true,
+    })
   })
 
   it('add initialized communities should add correctly data into the store', () => {
@@ -32,14 +53,6 @@ describe('connectionReducer', () => {
 
     const communities = networkSelectors.initializedCommunities(store.getState())
     expect(communities).toEqual({ [communityId]: true })
-  })
-
-  it('add initialized registrar should add correctly data into the store', () => {
-    const registrarId = 'registrarId'
-    store.dispatch(networkActions.addInitializedRegistrar(registrarId))
-
-    const registrars = networkSelectors.initializedRegistrars(store.getState())
-    expect(registrars).toEqual({ [registrarId]: true })
   })
 
   it('add connected users peerId from store and get it correctly', () => {
@@ -87,19 +100,29 @@ describe('connectionReducer', () => {
     expect(torBootstrapInfo).toEqual(expectedTorBootstrapInfo)
   })
 
-  it('setTorConnectionProcess', () => {
-    const payload1 = 'Initializing storage'
+  it('set connectionProcess', () => {
+    const payload2 = ConnectionProcessInfo.INITIALIZING_IPFS
 
-    store.dispatch(connectionActions.setTorConnectionProcess(payload1))
+    store.dispatch(connectionActions.setConnectionProcess(payload2))
 
-    const payload2 = 'Initializing IPFS'
+    const { number, text } = connectionSelectors.connectionProcess(store.getState())
 
-    store.dispatch(connectionActions.setTorConnectionProcess(payload2))
+    expect(number).toEqual(30)
 
-    const { number, text } = connectionSelectors.torConnectionProcess(store.getState())
+    expect(text).toEqual(ConnectionProcessInfo.BACKEND_MODULES)
+  })
 
-    expect(number).toEqual(70)
+  it('isJoiningCompleted - false', async () => {
+    const isJoiningCompleted = connectionSelectors.isJoiningCompleted(store.getState())
 
-    expect(text).toEqual(payload2)
+    expect(isJoiningCompleted).toBeFalsy()
+  })
+
+  it('isJoiningCompleted - true', async () => {
+    store.dispatch(networkActions.addInitializedCommunity('1'))
+
+    const isJoiningCompleted = connectionSelectors.isJoiningCompleted(store.getState())
+
+    expect(isJoiningCompleted).toBeFalsy()
   })
 })

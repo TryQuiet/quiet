@@ -2,6 +2,7 @@ import { Inject, Injectable } from '@nestjs/common'
 import { EventEmitter, setMaxListeners } from 'events'
 import fs from 'fs'
 import path from 'path'
+import crypto from 'crypto'
 import PQueue, { AbortError } from 'p-queue'
 import { decode, PBNode } from '@ipld/dag-pb'
 import * as base58 from 'multiformats/bases/base58'
@@ -69,6 +70,7 @@ export class IpfsFileManagerService extends EventEmitter {
       await this.uploadFile(fileMetadata)
     })
     this.on(IpfsFilesManagerEvents.DOWNLOAD_FILE, async (fileMetadata: FileMetadata) => {
+      this.logger('Downloading file:', fileMetadata.cid, fileMetadata.size)
       if (this.files.get(fileMetadata.cid)) return
       this.files.set(fileMetadata.cid, {
         size: fileMetadata.size || 0,
@@ -113,10 +115,10 @@ export class IpfsFileManagerService extends EventEmitter {
     }
   }
 
+  /**
+   * Copy file to a different directory and return the new path
+   */
   public copyFile(originalFilePath: string, filename: string): string {
-    /**
-     * Copy file to a different directory and return the new path
-     */
     const uploadsDir = path.join(this.quietDir, 'uploads')
     let newFilename: string
     try {
@@ -205,7 +207,7 @@ export class IpfsFileManagerService extends EventEmitter {
       height,
     }
 
-    this.emit(StorageEvents.UPLOADED_FILE, fileMetadata)
+    this.emit(StorageEvents.FILE_UPLOADED, fileMetadata)
 
     if (metadata.tmpPath) {
       this.deleteFile(metadata.tmpPath)
@@ -218,10 +220,10 @@ export class IpfsFileManagerService extends EventEmitter {
       downloadProgress: undefined,
     }
 
-    this.emit(StorageEvents.UPDATE_DOWNLOAD_PROGRESS, statusReady)
+    this.emit(StorageEvents.DOWNLOAD_PROGRESS, statusReady)
 
     if (metadata.path !== filePath) {
-      this.emit(StorageEvents.UPDATE_MESSAGE_MEDIA, fileMetadata)
+      this.emit(StorageEvents.MESSAGE_MEDIA_UPDATED, fileMetadata)
     }
   }
 
@@ -255,17 +257,13 @@ export class IpfsFileManagerService extends EventEmitter {
 
   public async downloadBlocks(fileMetadata: FileMetadata) {
     const block = CID.parse(fileMetadata.cid)
-
     const localBlocks = await this.getLocalBlocks()
     const processedBlocks: PBNode[] = [] // TODO: Should it be CID or PBNode?
-
     const controller = new AbortController()
 
     setMaxListeners(MAX_EVENT_LISTENERS, controller.signal)
 
-    this.controllers.set(fileMetadata.cid, {
-      controller,
-    })
+    this.controllers.set(fileMetadata.cid, { controller })
 
     // Add try catch and return downloadBlocks with timeout
     const stat = await this.ipfs.files.stat(block)
@@ -281,6 +279,7 @@ export class IpfsFileManagerService extends EventEmitter {
             await processBlock(link, controller.signal)
           } catch (e) {
             if (!(e instanceof AbortError)) {
+              this.logger.error('Failed to process block. Re-adding to queue', link.toString())
               void addToQueue(link)
             }
           }
@@ -363,6 +362,7 @@ export class IpfsFileManagerService extends EventEmitter {
         try {
           fetchedBlock = await this.ipfs.block.get(block, { timeout: BLOCK_FETCH_TIMEOUT * 1000 })
         } catch (e) {
+          this.logger.error('Failed to fetch block', block.toString(), e)
           signal.removeEventListener('abort', onAbort)
           reject(new Error("couldn't fetch block"))
           return
@@ -433,13 +433,20 @@ export class IpfsFileManagerService extends EventEmitter {
   private async assemblyFile(fileMetadata: FileMetadata) {
     const _CID = CID.parse(fileMetadata.cid)
 
-    const downloadDirectory = path.join(this.quietDir, 'downloads', fileMetadata.cid)
+    const downloadDirectory = path.join(this.quietDir, 'downloads')
     createPaths([downloadDirectory])
 
-    const fileName = fileMetadata.name + fileMetadata.ext
-    const filePath = `${path.join(downloadDirectory, fileName)}`
+    // As a quick fix, using a UUID for filename ensures that we never
+    // save a file with a malicious filename. Perhaps it's also
+    // possible to use the CID, however let's verify that first.
+    let fileName: string
+    let filePath: string
+    do {
+      fileName = crypto.randomUUID()
+      filePath = `${path.join(downloadDirectory, fileName)}`
+    } while (fs.existsSync(filePath))
 
-    const writeStream = fs.createWriteStream(filePath)
+    const writeStream = fs.createWriteStream(filePath, { flags: 'wx' })
 
     const entries = this.ipfs.cat(_CID)
 
@@ -466,7 +473,7 @@ export class IpfsFileManagerService extends EventEmitter {
       path: filePath,
     }
 
-    this.emit(IpfsFilesManagerEvents.UPDATE_MESSAGE_MEDIA, messageMedia)
+    this.emit(IpfsFilesManagerEvents.MESSAGE_MEDIA_UPDATED, messageMedia)
   }
 
   private async updateStatus(cid: string, downloadState = DownloadState.Downloading) {
@@ -491,6 +498,6 @@ export class IpfsFileManagerService extends EventEmitter {
       downloadProgress: progress,
     }
 
-    this.emit(IpfsFilesManagerEvents.UPDATE_DOWNLOAD_PROGRESS, status)
+    this.emit(IpfsFilesManagerEvents.DOWNLOAD_PROGRESS, status)
   }
 }

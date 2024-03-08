@@ -115,7 +115,7 @@ describe('IpfsFileManagerService', () => {
     await waitForExpect(() => {
       expect(eventSpy).toHaveBeenNthCalledWith(
         2,
-        StorageEvents.UPLOADED_FILE,
+        StorageEvents.FILE_UPLOADED,
         expect.objectContaining({
           cid,
           ext: '.png',
@@ -128,7 +128,7 @@ describe('IpfsFileManagerService', () => {
       )
     })
     await waitForExpect(() => {
-      expect(eventSpy).toHaveBeenNthCalledWith(3, StorageEvents.UPDATE_DOWNLOAD_PROGRESS, {
+      expect(eventSpy).toHaveBeenNthCalledWith(3, StorageEvents.DOWNLOAD_PROGRESS, {
         cid,
         downloadProgress: undefined,
         downloadState: 'hosted',
@@ -160,7 +160,7 @@ describe('IpfsFileManagerService', () => {
     await waitForExpect(() => {
       expect(eventSpy).toHaveBeenNthCalledWith(
         2,
-        StorageEvents.UPLOADED_FILE,
+        StorageEvents.FILE_UPLOADED,
         expect.objectContaining({
           cid,
           ext: '.pdf',
@@ -173,7 +173,7 @@ describe('IpfsFileManagerService', () => {
       )
     })
     await waitForExpect(() => {
-      expect(eventSpy).toHaveBeenNthCalledWith(3, StorageEvents.UPDATE_DOWNLOAD_PROGRESS, {
+      expect(eventSpy).toHaveBeenNthCalledWith(3, StorageEvents.DOWNLOAD_PROGRESS, {
         cid,
         downloadProgress: undefined,
         downloadState: 'hosted',
@@ -183,7 +183,7 @@ describe('IpfsFileManagerService', () => {
     await waitForExpect(() => {
       expect(eventSpy).toHaveBeenNthCalledWith(
         4,
-        StorageEvents.UPDATE_MESSAGE_MEDIA,
+        StorageEvents.MESSAGE_MEDIA_UPDATED,
         expect.objectContaining({
           cid,
           ext: '.pdf',
@@ -231,7 +231,7 @@ describe('IpfsFileManagerService', () => {
     await waitForExpect(() => {
       expect(eventSpy).toHaveBeenNthCalledWith(
         2,
-        StorageEvents.UPLOADED_FILE,
+        StorageEvents.FILE_UPLOADED,
         expect.objectContaining({
           cid,
           ext: '.png',
@@ -245,7 +245,7 @@ describe('IpfsFileManagerService', () => {
       )
     })
     await waitForExpect(() => {
-      expect(eventSpy).toHaveBeenNthCalledWith(3, StorageEvents.UPDATE_DOWNLOAD_PROGRESS, {
+      expect(eventSpy).toHaveBeenNthCalledWith(3, StorageEvents.DOWNLOAD_PROGRESS, {
         cid,
         downloadProgress: undefined,
         downloadState: 'hosted',
@@ -301,7 +301,7 @@ describe('IpfsFileManagerService', () => {
     await waitForExpect(() => {
       expect(eventSpy).toHaveBeenNthCalledWith(
         2,
-        StorageEvents.UPLOADED_FILE,
+        StorageEvents.FILE_UPLOADED,
         expect.objectContaining({
           cid,
           ext: '.pdf',
@@ -314,7 +314,7 @@ describe('IpfsFileManagerService', () => {
       )
     })
     await waitForExpect(() => {
-      expect(eventSpy).toHaveBeenNthCalledWith(3, StorageEvents.UPDATE_DOWNLOAD_PROGRESS, {
+      expect(eventSpy).toHaveBeenNthCalledWith(3, StorageEvents.DOWNLOAD_PROGRESS, {
         cid,
         downloadProgress: undefined,
         downloadState: 'hosted',
@@ -324,7 +324,7 @@ describe('IpfsFileManagerService', () => {
     await waitForExpect(() => {
       expect(eventSpy).toHaveBeenNthCalledWith(
         4,
-        StorageEvents.UPDATE_MESSAGE_MEDIA,
+        StorageEvents.MESSAGE_MEDIA_UPDATED,
         expect.objectContaining({
           cid,
           ext: '.pdf',
@@ -354,7 +354,7 @@ describe('IpfsFileManagerService', () => {
     })
 
     await waitForExpect(() => {
-      expect(eventSpy).toHaveBeenNthCalledWith(6, StorageEvents.UPDATE_DOWNLOAD_PROGRESS, {
+      expect(eventSpy).toHaveBeenNthCalledWith(6, StorageEvents.DOWNLOAD_PROGRESS, {
         cid,
         downloadProgress: undefined,
         downloadState: 'malicious',
@@ -385,7 +385,7 @@ describe('IpfsFileManagerService', () => {
 
     expect(eventSpy).toHaveBeenNthCalledWith(
       2,
-      StorageEvents.UPLOADED_FILE,
+      StorageEvents.FILE_UPLOADED,
       expect.objectContaining({
         cid,
         ext: '.png',
@@ -397,7 +397,7 @@ describe('IpfsFileManagerService', () => {
       })
     )
 
-    expect(eventSpy).toHaveBeenNthCalledWith(3, StorageEvents.UPDATE_DOWNLOAD_PROGRESS, {
+    expect(eventSpy).toHaveBeenNthCalledWith(3, StorageEvents.DOWNLOAD_PROGRESS, {
       cid,
       downloadProgress: undefined,
       downloadState: 'hosted',
@@ -406,7 +406,7 @@ describe('IpfsFileManagerService', () => {
 
     expect(eventSpy).toHaveBeenNthCalledWith(
       4,
-      StorageEvents.UPDATE_MESSAGE_MEDIA,
+      StorageEvents.MESSAGE_MEDIA_UPDATED,
       expect.objectContaining({
         cid,
         ext: '.png',
@@ -429,7 +429,7 @@ describe('IpfsFileManagerService', () => {
     })
 
     await waitForExpect(() => {
-      expect(eventSpy).toHaveBeenNthCalledWith(6, StorageEvents.UPDATE_DOWNLOAD_PROGRESS, {
+      expect(eventSpy).toHaveBeenNthCalledWith(6, StorageEvents.DOWNLOAD_PROGRESS, {
         cid,
         downloadProgress: { downloaded: 15855, size: 15858, transferSpeed: 0 },
         downloadState: 'downloading',
@@ -437,7 +437,7 @@ describe('IpfsFileManagerService', () => {
       })
     }, 20000)
     await waitForExpect(() => {
-      expect(eventSpy).toHaveBeenNthCalledWith(7, StorageEvents.UPDATE_DOWNLOAD_PROGRESS, {
+      expect(eventSpy).toHaveBeenNthCalledWith(7, StorageEvents.DOWNLOAD_PROGRESS, {
         cid,
         downloadProgress: { downloaded: 15855, size: 15858, transferSpeed: 0 },
         downloadState: 'completed',
@@ -446,7 +446,7 @@ describe('IpfsFileManagerService', () => {
     }, 20000)
     expect(eventSpy).toHaveBeenNthCalledWith(
       8,
-      StorageEvents.UPDATE_MESSAGE_MEDIA,
+      StorageEvents.MESSAGE_MEDIA_UPDATED,
       expect.objectContaining({
         cid,
         ext: '.png',
@@ -559,7 +559,7 @@ describe('IpfsFileManagerService', () => {
   //   const transferSpeeds: number[] = []
 
   //   eventSpy.mock.calls.map(call => {
-  //     if (call[0] === StorageEvents.UPDATE_DOWNLOAD_PROGRESS) {
+  //     if (call[0] === StorageEvents.DOWNLOAD_PROGRESS) {
   //       // @ts-ignore
   //       transferSpeeds.push(call[1].downloadProgress?.transferSpeed)
   //     }

@@ -1,20 +1,33 @@
 import React, { FC, useEffect } from 'react'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
+import { initSelectors } from '../../store/init/init.selectors'
 import { initActions } from '../../store/init/init.slice'
 import { SplashScreenProps } from './Splash.types'
-import { Loading } from '../../components/Loading/Loading.component'
+import { Splash } from '../../components/Splash/Splash.component'
 
 export const SplashScreen: FC<SplashScreenProps> = ({ route }) => {
   const dispatch = useDispatch()
 
+  const ready = useSelector(initSelectors.ready)
+
   useEffect(() => {
-    const code = route.params?.code
+    let code = route.path
 
     // Screen hasn't been open through a link
-    if (!code) return
+    if (!code) {
+      console.log('INIT_NAVIGATION: Skipping deep link flow.')
+      return
+    }
 
-    dispatch(initActions.deepLink(code))
-  }, [route.params?.code])
+    if (code.charAt(0) === '?') {
+      code = code.slice(1, code.length)
+    }
 
-  return <Loading />
+    if (ready) {
+      console.log('INIT_NAVIGATION: Starting deep link flow.')
+      dispatch(initActions.deepLink(code))
+    }
+  }, [ready, route.path])
+
+  return <Splash />
 }

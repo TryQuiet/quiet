@@ -5,42 +5,50 @@ import { communities, publicChannels } from '@quiet/state-manager'
 
 import { useContextMenu } from '../../../../hooks/useContextMenu'
 import { MenuName } from '../../../../const/MenuNames.enum'
-import { ContextMenu } from '../ContextMenu.component'
+import { ContextMenu, ContextMenuItemList } from '../ContextMenu.component'
 import { ContextMenuItemProps } from '../ContextMenu.types'
 
 import { useModal } from '../../../containers/hooks'
 import { ModalName } from '../../../sagas/modals/modals.types'
+import { exportChats } from '../../../../utils/functions/exportMessages'
 
 export const ChannelContextMenu: FC = () => {
   const community = useSelector(communities.selectors.currentCommunity)
   const channel = useSelector(publicChannels.selectors.currentChannel)
+  const channelMessages = useSelector(publicChannels.selectors.currentChannelMessagesMergedBySender)
 
   let title = ''
   if (channel) {
-    title = `#${channel.name}`
+    title = `#${channel.name} settings`
   }
 
   const channelContextMenu = useContextMenu(MenuName.Channel)
 
   const deleteChannelModal = useModal(ModalName.deleteChannel)
 
-  let items: ContextMenuItemProps[] = []
+  const items: ContextMenuItemProps[] = [
+    {
+      title: 'Export messages',
+      action: () => channel && exportChats(channel?.name, channelMessages),
+    },
+  ]
 
   if (community?.CA) {
-    items = [
-      ...items,
-      {
-        title: 'Delete',
-        action: () => {
-          channelContextMenu.handleClose() // Dismiss context menu before displaying modal
-          deleteChannelModal.handleOpen()
-        },
+    items.unshift({
+      title: 'Delete',
+      action: () => {
+        channelContextMenu.handleClose() // Dismiss context menu before displaying modal
+        deleteChannelModal.handleOpen()
       },
-    ]
+    })
   }
 
-  // @ts-expect-error
-  return <ContextMenu title={title} items={items} {...channelContextMenu} />
+  return (
+    // @ts-expect-error
+    <ContextMenu title={title} {...channelContextMenu}>
+      <ContextMenuItemList items={items} />
+    </ContextMenu>
+  )
 }
 
 export default ChannelContextMenu

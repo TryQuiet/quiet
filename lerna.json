@@ -5,7 +5,7 @@
   "version": "independent",
   "command": {
     "version": {
-      "allowBranch": ["master", "develop", "workflows/require-e2e-before-build-release"],
+      "allowBranch": ["*"],
       "conventionalCommits": true,
       "createRelease": "github"
     },

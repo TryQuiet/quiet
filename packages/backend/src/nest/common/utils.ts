@@ -6,13 +6,16 @@ import { UserData } from '@quiet/types'
 import createHttpsProxyAgent from 'https-proxy-agent'
 import PeerId from 'peer-id'
 import tmp from 'tmp'
-import crypto from 'crypto'
+import crypto, { sign } from 'crypto'
 import { type PermsData } from '@quiet/types'
 import { TestConfig } from '../const'
 import logger from './logger'
-import { createCertificatesTestHelper } from './client-server'
 import { Libp2pNodeParams } from '../libp2p/libp2p.types'
-import { createLibp2pAddress, createLibp2pListenAddress } from '@quiet/common'
+import { createLibp2pAddress, createLibp2pListenAddress, isDefined } from '@quiet/common'
+import { Libp2pService } from '../libp2p/libp2p.service'
+import { CertFieldsTypes, getReqFieldValue, loadCSR } from '@quiet/identity'
+import { execFile } from 'child_process'
+
 const log = logger('test')
 
 export interface Ports {
@@ -125,7 +128,8 @@ export const torBinForPlatform = (basePath = '', binName = 'tor'): string => {
     return basePath
   }
   const ext = process.platform === 'win32' ? '.exe' : ''
-  return path.join(torDirForPlatform(basePath), `${binName}`.concat(ext))
+  // Wrap path in quotes to handle spaces in path
+  return `"${path.join(torDirForPlatform(basePath), `${binName}`.concat(ext))}"`
 }
 
 export const torDirForPlatform = (basePath?: string): string => {
@@ -150,6 +154,20 @@ export const getUsersAddresses = async (users: UserData[]): Promise<string[]> =>
   })
 
   return await Promise.all(peers)
+}
+
+export const getLibp2pAddressesFromCsrs = async (csrs: string[]): Promise<string[]> => {
+  const addresses = await Promise.all(
+    csrs.map(async csr => {
+      const parsedCsr = await loadCSR(csr)
+      const peerId = getReqFieldValue(parsedCsr, CertFieldsTypes.peerId)
+      const onionAddress = getReqFieldValue(parsedCsr, CertFieldsTypes.commonName)
+      if (!peerId || !onionAddress) return
+
+      return createLibp2pAddress(onionAddress, peerId)
+    })
+  )
+  return addresses.filter(isDefined)
 }
 
 /**
@@ -189,13 +207,12 @@ export const testBootstrapMultiaddrs = [
 ]
 
 export const libp2pInstanceParams = async (): Promise<Libp2pNodeParams> => {
-  const pems = await createCertificatesTestHelper('address1.onion', 'address2.onion')
   const port = await getPort()
   const peerId = await createPeerId()
   const address = '0.0.0.0'
   const peerIdRemote = await createPeerId()
   const remoteAddress = createLibp2pAddress(address, peerIdRemote.toString())
-
+  const libp2pKey = Libp2pService.generateLibp2pPSK().fullKey
   return {
     peerId,
     listenAddresses: [createLibp2pListenAddress('localhost')],
@@ -203,6 +220,7 @@ export const libp2pInstanceParams = async (): Promise<Libp2pNodeParams> => {
     localAddress: createLibp2pAddress('localhost', peerId.toString()),
     targetPort: port,
     peers: [remoteAddress],
+    psk: libp2pKey,
   }
 }
 

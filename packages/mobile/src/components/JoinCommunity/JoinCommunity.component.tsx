@@ -8,9 +8,9 @@ import { TextWithLink } from '../TextWithLink/TextWithLink.component'
 
 import { JoinCommunityProps } from './JoinCommunity.types'
 import { getInvitationCodes } from '@quiet/state-manager'
-import { ONION_ADDRESS_REGEX } from '@quiet/common'
 
-import { Loading } from '../Loading/Loading.component'
+import { Splash } from '../Splash/Splash.component'
+import { InvitationData } from '@quiet/types'
 
 export const JoinCommunity: FC<JoinCommunityProps> = ({
   joinCommunityAction,
@@ -40,8 +40,14 @@ export const JoinCommunity: FC<JoinCommunityProps> = ({
       return
     }
 
-    const submitValue = getInvitationCodes(joinCommunityInput.trim())
-    if (!submitValue?.length) {
+    let submitValue: InvitationData | null = null
+    try {
+      submitValue = getInvitationCodes(joinCommunityInput.trim())
+    } catch (e) {
+      console.warn(`Could not parse invitation code, reason: ${e.message}`)
+    }
+
+    if (!submitValue) {
       setLoading(false)
       setInputError('Please check your invitation code and try again')
       return
@@ -111,7 +117,7 @@ export const JoinCommunity: FC<JoinCommunityProps> = ({
           </KeyboardAvoidingView>
         </View>
       ) : (
-        <Loading />
+        <Splash />
       )}
     </>
   )

@@ -14,7 +14,13 @@ import { deleteChannelSaga } from './deleteChannel.saga'
 import { type Socket } from 'socket.io-client'
 import { generateChannelId } from '@quiet/common'
 import { filesActions } from '../../files/files.slice'
-import { type Community, type Identity, type PublicChannel, SocketActionTypes } from '@quiet/types'
+import {
+  type Community,
+  type Identity,
+  type PublicChannel,
+  SocketActionTypes,
+  DeleteChannelResponse,
+} from '@quiet/types'
 import { publicChannelsSelectors } from '../publicChannels.selectors'
 import { usersSelectors } from '../../users/users.selectors'
 
@@ -29,13 +35,14 @@ describe('deleteChannelSaga', () => {
   let generalChannel: PublicChannel
 
   let ownerData: {
-    peerId: any
-    username?: string | null
-    onionAddress?: string | null
-    dmPublicKey?: string | null
-  }
+    username: string | null
+    onionAddress: string | null
+    peerId: string | null
+    dmPublicKey: string | null
+    pubKey: string
+  } | null
 
-  const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
+  const socket = { emit: jest.fn(), emitWithAck: jest.fn(), on: jest.fn() } as unknown as Socket
 
   beforeEach(async () => {
     setupCrypto()
@@ -75,11 +82,11 @@ describe('deleteChannelSaga', () => {
     await expectSaga(deleteChannelSaga, socket, publicChannelsActions.deleteChannel({ channelId }))
       .withReducer(reducer)
       .withState(store.getState())
-      .apply(socket, socket.emit, [
+      .apply(socket, socket.emitWithAck, [
         SocketActionTypes.DELETE_CHANNEL,
         {
           channelId,
-          ownerPeerId: ownerData.peerId,
+          ownerPeerId: ownerData?.peerId,
         },
       ])
       .put(publicChannelsActions.setCurrentChannel({ channelId: generalChannel.id }))
@@ -94,11 +101,11 @@ describe('deleteChannelSaga', () => {
     await expectSaga(deleteChannelSaga, socket, publicChannelsActions.deleteChannel({ channelId }))
       .withReducer(reducer)
       .withState(store.getState())
-      .apply(socket, socket.emit, [
+      .apply(socket, socket.emitWithAck, [
         SocketActionTypes.DELETE_CHANNEL,
         {
           channelId,
-          ownerPeerId: ownerData.peerId,
+          ownerPeerId: ownerData?.peerId,
         },
       ])
       .put(filesActions.deleteFilesFromChannel({ channelId }))
@@ -113,11 +120,11 @@ describe('deleteChannelSaga', () => {
     await expectSaga(deleteChannelSaga, socket, publicChannelsActions.deleteChannel({ channelId }))
       .withReducer(reducer)
       .withState(store.getState())
-      .not.apply(socket, socket.emit, [
+      .not.apply(socket, socket.emitWithAck, [
         SocketActionTypes.DELETE_CHANNEL,
         {
           channelId,
-          ownerPeerId: ownerData.peerId,
+          ownerPeerId: ownerData?.peerId,
         },
       ])
       .not.put(publicChannelsActions.setCurrentChannel({ channelId: generalChannel.id }))
@@ -132,11 +139,11 @@ describe('deleteChannelSaga', () => {
     await expectSaga(deleteChannelSaga, socket, publicChannelsActions.deleteChannel({ channelId }))
       .withReducer(reducer)
       .withState(store.getState())
-      .apply(socket, socket.emit, [
+      .apply(socket, socket.emitWithAck, [
         SocketActionTypes.DELETE_CHANNEL,
         {
           channelId,
-          ownerPeerId: ownerData.peerId,
+          ownerPeerId: ownerData?.peerId,
         },
       ])
       .put(publicChannelsActions.disableChannel({ channelId }))

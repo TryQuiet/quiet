@@ -19,12 +19,9 @@ describe('users reducer', () => {
     CA: { rootCertString: 'certString', rootKeyString: 'keyString' },
     rootCa: '',
     peerList: [],
-    registrarUrl: '',
-    registrar: null,
     onionAddress: '',
     privateKey: '',
     port: 0,
-    registrationAttempts: 0,
     ownerCertificate: '',
   }
 
@@ -56,6 +53,12 @@ describe('users reducer', () => {
 
     store.dispatch(
       usersActions.responseSendCertificates({
+        certificates: [userCertString],
+      })
+    )
+
+    store.dispatch(
+      usersActions.setAllCerts({
         certificates: [userCertString],
       })
     )

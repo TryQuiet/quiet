@@ -80,15 +80,16 @@ beforeEach(async () => {
     ],
   })
     .overrideProvider(TOR_PASSWORD_PROVIDER)
-    .useValue({ torPassword: '', torHashedPassword: '' })
+    .useValue({
+      torPassword: 'b5e447c10b0d99e7871636ee5e0839b5',
+      torHashedPassword: '16:FCFFE21F3D9138906021FAADD9E49703CC41848A95F829E0F6E1BDBE63',
+    })
     .compile()
 
   connectionsManagerService = await module.resolve(ConnectionsManagerService)
   localDbService = await module.resolve(LocalDbService)
   registrationService = await module.resolve(RegistrationService)
   tor = await module.resolve(Tor)
-
-  console.log('tor ', tor)
   await tor.init()
 
   const torPassword = crypto.randomBytes(16).toString('hex')
@@ -106,6 +107,9 @@ beforeEach(async () => {
   connectionsManagerService.libp2pService = libp2pService
 
   quietDir = await module.resolve(QUIET_DIR)
+
+  const pskBase64 = Libp2pService.generateLibp2pPSK().psk
+  await localDbService.put(LocalDBKeys.PSK, pskBase64)
 })
 
 afterEach(async () => {
@@ -117,11 +121,6 @@ afterEach(async () => {
 })
 
 describe('Connections manager', () => {
-  it('runs tor by default', async () => {
-    await connectionsManagerService.init()
-    console.log(connectionsManagerService.isTorInit)
-  })
-
   it('saves peer stats when peer has been disconnected', async () => {
     class RemotePeerEventDetail {
       peerId: string
@@ -135,7 +134,6 @@ describe('Connections manager', () => {
       }
     }
     const emitSpy = jest.spyOn(libp2pService, 'emit')
-    // const emitSpy = jest.spyOn(libp2pService, 'emit')
 
     const launchCommunityPayload: InitCommunityPayload = {
       id: community.id,
@@ -225,7 +223,10 @@ describe('Connections manager', () => {
     await connectionsManagerService.init()
     await connectionsManagerService.launchCommunity(launchCommunityPayload)
     await sleep(5000)
-    expect(spyOnDial).toHaveBeenCalledTimes(peersCount)
+    // It looks LibP2P dials peers initially when it's started and
+    // then IPFS service dials peers again when started, thus
+    // peersCount * 2
+    expect(spyOnDial).toHaveBeenCalledTimes(peersCount * 2)
     // Temporary fix for hanging test - websocketOverTor doesn't have abortController
     await sleep(5000)
   })

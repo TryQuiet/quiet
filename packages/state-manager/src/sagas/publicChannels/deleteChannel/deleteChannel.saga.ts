@@ -20,21 +20,19 @@ export function* deleteChannelSaga(
   const ownerData = yield* select(usersSelectors.ownerData)
   const payloadChannel = yield* select(publicChannelsSelectors.getChannelById(channelId))
 
-  if (generalChannel === undefined) {
-    return
-  }
-
+  if (generalChannel === undefined) return
   if (payloadChannel?.disabled) return
 
   const isGeneral = channelId === generalChannel.id
 
   log(`Deleting channel ${channelId}`)
-  yield* apply(
+
+  const response = yield* apply(
     socket,
-    socket.emit,
+    socket.emitWithAck,
     applyEmitParams(SocketActionTypes.DELETE_CHANNEL, {
       channelId,
-      ownerPeerId: ownerData.peerId,
+      ownerPeerId: ownerData?.peerId,
     })
   )
 
@@ -46,4 +44,6 @@ export function* deleteChannelSaga(
     }
     yield* put(publicChannelsActions.disableChannel({ channelId }))
   }
+
+  yield* put(publicChannelsActions.channelDeletionResponse(response))
 }

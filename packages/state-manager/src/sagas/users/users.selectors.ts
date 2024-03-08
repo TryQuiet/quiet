@@ -1,11 +1,12 @@
 import { createSelector } from '@reduxjs/toolkit'
-import { getCertFieldValue, getReqFieldValue } from '@quiet/identity'
+import { getCertFieldValue, getReqFieldValue, keyFromCertificate, loadCertificate } from '@quiet/identity'
 import { CertFieldsTypes } from './const/certFieldTypes'
 import { StoreKeys } from '../store.keys'
 import { certificatesAdapter } from './users.adapter'
 import { type Certificate } from 'pkijs'
 import { type CreatedSelectors, type StoreState } from '../store.types'
 import { type UserData, User } from '@quiet/types'
+import { ownerCertificate } from '../communities/communities.selectors'
 
 const usersSlice: CreatedSelectors[StoreKeys.Users] = (state: StoreState) => state[StoreKeys.Users]
 
@@ -47,6 +48,7 @@ export const certificatesMapping = createSelector(certificates, certs => {
 
 export const csrsMapping = createSelector(csrs, csrs => {
   const mapping: Record<string, UserData> = {}
+
   Object.keys(csrs).map(pubKey => {
     const csr = csrs[pubKey]
     if (!csr || csr.subject.typesAndValues.length < 1) {
@@ -70,28 +72,23 @@ export const csrsMapping = createSelector(csrs, csrs => {
       dmPublicKey,
     })
   })
+
   return mapping
 })
 
+export const registeredUsernames = createSelector(
+  certificatesMapping,
+  mapping => new Set(Object.values(mapping).map(u => u.username))
+)
+
 export const allUsers = createSelector(csrsMapping, certificatesMapping, (csrs, certs) => {
   const users: Record<string, User> = {}
+
   const allUsernames: string[] = Object.values(csrs).map(u => u.username)
-  const duplicateUsernames: string[] = allUsernames.filter((val, index) => allUsernames.indexOf(val) !== index)
-  console.log('duplicate Usernames selector', duplicateUsernames)
-  Object.keys(csrs).map(pubKey => {
-    const username = csrs[pubKey].username
-    const isDuplicated = duplicateUsernames.includes(username)
-    const isRegistered = Boolean(certs[pubKey])
-    users[pubKey] = {
-      ...csrs[pubKey],
-      isRegistered,
-      isDuplicated,
-      pubKey,
-    }
-  })
+  const duplicatedUsernames: string[] = allUsernames.filter((val, index) => allUsernames.indexOf(val) !== index)
+
   // Temporary backward compatiblility! Old communities do not have csrs
   Object.keys(certs).map(pubKey => {
-    if (users[pubKey]) return
     users[pubKey] = {
       ...certs[pubKey],
       isRegistered: true,
@@ -99,43 +96,72 @@ export const allUsers = createSelector(csrsMapping, certificatesMapping, (csrs, 
       pubKey,
     }
   })
+
+  Object.keys(csrs).map(pubKey => {
+    if (users[pubKey]) return
+    const username = csrs[pubKey].username
+
+    let isDuplicated: boolean
+    if (certs[pubKey]?.username) {
+      isDuplicated = false
+    } else {
+      isDuplicated = duplicatedUsernames.includes(username)
+    }
+
+    const isRegistered = Boolean(certs[pubKey])
+
+    users[pubKey] = {
+      ...csrs[pubKey],
+      isRegistered,
+      isDuplicated,
+      pubKey,
+    }
+  })
+
   return users
 })
 
-export const getOldestParsedCerificate = createSelector(certificates, certs => {
-  const getTimestamp = (cert: Certificate) => new Date(cert.notBefore.value).getTime()
-  let certificates: Certificate[] = []
-  Object.keys(certs).map(pubKey => {
-    certificates = [...certificates, certs[pubKey]]
-  })
-  certificates.sort((a, b) => {
-    const aTimestamp = getTimestamp(a)
-    const bTimestamp = getTimestamp(b)
-    return aTimestamp - bTimestamp
-  })
+export const getUserByPubKey = (pubKey: string) => createSelector(allUsers, users => users[pubKey])
 
-  return certificates[0]
-})
-
-export const ownerData = createSelector(getOldestParsedCerificate, ownerCert => {
+// Perhaps we should move this to communities.selectors.ts?
+export const ownerData = createSelector(ownerCertificate, ownerCertificate => {
+  if (!ownerCertificate) return null
+  const ownerCert = loadCertificate(ownerCertificate)
   const username = getCertFieldValue(ownerCert, CertFieldsTypes.nickName)
   const onionAddress = getCertFieldValue(ownerCert, CertFieldsTypes.commonName)
   const peerId = getCertFieldValue(ownerCert, CertFieldsTypes.peerId)
   const dmPublicKey = getCertFieldValue(ownerCert, CertFieldsTypes.dmPublicKey)
+  const pubKey = keyFromCertificate(ownerCert)
 
   return {
     username,
     onionAddress,
     peerId,
     dmPublicKey,
+    pubKey,
   }
 })
 
+export const duplicateCerts = createSelector(certificatesMapping, certs => {
+  const allUsernames: string[] = Object.values(certs).map(u => u.username)
+  const uniqueUsernames = [...new Set(allUsernames)]
+  return Boolean(allUsernames.length !== uniqueUsernames.length)
+})
+
+export const areCertificatesLoaded = createSelector(
+  certificatesMapping,
+  certificates => Object.values(certificates).length > 0
+)
+
 export const usersSelectors = {
   certificates,
+  csrs,
   certificatesMapping,
   csrsMapping,
-  getOldestParsedCerificate,
-  ownerData,
+  registeredUsernames,
   allUsers,
+  getUserByPubKey,
+  ownerData,
+  duplicateCerts,
+  areCertificatesLoaded,
 }

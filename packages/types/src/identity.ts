@@ -40,6 +40,9 @@ export interface Identity {
   userCsr: UserCsr | null
   userCertificate: string | null
   joinTimestamp: number | null
+  // When a user first joins a community, they send a message
+  // introducing themselves.
+  introMessageSent?: boolean
 }
 
 export interface CreateUserCsrPayload {
@@ -49,12 +52,19 @@ export interface CreateUserCsrPayload {
   dmPublicKey: string
   signAlg: string
   hashAlg: string
+  existingKeyPair?: CryptoKeyPair
 }
 
 export interface RegisterCertificatePayload {
   communityId: string
   nickname: string
   userCsr: UserCsr
+  isUsernameTaken?: boolean
+}
+
+export interface RegisterUsernamePayload {
+  nickname: string
+  isUsernameTaken?: boolean
 }
 
 export interface RegisterUserCertificatePayload {
@@ -92,10 +102,10 @@ export interface SaveOwnerCertificatePayload {
 
 export interface SavedOwnerCertificatePayload {
   communityId: string
-  network: { certificate: string; peers: string[] }
+  network: { certificate: string }
 }
 
-export interface SuccessfullRegistrarionResponse {
+export interface SuccessfulRegistrationResponse {
   communityId: string
   payload: UserCertificatePayload
 }

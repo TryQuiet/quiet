@@ -15,6 +15,19 @@ import { defaultTheme } from '../../styles/themes/default.theme'
 import UserLabel from '../UserLabel/UserLabel.component'
 import { UserLabelType } from '../UserLabel/UserLabel.types'
 
+const MessageProfilePhoto: React.FC<{ message: DisplayableMessage }> = ({ message }) => {
+  const imgStyle = {
+    width: 37,
+    height: 37,
+    borderRadius: 2,
+  }
+  return message.photo ? (
+    <Image style={imgStyle} source={{ uri: message.photo }} alt={"Message author's profile image"} />
+  ) : (
+    <Jdenticon value={message.pubKey} size={37} />
+  )
+}
+
 export const Message: FC<MessageProps & FileActionsProps> = ({
   data, // Set of messages merged by sender
   downloadStatus,
@@ -87,7 +100,6 @@ export const Message: FC<MessageProps & FileActionsProps> = ({
           // Input sanitization. react-native-mathjax-html-to-svg throws error when provided with empty "$$$$"
           const sanitizedMathJax = message.message.replace(/\$\$(\s*)\$\$/g, '$$_$$')
           return (
-            // @ts-expect-error (Property 'children' does not exist on type 'IntrinsicAttributes & Props')
             <MathJaxSvg fontSize={14} color={defaultTheme.palette.typography[color]} fontCache={true}>
               {sanitizedMathJax}
             </MathJaxSvg>
@@ -105,7 +117,7 @@ export const Message: FC<MessageProps & FileActionsProps> = ({
 
   const info = representativeMessage.type === MessageType.Info
   const pending: boolean = pendingMessages?.[representativeMessage.id] !== undefined
-  console.log({ representativeMessage })
+
   const userLabel = representativeMessage?.isDuplicated
     ? UserLabelType.DUPLICATE
     : !representativeMessage?.isRegistered
@@ -135,7 +147,7 @@ export const Message: FC<MessageProps & FileActionsProps> = ({
               style={{ width: 37, height: 37 }}
             />
           ) : (
-            <Jdenticon value={representativeMessage.nickname} size={37} />
+            <MessageProfilePhoto message={representativeMessage} />
           )}
         </View>
         <View style={{ flex: 8 }}>
@@ -146,7 +158,7 @@ export const Message: FC<MessageProps & FileActionsProps> = ({
               </Typography>
             </View>
 
-            {userLabel && (
+            {userLabel && !info && (
               <View>
                 <UserLabel
                   username={representativeMessage.nickname}
@@ -219,7 +231,6 @@ const markdownStyle = StyleSheet.create({
     borderWidth: 0,
   },
   th: {
-    borderBottom: 'solid',
     borderBottomWidth: 1,
     borderColor: defaultTheme.palette.typography.veryLightGray,
   },

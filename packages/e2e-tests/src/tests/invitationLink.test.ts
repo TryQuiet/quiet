@@ -3,13 +3,12 @@ import {
   CreateCommunityModal,
   DebugModeModal,
   JoinCommunityModal,
-  JoiningLoadingPanel,
   RegisterUsernameModal,
   App,
   Sidebar,
   WarningModal,
 } from '../selectors'
-import { capitalizeFirstLetter, getInvitationPairs, invitationDeepUrl } from '@quiet/common'
+import { composeInvitationDeepUrl, parseInvitationCode, userJoinedMessage } from '@quiet/common'
 import { execSync } from 'child_process'
 import { type SupportedPlatformDesktop } from '@quiet/types'
 
@@ -26,7 +25,7 @@ describe('New user joins using invitation link while having app opened', () => {
 
   beforeAll(async () => {
     ownerApp = new App()
-    guestApp = new App({ useDataDir: false })
+    guestApp = new App({ defaultDataDir: true })
   })
 
   beforeEach(async () => {
@@ -43,14 +42,6 @@ describe('New user joins using invitation link while having app opened', () => {
       console.log('Invitation Link', 1)
       await ownerApp.open()
     })
-
-    if (process.env.TEST_MODE) {
-      it('Owner closes debug modal', async () => {
-        console.log('Invitation Link', 2)
-        const debugModal = new DebugModeModal(ownerApp.driver)
-        await debugModal.close()
-      })
-    }
 
     it('JoinCommunityModal - owner switches to create community', async () => {
       console.log('Invitation Link', 4)
@@ -76,13 +67,6 @@ describe('New user joins using invitation link while having app opened', () => {
       expect(isRegisterModal).toBeTruthy()
       await registerModal.typeUsername(ownerUsername)
       await registerModal.submit()
-    })
-
-    it('Connecting to peers modal', async () => {
-      console.log('Invitation Link', 7)
-      const loadingPanelCommunity = new JoiningLoadingPanel(ownerApp.driver)
-      const isLoadingPanelCommunity = await loadingPanelCommunity.element.isDisplayed()
-      expect(isLoadingPanelCommunity).toBeTruthy()
     })
 
     it('Owner sees general channel', async () => {
@@ -121,18 +105,17 @@ describe('New user joins using invitation link while having app opened', () => {
       console.log('Guest opens app')
       await guestApp.open()
     })
-    if (process.env.TEST_MODE) {
-      it('Close debug modal', async () => {
-        console.log('Invitation Link', 12)
-        const debugModal = new DebugModeModal(guestApp.driver)
-        await debugModal.close()
-      })
-    }
 
     it.skip('Guest clicks invitation link with invalid invitation code', async () => {
-      // Fix when modals ordering is fixed (joining modal hiddes warning modal)
+      // Fix when modals ordering is fixed (joining modal hides warning modal)
       console.log('opening invalid code')
-      execSync(`xdg-open ${invitationDeepUrl([{ peerId: 'invalid', onionAddress: 'alsoInvalid' }])}`)
+      execSync(
+        `xdg-open ${composeInvitationDeepUrl({
+          pairs: [{ peerId: 'invalid', onionAddress: 'alsoInvalid' }],
+          psk: '1234',
+          ownerOrbitDbIdentity: 'ownerId',
+        })}`
+      )
     })
 
     it.skip('Guest sees modal with warning about invalid code, closes it', async () => {
@@ -155,9 +138,12 @@ describe('New user joins using invitation link while having app opened', () => {
         win32: 'start',
       }
 
-      const pairs = getInvitationPairs(url.hash.substring(1))
-      expect(pairs).not.toBe([])
-      execSync(`${command[process.platform as SupportedPlatformDesktop]} ${invitationDeepUrl(pairs)}`)
+      const copiedCode = url.hash.substring(1)
+      expect(() => parseInvitationCode(copiedCode)).not.toThrow()
+      const data = parseInvitationCode(copiedCode)
+      const commandFull = `${command[process.platform as SupportedPlatformDesktop]} "${composeInvitationDeepUrl(data)}"`
+      console.log(`Calling ${commandFull}`)
+      execSync(commandFull)
       console.log('Guest opened invitation link')
     })
 
@@ -200,10 +186,13 @@ describe('New user joins using invitation link while having app opened', () => {
       console.log('Invitation Link', 21)
       const generalChannel = new Channel(ownerApp.driver, 'general')
       await generalChannel.element.isDisplayed()
-      const userJoinedMessage = await generalChannel.getMessage(
-        `@${joiningUserUsername} has joined ${capitalizeFirstLetter(communityName)}!`
+
+      const hasMessage = await generalChannel.waitForUserMessage(
+        joiningUserUsername,
+        userJoinedMessage(joiningUserUsername)
       )
-      expect(await userJoinedMessage.isDisplayed()).toBeTruthy()
+      const isMessageDisplayed = await hasMessage?.isDisplayed()
+      expect(isMessageDisplayed).toBeTruthy()
     })
   })
 })

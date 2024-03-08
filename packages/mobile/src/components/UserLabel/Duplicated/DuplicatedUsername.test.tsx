@@ -264,7 +264,6 @@ describe('DuplicatedUsername component', () => {
                   {
                     "backgroundColor": "#E42656",
                     "borderRadius": 8,
-                    "cursor": "pointer",
                     "flexDirection": "row",
                     "paddingBottom": 3,
                     "paddingLeft": 8,
@@ -282,8 +281,8 @@ describe('DuplicatedUsername component', () => {
                   style={
                     {
                       "height": 12,
+                      "marginLeft": 4,
                       "marginRight": 4,
-                      "merginLeft": 4,
                       "width": 13,
                     }
                   }

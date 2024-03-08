@@ -26,11 +26,15 @@ import { LeaveCommunity } from './components/Settings/Tabs/LeaveCommunity/LeaveC
 import SearchModal from './components/SearchModal/SearchModal'
 import WarningModal from './containers/widgets/WarningModal/WarningModal'
 import { ChannelContextMenu } from './components/ContextMenu/menus/ChannelContextMenu.container'
+import { UserProfileContextMenu } from './components/ContextMenu/menus/UserProfileContextMenu.container'
 import { DeleteChannel } from './components/Channel/DeleteChannel/DeleteChannel'
 import ChannelCreationModal from './components/ChannelCreationModal/ChannelCreationModal'
 import { SaveStateComponent } from './components/SaveState/SaveStateComponent'
 import UnregisteredModalContainer from './components/widgets/userLabel/unregistered/UnregisteredModal.container'
 import DuplicateModalContainer from './components/widgets/userLabel/duplicate/DuplicateModal.container'
+import UsernameTakenModalContainer from './components/widgets/usernameTakenModal/UsernameTakenModal.container'
+import PossibleImpersonationAttackModalContainer from './components/widgets/possibleImpersonationAttackModal/PossibleImpersonationAttackModal.container'
+import BreakingChangesWarning from './containers/widgets/breakingChangesWarning/BreakingChangesWarning'
 // Trigger lerna
 
 export const persistor = persistStore(store)
@@ -48,7 +52,9 @@ export default () => {
                 <DuplicateModalContainer />
                 <SearchModal />
                 <ErrorModal />
+                <PossibleImpersonationAttackModalContainer />
                 <LoadingPanel />
+                <UsernameTakenModalContainer />
                 <ChannelCreationModal />
                 <CreateChannel />
                 <JoinCommunity />
@@ -58,8 +64,10 @@ export default () => {
                 <CssBaseline />
                 <SettingsModal />
                 <UpdateModal />
+                <BreakingChangesWarning />
                 <QuitAppDialog />
                 <ChannelContextMenu />
+                <UserProfileContextMenu />
                 <DeleteChannel />
                 <Routes>
                   <Route index path='/' element={<Index />} />

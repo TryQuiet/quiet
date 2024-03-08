@@ -13,7 +13,7 @@ import CreateUsername from '../../CreateUsername/CreateUsername'
 import JoinCommunity from '../JoinCommunity/JoinCommunity'
 import CreateCommunity from './CreateCommunity'
 import { CreateCommunityDictionary, JoinCommunityDictionary } from '../community.dictionary'
-import { CommunityNameErrors, FieldErrors } from '../../../forms/fieldsErrors'
+import { CommunityNameErrors } from '../../../forms/fieldsErrors'
 import PerformCommunityActionComponent from '../PerformCommunityActionComponent'
 import { identity, communities, StoreKeys as StateManagerStoreKeys } from '@quiet/state-manager'
 import { CommunityOwnership } from '@quiet/types'
@@ -131,13 +131,9 @@ describe('Create community', () => {
   })
 
   it.each([
-    ['double-hyp--hens', 'double-hyp-hens'],
-    ['-start-with-hyphen', 'start-with-hyphen'],
-    [' start-with-space', 'start-with-space'],
-    ['end-with-hyphen-', 'end-with-hyphen'],
-    ['end-with-space ', 'end-with-space'],
     ['UpperCaseToLowerCase', 'uppercasetolowercase'],
     ['spaces to hyphens', 'spaces-to-hyphens'],
+    ['!@#$%^&*()', '----------'],
   ])('user inserting wrong community name "%s" gets corrected "%s"', async (name: string, corrected: string) => {
     renderComponent(
       <PerformCommunityActionComponent
@@ -160,13 +156,10 @@ describe('Create community', () => {
     )
   })
 
-  it.each([
-    ['   whitespaces', FieldErrors.Whitespaces],
-    ['----hyphens', FieldErrors.Whitespaces],
-    ['!@#', CommunityNameErrors.WrongCharacter],
-    ['too-long-community-name', CommunityNameErrors.NameTooLong],
-  ])('user inserting invalid community name "%s" should see "%s" error', async (name: string, error: string) => {
+  it('user inserting invalid community name should see an error', async () => {
     const handleCommunityAction = jest.fn()
+    const name = 'too-long-community-name'
+    const error = CommunityNameErrors.NameTooLong
 
     renderComponent(
       <PerformCommunityActionComponent
@@ -284,5 +277,27 @@ describe('Create community', () => {
 
     expect(handleRedirection).toBeCalled()
     expect(handleCommunityAction).not.toBeCalled()
+  })
+
+  it('has visible community name text', async () => {
+    const { store } = await prepareStore({
+      [StoreKeys.Modals]: {
+        ...new ModalsInitialState(),
+        [ModalName.createCommunityModal]: { open: true },
+      },
+    })
+
+    renderComponent(
+      <>
+        <JoinCommunity />
+        <CreateCommunity />
+      </>,
+      store
+    )
+
+    const dictionary = CreateCommunityDictionary()
+    const createCommunityInput = screen.getByPlaceholderText(dictionary.placeholder)
+
+    expect(createCommunityInput).toHaveAttribute('type', 'text')
   })
 })

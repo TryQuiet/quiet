@@ -18,9 +18,8 @@ describe('registerCertificateSaga', () => {
 
     const factory = await getFactory(store)
 
-    const community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>(
-      'Community'
-    )
+    const community =
+      await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
 
     const identity = await factory.create<ReturnType<typeof identityActions.addNewIdentity>['payload']>('Identity', {
       id: community.id,
@@ -64,11 +63,9 @@ describe('registerCertificateSaga', () => {
       {
         id: '1',
         name: 'rockets',
-        registrarUrl: 'http://registrarUrl.onion',
         CA: null,
         rootCa: 'rootCa',
         peerList: [],
-        registrar: null,
         onionAddress: '',
         privateKey: '',
         port: 0,
@@ -103,6 +100,61 @@ describe('registerCertificateSaga', () => {
       .withState(store.getState())
       .not.apply(socket, socket.emit, [SocketActionTypes.REGISTER_OWNER_CERTIFICATE])
       .put(communitiesActions.launchCommunity(community.id))
+      .run()
+  })
+
+  it('launch community when user is not community owner and he used username which was taken', async () => {
+    setupCrypto()
+    const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
+
+    const store = prepareStore().store
+
+    const factory = await getFactory(store)
+
+    const community = await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>(
+      'Community',
+      {
+        id: '1',
+        name: 'rockets',
+        CA: null,
+        rootCa: 'rootCa',
+        peerList: [],
+        onionAddress: '',
+        privateKey: '',
+        port: 0,
+      }
+    )
+
+    const userCsr: UserCsr = {
+      userCsr: 'userCsr',
+      userKey: 'userKey',
+      pkcs10: jest.fn() as unknown as CertData,
+    }
+
+    const identity = (
+      await factory.build<typeof identityActions.addNewIdentity>('Identity', {
+        id: community.id,
+      })
+    ).payload
+
+    identity.userCsr = userCsr
+
+    store.dispatch(identityActions.addNewIdentity(identity))
+
+    const registerCertificatePayload: RegisterCertificatePayload = {
+      communityId: community.id,
+      nickname: identity.nickname,
+      userCsr: identity.userCsr,
+      isUsernameTaken: true,
+    }
+
+    const reducer = combineReducers(reducers)
+    await expectSaga(registerCertificateSaga, socket, identityActions.registerCertificate(registerCertificatePayload))
+      .withReducer(reducer)
+      .withState(store.getState())
+      .not.apply(socket, socket.emit, [SocketActionTypes.REGISTER_OWNER_CERTIFICATE])
+      .not.put(communitiesActions.launchCommunity(community.id))
+      .put(identityActions.saveUserCsr())
       .run()
   })
 })

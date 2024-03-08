@@ -1,17 +1,25 @@
 /* eslint-disable */
 import { setEngine, CryptoEngine } from 'pkijs'
+import { setEngine as setIdentityEngine } from '../../identity/node_modules/pkijs'
 import { Crypto } from '@peculiar/webcrypto'
 import React from 'react'
 
 import { io } from 'socket.io-client'
 
 const webcrypto = new Crypto()
-// @ts-ignore
 global.crypto = webcrypto
-// @ts-ignore
-global.window = undefined
 
 setEngine(
+  'newEngine',
+  webcrypto,
+  new CryptoEngine({
+    name: '',
+    crypto: webcrypto,
+    subtle: webcrypto.subtle,
+  })
+)
+
+setIdentityEngine(
   'newEngine',
   webcrypto,
   new CryptoEngine({
@@ -36,6 +44,18 @@ jest.mock('redux-persist', () => {
 })
 
 jest.mock('react-native/Libraries/EventEmitter/NativeEventEmitter')
+
+jest.mock('redux-persist-filesystem-storage', () => ({
+  config: jest.fn()
+}))
+
+jest.mock('react-native-blob-util', () => ({
+  fs: {
+    dirs: {
+      DocumentDir: 'dir'
+    }
+  }
+}))
 
 jest.mock('react-native-mathjax-html-to-svg', () => { })
 

@@ -30,17 +30,9 @@ const StyledTabsWrapper = styled(Grid)(() => ({
   width: 168,
 }))
 
-const StyledAppBar = styled(AppBar, { label: 'xxxxx' })(() => ({
+const StyledAppBar = styled(AppBar, { label: 'xxxxx' })(({ theme }) => ({
   backgroundColor: '#fff',
   boxShadow: '0px 1px 3px rgba(0, 0, 0, 0.0)',
-}))
-
-const StyledTabs = styled(Tabs)(({ theme }) => ({
-  color: theme.palette.colors.trueBlack,
-
-  [`& .${classes.indicator}`]: {
-    height: '0 !important',
-  },
 
   [`& .${classes.leaveComunity}`]: {
     opacity: '1',
@@ -52,6 +44,14 @@ const StyledTabs = styled(Tabs)(({ theme }) => ({
     textTransform: 'none',
     lineHeight: '21px',
     minHeight: '0px',
+  },
+}))
+
+const StyledTabs = styled(Tabs)(({ theme }) => ({
+  color: theme.palette.colors.trueBlack,
+
+  [`& .${classes.indicator}`]: {
+    height: '0 !important',
   },
 }))
 
@@ -82,7 +82,7 @@ export const SettingsComponent: React.FC<SettingsComponentProps> = ({
 
   const [offset, setOffset] = React.useState(0)
 
-  const defaultCurrentTab = isOwner ? 'invite' : 'notifications'
+  const defaultCurrentTab = 'invite'
   const [currentTab, setCurrentTab] = useState(defaultCurrentTab)
 
   const adjustOffset = () => {
@@ -143,20 +143,20 @@ export const SettingsComponent: React.FC<SettingsComponentProps> = ({
             >
               <Tab value='about' label='About' data-testid={'about-settings-tab'} />
               <Tab value='notifications' label='Notifications' data-testid={'notifications-settings-tab'} />
-              <Tab value='invite' label='Invite a friend' data-testid={'invite-settings-tab'} />
+              <Tab value='invite' label='Add Members' data-testid={'invite-settings-tab'} />
               <Tab value='qrcode' label='QR Code' data-testid={'qr-code-tab'} />
-              {!isWindows && (
-                <Grid style={{ marginTop: '24px', cursor: 'pointer' }}>
-                  <Typography
-                    data-testid='leave-community-tab'
-                    className={classes.leaveComunity}
-                    onClick={leaveCommunityModal.handleOpen}
-                  >
-                    Leave community
-                  </Typography>
-                </Grid>
-              )}
             </StyledTabs>
+            {!isWindows && (
+              <Grid style={{ marginTop: '24px', cursor: 'pointer' }}>
+                <Typography
+                  data-testid='leave-community-tab'
+                  className={classes.leaveComunity}
+                  onClick={leaveCommunityModal.handleOpen}
+                >
+                  Leave community
+                </Typography>
+              </Grid>
+            )}
           </StyledAppBar>
         </StyledTabsWrapper>
         <Grid item xs>

@@ -1,4 +1,5 @@
 apply plugin: "com.android.application"
+apply plugin: "org.jetbrains.kotlin.android"
 apply plugin: "kotlin-android"
 
 apply plugin: "com.facebook.react"
@@ -84,8 +85,6 @@ project.ext.react = [
     enableHermes: false,  // clean and rebuild if changing
 ]
 
-apply from: "../../node_modules/react-native/react.gradle"
-
 /**
  * Set this to true to create two separate APKs instead of one:
  *   - An APK that only works on ARM devices
@@ -139,11 +138,32 @@ def reactNativeArchitectures() {
     return value ? value.split(",") : ["arm64-v8a"]
 }
 
+def getNDK() {
+    // Load local.properties
+    Properties properties = new Properties()
+    def localPropertiesFile = rootProject.file('local.properties')
+    if (localPropertiesFile.exists()) {
+        properties.load(localPropertiesFile.newDataInputStream())
+    }
+
+    // Return ndk.dir if it exists
+    def localNDK = properties['ndk.path']
+    if (localNDK) {
+        return localNDK
+    }
+
+    // If ndk.dir doesn't exist, check for NDK_PATH in gradle.properties
+    return rootProject.ext.has('NDK_PATH') ? rootProject.ext.get('NDK_PATH') : null
+}
+
+def ndkDirectory = getNDK()
+
 android {
-    ndkPath NDK_PATH
+    ndkPath ndkDirectory
 
     ndkVersion rootProject.ext.ndkVersion
 
+    buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdkVersion rootProject.ext.compileSdkVersion
 
     compileOptions {
@@ -162,12 +182,14 @@ android {
         pickFirst 'lib/arm64-v8a/libfbjni.so'
     }
 
+    namespace "com.quietmobile"
+
     defaultConfig {
         applicationId "com.quietmobile"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 312
-        versionName "2.0.0-alpha.8"
+        versionCode 405
+        versionName "2.1.2-alpha.9"
         resValue "string", "build_config_package", "com.quietmobile"
         testBuildType System.getProperty('testBuildType', 'debug')
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
@@ -275,20 +297,9 @@ dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
 
+    implementation("com.facebook.react:flipper-integration")
+
     implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.0.0"
-
-    debugImplementation("com.facebook.flipper:flipper:${FLIPPER_VERSION}") {
-      exclude group:'com.facebook.fbjni'
-    }
-
-    debugImplementation("com.facebook.flipper:flipper-network-plugin:${FLIPPER_VERSION}") {
-        exclude group:'com.facebook.flipper'
-        exclude group:'com.squareup.okhttp3', module:'okhttp'
-    }
-
-    debugImplementation("com.facebook.flipper:flipper-fresco-plugin:${FLIPPER_VERSION}") {
-        exclude group:'com.facebook.flipper'
-    }
 
     if (enableHermes) {
         //noinspection GradleDynamicVersion
@@ -309,10 +320,8 @@ dependencies {
 
     implementation group: 'commons-io', name: 'commons-io', version: '2.6'
 
-    api 'info.guardianproject:jtorctl:0.4.5.7'
-    // implementation 'info.guardianproject:tor-android:0.4.5.7'
-
-    implementation 'org.torproject:tor-android-binary:0.4.4.6'
+    implementation 'info.guardianproject:tor-android:0.4.5.7'
+    implementation 'info.guardianproject:jtorctl:0.4.5.7'
 
     // Websockets connection
     implementation ('io.socket:socket.io-client:2.0.0') {
@@ -322,7 +331,7 @@ dependencies {
     // Work manager
     implementation("androidx.work:work-runtime:2.7.1")
     implementation("androidx.work:work-runtime-ktx:2.7.1")
-    
+
     // For animated GIF support
     implementation 'com.facebook.fresco:fresco:2.6.0'
     implementation 'com.facebook.fresco:animated-gif:2.6.0'
@@ -452,4 +461,3 @@ task "GenerateNodeNativeAssetsLists${abi_name}" {
 tasks.getByPath(":${project.name}:preBuild").dependsOn "GenerateNodeNativeAssetsLists${abi_name}"
 
 project.android.sourceSets.main.assets.srcDirs+="${rootProject.buildDir}/nodejs-native-assets/"
-

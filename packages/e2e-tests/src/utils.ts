@@ -1,39 +1,39 @@
 import { Browser, Builder, type ThenableWebDriver } from 'selenium-webdriver'
-import { spawn, exec, type ChildProcessWithoutNullStreams, execSync } from 'child_process'
+import { spawn, exec, execSync, type ChildProcessWithoutNullStreams } from 'child_process'
 import { type SupportedPlatformDesktop } from '@quiet/types'
 import getPort from 'get-port'
 import path from 'path'
 import fs from 'fs'
+import { DESKTOP_DATA_DIR } from '@quiet/common'
+
+export const BACKWARD_COMPATIBILITY_BASE_VERSION = '2.0.1' // Pre-latest production version
+const appImagesPath = `${__dirname}/../Quiet`
 
 export interface BuildSetupInit {
   port?: number
   debugPort?: number
-  useDataDir?: boolean
+  defaultDataDir?: boolean
   dataDir?: string
   fileName?: string
 }
 
 export class BuildSetup {
   private driver?: ThenableWebDriver | null
-  public containerId?: string
-  public ipAddress?: string
   public port?: number
   public debugPort?: number
   public dataDir?: string
   private child?: ChildProcessWithoutNullStreams
-  private useDataDir: boolean
+  private defaultDataDir: boolean
   private fileName?: string
 
-  constructor({ port, debugPort, useDataDir = true, dataDir, fileName }: BuildSetupInit) {
+  constructor({ port, debugPort, defaultDataDir = false, dataDir, fileName }: BuildSetupInit) {
     this.port = port
     this.debugPort = debugPort
-    this.useDataDir = useDataDir
+    this.defaultDataDir = defaultDataDir
     this.dataDir = dataDir
     this.fileName = fileName
-    if (fileName) {
-      this.copyInstallerFile(fileName)
-    }
-    if (this.useDataDir && !this.dataDir) {
+    if (this.defaultDataDir) this.dataDir = DESKTOP_DATA_DIR
+    if (!this.dataDir) {
       this.dataDir = `e2e_${(Math.random() * 10 ** 18).toString(36)}`
     }
   }
@@ -43,28 +43,13 @@ export class BuildSetup {
     this.debugPort = await getPort()
   }
 
-  public copyInstallerFile(copyName: string) {
-    if (process.platform === 'linux') {
-      const base = `${__dirname}/../Quiet/Quiet-1.2.0.AppImage`
-      const copy = `${__dirname}/../Quiet/${copyName}`
-      fs.copyFile(base, copy, err => {
-        if (err) {
-          console.log({ err })
-          throw err
-        }
-        console.log('complete')
-      })
-    }
-  }
-
   private getBinaryLocation() {
     console.log('filename', this.fileName)
     switch (process.platform) {
       case 'linux':
         return `${__dirname}/../Quiet/${this.fileName ? this.fileName : process.env.FILE_NAME}`
       case 'win32':
-        // return `${process.env.LOCALAPPDATA}\\Programs\\${this.fileName ? 'quiet' : 'quiet2'}\\Quiet.exe`
-        return `${process.env.LOCALAPPDATA}\\Programs\\quiet\\Quiet.exe`
+        return `${process.env.LOCALAPPDATA}\\Programs\\@quietdesktop\\Quiet.exe`
       case 'darwin':
         return '/Applications/Quiet.app/Contents/MacOS/Quiet'
       default:
@@ -75,7 +60,7 @@ export class BuildSetup {
   public getVersionFromEnv() {
     const envFileName = process.env.FILE_NAME
     if (!envFileName) {
-      throw new Error('file name not specyfied')
+      throw new Error('file name not specified')
     }
     switch (process.platform) {
       case 'linux':
@@ -103,17 +88,17 @@ export class BuildSetup {
   public async createChromeDriver() {
     await this.initPorts()
     const env = {
-      DATA_DIR: this.dataDir || 'Quiet',
-      DEBUG: 'backend*',
+      DEBUG: 'backend*,desktop*,utils*,main*',
+      DATA_DIR: this.dataDir,
     }
     if (process.platform === 'win32') {
       console.log('!WINDOWS!')
-      this.child = spawn(`cd node_modules/.bin & chromedriver.cmd --port=${this.port}`, [], {
+      this.child = spawn(`cd node_modules/.bin & chromedriver.cmd --port=${this.port} --verbose`, [], {
         shell: true,
         env: Object.assign(process.env, env),
       })
     } else {
-      this.child = spawn(`node_modules/.bin/chromedriver --port=${this.port}`, [], {
+      this.child = spawn(`node_modules/.bin/chromedriver --port=${this.port} --verbose`, [], {
         shell: true,
         detached: false,
         env: Object.assign(process.env, env),
@@ -127,7 +112,7 @@ export class BuildSetup {
     )
 
     this.child.on('error', () => {
-      console.log('ERROR')
+      console.error('ERROR')
       this.killNine()
     })
 
@@ -145,7 +130,7 @@ export class BuildSetup {
       console.log('message', data)
     })
     this.child.on('error', data => {
-      console.log('error', data)
+      console.error('error', data)
     })
 
     this.child.stdout.on('data', data => {
@@ -153,11 +138,17 @@ export class BuildSetup {
     })
 
     this.child.stderr.on('data', data => {
-      console.error(`stderr: ${data}`)
+      // Quiet logs (handled by 'debug' package) are available in stderr and only with 'verbose' flag on chromedriver
+      const trashLogs = ['DevTools', 'COMMAND', 'INFO:CONSOLE', '[INFO]:', 'libnotify-WARNING', 'ALSA lib']
+      const dataString = `${data}`
+      for (const l of trashLogs) {
+        if (dataString.includes(l)) return
+      }
+      console.log(`[${this.dataDir}]: ${dataString}`)
     })
 
     this.child.stdin.on('data', data => {
-      console.error(`stdin: ${data}`)
+      console.log(`stdin: ${data}`)
     })
   }
 
@@ -196,7 +187,7 @@ export class BuildSetup {
       }
     }
     if (this.driver == null || this.driver === undefined) {
-      throw new Error('elo')
+      throw new Error('No driver')
     }
 
     return this.driver
@@ -260,4 +251,47 @@ export class BuildSetup {
       resourcesPath,
     }
   }
+}
+
+const quietAppImage = (version = BACKWARD_COMPATIBILITY_BASE_VERSION) => {
+  return `Quiet-${version}.AppImage`
+}
+
+export const downloadInstaller = (version = BACKWARD_COMPATIBILITY_BASE_VERSION) => {
+  if (process.platform !== 'linux') throw new Error('Linux support only')
+
+  const appImage = quietAppImage(version)
+  const appImageTargetPath = path.join(appImagesPath, appImage)
+  if (fs.existsSync(appImageTargetPath)) {
+    console.log(`${appImage} already exists. Skipping download.`)
+    return appImage
+  }
+  const downloadUrl = `https://github.com/TryQuiet/quiet/releases/download/%40quiet%2Fdesktop%40${version}/${appImage}`
+  console.log(`Downloading Quiet version: ${version} from ${downloadUrl}`)
+  // With newer curl: execSync(`curl -LO --output-dir ${appImagesPath} ${downloadUrl}`)
+  execSync(`curl -LO ${downloadUrl}`)
+  const appImageDownloadPath = path.join(process.cwd(), appImage)
+  console.log(`Downloaded to ${appImageDownloadPath}`)
+  fs.renameSync(appImageDownloadPath, appImageTargetPath)
+  console.log('Moved to', appImageTargetPath)
+  // Make it executable
+  fs.chmodSync(appImageTargetPath, 0o755)
+  return appImage
+}
+
+export const copyInstallerFile = (file: string) => {
+  if (process.platform !== 'linux') throw new Error('Linux support only')
+
+  const base = path.join(appImagesPath, file)
+  const parsedBase = path.parse(file)
+  const copiedFileName = `${parsedBase.name}-copy${parsedBase.ext}`
+  const copiedFilePath = path.join(appImagesPath, copiedFileName)
+  if (fs.existsSync(copiedFilePath)) {
+    console.log(`${copiedFileName} already exists. Skipping copy.`)
+    return copiedFileName
+  }
+
+  fs.copyFileSync(base, copiedFilePath)
+  console.log(`Copied ${base} to ${copiedFilePath}`)
+  return copiedFileName
 }

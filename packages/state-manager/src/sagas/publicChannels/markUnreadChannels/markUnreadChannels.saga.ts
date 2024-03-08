@@ -9,7 +9,7 @@ import { identityActions } from '../../identity/identity.slice'
 import { communitiesSelectors } from '../../communities/communities.selectors'
 
 export function* markUnreadChannelsSaga(
-  action: PayloadAction<ReturnType<typeof messagesActions.incomingMessages>['payload']>
+  action: PayloadAction<ReturnType<typeof messagesActions.addMessages>['payload']>
 ): Generator {
   const currentChannelId = yield* select(publicChannelsSelectors.currentChannelId)
 

@@ -5,12 +5,12 @@ import { prepareStore } from '../renderer/testUtils/prepareStore'
 import { renderComponent } from '../renderer/testUtils'
 import MockedSocket from 'socket.io-mock'
 import { ioMock } from '../shared/setupTests'
-import { communities, Community, identity, Identity } from '@quiet/state-manager'
+import { communities, identity, Identity } from '@quiet/state-manager'
 import { modalsActions } from '../renderer/sagas/modals/modals.slice'
 import { ModalName } from '../renderer/sagas/modals/modals.types'
 import JoinCommunity from '../renderer/components/CreateJoinCommunity/JoinCommunity/JoinCommunity'
 import CreateUsername from '../renderer/components/CreateUsername/CreateUsername'
-import { InvitationPair } from '@quiet/types'
+import { type Community, type InvitationData } from '@quiet/types'
 
 jest.setTimeout(20_000)
 
@@ -28,15 +28,9 @@ describe('Opening app through custom protocol', () => {
     },
     rootCa: '',
     peerList: [],
-    registrar: {
-      privateKey: '',
-      address: '',
-    },
-    registrarUrl: 'https://bidrmzr3ee6qa2vvrlcnqvvvsk2gmjktcqkunba326parszr44gibwyd.onion',
     onionAddress: '',
     privateKey: '',
     port: 0,
-    registrationAttempts: 0,
     ownerCertificate: '',
   }
 
@@ -65,11 +59,13 @@ describe('Opening app through custom protocol', () => {
       socket // Fork state manager's sagas
     )
 
-    const invitationCodes: InvitationPair[] = [
-      { peerId: 'abcdef', onionAddress: 'bidrmzr3ee6qa2vvrlcnqvvvsk2gmjktcqkunba326parszr44gibwyd' },
-    ]
+    const invitationCodes: InvitationData = {
+      pairs: [{ peerId: 'abcdef', onionAddress: 'bidrmzr3ee6qa2vvrlcnqvvvsk2gmjktcqkunba326parszr44gibwyd' }],
+      psk: '12345',
+      ownerOrbitDbIdentity: 'testOwnerOrbitDbIdentity',
+    }
 
-    store.dispatch(communities.actions.handleInvitationCodes(invitationCodes))
+    store.dispatch(communities.actions.customProtocol(invitationCodes))
 
     store.dispatch(modalsActions.openModal({ name: ModalName.joinCommunityModal }))
 

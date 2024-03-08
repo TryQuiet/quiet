@@ -15,8 +15,6 @@ export const UsernameRegistrationScreen: FC<UsernameRegistrationScreenProps> = (
   const currentIdentity = useSelector(identity.selectors.currentIdentity)
   const usernameRegistered = currentIdentity?.userCertificate != null
 
-  const error = useSelector(errors.selectors.registrarErrors)
-
   const navigation = useCallback(
     (screen: ScreenNames, params?: any) => {
       dispatch(
@@ -30,18 +28,13 @@ export const UsernameRegistrationScreen: FC<UsernameRegistrationScreenProps> = (
   )
 
   const handleAction = (nickname: string) => {
-    // Clear errors
-    if (error) {
-      dispatch(errors.actions.clearError(error))
-    }
-    dispatch(identity.actions.registerUsername(nickname))
+    dispatch(identity.actions.registerUsername({ nickname: nickname, isUsernameTaken: false }))
     navigation(ScreenNames.ConnectionProcessScreen)
   }
 
   return (
     <UsernameRegistration
       registerUsernameAction={handleAction}
-      registerUsernameError={error?.code === ErrorCodes.FORBIDDEN ? error.message : undefined}
       usernameRegistered={usernameRegistered}
       fetching={fetching}
     />

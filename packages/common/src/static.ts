@@ -1,4 +1,5 @@
-export const ONION_ADDRESS_REGEX = /^[a-z0-9]{56}$/g
+export const DESKTOP_DEV_DATA_DIR = 'Quietdev'
+export const DESKTOP_DATA_DIR = 'Quiet2'
 
 export enum Site {
   DOMAIN = 'tryquiet.org',

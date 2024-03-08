@@ -1,38 +1,10 @@
 #import "AppDelegate.h"
 
-#import <React/RCTBridge.h>
 #import <React/RCTBundleURLProvider.h>
-#import <React/RCTRootView.h>
-
-#import <React/RCTAppSetupUtils.h>
-
 #import <React/RCTLinkingManager.h>
 
-#if RCT_NEW_ARCH_ENABLED
-#import <React/CoreModulesPlugins.h>
-#import <React/RCTCxxBridgeDelegate.h>
-#import <React/RCTFabricSurfaceHostingProxyRootView.h>
-#import <React/RCTSurfacePresenter.h>
-#import <React/RCTSurfacePresenterBridgeAdapter.h>
-#import <ReactCommon/RCTTurboModuleManager.h>
-
-#import <react/config/ReactNativeConfig.h>
-
 #import "RNNodeJsMobile.h"
-
 #import "Quiet-Swift.h"
-
-
-static NSString *const kRNConcurrentRoot = @"concurrentRoot";
-
-@interface AppDelegate () <RCTCxxBridgeDelegate, RCTTurboModuleManagerDelegate> {
-  RCTTurboModuleManager *_turboModuleManager;
-  RCTSurfacePresenterBridgeAdapter *_bridgeAdapter;
-  std::shared_ptr<const facebook::react::ReactNativeConfig> _reactNativeConfig;
-  facebook::react::ContextContainer::Shared _contextContainer;
-}
-@end
-#endif
 
 @implementation AppDelegate
 
@@ -55,39 +27,17 @@ static NSString *const platform = @"mobile";
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-  RCTAppSetupPrepareApp(application, false);
-
-  self.bridge = [[RCTBridge alloc] initWithDelegate:self launchOptions:launchOptions];
-
-#if RCT_NEW_ARCH_ENABLED
-  _contextContainer = std::make_shared<facebook::react::ContextContainer const>();
-  _reactNativeConfig = std::make_shared<facebook::react::EmptyReactNativeConfig const>();
-  _contextContainer->insert("ReactNativeConfig", _reactNativeConfig);
-  _bridgeAdapter = [[RCTSurfacePresenterBridgeAdapter alloc] initWithBridge:bridge contextContainer:_contextContainer];
-  bridge.surfacePresenter = _bridgeAdapter.surfacePresenter;
-#endif
-
-  NSDictionary *initProps = [self prepareInitialProps];
-  UIView *rootView = RCTAppSetupDefaultRootView(self.bridge, @"QuietMobile", initProps, false);
-
-  if (@available(iOS 13.0, *)) {
-    rootView.backgroundColor = [UIColor systemBackgroundColor];
-  } else {
-    rootView.backgroundColor = [UIColor whiteColor];
-  }
-
-  self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
-  UIViewController *rootViewController = [UIViewController new];
-  rootViewController.view = rootView;
-  self.window.rootViewController = rootViewController;
-  [self.window makeKeyAndVisible];
+  self.moduleName = @"QuietMobile";
+  // You can add your custom initial props in the dictionary below.
+  // They will be passed down to the ViewController used by React Native.
+  self.initialProps = @{};
   
   // Call only once per nodejs thread
   [self createDataDirectory];
   
   [self spinupBackend:true];
   
-  return YES;
+  return [super application:application didFinishLaunchingWithOptions:launchOptions];
 };
 
 - (void) createDataDirectory {
@@ -104,7 +54,7 @@ static NSString *const platform = @"mobile";
     NSTimeInterval delayInSeconds = 5;
     dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
     dispatch_after(popTime, dispatch_get_main_queue(), ^(void) {
-      [[self.bridge moduleForName:@"CommunicationModule"] sendDataPortWithPort:self.dataPort];
+      [[self.bridge moduleForName:@"CommunicationModule"] sendDataPortWithPort:self.dataPort socketIOSecret:self.socketIOSecret];
     });
   });
 }
@@ -113,13 +63,19 @@ static NSString *const platform = @"mobile";
   
   // (1/6) Find ports to use in tor and backend configuration
   
-  FindFreePort *findFreePort = [FindFreePort new];
+  Utils *utils = [Utils new];
     
+  if (self.socketIOSecret == nil) {
+      self.socketIOSecret       = [utils generateSecretWithLength:(20)];
+  }
+  
+  FindFreePort *findFreePort = [FindFreePort new];
+  
   self.dataPort             = [findFreePort getFirstStartingFromPort:11000];
   
-  uint16_t socksPort        = [findFreePort getFirstStartingFromPort:12000];
-  uint16_t controlPort      = [findFreePort getFirstStartingFromPort:14000];
-  uint16_t httpTunnelPort   = [findFreePort getFirstStartingFromPort:16000];
+  uint16_t socksPort        = [findFreePort getFirstStartingFromPort:arc4random_uniform(65535 - 1024) + 1024];
+  uint16_t controlPort      = [findFreePort getFirstStartingFromPort:arc4random_uniform(65535 - 1024) + 1024];
+  uint16_t httpTunnelPort   = [findFreePort getFirstStartingFromPort:arc4random_uniform(65535 - 1024) + 1024];
     
   
   // (2/6) Spawn tor with proper configuration
@@ -156,8 +112,9 @@ static NSString *const platform = @"mobile";
       
     
   // (5/6) Update data port information and broadcast it to frontend
-  
-  [self initWebsocketConnection];
+  if (init) {
+    [self initWebsocketConnection];
+  }
     
     
   // (6/6) Launch backend or reviwe services
@@ -196,16 +153,17 @@ static NSString *const platform = @"mobile";
 
 - (void) launchBackend:(uint16_t)controlPort:(uint16_t)httpTunnelPort:(NSString *)authCookie {
   self.nodeJsMobile = [RNNodeJsMobile new];
-  [self.nodeJsMobile callStartNodeProject:[NSString stringWithFormat:@"bundle.cjs --dataPort %hu --dataPath %@ --controlPort %hu --httpTunnelPort %hu --authCookie %@ --platform %@", self.dataPort, self.dataPath, controlPort, httpTunnelPort, authCookie, platform]];
+  [self.nodeJsMobile callStartNodeProject:[NSString stringWithFormat:@"bundle.cjs --dataPort %hu --dataPath %@ --controlPort %hu --httpTunnelPort %hu --authCookie %@ --platform %@ --socketIOSecret %@", self.dataPort, self.dataPath, controlPort, httpTunnelPort, authCookie, platform, self.socketIOSecret]];
 }
 
 - (void) reviweServices:(uint16_t)controlPort:(uint16_t)httpTunnelPort:(NSString *)authCookie {
   NSString * dataPortPayload = [NSString stringWithFormat:@"%@:%hu", @"socketIOPort", self.dataPort];
+  NSString * socketIOSecretPayload = [NSString stringWithFormat:@"%@:%@", @"socketIOSecret", self.socketIOSecret];
   NSString * controlPortPayload = [NSString stringWithFormat:@"%@:%hu", @"torControlPort", controlPort];
   NSString * httpTunnelPortPayload = [NSString stringWithFormat:@"%@:%hu", @"httpTunnelPort", httpTunnelPort];
   NSString * authCookiePayload = [NSString stringWithFormat:@"%@:%@", @"authCookie", authCookie];
   
-  NSString * payload = [NSString stringWithFormat:@"%@|%@|%@|%@", dataPortPayload, controlPortPayload, httpTunnelPortPayload, authCookiePayload];
+  NSString * payload = [NSString stringWithFormat:@"%@|%@|%@|%@|%@", dataPortPayload, socketIOSecretPayload, controlPortPayload, httpTunnelPortPayload, authCookiePayload];
   [self.nodeJsMobile sendMessageToNode:@"open":payload];
 }
 

@@ -3,29 +3,27 @@ import { Certificates } from '@quiet/types'
 export enum StorageEvents {
   // Peers
   UPDATE_PEERS_LIST = 'updatePeersList',
-  LOAD_CERTIFICATES = 'loadCertificates',
-  REPLICATED_CSR = 'replicatedCsr',
   // Public Channels
-  LOAD_PUBLIC_CHANNELS = 'loadPublicChannels',
-  LOAD_ALL_PRIVATE_CONVERSATIONS = 'loadAllPrivateConversations',
-  LOAD_MESSAGES = 'loadMessages',
-  SEND_MESSAGES_IDS = 'sendMessagesIds',
-  SET_CHANNEL_SUBSCRIBED = 'setChannelSubscribed',
-  CREATED_CHANNEL = 'createdChannel',
-  CHANNEL_DELETION_RESPONSE = 'channelDeletionResponse',
+  CHANNEL_SUBSCRIBED = 'channelSubscribed',
+  CHANNELS_STORED = 'channelsStored',
+  MESSAGE_IDS_STORED = 'messageIdsStored',
+  MESSAGES_STORED = 'messagesStored',
   // Files
   REMOVE_DOWNLOAD_STATUS = 'removeDownloadStatus',
-  UPLOADED_FILE = 'uploadedFile',
-  UPDATE_DOWNLOAD_PROGRESS = 'updateDownloadProgress',
-  UPDATE_MESSAGE_MEDIA = 'updateMessageMedia',
+  FILE_UPLOADED = 'fileUploaded',
+  DOWNLOAD_PROGRESS = 'downloadProgress',
+  MESSAGE_MEDIA_UPDATED = 'messageMediaUpdated',
   CHECK_FOR_MISSING_FILES = 'checkForMissingFiles',
-  // Direct Messages
-  LOAD_ALL_DIRECT_MESSAGES = 'loadAllDirectMessages',
   // Misc
   SEND_PUSH_NOTIFICATION = 'sendPushNotification',
+  // Users
+  CSRS_STORED = 'csrsStored',
+  CERTIFICATES_STORED = 'certificatesStored',
+  USER_PROFILES_STORED = 'userProfilesStored',
   // Community
-  REPLICATED_COMMUNITY_METADATA = 'replicatedCommunityMetadata',
+  COMMUNITY_METADATA_STORED = 'communityMetadataStored',
 }
+
 export interface InitStorageParams {
   communityId: string
   peerId: any
@@ -33,4 +31,13 @@ export interface InitStorageParams {
   targetPort: number
   peers?: string[]
   certs: Certificates
+}
+
+export interface CsrReplicatedPromiseValues {
+  promise: Promise<unknown>
+  resolveFunction: any
+}
+
+export interface DBOptions {
+  replicate: boolean
 }

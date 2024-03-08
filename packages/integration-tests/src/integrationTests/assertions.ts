@@ -1,4 +1,4 @@
-import { ErrorPayload, publicChannels, SocketActionTypes, TestStore, messages, MessageType } from '@quiet/state-manager'
+import { ErrorPayload, publicChannels, TestStore, messages, MessageType } from '@quiet/state-manager'
 import waitForExpect from 'wait-for-expect'
 import { MAIN_CHANNEL } from '../testUtils/constants'
 import { sleep } from '../utils'
@@ -132,26 +132,6 @@ export const assertInitializedExistingCommunitiesAndRegistrars = async (store: T
   await waitForExpect(() => {
     expect(store.getState().Network.initializedCommunities[communityId]).toBeTruthy()
   })
-  await waitForExpect(() => {
-    expect(store.getState().Network.initializedRegistrars[communityId]).toBeTruthy()
-  })
-}
-
-export const assertReceivedRegistrationError = async (store: TestStore, error?: ErrorPayload) => {
-  await waitForExpect(() => {
-    expect(store.getState().Errors.errors?.ids[0]).toEqual(SocketActionTypes.REGISTRAR)
-  }, 20_000)
-  if (error) {
-    await waitForExpect(() => {
-      expect(store.getState().Errors.errors?.entities[SocketActionTypes.REGISTRAR]).toStrictEqual(error)
-    }, 20_000)
-  }
-}
-
-export const assertNoRegistrationError = async (store: TestStore) => {
-  await waitForExpect(() => {
-    expect(store.getState().Errors.errors?.ids.includes('registrar')).toBe(false)
-  }, 20_000)
 }
 
 export const assertReceivedCertificate = async (store: TestStore) => {
@@ -185,11 +165,4 @@ export const assertInitializedCommunity = async (store: TestStore) => {
     // This is the last action when initializing community.
     expect(store.getState().LastAction.includes(messages.actions.addMessageVerificationStatus.type))
   }, 300_000)
-}
-
-export const assertRegistrationRequestSent = async (store: TestStore, count: number) => {
-  const communityId = store.getState().Communities.communities.ids[0]
-  await waitForExpect(() => {
-    expect(store.getState().Communities.communities.entities[communityId].registrationAttempts).toEqual(count)
-  }, 240_000)
 }

@@ -1,5 +1,4 @@
 import React from 'react'
-
 import { renderComponent } from '../../utils/functions/renderComponent/renderComponent'
 import { ChannelList } from './ChannelList.component'
 
@@ -252,7 +251,7 @@ describe('ChannelList component', () => {
           onScrollEndDrag={[Function]}
           removeClippedSubviews={false}
           renderItem={[Function]}
-          scrollEventThrottle={50}
+          scrollEventThrottle={0.0001}
           stickyHeaderIndices={[]}
           style={
             {

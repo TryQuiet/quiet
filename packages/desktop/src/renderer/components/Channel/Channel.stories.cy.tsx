@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 import { ComponentStory, ComponentMeta } from '@storybook/react'
 
 import { withTheme } from '../../storybook/decorators'
-import { mock_messages } from '../../storybook/utils'
+import { mock_messages, users } from '../../storybook/utils'
 
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
@@ -29,10 +29,10 @@ const Template: ComponentStory<typeof ChannelComponent> = () => {
       message: message,
       createdAt: 0,
       date: '12:46',
-      nickname: 'vader',
+      nickname: users.vader.username,
       isDuplicated: false,
       isRegistered: true,
-      pubKey: 'string',
+      pubKey: users.vader.pubkey,
     }
     const _messages = mock_messages(_message)
     setMessages(_messages)
