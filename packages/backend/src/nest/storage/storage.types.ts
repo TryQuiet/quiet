@@ -1,8 +1,6 @@
 import { Certificates } from '@quiet/types'
 
 export enum StorageEvents {
-  // Peers
-  UPDATE_PEERS_LIST = 'updatePeersList',
   // Public Channels
   CHANNEL_SUBSCRIBED = 'channelSubscribed',
   CHANNELS_STORED = 'channelsStored',
@@ -22,6 +20,7 @@ export enum StorageEvents {
   USER_PROFILES_STORED = 'userProfilesStored',
   // Community
   COMMUNITY_METADATA_STORED = 'communityMetadataStored',
+  COMMUNITY_UPDATED = 'communityUpdated',
 }
 
 export interface CsrReplicatedPromiseValues {

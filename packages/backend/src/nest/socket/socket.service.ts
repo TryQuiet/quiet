@@ -181,7 +181,7 @@ export class SocketService extends EventEmitter implements OnModuleInit {
 
       socket.on(
         SocketActionTypes.SET_COMMUNITY_METADATA,
-        (payload: CommunityMetadata, callback: (response?: CommunityMetadata) => void) => {
+        (payload: CommunityMetadata, callback: (response: CommunityMetadata | undefined) => void) => {
           this.emit(SocketActionTypes.SET_COMMUNITY_METADATA, payload, callback)
         }
       )

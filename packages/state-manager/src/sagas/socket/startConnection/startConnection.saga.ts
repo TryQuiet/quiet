@@ -27,6 +27,7 @@ import {
   type ResponseLaunchCommunityPayload,
   type ChannelMessageIdsResponse,
   type ChannelsReplicatedPayload,
+  type Community,
   type CommunityId,
   type DownloadStatus,
   type ErrorPayload,
@@ -65,10 +66,9 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof identityActions.storeUserCertificate>
     | ReturnType<typeof identityActions.throwIdentityError>
     | ReturnType<typeof identityActions.checkLocalCsr>
-    | ReturnType<typeof communitiesActions.storePeerList>
-    | ReturnType<typeof communitiesActions.updateCommunity>
     | ReturnType<typeof communitiesActions.createCommunity>
     | ReturnType<typeof communitiesActions.launchCommunity>
+    | ReturnType<typeof communitiesActions.updateCommunityData>
     | ReturnType<typeof networkActions.addInitializedCommunity>
     | ReturnType<typeof networkActions.removeConnectedPeer>
     | ReturnType<typeof connectionActions.updateNetworkData>
@@ -84,7 +84,6 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof communitiesActions.clearInvitationCodes>
     | ReturnType<typeof identityActions.saveUserCsr>
     | ReturnType<typeof connectionActions.setTorInitialized>
-    | ReturnType<typeof communitiesActions.saveCommunityMetadata>
     | ReturnType<typeof communitiesActions.sendCommunityMetadata>
     | ReturnType<typeof communitiesActions.sendCommunityCaData>
     | ReturnType<typeof usersActions.setUserProfiles>
@@ -140,9 +139,6 @@ export function subscribe(socket: Socket) {
 
     // Community
 
-    socket.on(SocketActionTypes.PEER_LIST, (payload: StorePeerListPayload) => {
-      emit(communitiesActions.storePeerList(payload))
-    })
     socket.on(SocketActionTypes.COMMUNITY_LAUNCHED, (payload: ResponseLaunchCommunityPayload) => {
       console.log('Hunting for heisenbug: Community event received in state-manager')
       // TODO: We can send this once when creating the community and
@@ -152,6 +148,11 @@ export function subscribe(socket: Socket) {
       emit(networkActions.addInitializedCommunity(payload.id))
       emit(communitiesActions.clearInvitationCodes())
     })
+
+    socket.on(SocketActionTypes.COMMUNITY_UPDATED, (payload: Community) => {
+      emit(communitiesActions.updateCommunityData(payload))
+    })
+
     // Errors
     socket.on(SocketActionTypes.ERROR, (payload: ErrorPayload) => {
       // FIXME: It doesn't look like log errors have the red error
@@ -170,10 +171,6 @@ export function subscribe(socket: Socket) {
     })
     socket.on(SocketActionTypes.CERTIFICATES_STORED, (payload: SendCertificatesResponse) => {
       emit(usersActions.responseSendCertificates(payload))
-    })
-    socket.on(SocketActionTypes.COMMUNITY_METADATA_STORED, (payload: CommunityMetadata) => {
-      log(`${SocketActionTypes.COMMUNITY_METADATA_STORED}: ${payload}`)
-      emit(communitiesActions.saveCommunityMetadata(payload))
     })
 
     // User Profile

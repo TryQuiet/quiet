@@ -63,7 +63,7 @@ import { LazyModuleLoader } from '@nestjs/core'
 import Logger from '../common/logger'
 import { emitError } from '../socket/socket.errors'
 import { createLibp2pAddress, isPSKcodeValid } from '@quiet/common'
-import { createRootCA } from '@quiet/identity'
+import { CertFieldsTypes, createRootCA, getCertFieldValue, loadCertificate } from '@quiet/identity'
 
 @Injectable()
 export class ConnectionsManagerService extends EventEmitter implements OnModuleInit {
@@ -599,10 +599,16 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     // creating the community.
     this.socketService.on(
       SocketActionTypes.SET_COMMUNITY_METADATA,
-      async (payload: CommunityMetadata, callback: (response?: CommunityMetadata) => void) => {
-        const meta = await this.storageService?.updateCommunityMetadata(payload)
-        // TODO: Update community in local DB and emit COMMUNITY_UPDATED event
-        // Fields: rootCa, ownerCertificate, name
+      async (payload: CommunityMetadata, callback: (response: CommunityMetadata | undefined) => void) => {
+        const meta = await this.storageService.updateCommunityMetadata(payload)
+        const community = await this.localDbService.getCurrentCommunity()
+
+        if (meta && community) {
+          await this.localDbService.setCommunity({
+            ...community,
+            ownerOrbitDbIdentity: meta.ownerOrbitDbIdentity,
+          })
+        }
         callback(meta)
       }
     )
@@ -718,8 +724,8 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.storageService.on(StorageEvents.MESSAGE_MEDIA_UPDATED, (payload: FileMetadata) => {
       this.serverIoProvider.io.emit(SocketActionTypes.MESSAGE_MEDIA_UPDATED, payload)
     })
-    this.storageService.on(StorageEvents.UPDATE_PEERS_LIST, (payload: StorePeerListPayload) => {
-      this.serverIoProvider.io.emit(SocketActionTypes.PEER_LIST, payload)
+    this.storageService.on(StorageEvents.COMMUNITY_UPDATED, (payload: Community) => {
+      this.serverIoProvider.io.emit(SocketActionTypes.COMMUNITY_UPDATED, payload)
     })
     this.storageService.on(StorageEvents.SEND_PUSH_NOTIFICATION, (payload: PushNotificationPayload) => {
       this.serverIoProvider.io.emit(SocketActionTypes.PUSH_NOTIFICATION, payload)
@@ -732,8 +738,27 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     })
     this.storageService.on(StorageEvents.COMMUNITY_METADATA_STORED, async (meta: CommunityMetadata) => {
       this.logger(`Storage - ${StorageEvents.COMMUNITY_METADATA_STORED}: ${meta}`)
-      // TODO: Update community in local DB and emit COMMUNITY_UPDATED event
-      this.serverIoProvider.io.emit(SocketActionTypes.COMMUNITY_METADATA_STORED, meta)
+      const community = await this.localDbService.getCurrentCommunity()
+
+      if (community) {
+        const rootCaCert = loadCertificate(meta.rootCa)
+        const communityName = getCertFieldValue(rootCaCert, CertFieldsTypes.commonName)
+
+        if (!communityName) {
+          this.logger.error(`Could not retrieve ${CertFieldsTypes.commonName} from CommunityMetadata.rootCa`)
+        }
+
+        const updatedCommunity = {
+          ...community,
+          name: communityName ?? undefined,
+          rootCa: meta.rootCa,
+          ownerCertificate: meta.ownerCertificate,
+          ownerOrbitDbIdentity: meta.ownerOrbitDbIdentity,
+        }
+        await this.localDbService.setCommunity(updatedCommunity)
+
+        this.serverIoProvider.io.emit(SocketActionTypes.COMMUNITY_UPDATED, updatedCommunity)
+      }
     })
     this.storageService.on(StorageEvents.USER_PROFILES_STORED, (payload: UserProfilesStoredEvent) => {
       this.serverIoProvider.io.emit(SocketActionTypes.USER_PROFILES_STORED, payload)
