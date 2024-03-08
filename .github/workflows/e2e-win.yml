@@ -85,14 +85,14 @@ jobs:
         shell: powershell
 
       - name: Run one client test
-        uses: nick-fields/retry@943e742917ac94714d2f408a0e8320f2d1fcafcd # v2.8.3
+        uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4 # v2.9.0
         with:
           timeout_minutes: 15
           max_attempts: 3
           shell: bash
           command: cd packages/e2e-tests && npm run test oneClient.test.ts
 
-      - name: Run two clients test
+      - name: Run multiple clients test
         uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4 # v2.9.0
         with:
           timeout_minutes: 30
@@ -109,7 +109,7 @@ jobs:
           command: cd packages/e2e-tests && npm run test userProfile.test.ts
 
       - name: Run invitation link test - Includes 2 separate application clients
-        uses: nick-fields/retry@943e742917ac94714d2f408a0e8320f2d1fcafcd # v2.8.3
+        uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4 # v2.9.0
         with:
           timeout_minutes: 25
           max_attempts: 3
