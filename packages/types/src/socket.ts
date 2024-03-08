@@ -17,7 +17,7 @@ export enum SocketActionTypes {
   // ====== Community ======
 
   COMMUNITY_LAUNCHED = 'communityLaunched',
-  COMMUNITY_METADATA_STORED = 'communityMetadataStored',
+  COMMUNITY_UPDATED = 'communityUpdated',
   CREATE_COMMUNITY = 'createCommunity',
   LAUNCH_COMMUNITY = 'launchCommunity',
   LEAVE_COMMUNITY = 'leaveCommunity',
@@ -72,7 +72,6 @@ export enum SocketActionTypes {
   LIBP2P_PSK_STORED = 'libp2pPskStored',
   PEER_CONNECTED = 'peerConnected',
   PEER_DISCONNECTED = 'peerDisconnected',
-  PEER_LIST = 'peerList',
   TOR_INITIALIZED = 'torInitialized',
 
   // ====== Misc ======

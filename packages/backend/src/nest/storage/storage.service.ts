@@ -325,7 +325,7 @@ export class StorageService extends EventEmitter {
       community.peerList = sortedPeers
       await this.localDbService.setCommunity(community)
     }
-    this.emit(StorageEvents.UPDATE_PEERS_LIST, { communityId: community.id, peerList: peers })
+    this.emit(StorageEvents.COMMUNITY_UPDATED, community)
   }
 
   public async loadAllCertificates() {

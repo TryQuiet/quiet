@@ -27,7 +27,6 @@ export const communitiesSlice = createSlice({
     addNewCommunity: (state, action: PayloadAction<Community>) => {
       communitiesAdapter.addOne(state.communities, action.payload)
     },
-    updateCommunity: (state, _action: PayloadAction<Community>) => state,
     updateCommunityData: (state, action: PayloadAction<Community>) => {
       communitiesAdapter.updateOne(state.communities, {
         id: action.payload.id,
@@ -39,14 +38,6 @@ export const communitiesSlice = createSlice({
     sendCommunityCaData: state => state,
     sendCommunityMetadata: state => state,
     createNetwork: (state, _action: PayloadAction<CreateNetworkPayload>) => state,
-    storePeerList: (state, action: PayloadAction<StorePeerListPayload>) => {
-      communitiesAdapter.updateOne(state.communities, {
-        id: action.payload.communityId,
-        changes: {
-          ...action.payload,
-        },
-      })
-    },
     resetApp: (state, _action) => state,
     createCommunity: (state, _action: PayloadAction<string>) => state,
     launchCommunity: (state, _action: PayloadAction<string>) => state,
@@ -57,11 +48,13 @@ export const communitiesSlice = createSlice({
     clearInvitationCodes: state => {
       state.invitationCodes = []
     },
-    saveCommunityMetadata: (state, _action: PayloadAction<CommunityMetadata>) => state,
     /**
      * Migrate data in this store. This is necessary because we persist the
      * Redux data to disk (it's not reset on each app start). This function is
      * meant to be called once the store has been rehydrated from storage.
+     *
+     * TODO: This type of thing might be better suited in a saga where we can
+     * organize complicated migration code easier.
      */
     migrate: state => {
       // MIGRATION: Move CommunitiesState.psk to Community.psk
