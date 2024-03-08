@@ -176,7 +176,6 @@ describe('User', () => {
         "PublicChannels/addChannel",
         "Identity/storeUserCertificate",
         "Messages/addPublicChannelsMessagesBase",
-        "Communities/sendCommunityMetadata",
         "PublicChannels/createGeneralChannel",
         "PublicChannels/createChannel",
         "Identity/saveUserCsr",
