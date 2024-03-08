@@ -50,7 +50,6 @@ export interface EmitEvents {
   [SocketActionTypes.LEAVE_COMMUNITY]: () => void
   [SocketActionTypes.CREATE_NETWORK]: EmitEvent<string, (response: NetworkInfo | undefined) => void>
   [SocketActionTypes.ADD_CSR]: EmitEvent<SaveCSRPayload>
-  [SocketActionTypes.SET_COMMUNITY_CA_DATA]: EmitEvent<PermsData>
   [SocketActionTypes.SET_USER_PROFILE]: EmitEvent<UserProfile>
   [SocketActionTypes.LOAD_MIGRATION_DATA]: EmitEvent<Record<string, any>>
 }
