@@ -134,6 +134,26 @@ describe('ConnectionsManagerService', () => {
     expect(launchCommunitySpy).not.toHaveBeenCalled()
   })
 
+  it('community is only launched once', async () => {
+    const launchCommunityPayload = {
+      community: community,
+      network: {
+        peerId: userIdentity.peerId,
+        hiddenService: userIdentity.hiddenService,
+      },
+    }
+
+    //@ts-ignore
+    const launchSpy = jest.spyOn(connectionsManagerService, 'launch').mockResolvedValue('address')
+
+    await Promise.all([
+      connectionsManagerService.launchCommunity(launchCommunityPayload),
+      connectionsManagerService.launchCommunity(launchCommunityPayload),
+    ])
+
+    expect(launchSpy).toBeCalledTimes(1)
+  })
+
   it('Bug reproduction - Error on startup - Error: TOR: Connection already established - Trigger launchCommunity from backend and state manager', async () => {
     await localDbService.setCommunity(community)
     await localDbService.setCurrentCommunityId(community.id)
