@@ -84,7 +84,6 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof communitiesActions.clearInvitationCodes>
     | ReturnType<typeof identityActions.saveUserCsr>
     | ReturnType<typeof connectionActions.setTorInitialized>
-    | ReturnType<typeof communitiesActions.sendCommunityMetadata>
     | ReturnType<typeof communitiesActions.sendCommunityCaData>
     | ReturnType<typeof usersActions.setUserProfiles>
     | ReturnType<typeof appActions.loadMigrationData>

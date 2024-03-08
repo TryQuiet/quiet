@@ -371,6 +371,17 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     await this.localDbService.setNetworkInfo(network)
 
     await this.launchCommunity({ community, network })
+
+    const meta = await this.storageService.updateCommunityMetadata(payload)
+    const community = await this.localDbService.getCurrentCommunity()
+
+    if (meta && community) {
+      await this.localDbService.setCommunity({
+        ...community,
+        ownerOrbitDbIdentity: meta.ownerOrbitDbIdentity,
+      })
+    }
+
     this.logger(`Created and launched community ${community.id}`)
 
     return community
@@ -593,26 +604,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       async (args: InitCommunityPayload, callback: (response: Community | undefined) => void) => {
         this.logger(`socketService - ${SocketActionTypes.LAUNCH_COMMUNITY}`)
         callback(await this.joinCommunity(args))
-      }
-    )
-    // TODO: With the Community model on the backend, there is no need to call
-    // SET_COMMUNITY_METADATA anymore. We can call updateCommunityMetadata when
-    // creating the community.
-    this.socketService.on(
-      SocketActionTypes.SET_COMMUNITY_METADATA,
-      async (payload: CommunityMetadata, callback: (response: CommunityMetadata | undefined) => void) => {
-        const meta = await this.storageService.updateCommunityMetadata(payload)
-        const community = await this.localDbService.getCurrentCommunity()
-
-        if (meta && community) {
-          const updatedCommunity = {
-            ...community,
-            ownerOrbitDbIdentity: meta.ownerOrbitDbIdentity,
-          }
-          await this.localDbService.setCommunity(updatedCommunity)
-          this.serverIoProvider.io.emit(SocketActionTypes.COMMUNITY_UPDATED, updatedCommunity)
-        }
-        callback(meta)
       }
     )
     this.socketService.on(SocketActionTypes.LEAVE_COMMUNITY, async () => {
