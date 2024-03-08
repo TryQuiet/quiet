@@ -48,35 +48,6 @@ export const communitiesSlice = createSlice({
     clearInvitationCodes: state => {
       state.invitationCodes = []
     },
-    /**
-     * Migrate data in this store. This is necessary because we persist the
-     * Redux data to disk (it's not reset on each app start). This function is
-     * meant to be called once the store has been rehydrated from storage.
-     *
-     * TODO: This type of thing might be better suited in a saga where we can
-     * organize complicated migration code easier.
-     */
-    migrate: state => {
-      // MIGRATION: Move CommunitiesState.psk to Community.psk
-
-      // Removing psk from the CommunitiesState class causes type errors. Below
-      // is one solution. Another alternative is making CommunitiesState a union
-      // type, e.g. CommunitiesStateV1 | CommunitiesStateV2, or simply leaving
-      // the psk field in CommunitiesState and marking it deprecated in a
-      // comment.
-      const prevState = state as CommunitiesState & { psk?: string | undefined }
-
-      if (prevState.psk) {
-        communitiesAdapter.updateOne(prevState.communities, {
-          // At this time we only have a single community
-          id: prevState.currentCommunity,
-          changes: {
-            psk: prevState.psk,
-          },
-        })
-      }
-      delete prevState.psk
-    },
   },
 })
 

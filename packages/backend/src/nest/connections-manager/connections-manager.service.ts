@@ -604,10 +604,12 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         const community = await this.localDbService.getCurrentCommunity()
 
         if (meta && community) {
-          await this.localDbService.setCommunity({
+          const updatedCommunity = {
             ...community,
             ownerOrbitDbIdentity: meta.ownerOrbitDbIdentity,
-          })
+          }
+          await this.localDbService.setCommunity(updatedCommunity)
+          this.serverIoProvider.io.emit(SocketActionTypes.COMMUNITY_UPDATED, updatedCommunity)
         }
         callback(meta)
       }

@@ -38,9 +38,7 @@ import BreakingChangesWarning from './containers/widgets/breakingChangesWarning/
 import { communities } from '@quiet/state-manager'
 // Trigger lerna
 
-export const persistor = persistStore(store, {}, () => {
-  store.dispatch(communities.actions.migrate())
-})
+export const persistor = persistStore(store)
 
 export default () => {
   return (

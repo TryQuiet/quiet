@@ -39,7 +39,7 @@ describe('communitiesSelectors', () => {
     expect(communityId).toBe(communityAlpha.id)
   })
 
-  it.only('select current community', () => {
+  it('select current community', () => {
     const community = communitiesSelectors.currentCommunity(store.getState())
     expect(community).toEqual({ ...communityAlpha, ownerCertificate: identity.userCertificate })
   })

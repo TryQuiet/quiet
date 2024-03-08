@@ -1,7 +1,7 @@
 import FilesystemStorage from 'redux-persist-filesystem-storage'
 import RNFetchBlob from 'react-native-blob-util'
 import { configureStore, getDefaultMiddleware } from '@reduxjs/toolkit'
-import { persistReducer, persistStore } from 'redux-persist'
+import { createMigrate, persistReducer, persistStore } from 'redux-persist'
 import createSagaMiddleware from 'redux-saga'
 
 import { NodeEnv } from '../utils/const/NodeEnv.enum'
@@ -17,6 +17,7 @@ import {
   ConnectionTransform,
   UsersTransform,
   communities,
+  storeMigrations,
 } from '@quiet/state-manager'
 
 import { StoreKeys } from './store.keys'
@@ -32,6 +33,7 @@ FilesystemStorage.config({
 const persistedReducer = persistReducer(
   {
     key: 'persistedReducer',
+    version: 0,
     storage: FilesystemStorage,
     whitelist: [
       StateManagerStoreKeys.Identity,
@@ -52,6 +54,7 @@ const persistedReducer = persistReducer(
       ConnectionTransform,
       UsersTransform,
     ],
+    migrate: createMigrate(storeMigrations, { debug: true }),
   },
   rootReducer
 )
@@ -69,5 +72,4 @@ export const store = configureStore({
 
 export const persistor = persistStore(store, {}, () => {
   store.dispatch(initActions.setStoreReady())
-  store.dispatch(communities.actions.migrate())
 })
