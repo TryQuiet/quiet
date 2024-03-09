@@ -5,3 +5,10 @@ c4/workspace.json
 .ignore
 .DS_Store
 .vscode
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions

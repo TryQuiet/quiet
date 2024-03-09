@@ -1,17 +1,35 @@
 {
   "name": "root",
+  "packageManager": "yarn@4.1.1",
   "private": true,
   "scripts": {
     "lerna": "lerna",
     "publish": "lerna version $npm_config_release --no-private",
     "postpublish": "node copy-changelog.js && git add . && git commit -m 'Update packages CHANGELOG.md' && git push"
   },
+  "workspaces": {
+    "packages": [
+      "packages/@types",
+      "packages/backend",
+      "packages/backend-bundle",
+      "packages/common",
+      "packages/desktop",
+      "packages/e2e-tests",
+      "packages/eslint-config-custom",
+      "packages/identity",
+      "packages/integration-tests",
+      "packages/logger",
+      "packages/mobile",
+      "packages/state-manager",
+      "packages/types"
+    ]
+  },
   "engines": {
     "node": "18.12.1",
     "npm": "8.19.2"
   },
   "devDependencies": {
-    "lerna": "^6.6.2",
+    "lerna": "^7.4.2",
     "typescript": "^4.9.3"
   }
 }

@@ -3,7 +3,6 @@
   "version": "2.0.1-alpha.4",
   "description": "",
   "main": "bundle.cjs",
-  "scripts": {},
   "keywords": [],
   "author": "",
   "license": "ISC",
