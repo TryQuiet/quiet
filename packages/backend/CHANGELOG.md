@@ -8,6 +8,8 @@
 
 * Feature: add functionality to export chat to text document in desktop version
 
+* Updates UserProfileStore to allow JPEG and GIF files ([#2332](https://github.com/TryQuiet/quiet/issues/2332))
+
 [2.0.3-alpha.6]
 
 * Fix: filter out invalid peer addresses in peer list. Update peer list in localdb.
