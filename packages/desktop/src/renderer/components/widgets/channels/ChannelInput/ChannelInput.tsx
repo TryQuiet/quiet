@@ -1,4 +1,4 @@
-import React, { ReactElement, useCallback } from 'react'
+import React, { ReactElement, useCallback, useState } from 'react'
 import classNames from 'classnames'
 import Picker, { EmojiStyle } from 'emoji-picker-react'
 import Grid from '@mui/material/Grid'
@@ -13,6 +13,7 @@ import emojiBlack from '../../../../static/images/emojiBlack.svg'
 import paperclipGray from '../../../../static/images/paperclipGray.svg'
 import paperclipBlack from '../../../../static/images/paperclipBlack.svg'
 import path from 'path'
+import TextArea from './TextArea'
 
 const PREFIX = 'ChannelInput'
 
@@ -251,10 +252,9 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
 
   React.useEffect(() => {
     setMessage(initialMessage)
-    const ref = textAreaRef.current
-    if (!ref) return
+    if (!textAreaRef.current) return
     if (!initialMessage) return
-    adjustTextAreaHeight(ref)
+    adjustTextAreaHeight(textAreaRef.current)
   }, [channelId])
 
   React.useEffect(() => {
@@ -355,7 +355,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
               justifyContent='center'
               alignItems='center'
             >
-              <textarea
+              <TextArea
                 ref={textAreaRef}
                 placeholder={`Message ${inputPlaceholder}`}
                 className={classes.input}
@@ -440,6 +440,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
                           // Every other emojiStyle causes downloading emojis from cdn. We do not want that.
                           // Do not change it unless using custom getEmojiUrl with local emojis.
                           emojiStyle={EmojiStyle.NATIVE}
+                          emojiVersion="5.0"
                         />
                       </div>
                     </ClickAwayListener>
