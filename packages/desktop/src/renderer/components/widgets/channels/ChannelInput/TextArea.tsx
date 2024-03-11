@@ -31,7 +31,7 @@ Object.keys(Emojis).forEach(key => {
 const selectorLimit = 5
 
 const replaceBetweenIndex = (fullStr: string, insertStr: string, from: number, to: number) => {
-  let newStr = fullStr.substring(0, from) + insertStr + fullStr.substring(to)
+  const newStr = fullStr.substring(0, from) + insertStr + fullStr.substring(to)
   return newStr
 }
 
@@ -75,20 +75,20 @@ const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
         let _propositions: any = []
         let selection = emojiSelected
 
-        let lastColonIndex = newValue.lastIndexOf(':', caretPos)
-        let previousColonIndex = newValue.lastIndexOf(':', lastColonIndex - 1)
+        const lastColonIndex = newValue.lastIndexOf(':', caretPos)
+        const previousColonIndex = newValue.lastIndexOf(':', lastColonIndex - 1)
 
-        let spaceIndex = newValue.lastIndexOf(' ', caretPos - 1)
+        const spaceIndex = newValue.lastIndexOf(' ', caretPos - 1)
 
-        let autoReplace = spaceIndex < previousColonIndex && previousColonIndex < lastColonIndex
+        const autoReplace = spaceIndex < previousColonIndex && previousColonIndex < lastColonIndex
 
-        let from = (autoReplace ? previousColonIndex : lastColonIndex) + 1
-        let to = autoReplace ? caretPos - 1 : caretPos
-        let shortname = newValue.substring(from, to)
+        const from = (autoReplace ? previousColonIndex : lastColonIndex) + 1
+        const to = autoReplace ? caretPos - 1 : caretPos
+        const shortname = newValue.substring(from, to)
 
         if (spaceIndex < lastColonIndex && shortname.length) {
           if (autoReplace) {
-            let emoji = emojis.find((emoji: any) => emoji.shortname === `:${shortname}:`)
+            const emoji = emojis.find((emoji: any) => emoji.shortname === `:${shortname}:`)
             if (emoji !== undefined) {
               newValue = replaceBetweenIndex(newValue, emoji.char, previousColonIndex, lastColonIndex + 1)
               // when we replace, put selection value to 0
@@ -98,7 +98,7 @@ const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
             // filter the potentials emoji choice
             let count = 0
             _propositions = emojis.filter((emoji: any) => {
-              let keep = emoji.shortname.includes(shortname) && count < selectorLimit
+              const keep = emoji.shortname.includes(shortname) && count < selectorLimit
               count += keep ? 1 : 0
               return keep
             }, this)
@@ -126,7 +126,7 @@ const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
       (emojiShortname: string) => {
         let newValue = textValue
 
-        let removeFromIndex = newValue.lastIndexOf(':', caretPosition)
+        const removeFromIndex = newValue.lastIndexOf(':', caretPosition)
         newValue = replaceBetweenIndex(newValue, emojiShortname, removeFromIndex, caretPosition)
         _ref.current?.focus()
         transformValue(newValue, removeFromIndex + emojiShortname.length)
@@ -137,8 +137,8 @@ const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
     const handleChange = useCallback(
       (event: ChangeEvent<HTMLTextAreaElement>) => {
         onChange?.(event)
-        let newValue = event.target.value
-        let caretPos = event.target.selectionStart
+        const newValue = event.target.value
+        const caretPos = event.target.selectionStart
         transformValue(newValue, caretPos)
       },
       [transformValue]
@@ -146,7 +146,7 @@ const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
 
     const handleKeyDown = useCallback(
       (event: KeyboardEvent<HTMLTextAreaElement>) => {
-        let maxIndex = propositions.length
+        const maxIndex = propositions.length
         if (maxIndex) {
           let selected = emojiSelected
           let deleteEvent = true
