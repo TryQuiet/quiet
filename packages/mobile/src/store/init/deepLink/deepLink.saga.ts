@@ -134,30 +134,7 @@ export function* deepLinkSaga(action: PayloadAction<ReturnType<typeof initAction
     return
   }
 
-  let payload: CreateNetworkPayload
-
-  switch (data.version) {
-    case InvitationDataVersion.v1:
-      payload = {
-        ownership: CommunityOwnership.User,
-        peers: data.pairs,
-        psk: data.psk,
-        ownerOrbitDbIdentity: data.ownerOrbitDbIdentity,
-      }
-      break
-    case InvitationDataVersion.v2:
-      // get data from the server
-      payload = {
-        ownership: CommunityOwnership.User,
-        peers: [],
-        psk: 'TODO',
-        ownerOrbitDbIdentity: 'TODO',
-      }
-  }
-
-  yield* put(communities.actions.createNetwork(payload))
-
-  console.log('INIT_NAVIGATION: Switching to the username registration screen.')
+  yield* put(communities.actions.joinNetwork(data))
 
   yield* put(
     navigationActions.replaceScreen({

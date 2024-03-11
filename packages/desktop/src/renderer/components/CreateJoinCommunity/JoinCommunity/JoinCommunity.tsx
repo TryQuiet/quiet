@@ -45,16 +45,7 @@ const JoinCommunity = () => {
   }, [currentCommunity])
 
   const handleCommunityAction = (data: InvitationData) => {
-    switch (data.version) {
-      case InvitationDataVersion.v1:
-        const payload: CreateNetworkPayload = {
-          ownership: CommunityOwnership.User,
-          peers: data.pairs,
-          psk: data.psk,
-          ownerOrbitDbIdentity: data.ownerOrbitDbIdentity,
-        }
-        dispatch(communities.actions.createNetwork(payload))
-    }
+    dispatch(communities.actions.joinNetwork(data))
   }
 
   // From 'You can create a new community instead' link

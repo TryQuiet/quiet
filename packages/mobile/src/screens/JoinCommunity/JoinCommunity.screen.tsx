@@ -42,24 +42,12 @@ export const JoinCommunityScreen: FC<JoinCommunityScreenProps> = ({ route }) => 
 
   const joinCommunityAction = useCallback(
     (data: InvitationData) => {
-      // TODO: refactor or move to a saga
-      if (!data.version) data.version = InvitationDataVersion.v1
-      switch (data.version) {
-        case InvitationDataVersion.v1:
-          const payload: CreateNetworkPayload = {
-            ownership: CommunityOwnership.User,
-            peers: data.pairs,
-            psk: data.psk,
-            ownerOrbitDbIdentity: data.ownerOrbitDbIdentity,
-          }
-          dispatch(communities.actions.createNetwork(payload))
-          dispatch(
-            navigationActions.navigation({
-              screen: ScreenNames.UsernameRegistrationScreen,
-            })
-          )
-          break
-      }
+      dispatch(communities.actions.joinNetwork(data))
+      dispatch(
+        navigationActions.navigation({
+          screen: ScreenNames.UsernameRegistrationScreen,
+        })
+      )
     },
     [dispatch]
   )

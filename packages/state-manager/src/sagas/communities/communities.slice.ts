@@ -40,6 +40,7 @@ export const communitiesSlice = createSlice({
     sendCommunityCaData: state => state,
     sendCommunityMetadata: state => state,
     createNetwork: (state, _action: PayloadAction<CreateNetworkPayload>) => state,
+    joinNetwork: (state, _action: PayloadAction<InvitationData>) => state,
     storePeerList: (state, action: PayloadAction<StorePeerListPayload>) => {
       communitiesAdapter.updateOne(state.communities, {
         id: action.payload.communityId,
