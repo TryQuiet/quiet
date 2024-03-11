@@ -72,6 +72,37 @@ export const isGif = (buffer: Uint8Array): boolean => {
   return false
 }
 
+export const validatePhoto = (photoString: string, pubKey: string): boolean => {
+  // validate that we have the photo as a base64 string
+  if (typeof photoString !== 'string') {
+    logger.error('Expected PNG, JPEG or GIF as base64 string for user profile photo', pubKey)
+    return false
+  }
+
+  const photoBytes = base64DataURLToByteArray(photoString)
+
+  // validate that the type is approved and has a matching magic number header
+  if (
+    !(photoString.startsWith('data:image/png;base64,') && isPng(photoBytes)) &&
+    !(photoString.startsWith('data:image/jpeg;base64,') && isJpeg(photoBytes)) &&
+    !(photoString.startsWith('data:image/gif;base64,') && isGif(photoBytes))
+  ) {
+    logger.error('Expected valid PNG, JPEG or GIF for user profile photo', pubKey)
+    return false
+  }
+
+  // 200 KB = 204800 B limit
+  //
+  // TODO: Perhaps the compression matters and we should check
+  // actual dimensions in pixels?
+  if (photoBytes.length > 204800) {
+    logger.error('User profile photo must be less than or equal to 200KB')
+    return false
+  }
+
+  return true
+}
+
 /**
  * Takes a base64 data URI string that starts with 'data:*\/*;base64,'
  * as returned from
@@ -198,39 +229,7 @@ export class UserProfileStore extends EventEmitter {
         return false
       }
 
-      // validate that we have the photo as a base64 string
-      if (typeof profile.photo !== 'string') {
-        logger.error('Expected PNG, JPEG or GIF as base64 string for user profile photo', userProfile.pubKey)
-        return false
-      }
-
-      // validate that our photo is one of the supported image file types
-      if (
-        !profile.photo.startsWith('data:image/png;base64,') &&
-        !profile.photo.startsWith('data:image/jpeg;base64,') &&
-        !profile.photo.startsWith('data:image/gif;base64,')
-      ) {
-        logger.error('Expected PNG, JPEG or GIF for user profile photo', userProfile.pubKey)
-        return false
-      }
-
-      // We only accept JPEG, PNG and GIF for now. I think some care needs to be used
-      // with the Image element since it can make web requests and
-      // accepts a variety of formats that we may want to limit. Some
-      // interesting thoughts:
-      // https://security.stackexchange.com/a/135636
-      const photoBytes = base64DataURLToByteArray(profile.photo)
-      if (!isPng(photoBytes) && !isJpeg(photoBytes) && !isGif(photoBytes)) {
-        logger.error('Expected PNG, JPEG or GIF for user profile photo', userProfile.pubKey)
-        return false
-      }
-
-      // 200 KB = 204800 B limit
-      //
-      // TODO: Perhaps the compression matters and we should check
-      // actual dimensions in pixels?
-      if (photoBytes.length > 204800) {
-        logger.error('User profile photo must be less than or equal to 200KB')
+      if (!validatePhoto(profile.photo, userProfile.pubKey)) {
         return false
       }
     } catch (err) {
