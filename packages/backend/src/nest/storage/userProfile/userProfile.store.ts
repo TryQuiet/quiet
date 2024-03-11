@@ -199,7 +199,7 @@ export class UserProfileStore extends EventEmitter {
       }
 
       // validate that we have the photo as a base64 string
-      if (typeof profile.photo !== 'string' || profile.photo.) {
+      if (typeof profile.photo !== 'string') {
         logger.error('Expected PNG, JPEG or GIF as base64 string for user profile photo', userProfile.pubKey)
         return false
       }
