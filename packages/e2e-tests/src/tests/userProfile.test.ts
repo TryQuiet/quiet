@@ -106,11 +106,25 @@ describe('User Profile Feature', () => {
     await generalChannelOwner.sendMessage(users.owner.messages[0])
   })
 
-  it('Owner updates their profile photo', async () => {
+  it('Owner updates their profile photo with PNG', async () => {
     const menu = new UserProfileContextMenu(users.owner.app.driver)
     await menu.openMenu()
     await menu.openEditProfileMenu()
-    await menu.uploadPhoto()
+    await menu.uploadPNGPhoto()
+  })
+
+  it('Owner updates their profile photo with JPEG', async () => {
+    const menu = new UserProfileContextMenu(users.owner.app.driver)
+    await menu.openMenu()
+    await menu.openEditProfileMenu()
+    await menu.uploadJPEGPhoto()
+  })
+
+  it('Owner updates their profile photo with GIF', async () => {
+    const menu = new UserProfileContextMenu(users.owner.app.driver)
+    await menu.openMenu()
+    await menu.openEditProfileMenu()
+    await menu.uploadGIFPhoto()
   })
 
   it("Owner's message with profile photo is visible on channel", async () => {

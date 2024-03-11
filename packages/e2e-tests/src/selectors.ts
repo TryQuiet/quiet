@@ -158,12 +158,24 @@ export class UserProfileContextMenu {
     await button.click()
   }
 
-  async uploadPhoto() {
+  async uploadPhoto(fileName: string) {
     const input = await this.driver.wait(
       until.elementLocated(By.xpath('//input[@data-testid="user-profile-edit-photo-input"]'))
     )
-    const filePath = path.join(__dirname, '../assets/profile-photo.png')
+    const filePath = path.join(__dirname, fileName)
     await input.sendKeys(filePath)
+  }
+
+  async uploadPNGPhoto() {
+    await this.uploadPhoto('../assets/profile-photo.png')
+  }
+
+  async uploadJPEGPhoto() {
+    await this.uploadPhoto('../assets/profile-photo.jpeg')
+  }
+
+  async uploadGIFPhoto() {
+    await this.uploadPhoto('../assets/profile-photo.gif')
   }
 }
 
