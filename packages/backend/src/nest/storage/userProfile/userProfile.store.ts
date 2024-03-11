@@ -38,9 +38,9 @@ export const checkImgHeader = (buffer: Uint8Array, header: number[]): boolean =>
  */
 export const isPng = (buffer: Uint8Array): boolean => {
   // https://en.wikipedia.org/wiki/PNG
-  const pngHeader = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
+  const pngHeader = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]
 
-  return checkImgHeader(buffer, pngHeader);
+  return checkImgHeader(buffer, pngHeader)
 }
 
 /**
@@ -50,7 +50,7 @@ export const isJpeg = (buffer: Uint8Array): boolean => {
   // https://en.wikipedia.org/wiki/JPEG
   const jpegHeader = [0xff, 0xd8, 0xff]
 
-  return checkImgHeader(buffer, jpegHeader);
+  return checkImgHeader(buffer, jpegHeader)
 }
 
 /**
@@ -61,15 +61,15 @@ export const isGif = (buffer: Uint8Array): boolean => {
   // GIF images are different from JPEG and PNG in that there are two slightly different magic number sequences that translate to GIF89a and GIF87a
   const gifHeader89 = [0x47, 0x49, 0x46, 0x38, 0x39, 0x61]
   const gifHeader87 = [0x47, 0x49, 0x46, 0x38, 0x37, 0x61]
-  const headers = [gifHeader89, gifHeader87];
+  const headers = [gifHeader89, gifHeader87]
 
   for (const header of headers) {
     if (checkImgHeader(buffer, header)) {
-      return true;
+      return true
     }
   }
 
-  return false;
+  return false
 }
 
 /**
@@ -220,11 +220,7 @@ export class UserProfileStore extends EventEmitter {
       // interesting thoughts:
       // https://security.stackexchange.com/a/135636
       const photoBytes = base64DataURLToByteArray(profile.photo)
-      if (
-        !isPng(photoBytes) && 
-        !isJpeg(photoBytes) &&
-        !isGif(photoBytes)
-      ) {
+      if (!isPng(photoBytes) && !isJpeg(photoBytes) && !isGif(photoBytes)) {
         logger.error('Expected PNG, JPEG or GIF for user profile photo', userProfile.pubKey)
         return false
       }
