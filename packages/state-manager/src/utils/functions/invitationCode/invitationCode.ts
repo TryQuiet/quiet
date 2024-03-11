@@ -1,5 +1,5 @@
 import { Site, parseInvitationCode } from '@quiet/common'
-import { type InvitationData } from '@quiet/types'
+import { InvitationDataVersion, type InvitationData } from '@quiet/types'
 
 export const getInvitationCodes = (codeOrUrl: string): InvitationData => {
   /**
@@ -32,8 +32,13 @@ export const getInvitationCodes = (codeOrUrl: string): InvitationData => {
 
   data = parseInvitationCode(code)
 
-  if (!data || data?.pairs?.length === 0) {
-    throw new Error(`No invitation codes. Code/url passed: ${codeOrUrl}`)
+  if (!data.version) data.version = InvitationDataVersion.v1
+
+  switch (data.version) {
+    case InvitationDataVersion.v1:
+      if (data.pairs?.length === 0) {
+        throw new Error(`No invitation codes. Code/url passed: ${codeOrUrl}`)
+      }
   }
 
   return data

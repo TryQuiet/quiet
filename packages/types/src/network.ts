@@ -14,25 +14,18 @@ export enum InvitationDataVersion {
 }
 
 export type InvitationDataV1 = {
-  version?: InvitationDataVersion
+  version?: InvitationDataVersion.v1
   pairs: InvitationPair[]
   psk: string
   ownerOrbitDbIdentity: string
 }
 
 export type InvitationDataV2 = {
-  version?: InvitationDataVersion
+  version?: InvitationDataVersion.v2
   cid: string
   token: string
   serverAddress: string
   inviterAddress: string
 }
 
-// export type InvitationData = {
-//   version?: InvitationDataVersion
-//   pairs: InvitationPair[]
-//   psk: string
-//   ownerOrbitDbIdentity: string
-// }
-
-export type InvitationData = Partial<InvitationDataV1> & Partial<InvitationDataV2>
+export type InvitationData = InvitationDataV1 | InvitationDataV2

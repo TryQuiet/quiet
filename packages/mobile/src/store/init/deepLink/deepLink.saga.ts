@@ -8,7 +8,6 @@ import { initActions } from '../init.slice'
 import { appImages } from '../../../assets'
 import { replaceScreen } from '../../../RootNavigation'
 import { CommunityOwnership, CreateNetworkPayload, InvitationData, InvitationDataVersion } from '@quiet/types'
-import { areObjectsEqual } from '@quiet/common'
 
 export function* deepLinkSaga(action: PayloadAction<ReturnType<typeof initActions.deepLink>['payload']>): Generator {
   const code = action.payload
@@ -49,35 +48,28 @@ export function* deepLinkSaga(action: PayloadAction<ReturnType<typeof initAction
 
   const community = yield* select(communities.selectors.currentCommunity)
 
-  const storedInvitationCodes = yield* select(communities.selectors.invitationCodes)
-  const currentInvitationCodes = data.pairs
-
-  console.log('Stored invitation codes', storedInvitationCodes)
-  console.log('Current invitation codes', currentInvitationCodes)
-
   // TODO: rename
   let isInvitationDataValid = false
+  if (!data.version) data.version = InvitationDataVersion.v1
 
-  if (!data.version || data.version === InvitationDataVersion.v1) {
-    const storedInvitationCodes = yield* select(communities.selectors.invitationCodes)
-    const currentInvitationCodes = data.pairs
+  switch (data.version) {
+    case InvitationDataVersion.v1:
+      const storedPsk = yield* select(communities.selectors.psk)
+      const currentPsk = data.psk
 
-    console.log('Stored invitation codes', storedInvitationCodes)
-    console.log('Current invitation codes', currentInvitationCodes)
+      console.log('Stored psk', storedPsk)
+      console.log('Current psk', currentPsk)
 
-    if (!currentInvitationCodes) {
-      isInvitationDataValid = false
-    } else if (storedInvitationCodes.length === 0) {
+      if (!currentPsk) {
+        isInvitationDataValid = false
+      } else if (!storedPsk) {
+        isInvitationDataValid = true
+      } else {
+        isInvitationDataValid = storedPsk === currentPsk
+      }
+      break
+    default:
       isInvitationDataValid = true
-    } else {
-      // TODO: check if psk is the same instead
-      isInvitationDataValid = storedInvitationCodes.some(storedCode =>
-        currentInvitationCodes.some(currentCode => areObjectsEqual(storedCode, currentCode))
-      )
-    }
-  } else {
-    // TODO: ?
-    isInvitationDataValid = true
   }
 
   console.log('Is invitation data valid', isInvitationDataValid)
@@ -142,11 +134,25 @@ export function* deepLinkSaga(action: PayloadAction<ReturnType<typeof initAction
     return
   }
 
-  const payload: CreateNetworkPayload = {
-    ownership: CommunityOwnership.User,
-    peers: data.pairs,
-    psk: data.psk,
-    ownerOrbitDbIdentity: data.ownerOrbitDbIdentity,
+  let payload: CreateNetworkPayload
+
+  switch (data.version) {
+    case InvitationDataVersion.v1:
+      payload = {
+        ownership: CommunityOwnership.User,
+        peers: data.pairs,
+        psk: data.psk,
+        ownerOrbitDbIdentity: data.ownerOrbitDbIdentity,
+      }
+      break
+    case InvitationDataVersion.v2:
+      // get data from the server
+      payload = {
+        ownership: CommunityOwnership.User,
+        peers: [],
+        psk: 'TODO',
+        ownerOrbitDbIdentity: 'TODO',
+      }
   }
 
   yield* put(communities.actions.createNetwork(payload))

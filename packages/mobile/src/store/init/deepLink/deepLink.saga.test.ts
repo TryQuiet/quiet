@@ -8,16 +8,21 @@ import { initActions } from '../init.slice'
 import { navigationActions } from '../../navigation/navigation.slice'
 import { ScreenNames } from '../../../const/ScreenNames.enum'
 import { deepLinkSaga } from './deepLink.saga'
-import { type Community, CommunityOwnership, ConnectionProcessInfo, type Identity, InvitationData } from '@quiet/types'
-import { composeInvitationShareUrl, validInvitationCodeTestData, getValidInvitationUrlTestData } from '@quiet/common'
+import { type Community, CommunityOwnership, type Identity, InvitationData } from '@quiet/types'
+import {
+  composeInvitationShareUrl,
+  validInvitationCodeTestData,
+  getValidInvitationUrlTestData,
+  validInvitationDatav1,
+} from '@quiet/common'
 
 describe('deepLinkSaga', () => {
   let store: Store
 
-  const { code, data } = getValidInvitationUrlTestData(validInvitationCodeTestData[0])
+  const { code } = getValidInvitationUrlTestData(validInvitationDatav1[0])
 
   const validCode = code()
-  const validData = data
+  const validData = validInvitationDatav1[0]
 
   const id = '00d045ab'
 
@@ -124,8 +129,8 @@ describe('deepLinkSaga', () => {
     )
 
     // Store other communitys' invitation data in redux
-    const invitationData = getValidInvitationUrlTestData(validInvitationCodeTestData[1])
-    store.dispatch(communities.actions.setInvitationCodes(invitationData.data.pairs))
+    // const invitationData = getValidInvitationUrlTestData(validInvitationCodeTestData[1])
+    store.dispatch(communities.actions.setInvitationCodes(validInvitationDatav1[0].pairs))
 
     store.dispatch(
       communities.actions.addNewCommunity({
@@ -171,8 +176,8 @@ describe('deepLinkSaga', () => {
 
     store.dispatch(communities.actions.setCurrentCommunity(community.id))
 
-    const invitationCodes = getInvitationCodes(validCode)
-    store.dispatch(communities.actions.setInvitationCodes(invitationCodes.pairs))
+    // const invitationCodes = getInvitationCodes(validCode)
+    store.dispatch(communities.actions.setInvitationCodes(validData.pairs))
 
     const reducer = combineReducers(reducers)
     await expectSaga(deepLinkSaga, initActions.deepLink(validCode))

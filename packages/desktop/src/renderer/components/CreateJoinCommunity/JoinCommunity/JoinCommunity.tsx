@@ -1,7 +1,13 @@
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { socketSelectors } from '../../../sagas/socket/socket.selectors'
-import { CommunityOwnership, CreateNetworkPayload, InvitationData, InvitationPair } from '@quiet/types'
+import {
+  CommunityOwnership,
+  CreateNetworkPayload,
+  InvitationData,
+  InvitationDataVersion,
+  InvitationPair,
+} from '@quiet/types'
 import { communities, identity, connection, network } from '@quiet/state-manager'
 import PerformCommunityActionComponent from '../../../components/CreateJoinCommunity/PerformCommunityActionComponent'
 import { ModalName } from '../../../sagas/modals/modals.types'
@@ -39,13 +45,16 @@ const JoinCommunity = () => {
   }, [currentCommunity])
 
   const handleCommunityAction = (data: InvitationData) => {
-    const payload: CreateNetworkPayload = {
-      ownership: CommunityOwnership.User,
-      peers: data.pairs,
-      psk: data.psk,
-      ownerOrbitDbIdentity: data.ownerOrbitDbIdentity,
+    switch (data.version) {
+      case InvitationDataVersion.v1:
+        const payload: CreateNetworkPayload = {
+          ownership: CommunityOwnership.User,
+          peers: data.pairs,
+          psk: data.psk,
+          ownerOrbitDbIdentity: data.ownerOrbitDbIdentity,
+        }
+        dispatch(communities.actions.createNetwork(payload))
     }
-    dispatch(communities.actions.createNetwork(payload))
   }
 
   // From 'You can create a new community instead' link

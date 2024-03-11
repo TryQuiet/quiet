@@ -1,5 +1,5 @@
 import { communities, getFactory, Store } from '@quiet/state-manager'
-import { Community, CommunityOwnership, CreateNetworkPayload, InvitationData } from '@quiet/types'
+import { Community, CommunityOwnership, CreateNetworkPayload, InvitationData, InvitationDataV1 } from '@quiet/types'
 import { FactoryGirl } from 'factory-girl'
 import { expectSaga } from 'redux-saga-test-plan'
 import { customProtocolSaga } from './customProtocol.saga'
@@ -8,13 +8,13 @@ import { prepareStore } from '../../testUtils/prepareStore'
 import { StoreKeys } from '../../store/store.keys'
 import { modalsActions } from '../modals/modals.slice'
 import { ModalName } from '../modals/modals.types'
-import { validInvitationCodeTestData, getValidInvitationUrlTestData } from '@quiet/common'
+import { getValidInvitationUrlTestData, validInvitationDatav1 } from '@quiet/common'
 
 describe('Handle invitation code', () => {
   let store: Store
   let factory: FactoryGirl
   let community: Community
-  let validInvitationData: InvitationData
+  let validInvitationData: InvitationDataV1
   let validInvitationDeepUrl: string
 
   beforeEach(async () => {
@@ -29,8 +29,8 @@ describe('Handle invitation code', () => {
 
     factory = await getFactory(store)
 
-    validInvitationData = getValidInvitationUrlTestData(validInvitationCodeTestData[0]).data
-    validInvitationDeepUrl = getValidInvitationUrlTestData(validInvitationCodeTestData[0]).deepUrl()
+    validInvitationData = getValidInvitationUrlTestData(validInvitationDatav1[0]).data
+    validInvitationDeepUrl = getValidInvitationUrlTestData(validInvitationDatav1[0]).deepUrl()
   })
 
   it('creates network if code is valid', async () => {

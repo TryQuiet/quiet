@@ -201,22 +201,27 @@ export const composeInvitationDeepUrl = (data: InvitationData): string => {
   return composeInvitationUrl(`${DEEP_URL_SCHEME_WITH_SEPARATOR}`, data)
 }
 
-const composeInvitationUrl = (baseUrl: string, data: InvitationData): string => {
+const composeInvitationUrl = (baseUrl: string, data: InvitationDataV1 | InvitationDataV2): string => {
   const url = new URL(baseUrl)
 
-  if (!data.version || data.version === InvitationDataVersion.v1) {
-    if (!data.pairs || !data.psk || !data.ownerOrbitDbIdentity) return '' // TODO: temporary until better solution is found
-    for (const pair of data.pairs) {
-      url.searchParams.append(pair.peerId, pair.onionAddress)
-    }
-    url.searchParams.append(PSK_PARAM_KEY, data.psk)
-    url.searchParams.append(OWNER_ORBIT_DB_IDENTITY_PARAM_KEY, data.ownerOrbitDbIdentity)
-  } else if (data.version === InvitationDataVersion.v2) {
-    if (!data.cid || !data.token || !data.serverAddress || !data.inviterAddress) return '' // TODO: temporary until better solution is found
-    url.searchParams.append(CID_PARAM_KEY, data.cid)
-    url.searchParams.append(TOKEN_PARAM_KEY, data.token)
-    url.searchParams.append(SERVER_ADDRESS_PARAM_KEY, data.serverAddress)
-    url.searchParams.append(INVITER_ADDRESS_PARAM_KEY, data.inviterAddress)
+  if (!data.version) data.version = InvitationDataVersion.v1
+
+  switch (data.version) {
+    case InvitationDataVersion.v1:
+      // if (!data.pairs || !data.psk || !data.ownerOrbitDbIdentity) return '' // TODO: temporary until better solution is found
+      for (const pair of data.pairs) {
+        url.searchParams.append(pair.peerId, pair.onionAddress)
+      }
+      url.searchParams.append(PSK_PARAM_KEY, data.psk)
+      url.searchParams.append(OWNER_ORBIT_DB_IDENTITY_PARAM_KEY, data.ownerOrbitDbIdentity)
+      break
+    case InvitationDataVersion.v2:
+      // if (!data.cid || !data.token || !data.serverAddress || !data.inviterAddress) return '' // TODO: temporary until better solution is found
+      url.searchParams.append(CID_PARAM_KEY, data.cid)
+      url.searchParams.append(TOKEN_PARAM_KEY, data.token)
+      url.searchParams.append(SERVER_ADDRESS_PARAM_KEY, data.serverAddress)
+      url.searchParams.append(INVITER_ADDRESS_PARAM_KEY, data.inviterAddress)
+      break
   }
   return url.href
 }
@@ -233,10 +238,13 @@ export const argvInvitationCode = (argv: string[]): InvitationData | null => {
     }
     console.log('Parsing deep url', arg)
     invitationData = parseInvitationCodeDeepUrl(arg)
-    if (invitationData.pairs && invitationData.pairs.length > 0) {
-      break
-    } else {
-      invitationData = null
+    switch (invitationData.version) {
+      case InvitationDataVersion.v1:
+        if (invitationData.pairs.length > 0) {
+          break
+        } else {
+          invitationData = null
+        }
     }
   }
   return invitationData

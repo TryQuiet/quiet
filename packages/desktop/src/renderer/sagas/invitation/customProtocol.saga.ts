@@ -55,26 +55,26 @@ export function* customProtocolSaga(
   // TODO: rename
   let isInvitationDataValid = false
 
-  if (!data.version || data.version === InvitationDataVersion.v1) {
-    const storedInvitationCodes = yield* select(communities.selectors.invitationCodes)
-    const currentInvitationCodes = data.pairs
+  if (!data.version) data.version = InvitationDataVersion.v1
 
-    console.log('Stored invitation codes', storedInvitationCodes)
-    console.log('Current invitation codes', currentInvitationCodes)
+  switch (data.version) {
+    case InvitationDataVersion.v1:
+      const storedPsk = yield* select(communities.selectors.psk)
+      const currentPsk = data.psk
 
-    if (!currentInvitationCodes) {
-      isInvitationDataValid = false
-    } else if (storedInvitationCodes.length === 0) {
+      console.log('Stored psk', storedPsk)
+      console.log('Current psk', currentPsk)
+
+      if (!currentPsk) {
+        isInvitationDataValid = false
+      } else if (!storedPsk) {
+        isInvitationDataValid = true
+      } else {
+        isInvitationDataValid = storedPsk === currentPsk
+      }
+      break
+    default:
       isInvitationDataValid = true
-    } else {
-      // TODO: check if psk is the same instead
-      isInvitationDataValid = storedInvitationCodes.some(storedCode =>
-        currentInvitationCodes.some(currentCode => areObjectsEqual(storedCode, currentCode))
-      )
-    }
-  } else {
-    // TODO: ?
-    isInvitationDataValid = true
   }
 
   console.log('Is invitation data valid', isInvitationDataValid)
@@ -135,11 +135,25 @@ export function* customProtocolSaga(
     return
   }
 
-  const payload: CreateNetworkPayload = {
-    ownership: CommunityOwnership.User,
-    peers: data.pairs,
-    psk: data.psk,
-    ownerOrbitDbIdentity: data.ownerOrbitDbIdentity,
+  let payload: CreateNetworkPayload
+
+  switch (data.version) {
+    case InvitationDataVersion.v1:
+      payload = {
+        ownership: CommunityOwnership.User,
+        peers: data.pairs,
+        psk: data.psk,
+        ownerOrbitDbIdentity: data.ownerOrbitDbIdentity,
+      }
+      break
+    case InvitationDataVersion.v2:
+      // get data from the server
+      payload = {
+        ownership: CommunityOwnership.User,
+        peers: [],
+        psk: 'TODO',
+        ownerOrbitDbIdentity: 'TODO',
+      }
   }
   console.log('INIT_NAVIGATION: Creating network with payload', payload)
   yield* put(communities.actions.createNetwork(payload))

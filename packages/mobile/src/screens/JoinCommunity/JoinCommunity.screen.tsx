@@ -2,7 +2,13 @@
 import React, { FC, useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { identity, communities } from '@quiet/state-manager'
-import { CommunityOwnership, CreateNetworkPayload, InvitationData, InvitationPair } from '@quiet/types'
+import {
+  CommunityOwnership,
+  CreateNetworkPayload,
+  InvitationData,
+  InvitationDataVersion,
+  InvitationPair,
+} from '@quiet/types'
 import { JoinCommunity } from '../../components/JoinCommunity/JoinCommunity.component'
 import { navigationActions } from '../../store/navigation/navigation.slice'
 import { ScreenNames } from '../../const/ScreenNames.enum'
@@ -36,18 +42,24 @@ export const JoinCommunityScreen: FC<JoinCommunityScreenProps> = ({ route }) => 
 
   const joinCommunityAction = useCallback(
     (data: InvitationData) => {
-      const payload: CreateNetworkPayload = {
-        ownership: CommunityOwnership.User,
-        peers: data.pairs,
-        psk: data.psk,
-        ownerOrbitDbIdentity: data.ownerOrbitDbIdentity,
+      // TODO: refactor or move to a saga
+      if (!data.version) data.version = InvitationDataVersion.v1
+      switch (data.version) {
+        case InvitationDataVersion.v1:
+          const payload: CreateNetworkPayload = {
+            ownership: CommunityOwnership.User,
+            peers: data.pairs,
+            psk: data.psk,
+            ownerOrbitDbIdentity: data.ownerOrbitDbIdentity,
+          }
+          dispatch(communities.actions.createNetwork(payload))
+          dispatch(
+            navigationActions.navigation({
+              screen: ScreenNames.UsernameRegistrationScreen,
+            })
+          )
+          break
       }
-      dispatch(communities.actions.createNetwork(payload))
-      dispatch(
-        navigationActions.navigation({
-          screen: ScreenNames.UsernameRegistrationScreen,
-        })
-      )
     },
     [dispatch]
   )
