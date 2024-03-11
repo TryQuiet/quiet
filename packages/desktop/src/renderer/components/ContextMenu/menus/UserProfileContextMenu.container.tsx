@@ -257,7 +257,7 @@ export const EditPhotoButton: FC<{ onChange: (photo?: File) => void }> = ({ onCh
         onClick={evt => {
           ;(evt.target as HTMLInputElement).value = ''
         }}
-        accept='image/png'
+        accept='image/png, image/jpeg, image/gif'
         hidden
       />
     </button>
