@@ -72,6 +72,13 @@ export const isGif = (buffer: Uint8Array): boolean => {
   return false
 }
 
+/**
+ * Validate a profile photo in a user profile
+ * 
+ * @param photoString Base64 string representing the photo file that was uploaded
+ * @param pubKey Public key string for logging purposes
+ * @returns True if photo is valid and false if not
+ */
 export const validatePhoto = (photoString: string, pubKey: string): boolean => {
   // validate that we have the photo as a base64 string
   if (typeof photoString !== 'string') {
