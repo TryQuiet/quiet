@@ -3,8 +3,9 @@
 Running the desktop version of Quiet should be straightforward on Mac and Linux. On Windows we recommend using git-bash or just wsl.
 Here are the steps:
 
-0. Use `Node 18.12.1` and `npm 8.19.2`. We recommend [nvm](https://github.com/nvm-sh/nvm) for easily switching Node versions, and if this README gets out of date you can see the actual version used by CI [here](https://github.com/TryQuiet/quiet/blob/master/.github/actions/setup-env/action.yml). If you are using nvm, you can run `nvm use` in the project's root to switch to the correct version.
-1. In `quiet/` (project's root) install monorepo's dependencies and bootstrap the project with lerna. It will take care of the package's dependencies and trigger a prepublish script which builds them.
+0. Install `patch` (e.g. via your Linux package manager)
+1. Use `Node 18.12.1` and `npm 8.19.2`. We recommend [nvm](https://github.com/nvm-sh/nvm) for easily switching Node versions, and if this README gets out of date you can see the actual version used by CI [here](https://github.com/TryQuiet/quiet/blob/master/.github/actions/setup-env/action.yml). If you are using nvm, you can run `nvm use` in the project's root to switch to the correct version.
+2. In `quiet/` (project's root) install monorepo's dependencies and bootstrap the project with lerna. It will take care of the package's dependencies and trigger a prepublish script which builds them.
 
 ```
 npm i lerna@6.6.2
@@ -14,7 +15,7 @@ npm run lerna bootstrap
 
 If you run into problems please double check if you have exact version Node and NPM as listed in point 0.
 
-2. In `quiet/packages/desktop` run:
+3. In `quiet/packages/desktop` run:
 
 ```
 npm run start

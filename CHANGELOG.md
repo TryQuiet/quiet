@@ -16,6 +16,7 @@
 
 # Fixes:
 
+* Fixes channel name creation logic
 * Remove duplicate introduction messages once again
 * Prevent channel creation with names that start with special character, then a hyphen
 * Choose random ports for Tor services (iOS)

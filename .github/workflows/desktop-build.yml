@@ -34,7 +34,7 @@ jobs:
       CHECKSUM_PATH: ${{ github.event.action == 'released' && 'packages/desktop/dist/latest-linux.yml' || 'packages/desktop/dist/alpha-linux.yml' }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Setup environment
         uses: ./.github/actions/setup-env
@@ -64,7 +64,7 @@ jobs:
         run: lerna run postBuild --scope @quiet/desktop
 
       - name: "Push electron-updater new checksum to S3"
-        uses: TryQuiet/upload-s3-action@master
+        uses: TryQuiet/upload-s3-action@c1c7c2268c91fbbc1293455e7b4bb2292267d2bd # master
         with:
           aws_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -74,18 +74,18 @@ jobs:
 
       - name: Get release
         id: get_release
-        uses: bruceadams/get-release@v1.2.3
+        uses: bruceadams/get-release@74c3d60f5a28f358ccf241a00c9021ea16f0569f # v1.3.2
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
       - name: Get release version
         id: package-version
-        uses: martinbeentjes/npm-get-version-action@main
+        uses: martinbeentjes/npm-get-version-action@3cf273023a0dda27efcd3164bdfb51908dd46a5b # main
         with:
           path: packages/desktop
 
       - name: Upload Release Assets
-        uses: actions/upload-release-asset@v1.0.2
+        uses: actions/upload-release-asset@e8f9f06c4b078e705bd2ea027f0926603fc9b4d5 # v1.0.2
         env:
           GITHUB_TOKEN: ${{ github.token }}
         with:
@@ -105,13 +105,13 @@ jobs:
       S3_BUCKET: ${{ github.event.action == 'released' && 'quiet.2.x' || 'test.quiet' }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
-      - uses: actions-rs/components-nightly@v1
+      - uses: actions-rs/components-nightly@254194ebf6ba07d2bb7cec8be76cee368d44fb90 # v1.1.1
         with:
           component: clippy
 
-      - uses: actions-rs/toolchain@v1
+      - uses: actions-rs/toolchain@16499b5e05bf2e26879000db0c1d13f7e13fa3af # v1.0.7
         with:
           toolchain: nightly-2020-08-28
           components: clippy
@@ -148,18 +148,18 @@ jobs:
 
       - name: Get release
         id: get_release
-        uses: bruceadams/get-release@v1.2.3
+        uses: bruceadams/get-release@74c3d60f5a28f358ccf241a00c9021ea16f0569f # v1.3.2
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
       - name: Extract version
         id: extract_version
-        uses: Saionaro/extract-package-version@v1.2.1
+        uses: Saionaro/extract-package-version@fdb5b74adc1278ddb777dfed4c988b9d098bb48d # v1.2.1
         with:
           path: packages/desktop
 
       - name: Upload Release Assets
-        uses: actions/upload-release-asset@v1.0.2
+        uses: actions/upload-release-asset@e8f9f06c4b078e705bd2ea027f0926603fc9b4d5 # v1.0.2
         env:
           GITHUB_TOKEN: ${{ github.token }}
         with:
@@ -179,7 +179,7 @@ jobs:
       S3_BUCKET: ${{ github.event.action == 'released' && 'quiet.2.x' || 'test.quiet' }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: "Fetch jsign"
         shell: bash
@@ -187,7 +187,7 @@ jobs:
 
       - name: "Add Windows certificate"
         id: write_file
-        uses: TryQuiet/base64-to-file@main
+        uses: TryQuiet/base64-to-file@64eeb40ad3514f57de3a7dee92aee10fd42452c1 # main
         with:
           fileName: 'win-certificate.pfx'
           encodedString: ${{ secrets.WIN_CSC_LINK }}
@@ -224,19 +224,19 @@ jobs:
 
       - name: Get release
         id: get_release
-        uses: bruceadams/get-release@v1.2.3
+        uses: bruceadams/get-release@74c3d60f5a28f358ccf241a00c9021ea16f0569f # v1.3.2
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
       - name: Extract version
         id: extract_version
-        uses: Saionaro/extract-package-version@v1.2.1
+        uses: Saionaro/extract-package-version@fdb5b74adc1278ddb777dfed4c988b9d098bb48d # v1.2.1
         with:
           path: packages/desktop
 
 
       - name: Upload Release Assets
-        uses: actions/upload-release-asset@v1.0.2
+        uses: actions/upload-release-asset@e8f9f06c4b078e705bd2ea027f0926603fc9b4d5 # v1.0.2
         env:
           GITHUB_TOKEN: ${{ github.token }}
         with:
