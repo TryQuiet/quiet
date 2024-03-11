@@ -440,7 +440,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
                           // Every other emojiStyle causes downloading emojis from cdn. We do not want that.
                           // Do not change it unless using custom getEmojiUrl with local emojis.
                           emojiStyle={EmojiStyle.NATIVE}
-                          emojiVersion="5.0"
+                          emojiVersion='5.0'
                         />
                       </div>
                     </ClickAwayListener>
