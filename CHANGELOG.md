@@ -4,6 +4,10 @@
 
 * Use ack for CREATE_NETWORK and simplify
 
+# Other
+
+* Added documentation using Docusaurus #2358
+
 [2.1.2]
 
 # Refactorings:
