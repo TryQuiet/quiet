@@ -6,7 +6,7 @@
   "type": "module",
   "exports": "lib/index.js",
   "author": "",
-  "license": "MIT",
+  "license": "GPL-3.0-or-later",
   "private": true,
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
