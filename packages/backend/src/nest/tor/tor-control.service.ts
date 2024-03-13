@@ -8,12 +8,16 @@ import Logger from '../common/logger'
 @Injectable()
 export class TorControl {
   connection: net.Socket | null
+  isSending: boolean
   authString: string
   private readonly logger = Logger(TorControl.name)
+
   constructor(
     @Inject(TOR_CONTROL_PARAMS) public torControlParams: TorControlParams,
     @Inject(CONFIG_OPTIONS) public configOptions: ConfigOptions
-  ) {}
+  ) {
+    this.isSending = false
+  }
 
   private updateAuthString() {
     if (this.torControlParams.auth.type === TorControlAuthType.PASSWORD) {
@@ -25,74 +29,97 @@ export class TorControl {
     }
   }
 
-  private async connect(): Promise<void> {
-    return await new Promise((resolve, reject) => {
-      if (this.connection) {
-        reject(new Error('TOR: Connection already established'))
-      }
-
+  private async _connect(): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
       this.connection = net.connect({
         port: this.torControlParams.port,
         family: 4,
       })
 
       this.connection.once('error', err => {
-        reject(new Error(`TOR: Connection via tor control failed: ${err.message}`))
+        this.disconnect()
+        reject(new Error(`Connection via Tor control failed: ${err.message}`))
       })
+
       this.connection.once('data', (data: any) => {
         if (/250 OK/.test(data.toString())) {
           resolve()
         } else {
-          reject(new Error(`TOR: Control port error: ${data.toString() as string}`))
+          this.disconnect()
+          reject(new Error(`Tor Control port error: ${data.toString() as string}`))
         }
       })
+
       this.updateAuthString()
       this.connection.write(this.authString)
     })
+  }
+
+  private async connect(): Promise<void> {
+    // TODO: We may want to limit the number of connection attempts.
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
+      try {
+        this.logger(`Connecting to Tor, host: ${this.torControlParams.host} port: ${this.torControlParams.port}`)
+        await this._connect()
+        this.logger('Tor connected')
+        return
+      } catch (e) {
+        this.logger(e)
+        this.logger('Retrying...')
+        await new Promise(r => setTimeout(r, 500))
+      }
+    }
   }
 
   private disconnect() {
     try {
       this.connection?.end()
     } catch (e) {
-      this.logger.error('Cant disconnect', e.message)
+      this.logger.error('Disconnect failed:', e.message)
     }
     this.connection = null
   }
 
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  private async _sendCommand(command: string, resolve: Function, reject: Function) {
-    await this.connect()
+  public _sendCommand(command: string): Promise<{ code: number; messages: string[] }> {
+    return new Promise((resolve, reject) => {
+      const connectionTimeout = setTimeout(() => {
+        reject('Timeout while sending command to Tor')
+      }, 5000)
 
-    const connectionTimeout = setTimeout(() => {
-      reject('TOR: Send command timeout')
-    }, 5000)
-    this.connection?.on('data', async data => {
-      this.disconnect()
-      const dataArray = data.toString().split(/\r?\n/)
-      if (dataArray[0].startsWith('250')) {
-        resolve({ code: 250, messages: dataArray })
-      } else {
+      this.connection?.on('data', async data => {
+        const dataArray = data.toString().split(/\r?\n/)
+
+        if (dataArray[0].startsWith('250')) {
+          resolve({ code: 250, messages: dataArray })
+        } else {
+          clearTimeout(connectionTimeout)
+          reject(`${dataArray[0]}`)
+        }
         clearTimeout(connectionTimeout)
-        reject(`${dataArray[0]}`)
-      }
-      clearTimeout(connectionTimeout)
+      })
+
+      this.connection?.write(command + '\r\n')
     })
-    this.connection?.write(command + '\r\n')
   }
 
   public async sendCommand(command: string): Promise<{ code: number; messages: string[] }> {
-    await this.waitForDisconnect()
-    return await new Promise((resolve, reject) => {
-      void this._sendCommand(command, resolve, reject)
-    })
-  }
+    // Only send one command at a time.
+    if (this.isSending) {
+      this.logger('Tor connection already established, waiting...')
+    }
 
-  private async waitForDisconnect() {
-    await new Promise<void>(resolve => {
-      if (!this.connection) {
-        resolve()
-      }
-    })
+    // Wait for existing command to finish.
+    while (this.isSending) {
+      await new Promise(r => setTimeout(r, 750))
+    }
+
+    this.isSending = true
+    await this.connect()
+    // FIXME: Errors are not caught here. Is this what we want?
+    const res = await this._sendCommand(command)
+    this.disconnect()
+    this.isSending = false
+    return res
   }
 }
