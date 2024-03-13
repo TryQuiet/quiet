@@ -68,24 +68,29 @@ export const checkImgHeader = (buffer: Uint8Array, header: number[]): boolean =>
       return false
     }
   
-    const photoBytes = base64DataURLToByteArray(photoString)
-  
-    // validate that the type is approved and has a matching magic number header
-    if (
-      !(photoString.startsWith('data:image/png;base64,') && isPng(photoBytes)) &&
-      !(photoString.startsWith('data:image/jpeg;base64,') && isJpeg(photoBytes)) &&
-      !(photoString.startsWith('data:image/gif;base64,') && isGif(photoBytes))
-    ) {
-      logger.error('Expected valid PNG, JPEG or GIF for user profile photo', pubKey)
-      return false
-    }
-  
-    // 200 KB = 204800 B limit
-    //
-    // TODO: Perhaps the compression matters and we should check
-    // actual dimensions in pixels?
-    if (photoBytes.length > 204800) {
-      logger.error('User profile photo must be less than or equal to 200KB')
+    try {
+      const photoBytes = base64DataURLToByteArray(photoString)
+    
+      // validate that the type is approved and has a matching magic number header
+      if (
+        !(photoString.startsWith('data:image/png;base64,') && isPng(photoBytes)) &&
+        !(photoString.startsWith('data:image/jpeg;base64,') && isJpeg(photoBytes)) &&
+        !(photoString.startsWith('data:image/gif;base64,') && isGif(photoBytes))
+      ) {
+        logger.error('Expected valid PNG, JPEG or GIF for user profile photo', pubKey)
+        return false
+      }
+    
+      // 200 KB = 204800 B limit
+      //
+      // TODO: Perhaps the compression matters and we should check
+      // actual dimensions in pixels?
+      if (photoBytes.length > 204800) {
+        logger.error('User profile photo must be less than or equal to 200KB')
+        return false
+      }
+    } catch (e) {
+      logger.error('Error while validating photo', pubKey, e)
       return false
     }
   
