@@ -10,6 +10,20 @@
 
 `npm run test`
 
+### Locally-built Binaries
+
+To run against binaries built locally (which will be in the `/dist` folder) you can run
+
+```
+npm run test:localBinary
+```
+
+This passes the `IS_LOCAL` flag and will use local binaries in the `/dist` directory (if the OS has been configured for it in the tests).  Check the README in the `desktop` package for information on building binaries for each OS.  
+
+*You must compile the binary prior to running this command or it will fail!*
+
+Convenience methods can be found in the root `package.json` for building the binary before running the tests.
+
 
 ## Notes
 
