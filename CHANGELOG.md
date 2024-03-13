@@ -1,5 +1,8 @@
 [unreleased]
 
+[2.0.0-alpha.12]
+* Refactored package.json to have consistent license "GPL-3.0-or-later"
+ 
 # Refactorings:
 
 * Use ack for CREATE_NETWORK and simplify
@@ -263,5 +266,3 @@
 
 * Invite tab as default in settings
 
-[2.0.0-alpha.12]
-* Refactored package.json to have consistent license "GPL-3.0-or-later" 
