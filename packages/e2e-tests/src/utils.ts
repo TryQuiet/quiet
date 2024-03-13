@@ -51,16 +51,21 @@ export class BuildSetup {
       case 'win32':
         return `${process.env.LOCALAPPDATA}\\Programs\\@quietdesktop\\Quiet.exe`
       case 'darwin':
-        let basePath = '/Applications';
-        if (process.env.LOCAL === 'true') {
-          console.warn("RUNNING ON LOCAL BINARY")
-          basePath = `${__dirname}/../../desktop/dist/${process.arch === 'arm64' ? 'mac-arm64' : 'mac'}`
-        }
-
-        return `${basePath}/Quiet.app/Contents/MacOS/Quiet`
+        return this.getMacBinaryDir()
       default:
         throw new Error('wrong SYSTEM env')
     }
+  }
+
+  private getMacBinaryDir(): string {
+    let basePath = '/Applications';
+    if (process.env.IS_LOCAL === 'true') {
+      console.warn("RUNNING ON LOCAL BINARY")
+      const distDirByArch = process.arch === 'arm64' ? 'mac-arm64' : 'mac';
+      basePath = `${__dirname}/../../desktop/dist/${distDirByArch}`
+    }
+
+    return `${basePath}/Quiet.app/Contents/MacOS/Quiet`
   }
 
   public getVersionFromEnv() {
