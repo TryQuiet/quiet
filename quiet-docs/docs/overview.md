@@ -1,42 +1,29 @@
-<p align="center">
-  <a href="#">
-    
-  </a>
-  <p align="center">
-   <img width="150" height="150" src="https://avatars.githubusercontent.com/u/59660937?s=200&v=4" alt="Logo">
-  </p>
-  <h1 align="center"><b>Quiet</b></h1>
-  <p align="center">
-  Encrypted p2p team chat with no servers, just Tor.
-    <br />
-<!--    <a href="https://tryquiet.org"><strong>tryquiet.org »</strong></a> -->
-    <a href="https://github.com/TryQuiet/quiet/releases/tag/%40quiet%2Fdesktop%402.0.1"><strong>Downloads</strong></a> | 
-    <a href="#how-it-works"><strong>How it Works</strong></a> |   
-    <a href="#features"><strong>Features</strong></a> | 
-    <a href="https://github.com/TryQuiet/monorepo/wiki/Threat-Model"><strong>Threat Model</strong></a> | 
-    <a href="#our-mission"><strong>Mission</strong></a> | 
-    <a href="https://github.com/TryQuiet/monorepo/wiki/Quiet-FAQ"><strong>FAQ</strong></a> |
-    <a href="https://github.com/TryQuiet/quiet/blob/develop/packages/desktop/README.md"><strong>Developer setup</strong></a>
-    <br />
-    <br />
-   </p>
-</p>
-Quiet is an alternative to team chat apps like Slack, Discord, and Element that does not require trusting a central server or running one's own. In Quiet, all data syncs directly between a team's devices over <a href="https://torproject.org">Tor</a> with no server required.
-<br/>
-<br/>
+---
+sidebar_position: 1
+title: Overview
+---
+
+# Overview
+
+![](../static/img/screenshot.png)
+
+## What is Quiet?
+
+[Quiet](https://tryquiet.org) is an encrypted p2p team chat with no servers, just Tor.  Quiet is an alternative to team chat apps like Slack, Discord, and Element that does not require trusting a central server or running one's own. In Quiet, all data syncs directly between a team's devices over [Tor](https://torproject.org) with no server required.
 
 > NOTE: Quiet is not audited and should not be used when privacy and security are critical. It lacks basic features and probably won't replace your Slack or Discord yet. That said, it works surprisingly well and we use it daily as a Slack replacement.
 
-
 Quiet is for fans of software freedom, decentralization and privacy tech, and for anyone craving a future where humanity can collaborate effectively online without trusting our communities, networks, and data to giant corporations.
 
-**Quiet is written (mostly) in TypeScript, with Electron and React Native frontends, and welcomes outside contributions! See: [Contributing to Quiet](#contributing-to-quiet)**
+**Quiet is written (mostly) in TypeScript, with Electron and React Native frontends, and welcomes outside contributions! See: [Contributing to Quiet](contributing/contributing-to-quiet)**
 
-<p align="center">
-  <img src="https://user-images.githubusercontent.com/213678/177447638-29d6805c-5458-4f5e-b4ed-7a5d6cb51f6e.png" alt="Screenshot">
-  <br />
-  <br />
-</p>
+
+## Resources
+
+* [Threat Model](https://github.com/TryQuiet/monorepo/wiki/Threat-Model)
+* [FAQ](https://github.com/TryQuiet/monorepo/wiki/Quiet-FAQ)
+* [Developer Setup](https://github.com/TryQuiet/quiet/blob/develop/packages/desktop/README.md)
+
 
 ## How it works 
 
@@ -50,11 +37,13 @@ Invites, access, and usernames are granted by a community owner, i.e. whoever cr
 
 See our [FAQ](https://github.com/TryQuiet/monorepo/wiki/Quiet-FAQ) for answers to common questions and a comparison of Quiet with similar apps.
 
+
 ## Getting started
 
 To try Quiet, download the [latest release](https://github.com/TryQuiet/quiet/releases/tag/quiet%401.9.7) for your platform (.dmg for macOS, .exe for Windows, etc.) and install it in the normal way. Then create a community and open the community's settings to invite members. 
 
-If you'd like to help develop Quiet, see [Contributing to Quiet](#contributing-to-quiet).
+If you'd like to help develop Quiet, see [Contributing to Quiet](contributing/contributing-to-quiet).
+
 
 ## Features
 
@@ -71,7 +60,8 @@ If you'd like to help develop Quiet, see [Contributing to Quiet](#contributing-t
 * **iOS App** - A fully peer-to-peer iOS app (TestFlight) without notifications.
 * **No email or phone number required** - Unlike Slack, Discord, WhatsApp, Telegram, and Signal, no email or phone number is required to create or join a community.
 
-## Planned (but still-missing) features
+
+### Planned (but still-missing) features
 
 * **iOS Notifications** - Receive notifications on iOS, with help from a service Apple requires to be centralized.
 * **Direct Messages** - Send and receive direct messages that are encrypted to the recipient and unreadable by other community members.
@@ -85,7 +75,8 @@ If you'd like to help develop Quiet, see [Contributing to Quiet](#contributing-t
 * **Account Recovery** - Recover owner accounts from a backup phrase.
 * **Private channels** - Create private channels with multiple members that are unreadable to the community at large.
 
-## Post-1.0 Features
+
+### Post-1.0 Features
 
 * **Large Communities** - Create a community with 1000 members or more (right now ~30-100 members is the limit.)
 * **Moderation** - Appoint moderators who can hide messages and silence or remove users. 
@@ -96,6 +87,7 @@ If you'd like to help develop Quiet, see [Contributing to Quiet](#contributing-t
 * **Tor Browser Support** - Join communities as a full member with Tor Browser, without downloading an app. 
 * **Browser Support** - Join communities with *any* modern browser via [Arti-in-WASM](https://gitlab.torproject.org/tpo/core/arti/-/issues/103).
 * **Publishing** - Share files (or entire websites) from your community to the web, via Tor, [OnionBalance](https://github.com/asn-d6/onionbalance), and [Tor2web](https://www.tor2web.org/) + IPFS.
+
 
 ## Technical overview
 
@@ -115,6 +107,7 @@ This is a concise technical summary of the main points.
 10. **Mobile push notifications:** barring a major victory for consumer rights, iOS notifications require using a centralized push notification service that connects to Apple, but message data can still be encrypted; in proof-of-concept, Quiet works well as an always-on background app on Android, so Android versions will likely not require a push notification server.
 11. **Stack:** Our backend is in Node.js (on iOS/Android we use [nodejs-mobile](https://github.com/nodejs-mobile)); we use Electron on desktop and React Native on mobile.
 
+
 ## Our Mission
 
 We are building Quiet to sharpen the tools that [open societies](https://en.wikipedia.org/wiki/Open_society) use to hold power accountable. Each year, movements use the Internet to hold power accountable in breathtaking new ways. But the rise of big tech has made the Internet *itself* seem like *yet another* unaccountable power. The medium that brought us *Occupy* Wall Street now looks like regular old Wall Street. We believe this happened because software became too dependent on company-run infrastructure, which undermined the role [free software](https://en.wikipedia.org/wiki/Free_software) has historically played in holding the software industry accountable. Our goal is to fix that.
@@ -132,19 +125,3 @@ We're building Quiet because we believe that, for a broad and growing class of s
 We're building Quiet to spark a new phase of the free software movement where it is easy and normal to build apps this way. We want to make a private alternative to Slack & Discord that people love, to figure out the best and easiest technical approach along the way, and—by doing all this—to blaze a trail that other free software teams building other products can follow. Once one team (us, we hope!) can build a good alternative to Slack that doesn't use servers, other teams can build alternatives to Google Docs, Figma, Asana, Trello, 1Password, and so on, until someday—and this is technically much more difficult—humanity can build fully-forkable alternatives to things like Facebook, Twitter, Instagram, or even more complex applications. Big tech's users will be free to flee, and the Internet can stop being yet another unaccountable power, and keep being the breathtaking medium for holding power accountable that open societies need.
 
 Join us, and let's figure this out.
-
-## Contributing to Quiet
-
-Even though Quiet is completely peer-to-peer, it is mostly written in TypeScript and will be familiar to anyone accustomed to Node.js web development. Desktop and mobile versions share a common Node.js [backend](https://github.com/TryQuiet/monorepo/tree/develop/packages/backend) and React [state manager](https://github.com/TryQuiet/monorepo/tree/develop/packages/state-manager), with [Tor](https://torproject.org) binaries for each platform and architecture, using Electron and React Native and for their respective frontends.
-
-To get started hacking on Quiet, follow the instructions for [Quiet Desktop](https://github.com/TryQuiet/quiet/blob/develop/packages/desktop/README.md) or [Quiet Mobile](https://github.com/TryQuiet/monorepo/tree/develop/packages/mobile#readme). (If you're new to the project, start with Quiet Desktop, as it's more stable and vastly easier to start hacking on.) Here are some [good first issues](https://github.com/orgs/TryQuiet/projects/3/views/4?filterQuery=label%3A%22good+first+issue%22), and you can see upcoming priorities in our [project board](https://github.com/orgs/TryQuiet/projects/3/views/4).
-
-Most of all, if you're interested in contributing, be in touch! Drop us a line at [h@quiet.chat](mailto:h@quiet.chat) and we'll add you to the project's Quiet community and (if you like) plan an onboarding session.
-
-## Documentation
-
-Quiet is using Docusaurus for serving documentation and is currently local-only.  To run the documentation locally you can execute the following command from the root directory:
-
-```
-npm run docs:start
-```
