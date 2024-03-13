@@ -153,8 +153,9 @@ describe('TorControl', () => {
   it('should find hanging tor processes and kill them', async () => {
     const processKill = jest.spyOn(process, 'kill')
     await torService.init()
+    const torIds = torService.getTorProcessIds()
     torService.clearHangingTorProcess()
-    expect(processKill).toHaveBeenCalledTimes(2) // Spawning with {shell:true} starts 2 processes so we need to kill 2 processes
+    expect(processKill).toHaveBeenCalledTimes(torIds.length) // Spawning with {shell:true} starts 2 processes so we need to kill 2 processes
   })
 
   it('should find hanging tor processes and kill them if Quiet path includes space', async () => {
@@ -162,7 +163,8 @@ describe('TorControl', () => {
     tmpAppDataPath = tmpQuietDirPath(tmpDir.name)
     const processKill = jest.spyOn(process, 'kill')
     await torService.init()
+    const torIds = torService.getTorProcessIds()
     torService.clearHangingTorProcess()
-    expect(processKill).toHaveBeenCalledTimes(2) // Spawning with {shell:true} starts 2 processes so we need to kill 2 processes
+    expect(processKill).toHaveBeenCalledTimes(torIds.length) // Spawning with {shell:true} starts 2 processes so we need to kill 2 processes
   })
 })
