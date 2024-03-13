@@ -1,6 +1,5 @@
 [unreleased]
 
-[2.0.0-alpha.12]
 * Refactored package.json to have consistent license "GPL-3.0-or-later"
  
 # Refactorings:
