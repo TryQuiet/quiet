@@ -1,19 +1,3 @@
-# Change Log
-
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
-
-## [2.1.2-alpha.10](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@2.1.2-alpha.9...@quiet/mobile@2.1.2-alpha.10) (2024-03-13)
-
-
-### Bug Fixes
-
-* Add retry ability to tor-control and update Tor port on resume ([#2360](https://github.com/TryQuiet/quiet/issues/2360)) ([f628b82](https://github.com/TryQuiet/quiet/commit/f628b820b796092303118f2497d2ec72d55d098d))
-
-
-
-
-
 [unreleased]
 
 
@@ -34,6 +18,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 * Prevent channel creation with names that start with special character, then a hyphen
 * Choose random ports for Tor services (iOS)
 * Use consistent identicons for messages and profile
+* Add retry ability to tor-control and misc tor-control fixes
 
 # Other:
 
