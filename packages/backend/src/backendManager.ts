@@ -114,8 +114,9 @@ export const runBackendMobile = async () => {
   })
   rn_bridge.channel.on('open', async (msg: OpenServices) => {
     const connectionsManager = app.get<ConnectionsManagerService>(ConnectionsManagerService)
-    const torControlParams = app.get<TorControl>(TorControl)
-    torControlParams.torControlParams.auth.value = msg.authCookie
+    const torControl = app.get<TorControl>(TorControl)
+    torControl.torControlParams.port = msg.torControlPort
+    torControl.torControlParams.auth.value = msg.authCookie
     await connectionsManager.openSocket()
   })
 }
