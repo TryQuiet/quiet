@@ -1,5 +1,5 @@
 import { By, Key, type ThenableWebDriver, type WebElement, until } from 'selenium-webdriver'
-import { BuildSetup, type BuildSetupInit } from './utils'
+import { BuildSetup, sleep, type BuildSetupInit } from './utils'
 import path from 'path'
 
 export class App {
@@ -171,11 +171,24 @@ export class UserProfileContextMenu {
   }
 
   async uploadJPEGPhoto() {
-    await this.uploadPhoto('../assets/profile-photo.jpeg')
+    await this.uploadPhoto('../assets/profile-photo.jpg')
   }
 
   async uploadGIFPhoto() {
     await this.uploadPhoto('../assets/profile-photo.gif')
+  }
+
+  async waitForPhoto(): Promise<WebElement> {
+    await sleep(3000)
+    const photoElement = await this.driver.wait(
+      until.elementLocated(By.className("UserProfilePanel-profilePhoto"))
+    )
+    return photoElement
+  }
+
+  async getProfilePhotoSrc(): Promise<string> {
+    const photoElement = await this.waitForPhoto();
+    return photoElement.getAttribute('src')
   }
 }
 

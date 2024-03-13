@@ -6,7 +6,8 @@
     "publish": "lerna version $npm_config_release --no-private",
     "postpublish": "node copy-changelog.js && git add . && git commit -m 'Update packages CHANGELOG.md' && git push",
     "start:desktop": "lerna run --scope @quiet/desktop start",
-    "lint:all": "lerna run lint"
+    "lint:all": "lerna run lint",
+    "distAndTest:local": "lerna run --scope @quiet/desktop dist:local && lerna run --scope e2e-tests test --"
   },
   "engines": {
     "node": "18.12.1",
