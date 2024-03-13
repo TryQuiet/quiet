@@ -1,5 +1,7 @@
 [unreleased]
 
+* Refactored package.json to have consistent license "GPL-3.0-or-later"
+ 
 # Refactorings:
 
 * Use ack for CREATE_NETWORK and simplify
@@ -262,3 +264,4 @@
 * C4 for Quiet architecture. Context and Container diagrams.
 
 * Invite tab as default in settings
+

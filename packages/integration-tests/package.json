@@ -5,7 +5,7 @@
   "types": "lib/index.d.ts",
   "main": "lib/index.js",
   "author": "",
-  "license": "ISC",
+  "license": "GPL-3.0-or-later",
   "private": true,
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
