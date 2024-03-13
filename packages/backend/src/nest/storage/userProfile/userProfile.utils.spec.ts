@@ -97,34 +97,34 @@ describe('base64DataURLToByteArray', () => {
 })
 
 describe('validatePhoto', () => {
-  test('returns false when the photo isn\'t a string', () => {
-    const input = 1234 as any;
-    expect(validatePhoto(input, "abc123")).toEqual(false);
+  test("returns false when the photo isn't a string", () => {
+    const input = 1234 as any
+    expect(validatePhoto(input, 'abc123')).toEqual(false)
   })
 
-  test('returns false when the photo doesn\'t have a valid image header', () => {
-    const input = "Zm9vYmFy";
-    expect(validatePhoto(input, "abc123")).toEqual(false);
+  test("returns false when the photo doesn't have a valid image header", () => {
+    const input = 'Zm9vYmFy'
+    expect(validatePhoto(input, 'abc123')).toEqual(false)
   })
 
   test('returns false when the photo is missing the magic byte header', () => {
-    const input = "data:image/png;base64,Zm9vYmFy";
-    expect(validatePhoto(input, "abc123")).toEqual(false);
+    const input = 'data:image/png;base64,Zm9vYmFy'
+    expect(validatePhoto(input, 'abc123')).toEqual(false)
   })
 
   test('returns true when the photo is a valid PNG string', () => {
-    expect(validatePhoto(VALID_PNG_URI, "abc123")).toEqual(true);
+    expect(validatePhoto(VALID_PNG_URI, 'abc123')).toEqual(true)
   })
 
   test('returns true when the photo is a valid JPEG string', () => {
-    expect(validatePhoto(VALID_JPEG_URI, "abc123")).toEqual(true);
+    expect(validatePhoto(VALID_JPEG_URI, 'abc123')).toEqual(true)
   })
 
   test('returns true when the photo is a valid GIF string', () => {
-    expect(validatePhoto(VALID_GIF_URI, "abc123")).toEqual(true);
+    expect(validatePhoto(VALID_GIF_URI, 'abc123')).toEqual(true)
   })
 
   test('returns false when the photo is larger than 200KB', () => {
-    expect(validatePhoto(LARGE_IMG_URI, "abc123")).toEqual(false);
+    expect(validatePhoto(LARGE_IMG_URI, 'abc123')).toEqual(false)
   })
 })

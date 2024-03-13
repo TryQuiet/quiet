@@ -58,10 +58,10 @@ export class BuildSetup {
   }
 
   private getMacBinaryDir(): string {
-    let basePath = '/Applications';
+    let basePath = '/Applications'
     if (process.env.IS_LOCAL === 'true') {
-      console.warn("RUNNING ON LOCAL BINARY")
-      const distDirByArch = process.arch === 'arm64' ? 'mac-arm64' : 'mac';
+      console.warn('RUNNING ON LOCAL BINARY')
+      const distDirByArch = process.arch === 'arm64' ? 'mac-arm64' : 'mac'
       basePath = `${__dirname}/../../desktop/dist/${distDirByArch}`
     }
 

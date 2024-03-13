@@ -93,14 +93,14 @@ export class Tor extends EventEmitter implements OnModuleInit {
         }
 
         try {
-          this.logger("Clearing out hanging tor process(es)")
+          this.logger('Clearing out hanging tor process(es)')
           this.clearHangingTorProcess()
         } catch (e) {
           this.logger('Error occured while trying to clear hanging tor processes', e)
         }
 
         try {
-          this.logger("Spawning new tor process(es)")
+          this.logger('Spawning new tor process(es)')
           await this.spawnTor()
 
           this.interval = setInterval(async () => {
@@ -169,10 +169,10 @@ export class Tor extends EventEmitter implements OnModuleInit {
   }
 
   public clearHangingTorProcess() {
-    this.logger("Attempting to kill hanging tor processes")
+    this.logger('Attempting to kill hanging tor processes')
     const ids = this.getTorProcessIds()
     if (ids.length === 0) {
-      this.logger("No tor process(es) found to kill")
+      this.logger('No tor process(es) found to kill')
       return
     }
 
@@ -211,7 +211,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
   }
 
   protected async spawnTor(): Promise<void> {
-    this.logger("Spawning tor")
+    this.logger('Spawning tor')
     return await new Promise((resolve, reject) => {
       if (!this.configOptions.httpTunnelPort) {
         this.logger.error("Can't spawn tor - no httpTunnelPort")

@@ -180,14 +180,12 @@ export class UserProfileContextMenu {
 
   async waitForPhoto(): Promise<WebElement> {
     await sleep(3000)
-    const photoElement = await this.driver.wait(
-      until.elementLocated(By.className("UserProfilePanel-profilePhoto"))
-    )
+    const photoElement = await this.driver.wait(until.elementLocated(By.className('UserProfilePanel-profilePhoto')))
     return photoElement
   }
 
   async getProfilePhotoSrc(): Promise<string> {
-    const photoElement = await this.waitForPhoto();
+    const photoElement = await this.waitForPhoto()
     return photoElement.getAttribute('src')
   }
 }

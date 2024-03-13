@@ -99,7 +99,7 @@ describe('User Profile Feature', () => {
   })
 
   it('Owner updates their profile photo with JPEG', async () => {
-    console.log("JPEG")
+    console.log('JPEG')
     const menu = new UserProfileContextMenu(users.owner.app.driver)
     await menu.openMenu()
     await menu.openEditProfileMenu()
@@ -110,7 +110,7 @@ describe('User Profile Feature', () => {
   })
 
   it('Owner updates their profile photo with GIF', async () => {
-    console.log("GIF")
+    console.log('GIF')
     const menu = new UserProfileContextMenu(users.owner.app.driver)
     await menu.openMenu()
     await menu.openEditProfileMenu()
@@ -121,7 +121,7 @@ describe('User Profile Feature', () => {
   })
 
   it('Owner updates their profile photo with PNG', async () => {
-    console.log("PNG")
+    console.log('PNG')
     const menu = new UserProfileContextMenu(users.owner.app.driver)
     await menu.openMenu()
     await menu.openEditProfileMenu()
