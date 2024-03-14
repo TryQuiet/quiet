@@ -15,7 +15,6 @@
     "test-ci": "jest integrationTests/*",
     "lint:no-fix": "eslint --ext .ts ./src/",
     "lint": "npm run lint:no-fix -- --fix",
-    "lint-ci": "npm run lint:no-fix",
     "lint-staged": "lint-staged",
     "prettier": "prettier"
   },
