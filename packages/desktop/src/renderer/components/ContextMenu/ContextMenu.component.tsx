@@ -76,6 +76,7 @@ export const ContextMenu: FC<ContextMenuProps> = ({ visible, handleClose, handle
               alignItems: 'center',
               cursor: 'pointer',
             }}
+            data-testid={'contextMenu-backArrow'}
             onClick={handleBack || handleClose}
           >
             <Icon src={arrowLeft} />

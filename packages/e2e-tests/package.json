@@ -12,7 +12,7 @@
     "prettier:write": "prettier --write .",
     "prettier:check": "prettier --check .",
     "test": "cross-env TEST_MODE=true jest --runInBand --detectOpenHandles --forceExit",
-    "test:localBinary": "cross-env TEST_MODE=true jest --runInBand --detectOpenHandles --forceExit",
+    "test:localBinary": "cross-env TEST_MODE=true IS_LOCAL=true jest --runInBand --detectOpenHandles --forceExit --verbose --",
     "test:prod": "jest --runInBand --detectOpenHandles --forceExit",
     "test:watch": "jest --watchAll"
   },

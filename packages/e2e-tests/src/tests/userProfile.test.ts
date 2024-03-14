@@ -3,7 +3,6 @@ import { By, until } from 'selenium-webdriver'
 import {
   App,
   Channel,
-  ChannelContextMenu,
   CreateCommunityModal,
   JoinCommunityModal,
   RegisterUsernameModal,
@@ -99,36 +98,55 @@ describe('User Profile Feature', () => {
   })
 
   it('Owner updates their profile photo with JPEG', async () => {
-    console.log('JPEG')
-    const menu = new UserProfileContextMenu(users.owner.app.driver)
-    await menu.openMenu()
-    await menu.openEditProfileMenu()
-    await menu.uploadJPEGPhoto()
+    try {
+      console.log('JPEG')
+      const menu = new UserProfileContextMenu(users.owner.app.driver)
+      await menu.openMenu()
+      await menu.openEditProfileMenu()
+      await menu.uploadJPEGPhoto()
 
-    const imgSrc = await menu.getProfilePhotoSrc()
-    expect(imgSrc).toEqual(EXPECTED_IMG_SRC_JPEG)
+      const imgSrc = await menu.getProfilePhotoSrc()
+      expect(imgSrc).toEqual(EXPECTED_IMG_SRC_JPEG)
+
+      await menu.back()
+    } catch (e) {
+      console.error('Failed to set JPEG profile photo', e)
+      throw e
+    }
   })
 
   it('Owner updates their profile photo with GIF', async () => {
-    console.log('GIF')
-    const menu = new UserProfileContextMenu(users.owner.app.driver)
-    await menu.openMenu()
-    await menu.openEditProfileMenu()
-    await menu.uploadGIFPhoto()
+    try {
+      console.log('GIF')
+      const menu = new UserProfileContextMenu(users.owner.app.driver)
+      await menu.openMenu()
+      await menu.uploadGIFPhoto()
 
-    const imgSrc = await menu.getProfilePhotoSrc()
-    expect(imgSrc).toEqual(EXPECTED_IMG_SRC_GIF)
+      const imgSrc = await menu.getProfilePhotoSrc()
+      expect(imgSrc).toEqual(EXPECTED_IMG_SRC_GIF)
+
+      await menu.back()
+    } catch (e) {
+      console.error('Failed to set GIF profile photo', e)
+      throw e
+    }
   })
 
   it('Owner updates their profile photo with PNG', async () => {
-    console.log('PNG')
-    const menu = new UserProfileContextMenu(users.owner.app.driver)
-    await menu.openMenu()
-    await menu.openEditProfileMenu()
-    await menu.uploadPNGPhoto()
+    try {
+      console.log('PNG')
+      const menu = new UserProfileContextMenu(users.owner.app.driver)
+      await menu.openMenu()
+      await menu.uploadPNGPhoto()
 
-    const imgSrc = await menu.getProfilePhotoSrc()
-    expect(imgSrc).toEqual(EXPECTED_IMG_SRC_PNG)
+      const imgSrc = await menu.getProfilePhotoSrc()
+      expect(imgSrc).toEqual(EXPECTED_IMG_SRC_PNG)
+
+      await menu.back()
+    } catch (e) {
+      console.error('Failed to set PNG profile photo', e)
+      throw e
+    }
   })
 
   it('Owner opens the settings tab and gets an invitation code', async () => {

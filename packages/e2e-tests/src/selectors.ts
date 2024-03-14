@@ -145,22 +145,44 @@ export class UserProfileContextMenu {
 
   async openMenu() {
     const button = await this.driver.wait(
-      until.elementLocated(By.xpath('//div[@data-testid="user-profile-menu-button"]'))
+      until.elementLocated(By.xpath('//div[@data-testid="user-profile-menu-button"]')),
+      20000,
+      'Context menu button not found',
+      500
     )
+    await this.driver.wait(until.elementIsVisible(button), 20000, 'Context menu button never became visible', 500)
     await button.click()
+  }
+
+  async back() {
+    const button = await this.driver.wait(
+      until.elementLocated(By.xpath('//div[@data-testid="contextMenu-backArrow"]')),
+      20000,
+      'Context back button not found',
+      500
+    )
+
+    console.log('clicking back button')
+    await this.driver.executeScript("arguments[0].click();", button)
   }
 
   async openEditProfileMenu() {
     const button = await this.driver.wait(
-      until.elementLocated(By.xpath('//div[@data-testid="contextMenuItemEdit profile"]'))
+      until.elementLocated(By.xpath('//div[@data-testid="contextMenuItemEdit profile"]')),
+      20000, 
+      'Edit Profile button not found',
+      500
     )
-    await this.driver.wait(until.elementIsVisible(button))
+    await this.driver.wait(until.elementIsVisible(button), 20000, 'Edit Profile button never became visible', 500)
     await button.click()
   }
 
   async uploadPhoto(fileName: string) {
     const input = await this.driver.wait(
-      until.elementLocated(By.xpath('//input[@data-testid="user-profile-edit-photo-input"]'))
+      until.elementLocated(By.xpath('//input[@data-testid="user-profile-edit-photo-input"]')),
+      10000, 
+      'Edit Photo button not found',
+      500
     )
     const filePath = path.join(__dirname, fileName)
     await input.sendKeys(filePath)
