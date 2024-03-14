@@ -92,8 +92,10 @@
     "dist": "export SOURCE_PATH=darwin TEST_MODE=true && npm run copyBinariesDarwin && npm run build:prod && electron-builder --mac",
     "distUbuntu": "export SOURCE_PATH=linux TEST_MODE=true && npm run setMainEnvs && npm run copyBinaries && npm run pullLibs && npm run build:prod && electron-builder --linux",
     "distwin": "export SOURCE_PATH=win32 && npm run copyBinariesWin && npm run build:prod && electron-builder --win",
-    "lint": "eslint --ext .jsx,.js,.ts,.tsx ./src/ --fix",
-    "lint-ci": "eslint --ext .jsx,.js,.ts,.tsx ./src/",
+    "lint:no-fix": "eslint --ext .jsx,.js,.ts,.tsx ./src/",
+    "lint": "npm run lint:no-fix -- --fix",
+    "lint-ci": "npm run lint:no-fix",
+    "lint-staged": "lint-staged",
     "type-check": "tsc -p tsconfig.build.json --noEmit",
     "test": "jest --runInBand",
     "test:watch": "jest --watchAll",
@@ -223,6 +225,7 @@
     "jest": "^26.6.3",
     "jest-each": "^27.2.4",
     "js-yaml": "4.1.0",
+    "lint-staged": "^15.2.2",
     "local-cypress": "1.2.6",
     "luxon": "^1.11.4",
     "mathjax-full": "^3.2.2",
@@ -297,5 +300,8 @@
   "engines": {
     "node": "18.12.1",
     "npm": "8.19.2"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": "npm run lint:no-fix"
   }
 }

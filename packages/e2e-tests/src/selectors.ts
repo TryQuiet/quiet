@@ -23,7 +23,7 @@ export class App {
   }
 
   async open() {
-    console.log('Opening the app', this.buildSetup.dataDir)
+    console.log('opening the app', this.buildSetup.dataDir)
     this.buildSetup.resetDriver()
     await this.buildSetup.createChromeDriver()
     this.isOpened = true
