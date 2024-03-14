@@ -1,14 +1,15 @@
 import { InvitationData, InvitationDataV1, InvitationDataV2, InvitationDataVersion, InvitationPair } from '@quiet/types'
 import { QUIET_JOIN_PAGE } from './static'
 import { createLibp2pAddress, isPSKcodeValid } from './libp2p'
+// import { CID } from 'multiformats/cid' // Fixme: dependency issue
 import Logger from './logger'
 const logger = Logger('invite')
 
-// V1 invitation code format (current)
+// V1 invitation code format (p2p without relay)
 export const PSK_PARAM_KEY = 'k'
 export const OWNER_ORBIT_DB_IDENTITY_PARAM_KEY = 'o'
 
-// V2 invitation code format (new)
+// V2 invitation code format (relay support)
 export const CID_PARAM_KEY = 'c'
 export const TOKEN_PARAM_KEY = 't'
 export const INVITER_ADDRESS_PARAM_KEY = 'i'
@@ -25,60 +26,33 @@ interface ParseDeepUrlParams {
 }
 
 const parseCodeV2 = (url: string): InvitationDataV2 => {
+  /**
+   * c=<cid>&t=<token>&s=<serverAddress>&i=<inviterAddress>
+   */
   const params = new URL(url).searchParams
+  const requiredParams = [CID_PARAM_KEY, TOKEN_PARAM_KEY, SERVER_ADDRESS_PARAM_KEY, INVITER_ADDRESS_PARAM_KEY]
 
-  const cid = params.get(CID_PARAM_KEY)
-  if (!cid) throw new Error(`No cid found in invitation code '${url}'`)
-  // TODO: Validate CID format
-  params.delete(CID_PARAM_KEY)
-
-  let token = params.get(TOKEN_PARAM_KEY)
-  if (!token) throw new Error(`No token found in invitation code '${url}'`)
-  token = decodeURIComponent(token)
-  // TODO: validate token format
-  params.delete(TOKEN_PARAM_KEY)
-
-  let serverAddress = params.get(SERVER_ADDRESS_PARAM_KEY)
-  if (!serverAddress) throw new Error(`No server address found in invitation code '${url}'`)
-  serverAddress = decodeURIComponent(serverAddress)
-  try {
-    new URL(url)
-  } catch (e) {
-    throw new Error(`Invalid server address format '${url}'`)
-  }
-  params.delete(SERVER_ADDRESS_PARAM_KEY)
-
-  let inviterAddress = params.get(INVITER_ADDRESS_PARAM_KEY) // TODO: can it be also peerId-onionAddress pair?
-  if (!inviterAddress) throw new Error(`No inviter address in invitation code '${url}'`)
-  inviterAddress = decodeURIComponent(inviterAddress)
-  if (!inviterAddress.trim().match(ONION_ADDRESS_REGEX)) {
-    throw new Error(`No inviter address in invitation code '${url}'`)
-  }
-  params.delete(INVITER_ADDRESS_PARAM_KEY)
+  const entries = validateUrlParams(params, requiredParams)
 
   return {
     version: InvitationDataVersion.v2,
-    cid,
-    token,
-    serverAddress,
-    inviterAddress,
+    cid: entries[CID_PARAM_KEY],
+    token: entries[TOKEN_PARAM_KEY],
+    serverAddress: entries[SERVER_ADDRESS_PARAM_KEY],
+    inviterAddress: entries[INVITER_ADDRESS_PARAM_KEY],
   }
 }
 
 const parseCodeV1 = (url: string): InvitationDataV1 => {
+  /**
+   * <peerid1>=<address1>&<peerid2>=<addresss2>...&k=<psk>&o=<ownerOrbitDbIdentity>
+   */
   const params = new URL(url).searchParams
+  const requiredParams = [PSK_PARAM_KEY, OWNER_ORBIT_DB_IDENTITY_PARAM_KEY]
 
-  let psk = params.get(PSK_PARAM_KEY)
+  const entries = validateUrlParams(params, requiredParams)
+
   const codes: InvitationPair[] = []
-  if (!psk) throw new Error(`No psk found in invitation code '${url}'`)
-  psk = decodeURIComponent(psk)
-  if (!isPSKcodeValid(psk)) throw new Error(`Invalid psk in invitation code '${url}'`)
-  params.delete(PSK_PARAM_KEY)
-
-  let ownerOrbitDbIdentity = params.get(OWNER_ORBIT_DB_IDENTITY_PARAM_KEY)
-  if (!ownerOrbitDbIdentity) throw new Error(`No owner OrbitDB identity found in invitation code '${url}'`)
-  ownerOrbitDbIdentity = decodeURIComponent(ownerOrbitDbIdentity)
-  params.delete(OWNER_ORBIT_DB_IDENTITY_PARAM_KEY)
 
   params.forEach((onionAddress, peerId) => {
     if (!peerDataValid({ peerId, onionAddress })) return
@@ -87,11 +61,14 @@ const parseCodeV1 = (url: string): InvitationDataV1 => {
       onionAddress,
     })
   })
+
+  if (codes.length === 0) throw new Error(`No valid peer addresses found in invitation code '${url}'`)
+
   return {
     version: InvitationDataVersion.v1,
     pairs: codes,
-    psk,
-    ownerOrbitDbIdentity,
+    psk: entries[PSK_PARAM_KEY],
+    ownerOrbitDbIdentity: entries[OWNER_ORBIT_DB_IDENTITY_PARAM_KEY],
   }
 }
 
@@ -208,7 +185,6 @@ const composeInvitationUrl = (baseUrl: string, data: InvitationDataV1 | Invitati
 
   switch (data.version) {
     case InvitationDataVersion.v1:
-      // if (!data.pairs || !data.psk || !data.ownerOrbitDbIdentity) return '' // TODO: temporary until better solution is found
       for (const pair of data.pairs) {
         url.searchParams.append(pair.peerId, pair.onionAddress)
       }
@@ -216,7 +192,6 @@ const composeInvitationUrl = (baseUrl: string, data: InvitationDataV1 | Invitati
       url.searchParams.append(OWNER_ORBIT_DB_IDENTITY_PARAM_KEY, data.ownerOrbitDbIdentity)
       break
     case InvitationDataVersion.v2:
-      // if (!data.cid || !data.token || !data.serverAddress || !data.inviterAddress) return '' // TODO: temporary until better solution is found
       url.searchParams.append(CID_PARAM_KEY, data.cid)
       url.searchParams.append(TOKEN_PARAM_KEY, data.token)
       url.searchParams.append(SERVER_ADDRESS_PARAM_KEY, data.serverAddress)
@@ -261,4 +236,60 @@ const peerDataValid = ({ peerId, onionAddress }: { peerId: string; onionAddress:
     return false
   }
   return true
+}
+
+const validateUrlParams = (params: URLSearchParams, requiredParams: string[]) => {
+  const entries = Object.fromEntries(params)
+
+  requiredParams.forEach(key => {
+    const value = params.get(key)
+    if (!value) {
+      throw new Error(`Missing key '${key}' in invitation code`)
+    }
+    entries[key] = decodeURIComponent(value)
+    if (!isParamValid(key, entries[key])) {
+      throw new Error(`Invalid value '${value}' for key '${key}' in invitation code`)
+    }
+    params.delete(key)
+  })
+  return entries
+}
+
+const isParamValid = (param: string, value: string) => {
+  logger(`Validating param ${param} with value ${value}`)
+  switch (param) {
+    case CID_PARAM_KEY:
+      // try {
+      //   CID.parse(value)
+      // } catch (e) {
+      //   logger.error(e.message)
+      //   return false
+      // }
+      return true
+
+    case TOKEN_PARAM_KEY:
+      // TODO: validate token format
+      return true
+
+    case SERVER_ADDRESS_PARAM_KEY:
+      try {
+        new URL(value)
+      } catch (e) {
+        logger.error(e.message)
+        return false
+      }
+      break
+
+    case INVITER_ADDRESS_PARAM_KEY:
+      return Boolean(value.trim().match(ONION_ADDRESS_REGEX))
+
+    case PSK_PARAM_KEY:
+      return isPSKcodeValid(value)
+
+    case OWNER_ORBIT_DB_IDENTITY_PARAM_KEY:
+      return true
+
+    default:
+      return false
+  }
 }
