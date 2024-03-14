@@ -8,7 +8,7 @@ import { initActions } from '../init.slice'
 import { navigationActions } from '../../navigation/navigation.slice'
 import { ScreenNames } from '../../../const/ScreenNames.enum'
 import { deepLinkSaga } from './deepLink.saga'
-import { type Community, CommunityOwnership, type Identity, InvitationData } from '@quiet/types'
+import { type Community, CommunityOwnership, type Identity, InvitationData, InvitationDataVersion } from '@quiet/types'
 import {
   composeInvitationShareUrl,
   validInvitationCodeTestData,
@@ -66,55 +66,14 @@ describe('deepLinkSaga', () => {
       .withState(store.getState())
       .put(initActions.resetDeepLink())
       .put(
-        communities.actions.createNetwork({
-          ownership: CommunityOwnership.User,
-          peers: validData.pairs,
-          psk: validData.psk,
-          ownerOrbitDbIdentity: validData.ownerOrbitDbIdentity,
+        communities.actions.joinNetwork({
+          version: InvitationDataVersion.v1,
+          ...validData,
         })
       )
       .put(
         navigationActions.replaceScreen({
           screen: ScreenNames.UsernameRegistrationScreen,
-        })
-      )
-      .run()
-  })
-
-  // FIXME: Currently there's no way to actually check whether the redirection destionation is correct
-  test.skip('opens channel list screen if the same url has been used', async () => {
-    store.dispatch(
-      initActions.setWebsocketConnected({
-        dataPort: 5001,
-        socketIOSecret: 'secret',
-      })
-    )
-
-    store.dispatch(communities.actions.setInvitationCodes(validData.pairs))
-    store.dispatch(
-      communities.actions.addNewCommunity({
-        ...community,
-        name: 'rockets',
-      })
-    )
-
-    store.dispatch(
-      // @ts-expect-error
-      identity.actions.addNewIdentity({ ..._identity, userCertificate: 'certificate' })
-    )
-
-    store.dispatch(communities.actions.setCurrentCommunity(community.id))
-
-    const reducer = combineReducers(reducers)
-    await expectSaga(deepLinkSaga, initActions.deepLink(validCode))
-      .withReducer(reducer)
-      .withState(store.getState())
-      .not.put(
-        communities.actions.createNetwork({
-          ownership: CommunityOwnership.User,
-          peers: validData.pairs,
-          psk: validData.psk,
-          ownerOrbitDbIdentity: validData.ownerOrbitDbIdentity,
         })
       )
       .run()
@@ -127,10 +86,6 @@ describe('deepLinkSaga', () => {
         socketIOSecret: 'secret',
       })
     )
-
-    // Store other communitys' invitation data in redux
-    // const invitationData = getValidInvitationUrlTestData(validInvitationCodeTestData[1])
-    store.dispatch(communities.actions.setInvitationCodes(validInvitationDatav1[0].pairs))
 
     store.dispatch(
       communities.actions.addNewCommunity({
@@ -176,8 +131,7 @@ describe('deepLinkSaga', () => {
 
     store.dispatch(communities.actions.setCurrentCommunity(community.id))
 
-    // const invitationCodes = getInvitationCodes(validCode)
-    store.dispatch(communities.actions.setInvitationCodes(validData.pairs))
+    store.dispatch(communities.actions.savePSK(validData.psk))
 
     const reducer = combineReducers(reducers)
     await expectSaga(deepLinkSaga, initActions.deepLink(validCode))
@@ -197,11 +151,10 @@ describe('deepLinkSaga', () => {
       })
       .put.like({
         action: {
-          type: communities.actions.createNetwork.type,
+          type: communities.actions.joinNetwork.type,
           payload: {
-            ownership: CommunityOwnership.User,
-            peers: validData.pairs,
-            psk: validData.psk,
+            version: InvitationDataVersion.v1,
+            ...validData,
           },
         },
       })
@@ -243,11 +196,9 @@ describe('deepLinkSaga', () => {
         },
       })
       .not.put(
-        communities.actions.createNetwork({
-          ownership: CommunityOwnership.User,
-          peers: validData.pairs,
-          psk: validData.psk,
-          ownerOrbitDbIdentity: validData.ownerOrbitDbIdentity,
+        communities.actions.joinNetwork({
+          version: InvitationDataVersion.v1,
+          ...validData,
         })
       )
       .run()
