@@ -1,6 +1,7 @@
 import { By, Key, type ThenableWebDriver, type WebElement, until } from 'selenium-webdriver'
 import { BuildSetup, sleep, type BuildSetupInit } from './utils'
 import path from 'path'
+import { BACK_ARROW_DATA_TESTID } from './enums'
 
 export class App {
   thenableWebDriver?: ThenableWebDriver
@@ -154,16 +155,17 @@ export class UserProfileContextMenu {
     await button.click()
   }
 
-  async back() {
+  async back(dataTestid: BACK_ARROW_DATA_TESTID) {
     const button = await this.driver.wait(
-      until.elementLocated(By.xpath('//div[@data-testid="contextMenu-backArrow"]')),
+      until.elementLocated(By.xpath(`//div[@data-testid="${dataTestid}"]`)),
       20000,
-      'Context back button not found',
+      `Context back button with data-testid ${dataTestid} not found`,
       500
     )
 
     console.log('clicking back button')
-    await this.driver.executeScript('arguments[0].click();', button)
+    // await this.driver.executeScript('arguments[0].click();', button)
+    await button.click()
   }
 
   async openEditProfileMenu() {

@@ -12,6 +12,7 @@ import {
 import logger from '../logger'
 import { EXPECTED_IMG_SRC_GIF, EXPECTED_IMG_SRC_JPEG, EXPECTED_IMG_SRC_PNG } from '../profilePhoto.const'
 import { sleep } from '../utils'
+import { BACK_ARROW_DATA_TESTID } from '../enums'
 
 const log = logger('userProfile')
 
@@ -108,7 +109,8 @@ describe('User Profile Feature', () => {
       const imgSrc = await menu.getProfilePhotoSrc()
       expect(imgSrc).toEqual(EXPECTED_IMG_SRC_JPEG)
 
-      await menu.back()
+      await menu.back(BACK_ARROW_DATA_TESTID.EDIT_PROFILE)
+      await menu.back(BACK_ARROW_DATA_TESTID.PROFILE)
     } catch (e) {
       console.error('Failed to set JPEG profile photo', e)
       throw e
@@ -120,12 +122,14 @@ describe('User Profile Feature', () => {
       console.log('GIF')
       const menu = new UserProfileContextMenu(users.owner.app.driver)
       await menu.openMenu()
+      await menu.openEditProfileMenu()
       await menu.uploadGIFPhoto()
 
       const imgSrc = await menu.getProfilePhotoSrc()
       expect(imgSrc).toEqual(EXPECTED_IMG_SRC_GIF)
 
-      await menu.back()
+      await menu.back(BACK_ARROW_DATA_TESTID.EDIT_PROFILE)
+      await menu.back(BACK_ARROW_DATA_TESTID.PROFILE)
     } catch (e) {
       console.error('Failed to set GIF profile photo', e)
       throw e
@@ -137,12 +141,14 @@ describe('User Profile Feature', () => {
       console.log('PNG')
       const menu = new UserProfileContextMenu(users.owner.app.driver)
       await menu.openMenu()
+      await menu.openEditProfileMenu()
       await menu.uploadPNGPhoto()
 
       const imgSrc = await menu.getProfilePhotoSrc()
       expect(imgSrc).toEqual(EXPECTED_IMG_SRC_PNG)
 
-      await menu.back()
+      await menu.back(BACK_ARROW_DATA_TESTID.EDIT_PROFILE)
+      await menu.back(BACK_ARROW_DATA_TESTID.PROFILE)
     } catch (e) {
       console.error('Failed to set PNG profile photo', e)
       throw e
