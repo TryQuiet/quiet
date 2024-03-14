@@ -38,6 +38,7 @@ const Channel = () => {
 
   const initializedCommunities = useSelector(network.selectors.initializedCommunities)
   const isCommunityInitialized = Boolean(community && initializedCommunities[community.id])
+  const connectedPeers = useSelector(network.selectors.connectedPeers)
 
   const pendingGeneralChannelRecreationSelector = useSelector(publicChannels.selectors.pendingGeneralChannelRecreation)
 
@@ -194,7 +195,7 @@ const Channel = () => {
   if (!user || !currentChannelId) return null
 
   const channelComponentProps: ChannelComponentProps = {
-    user: user,
+    user,
     channelId: currentChannelId,
     channelName: currentChannelName,
     messages: {
@@ -202,7 +203,7 @@ const Channel = () => {
       groups: currentChannelDisplayableMessages,
     },
     newestMessage: newestCurrentChannelMessage,
-    pendingMessages: pendingMessages,
+    pendingMessages,
     downloadStatuses: downloadStatusesMapping,
     lazyLoading: lazyLoading,
     onInputChange: onInputChange,
@@ -210,11 +211,12 @@ const Channel = () => {
     openUrl: openUrl,
     handleFileDrop: handleFileDrop,
     openFilesDialog: openFilesDialog,
-    isCommunityInitialized: isCommunityInitialized,
+    isCommunityInitialized,
+    connectedPeers,
     handleClipboardFiles: handleClipboardFiles,
-    uploadedFileModal: uploadedFileModal,
+    uploadedFileModal,
     openContextMenu: openContextMenu,
-    pendingGeneralChannelRecreation: pendingGeneralChannelRecreation,
+    pendingGeneralChannelRecreation,
     unregisteredUsernameModalHandleOpen,
     duplicatedUsernameModalHandleOpen,
   }

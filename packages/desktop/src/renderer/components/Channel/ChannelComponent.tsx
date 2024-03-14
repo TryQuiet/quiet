@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useLayoutEffect } from 'react'
 
 import { styled } from '@mui/material/styles'
-import { Grid } from '@mui/material'
+import { CircularProgress, Grid, Typography } from '@mui/material'
 
 import Page from '../ui/Page/Page'
 import PageHeader from '../ui/Page/PageHeader'
@@ -26,6 +26,7 @@ import { NewMessagesInfoComponent } from './NewMessagesInfo/NewMessagesInfoCompo
 import { FileActionsProps } from './File/FileComponent/FileComponent'
 import { UseModalType } from '../../containers/hooks'
 import { HandleOpenModalType } from '../widgets/userLabel/UserLabel.types'
+import SpinnerLoader from '../ui/Spinner/SpinnerLoader'
 
 const ChannelMessagesWrapperStyled = styled(Grid)(({ theme }) => ({
   position: 'relative',
@@ -51,6 +52,7 @@ export interface ChannelComponentProps {
   openFilesDialog: () => void
   handleFileDrop: (arg: any) => void
   isCommunityInitialized: boolean
+  connectedPeers: string[] | undefined
   handleClipboardFiles: (arg: ArrayBuffer, ext: string, name: string) => void
   uploadedFileModal?: UseModalType<{
     src: string
@@ -84,6 +86,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
   handleFileDrop,
   filesData,
   isCommunityInitialized = true,
+  connectedPeers,
   openFilesDialog,
   handleClipboardFiles,
   uploadedFileModal,
@@ -107,10 +110,27 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
 
   const [mathMessagesRendered, onMathMessageRendered] = React.useState<number>(0)
 
+  const checkForOtherConnectedPeers = (connectedPeers: string[] | undefined) => {
+    console.log(connectedPeers?.length || 0, connectedPeers)
+    if (connectedPeers && connectedPeers.length > 0) {
+      console.log('found other peers')
+      return true
+    }
+    console.log('no connected peers')
+    return false
+  }
+
+  const [isConnectedToOtherPeers, onConnectedPeersChange] = React.useState<boolean>(checkForOtherConnectedPeers(connectedPeers))
+
   const updateMathMessagesRendered = () => {
     // To rerender Channel on each call
     onMathMessageRendered(mathMessagesRendered + 1)
   }
+
+  useEffect(() => {
+    console.log('peers updated')
+    onConnectedPeersChange(checkForOtherConnectedPeers(connectedPeers))
+  }, [connectedPeers])
 
   useEffect(() => {
     if (scrollPosition === ScrollPosition.BOTTOM) {
@@ -241,6 +261,32 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
             duplicatedUsernameModalHandleOpen={duplicatedUsernameModalHandleOpen}
           />
         </ChannelMessagesWrapperStyled>
+        <Grid
+          container
+          style={{
+            display: isConnectedToOtherPeers ? 'none': 'flex',
+            flexDirection: 'row',
+            alignItems: 'center',
+            padding: '11px 16px 11px 16px',
+            width: '100%',
+            borderTop: '1px solid #F0F0F0',
+            borderRadius: '16px 16px 0px 0px'
+          }}
+        >
+          <Grid
+            item
+            style={{
+              display: isConnectedToOtherPeers ? 'none': 'flex',
+              flexDirection: 'row',
+              paddingRight: '12px'
+            }}
+          >
+            <CircularProgress color='inherit' className={'channelQuietConnectingSpinner'} size={20} />
+          </Grid>
+          <Typography fontSize={16} fontWeight={'normal'} justifyContent={'center'}>
+              Quiet is trying to connect...
+          </Typography>
+        </Grid>
         <Grid item>
           <ChannelInputComponent
             channelId={channelId}

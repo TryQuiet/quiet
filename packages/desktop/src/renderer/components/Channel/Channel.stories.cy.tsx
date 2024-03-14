@@ -21,6 +21,8 @@ const Template: ComponentStory<typeof ChannelComponent> = () => {
     }
   }>(mock_messages())
 
+  const [connectedPeers, setConnectedPeers] = useState<string[] | undefined>(["peer"])
+
   const onInputEnter = (message: string) => {
     const _message: DisplayableMessage = {
       id: '32',
@@ -62,7 +64,7 @@ const Template: ComponentStory<typeof ChannelComponent> = () => {
               privateKey: 'privateKey',
             },
             peerId: {
-              id: 'id',
+              id: 'peer',
               privKey: 'privKey',
               pubKey: 'pubKey',
             },
@@ -83,6 +85,7 @@ const Template: ComponentStory<typeof ChannelComponent> = () => {
             joinTimestamp: null,
           }}
           isCommunityInitialized={true}
+          connectedPeers={connectedPeers}
           uploadedFileModal={{
             open: false,
             handleOpen: function (_args?: any): any {},
