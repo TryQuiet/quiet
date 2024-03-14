@@ -163,13 +163,13 @@ export class UserProfileContextMenu {
     )
 
     console.log('clicking back button')
-    await this.driver.executeScript("arguments[0].click();", button)
+    await this.driver.executeScript('arguments[0].click();', button)
   }
 
   async openEditProfileMenu() {
     const button = await this.driver.wait(
       until.elementLocated(By.xpath('//div[@data-testid="contextMenuItemEdit profile"]')),
-      20000, 
+      20000,
       'Edit Profile button not found',
       500
     )
@@ -180,7 +180,7 @@ export class UserProfileContextMenu {
   async uploadPhoto(fileName: string) {
     const input = await this.driver.wait(
       until.elementLocated(By.xpath('//input[@data-testid="user-profile-edit-photo-input"]')),
-      10000, 
+      10000,
       'Edit Photo button not found',
       500
     )
