@@ -51,10 +51,21 @@ export class BuildSetup {
       case 'win32':
         return `${process.env.LOCALAPPDATA}\\Programs\\@quietdesktop\\Quiet.exe`
       case 'darwin':
-        return '/Applications/Quiet.app/Contents/MacOS/Quiet'
+        return this.getMacBinaryDir()
       default:
         throw new Error('wrong SYSTEM env')
     }
+  }
+
+  private getMacBinaryDir(): string {
+    let basePath = '/Applications'
+    if (process.env.IS_LOCAL === 'true') {
+      console.warn('RUNNING ON LOCAL BINARY')
+      const distDirByArch = process.arch === 'arm64' ? 'mac-arm64' : 'mac'
+      basePath = `${__dirname}/../../desktop/dist/${distDirByArch}`
+    }
+
+    return `${basePath}/Quiet.app/Contents/MacOS/Quiet`
   }
 
   public getVersionFromEnv() {
@@ -169,8 +180,8 @@ export class BuildSetup {
   }
 
   public getDriver(): ThenableWebDriver {
-    const binary = this.getBinaryLocation()
     if (!this.driver) {
+      const binary: string = this.getBinaryLocation()
       try {
         this.driver = new Builder()
           .usingServer(`http://localhost:${this.port}`)
@@ -186,6 +197,7 @@ export class BuildSetup {
         console.log(e)
       }
     }
+
     if (this.driver == null || this.driver === undefined) {
       throw new Error('No driver')
     }
@@ -294,4 +306,12 @@ export const copyInstallerFile = (file: string) => {
   fs.copyFileSync(base, copiedFilePath)
   console.log(`Copied ${base} to ${copiedFilePath}`)
   return copiedFileName
+}
+
+export const sleep = async (time = 1000) => {
+  await new Promise<void>(resolve =>
+    setTimeout(() => {
+      resolve()
+    }, time)
+  )
 }

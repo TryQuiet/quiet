@@ -44,7 +44,6 @@ export const ChannelContextMenu: FC = () => {
   }
 
   return (
-    // @ts-expect-error
     <ContextMenu title={title} {...channelContextMenu}>
       <ContextMenuItemList items={items} />
     </ContextMenu>

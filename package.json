@@ -5,6 +5,9 @@
     "lerna": "lerna",
     "publish": "lerna version $npm_config_release --no-private",
     "postpublish": "node copy-changelog.js && git add . && git commit -m 'Update packages CHANGELOG.md' && git push",
+    "start:desktop": "lerna run --scope @quiet/desktop start",
+    "lint:all": "lerna run lint",
+    "distAndRunE2ETests:mac:local": "lerna run --scope @quiet/desktop distMac:local && lerna run --scope e2e-tests test:localBinary --",
     "prepare": "husky",
     "lint-staged": "lerna run lint-staged"
   },

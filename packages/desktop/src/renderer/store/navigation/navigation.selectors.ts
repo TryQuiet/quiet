@@ -7,9 +7,9 @@ import { CreatedSelectors, StoreState } from '../../sagas/store.types'
 const navigationSlice: CreatedSelectors<StoreState[StoreKeys.Navigation]> = (state: StoreState) =>
   state[StoreKeys.Navigation]
 
-export const contextMenuVisibility = (menu: MenuName) =>
+export const contextMenuVisibility = (menu: MenuName): ((state: any, ...params: any[]) => boolean) =>
   createSelector(navigationSlice, reducerState => {
-    return reducerState[menu]?.open
+    return reducerState[menu]?.open as boolean
   })
 
 export const contextMenuProps = (menu: MenuName) =>

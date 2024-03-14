@@ -133,7 +133,7 @@ export interface UserProfileMenuProfileViewProps {
   userProfile?: { profile: { photo: string } }
   contextMenu: {
     // FIXME: should be boolean; useContextMenu typing is broken
-    visible: unknown
+    visible: boolean
     handleOpen: (args?: object | undefined) => any
     handleClose: () => any
   }
@@ -175,8 +175,6 @@ export const UserProfileMenuProfileView: FC<UserProfileMenuProfileViewProps> = (
   }, [contentRef])
 
   return (
-    // FIXME: We shouldn't need to ignore ts errors
-    // @ts-expect-error
     <ContextMenu title='Profile' {...contextMenu}>
       <StyledContextMenuContent
         container
@@ -257,7 +255,7 @@ export const EditPhotoButton: FC<{ onChange: (photo?: File) => void }> = ({ onCh
         onClick={evt => {
           ;(evt.target as HTMLInputElement).value = ''
         }}
-        accept='image/png'
+        accept='image/png, image/jpeg, image/gif'
         hidden
       />
     </button>
@@ -295,8 +293,7 @@ export interface UserProfileMenuEditViewProps {
   pubKey?: string
   userProfile?: { profile: { photo: string } }
   contextMenu: {
-    // FIXME: should be boolean; useContextMenu typing is broken
-    visible: unknown
+    visible: boolean
     handleOpen: (args?: object | undefined) => any
     handleClose: () => any
   }
@@ -387,8 +384,6 @@ export const UserProfileMenuEditView: FC<UserProfileMenuEditViewProps> = ({
   }, [contentRef])
 
   return (
-    // FIXME: We shouldn't need to ignore ts errors
-    // @ts-expect-error
     <ContextMenu title='Edit profile' handleBack={() => setRoute('userProfile')} {...contextMenu}>
       <StyledContextMenuContent
         container
