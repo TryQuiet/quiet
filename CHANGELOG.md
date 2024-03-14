@@ -6,6 +6,10 @@
 
 * Use ack for CREATE_NETWORK and simplify
 
+# Fixes
+
+* Allow JPEG and GIF files as profile photos ([#2332](https://github.com/TryQuiet/quiet/issues/2332))
+
 [2.1.2]
 
 # Refactorings:

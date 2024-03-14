@@ -1,6 +1,8 @@
 [unreleased]
 
+# Fixes
 
+* Updates profile photo editor to allow JPEG and GIF files ([#2332](https://github.com/TryQuiet/quiet/issues/2332))
 
 [2.1.2]
 

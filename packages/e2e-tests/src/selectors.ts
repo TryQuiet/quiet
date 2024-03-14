@@ -1,6 +1,7 @@
 import { By, Key, type ThenableWebDriver, type WebElement, until } from 'selenium-webdriver'
-import { BuildSetup, type BuildSetupInit } from './utils'
+import { BuildSetup, sleep, type BuildSetupInit } from './utils'
 import path from 'path'
+import { BACK_ARROW_DATA_TESTID } from './enums'
 
 export class App {
   thenableWebDriver?: ThenableWebDriver
@@ -145,25 +146,71 @@ export class UserProfileContextMenu {
 
   async openMenu() {
     const button = await this.driver.wait(
-      until.elementLocated(By.xpath('//div[@data-testid="user-profile-menu-button"]'))
+      until.elementLocated(By.xpath('//div[@data-testid="user-profile-menu-button"]')),
+      20000,
+      'Context menu button not found',
+      500
     )
+    await this.driver.wait(until.elementIsVisible(button), 20000, 'Context menu button never became visible', 500)
+    await button.click()
+  }
+
+  async back(dataTestid: BACK_ARROW_DATA_TESTID) {
+    const button = await this.driver.wait(
+      until.elementLocated(By.xpath(`//div[@data-testid="${dataTestid}"]`)),
+      20000,
+      `Context back button with data-testid ${dataTestid} not found`,
+      500
+    )
+
+    console.log('clicking back button')
+    // await this.driver.executeScript('arguments[0].click();', button)
     await button.click()
   }
 
   async openEditProfileMenu() {
     const button = await this.driver.wait(
-      until.elementLocated(By.xpath('//div[@data-testid="contextMenuItemEdit profile"]'))
+      until.elementLocated(By.xpath('//div[@data-testid="contextMenuItemEdit profile"]')),
+      20000,
+      'Edit Profile button not found',
+      500
     )
-    await this.driver.wait(until.elementIsVisible(button))
+    await this.driver.wait(until.elementIsVisible(button), 20000, 'Edit Profile button never became visible', 500)
     await button.click()
   }
 
-  async uploadPhoto() {
+  async uploadPhoto(fileName: string) {
     const input = await this.driver.wait(
-      until.elementLocated(By.xpath('//input[@data-testid="user-profile-edit-photo-input"]'))
+      until.elementLocated(By.xpath('//input[@data-testid="user-profile-edit-photo-input"]')),
+      10000,
+      'Edit Photo button not found',
+      500
     )
-    const filePath = path.join(__dirname, '../assets/profile-photo.png')
+    const filePath = path.join(__dirname, fileName)
     await input.sendKeys(filePath)
+  }
+
+  async uploadPNGPhoto() {
+    await this.uploadPhoto('../assets/profile-photo.png')
+  }
+
+  async uploadJPEGPhoto() {
+    await this.uploadPhoto('../assets/profile-photo.jpg')
+  }
+
+  async uploadGIFPhoto() {
+    await this.uploadPhoto('../assets/profile-photo.gif')
+  }
+
+  async waitForPhoto(): Promise<WebElement> {
+    await sleep(3000)
+    const photoElement = await this.driver.wait(until.elementLocated(By.className('UserProfilePanel-profilePhoto')))
+    return photoElement
+  }
+
+  async getProfilePhotoSrc(): Promise<string> {
+    const photoElement = await this.waitForPhoto()
+    return photoElement.getAttribute('src')
   }
 }
 
