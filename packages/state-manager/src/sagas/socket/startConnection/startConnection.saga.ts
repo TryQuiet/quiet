@@ -178,6 +178,7 @@ export function subscribe(socket: Socket) {
       log.error(payload)
       console.error(payload, payload.trace)
       emit(errorsActions.handleError(payload))
+      alert(JSON.stringify(payload))
     })
     // Certificates
     socket.on(SocketActionTypes.CSRS_STORED, (payload: SendCsrsResponse) => {
