@@ -177,6 +177,7 @@ export interface BasicMessageProps {
   messages: DisplayableMessage[]
   pendingMessages?: Dictionary<MessageSendingStatus>
   isConnectedToOtherPeers: boolean
+  communityHasPeers: boolean
   lastConnectedTime: number
   allPeersDisconnectedTime: number | undefined
   openUrl: (url: string) => void
@@ -193,6 +194,7 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
   messages,
   pendingMessages = {},
   isConnectedToOtherPeers = false,
+  communityHasPeers = false,
   lastConnectedTime,
   allPeersDisconnectedTime,
   downloadStatuses = {},
@@ -220,7 +222,8 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
   const isRecent = lastConnectedTime < messages[0].createdAt
   const peersDisconnectedRecently = allPeersDisconnectedTime != null && allPeersDisconnectedTime < messages[0].createdAt
   const noPeersThisSession = allPeersDisconnectedTime == null && !isConnectedToOtherPeers
-  const isUnsent = isRecent && !isConnectedToOtherPeers && (peersDisconnectedRecently || noPeersThisSession)
+  const isUnsent =
+    communityHasPeers && isRecent && !isConnectedToOtherPeers && (peersDisconnectedRecently || noPeersThisSession)
 
   return (
     <StyledListItem

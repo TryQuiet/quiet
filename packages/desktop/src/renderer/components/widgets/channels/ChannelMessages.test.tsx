@@ -39,6 +39,7 @@ describe('ChannelMessages', () => {
         lastConnectedTime={1636995489}
         allPeersDisconnectedTime={undefined}
         isConnectedToOtherPeers={true}
+        communityHasPeers={true}
         scrollbarRef={React.createRef()}
         onScroll={jest.fn()}
         openUrl={jest.fn()}

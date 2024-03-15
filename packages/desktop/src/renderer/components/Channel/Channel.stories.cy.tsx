@@ -87,6 +87,7 @@ const Template: ComponentStory<typeof ChannelComponent> = () => {
           }}
           isCommunityInitialized={true}
           connectedPeers={connectedPeers}
+          communityPeerList={connectedPeers}
           lastConnectedTime={DateTime.utc().toSeconds()}
           allPeersDisconnectedTime={undefined}
           uploadedFileModal={{

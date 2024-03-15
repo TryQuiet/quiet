@@ -38,6 +38,7 @@ const Channel = () => {
 
   const initializedCommunities = useSelector(network.selectors.initializedCommunities)
   const isCommunityInitialized = Boolean(community && initializedCommunities[community.id])
+  const communityPeerList = useSelector(communities.selectors.peerList)
   const connectedPeers = useSelector(network.selectors.connectedPeers)
   const lastConnectedTime = useSelector(network.selectors.communityLastConnectedAt)
   const allPeersDisconnectedTime = useSelector(network.selectors.allPeersDisconnectedAt)
@@ -214,6 +215,7 @@ const Channel = () => {
     handleFileDrop: handleFileDrop,
     openFilesDialog: openFilesDialog,
     isCommunityInitialized,
+    communityPeerList,
     connectedPeers,
     lastConnectedTime,
     allPeersDisconnectedTime,

@@ -26,6 +26,7 @@ describe('BasicMessage', () => {
             lastConnectedTime={DateTime.utc().toSeconds()}
             allPeersDisconnectedTime={undefined}
             isConnectedToOtherPeers={true}
+            communityHasPeers={true}
             openUrl={jest.fn()}
           />
         </Provider>
@@ -118,6 +119,7 @@ describe('BasicMessage', () => {
             allPeersDisconnectedTime={undefined}
             messages={messages}
             isConnectedToOtherPeers={true}
+            communityHasPeers={true}
             openUrl={jest.fn()}
           />
         </Provider>
@@ -220,6 +222,7 @@ describe('BasicMessage', () => {
             allPeersDisconnectedTime={undefined}
             messages={messages}
             isConnectedToOtherPeers={true}
+            communityHasPeers={true}
             openUrl={jest.fn()}
           />
         </Provider>
@@ -326,6 +329,7 @@ describe('BasicMessage', () => {
             allPeersDisconnectedTime={undefined}
             messages={[...message1, ...message2]}
             isConnectedToOtherPeers={true}
+            communityHasPeers={true}
             openUrl={jest.fn()}
           />
         </Provider>

@@ -25,6 +25,7 @@ import {
 } from '@quiet/types'
 import { networkSelectors } from '../network/network.selectors'
 import { DateTime } from 'luxon'
+import { communitiesSelectors } from '../communities/communities.selectors'
 
 const selectState: CreatedSelectors[StoreKeys.PublicChannels] = (state: StoreState) => state[StoreKeys.PublicChannels]
 
@@ -218,11 +219,13 @@ export const currentChannelMessagesMergedBySender = createSelector(
   networkSelectors.communityLastConnectedAt,
   networkSelectors.allPeersDisconnectedAt,
   networkSelectors.connectedPeers,
+  communitiesSelectors.peerList,
   (
     groups: MessagesGroupsType,
     lastConnectedTime: number,
     allPeersDisconnectedAt: number | undefined,
-    connectedPeers: string[]
+    connectedPeers: string[],
+    communityPeerList: string[] | undefined
   ) => {
     const result: MessagesDailyGroups = {}
 
@@ -240,10 +243,12 @@ export const currentChannelMessagesMergedBySender = createSelector(
 
         // Determine if a message is "unsent"
         const isRecent = lastConnectedTime < message.createdAt
-        const hasPeers = connectedPeers.length > 0
+        const communityHasPeers = communityPeerList != null && communityPeerList.length > 1
+        const hasConnectedPeers = connectedPeers.length > 0
         const peersDisconnectedRecently = allPeersDisconnectedAt != null && allPeersDisconnectedAt < message.createdAt
         const noPeersThisSession = allPeersDisconnectedAt == null && connectedPeers.length > 0
-        const isUnsent = isRecent && !hasPeers && (peersDisconnectedRecently || noPeersThisSession)
+        const isUnsent =
+          communityHasPeers && isRecent && !hasConnectedPeers && (peersDisconnectedRecently || noPeersThisSession)
 
         if (
           last?.pubKey === message?.pubKey &&

@@ -32,6 +32,10 @@ export const currentCommunityId = createSelector(communitiesSlice, reducerState 
   return reducerState.currentCommunity
 })
 
+export const peerList = createSelector(currentCommunity, currentCommunity => {
+  return currentCommunity?.peerList
+})
+
 export const invitationCodes = createSelector(communitiesSlice, reducerState => {
   return reducerState.invitationCodes
 })
@@ -73,4 +77,5 @@ export const communitiesSelectors = {
   ownerCertificate,
   ownerNickname,
   psk,
+  peerList,
 }

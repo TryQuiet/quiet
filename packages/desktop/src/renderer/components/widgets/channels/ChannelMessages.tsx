@@ -75,6 +75,7 @@ export interface IChannelMessagesProps {
   messages?: MessagesDailyGroups
   pendingMessages?: Dictionary<MessageSendingStatus>
   isConnectedToOtherPeers: boolean
+  communityHasPeers: boolean
   lastConnectedTime: number
   allPeersDisconnectedTime: number | undefined
   downloadStatuses?: Dictionary<DownloadStatus>
@@ -94,6 +95,7 @@ export const ChannelMessagesComponent: React.FC<IChannelMessagesProps & FileActi
   messages = {},
   pendingMessages = {},
   isConnectedToOtherPeers = false,
+  communityHasPeers = false,
   lastConnectedTime,
   allPeersDisconnectedTime,
   downloadStatuses = {},
@@ -158,6 +160,7 @@ export const ChannelMessagesComponent: React.FC<IChannelMessagesProps & FileActi
                     messages={items}
                     pendingMessages={pendingMessages}
                     isConnectedToOtherPeers={isConnectedToOtherPeers}
+                    communityHasPeers={communityHasPeers}
                     lastConnectedTime={lastConnectedTime}
                     allPeersDisconnectedTime={allPeersDisconnectedTime}
                     downloadStatuses={downloadStatuses}

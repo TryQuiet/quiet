@@ -53,6 +53,7 @@ export interface ChannelComponentProps {
   handleFileDrop: (arg: any) => void
   isCommunityInitialized: boolean
   connectedPeers: string[] | undefined
+  communityPeerList: string[] | undefined
   lastConnectedTime: number
   allPeersDisconnectedTime: number | undefined
   handleClipboardFiles: (arg: ArrayBuffer, ext: string, name: string) => void
@@ -89,6 +90,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
   filesData,
   isCommunityInitialized = true,
   connectedPeers,
+  communityPeerList,
   lastConnectedTime,
   allPeersDisconnectedTime,
   openFilesDialog,
@@ -114,16 +116,27 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
 
   const [mathMessagesRendered, onMathMessageRendered] = React.useState<number>(0)
 
-  const checkForOtherConnectedPeers = (connectedPeers: string[] | undefined) => {
-    console.log(connectedPeers?.length || 0, connectedPeers)
+  const checkForConnectedPeers = (connectedPeers: string[] | undefined) => {
     if (connectedPeers && connectedPeers.length > 0) {
       return true
     }
     return false
   }
 
+  const checkForCommunityPeers = (peerList: string[] | undefined) => {
+    console.log(peerList, peerList?.length)
+    if (peerList && peerList.length > 1) {
+      return true
+    }
+    return false
+  }
+
   const [isConnectedToOtherPeers, onConnectedPeersChange] = React.useState<boolean>(
-    checkForOtherConnectedPeers(connectedPeers)
+    checkForConnectedPeers(connectedPeers)
+  )
+
+  const [communityHasPeers, onCommunityPeerListChanged] = React.useState<boolean>(
+    checkForCommunityPeers(communityPeerList)
   )
 
   const updateMathMessagesRendered = () => {
@@ -132,8 +145,12 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
   }
 
   useEffect(() => {
-    onConnectedPeersChange(checkForOtherConnectedPeers(connectedPeers))
+    onConnectedPeersChange(checkForConnectedPeers(connectedPeers))
   }, [connectedPeers])
+
+  useEffect(() => {
+    onCommunityPeerListChanged(checkForCommunityPeers(communityPeerList))
+  }, [communityPeerList])
 
   useEffect(() => {
     if (scrollPosition === ScrollPosition.BOTTOM) {
@@ -251,6 +268,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
             messages={messages.groups}
             pendingMessages={pendingMessages}
             isConnectedToOtherPeers={isConnectedToOtherPeers}
+            communityHasPeers={communityHasPeers}
             lastConnectedTime={lastConnectedTime}
             allPeersDisconnectedTime={allPeersDisconnectedTime}
             downloadStatuses={downloadStatuses}
@@ -267,10 +285,40 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
             duplicatedUsernameModalHandleOpen={duplicatedUsernameModalHandleOpen}
           />
         </ChannelMessagesWrapperStyled>
+        {/* {
+          !isConnectedToOtherPeers && communityHasPeers && (
+            <Grid
+              container
+              style={{
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'center',
+                padding: '11px 16px 11px 16px',
+                width: '100%',
+                borderTop: '1px solid #F0F0F0',
+                borderRadius: '16px 16px 0px 0px',
+              }}
+            >
+              <Grid
+                item
+                style={{
+                  display: 'flex',
+                  flexDirection: 'row',
+                  paddingRight: '12px',
+                }}
+              >
+                <CircularProgress color='inherit' className={'channelQuietConnectingSpinner'} size={20} />
+              </Grid>
+              <Typography fontSize={16} fontWeight={'normal'} justifyContent={'center'}>
+                Quiet is trying to connect...
+              </Typography>
+            </Grid>
+          )
+        } */}
         <Grid
           container
           style={{
-            display: isConnectedToOtherPeers ? 'none' : 'flex',
+            display: !isConnectedToOtherPeers && communityHasPeers ? 'flex' : 'none',
             flexDirection: 'row',
             alignItems: 'center',
             padding: '11px 16px 11px 16px',
@@ -282,7 +330,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
           <Grid
             item
             style={{
-              display: isConnectedToOtherPeers ? 'none' : 'flex',
+              display: 'flex',
               flexDirection: 'row',
               paddingRight: '12px',
             }}
