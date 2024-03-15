@@ -7,7 +7,7 @@ import { initSelectors } from '../init.selectors'
 import { initActions } from '../init.slice'
 import { appImages } from '../../../assets'
 import { replaceScreen } from '../../../RootNavigation'
-import { CommunityOwnership, CreateNetworkPayload, InvitationData, InvitationDataVersion } from '@quiet/types'
+import { InvitationData, InvitationDataVersion } from '@quiet/types'
 
 export function* deepLinkSaga(action: PayloadAction<ReturnType<typeof initActions.deepLink>['payload']>): Generator {
   const code = action.payload
@@ -48,9 +48,7 @@ export function* deepLinkSaga(action: PayloadAction<ReturnType<typeof initAction
 
   const community = yield* select(communities.selectors.currentCommunity)
 
-  // TODO: rename
-  let isInvitationDataValid = false
-  if (!data.version) data.version = InvitationDataVersion.v1
+  let isJoiningAnotherCommunity = false
 
   switch (data.version) {
     case InvitationDataVersion.v1:
@@ -60,45 +58,15 @@ export function* deepLinkSaga(action: PayloadAction<ReturnType<typeof initAction
       console.log('Stored psk', storedPsk)
       console.log('Current psk', currentPsk)
 
-      if (!currentPsk) {
-        isInvitationDataValid = false
-      } else if (!storedPsk) {
-        isInvitationDataValid = true
-      } else {
-        isInvitationDataValid = storedPsk === currentPsk
-      }
+      isJoiningAnotherCommunity = Boolean(storedPsk && storedPsk !== currentPsk)
       break
-    default:
-      isInvitationDataValid = true
   }
-
-  console.log('Is invitation data valid', isInvitationDataValid)
 
   const isAlreadyConnected = Boolean(community?.name)
-
-  const alreadyBelongsWithAnotherCommunity = !isInvitationDataValid && isAlreadyConnected
-  const connectingWithAnotherCommunity = !isInvitationDataValid && !isAlreadyConnected
-  const alreadyBelongsWithCurrentCommunity = isInvitationDataValid && isAlreadyConnected
-  const connectingWithCurrentCommunity = isInvitationDataValid && !isAlreadyConnected
-
-  if (alreadyBelongsWithAnotherCommunity) {
-    console.log('INIT_NAVIGATION: ABORTING: Already belongs with another community.')
-  }
-
-  if (connectingWithAnotherCommunity) {
-    console.log('INIT_NAVIGATION: ABORTING: Proceeding with connection to another community.')
-  }
-
-  if (alreadyBelongsWithCurrentCommunity) {
-    console.log('INIT_NAVIGATION: ABORTING: Already connected with the current community.')
-  }
-
-  if (connectingWithCurrentCommunity) {
-    console.log('INIT_NAVIGATION: Proceeding with connection to the community.')
-  }
+  const connectingWithAnotherCommunity = isJoiningAnotherCommunity && !isAlreadyConnected
 
   // User already belongs to a community
-  if (alreadyBelongsWithAnotherCommunity || alreadyBelongsWithCurrentCommunity) {
+  if (isAlreadyConnected) {
     console.log('INIT_NAVIGATION: Displaying error (user already belongs to a community).')
 
     yield* put(

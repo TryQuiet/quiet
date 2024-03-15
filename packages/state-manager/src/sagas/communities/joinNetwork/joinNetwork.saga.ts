@@ -42,5 +42,6 @@ export function* joinNetworkSaga(
       break
   }
 
+  console.log('join network saga payload', payload)
   yield* put(communitiesActions.createNetwork(payload))
 }

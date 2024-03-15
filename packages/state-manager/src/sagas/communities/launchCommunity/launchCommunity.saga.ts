@@ -30,6 +30,7 @@ export function* launchCommunitySaga(
   socket: Socket,
   action: PayloadAction<ReturnType<typeof communitiesActions.launchCommunity>['payload']>
 ): Generator {
+  console.log('LAUNCH COMMUNITY SAGA')
   const communityId = action.payload
   const community = yield* select(communitiesSelectors.selectById(communityId))
   const identity = yield* select(identitySelectors.selectById(communityId))

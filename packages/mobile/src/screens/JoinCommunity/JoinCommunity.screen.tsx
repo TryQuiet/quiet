@@ -2,13 +2,7 @@
 import React, { FC, useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { identity, communities } from '@quiet/state-manager'
-import {
-  CommunityOwnership,
-  CreateNetworkPayload,
-  InvitationData,
-  InvitationDataVersion,
-  InvitationPair,
-} from '@quiet/types'
+import { InvitationData } from '@quiet/types'
 import { JoinCommunity } from '../../components/JoinCommunity/JoinCommunity.component'
 import { navigationActions } from '../../store/navigation/navigation.slice'
 import { ScreenNames } from '../../const/ScreenNames.enum'

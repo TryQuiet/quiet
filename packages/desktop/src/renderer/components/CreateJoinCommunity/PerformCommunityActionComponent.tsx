@@ -224,6 +224,8 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
   // TODO: What does this mean and do we need this here? It might make
   // sense to decouple the PSK from this component, since this is the
   // only place PSK is used.
+
+  // TODO: adjust to v2 link, maybe pass already composed link instead of data
   useEffect(() => {
     if (communityOwnership === CommunityOwnership.User && invitationCode?.length && psk && ownerOrbitDbIdentity) {
       setFormSent(true)
