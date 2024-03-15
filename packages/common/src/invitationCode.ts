@@ -15,7 +15,7 @@ export const TOKEN_PARAM_KEY = 't'
 export const INVITER_ADDRESS_PARAM_KEY = 'i'
 export const SERVER_ADDRESS_PARAM_KEY = 's'
 
-const DEEP_URL_SCHEME_WITH_SEPARATOR = 'quiet://'
+export const DEEP_URL_SCHEME_WITH_SEPARATOR = 'quiet://'
 const DEEP_URL_SCHEME = 'quiet'
 const ONION_ADDRESS_REGEX = /^[a-z0-9]{56}$/g
 const PEER_ID_REGEX = /^[a-zA-Z0-9]{46}$/g
@@ -153,6 +153,8 @@ export const p2pAddressesToPairs = (addresses: string[]): InvitationPair[] => {
       continue
     }
     const rawAddress = onionAddress.endsWith('.onion') ? onionAddress.split('.')[0] : onionAddress
+    if (!peerDataValid({ peerId, onionAddress: rawAddress })) continue
+
     pairs.push({ peerId: peerId, onionAddress: rawAddress })
   }
   return pairs
@@ -265,7 +267,7 @@ const isParamValid = (param: string, value: string) => {
       //   logger.error(e.message)
       //   return false
       // }
-      return true
+      return Boolean(value.match(PEER_ID_REGEX))
 
     case TOKEN_PARAM_KEY:
       // TODO: validate token format
@@ -278,7 +280,7 @@ const isParamValid = (param: string, value: string) => {
         logger.error(e.message)
         return false
       }
-      break
+      return true
 
     case INVITER_ADDRESS_PARAM_KEY:
       return Boolean(value.trim().match(ONION_ADDRESS_REGEX))

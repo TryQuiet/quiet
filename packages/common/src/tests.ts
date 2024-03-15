@@ -25,10 +25,10 @@ export const validInvitationDatav1: InvitationDataV1[] = [
   },
 ]
 
-const validInvitationDatav2: InvitationDataV2[] = [
+export const validInvitationDatav2: InvitationDataV2[] = [
   {
     version: InvitationDataVersion.v2,
-    cid: 'QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPL',
+    cid: 'QmaRchXhkPWq8iLiMZwFfd2Yi4iESWhAYYJt8cTCVXSwpG',
     token: 'BNlxfE2WBF7LrlpIX0CvECN5o1oZtA16PkAb7GYiwYw',
     serverAddress: 'https://tryquiet.org/api/',
     inviterAddress: 'pgzlcstu4ljvma7jqyalimcxlvss5bwlbba3c3iszgtwxee4qjdlgeqd',
