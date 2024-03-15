@@ -53,6 +53,7 @@ export interface ChannelComponentProps {
   handleFileDrop: (arg: any) => void
   isCommunityInitialized: boolean
   connectedPeers: string[] | undefined
+  lastConnectedTime: number
   handleClipboardFiles: (arg: ArrayBuffer, ext: string, name: string) => void
   uploadedFileModal?: UseModalType<{
     src: string
@@ -87,6 +88,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
   filesData,
   isCommunityInitialized = true,
   connectedPeers,
+  lastConnectedTime,
   openFilesDialog,
   handleClipboardFiles,
   uploadedFileModal,
@@ -247,6 +249,8 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
           <ChannelMessagesComponent
             messages={messages.groups}
             pendingMessages={pendingMessages}
+            isConnectedToOtherPeers={isConnectedToOtherPeers}
+            lastConnectedTime={lastConnectedTime}
             downloadStatuses={downloadStatuses}
             scrollbarRef={scrollbarRef}
             onScroll={onScroll}

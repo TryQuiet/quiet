@@ -73,6 +73,8 @@ export const deletingChannelMessage = 'Deleting channel...'
 export interface IChannelMessagesProps {
   messages?: MessagesDailyGroups
   pendingMessages?: Dictionary<MessageSendingStatus>
+  isConnectedToOtherPeers: boolean
+  lastConnectedTime: number
   downloadStatuses?: Dictionary<DownloadStatus>
   scrollbarRef: React.RefObject<HTMLDivElement>
   onScroll: () => void
@@ -89,6 +91,8 @@ export interface IChannelMessagesProps {
 export const ChannelMessagesComponent: React.FC<IChannelMessagesProps & FileActionsProps> = ({
   messages = {},
   pendingMessages = {},
+  isConnectedToOtherPeers = false,
+  lastConnectedTime,
   downloadStatuses = {},
   scrollbarRef,
   onScroll,
@@ -150,6 +154,8 @@ export const ChannelMessagesComponent: React.FC<IChannelMessagesProps & FileActi
                     key={data.id}
                     messages={items}
                     pendingMessages={pendingMessages}
+                    isConnectedToOtherPeers={isConnectedToOtherPeers}
+                    lastConnectedTime={lastConnectedTime}
                     downloadStatuses={downloadStatuses}
                     uploadedFileModal={uploadedFileModal}
                     openUrl={openUrl}

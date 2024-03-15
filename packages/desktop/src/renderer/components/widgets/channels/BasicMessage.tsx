@@ -1,4 +1,5 @@
 import React from 'react'
+import { DateTime } from 'luxon'
 import { styled } from '@mui/material/styles'
 import { Dictionary } from '@reduxjs/toolkit'
 import classNames from 'classnames'
@@ -23,6 +24,7 @@ import Icon from '../../ui/Icon/Icon'
 import { UseModalType } from '../../../containers/hooks'
 import { HandleOpenModalType, UserLabelType } from '../userLabel/UserLabel.types'
 import UserLabel from '../userLabel/UserLabel.component'
+import AnimatedEllipsis from '../../ui/AnimatedEllipsis/AnimatedEllipsis'
 
 const PREFIX = 'BasicMessageComponent'
 
@@ -37,6 +39,7 @@ const classes = {
   broadcasted: `${PREFIX}broadcasted`,
   failed: `${PREFIX}failed`,
   avatar: `${PREFIX}avatar`,
+  avatarUnsent: `${PREFIX}avatar-unsent`,
   alignAvatar: `${PREFIX}alignAvatar`,
   moderation: `${PREFIX}moderation`,
   time: `${PREFIX}time`,
@@ -100,6 +103,16 @@ const StyledListItem = styled(ListItem)(({ theme }) => ({
     backgroundColor: theme.palette.colors.grayBackgroud,
   },
 
+  [`& .${classes.avatarUnsent}`]: {
+    minHeight: 40,
+    minWidth: 40,
+    marginRight: 10,
+    marginBottom: 4,
+    borderRadius: 4,
+    backgroundColor: theme.palette.colors.grayBackgroud,
+    opacity: 0.5
+  },
+
   [`& .${classes.alignAvatar}`]: {
     marginTop: 2,
     marginLeft: 2,
@@ -161,6 +174,8 @@ const MessageProfilePhoto: React.FC<{ message: DisplayableMessage }> = ({ messag
 export interface BasicMessageProps {
   messages: DisplayableMessage[]
   pendingMessages?: Dictionary<MessageSendingStatus>
+  isConnectedToOtherPeers: boolean
+  lastConnectedTime: number
   openUrl: (url: string) => void
   downloadStatuses?: Dictionary<DownloadStatus>
   uploadedFileModal?: UseModalType<{
@@ -174,6 +189,8 @@ export interface BasicMessageProps {
 export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProps> = ({
   messages,
   pendingMessages = {},
+  isConnectedToOtherPeers = false,
+  lastConnectedTime,
   downloadStatuses = {},
   uploadedFileModal,
   onMathMessageRendered,
@@ -196,6 +213,10 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
 
   // Grey out sender name if the first message hasn't been sent yet
   const pending: boolean = pendingMessages[messageDisplayData.id] !== undefined
+  const unsentColor = '#7F7F7F';
+  const isUnsent = pending || (!isConnectedToOtherPeers && messages[0].createdAt >= lastConnectedTime)
+  const overrideTextColor = isUnsent ? unsentColor : undefined
+  const profilePhotoOpacity = isUnsent ? 0.5 : 1.0
 
   return (
     <StyledListItem
@@ -211,7 +232,7 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
         data-testid={`userMessagesWrapper-${messageDisplayData.nickname}-${messageDisplayData.id}`}
         primary={
           <Grid container direction='row' justifyContent='flex-start' alignItems='flex-start' wrap={'nowrap'}>
-            <Grid item className={classNames({ [classes.avatar]: true })}>
+            <Grid item className={classNames({ [classes.avatar]: !isUnsent, [classes.avatarUnsent]: isUnsent })}>
               <div className={classes.alignAvatar}>
                 {infoMessage ? (
                   <Icon src={information} className={classes.infoIcon} />
@@ -225,7 +246,7 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
                 <Grid container item xs alignItems='center' wrap='nowrap'>
                   <Grid item>
                     <Typography
-                      color='textPrimary'
+                      color={overrideTextColor || 'textPrimary'}
                       className={classNames({
                         [classes.username]: true,
                         [classes.pending]: pending,
@@ -255,6 +276,13 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
                       </Typography>
                     </Grid>
                   )}
+                  {
+                    isUnsent && (
+                    <Grid item padding={'0px 0px 0px 6px'}>
+                      <AnimatedEllipsis content={'Sending'} color={unsentColor} fontSize={12} fontWeight={'regular'} />
+                    </Grid>
+                    )
+                  }
                 </Grid>
               </Grid>
               <Grid
@@ -269,6 +297,7 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
                   return (
                     <NestedMessageContent
                       key={index}
+                      overrideTextColor={overrideTextColor}
                       message={message}
                       pending={pending}
                       downloadStatus={downloadStatus}

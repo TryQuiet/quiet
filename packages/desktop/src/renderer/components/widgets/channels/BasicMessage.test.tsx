@@ -23,6 +23,8 @@ describe('BasicMessage', () => {
             duplicatedUsernameModalHandleOpen={jest.fn()}
             unregisteredUsernameModalHandleOpen={jest.fn()}
             messages={messages}
+            lastConnectedTime={DateTime.utc().toMillis()}
+            isConnectedToOtherPeers={true}
             openUrl={jest.fn()}
           />
         </Provider>
@@ -111,7 +113,9 @@ describe('BasicMessage', () => {
           <BasicMessageComponent
             duplicatedUsernameModalHandleOpen={jest.fn()}
             unregisteredUsernameModalHandleOpen={jest.fn()}
+            lastConnectedTime={DateTime.utc().toMillis()}
             messages={messages}
+            isConnectedToOtherPeers={true}
             openUrl={jest.fn()}
           />
         </Provider>
@@ -210,7 +214,9 @@ describe('BasicMessage', () => {
           <BasicMessageComponent
             duplicatedUsernameModalHandleOpen={jest.fn()}
             unregisteredUsernameModalHandleOpen={jest.fn()}
+            lastConnectedTime={DateTime.utc().toMillis()}
             messages={messages}
+            isConnectedToOtherPeers={true}
             openUrl={jest.fn()}
           />
         </Provider>
@@ -313,7 +319,9 @@ describe('BasicMessage', () => {
           <BasicMessageComponent
             duplicatedUsernameModalHandleOpen={jest.fn()}
             unregisteredUsernameModalHandleOpen={jest.fn()}
+            lastConnectedTime={DateTime.utc().toMillis()}
             messages={[...message1, ...message2]}
+            isConnectedToOtherPeers={true}
             openUrl={jest.fn()}
           />
         </Provider>

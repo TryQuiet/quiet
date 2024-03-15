@@ -20,9 +20,23 @@ export const connectedPeers = createSelector(networkSlice, reducerState => {
   return connectedPeersAdapter.getSelectors().selectAll(reducerState.connectedPeers)
 })
 
+export const communitiesLastConnectedAt = createSelector(networkSlice, reducerState => {
+  return reducerState.communitiesLastConnectedAt
+})
+
+export const communityLastConnectedAt = createSelector(
+  communitiesLastConnectedAt, 
+  currentCommunity,
+  (communitiesLastConnectedAt, currentCommunity) => {
+    return currentCommunity ? communitiesLastConnectedAt[currentCommunity.id] : 0
+  }
+)
+
 export const networkSelectors = {
   initializedCommunities,
   isCurrentCommunityInitialized,
   connectedPeers,
   loadingPanelType,
+  communitiesLastConnectedAt,
+  communityLastConnectedAt
 }

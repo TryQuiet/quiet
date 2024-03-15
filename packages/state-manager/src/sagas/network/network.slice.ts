@@ -2,11 +2,13 @@ import { createSlice, type EntityState, type PayloadAction } from '@reduxjs/tool
 import { StoreKeys } from '../store.keys'
 import { connectedPeersAdapter } from './network.adapter'
 import { type CommunityId, type ConnectedPeers, LoadingPanelType } from '@quiet/types'
+import { DateTime } from 'luxon'
 
 export class NetworkState {
   public initializedCommunities: Record<string, boolean> = {}
   public connectedPeers: EntityState<string> = connectedPeersAdapter.getInitialState()
   public loadingPanelType: LoadingPanelType = LoadingPanelType.StartingApplication
+  public communitiesLastConnectedAt: Record<string, number> = {}
 }
 
 export const networkSlice = createSlice({
@@ -19,6 +21,7 @@ export const networkSlice = createSlice({
         ...state.initializedCommunities,
         [action.payload]: true,
       }
+      state.communitiesLastConnectedAt[action.payload] = DateTime.utc().toSeconds()
     },
     removeInitializedCommunities: state => {
       state.initializedCommunities = {}

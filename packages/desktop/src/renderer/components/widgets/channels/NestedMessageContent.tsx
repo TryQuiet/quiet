@@ -41,6 +41,7 @@ const StyledGrid = styled(Grid)(() => ({
 export interface NestedMessageContentProps {
   message: DisplayableMessage
   pending: boolean
+  overrideTextColor?: string | undefined
   downloadStatus?: DownloadStatus
   openUrl: (url: string) => void
   uploadedFileModal?: UseModalType<{
@@ -52,6 +53,7 @@ export interface NestedMessageContentProps {
 export const NestedMessageContent: React.FC<NestedMessageContentProps & FileActionsProps> = ({
   message,
   pending,
+  overrideTextColor,
   downloadStatus,
   uploadedFileModal,
   onMathMessageRendered,
@@ -135,7 +137,7 @@ export const NestedMessageContent: React.FC<NestedMessageContentProps & FileActi
     }
   }
 
-  return <StyledGrid item>{renderMessage()}</StyledGrid>
+  return <StyledGrid item color={overrideTextColor}>{renderMessage()}</StyledGrid>
 }
 
 export default NestedMessageContent

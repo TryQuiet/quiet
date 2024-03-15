@@ -3,7 +3,7 @@ import React, { useCallback, useEffect } from 'react'
 import { shell, ipcRenderer } from 'electron'
 
 import { useDispatch, useSelector } from 'react-redux'
-import { identity, messages, publicChannels, communities, files, network } from '@quiet/state-manager'
+import { identity, messages, publicChannels, communities, files, network, connection } from '@quiet/state-manager'
 import { FileMetadata, CancelDownload, FileContent, FilePreviewData } from '@quiet/types'
 
 import ChannelComponent, { ChannelComponentProps } from './ChannelComponent'
@@ -39,6 +39,7 @@ const Channel = () => {
   const initializedCommunities = useSelector(network.selectors.initializedCommunities)
   const isCommunityInitialized = Boolean(community && initializedCommunities[community.id])
   const connectedPeers = useSelector(network.selectors.connectedPeers)
+  const lastConnectedTime = useSelector(network.selectors.communityLastConnectedAt)
 
   const pendingGeneralChannelRecreationSelector = useSelector(publicChannels.selectors.pendingGeneralChannelRecreation)
 
@@ -213,6 +214,7 @@ const Channel = () => {
     openFilesDialog: openFilesDialog,
     isCommunityInitialized,
     connectedPeers,
+    lastConnectedTime,
     handleClipboardFiles: handleClipboardFiles,
     uploadedFileModal,
     openContextMenu: openContextMenu,

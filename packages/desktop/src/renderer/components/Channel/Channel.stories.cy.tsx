@@ -12,6 +12,7 @@ import { DisplayableMessage } from '@quiet/types'
 
 import ChannelComponent from './ChannelComponent'
 import { payloadDuplicated, payloadUnregistered } from '../widgets/userLabel/UserLabel.types'
+import { DateTime } from 'luxon'
 
 const Template: ComponentStory<typeof ChannelComponent> = () => {
   const [messages, setMessages] = useState<{
@@ -86,6 +87,7 @@ const Template: ComponentStory<typeof ChannelComponent> = () => {
           }}
           isCommunityInitialized={true}
           connectedPeers={connectedPeers}
+          lastConnectedTime={DateTime.utc().toMillis()}
           uploadedFileModal={{
             open: false,
             handleOpen: function (_args?: any): any {},

@@ -23,6 +23,7 @@ import {
   INITIAL_CURRENT_CHANNEL_ID,
   type UserProfile,
 } from '@quiet/types'
+import { networkSelectors } from '../network/network.selectors'
 
 const selectState: CreatedSelectors[StoreKeys.PublicChannels] = (state: StoreState) => state[StoreKeys.PublicChannels]
 
@@ -213,9 +214,13 @@ export const dailyGroupedCurrentChannelMessages = createSelector(displayableCurr
  */
 export const currentChannelMessagesMergedBySender = createSelector(
   dailyGroupedCurrentChannelMessages,
-  (groups: MessagesGroupsType) => {
+  networkSelectors.communityLastConnectedAt,
+  networkSelectors.connectedPeers,
+  (groups: MessagesGroupsType, lastConnectedTime: number, connectedPeers: string[]) => {
     const result: MessagesDailyGroups = {}
+    
     for (const day in groups) {
+      let lastWasUnsent = false
       result[day] = groups[day].reduce((merged: DisplayableMessage[][], message: DisplayableMessage) => {
         if (!merged.length) {
           merged.push([message])
@@ -225,17 +230,21 @@ export const currentChannelMessagesMergedBySender = createSelector(
         // Get last item from collected array for comparison
         const index = merged.length && merged.length - 1
         const last = merged[index][0]
+        const isUnsent = lastConnectedTime < message.createdAt && connectedPeers.length === 0
 
         if (
           last?.pubKey === message?.pubKey &&
           message.createdAt - last.createdAt < 300 &&
           message.type !== MessageType.Info &&
-          last.type !== MessageType.Info
+          last.type !== MessageType.Info &&
+          (!isUnsent || isUnsent && lastWasUnsent)
         ) {
           merged[index].push(message)
         } else {
           merged.push([message])
         }
+
+        lastWasUnsent = isUnsent;
 
         return merged
       }, [])
