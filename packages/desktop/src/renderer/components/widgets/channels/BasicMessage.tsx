@@ -223,7 +223,7 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
   const peersDisconnectedRecently = allPeersDisconnectedTime != null && allPeersDisconnectedTime < messages[0].createdAt
   const noPeersThisSession = allPeersDisconnectedTime == null && !isConnectedToOtherPeers
   const isUnsent =
-    communityHasPeers && isRecent && !isConnectedToOtherPeers && (peersDisconnectedRecently || noPeersThisSession)
+    !infoMessage && communityHasPeers && isRecent && !isConnectedToOtherPeers && (noPeersThisSession || peersDisconnectedRecently)
 
   return (
     <StyledListItem
