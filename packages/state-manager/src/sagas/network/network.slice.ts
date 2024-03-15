@@ -9,6 +9,7 @@ export class NetworkState {
   public connectedPeers: EntityState<string> = connectedPeersAdapter.getInitialState()
   public loadingPanelType: LoadingPanelType = LoadingPanelType.StartingApplication
   public communitiesLastConnectedAt: Record<string, number> = {}
+  public allPeersDisconnectedAt: number | undefined = undefined
 }
 
 export const networkSlice = createSlice({
@@ -27,10 +28,17 @@ export const networkSlice = createSlice({
       state.initializedCommunities = {}
     },
     addConnectedPeers: (state, action: PayloadAction<ConnectedPeers>) => {
+      if (state.allPeersDisconnectedAt != null) {
+        state.allPeersDisconnectedAt = undefined
+      }
       connectedPeersAdapter.upsertMany(state.connectedPeers, action.payload)
     },
     removeConnectedPeer: (state, action) => {
       connectedPeersAdapter.removeOne(state.connectedPeers, action.payload)
+      const currentPeers = connectedPeersAdapter.getSelectors().selectAll(state.connectedPeers)
+      if (currentPeers.length === 0) {
+        state.allPeersDisconnectedAt = DateTime.utc().toSeconds()
+      }
     },
     setLoadingPanelType: (state, action) => {
       state.loadingPanelType = action.payload

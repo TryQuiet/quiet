@@ -25,12 +25,16 @@ export const communitiesLastConnectedAt = createSelector(networkSlice, reducerSt
 })
 
 export const communityLastConnectedAt = createSelector(
-  communitiesLastConnectedAt, 
+  communitiesLastConnectedAt,
   currentCommunity,
   (communitiesLastConnectedAt, currentCommunity) => {
     return currentCommunity ? communitiesLastConnectedAt[currentCommunity.id] : 0
   }
 )
+
+export const allPeersDisconnectedAt = createSelector(networkSlice, reducerState => {
+  return reducerState.allPeersDisconnectedAt
+})
 
 export const networkSelectors = {
   initializedCommunities,
@@ -38,5 +42,6 @@ export const networkSelectors = {
   connectedPeers,
   loadingPanelType,
   communitiesLastConnectedAt,
-  communityLastConnectedAt
+  communityLastConnectedAt,
+  allPeersDisconnectedAt,
 }

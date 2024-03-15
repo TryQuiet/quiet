@@ -54,6 +54,7 @@ export interface ChannelComponentProps {
   isCommunityInitialized: boolean
   connectedPeers: string[] | undefined
   lastConnectedTime: number
+  allPeersDisconnectedTime: number | undefined
   handleClipboardFiles: (arg: ArrayBuffer, ext: string, name: string) => void
   uploadedFileModal?: UseModalType<{
     src: string
@@ -89,6 +90,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
   isCommunityInitialized = true,
   connectedPeers,
   lastConnectedTime,
+  allPeersDisconnectedTime,
   openFilesDialog,
   handleClipboardFiles,
   uploadedFileModal,
@@ -115,14 +117,14 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
   const checkForOtherConnectedPeers = (connectedPeers: string[] | undefined) => {
     console.log(connectedPeers?.length || 0, connectedPeers)
     if (connectedPeers && connectedPeers.length > 0) {
-      console.log('found other peers')
       return true
     }
-    console.log('no connected peers')
     return false
   }
 
-  const [isConnectedToOtherPeers, onConnectedPeersChange] = React.useState<boolean>(checkForOtherConnectedPeers(connectedPeers))
+  const [isConnectedToOtherPeers, onConnectedPeersChange] = React.useState<boolean>(
+    checkForOtherConnectedPeers(connectedPeers)
+  )
 
   const updateMathMessagesRendered = () => {
     // To rerender Channel on each call
@@ -130,7 +132,6 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
   }
 
   useEffect(() => {
-    console.log('peers updated')
     onConnectedPeersChange(checkForOtherConnectedPeers(connectedPeers))
   }, [connectedPeers])
 
@@ -251,6 +252,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
             pendingMessages={pendingMessages}
             isConnectedToOtherPeers={isConnectedToOtherPeers}
             lastConnectedTime={lastConnectedTime}
+            allPeersDisconnectedTime={allPeersDisconnectedTime}
             downloadStatuses={downloadStatuses}
             scrollbarRef={scrollbarRef}
             onScroll={onScroll}
@@ -268,27 +270,27 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
         <Grid
           container
           style={{
-            display: isConnectedToOtherPeers ? 'none': 'flex',
+            display: isConnectedToOtherPeers ? 'none' : 'flex',
             flexDirection: 'row',
             alignItems: 'center',
             padding: '11px 16px 11px 16px',
             width: '100%',
             borderTop: '1px solid #F0F0F0',
-            borderRadius: '16px 16px 0px 0px'
+            borderRadius: '16px 16px 0px 0px',
           }}
         >
           <Grid
             item
             style={{
-              display: isConnectedToOtherPeers ? 'none': 'flex',
+              display: isConnectedToOtherPeers ? 'none' : 'flex',
               flexDirection: 'row',
-              paddingRight: '12px'
+              paddingRight: '12px',
             }}
           >
             <CircularProgress color='inherit' className={'channelQuietConnectingSpinner'} size={20} />
           </Grid>
           <Typography fontSize={16} fontWeight={'normal'} justifyContent={'center'}>
-              Quiet is trying to connect...
+            Quiet is trying to connect...
           </Typography>
         </Grid>
         <Grid item>

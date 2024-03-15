@@ -24,6 +24,7 @@ import {
   type UserProfile,
 } from '@quiet/types'
 import { networkSelectors } from '../network/network.selectors'
+import { DateTime } from 'luxon'
 
 const selectState: CreatedSelectors[StoreKeys.PublicChannels] = (state: StoreState) => state[StoreKeys.PublicChannels]
 
@@ -215,10 +216,16 @@ export const dailyGroupedCurrentChannelMessages = createSelector(displayableCurr
 export const currentChannelMessagesMergedBySender = createSelector(
   dailyGroupedCurrentChannelMessages,
   networkSelectors.communityLastConnectedAt,
+  networkSelectors.allPeersDisconnectedAt,
   networkSelectors.connectedPeers,
-  (groups: MessagesGroupsType, lastConnectedTime: number, connectedPeers: string[]) => {
+  (
+    groups: MessagesGroupsType,
+    lastConnectedTime: number,
+    allPeersDisconnectedAt: number | undefined,
+    connectedPeers: string[]
+  ) => {
     const result: MessagesDailyGroups = {}
-    
+
     for (const day in groups) {
       let lastWasUnsent = false
       result[day] = groups[day].reduce((merged: DisplayableMessage[][], message: DisplayableMessage) => {
@@ -230,21 +237,27 @@ export const currentChannelMessagesMergedBySender = createSelector(
         // Get last item from collected array for comparison
         const index = merged.length && merged.length - 1
         const last = merged[index][0]
-        const isUnsent = lastConnectedTime < message.createdAt && connectedPeers.length === 0
+
+        // Determine if a message is "unsent"
+        const isRecent = lastConnectedTime < message.createdAt
+        const hasPeers = connectedPeers.length > 0
+        const peersDisconnectedRecently = allPeersDisconnectedAt != null && allPeersDisconnectedAt < message.createdAt
+        const noPeersThisSession = allPeersDisconnectedAt == null && connectedPeers.length > 0
+        const isUnsent = isRecent && !hasPeers && (peersDisconnectedRecently || noPeersThisSession)
 
         if (
           last?.pubKey === message?.pubKey &&
           message.createdAt - last.createdAt < 300 &&
           message.type !== MessageType.Info &&
           last.type !== MessageType.Info &&
-          (!isUnsent || isUnsent && lastWasUnsent)
+          isUnsent === lastWasUnsent
         ) {
           merged[index].push(message)
         } else {
           merged.push([message])
         }
 
-        lastWasUnsent = isUnsent;
+        lastWasUnsent = isUnsent
 
         return merged
       }, [])

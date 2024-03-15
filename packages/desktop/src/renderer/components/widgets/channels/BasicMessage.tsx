@@ -47,6 +47,8 @@ const classes = {
   pending: `${PREFIX}pending`,
   info: `${PREFIX}info`,
   infoIcon: `${PREFIX}infoIcon`,
+  unsent: `${PREFIX}unsent`,
+  sending: `${PREFIX}sending`,
 }
 
 const StyledListItem = styled(ListItem)(({ theme }) => ({
@@ -103,16 +105,6 @@ const StyledListItem = styled(ListItem)(({ theme }) => ({
     backgroundColor: theme.palette.colors.grayBackgroud,
   },
 
-  [`& .${classes.avatarUnsent}`]: {
-    minHeight: 40,
-    minWidth: 40,
-    marginRight: 10,
-    marginBottom: 4,
-    borderRadius: 4,
-    backgroundColor: theme.palette.colors.grayBackgroud,
-    opacity: 0.5
-  },
-
   [`& .${classes.alignAvatar}`]: {
     marginTop: 2,
     marginLeft: 2,
@@ -129,6 +121,7 @@ const StyledListItem = styled(ListItem)(({ theme }) => ({
     color: theme.palette.colors.lightGray,
     fontSize: 14,
     marginTop: -2,
+    marginRight: 5,
   },
 
   [`& .${classes.iconBox}`]: {
@@ -137,6 +130,15 @@ const StyledListItem = styled(ListItem)(({ theme }) => ({
 
   [`& .${classes.pending}`]: {
     color: theme.palette.colors.lightGray,
+  },
+
+  [`& .${classes.unsent}`]: {
+    opacity: 0.5,
+  },
+
+  [`& .${classes.sending}`]: {
+    color: theme.palette.colors.darkGray,
+    marginTop: -2,
   },
 
   [`& .${classes.info}`]: {
@@ -176,6 +178,7 @@ export interface BasicMessageProps {
   pendingMessages?: Dictionary<MessageSendingStatus>
   isConnectedToOtherPeers: boolean
   lastConnectedTime: number
+  allPeersDisconnectedTime: number | undefined
   openUrl: (url: string) => void
   downloadStatuses?: Dictionary<DownloadStatus>
   uploadedFileModal?: UseModalType<{
@@ -191,6 +194,7 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
   pendingMessages = {},
   isConnectedToOtherPeers = false,
   lastConnectedTime,
+  allPeersDisconnectedTime,
   downloadStatuses = {},
   uploadedFileModal,
   onMathMessageRendered,
@@ -213,10 +217,10 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
 
   // Grey out sender name if the first message hasn't been sent yet
   const pending: boolean = pendingMessages[messageDisplayData.id] !== undefined
-  const unsentColor = '#7F7F7F';
-  const isUnsent = pending || (!isConnectedToOtherPeers && messages[0].createdAt >= lastConnectedTime)
-  const overrideTextColor = isUnsent ? unsentColor : undefined
-  const profilePhotoOpacity = isUnsent ? 0.5 : 1.0
+  const isRecent = lastConnectedTime < messages[0].createdAt
+  const peersDisconnectedRecently = allPeersDisconnectedTime != null && allPeersDisconnectedTime < messages[0].createdAt
+  const noPeersThisSession = allPeersDisconnectedTime == null && !isConnectedToOtherPeers
+  const isUnsent = isRecent && !isConnectedToOtherPeers && (peersDisconnectedRecently || noPeersThisSession)
 
   return (
     <StyledListItem
@@ -232,7 +236,7 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
         data-testid={`userMessagesWrapper-${messageDisplayData.nickname}-${messageDisplayData.id}`}
         primary={
           <Grid container direction='row' justifyContent='flex-start' alignItems='flex-start' wrap={'nowrap'}>
-            <Grid item className={classNames({ [classes.avatar]: !isUnsent, [classes.avatarUnsent]: isUnsent })}>
+            <Grid item className={classNames({ [classes.avatar]: true, [classes.unsent]: isUnsent })}>
               <div className={classes.alignAvatar}>
                 {infoMessage ? (
                   <Icon src={information} className={classes.infoIcon} />
@@ -246,10 +250,11 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
                 <Grid container item xs alignItems='center' wrap='nowrap'>
                   <Grid item>
                     <Typography
-                      color={overrideTextColor || 'textPrimary'}
+                      color={'textPrimary'}
                       className={classNames({
                         [classes.username]: true,
-                        [classes.pending]: pending,
+                        [classes.pending]: pending && !isUnsent,
+                        [classes.unsent]: isUnsent,
                       })}
                     >
                       {infoMessage ? 'Quiet' : messageDisplayData.nickname}
@@ -270,19 +275,18 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
                       <Typography
                         className={classNames({
                           [classes.time]: true,
+                          [classes.unsent]: isUnsent,
                         })}
                       >
                         {messageDisplayData.date}
                       </Typography>
                     </Grid>
                   )}
-                  {
-                    isUnsent && (
-                    <Grid item padding={'0px 0px 0px 6px'}>
-                      <AnimatedEllipsis content={'Sending'} color={unsentColor} fontSize={12} fontWeight={'regular'} />
+                  {isUnsent && (
+                    <Grid item className={classNames({ [classes.sending]: true })}>
+                      <AnimatedEllipsis content={'Sending'} fontSize={12} fontWeight={'regular'} />
                     </Grid>
-                    )
-                  }
+                  )}
                 </Grid>
               </Grid>
               <Grid
@@ -297,7 +301,7 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
                   return (
                     <NestedMessageContent
                       key={index}
-                      overrideTextColor={overrideTextColor}
+                      isUnsent={isUnsent}
                       message={message}
                       pending={pending}
                       downloadStatus={downloadStatus}

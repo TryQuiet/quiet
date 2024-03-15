@@ -10,6 +10,7 @@ const PREFIX = 'MathMessage'
 
 const classes = {
   pending: `${PREFIX}pending`,
+  unsent: `${PREFIX}unsent`,
   message: `${PREFIX}message`,
   beginning: `${PREFIX}beginning`,
   middle: `${PREFIX}middle`,
@@ -22,6 +23,10 @@ const StyledMath = styled('span')(() => ({
 
   [`&.${classes.pending}`]: {
     color: theme.palette.colors.lightGray,
+  },
+
+  [`&.${classes.unsent}`]: {
+    opacity: 0.5,
   },
 
   [`&.${classes.middle}`]: {
@@ -46,6 +51,7 @@ const MathComponent: React.FC<UseMathProps & TextMessageComponentProps> = ({
   onMathMessageRendered,
   messageId,
   pending,
+  isUnsent,
   openUrl,
   index,
 }) => {
@@ -82,6 +88,7 @@ const MathComponent: React.FC<UseMathProps & TextMessageComponentProps> = ({
     const className = {
       [classes.message]: true,
       [classes.pending]: pending,
+      [classes.unsent]: isUnsent,
       [classes.beginning]: index === 0,
       [classes.middle]: index !== 0,
     }
@@ -92,6 +99,7 @@ const MathComponent: React.FC<UseMathProps & TextMessageComponentProps> = ({
       message={message}
       messageId={`${messageId}-${index}`}
       pending={pending}
+      isUnsent={isUnsent}
       openUrl={openUrl}
       key={`${messageId}-${index}`}
     />
@@ -107,6 +115,7 @@ export const MathMessageComponent: React.FC<TextMessageComponentProps & MathMess
   message,
   messageId,
   pending,
+  isUnsent,
   openUrl,
   display = false,
   onMathMessageRendered,
@@ -117,7 +126,15 @@ export const MathMessageComponent: React.FC<TextMessageComponentProps & MathMess
     texMessageSplit = splitByTex(String.raw`${message}`, displayMathRegex)
   } catch (e) {
     console.error('Error extracting tex from message', e.message)
-    return <TextMessageComponent message={message} messageId={messageId} pending={pending} openUrl={openUrl} />
+    return (
+      <TextMessageComponent
+        message={message}
+        messageId={messageId}
+        pending={pending}
+        isUnsent={isUnsent}
+        openUrl={openUrl}
+      />
+    )
   }
 
   return (
@@ -129,6 +146,7 @@ export const MathMessageComponent: React.FC<TextMessageComponentProps & MathMess
           onMathMessageRendered={onMathMessageRendered}
           messageId={messageId}
           pending={pending}
+          isUnsent={isUnsent}
           openUrl={openUrl}
           index={index}
           key={`${messageId}-${index}`}

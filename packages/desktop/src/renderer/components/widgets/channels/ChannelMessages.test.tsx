@@ -37,6 +37,7 @@ describe('ChannelMessages', () => {
         unregisteredUsernameModalHandleOpen={jest.fn()}
         messages={messages}
         lastConnectedTime={1636995489}
+        allPeersDisconnectedTime={undefined}
         isConnectedToOtherPeers={true}
         scrollbarRef={React.createRef()}
         onScroll={jest.fn()}

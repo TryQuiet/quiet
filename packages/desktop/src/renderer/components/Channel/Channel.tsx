@@ -40,6 +40,7 @@ const Channel = () => {
   const isCommunityInitialized = Boolean(community && initializedCommunities[community.id])
   const connectedPeers = useSelector(network.selectors.connectedPeers)
   const lastConnectedTime = useSelector(network.selectors.communityLastConnectedAt)
+  const allPeersDisconnectedTime = useSelector(network.selectors.allPeersDisconnectedAt)
 
   const pendingGeneralChannelRecreationSelector = useSelector(publicChannels.selectors.pendingGeneralChannelRecreation)
 
@@ -215,6 +216,7 @@ const Channel = () => {
     isCommunityInitialized,
     connectedPeers,
     lastConnectedTime,
+    allPeersDisconnectedTime,
     handleClipboardFiles: handleClipboardFiles,
     uploadedFileModal,
     openContextMenu: openContextMenu,

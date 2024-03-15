@@ -56,6 +56,7 @@ const args: FileComponentProps = {
     downloadState: DownloadState.Ready,
     downloadProgress: undefined,
   },
+  isUnsent: false,
 }
 
 Uploading.args = {

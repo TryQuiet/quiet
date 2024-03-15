@@ -38,6 +38,7 @@ describe('FileComponent', () => {
           downloadState: DownloadState.Ready,
           downloadProgress: undefined,
         }}
+        isUnsent={false}
       />
     )
     expect(result.baseElement).toMatchInlineSnapshot(`

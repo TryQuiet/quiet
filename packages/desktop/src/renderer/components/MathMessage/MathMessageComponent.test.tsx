@@ -6,7 +6,13 @@ import { MathMessageComponent } from './MathMessageComponent'
 describe('MathMessageComponent', () => {
   it('renders tex', async () => {
     const result = renderComponent(
-      <MathMessageComponent message={'$$a + b = c$$'} messageId={'1'} pending={false} openUrl={() => {}} />
+      <MathMessageComponent
+        message={'$$a + b = c$$'}
+        messageId={'1'}
+        pending={false}
+        isUnsent={false}
+        openUrl={() => {}}
+      />
     )
     await act(async () => {})
     expect(result.baseElement).toMatchInlineSnapshot(`
@@ -98,6 +104,7 @@ describe('MathMessageComponent', () => {
         message={'It is $$a + b = c$$ and $$a - b = d$$'}
         messageId={'1'}
         pending={false}
+        isUnsent={false}
         openUrl={() => {}}
         onMathMessageRendered={onMathMessageRendered}
       />
@@ -278,6 +285,7 @@ describe('MathMessageComponent', () => {
         message={String.raw`$$sum_{i=0}^n i = \frac{n(n+1)}{2}$$ - look`}
         messageId={'1'}
         pending={false}
+        isUnsent={false}
         openUrl={() => {}}
         onMathMessageRendered={onMathMessageRendered}
       />
