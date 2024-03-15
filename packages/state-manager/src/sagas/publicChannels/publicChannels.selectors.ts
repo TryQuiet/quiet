@@ -248,7 +248,7 @@ export const currentChannelMessagesMergedBySender = createSelector(
         const peersDisconnectedRecently = allPeersDisconnectedAt != null && allPeersDisconnectedAt < message.createdAt
         const noPeersThisSession = allPeersDisconnectedAt == null && connectedPeers.length > 0
         const isUnsent =
-          communityHasPeers && isRecent && !hasConnectedPeers && (peersDisconnectedRecently || noPeersThisSession)
+          communityHasPeers && isRecent && !hasConnectedPeers && (noPeersThisSession || peersDisconnectedRecently)
 
         if (
           last?.pubKey === message?.pubKey &&
