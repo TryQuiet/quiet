@@ -39,10 +39,12 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
     // Use dedicated class for composing and displaying notifications
     private lateinit var notificationHandler: NotificationHandler
 
+    private lateinit var torHandler: TorHandler
+
     companion object {
         init {
-            System.loadLibrary("own-native-lib")
             System.loadLibrary("node")
+            System.loadLibrary("node-wrapper")
         }
     }
 
@@ -97,9 +99,18 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
 
         withContext(Dispatchers.IO) {
 
-            // Get and store data port for usage in methods across the app
+            val dataPath = Utils.createDirectory(context)
             val dataPort = Utils.getOpenPort(11000)
+
             val socketIOSecret = Utils.generateRandomString(20)
+
+            launch {
+                torHandler = TorHandler(context)
+                torHandler.controlPort      = Utils.getOpenPort(Utils.generateRandomInt())
+                torHandler.socksPort        = Utils.getOpenPort(Utils.generateRandomInt())
+                torHandler.httpTunnelPort   = Utils.getOpenPort(Utils.generateRandomInt())
+                torHandler.startTorThread()
+            }
 
             // Init nodejs project
             launch {
@@ -125,13 +136,6 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
                 startWebsocketConnection(dataPort, socketIOSecret)
             }
 
-            val dataPath = Utils.createDirectory(context)
-
-            val appInfo = context.packageManager.getApplicationInfo(context.packageName, 0)
-            val torBinary = appInfo.nativeLibraryDir + "/libtor.so"
-            
-            val platform = "mobile"
-
             launch {
                 /*
                  * The point of this delay is to prevent startup race condition
@@ -139,7 +143,7 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
                  * https://github.com/TryQuiet/quiet/issues/2214
                  */
                 delay(500)
-                startNodeProjectWithArguments("bundle.cjs --torBinary $torBinary --dataPath $dataPath --dataPort $dataPort --platform $platform --socketIOSecret $socketIOSecret")
+                startNodeProjectWithArguments("bundle.cjs --authCookie ${torHandler.authCookie} --controlPort ${torHandler.controlPort} --httpTunnelPort ${torHandler.httpTunnelPort} --dataPath $dataPath --dataPort $dataPort --socketIOSecret $socketIOSecret --platform mobile")
             }
         }
 
