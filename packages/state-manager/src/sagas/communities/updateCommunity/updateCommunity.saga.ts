@@ -6,9 +6,14 @@ import { type PayloadAction } from '@reduxjs/toolkit'
 
 import { communitiesActions } from '../communities.slice'
 
+import { loggingHandler, LoggerModuleName } from '../../../utils/logger'
+
+const LOGGER = loggingHandler.initLogger([LoggerModuleName.COMMUNITIES, LoggerModuleName.SAGA, 'updateCommunity'])
+
 export function* updateCommunitySaga(
   action: PayloadAction<ReturnType<typeof communitiesActions.updateCommunity>['payload']>
 ): Generator {
+  LOGGER.info(`Updating community with ID ${action.payload.id}`)
   let rootCa: Certificate
   let communityName: string | null = null
 
@@ -17,7 +22,7 @@ export function* updateCommunitySaga(
     communityName = yield* call(getCertFieldValue, rootCa, CertFieldsTypes.commonName)
 
     if (!communityName) {
-      console.error(`Could not retrieve ${CertFieldsTypes.commonName} from rootca`)
+      LOGGER.error(`Could not retrieve ${CertFieldsTypes.commonName} from rootca`)
     }
   }
 

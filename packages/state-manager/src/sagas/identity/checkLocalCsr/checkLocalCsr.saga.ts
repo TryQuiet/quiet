@@ -3,23 +3,26 @@ import { PayloadAction } from '@reduxjs/toolkit'
 import { identityActions } from '../identity.slice'
 import { identitySelectors } from '../identity.selectors'
 import { CertFieldsTypes, getReqFieldValue, loadCSR, pubKeyFromCsr } from '@quiet/identity'
+import { LoggerModuleName, loggingHandler } from 'packages/state-manager/src/utils/logger'
+
+const LOGGER = loggingHandler.initLogger([LoggerModuleName.IDENTITY, LoggerModuleName.SAGA, 'checkLocalCsr'])
 
 export function* checkLocalCsrSaga(
   action: PayloadAction<ReturnType<typeof identityActions.checkLocalCsr>['payload']>
 ): Generator {
-  console.log('Checking local CSR', action.payload.csrs)
+  LOGGER.info(`Checking local CSR: ${JSON.stringify(action.payload.csrs)}`)
 
   const { csrs } = action.payload
 
   const identity = yield* select(identitySelectors.currentIdentity)
 
   if (!identity) {
-    console.error('Could not check local csr, no identity.')
+    LOGGER.error('Could not check local csr, no identity.')
     return
   }
 
   if (!identity.userCsr) {
-    console.warn("Identity doesn't have userCsr.")
+    LOGGER.warn("Identity doesn't have userCsr.")
     return
   }
 
@@ -28,18 +31,18 @@ export function* checkLocalCsrSaga(
   const storedCsr = csrs.find(csr => csr === identity.userCsr?.userCsr)
 
   if (storedCsr) {
-    console.log('Stored CSR with the same public key found, checking for username integirty.', pubKey)
+    LOGGER.info(`Stored CSR with the same public key found, checking for username integirty.  pubkey = ${pubKey}`)
 
     const parsedCsr = yield* call(loadCSR, storedCsr)
     const nickname = yield* call(getReqFieldValue, parsedCsr, CertFieldsTypes.nickName)
 
     if (nickname == identity.nickname) {
-      console.log('Stored CSR is equal to the local one, skipping.')
+      LOGGER.info('Stored CSR is equal to the local one, skipping.')
       return
     }
   }
 
-  console.log('Stored CSR differs or missing, saving local one.')
+  LOGGER.info('Stored CSR differs or missing, saving local one.')
 
   yield* put(identityActions.saveUserCsr())
 }

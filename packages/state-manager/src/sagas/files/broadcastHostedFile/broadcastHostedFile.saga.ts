@@ -7,12 +7,19 @@ import { messagesSelectors } from '../../messages/messages.selectors'
 import { type filesActions } from '../files.slice'
 import { instanceOfChannelMessage, SocketActionTypes } from '@quiet/types'
 
+import { loggingHandler, LoggerModuleName } from '../../../utils/logger'
+
+const LOGGER = loggingHandler.initLogger([LoggerModuleName.FILES, LoggerModuleName.SAGA, 'autoDownloadFiles'])
+
 export function* broadcastHostedFileSaga(
   socket: Socket,
   action: PayloadAction<ReturnType<typeof filesActions.broadcastHostedFile>['payload']>
 ): Generator {
   const identity = yield* select(identitySelectors.currentIdentity)
-  if (!identity) return
+  if (!identity) {
+    LOGGER.warn(`No identity found, can't broadcast hosted file`)
+    return
+  }
 
   const channelMessages = yield* select(
     messagesSelectors.publicChannelMessagesEntities(action.payload.message.channelId)
@@ -21,7 +28,7 @@ export function* broadcastHostedFileSaga(
   const message = channelMessages[action.payload.message.id]
 
   if (!message || !instanceOfChannelMessage(message)) {
-    console.error(
+    LOGGER.error(
       `Cannot broadcast message after uploading. Draft ${action.payload.message.id} from #${action.payload.message.channelId} does not exist in local storage.`
     )
     return

@@ -6,6 +6,9 @@ import { messagesActions } from '../../messages/messages.slice'
 import { generateMessageId } from '../../messages/utils/message.utils'
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
 import { DownloadState, type FileMetadata, imagesExtensions, MessageType } from '@quiet/types'
+import { loggingHandler, LoggerModuleName } from '../../../utils/logger'
+
+const LOGGER = loggingHandler.initLogger([LoggerModuleName.FILES, LoggerModuleName.SAGA, 'sendFileMessage'])
 
 export function* sendFileMessageSaga(
   action: PayloadAction<ReturnType<typeof filesActions.uploadFile>['payload']>
@@ -13,7 +16,15 @@ export function* sendFileMessageSaga(
   const identity = yield* select(identitySelectors.currentIdentity)
 
   const currentChannel = yield* select(publicChannelsSelectors.currentChannelId)
-  if (!identity || !currentChannel) return
+  if (!identity) {
+    LOGGER.warn(`No identity found, can't send file`)
+    return
+  }
+
+  if (!currentChannel) {
+    LOGGER.warn(`No current channel found, can't send file`)
+    return
+  }
 
   const fileProtocol = 'file://'
   let filePath = action.payload.path
@@ -23,7 +34,7 @@ export function* sendFileMessageSaga(
     filePath = decodeURIComponent(filePath.startsWith(fileProtocol) ? filePath.slice(fileProtocol.length) : filePath)
     tmpPath = tmpPath ? decodeURIComponent(tmpPath.slice(fileProtocol.length)) : undefined
   } catch (e) {
-    console.error(`Can't send file with path ${filePath}, Details: ${e.message}`)
+    LOGGER.error(`Can't send file with path ${filePath}, Details: ${e.message}`)
     return
   }
 

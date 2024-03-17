@@ -4,6 +4,11 @@
 
 * Updates profile photo editor to allow JPEG and GIF files ([#2332](https://github.com/TryQuiet/quiet/issues/2332))
 
+# Refactorings
+
+* Updates `ts-loader` rule in webpack renderer configs
+* Add log file tail logic to main.ts
+
 [2.1.2]
 
 # Refactorings:

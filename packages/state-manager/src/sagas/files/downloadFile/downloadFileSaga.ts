@@ -4,13 +4,19 @@ import { apply, put, select } from 'typed-redux-saga'
 import { identitySelectors } from '../../identity/identity.selectors'
 import { filesActions } from '../files.slice'
 import { DownloadState, SocketActionTypes } from '@quiet/types'
+import { loggingHandler, LoggerModuleName } from '../../../utils/logger'
+
+const LOGGER = loggingHandler.initLogger([LoggerModuleName.FILES, LoggerModuleName.SAGA, 'downloadFile'])
 
 export function* downloadFileSaga(
   socket: Socket,
   action: PayloadAction<ReturnType<typeof filesActions.downloadFile>['payload']>
 ): Generator {
   const identity = yield* select(identitySelectors.currentIdentity)
-  if (!identity) return
+  if (!identity) {
+    LOGGER.warn(`No identify found, can't download file`)
+    return
+  }
 
   const media = action.payload
 

@@ -5,20 +5,24 @@ import { applyEmitParams, type Socket } from '../../../types'
 import { communitiesSelectors } from '../communities.selectors'
 import { type communitiesActions } from '../communities.slice'
 import { type PermsData, SocketActionTypes } from '@quiet/types'
+import { LoggerModuleName, loggingHandler } from 'packages/state-manager/src/utils/logger'
+
+const LOGGER = loggingHandler.initLogger([LoggerModuleName.COMMUNITIES, LoggerModuleName.SAGA, 'sendCommunityCaData'])
 
 export function* sendCommunityCaDataSaga(
   socket: Socket,
   _action: PayloadAction<ReturnType<typeof communitiesActions.sendCommunityCaData>['payload']>
 ): Generator {
+  LOGGER.info(`Sending community CA data with payload: ${JSON.stringify(_action.payload)}`)
   const community = yield* select(communitiesSelectors.currentCommunity)
 
   if (!community) {
-    console.error('Cannot send community metadata, no community')
+    LOGGER.error('Cannot send community CA data, no community')
     return
   }
 
   if (!community.CA) {
-    console.log('Cannot send community metadata, no CA in community')
+    LOGGER.error('Cannot send community CA data, no CA in community')
     return
   }
 

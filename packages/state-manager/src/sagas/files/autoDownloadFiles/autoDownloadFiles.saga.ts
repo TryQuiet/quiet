@@ -7,6 +7,9 @@ import { AUTODOWNLOAD_SIZE_LIMIT } from '../../../constants'
 import { filesActions } from '../files.slice'
 import { applyEmitParams, type Socket } from '../../../types'
 import { DownloadState, MessageType, SocketActionTypes } from '@quiet/types'
+import { loggingHandler, LoggerModuleName } from '../../../utils/logger'
+
+const LOGGER = loggingHandler.initLogger([LoggerModuleName.FILES, LoggerModuleName.SAGA, 'autoDownloadFiles'])
 
 export function* autoDownloadFilesSaga(
   socket: Socket,
@@ -14,7 +17,7 @@ export function* autoDownloadFilesSaga(
 ): Generator {
   const identity = yield* select(identitySelectors.currentIdentity)
   if (!identity) {
-    console.error('Could not autodownload files, no identity')
+    LOGGER.error('Could not autodownload files, no identity')
     return
   }
 

@@ -1,18 +1,22 @@
 import { publicChannelsActions } from '../publicChannels.slice'
 import { type PayloadAction } from '@reduxjs/toolkit'
-import logger from '../../../utils/logger'
+import { LoggerModuleName, loggingHandler } from 'packages/state-manager/src/utils/logger'
 import { put, delay, select } from 'typed-redux-saga'
 import { messagesActions } from '../../messages/messages.slice'
 import { communitiesSelectors } from '../../communities/communities.selectors'
 import { publicChannelsSelectors } from '../publicChannels.selectors'
 import { type PublicChannelStorage } from '@quiet/types'
 
-const log = logger('publicChannels')
+const LOGGER = loggingHandler.initLogger([
+  LoggerModuleName.PUBLIC_CHANNELS,
+  LoggerModuleName.SAGA,
+  'channelDeletionResponse',
+])
 
 export function* channelDeletionResponseSaga(
   action: PayloadAction<ReturnType<typeof publicChannelsActions.channelDeletionResponse>['payload']>
 ): Generator {
-  log(`Deleted channel ${action.payload.channelId} saga`)
+  LOGGER.info(`Deleted channel ${action.payload.channelId} saga`)
 
   const { channelId } = action.payload
   const generalChannel = yield* select(publicChannelsSelectors.generalChannel)
@@ -20,12 +24,12 @@ export function* channelDeletionResponseSaga(
   const isChannelExist = yield* select(publicChannelsSelectors.getChannelById(channelId))
   const currentChannelId = yield* select(publicChannelsSelectors.currentChannelId)
   if (!isChannelExist) {
-    log(`Channel with id ${channelId} doesnt exist in store`)
+    LOGGER.warn(`Channel with id ${channelId} doesnt exist in store`)
     return
   }
 
   if (!generalChannel) {
-    log('General Channel doesnt exist in store')
+    LOGGER.warn('General Channel doesnt exist in store')
     return
   }
 
@@ -59,7 +63,7 @@ export function* channelDeletionResponseSaga(
     if (isGeneral && isUserOnGeneral) {
       let newGeneralChannel: PublicChannelStorage | undefined = yield* select(publicChannelsSelectors.generalChannel)
       while (!newGeneralChannel) {
-        log('General channel has not been replicated yet')
+        LOGGER.warn('General channel has not been replicated yet')
         yield* delay(500)
         newGeneralChannel = yield* select(publicChannelsSelectors.generalChannel)
       }

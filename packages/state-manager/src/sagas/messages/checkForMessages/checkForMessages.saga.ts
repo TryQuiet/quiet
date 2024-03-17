@@ -4,6 +4,9 @@ import { type PayloadAction } from '@reduxjs/toolkit'
 import { messagesActions } from '../messages.slice'
 import { currentCommunity } from '../../communities/communities.selectors'
 import { currentIdentity } from '../../identity/identity.selectors'
+import { loggingHandler, LoggerModuleName } from '../../../utils/logger'
+
+const LOGGER = loggingHandler.initLogger([LoggerModuleName.MESSAGES, LoggerModuleName.SAGA, 'checkForMessages'])
 
 export function* checkForMessagesSaga(
   action: PayloadAction<ReturnType<typeof messagesActions.checkForMessages>['payload']>
@@ -13,7 +16,10 @@ export function* checkForMessagesSaga(
   const community = yield* select(currentCommunity)
 
   const identity = yield* select(currentIdentity)
-  if (!community || !identity) return
+  if (!community || !identity) {
+    LOGGER.warn(`Must have valid current community and identity to check messages!`)
+    return
+  }
 
   const missingMessages = yield* select(missingChannelMessages(ids, channelId))
 

@@ -3,6 +3,9 @@ import { createSelector } from 'reselect'
 import { communitiesAdapter } from './communities.adapter'
 import { type CreatedSelectors, type StoreState } from '../store.types'
 import { CertFieldsTypes, getCertFieldValue, parseCertificate } from '@quiet/identity'
+import { loggingHandler, LoggerModuleName } from '../../utils/logger'
+
+const LOGGER = loggingHandler.initLogger([LoggerModuleName.COMMUNITIES, LoggerModuleName.SELECTORS])
 
 // Workaround for "The inferred type of 'communitiesSelectors' cannot be named without a reference to
 // 'packages/identity/node_modules/pkijs/build'. This is likely not portable. A type annotation is necessary."
@@ -56,7 +59,7 @@ export const ownerNickname = createSelector(ownerCertificate, ownerCertificate =
   const nickname = getCertFieldValue(parsedCert, CertFieldsTypes.nickName)
 
   if (!nickname) {
-    console.error('Could not retrieve owner nickname from certificate')
+    LOGGER.error('Could not retrieve owner nickname from certificate')
   }
 
   return nickname

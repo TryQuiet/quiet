@@ -23,6 +23,9 @@ import {
   INITIAL_CURRENT_CHANNEL_ID,
   type UserProfile,
 } from '@quiet/types'
+import { LoggerModuleName, loggingHandler } from 'packages/state-manager/src/utils/logger'
+
+const LOGGER = loggingHandler.initLogger([LoggerModuleName.PUBLIC_CHANNELS, LoggerModuleName.SELECTORS])
 
 const selectState: CreatedSelectors[StoreKeys.PublicChannels] = (state: StoreState) => state[StoreKeys.PublicChannels]
 
@@ -50,7 +53,7 @@ export const subscribedChannels = createSelector(selectChannelsSubscriptions, su
 export const selectGeneralChannel = createSelector(selectChannels, channels => {
   const draft = channels.find(item => item.name === 'general')
   if (!draft) {
-    console.error('No general channel')
+    LOGGER.error('No general channel')
     return
   }
   const channel: PublicChannel = {
@@ -124,7 +127,7 @@ export const getChannelById = (channelId: string) =>
   createSelector(publicChannels, channels => {
     const channel = channels.find(channel => channel.id === channelId)
     if (!channel) {
-      console.log('channel dont exist')
+      LOGGER.warn(`Channel with ID ${channelId} dont exist`)
     }
     return channel
   })

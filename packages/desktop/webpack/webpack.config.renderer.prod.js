@@ -22,7 +22,7 @@ module.exports = {
         use: {
           loader: 'ts-loader'
         },
-        exclude: [/node_modules/, /packages[\/\\]identity/, /packages[\/\\]state-manager/, /packages[\/\\]logger/]
+        exclude: [/node_modules/, /packages[\/\\]identity/, /packages[\/\\]logger/]
       },
       {
         test: /\.m?js/,

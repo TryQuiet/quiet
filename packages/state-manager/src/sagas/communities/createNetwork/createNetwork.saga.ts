@@ -8,12 +8,15 @@ import { createRootCA } from '@quiet/identity'
 import { type Community, CommunityOwnership, type Identity, SocketActionTypes } from '@quiet/types'
 import { generateDmKeyPair } from '../../../utils/cryptography/cryptography'
 import { Socket, applyEmitParams } from '../../../types'
+import { LoggerModuleName, loggingHandler } from 'packages/state-manager/src/utils/logger'
+
+const LOGGER = loggingHandler.initLogger([LoggerModuleName.COMMUNITIES, LoggerModuleName.SAGA, 'createNetwork'])
 
 export function* createNetworkSaga(
   socket: Socket,
   action: PayloadAction<ReturnType<typeof communitiesActions.createNetwork>['payload']>
 ) {
-  console.log('create network saga')
+  LOGGER.info(`Create network saga: starting with payload: ${JSON.stringify(action.payload)}`)
   let CA: null | {
     rootCertString: string
     rootKeyString: string
@@ -48,7 +51,7 @@ export function* createNetworkSaga(
 
   const psk = action.payload.psk
   if (psk) {
-    console.log('create network saga: saving PSK')
+    LOGGER.info('Create network saga: saving PSK')
     yield* put(communitiesActions.savePSK(psk))
   }
 

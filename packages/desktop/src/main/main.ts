@@ -18,6 +18,10 @@ import {
   parseInvitationCodeDeepUrl,
 } from '@quiet/common'
 import { updateDesktopFile, processInvitationCode } from './invitation'
+import { LoggingHandler } from '@quiet/logger'
+
+LoggingHandler.tailLogFile()
+
 const ElectronStore = require('electron-store')
 
 // eslint-disable-next-line

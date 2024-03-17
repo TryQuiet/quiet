@@ -9,6 +9,9 @@ import {
   SocketActionTypes,
 } from '@quiet/types'
 import { communitiesActions } from '../../communities/communities.slice'
+import { loggingHandler, LoggerModuleName } from '../../../utils/logger'
+
+const LOGGER = loggingHandler.initLogger([LoggerModuleName.IDENTITY, LoggerModuleName.SAGA, 'registerCertificate'])
 
 export function* registerCertificateSaga(
   socket: Socket,
@@ -17,7 +20,7 @@ export function* registerCertificateSaga(
   const currentCommunity = yield* select(communitiesSelectors.currentCommunity)
   const isUsernameTaken = action.payload.isUsernameTaken
   if (!currentCommunity) {
-    console.error('Could not register certificate, no current community')
+    LOGGER.error('Could not register certificate, no current community')
     return
   }
 

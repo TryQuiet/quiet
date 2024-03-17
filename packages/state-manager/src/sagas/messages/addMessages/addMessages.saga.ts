@@ -5,6 +5,9 @@ import { messagesSelectors } from '../messages.selectors'
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import { type CacheMessagesPayload, type ChannelMessage } from '@quiet/types'
+import { loggingHandler, LoggerModuleName } from '../../../utils/logger'
+
+const LOGGER = loggingHandler.initLogger([LoggerModuleName.MESSAGES, LoggerModuleName.SAGA, 'addMessages'])
 
 export function* addMessagesSaga(
   action: PayloadAction<ReturnType<typeof messagesActions.addMessages>['payload']>
@@ -13,6 +16,9 @@ export function* addMessagesSaga(
     // Proceed only for messages from current channel
     const currentChannelId = yield* select(publicChannelsSelectors.currentChannelId)
     if (incomingMessage.channelId !== currentChannelId) {
+      LOGGER.warn(
+        `Channel ID on message (${incomingMessage.channelId}) did not match current channel ID (${currentChannelId})`
+      )
       return
     }
 
@@ -22,6 +28,7 @@ export function* addMessagesSaga(
       const status = messageVerificationStatus[incomingMessage.signature]
       if (status) {
         if (!status.isVerified) {
+          LOGGER.warn(`Message status was unverified!`)
           return
         } else {
           break

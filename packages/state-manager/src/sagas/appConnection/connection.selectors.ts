@@ -10,6 +10,9 @@ import { filterAndSortPeers, invitationShareUrl } from '@quiet/common'
 import { areMessagesLoaded, areChannelsLoaded } from '../publicChannels/publicChannels.selectors'
 import { identitySelectors } from '../identity/identity.selectors'
 import { communitiesSelectors } from '../communities/communities.selectors'
+import { loggingHandler, LoggerModuleName } from '../../utils/logger'
+
+const LOGGER = loggingHandler.initLogger([LoggerModuleName.APP_CONNECTION, 'selectors'])
 
 const connectionSlice: CreatedSelectors[StoreKeys.Connection] = (state: StoreState) => state[StoreKeys.Connection]
 
@@ -79,7 +82,9 @@ export const isJoiningCompleted = createSelector(
   areChannelsLoaded,
   areCertificatesLoaded,
   (isCommunity, areMessages, areChannels, areCertificates) => {
-    console.log({ isCommunity, areMessages, areChannels, areCertificates })
+    LOGGER.debug(
+      `Checking if joining is complete with info: ${JSON.stringify({ isCommunity, areMessages, areChannels, areCertificates })}`
+    )
     return isCommunity && areMessages && areChannels && areCertificates
   }
 )

@@ -3,6 +3,9 @@ import { StoreKeys } from '../store.keys'
 import { type CreatedSelectors, type StoreState } from '../store.types'
 import { connectedPeersAdapter } from './network.adapter'
 import { currentCommunity } from '../communities/communities.selectors'
+import { LoggerModuleName, loggingHandler } from 'packages/state-manager/src/utils/logger'
+
+const LOGGER = loggingHandler.initLogger([LoggerModuleName.NETWORK, LoggerModuleName.SELECTORS])
 
 const networkSlice: CreatedSelectors[StoreKeys.Network] = (state: StoreState) => state[StoreKeys.Network]
 
@@ -17,7 +20,9 @@ export const isCurrentCommunityInitialized = createSelector(
 )
 
 export const connectedPeers = createSelector(networkSlice, reducerState => {
-  return connectedPeersAdapter.getSelectors().selectAll(reducerState.connectedPeers)
+  const allConnectedPeers = connectedPeersAdapter.getSelectors().selectAll(reducerState.connectedPeers)
+  LOGGER.info(`All connected peers: ${JSON.stringify(allConnectedPeers)}`)
+  return allConnectedPeers
 })
 
 export const networkSelectors = {

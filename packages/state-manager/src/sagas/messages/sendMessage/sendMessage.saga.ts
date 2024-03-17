@@ -9,13 +9,19 @@ import { publicChannelsSelectors } from '../../publicChannels/publicChannels.sel
 import { messagesActions } from '../messages.slice'
 import { generateMessageId, getCurrentTime } from '../utils/message.utils'
 import { type ChannelMessage, MessageType, SendingStatus, SocketActionTypes } from '@quiet/types'
+import { loggingHandler, LoggerModuleName } from '../../../utils/logger'
+
+const LOGGER = loggingHandler.initLogger([LoggerModuleName.MESSAGES, LoggerModuleName.SAGA, 'sendMessage'])
 
 export function* sendMessageSaga(
   socket: Socket,
   action: PayloadAction<ReturnType<typeof messagesActions.sendMessage>['payload']>
 ): Generator {
   const identity = yield* select(identitySelectors.currentIdentity)
-  if (!identity?.userCsr) return
+  if (!identity?.userCsr) {
+    LOGGER.warn(`Must have a valid CSR to send message`)
+    return
+  }
 
   const pubKey = yield* call(pubKeyFromCsr, identity.userCsr.userCsr)
   const keyObject = yield* call(loadPrivateKey, identity.userCsr.userKey, config.signAlg)
@@ -32,7 +38,7 @@ export function* sendMessageSaga(
 
   const channelId = action.payload.channelId || currentChannelId
   if (!channelId) {
-    console.error(`Could not send message with id ${id}, no channel id`)
+    LOGGER.error(`Could not send message with id ${id}, no channel id`)
     return
   }
 
