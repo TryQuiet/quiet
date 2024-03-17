@@ -5,7 +5,7 @@ import { mplex } from '@libp2p/mplex'
 import { multiaddr } from '@multiformats/multiaddr'
 import { Inject, Injectable } from '@nestjs/common'
 import { createLibp2pAddress, createLibp2pListenAddress } from '@quiet/common'
-import { ConnectionProcessInfo, type NetworkDataPayload, PeerId, SocketActionTypes } from '@quiet/types'
+import { ConnectionProcessInfo, type NetworkDataPayload, PeerId, SocketActionTypes, PeersNetworkDataPayload } from '@quiet/types'
 import crypto from 'crypto'
 import { EventEmitter } from 'events'
 import { Agent } from 'https'
@@ -153,20 +153,30 @@ export class Libp2pService extends EventEmitter {
     })
 
     this.libp2pInstance.addEventListener('peer:connect', async peer => {
+      this.logger(`Connecting peer: ${JSON.stringify(peer)}`)
       const remotePeerId = peer.detail.remotePeer.toString()
       const localPeerId = peerId.toString()
       this.logger(`${localPeerId} connected to ${remotePeerId}`)
 
-      this.connectedPeers.set(remotePeerId, DateTime.utc().valueOf())
-      this.logger(`${localPeerId} is connected to ${this.connectedPeers.size} peers`)
+      const now = DateTime.utc()
+      this.connectedPeers.set(remotePeerId, now.valueOf())
+      this.logger(`${localPeerId} is now connected to ${this.connectedPeers.size} peers`)
       this.logger(`${localPeerId} has ${this.libp2pInstance?.getConnections().length} open connections`)
 
-      this.emit(Libp2pEvents.PEER_CONNECTED, {
-        peers: [remotePeerId],
-      })
+      const payload: PeersNetworkDataPayload = {
+        peers: [{
+          peer: remotePeerId,
+          lastSeen: now.toSeconds(),
+          connectionDuration: 0
+        }],
+      };
+
+      this.logger(`Emitting ${Libp2pEvents.PEER_CONNECTED} event with payload ${JSON.stringify(payload)}`)
+      this.emit(Libp2pEvents.PEER_CONNECTED, payload)
     })
 
     this.libp2pInstance.addEventListener('peer:disconnect', async peer => {
+      this.logger(`Disconnecting peer: ${JSON.stringify(peer)}`)
       const remotePeerId = peer.detail.remotePeer.toString()
       const localPeerId = peerId.toString()
       this.logger(`${localPeerId} disconnected from ${remotePeerId}`)
@@ -187,12 +197,14 @@ export class Libp2pService extends EventEmitter {
       const connectionDuration: number = connectionEndTime - connectionStartTime
 
       this.connectedPeers.delete(remotePeerId)
-      this.logger(`${localPeerId} is connected to ${this.connectedPeers.size} peers`)
+      this.logger(`${localPeerId} is now connected to ${this.connectedPeers.size} peers`)
       const peerStat: NetworkDataPayload = {
         peer: remotePeerId,
         connectionDuration,
         lastSeen: connectionEndTime,
       }
+
+      this.logger(`Emitting ${Libp2pEvents.PEER_DISCONNECTED} event with payload ${JSON.stringify(peerStat)}`)
       this.emit(Libp2pEvents.PEER_DISCONNECTED, peerStat)
     })
 

@@ -1,7 +1,7 @@
 import { eventChannel } from 'redux-saga'
 import { type Socket } from '../../../types'
 import { all, call, fork, put, takeEvery } from 'typed-redux-saga'
-import logger from '../../../utils/logger'
+import createLogger from '../../../utils/logger'
 import { appMasterSaga } from '../../app/app.master.saga'
 import { connectionActions } from '../../appConnection/connection.slice'
 import { communitiesMasterSaga } from '../../communities/communities.master.saga'
@@ -41,9 +41,10 @@ import {
   type CommunityMetadata,
   type UserProfilesStoredEvent,
   SocketActionTypes,
+  PeersNetworkDataPayload,
 } from '@quiet/types'
 
-const log = logger('socket')
+const logger = createLogger('socket')
 
 export function subscribe(socket: Socket) {
   return eventChannel<
@@ -97,13 +98,15 @@ export function subscribe(socket: Socket) {
       emit(connectionActions.setConnectionProcess(payload))
     })
     // Misc
-    socket.on(SocketActionTypes.PEER_CONNECTED, (payload: { peers: string[] }) => {
-      log(`${SocketActionTypes.PEER_CONNECTED}: ${payload}`)
-      emit(networkActions.addConnectedPeers(payload.peers))
+    socket.on(SocketActionTypes.PEER_CONNECTED, (payload: PeersNetworkDataPayload) => {
+      logger(`${SocketActionTypes.PEER_CONNECTED}: ${JSON.stringify(payload)}`)
+      emit(networkActions.addConnectedPeers(payload.peers.map(peer => peer.peer)))
+      emit(connectionActions.updateNetworkData(payload.peers))
     })
     socket.on(SocketActionTypes.PEER_DISCONNECTED, (payload: NetworkDataPayload) => {
+      logger(`${SocketActionTypes.PEER_DISCONNECTED}: ${JSON.stringify(payload)}`)
       emit(networkActions.removeConnectedPeer(payload.peer))
-      emit(connectionActions.updateNetworkData(payload))
+      emit(connectionActions.updateNetworkData([payload]))
     })
     // Files
     socket.on(SocketActionTypes.MESSAGE_MEDIA_UPDATED, (payload: FileMetadata) => {
@@ -137,7 +140,7 @@ export function subscribe(socket: Socket) {
     // Community
 
     socket.on(SocketActionTypes.COMMUNITY_CREATED, async (payload: ResponseCreateCommunityPayload) => {
-      log(`${SocketActionTypes.COMMUNITY_CREATED}: ${payload}`)
+      logger(`${SocketActionTypes.COMMUNITY_CREATED}: ${payload}`)
       // We can also set community metadata when we register the
       // owner's certificate. I think the only issue is that we
       // register the owner's certificate before initializing the
@@ -155,7 +158,7 @@ export function subscribe(socket: Socket) {
       emit(communitiesActions.storePeerList(payload))
     })
     socket.on(SocketActionTypes.COMMUNITY_LAUNCHED, (payload: ResponseLaunchCommunityPayload) => {
-      console.log('Hunting for heisenbug: Community event received in state-manager')
+      logger('Hunting for heisenbug: Community event received in state-manager')
       // TODO: We can send this once when creating the community and
       // store it in the backend.
       emit(communitiesActions.sendCommunityCaData())
@@ -169,13 +172,13 @@ export function subscribe(socket: Socket) {
       // color in the console, which makes them difficult to find.
       // Also when only printing the payload, the full trace is not
       // available.
-      log.error(payload)
+      logger.error(`Error on socket: ${JSON.stringify(payload)}`)
       console.error(payload, payload.trace)
       emit(errorsActions.handleError(payload))
     })
     // Certificates
     socket.on(SocketActionTypes.CSRS_STORED, (payload: SendCsrsResponse) => {
-      log(`${SocketActionTypes.CSRS_STORED}`)
+      logger(`${SocketActionTypes.CSRS_STORED}`)
       emit(identityActions.checkLocalCsr(payload))
       emit(usersActions.storeCsrs(payload))
     })
@@ -183,7 +186,7 @@ export function subscribe(socket: Socket) {
       emit(usersActions.responseSendCertificates(payload))
     })
     socket.on(SocketActionTypes.OWNER_CERTIFICATE_ISSUED, (payload: SavedOwnerCertificatePayload) => {
-      log(`${SocketActionTypes.OWNER_CERTIFICATE_ISSUED}: ${payload.communityId}`)
+      logger(`${SocketActionTypes.OWNER_CERTIFICATE_ISSUED}: ${payload.communityId}`)
       emit(
         communitiesActions.updateCommunity({
           id: payload.communityId,
@@ -199,18 +202,18 @@ export function subscribe(socket: Socket) {
       emit(identityActions.savedOwnerCertificate(payload.communityId))
     })
     socket.on(SocketActionTypes.COMMUNITY_METADATA_STORED, (payload: CommunityMetadata) => {
-      log(`${SocketActionTypes.COMMUNITY_METADATA_STORED}: ${payload}`)
+      logger(`${SocketActionTypes.COMMUNITY_METADATA_STORED}: ${JSON.stringify(payload)}`)
       emit(communitiesActions.saveCommunityMetadata(payload))
     })
     socket.on(SocketActionTypes.LIBP2P_PSK_STORED, (payload: { psk: string }) => {
-      log(`${SocketActionTypes.LIBP2P_PSK_STORED}`)
+      logger(`${SocketActionTypes.LIBP2P_PSK_STORED}`)
       emit(communitiesActions.savePSK(payload.psk))
     })
 
     // User Profile
 
     socket.on(SocketActionTypes.USER_PROFILES_STORED, (payload: UserProfilesStoredEvent) => {
-      log(`${SocketActionTypes.USER_PROFILES_STORED}`)
+      logger(`${SocketActionTypes.USER_PROFILES_STORED}`)
       emit(usersActions.setUserProfiles(payload.profiles))
     })
 

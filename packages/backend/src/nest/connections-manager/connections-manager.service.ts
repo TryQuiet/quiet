@@ -44,6 +44,7 @@ import {
   type PermsData,
   type UserProfile,
   type UserProfilesStoredEvent,
+  PeersNetworkDataPayload,
 } from '@quiet/types'
 import { CONFIG_OPTIONS, QUIET_DIR, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
 import { ConfigOptions, GetPorts, ServerIoProviderTypes } from '../types'
@@ -394,10 +395,23 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     }
 
     await this.libp2pService.createInstance(params)
+
     // Libp2p event listeners
-    this.libp2pService.on(Libp2pEvents.PEER_CONNECTED, (payload: { peers: string[] }) => {
+    this.libp2pService.on(Libp2pEvents.PEER_CONNECTED, async (payload:  PeersNetworkDataPayload) => {
+      const peerStats: { [peerId: string]: NetworkStats } = await payload.peers.reduce(async (updateObj, peer) => {
+        return {
+          ...(await updateObj),
+          [peer.peer]: {
+            peerId: peer.peer,
+            lastSeen: peer.lastSeen,
+            connectionTime: peer.connectionDuration
+          } as NetworkStats
+        }
+      }, Promise.resolve({} as { [peerId: string]: NetworkStats }))
+      await this.localDbService.update(LocalDBKeys.PEERS, peerStats)
       this.serverIoProvider.io.emit(SocketActionTypes.PEER_CONNECTED, payload)
     })
+
     this.libp2pService.on(Libp2pEvents.PEER_DISCONNECTED, async (payload: NetworkDataPayload) => {
       const peerPrevStats = await this.localDbService.find(LocalDBKeys.PEERS, payload.peer)
       const prev = peerPrevStats?.connectionTime || 0
@@ -414,6 +428,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       // BARTEK: Potentially obsolete to send this to state-manager
       this.serverIoProvider.io.emit(SocketActionTypes.PEER_DISCONNECTED, payload)
     })
+
     await this.storageService.init(_peerId)
     // We can use Nest for dependency injection, but I think since the
     // registration service depends on the storage service being
