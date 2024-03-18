@@ -29,7 +29,8 @@
     "luxon": "^3.4.4",
     "tail": "^2.2.6",
     "winston": "^3.12.0",
-    "winston-console-for-electron": "^0.0.7"
+    "winston-console-for-electron": "^0.0.7",
+    "winston-daily-rotate-file": "^5.0.0"
   },
   "author": "",
   "license": "GPL-3.0-or-later"

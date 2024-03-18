@@ -5,9 +5,10 @@ const Tail = require('tail').Tail
 import { ConsoleForElectron } from 'winston-console-for-electron'
 import winston from 'winston'
 
-import { GenerateLoggerConfig, LoggingHandlerConfig, TailLoggerFunction } from './types'
+import { GenerateLoggerConfig, LoggingHandlerConfig, TailLoggerFunction, TransportConfig } from './types'
 import { DEFAULT_LOG_FILE, DEFAULT_LOG_LEVEL, DEFAULT_LOG_TRANSPORTS } from './const'
 import { LogTransportType, LogLevel } from './enums'
+import { LogTransports } from './transports'
 
 export type Logger = debug.Debugger & {
   error: debug.Debugger
@@ -27,58 +28,63 @@ export const logger = (packageName: string): ((arg: string) => Logger) => {
   return consoleLogger(packageName)
 }
 
+const transportManager = new LogTransports()
+
 export class LoggingHandler {
   public packageName: string
-  public baseTransports: LogTransportType[]
+  public baseTransports: TransportConfig[]
   public defaultLogLevel: LogLevel
   public defaultLogFile: string
 
   constructor(baseConfig: LoggingHandlerConfig) {
     this.packageName = baseConfig.packageName
-    this.baseTransports = baseConfig.defaultLogTransportTypes || DEFAULT_LOG_TRANSPORTS
+    this.baseTransports = baseConfig.defaultLogTransports || DEFAULT_LOG_TRANSPORTS
     this.defaultLogLevel = baseConfig.defaultLogLevel || DEFAULT_LOG_LEVEL
     this.defaultLogFile = baseConfig.defaultLogFile || DEFAULT_LOG_FILE
   }
 
   public initLogger(moduleName: string): winston.Logger
   public initLogger(moduleNames: string[]): winston.Logger
-  public initLogger(config: GenerateLoggerConfig): winston.Logger
+  public initLogger(baseConfig: GenerateLoggerConfig): winston.Logger
   public initLogger(moduleNameOrConfig: GenerateLoggerConfig | string | string[]): winston.Logger {
-    let config: GenerateLoggerConfig
+    const loggerOptions = this.buildLoggerOptions(moduleNameOrConfig)
+    return winston.createLogger(loggerOptions)
+  }
+
+  private buildConfig(moduleNameOrConfig: GenerateLoggerConfig | string | string[]): GenerateLoggerConfig {
+    let baseConfig: GenerateLoggerConfig
     if (typeof moduleNameOrConfig === 'string') {
-      config = {
+      baseConfig = {
         moduleNames: [moduleNameOrConfig],
       } as GenerateLoggerConfig
     } else if (moduleNameOrConfig instanceof Array) {
-      config = {
+      baseConfig = {
         moduleNames: moduleNameOrConfig,
       } as GenerateLoggerConfig
     } else {
-      config = moduleNameOrConfig
+      baseConfig = moduleNameOrConfig
     }
 
-    const name = this.getLoggerName(config.moduleNames)
-    config = this.buildModuleLoggerConfig(config, name)
+    return baseConfig
+  }
 
-    return winston.createLogger({
+  private buildLoggerOptions(moduleNameOrConfig: GenerateLoggerConfig | string | string[]): winston.LoggerOptions {
+    const baseConfig = this.buildConfig(moduleNameOrConfig)
+    const name = this.getLoggerName(baseConfig.moduleNames)
+    const config: GenerateLoggerConfig = {
+      ...baseConfig,
+      logFile: baseConfig.logFile || this.defaultLogFile,
+      transports: baseConfig.transports || this.baseTransports,
+      logLevel: this.getLogLevel(baseConfig, name)
+    }
+
+    return {
       defaultMeta: {
         label: name,
       },
       level: config.logLevel,
       format: this.getFormats(),
       transports: this.getTransports(config, name),
-    })
-  }
-
-  private buildModuleLoggerConfig(config: GenerateLoggerConfig, name: string): GenerateLoggerConfig {
-    const logLevel = this.getLogLevel(config, name)
-    const transports: LogTransportType[] = config.transports || this.baseTransports
-    const logFile = config.logFile || this.defaultLogFile
-    return {
-      moduleNames: config.moduleNames,
-      logLevel,
-      transports,
-      logFile,
     }
   }
 
@@ -113,25 +119,8 @@ export class LoggingHandler {
       throw new Error(`No log transports configured for module logger ${name}`)
     }
 
-    for (const transportType of config.transports) {
-      switch (transportType) {
-        case LogTransportType.CONSOLE:
-          transports.push(new winston.transports.Console())
-          break
-        case LogTransportType.CONSOLE_ELECTRON:
-          transports.push(
-            new ConsoleForElectron({
-              prefix: '',
-            })
-          )
-          break
-        case LogTransportType.FILE:
-          transports.push(new winston.transports.File({ filename: config.logFile }))
-          break
-        default:
-          console.error(`Unknown log transport type ${transportType}`)
-          break
-      }
+    for (const transportConfig of config.transports) {
+      transports.push(transportManager.initTransport(transportConfig))
     }
 
     return transports
@@ -155,5 +144,6 @@ export class LoggingHandler {
 export * from './enums'
 export * from './const'
 export * from './types'
+export * from './transports'
 
 export default logger

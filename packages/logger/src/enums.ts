@@ -9,4 +9,5 @@ export enum LogTransportType {
   CONSOLE = 'CONSOLE',
   CONSOLE_ELECTRON = 'CONSOLE_ELECTRON',
   FILE = 'FILE',
+  ROTATE_FILE = 'ROTATE_FILE'
 }

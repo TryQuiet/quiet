@@ -27,5 +27,8 @@ const PACKAGE_NAME = 'state-manager'
 export const loggingHandler = new LoggingHandler({
   packageName: PACKAGE_NAME,
   defaultLogLevel: LogLevel.INFO,
-  defaultLogTransportTypes: [LogTransportType.FILE],
+  defaultLogTransports: [{
+    type: LogTransportType.FILE,
+    shared: true,
+  }],
 })
