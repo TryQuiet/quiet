@@ -49,6 +49,9 @@
     },
     "transformIgnorePatterns": [
       "node_modules/(?!variables/.*)"
+    ],
+    "setupFiles": [
+      "<rootDir>/src/jestSetup.ts"
     ]
   },
   "author": "",
