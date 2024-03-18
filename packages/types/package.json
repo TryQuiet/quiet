@@ -11,8 +11,10 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "prepare": "npm run build",
-    "lint": "eslint --ext .ts . --fix",
-    "lint-ci": "eslint --ext .ts .",
+    "lint:no-fix": "eslint --ext .ts .",
+    "lint": "npm run lint:no-fix -- --fix",
+    "lint-ci": "npm run lint:no-fix",
+    "lint-staged": "lint-staged",
     "test": "exit 0",
     "prettier": "prettier",
     "rmDist": "rimraf lib/"
@@ -23,6 +25,7 @@
     "@types/jest": "^26.0.23",
     "@types/node": "^17.0.21",
     "jest": "^26.6.3",
+    "lint-staged": "^15.2.2",
     "ts-jest": "^26.5.2",
     "typescript": "^4.9.3"
   },
@@ -42,5 +45,8 @@
     "rootDir": "src"
   },
   "author": "",
-  "license": "GPL-3.0-or-later"
+  "license": "GPL-3.0-or-later",
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": "npm run lint:no-fix"
+  }
 }
