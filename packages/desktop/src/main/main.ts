@@ -1,4 +1,5 @@
 import './loadMainEnvs' // Needs to be at the top of imports
+
 import { app, BrowserWindow, Menu, ipcMain, session, dialog } from 'electron'
 import fs from 'fs'
 import path from 'path'
@@ -10,17 +11,15 @@ import pkijs, { setEngine, CryptoEngine } from 'pkijs'
 import { Crypto } from '@peculiar/webcrypto'
 import logger from './logger'
 import { fork, ChildProcess } from 'child_process'
-import {
-  DESKTOP_DATA_DIR,
-  DESKTOP_DEV_DATA_DIR,
-  argvInvitationCode,
-  getFilesData,
-  parseInvitationCodeDeepUrl,
-} from '@quiet/common'
+import { argvInvitationCode, getDataDir, getFilesData, parseInvitationCodeDeepUrl } from '@quiet/common'
 import { updateDesktopFile, processInvitationCode } from './invitation'
-import { LoggingHandler } from '@quiet/logger'
+import { LogFileTailer } from '@quiet/logger'
 
-LoggingHandler.tailLogFile()
+const dataDir = getDataDir()
+const appDataPath = path.join(app.getPath('appData'), dataDir)
+
+const logTailer = new LogFileTailer()
+logTailer.tailAllLogFiles(appDataPath)
 
 const ElectronStore = require('electron-store')
 
@@ -41,16 +40,9 @@ const webcrypto = new Crypto()
 
 global.crypto = webcrypto
 
-let dataDir = DESKTOP_DATA_DIR
 let mainWindow: BrowserWindow | null
 let splash: BrowserWindow | null
 let invitationUrl: string | null
-
-if (isDev || process.env.DATA_DIR) {
-  dataDir = process.env.DATA_DIR || DESKTOP_DEV_DATA_DIR
-}
-
-const appDataPath = path.join(app.getPath('appData'), dataDir)
 
 if (!fs.existsSync(appDataPath)) {
   fs.mkdirSync(appDataPath)

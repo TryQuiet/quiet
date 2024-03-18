@@ -26,13 +26,10 @@ import { navigationReducer } from './navigation/navigation.slice'
 import appHandlers from './handlers/app'
 
 import { Store } from '../sagas/store.types'
-import { DESKTOP_DATA_DIR, DESKTOP_DEV_DATA_DIR } from '@quiet/common'
+import { getDataDir, getBaseDataPath } from '@quiet/common'
 
-const dataPath =
-  process.env.APPDATA ||
-  (process.platform === 'darwin' ? process.env.HOME + '/Library/Application Support' : process.env.HOME + '/.config')
-const appPath =
-  process.env.DATA_DIR || (process.env.NODE_ENV === 'development' ? DESKTOP_DEV_DATA_DIR : DESKTOP_DATA_DIR)
+const dataPath = getBaseDataPath()
+const appPath = getDataDir()
 
 const options = {
   projectName: 'quiet',

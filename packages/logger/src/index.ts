@@ -1,13 +1,10 @@
 import debug from 'debug'
 import { DateTime } from 'luxon'
-
-const Tail = require('tail').Tail
-import { ConsoleForElectron } from 'winston-console-for-electron'
 import winston from 'winston'
 
-import { GenerateLoggerConfig, LoggingHandlerConfig, TailLoggerFunction, TransportConfig } from './types'
+import { GenerateLoggerConfig, LoggingHandlerConfig, TransportConfig } from './types'
 import { DEFAULT_LOG_FILE, DEFAULT_LOG_LEVEL, DEFAULT_LOG_TRANSPORTS } from './const'
-import { LogTransportType, LogLevel } from './enums'
+import { LogLevel } from './enums'
 import { LogTransports } from './transports'
 
 export type Logger = debug.Debugger & {
@@ -35,12 +32,14 @@ export class LoggingHandler {
   public baseTransports: TransportConfig[]
   public defaultLogLevel: LogLevel
   public defaultLogFile: string
+  public logPath: string
 
   constructor(baseConfig: LoggingHandlerConfig) {
     this.packageName = baseConfig.packageName
     this.baseTransports = baseConfig.defaultLogTransports || DEFAULT_LOG_TRANSPORTS
     this.defaultLogLevel = baseConfig.defaultLogLevel || DEFAULT_LOG_LEVEL
     this.defaultLogFile = baseConfig.defaultLogFile || DEFAULT_LOG_FILE
+    this.logPath = baseConfig.logPath
   }
 
   public initLogger(moduleName: string): winston.Logger
@@ -75,7 +74,7 @@ export class LoggingHandler {
       ...baseConfig,
       logFile: baseConfig.logFile || this.defaultLogFile,
       transports: baseConfig.transports || this.baseTransports,
-      logLevel: this.getLogLevel(baseConfig, name)
+      logLevel: this.getLogLevel(baseConfig, name),
     }
 
     return {
@@ -120,24 +119,10 @@ export class LoggingHandler {
     }
 
     for (const transportConfig of config.transports) {
-      transports.push(transportManager.initTransport(transportConfig))
+      transports.push(transportManager.initTransport(transportConfig, this.logPath))
     }
 
     return transports
-  }
-
-  public static tailLogFile(fileName = 'dist/logs/stdout', consoleFunction: TailLoggerFunction = console.log): void {
-    const tailableFileName = fileName || DEFAULT_LOG_FILE
-    if (process.env.NODE_ENV === 'development') {
-      consoleFunction(`${DateTime.utc().toISO()} DEVELOPMENT: tailing log file ${tailableFileName}`)
-      const tail = new Tail(tailableFileName)
-
-      tail.on('line', function (data: any) {
-        consoleFunction(data)
-      })
-    } else {
-      consoleFunction(`${DateTime.utc().toISO()} Not running in development, not tailing log file ${tailableFileName}`)
-    }
   }
 }
 
@@ -145,5 +130,6 @@ export * from './enums'
 export * from './const'
 export * from './types'
 export * from './transports'
+export * from './tail'
 
 export default logger

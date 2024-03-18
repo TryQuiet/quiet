@@ -41,7 +41,7 @@ module.exports = {
         }
       },
       {
-        test: /\.(mp3|ttf|eot|svg|png|woff(2)?)(\?[a-z0-9=&.]+)?$/,
+        test: /\.(node|mp3|ttf|eot|svg|png|woff(2)?)(\?[a-z0-9=&.]+)?$/,
         use: {
           loader: 'file-loader'
         }

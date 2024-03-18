@@ -41,6 +41,12 @@ const webpackConfig = (env) => {
 
                 },
                 {
+                    test: /\.node$/,
+                    use: {
+                        loader: 'file-loader'
+                    }
+                },
+                {
                     test: /node_modules[\/\\]@achingbrain[\/\\]ssdp[\/\\]dist[\/\\]src[\/\\]default-ssdp-options.js/,
                     loader: 'string-replace-loader',
                     options: {

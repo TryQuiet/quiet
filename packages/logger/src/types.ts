@@ -11,6 +11,7 @@ export interface TransportConfig {
 
 export interface LoggingHandlerConfig {
   packageName: string
+  logPath: string
   defaultLogTransports?: TransportConfig[]
   defaultLogLevel?: LogLevel
   defaultLogFile?: string

@@ -1,4 +1,7 @@
-import { LogLevel, LogTransportType, LoggingHandler } from '@quiet/logger'
+import * as path from 'path'
+
+import { getAppDataPath } from '@quiet/common'
+import { LOG_PATH, LogFile, LogLevel, LogTransportType, LoggingHandler } from '@quiet/logger'
 
 export enum LoggerModuleName {
   // top-level module names
@@ -26,9 +29,13 @@ export enum LoggerModuleName {
 const PACKAGE_NAME = 'state-manager'
 export const loggingHandler = new LoggingHandler({
   packageName: PACKAGE_NAME,
+  logPath: path.join(getAppDataPath(), LOG_PATH),
   defaultLogLevel: LogLevel.INFO,
-  defaultLogTransports: [{
-    type: LogTransportType.FILE,
-    shared: true,
-  }],
+  defaultLogTransports: [
+    {
+      type: LogTransportType.ROTATE_FILE,
+      shared: true,
+      fileName: LogFile.STATE_MANAGER,
+    },
+  ],
 })
