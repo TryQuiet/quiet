@@ -2,7 +2,7 @@ import { createSlice, type EntityState, type PayloadAction } from '@reduxjs/tool
 import { StoreKeys } from '../store.keys'
 import { connectedPeersAdapter } from './network.adapter'
 import { type CommunityId, type ConnectedPeers, LoadingPanelType } from '@quiet/types'
-import { LoggerModuleName, loggingHandler } from 'packages/state-manager/src/utils/logger'
+import { LoggerModuleName, loggingHandler } from '../../utils/logger'
 
 const LOGGER = loggingHandler.initLogger([LoggerModuleName.NETWORK, LoggerModuleName.SLICE])
 

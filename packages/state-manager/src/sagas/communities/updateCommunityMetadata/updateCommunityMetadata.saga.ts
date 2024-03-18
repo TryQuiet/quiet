@@ -5,7 +5,7 @@ import { applyEmitParams, type Socket } from '../../../types'
 import { communitiesSelectors } from '../communities.selectors'
 import { communitiesActions } from '../communities.slice'
 import { identitySelectors } from '../../identity/identity.selectors'
-import { LoggerModuleName, loggingHandler } from 'packages/state-manager/src/utils/logger'
+import { LoggerModuleName, loggingHandler } from '../../../utils/logger'
 
 const LOGGER = loggingHandler.initLogger([
   LoggerModuleName.COMMUNITIES,

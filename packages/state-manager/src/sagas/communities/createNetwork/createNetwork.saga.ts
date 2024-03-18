@@ -8,7 +8,7 @@ import { createRootCA } from '@quiet/identity'
 import { type Community, CommunityOwnership, type Identity, SocketActionTypes } from '@quiet/types'
 import { generateDmKeyPair } from '../../../utils/cryptography/cryptography'
 import { Socket, applyEmitParams } from '../../../types'
-import { LoggerModuleName, loggingHandler } from 'packages/state-manager/src/utils/logger'
+import { LoggerModuleName, loggingHandler } from '../../../utils/logger'
 
 const LOGGER = loggingHandler.initLogger([LoggerModuleName.COMMUNITIES, LoggerModuleName.SAGA, 'createNetwork'])
 

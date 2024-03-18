@@ -6,7 +6,7 @@ import { messagesSelectors } from '../../messages/messages.selectors'
 import { messagesActions } from '../../messages/messages.slice'
 import { communitiesSelectors } from '../../communities/communities.selectors'
 
-import { LoggerModuleName, loggingHandler } from 'packages/state-manager/src/utils/logger'
+import { LoggerModuleName, loggingHandler } from '../../../utils/logger'
 import { type PublicChannel } from '@quiet/types'
 
 const LOGGER = loggingHandler.initLogger([

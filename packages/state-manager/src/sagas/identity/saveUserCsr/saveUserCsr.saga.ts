@@ -2,7 +2,7 @@ import { SaveCSRPayload, SocketActionTypes } from '@quiet/types'
 import { applyEmitParams, type Socket } from '../../../types'
 import { apply, select } from 'typed-redux-saga'
 import { identitySelectors } from '../identity.selectors'
-import { LoggerModuleName, loggingHandler } from 'packages/state-manager/src/utils/logger'
+import { LoggerModuleName, loggingHandler } from '../../../utils/logger'
 
 const LOGGER = loggingHandler.initLogger([LoggerModuleName.IDENTITY, LoggerModuleName.SAGA, 'saveUserCsr'])
 

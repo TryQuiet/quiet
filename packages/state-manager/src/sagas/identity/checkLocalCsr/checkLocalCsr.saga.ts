@@ -3,7 +3,7 @@ import { PayloadAction } from '@reduxjs/toolkit'
 import { identityActions } from '../identity.slice'
 import { identitySelectors } from '../identity.selectors'
 import { CertFieldsTypes, getReqFieldValue, loadCSR, pubKeyFromCsr } from '@quiet/identity'
-import { LoggerModuleName, loggingHandler } from 'packages/state-manager/src/utils/logger'
+import { LoggerModuleName, loggingHandler } from '../../../utils/logger'
 
 const LOGGER = loggingHandler.initLogger([LoggerModuleName.IDENTITY, LoggerModuleName.SAGA, 'checkLocalCsr'])
 

@@ -3,7 +3,7 @@ import { StoreKeys } from '../store.keys'
 import { type CreatedSelectors, type StoreState } from '../store.types'
 import { connectedPeersAdapter } from './network.adapter'
 import { currentCommunity } from '../communities/communities.selectors'
-import { LoggerModuleName, loggingHandler } from 'packages/state-manager/src/utils/logger'
+import { LoggerModuleName, loggingHandler } from '../../utils/logger'
 
 const LOGGER = loggingHandler.initLogger([LoggerModuleName.NETWORK, LoggerModuleName.SELECTORS])
 

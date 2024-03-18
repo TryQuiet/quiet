@@ -1,7 +1,7 @@
 import { eventChannel } from 'redux-saga'
 import { type Socket } from '../../../types'
 import { all, call, fork, put, takeEvery } from 'typed-redux-saga'
-import { LoggerModuleName, loggingHandler } from 'packages/state-manager/src/utils/logger'
+import { LoggerModuleName, loggingHandler } from '../../../utils/logger'
 import { appMasterSaga } from '../../app/app.master.saga'
 import { connectionActions } from '../../appConnection/connection.slice'
 import { communitiesMasterSaga } from '../../communities/communities.master.saga'

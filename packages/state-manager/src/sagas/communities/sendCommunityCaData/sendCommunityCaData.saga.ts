@@ -5,7 +5,7 @@ import { applyEmitParams, type Socket } from '../../../types'
 import { communitiesSelectors } from '../communities.selectors'
 import { type communitiesActions } from '../communities.slice'
 import { type PermsData, SocketActionTypes } from '@quiet/types'
-import { LoggerModuleName, loggingHandler } from 'packages/state-manager/src/utils/logger'
+import { LoggerModuleName, loggingHandler } from '../../../utils/logger'
 
 const LOGGER = loggingHandler.initLogger([LoggerModuleName.COMMUNITIES, LoggerModuleName.SAGA, 'sendCommunityCaData'])
 

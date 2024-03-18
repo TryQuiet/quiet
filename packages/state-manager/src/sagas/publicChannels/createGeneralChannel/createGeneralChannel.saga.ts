@@ -2,7 +2,7 @@ import { select, put, call } from 'typed-redux-saga'
 import { publicChannelsActions } from '../publicChannels.slice'
 import { identitySelectors } from '../../identity/identity.selectors'
 import { DateTime } from 'luxon'
-import { LoggerModuleName, loggingHandler } from 'packages/state-manager/src/utils/logger'
+import { LoggerModuleName, loggingHandler } from '../../../utils/logger'
 import { generateChannelId } from '@quiet/common'
 import { type PublicChannel } from '@quiet/types'
 

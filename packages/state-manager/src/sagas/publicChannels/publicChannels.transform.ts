@@ -3,7 +3,7 @@ import { createTransform } from 'redux-persist'
 import { StoreKeys } from '../store.keys'
 import { publicChannelsAdapter, publicChannelsSubscriptionsAdapter } from './publicChannels.adapter'
 import { type PublicChannelsState } from './publicChannels.slice'
-import { LoggerModuleName, loggingHandler } from 'packages/state-manager/src/utils/logger'
+import { LoggerModuleName, loggingHandler } from '../../utils/logger'
 
 const LOGGER = loggingHandler.initLogger([LoggerModuleName.PUBLIC_CHANNELS, LoggerModuleName.TRANSFORM])
 

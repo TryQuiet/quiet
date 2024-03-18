@@ -1,6 +1,6 @@
 import { publicChannelsActions } from '../publicChannels.slice'
 import { type PayloadAction } from '@reduxjs/toolkit'
-import { LoggerModuleName, loggingHandler } from 'packages/state-manager/src/utils/logger'
+import { LoggerModuleName, loggingHandler } from '../../../utils/logger'
 import { put, delay, select } from 'typed-redux-saga'
 import { messagesActions } from '../../messages/messages.slice'
 import { communitiesSelectors } from '../../communities/communities.selectors'

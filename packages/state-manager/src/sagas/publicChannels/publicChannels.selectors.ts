@@ -23,7 +23,7 @@ import {
   INITIAL_CURRENT_CHANNEL_ID,
   type UserProfile,
 } from '@quiet/types'
-import { LoggerModuleName, loggingHandler } from 'packages/state-manager/src/utils/logger'
+import { LoggerModuleName, loggingHandler } from '../../utils/logger'
 
 const LOGGER = loggingHandler.initLogger([LoggerModuleName.PUBLIC_CHANNELS, LoggerModuleName.SELECTORS])
 

@@ -4,7 +4,7 @@ import { type PayloadAction } from '@reduxjs/toolkit'
 import { apply, put } from 'typed-redux-saga'
 
 import { type Socket, applyEmitParams } from '../../../types'
-import { LoggerModuleName, loggingHandler } from 'packages/state-manager/src/utils/logger'
+import { LoggerModuleName, loggingHandler } from '../../../utils/logger'
 
 import { SocketActionTypes, type CreateChannelResponse } from '@quiet/types'
 

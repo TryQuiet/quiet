@@ -11,7 +11,7 @@ import { fileToBase64String } from '@quiet/common'
 
 import { config } from '../../users/const/certFieldTypes'
 import { identitySelectors } from '../../identity/identity.selectors'
-import { LoggerModuleName, loggingHandler } from 'packages/state-manager/src/utils/logger'
+import { LoggerModuleName, loggingHandler } from '../../../utils/logger'
 import { usersActions } from '../users.slice'
 import { type Socket, applyEmitParams } from '../../../types'
 
