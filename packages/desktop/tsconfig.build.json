@@ -20,6 +20,6 @@
     "**/__tests__/*",
     "src/renderer",
     "src/rtl-tests",
-    
+    "scripts"
   ]
 }

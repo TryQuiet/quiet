@@ -13,8 +13,8 @@
     "test": "DEBUG='backend*, state-manager*' jest integrationTests/* --bail --colors",
     "bot": "DEBUG='backend*, state-manager*' ts-node src/bot/bot.ts",
     "test-ci": "jest integrationTests/*",
-    "lint:no-fix": "eslint --ext .ts ./src/",
-    "lint": "npm run lint:no-fix -- --fix",
+    "lint:no-fix": "eslint --ext .ts",
+    "lint": "npm run lint:no-fix ./src/ -- --fix",
     "lint-staged": "lint-staged",
     "prettier": "prettier"
   },

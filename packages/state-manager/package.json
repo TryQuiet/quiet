@@ -8,9 +8,9 @@
     "build": "tsc -p tsconfig.build.json",
     "prepare": "npm run build",
     "test": "cross-env DEBUG=state-manager* TZ=UTC jest",
-    "lint:no-fix": "eslint --ext .ts,.js ./src/",
-    "lint": "npm run lint:no-fix -- --fix",
-    "lint-ci": "npm run lint:no-fix",
+    "lint:no-fix": "eslint --ext .ts,.js",
+    "lint": "npm run lint:no-fix ./src/ -- --fix",
+    "lint-ci": "npm run lint:no-fix ./src/",
     "lint-staged": "lint-staged --no-stash",
     "prettier": "prettier",
     "rmDist": "rimraf lib/"

@@ -11,9 +11,9 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "prepare": "npm run build",
-    "lint:no-fix": "eslint --ext .ts .",
-    "lint": "npm run lint:no-fix -- --fix",
-    "lint-ci": "npm run lint:no-fix",
+    "lint:no-fix": "eslint --ext .ts",
+    "lint": "npm run lint:no-fix . -- --fix",
+    "lint-ci": "npm run lint:no-fix .",
     "lint-staged": "lint-staged",
     "test": "exit 0",
     "prettier": "prettier",

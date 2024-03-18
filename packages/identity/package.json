@@ -10,9 +10,9 @@
     "prepare": "npm run build",
     "test": "jest",
     "test-ci": "jest --colors --collectCoverage --ci",
-    "lint:no-fix": "eslint --ext .jsx,.js,.ts,.tsx ./src/",
-    "lint": "npm run lint:no-fix -- --fix",
-    "lint-ci": "npm run lint:no-fix",
+    "lint:no-fix": "eslint --ext .jsx,.js,.ts,.tsx",
+    "lint": "npm run lint:no-fix ./src/ -- --fix",
+    "lint-ci": "npm run lint:no-fix ./src/",
     "lint-staged": "lint-staged",
     "check-style": "prettier --check src/**",
     "rmDist": "rimraf lib/"

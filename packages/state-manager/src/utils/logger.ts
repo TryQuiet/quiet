@@ -27,8 +27,9 @@ export enum LoggerModuleName {
 }
 
 const PACKAGE_NAME = 'state-manager'
+const TEST_MODE = process.env.TEST_MODE === 'true'
 const transportConfigs: TransportConfig[] = [
-  process.env.TEST_MODE === 'true'
+  TEST_MODE
     ? {
         type: LogTransportType.CONSOLE,
         shared: true,
