@@ -4,7 +4,7 @@ const path = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const WebpackOnBuildPlugin = require('./webpack-on-build-plugin')
 const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin')
-const Dotenv = require('dotenv-webpack');
+const Dotenv = require('dotenv-webpack')
 
 var mainRunning = false
 
