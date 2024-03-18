@@ -8,7 +8,7 @@ import { prepareStore } from '../../testUtils/prepareStore'
 import { StoreKeys } from '../../store/store.keys'
 import { modalsActions } from '../modals/modals.slice'
 import { ModalName } from '../modals/modals.types'
-import { getValidInvitationUrlTestData, validInvitationDatav1 } from '@quiet/common'
+import { getValidInvitationUrlTestData, validInvitationDatav1, validInvitationDatav2 } from '@quiet/common'
 
 describe('Handle invitation code', () => {
   let store: Store
@@ -33,16 +33,19 @@ describe('Handle invitation code', () => {
     validInvitationDeepUrl = getValidInvitationUrlTestData(validInvitationDatav1[0]).deepUrl()
   })
 
-  it('creates network if code is valid', async () => {
-    const payload: CreateNetworkPayload = {
-      ownership: CommunityOwnership.User,
-      peers: validInvitationData.pairs,
-      psk: validInvitationData.psk,
-      ownerOrbitDbIdentity: validInvitationData.ownerOrbitDbIdentity,
-    }
+  it('joins network if code is valid', async () => {
     await expectSaga(customProtocolSaga, communities.actions.customProtocol([validInvitationDeepUrl]))
       .withState(store.getState())
-      .put(communities.actions.createNetwork(payload))
+      .put(communities.actions.joinNetwork(validInvitationData))
+      .run()
+  })
+
+  it('joins network if v2 code is valid', async () => {
+    const validInvitationData = getValidInvitationUrlTestData(validInvitationDatav2[0]).data
+    const validInvitationDeepUrl = getValidInvitationUrlTestData(validInvitationDatav2[0]).deepUrl()
+    await expectSaga(customProtocolSaga, communities.actions.customProtocol([validInvitationDeepUrl]))
+      .withState(store.getState())
+      .put(communities.actions.joinNetwork(validInvitationData))
       .run()
   })
 

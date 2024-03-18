@@ -18,11 +18,11 @@ import { validInvitationDatav1, validInvitationDatav2 } from './tests'
 import { createLibp2pAddress } from './libp2p'
 
 describe(`Invitation code helper ${InvitationDataVersion.v1}`, () => {
-  const address1 = 'gloao6h5plwjy4tdlze24zzgcxll6upq2ex2fmu2ohhyu4gtys4nrjad'
-  const peerId2 = 'QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE'
+  const address = 'gloao6h5plwjy4tdlze24zzgcxll6upq2ex2fmu2ohhyu4gtys4nrjad'
+  const peerId = 'QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE'
   const data: InvitationDataV1 = {
     ...validInvitationDatav1[0],
-    pairs: [...validInvitationDatav1[0].pairs, { peerId: peerId2, onionAddress: address1 }],
+    pairs: [...validInvitationDatav1[0].pairs, { peerId: peerId, onionAddress: address }],
   }
   const urlParams = [
     [data.pairs[0].peerId, data.pairs[0].onionAddress],
