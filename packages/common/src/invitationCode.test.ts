@@ -1,4 +1,4 @@
-import { InvitationData, InvitationDataVersion, InvitationPair } from '@quiet/types'
+import { InvitationDataV1, InvitationDataVersion, InvitationPair } from '@quiet/types'
 import {
   argvInvitationCode,
   composeInvitationDeepUrl,
@@ -14,33 +14,26 @@ import {
   DEEP_URL_SCHEME_WITH_SEPARATOR,
 } from './invitationCode'
 import { QUIET_JOIN_PAGE } from './static'
-import { validInvitationDatav2 } from './tests'
+import { validInvitationDatav1, validInvitationDatav2 } from './tests'
+import { createLibp2pAddress } from './libp2p'
 
 describe(`Invitation code helper ${InvitationDataVersion.v1}`, () => {
-  const peerId1 = 'QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSA'
   const address1 = 'gloao6h5plwjy4tdlze24zzgcxll6upq2ex2fmu2ohhyu4gtys4nrjad'
   const peerId2 = 'QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE'
-  const address2 = 'y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd'
-  const psk = 'BNlxfE2WBF7LrlpIX0CvECN5o1oZtA16PkAb7GYiwYw%3D'
-  const pskDecoded = 'BNlxfE2WBF7LrlpIX0CvECN5o1oZtA16PkAb7GYiwYw='
-  const ownerOrbitDbIdentity = 'testOwnerOrbitDbIdentity'
+  const data: InvitationDataV1 = {
+    ...validInvitationDatav1[0],
+    pairs: [...validInvitationDatav1[0].pairs, { peerId: peerId2, onionAddress: address1 }],
+  }
+  const urlParams = [
+    [data.pairs[0].peerId, data.pairs[0].onionAddress],
+    [data.pairs[1].peerId, data.pairs[1].onionAddress],
+    [PSK_PARAM_KEY, data.psk],
+    [OWNER_ORBIT_DB_IDENTITY_PARAM_KEY, data.ownerOrbitDbIdentity],
+  ]
 
   it('retrieves invitation code from argv', () => {
-    const expectedCodes: InvitationData = {
-      pairs: [
-        { peerId: peerId1, onionAddress: address1 },
-        { peerId: peerId2, onionAddress: address2 },
-      ],
-      psk: pskDecoded,
-      ownerOrbitDbIdentity,
-    }
-    const result = argvInvitationCode([
-      'something',
-      'quiet:/invalid',
-      'zbay://invalid',
-      composeInvitationDeepUrl(expectedCodes),
-    ])
-    expect(result).toEqual(expectedCodes)
+    const result = argvInvitationCode(['something', 'quiet:/invalid', 'zbay://invalid', composeInvitationDeepUrl(data)])
+    expect(result).toEqual(data)
   })
 
   it('returns null if argv do not contain any url with proper scheme', () => {
@@ -55,31 +48,15 @@ describe(`Invitation code helper ${InvitationDataVersion.v1}`, () => {
   })
 
   it('composes proper invitation deep url', () => {
-    expect(
-      composeInvitationDeepUrl({
-        pairs: [
-          { peerId: 'peerID1', onionAddress: 'address1' },
-          { peerId: 'peerID2', onionAddress: 'address2' },
-        ],
-        psk: pskDecoded,
-        ownerOrbitDbIdentity,
-      })
-    ).toEqual(
-      `quiet://?peerID1=address1&peerID2=address2&${PSK_PARAM_KEY}=${psk}&${OWNER_ORBIT_DB_IDENTITY_PARAM_KEY}=${ownerOrbitDbIdentity}`
-    )
+    const url = new URL(DEEP_URL_SCHEME_WITH_SEPARATOR)
+    urlParams.forEach(([key, value]) => url.searchParams.append(key, value))
+    expect(composeInvitationDeepUrl(data)).toEqual(url.href)
   })
 
   it('creates invitation share url based on invitation data', () => {
-    const pairs: InvitationData = {
-      pairs: [
-        { peerId: 'peerID1', onionAddress: 'address1' },
-        { peerId: 'peerID2', onionAddress: 'address2' },
-      ],
-      psk: pskDecoded,
-      ownerOrbitDbIdentity,
-    }
-    const expected = `${QUIET_JOIN_PAGE}#peerID1=address1&peerID2=address2&${PSK_PARAM_KEY}=${psk}&${OWNER_ORBIT_DB_IDENTITY_PARAM_KEY}=${ownerOrbitDbIdentity}`
-    expect(composeInvitationShareUrl(pairs)).toEqual(expected)
+    const url = new URL(QUIET_JOIN_PAGE)
+    urlParams.forEach(([key, value]) => url.searchParams.append(key, value))
+    expect(composeInvitationShareUrl(data)).toEqual(url.href.replace('?', '#'))
   })
 
   it('converts list of p2p addresses to invitation pairs', () => {
@@ -88,51 +65,56 @@ describe(`Invitation code helper ${InvitationDataVersion.v1}`, () => {
       onionAddress: 'gloao6h5plwjy4tdlze24zzgcxll6upq2ex2fmu2ohhyu4gtys4nrjad',
     }
     const peerList = [
-      `/dns4/${pair.onionAddress}.onion/tcp/443/wss/p2p/${pair.peerId}`,
+      createLibp2pAddress(pair.onionAddress, pair.peerId),
       'invalidAddress',
-      '/dns4/somethingElse.onion/tcp/443/wss/p2p/QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSA',
+      createLibp2pAddress('somethingElse.onion', 'QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSA'),
     ]
-    console.log('p2pAddressesToPairs(peerList)', p2pAddressesToPairs(peerList))
     expect(p2pAddressesToPairs(peerList)).toEqual([pair])
   })
 
   it('retrieves invitation codes from deep url', () => {
-    const codes = parseInvitationCodeDeepUrl(
-      `quiet://?${peerId1}=${address1}&${peerId2}=${address2}&${PSK_PARAM_KEY}=${psk}&${OWNER_ORBIT_DB_IDENTITY_PARAM_KEY}=${ownerOrbitDbIdentity}`
-    )
+    const url = new URL(DEEP_URL_SCHEME_WITH_SEPARATOR)
+    urlParams.forEach(([key, value]) => url.searchParams.append(key, value))
+
+    const codes = parseInvitationCodeDeepUrl(url.href)
     expect(codes).toEqual({
       version: InvitationDataVersion.v1,
-      pairs: [
-        { peerId: peerId1, onionAddress: address1 },
-        { peerId: peerId2, onionAddress: address2 },
-      ],
-      psk: pskDecoded,
-      ownerOrbitDbIdentity,
+      ...data,
     })
   })
 
-  it.each([['12345'], ['a2FzemE='], 'a2FycGllIHcgZ2FsYXJlY2llIGVjaWUgcGVjaWUgYWxlIGkgdGFrIHpqZWNpZQ=='])(
-    'parsing invitation code throws error if psk is invalid: (%s)',
-    (psk: string) => {
-      expect(() => {
-        parseInvitationCodeDeepUrl(
-          `quiet://?${peerId1}=${address1}&${peerId2}=${address2}&${PSK_PARAM_KEY}=${psk}&${OWNER_ORBIT_DB_IDENTITY_PARAM_KEY}=${ownerOrbitDbIdentity}`
-        )
-      }).toThrow()
-    }
-  )
+  it.each([
+    [PSK_PARAM_KEY, '12345'],
+    [PSK_PARAM_KEY, 'a2FzemE='],
+    [PSK_PARAM_KEY, 'a2FycGllIHcgZ2FsYXJlY2llIGVjaWUgcGVjaWUgYWxlIGkgdGFrIHpqZWNpZQ=='],
+  ])('parsing deep url throws error if data is invalid: %s=%s', (paramKey: string, paramValue: string) => {
+    const url = new URL(DEEP_URL_SCHEME_WITH_SEPARATOR)
+    urlParams.forEach(([key, value]) => url.searchParams.append(key, value))
 
-  it('retrieves invitation codes from deep url with partly invalid codes', () => {
-    const peerId2 = 'QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLs'
-    const address2 = 'y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd'
-    const parsed = parseInvitationCodeDeepUrl(
-      `${DEEP_URL_SCHEME_WITH_SEPARATOR}?${peerId1}=${address1}&${peerId2}=${address2}&${PSK_PARAM_KEY}=${psk}&${OWNER_ORBIT_DB_IDENTITY_PARAM_KEY}=${ownerOrbitDbIdentity}`
-    )
+    // Replace valid param value with invalid one
+    url.searchParams.set(paramKey, paramValue)
+
+    expect(() => {
+      parseInvitationCodeDeepUrl(url.href)
+    }).toThrow()
+  })
+
+  it('retrieves invitation codes from deep url with partly invalid addresses', () => {
+    const urlParamsWithInvalidAddress = [
+      [data.pairs[0].peerId, data.pairs[0].onionAddress],
+      [data.pairs[1].peerId, data.pairs[1].onionAddress],
+      ['QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wf', 'y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdv'],
+      [PSK_PARAM_KEY, data.psk],
+      [OWNER_ORBIT_DB_IDENTITY_PARAM_KEY, data.ownerOrbitDbIdentity],
+    ]
+
+    const url = new URL(DEEP_URL_SCHEME_WITH_SEPARATOR)
+    urlParamsWithInvalidAddress.forEach(([key, value]) => url.searchParams.append(key, value))
+
+    const parsed = parseInvitationCodeDeepUrl(url.href)
     expect(parsed).toEqual({
       version: InvitationDataVersion.v1,
-      pairs: [{ peerId: peerId1, onionAddress: address1 }],
-      psk: pskDecoded,
-      ownerOrbitDbIdentity,
+      ...data,
     })
   })
 })

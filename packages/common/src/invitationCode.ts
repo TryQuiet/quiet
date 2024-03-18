@@ -289,6 +289,7 @@ const isParamValid = (param: string, value: string) => {
       return isPSKcodeValid(value)
 
     case OWNER_ORBIT_DB_IDENTITY_PARAM_KEY:
+      // TODO: validate orbit db identity format?
       return true
 
     default:
