@@ -1,4 +1,4 @@
-FROM node:18.12.1@sha256:e9ad817b0d42b4d177a4bef8a0aff97c352468a008c3fdb2b4a82533425480df
+FROM node:21.7.1@sha256:b9ccc4aca32eebf124e0ca0fd573dacffba2b9236987a1d4d2625ce3c162ecc8
 ARG zipbundle
 ENV PEERS_NUMBER 20
 ENV TOR_TEST_MODE regular
