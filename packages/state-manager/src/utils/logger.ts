@@ -28,14 +28,16 @@ export enum LoggerModuleName {
 
 const PACKAGE_NAME = 'state-manager'
 const transportConfigs: TransportConfig[] = [
-  process.env.TEST_MODE === 'true' ? {
-    type: LogTransportType.CONSOLE,
-    shared: true
-  } : {
-    type: LogTransportType.ROTATE_FILE,
-    shared: true,
-    fileName: LogFile.STATE_MANAGER,
-  }
+  process.env.TEST_MODE === 'true'
+    ? {
+        type: LogTransportType.CONSOLE,
+        shared: true,
+      }
+    : {
+        type: LogTransportType.ROTATE_FILE,
+        shared: true,
+        fileName: LogFile.STATE_MANAGER,
+      },
 ]
 
 export const loggingHandler = new LoggingHandler({

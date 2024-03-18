@@ -19,8 +19,13 @@ export class LogFileTailer {
     watch: boolean = true,
     consoleFunction: TailLoggerFunction = console.log
   ): void {
+    if (process.env.TEST_MODE === 'true') {
+      consoleFunction(`${DateTime.utc().toISO()} Running inside tests, not tailing log files in path ${basePath}`)
+    }
+
     if (process.env.NODE_ENV !== 'development') {
       consoleFunction(`${DateTime.utc().toISO()} Not running in development, not tailing log files in path ${basePath}`)
+      return
     }
 
     const logPath = path.join(basePath, LOG_PATH)
