@@ -1,7 +1,7 @@
 import * as path from 'path'
 
 import { getAppDataPath } from '@quiet/common'
-import { LOG_PATH, LogFile, LogLevel, LogTransportType, LoggingHandler } from '@quiet/logger'
+import { LOG_PATH, LogFile, LogLevel, LogTransportType, LoggingHandler, TransportConfig } from '@quiet/logger'
 
 export enum LoggerModuleName {
   // top-level module names
@@ -27,15 +27,20 @@ export enum LoggerModuleName {
 }
 
 const PACKAGE_NAME = 'state-manager'
+const transportConfigs: TransportConfig[] = [
+  process.env.TEST_MODE === 'true' ? {
+    type: LogTransportType.CONSOLE,
+    shared: true
+  } : {
+    type: LogTransportType.ROTATE_FILE,
+    shared: true,
+    fileName: LogFile.STATE_MANAGER,
+  }
+]
+
 export const loggingHandler = new LoggingHandler({
   packageName: PACKAGE_NAME,
   logPath: path.join(getAppDataPath(), LOG_PATH),
   defaultLogLevel: LogLevel.INFO,
-  defaultLogTransports: [
-    {
-      type: LogTransportType.ROTATE_FILE,
-      shared: true,
-      fileName: LogFile.STATE_MANAGER,
-    },
-  ],
+  defaultLogTransports: transportConfigs,
 })

@@ -31,6 +31,7 @@
     "@quiet/types": "^2.0.2-alpha.1",
     "cross-env": "^5.2.0",
     "debug": "^4.3.1",
+    "dotenv": "^16.4.5",
     "validator": "^13.11.0"
   },
   "jest": {

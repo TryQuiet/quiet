@@ -28,6 +28,7 @@
     "@quiet/logger": "^2.0.2-alpha.0",
     "@quiet/types": "^2.0.2-alpha.1",
     "@reduxjs/toolkit": "^1.9.1",
+    "dotenv": "^16.4.5",
     "factory-girl": "^5.0.4",
     "get-port": "^5.1.1",
     "luxon": "^2.0.2",

@@ -30,6 +30,7 @@
     "@quiet/types": "^2.0.2-alpha.1",
     "backend-bundle": "^2.0.1-alpha.4",
     "cross-env": "^5.2.0",
+    "dotenv": "^16.4.5",
     "electron-chromedriver": "23.3.13",
     "get-port": "^5.1.1",
     "jest": "^29.4.2",

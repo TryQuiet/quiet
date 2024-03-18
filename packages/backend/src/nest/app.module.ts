@@ -1,3 +1,6 @@
+import * as dotenv from 'dotenv'
+dotenv.config()
+
 import { Global, Module } from '@nestjs/common'
 import { SocketModule } from './socket/socket.module'
 import { ConnectionsManagerModule } from './connections-manager/connections-manager.module'

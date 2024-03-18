@@ -1,6 +1,8 @@
 import path from 'path'
 import { fileURLToPath } from 'url';
 import webpack from 'webpack'
+import Dotenv from 'dotenv-webpack'
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -89,6 +91,7 @@ const webpackConfig = (env) => {
             ]
         },
         plugins: [
+            new Dotenv(),
             new webpack.NormalModuleReplacementPlugin(
                 /node_modules[\/\\]classic-level[\/\\]binding.js/,
                 root('classic_level.cjs')

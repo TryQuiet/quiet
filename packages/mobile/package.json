@@ -34,6 +34,7 @@
     "@ronradtke/react-native-markdown-display": "^8.0.0",
     "big-integer": "^1.6.52",
     "buffer": "^6.0.3",
+    "dotenv": "^16.4.5",
     "events": "^1.1.1",
     "fast-text-encoding": "^1.0.6",
     "i18next": "^20.2.2",
