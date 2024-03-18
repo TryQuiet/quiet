@@ -8,8 +8,10 @@
     "build": "tsc -p tsconfig.build.json",
     "prepare": "npm run build",
     "test": "cross-env DEBUG=state-manager* TZ=UTC jest",
-    "lint": "eslint --ext .ts ./src/ --fix",
-    "lint-ci": "eslint --ext .ts ./src/",
+    "lint:no-fix": "eslint --ext .ts ./src/",
+    "lint": "npm run lint:no-fix -- --fix",
+    "lint-ci": "npm run lint:no-fix",
+    "lint-staged": "lint-staged",
     "prettier": "prettier",
     "rmDist": "rimraf lib/"
   },
@@ -57,6 +59,7 @@
     "factory-girl": "^5.0.4",
     "jest": "^27.0.6",
     "libp2p-websockets": "*",
+    "lint-staged": "^15.2.2",
     "pkijs": "^3.0.8",
     "pvutils": "*",
     "redux-saga-test-plan": "^4.0.3",
@@ -79,5 +82,8 @@
     "setupFiles": [
       "./setupTests.ts"
     ]
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": "npm run lint:no-fix"
   }
 }

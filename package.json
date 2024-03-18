@@ -7,13 +7,16 @@
     "postpublish": "node copy-changelog.js && git add . && git commit -m 'Update packages CHANGELOG.md' && git push",
     "start:desktop": "lerna run --scope @quiet/desktop start",
     "lint:all": "lerna run lint",
-    "distAndRunE2ETests:mac:local": "lerna run --scope @quiet/desktop distMac:local && lerna run --scope e2e-tests test:localBinary --"
+    "distAndRunE2ETests:mac:local": "lerna run --scope @quiet/desktop distMac:local && lerna run --scope e2e-tests test:localBinary --",
+    "prepare": "husky",
+    "lint-staged": "lerna run lint-staged"
   },
   "engines": {
     "node": "18.12.1",
     "npm": "8.19.2"
   },
   "devDependencies": {
+    "husky": "^9.0.11",
     "lerna": "^6.6.2",
     "typescript": "^4.9.3"
   }

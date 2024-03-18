@@ -13,7 +13,9 @@
     "test": "DEBUG='backend*, state-manager*' jest integrationTests/* --bail --colors",
     "bot": "DEBUG='backend*, state-manager*' ts-node src/bot/bot.ts",
     "test-ci": "jest integrationTests/*",
-    "lint": "eslint --ext .ts ./src/ --fix",
+    "lint:no-fix": "eslint --ext .ts ./src/",
+    "lint": "npm run lint:no-fix -- --fix",
+    "lint-staged": "lint-staged",
     "prettier": "prettier"
   },
   "files": [
@@ -30,6 +32,7 @@
     "babel-jest": "^29.3.1",
     "check-disk-space": "^3.3.0",
     "jest": "^27.4.5",
+    "lint-staged": "^15.2.2",
     "typescript": "^4.9.3"
   },
   "dependencies": {
@@ -71,5 +74,8 @@
     "setupFiles": [
       "./setupTests.ts"
     ]
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": "npm run lint:no-fix"
   }
 }

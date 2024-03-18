@@ -7,8 +7,10 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "prepare": "npm run build",
-    "lint": "eslint --ext .js,.ts ./src/ --fix",
-    "lint-ci": "eslint --ext .js,.ts ./src/",
+    "lint:no-fix": "eslint --ext .js,.ts ./src/",
+    "lint": "npm run lint:no-fix -- --fix",
+    "lint-ci": "npm run lint:no-fix",
+    "lint-staged": "lint-staged",
     "prettier:write": "prettier --write .",
     "prettier:check": "prettier --check .",
     "test": "cross-env TEST_MODE=true jest --runInBand --detectOpenHandles --forceExit",
@@ -21,6 +23,7 @@
     "@types/jest": "^29.2.6",
     "@types/selenium-webdriver": "^4.1.10",
     "babel-jest": "^29.3.1",
+    "lint-staged": "^15.2.2",
     "ts-jest": "^29.0.5",
     "typescript": "^4.9.3"
   },
@@ -49,5 +52,8 @@
     ]
   },
   "author": "",
-  "license": "GPL-3.0-or-later"
+  "license": "GPL-3.0-or-later",
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": "npm run lint:no-fix"
+  }
 }

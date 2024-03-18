@@ -10,8 +10,10 @@
     "prepare": "npm run build",
     "test": "jest",
     "test-ci": "jest --colors --collectCoverage --ci",
-    "lint": "eslint --ext .jsx,.js,.ts,.tsx ./src/ --fix",
-    "lint-ci": "eslint --ext .jsx,.js,.ts,.tsx ./src/",
+    "lint:no-fix": "eslint --ext .jsx,.js,.ts,.tsx ./src/",
+    "lint": "npm run lint:no-fix -- --fix",
+    "lint-ci": "npm run lint:no-fix",
+    "lint-staged": "lint-staged",
     "check-style": "prettier --check src/**",
     "rmDist": "rimraf lib/"
   },
@@ -62,10 +64,14 @@
     "@types/node": "^14.17.6",
     "babel-jest": "^29.3.1",
     "jest": "^26.6.3",
+    "lint-staged": "^15.2.2",
     "ts-jest": "^26.5.6",
     "typescript": "^4.9.3"
   },
   "publishConfig": {
     "access": "public"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": "npm run lint:no-fix"
   }
 }
