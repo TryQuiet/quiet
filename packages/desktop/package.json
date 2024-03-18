@@ -5,7 +5,7 @@
     "name": "Zbay LLC",
     "email": "h@zbay.llc"
   },
-  "license": "ISC",
+  "license": "GPL-3.0-or-later",
   "build": {
     "afterSign": "scripts/notarize.js",
     "afterAllArtifactBuild": "scripts/setEnvs.js",
@@ -80,7 +80,7 @@
   },
   "homepage": "https://github.com/TryQuiet",
   "@comment version": "To build new version for specific platform, just replace platform in version tag to one of following linux, mac, windows",
-  "version": "2.1.2-alpha.9",
+  "version": "2.1.2-alpha.10",
   "description": "Decentralized team chat",
   "main": "dist/main/main.js",
   "scripts": {
@@ -89,11 +89,15 @@
     "copyBinariesDarwin": "cp -R ../../3rd-party/tor/$SOURCE_PATH/ ./tor/ && chmod 775 ./tor/arm64/tor ./tor/x64/tor",
     "copyBinariesWin": "xcopy ..\\..\\3rd-party\\tor\\win32 .\\tor\\",
     "pullLibs": "wget -N https://zbay-binaries.s3.us-east-2.amazonaws.com/$SOURCE_PATH/libssl.so -P ./ && chmod 775 ./libssl.so",
-    "dist": "export SOURCE_PATH=darwin TEST_MODE=true && npm run copyBinariesDarwin && npm run build:prod && electron-builder --mac",
+    "distMac:local": "export DEBUG=* SOURCE_PATH=darwin TEST_MODE=true IS_LOCAL=true && npm run copyBinariesDarwin && npm run build:dev:dist && electron-builder --mac -p never -c.mac.type=development -c.mac.identity=null",
+    "dist": "npm run distMac",
+    "distMac": "export SOURCE_PATH=darwin TEST_MODE=true && npm run copyBinariesDarwin && npm run build:prod && electron-builder --mac",
     "distUbuntu": "export SOURCE_PATH=linux TEST_MODE=true && npm run setMainEnvs && npm run copyBinaries && npm run pullLibs && npm run build:prod && electron-builder --linux",
     "distwin": "export SOURCE_PATH=win32 && npm run copyBinariesWin && npm run build:prod && electron-builder --win",
-    "lint": "eslint --ext .jsx,.js,.ts,.tsx ./src/ --fix",
-    "lint-ci": "eslint --ext .jsx,.js,.ts,.tsx ./src/",
+    "lint:no-fix": "eslint --ext .jsx,.js,.ts,.tsx ./src/",
+    "lint": "npm run lint:no-fix -- --fix",
+    "lint-ci": "npm run lint:no-fix",
+    "lint-staged": "lint-staged",
     "type-check": "tsc -p tsconfig.build.json --noEmit",
     "test": "jest --runInBand",
     "test:watch": "jest --watchAll",
@@ -105,6 +109,7 @@
     "prepare": "npm run build:main",
     "build:prod": "concurrently \"npm run build:main:prod\" \"npm run build:renderer:prod\"",
     "build:dev": "concurrently \"npm run build:main\" \"npm run build:renderer\"",
+    "build:dev:dist": "concurrently \"npm run build:main\" \"npm run build:renderer:prod\"",
     "build:renderer": "webpack --config webpack/webpack.config.renderer.dev.js",
     "build:main": "tsc -p tsconfig.build.json",
     "build:main:prod": "tsc -p tsconfig.build.json && npm run copyMainEnvs",
@@ -223,6 +228,7 @@
     "jest": "^26.6.3",
     "jest-each": "^27.2.4",
     "js-yaml": "4.1.0",
+    "lint-staged": "^15.2.2",
     "local-cypress": "1.2.6",
     "luxon": "^1.11.4",
     "mathjax-full": "^3.2.2",
@@ -297,5 +303,8 @@
   "engines": {
     "node": "18.12.1",
     "npm": "8.19.2"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": "npm run lint:no-fix"
   }
 }

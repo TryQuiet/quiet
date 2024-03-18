@@ -104,3 +104,23 @@ const watchFolders = [
   path.resolve(__dirname, '<path-to-linked-package>')
 ]
 ```
+
+## Compiling Binaries Locally
+
+If you need to compile the electron binary for local testing there are convenience methods for each OS.
+
+### Mac
+
+```
+npm run distMac:local
+```
+
+This will build the Mac binary in the `/dist` directory without signing/notarization and does _not_ publish the binary.  This works for x64 and arm64 but note that the directory under `/dist` will vary based on architecture (x64 deploys under `/dist/mac` and arm64 deploys under `/dist/mac-arm64`).
+
+### Linux
+
+_TBD_
+
+### Windows
+
+_TBD_

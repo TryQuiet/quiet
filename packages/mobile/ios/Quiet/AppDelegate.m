@@ -31,12 +31,12 @@ static NSString *const platform = @"mobile";
   // You can add your custom initial props in the dictionary below.
   // They will be passed down to the ViewController used by React Native.
   self.initialProps = @{};
-  
+
   // Call only once per nodejs thread
   [self createDataDirectory];
-  
+
   [self spinupBackend:true];
-  
+
   return [super application:application didFinishLaunchingWithOptions:launchOptions];
 };
 
@@ -60,65 +60,65 @@ static NSString *const platform = @"mobile";
 }
 
 - (void) spinupBackend:(BOOL)init {
-  
+
   // (1/6) Find ports to use in tor and backend configuration
-  
+
   Utils *utils = [Utils new];
-    
+
   if (self.socketIOSecret == nil) {
       self.socketIOSecret       = [utils generateSecretWithLength:(20)];
   }
-  
+
   FindFreePort *findFreePort = [FindFreePort new];
-  
+
   self.dataPort             = [findFreePort getFirstStartingFromPort:11000];
-  
+
   uint16_t socksPort        = [findFreePort getFirstStartingFromPort:arc4random_uniform(65535 - 1024) + 1024];
   uint16_t controlPort      = [findFreePort getFirstStartingFromPort:arc4random_uniform(65535 - 1024) + 1024];
   uint16_t httpTunnelPort   = [findFreePort getFirstStartingFromPort:arc4random_uniform(65535 - 1024) + 1024];
-    
-  
+
+
   // (2/6) Spawn tor with proper configuration
-  
+
   self.tor = [TorHandler new];
-  
+
   self.torConfiguration = [self.tor getTorConfiguration:socksPort controlPort:controlPort httpTunnelPort:httpTunnelPort];
-  
+
   [self.tor removeOldAuthCookieWithConfiguration:self.torConfiguration];
-  
+
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
     [self.tor spawnWithConfiguration:self.torConfiguration];
   });
-  
-  
+
+
   // (4/6) Connect to tor control port natively (so we can use it to shutdown tor when app goes idle)
-  
+
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
     NSData *authCookieData = [self getAuthCookieData];
-      
+
     self.torController = [[TORController alloc] initWithSocketHost:@"127.0.0.1" port:controlPort];
-      
+
     NSError *error = nil;
     BOOL connected = [self.torController connect:&error];
-      
+
     NSLog(@"Tor control port error %@", error);
-          
+
     [self.torController authenticateWithData:authCookieData completion:^(BOOL success, NSError * _Nullable error) {
       NSString *res = success ? @"YES" : @"NO";
       NSLog(@"Tor control port auth success %@", res);
       NSLog(@"Tor control port auth error %@", error);
     }];
   });
-      
-    
+
+
   // (5/6) Update data port information and broadcast it to frontend
   if (init) {
     [self initWebsocketConnection];
   }
-    
-    
-  // (6/6) Launch backend or reviwe services
-  
+
+
+  // (6/6) Launch backend or rewire services
+
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
 
     NSString *authCookie = [self getAuthCookie];
@@ -126,28 +126,28 @@ static NSString *const platform = @"mobile";
     if (init) {
       [self launchBackend:controlPort :httpTunnelPort :authCookie];
     } else {
-      [self reviweServices:controlPort :httpTunnelPort : authCookie];
+      [self rewireServices:controlPort :httpTunnelPort : authCookie];
     }
   });
 }
 
 - (NSString *) getAuthCookie {
   NSString *authCookie = [self.tor getAuthCookieWithConfiguration:self.torConfiguration];
-  
+
   while (authCookie == nil) {
     authCookie = [self.tor getAuthCookieWithConfiguration:self.torConfiguration];
   };
-  
+
   return authCookie;
 }
 
 - (NSData *) getAuthCookieData {
   NSData *authCookie = [self.tor getAuthCookieDataWithConfiguration:self.torConfiguration];
-  
+
   while (authCookie == nil) {
     authCookie = [self.tor getAuthCookieDataWithConfiguration:self.torConfiguration];
   };
-  
+
   return authCookie;
 }
 
@@ -156,13 +156,13 @@ static NSString *const platform = @"mobile";
   [self.nodeJsMobile callStartNodeProject:[NSString stringWithFormat:@"bundle.cjs --dataPort %hu --dataPath %@ --controlPort %hu --httpTunnelPort %hu --authCookie %@ --platform %@ --socketIOSecret %@", self.dataPort, self.dataPath, controlPort, httpTunnelPort, authCookie, platform, self.socketIOSecret]];
 }
 
-- (void) reviweServices:(uint16_t)controlPort:(uint16_t)httpTunnelPort:(NSString *)authCookie {
+- (void) rewireServices:(uint16_t)controlPort:(uint16_t)httpTunnelPort:(NSString *)authCookie {
   NSString * dataPortPayload = [NSString stringWithFormat:@"%@:%hu", @"socketIOPort", self.dataPort];
   NSString * socketIOSecretPayload = [NSString stringWithFormat:@"%@:%@", @"socketIOSecret", self.socketIOSecret];
   NSString * controlPortPayload = [NSString stringWithFormat:@"%@:%hu", @"torControlPort", controlPort];
   NSString * httpTunnelPortPayload = [NSString stringWithFormat:@"%@:%hu", @"httpTunnelPort", httpTunnelPort];
   NSString * authCookiePayload = [NSString stringWithFormat:@"%@:%@", @"authCookie", authCookie];
-  
+
   NSString * payload = [NSString stringWithFormat:@"%@|%@|%@|%@|%@", dataPortPayload, socketIOSecretPayload, controlPortPayload, httpTunnelPortPayload, authCookiePayload];
   [self.nodeJsMobile sendMessageToNode:@"open":payload];
 }
@@ -171,16 +171,16 @@ static NSString *const platform = @"mobile";
   NSLog(@"Sending SIGNAL SHUTDOWN on Tor control port %d", (int)[self.torController isConnected]);
   [self.torController sendCommand:@"SIGNAL SHUTDOWN" arguments:nil data:nil observer:^BOOL(NSArray<NSNumber *> *codes, NSArray<NSData *> *lines, BOOL *stop) {
     NSUInteger code = codes.firstObject.unsignedIntegerValue;
-    
+
     NSLog(@"Tor control port response code %lu", (unsigned long)code);
-    
+
     if (code != TORControlReplyCodeOK && code != TORControlReplyCodeBadAuthentication)
       return NO;
 
     NSString *message = lines.firstObject ? [[NSString alloc] initWithData:(NSData * _Nonnull)lines.firstObject encoding:NSUTF8StringEncoding] : @"";
-    
+
     NSLog(@"Tor control port response message %@", message);
-    
+
     NSDictionary<NSString *, NSString *> *userInfo = [NSDictionary dictionaryWithObjectsAndKeys:message, NSLocalizedDescriptionKey, nil];
     BOOL success = (code == TORControlReplyCodeOK && [message isEqualToString:@"OK"]);
 
@@ -192,10 +192,10 @@ static NSString *const platform = @"mobile";
 - (void)applicationDidEnterBackground:(UIApplication *)application
 {
   [self stopTor];
-  
+
   NSString * message = [NSString stringWithFormat:@""];
   [self.nodeJsMobile sendMessageToNode:@"close":message];
-  
+
   // Flush persistor before app goes idle
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
     NSTimeInterval delayInSeconds = 0;
@@ -216,7 +216,7 @@ static NSString *const platform = @"mobile";
       [[self.bridge moduleForName:@"CommunicationModule"] appResume];
     });
   });
-  
+
   [self spinupBackend:false];
 }
 
