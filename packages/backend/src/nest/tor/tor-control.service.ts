@@ -16,7 +16,7 @@ export class TorControl {
   constructor(
     @Inject(TOR_CONTROL_PARAMS) public torControlParams: TorControlParams,
     @Inject(CONFIG_OPTIONS) public configOptions: ConfigOptions,
-    @Inject(SERVER_IO_PROVIDER) public readonly serverIoProvider: ServerIoProviderTypes,
+    @Inject(SERVER_IO_PROVIDER) public readonly serverIoProvider: ServerIoProviderTypes
   ) {
     this.isSending = false
   }

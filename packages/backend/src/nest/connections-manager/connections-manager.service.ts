@@ -397,17 +397,20 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     await this.libp2pService.createInstance(params)
 
     // Libp2p event listeners
-    this.libp2pService.on(Libp2pEvents.PEER_CONNECTED, async (payload:  PeersNetworkDataPayload) => {
-      const peerStats: { [peerId: string]: NetworkStats } = await payload.peers.reduce(async (updateObj, peer) => {
-        return {
-          ...(await updateObj),
-          [peer.peer]: {
-            peerId: peer.peer,
-            lastSeen: peer.lastSeen,
-            connectionTime: peer.connectionDuration
-          } as NetworkStats
-        }
-      }, Promise.resolve({} as { [peerId: string]: NetworkStats }))
+    this.libp2pService.on(Libp2pEvents.PEER_CONNECTED, async (payload: PeersNetworkDataPayload) => {
+      const peerStats: { [peerId: string]: NetworkStats } = await payload.peers.reduce(
+        async (updateObj, peer) => {
+          return {
+            ...(await updateObj),
+            [peer.peer]: {
+              peerId: peer.peer,
+              lastSeen: peer.lastSeen,
+              connectionTime: peer.connectionDuration,
+            } as NetworkStats,
+          }
+        },
+        Promise.resolve({} as { [peerId: string]: NetworkStats })
+      )
       await this.localDbService.update(LocalDBKeys.PEERS, peerStats)
       this.serverIoProvider.io.emit(SocketActionTypes.PEER_CONNECTED, payload)
     })

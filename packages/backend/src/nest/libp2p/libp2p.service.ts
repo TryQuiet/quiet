@@ -5,7 +5,13 @@ import { mplex } from '@libp2p/mplex'
 import { multiaddr } from '@multiformats/multiaddr'
 import { Inject, Injectable } from '@nestjs/common'
 import { createLibp2pAddress, createLibp2pListenAddress } from '@quiet/common'
-import { ConnectionProcessInfo, type NetworkDataPayload, PeerId, SocketActionTypes, PeersNetworkDataPayload } from '@quiet/types'
+import {
+  ConnectionProcessInfo,
+  type NetworkDataPayload,
+  PeerId,
+  SocketActionTypes,
+  PeersNetworkDataPayload,
+} from '@quiet/types'
 import crypto from 'crypto'
 import { EventEmitter } from 'events'
 import { Agent } from 'https'
@@ -164,12 +170,14 @@ export class Libp2pService extends EventEmitter {
       this.logger(`${localPeerId} has ${this.libp2pInstance?.getConnections().length} open connections`)
 
       const payload: PeersNetworkDataPayload = {
-        peers: [{
-          peer: remotePeerId,
-          lastSeen: now.toSeconds(),
-          connectionDuration: 0
-        }],
-      };
+        peers: [
+          {
+            peer: remotePeerId,
+            lastSeen: now.toSeconds(),
+            connectionDuration: 0,
+          },
+        ],
+      }
 
       this.logger(`Emitting ${Libp2pEvents.PEER_CONNECTED} event with payload ${JSON.stringify(payload)}`)
       this.emit(Libp2pEvents.PEER_CONNECTED, payload)
