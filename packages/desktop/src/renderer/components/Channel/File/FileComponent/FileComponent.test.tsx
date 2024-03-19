@@ -45,7 +45,7 @@ describe('FileComponent', () => {
       <body>
         <div>
           <div
-            class="css-4fpo3t"
+            class="css-17r12jj"
             data-testid="QmWUCSApiy76nW9DAk5M9QbH1nkW5XCYwxUHRSULjATyqs-fileComponent"
           >
             <span>
@@ -83,6 +83,7 @@ describe('FileComponent', () => {
               </div>
             </span>
             <div
+              class=""
               style="padding-top: 16px; display: block;"
             >
               <div

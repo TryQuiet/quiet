@@ -19,7 +19,7 @@ describe('MathMessageComponent', () => {
       <body>
         <div>
           <span
-            class="MathMessagemessage MathMessagebeginning css-y9v6re"
+            class="MathMessagemessage MathMessagebeginning css-e17gp5"
           >
             <mjx-container
               class="MathJax"
@@ -114,13 +114,13 @@ describe('MathMessageComponent', () => {
       <body>
         <div>
           <span
-            class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-1vefsqk-MuiTypography-root"
+            class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-nx1df2-MuiTypography-root"
             data-testid="messagesGroupContent-1-0"
           >
             It is
           </span>
           <span
-            class="MathMessagemessage MathMessagemiddle css-y9v6re"
+            class="MathMessagemessage MathMessagemiddle css-e17gp5"
           >
             <mjx-container
               class="MathJax"
@@ -194,13 +194,13 @@ describe('MathMessageComponent', () => {
             </mjx-container>
           </span>
           <span
-            class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-1vefsqk-MuiTypography-root"
+            class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-nx1df2-MuiTypography-root"
             data-testid="messagesGroupContent-1-2"
           >
             and
           </span>
           <span
-            class="MathMessagemessage MathMessagemiddle css-y9v6re"
+            class="MathMessagemessage MathMessagemiddle css-e17gp5"
           >
             <mjx-container
               class="MathJax"
@@ -295,7 +295,7 @@ describe('MathMessageComponent', () => {
       <body>
         <div>
           <span
-            class="MathMessagemessage MathMessagebeginning css-y9v6re"
+            class="MathMessagemessage MathMessagebeginning css-e17gp5"
           >
             <mjx-container
               class="MathJax"
@@ -492,7 +492,7 @@ describe('MathMessageComponent', () => {
             </mjx-container>
           </span>
           <span
-            class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-1vefsqk-MuiTypography-root"
+            class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-nx1df2-MuiTypography-root"
             data-testid="messagesGroupContent-1-1"
           >
             <ul

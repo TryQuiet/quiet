@@ -23,7 +23,7 @@ describe('BasicMessage', () => {
             duplicatedUsernameModalHandleOpen={jest.fn()}
             unregisteredUsernameModalHandleOpen={jest.fn()}
             messages={messages}
-            lastConnectedTime={DateTime.utc().toSeconds()}
+            lastConnectedTime={DateTime.utc().toSeconds() - 1000}
             allPeersDisconnectedTime={undefined}
             isConnectedToOtherPeers={true}
             communityHasPeers={true}
@@ -36,7 +36,7 @@ describe('BasicMessage', () => {
       <body>
         <div>
           <li
-            class="MuiListItem-root MuiListItem-gutters MuiListItem-padding BasicMessageComponentwrapper css-13gdcvl-MuiListItem-root"
+            class="MuiListItem-root MuiListItem-gutters MuiListItem-padding BasicMessageComponentwrapper css-6oh3yy-MuiListItem-root"
           >
             <div
               class="MuiListItemText-root BasicMessageComponentmessageCard css-tlelie-MuiListItemText-root"
@@ -89,10 +89,10 @@ describe('BasicMessage', () => {
                     style="margin-top: -3px;"
                   >
                     <div
-                      class="MuiGrid-root MuiGrid-item css-15myz84-MuiGrid-root"
+                      class="MuiGrid-root MuiGrid-item css-8e83yq-MuiGrid-root"
                     >
                       <span
-                        class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-1vefsqk-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-nx1df2-MuiTypography-root"
                         data-testid="messagesGroupContent-0"
                       >
                         message0
@@ -115,7 +115,7 @@ describe('BasicMessage', () => {
           <BasicMessageComponent
             duplicatedUsernameModalHandleOpen={jest.fn()}
             unregisteredUsernameModalHandleOpen={jest.fn()}
-            lastConnectedTime={DateTime.utc().toSeconds()}
+            lastConnectedTime={DateTime.utc().toSeconds() - 1000}
             allPeersDisconnectedTime={undefined}
             messages={messages}
             isConnectedToOtherPeers={true}
@@ -129,7 +129,7 @@ describe('BasicMessage', () => {
       <body>
         <div>
           <li
-            class="MuiListItem-root MuiListItem-gutters MuiListItem-padding BasicMessageComponentwrapper css-13gdcvl-MuiListItem-root"
+            class="MuiListItem-root MuiListItem-gutters MuiListItem-padding BasicMessageComponentwrapper css-6oh3yy-MuiListItem-root"
           >
             <div
               class="MuiListItemText-root BasicMessageComponentmessageCard css-tlelie-MuiListItemText-root"
@@ -182,20 +182,20 @@ describe('BasicMessage', () => {
                     style="margin-top: -3px;"
                   >
                     <div
-                      class="MuiGrid-root MuiGrid-item css-15myz84-MuiGrid-root"
+                      class="MuiGrid-root MuiGrid-item css-8e83yq-MuiGrid-root"
                     >
                       <span
-                        class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-1vefsqk-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-nx1df2-MuiTypography-root"
                         data-testid="messagesGroupContent-0"
                       >
                         message0
                       </span>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-item css-15myz84-MuiGrid-root"
+                      class="MuiGrid-root MuiGrid-item css-8e83yq-MuiGrid-root"
                     >
                       <span
-                        class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-1vefsqk-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-nx1df2-MuiTypography-root"
                         data-testid="messagesGroupContent-1"
                       >
                         message1
@@ -218,7 +218,7 @@ describe('BasicMessage', () => {
           <BasicMessageComponent
             duplicatedUsernameModalHandleOpen={jest.fn()}
             unregisteredUsernameModalHandleOpen={jest.fn()}
-            lastConnectedTime={DateTime.utc().toSeconds()}
+            lastConnectedTime={DateTime.utc().toSeconds() - 1000}
             allPeersDisconnectedTime={undefined}
             messages={messages}
             isConnectedToOtherPeers={true}
@@ -232,7 +232,7 @@ describe('BasicMessage', () => {
       <body>
         <div>
           <li
-            class="MuiListItem-root MuiListItem-gutters MuiListItem-padding  css-13gdcvl-MuiListItem-root"
+            class="MuiListItem-root MuiListItem-gutters MuiListItem-padding  css-6oh3yy-MuiListItem-root"
           >
             <div
               class="MuiListItemText-root BasicMessageComponentmessageCard css-tlelie-MuiListItemText-root"
@@ -288,20 +288,20 @@ describe('BasicMessage', () => {
                     style="margin-top: -3px;"
                   >
                     <div
-                      class="MuiGrid-root MuiGrid-item css-15myz84-MuiGrid-root"
+                      class="MuiGrid-root MuiGrid-item css-8e83yq-MuiGrid-root"
                     >
                       <span
-                        class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-1vefsqk-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-nx1df2-MuiTypography-root"
                         data-testid="messagesGroupContent-0"
                       >
                         message0
                       </span>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-item css-15myz84-MuiGrid-root"
+                      class="MuiGrid-root MuiGrid-item css-8e83yq-MuiGrid-root"
                     >
                       <span
-                        class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-1vefsqk-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-nx1df2-MuiTypography-root"
                         data-testid="messagesGroupContent-1"
                       >
                         message1
@@ -325,7 +325,7 @@ describe('BasicMessage', () => {
           <BasicMessageComponent
             duplicatedUsernameModalHandleOpen={jest.fn()}
             unregisteredUsernameModalHandleOpen={jest.fn()}
-            lastConnectedTime={DateTime.utc().toSeconds()}
+            lastConnectedTime={DateTime.utc().toSeconds() - 1000}
             allPeersDisconnectedTime={undefined}
             messages={[...message1, ...message2]}
             isConnectedToOtherPeers={true}
@@ -339,7 +339,7 @@ describe('BasicMessage', () => {
       <body>
         <div>
           <li
-            class="MuiListItem-root MuiListItem-gutters MuiListItem-padding BasicMessageComponentwrapper css-13gdcvl-MuiListItem-root"
+            class="MuiListItem-root MuiListItem-gutters MuiListItem-padding BasicMessageComponentwrapper css-6oh3yy-MuiListItem-root"
           >
             <div
               class="MuiListItemText-root BasicMessageComponentmessageCard css-tlelie-MuiListItemText-root"
@@ -392,20 +392,20 @@ describe('BasicMessage', () => {
                     style="margin-top: -3px;"
                   >
                     <div
-                      class="MuiGrid-root MuiGrid-item css-15myz84-MuiGrid-root"
+                      class="MuiGrid-root MuiGrid-item css-8e83yq-MuiGrid-root"
                     >
                       <span
-                        class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-1vefsqk-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-nx1df2-MuiTypography-root"
                         data-testid="messagesGroupContent-0"
                       >
                         message0
                       </span>
                     </div>
                     <div
-                      class="MuiGrid-root MuiGrid-item css-15myz84-MuiGrid-root"
+                      class="MuiGrid-root MuiGrid-item css-8e83yq-MuiGrid-root"
                     >
                       <span
-                        class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-1vefsqk-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-nx1df2-MuiTypography-root"
                         data-testid="messagesGroupContent-0"
                       >
                         message0

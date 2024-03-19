@@ -52,7 +52,7 @@ describe('UploadedFile', () => {
       <body>
         <div>
           <div
-            class="css-gd4qex"
+            class="css-1clc91l"
           >
             <div
               class="css-ytr8bc"
@@ -129,7 +129,7 @@ describe('UploadedFile', () => {
       <body>
         <div>
           <div
-            class="css-gd4qex"
+            class="css-1clc91l"
           >
             <div
               class="UploadedImagecontainer"

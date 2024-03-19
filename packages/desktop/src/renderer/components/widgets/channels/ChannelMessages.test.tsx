@@ -87,7 +87,7 @@ describe('ChannelMessages', () => {
                   </div>
                 </div>
                 <li
-                  class="MuiListItem-root MuiListItem-gutters MuiListItem-padding BasicMessageComponentwrapper css-13gdcvl-MuiListItem-root"
+                  class="MuiListItem-root MuiListItem-gutters MuiListItem-padding BasicMessageComponentwrapper css-6oh3yy-MuiListItem-root"
                 >
                   <div
                     class="MuiListItemText-root BasicMessageComponentmessageCard css-tlelie-MuiListItemText-root"
@@ -140,10 +140,10 @@ describe('ChannelMessages', () => {
                           style="margin-top: -3px;"
                         >
                           <div
-                            class="MuiGrid-root MuiGrid-item css-15myz84-MuiGrid-root"
+                            class="MuiGrid-root MuiGrid-item css-8e83yq-MuiGrid-root"
                           >
                             <span
-                              class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-1vefsqk-MuiTypography-root"
+                              class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-nx1df2-MuiTypography-root"
                               data-testid="messagesGroupContent-string"
                             >
                               string

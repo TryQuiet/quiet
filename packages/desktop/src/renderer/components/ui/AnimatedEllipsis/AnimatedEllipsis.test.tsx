@@ -1,51 +1,48 @@
-// import React from 'react'
+import React from 'react'
 
-// import each from 'jest-each'
+import each from 'jest-each'
 
-// import { AnimatedEllipsis } from './AnimatedEllipsis'
-// import { renderComponent } from '../../../testUtils/renderComponent'
+import { AnimatedEllipsis } from './AnimatedEllipsis'
+import { renderComponent } from '../../../testUtils/renderComponent'
 
-// describe('Elipsis', () => {
-//   each(['bottom-start', 'bottom', 'bottom-end']).test('renders with placement %s', placement => {
-//     const result = renderComponent(
-//       <AnimatedEllipsis content={'this is a sample text'} length={5} tooltipPlacement={placement} />
-//     )
-//     expect(result.baseElement).toMatchSnapshot()
-//   })
-
-//   it('renders with custom size', () => {
-//     const result = renderComponent(<AnimatedEllipsis content={'this is a sample text'} length={5} />)
-//     expect(result.baseElement).toMatchInlineSnapshot(`
-//       <body>
-//         <div>
-//           <span>
-//             <span
-//               class="MuiTypography-root MuiTypography-caption Elipsiscontent css-1d4bzk2-MuiTypography-root"
-//               data-mui-internal-clone-element="true"
-//             >
-//               this ...
-//             </span>
-//           </span>
-//         </div>
-//       </body>
-//     `)
-//   })
-
-//   it('disables if shorter than limit', () => {
-//     const result = renderComponent(<AnimatedEllipsis content={'this is a sample text'} length={50} />)
-//     expect(result.baseElement).toMatchInlineSnapshot(`
-//       <body>
-//         <div>
-//           <span>
-//             <span
-//               class="MuiTypography-root MuiTypography-caption Elipsiscontent css-1d4bzk2-MuiTypography-root"
-//               data-mui-internal-clone-element="true"
-//             >
-//               this is a sample text
-//             </span>
-//           </span>
-//         </div>
-//       </body>
-//     `)
-//   })
-// })
+describe('AnimatedEllipsis', () => {
+  it('renders text followed by animated ellipsis', () => {
+    const result = renderComponent(
+      <AnimatedEllipsis content={'Sending'} color={'black'} fontSize={12} fontWeight={'regular'} />
+    )
+    expect(result.baseElement).toMatchInlineSnapshot(`
+      <body>
+        <div>
+          <div
+            class="MuiGrid-root MuiGrid-item css-1hr8piw-MuiGrid-root"
+          >
+            <div
+              class="MuiGrid-root MuiGrid-item AnimatedEllipsis-wrapper css-13i4rnv-MuiGrid-root"
+            >
+              <p
+                class="MuiTypography-root MuiTypography-body1 AnimatedEllipsis-content css-1w9s1dh-MuiTypography-root"
+              >
+                Sending
+              </p>
+              <p
+                class="MuiTypography-root MuiTypography-body1 AnimatedEllipsis-dot1 css-1w9s1dh-MuiTypography-root"
+              >
+                .
+              </p>
+              <p
+                class="MuiTypography-root MuiTypography-body1 AnimatedEllipsis-dot2 css-1w9s1dh-MuiTypography-root"
+              >
+                .
+              </p>
+              <p
+                class="MuiTypography-root MuiTypography-body1 AnimatedEllipsis-dot3 css-1w9s1dh-MuiTypography-root"
+              >
+                .
+              </p>
+            </div>
+          </div>
+        </div>
+      </body>
+    `)
+  })
+})
