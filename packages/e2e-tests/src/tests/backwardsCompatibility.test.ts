@@ -8,7 +8,7 @@ import {
   RegisterUsernameModal,
   Sidebar,
 } from '../selectors'
-import { BACKWARD_COMPATIBILITY_BASE_VERSION, copyInstallerFile, downloadInstaller } from '../utils'
+import { BACKWARD_COMPATIBILITY_BASE_VERSION, BuildSetup, copyInstallerFile, downloadInstaller } from '../utils'
 
 jest.setTimeout(1200000)
 describe('Backwards Compatibility', () => {
@@ -26,7 +26,7 @@ describe('Backwards Compatibility', () => {
   const loopMessages = 'ąbc'.split('')
   const newChannelName = 'mid-night-club'
 
-  const isAlpha = process.env.FILE_NAME?.toString().includes('alpha')
+  const isAlpha = BuildSetup.getEnvFileName()?.toString().includes('alpha')
 
   beforeAll(async () => {
     // download the old version of the app

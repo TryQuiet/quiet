@@ -8,6 +8,8 @@
     "start:desktop": "lerna run --scope @quiet/desktop start",
     "lint:all": "lerna run lint",
     "distAndRunE2ETests:mac:local": "lerna run --scope @quiet/desktop distMac:local && lerna run --scope e2e-tests test:localBinary --",
+    "e2e:linux:build": "lerna run --scope @quiet/backend webpack:prod && lerna run --scope @quiet/desktop distUbuntu && lerna run --scope e2e-tests linux:copy",
+    "e2e:linux:run": "lerna run --scope e2e-tests test --",
     "prepare": "husky",
     "lint-staged": "lerna run lint-staged"
   },
