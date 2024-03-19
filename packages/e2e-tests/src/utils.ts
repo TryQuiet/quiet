@@ -76,7 +76,7 @@ export class BuildSetup {
   }
 
   public getVersionFromEnv() {
-    const envFileName = this.getEnvFileName()
+    const envFileName = BuildSetup.getEnvFileName()
     if (!envFileName) {
       throw new Error('file name not specified')
     }
