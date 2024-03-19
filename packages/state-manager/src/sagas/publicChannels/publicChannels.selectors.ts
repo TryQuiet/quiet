@@ -24,7 +24,6 @@ import {
   type UserProfile,
 } from '@quiet/types'
 import { networkSelectors } from '../network/network.selectors'
-import { DateTime } from 'luxon'
 import { communitiesSelectors } from '../communities/communities.selectors'
 
 const selectState: CreatedSelectors[StoreKeys.PublicChannels] = (state: StoreState) => state[StoreKeys.PublicChannels]
