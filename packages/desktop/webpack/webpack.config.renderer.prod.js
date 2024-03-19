@@ -61,9 +61,6 @@ module.exports = {
       template: 'src/renderer/splashScreen/splash.html',
       filename: 'splash.html'
     }),
-    new webpack.EnvironmentPlugin({
-      TEST_MODE: process.env.TEST_MODE
-    }),
     new WebpackOnBuildPlugin(async () => {
       await new Promise((resolve, reject) => {
         spawn('npm', ['run', 'copyFonts'], {
