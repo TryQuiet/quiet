@@ -1,19 +1,3 @@
-# Change Log
-
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
-
-## [2.1.2-alpha.12](/compare/@quiet/desktop@2.1.2-alpha.11...@quiet/desktop@2.1.2-alpha.12) (2024-03-20)
-
-
-### Bug Fixes
-
-* Quick fix for intro message race condition (#2376) c33899c, closes #2376
-
-
-
-
-
 [unreleased]
 
 
