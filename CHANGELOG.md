@@ -1,7 +1,9 @@
 [unreleased]
 
-* Refactored package.json to have consistent license "GPL-3.0-or-later"
- 
+# Features:
+
+* Add support for new format of invitation link: `c=<cid>&t=<token>&s=<serverAddress>&i=<inviterAddress>`
+
 # Refactorings:
 
 * Use ack for CREATE_NETWORK and simplify
@@ -10,6 +12,10 @@
 
 * Allow JPEG and GIF files as profile photos ([#2332](https://github.com/TryQuiet/quiet/issues/2332))
 
+# Other:
+
+* Refactored package.json to have consistent license "GPL-3.0-or-later"
+ 
 [2.1.2]
 
 # Refactorings:
