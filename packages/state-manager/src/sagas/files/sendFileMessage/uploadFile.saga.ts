@@ -4,6 +4,9 @@ import { select, apply } from 'typed-redux-saga'
 import { identitySelectors } from '../../identity/identity.selectors'
 import { messagesActions } from '../../messages/messages.slice'
 import { SocketActionTypes } from '@quiet/types'
+import { loggingHandler, LoggerModuleName } from '../../../utils/logger'
+
+const LOGGER = loggingHandler.initLogger([LoggerModuleName.FILES, LoggerModuleName.SAGA, 'uploadFile'])
 
 export function* uploadFileSaga(
   socket: Socket,
@@ -13,7 +16,10 @@ export function* uploadFileSaga(
   if (!message.media) return
 
   const identity = yield* select(identitySelectors.currentIdentity)
-  if (!identity) return
+  if (!identity) {
+    LOGGER.warn(`No identity found, can't upload file`)
+    return
+  }
 
   yield* apply(
     socket,

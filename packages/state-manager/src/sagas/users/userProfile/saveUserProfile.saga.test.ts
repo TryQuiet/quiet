@@ -15,9 +15,11 @@ import { type Socket } from '../../../types'
 import { type Identity } from '@quiet/types'
 
 import { createUserCsr, pubKeyFromCsr, keyObjectFromString, verifySignature } from '@quiet/identity'
+import { getAppDataPath } from '@quiet/common'
 
 jest.mock('@quiet/common', () => ({
   fileToBase64String: jest.fn(() => 'dGVzdAo='),
+  getAppDataPath: jest.fn(() => '.'),
 }))
 
 describe('saveUserProfileSaga', () => {

@@ -34,7 +34,7 @@ coverage/
 .eslintcache
 *.tgz
 worker/index.node
-.env
+# .env
 .webpack
 dist
 node_modules

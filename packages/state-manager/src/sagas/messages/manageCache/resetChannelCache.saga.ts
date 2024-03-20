@@ -4,10 +4,17 @@ import { publicChannelsActions } from '../../publicChannels/publicChannels.slice
 import { messagesSelectors } from '../messages.selectors'
 import { messagesActions } from '../messages.slice'
 import { type CacheMessagesPayload, type SetDisplayedMessagesNumberPayload } from '@quiet/types'
+import { loggingHandler, LoggerModuleName } from '../../../utils/logger'
+
+const LOGGER = loggingHandler.initLogger([LoggerModuleName.MESSAGES, LoggerModuleName.SAGA, 'resetChannelCache'])
 
 export function* resetCurrentPublicChannelCacheSaga(): Generator {
+  LOGGER.info(`Resetting current channel cache`)
   const channelId = yield* select(publicChannelsSelectors.currentChannelId)
-  if (!channelId) return
+  if (!channelId) {
+    LOGGER.warn(`No current channel ID found, not resetting cache`)
+    return
+  }
 
   const channelMessagesChunkSize = 50
 

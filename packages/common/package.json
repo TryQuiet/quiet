@@ -11,9 +11,9 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "prepare": "npm run build",
-    "lint:no-fix": "eslint --ext .ts .",
-    "lint": "npm run lint:no-fix -- --fix",
-    "lint-ci": "npm run lint:no-fix",
+    "lint:no-fix": "eslint --ext .ts",
+    "lint": "npm run lint:no-fix . -- --fix",
+    "lint-ci": "npm run lint:no-fix .",
     "lint-staged": "lint-staged",
     "test": "jest --runInBand",
     "prettier": "prettier",
@@ -34,6 +34,7 @@
     "@quiet/types": "^2.0.2-alpha.1",
     "cross-env": "^5.2.0",
     "debug": "^4.3.1",
+    "dotenv": "^16.4.5",
     "validator": "^13.11.0"
   },
   "jest": {

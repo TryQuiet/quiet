@@ -7,6 +7,9 @@ import { config } from '../../users/const/certFieldTypes'
 import { Socket } from '../../../types'
 import { communitiesSelectors } from '../../communities/communities.selectors'
 import { CreateUserCsrPayload, RegisterCertificatePayload, Community } from '@quiet/types'
+import { loggingHandler, LoggerModuleName } from '../../../utils/logger'
+
+const LOGGER = loggingHandler.initLogger([LoggerModuleName.IDENTITY, LoggerModuleName.SAGA, 'registerUsername'])
 
 export function* registerUsernameSaga(
   socket: Socket,
@@ -19,7 +22,7 @@ export function* registerUsernameSaga(
   const community = yield* select(communitiesSelectors.currentCommunity)
 
   if (!community) {
-    console.error('Could not register username, no community data')
+    LOGGER.error('Could not register username, no community data')
     return
   }
 
@@ -32,7 +35,7 @@ export function* registerUsernameSaga(
   identity = yield* select(identitySelectors.currentIdentity)
 
   if (!identity) {
-    console.error('Could not register username, no identity')
+    LOGGER.error('Could not register username, no identity')
     return
   }
 
@@ -41,7 +44,7 @@ export function* registerUsernameSaga(
   if (userCsr) {
     try {
       if (identity.userCsr?.userCsr == null || identity.userCsr.userKey == null) {
-        console.error('identity.userCsr?.userCsr == null || identity.userCsr.userKey == null')
+        LOGGER.error('identity.userCsr?.userCsr == null || identity.userCsr.userKey == null')
         return
       }
       const _pubKey = yield* call(pubKeyFromCsr, identity.userCsr.userCsr)
@@ -62,7 +65,7 @@ export function* registerUsernameSaga(
 
       userCsr = yield* call(createUserCsr, payload)
     } catch (e) {
-      console.error(e)
+      LOGGER.error(`Error occurred while generating CSR payload from existing userCsr`, e)
       return
     }
   } else {
@@ -77,7 +80,7 @@ export function* registerUsernameSaga(
       }
       userCsr = yield* call(createUserCsr, payload)
     } catch (e) {
-      console.error(e)
+      LOGGER.error(`Error occurred while generating new CSR payload`, e)
       return
     }
   }

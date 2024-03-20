@@ -1,3 +1,6 @@
+import * as dotenv from 'dotenv'
+dotenv.config()
+
 import { setEngine, CryptoEngine } from'pkijs'
 import { Crypto } from '@peculiar/webcrypto'
 

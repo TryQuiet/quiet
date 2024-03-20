@@ -10,6 +10,9 @@ import { AUTODOWNLOAD_SIZE_LIMIT } from '../../../constants'
 import { filesSelectors } from '../files.selectors'
 import { type networkActions } from '../../network/network.slice'
 import { DownloadState, SocketActionTypes } from '@quiet/types'
+import { loggingHandler, LoggerModuleName } from '../../../utils/logger'
+
+const LOGGER = loggingHandler.initLogger([LoggerModuleName.FILES, LoggerModuleName.SAGA, 'checkForMissingFiles'])
 
 export function* checkForMissingFilesSaga(
   socket: Socket,
@@ -17,10 +20,18 @@ export function* checkForMissingFilesSaga(
 ): Generator {
   const community = yield* select(communitiesSelectors.currentCommunity)
 
-  if (community?.id !== action.payload) return
+  if (community?.id !== action.payload) {
+    LOGGER.warn(
+      `Community ID on payload (${action.payload}) was not that same as the current community (${community?.id})`
+    )
+    return
+  }
 
   const identity = yield* select(identitySelectors.currentIdentity)
-  if (!identity) return
+  if (!identity) {
+    LOGGER.warn(`No identity found, can't check for missing files`)
+    return
+  }
 
   const channels = yield* select(publicChannelsSelectors.publicChannels)
 

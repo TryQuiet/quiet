@@ -1,3 +1,6 @@
+import * as dotenv from 'dotenv'
+dotenv.config()
+
 import { Crypto } from '@peculiar/webcrypto'
 import { Command } from 'commander'
 import { NestFactory } from '@nestjs/core'

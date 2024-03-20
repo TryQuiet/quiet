@@ -4,6 +4,7 @@ const path = require('path')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const WebpackOnBuildPlugin = require('./webpack-on-build-plugin')
 const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin')
+const Dotenv = require('dotenv-webpack')
 
 var mainRunning = false
 
@@ -26,7 +27,7 @@ module.exports = {
         use: {
           loader: 'ts-loader'
         },
-        exclude: [/node_modules/, /packages[\/\\]identity/, /packages[\/\\]state-manager/, /packages[\/\\]logger/]
+        exclude: [/node_modules/, /packages[\/\\]identity/, /packages[\/\\]logger/]
       },
       {
         test: /\.m?js/,
@@ -41,7 +42,7 @@ module.exports = {
         }
       },
       {
-        test: /\.(mp3|ttf|eot|svg|png|woff(2)?)(\?[a-z0-9=&.]+)?$/,
+        test: /\.(node|mp3|ttf|eot|svg|png|woff(2)?)(\?[a-z0-9=&.]+)?$/,
         use: {
           loader: 'file-loader'
         }
@@ -53,6 +54,7 @@ module.exports = {
     index: './src/renderer/index.tsx'
   },
   plugins: [
+    new Dotenv(),
     new HtmlWebpackPlugin({
       title: 'Quiet',
       template: 'src/renderer/index.html'

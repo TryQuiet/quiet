@@ -7,6 +7,9 @@ import { type Certificate } from 'pkijs'
 import { type CreatedSelectors, type StoreState } from '../store.types'
 import { type UserData, User } from '@quiet/types'
 import { ownerCertificate } from '../communities/communities.selectors'
+import { loggingHandler, LoggerModuleName } from '../../utils/logger'
+
+const LOGGER = loggingHandler.initLogger([LoggerModuleName.USERS, LoggerModuleName.SELECTORS])
 
 const usersSlice: CreatedSelectors[StoreKeys.Users] = (state: StoreState) => state[StoreKeys.Users]
 
@@ -23,6 +26,7 @@ export const certificatesMapping = createSelector(certificates, certs => {
   Object.keys(certs).map(pubKey => {
     const certificate = certs[pubKey]
     if (!certificate || certificate.subject.typesAndValues.length < 1) {
+      LOGGER.warn(`Invalid certificate`)
       return
     }
 
@@ -32,7 +36,7 @@ export const certificatesMapping = createSelector(certificates, certs => {
     const dmPublicKey = getCertFieldValue(certificate, CertFieldsTypes.dmPublicKey) || ''
 
     if (!username || !onionAddress || !peerId) {
-      console.error(`Could not parse certificate for pubkey ${pubKey}`)
+      LOGGER.error(`Could not parse certificate for pubkey ${pubKey}`)
       return
     }
 
@@ -52,6 +56,7 @@ export const csrsMapping = createSelector(csrs, csrs => {
   Object.keys(csrs).map(pubKey => {
     const csr = csrs[pubKey]
     if (!csr || csr.subject.typesAndValues.length < 1) {
+      LOGGER.warn(`Invalid CSR`)
       return
     }
 
@@ -61,7 +66,7 @@ export const csrsMapping = createSelector(csrs, csrs => {
     const dmPublicKey = getReqFieldValue(csr, CertFieldsTypes.dmPublicKey) || ''
 
     if (!username || !onionAddress || !peerId) {
-      console.error(`Could not parse certificate for pubkey ${pubKey}`)
+      LOGGER.error(`Could not parse certificate for pubkey ${pubKey}`)
       return
     }
 
