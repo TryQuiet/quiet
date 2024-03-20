@@ -15,10 +15,6 @@ const JoinCommunity = () => {
   const currentCommunity = useSelector(communities.selectors.currentCommunity)
   const currentIdentity = useSelector(identity.selectors.currentIdentity)
 
-  // Invitation link data should be already available if user joined via deep link
-  const invitationCodes = useSelector(communities.selectors.invitationCodes)
-  const psk = useSelector(communities.selectors.psk)
-
   const joinCommunityModal = useModal(ModalName.joinCommunityModal)
   const createCommunityModal = useModal(ModalName.createCommunityModal)
 
@@ -66,8 +62,6 @@ const JoinCommunity = () => {
       hasReceivedResponse={Boolean(currentIdentity && !currentIdentity.userCertificate)}
       revealInputValue={revealInputValue}
       handleClickInputReveal={handleClickInputReveal}
-      invitationCode={invitationCodes}
-      psk={psk}
     />
   )
 }

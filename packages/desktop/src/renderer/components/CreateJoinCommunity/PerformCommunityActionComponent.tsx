@@ -137,9 +137,6 @@ export interface PerformCommunityActionProps {
   hasReceivedResponse: boolean
   revealInputValue?: boolean
   handleClickInputReveal?: () => void
-  invitationCode?: InvitationPair[]
-  psk?: string
-  ownerOrbitDbIdentity?: string
 }
 
 export const PerformCommunityActionComponent: React.FC<PerformCommunityActionProps> = ({
@@ -153,9 +150,6 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
   hasReceivedResponse,
   revealInputValue,
   handleClickInputReveal,
-  invitationCode,
-  psk,
-  ownerOrbitDbIdentity,
 }) => {
   const [formSent, setFormSent] = useState(false)
 
@@ -218,20 +212,6 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
     setCommunityName(parsedName)
     setParsedNameDiffers(name !== parsedName)
   }
-
-  // Lock the form if app's been open with custom protocol
-  //
-  // TODO: What does this mean and do we need this here? It might make
-  // sense to decouple the PSK from this component, since this is the
-  // only place PSK is used.
-
-  // TODO: adjust to v2 link, maybe pass already composed link instead of data
-  useEffect(() => {
-    if (communityOwnership === CommunityOwnership.User && invitationCode?.length && psk && ownerOrbitDbIdentity) {
-      setFormSent(true)
-      setValue('name', composeInvitationShareUrl({ pairs: invitationCode, psk, ownerOrbitDbIdentity }))
-    }
-  }, [communityOwnership, invitationCode])
 
   useEffect(() => {
     if (!open) {
