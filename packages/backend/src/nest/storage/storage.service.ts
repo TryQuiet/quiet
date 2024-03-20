@@ -567,7 +567,7 @@ export class StorageService extends EventEmitter {
     )
     const channel = this.channels.get(channelId)
 
-    this.logger(`Found existing channel: ${channel}`)
+    this.logger('Found existing channel:', channel)
 
     if (channel === undefined) {
       await this.channels.put(channelId, { ...channelData })
