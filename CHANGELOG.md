@@ -20,6 +20,7 @@
 * Prevent channel creation with names that start with special character, then a hyphen
 * Choose random ports for Tor services (iOS)
 * Use consistent identicons for messages and profile
+* Ship Tor binary and use custom TorHandler
 
 # Other:
 
