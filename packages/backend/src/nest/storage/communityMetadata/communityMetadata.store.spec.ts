@@ -40,9 +40,13 @@ describe('CommmunityMetadataStore', () => {
   let community: Community
 
   const mockLocalDbService = {
-    putOwnerOrbitDbIdentity: jest.fn(),
-    // @ts-ignore - OrbitDB's type definition doesn't include identity
-    getOwnerOrbitDbIdentity: jest.fn(() => orbitDbService.orbitDb.identity.id),
+    setCommunity: jest.fn(),
+    getCurrentCommunity: jest.fn(() => {
+      return {
+        // @ts-ignore - OrbitDB's type definition doesn't include identity
+        ownerOrbitDbIdentity: orbitDbService.orbitDb.identity.id,
+      }
+    }),
   }
 
   beforeAll(async () => {

@@ -1,7 +1,14 @@
 import { Injectable, OnModuleInit } from '@nestjs/common'
 import { EventEmitter } from 'events'
 import { extractPendingCsrs, issueCertificate } from './registration.functions'
-import { ErrorCodes, ErrorMessages, PermsData, RegisterOwnerCertificatePayload, SocketActionTypes } from '@quiet/types'
+import {
+  ErrorCodes,
+  ErrorMessages,
+  PermsData,
+  RegisterOwnerCertificatePayload,
+  type SavedOwnerCertificatePayload,
+  SocketActionTypes,
+} from '@quiet/types'
 import { RegistrationEvents } from './registration.types'
 import Logger from '../common/logger'
 import { StorageService } from '../storage/storage.service'
@@ -93,21 +100,22 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
     )
   }
 
-  public async registerOwnerCertificate(payload: RegisterOwnerCertificatePayload): Promise<void> {
+  // TODO: This doesn't save the owner's certificate in OrbitDB, so perhaps we
+  // should rename it or look into refactoring so that it does save to OrbitDB.
+  // However, currently, this is called before the storage service is
+  // initialized.
+  public async registerOwnerCertificate(
+    payload: RegisterOwnerCertificatePayload
+  ): Promise<SavedOwnerCertificatePayload> {
     this.permsData = payload.permsData
     const result = await issueCertificate(payload.userCsr.userCsr, this.permsData)
     if (result?.cert) {
-      this.emit(SocketActionTypes.OWNER_CERTIFICATE_ISSUED, {
+      return {
         communityId: payload.communityId,
         network: { certificate: result.cert },
-      })
+      }
     } else {
-      this.emit(SocketActionTypes.ERROR, {
-        type: SocketActionTypes.REGISTER_OWNER_CERTIFICATE,
-        code: ErrorCodes.SERVER_ERROR,
-        message: ErrorMessages.REGISTRATION_FAILED,
-        community: payload.communityId,
-      })
+      throw new Error('Failed to register owner certificate')
     }
   }
 

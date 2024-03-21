@@ -36,8 +36,8 @@ export const invitationCodes = createSelector(communitiesSlice, reducerState => 
   return reducerState.invitationCodes
 })
 
-export const psk = createSelector(communitiesSlice, reducerState => {
-  return reducerState.psk
+export const psk = createSelector(currentCommunity, currentCommunity => {
+  return currentCommunity?.psk
 })
 
 export const ownerCertificate = createSelector(currentCommunity, currentCommunity => {

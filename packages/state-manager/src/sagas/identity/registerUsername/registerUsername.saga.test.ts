@@ -54,8 +54,6 @@ describe('registerUsernameSaga', () => {
     }
 
     const reducer = combineReducers(reducers)
-    const psk = '12345'
-    store.dispatch(communitiesActions.savePSK(psk))
     await expectSaga(registerUsernameSaga, socket, identityActions.registerUsername({ nickname: 'nickname' }))
       .withReducer(reducer)
       .withState(store.getState())
@@ -219,8 +217,6 @@ describe('registerUsernameSaga', () => {
         rootCa: 'rootCa',
         peerList: [],
         onionAddress: '',
-        privateKey: '',
-        port: 0,
       }
     )
 
