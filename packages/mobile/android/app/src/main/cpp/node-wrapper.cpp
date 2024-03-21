@@ -1,3 +1,8 @@
+/**
+ * The code in this file is from
+ * https://github.com/nodejs-mobile/nodejs-mobile-react-native/blob/c27c483698e2eb0dcaf87028bc4963a321b4d4f8/android/src/main/cpp/native-lib.cpp
+ * and is licensed under external-licenses/nodejs-mobile-react-native.license.txt.
+ */
 #include <jni.h>
 #include <string>
 #include <cstdlib>

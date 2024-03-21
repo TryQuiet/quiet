@@ -1,3 +1,11 @@
+/**
+ * The code in this file is from
+ * https://github.com/guardianproject/tor-android/blob/56c5105b6e12748a388778d0bbb36fb85c295f4b/tor-android-binary/src/main/java/org/torproject/jni/TorService.java
+ * and is licensed under external-licenses/tor-android.license.txt.
+ *
+ * This code has been modified to work with Tor control port instead
+ * of control socket.
+ */
 package com.quietmobile.Backend;
 
 import static android.content.Context.MODE_PRIVATE;

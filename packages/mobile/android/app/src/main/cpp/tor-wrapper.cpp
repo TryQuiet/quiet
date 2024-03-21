@@ -51,4 +51,3 @@ Java_com_quietmobile_Backend_TorHandler_mainConfigurationFree(
 {
     Java_org_torproject_jni_TorService_mainConfigurationFree(env, thisObj);
 }
-
