@@ -29,6 +29,7 @@ import { AnyAction } from 'redux'
 import {
   InvitationData,
   ChannelsReplicatedPayload,
+  ChannelSubscribedPayload,
   Community,
   ErrorPayload,
   type NetworkInfo,
@@ -116,6 +117,9 @@ describe('User', () => {
             },
           },
         })
+        socket.socketClient.emit<ChannelSubscribedPayload>(SocketActionTypes.CHANNEL_SUBSCRIBED, {
+          channelId: 'general',
+        })
       }
     }
 
@@ -185,6 +189,7 @@ describe('User', () => {
         "Network/addInitializedCommunity",
         "Communities/clearInvitationCodes",
         "PublicChannels/channelsReplicated",
+        "PublicChannels/setChannelSubscribed",
         "PublicChannels/addChannel",
         "Messages/addPublicChannelsMessagesBase",
         "PublicChannels/sendIntroductionMessage",
