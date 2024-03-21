@@ -11,31 +11,45 @@ cmake_minimum_required(VERSION 3.4.1)
 # Gradle automatically packages shared libraries with your APK.
 
 add_library( # Sets the name of the library.
-             own-native-lib
+        node-wrapper
 
-             # Sets the library as a shared library.
-             SHARED
+        # Sets the library as a shared library.
+        SHARED
 
-             # Provides a relative path to your source file(s).
-             src/main/cpp/own-native-lib.cpp
-             src/main/cpp/rn-bridge.cpp
-           )
+        # Provides a relative path to your source file(s).
+        src/main/cpp/node-wrapper.cpp
+        src/main/cpp/rn-bridge.cpp )
+
+add_library(
+        tor-wrapper
+        SHARED
+        src/main/cpp/tor-wrapper.cpp )
 
 include_directories(libnode/include/node/)
+include_directories(libtor/include/tor/)
 include_directories(src/main/cpp/)
 
 add_library( libnode
-             SHARED
-             IMPORTED )
+        SHARED
+        IMPORTED )
+
+add_library( libtor
+        SHARED
+        IMPORTED )
 
 set_target_properties( # Specifies the target library.
-                       libnode
+        libnode
 
-                       # Specifies the parameter you want to define.
-                       PROPERTIES IMPORTED_LOCATION
+        # Specifies the parameter you want to define.
+        PROPERTIES IMPORTED_LOCATION
 
-                       # Provides the path to the library you want to import.
-                       ${CMAKE_SOURCE_DIR}/libnode/bin/${ANDROID_ABI}/libnode.so )
+        # Provides the path to the library you want to import.
+        ${CMAKE_SOURCE_DIR}/libnode/bin/libnode.so )
+
+set_target_properties(
+        libtor
+        PROPERTIES IMPORTED_LOCATION
+        ${CMAKE_SOURCE_DIR}/libtor/bin/libtor.so )
 
 # Searches for a specified prebuilt library and stores the path as a
 # variable. Because CMake includes system libraries in the search path by
@@ -44,21 +58,26 @@ set_target_properties( # Specifies the target library.
 # completing its build.
 
 find_library( # Sets the name of the path variable.
-              log-lib
+        log-lib
 
-              # Specifies the name of the NDK library that
-              # you want CMake to locate.
-              log )
+        # Specifies the name of the NDK library that
+        # you want CMake to locate.
+        log )
 
 # Specifies libraries CMake should link to your target library. You
 # can link multiple libraries, such as libraries you define in this
 # build script, prebuilt third-party libraries, or system libraries.
 
 target_link_libraries( # Specifies the target library.
-                       own-native-lib
+        node-wrapper
 
-                       libnode
+        libnode
 
-                       # Links the target library to the log library
-                       # included in the NDK.
-                       ${log-lib} )
+        # Links the target library to the log library
+        # included in the NDK.
+        ${log-lib} )
+
+target_link_libraries(
+        tor-wrapper
+        libtor
+        ${log-lib} )
