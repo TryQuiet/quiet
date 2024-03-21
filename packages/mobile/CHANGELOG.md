@@ -1,3 +1,19 @@
+# Change Log
+
+All notable changes to this project will be documented in this file.
+See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+## [2.1.2-alpha.13](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@2.1.2-alpha.12...@quiet/mobile@2.1.2-alpha.13) (2024-03-21)
+
+
+### Bug Fixes
+
+* ship Tor binary and use custom TorHandler ([#2366](https://github.com/TryQuiet/quiet/issues/2366)) ([29f058b](https://github.com/TryQuiet/quiet/commit/29f058b4c9072be6651ff06fac97cafe43df3914))
+
+
+
+
+
 [unreleased]
 
 
