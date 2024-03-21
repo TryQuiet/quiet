@@ -7,7 +7,7 @@ import {
   connection,
   publicChannels,
   RegisterCertificatePayload,
-  CreateNetworkPayload,
+  AddCommunityPayload,
   CommunityOwnership,
   TestStore,
   ChannelMessage,
@@ -76,12 +76,12 @@ export async function createCommunity({ userName, store }: CreateCommunity) {
   const timeout = 20_000
   const communityName = 'CommunityName'
 
-  const createNetworkPayload: CreateNetworkPayload = {
+  const addCommunityPayload: AddCommunityPayload = {
     ownership: CommunityOwnership.Owner,
     name: communityName,
   }
 
-  store.dispatch(communities.actions.createNetwork(createNetworkPayload))
+  store.dispatch(communities.actions.addCommunity(addCommunityPayload))
 
   await waitForExpect(() => {
     expect(store.getState().Identity.identities.ids).toHaveLength(1)
@@ -126,11 +126,11 @@ export async function registerUsername(payload: Register) {
   // Give it a huge timeout, it should never fail, but sometimes takes more time, depending on tor.
   const timeout = 600_000
 
-  const createNetworkPayload: CreateNetworkPayload = {
+  const addCommunityPayload: AddCommunityPayload = {
     ownership: CommunityOwnership.User,
   }
 
-  store.dispatch(communities.actions.createNetwork(createNetworkPayload))
+  store.dispatch(communities.actions.addCommunity(addCommunityPayload))
 
   await waitForExpect(() => {
     expect(store.getState().Identity.identities.ids).toHaveLength(1)
@@ -265,11 +265,11 @@ export const sendRegistrationRequest = async (payload: SendRegistrationRequest) 
 
   const timeout = 600_000
 
-  const createNetworkPayload: CreateNetworkPayload = {
+  const addCommunityPayload: AddCommunityPayload = {
     ownership: CommunityOwnership.User,
   }
 
-  store.dispatch(communities.actions.createNetwork(createNetworkPayload))
+  store.dispatch(communities.actions.addCommunity(addCommunityPayload))
 
   await waitForExpect(() => {
     expect(store.getState().Identity.identities.ids).toHaveLength(1)

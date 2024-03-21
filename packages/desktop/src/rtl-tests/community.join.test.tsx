@@ -169,16 +169,17 @@ describe('User', () => {
 
     expect(actions).toMatchInlineSnapshot(`
       Array [
-        "Communities/createNetwork",
+        "Communities/addCommunity",
         "Communities/addNewCommunity",
         "Communities/setCurrentCommunity",
         "Communities/setInvitationCodes",
-        "Identity/addNewIdentity",
         "Modals/closeModal",
         "Modals/openModal",
         "Identity/registerUsername",
+        "Communities/createNetwork",
         "Network/setLoadingPanelType",
         "Modals/openModal",
+        "Identity/addNewIdentity",
         "Identity/registerCertificate",
         "Communities/launchCommunity",
         "Files/checkForMissingFiles",

@@ -21,7 +21,7 @@ export enum CommunityOwnership {
   User = 'user',
 }
 
-export interface CreateNetworkPayload {
+export interface AddCommunityPayload {
   ownership: CommunityOwnership
   name?: string
   peers?: InvitationPair[]

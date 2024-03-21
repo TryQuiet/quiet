@@ -5,7 +5,7 @@ import {
   InvitationPair,
   type AddOwnerCertificatePayload,
   type Community,
-  type CreateNetworkPayload,
+  type AddCommunityPayload,
   type StorePeerListPayload,
   CommunityMetadata,
   InvitationData,
@@ -21,11 +21,12 @@ export const communitiesSlice = createSlice({
   initialState: { ...new CommunitiesState() },
   name: StoreKeys.Communities,
   reducers: {
-    setCurrentCommunity: (state, action: PayloadAction<string>) => {
-      state.currentCommunity = action.payload
-    },
+    addCommunity: (state, _action: PayloadAction<AddCommunityPayload>) => state,
     addNewCommunity: (state, action: PayloadAction<Community>) => {
       communitiesAdapter.addOne(state.communities, action.payload)
+    },
+    setCurrentCommunity: (state, action: PayloadAction<string>) => {
+      state.currentCommunity = action.payload
     },
     updateCommunityData: (state, action: PayloadAction<Community>) => {
       communitiesAdapter.updateOne(state.communities, {
@@ -35,7 +36,7 @@ export const communitiesSlice = createSlice({
         },
       })
     },
-    createNetwork: (state, _action: PayloadAction<CreateNetworkPayload>) => state,
+    createNetwork: state => state,
     resetApp: (state, _action) => state,
     createCommunity: (state, _action: PayloadAction<string>) => state,
     launchCommunity: (state, _action: PayloadAction<string>) => state,

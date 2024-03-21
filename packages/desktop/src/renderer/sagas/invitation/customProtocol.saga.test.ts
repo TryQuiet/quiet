@@ -1,5 +1,5 @@
 import { communities, getFactory, Store } from '@quiet/state-manager'
-import { Community, CommunityOwnership, CreateNetworkPayload, InvitationData } from '@quiet/types'
+import { Community, CommunityOwnership, AddCommunityPayload, InvitationData } from '@quiet/types'
 import { FactoryGirl } from 'factory-girl'
 import { expectSaga } from 'redux-saga-test-plan'
 import { customProtocolSaga } from './customProtocol.saga'
@@ -32,7 +32,7 @@ describe('Handle invitation code', () => {
   })
 
   it('creates network if code is valid', async () => {
-    const payload: CreateNetworkPayload = {
+    const payload: AddCommunityPayload = {
       ownership: CommunityOwnership.User,
       peers: validInvitationData.pairs,
       psk: validInvitationData.psk,
@@ -40,13 +40,13 @@ describe('Handle invitation code', () => {
     }
     await expectSaga(customProtocolSaga, communities.actions.customProtocol(validInvitationData))
       .withState(store.getState())
-      .put(communities.actions.createNetwork(payload))
+      .put(communities.actions.addCommunity(payload))
       .run()
   })
 
   it('does not try to create network if user is already in community', async () => {
     community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
-    const payload: CreateNetworkPayload = {
+    const payload: AddCommunityPayload = {
       ownership: CommunityOwnership.User,
       peers: validInvitationData.pairs,
       psk: validInvitationData.psk,
@@ -63,12 +63,12 @@ describe('Handle invitation code', () => {
           },
         })
       )
-      .not.put(communities.actions.createNetwork(payload))
+      .not.put(communities.actions.addCommunity(payload))
       .run()
   })
 
   it('does not try to create network if code is missing addresses', async () => {
-    const payload: CreateNetworkPayload = {
+    const payload: AddCommunityPayload = {
       ownership: CommunityOwnership.User,
       peers: [],
     }
@@ -92,12 +92,12 @@ describe('Handle invitation code', () => {
           },
         })
       )
-      .not.put(communities.actions.createNetwork(payload))
+      .not.put(communities.actions.addCommunity(payload))
       .run()
   })
 
   it('does not try to create network if code is missing psk', async () => {
-    const payload: CreateNetworkPayload = {
+    const payload: AddCommunityPayload = {
       ownership: CommunityOwnership.User,
       peers: [],
     }
@@ -121,7 +121,7 @@ describe('Handle invitation code', () => {
           },
         })
       )
-      .not.put(communities.actions.createNetwork(payload))
+      .not.put(communities.actions.addCommunity(payload))
       .run()
   })
 })

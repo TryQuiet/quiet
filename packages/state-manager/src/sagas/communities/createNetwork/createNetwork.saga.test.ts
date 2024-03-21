@@ -4,22 +4,34 @@ import { call } from 'redux-saga-test-plan/matchers'
 import { Time } from 'pkijs'
 import { prepareStore } from '../../../utils/tests/prepareStore'
 import { communitiesActions } from '../communities.slice'
+import { identityActions } from '../../identity/identity.slice'
 import { createRootCA, setupCrypto } from '@quiet/identity'
 import { reducers } from '../../reducers'
 import { createNetworkSaga } from './createNetwork.saga'
-import { generateId } from '../../../utils/cryptography/cryptography'
-import { type Community, CommunityOwnership } from '@quiet/types'
-import { Socket } from '../../../types'
+import { type Community, CommunityOwnership, SocketActionTypes } from '@quiet/types'
+import { Socket, applyEmitParams } from '../../../types'
 
 describe('createNetwork', () => {
-  it('create network for joining user', async () => {
+  it('creates network', async () => {
     setupCrypto()
+
+    const hiddenService = {
+      onionAddress: 'testOnionAddress',
+      privateKey: 'testPrivateKey',
+    }
+
+    const peerId = {
+      id: 'testPeerId',
+    }
+
+    const network = {
+      hiddenService,
+      peerId,
+    }
 
     const socket = {
       emit: jest.fn(),
-      emitWithAck: jest.fn(() => {
-        return {}
-      }),
+      emitWithAck: jest.fn(() => network),
       on: jest.fn(),
     } as unknown as Socket
 
@@ -27,77 +39,30 @@ describe('createNetwork', () => {
 
     const community: Community = {
       id: '1',
-      name: undefined,
+      name: 'test',
       CA: null,
       rootCa: undefined,
     }
 
-    const reducer = combineReducers(reducers)
-    await expectSaga(
-      createNetworkSaga,
-      socket,
-      communitiesActions.createNetwork({
-        ownership: CommunityOwnership.User,
-        peers: [{ peerId: 'peerId', onionAddress: 'address' }],
-        psk: '12345',
-      })
-    )
-      .withReducer(reducer)
-      .withState(store.getState())
-      .provide([[call.fn(generateId), community.id]])
-      .not.call(createRootCA)
-      .call(generateId)
-      .run()
-  })
+    store.dispatch(communitiesActions.addNewCommunity(community))
+    store.dispatch(communitiesActions.setCurrentCommunity(community.id))
 
-  it('create network for owner', async () => {
-    setupCrypto()
-
-    const socket = {
-      emit: jest.fn(),
-      emitWithAck: jest.fn(() => {
-        return {}
-      }),
-      on: jest.fn(),
-    } as unknown as Socket
-
-    const store = prepareStore().store
-
-    const CA = {
-      rootCertString: 'rootCertString',
-      rootKeyString: 'rootKeyString',
-    }
-
-    const community: Community = {
-      id: '1',
-      name: 'rockets',
-      CA,
-      rootCa: CA.rootCertString,
+    const identity = {
+      id: community.id,
+      nickname: '',
+      hiddenService: network.hiddenService,
+      peerId: network.peerId,
+      userCsr: null,
+      userCertificate: null,
+      joinTimestamp: null,
     }
 
     const reducer = combineReducers(reducers)
-    await expectSaga(
-      createNetworkSaga,
-      socket,
-      communitiesActions.createNetwork({
-        ownership: CommunityOwnership.Owner,
-        name: 'rockets',
-        psk: '12345',
-      })
-    )
+    await expectSaga(createNetworkSaga, socket, communitiesActions.createNetwork())
       .withReducer(reducer)
       .withState(store.getState())
-      .provide([
-        [call.fn(createRootCA), CA],
-        [call.fn(generateId), community.id],
-      ])
-      .call(
-        createRootCA,
-        new Time({ type: 0, value: new Date(Date.UTC(2010, 11, 28, 10, 10, 10)) }),
-        new Time({ type: 0, value: new Date(Date.UTC(2030, 11, 28, 10, 10, 10)) }),
-        'rockets'
-      )
-      .call(generateId)
+      .apply(socket, socket.emitWithAck, applyEmitParams(SocketActionTypes.CREATE_NETWORK, community.id))
+      .put(identityActions.addNewIdentity(identity))
       .run()
   })
 })

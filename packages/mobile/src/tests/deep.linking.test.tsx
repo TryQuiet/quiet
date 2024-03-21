@@ -52,12 +52,14 @@ describe('Deep linking', () => {
       [
         "Init/deepLink",
         "Init/resetDeepLink",
-        "Communities/createNetwork",
+        "Communities/addCommunity",
         "Communities/addNewCommunity",
         "Navigation/replaceScreen",
         "Communities/setCurrentCommunity",
         "Communities/setInvitationCodes",
         "Init/deepLink",
+        "Init/resetDeepLink",
+        "Navigation/replaceScreen",
       ]
     `)
 

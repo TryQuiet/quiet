@@ -34,8 +34,24 @@ window.Notification = notification
 describe('Loading panel', () => {
   let socket: MockedSocket
 
+  const hiddenService = {
+    onionAddress: 'testOnionAddress',
+    privateKey: 'testPrivateKey',
+  }
+
+  const peerId = {
+    id: 'testPeerId',
+  }
+
+  const mockNetwork = {
+    hiddenService,
+    peerId,
+  }
+
   beforeEach(() => {
     socket = new MockedSocket()
+    // @ts-ignore
+    socket.emitWithAck = jest.fn(() => mockNetwork)
     ioMock.mockImplementation(() => socket)
     window.ResizeObserver = jest.fn().mockImplementation(() => ({
       observe: jest.fn(),

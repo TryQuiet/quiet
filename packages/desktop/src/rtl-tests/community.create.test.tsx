@@ -154,13 +154,14 @@ describe('User', () => {
     expect(channelPage).toBeVisible()
     expect(actions).toMatchInlineSnapshot(`
       Array [
-        "Communities/createNetwork",
+        "Communities/addCommunity",
         "Communities/addNewCommunity",
         "Communities/setCurrentCommunity",
-        "Identity/addNewIdentity",
         "Modals/closeModal",
         "Modals/openModal",
         "Identity/registerUsername",
+        "Communities/createNetwork",
+        "Identity/addNewIdentity",
         "Network/setLoadingPanelType",
         "Modals/openModal",
         "Identity/registerCertificate",

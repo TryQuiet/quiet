@@ -59,7 +59,7 @@ describe('deepLinkSaga', () => {
       .withState(store.getState())
       .put(initActions.resetDeepLink())
       .put(
-        communities.actions.createNetwork({
+        communities.actions.addCommunity({
           ownership: CommunityOwnership.User,
           peers: validData.pairs,
           psk: validData.psk,
@@ -103,7 +103,7 @@ describe('deepLinkSaga', () => {
       .withReducer(reducer)
       .withState(store.getState())
       .not.put(
-        communities.actions.createNetwork({
+        communities.actions.addCommunity({
           ownership: CommunityOwnership.User,
           peers: validData.pairs,
           psk: validData.psk,
@@ -147,7 +147,7 @@ describe('deepLinkSaga', () => {
         },
       })
       .not.put(
-        communities.actions.createNetwork({
+        communities.actions.addCommunity({
           ownership: CommunityOwnership.User,
           peers: validData.pairs,
           psk: validData.psk,
@@ -190,7 +190,7 @@ describe('deepLinkSaga', () => {
       })
       .put.like({
         action: {
-          type: communities.actions.createNetwork.type,
+          type: communities.actions.addCommunity.type,
           payload: {
             ownership: CommunityOwnership.User,
             peers: validData.pairs,
@@ -236,7 +236,7 @@ describe('deepLinkSaga', () => {
         },
       })
       .not.put(
-        communities.actions.createNetwork({
+        communities.actions.addCommunity({
           ownership: CommunityOwnership.User,
           peers: validData.pairs,
           psk: validData.psk,
