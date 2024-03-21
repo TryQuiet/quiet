@@ -1,22 +1,14 @@
-# Change Log
-
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
-
-## [2.1.2-alpha.13](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@2.1.2-alpha.12...@quiet/mobile@2.1.2-alpha.13) (2024-03-21)
-
-
-### Bug Fixes
-
-* ship Tor binary and use custom TorHandler ([#2366](https://github.com/TryQuiet/quiet/issues/2366)) ([29f058b](https://github.com/TryQuiet/quiet/commit/29f058b4c9072be6651ff06fac97cafe43df3914))
-
-
-
-
-
 [unreleased]
 
+# Refactorings:
 
+* Use ack for CREATE_NETWORK and simplify
+* Refactored package.json to have consistent license "GPL-3.0-or-later"
+
+# Fixes
+
+* Fixes channel name creation logic
+* Allow JPEG and GIF files as profile photos ([#2332](https://github.com/TryQuiet/quiet/issues/2332))
 
 [2.1.2]
 
@@ -35,8 +27,9 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 * Choose random ports for Tor services (iOS)
 * Use consistent identicons for messages and profile
 * Add retry ability to tor-control and misc tor-control fixes
+* Ship Tor binary and use custom TorHandler
 
-# Other:
+# Chores:
 
 * Upgraded React-Native to 0.73.2
 
