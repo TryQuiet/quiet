@@ -11,6 +11,7 @@ import initRnBridge from './rn-bridge'
 import { INestApplicationContext } from '@nestjs/common'
 import logger from './nest/common/logger'
 import { OpenServices, validateOptions } from './options'
+import { SOCKS_PROXY_AGENT } from './nest/const'
 
 const log = logger('backendManager')
 
@@ -112,10 +113,16 @@ export const runBackendMobile = async () => {
     const connectionsManager = app.get<ConnectionsManagerService>(ConnectionsManagerService)
     connectionsManager.closeSocket()
   })
+
   rn_bridge.channel.on('open', async (msg: OpenServices) => {
     const connectionsManager = app.get<ConnectionsManagerService>(ConnectionsManagerService)
-    const torControlParams = app.get<TorControl>(TorControl)
-    torControlParams.torControlParams.auth.value = msg.authCookie
+    const torControl = app.get<TorControl>(TorControl)
+    const proxyAgent = app.get<{ proxy: { port: string } }>(SOCKS_PROXY_AGENT)
+
+    torControl.torControlParams.port = msg.torControlPort
+    torControl.torControlParams.auth.value = msg.authCookie
+    proxyAgent.proxy.port = msg.httpTunnelPort
+
     await connectionsManager.openSocket()
   })
 }

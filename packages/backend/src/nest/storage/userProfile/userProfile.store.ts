@@ -17,46 +17,9 @@ import createLogger from '../../common/logger'
 import { OrbitDb } from '../orbitDb/orbitDb.service'
 import { StorageEvents } from '../storage.types'
 import { KeyValueIndex } from '../orbitDb/keyValueIndex'
+import { validatePhoto } from './userProfile.utils'
 
 const logger = createLogger('UserProfileStore')
-
-/**
- * Check magic byte sequence to determine if buffer is a PNG image.
- */
-export const isPng = (buffer: Uint8Array): boolean => {
-  // https://en.wikipedia.org/wiki/PNG
-  const pngHeader = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]
-
-  if (buffer.length < pngHeader.length) {
-    return false
-  }
-
-  for (let i = 0; i < pngHeader.length; i++) {
-    if (buffer[i] !== pngHeader[i]) {
-      return false
-    }
-  }
-  return true
-}
-
-/**
- * Takes a base64 data URI string that starts with 'data:*\/*;base64,'
- * as returned from
- * https://developer.mozilla.org/en-US/docs/Web/API/FileReader/readAsDataURL
- * and converts it to a Uint8Array.
- */
-export const base64DataURLToByteArray = (contents: string): Uint8Array => {
-  const [header, base64Data] = contents.split(',')
-  if (!header.startsWith('data:') || !header.endsWith(';base64')) {
-    throw new Error('Expected base64 data URI')
-  }
-  const chars = atob(base64Data)
-  const bytes = new Array(chars.length)
-  for (let i = 0; i < chars.length; i++) {
-    bytes[i] = chars.charCodeAt(i)
-  }
-  return new Uint8Array(bytes)
-}
 
 @Injectable()
 export class UserProfileStore extends EventEmitter {
@@ -165,33 +128,7 @@ export class UserProfileStore extends EventEmitter {
         return false
       }
 
-      if (typeof profile.photo !== 'string') {
-        logger.error('Expected PNG for user profile photo', userProfile.pubKey)
-        return false
-      }
-
-      if (!profile.photo.startsWith('data:image/png;base64,')) {
-        logger.error('Expected PNG for user profile photo', userProfile.pubKey)
-        return false
-      }
-
-      // We only accept PNG for now. I think some care needs to be used
-      // with the Image element since it can make web requests and
-      // accepts a variety of formats that we may want to limit. Some
-      // interesting thoughts:
-      // https://security.stackexchange.com/a/135636
-      const photoBytes = base64DataURLToByteArray(profile.photo)
-      if (!isPng(photoBytes)) {
-        logger.error('Expected PNG for user profile photo', userProfile.pubKey)
-        return false
-      }
-
-      // 200 KB = 204800 B limit
-      //
-      // TODO: Perhaps the compression matters and we should check
-      // actual dimensions in pixels?
-      if (photoBytes.length > 204800) {
-        logger.error('User profile photo must be less than or equal to 200KB')
+      if (!validatePhoto(profile.photo, userProfile.pubKey)) {
         return false
       }
     } catch (err) {

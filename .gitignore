@@ -5,3 +5,4 @@ c4/workspace.json
 .ignore
 .DS_Store
 .vscode
+packages/.DS_Store

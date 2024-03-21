@@ -1,6 +1,8 @@
 [unreleased]
 
+# Fixes
 
+* Updates profile photo editor to allow JPEG and GIF files ([#2332](https://github.com/TryQuiet/quiet/issues/2332))
 
 [2.1.2]
 
@@ -18,6 +20,7 @@
 * Prevent channel creation with names that start with special character, then a hyphen
 * Choose random ports for Tor services (iOS)
 * Use consistent identicons for messages and profile
+* Add retry ability to tor-control and misc tor-control fixes
 
 # Other:
 

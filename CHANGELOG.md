@@ -3,6 +3,12 @@
 # Refactorings:
 
 * Use ack for CREATE_NETWORK and simplify
+* Refactored package.json to have consistent license "GPL-3.0-or-later"
+
+# Fixes
+
+* Fixes channel name creation logic
+* Allow JPEG and GIF files as profile photos ([#2332](https://github.com/TryQuiet/quiet/issues/2332))
 
 [2.1.2]
 
@@ -20,9 +26,10 @@
 * Prevent channel creation with names that start with special character, then a hyphen
 * Choose random ports for Tor services (iOS)
 * Use consistent identicons for messages and profile
+* Add retry ability to tor-control and misc tor-control fixes
 * Ship Tor binary and use custom TorHandler
 
-# Other:
+# Chores:
 
 * Upgraded React-Native to 0.73.2
 
