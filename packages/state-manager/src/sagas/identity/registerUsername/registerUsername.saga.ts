@@ -5,6 +5,7 @@ import { identitySelectors } from '../identity.selectors'
 import { identityActions } from '../identity.slice'
 import { config } from '../../users/const/certFieldTypes'
 import { Socket } from '../../../types'
+import { communitiesActions } from '../../communities/communities.slice'
 import { communitiesSelectors } from '../../communities/communities.selectors'
 import { CreateUserCsrPayload, RegisterCertificatePayload, Community } from '@quiet/types'
 
@@ -22,6 +23,8 @@ export function* registerUsernameSaga(
     console.error('Could not register username, no community data')
     return
   }
+
+  yield* put(communitiesActions.createNetwork())
 
   let identity = yield* select(identitySelectors.currentIdentity)
 

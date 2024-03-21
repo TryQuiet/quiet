@@ -25,12 +25,7 @@ const CreateUsername = () => {
   }, [currentIdentity, currentCommunity])
 
   const registerUsername = (nickname: string) => {
-    dispatch(
-      identity.actions.registerUsername({
-        nickname,
-      })
-    )
-
+    dispatch(identity.actions.registerUsername({ nickname }))
     dispatch(network.actions.setLoadingPanelType(LoadingPanelType.Joining))
     loadingPanelModal.handleOpen()
   }

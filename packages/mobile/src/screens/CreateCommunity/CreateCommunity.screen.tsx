@@ -1,7 +1,7 @@
 import React, { FC, useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { identity, communities } from '@quiet/state-manager'
-import { CommunityOwnership, CreateNetworkPayload } from '@quiet/types'
+import { CommunityOwnership, AddCommunityPayload } from '@quiet/types'
 import { initSelectors } from '../../store/init/init.selectors'
 import { navigationActions } from '../../store/navigation/navigation.slice'
 import { ScreenNames } from '../../const/ScreenNames.enum'
@@ -19,11 +19,11 @@ export const CreateCommunityScreen: FC = () => {
 
   const createCommunityAction = useCallback(
     (name: string) => {
-      const payload: CreateNetworkPayload = {
+      const payload: AddCommunityPayload = {
         ownership: CommunityOwnership.Owner,
         name,
       }
-      dispatch(communities.actions.createNetwork(payload))
+      dispatch(communities.actions.addCommunity(payload))
       dispatch(
         navigationActions.navigation({
           screen: ScreenNames.UsernameRegistrationScreen,

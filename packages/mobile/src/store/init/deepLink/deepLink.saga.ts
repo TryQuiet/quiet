@@ -7,7 +7,7 @@ import { initSelectors } from '../init.selectors'
 import { initActions } from '../init.slice'
 import { appImages } from '../../../assets'
 import { replaceScreen } from '../../../RootNavigation'
-import { CommunityOwnership, CreateNetworkPayload, InvitationData } from '@quiet/types'
+import { CommunityOwnership, AddCommunityPayload, InvitationData } from '@quiet/types'
 import { areObjectsEqual } from '../../../utils/functions/areObjectsEqual/areObjectsEqual'
 
 export function* deepLinkSaga(action: PayloadAction<ReturnType<typeof initActions.deepLink>['payload']>): Generator {
@@ -127,14 +127,14 @@ export function* deepLinkSaga(action: PayloadAction<ReturnType<typeof initAction
     return
   }
 
-  const payload: CreateNetworkPayload = {
+  const payload: AddCommunityPayload = {
     ownership: CommunityOwnership.User,
     peers: data.pairs,
     psk: data.psk,
     ownerOrbitDbIdentity: data.ownerOrbitDbIdentity,
   }
 
-  yield* put(communities.actions.createNetwork(payload))
+  yield* put(communities.actions.addCommunity(payload))
 
   console.log('INIT_NAVIGATION: Switching to the username registration screen.')
 

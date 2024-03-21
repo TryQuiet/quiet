@@ -2,7 +2,7 @@ import {
   ChannelMessage,
   communities,
   CommunityOwnership,
-  CreateNetworkPayload,
+  AddCommunityPayload,
   identity,
   publicChannels,
   messages,
@@ -19,11 +19,11 @@ const timeout = 120_000
 export async function registerUsername(payload: Register) {
   const { userName, store } = payload
 
-  const createNetworkPayload: CreateNetworkPayload = {
+  const addCommunityPayload: AddCommunityPayload = {
     ownership: CommunityOwnership.User,
   }
-  log(`User ${userName} starts creating network`)
-  store.dispatch(communities.actions.createNetwork(createNetworkPayload))
+  log(`User ${userName} starts adding community`)
+  store.dispatch(communities.actions.addCommunity(addCommunityPayload))
 
   await waitForExpect(() => {
     assert.equal(store.getState().Identity.identities.ids.length, 1)
@@ -46,12 +46,12 @@ export async function registerUsername(payload: Register) {
 }
 
 export const createCommunity = async ({ username, communityName, store }): Promise<string> => {
-  const createNetworkPayload: CreateNetworkPayload = {
+  const addCommunityPayload: AddCommunityPayload = {
     ownership: CommunityOwnership.Owner,
     name: communityName,
   }
 
-  store.dispatch(communities.actions.createNetwork(createNetworkPayload))
+  store.dispatch(communities.actions.addCommunity(addCommunityPayload))
   await waitForExpect(() => {
     assert.strictEqual(store.getState().Identity.identities.ids.length, 1)
   }, timeout)

@@ -8,9 +8,11 @@ import { createNetworkSaga } from './createNetwork/createNetwork.saga'
 import { saveCommunityMetadataSaga } from './saveCommunityMetadata/saveCommunityMetadata.saga'
 import { sendCommunityMetadataSaga } from './updateCommunityMetadata/updateCommunityMetadata.saga'
 import { sendCommunityCaDataSaga } from './sendCommunityCaData/sendCommunityCaData.saga'
+import { addCommunitySaga } from './addCommunity/addCommunity.saga'
 
 export function* communitiesMasterSaga(socket: Socket): Generator {
   yield all([
+    takeEvery(communitiesActions.addCommunity.type, addCommunitySaga, socket),
     takeEvery(communitiesActions.createNetwork.type, createNetworkSaga, socket),
     takeEvery(communitiesActions.updateCommunity.type, updateCommunitySaga),
     takeEvery(connectionActions.torBootstrapped.type, initCommunities),
