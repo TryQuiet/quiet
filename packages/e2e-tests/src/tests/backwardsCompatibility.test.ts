@@ -95,10 +95,17 @@ describe('Backwards Compatibility', () => {
       expect(settingVersion).toEqual(BACKWARD_COMPATIBILITY_BASE_VERSION)
       await settingsModal.close()
     })
+
+    it("User doesn't see the connection status element in general channel", async () => {
+      const correctConnectionStatusElementPresence = await generalChannel.waitForConnectionStatus(true)
+      expect(correctConnectionStatusElementPresence).toBe(true)
+    })
+
     it('Sends a message', async () => {
       const isMessageInput = await generalChannel.messageInput.isDisplayed()
       expect(isMessageInput).toBeTruthy()
-      await generalChannel.sendMessage(ownerMessages[0])
+      const messageIds = await generalChannel.sendMessage(ownerMessages[0], ownerUsername)
+      await generalChannel.verifyMessageSentStatus(messageIds, ownerUsername, false)
     })
     it('Sent message is visible on general channel', async () => {
       const messages = await generalChannel.getUserMessages(ownerUsername)
@@ -116,8 +123,15 @@ describe('Backwards Compatibility', () => {
       secondChannel = new Channel(ownerAppOldVersion.driver, newChannelName)
       const isMessageInput = await secondChannel.messageInput.isDisplayed()
       expect(isMessageInput).toBeTruthy()
-      await secondChannel.sendMessage(ownerMessages[1])
+      const messageIds = await secondChannel.sendMessage(ownerMessages[1], ownerUsername)
+      await secondChannel.verifyMessageSentStatus(messageIds, ownerUsername, false)
     })
+
+    it("User doesn't see the connection status element in second channel", async () => {
+      const correctConnectionStatusElementPresence = await secondChannel.waitForConnectionStatus(true)
+      expect(correctConnectionStatusElementPresence).toBe(true)
+    })
+
     it('Message is visible in second channel', async () => {
       const messages = await secondChannel.getUserMessages(ownerUsername)
       const text = await messages[1].getText()
@@ -126,7 +140,7 @@ describe('Backwards Compatibility', () => {
 
     it(`User sends another ${loopMessages.length} messages to second channel`, async () => {
       for (const message of loopMessages) {
-        await secondChannel.sendMessage(message)
+        await secondChannel.sendMessage(message, ownerUsername)
       }
 
       messagesToCompare = await secondChannel.getUserMessages(ownerUsername)

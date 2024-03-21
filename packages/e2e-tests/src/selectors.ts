@@ -1,12 +1,18 @@
-import { By, Key, type ThenableWebDriver, type WebElement, until } from 'selenium-webdriver'
-import { BuildSetup, sleep, type BuildSetupInit } from './utils'
+import { By, Key, type ThenableWebDriver, type WebElement, until, error } from 'selenium-webdriver'
+import { BuildSetup, logAndReturnError, promiseWithRetries, sleep, type BuildSetupInit } from './utils'
 import path from 'path'
 import { BACK_ARROW_DATA_TESTID } from './enums'
+import { MessageIds, RetryConfig } from './types'
 
 export class App {
   thenableWebDriver?: ThenableWebDriver
   buildSetup: BuildSetup
   isOpened: boolean
+  retryConfig: RetryConfig = {
+    attempts: 3,
+    timeoutMs: 600000,
+  }
+
   constructor(buildSetupConfig?: BuildSetupInit) {
     this.buildSetup = new BuildSetup({ ...buildSetupConfig })
     this.isOpened = false
@@ -23,7 +29,7 @@ export class App {
     return this.buildSetup.dataDir
   }
 
-  async open() {
+  async open(): Promise<void> {
     console.log('opening the app', this.buildSetup.dataDir)
     this.buildSetup.resetDriver()
     await this.buildSetup.createChromeDriver()
@@ -34,7 +40,16 @@ export class App {
     await debugModal.close()
   }
 
-  async close(options?: { forceSaveState?: boolean }) {
+  async openWithRetries(overrideConfig?: RetryConfig): Promise<void> {
+    const config = {
+      ...this.retryConfig,
+      ...(overrideConfig ? overrideConfig : {}),
+    }
+    const failureReason = `Failed to open app within ${config.timeoutMs}ms`
+    await promiseWithRetries(this.open(), failureReason, config, this.close)
+  }
+
+  async close(options?: { forceSaveState?: boolean }): Promise<void> {
     if (!this.isOpened) return
     console.log('Closing the app', this.buildSetup.dataDir)
     if (options?.forceSaveState) {
@@ -319,26 +334,19 @@ export class Channel {
     return this.driver.findElement(By.xpath('//ul[@id="messages-scroll"]'))
   }
 
-  async messagesGroup() {
-    const messagesList = await this.messagesList
-    return await messagesList.findElement(By.css('li'))
-  }
-
-  async messagesGroupContent() {
-    const messagesGroup = await this.messagesGroup()
-    return await messagesGroup.findElement(By.xpath('//p[@data-testid="/messagesGroupContent-/"]'))
-  }
-
   async waitForUserMessage(username: string, messageContent: string) {
     console.log(`Waiting for user "${username}" message "${messageContent}"`)
     return this.driver.wait(async () => {
       const messages = await this.getUserMessages(username)
-      const hasMessage = messages.find(async msg => {
-        const messageText = await msg.getText()
-        console.log(`got message "${messageText}"`)
-        return messageText.includes(messageContent)
-      })
-      return hasMessage
+      for (const element of messages) {
+        const text = await element.getText()
+        console.log(`Potential message with text: ${text}`)
+        if (text.includes(messageContent)) {
+          console.log(`Found message with matching text ${text}`)
+          return element
+        }
+      }
+      throw logAndReturnError(`No message found for user ${username} and message content ${messageContent}`)
     })
   }
 
@@ -354,15 +362,74 @@ export class Channel {
     return this.driver.wait(until.elementLocated(By.xpath('//*[@data-testid="messageInput"]')))
   }
 
-  async sendMessage(message: string) {
+  async sendMessage(message: string, username: string): Promise<MessageIds> {
     const communityNameInput = await this.messageInput
     await communityNameInput.sendKeys(message)
     await communityNameInput.sendKeys(Key.ENTER)
-    await new Promise<void>(resolve =>
-      setTimeout(() => {
-        resolve()
-      }, 5000)
-    )
+    await sleep(5000)
+    return this.getMessageIdsByText(message, username)
+  }
+
+  async getMessageIdsByText(message: string, username: string): Promise<MessageIds> {
+    const messageElement = await this.waitForUserMessage(username, message)
+    if (!messageElement) {
+      throw logAndReturnError(`No message element found for message ${message}`)
+    }
+
+    let testId = await messageElement.getAttribute('data-testid')
+    console.log(`Data Test ID for message content: ${testId}`)
+    let testIdSplit = testId.split('-')
+    const parentMessageId = testIdSplit[testIdSplit.length - 1]
+
+    const contentElement = await this.waitForMessageContentByText(message)
+    if (!contentElement) {
+      throw logAndReturnError(`No message content element found for message content ${message}`)
+    }
+
+    testId = await contentElement.getAttribute('data-testid')
+    console.log(`Data Test ID for message content: ${testId}`)
+    testIdSplit = testId.split('-')
+    const messageId = testIdSplit[testIdSplit.length - 1]
+    return {
+      messageId,
+      parentMessageId,
+    }
+  }
+
+  async verifyMessageSentStatus(messageIds: MessageIds, username: string, expectedUnsent: boolean): Promise<void> {
+    await sleep(3000)
+    const sendingAsExpected = await this.waitForSending(username, messageIds.parentMessageId, expectedUnsent)
+    if (!sendingAsExpected) {
+      throw logAndReturnError(
+        `Sending... element presence was expected to be ${expectedUnsent} due to unsent being expected to be ${expectedUnsent}`
+      )
+    }
+
+    const expectedOpacity = expectedUnsent ? '0.5' : '1'
+
+    const avatar = await this.waitForAvatar(username, messageIds.parentMessageId)
+    const avatarOpacity = await avatar.getCssValue('opacity')
+    if (avatarOpacity !== expectedOpacity) {
+      throw logAndReturnError(
+        `Opacity of avatar was expected to be ${expectedOpacity} due to unsent being expected to be ${expectedUnsent} but was ${avatarOpacity}`
+      )
+    }
+
+    const dateLabel = await this.waitForDateLabel(username, messageIds.parentMessageId)
+    const dateLabelOpacity = await dateLabel.getCssValue('opacity')
+    if (dateLabelOpacity !== expectedOpacity) {
+      throw logAndReturnError(
+        `Opacity of date label was expected to be ${expectedOpacity} due to unsent being expected to be ${expectedUnsent} but was ${dateLabelOpacity}`
+      )
+    }
+
+    const messageContent = await this.waitForMessageContentById(messageIds.messageId)
+    const messageContentOpacity = await messageContent.getCssValue('opacity')
+    if (messageContentOpacity != expectedOpacity) {
+      throw logAndReturnError(
+        `Opacity of message content was expected to be ${expectedOpacity} due to unsent being expected to be ${expectedUnsent} but was ${messageContentOpacity}`
+      )
+    }
   }
 
   async getUserMessages(username: string) {
@@ -394,6 +461,119 @@ export class Channel {
       })
       return properLabels.length > 0
     })
+  }
+
+  async waitForAvatar(username: string, messageId: string): Promise<WebElement> {
+    console.log(`Waiting for user's avatar with username ${username} for message with ID ${messageId}`)
+    const avatarElement = await this.driver.wait(
+      this.driver.findElement(By.xpath(`//*[contains(@data-testid, "userAvatar-${username}-${messageId}")]`))
+    )
+    if (avatarElement) {
+      console.log(`Found user's avatar with username ${username} for message with ID ${messageId}`)
+      return avatarElement
+    }
+
+    throw logAndReturnError(`Failed to find user's avatar with username ${username} for message with ID ${messageId}`)
+  }
+
+  async waitForDateLabel(username: string, messageId: string): Promise<WebElement> {
+    console.log(`Waiting for date for message with ID ${messageId}`)
+    const dateElement = await this.driver.wait(
+      this.driver.findElement(By.xpath(`//*[contains(@data-testid, "messageDateLabel-${username}-${messageId}")]`))
+    )
+    if (dateElement) {
+      console.log(`Found date label for message with ID ${messageId}`)
+      return dateElement
+    }
+
+    throw logAndReturnError(`Failed to find date label for message with ID ${messageId}`)
+  }
+
+  async waitForMessageContentById(messageId: string): Promise<WebElement> {
+    console.log(`Waiting for content for message with ID ${messageId}`)
+    const messageContentElement = await this.driver.wait(
+      this.driver.findElement(By.xpath(`//*[contains(@data-testid, "messagesGroupContent-${messageId}")]`))
+    )
+    if (messageContentElement) {
+      console.log(`Found content for message with ID ${messageId}`)
+      return messageContentElement
+    }
+
+    throw logAndReturnError(`Failed to find content for message with ID ${messageId}`)
+  }
+
+  async waitForMessageContentByText(messageContent: string): Promise<WebElement> {
+    console.log(`Waiting for content for message with text ${messageContent}`)
+    const messageContentElements = await this.driver.wait(
+      this.driver.findElements(By.xpath(`//*[contains(@data-testid, "messagesGroupContent-")]`))
+    )
+    for (const element of messageContentElements) {
+      const text = await element.getText()
+      console.log(`Testing content: ${messageContent}`)
+      if (text === messageContent) {
+        console.log(`Found content element for message with text ${messageContent}`)
+        return element
+      }
+    }
+
+    throw logAndReturnError(`Failed to find content for message with content ${messageContent}`)
+  }
+
+  async waitForSending(username: string, messageId: string, expected: boolean): Promise<boolean> {
+    const testId = `unsent-sending-${username}-${messageId}`
+    console.log(`Waiting for 'sending...' element for message with data-testid ${testId}`)
+    try {
+      await this.driver.wait(this.driver.findElement(By.xpath(`//div[contains(@data-testid, "${testId}")]`)))
+      if (!expected) {
+        console.error(`Found 'sending...' element for message with ID ${messageId} but didn't expect to`)
+        return false
+      }
+      return true
+    } catch (e) {
+      if (e instanceof error.NoSuchElementError) {
+        if (expected) {
+          console.error(`Failed to find 'sending...' element for message with ID ${messageId} but expected to`)
+          return false
+        }
+        return true
+      }
+      console.error(`Error occurred while finding 'sending...' element for message with ID ${messageId}`, e)
+      return false
+    }
+  }
+
+  async waitForConnectionStatus(expected: boolean): Promise<boolean> {
+    console.log(
+      `Waiting for connection status element for channel with name ${this.name} with expected presence = ${expected}`
+    )
+    try {
+      const element = await this.driver.wait(
+        this.driver.findElement(By.xpath(`//*[contains(@data-testid, "quietTryingToConnect-${this.name}")]`))
+      )
+      const elementDisplayed = await element.isDisplayed()
+      if (elementDisplayed && !expected) {
+        console.error(
+          `Found connection status element for channel with name ${this.name} and it was displayed but didn't expect to see it`
+        )
+        return false
+      } else if (!elementDisplayed && expected) {
+        console.error(
+          `Found connection status element for channel with name ${this.name} and it was not displayed but expected to see it`
+        )
+        return false
+      }
+      return true
+    } catch (e) {
+      if (e instanceof error.NoSuchElementError) {
+        if (expected) {
+          console.error(`Failed to find connection status element for channel with name ${this.name} but expected to`)
+          return false
+        }
+        return true
+      }
+      console.error(`Error occurred while finding connection status element for channel with name ${this.name}`, e)
+      return false
+    }
   }
 
   async waitForLabelsNotPresent(username: string) {

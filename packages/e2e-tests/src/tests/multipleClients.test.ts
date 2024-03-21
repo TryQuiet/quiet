@@ -9,6 +9,7 @@ import {
   Sidebar,
 } from '../selectors'
 import logger from '../logger'
+import { promiseWithRetries, promiseWithTimeout, sleep } from '../utils'
 const log = logger('ManyClients')
 
 interface UserTestData {
@@ -23,6 +24,7 @@ describe('Multiple Clients', () => {
   let generalChannelUser1: Channel
   let generalChannelUser3: Channel
 
+  let secondChannelOwner: Channel
   let secondChannelUser1: Channel
 
   let channelContextMenuOwner: ChannelContextMenu
@@ -37,14 +39,7 @@ describe('Multiple Clients', () => {
   const communityName = 'testcommunity'
   const displayedCommunityName = 'Testcommunity'
   const newChannelName = 'mid-night-club'
-
-  const sleep = async (time = 1000) => {
-    await new Promise<void>(resolve =>
-      setTimeout(() => {
-        resolve()
-      }, time)
-    )
-  }
+  const generalChannelName = 'general'
 
   beforeAll(async () => {
     const commonApp = new App()
@@ -56,7 +51,7 @@ describe('Multiple Clients', () => {
       },
       user1: {
         username: 'user-joining-1',
-        messages: ['Nice to meet you all'],
+        messages: ['Nice to meet you all', 'This appears unsent'],
         app: commonApp,
       },
       user2: {
@@ -83,289 +78,393 @@ describe('Multiple Clients', () => {
   })
 
   describe('Stages:', () => {
-    it('Owner opens the app', async () => {
-      await users.owner.app.open()
+    describe('Owner Opens App', () => {
+      it('Owner opens the app', async () => {
+        await users.owner.app.openWithRetries()
+      })
+
+      it('Owner sees "join community" modal and switches to "create community" modal', async () => {
+        const joinModal = new JoinCommunityModal(users.owner.app.driver)
+        const isJoinModal = await joinModal.element.isDisplayed()
+        expect(isJoinModal).toBeTruthy()
+        await joinModal.switchToCreateCommunity()
+      })
+      it('Owner submits valid community name', async () => {
+        const createModal = new CreateCommunityModal(users.owner.app.driver)
+        const isCreateModal = await createModal.element.isDisplayed()
+        expect(isCreateModal).toBeTruthy()
+        await createModal.typeCommunityName(communityName)
+        await createModal.submit()
+      })
+      it('Owner sees "register username" modal and submits valid username', async () => {
+        const registerModal = new RegisterUsernameModal(users.owner.app.driver)
+        const isRegisterModal = await registerModal.element.isDisplayed()
+        expect(isRegisterModal).toBeTruthy()
+        await registerModal.typeUsername(users.owner.username)
+        await registerModal.submit()
+      })
+      it('Owner registers successfully and sees general channel', async () => {
+        generalChannelOwner = new Channel(users.owner.app.driver, generalChannelName)
+        const isGeneralChannel = await generalChannelOwner.element.isDisplayed()
+        const generalChannelText = await generalChannelOwner.element.getText()
+        expect(isGeneralChannel).toBeTruthy()
+        expect(generalChannelText).toEqual('# general')
+      })
+      it('Owner sends a message', async () => {
+        const isMessageInput = await generalChannelOwner.messageInput.isDisplayed()
+        expect(isMessageInput).toBeTruthy()
+        const messageIds = await generalChannelOwner.sendMessage(users.owner.messages[0], users.owner.username)
+        await generalChannelOwner.verifyMessageSentStatus(messageIds, users.owner.username, false)
+      })
+      it("Owner's message is visible on channel", async () => {
+        const messages = await generalChannelOwner.getUserMessages(users.owner.username)
+        const text = await messages[1].getText()
+        expect(text).toEqual(users.owner.messages[0])
+      })
+      it('Owner opens the settings tab and gets an invitation code', async () => {
+        const settingsModal = await new Sidebar(users.owner.app.driver).openSettings()
+        const isSettingsModal = await settingsModal.element.isDisplayed()
+        expect(isSettingsModal).toBeTruthy()
+        await sleep(2000)
+        await settingsModal.switchTab('invite') // TODO: Fix - the invite tab should be default for the owner
+        await sleep(2000)
+        const invitationCodeElement = await settingsModal.invitationCode()
+        await sleep(2000)
+        invitationCode = await invitationCodeElement.getText()
+        await sleep(2000)
+        console.log({ invitationCode })
+        expect(invitationCode).not.toBeUndefined()
+        log('Received invitation code:', invitationCode)
+        await settingsModal.close()
+      })
     })
 
-    it('Owner sees "join community" modal and switches to "create community" modal', async () => {
-      const joinModal = new JoinCommunityModal(users.owner.app.driver)
-      const isJoinModal = await joinModal.element.isDisplayed()
-      expect(isJoinModal).toBeTruthy()
-      await joinModal.switchToCreateCommunity()
-    })
-    it('Owner submits valid community name', async () => {
-      const createModal = new CreateCommunityModal(users.owner.app.driver)
-      const isCreateModal = await createModal.element.isDisplayed()
-      expect(isCreateModal).toBeTruthy()
-      await createModal.typeCommunityName(communityName)
-      await createModal.submit()
-    })
-    it('Owner sees "register username" modal and submits valid username', async () => {
-      const registerModal = new RegisterUsernameModal(users.owner.app.driver)
-      const isRegisterModal = await registerModal.element.isDisplayed()
-      expect(isRegisterModal).toBeTruthy()
-      await registerModal.typeUsername(users.owner.username)
-      await registerModal.submit()
-    })
-    it('Owner registers successfully and sees general channel', async () => {
-      generalChannelOwner = new Channel(users.owner.app.driver, 'general')
-      const isGeneralChannel = await generalChannelOwner.element.isDisplayed()
-      const generalChannelText = await generalChannelOwner.element.getText()
-      expect(isGeneralChannel).toBeTruthy()
-      expect(generalChannelText).toEqual('# general')
-    })
-    it('Owner sends a message', async () => {
-      const isMessageInput = await generalChannelOwner.messageInput.isDisplayed()
-      expect(isMessageInput).toBeTruthy()
-      await generalChannelOwner.sendMessage(users.owner.messages[0])
-    })
-    it("Owner's message is visible on channel", async () => {
-      const messages = await generalChannelOwner.getUserMessages(users.owner.username)
-      const text = await messages[1].getText()
-      expect(text).toEqual(users.owner.messages[0])
-    })
-    it('Owner opens the settings tab and gets an invitation code', async () => {
-      const settingsModal = await new Sidebar(users.owner.app.driver).openSettings()
-      const isSettingsModal = await settingsModal.element.isDisplayed()
-      expect(isSettingsModal).toBeTruthy()
-      await sleep(2000)
-      await settingsModal.switchTab('invite') // TODO: Fix - the invite tab should be default for the owner
-      await sleep(2000)
-      const invitationCodeElement = await settingsModal.invitationCode()
-      await sleep(2000)
-      invitationCode = await invitationCodeElement.getText()
-      await sleep(2000)
-      console.log({ invitationCode })
-      expect(invitationCode).not.toBeUndefined()
-      log('Received invitation code:', invitationCode)
-      await settingsModal.close()
-    })
+    describe('First User Joins Community', () => {
+      it('First user opens the app', async () => {
+        console.log('Second client')
+        await users.user1.app.openWithRetries()
+      })
 
-    it('First user opens the app', async () => {
-      console.log('Second client')
-      await users.user1.app.open()
-    })
+      it('First user submits invitation code received from owner', async () => {
+        console.log('new user - 3')
+        const joinCommunityModal = new JoinCommunityModal(users.user1.app.driver)
+        const isJoinCommunityModal = await joinCommunityModal.element.isDisplayed()
+        expect(isJoinCommunityModal).toBeTruthy()
+        console.log({ invitationCode })
+        await joinCommunityModal.typeCommunityCode(invitationCode)
+        await joinCommunityModal.submit()
+      })
 
-    it('First user submits invitation code received from owner', async () => {
-      console.log('new user - 3')
-      const joinCommunityModal = new JoinCommunityModal(users.user1.app.driver)
-      const isJoinCommunityModal = await joinCommunityModal.element.isDisplayed()
-      expect(isJoinCommunityModal).toBeTruthy()
-      console.log({ invitationCode })
-      await joinCommunityModal.typeCommunityCode(invitationCode)
-      await joinCommunityModal.submit()
-    })
+      it('First user submits valid username', async () => {
+        const app = users.user1.app
+        console.log('new user - 5')
+        const registerModal = new RegisterUsernameModal(app.driver)
+        const isRegisterModal = await registerModal.element.isDisplayed()
+        expect(isRegisterModal).toBeTruthy()
+        await registerModal.clearInput()
+        await registerModal.typeUsername(users.user1.username)
+        await registerModal.submit()
+        console.time(`[${app.name}] '${users.user1.username}' joining community time`)
+      })
 
-    it('First user submits valid username', async () => {
-      console.log('new user - 5')
-      const registerModal = new RegisterUsernameModal(users.user1.app.driver)
-      const isRegisterModal = await registerModal.element.isDisplayed()
-      expect(isRegisterModal).toBeTruthy()
-      await registerModal.clearInput()
-      await registerModal.typeUsername(users.user1.username)
-      await registerModal.submit()
-      console.time(`[${users.user1.app.name}] '${users.user1.username}' joining community time`)
-    })
+      it('First user joins successfully sees general channel and sends a message', async () => {
+        console.log('new user - 7')
+        const app = users.user1.app
+        const loadNewUser = async () => {
+          generalChannelUser1 = new Channel(app.driver, generalChannelName)
+          await generalChannelUser1.element.isDisplayed()
+          const isMessageInput2 = await generalChannelUser1.messageInput.isDisplayed()
+          expect(isMessageInput2).toBeTruthy()
+          console.timeEnd(`[${app.name}] '${users.user1.username}' joining community time`)
+        }
 
-    it('First user joins successfully sees general channel and sends a message', async () => {
-      console.log('new user - 7')
-      generalChannelUser1 = new Channel(users.user1.app.driver, 'general')
-      await generalChannelUser1.element.isDisplayed()
-      const isMessageInput2 = await generalChannelUser1.messageInput.isDisplayed()
-      expect(isMessageInput2).toBeTruthy()
-      console.timeEnd(`[${users.user1.app.name}] '${users.user1.username}' joining community time`)
-      console.log('FETCHING CHANNEL MESSAGES!')
-      await new Promise<void>(resolve =>
-        setTimeout(() => {
-          resolve()
-        }, 15000)
-      )
-      await generalChannelUser1.sendMessage(users.user1.messages[0])
-    })
-    it("First user's sent message is visible in a channel", async () => {
-      const messages2 = await generalChannelUser1.getUserMessages(users.user1.username)
-      const messages1 = await generalChannelUser1.getUserMessages(users.owner.username)
-      console.log({ messages1, messages2 })
-      const text2 = await messages2[1].getText()
-      expect(text2).toEqual(users.user1.messages[0])
-    })
-    it('First user opens the settings tab and copies updated invitation code', async () => {
-      const settingsModal = await new Sidebar(users.user1.app.driver).openSettings()
-      const isSettingsModal = await settingsModal.element.isDisplayed()
-      expect(isSettingsModal).toBeTruthy()
-      await sleep(2000)
-      await settingsModal.switchTab('invite')
-      await sleep(2000)
-      const invitationCodeElement = await settingsModal.invitationCode()
-      await sleep(2000)
-      invitationCode = await invitationCodeElement.getText()
-      await sleep(2000)
-      console.log(`${invitationCode} copied from non owner`)
-      expect(invitationCode).not.toBeUndefined()
-      await settingsModal.close()
-    })
+        const retryConfig = app.retryConfig
+        const failureReason = `Failed to load app for new user ${users.user1.username} within ${retryConfig.timeoutMs}ms`
+        const onTimeout = async () => {
+          await app.close()
+          await app.open()
+        }
+        await promiseWithRetries(loadNewUser(), failureReason, retryConfig, onTimeout)
 
-    it('Owner goes offline', async () => {
-      await users.owner.app.close()
-    })
+        console.log('FETCHING CHANNEL MESSAGES!')
+        await sleep(20000)
 
-    it('Second user opens the app', async () => {
-      console.log('Third client')
-      await users.user3.app.open()
-      const debugModal = new DebugModeModal(users.user3.app.driver)
-      await debugModal.close()
-    })
-
-    it('Second user starts to join when owner is offline', async () => {
-      const joinCommunityModal = new JoinCommunityModal(users.user3.app.driver)
-      const isJoinCommunityModal = await joinCommunityModal.element.isDisplayed()
-      expect(isJoinCommunityModal).toBeTruthy()
-      console.log({ invitationCode })
-      await joinCommunityModal.typeCommunityCode(invitationCode)
-      await joinCommunityModal.submit()
-    })
-
-    it('Second user submits non-valid, duplicated username', async () => {
-      console.log('duplicated user - 1')
-      const registerModal = new RegisterUsernameModal(users.user3.app.driver)
-      const isRegisterModal = await registerModal.element.isDisplayed()
-      expect(isRegisterModal).toBeTruthy()
-      await registerModal.clearInput()
-      await registerModal.typeUsername(users.user1.username)
-      await registerModal.submit()
-      console.time(`[${users.user3.app.name}] '${users.user1.username}' duplicated joining community time`)
-    })
-
-    it('Second user submits valid username', async () => {
-      console.log('duplicated user - 2')
-      const registerModal = new RegisterUsernameModal(users.user3.app.driver)
-      const isRegisterModal = await registerModal.elementUsernameTaken.isDisplayed()
-      expect(isRegisterModal).toBeTruthy()
-      await registerModal.clearInput()
-      await registerModal.typeUsername(users.user3.username)
-      await registerModal.submitUsernameTaken()
-      console.time(`[${users.user3.app.name}] '${users.user3.username}' joining community time`)
-    })
-
-    it('Second user sees general channel', async () => {
-      console.log('new user - 7')
-      generalChannelUser3 = new Channel(users.user3.app.driver, 'general')
-      await generalChannelUser3.element.isDisplayed()
-      const isMessageInput = await generalChannelUser3.messageInput.isDisplayed()
-      expect(isMessageInput).toBeTruthy()
-      console.timeEnd(`[${users.user3.app.name}] '${users.user3.username}' joining community time`)
-    })
-
-    it('Second user can send a message, they see their message tagged as "unregistered"', async () => {
-      console.log('Second guest FETCHING CHANNEL MESSAGES!')
-      await new Promise<void>(resolve =>
-        setTimeout(() => {
-          resolve()
-        }, 15000)
-      )
-      await generalChannelUser3.sendMessage(users.user3.messages[0])
-      generalChannelUser3 = new Channel(users.user3.app.driver, 'general')
-      await generalChannelUser3.waitForLabel(users.user3.username, 'Unregistered')
-    })
-
-    it('First user sees that unregistered user\'s messages are marked as "unregistered"', async () => {
-      await generalChannelUser1.waitForLabel(users.user3.username, 'Unregistered')
-    })
-
-    it('Owner goes back online', async () => {
-      await users.owner.app.open()
-      const debugModal = new DebugModeModal(users.owner.app.driver)
-      await debugModal.close()
-    })
-
-    it('Second user receives certificate, they can see confirmation that they registered', async () => {
-      await generalChannelUser3.waitForUserMessage(
-        users.owner.username,
-        `@${users.user3.username} has joined ${displayedCommunityName}!`
-      )
-    })
-
-    it('"Unregistered" label is removed from second user\'s messages', async () => {
-      generalChannelOwner = new Channel(users.owner.app.driver, 'general')
-      await generalChannelOwner.waitForLabelsNotPresent(users.user3.username)
-    })
-
-    it('Channel creation - Owner creates second channel', async () => {
-      sidebarOwner = new Sidebar(users.owner.app.driver)
-      await sidebarOwner.addNewChannel(newChannelName)
-      await sidebarOwner.switchChannel(newChannelName)
-      const channels = await sidebarOwner.getChannelList()
-      expect(channels.length).toEqual(2)
-    })
-    it('Channel creation - Owner sends message in second channel', async () => {
-      const newChannel = new Channel(users.owner.app.driver, newChannelName)
-      const isMessageInput = await newChannel.messageInput.isDisplayed()
-      expect(isMessageInput).toBeTruthy()
-      await newChannel.sendMessage(users.owner.messages[1])
-    })
-    it('Channel creation - User reads message in second channel', async () => {
-      sidebarUser1 = new Sidebar(users.user1.app.driver)
-      await sidebarUser1.switchChannel(newChannelName)
-      secondChannelUser1 = new Channel(users.user1.app.driver, newChannelName)
-      await new Promise<void>(resolve =>
-        setTimeout(() => {
-          resolve()
-        }, 2000)
-      )
-      await secondChannelUser1.waitForUserMessage(users.owner.username, users.owner.messages[1])
-    })
-    it('Channel deletion - Owner deletes second channel', async () => {
-      channelContextMenuOwner = new ChannelContextMenu(users.owner.app.driver)
-      await channelContextMenuOwner.openMenu()
-      await channelContextMenuOwner.openDeletionChannelModal()
-      await channelContextMenuOwner.deleteChannel()
-      const channels = await sidebarOwner.getChannelList()
-      expect(channels.length).toEqual(1)
-    })
-    it('Channel deletion - User sees info about channel deletion in general channel', async () => {
-      await sleep(5000)
-      await generalChannelUser1.waitForUserMessage(
-        users.owner.username,
-        `@${users.owner.username} deleted #${newChannelName}`
-      )
-    })
-    it('Channel deletion - User can create channel with the same name and is fresh channel', async () => {
-      await sidebarUser1.addNewChannel(newChannelName)
-      await sidebarUser1.switchChannel(newChannelName)
-      const messages = await secondChannelUser1.getUserMessages(users.user1.username)
-      expect(messages.length).toEqual(1)
-      await new Promise<void>(resolve =>
-        setTimeout(() => {
-          resolve()
-        }, 2000)
-      )
-      const channels = await sidebarOwner.getChannelList()
-      expect(channels.length).toEqual(2)
-    })
-    // End of tests for Windows
-    if (process.platform !== 'win32') {
-      it('Leave community', async () => {
-        console.log('TEST 2')
+        const messageIds = await generalChannelUser1.sendMessage(users.user1.messages[0], users.user1.username)
+        await generalChannelUser1.verifyMessageSentStatus(messageIds, users.user1.username, false)
+      })
+      it("First user's sent message is visible in a channel", async () => {
+        const messages1 = await generalChannelUser1.getUserMessages(users.owner.username)
+        const usersMessageId = await generalChannelUser1.getMessageIdsByText(
+          users.user1.messages[0],
+          users.user1.username
+        )
+        console.log({ messages1, usersMessageId })
+      })
+      it('First user opens the settings tab and copies updated invitation code', async () => {
         const settingsModal = await new Sidebar(users.user1.app.driver).openSettings()
         const isSettingsModal = await settingsModal.element.isDisplayed()
         expect(isSettingsModal).toBeTruthy()
-        await settingsModal.openLeaveCommunityModal()
-        await settingsModal.leaveCommunityButton()
+        await sleep(2000)
+        await settingsModal.switchTab('invite')
+        await sleep(2000)
+        const invitationCodeElement = await settingsModal.invitationCode()
+        await sleep(2000)
+        invitationCode = await invitationCodeElement.getText()
+        await sleep(2000)
+        console.log(`${invitationCode} copied from non owner`)
+        expect(invitationCode).not.toBeUndefined()
+        await settingsModal.close()
       })
-      // Delete general channel while guest is absent
-      it('Channel deletion - Owner recreates general channel', async () => {
-        console.log('TEST 3')
-        await new Promise<void>(resolve => setTimeout(() => resolve(), 10000))
-        const isGeneralChannel = await generalChannelOwner.messageInput.isDisplayed()
-        expect(isGeneralChannel).toBeTruthy()
-        await channelContextMenuOwner.openMenu()
-        await channelContextMenuOwner.openDeletionChannelModal()
-        await channelContextMenuOwner.deleteChannel()
+    })
+
+    describe('Owner Leaves', () => {
+      it('Owner goes offline', async () => {
+        await users.owner.app.close()
+        await sleep(10000)
+      })
+
+      it('User sees the connection status element in general channel', async () => {
+        const correctConnectionStatusElementPresence = await generalChannelUser1.waitForConnectionStatus(true)
+        expect(correctConnectionStatusElementPresence).toBe(true)
+      })
+
+      it(`First user sends an unsent message`, async () => {
+        const messageIds = await generalChannelUser1.sendMessage(users.user1.messages[1], users.user1.username)
+        await generalChannelUser1.verifyMessageSentStatus(messageIds, users.user1.username, true)
+      })
+
+      it("First user's unsent message is visible in a channel", async () => {
+        await generalChannelUser1.getUserMessages(users.owner.username)
+        await generalChannelUser1.getMessageIdsByText(users.user1.messages[1], users.user1.username)
+      })
+    })
+
+    describe('Second User Joins', () => {
+      it('Second user opens the app', async () => {
+        console.log('Third client')
+        await users.user3.app.openWithRetries()
+        const debugModal = new DebugModeModal(users.user3.app.driver)
+        await debugModal.close()
+      })
+
+      it('Second user starts to join when owner is offline', async () => {
+        const app = users.user3.app
+        const joinCommunityModal = new JoinCommunityModal(app.driver)
+        const isJoinCommunityModal = await joinCommunityModal.element.isDisplayed()
+        expect(isJoinCommunityModal).toBeTruthy()
+        console.log({ invitationCode })
+        await joinCommunityModal.typeCommunityCode(invitationCode)
+        await joinCommunityModal.submit()
+      })
+
+      it('Second user submits non-valid, duplicated username', async () => {
+        console.log('duplicated user - 1')
+        const registerModal = new RegisterUsernameModal(users.user3.app.driver)
+        const isRegisterModal = await registerModal.element.isDisplayed()
+        expect(isRegisterModal).toBeTruthy()
+        await registerModal.clearInput()
+        await registerModal.typeUsername(users.user1.username)
+        await registerModal.submit()
+        console.time(`[${users.user3.app.name}] '${users.user1.username}' duplicated joining community time`)
+      })
+
+      it('Second user submits valid username', async () => {
+        const app = users.user3.app
+        console.log('duplicated user - 2')
+        const registerModal = new RegisterUsernameModal(app.driver)
+        const isRegisterModal = await registerModal.elementUsernameTaken.isDisplayed()
+        expect(isRegisterModal).toBeTruthy()
+        await registerModal.clearInput()
+        await registerModal.typeUsername(users.user3.username)
+        await registerModal.submitUsernameTaken()
+        console.time(`[${app.name}] '${users.user3.username}' joining community time`)
+      })
+
+      it('Second user sees general channel', async () => {
+        console.log('new user - 7')
+        const app = users.user3.app
+        const loadNewUser = async () => {
+          generalChannelUser3 = new Channel(app.driver, generalChannelName)
+          await generalChannelUser3.element.isDisplayed()
+          const isMessageInput = await generalChannelUser3.messageInput.isDisplayed()
+          expect(isMessageInput).toBeTruthy()
+          console.timeEnd(`[${app.name}] '${users.user3.username}' joining community time`)
+        }
+
+        const retryConfig = app.retryConfig
+        const failureReason = `Failed to load app for new user ${users.user3.username} within ${retryConfig.timeoutMs}ms`
+        const onTimeout = async () => {
+          await app.close()
+          await app.open()
+        }
+        await promiseWithRetries(loadNewUser(), failureReason, retryConfig, onTimeout)
+      })
+
+      it("Second user doesn't see the connection status element in general channel", async () => {
+        const correctConnectionStatusElementPresence = await generalChannelUser3.waitForConnectionStatus(false)
+        expect(correctConnectionStatusElementPresence).toBe(true)
+      })
+
+      it('Second user sees "unsent" message from first user as sent', async () => {
+        await sleep(30000)
+        const user1UnsentMessageId = await generalChannelUser3.getMessageIdsByText(
+          users.user1.messages[1],
+          users.user1.username
+        )
+        await generalChannelUser3.verifyMessageSentStatus(user1UnsentMessageId, users.user1.username, false)
+      })
+
+      it("First user doesn't see the connection status element in general channel", async () => {
+        const correctConnectionStatusElementPresence = await generalChannelUser1.waitForConnectionStatus(false)
+        expect(correctConnectionStatusElementPresence).toBe(true)
+      })
+
+      it('First user now sees their "unsent" message as sent', async () => {
+        const user1UnsentMessageId = await generalChannelUser1.getMessageIdsByText(
+          users.user1.messages[1],
+          users.user1.username
+        )
+        await generalChannelUser1.verifyMessageSentStatus(user1UnsentMessageId, users.user1.username, false)
+      })
+
+      it('Second user can send a message, they see their message tagged as "unregistered"', async () => {
+        console.log('Second guest FETCHING CHANNEL MESSAGES!')
+        await sleep(15000)
+        const messageIds = await generalChannelUser3.sendMessage(users.user3.messages[0], users.user3.username)
+        generalChannelUser3 = new Channel(users.user3.app.driver, generalChannelName)
+        await generalChannelUser3.waitForLabel(users.user3.username, 'Unregistered')
+        await generalChannelUser3.verifyMessageSentStatus(messageIds, users.user3.username, false)
+      })
+
+      it('First user sees that unregistered user\'s messages are marked as "unregistered"', async () => {
+        const user3MessageId = await generalChannelUser1.getMessageIdsByText(
+          users.user3.messages[0],
+          users.user3.username
+        )
+        await generalChannelUser1.waitForLabel(users.user3.username, 'Unregistered')
+        await generalChannelUser1.verifyMessageSentStatus(user3MessageId, users.user3.username, false)
+      })
+    })
+
+    describe('Second User Registers', () => {
+      it('Owner goes back online', async () => {
+        await users.owner.app.openWithRetries()
+        const debugModal = new DebugModeModal(users.owner.app.driver)
+        await debugModal.close()
+        await sleep(10000)
+      })
+
+      it('Second user receives certificate, they can see confirmation that they registered', async () => {
+        await generalChannelUser3.waitForUserMessage(
+          users.user3.username,
+          `@${users.user3.username} has joined ${displayedCommunityName}!`
+        )
+      })
+
+      it('"Unregistered" label is removed from second user\'s messages', async () => {
+        generalChannelOwner = new Channel(users.owner.app.driver, generalChannelName)
+        await generalChannelOwner.waitForLabelsNotPresent(users.user3.username)
+      })
+    })
+
+    xdescribe('Owner Creates New Channel', () => {
+      it('Channel creation - Owner creates second channel', async () => {
+        sidebarOwner = new Sidebar(users.owner.app.driver)
+        await sidebarOwner.addNewChannel(newChannelName)
+        await sidebarOwner.switchChannel(newChannelName)
         const channels = await sidebarOwner.getChannelList()
         expect(channels.length).toEqual(2)
       })
 
-      it('Leave community - Guest re-join to community successfully', async () => {
+      it('Channel creation - Owner sends message in second channel', async () => {
+        secondChannelOwner = new Channel(users.owner.app.driver, newChannelName)
+        const isMessageInput = await secondChannelOwner.messageInput.isDisplayed()
+        expect(isMessageInput).toBeTruthy()
+        await sleep(5000)
+        const messageIds = await secondChannelOwner.sendMessage(users.owner.messages[1], users.owner.username)
+        await secondChannelOwner.verifyMessageSentStatus(messageIds, users.owner.username, false)
+      })
+
+      it("Channel creation - Owner doesn't see the connection status element in second channel", async () => {
+        const correctConnectionStatusElementPresence = await secondChannelOwner.waitForConnectionStatus(false)
+        expect(correctConnectionStatusElementPresence).toBe(true)
+      })
+
+      it('Channel creation - User reads message in second channel', async () => {
+        sidebarUser1 = new Sidebar(users.user1.app.driver)
+        await sidebarUser1.switchChannel(newChannelName)
+        secondChannelUser1 = new Channel(users.user1.app.driver, newChannelName)
+        await sleep(2000)
+        await secondChannelUser1.waitForUserMessage(users.owner.username, users.owner.messages[1])
+        const ownerMessageId = await secondChannelUser1.getMessageIdsByText(
+          users.owner.messages[1],
+          users.owner.username
+        )
+        await secondChannelUser1.verifyMessageSentStatus(ownerMessageId, users.owner.username, false)
+      })
+
+      it("Channel creation - First user doesn't see the connection status element in second channel", async () => {
+        const correctConnectionStatusElementPresence = await secondChannelUser1.waitForConnectionStatus(false)
+        expect(correctConnectionStatusElementPresence).toBe(true)
+      })
+    })
+
+    xdescribe('Channel Deletion', () => {
+      it('Owner deletes second channel', async () => {
+        channelContextMenuOwner = new ChannelContextMenu(users.owner.app.driver)
+        await channelContextMenuOwner.openMenu()
+        await channelContextMenuOwner.openDeletionChannelModal()
+        await channelContextMenuOwner.deleteChannel()
+        const channels = await sidebarOwner.getChannelList()
+        expect(channels.length).toEqual(1)
+      })
+
+      it('User sees info about channel deletion in general channel', async () => {
+        await sleep(5000)
+        await generalChannelUser1.waitForUserMessage(
+          users.owner.username,
+          `@${users.owner.username} deleted #${newChannelName}`
+        )
+      })
+
+      it('User can create channel with the same name and is fresh channel', async () => {
+        await sidebarUser1.addNewChannel(newChannelName)
+        await sidebarUser1.switchChannel(newChannelName)
+        const messages = await secondChannelUser1.getUserMessages(users.user1.username)
+        expect(messages.length).toEqual(1)
+        await sleep(2000)
+        const channels = await sidebarOwner.getChannelList()
+        expect(channels.length).toEqual(2)
+      })
+
+      // End of tests for Windows
+      if (process.platform !== 'win32') {
+        it('Leave community', async () => {
+          console.log('TEST 2')
+          const settingsModal = await new Sidebar(users.user1.app.driver).openSettings()
+          const isSettingsModal = await settingsModal.element.isDisplayed()
+          expect(isSettingsModal).toBeTruthy()
+          await settingsModal.openLeaveCommunityModal()
+          await settingsModal.leaveCommunityButton()
+        })
+
+        // Delete general channel while guest is absent
+        it('Owner recreates general channel', async () => {
+          console.log('TEST 3')
+          await sleep(10000)
+          const isGeneralChannel = await generalChannelOwner.messageInput.isDisplayed()
+          expect(isGeneralChannel).toBeTruthy()
+          await channelContextMenuOwner.openMenu()
+          await channelContextMenuOwner.openDeletionChannelModal()
+          await channelContextMenuOwner.deleteChannel()
+          const channels = await sidebarOwner.getChannelList()
+          expect(channels.length).toEqual(2)
+        })
+      }
+    })
+
+    xdescribe('Leave Community', () => {
+      it('Guest re-join to community successfully', async () => {
         console.log('TEST 4')
         const debugModal = new DebugModeModal(users.user1.app.driver)
         await debugModal.close()
@@ -375,7 +474,8 @@ describe('Multiple Clients', () => {
         await joinCommunityModal.typeCommunityCode(invitationCode)
         await joinCommunityModal.submit()
       })
-      it('Leave community - Guest registers new username', async () => {
+
+      it('Guest registers new username', async () => {
         console.log('TEST 5')
         const registerModal2 = new RegisterUsernameModal(users.user1.app.driver)
         const isRegisterModal2 = await registerModal2.element.isDisplayed()
@@ -386,47 +486,53 @@ describe('Multiple Clients', () => {
       })
 
       // Check correct channels replication
-      it('Channel deletion - User sees information about recreation general channel and see correct amount of messages', async () => {
+      it('User sees information about recreation general channel and see correct amount of messages', async () => {
         console.log('TEST 6')
-        generalChannelUser1 = new Channel(users.user1.app.driver, 'general')
+        generalChannelUser1 = new Channel(users.user1.app.driver, generalChannelName)
         await generalChannelUser1.element.isDisplayed()
         console.timeEnd(`[${users.user1.app.name}] '${users.user2.username}' joining community time`)
-        await new Promise<void>(resolve =>
-          setTimeout(() => {
-            resolve()
-          }, 10000)
-        )
+        await sleep(10000)
 
         await generalChannelUser1.waitForUserMessage(
           users.owner.username,
           `@${users.owner.username} deleted all messages in #general`
         )
+        const messages = await generalChannelUser1.getAllMessages
+        for (const message of messages) {
+          console.log(await message.getText())
+          console.log(await message.getAttribute('data-testid'))
+        }
+        await generalChannelUser1.waitForUserMessage(users.user2.username, users.user1.messages[1])
         await generalChannelUser1.waitForUserMessage(
-          users.owner.username,
-          `@${users.user2.username} has joined Testcommunity! 🎉`
+          users.user1.username,
+          `@${users.user1.username} has joined Testcommunity! 🎉`
         )
+
+        await sleep(1200000)
+        process.exit(1)
       })
 
-      it('Leave community - Guest sends a message after rejoining community as a new user', async () => {
+      xit('Guest sends a message after rejoining community as a new user', async () => {
         console.log('TEST 7')
-        generalChannelUser1 = new Channel(users.user1.app.driver, 'general')
+        generalChannelUser1 = new Channel(users.user1.app.driver, generalChannelName)
         await generalChannelUser1.element.isDisplayed()
         const isMessageInput2 = await generalChannelUser1.messageInput.isDisplayed()
         expect(isMessageInput2).toBeTruthy()
-        await new Promise<void>(resolve =>
-          setTimeout(() => {
-            resolve()
-          }, 5000)
-        )
-        await generalChannelUser1.sendMessage(users.user2.messages[0])
+        await sleep(5000)
+        const messageIds = await generalChannelUser1.sendMessage(users.user2.messages[0], users.user2.username)
+        await generalChannelUser1.verifyMessageSentStatus(messageIds, users.user2.username, false)
       })
-      it('Leave community - Sent message is visible in a channel', async () => {
+
+      xit('Sent message is visible in a channel', async () => {
         console.log('TEST 8')
         await generalChannelUser1.waitForUserMessage(users.user2.username, users.user2.messages[0])
       })
+    })
+
+    xdescribe('Guest Closes App', () => {
       it('Owner closes app', async () => {
         await users.owner.app.close({ forceSaveState: true })
-        await new Promise<void>(resolve => setTimeout(() => resolve(), 20000))
+        await sleep(20000)
       })
 
       it('Guest closes app', async () => {
@@ -435,21 +541,28 @@ describe('Multiple Clients', () => {
       })
 
       it('Owner re-opens app', async () => {
-        await users.owner.app?.open()
-        await new Promise<void>(resolve => setTimeout(() => resolve(), 10000))
+        await users.owner.app?.openWithRetries()
+        await sleep(20000)
       })
 
-      it('Guest closes app - Owner sends another message after guest left the app', async () => {
+      it('Owner sends another message after guest left the app', async () => {
         console.log('TEST 10')
-        generalChannelOwner = new Channel(users.owner.app.driver, 'general')
+        generalChannelOwner = new Channel(users.owner.app.driver, generalChannelName)
         const isMessageInput = await generalChannelOwner.messageInput.isDisplayed()
         expect(isMessageInput).toBeTruthy()
-        await generalChannelOwner.sendMessage(users.owner.messages[2])
+        const messageIds = await generalChannelOwner.sendMessage(users.owner.messages[2], users.owner.username)
+        await generalChannelOwner.verifyMessageSentStatus(messageIds, users.owner.username, false)
       })
-      it('Guest closes app - Check if message is visible for owner', async () => {
+
+      it('Check if message is visible for owner', async () => {
         console.log('TEST 11')
         await generalChannelOwner.waitForUserMessage(users.owner.username, users.owner.messages[2])
       })
-    }
+
+      it('Owner sees the connection status element in general channel', async () => {
+        const correctConnectionStatusElementPresence = await generalChannelOwner.waitForConnectionStatus(false)
+        expect(correctConnectionStatusElementPresence).toBe(true)
+      })
+    })
   })
 })

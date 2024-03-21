@@ -296,6 +296,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
             borderTop: '1px solid #F0F0F0',
             borderRadius: '16px 16px 0px 0px',
           }}
+          data-testid={`quietTryingToConnect-${channelName}`}
         >
           <Grid
             item

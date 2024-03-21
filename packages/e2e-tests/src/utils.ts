@@ -5,6 +5,7 @@ import getPort from 'get-port'
 import path from 'path'
 import fs from 'fs'
 import { DESKTOP_DATA_DIR } from '@quiet/common'
+import { RetryConfig, TimeoutMetadata } from './types'
 
 export const BACKWARD_COMPATIBILITY_BASE_VERSION = '2.0.1' // Pre-latest production version
 const appImagesPath = `${__dirname}/../Quiet`
@@ -308,10 +309,94 @@ export const copyInstallerFile = (file: string) => {
   return copiedFileName
 }
 
-export const sleep = async (time = 1000) => {
+export const sleep = async (timeMs = 1000) => {
   await new Promise<void>(resolve =>
     setTimeout(() => {
       resolve()
-    }, time)
+    }, timeMs)
   )
+}
+
+export class Timeout {
+  private ids: (NodeJS.Timeout | number)[]
+
+  constructor() {
+    this.ids = []
+  }
+
+  public set(timeoutMs: number, reason: string): Promise<unknown> {
+    return new Promise((resolve, reject) => {
+      const id = setTimeout(() => {
+        reject(reason)
+        this.clear(id)
+      }, timeoutMs)
+      this.ids.push(id)
+    })
+  }
+
+  public async wrap<T>(promise: Promise<T>, timeoutMs: number, reason: string): Promise<T> {
+    return (Promise.race([promise, this.set(timeoutMs, reason)]) as Promise<T>)
+      .catch(data => {
+        throw new Error(`Failed with reason: ${data.reason}`)
+      })
+      .finally(() => this.clear())
+  }
+
+  public clear(...ids: (NodeJS.Timeout | number)[]): void {
+    const theseIds = ids && ids.length > 0 ? ids : this.ids
+    this.ids = this.ids.filter(id => {
+      if (theseIds.includes(id)) {
+        clearTimeout(id as NodeJS.Timeout)
+        return false
+      }
+      return true
+    })
+  }
+}
+
+export const promiseWithTimeout = async <T>(
+  promise: Promise<T>,
+  reason: string,
+  timeoutMs: number,
+  onTimeout?: () => Promise<void>
+): Promise<T> => {
+  const timeout = new Timeout()
+  try {
+    const result: T = await timeout.wrap(promise, timeoutMs, reason)
+    return result
+  } catch (e) {
+    if (e.message === reason) {
+      if (onTimeout != null) await onTimeout()
+      throw e
+    }
+    throw e
+  }
+}
+
+export const promiseWithRetries = async <T>(
+  promise: Promise<T>,
+  reason: string,
+  retryConfig: RetryConfig,
+  onTimeout?: () => Promise<void>
+): Promise<T> => {
+  const attempts = 0
+  while (attempts < retryConfig.attempts) {
+    try {
+      const result: T = await promiseWithTimeout(promise, reason, retryConfig.timeoutMs, onTimeout)
+      return result
+    } catch (e) {
+      if (e.message === reason) {
+        console.warn(`Timeout exceeded on promise with reason: ${reason}`)
+        continue
+      }
+      throw e
+    }
+  }
+
+  throw new Error(`Exceeded ${retryConfig.attempts} retry attempts`)
+}
+
+export const logAndReturnError = (errorText: string): Error => {
+  console.error(errorText)
+  return new Error(errorText)
 }

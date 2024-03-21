@@ -95,7 +95,7 @@ describe('User Profile Feature', () => {
   it('Owner sends a message', async () => {
     const isMessageInput = await generalChannelOwner.messageInput.isDisplayed()
     expect(isMessageInput).toBeTruthy()
-    await generalChannelOwner.sendMessage(users.owner.messages[0])
+    await generalChannelOwner.sendMessage(users.owner.messages[0], users.owner.username)
   })
 
   it('Owner updates their profile photo with JPEG', async () => {

@@ -243,7 +243,11 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
         data-testid={`userMessagesWrapper-${messageDisplayData.nickname}-${messageDisplayData.id}`}
         primary={
           <Grid container direction='row' justifyContent='flex-start' alignItems='flex-start' wrap={'nowrap'}>
-            <Grid item className={classNames({ [classes.avatar]: true, [classes.unsent]: isUnsent })}>
+            <Grid
+              item
+              className={classNames({ [classes.avatar]: true, [classes.unsent]: isUnsent })}
+              data-testid={`userAvatar-${messageDisplayData.nickname}-${messageDisplayData.id}`}
+            >
               <div className={classes.alignAvatar}>
                 {infoMessage ? (
                   <Icon src={information} className={classes.infoIcon} />
@@ -284,13 +288,18 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
                           [classes.time]: true,
                           [classes.unsent]: isUnsent,
                         })}
+                        data-testid={`messageDateLabel-${messageDisplayData.nickname}-${messageDisplayData.id}`}
                       >
                         {messageDisplayData.date}
                       </Typography>
                     </Grid>
                   )}
                   {isUnsent && (
-                    <Grid item className={classNames({ [classes.sending]: true })}>
+                    <Grid
+                      item
+                      className={classNames({ [classes.sending]: true })}
+                      data-testid={`unsent-sending-${messageDisplayData.nickname}-${messageDisplayData.id}`}
+                    >
                       <AnimatedEllipsis content={'Sending'} fontSize={12} fontWeight={'regular'} />
                     </Grid>
                   )}
