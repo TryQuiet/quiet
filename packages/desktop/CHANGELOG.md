@@ -1,3 +1,16 @@
+# Change Log
+
+All notable changes to this project will be documented in this file.
+See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+## [2.1.2-alpha.13](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@2.1.2-alpha.12...@quiet/desktop@2.1.2-alpha.13) (2024-03-21)
+
+**Note:** Version bump only for package @quiet/desktop
+
+
+
+
+
 [unreleased]
 
 # Fixes
