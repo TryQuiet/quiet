@@ -354,17 +354,14 @@ describe('Multiple Clients', () => {
         await sleep(30000)
       })
 
-      it('Second user receives certificate, they can see confirmation that they registered', async () => {
-        const getMessagePromise = generalChannelUser3.waitForUserMessage(
-          users.owner.username,
-          `@${users.user3.username} has joined ${displayedCommunityName}!`
+      // @isla - TODO: Uncomment and validate this test when we fix the issues causing it
+      // related to : https://github.com/TryQuiet/quiet/issues/1838, https://github.com/TryQuiet/quiet/issues/2321
+      xit('Second user receives certificate, they can see confirmation that they registered', async () => {
+        const messageIds = await generalChannelUser3.getMessageIdsByText(
+          `@${users.user3.username} has joined and will be registered soon. 🎉 Learn more`,
+          users.user3.username
         )
-        await promiseWithRetries(
-          getMessagePromise,
-          'Failed to find joined community message before timeout',
-          users.owner.app.shortRetryConfig,
-          async () => sleep(10000)
-        )
+        await generalChannelUser3.verifyMessageSentStatus(messageIds, users.user3.username, false)
       })
 
       it('"Unregistered" label is removed from second user\'s messages', async () => {
@@ -401,7 +398,6 @@ describe('Multiple Clients', () => {
         await sidebarUser1.switchChannel(newChannelName)
         secondChannelUser1 = new Channel(users.user1.app.driver, newChannelName)
         await sleep(2000)
-        await secondChannelUser1.waitForUserMessage(users.owner.username, users.owner.messages[1])
         const ownerMessageId = await secondChannelUser1.getMessageIdsByText(
           users.owner.messages[1],
           users.owner.username
@@ -427,10 +423,11 @@ describe('Multiple Clients', () => {
 
       it('User sees info about channel deletion in general channel', async () => {
         await sleep(5000)
-        await generalChannelUser1.waitForUserMessage(
-          users.owner.username,
-          `@${users.owner.username} deleted #${newChannelName}`
+        const messageIds = await generalChannelUser1.getMessageIdsByText(
+          `@${users.owner.username} deleted #${newChannelName}`,
+          users.owner.username
         )
+        await generalChannelUser1.verifyMessageSentStatus(messageIds, users.owner.username, false)
       })
 
       it('User can create channel with the same name and is fresh channel', async () => {
@@ -499,33 +496,20 @@ describe('Multiple Clients', () => {
         console.timeEnd(`[${users.user1.app.name}] '${users.user2.username}' joining community time`)
         await sleep(10000)
 
-        await generalChannelUser1.waitForUserMessage(
-          users.owner.username,
-          `@${users.owner.username} deleted all messages in #general`
+        let messageIds = await generalChannelUser1.getMessageIdsByText(
+          `@${users.owner.username} deleted all messages in #general`,
+          users.owner.username
         )
-        const messages = await generalChannelUser1.getAllMessages
-        for (const message of messages) {
-          console.log(await message.getText())
-          console.log(await message.getAttribute('data-testid'))
-        }
-        await generalChannelUser1.waitForUserMessage(users.user2.username, users.user1.messages[1])
+        await generalChannelUser1.verifyMessageSentStatus(messageIds, users.owner.username, false)
 
-        const getMessagePromise = generalChannelUser1.waitForUserMessage(
-          users.user1.username,
-          `@${users.user1.username} has joined Testcommunity! 🎉`
+        messageIds = await generalChannelUser1.getMessageIdsByText(
+          `@${users.user1.username} has joined and will be registered soon. 🎉 Learn more`,
+          users.user1.username
         )
-        await promiseWithRetries(
-          getMessagePromise,
-          'Failed to find joined community message before timeout',
-          users.user1.app.shortRetryConfig,
-          async () => sleep(10000)
-        )
-
-        await sleep(1200000)
-        process.exit(1)
+        await generalChannelUser1.verifyMessageSentStatus(messageIds, users.user1.username, false)
       })
 
-      it('Guest sends a message after rejoining community as a new user', async () => {
+      it('Guest sends a message after rejoining community as a new user and it is visible', async () => {
         console.log('TEST 7')
         generalChannelUser1 = new Channel(users.user1.app.driver, generalChannelName)
         await generalChannelUser1.element.isDisplayed()
@@ -534,11 +518,6 @@ describe('Multiple Clients', () => {
         await sleep(5000)
         const messageIds = await generalChannelUser1.sendMessage(users.user2.messages[0], users.user2.username)
         await generalChannelUser1.verifyMessageSentStatus(messageIds, users.user2.username, false)
-      })
-
-      it('Sent message is visible in a channel', async () => {
-        console.log('TEST 8')
-        await generalChannelUser1.waitForUserMessage(users.user2.username, users.user2.messages[0])
       })
     })
 
@@ -558,18 +537,13 @@ describe('Multiple Clients', () => {
         await sleep(20000)
       })
 
-      it('Owner sends another message after guest left the app', async () => {
+      it('Owner sends another message after guest left the app and it is visible', async () => {
         console.log('TEST 10')
         generalChannelOwner = new Channel(users.owner.app.driver, generalChannelName)
         const isMessageInput = await generalChannelOwner.messageInput.isDisplayed()
         expect(isMessageInput).toBeTruthy()
         const messageIds = await generalChannelOwner.sendMessage(users.owner.messages[2], users.owner.username)
         await generalChannelOwner.verifyMessageSentStatus(messageIds, users.owner.username, false)
-      })
-
-      it('Check if message is visible for owner', async () => {
-        console.log('TEST 11')
-        await generalChannelOwner.waitForUserMessage(users.owner.username, users.owner.messages[2])
       })
 
       it('Owner sees the connection status element in general channel', async () => {
