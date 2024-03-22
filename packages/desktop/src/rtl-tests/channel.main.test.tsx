@@ -38,7 +38,7 @@ import {
   SendMessagePayload,
   MessageVerificationStatus,
   DownloadStatus,
-  type MessagesLoadedPayload,
+  MessagesLoadedPayload,
   ResponseLaunchCommunityPayload,
   Community,
 } from '@quiet/types'
@@ -178,8 +178,7 @@ describe('Channel', () => {
       nickname: 'john',
     })
     expect(john.userCertificate).not.toBeNull()
-    // @ts-expect-error
-    const johnPublicKey = keyFromCertificate(parseCertificate(john.userCertificate))
+    const johnPublicKey = keyFromCertificate(parseCertificate(john.userCertificate!))
 
     const authenticMessage: ChannelMessage = {
       ...(
@@ -943,8 +942,7 @@ describe('Channel', () => {
         type: MessageType.Image,
         message: '',
         createdAt: DateTime.utc().valueOf(),
-        // @ts-expect-error
-        channelId: generalId,
+        channelId: generalId!,
         signature: '',
         pubKey: '',
         media: missingFile,
@@ -1248,15 +1246,16 @@ describe('Channel', () => {
 
     expect(actions).toMatchInlineSnapshot(`
       Array [
-        "Messages/lazyLoading",
-        "Messages/resetCurrentPublicChannelCache",
-        "Messages/resetCurrentPublicChannelCache",
-        "Messages/removePendingMessageStatuses",
         "Messages/addMessages",
         "Files/updateDownloadStatus",
         "Messages/addMessageVerificationStatus",
         "Identity/verifyJoinTimestamp",
         "PublicChannels/updateNewestMessage",
+        "PublicChannels/cacheMessages",
+        "Messages/lazyLoading",
+        "Messages/resetCurrentPublicChannelCache",
+        "PublicChannels/cacheMessages",
+        "Messages/setDisplayedMessagesNumber"
       ]
     `)
   })
