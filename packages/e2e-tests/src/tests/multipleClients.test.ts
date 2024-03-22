@@ -435,7 +435,7 @@ describe('Multiple Clients', () => {
         await sidebarUser1.switchChannel(newChannelName)
         const messages = await secondChannelUser1.getUserMessages(users.user1.username)
         expect(messages.length).toEqual(1)
-        await sleep(10000)
+        await sleep(2000)
         const channels = await sidebarOwner.getChannelList()
         expect(channels.length).toEqual(2)
       })
