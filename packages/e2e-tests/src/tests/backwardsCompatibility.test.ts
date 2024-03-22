@@ -97,7 +97,7 @@ describe('Backwards Compatibility', () => {
     })
 
     it("User doesn't see the connection status element in general channel", async () => {
-      const correctConnectionStatusElementPresence = await generalChannel.waitForConnectionStatus(true)
+      const correctConnectionStatusElementPresence = await generalChannel.waitForConnectionStatus(false)
       expect(correctConnectionStatusElementPresence).toBe(true)
     })
 
@@ -128,7 +128,7 @@ describe('Backwards Compatibility', () => {
     })
 
     it("User doesn't see the connection status element in second channel", async () => {
-      const correctConnectionStatusElementPresence = await secondChannel.waitForConnectionStatus(true)
+      const correctConnectionStatusElementPresence = await secondChannel.waitForConnectionStatus(false)
       expect(correctConnectionStatusElementPresence).toBe(true)
     })
 

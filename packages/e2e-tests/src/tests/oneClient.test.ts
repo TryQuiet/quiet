@@ -92,7 +92,7 @@ describe('One Client', () => {
     })
 
     it("User doesn't see the connection status element in general channel", async () => {
-      const correctConnectionStatusElementPresence = await generalChannel.waitForConnectionStatus(true)
+      const correctConnectionStatusElementPresence = await generalChannel.waitForConnectionStatus(false)
       expect(correctConnectionStatusElementPresence).toBe(true)
     })
   })
