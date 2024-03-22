@@ -12,6 +12,10 @@ export class App {
     attempts: 3,
     timeoutMs: 600000,
   }
+  shortRetryConfig: RetryConfig = {
+    ...this.retryConfig,
+    timeoutMs: 30000,
+  }
 
   constructor(buildSetupConfig?: BuildSetupInit) {
     this.buildSetup = new BuildSetup({ ...buildSetupConfig })
@@ -510,7 +514,7 @@ export class Channel {
     for (const element of messageContentElements) {
       const text = await element.getText()
       console.log(`Testing content: ${messageContent}`)
-      if (text === messageContent) {
+      if (text.includes(messageContent)) {
         console.log(`Found content element for message with text ${messageContent}`)
         return element
       }

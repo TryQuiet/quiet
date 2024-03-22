@@ -318,39 +318,32 @@ export const sleep = async (timeMs = 1000) => {
 }
 
 export class Timeout {
-  private ids: (NodeJS.Timeout | number)[]
-
-  constructor() {
-    this.ids = []
-  }
+  private id: NodeJS.Timeout | number | undefined = undefined
 
   public set(timeoutMs: number, reason: string): Promise<unknown> {
+    if (this.id != null) {
+      throw new Error('Timeout already set')
+    }
+
     return new Promise((resolve, reject) => {
-      const id = setTimeout(() => {
+      this.id = setTimeout(() => {
         reject(reason)
-        this.clear(id)
+        this.clear()
       }, timeoutMs)
-      this.ids.push(id)
     })
   }
 
   public async wrap<T>(promise: Promise<T>, timeoutMs: number, reason: string): Promise<T> {
     return (Promise.race([promise, this.set(timeoutMs, reason)]) as Promise<T>)
-      .catch(data => {
-        throw new Error(`Failed with reason: ${data.reason}`)
+      .catch(reason => {
+        throw new Error(reason)
       })
       .finally(() => this.clear())
   }
 
-  public clear(...ids: (NodeJS.Timeout | number)[]): void {
-    const theseIds = ids && ids.length > 0 ? ids : this.ids
-    this.ids = this.ids.filter(id => {
-      if (theseIds.includes(id)) {
-        clearTimeout(id as NodeJS.Timeout)
-        return false
-      }
-      return true
-    })
+  public clear(): void {
+    clearTimeout(this.id as NodeJS.Timeout)
+    this.id = undefined
   }
 }
 
@@ -367,7 +360,7 @@ export const promiseWithTimeout = async <T>(
   } catch (e) {
     if (e.message === reason) {
       if (onTimeout != null) await onTimeout()
-      throw e
+      throw logAndReturnError(e)
     }
     throw e
   }
@@ -385,6 +378,7 @@ export const promiseWithRetries = async <T>(
       const result: T = await promiseWithTimeout(promise, reason, retryConfig.timeoutMs, onTimeout)
       return result
     } catch (e) {
+      console.error(e.message)
       if (e.message === reason) {
         console.warn(`Timeout exceeded on promise with reason: ${reason}`)
         continue
@@ -393,10 +387,19 @@ export const promiseWithRetries = async <T>(
     }
   }
 
-  throw new Error(`Exceeded ${retryConfig.attempts} retry attempts`)
+  throw logAndReturnError(`Exceeded ${retryConfig.attempts} retry attempts`)
 }
 
-export const logAndReturnError = (errorText: string): Error => {
+export const logAndReturnError = (error: string | Error): Error => {
+  let errorText: string
+  let err: Error
+  if (error instanceof Error) {
+    errorText = error.message
+    err = error
+  } else {
+    errorText = error
+    err = new Error(errorText)
+  }
   console.error(errorText)
-  return new Error(errorText)
+  return err
 }

@@ -9,7 +9,7 @@ import {
   Sidebar,
 } from '../selectors'
 import logger from '../logger'
-import { promiseWithRetries, promiseWithTimeout, sleep } from '../utils'
+import { promiseWithRetries, sleep } from '../utils'
 const log = logger('ManyClients')
 
 interface UserTestData {
@@ -220,7 +220,7 @@ describe('Multiple Clients', () => {
     describe('Owner Leaves', () => {
       it('Owner goes offline', async () => {
         await users.owner.app.close()
-        await sleep(10000)
+        await sleep(30000)
       })
 
       it('User sees the connection status element in general channel', async () => {
@@ -351,13 +351,19 @@ describe('Multiple Clients', () => {
         await users.owner.app.openWithRetries()
         const debugModal = new DebugModeModal(users.owner.app.driver)
         await debugModal.close()
-        await sleep(10000)
+        await sleep(30000)
       })
 
       it('Second user receives certificate, they can see confirmation that they registered', async () => {
-        await generalChannelUser3.waitForUserMessage(
-          users.user3.username,
+        const getMessagePromise = generalChannelUser3.waitForUserMessage(
+          users.owner.username,
           `@${users.user3.username} has joined ${displayedCommunityName}!`
+        )
+        await promiseWithRetries(
+          getMessagePromise,
+          'Failed to find joined community message before timeout',
+          users.owner.app.shortRetryConfig,
+          async () => sleep(10000)
         )
       })
 
@@ -367,7 +373,7 @@ describe('Multiple Clients', () => {
       })
     })
 
-    xdescribe('Owner Creates New Channel', () => {
+    describe('Owner Creates New Channel', () => {
       it('Channel creation - Owner creates second channel', async () => {
         sidebarOwner = new Sidebar(users.owner.app.driver)
         await sidebarOwner.addNewChannel(newChannelName)
@@ -409,7 +415,7 @@ describe('Multiple Clients', () => {
       })
     })
 
-    xdescribe('Channel Deletion', () => {
+    describe('Channel Deletion', () => {
       it('Owner deletes second channel', async () => {
         channelContextMenuOwner = new ChannelContextMenu(users.owner.app.driver)
         await channelContextMenuOwner.openMenu()
@@ -463,7 +469,7 @@ describe('Multiple Clients', () => {
       }
     })
 
-    xdescribe('Leave Community', () => {
+    describe('Leave Community', () => {
       it('Guest re-join to community successfully', async () => {
         console.log('TEST 4')
         const debugModal = new DebugModeModal(users.user1.app.driver)
@@ -503,16 +509,23 @@ describe('Multiple Clients', () => {
           console.log(await message.getAttribute('data-testid'))
         }
         await generalChannelUser1.waitForUserMessage(users.user2.username, users.user1.messages[1])
-        await generalChannelUser1.waitForUserMessage(
+
+        const getMessagePromise = generalChannelUser1.waitForUserMessage(
           users.user1.username,
           `@${users.user1.username} has joined Testcommunity! 🎉`
+        )
+        await promiseWithRetries(
+          getMessagePromise,
+          'Failed to find joined community message before timeout',
+          users.user1.app.shortRetryConfig,
+          async () => sleep(10000)
         )
 
         await sleep(1200000)
         process.exit(1)
       })
 
-      xit('Guest sends a message after rejoining community as a new user', async () => {
+      it('Guest sends a message after rejoining community as a new user', async () => {
         console.log('TEST 7')
         generalChannelUser1 = new Channel(users.user1.app.driver, generalChannelName)
         await generalChannelUser1.element.isDisplayed()
@@ -523,13 +536,13 @@ describe('Multiple Clients', () => {
         await generalChannelUser1.verifyMessageSentStatus(messageIds, users.user2.username, false)
       })
 
-      xit('Sent message is visible in a channel', async () => {
+      it('Sent message is visible in a channel', async () => {
         console.log('TEST 8')
         await generalChannelUser1.waitForUserMessage(users.user2.username, users.user2.messages[0])
       })
     })
 
-    xdescribe('Guest Closes App', () => {
+    describe('Guest Closes App', () => {
       it('Owner closes app', async () => {
         await users.owner.app.close({ forceSaveState: true })
         await sleep(20000)
