@@ -503,7 +503,7 @@ describe('Multiple Clients', () => {
         await generalChannelUser1.verifyMessageSentStatus(messageIds, users.owner.username, false)
 
         messageIds = await generalChannelUser1.getMessageIdsByText(
-          `@${users.user1.username} has joined and will be registered soon. 🎉 Learn more`,
+          `@${users.user2.username} has joined and will be registered soon. 🎉 Learn more`,
           users.user1.username
         )
         await generalChannelUser1.verifyMessageSentStatus(messageIds, users.user1.username, false)
