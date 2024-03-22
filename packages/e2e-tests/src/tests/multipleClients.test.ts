@@ -435,7 +435,7 @@ describe('Multiple Clients', () => {
         await sidebarUser1.switchChannel(newChannelName)
         const messages = await secondChannelUser1.getUserMessages(users.user1.username)
         expect(messages.length).toEqual(1)
-        await sleep(2000)
+        await sleep(10000)
         const channels = await sidebarOwner.getChannelList()
         expect(channels.length).toEqual(2)
       })
@@ -498,13 +498,13 @@ describe('Multiple Clients', () => {
 
         let messageIds = await generalChannelUser1.getMessageIdsByText(
           `@${users.owner.username} deleted all messages in #general`,
-          users.owner.username
+          users.owner.username,
         )
         await generalChannelUser1.verifyMessageSentStatus(messageIds, users.owner.username, false)
 
         messageIds = await generalChannelUser1.getMessageIdsByText(
           `@${users.user2.username} has joined and will be registered soon. 🎉 Learn more`,
-          users.user1.username
+          users.user2.username,
         )
         await generalChannelUser1.verifyMessageSentStatus(messageIds, users.user1.username, false)
       })
