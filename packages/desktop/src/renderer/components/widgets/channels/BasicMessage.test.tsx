@@ -47,6 +47,7 @@ describe('BasicMessage', () => {
               >
                 <div
                   class="MuiGrid-root MuiGrid-item BasicMessageComponentavatar css-13i4rnv-MuiGrid-root"
+                  data-testid="userAvatar-gringo-0"
                 >
                   <div
                     class="BasicMessageComponentalignAvatar"
@@ -77,6 +78,7 @@ describe('BasicMessage', () => {
                       >
                         <p
                           class="MuiTypography-root MuiTypography-body1 BasicMessageComponenttime css-ghvhpl-MuiTypography-root"
+                          data-testid="messageDateLabel-gringo-0"
                         >
                           string
                         </p>
@@ -140,6 +142,7 @@ describe('BasicMessage', () => {
               >
                 <div
                   class="MuiGrid-root MuiGrid-item BasicMessageComponentavatar css-13i4rnv-MuiGrid-root"
+                  data-testid="userAvatar-gringo-0"
                 >
                   <div
                     class="BasicMessageComponentalignAvatar"
@@ -170,6 +173,7 @@ describe('BasicMessage', () => {
                       >
                         <p
                           class="MuiTypography-root MuiTypography-body1 BasicMessageComponenttime css-ghvhpl-MuiTypography-root"
+                          data-testid="messageDateLabel-gringo-0"
                         >
                           string
                         </p>
@@ -243,6 +247,7 @@ describe('BasicMessage', () => {
               >
                 <div
                   class="MuiGrid-root MuiGrid-item BasicMessageComponentavatar css-13i4rnv-MuiGrid-root"
+                  data-testid="userAvatar-gringo-0"
                 >
                   <div
                     class="BasicMessageComponentalignAvatar"
@@ -276,6 +281,7 @@ describe('BasicMessage', () => {
                       >
                         <p
                           class="MuiTypography-root MuiTypography-body1 BasicMessageComponenttime css-ghvhpl-MuiTypography-root"
+                          data-testid="messageDateLabel-gringo-0"
                         >
                           string
                         </p>
@@ -350,6 +356,7 @@ describe('BasicMessage', () => {
               >
                 <div
                   class="MuiGrid-root MuiGrid-item BasicMessageComponentavatar css-13i4rnv-MuiGrid-root"
+                  data-testid="userAvatar-gringo-0"
                 >
                   <div
                     class="BasicMessageComponentalignAvatar"
@@ -380,6 +387,7 @@ describe('BasicMessage', () => {
                       >
                         <p
                           class="MuiTypography-root MuiTypography-body1 BasicMessageComponenttime css-ghvhpl-MuiTypography-root"
+                          data-testid="messageDateLabel-gringo-0"
                         >
                           string
                         </p>

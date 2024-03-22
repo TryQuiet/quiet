@@ -98,6 +98,7 @@ describe('ChannelMessages', () => {
                     >
                       <div
                         class="MuiGrid-root MuiGrid-item BasicMessageComponentavatar css-13i4rnv-MuiGrid-root"
+                        data-testid="userAvatar-string-string"
                       >
                         <div
                           class="BasicMessageComponentalignAvatar"
@@ -128,6 +129,7 @@ describe('ChannelMessages', () => {
                             >
                               <p
                                 class="MuiTypography-root MuiTypography-body1 BasicMessageComponenttime css-ghvhpl-MuiTypography-root"
+                                data-testid="messageDateLabel-string-string"
                               >
                                 string
                               </p>
