@@ -1246,16 +1246,15 @@ describe('Channel', () => {
 
     expect(actions).toMatchInlineSnapshot(`
       Array [
+        "Messages/lazyLoading",
+        "Messages/resetCurrentPublicChannelCache",
+        "Messages/resetCurrentPublicChannelCache",
+        "Messages/removePendingMessageStatuses",
         "Messages/addMessages",
         "Files/updateDownloadStatus",
         "Messages/addMessageVerificationStatus",
         "Identity/verifyJoinTimestamp",
         "PublicChannels/updateNewestMessage",
-        "PublicChannels/cacheMessages",
-        "Messages/lazyLoading",
-        "Messages/resetCurrentPublicChannelCache",
-        "PublicChannels/cacheMessages",
-        "Messages/setDisplayedMessagesNumber"
       ]
     `)
   })
