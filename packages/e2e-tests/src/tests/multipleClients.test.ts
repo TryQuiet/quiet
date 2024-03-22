@@ -498,15 +498,15 @@ describe('Multiple Clients', () => {
 
         let messageIds = await generalChannelUser1.getMessageIdsByText(
           `@${users.owner.username} deleted all messages in #general`,
-          users.owner.username,
+          users.owner.username
         )
         await generalChannelUser1.verifyMessageSentStatus(messageIds, users.owner.username, false)
 
         messageIds = await generalChannelUser1.getMessageIdsByText(
           `@${users.user2.username} has joined and will be registered soon. 🎉 Learn more`,
-          users.user2.username,
+          users.user2.username
         )
-        await generalChannelUser1.verifyMessageSentStatus(messageIds, users.user1.username, false)
+        await generalChannelUser1.verifyMessageSentStatus(messageIds, users.user2.username, false)
       })
 
       it('Guest sends a message after rejoining community as a new user and it is visible', async () => {
