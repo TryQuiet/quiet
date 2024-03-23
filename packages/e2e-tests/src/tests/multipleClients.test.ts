@@ -524,7 +524,7 @@ describe('Multiple Clients', () => {
     describe('Guest Closes App', () => {
       it('Owner closes app', async () => {
         await users.owner.app.close({ forceSaveState: true })
-        await sleep(20000)
+        await sleep(30000)
       })
 
       it('Guest closes app', async () => {

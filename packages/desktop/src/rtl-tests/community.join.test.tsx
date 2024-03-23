@@ -1,7 +1,7 @@
 import React from 'react'
 import '@testing-library/jest-dom/extend-expect'
-import { act } from 'react-dom/test-utils'
-import { screen } from '@testing-library/dom'
+import { act } from '@testing-library/react'
+import { fireEvent, screen } from '@testing-library/dom'
 import userEvent from '@testing-library/user-event'
 import { take } from 'typed-redux-saga'
 import { renderComponent } from '../renderer/testUtils/renderComponent'
@@ -32,11 +32,12 @@ import {
   ChannelSubscribedPayload,
   Community,
   ErrorPayload,
-  type NetworkInfo,
+  NetworkInfo,
   ResponseLaunchCommunityPayload,
   SocketActionTypes,
 } from '@quiet/types'
 import { composeInvitationShareUrl } from '@quiet/common'
+import { sleep } from '../renderer/testUtils'
 
 jest.setTimeout(20_000)
 
@@ -127,11 +128,13 @@ describe('User', () => {
     // @ts-ignore
     socket.emitWithAck = mockImpl
 
+    await sleep(2000)
     // Log all the dispatched actions in order
     const actions: AnyAction[] = []
     runSaga(function* (): Generator {
       while (true) {
         const action: AnyAction = yield* take()
+        console.log(action.type)
         actions.push(action.type)
       }
     })

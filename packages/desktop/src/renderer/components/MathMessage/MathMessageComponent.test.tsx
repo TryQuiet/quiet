@@ -1,5 +1,5 @@
 import React from 'react'
-import { act } from 'react-dom/test-utils'
+import { act } from '@testing-library/react'
 import { renderComponent } from '../../testUtils/renderComponent'
 import { MathMessageComponent } from './MathMessageComponent'
 

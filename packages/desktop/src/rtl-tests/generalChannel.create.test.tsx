@@ -1,5 +1,5 @@
 import React from 'react'
-import { act } from 'react-dom/test-utils'
+import { act } from '@testing-library/react'
 import '@testing-library/jest-dom/extend-expect'
 import { apply, fork, take } from 'typed-redux-saga'
 import { renderComponent } from '../renderer/testUtils/renderComponent'
