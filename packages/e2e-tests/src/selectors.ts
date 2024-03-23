@@ -385,7 +385,7 @@ export class Channel {
     let testIdSplit = testId.split('-')
     const parentMessageId = testIdSplit[testIdSplit.length - 1]
 
-    const contentElement = await this.waitForMessageContentByText(message)
+    const contentElement = await this.waitForMessageContentByText(message, messageElement)
     if (!contentElement) {
       throw logAndReturnError(`No message content element found for message content ${message}`)
     }
@@ -506,12 +506,13 @@ export class Channel {
     throw logAndReturnError(`Failed to find content for message with ID ${messageId}`)
   }
 
-  async waitForMessageContentByText(messageContent: string): Promise<WebElement> {
+  async waitForMessageContentByText(messageContent: string, messageElement: WebElement): Promise<WebElement> {
     console.log(`Waiting for content for message with text ${messageContent}`)
     const messageContentElements = await this.driver.wait(
-      this.driver.findElements(By.xpath(`//*[contains(@data-testid, "messagesGroupContent-")]`))
+      messageElement.findElements(By.xpath(`//*[contains(@data-testid, "messagesGroupContent-")]`))
     )
     for (const element of messageContentElements) {
+      console.log(await element.getId())
       const text = await element.getText()
       console.log(`Testing content: ${messageContent}`)
       if (text.includes(messageContent)) {
