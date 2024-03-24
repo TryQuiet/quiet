@@ -3,7 +3,7 @@ import { ComponentStory, ComponentMeta } from '@storybook/react'
 import FileComponent, { FileComponentProps } from './FileComponent'
 import { withTheme } from '../../../../storybook/decorators'
 import { DownloadState } from '@quiet/types'
-import { defaultLogger } from 'packages/desktop/src/renderer/logger'
+import { defaultLogger } from '../../../../logger'
 
 const Template: ComponentStory<typeof FileComponent> = args => {
   return (

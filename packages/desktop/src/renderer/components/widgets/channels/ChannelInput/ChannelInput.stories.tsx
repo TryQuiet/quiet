@@ -5,7 +5,7 @@ import { INPUT_STATE } from './InputState.enum'
 
 import { ChannelInputComponent, ChannelInputProps } from './ChannelInput'
 import { withTheme } from '../../../../storybook/decorators'
-import { defaultLogger } from 'packages/desktop/src/renderer/logger'
+import { defaultLogger } from '../../../../logger'
 
 const Template: ComponentStory<typeof ChannelInputComponent> = args => {
   return (
