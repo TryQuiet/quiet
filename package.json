@@ -10,7 +10,8 @@
     "clean": "lerna clean",
     "bootstrap": "lerna bootstrap",
     "bootstrap:clean": "npm run clean && npm run bootstrap",
-    "distAndRunE2ETests:mac:local": "lerna run --scope @quiet/desktop distMac:local && lerna run --scope e2e-tests test:localBinary --",
+    "lerna:run:desktop": "lerna run --scope @quiet/desktop",
+    "distAndRunE2ETests:mac:local": "npm run lerna:run:desktop distMac:local && lerna run --scope e2e-tests test:localBinary --",
     "prepare": "husky",
     "lint-staged": "lerna run lint-staged"
   },

@@ -1,5 +1,5 @@
 import debug from 'debug'
-import nodeConsole from 'console'
+import { Console } from 'console'
 import { DateTime } from 'luxon'
 
 export type Logger = debug.Debugger & {
@@ -16,7 +16,7 @@ export const consoleLogger =
     return logger
   }
 
-export const nodeConsoleLogger = new nodeConsole.Console(process.stdout, process.stderr)
+export const nodeConsoleLogger = Console instanceof Function ? new Console(process.stdout, process.stderr) : console
 
 export class ElectronLogger {
   private isDebug: boolean
