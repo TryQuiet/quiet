@@ -8,6 +8,7 @@ import { useModal } from '../../../containers/hooks'
 import { ModalName } from '../../../sagas/modals/modals.types'
 import { flushSync } from 'react-dom'
 import { generateChannelId } from '@quiet/common'
+import { defaultLogger } from '../../../logger'
 
 export const CreateChannel = () => {
   const dispatch = useDispatch()
@@ -46,7 +47,7 @@ export const CreateChannel = () => {
     // Clear errors
     clearErrors()
     if (!user) {
-      console.error('No identity found')
+      defaultLogger.error('No identity found')
       dispatch(
         errors.actions.addError({
           type: SocketActionTypes.CREATE_CHANNEL,

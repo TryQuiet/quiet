@@ -7,6 +7,9 @@ import { identitySelectors } from '../../identity/identity.selectors'
 import { identityActions } from '../../identity/identity.slice'
 import { userJoinedMessage } from '@quiet/common'
 import { publicChannelsActions } from '../publicChannels.slice'
+import createLogger from '../../../utils/logger'
+
+const logger = createLogger('publicChannels')
 
 export function* sendIntroductionMessageSaga(): Generator {
   const community = yield* select(communitiesSelectors.currentCommunity)
@@ -38,7 +41,7 @@ export function* sendIntroductionMessageSaga(): Generator {
     if (subscribedChannels.includes(generalChannel.id)) {
       break
     }
-    console.error('Failed to send introduction message, general channel not subscribed. Retrying...')
+    logger.error('Failed to send introduction message, general channel not subscribed. Retrying...')
     yield* delay(500)
   }
 

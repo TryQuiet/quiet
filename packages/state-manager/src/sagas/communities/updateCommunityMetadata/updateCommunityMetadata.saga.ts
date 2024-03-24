@@ -6,6 +6,9 @@ import { applyEmitParams, type Socket } from '../../../types'
 import { communitiesSelectors } from '../communities.selectors'
 import { communitiesActions } from '../communities.slice'
 import { identitySelectors } from '../../identity/identity.selectors'
+import createLogger from '../../../utils/logger'
+
+const logger = createLogger('communities')
 
 export function* sendCommunityMetadataSaga(
   socket: Socket,
@@ -15,17 +18,17 @@ export function* sendCommunityMetadataSaga(
   const community = yield* select(communitiesSelectors.currentCommunity)
 
   if (!identity?.userCertificate) {
-    console.error('Cannot send community metadata, no owner certificate')
+    logger.error('Cannot send community metadata, no owner certificate')
     return
   }
 
   if (!community) {
-    console.error('Cannot send community metadata, no community')
+    logger.error('Cannot send community metadata, no community')
     return
   }
 
   if (!community.rootCa || !community.CA) {
-    console.log('Cannot send community metadata, no rootCa or CA in community')
+    logger.info('Cannot send community metadata, no rootCa or CA in community')
     return
   }
 

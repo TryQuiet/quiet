@@ -4,13 +4,16 @@ import { type Socket } from '../../../types'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import { communitiesSelectors } from '../communities.selectors'
 import { communitiesActions } from '../communities.slice'
+import createLogger from '../../../utils/logger'
+
+const logger = createLogger('communities')
 
 export function* saveCommunityMetadataSaga(
   socket: Socket,
   action: PayloadAction<ReturnType<typeof communitiesActions.saveCommunityMetadata>['payload']>
 ): Generator {
   const communityId = yield* select(communitiesSelectors.currentCommunityId)
-  console.log('save community metadata', action.payload)
+  logger.info(`save community metadata: ${action.payload}`)
   yield* put(
     communitiesActions.updateCommunity({
       id: communityId,

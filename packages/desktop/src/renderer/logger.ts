@@ -1,3 +1,5 @@
-import logger from '@quiet/logger'
+import { createElectronLogger } from '@quiet/logger'
 
-export default logger('desktop:renderer')
+const createLogger = createElectronLogger('desktop:renderer', true)
+export const defaultLogger = createLogger('default')
+export default createLogger

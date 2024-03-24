@@ -1,3 +1,3 @@
-import logger from '@quiet/logger'
+import { createElectronLogger } from '@quiet/logger'
 
-export default logger('state-manager')
+export default createElectronLogger('state-manager')

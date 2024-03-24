@@ -371,7 +371,7 @@ describe('Multiple Clients', () => {
     })
 
     describe('Owner Creates New Channel', () => {
-      it('Channel creation - Owner creates second channel', async () => {
+      it('Owner creates second channel', async () => {
         sidebarOwner = new Sidebar(users.owner.app.driver)
         await sidebarOwner.addNewChannel(newChannelName)
         await sidebarOwner.switchChannel(newChannelName)
@@ -379,7 +379,7 @@ describe('Multiple Clients', () => {
         expect(channels.length).toEqual(2)
       })
 
-      it('Channel creation - Owner sends message in second channel', async () => {
+      it('Owner sends message in second channel', async () => {
         secondChannelOwner = new Channel(users.owner.app.driver, newChannelName)
         const isMessageInput = await secondChannelOwner.messageInput.isDisplayed()
         expect(isMessageInput).toBeTruthy()
@@ -388,12 +388,12 @@ describe('Multiple Clients', () => {
         await secondChannelOwner.verifyMessageSentStatus(messageIds, users.owner.username, false)
       })
 
-      it("Channel creation - Owner doesn't see the connection status element in second channel", async () => {
+      it("Owner doesn't see the connection status element in second channel", async () => {
         const correctConnectionStatusElementPresence = await secondChannelOwner.waitForConnectionStatus(false)
         expect(correctConnectionStatusElementPresence).toBe(true)
       })
 
-      it('Channel creation - User reads message in second channel', async () => {
+      it('User reads message in second channel', async () => {
         sidebarUser1 = new Sidebar(users.user1.app.driver)
         await sidebarUser1.switchChannel(newChannelName)
         secondChannelUser1 = new Channel(users.user1.app.driver, newChannelName)
@@ -405,7 +405,7 @@ describe('Multiple Clients', () => {
         await secondChannelUser1.verifyMessageSentStatus(ownerMessageId, users.owner.username, false)
       })
 
-      it("Channel creation - First user doesn't see the connection status element in second channel", async () => {
+      it("First user doesn't see the connection status element in second channel", async () => {
         const correctConnectionStatusElementPresence = await secondChannelUser1.waitForConnectionStatus(false)
         expect(correctConnectionStatusElementPresence).toBe(true)
       })
@@ -534,7 +534,7 @@ describe('Multiple Clients', () => {
 
       it('Owner re-opens app', async () => {
         await users.owner.app?.openWithRetries()
-        await sleep(20000)
+        await sleep(30000)
       })
 
       it('Owner sends another message after guest left the app and it is visible', async () => {

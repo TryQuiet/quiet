@@ -5,6 +5,9 @@ import { applyEmitParams, type Socket } from '../../../types'
 import { communitiesSelectors } from '../communities.selectors'
 import { type communitiesActions } from '../communities.slice'
 import { type PermsData, SocketActionTypes } from '@quiet/types'
+import createLogger from '../../../utils/logger'
+
+const logger = createLogger('communities')
 
 export function* sendCommunityCaDataSaga(
   socket: Socket,
@@ -13,12 +16,12 @@ export function* sendCommunityCaDataSaga(
   const community = yield* select(communitiesSelectors.currentCommunity)
 
   if (!community) {
-    console.error('Cannot send community metadata, no community')
+    logger.error('Cannot send community metadata, no community')
     return
   }
 
   if (!community.CA) {
-    console.log('Cannot send community metadata, no CA in community')
+    logger.error('Cannot send community metadata, no CA in community')
     return
   }
 

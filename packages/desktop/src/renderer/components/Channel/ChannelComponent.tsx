@@ -27,6 +27,7 @@ import { FileActionsProps } from './File/FileComponent/FileComponent'
 import { UseModalType } from '../../containers/hooks'
 import { HandleOpenModalType } from '../widgets/userLabel/UserLabel.types'
 import SpinnerLoader from '../ui/Spinner/SpinnerLoader'
+import { defaultLogger } from '../../logger'
 
 const ChannelMessagesWrapperStyled = styled(Grid)(({ theme }) => ({
   position: 'relative',
@@ -124,7 +125,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
   }
 
   const checkForCommunityPeers = (peerList: string[] | undefined) => {
-    console.log(peerList, peerList?.length)
+    defaultLogger.info(peerList, peerList?.length)
     if (peerList && peerList.length > 1) {
       return true
     }

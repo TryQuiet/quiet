@@ -99,12 +99,12 @@ export function subscribe(socket: Socket) {
     })
     // Misc
     socket.on(SocketActionTypes.PEER_CONNECTED, (payload: PeersNetworkDataPayload) => {
-      logger(`${SocketActionTypes.PEER_CONNECTED}: ${JSON.stringify(payload)}`)
+      logger.info(`${SocketActionTypes.PEER_CONNECTED}: ${JSON.stringify(payload)}`)
       emit(networkActions.addConnectedPeers(payload.peers.map(peer => peer.peer)))
       emit(connectionActions.updateNetworkData(payload.peers))
     })
     socket.on(SocketActionTypes.PEER_DISCONNECTED, (payload: NetworkDataPayload) => {
-      logger(`${SocketActionTypes.PEER_DISCONNECTED}: ${JSON.stringify(payload)}`)
+      logger.info(`${SocketActionTypes.PEER_DISCONNECTED}: ${JSON.stringify(payload)}`)
       emit(networkActions.removeConnectedPeer(payload.peer))
       emit(connectionActions.updateNetworkData([payload]))
     })
@@ -140,7 +140,7 @@ export function subscribe(socket: Socket) {
     // Community
 
     socket.on(SocketActionTypes.COMMUNITY_CREATED, async (payload: ResponseCreateCommunityPayload) => {
-      logger(`${SocketActionTypes.COMMUNITY_CREATED}: ${payload}`)
+      logger.info(`${SocketActionTypes.COMMUNITY_CREATED}: ${payload}`)
       // We can also set community metadata when we register the
       // owner's certificate. I think the only issue is that we
       // register the owner's certificate before initializing the
@@ -158,7 +158,7 @@ export function subscribe(socket: Socket) {
       emit(communitiesActions.storePeerList(payload))
     })
     socket.on(SocketActionTypes.COMMUNITY_LAUNCHED, (payload: ResponseLaunchCommunityPayload) => {
-      logger('Hunting for heisenbug: Community event received in state-manager')
+      logger.info('Hunting for heisenbug: Community event received in state-manager')
       // TODO: We can send this once when creating the community and
       // store it in the backend.
       emit(communitiesActions.sendCommunityCaData())
@@ -173,12 +173,12 @@ export function subscribe(socket: Socket) {
       // Also when only printing the payload, the full trace is not
       // available.
       logger.error(`Error on socket: ${JSON.stringify(payload)}`)
-      console.error(payload, payload.trace)
+      logger.error(payload.trace)
       emit(errorsActions.handleError(payload))
     })
     // Certificates
     socket.on(SocketActionTypes.CSRS_STORED, (payload: SendCsrsResponse) => {
-      logger(`${SocketActionTypes.CSRS_STORED}`)
+      logger.info(`${SocketActionTypes.CSRS_STORED}`)
       emit(identityActions.checkLocalCsr(payload))
       emit(usersActions.storeCsrs(payload))
     })
@@ -186,7 +186,7 @@ export function subscribe(socket: Socket) {
       emit(usersActions.responseSendCertificates(payload))
     })
     socket.on(SocketActionTypes.OWNER_CERTIFICATE_ISSUED, (payload: SavedOwnerCertificatePayload) => {
-      logger(`${SocketActionTypes.OWNER_CERTIFICATE_ISSUED}: ${payload.communityId}`)
+      logger.info(`${SocketActionTypes.OWNER_CERTIFICATE_ISSUED}: ${payload.communityId}`)
       emit(
         communitiesActions.updateCommunity({
           id: payload.communityId,
@@ -202,18 +202,18 @@ export function subscribe(socket: Socket) {
       emit(identityActions.savedOwnerCertificate(payload.communityId))
     })
     socket.on(SocketActionTypes.COMMUNITY_METADATA_STORED, (payload: CommunityMetadata) => {
-      logger(`${SocketActionTypes.COMMUNITY_METADATA_STORED}: ${JSON.stringify(payload)}`)
+      logger.info(`${SocketActionTypes.COMMUNITY_METADATA_STORED}: ${JSON.stringify(payload)}`)
       emit(communitiesActions.saveCommunityMetadata(payload))
     })
     socket.on(SocketActionTypes.LIBP2P_PSK_STORED, (payload: { psk: string }) => {
-      logger(`${SocketActionTypes.LIBP2P_PSK_STORED}`)
+      logger.info(`${SocketActionTypes.LIBP2P_PSK_STORED}`)
       emit(communitiesActions.savePSK(payload.psk))
     })
 
     // User Profile
 
     socket.on(SocketActionTypes.USER_PROFILES_STORED, (payload: UserProfilesStoredEvent) => {
-      logger(`${SocketActionTypes.USER_PROFILES_STORED}`)
+      logger.info(`${SocketActionTypes.USER_PROFILES_STORED}`)
       emit(usersActions.setUserProfiles(payload.profiles))
     })
 
