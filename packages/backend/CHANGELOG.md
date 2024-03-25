@@ -12,6 +12,10 @@
 
 * Refactor: Consolidate profile photo validation and match magic byte check to type check
 
+* Refactor: Updates peer connecting events to include updating peers DB and refactors some payload types ([#1706](https://github.com/TryQuiet/quiet/issues/1706))
+
+* Refactor: Update Tor initialized status when Tor is connected ([#1706](https://github.com/TryQuiet/quiet/issues/1706))
+
 [2.0.3-alpha.6]
 
 * Fix: filter out invalid peer addresses in peer list. Update peer list in localdb.
