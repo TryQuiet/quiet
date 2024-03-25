@@ -18,7 +18,7 @@ export const consoleLogger =
 
 export const nodeConsoleLogger = Console instanceof Function ? new Console(process.stdout, process.stderr) : console
 
-export class ElectronLogger {
+export class QuietLogger {
   private isDebug: boolean
 
   constructor(
@@ -32,42 +32,36 @@ export class ElectronLogger {
     if (!this.isDebug) return
 
     const text = this.formatMessage(message, 'debug')
-    nodeConsoleLogger.debug(text, ...optionalParams)
-    if (this.parallelConsoleLog) {
-      console.debug(text, ...optionalParams)
-    }
+    this.callLogMethods('debug', text, ...optionalParams)
   }
 
   error(message: any, ...optionalParams: any[]): void {
     const text = this.formatMessage(message, 'error')
-    nodeConsoleLogger.error(text, ...optionalParams)
-    if (this.parallelConsoleLog) {
-      console.error(text, ...optionalParams)
-    }
+    this.callLogMethods('error', text, ...optionalParams)
   }
 
   info(message: any, ...optionalParams: any[]): void {
     const text = this.formatMessage(message, 'info')
-    nodeConsoleLogger.info(text, ...optionalParams)
-    if (this.parallelConsoleLog) {
-      console.info(text, ...optionalParams)
-    }
+    this.callLogMethods('info', text, ...optionalParams)
   }
 
   log(message: any, ...optionalParams: any[]): void {
     if (!this.isDebug) return
     const text = this.formatMessage(message, 'log')
-    nodeConsoleLogger.log(text, ...optionalParams)
-    if (this.parallelConsoleLog) {
-      console.log(text, ...optionalParams)
-    }
+    this.callLogMethods('log', text, ...optionalParams)
   }
 
   warn(message: any, ...optionalParams: any[]): void {
     const text = this.formatMessage(message, 'warn')
-    nodeConsoleLogger.warn(text, ...optionalParams)
+    this.callLogMethods('warn', text, ...optionalParams)
+  }
+
+  private callLogMethods(level: string, text: string, ...optionalParams: any[]): void {
+    // @ts-ignore
+    nodeConsoleLogger[level](text, ...optionalParams)
     if (this.parallelConsoleLog) {
-      console.warn(text, ...optionalParams)
+      // @ts-ignore
+      console[level](text, ...optionalParams)
     }
   }
 
@@ -79,20 +73,20 @@ export class ElectronLogger {
 
 export const electronLogger =
   (packageName: string, parallelConsoleLog: boolean = false) =>
-  (module: string): ElectronLogger => {
+  (module: string): QuietLogger => {
     const name = `${packageName}:${module}`
     nodeConsoleLogger.info(`Initializing logger ${name}`)
-    return new ElectronLogger(name, parallelConsoleLog)
+    return new QuietLogger(name, parallelConsoleLog)
   }
 
 export const logger = (packageName: string): ((arg: string) => Logger) => {
   return consoleLogger(packageName)
 }
 
-export const createElectronLogger = (
+export const createQuietLogger = (
   packageName: string,
   parallelConsoleLog: boolean = false
-): ((arg: string) => ElectronLogger) => {
+): ((arg: string) => QuietLogger) => {
   return electronLogger(packageName, parallelConsoleLog)
 }
 
