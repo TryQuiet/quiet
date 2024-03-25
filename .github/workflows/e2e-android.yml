@@ -14,17 +14,14 @@ jobs:
     runs-on: [self-hosted, macOS, ARM64, android]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        with:
+          lfs: true
 
       - name: Install dependencies
         run: |
           npm i
           npm run lerna bootstrap --scope @quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/mobile,backend-bundle
-
-      - name: Pull binaries
-        run: |
-          git lfs install
-          git lfs pull
 
       - name: Pass local config
         run : |
