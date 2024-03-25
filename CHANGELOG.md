@@ -10,6 +10,10 @@
 
 * Allow JPEG and GIF files as profile photos ([#2332](https://github.com/TryQuiet/quiet/issues/2332))
 
+# New features
+
+* Add utilities for emoji detection in messages and make all-emoji message larger font size ([#519](https://github.com/TryQuiet/quiet/issues/519))
+
 [2.1.2]
 
 # Refactorings:
