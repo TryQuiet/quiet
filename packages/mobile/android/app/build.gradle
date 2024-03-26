@@ -205,6 +205,11 @@ android {
                 cppFlags ""
             }
         }
+        externalNativeBuild {
+            cmake {
+                cppFlags ""
+            }
+        }
     }
     splits {
         abi {
@@ -319,7 +324,7 @@ dependencies {
 
     implementation group: 'commons-io', name: 'commons-io', version: '2.6'
 
-    // implementation 'info.guardianproject:tor-android:0.4.5.7'
+    implementation 'info.guardianproject:tor-android:0.4.5.7'
     implementation 'info.guardianproject:jtorctl:0.4.5.7'
 
     // Websockets connection
