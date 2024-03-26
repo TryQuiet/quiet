@@ -1,3 +1,24 @@
+# Change Log
+
+All notable changes to this project will be documented in this file.
+See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+## [2.1.2-alpha.14](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@2.1.2-alpha.13...@quiet/mobile@2.1.2-alpha.14) (2024-03-26)
+
+
+### Bug Fixes
+
+* Use useLegacyPackaging feature in Gradle ([#2391](https://github.com/TryQuiet/quiet/issues/2391)) ([396ea4e](https://github.com/TryQuiet/quiet/commit/396ea4ea50fab9202230fe20889ddbf9095484ac))
+
+
+### Reverts
+
+* Revert "fix: ship Tor binary and use custom TorHandler (#2366)" ([dc8b6c4](https://github.com/TryQuiet/quiet/commit/dc8b6c4e75fd7a022295c4df39b45f211e5aa855)), closes [#2366](https://github.com/TryQuiet/quiet/issues/2366)
+
+
+
+
+
 [unreleased]
 
 # Refactorings:
