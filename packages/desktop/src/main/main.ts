@@ -79,8 +79,7 @@ if (!gotTheLock) {
     if (mainWindow) {
       if (mainWindow.isMinimized()) mainWindow.restore()
       mainWindow.focus()
-      const invitationCode = argvInvitationCode(commandLine)
-      processInvitationCode(mainWindow, invitationCode)
+      processInvitationCode(mainWindow, commandLine)
     }
   })
 }
@@ -156,12 +155,7 @@ app.on('open-url', (event, url) => {
   event.preventDefault()
   if (mainWindow) {
     invitationUrl = null
-    try {
-      const invitationData = parseInvitationCodeDeepUrl(url)
-      processInvitationCode(mainWindow, invitationData)
-    } catch (e) {
-      console.warn(e.message)
-    }
+    processInvitationCode(mainWindow, url)
   }
 })
 
@@ -494,8 +488,7 @@ app.on('ready', async () => {
     }
     if (process.platform === 'darwin' && invitationUrl) {
       try {
-        const invitationData = parseInvitationCodeDeepUrl(invitationUrl)
-        processInvitationCode(mainWindow, invitationData)
+        processInvitationCode(mainWindow, invitationUrl)
       } catch (e) {
         console.warn(e.message)
       } finally {
@@ -504,8 +497,7 @@ app.on('ready', async () => {
     }
     if (process.platform !== 'darwin' && process.argv) {
       try {
-        const invitationCode = argvInvitationCode(process.argv)
-        processInvitationCode(mainWindow, invitationCode)
+        processInvitationCode(mainWindow, process.argv)
       } catch (e) {
         console.warn(e.message)
       }

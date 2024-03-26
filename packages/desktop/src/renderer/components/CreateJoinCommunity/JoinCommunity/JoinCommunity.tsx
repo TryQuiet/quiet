@@ -1,11 +1,11 @@
+import { communities, connection, identity } from '@quiet/state-manager'
+import { CommunityOwnership, InvitationData } from '@quiet/types'
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { socketSelectors } from '../../../sagas/socket/socket.selectors'
-import { CommunityOwnership, CreateNetworkPayload, InvitationData, InvitationPair } from '@quiet/types'
-import { communities, identity, connection, network } from '@quiet/state-manager'
 import PerformCommunityActionComponent from '../../../components/CreateJoinCommunity/PerformCommunityActionComponent'
-import { ModalName } from '../../../sagas/modals/modals.types'
 import { useModal } from '../../../containers/hooks'
+import { ModalName } from '../../../sagas/modals/modals.types'
+import { socketSelectors } from '../../../sagas/socket/socket.selectors'
 
 const JoinCommunity = () => {
   const dispatch = useDispatch()
@@ -14,10 +14,6 @@ const JoinCommunity = () => {
 
   const currentCommunity = useSelector(communities.selectors.currentCommunity)
   const currentIdentity = useSelector(identity.selectors.currentIdentity)
-
-  // Invitation link data should be already available if user joined via deep link
-  const invitationCodes = useSelector(communities.selectors.invitationCodes)
-  const psk = useSelector(communities.selectors.psk)
 
   const joinCommunityModal = useModal(ModalName.joinCommunityModal)
   const createCommunityModal = useModal(ModalName.createCommunityModal)
@@ -39,13 +35,7 @@ const JoinCommunity = () => {
   }, [currentCommunity])
 
   const handleCommunityAction = (data: InvitationData) => {
-    const payload: CreateNetworkPayload = {
-      ownership: CommunityOwnership.User,
-      peers: data.pairs,
-      psk: data.psk,
-      ownerOrbitDbIdentity: data.ownerOrbitDbIdentity,
-    }
-    dispatch(communities.actions.createNetwork(payload))
+    dispatch(communities.actions.joinNetwork(data))
   }
 
   // From 'You can create a new community instead' link
@@ -72,8 +62,6 @@ const JoinCommunity = () => {
       hasReceivedResponse={Boolean(currentIdentity && !currentIdentity.userCertificate)}
       revealInputValue={revealInputValue}
       handleClickInputReveal={handleClickInputReveal}
-      invitationCode={invitationCodes}
-      psk={psk}
     />
   )
 }

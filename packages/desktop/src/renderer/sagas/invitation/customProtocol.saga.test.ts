@@ -1,5 +1,5 @@
 import { communities, getFactory, Store } from '@quiet/state-manager'
-import { Community, CommunityOwnership, CreateNetworkPayload, InvitationData } from '@quiet/types'
+import { Community, CommunityOwnership, CreateNetworkPayload, InvitationData, InvitationDataV1 } from '@quiet/types'
 import { FactoryGirl } from 'factory-girl'
 import { expectSaga } from 'redux-saga-test-plan'
 import { customProtocolSaga } from './customProtocol.saga'
@@ -8,13 +8,14 @@ import { prepareStore } from '../../testUtils/prepareStore'
 import { StoreKeys } from '../../store/store.keys'
 import { modalsActions } from '../modals/modals.slice'
 import { ModalName } from '../modals/modals.types'
-import { validInvitationCodeTestData, getValidInvitationUrlTestData } from '@quiet/common'
+import { getValidInvitationUrlTestData, validInvitationDatav1, validInvitationDatav2 } from '@quiet/common'
 
 describe('Handle invitation code', () => {
   let store: Store
   let factory: FactoryGirl
   let community: Community
-  let validInvitationData: InvitationData
+  let validInvitationData: InvitationDataV1
+  let validInvitationDeepUrl: string
 
   beforeEach(async () => {
     store = (
@@ -28,19 +29,23 @@ describe('Handle invitation code', () => {
 
     factory = await getFactory(store)
 
-    validInvitationData = getValidInvitationUrlTestData(validInvitationCodeTestData[0]).data
+    validInvitationData = getValidInvitationUrlTestData(validInvitationDatav1[0]).data
+    validInvitationDeepUrl = getValidInvitationUrlTestData(validInvitationDatav1[0]).deepUrl()
   })
 
-  it('creates network if code is valid', async () => {
-    const payload: CreateNetworkPayload = {
-      ownership: CommunityOwnership.User,
-      peers: validInvitationData.pairs,
-      psk: validInvitationData.psk,
-      ownerOrbitDbIdentity: validInvitationData.ownerOrbitDbIdentity,
-    }
-    await expectSaga(customProtocolSaga, communities.actions.customProtocol(validInvitationData))
+  it('joins network if code is valid', async () => {
+    await expectSaga(customProtocolSaga, communities.actions.customProtocol([validInvitationDeepUrl]))
       .withState(store.getState())
-      .put(communities.actions.createNetwork(payload))
+      .put(communities.actions.joinNetwork(validInvitationData))
+      .run()
+  })
+
+  it('joins network if v2 code is valid', async () => {
+    const validInvitationData = getValidInvitationUrlTestData(validInvitationDatav2[0]).data
+    const validInvitationDeepUrl = getValidInvitationUrlTestData(validInvitationDatav2[0]).deepUrl()
+    await expectSaga(customProtocolSaga, communities.actions.customProtocol([validInvitationDeepUrl]))
+      .withState(store.getState())
+      .put(communities.actions.joinNetwork(validInvitationData))
       .run()
   })
 
@@ -52,7 +57,7 @@ describe('Handle invitation code', () => {
       psk: validInvitationData.psk,
     }
 
-    await expectSaga(customProtocolSaga, communities.actions.customProtocol(validInvitationData))
+    await expectSaga(customProtocolSaga, communities.actions.customProtocol([validInvitationDeepUrl]))
       .withState(store.getState())
       .put(
         modalsActions.openModal({
@@ -67,7 +72,7 @@ describe('Handle invitation code', () => {
       .run()
   })
 
-  it('does not try to create network if code is missing addresses', async () => {
+  it('does not try to create network if code is missing psk', async () => {
     const payload: CreateNetworkPayload = {
       ownership: CommunityOwnership.User,
       peers: [],
@@ -75,11 +80,7 @@ describe('Handle invitation code', () => {
 
     await expectSaga(
       customProtocolSaga,
-      communities.actions.customProtocol({
-        pairs: [],
-        psk: '12345',
-        ownerOrbitDbIdentity: 'testOwnerOrbitDbIdentity',
-      })
+      communities.actions.customProtocol(['someArg', 'quiet://?k=BNlxfE2WBF7LrlpIX0CvECN5o1oZtA16PkAb7GYiwYw='])
     )
       .withState(store.getState())
       .put(communities.actions.clearInvitationCodes())
@@ -104,11 +105,9 @@ describe('Handle invitation code', () => {
 
     await expectSaga(
       customProtocolSaga,
-      communities.actions.customProtocol({
-        pairs: validInvitationData.pairs,
-        psk: '',
-        ownerOrbitDbIdentity: 'testOwnerOrbitDbIdentity',
-      })
+      communities.actions.customProtocol([
+        'quiet://?QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE=y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd',
+      ])
     )
       .withState(store.getState())
       .put(communities.actions.clearInvitationCodes())

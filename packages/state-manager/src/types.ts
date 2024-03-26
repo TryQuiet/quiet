@@ -54,6 +54,7 @@ export interface EmitEvents {
   [SocketActionTypes.SET_COMMUNITY_METADATA]: EmitEvent<CommunityMetadata, (response: CommunityMetadata) => void>
   [SocketActionTypes.SET_COMMUNITY_CA_DATA]: EmitEvent<PermsData>
   [SocketActionTypes.SET_USER_PROFILE]: EmitEvent<UserProfile>
+  [SocketActionTypes.DOWNLOAD_INVITE_DATA]: EmitEvent<{ serverAddress: string; cid: string }>
 }
 
 export type Socket = IOSocket<EventsMap, EmitEvents>

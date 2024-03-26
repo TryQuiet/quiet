@@ -170,6 +170,7 @@ describe('User', () => {
 
     expect(actions).toMatchInlineSnapshot(`
       Array [
+        "Communities/joinNetwork",
         "Communities/createNetwork",
         "Communities/setInvitationCodes",
         "Communities/savePSK",

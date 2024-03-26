@@ -7,8 +7,7 @@ import { initSelectors } from '../init.selectors'
 import { initActions } from '../init.slice'
 import { appImages } from '../../../assets'
 import { replaceScreen } from '../../../RootNavigation'
-import { CommunityOwnership, CreateNetworkPayload, InvitationData } from '@quiet/types'
-import { areObjectsEqual } from '../../../utils/functions/areObjectsEqual/areObjectsEqual'
+import { InvitationData, InvitationDataVersion } from '@quiet/types'
 
 export function* deepLinkSaga(action: PayloadAction<ReturnType<typeof initActions.deepLink>['payload']>): Generator {
   const code = action.payload
@@ -49,49 +48,25 @@ export function* deepLinkSaga(action: PayloadAction<ReturnType<typeof initAction
 
   const community = yield* select(communities.selectors.currentCommunity)
 
-  const storedInvitationCodes = yield* select(communities.selectors.invitationCodes)
-  const currentInvitationCodes = data.pairs
+  let isJoiningAnotherCommunity = false
 
-  console.log('Stored invitation codes', storedInvitationCodes)
-  console.log('Current invitation codes', currentInvitationCodes)
+  switch (data.version) {
+    case InvitationDataVersion.v1:
+      const storedPsk = yield* select(communities.selectors.psk)
+      const currentPsk = data.psk
 
-  let isInvitationDataValid = false
+      console.log('Stored psk', storedPsk)
+      console.log('Current psk', currentPsk)
 
-  if (storedInvitationCodes.length === 0) {
-    isInvitationDataValid = true
-  } else {
-    isInvitationDataValid = storedInvitationCodes.some(storedCode =>
-      currentInvitationCodes.some(currentCode => areObjectsEqual(storedCode, currentCode))
-    )
+      isJoiningAnotherCommunity = Boolean(storedPsk && storedPsk !== currentPsk)
+      break
   }
-
-  console.log('Is invitation data valid', isInvitationDataValid)
 
   const isAlreadyConnected = Boolean(community?.name)
-
-  const alreadyBelongsWithAnotherCommunity = !isInvitationDataValid && isAlreadyConnected
-  const connectingWithAnotherCommunity = !isInvitationDataValid && !isAlreadyConnected
-  const alreadyBelongsWithCurrentCommunity = isInvitationDataValid && isAlreadyConnected
-  const connectingWithCurrentCommunity = isInvitationDataValid && !isAlreadyConnected
-
-  if (alreadyBelongsWithAnotherCommunity) {
-    console.log('INIT_NAVIGATION: ABORTING: Already belongs with another community.')
-  }
-
-  if (connectingWithAnotherCommunity) {
-    console.log('INIT_NAVIGATION: ABORTING: Proceeding with connection to another community.')
-  }
-
-  if (alreadyBelongsWithCurrentCommunity) {
-    console.log('INIT_NAVIGATION: ABORTING: Already connected with the current community.')
-  }
-
-  if (connectingWithCurrentCommunity) {
-    console.log('INIT_NAVIGATION: Proceeding with connection to the community.')
-  }
+  const connectingWithAnotherCommunity = isJoiningAnotherCommunity && !isAlreadyConnected
 
   // User already belongs to a community
-  if (alreadyBelongsWithAnotherCommunity || alreadyBelongsWithCurrentCommunity) {
+  if (isAlreadyConnected) {
     console.log('INIT_NAVIGATION: Displaying error (user already belongs to a community).')
 
     yield* put(
@@ -127,16 +102,7 @@ export function* deepLinkSaga(action: PayloadAction<ReturnType<typeof initAction
     return
   }
 
-  const payload: CreateNetworkPayload = {
-    ownership: CommunityOwnership.User,
-    peers: data.pairs,
-    psk: data.psk,
-    ownerOrbitDbIdentity: data.ownerOrbitDbIdentity,
-  }
-
-  yield* put(communities.actions.createNetwork(payload))
-
-  console.log('INIT_NAVIGATION: Switching to the username registration screen.')
+  yield* put(communities.actions.joinNetwork(data))
 
   yield* put(
     navigationActions.replaceScreen({
