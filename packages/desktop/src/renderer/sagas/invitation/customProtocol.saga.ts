@@ -1,6 +1,6 @@
 import { PayloadAction } from '@reduxjs/toolkit'
 import { select, put, delay } from 'typed-redux-saga'
-import { CommunityOwnership, CreateNetworkPayload } from '@quiet/types'
+import { CommunityOwnership, AddCommunityPayload } from '@quiet/types'
 import { communities } from '@quiet/state-manager'
 import { socketSelectors } from '../socket/socket.selectors'
 import { ModalName } from '../modals/modals.types'
@@ -32,13 +32,13 @@ export function* customProtocolSaga(
   }
   const invitationData = action.payload
   if (invitationData && invitationData.pairs.length > 0 && invitationData.psk && invitationData.ownerOrbitDbIdentity) {
-    const payload: CreateNetworkPayload = {
+    const payload: AddCommunityPayload = {
       ownership: CommunityOwnership.User,
       peers: invitationData.pairs,
       psk: invitationData.psk,
       ownerOrbitDbIdentity: invitationData.ownerOrbitDbIdentity,
     }
-    yield* put(communities.actions.createNetwork(payload))
+    yield* put(communities.actions.addCommunity(payload))
   } else {
     yield* put(communities.actions.clearInvitationCodes())
     yield* put(
