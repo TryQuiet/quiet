@@ -11,7 +11,7 @@ import { registerCertificateSaga } from './registerCertificate.saga'
 import { type CertData, type RegisterCertificatePayload, SocketActionTypes, type UserCsr } from '@quiet/types'
 
 describe('registerCertificateSaga', () => {
-  it('request certificate registration when user is community owner', async () => {
+  it('create community when user is community owner', async () => {
     setupCrypto()
     const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
     const store = prepareStore().store
@@ -35,17 +35,7 @@ describe('registerCertificateSaga', () => {
     await expectSaga(registerCertificateSaga, socket, identityActions.registerCertificate(registerCertificatePayload))
       .withReducer(reducer)
       .withState(store.getState())
-      .apply(socket, socket.emit, [
-        SocketActionTypes.REGISTER_OWNER_CERTIFICATE,
-        {
-          communityId: community.id,
-          userCsr: identity.userCsr,
-          permsData: {
-            certificate: community.CA?.rootCertString,
-            privKey: community.CA?.rootKeyString,
-          },
-        },
-      ])
+      .put(communitiesActions.createCommunity(community.id))
       .not.apply(socket, socket.emit, [SocketActionTypes.REGISTER_USER_CERTIFICATE])
       .run()
   })
@@ -67,8 +57,6 @@ describe('registerCertificateSaga', () => {
         rootCa: 'rootCa',
         peerList: [],
         onionAddress: '',
-        privateKey: '',
-        port: 0,
       }
     )
 
@@ -98,7 +86,7 @@ describe('registerCertificateSaga', () => {
     await expectSaga(registerCertificateSaga, socket, identityActions.registerCertificate(registerCertificatePayload))
       .withReducer(reducer)
       .withState(store.getState())
-      .not.apply(socket, socket.emit, [SocketActionTypes.REGISTER_OWNER_CERTIFICATE])
+      .not.put(communitiesActions.createCommunity(community.id))
       .put(communitiesActions.launchCommunity(community.id))
       .run()
   })
@@ -120,8 +108,6 @@ describe('registerCertificateSaga', () => {
         rootCa: 'rootCa',
         peerList: [],
         onionAddress: '',
-        privateKey: '',
-        port: 0,
       }
     )
 
@@ -152,7 +138,7 @@ describe('registerCertificateSaga', () => {
     await expectSaga(registerCertificateSaga, socket, identityActions.registerCertificate(registerCertificatePayload))
       .withReducer(reducer)
       .withState(store.getState())
-      .not.apply(socket, socket.emit, [SocketActionTypes.REGISTER_OWNER_CERTIFICATE])
+      .not.put(communitiesActions.createCommunity(community.id))
       .not.put(communitiesActions.launchCommunity(community.id))
       .put(identityActions.saveUserCsr())
       .run()

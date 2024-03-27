@@ -1,4 +1,4 @@
-import { type HiddenService, type PeerId, type Identity } from './identity'
+import { type HiddenService, type PeerId, type Identity, type UserCsr } from './identity'
 import { InvitationPair } from './network'
 
 export interface Community {
@@ -11,8 +11,6 @@ export interface Community {
   rootCa?: string
   peerList?: string[]
   onionAddress?: string
-  privateKey?: string
-  port?: number
   ownerCertificate?: string
   psk?: string
   ownerOrbitDbIdentity?: string
@@ -44,12 +42,18 @@ export interface Certificates {
 
 export interface InitCommunityPayload {
   id: string
+  name?: string
   peerId: PeerId
   hiddenService: HiddenService
-  certs?: Certificates
+  CA?: null | {
+    rootCertString: string
+    rootKeyString: string
+  }
+  rootCa?: string
   peers?: string[]
   psk?: string
   ownerOrbitDbIdentity?: string
+  ownerCsr?: UserCsr
 }
 
 export interface StorePeerListPayload {

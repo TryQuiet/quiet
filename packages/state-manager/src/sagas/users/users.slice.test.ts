@@ -20,8 +20,6 @@ describe('users reducer', () => {
     rootCa: '',
     peerList: [],
     onionAddress: '',
-    privateKey: '',
-    port: 0,
     ownerCertificate: '',
   }
 

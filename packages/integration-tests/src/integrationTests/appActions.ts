@@ -252,7 +252,7 @@ export const getCommunityOwnerData = (ownerStore: Store) => {
     communityId: community.id,
     ownerPeerId: ownerIdentityState.identities.entities[ownerIdentityState.identities.ids[0]].peerId.id,
     ownerRootCA: community.rootCa,
-    registrarPort: community.port,
+    registrarPort: 0,
   }
 }
 

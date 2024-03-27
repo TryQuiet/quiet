@@ -135,22 +135,6 @@ describe('Connections manager', () => {
     }
     const emitSpy = jest.spyOn(libp2pService, 'emit')
 
-    const launchCommunityPayload: InitCommunityPayload = {
-      id: community.id,
-      peerId: userIdentity.peerId,
-      hiddenService: userIdentity.hiddenService,
-      certs: {
-        // @ts-expect-error
-        certificate: userIdentity.userCertificate,
-        // @ts-expect-error
-        key: userIdentity.userCsr?.userKey,
-        CA: [communityRootCa],
-      },
-      peers: community.peerList,
-    }
-
-    await localDbService.put(LocalDBKeys.COMMUNITY, launchCommunityPayload)
-
     // Peer connected
     await connectionsManagerService.init()
     libp2pService.connectedPeers.set(peerId.toString(), DateTime.utc().valueOf())
@@ -206,19 +190,15 @@ describe('Connections manager', () => {
       )
     }
 
-    const launchCommunityPayload: InitCommunityPayload = {
-      id: community.id,
-      peerId: userIdentity.peerId,
-      hiddenService: userIdentity.hiddenService,
-      certs: {
-        // @ts-expect-error Identity.userCertificate can be null
-        certificate: userIdentity.userCertificate,
-        // @ts-expect-error Identity.userCertificate userCsr.userKey can be undefined
-        key: userIdentity.userCsr?.userKey,
-        // @ts-expect-error
-        CA: [community.rootCa],
+    const launchCommunityPayload = {
+      community: {
+        id: community.id,
+        peerList,
       },
-      peers: peerList,
+      network: {
+        peerId: userIdentity.peerId,
+        hiddenService: userIdentity.hiddenService,
+      },
     }
     await connectionsManagerService.init()
     await connectionsManagerService.launchCommunity(launchCommunityPayload)
@@ -248,19 +228,15 @@ describe('Connections manager', () => {
       )
     }
 
-    const launchCommunityPayload: InitCommunityPayload = {
-      id: community.id,
-      peerId: userIdentity.peerId,
-      hiddenService: userIdentity.hiddenService,
-      certs: {
-        // @ts-expect-error Identity.userCertificate can be null
-        certificate: userIdentity.userCertificate,
-        // @ts-expect-error
-        key: userIdentity.userCsr?.userKey,
-        // @ts-expect-error
-        CA: [community.rootCa],
+    const launchCommunityPayload = {
+      community: {
+        id: community.id,
+        peerList,
       },
-      peers: peerList,
+      network: {
+        peerId: userIdentity.peerId,
+        hiddenService: userIdentity.hiddenService,
+      },
     }
 
     await connectionsManagerService.launchCommunity(launchCommunityPayload)

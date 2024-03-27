@@ -17,7 +17,6 @@ import { socketEventData } from '../renderer/testUtils/socket'
 import {
   communities,
   RegisterUserCertificatePayload,
-  InitCommunityPayload,
   ErrorCodes,
   ErrorMessages,
   getFactory,
@@ -32,6 +31,7 @@ import {
   ChannelSubscribedPayload,
   Community,
   ErrorPayload,
+  type InitCommunityPayload,
   type NetworkInfo,
   ResponseLaunchCommunityPayload,
   SocketActionTypes,
@@ -85,10 +85,9 @@ describe('User', () => {
 
     const factory = await getFactory(store)
 
-    const mockImpl = async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
+    const mockEmitImpl = async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
       const action = input[0]
       if (action === SocketActionTypes.CREATE_NETWORK) {
-        const payload = input[1] as Community
         return {
           hiddenService: {
             onionAddress: 'onionAddress',
@@ -123,9 +122,9 @@ describe('User', () => {
       }
     }
 
-    jest.spyOn(socket, 'emit').mockImplementation(mockImpl)
+    jest.spyOn(socket, 'emit').mockImplementation(mockEmitImpl)
     // @ts-ignore
-    socket.emitWithAck = mockImpl
+    socket.emitWithAck = mockEmitImpl
 
     // Log all the dispatched actions in order
     const actions: AnyAction[] = []
@@ -171,13 +170,12 @@ describe('User', () => {
     expect(actions).toMatchInlineSnapshot(`
       Array [
         "Communities/createNetwork",
-        "Communities/setInvitationCodes",
-        "Communities/savePSK",
         "Communities/addNewCommunity",
         "Communities/setCurrentCommunity",
+        "Communities/setInvitationCodes",
+        "Identity/addNewIdentity",
         "Modals/closeModal",
         "Modals/openModal",
-        "Identity/addNewIdentity",
         "Identity/registerUsername",
         "Network/setLoadingPanelType",
         "Modals/openModal",
@@ -228,11 +226,10 @@ describe('User', () => {
       store
     )
 
-    jest.spyOn(socket, 'emit').mockImplementation(async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
+    const mockEmitImpl = async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
       const action = input[0]
       if (action === SocketActionTypes.CREATE_NETWORK) {
-        const payload = input[1] as Community
-        return socket.socketClient.emit<NetworkInfo>(SocketActionTypes.NETWORK_CREATED, {
+        return {
           hiddenService: {
             onionAddress: 'onionAddress',
             privateKey: 'privKey',
@@ -240,7 +237,7 @@ describe('User', () => {
           peerId: {
             id: 'peerId',
           },
-        })
+        }
       }
       if (action === SocketActionTypes.REGISTER_USER_CERTIFICATE) {
         const payload = input[1] as RegisterUserCertificatePayload
@@ -253,7 +250,11 @@ describe('User', () => {
           community: community?.id,
         })
       }
-    })
+    }
+
+    jest.spyOn(socket, 'emit').mockImplementation(mockEmitImpl)
+    // @ts-ignore
+    socket.emitWithAck = mockEmitImpl
 
     // Log all the dispatched actions in order
     const actions: AnyAction[] = []
@@ -313,11 +314,10 @@ describe('User', () => {
       store
     )
 
-    jest.spyOn(socket, 'emit').mockImplementation(async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
+    const mockEmitImpl = async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
       const action = input[0]
       if (action === SocketActionTypes.CREATE_NETWORK) {
-        const payload = input[1] as Community
-        return socket.socketClient.emit<NetworkInfo>(SocketActionTypes.NETWORK_CREATED, {
+        return {
           hiddenService: {
             onionAddress: 'onionAddress',
             privateKey: 'privKey',
@@ -325,9 +325,12 @@ describe('User', () => {
           peerId: {
             id: 'peerId',
           },
-        })
+        }
       }
-    })
+    }
+
+    // @ts-ignore
+    socket.emitWithAck = mockEmitImpl
 
     // Log all the dispatched actions in order
     const actions: AnyAction[] = []
