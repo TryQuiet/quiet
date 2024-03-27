@@ -63,7 +63,6 @@ export function* createNetworkSaga(
     nickname: '',
     hiddenService: network.hiddenService,
     peerId: network.peerId,
-    dmKeys,
     userCsr: null,
     userCertificate: null,
     joinTimestamp: null,

@@ -66,10 +66,6 @@ const Template: ComponentStory<typeof ChannelComponent> = () => {
               privKey: 'privKey',
               pubKey: 'pubKey',
             },
-            dmKeys: {
-              publicKey: 'publicKey',
-              privateKey: 'privateKey',
-            },
             userCsr: {
               userCsr: 'userCsr',
               userKey: 'userKey',
