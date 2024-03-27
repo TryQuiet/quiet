@@ -29,6 +29,9 @@ import { CONFIG_OPTIONS, SERVER_IO_PROVIDER } from '../const'
 import { ConfigOptions, ServerIoProviderTypes } from '../types'
 import { suspendableSocketEvents } from './suspendable.events'
 import Logger from '../common/logger'
+import fetch from 'node-fetch'
+import { ServerStoredCommunityMetadata } from '../storageServerProxy/storageServerProxy.types'
+import { p2pAddressesToPairs } from '@quiet/common'
 
 @Injectable()
 export class SocketService extends EventEmitter implements OnModuleInit {
@@ -175,15 +178,35 @@ export class SocketService extends EventEmitter implements OnModuleInit {
       socket.on(
         SocketActionTypes.DOWNLOAD_INVITE_DATA,
         async (payload: { serverAddress: string; cid: string }, callback: (response: CreateNetworkPayload) => void) => {
-          // this.emit(SocketActionTypes.DOWNLOAD_INVITE_DATA, payload, callback)
-          console.log('download invite data', payload)
-          // Mock it for now
-          callback({
-            ownership: CommunityOwnership.User,
-            peers: [],
-            psk: '',
-            ownerOrbitDbIdentity: '',
-          })
+          // FIXME
+          this.emit(
+            SocketActionTypes.DOWNLOAD_STORAGE_SERVER_DATA,
+            payload,
+            async (downloadedData: ServerStoredCommunityMetadata) => {
+              const createNetworkPayload: CreateNetworkPayload = {
+                ownership: CommunityOwnership.User,
+                peers: p2pAddressesToPairs(downloadedData.peerList), // TODO: prepare in storageServerProxy
+                psk: downloadedData.psk,
+                ownerOrbitDbIdentity: downloadedData.ownerOrbitDbIdentity,
+              }
+              const communityMetadataPayload: CommunityMetadata = {
+                id: downloadedData.id,
+                ownerCertificate: downloadedData.ownerCertificate,
+                rootCa: downloadedData.rootCa,
+              }
+              // TODO: Save the data to the store
+              this.emit(SocketActionTypes.SET_COMMUNITY_METADATA, communityMetadataPayload)
+              // TODO: emit metadata
+
+              callback(createNetworkPayload)
+            }
+          )
+          // callback({
+          //   ownership: CommunityOwnership.User,
+          //   peers: data.peerList,
+          //   psk: data.psk,
+          //   ownerOrbitDbIdentity: data.ownerOrbitDbIdentity,
+          // })
         }
       )
 
