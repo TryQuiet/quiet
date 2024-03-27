@@ -11,10 +11,6 @@
 * Updates all logging from renderer to write to the node console
 * Updates usages of `act` in tests to use `@testing-library/react` to avoid errors/warnings
 
-# Fixes
-
-* Fixes channel name creation logic
-* Allow JPEG and GIF files as profile photos ([#2332](https://github.com/TryQuiet/quiet/issues/2332))
 
 [2.1.2]
 
@@ -33,9 +29,8 @@
 * Choose random ports for Tor services (iOS)
 * Use consistent identicons for messages and profile
 * Add retry ability to tor-control and misc tor-control fixes
-* Ship Tor binary and use custom TorHandler
 
-# Chores:
+# Other:
 
 * Upgraded React-Native to 0.73.2
 
