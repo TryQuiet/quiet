@@ -187,12 +187,11 @@ describe('New user joins using invitation link while having app opened', () => {
       const generalChannel = new Channel(ownerApp.driver, 'general')
       await generalChannel.element.isDisplayed()
 
-      const hasMessage = await generalChannel.waitForUserMessage(
-        joiningUserUsername,
-        userJoinedMessage(joiningUserUsername)
+      const messageIds = await generalChannel.getMessageIdsByText(
+        `@${joiningUserUsername} has joined and will be registered soon. 🎉 Learn more`,
+        joiningUserUsername
       )
-      const isMessageDisplayed = await hasMessage?.isDisplayed()
-      expect(isMessageDisplayed).toBeTruthy()
+      await generalChannel.verifyMessageSentStatus(messageIds, joiningUserUsername, false)
     })
   })
 })

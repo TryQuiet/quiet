@@ -3,6 +3,9 @@ import { createSelector } from 'reselect'
 import { communitiesAdapter } from './communities.adapter'
 import { type CreatedSelectors, type StoreState } from '../store.types'
 import { CertFieldsTypes, getCertFieldValue, parseCertificate } from '@quiet/identity'
+import createLogger from '../../utils/logger'
+
+const logger = createLogger('communities')
 
 // Workaround for "The inferred type of 'communitiesSelectors' cannot be named without a reference to
 // 'packages/identity/node_modules/pkijs/build'. This is likely not portable. A type annotation is necessary."
@@ -32,6 +35,10 @@ export const currentCommunityId = createSelector(communitiesSlice, reducerState 
   return reducerState.currentCommunity
 })
 
+export const peerList = createSelector(currentCommunity, currentCommunity => {
+  return currentCommunity?.peerList
+})
+
 export const invitationCodes = createSelector(communitiesSlice, reducerState => {
   return reducerState.invitationCodes
 })
@@ -56,7 +63,7 @@ export const ownerNickname = createSelector(ownerCertificate, ownerCertificate =
   const nickname = getCertFieldValue(parsedCert, CertFieldsTypes.nickName)
 
   if (!nickname) {
-    console.error('Could not retrieve owner nickname from certificate')
+    logger.error('Could not retrieve owner nickname from certificate')
   }
 
   return nickname
@@ -73,4 +80,5 @@ export const communitiesSelectors = {
   ownerCertificate,
   ownerNickname,
   psk,
+  peerList,
 }

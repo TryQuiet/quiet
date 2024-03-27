@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react'
+import classNames from 'classnames'
 import { styled } from '@mui/material/styles'
+
 import { DownloadStatus, FileMetadata } from '@quiet/types'
+
 import { UseModalType } from '../../../../containers/hooks'
 import UploadedFileModal from './UploadedImagePreview'
 import { UploadedFilename, UploadedImagePlaceholder } from '../UploadedImagePlaceholder/UploadedImagePlaceholder'
@@ -10,6 +13,8 @@ const PREFIX = 'UploadedImage'
 const classes = {
   image: `${PREFIX}image`,
   container: `${PREFIX}container`,
+  pending: `${PREFIX}pending`,
+  unsent: `${PREFIX}unsent`,
 }
 
 const Root = styled('div')(() => ({
@@ -22,6 +27,14 @@ const Root = styled('div')(() => ({
     maxWidth: '400px',
     cursor: 'pointer',
   },
+
+  [`& .${classes.pending}`]: {
+    opacity: 0.5,
+  },
+
+  [`& .${classes.unsent}`]: {
+    opacity: 0.5,
+  },
 }))
 
 export interface UploadedImageProps {
@@ -31,9 +44,10 @@ export interface UploadedImageProps {
   }>
 
   downloadStatus?: DownloadStatus
+  isUnsent?: boolean
 }
 
-export const UploadedImage: React.FC<UploadedImageProps> = ({ media, uploadedFileModal, downloadStatus }) => {
+export const UploadedImage: React.FC<UploadedImageProps> = ({ media, uploadedFileModal, downloadStatus, isUnsent }) => {
   const [showImage, setShowImage] = useState<boolean>(false)
   const { cid, path, name, ext } = media
 
@@ -62,7 +76,11 @@ export const UploadedImage: React.FC<UploadedImageProps> = ({ media, uploadedFil
       {path ? (
         <>
           <div
-            className={classes.container}
+            className={classNames({
+              [classes.container]: true,
+              [classes.pending]: showImage,
+              [classes.unsent]: isUnsent,
+            })}
             onClick={() => {
               setShowImage(true)
             }}

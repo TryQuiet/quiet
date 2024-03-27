@@ -9,6 +9,9 @@ import { publicChannelsSelectors } from '../../publicChannels/publicChannels.sel
 import { messagesActions } from '../messages.slice'
 import { generateMessageId, getCurrentTime } from '../utils/message.utils'
 import { type ChannelMessage, MessageType, SendingStatus, SocketActionTypes } from '@quiet/types'
+import createLogger from '../../../utils/logger'
+
+const logger = createLogger('messages')
 
 export function* sendMessageSaga(
   socket: Socket,
@@ -32,7 +35,7 @@ export function* sendMessageSaga(
 
   const channelId = action.payload.channelId || currentChannelId
   if (!channelId) {
-    console.error(`Could not send message with id ${id}, no channel id`)
+    logger.error(`Could not send message with id ${id}, no channel id`)
     return
   }
 

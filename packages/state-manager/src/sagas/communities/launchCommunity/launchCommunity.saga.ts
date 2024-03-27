@@ -10,6 +10,9 @@ import { connectionSelectors } from '../../appConnection/connection.selectors'
 import { networkSelectors } from '../../network/network.selectors'
 import { pairsToP2pAddresses } from '@quiet/common'
 import { type InitCommunityPayload, SocketActionTypes } from '@quiet/types'
+import createLogger from '../../../utils/logger'
+
+const logger = createLogger('communities')
 
 // TODO: Remove if unused
 export function* initCommunities(): Generator {
@@ -35,7 +38,7 @@ export function* launchCommunitySaga(
   const identity = yield* select(identitySelectors.selectById(communityId))
 
   if (!identity?.userCsr?.userKey) {
-    console.error('Could not launch community, No identity private key')
+    logger.error('Could not launch community, No identity private key')
     return
   }
 

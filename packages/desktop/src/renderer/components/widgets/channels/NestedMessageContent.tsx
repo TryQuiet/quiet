@@ -18,6 +18,7 @@ const PREFIX = 'NestedMessageContent'
 const classes = {
   message: `${PREFIX}message`,
   pending: `${PREFIX}pending`,
+  unsent: `${PREFIX}unsent`,
   info: `${PREFIX}info`,
 }
 
@@ -33,6 +34,10 @@ const StyledGrid = styled(Grid)(() => ({
     color: theme.palette.colors.lightGray,
   },
 
+  [`&.${classes.unsent}`]: {
+    opacity: 0.5,
+  },
+
   [`& .${classes.info}`]: {
     color: theme.palette.colors.white,
   },
@@ -41,6 +46,7 @@ const StyledGrid = styled(Grid)(() => ({
 export interface NestedMessageContentProps {
   message: DisplayableMessage
   pending: boolean
+  isUnsent: boolean
   downloadStatus?: DownloadStatus
   openUrl: (url: string) => void
   uploadedFileModal?: UseModalType<{
@@ -52,6 +58,7 @@ export interface NestedMessageContentProps {
 export const NestedMessageContent: React.FC<NestedMessageContentProps & FileActionsProps> = ({
   message,
   pending,
+  isUnsent,
   downloadStatus,
   uploadedFileModal,
   onMathMessageRendered,
@@ -72,6 +79,7 @@ export const NestedMessageContent: React.FC<NestedMessageContentProps & FileActi
             className={classNames({
               [classes.message]: true,
               [classes.pending]: pending,
+              [classes.unsent]: isUnsent,
             })}
             data-testid={`messagesGroupContent-${message.id}`}
           >
@@ -80,11 +88,13 @@ export const NestedMessageContent: React.FC<NestedMessageContentProps & FileActi
                 media={message.media}
                 uploadedFileModal={uploadedFileModal}
                 downloadStatus={downloadStatus}
+                isUnsent={isUnsent}
               />
             ) : (
               <FileComponent
                 message={message}
                 downloadStatus={downloadStatus}
+                isUnsent={isUnsent}
                 openContainingFolder={openContainingFolder}
                 downloadFile={downloadFile}
                 cancelDownload={cancelDownload}
@@ -98,12 +108,14 @@ export const NestedMessageContent: React.FC<NestedMessageContentProps & FileActi
             className={classNames({
               [classes.message]: true,
               [classes.pending]: pending,
+              [classes.unsent]: isUnsent,
             })}
             data-testid={`messagesGroupContent-${message.id}`}
           >
             <FileComponent
               message={message}
               downloadStatus={downloadStatus}
+              isUnsent={isUnsent}
               openContainingFolder={openContainingFolder}
               downloadFile={downloadFile}
               cancelDownload={cancelDownload}
@@ -118,6 +130,7 @@ export const NestedMessageContent: React.FC<NestedMessageContentProps & FileActi
               message={message.message}
               messageId={message.id}
               pending={pending}
+              isUnsent={isUnsent}
               openUrl={openUrl}
             />
           )
@@ -128,6 +141,7 @@ export const NestedMessageContent: React.FC<NestedMessageContentProps & FileActi
             message={message.message}
             messageId={message.id}
             pending={pending}
+            isUnsent={isUnsent}
             openUrl={openUrl}
             onMathMessageRendered={onMathMessageRendered}
           />

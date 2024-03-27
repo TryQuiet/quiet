@@ -5,23 +5,25 @@ interface IGenerateMessages {
   type?: number
   message?: string
   nickname?: string
+  createdAtSeconds?: number
 }
 
-const defaults = { amount: 1, type: 1, message: 'message', nickname: 'gringo' }
+const defaults = { amount: 1, type: 1, message: 'message', nickname: 'gringo', createdAtSeconds: 0 }
 
 export const generateMessages = (options: IGenerateMessages = defaults) => {
-  let { amount, type, message, nickname } = { ...options }
+  let { amount, type, message, nickname, createdAtSeconds } = { ...options }
   amount = amount || defaults.amount
   type = type || defaults.type
   message = message || defaults.message
   nickname = nickname || defaults.nickname
+  createdAtSeconds = createdAtSeconds || defaults.createdAtSeconds
   const messages: DisplayableMessage[] = []
   for (let i = 0; i < amount; i++) {
     messages.push({
       id: `${i}`,
       type,
       message: `${message}${i}`,
-      createdAt: 0,
+      createdAt: createdAtSeconds,
       date: 'string',
       nickname,
       isDuplicated: false,

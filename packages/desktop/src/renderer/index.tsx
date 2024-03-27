@@ -6,6 +6,9 @@ import store from './store'
 import updateHandlers from './store/handlers/update'
 import { communities, connection } from '@quiet/state-manager'
 import { InvitationData } from '@quiet/types'
+import createLogger from './logger'
+
+const logger = createLogger('index')
 
 if (window && process.env.DEBUG) {
   window.localStorage.setItem('debug', process.env.DEBUG)
@@ -22,7 +25,7 @@ ipcRenderer.on('force-save-state', async _event => {
 
 ipcRenderer.on('invitation', (_event, invitation: { data: InvitationData }) => {
   if (!invitation.data) return
-  console.log('invitation', invitation.data.pairs, 'dispatching action')
+  logger.info(`invitation ${JSON.stringify(invitation.data.pairs, null, 2)} dispatching action`)
   store.dispatch(communities.actions.customProtocol(invitation.data))
 })
 

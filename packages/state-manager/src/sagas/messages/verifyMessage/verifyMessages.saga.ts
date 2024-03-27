@@ -6,6 +6,9 @@ import { publicChannelsSelectors } from '../../publicChannels/publicChannels.sel
 
 import { usersSelectors } from '../../users/users.selectors'
 import { verifyUserInfoMessage } from '@quiet/common'
+import createLogger from '../../../utils/logger'
+
+const logger = createLogger('messages')
 
 export function* verifyMessagesSaga(
   action: PayloadAction<ReturnType<typeof messagesActions.addMessages>>['payload']
@@ -41,7 +44,7 @@ export function* verifyMessagesSaga(
       const expectedMessage = yield* call(verifyUserInfoMessage, user.username, channel)
 
       if (message.message !== expectedMessage) {
-        console.error(`${user.username} tried to send a malicious info message`)
+        logger.error(`${user.username} tried to send a malicious info message`)
         isVerified = false
       }
     }

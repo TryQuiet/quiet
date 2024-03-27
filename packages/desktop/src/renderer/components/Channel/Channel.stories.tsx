@@ -11,6 +11,7 @@ import { HTML5Backend } from 'react-dnd-html5-backend'
 import ChannelComponent, { ChannelComponentProps } from './ChannelComponent'
 import { UploadFilesPreviewsProps } from './File/UploadingPreview'
 import { DownloadState } from '@quiet/types'
+import { DateTime } from 'luxon'
 
 const args: Partial<ChannelComponentProps & UploadFilesPreviewsProps> = {
   user: {
@@ -58,6 +59,7 @@ const args: Partial<ChannelComponentProps & UploadFilesPreviewsProps> = {
     pubKey: 'pubKey',
   },
   pendingMessages: {},
+  lastConnectedTime: DateTime.utc().toMillis(),
   channelId: 'general',
   channelName: 'general',
   lazyLoading: function (_load: boolean): void {},

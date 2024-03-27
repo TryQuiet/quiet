@@ -8,6 +8,14 @@
 
 * Feature: add functionality to export chat to text document in desktop version
 
+* Update logging to write to node console
+
+* Adds new selectors/reducers for getting peer connection information ([#1706](https://github.com/TryQuiet/quiet/issues/1706))
+
+* Updates message grouping to keep sent/unsent messages separate ([#1706](https://github.com/TryQuiet/quiet/issues/1706))
+
+* Update network data on peer connection ([#1706](https://github.com/TryQuiet/quiet/issues/1706))
+
 [2.0.3-alpha.6]
 
 * Fix: filter out invalid peer addresses in peer list. Update peer list in localdb.

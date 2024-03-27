@@ -14,6 +14,7 @@ import { UseModalType } from '../../../containers/hooks'
 
 import { FileActionsProps } from '../../Channel/File/FileComponent/FileComponent'
 import { HandleOpenModalType, UserLabelType } from '../userLabel/UserLabel.types'
+import { allPeersDisconnectedAt } from 'packages/state-manager/src/sagas/network/network.selectors'
 
 const PREFIX = 'ChannelMessagesComponent'
 
@@ -73,6 +74,10 @@ export const deletingChannelMessage = 'Deleting channel...'
 export interface IChannelMessagesProps {
   messages?: MessagesDailyGroups
   pendingMessages?: Dictionary<MessageSendingStatus>
+  connectedPeers: string[] | undefined
+  communityPeerList: string[] | undefined
+  lastConnectedTime: number
+  allPeersDisconnectedTime: number | undefined
   downloadStatuses?: Dictionary<DownloadStatus>
   scrollbarRef: React.RefObject<HTMLDivElement>
   onScroll: () => void
@@ -89,6 +94,10 @@ export interface IChannelMessagesProps {
 export const ChannelMessagesComponent: React.FC<IChannelMessagesProps & FileActionsProps> = ({
   messages = {},
   pendingMessages = {},
+  connectedPeers = [],
+  communityPeerList = [],
+  lastConnectedTime,
+  allPeersDisconnectedTime,
   downloadStatuses = {},
   scrollbarRef,
   onScroll,
@@ -150,6 +159,10 @@ export const ChannelMessagesComponent: React.FC<IChannelMessagesProps & FileActi
                     key={data.id}
                     messages={items}
                     pendingMessages={pendingMessages}
+                    connectedPeers={connectedPeers}
+                    communityPeerList={communityPeerList}
+                    lastConnectedTime={lastConnectedTime}
+                    allPeersDisconnectedTime={allPeersDisconnectedTime}
                     downloadStatuses={downloadStatuses}
                     uploadedFileModal={uploadedFileModal}
                     openUrl={openUrl}

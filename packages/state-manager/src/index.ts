@@ -100,6 +100,8 @@ export * from './sagas/settings/settings.types'
 
 export * from './sagas/appConnection/connection.types'
 
+export * from './utils/messages/messages.utils'
+
 export const app = {
   actions: appActions,
 }

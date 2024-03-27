@@ -2,7 +2,7 @@ import React from 'react'
 import '@testing-library/jest-dom/extend-expect'
 import userEvent from '@testing-library/user-event'
 import { screen, waitFor } from '@testing-library/dom'
-import { act } from 'react-dom/test-utils'
+import { act } from '@testing-library/react'
 import { take } from 'typed-redux-saga'
 import MockedSocket from 'socket.io-mock'
 import { ioMock } from '../../../../shared/setupTests'
@@ -16,6 +16,7 @@ import { ModalName } from '../../../sagas/modals/modals.types'
 import { modalsActions } from '../../../sagas/modals/modals.slice'
 
 import { getFactory, identity, publicChannels } from '@quiet/state-manager'
+import { defaultLogger } from '../../../logger'
 
 describe('Add new channel', () => {
   let socket: MockedSocket
@@ -50,7 +51,7 @@ describe('Add new channel', () => {
       async () =>
         await waitFor(() => {
           user.click(screen.getByText('Create Channel')).catch(e => {
-            console.error(e)
+            defaultLogger.error(e)
           })
         })
     )

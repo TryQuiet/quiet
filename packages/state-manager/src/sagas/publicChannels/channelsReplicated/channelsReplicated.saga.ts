@@ -6,14 +6,14 @@ import { messagesSelectors } from '../../messages/messages.selectors'
 import { messagesActions } from '../../messages/messages.slice'
 import { communitiesSelectors } from '../../communities/communities.selectors'
 
-import logger from '@quiet/logger'
+import createLogger from '../../../utils/logger'
 import { type PublicChannel } from '@quiet/types'
-const log = logger('channels')
+const logger = createLogger('channels')
 
 export function* channelsReplicatedSaga(
   action: PayloadAction<ReturnType<typeof publicChannelsActions.channelsReplicated>['payload']>
 ): Generator {
-  log('Syncing channels')
+  logger.debug('Syncing channels')
   const { channels } = action.payload
   const _locallyStoredChannels = yield* select(publicChannelsSelectors.publicChannels)
   const locallyStoredChannels = _locallyStoredChannels.map(channel => channel.id)
@@ -22,13 +22,13 @@ export function* channelsReplicatedSaga(
   const databaseStoredChannels = Object.values(channels) as PublicChannel[]
 
   const databaseStoredChannelsIds = databaseStoredChannels.map(channel => channel.id)
-  console.log({ locallyStoredChannels, databaseStoredChannelsIds })
+  logger.debug({ locallyStoredChannels, databaseStoredChannelsIds })
 
   // Removing channels from store
   if (databaseStoredChannelsIds.length > 0) {
     for (const channelId of locallyStoredChannels) {
       if (!databaseStoredChannelsIds.includes(channelId)) {
-        log(`Removing #${channelId} from store`)
+        logger.info(`Removing #${channelId} from store`)
         yield* put(publicChannelsActions.deleteChannel({ channelId }))
         yield* take(publicChannelsActions.completeChannelDeletion)
       }
@@ -38,7 +38,7 @@ export function* channelsReplicatedSaga(
   // Upserting channels to local storage
   for (const channel of databaseStoredChannels) {
     if (!locallyStoredChannels.includes(channel.id)) {
-      log(`Adding #${channel.name} to store`)
+      logger.info(`Adding #${channel.name} to store`)
       yield* put(
         publicChannelsActions.addChannel({
           channel,

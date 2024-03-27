@@ -39,10 +39,10 @@ export const filterAndSortPeers = (
     }
   }
 
-  const peerList = mostWantedPeers.map(peerId => {
+  const peerList = mostWantedPeers.map(peer => {
     return peersAddresses.find(peerAddress => {
       const id = peerAddress.split('/')[7]
-      if (id === peerId.peerId) {
+      if (id === peer.peerId) {
         peersAddresses.splice(peersAddresses.indexOf(peerAddress), 1)
         return true
       }
