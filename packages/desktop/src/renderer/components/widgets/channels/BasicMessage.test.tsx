@@ -25,8 +25,8 @@ describe('BasicMessage', () => {
             messages={messages}
             lastConnectedTime={DateTime.utc().toSeconds() - 1000}
             allPeersDisconnectedTime={undefined}
-            isConnectedToOtherPeers={true}
-            communityHasPeers={true}
+            connectedPeers={['foobar']}
+            communityPeerList={['foobar', 'barbaz']}
             openUrl={jest.fn()}
           />
         </Provider>
@@ -120,8 +120,8 @@ describe('BasicMessage', () => {
             lastConnectedTime={DateTime.utc().toSeconds() - 1000}
             allPeersDisconnectedTime={undefined}
             messages={messages}
-            isConnectedToOtherPeers={true}
-            communityHasPeers={true}
+            connectedPeers={['foobar']}
+            communityPeerList={['foobar', 'barbaz']}
             openUrl={jest.fn()}
           />
         </Provider>
@@ -225,8 +225,8 @@ describe('BasicMessage', () => {
             lastConnectedTime={DateTime.utc().toSeconds() - 1000}
             allPeersDisconnectedTime={undefined}
             messages={messages}
-            isConnectedToOtherPeers={true}
-            communityHasPeers={true}
+            connectedPeers={['foobar']}
+            communityPeerList={['foobar', 'barbaz']}
             openUrl={jest.fn()}
           />
         </Provider>
@@ -334,8 +334,8 @@ describe('BasicMessage', () => {
             lastConnectedTime={DateTime.utc().toSeconds() - 1000}
             allPeersDisconnectedTime={undefined}
             messages={[...message1, ...message2]}
-            isConnectedToOtherPeers={true}
-            communityHasPeers={true}
+            connectedPeers={['foobar']}
+            communityPeerList={['foobar', 'barbaz']}
             openUrl={jest.fn()}
           />
         </Provider>

@@ -26,6 +26,7 @@ import {
 import { networkSelectors } from '../network/network.selectors'
 import { communitiesSelectors } from '../communities/communities.selectors'
 import createLogger from '../../utils/logger'
+import { isMessageUnsent } from '../../utils/messages/messages.utils'
 
 const logger = createLogger('publicChannels')
 
@@ -244,13 +245,13 @@ export const currentChannelMessagesMergedBySender = createSelector(
         const last = merged[index][0]
 
         // Determine if a message is "unsent"
-        const isRecent = lastConnectedTime < message.createdAt
-        const communityHasPeers = communityPeerList != null && communityPeerList.length > 1
-        const hasConnectedPeers = connectedPeers.length > 0
-        const peersDisconnectedRecently = allPeersDisconnectedAt != null && allPeersDisconnectedAt < message.createdAt
-        const noPeersThisSession = allPeersDisconnectedAt == null && connectedPeers.length > 0
-        const isUnsent =
-          communityHasPeers && isRecent && !hasConnectedPeers && (noPeersThisSession || peersDisconnectedRecently)
+        const isUnsent = isMessageUnsent(
+          message,
+          lastConnectedTime,
+          allPeersDisconnectedAt,
+          connectedPeers,
+          communityPeerList
+        )
 
         if (
           last?.pubKey === message?.pubKey &&

@@ -117,41 +117,10 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
 
   const [mathMessagesRendered, onMathMessageRendered] = React.useState<number>(0)
 
-  const checkForConnectedPeers = (connectedPeers: string[] | undefined) => {
-    if (connectedPeers && connectedPeers.length > 0) {
-      return true
-    }
-    return false
-  }
-
-  const checkForCommunityPeers = (peerList: string[] | undefined) => {
-    defaultLogger.info(peerList, peerList?.length)
-    if (peerList && peerList.length > 1) {
-      return true
-    }
-    return false
-  }
-
-  const [isConnectedToOtherPeers, onConnectedPeersChange] = React.useState<boolean>(
-    checkForConnectedPeers(connectedPeers)
-  )
-
-  const [communityHasPeers, onCommunityPeerListChanged] = React.useState<boolean>(
-    checkForCommunityPeers(communityPeerList)
-  )
-
   const updateMathMessagesRendered = () => {
     // To rerender Channel on each call
     onMathMessageRendered(mathMessagesRendered + 1)
   }
-
-  useEffect(() => {
-    onConnectedPeersChange(checkForConnectedPeers(connectedPeers))
-  }, [connectedPeers])
-
-  useEffect(() => {
-    onCommunityPeerListChanged(checkForCommunityPeers(communityPeerList))
-  }, [communityPeerList])
 
   useEffect(() => {
     if (scrollPosition === ScrollPosition.BOTTOM) {
@@ -268,8 +237,8 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
           <ChannelMessagesComponent
             messages={messages.groups}
             pendingMessages={pendingMessages}
-            isConnectedToOtherPeers={isConnectedToOtherPeers}
-            communityHasPeers={communityHasPeers}
+            connectedPeers={connectedPeers}
+            communityPeerList={communityPeerList}
             lastConnectedTime={lastConnectedTime}
             allPeersDisconnectedTime={allPeersDisconnectedTime}
             downloadStatuses={downloadStatuses}

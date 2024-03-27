@@ -74,8 +74,8 @@ export const deletingChannelMessage = 'Deleting channel...'
 export interface IChannelMessagesProps {
   messages?: MessagesDailyGroups
   pendingMessages?: Dictionary<MessageSendingStatus>
-  isConnectedToOtherPeers: boolean
-  communityHasPeers: boolean
+  connectedPeers: string[] | undefined
+  communityPeerList: string[] | undefined
   lastConnectedTime: number
   allPeersDisconnectedTime: number | undefined
   downloadStatuses?: Dictionary<DownloadStatus>
@@ -94,8 +94,8 @@ export interface IChannelMessagesProps {
 export const ChannelMessagesComponent: React.FC<IChannelMessagesProps & FileActionsProps> = ({
   messages = {},
   pendingMessages = {},
-  isConnectedToOtherPeers = false,
-  communityHasPeers = false,
+  connectedPeers = [],
+  communityPeerList = [],
   lastConnectedTime,
   allPeersDisconnectedTime,
   downloadStatuses = {},
@@ -159,8 +159,8 @@ export const ChannelMessagesComponent: React.FC<IChannelMessagesProps & FileActi
                     key={data.id}
                     messages={items}
                     pendingMessages={pendingMessages}
-                    isConnectedToOtherPeers={isConnectedToOtherPeers}
-                    communityHasPeers={communityHasPeers}
+                    connectedPeers={connectedPeers}
+                    communityPeerList={communityPeerList}
                     lastConnectedTime={lastConnectedTime}
                     allPeersDisconnectedTime={allPeersDisconnectedTime}
                     downloadStatuses={downloadStatuses}

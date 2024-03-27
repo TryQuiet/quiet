@@ -25,6 +25,7 @@ import { UseModalType } from '../../../containers/hooks'
 import { HandleOpenModalType, UserLabelType } from '../userLabel/UserLabel.types'
 import UserLabel from '../userLabel/UserLabel.component'
 import AnimatedEllipsis from '../../ui/AnimatedEllipsis/AnimatedEllipsis'
+import { isMessageUnsent } from '@quiet/state-manager'
 
 const PREFIX = 'BasicMessageComponent'
 
@@ -176,8 +177,8 @@ const MessageProfilePhoto: React.FC<{ message: DisplayableMessage }> = ({ messag
 export interface BasicMessageProps {
   messages: DisplayableMessage[]
   pendingMessages?: Dictionary<MessageSendingStatus>
-  isConnectedToOtherPeers: boolean
-  communityHasPeers: boolean
+  connectedPeers: string[] | undefined
+  communityPeerList: string[] | undefined
   lastConnectedTime: number
   allPeersDisconnectedTime: number | undefined
   openUrl: (url: string) => void
@@ -193,8 +194,8 @@ export interface BasicMessageProps {
 export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProps> = ({
   messages,
   pendingMessages = {},
-  isConnectedToOtherPeers = false,
-  communityHasPeers = false,
+  connectedPeers = [],
+  communityPeerList = [],
   lastConnectedTime,
   allPeersDisconnectedTime,
   downloadStatuses = {},
@@ -219,15 +220,13 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
 
   // Grey out sender name if the first message hasn't been sent yet
   const pending: boolean = pendingMessages[messageDisplayData.id] !== undefined
-  const isRecent = lastConnectedTime < messages[0].createdAt
-  const peersDisconnectedRecently = allPeersDisconnectedTime != null && allPeersDisconnectedTime < messages[0].createdAt
-  const noPeersThisSession = allPeersDisconnectedTime == null && !isConnectedToOtherPeers
-  const isUnsent =
-    !infoMessage &&
-    communityHasPeers &&
-    isRecent &&
-    !isConnectedToOtherPeers &&
-    (noPeersThisSession || peersDisconnectedRecently)
+  const isUnsent: boolean = isMessageUnsent(
+    messages[0],
+    lastConnectedTime,
+    allPeersDisconnectedTime,
+    connectedPeers,
+    communityPeerList
+  )
 
   return (
     <StyledListItem
