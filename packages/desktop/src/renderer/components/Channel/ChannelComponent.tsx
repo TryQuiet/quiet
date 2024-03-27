@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useLayoutEffect } from 'react'
 
 import { styled } from '@mui/material/styles'
-import { CircularProgress, Grid, Typography } from '@mui/material'
+import { Grid } from '@mui/material'
 
 import Page from '../ui/Page/Page'
 import PageHeader from '../ui/Page/PageHeader'
@@ -26,8 +26,8 @@ import { NewMessagesInfoComponent } from './NewMessagesInfo/NewMessagesInfoCompo
 import { FileActionsProps } from './File/FileComponent/FileComponent'
 import { UseModalType } from '../../containers/hooks'
 import { HandleOpenModalType } from '../widgets/userLabel/UserLabel.types'
-import SpinnerLoader from '../ui/Spinner/SpinnerLoader'
 import { defaultLogger } from '../../logger'
+import ChannelNetworkStatus from '../widgets/channels/ChannelNetworkStatus'
 
 const ChannelMessagesWrapperStyled = styled(Grid)(({ theme }) => ({
   position: 'relative',
@@ -116,6 +116,37 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
   const memoizedScrollHeight = React.useRef<number>()
 
   const [mathMessagesRendered, onMathMessageRendered] = React.useState<number>(0)
+
+  const checkForConnectedPeers = (connectedPeers: string[] | undefined) => {
+    if (connectedPeers && connectedPeers.length > 0) {
+      return true
+    }
+    return false
+  }
+
+  const checkForCommunityPeers = (peerList: string[] | undefined) => {
+    defaultLogger.info(peerList, peerList?.length)
+    if (peerList && peerList.length > 1) {
+      return true
+    }
+    return false
+  }
+
+  const [isConnectedToOtherPeers, onConnectedPeersChange] = React.useState<boolean>(
+    checkForConnectedPeers(connectedPeers)
+  )
+
+  const [communityHasPeers, onCommunityPeerListChanged] = React.useState<boolean>(
+    checkForCommunityPeers(communityPeerList)
+  )
+
+  useEffect(() => {
+    onConnectedPeersChange(checkForConnectedPeers(connectedPeers))
+  }, [connectedPeers])
+
+  useEffect(() => {
+    onCommunityPeerListChanged(checkForCommunityPeers(communityPeerList))
+  }, [communityPeerList])
 
   const updateMathMessagesRendered = () => {
     // To rerender Channel on each call
@@ -255,33 +286,11 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
             duplicatedUsernameModalHandleOpen={duplicatedUsernameModalHandleOpen}
           />
         </ChannelMessagesWrapperStyled>
-        <Grid
-          container
-          style={{
-            display: !isConnectedToOtherPeers && communityHasPeers ? 'flex' : 'none',
-            flexDirection: 'row',
-            alignItems: 'center',
-            padding: '11px 16px 11px 16px',
-            width: '100%',
-            borderTop: '1px solid #F0F0F0',
-            borderRadius: '16px 16px 0px 0px',
-          }}
-          data-testid={`quietTryingToConnect-${channelName}`}
-        >
-          <Grid
-            item
-            style={{
-              display: 'flex',
-              flexDirection: 'row',
-              paddingRight: '12px',
-            }}
-          >
-            <CircularProgress color='inherit' className={'channelQuietConnectingSpinner'} size={20} />
-          </Grid>
-          <Typography fontSize={16} fontWeight={'normal'} justifyContent={'center'}>
-            Quiet is trying to connect...
-          </Typography>
-        </Grid>
+        <ChannelNetworkStatus
+          channelName={channelName}
+          isConnectedToOtherPeers={isConnectedToOtherPeers}
+          communityHasPeers={communityHasPeers}
+        />
         <Grid item>
           <ChannelInputComponent
             channelId={channelId}

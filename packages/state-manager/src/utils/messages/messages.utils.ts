@@ -18,6 +18,6 @@ export const isMessageUnsent = (
   const hasConnectedPeers = connectedPeers.length > 0
   const peersDisconnectedRecently =
     allPeersDisconnectedAtSeconds != null && allPeersDisconnectedAtSeconds < message.createdAt
-  const noPeersThisSession = allPeersDisconnectedAtSeconds == null && connectedPeers.length > 0
+  const noPeersThisSession = allPeersDisconnectedAtSeconds == null && communityHasPeers
   return communityHasPeers && isRecent && !hasConnectedPeers && (noPeersThisSession || peersDisconnectedRecently)
 }
