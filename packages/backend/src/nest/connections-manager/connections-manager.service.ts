@@ -524,7 +524,18 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       async (payload: { cid: string; serverAddress: string }, callback: (response: CreateNetworkPayload) => void) => {
         this.logger(`socketService - ${SocketActionTypes.DOWNLOAD_INVITE_DATA}`)
         this.storageServerProxyService.setServerAddress(payload.serverAddress)
-        const downloadedData = await this.storageServerProxyService.downloadData(payload.cid)
+        let downloadedData: ServerStoredCommunityMetadata
+        try {
+          downloadedData = await this.storageServerProxyService.downloadData(payload.cid)
+        } catch (e) {
+          this.logger.error(`Downloading community data failed`, e)
+          emitError(this.serverIoProvider.io, {
+            type: SocketActionTypes.DOWNLOAD_INVITE_DATA,
+            message: ErrorMessages.STORAGE_SERVER_CONNECTION_FAILED,
+          })
+          return
+        }
+
         const createNetworkPayload: CreateNetworkPayload = {
           ownership: CommunityOwnership.User,
           peers: p2pAddressesToPairs(downloadedData.peerList),

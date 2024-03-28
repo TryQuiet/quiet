@@ -4,7 +4,6 @@ import { ServerStoredCommunityMetadata } from './storageServerProxy.types'
 import fetchRetry from 'fetch-retry'
 import Logger from '../common/logger'
 const fetch = fetchRetry(global.fetch)
-// TODO: handle errors
 // TODO: handle retries
 @Injectable()
 export class ServerProxyService extends EventEmitter {
@@ -50,6 +49,7 @@ export class ServerProxyService extends EventEmitter {
     const dataResponse = await fetch(this.getInviteUrl(cid), {
       method: 'GET',
       headers: { Authorization: this.getAuthorizationHeader(accessToken) },
+      retries: 3,
     })
     const data: ServerStoredCommunityMetadata = await dataResponse.json()
     this.logger('Downloaded data', data)
@@ -66,6 +66,7 @@ export class ServerProxyService extends EventEmitter {
         Authorization: this.getAuthorizationHeader(accessToken),
       },
       body: JSON.stringify(data),
+      retries: 3,
     })
     this.logger('Upload data response status', dataResponsePost)
     return cid
