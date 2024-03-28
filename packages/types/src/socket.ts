@@ -74,6 +74,12 @@ export enum SocketActionTypes {
   PEER_LIST = 'peerList',
   TOR_INITIALIZED = 'torInitialized',
 
+  // ====== Storage server ======
+
+  SET_STORAGE_SERVER_ADDRESS = 'setStorageServerAddress',
+  DOWNLOAD_STORAGE_SERVER_DATA = 'downloadStorageServerData',
+  UPLOAD_STORAGE_SERVER_DATA = 'uploadStorageServerData',
+
   // ====== Misc ======
 
   PUSH_NOTIFICATION = 'pushNotification',

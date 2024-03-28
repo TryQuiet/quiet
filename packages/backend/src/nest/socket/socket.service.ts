@@ -22,7 +22,6 @@ import {
   type MessagesLoadedPayload,
   type NetworkInfo,
   CreateNetworkPayload,
-  CommunityOwnership,
 } from '@quiet/types'
 import EventEmitter from 'events'
 import { CONFIG_OPTIONS, SERVER_IO_PROVIDER } from '../const'
@@ -175,15 +174,8 @@ export class SocketService extends EventEmitter implements OnModuleInit {
       socket.on(
         SocketActionTypes.DOWNLOAD_INVITE_DATA,
         async (payload: { serverAddress: string; cid: string }, callback: (response: CreateNetworkPayload) => void) => {
-          // this.emit(SocketActionTypes.DOWNLOAD_INVITE_DATA, payload, callback)
-          console.log('download invite data', payload)
-          // Mock it for now
-          callback({
-            ownership: CommunityOwnership.User,
-            peers: [],
-            psk: '',
-            ownerOrbitDbIdentity: '',
-          })
+          console.log('SOCKET Downloading invite data', payload)
+          this.emit(SocketActionTypes.DOWNLOAD_INVITE_DATA, payload, callback)
         }
       )
 

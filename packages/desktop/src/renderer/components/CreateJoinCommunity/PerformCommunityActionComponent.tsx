@@ -12,7 +12,7 @@ import { LoadingButton } from '../ui/LoadingButton/LoadingButton'
 
 import { CreateCommunityDictionary, JoinCommunityDictionary } from '../CreateJoinCommunity/community.dictionary'
 
-import { CommunityOwnership, InvitationData, InvitationPair } from '@quiet/types'
+import { CommunityOwnership, ErrorPayload, InvitationData, InvitationPair } from '@quiet/types'
 
 import { Controller, useForm } from 'react-hook-form'
 import { TextInput } from '../../forms/components/textInput'
@@ -21,7 +21,8 @@ import { IconButton, InputAdornment } from '@mui/material'
 import VisibilityOff from '@mui/icons-material/VisibilityOff'
 import Visibility from '@mui/icons-material/Visibility'
 import { composeInvitationShareUrl, parseName } from '@quiet/common'
-import { getInvitationCodes } from '@quiet/state-manager'
+import { getInvitationCodes, errors as errorsState } from '@quiet/state-manager'
+import { useDispatch } from 'react-redux'
 
 const PREFIX = 'PerformCommunityActionComponent'
 
@@ -137,6 +138,7 @@ export interface PerformCommunityActionProps {
   hasReceivedResponse: boolean
   revealInputValue?: boolean
   handleClickInputReveal?: () => void
+  downloadInviteDataError?: ErrorPayload | null
 }
 
 export const PerformCommunityActionComponent: React.FC<PerformCommunityActionProps> = ({
@@ -150,7 +152,9 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
   hasReceivedResponse,
   revealInputValue,
   handleClickInputReveal,
+  downloadInviteDataError,
 }) => {
+  const dispatch = useDispatch()
   const [formSent, setFormSent] = useState(false)
 
   const [communityName, setCommunityName] = useState('...')
@@ -173,6 +177,14 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
   } = useForm<PerformCommunityActionFormValues>({
     mode: 'onTouched',
   })
+
+  useEffect(() => {
+    if (downloadInviteDataError) {
+      setError('name', { message: downloadInviteDataError.message })
+      setFormSent(false)
+      dispatch(errorsState.actions.clearError(downloadInviteDataError))
+    }
+  }, [downloadInviteDataError])
 
   const onSubmit = (values: PerformCommunityActionFormValues) => submitForm(handleCommunityAction, values, setFormSent)
 

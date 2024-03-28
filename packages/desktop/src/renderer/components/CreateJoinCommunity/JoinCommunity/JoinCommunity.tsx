@@ -1,5 +1,5 @@
-import { communities, connection, identity } from '@quiet/state-manager'
-import { CommunityOwnership, InvitationData } from '@quiet/types'
+import { communities, connection, errors, identity } from '@quiet/state-manager'
+import { CommunityOwnership, InvitationData, SocketActionTypes } from '@quiet/types'
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import PerformCommunityActionComponent from '../../../components/CreateJoinCommunity/PerformCommunityActionComponent'
@@ -19,6 +19,10 @@ const JoinCommunity = () => {
   const createCommunityModal = useModal(ModalName.createCommunityModal)
 
   const torBootstrapProcessSelector = useSelector(connection.selectors.torBootstrapProcess)
+
+  const downloadInviteDataError = useSelector(
+    errors.selectors.generalErrorByType(SocketActionTypes.DOWNLOAD_INVITE_DATA)
+  )
 
   const [revealInputValue, setRevealInputValue] = useState<boolean>(false)
 
@@ -62,6 +66,7 @@ const JoinCommunity = () => {
       hasReceivedResponse={Boolean(currentIdentity && !currentIdentity.userCertificate)}
       revealInputValue={revealInputValue}
       handleClickInputReveal={handleClickInputReveal}
+      downloadInviteDataError={downloadInviteDataError}
     />
   )
 }

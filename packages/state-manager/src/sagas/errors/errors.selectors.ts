@@ -20,6 +20,13 @@ export const generalErrors = createSelector(selectAll, errors => {
   return errors.filter(error => !error.community)
 })
 
+const generalErrorByType = (errorType: string) => {
+  return createSelector(generalErrors, errors => {
+    if (!errors || !errors.length) return null
+    return errors.find(error => error.type === errorType)
+  })
+}
+
 export const currentCommunityErrors = createSelector(currentCommunityId, selectAll, (community, errors) => {
   if (!community || !errors) {
     return {}
@@ -33,5 +40,6 @@ export const currentCommunityErrors = createSelector(currentCommunityId, selectA
 
 export const errorsSelectors = {
   generalErrors,
+  generalErrorByType,
   currentCommunityErrors,
 }

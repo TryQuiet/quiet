@@ -44,4 +44,7 @@ export enum ErrorMessages {
 
   // General
   GENERAL = 'Something went wrong',
+
+  // Storage Server
+  STORAGE_SERVER_CONNECTION_FAILED = 'Connecting to storage server failed',
 }
