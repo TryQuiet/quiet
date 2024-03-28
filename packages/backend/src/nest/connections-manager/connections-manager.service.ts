@@ -44,6 +44,8 @@ import {
   type PermsData,
   type UserProfile,
   type UserProfilesStoredEvent,
+  CreateNetworkPayload,
+  CommunityOwnership,
 } from '@quiet/types'
 import { CONFIG_OPTIONS, QUIET_DIR, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
 import { ConfigOptions, GetPorts, ServerIoProviderTypes } from '../types'
@@ -61,7 +63,9 @@ import { StorageEvents } from '../storage/storage.types'
 import { LazyModuleLoader } from '@nestjs/core'
 import Logger from '../common/logger'
 import { emitError } from '../socket/socket.errors'
-import { isPSKcodeValid } from '@quiet/common'
+import { isPSKcodeValid, p2pAddressesToPairs } from '@quiet/common'
+import { ServerProxyService } from '../storageServerProxy/storageServerProxy.service'
+import { ServerStoredCommunityMetadata } from '../storageServerProxy/storageServerProxy.types'
 
 @Injectable()
 export class ConnectionsManagerService extends EventEmitter implements OnModuleInit {
@@ -79,6 +83,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     @Inject(SOCKS_PROXY_AGENT) public readonly socksProxyAgent: Agent,
     private readonly socketService: SocketService,
     private readonly registrationService: RegistrationService,
+    private readonly storageServerProxyService: ServerProxyService,
     private readonly localDbService: LocalDbService,
     private readonly storageService: StorageService,
     private readonly tor: Tor,
@@ -513,6 +518,22 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       this.logger(`socketService - ${SocketActionTypes.SET_COMMUNITY_CA_DATA}`)
       this.registrationService.setPermsData(payload)
     })
+
+    this.socketService.on(
+      SocketActionTypes.DOWNLOAD_INVITE_DATA,
+      async (payload: { cid: string; serverAddress: string }, callback: (response: CreateNetworkPayload) => void) => {
+        this.logger(`socketService - ${SocketActionTypes.DOWNLOAD_INVITE_DATA}`)
+        this.storageServerProxyService.setServerAddress(payload.serverAddress)
+        const downloadedData = await this.storageServerProxyService.downloadData(payload.cid)
+        const createNetworkPayload: CreateNetworkPayload = {
+          ownership: CommunityOwnership.User,
+          peers: p2pAddressesToPairs(downloadedData.peerList),
+          psk: downloadedData.psk,
+          ownerOrbitDbIdentity: downloadedData.ownerOrbitDbIdentity,
+        }
+        callback(createNetworkPayload)
+      }
+    )
 
     // Public Channels
     this.socketService.on(
