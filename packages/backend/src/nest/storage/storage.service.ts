@@ -611,15 +611,15 @@ export class StorageService extends EventEmitter {
       }
     }
     await repo.db.load()
-    const allEntries = this.getAllEventLogRawEntries(repo.db)
+    // const allEntries = this.getAllEventLogRawEntries(repo.db)
     await repo.db.close()
     await repo.db.drop()
-    const hashes = allEntries.map(e => CID.parse(e.hash))
-    const files = allEntries
-      .map(e => {
-        return e.payload.value.media
-      })
-      .filter(isDefined)
+    // const hashes = allEntries.map(e => CID.parse(e.hash))
+    // const files = allEntries
+    //   .map(e => {
+    //     return e.payload.value.media
+    //   })
+    //   .filter(isDefined)
     // await this.deleteChannelFiles(files)
     // await this.deleteChannelMessages(hashes)
     this.publicChannelsRepos.delete(channelId)
