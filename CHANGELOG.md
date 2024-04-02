@@ -9,6 +9,7 @@
 
 * Fixes channel name creation logic
 * Allow JPEG and GIF files as profile photos ([#2332](https://github.com/TryQuiet/quiet/issues/2332))
+* Fix duplicated CSRs being generated on joining a community ([#2321](https://github.com/TryQuiet/quiet/issues/2321))
 
 [2.1.2]
 
