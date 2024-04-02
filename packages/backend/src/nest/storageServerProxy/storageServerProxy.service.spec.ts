@@ -1,5 +1,4 @@
-import { Test, TestingModule } from '@nestjs/testing'
-import { TestModule } from '../common/test.module'
+import { Test } from '@nestjs/testing'
 import { ServerProxyServiceModule } from './storageServerProxy.module'
 import { ServerProxyService } from './storageServerProxy.service'
 import { ServerStoredCommunityMetadata } from './storageServerProxy.types'
@@ -21,11 +20,10 @@ const mockFetch = async (responseData: Partial<Response>[]) => {
   const module = await Test.createTestingModule({
     imports: [ServerProxyServiceModule],
   }).compile()
-  return { service: module.get<ServerProxyService>(ServerProxyService), module }
+  return module.get<ServerProxyService>(ServerProxyService)
 }
 
 describe('Server Proxy Service', () => {
-  let testingModule: TestingModule
   let clientMetadata: ServerStoredCommunityMetadata
   beforeEach(() => {
     const data = getValidInvitationUrlTestData(validInvitationDatav1[0]).data
@@ -41,27 +39,38 @@ describe('Server Proxy Service', () => {
 
   afterEach(async () => {
     jest.clearAllMocks()
-    await testingModule.close()
   })
 
   it('downloads data for existing cid and proper server address', async () => {
-    const { module, service } = await mockFetch([
+    const service = await mockFetch([
       { status: 200, json: () => Promise.resolve({ access_token: 'secretToken' }) },
       { status: 200, json: () => Promise.resolve(clientMetadata) },
     ])
-    testingModule = module
     service.setServerAddress('http://whatever')
     const data = await service.downloadData('cid')
     expect(data).toEqual(clientMetadata)
     expect(global.fetch).toHaveBeenCalledTimes(2)
   })
 
+  it('throws error if downloaded metadata does not have proper schema', async () => {
+    const metadataLackingField = {
+      id: clientMetadata.id,
+      ownerCertificate: clientMetadata.ownerCertificate,
+      rootCa: clientMetadata.rootCa,
+      ownerOrbitDbIdentity: clientMetadata.ownerOrbitDbIdentity,
+      peerList: clientMetadata.peerList,
+    }
+    const service = await mockFetch([
+      { status: 200, json: () => Promise.resolve({ access_token: 'secretToken' }) },
+      { status: 200, json: () => Promise.resolve(metadataLackingField) },
+    ])
+    service.setServerAddress('http://whatever')
+    expect(service.downloadData('cid')).rejects.toThrow('Invalid metadata')
+  })
+
   it('obtains token', async () => {
     const expectedToken = 'verySecretToken'
-    const { module, service } = await mockFetch([
-      { status: 200, json: () => Promise.resolve({ access_token: expectedToken }) },
-    ])
-    testingModule = module
+    const service = await mockFetch([{ status: 200, json: () => Promise.resolve({ access_token: expectedToken }) }])
     service.setServerAddress('http://whatever')
     const token = await service.auth()
     expect(token).toEqual(expectedToken)

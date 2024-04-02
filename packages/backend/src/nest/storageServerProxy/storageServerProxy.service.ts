@@ -3,6 +3,7 @@ import EventEmitter from 'events'
 import { ServerStoredCommunityMetadata } from './storageServerProxy.types'
 import fetchRetry from 'fetch-retry'
 import Logger from '../common/logger'
+import { isServerStoredMetadata } from '../validation/validators'
 
 class HTTPResponseError extends Error {
   response: Response
@@ -57,8 +58,12 @@ export class ServerProxyService extends EventEmitter {
     return authResponseData['access_token']
   }
 
+  validateMetadata = (data: ServerStoredCommunityMetadata) => {
+    if (!isServerStoredMetadata(data)) throw new Error('Invalid metadata')
+  }
+
   public downloadData = async (cid: string): Promise<ServerStoredCommunityMetadata> => {
-    this.logger('Downloading data', cid)
+    this.logger(`Downloading data for cid: ${cid}`)
     const accessToken = await this.auth()
     const dataResponse: Response = await this.fetch(this.getInviteUrl(cid), {
       method: 'GET',
@@ -70,12 +75,14 @@ export class ServerProxyService extends EventEmitter {
       throw new HTTPResponseError('Failed to download data', dataResponse)
     }
     const data: ServerStoredCommunityMetadata = await dataResponse.json()
+    this.validateMetadata(data)
     this.logger('Downloaded data', data)
     return data
   }
 
   public uploadData = async (cid: string, data: ServerStoredCommunityMetadata) => {
-    this.logger('Uploading data', cid, data)
+    this.logger(`Uploading data for cid: ${cid}`, data)
+    this.validateMetadata(data)
     const accessToken = await this.auth()
     const dataResponse: Response = await this.fetch(this.getInviteUrl(cid), {
       method: 'PUT',
