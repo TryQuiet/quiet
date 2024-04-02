@@ -180,6 +180,10 @@ android {
         pickFirst 'lib/x86_64/libfbjni.so'
         pickFirst 'lib/armeabi-v7a/libfbjni.so'
         pickFirst 'lib/arm64-v8a/libfbjni.so'
+
+        jniLibs {
+            useLegacyPackaging = true
+        }
     }
 
     namespace "com.quietmobile"
