@@ -52,12 +52,3 @@ export function getValidInvitationUrlTestData<T extends InvitationDataV1 | Invit
     data: data,
   }
 }
-
-// export const getValidInvitationUrlTestData = (data: InvitationData) => {
-//   return {
-//     shareUrl: () => composeInvitationShareUrl(data),
-//     deepUrl: () => composeInvitationDeepUrl(data),
-//     code: () => composeInvitationShareUrl(data).split(QUIET_JOIN_PAGE + '#')[1],
-//     data: data,
-//   }
-// }
