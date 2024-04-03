@@ -1,3 +1,19 @@
+# Change Log
+
+All notable changes to this project will be documented in this file.
+See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+## [2.1.2](/compare/@quiet/mobile@2.1.2-alpha.14...@quiet/mobile@2.1.2) (2024-04-03)
+
+
+### Bug Fixes
+
+* Reduce max random port on iOS (#2402) bc773ea, closes #2402
+
+
+
+
+
 [unreleased]
 
 
