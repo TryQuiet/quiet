@@ -20,7 +20,6 @@ import com.facebook.react.bridge.ReactContext
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.fabricEnabled
 import com.facebook.react.defaults.DefaultReactActivityDelegate
 import com.facebook.react.modules.core.DeviceEventManagerModule.RCTDeviceEventEmitter
-import com.quietmobile.Backend.BackendWorkManager
 
 class MainActivity : ReactActivity() {
 

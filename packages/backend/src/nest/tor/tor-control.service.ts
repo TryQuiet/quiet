@@ -2,11 +2,12 @@ import { Inject, Injectable } from '@nestjs/common'
 import net from 'net'
 import { CONFIG_OPTIONS, TOR_CONTROL_PARAMS } from '../const'
 import { ConfigOptions } from '../types'
-import { TorControlAuthType, TorControlParams } from './tor.types'
+import { TorControlAuthType, TorControlEvents, TorControlParams } from './tor.types'
 import Logger from '../common/logger'
+import { EventEmitter } from 'stream'
 
 @Injectable()
-export class TorControl {
+export class TorControl extends EventEmitter{
   connection: net.Socket | null
   isSending: boolean
   authString: string
@@ -16,14 +17,26 @@ export class TorControl {
     @Inject(TOR_CONTROL_PARAMS) public torControlParams: TorControlParams,
     @Inject(CONFIG_OPTIONS) public configOptions: ConfigOptions
   ) {
+    super()
     this.isSending = false
   }
 
-  private updateAuthString() {
+  private async updateAuthString() {
     if (this.torControlParams.auth.type === TorControlAuthType.PASSWORD) {
       this.authString = 'AUTHENTICATE "' + this.torControlParams.auth.value + '"\r\n'
     }
     if (this.torControlParams.auth.type === TorControlAuthType.COOKIE) {
+
+      this.emit(TorControlEvents.READ_AUTH_COOKIE)
+      
+      await new Promise<void>(resolve => {
+        this.on(TorControlEvents.REFRESH_AUTH_COOKIE, (cookie: string) => {
+          console.log('REFRESHED AUTH COOKIE', cookie)
+          this.torControlParams.auth.value = cookie
+          resolve()
+        })
+      })
+
       // Cookie authentication must be invoked as a hexadecimal string passed without double quotes
       this.authString = 'AUTHENTICATE ' + this.torControlParams.auth.value + '\r\n'
     }
@@ -43,10 +56,11 @@ export class TorControl {
 
       this.connection.once('data', (data: any) => {
         if (/250 OK/.test(data.toString())) {
+          this.logger('Tor connected')
           resolve()
         } else {
           this.disconnect()
-          reject(new Error(`Tor Control port error: ${data.toString() as string}`))
+          reject(new Error(`Tor Control port error: ${data.toString() as string}, AUTH VALUE: ${this.torControlParams.auth.value}`))
         }
       })
 
@@ -62,7 +76,6 @@ export class TorControl {
       try {
         this.logger(`Connecting to Tor, host: ${this.torControlParams.host} port: ${this.torControlParams.port}`)
         await this._connect()
-        this.logger('Tor connected')
         return
       } catch (e) {
         this.logger(e)

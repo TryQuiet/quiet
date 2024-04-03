@@ -76,6 +76,10 @@ export class SocketService extends EventEmitter implements OnModuleInit {
       // On websocket connection, update presentation service with network data
       this.emit(SocketActionTypes.CONNECTION)
 
+      socket.on(SocketActionTypes.REFRESH_AUTH_COOKIE, async (cookie: string) => {
+        this.emit(SocketActionTypes.REFRESH_AUTH_COOKIE, cookie)
+      })
+
       socket.on(SocketActionTypes.CLOSE, async () => {
         this.emit(SocketActionTypes.CLOSE)
       })

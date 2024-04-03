@@ -33,6 +33,11 @@ export interface TorControlParams {
   }
 }
 
+export enum TorControlEvents {
+  READ_AUTH_COOKIE = 'readAuthCookie',
+  REFRESH_AUTH_COOKIE = 'refreshAuthCookie',
+}
+
 export interface IParams {
   port: number
   family: number

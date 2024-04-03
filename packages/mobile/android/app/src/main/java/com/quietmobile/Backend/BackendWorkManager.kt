@@ -1,4 +1,4 @@
-package com.quietmobile.Backend
+package com.quietmobile
 
 import android.content.Context
 import androidx.work.*

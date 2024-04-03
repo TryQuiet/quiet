@@ -10,14 +10,16 @@
 #include <unistd.h>
 #include <android/log.h>
 
+#include <iostream>
+
 #include "node.h"
 #include "rn-bridge.h"
 
 // cache the environment variable for the thread running node to call into java
 JNIEnv *cacheEnvPointer = NULL;
 
-extern "C" JNIEXPORT void JNICALL
-Java_com_quietmobile_Backend_BackendWorker_sendMessageToNodeChannel(
+extern "C" JNIEXPORT jobject JNICALL
+Java_com_quietmobile_BackendWorker_sendMessageToNodeChannel(
     JNIEnv *env,
     jobject /* this */,
     jstring channelName,
@@ -49,7 +51,7 @@ extern "C" int callIntoNode(int argc, char *argv[])
 #endif
 
 extern "C" JNIEXPORT jstring JNICALL
-Java_com_quietmobile_Backend_NodeProjectManager_getCurrentABIName(
+Java_com_quietmobile_NodeProjectManager_getCurrentABIName(
     JNIEnv *env,
     jobject /* this */)
 {
@@ -57,7 +59,7 @@ Java_com_quietmobile_Backend_NodeProjectManager_getCurrentABIName(
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_com_quietmobile_Backend_BackendWorker_registerNodeDataDirPath(
+Java_com_quietmobile_BackendWorker_registerNodeDataDirPath(
     JNIEnv *env,
     jobject /* this */,
     jstring dataDir)
@@ -145,7 +147,7 @@ int start_redirecting_stdout_stderr()
 
 // node's libUV requires all arguments being on contiguous memory.
 extern "C" jobject JNICALL
-Java_com_quietmobile_Backend_BackendWorker_startNodeWithArguments(
+Java_com_quietmobile_BackendWorker_startNodeWithArguments(
     JNIEnv *env,
     jobject /* this */,
     jobjectArray arguments,

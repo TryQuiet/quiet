@@ -72,6 +72,8 @@ export enum SocketActionTypes {
   PEER_DISCONNECTED = 'peerDisconnected',
   PEER_LIST = 'peerList',
   TOR_INITIALIZED = 'torInitialized',
+  READ_AUTH_COOKIE = 'readAuthCookie',
+  REFRESH_AUTH_COOKIE = 'refreshAuthCookie',
 
   // ====== Misc ======
 

@@ -1,4 +1,4 @@
-package com.quietmobile.Backend;
+package com.quietmobile
 
 import android.content.Context
 import android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
@@ -10,16 +10,16 @@ import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
 import com.google.gson.Gson
-import com.quietmobile.BuildConfig
+import com.quietmobile.Backend.TorHandler
 import com.quietmobile.Communication.CommunicationModule
 import com.quietmobile.Notification.NotificationHandler
-import com.quietmobile.R
 import com.quietmobile.Scheme.WebsocketConnectionPayload
 import com.quietmobile.Utils.Const
 import com.quietmobile.Utils.Const.WEBSOCKET_CONNECTION_DELAY
 import com.quietmobile.Utils.Utils
 import com.quietmobile.Utils.isAppOnForeground
 import io.socket.client.IO
+import io.socket.client.Socket
 import io.socket.emitter.Emitter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -41,10 +41,18 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
 
     private lateinit var torHandler: TorHandler
 
+    private lateinit var webSocketClient: Socket
+
     companion object {
         init {
             System.loadLibrary("node")
             System.loadLibrary("node-wrapper")
+        }
+
+        @JvmStatic
+        fun handleNodeMessages(channelName: String, msg: String?) {
+            print("handle node message - channel name $channelName")
+            print("handle node message - msg $msg")
         }
     }
 
@@ -119,7 +127,10 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
 
             launch {
                 notificationHandler = NotificationHandler(context)
-                subscribePushNotifications(dataPort, socketIOSecret)
+            }
+
+            launch {
+                subscribeWebsocketEvents(dataPort, socketIOSecret)
             }
 
             launch {
@@ -189,16 +200,17 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
         )
     }
 
-    private fun subscribePushNotifications(port: Int, secret: String) {
+    private fun subscribeWebsocketEvents(port: Int, secret: String) {
         val encodedSecret = Base64.encodeToString(secret.toByteArray(Charsets.UTF_8), Base64.NO_WRAP)
         val options = IO.Options()
         val headers = mutableMapOf<String, List<String>>()
         headers["Authorization"] = listOf("Basic $encodedSecret")
         options.extraHeaders = headers
 
-        val webSocketClient = IO.socket("http://127.0.0.1:$port", options)
+        webSocketClient = IO.socket("http://127.0.0.1:$port", options)
         // Listen for events sent from nodejs
         webSocketClient.on("pushNotification", onPushNotification)
+        webSocketClient.on("readAuthCookie", onReadAuthCookie)
         // Client won't connect by itself (`connect()` method has to be called manually)
         webSocketClient.connect()
     }
@@ -218,6 +230,11 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
             notificationHandler.notify(message, username)
         }
 
+    private val onReadAuthCookie =
+            Emitter.Listener { args ->
+                webSocketClient.emit("refreshAuthCookie", torHandler.authCookie)
+            }
+
     private fun startWebsocketConnection(port: Int, socketIOSecret: String) {
         Log.d("WEBSOCKET CONNECTION", "Starting on $port")
         // Proceed only if data port is defined
@@ -227,10 +244,5 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
             Gson().toJson(websocketConnectionPayload),
             "" // Empty extras
         )
-    }
-
-    fun handleNodeMessages(channelName: String, msg: String?) {
-        print("handle node message - channel name $channelName")
-        print("handle node message - msg $msg")
     }
 }

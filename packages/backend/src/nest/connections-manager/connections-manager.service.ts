@@ -54,6 +54,8 @@ import { StorageService } from '../storage/storage.service'
 import { ServiceState, TorInitState } from './connections-manager.types'
 import { Libp2pService } from '../libp2p/libp2p.service'
 import { Tor } from '../tor/tor.service'
+import { TorControl } from '../tor/tor-control.service'
+import { TorControlEvents } from '../tor/tor.types'
 import { LocalDBKeys } from '../local-db/local-db.types'
 import { Libp2pEvents, Libp2pNodeParams } from '../libp2p/libp2p.types'
 import { RegistrationEvents } from '../registration/registration.types'
@@ -82,6 +84,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     private readonly localDbService: LocalDbService,
     private readonly storageService: StorageService,
     private readonly tor: Tor,
+    private readonly torControl: TorControl,
     private readonly lazyModuleLoader: LazyModuleLoader
   ) {
     super()
@@ -140,6 +143,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.attachSocketServiceListeners()
     this.attachRegistrationListeners()
     this.attachTorEventsListeners()
+    this.attachTorControlEventsListeners()
     this.attachStorageListeners()
 
     if (this.localDbService.getStatus() === 'closed') {
@@ -437,6 +441,15 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     })
     this.socketService.on(SocketActionTypes.CONNECTION_PROCESS_INFO, data => {
       this.serverIoProvider.io.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, data)
+    })
+  }
+
+  private attachTorControlEventsListeners() {
+    this.torControl.on(TorControlEvents.READ_AUTH_COOKIE, () => {
+      this.serverIoProvider.io.emit(SocketActionTypes.READ_AUTH_COOKIE)
+    })
+    this.socketService.on(SocketActionTypes.REFRESH_AUTH_COOKIE, async (cookie: string) => {
+      this.torControl.emit(TorControlEvents.REFRESH_AUTH_COOKIE, cookie)
     })
   }
 
