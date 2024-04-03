@@ -181,7 +181,8 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     }
 
     this.socketService.on(SocketActionTypes.LOAD_MIGRATION_DATA, async (data: Record<string, any>) => {
-      await this.localDbService.migrate(data)
+      this.logger('Migrating LevelDB')
+      await this.localDbService.load(data)
       onDataReceived()
     })
 

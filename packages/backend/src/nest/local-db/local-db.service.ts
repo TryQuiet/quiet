@@ -80,7 +80,7 @@ export class LocalDbService {
     await this.db.del(key)
   }
 
-  public async migrate(data: any) {
+  public async load(data: any) {
     for (const key in data) {
       if (typeof data[key] === 'object' && Object.keys(data[key]).length === 0) {
         continue
