@@ -90,27 +90,14 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
   async onModuleInit() {
     process.on('unhandledRejection', error => {
-      console.error('Unhandled rejection!')
       console.error(error)
-      emitError(this.serverIoProvider.io, {
-        type: 'unhandledRejection',
-        // @ts-ignore
-        message: error.message,
-        // @ts-ignore
-        trace: error.stack,
-      })
+      throw new Error()
     })
-
-    process.on('uncaughtException', error => {
-      console.error('Uncaught exception!')
-      console.error(error)
-      emitError(this.serverIoProvider.io, {
-        type: 'uncaughtException',
-        message: error.message,
-        trace: error.stack,
-      })
-    })
-
+    // process.on('SIGINT', function () {
+    //   // This is not graceful even in a single percent. we must close services first, not just kill process %
+    //   // this.logger('\nGracefully shutting down from SIGINT (Ctrl-C)')
+    //   process.exit(0)
+    // })
     const webcrypto = new Crypto()
     // @ts-ignore
     global.crypto = webcrypto
