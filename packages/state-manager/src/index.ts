@@ -53,6 +53,7 @@ export { LoadingPanelType } from './sagas/network/network.types'
 export type { Store } from './sagas/store.types'
 export type { TestStore, TestStoreState } from './utils/tests/types'
 export { StoreKeys } from './sagas/store.keys'
+export { storeMigrations } from './sagas/store.migrations'
 
 export { prepareStore } from './utils/tests/prepareStore'
 export { useIO } from './sagas/socket/startConnection/startConnection.saga'

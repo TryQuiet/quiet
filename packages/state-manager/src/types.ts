@@ -32,14 +32,13 @@ interface EventsMap {
 type EmitEvent<Payload, Callback = (response: any) => void> = (payload: Payload, callback?: Callback) => void
 
 export interface EmitEvents {
-  [SocketActionTypes.LAUNCH_COMMUNITY]: EmitEvent<InitCommunityPayload>
+  [SocketActionTypes.LAUNCH_COMMUNITY]: EmitEvent<InitCommunityPayload, (response: Community | undefined) => void>
   [SocketActionTypes.DOWNLOAD_FILE]: EmitEvent<DownloadFilePayload>
   [SocketActionTypes.SEND_MESSAGE]: EmitEvent<SendMessagePayload>
   [SocketActionTypes.CANCEL_DOWNLOAD]: EmitEvent<CancelDownloadPayload>
   [SocketActionTypes.UPLOAD_FILE]: EmitEvent<UploadFilePayload>
-  [SocketActionTypes.REGISTER_OWNER_CERTIFICATE]: EmitEvent<RegisterOwnerCertificatePayload>
   [SocketActionTypes.REGISTER_USER_CERTIFICATE]: EmitEvent<RegisterUserCertificatePayload>
-  [SocketActionTypes.CREATE_COMMUNITY]: EmitEvent<InitCommunityPayload>
+  [SocketActionTypes.CREATE_COMMUNITY]: EmitEvent<InitCommunityPayload, (response: Community | undefined) => void>
   [SocketActionTypes.GET_MESSAGES]: EmitEvent<GetMessagesPayload, (response?: MessagesLoadedPayload) => void>
   [SocketActionTypes.CREATE_CHANNEL]: EmitEvent<CreateChannelPayload, (response?: CreateChannelResponse) => void>
   [SocketActionTypes.DELETE_CHANNEL]: EmitEvent<
@@ -49,11 +48,15 @@ export interface EmitEvents {
   [SocketActionTypes.DELETE_FILES_FROM_CHANNEL]: EmitEvent<DeleteFilesFromChannelSocketPayload>
   [SocketActionTypes.CLOSE]: () => void
   [SocketActionTypes.LEAVE_COMMUNITY]: () => void
-  [SocketActionTypes.CREATE_NETWORK]: EmitEvent<string, (response?: NetworkInfo) => void>
+  [SocketActionTypes.CREATE_NETWORK]: EmitEvent<string, (response: NetworkInfo | undefined) => void>
   [SocketActionTypes.ADD_CSR]: EmitEvent<SaveCSRPayload>
-  [SocketActionTypes.SET_COMMUNITY_METADATA]: EmitEvent<CommunityMetadata, (response: CommunityMetadata) => void>
+  [SocketActionTypes.SET_COMMUNITY_METADATA]: EmitEvent<
+    CommunityMetadata,
+    (response: CommunityMetadata | undefined) => void
+  >
   [SocketActionTypes.SET_COMMUNITY_CA_DATA]: EmitEvent<PermsData>
   [SocketActionTypes.SET_USER_PROFILE]: EmitEvent<UserProfile>
+  [SocketActionTypes.LOAD_MIGRATION_DATA]: EmitEvent<Record<string, any>>
 }
 
 export type Socket = IOSocket<EventsMap, EmitEvents>

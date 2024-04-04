@@ -4,11 +4,13 @@ import React, { ReactNode } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import theme from '../../../theme'
+import { isAllEmoji } from '../../../../../../common/src/emojis'
 
 const PREFIX = 'TextMessage'
 
 const classes = {
   message: `${PREFIX}message`,
+  emojiMessage: `${PREFIX}emojiMessage`,
   pending: `${PREFIX}pending`,
   unsent: `${PREFIX}unsent`,
   blockquote: `${PREFIX}blockquote`,
@@ -30,7 +32,10 @@ const StyledTypography = styled(Typography)(() => ({
     lineHeight: '21px',
     overflowWrap: 'anywhere',
   },
-
+  [`&.${classes.emojiMessage}`]: {
+    fontSize: '1.7rem', // Double the normal fontSize
+    lineHeight: '42px', // Double the normal lineHeight
+  },
   [`&.${classes.pending}`]: {
     color: theme.palette.colors.lightGray,
   },
@@ -140,6 +145,7 @@ export const TextMessageComponent: React.FC<TextMessageComponentProps> = ({
         [classes.message]: true,
         [classes.pending]: pending,
         [classes.unsent]: isUnsent,
+        [classes.emojiMessage]: isAllEmoji(message),
       })}
       data-testid={`messagesGroupContent-${messageId}`}
     >

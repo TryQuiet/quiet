@@ -2,7 +2,7 @@ import { AnyAction, combineReducers } from '@reduxjs/toolkit'
 import ElectronStore from 'electron-store'
 import createElectronStorage from 'redux-persist-electron-storage'
 import path from 'path'
-import { persistReducer } from 'redux-persist'
+import { createMigrate, persistReducer } from 'redux-persist'
 
 import stateManagerReducers, {
   storeKeys as StateManagerStoreKeys,
@@ -14,6 +14,7 @@ import stateManagerReducers, {
   ConnectionTransform,
   resetStateAndSaveTorConnectionData,
   UsersTransform,
+  storeMigrations,
 } from '@quiet/state-manager'
 
 import { StoreType } from './handlers/types'
@@ -45,6 +46,7 @@ const reduxStorage = createElectronStorage({ electronStore: store })
 
 const persistConfig = {
   key: 'root',
+  version: 0,
   storage: reduxStorage,
   throttle: 1000,
   whitelist: [
@@ -66,6 +68,7 @@ const persistConfig = {
     ConnectionTransform,
     UsersTransform,
   ],
+  migrate: createMigrate(storeMigrations, { debug: true }),
 }
 
 export const reducers = {

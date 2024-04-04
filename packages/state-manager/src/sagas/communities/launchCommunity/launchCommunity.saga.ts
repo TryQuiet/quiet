@@ -9,12 +9,11 @@ import { getCurrentTime } from '../../messages/utils/message.utils'
 import { connectionSelectors } from '../../appConnection/connection.selectors'
 import { networkSelectors } from '../../network/network.selectors'
 import { pairsToP2pAddresses } from '@quiet/common'
-import { type InitCommunityPayload, SocketActionTypes } from '@quiet/types'
+import { type Community, type InitCommunityPayload, SocketActionTypes } from '@quiet/types'
 import createLogger from '../../../utils/logger'
 
 const logger = createLogger('communities')
 
-// TODO: Remove if unused
 export function* initCommunities(): Generator {
   const joinedCommunities = yield* select(identitySelectors.joinedCommunities)
 
@@ -34,11 +33,17 @@ export function* launchCommunitySaga(
   action: PayloadAction<ReturnType<typeof communitiesActions.launchCommunity>['payload']>
 ): Generator {
   const communityId = action.payload
+
+  if (!communityId) {
+    console.error('Could not launch community, missing community ID')
+    return
+  }
+
   const community = yield* select(communitiesSelectors.selectById(communityId))
   const identity = yield* select(identitySelectors.selectById(communityId))
 
-  if (!identity?.userCsr?.userKey) {
-    logger.error('Could not launch community, No identity private key')
+  if (!community || !identity?.userCsr?.userKey) {
+    logger.error('Could not launch community, missing community or user private key')
     return
   }
 
@@ -56,9 +61,9 @@ export function* launchCommunitySaga(
     peerId: identity.peerId,
     hiddenService: identity.hiddenService,
     peers: peerList,
-    psk: community?.psk,
-    ownerOrbitDbIdentity: community?.ownerOrbitDbIdentity,
+    psk: community.psk,
+    ownerOrbitDbIdentity: community.ownerOrbitDbIdentity,
   }
 
-  yield* apply(socket, socket.emit, applyEmitParams(SocketActionTypes.LAUNCH_COMMUNITY, payload))
+  yield* apply(socket, socket.emitWithAck, applyEmitParams(SocketActionTypes.LAUNCH_COMMUNITY, payload))
 }

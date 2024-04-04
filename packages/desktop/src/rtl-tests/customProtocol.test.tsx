@@ -29,8 +29,6 @@ describe('Opening app through custom protocol', () => {
     rootCa: '',
     peerList: [],
     onionAddress: '',
-    privateKey: '',
-    port: 0,
     ownerCertificate: '',
   }
 

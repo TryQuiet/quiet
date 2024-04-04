@@ -2,6 +2,9 @@ export type CommunityId = string
 
 export type ConnectedPeers = string[]
 
+// FIXME: We can rename this to something like PeerConnInfo or
+// PeerDisconnectedPayload if it's only used for the PEER_DISCONNECTED
+// event.
 export interface NetworkDataPayload {
   peer: string
   connectionDuration: number
