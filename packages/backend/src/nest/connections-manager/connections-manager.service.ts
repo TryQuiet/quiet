@@ -349,7 +349,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
     const localAddress = createLibp2pAddress(payload.hiddenService.onionAddress, payload.peerId.id)
 
-    const community = {
+    let community: Community = {
       id: payload.id,
       name: payload.name,
       CA: payload.CA,
@@ -372,14 +372,19 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
     await this.launchCommunity({ community, network })
 
-    const meta = await this.storageService.updateCommunityMetadata(payload)
-    const community = await this.localDbService.getCurrentCommunity()
+    const meta = await this.storageService.updateCommunityMetadata({
+      id: community.id,
+      rootCa: community.rootCa as string,
+      ownerCertificate: community.ownerCertificate as string,
+    })
+    const currentCommunity = await this.localDbService.getCurrentCommunity()
 
-    if (meta && community) {
-      await this.localDbService.setCommunity({
-        ...community,
+    if (meta && currentCommunity) {
+      community = {
+        ...currentCommunity,
         ownerOrbitDbIdentity: meta.ownerOrbitDbIdentity,
-      })
+      }
+      await this.localDbService.setCommunity(community)
     }
 
     this.logger(`Created and launched community ${community.id}`)
