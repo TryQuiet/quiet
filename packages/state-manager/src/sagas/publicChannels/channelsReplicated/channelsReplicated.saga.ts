@@ -13,7 +13,8 @@ const log = logger('channels')
 export function* channelsReplicatedSaga(
   action: PayloadAction<ReturnType<typeof publicChannelsActions.channelsReplicated>['payload']>
 ): Generator {
-  log('Syncing channels')
+  // TODO: Refactor to use QuietLogger
+  log(`Syncing channels: ${JSON.stringify(action.payload, null, 2)}`)
   const { channels } = action.payload
   const _locallyStoredChannels = yield* select(publicChannelsSelectors.publicChannels)
   const locallyStoredChannels = _locallyStoredChannels.map(channel => channel.id)
@@ -24,20 +25,10 @@ export function* channelsReplicatedSaga(
   const databaseStoredChannelsIds = databaseStoredChannels.map(channel => channel.id)
   console.log({ locallyStoredChannels, databaseStoredChannelsIds })
 
-  // Removing channels from store
-  if (databaseStoredChannelsIds.length > 0) {
-    for (const channelId of locallyStoredChannels) {
-      if (!databaseStoredChannelsIds.includes(channelId)) {
-        log(`Removing #${channelId} from store`)
-        yield* put(publicChannelsActions.deleteChannel({ channelId }))
-        yield* take(publicChannelsActions.completeChannelDeletion)
-      }
-    }
-  }
-
   // Upserting channels to local storage
   for (const channel of databaseStoredChannels) {
     if (!locallyStoredChannels.includes(channel.id)) {
+      // TODO: Refactor to use QuietLogger
       log(`Adding #${channel.name} to store`)
       yield* put(
         publicChannelsActions.addChannel({
@@ -49,6 +40,18 @@ export function* channelsReplicatedSaga(
           channelId: channel.id,
         })
       )
+    }
+  }
+
+  // Removing channels from store
+  if (databaseStoredChannelsIds.length > 0) {
+    for (const channelId of locallyStoredChannels) {
+      if (!databaseStoredChannelsIds.includes(channelId)) {
+        // TODO: Refactor to use QuietLogger
+        log(`Removing #${channelId} from store`)
+        yield* put(publicChannelsActions.deleteChannel({ channelId }))
+        yield* take(publicChannelsActions.completeChannelDeletion)
+      }
     }
   }
 

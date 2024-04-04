@@ -9,6 +9,7 @@
 # Fixes
 
 * Allow JPEG and GIF files as profile photos ([#2332](https://github.com/TryQuiet/quiet/issues/2332))
+* Fixes issues with recreating general channel when deleted while offline ([#2334](https://github.com/TryQuiet/quiet/issues/2334))
 
 # New features
 
