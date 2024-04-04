@@ -112,9 +112,9 @@ describe('communitiesSelectors', () => {
     const ownerOrbitDbIdentity = 'testOwnerOrbitDbIdentity'
     await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community', {
       peerList,
+      psk,
       ownerOrbitDbIdentity,
     })
-    store.dispatch(communitiesActions.savePSK(psk))
     const selectorInvitationUrl = connectionSelectors.invitationUrl(store.getState())
     const expectedUrl = invitationShareUrl(peerList, psk, ownerOrbitDbIdentity)
     expect(expectedUrl).not.toEqual('')

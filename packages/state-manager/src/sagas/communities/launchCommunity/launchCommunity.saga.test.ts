@@ -59,7 +59,7 @@ describe('launchCommunity', () => {
   })
 
   test('launch certain community instead of current community', async () => {
-    const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
+    const socket = { emit: jest.fn(), emitWithAck: jest.fn(), on: jest.fn() } as unknown as Socket
 
     const community =
       await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
@@ -76,14 +76,9 @@ describe('launchCommunity', () => {
       id: community.id,
       peerId: identity.peerId,
       hiddenService: identity.hiddenService,
-      certs: {
-        // @ts-expect-error
-        certificate: identity.userCertificate,
-        // @ts-expect-error
-        key: identity.userCsr.userKey,
-        CA: [communityWithRootCa.rootCa],
-      },
       peers: community.peerList,
+      psk: undefined,
+      ownerOrbitDbIdentity: undefined,
     }
 
     await expectSaga(launchCommunitySaga, socket, communitiesActions.launchCommunity(community.id))
@@ -108,22 +103,12 @@ describe('launchCommunity', () => {
           },
         }
       )
-      .apply(socket, socket.emit, [
-        SocketActionTypes.LAUNCH_COMMUNITY,
-        {
-          id: launchCommunityPayload.id,
-          peerId: launchCommunityPayload.peerId,
-          hiddenService: launchCommunityPayload.hiddenService,
-          peers: launchCommunityPayload.peers,
-          psk: undefined,
-          ownerOrbitDbIdentity: undefined,
-        },
-      ])
+      .apply(socket, socket.emitWithAck, [SocketActionTypes.LAUNCH_COMMUNITY, launchCommunityPayload])
       .run()
   })
 
   test('launch current community', async () => {
-    const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
+    const socket = { emit: jest.fn(), emitWithAck: jest.fn(), on: jest.fn() } as unknown as Socket
 
     const community =
       await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
@@ -140,14 +125,9 @@ describe('launchCommunity', () => {
       id: community.id,
       peerId: identity.peerId,
       hiddenService: identity.hiddenService,
-      certs: {
-        // @ts-expect-error
-        certificate: identity.userCertificate,
-        // @ts-expect-error
-        key: identity.userCsr.userKey,
-        CA: [communityWithRootCa.rootCa],
-      },
       peers: community.peerList,
+      psk: undefined,
+      ownerOrbitDbIdentity: undefined,
     }
 
     await expectSaga(launchCommunitySaga, socket, communitiesActions.launchCommunity(community.id))
@@ -172,22 +152,12 @@ describe('launchCommunity', () => {
           },
         }
       )
-      .apply(socket, socket.emit, [
-        SocketActionTypes.LAUNCH_COMMUNITY,
-        {
-          id: launchCommunityPayload.id,
-          peerId: launchCommunityPayload.peerId,
-          hiddenService: launchCommunityPayload.hiddenService,
-          peers: launchCommunityPayload.peers,
-          psk: undefined,
-          ownerOrbitDbIdentity: undefined,
-        },
-      ])
+      .apply(socket, socket.emitWithAck, [SocketActionTypes.LAUNCH_COMMUNITY, launchCommunityPayload])
       .run()
   })
 
   test('do not launch current community if it does not have rootCa', async () => {
-    const socket = { emit: jest.fn(), on: jest.fn() } as unknown as Socket
+    const socket = { emit: jest.fn(), emitWithAck: jest.fn(), on: jest.fn() } as unknown as Socket
 
     const community =
       await factory.create<ReturnType<typeof communitiesActions.addNewCommunity>['payload']>('Community')
@@ -201,14 +171,6 @@ describe('launchCommunity', () => {
       id: community.id,
       peerId: identity.peerId,
       hiddenService: identity.hiddenService,
-      certs: {
-        // @ts-expect-error
-        certificate: identity.userCertificate,
-        // @ts-expect-error
-        key: identity.userCsr.userKey,
-        // @ts-expect-error
-        CA: [community.rootCa],
-      },
       peers: community.peerList,
     }
 
@@ -234,18 +196,7 @@ describe('launchCommunity', () => {
           },
         }
       )
-      .not.apply(socket, socket.emit, [
-        SocketActionTypes.LAUNCH_COMMUNITY,
-        {
-          id: launchCommunityPayload.id,
-          peerId: launchCommunityPayload.peerId,
-          hiddenService: launchCommunityPayload.hiddenService,
-          certs: launchCommunityPayload.certs,
-          peers: launchCommunityPayload.peers,
-          psk: undefined,
-          ownerOrbitDbIdentity: undefined,
-        },
-      ])
+      .not.apply(socket, socket.emitWithAck, [SocketActionTypes.LAUNCH_COMMUNITY, launchCommunityPayload])
       .run()
   })
 
