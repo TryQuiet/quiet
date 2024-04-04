@@ -1,38 +1,19 @@
-# Change Log
-
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
-
-# [2.2.0-alpha.0](/compare/@quiet/mobile@2.0.3-alpha.17...@quiet/mobile@2.2.0-alpha.0) (2024-04-04)
-
-
-### Bug Fixes
-
-* Add `patch` to requirements documentation (#1766) 8eb6fcc, closes #1766
-* Add retry ability to tor-control and update Tor port on resume (#2360) 9517f08, closes #2360
-* ask push notification runtime permission on Android (#2213) 2f92e88, closes #2213
-* calling init websocket connection (#2261) fe1d9dd, closes #2261
-* cleanup username creation component (#2216) 1d03995, closes #2216
-* create jdenticon from pubKey, not username - to distinguish user… (#2207) fd8bd06, closes #2207
-* deep linking issues (#2154) 2867264, closes #2154 #1970
-* delay node start (#2300) 810f7c3, closes #2300
-* make sure local peer's address in in invitation link (#2268) 53f1ec9, closes #2268
-* Reduce max random port on iOS (#2402) 2c783aa, closes #2402
-* Updating channel naming logic (#2307) 38b007e, closes #2307
-* Use useLegacyPackaging feature in Gradle (#2384) 125ec4e, closes #2384
-
-
-### Features
-
-* Add user profile feature for desktop (#1923) d016be5, closes #1923
-
-
-
-
-
 [unreleased]
 
+* Refactored package.json to have consistent license "GPL-3.0-or-later"
+ 
+# Refactorings:
 
+* Use ack for CREATE_NETWORK and simplify
+
+# Fixes
+
+* Allow JPEG and GIF files as profile photos ([#2332](https://github.com/TryQuiet/quiet/issues/2332))
+* Fixes issues with recreating general channel when deleted while offline ([#2334](https://github.com/TryQuiet/quiet/issues/2334))
+
+# New features
+
+* Add utilities for emoji detection in messages and make all-emoji message larger font size ([#519](https://github.com/TryQuiet/quiet/issues/519))
 
 [2.1.2]
 
@@ -46,6 +27,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 # Fixes:
 
+* Fixes channel name creation logic
 * Remove duplicate introduction messages once again
 * Prevent channel creation with names that start with special character, then a hyphen
 * Choose random ports for Tor services (iOS)
@@ -292,3 +274,4 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 * C4 for Quiet architecture. Context and Container diagrams.
 
 * Invite tab as default in settings
+
