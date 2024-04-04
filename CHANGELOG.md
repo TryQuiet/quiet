@@ -2,22 +2,22 @@
 
 # Features:
 
-* Add support for new format of invitation link: `c=<cid>&t=<token>&s=<serverAddress>&i=<inviterAddress>`
+* Add support for new format of invitation link: `c=<cid>&t=<token>&s=<serverAddress>&i=<inviterAddress>` ([#2310](https://github.com/TryQuiet/quiet/issues/2310))
+* Add utilities for emoji detection in messages and make all-emoji message larger font size ([#519](https://github.com/TryQuiet/quiet/issues/519))
+* Use server for downloading initial community metadata if v2 invitation link is detected ([#2295](https://github.com/TryQuiet/quiet/issues/2295))
 
 # Refactorings:
 
 * Use ack for CREATE_NETWORK and simplify
-* Refactored package.json to have consistent license "GPL-3.0-or-later"
 
 # Fixes
 
-* Fixes channel name creation logic
 * Allow JPEG and GIF files as profile photos ([#2332](https://github.com/TryQuiet/quiet/issues/2332))
 
 # Other:
 
 * Refactored package.json to have consistent license "GPL-3.0-or-later"
- 
+
 [2.1.2]
 
 # Refactorings:
@@ -30,14 +30,14 @@
 
 # Fixes:
 
+* Fixes channel name creation logic
 * Remove duplicate introduction messages once again
 * Prevent channel creation with names that start with special character, then a hyphen
 * Choose random ports for Tor services (iOS)
 * Use consistent identicons for messages and profile
 * Add retry ability to tor-control and misc tor-control fixes
-* Ship Tor binary and use custom TorHandler
 
-# Chores:
+# Other:
 
 * Upgraded React-Native to 0.73.2
 
@@ -277,3 +277,4 @@
 * C4 for Quiet architecture. Context and Container diagrams.
 
 * Invite tab as default in settings
+

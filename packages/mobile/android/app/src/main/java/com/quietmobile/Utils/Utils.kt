@@ -2,19 +2,14 @@ package com.quietmobile.Utils
 
 import android.content.Context
 import android.util.Log
+import com.quietmobile.Utils.Const.TAG_NOTICE
 import java.io.*
-import java.math.BigInteger
 import java.net.ConnectException
 import java.net.InetSocketAddress
 import java.net.Socket
-import java.nio.file.Files
-import java.nio.file.Path
-import java.nio.file.Paths
 import java.security.SecureRandom
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
-import kotlin.math.pow
-import kotlin.random.Random
 
 object Utils {
     fun writeToFile(file: String, data: String, context: Context) {
@@ -33,12 +28,6 @@ object Utils {
         dataDirectory.mkdirs()
 
         return dataDirectory.absolutePath
-    }
-
-    fun generateRandomInt(length: Int = 4): Int {
-        val start = 10.0.pow((length - 1).toDouble()).toInt()
-        val end = 10.0.pow(length.toDouble()).toInt() - 1
-        return Random.nextInt(start, end)
     }
 
     fun generateRandomString(length: Int): String {
@@ -91,13 +80,6 @@ object Utils {
         } else {
             message
         }
-    }
-
-    @Throws(IOException::class)
-    @JvmStatic
-    fun readFileAsHex(filePath: Path?): String? {
-        val fileBytes = Files.readAllBytes(filePath)
-        return BigInteger(1, fileBytes).toString(16)
     }
 
 }
