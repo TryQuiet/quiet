@@ -12,7 +12,7 @@ import { LoadingButton } from '../ui/LoadingButton/LoadingButton'
 
 import { CreateCommunityDictionary, JoinCommunityDictionary } from '../CreateJoinCommunity/community.dictionary'
 
-import { CommunityOwnership, ErrorPayload, InvitationData, InvitationPair } from '@quiet/types'
+import { CommunityOwnership, ErrorPayload } from '@quiet/types'
 
 import { Controller, useForm } from 'react-hook-form'
 import { TextInput } from '../../forms/components/textInput'
@@ -20,7 +20,7 @@ import { InviteLinkErrors } from '../../forms/fieldsErrors'
 import { IconButton, InputAdornment } from '@mui/material'
 import VisibilityOff from '@mui/icons-material/VisibilityOff'
 import Visibility from '@mui/icons-material/Visibility'
-import { composeInvitationShareUrl, parseName } from '@quiet/common'
+import { parseName } from '@quiet/common'
 import { getInvitationCodes, errors as errorsState } from '@quiet/state-manager'
 import { useDispatch } from 'react-redux'
 
@@ -184,7 +184,7 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
       setFormSent(false)
       dispatch(errorsState.actions.clearError(downloadInviteDataError))
     }
-  }, [downloadInviteDataError])
+  }, [dispatch, downloadInviteDataError])
 
   const onSubmit = (values: PerformCommunityActionFormValues) => submitForm(handleCommunityAction, values, setFormSent)
 
