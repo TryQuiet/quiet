@@ -164,7 +164,8 @@ describe('StorageService', () => {
     expect(ipfsService.ipfsInstance).not.toBeNull()
     expect(localDbService.getStatus()).toEqual('open')
 
-    await localDbService.put(LocalDBKeys.COMMUNITY, community)
+    await localDbService.setCommunity(community)
+    await localDbService.setCurrentCommunityId(community.id)
   })
 
   afterEach(async () => {
