@@ -21,8 +21,7 @@ import { IconButton, InputAdornment } from '@mui/material'
 import VisibilityOff from '@mui/icons-material/VisibilityOff'
 import Visibility from '@mui/icons-material/Visibility'
 import { parseName } from '@quiet/common'
-import { getInvitationCodes, errors as errorsState } from '@quiet/state-manager'
-import { useDispatch } from 'react-redux'
+import { getInvitationCodes } from '@quiet/state-manager'
 
 const PREFIX = 'PerformCommunityActionComponent'
 
@@ -138,7 +137,8 @@ export interface PerformCommunityActionProps {
   hasReceivedResponse: boolean
   revealInputValue?: boolean
   handleClickInputReveal?: () => void
-  downloadInviteDataError?: ErrorPayload | null
+  serverErrorMessage?: string
+  clearServerError?: () => void
 }
 
 export const PerformCommunityActionComponent: React.FC<PerformCommunityActionProps> = ({
@@ -152,9 +152,9 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
   hasReceivedResponse,
   revealInputValue,
   handleClickInputReveal,
-  downloadInviteDataError,
+  serverErrorMessage,
+  clearServerError,
 }) => {
-  const dispatch = useDispatch()
   const [formSent, setFormSent] = useState(false)
 
   const [communityName, setCommunityName] = useState('...')
@@ -179,12 +179,12 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
   })
 
   useEffect(() => {
-    if (downloadInviteDataError) {
-      setError('name', { message: downloadInviteDataError.message })
+    if (serverErrorMessage) {
+      setError('name', { message: serverErrorMessage })
       setFormSent(false)
-      dispatch(errorsState.actions.clearError(downloadInviteDataError))
+      clearServerError?.()
     }
-  }, [dispatch, downloadInviteDataError])
+  }, [serverErrorMessage])
 
   const onSubmit = (values: PerformCommunityActionFormValues) => submitForm(handleCommunityAction, values, setFormSent)
 

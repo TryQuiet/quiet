@@ -6,6 +6,7 @@ import PerformCommunityActionComponent from '../../../components/CreateJoinCommu
 import { useModal } from '../../../containers/hooks'
 import { ModalName } from '../../../sagas/modals/modals.types'
 import { socketSelectors } from '../../../sagas/socket/socket.selectors'
+import { errors as errorsState } from '@quiet/state-manager'
 
 const JoinCommunity = () => {
   const dispatch = useDispatch()
@@ -25,6 +26,7 @@ const JoinCommunity = () => {
   )
 
   const [revealInputValue, setRevealInputValue] = useState<boolean>(false)
+  const [serverErrorMessage, setServerErrorMessage] = useState<string>('')
 
   useEffect(() => {
     if (isConnected && !currentCommunity && !joinCommunityModal.open) {
@@ -51,6 +53,19 @@ const JoinCommunity = () => {
     }
   }
 
+  useEffect(() => {
+    if (downloadInviteDataError?.message) {
+      setServerErrorMessage(downloadInviteDataError.message)
+    }
+  }, [downloadInviteDataError])
+
+  const clearServerError = () => {
+    if (downloadInviteDataError) {
+      dispatch(errorsState.actions.clearError(downloadInviteDataError))
+      setServerErrorMessage('')
+    }
+  }
+
   const handleClickInputReveal = () => {
     revealInputValue ? setRevealInputValue(false) : setRevealInputValue(true)
   }
@@ -66,7 +81,8 @@ const JoinCommunity = () => {
       hasReceivedResponse={Boolean(currentIdentity && !currentIdentity.userCertificate)}
       revealInputValue={revealInputValue}
       handleClickInputReveal={handleClickInputReveal}
-      downloadInviteDataError={downloadInviteDataError}
+      serverErrorMessage={serverErrorMessage}
+      clearServerError={clearServerError}
     />
   )
 }
