@@ -27,6 +27,8 @@ describe('Multiple Clients', () => {
   let secondChannelOwner: Channel
   let secondChannelUser1: Channel
 
+  let thirdChannelOwner: Channel
+
   let channelContextMenuOwner: ChannelContextMenu
 
   let invitationCode: string
@@ -40,6 +42,7 @@ describe('Multiple Clients', () => {
   const displayedCommunityName = 'Testcommunity'
   const newChannelName = 'mid-night-club'
   const generalChannelName = 'general'
+  const thirdChannelName = 'delete-this'
 
   beforeAll(async () => {
     const commonApp = new App()
@@ -439,34 +442,80 @@ describe('Multiple Clients', () => {
         const channels = await sidebarOwner.getChannelList()
         expect(channels.length).toEqual(2)
       })
+    })
 
-      // End of tests for Windows
-      if (process.platform !== 'win32') {
-        it('Leave community', async () => {
-          console.log('TEST 2')
-          const settingsModal = await new Sidebar(users.user1.app.driver).openSettings()
-          const isSettingsModal = await settingsModal.element.isDisplayed()
-          expect(isSettingsModal).toBeTruthy()
-          await settingsModal.openLeaveCommunityModal()
-          await settingsModal.leaveCommunityButton()
-        })
+    describe('Channel Deletion - Issue #2334', () => {
+      it('Owner creates third channel', async () => {
+        await sidebarOwner.addNewChannel(thirdChannelName)
+        await sidebarOwner.switchChannel(thirdChannelName)
+        thirdChannelOwner = new Channel(users.owner.app.driver, thirdChannelName)
+        const messages = await thirdChannelOwner.getUserMessages(users.owner.username)
+        expect(messages.length).toEqual(1)
+        await sleep(2000)
+        const channels = await sidebarUser1.getChannelList()
+        expect(channels.length).toEqual(3)
+      })
 
-        // Delete general channel while guest is absent
-        it('Owner recreates general channel', async () => {
-          console.log('TEST 3')
-          await sleep(10000)
-          const isGeneralChannel = await generalChannelOwner.messageInput.isDisplayed()
-          expect(isGeneralChannel).toBeTruthy()
-          await channelContextMenuOwner.openMenu()
-          await channelContextMenuOwner.openDeletionChannelModal()
-          await channelContextMenuOwner.deleteChannel()
-          const channels = await sidebarOwner.getChannelList()
-          expect(channels.length).toEqual(2)
-        })
-      }
+      it('User 1 closes app', async () => {
+        console.log('User 1 closes app')
+        await users.user1.app?.close()
+        await sleep(30000)
+      })
+
+      // Delete third channel while guest is absent
+      it('Owner deletes third channel', async () => {
+        await sleep(10000)
+        const isThirdChannel = await thirdChannelOwner.messageInput.isDisplayed()
+        expect(isThirdChannel).toBeTruthy()
+        await channelContextMenuOwner.openMenu()
+        await channelContextMenuOwner.openDeletionChannelModal()
+        await channelContextMenuOwner.deleteChannel()
+        const channels = await sidebarOwner.getChannelList()
+        expect(channels.length).toEqual(2)
+      })
+
+      // Delete general channel while guest is absent
+      it('Owner recreates general channel', async () => {
+        console.log('TEST 3')
+        await sleep(10000)
+        const isGeneralChannel = await generalChannelOwner.messageInput.isDisplayed()
+        expect(isGeneralChannel).toBeTruthy()
+        await channelContextMenuOwner.openMenu()
+        await channelContextMenuOwner.openDeletionChannelModal()
+        await channelContextMenuOwner.deleteChannel()
+        const channels = await sidebarOwner.getChannelList()
+        expect(channels.length).toEqual(2)
+      })
+
+      it('User 1 re-opens app', async () => {
+        console.log('User 1 re-opens app')
+        await users.user1.app?.openWithRetries()
+        await sleep(30000)
+      })
+
+      // Check correct channels replication
+      it('User 1 sees information about recreation general channel and see correct amount of messages (#2334)', async () => {
+        generalChannelUser1 = new Channel(users.user1.app.driver, 'general')
+        await generalChannelUser1.element.isDisplayed()
+        await sleep(10000)
+
+        await generalChannelUser1.waitForUserMessage(
+          users.owner.username,
+          `@${users.owner.username} deleted all messages in #general`
+        )
+      })
     })
 
     describe('Leave Community', () => {
+      it('User 1 leaves community', async () => {
+        console.log('TEST 2')
+        const settingsModal = await new Sidebar(users.user1.app.driver).openSettings()
+        const isSettingsModal = await settingsModal.element.isDisplayed()
+        expect(isSettingsModal).toBeTruthy()
+        await settingsModal.openLeaveCommunityModal()
+        await settingsModal.leaveCommunityButton()
+      })
+
       it('Guest re-join to community successfully', async () => {
         console.log('TEST 4')
         const debugModal = new DebugModeModal(users.user1.app.driver)

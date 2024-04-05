@@ -60,7 +60,7 @@ export function* channelDeletionResponseSaga(
       let newGeneralChannel: PublicChannelStorage | undefined = yield* select(publicChannelsSelectors.generalChannel)
       while (!newGeneralChannel) {
         logger.info('General channel has not been replicated yet')
-        yield* delay(500)
+        yield* delay(1000)
         newGeneralChannel = yield* select(publicChannelsSelectors.generalChannel)
       }
       yield* put(publicChannelsActions.setCurrentChannel({ channelId: newGeneralChannel.id }))

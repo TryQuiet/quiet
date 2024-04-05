@@ -13,7 +13,7 @@ const logger = createLogger('channels')
 export function* channelsReplicatedSaga(
   action: PayloadAction<ReturnType<typeof publicChannelsActions.channelsReplicated>['payload']>
 ): Generator {
-  logger.debug('Syncing channels')
+  logger.debug('Syncing channels', action.payload)
   const { channels } = action.payload
   const _locallyStoredChannels = yield* select(publicChannelsSelectors.publicChannels)
   const locallyStoredChannels = _locallyStoredChannels.map(channel => channel.id)
@@ -23,17 +23,6 @@ export function* channelsReplicatedSaga(
 
   const databaseStoredChannelsIds = databaseStoredChannels.map(channel => channel.id)
   logger.debug({ locallyStoredChannels, databaseStoredChannelsIds })
-
-  // Removing channels from store
-  if (databaseStoredChannelsIds.length > 0) {
-    for (const channelId of locallyStoredChannels) {
-      if (!databaseStoredChannelsIds.includes(channelId)) {
-        logger.info(`Removing #${channelId} from store`)
-        yield* put(publicChannelsActions.deleteChannel({ channelId }))
-        yield* take(publicChannelsActions.completeChannelDeletion)
-      }
-    }
-  }
 
   // Upserting channels to local storage
   for (const channel of databaseStoredChannels) {
@@ -49,6 +38,17 @@ export function* channelsReplicatedSaga(
           channelId: channel.id,
         })
       )
+    }
+  }
+
+  // Removing channels from store
+  if (databaseStoredChannelsIds.length > 0) {
+    for (const channelId of locallyStoredChannels) {
+      if (!databaseStoredChannelsIds.includes(channelId)) {
+        logger.info(`Removing #${channelId} from store`)
+        yield* put(publicChannelsActions.deleteChannel({ channelId }))
+        yield* take(publicChannelsActions.completeChannelDeletion)
+      }
     }
   }
 
