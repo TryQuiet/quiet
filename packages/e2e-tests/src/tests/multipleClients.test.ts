@@ -567,6 +567,12 @@ describe('Multiple Clients', () => {
         await sleep(5000)
         const messageIds = await generalChannelUser1.sendMessage(users.user2.messages[0], users.user2.username)
         await generalChannelUser1.verifyMessageSentStatus(messageIds, users.user2.username, false)
+
+        await generalChannelOwner.getMessageIdsByText(users.user2.messages[0], users.user2.username)
+      })
+
+      it('Owner sees the message the guest sent', async () => {
+        await generalChannelOwner.getMessageIdsByText(users.user2.messages[0], users.user2.username)
       })
     })
 
@@ -595,9 +601,13 @@ describe('Multiple Clients', () => {
         await generalChannelOwner.verifyMessageSentStatus(messageIds, users.owner.username, false)
       })
 
-      it('Owner sees the connection status element in general channel', async () => {
+      it("Owner doesn't see the connection status element in general channel", async () => {
         const correctConnectionStatusElementPresence = await generalChannelOwner.waitForConnectionStatus(false)
         expect(correctConnectionStatusElementPresence).toBe(true)
+      })
+
+      it('Guest sees the message the owner sent', async () => {
+        await generalChannelUser3.getMessageIdsByText(users.owner.messages[2], users.owner.username)
       })
     })
   })
