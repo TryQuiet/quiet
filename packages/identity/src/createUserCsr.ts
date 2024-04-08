@@ -69,7 +69,6 @@ async function requestCertificate({
 }): Promise<CertData> {
   const keyPair: CryptoKeyPair = existingKeyPair ? existingKeyPair : await generateKeyPair({ signAlg })
 
-
   const pkcs10 = new CertificationRequest({
     version: 0,
     attributes: [],
