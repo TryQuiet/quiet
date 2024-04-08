@@ -24,9 +24,7 @@ import {
   type RegisterOwnerCertificatePayload,
   type ResponseLaunchCommunityPayload,
 } from '@quiet/types'
-import {
-  publicChannels,
-} from '@quiet/state-manager'
+import { publicChannels } from '@quiet/state-manager'
 import Channel from '../renderer/components/Channel/Channel'
 import LoadingPanel from '../renderer/components/LoadingPanel/LoadingPanel'
 import { AnyAction } from 'redux'
