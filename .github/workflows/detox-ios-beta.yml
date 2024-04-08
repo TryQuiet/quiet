@@ -13,3 +13,6 @@ jobs:
 
       - name: List simulator devices
         run: xcrun simctl list devices
+
+      - name: Boot simulator
+        run: xcrun simctl boot 5A020DC7-BBC3-4F2E-89B3-4AF5A3911498 # iPhone 15
