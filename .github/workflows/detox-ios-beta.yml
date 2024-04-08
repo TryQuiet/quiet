@@ -16,3 +16,28 @@ jobs:
 
       - name: Boot simulator
         run: xcrun simctl boot 5A020DC7-BBC3-4F2E-89B3-4AF5A3911498 # iPhone 15
+
+      - name: Install dependencies
+        run: |
+          npm i
+          npm run lerna bootstrap --scope @quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/mobile,backend-bundle
+
+      - name: Pull binaries
+        run: |
+          git lfs install
+          git lfs pull
+
+      - name: Install pods
+        run: |
+          cd packages/mobile/ios
+          pod install
+
+      - name: Build Detox
+        run: |
+          cd packages/mobile
+          detox build -c ios.sim.debug.ci
+
+      - name: Run basic tests
+        run: |
+          cd packages/mobile
+          detox test starter -c ios.sim.debug.ci
