@@ -1,0 +1,15 @@
+name: Detox E2E iOS (beta)
+
+on:
+  push:
+
+jobs:
+  detox-ios:
+    timeout-minutes: 5
+    runs-on: [macos-latest-xlarge]
+
+steps:
+  - uses: actions/checkout@v4
+
+  - name: List simulator devices
+    run: xcrun simctl list devices
