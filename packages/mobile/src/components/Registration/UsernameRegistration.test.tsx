@@ -434,7 +434,7 @@ describe('UsernameRegistration', () => {
             verticalTextAlign="center"
           >
             We’re sorry, but the username
-
+             
             <Text
               color="main"
               fontSize={14}
