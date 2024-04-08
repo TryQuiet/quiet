@@ -227,6 +227,10 @@ export class BuildSetup {
   }
 
   public clearDataDir() {
+    if (process.env.IS_CI === 'true') {
+      console.warn('Not deleting data directory because we are running in CI')
+      return
+    }
     console.log(`Deleting data directory at ${this.dataDirPath}`)
     fs.rmdirSync(this.dataDirPath, { recursive: true })
   }
