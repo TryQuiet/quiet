@@ -506,15 +506,19 @@ export class StorageService extends EventEmitter {
         const community = await this.localDbService.getCurrentCommunity()
 
         if (community) {
+          this.logger(`Emitting ${StorageEvents.MESSAGE_IDS_STORED} storage event because community exists in local DB`)
           this.emit(StorageEvents.MESSAGE_IDS_STORED, {
             ids,
             channelId: channelData.id,
             communityId: community.id,
           })
+        } else {
+          this.logger(`No community found in local DB`)
         }
       })
 
       db.events.on('ready', async () => {
+        this.logger('Local DB ready.')
         const ids = this.getAllEventLogEntries<ChannelMessage>(db).map(msg => msg.id)
         const community = await this.localDbService.getCurrentCommunity()
 

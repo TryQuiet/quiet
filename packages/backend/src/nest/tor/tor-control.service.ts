@@ -65,7 +65,6 @@ export class TorControl {
         this.logger(`Connecting to Tor, host: ${this.torControlParams.host} port: ${this.torControlParams.port}`)
         await this._connect()
         this.logger('Tor connected')
-        this.serverIoProvider.io.emit(SocketActionTypes.TOR_INITIALIZED)
         return
       } catch (e) {
         this.logger(e)

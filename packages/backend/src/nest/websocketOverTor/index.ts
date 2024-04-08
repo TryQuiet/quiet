@@ -77,6 +77,7 @@ export class WebSockets extends EventEmitter {
     let maConn: MultiaddrConnection
 
     try {
+      log('Dialling - ', ma.nodeAddress())
       socket = await this._connect(ma, {
         websocket: {
           ...this._websocketOpts,

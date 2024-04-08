@@ -65,10 +65,17 @@ function subscribeSocketLifecycle(socket?: Socket) {
       logger.info('websocket connected')
       emit(socketActions.setConnected())
     })
-    socket?.on('disconnect', () => {
-      logger.info('closing socket connection')
-      emit(socketActions.suspendConnection())
-    })
+    socket?.on(
+      'disconnect',
+      async (reason: string, description?: Error | { description: string; context?: any } | undefined) => {
+        if (reason === 'transport error') {
+          logger.error(`Error occurred, closing connection with reason ${reason}`, description)
+        } else {
+          logger.info('closing socket connection', reason, description)
+        }
+        emit(socketActions.suspendConnection())
+      }
+    )
     return () => {}
   })
 }
