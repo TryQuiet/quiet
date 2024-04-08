@@ -75,9 +75,9 @@ async function generateUserCertificate({
   let altNames
 
   try {
-    nickname = attr?.[2].values[0].valueBlock.value
-    peerId = attr?.[3].values[0].valueBlock.value
-    onionAddress = attr?.[4].values[0].valueBlock.value
+    nickname = attr?.[1].values[0].valueBlock.value
+    peerId = attr?.[2].values[0].valueBlock.value
+    onionAddress = attr?.[3].values[0].valueBlock.value
     altNames = new GeneralNames({
       names: [
         new GeneralName({
@@ -87,6 +87,7 @@ async function generateUserCertificate({
       ],
     })
   } catch (err) {
+    console.error(err)
     throw new Error('Cannot get certificate request extension')
   }
 
