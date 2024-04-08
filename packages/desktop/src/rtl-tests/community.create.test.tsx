@@ -20,12 +20,12 @@ import {
   type NetworkInfo,
   SavedOwnerCertificatePayload,
   SocketActionTypes,
+  type ChannelsReplicatedPayload,
+  type RegisterOwnerCertificatePayload,
+  type ResponseLaunchCommunityPayload,
 } from '@quiet/types'
 import {
-  ChannelsReplicatedPayload,
   publicChannels,
-  RegisterOwnerCertificatePayload,
-  ResponseLaunchCommunityPayload,
 } from '@quiet/state-manager'
 import Channel from '../renderer/components/Channel/Channel'
 import LoadingPanel from '../renderer/components/LoadingPanel/LoadingPanel'
