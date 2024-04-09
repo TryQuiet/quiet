@@ -22,7 +22,7 @@ jobs:
 
       - name: Pull binaries
         run: |
-          git lfs install
+          git lfs install --force
           git lfs pull
 
       - name: Install pods
