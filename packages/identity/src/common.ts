@@ -9,6 +9,8 @@ export enum CertFieldsTypes {
   subjectAltName = '2.5.29.17',
   nickName = '1.3.6.1.4.1.50715.2.1',
   peerId = '1.3.6.1.2.1.15.3.1.1',
+  // DEPRECATED
+  dmPublicKey = '1.2.840.113549.1.9.12',
 }
 
 export enum ExtensionsTypes {

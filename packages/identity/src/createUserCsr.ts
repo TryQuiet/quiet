@@ -103,6 +103,12 @@ async function requestCertificate({
         }).toSchema(),
       ],
     }),
+
+    // DEPRECATED
+    new Attribute({
+      type: CertFieldsTypes.dmPublicKey,
+      values: [],
+    }),
     new Attribute({
       type: CertFieldsTypes.nickName,
       values: [new PrintableString({ value: nickname })],
