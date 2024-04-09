@@ -495,6 +495,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
     const peers = community.peerList
     this.logger(`Launching community ${community.id}: payload peers: ${peers}`)
+    this.logger(`PSK: ${community.psk}`)
 
     const params: Libp2pNodeParams = {
       peerId,

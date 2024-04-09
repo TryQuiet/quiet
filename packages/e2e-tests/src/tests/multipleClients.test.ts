@@ -340,6 +340,7 @@ describe('Multiple Clients', () => {
       })
 
       it('First user sees that unregistered user\'s messages are marked as "unregistered"', async () => {
+        await sleep(20000)
         const user3MessageId = await generalChannelUser1.getMessageIdsByText(
           users.user3.messages[0],
           users.user3.username
@@ -382,18 +383,18 @@ describe('Multiple Clients', () => {
         expect(channels.length).toEqual(2)
       })
 
+      it("Owner doesn't see the connection status element in second channel", async () => {
+        const correctConnectionStatusElementPresence = await secondChannelOwner.waitForConnectionStatus(false)
+        expect(correctConnectionStatusElementPresence).toBe(true)
+      })
+
       it('Owner sends message in second channel', async () => {
         secondChannelOwner = new Channel(users.owner.app.driver, newChannelName)
         const isMessageInput = await secondChannelOwner.messageInput.isDisplayed()
         expect(isMessageInput).toBeTruthy()
-        await sleep(5000)
         const messageIds = await secondChannelOwner.sendMessage(users.owner.messages[1], users.owner.username)
+        await sleep(5000)
         await secondChannelOwner.verifyMessageSentStatus(messageIds, users.owner.username, false)
-      })
-
-      it("Owner doesn't see the connection status element in second channel", async () => {
-        const correctConnectionStatusElementPresence = await secondChannelOwner.waitForConnectionStatus(false)
-        expect(correctConnectionStatusElementPresence).toBe(true)
       })
 
       it('User reads message in second channel', async () => {

@@ -100,7 +100,7 @@ export class BuildSetup {
   public async createChromeDriver() {
     await this.initPorts()
     const env = {
-      DEBUG: 'backend*,desktop*,utils*,main*',
+      DEBUG: 'backend*,desktop*,utils*,main*,state-manager*',
       DATA_DIR: this.dataDir,
     }
     if (process.platform === 'win32') {

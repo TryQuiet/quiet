@@ -85,14 +85,14 @@ export class WebSockets extends EventEmitter {
         signal: options.signal,
       })
     } catch (e) {
-      log.error('error connecting to %s. Details: %s', ma, e.message)
+      log.error(`error connecting to ${ma.toString()}. Details:`, e)
       throw e
     }
     try {
       maConn = socketToMaConn(socket, ma, { signal: options.signal })
       log('new outbound connection %s', maConn.remoteAddr)
     } catch (e) {
-      log.error('error creating new outbound connection %s. Details: %s', ma, e.message)
+      log.error(`error creating new outbound connection ${ma.toString()}. Details:`, e)
       throw e
     }
 
@@ -101,7 +101,7 @@ export class WebSockets extends EventEmitter {
       log('outbound connection %s upgraded', maConn.remoteAddr)
       return conn
     } catch (e) {
-      log.error('error upgrading outbound connection %s. Details: %s', maConn.remoteAddr, e.message)
+      log.error(`error upgrading outbound connection ${maConn.remoteAddr}. Details:`, e)
       throw e
     }
   }
@@ -115,7 +115,7 @@ export class WebSockets extends EventEmitter {
 
     const errorPromise = pDefer()
     const errfn = (event: ErrorEvent) => {
-      log.error(`connection error: ${event.message}`)
+      log.error(`connection error:`, JSON.stringify(event, null, 2))
       errorPromise.reject(event)
     }
 
