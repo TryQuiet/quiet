@@ -75,9 +75,24 @@ async function generateUserCertificate({
   let altNames
 
   try {
-    nickname = attr?.[1].values[0].valueBlock.value
-    peerId = attr?.[2].values[0].valueBlock.value
-    onionAddress = attr?.[3].values[0].valueBlock.value
+    // MIGRATION: We removed dmPublicKey from the attributes at
+    // position 1. However, we maintain backwards compatibility for
+    // existing CSRs, if we ever need to re-issue certificates.
+    //
+    // TODO: Perhaps we should retreive values by their field type
+    // instead of their position.
+    if (attr?.length === 5) {
+      // publicKey = attr[0]
+      // dmPublicKey = attr[1]
+      nickname = attr?.[2].values[0].valueBlock.value
+      peerId = attr?.[3].values[0].valueBlock.value
+      onionAddress = attr?.[4].values[0].valueBlock.value
+    } else {
+      // publicKey = attr[0]
+      nickname = attr?.[1].values[0].valueBlock.value
+      peerId = attr?.[2].values[0].valueBlock.value
+      onionAddress = attr?.[3].values[0].valueBlock.value
+    }
     altNames = new GeneralNames({
       names: [
         new GeneralName({
