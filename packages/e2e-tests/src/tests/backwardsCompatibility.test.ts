@@ -42,6 +42,9 @@ describe('Backwards Compatibility', () => {
   afterAll(async () => {
     await new Promise<void>(resolve => setTimeout(() => resolve(), 5000))
     await ownerAppNewVersion?.close()
+    await ownerAppNewVersion?.cleanup()
+    await ownerAppOldVersion?.close()
+    await ownerAppOldVersion?.cleanup()
   })
   describe('User opens app for the first time', () => {
     it('Owner opens the app', async () => {

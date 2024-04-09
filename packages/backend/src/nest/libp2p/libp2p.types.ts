@@ -17,12 +17,3 @@ export interface Libp2pNodeParams {
   peers: string[]
   psk: Uint8Array
 }
-
-export interface InitLibp2pParams {
-  peerId: any
-  address: string
-  addressPort: number
-  targetPort: number
-  bootstrapMultiaddrs: string[]
-  certs: Certificates
-}

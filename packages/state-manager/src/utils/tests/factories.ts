@@ -149,7 +149,7 @@ export const getFactory = async (store: Store) => {
 
           if (!community.ownerCertificate) {
             store.dispatch(
-              communities.actions.updateCommunity({
+              communities.actions.updateCommunityData({
                 id: community.id,
                 ownerCertificate: action.payload.userCertificate,
               })

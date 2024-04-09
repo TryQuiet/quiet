@@ -10,10 +10,15 @@
 # Fixes
 
 * Allow JPEG and GIF files as profile photos ([#2332](https://github.com/TryQuiet/quiet/issues/2332))
+* Fixes issues with recreating general channel when deleted while offline ([#2334](https://github.com/TryQuiet/quiet/issues/2334))
 
 # Other:
 
 * Refactored package.json to have consistent license "GPL-3.0-or-later"
+
+# Chores
+
+* Cleanup data directory at end of e2e tests
 
 [2.1.2]
 

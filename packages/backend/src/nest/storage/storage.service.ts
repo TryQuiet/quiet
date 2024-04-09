@@ -316,13 +316,16 @@ export class StorageService extends EventEmitter {
     const users = this.getAllUsers()
     const peers = users.map(peer => createLibp2pAddress(peer.onionAddress, peer.peerId))
     console.log('updatePeersList, peers count:', peers.length)
-    const community = await this.localDbService.get(LocalDBKeys.COMMUNITY)
+
+    const community = await this.localDbService.getCurrentCommunity()
+    if (!community) return
+
     const sortedPeers = await this.localDbService.getSortedPeers(peers)
     if (sortedPeers.length > 0) {
-      community.peers = sortedPeers
-      await this.localDbService.put(LocalDBKeys.COMMUNITY, community)
+      community.peerList = sortedPeers
+      await this.localDbService.setCommunity(community)
     }
-    this.emit(StorageEvents.UPDATE_PEERS_LIST, { communityId: community.id, peerList: peers })
+    this.emit(StorageEvents.COMMUNITY_UPDATED, community)
   }
 
   public async loadAllCertificates() {
@@ -500,22 +503,28 @@ export class StorageService extends EventEmitter {
       db.events.on('replicated', async address => {
         this.logger('Replicated.', address)
         const ids = this.getAllEventLogEntries<ChannelMessage>(db).map(msg => msg.id)
-        const community = await this.localDbService.get(LocalDBKeys.COMMUNITY)
-        this.emit(StorageEvents.MESSAGE_IDS_STORED, {
-          ids,
-          channelId: channelData.id,
-          communityId: community.id,
-        })
+        const community = await this.localDbService.getCurrentCommunity()
+
+        if (community) {
+          this.emit(StorageEvents.MESSAGE_IDS_STORED, {
+            ids,
+            channelId: channelData.id,
+            communityId: community.id,
+          })
+        }
       })
 
       db.events.on('ready', async () => {
         const ids = this.getAllEventLogEntries<ChannelMessage>(db).map(msg => msg.id)
-        const community = await this.localDbService.get(LocalDBKeys.COMMUNITY)
-        this.emit(StorageEvents.MESSAGE_IDS_STORED, {
-          ids,
-          channelId: channelData.id,
-          communityId: community.id,
-        })
+        const community = await this.localDbService.getCurrentCommunity()
+
+        if (community) {
+          this.emit(StorageEvents.MESSAGE_IDS_STORED, {
+            ids,
+            channelId: channelData.id,
+            communityId: community.id,
+          })
+        }
       })
 
       await db.load()
@@ -611,15 +620,15 @@ export class StorageService extends EventEmitter {
       }
     }
     await repo.db.load()
-    const allEntries = this.getAllEventLogRawEntries(repo.db)
+    // const allEntries = this.getAllEventLogRawEntries(repo.db)
     await repo.db.close()
     await repo.db.drop()
-    const hashes = allEntries.map(e => CID.parse(e.hash))
-    const files = allEntries
-      .map(e => {
-        return e.payload.value.media
-      })
-      .filter(isDefined)
+    // const hashes = allEntries.map(e => CID.parse(e.hash))
+    // const files = allEntries
+    //   .map(e => {
+    //     return e.payload.value.media
+    //   })
+    //   .filter(isDefined)
     // await this.deleteChannelFiles(files)
     // await this.deleteChannelMessages(hashes)
     this.publicChannelsRepos.delete(channelId)

@@ -1,6 +1,19 @@
 [unreleased]
 
+* Refactored package.json to have consistent license "GPL-3.0-or-later"
+ 
+# Refactorings:
 
+* Use ack for CREATE_NETWORK and simplify
+
+# Fixes
+
+* Allow JPEG and GIF files as profile photos ([#2332](https://github.com/TryQuiet/quiet/issues/2332))
+* Fixes issues with recreating general channel when deleted while offline ([#2334](https://github.com/TryQuiet/quiet/issues/2334))
+
+# New features
+
+* Add utilities for emoji detection in messages and make all-emoji message larger font size ([#519](https://github.com/TryQuiet/quiet/issues/519))
 
 [2.1.2]
 
@@ -14,6 +27,7 @@
 
 # Fixes:
 
+* Fixes channel name creation logic
 * Remove duplicate introduction messages once again
 * Prevent channel creation with names that start with special character, then a hyphen
 * Choose random ports for Tor services (iOS)
@@ -260,3 +274,4 @@
 * C4 for Quiet architecture. Context and Container diagrams.
 
 * Invite tab as default in settings
+

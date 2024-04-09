@@ -16,6 +16,8 @@ describe('Deep linking', () => {
 
   beforeEach(async () => {
     socket = new MockedSocket()
+    // @ts-ignore
+    socket.emitWithAck = jest.fn()
     ioMock.mockImplementation(() => socket)
   })
 
@@ -56,7 +58,9 @@ describe('Deep linking', () => {
         "Communities/setInvitationCodes",
         "Communities/savePSK",
         "Communities/addNewCommunity",
+        "Navigation/replaceScreen",
         "Communities/setCurrentCommunity",
+        "Communities/setInvitationCodes",
         "Init/deepLink",
       ]
     `)

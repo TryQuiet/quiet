@@ -23,6 +23,7 @@ describe('One Client', () => {
 
   afterAll(async () => {
     await app.close()
+    await app.cleanup()
   })
   describe('User opens app for the first time', () => {
     it('Get opened app process data', () => {
