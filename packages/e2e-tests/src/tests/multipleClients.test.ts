@@ -438,7 +438,7 @@ describe('Multiple Clients', () => {
         await sidebarUser1.switchChannel(newChannelName)
         const messages = await secondChannelUser1.getUserMessages(users.user1.username)
         expect(messages.length).toEqual(1)
-        await sleep(2000)
+        await sleep(20000)
         const channels = await sidebarOwner.getChannelList()
         expect(channels.length).toEqual(2)
       })
@@ -477,7 +477,6 @@ describe('Multiple Clients', () => {
       // Delete general channel while guest is absent
       it('Owner recreates general channel', async () => {
         console.log('TEST 3')
-        await sleep(10000)
         const isGeneralChannel = await generalChannelOwner.messageInput.isDisplayed()
         expect(isGeneralChannel).toBeTruthy()
         await channelContextMenuOwner.openMenu()
@@ -497,7 +496,7 @@ describe('Multiple Clients', () => {
       it('User 1 sees information about recreation general channel and see correct amount of messages (#2334)', async () => {
         generalChannelUser1 = new Channel(users.user1.app.driver, 'general')
         await generalChannelUser1.element.isDisplayed()
-        await sleep(10000)
+        await sleep(30000)
 
         await generalChannelUser1.waitForUserMessage(
           users.owner.username,

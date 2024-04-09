@@ -143,7 +143,7 @@ export function subscribe(socket: Socket) {
     // Community
 
     socket.on(SocketActionTypes.COMMUNITY_LAUNCHED, (payload: ResponseLaunchCommunityPayload) => {
-      logger.info(`${SocketActionTypes.COMMUNITY_LAUNCHED}: ${payload}`)
+      logger.info(`${SocketActionTypes.COMMUNITY_LAUNCHED}`, JSON.stringify(payload))
       logger.info('Hunting for heisenbug: Community event received in state-manager')
       // TODO: We can send this once when creating the community and
       // store it in the backend.
