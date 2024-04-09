@@ -125,11 +125,11 @@ describe('deepLinkSaga', () => {
       })
     )
 
+    community.psk = validData.psk
+
     store.dispatch(communities.actions.addNewCommunity(community))
 
     store.dispatch(communities.actions.setCurrentCommunity(community.id))
-
-    store.dispatch(communities.actions.savePSK(validData.psk))
 
     const reducer = combineReducers(reducers)
     await expectSaga(deepLinkSaga, initActions.deepLink(validCode))
