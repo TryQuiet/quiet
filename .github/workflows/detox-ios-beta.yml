@@ -36,6 +36,14 @@ jobs:
       - name: Boot simulator
         run: xcrun simctl boot 5A020DC7-BBC3-4F2E-89B3-4AF5A3911498 # iPhone 15
 
+      - name: Install Detox CLI
+        run: npm install detox-cli --global
+
+      - name: Install applesimutils
+        run: |
+          brew tap wix/brew
+          brew install applesimutils
+
       - name: Build Detox
         run: |
           cd packages/mobile
