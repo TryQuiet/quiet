@@ -75,14 +75,11 @@ async function generateUserCertificate({
   let altNames
 
   try {
-    // MIGRATION: We deprecated the dmPublicKey attribute. We can
-    // remove it entirely in a future release.
-    //
-    // TODO: Perhaps we should retreive values by their field type
-    // instead of their position.
-
     // publicKey = attr[0]
+
+    // DEPRECATED
     // dmPublicKey = attr[1]
+
     nickname = attr?.[2].values[0].valueBlock.value
     peerId = attr?.[3].values[0].valueBlock.value
     onionAddress = attr?.[4].values[0].valueBlock.value

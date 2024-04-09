@@ -107,8 +107,9 @@ async function requestCertificate({
     // DEPRECATED
     new Attribute({
       type: CertFieldsTypes.dmPublicKey,
-      values: [],
+      values: [new OctetString({ valueHex: hexStringToArrayBuffer('') })],
     }),
+
     new Attribute({
       type: CertFieldsTypes.nickName,
       values: [new PrintableString({ value: nickname })],
