@@ -196,17 +196,6 @@ export class SocketService extends EventEmitter implements OnModuleInit {
         this.emit(SocketActionTypes.LIBP2P_PSK_STORED, payload)
       })
 
-      socket.on(
-        SocketActionTypes.SET_COMMUNITY_METADATA,
-        (payload: CommunityMetadata, callback: (response: CommunityMetadata | undefined) => void) => {
-          this.emit(SocketActionTypes.SET_COMMUNITY_METADATA, payload, callback)
-        }
-      )
-
-      socket.on(SocketActionTypes.SET_COMMUNITY_CA_DATA, (payload: PermsData) => {
-        this.emit(SocketActionTypes.SET_COMMUNITY_CA_DATA, payload)
-      })
-
       // ====== Users ======
 
       socket.on(SocketActionTypes.SET_USER_PROFILE, (profile: UserProfile) => {

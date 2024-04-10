@@ -124,7 +124,7 @@ export const UsernameRegistration: FC<UsernameRegistrationProps> = ({
           hint={
             isNewUser
               ? 'Your username cannot have any spaces or special characters, must be lowercase letters and numbers only.'
-              : 'Your username will be public, but you can choose any name you like. No spaces or special characters. Lowercase letters and numbers only. '
+              : 'Your username will be public, but you can choose any name you like. No spaces or special characters. Lowercase letters and numbers only.'
           }
           disabled={loading}
           validation={inputError}

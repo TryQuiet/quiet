@@ -22,8 +22,6 @@ export enum SocketActionTypes {
   DOWNLOAD_INVITE_DATA = 'downloadInviteData',
   LAUNCH_COMMUNITY = 'launchCommunity',
   LEAVE_COMMUNITY = 'leaveCommunity',
-  SET_COMMUNITY_CA_DATA = 'setCommunityCaData',
-  SET_COMMUNITY_METADATA = 'setCommunityMetadata',
 
   // ====== Channels ======
 

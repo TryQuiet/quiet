@@ -35,8 +35,6 @@ export const communitiesSlice = createSlice({
         },
       })
     },
-    sendCommunityCaData: state => state,
-    sendCommunityMetadata: state => state,
     createNetwork: (state, _action: PayloadAction<CreateNetworkPayload>) => state,
     joinNetwork: (state, _action: PayloadAction<InvitationData>) => state,
     resetApp: (state, _action) => state,
