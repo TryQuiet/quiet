@@ -61,7 +61,6 @@ describe('checkLocalCsr', () => {
       nickname: 'alice',
       commonName: identity.hiddenService.onionAddress,
       peerId: identity.peerId.id,
-      dmPublicKey: identity.dmKeys.publicKey,
       signAlg: 'ECDSA',
       hashAlg: 'sha-256',
       existingKeyPair,
