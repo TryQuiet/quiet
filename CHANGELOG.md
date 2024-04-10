@@ -6,6 +6,10 @@
 
 # Fixes:
 
+# Chores
+
+* Cleanup data directory at end of e2e tests
+
 [2.2.0]
 
 # New features:
@@ -22,10 +26,6 @@
 * Allow JPEG and GIF files as profile photos ([#2332](https://github.com/TryQuiet/quiet/issues/2332))
 * Fix issues with recreating general channel when deleted while offline ([#2334](https://github.com/TryQuiet/quiet/issues/2334))
 * Fix package.json license inconsistency
-
-# Chores
-
-* Cleanup data directory at end of e2e tests
 
 [2.1.2]
 
