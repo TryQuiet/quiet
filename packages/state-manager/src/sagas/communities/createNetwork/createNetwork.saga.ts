@@ -6,7 +6,6 @@ import { communitiesActions } from '../communities.slice'
 import { identityActions } from '../../identity/identity.slice'
 import { createRootCA } from '@quiet/identity'
 import { type Community, CommunityOwnership, type Identity, SocketActionTypes } from '@quiet/types'
-import { generateDmKeyPair } from '../../../utils/cryptography/cryptography'
 import { Socket, applyEmitParams } from '../../../types'
 import createLogger from '../../../utils/logger'
 
@@ -58,15 +57,12 @@ export function* createNetworkSaga(
     yield* put(communitiesActions.setInvitationCodes(invitationPeers))
   }
 
-  const dmKeys = yield* call(generateDmKeyPair)
-
   // Identities are tied to communities for now
   const identity: Identity = {
     id: community.id,
     nickname: '',
     hiddenService: network.hiddenService,
     peerId: network.peerId,
-    dmKeys,
     userCsr: null,
     userCertificate: null,
     joinTimestamp: null,

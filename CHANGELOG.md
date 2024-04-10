@@ -1,13 +1,24 @@
 [unreleased]
 
-* Refactored package.json to have consistent license "GPL-3.0-or-later"
- 
+# New features:
+
+# Refactorings:
+
+# Fixes:
+
+[2.2.0]
+
+# New features:
+
+* Add utilities for emoji detection in messages and make all-emoji message larger font size ([#519](https://github.com/TryQuiet/quiet/issues/519))
+
 # Refactorings:
 
 * Use ack for CREATE_NETWORK and simplify
 * Logging from all sources can be written to node console
+* Move Community model to the backend
 
-# Fixes
+# Fixes:
 
 * Allow JPEG and GIF files as profile photos ([#2332](https://github.com/TryQuiet/quiet/issues/2332))
 * Fixes issues with recreating general channel when deleted while offline ([#2334](https://github.com/TryQuiet/quiet/issues/2334))
@@ -16,6 +27,8 @@
 
 * Adds connection status information to messages panel on desktop when no peers are connected ([#1706](https://github.com/TryQuiet/quiet/
 * Add utilities for emoji detection in messages and make all-emoji message larger font size ([#519](https://github.com/TryQuiet/quiet/issues/519))
+* Fix issues with recreating general channel when deleted while offline ([#2334](https://github.com/TryQuiet/quiet/issues/2334))
+* Fix package.json license inconsistency
 
 [2.1.2]
 
@@ -276,4 +289,3 @@
 * C4 for Quiet architecture. Context and Container diagrams.
 
 * Invite tab as default in settings
-

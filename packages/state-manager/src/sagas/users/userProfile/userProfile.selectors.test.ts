@@ -23,7 +23,6 @@ describe('user profile selectors', () => {
       nickname: '',
       commonName: '',
       peerId: '',
-      dmPublicKey: '',
       signAlg: '',
       hashAlg: '',
     })

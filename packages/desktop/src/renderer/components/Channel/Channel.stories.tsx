@@ -26,10 +26,6 @@ const args: Partial<ChannelComponentProps & UploadFilesPreviewsProps> = {
       privKey: 'privKey',
       pubKey: 'pubKey',
     },
-    dmKeys: {
-      publicKey: 'publicKey',
-      privateKey: 'privateKey',
-    },
     userCsr: {
       userCsr: 'userCsr',
       userKey: 'userKey',

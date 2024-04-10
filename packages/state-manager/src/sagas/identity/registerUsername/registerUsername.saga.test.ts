@@ -48,7 +48,6 @@ describe('registerUsernameSaga', () => {
       nickname: 'nickname',
       commonName: identity.hiddenService.onionAddress,
       peerId: identity.peerId.id,
-      dmPublicKey: identity.dmKeys.publicKey,
       signAlg: config.signAlg,
       hashAlg: config.hashAlg,
     }
@@ -105,7 +104,6 @@ describe('registerUsernameSaga', () => {
       nickname: newNickname,
       commonName: identity.hiddenService.onionAddress,
       peerId: identity.peerId.id,
-      dmPublicKey: identity.dmKeys.publicKey,
       signAlg: config.signAlg,
       hashAlg: config.hashAlg,
       existingKeyPair: {
@@ -247,7 +245,6 @@ describe('registerUsernameSaga', () => {
       nickname: 'nickname',
       commonName: identity.hiddenService.onionAddress,
       peerId: identity.peerId.id,
-      dmPublicKey: identity.dmKeys.publicKey,
       signAlg: config.signAlg,
       hashAlg: config.hashAlg,
     }

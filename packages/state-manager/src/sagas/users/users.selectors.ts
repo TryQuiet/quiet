@@ -32,7 +32,6 @@ export const certificatesMapping = createSelector(certificates, certs => {
     const username = getCertFieldValue(certificate, CertFieldsTypes.nickName)
     const onionAddress = getCertFieldValue(certificate, CertFieldsTypes.commonName)
     const peerId = getCertFieldValue(certificate, CertFieldsTypes.peerId)
-    const dmPublicKey = getCertFieldValue(certificate, CertFieldsTypes.dmPublicKey) || ''
 
     if (!username || !onionAddress || !peerId) {
       logger.error(`Could not parse certificate for pubkey ${pubKey}`)
@@ -43,7 +42,6 @@ export const certificatesMapping = createSelector(certificates, certs => {
       username,
       onionAddress,
       peerId,
-      dmPublicKey,
     })
   })
   return mapping
@@ -61,7 +59,6 @@ export const csrsMapping = createSelector(csrs, csrs => {
     const username = getReqFieldValue(csr, CertFieldsTypes.nickName)
     const onionAddress = getReqFieldValue(csr, CertFieldsTypes.commonName)
     const peerId = getReqFieldValue(csr, CertFieldsTypes.peerId)
-    const dmPublicKey = getReqFieldValue(csr, CertFieldsTypes.dmPublicKey) || ''
 
     if (!username || !onionAddress || !peerId) {
       logger.error(`Could not parse certificate for pubkey ${pubKey}`)
@@ -72,7 +69,6 @@ export const csrsMapping = createSelector(csrs, csrs => {
       username,
       onionAddress,
       peerId,
-      dmPublicKey,
     })
   })
 
@@ -133,14 +129,12 @@ export const ownerData = createSelector(ownerCertificate, ownerCertificate => {
   const username = getCertFieldValue(ownerCert, CertFieldsTypes.nickName)
   const onionAddress = getCertFieldValue(ownerCert, CertFieldsTypes.commonName)
   const peerId = getCertFieldValue(ownerCert, CertFieldsTypes.peerId)
-  const dmPublicKey = getCertFieldValue(ownerCert, CertFieldsTypes.dmPublicKey)
   const pubKey = keyFromCertificate(ownerCert)
 
   return {
     username,
     onionAddress,
     peerId,
-    dmPublicKey,
     pubKey,
   }
 })
