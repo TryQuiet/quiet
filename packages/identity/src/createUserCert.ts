@@ -69,14 +69,17 @@ async function generateUserCertificate({
     ],
   })
   const attr: Attribute[] | undefined = pkcs10.attributes
-  let dmPubKey = null
   let nickname = null
   let peerId = null
   let onionAddress = null
   let altNames
 
   try {
-    dmPubKey = attr?.[1].values[0].valueBlock.valueHex
+    // publicKey = attr[0]
+
+    // DEPRECATED
+    // dmPublicKey = attr[1]
+
     nickname = attr?.[2].values[0].valueBlock.value
     peerId = attr?.[3].values[0].valueBlock.value
     onionAddress = attr?.[4].values[0].valueBlock.value
@@ -89,6 +92,7 @@ async function generateUserCertificate({
       ],
     })
   } catch (err) {
+    console.error(err)
     throw new Error('Cannot get certificate request extension')
   }
 
@@ -113,11 +117,6 @@ async function generateUserCertificate({
         critical: false,
         extnValue: extKeyUsage.toSchema().toBER(false),
         parsedValue: extKeyUsage, // Parsed value for well-known extensions
-      }),
-      new Extension({
-        extnID: CertFieldsTypes.dmPublicKey,
-        critical: false,
-        extnValue: new OctetString({ valueHex: dmPubKey }).toBER(false),
       }),
       new Extension({
         extnID: CertFieldsTypes.nickName,

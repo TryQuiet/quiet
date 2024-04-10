@@ -2,7 +2,7 @@ import { AnyAction, combineReducers } from '@reduxjs/toolkit'
 import ElectronStore from 'electron-store'
 import createElectronStorage from 'redux-persist-electron-storage'
 import path from 'path'
-import { persistReducer } from 'redux-persist'
+import { createMigrate, persistReducer } from 'redux-persist'
 
 import stateManagerReducers, {
   storeKeys as StateManagerStoreKeys,
@@ -14,6 +14,7 @@ import stateManagerReducers, {
   ConnectionTransform,
   resetStateAndSaveTorConnectionData,
   UsersTransform,
+  storeMigrations,
 } from '@quiet/state-manager'
 
 import { StoreType } from './handlers/types'
@@ -26,17 +27,11 @@ import { navigationReducer } from './navigation/navigation.slice'
 import appHandlers from './handlers/app'
 
 import { Store } from '../sagas/store.types'
-import { DESKTOP_DATA_DIR, DESKTOP_DEV_DATA_DIR } from '@quiet/common'
-
-const dataPath =
-  process.env.APPDATA ||
-  (process.platform === 'darwin' ? process.env.HOME + '/Library/Application Support' : process.env.HOME + '/.config')
-const appPath =
-  process.env.DATA_DIR || (process.env.NODE_ENV === 'development' ? DESKTOP_DEV_DATA_DIR : DESKTOP_DATA_DIR)
+import { getAppDataPath } from '@quiet/common'
 
 const options = {
   projectName: 'quiet',
-  cwd: path.join(dataPath, appPath),
+  cwd: getAppDataPath(),
 }
 
 const store = new ElectronStore<Store>(options)
@@ -45,6 +40,7 @@ const reduxStorage = createElectronStorage({ electronStore: store })
 
 const persistConfig = {
   key: 'root',
+  version: 0,
   storage: reduxStorage,
   throttle: 1000,
   whitelist: [
@@ -66,6 +62,7 @@ const persistConfig = {
     ConnectionTransform,
     UsersTransform,
   ],
+  migrate: createMigrate(storeMigrations, { debug: true }),
 }
 
 export const reducers = {

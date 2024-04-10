@@ -13,15 +13,18 @@ import { ModalName } from '../renderer/sagas/modals/modals.types'
 import { CreateCommunityDictionary } from '../renderer/components/CreateJoinCommunity/community.dictionary'
 import MockedSocket from 'socket.io-mock'
 import { ioMock } from '../shared/setupTests'
-import { socketEventData } from '../renderer/testUtils/socket'
-import { Community, type NetworkInfo, SavedOwnerCertificatePayload, SocketActionTypes } from '@quiet/types'
+import { socketEventData } from '@quiet/types'
 import {
-  ChannelsReplicatedPayload,
-  InitCommunityPayload,
-  publicChannels,
-  RegisterOwnerCertificatePayload,
-  ResponseLaunchCommunityPayload,
-} from '@quiet/state-manager'
+  Community,
+  type InitCommunityPayload,
+  type NetworkInfo,
+  SavedOwnerCertificatePayload,
+  SocketActionTypes,
+  type ChannelsReplicatedPayload,
+  type RegisterOwnerCertificatePayload,
+  type ResponseLaunchCommunityPayload,
+} from '@quiet/types'
+import { publicChannels } from '@quiet/state-manager'
 import Channel from '../renderer/components/Channel/Channel'
 import LoadingPanel from '../renderer/components/LoadingPanel/LoadingPanel'
 import { AnyAction } from 'redux'
@@ -70,8 +73,6 @@ describe('User', () => {
     const mockEmitImpl = (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
       const action = input[0]
       if (action === SocketActionTypes.CREATE_NETWORK) {
-        const data = input[1] as Community
-        const payload = { ...data, privateKey: 'privateKey' }
         return {
           hiddenService: {
             onionAddress: 'onionAddress',
@@ -82,21 +83,9 @@ describe('User', () => {
           },
         }
       }
-      if (action === SocketActionTypes.REGISTER_OWNER_CERTIFICATE) {
-        const payload = input[1] as RegisterOwnerCertificatePayload
-        socket.socketClient.emit<SavedOwnerCertificatePayload>(SocketActionTypes.OWNER_CERTIFICATE_ISSUED, {
-          communityId: payload.communityId,
-          network: {
-            certificate: payload.permsData.certificate,
-          },
-        })
-      }
       if (action === SocketActionTypes.CREATE_COMMUNITY) {
         const payload = input[1] as InitCommunityPayload
         socket.socketClient.emit<ResponseLaunchCommunityPayload>(SocketActionTypes.COMMUNITY_LAUNCHED, {
-          id: payload.id,
-        })
-        socket.socketClient.emit(SocketActionTypes.COMMUNITY_CREATED, {
           id: payload.id,
         })
 
@@ -111,6 +100,8 @@ describe('User', () => {
             },
           },
         })
+
+        return { id: payload.id, ownerCertificate: 'cert' }
       }
     }
 
@@ -173,22 +164,19 @@ describe('User', () => {
         "Network/setLoadingPanelType",
         "Modals/openModal",
         "Identity/registerCertificate",
-        "Communities/updateCommunity",
-        "Identity/storeUserCertificate",
-        "Identity/savedOwnerCertificate",
-        "Communities/updateCommunityData",
-        "Communities/sendCommunityCaData",
+        "Communities/createCommunity",
         "Files/checkForMissingFiles",
         "Network/addInitializedCommunity",
         "Communities/clearInvitationCodes",
-        "Communities/sendCommunityMetadata",
-        "PublicChannels/createGeneralChannel",
-        "Identity/saveUserCsr",
         "PublicChannels/channelsReplicated",
-        "PublicChannels/createChannel",
+        "Communities/updateCommunityData",
         "PublicChannels/addChannel",
-        "PublicChannels/setCurrentChannel",
+        "Identity/storeUserCertificate",
         "Messages/addPublicChannelsMessagesBase",
+        "PublicChannels/createGeneralChannel",
+        "PublicChannels/createChannel",
+        "Identity/saveUserCsr",
+        "PublicChannels/setCurrentChannel",
         "PublicChannels/clearUnreadChannel",
         "Modals/closeModal",
         "Messages/lazyLoading",

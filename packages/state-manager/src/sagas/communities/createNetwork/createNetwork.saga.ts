@@ -5,8 +5,7 @@ import { generateId } from '../../../utils/cryptography/cryptography'
 import { communitiesActions } from '../communities.slice'
 import { identityActions } from '../../identity/identity.slice'
 import { createRootCA } from '@quiet/identity'
-import { type Community, CommunityOwnership, type Identity, SocketActionTypes } from '@quiet/types'
-import { generateDmKeyPair } from '../../../utils/cryptography/cryptography'
+import { type Community, CommunityOwnership, type Identity, SocketActionTypes, NetworkInfo } from '@quiet/types'
 import { Socket, applyEmitParams } from '../../../types'
 
 export function* createNetworkSaga(
@@ -14,6 +13,17 @@ export function* createNetworkSaga(
   action: PayloadAction<ReturnType<typeof communitiesActions.createNetwork>['payload']>
 ) {
   console.log('create network saga')
+
+  // Community IDs are only local identifiers
+  const id = yield* call(generateId)
+
+  const network: NetworkInfo = yield* apply(
+    socket,
+    socket.emitWithAck,
+    applyEmitParams(SocketActionTypes.CREATE_NETWORK, id)
+  )
+
+  // TODO: Move CA generation to backend when creating Community
   let CA: null | {
     rootCertString: string
     rootKeyString: string
@@ -31,7 +41,6 @@ export function* createNetworkSaga(
     )
   }
 
-  const id = yield* call(generateId)
   const community: Community = {
     id,
     name: action.payload.name,
@@ -41,32 +50,20 @@ export function* createNetworkSaga(
     ownerOrbitDbIdentity: action.payload.ownerOrbitDbIdentity,
   }
 
+  yield* put(communitiesActions.addNewCommunity(community))
+  yield* put(communitiesActions.setCurrentCommunity(id))
+
   const invitationPeers = action.payload.peers
   if (invitationPeers) {
     yield* put(communitiesActions.setInvitationCodes(invitationPeers))
   }
 
-  const psk = action.payload.psk
-  if (psk) {
-    console.log('create network saga: saving PSK')
-    yield* put(communitiesActions.savePSK(psk))
-  }
-
-  yield* put(communitiesActions.addNewCommunity(community))
-  yield* put(communitiesActions.setCurrentCommunity(id))
-
-  const network = yield* apply(
-    socket,
-    socket.emitWithAck,
-    applyEmitParams(SocketActionTypes.CREATE_NETWORK, community.id)
-  )
-  const dmKeys = yield* call(generateDmKeyPair)
+  // Identities are tied to communities for now
   const identity: Identity = {
     id: community.id,
     nickname: '',
     hiddenService: network.hiddenService,
     peerId: network.peerId,
-    dmKeys,
     userCsr: null,
     userCertificate: null,
     joinTimestamp: null,

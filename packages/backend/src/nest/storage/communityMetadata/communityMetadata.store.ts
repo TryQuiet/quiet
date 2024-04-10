@@ -123,9 +123,14 @@ export class CommunityMetadataStore extends EventEmitter {
         ownerOrbitDbIdentity,
       }
 
-      // putOwnerOrbitDbIdentity goes before store.put because the
-      // store's KeyValueIndex calls getOwnerOrbitDbIdentity
-      this.localDbService.putOwnerOrbitDbIdentity(ownerOrbitDbIdentity)
+      // Updating this here before store.put because the store's KeyValueIndex
+      // then uses the updated Community object.
+      const community = await this.localDbService.getCurrentCommunity()
+      if (community) {
+        await this.localDbService.setCommunity({ ...community, ownerOrbitDbIdentity })
+      } else {
+        throw new Error('Current community missing')
+      }
 
       // FIXME: I think potentially there is a subtle developer
       // experience bug here. Internally OrbitDB will call
@@ -170,7 +175,8 @@ export class CommunityMetadataStore extends EventEmitter {
         return false
       }
 
-      const ownerOrbitDbIdentity = await localDbService.getOwnerOrbitDbIdentity()
+      const community = await localDbService.getCurrentCommunity()
+      const ownerOrbitDbIdentity = community?.ownerOrbitDbIdentity
       if (!ownerOrbitDbIdentity) {
         logger.error('Failed to verify community metadata entry:', entry.hash, 'owner identity is invalid')
         return false

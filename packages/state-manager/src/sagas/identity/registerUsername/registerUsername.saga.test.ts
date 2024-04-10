@@ -48,14 +48,11 @@ describe('registerUsernameSaga', () => {
       nickname: 'nickname',
       commonName: identity.hiddenService.onionAddress,
       peerId: identity.peerId.id,
-      dmPublicKey: identity.dmKeys.publicKey,
       signAlg: config.signAlg,
       hashAlg: config.hashAlg,
     }
 
     const reducer = combineReducers(reducers)
-    const psk = '12345'
-    store.dispatch(communitiesActions.savePSK(psk))
     await expectSaga(registerUsernameSaga, socket, identityActions.registerUsername({ nickname: 'nickname' }))
       .withReducer(reducer)
       .withState(store.getState())
@@ -107,7 +104,6 @@ describe('registerUsernameSaga', () => {
       nickname: newNickname,
       commonName: identity.hiddenService.onionAddress,
       peerId: identity.peerId.id,
-      dmPublicKey: identity.dmKeys.publicKey,
       signAlg: config.signAlg,
       hashAlg: config.hashAlg,
       existingKeyPair: {
@@ -219,8 +215,6 @@ describe('registerUsernameSaga', () => {
         rootCa: 'rootCa',
         peerList: [],
         onionAddress: '',
-        privateKey: '',
-        port: 0,
       }
     )
 
@@ -251,7 +245,6 @@ describe('registerUsernameSaga', () => {
       nickname: 'nickname',
       commonName: identity.hiddenService.onionAddress,
       peerId: identity.peerId.id,
-      dmPublicKey: identity.dmKeys.publicKey,
       signAlg: config.signAlg,
       hashAlg: config.hashAlg,
     }

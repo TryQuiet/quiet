@@ -93,10 +93,6 @@ export const getFactory = async (store: Store) => {
           'ED25519-V3:WND1FoFZyY+c1f0uD6FBWgKvSYl4CdKSizSR7djRekW/rqw5fTw+gN80sGk0gl01sL5i25noliw85zF1BUBRDQ==',
       },
       peerId: createPeerIdTestHelper(),
-      dmKeys: {
-        publicKey: '9f016defcbe48829db163e86b28efb10318faf3b109173105e3dc024e951bb1b',
-        privateKey: '4dcebbf395c0e9415bc47e52c96fcfaf4bd2485a516f45118c2477036b45fc0b',
-      },
       nickname: factory.sequence('Identity.nickname', (n: number) => `user_${n}`),
       userCsr: undefined,
       userCertificate: undefined,
@@ -115,7 +111,6 @@ export const getFactory = async (store: Store) => {
             nickname: action.payload.nickname,
             commonName: action.payload.hiddenService.onionAddress,
             peerId: action.payload.peerId.id,
-            dmPublicKey: action.payload.dmKeys.publicKey,
           },
           community.CA
         )
@@ -149,7 +144,7 @@ export const getFactory = async (store: Store) => {
 
           if (!community.ownerCertificate) {
             store.dispatch(
-              communities.actions.updateCommunity({
+              communities.actions.updateCommunityData({
                 id: community.id,
                 ownerCertificate: action.payload.userCertificate,
               })
