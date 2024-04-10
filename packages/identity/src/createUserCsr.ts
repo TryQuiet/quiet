@@ -105,6 +105,10 @@ async function requestCertificate({
     }),
 
     // DEPRECATED
+    //
+    // We can only remove this attribute when all owners upgrade to
+    // the version that contains this commit. Otherwise, there could
+    // be Quiet instances that still reference this attribute.
     new Attribute({
       type: CertFieldsTypes.dmPublicKey,
       values: [new OctetString({ valueHex: hexStringToArrayBuffer('') })],
