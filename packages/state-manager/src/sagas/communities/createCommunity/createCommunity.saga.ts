@@ -52,9 +52,6 @@ export function* createCommunitySaga(
     })
   )
 
-  // TODO: Community metadata should already exist on the backend after creating
-  // the community.
-  yield* put(communitiesActions.sendCommunityMetadata())
   yield* put(publicChannelsActions.createGeneralChannel())
   // TODO: We can likely refactor this a bit. Currently, we issue the owner's
   // certificate before creating the community, but then we add the owner's CSR
