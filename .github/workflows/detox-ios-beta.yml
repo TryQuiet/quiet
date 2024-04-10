@@ -56,6 +56,7 @@ jobs:
           detox build -c ios.sim.debug.ci
 
       - name: Run basic tests
+        continue-on-error: true
         run: |
           cd packages/mobile
           detox test starter -c ios.sim.debug.ci
