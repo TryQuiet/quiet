@@ -5,8 +5,7 @@ import { CustomEvent } from '@libp2p/interfaces/events'
 import { jest, beforeEach, describe, it, expect, afterEach } from '@jest/globals'
 import { communities, getFactory, identity, prepareStore, Store } from '@quiet/state-manager'
 import { createPeerId, createTmpDir, libp2pInstanceParams, removeFilesFromDir, tmpQuietDirPath } from '../common/utils'
-
-import { NetworkStats, type Community, type Identity, type InitCommunityPayload } from '@quiet/types'
+import { NetworkStats, type Community, type Identity } from '@quiet/types'
 import { LazyModuleLoader } from '@nestjs/core'
 import { TestingModule, Test } from '@nestjs/testing'
 import { FactoryGirl } from 'factory-girl'
@@ -113,7 +112,6 @@ beforeEach(async () => {
 })
 
 afterEach(async () => {
-  await libp2pService?.libp2pInstance?.stop()
   if (connectionsManagerService) {
     await connectionsManagerService.closeAllServices()
   }
@@ -122,6 +120,10 @@ afterEach(async () => {
 
 describe('Connections manager', () => {
   it('saves peer stats when peer has been disconnected', async () => {
+    // @ts-expect-error
+    libp2pService.processInChunksService.init = jest.fn()
+    // @ts-expect-error
+    libp2pService.processInChunksService.process = jest.fn()
     class RemotePeerEventDetail {
       peerId: string
 
@@ -137,6 +139,10 @@ describe('Connections manager', () => {
 
     // Peer connected
     await connectionsManagerService.init()
+    await connectionsManagerService.launchCommunity({
+      community,
+      network: { peerId: userIdentity.peerId, hiddenService: userIdentity.hiddenService },
+    })
     libp2pService.connectedPeers.set(peerId.toString(), DateTime.utc().valueOf())
 
     // Peer disconnected
@@ -145,11 +151,16 @@ describe('Connections manager', () => {
       remotePeer: new RemotePeerEventDetail(peerId.toString()),
       remoteAddr: new RemotePeerEventDetail(remoteAddr),
     }
+    await waitForExpect(async () => {
+      expect(libp2pService.libp2pInstance).not.toBeUndefined()
+    }, 2_000)
     libp2pService.libp2pInstance?.dispatchEvent(
       new CustomEvent('peer:disconnect', { detail: peerDisconectEventDetail })
     )
+    await waitForExpect(async () => {
+      expect(libp2pService.connectedPeers.size).toEqual(0)
+    }, 2000)
 
-    expect(libp2pService.connectedPeers.size).toEqual(0)
     await waitForExpect(async () => {
       expect(await localDbService.get(LocalDBKeys.PEERS)).not.toBeNull()
     }, 2000)

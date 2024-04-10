@@ -13,7 +13,7 @@ export class ProcessInChunksService<T> extends EventEmitter {
     super()
   }
 
-  public init(data: T[], processItem: (arg: T) => Promise<any>, chunkSize: number = DEFAULT_CHUNK_SIZE) {
+  public init(data: T[] = [], processItem: (arg: T) => Promise<any>, chunkSize: number = DEFAULT_CHUNK_SIZE) {
     this.data = data
     this.processItem = processItem
     this.chunkSize = chunkSize
