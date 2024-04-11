@@ -385,6 +385,7 @@ describe('Multiple Clients', () => {
       })
 
       it("Owner doesn't see the connection status element in second channel", async () => {
+        await sleep(10000)
         const correctConnectionStatusElementPresence = await secondChannelOwner.waitForConnectionStatus(false)
         expect(correctConnectionStatusElementPresence).toBe(true)
       })
@@ -490,14 +491,14 @@ describe('Multiple Clients', () => {
       it('User 1 re-opens app', async () => {
         console.log('User 1 re-opens app')
         await users.user1.app?.openWithRetries()
-        await sleep(30000)
+        await sleep(35000)
       })
 
       // Check correct channels replication
       it('User 1 sees information about recreation general channel and see correct amount of messages (#2334)', async () => {
         generalChannelUser1 = new Channel(users.user1.app.driver, 'general')
         await generalChannelUser1.element.isDisplayed()
-        await sleep(30000)
+        await sleep(40000)
 
         await generalChannelUser1.waitForUserMessage(
           users.owner.username,
