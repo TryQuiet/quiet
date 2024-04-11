@@ -1,33 +1,22 @@
-import { composeInvitationShareUrl, createLibp2pAddress } from '@quiet/common'
-import {
-  App,
-  Channel,
-  CreateCommunityModal,
-  JoinCommunityModal,
-  JoiningLoadingPanel,
-  RegisterUsernameModal,
-} from '../selectors'
-import { InvitationDataV2, InvitationDataVersion } from '@quiet/types'
+import { composeInvitationShareUrl, createLibp2pAddress, parseInvitationCode } from '@quiet/common'
+import { App, Channel, CreateCommunityModal, JoinCommunityModal, RegisterUsernameModal, Sidebar } from '../selectors'
+import { InvitationDataV1, InvitationDataV2, InvitationDataVersion } from '@quiet/types'
 import { UserTestData } from '../types'
+import { sleep } from '../utils'
+import fs from 'fs'
+import path from 'path'
 
-jest.setTimeout(450000)
+jest.setTimeout(1200000) // 20 minutes
 
 // Run QSS locally before this test
 const serverAddress = 'http://127.0.0.1:3000'
-const data: InvitationDataV2 = {
-  version: InvitationDataVersion.v2,
-  cid: 'QmaRchXhkPWq8iLiMZwFfd2Yi4iESWhAYYJt8cTCVXSwpG',
-  token: '898989',
-  serverAddress: serverAddress,
-  inviterAddress: 'pgzlcstu4ljvma7jqyalimcxlvss5bwlbba3c3iszgtwxee4qjdlgeqd',
-}
-
-const invitationCode = decodeURIComponent(composeInvitationShareUrl(data))
 
 describe('User joining with storage server', () => {
   let users: Record<string, UserTestData>
   const communityName = 'Filmmakers'
   let generalChannelOwner: Channel
+  let invitationLinkV1: string
+  let invitationLinkV2: string
 
   beforeAll(async () => {
     users = {
@@ -49,8 +38,7 @@ describe('User joining with storage server', () => {
     await users.user1.app.close()
   })
 
-  describe.skip('Owner creates the community', () => {
-    // Skip, at this moment we can't fully connect without having access to owner's link
+  describe('Owner creates the community', () => {
     it('Owner opens the app', async () => {
       await users.owner.app.open()
     })
@@ -82,18 +70,59 @@ describe('User joining with storage server', () => {
       expect(isGeneralChannel).toBeTruthy()
       expect(generalChannelText).toEqual('# general')
     })
+    it('Owner opens the settings tab and gets an invitation link', async () => {
+      const settingsModal = await new Sidebar(users.owner.app.driver).openSettings()
+      const isSettingsModal = await settingsModal.element.isDisplayed()
+      expect(isSettingsModal).toBeTruthy()
+      const invitationCodeElement = await settingsModal.invitationCode()
+      await sleep(2000)
+      invitationLinkV1 = await invitationCodeElement.getText()
+      await sleep(2000)
+      console.log({ invitationLinkV1 })
+      expect(invitationLinkV1).not.toBeUndefined()
+      await settingsModal.close()
+    })
   })
 
   describe('Guest joins using v2 invitation link', () => {
+    it('Prepare v2 link', async () => {
+      // Workaround until we have an UI for retrieving v2 invitation link from owner
+      // Compose server data from v1 invitation link
+      // @ts-expect-error
+      const v1Data: InvitationDataV1 = parseInvitationCode(invitationLinkV1.split('#')[1])
+      const data: InvitationDataV2 = {
+        version: InvitationDataVersion.v2,
+        cid: 'QmaRchXhkPWq8iLiMZwFfd2Yi4iESWhAYYJt8cTCVXSwpG',
+        token: '898989',
+        serverAddress: serverAddress,
+        inviterAddress: 'pgzlcstu4ljvma7jqyalimcxlvss5bwlbba3c3iszgtwxee4qjdlgeqd',
+      }
+
+      invitationLinkV2 = decodeURIComponent(composeInvitationShareUrl(data))
+      console.log({ invitationLinkV2 })
+      const serverData = {
+        id: 'id',
+        rootCa: 'rootCa',
+        ownerCertificate: 'ownerCertificate',
+        ownerOrbitDbIdentity: v1Data.ownerOrbitDbIdentity,
+        peerList: [createLibp2pAddress(v1Data.pairs[0].onionAddress, v1Data.pairs[0].peerId)],
+        psk: v1Data.psk,
+      }
+      // Write metadata to 'storage' that is used by docker container
+      fs.writeFileSync(
+        path.join(`${__dirname}`, '..', 'QSS', 'storage', `${data.cid}.json`),
+        JSON.stringify(serverData, null, 2)
+      )
+    })
     it('Guest opens the app', async () => {
       await users.user1.app.open()
     })
-    it('Guest submits invitation code received from owner', async () => {
+    it('Guest submits invitation code v2 received from owner', async () => {
       const joinCommunityModal = new JoinCommunityModal(users.user1.app.driver)
       const isJoinCommunityModal = await joinCommunityModal.element.isDisplayed()
       expect(isJoinCommunityModal).toBeTruthy()
-      console.log({ invitationCode })
-      await joinCommunityModal.typeCommunityCode(invitationCode)
+      console.log({ invitationCode: invitationLinkV2 })
+      await joinCommunityModal.typeCommunityCode(invitationLinkV2)
       await joinCommunityModal.submit()
     })
 
@@ -105,11 +134,14 @@ describe('User joining with storage server', () => {
       await registerModal.typeUsername(users.user1.username)
       await registerModal.submit()
     })
-
-    it('Guest sees the joining panel', async () => {
-      // TODO: finish joining process after implementing retrieving/displaying v2 invitation link
-      const joiningPanel = new JoiningLoadingPanel(users.user1.app.driver)
-      await joiningPanel.element.isDisplayed()
+    it('Guest joins successfully, sees general channel and sends a message', async () => {
+      const general = new Channel(users.user1.app.driver, 'general')
+      await general.element.isDisplayed()
+      const isMessageInput = await general.messageInput.isDisplayed()
+      expect(isMessageInput).toBeTruthy()
+      await sleep(2000)
+      await general.sendMessage(users.user1.messages[0])
+      await sleep(2000)
     })
   })
 })
