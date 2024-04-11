@@ -9,13 +9,8 @@ import {
   Sidebar,
 } from '../selectors'
 import logger from '../logger'
+import { UserTestData } from '../types'
 const log = logger('ManyClients')
-
-interface UserTestData {
-  username: string
-  app: App
-  messages: string[]
-}
 
 jest.setTimeout(1200000) // 20 minutes
 describe('Multiple Clients', () => {

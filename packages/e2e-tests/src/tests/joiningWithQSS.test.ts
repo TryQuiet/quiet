@@ -8,11 +8,8 @@ import {
   RegisterUsernameModal,
 } from '../selectors'
 import { InvitationDataV2, InvitationDataVersion } from '@quiet/types'
-interface UserTestData {
-  username: string
-  app: App
-  messages: string[]
-}
+import { UserTestData } from '../types'
+
 jest.setTimeout(450000)
 
 // Run QSS locally before this test
@@ -36,7 +33,7 @@ describe('User joining with storage server', () => {
     users = {
       owner: {
         username: 'owner',
-        messages: ['Hi', 'Hello', 'After guest left the app'],
+        messages: ['Hi'],
         app: new App(),
       },
       user1: {
