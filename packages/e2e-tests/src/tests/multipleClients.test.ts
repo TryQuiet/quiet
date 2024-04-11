@@ -380,6 +380,7 @@ describe('Multiple Clients', () => {
         await sidebarOwner.addNewChannel(newChannelName)
         await sidebarOwner.switchChannel(newChannelName)
         const channels = await sidebarOwner.getChannelList()
+        secondChannelOwner = new Channel(users.owner.app.driver, newChannelName)
         expect(channels.length).toEqual(2)
       })
 
@@ -389,7 +390,6 @@ describe('Multiple Clients', () => {
       })
 
       it('Owner sends message in second channel', async () => {
-        secondChannelOwner = new Channel(users.owner.app.driver, newChannelName)
         const isMessageInput = await secondChannelOwner.messageInput.isDisplayed()
         expect(isMessageInput).toBeTruthy()
         const messageIds = await secondChannelOwner.sendMessage(users.owner.messages[1], users.owner.username)
@@ -578,7 +578,7 @@ describe('Multiple Clients', () => {
 
     describe('Guest Closes App', () => {
       it('Owner closes app', async () => {
-        await users.owner.app.close({ forceSaveState: true })
+        await users.owner.app.close()
         await sleep(30000)
       })
 

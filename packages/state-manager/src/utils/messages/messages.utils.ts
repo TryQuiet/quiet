@@ -15,14 +15,6 @@ export const isMessageUnsent = (
     return false
   }
 
-  logger.info('isMessageUnsent: ', JSON.stringify({
-    message,
-    lastConnectedAtSeconds,
-    allPeersDisconnectedAtSeconds,
-    connectedPeers,
-    communityPeerList
-  }, null, 2))
-
   // Determine if a message is "unsent"
   const isRecent = lastConnectedAtSeconds < message.createdAt
   const communityHasPeers = communityPeerList != null && communityPeerList.length > 1
