@@ -64,7 +64,6 @@ export const extractPendingCsrs = async (payload: { csrs: string[]; certificates
       pendingCsrs.push(csr)
     }
   }
-  logger('DuplicatedCertBug', { parsedUniqueCsrs, pendingNames, certNames })
   return pendingCsrs
 }
 
