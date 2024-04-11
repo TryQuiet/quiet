@@ -145,7 +145,7 @@ describe('ChannelMessages', () => {
                             class="MuiGrid-root MuiGrid-item css-8e83yq-MuiGrid-root"
                           >
                             <span
-                              class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-nx1df2-MuiTypography-root"
+                              class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-105mmrw-MuiTypography-root"
                               data-testid="messagesGroupContent-string"
                             >
                               string
@@ -331,7 +331,7 @@ describe('ChannelMessages', () => {
                             class="MuiGrid-root MuiGrid-item css-8e83yq-MuiGrid-root"
                           >
                             <span
-                              class="MuiTypography-root MuiTypography-body1 TextMessagemessage TextMessageunsent css-nx1df2-MuiTypography-root"
+                              class="MuiTypography-root MuiTypography-body1 TextMessagemessage TextMessageunsent css-105mmrw-MuiTypography-root"
                               data-testid="messagesGroupContent-string"
                             >
                               string
