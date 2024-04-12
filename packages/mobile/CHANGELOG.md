@@ -1,3 +1,20 @@
+# Change Log
+
+All notable changes to this project will be documented in this file.
+See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+# [2.2.0-alpha.1](/compare/@quiet/mobile@2.2.0-alpha.0...@quiet/mobile@2.2.0-alpha.1) (2024-04-12)
+
+
+### Bug Fixes
+
+* Adds a quick fix for the iOS sync issue after suspend (#2414) 595d896, closes #2414
+* Remove unused dmPublicKey to prevent UI delay during joining (#2392) c089c68, closes #2392
+
+
+
+
+
 [unreleased]
 
 * Refactored package.json to have consistent license "GPL-3.0-or-later"
@@ -274,4 +291,3 @@
 * C4 for Quiet architecture. Context and Container diagrams.
 
 * Invite tab as default in settings
-
