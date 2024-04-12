@@ -51,7 +51,7 @@ static NSString *const platform = @"mobile";
    * Delay used below can't cause any race condition as websocket won't connect until data server starts listening anyway.
    */
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
-    NSArray *intervals = @[@5, @15, @60, @90];
+    NSArray *intervals = @[@5, @15, @30, @60, @90];
     for (NSNumber *interval in intervals) {
       NSTimeInterval delayInSeconds = [interval doubleValue];
       dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
