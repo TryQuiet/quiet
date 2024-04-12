@@ -1,11 +1,3 @@
-/**
- * The code in this file is from
- * https://github.com/nodejs-mobile/nodejs-mobile-react-native/blob/fb61fc106794d945dacea943915ea893aca08a52/android/src/main/cpp/rn-bridge.cpp
- * and
- * https://github.com/nodejs-mobile/nodejs-mobile-react-native/blob/7069d4bd84d66c264eda7ea99599ef3957b36de9/android/src/main/cpp/rn-bridge.cpp
- * and is licensed under
- * external-licenses/nodejs-mobile-react-native.license.txt.
- */
 #define NAPI_VERSION 3
 #include "node_api.h"
 #include "uv.h"
@@ -364,3 +356,4 @@ void rn_bridge_notify(const char* channelName, const char *message) {
 }
 
 NAPI_MODULE_X(rn_bridge, Init, NULL, NM_F_LINKED)
+

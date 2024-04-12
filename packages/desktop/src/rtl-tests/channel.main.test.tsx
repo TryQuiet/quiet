@@ -6,7 +6,7 @@ import { apply, take } from 'typed-redux-saga'
 import userEvent from '@testing-library/user-event'
 import MockedSocket from 'socket.io-mock'
 import { ioMock } from '../shared/setupTests'
-import { socketEventData } from '../renderer/testUtils/socket'
+import { socketEventData } from '@quiet/types'
 import { renderComponent } from '../renderer/testUtils/renderComponent'
 import { prepareStore } from '../renderer/testUtils/prepareStore'
 import Channel from '../renderer/components/Channel/Channel'
@@ -767,7 +767,7 @@ describe('Channel', () => {
 
     const uploadingDelay = 100
 
-    jest.spyOn(socket, 'emit').mockImplementation(async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
+    const mockEmitImpl = async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
       const action = input[0]
       if (action === SocketActionTypes.LAUNCH_COMMUNITY) {
         const data = input[1] as InitCommunityPayload
@@ -816,7 +816,11 @@ describe('Channel', () => {
           peerId: alice.peerId.id,
         })
       }
-    })
+    }
+
+    jest.spyOn(socket, 'emit').mockImplementation(mockEmitImpl)
+    // @ts-ignore
+    socket.emitWithAck = mockEmitImpl
 
     const { store, runSaga } = await prepareStore(
       initialState.getState(),
@@ -899,7 +903,7 @@ describe('Channel', () => {
 
     const community: Community = await factory.create<
       ReturnType<typeof communities.actions.addNewCommunity>['payload']
-    >('Community', { rootCa: 'rootCa', privateKey: 'privateKey' })
+    >('Community', { rootCa: 'rootCa' })
 
     const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
       id: community.id,
@@ -964,7 +968,7 @@ describe('Channel', () => {
       })
     )
 
-    jest.spyOn(socket, 'emit').mockImplementation(async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
+    const mockEmitImpl = async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
       const action = input[0]
       if (action === SocketActionTypes.LAUNCH_COMMUNITY) {
         const data = input[1] as InitCommunityPayload
@@ -983,7 +987,11 @@ describe('Channel', () => {
           path: `${__dirname}/test-image.jpeg`,
         })
       }
-    })
+    }
+
+    jest.spyOn(socket, 'emit').mockImplementation(mockEmitImpl)
+    // @ts-ignore
+    socket.emitWithAck = mockEmitImpl
 
     const { store, runSaga } = await prepareStore(
       initialState.getState(),

@@ -2,7 +2,6 @@ export interface UserData {
   username: string
   onionAddress: string
   peerId: string
-  dmPublicKey: string
 }
 
 export interface User extends UserData {

@@ -4,7 +4,8 @@ import { type SupportedPlatformDesktop } from '@quiet/types'
 import getPort from 'get-port'
 import path from 'path'
 import fs from 'fs'
-import { DESKTOP_DATA_DIR } from '@quiet/common'
+import { DESKTOP_DATA_DIR, getAppDataPath } from '@quiet/common'
+import { config } from 'dotenv'
 
 export const BACKWARD_COMPATIBILITY_BASE_VERSION = '2.0.1' // Pre-latest production version
 const appImagesPath = `${__dirname}/../Quiet`
@@ -22,6 +23,7 @@ export class BuildSetup {
   public port?: number
   public debugPort?: number
   public dataDir?: string
+  public dataDirPath: string
   private child?: ChildProcessWithoutNullStreams
   private defaultDataDir: boolean
   private fileName?: string
@@ -36,6 +38,7 @@ export class BuildSetup {
     if (!this.dataDir) {
       this.dataDir = `e2e_${(Math.random() * 10 ** 18).toString(36)}`
     }
+    this.dataDirPath = getAppDataPath({ dataDir: this.dataDir })
   }
 
   async initPorts() {
@@ -43,11 +46,17 @@ export class BuildSetup {
     this.debugPort = await getPort()
   }
 
+  static getEnvFileName() {
+    const { parsed, error } = config()
+    console.log('Dotenv config', { parsed, error })
+    return process.env.FILE_NAME
+  }
+
   private getBinaryLocation() {
     console.log('filename', this.fileName)
     switch (process.platform) {
       case 'linux':
-        return `${__dirname}/../Quiet/${this.fileName ? this.fileName : process.env.FILE_NAME}`
+        return `${__dirname}/../Quiet/${this.fileName ? this.fileName : BuildSetup.getEnvFileName()}`
       case 'win32':
         return `${process.env.LOCALAPPDATA}\\Programs\\@quietdesktop\\Quiet.exe`
       case 'darwin':
@@ -69,7 +78,7 @@ export class BuildSetup {
   }
 
   public getVersionFromEnv() {
-    const envFileName = process.env.FILE_NAME
+    const envFileName = BuildSetup.getEnvFileName()
     if (!envFileName) {
       throw new Error('file name not specified')
     }
@@ -222,6 +231,15 @@ export class BuildSetup {
   public async closeDriver() {
     console.log(`Closing driver (DATA_DIR=${this.dataDir})`)
     await this.driver?.close()
+  }
+
+  public clearDataDir() {
+    if (process.env.IS_CI === 'true') {
+      console.warn('Not deleting data directory because we are running in CI')
+      return
+    }
+    console.log(`Deleting data directory at ${this.dataDirPath}`)
+    fs.rmdirSync(this.dataDirPath, { recursive: true })
   }
 
   public getProcessData = () => {

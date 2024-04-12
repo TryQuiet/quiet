@@ -1,10 +1,8 @@
-import { createLibp2pAddress, invitationShareUrl } from '@quiet/common'
 import { setupCrypto } from '@quiet/identity'
 import { type Store } from '@reduxjs/toolkit'
 import { getFactory } from '../../utils/tests/factories'
 import { prepareStore } from '../../utils/tests/prepareStore'
 import { type identityActions } from '../identity/identity.slice'
-import { usersActions } from '../users/users.slice'
 import { communitiesSelectors } from './communities.selectors'
 import { communitiesActions } from './communities.slice'
 import { type Community, type Identity } from '@quiet/types'
@@ -41,7 +39,7 @@ describe('communitiesSelectors', () => {
 
   it('select current community', () => {
     const community = communitiesSelectors.currentCommunity(store.getState())
-    expect(community).toEqual({ ...communityAlpha })
+    expect(community).toEqual({ ...communityAlpha, ownerCertificate: identity.userCertificate })
   })
 
   it('returns proper ownerNickname - ownerCertificate exist', async () => {

@@ -1,8 +1,8 @@
-import { InvitationData } from '@quiet/types'
+import { InvitationData, InvitationDataV1, InvitationDataV2, InvitationDataVersion } from '@quiet/types'
 import { composeInvitationDeepUrl, composeInvitationShareUrl } from './invitationCode'
 import { QUIET_JOIN_PAGE } from './static'
 
-export const validInvitationCodeTestData: InvitationData[] = [
+export const validInvitationDatav1: InvitationDataV1[] = [
   {
     pairs: [
       {
@@ -25,7 +25,26 @@ export const validInvitationCodeTestData: InvitationData[] = [
   },
 ]
 
-export const getValidInvitationUrlTestData = (data: InvitationData) => {
+export const validInvitationDatav2: InvitationDataV2[] = [
+  {
+    version: InvitationDataVersion.v2,
+    cid: 'QmaRchXhkPWq8iLiMZwFfd2Yi4iESWhAYYJt8cTCVXSwpG',
+    token: 'BNlxfE2WBF7LrlpIX0CvECN5o1oZtA16PkAb7GYiwYw',
+    serverAddress: 'https://tryquiet.org/api/',
+    inviterAddress: 'pgzlcstu4ljvma7jqyalimcxlvss5bwlbba3c3iszgtwxee4qjdlgeqd',
+  },
+]
+
+export const validInvitationCodeTestData: InvitationData[] = [...validInvitationDatav1]
+
+type TestData<T> = {
+  shareUrl: () => string
+  deepUrl: () => string
+  code: () => string
+  data: T
+}
+
+export function getValidInvitationUrlTestData<T extends InvitationDataV1 | InvitationDataV2>(data: T): TestData<T> {
   return {
     shareUrl: () => composeInvitationShareUrl(data),
     deepUrl: () => composeInvitationDeepUrl(data),
@@ -33,3 +52,12 @@ export const getValidInvitationUrlTestData = (data: InvitationData) => {
     data: data,
   }
 }
+
+// export const getValidInvitationUrlTestData = (data: InvitationData) => {
+//   return {
+//     shareUrl: () => composeInvitationShareUrl(data),
+//     deepUrl: () => composeInvitationDeepUrl(data),
+//     code: () => composeInvitationShareUrl(data).split(QUIET_JOIN_PAGE + '#')[1],
+//     data: data,
+//   }
+// }

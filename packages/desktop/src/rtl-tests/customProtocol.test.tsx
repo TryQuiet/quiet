@@ -11,6 +11,7 @@ import { ModalName } from '../renderer/sagas/modals/modals.types'
 import JoinCommunity from '../renderer/components/CreateJoinCommunity/JoinCommunity/JoinCommunity'
 import CreateUsername from '../renderer/components/CreateUsername/CreateUsername'
 import { type Community, type InvitationData } from '@quiet/types'
+import { composeInvitationDeepUrl } from '@quiet/common'
 
 jest.setTimeout(20_000)
 
@@ -29,8 +30,6 @@ describe('Opening app through custom protocol', () => {
     rootCa: '',
     peerList: [],
     onionAddress: '',
-    privateKey: '',
-    port: 0,
     ownerCertificate: '',
   }
 
@@ -65,7 +64,7 @@ describe('Opening app through custom protocol', () => {
       ownerOrbitDbIdentity: 'testOwnerOrbitDbIdentity',
     }
 
-    store.dispatch(communities.actions.customProtocol(invitationCodes))
+    store.dispatch(communities.actions.customProtocol([composeInvitationDeepUrl(invitationCodes)]))
 
     store.dispatch(modalsActions.openModal({ name: ModalName.joinCommunityModal }))
 

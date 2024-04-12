@@ -3,3 +3,4 @@ screenshots/
 .DS_Store
 
 Quiet/Quiet**
+.env

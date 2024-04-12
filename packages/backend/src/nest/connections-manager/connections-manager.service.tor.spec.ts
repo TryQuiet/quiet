@@ -5,8 +5,7 @@ import { CustomEvent } from '@libp2p/interfaces/events'
 import { jest, beforeEach, describe, it, expect, afterEach } from '@jest/globals'
 import { communities, getFactory, identity, prepareStore, Store } from '@quiet/state-manager'
 import { createPeerId, createTmpDir, libp2pInstanceParams, removeFilesFromDir, tmpQuietDirPath } from '../common/utils'
-
-import { NetworkStats, type Community, type Identity, type InitCommunityPayload } from '@quiet/types'
+import { NetworkStats, type Community, type Identity } from '@quiet/types'
 import { LazyModuleLoader } from '@nestjs/core'
 import { TestingModule, Test } from '@nestjs/testing'
 import { FactoryGirl } from 'factory-girl'
@@ -31,6 +30,7 @@ import waitForExpect from 'wait-for-expect'
 import { Libp2pEvents } from '../libp2p/libp2p.types'
 import { sleep } from '../common/sleep'
 import { createLibp2pAddress } from '@quiet/common'
+import { lib } from 'crypto-js'
 
 jest.setTimeout(100_000)
 
@@ -113,7 +113,6 @@ beforeEach(async () => {
 })
 
 afterEach(async () => {
-  await libp2pService?.libp2pInstance?.stop()
   if (connectionsManagerService) {
     await connectionsManagerService.closeAllServices()
   }
@@ -122,6 +121,10 @@ afterEach(async () => {
 
 describe('Connections manager', () => {
   it('saves peer stats when peer has been disconnected', async () => {
+    // @ts-expect-error
+    libp2pService.processInChunksService.init = jest.fn()
+    // @ts-expect-error
+    libp2pService.processInChunksService.process = jest.fn()
     class RemotePeerEventDetail {
       peerId: string
 
@@ -135,24 +138,12 @@ describe('Connections manager', () => {
     }
     const emitSpy = jest.spyOn(libp2pService, 'emit')
 
-    const launchCommunityPayload: InitCommunityPayload = {
-      id: community.id,
-      peerId: userIdentity.peerId,
-      hiddenService: userIdentity.hiddenService,
-      certs: {
-        // @ts-expect-error
-        certificate: userIdentity.userCertificate,
-        // @ts-expect-error
-        key: userIdentity.userCsr?.userKey,
-        CA: [communityRootCa],
-      },
-      peers: community.peerList,
-    }
-
-    await localDbService.put(LocalDBKeys.COMMUNITY, launchCommunityPayload)
-
     // Peer connected
     await connectionsManagerService.init()
+    await connectionsManagerService.launchCommunity({
+      community,
+      network: { peerId: userIdentity.peerId, hiddenService: userIdentity.hiddenService },
+    })
     libp2pService.connectedPeers.set(peerId.toString(), DateTime.utc().valueOf())
 
     // Peer disconnected
@@ -161,11 +152,16 @@ describe('Connections manager', () => {
       remotePeer: new RemotePeerEventDetail(peerId.toString()),
       remoteAddr: new RemotePeerEventDetail(remoteAddr),
     }
+    await waitForExpect(async () => {
+      expect(libp2pService.libp2pInstance).not.toBeUndefined()
+    }, 2_000)
     libp2pService.libp2pInstance?.dispatchEvent(
       new CustomEvent('peer:disconnect', { detail: peerDisconectEventDetail })
     )
+    await waitForExpect(async () => {
+      expect(libp2pService.connectedPeers.size).toEqual(0)
+    }, 2000)
 
-    expect(libp2pService.connectedPeers.size).toEqual(0)
     await waitForExpect(async () => {
       expect(await localDbService.get(LocalDBKeys.PEERS)).not.toBeNull()
     }, 2000)
@@ -206,27 +202,23 @@ describe('Connections manager', () => {
       )
     }
 
-    const launchCommunityPayload: InitCommunityPayload = {
-      id: community.id,
-      peerId: userIdentity.peerId,
-      hiddenService: userIdentity.hiddenService,
-      certs: {
-        // @ts-expect-error Identity.userCertificate can be null
-        certificate: userIdentity.userCertificate,
-        // @ts-expect-error Identity.userCertificate userCsr.userKey can be undefined
-        key: userIdentity.userCsr?.userKey,
-        // @ts-expect-error
-        CA: [community.rootCa],
+    const launchCommunityPayload = {
+      community: {
+        id: community.id,
+        peerList,
       },
-      peers: peerList,
+      network: {
+        peerId: userIdentity.peerId,
+        hiddenService: userIdentity.hiddenService,
+      },
     }
     await connectionsManagerService.init()
     await connectionsManagerService.launchCommunity(launchCommunityPayload)
     await sleep(5000)
     // It looks LibP2P dials peers initially when it's started and
     // then IPFS service dials peers again when started, thus
-    // peersCount * 2
-    expect(spyOnDial).toHaveBeenCalledTimes(peersCount * 2)
+    // peersCount-1 * 2 because we don't dial ourself (the first peer in the list)
+    expect(spyOnDial).toHaveBeenCalledTimes((peersCount - 1) * 2)
     // Temporary fix for hanging test - websocketOverTor doesn't have abortController
     await sleep(5000)
   })
@@ -248,19 +240,15 @@ describe('Connections manager', () => {
       )
     }
 
-    const launchCommunityPayload: InitCommunityPayload = {
-      id: community.id,
-      peerId: userIdentity.peerId,
-      hiddenService: userIdentity.hiddenService,
-      certs: {
-        // @ts-expect-error Identity.userCertificate can be null
-        certificate: userIdentity.userCertificate,
-        // @ts-expect-error
-        key: userIdentity.userCsr?.userKey,
-        // @ts-expect-error
-        CA: [community.rootCa],
+    const launchCommunityPayload = {
+      community: {
+        id: community.id,
+        peerList,
       },
-      peers: peerList,
+      network: {
+        peerId: userIdentity.peerId,
+        hiddenService: userIdentity.hiddenService,
+      },
     }
 
     await connectionsManagerService.launchCommunity(launchCommunityPayload)
