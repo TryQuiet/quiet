@@ -27,7 +27,7 @@ describe('ProcessInChunks', () => {
     processInChunks.init(['a', 'b', 'c', 'd'], mockProcessItem)
     await processInChunks.process()
     await waitForExpect(() => {
-      expect(mockProcessItem).toBeCalledTimes(4)
+      expect(mockProcessItem).toBeCalledTimes(6)
     })
   })
 
@@ -43,7 +43,7 @@ describe('ProcessInChunks', () => {
     processInChunks.updateData(['e', 'f'])
     await processInChunks.process()
     await waitForExpect(() => {
-      expect(mockProcessItem).toBeCalledTimes(4)
+      expect(mockProcessItem).toBeCalledTimes(5)
     })
   })
 
@@ -60,7 +60,7 @@ describe('ProcessInChunks', () => {
     processInChunks.init(['a', 'b', 'c', 'd'], mockProcessItem, chunkSize)
     await processInChunks.process()
     await waitForExpect(() => {
-      expect(mockProcessItem).toBeCalledTimes(4)
+      expect(mockProcessItem).toBeCalledTimes(2)
     })
   })
 

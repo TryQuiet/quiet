@@ -5,7 +5,7 @@ import type { queue, done } from 'fastq'
 import Logger from '../common/logger'
 
 const DEFAULT_CHUNK_SIZE = 10
-const DEFAULT_NUM_TRIES = 2
+export const DEFAULT_NUM_TRIES = 2
 
 type ProcessTask<T> = {
   data: T
@@ -40,16 +40,13 @@ export class ProcessInChunksService<T> extends EventEmitter {
   }
 
   private addToTaskQueue() {
-    const maxChunkSize = Math.min(this.data.size, this.chunkSize)
-    let count = 0
-    this.logger(`Adding ${maxChunkSize} items to the task queue`)
+    this.logger(`Adding ${this.data.size} items to the task queue`)
     for (const item of this.data) {
-      if (item && count < maxChunkSize) {
+      if (item) {
         this.logger(`Adding data ${item} to the task queue`)
         this.data.delete(item)
         try {
           this.taskQueue.push({ data: item, tries: 0 } as ProcessTask<T>)
-          count++
         } catch (e) {
           this.logger.error(`Error occurred while adding new task for item ${item} to the queue`, e)
           this.data.add(item)
@@ -63,7 +60,7 @@ export class ProcessInChunksService<T> extends EventEmitter {
       this.logger(`Processing task with data ${task.data}`)
       await this.processItem(task.data)
     } catch (e) {
-      this.logger(`Processing task with data ${task.data} failed, message:`, e.message)
+      this.logger.error(`Processing task with data ${task.data} failed`, e)
       if (task.tries + 1 < DEFAULT_NUM_TRIES) {
         this.logger(`Will try to re-attempt task with data ${task.data}`)
         this.taskQueue.push({ ...task, tries: task.tries + 1 })
