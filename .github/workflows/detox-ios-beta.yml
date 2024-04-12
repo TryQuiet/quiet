@@ -79,7 +79,7 @@ jobs:
       - name: Take screenshot
         continue-on-error: true
         run: |
-          /usr/bin/xcrun simctl io booted screenshot file screenshot.png
+          /usr/bin/xcrun simctl io booted screenshot screenshot.png
 
       - name: Upload screenshot
         continue-on-error: true
