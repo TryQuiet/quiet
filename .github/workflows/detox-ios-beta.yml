@@ -5,7 +5,7 @@ on:
 
 jobs:
   detox-ios:
-    timeout-minutes: 20
+    timeout-minutes: 25
     runs-on: [macos-latest-xlarge]
 
     steps:
@@ -58,7 +58,6 @@ jobs:
           detox build -c ios.sim.debug.ci
 
       - name: Run basic tests
-        continue-on-error: true
         run: |
           cd packages/mobile
           detox test starter -c ios.sim.debug.ci
@@ -67,12 +66,11 @@ jobs:
         run: pm2 stop METRO
 
       - name: Take screenshot
-        continue-on-error: true
+        if: always()
         run: |
           /usr/bin/xcrun simctl io booted screenshot screenshot.png
 
       - name: Upload screenshot
-        continue-on-error: true
         uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
         with:
           name: screenshot.png

@@ -51,11 +51,14 @@ static NSString *const platform = @"mobile";
    * Delay used below can't cause any race condition as websocket won't connect until data server starts listening anyway.
    */
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
-    NSTimeInterval delayInSeconds = 90;
-    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
-    dispatch_after(popTime, dispatch_get_main_queue(), ^(void) {
-      [[self.bridge moduleForName:@"CommunicationModule"] sendDataPortWithPort:self.dataPort socketIOSecret:self.socketIOSecret];
-    });
+    NSArray *intervals = @[@5, @30, @60, @90];
+    for (NSNumber *interval in intervals) {
+      NSTimeInterval delayInSeconds = [interval doubleValue];
+      dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
+      dispatch_after(popTime, dispatch_get_main_queue(), ^(void) {
+        [[self.bridge moduleForName:@"CommunicationModule"] sendDataPortWithPort:self.dataPort socketIOSecret:self.socketIOSecret];
+      });
+    }
   });
 }
 
