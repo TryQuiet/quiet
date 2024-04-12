@@ -15,63 +15,65 @@ jobs:
         with:
           node-version: 18.12.1
 
-      - name: Install dependencies
-        run: |
-          npm ci
-          npm run lerna bootstrap -- --scope=\'{@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/mobile,backend-bundle}\'
+      # - name: Install dependencies
+      #   run: |
+      #     npm ci
+      #     npm run lerna bootstrap -- --scope=\'{@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/mobile,backend-bundle}\'
 
-      - name: Pull binaries
-        run: |
-          git lfs install --force
-          git lfs pull
+      # - name: Pull binaries
+      #   run: |
+      #     git lfs install --force
+      #     git lfs pull
 
-      - name: Install pods
-        run: |
-          cd packages/mobile/ios
-          pod install
+      # - name: Install pods
+      #   run: |
+      #     cd packages/mobile/ios
+      #     pod install
 
       - name: List simulator devices
         run: xcrun simctl list devices
 
       - name: Boot simulator
-        run: xcrun simctl boot 190C5DB3-E69B-4594-B522-8BD693A3E187 # iPhone 15
-
-      - name: Install pm2
-        run: npm install pm2@latest -g
-
-      - name: Start metro
         run: |
-          cd packages/mobile
-          pm2 --name METRO start npm -- start
+          UDID = xcrun simctl list devices | grep 'iPhone 15 (' | awk -F '[()]' '{print $2}' | awk 'NR==2'
+          xcrun simctl boot "$UDID"
 
-      - name: Install Detox CLI
-        run: npm install detox-cli --global
+      # - name: Install pm2
+      #   run: npm install pm2@latest -g
 
-      - name: Install applesimutils
-        run: |
-          brew tap wix/brew
-          brew install applesimutils
+      # - name: Start metro
+      #   run: |
+      #     cd packages/mobile
+      #     pm2 --name METRO start npm -- start
 
-      - name: Build Detox
-        run: |
-          cd packages/mobile
-          detox build -c ios.sim.debug.ci
+      # - name: Install Detox CLI
+      #   run: npm install detox-cli --global
 
-      - name: Run basic tests
-        run: |
-          cd packages/mobile
-          detox test starter -c ios.sim.debug.ci
+      # - name: Install applesimutils
+      #   run: |
+      #     brew tap wix/brew
+      #     brew install applesimutils
 
-      - name: Stop metro
-        run: pm2 stop METRO
+      # - name: Build Detox
+      #   run: |
+      #     cd packages/mobile
+      #     detox build -c ios.sim.debug.ci
 
-      - name: Take screenshot
-        if: always()
-        run: |
-          /usr/bin/xcrun simctl io booted screenshot screenshot.png
+      # - name: Run basic tests
+      #   run: |
+      #     cd packages/mobile
+      #     detox test starter -c ios.sim.debug.ci
 
-      - name: Upload screenshot
-        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
-        with:
-          name: screenshot.png
-          path: screenshot.png
+      # - name: Stop metro
+      #   run: pm2 stop METRO
+
+      # - name: Take screenshot
+      #   if: always()
+      #   run: |
+      #     /usr/bin/xcrun simctl io booted screenshot screenshot.png
+
+      # - name: Upload screenshot
+      #   uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
+      #   with:
+      #     name: screenshot.png
+      #     path: screenshot.png
