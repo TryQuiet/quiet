@@ -1,4 +1,5 @@
 import { type NetworkStats } from '@quiet/types'
+import { isDefined } from './helpers'
 import { filterValidAddresses } from './libp2p'
 
 /**
@@ -13,11 +14,9 @@ This is the very simple algorithm for evaluating the most wanted peers.
 export const filterAndSortPeers = (
   peersAddresses: string[],
   stats: NetworkStats[],
-  localPeerAddress?: string,
-  includeLocalPeerAddress: boolean = true
+  localPeerAddress?: string
 ): string[] => {
   peersAddresses = filterValidAddresses(peersAddresses)
-  const currentlyConnected = [...stats].filter(peer => peer.connectionTime === 0)
   const lastSeenSorted = [...stats].sort((a, b) => {
     return b.lastSeen - a.lastSeen
   })
@@ -25,7 +24,7 @@ export const filterAndSortPeers = (
     return b.connectionTime - a.connectionTime
   })
 
-  const mostWantedPeers: NetworkStats[] = currentlyConnected
+  const mostWantedPeers: NetworkStats[] = []
 
   for (let i = 0; i < stats.length; i++) {
     const peerOne = lastSeenSorted[i]
@@ -40,28 +39,22 @@ export const filterAndSortPeers = (
     }
   }
 
-  const peerSet: Set<string> = new Set()
-  if (includeLocalPeerAddress && localPeerAddress) {
-    peerSet.add(localPeerAddress)
-  }
-
-  mostWantedPeers.forEach(peer => {
-    const found = peersAddresses.find(peerAddress => {
+  const peerList = mostWantedPeers.map(peer => {
+    return peersAddresses.find(peerAddress => {
       const id = peerAddress.split('/')[7]
       if (id === peer.peerId) {
         peersAddresses.splice(peersAddresses.indexOf(peerAddress), 1)
         return true
       }
     })
-    if (found && found !== '') {
-      peerSet.add(found)
-    }
-  })
-  peersAddresses.forEach(peerAddress => {
-    if (!peerSet.has(peerAddress)) {
-      peerSet.add(peerAddress)
-    }
   })
 
-  return [...peerSet]
+  return [
+    ...new Set([
+      localPeerAddress, // Set local peer as first
+      ...peerList.concat(peersAddresses),
+    ]),
+  ]
+    .filter(address => address !== null && address !== '')
+    .filter(isDefined)
 }
