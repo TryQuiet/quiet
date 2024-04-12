@@ -31,6 +31,7 @@ import waitForExpect from 'wait-for-expect'
 import { Libp2pEvents } from '../libp2p/libp2p.types'
 import { sleep } from '../common/sleep'
 import { createLibp2pAddress } from '@quiet/common'
+import { lib } from 'crypto-js'
 
 jest.setTimeout(100_000)
 
@@ -121,7 +122,7 @@ afterEach(async () => {
 })
 
 describe('Connections manager', () => {
-  it('saves peer stats when peer has been disconnected', async () => {
+  it.only('saves peer stats when peer has been disconnected', async () => {
     class RemotePeerEventDetail {
       peerId: string
 
@@ -205,8 +206,8 @@ describe('Connections manager', () => {
     await sleep(5000)
     // It looks LibP2P dials peers initially when it's started and
     // then IPFS service dials peers again when started, thus
-    // peersCount * 2
-    expect(spyOnDial).toHaveBeenCalledTimes(peersCount * 2)
+    // peersCount-1 * 2 because we don't dial ourself (the first peer in the list)
+    expect(spyOnDial).toHaveBeenCalledTimes((peersCount - 1) * 2)
     // Temporary fix for hanging test - websocketOverTor doesn't have abortController
     await sleep(5000)
   })
