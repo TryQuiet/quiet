@@ -40,7 +40,9 @@ jobs:
         run: npm install pm2@latest -g
 
       - name: Start metro
-        run: pm2 --name METRO start npm -- start
+        run: |
+          cd packages/mobile
+          pm2 --name METRO start npm -- start
 
       - name: Install Detox CLI
         run: npm install detox-cli --global
@@ -63,18 +65,6 @@ jobs:
 
       - name: Stop metro
         run: pm2 stop METRO
-
-      # - name: Dump device logs
-      #   continue-on-error: true
-      #   run : |
-      #     /usr/bin/xcrun simctl spawn 5A020DC7-BBC3-4F2E-89B3-4AF5A3911498 log stream --level debug --style compact --predicate 'process == "Quiet"' >> logs.txt
-
-      # - name: Upload logs
-      #   continue-on-error: true
-      #   uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
-      #   with:
-      #     name: logs.txt
-      #     path: logs.txt
 
       - name: Take screenshot
         continue-on-error: true
