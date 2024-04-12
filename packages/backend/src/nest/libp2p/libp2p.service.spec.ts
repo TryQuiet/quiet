@@ -8,7 +8,7 @@ import { Libp2pEvents, Libp2pNodeParams } from './libp2p.types'
 import { toString as uint8ArrayToString } from 'uint8arrays/to-string'
 import validator from 'validator'
 import waitForExpect from 'wait-for-expect'
-import { ProcessInChunksService } from './process-in-chunks.service'
+import { DEFAULT_NUM_TRIES, ProcessInChunksService } from './process-in-chunks.service'
 
 describe('Libp2pService', () => {
   let module: TestingModule
@@ -93,10 +93,12 @@ describe('Libp2pService', () => {
     await libp2pService.createInstance(params)
     expect(libp2pService.libp2pInstance).not.toBeNull()
     // @ts-expect-error processItem is private
-    const dialPeerSpy = jest.spyOn(processInChunks, 'processItem')
+    const processItemSpy = jest.spyOn(processInChunks, 'processItem')
+    const dialSpy = jest.spyOn(libp2pService.libp2pInstance!, 'dial')
     libp2pService.emit(Libp2pEvents.DIAL_PEERS, addresses)
     await waitForExpect(async () => {
-      expect(dialPeerSpy).toBeCalledTimes(1)
+      expect(processItemSpy).toBeCalledTimes(2 * DEFAULT_NUM_TRIES)
+      expect(dialSpy).toBeCalledTimes(1)
     })
   })
 })
