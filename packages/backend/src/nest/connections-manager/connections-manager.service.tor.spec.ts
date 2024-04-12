@@ -122,7 +122,7 @@ afterEach(async () => {
 })
 
 describe('Connections manager', () => {
-  it.only('saves peer stats when peer has been disconnected', async () => {
+  it('saves peer stats when peer has been disconnected', async () => {
     class RemotePeerEventDetail {
       peerId: string
 
