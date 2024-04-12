@@ -34,7 +34,7 @@ jobs:
         run: xcrun simctl list devices
 
       - name: Boot simulator
-        run: xcrun simctl boot 5A020DC7-BBC3-4F2E-89B3-4AF5A3911498 # iPhone 15
+        run: xcrun simctl boot 190C5DB3-E69B-4594-B522-8BD693A3E187 # iPhone 15
 
       - name: Install pm2
         run: npm install pm2@latest -g
