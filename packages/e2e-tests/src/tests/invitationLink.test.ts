@@ -34,7 +34,9 @@ describe('New user joins using invitation link while having app opened', () => {
 
   afterAll(async () => {
     await ownerApp?.close()
+    await ownerApp?.cleanup()
     await guestApp?.close()
+    await guestApp?.cleanup()
   })
 
   describe('Stages:', () => {

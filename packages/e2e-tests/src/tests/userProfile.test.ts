@@ -50,6 +50,7 @@ describe('User Profile Feature', () => {
   afterAll(async () => {
     for (const user of Object.values(users)) {
       await user.app.close()
+      await user.app.cleanup()
     }
   })
 

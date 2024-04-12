@@ -4,8 +4,8 @@ import { type SupportedPlatformDesktop } from '@quiet/types'
 import getPort from 'get-port'
 import path from 'path'
 import fs from 'fs'
-import { DESKTOP_DATA_DIR } from '@quiet/common'
 import { RetryConfig, TimeoutMetadata } from './types'
+import { DESKTOP_DATA_DIR, getAppDataPath } from '@quiet/common'
 
 export const BACKWARD_COMPATIBILITY_BASE_VERSION = '2.0.1' // Pre-latest production version
 const appImagesPath = `${__dirname}/../Quiet`
@@ -23,6 +23,7 @@ export class BuildSetup {
   public port?: number
   public debugPort?: number
   public dataDir?: string
+  public dataDirPath: string
   private child?: ChildProcessWithoutNullStreams
   private defaultDataDir: boolean
   private fileName?: string
@@ -37,6 +38,7 @@ export class BuildSetup {
     if (!this.dataDir) {
       this.dataDir = `e2e_${(Math.random() * 10 ** 18).toString(36)}`
     }
+    this.dataDirPath = getAppDataPath({ dataDir: this.dataDir })
   }
 
   async initPorts() {
@@ -223,6 +225,15 @@ export class BuildSetup {
   public async closeDriver() {
     console.log(`Closing driver (DATA_DIR=${this.dataDir})`)
     await this.driver?.close()
+  }
+
+  public clearDataDir() {
+    if (process.env.IS_CI === 'true') {
+      console.warn('Not deleting data directory because we are running in CI')
+      return
+    }
+    console.log(`Deleting data directory at ${this.dataDirPath}`)
+    fs.rmdirSync(this.dataDirPath, { recursive: true })
   }
 
   public getProcessData = () => {
