@@ -13,7 +13,7 @@ import { ModalName } from '../renderer/sagas/modals/modals.types'
 import { JoinCommunityDictionary } from '../renderer/components/CreateJoinCommunity/community.dictionary'
 import MockedSocket from 'socket.io-mock'
 import { ioMock } from '../shared/setupTests'
-import { socketEventData } from '../renderer/testUtils/socket'
+import { socketEventData } from '@quiet/types'
 import {
   communities,
   RegisterUserCertificatePayload,
@@ -169,6 +169,7 @@ describe('User', () => {
 
     expect(actions).toMatchInlineSnapshot(`
       Array [
+        "Communities/joinNetwork",
         "Communities/createNetwork",
         "Communities/addNewCommunity",
         "Communities/setCurrentCommunity",

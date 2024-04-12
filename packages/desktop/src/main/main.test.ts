@@ -250,27 +250,28 @@ describe('Invitation code', () => {
 
     expect(mockAppOnCalls[1][0]).toBe('open-url')
     const event = { preventDefault: () => {} }
-    mockAppOnCalls[1][1](event, composeInvitationDeepUrl(codes))
-    expect(mockWindowWebContentsSend).toHaveBeenCalledWith('invitation', { data: codes })
+    const deepUrl = composeInvitationDeepUrl(codes)
+    mockAppOnCalls[1][1](event, deepUrl)
+    expect(mockWindowWebContentsSend).toHaveBeenCalledWith('invitation', { code: deepUrl })
   })
 
-  it('do not process invitation code on open-url event (on macos) if url is invalid', async () => {
-    codes['psk'] = '12345'
+  it('do not process invitation code on open-url event (on macos) if url is empty', async () => {
     expect(mockAppOnCalls[2][0]).toBe('ready')
     await mockAppOnCalls[2][1]()
 
     expect(mockAppOnCalls[1][0]).toBe('open-url')
     const event = { preventDefault: () => {} }
-    mockAppOnCalls[1][1](event, composeInvitationDeepUrl(codes))
-    expect(mockWindowWebContentsSend).not.toHaveBeenCalledWith('invitation', { data: codes })
+    mockAppOnCalls[1][1](event, '')
+    expect(mockWindowWebContentsSend).not.toHaveBeenCalledWith('invitation', { code: '' })
   })
 
   it('process invitation code on second-instance event', async () => {
     await mockAppOnCalls[2][1]()
-    const commandLine = ['/tmp/.mount_Quiet-TVQc6s/quiet', composeInvitationDeepUrl(codes)]
+    const deepUrl = composeInvitationDeepUrl(codes)
+    const commandLine = ['/tmp/.mount_Quiet-TVQc6s/quiet', deepUrl, 'something/else']
     expect(mockAppOnCalls[0][0]).toBe('second-instance')
     const event = { preventDefault: () => {} }
     mockAppOnCalls[0][1](event, commandLine)
-    expect(mockWindowWebContentsSend).toHaveBeenCalledWith('invitation', { data: codes })
+    expect(mockWindowWebContentsSend).toHaveBeenCalledWith('invitation', { code: deepUrl })
   })
 })

@@ -29,6 +29,7 @@ export function* launchCommunitySaga(
   socket: Socket,
   action: PayloadAction<ReturnType<typeof communitiesActions.launchCommunity>['payload']>
 ): Generator {
+  console.log('LAUNCH COMMUNITY SAGA')
   const communityId = action.payload
 
   if (!communityId) {

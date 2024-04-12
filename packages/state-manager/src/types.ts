@@ -51,6 +51,7 @@ export interface EmitEvents {
   [SocketActionTypes.CREATE_NETWORK]: EmitEvent<string, (response: NetworkInfo | undefined) => void>
   [SocketActionTypes.ADD_CSR]: EmitEvent<SaveCSRPayload>
   [SocketActionTypes.SET_USER_PROFILE]: EmitEvent<UserProfile>
+  [SocketActionTypes.DOWNLOAD_INVITE_DATA]: EmitEvent<{ serverAddress: string; cid: string }>
   [SocketActionTypes.LOAD_MIGRATION_DATA]: EmitEvent<Record<string, any>>
 }
 

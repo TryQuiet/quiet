@@ -13,7 +13,7 @@ import { ModalName } from '../renderer/sagas/modals/modals.types'
 import { CreateCommunityDictionary } from '../renderer/components/CreateJoinCommunity/community.dictionary'
 import MockedSocket from 'socket.io-mock'
 import { ioMock } from '../shared/setupTests'
-import { socketEventData } from '../renderer/testUtils/socket'
+import { socketEventData } from '@quiet/types'
 import {
   Community,
   type InitCommunityPayload,

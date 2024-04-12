@@ -19,6 +19,7 @@ export enum SocketActionTypes {
   COMMUNITY_LAUNCHED = 'communityLaunched',
   COMMUNITY_UPDATED = 'communityUpdated',
   CREATE_COMMUNITY = 'createCommunity',
+  DOWNLOAD_INVITE_DATA = 'downloadInviteData',
   LAUNCH_COMMUNITY = 'launchCommunity',
   LEAVE_COMMUNITY = 'leaveCommunity',
 

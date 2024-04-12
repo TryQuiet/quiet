@@ -5,7 +5,7 @@ import { generateId } from '../../../utils/cryptography/cryptography'
 import { communitiesActions } from '../communities.slice'
 import { identityActions } from '../../identity/identity.slice'
 import { createRootCA } from '@quiet/identity'
-import { type Community, CommunityOwnership, type Identity, SocketActionTypes } from '@quiet/types'
+import { type Community, CommunityOwnership, type Identity, SocketActionTypes, NetworkInfo } from '@quiet/types'
 import { Socket, applyEmitParams } from '../../../types'
 
 export function* createNetworkSaga(
@@ -17,7 +17,11 @@ export function* createNetworkSaga(
   // Community IDs are only local identifiers
   const id = yield* call(generateId)
 
-  const network = yield* apply(socket, socket.emitWithAck, applyEmitParams(SocketActionTypes.CREATE_NETWORK, id))
+  const network: NetworkInfo = yield* apply(
+    socket,
+    socket.emitWithAck,
+    applyEmitParams(SocketActionTypes.CREATE_NETWORK, id)
+  )
 
   // TODO: Move CA generation to backend when creating Community
   let CA: null | {

@@ -7,7 +7,7 @@ import MockedSocket from 'socket.io-mock'
 import { ioMock } from '../shared/setupTests'
 import { prepareStore } from '../renderer/testUtils/prepareStore'
 import { renderComponent } from '../renderer/testUtils/renderComponent'
-import { validInvitationCodeTestData } from '@quiet/common'
+import { getValidInvitationUrlTestData, validInvitationCodeTestData } from '@quiet/common'
 import { communities } from '@quiet/state-manager'
 
 describe('Deep linking', () => {
@@ -34,13 +34,17 @@ describe('Deep linking', () => {
 
     renderComponent(<></>, store)
 
-    store.dispatch(communities.actions.customProtocol(validInvitationCodeTestData[0]))
+    store.dispatch(
+      communities.actions.customProtocol([getValidInvitationUrlTestData(validInvitationCodeTestData[0]).deepUrl()])
+    )
     await act(async () => {})
 
     const originalPair = communities.selectors.invitationCodes(store.getState())
 
     // Redo the action to provoke renewed saga runs
-    store.dispatch(communities.actions.customProtocol(validInvitationCodeTestData[1]))
+    store.dispatch(
+      communities.actions.customProtocol([getValidInvitationUrlTestData(validInvitationCodeTestData[1]).deepUrl()])
+    )
     await act(async () => {})
 
     const currentPair = communities.selectors.invitationCodes(store.getState())
@@ -50,6 +54,7 @@ describe('Deep linking', () => {
     expect(actions).toMatchInlineSnapshot(`
       Array [
         "Communities/customProtocol",
+        "Communities/joinNetwork",
         "Communities/createNetwork",
         "Communities/addNewCommunity",
         "Communities/setCurrentCommunity",

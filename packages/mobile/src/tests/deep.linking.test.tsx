@@ -9,16 +9,32 @@ import { prepareStore } from './utils/prepareStore'
 import { renderComponent } from './utils/renderComponent'
 import { initActions } from '../store/init/init.slice'
 import { validInvitationCodeTestData, getValidInvitationUrlTestData } from '@quiet/common'
-import { communities } from '@quiet/state-manager'
+import { communities, createPeerIdTestHelper } from '@quiet/state-manager'
+import { NetworkInfo, SocketActionTypes, socketEventData } from '@quiet/types'
+
+const mockEmitImpl = async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
+  const action = input[0]
+  if (action === SocketActionTypes.CREATE_NETWORK) {
+    const data: NetworkInfo = {
+      hiddenService: {
+        onionAddress: 'onionAddress',
+        privateKey: 'privateKey',
+      },
+      peerId: createPeerIdTestHelper(),
+    }
+    return data
+  }
+}
 
 describe('Deep linking', () => {
   let socket: MockedSocket
 
   beforeEach(async () => {
     socket = new MockedSocket()
-    // @ts-ignore
-    socket.emitWithAck = jest.fn()
     ioMock.mockImplementation(() => socket)
+    jest.spyOn(socket, 'emit').mockImplementation(mockEmitImpl)
+    // @ts-ignore
+    socket.emitWithAck = mockEmitImpl
   })
 
   test('does not override network data if triggered twice', async () => {
@@ -52,12 +68,16 @@ describe('Deep linking', () => {
       [
         "Init/deepLink",
         "Init/resetDeepLink",
+        "Communities/joinNetwork",
         "Communities/createNetwork",
-        "Communities/addNewCommunity",
         "Navigation/replaceScreen",
+        "Communities/addNewCommunity",
         "Communities/setCurrentCommunity",
         "Communities/setInvitationCodes",
+        "Identity/addNewIdentity",
         "Init/deepLink",
+        "Init/resetDeepLink",
+        "Navigation/replaceScreen",
       ]
     `)
 

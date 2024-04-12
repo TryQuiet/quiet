@@ -36,10 +36,11 @@ export const communitiesSlice = createSlice({
       })
     },
     createNetwork: (state, _action: PayloadAction<CreateNetworkPayload>) => state,
+    joinNetwork: (state, _action: PayloadAction<InvitationData>) => state,
     resetApp: (state, _action) => state,
     createCommunity: (state, _action: PayloadAction<string>) => state,
     launchCommunity: (state, _action: PayloadAction<string>) => state,
-    customProtocol: (state, _action: PayloadAction<InvitationData>) => state,
+    customProtocol: (state, _action: PayloadAction<string[]>) => state,
     setInvitationCodes: (state, action: PayloadAction<InvitationPair[]>) => {
       state.invitationCodes = action.payload
     },

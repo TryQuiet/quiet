@@ -7,7 +7,7 @@ import { communitiesActions } from '../communities/communities.slice'
 import { connectionActions } from './connection.slice'
 import { type FactoryGirl } from 'factory-girl'
 import { type Community } from '@quiet/types'
-import { createLibp2pAddress, invitationShareUrl } from '@quiet/common'
+import { composeInvitationShareUrl, createLibp2pAddress, p2pAddressesToPairs } from '@quiet/common'
 
 describe('communitiesSelectors', () => {
   setupCrypto()
@@ -116,7 +116,8 @@ describe('communitiesSelectors', () => {
       ownerOrbitDbIdentity,
     })
     const selectorInvitationUrl = connectionSelectors.invitationUrl(store.getState())
-    const expectedUrl = invitationShareUrl(peerList, psk, ownerOrbitDbIdentity)
+    const pairs = p2pAddressesToPairs(peerList)
+    const expectedUrl = composeInvitationShareUrl({ pairs, psk, ownerOrbitDbIdentity })
     expect(expectedUrl).not.toEqual('')
     expect(selectorInvitationUrl).toEqual(expectedUrl)
   })

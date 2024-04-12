@@ -21,6 +21,8 @@ import {
   type DeleteChannelResponse,
   type MessagesLoadedPayload,
   type NetworkInfo,
+  CreateNetworkPayload,
+  CommunityOwnership,
 } from '@quiet/types'
 import EventEmitter from 'events'
 import { CONFIG_OPTIONS, SERVER_IO_PROVIDER } from '../const'
@@ -166,6 +168,21 @@ export class SocketService extends EventEmitter implements OnModuleInit {
         async (communityId: string, callback: (response: NetworkInfo | undefined) => void) => {
           this.logger(`Creating network for community ${communityId}`)
           this.emit(SocketActionTypes.CREATE_NETWORK, communityId, callback)
+        }
+      )
+
+      socket.on(
+        SocketActionTypes.DOWNLOAD_INVITE_DATA,
+        async (payload: { serverAddress: string; cid: string }, callback: (response: CreateNetworkPayload) => void) => {
+          // this.emit(SocketActionTypes.DOWNLOAD_INVITE_DATA, payload, callback)
+          console.log('download invite data', payload)
+          // Mock it for now
+          callback({
+            ownership: CommunityOwnership.User,
+            peers: [],
+            psk: '',
+            ownerOrbitDbIdentity: '',
+          })
         }
       )
 

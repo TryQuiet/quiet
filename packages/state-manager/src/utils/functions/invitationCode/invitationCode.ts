@@ -6,7 +6,6 @@ export const getInvitationCodes = (codeOrUrl: string): InvitationData => {
    * Extract codes from invitation share url or return passed value for further error handling
    * @param codeOrUrl: full invitation link or just the code part of the link
    */
-  let data: InvitationData | null = null
   let potentialCode
   let validUrl: URL | null = null
 
@@ -30,11 +29,5 @@ export const getInvitationCodes = (codeOrUrl: string): InvitationData => {
     code = potentialCode
   }
 
-  data = parseInvitationCode(code)
-
-  if (!data || data?.pairs.length === 0) {
-    throw new Error(`No invitation codes. Code/url passed: ${codeOrUrl}`)
-  }
-
-  return data
+  return parseInvitationCode(code)
 }

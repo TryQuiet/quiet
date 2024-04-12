@@ -2,9 +2,11 @@
 
 # New features:
 
+* Add support for new format of invitation link: `c=<cid>&t=<token>&s=<serverAddress>&i=<inviterAddress>` ([#2310](https://github.com/TryQuiet/quiet/issues/2310))
+
 # Refactorings:
 
-# Fixes:
+# Fixes
 
 # Chores
 
