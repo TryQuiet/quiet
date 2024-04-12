@@ -8,6 +8,8 @@
 
 # Fixes
 
+* Don't create duplicate CSRs when joining a community under certain circumstances ([#2321](https://github.com/TryQuiet/quiet/issues/2321))
+
 # Chores
 
 * Cleanup data directory at end of e2e tests
