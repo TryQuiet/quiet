@@ -249,6 +249,11 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   // This method is only used on iOS through rn-bridge for reacting on lifecycle changes
   public async openSocket() {
     await this.socketService.init()
+    await this.libp2pService?.redialPeers()
+
+    // Tried to restart libp2p as another alternative, but received this:
+    // Error: Handler already registered for protocol /meshsub/1.1.0
+    await this.libp2pService?.restart()
   }
 
   public async leaveCommunity() {

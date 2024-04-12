@@ -32,6 +32,7 @@ export class Libp2pService extends EventEmitter {
   public connectedPeers: Map<string, number> = new Map()
   public dialedPeers: Set<string> = new Set()
   private readonly logger = Logger(Libp2pService.name)
+
   constructor(
     @Inject(SERVER_IO_PROVIDER) public readonly serverIoProvider: ServerIoProviderTypes,
     @Inject(SOCKS_PROXY_AGENT) public readonly socksProxyAgent: Agent,
@@ -40,12 +41,45 @@ export class Libp2pService extends EventEmitter {
     super()
   }
 
+  public restart = async () => {
+    await this.libp2pInstance?.stop()
+    await this.libp2pInstance?.start()
+  }
+
   private dialPeer = async (peerAddress: string) => {
     if (this.dialedPeers.has(peerAddress)) {
       return
     }
     this.dialedPeers.add(peerAddress)
+    console.log('Dialing peer:', peerAddress, this.dialedPeers)
     await this.libp2pInstance?.dial(multiaddr(peerAddress))
+  }
+
+  private hangUpPeer = async (peerAddress: string) => {
+    this.logger('Hanging up on peer:', peerAddress)
+    await this.libp2pInstance?.hangUp(multiaddr(peerAddress))
+    this.dialedPeers.delete(peerAddress)
+  }
+
+  /**
+   * Hang up existing peer connections and re-dial them. Specifically useful on
+   * iOS where Tor receives a new port when the app resumes from background and
+   * we want to close/re-open connections.
+   */
+  public redialPeers = async () => {
+    this.logger('Re-dialing peers')
+
+    // TODO: Sort peers
+    const dialedPeers = Array.from(this.dialedPeers)
+
+    for (const peerAddress of dialedPeers) {
+      await this.hangUpPeer(peerAddress)
+    }
+
+    console.log('DIALED PEERS', dialedPeers, this.dialedPeers)
+
+    this.processInChunksService.updateData(dialedPeers)
+    await this.processInChunksService.process()
   }
 
   public readonly createLibp2pAddress = (address: string, peerId: string): string => {

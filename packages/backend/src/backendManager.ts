@@ -114,7 +114,21 @@ export const runBackendMobile = async () => {
     connectionsManager.closeSocket()
   })
 
+  // I've noticed that two of these 'open' events can occur in quick
+  // succession and of course the event handlers are not awaited. This
+  // is a simple fix, but perhaps we can also look into the cause in
+  // more depth.
+  let openInProgress = false
+
   rn_bridge.channel.on('open', async (msg: OpenServices) => {
+    log('Received "open" event via React Native Bridge')
+
+    if (openInProgress) {
+      log('"open" event already being processed, ignoring')
+      return
+    }
+    openInProgress = true
+
     const connectionsManager = app.get<ConnectionsManagerService>(ConnectionsManagerService)
     const torControl = app.get<TorControl>(TorControl)
     const proxyAgent = app.get<{ proxy: { port: string } }>(SOCKS_PROXY_AGENT)
@@ -124,6 +138,8 @@ export const runBackendMobile = async () => {
     proxyAgent.proxy.port = msg.httpTunnelPort
 
     await connectionsManager.openSocket()
+
+    openInProgress = false
   })
 }
 
