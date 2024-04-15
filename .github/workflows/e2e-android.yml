@@ -1,0 +1,78 @@
+name: Detox E2E Android
+
+on:
+  pull_request:
+    paths: 
+      - packages/mobile/**
+      - packages/backend/**
+      - packages/state-manager/**
+      - .github/workflows/e2e-android.yml
+
+jobs:
+  detox-android:
+    timeout-minutes: 25
+    runs-on: [macos-latest-xlarge]
+
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: actions/setup-node@master
+        with:
+          node-version: 18.12.1
+
+      # - name: Install dependencies
+      #   run: |
+      #     npm ci
+      #     npm run lerna bootstrap -- --scope=\'{@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/mobile,backend-bundle}\'
+
+      # - name: Pull binaries
+      #   run: |
+      #     git lfs install --force
+      #     git lfs pull
+
+      - name: Print paths
+        run: | 
+          echo $PATH
+          echo $ANDROID_SDK_ROOT
+          echo $ANDROID_HOME
+          echo $ANDROID_SDK
+          echo $ANDROID_NDK_HOME
+          echo $ANDROID_NDK
+
+      # - name: Boot emulator
+      #   run: | # TODO
+
+      # - name: Install pm2
+      #   run: npm install pm2@latest -g
+
+      # - name: Start metro
+      #   run: |
+      #     cd packages/mobile
+      #     pm2 --name METRO start npm -- start
+
+      # - name: Install Detox CLI
+      #   run: npm install detox-cli --global
+
+      # - name: Build Detox
+      #   run: |
+      #     cd packages/mobile
+      #     detox build -c android.emu.debug.ci
+
+      # - name: Run basic tests
+      #   run: |
+      #     cd packages/mobile
+      #     detox test starter -c android.emu.debug.ci
+
+      # - name: Stop metro
+      #   run: pm2 stop METRO
+
+      # - name: Take screenshot
+      #   if: always()
+      #   run: | # TODO
+
+      # - name: Upload screenshot
+      #   if: always()
+      #   uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
+      #   with:
+      #     name: screenshot.png
+      #     path: screenshot.png
