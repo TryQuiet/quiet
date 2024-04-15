@@ -31,7 +31,9 @@ jobs:
       #     git lfs pull
 
       - name: List emulators
-        run: $ANDROID_HOME/emulator/emulator -list-avds
+        run: |
+          ls -al $ANDROID_HOME
+          ls -al $ANDROID_HOME/emulator
 
       # - name: Boot emulator
       #   run: | # TODO
