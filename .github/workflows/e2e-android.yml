@@ -30,10 +30,8 @@ jobs:
       #     git lfs install --force
       #     git lfs pull
 
-      - name: List emulators
-        run: |
-          ls -al $ANDROID_HOME
-          ls -al $ANDROID_HOME/emulator
+      - name: List avdmanager
+        run: $ANDROID_HOME/tools/bin/avdmanager list
 
       # - name: Boot emulator
       #   run: | # TODO
