@@ -95,7 +95,21 @@ export class LocalDbService {
     }
   }
 
-  public async getSortedPeers(peers: string[] = []): Promise<string[]> {
+  public async getSortedPeers(
+    peers?: string[] | undefined,
+    includeLocalPeerAddress: boolean = true
+  ): Promise<string[]> {
+    if (!peers) {
+      const currentCommunity = await this.getCurrentCommunity()
+      if (!currentCommunity) {
+        throw new Error('No peers were provided and no community was found to extract peers from')
+      }
+      peers = currentCommunity.peerList
+      if (!peers) {
+        throw new Error('No peers provided and no peers found on current stored community')
+      }
+    }
+
     const peersStats = (await this.get(LocalDBKeys.PEERS)) || {}
     const stats: NetworkStats[] = Object.values(peersStats)
     const network = await this.getNetworkInfo()
@@ -103,9 +117,9 @@ export class LocalDbService {
     if (network) {
       const localPeerAddress = createLibp2pAddress(network.hiddenService.onionAddress, network.peerId.id)
       this.logger('Local peer', localPeerAddress)
-      return filterAndSortPeers(peers, stats, localPeerAddress)
+      return filterAndSortPeers(peers, stats, localPeerAddress, includeLocalPeerAddress)
     } else {
-      return filterAndSortPeers(peers, stats)
+      return filterAndSortPeers(peers, stats, undefined, includeLocalPeerAddress)
     }
   }
 

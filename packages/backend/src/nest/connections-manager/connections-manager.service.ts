@@ -517,7 +517,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       agent: this.socksProxyAgent,
       localAddress: this.libp2pService.createLibp2pAddress(onionAddress, peerId.toString()),
       targetPort: this.ports.libp2pHiddenService,
-      peers: peers ?? [],
+      peers: peers ? peers.slice(1) : [],
       psk: Libp2pService.generateLibp2pPSK(community.psk).fullKey,
     }
     await this.libp2pService.createInstance(params)
