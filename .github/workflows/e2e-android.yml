@@ -30,6 +30,7 @@ jobs:
       #     git lfs install --force
       #     git lfs pull
 
+      # see: https://stackoverflow.com/questions/67264212/android-emulator-crash-when-start-hvf-error-hv-error
       - name: 
         run: |
           {
@@ -42,6 +43,9 @@ jobs:
             echo '</dict>'
             echo '</plist>'
           } >> $ANDROID_HOME/emulator/qemu/darwin-aarch64/entitlements.xml
+
+      - name: Read entitlements
+        run: cat $ANDROID_HOME/emulator/qemu/darwin-aarch64/entitlements.xml
 
       - name: Resign qemu binary
         run: |
