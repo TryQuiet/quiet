@@ -30,8 +30,11 @@ jobs:
       #     git lfs install --force
       #     git lfs pull
 
-      - name: Check docker
-        run: docker -v
+      - name: Check Java
+        run: java -version
+
+      - name: List avdmanager
+        run: $ANDROID_HOME/tools/bin/avdmanager list
 
       # - name: Boot emulator
       #   run: | # TODO
