@@ -5,6 +5,7 @@ import { identitySelectors } from '../identity.selectors'
 import { identityActions } from '../identity.slice'
 import { config } from '../../users/const/certFieldTypes'
 import { Socket } from '../../../types'
+import { communitiesActions } from '../../communities/communities.slice'
 import { communitiesSelectors } from '../../communities/communities.selectors'
 import { CreateUserCsrPayload, RegisterCertificatePayload, Community } from '@quiet/types'
 
@@ -16,7 +17,13 @@ export function* registerUsernameSaga(
 
   const { nickname, isUsernameTaken = false } = action.payload
 
-  const community = yield* select(communitiesSelectors.currentCommunity)
+  let community = yield* select(communitiesSelectors.currentCommunity)
+
+  if (!community) {
+    yield* take(communitiesActions.addNewCommunity)
+  }
+
+  community = yield* select(communitiesSelectors.currentCommunity)
 
   if (!community) {
     console.error('Could not register username, no community data')
