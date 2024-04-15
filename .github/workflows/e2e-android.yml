@@ -30,14 +30,8 @@ jobs:
       #     git lfs install --force
       #     git lfs pull
 
-      - name: Print paths
-        run: | 
-          echo $PATH
-          echo $ANDROID_SDK_ROOT
-          echo $ANDROID_HOME
-          echo $ANDROID_SDK
-          echo $ANDROID_NDK_HOME
-          echo $ANDROID_NDK
+      - name: List emulators
+        run: $ANDROID_HOME/emulator/emulator -list-avds
 
       # - name: Boot emulator
       #   run: | # TODO
