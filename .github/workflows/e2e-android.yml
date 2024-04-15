@@ -30,14 +30,17 @@ jobs:
       #     git lfs install --force
       #     git lfs pull
 
-      - name: Install SDK image
-        run: yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install 'system-images;android-34;google_apis;arm64-v8a'
+      - name: List qemu
+        run: ls $ANDROID_HOME/emulator/qemu
 
-      - name: Create AVD
-        run: $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd -n emulator_ci -k 'system-images;android-34;google_apis;arm64-v8a' -d 'pixel_7'
+      # - name: Install SDK image
+      #   run: yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install 'system-images;android-34;google_apis;arm64-v8a'
 
-      - name: Boot AVD
-        run: $ANDROID_HOME/emulator/emulator -avd emulator_ci
+      # - name: Create AVD
+      #   run: $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd -n emulator_ci -k 'system-images;android-34;google_apis;arm64-v8a' -d 'pixel_7'
+
+      # - name: Boot AVD
+      #   run: $ANDROID_HOME/emulator/emulator -avd emulator_ci
 
       # - name: Install pm2
       #   run: npm install pm2@latest -g
