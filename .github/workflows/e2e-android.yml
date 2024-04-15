@@ -44,7 +44,9 @@ jobs:
           } >> $ANDROID_HOME/emulator/qemu/darwin-aarch64/entitlements.xml
 
       - name: Resign qemu binary
-        run: codesign -s - --entitlements entitlements.xml --force ./qemu-system-aarch64
+        run: |
+          cd $ANDROID_HOME/emulator/qemu/darwin-aarch64
+          codesign -s - --entitlements entitlements.xml --force ./qemu-system-aarch64
 
       - name: Install SDK image
         run: yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install 'system-images;android-34;google_apis;arm64-v8a'
