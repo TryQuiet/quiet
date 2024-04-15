@@ -45,12 +45,12 @@ const maxHeight = 300
 
 const StyledChannelInput = styled(Grid)(({ theme }) => ({
   [`&.${classes.root}`]: {
-    background: '#fff',
+    background: theme.palette.background.default,
     height: '100%',
     width: '100%',
   },
   [`& .${classes.rootContent}`]: {
-    background: '#fff',
+    background: theme.palette.background.default,
     height: '100%',
     width: '100%',
   },
@@ -86,7 +86,7 @@ const StyledChannelInput = styled(Grid)(({ theme }) => ({
     paddingRight: '60px',
   },
   [`& .${classes.textfield}`]: {
-    border: `1px solid ${theme.palette.colors.veryLightGray}`,
+    border: `1px solid ${theme.palette.colors.border01}`,
     maxHeight: maxHeight,
     overflowY: 'auto',
     borderRadius: 4,

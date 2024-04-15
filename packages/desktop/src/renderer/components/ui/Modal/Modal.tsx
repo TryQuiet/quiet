@@ -72,7 +72,7 @@ const StyledMaterialModal = styled(StyledMaterialModalWithProps)(({ theme, zInde
   },
 
   [`& .${classes.headerBorder}`]: {
-    borderBottom: `1px solid ${theme.palette.colors.contentGray}`,
+    borderBottom: `1px solid ${theme.palette.colors.border03}`,
   },
 
   [`& .${classes.actions}`]: {

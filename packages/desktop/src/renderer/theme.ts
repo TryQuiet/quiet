@@ -62,53 +62,61 @@ export default createTheme({
     },
   },
   palette: {
-    primary: {
-      light: '#e9e9e9',
-      main: '#8d8d8d',
-      dark: '#4a4a4a',
+    // type: 'light', // Currently commented out because of type errors
+    background: {
+      // Background colors (white-ish for light theme, black-ish for dark)
+      default: '#ffffff',
+      paper: '#F0F0F0',
     },
+    // text: {}, // font colors (black-ish for light theme, white-ish for dark)
+    primary: {
+      // Primary Quiet brand purple
+      main: '#521C74',
+      dark: '#461863',
+    },
+    secondary: {
+      // Secondary Quiet brand red (TODO: Make sure this is Secondary, not error/warning)
+      main: '#E42656',
+      dark: '#C41743',
+    },
+    // TO BE ADDED IF NEEDED: Success, Warning, Error, Neutral
     colors: {
-      contentGray: '#D2D2D2',
-      titleGray: '#555555',
+      // Misc colors. For primary / secondary brand, text, and background colors, use those objects
+      mediumGray: '#8d8d8d',
       white: '#FFFFFF',
       blue: '#2196f3',
-      purple: '#521C74',
-      darkPurple: '#4d1a6d',
+      purple: '#521C74', // To be replaced with theme.palette.primary.main
+      darkPurple: '#4d1a6d', // To be replaced with theme.palette.primary.dark?
       gray: '#e7e7e7',
-      inputGray: '#E0E0E0',
-      black: '#333333',
-      trueBlack: '#000000',
-      quietBlue: '#521c74',
-      captionPurple: '#9B60A5',
+      trueBlack: '#000000', // To be replaced with text color and border color
+      quietBlue: '#521c74', // To be replaced with theme.palette.primary.main
       darkGray: '#7F7F7F',
       gray03: '#F7F7F7',
-      gray40: '#999999',
       lushSky: '#67BFD3',
       lushSky12: '#EDF7FA',
-      lightGray: '#B2B2B2',
-      veryLightGray: '#F0F0F0',
-      green: '#4CBB17',
-      greenDark: '#9BD174',
-      red: '#FF0000',
-      hotRed: '#E42656',
-      hotPink: '#E42656',
-      linkBlue: '#59c0d5',
-      buttonGray: '#E3E3E3',
-      black30: '#4C4C4C',
-      gray30: '#FAFAFA',
-      grayBackgroud: '#F3F0F6',
-      gray50: '#B3B3B3',
-      error: '#D13135',
-      logsDark: '#252526',
-      logsActiveDark: '#1E1E1E',
-      logsInactiveDark: '#2D2D2D',
-      logsTitleGray: '#D4D4D4',
-      logsTabWhite: '#A9A9A9',
-      logsScrollBar: '#3D3D3D',
-      logsScrollBarThumb: ' #787878',
-      yellow: '#E6BB46',
+      lightGray: '#B2B2B2', // To be replaced with gray30
+      border01: '#F0F0F0',
+      border02: '#B3B3B3',
+      border03: '#D2D2D2',
+      red: '#FF0000', // Replace with D13135 ?
+      hotRed: '#E42656', // Replaced by theme.palette.secondary.main
+      hotPink: '#E42656', // Replaced by theme.palette.secondary.main
+      linkBlue: '#59c0d5', // Used in a variety of places - likely wants to be split / consolidated
+      black30: '#4C4C4C', // Rename to gray70
+      gray30: '#FAFAFA', // Unused and not aligned with Figma
+      gray40: '#999999',
+      gray50: '#7F7F7F',
+      error: '#D13135', // Need to align with Figma
     },
   },
+  //@ts-ignore MUI types expect 25 shadows - see: https://github.com/mui/material-ui/issues/28820
+  shadows: [
+    'none',
+    '0px 0px 4px rgba(0, 0, 0, 0.25)',
+    '0px 1px 0px #F0F0F0',
+    '0px 1px 3px rgba(0, 0, 0, 0.0)',
+    '0px 2px 25px rgba(0, 0, 0, 0.2)',
+  ],
   components: {
     // Body font size changed in mui v5: https://mui.com/material-ui/migration/v5-component-changes/#update-body-font-size
     MuiCssBaseline: {

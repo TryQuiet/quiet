@@ -22,7 +22,7 @@ const classes = {
   tooltip: `${PREFIX}tooltip`,
 }
 
-const StyledFilePreviewComponent = styled('div')(() => ({
+const StyledFilePreviewComponent = styled('div')(({ theme }) => ({
   display: 'inline-block',
   float: 'left',
   cursor: 'pointer',
@@ -49,7 +49,7 @@ const StyledFilePreviewComponent = styled('div')(() => ({
     width: '64px',
     height: '64px',
     borderRadius: '15%',
-    backgroundColor: '#F0F0F0',
+    backgroundColor: theme.palette.background.paper,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',

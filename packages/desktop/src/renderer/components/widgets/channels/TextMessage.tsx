@@ -50,12 +50,12 @@ const StyledTypography = styled(Typography)(() => ({
   },
 
   [`& .${classes.code}`]: {
-    backgroundColor: theme.palette.colors.veryLightGray,
+    backgroundColor: theme.palette.background.paper,
     padding: '.25em',
   },
 
   [`& .${classes.pre}`]: {
-    backgroundColor: theme.palette.colors.veryLightGray,
+    backgroundColor: theme.palette.background.paper,
     padding: '.25em',
   },
 
@@ -90,7 +90,7 @@ const StyledTypography = styled(Typography)(() => ({
   [`& .${classes.tableHeaderCell}`]: {
     borderBottom: 'solid',
     borderBottomWidth: 1,
-    borderColor: theme.palette.colors.veryLightGray,
+    borderColor: theme.palette.colors.border01,
     textAlign: 'center',
   },
 

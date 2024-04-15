@@ -31,14 +31,14 @@ const FileComponentStyled = styled('div')(({ theme }) => ({
   padding: '16px',
   backgroundColor: theme.palette.colors.white,
   borderRadius: '8px',
-  border: `1px solid ${theme.palette.colors.veryLightGray}`,
+  border: `1px solid ${theme.palette.colors.border01}`,
 
   [`& .${classes.icon}`]: {
     minWidth: '40px',
     width: '40px',
     height: '40px',
     borderRadius: '8px',
-    backgroundColor: '#F0F0F0',
+    backgroundColor: theme.palette.background.paper,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',

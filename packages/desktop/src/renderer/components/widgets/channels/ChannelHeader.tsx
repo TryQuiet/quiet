@@ -36,7 +36,7 @@ const Root = styled('div')(({ theme }) => ({
     height: '75px',
     paddingLeft: 20,
     paddingRight: 24,
-    borderBottom: `1px solid ${theme.palette.colors.veryLightGray}`,
+    borderBottom: `1px solid ${theme.palette.colors.border01}`,
   },
 
   [`& .${classes.title}`]: {
@@ -92,7 +92,7 @@ const Root = styled('div')(({ theme }) => ({
     top: 75,
     padding: '12px 25px 12px 20px',
     backgroundColor: theme.palette.colors.white,
-    boxShadow: `0px 1px 0px ${theme.palette.colors.veryLightGray}`,
+    boxShadow: theme.shadows[2],
   },
 
   [`&.${classes.wrapper}`]: {},

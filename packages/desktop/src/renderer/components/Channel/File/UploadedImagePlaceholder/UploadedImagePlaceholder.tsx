@@ -18,7 +18,7 @@ const classes = {
   icon: `${PREFIX}icon`,
 }
 
-const Root = styled('div')(() => ({
+const Root = styled('div')(({ theme }) => ({
   maxWidth: '400px',
   height: '100%',
 
@@ -29,7 +29,7 @@ const Root = styled('div')(() => ({
     alignItems: 'center',
     minWidth: '50px',
     minHeight: '50px',
-    backgroundColor: '#e0e0e0',
+    backgroundColor: theme.palette.background.paper,
   },
 
   [`& .${classes.placeholderIcon}`]: {
@@ -41,7 +41,7 @@ const Root = styled('div')(() => ({
     width: '40px',
     height: '40px',
     borderRadius: '8px',
-    backgroundColor: '#F0F0F0',
+    backgroundColor: theme.palette.background.paper,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',

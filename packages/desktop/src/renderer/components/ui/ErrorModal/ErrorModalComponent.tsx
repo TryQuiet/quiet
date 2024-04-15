@@ -54,7 +54,7 @@ const StyledModalContent = styled(Grid)(({ theme }) => ({
   [`& .${classes.textfield}`]: {},
 
   [`& .${classes.cssDisabled}`]: {
-    backgroundColor: theme.palette.colors.inputGray,
+    backgroundColor: theme.palette.background.paper,
     color: theme.palette.colors.red,
   },
 

@@ -28,11 +28,11 @@ const StyledDialog = styled(Dialog)(({ theme }) => ({
   },
 
   [`& .${classes.dialogContent}`]: {
-    borderBottom: `1px solid ${theme.palette.colors.veryLightGray}`,
+    borderBottom: `1px solid ${theme.palette.colors.border01}`,
   },
 
   [`& .${classes.buttonNo}`]: {
-    borderRight: `1px solid ${theme.palette.colors.veryLightGray}`,
+    borderRight: `1px solid ${theme.palette.colors.border01}`,
     cursor: 'pointer',
     padding: 10,
   },

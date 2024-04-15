@@ -97,7 +97,7 @@ const StyledListItem = styled(ListItem)(({ theme }) => ({
     marginRight: 10,
     marginBottom: 4,
     borderRadius: 4,
-    backgroundColor: theme.palette.colors.grayBackgroud,
+    backgroundColor: theme.palette.background.paper,
   },
 
   [`& .${classes.alignAvatar}`]: {

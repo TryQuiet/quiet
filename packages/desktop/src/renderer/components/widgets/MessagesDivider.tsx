@@ -19,7 +19,7 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
 
   [`& .${classes.divider}`]: {
     height: 1,
-    backgroundColor: theme.palette.colors.veryLightGray,
+    backgroundColor: theme.palette.colors.border01,
   },
 
   [`& .${classes.titleDiv}`]: {
