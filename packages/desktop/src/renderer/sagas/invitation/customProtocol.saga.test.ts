@@ -34,27 +34,34 @@ describe('Handle invitation code', () => {
   })
 
   it('joins network if code is valid', async () => {
+    const createNetworkPayload: CreateNetworkPayload = {
+      ownership: CommunityOwnership.User,
+      inviteData: validInvitationData,
+    }
     await expectSaga(customProtocolSaga, communities.actions.customProtocol([validInvitationDeepUrl]))
       .withState(store.getState())
-      .put(communities.actions.joinNetwork(validInvitationData))
+      .put(communities.actions.createNetwork(createNetworkPayload))
       .run()
   })
 
   it('joins network if v2 code is valid', async () => {
     const validInvitationData = getValidInvitationUrlTestData(validInvitationDatav2[0]).data
     const validInvitationDeepUrl = getValidInvitationUrlTestData(validInvitationDatav2[0]).deepUrl()
+    const createNetworkPayload: CreateNetworkPayload = {
+      ownership: CommunityOwnership.User,
+      inviteData: validInvitationData,
+    }
     await expectSaga(customProtocolSaga, communities.actions.customProtocol([validInvitationDeepUrl]))
       .withState(store.getState())
-      .put(communities.actions.joinNetwork(validInvitationData))
+      .put(communities.actions.createNetwork(createNetworkPayload))
       .run()
   })
 
   it('does not try to create network if user is already in community', async () => {
     community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
-    const payload: CreateNetworkPayload = {
+    const createNetworkPayload: CreateNetworkPayload = {
       ownership: CommunityOwnership.User,
-      peers: validInvitationData.pairs,
-      psk: validInvitationData.psk,
+      inviteData: validInvitationData,
     }
 
     await expectSaga(customProtocolSaga, communities.actions.customProtocol([validInvitationDeepUrl]))
@@ -68,14 +75,14 @@ describe('Handle invitation code', () => {
           },
         })
       )
-      .not.put(communities.actions.createNetwork(payload))
+      .not.put(communities.actions.createNetwork(createNetworkPayload))
       .run()
   })
 
-  it('does not try to create network if code is missing psk', async () => {
-    const payload: CreateNetworkPayload = {
+  it('does not try to create network if code is missing data', async () => {
+    const createNetworkPayload: CreateNetworkPayload = {
       ownership: CommunityOwnership.User,
-      peers: [],
+      inviteData: validInvitationData,
     }
 
     await expectSaga(
@@ -93,34 +100,7 @@ describe('Handle invitation code', () => {
           },
         })
       )
-      .not.put(communities.actions.createNetwork(payload))
-      .run()
-  })
-
-  it('does not try to create network if code is missing psk', async () => {
-    const payload: CreateNetworkPayload = {
-      ownership: CommunityOwnership.User,
-      peers: [],
-    }
-
-    await expectSaga(
-      customProtocolSaga,
-      communities.actions.customProtocol([
-        'quiet://?QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE=y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd',
-      ])
-    )
-      .withState(store.getState())
-      .put(communities.actions.clearInvitationCodes())
-      .put(
-        modalsActions.openModal({
-          name: ModalName.warningModal,
-          args: {
-            title: 'Invalid link',
-            subtitle: 'The invite link you received is not valid. Please check it and try again.',
-          },
-        })
-      )
-      .not.put(communities.actions.createNetwork(payload))
+      .not.put(communities.actions.createNetwork(createNetworkPayload))
       .run()
   })
 })

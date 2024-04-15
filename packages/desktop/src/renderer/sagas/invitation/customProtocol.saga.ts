@@ -108,6 +108,4 @@ export function* customProtocolSaga(
   }
 
   yield* put(communities.actions.createNetwork(payload))
-
-  // yield* put(communities.actions.joinNetwork(data))
 }

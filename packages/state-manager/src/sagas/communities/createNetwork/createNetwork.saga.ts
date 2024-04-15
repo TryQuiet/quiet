@@ -19,6 +19,7 @@ export function* createNetworkSaga(
   socket: Socket,
   action: PayloadAction<ReturnType<typeof communitiesActions.createNetwork>['payload']>
 ) {
+  // TODO: remove psk and orbitDbIdentity from payload and leave invitationData? Remove redundancy
   const payload = action.payload
   console.log('create network saga', payload)
   // Community IDs are only local identifiers
@@ -53,28 +54,28 @@ export function* createNetworkSaga(
     name: payload.name,
     CA,
     rootCa: CA?.rootCertString,
-    psk: payload.psk,
-    ownerOrbitDbIdentity: action.payload.ownerOrbitDbIdentity,
   }
 
   if (payload.inviteData) {
     switch (payload.inviteData.version) {
-      case InvitationDataVersion.v2:
-        community.inviteData = {
-          serverAddress: payload.inviteData.serverAddress,
-          cid: payload.inviteData.cid,
-          token: payload.inviteData.token,
+      case InvitationDataVersion.v1:
+        community.psk = payload.inviteData.psk
+        community.ownerOrbitDbIdentity = payload.inviteData.ownerOrbitDbIdentity
+        const invitationPeers = payload.inviteData.pairs
+        if (invitationPeers) {
+          yield* put(communitiesActions.setInvitationCodes(invitationPeers))
         }
+        break
+      case InvitationDataVersion.v2:
+        community.inviteData = payload.inviteData
+        break
     }
   }
 
+  console.log('SETTING COMMUNITY', community)
+
   yield* put(communitiesActions.addNewCommunity(community))
   yield* put(communitiesActions.setCurrentCommunity(id))
-
-  const invitationPeers = action.payload.peers
-  if (invitationPeers) {
-    yield* put(communitiesActions.setInvitationCodes(invitationPeers))
-  }
 
   // Identities are tied to communities for now
   const identity: Identity = {

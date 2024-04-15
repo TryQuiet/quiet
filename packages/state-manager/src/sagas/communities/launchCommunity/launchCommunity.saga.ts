@@ -46,6 +46,7 @@ export function* launchCommunitySaga(
   }
 
   const invitationCodes = yield* select(communitiesSelectors.invitationCodes)
+  console.log('!! ! !   !Current invitation codes', invitationCodes)
   let peerList: string[] = []
 
   if (invitationCodes) {

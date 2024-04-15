@@ -39,6 +39,7 @@ import {
   SaveCSRPayload,
   SendCertificatesResponse,
   SendMessagePayload,
+  ServerInvitationData,
   SocketActionTypes,
   UploadFilePayload,
   type DeleteChannelResponse,
@@ -392,7 +393,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     return community
   }
 
-  public async downloadCommunityData(inviteData: any) {
+  public async downloadCommunityData(inviteData: ServerInvitationData) {
     this.logger('Downloading invite data', inviteData)
     this.storageServerProxyService.setServerAddress(inviteData.serverAddress)
     let downloadedData: ServerStoredCommunityMetadata
@@ -422,7 +423,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       const downloadedData = await this.downloadCommunityData(inviteData)
       if (!downloadedData) {
         emitError(this.serverIoProvider.io, {
-          type: SocketActionTypes.DOWNLOAD_INVITE_DATA,
+          type: SocketActionTypes.LAUNCH_COMMUNITY,
           message: ErrorMessages.STORAGE_SERVER_CONNECTION_FAILED,
         })
         return
@@ -663,33 +664,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       this.logger(`socketService - ${SocketActionTypes.ADD_CSR}`)
       await this.storageService?.saveCSR(payload)
     })
-
-    this.socketService.on(
-      SocketActionTypes.DOWNLOAD_INVITE_DATA,
-      async (payload: { cid: string; serverAddress: string }, callback: (response: CreateNetworkPayload) => void) => {
-        this.logger(`socketService - ${SocketActionTypes.DOWNLOAD_INVITE_DATA}`)
-        this.storageServerProxyService.setServerAddress(payload.serverAddress)
-        let downloadedData: ServerStoredCommunityMetadata
-        try {
-          downloadedData = await this.storageServerProxyService.downloadData(payload.cid)
-        } catch (e) {
-          this.logger.error(`Downloading community data failed`, e)
-          emitError(this.serverIoProvider.io, {
-            type: SocketActionTypes.DOWNLOAD_INVITE_DATA,
-            message: ErrorMessages.STORAGE_SERVER_CONNECTION_FAILED,
-          })
-          return
-        }
-
-        const createNetworkPayload: CreateNetworkPayload = {
-          ownership: CommunityOwnership.User,
-          peers: p2pAddressesToPairs(downloadedData.peerList),
-          psk: downloadedData.psk,
-          ownerOrbitDbIdentity: downloadedData.ownerOrbitDbIdentity,
-        }
-        callback(createNetworkPayload)
-      }
-    )
 
     // Public Channels
     this.socketService.on(
