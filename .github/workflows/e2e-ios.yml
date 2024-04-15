@@ -6,7 +6,7 @@ jobs:
   detox-ios:
     timeout-minutes: 25
     # This job only runs for pull request comments "/detox"
-    if: ${{ github.event.issue.pull_request }} && contains(github.event.comment.body, '/detox')
+    if: ${{ github.event.issue.pull_request }}
     runs-on: [macos-latest-xlarge]
 
     steps:
