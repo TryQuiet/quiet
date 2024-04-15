@@ -30,8 +30,8 @@ jobs:
       #     git lfs install --force
       #     git lfs pull
 
-      - name: List avdmanager
-        run: $ANDROID_HOME/tools/bin/avdmanager list
+      - name: Check docker
+        run: docker -v
 
       # - name: Boot emulator
       #   run: | # TODO
