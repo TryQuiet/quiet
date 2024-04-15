@@ -1,11 +1,16 @@
 name: Detox E2E iOS
 
-on: issue_comment
+on:
+  pull_request:
+    paths: 
+      - packages/mobile/**
+      - packages/backend/**
+      - packages/state-manager/**
+      - .github/workflows/e2e-ios.yml
 
 jobs:
   detox-ios:
     timeout-minutes: 25
-    # This job only runs for pull request comments "/detox"
     runs-on: [macos-latest-xlarge]
 
     steps:
