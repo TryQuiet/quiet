@@ -5,15 +5,22 @@ import { generateId } from '../../../utils/cryptography/cryptography'
 import { communitiesActions } from '../communities.slice'
 import { identityActions } from '../../identity/identity.slice'
 import { createRootCA } from '@quiet/identity'
-import { type Community, CommunityOwnership, type Identity, SocketActionTypes, NetworkInfo } from '@quiet/types'
+import {
+  type Community,
+  CommunityOwnership,
+  type Identity,
+  SocketActionTypes,
+  NetworkInfo,
+  InvitationDataVersion,
+} from '@quiet/types'
 import { Socket, applyEmitParams } from '../../../types'
 
 export function* createNetworkSaga(
   socket: Socket,
   action: PayloadAction<ReturnType<typeof communitiesActions.createNetwork>['payload']>
 ) {
-  console.log('create network saga')
-
+  const payload = action.payload
+  console.log('create network saga', payload)
   // Community IDs are only local identifiers
   const id = yield* call(generateId)
 
@@ -29,7 +36,7 @@ export function* createNetworkSaga(
     rootKeyString: string
   } = null
 
-  if (action.payload.ownership === CommunityOwnership.Owner) {
+  if (payload.ownership === CommunityOwnership.Owner) {
     const notBeforeDate = new Date(Date.UTC(2010, 11, 28, 10, 10, 10))
     const notAfterDate = new Date(Date.UTC(2030, 11, 28, 10, 10, 10))
 
@@ -43,11 +50,22 @@ export function* createNetworkSaga(
 
   const community: Community = {
     id,
-    name: action.payload.name,
+    name: payload.name,
     CA,
     rootCa: CA?.rootCertString,
-    psk: action.payload.psk,
+    psk: payload.psk,
     ownerOrbitDbIdentity: action.payload.ownerOrbitDbIdentity,
+  }
+
+  if (payload.inviteData) {
+    switch (payload.inviteData.version) {
+      case InvitationDataVersion.v2:
+        community.inviteData = {
+          serverAddress: payload.inviteData.serverAddress,
+          cid: payload.inviteData.cid,
+          token: payload.inviteData.token,
+        }
+    }
   }
 
   yield* put(communitiesActions.addNewCommunity(community))

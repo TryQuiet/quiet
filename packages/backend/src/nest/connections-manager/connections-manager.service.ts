@@ -392,15 +392,51 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     return community
   }
 
+  public async downloadCommunityData(inviteData: any) {
+    this.logger('Downloading invite data', inviteData)
+    this.storageServerProxyService.setServerAddress(inviteData.serverAddress)
+    let downloadedData: ServerStoredCommunityMetadata
+    try {
+      downloadedData = await this.storageServerProxyService.downloadData(inviteData.cid)
+    } catch (e) {
+      this.logger.error(`Downloading community data failed`, e)
+      return
+    }
+    return {
+      psk: downloadedData.psk,
+      peers: downloadedData.peerList,
+      ownerOrbitDbIdentity: downloadedData.ownerOrbitDbIdentity,
+    }
+  }
+
   public async joinCommunity(payload: InitCommunityPayload): Promise<Community | undefined> {
     this.logger('Joining community: peers:', payload.peers)
+    let metadata = {
+      psk: payload.psk,
+      peers: payload.peers,
+      ownerOrbitDbIdentity: payload.ownerOrbitDbIdentity,
+    }
 
-    if (!payload.peers || payload.peers.length === 0) {
+    const inviteData = payload.inviteData
+    if (inviteData) {
+      const downloadedData = await this.downloadCommunityData(inviteData)
+      if (!downloadedData) {
+        emitError(this.serverIoProvider.io, {
+          type: SocketActionTypes.DOWNLOAD_INVITE_DATA,
+          message: ErrorMessages.STORAGE_SERVER_CONNECTION_FAILED,
+        })
+        return
+      }
+      metadata = downloadedData
+    }
+    this.logger('Joining community: metadata:', metadata)
+
+    if (!metadata.peers || metadata.peers.length === 0) {
       this.logger.error('Joining community: Peers required')
       return
     }
 
-    if (!payload.psk || !isPSKcodeValid(payload.psk)) {
+    if (!metadata.psk || !isPSKcodeValid(metadata.psk)) {
       this.logger.error('Joining community: Libp2p PSK is not valid')
       emitError(this.serverIoProvider.io, {
         type: SocketActionTypes.LAUNCH_COMMUNITY,
@@ -410,7 +446,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       return
     }
 
-    if (!payload.ownerOrbitDbIdentity) {
+    if (!metadata.ownerOrbitDbIdentity) {
       this.logger.error('Joining community: ownerOrbitDbIdentity is not valid')
       emitError(this.serverIoProvider.io, {
         type: SocketActionTypes.LAUNCH_COMMUNITY,
@@ -424,9 +460,9 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
     const community = {
       id: payload.id,
-      peerList: [...new Set([localAddress, ...payload.peers])],
-      psk: payload.psk,
-      ownerOrbitDbIdentity: payload.ownerOrbitDbIdentity,
+      peerList: [...new Set([localAddress, ...metadata.peers])],
+      psk: metadata.psk,
+      ownerOrbitDbIdentity: metadata.ownerOrbitDbIdentity,
     }
 
     const network = {

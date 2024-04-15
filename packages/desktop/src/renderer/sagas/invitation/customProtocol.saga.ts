@@ -1,6 +1,6 @@
 import { PayloadAction } from '@reduxjs/toolkit'
 import { select, put, delay } from 'typed-redux-saga'
-import { InvitationData, InvitationDataVersion } from '@quiet/types'
+import { CommunityOwnership, CreateNetworkPayload, InvitationData, InvitationDataVersion } from '@quiet/types'
 import { communities } from '@quiet/state-manager'
 import { socketSelectors } from '../socket/socket.selectors'
 import { ModalName } from '../modals/modals.types'
@@ -102,5 +102,12 @@ export function* customProtocolSaga(
     return
   }
 
-  yield* put(communities.actions.joinNetwork(data))
+  const payload: CreateNetworkPayload = {
+    ownership: CommunityOwnership.User,
+    inviteData: data,
+  }
+
+  yield* put(communities.actions.createNetwork(payload))
+
+  // yield* put(communities.actions.joinNetwork(data))
 }

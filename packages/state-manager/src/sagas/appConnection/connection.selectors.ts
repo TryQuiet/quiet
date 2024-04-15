@@ -6,10 +6,11 @@ import { peersStatsAdapter } from './connection.adapter'
 import { connectedPeers, isCurrentCommunityInitialized } from '../network/network.selectors'
 import { type NetworkStats } from './connection.types'
 import { type User } from '../users/users.types'
-import { composeInvitationShareUrl, filterAndSortPeers, p2pAddressesToPairs } from '@quiet/common'
+import { composeInvitationShareUrl, filterAndSortPeers, p2pAddressesToPairs, pairsToP2pAddresses } from '@quiet/common'
 import { areMessagesLoaded, areChannelsLoaded } from '../publicChannels/publicChannels.selectors'
 import { identitySelectors } from '../identity/identity.selectors'
 import { communitiesSelectors } from '../communities/communities.selectors'
+import { InvitationDataVersion } from '@quiet/types'
 
 const connectionSlice: CreatedSelectors[StoreKeys.Connection] = (state: StoreState) => state[StoreKeys.Connection]
 
@@ -55,6 +56,15 @@ export const invitationUrl = createSelector(
     if (!ownerOrbitDbIdentity) return ''
     const initialPeers = sortedPeerList.slice(0, 3)
     const pairs = p2pAddressesToPairs(initialPeers)
+    const v2Data = {
+      id: '209348023',
+      ownerCertificate: 'ownerCertificate',
+      rootCa: 'rootCa',
+      ownerOrbitDbIdentity: ownerOrbitDbIdentity,
+      peerList: pairsToP2pAddresses(pairs),
+      psk: communityPsk,
+    }
+    console.log('V2 DATA:', JSON.stringify(v2Data))
     return composeInvitationShareUrl({ pairs, psk: communityPsk, ownerOrbitDbIdentity })
   }
 )

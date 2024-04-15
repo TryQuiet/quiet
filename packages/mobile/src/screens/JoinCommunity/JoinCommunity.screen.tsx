@@ -2,7 +2,7 @@
 import React, { FC, useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { identity, communities } from '@quiet/state-manager'
-import { InvitationData } from '@quiet/types'
+import { CommunityOwnership, CreateNetworkPayload, InvitationData } from '@quiet/types'
 import { JoinCommunity } from '../../components/JoinCommunity/JoinCommunity.component'
 import { navigationActions } from '../../store/navigation/navigation.slice'
 import { ScreenNames } from '../../const/ScreenNames.enum'
@@ -36,7 +36,11 @@ export const JoinCommunityScreen: FC<JoinCommunityScreenProps> = ({ route }) => 
 
   const joinCommunityAction = useCallback(
     (data: InvitationData) => {
-      dispatch(communities.actions.joinNetwork(data))
+      const payload: CreateNetworkPayload = {
+        ownership: CommunityOwnership.User,
+        inviteData: data,
+      }
+      dispatch(communities.actions.createNetwork(payload))
       dispatch(
         navigationActions.navigation({
           screen: ScreenNames.UsernameRegistrationScreen,

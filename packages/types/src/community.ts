@@ -1,5 +1,5 @@
 import { type HiddenService, type PeerId, type Identity, type UserCsr } from './identity'
-import { InvitationPair } from './network'
+import { InvitationData, InvitationPair } from './network'
 
 export interface Community {
   id: string
@@ -13,6 +13,11 @@ export interface Community {
   onionAddress?: string
   ownerCertificate?: string
   psk?: string
+  inviteData?: {
+    serverAddress: string
+    cid: string
+    token?: string
+  }
   ownerOrbitDbIdentity?: string
 }
 
@@ -27,6 +32,7 @@ export interface CreateNetworkPayload {
   peers?: InvitationPair[]
   psk?: string
   ownerOrbitDbIdentity?: string
+  inviteData?: InvitationData
 }
 
 export interface NetworkInfo {
@@ -54,6 +60,11 @@ export interface InitCommunityPayload {
   psk?: string
   ownerOrbitDbIdentity?: string
   ownerCsr?: UserCsr
+  inviteData?: {
+    serverAddress: string
+    cid: string
+    token?: string
+  }
 }
 
 export interface StorePeerListPayload {

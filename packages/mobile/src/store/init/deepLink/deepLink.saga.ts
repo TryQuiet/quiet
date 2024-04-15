@@ -7,7 +7,7 @@ import { initSelectors } from '../init.selectors'
 import { initActions } from '../init.slice'
 import { appImages } from '../../../assets'
 import { replaceScreen } from '../../../RootNavigation'
-import { InvitationData, InvitationDataVersion } from '@quiet/types'
+import { CommunityOwnership, CreateNetworkPayload, InvitationData, InvitationDataVersion } from '@quiet/types'
 
 export function* deepLinkSaga(action: PayloadAction<ReturnType<typeof initActions.deepLink>['payload']>): Generator {
   const code = action.payload
@@ -102,7 +102,12 @@ export function* deepLinkSaga(action: PayloadAction<ReturnType<typeof initAction
     return
   }
 
-  yield* put(communities.actions.joinNetwork(data))
+  const payload: CreateNetworkPayload = {
+    ownership: CommunityOwnership.User,
+    inviteData: data,
+  }
+
+  yield* put(communities.actions.createNetwork(payload))
 
   yield* put(
     navigationActions.replaceScreen({

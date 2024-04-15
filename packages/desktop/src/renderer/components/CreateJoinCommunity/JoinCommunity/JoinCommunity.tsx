@@ -1,5 +1,5 @@
 import { communities, connection, errors, identity } from '@quiet/state-manager'
-import { CommunityOwnership, InvitationData, SocketActionTypes } from '@quiet/types'
+import { CommunityOwnership, CreateNetworkPayload, InvitationData, SocketActionTypes } from '@quiet/types'
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import PerformCommunityActionComponent from '../../../components/CreateJoinCommunity/PerformCommunityActionComponent'
@@ -41,7 +41,11 @@ const JoinCommunity = () => {
   }, [currentCommunity])
 
   const handleCommunityAction = (data: InvitationData) => {
-    dispatch(communities.actions.joinNetwork(data))
+    const createNetworkPayload: CreateNetworkPayload = {
+      ownership: CommunityOwnership.User,
+      inviteData: data,
+    }
+    dispatch(communities.actions.createNetwork(createNetworkPayload))
   }
 
   // From 'You can create a new community instead' link
