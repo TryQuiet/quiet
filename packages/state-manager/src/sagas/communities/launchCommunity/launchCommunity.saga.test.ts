@@ -79,6 +79,7 @@ describe('launchCommunity', () => {
       peers: community.peerList,
       psk: undefined,
       ownerOrbitDbIdentity: undefined,
+      inviteData: undefined,
     }
 
     await expectSaga(launchCommunitySaga, socket, communitiesActions.launchCommunity(community.id))
@@ -128,6 +129,7 @@ describe('launchCommunity', () => {
       peers: community.peerList,
       psk: undefined,
       ownerOrbitDbIdentity: undefined,
+      inviteData: undefined,
     }
 
     await expectSaga(launchCommunitySaga, socket, communitiesActions.launchCommunity(community.id))

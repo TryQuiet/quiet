@@ -29,10 +29,8 @@ import {
   InvitationData,
   ChannelsReplicatedPayload,
   ChannelSubscribedPayload,
-  Community,
   ErrorPayload,
-  type InitCommunityPayload,
-  type NetworkInfo,
+  InitCommunityPayload,
   ResponseLaunchCommunityPayload,
   SocketActionTypes,
 } from '@quiet/types'
@@ -169,11 +167,10 @@ describe('User', () => {
 
     expect(actions).toMatchInlineSnapshot(`
       Array [
-        "Communities/joinNetwork",
         "Communities/createNetwork",
+        "Communities/setInvitationCodes",
         "Communities/addNewCommunity",
         "Communities/setCurrentCommunity",
-        "Communities/setInvitationCodes",
         "Identity/addNewIdentity",
         "Modals/closeModal",
         "Modals/openModal",
