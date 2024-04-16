@@ -1,7 +1,7 @@
 import { type Socket, applyEmitParams } from '../../../types'
 import { type PayloadAction } from '@reduxjs/toolkit'
 import { sign, loadPrivateKey, pubKeyFromCsr } from '@quiet/identity'
-import { call, select, apply, put } from 'typed-redux-saga'
+import { call, select, apply, put, delay } from 'typed-redux-saga'
 import { arrayBufferToString } from 'pvutils'
 import { config } from '../../users/const/certFieldTypes'
 import { identitySelectors } from '../../identity/identity.selectors'
@@ -74,6 +74,20 @@ export function* sendMessageSaga(
 
   const isUploadingFileMessage = action.payload.media?.cid?.includes('uploading')
   if (isUploadingFileMessage) return // Do not broadcast message until file is uploaded
+
+  // Wait until we have subscribed to the channel
+  //
+  // TODO: I think we probably want to revise how we are sending
+  // messages by having the backend handling queueing and retrying
+  // (in a durable way).
+  while (true) {
+    const subscribedChannels = yield* select(publicChannelsSelectors.subscribedChannels)
+    if (subscribedChannels.includes(channelId)) {
+      break
+    }
+    console.error('Failed to send message, channel not subscribed. Retrying...')
+    yield* delay(500)
+  }
 
   yield* apply(
     socket,
