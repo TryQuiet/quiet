@@ -1,12 +1,6 @@
 name: Detox E2E iOS
 
-on:
-  # pull_request:
-  #   paths: 
-  #     - packages/mobile/**
-  #     - packages/backend/**
-  #     - packages/state-manager/**
-  #     - .github/workflows/e2e-ios.yml
+on: workflow_dispatch
 
 jobs:
   detox-ios:
