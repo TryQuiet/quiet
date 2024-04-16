@@ -50,7 +50,7 @@ jobs:
       - name: Resign qemu binary
         run: |
           cd $ANDROID_HOME/emulator/qemu/darwin-aarch64
-          codesign -s - --entitlements entitlements.xml --force qemu-system-aarch64
+          codesign -s - --entitlements entitlements.xml --force qemu-system-aarch64 --verbose
 
       - name: Install SDK image
         run: yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install 'system-images;android-34;google_apis;arm64-v8a'
