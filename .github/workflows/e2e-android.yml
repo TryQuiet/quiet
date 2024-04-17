@@ -1,40 +1,70 @@
-name: E2E Android
+name: Detox E2E Android
 
-on:
-  push:
-    paths: 
-      - packages/mobile/**
-      - packages/backend/**
-      - packages/state-manager/**
-      - .github/workflows/e2e-android.yml
+on: workflow_dispatch
 
 jobs:
   detox-android:
-    timeout-minutes: 10
-    runs-on: [self-hosted, macOS, ARM64, android]
+    timeout-minutes: 25
+    runs-on: [macos-latest-xlarge]
 
     steps:
       - uses: actions/checkout@v4
+      
+      - uses: actions/setup-node@master
+        with:
+          node-version: 18.12.1
 
       - name: Install dependencies
         run: |
-          npm i
-          npm run lerna bootstrap --scope @quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/mobile,backend-bundle
+          npm ci
+          npm run lerna bootstrap -- --scope=\'{@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/mobile,backend-bundle}\'
 
       - name: Pull binaries
         run: |
-          git lfs install
+          git lfs install --force
           git lfs pull
 
-      - name: Pass local config
-        run : |
-          cat << EOF >> packages/mobile/android/local.properties
-          ndk.path=/Users/quiet/Library/Android/sdk/ndk/25.1.8937393
-          EOF
+      # see: https://stackoverflow.com/questions/67264212/android-emulator-crash-when-start-hvf-error-hv-error
+      - name: Create qemu entitlements
+        run: |
+          {
+            echo '<?xml version="1.0" encoding="UTF-8"?>'
+            echo '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">'
+            echo '<plist version="1.0">'
+            echo '<dict>'
+            echo '    <key>com.apple.security.hypervisor</key>'
+            echo '    <true/>'
+            echo '</dict>'
+            echo '</plist>'
+          } >> $ANDROID_HOME/emulator/qemu/darwin-aarch64/entitlements.xml
+
+      - name: Re-sign qemu binary
+        run: |
+          cd $ANDROID_HOME/emulator/qemu/darwin-aarch64
+          codesign -s - --entitlements entitlements.xml --force qemu-system-aarch64 --verbose
+
+      - name: Install SDK image
+        run: yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install 'system-images;android-34;google_apis;arm64-v8a'
+
+      - name: Create AVD
+        run: $ANDROID_HOME/cmdline-tools/latest/bin/avdmanager create avd -n emulator_ci -k 'system-images;android-34;google_apis;arm64-v8a' -d 'pixel_7'
+
+      - name: Boot AVD
+        run: $ANDROID_HOME/emulator/emulator -avd emulator_ci
+
+      - name: Install pm2
+        run: npm install pm2@latest -g
+
+      - name: Start metro
+        run: |
+          cd packages/mobile
+          pm2 --name METRO start npm -- start
+
+      - name: Install Detox CLI
+        run: npm install detox-cli --global
 
       - name: Build Detox
         run: |
-          export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk-17.jdk/Contents/Home
           cd packages/mobile
           detox build -c android.emu.debug.ci
 
@@ -42,3 +72,17 @@ jobs:
         run: |
           cd packages/mobile
           detox test starter -c android.emu.debug.ci
+
+      - name: Stop metro
+        run: pm2 stop METRO
+
+      - name: Take screenshot
+        if: always()
+        run: | # TODO
+
+      - name: Upload screenshot
+        if: always()
+        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
+        with:
+          name: screenshot.png
+          path: screenshot.png

@@ -1,6 +1,6 @@
 require_relative '../node_modules/react-native/scripts/react_native_pods'
 
-platform :ios, '17.4'
+platform :ios, '17.1'
 
 target 'Quiet' do
   config = use_native_modules!
