@@ -32,6 +32,14 @@ jobs:
           ndk.path=/Users/quiet/Library/Android/sdk/ndk/25.1.8937393
           EOF
 
+      - name: Install pm2
+        run: npm install pm2@latest -g
+
+      - name: Start metro
+        run: |
+          cd packages/mobile
+          pm2 --name METRO start npm -- start
+
       - name: Build Detox
         run: |
           export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk-17.jdk/Contents/Home
@@ -42,3 +50,6 @@ jobs:
         run: |
           cd packages/mobile
           detox test starter -c android.emu.debug.ci
+
+      - name: Stop metro
+        run: pm2 stop METRO
