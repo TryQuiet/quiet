@@ -51,12 +51,12 @@ export class App {
     console.log('App closed', this.buildSetup.dataDir)
   }
 
-  async cleanup() {
+  async cleanup(force: boolean = false) {
     console.log(`Performing app cleanup`, this.buildSetup.dataDir)
     if (this.isOpened) {
       throw new Error(`App with dataDir ${this.buildSetup.dataDir} is still open, close before cleaning up!`)
     }
-    this.buildSetup.clearDataDir()
+    this.buildSetup.clearDataDir(force)
   }
 
   get saveStateButton() {

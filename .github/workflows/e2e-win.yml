@@ -92,6 +92,23 @@ jobs:
           max_attempts: 3
           shell: bash
           command: cd packages/e2e-tests && npm run test oneClient.test.ts
+      
+      - name: Run user profile test
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 25
+          max_attempts: 3
+          shell: bash
+          command: cd packages/e2e-tests && npm run test userProfile.test.ts
+        
+      - name: Run invitation link test - Includes 2 separate application clients
+        uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4 # v2.9.0
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          shell: bash
+          command: cd packages/e2e-tests && npm run test invitationLink.test.ts
+  
 
       - name: Run multiple clients test
         uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4 # v2.9.0
@@ -100,19 +117,3 @@ jobs:
           max_attempts: 3
           shell: bash
           command: cd packages/e2e-tests && npm run test multipleClients.test.ts
-
-      - name: Run user profile test
-        uses: nick-fields/retry@v2
-        with:
-          timeout_minutes: 25
-          max_attempts: 3
-          shell: bash
-          command: cd packages/e2e-tests && npm run test userProfile.test.ts
-
-      - name: Run invitation link test - Includes 2 separate application clients
-        uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4 # v2.9.0
-        with:
-          timeout_minutes: 25
-          max_attempts: 3
-          shell: bash
-          command: cd packages/e2e-tests && npm run test invitationLink.test.ts
