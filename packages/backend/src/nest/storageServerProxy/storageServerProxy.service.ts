@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import EventEmitter from 'events'
 import { ServerStoredCommunityMetadata } from './storageServerProxy.types'
-import fetchRetry from 'fetch-retry'
+import fetchRetry, { RequestInitWithRetry } from 'fetch-retry'
 import Logger from '../common/logger'
 import { isServerStoredMetadata } from '../validation/validators'
 
@@ -15,13 +15,22 @@ class HTTPResponseError extends Error {
 
 @Injectable()
 export class ServerProxyService extends EventEmitter {
+  DEFAULT_FETCH_RETRIES = 5
   private readonly logger = Logger(ServerProxyService.name)
   _serverAddress: string
   fetch: any
+  fetchConfig: RequestInitWithRetry<typeof fetch>
 
   constructor() {
     super()
     this.fetch = fetchRetry(global.fetch)
+    this.fetchConfig = {
+      retries: this.DEFAULT_FETCH_RETRIES,
+      retryDelay: (attempt: number, _error: Error | null, _response: Response | null) => {
+        this.logger(`Retrying request ${attempt}/${this.DEFAULT_FETCH_RETRIES}`)
+        return Math.pow(2, attempt) * 1000
+      },
+    }
   }
 
   get serverAddress() {
@@ -52,6 +61,7 @@ export class ServerProxyService extends EventEmitter {
     this.logger('Authenticating')
     const authResponse = await this.fetch(this.authUrl, {
       method: 'POST',
+      ...this.fetchConfig,
     })
     this.logger('Auth response status', authResponse.status)
     const authResponseData = await authResponse.json()
@@ -68,7 +78,7 @@ export class ServerProxyService extends EventEmitter {
     const dataResponse: Response = await this.fetch(this.getInviteUrl(cid), {
       method: 'GET',
       headers: { Authorization: this.getAuthorizationHeader(accessToken) },
-      retries: 3,
+      ...this.fetchConfig,
     })
     this.logger('Download data response status', dataResponse.status)
     if (!dataResponse.ok) {
@@ -91,7 +101,7 @@ export class ServerProxyService extends EventEmitter {
         Authorization: this.getAuthorizationHeader(accessToken),
       },
       body: JSON.stringify(data),
-      retries: 3,
+      ...this.fetchConfig,
     })
     this.logger('Upload data response status', dataResponse.status)
     if (!dataResponse.ok) {
