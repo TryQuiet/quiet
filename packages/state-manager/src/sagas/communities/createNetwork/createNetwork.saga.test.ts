@@ -45,6 +45,7 @@ describe('createNetwork', () => {
       ...community,
       psk: inviteData.psk,
       ownerOrbitDbIdentity: inviteData.ownerOrbitDbIdentity,
+      inviteData,
     }
 
     const reducer = combineReducers(reducers)
@@ -136,6 +137,7 @@ describe('createNetwork', () => {
       name: 'rockets',
       CA,
       rootCa: CA.rootCertString,
+      inviteData: undefined,
     }
 
     const reducer = combineReducers(reducers)

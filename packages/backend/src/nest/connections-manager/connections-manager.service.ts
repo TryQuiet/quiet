@@ -19,17 +19,17 @@ import {
   ChannelsReplicatedPayload,
   Community,
   CommunityMetadata,
-  CommunityOwnership,
   ConnectionProcessInfo,
   CreateChannelPayload,
   CreateChannelResponse,
-  CreateNetworkPayload,
   DeleteFilesFromChannelSocketPayload,
   DownloadStatus,
   ErrorMessages,
   FileMetadata,
   GetMessagesPayload,
   InitCommunityPayload,
+  InvitationDataV2,
+  InvitationDataVersion,
   MessagesLoadedPayload,
   NetworkDataPayload,
   NetworkInfo,
@@ -39,7 +39,6 @@ import {
   SaveCSRPayload,
   SendCertificatesResponse,
   SendMessagePayload,
-  ServerInvitationData,
   SocketActionTypes,
   UploadFilePayload,
   type DeleteChannelResponse,
@@ -393,7 +392,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     return community
   }
 
-  public async downloadCommunityData(inviteData: ServerInvitationData) {
+  public async downloadCommunityData(inviteData: InvitationDataV2) {
     this.logger('Downloading invite data', inviteData)
     this.storageServerProxyService.setServerAddress(inviteData.serverAddress)
     let downloadedData: ServerStoredCommunityMetadata
@@ -420,17 +419,21 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
     const inviteData = payload.inviteData
     if (inviteData) {
-      const downloadedData = await this.downloadCommunityData(inviteData)
-      if (!downloadedData) {
-        emitError(this.serverIoProvider.io, {
-          type: SocketActionTypes.LAUNCH_COMMUNITY,
-          message: ErrorMessages.STORAGE_SERVER_CONNECTION_FAILED,
-        })
-        return
+      this.logger(`Joining community: inviteData version: ${inviteData.version}`)
+      switch (inviteData.version) {
+        case InvitationDataVersion.v2:
+          const downloadedData = await this.downloadCommunityData(inviteData)
+          if (!downloadedData) {
+            emitError(this.serverIoProvider.io, {
+              type: SocketActionTypes.LAUNCH_COMMUNITY,
+              message: ErrorMessages.STORAGE_SERVER_CONNECTION_FAILED,
+            })
+            return
+          }
+          metadata = downloadedData
+          break
       }
-      metadata = downloadedData
     }
-    this.logger('Joining community: metadata:', metadata)
 
     if (!metadata.peers || metadata.peers.length === 0) {
       this.logger.error('Joining community: Peers required')

@@ -54,6 +54,7 @@ export function* createNetworkSaga(
     name: payload.name,
     CA,
     rootCa: CA?.rootCertString,
+    inviteData: payload.inviteData,
   }
 
   if (payload.inviteData) {
@@ -65,9 +66,6 @@ export function* createNetworkSaga(
         if (invitationPeers) {
           yield* put(communitiesActions.setInvitationCodes(invitationPeers))
         }
-        break
-      case InvitationDataVersion.v2:
-        community.inviteData = payload.inviteData
         break
     }
   }
