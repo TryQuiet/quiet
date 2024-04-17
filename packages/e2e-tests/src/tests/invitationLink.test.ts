@@ -26,6 +26,9 @@ describe('New user joins using invitation link while having app opened', () => {
   beforeAll(async () => {
     ownerApp = new App()
     guestApp = new App({ defaultDataDir: true })
+    if (process.platform === 'win32') {
+      await guestApp.cleanup(true)
+    }
   })
 
   beforeEach(async () => {
@@ -143,7 +146,7 @@ describe('New user joins using invitation link while having app opened', () => {
       const copiedCode = url.hash.substring(1)
       expect(() => parseInvitationCode(copiedCode)).not.toThrow()
       const data = parseInvitationCode(copiedCode)
-      const commandFull = `${command[process.platform as SupportedPlatformDesktop]} "${composeInvitationDeepUrl(data)}"`
+      const commandFull = `${command[process.platform as SupportedPlatformDesktop]} ${process.platform === 'win32' ? '""' : ''} "${composeInvitationDeepUrl(data)}"`
       console.log(`Calling ${commandFull}`)
       execSync(commandFull)
       console.log('Guest opened invitation link')

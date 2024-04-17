@@ -53,9 +53,9 @@ export class BuildSetup {
   }
 
   private getBinaryLocation() {
-    console.log('filename', this.fileName)
     switch (process.platform) {
       case 'linux':
+        console.log('filename', this.fileName)
         return `${__dirname}/../Quiet/${this.fileName ? this.fileName : BuildSetup.getEnvFileName()}`
       case 'win32':
         return `${process.env.LOCALAPPDATA}\\Programs\\@quietdesktop\\Quiet.exe`
@@ -233,8 +233,8 @@ export class BuildSetup {
     await this.driver?.close()
   }
 
-  public clearDataDir() {
-    if (process.env.IS_CI === 'true') {
+  public clearDataDir(force: boolean = false) {
+    if (process.env.IS_CI === 'true' && !force) {
       console.warn('Not deleting data directory because we are running in CI')
       return
     }
