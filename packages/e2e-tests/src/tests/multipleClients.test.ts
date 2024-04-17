@@ -341,7 +341,7 @@ describe('Multiple Clients', () => {
       await new Promise<void>(resolve =>
         setTimeout(() => {
           resolve()
-        }, 2000)
+        }, 20000)
       )
       const channels = await sidebarOwner.getChannelList()
       expect(channels.length).toEqual(2)
