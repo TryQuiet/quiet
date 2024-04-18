@@ -1,40 +1,40 @@
-FROM node:14-buster@sha256:a158d3b9b4e3fa813fa6c8c590b8f0a860e015ad4e59bbce5744d2f6fd8461aa
+FROM node:18.12.1@sha256:e9ad817b0d42b4d177a4bef8a0aff97c352468a008c3fdb2b4a82533425480df
 
-RUN apt-get update && apt-get install -y android-sdk openjdk-11-jdk wget zip
+RUN apt-get update && apt-get install -y android-sdk openjdk-17-jdk wget zip
+RUN ls /usr/lib/jvm/
+ENV JAVA_HOME /usr/lib/jvm/java-17-openjdk-amd64/
 
-ENV JAVA_HOME /usr/lib/jvm/java-11-openjdk-amd64/
+ENV ANDROID_HOME=/usr/lib/android-sdk
+ENV PATH=${PATH}:${ANDROID_HOME}/platform-tools
 
-ENV ANDROID_SDK_ROOT=/usr/lib/android-sdk
-ENV PATH=${PATH}:${ANDROID_SDK_ROOT}/platform-tools
-
-RUN chown 1000 ${ANDROID_SDK_ROOT} ; chmod g+w ${ANDROID_SDK_ROOT}
+RUN chown 1000 ${ANDROID_HOME} ; chmod g+w ${ANDROID_HOME}
 
 # Install SDK command line tools
-WORKDIR ${ANDROID_SDK_ROOT}
+WORKDIR ${ANDROID_HOME}
 RUN yes | wget -c https://dl.google.com/android/repository/commandlinetools-linux-8092744_latest.zip
 RUN unzip commandlinetools-linux-8092744_latest.zip
 RUN mv cmdline-tools latest
 RUN mkdir cmdline-tools
 RUN mv latest cmdline-tools
 
-ENV PATH=${PATH}:${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin
+ENV PATH=${PATH}:${ANDROID_HOME}/cmdline-tools/latest/bin
 
 # Accept SDK licenses
-WORKDIR ${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin
+WORKDIR ${ANDROID_HOME}/cmdline-tools/latest/bin
 RUN yes | ./sdkmanager --licenses
 
-RUN ./sdkmanager --install "platforms;android-33" "platforms;android-26" "build-tools;33.0.0" "build-tools;30.0.3" "cmake;3.18.1" "platform-tools"
+RUN ./sdkmanager --install "platforms;android-34" "platforms;android-33" "platforms;android-26" "build-tools;34.0.0" "build-tools;33.0.1" "cmake;3.22.1" "platform-tools"
 
 # Install Android NDK
-WORKDIR ${ANDROID_SDK_ROOT}
-RUN yes | wget -c https://dl.google.com/android/repository/android-ndk-r21e-linux-x86_64.zip
-RUN unzip android-ndk-r21e-linux-x86_64.zip
+WORKDIR ${ANDROID_HOME}
+RUN yes | wget -c https://dl.google.com/android/repository/android-ndk-r25b-linux.zip
+RUN unzip android-ndk-r25b-linux.zip
 
-ENV ANDROID_NDK_HOME=/usr/lib/android-sdk/android-ndk-r21e
+ENV ANDROID_NDK_HOME=/usr/lib/android-sdk/android-ndk-r25b
 ENV PATH=${PATH}:${ANDROID_NDK_HOME}
 
 RUN mkdir /home/node/.gradle
 RUN chown -R 1000:1000 /home/node/.gradle
-RUN echo NDK_PATH=/usr/lib/android-sdk/android-ndk-r21e >> /home/node/.gradle/gradle.properties
+RUN echo NDK_PATH=/usr/lib/android-sdk/android-ndk-r25b >> /home/node/.gradle/gradle.properties
 
 WORKDIR /app/packages/mobile
