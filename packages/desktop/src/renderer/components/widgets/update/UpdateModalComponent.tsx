@@ -15,7 +15,7 @@ const classes = {
 }
 
 const StyledModalContent = styled(Grid)(({ theme }) => ({
-  backgroundColor: theme.palette.colors.white,
+  backgroundColor: theme.palette.background.default,
   border: 'none',
   marginTop: '-60px',
 

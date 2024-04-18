@@ -91,7 +91,7 @@ const Root = styled('div')(({ theme }) => ({
   [`& .${classes.descriptionDiv}`]: {
     top: 75,
     padding: '12px 25px 12px 20px',
-    backgroundColor: theme.palette.colors.white,
+    backgroundColor: theme.palette.background.default,
     boxShadow: theme.shadows[2],
   },
 

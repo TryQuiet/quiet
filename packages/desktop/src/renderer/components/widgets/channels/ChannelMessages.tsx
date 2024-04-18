@@ -42,7 +42,7 @@ const Root = styled('div')(({ theme }) => ({
   },
 
   [`& .${classes.list}`]: {
-    backgroundColor: theme.palette.colors.white,
+    backgroundColor: theme.palette.background.default,
     width: '100%',
   },
 

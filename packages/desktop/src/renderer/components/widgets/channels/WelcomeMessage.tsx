@@ -31,7 +31,7 @@ const StyledListItem = styled(ListItem)(({ theme }) => ({
   },
 
   [`&.${classes.wrapper}`]: {
-    backgroundColor: theme.palette.colors.white,
+    backgroundColor: theme.palette.background.default,
   },
 
   [`& .${classes.username}`]: {
