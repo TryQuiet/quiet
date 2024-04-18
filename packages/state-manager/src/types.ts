@@ -52,6 +52,7 @@ export interface EmitEvents {
   [SocketActionTypes.ADD_CSR]: EmitEvent<SaveCSRPayload>
   [SocketActionTypes.SET_USER_PROFILE]: EmitEvent<UserProfile>
   [SocketActionTypes.LOAD_MIGRATION_DATA]: EmitEvent<Record<string, any>>
+  [SocketActionTypes.START]: () => void
 }
 
 export type Socket = IOSocket<EventsMap, EmitEvents>

@@ -21,7 +21,10 @@ export function* createCommunitySaga(
   const community = yield* select(communitiesSelectors.selectById(communityId))
   const identity = yield* select(identitySelectors.selectById(communityId))
 
-  if (!identity) return
+  if (!identity) {
+    console.error('Failed to create community - identity missing')
+    return
+  }
 
   const payload: InitCommunityPayload = {
     id: communityId,
@@ -41,7 +44,10 @@ export function* createCommunitySaga(
     applyEmitParams(SocketActionTypes.CREATE_COMMUNITY, payload)
   )
 
-  if (!createdCommunity || !createdCommunity.ownerCertificate) return
+  if (!createdCommunity || !createdCommunity.ownerCertificate) {
+    console.error('Failed to create community - invalid response from backend')
+    return
+  }
 
   yield* put(communitiesActions.updateCommunityData(createdCommunity))
 

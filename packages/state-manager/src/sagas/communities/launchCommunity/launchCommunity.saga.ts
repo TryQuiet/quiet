@@ -1,6 +1,7 @@
 import { apply, select, put, call } from 'typed-redux-saga'
 import { type PayloadAction } from '@reduxjs/toolkit'
 import { applyEmitParams, type Socket } from '../../../types'
+import { identityActions } from '../../identity/identity.slice'
 import { identitySelectors } from '../../identity/identity.selectors'
 import { communitiesSelectors } from '../communities.selectors'
 import { communitiesActions } from '../communities.slice'
@@ -29,6 +30,8 @@ export function* launchCommunitySaga(
   socket: Socket,
   action: PayloadAction<ReturnType<typeof communitiesActions.launchCommunity>['payload']>
 ): Generator {
+  console.log('Launching community')
+
   const communityId = action.payload
 
   if (!communityId) {
@@ -63,4 +66,6 @@ export function* launchCommunitySaga(
   }
 
   yield* apply(socket, socket.emitWithAck, applyEmitParams(SocketActionTypes.LAUNCH_COMMUNITY, payload))
+
+  yield* put(identityActions.saveUserCsr())
 }
