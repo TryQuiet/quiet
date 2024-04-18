@@ -44,7 +44,7 @@ describe('Slider', () => {
                   class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true SlidersliderContainer css-1vd824g-MuiGrid-root"
                 >
                   <span
-                    class="MuiSlider-root SlidersliderRoot MuiSlider-colorPrimary MuiSlider-sizeMedium css-1v7afla-MuiSlider-root"
+                    class="MuiSlider-root SlidersliderRoot MuiSlider-colorPrimary MuiSlider-sizeMedium css-1diqobq-MuiSlider-root"
                   >
                     <span
                       class="MuiSlider-rail css-14pt78w-MuiSlider-rail"
@@ -114,7 +114,7 @@ describe('Slider', () => {
                   class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true SlidersliderContainer css-1vd824g-MuiGrid-root"
                 >
                   <span
-                    class="MuiSlider-root SlidersliderRoot MuiSlider-colorPrimary MuiSlider-sizeMedium css-1v7afla-MuiSlider-root"
+                    class="MuiSlider-root SlidersliderRoot MuiSlider-colorPrimary MuiSlider-sizeMedium css-1diqobq-MuiSlider-root"
                   >
                     <span
                       class="MuiSlider-rail css-14pt78w-MuiSlider-rail"
@@ -184,7 +184,7 @@ describe('Slider', () => {
                   class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true SlidersliderContainer css-1vd824g-MuiGrid-root"
                 >
                   <span
-                    class="MuiSlider-root SlidersliderRoot MuiSlider-colorPrimary MuiSlider-sizeMedium css-1v7afla-MuiSlider-root"
+                    class="MuiSlider-root SlidersliderRoot MuiSlider-colorPrimary MuiSlider-sizeMedium css-1diqobq-MuiSlider-root"
                   >
                     <span
                       class="MuiSlider-rail css-14pt78w-MuiSlider-rail"

@@ -77,7 +77,7 @@ describe('Search Modal', () => {
             aria-hidden="true"
           />
           <div
-            class="MuiModal-root css-1vjugmr-MuiModal-root"
+            class="MuiModal-root css-1evs64r-MuiModal-root"
             role="presentation"
           >
             <div
@@ -145,7 +145,7 @@ describe('Search Modal', () => {
                   class="MuiGrid-root MuiGrid-container MuiGrid-item Modalcontent Modaltransparent css-1f064cs-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column SearchModalComponentroot css-tno7k-MuiGrid-root"
+                    class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column SearchModalComponentroot css-oy8l91-MuiGrid-root"
                   >
                     <div
                       class="MuiGrid-root MuiGrid-container SearchModalComponentoverlay css-1hbmzt3-MuiGrid-root"
@@ -168,7 +168,7 @@ describe('Search Modal', () => {
                               data-testid="searchChannelInput"
                             >
                               <div
-                                class="MuiInputBase-root MuiInput-root MuiInput-underline MuiInputBase-colorPrimary MuiInputBase-fullWidth Mui-focused MuiInputBase-formControl css-11mf5jz-MuiInputBase-root-MuiInput-root"
+                                class="MuiInputBase-root MuiInput-root MuiInput-underline MuiInputBase-colorPrimary MuiInputBase-fullWidth Mui-focused MuiInputBase-formControl css-o4kyh4-MuiInputBase-root-MuiInput-root"
                               >
                                 <input
                                   aria-invalid="false"

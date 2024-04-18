@@ -17,7 +17,7 @@ describe('WelcomeMessage', () => {
       <body>
         <div>
           <li
-            class="MuiListItem-root MuiListItem-gutters MuiListItem-padding WelcomeMessagewrapper css-eob61c-MuiListItem-root"
+            class="MuiListItem-root MuiListItem-gutters MuiListItem-padding WelcomeMessagewrapper css-142ua8s-MuiListItem-root"
           >
             <div
               class="MuiListItemText-root MuiListItemText-multiline WelcomeMessagemessageCard css-konndc-MuiListItemText-root"

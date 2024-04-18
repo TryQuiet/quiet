@@ -233,7 +233,7 @@ describe('NestedMessageContent', () => {
                     >
                       <span
                         aria-valuenow="100"
-                        class="MuiCircularProgress-root MuiCircularProgress-determinate MuiCircularProgress-colorPrimary css-1rhqaqh-MuiCircularProgress-root"
+                        class="MuiCircularProgress-root MuiCircularProgress-determinate MuiCircularProgress-colorPrimary css-1036n7b-MuiCircularProgress-root"
                         role="progressbar"
                         style="width: 18px; height: 18px; transform: rotate(-90deg); position: absolute; color: rgb(231, 231, 231);"
                       >
@@ -254,7 +254,7 @@ describe('NestedMessageContent', () => {
                       </span>
                       <span
                         aria-valuenow="50"
-                        class="MuiCircularProgress-root MuiCircularProgress-determinate MuiCircularProgress-colorPrimary css-1rhqaqh-MuiCircularProgress-root"
+                        class="MuiCircularProgress-root MuiCircularProgress-determinate MuiCircularProgress-colorPrimary css-1036n7b-MuiCircularProgress-root"
                         role="progressbar"
                         style="width: 18px; height: 18px; transform: rotate(-90deg); color: rgb(178, 178, 178);"
                       >

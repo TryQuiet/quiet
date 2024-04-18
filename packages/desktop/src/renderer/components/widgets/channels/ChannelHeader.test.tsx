@@ -10,7 +10,7 @@ describe('ChannelHeader', () => {
       <body>
         <div>
           <div
-            class="ChannelHeaderComponentwrapper css-duzuvw"
+            class="ChannelHeaderComponentwrapper css-1og65k3"
           >
             <div
               class="MuiGrid-root MuiGrid-container ChannelHeaderComponentroot css-9cyib4-MuiGrid-root"
@@ -49,7 +49,7 @@ describe('ChannelHeader', () => {
       <body>
         <div>
           <div
-            class="ChannelHeaderComponentwrapper css-duzuvw"
+            class="ChannelHeaderComponentwrapper css-1og65k3"
           >
             <div
               class="MuiGrid-root MuiGrid-container ChannelHeaderComponentroot css-9cyib4-MuiGrid-root"

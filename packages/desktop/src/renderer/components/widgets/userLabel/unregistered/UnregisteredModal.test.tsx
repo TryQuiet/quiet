@@ -19,7 +19,7 @@ describe('UnregisteredModalComponent', () => {
           aria-hidden="true"
         />
         <div
-          class="MuiModal-root css-1vjugmr-MuiModal-root"
+          class="MuiModal-root css-1evs64r-MuiModal-root"
           role="presentation"
         >
           <div
@@ -109,7 +109,7 @@ describe('UnregisteredModalComponent', () => {
                      will be registered automatically and this alert will go away.
                   </p>
                   <button
-                    class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium UnregisteredModalComponent-button css-1skytee-MuiButtonBase-root-MuiButton-root"
+                    class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium UnregisteredModalComponent-button css-18k1y27-MuiButtonBase-root-MuiButton-root"
                     data-testid="unregistered-button"
                     tabindex="0"
                     type="button"

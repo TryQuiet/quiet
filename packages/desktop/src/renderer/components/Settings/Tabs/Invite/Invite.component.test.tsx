@@ -90,7 +90,7 @@ describe('CopyLink', () => {
                   >
                     <svg
                       aria-hidden="true"
-                      class="MuiSvgIcon-root MuiSvgIcon-colorPrimary MuiSvgIcon-fontSizeSmall css-1qc8nxe-MuiSvgIcon-root"
+                      class="MuiSvgIcon-root MuiSvgIcon-colorPrimary MuiSvgIcon-fontSizeSmall css-26fd2i-MuiSvgIcon-root"
                       data-testid="VisibilityOffIcon"
                       focusable="false"
                       viewBox="0 0 24 24"
@@ -110,7 +110,7 @@ describe('CopyLink', () => {
               class="MuiGrid-root css-vj1n65-MuiGrid-root"
             >
               <button
-                class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium InviteToCommunitybutton css-1skytee-MuiButtonBase-root-MuiButton-root"
+                class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium InviteToCommunitybutton css-18k1y27-MuiButtonBase-root-MuiButton-root"
                 data-testid="copy-invitation-link"
                 tabindex="0"
                 type="button"
@@ -200,7 +200,7 @@ describe('CopyLink', () => {
                   >
                     <svg
                       aria-hidden="true"
-                      class="MuiSvgIcon-root MuiSvgIcon-colorPrimary MuiSvgIcon-fontSizeSmall css-1qc8nxe-MuiSvgIcon-root"
+                      class="MuiSvgIcon-root MuiSvgIcon-colorPrimary MuiSvgIcon-fontSizeSmall css-26fd2i-MuiSvgIcon-root"
                       data-testid="VisibilityIcon"
                       focusable="false"
                       viewBox="0 0 24 24"
@@ -220,7 +220,7 @@ describe('CopyLink', () => {
               class="MuiGrid-root css-vj1n65-MuiGrid-root"
             >
               <button
-                class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium InviteToCommunitybutton css-1skytee-MuiButtonBase-root-MuiButton-root"
+                class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium InviteToCommunitybutton css-18k1y27-MuiButtonBase-root-MuiButton-root"
                 data-testid="copy-invitation-link"
                 tabindex="0"
                 type="button"

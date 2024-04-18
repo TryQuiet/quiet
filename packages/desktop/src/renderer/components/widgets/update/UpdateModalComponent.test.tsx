@@ -22,7 +22,7 @@ describe('UpdateModal', () => {
           aria-hidden="true"
         />
         <div
-          class="MuiModal-root css-1vjugmr-MuiModal-root"
+          class="MuiModal-root css-1evs64r-MuiModal-root"
           role="presentation"
         >
           <div
@@ -91,7 +91,7 @@ describe('UpdateModal', () => {
                 style="width: 600px;"
               >
                 <div
-                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-1xjw49x-MuiGrid-root"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-18p20vr-MuiGrid-root"
                 >
                   <div
                     class="MuiGrid-root css-vj1n65-MuiGrid-root"

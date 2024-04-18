@@ -55,7 +55,7 @@ describe('UploadedFile', () => {
             class="css-gd4qex"
           >
             <div
-              class="css-ytr8bc"
+              class="css-1i8wbh6"
               data-testid="abcd1234-imagePlaceholder"
             >
               <p
@@ -82,7 +82,7 @@ describe('UploadedFile', () => {
                       class="UploadedImagePlaceholdericon"
                     >
                       <span
-                        class="MuiCircularProgress-root MuiCircularProgress-indeterminate MuiCircularProgress-colorPrimary css-9a4009-MuiCircularProgress-root"
+                        class="MuiCircularProgress-root MuiCircularProgress-indeterminate MuiCircularProgress-colorPrimary css-acfop9-MuiCircularProgress-root"
                         role="progressbar"
                         style="width: 18px; height: 18px; position: absolute; color: rgb(178, 178, 178);"
                       >

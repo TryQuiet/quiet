@@ -19,7 +19,7 @@ describe('MentionElement', () => {
       <body>
         <div>
           <div
-            class="MuiGrid-root MuiGrid-container MentionElementroot MentionElementhighlight css-1mfbfa2-MuiGrid-root"
+            class="MuiGrid-root MuiGrid-container MentionElementroot MentionElementhighlight css-1t8z9cn-MuiGrid-root"
           >
             <div
               class="MuiGrid-root MuiGrid-item MentionElementavatarDiv css-13i4rnv-MuiGrid-root"
@@ -64,7 +64,7 @@ describe('MentionElement', () => {
       <body>
         <div>
           <div
-            class="MuiGrid-root MuiGrid-container MentionElementroot css-1mfbfa2-MuiGrid-root"
+            class="MuiGrid-root MuiGrid-container MentionElementroot css-1t8z9cn-MuiGrid-root"
           >
             <div
               class="MuiGrid-root MuiGrid-item MentionElementavatarDiv css-13i4rnv-MuiGrid-root"
