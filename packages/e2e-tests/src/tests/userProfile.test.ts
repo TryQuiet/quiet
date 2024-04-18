@@ -180,7 +180,7 @@ describe('User Profile Feature', () => {
     const joinCommunityModal = new JoinCommunityModal(users.user1.app.driver)
     const isJoinCommunityModal = await joinCommunityModal.element.isDisplayed()
     expect(isJoinCommunityModal).toBeTruthy()
-    await joinCommunityModal.typeCommunityCode(invitationCode)
+    await joinCommunityModal.typeCommunityInviteLink(invitationCode)
     await joinCommunityModal.submit()
   })
 
