@@ -62,7 +62,6 @@ export default createTheme({
     },
   },
   palette: {
-    // type: 'light', // Currently commented out because of type errors
     background: {
       // Background colors (white-ish for light theme, black-ish for dark)
       default: '#ffffff',
@@ -82,31 +81,36 @@ export default createTheme({
     // TO BE ADDED IF NEEDED: Success, Warning, Error, Neutral
     colors: {
       // Misc colors. For primary / secondary brand, text, and background colors, use those objects
-      mediumGray: '#8d8d8d',
-      white: '#FFFFFF',
+      // For canonical colors, see: https://www.figma.com/file/0j7Nna9zWmfOSNmRmQK1Uh/Quiet-Design-Library?type=design&node-id=2667-0&mode=design&t=i0cXovHohRKxWGaA-0
+      // Blues
       blue: '#2196f3',
       purple: '#521C74', // To be replaced with theme.palette.primary.main
-      darkPurple: '#4d1a6d', // To be replaced with theme.palette.primary.dark?
-      gray: '#e7e7e7',
-      trueBlack: '#000000', // To be replaced with text color and border color
       quietBlue: '#521c74', // To be replaced with theme.palette.primary.main
-      darkGray: '#7F7F7F',
-      gray03: '#F7F7F7',
+      darkPurple: '#4d1a6d', // To be replaced with theme.palette.primary.dark?
       lushSky: '#67BFD3',
       lushSky12: '#EDF7FA',
-      lightGray: '#B2B2B2', // To be replaced with gray30
-      border01: '#F0F0F0',
-      border02: '#B3B3B3',
-      border03: '#D2D2D2',
-      red: '#FF0000', // Replace with D13135 ?
-      hotRed: '#E42656', // Replaced by theme.palette.secondary.main
-      hotPink: '#E42656', // Replaced by theme.palette.secondary.main
       linkBlue: '#59c0d5', // Used in a variety of places - likely wants to be split / consolidated
-      black30: '#4C4C4C', // Rename to gray70
+      // Reds
+      red: '#FF0000', // Replace with D13135 ?
+      hotRed: '#E42656', // Replaced by theme.palette.secondary.main?
+      hotPink: '#E42656', // Replaced by theme.palette.secondary.main?
+      error: '#D13135', // Need to align with Figma and replace with theme.palette.error.main
+      // Grays (including white and black)
+      white: '#FFFFFF',
+      trueBlack: '#000000', // To be replaced with text color and border color
+      gray: '#e7e7e7',
+      darkGray: '#7F7F7F',
+      mediumGray: '#8d8d8d',
+      lightGray: '#B2B2B2', // To be replaced with gray30?
+      gray03: '#F7F7F7',
       gray30: '#FAFAFA', // Unused and not aligned with Figma
       gray40: '#999999',
       gray50: '#7F7F7F',
-      error: '#D13135', // Need to align with Figma
+      black30: '#4C4C4C', // Rename to gray70
+      // Border colors
+      border01: '#F0F0F0',
+      border02: '#B3B3B3',
+      border03: '#D2D2D2',
     },
   },
   //@ts-ignore MUI types expect 25 shadows - see: https://github.com/mui/material-ui/issues/28820
@@ -129,6 +133,7 @@ export default createTheme({
       },
     },
     MuiSnackbarContent: {
+      // Replace with atomic Snackbar component. Put styling in that file.
       styleOverrides: {
         root: {
           wordBreak: 'break-all',
@@ -136,6 +141,7 @@ export default createTheme({
       },
     },
     MuiButton: {
+      // Replace with atomic Button component. Put styling in that file.
       styleOverrides: {
         sizeSmall: {
           textTransform: 'none',
@@ -162,11 +168,13 @@ export default createTheme({
       },
     },
     MuiOutlinedInput: {
+      // Replace with atomic Input component. Put styling in that file.
       styleOverrides: {
         input: {},
       },
     },
     MuiPopover: {
+      // Replace with atomic Popover component. Put styling in that file.
       styleOverrides: {
         paper: {
           borderRadius: 8,
