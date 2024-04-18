@@ -4,6 +4,7 @@ import { ServerStoredCommunityMetadata } from './storageServerProxy.types'
 import fetchRetry, { RequestInitWithRetry } from 'fetch-retry'
 import Logger from '../common/logger'
 import { isServerStoredMetadata } from '../validation/validators'
+import fetch from 'node-fetch'
 
 class HTTPResponseError extends Error {
   response: Response
@@ -19,11 +20,11 @@ export class ServerProxyService extends EventEmitter {
   private readonly logger = Logger(ServerProxyService.name)
   _serverAddress: string
   fetch: any
-  fetchConfig: RequestInitWithRetry<typeof fetch>
+  fetchConfig: any
 
   constructor() {
     super()
-    this.fetch = fetchRetry(global.fetch)
+    this.fetch = fetchRetry(fetch)
     this.fetchConfig = {
       retries: this.DEFAULT_FETCH_RETRIES,
       retryDelay: (attempt: number, _error: Error | null, _response: Response | null) => {
