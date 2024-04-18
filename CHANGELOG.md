@@ -8,6 +8,8 @@
 
 # Fixes
 
+* Fixes references to 'invite code' to be 'invite link' in UI ([#2441](https://github.com/TryQuiet/quiet/issues/2441))
+
 # Chores
 
 * Cleanup data directory at end of e2e tests
