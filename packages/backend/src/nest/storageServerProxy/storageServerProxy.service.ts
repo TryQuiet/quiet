@@ -4,7 +4,7 @@ import { ServerStoredCommunityMetadata } from './storageServerProxy.types'
 import fetchRetry, { RequestInitWithRetry } from 'fetch-retry'
 import Logger from '../common/logger'
 import { isServerStoredMetadata } from '../validation/validators'
-import fetch from 'node-fetch'
+import fetch, { Response } from 'node-fetch'
 
 class HTTPResponseError extends Error {
   response: Response
@@ -20,7 +20,7 @@ export class ServerProxyService extends EventEmitter {
   private readonly logger = Logger(ServerProxyService.name)
   _serverAddress: string
   fetch: any
-  fetchConfig: any
+  fetchConfig: RequestInitWithRetry<typeof fetch>
 
   constructor() {
     super()
@@ -85,7 +85,7 @@ export class ServerProxyService extends EventEmitter {
     if (!dataResponse.ok) {
       throw new HTTPResponseError('Failed to download data', dataResponse)
     }
-    const data: ServerStoredCommunityMetadata = await dataResponse.json()
+    const data = (await dataResponse.json()) as ServerStoredCommunityMetadata
     this.validateMetadata(data)
     this.logger('Downloaded data', data)
     return data

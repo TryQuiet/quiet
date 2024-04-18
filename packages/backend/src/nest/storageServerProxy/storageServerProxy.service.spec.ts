@@ -5,6 +5,7 @@ import { ServerStoredCommunityMetadata } from './storageServerProxy.types'
 import { jest } from '@jest/globals'
 import { prepareResponse } from './testUtils'
 import { createLibp2pAddress, getValidInvitationUrlTestData, validInvitationDatav1 } from '@quiet/common'
+import { Response } from 'node-fetch'
 
 const mockFetch = async (responseData: Partial<Response>[]) => {
   /** Mock fetch responses and then initialize nest service */
@@ -16,11 +17,12 @@ const mockFetch = async (responseData: Partial<Response>[]) => {
     mockedFetch.mockResolvedValueOnce(prepareResponse(data))
   }
 
-  global.fetch = mockedFetch
   const module = await Test.createTestingModule({
     imports: [ServerProxyServiceModule],
   }).compile()
-  return module.get<ServerProxyService>(ServerProxyService)
+  const service = module.get<ServerProxyService>(ServerProxyService)
+  service.fetch = mockedFetch
+  return service
 }
 
 describe('Server Proxy Service', () => {
@@ -49,7 +51,7 @@ describe('Server Proxy Service', () => {
     service.setServerAddress('http://whatever')
     const data = await service.downloadData('cid')
     expect(data).toEqual(clientMetadata)
-    expect(global.fetch).toHaveBeenCalledTimes(2)
+    expect(service.fetch).toHaveBeenCalledTimes(2)
   })
 
   it('throws error if downloaded metadata does not have proper schema', async () => {
@@ -74,6 +76,6 @@ describe('Server Proxy Service', () => {
     service.setServerAddress('http://whatever')
     const token = await service.auth()
     expect(token).toEqual(expectedToken)
-    expect(global.fetch).toHaveBeenCalledTimes(1)
+    expect(service.fetch).toHaveBeenCalledTimes(1)
   })
 })

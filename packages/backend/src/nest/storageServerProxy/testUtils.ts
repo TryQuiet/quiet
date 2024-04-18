@@ -1,3 +1,5 @@
+import { Response, Headers } from 'node-fetch'
+
 export const prepareResponse = (responseData: Partial<Response>) => {
   const ok = responseData.status ? responseData.status >= 200 && responseData.status < 300 : false
   const response: Response = {
@@ -8,6 +10,8 @@ export const prepareResponse = (responseData: Partial<Response>) => {
     statusText: '',
     type: 'basic',
     url: '',
+    size: 10,
+    buffer: () => Promise.resolve(Buffer.from('')),
     clone: function (): Response {
       throw new Error('Function not implemented.')
     },
