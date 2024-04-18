@@ -29,6 +29,7 @@ export class CertificatesRequestsStore extends EventEmitter {
         write: ['*'],
       },
     })
+    await this.store.load()
 
     this.store.events.on('write', async (_address, entry) => {
       this.logger('Added CSR to database')
