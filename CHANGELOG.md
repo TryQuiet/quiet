@@ -6,6 +6,8 @@
 
 # Fixes:
 
+* Don't create duplicate CSRs when joining a community under certain circumstances ([#2321](https://github.com/TryQuiet/quiet/issues/2321))
+
 [2.2.0]
 
 # New features:
