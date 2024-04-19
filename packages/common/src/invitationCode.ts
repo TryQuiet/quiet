@@ -1,5 +1,5 @@
 import { InvitationData, InvitationDataV1, InvitationDataV2, InvitationDataVersion, InvitationPair } from '@quiet/types'
-import { QUIET_JOIN_PAGE } from './static'
+import { QUIET_JOIN_PAGE } from './const'
 import { createLibp2pAddress, isPSKcodeValid } from './libp2p'
 // import { CID } from 'multiformats/cid' // Fixme: dependency issue
 import Logger from './logger'
@@ -213,7 +213,7 @@ export const argvInvitationCode = (argv: string[]): InvitationData | null => {
       console.log('Not a deep url, not parsing', arg)
       continue
     }
-    console.log('Parsing deep url', arg)
+    logger('Parsing deep url', arg)
     invitationData = parseInvitationCodeDeepUrl(arg)
     switch (invitationData.version) {
       case InvitationDataVersion.v1:

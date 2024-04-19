@@ -14,14 +14,15 @@ import {
   InvitationDataVersion,
 } from '@quiet/types'
 import { Socket, applyEmitParams } from '../../../types'
+import logger from '../../../utils/logger'
+const log = logger('createNetwork')
 
 export function* createNetworkSaga(
   socket: Socket,
   action: PayloadAction<ReturnType<typeof communitiesActions.createNetwork>['payload']>
 ) {
-  // TODO: remove psk and orbitDbIdentity from payload and leave invitationData? Remove redundancy
   const payload = action.payload
-  console.log('create network saga', payload)
+  log(payload)
   // Community IDs are only local identifiers
   const id = yield* call(generateId)
 
@@ -69,8 +70,6 @@ export function* createNetworkSaga(
         break
     }
   }
-
-  console.log('SETTING COMMUNITY', community)
 
   yield* put(communitiesActions.addNewCommunity(community))
   yield* put(communitiesActions.setCurrentCommunity(id))

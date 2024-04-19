@@ -81,8 +81,6 @@ describe('User', () => {
       store
     )
 
-    const factory = await getFactory(store)
-
     const mockEmitImpl = async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
       const action = input[0]
       if (action === SocketActionTypes.CREATE_NETWORK) {
@@ -182,6 +180,7 @@ describe('User', () => {
         "Files/checkForMissingFiles",
         "Network/addInitializedCommunity",
         "Communities/clearInvitationCodes",
+        "Communities/clearInvitationData",
         "PublicChannels/channelsReplicated",
         "PublicChannels/setChannelSubscribed",
         "PublicChannels/addChannel",

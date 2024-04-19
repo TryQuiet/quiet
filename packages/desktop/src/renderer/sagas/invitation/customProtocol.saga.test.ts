@@ -9,6 +9,11 @@ import { StoreKeys } from '../../store/store.keys'
 import { modalsActions } from '../modals/modals.slice'
 import { ModalName } from '../modals/modals.types'
 import { getValidInvitationUrlTestData, validInvitationDatav1, validInvitationDatav2 } from '@quiet/common'
+import {
+  AlreadyBelongToCommunityWarning,
+  InvalidInvitationLinkError,
+  JoiningAnotherCommunityWarning,
+} from '@quiet/common'
 
 describe('Handle invitation code', () => {
   let store: Store
@@ -70,8 +75,44 @@ describe('Handle invitation code', () => {
         modalsActions.openModal({
           name: ModalName.warningModal,
           args: {
-            title: 'You already belong to a community',
-            subtitle: "We're sorry but for now you can only be a member of a single community at a time.",
+            title: AlreadyBelongToCommunityWarning.TITLE,
+            subtitle: AlreadyBelongToCommunityWarning.MESSAGE,
+          },
+        })
+      )
+      .not.put(communities.actions.createNetwork(createNetworkPayload))
+      .run()
+  })
+
+  it('does not try to create network if user used v2 invitation link and is joining another community', async () => {
+    const invitationData = validInvitationDatav2[0]
+    community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community', {
+      name: '',
+      inviteData: invitationData,
+    })
+    const newInvitationData = {
+      ...invitationData,
+      serverAddress: 'http://something-else.pl',
+    }
+    const createNetworkPayload: CreateNetworkPayload = {
+      ownership: CommunityOwnership.User,
+      inviteData: newInvitationData,
+    }
+
+    store.dispatch(communities.actions.addNewCommunity(community))
+    store.dispatch(communities.actions.setCurrentCommunity(community.id))
+
+    await expectSaga(
+      customProtocolSaga,
+      communities.actions.customProtocol([getValidInvitationUrlTestData(newInvitationData).deepUrl()])
+    )
+      .withState(store.getState())
+      .put(
+        modalsActions.openModal({
+          name: ModalName.warningModal,
+          args: {
+            title: JoiningAnotherCommunityWarning.TITLE,
+            subtitle: JoiningAnotherCommunityWarning.MESSAGE,
           },
         })
       )
@@ -90,17 +131,48 @@ describe('Handle invitation code', () => {
       communities.actions.customProtocol(['someArg', 'quiet://?k=BNlxfE2WBF7LrlpIX0CvECN5o1oZtA16PkAb7GYiwYw='])
     )
       .withState(store.getState())
-      .put(communities.actions.clearInvitationCodes())
       .put(
         modalsActions.openModal({
           name: ModalName.warningModal,
           args: {
-            title: 'Invalid link',
-            subtitle: 'The invite link you received is not valid. Please check it and try again.',
+            title: InvalidInvitationLinkError.TITLE,
+            subtitle: InvalidInvitationLinkError.MESSAGE,
           },
         })
       )
       .not.put(communities.actions.createNetwork(createNetworkPayload))
+      .run()
+  })
+
+  test("doesn't display error if user is connecting with the same community", async () => {
+    community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community', {
+      name: '',
+      psk: validInvitationData.psk,
+    })
+
+    const createNetworkPayload: CreateNetworkPayload = {
+      ownership: CommunityOwnership.User,
+      inviteData: validInvitationData,
+    }
+
+    store.dispatch(communities.actions.addNewCommunity(community))
+    store.dispatch(communities.actions.setCurrentCommunity(community.id))
+
+    await expectSaga(customProtocolSaga, communities.actions.customProtocol([validInvitationDeepUrl]))
+      .withState(store.getState())
+      .not.put.like({
+        action: {
+          type: modalsActions.openModal.type,
+          payload: {
+            name: ModalName.warningModal,
+            params: {
+              title: AlreadyBelongToCommunityWarning.TITLE,
+              message: AlreadyBelongToCommunityWarning.MESSAGE,
+            },
+          },
+        },
+      })
+      .put(communities.actions.createNetwork(createNetworkPayload))
       .run()
   })
 })

@@ -8,6 +8,12 @@ import { initActions } from '../init.slice'
 import { appImages } from '../../../assets'
 import { replaceScreen } from '../../../RootNavigation'
 import { CommunityOwnership, CreateNetworkPayload, InvitationData, InvitationDataVersion } from '@quiet/types'
+import _ from 'lodash'
+import {
+  AlreadyBelongToCommunityWarning,
+  InvalidInvitationLinkError,
+  JoiningAnotherCommunityWarning,
+} from '@quiet/common'
 
 export function* deepLinkSaga(action: PayloadAction<ReturnType<typeof initActions.deepLink>['payload']>): Generator {
   const code = action.payload
@@ -38,8 +44,8 @@ export function* deepLinkSaga(action: PayloadAction<ReturnType<typeof initAction
         params: {
           onPress: () => replaceScreen(ScreenNames.JoinCommunityScreen),
           icon: appImages.quiet_icon_round,
-          title: 'Invalid invitation link',
-          message: 'Please check your invitation link and try again',
+          title: InvalidInvitationLinkError.TITLE,
+          message: InvalidInvitationLinkError.MESSAGE,
         },
       })
     )
@@ -48,22 +54,7 @@ export function* deepLinkSaga(action: PayloadAction<ReturnType<typeof initAction
 
   const community = yield* select(communities.selectors.currentCommunity)
 
-  let isJoiningAnotherCommunity = false
-
-  switch (data.version) {
-    case InvitationDataVersion.v1:
-      const storedPsk = yield* select(communities.selectors.psk)
-      const currentPsk = data.psk
-
-      console.log('Stored psk', storedPsk)
-      console.log('Current psk', currentPsk)
-
-      isJoiningAnotherCommunity = Boolean(storedPsk && storedPsk !== currentPsk)
-      break
-  }
-
   const isAlreadyConnected = Boolean(community?.name)
-  const connectingWithAnotherCommunity = isJoiningAnotherCommunity && !isAlreadyConnected
 
   // User already belongs to a community
   if (isAlreadyConnected) {
@@ -75,14 +66,30 @@ export function* deepLinkSaga(action: PayloadAction<ReturnType<typeof initAction
         params: {
           onPress: () => replaceScreen(ScreenNames.ChannelListScreen),
           icon: appImages.quiet_icon_round,
-          title: 'You already belong to a community',
-          message: "We're sorry but for now you can only be a member of a single community at a time",
+          title: AlreadyBelongToCommunityWarning.TITLE,
+          message: AlreadyBelongToCommunityWarning.MESSAGE,
         },
       })
     )
 
     return
   }
+
+  let isJoiningAnotherCommunity = false
+
+  switch (data.version) {
+    case InvitationDataVersion.v1:
+      const storedPsk = yield* select(communities.selectors.psk)
+      const currentPsk = data.psk
+      isJoiningAnotherCommunity = Boolean(storedPsk && storedPsk !== currentPsk)
+      break
+    case InvitationDataVersion.v2:
+      const inviteData = yield* select(communities.selectors.inviteData)
+      isJoiningAnotherCommunity = Boolean(inviteData && !_.isEqual(inviteData, data))
+      break
+  }
+
+  const connectingWithAnotherCommunity = isJoiningAnotherCommunity && !isAlreadyConnected
 
   if (connectingWithAnotherCommunity) {
     console.log('INIT_NAVIGATION: Displaying error (user is already connecting to another community).')
@@ -93,8 +100,8 @@ export function* deepLinkSaga(action: PayloadAction<ReturnType<typeof initAction
         params: {
           onPress: () => replaceScreen(ScreenNames.UsernameRegistrationScreen),
           icon: appImages.quiet_icon_round,
-          title: 'You already started to connect to another community',
-          message: "We're sorry but for now you can only be a member of a single community at a time",
+          title: JoiningAnotherCommunityWarning.TITLE,
+          message: JoiningAnotherCommunityWarning.MESSAGE,
         },
       })
     )

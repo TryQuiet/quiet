@@ -36,6 +36,10 @@ export const invitationCodes = createSelector(communitiesSlice, reducerState => 
   return reducerState.invitationCodes
 })
 
+export const inviteData = createSelector(currentCommunity, currentCommunity => {
+  return currentCommunity?.inviteData
+})
+
 export const psk = createSelector(currentCommunity, currentCommunity => {
   return currentCommunity?.psk
 })
@@ -69,6 +73,7 @@ export const communitiesSelectors = {
   currentCommunity,
   currentCommunityId,
   invitationCodes,
+  inviteData,
   ownerOrbitDbIdentity,
   ownerCertificate,
   ownerNickname,

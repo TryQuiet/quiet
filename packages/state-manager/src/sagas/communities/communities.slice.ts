@@ -46,6 +46,14 @@ export const communitiesSlice = createSlice({
     clearInvitationCodes: state => {
       state.invitationCodes = []
     },
+    clearInvitationData: (state, action: PayloadAction<string>) => {
+      communitiesAdapter.updateOne(state.communities, {
+        id: action.payload,
+        changes: {
+          inviteData: null,
+        },
+      })
+    },
   },
 })
 

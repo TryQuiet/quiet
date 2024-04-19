@@ -1,34 +1,30 @@
-import React from 'react'
-import '@testing-library/jest-dom/extend-expect'
-import { act } from 'react-dom/test-utils'
-import { screen } from '@testing-library/dom'
-import userEvent from '@testing-library/user-event'
-import { take } from 'typed-redux-saga'
-import { renderComponent } from '../renderer/testUtils/renderComponent'
-import { prepareStore } from '../renderer/testUtils/prepareStore'
-import { modalsActions } from '../renderer/sagas/modals/modals.slice'
-import CreateCommunity from '../renderer/components/CreateJoinCommunity/CreateCommunity/CreateCommunity'
-import CreateUsername from '../renderer/components/CreateUsername/CreateUsername'
-import { ModalName } from '../renderer/sagas/modals/modals.types'
-import { CreateCommunityDictionary } from '../renderer/components/CreateJoinCommunity/community.dictionary'
-import MockedSocket from 'socket.io-mock'
-import { ioMock } from '../shared/setupTests'
-import { socketEventData } from '@quiet/types'
-import {
-  Community,
-  type InitCommunityPayload,
-  type NetworkInfo,
-  SavedOwnerCertificatePayload,
-  SocketActionTypes,
-  type ChannelsReplicatedPayload,
-  type RegisterOwnerCertificatePayload,
-  type ResponseLaunchCommunityPayload,
-} from '@quiet/types'
-import { publicChannels } from '@quiet/state-manager'
-import Channel from '../renderer/components/Channel/Channel'
-import LoadingPanel from '../renderer/components/LoadingPanel/LoadingPanel'
-import { AnyAction } from 'redux'
 import { generateChannelId } from '@quiet/common'
+import { publicChannels } from '@quiet/state-manager'
+import {
+  SocketActionTypes,
+  socketEventData,
+  ChannelsReplicatedPayload,
+  InitCommunityPayload,
+  ResponseLaunchCommunityPayload,
+} from '@quiet/types'
+import { screen } from '@testing-library/dom'
+import '@testing-library/jest-dom/extend-expect'
+import userEvent from '@testing-library/user-event'
+import React from 'react'
+import { act } from 'react-dom/test-utils'
+import { AnyAction } from 'redux'
+import MockedSocket from 'socket.io-mock'
+import { take } from 'typed-redux-saga'
+import Channel from '../renderer/components/Channel/Channel'
+import CreateCommunity from '../renderer/components/CreateJoinCommunity/CreateCommunity/CreateCommunity'
+import { CreateCommunityDictionary } from '../renderer/components/CreateJoinCommunity/community.dictionary'
+import CreateUsername from '../renderer/components/CreateUsername/CreateUsername'
+import LoadingPanel from '../renderer/components/LoadingPanel/LoadingPanel'
+import { modalsActions } from '../renderer/sagas/modals/modals.slice'
+import { ModalName } from '../renderer/sagas/modals/modals.types'
+import { prepareStore } from '../renderer/testUtils/prepareStore'
+import { renderComponent } from '../renderer/testUtils/renderComponent'
+import { ioMock } from '../shared/setupTests'
 
 jest.setTimeout(20_000)
 
@@ -168,6 +164,7 @@ describe('User', () => {
         "Files/checkForMissingFiles",
         "Network/addInitializedCommunity",
         "Communities/clearInvitationCodes",
+        "Communities/clearInvitationData",
         "PublicChannels/channelsReplicated",
         "Communities/updateCommunityData",
         "PublicChannels/addChannel",

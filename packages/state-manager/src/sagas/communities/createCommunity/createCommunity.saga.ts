@@ -7,6 +7,8 @@ import { communitiesActions } from '../communities.slice'
 import { identitySelectors } from '../../identity/identity.selectors'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import { type Community, type InitCommunityPayload, SocketActionTypes } from '@quiet/types'
+import logger from '../../../utils/logger'
+const log = logger('createCommunity')
 
 export function* createCommunitySaga(
   socket: Socket,
@@ -17,6 +19,8 @@ export function* createCommunitySaga(
   if (!communityId) {
     communityId = yield* select(communitiesSelectors.currentCommunityId)
   }
+
+  log(communityId)
 
   const community = yield* select(communitiesSelectors.selectById(communityId))
   const identity = yield* select(identitySelectors.selectById(communityId))

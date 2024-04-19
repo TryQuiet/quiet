@@ -317,7 +317,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   }
 
   public async createCommunity(payload: InitCommunityPayload): Promise<Community | undefined> {
-    this.logger('Creating community: peers:', payload.peers)
+    this.logger('Creating community', payload.id)
 
     if (!payload.CA || !payload.rootCa) {
       this.logger.error('CA and rootCa are required to create community')

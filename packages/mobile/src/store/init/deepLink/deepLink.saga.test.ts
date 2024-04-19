@@ -3,59 +3,29 @@ import { combineReducers } from '@reduxjs/toolkit'
 import { reducers } from '../../root.reducer'
 import { Store } from '../../store.types'
 import { prepareStore } from '../../../tests/utils/prepareStore'
-import { communities, connection, getInvitationCodes, identity } from '@quiet/state-manager'
+import { communities, getFactory } from '@quiet/state-manager'
 import { initActions } from '../init.slice'
 import { navigationActions } from '../../navigation/navigation.slice'
 import { ScreenNames } from '../../../const/ScreenNames.enum'
 import { deepLinkSaga } from './deepLink.saga'
-import {
-  type Community,
-  CommunityOwnership,
-  type Identity,
-  InvitationData,
-  InvitationDataVersion,
-  CreateNetworkPayload,
-} from '@quiet/types'
-import {
-  composeInvitationShareUrl,
-  validInvitationCodeTestData,
-  getValidInvitationUrlTestData,
-  validInvitationDatav1,
-} from '@quiet/common'
+import { type Community, CommunityOwnership, InvitationData, CreateNetworkPayload } from '@quiet/types'
+import { composeInvitationShareUrl, getValidInvitationUrlTestData, validInvitationDatav1 } from '@quiet/common'
+import { FactoryGirl } from 'factory-girl'
 
 describe('deepLinkSaga', () => {
   let store: Store
-
+  let factory: FactoryGirl
   const { code } = getValidInvitationUrlTestData(validInvitationDatav1[0])
 
   const validCode = code()
   const validData = validInvitationDatav1[0]
 
   const id = '00d045ab'
-
-  const community: Community = {
-    id,
-    name: '',
-    CA: {
-      rootCertString: '',
-      rootKeyString: '',
-    },
-    rootCa: '',
-    peerList: [],
-    onionAddress: '',
-    ownerCertificate: '',
-  }
-
-  const _identity: Partial<Identity> = {
-    id,
-    nickname: '',
-    userCsr: null,
-    userCertificate: null,
-    joinTimestamp: 0,
-  }
+  let community: Community
 
   beforeEach(async () => {
     store = (await prepareStore()).store
+    factory = await getFactory(store)
   })
 
   test('joins community', async () => {
@@ -84,6 +54,10 @@ describe('deepLinkSaga', () => {
   })
 
   test('displays error if user already belongs to a community', async () => {
+    community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community', {
+      id,
+      name: 'rockets',
+    })
     store.dispatch(
       initActions.setWebsocketConnected({
         dataPort: 5001,
@@ -91,13 +65,7 @@ describe('deepLinkSaga', () => {
       })
     )
 
-    store.dispatch(
-      communities.actions.addNewCommunity({
-        ...community,
-        name: 'rockets',
-      })
-    )
-
+    store.dispatch(communities.actions.addNewCommunity(community))
     store.dispatch(communities.actions.setCurrentCommunity(community.id))
 
     const reducer = combineReducers(reducers)
@@ -122,14 +90,17 @@ describe('deepLinkSaga', () => {
   })
 
   test("doesn't display error if user is connecting with the same community", async () => {
+    community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community', {
+      id,
+      name: '',
+      psk: validData.psk,
+    })
     store.dispatch(
       initActions.setWebsocketConnected({
         dataPort: 5001,
         socketIOSecret: 'secret',
       })
     )
-
-    community.psk = validData.psk
 
     const createNetworkPayload: CreateNetworkPayload = {
       ownership: CommunityOwnership.User,
