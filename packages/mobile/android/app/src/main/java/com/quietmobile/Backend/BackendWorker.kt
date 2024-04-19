@@ -121,8 +121,12 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
                  *
                  * In any case, websocket won't connect until data server starts listening
                  */
-                delay(WEBSOCKET_CONNECTION_DELAY)
-                startWebsocketConnection(dataPort, socketIOSecret)
+                val intervals: Array<Long> = arrayOf(WEBSOCKET_CONNECTION_DELAY, 15000, 30000, 60000, 90000)
+
+                for (interval in intervals) {
+                    delay(interval)
+                    startWebsocketConnection(dataPort, socketIOSecret)
+                }
             }
 
             val dataPath = Utils.createDirectory(context)
