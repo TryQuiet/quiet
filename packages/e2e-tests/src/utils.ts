@@ -46,6 +46,7 @@ export class BuildSetup {
     this.debugPort = await getPort()
   }
 
+  // Note: .env file is being used locally right now, mainly by script e2e:linux:build
   static getEnvFileName() {
     const { parsed, error } = config()
     console.log('Dotenv config', { parsed, error })
@@ -239,7 +240,11 @@ export class BuildSetup {
       return
     }
     console.log(`Deleting data directory at ${this.dataDirPath}`)
-    fs.rmdirSync(this.dataDirPath, { recursive: true })
+    try {
+      fs.rmdirSync(this.dataDirPath, { recursive: true })
+    } catch (e) {
+      console.error(`Could not delete ${this.dataDirPath}. Reason: ${e.message}`)
+    }
   }
 
   public getProcessData = () => {

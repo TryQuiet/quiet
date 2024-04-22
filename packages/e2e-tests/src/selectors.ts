@@ -427,6 +427,33 @@ export class Sidebar {
     return channels
   }
 
+  /**
+   * Get names of all channels in the sidebar
+   */
+  async getChannelsNames() {
+    const elements = await this.getChannelList()
+    return Promise.all(
+      elements.map(async element => {
+        const fullName = await element.getText()
+        return fullName.split(' ')[1]
+      })
+    )
+  }
+
+  async waitForChannelsNum(num: number) {
+    console.log(`Waiting for ${num} channels`)
+    return this.driver.wait(async () => {
+      const channels = await this.getChannelList()
+      return channels.length === num
+    })
+  }
+
+  async waitForChannels(channelsNames: Array<string>) {
+    await this.waitForChannelsNum(channelsNames.length)
+    const names = await this.getChannelsNames()
+    expect(names).toEqual(expect.arrayContaining(channelsNames))
+  }
+
   async openSettings() {
     const button = await this.driver.findElement(By.xpath('//span[@data-testid="settings-panel-button"]'))
     await button.click()
