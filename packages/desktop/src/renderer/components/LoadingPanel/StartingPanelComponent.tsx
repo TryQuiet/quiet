@@ -45,7 +45,7 @@ const StyledGrid = styled(Grid)(({ theme, width }) => ({
     color: theme.palette.colors.black30,
   },
   [`& .${classes.progressBar}`]: {
-    backgroundColor: theme.palette.colors.veryLightGray,
+    backgroundColor: theme.palette.background.paper,
     width: '300px',
     height: '4px',
     position: 'relative',

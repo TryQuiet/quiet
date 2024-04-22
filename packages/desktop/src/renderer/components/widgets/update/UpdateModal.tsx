@@ -23,7 +23,7 @@ const classes = {
 }
 
 const StyledModalContent = styled(Grid)(({ theme }) => ({
-  backgroundColor: theme.palette.colors.white,
+  backgroundColor: theme.palette.background.default,
   border: 'none',
 
   [`& .${classes.info}`]: {

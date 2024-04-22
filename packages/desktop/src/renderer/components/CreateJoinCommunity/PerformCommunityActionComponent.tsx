@@ -42,7 +42,7 @@ const classes = {
 }
 
 const StyledModalContent = styled(Grid)(({ theme }) => ({
-  backgroundColor: theme.palette.colors.white,
+  backgroundColor: theme.palette.background.default,
   padding: '0px 32px',
 
   [`& .${classes.focus}`]: {

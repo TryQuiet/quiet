@@ -13,7 +13,7 @@ describe('Create StartingPanelComponent', () => {
           aria-hidden="true"
         />
         <div
-          class="MuiModal-root css-1vjugmr-MuiModal-root"
+          class="MuiModal-root css-1evs64r-MuiModal-root"
           role="presentation"
         >
           <div

@@ -27,7 +27,7 @@ describe('UploadedImagePlaceholder', () => {
       <body>
         <div>
           <div
-            class="css-ytr8bc"
+            class="css-1i8wbh6"
             data-testid="hvb45FGa-imagePlaceholder"
           >
             <p
@@ -54,7 +54,7 @@ describe('UploadedImagePlaceholder', () => {
                     class="UploadedImagePlaceholdericon"
                   >
                     <span
-                      class="MuiCircularProgress-root MuiCircularProgress-indeterminate MuiCircularProgress-colorPrimary css-9a4009-MuiCircularProgress-root"
+                      class="MuiCircularProgress-root MuiCircularProgress-indeterminate MuiCircularProgress-colorPrimary css-acfop9-MuiCircularProgress-root"
                       role="progressbar"
                       style="width: 18px; height: 18px; position: absolute; color: rgb(178, 178, 178);"
                     >
@@ -107,7 +107,7 @@ describe('UploadedImagePlaceholder', () => {
       <body>
         <div>
           <div
-            class="css-ytr8bc"
+            class="css-1i8wbh6"
             data-testid="hvb45FGa-imagePlaceholder"
           >
             <p
@@ -134,7 +134,7 @@ describe('UploadedImagePlaceholder', () => {
                   >
                     <span
                       aria-valuenow="100"
-                      class="MuiCircularProgress-root MuiCircularProgress-determinate MuiCircularProgress-colorPrimary css-1rhqaqh-MuiCircularProgress-root"
+                      class="MuiCircularProgress-root MuiCircularProgress-determinate MuiCircularProgress-colorPrimary css-1036n7b-MuiCircularProgress-root"
                       role="progressbar"
                       style="width: 18px; height: 18px; transform: rotate(-90deg); position: absolute; color: rgb(231, 231, 231);"
                     >
@@ -155,7 +155,7 @@ describe('UploadedImagePlaceholder', () => {
                     </span>
                     <span
                       aria-valuenow="10"
-                      class="MuiCircularProgress-root MuiCircularProgress-determinate MuiCircularProgress-colorPrimary css-1rhqaqh-MuiCircularProgress-root"
+                      class="MuiCircularProgress-root MuiCircularProgress-determinate MuiCircularProgress-colorPrimary css-1036n7b-MuiCircularProgress-root"
                       role="progressbar"
                       style="width: 18px; height: 18px; transform: rotate(-90deg); color: rgb(178, 178, 178);"
                     >
