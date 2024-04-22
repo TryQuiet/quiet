@@ -2,7 +2,7 @@ import { delay, put, select } from 'typed-redux-saga'
 import { initSelectors } from '../../init.selectors'
 import { initActions } from '../../init.slice'
 
-const WEBSOCKET_CONNECTION_DELAY = 5000
+const WEBSOCKET_CONNECTION_DELAY = 15000
 
 export function* restoreConnectionSaga(): Generator {
   // Give the worker time to init websocket connection

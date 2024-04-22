@@ -10,6 +10,9 @@ import { eventChannel } from 'redux-saga'
 export function* startConnectionSaga(
   action: PayloadAction<ReturnType<typeof initActions.startWebsocketConnection>['payload']>
 ): Generator {
+  const isAlreadyConnected = yield* select(initSelectors.isWebsocketConnected)
+  if (isAlreadyConnected) return
+
   const { dataPort, socketIOSecret } = action.payload
 
   console.log('WEBSOCKET', 'Entered start connection saga', dataPort)
