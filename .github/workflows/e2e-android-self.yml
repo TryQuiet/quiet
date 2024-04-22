@@ -52,4 +52,5 @@ jobs:
           detox test starter -c android.emu.debug.ci
 
       - name: Stop metro
+        if: always() 
         run: pm2 stop METRO
