@@ -121,7 +121,7 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
                  *
                  * In any case, websocket won't connect until data server starts listening
                  */
-                val intervals: Array<Long> = arrayOf(15000)
+                val intervals: Array<Long> = arrayOf(30000)
 
                 for (interval in intervals) {
                     delay(interval)
