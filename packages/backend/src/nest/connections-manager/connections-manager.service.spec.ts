@@ -135,6 +135,8 @@ describe('ConnectionsManagerService', () => {
   })
 
   it('community is only launched once', async () => {
+    await localDbService.setCommunity(community)
+    await localDbService.setCurrentCommunityId(community.id)
     const launchCommunityPayload = {
       community: community,
       network: {

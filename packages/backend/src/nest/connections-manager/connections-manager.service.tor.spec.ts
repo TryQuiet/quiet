@@ -110,6 +110,8 @@ beforeEach(async () => {
 
   const pskBase64 = Libp2pService.generateLibp2pPSK().psk
   await localDbService.put(LocalDBKeys.PSK, pskBase64)
+  await localDbService.put(LocalDBKeys.CURRENT_COMMUNITY_ID, community.id)
+  await localDbService.setCommunity(community)
 })
 
 afterEach(async () => {
