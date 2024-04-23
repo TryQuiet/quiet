@@ -1,11 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common'
 import { Level } from 'level'
-import { type Community, type Identity, InitCommunityPayload, type NetworkInfo, NetworkStats } from '@quiet/types'
+import { type Community, type NetworkInfo, NetworkStats } from '@quiet/types'
 import { createLibp2pAddress, filterAndSortPeers } from '@quiet/common'
 import { LEVEL_DB } from '../const'
 import { LocalDBKeys, LocalDbStatus } from './local-db.types'
 import Logger from '../common/logger'
-import { create } from 'mock-fs/lib/filesystem'
 
 @Injectable()
 export class LocalDbService {
@@ -28,6 +27,7 @@ export class LocalDbService {
   }
 
   public async purge() {
+    this.logger(`Purging db`)
     await this.db.clear()
   }
 
@@ -149,6 +149,15 @@ export class LocalDbService {
 
   public async communityExists(communityId: string): Promise<boolean> {
     return communityId in ((await this.getCommunities()) ?? {})
+  }
+
+  public async deleteInviteData() {
+    const community = await this.getCurrentCommunity()
+    if (!community) throw new Error('No community found')
+    if (!community.inviteData) return
+    this.logger(`Deleting invite data from community ${community.id}`)
+    const updatedCommunity = { ...community, inviteData: null }
+    await this.setCommunity(updatedCommunity)
   }
 
   // These are potentially temporary functions to help us migrate data to the

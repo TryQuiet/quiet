@@ -56,15 +56,6 @@ export const invitationUrl = createSelector(
     if (!ownerOrbitDbIdentity) return ''
     const initialPeers = sortedPeerList.slice(0, 3)
     const pairs = p2pAddressesToPairs(initialPeers)
-    const v2Data = {
-      id: '209348023',
-      ownerCertificate: 'ownerCertificate',
-      rootCa: 'rootCa',
-      ownerOrbitDbIdentity: ownerOrbitDbIdentity,
-      peerList: pairsToP2pAddresses(pairs),
-      psk: communityPsk,
-    }
-    console.log('V2 DATA:', JSON.stringify(v2Data))
     return composeInvitationShareUrl({ pairs, psk: communityPsk, ownerOrbitDbIdentity })
   }
 )

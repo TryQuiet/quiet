@@ -467,6 +467,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       peerList: [...new Set([localAddress, ...metadata.peers])],
       psk: metadata.psk,
       ownerOrbitDbIdentity: metadata.ownerOrbitDbIdentity,
+      inviteData,
     }
 
     const network = {
@@ -519,6 +520,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     // Unblock websocket endpoints
     this.socketService.resolveReadyness()
 
+    await this.localDbService.deleteInviteData()
     this.serverIoProvider.io.emit(SocketActionTypes.COMMUNITY_LAUNCHED, { id: community.id })
   }
 
