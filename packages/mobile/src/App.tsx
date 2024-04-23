@@ -77,7 +77,6 @@ function App(): JSX.Element {
 
   useEffect(() => {
     console.log('LAUNCHED APPLICATION: ', (Math.random() + 1).toString(36).substring(7))
-    NativeModules.CommunicationModule.handleIncomingEvents(APP_READY_CHANNEL, null, null)
   }, [])
 
   return (
