@@ -58,8 +58,8 @@ import { emitError } from '../socket/socket.errors'
 import { SocketService } from '../socket/socket.service'
 import { StorageService } from '../storage/storage.service'
 import { StorageEvents } from '../storage/storage.types'
-import { ServerProxyService } from '../storageServerProxy/storageServerProxy.service'
-import { ServerStoredCommunityMetadata } from '../storageServerProxy/storageServerProxy.types'
+import { StorageServiceClient } from '../storageServiceClient/storageServiceClient.service'
+import { ServerStoredCommunityMetadata } from '../storageServiceClient/storageServiceClient.types'
 import { Tor } from '../tor/tor.service'
 import { ConfigOptions, GetPorts, ServerIoProviderTypes } from '../types'
 import { ServiceState, TorInitState } from './connections-manager.types'
@@ -80,7 +80,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     @Inject(SOCKS_PROXY_AGENT) public readonly socksProxyAgent: Agent,
     private readonly socketService: SocketService,
     private readonly registrationService: RegistrationService,
-    private readonly storageServerProxyService: ServerProxyService,
+    private readonly storageServerProxyService: StorageServiceClient,
     private readonly localDbService: LocalDbService,
     private readonly storageService: StorageService,
     private readonly tor: Tor,

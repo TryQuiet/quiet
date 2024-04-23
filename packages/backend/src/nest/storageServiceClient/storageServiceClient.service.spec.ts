@@ -1,7 +1,7 @@
 import { Test } from '@nestjs/testing'
-import { ServerProxyServiceModule } from './storageServerProxy.module'
-import { ServerProxyService } from './storageServerProxy.service'
-import { ServerStoredCommunityMetadata } from './storageServerProxy.types'
+import { StorageServiceClientModule } from './storageServiceClient.module'
+import { StorageServiceClient } from './storageServiceClient.service'
+import { ServerStoredCommunityMetadata } from './storageServiceClient.types'
 import { jest } from '@jest/globals'
 import { prepareResponse } from './testUtils'
 import { createLibp2pAddress, getValidInvitationUrlTestData, validInvitationDatav1 } from '@quiet/common'
@@ -18,14 +18,14 @@ const mockFetch = async (responseData: Partial<Response>[]) => {
   }
 
   const module = await Test.createTestingModule({
-    imports: [ServerProxyServiceModule],
+    imports: [StorageServiceClientModule],
   }).compile()
-  const service = module.get<ServerProxyService>(ServerProxyService)
+  const service = module.get<StorageServiceClient>(StorageServiceClient)
   service.fetch = mockedFetch
   return service
 }
 
-describe('Server Proxy Service', () => {
+describe('Storage Service Client', () => {
   let clientMetadata: ServerStoredCommunityMetadata
   beforeEach(() => {
     const data = getValidInvitationUrlTestData(validInvitationDatav1[0]).data

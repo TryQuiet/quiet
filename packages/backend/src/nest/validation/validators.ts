@@ -1,7 +1,7 @@
 import _ from 'validator'
 import joi from 'joi'
 import { ChannelMessage, PublicChannel } from '@quiet/types'
-import { ServerStoredCommunityMetadata } from '../storageServerProxy/storageServerProxy.types'
+import { ServerStoredCommunityMetadata } from '../storageServiceClient/storageServiceClient.types'
 import { isPSKcodeValid } from '@quiet/common'
 
 const messageMediaSchema = joi.object({

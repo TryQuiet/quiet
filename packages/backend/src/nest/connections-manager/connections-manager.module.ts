@@ -5,10 +5,10 @@ import { SocketModule } from '../socket/socket.module'
 import { StorageModule } from '../storage/storage.module'
 import { TorModule } from '../tor/tor.module'
 import { ConnectionsManagerService } from './connections-manager.service'
-import { ServerProxyServiceModule } from '../storageServerProxy/storageServerProxy.module'
+import { StorageServiceClientModule } from '../storageServiceClient/storageServiceClient.module'
 
 @Module({
-  imports: [RegistrationModule, StorageModule, TorModule, SocketModule, LocalDbModule, ServerProxyServiceModule],
+  imports: [RegistrationModule, StorageModule, TorModule, SocketModule, LocalDbModule, StorageServiceClientModule],
   providers: [ConnectionsManagerService],
   exports: [ConnectionsManagerService],
 })

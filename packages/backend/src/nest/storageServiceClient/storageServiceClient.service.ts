@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import EventEmitter from 'events'
-import { ServerStoredCommunityMetadata } from './storageServerProxy.types'
+import { ServerStoredCommunityMetadata } from './storageServiceClient.types'
 import fetchRetry, { RequestInitWithRetry } from 'fetch-retry'
 import Logger from '../common/logger'
 import { isServerStoredMetadata } from '../validation/validators'
@@ -15,9 +15,9 @@ class HTTPResponseError extends Error {
 }
 
 @Injectable()
-export class ServerProxyService extends EventEmitter {
+export class StorageServiceClient extends EventEmitter {
   DEFAULT_FETCH_RETRIES = 5
-  private readonly logger = Logger(ServerProxyService.name)
+  private readonly logger = Logger(StorageServiceClient.name)
   _serverAddress: string
   fetch: any
   fetchConfig: RequestInitWithRetry<typeof fetch>
