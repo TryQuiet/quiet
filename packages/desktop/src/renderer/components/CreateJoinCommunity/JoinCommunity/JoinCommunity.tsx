@@ -21,12 +21,7 @@ const JoinCommunity = () => {
 
   const torBootstrapProcessSelector = useSelector(connection.selectors.torBootstrapProcess)
 
-  const downloadInviteDataError = useSelector(
-    errors.selectors.generalErrorByType(SocketActionTypes.DOWNLOAD_INVITE_DATA)
-  )
-
   const [revealInputValue, setRevealInputValue] = useState<boolean>(false)
-  const [serverErrorMessage, setServerErrorMessage] = useState<string>('')
 
   useEffect(() => {
     if (isConnected && !currentCommunity && !joinCommunityModal.open) {
@@ -57,19 +52,6 @@ const JoinCommunity = () => {
     }
   }
 
-  useEffect(() => {
-    if (downloadInviteDataError?.message) {
-      setServerErrorMessage(downloadInviteDataError.message)
-    }
-  }, [downloadInviteDataError])
-
-  const clearServerError = () => {
-    if (downloadInviteDataError) {
-      dispatch(errorsState.actions.clearError(downloadInviteDataError))
-      setServerErrorMessage('')
-    }
-  }
-
   const handleClickInputReveal = () => {
     revealInputValue ? setRevealInputValue(false) : setRevealInputValue(true)
   }
@@ -85,8 +67,6 @@ const JoinCommunity = () => {
       hasReceivedResponse={Boolean(currentIdentity && !currentIdentity.userCertificate)}
       revealInputValue={revealInputValue}
       handleClickInputReveal={handleClickInputReveal}
-      serverErrorMessage={serverErrorMessage}
-      clearServerError={clearServerError}
     />
   )
 }

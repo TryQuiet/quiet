@@ -137,8 +137,6 @@ export interface PerformCommunityActionProps {
   hasReceivedResponse: boolean
   revealInputValue?: boolean
   handleClickInputReveal?: () => void
-  serverErrorMessage?: string
-  clearServerError?: () => void
 }
 
 export const PerformCommunityActionComponent: React.FC<PerformCommunityActionProps> = ({
@@ -152,8 +150,6 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
   hasReceivedResponse,
   revealInputValue,
   handleClickInputReveal,
-  serverErrorMessage,
-  clearServerError,
 }) => {
   const [formSent, setFormSent] = useState(false)
 
@@ -177,14 +173,6 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
   } = useForm<PerformCommunityActionFormValues>({
     mode: 'onTouched',
   })
-
-  useEffect(() => {
-    if (serverErrorMessage) {
-      setError('name', { message: serverErrorMessage })
-      setFormSent(false)
-      clearServerError?.()
-    }
-  }, [serverErrorMessage])
 
   const onSubmit = (values: PerformCommunityActionFormValues) => submitForm(handleCommunityAction, values, setFormSent)
 

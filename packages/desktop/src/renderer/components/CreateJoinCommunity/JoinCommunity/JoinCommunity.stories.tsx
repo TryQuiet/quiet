@@ -29,16 +29,7 @@ const args: PerformCommunityActionProps = {
   revealInputValue: false,
 }
 
-const serverErrorArgs: PerformCommunityActionProps = {
-  ...args,
-  serverErrorMessage: 'Could not connect to the server',
-  clearServerError: function (): void {
-    console.log('Clearing server error message')
-  },
-}
-
 Component.args = args
-ServerError.args = serverErrorArgs
 
 const component: ComponentMeta<typeof PerformCommunityActionComponent> = {
   title: 'Components/JoinCommunity',
