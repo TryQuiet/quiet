@@ -1,5 +1,5 @@
 import { io } from 'socket.io-client'
-import { select, put, call, cancel, fork, takeEvery, FixedTask } from 'typed-redux-saga'
+import { select, put, call, cancel, fork, takeEvery, delay, FixedTask } from 'typed-redux-saga'
 import { PayloadAction } from '@reduxjs/toolkit'
 import { socket as stateManager, Socket } from '@quiet/state-manager'
 import { encodeSecret } from '@quiet/common'
@@ -12,6 +12,16 @@ export function* startConnectionSaga(
 ): Generator {
   const isAlreadyConnected = yield* select(initSelectors.isWebsocketConnected)
   if (isAlreadyConnected) return
+
+  while (true) {
+    const isCryptoEngineInitialized = yield* select(initSelectors.isCryptoEngineInitialized)
+    console.log('WEBSOCKET', 'Waiting for crypto engine to initialize')
+    if (!isCryptoEngineInitialized) {
+      yield* delay(500)
+    } else {
+      break
+    }
+  }
 
   const { dataPort, socketIOSecret } = action.payload
 

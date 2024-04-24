@@ -1,12 +1,16 @@
-import { put, take, select } from 'typed-redux-saga'
+import { NativeModules } from 'react-native'
+import { call, put, take, select } from 'typed-redux-saga'
 import { initSelectors } from '../../init/init.selectors'
 import { navigationSelectors } from '../navigation.selectors'
 import { navigationActions } from '../navigation.slice'
 import { ScreenNames } from '../../../const/ScreenNames.enum'
-import { identity } from '@quiet/state-manager'
+import { APP_READY_CHANNEL, identity } from '@quiet/state-manager'
 import { initActions } from '../../init/init.slice'
 
 export function* redirectionSaga(): Generator {
+  // Let the native modules know to init web socket connection
+  yield* call(NativeModules.CommunicationModule.handleIncomingEvents, APP_READY_CHANNEL, null, null)
+
   // Do not redirect if user opened the app from url (quiet://)
   const deepLinking = yield* select(initSelectors.deepLinking)
   if (deepLinking) {
