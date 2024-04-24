@@ -11,6 +11,19 @@ import { SocketActionTypes } from '@quiet/types'
 export function* startConnectionSaga(
   action: PayloadAction<ReturnType<typeof initActions.startWebsocketConnection>['payload']>
 ): Generator {
+  const isAlreadyConnected = yield* select(initSelectors.isWebsocketConnected)
+  if (isAlreadyConnected) return
+
+  while (true) {
+    const isCryptoEngineInitialized = yield* select(initSelectors.isCryptoEngineInitialized)
+    console.log('WEBSOCKET', 'Waiting for crypto engine to initialize')
+    if (!isCryptoEngineInitialized) {
+      yield* delay(500)
+    } else {
+      break
+    }
+  }
+
   const { dataPort, socketIOSecret } = action.payload
 
   console.log('WEBSOCKET', 'Entered start connection saga', dataPort)
