@@ -164,7 +164,6 @@ describe('User', () => {
         "Files/checkForMissingFiles",
         "Network/addInitializedCommunity",
         "Communities/clearInvitationCodes",
-        "Communities/clearInvitationData",
         "PublicChannels/channelsReplicated",
         "Communities/updateCommunityData",
         "PublicChannels/addChannel",

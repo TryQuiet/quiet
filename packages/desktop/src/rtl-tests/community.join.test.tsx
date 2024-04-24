@@ -180,7 +180,6 @@ describe('User', () => {
         "Files/checkForMissingFiles",
         "Network/addInitializedCommunity",
         "Communities/clearInvitationCodes",
-        "Communities/clearInvitationData",
         "PublicChannels/channelsReplicated",
         "PublicChannels/setChannelSubscribed",
         "PublicChannels/addChannel",

@@ -86,7 +86,6 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof connectionActions.setTorInitialized>
     | ReturnType<typeof usersActions.setUserProfiles>
     | ReturnType<typeof appActions.loadMigrationData>
-    | ReturnType<typeof communitiesActions.clearInvitationData>
   >(emit => {
     // UPDATE FOR APP
     socket.on(SocketActionTypes.TOR_INITIALIZED, () => {
@@ -142,7 +141,6 @@ export function subscribe(socket: Socket) {
       emit(filesActions.checkForMissingFiles(payload.id))
       emit(networkActions.addInitializedCommunity(payload.id))
       emit(communitiesActions.clearInvitationCodes())
-      emit(communitiesActions.clearInvitationData(payload.id))
     })
 
     socket.on(SocketActionTypes.COMMUNITY_UPDATED, (payload: Community) => {

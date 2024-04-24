@@ -151,15 +151,6 @@ export class LocalDbService {
     return communityId in ((await this.getCommunities()) ?? {})
   }
 
-  public async deleteInviteData() {
-    const community = await this.getCurrentCommunity()
-    if (!community) throw new Error('No community found')
-    if (!community.inviteData) return
-    this.logger(`Deleting invite data from community ${community.id}`)
-    const updatedCommunity = { ...community, inviteData: null }
-    await this.setCommunity(updatedCommunity)
-  }
-
   // These are potentially temporary functions to help us migrate data to the
   // backend. Currently this information lives under the COMMUNITY key in
   // LevelDB, but on the frontend this data lives in the Identity model. So we

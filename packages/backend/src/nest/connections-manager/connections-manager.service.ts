@@ -11,7 +11,7 @@ import { CryptoEngine, setEngine } from 'pkijs'
 import { getLibp2pAddressesFromCsrs, removeFilesFromDir } from '../common/utils'
 
 import { LazyModuleLoader } from '@nestjs/core'
-import { createLibp2pAddress, isPSKcodeValid, p2pAddressesToPairs } from '@quiet/common'
+import { createLibp2pAddress, isPSKcodeValid } from '@quiet/common'
 import { CertFieldsTypes, getCertFieldValue, loadCertificate } from '@quiet/identity'
 import {
   ChannelMessageIdsResponse,
@@ -520,7 +520,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     // Unblock websocket endpoints
     this.socketService.resolveReadyness()
 
-    await this.localDbService.deleteInviteData()
     this.serverIoProvider.io.emit(SocketActionTypes.COMMUNITY_LAUNCHED, { id: community.id })
   }
 
