@@ -37,6 +37,10 @@ jobs:
         working-directory: ./packages/desktop/dist
         run: echo "FILE_NAME="Quiet-$VERSION.dmg"" >> $GITHUB_ENV
 
+      - name: Check dist dir content
+        working-directory: ./packages/desktop/dist
+        run: ls -al
+
       - name: Chmod
         working-directory: ./packages/desktop/dist
         run: chmod +x $FILE_NAME
