@@ -13,6 +13,7 @@ import { DocumentPickerResponse } from 'react-native-document-picker'
 import { getFilesData } from '@quiet/common'
 
 export const ChannelScreen: FC = () => {
+  console.log('Trigger mobile workflow')
   const dispatch = useDispatch()
 
   const handleBackButton = useCallback(() => {
