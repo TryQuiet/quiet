@@ -52,7 +52,7 @@ const StyledListItem = styled(ListItem)(({ theme }) => ({
   },
 
   [`&.${classes.wrapper}`]: {
-    backgroundColor: theme.palette.colors.white,
+    backgroundColor: theme.palette.background.default,
     '&:hover': {
       backgroundColor: theme.palette.colors.gray03,
     },
@@ -67,7 +67,7 @@ const StyledListItem = styled(ListItem)(({ theme }) => ({
   },
 
   [`& .${classes.wrapperPending}`]: {
-    background: theme.palette.colors.white,
+    background: theme.palette.background.default,
   },
 
   [`& .${classes.username}`]: {
@@ -97,7 +97,7 @@ const StyledListItem = styled(ListItem)(({ theme }) => ({
     marginRight: 10,
     marginBottom: 4,
     borderRadius: 4,
-    backgroundColor: theme.palette.colors.grayBackgroud,
+    backgroundColor: theme.palette.background.paper,
   },
 
   [`& .${classes.alignAvatar}`]: {

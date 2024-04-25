@@ -14,7 +14,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [macOS-latest]
+        os: [macos-12]
 
     steps:
       - name: "Print OS"
