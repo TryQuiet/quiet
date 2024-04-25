@@ -9,6 +9,11 @@ import { StoreKeys } from '../../store/store.keys'
 import { modalsActions } from '../modals/modals.slice'
 import { ModalName } from '../modals/modals.types'
 import { getValidInvitationUrlTestData, validInvitationDatav1, validInvitationDatav2 } from '@quiet/common'
+import {
+  AlreadyBelongToCommunityWarning,
+  InvalidInvitationLinkError,
+  JoiningAnotherCommunityWarning,
+} from '@quiet/common'
 
 describe('Handle invitation code', () => {
   let store: Store
@@ -34,27 +39,34 @@ describe('Handle invitation code', () => {
   })
 
   it('joins network if code is valid', async () => {
+    const createNetworkPayload: CreateNetworkPayload = {
+      ownership: CommunityOwnership.User,
+      inviteData: validInvitationData,
+    }
     await expectSaga(customProtocolSaga, communities.actions.customProtocol([validInvitationDeepUrl]))
       .withState(store.getState())
-      .put(communities.actions.joinNetwork(validInvitationData))
+      .put(communities.actions.createNetwork(createNetworkPayload))
       .run()
   })
 
   it('joins network if v2 code is valid', async () => {
     const validInvitationData = getValidInvitationUrlTestData(validInvitationDatav2[0]).data
     const validInvitationDeepUrl = getValidInvitationUrlTestData(validInvitationDatav2[0]).deepUrl()
+    const createNetworkPayload: CreateNetworkPayload = {
+      ownership: CommunityOwnership.User,
+      inviteData: validInvitationData,
+    }
     await expectSaga(customProtocolSaga, communities.actions.customProtocol([validInvitationDeepUrl]))
       .withState(store.getState())
-      .put(communities.actions.joinNetwork(validInvitationData))
+      .put(communities.actions.createNetwork(createNetworkPayload))
       .run()
   })
 
   it('does not try to create network if user is already in community', async () => {
     community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community')
-    const payload: CreateNetworkPayload = {
+    const createNetworkPayload: CreateNetworkPayload = {
       ownership: CommunityOwnership.User,
-      peers: validInvitationData.pairs,
-      psk: validInvitationData.psk,
+      inviteData: validInvitationData,
     }
 
     await expectSaga(customProtocolSaga, communities.actions.customProtocol([validInvitationDeepUrl]))
@@ -63,19 +75,55 @@ describe('Handle invitation code', () => {
         modalsActions.openModal({
           name: ModalName.warningModal,
           args: {
-            title: 'You already belong to a community',
-            subtitle: "We're sorry but for now you can only be a member of a single community at a time.",
+            title: AlreadyBelongToCommunityWarning.TITLE,
+            subtitle: AlreadyBelongToCommunityWarning.MESSAGE,
           },
         })
       )
-      .not.put(communities.actions.createNetwork(payload))
+      .not.put(communities.actions.createNetwork(createNetworkPayload))
       .run()
   })
 
-  it('does not try to create network if code is missing psk', async () => {
-    const payload: CreateNetworkPayload = {
+  it('does not try to create network if user used v2 invitation link and is joining another community', async () => {
+    const invitationData = validInvitationDatav2[0]
+    community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community', {
+      name: '',
+      inviteData: invitationData,
+    })
+    const newInvitationData = {
+      ...invitationData,
+      serverAddress: 'http://something-else.pl',
+    }
+    const createNetworkPayload: CreateNetworkPayload = {
       ownership: CommunityOwnership.User,
-      peers: [],
+      inviteData: newInvitationData,
+    }
+
+    store.dispatch(communities.actions.addNewCommunity(community))
+    store.dispatch(communities.actions.setCurrentCommunity(community.id))
+
+    await expectSaga(
+      customProtocolSaga,
+      communities.actions.customProtocol([getValidInvitationUrlTestData(newInvitationData).deepUrl()])
+    )
+      .withState(store.getState())
+      .put(
+        modalsActions.openModal({
+          name: ModalName.warningModal,
+          args: {
+            title: JoiningAnotherCommunityWarning.TITLE,
+            subtitle: JoiningAnotherCommunityWarning.MESSAGE,
+          },
+        })
+      )
+      .not.put(communities.actions.createNetwork(createNetworkPayload))
+      .run()
+  })
+
+  it('does not try to create network if code is missing data', async () => {
+    const createNetworkPayload: CreateNetworkPayload = {
+      ownership: CommunityOwnership.User,
+      inviteData: validInvitationData,
     }
 
     await expectSaga(
@@ -83,44 +131,48 @@ describe('Handle invitation code', () => {
       communities.actions.customProtocol(['someArg', 'quiet://?k=BNlxfE2WBF7LrlpIX0CvECN5o1oZtA16PkAb7GYiwYw='])
     )
       .withState(store.getState())
-      .put(communities.actions.clearInvitationCodes())
       .put(
         modalsActions.openModal({
           name: ModalName.warningModal,
           args: {
-            title: 'Invalid link',
-            subtitle: 'The invite link you received is not valid. Please check it and try again.',
+            title: InvalidInvitationLinkError.TITLE,
+            subtitle: InvalidInvitationLinkError.MESSAGE,
           },
         })
       )
-      .not.put(communities.actions.createNetwork(payload))
+      .not.put(communities.actions.createNetwork(createNetworkPayload))
       .run()
   })
 
-  it('does not try to create network if code is missing psk', async () => {
-    const payload: CreateNetworkPayload = {
+  test("doesn't display error if user is connecting with the same community", async () => {
+    community = await factory.create<ReturnType<typeof communities.actions.addNewCommunity>['payload']>('Community', {
+      name: '',
+      psk: validInvitationData.psk,
+    })
+
+    const createNetworkPayload: CreateNetworkPayload = {
       ownership: CommunityOwnership.User,
-      peers: [],
+      inviteData: validInvitationData,
     }
 
-    await expectSaga(
-      customProtocolSaga,
-      communities.actions.customProtocol([
-        'quiet://?QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE=y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd',
-      ])
-    )
+    store.dispatch(communities.actions.addNewCommunity(community))
+    store.dispatch(communities.actions.setCurrentCommunity(community.id))
+
+    await expectSaga(customProtocolSaga, communities.actions.customProtocol([validInvitationDeepUrl]))
       .withState(store.getState())
-      .put(communities.actions.clearInvitationCodes())
-      .put(
-        modalsActions.openModal({
-          name: ModalName.warningModal,
-          args: {
-            title: 'Invalid link',
-            subtitle: 'The invite link you received is not valid. Please check it and try again.',
+      .not.put.like({
+        action: {
+          type: modalsActions.openModal.type,
+          payload: {
+            name: ModalName.warningModal,
+            params: {
+              title: AlreadyBelongToCommunityWarning.TITLE,
+              message: AlreadyBelongToCommunityWarning.MESSAGE,
+            },
           },
-        })
-      )
-      .not.put(communities.actions.createNetwork(payload))
+        },
+      })
+      .put(communities.actions.createNetwork(createNetworkPayload))
       .run()
   })
 })

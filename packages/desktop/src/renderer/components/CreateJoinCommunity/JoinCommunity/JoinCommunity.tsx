@@ -1,11 +1,12 @@
-import { communities, connection, identity } from '@quiet/state-manager'
-import { CommunityOwnership, InvitationData } from '@quiet/types'
+import { communities, connection, errors, identity } from '@quiet/state-manager'
+import { CommunityOwnership, CreateNetworkPayload, InvitationData, SocketActionTypes } from '@quiet/types'
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import PerformCommunityActionComponent from '../../../components/CreateJoinCommunity/PerformCommunityActionComponent'
 import { useModal } from '../../../containers/hooks'
 import { ModalName } from '../../../sagas/modals/modals.types'
 import { socketSelectors } from '../../../sagas/socket/socket.selectors'
+import { errors as errorsState } from '@quiet/state-manager'
 
 const JoinCommunity = () => {
   const dispatch = useDispatch()
@@ -35,7 +36,11 @@ const JoinCommunity = () => {
   }, [currentCommunity])
 
   const handleCommunityAction = (data: InvitationData) => {
-    dispatch(communities.actions.joinNetwork(data))
+    const createNetworkPayload: CreateNetworkPayload = {
+      ownership: CommunityOwnership.User,
+      inviteData: data,
+    }
+    dispatch(communities.actions.createNetwork(createNetworkPayload))
   }
 
   // From 'You can create a new community instead' link

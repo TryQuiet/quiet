@@ -11,7 +11,7 @@ export const ErrorModal = () => {
   }>(ModalName.criticalError)
 
   const restartApp = () => {
-    ipcRenderer.send('restartApp')
+    ipcRenderer.send('restart-app')
   }
 
   const testMode = Boolean(process.env.TEST_MODE)

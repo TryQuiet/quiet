@@ -9,13 +9,8 @@ import {
   Sidebar,
 } from '../selectors'
 import logger from '../logger'
+import { UserTestData } from '../types'
 const log = logger('ManyClients')
-
-interface UserTestData {
-  username: string
-  app: App
-  messages: string[]
-}
 
 jest.setTimeout(1200000) // 20 minutes
 describe('Multiple Clients', () => {
@@ -332,19 +327,15 @@ describe('Multiple Clients', () => {
         users.owner.username,
         `@${users.owner.username} deleted #${newChannelName}`
       )
+      await sidebarUser1.waitForChannels(['general'])
     })
+
     it('Channel deletion - User can create channel with the same name and is fresh channel', async () => {
       await sidebarUser1.addNewChannel(newChannelName)
       await sidebarUser1.switchChannel(newChannelName)
       const messages = await secondChannelUser1.getUserMessages(users.user1.username)
       expect(messages.length).toEqual(1)
-      await new Promise<void>(resolve =>
-        setTimeout(() => {
-          resolve()
-        }, 20000)
-      )
-      const channels = await sidebarOwner.getChannelList()
-      expect(channels.length).toEqual(2)
+      await sidebarOwner.waitForChannels(['general', newChannelName])
     })
 
     it('Channel deletion - Owner creates third channel', async () => {
@@ -353,13 +344,7 @@ describe('Multiple Clients', () => {
       thirdChannelOwner = new Channel(users.owner.app.driver, thirdChannelName)
       const messages = await thirdChannelOwner.getUserMessages(users.owner.username)
       expect(messages.length).toEqual(1)
-      await new Promise<void>(resolve =>
-        setTimeout(() => {
-          resolve()
-        }, 2000)
-      )
-      const channels = await sidebarUser1.getChannelList()
-      expect(channels.length).toEqual(3)
+      await sidebarUser1.waitForChannels(['general', newChannelName, thirdChannelName])
     })
 
     // End of tests for Windows
@@ -378,8 +363,7 @@ describe('Multiple Clients', () => {
         await channelContextMenuOwner.openMenu()
         await channelContextMenuOwner.openDeletionChannelModal()
         await channelContextMenuOwner.deleteChannel()
-        const channels = await sidebarOwner.getChannelList()
-        expect(channels.length).toEqual(2)
+        await sidebarOwner.waitForChannels(['general', newChannelName])
       })
 
       // Delete general channel while guest is absent
@@ -391,8 +375,7 @@ describe('Multiple Clients', () => {
         await channelContextMenuOwner.openMenu()
         await channelContextMenuOwner.openDeletionChannelModal()
         await channelContextMenuOwner.deleteChannel()
-        const channels = await sidebarOwner.getChannelList()
-        expect(channels.length).toEqual(2)
+        await sidebarOwner.waitForChannels(['general', newChannelName])
       })
 
       it('User 1 re-opens app', async () => {

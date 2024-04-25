@@ -5,15 +5,24 @@ import { generateId } from '../../../utils/cryptography/cryptography'
 import { communitiesActions } from '../communities.slice'
 import { identityActions } from '../../identity/identity.slice'
 import { createRootCA } from '@quiet/identity'
-import { type Community, CommunityOwnership, type Identity, SocketActionTypes, NetworkInfo } from '@quiet/types'
+import {
+  type Community,
+  CommunityOwnership,
+  type Identity,
+  SocketActionTypes,
+  NetworkInfo,
+  InvitationDataVersion,
+} from '@quiet/types'
 import { Socket, applyEmitParams } from '../../../types'
+import logger from '../../../utils/logger'
+const log = logger('createNetwork')
 
 export function* createNetworkSaga(
   socket: Socket,
   action: PayloadAction<ReturnType<typeof communitiesActions.createNetwork>['payload']>
 ) {
-  console.log('create network saga')
-
+  const payload = action.payload
+  log(payload)
   // Community IDs are only local identifiers
   const id = yield* call(generateId)
 
@@ -29,7 +38,7 @@ export function* createNetworkSaga(
     rootKeyString: string
   } = null
 
-  if (action.payload.ownership === CommunityOwnership.Owner) {
+  if (payload.ownership === CommunityOwnership.Owner) {
     const notBeforeDate = new Date(Date.UTC(2010, 11, 28, 10, 10, 10))
     const notAfterDate = new Date(Date.UTC(2030, 11, 28, 10, 10, 10))
 
@@ -43,20 +52,27 @@ export function* createNetworkSaga(
 
   const community: Community = {
     id,
-    name: action.payload.name,
+    name: payload.name,
     CA,
     rootCa: CA?.rootCertString,
-    psk: action.payload.psk,
-    ownerOrbitDbIdentity: action.payload.ownerOrbitDbIdentity,
+    inviteData: payload.inviteData,
+  }
+
+  if (payload.inviteData) {
+    switch (payload.inviteData.version) {
+      case InvitationDataVersion.v1:
+        community.psk = payload.inviteData.psk
+        community.ownerOrbitDbIdentity = payload.inviteData.ownerOrbitDbIdentity
+        const invitationPeers = payload.inviteData.pairs
+        if (invitationPeers) {
+          yield* put(communitiesActions.setInvitationCodes(invitationPeers))
+        }
+        break
+    }
   }
 
   yield* put(communitiesActions.addNewCommunity(community))
   yield* put(communitiesActions.setCurrentCommunity(id))
-
-  const invitationPeers = action.payload.peers
-  if (invitationPeers) {
-    yield* put(communitiesActions.setInvitationCodes(invitationPeers))
-  }
 
   // Identities are tied to communities for now
   const identity: Identity = {

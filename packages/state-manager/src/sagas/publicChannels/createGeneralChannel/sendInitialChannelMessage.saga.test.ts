@@ -13,7 +13,7 @@ import { DateTime } from 'luxon'
 import { publicChannelsSelectors } from '../publicChannels.selectors'
 import { combineReducers } from '@reduxjs/toolkit'
 import { reducers } from '../../reducers'
-import { generateChannelId } from '@quiet/common'
+import { generalChannelDeletionMessage, generateChannelId } from '@quiet/common'
 import { type Community, type PublicChannel } from '@quiet/types'
 
 describe('sendInitialChannelMessageSaga', () => {
@@ -93,7 +93,7 @@ describe('sendInitialChannelMessageSaga', () => {
       .put(
         messagesActions.sendMessage({
           type: 3,
-          message: `@${owner.nickname} deleted all messages in #general`,
+          message: generalChannelDeletionMessage(owner.nickname),
           channelId: generalChannel.id,
         })
       )

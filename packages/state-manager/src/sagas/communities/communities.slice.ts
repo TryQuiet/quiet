@@ -1,15 +1,7 @@
 import { createSlice, type EntityState, type PayloadAction } from '@reduxjs/toolkit'
 import { StoreKeys } from '../store.keys'
 import { communitiesAdapter } from './communities.adapter'
-import {
-  InvitationPair,
-  type AddOwnerCertificatePayload,
-  type Community,
-  type CreateNetworkPayload,
-  type StorePeerListPayload,
-  CommunityMetadata,
-  InvitationData,
-} from '@quiet/types'
+import { InvitationPair, type Community, type CreateNetworkPayload } from '@quiet/types'
 
 export class CommunitiesState {
   public invitationCodes: InvitationPair[] = []
@@ -36,7 +28,6 @@ export const communitiesSlice = createSlice({
       })
     },
     createNetwork: (state, _action: PayloadAction<CreateNetworkPayload>) => state,
-    joinNetwork: (state, _action: PayloadAction<InvitationData>) => state,
     resetApp: (state, _action) => state,
     createCommunity: (state, _action: PayloadAction<string>) => state,
     launchCommunity: (state, _action: PayloadAction<string>) => state,

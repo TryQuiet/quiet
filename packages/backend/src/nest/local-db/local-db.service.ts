@@ -1,11 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common'
 import { Level } from 'level'
-import { type Community, type Identity, InitCommunityPayload, type NetworkInfo, NetworkStats } from '@quiet/types'
+import { type Community, type NetworkInfo, NetworkStats } from '@quiet/types'
 import { createLibp2pAddress, filterAndSortPeers } from '@quiet/common'
 import { LEVEL_DB } from '../const'
 import { LocalDBKeys, LocalDbStatus } from './local-db.types'
 import Logger from '../common/logger'
-import { create } from 'mock-fs/lib/filesystem'
 
 @Injectable()
 export class LocalDbService {
@@ -28,6 +27,7 @@ export class LocalDbService {
   }
 
   public async purge() {
+    this.logger(`Purging db`)
     await this.db.clear()
   }
 

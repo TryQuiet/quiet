@@ -61,6 +61,7 @@ export function* launchCommunitySaga(
     peers: peerList,
     psk: community.psk,
     ownerOrbitDbIdentity: community.ownerOrbitDbIdentity,
+    inviteData: community.inviteData,
   }
 
   yield* apply(socket, socket.emitWithAck, applyEmitParams(SocketActionTypes.LAUNCH_COMMUNITY, payload))

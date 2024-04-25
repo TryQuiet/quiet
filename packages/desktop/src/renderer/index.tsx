@@ -5,7 +5,6 @@ import Root, { persistor } from './Root'
 import store from './store'
 import updateHandlers from './store/handlers/update'
 import { communities, connection } from '@quiet/state-manager'
-import { InvitationData } from '@quiet/types'
 
 if (window && process.env.DEBUG) {
   window.localStorage.setItem('debug', process.env.DEBUG)
@@ -21,8 +20,7 @@ ipcRenderer.on('force-save-state', async _event => {
 })
 
 ipcRenderer.on('invitation', (_event, invitation: { code: string | string[] }) => {
-  console.log('ipcRenderer.on(invitation)', invitation)
-  if (!invitation.code) return
+  if (!invitation.code || !invitation.code.length) return
 
   let invitationData: string[]
   if (typeof invitation.code === 'string') {
@@ -30,7 +28,6 @@ ipcRenderer.on('invitation', (_event, invitation: { code: string | string[] }) =
   } else {
     invitationData = invitation.code
   }
-  console.log('invitation', invitationData, 'dispatching action')
   store.dispatch(communities.actions.customProtocol(invitationData))
 })
 
