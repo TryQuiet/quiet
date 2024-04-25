@@ -12,6 +12,7 @@
 # Chores
 
 * Cleanup data directory at end of e2e tests
+* Update mobile development README ([#2483](https://github.com/TryQuiet/quiet/issues/2483))
 
 [2.2.0]
 
