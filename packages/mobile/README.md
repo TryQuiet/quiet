@@ -6,7 +6,7 @@ Quiet Mobile is a React Native app for Android and iOS that shares a Node.js [ba
 
 ### Prerequisites
 
-1. If not on Mac (which comes preinstalled with `patch`, install `patch` (e.g. via your Linux package manager).
+1. If not on Mac (which comes preinstalled with `patch`), install `patch` (e.g. via your Linux package manager).
 
 1. In the root directory of `quiet/`, install the monorepo's dependencies and bootstrap the project with lerna. It will take care of the package's dependencies and trigger a prepublish script which builds them.
 
@@ -17,39 +17,24 @@ Quiet Mobile is a React Native app for Android and iOS that shares a Node.js [ba
 
 1. On your host, install [adb](https://developer.android.com/studio/command-line/adb) (Android Debug Bridge) to communicate with your Android device.
 
-
 1. If running on a physical device, enable USB debugging on your device and connect it to your computer via USB. If running on an emulator, start the emulator.
 
       [React Native: Running on Device](https://reactnative.dev/docs/running-on-device)
       [Android Developers: Configure Developer Options](https://developer.android.com/studio/debug/dev-options)
 
-1. Check that you are not connected to more than one device or emulator.
+1. Add the path to the java binary installed by Android Studio JAVA_HOME to your environment variables. Ensure that you have followed the SDK installation instructions in the [React Native Development Environment](https://reactnative.dev/docs/environment-setup) guide.
 
+    For example, on macOS with Android Studio installed in the default location,
+    Add the following line to your `~/.bash_profile` or `~/.zprofile` file,
     ```bash
-    adb devices
+    export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
     ```
-
-    Only one device or emulator should be listed, or if more than one is listed, only one should be marked as `device` or `emulator`. The other devices should be marked as `inactive` or `unauthorized`.
-
-    If you are connected to more than one device or emulator, kill all but the one you want to use.
-
-    ```bash
-    adb -s <device-id> emu kill
-    ```
-
-1. Build and start the application,
-
-    From `packages/mobile` directory,
-
-    ```bash
-    npm run android
-    ```
-
-    The application should now be running on your device.
 
 ### Local development
 
 Follow the steps in [React Native Development Environment](https://reactnative.dev/docs/environment-setup) to set up your development environment.
+
+#### Command Line
 
 1. After following the React Native Development Environment instructions, navigate to the `packages/mobile` directory and run the application,
 
@@ -58,6 +43,12 @@ Follow the steps in [React Native Development Environment](https://reactnative.d
     ```
 
     The application should now be running on your device.
+
+#### Android Studio
+
+1. Open the `android` directory in Android Studio.
+1. If necessary, sync the Gradle files by hitting the "Sync Project with Gradle Files" button in the top right corner.
+1. Select the target device or emulator and press the play button.
 
 ### Docker container
 
@@ -156,7 +147,7 @@ const watchFolders = [
 ### Prerequisites
 
 1. Install [Xcode](https://developer.apple.com/xcode/) from the Mac App Store.
-
+1. Follow the [React Native Development Environment](https://reactnative.dev/docs/environment-setup) instructions to set up your development environment.
 1. Install rbenv, a Ruby version manager.
 
     ```bash
@@ -188,18 +179,16 @@ const watchFolders = [
 
 1. Open the `ios` directory in Xcode.
 
-    ```bash
-    #From packages/mobile/ios
-    open Quiet.xcworkspace
-    ```
-
 1. If planning to run on device, setup the signing certificate and provisioning profile in Xcode.
 
     [React Native: Running on Device](https://reactnative.dev/docs/running-on-device)
 
+### Command Line
+
 1. Start the Metro bundler,
 
     From the `packages/mobile` directory,
+
     ```bash
     npm run start
     ```
@@ -207,6 +196,7 @@ const watchFolders = [
 1. Build and run the application,
 
       From the `packages/mobile` directory,
+
       ```bash
       npm run ios
       ```
@@ -214,6 +204,19 @@ const watchFolders = [
       or from Xcode, select the target device and press the play button.
 
       The application should now be running on your device.
+
+### Xcode
+
+1. Start the metro bundler,
+
+    From the `packages/mobile` directory,
+
+    ```bash
+    npm run start
+    ```
+
+1. Open the `ios` directory in Xcode.
+1. Select the target device or simulator and press the play button.
 
 ## Running E2E tests (optional)
 
