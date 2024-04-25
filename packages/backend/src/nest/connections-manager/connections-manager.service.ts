@@ -201,7 +201,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   }
 
   public async launchCommunityFromStorage() {
-    this.logger('TEST')
     this.logger('Launching community from storage')
 
     const community = await this.localDbService.getCurrentCommunity()
