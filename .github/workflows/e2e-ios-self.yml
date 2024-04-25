@@ -1,12 +1,12 @@
 name: Detox E2E iOS (self-hosted)
 
 on:
-  push:
-    paths: 
-      - packages/mobile/**
-      - packages/backend/**
-      - packages/state-manager/**
-      - .github/workflows/e2e-ios-self.yml
+  # push:
+  #   paths: 
+  #     - packages/mobile/**
+  #     - packages/backend/**
+  #     - packages/state-manager/**
+  #     - .github/workflows/e2e-ios-self.yml
 
 jobs:
   detox-ios-self-hosted:
