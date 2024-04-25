@@ -6,46 +6,111 @@ Quiet Mobile is a React Native app for Android and iOS that shares a Node.js [ba
 
 ### Prerequisites
 
-Install `patch` (e.g. via your Linux package manager).
+1. If not on Mac (which comes preinstalled with `patch`, install `patch` (e.g. via your Linux package manager).
 
-In the root directory of `quiet/`, install the monorepo's dependencies and bootstrap the project with lerna. It will take care of the package's dependencies and trigger a prepublish script which builds them.
+1. In the root directory of `quiet/`, install the monorepo's dependencies and bootstrap the project with lerna. It will take care of the package's dependencies and trigger a prepublish script which builds them.
 
-```
-npm install
-npm run lerna bootstrap
-```
+    ```bash
+    npm install
+    npm run lerna bootstrap
+    ```
 
-On your host, install adb, https://developer.android.com/studio/command-line/adb.
+1. On your host, install [adb](https://developer.android.com/studio/command-line/adb) (Android Debug Bridge) to communicate with your Android device.
 
-On your phone in the Developer Options, enable USB debugging (check carefully for security options as they may appear besides the standard debugging ones) and enable installing applications through USB on your physical device (https://developer.android.com/studio/debug/dev-options) and plug in your phone via USB cable.
+
+1. If running on a physical device, enable USB debugging on your device and connect it to your computer via USB. If running on an emulator, start the emulator.
+
+      [React Native: Running on Device](https://reactnative.dev/docs/running-on-device)
+      [Android Developers: Configure Developer Options](https://developer.android.com/studio/debug/dev-options)
+
+1. Check that you are not connected to more than one device or emulator.
+
+    ```bash
+    adb devices
+    ```
+
+    Only one device or emulator should be listed, or if more than one is listed, only one should be marked as `device` or `emulator`. The other devices should be marked as `inactive` or `unauthorized`.
+
+    If you are connected to more than one device or emulator, kill all but the one you want to use.
+
+    ```bash
+    adb -s <device-id> emu kill
+    ```
+
+1. Build and start the application,
+
+    From `packages/mobile` directory,
+
+    ```bash
+    npm run android
+    ```
+
+    The application should now be running on your device.
+
+### Local development
+
+Follow the steps in [React Native Development Environment](https://reactnative.dev/docs/environment-setup) to set up your development environment.
+
+1. After following the React Native Development Environment instructions, navigate to the `packages/mobile` directory and run the application,
+
+    ```bash
+    npm run android
+    ```
+
+    The application should now be running on your device.
 
 ### Docker container
 
 Docker container with Android development environment can be found in `packages/mobile/android-environment`.
 
-Build the image,
+1. Build the image,
 
-```
-docker build -t quiet-mobile-dev -f Dockerfile .
-```
+    ```bash
+    # From packages/mobile/android-environment
+    docker build -t quiet-mobile-dev -f Dockerfile .
+    ```
 
-Then start a container and attach to it,
+1. Export an environment variable with the path to the root of the repository,
 
-```
-docker run -it --rm --name quiet-mobile-debug -u node --network host --entrypoint bash --privileged -v /dev/bus/usb:/dev/bus/usb -v /<path-to-monorepo>:/app quiet-mobile-dev
-```
+    For bash,
 
-Once attached to the container, start Metro, a JavaScript bundler for React Native,
+    ```bash
+    # From the root of the repository
+    echo "export QUIET_REPO_ROOT=$(pwd)" >> ~/.bash_profile
+    source ~/.bash_profile
+    ```
 
-```
-npm run start
-```
+    or for zsh
 
-Open another terminal window and start building the application,
+    ```bash
+    # From the root of the repository
+    echo "export QUIET_REPO_ROOT=$(pwd)" >> ~/.zprofile
+    source ~/.zprofile
+    ```
 
-```
-docker exec -it quiet-mobile-debug /usr/local/bin/npm run android
-```
+1. Then start a container and attach to it,
+
+    ```bash
+    docker run -it --rm --name quiet-mobile-debug -u node --network host --entrypoint bash --privileged -v /dev/bus/usb:/dev/bus/usb -v $QUIET_REPO_ROOT:/app quiet-mobile-dev
+    ```
+
+    Your command line should now look like `node@docker-desktop:/app/packages/mobile$`
+
+1. Once attached to the container, start Metro, a JavaScript bundler for React Native,
+
+    ```bash
+    npm run start
+    ```
+
+    Warning: Do not select any options in the Metro terminal window.
+
+1. Open another terminal window and start building the application,
+
+    ```bash
+    docker exec -it quiet-mobile-debug /usr/local/bin/npm run android
+    ```
+
+    The application should now be running on your device.
 
 ### Wireless debugging (optional)
 
@@ -55,13 +120,13 @@ To connect your debugging device wirelessly, make sure it runs on Android 11 or 
 
 Open a terminal window and tell the adb daemon to use port 5555,
 
-```
+```bash
 adb tcpip 5555
 ```
 
 Then check your phone's IP address and connect to it
 
-```
+```bash
 adb connect <phone-ip>:5555
 ```
 
@@ -71,7 +136,7 @@ Unplug your phone and repeat the last command in the Docker container section to
 
 Open a terminal window,
 
-```
+```bash
 adb logcat --pid=$(adb shell pidof -s com.quietmobile.debug)
 ```
 
@@ -79,18 +144,83 @@ adb logcat --pid=$(adb shell pidof -s com.quietmobile.debug)
 
 Metro requires additional step for locally linking packages. After running standard `npm link` commands, update `metro.config.js` as follows
 
-```
+```bash
 const watchFolders = [
   ...
   path.resolve(__dirname, '<path-to-linked-package>')
 ]
 ```
 
+## Setting up iOS environment
+
+### Prerequisites
+
+1. Install [Xcode](https://developer.apple.com/xcode/) from the Mac App Store.
+
+1. Install rbenv, a Ruby version manager.
+
+    ```bash
+    brew install rbenv
+    ```
+
+1. Set your Ruby version to the suggested version.
+
+    At the time of writing, the suggested Ruby version is 2.7.5
+
+    ```bash
+    rbenv install 2.7.5
+    rbenv global 2.7.5
+    ```
+
+1. Install ruby dependencies from the Gemfile in the `packages/mobile` directory.
+
+    ```bash
+    gem install bundler
+    bundle install
+    ```
+
+1. Install the pods for the iOS project.
+
+    ```bash
+    cd ios
+    bundle exec pod install
+    ```
+
+1. Open the `ios` directory in Xcode.
+
+    ```bash
+    #From packages/mobile/ios
+    open Quiet.xcworkspace
+    ```
+
+1. If planning to run on device, setup the signing certificate and provisioning profile in Xcode.
+
+    [React Native: Running on Device](https://reactnative.dev/docs/running-on-device)
+
+1. Start the Metro bundler,
+
+    From the `packages/mobile` directory,
+    ```bash
+    npm run start
+    ```
+
+1. Build and run the application,
+
+      From the `packages/mobile` directory,
+      ```bash
+      npm run ios
+      ```
+
+      or from Xcode, select the target device and press the play button.
+
+      The application should now be running on your device.
+
 ## Running E2E tests (optional)
-We use Detox (https://wix.github.io/Detox/) for E2E testing on mobile.
+
+We use [Detox](https://wix.github.io/Detox/) for E2E testing on mobile.
 Detox recommends to install its `detox-cli` globally, enabling usage of the command line tools outside npm scripts.
 
-```
+```bash
 npm install detox-cli --global
 ```
 
@@ -104,18 +234,18 @@ There're two commands to use:
 
 The first one for building binary file to put under test:
 
-```
+```bash
 detox build --configuration android.att.debug
 ```
 
 And the second one for actually running the tests:
 (let's trigger the basic set of e2e tests called `starter`)
 
-```
+```bash
 detox test starter --configuration android.att.debug
 ```
 
-For more detailed instructions, see https://wix.github.io/Detox/docs/introduction/your-first-test/
+For more detailed instructions, see [Detox:Your First Test](https://wix.github.io/Detox/docs/introduction/your-first-test/)
 
 ## Running visual regression tests
 
@@ -130,7 +260,7 @@ In order to perform comparision, the presence of a base screenshots is required 
 There're two types of tests: a basic (starter) set of e2e tests, and an app-wide visual regression test which uses storybook.
 For the second type, it's important to use a `storybook` variant of the build
 
-```
+```bash
 detox test storybook --configuration android.att.storybook -- -enable-visual-regression
 ```
 
@@ -145,7 +275,6 @@ React-native projects consists of two parts: javascript code and native code. Na
 If you only wish to make changes to the react-native part of the project, simply use your favorite code editor.
 Altough if you plan to modify the native code, Android Studio is recommended as it simplifies things a lot and Xcode is required to be able to work with iOS.
 
-
 ### When to rebuild the project?
 
 Both Android and iOS manages their own dependencies with the help of `gradle` (Android) and `cocoapods` (iOS). They work similar to `npm`.
@@ -155,12 +284,14 @@ If changes are made to the native part of the project (java, kotlin, objc or swi
 
 React-native uses a tool called metro to bundle javascript files. It does it on runtime, before processing react-native code. Depending on the size of cached files it may take several seconds to fully load the bundled js code. When a change is made to the javascript codebase, it's usually enough to reload files with metro, by pressing `R` from within the console in which metro operates.
 
-
 ### Access iOS simulator files system
+
 Find proper directory by running
-```
+
+```bash
 xcrun simctl get_app_container booted com.quietmobile data
 ```
+
 enter it and find directory data within `/Documents` folder
 
 
@@ -168,15 +299,16 @@ enter it and find directory data within `/Documents` folder
 
 Sometimes metro loader takes long enough to cause a race condition failure with the native service notifying javascript code about the data of websocket server
 we use to communicate with backend. In this case, we should be able to observe a log informing us that an event has been emitted but there was nothing to receive it:
-```
+
+```bash
 WEBSOCKET CONNECTION: Starting on 11000
 RCTNativeAppEventEmitter: Tried to send an event but got NULL on reactContext
 ```
+
 The easiest solution is to close the app and open it again by tapping it's icon on the device (there's no need to rebuild the project) (Android/iOS)
 or to follow `Product -> Perform Action -> Run Without Building` in Xcode. (iOS)
 
 If it's not enough, you can locally increase the `WEBSOCKET_CONNECTION_DELAY` for emitting the event at `mobile/android/app/src/main/java/com/quietmobile/Utils/Const.kt` (Android)
-
 
 ## Troubleshooting
 
@@ -195,6 +327,22 @@ Built app bundle cannot contain symlinks linking outside the package (which some
 ### Unable to resolve module
 
 Usage of native methods (like the ones for file management) must be adapted for mobile environment. There're several ways to fix the issue with incompatible packages/files:
+
 1. Shim packages with `rn-dodeify` https://www.npmjs.com/package/rn-nodeify
 2. Blacklist certain files in `metro.config.js:30`
 3. Use diff & patch https://www.freecodecamp.org/news/compare-files-with-diff-in-linux/
+
+### Process already running on :8081
+
+If you encounter a problem with metro bundler, make sure there's no other process running on the same port. If it's the case, kill the process and try again.
+
+Get the PID of the process:
+
+```bash
+lsof -i :8081
+```
+
+Kill the process:
+```bash
+kill -9 <PID>
+```
