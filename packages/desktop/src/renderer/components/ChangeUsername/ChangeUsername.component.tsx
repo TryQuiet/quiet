@@ -244,6 +244,7 @@ export const ChangeUsername: React.FC<ChangeUsernameProps> = ({
                   field.onBlur()
                 }}
                 value={field.value}
+                spellCheck={false}
               />
             )}
           />

@@ -241,6 +241,7 @@ export const CreateUsernameComponent: React.FC<CreateUsernameComponentProps> = (
                       field.onBlur()
                     }}
                     value={field.value}
+                    spellCheck={false}
                   />
                 )}
               />

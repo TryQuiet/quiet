@@ -60,6 +60,7 @@ describe('MessageInput component', () => {
           }
         >
           <TextInput
+            autoCorrect={true}
             editable={true}
             height={54}
             onChangeText={[Function]}

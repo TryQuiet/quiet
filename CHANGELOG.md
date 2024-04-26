@@ -7,7 +7,9 @@
 
 # Refactorings:
 
-# Fixes
+# Fixes:
+
+* Disable spellCheck/autoCorrect on non-spelling sensitive fields like usernames and channels ([#373](https://github.com/TryQuiet/quiet/issues/373))
 
 # Chores
 
