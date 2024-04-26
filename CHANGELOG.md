@@ -12,6 +12,7 @@
 # Chores
 
 * Cleanup data directory at end of e2e tests
+* Update github workflows for PR gating ([#2487](https://github.com/TryQuiet/quiet/issues/2487))
 
 [2.2.0]
 
