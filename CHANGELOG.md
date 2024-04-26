@@ -7,6 +7,8 @@
 
 # Refactorings:
 
+* Consolidate colors and align theme with MUI standards ([#2445](https://github.com/TryQuiet/quiet/issues/2445))
+
 # Fixes
 
 # Chores
