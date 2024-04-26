@@ -1,6 +1,8 @@
 import _ from 'validator'
 import joi from 'joi'
 import { ChannelMessage, PublicChannel } from '@quiet/types'
+import { ServerStoredCommunityMetadata } from '../storageServiceClient/storageServiceClient.types'
+import { isPSKcodeValid } from '@quiet/common'
 
 const messageMediaSchema = joi.object({
   path: joi.string().allow(null),
@@ -38,6 +40,21 @@ const channelSchema = joi.object({
   address: joi.string(),
 })
 
+// TODO: make this validator more strict
+const metadataSchema = joi.object({
+  id: joi.string().required(),
+  ownerCertificate: joi.string().required(),
+  rootCa: joi.string().required(),
+  ownerOrbitDbIdentity: joi.string().required(),
+  peerList: joi.array().items(joi.string()).required(),
+  psk: joi
+    .string()
+    .required()
+    .custom((value, _helpers) => {
+      return isPSKcodeValid(value)
+    }),
+})
+
 export const isUser = (publicKey: string, halfKey: string): boolean => {
   return publicKey.length === 66 && halfKey.length === 64 && _.isHexadecimal(publicKey) && _.isHexadecimal(halfKey)
 }
@@ -61,10 +78,18 @@ export const isChannel = (channel: PublicChannel): boolean => {
   return !value.error
 }
 
+export const isServerStoredMetadata = (metadata: ServerStoredCommunityMetadata): boolean => {
+  const value = metadataSchema.validate(metadata)
+  // Leave this log for first iterations of QSS
+  console.log(value.error)
+  return !value.error
+}
+
 export default {
   isUser,
   isMessage,
   isDirectMessage,
   isChannel,
   isConversation,
+  isServerStoredMetadata,
 }

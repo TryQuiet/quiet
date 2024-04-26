@@ -1,22 +1,24 @@
+import { peerIdFromKeys } from '@libp2p/peer-id'
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common'
 import { Crypto } from '@peculiar/webcrypto'
-import { Agent } from 'https'
-import fs from 'fs'
-import path from 'path'
-import { peerIdFromKeys } from '@libp2p/peer-id'
-import { setEngine, CryptoEngine } from 'pkijs'
 import { EventEmitter } from 'events'
+import fs from 'fs'
 import getPort from 'get-port'
+import { Agent } from 'https'
+import path from 'path'
 import PeerId from 'peer-id'
+import { CryptoEngine, setEngine } from 'pkijs'
 import { getLibp2pAddressesFromCsrs, removeFilesFromDir } from '../common/utils'
 
+import { LazyModuleLoader } from '@nestjs/core'
+import { createLibp2pAddress, isPSKcodeValid } from '@quiet/common'
+import { CertFieldsTypes, getCertFieldValue, loadCertificate } from '@quiet/identity'
 import {
-  GetMessagesPayload,
   ChannelMessageIdsResponse,
-  type DeleteChannelResponse,
+  ChannelSubscribedPayload,
   ChannelsReplicatedPayload,
   Community,
-  CommunityId,
+  CommunityMetadata,
   ConnectionProcessInfo,
   CreateChannelPayload,
   CreateChannelResponse,
@@ -24,46 +26,43 @@ import {
   DownloadStatus,
   ErrorMessages,
   FileMetadata,
-  MessagesLoadedPayload,
+  GetMessagesPayload,
   InitCommunityPayload,
+  InvitationDataV2,
+  InvitationDataVersion,
+  MessagesLoadedPayload,
   NetworkDataPayload,
   NetworkInfo,
   NetworkStats,
-  type SavedOwnerCertificatePayload,
   PushNotificationPayload,
-  RegisterOwnerCertificatePayload,
   RemoveDownloadStatus,
+  SaveCSRPayload,
   SendCertificatesResponse,
   SendMessagePayload,
-  ChannelSubscribedPayload,
   SocketActionTypes,
-  StorePeerListPayload,
   UploadFilePayload,
-  PeerId as PeerIdType,
-  SaveCSRPayload,
-  CommunityMetadata,
-  type PermsData,
+  type DeleteChannelResponse,
+  type SavedOwnerCertificatePayload,
   type UserProfile,
   type UserProfilesStoredEvent,
 } from '@quiet/types'
-import { CONFIG_OPTIONS, QUIET_DIR, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
-import { ConfigOptions, GetPorts, ServerIoProviderTypes } from '../types'
-import { SocketService } from '../socket/socket.service'
-import { RegistrationService } from '../registration/registration.service'
-import { LocalDbService } from '../local-db/local-db.service'
-import { StorageService } from '../storage/storage.service'
-import { ServiceState, TorInitState } from './connections-manager.types'
-import { Libp2pService } from '../libp2p/libp2p.service'
-import { Tor } from '../tor/tor.service'
-import { LocalDBKeys } from '../local-db/local-db.types'
-import { Libp2pEvents, Libp2pNodeParams } from '../libp2p/libp2p.types'
-import { RegistrationEvents } from '../registration/registration.types'
-import { StorageEvents } from '../storage/storage.types'
-import { LazyModuleLoader } from '@nestjs/core'
 import Logger from '../common/logger'
+import { CONFIG_OPTIONS, QUIET_DIR, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
+import { Libp2pService } from '../libp2p/libp2p.service'
+import { Libp2pEvents, Libp2pNodeParams } from '../libp2p/libp2p.types'
+import { LocalDbService } from '../local-db/local-db.service'
+import { LocalDBKeys } from '../local-db/local-db.types'
+import { RegistrationService } from '../registration/registration.service'
+import { RegistrationEvents } from '../registration/registration.types'
 import { emitError } from '../socket/socket.errors'
-import { createLibp2pAddress, isPSKcodeValid } from '@quiet/common'
-import { CertFieldsTypes, createRootCA, getCertFieldValue, loadCertificate } from '@quiet/identity'
+import { SocketService } from '../socket/socket.service'
+import { StorageService } from '../storage/storage.service'
+import { StorageEvents } from '../storage/storage.types'
+import { StorageServiceClient } from '../storageServiceClient/storageServiceClient.service'
+import { ServerStoredCommunityMetadata } from '../storageServiceClient/storageServiceClient.types'
+import { Tor } from '../tor/tor.service'
+import { ConfigOptions, GetPorts, ServerIoProviderTypes } from '../types'
+import { ServiceState, TorInitState } from './connections-manager.types'
 
 @Injectable()
 export class ConnectionsManagerService extends EventEmitter implements OnModuleInit {
@@ -81,6 +80,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     @Inject(SOCKS_PROXY_AGENT) public readonly socksProxyAgent: Agent,
     private readonly socketService: SocketService,
     private readonly registrationService: RegistrationService,
+    private readonly storageServerProxyService: StorageServiceClient,
     private readonly localDbService: LocalDbService,
     private readonly storageService: StorageService,
     private readonly tor: Tor,
@@ -317,7 +317,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   }
 
   public async createCommunity(payload: InitCommunityPayload): Promise<Community | undefined> {
-    this.logger('Creating community: peers:', payload.peers)
+    this.logger('Creating community', payload.id)
 
     if (!payload.CA || !payload.rootCa) {
       this.logger.error('CA and rootCa are required to create community')
@@ -392,15 +392,55 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     return community
   }
 
+  public async downloadCommunityData(inviteData: InvitationDataV2) {
+    this.logger('Downloading invite data', inviteData)
+    this.storageServerProxyService.setServerAddress(inviteData.serverAddress)
+    let downloadedData: ServerStoredCommunityMetadata
+    try {
+      downloadedData = await this.storageServerProxyService.downloadData(inviteData.cid)
+    } catch (e) {
+      this.logger.error(`Downloading community data failed`, e)
+      return
+    }
+    return {
+      psk: downloadedData.psk,
+      peers: downloadedData.peerList,
+      ownerOrbitDbIdentity: downloadedData.ownerOrbitDbIdentity,
+    }
+  }
+
   public async joinCommunity(payload: InitCommunityPayload): Promise<Community | undefined> {
     this.logger('Joining community: peers:', payload.peers)
+    let metadata = {
+      psk: payload.psk,
+      peers: payload.peers,
+      ownerOrbitDbIdentity: payload.ownerOrbitDbIdentity,
+    }
 
-    if (!payload.peers || payload.peers.length === 0) {
+    const inviteData = payload.inviteData
+    if (inviteData) {
+      this.logger(`Joining community: inviteData version: ${inviteData.version}`)
+      switch (inviteData.version) {
+        case InvitationDataVersion.v2:
+          const downloadedData = await this.downloadCommunityData(inviteData)
+          if (!downloadedData) {
+            emitError(this.serverIoProvider.io, {
+              type: SocketActionTypes.LAUNCH_COMMUNITY,
+              message: ErrorMessages.STORAGE_SERVER_CONNECTION_FAILED,
+            })
+            return
+          }
+          metadata = downloadedData
+          break
+      }
+    }
+
+    if (!metadata.peers || metadata.peers.length === 0) {
       this.logger.error('Joining community: Peers required')
       return
     }
 
-    if (!payload.psk || !isPSKcodeValid(payload.psk)) {
+    if (!metadata.psk || !isPSKcodeValid(metadata.psk)) {
       this.logger.error('Joining community: Libp2p PSK is not valid')
       emitError(this.serverIoProvider.io, {
         type: SocketActionTypes.LAUNCH_COMMUNITY,
@@ -410,7 +450,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       return
     }
 
-    if (!payload.ownerOrbitDbIdentity) {
+    if (!metadata.ownerOrbitDbIdentity) {
       this.logger.error('Joining community: ownerOrbitDbIdentity is not valid')
       emitError(this.serverIoProvider.io, {
         type: SocketActionTypes.LAUNCH_COMMUNITY,
@@ -424,9 +464,10 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
     const community = {
       id: payload.id,
-      peerList: [...new Set([localAddress, ...payload.peers])],
-      psk: payload.psk,
-      ownerOrbitDbIdentity: payload.ownerOrbitDbIdentity,
+      peerList: [...new Set([localAddress, ...metadata.peers])],
+      psk: metadata.psk,
+      ownerOrbitDbIdentity: metadata.ownerOrbitDbIdentity,
+      inviteData,
     }
 
     const network = {

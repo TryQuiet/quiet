@@ -16,6 +16,8 @@ import Icon from '../Icon/Icon'
 import exclamationMark from '../../../static/images/exclamationMark.svg'
 import Modal from '../Modal/Modal'
 
+import theme from '../../../theme'
+
 const PREFIX = 'OpenlinkModal'
 
 const classes = {
@@ -201,7 +203,7 @@ export const OpenlinkModal: React.FC<OpenLinkModalProps> = ({
                   <Grid item xs>
                     <a
                       style={{
-                        color: '#67BFD3',
+                        color: theme.palette.colors.lushSky,
                         textDecoration: 'none',
                         wordBreak: 'break-all',
                       }}

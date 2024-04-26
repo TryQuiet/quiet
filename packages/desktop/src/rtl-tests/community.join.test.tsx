@@ -29,10 +29,8 @@ import {
   InvitationData,
   ChannelsReplicatedPayload,
   ChannelSubscribedPayload,
-  Community,
   ErrorPayload,
-  type InitCommunityPayload,
-  type NetworkInfo,
+  InitCommunityPayload,
   ResponseLaunchCommunityPayload,
   SocketActionTypes,
 } from '@quiet/types'
@@ -82,8 +80,6 @@ describe('User', () => {
       </>,
       store
     )
-
-    const factory = await getFactory(store)
 
     const mockEmitImpl = async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
       const action = input[0]
@@ -169,11 +165,10 @@ describe('User', () => {
 
     expect(actions).toMatchInlineSnapshot(`
       Array [
-        "Communities/joinNetwork",
         "Communities/createNetwork",
+        "Communities/setInvitationCodes",
         "Communities/addNewCommunity",
         "Communities/setCurrentCommunity",
-        "Communities/setInvitationCodes",
         "Identity/addNewIdentity",
         "Modals/closeModal",
         "Modals/openModal",

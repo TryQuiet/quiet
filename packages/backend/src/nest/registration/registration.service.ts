@@ -62,7 +62,6 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
           certificates: (await this.storageService?.loadAllCertificates()) as string[],
         })
 
-        this.logger('Finished issuing certificates')
         // Event processing finished
         this.registrationEventInProgress = false
 
@@ -90,14 +89,13 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
       return
     }
 
-    this.logger('DuplicatedCertBug', { payload })
     const pendingCsrs = await extractPendingCsrs(payload)
-    this.logger('DuplicatedCertBug', { pendingCsrs })
     await Promise.all(
       pendingCsrs.map(async csr => {
         await this.registerUserCertificate(csr)
       })
     )
+    this.logger('Finished issuing certificates')
   }
 
   // TODO: This doesn't save the owner's certificate in OrbitDB, so perhaps we
@@ -121,7 +119,6 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
 
   public async registerUserCertificate(csr: string): Promise<void> {
     const result = await issueCertificate(csr, this.permsData)
-    this.logger('DuplicatedCertBug', { result })
     if (result?.cert) {
       // Save certificate (awaited) so that we are sure that the certs
       // are saved before processing the next round of CSRs.

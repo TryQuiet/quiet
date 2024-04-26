@@ -30,7 +30,7 @@ import { HandleOpenModalType } from '../widgets/userLabel/UserLabel.types'
 const ChannelMessagesWrapperStyled = styled(Grid)(({ theme }) => ({
   position: 'relative',
   height: 0,
-  backgroundColor: theme.palette.colors.white,
+  backgroundColor: theme.palette.background.default,
 }))
 
 export interface ChannelComponentProps {

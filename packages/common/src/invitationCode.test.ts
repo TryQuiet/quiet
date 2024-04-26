@@ -13,7 +13,7 @@ import {
   INVITER_ADDRESS_PARAM_KEY,
   DEEP_URL_SCHEME_WITH_SEPARATOR,
 } from './invitationCode'
-import { QUIET_JOIN_PAGE } from './static'
+import { QUIET_JOIN_PAGE } from './const'
 import { validInvitationDatav1, validInvitationDatav2 } from './tests'
 import { createLibp2pAddress } from './libp2p'
 

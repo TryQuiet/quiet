@@ -15,7 +15,7 @@ describe('PopupMenu', () => {
       <body>
         <div>
           <div
-            class="PopupMenupopper css-hpnfa6-MuiPopper-root MuiPopperUnstyled-root"
+            class="PopupMenupopper css-onm1r1-MuiPopper-root MuiPopperUnstyled-root"
             role="tooltip"
             style="position: fixed; top: 0px; left: 0px;"
           >
@@ -24,7 +24,7 @@ describe('PopupMenu', () => {
               style="opacity: 1; transform: scale(1, 1); transform-origin: center bottom; transition: opacity 0ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,transform 0ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;"
             >
               <div
-                class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 PopupMenupaper css-1ps6pg7-MuiPaper-root"
+                class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 PopupMenupaper css-cjelvf-MuiPaper-root"
               >
                 <div>
                   Content
@@ -65,7 +65,7 @@ describe('PopupMenu', () => {
       <body>
         <div>
           <div
-            class="PopupMenupopper css-hpnfa6-MuiPopper-root MuiPopperUnstyled-root"
+            class="PopupMenupopper css-onm1r1-MuiPopper-root MuiPopperUnstyled-root"
             role="tooltip"
             style="position: fixed; top: 0px; left: 0px;"
           >
@@ -74,7 +74,7 @@ describe('PopupMenu', () => {
               style="opacity: 1; transform: scale(1, 1); transform-origin: center bottom; transition: opacity 0ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,transform 0ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;"
             >
               <div
-                class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 PopupMenupaper css-1ps6pg7-MuiPaper-root"
+                class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation1 PopupMenupaper css-cjelvf-MuiPaper-root"
               >
                 <div>
                   Content

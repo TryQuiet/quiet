@@ -9,14 +9,12 @@ import androidx.core.app.NotificationCompat
 import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
-import com.google.gson.Gson
 import com.quietmobile.BuildConfig
 import com.quietmobile.Communication.CommunicationModule
+import com.quietmobile.MainApplication
 import com.quietmobile.Notification.NotificationHandler
 import com.quietmobile.R
-import com.quietmobile.Scheme.WebsocketConnectionPayload
 import com.quietmobile.Utils.Const
-import com.quietmobile.Utils.Const.WEBSOCKET_CONNECTION_DELAY
 import com.quietmobile.Utils.Utils
 import com.quietmobile.Utils.isAppOnForeground
 import io.socket.client.IO
@@ -98,8 +96,11 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
         withContext(Dispatchers.IO) {
 
             // Get and store data port for usage in methods across the app
-            val dataPort = Utils.getOpenPort(11000)
+            val socketPort = Utils.getOpenPort(11000)
             val socketIOSecret = Utils.generateRandomString(20)
+
+            (applicationContext as MainApplication).setSocketPort(socketPort)
+            (applicationContext as MainApplication).setSocketIOSecret(socketIOSecret)
 
             // Init nodejs project
             launch {
@@ -108,21 +109,7 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
 
             launch {
                 notificationHandler = NotificationHandler(context)
-                subscribePushNotifications(dataPort, socketIOSecret)
-            }
-
-            launch {
-                /*
-                 * Wait for CommunicationModule to be initialized with reactContext
-                 * (there's no callback we can use for that purpose).
-                 *
-                 * Code featured below suspends nothing but the websocket connection
-                 * and it doesn't affect anything besides that.
-                 *
-                 * In any case, websocket won't connect until data server starts listening
-                 */
-                delay(WEBSOCKET_CONNECTION_DELAY)
-                startWebsocketConnection(dataPort, socketIOSecret)
+                subscribePushNotifications(socketPort, socketIOSecret)
             }
 
             val dataPath = Utils.createDirectory(context)
@@ -139,7 +126,7 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
                  * https://github.com/TryQuiet/quiet/issues/2214
                  */
                 delay(500)
-                startNodeProjectWithArguments("bundle.cjs --torBinary $torBinary --dataPath $dataPath --dataPort $dataPort --platform $platform --socketIOSecret $socketIOSecret")
+                startNodeProjectWithArguments("bundle.cjs --torBinary $torBinary --dataPath $dataPath --dataPort $socketPort --platform $platform --socketIOSecret $socketIOSecret")
             }
         }
 
@@ -154,8 +141,6 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
         // Indicate whether the work finished successfully with the Result
         return Result.success()
     }
-
-    private external fun sendMessageToNodeChannel(channelName: String, message: String): Void
 
     private external fun startNodeWithArguments(
         arguments: Array<String?>?,
@@ -213,17 +198,6 @@ class BackendWorker(private val context: Context, workerParams: WorkerParameters
             if (context.isAppOnForeground()) return@Listener // If application is in foreground, let redux be in charge of displaying notifications
             notificationHandler.notify(message, username)
         }
-
-    private fun startWebsocketConnection(port: Int, socketIOSecret: String) {
-        Log.d("WEBSOCKET CONNECTION", "Starting on $port")
-        // Proceed only if data port is defined
-        val websocketConnectionPayload = WebsocketConnectionPayload(port, socketIOSecret)
-        CommunicationModule.handleIncomingEvents(
-            CommunicationModule.WEBSOCKET_CONNECTION_CHANNEL,
-            Gson().toJson(websocketConnectionPayload),
-            "" // Empty extras
-        )
-    }
 
     fun handleNodeMessages(channelName: String, msg: String?) {
         print("handle node message - channel name $channelName")

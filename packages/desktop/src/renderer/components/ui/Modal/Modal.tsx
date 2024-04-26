@@ -67,12 +67,12 @@ const StyledMaterialModal = styled(StyledMaterialModalWithProps)(({ theme, zInde
   },
 
   [`& .${classes.header}`]: {
-    background: theme.palette.colors.white,
+    background: theme.palette.background.default,
     height: constants.headerHeight,
   },
 
   [`& .${classes.headerBorder}`]: {
-    borderBottom: `1px solid ${theme.palette.colors.contentGray}`,
+    borderBottom: `1px solid ${theme.palette.colors.border03}`,
   },
 
   [`& .${classes.actions}`]: {
@@ -81,7 +81,7 @@ const StyledMaterialModal = styled(StyledMaterialModalWithProps)(({ theme, zInde
   },
 
   [`& .${classes.content}`]: {
-    background: theme.palette.colors.white,
+    background: theme.palette.background.default,
   },
 
   [`& .${classes.fullPage}`]: {
@@ -100,7 +100,7 @@ const StyledMaterialModal = styled(StyledMaterialModalWithProps)(({ theme, zInde
   },
 
   [`& .${classes.centered}`]: {
-    background: theme.palette.colors.white,
+    background: theme.palette.background.default,
     width: '100vw',
     position: 'absolute',
     top: '50%',
@@ -110,7 +110,7 @@ const StyledMaterialModal = styled(StyledMaterialModalWithProps)(({ theme, zInde
   },
 
   [`& .${classes.window}`]: {
-    background: theme.palette.colors.white,
+    background: theme.palette.background.default,
     width: 'fit-content',
     position: 'absolute',
     top: '50%',

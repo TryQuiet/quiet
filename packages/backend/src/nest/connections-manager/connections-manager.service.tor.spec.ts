@@ -110,6 +110,8 @@ beforeEach(async () => {
 
   const pskBase64 = Libp2pService.generateLibp2pPSK().psk
   await localDbService.put(LocalDBKeys.PSK, pskBase64)
+  await localDbService.put(LocalDBKeys.CURRENT_COMMUNITY_ID, community.id)
+  await localDbService.setCommunity(community)
 })
 
 afterEach(async () => {
@@ -178,7 +180,6 @@ describe('Connections manager', () => {
     const spyOnDestroyHiddenService = jest.spyOn(tor, 'destroyHiddenService')
     await connectionsManagerService.init()
     const network = await connectionsManagerService.getNetwork()
-    console.log('network', network)
     expect(network.hiddenService.onionAddress.split('.')[0]).toHaveLength(56)
     expect(network.hiddenService.privateKey).toHaveLength(99)
     const peerId = await PeerId.createFromJSON(network.peerId)

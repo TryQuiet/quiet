@@ -100,14 +100,11 @@ export class CertificatesRequestsStore extends EventEmitter {
         return e.payload.value
       })
 
-    this.logger('DuplicatedCertBug', { allEntries })
     const allCsrsUnique = [...new Set(allEntries)]
-    this.logger('DuplicatedCertBug', { allCsrsUnique })
     await Promise.all(
       allCsrsUnique
         .filter(async csr => {
           const validation = await CertificatesRequestsStore.validateUserCsr(csr)
-          this.logger('DuplicatedCertBug', { validation, csr })
           if (validation) return true
           return false
         })
@@ -121,7 +118,6 @@ export class CertificatesRequestsStore extends EventEmitter {
           filteredCsrsMap.set(pubKey, csr)
         })
     )
-    this.logger('DuplicatedCertBug', '[...filteredCsrsMap.values()]', [...filteredCsrsMap.values()])
     return [...filteredCsrsMap.values()]
   }
 

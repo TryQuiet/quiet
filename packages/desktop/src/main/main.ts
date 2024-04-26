@@ -6,17 +6,11 @@ import { autoUpdater } from 'electron-updater'
 import electronLocalshortcut from 'electron-localshortcut'
 import url from 'url'
 import { getPorts, ApplicationPorts, closeHangingBackendProcess } from './backendHelpers'
-import pkijs, { setEngine, CryptoEngine } from 'pkijs'
+import { setEngine, CryptoEngine } from 'pkijs'
 import { Crypto } from '@peculiar/webcrypto'
 import logger from './logger'
 import { fork, ChildProcess } from 'child_process'
-import {
-  DESKTOP_DATA_DIR,
-  DESKTOP_DEV_DATA_DIR,
-  argvInvitationCode,
-  getFilesData,
-  parseInvitationCodeDeepUrl,
-} from '@quiet/common'
+import { DESKTOP_DATA_DIR, DESKTOP_DEV_DATA_DIR, getFilesData } from '@quiet/common'
 import { updateDesktopFile, processInvitationCode } from './invitation'
 const ElectronStore = require('electron-store')
 
@@ -75,7 +69,7 @@ if (!gotTheLock) {
   }
 
   app.on('second-instance', (_event, commandLine) => {
-    console.log('Event: app.second-instance', commandLine)
+    log('Event: app.second-instance', commandLine)
     if (mainWindow) {
       if (mainWindow.isMinimized()) mainWindow.restore()
       mainWindow.focus()
@@ -150,7 +144,7 @@ export const applyDevTools = async () => {
 
 app.on('open-url', (event, url) => {
   // MacOS only
-  console.log('app.open-url', url)
+  log('Event app.open-url', url)
   invitationUrl = url // If user opens invitation link with closed app open-url fires too early - before mainWindow is initialized
   event.preventDefault()
   if (mainWindow) {
@@ -278,19 +272,23 @@ export const checkForUpdate = async (win: BrowserWindow) => {
     }
   }
   autoUpdater.on('checking-for-update', () => {
-    log('checking for updates...')
+    log('updater: checking-for-update')
   })
   autoUpdater.on('error', error => {
-    log('UPDATER ERROR: ', error)
+    log('updater: error:', error)
   })
   autoUpdater.on('update-not-available', () => {
-    log('event no update')
+    log('updater: update-not-available')
   })
   autoUpdater.on('update-available', info => {
-    log(info)
+    log('updater: update-available:', info)
   })
   autoUpdater.on('update-downloaded', () => {
+    log('updater: update-downloaded')
     win.webContents.send('newUpdateAvailable')
+  })
+  autoUpdater.on('before-quit-for-update', () => {
+    log('updater: before-quit-for-update')
   })
 }
 
@@ -399,19 +397,19 @@ app.on('ready', async () => {
   }
 
   mainWindow.webContents.on('did-fail-load', () => {
-    log('failed loading webcontents')
+    log.error('failed loading webcontents')
   })
 
   mainWindow.once('close', e => {
     if (resetting) return
     e.preventDefault()
-    log('Closing window')
+    log('Closing main window')
     mainWindow?.webContents.send('force-save-state')
   })
 
   splash?.once('close', e => {
     e.preventDefault()
-    log('Closing window')
+    log('Closing splash window')
     mainWindow?.webContents.send('force-save-state')
     closeBackendProcess()
   })
@@ -422,6 +420,7 @@ app.on('ready', async () => {
   })
 
   ipcMain.on('clear-community', () => {
+    log('ipcMain: clear-community')
     resetting = true
     backendProcess?.on('message', msg => {
       if (msg === 'leftCommunity') {
@@ -431,12 +430,14 @@ app.on('ready', async () => {
     backendProcess?.send('leaveCommunity')
   })
 
-  ipcMain.on('restartApp', () => {
+  ipcMain.on('restart-app', () => {
+    log('ipcMain: restart-app')
     app.relaunch()
     closeBackendProcess()
   })
 
   ipcMain.on('writeTempFile', (event, arg) => {
+    log('ipcMain: writeTempFile')
     const temporaryFilesDirectory = path.join(appDataPath, 'temporaryFiles')
     fs.mkdirSync(temporaryFilesDirectory, { recursive: true })
     const id = `${Date.now()}_${Math.random().toString(36).substring(0, 20)}`
@@ -453,6 +454,7 @@ app.on('ready', async () => {
   })
 
   ipcMain.on('openUploadFileDialog', async e => {
+    log('ipcMain: openUploadFileDialog')
     let filesDialogResult: Electron.OpenDialogReturnValue
     if (!mainWindow) {
       console.error('openUploadFileDialog - no mainWindow')
@@ -513,6 +515,7 @@ app.on('ready', async () => {
   })
 
   ipcMain.on('proceed-update', () => {
+    log('ipcMain: proceed-update')
     autoUpdater.quitAndInstall()
   })
 })

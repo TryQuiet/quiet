@@ -171,21 +171,6 @@ export class SocketService extends EventEmitter implements OnModuleInit {
         }
       )
 
-      socket.on(
-        SocketActionTypes.DOWNLOAD_INVITE_DATA,
-        async (payload: { serverAddress: string; cid: string }, callback: (response: CreateNetworkPayload) => void) => {
-          // this.emit(SocketActionTypes.DOWNLOAD_INVITE_DATA, payload, callback)
-          console.log('download invite data', payload)
-          // Mock it for now
-          callback({
-            ownership: CommunityOwnership.User,
-            peers: [],
-            psk: '',
-            ownerOrbitDbIdentity: '',
-          })
-        }
-      )
-
       socket.on(SocketActionTypes.LEAVE_COMMUNITY, async () => {
         this.logger('Leaving community')
         this.emit(SocketActionTypes.LEAVE_COMMUNITY)

@@ -1,5 +1,5 @@
 import path from 'path'
-import { DESKTOP_DATA_DIR, DESKTOP_DEV_DATA_DIR } from './static'
+import { DESKTOP_DATA_DIR, DESKTOP_DEV_DATA_DIR } from './const'
 
 export type GetDataAppPathDefaults = {
   appDataPath?: string

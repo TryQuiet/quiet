@@ -60,7 +60,6 @@ export const initSlice = createSlice({
         id: event,
       })
     },
-    blindWebsocketConnection: state => state,
     startWebsocketConnection: (state, _action: PayloadAction<WebsocketConnectionPayload>) => state,
     suspendWebsocketConnection: state => {
       state.isWebsocketConnected = false

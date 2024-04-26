@@ -43,6 +43,7 @@ import { CertificatesRequestsStore } from './certifacteRequests/certificatesRequ
 import { CertificatesStore } from './certificates/certificates.store'
 import { CommunityMetadataStore } from './communityMetadata/communityMetadata.store'
 import { OrbitDb } from './orbitDb/orbitDb.service'
+import { UserProfileStore } from './userProfile/userProfile.store'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -72,6 +73,7 @@ describe('StorageService', () => {
   let certificatesRequestsStore: CertificatesRequestsStore
   let certificatesStore: CertificatesStore
   let communityMetadataStore: CommunityMetadataStore
+  let userProfileStore: UserProfileStore
   let orbitDbService: OrbitDb
   let peerId: PeerId
 
@@ -135,7 +137,7 @@ describe('StorageService', () => {
     certificatesRequestsStore = await module.resolve(CertificatesRequestsStore)
     certificatesStore = await module.resolve(CertificatesStore)
     communityMetadataStore = await module.resolve(CommunityMetadataStore)
-    console.log({ communityMetadataStore })
+    userProfileStore = await module.resolve(UserProfileStore)
     lazyModuleLoader = await module.resolve(LazyModuleLoader)
 
     orbitDbDir = await module.resolve(ORBIT_DB_DIR)
@@ -262,16 +264,17 @@ describe('StorageService', () => {
       const certificatesDbAddress = certificatesStore.getAddress()
       const certificatesRequestsDbAddress = certificatesRequestsStore.getAddress()
       const communityMetadataDbAddress = communityMetadataStore.getAddress()
+      const userProfileDbAddress = userProfileStore.getAddress()
       expect(channelsDbAddress).not.toBeFalsy()
       expect(certificatesDbAddress).not.toBeFalsy()
       expect(subscribeToPubSubSpy).toBeCalledTimes(2)
       // Storage initialization:
       expect(subscribeToPubSubSpy).toHaveBeenNthCalledWith(1, [
+        StorageService.dbAddress(communityMetadataDbAddress),
         StorageService.dbAddress(channelsDbAddress),
         StorageService.dbAddress(certificatesDbAddress),
         StorageService.dbAddress(certificatesRequestsDbAddress),
-        StorageService.dbAddress(communityMetadataDbAddress),
-        '/orbitdb/zdpuAyScVHonV7KUdb3rdNmC9ZurssGdfgveYm3ds7KNJ6CpU/user-profiles',
+        StorageService.dbAddress(userProfileDbAddress),
       ])
       // Creating channel:
       expect(subscribeToPubSubSpy).toHaveBeenNthCalledWith(2, [StorageService.dbAddress(db.address)])

@@ -3,7 +3,7 @@ name: E2E Mac
 on: [workflow_call]
 jobs:
   mac:
-    runs-on: macos-latest
+    runs-on: macos-12
     timeout-minutes: 180
     env:
       ELECTRON_CUSTOM_VERSION: 23.0.0
@@ -36,6 +36,10 @@ jobs:
       - name: FILE_NAME env
         working-directory: ./packages/desktop/dist
         run: echo "FILE_NAME="Quiet-$VERSION.dmg"" >> $GITHUB_ENV
+
+      - name: List dist dir content
+        working-directory: ./packages/desktop/dist
+        run: ls -al
 
       - name: Chmod
         working-directory: ./packages/desktop/dist

@@ -10,7 +10,7 @@ describe('Loading button', () => {
       <body>
         <div>
           <button
-            class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium LoadingButtonbutton css-sx27b8-MuiButtonBase-root-MuiButton-root"
+            class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium LoadingButtonbutton css-pfmuyw-MuiButtonBase-root-MuiButton-root"
             tabindex="0"
             type="button"
           >

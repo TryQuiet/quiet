@@ -153,7 +153,9 @@ export class StorageService extends EventEmitter {
 
   private async startReplicate() {
     const dbs = []
-
+    if (this.communityMetadataStore?.getAddress()) {
+      dbs.push(this.communityMetadataStore.getAddress())
+    }
     if (this.channels?.address) {
       dbs.push(this.channels.address)
     }
@@ -162,9 +164,6 @@ export class StorageService extends EventEmitter {
     }
     if (this.certificatesRequestsStore.getAddress()) {
       dbs.push(this.certificatesRequestsStore.getAddress())
-    }
-    if (this.communityMetadataStore?.getAddress()) {
-      dbs.push(this.communityMetadataStore.getAddress())
     }
     if (this.userProfileStore.getAddress()) {
       dbs.push(this.userProfileStore.getAddress())

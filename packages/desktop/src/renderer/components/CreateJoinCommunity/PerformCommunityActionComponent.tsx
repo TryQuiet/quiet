@@ -12,7 +12,7 @@ import { LoadingButton } from '../ui/LoadingButton/LoadingButton'
 
 import { CreateCommunityDictionary, JoinCommunityDictionary } from '../CreateJoinCommunity/community.dictionary'
 
-import { CommunityOwnership, InvitationData, InvitationPair } from '@quiet/types'
+import { CommunityOwnership, ErrorPayload } from '@quiet/types'
 
 import { Controller, useForm } from 'react-hook-form'
 import { TextInput } from '../../forms/components/textInput'
@@ -20,7 +20,7 @@ import { InviteLinkErrors } from '../../forms/fieldsErrors'
 import { IconButton, InputAdornment } from '@mui/material'
 import VisibilityOff from '@mui/icons-material/VisibilityOff'
 import Visibility from '@mui/icons-material/Visibility'
-import { composeInvitationShareUrl, parseName } from '@quiet/common'
+import { parseName } from '@quiet/common'
 import { getInvitationCodes } from '@quiet/state-manager'
 
 const PREFIX = 'PerformCommunityActionComponent'
@@ -42,7 +42,7 @@ const classes = {
 }
 
 const StyledModalContent = styled(Grid)(({ theme }) => ({
-  backgroundColor: theme.palette.colors.white,
+  backgroundColor: theme.palette.background.default,
   padding: '0px 32px',
 
   [`& .${classes.focus}`]: {

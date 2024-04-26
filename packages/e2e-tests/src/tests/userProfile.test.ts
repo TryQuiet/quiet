@@ -13,14 +13,9 @@ import logger from '../logger'
 import { EXPECTED_IMG_SRC_GIF, EXPECTED_IMG_SRC_JPEG, EXPECTED_IMG_SRC_PNG } from '../profilePhoto.const'
 import { sleep } from '../utils'
 import { BACK_ARROW_DATA_TESTID } from '../enums'
+import { UserTestData } from '../types'
 
 const log = logger('userProfile')
-
-interface UserTestData {
-  username: string
-  app: App
-  messages: string[]
-}
 
 jest.setTimeout(900000)
 

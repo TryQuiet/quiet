@@ -26,7 +26,7 @@ const classes = {
   editPhotoButton: `${PREFIX}editPhotoButton`,
 }
 
-const StyledContextMenuContent = styled(Grid)(() => ({
+const StyledContextMenuContent = styled(Grid)(({ theme }) => ({
   zIndex: 9002,
   flex: 1,
 
@@ -67,10 +67,10 @@ const StyledContextMenuContent = styled(Grid)(() => ({
 
   [`& .${classes.editUsernameField}`]: {
     color: '#33333380',
-    background: '#F0F0F0',
+    background: theme.palette.background.paper,
     margin: '0px 16px',
     padding: '16px',
-    border: '1px solid #B3B3B3',
+    border: `1px solid ${theme.palette.colors.border02}`,
     borderRadius: '8px',
     fontSize: '14px',
     fontWeight: '400',
@@ -81,7 +81,7 @@ const StyledContextMenuContent = styled(Grid)(() => ({
     background: 'inherit',
     padding: '6px 12px',
     borderRadius: '16px',
-    border: '1px solid #B3B3B3',
+    border: `1px solid ${theme.palette.colors.border02}`,
     fontSize: '14px',
     fontWeight: '400',
     textTransform: 'none',
