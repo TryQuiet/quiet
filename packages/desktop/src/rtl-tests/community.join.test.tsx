@@ -13,7 +13,7 @@ import { ModalName } from '../renderer/sagas/modals/modals.types'
 import { JoinCommunityDictionary } from '../renderer/components/CreateJoinCommunity/community.dictionary'
 import MockedSocket from 'socket.io-mock'
 import { ioMock } from '../shared/setupTests'
-import { socketEventData } from '../renderer/testUtils/socket'
+import { socketEventData } from '@quiet/types'
 import {
   communities,
   RegisterUserCertificatePayload,
@@ -29,10 +29,8 @@ import {
   InvitationData,
   ChannelsReplicatedPayload,
   ChannelSubscribedPayload,
-  Community,
   ErrorPayload,
-  type InitCommunityPayload,
-  type NetworkInfo,
+  InitCommunityPayload,
   ResponseLaunchCommunityPayload,
   SocketActionTypes,
 } from '@quiet/types'
@@ -83,8 +81,6 @@ describe('User', () => {
       </>,
       store
     )
-
-    const factory = await getFactory(store)
 
     const mockEmitImpl = async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
       const action = input[0]
@@ -173,16 +169,16 @@ describe('User', () => {
     expect(actions).toMatchInlineSnapshot(`
       Array [
         "Communities/createNetwork",
+        "Communities/setInvitationCodes",
         "Communities/addNewCommunity",
         "Communities/setCurrentCommunity",
-        "Communities/setInvitationCodes",
         "Identity/addNewIdentity",
         "Modals/closeModal",
         "Modals/openModal",
         "Identity/registerUsername",
         "Network/setLoadingPanelType",
         "Modals/openModal",
-        "Identity/registerCertificate",
+        "Identity/addCsr",
         "Communities/launchCommunity",
         "Communities/sendCommunityCaData",
         "Files/checkForMissingFiles",
@@ -199,6 +195,7 @@ describe('User', () => {
         "Messages/lazyLoading",
         "Messages/resetCurrentPublicChannelCache",
         "Messages/resetCurrentPublicChannelCache",
+        "Identity/saveUserCsr",
         "Messages/addMessagesSendingStatus",
         "Messages/addMessageVerificationStatus",
         "Messages/addMessages",

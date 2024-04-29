@@ -12,7 +12,7 @@ import { LoadingButton } from '../ui/LoadingButton/LoadingButton'
 
 import { CreateCommunityDictionary, JoinCommunityDictionary } from '../CreateJoinCommunity/community.dictionary'
 
-import { CommunityOwnership, InvitationData, InvitationPair } from '@quiet/types'
+import { CommunityOwnership, ErrorPayload } from '@quiet/types'
 
 import { Controller, useForm } from 'react-hook-form'
 import { TextInput } from '../../forms/components/textInput'
@@ -20,7 +20,7 @@ import { InviteLinkErrors } from '../../forms/fieldsErrors'
 import { IconButton, InputAdornment } from '@mui/material'
 import VisibilityOff from '@mui/icons-material/VisibilityOff'
 import Visibility from '@mui/icons-material/Visibility'
-import { composeInvitationShareUrl, parseName } from '@quiet/common'
+import { parseName } from '@quiet/common'
 import { getInvitationCodes } from '@quiet/state-manager'
 import { defaultLogger } from '../../logger'
 
@@ -43,7 +43,7 @@ const classes = {
 }
 
 const StyledModalContent = styled(Grid)(({ theme }) => ({
-  backgroundColor: theme.palette.colors.white,
+  backgroundColor: theme.palette.background.default,
   padding: '0px 32px',
 
   [`& .${classes.focus}`]: {
@@ -138,9 +138,6 @@ export interface PerformCommunityActionProps {
   hasReceivedResponse: boolean
   revealInputValue?: boolean
   handleClickInputReveal?: () => void
-  invitationCode?: InvitationPair[]
-  psk?: string
-  ownerOrbitDbIdentity?: string
 }
 
 export const PerformCommunityActionComponent: React.FC<PerformCommunityActionProps> = ({
@@ -154,9 +151,6 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
   hasReceivedResponse,
   revealInputValue,
   handleClickInputReveal,
-  invitationCode,
-  psk,
-  ownerOrbitDbIdentity,
 }) => {
   const [formSent, setFormSent] = useState(false)
 
@@ -219,18 +213,6 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
     setCommunityName(parsedName)
     setParsedNameDiffers(name !== parsedName)
   }
-
-  // Lock the form if app's been open with custom protocol
-  //
-  // TODO: What does this mean and do we need this here? It might make
-  // sense to decouple the PSK from this component, since this is the
-  // only place PSK is used.
-  useEffect(() => {
-    if (communityOwnership === CommunityOwnership.User && invitationCode?.length && psk && ownerOrbitDbIdentity) {
-      setFormSent(true)
-      setValue('name', composeInvitationShareUrl({ pairs: invitationCode, psk, ownerOrbitDbIdentity }))
-    }
-  }, [communityOwnership, invitationCode])
 
   useEffect(() => {
     if (!open) {

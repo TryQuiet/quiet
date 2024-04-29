@@ -84,9 +84,9 @@ export const registeredUsernames = createSelector(
   mapping => new Set(Object.values(mapping).map(u => u.username))
 )
 
+// TODO: We can move most of this to the backend.
 export const allUsers = createSelector(csrsMapping, certificatesMapping, (csrs, certs) => {
   const users: Record<string, User> = {}
-
   const allUsernames: string[] = Object.values(csrs).map(u => u.username)
   const duplicatedUsernames: string[] = allUsernames.filter((val, index) => allUsernames.indexOf(val) !== index)
 

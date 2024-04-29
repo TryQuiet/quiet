@@ -5,6 +5,7 @@ import { identitySelectors } from '../identity.selectors'
 import { identityActions } from '../identity.slice'
 import { config } from '../../users/const/certFieldTypes'
 import { Socket } from '../../../types'
+import { communitiesActions } from '../../communities/communities.slice'
 import { communitiesSelectors } from '../../communities/communities.selectors'
 import { CreateUserCsrPayload, RegisterCertificatePayload, Community } from '@quiet/types'
 import createLogger from '../../../utils/logger'
@@ -15,29 +16,35 @@ export function* registerUsernameSaga(
   socket: Socket,
   action: PayloadAction<ReturnType<typeof identityActions.registerUsername>['payload']>
 ): Generator {
+  console.log('Registering username')
+
   // Nickname can differ between saga calls
 
   const { nickname, isUsernameTaken = false } = action.payload
 
-  const community = yield* select(communitiesSelectors.currentCommunity)
-
+  let community = yield* select(communitiesSelectors.currentCommunity)
+  if (!community) {
+    console.warn('Community missing, waiting...')
+    yield* take(communitiesActions.addNewCommunity)
+  }
+  community = yield* select(communitiesSelectors.currentCommunity)
   if (!community) {
     logger.error('Could not register username, no community data')
     return
   }
+  console.log('Found community')
 
   let identity = yield* select(identitySelectors.currentIdentity)
-
   if (!identity) {
+    console.warn('Identity missing, waiting...')
     yield* take(identityActions.addNewIdentity)
   }
-
   identity = yield* select(identitySelectors.currentIdentity)
-
   if (!identity) {
     logger.error('Could not register username, no identity')
     return
   }
+  console.log('Found identity')
 
   let userCsr = identity.userCsr
 
@@ -85,12 +92,24 @@ export function* registerUsernameSaga(
     }
   }
 
+  // TODO: Can rename this type
   const payload: RegisterCertificatePayload = {
     communityId: community.id,
     nickname,
     userCsr,
+    // TODO: Remove
     isUsernameTaken,
   }
 
-  yield* put(identityActions.registerCertificate(payload))
+  yield* put(identityActions.addCsr(payload))
+
+  if (community.CA?.rootCertString) {
+    yield* put(communitiesActions.createCommunity(community.id))
+  } else {
+    if (!isUsernameTaken) {
+      yield* put(communitiesActions.launchCommunity(community.id))
+    } else {
+      yield* put(identityActions.saveUserCsr())
+    }
+  }
 }

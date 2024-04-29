@@ -1,5 +1,5 @@
 import { type HiddenService, type PeerId, type Identity, type UserCsr } from './identity'
-import { InvitationPair } from './network'
+import { InvitationData } from './network'
 
 export interface Community {
   id: string
@@ -13,6 +13,7 @@ export interface Community {
   onionAddress?: string
   ownerCertificate?: string
   psk?: string
+  inviteData?: InvitationData | null
   ownerOrbitDbIdentity?: string
 }
 
@@ -24,9 +25,7 @@ export enum CommunityOwnership {
 export interface CreateNetworkPayload {
   ownership: CommunityOwnership
   name?: string
-  peers?: InvitationPair[]
-  psk?: string
-  ownerOrbitDbIdentity?: string
+  inviteData?: InvitationData
 }
 
 export interface NetworkInfo {
@@ -41,6 +40,8 @@ export interface Certificates {
 }
 
 export interface InitCommunityPayload {
+  // Used for both joining and creating community
+  // Remove redundancy and pass data in inviteData?
   id: string
   name?: string
   peerId: PeerId
@@ -54,6 +55,7 @@ export interface InitCommunityPayload {
   psk?: string
   ownerOrbitDbIdentity?: string
   ownerCsr?: UserCsr
+  inviteData?: InvitationData | null
 }
 
 export interface StorePeerListPayload {

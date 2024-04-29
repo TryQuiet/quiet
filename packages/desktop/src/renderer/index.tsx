@@ -23,10 +23,17 @@ ipcRenderer.on('force-save-state', async _event => {
   ipcRenderer.send('state-saved')
 })
 
-ipcRenderer.on('invitation', (_event, invitation: { data: InvitationData }) => {
-  if (!invitation.data) return
-  logger.info(`invitation ${JSON.stringify(invitation.data.pairs, null, 2)} dispatching action`)
-  store.dispatch(communities.actions.customProtocol(invitation.data))
+ipcRenderer.on('invitation', (_event, invitation: { code: string | string[] }) => {
+  if (!invitation.code || !invitation.code.length) return
+
+  let invitationData: string[]
+  if (typeof invitation.code === 'string') {
+    invitationData = [invitation.code]
+  } else {
+    invitationData = invitation.code
+  }
+  logger.info(`invitation ${JSON.stringify(invitationData, null, 2)} dispatching action`)
+  store.dispatch(communities.actions.customProtocol(invitationData))
 })
 
 ipcRenderer.on('socketIOSecret', (_event, socketIOSecret) => {

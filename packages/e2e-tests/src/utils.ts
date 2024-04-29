@@ -6,6 +6,7 @@ import path from 'path'
 import fs from 'fs'
 import { RetryConfig, TimeoutMetadata } from './types'
 import { DESKTOP_DATA_DIR, getAppDataPath } from '@quiet/common'
+import { config } from 'dotenv'
 
 export const BACKWARD_COMPATIBILITY_BASE_VERSION = '2.0.1' // Pre-latest production version
 const appImagesPath = `${__dirname}/../Quiet`
@@ -46,11 +47,18 @@ export class BuildSetup {
     this.debugPort = await getPort()
   }
 
+  // Note: .env file is being used locally right now, mainly by script e2e:linux:build
+  static getEnvFileName() {
+    const { parsed, error } = config()
+    console.log('Dotenv config', { parsed, error })
+    return process.env.FILE_NAME
+  }
+
   private getBinaryLocation() {
-    console.log('filename', this.fileName)
     switch (process.platform) {
       case 'linux':
-        return `${__dirname}/../Quiet/${this.fileName ? this.fileName : process.env.FILE_NAME}`
+        console.log('filename', this.fileName)
+        return `${__dirname}/../Quiet/${this.fileName ? this.fileName : BuildSetup.getEnvFileName()}`
       case 'win32':
         return `${process.env.LOCALAPPDATA}\\Programs\\@quietdesktop\\Quiet.exe`
       case 'darwin':
@@ -72,7 +80,7 @@ export class BuildSetup {
   }
 
   public getVersionFromEnv() {
-    const envFileName = process.env.FILE_NAME
+    const envFileName = BuildSetup.getEnvFileName()
     if (!envFileName) {
       throw new Error('file name not specified')
     }
@@ -227,13 +235,17 @@ export class BuildSetup {
     await this.driver?.close()
   }
 
-  public clearDataDir() {
-    if (process.env.IS_CI === 'true') {
+  public clearDataDir(force: boolean = false) {
+    if (process.env.IS_CI === 'true' && !force) {
       console.warn('Not deleting data directory because we are running in CI')
       return
     }
     console.log(`Deleting data directory at ${this.dataDirPath}`)
-    fs.rmdirSync(this.dataDirPath, { recursive: true })
+    try {
+      fs.rmdirSync(this.dataDirPath, { recursive: true })
+    } catch (e) {
+      console.error(`Could not delete ${this.dataDirPath}. Reason: ${e.message}`)
+    }
   }
 
   public getProcessData = () => {

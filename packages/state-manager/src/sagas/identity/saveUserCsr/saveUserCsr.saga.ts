@@ -7,6 +7,8 @@ import createLogger from '../../../utils/logger'
 const logger = createLogger('identity')
 
 export function* saveUserCsrSaga(socket: Socket): Generator {
+  console.log('Saving user CSR')
+
   const identity = yield* select(identitySelectors.currentIdentity)
   if (!identity?.userCsr) {
     logger.error('Cannot save user csr to backend, no userCsr')

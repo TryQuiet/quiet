@@ -65,8 +65,6 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof errorsActions.addError>
     | ReturnType<typeof errorsActions.handleError>
     | ReturnType<typeof identityActions.storeUserCertificate>
-    | ReturnType<typeof identityActions.throwIdentityError>
-    | ReturnType<typeof identityActions.checkLocalCsr>
     | ReturnType<typeof communitiesActions.createCommunity>
     | ReturnType<typeof communitiesActions.launchCommunity>
     | ReturnType<typeof communitiesActions.updateCommunityData>
@@ -169,10 +167,10 @@ export function subscribe(socket: Socket) {
     // Certificates
     socket.on(SocketActionTypes.CSRS_STORED, (payload: SendCsrsResponse) => {
       logger.info(`${SocketActionTypes.CSRS_STORED}`)
-      emit(identityActions.checkLocalCsr(payload))
       emit(usersActions.storeCsrs(payload))
     })
     socket.on(SocketActionTypes.CERTIFICATES_STORED, (payload: SendCertificatesResponse) => {
+      logger.info(`${SocketActionTypes.CERTIFICATES_STORED}`)
       emit(usersActions.responseSendCertificates(payload))
     })
 

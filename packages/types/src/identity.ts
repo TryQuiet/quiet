@@ -35,7 +35,6 @@ export interface Identity {
   id: string
   nickname: string
   hiddenService: HiddenService
-  dmKeys: DmKeys
   peerId: PeerId
   userCsr: UserCsr | null
   userCertificate: string | null

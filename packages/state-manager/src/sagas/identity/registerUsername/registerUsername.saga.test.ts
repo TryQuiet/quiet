@@ -60,7 +60,7 @@ describe('registerUsernameSaga', () => {
       .provide([[call.fn(createUserCsr), userCsr]])
       .call(createUserCsr, createUserCsrPayload)
       .put(
-        identityActions.registerCertificate({
+        identityActions.addCsr({
           communityId: community.id,
           nickname: 'nickname',
           userCsr,
@@ -133,7 +133,7 @@ describe('registerUsernameSaga', () => {
       .call(getPubKey, pubKey)
       .call(createUserCsr, createUserCsrPayload)
       .put(
-        identityActions.registerCertificate({
+        identityActions.addCsr({
           communityId: community.id,
           nickname: newNickname,
           userCsr,
@@ -189,7 +189,7 @@ describe('registerUsernameSaga', () => {
       ])
       .dispatch(identityActions.addNewIdentity(identity))
       .put(
-        identityActions.registerCertificate({
+        identityActions.addCsr({
           communityId: community.id,
           nickname: identity.nickname,
           userCsr,
@@ -275,7 +275,7 @@ describe('registerUsernameSaga', () => {
       .dispatch(identityActions.addNewIdentity(identity))
       .call(createUserCsr, createUserCsrPayload)
       .put(
-        identityActions.registerCertificate({
+        identityActions.addCsr({
           communityId: community.id,
           nickname: 'nickname',
           userCsr,

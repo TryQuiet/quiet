@@ -10,13 +10,8 @@ import {
 } from '../selectors'
 import logger from '../logger'
 import { promiseWithRetries, sleep } from '../utils'
+import { UserTestData } from '../types'
 const log = logger('ManyClients')
-
-interface UserTestData {
-  username: string
-  app: App
-  messages: string[]
-}
 
 jest.setTimeout(1200000) // 20 minutes
 describe('Multiple Clients', () => {
@@ -473,8 +468,7 @@ describe('Multiple Clients', () => {
         await channelContextMenuOwner.openMenu()
         await channelContextMenuOwner.openDeletionChannelModal()
         await channelContextMenuOwner.deleteChannel()
-        const channels = await sidebarOwner.getChannelList()
-        expect(channels.length).toEqual(2)
+        await sidebarOwner.waitForChannels(['general', newChannelName])
       })
 
       // Delete general channel while guest is absent
@@ -485,8 +479,7 @@ describe('Multiple Clients', () => {
         await channelContextMenuOwner.openMenu()
         await channelContextMenuOwner.openDeletionChannelModal()
         await channelContextMenuOwner.deleteChannel()
-        const channels = await sidebarOwner.getChannelList()
-        expect(channels.length).toEqual(2)
+        await sidebarOwner.waitForChannels(['general', newChannelName])
       })
 
       it('User 1 re-opens app', async () => {

@@ -70,12 +70,12 @@ export class App {
     console.log('App closed', this.buildSetup.dataDir)
   }
 
-  async cleanup() {
+  async cleanup(force: boolean = false) {
     console.log(`Performing app cleanup`, this.buildSetup.dataDir)
     if (this.isOpened) {
       throw new Error(`App with dataDir ${this.buildSetup.dataDir} is still open, close before cleaning up!`)
     }
-    this.buildSetup.clearDataDir()
+    this.buildSetup.clearDataDir(force)
   }
 
   get saveStateButton() {
@@ -610,6 +610,33 @@ export class Sidebar {
   async getChannelList() {
     const channels = await this.driver.findElements(By.xpath('//*[contains(@data-testid, "link-text")]'))
     return channels
+  }
+
+  /**
+   * Get names of all channels in the sidebar
+   */
+  async getChannelsNames() {
+    const elements = await this.getChannelList()
+    return Promise.all(
+      elements.map(async element => {
+        const fullName = await element.getText()
+        return fullName.split(' ')[1]
+      })
+    )
+  }
+
+  async waitForChannelsNum(num: number) {
+    console.log(`Waiting for ${num} channels`)
+    return this.driver.wait(async () => {
+      const channels = await this.getChannelList()
+      return channels.length === num
+    })
+  }
+
+  async waitForChannels(channelsNames: Array<string>) {
+    await this.waitForChannelsNum(channelsNames.length)
+    const names = await this.getChannelsNames()
+    expect(names).toEqual(expect.arrayContaining(channelsNames))
   }
 
   async openSettings() {

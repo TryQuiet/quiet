@@ -95,6 +95,7 @@ export const CreateChannel: FC<CreateChannelProps> = ({
           disabled={loading}
           validation={inputError}
           ref={inputRef}
+          autoCorrect={false}
         />
         {!inputError &&
           createChannelInput?.length !== undefined &&

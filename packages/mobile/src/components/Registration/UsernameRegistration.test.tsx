@@ -134,6 +134,7 @@ describe('UsernameRegistration', () => {
             >
               <TextInput
                 autoCapitalize="none"
+                autoCorrect={false}
                 editable={true}
                 height={54}
                 maxLength={20}
@@ -537,6 +538,7 @@ describe('UsernameRegistration', () => {
             >
               <TextInput
                 autoCapitalize="none"
+                autoCorrect={false}
                 editable={true}
                 height={54}
                 maxLength={20}

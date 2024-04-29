@@ -23,10 +23,11 @@ import {
   validInvitationCodeTestData,
   getValidInvitationUrlTestData,
   PSK_PARAM_KEY,
+  validInvitationDatav1,
 } from '@quiet/common'
 
 describe('join community', () => {
-  const { code, data } = getValidInvitationUrlTestData(validInvitationCodeTestData[0])
+  const { code, data } = getValidInvitationUrlTestData(validInvitationDatav1[0])
 
   const validCode = code()
 

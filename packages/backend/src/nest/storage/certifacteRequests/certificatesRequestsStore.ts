@@ -40,8 +40,8 @@ export class CertificatesRequestsStore extends EventEmitter {
       this.loadedCertificateRequests()
     })
 
-    // TODO: Load CSRs in case the owner closes the app before issuing
-    // certificates
+    // @ts-ignore
+    await this.store.load({ fetchEntryTimeout: 15000 })
     this.logger('Initialized')
   }
 
@@ -76,7 +76,7 @@ export class CertificatesRequestsStore extends EventEmitter {
       await parsedCsr.verify()
       await this.validateCsrFormat(csr)
     } catch (err) {
-      console.error('Failed to validate user csr:', csr, err?.message)
+      console.error('Failed to validate user CSR:', csr, err?.message)
       return false
     }
     return true
@@ -99,15 +99,13 @@ export class CertificatesRequestsStore extends EventEmitter {
       .map(e => {
         return e.payload.value
       })
+    this.logger('Total CSRs:', allEntries.length)
 
-    this.logger('DuplicatedCertBug', { allEntries })
     const allCsrsUnique = [...new Set(allEntries)]
-    this.logger('DuplicatedCertBug', { allCsrsUnique })
     await Promise.all(
       allCsrsUnique
         .filter(async csr => {
           const validation = await CertificatesRequestsStore.validateUserCsr(csr)
-          this.logger('DuplicatedCertBug', { validation, csr })
           if (validation) return true
           return false
         })
@@ -121,8 +119,9 @@ export class CertificatesRequestsStore extends EventEmitter {
           filteredCsrsMap.set(pubKey, csr)
         })
     )
-    this.logger('DuplicatedCertBug', '[...filteredCsrsMap.values()]', [...filteredCsrsMap.values()])
-    return [...filteredCsrsMap.values()]
+    const validCsrs = [...filteredCsrsMap.values()]
+    this.logger('Valid CSRs:', validCsrs.length)
+    return validCsrs
   }
 
   public clean() {
