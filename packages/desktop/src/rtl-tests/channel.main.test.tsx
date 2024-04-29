@@ -1,6 +1,6 @@
 import React from 'react'
 import '@testing-library/jest-dom/extend-expect'
-import { act } from 'react-dom/test-utils'
+import { act } from '@testing-library/react'
 import { screen } from '@testing-library/dom'
 import { apply, take } from 'typed-redux-saga'
 import userEvent from '@testing-library/user-event'
@@ -38,7 +38,7 @@ import {
   SendMessagePayload,
   MessageVerificationStatus,
   DownloadStatus,
-  type MessagesLoadedPayload,
+  MessagesLoadedPayload,
   ResponseLaunchCommunityPayload,
   Community,
 } from '@quiet/types'
@@ -178,8 +178,7 @@ describe('Channel', () => {
       nickname: 'john',
     })
     expect(john.userCertificate).not.toBeNull()
-    // @ts-expect-error
-    const johnPublicKey = keyFromCertificate(parseCertificate(john.userCertificate))
+    const johnPublicKey = keyFromCertificate(parseCertificate(john.userCertificate!))
 
     const authenticMessage: ChannelMessage = {
       ...(
@@ -947,8 +946,7 @@ describe('Channel', () => {
         type: MessageType.Image,
         message: '',
         createdAt: DateTime.utc().valueOf(),
-        // @ts-expect-error
-        channelId: generalId,
+        channelId: generalId!,
         signature: '',
         pubKey: '',
         media: missingFile,

@@ -10,6 +10,9 @@ import { publicChannelsSelectors } from '../../publicChannels/publicChannels.sel
 import { messagesActions } from '../messages.slice'
 import { generateMessageId, getCurrentTime } from '../utils/message.utils'
 import { type ChannelMessage, MessageType, SendingStatus, SocketActionTypes } from '@quiet/types'
+import createLogger from '../../../utils/logger'
+
+const logger = createLogger('messages')
 
 export function* sendMessageSaga(
   socket: Socket,
@@ -20,18 +23,18 @@ export function* sendMessageSaga(
 
   const identity = yield* select(identitySelectors.currentIdentity)
   if (!identity?.userCsr) {
-    console.error(`Failed to send message ${id} - user CSR is missing`)
+    logger.error(`Failed to send message ${id} - user CSR is missing`)
     return
   }
 
   const currentChannelId = yield* select(publicChannelsSelectors.currentChannelId)
   const channelId = action.payload.channelId || currentChannelId
   if (!channelId) {
-    console.error(`Failed to send message ${id} - channel ID is missing`)
+    logger.error(`Failed to send message ${id} - channel ID is missing`)
     return
   }
 
-  console.log(`Sending message ${id} to channel ${channelId}`)
+  logger.log(`Sending message ${id} to channel ${channelId}`)
 
   const pubKey = yield* call(pubKeyFromCsr, identity.userCsr.userCsr)
   const keyObject = yield* call(loadPrivateKey, identity.userCsr.userKey, config.signAlg)
@@ -51,7 +54,7 @@ export function* sendMessageSaga(
   }
 
   // Grey out message until saved in db
-  console.log('Adding pending message status')
+  logger.info('Adding pending message status')
   yield* put(
     messagesActions.addMessagesSendingStatus({
       message: message,
@@ -69,7 +72,7 @@ export function* sendMessageSaga(
   )
 
   // Display sent message immediately, to improve user experience
-  console.log('Adding message to Redux store')
+  logger.info('Adding message to Redux store')
   yield* put(
     messagesActions.addMessages({
       messages: [message],
@@ -79,7 +82,7 @@ export function* sendMessageSaga(
 
   const isUploadingFileMessage = action.payload.media?.cid?.includes('uploading')
   if (isUploadingFileMessage) {
-    console.log(`Failed to send message ${id} - file upload is in progress`)
+    logger.info(`Failed to send message ${id} - file upload is in progress`)
     return // Do not broadcast message until file is uploaded
   }
 
@@ -90,12 +93,12 @@ export function* sendMessageSaga(
   // (in a durable way).
   while (true) {
     const subscribedChannels = yield* select(publicChannelsSelectors.subscribedChannels)
-    console.log('Subscribed channels', subscribedChannels)
+    logger.info('Subscribed channels', subscribedChannels)
     if (subscribedChannels.includes(channelId)) {
-      console.log(`Channel ${channelId} subscribed`)
+      logger.info(`Channel ${channelId} subscribed`)
       break
     }
-    console.error(`Failed to send message ${id} - channel not subscribed. Waiting...`)
+    logger.error(`Failed to send message ${id} - channel not subscribed. Waiting...`)
     yield* take(publicChannelsActions.setChannelSubscribed)
   }
 

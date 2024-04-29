@@ -7,6 +7,9 @@ import { type Certificate } from 'pkijs'
 import { type CreatedSelectors, type StoreState } from '../store.types'
 import { type UserData, User } from '@quiet/types'
 import { ownerCertificate } from '../communities/communities.selectors'
+import createLogger from '../../utils/logger'
+
+const logger = createLogger('users')
 
 const usersSlice: CreatedSelectors[StoreKeys.Users] = (state: StoreState) => state[StoreKeys.Users]
 
@@ -29,9 +32,10 @@ export const certificatesMapping = createSelector(certificates, certs => {
     const username = getCertFieldValue(certificate, CertFieldsTypes.nickName)
     const onionAddress = getCertFieldValue(certificate, CertFieldsTypes.commonName)
     const peerId = getCertFieldValue(certificate, CertFieldsTypes.peerId)
+    const dmPublicKey = getCertFieldValue(certificate, CertFieldsTypes.dmPublicKey) || ''
 
     if (!username || !onionAddress || !peerId) {
-      console.error(`Could not parse certificate for pubkey ${pubKey}`)
+      logger.error(`Could not parse certificate for pubkey ${pubKey}`)
       return
     }
 
@@ -39,6 +43,7 @@ export const certificatesMapping = createSelector(certificates, certs => {
       username,
       onionAddress,
       peerId,
+      dmPublicKey,
     })
   })
   return mapping
@@ -56,9 +61,10 @@ export const csrsMapping = createSelector(csrs, csrs => {
     const username = getReqFieldValue(csr, CertFieldsTypes.nickName)
     const onionAddress = getReqFieldValue(csr, CertFieldsTypes.commonName)
     const peerId = getReqFieldValue(csr, CertFieldsTypes.peerId)
+    const dmPublicKey = getReqFieldValue(csr, CertFieldsTypes.dmPublicKey) || ''
 
     if (!username || !onionAddress || !peerId) {
-      console.error(`Could not parse certificate for pubkey ${pubKey}`)
+      logger.error(`Could not parse certificate for pubkey ${pubKey}`)
       return
     }
 
@@ -66,6 +72,7 @@ export const csrsMapping = createSelector(csrs, csrs => {
       username,
       onionAddress,
       peerId,
+      dmPublicKey,
     })
   })
 
@@ -126,12 +133,14 @@ export const ownerData = createSelector(ownerCertificate, ownerCertificate => {
   const username = getCertFieldValue(ownerCert, CertFieldsTypes.nickName)
   const onionAddress = getCertFieldValue(ownerCert, CertFieldsTypes.commonName)
   const peerId = getCertFieldValue(ownerCert, CertFieldsTypes.peerId)
+  const dmPublicKey = getCertFieldValue(ownerCert, CertFieldsTypes.dmPublicKey)
   const pubKey = keyFromCertificate(ownerCert)
 
   return {
     username,
     onionAddress,
     peerId,
+    dmPublicKey,
     pubKey,
   }
 })

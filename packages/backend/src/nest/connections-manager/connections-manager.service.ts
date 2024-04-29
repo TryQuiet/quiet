@@ -45,6 +45,7 @@ import {
   type SavedOwnerCertificatePayload,
   type UserProfile,
   type UserProfilesStoredEvent,
+  PeersNetworkDataPayload,
 } from '@quiet/types'
 import Logger from '../common/logger'
 import { CONFIG_OPTIONS, QUIET_DIR, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
@@ -349,7 +350,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
     const localAddress = createLibp2pAddress(payload.hiddenService.onionAddress, payload.peerId.id)
 
-    let community: Community = {
+    const community = {
       id: payload.id,
       name: payload.name,
       CA: payload.CA,
@@ -371,22 +372,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     await this.localDbService.setNetworkInfo(network)
 
     await this.launchCommunity({ community, network })
-
-    const meta = await this.storageService.updateCommunityMetadata({
-      id: community.id,
-      rootCa: community.rootCa as string,
-      ownerCertificate: community.ownerCertificate as string,
-    })
-    const currentCommunity = await this.localDbService.getCurrentCommunity()
-
-    if (meta && currentCommunity) {
-      community = {
-        ...currentCommunity,
-        ownerOrbitDbIdentity: meta.ownerOrbitDbIdentity,
-      }
-      await this.localDbService.setCommunity(community)
-    }
-
     this.logger(`Created and launched community ${community.id}`)
 
     return community
@@ -551,6 +536,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
     const peers = community.peerList
     this.logger(`Launching community ${community.id}: payload peers: ${peers}`)
+    this.logger(`PSK: ${community.psk}`)
 
     const params: Libp2pNodeParams = {
       peerId,
@@ -565,7 +551,21 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     await this.libp2pService.createInstance(params)
 
     // Libp2p event listeners
-    this.libp2pService.on(Libp2pEvents.PEER_CONNECTED, (payload: { peers: string[] }) => {
+    this.libp2pService.on(Libp2pEvents.PEER_CONNECTED, async (payload: PeersNetworkDataPayload) => {
+      const peerStats: { [peerId: string]: NetworkStats } = await payload.peers.reduce(
+        async (updateObj, peer) => {
+          return {
+            ...(await updateObj),
+            [peer.peer]: {
+              peerId: peer.peer,
+              lastSeen: peer.lastSeen,
+              connectionTime: peer.connectionDuration,
+            } as NetworkStats,
+          }
+        },
+        Promise.resolve({} as { [peerId: string]: NetworkStats })
+      )
+      await this.localDbService.update(LocalDBKeys.PEERS, peerStats)
       this.serverIoProvider.io.emit(SocketActionTypes.PEER_CONNECTED, payload)
     })
 
@@ -593,15 +593,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     // service for now. Both object construction and object
     // initialization need to happen in order based on dependencies.
     await this.registrationService.init(this.storageService)
-
-    if (community.CA) {
-      this.registrationService.setPermsData({
-        certificate: community.CA.rootCertString,
-        privKey: community.CA.rootKeyString,
-      })
-    }
-
-    this.logger('Storage initialized')
+    this.logger('storage initialized')
 
     this.serverIoProvider.io.emit(
       SocketActionTypes.CONNECTION_PROCESS_INFO,
@@ -625,6 +617,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.socketService.on(SocketActionTypes.CONNECTION, async () => {
       // Update Frontend with Initialized Communities
       if (this.communityId) {
+        console.log('Hunting for heisenbug: Backend initialized community and sent event to state manager')
         this.serverIoProvider.io.emit(SocketActionTypes.COMMUNITY_LAUNCHED, { id: this.communityId })
         console.log('this.libp2pService.connectedPeers', this.libp2pService.connectedPeers)
         console.log('this.libp2pservice', this.libp2pService)
@@ -660,6 +653,26 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         callback(await this.joinCommunity(args))
       }
     )
+    // TODO: With the Community model on the backend, there is no need to call
+    // SET_COMMUNITY_METADATA anymore. We can call updateCommunityMetadata when
+    // creating the community.
+    this.socketService.on(
+      SocketActionTypes.SET_COMMUNITY_METADATA,
+      async (payload: CommunityMetadata, callback: (response: CommunityMetadata | undefined) => void) => {
+        const meta = await this.storageService.updateCommunityMetadata(payload)
+        const community = await this.localDbService.getCurrentCommunity()
+
+        if (meta && community) {
+          const updatedCommunity = {
+            ...community,
+            ownerOrbitDbIdentity: meta.ownerOrbitDbIdentity,
+          }
+          await this.localDbService.setCommunity(updatedCommunity)
+          this.serverIoProvider.io.emit(SocketActionTypes.COMMUNITY_UPDATED, updatedCommunity)
+        }
+        callback(meta)
+      }
+    )
     this.socketService.on(SocketActionTypes.LEAVE_COMMUNITY, async () => {
       await this.leaveCommunity()
     })
@@ -668,6 +681,13 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.socketService.on(SocketActionTypes.ADD_CSR, async (payload: SaveCSRPayload) => {
       this.logger(`socketService - ${SocketActionTypes.ADD_CSR}`)
       await this.storageService?.saveCSR(payload)
+    })
+    // TODO: With the Community model on the backend, there is no need to call
+    // SET_COMMUNITY_CA_DATA anymore. We can call setPermsData when
+    // creating the community.
+    this.socketService.on(SocketActionTypes.SET_COMMUNITY_CA_DATA, async (payload: PermsData) => {
+      this.logger(`socketService - ${SocketActionTypes.SET_COMMUNITY_CA_DATA}`)
+      this.registrationService.setPermsData(payload)
     })
 
     // Public Channels

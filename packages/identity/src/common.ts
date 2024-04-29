@@ -9,7 +9,6 @@ export enum CertFieldsTypes {
   subjectAltName = '2.5.29.17',
   nickName = '1.3.6.1.4.1.50715.2.1',
   peerId = '1.3.6.1.2.1.15.3.1.1',
-  // DEPRECATED
   dmPublicKey = '1.2.840.113549.1.9.12',
 }
 
@@ -101,9 +100,17 @@ export const getCertFieldValue = (cert: Certificate, fieldType: CertFieldsTypes 
   } else {
     const ext = cert.extensions?.find(tav => tav.extnID === fieldType)
     if (ext) {
-      const extObj = ext?.extnValue.valueBlock.value[0]
-      // @ts-ignore
-      return extObj.valueBlock.value
+      if (fieldType === CertFieldsTypes.dmPublicKey) {
+        const extObj = ext?.extnValue.valueBlock.value[0]
+        // @ts-ignore
+        const arrayBuffer = extObj.valueBlock.valueHex
+
+        return arrayBufferToHexString(arrayBuffer)
+      } else {
+        const extObj = ext?.extnValue.valueBlock.value[0]
+        // @ts-ignore
+        return extObj.valueBlock.value
+      }
     } else {
       return null
     }
@@ -124,7 +131,12 @@ export const getReqFieldValue = (
   } else {
     const ext = csr.attributes?.find(tav => tav.type === fieldType)
     if (ext) {
-      return ext.values[0].valueBlock.value
+      if (fieldType === CertFieldsTypes.dmPublicKey) {
+        const extObj = ext.values[0].valueBlock.valueHex
+        return arrayBufferToHexString(extObj)
+      } else {
+        return ext.values[0].valueBlock.value
+      }
     } else {
       return null
     }

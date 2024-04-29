@@ -23,6 +23,7 @@ describe('users selectors', () => {
   let alicePublicKey: string
 
   const aliceCertificateData = {
+    dmPublicKey: '0bfb475810c0e26c9fab590d47c3d60ec533bb3c451596acc3cd4f21602e9ad9',
     onionAddress: 'nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad.onion',
     peerId: 'Qmf3ySkYqLET9xtAtDzvAr5Pp3egK1H3C5iJAZm1SpLEp6',
     username: 'alice',
@@ -47,6 +48,10 @@ describe('users selectors', () => {
       },
       peerId: {
         id: aliceCertificateData.peerId,
+      },
+      dmKeys: {
+        publicKey: aliceCertificateData.dmPublicKey,
+        privateKey: '',
       },
     })
 
@@ -77,6 +82,7 @@ describe('users selectors', () => {
 
     expect(usersData[alicePublicKey]).toMatchInlineSnapshot(`
       Object {
+        "dmPublicKey": "0bfb475810c0e26c9fab590d47c3d60ec533bb3c451596acc3cd4f21602e9ad9",
         "onionAddress": "nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad.onion",
         "peerId": "Qmf3ySkYqLET9xtAtDzvAr5Pp3egK1H3C5iJAZm1SpLEp6",
         "username": "alice",

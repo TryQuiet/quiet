@@ -5,6 +5,10 @@ import Root, { persistor } from './Root'
 import store from './store'
 import updateHandlers from './store/handlers/update'
 import { communities, connection } from '@quiet/state-manager'
+import { InvitationData } from '@quiet/types'
+import createLogger from './logger'
+
+const logger = createLogger('index')
 
 if (window && process.env.DEBUG) {
   window.localStorage.setItem('debug', process.env.DEBUG)
@@ -28,6 +32,7 @@ ipcRenderer.on('invitation', (_event, invitation: { code: string | string[] }) =
   } else {
     invitationData = invitation.code
   }
+  logger.info(`invitation ${JSON.stringify(invitationData, null, 2)} dispatching action`)
   store.dispatch(communities.actions.customProtocol(invitationData))
 })
 

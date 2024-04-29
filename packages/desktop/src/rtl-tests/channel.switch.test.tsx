@@ -1,7 +1,7 @@
 import React from 'react'
 import '@testing-library/jest-dom/extend-expect'
 import userEvent from '@testing-library/user-event'
-import { act } from 'react-dom/test-utils'
+import { act } from '@testing-library/react'
 import { screen } from '@testing-library/dom'
 import { apply } from 'typed-redux-saga'
 import { Task } from 'redux-saga'

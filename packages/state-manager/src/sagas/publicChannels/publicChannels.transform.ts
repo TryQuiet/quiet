@@ -3,6 +3,9 @@ import { createTransform } from 'redux-persist'
 import { StoreKeys } from '../store.keys'
 import { publicChannelsAdapter, publicChannelsSubscriptionsAdapter } from './publicChannels.adapter'
 import { type PublicChannelsState } from './publicChannels.slice'
+import createLogger from '../../utils/logger'
+
+const logger = createLogger('publicChannels')
 
 export const PublicChannelsTransform = createTransform(
   (inboundState: PublicChannelsState, _key: any) => {
@@ -26,8 +29,8 @@ const getGeneralChannelId = (state: PublicChannelsState) => {
   const selectors = publicChannelsAdapter.getSelectors()
   const publicChannelStorage = selectors.selectAll(state.channels)
   const generalChannel = publicChannelStorage.find(channel => channel.name === 'general')
-  console.log('PublicChannelsTransform: existing general channel id', generalChannel?.id)
+  logger.info('PublicChannelsTransform: existing general channel id', generalChannel?.id)
   const generalChannelId = generalChannel?.id || INITIAL_CURRENT_CHANNEL_ID
-  console.log('PublicChannelsTransform: new general channel id', generalChannelId)
+  logger.info('PublicChannelsTransform: new general channel id', generalChannelId)
   return generalChannelId
 }

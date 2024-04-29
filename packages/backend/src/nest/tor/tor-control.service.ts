@@ -1,9 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common'
 import net from 'net'
-import { CONFIG_OPTIONS, TOR_CONTROL_PARAMS } from '../const'
-import { ConfigOptions } from '../types'
+import { CONFIG_OPTIONS, SERVER_IO_PROVIDER, TOR_CONTROL_PARAMS } from '../const'
+import { ConfigOptions, ServerIoProviderTypes } from '../types'
 import { TorControlAuthType, TorControlParams } from './tor.types'
 import Logger from '../common/logger'
+import { SocketActionTypes } from '@quiet/types'
 
 @Injectable()
 export class TorControl {
@@ -14,7 +15,8 @@ export class TorControl {
 
   constructor(
     @Inject(TOR_CONTROL_PARAMS) public torControlParams: TorControlParams,
-    @Inject(CONFIG_OPTIONS) public configOptions: ConfigOptions
+    @Inject(CONFIG_OPTIONS) public configOptions: ConfigOptions,
+    @Inject(SERVER_IO_PROVIDER) public readonly serverIoProvider: ServerIoProviderTypes
   ) {
     this.isSending = false
   }

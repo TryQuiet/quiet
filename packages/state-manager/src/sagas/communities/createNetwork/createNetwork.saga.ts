@@ -14,15 +14,17 @@ import {
   InvitationDataVersion,
 } from '@quiet/types'
 import { Socket, applyEmitParams } from '../../../types'
-import logger from '../../../utils/logger'
-const log = logger('createNetwork')
+import createLogger from '../../../utils/logger'
+
+const logger = createLogger('communities:createNetwork')
 
 export function* createNetworkSaga(
   socket: Socket,
   action: PayloadAction<ReturnType<typeof communitiesActions.createNetwork>['payload']>
 ) {
   const payload = action.payload
-  log(payload)
+  logger.info('create network saga', payload)
+
   // Community IDs are only local identifiers
   const id = yield* call(generateId)
 

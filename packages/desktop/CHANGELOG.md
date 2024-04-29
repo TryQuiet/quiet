@@ -1,6 +1,8 @@
 [unreleased]
 
-# New features:
+# New Features
+
+* Adds connection status information to messages panel when no peers are connected ([#1706](https://github.com/TryQuiet/quiet/issues/1706))
 
 # Refactorings:
 
@@ -19,7 +21,6 @@
 
 # Fixes:
 
-* Allow JPEG and GIF files as profile photos ([#2332](https://github.com/TryQuiet/quiet/issues/2332))
 * Fix issues with recreating general channel when deleted while offline ([#2334](https://github.com/TryQuiet/quiet/issues/2334))
 * Fix package.json license inconsistency
 
@@ -35,7 +36,6 @@
 
 # Fixes:
 
-* Fixes channel name creation logic
 * Remove duplicate introduction messages once again
 * Prevent channel creation with names that start with special character, then a hyphen
 * Choose random ports for Tor services (iOS)

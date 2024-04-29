@@ -16,6 +16,7 @@ import { TextInput } from '../../forms/components/textInput'
 import { userNameField } from '../../forms/fields/createUserFields'
 
 import { parseName } from '@quiet/common'
+import { defaultLogger } from '../../logger'
 
 const PREFIX = 'ChangeUsername-'
 
@@ -174,7 +175,7 @@ export const ChangeUsername: React.FC<ChangeUsernameProps> = ({
   const onSubmit = useCallback(
     (values: ChangeUserNameValues) => {
       if (errors.userName) {
-        console.error('Cannot submit form with errors')
+        defaultLogger.error('Cannot submit form with errors')
         return
       }
 

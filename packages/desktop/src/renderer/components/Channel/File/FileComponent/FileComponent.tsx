@@ -15,6 +15,7 @@ import cancelIconGray from '../../../../static/images/cancelIconGray.svg'
 import cancelIconRed from '../../../../static/images/cancelIconRed.svg'
 import pauseIconGray from '../../../../static/images/pauseIconGray.svg'
 import Tooltip from '../../../ui/Tooltip/Tooltip'
+import classNames from 'classnames'
 
 const PREFIX = 'FileComponent'
 
@@ -23,6 +24,7 @@ const classes = {
   fileIcon: `${PREFIX}fileIcon`,
   filename: `${PREFIX}filename`,
   actionIcon: `${PREFIX}actionIcon`,
+  unsent: `${PREFIX}unsent`,
 }
 
 const FileComponentStyled = styled('div')(({ theme }) => ({
@@ -51,6 +53,10 @@ const FileComponentStyled = styled('div')(({ theme }) => ({
 
   [`& .${classes.filename}`]: {
     marginLeft: '16px',
+  },
+
+  [`& .${classes.unsent}`]: {
+    opacity: 0.5,
   },
 }))
 
@@ -126,6 +132,7 @@ const ActionIndicator: React.FC<{
 export interface FileComponentProps {
   message: DisplayableMessage
   downloadStatus?: DownloadStatus
+  isUnsent: boolean
 }
 
 export interface FileActionsProps {
@@ -137,6 +144,7 @@ export interface FileActionsProps {
 export const FileComponent: React.FC<FileComponentProps & FileActionsProps> = ({
   message,
   downloadStatus,
+  isUnsent,
   openContainingFolder,
   downloadFile,
   cancelDownload,
@@ -343,7 +351,7 @@ export const FileComponent: React.FC<FileComponentProps & FileActionsProps> = ({
         }
         placement='top'
       >
-        <div style={{ display: 'flex', width: 'fit-content' }}>
+        <div style={{ display: 'flex', width: 'fit-content' }} className={classNames({ [classes.unsent]: isUnsent })}>
           <div className={classes.icon}>{renderIcon()}</div>
           <div className={classes.filename}>
             <Typography variant={'h5'} style={{ lineHeight: '20px' }}>
@@ -362,6 +370,7 @@ export const FileComponent: React.FC<FileComponentProps & FileActionsProps> = ({
           width: 'fit-content',
           display: downloadState ? 'block' : 'none',
         }}
+        className={classNames({ [classes.unsent]: isUnsent })}
       >
         {renderActionIndicator()}
       </div>

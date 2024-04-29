@@ -1,7 +1,7 @@
 import { eventChannel } from 'redux-saga'
 import { type Socket } from '../../../types'
 import { all, call, fork, put, takeEvery } from 'typed-redux-saga'
-import logger from '../../../utils/logger'
+import createLogger from '../../../utils/logger'
 import { appActions } from '../../app/app.slice'
 import { appMasterSaga } from '../../app/app.master.saga'
 import { connectionActions } from '../../appConnection/connection.slice'
@@ -43,9 +43,10 @@ import {
   type CommunityMetadata,
   type UserProfilesStoredEvent,
   SocketActionTypes,
+  PeersNetworkDataPayload,
 } from '@quiet/types'
 
-const log = logger('socket')
+const logger = createLogger('socket')
 
 export function subscribe(socket: Socket) {
   return eventChannel<
@@ -82,6 +83,8 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof communitiesActions.clearInvitationCodes>
     | ReturnType<typeof identityActions.saveUserCsr>
     | ReturnType<typeof connectionActions.setTorInitialized>
+    | ReturnType<typeof communitiesActions.sendCommunityMetadata>
+    | ReturnType<typeof communitiesActions.sendCommunityCaData>
     | ReturnType<typeof usersActions.setUserProfiles>
     | ReturnType<typeof appActions.loadMigrationData>
   >(emit => {
@@ -93,13 +96,15 @@ export function subscribe(socket: Socket) {
       emit(connectionActions.setConnectionProcess(payload))
     })
     // Misc
-    socket.on(SocketActionTypes.PEER_CONNECTED, (payload: { peers: string[] }) => {
-      log(`${SocketActionTypes.PEER_CONNECTED}: ${payload}`)
-      emit(networkActions.addConnectedPeers(payload.peers))
+    socket.on(SocketActionTypes.PEER_CONNECTED, (payload: PeersNetworkDataPayload) => {
+      logger.info(`${SocketActionTypes.PEER_CONNECTED}: ${JSON.stringify(payload)}`)
+      emit(networkActions.addConnectedPeers(payload.peers.map(peer => peer.peer)))
+      emit(connectionActions.updateNetworkData(payload.peers))
     })
     socket.on(SocketActionTypes.PEER_DISCONNECTED, (payload: NetworkDataPayload) => {
+      logger.info(`${SocketActionTypes.PEER_DISCONNECTED}: ${JSON.stringify(payload)}`)
       emit(networkActions.removeConnectedPeer(payload.peer))
-      emit(connectionActions.updateNetworkData(payload))
+      emit(connectionActions.updateNetworkData([payload]))
     })
     socket.on(SocketActionTypes.MIGRATION_DATA_REQUIRED, (keys: string[]) => {
       emit(appActions.loadMigrationData(keys))
@@ -136,6 +141,11 @@ export function subscribe(socket: Socket) {
     // Community
 
     socket.on(SocketActionTypes.COMMUNITY_LAUNCHED, (payload: ResponseLaunchCommunityPayload) => {
+      logger.info(`${SocketActionTypes.COMMUNITY_LAUNCHED}`, JSON.stringify(payload))
+      logger.info('Hunting for heisenbug: Community event received in state-manager')
+      // TODO: We can send this once when creating the community and
+      // store it in the backend.
+      emit(communitiesActions.sendCommunityCaData())
       emit(filesActions.checkForMissingFiles(payload.id))
       emit(networkActions.addInitializedCommunity(payload.id))
       emit(communitiesActions.clearInvitationCodes())
@@ -151,23 +161,23 @@ export function subscribe(socket: Socket) {
       // color in the console, which makes them difficult to find.
       // Also when only printing the payload, the full trace is not
       // available.
-      log.error(payload)
-      console.error(payload, payload.trace)
+      logger.error(`Error on socket:`, payload.trace)
       emit(errorsActions.handleError(payload))
     })
     // Certificates
     socket.on(SocketActionTypes.CSRS_STORED, (payload: SendCsrsResponse) => {
-      log(`${SocketActionTypes.CSRS_STORED}`)
+      logger.info(`${SocketActionTypes.CSRS_STORED}`)
       emit(usersActions.storeCsrs(payload))
     })
     socket.on(SocketActionTypes.CERTIFICATES_STORED, (payload: SendCertificatesResponse) => {
+      logger.info(`${SocketActionTypes.CERTIFICATES_STORED}`)
       emit(usersActions.responseSendCertificates(payload))
     })
 
     // User Profile
 
     socket.on(SocketActionTypes.USER_PROFILES_STORED, (payload: UserProfilesStoredEvent) => {
-      log(`${SocketActionTypes.USER_PROFILES_STORED}`)
+      logger.info(`${SocketActionTypes.USER_PROFILES_STORED}`)
       emit(usersActions.setUserProfiles(payload.profiles))
     })
 

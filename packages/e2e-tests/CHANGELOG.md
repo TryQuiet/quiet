@@ -10,6 +10,12 @@
 
 * Add tests for JPEG and GIF profile photos
 
+* Feature: adds optional retriability to selectors
+
+* Fix: updates message finding selectors to actually return fail when messages aren't found
+
+* Adds tests for connection status element ([#1706](https://github.com/TryQuiet/quiet/issues/1706))
+
 [2.0.3-alpha.6]
 
 * Fix: filter out invalid peer addresses in peer list. Update peer list in localdb.

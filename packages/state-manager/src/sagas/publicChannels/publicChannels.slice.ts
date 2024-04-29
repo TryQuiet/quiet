@@ -7,7 +7,7 @@ import {
   publicChannelsSubscriptionsAdapter,
 } from './publicChannels.adapter'
 
-import logger from '../../utils/logger'
+import createLogger from '../../utils/logger'
 import {
   type CacheMessagesPayload,
   type DeleteChannelResponse,
@@ -30,7 +30,7 @@ import {
   type SetCurrentChannelPayload,
   type UpdateNewestMessagePayload,
 } from '@quiet/types'
-const log = logger('publicChannels')
+const logger = createLogger('publicChannels')
 
 export class PublicChannelsState {
   public currentChannelId: string = INITIAL_CURRENT_CHANNEL_ID

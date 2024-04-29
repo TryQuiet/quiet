@@ -20,11 +20,13 @@ export const createUserCsr = async ({
   nickname,
   commonName,
   peerId,
+  dmPublicKey,
   existingKeyPair,
 }: {
   nickname: string
   commonName: string
   peerId: string
+  dmPublicKey: string
   signAlg: string
   hashAlg: string
   existingKeyPair?: CryptoKeyPair
@@ -33,6 +35,7 @@ export const createUserCsr = async ({
     nickname,
     commonName,
     peerId,
+    dmPublicKey,
     signAlg: config.signAlg,
     hashAlg: config.hashAlg,
     existingKeyPair,
@@ -56,6 +59,7 @@ async function requestCertificate({
   nickname,
   commonName,
   peerId,
+  dmPublicKey,
   signAlg = config.signAlg,
   hashAlg = config.hashAlg,
   existingKeyPair,
@@ -63,11 +67,14 @@ async function requestCertificate({
   nickname: string
   commonName: string
   peerId: string
+  dmPublicKey: string
   signAlg: string
   hashAlg: string
   existingKeyPair?: CryptoKeyPair
 }): Promise<CertData> {
   const keyPair: CryptoKeyPair = existingKeyPair ? existingKeyPair : await generateKeyPair({ signAlg })
+
+  const arrayBufferDmPubKey = hexStringToArrayBuffer(dmPublicKey)
 
   const pkcs10 = new CertificationRequest({
     version: 0,
@@ -103,17 +110,10 @@ async function requestCertificate({
         }).toSchema(),
       ],
     }),
-
-    // DEPRECATED
-    //
-    // We can only remove this attribute when all owners upgrade to
-    // the version that contains this commit. Otherwise, there could
-    // be Quiet instances that still reference this attribute.
     new Attribute({
       type: CertFieldsTypes.dmPublicKey,
-      values: [new OctetString({ valueHex: hexStringToArrayBuffer('') })],
+      values: [new OctetString({ valueHex: arrayBufferDmPubKey })],
     }),
-
     new Attribute({
       type: CertFieldsTypes.nickName,
       values: [new PrintableString({ value: nickname })],

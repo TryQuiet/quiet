@@ -4,6 +4,7 @@ import { ComponentStory, ComponentMeta } from '@storybook/react'
 import { withTheme } from '../../../storybook/decorators'
 
 import TextWithLink, { TextWithLinkProps } from './TextWithLink'
+import { defaultLogger } from '../../../logger'
 
 const Template: ComponentStory<typeof TextWithLink> = args => {
   return <TextWithLink {...args} />
@@ -18,7 +19,7 @@ const args: TextWithLinkProps = {
       tag: 'a',
       label: 'linked',
       action: () => {
-        console.log('link clicked')
+        defaultLogger.info('link clicked')
       },
     },
   ],

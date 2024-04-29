@@ -12,6 +12,7 @@ import { DisplayableMessage } from '@quiet/types'
 
 import ChannelComponent from './ChannelComponent'
 import { payloadDuplicated, payloadUnregistered } from '../widgets/userLabel/UserLabel.types'
+import { DateTime } from 'luxon'
 
 const Template: ComponentStory<typeof ChannelComponent> = () => {
   const [messages, setMessages] = useState<{
@@ -20,6 +21,8 @@ const Template: ComponentStory<typeof ChannelComponent> = () => {
       [day: string]: DisplayableMessage[][]
     }
   }>(mock_messages())
+
+  const [connectedPeers, setConnectedPeers] = useState<string[] | undefined>(["peer"])
 
   const onInputEnter = (message: string) => {
     const _message: DisplayableMessage = {
@@ -62,9 +65,13 @@ const Template: ComponentStory<typeof ChannelComponent> = () => {
               privateKey: 'privateKey',
             },
             peerId: {
-              id: 'id',
+              id: 'peer',
               privKey: 'privKey',
               pubKey: 'pubKey',
+            },
+            dmKeys: {
+              publicKey: 'publicKey',
+              privateKey: 'privateKey',
             },
             userCsr: {
               userCsr: 'userCsr',
@@ -79,6 +86,10 @@ const Template: ComponentStory<typeof ChannelComponent> = () => {
             joinTimestamp: null,
           }}
           isCommunityInitialized={true}
+          connectedPeers={connectedPeers}
+          communityPeerList={connectedPeers}
+          lastConnectedTime={DateTime.utc().toSeconds()}
+          allPeersDisconnectedTime={undefined}
           uploadedFileModal={{
             open: false,
             handleOpen: function (_args?: any): any {},

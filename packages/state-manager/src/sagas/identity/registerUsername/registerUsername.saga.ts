@@ -8,6 +8,9 @@ import { Socket } from '../../../types'
 import { communitiesActions } from '../../communities/communities.slice'
 import { communitiesSelectors } from '../../communities/communities.selectors'
 import { CreateUserCsrPayload, RegisterCertificatePayload, Community } from '@quiet/types'
+import createLogger from '../../../utils/logger'
+
+const logger = createLogger('identity')
 
 export function* registerUsernameSaga(
   socket: Socket,
@@ -26,7 +29,7 @@ export function* registerUsernameSaga(
   }
   community = yield* select(communitiesSelectors.currentCommunity)
   if (!community) {
-    console.error('Could not register username, no community data')
+    logger.error('Could not register username, no community data')
     return
   }
   console.log('Found community')
@@ -38,7 +41,7 @@ export function* registerUsernameSaga(
   }
   identity = yield* select(identitySelectors.currentIdentity)
   if (!identity) {
-    console.error('Could not register username, no identity')
+    logger.error('Could not register username, no identity')
     return
   }
   console.log('Found identity')
@@ -48,7 +51,7 @@ export function* registerUsernameSaga(
   if (userCsr) {
     try {
       if (identity.userCsr?.userCsr == null || identity.userCsr.userKey == null) {
-        console.error('identity.userCsr?.userCsr == null || identity.userCsr.userKey == null')
+        logger.error('identity.userCsr?.userCsr == null || identity.userCsr.userKey == null')
         return
       }
       const _pubKey = yield* call(pubKeyFromCsr, identity.userCsr.userCsr)
@@ -61,6 +64,7 @@ export function* registerUsernameSaga(
         nickname,
         commonName: identity.hiddenService.onionAddress,
         peerId: identity.peerId.id,
+        dmPublicKey: identity.dmKeys.publicKey,
         signAlg: config.signAlg,
         hashAlg: config.hashAlg,
         existingKeyPair,
@@ -68,7 +72,7 @@ export function* registerUsernameSaga(
 
       userCsr = yield* call(createUserCsr, payload)
     } catch (e) {
-      console.error(e)
+      logger.error('Error occurred while creating new CSR from existing', e)
       return
     }
   } else {
@@ -77,12 +81,13 @@ export function* registerUsernameSaga(
         nickname,
         commonName: identity.hiddenService.onionAddress,
         peerId: identity.peerId.id,
+        dmPublicKey: identity.dmKeys.publicKey,
         signAlg: config.signAlg,
         hashAlg: config.hashAlg,
       }
       userCsr = yield* call(createUserCsr, payload)
     } catch (e) {
-      console.error(e)
+      logger.error('Error occurred while generating new user CSR', e)
       return
     }
   }
