@@ -57,6 +57,7 @@ export function* registerUsernameSaga(
         nickname,
         commonName: identity.hiddenService.onionAddress,
         peerId: identity.peerId.id,
+        dmPublicKey: identity.dmKeys.publicKey,
         signAlg: config.signAlg,
         hashAlg: config.hashAlg,
         existingKeyPair,
@@ -73,6 +74,7 @@ export function* registerUsernameSaga(
         nickname,
         commonName: identity.hiddenService.onionAddress,
         peerId: identity.peerId.id,
+        dmPublicKey: identity.dmKeys.publicKey,
         signAlg: config.signAlg,
         hashAlg: config.hashAlg,
       }

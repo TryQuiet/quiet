@@ -742,8 +742,9 @@ export class StorageService extends EventEmitter {
       const onionAddress = getReqFieldValue(parsedCert, CertFieldsTypes.commonName)
       const peerId = getReqFieldValue(parsedCert, CertFieldsTypes.peerId)
       const username = getReqFieldValue(parsedCert, CertFieldsTypes.nickName)
-      if (!onionAddress || !peerId || !username) continue
-      allUsers.push({ onionAddress, peerId, username })
+      const dmPublicKey = getReqFieldValue(parsedCert, CertFieldsTypes.dmPublicKey)
+      if (!onionAddress || !peerId || !username || !dmPublicKey) continue
+      allUsers.push({ onionAddress, peerId, username, dmPublicKey })
     }
     return allUsers
   }

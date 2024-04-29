@@ -260,6 +260,7 @@ describe('publicChannelsSelectors', () => {
     const displayable: Record<string, DisplayableMessage> = {}
     for (const message of Object.values(msgs)) {
       const user: User = {
+        dmPublicKey: '',
         isDuplicated: false,
         isRegistered: true,
         onionAddress: '',

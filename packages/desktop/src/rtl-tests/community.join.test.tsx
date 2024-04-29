@@ -184,6 +184,7 @@ describe('User', () => {
         "Modals/openModal",
         "Identity/registerCertificate",
         "Communities/launchCommunity",
+        "Communities/sendCommunityCaData",
         "Files/checkForMissingFiles",
         "Network/addInitializedCommunity",
         "Communities/clearInvitationCodes",

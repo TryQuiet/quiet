@@ -20,6 +20,7 @@ export const networkSlice = createSlice({
   name: StoreKeys.Network,
   reducers: {
     addInitializedCommunity: (state, action: PayloadAction<CommunityId>) => {
+      logger.info(`Hunting for heisenbug: adding initialized community: ${JSON.stringify(action.payload, null, 2)}`)
       state.initializedCommunities = {
         ...state.initializedCommunities,
         [action.payload]: true,

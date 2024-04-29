@@ -77,6 +77,7 @@ describe('connectionReducer', () => {
       username: alice.nickname,
       onionAddress: alice.hiddenService.onionAddress,
       peerId: alice.peerId.id,
+      dmPublicKey: alice.dmKeys.publicKey,
       isDuplicated: false,
       isRegistered: true,
       pubKey,

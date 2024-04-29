@@ -20,11 +20,13 @@ import {
   type NetworkInfo,
   SavedOwnerCertificatePayload,
   SocketActionTypes,
-  type ChannelsReplicatedPayload,
-  type RegisterOwnerCertificatePayload,
-  type ResponseLaunchCommunityPayload,
 } from '@quiet/types'
-import { publicChannels } from '@quiet/state-manager'
+import {
+  ChannelsReplicatedPayload,
+  publicChannels,
+  RegisterOwnerCertificatePayload,
+  ResponseLaunchCommunityPayload,
+} from '@quiet/state-manager'
 import Channel from '../renderer/components/Channel/Channel'
 import LoadingPanel from '../renderer/components/LoadingPanel/LoadingPanel'
 import { AnyAction } from 'redux'
@@ -165,6 +167,7 @@ describe('User', () => {
         "Modals/openModal",
         "Identity/registerCertificate",
         "Communities/createCommunity",
+        "Communities/sendCommunityCaData",
         "Files/checkForMissingFiles",
         "Network/addInitializedCommunity",
         "Communities/clearInvitationCodes",
@@ -173,6 +176,7 @@ describe('User', () => {
         "PublicChannels/addChannel",
         "Identity/storeUserCertificate",
         "Messages/addPublicChannelsMessagesBase",
+        "Communities/sendCommunityMetadata",
         "PublicChannels/createGeneralChannel",
         "PublicChannels/createChannel",
         "Identity/saveUserCsr",
