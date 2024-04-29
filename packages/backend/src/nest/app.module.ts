@@ -105,7 +105,7 @@ export class AppModule {
             io.engine.use((req, res, next) => {
               const authHeader = req.headers['authorization']
               if (!authHeader) {
-                console.error('Backend server: No authorization header')
+                console.error('No authorization header')
                 res.writeHead(401, 'No authorization header')
                 res.end()
                 return
@@ -113,7 +113,7 @@ export class AppModule {
 
               const token = authHeader && authHeader.split(' ')[1]
               if (!token) {
-                console.error('Backend server: No auth token')
+                console.error('No auth token')
                 res.writeHead(401, 'No authorization token')
                 res.end()
                 return
@@ -122,7 +122,7 @@ export class AppModule {
               if (verifyToken(options.socketIOSecret, token)) {
                 next()
               } else {
-                console.error('Backend server: Unauthorized')
+                console.error('Wrong basic token')
                 res.writeHead(401, 'Unauthorized')
                 res.end()
               }

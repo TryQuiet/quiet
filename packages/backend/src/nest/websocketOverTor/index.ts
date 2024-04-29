@@ -82,7 +82,6 @@ export class WebSockets extends EventEmitter {
         websocket: {
           ...this._websocketOpts,
         },
-        signal: options.signal,
       })
     } catch (e) {
       log.error(`error connecting to ${ma.toString()}. Details:`, e)
