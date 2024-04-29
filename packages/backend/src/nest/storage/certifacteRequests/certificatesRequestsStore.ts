@@ -1,20 +1,19 @@
 import { getCrypto } from 'pkijs'
-import { EventEmitter } from 'events'
 import EventStore from 'orbit-db-eventstore'
 import { NoCryptoEngineError } from '@quiet/types'
 import { loadCSR, keyFromCertificate } from '@quiet/identity'
-import { CsrReplicatedPromiseValues, StorageEvents } from '../storage.types'
+import { StorageEvents } from '../storage.types'
 import { validate } from 'class-validator'
 import { UserCsrData } from '../../registration/registration.functions'
 import { Injectable } from '@nestjs/common'
 import { OrbitDb } from '../orbitDb/orbitDb.service'
 import Logger from '../../common/logger'
+import LocalStore from '../base.store'
 
 @Injectable()
-export class CertificatesRequestsStore extends EventEmitter {
-  public store: EventStore<string>
-
-  private readonly logger = Logger(CertificatesRequestsStore.name)
+export class CertificatesRequestsStore extends LocalStore<string, EventStore<string>> {
+  protected readonly logger = Logger(CertificatesRequestsStore.name)
+  protected store: EventStore<string> | undefined
 
   constructor(private readonly orbitDbService: OrbitDb) {
     super()
@@ -51,19 +50,10 @@ export class CertificatesRequestsStore extends EventEmitter {
     })
   }
 
-  public async close() {
-    this.logger('Closing...')
-    await this.store?.close()
-    this.logger('Closed')
-  }
-
-  public getAddress() {
-    return this.store?.address
-  }
-
-  public async addUserCsr(csr: string) {
-    await this.store.add(csr)
-    return true
+  public async addEntry(csr: string): Promise<string> {
+    this.logger('Adding CSR to database')
+    await this.store?.add(csr)
+    return csr
   }
 
   public static async validateUserCsr(csr: string) {
@@ -93,7 +83,7 @@ export class CertificatesRequestsStore extends EventEmitter {
     const filteredCsrsMap: Map<string, string> = new Map()
     // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
     await this.store.load({ fetchEntryTimeout: 15000 })
-    const allEntries = this.store
+    const allEntries = this.getStore()
       .iterator({ limit: -1 })
       .collect()
       .map(e => {
@@ -123,8 +113,6 @@ export class CertificatesRequestsStore extends EventEmitter {
 
   public clean() {
     // FIXME: Add correct typings on object fields.
-
-    // @ts-ignore
     this.store = undefined
   }
 }

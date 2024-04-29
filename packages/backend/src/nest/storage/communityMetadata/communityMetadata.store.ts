@@ -1,4 +1,3 @@
-import { EventEmitter } from 'events'
 import KeyValueStore from 'orbit-db-kvstore'
 import { IdentityProvider } from 'orbit-db-identity-provider'
 // @ts-ignore Hacking around ipfs-log not exporting Entry
@@ -10,14 +9,15 @@ import { KeyValueIndex } from '../orbitDb/keyValueIndex'
 import { LocalDbService } from '../../local-db/local-db.service'
 import { OrbitDb } from '../orbitDb/orbitDb.service'
 import { Injectable } from '@nestjs/common'
-import createLogger from '../../common/logger'
+import Logger from '../../common/logger'
 import { constructPartial } from '@quiet/common'
+import LocalStore from '../base.store'
 
-const logger = createLogger('CommunityMetadataStore')
+const logger = Logger('communityMetadataStore')
 
 @Injectable()
-export class CommunityMetadataStore extends EventEmitter {
-  public store: KeyValueStore<CommunityMetadata>
+export class CommunityMetadataStore extends LocalStore<CommunityMetadata, KeyValueStore<CommunityMetadata>> {
+  protected store: KeyValueStore<CommunityMetadata> | undefined
 
   constructor(
     private readonly orbitDbService: OrbitDb,
@@ -85,15 +85,7 @@ export class CommunityMetadataStore extends EventEmitter {
     logger('Loaded community metadata to memory')
   }
 
-  public getAddress() {
-    return this.store?.address
-  }
-
-  public async close() {
-    await this.store?.close()
-  }
-
-  public async updateCommunityMetadata(newMeta: CommunityMetadata): Promise<CommunityMetadata | undefined> {
+  public async addEntry(newMeta: CommunityMetadata): Promise<CommunityMetadata | undefined> {
     try {
       // TODO: Also check OrbitDB identity when updating community metadata
       const valid = await CommunityMetadataStore.validateCommunityMetadata(newMeta)
@@ -109,7 +101,7 @@ export class CommunityMetadataStore extends EventEmitter {
 
       // FIXME: update community metadata if it has changed (so that
       // we can migrate community metadata easily)
-      const oldMeta = this.store.get(newMeta.id)
+      const oldMeta = this.getStore().get(newMeta.id)
       if (oldMeta?.ownerCertificate && oldMeta?.rootCa) {
         return oldMeta
       }
@@ -137,7 +129,7 @@ export class CommunityMetadataStore extends EventEmitter {
       // validateCommunityMetadataEntry and so validation may pass in
       // this method, but still the entry is not added to the internal
       // index. How can we detect that?
-      await this.store.put(meta.id, meta)
+      await this.getStore().put(meta.id, meta)
 
       return meta
     } catch (err) {
@@ -208,7 +200,7 @@ export class CommunityMetadataStore extends EventEmitter {
   }
 
   public getCommunityMetadata(): CommunityMetadata | undefined {
-    const metadata = Object.values(this.store.all)
+    const metadata = Object.values(this.getStore().all)
 
     if (metadata.length > 0) {
       return metadata[0]
@@ -217,8 +209,6 @@ export class CommunityMetadataStore extends EventEmitter {
 
   public clean() {
     // FIXME: Add correct typings on object fields.
-
-    // @ts-ignore
     this.store = undefined
   }
 }

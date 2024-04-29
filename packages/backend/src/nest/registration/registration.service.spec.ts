@@ -161,7 +161,7 @@ describe('RegistrationService', () => {
       return await certificatesStore.loadAllCertificates()
     }
     const saveCertificate = async (payload: SaveCertificatePayload) => {
-      await certificatesStore.addCertificate(payload.certificate)
+      await certificatesStore.addEntry(payload.certificate)
     }
 
     await orbitDb.create(peerId, ipfs)

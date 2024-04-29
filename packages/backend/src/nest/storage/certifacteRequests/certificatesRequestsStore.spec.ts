@@ -76,7 +76,7 @@ describe('CertificatesRequestsStore', () => {
     ]
 
     for (const csr of allCsrs) {
-      await certificatesRequestsStore.addUserCsr(csr)
+      await certificatesRequestsStore.addEntry(csr)
       // This should not be there, there's bug in orbitdb, it breaks if we add entries without artificial sleep, tho it's awaited.
       // https://github.com/TryQuiet/quiet/issues/2121
       await new Promise<void>(resolve => setTimeout(() => resolve(), 500))
@@ -103,7 +103,7 @@ describe('CertificatesRequestsStore', () => {
     const spy = jest.fn()
 
     certificatesRequestsStore.on(StorageEvents.CSRS_STORED, spy)
-    await replicatedEvent(certificatesRequestsStore.store)
+    await replicatedEvent(certificatesRequestsStore.getStore())
 
     expect(spy).toBeCalledTimes(1)
   })

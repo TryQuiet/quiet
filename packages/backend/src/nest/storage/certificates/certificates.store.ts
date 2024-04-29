@@ -1,5 +1,4 @@
 import { getCrypto } from 'pkijs'
-import { EventEmitter } from 'events'
 import { StorageEvents } from '../storage.types'
 import EventStore from 'orbit-db-eventstore'
 import { CommunityMetadata, NoCryptoEngineError } from '@quiet/types'
@@ -16,15 +15,16 @@ import { CertificateData } from '../../registration/registration.functions'
 import { OrbitDb } from '../orbitDb/orbitDb.service'
 import { Injectable } from '@nestjs/common'
 import Logger from '../../common/logger'
+import LocalStore from '../base.store'
 
 @Injectable()
-export class CertificatesStore extends EventEmitter {
-  public store: EventStore<string>
+export class CertificatesStore extends LocalStore<string, EventStore<string>> {
+  protected readonly logger = Logger(CertificatesStore.name)
+  protected store: EventStore<string> | undefined
+
   private metadata: CommunityMetadata | undefined
   private filteredCertificatesMapping: Map<string, Partial<UserData>>
   private usernameMapping: Map<string, string>
-
-  private readonly logger = Logger(CertificatesStore.name)
 
   constructor(private readonly orbitDbService: OrbitDb) {
     super()
@@ -70,18 +70,10 @@ export class CertificatesStore extends EventEmitter {
     })
   }
 
-  public async close() {
-    await this.store?.close()
-  }
-
-  public getAddress() {
-    return this.store?.address
-  }
-
-  public async addCertificate(certificate: string) {
+  public async addEntry(certificate: string): Promise<string> {
     this.logger('Adding user certificate')
     await this.store?.add(certificate)
-    return true
+    return certificate
   }
 
   public async loadAllCertificates() {
@@ -205,8 +197,6 @@ export class CertificatesStore extends EventEmitter {
 
   public clean() {
     // FIXME: Add correct typings on object fields.
-
-    // @ts-ignore
     this.store = undefined
     this.metadata = undefined
     this.filteredCertificatesMapping = new Map()

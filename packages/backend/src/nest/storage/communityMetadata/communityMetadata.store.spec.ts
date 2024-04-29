@@ -109,7 +109,7 @@ describe('CommmunityMetadataStore', () => {
 
   describe('updateCommunityMetadata', () => {
     test('updates community metadata if the metadata is valid', async () => {
-      const ret = await communityMetadataStore.updateCommunityMetadata(metaValid)
+      const ret = await communityMetadataStore.addEntry(metaValid)
       const meta = communityMetadataStore.getCommunityMetadata()
 
       expect(ret).toStrictEqual(metaValidWithOwnerId)
@@ -121,7 +121,7 @@ describe('CommmunityMetadataStore', () => {
         ...metaValid,
         rootCa: 'Something invalid!',
       }
-      const ret = await communityMetadataStore.updateCommunityMetadata(metaInvalid)
+      const ret = await communityMetadataStore.addEntry(metaInvalid)
       const meta = communityMetadataStore.getCommunityMetadata()
 
       expect(ret).toStrictEqual(undefined)

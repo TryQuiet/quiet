@@ -133,7 +133,7 @@ describe('CertificatesStore', () => {
 
     certificatesStore.updateMetadata(communityMetadata)
 
-    await certificatesStore.addCertificate(certificate)
+    await certificatesStore.addEntry(certificate)
 
     // @ts-expect-error - getCertificates is protected
     const certificates = await certificatesStore.getCertificates()
@@ -147,7 +147,7 @@ describe('CertificatesStore', () => {
 
     certificatesStore.updateMetadata(communityMetadata)
 
-    await certificatesStore.addCertificate(certificate)
+    await certificatesStore.addEntry(certificate)
 
     // @ts-expect-error - getCertificates is protected
     const certificates = await certificatesStore.getCertificates()
@@ -175,7 +175,7 @@ describe('CertificatesStore', () => {
 
     certificatesStore.updateMetadata(communityMetadata)
 
-    await certificatesStore.addCertificate(certificate)
+    await certificatesStore.addEntry(certificate)
 
     const result = await certificatesStore.getCertificateUsername(pubkey)
     expect(result).toBe(username)

@@ -2,13 +2,11 @@ import { Injectable } from '@nestjs/common'
 import { EventEmitter } from 'events'
 import KeyValueStore from 'orbit-db-kvstore'
 import { IdentityProvider } from 'orbit-db-identity-provider'
-import { getCrypto, ICryptoEngine } from 'pkijs'
+import { getCrypto } from 'pkijs'
 import { sha256 } from 'multiformats/hashes/sha2'
 import * as Block from 'multiformats/block'
 import * as dagCbor from '@ipld/dag-cbor'
 import { stringToArrayBuffer } from 'pvutils'
-
-import { Logger } from '@quiet/logger'
 import { NoCryptoEngineError, UserProfile } from '@quiet/types'
 import { keyObjectFromString, verifySignature } from '@quiet/identity'
 import { constructPartial } from '@quiet/common'
@@ -18,12 +16,13 @@ import { OrbitDb } from '../orbitDb/orbitDb.service'
 import { StorageEvents } from '../storage.types'
 import { KeyValueIndex } from '../orbitDb/keyValueIndex'
 import { validatePhoto } from './userProfile.utils'
+import LocalStore from '../base.store'
 
 const logger = createLogger('UserProfileStore')
 
 @Injectable()
-export class UserProfileStore extends EventEmitter {
-  public store: KeyValueStore<UserProfile>
+export class UserProfileStore extends LocalStore<UserProfile, KeyValueStore<UserProfile>> {
+  protected store: KeyValueStore<UserProfile> | undefined
 
   // Copying OrbitDB by using dag-cbor/sha256 for converting the
   // profile to a byte array for signing:
@@ -81,15 +80,7 @@ export class UserProfileStore extends EventEmitter {
     await this.store.load({ fetchEntryTimeout: 15000 })
   }
 
-  public getAddress() {
-    return this.store?.address
-  }
-
-  public async close() {
-    await this.store?.close()
-  }
-
-  public async addUserProfile(userProfile: UserProfile) {
+  public async addEntry(userProfile: UserProfile) {
     logger('Adding user profile')
     try {
       if (!UserProfileStore.validateUserProfile(userProfile)) {
@@ -98,10 +89,12 @@ export class UserProfileStore extends EventEmitter {
         logger.error('Failed to add user profile')
         return
       }
-      await this.store.put(userProfile.pubKey, userProfile)
+      await this.getStore().put(userProfile.pubKey, userProfile)
     } catch (err) {
       logger.error('Failed to add user profile', err)
+      return
     }
+    return userProfile
   }
 
   public static async validateUserProfile(userProfile: UserProfile) {
@@ -157,7 +150,11 @@ export class UserProfileStore extends EventEmitter {
   }
 
   public getUserProfiles(): UserProfile[] {
-    return Object.values(this.store.all)
+    return Object.values(this.getStore().all)
+  }
+
+  clean(): void {
+    this.store = undefined
   }
 }
 
