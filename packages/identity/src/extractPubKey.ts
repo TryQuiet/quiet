@@ -8,6 +8,7 @@ import config from './config'
 import { getAlgorithmParameters, Certificate, CertificationRequest, getCrypto } from 'pkijs'
 import { NoCryptoEngineError } from '@quiet/types'
 
+// FIXME: This is a duplicate of loadCertificate
 export const parseCertificate = (pem: string): Certificate => {
   let certificateBuffer = new ArrayBuffer(0)
   certificateBuffer = stringToArrayBuffer(fromBase64(pem))

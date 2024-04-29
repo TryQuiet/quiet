@@ -146,7 +146,7 @@ export class CertificatesStore extends EventEmitter {
    * as specified in the comment section of
    * https://github.com/TryQuiet/quiet/issues/1899
    */
-  protected async getCertificates() {
+  public async getCertificates(): Promise<string[]> {
     if (!this.store) {
       return []
     }
@@ -166,7 +166,6 @@ export class CertificatesStore extends EventEmitter {
         }
 
         const validation = await this.validateCertificate(certificate)
-        this.logger('DuplicatedCertBug', { validation, certificate })
         if (validation) {
           const parsedCertificate = parseCertificate(certificate)
           const pubkey = keyFromCertificate(parsedCertificate)
@@ -190,7 +189,8 @@ export class CertificatesStore extends EventEmitter {
 
     const validCerts = validCertificates.filter(i => i != undefined)
     this.logger(`Valid certificates: ${validCerts.length}`)
-    return validCerts
+    // TODO: Why doesn't TS infer this properly?
+    return validCerts as string[]
   }
 
   public async getCertificateUsername(pubkey: string) {
