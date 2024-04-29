@@ -3,12 +3,13 @@ name: E2E Mac
 on: [workflow_call]
 jobs:
   mac:
-    runs-on: macos-latest
+    runs-on: macos-12
     timeout-minutes: 180
     env:
       ELECTRON_CUSTOM_VERSION: 23.0.0
       TEST_MODE: true
       IS_E2E: true
+      IS_CI: true
 
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
@@ -35,6 +36,10 @@ jobs:
       - name: FILE_NAME env
         working-directory: ./packages/desktop/dist
         run: echo "FILE_NAME="Quiet-$VERSION.dmg"" >> $GITHUB_ENV
+
+      - name: List dist dir content
+        working-directory: ./packages/desktop/dist
+        run: ls -al
 
       - name: Chmod
         working-directory: ./packages/desktop/dist

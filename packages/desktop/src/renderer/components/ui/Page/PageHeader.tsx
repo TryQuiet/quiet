@@ -12,7 +12,7 @@ const classes = {
 
 const StyledGrid = styled(Grid)(({ theme }) => ({
   [`&.${classes.root}`]: {
-    background: theme.palette.colors.white,
+    background: theme.palette.background.default,
     order: -1,
     zIndex: 9,
   },

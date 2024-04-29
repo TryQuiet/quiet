@@ -124,13 +124,14 @@ export const UsernameRegistration: FC<UsernameRegistrationProps> = ({
           hint={
             isNewUser
               ? 'Your username cannot have any spaces or special characters, must be lowercase letters and numbers only.'
-              : 'Your username will be public, but you can choose any name you like. No spaces or special characters. Lowercase letters and numbers only. '
+              : 'Your username will be public, but you can choose any name you like. No spaces or special characters. Lowercase letters and numbers only.'
           }
           disabled={loading}
           validation={inputError}
           ref={inputRef}
           length={20}
           capitalize={'none'}
+          autoCorrect={false}
         />
         {!inputError && userName !== undefined && userName.length > 0 && parsedNameDiffers && (
           <View style={{ flexDirection: 'row', marginTop: 10 }}>

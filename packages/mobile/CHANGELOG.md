@@ -1,6 +1,27 @@
 [unreleased]
 
+# New features:
 
+# Refactorings:
+
+# Fixes:
+
+[2.2.0]
+
+# New features:
+
+* Add utilities for emoji detection in messages and make all-emoji message larger font size ([#519](https://github.com/TryQuiet/quiet/issues/519))
+
+# Refactorings:
+
+* Use ack for CREATE_NETWORK and simplify
+* Move Community model to the backend
+
+# Fixes:
+
+* Allow JPEG and GIF files as profile photos ([#2332](https://github.com/TryQuiet/quiet/issues/2332))
+* Fix issues with recreating general channel when deleted while offline ([#2334](https://github.com/TryQuiet/quiet/issues/2334))
+* Fix package.json license inconsistency
 
 [2.1.2]
 
@@ -14,6 +35,7 @@
 
 # Fixes:
 
+* Fixes channel name creation logic
 * Remove duplicate introduction messages once again
 * Prevent channel creation with names that start with special character, then a hyphen
 * Choose random ports for Tor services (iOS)

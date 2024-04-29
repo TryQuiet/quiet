@@ -10,13 +10,8 @@ import {
 } from '../selectors'
 import logger from '../logger'
 import { promiseWithRetries, sleep } from '../utils'
+import { UserTestData } from '../types'
 const log = logger('ManyClients')
-
-interface UserTestData {
-  username: string
-  app: App
-  messages: string[]
-}
 
 jest.setTimeout(1200000) // 20 minutes
 describe('Multiple Clients', () => {
@@ -26,6 +21,8 @@ describe('Multiple Clients', () => {
 
   let secondChannelOwner: Channel
   let secondChannelUser1: Channel
+
+  let thirdChannelOwner: Channel
 
   let channelContextMenuOwner: ChannelContextMenu
 
@@ -40,6 +37,15 @@ describe('Multiple Clients', () => {
   const displayedCommunityName = 'Testcommunity'
   const newChannelName = 'mid-night-club'
   const generalChannelName = 'general'
+  const thirdChannelName = 'delete-this'
+
+  const sleep = async (time = 1000) => {
+    await new Promise<void>(resolve =>
+      setTimeout(() => {
+        resolve()
+      }, time)
+    )
+  }
 
   beforeAll(async () => {
     const commonApp = new App()
@@ -70,6 +76,7 @@ describe('Multiple Clients', () => {
   afterAll(async () => {
     for (const user of Object.values(users)) {
       await user.app.close()
+      await user.app.cleanup()
     }
   })
 

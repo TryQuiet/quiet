@@ -8,6 +8,7 @@ on:
       - packages/state-manager/**
       - packages/identity/**
       - packages/common/**
+      - packages/e2e-tests/**
 
 jobs:
   mac:

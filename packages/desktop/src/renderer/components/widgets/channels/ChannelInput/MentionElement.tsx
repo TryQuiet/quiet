@@ -28,7 +28,7 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
     maxHeight: 18,
     maxWidth: 18,
     borderRadius: 4,
-    backgroundColor: theme.palette.colors.grayBackgroud,
+    backgroundColor: theme.palette.background.paper,
   },
 
   [`& .${classes.alignAvatar}`]: {

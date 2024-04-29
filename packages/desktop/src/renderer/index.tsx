@@ -5,7 +5,6 @@ import Root, { persistor } from './Root'
 import store from './store'
 import updateHandlers from './store/handlers/update'
 import { communities, connection } from '@quiet/state-manager'
-import { InvitationData } from '@quiet/types'
 import createLogger from './logger'
 
 const logger = createLogger('index')
@@ -23,10 +22,16 @@ ipcRenderer.on('force-save-state', async _event => {
   ipcRenderer.send('state-saved')
 })
 
-ipcRenderer.on('invitation', (_event, invitation: { data: InvitationData }) => {
-  if (!invitation.data) return
-  logger.info(`invitation ${JSON.stringify(invitation.data.pairs, null, 2)} dispatching action`)
-  store.dispatch(communities.actions.customProtocol(invitation.data))
+ipcRenderer.on('invitation', (_event, invitation: { code: string | string[] }) => {
+  if (!invitation.code || !invitation.code.length) return
+
+  let invitationData: string[]
+  if (typeof invitation.code === 'string') {
+    invitationData = [invitation.code]
+  } else {
+    invitationData = invitation.code
+  }
+  store.dispatch(communities.actions.customProtocol(invitationData))
 })
 
 ipcRenderer.on('socketIOSecret', (_event, socketIOSecret) => {

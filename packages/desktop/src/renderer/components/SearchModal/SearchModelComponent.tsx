@@ -40,8 +40,8 @@ const StyledModalContent = styled(Grid)(({ theme }) => ({
     height: '100%',
   },
   [`& .${classes.modalContainer}`]: {
-    backgroundColor: '#FFFFFF',
-    boxShadow: '0px 2px 25px rgba(0, 0, 0, 0.2)',
+    backgroundColor: theme.palette.background.default,
+    boxShadow: theme.shadows[4],
     borderRadius: '8px',
     width: '60%',
     overflow: 'hidden',
@@ -68,7 +68,7 @@ const StyledModalContent = styled(Grid)(({ theme }) => ({
   [`& .${classes.line}`]: {
     width: '100%',
     height: '1px',
-    backgroundColor: theme.palette.colors.veryLightGray,
+    backgroundColor: theme.palette.background.paper,
   },
   [`& .${classes.channel}`]: {},
   [`& .${classes.channelWrapper}`]: {

@@ -12,6 +12,7 @@ const Template: ComponentStory<typeof PerformCommunityActionComponent> = args =>
 }
 
 export const Component = Template.bind({})
+export const ServerError = Template.bind({})
 
 const args: PerformCommunityActionProps = {
   open: true,

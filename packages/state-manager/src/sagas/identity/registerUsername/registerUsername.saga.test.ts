@@ -48,7 +48,6 @@ describe('registerUsernameSaga', () => {
       nickname: 'nickname',
       commonName: identity.hiddenService.onionAddress,
       peerId: identity.peerId.id,
-      dmPublicKey: identity.dmKeys.publicKey,
       signAlg: config.signAlg,
       hashAlg: config.hashAlg,
     }
@@ -60,7 +59,7 @@ describe('registerUsernameSaga', () => {
       .provide([[call.fn(createUserCsr), userCsr]])
       .call(createUserCsr, createUserCsrPayload)
       .put(
-        identityActions.registerCertificate({
+        identityActions.addCsr({
           communityId: community.id,
           nickname: 'nickname',
           userCsr,
@@ -105,7 +104,6 @@ describe('registerUsernameSaga', () => {
       nickname: newNickname,
       commonName: identity.hiddenService.onionAddress,
       peerId: identity.peerId.id,
-      dmPublicKey: identity.dmKeys.publicKey,
       signAlg: config.signAlg,
       hashAlg: config.hashAlg,
       existingKeyPair: {
@@ -133,7 +131,7 @@ describe('registerUsernameSaga', () => {
       .call(getPubKey, pubKey)
       .call(createUserCsr, createUserCsrPayload)
       .put(
-        identityActions.registerCertificate({
+        identityActions.addCsr({
           communityId: community.id,
           nickname: newNickname,
           userCsr,
@@ -189,7 +187,7 @@ describe('registerUsernameSaga', () => {
       ])
       .dispatch(identityActions.addNewIdentity(identity))
       .put(
-        identityActions.registerCertificate({
+        identityActions.addCsr({
           communityId: community.id,
           nickname: identity.nickname,
           userCsr,
@@ -247,7 +245,6 @@ describe('registerUsernameSaga', () => {
       nickname: 'nickname',
       commonName: identity.hiddenService.onionAddress,
       peerId: identity.peerId.id,
-      dmPublicKey: identity.dmKeys.publicKey,
       signAlg: config.signAlg,
       hashAlg: config.hashAlg,
     }
@@ -275,7 +272,7 @@ describe('registerUsernameSaga', () => {
       .dispatch(identityActions.addNewIdentity(identity))
       .call(createUserCsr, createUserCsrPayload)
       .put(
-        identityActions.registerCertificate({
+        identityActions.addCsr({
           communityId: community.id,
           nickname: 'nickname',
           userCsr,

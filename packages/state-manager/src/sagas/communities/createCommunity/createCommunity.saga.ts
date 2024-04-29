@@ -7,6 +7,8 @@ import { communitiesActions } from '../communities.slice'
 import { identitySelectors } from '../../identity/identity.selectors'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import { type Community, type InitCommunityPayload, SocketActionTypes } from '@quiet/types'
+import logger from '../../../utils/logger'
+const log = logger('createCommunity')
 
 export function* createCommunitySaga(
   socket: Socket,
@@ -18,10 +20,15 @@ export function* createCommunitySaga(
     communityId = yield* select(communitiesSelectors.currentCommunityId)
   }
 
+  log(communityId)
+
   const community = yield* select(communitiesSelectors.selectById(communityId))
   const identity = yield* select(identitySelectors.selectById(communityId))
 
-  if (!identity) return
+  if (!identity) {
+    console.error('Failed to create community - identity missing')
+    return
+  }
 
   const payload: InitCommunityPayload = {
     id: communityId,
@@ -41,7 +48,10 @@ export function* createCommunitySaga(
     applyEmitParams(SocketActionTypes.CREATE_COMMUNITY, payload)
   )
 
-  if (!createdCommunity || !createdCommunity.ownerCertificate) return
+  if (!createdCommunity || !createdCommunity.ownerCertificate) {
+    console.error('Failed to create community - invalid response from backend')
+    return
+  }
 
   yield* put(communitiesActions.updateCommunityData(createdCommunity))
 
@@ -52,9 +62,6 @@ export function* createCommunitySaga(
     })
   )
 
-  // TODO: Community metadata should already exist on the backend after creating
-  // the community.
-  yield* put(communitiesActions.sendCommunityMetadata())
   yield* put(publicChannelsActions.createGeneralChannel())
   // TODO: We can likely refactor this a bit. Currently, we issue the owner's
   // certificate before creating the community, but then we add the owner's CSR

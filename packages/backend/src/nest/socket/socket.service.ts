@@ -21,6 +21,8 @@ import {
   type DeleteChannelResponse,
   type MessagesLoadedPayload,
   type NetworkInfo,
+  CreateNetworkPayload,
+  CommunityOwnership,
 } from '@quiet/types'
 import EventEmitter from 'events'
 import { CONFIG_OPTIONS, SERVER_IO_PROVIDER } from '../const'
@@ -47,36 +49,40 @@ export class SocketService extends EventEmitter implements OnModuleInit {
   }
 
   async onModuleInit() {
-    this.logger('init:started')
+    this.logger('init: Started')
 
     this.attachListeners()
     await this.init()
 
-    this.logger('init:finished')
+    this.logger('init: Finished')
   }
 
   public async init() {
     const connection = new Promise<void>(resolve => {
       this.serverIoProvider.io.on(SocketActionTypes.CONNECTION, socket => {
-        this.logger('init: connection')
-        resolve()
+        socket.on(SocketActionTypes.START, async () => {
+          resolve()
+        })
       })
     })
 
     await this.listen()
 
+    this.logger('init: Waiting for frontend to connect')
     await connection
+    this.logger('init: Frontend connected')
   }
 
   private readonly attachListeners = (): void => {
     // Attach listeners here
     this.serverIoProvider.io.on(SocketActionTypes.CONNECTION, socket => {
-      this.logger('socket connection')
+      this.logger('Socket connection')
 
       // On websocket connection, update presentation service with network data
       this.emit(SocketActionTypes.CONNECTION)
 
       socket.on(SocketActionTypes.CLOSE, async () => {
+        this.logger('Socket connection closed')
         this.emit(SocketActionTypes.CLOSE)
       })
 
@@ -177,17 +183,6 @@ export class SocketService extends EventEmitter implements OnModuleInit {
       socket.on(SocketActionTypes.LIBP2P_PSK_STORED, payload => {
         this.logger('Saving PSK', payload)
         this.emit(SocketActionTypes.LIBP2P_PSK_STORED, payload)
-      })
-
-      socket.on(
-        SocketActionTypes.SET_COMMUNITY_METADATA,
-        (payload: CommunityMetadata, callback: (response: CommunityMetadata | undefined) => void) => {
-          this.emit(SocketActionTypes.SET_COMMUNITY_METADATA, payload, callback)
-        }
-      )
-
-      socket.on(SocketActionTypes.SET_COMMUNITY_CA_DATA, (payload: PermsData) => {
-        this.emit(SocketActionTypes.SET_COMMUNITY_CA_DATA, payload)
       })
 
       // ====== Users ======

@@ -65,8 +65,6 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof errorsActions.addError>
     | ReturnType<typeof errorsActions.handleError>
     | ReturnType<typeof identityActions.storeUserCertificate>
-    | ReturnType<typeof identityActions.throwIdentityError>
-    | ReturnType<typeof identityActions.checkLocalCsr>
     | ReturnType<typeof communitiesActions.createCommunity>
     | ReturnType<typeof communitiesActions.launchCommunity>
     | ReturnType<typeof communitiesActions.updateCommunityData>
@@ -85,8 +83,6 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof communitiesActions.clearInvitationCodes>
     | ReturnType<typeof identityActions.saveUserCsr>
     | ReturnType<typeof connectionActions.setTorInitialized>
-    | ReturnType<typeof communitiesActions.sendCommunityMetadata>
-    | ReturnType<typeof communitiesActions.sendCommunityCaData>
     | ReturnType<typeof usersActions.setUserProfiles>
     | ReturnType<typeof appActions.loadMigrationData>
   >(emit => {
@@ -144,10 +140,6 @@ export function subscribe(socket: Socket) {
 
     socket.on(SocketActionTypes.COMMUNITY_LAUNCHED, (payload: ResponseLaunchCommunityPayload) => {
       logger.info(`${SocketActionTypes.COMMUNITY_LAUNCHED}: ${payload}`)
-      logger.info('Hunting for heisenbug: Community event received in state-manager')
-      // TODO: We can send this once when creating the community and
-      // store it in the backend.
-      emit(communitiesActions.sendCommunityCaData())
       emit(filesActions.checkForMissingFiles(payload.id))
       emit(networkActions.addInitializedCommunity(payload.id))
       emit(communitiesActions.clearInvitationCodes())
@@ -169,7 +161,6 @@ export function subscribe(socket: Socket) {
     // Certificates
     socket.on(SocketActionTypes.CSRS_STORED, (payload: SendCsrsResponse) => {
       logger.info(`${SocketActionTypes.CSRS_STORED}`)
-      emit(identityActions.checkLocalCsr(payload))
       emit(usersActions.storeCsrs(payload))
     })
     socket.on(SocketActionTypes.CERTIFICATES_STORED, (payload: SendCertificatesResponse) => {

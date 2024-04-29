@@ -29,9 +29,8 @@ export const identitySlice = createSlice({
         changes: action.payload,
       })
     },
-    createUserCsr: (state, _action: PayloadAction<CreateUserCsrPayload>) => state,
     registerUsername: (state, _action: PayloadAction<RegisterUsernamePayload>) => state,
-    registerCertificate: (state, action: PayloadAction<RegisterCertificatePayload>) => {
+    addCsr: (state, action: PayloadAction<RegisterCertificatePayload>) => {
       identityAdapter.updateOne(state.identities, {
         id: action.payload.communityId,
         changes: {
@@ -49,7 +48,6 @@ export const identitySlice = createSlice({
         },
       })
     },
-    checkLocalCsr: (state, _action: PayloadAction<SendCsrsResponse>) => state,
     saveUserCsr: state => state,
     verifyJoinTimestamp: state => state,
     updateJoinTimestamp: (state, action: PayloadAction<UpdateJoinTimestampPayload>) => {
@@ -60,7 +58,6 @@ export const identitySlice = createSlice({
         },
       })
     },
-    throwIdentityError: (state, _action: PayloadAction<string>) => state,
   },
 })
 

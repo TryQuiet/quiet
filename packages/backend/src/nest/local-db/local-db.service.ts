@@ -1,11 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common'
 import { Level } from 'level'
-import { type Community, type Identity, InitCommunityPayload, type NetworkInfo, NetworkStats } from '@quiet/types'
+import { type Community, type NetworkInfo, NetworkStats } from '@quiet/types'
 import { createLibp2pAddress, filterAndSortPeers } from '@quiet/common'
 import { LEVEL_DB } from '../const'
 import { LocalDBKeys, LocalDbStatus } from './local-db.types'
 import Logger from '../common/logger'
-import { create } from 'mock-fs/lib/filesystem'
 
 @Injectable()
 export class LocalDbService {
@@ -28,6 +27,7 @@ export class LocalDbService {
   }
 
   public async purge() {
+    this.logger(`Purging db`)
     await this.db.clear()
   }
 
@@ -95,7 +95,9 @@ export class LocalDbService {
     }
   }
 
-  public async getSortedPeers(peers: string[] = []): Promise<string[]> {
+  // I think we can move this into StorageService (keep this service
+  // focused on CRUD).
+  public async getSortedPeers(peers: string[], includeLocalPeerAddress: boolean = true): Promise<string[]> {
     const peersStats = (await this.get(LocalDBKeys.PEERS)) || {}
     const stats: NetworkStats[] = Object.values(peersStats)
     const network = await this.getNetworkInfo()
@@ -103,9 +105,9 @@ export class LocalDbService {
     if (network) {
       const localPeerAddress = createLibp2pAddress(network.hiddenService.onionAddress, network.peerId.id)
       this.logger('Local peer', localPeerAddress)
-      return filterAndSortPeers(peers, stats, localPeerAddress)
+      return filterAndSortPeers(peers, stats, localPeerAddress, includeLocalPeerAddress)
     } else {
-      return filterAndSortPeers(peers, stats)
+      return filterAndSortPeers(peers, stats, undefined, includeLocalPeerAddress)
     }
   }
 

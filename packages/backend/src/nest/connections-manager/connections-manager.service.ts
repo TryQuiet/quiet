@@ -1,22 +1,24 @@
+import { peerIdFromKeys } from '@libp2p/peer-id'
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common'
 import { Crypto } from '@peculiar/webcrypto'
-import { Agent } from 'https'
-import fs from 'fs'
-import path from 'path'
-import { peerIdFromKeys } from '@libp2p/peer-id'
-import { setEngine, CryptoEngine } from 'pkijs'
 import { EventEmitter } from 'events'
+import fs from 'fs'
 import getPort from 'get-port'
+import { Agent } from 'https'
+import path from 'path'
 import PeerId from 'peer-id'
+import { CryptoEngine, setEngine } from 'pkijs'
 import { getLibp2pAddressesFromCsrs, removeFilesFromDir } from '../common/utils'
 
+import { LazyModuleLoader } from '@nestjs/core'
+import { createLibp2pAddress, isPSKcodeValid } from '@quiet/common'
+import { CertFieldsTypes, getCertFieldValue, loadCertificate } from '@quiet/identity'
 import {
-  GetMessagesPayload,
   ChannelMessageIdsResponse,
-  type DeleteChannelResponse,
+  ChannelSubscribedPayload,
   ChannelsReplicatedPayload,
   Community,
-  CommunityId,
+  CommunityMetadata,
   ConnectionProcessInfo,
   CreateChannelPayload,
   CreateChannelResponse,
@@ -24,47 +26,44 @@ import {
   DownloadStatus,
   ErrorMessages,
   FileMetadata,
-  MessagesLoadedPayload,
+  GetMessagesPayload,
   InitCommunityPayload,
+  InvitationDataV2,
+  InvitationDataVersion,
+  MessagesLoadedPayload,
   NetworkDataPayload,
   NetworkInfo,
   NetworkStats,
-  type SavedOwnerCertificatePayload,
   PushNotificationPayload,
-  RegisterOwnerCertificatePayload,
   RemoveDownloadStatus,
+  SaveCSRPayload,
   SendCertificatesResponse,
   SendMessagePayload,
-  ChannelSubscribedPayload,
   SocketActionTypes,
-  StorePeerListPayload,
   UploadFilePayload,
-  PeerId as PeerIdType,
-  SaveCSRPayload,
-  CommunityMetadata,
-  type PermsData,
+  type DeleteChannelResponse,
+  type SavedOwnerCertificatePayload,
   type UserProfile,
   type UserProfilesStoredEvent,
   PeersNetworkDataPayload,
 } from '@quiet/types'
-import { CONFIG_OPTIONS, QUIET_DIR, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
-import { ConfigOptions, GetPorts, ServerIoProviderTypes } from '../types'
-import { SocketService } from '../socket/socket.service'
-import { RegistrationService } from '../registration/registration.service'
-import { LocalDbService } from '../local-db/local-db.service'
-import { StorageService } from '../storage/storage.service'
-import { ServiceState, TorInitState } from './connections-manager.types'
-import { Libp2pService } from '../libp2p/libp2p.service'
-import { Tor } from '../tor/tor.service'
-import { LocalDBKeys } from '../local-db/local-db.types'
-import { Libp2pEvents, Libp2pNodeParams } from '../libp2p/libp2p.types'
-import { RegistrationEvents } from '../registration/registration.types'
-import { StorageEvents } from '../storage/storage.types'
-import { LazyModuleLoader } from '@nestjs/core'
 import Logger from '../common/logger'
+import { CONFIG_OPTIONS, QUIET_DIR, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
+import { Libp2pService } from '../libp2p/libp2p.service'
+import { Libp2pEvents, Libp2pNodeParams } from '../libp2p/libp2p.types'
+import { LocalDbService } from '../local-db/local-db.service'
+import { LocalDBKeys } from '../local-db/local-db.types'
+import { RegistrationService } from '../registration/registration.service'
+import { RegistrationEvents } from '../registration/registration.types'
 import { emitError } from '../socket/socket.errors'
-import { createLibp2pAddress, isPSKcodeValid } from '@quiet/common'
-import { CertFieldsTypes, createRootCA, getCertFieldValue, loadCertificate } from '@quiet/identity'
+import { SocketService } from '../socket/socket.service'
+import { StorageService } from '../storage/storage.service'
+import { StorageEvents } from '../storage/storage.types'
+import { StorageServiceClient } from '../storageServiceClient/storageServiceClient.service'
+import { ServerStoredCommunityMetadata } from '../storageServiceClient/storageServiceClient.types'
+import { Tor } from '../tor/tor.service'
+import { ConfigOptions, GetPorts, ServerIoProviderTypes } from '../types'
+import { ServiceState, TorInitState } from './connections-manager.types'
 
 @Injectable()
 export class ConnectionsManagerService extends EventEmitter implements OnModuleInit {
@@ -82,6 +81,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     @Inject(SOCKS_PROXY_AGENT) public readonly socksProxyAgent: Agent,
     private readonly socketService: SocketService,
     private readonly registrationService: RegistrationService,
+    private readonly storageServerProxyService: StorageServiceClient,
     private readonly localDbService: LocalDbService,
     private readonly storageService: StorageService,
     private readonly tor: Tor,
@@ -210,7 +210,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     const network = await this.localDbService.getNetworkInfo()
 
     if (community && network) {
-      const sortedPeers = await this.localDbService.getSortedPeers(community.peerList)
+      const sortedPeers = await this.localDbService.getSortedPeers(community.peerList ?? [])
       this.logger('launchCommunityFromStorage - sorted peers', sortedPeers)
       if (sortedPeers.length > 0) {
         community.peerList = sortedPeers
@@ -318,7 +318,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   }
 
   public async createCommunity(payload: InitCommunityPayload): Promise<Community | undefined> {
-    this.logger('Creating community: peers:', payload.peers)
+    this.logger('Creating community', payload.id)
 
     if (!payload.CA || !payload.rootCa) {
       this.logger.error('CA and rootCa are required to create community')
@@ -350,7 +350,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
     const localAddress = createLibp2pAddress(payload.hiddenService.onionAddress, payload.peerId.id)
 
-    const community = {
+    let community: Community = {
       id: payload.id,
       name: payload.name,
       CA: payload.CA,
@@ -372,20 +372,76 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     await this.localDbService.setNetworkInfo(network)
 
     await this.launchCommunity({ community, network })
+
+    const meta = await this.storageService.updateCommunityMetadata({
+      id: community.id,
+      rootCa: community.rootCa as string,
+      ownerCertificate: community.ownerCertificate as string,
+    })
+    const currentCommunity = await this.localDbService.getCurrentCommunity()
+
+    if (meta && currentCommunity) {
+      community = {
+        ...currentCommunity,
+        ownerOrbitDbIdentity: meta.ownerOrbitDbIdentity,
+      }
+      await this.localDbService.setCommunity(community)
+    }
+
     this.logger(`Created and launched community ${community.id}`)
 
     return community
   }
 
+  public async downloadCommunityData(inviteData: InvitationDataV2) {
+    this.logger('Downloading invite data', inviteData)
+    this.storageServerProxyService.setServerAddress(inviteData.serverAddress)
+    let downloadedData: ServerStoredCommunityMetadata
+    try {
+      downloadedData = await this.storageServerProxyService.downloadData(inviteData.cid)
+    } catch (e) {
+      this.logger.error(`Downloading community data failed`, e)
+      return
+    }
+    return {
+      psk: downloadedData.psk,
+      peers: downloadedData.peerList,
+      ownerOrbitDbIdentity: downloadedData.ownerOrbitDbIdentity,
+    }
+  }
+
   public async joinCommunity(payload: InitCommunityPayload): Promise<Community | undefined> {
     this.logger('Joining community: peers:', payload.peers)
+    let metadata = {
+      psk: payload.psk,
+      peers: payload.peers,
+      ownerOrbitDbIdentity: payload.ownerOrbitDbIdentity,
+    }
 
-    if (!payload.peers || payload.peers.length === 0) {
+    const inviteData = payload.inviteData
+    if (inviteData) {
+      this.logger(`Joining community: inviteData version: ${inviteData.version}`)
+      switch (inviteData.version) {
+        case InvitationDataVersion.v2:
+          const downloadedData = await this.downloadCommunityData(inviteData)
+          if (!downloadedData) {
+            emitError(this.serverIoProvider.io, {
+              type: SocketActionTypes.LAUNCH_COMMUNITY,
+              message: ErrorMessages.STORAGE_SERVER_CONNECTION_FAILED,
+            })
+            return
+          }
+          metadata = downloadedData
+          break
+      }
+    }
+
+    if (!metadata.peers || metadata.peers.length === 0) {
       this.logger.error('Joining community: Peers required')
       return
     }
 
-    if (!payload.psk || !isPSKcodeValid(payload.psk)) {
+    if (!metadata.psk || !isPSKcodeValid(metadata.psk)) {
       this.logger.error('Joining community: Libp2p PSK is not valid')
       emitError(this.serverIoProvider.io, {
         type: SocketActionTypes.LAUNCH_COMMUNITY,
@@ -395,7 +451,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       return
     }
 
-    if (!payload.ownerOrbitDbIdentity) {
+    if (!metadata.ownerOrbitDbIdentity) {
       this.logger.error('Joining community: ownerOrbitDbIdentity is not valid')
       emitError(this.serverIoProvider.io, {
         type: SocketActionTypes.LAUNCH_COMMUNITY,
@@ -409,9 +465,10 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
     const community = {
       id: payload.id,
-      peerList: [...new Set([localAddress, ...payload.peers])],
-      psk: payload.psk,
-      ownerOrbitDbIdentity: payload.ownerOrbitDbIdentity,
+      peerList: [...new Set([localAddress, ...metadata.peers])],
+      psk: metadata.psk,
+      ownerOrbitDbIdentity: metadata.ownerOrbitDbIdentity,
+      inviteData,
     }
 
     const network = {
@@ -502,7 +559,8 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       agent: this.socksProxyAgent,
       localAddress: this.libp2pService.createLibp2pAddress(onionAddress, peerId.toString()),
       targetPort: this.ports.libp2pHiddenService,
-      peers: peers ?? [],
+      // Ignore local address
+      peers: peers ? peers.slice(1) : [],
       psk: Libp2pService.generateLibp2pPSK(community.psk).fullKey,
     }
     await this.libp2pService.createInstance(params)
@@ -550,7 +608,15 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     // service for now. Both object construction and object
     // initialization need to happen in order based on dependencies.
     await this.registrationService.init(this.storageService)
-    this.logger('storage initialized')
+
+    if (community.CA) {
+      this.registrationService.setPermsData({
+        certificate: community.CA.rootCertString,
+        privKey: community.CA.rootKeyString,
+      })
+    }
+
+    this.logger('Storage initialized')
 
     this.serverIoProvider.io.emit(
       SocketActionTypes.CONNECTION_PROCESS_INFO,
@@ -574,7 +640,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.socketService.on(SocketActionTypes.CONNECTION, async () => {
       // Update Frontend with Initialized Communities
       if (this.communityId) {
-        console.log('Hunting for heisenbug: Backend initialized community and sent event to state manager')
         this.serverIoProvider.io.emit(SocketActionTypes.COMMUNITY_LAUNCHED, { id: this.communityId })
         console.log('this.libp2pService.connectedPeers', this.libp2pService.connectedPeers)
         console.log('this.libp2pservice', this.libp2pService)
@@ -610,26 +675,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         callback(await this.joinCommunity(args))
       }
     )
-    // TODO: With the Community model on the backend, there is no need to call
-    // SET_COMMUNITY_METADATA anymore. We can call updateCommunityMetadata when
-    // creating the community.
-    this.socketService.on(
-      SocketActionTypes.SET_COMMUNITY_METADATA,
-      async (payload: CommunityMetadata, callback: (response: CommunityMetadata | undefined) => void) => {
-        const meta = await this.storageService.updateCommunityMetadata(payload)
-        const community = await this.localDbService.getCurrentCommunity()
-
-        if (meta && community) {
-          const updatedCommunity = {
-            ...community,
-            ownerOrbitDbIdentity: meta.ownerOrbitDbIdentity,
-          }
-          await this.localDbService.setCommunity(updatedCommunity)
-          this.serverIoProvider.io.emit(SocketActionTypes.COMMUNITY_UPDATED, updatedCommunity)
-        }
-        callback(meta)
-      }
-    )
     this.socketService.on(SocketActionTypes.LEAVE_COMMUNITY, async () => {
       await this.leaveCommunity()
     })
@@ -638,13 +683,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.socketService.on(SocketActionTypes.ADD_CSR, async (payload: SaveCSRPayload) => {
       this.logger(`socketService - ${SocketActionTypes.ADD_CSR}`)
       await this.storageService?.saveCSR(payload)
-    })
-    // TODO: With the Community model on the backend, there is no need to call
-    // SET_COMMUNITY_CA_DATA anymore. We can call setPermsData when
-    // creating the community.
-    this.socketService.on(SocketActionTypes.SET_COMMUNITY_CA_DATA, async (payload: PermsData) => {
-      this.logger(`socketService - ${SocketActionTypes.SET_COMMUNITY_CA_DATA}`)
-      this.registrationService.setPermsData(payload)
     })
 
     // Public Channels

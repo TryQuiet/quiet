@@ -32,7 +32,7 @@ import ChannelNetworkStatus from '../widgets/channels/ChannelNetworkStatus'
 const ChannelMessagesWrapperStyled = styled(Grid)(({ theme }) => ({
   position: 'relative',
   height: 0,
-  backgroundColor: theme.palette.colors.white,
+  backgroundColor: theme.palette.background.default,
 }))
 
 export interface ChannelComponentProps {

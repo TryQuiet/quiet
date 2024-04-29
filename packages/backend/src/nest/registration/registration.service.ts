@@ -44,14 +44,14 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
   }
 
   public async tryIssueCertificates() {
-    this.logger('Trying to issue certificates', this.registrationEventInProgress, this.registrationEvents)
+    this.logger('Trying to process registration event')
     // Process only a single registration event at a time so that we
     // do not register two certificates with the same name.
     if (!this.registrationEventInProgress) {
       // Get the next event.
       const event = this.registrationEvents.shift()
       if (event) {
-        this.logger('Issuing certificates', event)
+        this.logger('Processing registration event', event)
         // Event processing in progress
         this.registrationEventInProgress = true
 
@@ -62,7 +62,7 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
           certificates: (await this.storageService?.loadAllCertificates()) as string[],
         })
 
-        this.logger('Finished issuing certificates')
+        this.logger('Finished processing registration event')
         // Event processing finished
         this.registrationEventInProgress = false
 
@@ -71,6 +71,8 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
           setTimeout(this.tryIssueCertificates.bind(this), 0)
         }
       }
+    } else {
+      this.logger('Registration event processing already in progress')
     }
   }
 
@@ -90,14 +92,14 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
       return
     }
 
-    this.logger('DuplicatedCertBug', { payload })
     const pendingCsrs = await extractPendingCsrs(payload)
-    this.logger('DuplicatedCertBug', { pendingCsrs })
+    this.logger(`Issuing certificates`)
     await Promise.all(
       pendingCsrs.map(async csr => {
         await this.registerUserCertificate(csr)
       })
     )
+    this.logger('Total certificates issued:', pendingCsrs.length)
   }
 
   // TODO: This doesn't save the owner's certificate in OrbitDB, so perhaps we
@@ -121,7 +123,6 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
 
   public async registerUserCertificate(csr: string): Promise<void> {
     const result = await issueCertificate(csr, this.permsData)
-    this.logger('DuplicatedCertBug', { result })
     if (result?.cert) {
       // Save certificate (awaited) so that we are sure that the certs
       // are saved before processing the next round of CSRs.

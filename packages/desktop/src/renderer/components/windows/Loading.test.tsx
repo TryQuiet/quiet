@@ -24,14 +24,14 @@ describe('Loading', () => {
               class="MuiGrid-root MuiGrid-item LoadingprogressBarContainer css-13i4rnv-MuiGrid-root"
             >
               <span
-                class="MuiLinearProgress-root MuiLinearProgress-colorPrimary MuiLinearProgress-indeterminate LoadingprogressBar css-1sitdca-MuiLinearProgress-root"
+                class="MuiLinearProgress-root MuiLinearProgress-colorPrimary MuiLinearProgress-indeterminate LoadingprogressBar css-11iigj6-MuiLinearProgress-root"
                 role="progressbar"
               >
                 <span
-                  class="MuiLinearProgress-bar MuiLinearProgress-barColorPrimary MuiLinearProgress-bar1Indeterminate css-16ee83t-MuiLinearProgress-bar1"
+                  class="MuiLinearProgress-bar MuiLinearProgress-barColorPrimary MuiLinearProgress-bar1Indeterminate css-1yjyqie-MuiLinearProgress-bar1"
                 />
                 <span
-                  class="MuiLinearProgress-bar MuiLinearProgress-barColorPrimary MuiLinearProgress-bar2Indeterminate css-1f9igvw-MuiLinearProgress-bar2"
+                  class="MuiLinearProgress-bar MuiLinearProgress-barColorPrimary MuiLinearProgress-bar2Indeterminate css-1lju9te-MuiLinearProgress-bar2"
                 />
               </span>
             </div>

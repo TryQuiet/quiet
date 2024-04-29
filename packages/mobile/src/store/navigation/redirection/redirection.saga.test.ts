@@ -12,10 +12,17 @@ import { reducers } from '../../root.reducer'
 
 import { redirectionSaga } from './redirection.saga'
 import { initActions } from '../../init/init.slice'
+import { NativeModules } from 'react-native'
 
 describe('redirectionSaga', () => {
   let store: Store
   let factory: FactoryGirl
+
+  beforeAll(() => {
+    NativeModules.CommunicationModule = {
+      handleIncomingEvents: jest.fn(),
+    }
+  })
 
   beforeEach(async () => {
     setupCrypto()
