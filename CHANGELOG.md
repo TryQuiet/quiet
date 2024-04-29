@@ -17,6 +17,7 @@
 # New Features
 
 * Add utilities for emoji detection in messages and make all-emoji message larger font size ([#519](https://github.com/TryQuiet/quiet/issues/519))
+* Adds connection status information to messages panel on desktop when no peers are connected ([#1706](https://github.com/TryQuiet/quiet/issues/1706)
 
 [2.1.2]
 
