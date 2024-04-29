@@ -29,7 +29,6 @@ export class CertificatesRequestsStore extends EventEmitter {
         write: ['*'],
       },
     })
-    await this.store.load()
 
     this.store.events.on('write', async (_address, entry) => {
       this.logger('Added CSR to database')
@@ -41,8 +40,8 @@ export class CertificatesRequestsStore extends EventEmitter {
       this.loadedCertificateRequests()
     })
 
-    // TODO: Load CSRs in case the owner closes the app before issuing
-    // certificates
+    // @ts-ignore
+    await this.store.load({ fetchEntryTimeout: 15000 })
     this.logger('Initialized')
   }
 
@@ -77,7 +76,7 @@ export class CertificatesRequestsStore extends EventEmitter {
       await parsedCsr.verify()
       await this.validateCsrFormat(csr)
     } catch (err) {
-      console.error('Failed to validate user csr:', csr, err?.message)
+      console.error('Failed to validate user CSR:', csr, err?.message)
       return false
     }
     return true
@@ -100,6 +99,7 @@ export class CertificatesRequestsStore extends EventEmitter {
       .map(e => {
         return e.payload.value
       })
+    this.logger('Total CSRs:', allEntries.length)
 
     const allCsrsUnique = [...new Set(allEntries)]
     await Promise.all(
@@ -119,7 +119,9 @@ export class CertificatesRequestsStore extends EventEmitter {
           filteredCsrsMap.set(pubKey, csr)
         })
     )
-    return [...filteredCsrsMap.values()]
+    const validCsrs = [...filteredCsrsMap.values()]
+    this.logger('Valid CSRs:', validCsrs.length)
+    return validCsrs
   }
 
   public clean() {

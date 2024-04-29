@@ -159,7 +159,7 @@ describe('User', () => {
         "Identity/registerUsername",
         "Network/setLoadingPanelType",
         "Modals/openModal",
-        "Identity/registerCertificate",
+        "Identity/addCsr",
         "Communities/createCommunity",
         "Files/checkForMissingFiles",
         "Network/addInitializedCommunity",

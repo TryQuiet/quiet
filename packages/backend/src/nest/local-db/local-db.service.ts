@@ -95,21 +95,9 @@ export class LocalDbService {
     }
   }
 
-  public async getSortedPeers(
-    peers?: string[] | undefined,
-    includeLocalPeerAddress: boolean = true
-  ): Promise<string[]> {
-    if (!peers) {
-      const currentCommunity = await this.getCurrentCommunity()
-      if (!currentCommunity) {
-        throw new Error('No peers were provided and no community was found to extract peers from')
-      }
-      peers = currentCommunity.peerList
-      if (!peers) {
-        throw new Error('No peers provided and no peers found on current stored community')
-      }
-    }
-
+  // I think we can move this into StorageService (keep this service
+  // focused on CRUD).
+  public async getSortedPeers(peers: string[], includeLocalPeerAddress: boolean = true): Promise<string[]> {
     const peersStats = (await this.get(LocalDBKeys.PEERS)) || {}
     const stats: NetworkStats[] = Object.values(peersStats)
     const network = await this.getNetworkInfo()
