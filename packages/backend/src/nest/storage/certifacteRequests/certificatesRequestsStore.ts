@@ -39,8 +39,8 @@ export class CertificatesRequestsStore extends StoreBase<string, EventStore<stri
       this.loadedCertificateRequests()
     })
 
-    // TODO: Load CSRs in case the owner closes the app before issuing
-    // certificates
+    // @ts-ignore
+    await this.store.load({ fetchEntryTimeout: 15000 })
     this.logger('Initialized')
   }
 
@@ -66,7 +66,7 @@ export class CertificatesRequestsStore extends StoreBase<string, EventStore<stri
       await parsedCsr.verify()
       await this.validateCsrFormat(csr)
     } catch (err) {
-      console.error('Failed to validate user csr:', csr, err?.message)
+      console.error('Failed to validate user CSR:', csr, err?.message)
       return false
     }
     return true
@@ -89,6 +89,7 @@ export class CertificatesRequestsStore extends StoreBase<string, EventStore<stri
       .map(e => {
         return e.payload.value
       })
+    this.logger('Total CSRs:', allEntries.length)
 
     const allCsrsUnique = [...new Set(allEntries)]
     await Promise.all(
@@ -108,7 +109,9 @@ export class CertificatesRequestsStore extends StoreBase<string, EventStore<stri
           filteredCsrsMap.set(pubKey, csr)
         })
     )
-    return [...filteredCsrsMap.values()]
+    const validCsrs = [...filteredCsrsMap.values()]
+    this.logger('Valid CSRs:', validCsrs.length)
+    return validCsrs
   }
 
   public clean() {

@@ -4,6 +4,8 @@ import { apply, select } from 'typed-redux-saga'
 import { identitySelectors } from '../identity.selectors'
 
 export function* saveUserCsrSaga(socket: Socket): Generator {
+  console.log('Saving user CSR')
+
   const identity = yield* select(identitySelectors.currentIdentity)
   if (!identity?.userCsr) {
     console.error('Cannot save user csr to backend, no userCsr')

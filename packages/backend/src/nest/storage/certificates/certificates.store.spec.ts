@@ -135,7 +135,6 @@ describe('CertificatesStore', () => {
 
     await certificatesStore.addEntry(certificate)
 
-    // @ts-expect-error - getCertificates is protected
     const certificates = await certificatesStore.getCertificates()
 
     expect(certificates).toContain(certificate)
@@ -149,7 +148,6 @@ describe('CertificatesStore', () => {
 
     await certificatesStore.addEntry(certificate)
 
-    // @ts-expect-error - getCertificates is protected
     const certificates = await certificatesStore.getCertificates()
 
     expect(certificates).not.toContain(certificate)
@@ -161,7 +159,6 @@ describe('CertificatesStore', () => {
 
     certificatesStore.updateMetadata(communityMetadata)
 
-    // @ts-expect-error - getCertificates is protected
     jest.spyOn(certificatesStore, 'getCertificates').mockResolvedValue([certificate1, certificate2])
 
     const certificates = await certificatesStore.loadAllCertificates()

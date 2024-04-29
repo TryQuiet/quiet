@@ -138,7 +138,7 @@ export class CertificatesStore extends StoreBase<string, EventStore<string>> {
    * as specified in the comment section of
    * https://github.com/TryQuiet/quiet/issues/1899
    */
-  protected async getCertificates() {
+  public async getCertificates(): Promise<string[]> {
     if (!this.store) {
       return []
     }
@@ -181,7 +181,8 @@ export class CertificatesStore extends StoreBase<string, EventStore<string>> {
 
     const validCerts = validCertificates.filter(i => i != undefined)
     this.logger(`Valid certificates: ${validCerts.length}`)
-    return validCerts
+    // TODO: Why doesn't TS infer this properly?
+    return validCerts as string[]
   }
 
   public async getCertificateUsername(pubkey: string) {
