@@ -5,6 +5,7 @@ import getPort from 'get-port'
 import path from 'path'
 import fs from 'fs'
 import { DESKTOP_DATA_DIR, getAppDataPath } from '@quiet/common'
+import { RetryConfig, TimeoutMetadata } from './types'
 import { config } from 'dotenv'
 
 export const BACKWARD_COMPATIBILITY_BASE_VERSION = '2.0.1' // Pre-latest production version
@@ -331,10 +332,97 @@ export const copyInstallerFile = (file: string) => {
   return copiedFileName
 }
 
-export const sleep = async (time = 1000) => {
+export const sleep = async (timeMs = 1000) => {
   await new Promise<void>(resolve =>
     setTimeout(() => {
       resolve()
-    }, time)
+    }, timeMs)
   )
+}
+
+export class Timeout {
+  private id: NodeJS.Timeout | number | undefined = undefined
+
+  public set(timeoutMs: number, reason: string): Promise<unknown> {
+    if (this.id != null) {
+      throw new Error('Timeout already set')
+    }
+
+    return new Promise((resolve, reject) => {
+      this.id = setTimeout(() => {
+        reject(reason)
+        this.clear()
+      }, timeoutMs)
+    })
+  }
+
+  public async wrap<T>(promise: Promise<T>, timeoutMs: number, reason: string): Promise<T> {
+    return (Promise.race([promise, this.set(timeoutMs, reason)]) as Promise<T>)
+      .catch(reason => {
+        throw new Error(reason)
+      })
+      .finally(() => this.clear())
+  }
+
+  public clear(): void {
+    clearTimeout(this.id as NodeJS.Timeout)
+    this.id = undefined
+  }
+}
+
+export const promiseWithTimeout = async <T>(
+  promise: Promise<T>,
+  reason: string,
+  timeoutMs: number,
+  onTimeout?: () => Promise<void>
+): Promise<T> => {
+  const timeout = new Timeout()
+  try {
+    const result: T = await timeout.wrap(promise, timeoutMs, reason)
+    return result
+  } catch (e) {
+    if (e.message === reason) {
+      if (onTimeout != null) await onTimeout()
+      throw logAndReturnError(e)
+    }
+    throw e
+  }
+}
+
+export const promiseWithRetries = async <T>(
+  promise: Promise<T>,
+  reason: string,
+  retryConfig: RetryConfig,
+  onTimeout?: () => Promise<void>
+): Promise<T> => {
+  const attempts = 0
+  while (attempts < retryConfig.attempts) {
+    try {
+      const result: T = await promiseWithTimeout(promise, reason, retryConfig.timeoutMs, onTimeout)
+      return result
+    } catch (e) {
+      console.error(e.message)
+      if (e.message === reason) {
+        console.warn(`Timeout exceeded on promise with reason: ${reason}`)
+        continue
+      }
+      throw e
+    }
+  }
+
+  throw logAndReturnError(`Exceeded ${retryConfig.attempts} retry attempts`)
+}
+
+export const logAndReturnError = (error: string | Error): Error => {
+  let errorText: string
+  let err: Error
+  if (error instanceof Error) {
+    errorText = error.message
+    err = error
+  } else {
+    errorText = error
+    err = new Error(errorText)
+  }
+  console.error(errorText)
+  return err
 }

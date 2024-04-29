@@ -6,15 +6,14 @@ import { messagesSelectors } from '../../messages/messages.selectors'
 import { messagesActions } from '../../messages/messages.slice'
 import { communitiesSelectors } from '../../communities/communities.selectors'
 
-import logger from '@quiet/logger'
+import createLogger from '../../../utils/logger'
 import { type PublicChannel } from '@quiet/types'
-const log = logger('channels')
+const logger = createLogger('channels')
 
 export function* channelsReplicatedSaga(
   action: PayloadAction<ReturnType<typeof publicChannelsActions.channelsReplicated>['payload']>
 ): Generator {
-  // TODO: Refactor to use QuietLogger
-  log(`Syncing channels: ${JSON.stringify(action.payload, null, 2)}`)
+  logger.debug('Syncing channels', action.payload)
   const { channels } = action.payload
   const _locallyStoredChannels = yield* select(publicChannelsSelectors.publicChannels)
   const locallyStoredChannels = _locallyStoredChannels.map(channel => channel.id)
@@ -23,13 +22,12 @@ export function* channelsReplicatedSaga(
   const databaseStoredChannels = Object.values(channels) as PublicChannel[]
 
   const databaseStoredChannelsIds = databaseStoredChannels.map(channel => channel.id)
-  console.log({ locallyStoredChannels, databaseStoredChannelsIds })
+  logger.debug({ locallyStoredChannels, databaseStoredChannelsIds })
 
   // Upserting channels to local storage
   for (const channel of databaseStoredChannels) {
     if (!locallyStoredChannels.includes(channel.id)) {
-      // TODO: Refactor to use QuietLogger
-      log(`Adding #${channel.name} to store`)
+      logger.info(`Adding #${channel.name} to store`)
       yield* put(
         publicChannelsActions.addChannel({
           channel,
@@ -48,7 +46,7 @@ export function* channelsReplicatedSaga(
     for (const channelId of locallyStoredChannels) {
       if (!databaseStoredChannelsIds.includes(channelId)) {
         // TODO: Refactor to use QuietLogger
-        log(`Removing #${channelId} from store`)
+        logger.info(`Removing #${channelId} from store`)
         yield* put(publicChannelsActions.deleteChannel({ channelId }))
         yield* take(publicChannelsActions.completeChannelDeletion)
       }

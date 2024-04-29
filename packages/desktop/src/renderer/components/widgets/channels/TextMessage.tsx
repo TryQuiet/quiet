@@ -12,6 +12,7 @@ const classes = {
   message: `${PREFIX}message`,
   emojiMessage: `${PREFIX}emojiMessage`,
   pending: `${PREFIX}pending`,
+  unsent: `${PREFIX}unsent`,
   blockquote: `${PREFIX}blockquote`,
   code: `${PREFIX}code`,
   pre: `${PREFIX}pre`,
@@ -37,6 +38,10 @@ const StyledTypography = styled(Typography)(() => ({
   },
   [`&.${classes.pending}`]: {
     color: theme.palette.colors.lightGray,
+  },
+
+  [`&.${classes.unsent}`]: {
+    opacity: 0.5,
   },
 
   [`& .${classes.blockquote}`]: {
@@ -108,10 +113,17 @@ export interface TextMessageComponentProps {
   message: string
   messageId: string
   pending: boolean
+  isUnsent: boolean
   openUrl: (url: string) => void
 }
 
-export const TextMessageComponent: React.FC<TextMessageComponentProps> = ({ message, messageId, pending, openUrl }) => {
+export const TextMessageComponent: React.FC<TextMessageComponentProps> = ({
+  message,
+  messageId,
+  pending,
+  isUnsent,
+  openUrl,
+}) => {
   const componentDecorator = (decoratedHref: string, decoratedText: string, key: number): ReactNode => {
     return (
       <a
@@ -132,6 +144,7 @@ export const TextMessageComponent: React.FC<TextMessageComponentProps> = ({ mess
       className={classNames({
         [classes.message]: true,
         [classes.pending]: pending,
+        [classes.unsent]: isUnsent,
         [classes.emojiMessage]: isAllEmoji(message),
       })}
       data-testid={`messagesGroupContent-${messageId}`}

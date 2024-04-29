@@ -4,6 +4,7 @@
 
 * Add support for new format of invitation link: `c=<cid>&t=<token>&s=<serverAddress>&i=<inviterAddress>` ([#2310](https://github.com/TryQuiet/quiet/issues/2310))
 * Use server for downloading initial community metadata if v2 invitation link is detected ([#2295](https://github.com/TryQuiet/quiet/issues/2295))
+* Adds connection status information to messages panel on desktop when no peers are connected ([#1706](https://github.com/TryQuiet/quiet/
 
 # Refactorings:
 
@@ -25,6 +26,7 @@
 # Refactorings:
 
 * Use ack for CREATE_NETWORK and simplify
+* Logging from all sources can be written to node console
 * Move Community model to the backend
 
 # Fixes:

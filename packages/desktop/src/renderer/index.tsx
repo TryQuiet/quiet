@@ -5,6 +5,9 @@ import Root, { persistor } from './Root'
 import store from './store'
 import updateHandlers from './store/handlers/update'
 import { communities, connection } from '@quiet/state-manager'
+import createLogger from './logger'
+
+const logger = createLogger('index')
 
 if (window && process.env.DEBUG) {
   window.localStorage.setItem('debug', process.env.DEBUG)

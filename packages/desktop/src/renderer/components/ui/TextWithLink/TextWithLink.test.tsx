@@ -1,4 +1,5 @@
 import React from 'react'
+import { defaultLogger } from '../../../logger'
 
 import { renderComponent } from '../../../testUtils/renderComponent'
 import { TextWithLink } from './TextWithLink'
@@ -13,7 +14,7 @@ describe('TextWithLink', () => {
             tag: 'simple',
             label: 'simple',
             action: () => {
-              console.log('linked clicked')
+              defaultLogger.info('linked clicked')
             },
           },
         ]}

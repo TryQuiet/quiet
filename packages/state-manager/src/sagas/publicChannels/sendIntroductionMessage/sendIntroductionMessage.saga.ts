@@ -7,8 +7,12 @@ import { identitySelectors } from '../../identity/identity.selectors'
 import { identityActions } from '../../identity/identity.slice'
 import { userJoinedMessage } from '@quiet/common'
 import { publicChannelsActions } from '../publicChannels.slice'
+import createLogger from '../../../utils/logger'
+
+const logger = createLogger('publicChannels')
 
 export function* sendIntroductionMessageSaga(): Generator {
+  logger.info('Sending introduction message')
   const community = yield* select(communitiesSelectors.currentCommunity)
   const identity = yield* select(identitySelectors.currentIdentity)
   const generalChannel = yield* select(publicChannelsSelectors.generalChannel)

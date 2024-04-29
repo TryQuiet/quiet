@@ -2,7 +2,7 @@ import React, { FC, ReactElement } from 'react'
 import { ThemeProvider, StyledEngineProvider } from '@mui/material/styles'
 import { Provider } from 'react-redux'
 
-import { render } from '@testing-library/react'
+import { act, render } from '@testing-library/react'
 
 import theme from '../theme'
 import store from '../store'

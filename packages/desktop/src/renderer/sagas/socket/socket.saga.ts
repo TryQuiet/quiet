@@ -5,18 +5,18 @@ import { socket as stateManager, messages, connection, Socket } from '@quiet/sta
 import { socketActions } from './socket.slice'
 import { eventChannel } from 'redux-saga'
 import { displayMessageNotificationSaga } from '../notifications/notifications.saga'
-import logger from '../../logger'
+import createLogger from '../../logger'
 import { encodeSecret } from '@quiet/common'
 import { SocketActionTypes } from '@quiet/types'
 
-const log = logger('socket')
+const logger = createLogger('socket')
 
 export function* startConnectionSaga(
   action: PayloadAction<ReturnType<typeof socketActions.startConnection>['payload']>
 ): Generator {
   const { dataPort } = action.payload
   if (!dataPort) {
-    log.error('About to start connection but no dataPort found')
+    logger.error('About to start connection but no dataPort found')
   }
 
   let socketIOSecret = yield* select(connection.selectors.socketIOSecret)
@@ -68,11 +68,11 @@ function subscribeSocketLifecycle(socket?: Socket) {
     ReturnType<typeof socketActions.setConnected> | ReturnType<typeof socketActions.suspendConnection>
   >(emit => {
     socket?.on('connect', async () => {
-      console.log('websocket connected')
+      logger.info('websocket connected')
       emit(socketActions.setConnected())
     })
     socket?.on('disconnect', () => {
-      console.log('closing socket connection')
+      logger.info('closing socket connection')
       emit(socketActions.suspendConnection())
     })
     return () => {}
@@ -80,12 +80,12 @@ function subscribeSocketLifecycle(socket?: Socket) {
 }
 
 function* cancelRootSaga(task: FixedTask<Generator>): Generator {
-  console.log('canceling root task')
+  logger.info('canceling root task')
   yield* cancel(task)
 }
 
 function* cancelObservers(task: FixedTask<Generator>): Generator {
-  console.log('canceling observers')
+  logger.info('canceling observers')
   yield* cancel(task)
 }
 

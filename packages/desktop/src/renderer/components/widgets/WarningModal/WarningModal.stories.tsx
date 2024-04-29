@@ -3,6 +3,7 @@ import { ComponentMeta, ComponentStory } from '@storybook/react'
 
 import { withTheme } from '../../../storybook/decorators'
 import WarningModalComponent, { WarningModalComponentProps } from './WarningModal'
+import { defaultLogger } from '../../../logger'
 
 const Template: ComponentStory<typeof WarningModalComponent> = args => {
   return <WarningModalComponent {...args} />
@@ -13,7 +14,7 @@ export const Component = Template.bind({})
 const args: WarningModalComponentProps = {
   open: true,
   handleClose: function (): void {
-    console.log('Closed modal')
+    defaultLogger.info('Closed modal')
   },
   title: 'Warning title',
   subtitle: 'Warning description',

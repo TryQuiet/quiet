@@ -6,6 +6,9 @@ import { messagesActions } from '../../messages/messages.slice'
 import { generateMessageId } from '../../messages/utils/message.utils'
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
 import { DownloadState, type FileMetadata, imagesExtensions, MessageType } from '@quiet/types'
+import createLogger from '../../../utils/logger'
+
+const logger = createLogger('files')
 
 export function* sendFileMessageSaga(
   action: PayloadAction<ReturnType<typeof filesActions.uploadFile>['payload']>
@@ -23,7 +26,7 @@ export function* sendFileMessageSaga(
     filePath = decodeURIComponent(filePath.startsWith(fileProtocol) ? filePath.slice(fileProtocol.length) : filePath)
     tmpPath = tmpPath ? decodeURIComponent(tmpPath.slice(fileProtocol.length)) : undefined
   } catch (e) {
-    console.error(`Can't send file with path ${filePath}, Details: ${e.message}`)
+    logger.error(`Can't send file with path ${filePath}, Details: ${e.message}`)
     return
   }
 

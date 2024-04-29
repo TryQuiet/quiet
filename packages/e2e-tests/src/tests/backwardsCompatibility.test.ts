@@ -8,6 +8,7 @@ import {
   RegisterUsernameModal,
   Sidebar,
 } from '../selectors'
+import { MessageIds } from '../types'
 import { BACKWARD_COMPATIBILITY_BASE_VERSION, BuildSetup, copyInstallerFile, downloadInstaller } from '../utils'
 
 jest.setTimeout(1200000)
@@ -18,6 +19,8 @@ describe('Backwards Compatibility', () => {
   let secondChannel: Channel
   let messagesToCompare: WebElement[]
   let sidebar: Sidebar
+  let generalChannelMessageIds: MessageIds
+  let secondChannelMessageIds: MessageIds
 
   const dataDir = `e2e_${(Math.random() * 10 ** 18).toString(36)}`
   const communityName = 'testcommunity'
@@ -98,12 +101,18 @@ describe('Backwards Compatibility', () => {
       expect(settingVersion).toEqual(BACKWARD_COMPATIBILITY_BASE_VERSION)
       await settingsModal.close()
     })
-    it('Sends a message', async () => {
+
+    it("Owner doesn't see the connection status element in general channel", async () => {
+      const correctConnectionStatusElementPresence = await generalChannel.waitForConnectionStatus(false)
+      expect(correctConnectionStatusElementPresence).toBe(true)
+    })
+
+    it('Owner sends a message in the general channel', async () => {
       const isMessageInput = await generalChannel.messageInput.isDisplayed()
       expect(isMessageInput).toBeTruthy()
-      await generalChannel.sendMessage(ownerMessages[0])
+      generalChannelMessageIds = await generalChannel.sendMessage(ownerMessages[0], ownerUsername)
     })
-    it('Sent message is visible on general channel', async () => {
+    it('Sent message is visible on general channel for owner', async () => {
       const messages = await generalChannel.getUserMessages(ownerUsername)
       const text = await messages[1].getText()
       expect(text).toEqual(ownerMessages[0])
@@ -119,22 +128,28 @@ describe('Backwards Compatibility', () => {
       secondChannel = new Channel(ownerAppOldVersion.driver, newChannelName)
       const isMessageInput = await secondChannel.messageInput.isDisplayed()
       expect(isMessageInput).toBeTruthy()
-      await secondChannel.sendMessage(ownerMessages[1])
+      secondChannelMessageIds = await secondChannel.sendMessage(ownerMessages[1], ownerUsername)
     })
-    it('Message is visible in second channel', async () => {
+
+    it("Owner doesn't see the connection status element in second channel", async () => {
+      const correctConnectionStatusElementPresence = await secondChannel.waitForConnectionStatus(false)
+      expect(correctConnectionStatusElementPresence).toBe(true)
+    })
+
+    it('Message is visible in second channel for owner', async () => {
       const messages = await secondChannel.getUserMessages(ownerUsername)
       const text = await messages[1].getText()
       expect(text).toEqual(ownerMessages[1])
     })
 
-    it(`User sends another ${loopMessages.length} messages to second channel`, async () => {
+    it(`Owner sends another ${loopMessages.length} messages to second channel`, async () => {
       for (const message of loopMessages) {
-        await secondChannel.sendMessage(message)
+        await secondChannel.sendMessage(message, ownerUsername)
       }
 
       messagesToCompare = await secondChannel.getUserMessages(ownerUsername)
     })
-    it('User closes the old app', async () => {
+    it('Owner closes the old app', async () => {
       await ownerAppOldVersion.close()
       await new Promise<void>(resolve => setTimeout(() => resolve(), 5000))
     })
@@ -155,13 +170,22 @@ describe('Backwards Compatibility', () => {
       })
     }
 
-    it('Owener sees general channel', async () => {
+    it('Owner sees general channel', async () => {
       console.log('New version', 3)
       generalChannel = new Channel(ownerAppNewVersion.driver, 'general')
       const isGeneralChannel = await generalChannel.element.isDisplayed()
       const generalChannelText = await generalChannel.element.getText()
       expect(isGeneralChannel).toBeTruthy()
       expect(generalChannelText).toEqual('# general')
+    })
+
+    it('Owner sees correct sent status on message in general channel', async () => {
+      await generalChannel.verifyMessageSentStatus(generalChannelMessageIds, ownerUsername, false)
+    })
+
+    it("Owner doesn't see the connection status element in general channel on new version", async () => {
+      const correctConnectionStatusElementPresence = await generalChannel.waitForConnectionStatus(false)
+      expect(correctConnectionStatusElementPresence).toBe(true)
     })
 
     it('Confirm that the opened app is the latest version', async () => {
@@ -185,6 +209,15 @@ describe('Backwards Compatibility', () => {
       secondChannel = new Channel(ownerAppNewVersion.driver, newChannelName)
       const currentMessages = await secondChannel.getUserMessages(ownerUsername)
       expect(currentMessages.length).toEqual(messagesToCompare.length)
+    })
+
+    it('Owner sees correct sent status on message in second channel', async () => {
+      await secondChannel.verifyMessageSentStatus(secondChannelMessageIds, ownerUsername, false)
+    })
+
+    it("Owner doesn't see the connection status element in second channel on new version", async () => {
+      const correctConnectionStatusElementPresence = await secondChannel.waitForConnectionStatus(false)
+      expect(correctConnectionStatusElementPresence).toBe(true)
     })
   })
 })

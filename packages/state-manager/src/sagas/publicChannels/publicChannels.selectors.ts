@@ -23,6 +23,12 @@ import {
   INITIAL_CURRENT_CHANNEL_ID,
   type UserProfile,
 } from '@quiet/types'
+import { networkSelectors } from '../network/network.selectors'
+import { communitiesSelectors } from '../communities/communities.selectors'
+import createLogger from '../../utils/logger'
+import { isMessageUnsent } from '../../utils/messages/messages.utils'
+
+const logger = createLogger('publicChannels')
 
 const selectState: CreatedSelectors[StoreKeys.PublicChannels] = (state: StoreState) => state[StoreKeys.PublicChannels]
 
@@ -50,7 +56,7 @@ export const subscribedChannels = createSelector(selectChannelsSubscriptions, su
 export const selectGeneralChannel = createSelector(selectChannels, channels => {
   const draft = channels.find(item => item.name === 'general')
   if (!draft) {
-    console.error('No general channel')
+    logger.error('No general channel')
     return
   }
   const channel: PublicChannel = {
@@ -124,7 +130,7 @@ export const getChannelById = (channelId: string) =>
   createSelector(publicChannels, channels => {
     const channel = channels.find(channel => channel.id === channelId)
     if (!channel) {
-      console.log('channel dont exist')
+      logger.warn(`Channel with ID ${channelId} does not exist`)
     }
     return channel
   })
@@ -215,9 +221,21 @@ export const dailyGroupedCurrentChannelMessages = createSelector(displayableCurr
  */
 export const currentChannelMessagesMergedBySender = createSelector(
   dailyGroupedCurrentChannelMessages,
-  (groups: MessagesGroupsType) => {
+  networkSelectors.communityLastConnectedAt,
+  networkSelectors.allPeersDisconnectedAt,
+  networkSelectors.connectedPeers,
+  communitiesSelectors.peerList,
+  (
+    groups: MessagesGroupsType,
+    lastConnectedTime: number,
+    allPeersDisconnectedAt: number | undefined,
+    connectedPeers: string[],
+    communityPeerList: string[] | undefined
+  ) => {
     const result: MessagesDailyGroups = {}
+
     for (const day in groups) {
+      let lastWasUnsent = false
       result[day] = groups[day].reduce((merged: DisplayableMessage[][], message: DisplayableMessage) => {
         if (!merged.length) {
           merged.push([message])
@@ -228,16 +246,28 @@ export const currentChannelMessagesMergedBySender = createSelector(
         const index = merged.length && merged.length - 1
         const last = merged[index][0]
 
+        // Determine if a message is "unsent"
+        const isUnsent = isMessageUnsent(
+          message,
+          lastConnectedTime,
+          allPeersDisconnectedAt,
+          connectedPeers,
+          communityPeerList
+        )
+
         if (
           last?.pubKey === message?.pubKey &&
           message.createdAt - last.createdAt < 300 &&
           message.type !== MessageType.Info &&
-          last.type !== MessageType.Info
+          last.type !== MessageType.Info &&
+          isUnsent === lastWasUnsent
         ) {
           merged[index].push(message)
         } else {
           merged.push([message])
         }
+
+        lastWasUnsent = isUnsent
 
         return merged
       }, [])
