@@ -209,7 +209,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     const network = await this.localDbService.getNetworkInfo()
 
     if (community && network) {
-      const sortedPeers = await this.localDbService.getSortedPeers(community.peerList)
+      const sortedPeers = await this.localDbService.getSortedPeers(community.peerList ?? [])
       this.logger('launchCommunityFromStorage - sorted peers', sortedPeers)
       if (sortedPeers.length > 0) {
         community.peerList = sortedPeers
@@ -558,6 +558,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       agent: this.socksProxyAgent,
       localAddress: this.libp2pService.createLibp2pAddress(onionAddress, peerId.toString()),
       targetPort: this.ports.libp2pHiddenService,
+      // Ignore local address
       peers: peers ? peers.slice(1) : [],
       psk: Libp2pService.generateLibp2pPSK(community.psk).fullKey,
     }

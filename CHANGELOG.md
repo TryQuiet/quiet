@@ -6,14 +6,15 @@
 * Use server for downloading initial community metadata if v2 invitation link is detected ([#2295](https://github.com/TryQuiet/quiet/issues/2295))
 
 # Refactorings:
-
 * Consolidate colors and align theme with MUI standards ([#2445](https://github.com/TryQuiet/quiet/issues/2445))
 
-# Fixes
+# Fixes:
+* Disable spellCheck/autoCorrect on non-spelling sensitive fields like usernames and channels ([#373](https://github.com/TryQuiet/quiet/issues/373))
 
 # Chores
 
 * Cleanup data directory at end of e2e tests
+* Don't create duplicate CSRs when joining a community under certain circumstances ([#2321](https://github.com/TryQuiet/quiet/issues/2321))
 
 [2.2.0]
 

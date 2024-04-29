@@ -1029,6 +1029,7 @@ describe('Channel', () => {
         "Messages/lazyLoading",
         "Messages/resetCurrentPublicChannelCache",
         "Messages/resetCurrentPublicChannelCache",
+        "Identity/saveUserCsr",
         "Files/updateMessageMedia",
         "Messages/addMessages",
         "Messages/addMessageVerificationStatus",

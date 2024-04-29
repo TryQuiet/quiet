@@ -131,6 +131,7 @@ export const UsernameRegistration: FC<UsernameRegistrationProps> = ({
           ref={inputRef}
           length={20}
           capitalize={'none'}
+          autoCorrect={false}
         />
         {!inputError && userName !== undefined && userName.length > 0 && parsedNameDiffers && (
           <View style={{ flexDirection: 'row', marginTop: 10 }}>

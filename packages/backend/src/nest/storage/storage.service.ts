@@ -7,6 +7,7 @@ import {
   parseCertificationRequest,
   getCertFieldValue,
   getReqFieldValue,
+  keyFromCertificate,
 } from '@quiet/identity'
 import type { IPFS } from 'ipfs-core'
 import EventStore from 'orbit-db-eventstore'
@@ -286,11 +287,15 @@ export class StorageService extends EventEmitter {
     this.certificatesStore.on(StorageEvents.CERTIFICATES_STORED, async payload => {
       this.emit(StorageEvents.CERTIFICATES_STORED, payload)
       await this.updatePeersList()
+      // TODO: Shouldn't we also dial new peers or at least add them
+      // to the peer store for the auto-dialer to handle?
     })
 
     this.certificatesRequestsStore.on(StorageEvents.CSRS_STORED, async (payload: { csrs: string[] }) => {
       this.emit(StorageEvents.CSRS_STORED, payload)
       await this.updatePeersList()
+      // TODO: Shouldn't we also dial new peers or at least add them
+      // to the peer store for the auto-dialer to handle?
     })
 
     this.communityMetadataStore.on(StorageEvents.COMMUNITY_METADATA_STORED, (meta: CommunityMetadata) => {
@@ -312,18 +317,30 @@ export class StorageService extends EventEmitter {
   }
 
   public async updatePeersList() {
-    const users = this.getAllUsers()
-    const peers = users.map(peer => createLibp2pAddress(peer.onionAddress, peer.peerId))
-    console.log('updatePeersList, peers count:', peers.length)
-
     const community = await this.localDbService.getCurrentCommunity()
-    if (!community) return
-
-    const sortedPeers = await this.localDbService.getSortedPeers(peers)
-    if (sortedPeers.length > 0) {
-      community.peerList = sortedPeers
-      await this.localDbService.setCommunity(community)
+    if (!community) {
+      throw new Error('Failed to update peers list - community missing')
     }
+
+    // Always include existing peers. Otherwise, if CSRs or
+    // certificates do not replicate, then this could remove peers.
+    const existingPeers = community.peerList ?? []
+    this.logger('Existing peers count:', existingPeers.length)
+
+    const users = await this.getAllUsers()
+    const peers = Array.from(
+      new Set([...existingPeers, ...users.map(user => createLibp2pAddress(user.onionAddress, user.peerId))])
+    )
+    const sortedPeers = await this.localDbService.getSortedPeers(peers)
+
+    // This should never happen, but just in case
+    if (sortedPeers.length === 0) {
+      throw new Error('Failed to update peers list - no peers')
+    }
+
+    this.logger('Updating community peer list. Peers count:', sortedPeers.length)
+    community.peerList = sortedPeers
+    await this.localDbService.setCommunity(community)
     this.emit(StorageEvents.COMMUNITY_UPDATED, community)
   }
 
@@ -728,18 +745,56 @@ export class StorageService extends EventEmitter {
     return result
   }
 
-  public getAllUsers(): UserData[] {
-    const csrs = this.getAllEventLogEntries(this.certificatesRequestsStore.store)
-    this.logger('csrs count:', csrs.length)
-    const allUsers: UserData[] = []
-    for (const csr of csrs) {
-      const parsedCert = parseCertificationRequest(csr)
-      const onionAddress = getReqFieldValue(parsedCert, CertFieldsTypes.commonName)
-      const peerId = getReqFieldValue(parsedCert, CertFieldsTypes.peerId)
-      const username = getReqFieldValue(parsedCert, CertFieldsTypes.nickName)
-      if (!onionAddress || !peerId || !username) continue
-      allUsers.push({ onionAddress, peerId, username })
+  /**
+   * Retrieve all users (using certificates and CSRs to determine users)
+   */
+  public async getAllUsers(): Promise<UserData[]> {
+    const csrs = await this.certificatesRequestsStore.getCsrs()
+    const certs = await this.certificatesStore.getCertificates()
+    const allUsersByKey: Record<string, UserData> = {}
+
+    this.logger(`Retrieving all users. CSRs count: ${csrs.length} Certificates count: ${certs.length}`)
+
+    for (const cert of certs) {
+      const parsedCert = parseCertificate(cert)
+      const pubKey = keyFromCertificate(parsedCert)
+      const onionAddress = getCertFieldValue(parsedCert, CertFieldsTypes.commonName)
+      const peerId = getCertFieldValue(parsedCert, CertFieldsTypes.peerId)
+      const username = getCertFieldValue(parsedCert, CertFieldsTypes.nickName)
+
+      // TODO: This validation should go in CertificatesStore
+      if (!pubKey || !onionAddress || !peerId || !username) {
+        this.logger.error(
+          `Received invalid certificate. onionAddress: ${onionAddress} peerId: ${peerId} username: ${username}`
+        )
+        continue
+      }
+
+      allUsersByKey[pubKey] = { onionAddress, peerId, username }
     }
+
+    for (const csr of csrs) {
+      const parsedCsr = parseCertificationRequest(csr)
+      const pubKey = keyFromCertificate(parsedCsr)
+      const onionAddress = getReqFieldValue(parsedCsr, CertFieldsTypes.commonName)
+      const peerId = getReqFieldValue(parsedCsr, CertFieldsTypes.peerId)
+      const username = getReqFieldValue(parsedCsr, CertFieldsTypes.nickName)
+
+      // TODO: This validation should go in CertificatesRequestsStore
+      if (!pubKey || !onionAddress || !peerId || !username) {
+        this.logger.error(`Received invalid CSR. onionAddres: ${onionAddress} peerId: ${peerId} username: ${username}`)
+        continue
+      }
+
+      if (!(pubKey in allUsersByKey)) {
+        allUsersByKey[pubKey] = { onionAddress, peerId, username }
+      }
+    }
+
+    const allUsers = Object.values(allUsersByKey)
+
+    this.logger(`All users count: ${allUsers.length}`)
+
     return allUsers
   }
 

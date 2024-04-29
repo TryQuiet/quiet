@@ -72,6 +72,7 @@ export const CreateCommunity: FC<CreateCommunityProps> = ({
               disabled={loading}
               validation={inputError}
               ref={inputRef}
+              autoCorrect={false}
             />
             <View style={{ marginTop: 32 }}>
               <TextWithLink

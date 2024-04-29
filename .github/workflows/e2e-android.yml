@@ -9,7 +9,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      
+        with:
+          lfs: true
+
       - uses: actions/setup-node@master
         with:
           node-version: 18.12.1

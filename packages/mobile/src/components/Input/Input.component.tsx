@@ -19,6 +19,7 @@ export const Input = forwardRef<TextInput, InputProps>(
       multiline,
       disabled = false,
       round = false,
+      autoCorrect = true,
       style,
       wrapperStyle,
       children,
@@ -71,6 +72,7 @@ export const Input = forwardRef<TextInput, InputProps>(
             maxLength={length}
             autoCapitalize={capitalize}
             testID={'input'}
+            autoCorrect={autoCorrect}
           />
           {children}
         </StyledWrapper>

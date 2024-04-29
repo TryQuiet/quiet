@@ -2755,6 +2755,7 @@ exports[`Chat component renders component 1`] = `
                   }
                 >
                   <TextInput
+                    autoCorrect={true}
                     editable={true}
                     height={54}
                     multiline={true}
