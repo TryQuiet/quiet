@@ -8,10 +8,10 @@ import { UserCsrData } from '../../registration/registration.functions'
 import { Injectable } from '@nestjs/common'
 import { OrbitDb } from '../orbitDb/orbitDb.service'
 import Logger from '../../common/logger'
-import LocalStore from '../base.store'
+import StoreBase from '../base.store'
 
 @Injectable()
-export class CertificatesRequestsStore extends LocalStore<string, EventStore<string>> {
+export class CertificatesRequestsStore extends StoreBase<string, EventStore<string>> {
   protected readonly logger = Logger(CertificatesRequestsStore.name)
   protected store: EventStore<string> | undefined
 

@@ -53,7 +53,8 @@ import { CertificatesRequestsStore } from './certifacteRequests/certificatesRequ
 import { OrbitDb } from './orbitDb/orbitDb.service'
 import { CommunityMetadataStore } from './communityMetadata/communityMetadata.store'
 import { UserProfileStore } from './userProfile/userProfile.store'
-import LocalStore from './base.store'
+import StoreBase from './base.store'
+import Store from 'orbit-db-store'
 
 @Injectable()
 export class StorageService extends EventEmitter {

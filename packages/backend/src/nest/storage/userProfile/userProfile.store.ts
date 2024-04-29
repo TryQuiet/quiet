@@ -16,12 +16,12 @@ import { OrbitDb } from '../orbitDb/orbitDb.service'
 import { StorageEvents } from '../storage.types'
 import { KeyValueIndex } from '../orbitDb/keyValueIndex'
 import { validatePhoto } from './userProfile.utils'
-import LocalStore from '../base.store'
+import StoreBase from '../base.store'
 
 const logger = createLogger('UserProfileStore')
 
 @Injectable()
-export class UserProfileStore extends LocalStore<UserProfile, KeyValueStore<UserProfile>> {
+export class UserProfileStore extends StoreBase<UserProfile, KeyValueStore<UserProfile>> {
   protected store: KeyValueStore<UserProfile> | undefined
 
   // Copying OrbitDB by using dag-cbor/sha256 for converting the

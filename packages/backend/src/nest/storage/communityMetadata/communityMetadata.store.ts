@@ -11,12 +11,12 @@ import { OrbitDb } from '../orbitDb/orbitDb.service'
 import { Injectable } from '@nestjs/common'
 import Logger from '../../common/logger'
 import { constructPartial } from '@quiet/common'
-import LocalStore from '../base.store'
+import StoreBase from '../base.store'
 
 const logger = Logger('communityMetadataStore')
 
 @Injectable()
-export class CommunityMetadataStore extends LocalStore<CommunityMetadata, KeyValueStore<CommunityMetadata>> {
+export class CommunityMetadataStore extends StoreBase<CommunityMetadata, KeyValueStore<CommunityMetadata>> {
   protected store: KeyValueStore<CommunityMetadata> | undefined
 
   constructor(
