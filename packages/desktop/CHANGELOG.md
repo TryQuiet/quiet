@@ -1,3 +1,19 @@
+# Change Log
+
+All notable changes to this project will be documented in this file.
+See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+# [2.2.0-alpha.3](/compare/@quiet/desktop@2.2.0-alpha.2...@quiet/desktop@2.2.0-alpha.3) (2024-04-30)
+
+
+### Bug Fixes
+
+* Various fixes related to peers, CSRs and backend startup (#2455) 2af0531, closes #2455
+
+
+
+
+
 [unreleased]
 
 # New features:
