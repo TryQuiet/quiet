@@ -1,21 +1,3 @@
-# Change Log
-
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
-
-# [2.2.0-alpha.3](/compare/@quiet/mobile@2.2.0-alpha.2...@quiet/mobile@2.2.0-alpha.3) (2024-04-30)
-
-
-### Bug Fixes
-
-* change ci emulator name configuration (#2463) e2f0204, closes #2463
-* postpone restore connection saga (#2462) 87ed565, closes #2462
-* Various fixes related to peers, CSRs and backend startup (#2455) 2af0531, closes #2455
-
-
-
-
-
 [unreleased]
 
 # New features:
@@ -23,6 +5,8 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 # Refactorings:
 
 # Fixes:
+
+* Don't create duplicate CSRs when joining a community under certain circumstances ([#2321](https://github.com/TryQuiet/quiet/issues/2321))
 
 [2.2.0]
 
