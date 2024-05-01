@@ -52,9 +52,9 @@ export class CertificatesRequestsStore extends EventEmitter {
   }
 
   public async close() {
-    this.logger('Closing...')
+    this.logger('Closing certificate requests DB')
     await this.store?.close()
-    this.logger('Closed')
+    this.logger('Closed certificate requests DB')
   }
 
   public getAddress() {

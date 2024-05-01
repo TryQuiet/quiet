@@ -251,7 +251,9 @@ export class StorageService extends EventEmitter {
 
   public async stopOrbitDb() {
     try {
+      this.logger('Closing channels DB')
       await this.channels?.close()
+      this.logger('Closed channels DB')
     } catch (e) {
       this.logger.error('Error closing channels db', e)
     }

@@ -224,6 +224,8 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   }
 
   public async closeAllServices(options: { saveTor: boolean } = { saveTor: false }) {
+    this.closeSocket()
+
     if (this.tor && !options.saveTor) {
       this.logger('Killing tor')
       await this.tor.kill()
@@ -231,24 +233,22 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       this.logger('Saving tor')
     }
     if (this.storageService) {
-      this.logger('Stopping orbitdb')
+      this.logger('Stopping OrbitDB')
       await this.storageService?.stopOrbitDb()
-    }
-    if (this.serverIoProvider?.io) {
-      this.logger('Closing socket server')
-      this.serverIoProvider.io.close()
-    }
-    if (this.localDbService) {
-      this.logger('Closing local storage')
-      await this.localDbService.close()
     }
     if (this.libp2pService) {
       this.logger('Stopping libp2p')
       await this.libp2pService.close()
     }
+    if (this.localDbService) {
+      this.logger('Closing local storage')
+      await this.localDbService.close()
+    }
   }
 
   public closeSocket() {
+    this.logger('Closing socket server')
+    // TODO: We should call this.socketService.close() instead
     this.serverIoProvider.io.close()
   }
 
@@ -286,20 +286,30 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     await this.socketService.init()
   }
 
-  public async leaveCommunity(): Promise<boolean> {
+  public async leaveCommunity() {
     this.logger('Running leaveCommunity')
+
+    this.closeSocket()
+
+    if (this.storageService) {
+      this.logger('Stopping OrbitDB')
+      await this.storageService.stopOrbitDb()
+    }
+
+    if (this.libp2pService) {
+      this.logger('Stopping libp2p')
+      await this.libp2pService.close()
+    }
+
+    if (this.localDbService) {
+      this.logger('Purging local DB')
+      await this.localDbService.purge()
+      this.logger('Closing local DB')
+      await this.localDbService.close()
+    }
 
     this.logger('Resetting tor')
     this.tor.resetHiddenServices()
-
-    this.logger('Closing the socket')
-    this.closeSocket()
-
-    this.logger('Purging local DB')
-    await this.localDbService.purge()
-
-    this.logger('Closing services')
-    await this.closeAllServices({ saveTor: true })
 
     this.logger('Purging data')
     await this.purgeData()

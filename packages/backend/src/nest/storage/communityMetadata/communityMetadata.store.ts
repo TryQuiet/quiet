@@ -90,7 +90,9 @@ export class CommunityMetadataStore extends EventEmitter {
   }
 
   public async close() {
+    logger('Closing community metadata DB')
     await this.store?.close()
+    logger('Closed community metadata DB')
   }
 
   public async updateCommunityMetadata(newMeta: CommunityMetadata): Promise<CommunityMetadata | undefined> {

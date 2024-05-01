@@ -86,7 +86,9 @@ export class UserProfileStore extends EventEmitter {
   }
 
   public async close() {
+    logger('Closing user profile DB')
     await this.store?.close()
+    logger('Closed user profile DB')
   }
 
   public async addUserProfile(userProfile: UserProfile) {

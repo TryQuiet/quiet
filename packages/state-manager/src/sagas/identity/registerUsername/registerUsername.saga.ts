@@ -29,7 +29,7 @@ export function* registerUsernameSaga(
     console.error('Could not register username, no community data')
     return
   }
-  console.log('Found community')
+  console.log('Found community', community.id)
 
   let identity = yield* select(identitySelectors.currentIdentity)
   if (!identity) {
@@ -41,7 +41,7 @@ export function* registerUsernameSaga(
     console.error('Could not register username, no identity')
     return
   }
-  console.log('Found identity')
+  console.log('Found identity', identity.id)
 
   let userCsr = identity.userCsr
 
@@ -66,6 +66,7 @@ export function* registerUsernameSaga(
         existingKeyPair,
       }
 
+      console.log('Recreating user CSR')
       userCsr = yield* call(createUserCsr, payload)
     } catch (e) {
       console.error(e)
@@ -80,6 +81,8 @@ export function* registerUsernameSaga(
         signAlg: config.signAlg,
         hashAlg: config.hashAlg,
       }
+
+      console.log('Creating user CSR')
       userCsr = yield* call(createUserCsr, payload)
     } catch (e) {
       console.error(e)
@@ -96,6 +99,7 @@ export function* registerUsernameSaga(
     isUsernameTaken,
   }
 
+  console.log('Adding user CSR to Redux', payload.communityId)
   yield* put(identityActions.addCsr(payload))
 
   if (community.CA?.rootCertString) {
