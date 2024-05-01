@@ -1,5 +1,5 @@
 import { io } from 'socket.io-client'
-import { select, put, call, cancel, fork, takeEvery, FixedTask, delay, apply } from 'typed-redux-saga'
+import { select, put, call, cancel, fork, takeEvery, FixedTask, delay, apply, putResolve } from 'typed-redux-saga'
 import { PayloadAction } from '@reduxjs/toolkit'
 import { socket as stateManager, Socket } from '@quiet/state-manager'
 import { encodeSecret } from '@quiet/common'
@@ -78,5 +78,5 @@ function subscribeSocketLifecycle(socket: Socket, socketIOData: WebsocketConnect
 function* cancelRootTaskSaga(task: FixedTask<Generator>): Generator {
   console.log('Canceling root task')
   yield* cancel(task)
-  yield* put(initActions.canceledRootTask())
+  yield* putResolve(initActions.canceledRootTask())
 }

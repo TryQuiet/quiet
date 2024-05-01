@@ -1,5 +1,5 @@
 import { type PayloadAction } from '@reduxjs/toolkit'
-import { select, put, take } from 'typed-redux-saga'
+import { select, put, take, putResolve } from 'typed-redux-saga'
 import { publicChannelsSelectors } from '../publicChannels.selectors'
 import { publicChannelsActions } from '../publicChannels.slice'
 import { messagesSelectors } from '../../messages/messages.selectors'
@@ -30,12 +30,12 @@ export function* channelsReplicatedSaga(
     if (!locallyStoredChannels.includes(channel.id)) {
       // TODO: Refactor to use QuietLogger
       log(`Adding #${channel.name} to store`)
-      yield* put(
+      yield* putResolve(
         publicChannelsActions.addChannel({
           channel,
         })
       )
-      yield* put(
+      yield* putResolve(
         messagesActions.addPublicChannelsMessagesBase({
           channelId: channel.id,
         })
@@ -49,7 +49,7 @@ export function* channelsReplicatedSaga(
       if (!databaseStoredChannelsIds.includes(channelId)) {
         // TODO: Refactor to use QuietLogger
         log(`Removing #${channelId} from store`)
-        yield* put(publicChannelsActions.deleteChannel({ channelId }))
+        yield* putResolve(publicChannelsActions.deleteChannel({ channelId }))
         yield* take(publicChannelsActions.completeChannelDeletion)
       }
     }
@@ -60,12 +60,12 @@ export function* channelsReplicatedSaga(
 
   // (On collecting data from persist) Populating displayable data
   if (currentChannelCache.length < 1 && currentChannelRepository.length > 0) {
-    yield* put(messagesActions.resetCurrentPublicChannelCache())
+    yield* putResolve(messagesActions.resetCurrentPublicChannelCache())
   }
 
   const community = yield* select(communitiesSelectors.currentCommunity)
 
   if (!community?.CA && databaseStoredChannels.find(channel => channel.name === 'general')) {
-    yield* put(publicChannelsActions.sendIntroductionMessage())
+    yield* putResolve(publicChannelsActions.sendIntroductionMessage())
   }
 }

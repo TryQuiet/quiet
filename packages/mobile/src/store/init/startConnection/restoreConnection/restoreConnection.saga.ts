@@ -1,4 +1,4 @@
-import { delay, put, select } from 'typed-redux-saga'
+import { delay, put, putResolve, select } from 'typed-redux-saga'
 import { initSelectors } from '../../init.selectors'
 import { initActions } from '../../init.slice'
 
@@ -15,6 +15,6 @@ export function* restoreConnectionSaga(): Generator {
 
   if (!isWebsocketConnected && socketIOData.dataPort !== 0) {
     console.log('WEBSOCKET', 'Restoring connection with data port: ', socketIOData.dataPort)
-    yield* put(initActions.startWebsocketConnection(socketIOData))
+    yield* putResolve(initActions.startWebsocketConnection(socketIOData))
   }
 }
