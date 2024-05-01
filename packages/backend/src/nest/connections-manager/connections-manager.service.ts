@@ -222,7 +222,10 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
   public async closeAllServices(options: { saveTor: boolean } = { saveTor: false }) {
     if (this.tor && !options.saveTor) {
+      this.logger('Killing tor')
       await this.tor.kill()
+    } else if (options.saveTor) {
+      this.logger('Saving tor')
     }
     if (this.storageService) {
       this.logger('Stopping orbitdb')
@@ -251,15 +254,34 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     await this.socketService.init()
   }
 
-  public async leaveCommunity() {
+  public async leaveCommunity(): Promise<boolean> {
+    this.logger('Running leaveCommunity')
+
+    this.logger('Resetting tor')
     this.tor.resetHiddenServices()
+
+    this.logger('Closing the socket')
     this.closeSocket()
+
+    this.logger('Purging local DB')
     await this.localDbService.purge()
+
+    this.logger('Closing services')
     await this.closeAllServices({ saveTor: true })
+
+    this.logger('Purging data')
     await this.purgeData()
+
+    this.logger('Resetting state')
     await this.resetState()
+
+    this.logger('Reopening local DB')
     await this.localDbService.open()
-    await this.socketService.init()
+
+    this.logger('Restarting socket')
+    await this.openSocket()
+
+    return true
   }
 
   async resetState() {
@@ -277,7 +299,9 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
           i.startsWith('Ipfs') || i.startsWith('OrbitDB') || i.startsWith('backendDB') || i.startsWith('Local Storage')
       )
     for (const dir of dirsToRemove) {
-      removeFilesFromDir(path.join(this.quietDir, dir))
+      const dirPath = path.join(this.quietDir, dir)
+      this.logger(`Removing dir: ${dirPath}`)
+      removeFilesFromDir(dirPath)
     }
   }
 
@@ -619,8 +643,10 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         callback(await this.joinCommunity(args))
       }
     )
-    this.socketService.on(SocketActionTypes.LEAVE_COMMUNITY, async () => {
-      await this.leaveCommunity()
+
+    this.socketService.on(SocketActionTypes.LEAVE_COMMUNITY, async (callback: (closed: boolean) => void) => {
+      this.logger(`socketService - ${SocketActionTypes.LEAVE_COMMUNITY}`)
+      callback(await this.leaveCommunity())
     })
 
     // Username registration

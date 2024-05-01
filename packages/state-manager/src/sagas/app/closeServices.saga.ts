@@ -8,5 +8,5 @@ export function* closeServicesSaga(
   socket: Socket,
   _action: PayloadAction<ReturnType<typeof appActions.closeServices>['payload']>
 ): Generator {
-  yield* apply(socket, socket.emit, [SocketActionTypes.LEAVE_COMMUNITY])
+  yield* apply(socket, socket.emitWithAck, [SocketActionTypes.LEAVE_COMMUNITY])
 }
