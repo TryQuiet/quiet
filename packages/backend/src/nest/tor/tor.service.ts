@@ -265,11 +265,18 @@ export class Tor extends EventEmitter implements OnModuleInit {
       this.process.stdout.on('data', (data: any) => {
         this.logger(data.toString())
 
-        const regexp = /Bootstrapped 0/
-        if (regexp.test(data.toString())) {
+        const bootstrappedRegexp = /Loaded enough directory info to build circuits/
+        if (bootstrappedRegexp.test(data.toString())) {
           this.spawnHiddenServices()
           resolve()
         }
+
+        // const noMoreHsdirRegexp = /No more HSDir available to query/
+        // if (noMoreHsdirRegexp.test(data.toString())) {
+        //   this.logger('We might have a bad circuit, switching to a clean one')
+        //   this.switchToCleanCircuts()
+        //   resolve()
+        // }
       })
 
       this.process.stderr.on('data', (data: any) => {
@@ -293,6 +300,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
     privKey: string
     virtPort?: number
   }): Promise<string> {
+    this.logger(`Spawning Tor hidden service`)
     const initializedHiddenService = this.initializedHiddenServices.get(privKey)
     if (initializedHiddenService) {
       this.logger(`Hidden service already initialized for ${initializedHiddenService.onionAddress}`)
@@ -302,6 +310,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
       `ADD_ONION ${privKey} Flags=Detach Port=${virtPort},127.0.0.1:${targetPort}`
     )
     const onionAddress = status.messages[0].replace('250-ServiceID=', '')
+    this.logger(`Spawned hidden service with onion address ${onionAddress}`)
 
     const hiddenService: HiddenServiceData = { targetPort, privKey, virtPort, onionAddress }
     this.hiddenServices.set(privKey, hiddenService)

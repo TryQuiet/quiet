@@ -64,6 +64,7 @@ import Logger from '../common/logger'
 import { emitError } from '../socket/socket.errors'
 import { createLibp2pAddress, isPSKcodeValid } from '@quiet/common'
 import { CertFieldsTypes, createRootCA, getCertFieldValue, loadCertificate } from '@quiet/identity'
+import { DateTime } from 'luxon'
 
 @Injectable()
 export class ConnectionsManagerService extends EventEmitter implements OnModuleInit {
@@ -548,8 +549,17 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     await this.libp2pService.createInstance(params)
 
     // Libp2p event listeners
-    this.libp2pService.on(Libp2pEvents.PEER_CONNECTED, (payload: { peers: string[] }) => {
+    this.libp2pService.on(Libp2pEvents.PEER_CONNECTED, async (payload: { peers: string[] }) => {
       this.serverIoProvider.io.emit(SocketActionTypes.PEER_CONNECTED, payload)
+      for (const peer of payload.peers) {
+        const peerStats: NetworkStats = {
+          peerId: peer,
+          connectionTime: 0,
+          lastSeen: DateTime.utc().toSeconds(),
+        }
+
+        await this.localDbService.put(LocalDBKeys.PEERS, peerStats)
+      }
     })
 
     this.libp2pService.on(Libp2pEvents.PEER_DISCONNECTED, async (payload: NetworkDataPayload) => {
