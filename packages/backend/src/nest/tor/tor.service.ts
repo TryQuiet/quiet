@@ -105,11 +105,14 @@ export class Tor extends EventEmitter implements OnModuleInit {
 
           this.interval = setInterval(async () => {
             const log = await this.torControl.sendCommand('GETINFO status/bootstrap-phase')
+            this.logger(log.messages[0])
             if (
               log.messages[0] === '250-status/bootstrap-phase=NOTICE BOOTSTRAP PROGRESS=100 TAG=done SUMMARY="Done"'
             ) {
+              this.logger(`Sending ${SocketActionTypes.TOR_INITIALIZED}`)
               this.serverIoProvider.io.emit(SocketActionTypes.TOR_INITIALIZED)
-
+              this.logger('Attempting to redial peers (if possible)')
+              this.emit(SocketActionTypes.REDIAL_PEERS)
               clearInterval(this.interval)
             }
           }, 2500)

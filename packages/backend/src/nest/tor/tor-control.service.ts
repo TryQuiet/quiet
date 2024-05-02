@@ -104,6 +104,7 @@ export class TorControl {
   }
 
   public async sendCommand(command: string): Promise<{ code: number; messages: string[] }> {
+    this.logger(`Sending tor command: ${command}`)
     // Only send one command at a time.
     if (this.isSending) {
       this.logger('Tor connection already established, waiting...')
@@ -111,6 +112,8 @@ export class TorControl {
 
     // Wait for existing command to finish.
     while (this.isSending) {
+      const timeout = 750
+      this.logger(`Waiting for ${timeout}ms to retry command...`)
       await new Promise(r => setTimeout(r, 750))
     }
 

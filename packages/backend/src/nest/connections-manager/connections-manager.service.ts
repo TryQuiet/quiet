@@ -608,6 +608,11 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.tor.on(SocketActionTypes.CONNECTION_PROCESS_INFO, data => {
       this.serverIoProvider.io.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, data)
     })
+    this.tor.on(SocketActionTypes.REDIAL_PEERS, async data => {
+      this.logger(`Socket - ${SocketActionTypes.REDIAL_PEERS}`)
+      const peerInfo = this.libp2pService.getCurrentPeerInfo()
+      await this.libp2pService.redialPeers(peerInfo)
+    })
     this.socketService.on(SocketActionTypes.CONNECTION_PROCESS_INFO, data => {
       this.serverIoProvider.io.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, data)
     })
@@ -619,8 +624,8 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       // Update Frontend with Initialized Communities
       if (this.communityId) {
         this.serverIoProvider.io.emit(SocketActionTypes.COMMUNITY_LAUNCHED, { id: this.communityId })
-        console.log('this.libp2pService.connectedPeers', this.libp2pService.connectedPeers)
-        console.log('this.libp2pservice', this.libp2pService)
+        this.logger('this.libp2pService.connectedPeers', this.libp2pService.connectedPeers)
+        this.logger('this.libp2pservice', this.libp2pService)
         this.serverIoProvider.io.emit(
           SocketActionTypes.CONNECTED_PEERS,
           Array.from(this.libp2pService.connectedPeers.keys())
