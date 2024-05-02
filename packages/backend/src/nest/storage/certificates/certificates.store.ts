@@ -148,7 +148,9 @@ export class CertificatesStore extends EventEmitter {
    * https://github.com/TryQuiet/quiet/issues/1899
    */
   public async getCertificates(): Promise<string[]> {
+    this.logger('Getting certificates')
     if (!this.store) {
+      this.logger('No store found!')
       return []
     }
 
