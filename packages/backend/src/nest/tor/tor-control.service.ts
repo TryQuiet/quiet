@@ -114,7 +114,7 @@ export class TorControl {
     while (this.isSending) {
       const timeout = 750
       this.logger(`Waiting for ${timeout}ms to retry command...`)
-      await new Promise(r => setTimeout(r, 750))
+      await new Promise(r => setTimeout(r, timeout))
     }
 
     this.isSending = true

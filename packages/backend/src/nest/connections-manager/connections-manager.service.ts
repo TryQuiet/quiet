@@ -564,7 +564,9 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
           lastSeen: DateTime.utc().toSeconds(),
         }
 
-        await this.localDbService.put(LocalDBKeys.PEERS, peerStats)
+        await this.localDbService.update(LocalDBKeys.PEERS, {
+          [peer]: peerStats,
+        })
       }
     })
 
