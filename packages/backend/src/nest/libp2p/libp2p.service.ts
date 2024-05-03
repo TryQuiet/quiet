@@ -22,6 +22,7 @@ import { webSockets } from '../websocketOverTor'
 import { all } from '../websocketOverTor/filters'
 import { Libp2pConnectedPeer, Libp2pEvents, Libp2pNodeParams, Libp2pPeerInfo } from './libp2p.types'
 import { ProcessInChunksService } from './process-in-chunks.service'
+import { peerIdFromString } from '@libp2p/peer-id'
 
 const KEY_LENGTH = 32
 export const LIBP2P_PSK_METADATA = '/key/swarm/psk/1.0.0/\n/base16/\n'
@@ -42,6 +43,7 @@ export class Libp2pService extends EventEmitter {
 
   private dialPeer = async (peerAddress: string) => {
     if (this.dialedPeers.has(peerAddress)) {
+      this.logger(`Skipping dial of ${peerAddress} because its already been dialed`)
       return
     }
     this.dialedPeers.add(peerAddress)
@@ -86,13 +88,26 @@ export class Libp2pService extends EventEmitter {
     for (const peer of peers) {
       await this.hangUpPeer(peer)
     }
+    this.logger('All peers hung up')
   }
 
   public async hangUpPeer(peerAddress: string) {
-    this.logger('Hanging up on peer', peerAddress)
-    await this.libp2pInstance?.hangUp(multiaddr(peerAddress))
+    try {
+      const ma = multiaddr(peerAddress)
+      const peerId = peerIdFromString(ma.getPeerId()!)
+
+      this.logger('Hanging up on peer', peerAddress)
+      await this.libp2pInstance!.hangUp(ma)
+
+      this.logger('Removing peer from peer store')
+      await this.libp2pInstance!.peerStore.delete(peerId as any)
+    } catch (e) {
+      this.logger.error(e)
+    }
+    this.logger('Clearing local data')
     this.dialedPeers.delete(peerAddress)
     this.connectedPeers.delete(peerAddress)
+    this.logger('Done hanging up')
   }
 
   /**
@@ -131,8 +146,8 @@ export class Libp2pService extends EventEmitter {
       libp2p = await createLibp2p({
         start: false,
         connectionManager: {
-          minConnections: 1, // TODO: increase?
-          maxConnections: 12, // TODO: increase?
+          minConnections: 3, // TODO: increase?
+          maxConnections: 20, // TODO: increase?
           dialTimeout: 120_000,
           maxParallelDials: 10,
           autoDial: true, // It's a default but let's set it to have explicit information

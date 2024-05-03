@@ -307,11 +307,17 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   }
 
   public async getNetwork(): Promise<NetworkInfo> {
+    this.logger('Getting network information')
+
+    this.logger('Creating hidden service')
     const hiddenService = await this.tor.createNewHiddenService({ targetPort: this.ports.libp2pHiddenService })
+
+    this.logger('Destroying the hidden service we created')
     await this.tor.destroyHiddenService(hiddenService.onionAddress.split('.')[0])
 
     // TODO: Do we want to create the PeerId here? It doesn't necessarily have
     // anything to do with Tor.
+    this.logger('Getting peer ID')
     const peerId: PeerId = await PeerId.create()
     const peerIdJson = peerId.toJSON()
     this.logger(`Created network for peer ${peerId.toString()}. Address: ${hiddenService.onionAddress}`)
