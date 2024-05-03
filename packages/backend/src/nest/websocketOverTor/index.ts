@@ -228,7 +228,7 @@ export class WebSockets extends EventEmitter {
         if (handler) handler(conn)
         listener.emit('connection', conn)
       })
-      .on('listening', listener.emit('listening'))
+      .on('listening', () => listener.emit('listening'))
       .on('error', err => {
         log.error(`Websocket error`, err)
         listener.emit('error', err)

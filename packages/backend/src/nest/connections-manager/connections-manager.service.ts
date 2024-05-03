@@ -618,8 +618,8 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     })
     this.tor.on(SocketActionTypes.REDIAL_PEERS, async data => {
       this.logger(`Socket - ${SocketActionTypes.REDIAL_PEERS}`)
-      const peerInfo = this.libp2pService.getCurrentPeerInfo()
-      await this.libp2pService.redialPeers(peerInfo)
+      const peerInfo = this.libp2pService?.getCurrentPeerInfo()
+      await this.libp2pService?.redialPeers(peerInfo)
     })
     this.socketService.on(SocketActionTypes.CONNECTION_PROCESS_INFO, data => {
       this.serverIoProvider.io.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, data)
