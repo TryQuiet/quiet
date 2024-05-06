@@ -45,40 +45,30 @@ static NSString *const platform = @"mobile";
   self.dataPath = [dataDirectory create];
 }
 
-- (void) initWebsocketConnection {
-  /*
-   * We have to wait for RCTBridge listeners to be initialized, yet we must be sure to deliver the event containing data port information.
-   * Delay used below can't cause any race condition as websocket won't connect until data server starts listening anyway.
-   */
-  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
-    NSTimeInterval delayInSeconds = 5;
-    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
-    dispatch_after(popTime, dispatch_get_main_queue(), ^(void) {
-      [[self.bridge moduleForName:@"CommunicationModule"] sendDataPortWithPort:self.dataPort socketIOSecret:self.socketIOSecret];
-    });
-  });
-}
-
 - (void) spinupBackend:(BOOL)init {
 
-  // (1/6) Find ports to use in tor and backend configuration
+  // (1/4) Find ports to use in tor and backend configuration
 
   Utils *utils = [Utils new];
 
   if (self.socketIOSecret == nil) {
-      self.socketIOSecret       = [utils generateSecretWithLength:(20)];
+      self.socketIOSecret = [utils generateSecretWithLength:(20)];
   }
-
+  
   FindFreePort *findFreePort = [FindFreePort new];
 
   self.dataPort             = [findFreePort getFirstStartingFromPort:11000];
+  
+  WebsocketSingleton *websocket = [WebsocketSingleton sharedInstance];
+  websocket.socketPort      = self.dataPort;
+  websocket.socketIOSecret  = self.socketIOSecret;
 
   uint16_t socksPort        = [findFreePort getFirstStartingFromPort:arc4random_uniform(65000 - 1024) + 1024];
   uint16_t controlPort      = [findFreePort getFirstStartingFromPort:arc4random_uniform(65000 - 1024) + 1024];
   uint16_t httpTunnelPort   = [findFreePort getFirstStartingFromPort:arc4random_uniform(65000 - 1024) + 1024];
 
 
-  // (2/6) Spawn tor with proper configuration
+  // (2/4) Spawn tor with proper configuration
 
   self.tor = [TorHandler new];
 
@@ -91,7 +81,7 @@ static NSString *const platform = @"mobile";
   });
 
 
-  // (4/6) Connect to tor control port natively (so we can use it to shutdown tor when app goes idle)
+  // (3/4) Connect to tor control port natively (so we can use it to shutdown tor when app goes idle)
 
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
     NSData *authCookieData = [self getAuthCookieData];
@@ -110,14 +100,7 @@ static NSString *const platform = @"mobile";
     }];
   });
 
-
-  // (5/6) Update data port information and broadcast it to frontend
-  if (init) {
-    [self initWebsocketConnection];
-  }
-
-
-  // (6/6) Launch backend or rewire services
+  // (4/4) Launch backend or rewire services
 
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
 
