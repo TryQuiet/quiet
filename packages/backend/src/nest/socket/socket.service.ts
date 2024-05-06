@@ -27,6 +27,8 @@ import { CONFIG_OPTIONS, SERVER_IO_PROVIDER } from '../const'
 import { ConfigOptions, ServerIoProviderTypes } from '../types'
 import { suspendableSocketEvents } from './suspendable.events'
 import Logger from '../common/logger'
+import { sleep } from '../common/sleep'
+import type net from 'node:net'
 
 @Injectable()
 export class SocketService extends EventEmitter implements OnModuleInit {
@@ -34,6 +36,8 @@ export class SocketService extends EventEmitter implements OnModuleInit {
 
   public resolveReadyness: (value: void | PromiseLike<void>) => void
   public readyness: Promise<void>
+  private listening: boolean
+  private closeSockets: () => void
 
   constructor(
     @Inject(SERVER_IO_PROVIDER) public readonly serverIoProvider: ServerIoProviderTypes,
@@ -44,12 +48,14 @@ export class SocketService extends EventEmitter implements OnModuleInit {
     this.readyness = new Promise<void>(resolve => {
       this.resolveReadyness = resolve
     })
+
+    this.listening = false
+    this.closeSockets = this.attachListeners()
   }
 
   async onModuleInit() {
     this.logger('init: Started')
 
-    this.attachListeners()
     await this.init()
 
     this.logger('init: Finished')
@@ -71,7 +77,7 @@ export class SocketService extends EventEmitter implements OnModuleInit {
     this.logger('init: Frontend connected')
   }
 
-  private readonly attachListeners = (): void => {
+  private readonly attachListeners = (): (() => void) => {
     // Attach listeners here
     this.serverIoProvider.io.on(SocketActionTypes.CONNECTION, socket => {
       this.logger('Socket connection')
@@ -195,25 +201,65 @@ export class SocketService extends EventEmitter implements OnModuleInit {
         this.emit(SocketActionTypes.LOAD_MIGRATION_DATA, data)
       })
     })
+
+    // Ensure the underlying connections get closed. See:
+    // https://github.com/socketio/socket.io/issues/1602
+    //
+    // I also tried `this.serverIoProvider.io.disconnectSockets(true)`
+    // which didn't work for me.
+    const sockets = new Set<net.Socket>()
+
+    this.serverIoProvider.server.on('connection', conn => {
+      sockets.add(conn)
+      conn.on('close', () => {
+        sockets.delete(conn)
+      })
+    })
+
+    return () => sockets.forEach(s => s.destroy())
+  }
+
+  public getConnections = (): Promise<number> => {
+    return new Promise(resolve => {
+      this.serverIoProvider.server.getConnections((err, count) => {
+        if (err) throw new Error(err.message)
+        resolve(count)
+      })
+    })
   }
 
   public listen = async (port = this.configOptions.socketIOPort): Promise<void> => {
+    this.logger(`Opening data server on port ${this.configOptions.socketIOPort}`)
+
+    // Sometimes socket.io closes the HTTP server but doesn't close
+    // all underlying connections. So it doesn't appear that
+    // `this.serverIoProvider.server.listening` is sufficient.
+    if (this.listening) {
+      const numConnections = await this.getConnections()
+      this.logger('Failed to listen. Connections still open:', numConnections)
+      return
+    }
+
     return await new Promise(resolve => {
-      if (this.serverIoProvider.server.listening) resolve()
       this.serverIoProvider.server.listen(this.configOptions.socketIOPort, '127.0.0.1', () => {
         this.logger(`Data server running on port ${this.configOptions.socketIOPort}`)
+        this.listening = true
         resolve()
       })
     })
   }
 
-  public close = async (): Promise<void> => {
-    this.logger(`Closing data server on port ${this.configOptions.socketIOPort}`)
-    return await new Promise(resolve => {
-      this.serverIoProvider.server.close(err => {
+  public close = (): Promise<void> => {
+    return new Promise(resolve => {
+      this.logger(`Closing data server on port ${this.configOptions.socketIOPort}`)
+      this.serverIoProvider.io.close(err => {
         if (err) throw new Error(err.message)
+        this.logger('Data server closed')
+        this.listening = false
         resolve()
       })
+      this.logger('Disconnecting sockets')
+      this.closeSockets()
     })
   }
 }

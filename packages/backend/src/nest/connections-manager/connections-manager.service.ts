@@ -246,16 +246,13 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     }
   }
 
-  public closeSocket() {
-    this.logger('Closing socket server')
-    // TODO: We should call this.socketService.close() instead
-    this.serverIoProvider.io.close()
+  public async closeSocket() {
+    await this.socketService.close()
   }
 
   public async pause() {
     this.logger('Pausing!')
-    this.logger('Closing socket!')
-    this.closeSocket()
+    await this.closeSocket()
     this.logger('Pausing libp2pService!')
     this.peerInfo = await this.libp2pService?.pause()
     this.logger('Found the following peer info on pause: ', this.peerInfo)
@@ -263,7 +260,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
   public async resume() {
     this.logger('Resuming!')
-    this.logger('Reopening socket!')
     await this.openSocket()
     this.logger('Attempting to redial peers!')
     if (this.peerInfo && (this.peerInfo?.connected.length !== 0 || this.peerInfo?.dialed.length !== 0)) {

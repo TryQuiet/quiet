@@ -1,5 +1,17 @@
 import { io } from 'socket.io-client'
-import { select, put, call, cancel, fork, takeEvery, FixedTask, delay, apply, putResolve } from 'typed-redux-saga'
+import {
+  select,
+  put,
+  call,
+  cancel,
+  fork,
+  take,
+  takeLeading,
+  takeEvery,
+  FixedTask,
+  delay,
+  apply,
+} from 'typed-redux-saga'
 import { PayloadAction } from '@reduxjs/toolkit'
 import { socket as stateManager, Socket } from '@quiet/state-manager'
 import { encodeSecret } from '@quiet/common'
@@ -49,17 +61,20 @@ export function* startConnectionSaga(
   })
   yield* fork(handleSocketLifecycleActions, socket, action.payload)
   // Handle opening/restoring connection
-  yield* takeEvery(initActions.setWebsocketConnected, setConnectedSaga, socket)
+  yield* takeLeading(initActions.setWebsocketConnected, setConnectedSaga, socket)
 }
 
 function* setConnectedSaga(socket: Socket): Generator {
+  console.log('Frontend is ready. Forking state-manager sagas and starting backend...')
+
   const task = yield* fork(stateManager.useIO, socket)
-  console.log('WEBSOCKET', 'Forking state-manager sagas', task)
-  // Handle suspending current connection
-  yield* takeEvery(initActions.suspendWebsocketConnection, cancelRootTaskSaga, task)
-  console.log('Frontend is ready. Starting backend...')
+
   // @ts-ignore - Why is this broken?
   yield* apply(socket, socket.emit, [SocketActionTypes.START])
+
+  // Handle suspending current connection
+  const suspendAction = yield* take(initActions.suspendWebsocketConnection)
+  yield* call(cancelRootTaskSaga, task, suspendAction)
 }
 
 function* handleSocketLifecycleActions(socket: Socket, socketIOData: WebsocketConnectionPayload): Generator {

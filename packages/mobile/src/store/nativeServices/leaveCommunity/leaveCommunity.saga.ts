@@ -1,4 +1,4 @@
-import { select, call, takeLeading, putResolve } from 'typed-redux-saga'
+import { select, call, put } from 'typed-redux-saga'
 import { app } from '@quiet/state-manager'
 import { persistor } from '../../store'
 import { nativeServicesActions } from '../nativeServices.slice'
@@ -9,11 +9,8 @@ import { ScreenNames } from '../../../../src/const/ScreenNames.enum'
 
 export function* leaveCommunitySaga(): Generator {
   console.log('Leaving community')
-
   // Restart backend
   yield* putResolve(app.actions.closeServices())
-
-  yield takeLeading(initActions.canceledRootTask.type, clearReduxStore)
 }
 
 export function* clearReduxStore(): Generator {

@@ -1,6 +1,6 @@
 import { eventChannel } from 'redux-saga'
 import { type Socket } from '../../../types'
-import { all, call, fork, put, takeEvery } from 'typed-redux-saga'
+import { all, call, fork, put, takeEvery, cancelled } from 'typed-redux-saga'
 import logger from '../../../utils/logger'
 import { appActions } from '../../app/app.slice'
 import { appMasterSaga } from '../../app/app.master.saga'
@@ -176,23 +176,40 @@ export function subscribe(socket: Socket) {
 }
 
 export function* handleActions(socket: Socket): Generator {
-  const socketChannel = yield* call(subscribe, socket)
-  yield takeEvery(socketChannel, function* (action) {
-    yield put(action)
-  })
+  console.log('handleActions starting')
+  try {
+    const socketChannel = yield* call(subscribe, socket)
+    yield takeEvery(socketChannel, function* (action) {
+      console.log('handleActions PUT', action)
+      yield put(action)
+    })
+  } finally {
+    console.log('handleActions stopping')
+    if (yield cancelled()) {
+      console.log('handleActions cancelled')
+    }
+  }
 }
 
 export function* useIO(socket: Socket): Generator {
-  yield all([
-    fork(handleActions, socket),
-    fork(publicChannelsMasterSaga, socket),
-    fork(messagesMasterSaga, socket),
-    fork(filesMasterSaga, socket),
-    fork(identityMasterSaga, socket),
-    fork(communitiesMasterSaga, socket),
-    fork(usersMasterSaga, socket),
-    fork(appMasterSaga, socket),
-    fork(connectionMasterSaga),
-    fork(errorsMasterSaga),
-  ])
+  console.log('useIO starting')
+  try {
+    yield all([
+      fork(handleActions, socket),
+      fork(publicChannelsMasterSaga, socket),
+      fork(messagesMasterSaga, socket),
+      fork(filesMasterSaga, socket),
+      fork(identityMasterSaga, socket),
+      fork(communitiesMasterSaga, socket),
+      fork(usersMasterSaga, socket),
+      fork(appMasterSaga, socket),
+      fork(connectionMasterSaga),
+      fork(errorsMasterSaga),
+    ])
+  } finally {
+    console.log('useIO stopping')
+    if (yield cancelled()) {
+      console.log('useIO cancelled')
+    }
+  }
 }
