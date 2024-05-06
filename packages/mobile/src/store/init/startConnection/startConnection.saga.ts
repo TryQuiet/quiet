@@ -67,8 +67,8 @@ function subscribeSocketLifecycle(socket: Socket, socketIOData: WebsocketConnect
       console.log('client: Websocket connected', socket_id)
       emit(initActions.setWebsocketConnected(socketIOData))
     })
-    socket.on('disconnect', () => {
-      console.log('client: Closing socket connection', socket_id)
+    socket.on('disconnect', reason => {
+      console.warn('client: Closing socket connection', socket_id, reason)
       emit(initActions.suspendWebsocketConnection())
     })
     return () => {}
@@ -76,7 +76,7 @@ function subscribeSocketLifecycle(socket: Socket, socketIOData: WebsocketConnect
 }
 
 function* cancelRootTaskSaga(task: FixedTask<Generator>): Generator {
-  console.log('Canceling root task')
+  console.warn('Canceling root task', task.error())
   yield* cancel(task)
   yield* putResolve(initActions.canceledRootTask())
 }

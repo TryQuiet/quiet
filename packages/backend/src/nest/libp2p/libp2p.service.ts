@@ -57,6 +57,14 @@ export class Libp2pService extends EventEmitter {
     }
   }
 
+  public pause = async (): Promise<Libp2pPeerInfo> => {
+    const peerInfo = this.getCurrentPeerInfo()
+    await this.hangUpPeers(peerInfo.dialed)
+    this.dialedPeers.clear()
+    this.connectedPeers.clear()
+    return peerInfo
+  }
+
   public readonly createLibp2pAddress = (address: string, peerId: string): string => {
     return createLibp2pAddress(address, peerId)
   }
@@ -92,11 +100,12 @@ export class Libp2pService extends EventEmitter {
   }
 
   public async hangUpPeer(peerAddress: string) {
+    this.logger('Hanging up on peer', peerAddress)
     try {
       const ma = multiaddr(peerAddress)
       const peerId = peerIdFromString(ma.getPeerId()!)
 
-      this.logger('Hanging up on peer', peerAddress)
+      this.logger('Hanging up connection on libp2p')
       await this.libp2pInstance?.hangUp(ma)
 
       this.logger('Removing peer from peer store')

@@ -47,6 +47,7 @@ import {
   type UserProfilesStoredEvent,
 } from '@quiet/types'
 import { CONFIG_OPTIONS, QUIET_DIR, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
+import { Libp2pPeerInfo } from '../libp2p/libp2p.types'
 import { ConfigOptions, GetPorts, ServerIoProviderTypes } from '../types'
 import { SocketService } from '../socket/socket.service'
 import { RegistrationService } from '../registration/registration.service'
@@ -73,6 +74,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   public libp2pService: Libp2pService
   private ports: GetPorts
   isTorInit: TorInitState = TorInitState.NOT_STARTED
+  private peerInfo: Libp2pPeerInfo | undefined = undefined
 
   private readonly logger = Logger(ConnectionsManagerService.name)
   constructor(
@@ -248,6 +250,23 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
   public closeSocket() {
     this.serverIoProvider.io.close()
+  }
+
+  public async pause() {
+    this.logger('Pausing!')
+    this.logger('Closing socket!')
+    this.closeSocket()
+    this.logger('Pausing libp2pService!')
+    this.peerInfo = await this.libp2pService?.pause()
+    this.logger('Found the following peer info on pause: ', this.peerInfo)
+  }
+
+  public async resume() {
+    this.logger('Resuming!')
+    this.logger('Reopening socket!')
+    await this.openSocket()
+    this.logger('Dialing peers with info: ', this.peerInfo)
+    await this.libp2pService?.redialPeers(this.peerInfo)
   }
 
   // This method is only used on iOS through rn-bridge for reacting on lifecycle changes
@@ -634,6 +653,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         this.serverIoProvider.io.emit(SocketActionTypes.COMMUNITY_LAUNCHED, { id: this.communityId })
         this.logger('this.libp2pService.connectedPeers', this.libp2pService.connectedPeers)
         this.logger('this.libp2pservice', this.libp2pService)
+        this.logger('this.libp2pService.dialedPeers', this.libp2pService.dialedPeers)
         this.serverIoProvider.io.emit(
           SocketActionTypes.CONNECTED_PEERS,
           Array.from(this.libp2pService.connectedPeers.keys())
