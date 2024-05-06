@@ -97,10 +97,10 @@ export class Libp2pService extends EventEmitter {
       const peerId = peerIdFromString(ma.getPeerId()!)
 
       this.logger('Hanging up on peer', peerAddress)
-      await this.libp2pInstance!.hangUp(ma)
+      await this.libp2pInstance?.hangUp(ma)
 
       this.logger('Removing peer from peer store')
-      await this.libp2pInstance!.peerStore.delete(peerId as any)
+      await this.libp2pInstance?.peerStore.delete(peerId as any)
     } catch (e) {
       this.logger.error(e)
     }
