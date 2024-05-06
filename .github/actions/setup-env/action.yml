@@ -15,6 +15,21 @@ runs:
     - uses: actions/setup-node@master
       with:
         node-version: 18.12.1
+    
+    - name: Set up Python 3.12
+      uses: actions/setup-python@v5
+      if: runner.os == 'macOS'
+      with:
+        python-version: 3.12
+
+    - name: Print python version
+      run: which python3
+      if: runner.os == 'macOS'
+      shell: bash
+
+    - name: Install setuptools
+      run: python3 -m pip install setuptools
+      shell: bash
 
     - name: Print OS name
       run: echo ${{ runner.os }}
