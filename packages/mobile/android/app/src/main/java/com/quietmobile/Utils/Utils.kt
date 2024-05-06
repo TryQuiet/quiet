@@ -30,6 +30,7 @@ object Utils {
         return dataDirectory.absolutePath
     }
 
+    @JvmStatic
     fun generateRandomString(length: Int): String {
         val CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
         val secureRandom = SecureRandom()
@@ -43,6 +44,7 @@ object Utils {
         return randomString.toString()
     }
 
+    @JvmStatic
     suspend fun getOpenPort(starting: Int) = suspendCoroutine<Int> { continuation ->
         val port = checkPort(starting)
         continuation.resume(port)
