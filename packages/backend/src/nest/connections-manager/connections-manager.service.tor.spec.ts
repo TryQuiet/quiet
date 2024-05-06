@@ -146,7 +146,10 @@ describe('Connections manager', () => {
       community,
       network: { peerId: userIdentity.peerId, hiddenService: userIdentity.hiddenService },
     })
-    libp2pService.connectedPeers.set(peerId.toString(), DateTime.utc().valueOf())
+    libp2pService.connectedPeers.set(peerId.toString(), {
+      connectedAtSeconds: DateTime.utc().valueOf(),
+      address: peerId.toString(),
+    })
 
     // Peer disconnected
     const remoteAddr = `${peerId.toString()}`
