@@ -265,8 +265,20 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.logger('Resuming!')
     this.logger('Reopening socket!')
     await this.openSocket()
-    this.logger('Dialing peers with info: ', this.peerInfo)
-    await this.libp2pService?.redialPeers(this.peerInfo)
+    this.logger('Attempting to redial peers!')
+    if (this.peerInfo && (this.peerInfo?.connected.length !== 0 || this.peerInfo?.dialed.length !== 0)) {
+      this.logger('Dialing peers with info from pause: ', this.peerInfo)
+      await this.libp2pService?.redialPeers([...this.peerInfo.connected, ...this.peerInfo.dialed])
+    } else {
+      this.logger('Dialing peers from stored community (if exists)')
+      const community = await this.localDbService.getCurrentCommunity()
+      if (!community) {
+        this.logger(`No community launched, can't redial`)
+        return
+      }
+      const sortedPeers = await this.localDbService.getSortedPeers(community.peerList ?? [])
+      await this.libp2pService?.redialPeers(sortedPeers)
+    }
   }
 
   // This method is only used on iOS through rn-bridge for reacting on lifecycle changes
@@ -638,7 +650,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.tor.on(SocketActionTypes.REDIAL_PEERS, async data => {
       this.logger(`Socket - ${SocketActionTypes.REDIAL_PEERS}`)
       const peerInfo = this.libp2pService?.getCurrentPeerInfo()
-      await this.libp2pService?.redialPeers(peerInfo)
+      await this.libp2pService?.redialPeers([...peerInfo.connected, ...peerInfo.dialed])
     })
     this.socketService.on(SocketActionTypes.CONNECTION_PROCESS_INFO, data => {
       this.serverIoProvider.io.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, data)

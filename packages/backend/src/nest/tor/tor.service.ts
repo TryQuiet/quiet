@@ -279,18 +279,12 @@ export class Tor extends EventEmitter implements OnModuleInit {
         this.logger(data.toString())
 
         const bootstrappedRegexp = /Bootstrapped 0/
+        // TODO: Figure out if there's a way to get this working in tests
         // const bootstrappedRegexp = /Loaded enough directory info to build circuits/
         if (bootstrappedRegexp.test(data.toString())) {
           this.spawnHiddenServices()
           resolve()
         }
-
-        // const noMoreHsdirRegexp = /No more HSDir available to query/
-        // if (noMoreHsdirRegexp.test(data.toString())) {
-        //   this.logger('We might have a bad circuit, switching to a clean one')
-        //   this.switchToCleanCircuts()
-        //   resolve()
-        // }
       })
 
       this.process.stderr.on('data', (data: any) => {

@@ -124,11 +124,9 @@ export class Libp2pService extends EventEmitter {
    * iOS where Tor receives a new port when the app resumes from background and
    * we want to close/re-open connections.
    */
-  public async redialPeers(peerInfo?: Libp2pPeerInfo) {
-    const dialed = peerInfo ? peerInfo.dialed : Array.from(this.dialedPeers)
-    const toDial = peerInfo
-      ? [...peerInfo.connected, ...peerInfo.dialed]
-      : [...this.connectedPeers.keys(), ...this.dialedPeers]
+  public async redialPeers(peersToDial?: string[]) {
+    const dialed = peersToDial ?? Array.from(this.dialedPeers)
+    const toDial = peersToDial ?? [...this.connectedPeers.keys(), ...this.dialedPeers]
 
     if (dialed.length === 0) {
       this.logger('No peers to redial!')
