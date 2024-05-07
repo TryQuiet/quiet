@@ -138,6 +138,10 @@ describe('Connections manager', () => {
 
     // Peer connected
     await connectionsManagerService.init()
+    await connectionsManagerService.launchCommunity({
+      community,
+      network: { peerId: userIdentity.peerId, hiddenService: userIdentity.hiddenService },
+    })
     libp2pService.connectedPeers.set(peerId.toString(), {
       connectedAtSeconds: DateTime.utc().valueOf(),
       address: peerId.toString(),

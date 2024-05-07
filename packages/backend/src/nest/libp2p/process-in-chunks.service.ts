@@ -71,7 +71,7 @@ export class ProcessInChunksService<T> extends EventEmitter {
   }
 
   public async process() {
-    this.logger(`Processing ${this.taskQueue.length} items`)
+    this.logger(`Processing ${this.taskQueue.length()} items`)
     this.taskQueue.resume()
   }
 

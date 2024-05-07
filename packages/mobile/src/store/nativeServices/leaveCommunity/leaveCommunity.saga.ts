@@ -1,4 +1,4 @@
-import { select, call, put, takeLeading } from 'typed-redux-saga'
+import { select, call, takeLeading, putResolve } from 'typed-redux-saga'
 import { app } from '@quiet/state-manager'
 import { persistor } from '../../store'
 import { nativeServicesActions } from '../nativeServices.slice'
@@ -11,7 +11,7 @@ export function* leaveCommunitySaga(): Generator {
   console.log('Leaving community')
 
   // Restart backend
-  yield* put(app.actions.closeServices())
+  yield* putResolve(app.actions.closeServices())
 
   yield takeLeading(initActions.canceledRootTask.type, clearReduxStore)
 }
@@ -23,18 +23,25 @@ export function* clearReduxStore(): Generator {
   console.info('Clearing redux store')
 
   // Stop persistor
+  console.info('Pausing persistor')
   yield* call(persistor.pause)
+  console.info('Flushing persistor')
   yield* call(persistor.flush)
+  console.info('Purging persistor')
   yield* call(persistor.purge)
 
   // Clear redux store
-  yield* put(nativeServicesActions.resetApp())
+  console.info('Resetting app')
+  yield* putResolve(nativeServicesActions.resetApp())
 
   // Resume persistor
+  console.info('Resuming persistor')
   yield* call(persistor.persist)
 
   // Restarting persistor doesn't mark store as ready automatically
-  yield* put(initActions.setStoreReady())
+  console.info('Set store ready')
+  yield* putResolve(initActions.setStoreReady())
 
-  yield* put(navigationActions.replaceScreen({ screen: ScreenNames.JoinCommunityScreen }))
+  console.info('Opening join community screen')
+  yield* putResolve(navigationActions.replaceScreen({ screen: ScreenNames.JoinCommunityScreen }))
 }

@@ -87,7 +87,7 @@ describe('channelsReplicatedSaga', () => {
     )
       .withReducer(reducer)
       .withState(store.getState())
-      .put(
+      .putResolve(
         publicChannelsActions.addChannel({
           channel: sailingChannel,
         })
@@ -108,12 +108,12 @@ describe('channelsReplicatedSaga', () => {
     )
       .withReducer(reducer)
       .withState(store.getState())
-      .not.put(
+      .not.putResolve(
         publicChannelsActions.addChannel({
           channel: generalChannel,
         })
       )
-      .put(
+      .putResolve(
         publicChannelsActions.addChannel({
           channel: sailingChannel,
         })
@@ -134,12 +134,12 @@ describe('channelsReplicatedSaga', () => {
     )
       .withReducer(reducer)
       .withState(store.getState())
-      .put(
+      .putResolve(
         publicChannelsActions.addChannel({
           channel: sailingChannel,
         })
       )
-      .put(
+      .putResolve(
         messagesActions.addPublicChannelsMessagesBase({
           channelId: sailingChannel.id,
         })
@@ -160,22 +160,22 @@ describe('channelsReplicatedSaga', () => {
     )
       .withReducer(reducer)
       .withState(store.getState())
-      .put(
+      .putResolve(
         publicChannelsActions.addChannel({
           channel: sailingChannel,
         })
       )
-      .put(
+      .putResolve(
         messagesActions.addPublicChannelsMessagesBase({
           channelId: sailingChannel.id,
         })
       )
-      .not.put(
+      .not.putResolve(
         publicChannelsActions.addChannel({
           channel: generalChannel,
         })
       )
-      .not.put(
+      .not.putResolve(
         messagesActions.addPublicChannelsMessagesBase({
           channelId: generalChannel.id,
         })
@@ -208,7 +208,7 @@ describe('channelsReplicatedSaga', () => {
     )
       .withReducer(reducer)
       .withState(store.getState())
-      .put(messages.actions.resetCurrentPublicChannelCache())
+      .putResolve(messages.actions.resetCurrentPublicChannelCache())
       .run()
   })
 
@@ -230,7 +230,7 @@ describe('channelsReplicatedSaga', () => {
     )
       .withReducer(reducer)
       .withState(store.getState())
-      .not.put(messages.actions.resetCurrentPublicChannelCache())
+      .not.putResolve(messages.actions.resetCurrentPublicChannelCache())
       .run()
   })
 
@@ -249,9 +249,9 @@ describe('channelsReplicatedSaga', () => {
     )
       .withReducer(reducer)
       .withState(store.getState())
-      .put(publicChannelsActions.deleteChannel({ channelId: photoChannel.id }))
+      .putResolve(publicChannelsActions.deleteChannel({ channelId: photoChannel.id }))
       .dispatch(publicChannelsActions.completeChannelDeletion({}))
-      .put(
+      .putResolve(
         publicChannelsActions.addChannel({
           channel: sailingChannel,
         })
@@ -269,7 +269,7 @@ describe('channelsReplicatedSaga', () => {
     )
       .withReducer(reducer)
       .withState(store.getState())
-      .not.put(publicChannelsActions.deleteChannel({ channelId: generalChannel.id }))
+      .not.putResolve(publicChannelsActions.deleteChannel({ channelId: generalChannel.id }))
       .run()
   })
 })
