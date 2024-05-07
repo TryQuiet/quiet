@@ -121,8 +121,9 @@ export class Tor extends EventEmitter implements OnModuleInit {
             if (bootstrapDone) {
               this.logger(`Sending ${SocketActionTypes.TOR_INITIALIZED}`)
               this.serverIoProvider.io.emit(SocketActionTypes.TOR_INITIALIZED)
-              this.logger('Attempting to redial peers (if possible)')
-              this.emit(SocketActionTypes.REDIAL_PEERS)
+              // TODO: Figure out how to get redialing (or, ideally, initial dialing) on tor initialization working
+              // this.logger('Attempting to redial peers (if possible)')
+              // this.emit(SocketActionTypes.REDIAL_PEERS)
               clearInterval(this.interval)
             }
           }, 2500)
