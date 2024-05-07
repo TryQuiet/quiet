@@ -175,9 +175,9 @@ export class SocketService extends EventEmitter implements OnModuleInit {
         }
       )
 
-      socket.on(SocketActionTypes.LEAVE_COMMUNITY, async () => {
+      socket.on(SocketActionTypes.LEAVE_COMMUNITY, async (callback: (closed: boolean) => void) => {
         this.logger('Leaving community')
-        this.emit(SocketActionTypes.LEAVE_COMMUNITY)
+        this.emit(SocketActionTypes.LEAVE_COMMUNITY, callback)
       })
 
       socket.on(SocketActionTypes.LIBP2P_PSK_STORED, payload => {

@@ -71,6 +71,7 @@ export enum SocketActionTypes {
   PEER_CONNECTED = 'peerConnected',
   PEER_DISCONNECTED = 'peerDisconnected',
   TOR_INITIALIZED = 'torInitialized',
+  REDIAL_PEERS = 'redialPeers',
 
   // ====== Misc ======
 
