@@ -2,6 +2,7 @@ import { io } from 'socket.io-client'
 import {
   select,
   put,
+  putResolve,
   call,
   cancel,
   fork,

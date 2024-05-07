@@ -1,4 +1,4 @@
-import { select, call, put } from 'typed-redux-saga'
+import { select, call, putResolve } from 'typed-redux-saga'
 import { app } from '@quiet/state-manager'
 import { persistor } from '../../store'
 import { nativeServicesActions } from '../nativeServices.slice'

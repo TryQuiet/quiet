@@ -223,7 +223,11 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     }
   }
 
-  public async closeAllServices(options: { saveTor: boolean } = { saveTor: false }) {
+  public async closeAllServices(
+    options: { saveTor: boolean; purgeLocalDb: boolean } = { saveTor: false, purgeLocalDb: false }
+  ) {
+    this.logger('Closing services')
+
     await this.closeSocket()
 
     if (this.tor && !options.saveTor) {
@@ -241,7 +245,11 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       await this.libp2pService.close()
     }
     if (this.localDbService) {
-      this.logger('Closing local storage')
+      if (options.purgeLocalDb) {
+        this.logger('Purging local DB')
+        await this.localDbService.purge()
+      }
+      this.logger('Closing local DB')
       await this.localDbService.close()
     }
   }
@@ -285,30 +293,13 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   public async leaveCommunity() {
     this.logger('Running leaveCommunity')
 
-    await this.closeSocket()
-
-    if (this.storageService) {
-      this.logger('Stopping OrbitDB')
-      await this.storageService.stopOrbitDb()
-    }
-
-    if (this.libp2pService) {
-      this.logger('Stopping libp2p')
-      await this.libp2pService.close()
-    }
-
-    if (this.localDbService) {
-      this.logger('Purging local DB')
-      await this.localDbService.purge()
-      this.logger('Closing local DB')
-      await this.localDbService.close()
-    }
-
-    this.logger('Resetting tor')
-    this.tor.resetHiddenServices()
+    await this.closeAllServices({ saveTor: true, purgeLocalDb: true })
 
     this.logger('Purging data')
     await this.purgeData()
+
+    this.logger('Resetting Tor')
+    this.tor.resetHiddenServices()
 
     this.logger('Resetting state')
     await this.resetState()
