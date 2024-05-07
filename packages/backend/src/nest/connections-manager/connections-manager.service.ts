@@ -224,7 +224,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   }
 
   public async closeAllServices(options: { saveTor: boolean } = { saveTor: false }) {
-    this.closeSocket()
+    await this.closeSocket()
 
     if (this.tor && !options.saveTor) {
       this.logger('Killing tor')
@@ -285,7 +285,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   public async leaveCommunity() {
     this.logger('Running leaveCommunity')
 
-    this.closeSocket()
+    await this.closeSocket()
 
     if (this.storageService) {
       this.logger('Stopping OrbitDB')
