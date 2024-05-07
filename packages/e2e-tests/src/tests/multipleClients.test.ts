@@ -151,7 +151,7 @@ describe('Multiple Clients', () => {
       const isJoinCommunityModal = await joinCommunityModal.element.isDisplayed()
       expect(isJoinCommunityModal).toBeTruthy()
       console.log({ invitationCode })
-      await joinCommunityModal.typeCommunityCode(invitationCode)
+      await joinCommunityModal.typeCommunityInviteLink(invitationCode)
       await joinCommunityModal.submit()
     })
 
@@ -220,7 +220,7 @@ describe('Multiple Clients', () => {
       const isJoinCommunityModal = await joinCommunityModal.element.isDisplayed()
       expect(isJoinCommunityModal).toBeTruthy()
       console.log({ invitationCode })
-      await joinCommunityModal.typeCommunityCode(invitationCode)
+      await joinCommunityModal.typeCommunityInviteLink(invitationCode)
       await joinCommunityModal.submit()
     })
 
@@ -426,7 +426,7 @@ describe('Multiple Clients', () => {
         const joinCommunityModal = new JoinCommunityModal(users.user1.app.driver)
         const isJoinCommunityModal = await joinCommunityModal.element.isDisplayed()
         expect(isJoinCommunityModal).toBeTruthy()
-        await joinCommunityModal.typeCommunityCode(invitationCode)
+        await joinCommunityModal.typeCommunityInviteLink(invitationCode)
         await joinCommunityModal.submit()
       })
       it('Leave community - Guest registers new username', async () => {

@@ -229,7 +229,7 @@ describe('join community', () => {
       />
     )
 
-    const input = screen.getByPlaceholderText('Invite code')
+    const input = screen.getByPlaceholderText('Invite link')
     const button = screen.getByText('Continue')
 
     await userEvent.type(input, url)

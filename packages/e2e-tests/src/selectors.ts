@@ -281,9 +281,9 @@ export class JoinCommunityModal {
     await link.click()
   }
 
-  async typeCommunityCode(code: string) {
-    const communityNameInput = await this.driver.findElement(By.xpath('//input[@placeholder="Invite code"]'))
-    await communityNameInput.sendKeys(code)
+  async typeCommunityInviteLink(inviteLink: string) {
+    const communityNameInput = await this.driver.findElement(By.xpath('//input[@placeholder="Invite link"]'))
+    await communityNameInput.sendKeys(inviteLink)
   }
 
   async submit() {
