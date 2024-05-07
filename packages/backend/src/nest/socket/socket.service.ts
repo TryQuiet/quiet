@@ -240,7 +240,7 @@ export class SocketService extends EventEmitter implements OnModuleInit {
       return
     }
 
-    return await new Promise(resolve => {
+    return new Promise(resolve => {
       this.serverIoProvider.server.listen(this.configOptions.socketIOPort, '127.0.0.1', () => {
         this.logger(`Data server running on port ${this.configOptions.socketIOPort}`)
         this.listening = true
@@ -252,6 +252,13 @@ export class SocketService extends EventEmitter implements OnModuleInit {
   public close = (): Promise<void> => {
     return new Promise(resolve => {
       this.logger(`Closing data server on port ${this.configOptions.socketIOPort}`)
+
+      if (!this.listening) {
+        this.logger('Data server is not running.')
+        resolve()
+        return
+      }
+
       this.serverIoProvider.io.close(err => {
         if (err) throw new Error(err.message)
         this.logger('Data server closed')
