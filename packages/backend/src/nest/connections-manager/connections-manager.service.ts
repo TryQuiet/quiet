@@ -290,7 +290,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     await this.socketService.init()
   }
 
-  public async leaveCommunity() {
+  public async leaveCommunity(): Promise<boolean> {
     this.logger('Running leaveCommunity')
 
     await this.closeAllServices({ saveTor: true, purgeLocalDb: true })
