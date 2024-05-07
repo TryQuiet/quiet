@@ -162,7 +162,8 @@ export async function sendCsr(store: Store) {
     userCsr,
   }
 
-  store.dispatch(identity.actions.registerCertificate(csr))
+  store.dispatch(identity.actions.addCsr(csr))
+  store.dispatch(identity.actions.saveUserCsr())
 }
 
 export async function joinCommunity(payload: JoinCommunity) {

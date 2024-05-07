@@ -1,10 +1,11 @@
 import { type Socket, applyEmitParams } from '../../../types'
 import { type PayloadAction } from '@reduxjs/toolkit'
 import { sign, loadPrivateKey, pubKeyFromCsr } from '@quiet/identity'
-import { call, select, apply, put, delay } from 'typed-redux-saga'
+import { call, select, apply, put, delay, take } from 'typed-redux-saga'
 import { arrayBufferToString } from 'pvutils'
 import { config } from '../../users/const/certFieldTypes'
 import { identitySelectors } from '../../identity/identity.selectors'
+import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
 import { messagesActions } from '../messages.slice'
 import { generateMessageId, getCurrentTime } from '../utils/message.utils'
@@ -14,27 +15,29 @@ export function* sendMessageSaga(
   socket: Socket,
   action: PayloadAction<ReturnType<typeof messagesActions.sendMessage>['payload']>
 ): Generator {
+  const generatedMessageId = yield* call(generateMessageId)
+  const id = action.payload.id || generatedMessageId
+
   const identity = yield* select(identitySelectors.currentIdentity)
-  if (!identity?.userCsr) return
+  if (!identity?.userCsr) {
+    console.error(`Failed to send message ${id} - user CSR is missing`)
+    return
+  }
+
+  const currentChannelId = yield* select(publicChannelsSelectors.currentChannelId)
+  const channelId = action.payload.channelId || currentChannelId
+  if (!channelId) {
+    console.error(`Failed to send message ${id} - channel ID is missing`)
+    return
+  }
+
+  console.log(`Sending message ${id} to channel ${channelId}`)
 
   const pubKey = yield* call(pubKeyFromCsr, identity.userCsr.userCsr)
   const keyObject = yield* call(loadPrivateKey, identity.userCsr.userKey, config.signAlg)
   const signatureArrayBuffer = yield* call(sign, action.payload.message, keyObject)
   const signature = yield* call(arrayBufferToString, signatureArrayBuffer)
-
-  const currentChannelId = yield* select(publicChannelsSelectors.currentChannelId)
-
   const createdAt = yield* call(getCurrentTime)
-
-  const generatedMessageId = yield* call(generateMessageId)
-
-  const id = action.payload.id || generatedMessageId
-
-  const channelId = action.payload.channelId || currentChannelId
-  if (!channelId) {
-    console.error(`Could not send message with id ${id}, no channel id`)
-    return
-  }
 
   const message: ChannelMessage = {
     id,
@@ -48,6 +51,7 @@ export function* sendMessageSaga(
   }
 
   // Grey out message until saved in db
+  console.log('Adding pending message status')
   yield* put(
     messagesActions.addMessagesSendingStatus({
       message: message,
@@ -65,6 +69,7 @@ export function* sendMessageSaga(
   )
 
   // Display sent message immediately, to improve user experience
+  console.log('Adding message to Redux store')
   yield* put(
     messagesActions.addMessages({
       messages: [message],
@@ -73,7 +78,10 @@ export function* sendMessageSaga(
   )
 
   const isUploadingFileMessage = action.payload.media?.cid?.includes('uploading')
-  if (isUploadingFileMessage) return // Do not broadcast message until file is uploaded
+  if (isUploadingFileMessage) {
+    console.log(`Failed to send message ${id} - file upload is in progress`)
+    return // Do not broadcast message until file is uploaded
+  }
 
   // Wait until we have subscribed to the channel
   //
@@ -82,11 +90,13 @@ export function* sendMessageSaga(
   // (in a durable way).
   while (true) {
     const subscribedChannels = yield* select(publicChannelsSelectors.subscribedChannels)
+    console.log('Subscribed channels', subscribedChannels)
     if (subscribedChannels.includes(channelId)) {
+      console.log(`Channel ${channelId} subscribed`)
       break
     }
-    console.error('Failed to send message, channel not subscribed. Retrying...')
-    yield* delay(500)
+    console.error(`Failed to send message ${id} - channel not subscribed. Waiting...`)
+    yield* take(publicChannelsActions.setChannelSubscribed)
   }
 
   yield* apply(

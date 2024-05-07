@@ -49,7 +49,7 @@ import {
 import Logger from '../common/logger'
 import { CONFIG_OPTIONS, QUIET_DIR, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
 import { Libp2pService } from '../libp2p/libp2p.service'
-import { Libp2pEvents, Libp2pNodeParams } from '../libp2p/libp2p.types'
+import { Libp2pEvents, Libp2pNodeParams, Libp2pPeerInfo } from '../libp2p/libp2p.types'
 import { LocalDbService } from '../local-db/local-db.service'
 import { LocalDBKeys } from '../local-db/local-db.types'
 import { RegistrationService } from '../registration/registration.service'
@@ -71,6 +71,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   public libp2pService: Libp2pService
   private ports: GetPorts
   isTorInit: TorInitState = TorInitState.NOT_STARTED
+  private peerInfo: Libp2pPeerInfo | undefined = undefined
 
   private readonly logger = Logger(ConnectionsManagerService.name)
   constructor(
@@ -209,7 +210,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     const network = await this.localDbService.getNetworkInfo()
 
     if (community && network) {
-      const sortedPeers = await this.localDbService.getSortedPeers(community.peerList)
+      const sortedPeers = await this.localDbService.getSortedPeers(community.peerList ?? [])
       this.logger('launchCommunityFromStorage - sorted peers', sortedPeers)
       if (sortedPeers.length > 0) {
         community.peerList = sortedPeers
@@ -244,6 +245,23 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
   public closeSocket() {
     this.serverIoProvider.io.close()
+  }
+
+  public async pause() {
+    this.logger('Pausing!')
+    this.logger('Closing socket!')
+    this.closeSocket()
+    this.logger('Pausing libp2pService!')
+    this.peerInfo = await this.libp2pService?.pause()
+    this.logger('Found the following peer info on pause: ', this.peerInfo)
+  }
+
+  public async resume() {
+    this.logger('Resuming!')
+    this.logger('Reopening socket!')
+    await this.openSocket()
+    this.logger('Dialing peers with info: ', this.peerInfo)
+    await this.libp2pService?.redialPeers(this.peerInfo)
   }
 
   // This method is only used on iOS through rn-bridge for reacting on lifecycle changes
@@ -558,6 +576,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       agent: this.socksProxyAgent,
       localAddress: this.libp2pService.createLibp2pAddress(onionAddress, peerId.toString()),
       targetPort: this.ports.libp2pHiddenService,
+      // Ignore local address
       peers: peers ? peers.slice(1) : [],
       psk: Libp2pService.generateLibp2pPSK(community.psk).fullKey,
     }
@@ -625,6 +644,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       // Update Frontend with Initialized Communities
       if (this.communityId) {
         this.serverIoProvider.io.emit(SocketActionTypes.COMMUNITY_LAUNCHED, { id: this.communityId })
+        console.log('this.libp2pService.dialedPeers', this.libp2pService.dialedPeers)
         console.log('this.libp2pService.connectedPeers', this.libp2pService.connectedPeers)
         console.log('this.libp2pservice', this.libp2pService)
         this.serverIoProvider.io.emit(
