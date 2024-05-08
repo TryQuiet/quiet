@@ -25,23 +25,26 @@ jobs:
           git lfs pull
 
       # see: https://stackoverflow.com/questions/67264212/android-emulator-crash-when-start-hvf-error-hv-error
-      - name: Create qemu entitlements
-        run: |
-          {
-            echo '<?xml version="1.0" encoding="UTF-8"?>'
-            echo '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">'
-            echo '<plist version="1.0">'
-            echo '<dict>'
-            echo '    <key>com.apple.security.hypervisor</key>'
-            echo '    <true/>'
-            echo '</dict>'
-            echo '</plist>'
-          } >> $ANDROID_HOME/emulator/qemu/darwin-aarch64/entitlements.xml
+      # - name: Create qemu entitlements
+      #   run: |
+      #     {
+      #       echo '<?xml version="1.0" encoding="UTF-8"?>'
+      #       echo '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">'
+      #       echo '<plist version="1.0">'
+      #       echo '<dict>'
+      #       echo '    <key>com.apple.security.hypervisor</key>'
+      #       echo '    <true/>'
+      #       echo '</dict>'
+      #       echo '</plist>'
+      #     } >> $ANDROID_HOME/emulator/qemu/darwin-aarch64/entitlements.xml
 
-      - name: Re-sign qemu binary
-        run: |
-          cd $ANDROID_HOME/emulator/qemu/darwin-aarch64
-          codesign -s - --entitlements entitlements.xml --force qemu-system-aarch64 --verbose
+      # - name: Re-sign qemu binary
+      #   run: |
+      #     cd $ANDROID_HOME/emulator/qemu/darwin-aarch64
+      #     codesign -s - --entitlements entitlements.xml --force qemu-system-aarch64 --verbose
+
+      - name: Write entitlements
+        run: ./scripts/write_entitlements.sh
 
       - name: Install SDK image
         run: yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install 'system-images;android-34;google_apis;arm64-v8a'
