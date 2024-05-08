@@ -1,11 +1,17 @@
 name: Detox E2E Android
 
-on: workflow_dispatch
+on:
+  push:
+    paths: 
+      - packages/mobile/**
+      - packages/backend/**
+      - packages/state-manager/**
+      - .github/workflows/e2e-android-self.yml
 
 jobs:
   detox-android:
     timeout-minutes: 25
-    runs-on: [macos-latest-xlarge]
+    runs-on: [macos-13-xlarge]
 
     steps:
       - uses: actions/checkout@v4
@@ -76,13 +82,13 @@ jobs:
       - name: Stop metro
         run: pm2 stop METRO
 
-      - name: Take screenshot
-        if: always()
-        run: | # TODO
+      # - name: Take screenshot
+      #   if: always()
+      #   run: | # TODO
 
-      - name: Upload screenshot
-        if: always()
-        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
-        with:
-          name: screenshot.png
-          path: screenshot.png
+      # - name: Upload screenshot
+      #   if: always()
+      #   uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
+      #   with:
+      #     name: screenshot.png
+      #     path: screenshot.png
