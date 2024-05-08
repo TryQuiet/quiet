@@ -54,9 +54,7 @@ export class SocketService extends EventEmitter implements OnModuleInit {
 
   async onModuleInit() {
     this.logger('init: Started')
-
     await this.init()
-
     this.logger('init: Finished')
   }
 
@@ -77,6 +75,8 @@ export class SocketService extends EventEmitter implements OnModuleInit {
   }
 
   private readonly attachListeners = () => {
+    this.logger('Attaching listeners')
+
     // Attach listeners here
     this.serverIoProvider.io.on(SocketActionTypes.CONNECTION, socket => {
       this.logger('Socket connection')

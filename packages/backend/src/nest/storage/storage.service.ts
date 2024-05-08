@@ -691,6 +691,7 @@ export class StorageService extends EventEmitter {
       return
     }
     try {
+      this.logger('Sending message:', message.id)
       await repo.db.add(message)
     } catch (e) {
       this.logger.error(
