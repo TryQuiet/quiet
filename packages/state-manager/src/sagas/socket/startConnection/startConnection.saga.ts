@@ -180,7 +180,6 @@ export function* handleActions(socket: Socket): Generator {
   try {
     const socketChannel = yield* call(subscribe, socket)
     yield takeEvery(socketChannel, function* (action) {
-      console.log('handleActions PUT', action)
       yield put(action)
     })
   } finally {

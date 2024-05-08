@@ -223,9 +223,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     }
   }
 
-  public async closeAllServices(
-    options: { saveTor: boolean; purgeLocalDb: boolean } = { saveTor: false, purgeLocalDb: false }
-  ) {
+  public async closeAllServices(options: { saveTor: boolean } = { saveTor: false }) {
     this.logger('Closing services')
 
     await this.closeSocket()
@@ -245,10 +243,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       await this.libp2pService.close()
     }
     if (this.localDbService) {
-      if (options.purgeLocalDb) {
-        this.logger('Purging local DB')
-        await this.localDbService.purge()
-      }
       this.logger('Closing local DB')
       await this.localDbService.close()
     }
@@ -293,7 +287,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   public async leaveCommunity(): Promise<boolean> {
     this.logger('Running leaveCommunity')
 
-    await this.closeAllServices({ saveTor: true, purgeLocalDb: true })
+    await this.closeAllServices({ saveTor: true })
 
     this.logger('Purging data')
     await this.purgeData()

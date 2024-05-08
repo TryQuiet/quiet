@@ -29,6 +29,7 @@ export class CertificatesRequestsStore extends EventEmitter {
         write: ['*'],
       },
     })
+    await this.store.load()
 
     this.store.events.on('write', async (_address, entry) => {
       this.logger('Added CSR to database')
@@ -40,8 +41,9 @@ export class CertificatesRequestsStore extends EventEmitter {
       this.loadedCertificateRequests()
     })
 
-    // @ts-ignore
-    await this.store.load({ fetchEntryTimeout: 15000 })
+    // // @ts-ignore
+    // await this.store.load({ fetchEntryTimeout: 15000 })
+
     this.logger('Initialized')
   }
 
