@@ -1,19 +1,3 @@
-# Change Log
-
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
-
-# [2.2.0-alpha.4](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@2.2.0-alpha.3...@quiet/mobile@2.2.0-alpha.4) (2024-05-08)
-
-
-### Bug Fixes
-
-* start websocket connection on react init ([#2481](https://github.com/TryQuiet/quiet/issues/2481)) ([d3b822b](https://github.com/TryQuiet/quiet/commit/d3b822b795e0bd2e79ca0104897b63ef93701f9a))
-
-
-
-
-
 [unreleased]
 
 # New features:
@@ -23,6 +7,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 # Fixes:
 
 * Fixes issue with reconnecting to peers on resume on iOS ([#2424](https://github.com/TryQuiet/quiet/issues/2424))
+* Update github workflows for PR gating ([#2487](https://github.com/TryQuiet/quiet/issues/2487))
 * Don't create duplicate CSRs when joining a community under certain circumstances ([#2321](https://github.com/TryQuiet/quiet/issues/2321))
 
 [2.2.0]

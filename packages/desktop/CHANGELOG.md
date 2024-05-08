@@ -1,16 +1,3 @@
-# Change Log
-
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
-
-# [2.2.0-alpha.4](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@2.2.0-alpha.3...@quiet/desktop@2.2.0-alpha.4) (2024-05-08)
-
-**Note:** Version bump only for package @quiet/desktop
-
-
-
-
-
 [unreleased]
 
 # New features:
@@ -19,6 +6,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 # Fixes:
 
+* Update github workflows for PR gating ([#2487](https://github.com/TryQuiet/quiet/issues/2487))
 * Don't create duplicate CSRs when joining a community under certain circumstances ([#2321](https://github.com/TryQuiet/quiet/issues/2321))
 
 [2.2.0]
@@ -34,9 +22,9 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 # Fixes:
 
-* Allow JPEG and GIF files as profile photos ([#2332](https://github.com/TryQuiet/quiet/issues/2332))
 * Fix issues with recreating general channel when deleted while offline ([#2334](https://github.com/TryQuiet/quiet/issues/2334))
 * Fix package.json license inconsistency
+* Fixes issue with reconnecting to peers on resume on iOS ([#2424](https://github.com/TryQuiet/quiet/issues/2424))
 
 [2.1.2]
 
