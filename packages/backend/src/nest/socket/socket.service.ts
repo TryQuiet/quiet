@@ -203,9 +203,6 @@ export class SocketService extends EventEmitter implements OnModuleInit {
 
     // Ensure the underlying connections get closed. See:
     // https://github.com/socketio/socket.io/issues/1602
-    //
-    // I also tried `this.serverIoProvider.io.disconnectSockets(true)`
-    // which didn't work for me.
     this.serverIoProvider.server.on('connection', conn => {
       this.sockets.add(conn)
       conn.on('close', () => {
@@ -225,8 +222,12 @@ export class SocketService extends EventEmitter implements OnModuleInit {
 
   // Ensure the underlying connections get closed. See:
   // https://github.com/socketio/socket.io/issues/1602
+  //
+  // I also tried `this.serverIoProvider.io.disconnectSockets(true)`
+  // which didn't work for me, but we still call it.
   public closeSockets = () => {
     this.logger('Disconnecting sockets')
+    this.serverIoProvider.io.disconnectSockets(true)
     this.sockets.forEach(s => s.destroy())
   }
 
@@ -269,7 +270,6 @@ export class SocketService extends EventEmitter implements OnModuleInit {
         resolve()
       })
 
-      this.serverIoProvider.io.disconnectSockets(true)
       this.closeSockets()
     })
   }
