@@ -41,7 +41,6 @@ export class CertificatesStore extends EventEmitter {
         write: ['*'],
       },
     })
-    await this.store.load()
 
     this.store.events.on('ready', async () => {
       this.logger('Loaded certificates to memory')
@@ -59,8 +58,7 @@ export class CertificatesStore extends EventEmitter {
       await this.loadedCertificates()
     })
 
-    // // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
-    // await this.store.load({ fetchEntryTimeout: 15000 })
+    await this.store.load()
 
     this.logger('Initialized')
   }
@@ -72,7 +70,9 @@ export class CertificatesStore extends EventEmitter {
   }
 
   public async close() {
+    this.logger('Closing certificates DB')
     await this.store?.close()
+    this.logger('Closed certificates DB')
   }
 
   public getAddress() {
@@ -154,8 +154,6 @@ export class CertificatesStore extends EventEmitter {
       return []
     }
 
-    // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
-    await this.store.load({ fetchEntryTimeout: 15000 })
     const allCertificates = this.store
       .iterator({ limit: -1 })
       .collect()

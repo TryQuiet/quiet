@@ -250,7 +250,9 @@ export class StorageService extends EventEmitter {
 
   public async stopOrbitDb() {
     try {
+      this.logger('Closing channels DB')
       await this.channels?.close()
+      this.logger('Closed channels DB')
     } catch (e) {
       this.logger.error('Error closing channels db', e)
     }
@@ -351,8 +353,6 @@ export class StorageService extends EventEmitter {
 
   public async loadAllChannels() {
     this.logger('Getting all channels')
-    // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
-    await this.channels.load({ fetchEntryTimeout: 2000 })
     this.emit(StorageEvents.CHANNELS_STORED, {
       channels: this.channels.all as unknown as { [key: string]: PublicChannel },
     })
@@ -375,8 +375,6 @@ export class StorageService extends EventEmitter {
     this.channels.events.on('replicated', async () => {
       this.logger('REPLICATED: Channels')
       this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CHANNELS_STORED)
-      // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
-      await this.channels.load({ fetchEntryTimeout: 2000 })
 
       const channels = Object.values(this.channels.all)
 
@@ -397,8 +395,7 @@ export class StorageService extends EventEmitter {
       })
     })
 
-    // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
-    await this.channels.load({ fetchEntryTimeout: 1000 })
+    await this.channels.load()
     this.logger('Channels count:', Object.keys(this.channels.all).length)
     this.logger('Channels names:', Object.keys(this.channels.all))
     Object.values(this.channels.all).forEach(async (channel: PublicChannel) => {
@@ -543,6 +540,7 @@ export class StorageService extends EventEmitter {
         }
       })
 
+      // FIXME: load is called twice for channel stores
       await db.load()
       repo.eventsAttached = true
     }
@@ -600,8 +598,7 @@ export class StorageService extends EventEmitter {
 
     this.publicChannelsRepos.set(channelId, { db, eventsAttached: false })
     this.logger(`Set ${channelId} to local channels`)
-    // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
-    await db.load({ fetchEntryTimeout: 2000 })
+    await db.load()
     this.logger(`Created channel ${channelId}`)
     await this.subscribeToPubSub([StorageService.dbAddress(db.address)])
 
@@ -611,8 +608,6 @@ export class StorageService extends EventEmitter {
   public async deleteChannel(payload: { channelId: string; ownerPeerId: string }) {
     console.log('deleting channel storage', payload)
     const { channelId, ownerPeerId } = payload
-    // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
-    await this.channels.load({ fetchEntryTimeout: 15000 })
     const channel = this.channels.get(channelId)
     if (!this.peerId) {
       this.logger('deleteChannel - peerId is null')
@@ -635,18 +630,8 @@ export class StorageService extends EventEmitter {
         eventsAttached: false,
       }
     }
-    await repo.db.load()
-    // const allEntries = this.getAllEventLogRawEntries(repo.db)
     await repo.db.close()
     await repo.db.drop()
-    // const hashes = allEntries.map(e => CID.parse(e.hash))
-    // const files = allEntries
-    //   .map(e => {
-    //     return e.payload.value.media
-    //   })
-    //   .filter(isDefined)
-    // await this.deleteChannelFiles(files)
-    // await this.deleteChannelMessages(hashes)
     this.publicChannelsRepos.delete(channelId)
     return { channelId: payload.channelId }
   }
@@ -688,6 +673,7 @@ export class StorageService extends EventEmitter {
       return
     }
     try {
+      this.logger('Sending message:', message.id)
       await repo.db.add(message)
     } catch (e) {
       this.logger.error(

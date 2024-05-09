@@ -29,6 +29,7 @@ export class CertificatesRequestsStore extends EventEmitter {
         write: ['*'],
       },
     })
+    await this.store.load()
 
     this.store.events.on('write', async (_address, entry) => {
       this.logger('Added CSR to database')
@@ -40,8 +41,6 @@ export class CertificatesRequestsStore extends EventEmitter {
       this.loadedCertificateRequests()
     })
 
-    // @ts-ignore
-    await this.store.load({ fetchEntryTimeout: 15000 })
     this.logger('Initialized')
   }
 
@@ -52,9 +51,9 @@ export class CertificatesRequestsStore extends EventEmitter {
   }
 
   public async close() {
-    this.logger('Closing...')
+    this.logger('Closing certificate requests DB')
     await this.store?.close()
-    this.logger('Closed')
+    this.logger('Closed certificate requests DB')
   }
 
   public getAddress() {
@@ -91,8 +90,6 @@ export class CertificatesRequestsStore extends EventEmitter {
 
   public async getCsrs() {
     const filteredCsrsMap: Map<string, string> = new Map()
-    // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
-    await this.store.load({ fetchEntryTimeout: 15000 })
     const allEntries = this.store
       .iterator({ limit: -1 })
       .collect()

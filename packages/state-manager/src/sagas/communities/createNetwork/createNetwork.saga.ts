@@ -21,11 +21,16 @@ export function* createNetworkSaga(
   socket: Socket,
   action: PayloadAction<ReturnType<typeof communitiesActions.createNetwork>['payload']>
 ) {
+  console.log('Creating network')
+
   const payload = action.payload
   log(payload)
+
   // Community IDs are only local identifiers
+  console.log('Generating community ID')
   const id = yield* call(generateId)
 
+  console.log('Emitting CREATE_NETWORK')
   const network: NetworkInfo = yield* apply(
     socket,
     socket.emitWithAck,
@@ -42,6 +47,7 @@ export function* createNetworkSaga(
     const notBeforeDate = new Date(Date.UTC(2010, 11, 28, 10, 10, 10))
     const notAfterDate = new Date(Date.UTC(2030, 11, 28, 10, 10, 10))
 
+    console.log('Generating CA')
     CA = yield* call(
       createRootCA,
       new Time({ type: 0, value: notBeforeDate }),
@@ -71,6 +77,7 @@ export function* createNetworkSaga(
     }
   }
 
+  console.log('Adding new community', id)
   yield* put(communitiesActions.addNewCommunity(community))
   yield* put(communitiesActions.setCurrentCommunity(id))
 
@@ -85,5 +92,8 @@ export function* createNetworkSaga(
     joinTimestamp: null,
   }
 
+  console.log('Adding new identity', identity.id)
   yield* put(identityActions.addNewIdentity(identity))
+
+  console.log('Network created')
 }
