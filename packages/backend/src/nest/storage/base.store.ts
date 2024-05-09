@@ -2,8 +2,11 @@ import KeyValueStore from 'orbit-db-kvstore'
 import Store from 'orbit-db-store'
 import EventStore from 'orbit-db-eventstore'
 import { EventEmitter } from 'events'
+import Logger from '../common/logger'
 
-export default abstract class StoreBase<V, S extends KeyValueStore<V> | EventStore<V>> extends EventEmitter {
+const logger = Logger('store')
+
+abstract class StoreBase<V, S extends KeyValueStore<V> | EventStore<V>> extends EventEmitter {
   protected abstract store: S | undefined
 
   getStore() {
@@ -18,10 +21,22 @@ export default abstract class StoreBase<V, S extends KeyValueStore<V> | EventSto
   }
 
   async close(): Promise<void> {
+    logger('Closing', this.getAddress())
     await this.store?.close()
   }
 
   abstract init(): Promise<void>
-  abstract addEntry(entry: V): Promise<V | undefined>
   abstract clean(): void
+}
+
+export abstract class KeyValueStoreBase<V> extends StoreBase<V, KeyValueStore<V>> {
+  protected store: KeyValueStore<V> | undefined
+  abstract setEntry(key: string, value: V): Promise<V>
+  abstract getEntry(key?: string): V | null
+}
+
+export abstract class EventStoreBase<V> extends StoreBase<V, EventStore<V>> {
+  protected store: EventStore<V> | undefined
+  abstract addEntry(value: V): Promise<string>
+  abstract getEntries(): Promise<V[]>
 }

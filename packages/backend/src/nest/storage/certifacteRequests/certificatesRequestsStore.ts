@@ -8,12 +8,11 @@ import { UserCsrData } from '../../registration/registration.functions'
 import { Injectable } from '@nestjs/common'
 import { OrbitDb } from '../orbitDb/orbitDb.service'
 import Logger from '../../common/logger'
-import StoreBase from '../base.store'
+import { EventStoreBase } from '../base.store'
 
 @Injectable()
-export class CertificatesRequestsStore extends StoreBase<string, EventStore<string>> {
+export class CertificatesRequestsStore extends EventStoreBase<string> {
   protected readonly logger = Logger(CertificatesRequestsStore.name)
-  protected store: EventStore<string> | undefined
 
   constructor(private readonly orbitDbService: OrbitDb) {
     super()
@@ -46,7 +45,7 @@ export class CertificatesRequestsStore extends StoreBase<string, EventStore<stri
 
   public async loadedCertificateRequests() {
     this.emit(StorageEvents.CSRS_STORED, {
-      csrs: await this.getCsrs(),
+      csrs: await this.getEntries(),
     })
   }
 
@@ -79,7 +78,7 @@ export class CertificatesRequestsStore extends StoreBase<string, EventStore<stri
     return validationErrors
   }
 
-  public async getCsrs() {
+  public async getEntries() {
     const filteredCsrsMap: Map<string, string> = new Map()
     // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
     await this.store.load({ fetchEntryTimeout: 15000 })
@@ -115,7 +114,7 @@ export class CertificatesRequestsStore extends StoreBase<string, EventStore<stri
   }
 
   public clean() {
-    // FIXME: Add correct typings on object fields.
+    this.logger('Cleaning certificates requests store')
     this.store = undefined
   }
 }

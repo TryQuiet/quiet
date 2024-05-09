@@ -54,8 +54,6 @@ import { CertificatesRequestsStore } from './certifacteRequests/certificatesRequ
 import { OrbitDb } from './orbitDb/orbitDb.service'
 import { CommunityMetadataStore } from './communityMetadata/communityMetadata.store'
 import { UserProfileStore } from './userProfile/userProfile.store'
-import StoreBase from './base.store'
-import Store from 'orbit-db-store'
 
 @Injectable()
 export class StorageService extends EventEmitter {
@@ -310,7 +308,7 @@ export class StorageService extends EventEmitter {
   }
 
   public async updateCommunityMetadata(communityMetadata: CommunityMetadata): Promise<CommunityMetadata | undefined> {
-    const meta = await this.communityMetadataStore?.addEntry(communityMetadata)
+    const meta = await this.communityMetadataStore?.setEntry(communityMetadata.id, communityMetadata)
     if (meta) {
       this.certificatesStore.updateMetadata(meta)
     }
@@ -347,7 +345,7 @@ export class StorageService extends EventEmitter {
 
   public async loadAllCertificates() {
     this.logger('Loading all certificates')
-    return await this.certificatesStore.loadAllCertificates()
+    return await this.certificatesStore.getEntries()
   }
 
   public async loadAllChannels() {
@@ -749,8 +747,8 @@ export class StorageService extends EventEmitter {
    * Retrieve all users (using certificates and CSRs to determine users)
    */
   public async getAllUsers(): Promise<UserData[]> {
-    const csrs = await this.certificatesRequestsStore.getCsrs()
-    const certs = await this.certificatesStore.getCertificates()
+    const csrs = await this.certificatesRequestsStore.getEntries()
+    const certs = await this.certificatesStore.getEntries()
     const allUsersByKey: Record<string, UserData> = {}
 
     this.logger(`Retrieving all users. CSRs count: ${csrs.length} Certificates count: ${certs.length}`)
@@ -836,7 +834,7 @@ export class StorageService extends EventEmitter {
   }
 
   public async addUserProfile(profile: UserProfile) {
-    await this.userProfileStore.addEntry(profile)
+    await this.userProfileStore.setEntry(profile.pubKey, profile)
   }
 
   public async checkIfFileExist(filepath: string): Promise<boolean> {

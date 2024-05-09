@@ -82,9 +82,9 @@ describe('CertificatesRequestsStore', () => {
       await new Promise<void>(resolve => setTimeout(() => resolve(), 500))
     }
 
-    await certificatesRequestsStore.getCsrs()
+    await certificatesRequestsStore.getEntries()
 
-    const filteredCsrs = await certificatesRequestsStore.getCsrs()
+    const filteredCsrs = await certificatesRequestsStore.getEntries()
 
     expect(filteredCsrs.length).toEqual(allCsrs.length - 1)
     expect(filteredCsrs).toEqual([

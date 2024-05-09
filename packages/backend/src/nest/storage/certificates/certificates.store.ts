@@ -15,12 +15,11 @@ import { CertificateData } from '../../registration/registration.functions'
 import { OrbitDb } from '../orbitDb/orbitDb.service'
 import { Injectable } from '@nestjs/common'
 import Logger from '../../common/logger'
-import StoreBase from '../base.store'
+import { EventStoreBase } from '../base.store'
 
 @Injectable()
-export class CertificatesStore extends StoreBase<string, EventStore<string>> {
+export class CertificatesStore extends EventStoreBase<string> {
   protected readonly logger = Logger(CertificatesStore.name)
-  protected store: EventStore<string> | undefined
 
   private metadata: CommunityMetadata | undefined
   private filteredCertificatesMapping: Map<string, Partial<UserData>>
@@ -66,7 +65,7 @@ export class CertificatesStore extends StoreBase<string, EventStore<string>> {
 
   public async loadedCertificates() {
     this.emit(StorageEvents.CERTIFICATES_STORED, {
-      certificates: await this.getCertificates(),
+      certificates: await this.getEntries(),
     })
   }
 
@@ -74,11 +73,6 @@ export class CertificatesStore extends StoreBase<string, EventStore<string>> {
     this.logger('Adding user certificate')
     await this.store?.add(certificate)
     return certificate
-  }
-
-  public async loadAllCertificates() {
-    const certificates = await this.getCertificates()
-    return certificates
   }
 
   public updateMetadata(metadata: CommunityMetadata) {
@@ -138,7 +132,7 @@ export class CertificatesStore extends StoreBase<string, EventStore<string>> {
    * as specified in the comment section of
    * https://github.com/TryQuiet/quiet/issues/1899
    */
-  public async getCertificates(): Promise<string[]> {
+  public async getEntries(): Promise<string[]> {
     if (!this.store) {
       return []
     }
@@ -190,14 +184,14 @@ export class CertificatesStore extends StoreBase<string, EventStore<string>> {
     if (cache) return cache
 
     // Perform cryptographic operations and populate cache
-    await this.getCertificates()
+    await this.getEntries()
 
     // Return desired data from updated cache
     return this.usernameMapping.get(pubkey)
   }
 
   public clean() {
-    // FIXME: Add correct typings on object fields.
+    this.logger('Cleaning certificates store')
     this.store = undefined
     this.metadata = undefined
     this.filteredCertificatesMapping = new Map()

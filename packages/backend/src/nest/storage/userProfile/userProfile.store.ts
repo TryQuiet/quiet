@@ -16,14 +16,12 @@ import { OrbitDb } from '../orbitDb/orbitDb.service'
 import { StorageEvents } from '../storage.types'
 import { KeyValueIndex } from '../orbitDb/keyValueIndex'
 import { validatePhoto } from './userProfile.utils'
-import StoreBase from '../base.store'
+import { KeyValueStoreBase } from '../base.store'
 
 const logger = createLogger('UserProfileStore')
 
 @Injectable()
-export class UserProfileStore extends StoreBase<UserProfile, KeyValueStore<UserProfile>> {
-  protected store: KeyValueStore<UserProfile> | undefined
-
+export class UserProfileStore extends KeyValueStoreBase<UserProfile> {
   // Copying OrbitDB by using dag-cbor/sha256 for converting the
   // profile to a byte array for signing:
   // https://github.com/orbitdb/orbitdb/blob/3eee148510110a7b698036488c70c5c78f868cd9/src/oplog/entry.js#L75-L76
@@ -80,19 +78,23 @@ export class UserProfileStore extends StoreBase<UserProfile, KeyValueStore<UserP
     await this.store.load({ fetchEntryTimeout: 15000 })
   }
 
-  public async addEntry(userProfile: UserProfile) {
+  public getEntry(key: string): UserProfile {
+    throw new Error('Method not implemented.')
+  }
+
+  public async setEntry(key: string, userProfile: UserProfile) {
     logger('Adding user profile')
     try {
       if (!UserProfileStore.validateUserProfile(userProfile)) {
         // TODO: Send validation errors to frontend or replicate
         // validation on frontend?
-        logger.error('Failed to add user profile')
-        return
+        logger.error('Failed to add user profile', userProfile.pubKey)
+        throw new Error('Failed to add user profile')
       }
-      await this.getStore().put(userProfile.pubKey, userProfile)
+      await this.getStore().put(key, userProfile)
     } catch (err) {
       logger.error('Failed to add user profile', err)
-      return
+      throw new Error('Failed to add user profile')
     }
     return userProfile
   }

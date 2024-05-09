@@ -135,7 +135,7 @@ describe('CertificatesStore', () => {
 
     await certificatesStore.addEntry(certificate)
 
-    const certificates = await certificatesStore.getCertificates()
+    const certificates = await certificatesStore.getEntries()
 
     expect(certificates).toContain(certificate)
   })
@@ -148,7 +148,7 @@ describe('CertificatesStore', () => {
 
     await certificatesStore.addEntry(certificate)
 
-    const certificates = await certificatesStore.getCertificates()
+    const certificates = await certificatesStore.getEntries()
 
     expect(certificates).not.toContain(certificate)
   })
@@ -159,9 +159,9 @@ describe('CertificatesStore', () => {
 
     certificatesStore.updateMetadata(communityMetadata)
 
-    jest.spyOn(certificatesStore, 'getCertificates').mockResolvedValue([certificate1, certificate2])
+    jest.spyOn(certificatesStore, 'getEntries').mockResolvedValue([certificate1, certificate2])
 
-    const certificates = await certificatesStore.loadAllCertificates()
+    const certificates = await certificatesStore.getEntries()
 
     expect(certificates).toContain(certificate1)
     expect(certificates).toContain(certificate2)
