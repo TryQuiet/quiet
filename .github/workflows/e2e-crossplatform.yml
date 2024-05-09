@@ -8,6 +8,7 @@ on:
       - packages/state-manager/**
       - packages/identity/**
       - packages/common/**
+      - .github/workflows/e2e**
 
 jobs:
   mac:

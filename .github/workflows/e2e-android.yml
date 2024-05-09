@@ -10,8 +10,8 @@ on:
 
 jobs:
   detox-android:
-    timeout-minutes: 10
-    runs-on: [self-hosted, macOS, ARM64, android]
+    timeout-minutes: 25
+    runs-on: [macos-14-xlarge]
 
     steps:
       - uses: actions/checkout@v4
