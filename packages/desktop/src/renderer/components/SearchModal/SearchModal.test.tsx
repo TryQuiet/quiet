@@ -168,7 +168,7 @@ describe('Search Modal', () => {
                               data-testid="searchChannelInput"
                             >
                               <div
-                                class="MuiInputBase-root MuiInput-root MuiInput-underline MuiInputBase-colorPrimary MuiInputBase-fullWidth Mui-focused MuiInputBase-formControl css-o4kyh4-MuiInputBase-root-MuiInput-root"
+                                class="MuiInputBase-root MuiInput-root MuiInput-underline MuiInputBase-colorPrimary MuiInputBase-fullWidth Mui-focused MuiInputBase-formControl css-1hw1r9z-MuiInputBase-root-MuiInput-root"
                               >
                                 <input
                                   aria-invalid="false"
@@ -182,7 +182,7 @@ describe('Search Modal', () => {
                               </div>
                             </div>
                             <p
-                              class="MuiTypography-root MuiTypography-body2 css-xseqde-MuiTypography-root"
+                              class="MuiTypography-root MuiTypography-body2 css-6gbt2m-MuiTypography-root"
                             />
                           </div>
                           <img

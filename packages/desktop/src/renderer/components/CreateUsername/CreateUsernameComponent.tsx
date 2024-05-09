@@ -105,7 +105,7 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
   },
 
   [`& .${classes.warrningIcon}`]: {
-    color: '#FFCC00',
+    color: theme.palette.warning.main,
   },
 
   [`& .${classes.warrningMessage}`]: {
@@ -130,7 +130,7 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
   [`& .${classes.inputLabel}`]: {
     marginTop: 24,
     marginBottom: 2,
-    color: theme.palette.colors.black30,
+    color: theme.palette.colors.gray70,
   },
 
   [`& .${classes.marginMedium}`]: {

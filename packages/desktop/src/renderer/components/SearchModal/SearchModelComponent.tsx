@@ -95,7 +95,7 @@ const StyledModalContent = styled(Grid)(({ theme }) => ({
     },
   },
   [`& .${classes.recentChannels}`]: {
-    color: '#7F7F7F',
+    color: theme.palette.colors.gray50,
   },
   [`& .${classes.inputWrapper}`]: {
     display: 'flex',

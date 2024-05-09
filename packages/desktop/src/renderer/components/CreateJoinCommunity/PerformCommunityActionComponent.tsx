@@ -99,7 +99,7 @@ const StyledModalContent = styled(Grid)(({ theme }) => ({
   },
 
   [`& .${classes.warrningIcon}`]: {
-    color: '#FFCC00',
+    color: theme.palette.warning.main,
   },
 
   [`& .${classes.warrningMessage}`]: {

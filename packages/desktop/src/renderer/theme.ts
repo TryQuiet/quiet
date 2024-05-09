@@ -78,7 +78,13 @@ export default createTheme({
       main: '#E42656',
       dark: '#C41743',
     },
-    // TO BE ADDED IF NEEDED: Success, Warning, Error, Neutral
+    error: {
+      main: '#D13135',
+    },
+    warning: {
+      main: '#FFCC00',
+    },
+    // TO BE ADDED IF NEEDED: Success, Warning, Neutral
     colors: {
       // Misc colors. For primary / secondary brand, text, and background colors, use those objects
       // For canonical colors, see: https://www.figma.com/file/0j7Nna9zWmfOSNmRmQK1Uh/Quiet-Design-Library?type=design&node-id=2667-0&mode=design&t=i0cXovHohRKxWGaA-0
@@ -94,7 +100,6 @@ export default createTheme({
       red: '#FF0000', // Replace with D13135 ?
       hotRed: '#E42656', // Replaced by theme.palette.secondary.main?
       hotPink: '#E42656', // Replaced by theme.palette.secondary.main?
-      error: '#D13135', // Need to align with Figma and replace with theme.palette.error.main
       // Grays (including white and black)
       white: '#FFFFFF',
       trueBlack: '#000000', // To be replaced with text color and border color
@@ -106,7 +111,7 @@ export default createTheme({
       gray30: '#FAFAFA', // Unused and not aligned with Figma
       gray40: '#999999',
       gray50: '#7F7F7F',
-      black30: '#4C4C4C', // Rename to gray70
+      gray70: '#4C4C4C',
       // Border colors
       border01: '#F0F0F0',
       border02: '#B3B3B3',

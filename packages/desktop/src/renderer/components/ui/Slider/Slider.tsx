@@ -47,7 +47,7 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
   },
 
   [`& .${classes.track}`]: {
-    backgroundColor: '#979797',
+    backgroundColor: theme.palette.colors.gray40,
     height: 0.5,
     opacity: 1,
   },
