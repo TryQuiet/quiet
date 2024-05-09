@@ -51,7 +51,7 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
       // Get the next event.
       const event = this.registrationEvents.shift()
       if (event) {
-        this.logger('Processing registration event', event)
+        this.logger('Processing registration event')
         // Event processing in progress
         this.registrationEventInProgress = true
 

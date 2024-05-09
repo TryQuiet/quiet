@@ -99,6 +99,7 @@ export function* sendMessageSaga(
     yield* take(publicChannelsActions.setChannelSubscribed)
   }
 
+  console.log('Emitting SEND_MESSAGE', id)
   yield* apply(
     socket,
     socket.emit,

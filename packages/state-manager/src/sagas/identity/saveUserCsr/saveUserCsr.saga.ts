@@ -7,8 +7,14 @@ export function* saveUserCsrSaga(socket: Socket): Generator {
   console.log('Saving user CSR')
 
   const identity = yield* select(identitySelectors.currentIdentity)
-  if (!identity?.userCsr) {
-    console.error('Cannot save user csr to backend, no userCsr')
+
+  if (!identity) {
+    console.error('Cannot save user CSR to backend, no identity')
+    return
+  }
+
+  if (!identity.userCsr) {
+    console.error('Cannot save user CSR to backend, no userCsr', identity)
     return
   }
 
@@ -16,6 +22,6 @@ export function* saveUserCsrSaga(socket: Socket): Generator {
     csr: identity.userCsr?.userCsr,
   }
 
-  console.log(`Send ${SocketActionTypes.ADD_CSR}`)
+  console.log('Emitting ADD_CSR')
   yield* apply(socket, socket.emit, applyEmitParams(SocketActionTypes.ADD_CSR, payload))
 }

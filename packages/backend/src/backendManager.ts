@@ -109,12 +109,12 @@ export const runBackendMobile = async () => {
     { logger: ['warn', 'error', 'log', 'debug', 'verbose'] }
   )
 
-  rn_bridge.channel.on('close', async () => {
+  rn_bridge.channel.on('close', () => {
     const connectionsManager = app.get<ConnectionsManagerService>(ConnectionsManagerService)
-    await connectionsManager.pause()
+    connectionsManager.pause()
   })
 
-  rn_bridge.channel.on('open', async (msg: OpenServices) => {
+  rn_bridge.channel.on('open', (msg: OpenServices) => {
     const connectionsManager = app.get<ConnectionsManagerService>(ConnectionsManagerService)
     const torControl = app.get<TorControl>(TorControl)
     const proxyAgent = app.get<{ proxy: { port: string } }>(SOCKS_PROXY_AGENT)
@@ -123,7 +123,7 @@ export const runBackendMobile = async () => {
     torControl.torControlParams.auth.value = msg.authCookie
     proxyAgent.proxy.port = msg.httpTunnelPort
 
-    await connectionsManager.resume()
+    connectionsManager.resume()
   })
 }
 

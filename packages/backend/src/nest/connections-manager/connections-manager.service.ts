@@ -224,6 +224,10 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   }
 
   public async closeAllServices(options: { saveTor: boolean } = { saveTor: false }) {
+    this.logger('Closing services')
+
+    await this.closeSocket()
+
     if (this.tor && !options.saveTor) {
       this.logger('Killing tor')
       await this.tor.kill()
@@ -231,31 +235,26 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       this.logger('Saving tor')
     }
     if (this.storageService) {
-      this.logger('Stopping orbitdb')
+      this.logger('Stopping OrbitDB')
       await this.storageService?.stopOrbitDb()
-    }
-    if (this.serverIoProvider?.io) {
-      this.logger('Closing socket server')
-      this.serverIoProvider.io.close()
-    }
-    if (this.localDbService) {
-      this.logger('Closing local storage')
-      await this.localDbService.close()
     }
     if (this.libp2pService) {
       this.logger('Stopping libp2p')
       await this.libp2pService.close()
     }
+    if (this.localDbService) {
+      this.logger('Closing local DB')
+      await this.localDbService.close()
+    }
   }
 
-  public closeSocket() {
-    this.serverIoProvider.io.close()
+  public async closeSocket() {
+    await this.socketService.close()
   }
 
   public async pause() {
     this.logger('Pausing!')
-    this.logger('Closing socket!')
-    this.closeSocket()
+    await this.closeSocket()
     this.logger('Pausing libp2pService!')
     this.peerInfo = await this.libp2pService?.pause()
     this.logger('Found the following peer info on pause: ', this.peerInfo)
@@ -263,7 +262,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
   public async resume() {
     this.logger('Resuming!')
-    this.logger('Reopening socket!')
     await this.openSocket()
     this.logger('Attempting to redial peers!')
     if (this.peerInfo && (this.peerInfo?.connected.length !== 0 || this.peerInfo?.dialed.length !== 0)) {
@@ -289,20 +287,13 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   public async leaveCommunity(): Promise<boolean> {
     this.logger('Running leaveCommunity')
 
-    this.logger('Resetting tor')
-    this.tor.resetHiddenServices()
-
-    this.logger('Closing the socket')
-    this.closeSocket()
-
-    this.logger('Purging local DB')
-    await this.localDbService.purge()
-
-    this.logger('Closing services')
     await this.closeAllServices({ saveTor: true })
 
     this.logger('Purging data')
     await this.purgeData()
+
+    this.logger('Resetting Tor')
+    this.tor.resetHiddenServices()
 
     this.logger('Resetting state')
     await this.resetState()
