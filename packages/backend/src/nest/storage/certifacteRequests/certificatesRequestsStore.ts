@@ -41,9 +41,6 @@ export class CertificatesRequestsStore extends EventEmitter {
       this.loadedCertificateRequests()
     })
 
-    // // @ts-ignore
-    // await this.store.load({ fetchEntryTimeout: 15000 })
-
     this.logger('Initialized')
   }
 
@@ -93,8 +90,6 @@ export class CertificatesRequestsStore extends EventEmitter {
 
   public async getCsrs() {
     const filteredCsrsMap: Map<string, string> = new Map()
-    // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
-    await this.store.load({ fetchEntryTimeout: 15000 })
     const allEntries = this.store
       .iterator({ limit: -1 })
       .collect()
