@@ -88,12 +88,12 @@ export class UserProfileStore extends KeyValueStoreBase<UserProfile> {
       if (!UserProfileStore.validateUserProfile(userProfile)) {
         // TODO: Send validation errors to frontend or replicate
         // validation on frontend?
-        logger.error('Failed to add user profile', userProfile.pubKey)
+        logger.error('Failed to add user profile, profile is invalid', userProfile.pubKey)
         throw new Error('Failed to add user profile')
       }
       await this.getStore().put(key, userProfile)
     } catch (err) {
-      logger.error('Failed to add user profile', err)
+      logger.error('Failed to add user profile', userProfile.pubKey, err)
       throw new Error('Failed to add user profile')
     }
     return userProfile
@@ -156,6 +156,7 @@ export class UserProfileStore extends KeyValueStoreBase<UserProfile> {
   }
 
   clean(): void {
+    logger('Cleaning user profiles store')
     this.store = undefined
   }
 }
