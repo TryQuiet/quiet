@@ -6,6 +6,8 @@
 
 # Fixes:
 
+* Fixes issue with reconnecting to peers on resume on iOS ([#2424](https://github.com/TryQuiet/quiet/issues/2424))
+
 [2.2.0]
 
 # New features:

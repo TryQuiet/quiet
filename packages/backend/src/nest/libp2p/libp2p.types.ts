@@ -17,3 +17,13 @@ export interface Libp2pNodeParams {
   peers: string[]
   psk: Uint8Array
 }
+
+export type Libp2pPeerInfo = {
+  dialed: string[]
+  connected: string[]
+}
+
+export type Libp2pConnectedPeer = {
+  address: string
+  connectedAtSeconds: number
+}
