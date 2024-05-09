@@ -10,7 +10,6 @@ import {
   takeLeading,
   takeEvery,
   FixedTask,
-  delay,
   apply,
 } from 'typed-redux-saga'
 import { PayloadAction } from '@reduxjs/toolkit'
@@ -26,16 +25,6 @@ export function* startConnectionSaga(
 ): Generator {
   const isAlreadyConnected = yield* select(initSelectors.isWebsocketConnected)
   if (isAlreadyConnected) return
-
-  while (true) {
-    const isCryptoEngineInitialized = yield* select(initSelectors.isCryptoEngineInitialized)
-    console.log('WEBSOCKET', 'Waiting for crypto engine to initialize')
-    if (!isCryptoEngineInitialized) {
-      yield* delay(500)
-    } else {
-      break
-    }
-  }
 
   const { dataPort, socketIOSecret } = action.payload
 
@@ -74,8 +63,8 @@ function* setConnectedSaga(socket: Socket): Generator {
   yield* apply(socket, socket.emit, [SocketActionTypes.START])
 
   // Handle suspending current connection
-  const suspendAction = yield* take(initActions.suspendWebsocketConnection)
-  yield* call(cancelRootTaskSaga, task, suspendAction)
+  yield* take(initActions.suspendWebsocketConnection)
+  yield* call(cancelRootTaskSaga, task)
 }
 
 function* handleSocketLifecycleActions(socket: Socket, socketIOData: WebsocketConnectionPayload): Generator {
