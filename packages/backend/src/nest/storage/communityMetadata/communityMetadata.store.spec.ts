@@ -121,11 +121,9 @@ describe('CommmunityMetadataStore', () => {
         ...metaValid,
         rootCa: 'Something invalid!',
       }
-      const ret = await communityMetadataStore.setEntry(metaInvalid.id, metaInvalid)
+      expect(communityMetadataStore.setEntry(metaInvalid.id, metaInvalid)).rejects.toThrow()
       const meta = communityMetadataStore.getEntry()
-
-      expect(ret).toStrictEqual(undefined)
-      expect(meta).toEqual(undefined)
+      expect(meta).toEqual(null)
     })
   })
 
