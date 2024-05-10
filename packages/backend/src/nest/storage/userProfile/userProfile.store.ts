@@ -8,12 +8,11 @@ import * as Block from 'multiformats/block'
 import * as dagCbor from '@ipld/dag-cbor'
 import { stringToArrayBuffer } from 'pvutils'
 
-import { Logger } from '@quiet/logger'
 import { NoCryptoEngineError, UserProfile } from '@quiet/types'
 import { keyObjectFromString, verifySignature } from '@quiet/identity'
 import { constructPartial } from '@quiet/common'
 
-import createLogger from '../../common/logger'
+import { createLogger } from '../../common/logger'
 import { OrbitDb } from '../orbitDb/orbitDb.service'
 import { StorageEvents } from '../storage.types'
 import { KeyValueIndex } from '../orbitDb/keyValueIndex'
@@ -37,7 +36,7 @@ export class UserProfileStore extends EventEmitter {
   }
 
   public async init() {
-    logger('Initializing user profiles key/value store')
+    logger.info('Initializing user profiles key/value store')
 
     this.store = await this.orbitDbService.orbitDb.keyvalue<UserProfile>('user-profiles', {
       replicate: false,
@@ -57,21 +56,21 @@ export class UserProfileStore extends EventEmitter {
     })
 
     this.store.events.on('write', (_address, entry) => {
-      logger('Saved user profile locally')
+      logger.info('Saved user profile locally')
       this.emit(StorageEvents.USER_PROFILES_STORED, {
         profiles: [entry.payload.value],
       })
     })
 
     this.store.events.on('ready', async () => {
-      logger('Loaded user profiles to memory')
+      logger.info('Loaded user profiles to memory')
       this.emit(StorageEvents.USER_PROFILES_STORED, {
         profiles: this.getUserProfiles(),
       })
     })
 
     this.store.events.on('replicated', async () => {
-      logger('Replicated user profiles')
+      logger.info('Replicated user profiles')
       this.emit(StorageEvents.USER_PROFILES_STORED, {
         profiles: this.getUserProfiles(),
       })
@@ -85,13 +84,13 @@ export class UserProfileStore extends EventEmitter {
   }
 
   public async close() {
-    logger('Closing user profile DB')
+    logger.info('Closing user profile DB')
     await this.store?.close()
-    logger('Closed user profile DB')
+    logger.info('Closed user profile DB')
   }
 
   public async addUserProfile(userProfile: UserProfile) {
-    logger('Adding user profile')
+    logger.info('Adding user profile')
     try {
       if (!UserProfileStore.validateUserProfile(userProfile)) {
         // TODO: Send validation errors to frontend or replicate
@@ -133,7 +132,7 @@ export class UserProfileStore extends EventEmitter {
         return false
       }
     } catch (err) {
-      logger.error('Failed to validate user profile:', userProfile.pubKey, err?.message)
+      logger.error('Failed to validate user profile:', userProfile.pubKey, err)
       return false
     }
 
@@ -146,13 +145,13 @@ export class UserProfileStore extends EventEmitter {
   ) {
     try {
       if (entry.payload.key !== entry.payload.value.pubKey) {
-        logger.error('Failed to verify user profile entry:', entry.hash, 'entry key != payload pubKey')
+        logger.error(`Failed to verify user profile entry: ${entry.hash} entry key != payload pubKey`)
         return false
       }
 
       return await UserProfileStore.validateUserProfile(entry.payload.value)
     } catch (err) {
-      logger.error('Failed to validate user profile entry:', entry.hash, err?.message)
+      logger.error('Failed to validate user profile entry:', entry.hash, err)
       return false
     }
   }

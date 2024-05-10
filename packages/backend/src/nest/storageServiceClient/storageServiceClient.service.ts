@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common'
 import EventEmitter from 'events'
 import { ServerStoredCommunityMetadata } from './storageServiceClient.types'
 import fetchRetry, { RequestInitWithRetry } from 'fetch-retry'
-import Logger from '../common/logger'
+import { createLogger } from '../common/logger'
 import { isServerStoredMetadata } from '../validation/validators'
 import fetch, { Response } from 'node-fetch'
 
@@ -17,7 +17,7 @@ class HTTPResponseError extends Error {
 @Injectable()
 export class StorageServiceClient extends EventEmitter {
   DEFAULT_FETCH_RETRIES = 5
-  private readonly logger = Logger(StorageServiceClient.name)
+  private readonly logger = createLogger(StorageServiceClient.name)
   _serverAddress: string
   fetch: any
   fetchConfig: RequestInitWithRetry<typeof fetch>
@@ -28,7 +28,7 @@ export class StorageServiceClient extends EventEmitter {
     this.fetchConfig = {
       retries: this.DEFAULT_FETCH_RETRIES,
       retryDelay: (attempt: number, _error: Error | null, _response: Response | null) => {
-        this.logger(`Retrying request ${attempt}/${this.DEFAULT_FETCH_RETRIES}`)
+        this.logger.info(`Retrying request ${attempt}/${this.DEFAULT_FETCH_RETRIES}`)
         return Math.pow(2, attempt) * 1000
       },
     }
@@ -59,12 +59,12 @@ export class StorageServiceClient extends EventEmitter {
   }
 
   auth = async (): Promise<string> => {
-    this.logger('Authenticating')
+    this.logger.info('Authenticating')
     const authResponse = await this.fetch(this.authUrl, {
       method: 'POST',
       ...this.fetchConfig,
     })
-    this.logger('Auth response status', authResponse.status)
+    this.logger.info('Auth response status', authResponse.status)
     const authResponseData = await authResponse.json()
     return authResponseData['access_token']
   }
@@ -74,25 +74,25 @@ export class StorageServiceClient extends EventEmitter {
   }
 
   public downloadData = async (cid: string): Promise<ServerStoredCommunityMetadata> => {
-    this.logger(`Downloading data for cid: ${cid}`)
+    this.logger.info(`Downloading data for cid: ${cid}`)
     const accessToken = await this.auth()
     const dataResponse: Response = await this.fetch(this.getInviteUrl(cid), {
       method: 'GET',
       headers: { Authorization: this.getAuthorizationHeader(accessToken) },
       ...this.fetchConfig,
     })
-    this.logger('Download data response status', dataResponse.status)
+    this.logger.info('Download data response status', dataResponse.status)
     if (!dataResponse.ok) {
       throw new HTTPResponseError('Failed to download data', dataResponse)
     }
     const data = (await dataResponse.json()) as ServerStoredCommunityMetadata
     this.validateMetadata(data)
-    this.logger('Downloaded data', data)
+    this.logger.info('Downloaded data', data)
     return data
   }
 
   public uploadData = async (cid: string, data: ServerStoredCommunityMetadata) => {
-    this.logger(`Uploading data for cid: ${cid}`, data)
+    this.logger.info(`Uploading data for cid: ${cid}`, data)
     this.validateMetadata(data)
     const accessToken = await this.auth()
     const dataResponse: Response = await this.fetch(this.getInviteUrl(cid), {
@@ -104,7 +104,7 @@ export class StorageServiceClient extends EventEmitter {
       body: JSON.stringify(data),
       ...this.fetchConfig,
     })
-    this.logger('Upload data response status', dataResponse.status)
+    this.logger.info('Upload data response status', dataResponse.status)
     if (!dataResponse.ok) {
       throw new HTTPResponseError('Failed to upload data', dataResponse)
     }

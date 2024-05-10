@@ -8,20 +8,20 @@ import { validate } from 'class-validator'
 import { UserCsrData } from '../../registration/registration.functions'
 import { Injectable } from '@nestjs/common'
 import { OrbitDb } from '../orbitDb/orbitDb.service'
-import Logger from '../../common/logger'
+import { createLogger } from '../../common/logger'
 
 @Injectable()
 export class CertificatesRequestsStore extends EventEmitter {
   public store: EventStore<string>
 
-  private readonly logger = Logger(CertificatesRequestsStore.name)
+  private readonly logger = createLogger(CertificatesRequestsStore.name)
 
   constructor(private readonly orbitDbService: OrbitDb) {
     super()
   }
 
   public async init() {
-    this.logger('Initializing certificates requests store')
+    this.logger.info('Initializing certificates requests store')
 
     this.store = await this.orbitDbService.orbitDb.log<string>('csrs', {
       replicate: false,
@@ -32,16 +32,16 @@ export class CertificatesRequestsStore extends EventEmitter {
     await this.store.load()
 
     this.store.events.on('write', async (_address, entry) => {
-      this.logger('Added CSR to database')
+      this.logger.info('Added CSR to database')
       this.loadedCertificateRequests()
     })
 
     this.store.events.on('replicated', async () => {
-      this.logger('Replicated CSRs')
+      this.logger.info('Replicated CSRs')
       this.loadedCertificateRequests()
     })
 
-    this.logger('Initialized')
+    this.logger.info('Initialized')
   }
 
   public async loadedCertificateRequests() {
@@ -51,9 +51,9 @@ export class CertificatesRequestsStore extends EventEmitter {
   }
 
   public async close() {
-    this.logger('Closing certificate requests DB')
+    this.logger.info('Closing certificate requests DB')
     await this.store?.close()
-    this.logger('Closed certificate requests DB')
+    this.logger.info('Closed certificate requests DB')
   }
 
   public getAddress() {
@@ -65,7 +65,7 @@ export class CertificatesRequestsStore extends EventEmitter {
     return true
   }
 
-  public static async validateUserCsr(csr: string) {
+  public async validateUserCsr(csr: string) {
     try {
       const crypto = getCrypto()
       if (!crypto) {
@@ -75,13 +75,13 @@ export class CertificatesRequestsStore extends EventEmitter {
       await parsedCsr.verify()
       await this.validateCsrFormat(csr)
     } catch (err) {
-      console.error('Failed to validate user CSR:', csr, err?.message)
+      this.logger.error('Failed to validate user CSR:', csr, err?.message)
       return false
     }
     return true
   }
 
-  public static async validateCsrFormat(csr: string) {
+  public async validateCsrFormat(csr: string) {
     const userData = new UserCsrData()
     userData.csr = csr
     const validationErrors = await validate(userData)
@@ -96,13 +96,13 @@ export class CertificatesRequestsStore extends EventEmitter {
       .map(e => {
         return e.payload.value
       })
-    this.logger('Total CSRs:', allEntries.length)
+    this.logger.info('Total CSRs:', allEntries.length)
 
     const allCsrsUnique = [...new Set(allEntries)]
     await Promise.all(
       allCsrsUnique
         .filter(async csr => {
-          const validation = await CertificatesRequestsStore.validateUserCsr(csr)
+          const validation = await this.validateUserCsr(csr)
           if (validation) return true
           return false
         })
@@ -117,7 +117,7 @@ export class CertificatesRequestsStore extends EventEmitter {
         })
     )
     const validCsrs = [...filteredCsrsMap.values()]
-    this.logger('Valid CSRs:', validCsrs.length)
+    this.logger.info('Valid CSRs:', validCsrs.length)
     return validCsrs
   }
 

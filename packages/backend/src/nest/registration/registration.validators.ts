@@ -1,8 +1,8 @@
 import { loadCSR, CertFieldsTypes, getReqFieldValue } from '@quiet/identity'
 import { registerDecorator, ValidationArguments, ValidationOptions } from 'class-validator'
-import Logger from '../common/logger'
+import { createLogger } from '../common/logger'
 
-const logger = Logger('registration.validators')
+const logger = createLogger('registration.validators')
 
 export function IsCsr(validationOptions?: ValidationOptions) {
   return function (object: object, propertyName: string) {
