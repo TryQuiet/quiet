@@ -1,5 +1,5 @@
 import React from 'react'
-import theme from '../../../theme'
+import { lightTheme as theme } from '../../../theme'
 import { ThemeProvider } from '@mui/material/styles'
 import { renderComponent } from '../../../testUtils/renderComponent'
 import UserLabel from './UserLabel.component'

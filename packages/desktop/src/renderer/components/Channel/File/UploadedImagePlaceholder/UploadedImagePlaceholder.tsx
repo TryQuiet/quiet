@@ -1,10 +1,9 @@
-import { CircularProgress } from '@mui/material'
+import { CircularProgress, useTheme } from '@mui/material'
 import { styled } from '@mui/material/styles'
 import { DownloadStatus, DownloadState } from '@quiet/types'
 import { formatBytes } from '@quiet/state-manager'
 import React from 'react'
 import imageIcon from '../../../../static/images/imageIcon.svg'
-import theme from '../../../../theme'
 import Icon from '../../../ui/Icon/Icon'
 import Tooltip from '../../../ui/Tooltip/Tooltip'
 
@@ -78,6 +77,8 @@ export const UploadedImagePlaceholder: React.FC<UploadedImagePlaceholderProps> =
   ext,
   downloadStatus,
 }) => {
+  const theme = useTheme()
+
   const width = imageWidth >= 400 ? 400 : imageWidth
 
   const downloadState = downloadStatus?.downloadState

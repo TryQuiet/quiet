@@ -4,7 +4,7 @@ import { Provider } from 'react-redux'
 
 import { render } from '@testing-library/react'
 
-import theme from '../theme'
+import { lightTheme as theme } from '../theme'
 import store from '../store'
 import { Store } from 'redux'
 import { DndProvider } from 'react-dnd'

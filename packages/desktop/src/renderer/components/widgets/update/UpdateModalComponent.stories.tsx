@@ -4,7 +4,7 @@ import { ComponentStory, ComponentMeta } from '@storybook/react'
 import UpdateModal, { UpdateModalProps } from './UpdateModalComponent'
 
 import { withTheme } from '../../../storybook/decorators'
-import theme from '../../../theme'
+import { lightTheme as theme } from '../../../theme'
 
 import Button from '@mui/material/Button'
 

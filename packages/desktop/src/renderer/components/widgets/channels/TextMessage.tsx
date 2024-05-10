@@ -3,7 +3,6 @@ import classNames from 'classnames'
 import React, { ReactNode } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
-import theme from '../../../theme'
 import { isAllEmoji } from '../../../../../../common/src/emojis'
 
 const PREFIX = 'TextMessage'
@@ -24,7 +23,7 @@ const classes = {
   tableRowCell: `${PREFIX}tableRowCell`,
 }
 
-const StyledTypography = styled(Typography)(() => ({
+const StyledTypography = styled(Typography)(({ theme }) => ({
   [`&.${classes.message}`]: {
     fontSize: '0.855rem',
     whiteSpace: 'pre-line',

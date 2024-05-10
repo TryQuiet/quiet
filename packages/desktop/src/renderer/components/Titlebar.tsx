@@ -1,5 +1,7 @@
+import { useTheme } from '@mui/material'
 import { Titlebar, Color } from 'custom-electron-titlebar'
-import theme from '../theme'
+
+import { lightTheme as theme } from '../theme'
 
 export const addTitlebar = () => {
   setTimeout(() => {

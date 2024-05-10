@@ -1,5 +1,5 @@
 import React from 'react'
-import theme from '../../../theme'
+import { lightTheme as theme } from '../../../theme'
 import { ThemeProvider, StyledEngineProvider } from '@mui/material/styles'
 import { WelcomeMessage } from './WelcomeMessage'
 import { renderComponent } from '../../../testUtils/renderComponent'

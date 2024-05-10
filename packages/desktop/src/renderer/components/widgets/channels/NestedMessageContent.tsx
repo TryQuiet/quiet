@@ -1,8 +1,7 @@
 import React from 'react'
 import { styled } from '@mui/material/styles'
-import theme from '../../../theme'
 import classNames from 'classnames'
-import { Grid } from '@mui/material'
+import { Grid, useTheme } from '@mui/material'
 import { AUTODOWNLOAD_SIZE_LIMIT, DownloadState, DownloadStatus } from '@quiet/state-manager'
 
 import UploadedImage from '../../Channel/File/UploadedImage/UploadedImage'
@@ -21,7 +20,7 @@ const classes = {
   info: `${PREFIX}info`,
 }
 
-const StyledGrid = styled(Grid)(() => ({
+const StyledGrid = styled(Grid)(({ theme }) => ({
   [`& .${classes.message}`]: {
     fontSize: '0.855rem',
     whiteSpace: 'pre-line',
@@ -60,6 +59,8 @@ export const NestedMessageContent: React.FC<NestedMessageContentProps & FileActi
   downloadFile,
   cancelDownload,
 }) => {
+  const theme = useTheme()
+
   const renderMessage = () => {
     const isMalicious = downloadStatus?.downloadState === DownloadState.Malicious
 

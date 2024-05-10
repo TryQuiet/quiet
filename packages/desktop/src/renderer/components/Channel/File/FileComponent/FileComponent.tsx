@@ -1,9 +1,8 @@
 import React, { useState } from 'react'
 import { styled } from '@mui/material/styles'
-import { CircularProgress, Typography } from '@mui/material'
+import { CircularProgress, Typography, useTheme } from '@mui/material'
 import { DisplayableMessage, DownloadState, DownloadStatus, FileMetadata, CancelDownload } from '@quiet/types'
 import { formatBytes } from '@quiet/state-manager'
-import theme from '../../../../theme'
 import Icon from '../../../ui/Icon/Icon'
 import fileIcon from '../../../../static/images/fileIcon.svg'
 import clockIconGray from '../../../../static/images/clockIconGray.svg'
@@ -141,6 +140,8 @@ export const FileComponent: React.FC<FileComponentProps & FileActionsProps> = ({
   downloadFile,
   cancelDownload,
 }) => {
+  const theme = useTheme()
+
   if (!message.media) return null
   const { cid, path, name, ext } = message.media
 

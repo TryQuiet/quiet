@@ -1,5 +1,5 @@
 import React, { FC, useEffect, useRef } from 'react'
-import { Grid, List, Typography } from '@mui/material'
+import { Grid, List, Typography, useTheme } from '@mui/material'
 import {
   ContextMenuProps,
   ContextMenuHintProps,
@@ -10,9 +10,9 @@ import Icon from '../ui/Icon/Icon'
 import arrowLeft from '../../static/images/arrowLeft.svg'
 import arrowRightShort from '../../static/images/arrowRightShort.svg'
 
-import theme from '../../theme'
-
 export const ContextMenu: FC<ContextMenuProps> = ({ visible, handleClose, handleBack, title, children }) => {
+  const theme = useTheme()
+
   const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -97,6 +97,8 @@ export const ContextMenu: FC<ContextMenuProps> = ({ visible, handleClose, handle
 }
 
 export const ContextMenuHint: FC<ContextMenuHintProps> = ({ hint }) => {
+  const theme = useTheme()
+
   return (
     <Grid
       style={{
@@ -129,6 +131,8 @@ export const ContextMenuItemList: FC<ContextMenuItemListProps> = ({ items }) => 
 }
 
 export const ContextMenuItem: FC<ContextMenuItemProps> = ({ title, action }) => {
+  const theme = useTheme()
+
   return (
     <Grid
       style={{
