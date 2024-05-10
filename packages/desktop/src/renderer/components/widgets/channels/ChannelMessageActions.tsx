@@ -19,7 +19,7 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
   [`& .${classes.warrning}`]: {
     marginLeft: 8,
     letterSpacing: 0.4,
-    color: theme.palette.colors.error,
+    color: theme.palette.error.main,
   },
 
   [`& .${classes.tryAgain}`]: {

@@ -12,7 +12,7 @@ import { getLibp2pAddressesFromCsrs, removeFilesFromDir } from '../common/utils'
 
 import { LazyModuleLoader } from '@nestjs/core'
 import { createLibp2pAddress, isPSKcodeValid } from '@quiet/common'
-import { CertFieldsTypes, getCertFieldValue, loadCertificate } from '@quiet/identity'
+import { CertFieldsTypes, createRootCA, getCertFieldValue, loadCertificate } from '@quiet/identity'
 import {
   ChannelMessageIdsResponse,
   ChannelSubscribedPayload,
@@ -63,6 +63,7 @@ import { ServerStoredCommunityMetadata } from '../storageServiceClient/storageSe
 import { Tor } from '../tor/tor.service'
 import { ConfigOptions, GetPorts, ServerIoProviderTypes } from '../types'
 import { ServiceState, TorInitState } from './connections-manager.types'
+import { DateTime } from 'luxon'
 
 @Injectable()
 export class ConnectionsManagerService extends EventEmitter implements OnModuleInit {
@@ -222,35 +223,37 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   }
 
   public async closeAllServices(options: { saveTor: boolean } = { saveTor: false }) {
+    this.logger('Closing services')
+
+    await this.closeSocket()
+
     if (this.tor && !options.saveTor) {
+      this.logger('Killing tor')
       await this.tor.kill()
+    } else if (options.saveTor) {
+      this.logger('Saving tor')
     }
     if (this.storageService) {
-      this.logger('Stopping orbitdb')
+      this.logger('Stopping OrbitDB')
       await this.storageService?.stopOrbitDb()
-    }
-    if (this.serverIoProvider?.io) {
-      this.logger('Closing socket server')
-      this.serverIoProvider.io.close()
-    }
-    if (this.localDbService) {
-      this.logger('Closing local storage')
-      await this.localDbService.close()
     }
     if (this.libp2pService) {
       this.logger('Stopping libp2p')
       await this.libp2pService.close()
     }
+    if (this.localDbService) {
+      this.logger('Closing local DB')
+      await this.localDbService.close()
+    }
   }
 
-  public closeSocket() {
-    this.serverIoProvider.io.close()
+  public async closeSocket() {
+    await this.socketService.close()
   }
 
   public async pause() {
     this.logger('Pausing!')
-    this.logger('Closing socket!')
-    this.closeSocket()
+    await this.closeSocket()
     this.logger('Pausing libp2pService!')
     this.peerInfo = await this.libp2pService?.pause()
     this.logger('Found the following peer info on pause: ', this.peerInfo)
@@ -258,10 +261,21 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
   public async resume() {
     this.logger('Resuming!')
-    this.logger('Reopening socket!')
     await this.openSocket()
-    this.logger('Dialing peers with info: ', this.peerInfo)
-    await this.libp2pService?.redialPeers(this.peerInfo)
+    this.logger('Attempting to redial peers!')
+    if (this.peerInfo && (this.peerInfo?.connected.length !== 0 || this.peerInfo?.dialed.length !== 0)) {
+      this.logger('Dialing peers with info from pause: ', this.peerInfo)
+      await this.libp2pService?.redialPeers([...this.peerInfo.connected, ...this.peerInfo.dialed])
+    } else {
+      this.logger('Dialing peers from stored community (if exists)')
+      const community = await this.localDbService.getCurrentCommunity()
+      if (!community) {
+        this.logger(`No community launched, can't redial`)
+        return
+      }
+      const sortedPeers = await this.localDbService.getSortedPeers(community.peerList ?? [])
+      await this.libp2pService?.redialPeers(sortedPeers)
+    }
   }
 
   // This method is only used on iOS through rn-bridge for reacting on lifecycle changes
@@ -269,15 +283,27 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     await this.socketService.init()
   }
 
-  public async leaveCommunity() {
-    this.tor.resetHiddenServices()
-    this.closeSocket()
-    await this.localDbService.purge()
+  public async leaveCommunity(): Promise<boolean> {
+    this.logger('Running leaveCommunity')
+
     await this.closeAllServices({ saveTor: true })
+
+    this.logger('Purging data')
     await this.purgeData()
+
+    this.logger('Resetting Tor')
+    this.tor.resetHiddenServices()
+
+    this.logger('Resetting state')
     await this.resetState()
+
+    this.logger('Reopening local DB')
     await this.localDbService.open()
-    await this.socketService.init()
+
+    this.logger('Restarting socket')
+    await this.openSocket()
+
+    return true
   }
 
   async resetState() {
@@ -295,16 +321,24 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
           i.startsWith('Ipfs') || i.startsWith('OrbitDB') || i.startsWith('backendDB') || i.startsWith('Local Storage')
       )
     for (const dir of dirsToRemove) {
-      removeFilesFromDir(path.join(this.quietDir, dir))
+      const dirPath = path.join(this.quietDir, dir)
+      this.logger(`Removing dir: ${dirPath}`)
+      removeFilesFromDir(dirPath)
     }
   }
 
   public async getNetwork(): Promise<NetworkInfo> {
+    this.logger('Getting network information')
+
+    this.logger('Creating hidden service')
     const hiddenService = await this.tor.createNewHiddenService({ targetPort: this.ports.libp2pHiddenService })
+
+    this.logger('Destroying the hidden service we created')
     await this.tor.destroyHiddenService(hiddenService.onionAddress.split('.')[0])
 
     // TODO: Do we want to create the PeerId here? It doesn't necessarily have
     // anything to do with Tor.
+    this.logger('Getting peer ID')
     const peerId: PeerId = await PeerId.create()
     const peerIdJson = peerId.toJSON()
     this.logger(`Created network for peer ${peerId.toString()}. Address: ${hiddenService.onionAddress}`)
@@ -583,8 +617,19 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     await this.libp2pService.createInstance(params)
 
     // Libp2p event listeners
-    this.libp2pService.on(Libp2pEvents.PEER_CONNECTED, (payload: { peers: string[] }) => {
+    this.libp2pService.on(Libp2pEvents.PEER_CONNECTED, async (payload: { peers: string[] }) => {
       this.serverIoProvider.io.emit(SocketActionTypes.PEER_CONNECTED, payload)
+      for (const peer of payload.peers) {
+        const peerStats: NetworkStats = {
+          peerId: peer,
+          connectionTime: 0,
+          lastSeen: DateTime.utc().toSeconds(),
+        }
+
+        await this.localDbService.update(LocalDBKeys.PEERS, {
+          [peer]: peerStats,
+        })
+      }
     })
 
     this.libp2pService.on(Libp2pEvents.PEER_DISCONNECTED, async (payload: NetworkDataPayload) => {
@@ -633,6 +678,11 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.tor.on(SocketActionTypes.CONNECTION_PROCESS_INFO, data => {
       this.serverIoProvider.io.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, data)
     })
+    this.tor.on(SocketActionTypes.REDIAL_PEERS, async data => {
+      this.logger(`Socket - ${SocketActionTypes.REDIAL_PEERS}`)
+      const peerInfo = this.libp2pService?.getCurrentPeerInfo()
+      await this.libp2pService?.redialPeers([...peerInfo.connected, ...peerInfo.dialed])
+    })
     this.socketService.on(SocketActionTypes.CONNECTION_PROCESS_INFO, data => {
       this.serverIoProvider.io.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, data)
     })
@@ -644,9 +694,9 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       // Update Frontend with Initialized Communities
       if (this.communityId) {
         this.serverIoProvider.io.emit(SocketActionTypes.COMMUNITY_LAUNCHED, { id: this.communityId })
-        console.log('this.libp2pService.dialedPeers', this.libp2pService.dialedPeers)
-        console.log('this.libp2pService.connectedPeers', this.libp2pService.connectedPeers)
-        console.log('this.libp2pservice', this.libp2pService)
+        this.logger('this.libp2pService.connectedPeers', this.libp2pService.connectedPeers)
+        this.logger('this.libp2pservice', this.libp2pService)
+        this.logger('this.libp2pService.dialedPeers', this.libp2pService.dialedPeers)
         this.serverIoProvider.io.emit(
           SocketActionTypes.CONNECTED_PEERS,
           Array.from(this.libp2pService.connectedPeers.keys())
@@ -679,8 +729,10 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         callback(await this.joinCommunity(args))
       }
     )
-    this.socketService.on(SocketActionTypes.LEAVE_COMMUNITY, async () => {
-      await this.leaveCommunity()
+
+    this.socketService.on(SocketActionTypes.LEAVE_COMMUNITY, async (callback: (closed: boolean) => void) => {
+      this.logger(`socketService - ${SocketActionTypes.LEAVE_COMMUNITY}`)
+      callback(await this.leaveCommunity())
     })
 
     // Username registration

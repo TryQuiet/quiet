@@ -22,6 +22,7 @@ import { webSockets } from '../websocketOverTor'
 import { all } from '../websocketOverTor/filters'
 import { Libp2pConnectedPeer, Libp2pEvents, Libp2pNodeParams, Libp2pPeerInfo } from './libp2p.types'
 import { ProcessInChunksService } from './process-in-chunks.service'
+import { peerIdFromString } from '@libp2p/peer-id'
 
 const KEY_LENGTH = 32
 export const LIBP2P_PSK_METADATA = '/key/swarm/psk/1.0.0/\n/base16/\n'
@@ -42,6 +43,7 @@ export class Libp2pService extends EventEmitter {
 
   private dialPeer = async (peerAddress: string) => {
     if (this.dialedPeers.has(peerAddress)) {
+      this.logger(`Skipping dial of ${peerAddress} because its already been dialed`)
       return
     }
     this.dialedPeers.add(peerAddress)
@@ -94,13 +96,27 @@ export class Libp2pService extends EventEmitter {
     for (const peer of peers) {
       await this.hangUpPeer(peer)
     }
+    this.logger('All peers hung up')
   }
 
   public async hangUpPeer(peerAddress: string) {
     this.logger('Hanging up on peer', peerAddress)
-    await this.libp2pInstance?.hangUp(multiaddr(peerAddress))
+    try {
+      const ma = multiaddr(peerAddress)
+      const peerId = peerIdFromString(ma.getPeerId()!)
+
+      this.logger('Hanging up connection on libp2p')
+      await this.libp2pInstance?.hangUp(ma)
+
+      this.logger('Removing peer from peer store')
+      await this.libp2pInstance?.peerStore.delete(peerId as any)
+    } catch (e) {
+      this.logger.error(e)
+    }
+    this.logger('Clearing local data')
     this.dialedPeers.delete(peerAddress)
     this.connectedPeers.delete(peerAddress)
+    this.logger('Done hanging up')
   }
 
   /**
@@ -108,11 +124,9 @@ export class Libp2pService extends EventEmitter {
    * iOS where Tor receives a new port when the app resumes from background and
    * we want to close/re-open connections.
    */
-  public async redialPeers(peerInfo?: Libp2pPeerInfo) {
-    const dialed = peerInfo ? peerInfo.dialed : Array.from(this.dialedPeers)
-    const toDial = peerInfo
-      ? [...peerInfo.connected, ...peerInfo.dialed]
-      : [...this.connectedPeers.keys(), ...this.dialedPeers]
+  public async redialPeers(peersToDial?: string[]) {
+    const dialed = peersToDial ?? Array.from(this.dialedPeers)
+    const toDial = peersToDial ?? [...this.connectedPeers.keys(), ...this.dialedPeers]
 
     if (dialed.length === 0) {
       this.logger('No peers to redial!')
@@ -122,9 +136,7 @@ export class Libp2pService extends EventEmitter {
     this.logger(`Re-dialing ${dialed.length} peers`)
 
     // TODO: Sort peers
-    for (const peerAddress of dialed) {
-      await this.hangUpPeer(peerAddress)
-    }
+    await this.hangUpPeers(dialed)
 
     this.processInChunksService.updateData(toDial)
     await this.processInChunksService.process()
@@ -142,7 +154,7 @@ export class Libp2pService extends EventEmitter {
         start: false,
         connectionManager: {
           minConnections: 3, // TODO: increase?
-          maxConnections: 8, // TODO: increase?
+          maxConnections: 20, // TODO: increase?
           dialTimeout: 120_000,
           maxParallelDials: 10,
           autoDial: true, // It's a default but let's set it to have explicit information

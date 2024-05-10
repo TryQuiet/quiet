@@ -1,5 +1,4 @@
 import { getCrypto } from 'pkijs'
-import EventStore from 'orbit-db-eventstore'
 import { NoCryptoEngineError } from '@quiet/types'
 import { loadCSR, keyFromCertificate } from '@quiet/identity'
 import { StorageEvents } from '../storage.types'
@@ -27,6 +26,7 @@ export class CertificatesRequestsStore extends EventStoreBase<string> {
         write: ['*'],
       },
     })
+    await this.store.load()
 
     this.store.events.on('write', async (_address, entry) => {
       this.logger('Added CSR to database')
@@ -38,8 +38,6 @@ export class CertificatesRequestsStore extends EventStoreBase<string> {
       this.loadedCertificateRequests()
     })
 
-    // @ts-ignore
-    await this.store.load({ fetchEntryTimeout: 15000 })
     this.logger('Initialized')
   }
 
@@ -80,8 +78,6 @@ export class CertificatesRequestsStore extends EventStoreBase<string> {
 
   public async getEntries() {
     const filteredCsrsMap: Map<string, string> = new Map()
-    // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
-    await this.store.load({ fetchEntryTimeout: 15000 })
     const allEntries = this.getStore()
       .iterator({ limit: -1 })
       .collect()

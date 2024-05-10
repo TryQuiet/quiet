@@ -29,7 +29,7 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
     backgroundColor: theme.palette.colors.gray03,
   },
   [`& .${classes.wrapperRed}`]: {
-    backgroundColor: theme.palette.colors.error,
+    backgroundColor: theme.palette.error.main,
   },
   [`& .${classes.textWhite}`]: {
     color: 'white',

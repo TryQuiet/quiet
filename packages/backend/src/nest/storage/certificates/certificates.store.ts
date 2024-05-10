@@ -1,6 +1,5 @@
 import { getCrypto } from 'pkijs'
 import { StorageEvents } from '../storage.types'
-import EventStore from 'orbit-db-eventstore'
 import { CommunityMetadata, NoCryptoEngineError } from '@quiet/types'
 import {
   keyFromCertificate,
@@ -57,8 +56,7 @@ export class CertificatesStore extends EventStoreBase<string> {
       await this.loadedCertificates()
     })
 
-    // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
-    await this.store.load({ fetchEntryTimeout: 15000 })
+    await this.store.load()
 
     this.logger('Initialized')
   }
@@ -133,13 +131,8 @@ export class CertificatesStore extends EventStoreBase<string> {
    * https://github.com/TryQuiet/quiet/issues/1899
    */
   public async getEntries(): Promise<string[]> {
-    if (!this.store) {
-      return []
-    }
-
-    // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
-    await this.store.load({ fetchEntryTimeout: 15000 })
-    const allCertificates = this.store
+    this.logger('Getting certificates')
+    const allCertificates = this.getStore()
       .iterator({ limit: -1 })
       .collect()
       .map(e => e.payload.value)

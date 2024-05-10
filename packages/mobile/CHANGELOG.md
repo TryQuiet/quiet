@@ -7,6 +7,8 @@
 # Fixes:
 
 * Fixes issue with reconnecting to peers on resume on iOS ([#2424](https://github.com/TryQuiet/quiet/issues/2424))
+* Update github workflows for PR gating ([#2487](https://github.com/TryQuiet/quiet/issues/2487))
+* Don't create duplicate CSRs when joining a community under certain circumstances ([#2321](https://github.com/TryQuiet/quiet/issues/2321))
 
 [2.2.0]
 

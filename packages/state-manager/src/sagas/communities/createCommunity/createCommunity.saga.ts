@@ -1,5 +1,5 @@
 import { type Socket, applyEmitParams } from '../../../types'
-import { select, apply, put } from 'typed-redux-saga'
+import { select, apply, putResolve } from 'typed-redux-saga'
 import { type PayloadAction } from '@reduxjs/toolkit'
 import { identityActions } from '../../identity/identity.slice'
 import { communitiesSelectors } from '../communities.selectors'
@@ -14,6 +14,8 @@ export function* createCommunitySaga(
   socket: Socket,
   action: PayloadAction<ReturnType<typeof communitiesActions.createCommunity>['payload']>
 ): Generator {
+  console.log('Creating community')
+
   let communityId: string = action.payload
 
   if (!communityId) {
@@ -53,21 +55,21 @@ export function* createCommunitySaga(
     return
   }
 
-  yield* put(communitiesActions.updateCommunityData(createdCommunity))
+  yield* putResolve(communitiesActions.updateCommunityData(createdCommunity))
 
-  yield* put(
+  yield* putResolve(
     identityActions.storeUserCertificate({
       communityId: createdCommunity.id,
       userCertificate: createdCommunity.ownerCertificate,
     })
   )
 
-  yield* put(publicChannelsActions.createGeneralChannel())
+  yield* putResolve(publicChannelsActions.createGeneralChannel())
   // TODO: We can likely refactor this a bit. Currently, we issue the owner's
   // certificate before creating the community, but then we add the owner's CSR
   // to the OrbitDB store after creating the community (in the following saga).
   // We can likely add the owner's CSR when creating the community or decouple
   // community creation from CSR/certificate creation and create the community
   // first and then add the owner's CSR and issue their certificate.
-  yield* put(identityActions.saveUserCsr())
+  yield* putResolve(identityActions.saveUserCsr())
 }

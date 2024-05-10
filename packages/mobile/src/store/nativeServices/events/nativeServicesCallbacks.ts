@@ -1,5 +1,5 @@
 import { eventChannel } from 'redux-saga'
-import { call, put, take } from 'typed-redux-saga'
+import { call, put, take, cancelled } from 'typed-redux-saga'
 import { app, publicChannels, WEBSOCKET_CONNECTION_CHANNEL, INIT_CHECK_CHANNEL, network } from '@quiet/state-manager'
 import { initActions, InitCheckPayload, WebsocketConnectionPayload } from '../../init/init.slice'
 import { ScreenNames } from '../../../const/ScreenNames.enum'
@@ -9,10 +9,18 @@ import { navigationActions } from '../../navigation/navigation.slice'
 import { nativeServicesActions } from '../nativeServices.slice'
 
 export function* nativeServicesCallbacksSaga(): Generator {
-  const channel = yield* call(deviceEvents)
-  while (true) {
-    const action = yield* take(channel)
-    yield put(action)
+  console.log('nativeServicesCallbacksSaga starting')
+  try {
+    const channel = yield* call(deviceEvents)
+    while (true) {
+      const action = yield* take(channel)
+      yield put(action)
+    }
+  } finally {
+    console.log('nativeServicesCallbacksSaga stopping')
+    if (yield cancelled()) {
+      console.log('nativeServicesCallbacksSaga cancelled')
+    }
   }
 }
 
