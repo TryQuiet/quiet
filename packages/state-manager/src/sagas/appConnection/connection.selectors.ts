@@ -11,6 +11,9 @@ import { areMessagesLoaded, areChannelsLoaded } from '../publicChannels/publicCh
 import { identitySelectors } from '../identity/identity.selectors'
 import { communitiesSelectors } from '../communities/communities.selectors'
 import { InvitationDataVersion } from '@quiet/types'
+import { createLogger } from '../../utils/logger'
+
+const logger = createLogger('connectionSelectors')
 
 const connectionSlice: CreatedSelectors[StoreKeys.Connection] = (state: StoreState) => state[StoreKeys.Connection]
 
@@ -81,7 +84,7 @@ export const isJoiningCompleted = createSelector(
   areChannelsLoaded,
   areCertificatesLoaded,
   (isCommunity, areMessages, areChannels, areCertificates) => {
-    console.log({ isCommunity, areMessages, areChannels, areCertificates })
+    logger.info({ isCommunity, areMessages, areChannels, areCertificates })
     return isCommunity && areMessages && areChannels && areCertificates
   }
 )

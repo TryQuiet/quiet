@@ -8,6 +8,9 @@ import { CertFieldsTypes, getCertFieldValue, parseCertificate } from '@quiet/ide
 // 'packages/identity/node_modules/pkijs/build'. This is likely not portable. A type annotation is necessary."
 // https://github.com/microsoft/TypeScript/issues/47663#issuecomment-1270716220
 import type {} from 'pkijs'
+import { createLogger } from '../../utils/logger'
+
+const logger = createLogger('communitiesSelectors')
 
 const communitiesSlice: CreatedSelectors[StoreKeys.Communities] = (state: StoreState) => state[StoreKeys.Communities]
 
@@ -60,7 +63,7 @@ export const ownerNickname = createSelector(ownerCertificate, ownerCertificate =
   const nickname = getCertFieldValue(parsedCert, CertFieldsTypes.nickName)
 
   if (!nickname) {
-    console.error('Could not retrieve owner nickname from certificate')
+    logger.error('Could not retrieve owner nickname from certificate')
   }
 
   return nickname

@@ -4,9 +4,12 @@ import { appActions } from './app.slice'
 import { closeServicesSaga } from './closeServices.saga'
 import { stopBackendSaga } from './stopBackend/stopBackend.saga'
 import { loadMigrationDataSaga } from './loadMigrationData/loadMigrationData.saga'
+import { createLogger } from '../../utils/logger'
+
+const logger = createLogger('appMasterSaga')
 
 export function* appMasterSaga(socket: Socket): Generator {
-  console.log('appMasterSaga starting')
+  logger.info('appMasterSaga starting')
   try {
     yield* all([
       takeLeading(appActions.closeServices.type, closeServicesSaga, socket),
@@ -14,9 +17,9 @@ export function* appMasterSaga(socket: Socket): Generator {
       takeEvery(appActions.loadMigrationData.type, loadMigrationDataSaga, socket),
     ])
   } finally {
-    console.log('appMasterSaga stopping')
+    logger.info('appMasterSaga stopping')
     if (yield cancelled()) {
-      console.log('appMasterSaga cancelled')
+      logger.info('appMasterSaga cancelled')
     }
   }
 }

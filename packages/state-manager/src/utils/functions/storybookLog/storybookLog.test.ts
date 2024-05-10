@@ -17,7 +17,7 @@ describe('storybookLog function', () => {
     expect(typeof returned).toEqual('function')
   })
 
-  it('should call `console.info` with passed message', () => {
+  it('should call `logger.info` with passed message', () => {
     storybookLog(consoleLogMessage)()
 
     expect(console.info).toHaveBeenCalledWith(consoleLogMessage)

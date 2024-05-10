@@ -3,15 +3,18 @@ import { all } from 'typed-redux-saga'
 import { type Socket } from '../../types'
 import { usersActions } from './users.slice'
 import { saveUserProfileSaga } from './userProfile/saveUserProfile.saga'
+import { createLogger } from '../../utils/logger'
+
+const logger = createLogger('usersMasterSaga')
 
 export function* usersMasterSaga(socket: Socket): Generator {
-  console.log('usersMasterSaga starting')
+  logger.info('usersMasterSaga starting')
   try {
     yield all([takeEvery(usersActions.saveUserProfile.type, saveUserProfileSaga, socket)])
   } finally {
-    console.log('usersMasterSaga stopping')
+    logger.info('usersMasterSaga stopping')
     if (yield cancelled()) {
-      console.log('usersMasterSaga cancelled')
+      logger.info('usersMasterSaga cancelled')
     }
   }
 }
