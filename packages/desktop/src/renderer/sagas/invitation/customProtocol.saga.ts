@@ -12,15 +12,16 @@ import {
   JoiningAnotherCommunityWarning,
 } from '@quiet/common'
 import _ from 'lodash'
-import logger from '../../logger'
-const log = logger('customProtocol')
+import { createLogger } from '../../logger'
+
+const logger = createLogger('customProtocol')
 
 export function* customProtocolSaga(
   action: PayloadAction<ReturnType<typeof communities.actions.customProtocol>['payload']>
 ): Generator {
   const code = action.payload
-  log('Custom protocol', code)
-  log('Waiting for websocket connection before proceeding with deep link flow.')
+  logger.info('Custom protocol', code)
+  logger.info('Waiting for websocket connection before proceeding with deep link flow.')
 
   while (true) {
     const connected = yield* select(socketSelectors.isConnected)
@@ -30,7 +31,7 @@ export function* customProtocolSaga(
     yield* delay(500)
   }
 
-  log('Continuing on deep link flow.')
+  logger.info('Continuing on deep link flow.')
 
   let data: InvitationData | null
 
@@ -51,7 +52,7 @@ export function* customProtocolSaga(
   }
 
   if (data === null) {
-    log(`Not processing invitation code ${code}`)
+    logger.warn(`Not processing invitation code ${code}`)
     return
   }
 
@@ -61,7 +62,7 @@ export function* customProtocolSaga(
 
   // User already belongs to a community
   if (isAlreadyConnected) {
-    log('Displaying error (user already belongs to a community).')
+    logger.warn('Displaying error (user already belongs to a community).')
     yield* put(
       modalsActions.openModal({
         name: ModalName.warningModal,
@@ -91,7 +92,7 @@ export function* customProtocolSaga(
   const connectingWithAnotherCommunity = isJoiningAnotherCommunity && !isAlreadyConnected
 
   if (connectingWithAnotherCommunity) {
-    log('Displaying error (user is already connecting to another community).')
+    logger.warn('Displaying error (user is already connecting to another community).')
     yield* put(
       modalsActions.openModal({
         name: ModalName.warningModal,
