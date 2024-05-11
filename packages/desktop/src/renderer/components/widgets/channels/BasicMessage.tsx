@@ -54,7 +54,7 @@ const StyledListItem = styled(ListItem)(({ theme }) => ({
   [`&.${classes.wrapper}`]: {
     backgroundColor: theme.palette.background.default,
     '&:hover': {
-      backgroundColor: theme.palette.colors.gray03,
+      backgroundColor: theme.palette.background.paper,
     },
   },
 
