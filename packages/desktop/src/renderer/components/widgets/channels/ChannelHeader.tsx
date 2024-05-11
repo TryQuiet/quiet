@@ -79,11 +79,6 @@ const Root = styled('div')(({ theme }) => ({
     minHeight: 0,
   },
 
-  [`& .${classes.selected}`]: {
-    color: theme.palette.colors.trueBlack,
-    backgroundColor: theme.palette.colors.white,
-  },
-
   [`& .${classes.indicator}`]: {
     maxHeight: 0,
   },

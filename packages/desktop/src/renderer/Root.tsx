@@ -43,7 +43,7 @@ export const persistor = persistStore(store)
 export default () => {
   return (
     <StyledEngineProvider injectFirst>
-      <ThemeProvider theme={lightTheme}>
+      <ThemeProvider theme={darkTheme}>
         <DndProvider backend={HTML5Backend}>
           <HashRouter>
             <Provider store={store}>

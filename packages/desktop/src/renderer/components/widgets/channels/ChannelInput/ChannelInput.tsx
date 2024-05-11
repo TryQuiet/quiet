@@ -33,7 +33,6 @@ const classes = {
   actions: `${PREFIX}actions`,
   picker: `${PREFIX}picker`,
   errorIcon: `${PREFIX}errorIcon`,
-  errorText: `${PREFIX}errorText`,
   errorBox: `${PREFIX}errorBox`,
   linkBlue: `${PREFIX}linkBlue`,
   notAllowed: `${PREFIX}notAllowed`,
@@ -174,9 +173,6 @@ const StyledChannelInput = styled(Grid)(({ theme }) => ({
     alignItems: 'center',
     marginLeft: 20,
     marginRight: 5,
-  },
-  [`& .${classes.errorText}`]: {
-    color: theme.palette.colors.trueBlack,
   },
   [`& .${classes.errorBox}`]: {
     marginTop: 5,

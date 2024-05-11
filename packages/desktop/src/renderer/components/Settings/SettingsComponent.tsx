@@ -48,8 +48,6 @@ const StyledAppBar = styled(AppBar, { label: 'xxxxx' })(({ theme }) => ({
 }))
 
 const StyledTabs = styled(Tabs)(({ theme }) => ({
-  color: theme.palette.colors.trueBlack,
-
   [`& .${classes.indicator}`]: {
     height: '0 !important',
   },

@@ -116,6 +116,8 @@ const lightTheme = createTheme({
       border01: '#F0F0F0',
       border02: '#B3B3B3',
       border03: '#D2D2D2',
+      //Gradients and other fancy things
+      sidebarBackground: 'linear-gradient(290.29deg, #521576 18.61%, #E42656 96.07%)',
     },
   },
   //@ts-ignore MUI types expect 25 shadows - see: https://github.com/mui/material-ui/issues/28820
@@ -203,7 +205,6 @@ const darkTheme = createTheme({
     caption: {
       fontSize: 12,
       lineHeight: '20px',
-      color: '#b2b2b2',
     },
     body1: {
       fontSize: 16,
@@ -246,12 +247,19 @@ const darkTheme = createTheme({
       lineHeight: '26px',
       fontWeight: 500,
     },
+    h6: {
+      fontSize: 16,
+      lineHeight: '26px',
+      fontWeight: 500,
+      color: '#fff',
+    },
   },
   palette: {
+    mode: 'dark',
     background: {
       // Background colors (white-ish for light theme, black-ish for dark)
-      default: '#ffffff',
-      paper: '#F0F0F0',
+      default: '#151515',
+      paper: '#222222',
     },
     // text: {}, // font colors (black-ish for light theme, white-ish for dark)
     primary: {
@@ -302,15 +310,17 @@ const darkTheme = createTheme({
       border01: '#F0F0F0',
       border02: '#B3B3B3',
       border03: '#D2D2D2',
+      // Gradients and other run-of-the-mill things
+      sidebarBackground: 'linear-gradient(290.29deg, #1f092c 18.61%, #03081c 96.07%)',
     },
   },
   //@ts-ignore MUI types expect 25 shadows - see: https://github.com/mui/material-ui/issues/28820
   shadows: [
     'none',
-    '0px 0px 4px rgba(0, 0, 0, 0.25)',
-    '0px 1px 0px #F0F0F0',
-    '0px 1px 3px rgba(0, 0, 0, 0.0)',
-    '0px 2px 25px rgba(0, 0, 0, 0.2)',
+    '0px 0px 4px rgba(1, 1, 1, 0.25)',
+    '0px 1px 0px #0F0F0F',
+    '0px 1px 3px rgba(1, 1, 1, 0.0)',
+    '0px 2px 25px rgba(1, 1, 1, 0.2)',
   ],
   components: {
     // Body font size changed in mui v5: https://mui.com/material-ui/migration/v5-component-changes/#update-body-font-size
