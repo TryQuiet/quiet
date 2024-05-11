@@ -62,6 +62,7 @@ const lightTheme = createTheme({
     },
   },
   palette: {
+    mode: 'light',
     background: {
       // Background colors (white-ish for light theme, black-ish for dark)
       default: '#ffffff',

@@ -1,8 +1,8 @@
 import React, { ReactElement, useCallback } from 'react'
 import classNames from 'classnames'
-import Picker, { EmojiStyle } from 'emoji-picker-react'
+import Picker, { EmojiStyle, type Theme } from 'emoji-picker-react'
 import Grid from '@mui/material/Grid'
-import { styled } from '@mui/material/styles'
+import { styled, useTheme } from '@mui/material/styles'
 import orange from '@mui/material/colors/orange'
 import ClickAwayListener from '@mui/material/ClickAwayListener'
 import ChannelInputInfoMessage from './ChannelInputInfoMessage'
@@ -245,6 +245,8 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
 
   const [message, setMessage] = React.useState(initialMessage)
 
+  const theme = useTheme()
+
   React.useEffect(() => {
     setMessage(initialMessage)
     const ref = textAreaRef.current
@@ -436,6 +438,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
                           // Every other emojiStyle causes downloading emojis from cdn. We do not want that.
                           // Do not change it unless using custom getEmojiUrl with local emojis.
                           emojiStyle={EmojiStyle.NATIVE}
+                          theme={theme.palette.mode as Theme}
                         />
                       </div>
                     </ClickAwayListener>
