@@ -2,13 +2,16 @@
 
 # New features:
 
+* Add dark mode to the desktop UI ([#1502](https://github.com/TryQuiet/quiet/issues/1502))
 * Add support for new format of invitation link: `c=<cid>&t=<token>&s=<serverAddress>&i=<inviterAddress>` ([#2310](https://github.com/TryQuiet/quiet/issues/2310))
 * Use server for downloading initial community metadata if v2 invitation link is detected ([#2295](https://github.com/TryQuiet/quiet/issues/2295))
 
 # Refactorings:
+
 * Consolidate colors and align theme with MUI standards ([#2445](https://github.com/TryQuiet/quiet/issues/2445))
 
 # Fixes:
+
 * Disable spellCheck/autoCorrect on non-spelling sensitive fields like usernames and channels ([#373](https://github.com/TryQuiet/quiet/issues/373))
 * Fixes issue with reconnecting to peers on resume on iOS ([#2424](https://github.com/TryQuiet/quiet/issues/2424))
 
