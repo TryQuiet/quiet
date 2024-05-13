@@ -16,7 +16,7 @@ const classes = {
 const StyledGrid = styled(Grid)(({ theme }) => ({
   [`& .${classes.message}`]: {
     marginTop: theme.spacing(2),
-    color: theme.palette.primary.main,
+    color: theme.palette.colors.mediumGray,
   },
 
   [`& .${classes.spinner}`]: (props: any) => ({

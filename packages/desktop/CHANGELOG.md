@@ -1,16 +1,32 @@
 [unreleased]
 
-# New Features
+# New features:
 
 * Adds connection status information to messages panel when no peers are connected ([#1706](https://github.com/TryQuiet/quiet/issues/1706))
 
 # Refactorings:
 
-* Use ack for CREATE_NETWORK and simplify
-* Refactored package.json to have consistent license "GPL-3.0-or-later"
-* Updates all logging from renderer to write to the node console
-* Updates usages of `act` in tests to use `@testing-library/react` to avoid errors/warnings
+# Fixes:
 
+* Update github workflows for PR gating ([#2487](https://github.com/TryQuiet/quiet/issues/2487))
+* Don't create duplicate CSRs when joining a community under certain circumstances ([#2321](https://github.com/TryQuiet/quiet/issues/2321))
+
+[2.2.0]
+
+# New features:
+
+* Add utilities for emoji detection in messages and make all-emoji message larger font size ([#519](https://github.com/TryQuiet/quiet/issues/519))
+
+# Refactorings:
+
+* Use ack for CREATE_NETWORK and simplify
+* Move Community model to the backend
+
+# Fixes:
+
+* Fix issues with recreating general channel when deleted while offline ([#2334](https://github.com/TryQuiet/quiet/issues/2334))
+* Fix package.json license inconsistency
+* Fixes issue with reconnecting to peers on resume on iOS ([#2424](https://github.com/TryQuiet/quiet/issues/2424))
 
 [2.1.2]
 
@@ -24,6 +40,7 @@
 
 # Fixes:
 
+* Fixes channel name creation logic
 * Remove duplicate introduction messages once again
 * Prevent channel creation with names that start with special character, then a hyphen
 * Choose random ports for Tor services (iOS)

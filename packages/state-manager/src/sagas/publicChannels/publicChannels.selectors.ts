@@ -184,6 +184,8 @@ export const displayableCurrentChannelMessages = createSelector(
       if (user) {
         // @ts-ignore
         result.push(displayableMessage(message, user, userProfiles[message.pubKey]))
+      } else {
+        console.warn('Received a message from a user that does not exist', message.id, message.pubKey, users)
       }
       return result
     }, [])

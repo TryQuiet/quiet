@@ -77,8 +77,7 @@ export class UserProfileStore extends EventEmitter {
       })
     })
 
-    // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
-    await this.store.load({ fetchEntryTimeout: 15000 })
+    await this.store.load()
   }
 
   public getAddress() {
@@ -86,7 +85,9 @@ export class UserProfileStore extends EventEmitter {
   }
 
   public async close() {
+    logger('Closing user profile DB')
     await this.store?.close()
+    logger('Closed user profile DB')
   }
 
   public async addUserProfile(userProfile: UserProfile) {

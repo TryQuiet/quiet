@@ -10,6 +10,8 @@ import Icon from '../ui/Icon/Icon'
 import arrowLeft from '../../static/images/arrowLeft.svg'
 import arrowRightShort from '../../static/images/arrowRightShort.svg'
 
+import theme from '../../theme'
+
 export const ContextMenu: FC<ContextMenuProps> = ({ visible, handleClose, handleBack, title, children }) => {
   const ref = useRef<HTMLDivElement>(null)
 
@@ -50,8 +52,8 @@ export const ContextMenu: FC<ContextMenuProps> = ({ visible, handleClose, handle
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'flex-start',
-          backgroundColor: '#ffffff',
-          boxShadow: '0px 0px 4px rgba(0, 0, 0, 0.25)',
+          backgroundColor: theme.palette.background.default,
+          boxShadow: theme.shadows[1],
           maxWidth: '375px',
           pointerEvents: 'auto',
         }}
@@ -65,7 +67,7 @@ export const ContextMenu: FC<ContextMenuProps> = ({ visible, handleClose, handle
             textAlign: 'center',
             height: 60,
             width: '100%',
-            borderBottom: '1px solid #F0F0F0',
+            borderBottom: `1px solid ${theme.palette.colors.border01}`,
           }}
         >
           <Grid
@@ -101,7 +103,7 @@ export const ContextMenuHint: FC<ContextMenuHintProps> = ({ hint }) => {
         width: '100%',
         padding: 16,
         borderTopWidth: 1,
-        borderColor: '#F0F0F0',
+        borderColor: theme.palette.colors.border01,
       }}
     >
       <Typography fontSize={14} fontWeight={'normal'}>
@@ -136,7 +138,7 @@ export const ContextMenuItem: FC<ContextMenuItemProps> = ({ title, action }) => 
         padding: '11px 16px',
         width: '100%',
         cursor: 'pointer',
-        borderBottom: '1px solid #F0F0F0',
+        borderBottom: `1px solid ${theme.palette.colors.border01}`,
       }}
       onClick={action}
       data-testid={`contextMenuItem${title}`}

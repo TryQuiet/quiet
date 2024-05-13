@@ -29,6 +29,13 @@ class CommunicationModule: RCTEventEmitter {
     self.sendEvent(withName: CommunicationModule.APP_RESUME_IDENTIFIER, body: nil)
   }
   
+  @objc
+  func handleIncomingEvents(_ event: NSString, payload: NSString?, extra: NSString?) {
+    let socketPort = WebsocketSingleton.sharedInstance.socketPort
+    let socketIOSecret = WebsocketSingleton.sharedInstance.socketIOSecret
+    self.sendDataPort(port: socketPort, socketIOSecret: socketIOSecret);
+  }
+  
   override func supportedEvents() -> [String]! {
     return [CommunicationModule.BACKEND_EVENT_IDENTIFIER, CommunicationModule.NOTIFICATION_EVENT_IDENTIFIER, CommunicationModule.STOP_EVENT_IDENTIFIER, CommunicationModule.APP_PAUSE_IDENTIFIER, CommunicationModule.APP_RESUME_IDENTIFIER]
   }

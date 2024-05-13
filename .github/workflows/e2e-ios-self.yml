@@ -1,0 +1,51 @@
+name: Detox E2E iOS (self-hosted)
+
+on:
+  # push:
+  #   paths: 
+  #     - packages/mobile/**
+  #     - packages/backend/**
+  #     - packages/state-manager/**
+  #     - .github/workflows/e2e-ios-self.yml
+
+jobs:
+  detox-ios-self-hosted:
+    timeout-minutes: 25
+    runs-on: [self-hosted, macOS, ARM64, iOS]
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Install dependencies
+        run: |
+          npm i
+          npm run lerna bootstrap --scope @quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/mobile,backend-bundle
+
+      - name: Install pods
+        run: |
+          cd packages/mobile/ios
+          pod install
+
+      - name: Install pm2
+        run: npm install pm2@latest -g
+
+      - name: Start metro
+        run: |
+          cd packages/mobile
+          pm2 --name METRO start npm -- start
+
+      - name: Build Detox
+        run: |
+          cd packages/mobile
+          detox build -c ios.sim.debug.ci
+
+      - name: Run basic tests
+        run: |
+          cd packages/mobile
+          detox test starter -c ios.sim.debug.ci
+
+      - name: Stop metro
+        if: always() 
+        run: pm2 stop METRO

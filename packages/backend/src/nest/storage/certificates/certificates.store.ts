@@ -58,8 +58,7 @@ export class CertificatesStore extends EventEmitter {
       await this.loadedCertificates()
     })
 
-    // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
-    await this.store.load({ fetchEntryTimeout: 15000 })
+    await this.store.load()
 
     this.logger('Initialized')
   }
@@ -71,7 +70,9 @@ export class CertificatesStore extends EventEmitter {
   }
 
   public async close() {
+    this.logger('Closing certificates DB')
     await this.store?.close()
+    this.logger('Closed certificates DB')
   }
 
   public getAddress() {
@@ -146,13 +147,13 @@ export class CertificatesStore extends EventEmitter {
    * as specified in the comment section of
    * https://github.com/TryQuiet/quiet/issues/1899
    */
-  protected async getCertificates() {
+  public async getCertificates(): Promise<string[]> {
+    this.logger('Getting certificates')
     if (!this.store) {
+      this.logger('No store found!')
       return []
     }
 
-    // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
-    await this.store.load({ fetchEntryTimeout: 15000 })
     const allCertificates = this.store
       .iterator({ limit: -1 })
       .collect()
@@ -166,7 +167,6 @@ export class CertificatesStore extends EventEmitter {
         }
 
         const validation = await this.validateCertificate(certificate)
-        this.logger('DuplicatedCertBug', { validation, certificate })
         if (validation) {
           const parsedCertificate = parseCertificate(certificate)
           const pubkey = keyFromCertificate(parsedCertificate)
@@ -190,7 +190,8 @@ export class CertificatesStore extends EventEmitter {
 
     const validCerts = validCertificates.filter(i => i != undefined)
     this.logger(`Valid certificates: ${validCerts.length}`)
-    return validCerts
+    // TODO: Why doesn't TS infer this properly?
+    return validCerts as string[]
   }
 
   public async getCertificateUsername(pubkey: string) {

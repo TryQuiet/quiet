@@ -10,7 +10,10 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.modules.core.RCTNativeAppEventEmitter;
+import com.google.gson.Gson;
+import com.quietmobile.MainApplication;
 import com.quietmobile.Notification.NotificationHandler;
+import com.quietmobile.Scheme.WebsocketConnectionPayload;
 
 import androidx.annotation.NonNull;
 
@@ -23,6 +26,8 @@ import javax.annotation.Nullable;
 
 
 public class CommunicationModule extends ReactContextBaseJavaModule {
+
+    public static final String APP_READY_CHANNEL = "_APP_READY_";
 
     public static final String PUSH_NOTIFICATION_CHANNEL = "_PUSH_NOTIFICATION_";
     public static final String WEBSOCKET_CONNECTION_CHANNEL = "_WEBSOCKET_CONNECTION_";
@@ -48,14 +53,16 @@ public class CommunicationModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public static void handleIncomingEvents(String event, String payload, String extra) {
+    public static void handleIncomingEvents(String event, @Nullable String payload, @Nullable String extra) {
         switch (event) {
+            case APP_READY_CHANNEL:
+                startWebsocketConnection();
+                break;
             case PUSH_NOTIFICATION_CHANNEL:
                 String message = payload;
                 String username = extra;
                 notificationHandler.notify(message, username);
                 break;
-            case WEBSOCKET_CONNECTION_CHANNEL:
             case INIT_CHECK_CHANNEL:
             case BACKEND_CLOSED_CHANNEL:
                 passDataToReact(event, payload);
@@ -86,6 +93,15 @@ public class CommunicationModule extends ReactContextBaseJavaModule {
                     .getJSModule(RCTNativeAppEventEmitter.class)
                     .emit("backend", params);
         }
+    }
+
+    private static void startWebsocketConnection() {
+        Context context = reactContext.getApplicationContext();
+        int port                = ((MainApplication) context).getSocketPort();
+        String socketIOSecret   = ((MainApplication) context).getSocketIOSecret();
+
+        WebsocketConnectionPayload websocketConnectionPayload = new WebsocketConnectionPayload(port, socketIOSecret);
+        passDataToReact(WEBSOCKET_CONNECTION_CHANNEL, new Gson().toJson(websocketConnectionPayload));
     }
 
     @ReactMethod

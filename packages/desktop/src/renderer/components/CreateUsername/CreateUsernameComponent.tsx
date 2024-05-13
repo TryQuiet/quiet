@@ -43,7 +43,7 @@ const classes = {
 }
 
 const StyledGrid = styled(Grid)(({ theme }) => ({
-  backgroundColor: theme.palette.colors.white,
+  backgroundColor: theme.palette.background.default,
   padding: '0px 32px',
 
   [`& .${classes.focus}`]: {
@@ -106,7 +106,7 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
   },
 
   [`& .${classes.warrningIcon}`]: {
-    color: '#FFCC00',
+    color: theme.palette.warning.main,
   },
 
   [`& .${classes.warrningMessage}`]: {
@@ -131,7 +131,7 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
   [`& .${classes.inputLabel}`]: {
     marginTop: 24,
     marginBottom: 2,
-    color: theme.palette.colors.black30,
+    color: theme.palette.colors.gray70,
   },
 
   [`& .${classes.marginMedium}`]: {
@@ -242,6 +242,7 @@ export const CreateUsernameComponent: React.FC<CreateUsernameComponentProps> = (
                       field.onBlur()
                     }}
                     value={field.value}
+                    spellCheck={false}
                   />
                 )}
               />

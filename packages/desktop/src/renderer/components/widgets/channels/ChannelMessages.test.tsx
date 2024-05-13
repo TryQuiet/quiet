@@ -50,7 +50,7 @@ describe('ChannelMessages', () => {
       <body>
         <div>
           <div
-            class="ChannelMessagesComponentscroll css-gca61p"
+            class="ChannelMessagesComponentscroll css-t1qm6i"
             data-testid="channelContent"
           >
             <ul

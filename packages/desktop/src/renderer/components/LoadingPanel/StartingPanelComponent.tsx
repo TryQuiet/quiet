@@ -42,10 +42,10 @@ const StyledGrid = styled(Grid)(({ theme, width }) => ({
     marginTop: '16px',
   },
   [`& .${classes.text}`]: {
-    color: theme.palette.colors.black30,
+    color: theme.palette.colors.gray70,
   },
   [`& .${classes.progressBar}`]: {
-    backgroundColor: theme.palette.colors.veryLightGray,
+    backgroundColor: theme.palette.background.paper,
     width: '300px',
     height: '4px',
     position: 'relative',

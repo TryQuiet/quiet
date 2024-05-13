@@ -29,8 +29,8 @@ const classes = {
   button: `${PREFIX}button`,
   title: `${PREFIX}title`,
   iconDiv: `${PREFIX}iconDiv`,
-  warrningIcon: `${PREFIX}warrningIcon`,
-  warrningMessage: `${PREFIX}warrningMessage`,
+  warningIcon: `${PREFIX}warningIcon`,
+  warningMessage: `${PREFIX}warningMessage`,
   rootBar: `${PREFIX}rootBar`,
   progressBar: `${PREFIX}progressBar`,
   info: `${PREFIX}info`,
@@ -39,7 +39,7 @@ const classes = {
 }
 
 const StyledGrid = styled(Grid)(({ theme }) => ({
-  backgroundColor: theme.palette.colors.white,
+  backgroundColor: theme.palette.background.default,
   padding: '0px 32px',
 
   [`& .${classes.focus}`]: {
@@ -97,11 +97,11 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
     marginRight: 8,
   },
 
-  [`& .${classes.warrningIcon}`]: {
-    color: '#FFCC00',
+  [`& .${classes.warningIcon}`]: {
+    color: theme.palette.warning.main,
   },
 
-  [`& .${classes.warrningMessage}`]: {
+  [`& .${classes.warningMessage}`]: {
     wordBreak: 'break-word',
   },
 
@@ -123,7 +123,7 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
   [`& .${classes.inputLabel}`]: {
     marginTop: 24,
     marginBottom: 2,
-    color: theme.palette.colors.black30,
+    color: theme.palette.colors.gray70,
   },
 
   [`& .${classes.marginMedium}`]: {
@@ -245,6 +245,7 @@ export const ChangeUsername: React.FC<ChangeUsernameProps> = ({
                   field.onBlur()
                 }}
                 value={field.value}
+                spellCheck={false}
               />
             )}
           />
@@ -257,10 +258,10 @@ export const ChangeUsername: React.FC<ChangeUsernameProps> = ({
             {!errors.userName && userName.length > 0 && parsedNameDiffers && (
               <Grid container alignItems='center' direction='row'>
                 <Grid item className={classes.iconDiv}>
-                  <WarningIcon className={classes.warrningIcon} />
+                  <WarningIcon className={classes.warningIcon} />
                 </Grid>
                 <Grid item xs>
-                  <Typography variant='body2' className={classes.warrningMessage}>
+                  <Typography variant='body2' className={classes.warningMessage}>
                     Your username will be registered as <b>{`@${userName}`}</b>
                   </Typography>
                 </Grid>

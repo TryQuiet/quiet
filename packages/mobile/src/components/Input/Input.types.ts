@@ -15,4 +15,5 @@ export interface InputProps {
   style?: ViewStyle
   wrapperStyle?: ViewStyle
   children?: ReactElement
+  autoCorrect?: boolean
 }

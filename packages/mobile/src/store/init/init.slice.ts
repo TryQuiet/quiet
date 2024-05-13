@@ -44,9 +44,6 @@ export const initSlice = createSlice({
     setStoreReady: state => {
       state.ready = true
     },
-    setCryptoEngineInitialized: (state, action: PayloadAction<boolean>) => {
-      state.isCryptoEngineInitialized = action.payload
-    },
     updateInitDescription: (state, action: PayloadAction<string>) => {
       state.initDescription = action.payload
     },
@@ -60,7 +57,6 @@ export const initSlice = createSlice({
         id: event,
       })
     },
-    blindWebsocketConnection: state => state,
     startWebsocketConnection: (state, _action: PayloadAction<WebsocketConnectionPayload>) => state,
     suspendWebsocketConnection: state => {
       state.isWebsocketConnected = false

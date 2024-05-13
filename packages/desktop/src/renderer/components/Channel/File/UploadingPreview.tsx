@@ -22,7 +22,7 @@ const classes = {
   tooltip: `${PREFIX}tooltip`,
 }
 
-const StyledFilePreviewComponent = styled('div')(() => ({
+const StyledFilePreviewComponent = styled('div')(({ theme }) => ({
   display: 'inline-block',
   float: 'left',
   cursor: 'pointer',
@@ -49,7 +49,7 @@ const StyledFilePreviewComponent = styled('div')(() => ({
     width: '64px',
     height: '64px',
     borderRadius: '15%',
-    backgroundColor: '#F0F0F0',
+    backgroundColor: theme.palette.background.paper,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -59,7 +59,7 @@ const StyledFilePreviewComponent = styled('div')(() => ({
     position: 'absolute',
     margin: '0 0 0 51px', // Left margin is equal fileContainer width minus half the own width
     padding: '0',
-    backgroundColor: 'white',
+    backgroundColor: theme.palette.background.default,
     borderRadius: '100%',
     width: '22px',
     height: '22px',

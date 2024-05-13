@@ -1,7 +1,7 @@
 import { eventChannel } from 'redux-saga'
 import { type Socket } from '../../../types'
-import { all, call, fork, put, takeEvery } from 'typed-redux-saga'
-import createLogger from '../../../utils/logger'
+import { all, call, fork, put, takeEvery, cancelled } from 'typed-redux-saga'
+import logger from '../../../utils/logger'
 import { appActions } from '../../app/app.slice'
 import { appMasterSaga } from '../../app/app.master.saga'
 import { connectionActions } from '../../appConnection/connection.slice'
@@ -46,7 +46,7 @@ import {
   PeersNetworkDataPayload,
 } from '@quiet/types'
 
-const logger = createLogger('socket')
+const log = logger('socket')
 
 export function subscribe(socket: Socket) {
   return eventChannel<
@@ -65,8 +65,6 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof errorsActions.addError>
     | ReturnType<typeof errorsActions.handleError>
     | ReturnType<typeof identityActions.storeUserCertificate>
-    | ReturnType<typeof identityActions.throwIdentityError>
-    | ReturnType<typeof identityActions.checkLocalCsr>
     | ReturnType<typeof communitiesActions.createCommunity>
     | ReturnType<typeof communitiesActions.launchCommunity>
     | ReturnType<typeof communitiesActions.updateCommunityData>
@@ -85,8 +83,6 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof communitiesActions.clearInvitationCodes>
     | ReturnType<typeof identityActions.saveUserCsr>
     | ReturnType<typeof connectionActions.setTorInitialized>
-    | ReturnType<typeof communitiesActions.sendCommunityMetadata>
-    | ReturnType<typeof communitiesActions.sendCommunityCaData>
     | ReturnType<typeof usersActions.setUserProfiles>
     | ReturnType<typeof appActions.loadMigrationData>
   >(emit => {
@@ -99,12 +95,12 @@ export function subscribe(socket: Socket) {
     })
     // Misc
     socket.on(SocketActionTypes.PEER_CONNECTED, (payload: PeersNetworkDataPayload) => {
-      logger.info(`${SocketActionTypes.PEER_CONNECTED}: ${JSON.stringify(payload)}`)
+      log(`${SocketActionTypes.PEER_CONNECTED}: ${JSON.stringify(payload)}`)
       emit(networkActions.addConnectedPeers(payload.peers.map(peer => peer.peer)))
       emit(connectionActions.updateNetworkData(payload.peers))
     })
     socket.on(SocketActionTypes.PEER_DISCONNECTED, (payload: NetworkDataPayload) => {
-      logger.info(`${SocketActionTypes.PEER_DISCONNECTED}: ${JSON.stringify(payload)}`)
+      log(`${SocketActionTypes.PEER_DISCONNECTED}: ${JSON.stringify(payload)}`)
       emit(networkActions.removeConnectedPeer(payload.peer))
       emit(connectionActions.updateNetworkData([payload]))
     })
@@ -143,11 +139,6 @@ export function subscribe(socket: Socket) {
     // Community
 
     socket.on(SocketActionTypes.COMMUNITY_LAUNCHED, (payload: ResponseLaunchCommunityPayload) => {
-      logger.info(`${SocketActionTypes.COMMUNITY_LAUNCHED}: ${payload}`)
-      logger.info('Hunting for heisenbug: Community event received in state-manager')
-      // TODO: We can send this once when creating the community and
-      // store it in the backend.
-      emit(communitiesActions.sendCommunityCaData())
       emit(filesActions.checkForMissingFiles(payload.id))
       emit(networkActions.addInitializedCommunity(payload.id))
       emit(communitiesActions.clearInvitationCodes())
@@ -163,13 +154,12 @@ export function subscribe(socket: Socket) {
       // color in the console, which makes them difficult to find.
       // Also when only printing the payload, the full trace is not
       // available.
-      logger.error(`Error on socket:`, payload.trace)
+      console.error(`Error on socket:`, payload.trace)
       emit(errorsActions.handleError(payload))
     })
     // Certificates
     socket.on(SocketActionTypes.CSRS_STORED, (payload: SendCsrsResponse) => {
-      logger.info(`${SocketActionTypes.CSRS_STORED}`)
-      emit(identityActions.checkLocalCsr(payload))
+      log(`${SocketActionTypes.CSRS_STORED}`)
       emit(usersActions.storeCsrs(payload))
     })
     socket.on(SocketActionTypes.CERTIFICATES_STORED, (payload: SendCertificatesResponse) => {
@@ -179,7 +169,7 @@ export function subscribe(socket: Socket) {
     // User Profile
 
     socket.on(SocketActionTypes.USER_PROFILES_STORED, (payload: UserProfilesStoredEvent) => {
-      logger.info(`${SocketActionTypes.USER_PROFILES_STORED}`)
+      log(`${SocketActionTypes.USER_PROFILES_STORED}`)
       emit(usersActions.setUserProfiles(payload.profiles))
     })
 
@@ -188,23 +178,39 @@ export function subscribe(socket: Socket) {
 }
 
 export function* handleActions(socket: Socket): Generator {
-  const socketChannel = yield* call(subscribe, socket)
-  yield takeEvery(socketChannel, function* (action) {
-    yield put(action)
-  })
+  console.log('handleActions starting')
+  try {
+    const socketChannel = yield* call(subscribe, socket)
+    yield takeEvery(socketChannel, function* (action) {
+      yield put(action)
+    })
+  } finally {
+    console.log('handleActions stopping')
+    if (yield cancelled()) {
+      console.log('handleActions cancelled')
+    }
+  }
 }
 
 export function* useIO(socket: Socket): Generator {
-  yield all([
-    fork(handleActions, socket),
-    fork(publicChannelsMasterSaga, socket),
-    fork(messagesMasterSaga, socket),
-    fork(filesMasterSaga, socket),
-    fork(identityMasterSaga, socket),
-    fork(communitiesMasterSaga, socket),
-    fork(usersMasterSaga, socket),
-    fork(appMasterSaga, socket),
-    fork(connectionMasterSaga),
-    fork(errorsMasterSaga),
-  ])
+  console.log('useIO starting')
+  try {
+    yield all([
+      fork(handleActions, socket),
+      fork(publicChannelsMasterSaga, socket),
+      fork(messagesMasterSaga, socket),
+      fork(filesMasterSaga, socket),
+      fork(identityMasterSaga, socket),
+      fork(communitiesMasterSaga, socket),
+      fork(usersMasterSaga, socket),
+      fork(appMasterSaga, socket),
+      fork(connectionMasterSaga),
+      fork(errorsMasterSaga),
+    ])
+  } finally {
+    console.log('useIO stopping')
+    if (yield cancelled()) {
+      console.log('useIO cancelled')
+    }
+  }
 }

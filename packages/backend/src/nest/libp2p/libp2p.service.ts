@@ -26,8 +26,9 @@ import { SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
 import { ServerIoProviderTypes } from '../types'
 import { webSockets } from '../websocketOverTor'
 import { all } from '../websocketOverTor/filters'
-import { Libp2pEvents, Libp2pNodeParams } from './libp2p.types'
+import { Libp2pConnectedPeer, Libp2pEvents, Libp2pNodeParams, Libp2pPeerInfo } from './libp2p.types'
 import { ProcessInChunksService } from './process-in-chunks.service'
+import { peerIdFromString } from '@libp2p/peer-id'
 
 const KEY_LENGTH = 32
 export const LIBP2P_PSK_METADATA = '/key/swarm/psk/1.0.0/\n/base16/\n'
@@ -35,7 +36,7 @@ export const LIBP2P_PSK_METADATA = '/key/swarm/psk/1.0.0/\n/base16/\n'
 @Injectable()
 export class Libp2pService extends EventEmitter {
   public libp2pInstance: Libp2p | null
-  public connectedPeers: Map<string, number> = new Map()
+  public connectedPeers: Map<string, Libp2pConnectedPeer> = new Map()
   public dialedPeers: Set<string> = new Set()
   private readonly logger = Logger(Libp2pService.name)
   constructor(
@@ -48,10 +49,26 @@ export class Libp2pService extends EventEmitter {
 
   private dialPeer = async (peerAddress: string) => {
     if (this.dialedPeers.has(peerAddress)) {
+      this.logger(`Skipping dial of ${peerAddress} because its already been dialed`)
       return
     }
     this.dialedPeers.add(peerAddress)
     await this.libp2pInstance?.dial(multiaddr(peerAddress))
+  }
+
+  public getCurrentPeerInfo = (): Libp2pPeerInfo => {
+    return {
+      dialed: Array.from(this.dialedPeers),
+      connected: Array.from(this.connectedPeers.values()).map(peer => peer.address),
+    }
+  }
+
+  public pause = async (): Promise<Libp2pPeerInfo> => {
+    const peerInfo = this.getCurrentPeerInfo()
+    await this.hangUpPeers(peerInfo.dialed)
+    this.dialedPeers.clear()
+    this.connectedPeers.clear()
+    return peerInfo
   }
 
   public readonly createLibp2pAddress = (address: string, peerId: string): string => {
@@ -80,6 +97,57 @@ export class Libp2pService extends EventEmitter {
     return { psk: psk.toString('base64'), fullKey }
   }
 
+  public async hangUpPeers(peers: string[]) {
+    this.logger('Hanging up on all peers')
+    for (const peer of peers) {
+      await this.hangUpPeer(peer)
+    }
+    this.logger('All peers hung up')
+  }
+
+  public async hangUpPeer(peerAddress: string) {
+    this.logger('Hanging up on peer', peerAddress)
+    try {
+      const ma = multiaddr(peerAddress)
+      const peerId = peerIdFromString(ma.getPeerId()!)
+
+      this.logger('Hanging up connection on libp2p')
+      await this.libp2pInstance?.hangUp(ma)
+
+      this.logger('Removing peer from peer store')
+      await this.libp2pInstance?.peerStore.delete(peerId as any)
+    } catch (e) {
+      this.logger.error(e)
+    }
+    this.logger('Clearing local data')
+    this.dialedPeers.delete(peerAddress)
+    this.connectedPeers.delete(peerAddress)
+    this.logger('Done hanging up')
+  }
+
+  /**
+   * Hang up existing peer connections and re-dial them. Specifically useful on
+   * iOS where Tor receives a new port when the app resumes from background and
+   * we want to close/re-open connections.
+   */
+  public async redialPeers(peersToDial?: string[]) {
+    const dialed = peersToDial ?? Array.from(this.dialedPeers)
+    const toDial = peersToDial ?? [...this.connectedPeers.keys(), ...this.dialedPeers]
+
+    if (dialed.length === 0) {
+      this.logger('No peers to redial!')
+      return
+    }
+
+    this.logger(`Re-dialing ${dialed.length} peers`)
+
+    // TODO: Sort peers
+    await this.hangUpPeers(dialed)
+
+    this.processInChunksService.updateData(toDial)
+    await this.processInChunksService.process()
+  }
+
   public async createInstance(params: Libp2pNodeParams): Promise<Libp2p> {
     if (this.libp2pInstance) {
       return this.libp2pInstance
@@ -92,7 +160,7 @@ export class Libp2pService extends EventEmitter {
         start: false,
         connectionManager: {
           minConnections: 3, // TODO: increase?
-          maxConnections: 8, // TODO: increase?
+          maxConnections: 20, // TODO: increase?
           dialTimeout: 120_000,
           maxParallelDials: 10,
           autoDial: true, // It's a default but let's set it to have explicit information
@@ -165,8 +233,12 @@ export class Libp2pService extends EventEmitter {
       this.logger(`${localPeerId} connected to ${remotePeerId}`)
 
       const now = DateTime.utc()
-      this.connectedPeers.set(remotePeerId, now.valueOf())
-      this.logger(`${localPeerId} is now connected to ${this.connectedPeers.size} peers`)
+      const connectedPeer: Libp2pConnectedPeer = {
+        address: peer.detail.remoteAddr.toString(),
+        connectedAtSeconds: now.valueOf(),
+      }
+      this.connectedPeers.set(remotePeerId, connectedPeer)
+      this.logger(`${localPeerId} is connected to ${this.connectedPeers.size} peers`)
       this.logger(`${localPeerId} has ${this.libp2pInstance?.getConnections().length} open connections`)
 
       const payload: PeersNetworkDataPayload = {
@@ -194,7 +266,7 @@ export class Libp2pService extends EventEmitter {
       }
       this.logger(`${localPeerId} has ${this.libp2pInstance.getConnections().length} open connections`)
 
-      const connectionStartTime = this.connectedPeers.get(remotePeerId)
+      const connectionStartTime: number = this.connectedPeers.get(remotePeerId)!.connectedAtSeconds
       if (!connectionStartTime) {
         this.logger.error(`No connection start time for peer ${remotePeerId}`)
         return

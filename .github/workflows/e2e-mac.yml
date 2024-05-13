@@ -3,12 +3,13 @@ name: E2E Mac
 on: [workflow_call]
 jobs:
   mac:
-    runs-on: macos-latest
+    runs-on: macos-12
     timeout-minutes: 180
     env:
       ELECTRON_CUSTOM_VERSION: 23.0.0
       TEST_MODE: true
       IS_E2E: true
+      IS_CI: true
 
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
@@ -34,7 +35,11 @@ jobs:
 
       - name: FILE_NAME env
         working-directory: ./packages/desktop/dist
-        run: echo "FILE_NAME="Quiet-$VERSION.dmg"" >> $GITHUB_ENV
+        run: echo "FILE_NAME="Quiet-$VERSION-arm64.dmg"" >> $GITHUB_ENV
+
+      - name: List dist dir content
+        working-directory: ./packages/desktop/dist
+        run: ls -al
 
       - name: Chmod
         working-directory: ./packages/desktop/dist
@@ -45,7 +50,7 @@ jobs:
         run: hdiutil mount $FILE_NAME
 
       - name: Add App file to applications
-        run: cd ~ && cp -R "/Volumes/Quiet $VERSION/Quiet.app" /Applications
+        run: cd ~ && cp -R "/Volumes/Quiet $VERSION-arm64/Quiet.app" /Applications
 
       - name: Run invitation link test - Includes 2 separate application clients
         uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4 # v2.9.0

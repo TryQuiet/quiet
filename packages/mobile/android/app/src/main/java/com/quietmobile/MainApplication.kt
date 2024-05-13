@@ -52,6 +52,25 @@ class MainApplication : Application(), ReactApplication {
         createNotificationChannel()
     }
 
+    private var socketPort: Int = 0
+    private var socketIOSecret: String = ""
+
+    fun getSocketPort(): Int {
+        return socketPort
+    }
+
+    fun setSocketPort(value: Int) {
+        this.socketPort = value
+    }
+
+    fun getSocketIOSecret(): String {
+        return socketIOSecret
+    }
+
+    fun setSocketIOSecret(value: String) {
+        this.socketIOSecret = value
+    }
+
     private fun createForegroundServiceNotificationChannel() {
         // Create the NotificationChannel, but only on API 26+ because
         // the NotificationChannel class is new and not in the support library

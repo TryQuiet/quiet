@@ -12,7 +12,7 @@ const logger = createLogger('publicChannels')
 export function* channelDeletionResponseSaga(
   action: PayloadAction<ReturnType<typeof publicChannelsActions.channelDeletionResponse>['payload']>
 ): Generator {
-  logger.info(`Deleted channel ${action.payload.channelId} saga`)
+  logger(`Deleted channel ${action.payload.channelId} saga`)
 
   const { channelId } = action.payload
   const generalChannel = yield* select(publicChannelsSelectors.generalChannel)
@@ -20,12 +20,12 @@ export function* channelDeletionResponseSaga(
   const isChannelExist = yield* select(publicChannelsSelectors.getChannelById(channelId))
   const currentChannelId = yield* select(publicChannelsSelectors.currentChannelId)
   if (!isChannelExist) {
-    logger.info(`Channel with id ${channelId} doesnt exist in store`)
+    logger(`Channel with id ${channelId} doesnt exist in store`)
     return
   }
 
   if (!generalChannel) {
-    logger.info('General Channel doesnt exist in store')
+    logger('General Channel doesnt exist in store')
     return
   }
 
@@ -59,8 +59,8 @@ export function* channelDeletionResponseSaga(
     if (isGeneral && isUserOnGeneral) {
       let newGeneralChannel: PublicChannelStorage | undefined = yield* select(publicChannelsSelectors.generalChannel)
       while (!newGeneralChannel) {
-        logger.info('General channel has not been replicated yet')
-        yield* delay(500)
+        logger('General channel has not been replicated yet')
+        yield* delay(1000)
         newGeneralChannel = yield* select(publicChannelsSelectors.generalChannel)
       }
       yield* put(publicChannelsActions.setCurrentChannel({ channelId: newGeneralChannel.id }))

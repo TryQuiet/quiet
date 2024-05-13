@@ -9,7 +9,6 @@ export const userData = {
   nickname: 'userName',
   commonName: 'nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad.onion',
   peerId: 'Qmf3ySkYqLET9xtAtDzvAr5Pp3egK1H3C5iJAZm1SpLEp6',
-  dmPublicKey: '0bfb475810c0e26c9fab590d47c3d60ec533bb3c451596acc3cd4f21602e9ad9',
   signAlg: config.signAlg,
   hashAlg: config.hashAlg,
 }
@@ -62,7 +61,6 @@ export const createUserCertificateTestHelper = async (
     nickname: string
     commonName: string
     peerId: string
-    dmPublicKey: string
   },
   rootCA?: Pick<RootCA, 'rootCertString' | 'rootKeyString'> | null
 ): Promise<{
@@ -73,7 +71,6 @@ export const createUserCertificateTestHelper = async (
     nickname: user.nickname,
     commonName: user.commonName,
     peerId: user.peerId,
-    dmPublicKey: user.dmPublicKey,
     signAlg: config.signAlg,
     hashAlg: config.hashAlg,
   })

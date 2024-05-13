@@ -1,3 +1,3 @@
-import { createQuietLogger } from '@quiet/logger'
+import logger from '@quiet/logger'
 
-export default createQuietLogger('state-manager')
+export default logger('state-manager')

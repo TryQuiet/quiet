@@ -1,5 +1,5 @@
 import { type PayloadAction } from '@reduxjs/toolkit'
-import { select, put, take } from 'typed-redux-saga'
+import { select, put, take, putResolve } from 'typed-redux-saga'
 import { publicChannelsSelectors } from '../publicChannels.selectors'
 import { publicChannelsActions } from '../publicChannels.slice'
 import { messagesSelectors } from '../../messages/messages.selectors'
@@ -13,7 +13,8 @@ const logger = createLogger('channels')
 export function* channelsReplicatedSaga(
   action: PayloadAction<ReturnType<typeof publicChannelsActions.channelsReplicated>['payload']>
 ): Generator {
-  logger.debug('Syncing channels')
+  // TODO: Refactor to use QuietLogger
+  logger(`Syncing channels: ${JSON.stringify(action.payload, null, 2)}`)
   const { channels } = action.payload
   const _locallyStoredChannels = yield* select(publicChannelsSelectors.publicChannels)
   const locallyStoredChannels = _locallyStoredChannels.map(channel => channel.id)
@@ -22,33 +23,35 @@ export function* channelsReplicatedSaga(
   const databaseStoredChannels = Object.values(channels) as PublicChannel[]
 
   const databaseStoredChannelsIds = databaseStoredChannels.map(channel => channel.id)
-  logger.debug({ locallyStoredChannels, databaseStoredChannelsIds })
+  logger({ locallyStoredChannels, databaseStoredChannelsIds })
+
+  // Upserting channels to local storage
+  for (const channel of databaseStoredChannels) {
+    if (!locallyStoredChannels.includes(channel.id)) {
+      // TODO: Refactor to use QuietLogger
+      logger(`Adding #${channel.name} to store`)
+      yield* putResolve(
+        publicChannelsActions.addChannel({
+          channel,
+        })
+      )
+      yield* putResolve(
+        messagesActions.addPublicChannelsMessagesBase({
+          channelId: channel.id,
+        })
+      )
+    }
+  }
 
   // Removing channels from store
   if (databaseStoredChannelsIds.length > 0) {
     for (const channelId of locallyStoredChannels) {
       if (!databaseStoredChannelsIds.includes(channelId)) {
-        logger.info(`Removing #${channelId} from store`)
-        yield* put(publicChannelsActions.deleteChannel({ channelId }))
+        // TODO: Refactor to use QuietLogger
+        logger(`Removing #${channelId} from store`)
+        yield* putResolve(publicChannelsActions.deleteChannel({ channelId }))
         yield* take(publicChannelsActions.completeChannelDeletion)
       }
-    }
-  }
-
-  // Upserting channels to local storage
-  for (const channel of databaseStoredChannels) {
-    if (!locallyStoredChannels.includes(channel.id)) {
-      logger.info(`Adding #${channel.name} to store`)
-      yield* put(
-        publicChannelsActions.addChannel({
-          channel,
-        })
-      )
-      yield* put(
-        messagesActions.addPublicChannelsMessagesBase({
-          channelId: channel.id,
-        })
-      )
     }
   }
 
@@ -57,12 +60,12 @@ export function* channelsReplicatedSaga(
 
   // (On collecting data from persist) Populating displayable data
   if (currentChannelCache.length < 1 && currentChannelRepository.length > 0) {
-    yield* put(messagesActions.resetCurrentPublicChannelCache())
+    yield* putResolve(messagesActions.resetCurrentPublicChannelCache())
   }
 
   const community = yield* select(communitiesSelectors.currentCommunity)
 
   if (!community?.CA && databaseStoredChannels.find(channel => channel.name === 'general')) {
-    yield* put(publicChannelsActions.sendIntroductionMessage())
+    yield* putResolve(publicChannelsActions.sendIntroductionMessage())
   }
 }

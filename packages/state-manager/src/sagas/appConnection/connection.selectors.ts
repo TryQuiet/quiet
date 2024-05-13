@@ -6,13 +6,11 @@ import { peersStatsAdapter } from './connection.adapter'
 import { connectedPeers, isCurrentCommunityInitialized } from '../network/network.selectors'
 import { type NetworkStats } from './connection.types'
 import { type User } from '../users/users.types'
-import { filterAndSortPeers, invitationShareUrl } from '@quiet/common'
+import { composeInvitationShareUrl, filterAndSortPeers, p2pAddressesToPairs, pairsToP2pAddresses } from '@quiet/common'
 import { areMessagesLoaded, areChannelsLoaded } from '../publicChannels/publicChannels.selectors'
 import { identitySelectors } from '../identity/identity.selectors'
 import { communitiesSelectors } from '../communities/communities.selectors'
-import createLogger from '../../utils/logger'
-
-const logger = createLogger('connection')
+import { InvitationDataVersion } from '@quiet/types'
 
 const connectionSlice: CreatedSelectors[StoreKeys.Connection] = (state: StoreState) => state[StoreKeys.Connection]
 
@@ -57,7 +55,8 @@ export const invitationUrl = createSelector(
     if (!communityPsk) return ''
     if (!ownerOrbitDbIdentity) return ''
     const initialPeers = sortedPeerList.slice(0, 3)
-    return invitationShareUrl(initialPeers, communityPsk, ownerOrbitDbIdentity)
+    const pairs = p2pAddressesToPairs(initialPeers)
+    return composeInvitationShareUrl({ pairs, psk: communityPsk, ownerOrbitDbIdentity })
   }
 )
 
@@ -82,7 +81,7 @@ export const isJoiningCompleted = createSelector(
   areChannelsLoaded,
   areCertificatesLoaded,
   (isCommunity, areMessages, areChannels, areCertificates) => {
-    logger.info(
+    console.log(
       `Checking if joining is complete: ${(JSON.stringify({ isCommunity, areMessages, areChannels, areCertificates }), null, 2)}`
     )
     return isCommunity && areMessages && areChannels && areCertificates

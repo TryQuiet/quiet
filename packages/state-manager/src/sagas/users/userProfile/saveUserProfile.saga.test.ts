@@ -28,7 +28,6 @@ describe('saveUserProfileSaga', () => {
       nickname: '',
       commonName: '',
       peerId: '',
-      dmPublicKey: '',
       signAlg: '',
       hashAlg: '',
     })

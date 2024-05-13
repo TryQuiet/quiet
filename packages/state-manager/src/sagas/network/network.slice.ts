@@ -3,9 +3,6 @@ import { StoreKeys } from '../store.keys'
 import { connectedPeersAdapter } from './network.adapter'
 import { type CommunityId, type ConnectedPeers, LoadingPanelType } from '@quiet/types'
 import { DateTime } from 'luxon'
-import createLogger from '../../utils/logger'
-
-const logger = createLogger('network')
 
 export class NetworkState {
   public initializedCommunities: Record<string, boolean> = {}
@@ -20,7 +17,6 @@ export const networkSlice = createSlice({
   name: StoreKeys.Network,
   reducers: {
     addInitializedCommunity: (state, action: PayloadAction<CommunityId>) => {
-      logger.info(`Hunting for heisenbug: adding initialized community: ${JSON.stringify(action.payload, null, 2)}`)
       state.initializedCommunities = {
         ...state.initializedCommunities,
         [action.payload]: true,

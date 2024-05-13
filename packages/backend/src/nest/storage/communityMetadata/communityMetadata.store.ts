@@ -67,17 +67,13 @@ export class CommunityMetadataStore extends EventEmitter {
 
     this.store.events.on('replicated', async () => {
       logger('Replicated community metadata')
-      // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
-      // TODO: Is this necessary here?
-      await this.store.load({ fetchEntryTimeout: 15000 })
       const meta = this.getCommunityMetadata()
       if (meta) {
         this.emit(StorageEvents.COMMUNITY_METADATA_STORED, meta)
       }
     })
 
-    // @ts-expect-error - OrbitDB's type declaration of `load` lacks 'options'
-    await this.store.load({ fetchEntryTimeout: 15000 })
+    await this.store.load()
     const meta = this.getCommunityMetadata()
     if (meta) {
       this.emit(StorageEvents.COMMUNITY_METADATA_STORED, meta)
@@ -90,7 +86,9 @@ export class CommunityMetadataStore extends EventEmitter {
   }
 
   public async close() {
+    logger('Closing community metadata DB')
     await this.store?.close()
+    logger('Closed community metadata DB')
   }
 
   public async updateCommunityMetadata(newMeta: CommunityMetadata): Promise<CommunityMetadata | undefined> {

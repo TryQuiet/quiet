@@ -1,7 +1,9 @@
 import React, { useEffect } from 'react'
 import { useDispatch } from 'react-redux'
 
-import { LogBox, StatusBar } from 'react-native'
+import { LogBox, NativeModules, StatusBar } from 'react-native'
+
+import { APP_READY_CHANNEL } from '@quiet/state-manager'
 
 import WebviewCrypto from 'react-native-webview-crypto'
 
@@ -28,7 +30,6 @@ import { NavigationContainer } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 
 import { navigationRef } from './RootNavigation'
-import { initActions } from './store/init/init.slice'
 import { navigationActions } from './store/navigation/navigation.slice'
 
 import { rootSaga } from './store/root.saga'
@@ -85,7 +86,6 @@ function App(): JSX.Element {
           ref={navigationRef}
           linking={linking}
           onReady={() => {
-            dispatch(initActions.blindWebsocketConnection())
             dispatch(navigationActions.redirection())
           }}
         >

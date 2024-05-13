@@ -1,15 +1,31 @@
 import { io } from 'socket.io-client'
-import { select, put, call, cancel, fork, takeEvery, FixedTask } from 'typed-redux-saga'
+import {
+  select,
+  put,
+  putResolve,
+  call,
+  cancel,
+  fork,
+  take,
+  takeLeading,
+  takeEvery,
+  FixedTask,
+  apply,
+} from 'typed-redux-saga'
 import { PayloadAction } from '@reduxjs/toolkit'
 import { socket as stateManager, Socket } from '@quiet/state-manager'
 import { encodeSecret } from '@quiet/common'
 import { initSelectors } from '../init.selectors'
 import { initActions, WebsocketConnectionPayload } from '../init.slice'
 import { eventChannel } from 'redux-saga'
+import { SocketActionTypes } from '@quiet/types'
 
 export function* startConnectionSaga(
   action: PayloadAction<ReturnType<typeof initActions.startWebsocketConnection>['payload']>
 ): Generator {
+  const isAlreadyConnected = yield* select(initSelectors.isWebsocketConnected)
+  if (isAlreadyConnected) return
+
   const { dataPort, socketIOSecret } = action.payload
 
   console.log('WEBSOCKET', 'Entered start connection saga', dataPort)
@@ -25,6 +41,7 @@ export function* startConnectionSaga(
     return
   }
 
+  console.log('Connecting to backend')
   const token = encodeSecret(socketIOSecret)
   const socket = yield* call(io, `http://127.0.0.1:${_dataPort}`, {
     withCredentials: true,
@@ -34,14 +51,20 @@ export function* startConnectionSaga(
   })
   yield* fork(handleSocketLifecycleActions, socket, action.payload)
   // Handle opening/restoring connection
-  yield* takeEvery(initActions.setWebsocketConnected, setConnectedSaga, socket)
+  yield* takeLeading(initActions.setWebsocketConnected, setConnectedSaga, socket)
 }
 
 function* setConnectedSaga(socket: Socket): Generator {
+  console.log('Frontend is ready. Forking state-manager sagas and starting backend...')
+
   const task = yield* fork(stateManager.useIO, socket)
-  console.log('WEBSOCKET', 'Forking state-manager sagas', task)
+
+  // @ts-ignore - Why is this broken?
+  yield* apply(socket, socket.emit, [SocketActionTypes.START])
+
   // Handle suspending current connection
-  yield* takeEvery(initActions.suspendWebsocketConnection, cancelRootTaskSaga, task)
+  yield* take(initActions.suspendWebsocketConnection)
+  yield* call(cancelRootTaskSaga, task)
 }
 
 function* handleSocketLifecycleActions(socket: Socket, socketIOData: WebsocketConnectionPayload): Generator {
@@ -62,8 +85,8 @@ function subscribeSocketLifecycle(socket: Socket, socketIOData: WebsocketConnect
       console.log('client: Websocket connected', socket_id)
       emit(initActions.setWebsocketConnected(socketIOData))
     })
-    socket.on('disconnect', () => {
-      console.log('client: Closing socket connection', socket_id)
+    socket.on('disconnect', reason => {
+      console.warn('client: Closing socket connection', socket_id, reason)
       emit(initActions.suspendWebsocketConnection())
     })
     return () => {}
@@ -71,7 +94,7 @@ function subscribeSocketLifecycle(socket: Socket, socketIOData: WebsocketConnect
 }
 
 function* cancelRootTaskSaga(task: FixedTask<Generator>): Generator {
-  console.log('Canceling root task')
+  console.warn('Canceling root task', task.error())
   yield* cancel(task)
-  yield* put(initActions.canceledRootTask())
+  yield* putResolve(initActions.canceledRootTask())
 }

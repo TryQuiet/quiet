@@ -1,5 +1,5 @@
 import { type Socket } from '../../types'
-import { all, takeEvery } from 'typed-redux-saga'
+import { all, takeEvery, cancelled } from 'typed-redux-saga'
 import { checkForMissingFilesSaga } from './checkForMissingFiles/checkForMissingFiles.saga'
 import { resetTransferSpeedSaga } from './resetTransferSpeed/resetTransferSpeed.saga'
 import { updateMessageMediaSaga } from './updateMessageMedia/updateMessageMedia'
@@ -14,15 +14,23 @@ import { messagesActions } from '../messages/messages.slice'
 import { sendFileMessageSaga } from './uploadFile/sendFileMessage.saga'
 
 export function* filesMasterSaga(socket: Socket): Generator {
-  yield all([
-    takeEvery(networkActions.addInitializedCommunity.type, resetTransferSpeedSaga),
-    takeEvery(filesActions.checkForMissingFiles.type, checkForMissingFilesSaga, socket),
-    takeEvery(filesActions.uploadFile.type, sendFileMessageSaga),
-    takeEvery(messagesActions.addMessagesSendingStatus.type, uploadFileSaga, socket),
-    takeEvery(filesActions.cancelDownload.type, cancelDownloadSaga, socket),
-    takeEvery(filesActions.updateMessageMedia.type, updateMessageMediaSaga),
-    takeEvery(filesActions.downloadFile.type, downloadFileSaga, socket),
-    takeEvery(filesActions.broadcastHostedFile.type, broadcastHostedFileSaga, socket),
-    takeEvery(filesActions.deleteFilesFromChannel.type, deleteFilesFromChannelSaga, socket),
-  ])
+  console.log('filesMasterSaga starting')
+  try {
+    yield all([
+      takeEvery(networkActions.addInitializedCommunity.type, resetTransferSpeedSaga),
+      takeEvery(filesActions.checkForMissingFiles.type, checkForMissingFilesSaga, socket),
+      takeEvery(filesActions.uploadFile.type, sendFileMessageSaga),
+      takeEvery(messagesActions.addMessagesSendingStatus.type, uploadFileSaga, socket),
+      takeEvery(filesActions.cancelDownload.type, cancelDownloadSaga, socket),
+      takeEvery(filesActions.updateMessageMedia.type, updateMessageMediaSaga),
+      takeEvery(filesActions.downloadFile.type, downloadFileSaga, socket),
+      takeEvery(filesActions.broadcastHostedFile.type, broadcastHostedFileSaga, socket),
+      takeEvery(filesActions.deleteFilesFromChannel.type, deleteFilesFromChannelSaga, socket),
+    ])
+  } finally {
+    console.log('filesMasterSaga stopping')
+    if (yield cancelled()) {
+      console.log('filesMasterSaga cancelled')
+    }
+  }
 }

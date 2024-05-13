@@ -29,7 +29,7 @@ export const inviteLinkField = (name = 'name'): FieldData => {
       label: '',
       name,
       type: 'password',
-      placeholder: 'Invite code',
+      placeholder: 'Invite link',
     },
     validation: {
       required: FieldErrors.Required,

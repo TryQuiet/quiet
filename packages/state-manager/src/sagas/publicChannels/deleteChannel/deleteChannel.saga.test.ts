@@ -38,7 +38,6 @@ describe('deleteChannelSaga', () => {
     username: string | null
     onionAddress: string | null
     peerId: string | null
-    dmPublicKey: string | null
     pubKey: string
   } | null
 

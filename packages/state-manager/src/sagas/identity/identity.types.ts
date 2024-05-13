@@ -10,11 +10,6 @@ export interface UserCsr {
   pkcs10: CertData
 }
 
-export interface CreateDmKeyPairPayload {
-  dmPublicKey: string
-  dmPrivateKey: string
-}
-
 export interface HiddenService {
   onionAddress: string
   privateKey: string
@@ -26,16 +21,10 @@ export interface PeerId {
   privKey?: string
 }
 
-export interface DmKeys {
-  publicKey: string
-  privateKey: string
-}
-
 export interface Identity {
   id: string
   nickname: string
   hiddenService: HiddenService
-  dmKeys: DmKeys
   peerId: PeerId
   userCsr: UserCsr | null
   userCertificate: string | null
@@ -46,7 +35,6 @@ export interface CreateUserCsrPayload {
   nickname: string
   commonName: string
   peerId: string
-  dmPublicKey: string
   signAlg: string
   hashAlg: string
 }
@@ -61,29 +49,6 @@ export interface RegisterUserCertificatePayload {
   communityId: string
   userCsr: string
   serviceAddress: string
-}
-
-export interface PermsData {
-  certificate: string
-  privKey: string
-}
-
-export interface RegisterOwnerCertificatePayload {
-  communityId: string
-  userCsr: UserCsr
-  permsData: PermsData
-}
-
-export interface SaveCertificatePayload {
-  certificate: string
-  rootPermsData: PermsData
-}
-
-export interface SaveOwnerCertificatePayload {
-  id: string
-  peerId: string
-  certificate: string
-  permsData: PermsData
 }
 
 export interface StoreUserCertificatePayload {

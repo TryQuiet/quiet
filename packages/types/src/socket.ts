@@ -21,8 +21,6 @@ export enum SocketActionTypes {
   CREATE_COMMUNITY = 'createCommunity',
   LAUNCH_COMMUNITY = 'launchCommunity',
   LEAVE_COMMUNITY = 'leaveCommunity',
-  SET_COMMUNITY_CA_DATA = 'setCommunityCaData',
-  SET_COMMUNITY_METADATA = 'setCommunityMetadata',
 
   // ====== Channels ======
 
@@ -73,6 +71,7 @@ export enum SocketActionTypes {
   PEER_CONNECTED = 'peerConnected',
   PEER_DISCONNECTED = 'peerDisconnected',
   TOR_INITIALIZED = 'torInitialized',
+  REDIAL_PEERS = 'redialPeers',
 
   // ====== Misc ======
 
@@ -89,4 +88,10 @@ export enum SocketActionTypes {
   MIGRATION_DATA_REQUIRED = 'migrationDataRequired',
   PUSH_NOTIFICATION = 'pushNotification',
   ERROR = 'error',
+  /**
+   * Start the backend. Currently, the frontend depends on events
+   * emitted from the backend, so we wait to start the backend until
+   * the frontend is connected and listening.
+   */
+  START = 'start',
 }

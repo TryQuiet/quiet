@@ -21,7 +21,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
   extraTorProcessParams: TorParams
   controlPort: number | undefined
   interval: any
-  timeout: any
+  initTimeout: any
   private readonly logger = Logger(Tor.name)
   private hiddenServices: Map<string, HiddenServiceData> = new Map()
   private initializedHiddenServices: Map<string, HiddenServiceData> = new Map()
@@ -59,12 +59,23 @@ export class Tor extends EventEmitter implements OnModuleInit {
     return Array.from(Object.entries(this.extraTorProcessParams)).flat()
   }
 
+  private async isBootstrappingFinished(): Promise<boolean> {
+    this.logger('Checking bootstrap status')
+    const output = await this.torControl.sendCommand('GETINFO status/bootstrap-phase')
+    if (output.messages[0] === '250-status/bootstrap-phase=NOTICE BOOTSTRAP PROGRESS=100 TAG=done SUMMARY="Done"') {
+      this.logger('Bootstrapping finished!')
+      return true
+    }
+    return false
+  }
+
   public async init(timeout = 120_000): Promise<void> {
     if (!this.socksPort) this.socksPort = await getPort()
     this.logger('Initializing tor...')
 
     return await new Promise((resolve, reject) => {
       if (!fs.existsSync(this.quietDir)) {
+        this.logger("Quiet dir doesn't exist, creating it now")
         fs.mkdirSync(this.quietDir)
       }
 
@@ -77,9 +88,10 @@ export class Tor extends EventEmitter implements OnModuleInit {
         this.logger(`${this.torPidPath} exists. Old tor pid: ${oldTorPid}`)
       }
 
-      this.timeout = setTimeout(async () => {
-        const log = await this.torControl.sendCommand('GETINFO status/bootstrap-phase')
-        if (log.messages[0] !== '250-status/bootstrap-phase=NOTICE BOOTSTRAP PROGRESS=100 TAG=done SUMMARY="Done"') {
+      this.initTimeout = setTimeout(async () => {
+        this.logger('Checking init timeout')
+        const bootstrapDone = await this.isBootstrappingFinished()
+        if (!bootstrapDone) {
           this.initializedHiddenServices = new Map()
           clearInterval(this.interval)
           await this.init()
@@ -104,12 +116,14 @@ export class Tor extends EventEmitter implements OnModuleInit {
           await this.spawnTor()
 
           this.interval = setInterval(async () => {
-            const log = await this.torControl.sendCommand('GETINFO status/bootstrap-phase')
-            if (
-              log.messages[0] === '250-status/bootstrap-phase=NOTICE BOOTSTRAP PROGRESS=100 TAG=done SUMMARY="Done"'
-            ) {
+            this.logger('Checking bootstrap interval')
+            const bootstrapDone = await this.isBootstrappingFinished()
+            if (bootstrapDone) {
+              this.logger(`Sending ${SocketActionTypes.TOR_INITIALIZED}`)
               this.serverIoProvider.io.emit(SocketActionTypes.TOR_INITIALIZED)
-
+              // TODO: Figure out how to get redialing (or, ideally, initial dialing) on tor initialization working
+              // this.logger('Attempting to redial peers (if possible)')
+              // this.emit(SocketActionTypes.REDIAL_PEERS)
               clearInterval(this.interval)
             }
           }, 2500)
@@ -265,8 +279,10 @@ export class Tor extends EventEmitter implements OnModuleInit {
       this.process.stdout.on('data', (data: any) => {
         this.logger(data.toString())
 
-        const regexp = /Bootstrapped 0/
-        if (regexp.test(data.toString())) {
+        const bootstrappedRegexp = /Bootstrapped 0/
+        // TODO: Figure out if there's a way to get this working in tests
+        // const bootstrappedRegexp = /Loaded enough directory info to build circuits/
+        if (bootstrappedRegexp.test(data.toString())) {
           this.spawnHiddenServices()
           resolve()
         }
@@ -279,6 +295,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
   }
 
   public async spawnHiddenServices() {
+    this.logger(`Spawning hidden service(s) (count: ${this.hiddenServices.size})`)
     for (const el of this.hiddenServices.values()) {
       await this.spawnHiddenService(el)
     }
@@ -293,6 +310,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
     privKey: string
     virtPort?: number
   }): Promise<string> {
+    this.logger(`Spawning Tor hidden service`)
     const initializedHiddenService = this.initializedHiddenServices.get(privKey)
     if (initializedHiddenService) {
       this.logger(`Hidden service already initialized for ${initializedHiddenService.onionAddress}`)
@@ -302,6 +320,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
       `ADD_ONION ${privKey} Flags=Detach Port=${virtPort},127.0.0.1:${targetPort}`
     )
     const onionAddress = status.messages[0].replace('250-ServiceID=', '')
+    this.logger(`Spawned hidden service with onion address ${onionAddress}`)
 
     const hiddenService: HiddenServiceData = { targetPort, privKey, virtPort, onionAddress }
     this.hiddenServices.set(privKey, hiddenService)
@@ -369,7 +388,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
         resolve()
         return
       }
-      if (this.timeout) clearTimeout(this.timeout)
+      if (this.initTimeout) clearTimeout(this.initTimeout)
       if (this.interval) clearInterval(this.interval)
       this.process?.on('close', () => {
         this.process = null

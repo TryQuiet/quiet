@@ -119,6 +119,7 @@ exports[`Spinner component renders component 1`] = `
         }
       >
         <TextInput
+          autoCorrect={false}
           editable={true}
           height={54}
           onChangeText={[Function]}

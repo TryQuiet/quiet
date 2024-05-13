@@ -20,7 +20,7 @@ describe('Slider', () => {
       <body>
         <div>
           <div
-            class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-19axq9c-MuiGrid-root"
+            class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-12km9n7-MuiGrid-root"
           >
             <span
               class="MuiTypography-root MuiTypography-caption Slidertitle css-1d4bzk2-MuiTypography-root"
@@ -44,7 +44,7 @@ describe('Slider', () => {
                   class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true SlidersliderContainer css-1vd824g-MuiGrid-root"
                 >
                   <span
-                    class="MuiSlider-root SlidersliderRoot MuiSlider-colorPrimary MuiSlider-sizeMedium css-1v7afla-MuiSlider-root"
+                    class="MuiSlider-root SlidersliderRoot MuiSlider-colorPrimary MuiSlider-sizeMedium css-1diqobq-MuiSlider-root"
                   >
                     <span
                       class="MuiSlider-rail css-14pt78w-MuiSlider-rail"
@@ -88,7 +88,7 @@ describe('Slider', () => {
       <body>
         <div>
           <div
-            class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-19axq9c-MuiGrid-root"
+            class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-12km9n7-MuiGrid-root"
           >
             <span
               class="MuiTypography-root MuiTypography-caption Slidertitle css-1d4bzk2-MuiTypography-root"
@@ -114,7 +114,7 @@ describe('Slider', () => {
                   class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true SlidersliderContainer css-1vd824g-MuiGrid-root"
                 >
                   <span
-                    class="MuiSlider-root SlidersliderRoot MuiSlider-colorPrimary MuiSlider-sizeMedium css-1v7afla-MuiSlider-root"
+                    class="MuiSlider-root SlidersliderRoot MuiSlider-colorPrimary MuiSlider-sizeMedium css-1diqobq-MuiSlider-root"
                   >
                     <span
                       class="MuiSlider-rail css-14pt78w-MuiSlider-rail"
@@ -160,7 +160,7 @@ describe('Slider', () => {
       <body>
         <div>
           <div
-            class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-19axq9c-MuiGrid-root"
+            class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-12km9n7-MuiGrid-root"
           >
             <span
               class="MuiTypography-root MuiTypography-caption Slidertitle css-1d4bzk2-MuiTypography-root"
@@ -184,7 +184,7 @@ describe('Slider', () => {
                   class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true SlidersliderContainer css-1vd824g-MuiGrid-root"
                 >
                   <span
-                    class="MuiSlider-root SlidersliderRoot MuiSlider-colorPrimary MuiSlider-sizeMedium css-1v7afla-MuiSlider-root"
+                    class="MuiSlider-root SlidersliderRoot MuiSlider-colorPrimary MuiSlider-sizeMedium css-1diqobq-MuiSlider-root"
                   >
                     <span
                       class="MuiSlider-rail css-14pt78w-MuiSlider-rail"

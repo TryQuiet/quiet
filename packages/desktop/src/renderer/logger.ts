@@ -1,5 +1,3 @@
-import { createQuietLogger } from '@quiet/logger'
+import logger from '@quiet/logger'
 
-const createLogger = createQuietLogger('desktop:renderer', true)
-export const defaultLogger = createLogger('default')
-export default createLogger
+export default logger('desktop:renderer')

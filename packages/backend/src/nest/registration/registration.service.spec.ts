@@ -46,7 +46,6 @@ describe('RegistrationService', () => {
       nickname: 'userName',
       commonName: 'nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad.onion',
       peerId: 'Qmf3ySkYqLET9xtAtDzvAr5Pp3egK1H3C5iJAZm1SpLEp6',
-      dmPublicKey: 'testdmPublicKey',
       signAlg: configCrypto.signAlg,
       hashAlg: configCrypto.hashAlg,
     })
@@ -88,7 +87,6 @@ describe('RegistrationService', () => {
       nickname: 'alice',
       commonName: 'nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad.onion',
       peerId: 'Qmf3ySkYqLET9xtAtDzvAr5Pp3egK1H3C5iJAZm1SpLEp6',
-      dmPublicKey: 'testdmPublicKey',
       signAlg: configCrypto.signAlg,
       hashAlg: configCrypto.hashAlg,
     })
@@ -122,7 +120,6 @@ describe('RegistrationService', () => {
       nickname: 'userName2',
       commonName: 'nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad.onion',
       peerId: 'Qmf3ySkYqLET9xtAtDzvAr5Pp3egK1H3C5iJAZm1SpLEp6',
-      dmPublicKey: 'testdmPublicKey',
       signAlg: configCrypto.signAlg,
       hashAlg: configCrypto.hashAlg,
     })
@@ -136,7 +133,6 @@ describe('RegistrationService', () => {
       nickname: 'karol',
       commonName: 'nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad.onion',
       peerId: 'Qmf3ySkYqLET9xtAtDzvAr5Pp3egK1H3C5iJAZm1SpLEp6',
-      dmPublicKey: 'testdmPublicKey',
       signAlg: configCrypto.signAlg,
       hashAlg: configCrypto.hashAlg,
     })
@@ -144,7 +140,6 @@ describe('RegistrationService', () => {
       nickname: 'karol',
       commonName: 'nnnnnnc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad.onion',
       peerId: 'QmffffffqLET9xtAtDzvAr5Pp3egK1H3C5iJAZm1SpLEp6',
-      dmPublicKey: 'testdmPublicKey',
       signAlg: configCrypto.signAlg,
       hashAlg: configCrypto.hashAlg,
     })
@@ -187,7 +182,6 @@ describe('RegistrationService', () => {
       nickname: 'alice',
       commonName: 'nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad.onion',
       peerId: 'Qmf3ySkYqLET9xtAtDzvAr5Pp3egK1H3C5iJAZm1SpLEp6',
-      dmPublicKey: 'testdmPublicKey',
       signAlg: configCrypto.signAlg,
       hashAlg: configCrypto.hashAlg,
     })
@@ -196,7 +190,6 @@ describe('RegistrationService', () => {
       nickname: 'alice',
       commonName: 'nnnnnnc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad.onion',
       peerId: 'QmffffffqLET9xtAtDzvAr5Pp3egK1H3C5iJAZm1SpLEp6',
-      dmPublicKey: 'testdmPublicKey',
       signAlg: configCrypto.signAlg,
       hashAlg: configCrypto.hashAlg,
     })
