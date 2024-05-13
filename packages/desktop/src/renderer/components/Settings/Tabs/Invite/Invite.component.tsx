@@ -75,12 +75,14 @@ export interface InviteComponentProps {
   invitationLink: string
   revealInputValue: boolean
   handleClickInputReveal: () => void
+  handleInviteShare: () => void
 }
 
 export const InviteComponent: FC<InviteComponentProps> = ({
   invitationLink,
   revealInputValue,
   handleClickInputReveal,
+  handleInviteShare,
 }) => {
   const hiddenInvitationLink = invitationLink.slice(0, 90).replace(/./g, '•')
   return (
@@ -121,7 +123,7 @@ export const InviteComponent: FC<InviteComponentProps> = ({
         </Grid>
       </Grid>
       <Grid>
-        <CopyToClipboard text={invitationLink}>
+        <CopyToClipboard text={invitationLink} onCopy={handleInviteShare}>
           <Button data-testid='copy-invitation-link' className={classes.button}>
             Copy to clipboard
           </Button>

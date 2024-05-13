@@ -59,6 +59,7 @@ const Invite: FC = () => {
       handleClickInputReveal={() => {
         setRevealInputValue(!revealInputValue)
       }}
+      handleInviteShare={jest.fn()}
     />
   )
 }

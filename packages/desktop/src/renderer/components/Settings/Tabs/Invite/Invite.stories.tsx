@@ -38,6 +38,7 @@ const args: InviteComponentProps = {
   handleClickInputReveal: () => {
     revealInputValue = !revealInputValue
   },
+  handleInviteShare: () => {},
 }
 
 Component.args = args

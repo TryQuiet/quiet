@@ -185,6 +185,10 @@ export class SocketService extends EventEmitter implements OnModuleInit {
         this.emit(SocketActionTypes.LIBP2P_PSK_STORED, payload)
       })
 
+      socket.on(SocketActionTypes.QSS_STORE_INVITE_DATA, async (inviteData: any) => {
+        this.emit(SocketActionTypes.QSS_STORE_INVITE_DATA, inviteData)
+      })
+
       // ====== Users ======
 
       socket.on(SocketActionTypes.SET_USER_PROFILE, (profile: UserProfile) => {

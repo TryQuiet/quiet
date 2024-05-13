@@ -53,6 +53,7 @@ export interface EmitEvents {
   [SocketActionTypes.SET_USER_PROFILE]: EmitEvent<UserProfile>
   [SocketActionTypes.LOAD_MIGRATION_DATA]: EmitEvent<Record<string, any>>
   [SocketActionTypes.START]: () => void
+  [SocketActionTypes.QSS_STORE_INVITE_DATA]: EmitEvent<any>
 }
 
 export type Socket = IOSocket<EventsMap, EmitEvents>

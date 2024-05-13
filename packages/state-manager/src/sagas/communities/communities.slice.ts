@@ -38,6 +38,7 @@ export const communitiesSlice = createSlice({
     clearInvitationCodes: state => {
       state.invitationCodes = []
     },
+    uploadCommunityData: state => state,
   },
 })
 

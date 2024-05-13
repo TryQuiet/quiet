@@ -29,7 +29,12 @@ describe('CopyLink', () => {
       ownerOrbitDbIdentity: 'testOwnerOrbitDbIdentity',
     })
     const result = renderComponent(
-      <InviteComponent invitationLink={invitationLink} handleClickInputReveal={jest.fn()} revealInputValue={false} />
+      <InviteComponent
+        invitationLink={invitationLink}
+        handleClickInputReveal={jest.fn()}
+        revealInputValue={false}
+        handleInviteShare={jest.fn()}
+      />
     )
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
@@ -139,7 +144,12 @@ describe('CopyLink', () => {
       ownerOrbitDbIdentity: 'testOwnerOrbitDbIdentity',
     })
     const result = renderComponent(
-      <InviteComponent invitationLink={invitationLink} handleClickInputReveal={jest.fn()} revealInputValue={true} />
+      <InviteComponent
+        invitationLink={invitationLink}
+        handleClickInputReveal={jest.fn()}
+        revealInputValue={true}
+        handleInviteShare={jest.fn()}
+      />
     )
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>

@@ -410,6 +410,61 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     return community
   }
 
+  /**
+   * Uploads a snapshot of the community data to the storage server.
+   * @returns The content identifier (cid) of the uploaded data or an error object if the upload fails.
+   */
+  public async uploadCommunityData(inviteData: any): Promise<string | undefined> {
+    const community = await this.localDbService.getCurrentCommunity()
+
+    if (!community) {
+      this.logger.error('No community data found')
+      return
+    }
+    if (
+      community.id === undefined ||
+      community.ownerCertificate === undefined ||
+      community.rootCa === undefined ||
+      community.ownerOrbitDbIdentity === undefined ||
+      community.peerList === undefined ||
+      community.psk === undefined
+    ) {
+      this.logger.error('Cannot upload community data: has undefined required properties')
+      return
+    }
+
+    const payload: ServerStoredCommunityMetadata = {
+      id: community.id,
+      ownerCertificate: community.ownerCertificate!,
+      rootCa: community.rootCa!,
+      ownerOrbitDbIdentity: community.ownerOrbitDbIdentity!,
+      peerList: community.peerList!,
+      psk: community.psk!,
+    }
+
+    this.logger('Uploading community data', payload)
+
+    // TODO: get storage server address from shared db
+    this.storageServerProxyService.setServerAddress('http://localhost:3000')
+
+    const hashBuffer = await global.crypto.subtle.digest('SHA-256', new TextEncoder().encode(JSON.stringify(payload)))
+    const hashArray = Array.from(new Uint8Array(hashBuffer))
+    const cid = hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
+
+    try {
+      return this.storageServerProxyService.uploadData(cid, payload)
+    } catch (e) {
+      this.logger.error('Uploading community data failed', e)
+      return
+    }
+  }
+
+  /**
+   * Downloads community data from QSS based on provided invitation data.
+   *
+   * @param {InvitationDataV2} inviteData - The invitation data containing the server address and CID.
+   * @returns {Promise<{psk: string, peers: string[], ownerOrbitDbIdentity: string} | undefined>}
+   */
   public async downloadCommunityData(inviteData: InvitationDataV2) {
     this.logger('Downloading invite data', inviteData)
     this.storageServerProxyService.setServerAddress(inviteData.serverAddress)
@@ -682,6 +737,15 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.socketService.on(SocketActionTypes.LEAVE_COMMUNITY, async () => {
       await this.leaveCommunity()
     })
+
+    this.socketService.on(
+      SocketActionTypes.QSS_STORE_INVITE_DATA,
+      async (inviteData: any, callback?: (response: string | undefined) => void) => {
+        this.logger(`socketService - ${SocketActionTypes.QSS_STORE_INVITE_DATA}`)
+        const cid = await this.uploadCommunityData(inviteData)
+        callback?.(cid)
+      }
+    )
 
     // Username registration
     this.socketService.on(SocketActionTypes.ADD_CSR, async (payload: SaveCSRPayload) => {

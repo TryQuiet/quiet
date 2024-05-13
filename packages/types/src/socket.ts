@@ -21,6 +21,7 @@ export enum SocketActionTypes {
   CREATE_COMMUNITY = 'createCommunity',
   LAUNCH_COMMUNITY = 'launchCommunity',
   LEAVE_COMMUNITY = 'leaveCommunity',
+  QSS_STORE_INVITE_DATA = 'qssStoreInviteData',
 
   // ====== Channels ======
 
