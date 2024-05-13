@@ -10,7 +10,7 @@ export function* createChannelSaga(
   socket: Socket,
   action: PayloadAction<ReturnType<typeof publicChannelsActions.createChannel>['payload']>
 ): Generator {
-  console.info(`Creating channel ${action.payload.channel.name}`)
+  console.log(`Creating channel ${action.payload.channel.name}`)
 
   const response = yield* apply(
     socket,

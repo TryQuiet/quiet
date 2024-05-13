@@ -11,7 +11,7 @@ export function* createGeneralChannelSaga(): Generator {
     console.error('Could not create general channel. No identity')
     return
   }
-  console.info(`Creating general channel for ${identity.nickname}`)
+  console.log(`Creating general channel for ${identity.nickname}`)
 
   const timestamp = yield* call(getChannelTimestamp)
   const id = yield* call(generateChannelId, 'general')
