@@ -6,9 +6,6 @@ import { identitySelectors } from '../../identity/identity.selectors'
 import { messagesSelectors } from '../../messages/messages.selectors'
 import { type filesActions } from '../files.slice'
 import { instanceOfChannelMessage, SocketActionTypes } from '@quiet/types'
-import createLogger from '../../../utils/logger'
-
-const logger = createLogger('files')
 
 export function* broadcastHostedFileSaga(
   socket: Socket,
@@ -24,7 +21,7 @@ export function* broadcastHostedFileSaga(
   const message = channelMessages[action.payload.message.id]
 
   if (!message || !instanceOfChannelMessage(message)) {
-    logger.error(
+    console.error(
       `Cannot broadcast message after uploading. Draft ${action.payload.message.id} from #${action.payload.message.channelId} does not exist in local storage.`
     )
     return

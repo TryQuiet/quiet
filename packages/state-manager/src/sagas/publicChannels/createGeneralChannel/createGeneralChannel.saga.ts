@@ -2,19 +2,16 @@ import { select, put, call } from 'typed-redux-saga'
 import { publicChannelsActions } from '../publicChannels.slice'
 import { identitySelectors } from '../../identity/identity.selectors'
 import { DateTime } from 'luxon'
-import createLogger from '../../../utils/logger'
 import { generateChannelId } from '@quiet/common'
 import { type PublicChannel } from '@quiet/types'
-
-const logger = createLogger('publicChannels')
 
 export function* createGeneralChannelSaga(): Generator {
   const identity = yield* select(identitySelectors.currentIdentity)
   if (!identity) {
-    logger.error('Could not create general channel. No identity')
+    console.error('Could not create general channel. No identity')
     return
   }
-  logger.info(`Creating general channel for ${identity.nickname}`)
+  console.info(`Creating general channel for ${identity.nickname}`)
 
   const timestamp = yield* call(getChannelTimestamp)
   const id = yield* call(generateChannelId, 'general')

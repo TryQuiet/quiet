@@ -10,9 +10,6 @@ import { publicChannelsSelectors } from '../../publicChannels/publicChannels.sel
 import { messagesActions } from '../messages.slice'
 import { generateMessageId, getCurrentTime } from '../utils/message.utils'
 import { type ChannelMessage, MessageType, SendingStatus, SocketActionTypes } from '@quiet/types'
-import createLogger from '../../../utils/logger'
-
-const logger = createLogger('messages')
 
 export function* sendMessageSaga(
   socket: Socket,

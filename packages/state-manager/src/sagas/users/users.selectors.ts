@@ -7,9 +7,6 @@ import { type Certificate } from 'pkijs'
 import { type CreatedSelectors, type StoreState } from '../store.types'
 import { type UserData, User } from '@quiet/types'
 import { ownerCertificate } from '../communities/communities.selectors'
-import createLogger from '../../utils/logger'
-
-const logger = createLogger('users')
 
 const usersSlice: CreatedSelectors[StoreKeys.Users] = (state: StoreState) => state[StoreKeys.Users]
 
@@ -34,7 +31,7 @@ export const certificatesMapping = createSelector(certificates, certs => {
     const peerId = getCertFieldValue(certificate, CertFieldsTypes.peerId)
 
     if (!username || !onionAddress || !peerId) {
-      logger.error(`Could not parse certificate for pubkey ${pubKey}`)
+      console.error(`Could not parse certificate for pubkey ${pubKey}`)
       return
     }
 
@@ -61,7 +58,7 @@ export const csrsMapping = createSelector(csrs, csrs => {
     const peerId = getReqFieldValue(csr, CertFieldsTypes.peerId)
 
     if (!username || !onionAddress || !peerId) {
-      logger.error(`Could not parse certificate for pubkey ${pubKey}`)
+      console.error(`Could not parse certificate for pubkey ${pubKey}`)
       return
     }
 

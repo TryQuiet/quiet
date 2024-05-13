@@ -11,11 +11,8 @@ import { fileToBase64String } from '@quiet/common'
 
 import { config } from '../../users/const/certFieldTypes'
 import { identitySelectors } from '../../identity/identity.selectors'
-import createLogger from '../../../utils/logger'
 import { usersActions } from '../users.slice'
 import { type Socket, applyEmitParams } from '../../../types'
-
-const logger = createLogger('saveUserProfileSaga')
 
 export function* saveUserProfileSaga(socket: Socket, action: PayloadAction<{ photo?: File }>): Generator {
   const identity = yield* select(identitySelectors.currentIdentity)
@@ -28,7 +25,7 @@ export function* saveUserProfileSaga(socket: Socket, action: PayloadAction<{ pho
   try {
     base64EncodedPhoto = yield* call(fileToBase64String, action.payload.photo)
   } catch (err) {
-    logger.error('Failed to base64 encode profile photo', err)
+    console.error('Failed to base64 encode profile photo', err)
     return
   }
 
@@ -47,7 +44,7 @@ export function* saveUserProfileSaga(socket: Socket, action: PayloadAction<{ pho
     pubKey,
   }
 
-  logger.info(`Saving user profile: ${userProfile}`)
+  console.info(`Saving user profile: ${userProfile}`)
 
   yield* apply(socket, socket.emit, applyEmitParams(SocketActionTypes.SET_USER_PROFILE, userProfile))
 }

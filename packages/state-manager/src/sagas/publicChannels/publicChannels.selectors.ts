@@ -25,10 +25,7 @@ import {
 } from '@quiet/types'
 import { networkSelectors } from '../network/network.selectors'
 import { communitiesSelectors } from '../communities/communities.selectors'
-import createLogger from '../../utils/logger'
 import { isMessageUnsent } from '../../utils/messages/messages.utils'
-
-const logger = createLogger('publicChannels')
 
 const selectState: CreatedSelectors[StoreKeys.PublicChannels] = (state: StoreState) => state[StoreKeys.PublicChannels]
 
@@ -56,7 +53,7 @@ export const subscribedChannels = createSelector(selectChannelsSubscriptions, su
 export const selectGeneralChannel = createSelector(selectChannels, channels => {
   const draft = channels.find(item => item.name === 'general')
   if (!draft) {
-    logger.error('No general channel')
+    console.error('No general channel')
     return
   }
   const channel: PublicChannel = {
@@ -130,7 +127,7 @@ export const getChannelById = (channelId: string) =>
   createSelector(publicChannels, channels => {
     const channel = channels.find(channel => channel.id === channelId)
     if (!channel) {
-      logger.warn(`Channel with ID ${channelId} does not exist`)
+      console.warn(`Channel with ID ${channelId} does not exist`)
     }
     return channel
   })

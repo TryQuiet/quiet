@@ -4,9 +4,6 @@ import { messagesSelectors } from '../../messages/messages.selectors'
 import { messagesActions } from '../../messages/messages.slice'
 import { type filesActions } from '../files.slice'
 import { instanceOfChannelMessage } from '@quiet/types'
-import createLogger from '../../../utils/logger'
-
-const logger = createLogger('files')
 
 export function* updateMessageMediaSaga(
   action: PayloadAction<ReturnType<typeof filesActions.updateMessageMedia>['payload']>
@@ -17,7 +14,7 @@ export function* updateMessageMediaSaga(
 
   const message = channelMessages[action.payload.message.id]
   if (!message || !instanceOfChannelMessage(message)) {
-    logger.error(
+    console.error(
       `Cannot update message media. Message ${action.payload.message.id} from #${action.payload.message.channelId} does not exist in local storage.`
     )
     return

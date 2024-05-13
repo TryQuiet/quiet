@@ -7,9 +7,6 @@ import { AUTODOWNLOAD_SIZE_LIMIT } from '../../../constants'
 import { filesActions } from '../files.slice'
 import { applyEmitParams, type Socket } from '../../../types'
 import { DownloadState, MessageType, SocketActionTypes } from '@quiet/types'
-import createLogger from '../../../utils/logger'
-
-const logger = createLogger('files')
 
 export function* autoDownloadFilesSaga(
   socket: Socket,
