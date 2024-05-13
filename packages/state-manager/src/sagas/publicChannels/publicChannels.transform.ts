@@ -26,8 +26,8 @@ const getGeneralChannelId = (state: PublicChannelsState) => {
   const selectors = publicChannelsAdapter.getSelectors()
   const publicChannelStorage = selectors.selectAll(state.channels)
   const generalChannel = publicChannelStorage.find(channel => channel.name === 'general')
-  console.log('PublicChannelsTransform: existing general channel id', generalChannel?.id)
+  console.info('PublicChannelsTransform: existing general channel id', generalChannel?.id)
   const generalChannelId = generalChannel?.id || INITIAL_CURRENT_CHANNEL_ID
-  console.log('PublicChannelsTransform: new general channel id', generalChannelId)
+  console.info('PublicChannelsTransform: new general channel id', generalChannelId)
   return generalChannelId
 }

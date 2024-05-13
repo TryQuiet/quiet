@@ -1,11 +1,11 @@
 export const storybookLog =
   (message: string) =>
   (...args: unknown[]): void => {
-    console.log(message)
+    console.info(message)
 
     if (args.length > 0) {
       args.forEach(arg => {
-        console.log(arg)
+        console.info(arg)
       })
     }
   }

@@ -14,7 +14,7 @@ export function* autoDownloadFilesSaga(
 ): Generator {
   const identity = yield* select(identitySelectors.currentIdentity)
   if (!identity) {
-    console.error('Could not autodownload files, no identity')
+    logger.error('Could not autodownload files, no identity')
     return
   }
 

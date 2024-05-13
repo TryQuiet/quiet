@@ -44,7 +44,7 @@ export function* saveUserProfileSaga(socket: Socket, action: PayloadAction<{ pho
     pubKey,
   }
 
-  console.log(`Saving user profile: ${userProfile}`)
+  console.info(`Saving user profile: ${userProfile}`)
 
   yield* apply(socket, socket.emit, applyEmitParams(SocketActionTypes.SET_USER_PROFILE, userProfile))
 }

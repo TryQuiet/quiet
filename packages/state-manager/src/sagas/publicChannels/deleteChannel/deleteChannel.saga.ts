@@ -22,7 +22,7 @@ export function* deleteChannelSaga(
 
   const isGeneral = channelId === generalChannel.id
 
-  console.log(`Deleting channel ${channelId}`)
+  console.info(`Deleting channel ${channelId}`)
 
   const response = yield* apply(
     socket,
