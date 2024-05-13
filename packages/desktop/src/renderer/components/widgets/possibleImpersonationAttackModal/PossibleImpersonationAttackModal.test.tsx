@@ -1,11 +1,13 @@
 import React from 'react'
-import { lightTheme as theme } from '../../../theme'
+import { getTheme } from '../../../theme'
 import { ThemeProvider } from '@mui/material/styles'
 import { renderComponent } from '../../../testUtils/renderComponent'
 import PossibleImpersonationAttackModalComponent from './PossibleImpersonationAttackModal.component'
 
 describe('PossibleImpersonationAttackModal', () => {
   it('renderComponent', () => {
+    const theme = getTheme()
+
     const result = renderComponent(
       <ThemeProvider theme={theme}>
         <PossibleImpersonationAttackModalComponent handleClose={() => {}} open={true} communityName={'devteam'} />

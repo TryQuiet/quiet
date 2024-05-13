@@ -1,4 +1,5 @@
-import { createTheme } from '@mui/material/styles'
+import { nativeTheme } from '@electron/remote'
+import { createTheme, type Theme } from '@mui/material/styles'
 
 const font = "'Rubik', sans-serif"
 const fontLogs = 'Menlo Regular'
@@ -386,4 +387,8 @@ const darkTheme = createTheme({
   },
 })
 
-export { lightTheme, darkTheme }
+const getTheme = (): Theme => {
+  return nativeTheme?.shouldUseDarkColors ? darkTheme : lightTheme
+}
+
+export { lightTheme, darkTheme, getTheme }

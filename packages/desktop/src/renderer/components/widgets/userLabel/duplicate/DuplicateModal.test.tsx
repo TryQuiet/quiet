@@ -1,8 +1,10 @@
 import React from 'react'
-import { lightTheme as theme } from '../../../../theme'
+import { getTheme } from '../../../../theme'
 import { ThemeProvider } from '@mui/material/styles'
 import { renderComponent } from '../../../../testUtils/renderComponent'
 import DuplicateModalComponent from './DuplicateModal.component'
+
+const theme = getTheme()
 
 describe('DuplicateModalComponent', () => {
   it('renderComponent', () => {

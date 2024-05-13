@@ -4,9 +4,11 @@ import { ComponentStory, ComponentMeta } from '@storybook/react'
 import UpdateModal, { UpdateModalProps } from './UpdateModalComponent'
 
 import { withTheme } from '../../../storybook/decorators'
-import { lightTheme as theme } from '../../../theme'
+import { getTheme } from '../../../theme'
 
 import Button from '@mui/material/Button'
+
+const theme = getTheme()
 
 const Template: ComponentStory<typeof UpdateModal> = args => {
   return <UpdateModal {...args} />
