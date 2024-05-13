@@ -3,6 +3,7 @@ import { ProcessInChunksService } from './process-in-chunks.service'
 import waitForExpect from 'wait-for-expect'
 import { TestModule } from '../common/test.module'
 import { Test, TestingModule } from '@nestjs/testing'
+import { sleep } from '../common/sleep'
 describe('ProcessInChunks', () => {
   let module: TestingModule
   let processInChunks: ProcessInChunksService<string>
@@ -25,7 +26,6 @@ describe('ProcessInChunks', () => {
       .mockResolvedValueOnce()
       .mockRejectedValueOnce(new Error('Rejected 2'))
     processInChunks.init(['a', 'b', 'c', 'd'], mockProcessItem)
-    await processInChunks.process()
     await waitForExpect(() => {
       expect(mockProcessItem).toBeCalledTimes(6)
     })
@@ -39,9 +39,7 @@ describe('ProcessInChunks', () => {
       .mockResolvedValueOnce()
       .mockRejectedValueOnce(new Error('Rejected 1'))
     processInChunks.init(['a', 'b'], mockProcessItem)
-    await processInChunks.process()
-    processInChunks.updateData(['e', 'f'])
-    await processInChunks.process()
+    processInChunks.updateQueue(['e', 'f'])
     await waitForExpect(() => {
       expect(mockProcessItem).toBeCalledTimes(5)
     })
@@ -58,18 +56,28 @@ describe('ProcessInChunks', () => {
       .mockRejectedValueOnce(new Error('Rejected 2'))
     const chunkSize = 2
     processInChunks.init(['a', 'b', 'c', 'd'], mockProcessItem, chunkSize)
-    await processInChunks.process()
+    await sleep(10000)
     await waitForExpect(() => {
-      expect(mockProcessItem).toBeCalledTimes(2)
+      expect(mockProcessItem).toBeCalledTimes(6)
     })
   })
 
-  it.skip('does not process more data if stopped', async () => {
+  it('does not process more data if stopped', async () => {
     const mockProcessItem = jest.fn(async () => {})
-    const processInChunks = new ProcessInChunksService()
-    processInChunks.init(['a', 'b', 'c', 'd'], mockProcessItem)
-    processInChunks.stop()
-    await processInChunks.process()
+    processInChunks.init([], mockProcessItem)
+    processInChunks.pause()
+    processInChunks.updateQueue(['a', 'b', 'c', 'd'])
     expect(mockProcessItem).not.toBeCalled()
+  })
+
+  it('processes tasks after resuming from pause', async () => {
+    const mockProcessItem = jest.fn(async () => {})
+    processInChunks.init([], mockProcessItem)
+    processInChunks.pause()
+    processInChunks.updateQueue(['a', 'b', 'c', 'd'])
+    processInChunks.resume()
+    await waitForExpect(() => {
+      expect(mockProcessItem).toBeCalledTimes(4)
+    })
   })
 })

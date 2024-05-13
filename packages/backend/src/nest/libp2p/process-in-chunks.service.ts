@@ -1,8 +1,8 @@
 import { EventEmitter } from 'events'
-import fastq from 'fastq'
-import type { queue, done } from 'fastq'
+import fastq, { queueAsPromised } from 'fastq'
 
 import Logger from '../common/logger'
+import { randomUUID } from 'crypto'
 
 const DEFAULT_CHUNK_SIZE = 10
 export const DEFAULT_NUM_TRIES = 2
@@ -10,13 +10,14 @@ export const DEFAULT_NUM_TRIES = 2
 type ProcessTask<T> = {
   data: T
   tries: number
+  taskId: string
 }
 
 export class ProcessInChunksService<T> extends EventEmitter {
   private isActive: boolean
-  private data: Set<T> = new Set()
   private chunkSize: number
-  private taskQueue: queue<ProcessTask<T>>
+  private taskQueue: queueAsPromised<ProcessTask<T>>
+  private deadLetterQueue: ProcessTask<T>[] = []
   private processItem: (arg: T) => Promise<any>
   private readonly logger = Logger(ProcessInChunksService.name)
   constructor() {
@@ -27,59 +28,93 @@ export class ProcessInChunksService<T> extends EventEmitter {
     this.logger(`Initializing process-in-chunks.service with peers ${JSON.stringify(data, null, 2)}`)
     this.processItem = processItem
     this.chunkSize = chunkSize
-    this.taskQueue = fastq(this, this.processOneItem, this.chunkSize)
-    this.updateData(data)
-    this.addToTaskQueue()
+    this.taskQueue = fastq.promise(this, this.processOneItem, this.chunkSize)
+    this.isActive = true
+    this.updateQueue(data)
   }
 
-  public updateData(items: T[]) {
-    this.logger(`Updating data with ${items.length} items`)
-    this.taskQueue.pause()
-    items.forEach(item => this.data.add(item))
-    this.addToTaskQueue()
+  public updateQueue(items: T[]) {
+    this.logger(`Adding ${items.length} items to the task queue`)
+    items.forEach(item => this.addToTaskQueue(item))
+    this.logger(`Queue has ${this.taskQueue.length()}`)
   }
 
-  private addToTaskQueue() {
-    this.logger(`Adding ${this.data.size} items to the task queue`)
-    for (const item of this.data) {
-      if (item) {
-        this.logger(`Adding data ${item} to the task queue`)
-        this.data.delete(item)
-        try {
-          this.taskQueue.push({ data: item, tries: 0 } as ProcessTask<T>)
-        } catch (e) {
-          this.logger.error(`Error occurred while adding new task for item ${item} to the queue`, e)
-          this.data.add(item)
-        }
+  private async addToTaskQueue(task: ProcessTask<T>): Promise<void>
+  private async addToTaskQueue(item: T): Promise<void>
+  private async addToTaskQueue(itemOrTask: T | ProcessTask<T>): Promise<void> {
+    if (!itemOrTask) {
+      this.logger.error('Item/task is null or undefined, skipping!')
+      return
+    }
+
+    let task: ProcessTask<T>
+    if ((itemOrTask as ProcessTask<T>).taskId != null) {
+      task = itemOrTask as ProcessTask<T>
+    } else {
+      this.logger(`Creating new task for ${itemOrTask}`)
+      task = { data: itemOrTask as T, tries: 0, taskId: randomUUID() }
+    }
+
+    if (!this.isActive) {
+      this.logger(
+        'ProcessInChunksService is not active, adding tasks to the dead letter queue!\n\nWARNING: You must call "resume" on the ProcessInChunksService to process the dead letter queue!!!'
+      )
+      this.deadLetterQueue.push(task)
+      return
+    }
+
+    this.logger(`Adding task ${task.taskId} with data ${task.data} to the task queue`)
+    try {
+      const success = await this.taskQueue.push(task)
+      if (!success) {
+        this.logger(`Will try to re-attempt task ${task.taskId} with data ${task.data}`)
+        await this.taskQueue.push({ ...task, tries: task.tries + 1 })
       }
+    } catch (e) {
+      this.logger.error(`Error occurred while adding new task ${task.taskId} with data ${task.data} to the queue`, e)
     }
   }
 
-  public async processOneItem(task: ProcessTask<T>) {
+  public async processOneItem(task: ProcessTask<T>): Promise<boolean> {
+    let success: boolean = false
     try {
-      this.logger(`Processing task with data ${task.data}`)
+      this.logger(`Processing task ${task.taskId} with data ${task.data}`)
       await this.processItem(task.data)
+      success = true
     } catch (e) {
-      this.logger.error(`Processing task with data ${task.data} failed`, e)
-      if (task.tries + 1 < DEFAULT_NUM_TRIES) {
-        this.logger(`Will try to re-attempt task with data ${task.data}`)
-        this.taskQueue.push({ ...task, tries: task.tries + 1 })
-      }
+      this.logger.error(`Processing task ${task.taskId} with data ${task.data} failed`, e)
     } finally {
       this.logger(`Done attempting to process task with data ${task.data}`)
     }
+    return success
   }
 
-  public async process() {
-    this.logger(`Processing ${this.taskQueue.length()} items`)
-    this.taskQueue.resume()
-  }
-
-  public stop() {
+  public resume() {
     if (this.isActive) {
-      this.logger('Stopping initial dial')
-      this.isActive = false
-      this.taskQueue.pause()
+      this.logger('ProcessInChunksService is already active')
+      return
     }
+
+    this.logger('Resuming ProcessInChunksService')
+    this.isActive = true
+    this.taskQueue.resume()
+    if (this.deadLetterQueue) {
+      this.logger(`Adding ${this.deadLetterQueue.length} tasks from the dead letter queue to the task queue`)
+      this.deadLetterQueue.forEach(task => this.addToTaskQueue(task))
+      this.deadLetterQueue = []
+    }
+  }
+
+  public pause() {
+    if (!this.isActive) {
+      this.logger('ProcessInChunksService is already paused')
+      return
+    }
+
+    this.logger('Pausing ProcessInChunksService')
+    this.isActive = false
+    this.deadLetterQueue = this.taskQueue.getQueue()
+    this.taskQueue.kill()
+    this.taskQueue.pause()
   }
 }

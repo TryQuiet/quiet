@@ -62,7 +62,19 @@ export class Libp2pService extends EventEmitter {
     await this.hangUpPeers(peerInfo.dialed)
     this.dialedPeers.clear()
     this.connectedPeers.clear()
+    this.processInChunksService.pause()
     return peerInfo
+  }
+
+  public resume = async (peersToDial: string[]): Promise<void> => {
+    this.processInChunksService.resume()
+    if (peersToDial.length === 0) {
+      this.logger('No peers to redial!')
+      return
+    }
+
+    this.logger(`Redialing ${peersToDial.length} peers`)
+    await this.redialPeers(peersToDial)
   }
 
   public readonly createLibp2pAddress = (address: string, peerId: string): string => {
@@ -138,8 +150,7 @@ export class Libp2pService extends EventEmitter {
     // TODO: Sort peers
     await this.hangUpPeers(dialed)
 
-    this.processInChunksService.updateData(toDial)
-    await this.processInChunksService.process()
+    this.processInChunksService.updateQueue(toDial)
   }
 
   public async createInstance(params: Libp2pNodeParams): Promise<Libp2p> {
@@ -208,13 +219,12 @@ export class Libp2pService extends EventEmitter {
     this.on(Libp2pEvents.DIAL_PEERS, async (addresses: string[]) => {
       const nonDialedAddresses = addresses.filter(peerAddress => !this.dialedPeers.has(peerAddress))
       this.logger('Dialing', nonDialedAddresses.length, 'addresses')
-      this.processInChunksService.updateData(nonDialedAddresses)
-      await this.processInChunksService.process()
+      this.processInChunksService.updateQueue(nonDialedAddresses)
     })
 
     this.logger(`Initializing libp2p for ${peerId.toString()}, bootstrapping with ${peers.length} peers`)
     this.serverIoProvider.io.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.INITIALIZING_LIBP2P)
-    this.processInChunksService.init(peers, this.dialPeer)
+    this.processInChunksService.init([], this.dialPeer)
 
     this.libp2pInstance.addEventListener('peer:discovery', peer => {
       this.logger(`${peerId.toString()} discovered ${peer.detail.id}`)
@@ -268,7 +278,7 @@ export class Libp2pService extends EventEmitter {
       this.emit(Libp2pEvents.PEER_DISCONNECTED, peerStat)
     })
 
-    await this.processInChunksService.process()
+    this.processInChunksService.updateQueue(peers)
 
     this.logger(`Initialized libp2p for peer ${peerId.toString()}`)
   }
@@ -276,6 +286,7 @@ export class Libp2pService extends EventEmitter {
   public async close(): Promise<void> {
     this.logger('Closing libp2p service')
     await this.libp2pInstance?.stop()
+    this.processInChunksService.pause()
     this.libp2pInstance = null
     this.connectedPeers = new Map()
     this.dialedPeers = new Set()
