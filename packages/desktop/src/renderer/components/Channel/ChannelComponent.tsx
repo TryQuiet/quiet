@@ -26,7 +26,6 @@ import { NewMessagesInfoComponent } from './NewMessagesInfo/NewMessagesInfoCompo
 import { FileActionsProps } from './File/FileComponent/FileComponent'
 import { UseModalType } from '../../containers/hooks'
 import { HandleOpenModalType } from '../widgets/userLabel/UserLabel.types'
-import { defaultLogger } from '../../logger'
 import ChannelNetworkStatus from '../widgets/channels/ChannelNetworkStatus'
 
 const ChannelMessagesWrapperStyled = styled(Grid)(({ theme }) => ({
@@ -125,7 +124,7 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
   }
 
   const checkForCommunityPeers = (peerList: string[] | undefined) => {
-    defaultLogger.info(peerList, peerList?.length)
+    console.info(peerList, peerList?.length)
     if (peerList && peerList.length > 1) {
       return true
     }

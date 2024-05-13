@@ -4,7 +4,6 @@ import { withTheme } from '../../storybook/decorators'
 import JoiningPanelComponent, { JoiningPanelComponentProps } from './JoiningPanelComponent'
 import StartingPanelComponent, { StartingPanelComponentProps } from './StartingPanelComponent'
 import { ConnectionProcessInfo } from '@quiet/types'
-import { defaultLogger } from '../../logger'
 
 const JoiningPanelTemplate: ComponentStory<typeof JoiningPanelComponent> = args => {
   return <JoiningPanelComponent {...args} />
@@ -19,7 +18,7 @@ export const StartingPanel = StartingPanelTemplate.bind({})
 const JoiningPanelArgs: JoiningPanelComponentProps = {
   open: true,
   handleClose: function (): void {},
-  openUrl: () => defaultLogger.info('OpenURL'),
+  openUrl: () => console.info('OpenURL'),
   connectionInfo: { number: 10, text: ConnectionProcessInfo.BACKEND_MODULES },
   isOwner: false,
 }

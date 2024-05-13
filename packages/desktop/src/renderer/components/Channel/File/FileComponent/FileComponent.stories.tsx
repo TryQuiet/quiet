@@ -3,7 +3,6 @@ import { ComponentStory, ComponentMeta } from '@storybook/react'
 import FileComponent, { FileComponentProps } from './FileComponent'
 import { withTheme } from '../../../../storybook/decorators'
 import { DownloadState } from '@quiet/types'
-import { defaultLogger } from '../../../../logger'
 
 const Template: ComponentStory<typeof FileComponent> = args => {
   return (
@@ -99,13 +98,13 @@ Queued.args = {
     },
   },
   cancelDownload: () => {
-    defaultLogger.info('cancel download')
+    console.info('cancel download')
   },
 }
 Ready.args = {
   ...args,
   downloadFile: () => {
-    defaultLogger.info('download file')
+    console.info('download file')
   },
 }
 Downloading.args = {
@@ -121,7 +120,7 @@ Downloading.args = {
     },
   },
   cancelDownload: () => {
-    defaultLogger.info('cancel download')
+    console.info('cancel download')
   },
 }
 Canceling.args = {
@@ -153,7 +152,7 @@ Completed.args = {
     },
   },
   openContainingFolder: () => {
-    defaultLogger.info('show in folder')
+    console.info('show in folder')
   },
 }
 Malicious.args = {

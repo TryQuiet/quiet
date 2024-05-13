@@ -16,7 +16,6 @@ import { ModalName } from '../../../sagas/modals/modals.types'
 import { modalsActions } from '../../../sagas/modals/modals.slice'
 
 import { getFactory, identity, publicChannels } from '@quiet/state-manager'
-import { defaultLogger } from '../../../logger'
 
 describe('Add new channel', () => {
   let socket: MockedSocket
@@ -51,7 +50,7 @@ describe('Add new channel', () => {
       async () =>
         await waitFor(() => {
           user.click(screen.getByText('Create Channel')).catch(e => {
-            defaultLogger.error(e)
+            console.error(e)
           })
         })
     )

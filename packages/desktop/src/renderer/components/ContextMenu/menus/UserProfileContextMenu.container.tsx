@@ -13,7 +13,6 @@ import { ContextMenuItemProps, ContextMenuProps } from '../ContextMenu.types'
 import { MenuName } from '../../../../const/MenuNames.enum'
 import { ModalName } from '../../../sagas/modals/modals.types'
 import Jdenticon from '../../Jdenticon/Jdenticon'
-import { defaultLogger } from '../../../logger'
 
 const PREFIX = 'UserProfileContextMenu'
 
@@ -346,21 +345,21 @@ export const UserProfileMenuEditView: FC<UserProfileMenuEditViewProps> = ({
       ;({ width, height } = await getImageSize(photo))
     } catch (err) {
       const msg = 'Failed to get image size'
-      defaultLogger.error(msg)
+      console.error(msg)
       setError(msg)
       return
     }
 
     if (width === 0 || height === 0) {
       const msg = `Image has invalid dimensions: width: ${width}, height: ${height}`
-      defaultLogger.error(msg)
+      console.error(msg)
       setError(msg)
       return
     }
 
     if (width > 200 || height > 200) {
       const msg = 'Image dimensions must be less than or equal to 200px by 200px'
-      defaultLogger.error(msg)
+      console.error(msg)
       setError(msg)
       return
     }
@@ -368,7 +367,7 @@ export const UserProfileMenuEditView: FC<UserProfileMenuEditViewProps> = ({
     // 200 KB = 204800 B limit
     if (photo.size > 204800) {
       const msg = 'Image size must be less than or equal to 200KB'
-      defaultLogger.error(msg)
+      console.error(msg)
       setError(msg)
       return
     }

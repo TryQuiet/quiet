@@ -7,7 +7,6 @@ import Icon from '../../ui/Icon/Icon'
 import dropFiles from '../../../static/images/dropFiles.svg'
 import { DropTargetMonitor, useDrop } from 'react-dnd'
 import { NativeTypes } from 'react-dnd-html5-backend'
-import { defaultLogger } from '../../../logger'
 
 const StyledDropZoneComponent = styled(Grid)(() => ({
   position: 'relative',
@@ -56,7 +55,7 @@ export const DropZoneComponent: React.FC<DropZoneComponentProps> = ({ children, 
             if (fs.statSync(item.files[0].path).isDirectory()) return
           } catch (e) {
             // See: https://github.com/react-dnd/react-dnd/issues/3458
-            defaultLogger.error('drop error: ', e.message)
+            console.error('drop error: ', e.message)
             return
           }
           handleFileDrop(item)
@@ -68,7 +67,7 @@ export const DropZoneComponent: React.FC<DropZoneComponentProps> = ({ children, 
       collect: (monitor: DropTargetMonitor) => {
         const item: any = monitor.getItem()
         if (item) {
-          defaultLogger.info('collect', item.files, item.items)
+          console.info('collect', item.files, item.items)
         }
 
         return {

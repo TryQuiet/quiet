@@ -5,7 +5,6 @@ import { withTheme } from '../../../storybook/decorators'
 import { useModal } from '../../../containers/hooks'
 
 import DeleteChannelComponent, { DeleteChannelProps } from './DeleteChannelComponent'
-import { defaultLogger } from '../../../logger'
 
 const Template: ComponentStory<typeof DeleteChannelComponent> = args => {
   return <DeleteChannelComponent {...args} />
@@ -16,7 +15,7 @@ export const Component = Template.bind({})
 const args: ReturnType<typeof useModal> & DeleteChannelProps = {
   channelName: 'general',
   deleteChannel: () => {
-    defaultLogger.info('deleting channel')
+    console.info('deleting channel')
   },
   open: true,
   // @ts-expect-error

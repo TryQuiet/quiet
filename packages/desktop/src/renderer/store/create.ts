@@ -10,7 +10,6 @@ import { composeWithDevTools } from 'redux-devtools-extension'
 import reducers from './reducers'
 import { errorsMiddleware } from './middlewares'
 import { Store } from '../sagas/store.types'
-import { defaultLogger } from '../logger'
 
 const testMode = process.env.TEST_MODE
 
@@ -22,7 +21,7 @@ if (testMode) {
 
 const sagaMiddleware = createSagaMiddleware({
   onError(err) {
-    defaultLogger.error(err)
+    console.error(err)
     if (testMode) {
       Sentry.captureException(err)
     }

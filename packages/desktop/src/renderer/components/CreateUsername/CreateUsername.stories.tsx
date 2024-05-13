@@ -4,7 +4,6 @@ import { ComponentStory, ComponentMeta } from '@storybook/react'
 import { withTheme } from '../../storybook/decorators'
 
 import CreateUsernameComponent, { CreateUsernameComponentProps } from './CreateUsernameComponent'
-import { defaultLogger } from '../../logger'
 
 const Template: ComponentStory<typeof CreateUsernameComponent> = args => {
   return <CreateUsernameComponent {...args} />
@@ -16,7 +15,7 @@ const args: CreateUsernameComponentProps = {
   open: true,
   handleClose: function (): void {},
   registerUsername: function (nickname: string): void {
-    defaultLogger.info('Registering username: ', nickname)
+    console.info('Registering username: ', nickname)
   },
 }
 
