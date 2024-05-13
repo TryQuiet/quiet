@@ -59,15 +59,16 @@ export class ProcessInChunksService<T> extends EventEmitter {
         'ProcessInChunksService is not active, adding tasks to the dead letter queue!\n\nWARNING: You must call "resume" on the ProcessInChunksService to process the dead letter queue!!!'
       )
       this.deadLetterQueue.push(task)
+      this.logger(`There are now ${this.deadLetterQueue.length} items in the dead letter queue`)
       return
     }
 
     this.logger(`Adding task ${task.taskId} with data ${task.data} to the task queue`)
     try {
-      const success = await this.taskQueue.push(task)
+      const success = await this.pushToQueueAndRun(task)
       if (!success) {
         this.logger(`Will try to re-attempt task ${task.taskId} with data ${task.data}`)
-        await this.taskQueue.push({ ...task, tries: task.tries + 1 })
+        await this.pushToQueueAndRun({ ...task, tries: task.tries + 1 })
       }
     } catch (e) {
       this.logger.error(`Error occurred while adding new task ${task.taskId} with data ${task.data} to the queue`, e)
@@ -84,6 +85,19 @@ export class ProcessInChunksService<T> extends EventEmitter {
       this.logger.error(`Processing task ${task.taskId} with data ${task.data} failed`, e)
     } finally {
       this.logger(`Done attempting to process task with data ${task.data}`)
+    }
+    return success
+  }
+
+  private async pushToQueueAndRun(task: ProcessTask<T>): Promise<boolean> {
+    this.logger(
+      `Pushing task ${task.taskId} to queue, there will now be ${this.taskQueue.length() + 1} items in the queue`
+    )
+    const success = await this.taskQueue.push(task)
+    if (success) {
+      this.logger(`Task ${task.taskId} completed successfully`)
+    } else {
+      this.logger(`Task ${task.taskId} failed`)
     }
     return success
   }
