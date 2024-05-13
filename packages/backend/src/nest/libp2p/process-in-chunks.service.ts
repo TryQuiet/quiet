@@ -36,7 +36,6 @@ export class ProcessInChunksService<T> extends EventEmitter {
   public updateQueue(items: T[]) {
     this.logger(`Adding ${items.length} items to the task queue`)
     items.forEach(item => this.addToTaskQueue(item))
-    this.logger(`Queue has ${this.taskQueue.length()}`)
   }
 
   private async addToTaskQueue(task: ProcessTask<T>): Promise<void>
