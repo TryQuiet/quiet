@@ -26,6 +26,7 @@ import { NewMessagesInfoComponent } from './NewMessagesInfo/NewMessagesInfoCompo
 import { FileActionsProps } from './File/FileComponent/FileComponent'
 import { UseModalType } from '../../containers/hooks'
 import { HandleOpenModalType } from '../widgets/userLabel/UserLabel.types'
+import ChannelNetworkStatus from '../widgets/channels/ChannelNetworkStatus'
 
 const ChannelMessagesWrapperStyled = styled(Grid)(({ theme }) => ({
   position: 'relative',
@@ -51,6 +52,10 @@ export interface ChannelComponentProps {
   openFilesDialog: () => void
   handleFileDrop: (arg: any) => void
   isCommunityInitialized: boolean
+  connectedPeers: string[] | undefined
+  communityPeerList: string[] | undefined
+  lastConnectedTime: number
+  allPeersDisconnectedTime: number | undefined
   handleClipboardFiles: (arg: ArrayBuffer, ext: string, name: string) => void
   uploadedFileModal?: UseModalType<{
     src: string
@@ -84,6 +89,10 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
   handleFileDrop,
   filesData,
   isCommunityInitialized = true,
+  connectedPeers,
+  communityPeerList,
+  lastConnectedTime,
+  allPeersDisconnectedTime,
   openFilesDialog,
   handleClipboardFiles,
   uploadedFileModal,
@@ -106,6 +115,37 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
   const memoizedScrollHeight = React.useRef<number>()
 
   const [mathMessagesRendered, onMathMessageRendered] = React.useState<number>(0)
+
+  const checkForConnectedPeers = (connectedPeers: string[] | undefined) => {
+    if (connectedPeers && connectedPeers.length > 0) {
+      return true
+    }
+    return false
+  }
+
+  const checkForCommunityPeers = (peerList: string[] | undefined) => {
+    console.info(peerList, peerList?.length)
+    if (peerList && peerList.length > 1) {
+      return true
+    }
+    return false
+  }
+
+  const [isConnectedToOtherPeers, onConnectedPeersChange] = React.useState<boolean>(
+    checkForConnectedPeers(connectedPeers)
+  )
+
+  const [communityHasPeers, onCommunityPeerListChanged] = React.useState<boolean>(
+    checkForCommunityPeers(communityPeerList)
+  )
+
+  useEffect(() => {
+    onConnectedPeersChange(checkForConnectedPeers(connectedPeers))
+  }, [connectedPeers])
+
+  useEffect(() => {
+    onCommunityPeerListChanged(checkForCommunityPeers(communityPeerList))
+  }, [communityPeerList])
 
   const updateMathMessagesRendered = () => {
     // To rerender Channel on each call
@@ -227,6 +267,10 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
           <ChannelMessagesComponent
             messages={messages.groups}
             pendingMessages={pendingMessages}
+            connectedPeers={connectedPeers}
+            communityPeerList={communityPeerList}
+            lastConnectedTime={lastConnectedTime}
+            allPeersDisconnectedTime={allPeersDisconnectedTime}
             downloadStatuses={downloadStatuses}
             scrollbarRef={scrollbarRef}
             onScroll={onScroll}
@@ -241,6 +285,11 @@ export const ChannelComponent: React.FC<ChannelComponentProps & UploadFilesPrevi
             duplicatedUsernameModalHandleOpen={duplicatedUsernameModalHandleOpen}
           />
         </ChannelMessagesWrapperStyled>
+        <ChannelNetworkStatus
+          channelName={channelName}
+          isConnectedToOtherPeers={isConnectedToOtherPeers}
+          communityHasPeers={communityHasPeers}
+        />
         <Grid item>
           <ChannelInputComponent
             channelId={channelId}

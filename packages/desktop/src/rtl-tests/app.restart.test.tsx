@@ -14,7 +14,7 @@ import {
 import MockedSocket from 'socket.io-mock'
 import { ioMock } from '../shared/setupTests'
 import { communities, getFactory, network, publicChannels } from '@quiet/state-manager'
-import { act } from 'react-dom/test-utils'
+import { act } from '@testing-library/react'
 import { identityActions } from 'packages/state-manager/src/sagas/identity/identity.slice'
 import { LoadingPanelType } from '@quiet/types'
 

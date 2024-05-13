@@ -15,7 +15,7 @@ const args: CreateUsernameComponentProps = {
   open: true,
   handleClose: function (): void {},
   registerUsername: function (nickname: string): void {
-    console.log('Registering username: ', nickname)
+    console.info('Registering username: ', nickname)
   },
 }
 

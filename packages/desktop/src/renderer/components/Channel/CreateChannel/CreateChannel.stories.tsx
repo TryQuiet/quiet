@@ -13,7 +13,7 @@ export const Component = Template.bind({})
 const args: CreateChannelProps = {
   open: true,
   createChannel: function (name: string): void {
-    console.log('creating channel: ', name)
+    console.info('creating channel: ', name)
   },
   handleClose: function (): void {},
   clearErrorsDispatch: function (): void {},

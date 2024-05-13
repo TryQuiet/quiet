@@ -13,7 +13,7 @@ export const Component = Template.bind({})
 const args: WarningModalComponentProps = {
   open: true,
   handleClose: function (): void {
-    console.log('Closed modal')
+    console.info('Closed modal')
   },
   title: 'Warning title',
   subtitle: 'Warning description',

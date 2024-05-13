@@ -18,7 +18,7 @@ const args: TextWithLinkProps = {
       tag: 'a',
       label: 'linked',
       action: () => {
-        console.log('link clicked')
+        console.info('link clicked')
       },
     },
   ],

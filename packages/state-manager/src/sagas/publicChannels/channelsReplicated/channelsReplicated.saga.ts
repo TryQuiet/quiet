@@ -6,7 +6,7 @@ import { messagesSelectors } from '../../messages/messages.selectors'
 import { messagesActions } from '../../messages/messages.slice'
 import { communitiesSelectors } from '../../communities/communities.selectors'
 
-import logger from '@quiet/logger'
+import logger from '../../../utils/logger'
 import { type PublicChannel } from '@quiet/types'
 const log = logger('channels')
 
@@ -23,7 +23,7 @@ export function* channelsReplicatedSaga(
   const databaseStoredChannels = Object.values(channels) as PublicChannel[]
 
   const databaseStoredChannelsIds = databaseStoredChannels.map(channel => channel.id)
-  console.log({ locallyStoredChannels, databaseStoredChannelsIds })
+  log({ locallyStoredChannels, databaseStoredChannelsIds })
 
   // Upserting channels to local storage
   for (const channel of databaseStoredChannels) {

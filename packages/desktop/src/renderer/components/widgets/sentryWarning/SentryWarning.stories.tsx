@@ -14,7 +14,7 @@ export const Component = Template.bind({})
 const args: SentryWarningProps = {
   open: true,
   handleClose: function (): void {
-    console.log('Closed modal')
+    console.info('Closed modal')
   },
 }
 

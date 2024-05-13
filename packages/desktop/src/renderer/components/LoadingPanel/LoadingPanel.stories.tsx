@@ -18,7 +18,7 @@ export const StartingPanel = StartingPanelTemplate.bind({})
 const JoiningPanelArgs: JoiningPanelComponentProps = {
   open: true,
   handleClose: function (): void {},
-  openUrl: () => console.log('OpenURL'),
+  openUrl: () => console.info('OpenURL'),
   connectionInfo: { number: 10, text: ConnectionProcessInfo.BACKEND_MODULES },
   isOwner: false,
 }

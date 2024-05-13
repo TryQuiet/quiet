@@ -23,7 +23,7 @@ const args: ChannelInputProps = {
   inputPlaceholder: '#general as @alice',
   onChange: function (_arg: string): void {},
   onKeyPress: function (input: string): void {
-    console.log('send message', input)
+    console.info('send message', input)
   },
   infoClass: '',
   setInfoClass: function (_arg: string): void {},
@@ -37,7 +37,7 @@ const argsDisabledInput: ChannelInputProps = {
   inputPlaceholder: '#general as @alice',
   onChange: function (_arg: string): void {},
   onKeyPress: function (input: string): void {
-    console.log('send message', input)
+    console.info('send message', input)
   },
   infoClass: '',
   setInfoClass: function (_arg: string): void {},
@@ -248,7 +248,7 @@ const argsLongMessage: ChannelInputProps = {
   initialMessage: initialMessage,
   onChange: function (_arg: string): void {},
   onKeyPress: function (input: string): void {
-    console.log('send message', input)
+    console.info('send message', input)
   },
   infoClass: '',
   setInfoClass: function (_arg: string): void {},

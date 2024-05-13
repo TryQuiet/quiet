@@ -16,10 +16,10 @@ const args: PerformCommunityActionProps = {
   open: true,
   communityOwnership: CommunityOwnership.Owner,
   handleCommunityAction: function (value: string): void {
-    console.log('Creating community: ', value)
+    console.info('Creating community: ', value)
   },
   handleRedirection: function (): void {
-    console.log('Redirected to join community')
+    console.info('Redirected to join community')
   },
   handleClose: function (): void {},
   isCloseDisabled: false,

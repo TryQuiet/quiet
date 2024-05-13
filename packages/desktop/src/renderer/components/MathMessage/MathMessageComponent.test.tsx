@@ -1,19 +1,25 @@
 import React from 'react'
-import { act } from 'react-dom/test-utils'
+import { act } from '@testing-library/react'
 import { renderComponent } from '../../testUtils/renderComponent'
 import { MathMessageComponent } from './MathMessageComponent'
 
 describe('MathMessageComponent', () => {
   it('renders tex', async () => {
     const result = renderComponent(
-      <MathMessageComponent message={'$$a + b = c$$'} messageId={'1'} pending={false} openUrl={() => {}} />
+      <MathMessageComponent
+        message={'$$a + b = c$$'}
+        messageId={'1'}
+        pending={false}
+        isUnsent={false}
+        openUrl={() => {}}
+      />
     )
     await act(async () => {})
     expect(result.baseElement).toMatchInlineSnapshot(`
       <body>
         <div>
           <span
-            class="MathMessagemessage MathMessagebeginning css-y9v6re"
+            class="MathMessagemessage MathMessagebeginning css-e17gp5"
           >
             <mjx-container
               class="MathJax"
@@ -98,6 +104,7 @@ describe('MathMessageComponent', () => {
         message={'It is $$a + b = c$$ and $$a - b = d$$'}
         messageId={'1'}
         pending={false}
+        isUnsent={false}
         openUrl={() => {}}
         onMathMessageRendered={onMathMessageRendered}
       />
@@ -107,13 +114,13 @@ describe('MathMessageComponent', () => {
       <body>
         <div>
           <span
-            class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-1xya0ai-MuiTypography-root"
+            class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-105mmrw-MuiTypography-root"
             data-testid="messagesGroupContent-1-0"
           >
             It is
           </span>
           <span
-            class="MathMessagemessage MathMessagemiddle css-y9v6re"
+            class="MathMessagemessage MathMessagemiddle css-e17gp5"
           >
             <mjx-container
               class="MathJax"
@@ -187,13 +194,13 @@ describe('MathMessageComponent', () => {
             </mjx-container>
           </span>
           <span
-            class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-1xya0ai-MuiTypography-root"
+            class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-105mmrw-MuiTypography-root"
             data-testid="messagesGroupContent-1-2"
           >
             and
           </span>
           <span
-            class="MathMessagemessage MathMessagemiddle css-y9v6re"
+            class="MathMessagemessage MathMessagemiddle css-e17gp5"
           >
             <mjx-container
               class="MathJax"
@@ -278,6 +285,7 @@ describe('MathMessageComponent', () => {
         message={String.raw`$$sum_{i=0}^n i = \frac{n(n+1)}{2}$$ - look`}
         messageId={'1'}
         pending={false}
+        isUnsent={false}
         openUrl={() => {}}
         onMathMessageRendered={onMathMessageRendered}
       />
@@ -287,7 +295,7 @@ describe('MathMessageComponent', () => {
       <body>
         <div>
           <span
-            class="MathMessagemessage MathMessagebeginning css-y9v6re"
+            class="MathMessagemessage MathMessagebeginning css-e17gp5"
           >
             <mjx-container
               class="MathJax"
@@ -484,7 +492,7 @@ describe('MathMessageComponent', () => {
             </mjx-container>
           </span>
           <span
-            class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-1xya0ai-MuiTypography-root"
+            class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-105mmrw-MuiTypography-root"
             data-testid="messagesGroupContent-1-1"
           >
             <ul

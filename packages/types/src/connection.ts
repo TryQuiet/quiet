@@ -11,6 +11,10 @@ export interface NetworkDataPayload {
   lastSeen: number
 }
 
+export interface PeersNetworkDataPayload {
+  peers: NetworkDataPayload[]
+}
+
 export interface NetworkStats {
   peerId: string
   lastSeen: number

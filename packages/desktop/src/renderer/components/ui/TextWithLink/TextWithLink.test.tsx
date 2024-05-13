@@ -13,7 +13,7 @@ describe('TextWithLink', () => {
             tag: 'simple',
             label: 'simple',
             action: () => {
-              console.log('linked clicked')
+              console.info('linked clicked')
             },
           },
         ]}

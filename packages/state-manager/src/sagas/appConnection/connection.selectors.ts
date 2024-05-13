@@ -81,7 +81,9 @@ export const isJoiningCompleted = createSelector(
   areChannelsLoaded,
   areCertificatesLoaded,
   (isCommunity, areMessages, areChannels, areCertificates) => {
-    console.log({ isCommunity, areMessages, areChannels, areCertificates })
+    console.log(
+      `Checking if joining is complete: ${(JSON.stringify({ isCommunity, areMessages, areChannels, areCertificates }), null, 2)}`
+    )
     return isCommunity && areMessages && areChannels && areCertificates
   }
 )

@@ -43,6 +43,7 @@ import {
   type CommunityMetadata,
   type UserProfilesStoredEvent,
   SocketActionTypes,
+  PeersNetworkDataPayload,
 } from '@quiet/types'
 
 const log = logger('socket')
@@ -93,13 +94,15 @@ export function subscribe(socket: Socket) {
       emit(connectionActions.setConnectionProcess(payload))
     })
     // Misc
-    socket.on(SocketActionTypes.PEER_CONNECTED, (payload: { peers: string[] }) => {
-      log(`${SocketActionTypes.PEER_CONNECTED}: ${payload}`)
-      emit(networkActions.addConnectedPeers(payload.peers))
+    socket.on(SocketActionTypes.PEER_CONNECTED, (payload: PeersNetworkDataPayload) => {
+      log(`${SocketActionTypes.PEER_CONNECTED}: ${JSON.stringify(payload)}`)
+      emit(networkActions.addConnectedPeers(payload.peers.map(peer => peer.peer)))
+      emit(connectionActions.updateNetworkData(payload.peers))
     })
     socket.on(SocketActionTypes.PEER_DISCONNECTED, (payload: NetworkDataPayload) => {
+      log(`${SocketActionTypes.PEER_DISCONNECTED}: ${JSON.stringify(payload)}`)
       emit(networkActions.removeConnectedPeer(payload.peer))
-      emit(connectionActions.updateNetworkData(payload))
+      emit(connectionActions.updateNetworkData([payload]))
     })
     socket.on(SocketActionTypes.MIGRATION_DATA_REQUIRED, (keys: string[]) => {
       emit(appActions.loadMigrationData(keys))
@@ -151,8 +154,7 @@ export function subscribe(socket: Socket) {
       // color in the console, which makes them difficult to find.
       // Also when only printing the payload, the full trace is not
       // available.
-      log.error(payload)
-      console.error(payload, payload.trace)
+      console.error(`Error on socket:`, payload.trace)
       emit(errorsActions.handleError(payload))
     })
     // Certificates

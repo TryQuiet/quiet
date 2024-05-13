@@ -2,6 +2,8 @@
 
 # New features:
 
+* Adds connection status information to messages panel when no peers are connected ([#1706](https://github.com/TryQuiet/quiet/issues/1706))
+
 # Refactorings:
 
 # Fixes:

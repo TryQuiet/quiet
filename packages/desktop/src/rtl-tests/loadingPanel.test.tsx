@@ -19,7 +19,7 @@ import {
   connection,
 } from '@quiet/state-manager'
 import { DateTime } from 'luxon'
-import { act } from 'react-dom/test-utils'
+import { act } from '@testing-library/react'
 import { modalsActions } from '../renderer/sagas/modals/modals.slice'
 import { ModalName } from '../renderer/sagas/modals/modals.types'
 

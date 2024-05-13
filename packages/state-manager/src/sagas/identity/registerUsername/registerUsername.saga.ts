@@ -69,7 +69,7 @@ export function* registerUsernameSaga(
       console.log('Recreating user CSR')
       userCsr = yield* call(createUserCsr, payload)
     } catch (e) {
-      console.error(e)
+      console.error('Error occurred while creating new CSR from existing', e)
       return
     }
   } else {
@@ -85,7 +85,7 @@ export function* registerUsernameSaga(
       console.log('Creating user CSR')
       userCsr = yield* call(createUserCsr, payload)
     } catch (e) {
-      console.error(e)
+      console.error('Error occurred while generating new user CSR', e)
       return
     }
   }

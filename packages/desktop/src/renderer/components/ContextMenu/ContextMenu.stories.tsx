@@ -14,7 +14,7 @@ const channel_items: ContextMenuItemProps[] = [
   {
     title: 'Delete',
     action: () => {
-      console.log('clicked on delete channel')
+      console.info('clicked on delete channel')
     },
   },
 ]
@@ -24,7 +24,7 @@ const args: ContextMenuProps = {
   children: <ContextMenuItemList items={channel_items} />,
   visible: true,
   handleClose: () => {
-    console.log('closing menu')
+    console.info('closing menu')
   },
 }
 

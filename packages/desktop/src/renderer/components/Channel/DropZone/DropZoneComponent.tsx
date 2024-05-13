@@ -67,7 +67,7 @@ export const DropZoneComponent: React.FC<DropZoneComponentProps> = ({ children, 
       collect: (monitor: DropTargetMonitor) => {
         const item: any = monitor.getItem()
         if (item) {
-          console.log('collect', item.files, item.items)
+          console.info('collect', item.files, item.items)
         }
 
         return {

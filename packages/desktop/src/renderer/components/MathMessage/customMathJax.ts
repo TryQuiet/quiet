@@ -125,7 +125,7 @@ export function convertPromise(
       if (!(err instanceof CancelationException)) {
         throw err
       } else {
-        console.log('cancelled render!')
+        console.info('cancelled render!')
         return null
       }
     })

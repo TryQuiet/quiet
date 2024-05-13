@@ -56,6 +56,7 @@ const args: FileComponentProps = {
     downloadState: DownloadState.Ready,
     downloadProgress: undefined,
   },
+  isUnsent: false,
 }
 
 Uploading.args = {
@@ -97,13 +98,13 @@ Queued.args = {
     },
   },
   cancelDownload: () => {
-    console.log('cancel download')
+    console.info('cancel download')
   },
 }
 Ready.args = {
   ...args,
   downloadFile: () => {
-    console.log('download file')
+    console.info('download file')
   },
 }
 Downloading.args = {
@@ -119,7 +120,7 @@ Downloading.args = {
     },
   },
   cancelDownload: () => {
-    console.log('cancel download')
+    console.info('cancel download')
   },
 }
 Canceling.args = {
@@ -151,7 +152,7 @@ Completed.args = {
     },
   },
   openContainingFolder: () => {
-    console.log('show in folder')
+    console.info('show in folder')
   },
 }
 Malicious.args = {

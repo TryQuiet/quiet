@@ -15,7 +15,7 @@ export const Component = Template.bind({})
 const args: ReturnType<typeof useModal> & DeleteChannelProps = {
   channelName: 'general',
   deleteChannel: () => {
-    console.log('deleting channel')
+    console.info('deleting channel')
   },
   open: true,
   // @ts-expect-error

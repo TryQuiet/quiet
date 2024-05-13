@@ -45,6 +45,7 @@ import {
   type SavedOwnerCertificatePayload,
   type UserProfile,
   type UserProfilesStoredEvent,
+  PeersNetworkDataPayload,
 } from '@quiet/types'
 import Logger from '../common/logger'
 import { CONFIG_OPTIONS, QUIET_DIR, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
@@ -617,19 +618,23 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     await this.libp2pService.createInstance(params)
 
     // Libp2p event listeners
-    this.libp2pService.on(Libp2pEvents.PEER_CONNECTED, async (payload: { peers: string[] }) => {
+    this.libp2pService.on(Libp2pEvents.PEER_CONNECTED, async (payload: PeersNetworkDataPayload) => {
       this.serverIoProvider.io.emit(SocketActionTypes.PEER_CONNECTED, payload)
-      for (const peer of payload.peers) {
-        const peerStats: NetworkStats = {
-          peerId: peer,
-          connectionTime: 0,
-          lastSeen: DateTime.utc().toSeconds(),
-        }
 
-        await this.localDbService.update(LocalDBKeys.PEERS, {
-          [peer]: peerStats,
-        })
-      }
+      const peerStats: { [peerId: string]: NetworkStats } = await payload.peers.reduce(
+        async (updateObj, peer) => {
+          return {
+            ...(await updateObj),
+            [peer.peer]: {
+              peerId: peer.peer,
+              lastSeen: peer.lastSeen,
+              connectionTime: peer.connectionDuration,
+            } as NetworkStats,
+          }
+        },
+        Promise.resolve({} as { [peerId: string]: NetworkStats })
+      )
+      await this.localDbService.update(LocalDBKeys.PEERS, peerStats)
     })
 
     this.libp2pService.on(Libp2pEvents.PEER_DISCONNECTED, async (payload: NetworkDataPayload) => {

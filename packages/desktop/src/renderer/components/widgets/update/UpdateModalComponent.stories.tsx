@@ -15,7 +15,7 @@ const Template: ComponentStory<typeof UpdateModal> = args => {
 const args: UpdateModalProps = {
   open: true,
   handleClose: function (): void {
-    console.log('modal closed')
+    console.info('modal closed')
   },
   buttons: [
     <Button
@@ -24,7 +24,7 @@ const args: UpdateModalProps = {
       color='primary'
       type='submit'
       onClick={() => {
-        console.log('submit button clicked')
+        console.info('submit button clicked')
       }}
       style={{
         height: 55,
