@@ -70,6 +70,7 @@ const StyledChannelInput = styled(Grid)(({ theme }) => ({
     scrollPaddingBottom: '12px',
     height: '48px',
     lineHeight: '24px',
+    backgroundColor: theme.palette.background.default,
     '&:empty': {
       '&:before': {
         content: 'attr(placeholder)',
@@ -89,9 +90,6 @@ const StyledChannelInput = styled(Grid)(({ theme }) => ({
     maxHeight: maxHeight,
     overflowY: 'auto',
     borderRadius: 4,
-    '&:hover': {
-      borderColor: theme.palette.colors.trueBlack,
-    },
     display: 'flex',
     flexDirection: 'column',
     flexWrap: 'nowrap',
@@ -127,9 +125,6 @@ const StyledChannelInput = styled(Grid)(({ theme }) => ({
     WebkitTapHighlightColor: 'transparent',
     pointerEvents: 'none',
     touchAction: 'none',
-  },
-  [`& .${classes.focused}`]: {
-    borderColor: theme.palette.colors.trueBlack,
   },
   [`& .${classes.iconButton}`]: {
     cursor: 'pointer',

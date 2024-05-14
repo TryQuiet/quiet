@@ -32,6 +32,7 @@ const StyledTabsWrapper = styled(Grid)(() => ({
 
 const StyledAppBar = styled(AppBar, { label: 'xxxxx' })(({ theme }) => ({
   backgroundColor: theme.palette.background.default,
+  backgroundImage: 'none',
   boxShadow: theme.shadows[3],
 
   [`& .${classes.leaveComunity}`]: {
