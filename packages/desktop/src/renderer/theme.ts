@@ -90,6 +90,7 @@ const lightTheme = createTheme({
     colors: {
       // Misc colors. For primary / secondary brand, text, and background colors, use those objects
       // For canonical colors, see: https://www.figma.com/file/0j7Nna9zWmfOSNmRmQK1Uh/Quiet-Design-Library?type=design&node-id=2667-0&mode=design&t=i0cXovHohRKxWGaA-0
+      contrastText: '#000', // Contrasts with the background colors
       // Blues
       blue: '#2196f3',
       purple: '#521C74', // To be replaced with theme.palette.primary.main
@@ -118,7 +119,7 @@ const lightTheme = createTheme({
       border01: '#F0F0F0',
       border02: '#B3B3B3',
       border03: '#D2D2D2',
-      //Gradients and other fancy things
+      // Other custom colors
       sidebarBackground: '#711FA5',
     },
   },
@@ -284,6 +285,7 @@ const darkTheme = createTheme({
     colors: {
       // Misc colors. For primary / secondary brand, text, and background colors, use those objects
       // For canonical colors, see: https://www.figma.com/file/0j7Nna9zWmfOSNmRmQK1Uh/Quiet-Design-Library?type=design&node-id=2667-0&mode=design&t=i0cXovHohRKxWGaA-0
+      contrastText: '#FFF', // Contrasts with the background colors
       // Blues
       blue: '#2196f3',
       purple: '#521C74', // To be replaced with theme.palette.primary.main

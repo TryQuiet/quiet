@@ -6,9 +6,7 @@ import { styled } from '@mui/material/styles'
 
 import Typography from '@mui/material/Typography'
 import Grid from '@mui/material/Grid'
-
-import Icon from '../../ui/Icon/Icon'
-import dots from '../../../static/images/dots.svg'
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz'
 
 const PREFIX = 'ChannelHeaderComponent'
 
@@ -182,7 +180,7 @@ export const ChannelHeaderComponent: React.FC<ChannelHeaderProps> = ({
         >
           {enableContextMenu && (
             <Grid item className={classes.menu} onClick={openContextMenu} data-testid={'channelContextMenuButton'}>
-              <Icon src={dots} />
+              <MoreHorizIcon />
             </Grid>
           )}
         </Grid>
