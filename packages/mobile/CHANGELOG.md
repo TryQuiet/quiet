@@ -1,3 +1,19 @@
+# Change Log
+
+All notable changes to this project will be documented in this file.
+See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+# [2.2.0-alpha.5](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@2.2.0-alpha.4...@quiet/mobile@2.2.0-alpha.5) (2024-05-14)
+
+
+### Bug Fixes
+
+* Reorder the closing of services, prevent sagas running multiple times and close backend server properly ([#2499](https://github.com/TryQuiet/quiet/issues/2499)) ([134fbcb](https://github.com/TryQuiet/quiet/commit/134fbcb3249ffb4743e0fcfb30b08be355440566))
+
+
+
+
+
 [unreleased]
 
 # New features:
