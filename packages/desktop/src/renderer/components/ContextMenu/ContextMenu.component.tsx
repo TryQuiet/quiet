@@ -6,9 +6,8 @@ import {
   ContextMenuItemListProps,
   ContextMenuItemProps,
 } from './ContextMenu.types'
-import Icon from '../ui/Icon/Icon'
-import arrowLeft from '../../static/images/arrowLeft.svg'
-import arrowRightShort from '../../static/images/arrowRightShort.svg'
+import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore'
+import NavigateNextIcon from '@mui/icons-material/NavigateNext'
 
 export const ContextMenu: FC<ContextMenuProps> = ({ visible, handleClose, handleBack, title, children }) => {
   const theme = useTheme()
@@ -81,7 +80,7 @@ export const ContextMenu: FC<ContextMenuProps> = ({ visible, handleClose, handle
             data-testid={`contextMenu-${title.split(' ').join('')}-backArrow`}
             onClick={handleBack || handleClose}
           >
-            <Icon src={arrowLeft} />
+            <NavigateBeforeIcon />
           </Grid>
           <Grid style={{ flex: 5, justifyContent: 'center' }}>
             <Typography fontSize={16} fontWeight={'medium'} style={{ alignSelf: 'center' }}>
@@ -157,7 +156,7 @@ export const ContextMenuItem: FC<ContextMenuItemProps> = ({ title, action }) => 
         </Typography>
       </Grid>
       <Grid style={{ flex: 1, display: 'flex', flexDirection: 'row', justifyContent: 'flex-end' }}>
-        <Icon src={arrowRightShort} />
+        <NavigateNextIcon />
       </Grid>
     </Grid>
   )
