@@ -1,6 +1,6 @@
 import React from 'react'
 import { styled } from '@mui/material/styles'
-import { Button } from '@mui/material'
+import { Button, useTheme } from '@mui/material'
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
 
@@ -69,6 +69,8 @@ export const UserProfilePanel: React.FC<UserProfilePanelProps> = ({
   userProfile,
   userProfileContextMenu,
 }) => {
+  const theme = useTheme()
+
   const username = currentIdentity?.nickname || ''
   return (
     <UserProfilePanelButtonStyled>
@@ -90,7 +92,7 @@ export const UserProfilePanel: React.FC<UserProfilePanelProps> = ({
             style={{
               width: '24px',
               height: '24px',
-              background: '#F3F0F6',
+              background: theme.palette.background.paper,
               borderRadius: '4px',
               marginRight: '8px',
             }}

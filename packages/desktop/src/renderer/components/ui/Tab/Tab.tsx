@@ -23,7 +23,7 @@ const StyledMuiTab = styled(MuiTab)(({ theme }) => ({
   },
 
   [`&.${classes.selected}`]: {
-    backgroundColor: theme.palette.colors.lushSky,
+    backgroundColor: theme.palette.background.paper,
     borderRadius: 5,
     color: `${theme.palette.colors.white} !important`,
   },

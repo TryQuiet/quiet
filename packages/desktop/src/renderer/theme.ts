@@ -119,7 +119,7 @@ const lightTheme = createTheme({
       border02: '#B3B3B3',
       border03: '#D2D2D2',
       //Gradients and other fancy things
-      sidebarBackground: 'linear-gradient(290.29deg, #521576 18.61%, #E42656 96.07%)',
+      sidebarBackground: '#711FA5',
     },
   },
   //@ts-ignore MUI types expect 25 shadows - see: https://github.com/mui/material-ui/issues/28820
@@ -313,7 +313,7 @@ const darkTheme = createTheme({
       border02: '#B3B3B3',
       border03: '#D2D2D2',
       // Gradients and other run-of-the-mill things
-      sidebarBackground: 'linear-gradient(290.29deg, #1f092c 18.61%, #03081c 96.07%)',
+      sidebarBackground: '#2F193D',
     },
   },
   //@ts-ignore MUI types expect 25 shadows - see: https://github.com/mui/material-ui/issues/28820
