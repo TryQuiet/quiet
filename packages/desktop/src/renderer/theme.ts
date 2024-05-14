@@ -120,7 +120,7 @@ const lightTheme = createTheme({
       border02: '#B3B3B3',
       border03: '#D2D2D2',
       // Other custom colors
-      sidebarBackground: '#711FA5',
+      sidebarBackground: '#511974',
     },
   },
   //@ts-ignore MUI types expect 25 shadows - see: https://github.com/mui/material-ui/issues/28820
