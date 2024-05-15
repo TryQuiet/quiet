@@ -5,7 +5,7 @@ describe('storybookLog function', () => {
   const consoleLogMessage = 'storybookLog called'
 
   beforeEach(() => {
-    jest.spyOn(console, 'info')
+    jest.spyOn(QuietLogger.prototype, 'info')
   })
 
   afterEach(() => {
