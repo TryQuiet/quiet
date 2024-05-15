@@ -23,6 +23,9 @@ import {
 } from '@quiet/types'
 import { publicChannelsSelectors } from '../publicChannels.selectors'
 import { usersSelectors } from '../../users/users.selectors'
+import { createLogger } from '../../../utils/logger'
+
+const logger = createLogger('deleteChannelSaga-test')
 
 describe('deleteChannelSaga', () => {
   let store: Store
@@ -74,7 +77,7 @@ describe('deleteChannelSaga', () => {
   })
 
   test('delete standard channel', async () => {
-    console.log({ generalChannel })
+    logger.info({ generalChannel })
     const channelId = photoChannel.id
     store.dispatch(publicChannelsActions.setCurrentChannel({ channelId }))
     const reducer = combineReducers(reducers)

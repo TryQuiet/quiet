@@ -6,6 +6,10 @@ import { useModal } from '../../../containers/hooks'
 
 import DeleteChannelComponent, { DeleteChannelProps } from './DeleteChannelComponent'
 
+import { createLogger } from '../../../logger'
+
+const logger = createLogger('deleteChannel:stories')
+
 const Template: ComponentStory<typeof DeleteChannelComponent> = args => {
   return <DeleteChannelComponent {...args} />
 }
@@ -15,7 +19,7 @@ export const Component = Template.bind({})
 const args: ReturnType<typeof useModal> & DeleteChannelProps = {
   channelName: 'general',
   deleteChannel: () => {
-    console.log('deleting channel')
+    logger.info('deleting channel')
   },
   open: true,
   // @ts-expect-error

@@ -7,14 +7,15 @@ import { communitiesActions } from '../communities.slice'
 import { identitySelectors } from '../../identity/identity.selectors'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import { type Community, type InitCommunityPayload, SocketActionTypes } from '@quiet/types'
-import logger from '../../../utils/logger'
-const log = logger('createCommunity')
+import { createLogger } from '../../../utils/logger'
+
+const logger = createLogger('createCommunitySaga')
 
 export function* createCommunitySaga(
   socket: Socket,
   action: PayloadAction<ReturnType<typeof communitiesActions.createCommunity>['payload']>
 ): Generator {
-  console.log('Creating community')
+  logger.info('Creating community')
 
   let communityId: string = action.payload
 
@@ -22,13 +23,13 @@ export function* createCommunitySaga(
     communityId = yield* select(communitiesSelectors.currentCommunityId)
   }
 
-  log(communityId)
+  logger.info('Community ID:', communityId)
 
   const community = yield* select(communitiesSelectors.selectById(communityId))
   const identity = yield* select(identitySelectors.selectById(communityId))
 
   if (!identity) {
-    console.error('Failed to create community - identity missing')
+    logger.error('Failed to create community - identity missing')
     return
   }
 
@@ -51,7 +52,7 @@ export function* createCommunitySaga(
   )
 
   if (!createdCommunity || !createdCommunity.ownerCertificate) {
-    console.error('Failed to create community - invalid response from backend')
+    logger.error('Failed to create community - invalid response from backend')
     return
   }
 

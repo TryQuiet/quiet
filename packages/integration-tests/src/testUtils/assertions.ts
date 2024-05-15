@@ -1,9 +1,9 @@
 import { publicChannels, Store } from '@quiet/state-manager'
 import assert from 'assert'
-import logger from '../logger'
+import { createLogger } from '../logger'
 import { MAIN_CHANNEL } from './constants'
 import { waitForExpect } from './waitForExpect'
-const log = logger('utils')
+const logger = createLogger('utils')
 
 const timeout = 120_000
 
@@ -25,13 +25,13 @@ export async function assertReceivedChannel(
   maxTime: number = timeout,
   store: Store
 ) {
-  log(`User ${userName} starts waiting ${maxTime}ms for channels`)
+  logger.info(`User ${userName} starts waiting ${maxTime}ms for channels`)
 
   await waitForExpect(() => {
     assertNotEmpty(store.getState().PublicChannels)
     assertContains(channelName, store.getState().PublicChannels.channels.ids)
   }, maxTime)
-  log(`User ${userName} replicated '${channelName}'`)
+  logger.info(`User ${userName} replicated '${channelName}'`)
 
   store.dispatch(
     publicChannels.actions.setCurrentChannel({
@@ -39,7 +39,7 @@ export async function assertReceivedChannel(
     })
   )
 
-  log(`User ${userName} received ${store.getState().PublicChannels.channels.ids.length} channels`)
+  logger.info(`User ${userName} received ${store.getState().PublicChannels.channels.ids.length} channels`)
 }
 
 export async function assertReceivedMessages(
@@ -48,7 +48,7 @@ export async function assertReceivedMessages(
   maxTime: number = timeout,
   store: Store
 ) {
-  log(`User ${userName} starts waiting ${maxTime}ms for messages`)
+  logger.info(`User ${userName} starts waiting ${maxTime}ms for messages`)
 
   await waitForExpect(() => {
     assert.strictEqual(
@@ -57,7 +57,7 @@ export async function assertReceivedMessages(
     )
   }, maxTime)
 
-  log(
+  logger.info(
     `User ${userName} received ${
       store.getState().Messages.publicChannelsMessagesBase.entities[MAIN_CHANNEL].messages.ids.length
     } messages`
@@ -97,11 +97,11 @@ export const assertReceivedCertificates = async (
   maxTime: number = timeout,
   store: Store
 ) => {
-  log(`User ${userName} starts waiting ${maxTime}ms for certificates`)
+  logger.info(`User ${userName} starts waiting ${maxTime}ms for certificates`)
 
   await waitForExpect(() => {
     assert.strictEqual(store.getState().Users.certificates.ids.length, expectedCount)
   }, maxTime)
 
-  log(`User ${userName} received ${store.getState().Users.certificates.ids.length} certificates`)
+  logger.info(`User ${userName} received ${store.getState().Users.certificates.ids.length} certificates`)
 }

@@ -1,11 +1,15 @@
+import { createLogger } from '../../logger'
+
+const logger = createLogger('storybookLog')
+
 export const storybookLog =
   (message: string) =>
   (...args: unknown[]): void => {
-    console.info(message)
+    logger.info(message)
 
     if (args.length > 0) {
       args.forEach(arg => {
-        console.info(arg)
+        logger.info(arg)
       })
     }
   }

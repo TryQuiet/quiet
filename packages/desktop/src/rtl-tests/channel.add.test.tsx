@@ -29,6 +29,10 @@ import { modalsActions, ModalsInitialState } from '../renderer/sagas/modals/moda
 import { ModalName } from '../renderer/sagas/modals/modals.types'
 import { FieldErrors } from '../renderer/forms/fieldsErrors'
 
+import { createLogger } from './logger'
+
+const logger = createLogger('channel:add')
+
 jest.setTimeout(20_000)
 
 describe('Add new channel', () => {
@@ -136,7 +140,7 @@ describe('Add new channel', () => {
       async () =>
         await waitFor(() => {
           user.click(screen.getByText('Create Channel')).catch(e => {
-            console.error(e)
+            logger.error(e)
           })
         })
     )
@@ -353,7 +357,7 @@ describe('Add new channel', () => {
       async () =>
         await waitFor(() => {
           user.click(screen.getByText('Create Channel')).catch(e => {
-            console.error(e)
+            logger.error(e)
           })
         })
     )
@@ -446,7 +450,7 @@ describe('Add new channel', () => {
         async () =>
           await waitFor(() => {
             user.click(screen.getByText('Create Channel')).catch(e => {
-              console.error(e)
+              logger.error(e)
             })
           })
       )

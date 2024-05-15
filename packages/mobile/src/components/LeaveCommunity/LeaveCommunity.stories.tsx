@@ -3,14 +3,18 @@ import React from 'react'
 
 import { LeaveCommunity } from './LeaveCommunity.component'
 
+import { createLogger } from '../../utils/logger'
+
+const logger = createLogger('leaveCommunity:stories')
+
 storiesOf('LeaveCommunity', module).add('Default', () => (
   <LeaveCommunity
     name={'Rockets'}
     leaveCommunity={() => {
-      console.log('leaving community')
+      logger.info('leaving community')
     }}
     handleBackButton={() => {
-      console.log('going back')
+      logger.info('going back')
     }}
   />
 ))

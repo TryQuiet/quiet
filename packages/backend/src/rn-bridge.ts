@@ -1,6 +1,9 @@
 import { emit } from 'process'
+import { createLogger } from './nest/common/logger'
 
 const EventEmitter = require('events')
+
+const logger = createLogger('rnBridge')
 
 const initRnBridge = () => {
   // @ts-ignore
@@ -46,19 +49,19 @@ const initRnBridge = () => {
       const parsed: { [key: string]: string } = {}
       const entries = message.split('|')
       if (entries.length < 1) {
-        console.warn('Malformed or non-existen rn-bridge payload ', entries)
+        logger.warn('Malformed or non-existen rn-bridge payload ', entries)
         return parsed
       }
       entries.forEach(s => {
         const split = s.split(':')
         if (split.length !== 2) {
-          console.warn('Malformed rn-bridge entry: ', split)
+          logger.warn('Malformed rn-bridge entry: ', split)
           return
         }
         parsed[split[0]] = split[1]
       })
 
-      console.log('parsed', parsed)
+      logger.info('parsed', parsed)
       return parsed
     }
 
@@ -221,7 +224,7 @@ const initRnBridge = () => {
     if (channels.hasOwnProperty(channelName)) {
       channels[channelName].processData(data)
     } else {
-      console.error('ERROR: Channel not found:', channelName)
+      logger.error('ERROR: Channel not found:', channelName)
     }
   }
 

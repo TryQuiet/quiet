@@ -3,6 +3,9 @@ import joi from 'joi'
 import { ChannelMessage, PublicChannel } from '@quiet/types'
 import { ServerStoredCommunityMetadata } from '../storageServiceClient/storageServiceClient.types'
 import { isPSKcodeValid } from '@quiet/common'
+import { createLogger } from '../common/logger'
+
+const logger = createLogger('rnBridge')
 
 const messageMediaSchema = joi.object({
   path: joi.string().allow(null),
@@ -81,7 +84,7 @@ export const isChannel = (channel: PublicChannel): boolean => {
 export const isServerStoredMetadata = (metadata: ServerStoredCommunityMetadata): boolean => {
   const value = metadataSchema.validate(metadata)
   // Leave this log for first iterations of QSS
-  console.log(value.error)
+  logger.info(value.error)
   return !value.error
 }
 

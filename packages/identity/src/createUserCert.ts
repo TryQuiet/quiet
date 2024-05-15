@@ -12,6 +12,9 @@ import {
   GeneralNames,
   type Attribute,
 } from 'pkijs'
+import { createLogger } from './logger'
+
+const logger = createLogger('createUserCert')
 
 export interface UserCert {
   // Todo: move types to separate file
@@ -92,7 +95,7 @@ async function generateUserCertificate({
       ],
     })
   } catch (err) {
-    console.error(err)
+    logger.error(err)
     throw new Error('Cannot get certificate request extension')
   }
 

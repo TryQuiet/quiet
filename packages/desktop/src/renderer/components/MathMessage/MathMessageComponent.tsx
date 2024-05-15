@@ -5,6 +5,9 @@ import { convertPromise, SourceLang } from './customMathJax'
 import { styled } from '@mui/material/styles'
 import theme from '../../theme'
 import classNames from 'classnames'
+import { createLogger } from '../../logger'
+
+const logger = createLogger('mathMessage:component')
 
 const PREFIX = 'MathMessage'
 
@@ -71,7 +74,7 @@ const MathComponent: React.FC<UseMathProps & TextMessageComponentProps> = ({
     }
   }, [node, message, display])
 
-  if (error) console.error(`Error converting tex '${message}'`, error)
+  if (error) logger.error(`Error converting tex '${message}'`, error)
 
   if (isMath && !error) {
     const props = {
@@ -116,7 +119,7 @@ export const MathMessageComponent: React.FC<TextMessageComponentProps & MathMess
   try {
     texMessageSplit = splitByTex(String.raw`${message}`, displayMathRegex)
   } catch (e) {
-    console.error('Error extracting tex from message', e.message)
+    logger.error('Error extracting tex from message', e)
     return <TextMessageComponent message={message} messageId={messageId} pending={pending} openUrl={openUrl} />
   }
 

@@ -4,6 +4,10 @@ import waitForExpect from 'wait-for-expect'
 import { TestModule } from '../common/test.module'
 import { Test, TestingModule } from '@nestjs/testing'
 import { sleep } from '../common/sleep'
+import { createLogger } from '../common/logger'
+
+const logger = createLogger('processInChunksService:test')
+
 describe('ProcessInChunks', () => {
   let module: TestingModule
   let processInChunks: ProcessInChunksService<string>
@@ -19,7 +23,7 @@ describe('ProcessInChunks', () => {
   it('processes data', async () => {
     const mockProcessItem = jest
       .fn(async a => {
-        console.log('processing', a)
+        logger.info('processing', a)
       })
       .mockResolvedValueOnce()
       .mockRejectedValueOnce(new Error('Rejected 1'))
@@ -34,7 +38,7 @@ describe('ProcessInChunks', () => {
   it('processes new data', async () => {
     const mockProcessItem = jest
       .fn(async a => {
-        console.log('processing', a)
+        logger.info('processing', a)
       })
       .mockResolvedValueOnce()
       .mockRejectedValueOnce(new Error('Rejected 1'))
@@ -48,7 +52,7 @@ describe('ProcessInChunks', () => {
   it('processes data in chunks', async () => {
     const mockProcessItem = jest
       .fn(async a => {
-        console.log('processing', a)
+        logger.info('processing', a)
       })
       .mockResolvedValueOnce()
       .mockRejectedValueOnce(new Error('Rejected 1'))

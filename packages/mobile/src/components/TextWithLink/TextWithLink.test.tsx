@@ -1,5 +1,8 @@
 import { renderComponent } from '../../utils/functions/renderComponent/renderComponent'
 import { TextWithLink } from './TextWithLink.component'
+import { createLogger } from '../../utils/logger'
+
+const logger = createLogger('textWithLink:test')
 
 describe('Spinner component', () => {
   it('renders component', () => {
@@ -11,7 +14,7 @@ describe('Spinner component', () => {
             tag: 'a',
             label: 'linked',
             action: () => {
-              console.log('link clicked')
+              logger.info('link clicked')
             },
           },
         ]}

@@ -9,6 +9,9 @@ import {
 import getPort from 'get-port'
 import { fork } from 'child_process'
 import path from 'path'
+import { createLogger } from '../logger'
+
+const logger = createLogger('oneClient')
 
 jest.setTimeout(450000)
 describe('One Client', () => {
@@ -60,11 +63,11 @@ describe('One Client', () => {
       const isRegisterModal = await registerModal.element.isDisplayed()
 
       expect(isRegisterModal).toBeTruthy()
-      console.log('Registration - vefore typeUsername')
+      logger.info('Registration - vefore typeUsername')
       await registerModal.typeUsername('testuser')
-      console.log('Registration - before submit')
+      logger.info('Registration - before submit')
       await registerModal.submit()
-      console.log('Registration - after submit')
+      logger.info('Registration - after submit')
     })
 
     it.skip('User waits for the modal JoiningLoadingPanel to disappear', async () => {
@@ -97,7 +100,7 @@ describe('One Client', () => {
           'desktop',
         ]
         const backendBundlePath = path.normalize(require.resolve('backend-bundle'))
-        console.log('Spawning backend', backendBundlePath, 'with argvs:', forkArgvs)
+        logger.info('Spawning backend', backendBundlePath, 'with argvs:', forkArgvs)
         fork(backendBundlePath, forkArgvs)
         await app.close({ forceSaveState: true })
       })

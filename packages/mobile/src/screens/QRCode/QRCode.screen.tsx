@@ -9,6 +9,10 @@ import { ScreenNames } from '../../const/ScreenNames.enum'
 import { QRCode } from '../../components/QRCode/QRCode.component'
 import { Site } from '@quiet/common'
 
+import { createLogger } from '../../utils/logger'
+
+const logger = createLogger('qrCode:screen')
+
 export const QRCodeScreen: FC = () => {
   const dispatch = useDispatch()
 
@@ -33,7 +37,7 @@ export const QRCodeScreen: FC = () => {
           url: `data:image/png;base64,${base64}`,
         })
       } catch (error) {
-        console.error(error)
+        logger.error(error)
       }
     })
   }

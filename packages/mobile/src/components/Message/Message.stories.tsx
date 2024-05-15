@@ -4,6 +4,10 @@ import { storiesOf } from '@storybook/react-native'
 import { Message } from './Message.component'
 import { MessageType } from '@quiet/types'
 
+import { createLogger } from '../../utils/logger'
+
+const logger = createLogger('message:stories')
+
 storiesOf('Message', module)
   .add('Default', () => {
     return (
@@ -58,7 +62,7 @@ storiesOf('Message', module)
   })
   .add('Link', () => {
     const openUrl = (url: string) => {
-      console.log(`opened url ${url}`)
+      logger.info(`opened url ${url}`)
     }
     return (
       <Message

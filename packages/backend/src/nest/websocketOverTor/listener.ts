@@ -1,6 +1,6 @@
 // import os from 'os'
 // import { createServer } from 'it-ws/server'
-// import logger from '../../logger'
+// import { createLogger } from '../../logger'
 // import { socketToMaConn } from './socket-to-conn.js'
 // import { EventEmitter, CustomEvent } from './events'
 // import type { Listener, ListenerEvents, CreateListenerOptions } from '@libp2p/interface-transport'
@@ -10,7 +10,7 @@
 // import type { Connection } from '@libp2p/interface-connection'
 // import type { Multiaddr } from '@multiformats/multiaddr'
 
-// const log = logger('libp2p:websockets:listener')
+// const logger = createLogger('libp2p:websockets:listener')
 
 // // @ts-ignore
 // class WebSocketListener extends EventEmitter<ListenerEvents> implements Listener {
@@ -33,7 +33,7 @@
 //       ...init,
 //       onConnection: (stream: DuplexWebSocket) => {
 //         const maConn = socketToMaConn(stream, this.toMultiaddr(stream.remoteAddress ?? '', stream.remotePort ?? 0))
-//         log('new inbound connection %s', maConn.remoteAddr)
+//         logger.info('new inbound connection %s', maConn.remoteAddr)
 
 //         this.connections.add(stream)
 
@@ -44,7 +44,7 @@
 //         try {
 //           void init.upgrader.upgradeInbound(maConn)
 //             .then((conn) => {
-//               log('inbound connection %s upgraded', maConn.remoteAddr)
+//               logger.info('inbound connection %s upgraded', maConn.remoteAddr)
 
 //               if (init?.handler != null) {
 //                 init?.handler(conn)
@@ -55,16 +55,16 @@
 //               }))
 //             })
 //             .catch(async err => {
-//               log.error('inbound connection failed to upgrade', err)
+//               logger.error('inbound connection failed to upgrade', err)
 
 //               await maConn.close().catch(err => {
-//                 log.error('inbound connection failed to close after upgrade failed', err)
+//                 logger.error('inbound connection failed to close after upgrade failed', err)
 //               })
 //             })
 //         } catch (err) {
-//           log.error('inbound connection failed to upgrade', err)
+//           logger.error('inbound connection failed to upgrade', err)
 //           maConn.close().catch(err => {
-//             log.error('inbound connection failed to close after upgrade failed', err)
+//             logger.error('inbound connection failed to close after upgrade failed', err)
 //           })
 //         }
 //       }

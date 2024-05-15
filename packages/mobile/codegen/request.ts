@@ -5,6 +5,10 @@ import {ApiError} from './ApiError';
 import type {ApiRequestOptions} from './ApiRequestOptions';
 import type {ApiResult} from './ApiResult';
 import {OpenAPI} from './OpenAPI';
+import { createLogger } from '../src/utils/logger'
+
+const logger = createLogger('codegen:request')
+
 
 function isDefined<T>(
   value: T | null | undefined,
@@ -181,7 +185,7 @@ async function getResponseBody(response: Response): Promise<any> {
       }
     }
   } catch (error) {
-    console.error(error);
+    logger.error(error);
   }
   return null;
 }

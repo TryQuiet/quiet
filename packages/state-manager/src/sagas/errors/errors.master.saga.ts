@@ -1,15 +1,18 @@
 import { all, takeEvery, cancelled } from 'typed-redux-saga'
 import { errorsActions } from './errors.slice'
 import { handleErrorsSaga } from './handleErrors/handleErrors.saga'
+import { createLogger } from '../../utils/logger'
+
+const logger = createLogger('errorsMasterSaga')
 
 export function* errorsMasterSaga(): Generator {
-  console.log('errorsMasterSaga starting')
+  logger.info('errorsMasterSaga starting')
   try {
     yield all([takeEvery(errorsActions.handleError.type, handleErrorsSaga)])
   } finally {
-    console.log('errorsMasterSaga stopping')
+    logger.info('errorsMasterSaga stopping')
     if (yield cancelled()) {
-      console.log('errorsMasterSaga cancelled')
+      logger.info('errorsMasterSaga cancelled')
     }
   }
 }

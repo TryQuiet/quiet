@@ -2,6 +2,10 @@ import { MessagesDailyGroups } from '@quiet/types'
 import { dialog } from '@electron/remote'
 import fs from 'fs'
 
+import { createLogger } from '../../renderer/logger'
+
+const logger = createLogger('exportMessages')
+
 export const exportChats = async (channelName: string, channelMessages: MessagesDailyGroups) => {
   dialog
     .showSaveDialog({
@@ -18,7 +22,7 @@ export const exportChats = async (channelName: string, channelMessages: Messages
       if (filePath) {
         fs.writeFile(filePath, channelMessagesToText(channelMessages), err => {
           if (err) {
-            console.log(err)
+            logger.error(err)
           }
         })
       }

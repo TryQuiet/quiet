@@ -15,7 +15,7 @@ import { validate } from 'class-validator'
 import { CertificateData } from '../../registration/registration.functions'
 import { OrbitDb } from '../orbitDb/orbitDb.service'
 import { Injectable } from '@nestjs/common'
-import Logger from '../../common/logger'
+import { createLogger } from '../../common/logger'
 
 @Injectable()
 export class CertificatesStore extends EventEmitter {
@@ -24,7 +24,7 @@ export class CertificatesStore extends EventEmitter {
   private filteredCertificatesMapping: Map<string, Partial<UserData>>
   private usernameMapping: Map<string, string>
 
-  private readonly logger = Logger(CertificatesStore.name)
+  private readonly logger = createLogger(CertificatesStore.name)
 
   constructor(private readonly orbitDbService: OrbitDb) {
     super()
@@ -33,7 +33,7 @@ export class CertificatesStore extends EventEmitter {
   }
 
   public async init() {
-    this.logger('Initializing certificates log store')
+    this.logger.info('Initializing certificates log store')
 
     this.store = await this.orbitDbService.orbitDb.log<string>('certificates', {
       replicate: false,
@@ -43,24 +43,24 @@ export class CertificatesStore extends EventEmitter {
     })
 
     this.store.events.on('ready', async () => {
-      this.logger('Loaded certificates to memory')
+      this.logger.info('Loaded certificates to memory')
       this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CERTIFICATES_STORED)
     })
 
     this.store.events.on('write', async () => {
-      this.logger('Saved certificate locally')
+      this.logger.info('Saved certificate locally')
       await this.loadedCertificates()
     })
 
     this.store.events.on('replicated', async () => {
-      this.logger('REPLICATED: Certificates')
+      this.logger.info('REPLICATED: Certificates')
       this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CERTIFICATES_STORED)
       await this.loadedCertificates()
     })
 
     await this.store.load()
 
-    this.logger('Initialized')
+    this.logger.info('Initialized')
   }
 
   public async loadedCertificates() {
@@ -70,9 +70,9 @@ export class CertificatesStore extends EventEmitter {
   }
 
   public async close() {
-    this.logger('Closing certificates DB')
+    this.logger.info('Closing certificates DB')
     await this.store?.close()
-    this.logger('Closed certificates DB')
+    this.logger.info('Closed certificates DB')
   }
 
   public getAddress() {
@@ -80,7 +80,7 @@ export class CertificatesStore extends EventEmitter {
   }
 
   public async addCertificate(certificate: string) {
-    this.logger('Adding user certificate')
+    this.logger.info('Adding user certificate')
     await this.store?.add(certificate)
     return true
   }
@@ -148,9 +148,9 @@ export class CertificatesStore extends EventEmitter {
    * https://github.com/TryQuiet/quiet/issues/1899
    */
   public async getCertificates(): Promise<string[]> {
-    this.logger('Getting certificates')
+    this.logger.info('Getting certificates')
     if (!this.store) {
-      this.logger('No store found!')
+      this.logger.warn('No store found!')
       return []
     }
 
@@ -159,7 +159,7 @@ export class CertificatesStore extends EventEmitter {
       .collect()
       .map(e => e.payload.value)
 
-    this.logger(`All certificates: ${allCertificates.length}`)
+    this.logger.info(`All certificates: ${allCertificates.length}`)
     const validCertificates = await Promise.all(
       allCertificates.map(async certificate => {
         if (this.filteredCertificatesMapping.has(certificate)) {
@@ -189,7 +189,7 @@ export class CertificatesStore extends EventEmitter {
     )
 
     const validCerts = validCertificates.filter(i => i != undefined)
-    this.logger(`Valid certificates: ${validCerts.length}`)
+    this.logger.info(`Valid certificates: ${validCerts.length}`)
     // TODO: Why doesn't TS infer this properly?
     return validCerts as string[]
   }

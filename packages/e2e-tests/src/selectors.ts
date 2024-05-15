@@ -2,6 +2,9 @@ import { By, Key, type ThenableWebDriver, type WebElement, until } from 'seleniu
 import { BuildSetup, sleep, type BuildSetupInit } from './utils'
 import path from 'path'
 import { BACK_ARROW_DATA_TESTID } from './enums'
+import { createLogger } from './logger'
+
+const logger = createLogger('selectors')
 
 export class App {
   thenableWebDriver?: ThenableWebDriver
@@ -24,7 +27,7 @@ export class App {
   }
 
   async open() {
-    console.log('opening the app', this.buildSetup.dataDir)
+    logger.info('opening the app', this.buildSetup.dataDir)
     this.buildSetup.resetDriver()
     await this.buildSetup.createChromeDriver()
     this.isOpened = true
@@ -36,7 +39,7 @@ export class App {
 
   async close(options?: { forceSaveState?: boolean }) {
     if (!this.isOpened) return
-    console.log('Closing the app', this.buildSetup.dataDir)
+    logger.info('Closing the app', this.buildSetup.dataDir)
     if (options?.forceSaveState) {
       await this.saveState() // Selenium creates community and closes app so fast that redux state may not be saved properly
       await this.waitForSavedState()
@@ -48,11 +51,11 @@ export class App {
       await new Promise<void>(resolve => setTimeout(() => resolve(), 2000))
     }
     this.isOpened = false
-    console.log('App closed', this.buildSetup.dataDir)
+    logger.info('App closed', this.buildSetup.dataDir)
   }
 
   async cleanup(force: boolean = false) {
-    console.log(`Performing app cleanup`, this.buildSetup.dataDir)
+    logger.info(`Performing app cleanup`, this.buildSetup.dataDir)
     if (this.isOpened) {
       throw new Error(`App with dataDir ${this.buildSetup.dataDir} is still open, close before cleaning up!`)
     }
@@ -171,7 +174,7 @@ export class UserProfileContextMenu {
       500
     )
 
-    console.log('clicking back button')
+    logger.info('clicking back button')
     // await this.driver.executeScript('arguments[0].click();', button)
     await button.click()
   }
@@ -338,12 +341,12 @@ export class Channel {
   }
 
   async waitForUserMessage(username: string, messageContent: string) {
-    console.log(`Waiting for user "${username}" message "${messageContent}"`)
+    logger.info(`Waiting for user "${username}" message "${messageContent}"`)
     return this.driver.wait(async () => {
       const messages = await this.getUserMessages(username)
       const hasMessage = messages.find(async msg => {
         const messageText = await msg.getText()
-        console.log(`got message "${messageText}"`)
+        logger.info(`got message "${messageText}"`)
         return messageText.includes(messageContent)
       })
       return hasMessage
@@ -393,7 +396,7 @@ export class Channel {
   }
 
   async waitForLabel(username: string, label: string) {
-    console.log(`Waiting for user's "${username}" label "${label}" label`)
+    logger.info(`Waiting for user's "${username}" label "${label}" label`)
     await this.driver.wait(async () => {
       const labels = await this.driver.findElements(By.xpath(`//*[contains(@data-testid, "userLabel-${username}")]`))
       const properLabels = labels.filter(async labelElement => {
@@ -405,7 +408,7 @@ export class Channel {
   }
 
   async waitForLabelsNotPresent(username: string) {
-    console.log(`Waiting for user's "${username}" label to not be present`)
+    logger.info(`Waiting for user's "${username}" label to not be present`)
     await this.driver.wait(async () => {
       const labels = await this.driver.findElements(By.xpath(`//*[contains(@data-testid, "userLabel-${username}")]`))
       return labels.length === 0
@@ -441,7 +444,7 @@ export class Sidebar {
   }
 
   async waitForChannelsNum(num: number) {
-    console.log(`Waiting for ${num} channels`)
+    logger.info(`Waiting for ${num} channels`)
     return this.driver.wait(async () => {
       const channels = await this.getChannelList()
       return channels.length === num
@@ -483,7 +486,7 @@ export class UpdateModal {
   }
 
   get element() {
-    console.log('Waiting for update modal root element')
+    logger.info('Waiting for update modal root element')
     return this.driver.wait(
       until.elementLocated(By.xpath("//h3[text()='Software update']/ancestor::div[contains(@class,'MuiModal-root')]"))
     )
@@ -491,24 +494,24 @@ export class UpdateModal {
 
   async close() {
     const updateModalRootElement = await this.element
-    console.log('Found update modal root element')
+    logger.info('Found update modal root element')
     const closeButton = await updateModalRootElement.findElement(
       By.xpath("//*[self::div[@data-testid='ModalActions']]/button")
     )
 
     try {
-      console.log('Before clicking update modal close button')
+      logger.info('Before clicking update modal close button')
       await closeButton.click()
       return
     } catch (e) {
-      console.error('Error while clicking close button on update modal', e.message)
+      logger.error('Error while clicking close button on update modal', e)
     }
 
     try {
       const log = await this.driver.executeScript('arguments[0].click();', closeButton)
-      console.log('executeScript', log)
+      logger.info('executeScript', log)
     } catch (e) {
-      console.log('Probably clicked hidden close button on update modal')
+      logger.warn('Probably clicked hidden close button on update modal')
     }
   }
 }
@@ -574,7 +577,7 @@ export class DebugModeModal {
   private readonly driver: ThenableWebDriver
   constructor(driver: ThenableWebDriver) {
     this.driver = driver
-    console.log('Debug modal')
+    logger.info('Debug modal')
   }
 
   get element() {
@@ -589,25 +592,25 @@ export class DebugModeModal {
     if (!process.env.TEST_MODE) return
     let button
     try {
-      console.log('Closing debug modal')
+      logger.info('Closing debug modal')
       await this.element.isDisplayed()
-      console.log('Debug modal title is displayed')
+      logger.info('Debug modal title is displayed')
       button = await this.button
-      console.log('Debug modal button is displayed')
+      logger.info('Debug modal button is displayed')
     } catch (e) {
-      console.log('Debug modal might have been covered by "join community" modal', e.message)
+      logger.error('Debug modal might have been covered by "join community" modal', e)
       return
     }
 
     await button.isDisplayed()
-    console.log('Button is displayed')
+    logger.info('Button is displayed')
     await button.click()
-    console.log('Button click')
+    logger.info('Button click')
     try {
       const log = await this.driver.executeScript('arguments[0].click();', button)
-      console.log('executeScript', log)
+      logger.info('executeScript', log)
     } catch (e) {
-      console.log('Probably clicked hidden close button on debug modal')
+      logger.warn('Probably clicked hidden close button on debug modal')
     }
     await new Promise<void>(resolve => setTimeout(() => resolve(), 2000))
   }
