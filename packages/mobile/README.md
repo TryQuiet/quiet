@@ -22,19 +22,20 @@ Quiet Mobile is a React Native app for Android and iOS that shares a Node.js [ba
       [React Native: Running on Device](https://reactnative.dev/docs/running-on-device)
       [Android Developers: Configure Developer Options](https://developer.android.com/studio/debug/dev-options)
 
-1. Add the path to the java binary installed by Android Studio JAVA_HOME to your environment variables. Ensure that you have followed the SDK installation instructions in the [React Native Development Environment](https://reactnative.dev/docs/environment-setup) guide.
+1. Add the path to the java binary installed by Android Studio JAVA_HOME to your environment variables. Ensure that you have followed the SDK installation instructions in the [React Native Development Environment](https://reactnative.dev/docs/set-up-your-environment) guide.
 
     For example, on macOS with Android Studio installed in the default location,
     Add the following line to your `~/.bash_profile` or `~/.zprofile` file,
+
     ```bash
     export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
     ```
 
 ### Local development
 
-Follow the steps in [React Native Development Environment](https://reactnative.dev/docs/environment-setup) to set up your development environment.
+Follow the steps in [React Native Development Environment](https://reactnative.dev/docs/set-up-your-environment) to set up your development environment.
 
-#### Command Line
+#### Running Android App from Command Line
 
 1. After following the React Native Development Environment instructions, navigate to the `packages/mobile` directory and run the application,
 
@@ -44,7 +45,7 @@ Follow the steps in [React Native Development Environment](https://reactnative.d
 
     The application should now be running on your device.
 
-#### Android Studio
+#### Running from Android Studio
 
 1. Open the `android` directory in Android Studio.
 1. If necessary, sync the Gradle files by hitting the "Sync Project with Gradle Files" button in the top right corner.
@@ -144,10 +145,10 @@ const watchFolders = [
 
 ## Setting up iOS environment
 
-### Prerequisites
+### Prerequisites for iOS development
 
 1. Install [Xcode](https://developer.apple.com/xcode/) from the Mac App Store.
-1. Follow the [React Native Development Environment](https://reactnative.dev/docs/environment-setup) instructions to set up your development environment.
+1. Follow the [React Native Development Environment](https://reactnative.dev/docs/set-up-your-environment) instructions to set up your development environment.
 1. Install rbenv, a Ruby version manager.
 
     ```bash
@@ -183,7 +184,7 @@ const watchFolders = [
 
     [React Native: Running on Device](https://reactnative.dev/docs/running-on-device)
 
-### Command Line
+### Running iOS App With Command Line
 
 1. Start the Metro bundler,
 
@@ -297,7 +298,6 @@ xcrun simctl get_app_container booted com.quietmobile data
 
 enter it and find directory data within `/Documents` folder
 
-
 ### The app is stuck on splash screen
 
 Sometimes metro loader takes long enough to cause a race condition failure with the native service notifying javascript code about the data of websocket server
@@ -331,9 +331,9 @@ Built app bundle cannot contain symlinks linking outside the package (which some
 
 Usage of native methods (like the ones for file management) must be adapted for mobile environment. There're several ways to fix the issue with incompatible packages/files:
 
-1. Shim packages with `rn-dodeify` https://www.npmjs.com/package/rn-nodeify
+1. Shim packages with `rn-dodeify` <https://www.npmjs.com/package/rn-nodeify>
 2. Blacklist certain files in `metro.config.js:30`
-3. Use diff & patch https://www.freecodecamp.org/news/compare-files-with-diff-in-linux/
+3. Use diff & patch <https://www.freecodecamp.org/news/compare-files-with-diff-in-linux/>
 
 ### Process already running on :8081
 
@@ -346,6 +346,7 @@ lsof -i :8081
 ```
 
 Kill the process:
+
 ```bash
 kill -9 <PID>
 ```
