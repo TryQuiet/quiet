@@ -262,20 +262,24 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   public async resume() {
     this.logger.info('Resuming!')
     await this.openSocket()
-    this.logger.info('Attempting to redial peers!')
+    const peersToDial = await this.getPeersOnResume()
+    this.libp2pService?.resume(peersToDial)
+  }
+
+  public async getPeersOnResume(): Promise<string[]> {
+    this.logger.info('Getting peers to redial')
     if (this.peerInfo && (this.peerInfo?.connected.length !== 0 || this.peerInfo?.dialed.length !== 0)) {
-      this.logger.info('Dialing peers with info from pause: ', this.peerInfo)
-      await this.libp2pService?.redialPeers([...this.peerInfo.connected, ...this.peerInfo.dialed])
-    } else {
-      this.logger.info('Dialing peers from stored community (if exists)')
-      const community = await this.localDbService.getCurrentCommunity()
-      if (!community) {
-        this.logger.warn(`No community launched, can't redial`)
-        return
-      }
-      const sortedPeers = await this.localDbService.getSortedPeers(community.peerList ?? [])
-      await this.libp2pService?.redialPeers(sortedPeers)
+      this.logger.info('Found peer info from pause: ', this.peerInfo)
+      return [...this.peerInfo.connected, ...this.peerInfo.dialed]
     }
+
+    this.logger.info('Getting peers from stored community (if exists)')
+    const community = await this.localDbService.getCurrentCommunity()
+    if (!community) {
+      this.logger.warn(`No community launched, no peers found`)
+      return []
+    }
+    return await this.localDbService.getSortedPeers(community.peerList ?? [])
   }
 
   // This method is only used on iOS through rn-bridge for reacting on lifecycle changes
