@@ -12,6 +12,7 @@ import logger from './logger'
 import { fork, ChildProcess } from 'child_process'
 import { DESKTOP_DATA_DIR, DESKTOP_DEV_DATA_DIR, getFilesData } from '@quiet/common'
 import { updateDesktopFile, processInvitationCode } from './invitation'
+
 const ElectronStore = require('electron-store')
 
 // eslint-disable-next-line
@@ -23,6 +24,8 @@ const log = logger('main')
 let resetting = false
 
 const updaterInterval = 15 * 60_000
+
+require('dotenv').config()
 
 export const isDev = process.env.NODE_ENV === 'development'
 export const isE2Etest = process.env.E2E_TEST === 'true'
