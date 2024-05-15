@@ -1,3 +1,4 @@
+import { QuietLogger } from '@quiet/logger'
 import { storybookLog } from './storybookLog.function'
 
 describe('storybookLog function', () => {
@@ -17,20 +18,20 @@ describe('storybookLog function', () => {
     expect(typeof returned).toEqual('function')
   })
 
-  it('should call `console.info` with passed message', () => {
+  it('should call `QuietLogger.prototype.info` with passed message', () => {
     storybookLog(consoleLogMessage)()
 
-    expect(console.info).toHaveBeenCalledWith(consoleLogMessage)
-    expect(console.info).toHaveBeenCalledTimes(1)
+    expect(QuietLogger.prototype.info).toHaveBeenCalledWith(consoleLogMessage)
+    expect(QuietLogger.prototype.info).toHaveBeenCalledTimes(1)
   })
 
-  it('should call `console.info` with passed args', () => {
+  it('should call `QuietLogger.prototype.info` with passed args', () => {
     const args = ['something', 5]
     storybookLog(consoleLogMessage)(...args)
 
-    expect(console.info).toHaveBeenCalledWith(consoleLogMessage)
-    expect(console.info).toHaveBeenCalledWith(args[0])
-    expect(console.info).toHaveBeenCalledWith(args[1])
-    expect(console.info).toHaveBeenCalledTimes(3)
+    expect(QuietLogger.prototype.info).toHaveBeenCalledWith(consoleLogMessage)
+    expect(QuietLogger.prototype.info).toHaveBeenCalledWith(args[0])
+    expect(QuietLogger.prototype.info).toHaveBeenCalledWith(args[1])
+    expect(QuietLogger.prototype.info).toHaveBeenCalledTimes(3)
   })
 })

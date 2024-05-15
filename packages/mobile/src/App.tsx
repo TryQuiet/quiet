@@ -55,6 +55,10 @@ import NewUsernameRequestedScreen from './screens/NewUsernameRequested/NewUserna
 import { PossibleImpersonationAttackScreen } from './screens/PossibleImpersonationAttack/PossibleImpersonationAttack.screen'
 import UsernameTakenScreen from './screens/UsernameTaken/UsernameTaken.screen'
 
+import { createLogger } from './utils/logger'
+
+const logger = createLogger('app')
+
 LogBox.ignoreAllLogs()
 
 const { Navigator, Screen } = createNativeStackNavigator<RootStackParamList>()
@@ -76,7 +80,7 @@ function App(): JSX.Element {
   const confirmationBox = useConfirmationBox()
 
   useEffect(() => {
-    console.log('LAUNCHED APPLICATION: ', (Math.random() + 1).toString(36).substring(7))
+    logger.info('LAUNCHED APPLICATION: ', (Math.random() + 1).toString(36).substring(7))
   }, [])
 
   return (

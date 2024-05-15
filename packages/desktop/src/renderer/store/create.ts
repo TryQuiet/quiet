@@ -11,6 +11,10 @@ import reducers from './reducers'
 import { errorsMiddleware } from './middlewares'
 import { Store } from '../sagas/store.types'
 
+import { createLogger } from '../logger'
+
+const logger = createLogger('store:create')
+
 const testMode = process.env.TEST_MODE
 
 if (testMode) {
@@ -21,7 +25,7 @@ if (testMode) {
 
 const sagaMiddleware = createSagaMiddleware({
   onError(err) {
-    console.error(err)
+    logger.error(err)
     if (testMode) {
       Sentry.captureException(err)
     }

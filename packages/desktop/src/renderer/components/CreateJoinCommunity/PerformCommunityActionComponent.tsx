@@ -22,6 +22,9 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff'
 import Visibility from '@mui/icons-material/Visibility'
 import { parseName } from '@quiet/common'
 import { getInvitationCodes } from '@quiet/state-manager'
+import { createLogger } from '../../logger'
+
+const logger = createLogger('performCommunityAction:component')
 
 const PREFIX = 'PerformCommunityActionComponent'
 
@@ -192,7 +195,7 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
       try {
         data = getInvitationCodes(values.name.trim())
       } catch (e) {
-        console.warn(`Could not parse invitation code, reason: ${e.message}`)
+        logger.error(`Could not parse invitation code`, e)
       }
 
       if (!data) {

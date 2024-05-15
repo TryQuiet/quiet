@@ -33,7 +33,7 @@ import { createLibp2pAddress } from '@quiet/common'
 import { lib } from 'crypto-js'
 import { createLogger } from '../common/logger'
 
-const logger = createLogger('test:connectionsManager')
+const logger = createLogger('connectionsManager:test')
 
 jest.setTimeout(100_000)
 

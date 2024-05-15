@@ -7,9 +7,12 @@ import { NativeEventKeys } from './nativeEvent.keys'
 import nativeEventEmitter from './nativeEventEmitter'
 import { navigationActions } from '../../navigation/navigation.slice'
 import { nativeServicesActions } from '../nativeServices.slice'
+import { createLogger } from '../../../utils/logger'
+
+const logger = createLogger('nativeServicesCallbacks')
 
 export function* nativeServicesCallbacksSaga(): Generator {
-  console.log('nativeServicesCallbacksSaga starting')
+  logger.info('nativeServicesCallbacksSaga starting')
   try {
     const channel = yield* call(deviceEvents)
     while (true) {
@@ -17,9 +20,9 @@ export function* nativeServicesCallbacksSaga(): Generator {
       yield put(action)
     }
   } finally {
-    console.log('nativeServicesCallbacksSaga stopping')
+    logger.info('nativeServicesCallbacksSaga stopping')
     if (yield cancelled()) {
-      console.log('nativeServicesCallbacksSaga cancelled')
+      logger.info('nativeServicesCallbacksSaga cancelled')
     }
   }
 }

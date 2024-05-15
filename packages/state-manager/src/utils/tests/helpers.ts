@@ -82,7 +82,7 @@ export const lastActionReducer = (state: any[] = [], action: any) => {
 //       state[0].pubKey = pubKey
 //       break
 //     case 'Connection/addConnectedPeers':
-//       console.log('Adding connected peers', action.payload)
+//       logger.info('Adding connected peers', action.payload)
 //       peersArr = action.payload
 //       connectionTime = getCurrentTime()
 //       break

@@ -12,6 +12,9 @@ import { ChannelListScreen } from '../screens/ChannelList/ChannelList.screen'
 import { ConnectionProcessScreen } from '../screens/ConnectionProcess/ConnectionProcess.screen'
 import { UsernameRegistrationScreen } from '../screens/UsernameRegistration/UsernameRegistration.screen'
 import { ConnectionProcessInfo } from '@quiet/types'
+import { createLogger } from '../utils/logger'
+
+const logger = createLogger('joiningProcess:test')
 
 describe('Joining process', () => {
   let socket: MockedSocket
@@ -58,7 +61,7 @@ describe('Joining process', () => {
     await act(async () => {})
 
     const processText2 = screen.getByTestId('connection-process-text')
-    console.log(processText2.props)
+    logger.info(processText2.props)
     expect(processText2.props.children).toEqual(ConnectionProcessInfo.BACKEND_MODULES)
 
     await act(async () => {})

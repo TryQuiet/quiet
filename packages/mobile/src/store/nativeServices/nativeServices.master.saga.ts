@@ -3,9 +3,12 @@ import { nativeServicesCallbacksSaga } from './events/nativeServicesCallbacks'
 import { leaveCommunitySaga } from './leaveCommunity/leaveCommunity.saga'
 import { flushPersistorSaga } from './flushPersistor/flushPersistor.saga'
 import { nativeServicesActions } from './nativeServices.slice'
+import { createLogger } from '../../utils/logger'
+
+const logger = createLogger('nativeServicesMaster')
 
 export function* nativeServicesMasterSaga(): Generator {
-  console.log('nativeServicesMasterSaga starting')
+  logger.info('nativeServicesMasterSaga starting')
   try {
     yield all([
       fork(nativeServicesCallbacksSaga),
@@ -13,9 +16,9 @@ export function* nativeServicesMasterSaga(): Generator {
       takeEvery(nativeServicesActions.flushPersistor.type, flushPersistorSaga),
     ])
   } finally {
-    console.log('nativeServicesMasterSaga stopping')
+    logger.info('nativeServicesMasterSaga stopping')
     if (yield cancelled()) {
-      console.log('nativeServicesMasterSaga cancelled')
+      logger.info('nativeServicesMasterSaga cancelled')
     }
   }
 }

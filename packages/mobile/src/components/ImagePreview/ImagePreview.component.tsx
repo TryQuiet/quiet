@@ -5,6 +5,10 @@ import { FileMetadata } from '@quiet/types'
 import FastImage from 'react-native-fast-image'
 import { Appbar } from '../../components/Appbar/Appbar.component'
 
+import { createLogger } from '../../utils/logger'
+
+const logger = createLogger('imagePreview:component')
+
 interface ImagePreviewModalProps {
   imagePreviewData: FileMetadata
   currentChannelName: string
@@ -24,7 +28,7 @@ export const ImagePreviewModal: FC<ImagePreviewModalProps> = ({
       transparent={false}
       visible={imagePreviewData !== null}
       onRequestClose={() => {
-        console.log('Modal has been closed.')
+        logger.info('Modal has been closed.')
         resetPreviewData()
       }}
     >

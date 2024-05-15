@@ -38,7 +38,7 @@ export function* customProtocolSaga(
   try {
     data = argvInvitationCode(code)
   } catch (e) {
-    console.warn(e.message)
+    logger.warn(e)
     yield* put(
       modalsActions.openModal({
         name: ModalName.warningModal,

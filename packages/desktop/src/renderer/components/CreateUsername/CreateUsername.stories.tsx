@@ -5,6 +5,10 @@ import { withTheme } from '../../storybook/decorators'
 
 import CreateUsernameComponent, { CreateUsernameComponentProps } from './CreateUsernameComponent'
 
+import { createLogger } from '../../logger'
+
+const logger = createLogger('createUsername:stories')
+
 const Template: ComponentStory<typeof CreateUsernameComponent> = args => {
   return <CreateUsernameComponent {...args} />
 }
@@ -15,7 +19,7 @@ const args: CreateUsernameComponentProps = {
   open: true,
   handleClose: function (): void {},
   registerUsername: function (nickname: string): void {
-    console.log('Registering username: ', nickname)
+    logger.info('Registering username: ', nickname)
   },
 }
 

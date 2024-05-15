@@ -13,6 +13,9 @@ import { AttachmentButton } from '../AttachmentButton/AttachmentButton.component
 import DocumentPicker, { DocumentPickerResponse, types } from 'react-native-document-picker'
 import UploadFilesPreviewsComponent from '../FileUploadingPreview/UploadingPreview.component'
 import { defaultTheme } from '../../styles/themes/default.theme'
+import { createLogger } from '../../utils/logger'
+
+const logger = createLogger('chat:component')
 
 export const Chat: FC<ChatProps & FileActionsProps> = ({
   contextMenu,
@@ -96,7 +99,7 @@ export const Chat: FC<ChatProps & FileActionsProps> = ({
       })
     } catch (e) {
       if (!DocumentPicker.isCancel(e)) {
-        console.error(`Could not attach files: ${e.message}`)
+        logger.error(`Could not attach files: ${e.message}`)
         // TODO: display error message to user
       }
       return

@@ -5,7 +5,7 @@ import { TestModule } from '../common/test.module'
 import { Test, TestingModule } from '@nestjs/testing'
 import { createLogger } from '../common/logger'
 
-const logger = createLogger('test:processInChunksService')
+const logger = createLogger('processInChunksService:test')
 
 describe('ProcessInChunks', () => {
   let module: TestingModule

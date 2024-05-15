@@ -3,14 +3,18 @@ import React from 'react'
 
 import { DeleteChannel } from './DeleteChannel.component'
 
+import { createLogger } from '../../utils/logger'
+
+const logger = createLogger('deleteChannel:stories')
+
 storiesOf('DeleteChannel', module).add('Default', () => (
   <DeleteChannel
     name={'general'}
     deleteChannel={() => {
-      console.log('deleting channel')
+      logger.info('deleting channel')
     }}
     handleBackButton={() => {
-      console.log('going back')
+      logger.info('going back')
     }}
   />
 ))

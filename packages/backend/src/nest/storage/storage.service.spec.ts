@@ -46,7 +46,7 @@ import { OrbitDb } from './orbitDb/orbitDb.service'
 import { UserProfileStore } from './userProfile/userProfile.store'
 import { createLogger } from '../common/logger'
 
-const logger = createLogger('test:storageService')
+const logger = createLogger('storageService:test')
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)

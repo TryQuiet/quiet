@@ -21,7 +21,7 @@ import { sleep } from '../common/sleep'
 import fs from 'fs'
 import { createLogger } from '../common/logger'
 
-const logger = createLogger('test:bigFiles')
+const logger = createLogger('bigFiles:test')
 
 jest.setTimeout(200_000)
 describe('IpfsFileManagerService', () => {

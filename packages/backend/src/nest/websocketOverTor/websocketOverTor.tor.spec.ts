@@ -19,7 +19,7 @@ import { TorControlAuthType } from '../tor/tor.types'
 import { createLibp2pAddress } from '@quiet/common'
 import { createLogger } from '../common/logger'
 
-const logger = createLogger('test:websocketOverTor')
+const logger = createLogger('websocketOverTor:test')
 
 jest.setTimeout(120000)
 
