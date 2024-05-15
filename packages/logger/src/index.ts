@@ -32,21 +32,7 @@ colors.theme({
   object_error: colors.red,
 })
 
-export type Logger = debug.Debugger & {
-  error: debug.Debugger
-}
-
-export const consoleLogger =
-  (packageName: string) =>
-  (module: string): Logger => {
-    debug('quiet')('Initializing debug logger')
-    const logger = Object.assign(debug(`${packageName}:${module}`), {
-      error: debug(`${packageName}:${module}:err`),
-    })
-    return logger
-  }
-
-export const nodeConsoleLogger = Console instanceof Function ? new Console(process.stdout, process.stderr) : console
+const nodeConsoleLogger = Console instanceof Function ? new Console(process.stdout, process.stderr) : console
 
 export class QuietLogger {
   private isDebug: boolean
@@ -115,7 +101,7 @@ export class QuietLogger {
   }
 }
 
-export const electronLogger =
+const electronLogger =
   (packageName: string, parallelConsoleLog: boolean = false) =>
   (module: string): QuietLogger => {
     const name = `${packageName}:${module}`
@@ -123,15 +109,9 @@ export const electronLogger =
     return new QuietLogger(name, parallelConsoleLog)
   }
 
-export const logger = (packageName: string): ((arg: string) => Logger) => {
-  return consoleLogger(packageName)
-}
-
 export const createQuietLogger = (
   packageName: string,
   parallelConsoleLog: boolean = false
 ): ((arg: string) => QuietLogger) => {
   return electronLogger(packageName, parallelConsoleLog)
 }
-
-export default logger
