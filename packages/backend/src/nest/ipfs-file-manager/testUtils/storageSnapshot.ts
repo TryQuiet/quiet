@@ -90,9 +90,9 @@ export class StorageTestSnapshot extends Storage {
       if (!this.options.createSnapshot || process.env.CREATE_SNAPSHOT !== 'true') {
         logger.info('Replicated snapshotInfoDb')
         await this.saveRemoteSnapshot(this.messages)
-        console.time('load from snapshot')
+        logger.time('load from snapshot')
         await this.loadFromSnapshot(this.messages)
-        console.timeEnd('load from snapshot')
+        logger.timeEnd('load from snapshot')
       }
     })
     // this.snapshotInfoDb.events.on('replicate.progress', (address, hash, entry, progress, total) => {
@@ -111,16 +111,16 @@ export class StorageTestSnapshot extends Storage {
 
     // Create snapshot and save to db for other peers to retrieve
     if (this.options.createSnapshot || process.env.CREATE_SNAPSHOT === 'true') {
-      console.time(`${this.name}; Adding messages`)
+      logger.time(`${this.name}; Adding messages`)
       await this.addMessages()
-      console.timeEnd(`${this.name}; Adding messages`)
-      console.time('Loading messages')
+      logger.timeEnd(`${this.name}; Adding messages`)
+      logger.time('Loading messages')
       await this.messages.load()
-      console.timeEnd('Loading messages')
+      logger.timeEnd('Loading messages')
       if (this.useSnapshot) {
-        console.time('Saving Snapshot')
+        logger.time('Saving Snapshot')
         await this.saveSnapshot(this.messages)
-        console.timeEnd('Saving Snapshot')
+        logger.timeEnd('Saving Snapshot')
       }
     }
 
@@ -137,7 +137,7 @@ export class StorageTestSnapshot extends Storage {
       'replicate.progress',
       async (_address, _hash, _entry, progress, _total) => {
       if (!this.replicationStartTime) {
-        console.time(`${this.name}; Replication time`)
+        logger.time(`${this.name}; Replication time`)
         this.replicationStartTime = new Date()
         logger.info('progress start', progress)
       }
@@ -151,7 +151,7 @@ export class StorageTestSnapshot extends Storage {
       // logger.info('Loaded entries replicate.progress:', this.getAllEventLogEntries(this.messages).length)
       // fs.writeFileSync('allReplicatedMessages.json', JSON.stringify(this.getAllEventLogEntries(this.messages)))
       if (progress === this.messagesCount) {
-        console.timeEnd(`${this.name}; Replication time`)
+        logger.timeEnd(`${this.name}; Replication time`)
         const diff = new Date().getTime() - this.replicationStartTime.getTime()
         this.replicationTime = Number(diff / 1000)
       }
@@ -170,9 +170,9 @@ export class StorageTestSnapshot extends Storage {
 
     // Use code below if you care about messages order
     // for (const nr of range(this.messagesCount)) {
-    //   // console.time(`adding msg ${nr.toString()}`)
+    //   // logger.time(`adding msg ${nr.toString()}`)
     //   await this.messages.add(`message_${nr.toString()}`)
-    //   // console.timeEnd(`adding msg ${nr.toString()}`)
+    //   // logger.timeEnd(`adding msg ${nr.toString()}`)
     // }
   }
 
@@ -252,7 +252,7 @@ export class StorageTestSnapshot extends Storage {
     await db._cache.set(db.snapshotPath, snapshot)
     await db._cache.set(db.queuePath, unfinished)
 
-    console.debug(`Saved snapshot: ${snapshot.hash as string}, queue length: ${unfinished.length as string}`)
+    logger.debug(`Saved snapshot: ${snapshot.hash as string}, queue length: ${unfinished.length as string}`)
     await this.saveSnapshotInfoToDb(
       // Saving it to share with others
       db.queuePath,

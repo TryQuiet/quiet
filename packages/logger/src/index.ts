@@ -13,6 +13,7 @@ enum LogLevel {
   INFO = 'info',
   LOG = 'log',
   WARN = 'warn',
+  TIMER = 'timer',
 }
 
 /**
@@ -39,6 +40,10 @@ colors.theme({
   error: colors.bold.redBright,
   error_text: colors.redBright,
 
+  // timers
+  timer: colors.bold.yellowBright,
+  timer_text: colors.yellowBright,
+
   // misc
   scope: colors.magenta,
   date: colors.bold.gray,
@@ -62,6 +67,7 @@ const nodeConsoleLogger = Console instanceof Function ? new Console(process.stdo
 export class QuietLogger {
   // This is based on the `debug` package and is backwards-compatible with the old logger's behavior (for the most part)
   private isDebug: boolean
+  private timers: Map<string, number> = new Map()
 
   /**
    *
@@ -134,6 +140,40 @@ export class QuietLogger {
   }
 
   /**
+   * Start a timer with a given name
+   *
+   * @param name Name of the timer
+   */
+  time(name: string) {
+    if (this.timers.has(name)) {
+      this.warn(`Timer with name ${name} already exists!`)
+      return
+    }
+
+    const startMs = DateTime.utc().toMillis()
+    this.timers.set(name, startMs)
+  }
+
+  /**
+   * Calculate the runtime of the timer with a given name and log the formatted timing message
+   *
+   * @param name Name of the timer
+   */
+  timeEnd(name: string) {
+    if (!this.timers.has(name)) {
+      this.warn(`No timer started with name ${name}!`)
+      return
+    }
+
+    const endMs = DateTime.utc().toMillis()
+    const startMs = this.timers.get(name)!
+    this.timers.delete(name)
+
+    const formattedLogStrings = this.formatLog(LogLevel.TIMER, name, `${endMs - startMs}ms - timer ended`)
+    this.printLog(LogLevel.LOG, ...formattedLogStrings)
+  }
+
+  /**
    * Formats the message and writes it out to the node logger and, optionally, to the native console with
    * colorized text and parameters
    *
@@ -145,14 +185,37 @@ export class QuietLogger {
    * @param optionalParams Other parameters we want to log
    */
   private callLogMethods(level: LogLevel, message: any, ...optionalParams: any[]): void {
-    const formattedMessage = this.formatMessage(message, level)
-    const colorizedOptionalParams = optionalParams.map((param: any) => this.formatObject(param))
+    const formattedLogStrings = this.formatLog(level, message, ...optionalParams)
+    this.printLog(level, ...formattedLogStrings)
+  }
+
+  /**
+   * Print logs to node console and, optionally, the native console (e.g. browser)
+   *
+   * @param level The level we are logging at
+   * @param formattedLogStrings Array of formatted log strings
+   */
+  private printLog(level: LogLevel, ...formattedLogStrings: string[]): void {
     // @ts-ignore
-    nodeConsoleLogger[level](formattedMessage, ...colorizedOptionalParams)
+    nodeConsoleLogger[level](...formattedLogStrings)
     if (this.parallelConsoleLog) {
       // @ts-ignore
-      console[level](formattedMessage, ...colorizedOptionalParams)
+      console[level](...formattedLogStrings)
     }
+  }
+
+  /**
+   * Format the message and optional parameters according to the formatting rules for a given log level
+   *
+   * @param level The level we are logging at
+   * @param message The main log message
+   * @param optionalParams Other parameters we want to log
+   * @returns Array of formatted log strings
+   */
+  private formatLog(level: LogLevel, message: any, ...optionalParams: any[]): string[] {
+    const formattedMessage = this.formatMessage(message, level)
+    const colorizedOptionalParams = optionalParams.map((param: any) => this.formatObject(param))
+    return [formattedMessage, ...colorizedOptionalParams]
   }
 
   /**
@@ -178,7 +241,7 @@ export class QuietLogger {
    *   - All other types are logged as-is
    *
    * @param param Object to format
-   * @returns Colorized object
+   * @returns Colorized string
    */
   private formatObject(param: any): string {
     if (param instanceof Error) {

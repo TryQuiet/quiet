@@ -191,10 +191,10 @@ export class IpfsFileManagerService extends EventEmitter {
 
     // Save copy to separate directory
     const filePath = this.copyFile(metadata.path, filename)
-    console.time(`Writing ${filename} to ipfs`)
+    this.logger.time(`Writing ${filename} to ipfs`)
     const newCid = await this.ipfs.add(uploadedFileStreamIterable)
 
-    console.timeEnd(`Writing ${filename} to ipfs`)
+    this.logger.timeEnd(`Writing ${filename} to ipfs`)
 
     this.emit(StorageEvents.REMOVE_DOWNLOAD_STATUS, { cid: metadata.cid })
     const fileMetadata: FileMetadata = {

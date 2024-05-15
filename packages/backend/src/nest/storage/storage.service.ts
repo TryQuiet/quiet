@@ -186,7 +186,7 @@ export class StorageService extends EventEmitter {
   }
 
   public async initDatabases() {
-    console.time('Storage.initDatabases')
+    this.logger.time('Storage.initDatabases')
 
     this.logger.info('1/3')
     this.attachStoreListeners()
@@ -206,7 +206,7 @@ export class StorageService extends EventEmitter {
     await this.createDbForChannels()
     await this.initAllChannels()
 
-    console.timeEnd('Storage.initDatabases')
+    this.logger.timeEnd('Storage.initDatabases')
     this.logger.info('Initialized DBs')
 
     this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.DBS_INITIALIZED)
@@ -657,7 +657,7 @@ export class StorageService extends EventEmitter {
     }
     // for await (const result of this.ipfs.block.rm(hashes)) {
     //   if (result.error) {
-    //     console.error(`Failed to remove block ${result.cid} due to ${result.error.message}`)
+    //     logger.error(`Failed to remove block ${result.cid}`, result.error)
     //   }
     // }
   }

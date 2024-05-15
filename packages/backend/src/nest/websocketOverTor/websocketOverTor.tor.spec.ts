@@ -17,6 +17,10 @@ import crypto from 'crypto'
 import { TorControl } from '../tor/tor-control.service'
 import { TorControlAuthType } from '../tor/tor.types'
 import { createLibp2pAddress } from '@quiet/common'
+import { createLogger } from '../common/logger'
+
+const logger = createLogger('test:websocketOverTor')
+
 jest.setTimeout(120000)
 
 describe('websocketOverTor', () => {
@@ -125,12 +129,12 @@ describe('websocketOverTor', () => {
   ])('connects successfully with CA passed as %s', async (_name: string, caType: (ca: string) => any) => {
     const pems = await createCertificatesTestHelper(`${service1.onionAddress}`, `${service2.onionAddress}`)
     // In case test fails on CI, we will be able to conduct test against failing credentials.
-    console.log(`serVert ${pems.servCert}`)
-    console.log(`servKey ${pems.servKey}`)
-    console.log(`ca ${pems.ca}`)
-    console.log(`caKey ${pems.ca_key}`)
-    console.log(`userCert ${pems.userCert}`)
-    console.log(`userKey ${pems.userKey}`)
+    logger.info(`serVert ${pems.servCert}`)
+    logger.info(`servKey ${pems.servKey}`)
+    logger.info(`ca ${pems.ca}`)
+    logger.info(`caKey ${pems.ca_key}`)
+    logger.info(`userCert ${pems.userCert}`)
+    logger.info(`userKey ${pems.userKey}`)
     const prepareListenerArg: CreateListenerOptions = {
       handler: x => x,
       upgrader: {
@@ -198,7 +202,7 @@ describe('websocketOverTor', () => {
           upgrader: prepareListenerArg.upgrader,
         })
       } catch (e) {
-        console.log(`caught Error ${e.message as string}, retryCount is ${retryCount}`)
+        logger.info(`caught Error ${e.message as string}, retryCount is ${retryCount}`)
         if (retryCount < 2) {
           retryCount++
           await tryDial()
