@@ -14,7 +14,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [macos-12]
+        os: [macos-latest]
 
     steps:
       - name: "Print OS"
@@ -30,7 +30,7 @@ jobs:
       - name: Setup XCode
         uses: maxim-lobanov/setup-xcode@9a697e2b393340c3cacd97468baa318e4c883d98 # v1.5.1
         with:
-          xcode-version: '14.2'
+          xcode-version: '15.2'
 
       - name: Setup environment
         uses: ./.github/actions/setup-env
