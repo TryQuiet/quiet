@@ -6,13 +6,15 @@
 * Use server for downloading initial community metadata if v2 invitation link is detected ([#2295](https://github.com/TryQuiet/quiet/issues/2295))
 
 # Refactorings:
+
 * Consolidate colors and align theme with MUI standards ([#2445](https://github.com/TryQuiet/quiet/issues/2445))
 
 # Fixes:
+
 * Disable spellCheck/autoCorrect on non-spelling sensitive fields like usernames and channels ([#373](https://github.com/TryQuiet/quiet/issues/373))
 * Fixes issue with reconnecting to peers on resume on iOS ([#2424](https://github.com/TryQuiet/quiet/issues/2424))
-
 * Fixes references to 'invite code' to be 'invite link' in UI ([#2441](https://github.com/TryQuiet/quiet/issues/2441))
+* Fixes issue with image messages not displaying/throwing errors on iOS ([#2526](https://github.com/TryQuiet/quiet/issues/2526))
 
 # Chores
 
