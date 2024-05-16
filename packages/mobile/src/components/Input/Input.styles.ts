@@ -8,7 +8,7 @@ export const StyledTextInput = styled(TextInput)<{
 }>`
   ${({ height, multiline }) => css`
     text-align-vertical: center;
-    height: ${Math.max(40, height)};
+    height: ${Math.max(40, height)}px;
     ${Platform.select({
       ios: {
         paddingTop: 12,

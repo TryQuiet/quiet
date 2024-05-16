@@ -8,12 +8,15 @@ import { Socket } from '../../../types'
 import { communitiesActions } from '../../communities/communities.slice'
 import { communitiesSelectors } from '../../communities/communities.selectors'
 import { CreateUserCsrPayload, RegisterCertificatePayload, Community } from '@quiet/types'
+import { createLogger } from '../../../utils/logger'
+
+const logger = createLogger('registerUsernameSaga')
 
 export function* registerUsernameSaga(
   socket: Socket,
   action: PayloadAction<ReturnType<typeof identityActions.registerUsername>['payload']>
 ): Generator {
-  console.log('Registering username')
+  logger.info('Registering username')
 
   // Nickname can differ between saga calls
 
@@ -21,34 +24,34 @@ export function* registerUsernameSaga(
 
   let community = yield* select(communitiesSelectors.currentCommunity)
   if (!community) {
-    console.warn('Community missing, waiting...')
+    logger.warn('Community missing, waiting...')
     yield* take(communitiesActions.addNewCommunity)
   }
   community = yield* select(communitiesSelectors.currentCommunity)
   if (!community) {
-    console.error('Could not register username, no community data')
+    logger.error('Could not register username, no community data')
     return
   }
-  console.log('Found community')
+  logger.info('Found community', community.id)
 
   let identity = yield* select(identitySelectors.currentIdentity)
   if (!identity) {
-    console.warn('Identity missing, waiting...')
+    logger.warn('Identity missing, waiting...')
     yield* take(identityActions.addNewIdentity)
   }
   identity = yield* select(identitySelectors.currentIdentity)
   if (!identity) {
-    console.error('Could not register username, no identity')
+    logger.error('Could not register username, no identity')
     return
   }
-  console.log('Found identity')
+  logger.info('Found identity', identity.id)
 
   let userCsr = identity.userCsr
 
   if (userCsr) {
     try {
       if (identity.userCsr?.userCsr == null || identity.userCsr.userKey == null) {
-        console.error('identity.userCsr?.userCsr == null || identity.userCsr.userKey == null')
+        logger.error('identity.userCsr?.userCsr == null || identity.userCsr.userKey == null')
         return
       }
       const _pubKey = yield* call(pubKeyFromCsr, identity.userCsr.userCsr)
@@ -66,9 +69,10 @@ export function* registerUsernameSaga(
         existingKeyPair,
       }
 
+      logger.info('Recreating user CSR')
       userCsr = yield* call(createUserCsr, payload)
     } catch (e) {
-      console.error(e)
+      logger.error(e)
       return
     }
   } else {
@@ -80,9 +84,11 @@ export function* registerUsernameSaga(
         signAlg: config.signAlg,
         hashAlg: config.hashAlg,
       }
+
+      logger.info('Creating user CSR')
       userCsr = yield* call(createUserCsr, payload)
     } catch (e) {
-      console.error(e)
+      logger.error(e)
       return
     }
   }
@@ -96,6 +102,7 @@ export function* registerUsernameSaga(
     isUsernameTaken,
   }
 
+  logger.info('Adding user CSR to Redux', payload.communityId)
   yield* put(identityActions.addCsr(payload))
 
   if (community.CA?.rootCertString) {

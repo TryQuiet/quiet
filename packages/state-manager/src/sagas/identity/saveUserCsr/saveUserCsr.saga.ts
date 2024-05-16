@@ -2,13 +2,22 @@ import { SaveCSRPayload, SocketActionTypes } from '@quiet/types'
 import { applyEmitParams, type Socket } from '../../../types'
 import { apply, select } from 'typed-redux-saga'
 import { identitySelectors } from '../identity.selectors'
+import { createLogger } from '../../../utils/logger'
+
+const logger = createLogger('saveUserCsrSaga')
 
 export function* saveUserCsrSaga(socket: Socket): Generator {
-  console.log('Saving user CSR')
+  logger.info('Saving user CSR')
 
   const identity = yield* select(identitySelectors.currentIdentity)
-  if (!identity?.userCsr) {
-    console.error('Cannot save user csr to backend, no userCsr')
+
+  if (!identity) {
+    logger.error('Cannot save user CSR to backend, no identity')
+    return
+  }
+
+  if (!identity.userCsr) {
+    logger.error('Cannot save user CSR to backend, no userCsr', identity)
     return
   }
 
@@ -16,6 +25,6 @@ export function* saveUserCsrSaga(socket: Socket): Generator {
     csr: identity.userCsr?.userCsr,
   }
 
-  console.log(`Send ${SocketActionTypes.ADD_CSR}`)
+  logger.info('Emitting ADD_CSR')
   yield* apply(socket, socket.emit, applyEmitParams(SocketActionTypes.ADD_CSR, payload))
 }

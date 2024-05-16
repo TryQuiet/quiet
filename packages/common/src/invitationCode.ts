@@ -2,8 +2,8 @@ import { InvitationData, InvitationDataV1, InvitationDataV2, InvitationDataVersi
 import { QUIET_JOIN_PAGE } from './const'
 import { createLibp2pAddress, isPSKcodeValid } from './libp2p'
 // import { CID } from 'multiformats/cid' // Fixme: dependency issue
-import Logger from './logger'
-const logger = Logger('invite')
+import { createLogger } from './logger'
+const logger = createLogger('invite')
 
 // V1 invitation code format (p2p without relay)
 export const PSK_PARAM_KEY = 'k'
@@ -108,7 +108,7 @@ const parseDeepUrl = ({ url, expectedProtocol = `${DEEP_URL_SCHEME}:` }: ParseDe
 
   if (!data) throw new Error(`Could not parse invitation code from deep url '${url}'`)
 
-  logger(`Invitation data '${data}' parsed`)
+  logger.info(`Invitation data '${data}' parsed`)
   return data
 }
 
@@ -138,18 +138,18 @@ export const p2pAddressesToPairs = (addresses: string[]): InvitationPair[] => {
     try {
       peerId = peerAddress.split('/p2p/')[1]
     } catch (e) {
-      console.info(`Could not add peer address '${peerAddress}' to invitation url. Reason: ${e.message}`)
+      logger.error(`Could not add peer address '${peerAddress}' to invitation url.`, e)
       continue
     }
     try {
       onionAddress = peerAddress.split('/tcp/')[0].split('/dns4/')[1]
     } catch (e) {
-      console.info(`Could not add peer address '${peerAddress}' to invitation url. Reason: ${e.message}`)
+      logger.error(`Could not add peer address '${peerAddress}' to invitation url.`, e)
       continue
     }
 
     if (!peerId || !onionAddress) {
-      console.error(`No peerId or address in ${peerAddress}`)
+      logger.error(`No peerId or address in ${peerAddress}`)
       continue
     }
     const rawAddress = onionAddress.endsWith('.onion') ? onionAddress.split('.')[0] : onionAddress
@@ -210,10 +210,10 @@ export const argvInvitationCode = (argv: string[]): InvitationData | null => {
   let invitationData: InvitationData | null = null
   for (const arg of argv) {
     if (!arg.startsWith(DEEP_URL_SCHEME_WITH_SEPARATOR)) {
-      console.log('Not a deep url, not parsing', arg)
+      logger.warn('Not a deep url, not parsing', arg)
       continue
     }
-    logger('Parsing deep url', arg)
+    logger.info('Parsing deep url', arg)
     invitationData = parseInvitationCodeDeepUrl(arg)
     switch (invitationData.version) {
       case InvitationDataVersion.v1:
@@ -230,11 +230,11 @@ export const argvInvitationCode = (argv: string[]): InvitationData | null => {
 const peerDataValid = ({ peerId, onionAddress }: { peerId: string; onionAddress: string }): boolean => {
   if (!peerId.match(PEER_ID_REGEX)) {
     // TODO: test it more properly e.g with PeerId.createFromB58String(peerId.trim())
-    logger(`PeerId ${peerId} is not valid`)
+    logger.warn(`PeerId ${peerId} is not valid`)
     return false
   }
   if (!onionAddress.trim().match(ONION_ADDRESS_REGEX)) {
-    logger(`Onion address ${onionAddress} is not valid`)
+    logger.warn(`Onion address ${onionAddress} is not valid`)
     return false
   }
   return true
@@ -258,7 +258,7 @@ const validateUrlParams = (params: URLSearchParams, requiredParams: string[]) =>
 }
 
 const isParamValid = (param: string, value: string) => {
-  logger(`Validating param ${param} with value ${value}`)
+  logger.info(`Validating param ${param} with value ${value}`)
   switch (param) {
     case CID_PARAM_KEY:
       // try {

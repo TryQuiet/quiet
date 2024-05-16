@@ -23,6 +23,9 @@ import {
   INITIAL_CURRENT_CHANNEL_ID,
   type UserProfile,
 } from '@quiet/types'
+import { createLogger } from '../../utils/logger'
+
+const logger = createLogger('publicChannelsSelector')
 
 const selectState: CreatedSelectors[StoreKeys.PublicChannels] = (state: StoreState) => state[StoreKeys.PublicChannels]
 
@@ -50,7 +53,7 @@ export const subscribedChannels = createSelector(selectChannelsSubscriptions, su
 export const selectGeneralChannel = createSelector(selectChannels, channels => {
   const draft = channels.find(item => item.name === 'general')
   if (!draft) {
-    console.error('No general channel')
+    logger.error('No general channel')
     return
   }
   const channel: PublicChannel = {
@@ -124,7 +127,7 @@ export const getChannelById = (channelId: string) =>
   createSelector(publicChannels, channels => {
     const channel = channels.find(channel => channel.id === channelId)
     if (!channel) {
-      console.log('channel dont exist')
+      logger.info('channel dont exist')
     }
     return channel
   })
@@ -179,7 +182,7 @@ export const displayableCurrentChannelMessages = createSelector(
         // @ts-ignore
         result.push(displayableMessage(message, user, userProfiles[message.pubKey]))
       } else {
-        console.warn('Received a message from a user that does not exist', message.id, message.pubKey, users)
+        logger.warn('Received a message from a user that does not exist', message.id, message.pubKey, users)
       }
       return result
     }, [])

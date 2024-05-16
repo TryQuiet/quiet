@@ -4,17 +4,16 @@ import { type PayloadAction } from '@reduxjs/toolkit'
 import { apply, put } from 'typed-redux-saga'
 
 import { type Socket, applyEmitParams } from '../../../types'
-import logger from '../../../utils/logger'
-
 import { SocketActionTypes, type CreateChannelResponse } from '@quiet/types'
+import { createLogger } from '../../../utils/logger'
 
-const log = logger('publicChannels')
+const logger = createLogger('createChannelSaga')
 
 export function* createChannelSaga(
   socket: Socket,
   action: PayloadAction<ReturnType<typeof publicChannelsActions.createChannel>['payload']>
 ): Generator {
-  log(`Creating channel ${action.payload.channel.name}`)
+  logger.info(`Creating channel ${action.payload.channel.name}`)
 
   const response = yield* apply(
     socket,

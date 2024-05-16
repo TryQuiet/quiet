@@ -5,6 +5,9 @@ import { UserTestData } from '../types'
 import { sleep } from '../utils'
 import fs from 'fs'
 import path from 'path'
+import { createLogger } from '../logger'
+
+const logger = createLogger('joiningWithQSS')
 
 jest.setTimeout(1200000) // 20 minutes
 
@@ -78,7 +81,7 @@ describe('User joining with storage server', () => {
       await sleep(2000)
       invitationLinkV1 = await invitationCodeElement.getText()
       await sleep(2000)
-      console.log({ invitationLinkV1 })
+      logger.info({ invitationLinkV1 })
       expect(invitationLinkV1).not.toBeUndefined()
       await settingsModal.close()
     })
@@ -99,7 +102,7 @@ describe('User joining with storage server', () => {
       }
 
       invitationLinkV2 = decodeURIComponent(composeInvitationShareUrl(data))
-      console.log({ invitationLinkV2 })
+      logger.info({ invitationLinkV2 })
       const serverData = {
         id: 'id',
         rootCa: 'rootCa',
@@ -121,7 +124,7 @@ describe('User joining with storage server', () => {
       const joinCommunityModal = new JoinCommunityModal(users.user1.app.driver)
       const isJoinCommunityModal = await joinCommunityModal.element.isDisplayed()
       expect(isJoinCommunityModal).toBeTruthy()
-      console.log({ invitationCode: invitationLinkV2 })
+      logger.info({ invitationCode: invitationLinkV2 })
       await joinCommunityModal.typeCommunityCode(invitationLinkV2)
       await joinCommunityModal.submit()
     })

@@ -9,14 +9,14 @@ import tmp from 'tmp'
 import crypto, { sign } from 'crypto'
 import { type PermsData } from '@quiet/types'
 import { TestConfig } from '../const'
-import logger from './logger'
 import { Libp2pNodeParams } from '../libp2p/libp2p.types'
 import { createLibp2pAddress, createLibp2pListenAddress, isDefined } from '@quiet/common'
 import { Libp2pService } from '../libp2p/libp2p.service'
 import { CertFieldsTypes, getReqFieldValue, loadCSR } from '@quiet/identity'
 import { execFile } from 'child_process'
+import { createLogger } from './logger'
 
-const log = logger('test')
+const logger = createLogger('utils')
 
 export interface Ports {
   socksPort: number
@@ -27,7 +27,7 @@ export interface Ports {
 }
 
 export function createPaths(paths: string[]) {
-  console.log('creating paths in fn - utils')
+  logger.info('creating paths in fn - utils')
   for (const path of paths) {
     if (!fs.existsSync(path)) {
       fs.mkdirSync(path, { recursive: true })
@@ -37,7 +37,7 @@ export function createPaths(paths: string[]) {
 
 export function removeFilesFromDir(dirPath: string) {
   if (fs.existsSync(dirPath)) {
-    log(`Removing ${dirPath}`)
+    logger.info(`Removing ${dirPath}`)
     fs.rmdirSync(dirPath, { recursive: true })
   }
 }
@@ -114,12 +114,12 @@ export const getPorts = async (): Promise<Ports> => {
 
 export class DummyIOServer extends Server {
   emit(event: string, ...args: any[]): boolean {
-    log(`Emitting ${event} with args:`, args)
+    logger.info(`Emitting ${event} with args:`, args)
     return true
   }
 
   close() {
-    log('Closing DummyIOServer')
+    logger.info('Closing DummyIOServer')
   }
 }
 

@@ -17,6 +17,10 @@ import { userNameField } from '../../forms/fields/createUserFields'
 
 import { parseName } from '@quiet/common'
 
+import { createLogger } from '../../logger'
+
+const logger = createLogger('changeUsername:component')
+
 const PREFIX = 'ChangeUsername-'
 
 const classes = {
@@ -28,8 +32,8 @@ const classes = {
   button: `${PREFIX}button`,
   title: `${PREFIX}title`,
   iconDiv: `${PREFIX}iconDiv`,
-  warrningIcon: `${PREFIX}warrningIcon`,
-  warrningMessage: `${PREFIX}warrningMessage`,
+  warningIcon: `${PREFIX}warningIcon`,
+  warningMessage: `${PREFIX}warningMessage`,
   rootBar: `${PREFIX}rootBar`,
   progressBar: `${PREFIX}progressBar`,
   info: `${PREFIX}info`,
@@ -96,11 +100,11 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
     marginRight: 8,
   },
 
-  [`& .${classes.warrningIcon}`]: {
-    color: '#FFCC00',
+  [`& .${classes.warningIcon}`]: {
+    color: theme.palette.warning.main,
   },
 
-  [`& .${classes.warrningMessage}`]: {
+  [`& .${classes.warningMessage}`]: {
     wordBreak: 'break-word',
   },
 
@@ -122,7 +126,7 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
   [`& .${classes.inputLabel}`]: {
     marginTop: 24,
     marginBottom: 2,
-    color: theme.palette.colors.black30,
+    color: theme.palette.colors.gray70,
   },
 
   [`& .${classes.marginMedium}`]: {
@@ -174,7 +178,7 @@ export const ChangeUsername: React.FC<ChangeUsernameProps> = ({
   const onSubmit = useCallback(
     (values: ChangeUserNameValues) => {
       if (errors.userName) {
-        console.error('Cannot submit form with errors')
+        logger.error('Cannot submit form with errors')
         return
       }
 
@@ -257,10 +261,10 @@ export const ChangeUsername: React.FC<ChangeUsernameProps> = ({
             {!errors.userName && userName.length > 0 && parsedNameDiffers && (
               <Grid container alignItems='center' direction='row'>
                 <Grid item className={classes.iconDiv}>
-                  <WarningIcon className={classes.warrningIcon} />
+                  <WarningIcon className={classes.warningIcon} />
                 </Grid>
                 <Grid item xs>
-                  <Typography variant='body2' className={classes.warrningMessage}>
+                  <Typography variant='body2' className={classes.warningMessage}>
                     Your username will be registered as <b>{`@${userName}`}</b>
                   </Typography>
                 </Grid>

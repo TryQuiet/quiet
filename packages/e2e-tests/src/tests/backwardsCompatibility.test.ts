@@ -9,6 +9,9 @@ import {
   Sidebar,
 } from '../selectors'
 import { BACKWARD_COMPATIBILITY_BASE_VERSION, BuildSetup, copyInstallerFile, downloadInstaller } from '../utils'
+import { createLogger } from '../logger'
+
+const logger = createLogger('backwardsCompatibility')
 
 jest.setTimeout(1200000)
 describe('Backwards Compatibility', () => {
@@ -55,10 +58,10 @@ describe('Backwards Compatibility', () => {
       ownerAppOldVersion
         .closeUpdateModalIfPresent()
         .then(async () => {
-          console.log('Closed update modal')
+          logger.info('Closed update modal')
         })
         .catch(err => {
-          console.log('Could not close update modal', err)
+          logger.error('Could not close update modal', err)
         })
     })
 
@@ -142,21 +145,21 @@ describe('Backwards Compatibility', () => {
     // ________________________________
 
     it('Owner opens the app in new version', async () => {
-      console.log('New version', 1)
+      logger.info('New version', 1)
       ownerAppNewVersion = new App({ dataDir })
       await ownerAppNewVersion.open()
     })
 
     if (isAlpha) {
       it('Owner closes debug modal if opened', async () => {
-        console.log('New version', 2)
+        logger.info('New version', 2)
         const debugModal = new DebugModeModal(ownerAppNewVersion.driver)
         await debugModal.close()
       })
     }
 
     it('Owener sees general channel', async () => {
-      console.log('New version', 3)
+      logger.info('New version', 3)
       generalChannel = new Channel(ownerAppNewVersion.driver, 'general')
       const isGeneralChannel = await generalChannel.element.isDisplayed()
       const generalChannelText = await generalChannel.element.getText()
@@ -165,7 +168,7 @@ describe('Backwards Compatibility', () => {
     })
 
     it('Confirm that the opened app is the latest version', async () => {
-      console.log('New version', 4)
+      logger.info('New version', 4)
       await new Promise<void>(resolve => setTimeout(() => resolve(), 10000))
       const settingsModal = await new Sidebar(ownerAppNewVersion.driver).openSettings()
       const isSettingsModal = await settingsModal.element.isDisplayed()
@@ -177,7 +180,7 @@ describe('Backwards Compatibility', () => {
     })
 
     it('Check number of messages on second channel', async () => {
-      console.log('New version', 5)
+      logger.info('New version', 5)
       await new Promise<void>(resolve => setTimeout(() => resolve(), 2000))
       sidebar = new Sidebar(ownerAppNewVersion.driver)
       await sidebar.switchChannel(newChannelName)

@@ -44,6 +44,9 @@ import { CertificatesStore } from './certificates/certificates.store'
 import { CommunityMetadataStore } from './communityMetadata/communityMetadata.store'
 import { OrbitDb } from './orbitDb/orbitDb.service'
 import { UserProfileStore } from './userProfile/userProfile.store'
+import { createLogger } from '../common/logger'
+
+const logger = createLogger('storageService:test')
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -53,7 +56,7 @@ jest.unstable_mockModule('../common/utils', async () => {
   return {
     ...(actual as object),
     createPaths: jest.fn((paths: string[]) => {
-      console.log('creating paths in fn - mock')
+      logger.info('creating paths in fn - mock')
       for (const path of paths) {
         if (!fs.existsSync(path)) {
           fs.mkdirSync(path, { recursive: true })
@@ -361,7 +364,7 @@ describe('StorageService', () => {
     //     await storageService.subscribeToChannel(channelio)
 
     //     const eventSpy = jest.spyOn(storageService, 'emit')
-    //     console.log(
+    //     logger.info(
     //       'storageService.publicChannelsRepos.get(message.channelId)',
     //       storageService.publicChannelsRepos.get(message.channelId)
     //     )

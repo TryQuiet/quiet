@@ -3,6 +3,10 @@ import { storiesOf } from '@storybook/react-native'
 
 import { ChannelTile } from './ChannelTile.component'
 
+import { createLogger } from '../../utils/logger'
+
+const logger = createLogger('channelTile:stories')
+
 storiesOf('ChannelTile', module)
   .add('Default', () => (
     <ChannelTile
@@ -14,7 +18,7 @@ storiesOf('ChannelTile', module)
       date={'1:55pm'}
       unread={false}
       redirect={(id: string) => {
-        console.log(`Clicked ${id}`)
+        logger.info(`Clicked ${id}`)
       }}
     />
   ))
@@ -28,7 +32,7 @@ storiesOf('ChannelTile', module)
       date={'1:55pm'}
       unread={true}
       redirect={(id: string) => {
-        console.log(`Clicked ${id}`)
+        logger.info(`Clicked ${id}`)
       }}
     />
   ))

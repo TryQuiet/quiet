@@ -44,9 +44,6 @@ export const initSlice = createSlice({
     setStoreReady: state => {
       state.ready = true
     },
-    setCryptoEngineInitialized: (state, action: PayloadAction<boolean>) => {
-      state.isCryptoEngineInitialized = action.payload
-    },
     updateInitDescription: (state, action: PayloadAction<string>) => {
       state.initDescription = action.payload
     },

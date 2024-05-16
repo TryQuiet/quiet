@@ -6,6 +6,9 @@ import { SVG } from 'mathjax-full/js/output/svg'
 import { browserAdaptor } from 'mathjax-full/js/adaptors/browserAdaptor'
 import { RegisterHTMLHandler } from 'mathjax-full/js/handlers/html'
 import { STATE } from 'mathjax-full/js/core/MathItem'
+import { createLogger } from '../../logger'
+
+const logger = createLogger('customMathJax')
 
 export const enum SourceLang {
   MathML = 'MathML',
@@ -125,7 +128,7 @@ export function convertPromise(
       if (!(err instanceof CancelationException)) {
         throw err
       } else {
-        console.log('cancelled render!')
+        logger.info('cancelled render!')
         return null
       }
     })

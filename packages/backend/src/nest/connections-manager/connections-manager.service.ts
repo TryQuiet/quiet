@@ -12,7 +12,7 @@ import { getLibp2pAddressesFromCsrs, removeFilesFromDir } from '../common/utils'
 
 import { LazyModuleLoader } from '@nestjs/core'
 import { createLibp2pAddress, isPSKcodeValid } from '@quiet/common'
-import { CertFieldsTypes, getCertFieldValue, loadCertificate } from '@quiet/identity'
+import { CertFieldsTypes, createRootCA, getCertFieldValue, loadCertificate } from '@quiet/identity'
 import {
   ChannelMessageIdsResponse,
   ChannelSubscribedPayload,
@@ -46,7 +46,6 @@ import {
   type UserProfile,
   type UserProfilesStoredEvent,
 } from '@quiet/types'
-import Logger from '../common/logger'
 import { CONFIG_OPTIONS, QUIET_DIR, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
 import { Libp2pService } from '../libp2p/libp2p.service'
 import { Libp2pEvents, Libp2pNodeParams, Libp2pPeerInfo } from '../libp2p/libp2p.types'
@@ -63,6 +62,8 @@ import { ServerStoredCommunityMetadata } from '../storageServiceClient/storageSe
 import { Tor } from '../tor/tor.service'
 import { ConfigOptions, GetPorts, ServerIoProviderTypes } from '../types'
 import { ServiceState, TorInitState } from './connections-manager.types'
+import { DateTime } from 'luxon'
+import { createLogger } from '../common/logger'
 
 @Injectable()
 export class ConnectionsManagerService extends EventEmitter implements OnModuleInit {
@@ -73,7 +74,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   isTorInit: TorInitState = TorInitState.NOT_STARTED
   private peerInfo: Libp2pPeerInfo | undefined = undefined
 
-  private readonly logger = Logger(ConnectionsManagerService.name)
+  private readonly logger = createLogger(ConnectionsManagerService.name)
   constructor(
     @Inject(SERVER_IO_PROVIDER) public readonly serverIoProvider: ServerIoProviderTypes,
     @Inject(CONFIG_OPTIONS) public configOptions: ConfigOptions,
@@ -92,12 +93,12 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
   async onModuleInit() {
     process.on('unhandledRejection', error => {
-      console.error(error)
+      this.logger.error(error)
       throw new Error()
     })
     // process.on('SIGINT', function () {
     //   // This is not graceful even in a single percent. we must close services first, not just kill process %
-    //   // this.logger('\nGracefully shutting down from SIGINT (Ctrl-C)')
+    //   // this.logger.info('\nGracefully shutting down from SIGINT (Ctrl-C)')
     //   process.exit(0)
     // })
     const webcrypto = new Crypto()
@@ -133,7 +134,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   }
 
   public async init() {
-    console.log('init')
+    this.logger.info('init')
     this.communityState = ServiceState.DEFAULT
     await this.generatePorts()
     if (!this.configOptions.httpTunnelPort) {
@@ -182,7 +183,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     }
 
     this.socketService.on(SocketActionTypes.LOAD_MIGRATION_DATA, async (data: Record<string, any>) => {
-      this.logger('Migrating LevelDB')
+      this.logger.info('Migrating LevelDB')
       await this.localDbService.load(data)
       onDataReceived()
     })
@@ -193,16 +194,16 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     // mechanism, like a table to hold migrations that have already been
     // applied.
     if ((await this.localDbService.exists(LocalDBKeys.COMMUNITY)) && keysRequired.length > 0) {
-      this.logger('Migration data required:', keysRequired)
+      this.logger.info('Migration data required:', keysRequired)
       this.serverIoProvider.io.emit(SocketActionTypes.MIGRATION_DATA_REQUIRED, keysRequired)
       await dataReceivedPromise
     } else {
-      this.logger('Nothing to migrate')
+      this.logger.info('Nothing to migrate')
     }
   }
 
   public async launchCommunityFromStorage() {
-    this.logger('Launching community from storage')
+    this.logger.info('Launching community from storage')
 
     const community = await this.localDbService.getCurrentCommunity()
     // TODO: Revisit this when we move the Identity model to the backend, since
@@ -211,7 +212,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
     if (community && network) {
       const sortedPeers = await this.localDbService.getSortedPeers(community.peerList ?? [])
-      this.logger('launchCommunityFromStorage - sorted peers', sortedPeers)
+      this.logger.info('launchCommunityFromStorage - sorted peers', sortedPeers)
       if (sortedPeers.length > 0) {
         community.peerList = sortedPeers
       }
@@ -222,46 +223,63 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   }
 
   public async closeAllServices(options: { saveTor: boolean } = { saveTor: false }) {
+    this.logger.info('Closing services')
+
+    await this.closeSocket()
+
     if (this.tor && !options.saveTor) {
+      this.logger.info('Killing tor')
       await this.tor.kill()
+    } else if (options.saveTor) {
+      this.logger.info('Saving tor')
     }
     if (this.storageService) {
-      this.logger('Stopping orbitdb')
+      this.logger.info('Stopping OrbitDB')
       await this.storageService?.stopOrbitDb()
     }
-    if (this.serverIoProvider?.io) {
-      this.logger('Closing socket server')
-      this.serverIoProvider.io.close()
+    if (this.libp2pService) {
+      this.logger.info('Stopping libp2p')
+      await this.libp2pService.close()
     }
     if (this.localDbService) {
-      this.logger('Closing local storage')
+      this.logger.info('Closing local DB')
       await this.localDbService.close()
-    }
-    if (this.libp2pService) {
-      this.logger('Stopping libp2p')
-      await this.libp2pService.close()
     }
   }
 
-  public closeSocket() {
-    this.serverIoProvider.io.close()
+  public async closeSocket() {
+    await this.socketService.close()
   }
 
   public async pause() {
-    this.logger('Pausing!')
-    this.logger('Closing socket!')
-    this.closeSocket()
-    this.logger('Pausing libp2pService!')
+    this.logger.info('Pausing!')
+    await this.closeSocket()
+    this.logger.info('Pausing libp2pService!')
     this.peerInfo = await this.libp2pService?.pause()
-    this.logger('Found the following peer info on pause: ', this.peerInfo)
+    this.logger.info('Found the following peer info on pause: ', this.peerInfo)
   }
 
   public async resume() {
-    this.logger('Resuming!')
-    this.logger('Reopening socket!')
+    this.logger.info('Resuming!')
     await this.openSocket()
-    this.logger('Dialing peers with info: ', this.peerInfo)
-    await this.libp2pService?.redialPeers(this.peerInfo)
+    const peersToDial = await this.getPeersOnResume()
+    this.libp2pService?.resume(peersToDial)
+  }
+
+  public async getPeersOnResume(): Promise<string[]> {
+    this.logger.info('Getting peers to redial')
+    if (this.peerInfo && (this.peerInfo?.connected.length !== 0 || this.peerInfo?.dialed.length !== 0)) {
+      this.logger.info('Found peer info from pause: ', this.peerInfo)
+      return [...this.peerInfo.connected, ...this.peerInfo.dialed]
+    }
+
+    this.logger.info('Getting peers from stored community (if exists)')
+    const community = await this.localDbService.getCurrentCommunity()
+    if (!community) {
+      this.logger.warn(`No community launched, no peers found`)
+      return []
+    }
+    return await this.localDbService.getSortedPeers(community.peerList ?? [])
   }
 
   // This method is only used on iOS through rn-bridge for reacting on lifecycle changes
@@ -269,15 +287,27 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     await this.socketService.init()
   }
 
-  public async leaveCommunity() {
-    this.tor.resetHiddenServices()
-    this.closeSocket()
-    await this.localDbService.purge()
+  public async leaveCommunity(): Promise<boolean> {
+    this.logger.info('Running leaveCommunity')
+
     await this.closeAllServices({ saveTor: true })
+
+    this.logger.info('Purging data')
     await this.purgeData()
+
+    this.logger.info('Resetting Tor')
+    this.tor.resetHiddenServices()
+
+    this.logger.info('Resetting state')
     await this.resetState()
+
+    this.logger.info('Reopening local DB')
     await this.localDbService.open()
-    await this.socketService.init()
+
+    this.logger.info('Restarting socket')
+    await this.openSocket()
+
+    return true
   }
 
   async resetState() {
@@ -287,7 +317,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   }
 
   public async purgeData() {
-    this.logger('Purging community data')
+    this.logger.info('Purging community data')
     const dirsToRemove = fs
       .readdirSync(this.quietDir)
       .filter(
@@ -295,19 +325,27 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
           i.startsWith('Ipfs') || i.startsWith('OrbitDB') || i.startsWith('backendDB') || i.startsWith('Local Storage')
       )
     for (const dir of dirsToRemove) {
-      removeFilesFromDir(path.join(this.quietDir, dir))
+      const dirPath = path.join(this.quietDir, dir)
+      this.logger.info(`Removing dir: ${dirPath}`)
+      removeFilesFromDir(dirPath)
     }
   }
 
   public async getNetwork(): Promise<NetworkInfo> {
+    this.logger.info('Getting network information')
+
+    this.logger.info('Creating hidden service')
     const hiddenService = await this.tor.createNewHiddenService({ targetPort: this.ports.libp2pHiddenService })
+
+    this.logger.info('Destroying the hidden service we created')
     await this.tor.destroyHiddenService(hiddenService.onionAddress.split('.')[0])
 
     // TODO: Do we want to create the PeerId here? It doesn't necessarily have
     // anything to do with Tor.
+    this.logger.info('Getting peer ID')
     const peerId: PeerId = await PeerId.create()
     const peerIdJson = peerId.toJSON()
-    this.logger(`Created network for peer ${peerId.toString()}. Address: ${hiddenService.onionAddress}`)
+    this.logger.info(`Created network for peer ${peerId.toString()}. Address: ${hiddenService.onionAddress}`)
 
     return {
       hiddenService,
@@ -335,7 +373,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   }
 
   public async createCommunity(payload: InitCommunityPayload): Promise<Community | undefined> {
-    this.logger('Creating community', payload.id)
+    this.logger.info('Creating community', payload.id)
 
     if (!payload.CA || !payload.rootCa) {
       this.logger.error('CA and rootCa are required to create community')
@@ -405,7 +443,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       await this.localDbService.setCommunity(community)
     }
 
-    this.logger(`Created and launched community ${community.id}`)
+    this.logger.info(`Created and launched community ${community.id}`)
 
     return community
   }
@@ -466,7 +504,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
    * @returns {Promise<{psk: string, peers: string[], ownerOrbitDbIdentity: string} | undefined>}
    */
   public async downloadCommunityData(inviteData: InvitationDataV2) {
-    this.logger('Downloading invite data', inviteData)
+    this.logger.info('Downloading invite data', inviteData)
     this.storageServerProxyService.setServerAddress(inviteData.serverAddress)
     let downloadedData: ServerStoredCommunityMetadata
     try {
@@ -483,7 +521,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   }
 
   public async joinCommunity(payload: InitCommunityPayload): Promise<Community | undefined> {
-    this.logger('Joining community: peers:', payload.peers)
+    this.logger.info('Joining community: peers:', payload.peers)
     let metadata = {
       psk: payload.psk,
       peers: payload.peers,
@@ -492,7 +530,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
     const inviteData = payload.inviteData
     if (inviteData) {
-      this.logger(`Joining community: inviteData version: ${inviteData.version}`)
+      this.logger.info(`Joining community: inviteData version: ${inviteData.version}`)
       switch (inviteData.version) {
         case InvitationDataVersion.v2:
           const downloadedData = await this.downloadCommunityData(inviteData)
@@ -555,7 +593,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     await this.localDbService.setNetworkInfo(network)
 
     await this.launchCommunity({ community, network })
-    this.logger(`Joined and launched community ${community.id}`)
+    this.logger.info(`Joined and launched community ${community.id}`)
 
     return community
   }
@@ -573,7 +611,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     try {
       await this.launch({ community, network })
     } catch (e) {
-      this.logger(`Couldn't launch community for peer ${network.peerId.id}.`, e)
+      this.logger.error(`Couldn't launch community for peer ${network.peerId.id}.`, e)
       emitError(this.serverIoProvider.io, {
         type: SocketActionTypes.LAUNCH_COMMUNITY,
         message: ErrorMessages.COMMUNITY_LAUNCH_FAILED,
@@ -583,7 +621,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       return
     }
 
-    this.logger(`Launched community ${community.id}`)
+    this.logger.info(`Launched community ${community.id}`)
 
     this.serverIoProvider.io.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.COMMUNITY_LAUNCHED)
 
@@ -597,7 +635,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   }
 
   public async spawnTorHiddenService(communityId: string, network: NetworkInfo): Promise<string> {
-    this.logger(`Spawning hidden service for community ${communityId}, peer: ${network.peerId.id}`)
+    this.logger.info(`Spawning hidden service for community ${communityId}, peer: ${network.peerId.id}`)
     this.serverIoProvider.io.emit(
       SocketActionTypes.CONNECTION_PROCESS_INFO,
       ConnectionProcessInfo.SPAWNING_HIDDEN_SERVICE
@@ -609,7 +647,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   }
 
   public async launch({ community, network }: { community: Community; network: NetworkInfo }) {
-    this.logger(`Launching community ${community.id}: peer: ${network.peerId.id}`)
+    this.logger.info(`Launching community ${community.id}: peer: ${network.peerId.id}`)
 
     const onionAddress = await this.spawnTorHiddenService(community.id, network)
 
@@ -623,7 +661,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     const peerId = await peerIdFromKeys(restoredRsa.marshalPubKey(), restoredRsa.marshalPrivKey())
 
     const peers = community.peerList
-    this.logger(`Launching community ${community.id}: payload peers: ${peers}`)
+    this.logger.info(`Launching community ${community.id}: payload peers: ${peers}`)
 
     const params: Libp2pNodeParams = {
       peerId,
@@ -638,8 +676,19 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     await this.libp2pService.createInstance(params)
 
     // Libp2p event listeners
-    this.libp2pService.on(Libp2pEvents.PEER_CONNECTED, (payload: { peers: string[] }) => {
+    this.libp2pService.on(Libp2pEvents.PEER_CONNECTED, async (payload: { peers: string[] }) => {
       this.serverIoProvider.io.emit(SocketActionTypes.PEER_CONNECTED, payload)
+      for (const peer of payload.peers) {
+        const peerStats: NetworkStats = {
+          peerId: peer,
+          connectionTime: 0,
+          lastSeen: DateTime.utc().toSeconds(),
+        }
+
+        await this.localDbService.update(LocalDBKeys.PEERS, {
+          [peer]: peerStats,
+        })
+      }
     })
 
     this.libp2pService.on(Libp2pEvents.PEER_DISCONNECTED, async (payload: NetworkDataPayload) => {
@@ -674,7 +723,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       })
     }
 
-    this.logger('Storage initialized')
+    this.logger.info('Storage initialized')
 
     this.serverIoProvider.io.emit(
       SocketActionTypes.CONNECTION_PROCESS_INFO,
@@ -683,10 +732,15 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   }
 
   private attachTorEventsListeners() {
-    this.logger('attachTorEventsListeners')
+    this.logger.info('attachTorEventsListeners')
 
     this.tor.on(SocketActionTypes.CONNECTION_PROCESS_INFO, data => {
       this.serverIoProvider.io.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, data)
+    })
+    this.tor.on(SocketActionTypes.REDIAL_PEERS, async data => {
+      this.logger.info(`Socket - ${SocketActionTypes.REDIAL_PEERS}`)
+      const peerInfo = this.libp2pService?.getCurrentPeerInfo()
+      await this.libp2pService?.redialPeers([...peerInfo.connected, ...peerInfo.dialed])
     })
     this.socketService.on(SocketActionTypes.CONNECTION_PROCESS_INFO, data => {
       this.serverIoProvider.io.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, data)
@@ -699,9 +753,9 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       // Update Frontend with Initialized Communities
       if (this.communityId) {
         this.serverIoProvider.io.emit(SocketActionTypes.COMMUNITY_LAUNCHED, { id: this.communityId })
-        console.log('this.libp2pService.dialedPeers', this.libp2pService.dialedPeers)
-        console.log('this.libp2pService.connectedPeers', this.libp2pService.connectedPeers)
-        console.log('this.libp2pservice', this.libp2pService)
+        this.logger.info('this.libp2pService.connectedPeers', this.libp2pService.connectedPeers)
+        this.logger.info('this.libp2pservice', this.libp2pService)
+        this.logger.info('this.libp2pService.dialedPeers', this.libp2pService.dialedPeers)
         this.serverIoProvider.io.emit(
           SocketActionTypes.CONNECTED_PEERS,
           Array.from(this.libp2pService.connectedPeers.keys())
@@ -715,14 +769,14 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.socketService.on(
       SocketActionTypes.CREATE_NETWORK,
       async (communityId: string, callback: (response: NetworkInfo | undefined) => void) => {
-        this.logger(`socketService - ${SocketActionTypes.CREATE_NETWORK}`)
+        this.logger.info(`socketService - ${SocketActionTypes.CREATE_NETWORK}`)
         callback(await this.createNetwork(communityId))
       }
     )
     this.socketService.on(
       SocketActionTypes.CREATE_COMMUNITY,
       async (args: InitCommunityPayload, callback: (response: Community | undefined) => void) => {
-        this.logger(`socketService - ${SocketActionTypes.CREATE_COMMUNITY}`)
+        this.logger.info(`socketService - ${SocketActionTypes.CREATE_COMMUNITY}`)
         callback(await this.createCommunity(args))
       }
     )
@@ -730,12 +784,14 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.socketService.on(
       SocketActionTypes.LAUNCH_COMMUNITY,
       async (args: InitCommunityPayload, callback: (response: Community | undefined) => void) => {
-        this.logger(`socketService - ${SocketActionTypes.LAUNCH_COMMUNITY}`)
+        this.logger.info(`socketService - ${SocketActionTypes.LAUNCH_COMMUNITY}`)
         callback(await this.joinCommunity(args))
       }
     )
-    this.socketService.on(SocketActionTypes.LEAVE_COMMUNITY, async () => {
-      await this.leaveCommunity()
+
+    this.socketService.on(SocketActionTypes.LEAVE_COMMUNITY, async (callback: (closed: boolean) => void) => {
+      this.logger.info(`socketService - ${SocketActionTypes.LEAVE_COMMUNITY}`)
+      callback(await this.leaveCommunity())
     })
 
     this.socketService.on(
@@ -749,7 +805,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
     // Username registration
     this.socketService.on(SocketActionTypes.ADD_CSR, async (payload: SaveCSRPayload) => {
-      this.logger(`socketService - ${SocketActionTypes.ADD_CSR}`)
+      this.logger.info(`socketService - ${SocketActionTypes.ADD_CSR}`)
       await this.storageService?.saveCSR(payload)
     })
 
@@ -772,7 +828,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.socketService.on(
       SocketActionTypes.DELETE_FILES_FROM_CHANNEL,
       async (payload: DeleteFilesFromChannelSocketPayload) => {
-        this.logger(`socketService - ${SocketActionTypes.DELETE_FILES_FROM_CHANNEL}`, payload)
+        this.logger.info(`socketService - ${SocketActionTypes.DELETE_FILES_FROM_CHANNEL}`, payload)
         await this.storageService?.deleteFilesFromChannel(payload)
         // await this.deleteFilesFromTemporaryDir() //crashes on mobile, will be fixes in next versions
       }
@@ -818,7 +874,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       this.serverIoProvider.io.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, data)
     })
     this.storageService.on(StorageEvents.CERTIFICATES_STORED, (payload: SendCertificatesResponse) => {
-      this.logger(`Storage - ${StorageEvents.CERTIFICATES_STORED}`)
+      this.logger.info(`Storage - ${StorageEvents.CERTIFICATES_STORED}`)
       this.serverIoProvider.io.emit(SocketActionTypes.CERTIFICATES_STORED, payload)
     })
     this.storageService.on(StorageEvents.CHANNELS_STORED, (payload: ChannelsReplicatedPayload) => {
@@ -855,13 +911,13 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       this.serverIoProvider.io.emit(SocketActionTypes.PUSH_NOTIFICATION, payload)
     })
     this.storageService.on(StorageEvents.CSRS_STORED, async (payload: { csrs: string[] }) => {
-      this.logger(`Storage - ${StorageEvents.CSRS_STORED}`)
+      this.logger.info(`Storage - ${StorageEvents.CSRS_STORED}`)
       this.libp2pService.emit(Libp2pEvents.DIAL_PEERS, await getLibp2pAddressesFromCsrs(payload.csrs))
       this.serverIoProvider.io.emit(SocketActionTypes.CSRS_STORED, payload)
       this.registrationService.emit(RegistrationEvents.REGISTER_USER_CERTIFICATE, payload)
     })
     this.storageService.on(StorageEvents.COMMUNITY_METADATA_STORED, async (meta: CommunityMetadata) => {
-      this.logger(`Storage - ${StorageEvents.COMMUNITY_METADATA_STORED}: ${meta}`)
+      this.logger.info(`Storage - ${StorageEvents.COMMUNITY_METADATA_STORED}: ${meta}`)
       const community = await this.localDbService.getCurrentCommunity()
 
       if (community) {

@@ -2,6 +2,9 @@ import React from 'react'
 import { renderComponent } from '../../utils/functions/renderComponent/renderComponent'
 import UploadingPreview from './UploadingPreview.component'
 import { FilePreviewData } from '@quiet/types'
+import { createLogger } from '../../utils/logger'
+
+const logger = createLogger('uploadingPreview:test')
 
 describe('UploadingPreview component', () => {
   it('renders properly for image and document', () => {
@@ -21,7 +24,7 @@ describe('UploadingPreview component', () => {
       <UploadingPreview
         filesData={pickedFiles}
         removeFile={function (id: string): void {
-          console.log(`removeFile ${id}`)
+          logger.info(`removeFile ${id}`)
         }}
       />
     )

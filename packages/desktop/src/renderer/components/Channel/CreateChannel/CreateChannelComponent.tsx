@@ -22,8 +22,8 @@ const classes = {
   button: `${PREFIX}button`,
   title: `${PREFIX}title`,
   iconDiv: `${PREFIX}iconDiv`,
-  warrningIcon: `${PREFIX}warrningIcon`,
-  warrningMessage: `${PREFIX}warrningMessage`,
+  warningIcon: `${PREFIX}warningIcon`,
+  warningMessage: `${PREFIX}warningMessage`,
   rootBar: `${PREFIX}rootBar`,
   progressBar: `${PREFIX}progressBar`,
   info: `${PREFIX}info`,
@@ -65,11 +65,11 @@ const StyledModalContent = styled(Grid)(({ theme }) => ({
     marginRight: 8,
   },
 
-  [`& .${classes.warrningIcon}`]: {
-    color: '#FFCC00',
+  [`& .${classes.warningIcon}`]: {
+    color: theme.palette.warning.main,
   },
 
-  [`& .${classes.warrningMessage}`]: {
+  [`& .${classes.warningMessage}`]: {
     wordBreak: 'break-word',
   },
 
@@ -198,12 +198,12 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
               {!errors.channelName && channelName.length > 0 && parsedNameDiffers && (
                 <Grid container alignItems='center' direction='row'>
                   <Grid item className={classes.iconDiv}>
-                    <WarningIcon className={classes.warrningIcon} />
+                    <WarningIcon className={classes.warningIcon} />
                   </Grid>
                   <Grid item xs>
                     <Typography
                       variant='body2'
-                      className={classes.warrningMessage}
+                      className={classes.warningMessage}
                       data-testid={'createChannelNameWarning'}
                     >
                       Your channel will be created as <b>{`#${channelName}`}</b>

@@ -3,6 +3,9 @@ import { ComponentStory, ComponentMeta } from '@storybook/react'
 import { withTheme } from '../../storybook/decorators'
 import { ContextMenu, ContextMenuItemList } from './ContextMenu.component'
 import { ContextMenuItemProps, ContextMenuProps } from './ContextMenu.types'
+import { createLogger } from '../../logger'
+
+const logger = createLogger('contextMenu:stories')
 
 const Template: ComponentStory<typeof ContextMenu> = args => {
   return <ContextMenu {...args} />
@@ -14,7 +17,7 @@ const channel_items: ContextMenuItemProps[] = [
   {
     title: 'Delete',
     action: () => {
-      console.log('clicked on delete channel')
+      logger.info('clicked on delete channel')
     },
   },
 ]
@@ -24,7 +27,7 @@ const args: ContextMenuProps = {
   children: <ContextMenuItemList items={channel_items} />,
   visible: true,
   handleClose: () => {
-    console.log('closing menu')
+    logger.info('closing menu')
   },
 }
 

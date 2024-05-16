@@ -6,6 +6,9 @@ import { navigationActions } from '../navigation.slice'
 import { ScreenNames } from '../../../const/ScreenNames.enum'
 import { APP_READY_CHANNEL, identity } from '@quiet/state-manager'
 import { initActions } from '../../init/init.slice'
+import { createLogger } from '../../../utils/logger'
+
+const logger = createLogger('redirection')
 
 export function* redirectionSaga(): Generator {
   // Let the native modules know to init web socket connection
@@ -14,14 +17,14 @@ export function* redirectionSaga(): Generator {
   // Do not redirect if user opened the app from url (quiet://)
   const deepLinking = yield* select(initSelectors.deepLinking)
   if (deepLinking) {
-    console.log('INIT_NAVIGATION: Proceeding with deep link flow.')
+    logger.info('INIT_NAVIGATION: Proceeding with deep link flow.')
     return
   }
 
   // Redirect if user opened the app from push notification
   const pendingNavigation = yield* select(navigationSelectors.pendingNavigation)
   if (pendingNavigation) {
-    console.log('INIT_NAVIGATION: Pending navigation redirection: ', pendingNavigation)
+    logger.info('INIT_NAVIGATION: Pending navigation redirection: ', pendingNavigation)
     yield* put(
       navigationActions.replaceScreen({
         screen: pendingNavigation,
@@ -37,7 +40,7 @@ export function* redirectionSaga(): Generator {
   const communityMembership = yield* select(identity.selectors.communityMembership)
 
   if (communityMembership) {
-    console.log('INIT_NAVIGATION: Switching to the channel list screen (community membership).')
+    logger.info('INIT_NAVIGATION: Switching to the channel list screen (community membership).')
     yield* put(
       navigationActions.replaceScreen({
         screen: ScreenNames.ChannelListScreen,
@@ -47,13 +50,13 @@ export function* redirectionSaga(): Generator {
   }
 
   // If user doesn't belong to a community, wait for websocket connection and redirect to welcome screen
-  console.log('INIT_NAVIGATION: Waiting for websocket connection before proceeding.')
+  logger.info('INIT_NAVIGATION: Waiting for websocket connection before proceeding.')
   const connection = yield* select(initSelectors.isWebsocketConnected)
   if (!connection) {
     yield* take(initActions.setWebsocketConnected)
   }
 
-  console.log('INIT_NAVIGATION: Switching to the join community screen.')
+  logger.info('INIT_NAVIGATION: Switching to the join community screen.')
   yield* put(
     navigationActions.replaceScreen({
       screen: ScreenNames.JoinCommunityScreen,
