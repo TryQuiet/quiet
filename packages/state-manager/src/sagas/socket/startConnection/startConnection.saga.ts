@@ -95,7 +95,7 @@ export function subscribe(socket: Socket) {
     })
     // Misc
     socket.on(SocketActionTypes.PEER_CONNECTED, (payload: { peers: string[] }) => {
-      logger.info(`${SocketActionTypes.PEER_CONNECTED}: ${payload}`)
+      logger.info(`${SocketActionTypes.PEER_CONNECTED}`, payload)
       emit(networkActions.addConnectedPeers(payload.peers))
     })
     socket.on(SocketActionTypes.PEER_DISCONNECTED, (payload: NetworkDataPayload) => {
