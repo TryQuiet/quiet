@@ -15,7 +15,7 @@
     "test-ci": "jest integrationTests/*",
     "lint:no-fix": "eslint --ext .ts ./src/",
     "lint": "npm run lint:no-fix -- --fix",
-    "lint-staged": "lint-staged",
+    "lint-staged": "lint-staged --no-stash",
     "prettier": "prettier"
   },
   "files": [
@@ -76,6 +76,6 @@
     ]
   },
   "lint-staged": {
-    "*.{js,jsx,ts,tsx}": "npm run lint:no-fix"
+    "src/**/*.{js,jsx,ts,tsx}": "npm run lint:no-fix"
   }
 }

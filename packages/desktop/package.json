@@ -97,7 +97,7 @@
     "lint:no-fix": "eslint --ext .jsx,.js,.ts,.tsx ./src/",
     "lint": "npm run lint:no-fix -- --fix",
     "lint-ci": "npm run lint:no-fix",
-    "lint-staged": "lint-staged",
+    "lint-staged": "lint-staged --no-stash",
     "type-check": "tsc -p tsconfig.build.json --noEmit",
     "test": "jest --runInBand",
     "test:watch": "jest --watchAll",
@@ -305,6 +305,6 @@
     "npm": "8.19.2"
   },
   "lint-staged": {
-    "*.{js,jsx,ts,tsx}": "npm run lint:no-fix"
+    "src/**/*.{js,jsx,ts,tsx}": "npm run lint:no-fix"
   }
 }

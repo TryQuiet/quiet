@@ -18,7 +18,7 @@
     "lint:no-fix": "eslint --ext .jsx,.js,.ts,.tsx ./src/",
     "lint": "npm run lint:no-fix -- --fix",
     "lint-ci": "npm run lint:no-fix",
-    "lint-staged": "lint-staged",
+    "lint-staged": "lint-staged --no-stash",
     "test-nest": "cross-env NODE_OPTIONS=--experimental-vm-modules DEBUG=ipfs:*,backend:* node_modules/jest/bin/jest.js --detectOpenHandles --forceExit   ./src/nest/**/*.spec.ts",
     "test": "cross-env NODE_OPTIONS=--experimental-vm-modules DEBUG=ipfs:*,backend:* jest --runInBand --verbose --testPathIgnorePatterns=\".src/(!?nodeTest*)|(.node_modules*)\" --",
     "test-ci": "cross-env NODE_OPTIONS=--experimental-vm-modules jest ./src/**/* --runInBand --colors --ci --silent --verbose --testPathIgnorePatterns=\".src/nest/(!?nodeTest*)|(.node_modules*)|src/nest/.*\\.tor.spec\\.(t|j)s|src/nest/ipfs-file-manager/big-files.long.spec.ts$\"",
@@ -152,6 +152,6 @@
     }
   },
   "lint-staged": {
-    "*.{js,jsx,ts,tsx}": "npm run lint:no-fix"
+    "src/**/*.{js,jsx,ts,tsx}": "npm run lint:no-fix"
   }
 }
