@@ -35,6 +35,6 @@
   "author": "",
   "license": "GPL-3.0-or-later",
   "lint-staged": {
-    "*.{js,jsx,ts,tsx}": "npm run lint:no-fix"
+    "src/**/*.{js,jsx,ts,tsx}": "npm run lint:no-fix"
   }
 }

@@ -71,6 +71,6 @@
     "access": "public"
   },
   "lint-staged": {
-    "*.{js,jsx,ts,tsx}": "npm run lint:no-fix"
+    "src/**/*.{js,jsx,ts,tsx}": "npm run lint:no-fix"
   }
 }

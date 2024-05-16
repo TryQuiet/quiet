@@ -305,6 +305,6 @@
     "npm": "8.19.2"
   },
   "lint-staged": {
-    "*.{js,jsx,ts,tsx}": "npm run lint:no-fix"
+    "src/**/*.{js,jsx,ts,tsx}": "npm run lint:no-fix"
   }
 }
