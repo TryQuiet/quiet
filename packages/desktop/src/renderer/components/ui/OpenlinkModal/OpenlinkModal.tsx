@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { styled } from '@mui/material/styles'
+import { styled, useTheme } from '@mui/material/styles'
 
 import { AutoSizer } from 'react-virtualized'
 import { Scrollbars } from 'rc-scrollbars'
@@ -15,8 +15,6 @@ import Button from '@mui/material/Button'
 import Icon from '../Icon/Icon'
 import exclamationMark from '../../../static/images/exclamationMark.svg'
 import Modal from '../Modal/Modal'
-
-import theme from '../../../theme'
 
 const PREFIX = 'OpenlinkModal'
 
@@ -103,6 +101,8 @@ export const OpenlinkModal: React.FC<OpenLinkModalProps> = ({
   const [allowThisLink, setAllowThisLink] = React.useState(false)
   const [allowAllLink, setAllowAllLink] = React.useState(false)
   const [dontAutoload, setDontAutoload] = React.useState(false)
+
+  const theme = useTheme()
 
   const uri = new URL(url)
 

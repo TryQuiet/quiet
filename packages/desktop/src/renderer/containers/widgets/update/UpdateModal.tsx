@@ -9,7 +9,7 @@ import { ModalName } from '../../../sagas/modals/modals.types'
 import UpdateModalComponent from '../../../components/widgets/update/UpdateModalComponent'
 
 import Button from '@mui/material/Button'
-import theme from '../../../theme'
+import { useTheme } from '@mui/material'
 
 export const mapDispatchToProps = (dispatch: Dispatch<AnyAction>) =>
   bindActionCreators(
@@ -22,6 +22,7 @@ export const mapDispatchToProps = (dispatch: Dispatch<AnyAction>) =>
 
 const ApplicationUpdateModal: React.FC = () => {
   const dispatch = useDispatch()
+  const theme = useTheme()
 
   const actions = mapDispatchToProps(dispatch)
   const modal = useModal(ModalName.applicationUpdate)

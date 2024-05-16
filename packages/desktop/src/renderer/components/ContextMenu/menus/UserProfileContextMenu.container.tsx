@@ -2,7 +2,7 @@ import React, { FC, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { AutoSizer } from 'react-virtualized'
 import { Scrollbars } from 'rc-scrollbars'
-import { styled, Grid, List, Typography } from '@mui/material'
+import { styled, Grid, List, Typography, useTheme } from '@mui/material'
 
 import { identity, users } from '@quiet/state-manager'
 
@@ -61,7 +61,6 @@ const StyledContextMenuContent = styled(Grid)(({ theme }) => ({
   },
 
   [`& .${classes.editUsernameFieldLabel}`]: {
-    color: '#4C4C4C',
     margin: '0px 16px 8px 16px',
     fontSize: '14px',
     fontWeight: '400',
@@ -69,7 +68,6 @@ const StyledContextMenuContent = styled(Grid)(({ theme }) => ({
   },
 
   [`& .${classes.editUsernameField}`]: {
-    color: '#33333380',
     background: theme.palette.background.paper,
     margin: '0px 16px',
     padding: '16px',
@@ -91,7 +89,7 @@ const StyledContextMenuContent = styled(Grid)(({ theme }) => ({
     fontFamily: 'Rubik, sans-serif',
     cursor: 'pointer',
     '&:hover': {
-      backgroundColor: '#B3B3B31A',
+      backgroundColor: theme.palette.background.paper,
     },
   },
 }))
@@ -163,6 +161,8 @@ export const UserProfileMenuProfileView: FC<UserProfileMenuProfileViewProps> = (
   const scrollbarRef = useRef(null)
   const [offset, setOffset] = useState(0)
 
+  const theme = useTheme()
+
   const adjustOffset = () => {
     if (!contentRef?.clientWidth) return
     if (contentRef.clientWidth > 800) {
@@ -212,7 +212,7 @@ export const UserProfileMenuProfileView: FC<UserProfileMenuProfileViewProps> = (
                           style={{
                             width: '96px',
                             height: '96px',
-                            background: '#F3F0F6',
+                            background: theme.palette.background.paper,
                             borderRadius: '8px',
                             marginBottom: '16px',
                           }}
@@ -318,6 +318,8 @@ export const UserProfileMenuEditView: FC<UserProfileMenuEditViewProps> = ({
   const scrollbarRef = useRef(null)
   const [offset, setOffset] = useState(0)
 
+  const theme = useTheme()
+
   const adjustOffset = () => {
     if (!contentRef?.clientWidth) return
     if (contentRef.clientWidth > 800) {
@@ -421,7 +423,7 @@ export const UserProfileMenuEditView: FC<UserProfileMenuEditViewProps> = ({
                           style={{
                             width: '96px',
                             height: '96px',
-                            background: '#F3F0F6',
+                            background: theme.palette.background.paper,
                             borderRadius: '8px',
                             marginBottom: '16px',
                           }}

@@ -3,7 +3,6 @@ import { displayMathRegex, splitByTex } from '../../../utils/functions/splitByTe
 import { TextMessageComponent, TextMessageComponentProps } from '../widgets/channels/TextMessage'
 import { convertPromise, SourceLang } from './customMathJax'
 import { styled } from '@mui/material/styles'
-import theme from '../../theme'
 import classNames from 'classnames'
 import { createLogger } from '../../logger'
 
@@ -18,7 +17,7 @@ const classes = {
   middle: `${PREFIX}middle`,
 }
 
-const StyledMath = styled('span')(() => ({
+const StyledMath = styled('span')(({ theme }) => ({
   [`&.${classes.message}`]: {
     marginLeft: '20px',
   },

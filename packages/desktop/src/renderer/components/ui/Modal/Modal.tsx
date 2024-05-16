@@ -60,7 +60,6 @@ const StyledMaterialModal = styled(StyledMaterialModalWithProps)(({ theme, zInde
 
   [`& .${classes.title}`]: {
     fontSize: 15,
-    color: theme.palette.colors.trueBlack,
     lineHeight: '18px',
     fontStyle: 'normal',
     fontWeight: 'normal',

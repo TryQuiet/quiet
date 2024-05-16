@@ -1,18 +1,17 @@
 import React, { FC, useEffect, useRef } from 'react'
-import { Grid, List, Typography } from '@mui/material'
+import { Grid, List, Typography, useTheme } from '@mui/material'
 import {
   ContextMenuProps,
   ContextMenuHintProps,
   ContextMenuItemListProps,
   ContextMenuItemProps,
 } from './ContextMenu.types'
-import Icon from '../ui/Icon/Icon'
-import arrowLeft from '../../static/images/arrowLeft.svg'
-import arrowRightShort from '../../static/images/arrowRightShort.svg'
-
-import theme from '../../theme'
+import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore'
+import NavigateNextIcon from '@mui/icons-material/NavigateNext'
 
 export const ContextMenu: FC<ContextMenuProps> = ({ visible, handleClose, handleBack, title, children }) => {
+  const theme = useTheme()
+
   const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -81,7 +80,7 @@ export const ContextMenu: FC<ContextMenuProps> = ({ visible, handleClose, handle
             data-testid={`contextMenu-${title.split(' ').join('')}-backArrow`}
             onClick={handleBack || handleClose}
           >
-            <Icon src={arrowLeft} />
+            <NavigateBeforeIcon />
           </Grid>
           <Grid style={{ flex: 5, justifyContent: 'center' }}>
             <Typography fontSize={16} fontWeight={'medium'} style={{ alignSelf: 'center' }}>
@@ -97,6 +96,8 @@ export const ContextMenu: FC<ContextMenuProps> = ({ visible, handleClose, handle
 }
 
 export const ContextMenuHint: FC<ContextMenuHintProps> = ({ hint }) => {
+  const theme = useTheme()
+
   return (
     <Grid
       style={{
@@ -129,6 +130,8 @@ export const ContextMenuItemList: FC<ContextMenuItemListProps> = ({ items }) => 
 }
 
 export const ContextMenuItem: FC<ContextMenuItemProps> = ({ title, action }) => {
+  const theme = useTheme()
+
   return (
     <Grid
       style={{
@@ -153,7 +156,7 @@ export const ContextMenuItem: FC<ContextMenuItemProps> = ({ title, action }) => 
         </Typography>
       </Grid>
       <Grid style={{ flex: 1, display: 'flex', flexDirection: 'row', justifyContent: 'flex-end' }}>
-        <Icon src={arrowRightShort} />
+        <NavigateNextIcon />
       </Grid>
     </Grid>
   )

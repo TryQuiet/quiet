@@ -25,10 +25,8 @@ const StyledListItemButton = styled(ListItemButton)(({ theme }) => ({
   },
 
   [`&.${classes.selected}`]: {
-    backgroundColor: theme.palette.colors.lushSky,
-    '&:hover': {
-      backgroundColor: theme.palette.colors.lushSky,
-    },
+    color: theme.palette.colors.contrastText,
+    backgroundColor: theme.palette.colors.sidebarSelected,
   },
 
   [`& .${classes.primary}`]: {

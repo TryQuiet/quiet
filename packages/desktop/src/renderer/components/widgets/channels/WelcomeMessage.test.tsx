@@ -1,11 +1,13 @@
 import React from 'react'
-import theme from '../../../theme'
+import { getTheme } from '../../../theme'
 import { ThemeProvider, StyledEngineProvider } from '@mui/material/styles'
 import { WelcomeMessage } from './WelcomeMessage'
 import { renderComponent } from '../../../testUtils/renderComponent'
 
 describe('WelcomeMessage', () => {
   it('renders component', () => {
+    const theme = getTheme()
+
     const result = renderComponent(
       <StyledEngineProvider injectFirst>
         <ThemeProvider theme={theme}>

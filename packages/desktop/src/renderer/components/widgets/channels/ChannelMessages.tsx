@@ -22,7 +22,6 @@ const classes = {
   scroll: `${PREFIX}scroll`,
   list: `${PREFIX}list`,
   link: `${PREFIX}link`,
-  info: `${PREFIX}info`,
   item: `${PREFIX}item`,
   bold: `${PREFIX}bold`,
 }
@@ -49,11 +48,6 @@ const Root = styled('div')(({ theme }) => ({
   [`& .${classes.link}`]: {
     color: theme.palette.colors.lushSky,
     cursor: 'pointer',
-  },
-
-  [`& .${classes.info}`]: {
-    color: theme.palette.colors.trueBlack,
-    letterSpacing: '0.4px',
   },
 
   [`& .${classes.item}`]: {

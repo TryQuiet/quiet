@@ -4,11 +4,13 @@ import { Provider } from 'react-redux'
 
 import { render } from '@testing-library/react'
 
-import theme from '../theme'
+import { getTheme } from '../theme'
 import store from '../store'
 import { Store } from 'redux'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
+
+const theme = getTheme()
 
 interface Props {
   children?: React.ReactNode

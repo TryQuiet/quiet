@@ -1,8 +1,8 @@
 import React, { ReactElement, useCallback } from 'react'
 import classNames from 'classnames'
-import Picker, { EmojiStyle } from 'emoji-picker-react'
+import Picker, { EmojiStyle, type Theme } from 'emoji-picker-react'
 import Grid from '@mui/material/Grid'
-import { styled } from '@mui/material/styles'
+import { styled, useTheme } from '@mui/material/styles'
 import orange from '@mui/material/colors/orange'
 import ClickAwayListener from '@mui/material/ClickAwayListener'
 import ChannelInputInfoMessage from './ChannelInputInfoMessage'
@@ -33,7 +33,6 @@ const classes = {
   actions: `${PREFIX}actions`,
   picker: `${PREFIX}picker`,
   errorIcon: `${PREFIX}errorIcon`,
-  errorText: `${PREFIX}errorText`,
   errorBox: `${PREFIX}errorBox`,
   linkBlue: `${PREFIX}linkBlue`,
   notAllowed: `${PREFIX}notAllowed`,
@@ -71,6 +70,7 @@ const StyledChannelInput = styled(Grid)(({ theme }) => ({
     scrollPaddingBottom: '12px',
     height: '48px',
     lineHeight: '24px',
+    backgroundColor: theme.palette.background.default,
     '&:empty': {
       '&:before': {
         content: 'attr(placeholder)',
@@ -90,9 +90,6 @@ const StyledChannelInput = styled(Grid)(({ theme }) => ({
     maxHeight: maxHeight,
     overflowY: 'auto',
     borderRadius: 4,
-    '&:hover': {
-      borderColor: theme.palette.colors.trueBlack,
-    },
     display: 'flex',
     flexDirection: 'column',
     flexWrap: 'nowrap',
@@ -128,9 +125,6 @@ const StyledChannelInput = styled(Grid)(({ theme }) => ({
     WebkitTapHighlightColor: 'transparent',
     pointerEvents: 'none',
     touchAction: 'none',
-  },
-  [`& .${classes.focused}`]: {
-    borderColor: theme.palette.colors.trueBlack,
   },
   [`& .${classes.iconButton}`]: {
     cursor: 'pointer',
@@ -174,9 +168,6 @@ const StyledChannelInput = styled(Grid)(({ theme }) => ({
     alignItems: 'center',
     marginLeft: 20,
     marginRight: 5,
-  },
-  [`& .${classes.errorText}`]: {
-    color: theme.palette.colors.trueBlack,
   },
   [`& .${classes.errorBox}`]: {
     marginTop: 5,
@@ -248,6 +239,8 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
   const [openEmoji, setOpenEmoji] = React.useState(false)
 
   const [message, setMessage] = React.useState(initialMessage)
+
+  const theme = useTheme()
 
   React.useEffect(() => {
     setMessage(initialMessage)
@@ -440,6 +433,7 @@ export const ChannelInputComponent: React.FC<ChannelInputProps> = ({
                           // Every other emojiStyle causes downloading emojis from cdn. We do not want that.
                           // Do not change it unless using custom getEmojiUrl with local emojis.
                           emojiStyle={EmojiStyle.NATIVE}
+                          theme={theme.palette.mode as Theme}
                         />
                       </div>
                     </ClickAwayListener>

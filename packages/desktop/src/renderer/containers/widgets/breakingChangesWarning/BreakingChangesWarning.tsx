@@ -1,16 +1,17 @@
 import React, { useCallback, useEffect } from 'react'
+import { useTheme } from '@mui/material'
 import { ModalName } from '../../../sagas/modals/modals.types'
 import { useModal } from '../../hooks'
 import UpdateModalComponent from '../../../components/widgets/update/UpdateModalComponent'
 
 import Button from '@mui/material/Button'
-import theme from '../../../theme'
 
 import { shell } from 'electron'
 import { Site } from '@quiet/common'
 
 const BreakingChangesWarning = () => {
   const modal = useModal(ModalName.breakingChangesWarning)
+  const theme = useTheme()
 
   const title = 'Update available'
   const message =

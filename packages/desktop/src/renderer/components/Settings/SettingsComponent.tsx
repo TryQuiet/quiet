@@ -31,7 +31,9 @@ const StyledTabsWrapper = styled(Grid)(() => ({
 }))
 
 const StyledAppBar = styled(AppBar, { label: 'xxxxx' })(({ theme }) => ({
+  color: theme.palette.colors.contrastText,
   backgroundColor: theme.palette.background.default,
+  backgroundImage: 'none',
   boxShadow: theme.shadows[3],
 
   [`& .${classes.leaveComunity}`]: {
@@ -48,8 +50,6 @@ const StyledAppBar = styled(AppBar, { label: 'xxxxx' })(({ theme }) => ({
 }))
 
 const StyledTabs = styled(Tabs)(({ theme }) => ({
-  color: theme.palette.colors.trueBlack,
-
   [`& .${classes.indicator}`]: {
     height: '0 !important',
   },
