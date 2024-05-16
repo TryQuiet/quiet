@@ -4,6 +4,8 @@ import { DateTime } from 'luxon'
 
 const colors = require('ansi-colors')
 
+const COLORIZE = process.env['COLORIZE'] === 'true'
+
 /**
  * Available log levels
  */
@@ -214,8 +216,8 @@ export class QuietLogger {
    */
   private formatLog(level: LogLevel, message: any, ...optionalParams: any[]): string[] {
     const formattedMessage = this.formatMessage(message, level)
-    const colorizedOptionalParams = optionalParams.map((param: any) => this.formatObject(param))
-    return [formattedMessage, ...colorizedOptionalParams]
+    const formattedOptionalParams = optionalParams.map((param: any) => this.formatObject(param))
+    return [formattedMessage, ...formattedOptionalParams]
   }
 
   /**
@@ -226,12 +228,30 @@ export class QuietLogger {
    * @returns A colorized log string
    */
   private formatMessage(message: any, level: string): string {
-    const colorizedLevel = colors[level](level.toUpperCase())
-    const colorizedScope = colors['scope'](this.name)
-    const colorizedDate = colors['date'](DateTime.utc().toISO())
-    const colorizedMessageText =
-      typeof message === 'string' ? colors[`${level}_text`](message) : this.formatObject(message)
-    return `${colorizedDate} ${colorizedLevel} ${colorizedScope} ${colorizedMessageText}`
+    let formattedLevel = level.toUpperCase()
+    let scope = this.name
+    let date = DateTime.utc().toISO()
+    const formattedMessage = this.formatMessageText(message, level)
+
+    if (COLORIZE) {
+      formattedLevel = colors[level](formattedLevel)
+      scope = colors['scope'](scope)
+      date = colors['date'](date)
+    }
+
+    return `${date} ${formattedLevel} ${scope} ${formattedMessage}`
+  }
+
+  private formatMessageText(message: any, level: string): string {
+    if (['string', 'number', 'boolean', 'bigint'].includes(typeof message)) {
+      let formattedMessageText = message
+      if (COLORIZE) {
+        formattedMessageText = colors[`${level}_text`](message)
+      }
+      return formattedMessageText
+    }
+
+    return this.formatObject(message, level)
   }
 
   /**
@@ -243,13 +263,22 @@ export class QuietLogger {
    * @param param Object to format
    * @returns Colorized string
    */
-  private formatObject(param: any): string {
+  private formatObject(param: any, overrideColorKey: string | undefined = undefined): string {
     if (param instanceof Error) {
-      return colors['object_error'](param.stack || `${param.name}: ${param.message}`)
+      let formattedError = param.stack || `${param.name}: ${param.message}`
+      if (COLORIZE) {
+        formattedError = colors[overrideColorKey || 'object_error'](formattedError)
+      }
+      return formattedError
     } else if (['string', 'number', 'boolean', 'bigint'].includes(typeof param)) {
-      return colors['object'](param)
+      return COLORIZE ? colors[overrideColorKey || 'object'](param) : param
     }
-    return colors['object'](JSON.stringify(param, null, 2))
+
+    let formattedObject = JSON.stringify(param, null, 2)
+    if (COLORIZE) {
+      formattedObject = colors[overrideColorKey || 'object'](formattedObject)
+    }
+    return formattedObject
   }
 }
 
