@@ -17,6 +17,7 @@
 # Chores
 
 * Cleanup data directory at end of e2e tests
+* Update mobile development README ([#2483](https://github.com/TryQuiet/quiet/issues/2483))
 * Update github workflows for PR gating ([#2487](https://github.com/TryQuiet/quiet/issues/2487))
 * Don't create duplicate CSRs when joining a community under certain circumstances ([#2321](https://github.com/TryQuiet/quiet/issues/2321))
 * Add abstract base classes for stores ([#2407](https://github.com/TryQuiet/quiet/issues/2407))
