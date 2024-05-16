@@ -12,7 +12,6 @@ import {
 import type { IPFS } from 'ipfs-core'
 import EventStore from 'orbit-db-eventstore'
 import KeyValueStore from 'orbit-db-kvstore'
-import path from 'path'
 import { EventEmitter } from 'events'
 import PeerId from 'peer-id'
 import { getCrypto } from 'pkijs'
@@ -37,16 +36,15 @@ import {
   type UserProfile,
   type UserProfilesStoredEvent,
 } from '@quiet/types'
-import { createLibp2pAddress, isDefined } from '@quiet/common'
+import { createLibp2pAddress } from '@quiet/common'
 import fs from 'fs'
 import { IpfsFileManagerService } from '../ipfs-file-manager/ipfs-file-manager.service'
 import { IPFS_REPO_PATCH, ORBIT_DB_DIR, QUIET_DIR } from '../const'
 import { IpfsFilesManagerEvents } from '../ipfs-file-manager/ipfs-file-manager.types'
-import { LocalDBKeys } from '../local-db/local-db.types'
 import { LocalDbService } from '../local-db/local-db.service'
 import { LazyModuleLoader } from '@nestjs/core'
 import { createLogger } from '../common/logger'
-import { DirectMessagesRepo, PublicChannelsRepo } from '../common/types'
+import { PublicChannelsRepo } from '../common/types'
 import { removeFiles, removeDirs, createPaths } from '../common/utils'
 import { DBOptions, StorageEvents } from './storage.types'
 import { CertificatesStore } from './certificates/certificates.store'
@@ -58,7 +56,6 @@ import { UserProfileStore } from './userProfile/userProfile.store'
 @Injectable()
 export class StorageService extends EventEmitter {
   public publicChannelsRepos: Map<string, PublicChannelsRepo> = new Map()
-  public directMessagesRepos: Map<string, DirectMessagesRepo> = new Map()
   private publicKeysMap: Map<string, CryptoKey> = new Map()
 
   public certificates: EventStore<string>
@@ -311,7 +308,7 @@ export class StorageService extends EventEmitter {
   }
 
   public async updateCommunityMetadata(communityMetadata: CommunityMetadata): Promise<CommunityMetadata | undefined> {
-    const meta = await this.communityMetadataStore?.updateCommunityMetadata(communityMetadata)
+    const meta = await this.communityMetadataStore?.setEntry(communityMetadata.id, communityMetadata)
     if (meta) {
       this.certificatesStore.updateMetadata(meta)
     }
@@ -348,7 +345,7 @@ export class StorageService extends EventEmitter {
 
   public async loadAllCertificates() {
     this.logger.info('Loading all certificates')
-    return await this.certificatesStore.loadAllCertificates()
+    return await this.certificatesStore.getEntries()
   }
 
   public async loadAllChannels() {
@@ -722,21 +719,20 @@ export class StorageService extends EventEmitter {
       return false
     }
     this.logger.info('Saving certificate...')
-    const result = await this.certificatesStore.addCertificate(payload.certificate)
-    return result
+    await this.certificatesStore.addEntry(payload.certificate)
+    return true
   }
 
-  public async saveCSR(payload: SaveCSRPayload): Promise<boolean> {
-    const result = await this.certificatesRequestsStore.addUserCsr(payload.csr)
-    return result
+  public async saveCSR(payload: SaveCSRPayload): Promise<void> {
+    await this.certificatesRequestsStore.addEntry(payload.csr)
   }
 
   /**
    * Retrieve all users (using certificates and CSRs to determine users)
    */
   public async getAllUsers(): Promise<UserData[]> {
-    const csrs = await this.certificatesRequestsStore.getCsrs()
-    const certs = await this.certificatesStore.getCertificates()
+    const csrs = await this.certificatesRequestsStore.getEntries()
+    const certs = await this.certificatesStore.getEntries()
     const allUsersByKey: Record<string, UserData> = {}
 
     this.logger.info(`Retrieving all users. CSRs count: ${csrs.length} Certificates count: ${certs.length}`)
@@ -788,7 +784,7 @@ export class StorageService extends EventEmitter {
     /**
      * Check if given username is already in use
      */
-    const certificates = this.getAllEventLogEntries(this.certificatesStore.store)
+    const certificates = this.getAllEventLogEntries(this.certificatesStore.getStore())
     for (const cert of certificates) {
       const parsedCert = parseCertificate(cert)
       const certUsername = getCertFieldValue(parsedCert, CertFieldsTypes.nickName)
@@ -822,7 +818,7 @@ export class StorageService extends EventEmitter {
   }
 
   public async addUserProfile(profile: UserProfile) {
-    await this.userProfileStore.addUserProfile(profile)
+    await this.userProfileStore.setEntry(profile.pubKey, profile)
   }
 
   public async checkIfFileExist(filepath: string): Promise<boolean> {
@@ -840,7 +836,6 @@ export class StorageService extends EventEmitter {
     this.messageThreads = undefined
     // @ts-ignore
     this.publicChannelsRepos = new Map()
-    this.directMessagesRepos = new Map()
     this.publicKeysMap = new Map()
     // @ts-ignore
     this.ipfs = null
@@ -851,5 +846,6 @@ export class StorageService extends EventEmitter {
     this.certificatesRequestsStore.clean()
     this.certificatesStore.clean()
     this.communityMetadataStore.clean()
+    this.userProfileStore.clean()
   }
 }

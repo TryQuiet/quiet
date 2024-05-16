@@ -539,13 +539,13 @@ describe('StorageService', () => {
       await storageService.init(peerId)
       // @ts-ignore
       storageService.certificatesRequestsStore = {
-        getCsrs: jest.fn(() => {
+        getEntries: jest.fn(() => {
           return csrs
         }),
       }
       // @ts-ignore
       storageService.certificatesStore = {
-        getCertificates: jest.fn(() => {
+        getEntries: jest.fn(() => {
           return certs
         }),
       }

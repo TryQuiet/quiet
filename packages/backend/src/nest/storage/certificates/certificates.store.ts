@@ -1,7 +1,5 @@
 import { getCrypto } from 'pkijs'
-import { EventEmitter } from 'events'
 import { StorageEvents } from '../storage.types'
-import EventStore from 'orbit-db-eventstore'
 import { CommunityMetadata, NoCryptoEngineError } from '@quiet/types'
 import {
   keyFromCertificate,
@@ -16,15 +14,15 @@ import { CertificateData } from '../../registration/registration.functions'
 import { OrbitDb } from '../orbitDb/orbitDb.service'
 import { Injectable } from '@nestjs/common'
 import { createLogger } from '../../common/logger'
+import { EventStoreBase } from '../base.store'
 
 @Injectable()
-export class CertificatesStore extends EventEmitter {
-  public store: EventStore<string>
+export class CertificatesStore extends EventStoreBase<string> {
+  protected readonly logger = createLogger(CertificatesStore.name)
+
   private metadata: CommunityMetadata | undefined
   private filteredCertificatesMapping: Map<string, Partial<UserData>>
   private usernameMapping: Map<string, string>
-
-  private readonly logger = createLogger(CertificatesStore.name)
 
   constructor(private readonly orbitDbService: OrbitDb) {
     super()
@@ -65,29 +63,14 @@ export class CertificatesStore extends EventEmitter {
 
   public async loadedCertificates() {
     this.emit(StorageEvents.CERTIFICATES_STORED, {
-      certificates: await this.getCertificates(),
+      certificates: await this.getEntries(),
     })
   }
 
-  public async close() {
-    this.logger.info('Closing certificates DB')
-    await this.store?.close()
-    this.logger.info('Closed certificates DB')
-  }
-
-  public getAddress() {
-    return this.store?.address
-  }
-
-  public async addCertificate(certificate: string) {
+  public async addEntry(certificate: string): Promise<string> {
     this.logger.info('Adding user certificate')
     await this.store?.add(certificate)
-    return true
-  }
-
-  public async loadAllCertificates() {
-    const certificates = await this.getCertificates()
-    return certificates
+    return certificate
   }
 
   public updateMetadata(metadata: CommunityMetadata) {
@@ -147,14 +130,9 @@ export class CertificatesStore extends EventEmitter {
    * as specified in the comment section of
    * https://github.com/TryQuiet/quiet/issues/1899
    */
-  public async getCertificates(): Promise<string[]> {
+  public async getEntries(): Promise<string[]> {
     this.logger.info('Getting certificates')
-    if (!this.store) {
-      this.logger.warn('No store found!')
-      return []
-    }
-
-    const allCertificates = this.store
+    const allCertificates = this.getStore()
       .iterator({ limit: -1 })
       .collect()
       .map(e => e.payload.value)
@@ -199,16 +177,14 @@ export class CertificatesStore extends EventEmitter {
     if (cache) return cache
 
     // Perform cryptographic operations and populate cache
-    await this.getCertificates()
+    await this.getEntries()
 
     // Return desired data from updated cache
     return this.usernameMapping.get(pubkey)
   }
 
   public clean() {
-    // FIXME: Add correct typings on object fields.
-
-    // @ts-ignore
+    this.logger.info('Cleaning certificates store')
     this.store = undefined
     this.metadata = undefined
     this.filteredCertificatesMapping = new Map()

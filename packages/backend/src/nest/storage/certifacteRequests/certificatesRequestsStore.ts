@@ -1,20 +1,17 @@
 import { getCrypto } from 'pkijs'
-import { EventEmitter } from 'events'
-import EventStore from 'orbit-db-eventstore'
 import { NoCryptoEngineError } from '@quiet/types'
 import { loadCSR, keyFromCertificate } from '@quiet/identity'
-import { CsrReplicatedPromiseValues, StorageEvents } from '../storage.types'
+import { StorageEvents } from '../storage.types'
 import { validate } from 'class-validator'
 import { UserCsrData } from '../../registration/registration.functions'
 import { Injectable } from '@nestjs/common'
 import { OrbitDb } from '../orbitDb/orbitDb.service'
 import { createLogger } from '../../common/logger'
+import { EventStoreBase } from '../base.store'
 
 @Injectable()
-export class CertificatesRequestsStore extends EventEmitter {
-  public store: EventStore<string>
-
-  private readonly logger = createLogger(CertificatesRequestsStore.name)
+export class CertificatesRequestsStore extends EventStoreBase<string> {
+  protected readonly logger = createLogger(CertificatesRequestsStore.name)
 
   constructor(private readonly orbitDbService: OrbitDb) {
     super()
@@ -46,23 +43,14 @@ export class CertificatesRequestsStore extends EventEmitter {
 
   public async loadedCertificateRequests() {
     this.emit(StorageEvents.CSRS_STORED, {
-      csrs: await this.getCsrs(),
+      csrs: await this.getEntries(),
     })
   }
 
-  public async close() {
-    this.logger.info('Closing certificate requests DB')
-    await this.store?.close()
-    this.logger.info('Closed certificate requests DB')
-  }
-
-  public getAddress() {
-    return this.store?.address
-  }
-
-  public async addUserCsr(csr: string) {
-    await this.store.add(csr)
-    return true
+  public async addEntry(csr: string): Promise<string> {
+    this.logger.info('Adding CSR to database')
+    await this.store?.add(csr)
+    return csr
   }
 
   public async validateUserCsr(csr: string) {
@@ -88,9 +76,9 @@ export class CertificatesRequestsStore extends EventEmitter {
     return validationErrors
   }
 
-  public async getCsrs() {
+  public async getEntries() {
     const filteredCsrsMap: Map<string, string> = new Map()
-    const allEntries = this.store
+    const allEntries = this.getStore()
       .iterator({ limit: -1 })
       .collect()
       .map(e => {
@@ -122,9 +110,7 @@ export class CertificatesRequestsStore extends EventEmitter {
   }
 
   public clean() {
-    // FIXME: Add correct typings on object fields.
-
-    // @ts-ignore
+    this.logger.info('Cleaning certificates requests store')
     this.store = undefined
   }
 }

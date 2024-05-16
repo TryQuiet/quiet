@@ -1,13 +1,10 @@
 import { Injectable } from '@nestjs/common'
-import { EventEmitter } from 'events'
-import KeyValueStore from 'orbit-db-kvstore'
 import { IdentityProvider } from 'orbit-db-identity-provider'
-import { getCrypto, ICryptoEngine } from 'pkijs'
+import { getCrypto } from 'pkijs'
 import { sha256 } from 'multiformats/hashes/sha2'
 import * as Block from 'multiformats/block'
 import * as dagCbor from '@ipld/dag-cbor'
 import { stringToArrayBuffer } from 'pvutils'
-
 import { NoCryptoEngineError, UserProfile } from '@quiet/types'
 import { keyObjectFromString, verifySignature } from '@quiet/identity'
 import { constructPartial } from '@quiet/common'
@@ -17,13 +14,12 @@ import { OrbitDb } from '../orbitDb/orbitDb.service'
 import { StorageEvents } from '../storage.types'
 import { KeyValueIndex } from '../orbitDb/keyValueIndex'
 import { validatePhoto } from './userProfile.utils'
+import { KeyValueStoreBase } from '../base.store'
 
 const logger = createLogger('UserProfileStore')
 
 @Injectable()
-export class UserProfileStore extends EventEmitter {
-  public store: KeyValueStore<UserProfile>
-
+export class UserProfileStore extends KeyValueStoreBase<UserProfile> {
   // Copying OrbitDB by using dag-cbor/sha256 for converting the
   // profile to a byte array for signing:
   // https://github.com/orbitdb/orbitdb/blob/3eee148510110a7b698036488c70c5c78f868cd9/src/oplog/entry.js#L75-L76
@@ -79,29 +75,25 @@ export class UserProfileStore extends EventEmitter {
     await this.store.load()
   }
 
-  public getAddress() {
-    return this.store?.address
+  public getEntry(key: string): UserProfile {
+    throw new Error('Method not implemented.')
   }
 
-  public async close() {
-    logger.info('Closing user profile DB')
-    await this.store?.close()
-    logger.info('Closed user profile DB')
-  }
-
-  public async addUserProfile(userProfile: UserProfile) {
+  public async setEntry(key: string, userProfile: UserProfile) {
     logger.info('Adding user profile')
     try {
       if (!UserProfileStore.validateUserProfile(userProfile)) {
         // TODO: Send validation errors to frontend or replicate
         // validation on frontend?
-        logger.error('Failed to add user profile')
-        return
+        logger.error('Failed to add user profile, profile is invalid', userProfile.pubKey)
+        throw new Error('Failed to add user profile')
       }
-      await this.store.put(userProfile.pubKey, userProfile)
+      await this.getStore().put(key, userProfile)
     } catch (err) {
-      logger.error('Failed to add user profile', err)
+      logger.error('Failed to add user profile', userProfile.pubKey, err)
+      throw new Error('Failed to add user profile')
     }
+    return userProfile
   }
 
   public static async validateUserProfile(userProfile: UserProfile) {
@@ -157,7 +149,12 @@ export class UserProfileStore extends EventEmitter {
   }
 
   public getUserProfiles(): UserProfile[] {
-    return Object.values(this.store.all)
+    return Object.values(this.getStore().all)
+  }
+
+  clean(): void {
+    logger.info('Cleaning user profiles store')
+    this.store = undefined
   }
 }
 

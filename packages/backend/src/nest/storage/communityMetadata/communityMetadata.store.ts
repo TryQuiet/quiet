@@ -1,5 +1,3 @@
-import { EventEmitter } from 'events'
-import KeyValueStore from 'orbit-db-kvstore'
 import { IdentityProvider } from 'orbit-db-identity-provider'
 // @ts-ignore Hacking around ipfs-log not exporting Entry
 import Entry from '../../../../node_modules/ipfs-log/src/entry'
@@ -12,13 +10,12 @@ import { OrbitDb } from '../orbitDb/orbitDb.service'
 import { Injectable } from '@nestjs/common'
 import { createLogger } from '../../common/logger'
 import { constructPartial } from '@quiet/common'
+import { KeyValueStoreBase } from '../base.store'
 
-const logger = createLogger('CommunityMetadataStore')
+const logger = createLogger('communityMetadataStore')
 
 @Injectable()
-export class CommunityMetadataStore extends EventEmitter {
-  public store: KeyValueStore<CommunityMetadata>
-
+export class CommunityMetadataStore extends KeyValueStoreBase<CommunityMetadata> {
   constructor(
     private readonly orbitDbService: OrbitDb,
     private readonly localDbService: LocalDbService
@@ -67,47 +64,37 @@ export class CommunityMetadataStore extends EventEmitter {
 
     this.store.events.on('replicated', async () => {
       logger.info('Replicated community metadata')
-      const meta = this.getCommunityMetadata()
+      const meta = this.getEntry()
       if (meta) {
         this.emit(StorageEvents.COMMUNITY_METADATA_STORED, meta)
       }
     })
 
     await this.store.load()
-    const meta = this.getCommunityMetadata()
+    const meta = this.getEntry()
     if (meta) {
       this.emit(StorageEvents.COMMUNITY_METADATA_STORED, meta)
     }
     logger.info('Loaded community metadata to memory')
   }
 
-  public getAddress() {
-    return this.store?.address
-  }
-
-  public async close() {
-    logger.info('Closing community metadata DB')
-    await this.store?.close()
-    logger.info('Closed community metadata DB')
-  }
-
-  public async updateCommunityMetadata(newMeta: CommunityMetadata): Promise<CommunityMetadata | undefined> {
+  public async setEntry(key: string, value: CommunityMetadata): Promise<CommunityMetadata> {
     try {
       // TODO: Also check OrbitDB identity when updating community metadata
-      const valid = await CommunityMetadataStore.validateCommunityMetadata(newMeta)
+      const valid = await CommunityMetadataStore.validateCommunityMetadata(value)
       if (!valid) {
         // TODO: Send validation errors to frontend or replicate
         // validation on frontend?
-        logger.error('Failed to update community metadata')
-        return
+        logger.error('Failed to set community metadata. Metadata is invalid')
+        throw new Error('Failed to set community metadata')
       }
 
-      logger.info(`About to update community metadata`, newMeta?.id)
-      if (!newMeta.id) return
+      logger.info(`About to update community metadata`, value?.id)
+      if (!value.id) throw new Error('Community metadata id is missing')
 
       // FIXME: update community metadata if it has changed (so that
       // we can migrate community metadata easily)
-      const oldMeta = this.store.get(newMeta.id)
+      const oldMeta = this.getStore().get(key)
       if (oldMeta?.ownerCertificate && oldMeta?.rootCa) {
         return oldMeta
       }
@@ -115,9 +102,9 @@ export class CommunityMetadataStore extends EventEmitter {
       logger.info(`Updating community metadata`)
       // @ts-expect-error - OrbitDB's type declaration of OrbitDB lacks identity
       const ownerOrbitDbIdentity = this.orbitDbService.orbitDb.identity.id
-      const meta = {
+      const meta: CommunityMetadata = {
         ...oldMeta,
-        ...newMeta,
+        ...value,
         ownerOrbitDbIdentity,
       }
 
@@ -135,12 +122,20 @@ export class CommunityMetadataStore extends EventEmitter {
       // validateCommunityMetadataEntry and so validation may pass in
       // this method, but still the entry is not added to the internal
       // index. How can we detect that?
-      await this.store.put(meta.id, meta)
+      await this.getStore().put(key, meta)
 
       return meta
     } catch (err) {
-      logger.error('Failed to add community metadata', err)
+      logger.error('Failed to add community metadata', key, err)
+      throw new Error('Failed to add community metadata')
     }
+  }
+
+  public getEntry(_key?: string): CommunityMetadata | null {
+    const metadata = Object.values(this.getStore().all)
+    if (metadata.length === 0) return null
+
+    return metadata[0]
   }
 
   public static async validateCommunityMetadata(communityMetadata: CommunityMetadata): Promise<boolean> {
@@ -205,18 +200,8 @@ export class CommunityMetadataStore extends EventEmitter {
     }
   }
 
-  public getCommunityMetadata(): CommunityMetadata | undefined {
-    const metadata = Object.values(this.store.all)
-
-    if (metadata.length > 0) {
-      return metadata[0]
-    }
-  }
-
   public clean() {
-    // FIXME: Add correct typings on object fields.
-
-    // @ts-ignore
+    logger.info('Cleaning metadata store')
     this.store = undefined
   }
 }
