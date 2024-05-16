@@ -8,8 +8,8 @@ import { registerUsername, switchChannel, sendMessage } from '../testUtils/actio
 import { waitForExpect } from '../testUtils/waitForExpect'
 import { assertReceivedChannel } from '../testUtils/assertions'
 import { CryptoEngine, setEngine } from 'pkijs'
-import logger from '../logger'
-const log = logger('bot')
+import { createLogger } from '../logger'
+const logger = createLogger('bot')
 // eslint-disable-next-line
 const { Crypto } = require('@peculiar/webcrypto')
 
@@ -67,11 +67,11 @@ let typingLatency: number
 
 if (intensity) {
   typingLatency = 60_000 / intensity // Typing latency per message (in milliseconds)
-  log(`Typing latency is ${typingLatency}`)
+  logger.info(`Typing latency is ${typingLatency}`)
 }
 
 const createBots = async () => {
-  log(`Creating ${activeUsers} bots`)
+  logger.info(`Creating ${activeUsers} bots`)
   for (let i = 0; i < activeUsers; i++) {
     const username = `bot_${(Math.random() + 1).toString(36).substring(5)}`
     apps.set(username, await createApp())
@@ -79,7 +79,7 @@ const createBots = async () => {
 }
 
 const createSilentBots = async () => {
-  log(`Creating ${silentUsers} silent bots`)
+  logger.info(`Creating ${silentUsers} silent bots`)
   for (let i = 0; i < silentUsers; i++) {
     const username = `silent_bot_${(Math.random() + 1).toString(36).substring(5)}`
     apps.set(username, await createApp())
@@ -95,7 +95,7 @@ const registerBots = async () => {
       registrarPort: null,
       store,
     }
-    log(`Registering ${username}`)
+    logger.info(`Registering ${username}`)
     await registerUsername(payload)
 
     const communityId = store.getState().Communities.communities.ids[0]
@@ -123,7 +123,7 @@ const sendMessages = async () => {
   })
 
   if (_activeUsers.size > 0) {
-    log(`Start sending ${endless ? 'endless' : messages} messages`)
+    logger.info(`Start sending ${endless ? 'endless' : messages} messages`)
 
     const messagesPerUser = Math.floor(messages / _activeUsers.size)
 
@@ -141,7 +141,7 @@ const sendMessages = async () => {
       if (messagesLeft <= 0) {
         await sendMessageWithLatency(currentUsername, apps.get(currentUsername).store, 'Bye!')
         messagesToSend.delete(currentUsername)
-        log(`User ${currentUsername} is finished with sending messages`)
+        logger.info(`User ${currentUsername} is finished with sending messages`)
         continue
       }
 
@@ -154,13 +154,13 @@ const sendMessages = async () => {
     }
   }
 
-  log('Bot starts waiting 10_000ms for remaining promises to resolve')
+  logger.info('Bot starts waiting 10_000ms for remaining promises to resolve')
   await sleep(10_000)
 }
 
 const sendMessageWithLatency = async (username: string, store: TestStore, message: string) => {
   const latency = typingLatency || getRandomInt(300, 550)
-  log(`${username} is waiting ${latency}ms to send a message`)
+  logger.info(`${username} is waiting ${latency}ms to send a message`)
   await sleep(latency)
   await sendMessage({
     message,
@@ -171,22 +171,22 @@ const sendMessageWithLatency = async (username: string, store: TestStore, messag
 
 const closeAll = async (force = false) => {
   if (!force && standby) {
-    log(`Waiting ${standby}ms before peers goes offline`)
+    logger.info(`Waiting ${standby}ms before peers goes offline`)
     await sleep(standby)
   }
   for (const [username, app] of apps) {
-    log(`Closing services for ${username}`)
+    logger.info(`Closing services for ${username}`)
     await app.manager.closeAllServices()
   }
 }
 
 const run = async () => {
   process.on('unhandledRejection', async error => {
-    console.error(error)
+    logger.error(error)
     await closeAll(true)
   })
   process.on('SIGINT', async () => {
-    log('\nGracefully shutting down from SIGINT (Ctrl-C)')
+    logger.info('\nGracefully shutting down from SIGINT (Ctrl-C)')
     await closeAll(true)
   })
   await createBots()
@@ -198,6 +198,6 @@ const run = async () => {
 
 run()
   .then(() => {
-    console.log('FINISHED')
+    logger.info('FINISHED')
   })
-  .catch(e => console.error(e))
+  .catch(e => logger.error(e))

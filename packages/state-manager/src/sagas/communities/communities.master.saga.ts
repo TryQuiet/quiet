@@ -5,9 +5,12 @@ import { connectionActions } from '../appConnection/connection.slice'
 import { createCommunitySaga } from './createCommunity/createCommunity.saga'
 import { initCommunities, launchCommunitySaga } from './launchCommunity/launchCommunity.saga'
 import { createNetworkSaga } from './createNetwork/createNetwork.saga'
+import { createLogger } from '../../utils/logger'
+
+const logger = createLogger('communitiesMasterSage')
 
 export function* communitiesMasterSaga(socket: Socket): Generator {
-  console.log('communitiesMasterSaga starting')
+  logger.info('communitiesMasterSaga starting')
   try {
     yield all([
       takeEvery(communitiesActions.createNetwork.type, createNetworkSaga, socket),
@@ -16,9 +19,9 @@ export function* communitiesMasterSaga(socket: Socket): Generator {
       takeEvery(communitiesActions.launchCommunity.type, launchCommunitySaga, socket),
     ])
   } finally {
-    console.log('communitiesMasterSaga stopping')
+    logger.info('communitiesMasterSaga stopping')
     if (yield cancelled()) {
-      console.log('communitiesMasterSaga cancelled')
+      logger.info('communitiesMasterSaga cancelled')
     }
   }
 }

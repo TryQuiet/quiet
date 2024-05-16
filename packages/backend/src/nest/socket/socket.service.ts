@@ -28,12 +28,12 @@ import EventEmitter from 'events'
 import { CONFIG_OPTIONS, SERVER_IO_PROVIDER } from '../const'
 import { ConfigOptions, ServerIoProviderTypes } from '../types'
 import { suspendableSocketEvents } from './suspendable.events'
-import Logger from '../common/logger'
+import { createLogger } from '../common/logger'
 import type net from 'node:net'
 
 @Injectable()
 export class SocketService extends EventEmitter implements OnModuleInit {
-  private readonly logger = Logger(SocketService.name)
+  private readonly logger = createLogger(SocketService.name)
 
   public resolveReadyness: (value: void | PromiseLike<void>) => void
   public readyness: Promise<void>
@@ -55,9 +55,9 @@ export class SocketService extends EventEmitter implements OnModuleInit {
   }
 
   async onModuleInit() {
-    this.logger('init: Started')
+    this.logger.info('init: Started')
     await this.init()
-    this.logger('init: Finished')
+    this.logger.info('init: Finished')
   }
 
   public async init() {
@@ -71,30 +71,30 @@ export class SocketService extends EventEmitter implements OnModuleInit {
 
     await this.listen()
 
-    this.logger('init: Waiting for frontend to connect')
+    this.logger.info('init: Waiting for frontend to connect')
     await connection
-    this.logger('init: Frontend connected')
+    this.logger.info('init: Frontend connected')
   }
 
   private readonly attachListeners = () => {
-    this.logger('Attaching listeners')
+    this.logger.info('Attaching listeners')
 
     // Attach listeners here
     this.serverIoProvider.io.on(SocketActionTypes.CONNECTION, socket => {
-      this.logger('Socket connection')
+      this.logger.info('Socket connection')
 
       // On websocket connection, update presentation service with network data
       this.emit(SocketActionTypes.CONNECTION)
 
       socket.on(SocketActionTypes.CLOSE, async () => {
-        this.logger('Socket connection closed')
+        this.logger.info('Socket connection closed')
         this.emit(SocketActionTypes.CLOSE)
       })
 
       socket.use(async (event, next) => {
         const type = event[0]
         if (suspendableSocketEvents.includes(type)) {
-          this.logger('Awaiting readyness before emitting: ', type)
+          this.logger.info('Awaiting readyness before emitting: ', type)
           await this.readyness
         }
         next()
@@ -149,7 +149,7 @@ export class SocketService extends EventEmitter implements OnModuleInit {
 
       // ====== Certificates ======
       socket.on(SocketActionTypes.ADD_CSR, async (payload: SaveCSRPayload) => {
-        this.logger(`On ${SocketActionTypes.ADD_CSR}`)
+        this.logger.info(`On ${SocketActionTypes.ADD_CSR}`)
 
         this.emit(SocketActionTypes.ADD_CSR, payload)
       })
@@ -158,7 +158,7 @@ export class SocketService extends EventEmitter implements OnModuleInit {
       socket.on(
         SocketActionTypes.CREATE_COMMUNITY,
         async (payload: InitCommunityPayload, callback: (response: Community | undefined) => void) => {
-          this.logger(`Creating community ${payload.id}`)
+          this.logger.info(`Creating community ${payload.id}`)
           this.emit(SocketActionTypes.CREATE_COMMUNITY, payload, callback)
         }
       )
@@ -166,7 +166,7 @@ export class SocketService extends EventEmitter implements OnModuleInit {
       socket.on(
         SocketActionTypes.LAUNCH_COMMUNITY,
         async (payload: InitCommunityPayload, callback: (response: Community | undefined) => void) => {
-          this.logger(`Launching community ${payload.id} for ${payload.peerId.id}`)
+          this.logger.info(`Launching community ${payload.id} for ${payload.peerId.id}`)
           this.emit(SocketActionTypes.LAUNCH_COMMUNITY, payload, callback)
           this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.LAUNCHING_COMMUNITY)
         }
@@ -175,18 +175,18 @@ export class SocketService extends EventEmitter implements OnModuleInit {
       socket.on(
         SocketActionTypes.CREATE_NETWORK,
         async (communityId: string, callback: (response: NetworkInfo | undefined) => void) => {
-          this.logger(`Creating network for community ${communityId}`)
+          this.logger.info(`Creating network for community ${communityId}`)
           this.emit(SocketActionTypes.CREATE_NETWORK, communityId, callback)
         }
       )
 
       socket.on(SocketActionTypes.LEAVE_COMMUNITY, (callback: (closed: boolean) => void) => {
-        this.logger('Leaving community')
+        this.logger.info('Leaving community')
         this.emit(SocketActionTypes.LEAVE_COMMUNITY, callback)
       })
 
       socket.on(SocketActionTypes.LIBP2P_PSK_STORED, payload => {
-        this.logger('Saving PSK', payload)
+        this.logger.info('Saving PSK', payload)
         this.emit(SocketActionTypes.LIBP2P_PSK_STORED, payload)
       })
 
@@ -228,29 +228,29 @@ export class SocketService extends EventEmitter implements OnModuleInit {
   // I also tried `this.serverIoProvider.io.disconnectSockets(true)`
   // which didn't work for me, but we still call it.
   public closeSockets = () => {
-    this.logger('Disconnecting sockets')
+    this.logger.info('Disconnecting sockets')
     this.serverIoProvider.io.disconnectSockets(true)
     this.sockets.forEach(s => s.destroy())
   }
 
   public listen = async (): Promise<void> => {
-    this.logger(`Opening data server on port ${this.configOptions.socketIOPort}`)
+    this.logger.info(`Opening data server on port ${this.configOptions.socketIOPort}`)
 
     if (this.serverIoProvider.server.listening) {
-      this.logger('Failed to listen. Server already listening.')
+      this.logger.warn('Failed to listen. Server already listening.')
       return
     }
 
     const numConnections = await this.getConnections()
 
     if (numConnections > 0) {
-      this.logger('Failed to listen. Connections still open:', numConnections)
+      this.logger.warn('Failed to listen. Connections still open:', numConnections)
       return
     }
 
     return new Promise(resolve => {
       this.serverIoProvider.server.listen(this.configOptions.socketIOPort, '127.0.0.1', () => {
-        this.logger(`Data server running on port ${this.configOptions.socketIOPort}`)
+        this.logger.info(`Data server running on port ${this.configOptions.socketIOPort}`)
         resolve()
       })
     })
@@ -258,17 +258,17 @@ export class SocketService extends EventEmitter implements OnModuleInit {
 
   public close = (): Promise<void> => {
     return new Promise(resolve => {
-      this.logger(`Closing data server on port ${this.configOptions.socketIOPort}`)
+      this.logger.info(`Closing data server on port ${this.configOptions.socketIOPort}`)
 
       if (!this.serverIoProvider.server.listening) {
-        this.logger('Data server is not running.')
+        this.logger.warn('Data server is not running.')
         resolve()
         return
       }
 
       this.serverIoProvider.io.close(err => {
         if (err) throw new Error(err.message)
-        this.logger('Data server closed')
+        this.logger.info('Data server closed')
         resolve()
       })
 

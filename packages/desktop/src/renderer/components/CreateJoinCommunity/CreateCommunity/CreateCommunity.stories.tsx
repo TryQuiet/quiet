@@ -6,6 +6,10 @@ import { withTheme } from '../../../storybook/decorators'
 import PerformCommunityActionComponent, { PerformCommunityActionProps } from '../PerformCommunityActionComponent'
 import { CommunityOwnership } from '@quiet/types'
 
+import { createLogger } from '../../../logger'
+
+const logger = createLogger('createCommunity:stories')
+
 const Template: ComponentStory<typeof PerformCommunityActionComponent> = args => {
   return <PerformCommunityActionComponent {...args} />
 }
@@ -16,10 +20,10 @@ const args: PerformCommunityActionProps = {
   open: true,
   communityOwnership: CommunityOwnership.Owner,
   handleCommunityAction: function (value: string): void {
-    console.log('Creating community: ', value)
+    logger.info('Creating community: ', value)
   },
   handleRedirection: function (): void {
-    console.log('Redirected to join community')
+    logger.info('Redirected to join community')
   },
   handleClose: function (): void {},
   isCloseDisabled: false,

@@ -8,11 +8,11 @@ import { KeyValueIndex } from '../orbitDb/keyValueIndex'
 import { LocalDbService } from '../../local-db/local-db.service'
 import { OrbitDb } from '../orbitDb/orbitDb.service'
 import { Injectable } from '@nestjs/common'
-import Logger from '../../common/logger'
+import { createLogger } from '../../common/logger'
 import { constructPartial } from '@quiet/common'
 import { KeyValueStoreBase } from '../base.store'
 
-const logger = Logger('communityMetadataStore')
+const logger = createLogger('communityMetadataStore')
 
 @Injectable()
 export class CommunityMetadataStore extends KeyValueStoreBase<CommunityMetadata> {
@@ -24,7 +24,7 @@ export class CommunityMetadataStore extends KeyValueStoreBase<CommunityMetadata>
   }
 
   public async init() {
-    logger('Initializing community metadata key/value store')
+    logger.info('Initializing community metadata key/value store')
 
     // If the owner initializes the CommunityMetadataStore, then the
     // ID would be undefined at this point when they first create the
@@ -63,7 +63,7 @@ export class CommunityMetadataStore extends KeyValueStoreBase<CommunityMetadata>
     })
 
     this.store.events.on('replicated', async () => {
-      logger('Replicated community metadata')
+      logger.info('Replicated community metadata')
       const meta = this.getEntry()
       if (meta) {
         this.emit(StorageEvents.COMMUNITY_METADATA_STORED, meta)
@@ -75,7 +75,7 @@ export class CommunityMetadataStore extends KeyValueStoreBase<CommunityMetadata>
     if (meta) {
       this.emit(StorageEvents.COMMUNITY_METADATA_STORED, meta)
     }
-    logger('Loaded community metadata to memory')
+    logger.info('Loaded community metadata to memory')
   }
 
   public async setEntry(key: string, value: CommunityMetadata): Promise<CommunityMetadata> {
@@ -89,7 +89,7 @@ export class CommunityMetadataStore extends KeyValueStoreBase<CommunityMetadata>
         throw new Error('Failed to set community metadata')
       }
 
-      logger(`About to update community metadata`, value?.id)
+      logger.info(`About to update community metadata`, value?.id)
       if (!value.id) throw new Error('Community metadata id is missing')
 
       // FIXME: update community metadata if it has changed (so that
@@ -99,7 +99,7 @@ export class CommunityMetadataStore extends KeyValueStoreBase<CommunityMetadata>
         return oldMeta
       }
 
-      logger(`Updating community metadata`)
+      logger.info(`Updating community metadata`)
       // @ts-expect-error - OrbitDB's type declaration of OrbitDB lacks identity
       const ownerOrbitDbIdentity = this.orbitDbService.orbitDb.identity.id
       const meta: CommunityMetadata = {
@@ -152,7 +152,7 @@ export class CommunityMetadataStore extends KeyValueStoreBase<CommunityMetadata>
       // Verify that owner certificate is signed by root certificate
       return await ownerCert.verify(rootCert)
     } catch (err) {
-      logger.error('Failed to validate community metadata:', communityMetadata.id, err?.message)
+      logger.error('Failed to validate community metadata:', communityMetadata.id, err)
       return false
     }
   }
@@ -195,13 +195,13 @@ export class CommunityMetadataStore extends KeyValueStoreBase<CommunityMetadata>
       const valid = await CommunityMetadataStore.validateCommunityMetadata(entry.payload.value)
       return valid
     } catch (err) {
-      logger.error('Failed to verify community metadata entry:', entry.hash, err?.message)
+      logger.error('Failed to verify community metadata entry:', entry.hash, err)
       return false
     }
   }
 
   public clean() {
-    logger('Cleaning metadata store')
+    logger.info('Cleaning metadata store')
     this.store = undefined
   }
 }

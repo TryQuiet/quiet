@@ -2,9 +2,9 @@ import { ErrorPayload, publicChannels, TestStore, messages, MessageType } from '
 import waitForExpect from 'wait-for-expect'
 import { MAIN_CHANNEL } from '../testUtils/constants'
 import { sleep } from '../utils'
-import logger from '../logger'
+import { createLogger } from '../logger'
 
-const log = logger('assertions')
+const logger = createLogger('assertions')
 
 export async function assertReceivedCertificates(
   userName: string,
@@ -12,13 +12,13 @@ export async function assertReceivedCertificates(
   maxTime = 60000,
   store: TestStore
 ) {
-  log(`User ${userName} starts waiting ${maxTime}ms for certificates`)
+  logger.info(`User ${userName} starts waiting ${maxTime}ms for certificates`)
 
   await waitForExpect(() => {
     expect(store.getState().Users.certificates.ids).toHaveLength(expectedCount)
   }, maxTime)
 
-  log(`User ${userName} received ${store.getState().Users.certificates.ids.length} certificates`)
+  logger.info(`User ${userName} received ${store.getState().Users.certificates.ids.length} certificates`)
 }
 
 export async function assertReceivedChannelsAndSubscribe(
@@ -27,7 +27,7 @@ export async function assertReceivedChannelsAndSubscribe(
   maxTime = 60000,
   store: TestStore
 ) {
-  log(`User ${userName} starts waiting ${maxTime}ms for channels`)
+  logger.info(`User ${userName} starts waiting ${maxTime}ms for channels`)
 
   await waitForExpect(() => {
     expect(store.getState().PublicChannels.channels.ids).toHaveLength(expectedCount)
@@ -39,7 +39,7 @@ export async function assertReceivedChannelsAndSubscribe(
     })
   )
 
-  log(`User ${userName} received ${store.getState().PublicChannels.channels.ids.length} channels`)
+  logger.info(`User ${userName} received ${store.getState().PublicChannels.channels.ids.length} channels`)
 }
 
 export async function assertReceivedMessages(
@@ -48,14 +48,14 @@ export async function assertReceivedMessages(
   maxTime = 60000,
   store: TestStore
 ) {
-  log(`User ${userName} starts waiting ${maxTime}ms for messages`)
+  logger.info(`User ${userName} starts waiting ${maxTime}ms for messages`)
 
   await waitForExpect(() => {
     expect(store.getState().Messages.publicChannelsMessagesBase.entities[MAIN_CHANNEL].messages.ids).toHaveLength(
       expectedCount
     )
   }, maxTime)
-  log(
+  logger.info(
     `User ${userName} received ${
       store.getState().Messages.publicChannelsMessagesBase.entities[MAIN_CHANNEL].messages.ids.length
     } messages`
@@ -68,7 +68,7 @@ export const assertReceivedMessagesAreValid = async (
   maxTime = 60000,
   store: TestStore
 ) => {
-  log(`User ${userName} checks is messages are valid`)
+  logger.info(`User ${userName} checks is messages are valid`)
 
   const receivedMessages = Object.values(
     store.getState().Messages.publicChannelsMessagesBase.entities[MAIN_CHANNEL].messages.entities
@@ -89,7 +89,7 @@ export const assertReceivedMessagesAreValid = async (
 }
 
 export async function assertReceivedImages(userName: string, expectedCount: number, maxTime = 60000, store: TestStore) {
-  log(`User ${userName} starts waiting ${maxTime}ms for image`)
+  logger.info(`User ${userName} starts waiting ${maxTime}ms for image`)
   await waitForExpect(() => {
     expect(
       Object.values(
@@ -97,7 +97,7 @@ export async function assertReceivedImages(userName: string, expectedCount: numb
       ).filter(message => message.type === MessageType.Image)
     ).toHaveLength(expectedCount)
   }, maxTime)
-  log(
+  logger.info(
     `User ${userName} received ${
       Object.values(
         store.getState().Messages.publicChannelsMessagesBase.entities[MAIN_CHANNEL].messages.entities
@@ -112,7 +112,7 @@ export async function assertDownloadedImage(
   maxTime = 60000,
   store: TestStore
 ) {
-  log(`User ${userName} starts waiting ${maxTime}ms for downloading ${expectedImage}`)
+  logger.info(`User ${userName} starts waiting ${maxTime}ms for downloading ${expectedImage}`)
   await waitForExpect(() => {
     const message = Object.values(
       store.getState().Messages.publicChannelsMessagesBase.entities[MAIN_CHANNEL].messages.entities
@@ -123,7 +123,7 @@ export async function assertDownloadedImage(
 
     expect(filename).toBe(expectedImage)
   }, maxTime)
-  log(`User ${userName} downloaded ${expectedImage}`)
+  logger.info(`User ${userName} downloaded ${expectedImage}`)
 }
 
 export const assertInitializedExistingCommunitiesAndRegistrars = async (store: TestStore) => {

@@ -6,19 +6,19 @@ import { validate } from 'class-validator'
 import { UserCsrData } from '../../registration/registration.functions'
 import { Injectable } from '@nestjs/common'
 import { OrbitDb } from '../orbitDb/orbitDb.service'
-import Logger from '../../common/logger'
+import { createLogger } from '../../common/logger'
 import { EventStoreBase } from '../base.store'
 
 @Injectable()
 export class CertificatesRequestsStore extends EventStoreBase<string> {
-  protected readonly logger = Logger(CertificatesRequestsStore.name)
+  protected readonly logger = createLogger(CertificatesRequestsStore.name)
 
   constructor(private readonly orbitDbService: OrbitDb) {
     super()
   }
 
   public async init() {
-    this.logger('Initializing certificates requests store')
+    this.logger.info('Initializing certificates requests store')
 
     this.store = await this.orbitDbService.orbitDb.log<string>('csrs', {
       replicate: false,
@@ -29,16 +29,16 @@ export class CertificatesRequestsStore extends EventStoreBase<string> {
     await this.store.load()
 
     this.store.events.on('write', async (_address, entry) => {
-      this.logger('Added CSR to database')
+      this.logger.info('Added CSR to database')
       this.loadedCertificateRequests()
     })
 
     this.store.events.on('replicated', async () => {
-      this.logger('Replicated CSRs')
+      this.logger.info('Replicated CSRs')
       this.loadedCertificateRequests()
     })
 
-    this.logger('Initialized')
+    this.logger.info('Initialized')
   }
 
   public async loadedCertificateRequests() {
@@ -48,12 +48,12 @@ export class CertificatesRequestsStore extends EventStoreBase<string> {
   }
 
   public async addEntry(csr: string): Promise<string> {
-    this.logger('Adding CSR to database')
+    this.logger.info('Adding CSR to database')
     await this.store?.add(csr)
     return csr
   }
 
-  public static async validateUserCsr(csr: string) {
+  public async validateUserCsr(csr: string) {
     try {
       const crypto = getCrypto()
       if (!crypto) {
@@ -63,13 +63,13 @@ export class CertificatesRequestsStore extends EventStoreBase<string> {
       await parsedCsr.verify()
       await this.validateCsrFormat(csr)
     } catch (err) {
-      console.error('Failed to validate user CSR:', csr, err?.message)
+      this.logger.error('Failed to validate user CSR:', csr, err?.message)
       return false
     }
     return true
   }
 
-  public static async validateCsrFormat(csr: string) {
+  public async validateCsrFormat(csr: string) {
     const userData = new UserCsrData()
     userData.csr = csr
     const validationErrors = await validate(userData)
@@ -84,13 +84,13 @@ export class CertificatesRequestsStore extends EventStoreBase<string> {
       .map(e => {
         return e.payload.value
       })
-    this.logger('Total CSRs:', allEntries.length)
+    this.logger.info('Total CSRs:', allEntries.length)
 
     const allCsrsUnique = [...new Set(allEntries)]
     await Promise.all(
       allCsrsUnique
         .filter(async csr => {
-          const validation = await CertificatesRequestsStore.validateUserCsr(csr)
+          const validation = await this.validateUserCsr(csr)
           if (validation) return true
           return false
         })
@@ -105,12 +105,12 @@ export class CertificatesRequestsStore extends EventStoreBase<string> {
         })
     )
     const validCsrs = [...filteredCsrsMap.values()]
-    this.logger('Valid CSRs:', validCsrs.length)
+    this.logger.info('Valid CSRs:', validCsrs.length)
     return validCsrs
   }
 
   public clean() {
-    this.logger('Cleaning certificates requests store')
+    this.logger.info('Cleaning certificates requests store')
     this.store = undefined
   }
 }

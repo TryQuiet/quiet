@@ -1,7 +1,3 @@
-import { logger } from '@quiet/logger'
+import { createQuietLogger } from '@quiet/logger'
 
-const createLogger = (name: string) => {
-  return logger('utils')(name)
-}
-
-export default createLogger
+export const createLogger = createQuietLogger('utils')

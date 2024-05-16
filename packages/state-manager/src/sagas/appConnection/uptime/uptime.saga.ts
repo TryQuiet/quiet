@@ -1,8 +1,8 @@
 import { delay, put } from 'typed-redux-saga'
-import logger from '../../../utils/logger'
 import { connectionActions } from '../connection.slice'
+import { createLogger } from '../../../utils/logger'
 
-const log = logger('connection')
+const logger = createLogger('uptimeSaga')
 
 export function* uptimeSaga(): Generator {
   // There is no point in updating this more often as we don't need precise data here, but we want to avoid spamming redux with excess actions

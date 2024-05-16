@@ -13,9 +13,12 @@ import { resetCurrentPublicChannelCacheSaga } from './manageCache/resetChannelCa
 import { extendCurrentPublicChannelCacheSaga } from './manageCache/extendChannelCache.saga'
 import { autoDownloadFilesSaga } from '../files/autoDownloadFiles/autoDownloadFiles.saga'
 import { sendDeletionMessageSaga } from './sendDeletionMessage/sendDeletionMessage.saga'
+import { createLogger } from '../../utils/logger'
+
+const logger = createLogger('messagesMasterSaga')
 
 export function* messagesMasterSaga(socket: Socket): Generator {
-  console.log('messagesMasterSaga starting')
+  logger.info('messagesMasterSaga starting')
   try {
     yield all([
       takeEvery(messagesActions.sendMessage.type, sendMessageSaga, socket),
@@ -32,9 +35,9 @@ export function* messagesMasterSaga(socket: Socket): Generator {
       takeEvery(messagesActions.sendDeletionMessage.type, sendDeletionMessageSaga),
     ])
   } finally {
-    console.log('messagesMasterSaga stopping')
+    logger.info('messagesMasterSaga stopping')
     if (yield cancelled()) {
-      console.log('messagesMasterSaga cancelled')
+      logger.info('messagesMasterSaga cancelled')
     }
   }
 }

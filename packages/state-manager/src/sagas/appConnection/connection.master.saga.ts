@@ -1,14 +1,17 @@
 import { all, fork, cancelled } from 'typed-redux-saga'
 import { uptimeSaga } from './uptime/uptime.saga'
+import { createLogger } from '../../utils/logger'
+
+const logger = createLogger('connectionMasterSaga')
 
 export function* connectionMasterSaga(): Generator {
-  console.log('connectionMasterSaga starting')
+  logger.info('connectionMasterSaga starting')
   try {
     yield all([fork(uptimeSaga)])
   } finally {
-    console.log('connectionMasterSaga stopping')
+    logger.info('connectionMasterSaga stopping')
     if (yield cancelled()) {
-      console.log('connectionMasterSaga cancelled')
+      logger.info('connectionMasterSaga cancelled')
     }
   }
 }

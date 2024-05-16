@@ -6,6 +6,10 @@ import { INPUT_STATE } from './InputState.enum'
 import { ChannelInputComponent, ChannelInputProps } from './ChannelInput'
 import { withTheme } from '../../../../storybook/decorators'
 
+import { createLogger } from '../../../../logger'
+
+const logger = createLogger('channelInput:stories')
+
 const Template: ComponentStory<typeof ChannelInputComponent> = args => {
   return (
     <div style={{ height: '400px', position: 'relative' }}>
@@ -23,7 +27,7 @@ const args: ChannelInputProps = {
   inputPlaceholder: '#general as @alice',
   onChange: function (_arg: string): void {},
   onKeyPress: function (input: string): void {
-    console.log('send message', input)
+    logger.info('send message', input)
   },
   infoClass: '',
   setInfoClass: function (_arg: string): void {},
@@ -37,7 +41,7 @@ const argsDisabledInput: ChannelInputProps = {
   inputPlaceholder: '#general as @alice',
   onChange: function (_arg: string): void {},
   onKeyPress: function (input: string): void {
-    console.log('send message', input)
+    logger.info('send message', input)
   },
   infoClass: '',
   setInfoClass: function (_arg: string): void {},
@@ -248,7 +252,7 @@ const argsLongMessage: ChannelInputProps = {
   initialMessage: initialMessage,
   onChange: function (_arg: string): void {},
   onKeyPress: function (input: string): void {
-    console.log('send message', input)
+    logger.info('send message', input)
   },
   infoClass: '',
   setInfoClass: function (_arg: string): void {},

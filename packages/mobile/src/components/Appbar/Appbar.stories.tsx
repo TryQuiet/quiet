@@ -4,6 +4,10 @@ import { useContextMenu } from '../../hooks/useContextMenu'
 
 import { Appbar } from './Appbar.component'
 
+import { createLogger } from '../../utils/logger'
+
+const logger = createLogger('appBar:stories')
+
 const contextMenu: ReturnType<typeof useContextMenu> = {
   visible: false,
   handleOpen: function (_args?: any): any {},
@@ -16,7 +20,7 @@ storiesOf('Appbar', module)
       title={'general'}
       prefix={'#'}
       back={() => {
-        console.log('back')
+        logger.info('back')
       }}
     />
   ))

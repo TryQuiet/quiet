@@ -19,6 +19,10 @@ import { IpfsFileManagerService } from './ipfs-file-manager.service'
 import { jest } from '@jest/globals'
 import { sleep } from '../common/sleep'
 import fs from 'fs'
+import { createLogger } from '../common/logger'
+
+const logger = createLogger('bigFiles:test')
+
 jest.setTimeout(200_000)
 describe('IpfsFileManagerService', () => {
   let module: TestingModule
@@ -140,9 +144,9 @@ describe('IpfsFileManagerService', () => {
     await sleep(20_000)
 
     await ipfsFileManagerService.stop()
-    console.time('Stopping ipfs')
+    logger.time('Stopping ipfs')
     await ipfsService.ipfsInstance?.stop()
-    console.timeEnd('Stopping ipfs')
+    logger.timeEnd('Stopping ipfs')
 
     // The jest test doesn't exit cleanly because of some asynchronous actions need time to complete, I can't find what is it.
     await sleep(100000)

@@ -2,6 +2,10 @@ import { storiesOf } from '@storybook/react-native'
 import React from 'react'
 import UploadingPreview from './UploadingPreview.component'
 import { FilePreviewData } from '@quiet/types'
+import { createLogger } from '../../utils/logger'
+
+const logger = createLogger('uploadingPreview:stories')
+
 const pickedFiles: FilePreviewData = {
   '12345': {
     path: 'file://data/0/myFile.jpg',
@@ -28,7 +32,7 @@ storiesOf('File UploadingPreview', module).add('Default', () => (
   <UploadingPreview
     filesData={pickedFiles}
     removeFile={function (id: string): void {
-      console.log(`removeFile ${id}`)
+      logger.info(`removeFile ${id}`)
     }}
   />
 ))

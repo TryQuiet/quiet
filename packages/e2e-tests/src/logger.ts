@@ -1,3 +1,3 @@
-import logger from '@quiet/logger'
+import { createQuietLogger } from '@quiet/logger'
 
-export default logger('e2e')
+export const createLogger = createQuietLogger('e2e')

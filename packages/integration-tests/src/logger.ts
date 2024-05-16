@@ -1,3 +1,3 @@
-import logger from '@quiet/logger'
+import { createQuietLogger } from '@quiet/logger'
 
-export default logger('state-manager:test')
+export const createLogger = createQuietLogger('state-manager:test')

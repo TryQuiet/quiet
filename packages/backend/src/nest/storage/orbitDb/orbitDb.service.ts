@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common'
 import { ORBIT_DB_DIR } from '../../const'
-import Logger from '../../common/logger'
+import { createLogger } from '../../common/logger'
 import PeerId from 'peer-id'
 import AccessControllers from 'orbit-db-access-controllers'
 import { MessagesAccessController } from './MessagesAccessController'
@@ -12,7 +12,7 @@ import { IPFS } from 'ipfs-core'
 export class OrbitDb {
   private orbitDbInstance: OrbitDB | null = null
 
-  private readonly logger = Logger(OrbitDb.name)
+  private readonly logger = createLogger(OrbitDb.name)
 
   constructor(@Inject(ORBIT_DB_DIR) public readonly orbitDbDir: string) {}
 
@@ -25,7 +25,7 @@ export class OrbitDb {
   }
 
   public async create(peerId: PeerId, ipfs: IPFS) {
-    this.logger('[create]:started')
+    this.logger.info('[create]:started')
     if (this.orbitDbInstance) return
 
     const channelsAccessController = createChannelAccessController(peerId, this.orbitDbDir)
@@ -46,11 +46,11 @@ export class OrbitDb {
 
   public async stop() {
     if (this.orbitDbInstance) {
-      this.logger('Stopping OrbitDB')
+      this.logger.info('Stopping OrbitDB')
       try {
         await this.orbitDbInstance.stop()
       } catch (err) {
-        this.logger.error(`Following error occured during closing orbitdb database: ${err as string}`)
+        this.logger.error(`Following error occured during closing orbitdb database`, err)
       }
     }
 

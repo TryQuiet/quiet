@@ -7,6 +7,9 @@ import { publicChannels } from '@quiet/state-manager'
 import { showNotificationSaga } from './nativeServices/showNotification/showNotification.saga'
 import { clearReduxStore } from './nativeServices/leaveCommunity/leaveCommunity.saga'
 import { setEngine, CryptoEngine } from 'pkijs'
+import { createLogger } from '../utils/logger'
+
+const logger = createLogger('root')
 
 const initCryptoEngine = () => {
   setEngine(
@@ -20,9 +23,9 @@ const initCryptoEngine = () => {
 }
 
 export function* rootSaga(): Generator {
-  console.log('rootSaga starting')
+  logger.info('rootSaga starting')
   try {
-    console.log('Initializing crypto engine')
+    logger.info('Initializing crypto engine')
     yield* call(initCryptoEngine)
     // We don't want to start any sagas until the store is ready in
     // case they use the store. Currently, we run these sagas once per
@@ -35,15 +38,15 @@ export function* rootSaga(): Generator {
     yield* take(initActions.setStoreReady)
     yield* call(storeReadySaga)
   } finally {
-    console.log('rootSaga stopping')
+    logger.info('rootSaga stopping')
     if (yield cancelled()) {
-      console.log('rootSaga cancelled')
+      logger.info('rootSaga cancelled')
     }
   }
 }
 
 function* storeReadySaga(): Generator {
-  console.log('storeReadySaga starting')
+  logger.info('storeReadySaga starting')
   try {
     yield all([
       fork(initMasterSaga),
@@ -54,9 +57,9 @@ function* storeReadySaga(): Generator {
       takeLeading(initActions.canceledRootTask.type, clearReduxStore),
     ])
   } finally {
-    console.log('storeReadySaga stopping')
+    logger.info('storeReadySaga stopping')
     if (yield cancelled()) {
-      console.log('storeReadySaga cancelled')
+      logger.info('storeReadySaga cancelled')
     }
   }
 }

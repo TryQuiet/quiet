@@ -2,13 +2,13 @@ import { Inject, Injectable } from '@nestjs/common'
 import { LazyModuleLoader } from '@nestjs/core'
 import { create, IPFS } from 'ipfs-core'
 import { IPFS_REPO_PATCH } from '../const'
-import Logger from '../common/logger'
+import { createLogger } from '../common/logger'
 
 @Injectable()
 export class IpfsService {
   public ipfsInstance: IPFS | null
   private counter = 0
-  private readonly logger = Logger(IpfsService.name)
+  private readonly logger = createLogger(IpfsService.name)
   constructor(
     @Inject(IPFS_REPO_PATCH) public readonly ipfsRepoPath: string,
     private readonly lazyModuleLoader: LazyModuleLoader
@@ -16,7 +16,7 @@ export class IpfsService {
 
   public async createInstance(peerId: any) {
     this.counter++
-    console.log('counter ipfs', this.counter)
+    this.logger.info('counter ipfs', this.counter)
     const { Libp2pModule } = await import('../libp2p/libp2p.module')
     const moduleRef = await this.lazyModuleLoader.load(() => Libp2pModule)
     const { Libp2pService } = await import('../libp2p/libp2p.service')
@@ -53,7 +53,7 @@ export class IpfsService {
     try {
       await this.ipfsInstance?.stop()
     } catch (error) {
-      this.logger.error(error)
+      this.logger.error('Error while destroying IPFS instance', error)
     }
     this.ipfsInstance = null
   }

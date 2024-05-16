@@ -3,6 +3,9 @@ import path from 'path'
 import os from 'os'
 import { execSync } from 'child_process'
 import { BrowserWindow } from 'electron'
+import { createLogger } from './logger'
+
+const logger = createLogger('invitation')
 
 export const processInvitationCode = (mainWindow: BrowserWindow, code: string | string[]) => {
   if (!code || !code.length) return
@@ -22,19 +25,19 @@ export const updateDesktopFile = (isDev: boolean) => {
       fs.cpSync(resource, appDesktopFile)
     }
   } catch (e) {
-    console.error(`Can't copy .desktop file: ${e.message}`)
+    logger.error(`Can't copy .desktop file`, e)
   }
 
   try {
     updateExecPath(appDesktopFile)
   } catch (e) {
-    console.error(`Can't update .desktop file: ${e.message}`)
+    logger.error(`Can't update .desktop file`, e)
   }
 
   try {
     execSync('xdg-settings set default-url-scheme-handler quiet quiet.desktop')
   } catch (e) {
-    console.error("Couldn't set default scheme handler", e.message)
+    logger.error("Couldn't set default scheme handler", e)
   }
 }
 

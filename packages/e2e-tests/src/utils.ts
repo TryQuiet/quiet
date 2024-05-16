@@ -6,6 +6,9 @@ import path from 'path'
 import fs from 'fs'
 import { DESKTOP_DATA_DIR, getAppDataPath } from '@quiet/common'
 import { config } from 'dotenv'
+import { createLogger } from './logger'
+
+const logger = createLogger('utils')
 
 export const BACKWARD_COMPATIBILITY_BASE_VERSION = '2.0.1' // Pre-latest production version
 const appImagesPath = `${__dirname}/../Quiet`
@@ -49,14 +52,14 @@ export class BuildSetup {
   // Note: .env file is being used locally right now, mainly by script e2e:linux:build
   static getEnvFileName() {
     const { parsed, error } = config()
-    console.log('Dotenv config', { parsed, error })
+    logger.info('Dotenv config', { parsed, error })
     return process.env.FILE_NAME
   }
 
   private getBinaryLocation() {
     switch (process.platform) {
       case 'linux':
-        console.log('filename', this.fileName)
+        logger.info('filename', this.fileName)
         return `${__dirname}/../Quiet/${this.fileName ? this.fileName : BuildSetup.getEnvFileName()}`
       case 'win32':
         return `${process.env.LOCALAPPDATA}\\Programs\\@quietdesktop\\Quiet.exe`
@@ -70,7 +73,7 @@ export class BuildSetup {
   private getMacBinaryDir(): string {
     let basePath = '/Applications'
     if (process.env.IS_LOCAL === 'true') {
-      console.warn('RUNNING ON LOCAL BINARY')
+      logger.warn('RUNNING ON LOCAL BINARY')
       const distDirByArch = process.arch === 'arm64' ? 'mac-arm64' : 'mac'
       basePath = `${__dirname}/../../desktop/dist/${distDirByArch}`
     }
@@ -113,7 +116,7 @@ export class BuildSetup {
       DATA_DIR: this.dataDir,
     }
     if (process.platform === 'win32') {
-      console.log('!WINDOWS!')
+      logger.info('!WINDOWS!')
       this.child = spawn(`cd node_modules/.bin & chromedriver.cmd --port=${this.port} --verbose`, [], {
         shell: true,
         env: Object.assign(process.env, env),
@@ -133,29 +136,29 @@ export class BuildSetup {
     )
 
     this.child.on('error', () => {
-      console.error('ERROR')
+      logger.error('ERROR')
       this.killNine()
     })
 
     this.child.on('exit', () => {
-      console.log('EXIT')
+      logger.info('EXIT')
       this.killNine()
     })
 
     this.child.on('close', () => {
-      console.log('CLOSE')
+      logger.info('CLOSE')
       this.killNine()
     })
 
     this.child.on('message', data => {
-      console.log('message', data)
+      logger.info('message', data)
     })
     this.child.on('error', data => {
-      console.error('error', data)
+      logger.error('error', data)
     })
 
     this.child.stdout.on('data', data => {
-      console.log(`stdout:\n${data}`)
+      logger.info(`stdout:\n${data}`)
     })
 
     this.child.stderr.on('data', data => {
@@ -165,11 +168,11 @@ export class BuildSetup {
       for (const l of trashLogs) {
         if (dataString.includes(l)) return
       }
-      console.log(`[${this.dataDir}]: ${dataString}`)
+      logger.info(`[${this.dataDir}]: ${dataString}`)
     })
 
     this.child.stdin.on('data', data => {
-      console.log(`stdin: ${data}`)
+      logger.info(`stdin: ${data}`)
     })
   }
 
@@ -178,14 +181,14 @@ export class BuildSetup {
       return await new Promise(resolve => {
         exec(cmd, (error, stdout, stderr) => {
           if (error) {
-            console.warn(error)
+            logger.warn(error)
           }
           resolve(stdout || stderr)
         })
       })
     }
     const torPid = await execAsync('lsof -t -c tor')
-    console.log({ torPid })
+    logger.info({ torPid })
     return torPid
   }
 
@@ -204,7 +207,7 @@ export class BuildSetup {
           .forBrowser(Browser.CHROME)
           .build()
       } catch (e) {
-        console.log(e)
+        logger.info(e)
       }
     }
 
@@ -220,7 +223,7 @@ export class BuildSetup {
   }
 
   public async killChromeDriver() {
-    console.log(`Killing driver (DATA_DIR=${this.dataDir})`)
+    logger.info(`Killing driver (DATA_DIR=${this.dataDir})`)
     this.child?.kill()
     await new Promise<void>(resolve =>
       setTimeout(() => {
@@ -230,20 +233,20 @@ export class BuildSetup {
   }
 
   public async closeDriver() {
-    console.log(`Closing driver (DATA_DIR=${this.dataDir})`)
+    logger.info(`Closing driver (DATA_DIR=${this.dataDir})`)
     await this.driver?.close()
   }
 
   public clearDataDir(force: boolean = false) {
     if (process.env.IS_CI === 'true' && !force) {
-      console.warn('Not deleting data directory because we are running in CI')
+      logger.warn('Not deleting data directory because we are running in CI')
       return
     }
-    console.log(`Deleting data directory at ${this.dataDirPath}`)
+    logger.info(`Deleting data directory at ${this.dataDirPath}`)
     try {
       fs.rmdirSync(this.dataDirPath, { recursive: true })
     } catch (e) {
-      console.error(`Could not delete ${this.dataDirPath}. Reason: ${e.message}`)
+      logger.error(`Could not delete ${this.dataDirPath}. Reason: ${e.message}`)
     }
   }
 
@@ -264,13 +267,13 @@ export class BuildSetup {
 
     const command = byPlatform[process.platform as SupportedPlatformDesktop]
     const appBackendProcess = execSync(command).toString('utf8').trim()
-    console.log('Backend process info', appBackendProcess)
+    logger.info('Backend process info', appBackendProcess)
     let args = appBackendProcess.split(' ')
     if (process.platform === 'win32') {
       args = args.filter(item => item.trim() !== '')
       args = args.map(item => item.trim())
     }
-    console.log('Args:', args)
+    logger.info('Args:', args)
     if (args.length >= 5) {
       if (process.platform === 'win32') {
         dataDirPath = args[5]
@@ -280,7 +283,7 @@ export class BuildSetup {
         resourcesPath = args[8]
       }
     }
-    console.log('Extracted dataDirPath:', dataDirPath, 'resourcesPath:', resourcesPath)
+    logger.info('Extracted dataDirPath:', dataDirPath, 'resourcesPath:', resourcesPath)
     return {
       dataDirPath,
       resourcesPath,
@@ -298,17 +301,17 @@ export const downloadInstaller = (version = BACKWARD_COMPATIBILITY_BASE_VERSION)
   const appImage = quietAppImage(version)
   const appImageTargetPath = path.join(appImagesPath, appImage)
   if (fs.existsSync(appImageTargetPath)) {
-    console.log(`${appImage} already exists. Skipping download.`)
+    logger.info(`${appImage} already exists. Skipping download.`)
     return appImage
   }
   const downloadUrl = `https://github.com/TryQuiet/quiet/releases/download/%40quiet%2Fdesktop%40${version}/${appImage}`
-  console.log(`Downloading Quiet version: ${version} from ${downloadUrl}`)
+  logger.info(`Downloading Quiet version: ${version} from ${downloadUrl}`)
   // With newer curl: execSync(`curl -LO --output-dir ${appImagesPath} ${downloadUrl}`)
   execSync(`curl -LO ${downloadUrl}`)
   const appImageDownloadPath = path.join(process.cwd(), appImage)
-  console.log(`Downloaded to ${appImageDownloadPath}`)
+  logger.info(`Downloaded to ${appImageDownloadPath}`)
   fs.renameSync(appImageDownloadPath, appImageTargetPath)
-  console.log('Moved to', appImageTargetPath)
+  logger.info('Moved to', appImageTargetPath)
   // Make it executable
   fs.chmodSync(appImageTargetPath, 0o755)
   return appImage
@@ -322,12 +325,12 @@ export const copyInstallerFile = (file: string) => {
   const copiedFileName = `${parsedBase.name}-copy${parsedBase.ext}`
   const copiedFilePath = path.join(appImagesPath, copiedFileName)
   if (fs.existsSync(copiedFilePath)) {
-    console.log(`${copiedFileName} already exists. Skipping copy.`)
+    logger.info(`${copiedFileName} already exists. Skipping copy.`)
     return copiedFileName
   }
 
   fs.copyFileSync(base, copiedFilePath)
-  console.log(`Copied ${base} to ${copiedFilePath}`)
+  logger.info(`Copied ${base} to ${copiedFilePath}`)
   return copiedFileName
 }
 
