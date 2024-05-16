@@ -5,9 +5,9 @@ import { type PayloadAction } from '@reduxjs/toolkit'
 // import { v4 as uuidv4 } from 'uuid'
 import { applyEmitParams, type Socket } from '../../../types'
 import { InvitationDataV2, InvitationDataVersion, SocketActionTypes } from '@quiet/types'
-import logger from '../../../utils/logger'
+import { createLogger } from '../../../utils/logger'
 
-const log = logger('shareCommunitySaga')
+const logger = createLogger('shareCommunitySaga')
 
 export function* shareCommunitySaga(socket: Socket): Generator {
   // TODO: check if the user is using QSS

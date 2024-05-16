@@ -480,7 +480,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       psk: community.psk!,
     }
 
-    this.logger('Uploading community data', payload)
+    this.logger.info('Uploading community data', payload)
 
     // TODO: get storage server address from shared db
     this.storageServerProxyService.setServerAddress('http://localhost:3000')
@@ -797,7 +797,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.socketService.on(
       SocketActionTypes.QSS_STORE_INVITE_DATA,
       async (inviteData: any, callback?: (response: string | undefined) => void) => {
-        this.logger(`socketService - ${SocketActionTypes.QSS_STORE_INVITE_DATA}`)
+        this.logger.debug(`socketService - ${SocketActionTypes.QSS_STORE_INVITE_DATA}`)
         const cid = await this.uploadCommunityData(inviteData)
         callback?.(cid)
       }
