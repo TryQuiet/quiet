@@ -1,6 +1,7 @@
 import { apply, select, put, call } from 'typed-redux-saga'
 import { type PayloadAction } from '@reduxjs/toolkit'
 import { applyEmitParams, type Socket } from '../../../types'
+import { identityActions } from '../../identity/identity.slice'
 import { identitySelectors } from '../../identity/identity.selectors'
 import { communitiesSelectors } from '../communities.selectors'
 import { communitiesActions } from '../communities.slice'
@@ -10,6 +11,9 @@ import { connectionSelectors } from '../../appConnection/connection.selectors'
 import { networkSelectors } from '../../network/network.selectors'
 import { pairsToP2pAddresses } from '@quiet/common'
 import { type Community, type InitCommunityPayload, SocketActionTypes } from '@quiet/types'
+import { createLogger } from '../../../utils/logger'
+
+const logger = createLogger('launchCommunitySaga')
 
 export function* initCommunities(): Generator {
   const joinedCommunities = yield* select(identitySelectors.joinedCommunities)
@@ -29,11 +33,12 @@ export function* launchCommunitySaga(
   socket: Socket,
   action: PayloadAction<ReturnType<typeof communitiesActions.launchCommunity>['payload']>
 ): Generator {
-  console.log('LAUNCH COMMUNITY SAGA')
+  logger.info('Launching community')
+
   const communityId = action.payload
 
   if (!communityId) {
-    console.error('Could not launch community, missing community ID')
+    logger.error('Could not launch community, missing community ID')
     return
   }
 
@@ -41,7 +46,7 @@ export function* launchCommunitySaga(
   const identity = yield* select(identitySelectors.selectById(communityId))
 
   if (!community || !identity?.userCsr?.userKey) {
-    console.error('Could not launch community, missing community or user private key')
+    logger.error('Could not launch community, missing community or user private key')
     return
   }
 
@@ -65,4 +70,6 @@ export function* launchCommunitySaga(
   }
 
   yield* apply(socket, socket.emitWithAck, applyEmitParams(SocketActionTypes.LAUNCH_COMMUNITY, payload))
+
+  yield* put(identityActions.saveUserCsr())
 }

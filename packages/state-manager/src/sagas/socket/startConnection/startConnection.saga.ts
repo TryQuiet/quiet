@@ -1,7 +1,6 @@
 import { eventChannel } from 'redux-saga'
 import { type Socket } from '../../../types'
-import { all, call, fork, put, takeEvery } from 'typed-redux-saga'
-import logger from '../../../utils/logger'
+import { all, call, fork, put, takeEvery, cancelled } from 'typed-redux-saga'
 import { appActions } from '../../app/app.slice'
 import { appMasterSaga } from '../../app/app.master.saga'
 import { connectionActions } from '../../appConnection/connection.slice'
@@ -45,7 +44,9 @@ import {
   SocketActionTypes,
 } from '@quiet/types'
 
-const log = logger('socket')
+import { createLogger } from '../../../utils/logger'
+
+const logger = createLogger('startConnectionSaga')
 
 export function subscribe(socket: Socket) {
   return eventChannel<
@@ -64,8 +65,6 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof errorsActions.addError>
     | ReturnType<typeof errorsActions.handleError>
     | ReturnType<typeof identityActions.storeUserCertificate>
-    | ReturnType<typeof identityActions.throwIdentityError>
-    | ReturnType<typeof identityActions.checkLocalCsr>
     | ReturnType<typeof communitiesActions.createCommunity>
     | ReturnType<typeof communitiesActions.launchCommunity>
     | ReturnType<typeof communitiesActions.updateCommunityData>
@@ -96,7 +95,7 @@ export function subscribe(socket: Socket) {
     })
     // Misc
     socket.on(SocketActionTypes.PEER_CONNECTED, (payload: { peers: string[] }) => {
-      log(`${SocketActionTypes.PEER_CONNECTED}: ${payload}`)
+      logger.info(`${SocketActionTypes.PEER_CONNECTED}: ${payload}`)
       emit(networkActions.addConnectedPeers(payload.peers))
     })
     socket.on(SocketActionTypes.PEER_DISCONNECTED, (payload: NetworkDataPayload) => {
@@ -153,24 +152,23 @@ export function subscribe(socket: Socket) {
       // color in the console, which makes them difficult to find.
       // Also when only printing the payload, the full trace is not
       // available.
-      log.error(payload)
-      console.error(payload, payload.trace)
+      logger.error(payload, payload.trace)
       emit(errorsActions.handleError(payload))
     })
     // Certificates
     socket.on(SocketActionTypes.CSRS_STORED, (payload: SendCsrsResponse) => {
-      log(`${SocketActionTypes.CSRS_STORED}`)
-      emit(identityActions.checkLocalCsr(payload))
+      logger.info(`${SocketActionTypes.CSRS_STORED}`)
       emit(usersActions.storeCsrs(payload))
     })
     socket.on(SocketActionTypes.CERTIFICATES_STORED, (payload: SendCertificatesResponse) => {
+      logger.info(`${SocketActionTypes.CERTIFICATES_STORED}`)
       emit(usersActions.responseSendCertificates(payload))
     })
 
     // User Profile
 
     socket.on(SocketActionTypes.USER_PROFILES_STORED, (payload: UserProfilesStoredEvent) => {
-      log(`${SocketActionTypes.USER_PROFILES_STORED}`)
+      logger.info(`${SocketActionTypes.USER_PROFILES_STORED}`)
       emit(usersActions.setUserProfiles(payload.profiles))
     })
 
@@ -179,23 +177,39 @@ export function subscribe(socket: Socket) {
 }
 
 export function* handleActions(socket: Socket): Generator {
-  const socketChannel = yield* call(subscribe, socket)
-  yield takeEvery(socketChannel, function* (action) {
-    yield put(action)
-  })
+  logger.info('handleActions starting')
+  try {
+    const socketChannel = yield* call(subscribe, socket)
+    yield takeEvery(socketChannel, function* (action) {
+      yield put(action)
+    })
+  } finally {
+    logger.info('handleActions stopping')
+    if (yield cancelled()) {
+      logger.info('handleActions cancelled')
+    }
+  }
 }
 
 export function* useIO(socket: Socket): Generator {
-  yield all([
-    fork(handleActions, socket),
-    fork(publicChannelsMasterSaga, socket),
-    fork(messagesMasterSaga, socket),
-    fork(filesMasterSaga, socket),
-    fork(identityMasterSaga, socket),
-    fork(communitiesMasterSaga, socket),
-    fork(usersMasterSaga, socket),
-    fork(appMasterSaga, socket),
-    fork(connectionMasterSaga),
-    fork(errorsMasterSaga),
-  ])
+  logger.info('useIO starting')
+  try {
+    yield all([
+      fork(handleActions, socket),
+      fork(publicChannelsMasterSaga, socket),
+      fork(messagesMasterSaga, socket),
+      fork(filesMasterSaga, socket),
+      fork(identityMasterSaga, socket),
+      fork(communitiesMasterSaga, socket),
+      fork(usersMasterSaga, socket),
+      fork(appMasterSaga, socket),
+      fork(connectionMasterSaga),
+      fork(errorsMasterSaga),
+    ])
+  } finally {
+    logger.info('useIO stopping')
+    if (yield cancelled()) {
+      logger.info('useIO cancelled')
+    }
+  }
 }

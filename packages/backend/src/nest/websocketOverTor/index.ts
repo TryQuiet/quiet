@@ -17,9 +17,9 @@ import { connect } from 'it-ws'
 import { type ServerOptions, type WebSocketServer as ItWsWebsocketServer } from 'it-ws/server'
 import { multiaddr } from '@multiformats/multiaddr'
 import { type MultiaddrConnection, type Connection } from '@libp2p/interface-connection'
-import logger from '../common/logger'
+import { createLogger } from '../common/logger'
 
-const log = logger('libp2p:websockets')
+const logger = createLogger('libp2p:websockets')
 
 const symbol = Symbol.for('@libp2p/transport')
 
@@ -84,23 +84,23 @@ export class WebSockets extends EventEmitter {
         signal: options.signal,
       })
     } catch (e) {
-      log.error('error connecting to %s. Details: %s', ma, e.message)
+      logger.error(`error connecting to ${ma}`, e)
       throw e
     }
     try {
       maConn = socketToMaConn(socket, ma, { signal: options.signal })
-      log('new outbound connection %s', maConn.remoteAddr)
+      logger.info('new outbound connection:', maConn.remoteAddr)
     } catch (e) {
-      log.error('error creating new outbound connection %s. Details: %s', ma, e.message)
+      logger.error(`error creating new outbound connection ${ma}`, e)
       throw e
     }
 
     try {
       conn = await options.upgrader.upgradeOutbound(maConn)
-      log('outbound connection %s upgraded', maConn.remoteAddr)
+      logger.info('outbound connection upgraded:', maConn.remoteAddr)
       return conn
     } catch (e) {
-      log.error('error upgrading outbound connection %s. Details: %s', maConn.remoteAddr, e.message)
+      logger.error(`error upgrading outbound connection ${maConn.remoteAddr}`, e)
       throw e
     }
   }
@@ -110,11 +110,11 @@ export class WebSockets extends EventEmitter {
       throw new AbortError()
     }
     const cOpts = ma.toOptions()
-    log('connect %s:%s', cOpts.host, cOpts.port)
+    logger.info(`connect ${cOpts.host}:${cOpts.port}`)
 
     const errorPromise = pDefer()
     const errfn = (event: ErrorEvent) => {
-      log.error(`connection error: ${event.message}`)
+      logger.error(`connection error`, event)
       errorPromise.reject(event)
     }
 
@@ -131,7 +131,7 @@ export class WebSockets extends EventEmitter {
     if (!options.signal) {
       await Promise.race([rawSocket.connected(), errorPromise.promise])
 
-      log(`${this.localAddress} connected %s`, ma)
+      logger.info(`${this.localAddress} connected to:`, ma)
       return rawSocket
     }
 
@@ -142,7 +142,7 @@ export class WebSockets extends EventEmitter {
       onAbort = () => {
         reject(new AbortError())
         rawSocket.close().catch(err => {
-          log.error('error closing raw socket', err)
+          logger.error('error closing raw socket', err)
         })
       }
 
@@ -160,7 +160,7 @@ export class WebSockets extends EventEmitter {
       options.signal.removeEventListener('abort', onAbort)
     }
 
-    log('connected %s', ma)
+    logger.info('connected:', ma)
     return rawSocket
   }
 
@@ -170,8 +170,7 @@ export class WebSockets extends EventEmitter {
    * `upgrader.upgradeInbound`
    */
   prepareListener = ({ handler, upgrader }: CreateListenerOptions): any => {
-    console.log('preparing listener')
-    log('prepareListener')
+    logger.info('prepareListener')
     const listener: any = new EventEmitter()
 
     const trackConn = (server: WebSocketServer, maConn: MultiaddrConnection) => {
@@ -196,7 +195,7 @@ export class WebSockets extends EventEmitter {
         let conn: Connection
         // eslint-disable-next-line
         const query = url.parse(request.url, true).query
-        log('server connecting with', query.remoteAddress)
+        logger.info('server connecting with', query.remoteAddress)
         if (!query.remoteAddress) return
 
         const remoteAddress = query.remoteAddress.toString()
@@ -207,21 +206,21 @@ export class WebSockets extends EventEmitter {
             multiaddrs: [maConn.remoteAddr],
           }
           this.discovery.emit('peer', peer)
-          log('new inbound connection %s', maConn.remoteAddr)
+          logger.info('new inbound connection:', maConn.remoteAddr)
         } catch (e) {
-          log.error(`Failed to convert stream into a MultiaddrConnection for ${remoteAddress}:`, e)
+          logger.error(`Failed to convert stream into a MultiaddrConnection for ${remoteAddress}:`, e)
           return
         }
 
         try {
           conn = await upgrader.upgradeInbound(maConn)
         } catch (err) {
-          log.error('inbound connection failed to upgrade', err)
+          logger.error('inbound connection failed to upgrade', err)
           await maConn?.close()
           return
         }
 
-        log('inbound connection %s upgraded', maConn.remoteAddr)
+        logger.info('inbound connection upgraded:', maConn.remoteAddr)
 
         trackConn(server, maConn)
 
@@ -229,7 +228,10 @@ export class WebSockets extends EventEmitter {
         listener.emit('connection', conn)
       })
       .on('listening', () => listener.emit('listening'))
-      .on('error', err => listener.emit('error', err))
+      .on('error', err => {
+        logger.error(`Websocket error`, err)
+        listener.emit('error', err)
+      })
       .on('close', () => listener.emit('close'))
 
     // Keep track of open connections to destroy in case of timeout

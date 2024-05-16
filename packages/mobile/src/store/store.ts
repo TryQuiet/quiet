@@ -23,6 +23,10 @@ import {
 import { StoreKeys } from './store.keys'
 import { InitTransform } from './init/init.transform'
 
+import { createLogger } from '../utils/logger'
+
+const logger = createLogger('store')
+
 FilesystemStorage.config({
   storagePath: `${RNFetchBlob.fs.dirs.DocumentDir}/persistStore2`,
   encoding: 'utf8',
@@ -71,5 +75,6 @@ export const store = configureStore({
 })
 
 export const persistor = persistStore(store, {}, () => {
+  logger.info('Redux store is ready!')
   store.dispatch(initActions.setStoreReady())
 })

@@ -59,7 +59,7 @@ const StyledFilePreviewComponent = styled('div')(({ theme }) => ({
     position: 'absolute',
     margin: '0 0 0 51px', // Left margin is equal fileContainer width minus half the own width
     padding: '0',
-    backgroundColor: 'white',
+    backgroundColor: theme.palette.background.default,
     borderRadius: '100%',
     width: '22px',
     height: '22px',

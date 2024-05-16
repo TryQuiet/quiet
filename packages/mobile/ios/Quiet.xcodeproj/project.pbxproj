@@ -42,10 +42,12 @@
 		7F80A59D9EC1440186E5D5CF /* Rubik-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = BF73B04135634980BC656D6C /* Rubik-SemiBold.ttf */; };
 		80CCB457674F4979A3C5DB06 /* Rubik-MediumItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = EBC2A7699E0A49059904DD8C /* Rubik-MediumItalic.ttf */; };
 		8A009A60D84E4B08AB0E8152 /* Rubik-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E820B3E5514B49EE8C72DECB /* Rubik-Bold.ttf */; };
+		955DC7582BD930B30014725B /* WebsocketSingleton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 955DC7572BD930B30014725B /* WebsocketSingleton.swift */; };
 		9EC9E7C54868433990A479EC /* Rubik-ExtraBoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 182B8961416E4D4C8A29793D /* Rubik-ExtraBoldItalic.ttf */; };
 		9EFEA2C3C6AE0D6FA6A4C079 /* libPods-Quiet-QuietTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = ED4D442ACC913B8E48E2C569 /* libPods-Quiet-QuietTests.a */; };
 		A43CD77BAC37717C692E6333 /* libPods-Quiet.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 47D3FEF6693D5638AD9D0AFF /* libPods-Quiet.a */; };
 		B4D947D797C747ABAC4EDB69 /* Rubik-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 378A1FDC610441568B568410 /* Rubik-Medium.ttf */; };
+		D3239FB5EFA85E780E1AD201 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 84F12DFE2A5B0E05C2C41286 /* PrivacyInfo.xcprivacy */; };
 		DB3A77793E604ACE8E52C67D /* Rubik-BlackItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 23AE2E9AAC824E76A9C4B3D5 /* Rubik-BlackItalic.ttf */; };
 		DCA6BD5DCC514EEF87705ACB /* Rubik-BoldItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 84720E58493F44BE8C4784E3 /* Rubik-BoldItalic.ttf */; };
 /* End PBXBuildFile section */
@@ -606,6 +608,8 @@
 		599527D61D41D1899FC6F87B /* Pods-Quiet-QuietTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Quiet-QuietTests.release.xcconfig"; path = "Target Support Files/Pods-Quiet-QuietTests/Pods-Quiet-QuietTests.release.xcconfig"; sourceTree = "<group>"; };
 		706E1601C7B649A8A40A7877 /* Rubik-Light.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-Light.ttf"; path = "../assets/fonts/Rubik-Light.ttf"; sourceTree = "<group>"; };
 		84720E58493F44BE8C4784E3 /* Rubik-BoldItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-BoldItalic.ttf"; path = "../assets/fonts/Rubik-BoldItalic.ttf"; sourceTree = "<group>"; };
+		84F12DFE2A5B0E05C2C41286 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = Quiet/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		955DC7572BD930B30014725B /* WebsocketSingleton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebsocketSingleton.swift; sourceTree = "<group>"; };
 		BF73B04135634980BC656D6C /* Rubik-SemiBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-SemiBold.ttf"; path = "../assets/fonts/Rubik-SemiBold.ttf"; sourceTree = "<group>"; };
 		CD39A872C9F80A6BA04B8A4A /* Pods-Quiet.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Quiet.release.xcconfig"; path = "Target Support Files/Pods-Quiet/Pods-Quiet.release.xcconfig"; sourceTree = "<group>"; };
 		E820B3E5514B49EE8C72DECB /* Rubik-Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-Bold.ttf"; path = "../assets/fonts/Rubik-Bold.ttf"; sourceTree = "<group>"; };
@@ -679,6 +683,8 @@
 				1889CA4D26E763E1004ECFBD /* Extensions.swift */,
 				1868C43B2930E255001D6D5E /* CommunicationModule.swift */,
 				1868C43D2930EAEA001D6D5E /* CommunicationBridge.m */,
+				955DC7572BD930B30014725B /* WebsocketSingleton.swift */,
+				84F12DFE2A5B0E05C2C41286 /* PrivacyInfo.xcprivacy */,
 			);
 			name = Quiet;
 			sourceTree = "<group>";
@@ -4882,6 +4888,7 @@
 				18FD2A3D296F009E00A2B8C0 /* LaunchScreen.storyboard in Resources */,
 				7F80A59D9EC1440186E5D5CF /* Rubik-SemiBold.ttf in Resources */,
 				43B99DB1C98D429295E8CB91 /* Rubik-SemiBoldItalic.ttf in Resources */,
+				D3239FB5EFA85E780E1AD201 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4972,7 +4979,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "APP_PATH=\"${TARGET_BUILD_DIR}/${WRAPPER_NAME}\"\n\n# This script loops through the frameworks embedded in the application and\n# removes unused architectures.\nfind \"$APP_PATH\" -name '*.framework' -type d | while read -r FRAMEWORK\ndo\n    FRAMEWORK_EXECUTABLE_NAME=$(defaults read \"$FRAMEWORK/Info.plist\" CFBundleExecutable)\n    FRAMEWORK_EXECUTABLE_PATH=\"$FRAMEWORK/$FRAMEWORK_EXECUTABLE_NAME\"\n    echo \"Executable is $FRAMEWORK_EXECUTABLE_PATH\"\n\n    EXTRACTED_ARCHS=()\n\n    for ARCH in $ARCHS\n    do\n        echo \"Extracting $ARCH from $FRAMEWORK_EXECUTABLE_NAME\"\n        lipo -extract \"$ARCH\" \"$FRAMEWORK_EXECUTABLE_PATH\" -o \"$FRAMEWORK_EXECUTABLE_PATH-$ARCH\"\n        EXTRACTED_ARCHS+=(\"$FRAMEWORK_EXECUTABLE_PATH-$ARCH\")\n    done\n\n    echo \"Merging extracted architectures: ${ARCHS}\"\n    lipo -o \"$FRAMEWORK_EXECUTABLE_PATH-merged\" -create \"${EXTRACTED_ARCHS[@]}\"\n    rm \"${EXTRACTED_ARCHS[@]}\"\n\n    echo \"Replacing original executable with thinned version\"\n    rm \"$FRAMEWORK_EXECUTABLE_PATH\"\n    mv \"$FRAMEWORK_EXECUTABLE_PATH-merged\" \"$FRAMEWORK_EXECUTABLE_PATH\"\n\ndone\n";
+			shellScript = "APP_PATH=\"${TARGET_BUILD_DIR}/${WRAPPER_NAME}\"\n\n# This script loops through the frameworks embedded in the application and\n# removes unused architectures.\nfind \"$APP_PATH\" -name '*.framework' -type d ! -name 'hermes.framework' | while read -r FRAMEWORK\ndo\n    FRAMEWORK_EXECUTABLE_NAME=$(defaults read \"$FRAMEWORK/Info.plist\" CFBundleExecutable)\n    FRAMEWORK_EXECUTABLE_PATH=\"$FRAMEWORK/$FRAMEWORK_EXECUTABLE_NAME\"\n    echo \"Executable is $FRAMEWORK_EXECUTABLE_PATH\"\n\n    EXTRACTED_ARCHS=()\n\n    for ARCH in $ARCHS\n    do\n        echo \"Extracting $ARCH from $FRAMEWORK_EXECUTABLE_NAME\"\n        lipo -extract \"$ARCH\" \"$FRAMEWORK_EXECUTABLE_PATH\" -o \"$FRAMEWORK_EXECUTABLE_PATH-$ARCH\"\n        EXTRACTED_ARCHS+=(\"$FRAMEWORK_EXECUTABLE_PATH-$ARCH\")\n    done\n\n    echo \"Merging extracted architectures: ${ARCHS}\"\n    lipo -o \"$FRAMEWORK_EXECUTABLE_PATH-merged\" -create \"${EXTRACTED_ARCHS[@]}\"\n    rm \"${EXTRACTED_ARCHS[@]}\"\n\n    echo \"Replacing original executable with thinned version\"\n    rm \"$FRAMEWORK_EXECUTABLE_PATH\"\n    mv \"$FRAMEWORK_EXECUTABLE_PATH-merged\" \"$FRAMEWORK_EXECUTABLE_PATH\"\n\ndone\n";
 		};
 		18FD2A32296D736300A2B8C0 /* [CUSTOM NODEJS MOBILE] Remove Python3 Binaries */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -5140,6 +5147,7 @@
 			files = (
 				18FD2A40296F009E00A2B8C0 /* main.m in Sources */,
 				1868BCF1292E9212001D6D5E /* rn-bridge.cpp in Sources */,
+				955DC7582BD930B30014725B /* WebsocketSingleton.swift in Sources */,
 				1889CA4E26E763E1004ECFBD /* Extensions.swift in Sources */,
 				1898143A2934CF70001F39E7 /* TorHandler.swift in Sources */,
 				1868BCEE292E9212001D6D5E /* RNNodeJsMobile.m in Sources */,
@@ -5421,6 +5429,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CC = "";
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++20";
 				CLANG_CXX_LIBRARY = "libc++";
@@ -5448,6 +5457,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
+				CXX = "";
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = i386;
@@ -5467,6 +5477,8 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
+				LD = "";
+				LDPLUSPLUS = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					/usr/lib/swift,
 					"$(inherited)",
@@ -5485,6 +5497,11 @@
 					"-Wl",
 					"-ld_classic",
 				);
+				"OTHER_LDFLAGS[arch=*]" = (
+					"$(inherited)",
+					"-Wl",
+					"-ld_classic",
+				);
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				USE_HERMES = true;
@@ -5495,6 +5512,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CC = "";
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++20";
 				CLANG_CXX_LIBRARY = "libc++";
@@ -5522,6 +5540,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = YES;
+				CXX = "";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = i386;
@@ -5534,6 +5553,8 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
+				LD = "";
+				LDPLUSPLUS = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					/usr/lib/swift,
 					"$(inherited)",

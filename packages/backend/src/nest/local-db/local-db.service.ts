@@ -4,21 +4,21 @@ import { type Community, type NetworkInfo, NetworkStats } from '@quiet/types'
 import { createLibp2pAddress, filterAndSortPeers } from '@quiet/common'
 import { LEVEL_DB } from '../const'
 import { LocalDBKeys, LocalDbStatus } from './local-db.types'
-import Logger from '../common/logger'
+import { createLogger } from '../common/logger'
 
 @Injectable()
 export class LocalDbService {
   peers: any
-  private readonly logger = Logger(LocalDbService.name)
+  private readonly logger = createLogger(LocalDbService.name)
   constructor(@Inject(LEVEL_DB) private readonly db: Level) {}
 
   public async close() {
-    this.logger('Closing leveldb')
+    this.logger.info('Closing leveldb')
     await this.db.close()
   }
 
   public async open() {
-    this.logger('Opening leveldb')
+    this.logger.info('Opening leveldb')
     await this.db.open()
   }
 
@@ -27,7 +27,7 @@ export class LocalDbService {
   }
 
   public async purge() {
-    this.logger(`Purging db`)
+    this.logger.info(`Purging db`)
     await this.db.clear()
   }
 
@@ -36,7 +36,7 @@ export class LocalDbService {
     try {
       data = await this.db.get(key)
     } catch (e) {
-      this.logger(`Getting '${key}'`, e)
+      this.logger.error(`Getting '${key}'`, e)
       return null
     }
     return data
@@ -71,7 +71,7 @@ export class LocalDbService {
     try {
       return obj[value]
     } catch (e) {
-      this.logger(`${value} not found in ${key}`)
+      this.logger.error(`${value} not found in ${key}`)
       return null
     }
   }
@@ -95,28 +95,16 @@ export class LocalDbService {
     }
   }
 
-  public async getSortedPeers(
-    peers?: string[] | undefined,
-    includeLocalPeerAddress: boolean = true
-  ): Promise<string[]> {
-    if (!peers) {
-      const currentCommunity = await this.getCurrentCommunity()
-      if (!currentCommunity) {
-        throw new Error('No peers were provided and no community was found to extract peers from')
-      }
-      peers = currentCommunity.peerList
-      if (!peers) {
-        throw new Error('No peers provided and no peers found on current stored community')
-      }
-    }
-
+  // I think we can move this into StorageService (keep this service
+  // focused on CRUD).
+  public async getSortedPeers(peers: string[], includeLocalPeerAddress: boolean = true): Promise<string[]> {
     const peersStats = (await this.get(LocalDBKeys.PEERS)) || {}
     const stats: NetworkStats[] = Object.values(peersStats)
     const network = await this.getNetworkInfo()
 
     if (network) {
       const localPeerAddress = createLibp2pAddress(network.hiddenService.onionAddress, network.peerId.id)
-      this.logger('Local peer', localPeerAddress)
+      this.logger.info('Local peer', localPeerAddress)
       return filterAndSortPeers(peers, stats, localPeerAddress, includeLocalPeerAddress)
     } else {
       return filterAndSortPeers(peers, stats, undefined, includeLocalPeerAddress)

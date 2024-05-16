@@ -3,14 +3,14 @@ import net from 'net'
 import { CONFIG_OPTIONS, TOR_CONTROL_PARAMS } from '../const'
 import { ConfigOptions } from '../types'
 import { TorControlAuthType, TorControlParams } from './tor.types'
-import Logger from '../common/logger'
+import { createLogger } from '../common/logger'
 
 @Injectable()
 export class TorControl {
   connection: net.Socket | null
   isSending: boolean
   authString: string
-  private readonly logger = Logger(TorControl.name)
+  private readonly logger = createLogger(TorControl.name)
 
   constructor(
     @Inject(TOR_CONTROL_PARAMS) public torControlParams: TorControlParams,
@@ -60,13 +60,12 @@ export class TorControl {
     // eslint-disable-next-line no-constant-condition
     while (true) {
       try {
-        this.logger(`Connecting to Tor, host: ${this.torControlParams.host} port: ${this.torControlParams.port}`)
+        this.logger.info(`Connecting to Tor, host: ${this.torControlParams.host} port: ${this.torControlParams.port}`)
         await this._connect()
-        this.logger('Tor connected')
+        this.logger.info('Tor connected')
         return
       } catch (e) {
-        this.logger(e)
-        this.logger('Retrying...')
+        this.logger.error('Retrying due to error...', e)
         await new Promise(r => setTimeout(r, 500))
       }
     }
@@ -76,7 +75,7 @@ export class TorControl {
     try {
       this.connection?.end()
     } catch (e) {
-      this.logger.error('Disconnect failed:', e.message)
+      this.logger.error('Disconnect failed:', e)
     }
     this.connection = null
   }
@@ -94,6 +93,7 @@ export class TorControl {
           resolve({ code: 250, messages: dataArray })
         } else {
           clearTimeout(connectionTimeout)
+          this.logger.error(`TOR CONNECTION ERROR:`, dataArray)
           reject(`${dataArray[0]}`)
         }
         clearTimeout(connectionTimeout)
@@ -104,14 +104,17 @@ export class TorControl {
   }
 
   public async sendCommand(command: string): Promise<{ code: number; messages: string[] }> {
+    this.logger.info(`Sending tor command: ${command}`)
     // Only send one command at a time.
     if (this.isSending) {
-      this.logger('Tor connection already established, waiting...')
+      this.logger.info('Tor connection already established, waiting...')
     }
 
     // Wait for existing command to finish.
     while (this.isSending) {
-      await new Promise(r => setTimeout(r, 750))
+      const timeout = 750
+      this.logger.info(`Waiting for ${timeout}ms to retry command...`)
+      await new Promise(r => setTimeout(r, timeout))
     }
 
     this.isSending = true

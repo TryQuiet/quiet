@@ -17,9 +17,9 @@ import {
 import { MAIN_CHANNEL } from '../testUtils/constants'
 import { AsyncReturnType } from '../types/AsyncReturnType.interface'
 import { createApp } from '../utils'
-import logger from '../logger'
+import { createLogger } from '../logger'
 
-const log = logger('actions')
+const logger = createLogger('actions')
 
 const App: AsyncReturnType<typeof createApp> = null
 type Store = typeof App.store
@@ -110,14 +110,14 @@ export async function createCommunity({ userName, store }: CreateCommunity) {
   await waitForExpect(() => {
     expect(store.getState().Communities.communities.entities[communityId].onionAddress).toBeTruthy()
   }, timeout)
-  log(store.getState().Communities.communities.entities[communityId].onionAddress)
+  logger.info(store.getState().Communities.communities.entities[communityId].onionAddress)
   await waitForExpect(() => {
     expect(store.getState().Users.certificates.ids).toHaveLength(1)
   }, timeout)
   await waitForExpect(() => {
     expect(store.getState().Network.initializedCommunities[communityId]).toBeTruthy()
   }, timeout)
-  log('initializedCommunity', store.getState().Network.initializedCommunities[communityId])
+  logger.info('initializedCommunity', store.getState().Network.initializedCommunities[communityId])
 }
 
 export async function registerUsername(payload: Register) {
@@ -162,7 +162,8 @@ export async function sendCsr(store: Store) {
     userCsr,
   }
 
-  store.dispatch(identity.actions.registerCertificate(csr))
+  store.dispatch(identity.actions.addCsr(csr))
+  store.dispatch(identity.actions.saveUserCsr())
 }
 
 export async function joinCommunity(payload: JoinCommunity) {
@@ -201,7 +202,7 @@ export async function joinCommunity(payload: JoinCommunity) {
 export async function sendMessage(payload: SendMessage): Promise<ChannelMessage> {
   const { message, channelName, store } = payload
 
-  log(message, 'sendMessage')
+  logger.info(message, 'sendMessage')
   const communityId = store.getState().Communities.communities.ids[0]
 
   if (channelName) {
@@ -232,7 +233,7 @@ export async function sendMessage(payload: SendMessage): Promise<ChannelMessage>
 export async function sendImage(payload: SendImage) {
   const { file, store } = payload
 
-  log(JSON.stringify(payload), 'sendImage')
+  logger.info(JSON.stringify(payload), 'sendImage')
 
   store.dispatch(files.actions.uploadFile(file))
 

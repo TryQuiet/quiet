@@ -35,7 +35,7 @@ const LoadingPanel = () => {
     if (isConnected) {
       if (currentCommunity && isChannelReplicated && owner && isOnlyOneUser) {
         const notification = new Notification('Community created!', {
-          body: 'Visit Settings for an invite code you can share.',
+          body: 'Visit Settings for an invite link you can share.',
           icon: '../../build' + '/icon.png',
           silent: true,
         })

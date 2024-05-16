@@ -1,21 +1,22 @@
 import { io } from 'socket.io-client'
-import { all, fork, takeEvery, call, put, cancel, FixedTask, select, take } from 'typed-redux-saga'
+import { all, fork, takeEvery, call, put, cancel, FixedTask, select, take, delay, apply } from 'typed-redux-saga'
 import { PayloadAction } from '@reduxjs/toolkit'
 import { socket as stateManager, messages, connection, Socket } from '@quiet/state-manager'
 import { socketActions } from './socket.slice'
 import { eventChannel } from 'redux-saga'
 import { displayMessageNotificationSaga } from '../notifications/notifications.saga'
-import logger from '../../logger'
+import { createLogger } from '../../logger'
 import { encodeSecret } from '@quiet/common'
+import { SocketActionTypes } from '@quiet/types'
 
-const log = logger('socket')
+const logger = createLogger('socket')
 
 export function* startConnectionSaga(
   action: PayloadAction<ReturnType<typeof socketActions.startConnection>['payload']>
 ): Generator {
   const { dataPort } = action.payload
   if (!dataPort) {
-    log.error('About to start connection but no dataPort found')
+    logger.error('About to start connection but no dataPort found')
   }
 
   let socketIOSecret = yield* select(connection.selectors.socketIOSecret)
@@ -27,6 +28,7 @@ export function* startConnectionSaga(
 
   if (!socketIOSecret) return
 
+  logger.info('Connecting to backend')
   const token = encodeSecret(socketIOSecret)
   const socket = yield* call(io, `http://127.0.0.1:${dataPort}`, {
     withCredentials: true,
@@ -43,6 +45,10 @@ export function* startConnectionSaga(
 function* setConnectedSaga(socket: Socket): Generator {
   const root = yield* fork(stateManager.useIO, socket)
   const observers = yield* fork(initObservers)
+
+  logger.info('Frontend is ready. Starting backend...')
+  yield* apply(socket, socket.emit, [SocketActionTypes.START])
+
   // Handle suspending current connection
   yield all([
     takeEvery(socketActions.suspendConnection, cancelRootSaga, root),
@@ -62,11 +68,11 @@ function subscribeSocketLifecycle(socket?: Socket) {
     ReturnType<typeof socketActions.setConnected> | ReturnType<typeof socketActions.suspendConnection>
   >(emit => {
     socket?.on('connect', async () => {
-      console.log('websocket connected')
+      logger.info('websocket connected')
       emit(socketActions.setConnected())
     })
     socket?.on('disconnect', () => {
-      console.log('closing socket connection')
+      logger.info('closing socket connection')
       emit(socketActions.suspendConnection())
     })
     return () => {}
@@ -74,12 +80,12 @@ function subscribeSocketLifecycle(socket?: Socket) {
 }
 
 function* cancelRootSaga(task: FixedTask<Generator>): Generator {
-  console.log('canceling root task')
+  logger.info('canceling root task')
   yield* cancel(task)
 }
 
 function* cancelObservers(task: FixedTask<Generator>): Generator {
-  console.log('canceling observers')
+  logger.info('canceling observers')
   yield* cancel(task)
 }
 

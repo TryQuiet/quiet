@@ -19,6 +19,10 @@ import { userNameField } from '../../forms/fields/createUserFields'
 
 import { parseName } from '@quiet/common'
 
+import { createLogger } from '../../logger'
+
+const logger = createLogger('createUsername:component')
+
 const PREFIX = 'CreateUsernameComponent-'
 
 const classes = {
@@ -105,7 +109,7 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
   },
 
   [`& .${classes.warrningIcon}`]: {
-    color: '#FFCC00',
+    color: theme.palette.warning.main,
   },
 
   [`& .${classes.warrningMessage}`]: {
@@ -130,7 +134,7 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
   [`& .${classes.inputLabel}`]: {
     marginTop: 24,
     marginBottom: 2,
-    color: theme.palette.colors.black30,
+    color: theme.palette.colors.gray70,
   },
 
   [`& .${classes.marginMedium}`]: {
@@ -174,7 +178,7 @@ export const CreateUsernameComponent: React.FC<CreateUsernameComponentProps> = (
   const onSubmit = useCallback(
     (values: CreateUserValues) => {
       if (errors.userName) {
-        console.error('Cannot submit form with errors')
+        logger.error('Cannot submit form with errors')
         return
       }
 
@@ -241,6 +245,7 @@ export const CreateUsernameComponent: React.FC<CreateUsernameComponentProps> = (
                       field.onBlur()
                     }}
                     value={field.value}
+                    spellCheck={false}
                   />
                 )}
               />

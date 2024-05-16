@@ -158,10 +158,10 @@ describe('RegistrationService', () => {
     const peerId = await PeerId.create()
     const ipfs = await create()
     const loadAllCertificates = async () => {
-      return await certificatesStore.loadAllCertificates()
+      return await certificatesStore.getEntries()
     }
     const saveCertificate = async (payload: SaveCertificatePayload) => {
-      await certificatesStore.addCertificate(payload.certificate)
+      await certificatesStore.addEntry(payload.certificate)
     }
 
     await orbitDb.create(peerId, ipfs)
@@ -202,7 +202,7 @@ describe('RegistrationService', () => {
 
     await new Promise(r => setTimeout(r, 2000))
 
-    expect((await certificatesStore.loadAllCertificates()).length).toEqual(1)
+    expect((await certificatesStore.getEntries()).length).toEqual(1)
 
     await orbitDb.stop()
     await ipfs.stop()

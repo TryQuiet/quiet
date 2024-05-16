@@ -1,11 +1,12 @@
 import { keyFromCertificate, loadPrivateKey, parseCertificate, sign } from '@quiet/identity'
-import logger from '../logger'
 // import fs from 'fs'
 // import os from 'os'
 import { arrayBufferToString } from 'pvutils'
 import { config } from '../../sagas/users/const/certFieldTypes'
 import { type PeerId } from '@quiet/types'
-const log = logger('test')
+import { createLogger } from '../../utils/logger'
+
+const logger = createLogger('testHelpers')
 
 const notBeforeDate = new Date(Date.UTC(2010, 11, 28, 10, 10, 10))
 const notAfterDate = new Date(Date.UTC(2030, 11, 28, 10, 10, 10))
@@ -81,7 +82,7 @@ export const lastActionReducer = (state: any[] = [], action: any) => {
 //       state[0].pubKey = pubKey
 //       break
 //     case 'Connection/addConnectedPeers':
-//       console.log('Adding connected peers', action.payload)
+//       logger.info('Adding connected peers', action.payload)
 //       peersArr = action.payload
 //       connectionTime = getCurrentTime()
 //       break

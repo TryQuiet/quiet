@@ -8,7 +8,7 @@ import url from 'url'
 import { getPorts, ApplicationPorts, closeHangingBackendProcess } from './backendHelpers'
 import { setEngine, CryptoEngine } from 'pkijs'
 import { Crypto } from '@peculiar/webcrypto'
-import logger from './logger'
+import { createLogger } from './logger'
 import { fork, ChildProcess } from 'child_process'
 import { DESKTOP_DATA_DIR, DESKTOP_DEV_DATA_DIR, getFilesData } from '@quiet/common'
 import { updateDesktopFile, processInvitationCode } from './invitation'
@@ -18,7 +18,7 @@ const ElectronStore = require('electron-store')
 const remote = require('@electron/remote/main')
 remote.initialize()
 
-const log = logger('main')
+const logger = createLogger('main')
 
 let resetting = false
 
@@ -58,18 +58,18 @@ ElectronStore.initRenderer()
 const gotTheLock = app.requestSingleInstanceLock()
 
 if (!gotTheLock) {
-  console.log('This is second instance. Quitting')
+  logger.info('This is second instance. Quitting')
   app.quit()
   app.exit()
 } else {
   try {
     updateDesktopFile(isDev)
   } catch (e) {
-    console.error(`Couldn't update desktop file: ${e.message}`)
+    logger.error(`Couldn't update desktop file`, e)
   }
 
   app.on('second-instance', (_event, commandLine) => {
-    log('Event: app.second-instance', commandLine)
+    logger.info('Event: app.second-instance', commandLine)
     if (mainWindow) {
       if (mainWindow.isMinimized()) mainWindow.restore()
       mainWindow.focus()
@@ -78,14 +78,14 @@ if (!gotTheLock) {
   })
 }
 
-console.log('setAsDefaultProtocolClient', app.setAsDefaultProtocolClient('quiet'))
+logger.info('setAsDefaultProtocolClient', app.setAsDefaultProtocolClient('quiet'))
 
 interface IWindowSize {
   width: number
   height: number
 }
 
-console.log('electron main')
+logger.info('electron main')
 
 const windowSize: IWindowSize = {
   width: 800,
@@ -144,7 +144,7 @@ export const applyDevTools = async () => {
 
 app.on('open-url', (event, url) => {
   // MacOS only
-  log('Event app.open-url', url)
+  logger.info('Event app.open-url', url)
   invitationUrl = url // If user opens invitation link with closed app open-url fires too early - before mainWindow is initialized
   event.preventDefault()
   if (mainWindow) {
@@ -214,7 +214,7 @@ export const createWindow = async () => {
   /* eslint-enable */
   // Emitted when the window is closed.
   mainWindow.on('closed', () => {
-    log('Event mainWindow.closed')
+    logger.info('Event mainWindow.closed')
     mainWindow = null
   })
   mainWindow.on('resize', () => {
@@ -246,7 +246,7 @@ export const createWindow = async () => {
     if (!mainWindow || currentFactor <= 0.25) return
     mainWindow.webContents.zoomFactor = currentFactor - 0.2
   })
-  log('Created mainWindow')
+  logger.info('Created mainWindow')
 }
 
 const isNetworkError = (errorObject: { message: string }) => {
@@ -265,30 +265,30 @@ export const checkForUpdate = async (win: BrowserWindow) => {
     await autoUpdater.checkForUpdates()
   } catch (error) {
     if (isNetworkError(error)) {
-      log.error('Network Error')
+      logger.error('Network Error')
     } else {
-      log.error('Unknown Error')
-      log.error(error == null ? 'unknown' : (error.stack || error).toString())
+      logger.error('Unknown Error')
+      logger.error(error == null ? 'unknown' : (error.stack || error).toString())
     }
   }
   autoUpdater.on('checking-for-update', () => {
-    log('updater: checking-for-update')
+    logger.info('updater: checking-for-update')
   })
   autoUpdater.on('error', error => {
-    log('updater: error:', error)
+    logger.info('updater: error:', error)
   })
   autoUpdater.on('update-not-available', () => {
-    log('updater: update-not-available')
+    logger.info('updater: update-not-available')
   })
   autoUpdater.on('update-available', info => {
-    log('updater: update-available:', info)
+    logger.info('updater: update-available:', info)
   })
   autoUpdater.on('update-downloaded', () => {
-    log('updater: update-downloaded')
+    logger.info('updater: update-downloaded')
     win.webContents.send('newUpdateAvailable')
   })
   autoUpdater.on('before-quit-for-update', () => {
-    log('updater: before-quit-for-update')
+    logger.info('updater: before-quit-for-update')
   })
 }
 
@@ -308,13 +308,13 @@ const closeBackendProcess = () => {
     */
     const forceClose = setTimeout(() => {
       const killed = backendProcess?.kill()
-      log(`Backend killed: ${killed}, Quitting.`)
+      logger.warn(`Backend killed: ${killed}, Quitting.`)
       app.quit()
     }, 2000)
     backendProcess.send('close')
     backendProcess.on('message', message => {
       if (message === 'closed-services') {
-        log('Closing the app')
+        logger.info('Closing the app')
         clearTimeout(forceClose)
         app.quit()
       }
@@ -325,7 +325,7 @@ const closeBackendProcess = () => {
 }
 
 app.on('ready', async () => {
-  log('Event: app.ready')
+  logger.info('Event: app.ready')
   Menu.setApplicationMenu(null)
 
   await applyDevTools()
@@ -375,14 +375,14 @@ app.on('ready', async () => {
   try {
     closeHangingBackendProcess(path.normalize(path.join('backend-bundle', 'bundle.cjs')), path.normalize(appDataPath))
   } catch (e) {
-    console.error('Error occurred while trying to close hanging backend process', e.message)
+    logger.error('Error occurred while trying to close hanging backend process', e)
   }
 
   backendProcess = fork(backendBundlePath, forkArgvs)
-  log('Forked backend, PID:', backendProcess.pid)
+  logger.info('Forked backend, PID:', backendProcess.pid)
 
   backendProcess.on('error', e => {
-    log.error('Backend process returned error', e)
+    logger.error('Backend process returned error', e)
     throw Error(e.message)
   })
 
@@ -397,30 +397,30 @@ app.on('ready', async () => {
   }
 
   mainWindow.webContents.on('did-fail-load', () => {
-    log.error('failed loading webcontents')
+    logger.error('failed loading webcontents')
   })
 
   mainWindow.once('close', e => {
     if (resetting) return
     e.preventDefault()
-    log('Closing main window')
+    logger.info('Closing main window')
     mainWindow?.webContents.send('force-save-state')
   })
 
   splash?.once('close', e => {
     e.preventDefault()
-    log('Closing splash window')
+    logger.info('Closing splash window')
     mainWindow?.webContents.send('force-save-state')
     closeBackendProcess()
   })
 
   ipcMain.on('state-saved', e => {
     mainWindow?.close()
-    log('Saved state, closed window')
+    logger.info('Saved state, closed window')
   })
 
   ipcMain.on('clear-community', () => {
-    log('ipcMain: clear-community')
+    logger.info('ipcMain: clear-community')
     resetting = true
     backendProcess?.on('message', msg => {
       if (msg === 'leftCommunity') {
@@ -431,13 +431,13 @@ app.on('ready', async () => {
   })
 
   ipcMain.on('restart-app', () => {
-    log('ipcMain: restart-app')
+    logger.info('ipcMain: restart-app')
     app.relaunch()
     closeBackendProcess()
   })
 
   ipcMain.on('writeTempFile', (event, arg) => {
-    log('ipcMain: writeTempFile')
+    logger.info('ipcMain: writeTempFile')
     const temporaryFilesDirectory = path.join(appDataPath, 'temporaryFiles')
     fs.mkdirSync(temporaryFilesDirectory, { recursive: true })
     const id = `${Date.now()}_${Math.random().toString(36).substring(0, 20)}`
@@ -454,10 +454,10 @@ app.on('ready', async () => {
   })
 
   ipcMain.on('openUploadFileDialog', async e => {
-    log('ipcMain: openUploadFileDialog')
+    logger.info('ipcMain: openUploadFileDialog')
     let filesDialogResult: Electron.OpenDialogReturnValue
     if (!mainWindow) {
-      console.error('openUploadFileDialog - no mainWindow')
+      logger.error('openUploadFileDialog - no mainWindow')
       return
     }
     try {
@@ -484,7 +484,7 @@ app.on('ready', async () => {
   })
 
   mainWindow.webContents.once('did-finish-load', async () => {
-    log('Event: mainWindow did-finish-load')
+    logger.info('Event: mainWindow did-finish-load')
     if (!isBrowserWindow(mainWindow)) {
       throw new Error(`mainWindow is on unexpected type ${mainWindow}`)
     }
@@ -492,7 +492,7 @@ app.on('ready', async () => {
       try {
         processInvitationCode(mainWindow, invitationUrl)
       } catch (e) {
-        console.warn(e.message)
+        logger.error('Error while processing invitation code from url', e)
       } finally {
         invitationUrl = null
       }
@@ -501,7 +501,7 @@ app.on('ready', async () => {
       try {
         processInvitationCode(mainWindow, process.argv)
       } catch (e) {
-        console.warn(e.message)
+        logger.error('Error while processing invitation code from arguments')
       }
     }
 
@@ -515,19 +515,19 @@ app.on('ready', async () => {
   })
 
   ipcMain.on('proceed-update', () => {
-    log('ipcMain: proceed-update')
+    logger.info('ipcMain: proceed-update')
     autoUpdater.quitAndInstall()
   })
 })
 
 app.on('browser-window-created', (_, window) => {
-  log('Event: app.browser-window-created', window.getTitle())
+  logger.info('Event: app.browser-window-created', window.getTitle())
   remote.enable(window.webContents)
 })
 
 // Quit when all windows are closed.
 app.on('window-all-closed', async () => {
-  log('Event: app.window-all-closed')
+  logger.info('Event: app.window-all-closed')
   closeBackendProcess()
   // On macOS it is common for applications and their menu bar
   // to stay active until the user quits explicitly with Cmd + Q
@@ -535,7 +535,7 @@ app.on('window-all-closed', async () => {
 })
 
 app.on('activate', async () => {
-  log('Event: app.activate')
+  logger.info('Event: app.activate')
   // On macOS it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
   if (mainWindow === null) {

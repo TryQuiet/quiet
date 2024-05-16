@@ -11,6 +11,7 @@ export interface ContextMenuProps {
   style?: TextStyle
   unregisteredUsername?: boolean
   username?: string
+  children?: React.ReactNode
 }
 
 export interface ContextMenuItemProps {

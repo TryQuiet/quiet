@@ -14,18 +14,24 @@ import {
   InvitationDataVersion,
 } from '@quiet/types'
 import { Socket, applyEmitParams } from '../../../types'
-import logger from '../../../utils/logger'
-const log = logger('createNetwork')
+import { createLogger } from '../../../utils/logger'
+
+const logger = createLogger('createNetworkSaga')
 
 export function* createNetworkSaga(
   socket: Socket,
   action: PayloadAction<ReturnType<typeof communitiesActions.createNetwork>['payload']>
 ) {
+  logger.info('Creating network')
+
   const payload = action.payload
-  log(payload)
+  logger.info('Payload:', payload)
+
   // Community IDs are only local identifiers
+  logger.info('Generating community ID')
   const id = yield* call(generateId)
 
+  logger.info('Emitting CREATE_NETWORK')
   const network: NetworkInfo = yield* apply(
     socket,
     socket.emitWithAck,
@@ -42,6 +48,7 @@ export function* createNetworkSaga(
     const notBeforeDate = new Date(Date.UTC(2010, 11, 28, 10, 10, 10))
     const notAfterDate = new Date(Date.UTC(2030, 11, 28, 10, 10, 10))
 
+    logger.info('Generating CA')
     CA = yield* call(
       createRootCA,
       new Time({ type: 0, value: notBeforeDate }),
@@ -71,6 +78,7 @@ export function* createNetworkSaga(
     }
   }
 
+  logger.info('Adding new community', id)
   yield* put(communitiesActions.addNewCommunity(community))
   yield* put(communitiesActions.setCurrentCommunity(id))
 
@@ -85,5 +93,8 @@ export function* createNetworkSaga(
     joinTimestamp: null,
   }
 
+  logger.info('Adding new identity', identity.id)
   yield* put(identityActions.addNewIdentity(identity))
+
+  logger.info('Network created')
 }

@@ -33,6 +33,9 @@ import { StorageModule } from './storage/storage.module'
 import { IpfsModule } from './ipfs/ipfs.module'
 import { Level } from 'level'
 import { verifyToken } from '@quiet/common'
+import { createLogger } from './common/logger'
+
+const logger = createLogger('appModule')
 
 @Global()
 @Module({
@@ -58,7 +61,7 @@ import { verifyToken } from '@quiet/common'
 export class AppModule {
   static forOptions(options: ConnectionsManagerTypes) {
     const configOptions: ConfigOptions = { ...options, ...new ConnectionsManagerOptions() }
-    console.log('configOptions', configOptions)
+    logger.info('configOptions', configOptions)
     return {
       module: AppModule,
       providers: [
@@ -105,7 +108,7 @@ export class AppModule {
             io.engine.use((req, res, next) => {
               const authHeader = req.headers['authorization']
               if (!authHeader) {
-                console.error('Backend server: No authorization header')
+                logger.error('Backend server: No authorization header')
                 res.writeHead(401, 'No authorization header')
                 res.end()
                 return
@@ -113,7 +116,7 @@ export class AppModule {
 
               const token = authHeader && authHeader.split(' ')[1]
               if (!token) {
-                console.error('Backend server: No auth token')
+                logger.error('Backend server: No auth token')
                 res.writeHead(401, 'No authorization token')
                 res.end()
                 return
@@ -122,12 +125,12 @@ export class AppModule {
               if (verifyToken(options.socketIOSecret, token)) {
                 next()
               } else {
-                console.error('Backend server: Unauthorized')
+                logger.error('Backend server: Unauthorized')
                 res.writeHead(401, 'Unauthorized')
                 res.end()
               }
             })
-            console.log('ok')
+            logger.info('ok')
             return { server, io }
           },
           inject: [EXPRESS_PROVIDER],

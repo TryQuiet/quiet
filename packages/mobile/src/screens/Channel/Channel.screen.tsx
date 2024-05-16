@@ -110,7 +110,7 @@ export const ChannelScreen: FC = () => {
       return updatedExistingFiles
     })
 
-  //User Label
+  // User Label
 
   const duplicatedUsernameHandleBack = useCallback(() => {
     dispatch(

@@ -9,10 +9,10 @@ import path from 'path'
 import assert from 'assert'
 import getPort from 'get-port'
 import tmp from 'tmp'
-import logger from './logger'
+import { createLogger } from './logger'
 import { Saga, Task } from '@redux-saga/types'
 
-const log = logger('utils')
+const logger = createLogger('utils')
 
 export const createTmpDir = (prefix: string) => {
   return tmp.dirSync({ mode: 0o750, prefix, unsafeCleanup: true })
@@ -25,10 +25,10 @@ export const createPath = (dirName: string) => {
 const connectToDataport = (url: string, name: string): Socket => {
   const socket = io(url)
   socket.on('connect', async () => {
-    log(`websocket connection is ready for app ${name}`)
+    logger.info(`websocket connection is ready for app ${name}`)
   })
   socket.on('disconnect', () => {
-    log(`socket disconnected for app ${name}`)
+    logger.info(`socket disconnected for app ${name}`)
     socket.close()
   })
   return socket
@@ -49,7 +49,7 @@ export const createApp = async (
    * configure redux store
    */
   const appName = (Math.random() + 1).toString(36).substring(7)
-  log(`Creating test app for ${appName}`)
+  logger.info(`Creating test app for ${appName}`)
   const dataServerPort1 = await getPort()
 
   const { store, runSaga } = prepareStore(mockedState)
@@ -96,7 +96,7 @@ export const createAppWithoutTor = async (
    * configure redux store
    */
   const appName = (Math.random() + 1).toString(36).substring(7)
-  log(`Creating test app for ${appName}`)
+  logger.info(`Creating test app for ${appName}`)
   const dataServerPort1 = await getPort()
   const server1 = new backend.DataServer(dataServerPort1)
   await server1.listen()

@@ -17,6 +17,10 @@ import { ContextMenuItemProps } from '../ContextMenu.types'
 import { navigationActions } from '../../../store/navigation/navigation.slice'
 import { ScreenNames } from '../../../const/ScreenNames.enum'
 
+import { createLogger } from '../../../utils/logger'
+
+const logger = createLogger('invitationContextMenu:container')
+
 export const InvitationContextMenu: FC = () => {
   const dispatch = useDispatch()
 
@@ -48,7 +52,7 @@ export const InvitationContextMenu: FC = () => {
         message: `Chat with me on "Quiet"!\n${invitationLink}`,
       })
     } catch (error) {
-      console.error(error)
+      logger.error(error)
     }
   }
 

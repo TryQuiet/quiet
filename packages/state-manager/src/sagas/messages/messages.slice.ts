@@ -23,6 +23,9 @@ import {
   type WriteMessagePayload,
   MessageSendingStatusPayload,
 } from '@quiet/types'
+import { createLogger } from '../../utils/logger'
+
+const logger = createLogger('messagesSlice')
 
 export class MessagesState {
   public publicKeyMapping: Dictionary<CryptoKey> = {}
@@ -78,8 +81,14 @@ export const messagesSlice = createSlice({
     addMessages: (state, action: PayloadAction<MessagesLoadedPayload>) => {
       const { messages } = action.payload
       for (const message of messages) {
-        if (!instanceOfChannelMessage(message)) return
-        if (!state.publicChannelsMessagesBase.entities[message.channelId]) return
+        if (!instanceOfChannelMessage(message)) {
+          logger.error('Failed to add message, object not instance of message')
+          return
+        }
+        if (!state.publicChannelsMessagesBase.entities[message.channelId]) {
+          logger.error('Failed to add message, could not find channel', message.channelId)
+          return
+        }
 
         let toAdd = message
 
@@ -96,8 +105,11 @@ export const messagesSlice = createSlice({
         }
 
         const messagesBase = state.publicChannelsMessagesBase.entities[message.channelId]
-        if (!messagesBase) return
+        if (!messagesBase) {
+          throw new Error('Failed to add message, channel went missing')
+        }
 
+        logger.info('Upserting message to Redux store')
         channelMessagesAdapter.upsertOne(messagesBase.messages, toAdd)
       }
     },

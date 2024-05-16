@@ -4,6 +4,9 @@ import { PayloadAction } from '@reduxjs/toolkit'
 import { call, select } from 'typed-redux-saga'
 import { navigationSelectors } from '../../navigation/navigation.selectors'
 import { ScreenNames } from '../../../const/ScreenNames.enum'
+import { createLogger } from '../../../utils/logger'
+
+const logger = createLogger('showNotification')
 
 export function* showNotificationSaga(
   action: PayloadAction<ReturnType<typeof publicChannels.actions.markUnreadChannel>['payload']>
@@ -20,7 +23,7 @@ export function* showNotificationSaga(
   const { channelId } = _message
   const channel = yield* select(publicChannels.selectors.getChannelById(channelId))
   if (!channel) {
-    console.warn(`No channel found for id ${channelId}`)
+    logger.warn(`No channel found for id ${channelId}`)
     return
   }
   const messageWithChannelName = { ..._message, channelName: channel.name }
@@ -32,7 +35,7 @@ export function* showNotificationSaga(
   try {
     username = allUsers[_message.pubKey].username
   } catch (e) {
-    console.error(`Could not show notification for channel name ${channel.name} and message id ${_message.id}`, e)
+    logger.error(`Could not show notification for channel name ${channel.name} and message id ${_message.id}`, e)
     return
   }
 

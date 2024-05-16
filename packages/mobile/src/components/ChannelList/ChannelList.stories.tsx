@@ -3,6 +3,10 @@ import { storiesOf } from '@storybook/react-native'
 
 import { ChannelList } from './ChannelList.component'
 
+import { createLogger } from '../../utils/logger'
+
+const logger = createLogger('channelList:stories')
+
 storiesOf('ChannelList', module)
   .add('Default', () => (
     <ChannelList
@@ -19,7 +23,7 @@ storiesOf('ChannelList', module)
           date: '1:55pm',
           unread: false,
           redirect: (id: string) => {
-            console.log(`Clicked ${id}`)
+            logger.info(`Clicked ${id}`)
           },
         },
         {
@@ -30,7 +34,7 @@ storiesOf('ChannelList', module)
           date: '1:55pm',
           unread: false,
           redirect: (id: string) => {
-            console.log(`Clicked ${id}`)
+            logger.info(`Clicked ${id}`)
           },
         },
         {
@@ -41,7 +45,7 @@ storiesOf('ChannelList', module)
           date: '6/1/22',
           unread: true,
           redirect: (id: string) => {
-            console.log(`Clicked ${id}`)
+            logger.info(`Clicked ${id}`)
           },
         },
         {
@@ -52,7 +56,7 @@ storiesOf('ChannelList', module)
           date: 'Yesterday',
           unread: false,
           redirect: (id: string) => {
-            console.log(`Clicked ${id}`)
+            logger.info(`Clicked ${id}`)
           },
         },
       ]}

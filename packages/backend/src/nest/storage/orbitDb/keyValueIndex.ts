@@ -1,6 +1,6 @@
 import { IdentityProvider } from 'orbit-db-identity-provider'
 
-import createLogger from '../../common/logger'
+import { createLogger } from '../../common/logger'
 
 const logger = createLogger('KeyValueIndex')
 

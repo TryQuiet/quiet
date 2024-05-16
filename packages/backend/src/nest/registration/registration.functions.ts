@@ -4,9 +4,9 @@ import { ErrorPayload, PermsData, SocketActionTypes, type SuccessfulRegistration
 import { CsrContainsFields, IsCsr } from './registration.validators'
 import { type RegistrationEvents } from './registration.types'
 import { loadCSR, CertFieldsTypes, getCertFieldValue, getReqFieldValue, parseCertificate } from '@quiet/identity'
-import Logger from '../common/logger'
+import { createLogger } from '../common/logger'
 
-const logger = Logger('registration.functions')
+const logger = createLogger('registration.functions')
 
 export class UserCsrData {
   @IsNotEmpty()

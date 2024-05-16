@@ -3,6 +3,10 @@ import React from 'react'
 
 import { TextWithLink } from './TextWithLink.component'
 
+import { createLogger } from '../../utils/logger'
+
+const logger = createLogger('textWithLink:stories')
+
 storiesOf('TextWithLink', module).add('Default', () => (
   <TextWithLink
     text={'Here is %a text'}
@@ -11,7 +15,7 @@ storiesOf('TextWithLink', module).add('Default', () => (
         tag: 'a',
         label: 'linked',
         action: () => {
-          console.log('link clicked')
+          logger.info('link clicked')
         },
       },
     ]}

@@ -5,6 +5,10 @@ import { withTheme } from '../../../storybook/decorators'
 
 import TextWithLink, { TextWithLinkProps } from './TextWithLink'
 
+import { createLogger } from '../../../logger'
+
+const logger = createLogger('textWithLink:stories')
+
 const Template: ComponentStory<typeof TextWithLink> = args => {
   return <TextWithLink {...args} />
 }
@@ -18,7 +22,7 @@ const args: TextWithLinkProps = {
       tag: 'a',
       label: 'linked',
       action: () => {
-        console.log('link clicked')
+        logger.info('link clicked')
       },
     },
   ],

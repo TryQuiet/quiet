@@ -10,12 +10,12 @@ import {
   SocketActionTypes,
 } from '@quiet/types'
 import { RegistrationEvents } from './registration.types'
-import Logger from '../common/logger'
+import { createLogger } from '../common/logger'
 import { StorageService } from '../storage/storage.service'
 
 @Injectable()
 export class RegistrationService extends EventEmitter implements OnModuleInit {
-  private readonly logger = Logger(RegistrationService.name)
+  private readonly logger = createLogger(RegistrationService.name)
   private permsData: PermsData
   private storageService: StorageService
   private registrationEvents: { csrs: string[] }[] = []
@@ -44,14 +44,14 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
   }
 
   public async tryIssueCertificates() {
-    this.logger('Trying to issue certificates', this.registrationEventInProgress, this.registrationEvents)
+    this.logger.info('Trying to process registration event')
     // Process only a single registration event at a time so that we
     // do not register two certificates with the same name.
     if (!this.registrationEventInProgress) {
       // Get the next event.
       const event = this.registrationEvents.shift()
       if (event) {
-        this.logger('Issuing certificates', event)
+        this.logger.info('Processing registration event')
         // Event processing in progress
         this.registrationEventInProgress = true
 
@@ -62,6 +62,7 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
           certificates: (await this.storageService?.loadAllCertificates()) as string[],
         })
 
+        this.logger.info('Finished processing registration event')
         // Event processing finished
         this.registrationEventInProgress = false
 
@@ -70,6 +71,8 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
           setTimeout(this.tryIssueCertificates.bind(this), 0)
         }
       }
+    } else {
+      this.logger.warn('Registration event processing already in progress')
     }
   }
 
@@ -85,17 +88,18 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
     // certs before permsData is set. We may want to refactor this or
     // add the ability to retry.
     if (!this.permsData) {
-      this.logger('Not issuing certificates due to missing perms data')
+      this.logger.warn('Not issuing certificates due to missing perms data')
       return
     }
 
     const pendingCsrs = await extractPendingCsrs(payload)
+    this.logger.info(`Issuing certificates`)
     await Promise.all(
       pendingCsrs.map(async csr => {
         await this.registerUserCertificate(csr)
       })
     )
-    this.logger('Finished issuing certificates')
+    this.logger.info('Total certificates issued:', pendingCsrs.length)
   }
 
   // TODO: This doesn't save the owner's certificate in OrbitDB, so perhaps we

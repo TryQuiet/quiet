@@ -8,9 +8,9 @@ import {
   RegisterUsernameModal,
   Sidebar,
 } from '../selectors'
-import logger from '../logger'
+import { createLogger } from '../logger'
 import { UserTestData } from '../types'
-const log = logger('ManyClients')
+const logger = createLogger('multipleClients')
 
 jest.setTimeout(1200000) // 20 minutes
 describe('Multiple Clients', () => {
@@ -134,46 +134,46 @@ describe('Multiple Clients', () => {
       await sleep(2000)
       invitationCode = await invitationCodeElement.getText()
       await sleep(2000)
-      console.log({ invitationCode })
+      logger.info({ invitationCode })
       expect(invitationCode).not.toBeUndefined()
-      log('Received invitation code:', invitationCode)
+      logger.info('Received invitation code:', invitationCode)
       await settingsModal.close()
     })
 
     it('First user opens the app', async () => {
-      console.log('Second client')
+      logger.info('Second client')
       await users.user1.app.open()
     })
 
     it('First user submits invitation code received from owner', async () => {
-      console.log('new user - 3')
+      logger.info('new user - 3')
       const joinCommunityModal = new JoinCommunityModal(users.user1.app.driver)
       const isJoinCommunityModal = await joinCommunityModal.element.isDisplayed()
       expect(isJoinCommunityModal).toBeTruthy()
-      console.log({ invitationCode })
-      await joinCommunityModal.typeCommunityCode(invitationCode)
+      logger.info({ invitationCode })
+      await joinCommunityModal.typeCommunityInviteLink(invitationCode)
       await joinCommunityModal.submit()
     })
 
     it('First user submits valid username', async () => {
-      console.log('new user - 5')
+      logger.info('new user - 5')
       const registerModal = new RegisterUsernameModal(users.user1.app.driver)
       const isRegisterModal = await registerModal.element.isDisplayed()
       expect(isRegisterModal).toBeTruthy()
       await registerModal.clearInput()
       await registerModal.typeUsername(users.user1.username)
       await registerModal.submit()
-      console.time(`[${users.user1.app.name}] '${users.user1.username}' joining community time`)
+      logger.time(`[${users.user1.app.name}] '${users.user1.username}' joining community time`)
     })
 
     it('First user joins successfully sees general channel and sends a message', async () => {
-      console.log('new user - 7')
+      logger.info('new user - 7')
       generalChannelUser1 = new Channel(users.user1.app.driver, 'general')
       await generalChannelUser1.element.isDisplayed()
       const isMessageInput2 = await generalChannelUser1.messageInput.isDisplayed()
       expect(isMessageInput2).toBeTruthy()
-      console.timeEnd(`[${users.user1.app.name}] '${users.user1.username}' joining community time`)
-      console.log('FETCHING CHANNEL MESSAGES!')
+      logger.timeEnd(`[${users.user1.app.name}] '${users.user1.username}' joining community time`)
+      logger.info('FETCHING CHANNEL MESSAGES!')
       await new Promise<void>(resolve =>
         setTimeout(() => {
           resolve()
@@ -184,7 +184,7 @@ describe('Multiple Clients', () => {
     it("First user's sent message is visible in a channel", async () => {
       const messages2 = await generalChannelUser1.getUserMessages(users.user1.username)
       const messages1 = await generalChannelUser1.getUserMessages(users.owner.username)
-      console.log({ messages1, messages2 })
+      logger.info({ messages1, messages2 })
       const text2 = await messages2[1].getText()
       expect(text2).toEqual(users.user1.messages[0])
     })
@@ -199,7 +199,7 @@ describe('Multiple Clients', () => {
       await sleep(2000)
       invitationCode = await invitationCodeElement.getText()
       await sleep(2000)
-      console.log(`${invitationCode} copied from non owner`)
+      logger.info(`${invitationCode} copied from non owner`)
       expect(invitationCode).not.toBeUndefined()
       await settingsModal.close()
     })
@@ -209,7 +209,7 @@ describe('Multiple Clients', () => {
     })
 
     it('Second user opens the app', async () => {
-      console.log('Third client')
+      logger.info('Third client')
       await users.user3.app.open()
       const debugModal = new DebugModeModal(users.user3.app.driver)
       await debugModal.close()
@@ -219,44 +219,44 @@ describe('Multiple Clients', () => {
       const joinCommunityModal = new JoinCommunityModal(users.user3.app.driver)
       const isJoinCommunityModal = await joinCommunityModal.element.isDisplayed()
       expect(isJoinCommunityModal).toBeTruthy()
-      console.log({ invitationCode })
-      await joinCommunityModal.typeCommunityCode(invitationCode)
+      logger.info({ invitationCode })
+      await joinCommunityModal.typeCommunityInviteLink(invitationCode)
       await joinCommunityModal.submit()
     })
 
     it('Second user submits non-valid, duplicated username', async () => {
-      console.log('duplicated user - 1')
+      logger.info('duplicated user - 1')
       const registerModal = new RegisterUsernameModal(users.user3.app.driver)
       const isRegisterModal = await registerModal.element.isDisplayed()
       expect(isRegisterModal).toBeTruthy()
       await registerModal.clearInput()
       await registerModal.typeUsername(users.user1.username)
       await registerModal.submit()
-      console.time(`[${users.user3.app.name}] '${users.user1.username}' duplicated joining community time`)
+      logger.time(`[${users.user3.app.name}] '${users.user1.username}' duplicated joining community time`)
     })
 
     it('Second user submits valid username', async () => {
-      console.log('duplicated user - 2')
+      logger.info('duplicated user - 2')
       const registerModal = new RegisterUsernameModal(users.user3.app.driver)
       const isRegisterModal = await registerModal.elementUsernameTaken.isDisplayed()
       expect(isRegisterModal).toBeTruthy()
       await registerModal.clearInput()
       await registerModal.typeUsername(users.user3.username)
       await registerModal.submitUsernameTaken()
-      console.time(`[${users.user3.app.name}] '${users.user3.username}' joining community time`)
+      logger.time(`[${users.user3.app.name}] '${users.user3.username}' joining community time`)
     })
 
     it('Second user sees general channel', async () => {
-      console.log('new user - 7')
+      logger.info('new user - 7')
       generalChannelUser3 = new Channel(users.user3.app.driver, 'general')
       await generalChannelUser3.element.isDisplayed()
       const isMessageInput = await generalChannelUser3.messageInput.isDisplayed()
       expect(isMessageInput).toBeTruthy()
-      console.timeEnd(`[${users.user3.app.name}] '${users.user3.username}' joining community time`)
+      logger.timeEnd(`[${users.user3.app.name}] '${users.user3.username}' joining community time`)
     })
 
     it('Second user can send a message, they see their message tagged as "unregistered"', async () => {
-      console.log('Second guest FETCHING CHANNEL MESSAGES!')
+      logger.info('Second guest FETCHING CHANNEL MESSAGES!')
       await new Promise<void>(resolve =>
         setTimeout(() => {
           resolve()
@@ -350,13 +350,13 @@ describe('Multiple Clients', () => {
     // End of tests for Windows
     if (process.platform !== 'win32') {
       it('User 1 closes app', async () => {
-        console.log('User 1 closes app')
+        logger.info('User 1 closes app')
         await users.user1.app?.close()
       })
 
       // Delete third channel while guest is absent
       it('Channel deletion - Owner deletes third channel', async () => {
-        console.log('TEST 2.5')
+        logger.info('TEST 2.5')
         await new Promise<void>(resolve => setTimeout(() => resolve(), 10000))
         const isThirdChannel = await thirdChannelOwner.messageInput.isDisplayed()
         expect(isThirdChannel).toBeTruthy()
@@ -368,7 +368,7 @@ describe('Multiple Clients', () => {
 
       // Delete general channel while guest is absent
       it('Channel deletion - Owner recreates general channel', async () => {
-        console.log('TEST 3')
+        logger.info('TEST 3')
         await new Promise<void>(resolve => setTimeout(() => resolve(), 10000))
         const isGeneralChannel = await generalChannelOwner.messageInput.isDisplayed()
         expect(isGeneralChannel).toBeTruthy()
@@ -379,17 +379,17 @@ describe('Multiple Clients', () => {
       })
 
       it('User 1 re-opens app', async () => {
-        console.log('User 1 re-opens app')
+        logger.info('User 1 re-opens app')
         await users.user1.app?.open()
         await new Promise<void>(resolve => setTimeout(() => resolve(), 30000))
       })
 
       // Check correct channels replication
       it('Channel deletion - User sees information about recreation general channel and see correct amount of messages (#2334)', async () => {
-        console.log('TESTING - ISSUE 2334')
+        logger.info('TESTING - ISSUE 2334')
         generalChannelUser1 = new Channel(users.user1.app.driver, 'general')
         await generalChannelUser1.element.isDisplayed()
-        console.timeEnd(`[${users.user1.app.name}] '${users.user2.username}' joining community time`)
+        logger.timeEnd(`[${users.user1.app.name}] '${users.user2.username}' joining community time`)
         await new Promise<void>(resolve =>
           setTimeout(() => {
             resolve()
@@ -411,7 +411,7 @@ describe('Multiple Clients', () => {
       })
 
       it('Leave community', async () => {
-        console.log('TEST 2')
+        logger.info('TEST 2')
         const settingsModal = await new Sidebar(users.user1.app.driver).openSettings()
         const isSettingsModal = await settingsModal.element.isDisplayed()
         expect(isSettingsModal).toBeTruthy()
@@ -420,31 +420,31 @@ describe('Multiple Clients', () => {
       })
 
       it('Leave community - Guest re-join to community successfully', async () => {
-        console.log('TEST 4')
+        logger.info('TEST 4')
         const debugModal = new DebugModeModal(users.user1.app.driver)
         await debugModal.close()
         const joinCommunityModal = new JoinCommunityModal(users.user1.app.driver)
         const isJoinCommunityModal = await joinCommunityModal.element.isDisplayed()
         expect(isJoinCommunityModal).toBeTruthy()
-        await joinCommunityModal.typeCommunityCode(invitationCode)
+        await joinCommunityModal.typeCommunityInviteLink(invitationCode)
         await joinCommunityModal.submit()
       })
       it('Leave community - Guest registers new username', async () => {
-        console.log('TEST 5')
+        logger.info('TEST 5')
         const registerModal2 = new RegisterUsernameModal(users.user1.app.driver)
         const isRegisterModal2 = await registerModal2.element.isDisplayed()
         expect(isRegisterModal2).toBeTruthy()
         await registerModal2.typeUsername(users.user2.username)
         await registerModal2.submit()
-        console.time(`[${users.user1.app.name}] '${users.user2.username}' joining community time`)
+        logger.time(`[${users.user1.app.name}] '${users.user2.username}' joining community time`)
       })
 
       // Check correct channels replication
       it('Channel deletion - User sees information about recreation general channel and see correct amount of messages', async () => {
-        console.log('TEST 6')
+        logger.info('TEST 6')
         generalChannelUser1 = new Channel(users.user1.app.driver, 'general')
         await generalChannelUser1.element.isDisplayed()
-        console.timeEnd(`[${users.user1.app.name}] '${users.user2.username}' joining community time`)
+        logger.timeEnd(`[${users.user1.app.name}] '${users.user2.username}' joining community time`)
         await new Promise<void>(resolve =>
           setTimeout(() => {
             resolve()
@@ -462,7 +462,7 @@ describe('Multiple Clients', () => {
       })
 
       it('Leave community - Guest sends a message after rejoining community as a new user', async () => {
-        console.log('TEST 7')
+        logger.info('TEST 7')
         generalChannelUser1 = new Channel(users.user1.app.driver, 'general')
         await generalChannelUser1.element.isDisplayed()
         const isMessageInput2 = await generalChannelUser1.messageInput.isDisplayed()
@@ -475,7 +475,7 @@ describe('Multiple Clients', () => {
         await generalChannelUser1.sendMessage(users.user2.messages[0])
       })
       it('Leave community - Sent message is visible in a channel', async () => {
-        console.log('TEST 8')
+        logger.info('TEST 8')
         await generalChannelUser1.waitForUserMessage(users.user2.username, users.user2.messages[0])
       })
       it('Owner closes app', async () => {
@@ -484,7 +484,7 @@ describe('Multiple Clients', () => {
       })
 
       it('Guest closes app', async () => {
-        console.log('TEST 9')
+        logger.info('TEST 9')
         await users.user1.app?.close()
       })
 
@@ -494,14 +494,14 @@ describe('Multiple Clients', () => {
       })
 
       it('Guest closes app - Owner sends another message after guest left the app', async () => {
-        console.log('TEST 10')
+        logger.info('TEST 10')
         generalChannelOwner = new Channel(users.owner.app.driver, 'general')
         const isMessageInput = await generalChannelOwner.messageInput.isDisplayed()
         expect(isMessageInput).toBeTruthy()
         await generalChannelOwner.sendMessage(users.owner.messages[2])
       })
       it('Guest closes app - Check if message is visible for owner', async () => {
-        console.log('TEST 11')
+        logger.info('TEST 11')
         await generalChannelOwner.waitForUserMessage(users.owner.username, users.owner.messages[2])
       })
     }

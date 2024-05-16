@@ -9,13 +9,13 @@ import {
   Sidebar,
   UserProfileContextMenu,
 } from '../selectors'
-import logger from '../logger'
+import { createLogger } from '../logger'
 import { EXPECTED_IMG_SRC_GIF, EXPECTED_IMG_SRC_JPEG, EXPECTED_IMG_SRC_PNG } from '../profilePhoto.const'
 import { sleep } from '../utils'
 import { BACK_ARROW_DATA_TESTID } from '../enums'
 import { UserTestData } from '../types'
 
-const log = logger('userProfile')
+const logger = createLogger('userProfile')
 
 jest.setTimeout(900000)
 
@@ -96,7 +96,7 @@ describe('User Profile Feature', () => {
 
   it('Owner updates their profile photo with JPEG', async () => {
     try {
-      console.log('JPEG')
+      logger.info('JPEG')
       const menu = new UserProfileContextMenu(users.owner.app.driver)
       await menu.openMenu()
       await menu.openEditProfileMenu()
@@ -108,14 +108,14 @@ describe('User Profile Feature', () => {
       await menu.back(BACK_ARROW_DATA_TESTID.EDIT_PROFILE)
       await menu.back(BACK_ARROW_DATA_TESTID.PROFILE)
     } catch (e) {
-      console.error('Failed to set JPEG profile photo', e)
+      logger.error('Failed to set JPEG profile photo', e)
       throw e
     }
   })
 
   it('Owner updates their profile photo with GIF', async () => {
     try {
-      console.log('GIF')
+      logger.info('GIF')
       const menu = new UserProfileContextMenu(users.owner.app.driver)
       await menu.openMenu()
       await menu.openEditProfileMenu()
@@ -127,14 +127,14 @@ describe('User Profile Feature', () => {
       await menu.back(BACK_ARROW_DATA_TESTID.EDIT_PROFILE)
       await menu.back(BACK_ARROW_DATA_TESTID.PROFILE)
     } catch (e) {
-      console.error('Failed to set GIF profile photo', e)
+      logger.error('Failed to set GIF profile photo', e)
       throw e
     }
   })
 
   it('Owner updates their profile photo with PNG', async () => {
     try {
-      console.log('PNG')
+      logger.info('PNG')
       const menu = new UserProfileContextMenu(users.owner.app.driver)
       await menu.openMenu()
       await menu.openEditProfileMenu()
@@ -146,7 +146,7 @@ describe('User Profile Feature', () => {
       await menu.back(BACK_ARROW_DATA_TESTID.EDIT_PROFILE)
       await menu.back(BACK_ARROW_DATA_TESTID.PROFILE)
     } catch (e) {
-      console.error('Failed to set PNG profile photo', e)
+      logger.error('Failed to set PNG profile photo', e)
       throw e
     }
   })
@@ -163,7 +163,7 @@ describe('User Profile Feature', () => {
     invitationCode = await invitationCodeElement.getText()
     await sleep(2000)
     expect(invitationCode).not.toBeUndefined()
-    log('Received invitation code:', invitationCode)
+    logger.info('Received invitation code:', invitationCode)
     await settingsModal.close()
   })
 
@@ -175,7 +175,7 @@ describe('User Profile Feature', () => {
     const joinCommunityModal = new JoinCommunityModal(users.user1.app.driver)
     const isJoinCommunityModal = await joinCommunityModal.element.isDisplayed()
     expect(isJoinCommunityModal).toBeTruthy()
-    await joinCommunityModal.typeCommunityCode(invitationCode)
+    await joinCommunityModal.typeCommunityInviteLink(invitationCode)
     await joinCommunityModal.submit()
   })
 

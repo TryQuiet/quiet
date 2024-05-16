@@ -12,6 +12,10 @@ import { getInvitationCodes } from '@quiet/state-manager'
 import { Splash } from '../Splash/Splash.component'
 import { InvitationData } from '@quiet/types'
 
+import { createLogger } from '../../utils/logger'
+
+const logger = createLogger('joinCommunity:component')
+
 export const JoinCommunity: FC<JoinCommunityProps> = ({
   joinCommunityAction,
   redirectionAction,
@@ -44,7 +48,7 @@ export const JoinCommunity: FC<JoinCommunityProps> = ({
     try {
       submitValue = getInvitationCodes(joinCommunityInput.trim())
     } catch (e) {
-      console.warn(`Could not parse invitation code, reason: ${e.message}`)
+      logger.error(`Could not parse invitation code`, e)
     }
 
     if (!submitValue) {
@@ -98,6 +102,7 @@ export const JoinCommunity: FC<JoinCommunityProps> = ({
               disabled={loading}
               validation={inputError}
               ref={inputRef}
+              autoCorrect={false}
             />
             <View style={{ marginTop: 32 }}>
               <TextWithLink

@@ -9,11 +9,11 @@ import { TorControl } from './nest/tor/tor-control.service'
 import { torBinForPlatform, torDirForPlatform } from './nest/common/utils'
 import initRnBridge from './rn-bridge'
 import { INestApplicationContext } from '@nestjs/common'
-import logger from './nest/common/logger'
 import { OpenServices, validateOptions } from './options'
 import { SOCKS_PROXY_AGENT } from './nest/const'
+import { createLogger } from './nest/common/logger'
 
-const log = logger('backendManager')
+const logger = createLogger('backendManager')
 
 const program = new Command()
 
@@ -33,9 +33,11 @@ program
 program.parse(process.argv)
 const options = program.opts()
 
-console.log('options', options)
+logger.info('options', options)
 
 export const runBackendDesktop = async () => {
+  logger.info('Running backend manager desktop')
+
   const isDev = process.env.NODE_ENV === 'development'
 
   const webcrypto = new Crypto()
@@ -69,7 +71,7 @@ export const runBackendDesktop = async () => {
       try {
         await connectionsManager.closeAllServices()
       } catch (e) {
-        log.error('Error occurred while closing backend services', e)
+        logger.error('Error occurred while closing backend services', e)
       }
       if (process.send) process.send('closed-services')
     }
@@ -77,7 +79,7 @@ export const runBackendDesktop = async () => {
       try {
         await connectionsManager.leaveCommunity()
       } catch (e) {
-        log.error('Error occurred while leaving community', e)
+        logger.error('Error occurred while leaving community', e)
       }
       if (process.send) process.send('leftCommunity')
     }
@@ -85,6 +87,8 @@ export const runBackendDesktop = async () => {
 }
 
 export const runBackendMobile = async () => {
+  logger.info('Running backend manager mobile')
+
   // Enable triggering push notifications
   process.env['BACKEND'] = 'mobile'
   process.env['CONNECTION_TIME'] = (new Date().getTime() / 1000).toString() // Get time in seconds
@@ -109,12 +113,12 @@ export const runBackendMobile = async () => {
     { logger: ['warn', 'error', 'log', 'debug', 'verbose'] }
   )
 
-  rn_bridge.channel.on('close', async () => {
+  rn_bridge.channel.on('close', () => {
     const connectionsManager = app.get<ConnectionsManagerService>(ConnectionsManagerService)
-    connectionsManager.closeSocket()
+    connectionsManager.pause()
   })
 
-  rn_bridge.channel.on('open', async (msg: OpenServices) => {
+  rn_bridge.channel.on('open', (msg: OpenServices) => {
     const connectionsManager = app.get<ConnectionsManagerService>(ConnectionsManagerService)
     const torControl = app.get<TorControl>(TorControl)
     const proxyAgent = app.get<{ proxy: { port: string } }>(SOCKS_PROXY_AGENT)
@@ -123,7 +127,7 @@ export const runBackendMobile = async () => {
     torControl.torControlParams.auth.value = msg.authCookie
     proxyAgent.proxy.port = msg.httpTunnelPort
 
-    await connectionsManager.openSocket()
+    connectionsManager.resume()
   })
 }
 
@@ -131,12 +135,12 @@ const platform = options.platform
 
 if (platform === 'desktop') {
   runBackendDesktop().catch(error => {
-    log.error('Error occurred while initializing backend', error)
+    logger.error('Error occurred while initializing backend', error)
     throw error
   })
 } else if (platform === 'mobile') {
   runBackendMobile().catch(async error => {
-    log.error('Error occurred while initializing backend', error)
+    logger.error('Error occurred while initializing backend', error)
     // Prevent stopping process before getting output
     await new Promise<void>(resolve => {
       setTimeout(() => {

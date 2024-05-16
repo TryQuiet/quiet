@@ -6,6 +6,9 @@ import { FileActionsProps, UploadedFileProps } from './UploadedFile.types'
 import { defaultTheme } from '../../styles/themes/default.theme'
 import { appImages } from '../../assets'
 import { formatBytes } from '@quiet/state-manager'
+import { createLogger } from '../../utils/logger'
+
+const logger = createLogger('uploadedFile:component')
 
 interface FileStatus {
   label: string
@@ -34,7 +37,7 @@ export const UploadedFile: FC<UploadedFileProps & FileActionsProps> = ({
         setFileStatus({
           label: 'Uploaded',
           action: () => {
-            console.log('Showing in folder')
+            logger.info('Showing in folder')
           },
           actionLabel: 'Show in folder',
         })
@@ -43,7 +46,7 @@ export const UploadedFile: FC<UploadedFileProps & FileActionsProps> = ({
         setFileStatus({
           // FIXME: Downloading file freezes the app
           label: 'File ready to download',
-          action: () => console.log('Downloading file'),
+          action: () => logger.info('Downloading file'),
           actionLabel: 'Download file',
         })
         break
@@ -75,7 +78,7 @@ export const UploadedFile: FC<UploadedFileProps & FileActionsProps> = ({
         setFileStatus({
           label: 'Downloaded',
           action: () => {
-            console.log('Opening containing folder')
+            logger.info('Opening containing folder')
           },
           actionLabel: 'Open containing folder',
         })

@@ -9,9 +9,9 @@ import { createCommunity, joinCommunity, getCommunityOwnerData, sendImage, SendI
 import { createApp, storePersistor } from '../utils'
 import { AsyncReturnType } from '../types/AsyncReturnType.interface'
 import { FileContent } from '@quiet/state-manager'
-import logger from '../logger'
+import { createLogger } from '../logger'
 
-const log = logger('files')
+const logger = createLogger('files')
 
 const crypto = new Crypto()
 
@@ -65,7 +65,7 @@ describe('send message - users are online', () => {
   })
 
   test('user sends image to general channel', async () => {
-    log(`Image ${JSON.stringify(image)}`)
+    logger.info(`Image ${JSON.stringify(image)}`)
     const payload: SendImage = {
       file: image,
       store: owner.store,
