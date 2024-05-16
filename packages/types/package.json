@@ -14,7 +14,7 @@
     "lint:no-fix": "eslint --ext .ts .",
     "lint": "npm run lint:no-fix -- --fix",
     "lint-ci": "npm run lint:no-fix",
-    "lint-staged": "lint-staged",
+    "lint-staged": "lint-staged --no-stash",
     "test": "exit 0",
     "prettier": "prettier",
     "rmDist": "rimraf lib/"

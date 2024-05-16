@@ -10,7 +10,7 @@
     "lint:no-fix": "eslint --ext .js,.ts ./src/",
     "lint": "npm run lint:no-fix -- --fix",
     "lint-ci": "npm run lint:no-fix",
-    "lint-staged": "lint-staged",
+    "lint-staged": "lint-staged --no-stash",
     "prettier:write": "prettier --write .",
     "prettier:check": "prettier --check .",
     "test": "cross-env TEST_MODE=true jest --runInBand --detectOpenHandles --forceExit",
