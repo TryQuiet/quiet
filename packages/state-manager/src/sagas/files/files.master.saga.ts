@@ -12,9 +12,12 @@ import { deleteFilesFromChannelSaga } from './deleteFilesFromChannel/deleteFiles
 import { uploadFileSaga } from './sendFileMessage/uploadFile.saga'
 import { messagesActions } from '../messages/messages.slice'
 import { sendFileMessageSaga } from './uploadFile/sendFileMessage.saga'
+import { createLogger } from '../../utils/logger'
+
+const logger = createLogger('filesMasterSaga')
 
 export function* filesMasterSaga(socket: Socket): Generator {
-  console.log('filesMasterSaga starting')
+  logger.info('filesMasterSaga starting')
   try {
     yield all([
       takeEvery(networkActions.addInitializedCommunity.type, resetTransferSpeedSaga),
@@ -28,9 +31,9 @@ export function* filesMasterSaga(socket: Socket): Generator {
       takeEvery(filesActions.deleteFilesFromChannel.type, deleteFilesFromChannelSaga, socket),
     ])
   } finally {
-    console.log('filesMasterSaga stopping')
+    logger.info('filesMasterSaga stopping')
     if (yield cancelled()) {
-      console.log('filesMasterSaga cancelled')
+      logger.info('filesMasterSaga cancelled')
     }
   }
 }

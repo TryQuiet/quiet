@@ -10,9 +10,9 @@ import {
 } from '@quiet/state-manager'
 import assert from 'assert'
 import { Register, SendImage, SendMessage } from '../integrationTests/appActions'
-import logger from '../logger'
+import { createLogger } from '../logger'
 import { waitForExpect } from './waitForExpect'
-const log = logger('actions')
+const logger = createLogger('actions')
 
 const timeout = 120_000
 
@@ -22,7 +22,7 @@ export async function registerUsername(payload: Register) {
   const createNetworkPayload: CreateNetworkPayload = {
     ownership: CommunityOwnership.User,
   }
-  log(`User ${userName} starts creating network`)
+  logger.info(`User ${userName} starts creating network`)
   store.dispatch(communities.actions.createNetwork(createNetworkPayload))
 
   await waitForExpect(() => {
@@ -41,7 +41,7 @@ export async function registerUsername(payload: Register) {
     assert.equal(store.getState().Identity.identities.entities[communityId].peerId.id.length, 46)
   }, timeout)
 
-  log(`User ${userName} starts registering username`)
+  logger.info(`User ${userName} starts registering username`)
   store.dispatch(identity.actions.registerUsername({ nickname: userName }))
 }
 
@@ -81,14 +81,14 @@ export const createCommunity = async ({ username, communityName, store }): Promi
   await waitForExpect(() => {
     assert.ok(store.getState().Communities.communities.entities[communityId].onionAddress)
   }, timeout)
-  log(store.getState().Communities.communities.entities[communityId].onionAddress)
+  logger.info(store.getState().Communities.communities.entities[communityId].onionAddress)
   await waitForExpect(() => {
     assert.strictEqual(store.getState().Users.certificates.ids.length, 1)
   }, timeout)
   await waitForExpect(() => {
     assert.ok(store.getState().Connection.initializedCommunities[communityId])
   }, timeout)
-  log('initializedCommunity', store.getState().Connection.initializedCommunities[communityId])
+  logger.info('initializedCommunity', store.getState().Connection.initializedCommunities[communityId])
 
   return store.getState().Communities.communities.entities[communityId].onionAddress
 }
@@ -96,7 +96,7 @@ export const createCommunity = async ({ username, communityName, store }): Promi
 export async function sendMessage(payload: SendMessage): Promise<ChannelMessage> {
   const { message, channelName, store } = payload
 
-  log(message, 'sendMessage')
+  logger.info(message, 'sendMessage')
 
   store.dispatch(messages.actions.sendMessage({ message }))
 
@@ -118,7 +118,7 @@ export async function sendMessage(payload: SendMessage): Promise<ChannelMessage>
 export async function sendImage(payload: SendImage) {
   const { file, store } = payload
 
-  log(file.path, 'sendImage')
+  logger.info(file.path, 'sendImage')
 
   store.dispatch(files.actions.uploadFile(file))
 

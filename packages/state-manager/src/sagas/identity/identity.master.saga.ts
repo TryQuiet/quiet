@@ -6,9 +6,12 @@ import { verifyJoinTimestampSaga } from './verifyJoinTimestamp/verifyJoinTimesta
 import { saveUserCsrSaga } from './saveUserCsr/saveUserCsr.saga'
 import { usersActions } from '../users/users.slice'
 import { updateCertificateSaga } from './updateCertificate/updateCertificate.saga'
+import { createLogger } from '../../utils/logger'
+
+const logger = createLogger('identityMasterSaga')
 
 export function* identityMasterSaga(socket: Socket): Generator {
-  console.log('identityMasterSaga starting')
+  logger.info('identityMasterSaga starting')
   try {
     yield all([
       takeEvery(identityActions.registerUsername.type, registerUsernameSaga, socket),
@@ -17,9 +20,9 @@ export function* identityMasterSaga(socket: Socket): Generator {
       takeEvery(usersActions.responseSendCertificates.type, updateCertificateSaga),
     ])
   } finally {
-    console.log('identityMasterSaga stopping')
+    logger.info('identityMasterSaga stopping')
     if (yield cancelled()) {
-      console.log('identityMasterSaga cancelled')
+      logger.info('identityMasterSaga cancelled')
     }
   }
 }

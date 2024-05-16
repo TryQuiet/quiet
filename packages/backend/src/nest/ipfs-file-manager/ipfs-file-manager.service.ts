@@ -22,10 +22,10 @@ import {
   BLOCK_FETCH_TIMEOUT,
 } from './ipfs-file-manager.const'
 import { LazyModuleLoader } from '@nestjs/core'
-import Logger from '../common/logger'
 import { sleep } from '../common/sleep'
 const sizeOfPromisified = promisify(sizeOf)
 const { createPaths, compare } = await import('../common/utils')
+import { createLogger } from '../common/logger'
 
 @Injectable()
 export class IpfsFileManagerService extends EventEmitter {
@@ -40,7 +40,7 @@ export class IpfsFileManagerService extends EventEmitter {
   public cancelledDownloads: Set<string> = new Set()
   public queue: PQueue
   public files: Map<string, FilesData> = new Map()
-  private readonly logger = Logger(IpfsFileManagerService.name)
+  private readonly logger = createLogger(IpfsFileManagerService.name)
   constructor(
     @Inject(QUIET_DIR) public readonly quietDir: string,
     private readonly lazyModuleLoader: LazyModuleLoader
@@ -70,7 +70,7 @@ export class IpfsFileManagerService extends EventEmitter {
       await this.uploadFile(fileMetadata)
     })
     this.on(IpfsFilesManagerEvents.DOWNLOAD_FILE, async (fileMetadata: FileMetadata) => {
-      this.logger('Downloading file:', fileMetadata.cid, fileMetadata.size)
+      this.logger.info('Downloading file:', fileMetadata.cid, fileMetadata.size)
       if (this.files.get(fileMetadata.cid)) return
       this.files.set(fileMetadata.cid, {
         size: fileMetadata.size || 0,
@@ -86,7 +86,7 @@ export class IpfsFileManagerService extends EventEmitter {
       if (fileDownloaded) {
         await this.cancelDownload(fileDownloaded.cid)
       } else {
-        console.error(`downloading ${mid} has already been canceled or never started`)
+        this.logger.error(`downloading ${mid} has already been canceled or never started`)
       }
     })
   }
@@ -99,17 +99,17 @@ export class IpfsFileManagerService extends EventEmitter {
     try {
       const result = await this.ipfs.pin.rm(fileMetadata.cid, { recursive: true })
     } catch (e) {
-      console.log('file removing error')
-      console.log(e)
+      this.logger.error('file removing error', e)
     }
 
     const gcresult = this.ipfs.repo.gc()
     for await (const res of gcresult) {
-      console.log('garbage collector result', res)
+      this.logger.info('garbage collector result', res)
     }
   }
 
   public async stop() {
+    this.logger.info('Stopping IpfsFileManagerService')
     for await (const cid of this.files.keys()) {
       await this.cancelDownload(cid)
     }
@@ -124,7 +124,7 @@ export class IpfsFileManagerService extends EventEmitter {
     try {
       newFilename = decodeURIComponent(filename).replace(/\s/g, '')
     } catch (e) {
-      this.logger(`Could not decode filename ${filename}`)
+      this.logger.error(`Could not decode filename ${filename}`, e)
       newFilename = filename
     }
 
@@ -137,7 +137,7 @@ export class IpfsFileManagerService extends EventEmitter {
       fs.copyFileSync(originalFilePath, newPath)
       filePath = newPath
     } catch (e) {
-      console.error(`Couldn't copy file ${originalFilePath} to ${newPath}. Error: ${e.message}`)
+      this.logger.error(`Couldn't copy file ${originalFilePath} to ${newPath}.`, e)
     }
     return filePath
   }
@@ -145,11 +145,11 @@ export class IpfsFileManagerService extends EventEmitter {
   public deleteFile(filePath: string) {
     try {
       if (fs.existsSync(filePath)) {
-        this.logger(`Removing file ${filePath}`)
+        this.logger.info(`Removing file ${filePath}`)
         fs.unlinkSync(filePath)
       }
     } catch (e) {
-      this.logger(`Could not remove file ${filePath}. Reason: ${e.messages}`)
+      this.logger.error(`Could not remove file ${filePath}`, e)
     }
   }
 
@@ -164,7 +164,7 @@ export class IpfsFileManagerService extends EventEmitter {
       try {
         imageSize = await sizeOfPromisified(metadata.path)
       } catch (e) {
-        console.error(`Couldn't get image dimensions (${metadata.path}). Error: ${e.message}`)
+        this.logger.error(`Couldn't get image dimensions (${metadata.path})`, e)
         throw new Error(`Couldn't get image dimensions (${metadata.path}). Error: ${e.message}`)
       }
       width = imageSize?.width
@@ -191,10 +191,10 @@ export class IpfsFileManagerService extends EventEmitter {
 
     // Save copy to separate directory
     const filePath = this.copyFile(metadata.path, filename)
-    console.time(`Writing ${filename} to ipfs`)
+    this.logger.time(`Writing ${filename} to ipfs`)
     const newCid = await this.ipfs.add(uploadedFileStreamIterable)
 
-    console.timeEnd(`Writing ${filename} to ipfs`)
+    this.logger.timeEnd(`Writing ${filename} to ipfs`)
 
     this.emit(StorageEvents.REMOVE_DOWNLOAD_STATUS, { cid: metadata.cid })
     const fileMetadata: FileMetadata = {
@@ -454,7 +454,7 @@ export class IpfsFileManagerService extends EventEmitter {
       await new Promise<void>((resolve, reject) => {
         writeStream.write(entry, err => {
           if (err) {
-            console.error(`${fileMetadata.name} writing to file error: ${err}`)
+            this.logger.error(`${fileMetadata.name} writing to file error`, err)
             reject(err)
           }
         })

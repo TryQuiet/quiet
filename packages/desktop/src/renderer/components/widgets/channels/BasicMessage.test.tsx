@@ -11,7 +11,13 @@ import store from '../../../store'
 describe('BasicMessage', () => {
   beforeEach(() => {
     jest.clearAllMocks()
-    jest.spyOn(DateTime, 'utc').mockImplementationOnce(() => DateTime.utc(2019, 3, 7, 13, 3, 48))
+    jest.spyOn(DateTime, 'utc').mockImplementationOnce(() => {
+      const dt = DateTime.utc(2019, 3, 7, 13, 3, 48)
+      if (!dt.isValid) {
+        throw new Error('This is just here to satisfy the DateTime<true> requirement')
+      }
+      return dt
+    })
   })
 
   it('renders component', async () => {

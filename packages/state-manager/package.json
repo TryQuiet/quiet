@@ -11,7 +11,7 @@
     "lint:no-fix": "eslint --ext .ts ./src/",
     "lint": "npm run lint:no-fix -- --fix",
     "lint-ci": "npm run lint:no-fix",
-    "lint-staged": "lint-staged",
+    "lint-staged": "lint-staged --no-stash",
     "prettier": "prettier",
     "rmDist": "rimraf lib/"
   },
@@ -83,6 +83,6 @@
     ]
   },
   "lint-staged": {
-    "*.{js,jsx,ts,tsx}": "npm run lint:no-fix"
+    "src/**/*.{js,jsx,ts,tsx}": "npm run lint:no-fix"
   }
 }

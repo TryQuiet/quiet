@@ -9,9 +9,12 @@ import { clearUnreadChannelsSaga } from './markUnreadChannels/markUnreadChannels
 import { channelsReplicatedSaga } from './channelsReplicated/channelsReplicated.saga'
 import { channelDeletionResponseSaga } from './channelDeletionResponse/channelDeletionResponse.saga'
 import { sendIntroductionMessageSaga } from './sendIntroductionMessage/sendIntroductionMessage.saga'
+import { createLogger } from '../../utils/logger'
+
+const logger = createLogger('publicChannelsMasterSaga')
 
 export function* publicChannelsMasterSaga(socket: Socket): Generator {
-  console.log('publicChannelsMasterSaga starting')
+  logger.info('publicChannelsMasterSaga starting')
   try {
     yield all([
       takeEvery(publicChannelsActions.createChannel.type, createChannelSaga, socket),
@@ -24,9 +27,9 @@ export function* publicChannelsMasterSaga(socket: Socket): Generator {
       takeEvery(publicChannelsActions.sendIntroductionMessage.type, sendIntroductionMessageSaga),
     ])
   } finally {
-    console.log('publicChannelsMasterSaga stopping')
+    logger.info('publicChannelsMasterSaga stopping')
     if (yield cancelled()) {
-      console.log('publicChannelsMasterSaga cancelled')
+      logger.info('publicChannelsMasterSaga cancelled')
     }
   }
 }

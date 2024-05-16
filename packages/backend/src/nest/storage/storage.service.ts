@@ -12,7 +12,6 @@ import {
 import type { IPFS } from 'ipfs-core'
 import EventStore from 'orbit-db-eventstore'
 import KeyValueStore from 'orbit-db-kvstore'
-import path from 'path'
 import { EventEmitter } from 'events'
 import PeerId from 'peer-id'
 import { getCrypto } from 'pkijs'
@@ -37,16 +36,15 @@ import {
   type UserProfile,
   type UserProfilesStoredEvent,
 } from '@quiet/types'
-import { createLibp2pAddress, isDefined } from '@quiet/common'
+import { createLibp2pAddress } from '@quiet/common'
 import fs from 'fs'
 import { IpfsFileManagerService } from '../ipfs-file-manager/ipfs-file-manager.service'
 import { IPFS_REPO_PATCH, ORBIT_DB_DIR, QUIET_DIR } from '../const'
 import { IpfsFilesManagerEvents } from '../ipfs-file-manager/ipfs-file-manager.types'
-import { LocalDBKeys } from '../local-db/local-db.types'
 import { LocalDbService } from '../local-db/local-db.service'
 import { LazyModuleLoader } from '@nestjs/core'
-import Logger from '../common/logger'
-import { DirectMessagesRepo, PublicChannelsRepo } from '../common/types'
+import { createLogger } from '../common/logger'
+import { PublicChannelsRepo } from '../common/types'
 import { removeFiles, removeDirs, createPaths } from '../common/utils'
 import { DBOptions, StorageEvents } from './storage.types'
 import { CertificatesStore } from './certificates/certificates.store'
@@ -58,7 +56,6 @@ import { UserProfileStore } from './userProfile/userProfile.store'
 @Injectable()
 export class StorageService extends EventEmitter {
   public publicChannelsRepos: Map<string, PublicChannelsRepo> = new Map()
-  public directMessagesRepos: Map<string, DirectMessagesRepo> = new Map()
   private publicKeysMap: Map<string, CryptoKey> = new Map()
 
   public certificates: EventStore<string>
@@ -69,7 +66,7 @@ export class StorageService extends EventEmitter {
   private peerId: PeerId | null = null
   private ipfsStarted: boolean
 
-  private readonly logger = Logger(StorageService.name)
+  private readonly logger = createLogger(StorageService.name)
 
   constructor(
     @Inject(QUIET_DIR) public readonly quietDir: string,
@@ -87,7 +84,7 @@ export class StorageService extends EventEmitter {
   }
 
   private prepare() {
-    this.logger('Initializing storage')
+    this.logger.info('Initializing storage')
     removeFiles(this.quietDir, 'LOCK')
     removeDirs(this.quietDir, 'repo.lock')
     this.ipfsStarted = false
@@ -98,7 +95,7 @@ export class StorageService extends EventEmitter {
 
     this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.STORAGE_INITIALIZED)
 
-    this.logger('Initialized storage')
+    this.logger.info('Initialized storage')
   }
 
   public async init(peerId: any) {
@@ -134,20 +131,20 @@ export class StorageService extends EventEmitter {
   }
 
   private async startIpfs() {
-    this.logger('Starting IPFS')
+    this.logger.info('Starting IPFS')
     return this.ipfs
       .start()
       .then(async () => {
-        this.logger('IPFS started')
+        this.logger.info('IPFS started')
         this.ipfsStarted = true
         try {
           await this.startReplicate()
         } catch (e) {
-          console.log(`Couldn't start store replication`)
+          this.logger.error(`Couldn't start store replication`, e)
         }
       })
       .catch((e: Error) => {
-        console.log(`Couldn't start ipfs node`, e.message)
+        this.logger.error(`Couldn't start ipfs node`, e)
         throw new Error(e.message)
       })
   }
@@ -186,9 +183,9 @@ export class StorageService extends EventEmitter {
   }
 
   public async initDatabases() {
-    console.time('Storage.initDatabases')
+    this.logger.time('Storage.initDatabases')
 
-    this.logger('1/3')
+    this.logger.info('1/3')
     this.attachStoreListeners()
 
     // FIXME: This is sort of messy how we are initializing things.
@@ -196,29 +193,29 @@ export class StorageService extends EventEmitter {
     // initialization which is picked up by the CertificatesStore, but
     // the CertificatesStore is not initialized yet. Perhaps we can
     // initialize stores first and then load data/send events.
-    this.logger('2/3')
+    this.logger.info('2/3')
     await this.communityMetadataStore.init()
     await this.certificatesStore.init()
     await this.certificatesRequestsStore.init()
     await this.userProfileStore.init()
 
-    this.logger('3/3')
+    this.logger.info('3/3')
     await this.createDbForChannels()
     await this.initAllChannels()
 
-    console.timeEnd('Storage.initDatabases')
-    this.logger('Initialized DBs')
+    this.logger.timeEnd('Storage.initDatabases')
+    this.logger.info('Initialized DBs')
 
     this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.DBS_INITIALIZED)
   }
 
   private async subscribeToPubSub(addr: string[]) {
     if (!this.ipfsStarted) {
-      this.logger(`IPFS not started. Not subscribing to ${addr}`)
+      this.logger.warn(`IPFS not started. Not subscribing to ${addr}`)
       return
     }
     for (const a of addr) {
-      this.logger(`Pubsub - subscribe to ${a}`)
+      this.logger.info(`Pubsub - subscribe to ${a}`)
       // @ts-ignore
       await this.orbitDbService.orbitDb._pubsub.subscribe(
         a,
@@ -232,13 +229,13 @@ export class StorageService extends EventEmitter {
 
   private async __stopIPFS() {
     if (this.ipfs) {
-      this.logger('Stopping IPFS files manager')
+      this.logger.info('Stopping IPFS files manager')
       try {
         await this.filesManager.stop()
       } catch (e) {
-        this.logger.error('cannot stop filesManager')
+        this.logger.error('cannot stop filesManager', e)
       }
-      this.logger('Stopping IPFS')
+      this.logger.info('Stopping IPFS')
       try {
         await this.ipfs.stop()
       } catch (err) {
@@ -250,9 +247,9 @@ export class StorageService extends EventEmitter {
 
   public async stopOrbitDb() {
     try {
-      this.logger('Closing channels DB')
+      this.logger.info('Closing channels DB')
       await this.channels?.close()
-      this.logger('Closed channels DB')
+      this.logger.info('Closed channels DB')
     } catch (e) {
       this.logger.error('Error closing channels db', e)
     }
@@ -311,7 +308,7 @@ export class StorageService extends EventEmitter {
   }
 
   public async updateCommunityMetadata(communityMetadata: CommunityMetadata): Promise<CommunityMetadata | undefined> {
-    const meta = await this.communityMetadataStore?.updateCommunityMetadata(communityMetadata)
+    const meta = await this.communityMetadataStore?.setEntry(communityMetadata.id, communityMetadata)
     if (meta) {
       this.certificatesStore.updateMetadata(meta)
     }
@@ -327,7 +324,7 @@ export class StorageService extends EventEmitter {
     // Always include existing peers. Otherwise, if CSRs or
     // certificates do not replicate, then this could remove peers.
     const existingPeers = community.peerList ?? []
-    this.logger('Existing peers count:', existingPeers.length)
+    this.logger.info('Existing peers count:', existingPeers.length)
 
     const users = await this.getAllUsers()
     const peers = Array.from(
@@ -340,26 +337,26 @@ export class StorageService extends EventEmitter {
       throw new Error('Failed to update peers list - no peers')
     }
 
-    this.logger('Updating community peer list. Peers count:', sortedPeers.length)
+    this.logger.info('Updating community peer list. Peers count:', sortedPeers.length)
     community.peerList = sortedPeers
     await this.localDbService.setCommunity(community)
     this.emit(StorageEvents.COMMUNITY_UPDATED, community)
   }
 
   public async loadAllCertificates() {
-    this.logger('Loading all certificates')
-    return await this.certificatesStore.loadAllCertificates()
+    this.logger.info('Loading all certificates')
+    return await this.certificatesStore.getEntries()
   }
 
   public async loadAllChannels() {
-    this.logger('Getting all channels')
+    this.logger.info('Getting all channels')
     this.emit(StorageEvents.CHANNELS_STORED, {
       channels: this.channels.all as unknown as { [key: string]: PublicChannel },
     })
   }
 
   private async createDbForChannels() {
-    this.logger('createDbForChannels init')
+    this.logger.info('createDbForChannels init')
     this.channels = await this.orbitDbService.orbitDb.keyvalue<PublicChannel>('public-channels', {
       replicate: false,
       accessController: {
@@ -369,11 +366,11 @@ export class StorageService extends EventEmitter {
     })
 
     this.channels.events.on('write', async (_address, entry) => {
-      this.logger('WRITE: Channels')
+      this.logger.info('WRITE: Channels')
     })
 
     this.channels.events.on('replicated', async () => {
-      this.logger('REPLICATED: Channels')
+      this.logger.info('REPLICATED: Channels')
       this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CHANNELS_STORED)
 
       const channels = Object.values(this.channels.all)
@@ -396,12 +393,12 @@ export class StorageService extends EventEmitter {
     })
 
     await this.channels.load()
-    this.logger('Channels count:', Object.keys(this.channels.all).length)
-    this.logger('Channels names:', Object.keys(this.channels.all))
+    this.logger.info('Channels count:', Object.keys(this.channels.all).length)
+    this.logger.info('Channels names:', Object.keys(this.channels.all))
     Object.values(this.channels.all).forEach(async (channel: PublicChannel) => {
       await this.subscribeToChannel(channel)
     })
-    this.logger('STORAGE: Finished createDbForChannels')
+    this.logger.info('STORAGE: Finished createDbForChannels')
   }
 
   async initAllChannels() {
@@ -458,17 +455,17 @@ export class StorageService extends EventEmitter {
         return
       }
       if (!db) {
-        this.logger(`Can't subscribe to channel ${channelData.id}`)
+        this.logger.error(`Can't subscribe to channel ${channelData.id}`)
         return
       }
       repo = this.publicChannelsRepos.get(channelData.id)
     }
 
     if (repo && !repo.eventsAttached) {
-      this.logger('Subscribing to channel ', channelData.id)
+      this.logger.info('Subscribing to channel ', channelData.id)
 
       db.events.on('write', async (_address, entry) => {
-        this.logger(`Writing to public channel db ${channelData.id}`)
+        this.logger.info(`Writing to public channel db ${channelData.id}`)
         const verified = await this.verifyMessage(entry.payload.value)
 
         this.emit(StorageEvents.MESSAGES_STORED, {
@@ -478,7 +475,7 @@ export class StorageService extends EventEmitter {
       })
 
       db.events.on('replicate.progress', async (address, _hash, entry, progress, total) => {
-        this.logger(`progress ${progress as string}/${total as string}. Address: ${address as string}`)
+        this.logger.info(`progress ${progress as string}/${total as string}. Address: ${address as string}`)
         const messages = [entry.payload.value]
 
         const verified = await this.verifyMessage(messages[0])
@@ -514,7 +511,7 @@ export class StorageService extends EventEmitter {
       })
 
       db.events.on('replicated', async address => {
-        this.logger('Replicated.', address)
+        this.logger.info('Replicated.', address)
         const ids = this.getAllEventLogEntries<ChannelMessage>(db).map(msg => msg.id)
         const community = await this.localDbService.getCurrentCommunity()
 
@@ -545,7 +542,7 @@ export class StorageService extends EventEmitter {
       repo.eventsAttached = true
     }
 
-    this.logger(`Subscribed to channel ${channelData.id}`)
+    this.logger.info(`Subscribed to channel ${channelData.id}`)
     this.emit(StorageEvents.CHANNEL_SUBSCRIBED, {
       channelId: channelData.id,
     })
@@ -575,7 +572,7 @@ export class StorageService extends EventEmitter {
       throw new Error('Create channel validation error')
     }
 
-    this.logger(`Creating channel ${channelData.id}`)
+    this.logger.info(`Creating channel ${channelData.id}`)
 
     const channelId = channelData.id
     const db: EventStore<ChannelMessage> = await this.orbitDbService.orbitDb.log<ChannelMessage>(
@@ -590,27 +587,27 @@ export class StorageService extends EventEmitter {
     )
     const channel = this.channels.get(channelId)
 
-    this.logger('Found existing channel:', channel)
+    this.logger.info('Found existing channel:', channel)
 
     if (channel === undefined) {
       await this.channels.put(channelId, { ...channelData })
     }
 
     this.publicChannelsRepos.set(channelId, { db, eventsAttached: false })
-    this.logger(`Set ${channelId} to local channels`)
+    this.logger.info(`Set ${channelId} to local channels`)
     await db.load()
-    this.logger(`Created channel ${channelId}`)
+    this.logger.info(`Created channel ${channelId}`)
     await this.subscribeToPubSub([StorageService.dbAddress(db.address)])
 
     return db
   }
 
   public async deleteChannel(payload: { channelId: string; ownerPeerId: string }) {
-    console.log('deleting channel storage', payload)
+    this.logger.info('deleting channel storage', payload)
     const { channelId, ownerPeerId } = payload
     const channel = this.channels.get(channelId)
     if (!this.peerId) {
-      this.logger('deleteChannel - peerId is null')
+      this.logger.error('deleteChannel - peerId is null')
       throw new Error('deleteChannel - peerId is null')
     }
     const isOwner = ownerPeerId === this.peerId.toString()
@@ -647,17 +644,17 @@ export class StorageService extends EventEmitter {
   }
 
   public async deleteChannelMessages(hashes: CID[]) {
-    console.log('hashes ', hashes)
+    this.logger.info('hashes ', hashes)
     const gcresult = this.ipfs.repo.gc()
     for await (const res of gcresult) {
       // @ts-ignore
       // const ccc = base58.base58btc.encode(res.cid?.multihash.bytes)
-      // console.log('base58btc encoded', ccc)
-      // console.log('garbage collector result', res)
+      // this.logger.info('base58btc encoded', ccc)
+      // this.logger.info('garbage collector result', res)
     }
     // for await (const result of this.ipfs.block.rm(hashes)) {
     //   if (result.error) {
-    //     console.error(`Failed to remove block ${result.cid} due to ${result.error.message}`)
+    //     logger.error(`Failed to remove block ${result.cid}`, result.error)
     //   }
     // }
   }
@@ -673,7 +670,7 @@ export class StorageService extends EventEmitter {
       return
     }
     try {
-      this.logger('Sending message:', message.id)
+      this.logger.info('Sending message:', message.id)
       await repo.db.add(message)
     } catch (e) {
       this.logger.error(
@@ -716,30 +713,29 @@ export class StorageService extends EventEmitter {
   }
 
   public async saveCertificate(payload: SaveCertificatePayload): Promise<boolean> {
-    this.logger('About to save certificate...')
+    this.logger.info('About to save certificate...')
     if (!payload.certificate) {
-      this.logger('Certificate is either null or undefined, not saving to db')
+      this.logger.error('Certificate is either null or undefined, not saving to db')
       return false
     }
-    this.logger('Saving certificate...')
-    const result = await this.certificatesStore.addCertificate(payload.certificate)
-    return result
+    this.logger.info('Saving certificate...')
+    await this.certificatesStore.addEntry(payload.certificate)
+    return true
   }
 
-  public async saveCSR(payload: SaveCSRPayload): Promise<boolean> {
-    const result = await this.certificatesRequestsStore.addUserCsr(payload.csr)
-    return result
+  public async saveCSR(payload: SaveCSRPayload): Promise<void> {
+    await this.certificatesRequestsStore.addEntry(payload.csr)
   }
 
   /**
    * Retrieve all users (using certificates and CSRs to determine users)
    */
   public async getAllUsers(): Promise<UserData[]> {
-    const csrs = await this.certificatesRequestsStore.getCsrs()
-    const certs = await this.certificatesStore.getCertificates()
+    const csrs = await this.certificatesRequestsStore.getEntries()
+    const certs = await this.certificatesStore.getEntries()
     const allUsersByKey: Record<string, UserData> = {}
 
-    this.logger(`Retrieving all users. CSRs count: ${csrs.length} Certificates count: ${certs.length}`)
+    this.logger.info(`Retrieving all users. CSRs count: ${csrs.length} Certificates count: ${certs.length}`)
 
     for (const cert of certs) {
       const parsedCert = parseCertificate(cert)
@@ -779,7 +775,7 @@ export class StorageService extends EventEmitter {
 
     const allUsers = Object.values(allUsersByKey)
 
-    this.logger(`All users count: ${allUsers.length}`)
+    this.logger.info(`All users count: ${allUsers.length}`)
 
     return allUsers
   }
@@ -788,7 +784,7 @@ export class StorageService extends EventEmitter {
     /**
      * Check if given username is already in use
      */
-    const certificates = this.getAllEventLogEntries(this.certificatesStore.store)
+    const certificates = this.getAllEventLogEntries(this.certificatesStore.getStore())
     for (const cert of certificates) {
       const parsedCert = parseCertificate(cert)
       const certUsername = getCertFieldValue(parsedCert, CertFieldsTypes.nickName)
@@ -805,24 +801,24 @@ export class StorageService extends EventEmitter {
       const message = messages[key]
       if (message?.media?.path) {
         const mediaPath = message.media.path
-        this.logger('deleteFilesFromChannel : mediaPath', mediaPath)
+        this.logger.info('deleteFilesFromChannel : mediaPath', mediaPath)
         const isFileExist = await this.checkIfFileExist(mediaPath)
-        this.logger(`deleteFilesFromChannel : isFileExist- ${isFileExist}`)
+        this.logger.info(`deleteFilesFromChannel : isFileExist- ${isFileExist}`)
         if (isFileExist) {
           fs.unlink(mediaPath, unlinkError => {
             if (unlinkError) {
-              this.logger(`deleteFilesFromChannel : unlink error - ${unlinkError}`)
+              this.logger.error(`deleteFilesFromChannel : unlink error`, unlinkError)
             }
           })
         } else {
-          this.logger(`deleteFilesFromChannel : file dont exist - ${mediaPath}`)
+          this.logger.error(`deleteFilesFromChannel : file does not exist`, mediaPath)
         }
       }
     })
   }
 
   public async addUserProfile(profile: UserProfile) {
-    await this.userProfileStore.addUserProfile(profile)
+    await this.userProfileStore.setEntry(profile.pubKey, profile)
   }
 
   public async checkIfFileExist(filepath: string): Promise<boolean> {
@@ -840,7 +836,6 @@ export class StorageService extends EventEmitter {
     this.messageThreads = undefined
     // @ts-ignore
     this.publicChannelsRepos = new Map()
-    this.directMessagesRepos = new Map()
     this.publicKeysMap = new Map()
     // @ts-ignore
     this.ipfs = null
@@ -851,5 +846,6 @@ export class StorageService extends EventEmitter {
     this.certificatesRequestsStore.clean()
     this.certificatesStore.clean()
     this.communityMetadataStore.clean()
+    this.userProfileStore.clean()
   }
 }

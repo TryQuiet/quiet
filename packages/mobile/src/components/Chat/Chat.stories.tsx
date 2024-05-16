@@ -4,6 +4,9 @@ import { storybookLog } from '../../utils/functions/storybookLog/storybookLog.fu
 
 import { Chat } from './Chat.component'
 import { DocumentPickerResponse } from 'react-native-document-picker'
+import { createLogger } from '../../utils/logger'
+
+const logger = createLogger('chat:stories')
 
 storiesOf('Chat', module)
   .add('Default', () => (
@@ -239,10 +242,10 @@ storiesOf('Chat', module)
         },
       }}
       updateUploadedFiles={function (_filesData: DocumentPickerResponse[]): void {
-        console.log('updateUploadedFiles')
+        logger.info('updateUploadedFiles')
       }}
       removeFilePreview={function (id: string): void {
-        console.log(`removeFilePreview ${id}`)
+        logger.info(`removeFilePreview ${id}`)
       }}
       duplicatedUsernameHandleBack={function (): void {}}
       unregisteredUsernameHandleBack={function (username: string): void {}}
@@ -270,10 +273,10 @@ storiesOf('Chat', module)
         id: '',
       }}
       updateUploadedFiles={function (_filesData: DocumentPickerResponse[]): void {
-        console.log('updateUploadedFiles')
+        logger.info('updateUploadedFiles')
       }}
       removeFilePreview={function (id: string): void {
-        console.log(`removeFilePreview ${id}`)
+        logger.info(`removeFilePreview ${id}`)
       }}
       duplicatedUsernameHandleBack={function (): void {}}
       unregisteredUsernameHandleBack={function (username: string): void {}}

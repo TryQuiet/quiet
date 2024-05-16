@@ -11,7 +11,7 @@ import { CONFIG_OPTIONS, QUIET_DIR, SERVER_IO_PROVIDER, TOR_PARAMS_PROVIDER, TOR
 import { TorControl } from './tor-control.service'
 import { GetInfoTorSignal, HiddenServiceData, TorParams, TorParamsProvider, TorPasswordProvider } from './tor.types'
 
-import Logger from '../common/logger'
+import { createLogger } from '../common/logger'
 
 export class Tor extends EventEmitter implements OnModuleInit {
   socksPort: number
@@ -22,7 +22,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
   controlPort: number | undefined
   interval: any
   initTimeout: any
-  private readonly logger = Logger(Tor.name)
+  private readonly logger = createLogger(Tor.name)
   private hiddenServices: Map<string, HiddenServiceData> = new Map()
   private initializedHiddenServices: Map<string, HiddenServiceData> = new Map()
   constructor(
@@ -36,7 +36,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
     super()
     this.controlPort = configOptions.torControlPort
 
-    console.log('QUIET DIR', this.quietDir)
+    this.logger.info('QUIET DIR', this.quietDir)
   }
 
   async onModuleInit() {
@@ -60,10 +60,10 @@ export class Tor extends EventEmitter implements OnModuleInit {
   }
 
   private async isBootstrappingFinished(): Promise<boolean> {
-    this.logger('Checking bootstrap status')
+    this.logger.info('Checking bootstrap status')
     const output = await this.torControl.sendCommand('GETINFO status/bootstrap-phase')
     if (output.messages[0] === '250-status/bootstrap-phase=NOTICE BOOTSTRAP PROGRESS=100 TAG=done SUMMARY="Done"') {
-      this.logger('Bootstrapping finished!')
+      this.logger.info('Bootstrapping finished!')
       return true
     }
     return false
@@ -71,11 +71,11 @@ export class Tor extends EventEmitter implements OnModuleInit {
 
   public async init(timeout = 120_000): Promise<void> {
     if (!this.socksPort) this.socksPort = await getPort()
-    this.logger('Initializing tor...')
+    this.logger.info('Initializing tor...')
 
     return await new Promise((resolve, reject) => {
       if (!fs.existsSync(this.quietDir)) {
-        this.logger("Quiet dir doesn't exist, creating it now")
+        this.logger.info("Quiet dir doesn't exist, creating it now")
         fs.mkdirSync(this.quietDir)
       }
 
@@ -85,11 +85,11 @@ export class Tor extends EventEmitter implements OnModuleInit {
       if (fs.existsSync(this.torPidPath)) {
         const file = fs.readFileSync(this.torPidPath)
         oldTorPid = Number(file.toString())
-        this.logger(`${this.torPidPath} exists. Old tor pid: ${oldTorPid}`)
+        this.logger.info(`${this.torPidPath} exists. Old tor pid: ${oldTorPid}`)
       }
 
       this.initTimeout = setTimeout(async () => {
-        this.logger('Checking init timeout')
+        this.logger.info('Checking init timeout')
         const bootstrapDone = await this.isBootstrappingFinished()
         if (!bootstrapDone) {
           this.initializedHiddenServices = new Map()
@@ -100,39 +100,39 @@ export class Tor extends EventEmitter implements OnModuleInit {
 
       const tryToSpawnTor = async () => {
         if (oldTorPid != null) {
-          this.logger(`Clearing out old tor process with pid ${oldTorPid}`)
+          this.logger.info(`Clearing out old tor process with pid ${oldTorPid}`)
           this.clearOldTorProcess(oldTorPid)
         }
 
         try {
-          this.logger('Clearing out hanging tor process(es)')
+          this.logger.info('Clearing out hanging tor process(es)')
           this.clearHangingTorProcess()
         } catch (e) {
-          this.logger('Error occured while trying to clear hanging tor processes', e)
+          this.logger.error('Error occured while trying to clear hanging tor processes', e)
         }
 
         try {
-          this.logger('Spawning new tor process(es)')
+          this.logger.info('Spawning new tor process(es)')
           await this.spawnTor()
 
           this.interval = setInterval(async () => {
-            this.logger('Checking bootstrap interval')
+            this.logger.info('Checking bootstrap interval')
             const bootstrapDone = await this.isBootstrappingFinished()
             if (bootstrapDone) {
-              this.logger(`Sending ${SocketActionTypes.TOR_INITIALIZED}`)
+              this.logger.info(`Sending ${SocketActionTypes.TOR_INITIALIZED}`)
               this.serverIoProvider.io.emit(SocketActionTypes.TOR_INITIALIZED)
               // TODO: Figure out how to get redialing (or, ideally, initial dialing) on tor initialization working
-              // this.logger('Attempting to redial peers (if possible)')
+              // this.logger.info('Attempting to redial peers (if possible)')
               // this.emit(SocketActionTypes.REDIAL_PEERS)
               clearInterval(this.interval)
             }
           }, 2500)
 
-          this.logger(`Spawned tor with pid(s): ${this.getTorProcessIds()}`)
+          this.logger.info(`Spawned tor with pid(s): ${this.getTorProcessIds()}`)
 
           resolve()
         } catch (e) {
-          this.logger('Killing tor due to error', e)
+          this.logger.error('Killing tor due to error', e)
           this.clearHangingTorProcess()
           removeFilesFromDir(this.torDataDirectory)
 
@@ -183,14 +183,14 @@ export class Tor extends EventEmitter implements OnModuleInit {
   }
 
   public clearHangingTorProcess() {
-    this.logger('Attempting to kill hanging tor processes')
+    this.logger.info('Attempting to kill hanging tor processes')
     const ids = this.getTorProcessIds()
     if (ids.length === 0) {
-      this.logger('No tor process(es) found to kill')
+      this.logger.info('No tor process(es) found to kill')
       return
     }
 
-    this.logger(`Found tor process(es) with pid(s) ${ids}. Killing...`)
+    this.logger.info(`Found tor process(es) with pid(s) ${ids}. Killing...`)
 
     for (const id of ids) {
       try {
@@ -210,14 +210,14 @@ export class Tor extends EventEmitter implements OnModuleInit {
           this.logger.error(err)
         }
         if (stdout.trim() === 'tor' || stdout.search('tor.exe') !== -1) {
-          this.logger(`Killing old tor, pid: ${oldTorPid}`)
+          this.logger.info(`Killing old tor, pid: ${oldTorPid}`)
           try {
             process.kill(oldTorPid, 'SIGTERM')
           } catch (e) {
-            this.logger.error(`Tried killing old tor process. Failed. Reason: ${e.message}`)
+            this.logger.error(`Tried killing old tor process. Failed.`, e)
           }
         } else {
-          this.logger(`Deleting ${this.torPidPath}`)
+          this.logger.info(`Deleting ${this.torPidPath}`)
           fs.unlinkSync(this.torPidPath)
         }
       }
@@ -225,7 +225,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
   }
 
   protected async spawnTor(): Promise<void> {
-    this.logger('Spawning tor')
+    this.logger.info('Spawning tor')
     return await new Promise((resolve, reject) => {
       if (!this.configOptions.httpTunnelPort) {
         this.logger.error("Can't spawn tor - no httpTunnelPort")
@@ -269,7 +269,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
       })
 
       this.process.on('exit', (code, signal) => {
-        this.logger(`Tor exited with code ${code} and signal ${signal}`)
+        this.logger.info(`Tor exited with code ${code} and signal ${signal}`)
       })
 
       this.process.on('error', err => {
@@ -277,8 +277,6 @@ export class Tor extends EventEmitter implements OnModuleInit {
       })
 
       this.process.stdout.on('data', (data: any) => {
-        this.logger(data.toString())
-
         const bootstrappedRegexp = /Bootstrapped 0/
         // TODO: Figure out if there's a way to get this working in tests
         // const bootstrappedRegexp = /Loaded enough directory info to build circuits/
@@ -289,13 +287,13 @@ export class Tor extends EventEmitter implements OnModuleInit {
       })
 
       this.process.stderr.on('data', (data: any) => {
-        this.logger('ERROR:', data.toString())
+        this.logger.error('ERROR:', data)
       })
     })
   }
 
   public async spawnHiddenServices() {
-    this.logger(`Spawning hidden service(s) (count: ${this.hiddenServices.size})`)
+    this.logger.info(`Spawning hidden service(s) (count: ${this.hiddenServices.size})`)
     for (const el of this.hiddenServices.values()) {
       await this.spawnHiddenService(el)
     }
@@ -310,17 +308,17 @@ export class Tor extends EventEmitter implements OnModuleInit {
     privKey: string
     virtPort?: number
   }): Promise<string> {
-    this.logger(`Spawning Tor hidden service`)
+    this.logger.info(`Spawning Tor hidden service`)
     const initializedHiddenService = this.initializedHiddenServices.get(privKey)
     if (initializedHiddenService) {
-      this.logger(`Hidden service already initialized for ${initializedHiddenService.onionAddress}`)
+      this.logger.warn(`Hidden service already initialized for ${initializedHiddenService.onionAddress}`)
       return initializedHiddenService.onionAddress
     }
     const status = await this.torControl.sendCommand(
       `ADD_ONION ${privKey} Flags=Detach Port=${virtPort},127.0.0.1:${targetPort}`
     )
     const onionAddress = status.messages[0].replace('250-ServiceID=', '')
-    this.logger(`Spawned hidden service with onion address ${onionAddress}`)
+    this.logger.info(`Spawned hidden service with onion address ${onionAddress}`)
 
     const hiddenService: HiddenServiceData = { targetPort, privKey, virtPort, onionAddress }
     this.hiddenServices.set(privKey, hiddenService)
@@ -363,28 +361,28 @@ export class Tor extends EventEmitter implements OnModuleInit {
 
   public async switchToCleanCircuts() {
     try {
-      this.logger('Sending newnym')
+      this.logger.info('Sending newnym')
       const response = await this.torControl.sendCommand('SIGNAL NEWNYM')
-      this.logger('Newnym response', response)
+      this.logger.info('Newnym response', response)
     } catch (e) {
-      this.logger('Could not send newnym', e.message)
+      this.logger.error('Could not send newnym', e)
     }
   }
 
   public async getInfo(getInfoTarget: GetInfoTorSignal) {
     try {
       const response = await this.torControl.sendCommand(`GETINFO ${getInfoTarget}`)
-      this.logger('GETINFO', getInfoTarget, response)
+      this.logger.info('GETINFO', getInfoTarget, response)
     } catch (e) {
-      this.logger('Could not get info', getInfoTarget)
+      this.logger.error('Could not get info', getInfoTarget, e)
     }
   }
 
   public async kill(): Promise<void> {
     return await new Promise((resolve, reject) => {
-      this.logger('Killing tor... with pid', this.process?.pid)
+      this.logger.info('Killing tor... with pid', this.process?.pid)
       if (this.process === null) {
-        this.logger('TOR: Process is not initalized.')
+        this.logger.warn('TOR: Process is not initalized.')
         resolve()
         return
       }

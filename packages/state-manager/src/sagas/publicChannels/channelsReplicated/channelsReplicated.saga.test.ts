@@ -15,6 +15,9 @@ import { publicChannelsSelectors } from '../publicChannels.selectors'
 import { messagesActions } from '../../messages/messages.slice'
 import { type Community, type Identity, MessageType, type PublicChannel } from '@quiet/types'
 import { generateChannelId } from '@quiet/common'
+import { createLogger } from '../../../utils/logger'
+
+const logger = createLogger('channelsReplicatedSaga-test')
 
 describe('channelsReplicatedSaga', () => {
   let store: Store
@@ -74,7 +77,7 @@ describe('channelsReplicatedSaga', () => {
   })
 
   test('save replicated channels in local storage', async () => {
-    console.log({ generalChannel })
+    logger.info({ generalChannel })
     const reducer = combineReducers(reducers)
     await expectSaga(
       channelsReplicatedSaga,

@@ -31,6 +31,9 @@ import { Libp2pEvents } from '../libp2p/libp2p.types'
 import { sleep } from '../common/sleep'
 import { createLibp2pAddress } from '@quiet/common'
 import { lib } from 'crypto-js'
+import { createLogger } from '../common/logger'
+
+const logger = createLogger('connectionsManager:test')
 
 jest.setTimeout(100_000)
 
@@ -200,7 +203,7 @@ describe('Connections manager', () => {
     const peerList: string[] = []
     const peersCount = 7
     for (let pCount = 0; pCount < peersCount; pCount++) {
-      console.log('pushing peer ', pCount)
+      logger.info('pushing peer ', pCount)
       peerList.push(
         createLibp2pAddress(`${Math.random().toString(36).substring(2, 13)}.onion`, (await createPeerId()).toString())
       )

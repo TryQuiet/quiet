@@ -14,11 +14,14 @@ import {
   InvalidInvitationLinkError,
   JoiningAnotherCommunityWarning,
 } from '@quiet/common'
+import { createLogger } from '../../../utils/logger'
+
+const logger = createLogger('deepLink')
 
 export function* deepLinkSaga(action: PayloadAction<ReturnType<typeof initActions.deepLink>['payload']>): Generator {
   const code = action.payload
 
-  console.log('INIT_NAVIGATION: Waiting for websocket connection before proceeding with deep link flow.')
+  logger.info('INIT_NAVIGATION: Waiting for websocket connection before proceeding with deep link flow.')
 
   while (true) {
     const connected = yield* select(initSelectors.isWebsocketConnected)
@@ -28,7 +31,7 @@ export function* deepLinkSaga(action: PayloadAction<ReturnType<typeof initAction
     yield* delay(500)
   }
 
-  console.log('INIT_NAVIGATION: Continuing on deep link flow.')
+  logger.info('INIT_NAVIGATION: Continuing on deep link flow.')
 
   // Reset deep link flag for future redirections sake
   yield* put(initActions.resetDeepLink())
@@ -37,7 +40,7 @@ export function* deepLinkSaga(action: PayloadAction<ReturnType<typeof initAction
   try {
     data = getInvitationCodes(code)
   } catch (e) {
-    console.warn(e.message)
+    logger.error(e)
     yield* put(
       navigationActions.replaceScreen({
         screen: ScreenNames.ErrorScreen,
@@ -58,7 +61,7 @@ export function* deepLinkSaga(action: PayloadAction<ReturnType<typeof initAction
 
   // User already belongs to a community
   if (isAlreadyConnected) {
-    console.log('INIT_NAVIGATION: Displaying error (user already belongs to a community).')
+    logger.info('INIT_NAVIGATION: Displaying error (user already belongs to a community).')
 
     yield* put(
       navigationActions.replaceScreen({
@@ -92,7 +95,7 @@ export function* deepLinkSaga(action: PayloadAction<ReturnType<typeof initAction
   const connectingWithAnotherCommunity = isJoiningAnotherCommunity && !isAlreadyConnected
 
   if (connectingWithAnotherCommunity) {
-    console.log('INIT_NAVIGATION: Displaying error (user is already connecting to another community).')
+    logger.info('INIT_NAVIGATION: Displaying error (user is already connecting to another community).')
 
     yield* put(
       navigationActions.replaceScreen({

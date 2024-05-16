@@ -19,6 +19,10 @@ import { userNameField } from '../../forms/fields/createUserFields'
 
 import { parseName } from '@quiet/common'
 
+import { createLogger } from '../../logger'
+
+const logger = createLogger('createUsername:component')
+
 const PREFIX = 'CreateUsernameComponent-'
 
 const classes = {
@@ -174,7 +178,7 @@ export const CreateUsernameComponent: React.FC<CreateUsernameComponentProps> = (
   const onSubmit = useCallback(
     (values: CreateUserValues) => {
       if (errors.userName) {
-        console.error('Cannot submit form with errors')
+        logger.error('Cannot submit form with errors')
         return
       }
 

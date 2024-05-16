@@ -6,9 +6,9 @@ import type { Multiaddr } from '@multiformats/multiaddr'
 import type { DuplexWebSocket } from 'it-ws/duplex'
 
 import pTimeout from 'p-timeout'
-import logger from '../common/logger'
+import { createLogger } from '../common/logger'
 
-const log = logger('libp2p:websockets:socket')
+const logger = createLogger('libp2p:websockets:socket')
 
 export interface SocketToConnOptions extends AbortOptions {
   localAddr?: Multiaddr
@@ -33,7 +33,7 @@ export function socketToMaConn(
         await stream.sink(source)
       } catch (err: any) {
         if (err.type !== 'aborted') {
-          log.error(err)
+          logger.error(`Error creating MultiaddrConnection from socket`, err)
         }
       }
     },
@@ -52,7 +52,10 @@ export function socketToMaConn(
         await pTimeout(stream.close(), CLOSE_TIMEOUT)
       } catch (err) {
         const { host, port } = maConn.remoteAddr.toOptions()
-        log('timeout closing stream to %s:%s after %dms, destroying it manually', host, port, Date.now() - start)
+        logger.error(
+          `timeout closing stream to ${host}:${port} after ${Date.now() - start}ms, destroying it manually`,
+          err
+        )
 
         stream.destroy()
       } finally {

@@ -1,6 +1,9 @@
 import { hangingBackendProcessCommand } from '@quiet/common'
 import { execSync } from 'child_process'
 import getPort from 'get-port'
+import { createLogger } from './logger'
+
+const logger = createLogger('backendHelpers')
 
 export const getPorts = async (): Promise<{
   socksPort: number
@@ -30,14 +33,14 @@ export const closeHangingBackendProcess = (backendBundlePath: string, dataDir: s
   if (!command) return
   const backendPids = execSync(command).toString('utf8').trim()
   if (!backendPids) return
-  console.log('PIDs', backendPids)
+  logger.info('PIDs', backendPids)
   const PIDs = backendPids.split('\n')
-  console.log(`Found ${PIDs.length} hanging backend process(es) with pid(s) ${PIDs}. Killing...`)
+  logger.info(`Found ${PIDs.length} hanging backend process(es) with pid(s) ${PIDs}. Killing...`)
   for (const pid of PIDs) {
     try {
       process.kill(Number(pid), 'SIGKILL')
     } catch (e) {
-      console.error(`Tried killing hanging backend process (PID: ${pid}). Failed. Reason: ${e.message}`)
+      logger.error(`Tried killing hanging backend process (PID: ${pid}). Failed`, e)
     }
   }
 }

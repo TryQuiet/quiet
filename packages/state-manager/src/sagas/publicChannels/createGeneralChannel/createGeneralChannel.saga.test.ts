@@ -13,6 +13,9 @@ import { createGeneralChannelSaga, getChannelTimestamp } from './createGeneralCh
 import { generateChannelId } from '@quiet/common'
 import { type communitiesActions } from '../../communities/communities.slice'
 import { type Community, type Identity } from '@quiet/types'
+import { createLogger } from '../../../utils/logger'
+
+const logger = createLogger('createGeneralChannelSage-test')
 
 describe('createGeneralChannelSaga', () => {
   let store: Store
@@ -45,7 +48,7 @@ describe('createGeneralChannelSaga', () => {
       id: generalId,
       timestamp: 0,
     }
-    console.log({ channel })
+    logger.info({ channel })
     await expectSaga(createGeneralChannelSaga)
       .withReducer(reducer)
       .withState(store.getState())

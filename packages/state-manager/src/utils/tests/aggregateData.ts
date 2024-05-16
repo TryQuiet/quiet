@@ -2,6 +2,9 @@
 import os from 'os'
 import fs from 'fs'
 import path from 'path'
+import { createLogger } from '../../../utils/logger'
+
+const logger = createLogger('aggregateData')
 
 const dirPath = process.argv[2]
 const files = fs.readdirSync(dirPath || `${os.homedir()}/s3data`)
@@ -28,18 +31,18 @@ files.forEach(fileName => {
     return previousValue + currentValue
   }, 0)
 
-  console.log(`${fileName} messagesCount: ${dataSet.length}`)
-  console.log(`${fileName} average: ${accumulatedPerUser / delaysArrPerUser.length}`)
-  console.log(`${fileName} max:`, Math.max(...delaysArrPerUser))
+  logger.info(`${fileName} messagesCount: ${dataSet.length}`)
+  logger.info(`${fileName} average: ${accumulatedPerUser / delaysArrPerUser.length}`)
+  logger.info(`${fileName} max:`, Math.max(...delaysArrPerUser))
 })
 
-// console.log(delaysArr)
+// logger.info(delaysArr)
 
 const accumulated = delaysArr.reduce((previousValue, currentValue) => {
   return previousValue + currentValue
 }, 0)
 
 const longestTime = Math.max(...delaysArr)
-console.log(`Users count: ${files.length}`)
-console.log('Average:', accumulated / delaysArr.length)
-console.log('Max:', longestTime)
+logger.info(`Users count: ${files.length}`)
+logger.info('Average:', accumulated / delaysArr.length)
+logger.info('Max:', longestTime)

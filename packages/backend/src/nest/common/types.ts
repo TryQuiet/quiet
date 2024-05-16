@@ -6,11 +6,6 @@ export interface PublicChannelsRepo {
   eventsAttached: boolean
 }
 
-export interface DirectMessagesRepo {
-  db: EventStore<string>
-  eventsAttached: boolean
-}
-
 export type ChannelInfoResponse = Record<string, PublicChannel>
 
 export class StorageOptions {

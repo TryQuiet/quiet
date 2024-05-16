@@ -19,6 +19,9 @@ import { initSelectors } from '../init.selectors'
 import { initActions, WebsocketConnectionPayload } from '../init.slice'
 import { eventChannel } from 'redux-saga'
 import { SocketActionTypes } from '@quiet/types'
+import { createLogger } from '../../../utils/logger'
+
+const logger = createLogger('startConnection')
 
 export function* startConnectionSaga(
   action: PayloadAction<ReturnType<typeof initActions.startWebsocketConnection>['payload']>
@@ -28,7 +31,7 @@ export function* startConnectionSaga(
 
   const { dataPort, socketIOSecret } = action.payload
 
-  console.log('WEBSOCKET', 'Entered start connection saga', dataPort)
+  logger.info('WEBSOCKET', 'Entered start connection saga', dataPort)
 
   let _dataPort = dataPort
 
@@ -37,11 +40,11 @@ export function* startConnectionSaga(
   }
 
   if (!socketIOSecret) {
-    console.error('WEBSOCKET', 'Missing IO secret')
+    logger.error('WEBSOCKET', 'Missing IO secret')
     return
   }
 
-  console.log('Connecting to backend')
+  logger.info('Connecting to backend')
   const token = encodeSecret(socketIOSecret)
   const socket = yield* call(io, `http://127.0.0.1:${_dataPort}`, {
     withCredentials: true,
@@ -55,7 +58,7 @@ export function* startConnectionSaga(
 }
 
 function* setConnectedSaga(socket: Socket): Generator {
-  console.log('Frontend is ready. Forking state-manager sagas and starting backend...')
+  logger.info('Frontend is ready. Forking state-manager sagas and starting backend...')
 
   const task = yield* fork(stateManager.useIO, socket)
 
@@ -82,11 +85,11 @@ function subscribeSocketLifecycle(socket: Socket, socketIOData: WebsocketConnect
   >(emit => {
     socket.on('connect', async () => {
       socket_id = socket.id
-      console.log('client: Websocket connected', socket_id)
+      logger.info('client: Websocket connected', socket_id)
       emit(initActions.setWebsocketConnected(socketIOData))
     })
     socket.on('disconnect', reason => {
-      console.warn('client: Closing socket connection', socket_id, reason)
+      logger.warn('client: Closing socket connection', socket_id, reason)
       emit(initActions.suspendWebsocketConnection())
     })
     return () => {}
@@ -94,7 +97,7 @@ function subscribeSocketLifecycle(socket: Socket, socketIOData: WebsocketConnect
 }
 
 function* cancelRootTaskSaga(task: FixedTask<Generator>): Generator {
-  console.warn('Canceling root task', task.error())
+  logger.warn('Canceling root task', task.error())
   yield* cancel(task)
   yield* putResolve(initActions.canceledRootTask())
 }

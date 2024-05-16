@@ -5,6 +5,10 @@ import { withTheme } from '../../../storybook/decorators'
 
 import { SentryWarningComponent, SentryWarningProps } from './SentryWarningComponent'
 
+import { createLogger } from '../../../logger'
+
+const logger = createLogger('sentryWarning:stories')
+
 const Template: ComponentStory<typeof SentryWarningComponent> = args => {
   return <SentryWarningComponent {...args} />
 }
@@ -14,7 +18,7 @@ export const Component = Template.bind({})
 const args: SentryWarningProps = {
   open: true,
   handleClose: function (): void {
-    console.log('Closed modal')
+    logger.info('Closed modal')
   },
 }
 

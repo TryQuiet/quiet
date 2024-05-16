@@ -3,6 +3,10 @@ import React from 'react'
 import { renderComponent } from '../../../testUtils/renderComponent'
 import { TextWithLink } from './TextWithLink'
 
+import { createLogger } from '../../../logger'
+
+const logger = createLogger('textWithLink:test')
+
 describe('TextWithLink', () => {
   it('renders component', () => {
     const result = renderComponent(
@@ -13,7 +17,7 @@ describe('TextWithLink', () => {
             tag: 'simple',
             label: 'simple',
             action: () => {
-              console.log('linked clicked')
+              logger.info('linked clicked')
             },
           },
         ]}

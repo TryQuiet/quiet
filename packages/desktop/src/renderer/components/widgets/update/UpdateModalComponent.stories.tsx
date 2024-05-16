@@ -5,9 +5,11 @@ import UpdateModal, { UpdateModalProps } from './UpdateModalComponent'
 
 import { withTheme } from '../../../storybook/decorators'
 import { getTheme } from '../../../theme'
+import { createLogger } from '../../../logger'
 
 import Button from '@mui/material/Button'
 
+const logger = createLogger('updateModal:component:stories')
 const theme = getTheme()
 
 const Template: ComponentStory<typeof UpdateModal> = args => {
@@ -17,7 +19,7 @@ const Template: ComponentStory<typeof UpdateModal> = args => {
 const args: UpdateModalProps = {
   open: true,
   handleClose: function (): void {
-    console.log('modal closed')
+    logger.info('modal closed')
   },
   buttons: [
     <Button
@@ -26,7 +28,7 @@ const args: UpdateModalProps = {
       color='primary'
       type='submit'
       onClick={() => {
-        console.log('submit button clicked')
+        logger.info('submit button clicked')
       }}
       style={{
         height: 55,

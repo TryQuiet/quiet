@@ -59,7 +59,8 @@ module.exports = {
       filename: 'splash.html'
     }),
     new webpack.EnvironmentPlugin({
-      TEST_MODE: process.env.TEST_MODE
+      TEST_MODE: process.env.TEST_MODE,
+      COLORIZE: true
     }),
     new WebpackOnBuildPlugin(async () => {
       await new Promise((resolve, reject) => {

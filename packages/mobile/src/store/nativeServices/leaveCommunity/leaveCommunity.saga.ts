@@ -6,9 +6,12 @@ import { initActions } from '../../init/init.slice'
 import { nativeServicesSelectors } from '../nativeServices.selectors'
 import { navigationActions } from '../../navigation/navigation.slice'
 import { ScreenNames } from '../../../../src/const/ScreenNames.enum'
+import { createLogger } from '../../../utils/logger'
+
+const logger = createLogger('leaveCommunity')
 
 export function* leaveCommunitySaga(): Generator {
-  console.log('Leaving community')
+  logger.info('Leaving community')
   // Restart backend
   yield* putResolve(app.actions.closeServices())
 }
@@ -17,28 +20,28 @@ export function* clearReduxStore(): Generator {
   const shouldClearReduxStore = yield* select(nativeServicesSelectors.shouldClearReduxStore())
   if (!shouldClearReduxStore) return
 
-  console.info('Clearing redux store')
+  logger.info('Clearing redux store')
 
   // Stop persistor
-  console.info('Pausing persistor')
+  logger.info('Pausing persistor')
   yield* call(persistor.pause)
-  console.info('Flushing persistor')
+  logger.info('Flushing persistor')
   yield* call(persistor.flush)
-  console.info('Purging persistor')
+  logger.info('Purging persistor')
   yield* call(persistor.purge)
 
   // Clear redux store
-  console.info('Resetting app')
+  logger.info('Resetting app')
   yield* putResolve(nativeServicesActions.resetApp())
 
   // Resume persistor
-  console.info('Resuming persistor')
+  logger.info('Resuming persistor')
   yield* call(persistor.persist)
 
   // Restarting persistor doesn't mark store as ready automatically
-  console.info('Set store ready')
+  logger.info('Set store ready')
   yield* putResolve(initActions.setStoreReady())
 
-  console.info('Opening join community screen')
+  logger.info('Opening join community screen')
   yield* putResolve(navigationActions.replaceScreen({ screen: ScreenNames.JoinCommunityScreen }))
 }

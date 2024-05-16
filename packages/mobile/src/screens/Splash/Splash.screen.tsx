@@ -4,6 +4,9 @@ import { initSelectors } from '../../store/init/init.selectors'
 import { initActions } from '../../store/init/init.slice'
 import { SplashScreenProps } from './Splash.types'
 import { Splash } from '../../components/Splash/Splash.component'
+import { createLogger } from '../../utils/logger'
+
+const logger = createLogger('splash:screen')
 
 export const SplashScreen: FC<SplashScreenProps> = ({ route }) => {
   const dispatch = useDispatch()
@@ -15,7 +18,7 @@ export const SplashScreen: FC<SplashScreenProps> = ({ route }) => {
 
     // Screen hasn't been open through a link
     if (!code) {
-      console.log('INIT_NAVIGATION: Skipping deep link flow.')
+      logger.info('INIT_NAVIGATION: Skipping deep link flow.')
       return
     }
 
@@ -24,7 +27,7 @@ export const SplashScreen: FC<SplashScreenProps> = ({ route }) => {
     }
 
     if (ready) {
-      console.log('INIT_NAVIGATION: Starting deep link flow.')
+      logger.info('INIT_NAVIGATION: Starting deep link flow.')
       dispatch(initActions.deepLink(code))
     }
   }, [ready, route.path])

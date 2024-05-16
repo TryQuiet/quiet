@@ -4,6 +4,9 @@ import { Typography } from '../Typography/Typography.component'
 import { ContextMenuItemProps, ContextMenuProps } from './ContextMenu.types'
 import { defaultPalette } from '../../styles/palettes/default.palette'
 import { appImages } from '../../assets'
+import { createLogger } from '../../utils/logger'
+
+const logger = createLogger('contextMenu:component')
 
 export const ContextMenu: FC<ContextMenuProps> = ({
   visible,
@@ -13,7 +16,7 @@ export const ContextMenu: FC<ContextMenuProps> = ({
   hint,
   link,
   linkAction = () => {
-    console.log('No action attached for link tap gesture.')
+    logger.info('No action attached for link tap gesture.')
   },
   children,
 }) => {
