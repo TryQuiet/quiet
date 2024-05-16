@@ -26,9 +26,7 @@ const StyledListItemButton = styled(ListItemButton)(({ theme }) => ({
 
   [`&.${classes.selected}`]: {
     color: theme.palette.colors.contrastText,
-    backgroundColor: theme.palette.background.default,
-    borderTop: `1px solid ${theme.palette.colors.border03}`,
-    borderBottom: `1px solid ${theme.palette.colors.border03}`,
+    backgroundColor: theme.palette.colors.sidebarSelected,
   },
 
   [`& .${classes.primary}`]: {

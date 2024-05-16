@@ -121,6 +121,7 @@ const lightTheme = createTheme({
       border03: '#D2D2D2',
       // Other custom colors
       sidebarBackground: '#511974',
+      sidebarSelected: '#fff3',
     },
   },
   //@ts-ignore MUI types expect 25 shadows - see: https://github.com/mui/material-ui/issues/28820
@@ -315,7 +316,8 @@ const darkTheme = createTheme({
       border02: '#B3B3B3',
       border03: '#D2D2D2',
       // Gradients and other run-of-the-mill things
-      sidebarBackground: '#2F193D',
+      sidebarBackground: '#000',
+      sidebarSelected: '#fff3',
     },
   },
   //@ts-ignore MUI types expect 25 shadows - see: https://github.com/mui/material-ui/issues/28820
