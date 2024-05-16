@@ -1,3 +1,16 @@
+# Change Log
+
+All notable changes to this project will be documented in this file.
+See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+# [2.2.0-alpha.6](/compare/@quiet/mobile@2.2.0-alpha.5...@quiet/mobile@2.2.0-alpha.6) (2024-05-16)
+
+**Note:** Version bump only for package @quiet/mobile
+
+
+
+
+
 [unreleased]
 
 # New features:
