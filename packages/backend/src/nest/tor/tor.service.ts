@@ -49,7 +49,6 @@ export class Tor extends EventEmitter implements OnModuleInit {
       console.warn('No tor binary path, not running the tor service')
       return
     }
-    this.isTorServiceUsed = true
     await this.init()
   }
 
@@ -79,6 +78,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
   }
 
   public async init(timeout = 120_000): Promise<void> {
+    this.isTorServiceUsed = true
     if (!this.socksPort) this.socksPort = await getPort()
     this.logger('Initializing tor...')
 
@@ -134,12 +134,11 @@ export class Tor extends EventEmitter implements OnModuleInit {
               this.logger(`Sending ${SocketActionTypes.INITIAL_DIAL}`)
               this.emit(SocketActionTypes.INITIAL_DIAL)
               clearInterval(this.interval)
+              resolve()
             }
           }, 2500)
 
           this.logger(`Spawned tor with pid(s): ${this.getTorProcessIds()}`)
-
-          resolve()
         } catch (e) {
           this.logger('Killing tor due to error', e)
           this.clearHangingTorProcess()

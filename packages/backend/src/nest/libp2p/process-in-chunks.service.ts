@@ -15,7 +15,7 @@ type ProcessTask<T> = {
 
 export type ProcessInChunksServiceOptions<T> = {
   initialData: T[]
-  processItem: (arg: T) => Promise<any>
+  processItem: (arg: T) => Promise<boolean>
   chunkSize?: number | undefined
   startImmediately?: boolean
 }

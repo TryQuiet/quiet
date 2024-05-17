@@ -20,12 +20,13 @@ describe('ProcessInChunks', () => {
     const mockProcessItem = jest
       .fn(async a => {
         console.log('processing', a)
+        return true
       })
-      .mockResolvedValueOnce()
+      .mockResolvedValueOnce(true)
       .mockRejectedValueOnce(new Error('Rejected 1'))
-      .mockResolvedValueOnce()
+      .mockResolvedValueOnce(true)
       .mockRejectedValueOnce(new Error('Rejected 2'))
-    processInChunks.init({ initialData: ['a', 'b', 'c', 'd'], processItem: mockProcessItem })
+    processInChunks.init({ initialData: ['a', 'b', 'c', 'd'], processItem: mockProcessItem, chunkSize: 10 })
     await waitForExpect(() => {
       expect(mockProcessItem).toBeCalledTimes(6)
     })
@@ -35,10 +36,11 @@ describe('ProcessInChunks', () => {
     const mockProcessItem = jest
       .fn(async a => {
         console.log('processing', a)
+        return true
       })
-      .mockResolvedValueOnce()
+      .mockResolvedValueOnce(true)
       .mockRejectedValueOnce(new Error('Rejected 1'))
-    processInChunks.init({ initialData: ['a', 'b'], processItem: mockProcessItem })
+    processInChunks.init({ initialData: ['a', 'b'], processItem: mockProcessItem, chunkSize: 10 })
     processInChunks.updateQueue(['e', 'f'])
     await waitForExpect(() => {
       expect(mockProcessItem).toBeCalledTimes(5)
@@ -49,10 +51,11 @@ describe('ProcessInChunks', () => {
     const mockProcessItem = jest
       .fn(async a => {
         console.log('processing', a)
+        return true
       })
-      .mockResolvedValueOnce()
+      .mockResolvedValueOnce(true)
       .mockRejectedValueOnce(new Error('Rejected 1'))
-      .mockResolvedValueOnce()
+      .mockResolvedValueOnce(true)
       .mockRejectedValueOnce(new Error('Rejected 2'))
     const chunkSize = 2
     processInChunks.init({ initialData: ['a', 'b', 'c', 'd'], processItem: mockProcessItem, chunkSize })
@@ -63,16 +66,20 @@ describe('ProcessInChunks', () => {
   })
 
   it('does not process more data if stopped', async () => {
-    const mockProcessItem = jest.fn(async () => {})
-    processInChunks.init({ initialData: [], processItem: mockProcessItem })
+    const mockProcessItem = jest.fn(async () => {
+      return true
+    })
+    processInChunks.init({ initialData: [], processItem: mockProcessItem, chunkSize: 10 })
     processInChunks.pause()
     processInChunks.updateQueue(['a', 'b', 'c', 'd'])
     expect(mockProcessItem).not.toBeCalled()
   })
 
   it('processes tasks after resuming from pause', async () => {
-    const mockProcessItem = jest.fn(async () => {})
-    processInChunks.init({ initialData: [], processItem: mockProcessItem })
+    const mockProcessItem = jest.fn(async () => {
+      return true
+    })
+    processInChunks.init({ initialData: [], processItem: mockProcessItem, chunkSize: 10 })
     processInChunks.pause()
     processInChunks.updateQueue(['a', 'b', 'c', 'd'])
     processInChunks.resume()
@@ -82,8 +89,15 @@ describe('ProcessInChunks', () => {
   })
 
   it('processes tasks when deferred', async () => {
-    const mockProcessItem = jest.fn(async () => {})
-    processInChunks.init({ initialData: ['a', 'b', 'c', 'd'], processItem: mockProcessItem, startImmediately: false })
+    const mockProcessItem = jest.fn(async () => {
+      return true
+    })
+    processInChunks.init({
+      initialData: ['a', 'b', 'c', 'd'],
+      processItem: mockProcessItem,
+      startImmediately: false,
+      chunkSize: 10,
+    })
     await waitForExpect(() => {
       expect(mockProcessItem).toBeCalledTimes(0)
     })
