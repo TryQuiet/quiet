@@ -22,9 +22,12 @@ export class Tor extends EventEmitter implements OnModuleInit {
   controlPort: number | undefined
   interval: any
   initTimeout: any
+  public isTorInitialized: boolean = false
+  public isTorServiceUsed: boolean = false
   private readonly logger = Logger(Tor.name)
   private hiddenServices: Map<string, HiddenServiceData> = new Map()
   private initializedHiddenServices: Map<string, HiddenServiceData> = new Map()
+
   constructor(
     @Inject(CONFIG_OPTIONS) public configOptions: ConfigOptions,
     @Inject(QUIET_DIR) public readonly quietDir: string,
@@ -36,11 +39,17 @@ export class Tor extends EventEmitter implements OnModuleInit {
     super()
     this.controlPort = configOptions.torControlPort
 
-    console.log('QUIET DIR', this.quietDir)
+    this.logger('Created tor service')
+    this.logger('QUIET DIR', this.quietDir)
   }
 
   async onModuleInit() {
-    if (!this.torParamsProvider.torPath) return
+    this.logger('Running onModuleInit in tor.service')
+    if (!this.torParamsProvider.torPath) {
+      console.warn('No tor binary path, not running the tor service')
+      return
+    }
+    this.isTorServiceUsed = true
     await this.init()
   }
 
@@ -59,7 +68,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
     return Array.from(Object.entries(this.extraTorProcessParams)).flat()
   }
 
-  private async isBootstrappingFinished(): Promise<boolean> {
+  public async isBootstrappingFinished(): Promise<boolean> {
     this.logger('Checking bootstrap status')
     const output = await this.torControl.sendCommand('GETINFO status/bootstrap-phase')
     if (output.messages[0] === '250-status/bootstrap-phase=NOTICE BOOTSTRAP PROGRESS=100 TAG=done SUMMARY="Done"') {
@@ -119,11 +128,11 @@ export class Tor extends EventEmitter implements OnModuleInit {
             this.logger('Checking bootstrap interval')
             const bootstrapDone = await this.isBootstrappingFinished()
             if (bootstrapDone) {
+              this.isTorInitialized = true
               this.logger(`Sending ${SocketActionTypes.TOR_INITIALIZED}`)
               this.serverIoProvider.io.emit(SocketActionTypes.TOR_INITIALIZED)
-              // TODO: Figure out how to get redialing (or, ideally, initial dialing) on tor initialization working
-              // this.logger('Attempting to redial peers (if possible)')
-              // this.emit(SocketActionTypes.REDIAL_PEERS)
+              this.logger(`Sending ${SocketActionTypes.INITIAL_DIAL}`)
+              this.emit(SocketActionTypes.INITIAL_DIAL)
               clearInterval(this.interval)
             }
           }, 2500)

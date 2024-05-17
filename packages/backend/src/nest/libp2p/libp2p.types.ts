@@ -6,6 +6,7 @@ export enum Libp2pEvents {
   PEER_DISCONNECTED = 'peerDisconnected',
   NETWORK_STATS = 'networkStats',
   DIAL_PEERS = 'dialPeers',
+  INITIAL_DIAL = 'initialDial',
 }
 
 export interface Libp2pNodeParams {

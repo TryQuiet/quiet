@@ -41,13 +41,22 @@ export class Libp2pService extends EventEmitter {
     super()
   }
 
-  private dialPeer = async (peerAddress: string) => {
-    if (this.dialedPeers.has(peerAddress)) {
+  private dialPeer = async (peerAddress: string): Promise<boolean> => {
+    const ma = multiaddr(peerAddress)
+    const peerId = peerIdFromString(ma.getPeerId()!)
+
+    const libp2pHasPeer = await this.libp2pInstance?.peerStore.has(peerId as any)
+    const weHaveDialedPeer = this.dialedPeers.has(peerAddress)
+
+    if (weHaveDialedPeer || libp2pHasPeer) {
       this.logger(`Skipping dial of ${peerAddress} because its already been dialed`)
-      return
+      return true
     }
     this.dialedPeers.add(peerAddress)
-    await this.libp2pInstance?.dial(multiaddr(peerAddress))
+    const connection = await this.libp2pInstance?.dial(multiaddr(peerAddress))
+
+    if (connection) return true
+    return false
   }
 
   public getCurrentPeerInfo = (): Libp2pPeerInfo => {
@@ -153,7 +162,7 @@ export class Libp2pService extends EventEmitter {
     this.processInChunksService.updateQueue(toDial)
   }
 
-  public async createInstance(params: Libp2pNodeParams): Promise<Libp2p> {
+  public async createInstance(params: Libp2pNodeParams, startDialImmediately: boolean = false): Promise<Libp2p> {
     if (this.libp2pInstance) {
       return this.libp2pInstance
     }
@@ -166,7 +175,7 @@ export class Libp2pService extends EventEmitter {
         connectionManager: {
           minConnections: 3, // TODO: increase?
           maxConnections: 20, // TODO: increase?
-          dialTimeout: 120_000,
+          dialTimeout: 120000,
           maxParallelDials: 10,
           autoDial: true, // It's a default but let's set it to have explicit information
         },
@@ -205,11 +214,11 @@ export class Libp2pService extends EventEmitter {
       throw err
     }
     this.libp2pInstance = libp2p
-    await this.afterCreation(params.peers, params.peerId)
+    await this.afterCreation(params.peers, params.peerId, startDialImmediately)
     return libp2p
   }
 
-  private async afterCreation(peers: string[], peerId: PeerId) {
+  private async afterCreation(peers: string[], peerId: PeerId, startDialImmediately: boolean) {
     if (!this.libp2pInstance) {
       this.logger.error('libp2pInstance was not created')
       throw new Error('libp2pInstance was not created')
@@ -222,9 +231,20 @@ export class Libp2pService extends EventEmitter {
       this.processInChunksService.updateQueue(nonDialedAddresses)
     })
 
+    this.on(Libp2pEvents.INITIAL_DIAL, async () => {
+      this.logger('Starting initial dial')
+      this.processInChunksService.resume()
+    })
+
     this.logger(`Initializing libp2p for ${peerId.toString()}, bootstrapping with ${peers.length} peers`)
     this.serverIoProvider.io.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.INITIALIZING_LIBP2P)
-    this.processInChunksService.init([], this.dialPeer)
+
+    this.logger(`Initializing processInChunksService and adding ${peers.length} peers to dial initially`)
+    this.processInChunksService.init({
+      initialData: peers,
+      processItem: this.dialPeer,
+      startImmediately: startDialImmediately,
+    })
 
     this.libp2pInstance.addEventListener('peer:discovery', peer => {
       this.logger(`${peerId.toString()} discovered ${peer.detail.id}`)
@@ -277,8 +297,6 @@ export class Libp2pService extends EventEmitter {
       }
       this.emit(Libp2pEvents.PEER_DISCONNECTED, peerStat)
     })
-
-    this.processInChunksService.updateQueue(peers)
 
     this.logger(`Initialized libp2p for peer ${peerId.toString()}`)
   }
