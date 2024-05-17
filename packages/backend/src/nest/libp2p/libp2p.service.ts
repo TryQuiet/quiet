@@ -168,15 +168,16 @@ export class Libp2pService extends EventEmitter {
     }
 
     let libp2p: Libp2p
+    const maxParallelDials = 2
 
     try {
       libp2p = await createLibp2p({
         start: false,
         connectionManager: {
-          minConnections: 3, // TODO: increase?
+          minConnections: 5, // TODO: increase?
           maxConnections: 20, // TODO: increase?
           dialTimeout: 120000,
-          maxParallelDials: 10,
+          maxParallelDials,
           autoDial: true, // It's a default but let's set it to have explicit information
         },
         peerId: params.peerId,
@@ -214,11 +215,16 @@ export class Libp2pService extends EventEmitter {
       throw err
     }
     this.libp2pInstance = libp2p
-    await this.afterCreation(params.peers, params.peerId, startDialImmediately)
+    await this.afterCreation(params.peers, params.peerId, maxParallelDials, startDialImmediately)
     return libp2p
   }
 
-  private async afterCreation(peers: string[], peerId: PeerId, startDialImmediately: boolean) {
+  private async afterCreation(
+    peers: string[],
+    peerId: PeerId,
+    maxParallelDials: number,
+    startDialImmediately: boolean
+  ) {
     if (!this.libp2pInstance) {
       this.logger.error('libp2pInstance was not created')
       throw new Error('libp2pInstance was not created')
@@ -244,6 +250,7 @@ export class Libp2pService extends EventEmitter {
       initialData: peers,
       processItem: this.dialPeer,
       startImmediately: startDialImmediately,
+      chunkSize: maxParallelDials,
     })
 
     this.libp2pInstance.addEventListener('peer:discovery', peer => {
