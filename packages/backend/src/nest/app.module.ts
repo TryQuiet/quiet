@@ -99,8 +99,9 @@ export class AppModule {
                 allowedHeaders: ['authorization'],
                 credentials: true,
               },
-              pingInterval: 1000_000,
-              pingTimeout: 1000_000,
+              pingInterval: 10_000,
+              pingTimeout: 2_000,
+              connectTimeout: 60_000,
             })
             io.engine.use((req, res, next) => {
               const authHeader = req.headers['authorization']

@@ -205,7 +205,7 @@ id appPauseEventsManagerSetLock = [[NSObject alloc] init];
     nodePath = [nodePath stringByAppendingString:builtinModulesPath];
   }
   setenv([@"NODE_PATH" UTF8String], (const char*)[nodePath UTF8String], 1);
-  setenv([@"DEBUG" UTF8String], "backend:*,state-manager:*,libp2p:pnet", 1);
+  setenv([@"DEBUG" UTF8String], "backend:*,state-manager:*,libp2p:websockets:listener:backend,libp2p:connection-manager:auto-dialler,libp2p:pnet,libp2p:upgrader", 1);
 
   int c_arguments_size=0;
 

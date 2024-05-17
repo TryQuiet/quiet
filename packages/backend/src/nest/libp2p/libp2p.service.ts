@@ -208,7 +208,10 @@ export class Libp2pService extends EventEmitter {
           }),
         ],
         dht: kadDHT(),
-        pubsub: gossipsub({ allowPublishToZeroPeers: true }),
+        pubsub: gossipsub({
+          allowPublishToZeroPeers: true,
+          doPX: true,
+        }),
       })
     } catch (err) {
       this.logger.error('Create libp2p:', err)
