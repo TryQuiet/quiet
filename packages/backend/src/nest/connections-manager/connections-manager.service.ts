@@ -267,19 +267,11 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.logger('Resuming!')
     await this.openSocket()
     const peersToDial = await this.getPeersOnResume()
-    if (!this.tor.isTorServiceUsed) {
-      this.logger(`We aren't using the tor service in this client, checking bootstrap status in connection manager`)
-      this.initializationInterval = setInterval(async () => {
-        console.log('Checking bootstrap interval')
-        const bootstrapDone = await this.tor.isBootstrappingFinished()
-        if (bootstrapDone) {
-          clearInterval(this.initializationInterval)
-          this.logger('Bootstrapping is finished')
-          this.libp2pService?.resume(peersToDial)
-        }
-      }, 2500)
-      return
+    const callback = async () => {
+      this.logger('Bootstrapping is finished')
+      this.libp2pService?.resume(peersToDial)
     }
+    if (await this.runOnTorBootstrap(callback)) return
     this.libp2pService?.resume(peersToDial)
   }
 
@@ -652,20 +644,13 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       ConnectionProcessInfo.CONNECTING_TO_COMMUNITY
     )
 
-    if (!this.tor.isTorServiceUsed) {
-      this.logger(`We aren't using the tor service in this client, checking bootstrap status in connection manager`)
-      this.initializationInterval = setInterval(async () => {
-        console.log('Checking bootstrap interval')
-        const bootstrapDone = await this.tor.isBootstrappingFinished()
-        if (bootstrapDone) {
-          console.log(`Sending ${SocketActionTypes.TOR_INITIALIZED}`)
-          this.serverIoProvider.io.emit(SocketActionTypes.TOR_INITIALIZED)
-          console.log(`Sending ${SocketActionTypes.INITIAL_DIAL}`)
-          this.libp2pService?.emit(Libp2pEvents.INITIAL_DIAL)
-          clearInterval(this.initializationInterval)
-        }
-      }, 2500)
+    const callback = async () => {
+      console.log(`Sending ${SocketActionTypes.TOR_INITIALIZED}`)
+      this.serverIoProvider.io.emit(SocketActionTypes.TOR_INITIALIZED)
+      console.log(`Sending ${SocketActionTypes.INITIAL_DIAL}`)
+      this.libp2pService?.emit(Libp2pEvents.INITIAL_DIAL)
     }
+    await this.runOnTorBootstrap(callback)
   }
 
   private attachTorEventsListeners() {
@@ -870,5 +855,21 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.storageService.on(StorageEvents.USER_PROFILES_STORED, (payload: UserProfilesStoredEvent) => {
       this.serverIoProvider.io.emit(SocketActionTypes.USER_PROFILES_STORED, payload)
     })
+  }
+
+  private async runOnTorBootstrap(callback: () => Promise<any>, intervalTimerMs: number = 2500): Promise<boolean> {
+    if (!this.tor.isTorServiceUsed) {
+      this.logger(`We aren't using the tor service in this client, checking bootstrap status in connection manager`)
+      this.initializationInterval = setInterval(async () => {
+        console.log('Checking bootstrap interval')
+        const bootstrapDone = await this.tor.isBootstrappingFinished()
+        if (bootstrapDone) {
+          clearInterval(this.initializationInterval)
+          await callback()
+        }
+      }, intervalTimerMs)
+      return true
+    }
+    return false
   }
 }
