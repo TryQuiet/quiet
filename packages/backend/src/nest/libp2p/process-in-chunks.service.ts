@@ -25,6 +25,7 @@ export class ProcessInChunksService<T> extends EventEmitter {
   private chunkSize: number
   private taskQueue: queueAsPromised<ProcessTask<T>>
   private deadLetterQueue: ProcessTask<T>[] = []
+  private runningTaskIds: Set<string> = new Set()
   private processItem: (arg: T) => Promise<boolean>
   private readonly logger = Logger(ProcessInChunksService.name)
   constructor() {
@@ -68,16 +69,14 @@ export class ProcessInChunksService<T> extends EventEmitter {
       task = { data: itemOrTask as T, tries: 0, taskId: this.generateTaskId(itemOrTask as T) }
     }
 
+    if (this.isTaskDuplicate(task.taskId)) {
+      return
+    }
+
     if (!this.isActive) {
       this.logger(
         'ProcessInChunksService is not active, adding tasks to the dead letter queue!\n\nWARNING: You must call "resume" on the ProcessInChunksService to process the dead letter queue!!!'
       )
-      if (this.deadLetterQueue.find(thisTask => thisTask.taskId === task.taskId)) {
-        this.logger(
-          `Skipping task with ID ${task.taskId} because there is another task with the same ID already in the dead letter queue.`
-        )
-        return
-      }
       this.deadLetterQueue.push(task)
       this.logger(`There are now ${this.deadLetterQueue.length} items in the dead letter queue`)
       return
@@ -109,23 +108,41 @@ export class ProcessInChunksService<T> extends EventEmitter {
   }
 
   private async pushToQueueAndRun(task: ProcessTask<T>): Promise<boolean> {
-    if (this.taskQueue.getQueue().find(thisTask => thisTask.taskId === task.taskId)) {
-      this.logger(
-        `Skipping task with ID ${task.taskId} because there is another task with the same ID already in the task queue.`
-      )
-      return true
-    }
-
     this.logger(
       `Pushing task ${task.taskId} to queue, there will now be ${this.taskQueue.length() + 1} items in the queue`
     )
+    this.runningTaskIds.add(task.taskId)
     const success = await this.taskQueue.push(task)
+    this.runningTaskIds.delete(task.taskId)
     if (success) {
       this.logger(`Task ${task.taskId} completed successfully`)
     } else {
       this.logger(`Task ${task.taskId} failed`)
     }
     return success
+  }
+
+  private isTaskDuplicate(taskId: string): boolean {
+    if (!this.isActive) {
+      this.logger(
+        'ProcessInChunksService is not active, adding tasks to the dead letter queue!\n\nWARNING: You must call "resume" on the ProcessInChunksService to process the dead letter queue!!!'
+      )
+      return this.deadLetterQueue.find(thisTask => thisTask.taskId === taskId) != null
+    }
+
+    if (this.runningTaskIds.has(taskId)) {
+      this.logger(`Skipping task with ID ${taskId} because there is another task with the same ID currently running.`)
+      return true
+    }
+
+    if (this.taskQueue.getQueue().find(thisTask => thisTask.taskId === taskId)) {
+      this.logger(
+        `Skipping task with ID ${taskId} because there is another task with the same ID already in the task queue.`
+      )
+      return true
+    }
+
+    return false
   }
 
   private generateTaskId(data: T): string {
