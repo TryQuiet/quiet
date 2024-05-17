@@ -2,7 +2,7 @@ import { EventEmitter } from 'events'
 import fastq, { queueAsPromised } from 'fastq'
 
 import Logger from '../common/logger'
-import CryptoJS, { MD5 } from 'crypto-js'
+import CryptoJS from 'crypto-js'
 
 const DEFAULT_CHUNK_SIZE = 10
 export const DEFAULT_NUM_TRIES = 2
@@ -146,7 +146,7 @@ export class ProcessInChunksService<T> extends EventEmitter {
   }
 
   private generateTaskId(data: T): string {
-    return MD5(JSON.stringify(data)).toString(CryptoJS.enc.Hex)
+    return CryptoJS.MD5(JSON.stringify(data)).toString(CryptoJS.enc.Hex)
   }
 
   public resume() {
