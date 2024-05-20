@@ -1,16 +1,3 @@
-# Change Log
-
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
-
-# [2.2.0-alpha.7](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@2.2.0-alpha.6...@quiet/mobile@2.2.0-alpha.7) (2024-05-20)
-
-**Note:** Version bump only for package @quiet/mobile
-
-
-
-
-
 [unreleased]
 
 # New features:
@@ -22,7 +9,6 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 * Fixes issue with reconnecting to peers on resume on iOS ([#2424](https://github.com/TryQuiet/quiet/issues/2424))
 * Update github workflows for PR gating ([#2487](https://github.com/TryQuiet/quiet/issues/2487))
 * Don't create duplicate CSRs when joining a community under certain circumstances ([#2321](https://github.com/TryQuiet/quiet/issues/2321))
-* Fixes issue with image messages not displaying/throwing errors on iOS ([#2526](https://github.com/TryQuiet/quiet/issues/2526))
 
 [2.2.0]
 
@@ -42,6 +28,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 * Fix package.json license inconsistency
 * Fixes issue with reconnecting to peers on resume on iOS ([#2424](https://github.com/TryQuiet/quiet/issues/2424))
 * Reorder the closing of services, prevent sagas running multiple times and close backend server properly
+* Fixes issue with image messages not displaying/throwing errors on iOS ([#2526](https://github.com/TryQuiet/quiet/issues/2526))
 
 [2.1.2]
 
