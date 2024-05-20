@@ -158,7 +158,7 @@ export class SocketService extends EventEmitter implements OnModuleInit {
       socket.on(
         SocketActionTypes.CREATE_COMMUNITY,
         async (payload: InitCommunityPayload, callback: (response: Community | undefined) => void) => {
-          this.logger.info(`Creating community ${payload.id}`)
+          this.logger.info(`Creating community`, payload.id)
           this.emit(SocketActionTypes.CREATE_COMMUNITY, payload, callback)
         }
       )

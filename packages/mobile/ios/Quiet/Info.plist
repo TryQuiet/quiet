@@ -39,6 +39,8 @@
 	<false/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>LSSupportsOpeningDocumentsInPlace</key>
+	<true/>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>
@@ -54,8 +56,16 @@
 			</dict>
 		</dict>
 	</dict>
+	<key>NSAppleMusicUsageDescription</key>
+	<string>Quiet uses the document directory for storing files and images sent through the app.</string>
+	<key>NSDocumentsFolderUsageDescription</key>
+	<string>Quiet uses the document directory for storing files and images sent through the app.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string></string>
+	<key>NSPhotoLibraryLimitedAccessAPISupport</key>
+	<true/>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Quiet access photos for sending images through the app.</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>Rubik-Black.ttf</string>
@@ -75,6 +85,8 @@
 	</array>
 	<key>UIBackgroundModes</key>
 	<array/>
+	<key>UIFileSharingEnabled</key>
+	<true/>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIRequiredDeviceCapabilities</key>
