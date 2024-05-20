@@ -675,7 +675,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       if (this.communityId) {
         this.serverIoProvider.io.emit(SocketActionTypes.COMMUNITY_LAUNCHED, { id: this.communityId })
         this.logger('this.libp2pService.connectedPeers', this.libp2pService.connectedPeers)
-        this.logger('this.libp2pservice', this.libp2pService)
         this.logger('this.libp2pService.dialedPeers', this.libp2pService.dialedPeers)
         this.serverIoProvider.io.emit(
           SocketActionTypes.CONNECTED_PEERS,
