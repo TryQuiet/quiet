@@ -33,7 +33,7 @@ import { sleep } from '../common/sleep'
 import { createLibp2pAddress } from '@quiet/common'
 import { lib } from 'crypto-js'
 
-jest.setTimeout(100_000)
+jest.setTimeout(120_000)
 
 let tmpDir: DirResult
 let tmpAppDataPath: string

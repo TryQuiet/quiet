@@ -140,7 +140,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
                 clearInterval(this.interval)
                 resolve()
               }
-            }, 2500)
+            }, 5000)
 
             this.logger(`Spawned tor with pid(s): ${this.getTorProcessIds()}`)
             // resolve()
