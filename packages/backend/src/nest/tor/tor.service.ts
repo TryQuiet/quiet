@@ -12,9 +12,10 @@ import { TorControl } from './tor-control.service'
 import { GetInfoTorSignal, HiddenServiceData, TorParams, TorParamsProvider, TorPasswordProvider } from './tor.types'
 
 import Logger from '../common/logger'
+import { sleep } from '../common/sleep'
 
 export class Tor extends EventEmitter implements OnModuleInit {
-  socksPort: number
+  socksPort: number | undefined
   process: child_process.ChildProcessWithoutNullStreams | null = null
   torDataDirectory: string
   torPidPath: string
@@ -79,7 +80,10 @@ export class Tor extends EventEmitter implements OnModuleInit {
 
   public async init(timeout: number = 120_000): Promise<void> {
     this.isTorServiceUsed = true
-    if (!this.socksPort) this.socksPort = await getPort()
+    if (!this.socksPort) {
+      this.logger('Getting new socks port')
+      this.socksPort = await getPort()
+    }
     this.logger('Initializing tor...')
     await this._init(timeout)
   }
@@ -127,7 +131,13 @@ export class Tor extends EventEmitter implements OnModuleInit {
           try {
             this.logger('Spawning new tor process(es)')
             await this.spawnTor()
+            this.logger(`Spawned tor with pid(s): ${this.getTorProcessIds()}`)
 
+            await sleep(10000)
+            if (this.interval) {
+              clearInterval(this.interval)
+              this.interval = undefined
+            }
             this.interval = setInterval(async () => {
               this.logger('Checking bootstrap interval')
               const bootstrapDone = await this.isBootstrappingFinished()
@@ -141,8 +151,6 @@ export class Tor extends EventEmitter implements OnModuleInit {
                 resolve()
               }
             }, 5000)
-
-            this.logger(`Spawned tor with pid(s): ${this.getTorProcessIds()}`)
             // resolve()
           } catch (e) {
             this.logger('Killing tor due to error', e)
@@ -269,7 +277,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
         this.torParamsProvider.torPath,
         [
           '--SocksPort',
-          this.socksPort.toString(),
+          this.socksPort!.toString(),
           '--HTTPTunnelPort',
           this.configOptions.httpTunnelPort?.toString(),
           '--ControlPort',
@@ -402,15 +410,17 @@ export class Tor extends EventEmitter implements OnModuleInit {
   }
 
   public async kill(): Promise<void> {
+    this.socksPort = undefined
     return await new Promise((resolve, reject) => {
+      this.logger('Clearing timeout and interval, if not null')
+      if (this.initTimeout) clearTimeout(this.initTimeout)
+      if (this.interval) clearInterval(this.interval)
       this.logger('Killing tor... with pid', this.process?.pid)
       if (this.process === null) {
         this.logger('TOR: Process is not initalized.')
         resolve()
         return
       }
-      if (this.initTimeout) clearTimeout(this.initTimeout)
-      if (this.interval) clearInterval(this.interval)
       this.process?.on('close', () => {
         this.process = null
         resolve()
