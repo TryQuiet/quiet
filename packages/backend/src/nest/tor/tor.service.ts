@@ -77,80 +77,89 @@ export class Tor extends EventEmitter implements OnModuleInit {
     return false
   }
 
-  public async init(timeout = 120_000): Promise<void> {
+  public async init(timeout: number = 120_000): Promise<void> {
     this.isTorServiceUsed = true
     if (!this.socksPort) this.socksPort = await getPort()
     this.logger('Initializing tor...')
+    await this._init(timeout)
+  }
 
-    return await new Promise((resolve, reject) => {
-      if (!fs.existsSync(this.quietDir)) {
-        this.logger("Quiet dir doesn't exist, creating it now")
-        fs.mkdirSync(this.quietDir)
-      }
-
-      this.torDataDirectory = path.join.apply(null, [this.quietDir, 'TorDataDirectory'])
-      this.torPidPath = path.join.apply(null, [this.quietDir, 'torPid.json'])
-      let oldTorPid: number | null = null
-      if (fs.existsSync(this.torPidPath)) {
-        const file = fs.readFileSync(this.torPidPath)
-        oldTorPid = Number(file.toString())
-        this.logger(`${this.torPidPath} exists. Old tor pid: ${oldTorPid}`)
-      }
-
-      this.initTimeout = setTimeout(async () => {
-        this.logger('Checking init timeout')
-        const bootstrapDone = await this.isBootstrappingFinished()
-        if (!bootstrapDone) {
-          this.initializedHiddenServices = new Map()
-          clearInterval(this.interval)
-          await this.init()
-        }
-      }, timeout)
-
-      const tryToSpawnTor = async () => {
-        if (oldTorPid != null) {
-          this.logger(`Clearing out old tor process with pid ${oldTorPid}`)
-          this.clearOldTorProcess(oldTorPid)
+  private async _init(timeout: number) {
+    try {
+      return await new Promise<void>((resolve, reject) => {
+        if (!fs.existsSync(this.quietDir)) {
+          this.logger("Quiet dir doesn't exist, creating it now")
+          fs.mkdirSync(this.quietDir)
         }
 
-        try {
-          this.logger('Clearing out hanging tor process(es)')
-          this.clearHangingTorProcess()
-        } catch (e) {
-          this.logger('Error occured while trying to clear hanging tor processes', e)
+        this.torDataDirectory = path.join.apply(null, [this.quietDir, 'TorDataDirectory'])
+        this.torPidPath = path.join.apply(null, [this.quietDir, 'torPid.json'])
+        let oldTorPid: number | null = null
+        if (fs.existsSync(this.torPidPath)) {
+          const file = fs.readFileSync(this.torPidPath)
+          oldTorPid = Number(file.toString())
+          this.logger(`${this.torPidPath} exists. Old tor pid: ${oldTorPid}`)
         }
 
-        try {
-          this.logger('Spawning new tor process(es)')
-          await this.spawnTor()
+        this.initTimeout = setTimeout(async () => {
+          this.logger('Checking init timeout')
+          const bootstrapDone = await this.isBootstrappingFinished()
+          if (!bootstrapDone) {
+            this.initializedHiddenServices = new Map()
+            clearInterval(this.interval)
+            reject(new Error(`Failed to initialize in timeout of ${timeout}ms`))
+          }
+        }, timeout)
 
-          this.interval = setInterval(async () => {
-            this.logger('Checking bootstrap interval')
-            const bootstrapDone = await this.isBootstrappingFinished()
-            if (bootstrapDone) {
-              this.isTorInitialized = true
-              this.logger(`Sending ${SocketActionTypes.TOR_INITIALIZED}`)
-              this.serverIoProvider.io.emit(SocketActionTypes.TOR_INITIALIZED)
-              this.logger(`Sending ${SocketActionTypes.INITIAL_DIAL}`)
-              this.emit(SocketActionTypes.INITIAL_DIAL)
-              clearInterval(this.interval)
-              resolve()
-            }
-          }, 2500)
+        const tryToSpawnTor = async () => {
+          if (oldTorPid != null) {
+            this.logger(`Clearing out old tor process with pid ${oldTorPid}`)
+            this.clearOldTorProcess(oldTorPid)
+          }
 
-          this.logger(`Spawned tor with pid(s): ${this.getTorProcessIds()}`)
-        } catch (e) {
-          this.logger('Killing tor due to error', e)
-          this.clearHangingTorProcess()
-          removeFilesFromDir(this.torDataDirectory)
+          try {
+            this.logger('Clearing out hanging tor process(es)')
+            this.clearHangingTorProcess()
+          } catch (e) {
+            this.logger('Error occured while trying to clear hanging tor processes', e)
+          }
 
-          // eslint-disable-next-line
-          process.nextTick(tryToSpawnTor)
+          try {
+            this.logger('Spawning new tor process(es)')
+            await this.spawnTor()
+
+            this.interval = setInterval(async () => {
+              this.logger('Checking bootstrap interval')
+              const bootstrapDone = await this.isBootstrappingFinished()
+              if (bootstrapDone) {
+                this.isTorInitialized = true
+                this.logger(`Sending ${SocketActionTypes.TOR_INITIALIZED}`)
+                this.serverIoProvider.io.emit(SocketActionTypes.TOR_INITIALIZED)
+                this.logger(`Sending ${SocketActionTypes.INITIAL_DIAL}`)
+                this.emit(SocketActionTypes.INITIAL_DIAL)
+                clearInterval(this.interval)
+                resolve()
+              }
+            }, 2500)
+
+            this.logger(`Spawned tor with pid(s): ${this.getTorProcessIds()}`)
+            // resolve()
+          } catch (e) {
+            this.logger('Killing tor due to error', e)
+            this.clearHangingTorProcess()
+            removeFilesFromDir(this.torDataDirectory)
+
+            // eslint-disable-next-line
+            process.nextTick(tryToSpawnTor)
+          }
         }
-      }
 
-      tryToSpawnTor()
-    })
+        tryToSpawnTor()
+      })
+    } catch (e) {
+      this.logger.error(`Initialization failed due to error: ${e.message}, retrying...`)
+      await this.init()
+    }
   }
 
   public resetHiddenServices() {
@@ -222,7 +231,11 @@ export class Tor extends EventEmitter implements OnModuleInit {
           try {
             process.kill(oldTorPid, 'SIGTERM')
           } catch (e) {
-            this.logger.error(`Tried killing old tor process. Failed. Reason: ${e.message}`)
+            if ((e as Error).message.includes('ESRCH')) {
+              this.logger(`Tor process with PID ${oldTorPid} was already closed`)
+            } else {
+              this.logger.error(`Tried killing old tor process. Failed`, e)
+            }
           }
         } else {
           this.logger(`Deleting ${this.torPidPath}`)

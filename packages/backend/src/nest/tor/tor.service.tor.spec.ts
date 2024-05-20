@@ -131,10 +131,6 @@ describe('TorControl', () => {
     expect(spyOnInit).toHaveBeenCalledTimes(2)
   })
 
-  it('tor is initializing correctly with 40 seconds timeout', async () => {
-    await torService.init()
-  })
-
   it('creates and destroys hidden service', async () => {
     await torService.init()
     const hiddenService = await torService.createNewHiddenService({ targetPort: 4343 })
