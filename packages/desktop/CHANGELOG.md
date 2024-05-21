@@ -1,16 +1,3 @@
-# Change Log
-
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
-
-# [2.2.0](/compare/@quiet/desktop@2.2.0-alpha.7...@quiet/desktop@2.2.0) (2024-05-21)
-
-**Note:** Version bump only for package @quiet/desktop
-
-
-
-
-
 [unreleased]
 
 # New features:
