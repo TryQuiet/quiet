@@ -2,7 +2,7 @@ import { EventEmitter } from 'events'
 import fastq, { queueAsPromised } from 'fastq'
 
 import Logger from '../common/logger'
-import { randomUUID } from 'crypto'
+import CryptoJS from 'crypto-js'
 
 const DEFAULT_CHUNK_SIZE = 10
 export const DEFAULT_NUM_TRIES = 2
@@ -13,24 +13,39 @@ type ProcessTask<T> = {
   taskId: string
 }
 
+export type ProcessInChunksServiceOptions<T> = {
+  initialData: T[]
+  processItem: (arg: T) => Promise<boolean>
+  chunkSize?: number | undefined
+  startImmediately?: boolean
+}
+
 export class ProcessInChunksService<T> extends EventEmitter {
   private isActive: boolean
   private chunkSize: number
   private taskQueue: queueAsPromised<ProcessTask<T>>
   private deadLetterQueue: ProcessTask<T>[] = []
-  private processItem: (arg: T) => Promise<any>
+  private runningTaskIds: Set<string> = new Set()
+  private processItem: (arg: T) => Promise<boolean>
   private readonly logger = Logger(ProcessInChunksService.name)
   constructor() {
     super()
   }
 
-  public init(data: T[], processItem: (arg: T) => Promise<any>, chunkSize: number = DEFAULT_CHUNK_SIZE) {
-    this.logger(`Initializing process-in-chunks.service with peers ${JSON.stringify(data, null, 2)}`)
-    this.processItem = processItem
-    this.chunkSize = chunkSize
+  public init(options: ProcessInChunksServiceOptions<T>) {
+    this.logger(`Initializing process-in-chunks.service with peers ${JSON.stringify(options.initialData, null, 2)}`)
+    this.processItem = options.processItem
+    this.chunkSize = options.chunkSize ?? DEFAULT_CHUNK_SIZE
     this.taskQueue = fastq.promise(this, this.processOneItem, this.chunkSize)
-    this.isActive = true
-    this.updateQueue(data)
+    const startImmediately = options.startImmediately ?? true
+    if (startImmediately) {
+      this.logger(`Starting processing immediately`)
+      this.isActive = true
+    } else {
+      this.logger(`Deferring processing`)
+      this.pause()
+    }
+    this.updateQueue(options.initialData)
   }
 
   public updateQueue(items: T[]) {
@@ -51,7 +66,11 @@ export class ProcessInChunksService<T> extends EventEmitter {
       task = itemOrTask as ProcessTask<T>
     } else {
       this.logger(`Creating new task for ${itemOrTask}`)
-      task = { data: itemOrTask as T, tries: 0, taskId: randomUUID() }
+      task = { data: itemOrTask as T, tries: 0, taskId: this.generateTaskId(itemOrTask as T) }
+    }
+
+    if (this.isTaskDuplicate(task.taskId)) {
+      return
     }
 
     if (!this.isActive) {
@@ -79,8 +98,7 @@ export class ProcessInChunksService<T> extends EventEmitter {
     let success: boolean = false
     try {
       this.logger(`Processing task ${task.taskId} with data ${task.data}`)
-      await this.processItem(task.data)
-      success = true
+      success = await this.processItem(task.data)
     } catch (e) {
       this.logger.error(`Processing task ${task.taskId} with data ${task.data} failed`, e)
     } finally {
@@ -93,13 +111,42 @@ export class ProcessInChunksService<T> extends EventEmitter {
     this.logger(
       `Pushing task ${task.taskId} to queue, there will now be ${this.taskQueue.length() + 1} items in the queue`
     )
+    this.runningTaskIds.add(task.taskId)
     const success = await this.taskQueue.push(task)
+    this.runningTaskIds.delete(task.taskId)
     if (success) {
       this.logger(`Task ${task.taskId} completed successfully`)
     } else {
       this.logger(`Task ${task.taskId} failed`)
     }
     return success
+  }
+
+  private isTaskDuplicate(taskId: string): boolean {
+    if (!this.isActive) {
+      this.logger(
+        'ProcessInChunksService is not active, adding tasks to the dead letter queue!\n\nWARNING: You must call "resume" on the ProcessInChunksService to process the dead letter queue!!!'
+      )
+      return this.deadLetterQueue.find(thisTask => thisTask.taskId === taskId) != null
+    }
+
+    if (this.runningTaskIds.has(taskId)) {
+      this.logger(`Skipping task with ID ${taskId} because there is another task with the same ID currently running.`)
+      return true
+    }
+
+    if (this.taskQueue.getQueue().find(thisTask => thisTask.taskId === taskId)) {
+      this.logger(
+        `Skipping task with ID ${taskId} because there is another task with the same ID already in the task queue.`
+      )
+      return true
+    }
+
+    return false
+  }
+
+  private generateTaskId(data: T): string {
+    return CryptoJS.MD5(JSON.stringify(data)).toString(CryptoJS.enc.Hex)
   }
 
   public resume() {

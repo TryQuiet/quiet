@@ -12,9 +12,10 @@ import { TorControl } from './tor-control.service'
 import { GetInfoTorSignal, HiddenServiceData, TorParams, TorParamsProvider, TorPasswordProvider } from './tor.types'
 
 import Logger from '../common/logger'
+import { sleep } from '../common/sleep'
 
 export class Tor extends EventEmitter implements OnModuleInit {
-  socksPort: number
+  socksPort: number | undefined
   process: child_process.ChildProcessWithoutNullStreams | null = null
   torDataDirectory: string
   torPidPath: string
@@ -22,9 +23,12 @@ export class Tor extends EventEmitter implements OnModuleInit {
   controlPort: number | undefined
   interval: any
   initTimeout: any
+  public isTorInitialized: boolean = false
+  public isTorServiceUsed: boolean = false
   private readonly logger = Logger(Tor.name)
   private hiddenServices: Map<string, HiddenServiceData> = new Map()
   private initializedHiddenServices: Map<string, HiddenServiceData> = new Map()
+
   constructor(
     @Inject(CONFIG_OPTIONS) public configOptions: ConfigOptions,
     @Inject(QUIET_DIR) public readonly quietDir: string,
@@ -36,11 +40,16 @@ export class Tor extends EventEmitter implements OnModuleInit {
     super()
     this.controlPort = configOptions.torControlPort
 
-    console.log('QUIET DIR', this.quietDir)
+    this.logger('Created tor service')
+    this.logger('QUIET DIR', this.quietDir)
   }
 
   async onModuleInit() {
-    if (!this.torParamsProvider.torPath) return
+    this.logger('Running onModuleInit in tor.service')
+    if (!this.torParamsProvider.torPath) {
+      console.warn('No tor binary path, not running the tor service')
+      return
+    }
     await this.init()
   }
 
@@ -59,7 +68,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
     return Array.from(Object.entries(this.extraTorProcessParams)).flat()
   }
 
-  private async isBootstrappingFinished(): Promise<boolean> {
+  public async isBootstrappingFinished(): Promise<boolean> {
     this.logger('Checking bootstrap status')
     const output = await this.torControl.sendCommand('GETINFO status/bootstrap-phase')
     if (output.messages[0] === '250-status/bootstrap-phase=NOTICE BOOTSTRAP PROGRESS=100 TAG=done SUMMARY="Done"') {
@@ -69,80 +78,96 @@ export class Tor extends EventEmitter implements OnModuleInit {
     return false
   }
 
-  public async init(timeout = 120_000): Promise<void> {
-    if (!this.socksPort) this.socksPort = await getPort()
+  public async init(timeout: number = 120_000): Promise<void> {
+    this.isTorServiceUsed = true
+    if (!this.socksPort) {
+      this.logger('Getting new socks port')
+      this.socksPort = await getPort()
+    }
     this.logger('Initializing tor...')
+    await this._init(timeout)
+  }
 
-    return await new Promise((resolve, reject) => {
-      if (!fs.existsSync(this.quietDir)) {
-        this.logger("Quiet dir doesn't exist, creating it now")
-        fs.mkdirSync(this.quietDir)
-      }
-
-      this.torDataDirectory = path.join.apply(null, [this.quietDir, 'TorDataDirectory'])
-      this.torPidPath = path.join.apply(null, [this.quietDir, 'torPid.json'])
-      let oldTorPid: number | null = null
-      if (fs.existsSync(this.torPidPath)) {
-        const file = fs.readFileSync(this.torPidPath)
-        oldTorPid = Number(file.toString())
-        this.logger(`${this.torPidPath} exists. Old tor pid: ${oldTorPid}`)
-      }
-
-      this.initTimeout = setTimeout(async () => {
-        this.logger('Checking init timeout')
-        const bootstrapDone = await this.isBootstrappingFinished()
-        if (!bootstrapDone) {
-          this.initializedHiddenServices = new Map()
-          clearInterval(this.interval)
-          await this.init()
-        }
-      }, timeout)
-
-      const tryToSpawnTor = async () => {
-        if (oldTorPid != null) {
-          this.logger(`Clearing out old tor process with pid ${oldTorPid}`)
-          this.clearOldTorProcess(oldTorPid)
+  private async _init(timeout: number) {
+    try {
+      return await new Promise<void>((resolve, reject) => {
+        if (!fs.existsSync(this.quietDir)) {
+          this.logger("Quiet dir doesn't exist, creating it now")
+          fs.mkdirSync(this.quietDir)
         }
 
-        try {
-          this.logger('Clearing out hanging tor process(es)')
-          this.clearHangingTorProcess()
-        } catch (e) {
-          this.logger('Error occured while trying to clear hanging tor processes', e)
+        this.torDataDirectory = path.join.apply(null, [this.quietDir, 'TorDataDirectory'])
+        this.torPidPath = path.join.apply(null, [this.quietDir, 'torPid.json'])
+        let oldTorPid: number | null = null
+        if (fs.existsSync(this.torPidPath)) {
+          const file = fs.readFileSync(this.torPidPath)
+          oldTorPid = Number(file.toString())
+          this.logger(`${this.torPidPath} exists. Old tor pid: ${oldTorPid}`)
         }
 
-        try {
-          this.logger('Spawning new tor process(es)')
-          await this.spawnTor()
+        this.initTimeout = setTimeout(async () => {
+          this.logger('Checking init timeout')
+          const bootstrapDone = await this.isBootstrappingFinished()
+          if (!bootstrapDone) {
+            this.initializedHiddenServices = new Map()
+            clearInterval(this.interval)
+            reject(new Error(`Failed to initialize in timeout of ${timeout}ms`))
+          }
+        }, timeout)
 
-          this.interval = setInterval(async () => {
-            this.logger('Checking bootstrap interval')
-            const bootstrapDone = await this.isBootstrappingFinished()
-            if (bootstrapDone) {
-              this.logger(`Sending ${SocketActionTypes.TOR_INITIALIZED}`)
-              this.serverIoProvider.io.emit(SocketActionTypes.TOR_INITIALIZED)
-              // TODO: Figure out how to get redialing (or, ideally, initial dialing) on tor initialization working
-              // this.logger('Attempting to redial peers (if possible)')
-              // this.emit(SocketActionTypes.REDIAL_PEERS)
+        const tryToSpawnTor = async () => {
+          if (oldTorPid != null) {
+            this.logger(`Clearing out old tor process with pid ${oldTorPid}`)
+            this.clearOldTorProcess(oldTorPid)
+          }
+
+          try {
+            this.logger('Clearing out hanging tor process(es)')
+            this.clearHangingTorProcess()
+          } catch (e) {
+            this.logger('Error occured while trying to clear hanging tor processes', e)
+          }
+
+          try {
+            this.logger('Spawning new tor process(es)')
+            await this.spawnTor()
+            this.logger(`Spawned tor with pid(s): ${this.getTorProcessIds()}`)
+
+            await sleep(10000)
+            if (this.interval) {
               clearInterval(this.interval)
+              this.interval = undefined
             }
-          }, 2500)
+            this.interval = setInterval(async () => {
+              this.logger('Checking bootstrap interval')
+              const bootstrapDone = await this.isBootstrappingFinished()
+              if (bootstrapDone) {
+                this.isTorInitialized = true
+                this.logger(`Sending ${SocketActionTypes.TOR_INITIALIZED}`)
+                this.serverIoProvider.io.emit(SocketActionTypes.TOR_INITIALIZED)
+                this.logger(`Sending ${SocketActionTypes.INITIAL_DIAL}`)
+                this.emit(SocketActionTypes.INITIAL_DIAL)
+                clearInterval(this.interval)
+                resolve()
+              }
+            }, 5000)
+            // resolve()
+          } catch (e) {
+            this.logger('Killing tor due to error', e)
+            this.clearHangingTorProcess()
+            removeFilesFromDir(this.torDataDirectory)
 
-          this.logger(`Spawned tor with pid(s): ${this.getTorProcessIds()}`)
-
-          resolve()
-        } catch (e) {
-          this.logger('Killing tor due to error', e)
-          this.clearHangingTorProcess()
-          removeFilesFromDir(this.torDataDirectory)
-
-          // eslint-disable-next-line
-          process.nextTick(tryToSpawnTor)
+            // eslint-disable-next-line
+            process.nextTick(tryToSpawnTor)
+          }
         }
-      }
 
-      tryToSpawnTor()
-    })
+        tryToSpawnTor()
+      })
+    } catch (e) {
+      this.logger.error(`Initialization failed due to error: ${e.message}, retrying...`)
+      await this.init()
+    }
   }
 
   public resetHiddenServices() {
@@ -214,7 +239,11 @@ export class Tor extends EventEmitter implements OnModuleInit {
           try {
             process.kill(oldTorPid, 'SIGTERM')
           } catch (e) {
-            this.logger.error(`Tried killing old tor process. Failed. Reason: ${e.message}`)
+            if ((e as Error).message.includes('ESRCH')) {
+              this.logger(`Tor process with PID ${oldTorPid} was already closed`)
+            } else {
+              this.logger.error(`Tried killing old tor process. Failed`, e)
+            }
           }
         } else {
           this.logger(`Deleting ${this.torPidPath}`)
@@ -248,7 +277,7 @@ export class Tor extends EventEmitter implements OnModuleInit {
         this.torParamsProvider.torPath,
         [
           '--SocksPort',
-          this.socksPort.toString(),
+          this.socksPort!.toString(),
           '--HTTPTunnelPort',
           this.configOptions.httpTunnelPort?.toString(),
           '--ControlPort',
@@ -381,15 +410,17 @@ export class Tor extends EventEmitter implements OnModuleInit {
   }
 
   public async kill(): Promise<void> {
+    this.socksPort = undefined
     return await new Promise((resolve, reject) => {
+      this.logger('Clearing timeout and interval, if not null')
+      if (this.initTimeout) clearTimeout(this.initTimeout)
+      if (this.interval) clearInterval(this.interval)
       this.logger('Killing tor... with pid', this.process?.pid)
       if (this.process === null) {
         this.logger('TOR: Process is not initalized.')
         resolve()
         return
       }
-      if (this.initTimeout) clearTimeout(this.initTimeout)
-      if (this.interval) clearInterval(this.interval)
       this.process?.on('close', () => {
         this.process = null
         resolve()

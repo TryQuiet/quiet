@@ -66,6 +66,7 @@ import { emitError } from '../socket/socket.errors'
 import { createLibp2pAddress, isPSKcodeValid } from '@quiet/common'
 import { CertFieldsTypes, createRootCA, getCertFieldValue, loadCertificate } from '@quiet/identity'
 import { DateTime } from 'luxon'
+import { platform } from 'os'
 
 @Injectable()
 export class ConnectionsManagerService extends EventEmitter implements OnModuleInit {
@@ -75,6 +76,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   private ports: GetPorts
   isTorInit: TorInitState = TorInitState.NOT_STARTED
   private peerInfo: Libp2pPeerInfo | undefined = undefined
+  private initializationInterval: NodeJS.Timer
 
   private readonly logger = Logger(ConnectionsManagerService.name)
   constructor(
@@ -93,6 +95,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   }
 
   async onModuleInit() {
+    this.logger('Initializing connection manager')
     process.on('unhandledRejection', error => {
       console.error(error)
       throw new Error()
@@ -264,6 +267,11 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.logger('Resuming!')
     await this.openSocket()
     const peersToDial = await this.getPeersOnResume()
+    const callback = async () => {
+      this.logger('Bootstrapping is finished')
+      this.libp2pService?.resume(peersToDial)
+    }
+    if (await this.runOnTorBootstrap(callback)) return
     this.libp2pService?.resume(peersToDial)
   }
 
@@ -578,7 +586,8 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       peers: peers ? peers.slice(1) : [],
       psk: Libp2pService.generateLibp2pPSK(community.psk).fullKey,
     }
-    await this.libp2pService.createInstance(params)
+    const startDialImmediately = this.tor.isTorInitialized
+    await this.libp2pService.createInstance(params, startDialImmediately)
 
     // Libp2p event listeners
     this.libp2pService.on(Libp2pEvents.PEER_CONNECTED, async (payload: { peers: string[] }) => {
@@ -634,6 +643,14 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       SocketActionTypes.CONNECTION_PROCESS_INFO,
       ConnectionProcessInfo.CONNECTING_TO_COMMUNITY
     )
+
+    const callback = async () => {
+      console.log(`Sending ${SocketActionTypes.TOR_INITIALIZED}`)
+      this.serverIoProvider.io.emit(SocketActionTypes.TOR_INITIALIZED)
+      console.log(`Sending ${SocketActionTypes.INITIAL_DIAL}`)
+      this.libp2pService?.emit(Libp2pEvents.INITIAL_DIAL)
+    }
+    await this.runOnTorBootstrap(callback)
   }
 
   private attachTorEventsListeners() {
@@ -642,10 +659,9 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.tor.on(SocketActionTypes.CONNECTION_PROCESS_INFO, data => {
       this.serverIoProvider.io.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, data)
     })
-    this.tor.on(SocketActionTypes.REDIAL_PEERS, async data => {
-      this.logger(`Socket - ${SocketActionTypes.REDIAL_PEERS}`)
-      const peerInfo = this.libp2pService?.getCurrentPeerInfo()
-      await this.libp2pService?.redialPeers([...peerInfo.connected, ...peerInfo.dialed])
+    this.tor.on(SocketActionTypes.INITIAL_DIAL, async () => {
+      this.logger(`Socket - ${SocketActionTypes.INITIAL_DIAL}`)
+      this.libp2pService?.emit(Libp2pEvents.INITIAL_DIAL)
     })
     this.socketService.on(SocketActionTypes.CONNECTION_PROCESS_INFO, data => {
       this.serverIoProvider.io.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, data)
@@ -838,5 +854,21 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.storageService.on(StorageEvents.USER_PROFILES_STORED, (payload: UserProfilesStoredEvent) => {
       this.serverIoProvider.io.emit(SocketActionTypes.USER_PROFILES_STORED, payload)
     })
+  }
+
+  private async runOnTorBootstrap(callback: () => Promise<any>, intervalTimerMs: number = 2500): Promise<boolean> {
+    if (!this.tor.isTorServiceUsed) {
+      this.logger(`We aren't using the tor service in this client, checking bootstrap status in connection manager`)
+      this.initializationInterval = setInterval(async () => {
+        console.log('Checking bootstrap interval')
+        const bootstrapDone = await this.tor.isBootstrappingFinished()
+        if (bootstrapDone) {
+          clearInterval(this.initializationInterval)
+          await callback()
+        }
+      }, intervalTimerMs)
+      return true
+    }
+    return false
   }
 }

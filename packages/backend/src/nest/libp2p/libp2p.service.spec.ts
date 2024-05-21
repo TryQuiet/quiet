@@ -9,6 +9,7 @@ import { toString as uint8ArrayToString } from 'uint8arrays/to-string'
 import validator from 'validator'
 import waitForExpect from 'wait-for-expect'
 import { DEFAULT_NUM_TRIES, ProcessInChunksService } from './process-in-chunks.service'
+import { sleep } from '../common/sleep'
 
 describe('Libp2pService', () => {
   let module: TestingModule
@@ -16,7 +17,7 @@ describe('Libp2pService', () => {
   let params: Libp2pNodeParams
   let processInChunks: ProcessInChunksService<string>
 
-  beforeAll(async () => {
+  beforeEach(async () => {
     module = await Test.createTestingModule({
       imports: [TestModule, Libp2pModule],
     }).compile()
@@ -26,7 +27,7 @@ describe('Libp2pService', () => {
     params = await libp2pInstanceParams()
   })
 
-  afterAll(async () => {
+  afterEach(async () => {
     await libp2pService.libp2pInstance?.stop()
     await module.close()
   })
@@ -71,14 +72,19 @@ describe('Libp2pService', () => {
       libp2pService.createLibp2pAddress('onionAddress1.onion', peerId1.toString()),
       libp2pService.createLibp2pAddress('onionAddress2.onion', peerId2.toString()),
     ]
-    await libp2pService.createInstance(params)
-    // @ts-expect-error processItem is private
-    const spyOnProcessItem = jest.spyOn(processInChunks, 'processItem')
+    await libp2pService.createInstance(params, false)
     expect(libp2pService.libp2pInstance).not.toBeNull()
+
+    // @ts-expect-error processItem is private
+    const processItemSpy = jest.spyOn(processInChunks, 'processItem')
+    const dialSpy = jest.spyOn(libp2pService.libp2pInstance!, 'dial')
+    libp2pService.emit(Libp2pEvents.INITIAL_DIAL, addresses)
     libp2pService.emit(Libp2pEvents.DIAL_PEERS, addresses)
+
     await waitForExpect(async () => {
-      expect(spyOnProcessItem).toBeCalledTimes(addresses.length)
-    })
+      expect(processItemSpy).toBeCalledTimes(6)
+      expect(dialSpy).toBeCalledTimes(3)
+    }, 30000)
   })
 
   it(`Do not dial peer on '${Libp2pEvents.DIAL_PEERS}' event if peer was already dialed`, async () => {
@@ -90,15 +96,18 @@ describe('Libp2pService', () => {
       alreadyDialedAddress,
       libp2pService.createLibp2pAddress('onionAddress2.onion', peerId2.toString()),
     ]
-    await libp2pService.createInstance(params)
+    await libp2pService.createInstance(params, false)
     expect(libp2pService.libp2pInstance).not.toBeNull()
+
     // @ts-expect-error processItem is private
     const processItemSpy = jest.spyOn(processInChunks, 'processItem')
     const dialSpy = jest.spyOn(libp2pService.libp2pInstance!, 'dial')
+    libp2pService.emit(Libp2pEvents.INITIAL_DIAL, addresses)
     libp2pService.emit(Libp2pEvents.DIAL_PEERS, addresses)
+
     await waitForExpect(async () => {
-      expect(processItemSpy).toBeCalledTimes(2 * DEFAULT_NUM_TRIES)
-      expect(dialSpy).toBeCalledTimes(1)
-    })
+      expect(processItemSpy).toBeCalledTimes(4)
+      expect(dialSpy).toBeCalledTimes(2)
+    }, 30000)
   })
 })

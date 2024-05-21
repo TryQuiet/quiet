@@ -18,6 +18,7 @@ import { type ServerOptions, type WebSocketServer as ItWsWebsocketServer } from 
 import { multiaddr } from '@multiformats/multiaddr'
 import { type MultiaddrConnection, type Connection } from '@libp2p/interface-connection'
 import logger from '../common/logger'
+import { DuplexWebSocket } from 'it-ws/dist/src/duplex'
 
 const log = logger('libp2p:websockets')
 
@@ -73,10 +74,11 @@ export class WebSockets extends EventEmitter {
 
   async dial(ma: Multiaddr, options: DialOptions) {
     let conn: Connection
-    let socket
+    let socket: DuplexWebSocket
     let maConn: MultiaddrConnection
 
     try {
+      log(`Connecting socket with ${ma.toString()}`)
       socket = await this._connect(ma, {
         websocket: {
           ...this._websocketOpts,
@@ -88,6 +90,7 @@ export class WebSockets extends EventEmitter {
       throw e
     }
     try {
+      log(`Creating multiaddr connection from socket with ${ma.toString()}`)
       maConn = socketToMaConn(socket, ma, { signal: options.signal })
       log('new outbound connection %s', maConn.remoteAddr)
     } catch (e) {
@@ -96,6 +99,7 @@ export class WebSockets extends EventEmitter {
     }
 
     try {
+      log(`Upgrading outbound connection with ${maConn.remoteAddr.toString()}`)
       conn = await options.upgrader.upgradeOutbound(maConn)
       log('outbound connection %s upgraded', maConn.remoteAddr)
       return conn
@@ -120,6 +124,7 @@ export class WebSockets extends EventEmitter {
 
     const myUri = `${toUri(ma)}/?remoteAddress=${encodeURIComponent(this.localAddress)}`
 
+    log(`Creating raw socket connection to ${ma.toString()}`)
     const rawSocket = connect(myUri, Object.assign({ binary: true }, options))
 
     if (rawSocket.socket.on) {
@@ -129,6 +134,7 @@ export class WebSockets extends EventEmitter {
     }
 
     if (!options.signal) {
+      log(`Waiting for socket connection to ${ma.toString()} with no abort signal`)
       await Promise.race([rawSocket.connected(), errorPromise.promise])
 
       log(`${this.localAddress} connected %s`, ma)
@@ -155,6 +161,7 @@ export class WebSockets extends EventEmitter {
     })
 
     try {
+      log(`Waiting for socket connection to ${ma.toString()}`)
       await Promise.race([abort, errorPromise.promise, rawSocket.connected()])
     } finally {
       options.signal.removeEventListener('abort', onAbort)
@@ -200,8 +207,10 @@ export class WebSockets extends EventEmitter {
         if (!query.remoteAddress) return
 
         const remoteAddress = query.remoteAddress.toString()
+        const ma = multiaddr(remoteAddress)
         try {
-          maConn = socketToMaConn(stream, multiaddr(remoteAddress))
+          log(`Creating multiaddr connection for inbound peer ${ma.toString()}`)
+          maConn = socketToMaConn(stream, ma)
           const peer = {
             id: PeerId.createFromB58String(remoteAddress.split('/p2p/')[1]),
             multiaddrs: [maConn.remoteAddr],
@@ -214,6 +223,7 @@ export class WebSockets extends EventEmitter {
         }
 
         try {
+          log(`Upgrading inbound connection with ${maConn.remoteAddr.toString()}`)
           conn = await upgrader.upgradeInbound(maConn)
         } catch (err) {
           log.error('inbound connection failed to upgrade', err)
