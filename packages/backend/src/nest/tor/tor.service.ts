@@ -56,11 +56,20 @@ export class Tor extends EventEmitter implements OnModuleInit {
     this.controlPort = port
   }
 
-  mergeDefaultTorParams = (params: TorParams = {}): TorParams => {
-    const defaultParams = {
+  private mergeDefaultTorParams(params: TorParams = {}): TorParams {
+    const defaultParams: TorParams = {
       '--NumEntryGuards': '3', // See task #1295
+      '--LearnCircuitBuildTimeout': '1',
+      '--CircuitBuildTimeout': '10',
+      '--KeepalivePeriod': '15',
+      '--NewCircuitPeriod': '300',
     }
     return { ...defaultParams, ...params }
+  }
+
+  private mergeDefaultTorParamsAndFlatten(params: TorParams = {}): string[] {
+    const mergedParams = this.mergeDefaultTorParams(params)
+    return Array.from(Object.entries(mergedParams)).flat()
   }
 
   get torProcessParams(): string[] {
@@ -134,11 +143,12 @@ export class Tor extends EventEmitter implements OnModuleInit {
               this.logger(`Sending ${SocketActionTypes.INITIAL_DIAL}`)
               this.emit(SocketActionTypes.INITIAL_DIAL)
               clearInterval(this.interval)
-              resolve()
+              clearTimeout(this.initTimeout)
             }
           }, 2500)
 
           this.logger(`Spawned tor with pid(s): ${this.getTorProcessIds()}`)
+          resolve()
         } catch (e) {
           this.logger('Killing tor due to error', e)
           this.clearHangingTorProcess()
@@ -267,7 +277,9 @@ export class Tor extends EventEmitter implements OnModuleInit {
           `"${this.torDataDirectory}"`,
           '--HashedControlPassword',
           this.torPasswordProvider.torHashedPassword,
-          // ...this.torProcessParams
+          '--LongLivedPorts',
+          `80,${this.configOptions.httpTunnelPort},${this.socksPort}`,
+          ...this.mergeDefaultTorParamsAndFlatten(),
         ],
         options
       )

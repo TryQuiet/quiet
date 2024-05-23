@@ -20,6 +20,12 @@ class TorHandler: NSObject {
        "--ControlPort", "127.0.0.1:\(controlPort)",
        "--HTTPTunnelPort", "127.0.0.1:\(httpTunnelPort)",
        "--Log", log_loc,
+       "--NumEntryGuards", "3",
+       "--LearnCircuitBuildTimeout", "1",
+       "--CircuitBuildTimeout", "10",
+       "--KeepalivePeriod", "15",
+       "--NewCircuitPeriod", "300",
+       "--LongLivedPorts", "80,\(socksPort),\(httpTunnelPort)",
      ]
 
      if let dataDir = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)

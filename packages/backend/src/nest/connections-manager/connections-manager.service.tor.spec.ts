@@ -208,13 +208,19 @@ describe('Connections manager', () => {
         hiddenService: userIdentity.hiddenService,
       },
     }
+    const emitSpy = jest.spyOn(libp2pService, 'emit')
     await connectionsManagerService.init()
     await connectionsManagerService.launchCommunity(launchCommunityPayload)
-    await sleep(5000)
+    await waitForExpect(async () => {
+      expect(emitSpy).toHaveBeenCalledWith(Libp2pEvents.INITIAL_DIAL)
+    }, 30000)
+
     // It looks LibP2P dials peers initially when it's started and
     // then IPFS service dials peers again when started, thus
     // peersCount-1 * 2 because we don't dial ourself (the first peer in the list)
-    expect(spyOnDial).toHaveBeenCalledTimes((peersCount - 1) * 2)
+    await waitForExpect(async () => {
+      expect(spyOnDial).toHaveBeenCalledTimes((peersCount - 1) * 2)
+    }, 45000)
     // Temporary fix for hanging test - websocketOverTor doesn't have abortController
     await sleep(5000)
   })

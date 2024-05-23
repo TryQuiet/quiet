@@ -10,7 +10,7 @@ import crypto from 'crypto'
 import { EventEmitter } from 'events'
 import { Agent } from 'https'
 import { createServer } from 'it-ws'
-import { Libp2p, createLibp2p } from 'libp2p'
+import { Libp2p, createLibp2p, Libp2pOptions } from 'libp2p'
 import { preSharedKey } from 'libp2p/pnet'
 import { DateTime } from 'luxon'
 import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
@@ -163,7 +163,9 @@ export class Libp2pService extends EventEmitter {
   }
 
   public async createInstance(params: Libp2pNodeParams, startDialImmediately: boolean = false): Promise<Libp2p> {
+    this.logger(`Creating new libp2p instance`)
     if (this.libp2pInstance) {
+      this.logger(`Libp2p instance already exists`)
       return this.libp2pInstance
     }
 
@@ -171,13 +173,16 @@ export class Libp2pService extends EventEmitter {
     const maxParallelDials = 2
 
     try {
-      libp2p = await createLibp2p({
+      const libp2pConfig: Libp2pOptions = {
         start: false,
         connectionManager: {
           minConnections: 5, // TODO: increase?
           maxConnections: 20, // TODO: increase?
-          dialTimeout: 120000,
+          dialTimeout: 90_000,
           maxParallelDials,
+          maxIncomingPendingConnections: 30,
+          inboundConnectionThreshold: 30,
+          inboundUpgradeTimeout: 45_000,
           autoDial: true, // It's a default but let's set it to have explicit information
         },
         peerId: params.peerId,
@@ -196,6 +201,16 @@ export class Libp2pService extends EventEmitter {
             active: false,
           },
         },
+        // ping: {
+        //   maxInboundStreams: 10,
+        //   maxOutboundStreams: 10,
+        //   timeout: 15_000
+        // },
+        // fetch: {
+        //   maxInboundStreams: 10,
+        //   maxOutboundStreams: 10,
+        //   timeout: 15_000
+        // },
         transports: [
           webSockets({
             filter: all,
@@ -212,7 +227,8 @@ export class Libp2pService extends EventEmitter {
           allowPublishToZeroPeers: true,
           doPX: true,
         }),
-      })
+      }
+      libp2p = await createLibp2p(libp2pConfig)
     } catch (err) {
       this.logger.error('Create libp2p:', err)
       throw err

@@ -1,8 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common'
 import { LazyModuleLoader } from '@nestjs/core'
-import { create, IPFS } from 'ipfs-core'
+import { create, IPFS, Options as IPFSOptions } from 'ipfs-core'
 import { IPFS_REPO_PATCH } from '../const'
 import Logger from '../common/logger'
+import { Libp2p } from 'libp2p'
 
 @Injectable()
 export class IpfsService {
@@ -29,9 +30,12 @@ export class IpfsService {
         this.logger.error('no libp2p instance')
         throw new Error('no libp2p instance')
       }
-      ipfs = await create({
+      const getLibp2p = async (...args: any[]): Promise<Libp2p> => {
+        return libp2pInstance
+      }
+      const ipfsConfig: IPFSOptions = {
         start: false,
-        libp2p: async () => libp2pInstance,
+        libp2p: getLibp2p,
         preload: { enabled: false },
         repo: this.ipfsRepoPath,
         EXPERIMENTAL: {
@@ -40,7 +44,9 @@ export class IpfsService {
         init: {
           privateKey: peerId,
         },
-      })
+      }
+      this.logger('Creating new ipfs instance')
+      ipfs = await create(ipfsConfig)
       this.ipfsInstance = ipfs
     } catch (error) {
       this.logger.error('ipfs creation failed', error)
