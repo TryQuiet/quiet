@@ -61,7 +61,7 @@ export const SettingsComponent: React.FC<SettingsComponentProps> = ({
                 <CloseIcon />
               </ListItemIcon>
             </ListItemButton>
-            <ListItemText sx={{ padding: '0px 24px' }}>Channel Settings</ListItemText>
+            <ListItemText sx={{ padding: '0px 32px' }}>Channel Settings</ListItemText>
           </ListItem>
           <Divider />
           <ListItemButton data-testid={'about-settings-tab'} onClick={() => handleChange('about')}>

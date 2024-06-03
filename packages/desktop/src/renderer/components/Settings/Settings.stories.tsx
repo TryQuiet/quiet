@@ -70,7 +70,6 @@ const QRCode: FC = () => {
 const args: SettingsComponentProps = {
   open: true,
   handleClose: function (): void {},
-  isOwner: true,
   tabs: {
     about: Dummy,
     notifications: Dummy,
