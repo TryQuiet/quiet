@@ -15,7 +15,7 @@ import { CreateCommunityDictionary, JoinCommunityDictionary } from '../CreateJoi
 import { CommunityOwnership, ErrorPayload } from '@quiet/types'
 
 import { Controller, useForm } from 'react-hook-form'
-import { TextInput } from '../../forms/components/textInput'
+import { TextField } from '../ui/TextField/TextField'
 import { InviteLinkErrors } from '../../forms/fieldsErrors'
 import { IconButton, InputAdornment } from '@mui/material'
 import VisibilityOff from '@mui/icons-material/VisibilityOff'
@@ -240,7 +240,7 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
                 rules={dictionary.field.validation}
                 name={'name'}
                 render={({ field }) => (
-                  <TextInput
+                  <TextField
                     {...dictionary.field.fieldProps}
                     fullWidth
                     classes={classNames({

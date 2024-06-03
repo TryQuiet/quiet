@@ -11,7 +11,7 @@ import Grid from '@mui/material/Grid'
 import WarningIcon from '@mui/icons-material/Warning'
 
 import { LoadingButton } from '../ui/LoadingButton/LoadingButton'
-import { TextInput } from '../../forms/components/textInput'
+import { TextField } from '../ui/TextField/TextField'
 
 import { userNameField } from '../../forms/fields/createUserFields'
 
@@ -225,7 +225,7 @@ export const ChangeUsername: React.FC<ChangeUsernameProps> = ({
             rules={userFields.userName.validation}
             name={'userName'}
             render={({ field }) => (
-              <TextInput
+              <TextField
                 {...userFields.userName.fieldProps}
                 fullWidth
                 classes={classNames({

@@ -155,10 +155,11 @@ export const Modal: React.FC<IModalProps> = ({
   isTransparent = false,
   withoutHeader = false,
   isSentry = false,
+  ...otherProps
 }) => {
   const zIndex = isSentry ? 9000 : 1300
   return (
-    <StyledMaterialModal zIndex={zIndex} open={open} onClose={handleClose}>
+    <StyledMaterialModal zIndex={zIndex} open={open} onClose={handleClose} {...otherProps}>
       <Grid
         container
         direction='column'
