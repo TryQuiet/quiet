@@ -34,7 +34,7 @@ export const ListItemButton: React.FC<ListItemButtonProps> = props => {
 type ListItemIconProps = MuiListItemIconProps
 
 export const ListItemIcon: React.FC<ListItemIconProps> = props => {
-  return <MuiListItemIcon {...props} />
+  return <MuiListItemIcon sx={{ minWidth: '0px' }} {...props} />
 }
 
 type ListItemTextProps = MuiListItemTextProps

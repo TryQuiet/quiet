@@ -10,6 +10,10 @@ The Quiet Desktop UI uses Material UI (MUI) components as its base. Developers a
 
 These "atomic components" (meaning they are simple, indivisible, and used to make other more complex components) are placed in the `packages/desktop/src/renderer/components/ui` directory. Their names match the MUI components that they are wrapping.
 
+#### Customizing Components
+
+Developers are highly encouraged *NOT* to style atomic components in their more complex components. If a new treatment is needed and the stock MUI props do not provide it (for example, an extra-large button), rather than styling the button in your component, add optional styles in the main `Button` wrapper component and use a `variant` prop or intercept one of the stock props and add the styles in the wrapper component.
+
 ### Composition and Composability
 
 Developers are encouraged to build complex components by composing atomic components. Typically, this means taking advantage of React's `children` prop so that basic components maintain flexibility when used.
