@@ -3,19 +3,8 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import CloseIcon from '@mui/icons-material/Close'
 
 import { useModal } from '../../containers/hooks'
-import {
-  Box,
-  Divider,
-  Drawer,
-  Grid,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-  Tabs,
-  Typography,
-} from '../ui'
+import { Box, Divider, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText } from '../ui'
+import IconButton from '../ui/Icon/IconButton'
 
 const PREFIX = 'SettingsModal'
 
@@ -112,7 +101,13 @@ export const SettingsComponent: React.FC<SettingsComponentProps> = ({
         </List>
       </Drawer>
       <Drawer open={currentTab !== ''} onClose={handleCloseTab} anchor='right' BackdropProps={{ invisible: true }}>
-        <Box p={4} minWidth={32}>
+        <Box width={40}>
+          <IconButton onClick={handleCloseTab}>
+            <CloseIcon />
+          </IconButton>
+        </Box>
+        <Divider />
+        <Box p={2} minWidth={240}>
           {TabComponent && <TabComponent />}
         </Box>
       </Drawer>
