@@ -213,6 +213,13 @@ const lightTheme = createTheme({
         },
       },
     },
+    MuiDrawer: {
+      styleOverrides: {
+        paper: {
+          backgroundColor: '#FFF',
+        },
+      },
+    },
   },
 })
 
