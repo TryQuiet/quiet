@@ -43,14 +43,14 @@ export const SettingsComponent: React.FC<SettingsComponentProps> = ({
   return (
     <>
       <Drawer open={open} onClose={handleClose} title={'Settings'} anchor='right' BackdropProps={{ invisible: true }}>
-        <List dense>
+        <List dense sx={{ minWidth: '375px' }}>
           <ListItem>
             <ListItemButton onClick={handleClose} sx={{ padding: '0px' }}>
               <ListItemIcon>
                 <CloseIcon />
               </ListItemIcon>
             </ListItemButton>
-            <ListItemText sx={{ padding: '0px 32px' }}>Channel Settings</ListItemText>
+            <ListItemText sx={{ padding: '0px 32px' }}>Community Settings</ListItemText>
           </ListItem>
           <Divider />
           <ListItemButton data-testid={'about-settings-tab'} onClick={() => handleChange('about')}>
@@ -107,7 +107,7 @@ export const SettingsComponent: React.FC<SettingsComponentProps> = ({
           </IconButton>
         </Box>
         <Divider />
-        <Box p={2} minWidth={240}>
+        <Box p={2} minWidth={375}>
           {TabComponent && <TabComponent />}
         </Box>
       </Drawer>
