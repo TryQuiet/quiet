@@ -9,6 +9,7 @@ import {
 } from './ContextMenu.types'
 import NavigateNextIcon from '@mui/icons-material/NavigateNext'
 import { Divider, Drawer } from '../ui'
+import IconButton from '../ui/Icon/IconButton'
 
 export const ContextMenu: FC<ContextMenuProps> = ({ visible, handleClose, handleBack, title, children }) => {
   const theme = useTheme()
@@ -16,7 +17,7 @@ export const ContextMenu: FC<ContextMenuProps> = ({ visible, handleClose, handle
   const ref = useRef<HTMLDivElement>(null)
 
   return (
-    <Drawer open={visible} onClose={handleClose} title={'Settings'} anchor='right'>
+    <Drawer open={visible} onClose={handleClose} anchor='right'>
       <Grid
         ref={ref}
         style={{
@@ -38,23 +39,14 @@ export const ContextMenu: FC<ContextMenuProps> = ({ visible, handleClose, handle
             flexDirection: 'row',
             alignItems: 'center',
             textAlign: 'center',
+            paddingTop: '12px',
             height: 60,
             width: '100%',
           }}
         >
-          <Grid
-            style={{
-              flex: 1,
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              cursor: 'pointer',
-            }}
-            data-testid={`contextMenu-${title.split(' ').join('')}-backArrow`}
-            onClick={handleBack || handleClose}
-          >
+          <IconButton onClick={handleBack || handleClose}>
             <CloseIcon />
-          </Grid>
+          </IconButton>
           <Grid style={{ flex: 5, justifyContent: 'center' }}>
             <Typography fontSize={16} fontWeight={'medium'} style={{ alignSelf: 'center' }}>
               {title}
