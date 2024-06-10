@@ -42,7 +42,7 @@ export const SettingsComponent: React.FC<SettingsComponentProps> = ({
 
   return (
     <>
-      <Drawer open={open} onClose={handleClose} title={'Settings'} anchor='right'>
+      <Drawer open={open} onClose={handleClose} anchor='right'>
         <List sx={{ minWidth: '375px', paddingTop: '16px' }}>
           <ListItem sx={{ paddingBottom: '8px' }}>
             <div>
