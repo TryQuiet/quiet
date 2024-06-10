@@ -24,7 +24,7 @@ const classes = {
 const StyledGrid = styled(Grid)(({ theme }) => ({
   [`& .${classes.title}`]: {},
   [`& .${classes.wrapper}`]: {
-    maxWidth: '485px',
+    maxWidth: '375px',
   },
   [`& .${classes.titleDiv}`]: {
     marginBottom: 24,
@@ -59,7 +59,7 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
     justifyContent: 'flex-start',
     alignItems: 'baseline',
     alignContent: 'stretch',
-    maxWidth: '485px',
+    maxWidth: '375px',
     position: 'relative',
   },
 

@@ -1,48 +1,22 @@
 import React, { FC, useEffect, useRef } from 'react'
 import { Grid, List, Typography, useTheme } from '@mui/material'
+import CloseIcon from '@mui/icons-material/Close'
 import {
   ContextMenuProps,
   ContextMenuHintProps,
   ContextMenuItemListProps,
   ContextMenuItemProps,
 } from './ContextMenu.types'
-import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore'
 import NavigateNextIcon from '@mui/icons-material/NavigateNext'
+import { Divider, Drawer } from '../ui'
 
 export const ContextMenu: FC<ContextMenuProps> = ({ visible, handleClose, handleBack, title, children }) => {
   const theme = useTheme()
 
   const ref = useRef<HTMLDivElement>(null)
 
-  useEffect(() => {
-    const handleClick = (event: MouseEvent) => {
-      const target = event.target as Node
-      if (ref.current && !ref.current.contains(target)) {
-        if (visible) {
-          handleClose()
-        }
-      }
-    }
-
-    document.addEventListener('click', handleClick, true)
-
-    return () => {
-      document.removeEventListener('click', handleClick, true)
-    }
-  }, [ref])
-
   return (
-    <Grid
-      style={{
-        display: visible ? 'flex' : 'none',
-        position: 'absolute',
-        width: '100%',
-        height: '100%',
-        zIndex: 9001,
-        pointerEvents: 'none',
-      }}
-    >
-      <Grid style={{ flex: 6 }} onClick={handleClose} />
+    <Drawer open={visible} onClose={handleClose} title={'Settings'} anchor='right'>
       <Grid
         ref={ref}
         style={{
@@ -53,7 +27,7 @@ export const ContextMenu: FC<ContextMenuProps> = ({ visible, handleClose, handle
           alignItems: 'flex-start',
           backgroundColor: theme.palette.background.default,
           boxShadow: theme.shadows[1],
-          maxWidth: '375px',
+          width: '375px',
           pointerEvents: 'auto',
         }}
         data-testid={'contextMenu'}
@@ -66,7 +40,6 @@ export const ContextMenu: FC<ContextMenuProps> = ({ visible, handleClose, handle
             textAlign: 'center',
             height: 60,
             width: '100%',
-            borderBottom: `1px solid ${theme.palette.colors.border01}`,
           }}
         >
           <Grid
@@ -80,7 +53,7 @@ export const ContextMenu: FC<ContextMenuProps> = ({ visible, handleClose, handle
             data-testid={`contextMenu-${title.split(' ').join('')}-backArrow`}
             onClick={handleBack || handleClose}
           >
-            <NavigateBeforeIcon />
+            <CloseIcon />
           </Grid>
           <Grid style={{ flex: 5, justifyContent: 'center' }}>
             <Typography fontSize={16} fontWeight={'medium'} style={{ alignSelf: 'center' }}>
@@ -89,27 +62,23 @@ export const ContextMenu: FC<ContextMenuProps> = ({ visible, handleClose, handle
           </Grid>
           <Grid style={{ flex: 1 }}></Grid>
         </Grid>
+        <Divider sx={{ width: '100%' }} />
         {children}
       </Grid>
-    </Grid>
+    </Drawer>
   )
 }
 
 export const ContextMenuHint: FC<ContextMenuHintProps> = ({ hint }) => {
-  const theme = useTheme()
-
   return (
     <Grid
       style={{
         width: '100%',
         padding: 16,
-        borderTopWidth: 1,
-        borderColor: theme.palette.colors.border01,
       }}
     >
-      <Typography fontSize={14} fontWeight={'normal'}>
-        {hint}
-      </Typography>
+      <Divider />
+      <Typography fontWeight={'normal'}>{hint}</Typography>
     </Grid>
   )
 }
@@ -121,6 +90,7 @@ export const ContextMenuItemList: FC<ContextMenuItemListProps> = ({ items }) => 
         padding: 0,
         width: '100%',
       }}
+      dense
     >
       {items.map((item, index) => {
         return <ContextMenuItem {...item} key={index} />
@@ -133,31 +103,31 @@ export const ContextMenuItem: FC<ContextMenuItemProps> = ({ title, action }) => 
   const theme = useTheme()
 
   return (
-    <Grid
-      style={{
-        display: 'flex',
-        flexDirection: 'row',
-        alignItems: 'center',
-        padding: '11px 16px',
-        width: '100%',
-        cursor: 'pointer',
-        borderBottom: `1px solid ${theme.palette.colors.border01}`,
-      }}
-      onClick={action}
-      data-testid={`contextMenuItem${title}`}
-    >
+    <>
       <Grid
         style={{
-          flex: 8,
+          display: 'flex',
+          flexDirection: 'row',
+          alignItems: 'center',
+          padding: '11px 16px',
+          width: '100%',
+          cursor: 'pointer',
         }}
+        onClick={action}
+        data-testid={`contextMenuItem${title}`}
       >
-        <Typography fontSize={16} fontWeight={'normal'}>
-          {title}
-        </Typography>
+        <Grid
+          style={{
+            flex: 8,
+          }}
+        >
+          <Typography fontWeight={'normal'}>{title}</Typography>
+        </Grid>
+        <Grid style={{ flex: 1, display: 'flex', flexDirection: 'row', justifyContent: 'flex-end' }}>
+          <NavigateNextIcon />
+        </Grid>
       </Grid>
-      <Grid style={{ flex: 1, display: 'flex', flexDirection: 'row', justifyContent: 'flex-end' }}>
-        <NavigateNextIcon />
-      </Grid>
-    </Grid>
+      <Divider />
+    </>
   )
 }

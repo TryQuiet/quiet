@@ -40,7 +40,7 @@ export const ListItemIcon: React.FC<ListItemIconProps> = props => {
 type ListItemTextProps = MuiListItemTextProps
 
 export const ListItemText: React.FC<ListItemTextProps> = props => {
-  return <MuiListItemText {...props} />
+  return <MuiListItemText sx={{ fontSize: '16px' }} {...props} />
 }
 
 export default List

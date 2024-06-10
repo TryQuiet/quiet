@@ -3,7 +3,7 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight'
 import CloseIcon from '@mui/icons-material/Close'
 
 import { useModal } from '../../containers/hooks'
-import { Box, Divider, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText } from '../ui'
+import { Box, Divider, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Typography } from '../ui'
 import IconButton from '../ui/Icon/IconButton'
 
 const PREFIX = 'SettingsModal'
@@ -42,15 +42,19 @@ export const SettingsComponent: React.FC<SettingsComponentProps> = ({
 
   return (
     <>
-      <Drawer open={open} onClose={handleClose} title={'Settings'} anchor='right' BackdropProps={{ invisible: true }}>
-        <List dense sx={{ minWidth: '375px' }}>
-          <ListItem>
-            <ListItemButton onClick={handleClose} sx={{ padding: '0px' }}>
-              <ListItemIcon>
-                <CloseIcon />
-              </ListItemIcon>
-            </ListItemButton>
-            <ListItemText sx={{ padding: '0px 32px' }}>Community Settings</ListItemText>
+      <Drawer open={open} onClose={handleClose} title={'Settings'} anchor='right'>
+        <List sx={{ minWidth: '375px', paddingTop: '16px' }}>
+          <ListItem sx={{ paddingBottom: '8px' }}>
+            <div>
+              <ListItemButton onClick={handleClose} sx={{ padding: '0px' }}>
+                <ListItemIcon>
+                  <CloseIcon />
+                </ListItemIcon>
+              </ListItemButton>
+            </div>
+            <ListItemText sx={{ textAlign: 'center' }}>
+              <Typography sx={{ fontWeight: '500' }}>Community Settings</Typography>
+            </ListItemText>
           </ListItem>
           <Divider />
           <ListItemButton data-testid={'about-settings-tab'} onClick={() => handleChange('about')}>
@@ -101,7 +105,7 @@ export const SettingsComponent: React.FC<SettingsComponentProps> = ({
         </List>
       </Drawer>
       <Drawer open={currentTab !== ''} onClose={handleCloseTab} anchor='right' BackdropProps={{ invisible: true }}>
-        <Box width={40}>
+        <Box width={40} sx={{ paddingTop: '16px', paddingBottom: '8px', paddingLeft: '4px' }}>
           <IconButton onClick={handleCloseTab}>
             <CloseIcon />
           </IconButton>
