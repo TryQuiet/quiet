@@ -25,7 +25,7 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
     minHeight: '100%',
     width: '220px',
     position: 'relative',
-    backgroundColor: theme.palette.background.default,
+    backgroundColor: theme.palette.colors.sidebarBackground,
     color: theme.palette.colors.white,
   },
 
