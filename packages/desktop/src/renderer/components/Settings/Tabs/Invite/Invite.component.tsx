@@ -24,7 +24,7 @@ const classes = {
 const StyledGrid = styled(Grid)(({ theme }) => ({
   [`& .${classes.title}`]: {},
   [`& .${classes.wrapper}`]: {
-    maxWidth: '375px',
+    maxWidth: '100%',
   },
   [`& .${classes.titleDiv}`]: {
     marginBottom: 24,
@@ -34,12 +34,12 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
     fontSize: '13px',
     letterSpacing: '-0.4px',
     overflowWrap: 'break-word',
-    inlineSize: '430px',
+    inlineSize: 'calc(100% - 40px);',
   },
   [`& .${classes.button}`]: {
     marginTop: 24,
     textTransform: 'none',
-    width: 480,
+    width: '100%',
     height: 60,
     color: theme.palette.colors.white,
     backgroundColor: theme.palette.colors.quietBlue,

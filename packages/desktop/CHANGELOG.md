@@ -2,6 +2,8 @@
 
 # New features:
 
+* Update settings to match designs([#2537](https://github.com/TryQuiet/quiet/issues/2537))
+
 # Refactorings:
 
 # Fixes:

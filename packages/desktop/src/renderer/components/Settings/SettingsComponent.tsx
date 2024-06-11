@@ -43,7 +43,7 @@ export const SettingsComponent: React.FC<SettingsComponentProps> = ({
   return (
     <>
       <Drawer open={open} onClose={handleClose} anchor='right'>
-        <List sx={{ minWidth: '375px', paddingTop: '16px' }}>
+        <List sx={{ width: '375px', paddingTop: '16px' }}>
           <ListItem sx={{ paddingBottom: '8px' }}>
             <div>
               <ListItemButton onClick={handleClose} sx={{ padding: '0px' }}>
@@ -111,7 +111,7 @@ export const SettingsComponent: React.FC<SettingsComponentProps> = ({
           </IconButton>
         </Box>
         <Divider />
-        <Box p={2} minWidth={375}>
+        <Box p={2} width={375}>
           {TabComponent && <TabComponent />}
         </Box>
       </Drawer>

@@ -34,7 +34,7 @@ describe('Main', () => {
                   class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                 >
                   <div
-                    class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column SidebarComponentroot css-di2ta-MuiGrid-root"
+                    class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column SidebarComponentroot css-12e2bhe-MuiGrid-root"
                   >
                     <div
                       class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-direction-xs-column MuiGrid-grid-xs-true SidebarComponentpadding css-1fzha0v-MuiGrid-root"
@@ -151,7 +151,7 @@ describe('Main', () => {
                                     data-testid="channelsList"
                                   >
                                     <div
-                                      class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot ChannelsListItemselected css-z1wnyu-MuiButtonBase-root-MuiListItemButton-root"
+                                      class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-root ChannelsListItemroot ChannelsListItemselected css-wntqhv-MuiButtonBase-root-MuiListItemButton-root"
                                       data-testid="general-link"
                                       role="button"
                                       tabindex="0"

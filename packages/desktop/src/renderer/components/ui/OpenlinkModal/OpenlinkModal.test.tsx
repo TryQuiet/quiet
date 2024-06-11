@@ -24,7 +24,7 @@ describe('OpenlinkModal', () => {
           aria-hidden="true"
         />
         <div
-          class="MuiModal-root css-1evs64r-MuiModal-root"
+          class="MuiModal-root css-16f7e5u-MuiModal-root"
           role="presentation"
         >
           <div
@@ -264,7 +264,7 @@ describe('OpenlinkModal', () => {
                               class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                             >
                               <button
-                                class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge OpenlinkModalbuttonBack css-1emapyx-MuiButtonBase-root-MuiButton-root"
+                                class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeLarge MuiButton-containedSizeLarge OpenlinkModalbuttonBack css-1hycmuu-MuiButtonBase-root-MuiButton-root"
                                 tabindex="0"
                                 type="button"
                               >

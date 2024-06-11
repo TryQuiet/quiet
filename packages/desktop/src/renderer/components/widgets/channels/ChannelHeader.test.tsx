@@ -10,7 +10,7 @@ describe('ChannelHeader', () => {
       <body>
         <div>
           <div
-            class="ChannelHeaderComponentwrapper css-1og65k3"
+            class="ChannelHeaderComponentwrapper css-47uo3o"
           >
             <div
               class="MuiGrid-root MuiGrid-container ChannelHeaderComponentroot css-9cyib4-MuiGrid-root"
@@ -49,7 +49,7 @@ describe('ChannelHeader', () => {
       <body>
         <div>
           <div
-            class="ChannelHeaderComponentwrapper css-1og65k3"
+            class="ChannelHeaderComponentwrapper css-47uo3o"
           >
             <div
               class="MuiGrid-root MuiGrid-container ChannelHeaderComponentroot css-9cyib4-MuiGrid-root"
@@ -80,9 +80,17 @@ describe('ChannelHeader', () => {
                   class="MuiGrid-root MuiGrid-item ChannelHeaderComponentmenu css-13i4rnv-MuiGrid-root"
                   data-testid="channelContextMenuButton"
                 >
-                  <img
-                    src="test-file-stub"
-                  />
+                  <svg
+                    aria-hidden="true"
+                    class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-i4bv87-MuiSvgIcon-root"
+                    data-testid="MoreHorizIcon"
+                    focusable="false"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      d="M6 10c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm12 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm-6 0c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"
+                    />
+                  </svg>
                 </div>
               </div>
             </div>

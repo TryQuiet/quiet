@@ -21,7 +21,7 @@ describe('PossibleImpersonationAttackModal', () => {
           aria-hidden="true"
         />
         <div
-          class="MuiModal-root css-1evs64r-MuiModal-root"
+          class="MuiModal-root css-16f7e5u-MuiModal-root"
           role="presentation"
         >
           <div
