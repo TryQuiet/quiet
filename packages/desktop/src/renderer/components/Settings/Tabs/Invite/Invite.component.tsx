@@ -82,7 +82,7 @@ export const InviteComponent: FC<InviteComponentProps> = ({
   revealInputValue,
   handleClickInputReveal,
 }) => {
-  const hiddenInvitationLink = invitationLink.slice(0, 90).replace(/./g, '•')
+  const hiddenInvitationLink = '••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••'
   return (
     <StyledGrid container direction='column'>
       <Grid container item justifyContent='space-between' alignItems='center' className={classes.titleDiv}>
