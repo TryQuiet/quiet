@@ -1,4 +1,3 @@
-import { nativeTheme } from '@electron/remote'
 import { createTheme, type Theme } from '@mui/material/styles'
 
 const font = "'Rubik', sans-serif"
@@ -448,6 +447,7 @@ const darkTheme = createTheme({
 })
 
 const getTheme = (): Theme => {
+  const nativeTheme = (window.require && window.require('@electron/remote').nativeTheme) || null
   return nativeTheme?.shouldUseDarkColors ? darkTheme : lightTheme
 }
 
