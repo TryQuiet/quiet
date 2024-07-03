@@ -122,6 +122,7 @@ describe('LeaveCommunity', () => {
                   >
                     <button
                       class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-fullWidth MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-fullWidth LeaveCommunitybutton css-1x25m9x-MuiButtonBase-root-MuiButton-root"
+                      data-testid="leave-community-button"
                       tabindex="0"
                       type="button"
                     >
