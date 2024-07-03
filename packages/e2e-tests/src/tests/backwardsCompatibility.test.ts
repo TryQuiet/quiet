@@ -99,7 +99,7 @@ describe('Backwards Compatibility', () => {
       expect(isSettingsModal).toBeTruthy()
       const settingVersion = await settingsModal.getVersion()
       expect(settingVersion).toEqual(BACKWARD_COMPATIBILITY_BASE_VERSION)
-      await settingsModal.close()
+      await settingsModal.closeTabThenModal()
     })
     it('Sends a message', async () => {
       const isMessageInput = await generalChannel.messageInput.isDisplayed()
@@ -176,7 +176,7 @@ describe('Backwards Compatibility', () => {
       const settingVersion = await settingsModal.getVersion()
       const envVersion = ownerAppNewVersion.buildSetup.getVersionFromEnv()
       expect(settingVersion).toEqual(envVersion)
-      await settingsModal.close()
+      await settingsModal.closeTabThenModal()
     })
 
     it('Check number of messages on second channel', async () => {

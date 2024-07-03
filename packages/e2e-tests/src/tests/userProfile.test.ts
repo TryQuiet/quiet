@@ -156,15 +156,13 @@ describe('User Profile Feature', () => {
     const isSettingsModal = await settingsModal.element.isDisplayed()
     expect(isSettingsModal).toBeTruthy()
     await sleep(2000)
-    await settingsModal.switchTab('invite') // TODO: Fix - the invite tab should be default for the owner
-    await sleep(2000)
     const invitationCodeElement = await settingsModal.invitationCode()
     await sleep(2000)
     invitationCode = await invitationCodeElement.getText()
     await sleep(2000)
     expect(invitationCode).not.toBeUndefined()
     logger.info('Received invitation code:', invitationCode)
-    await settingsModal.close()
+    await settingsModal.closeTabThenModal()
   })
 
   it('First user opens the app', async () => {

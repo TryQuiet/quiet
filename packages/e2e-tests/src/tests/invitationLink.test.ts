@@ -96,7 +96,7 @@ describe('New user joins using invitation link while having app opened', () => {
       const invitationCodeElement = await settingsModal.invitationCode()
       invitationCode = await invitationCodeElement.getText()
       logger.info('Received invitation link:', invitationCode)
-      await settingsModal.close()
+      await settingsModal.closeTabThenModal()
     })
 
     if (process.platform === 'darwin') {

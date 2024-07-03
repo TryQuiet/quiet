@@ -46,7 +46,7 @@ export const SettingsComponent: React.FC<SettingsComponentProps> = ({
         <List sx={{ width: '375px', paddingTop: '16px' }}>
           <ListItem sx={{ paddingBottom: '8px' }}>
             <div>
-              <ListItemButton onClick={handleClose} sx={{ padding: '0px' }}>
+              <ListItemButton onClick={handleClose} sx={{ padding: '0px' }} data-testid={'close-settings-button'}>
                 <ListItemIcon>
                   <CloseIcon />
                 </ListItemIcon>
@@ -105,7 +105,11 @@ export const SettingsComponent: React.FC<SettingsComponentProps> = ({
         </List>
       </Drawer>
       <Drawer open={currentTab !== ''} onClose={handleCloseTab} anchor='right' BackdropProps={{ invisible: true }}>
-        <Box width={40} sx={{ paddingTop: '16px', paddingBottom: '8px', paddingLeft: '4px' }}>
+        <Box
+          width={40}
+          sx={{ paddingTop: '16px', paddingBottom: '8px', paddingLeft: '4px' }}
+          data-testid={'close-tab-button-box'}
+        >
           <IconButton onClick={handleCloseTab}>
             <CloseIcon />
           </IconButton>

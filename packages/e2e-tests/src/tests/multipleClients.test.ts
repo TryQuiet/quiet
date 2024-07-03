@@ -127,8 +127,7 @@ describe('Multiple Clients', () => {
       const settingsModal = await new Sidebar(users.owner.app.driver).openSettings()
       const isSettingsModal = await settingsModal.element.isDisplayed()
       expect(isSettingsModal).toBeTruthy()
-      await sleep(2000)
-      await settingsModal.switchTab('invite') // TODO: Fix - the invite tab should be default for the owner
+      logger.info('opened the settings modal')
       await sleep(2000)
       const invitationCodeElement = await settingsModal.invitationCode()
       await sleep(2000)
@@ -137,7 +136,7 @@ describe('Multiple Clients', () => {
       logger.info({ invitationCode })
       expect(invitationCode).not.toBeUndefined()
       logger.info('Received invitation code:', invitationCode)
-      await settingsModal.close()
+      await settingsModal.closeTabThenModal()
     })
 
     it('First user opens the app', async () => {
@@ -193,15 +192,13 @@ describe('Multiple Clients', () => {
       const isSettingsModal = await settingsModal.element.isDisplayed()
       expect(isSettingsModal).toBeTruthy()
       await sleep(2000)
-      await settingsModal.switchTab('invite')
-      await sleep(2000)
       const invitationCodeElement = await settingsModal.invitationCode()
       await sleep(2000)
       invitationCode = await invitationCodeElement.getText()
       await sleep(2000)
       logger.info(`${invitationCode} copied from non owner`)
       expect(invitationCode).not.toBeUndefined()
-      await settingsModal.close()
+      await settingsModal.closeTabThenModal()
     })
 
     it('Owner goes offline', async () => {
@@ -415,8 +412,8 @@ describe('Multiple Clients', () => {
         const settingsModal = await new Sidebar(users.user1.app.driver).openSettings()
         const isSettingsModal = await settingsModal.element.isDisplayed()
         expect(isSettingsModal).toBeTruthy()
-        await settingsModal.openLeaveCommunityModal()
-        await settingsModal.leaveCommunityButton()
+        await sleep(2000)
+        await settingsModal.leaveCommunity()
       })
 
       it('Leave community - Guest re-join to community successfully', async () => {
