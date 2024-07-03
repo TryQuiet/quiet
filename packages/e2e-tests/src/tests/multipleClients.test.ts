@@ -358,7 +358,9 @@ describe('Multiple Clients', () => {
         const isThirdChannel = await thirdChannelOwner.messageInput.isDisplayed()
         expect(isThirdChannel).toBeTruthy()
         await channelContextMenuOwner.openMenu()
+        await sleep(2000)
         await channelContextMenuOwner.openDeletionChannelModal()
+        await sleep(2000)
         await channelContextMenuOwner.deleteChannel()
         await sidebarOwner.waitForChannels(['general', newChannelName])
       })
@@ -410,6 +412,7 @@ describe('Multiple Clients', () => {
       it('Leave community', async () => {
         logger.info('TEST 2')
         const settingsModal = await new Sidebar(users.user1.app.driver).openSettings()
+        await sleep(2000)
         const isSettingsModal = await settingsModal.element.isDisplayed()
         expect(isSettingsModal).toBeTruthy()
         await sleep(2000)

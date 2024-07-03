@@ -80,7 +80,7 @@ export const SettingsComponent: React.FC<SettingsComponentProps> = ({
             </ListItemIcon>
           </ListItemButton>
           <Divider />
-          <ListItemButton data-testid={'qr-code-tab'} onClick={() => handleChange('qrcode')}>
+          <ListItemButton data-testid={'qr-code-settings-tab'} onClick={() => handleChange('qrcode')}>
             <ListItemText> QR Code</ListItemText>
             <ListItemIcon>
               <ChevronRightIcon />
@@ -90,7 +90,7 @@ export const SettingsComponent: React.FC<SettingsComponentProps> = ({
             <>
               <Divider />
               <ListItemButton
-                data-testid='leave-community-tab'
+                data-testid='leave-community-settings-tab'
                 className={classes.leaveComunity}
                 onClick={leaveCommunityModal.handleOpen}
               >
