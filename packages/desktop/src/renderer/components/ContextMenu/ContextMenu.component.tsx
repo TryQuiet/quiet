@@ -44,7 +44,10 @@ export const ContextMenu: FC<ContextMenuProps> = ({ visible, handleClose, handle
             width: '100%',
           }}
         >
-          <IconButton onClick={handleBack || handleClose}>
+          <IconButton
+            onClick={handleBack || handleClose}
+            dataTestId={`contextMenu-close-button-${title.split(' ').join('')}`}
+          >
             <CloseIcon />
           </IconButton>
           <Grid style={{ flex: 5, justifyContent: 'center' }}>

@@ -1,7 +1,7 @@
 import { By, Key, type ThenableWebDriver, type WebElement, until } from 'selenium-webdriver'
 import { BuildSetup, sleep, type BuildSetupInit } from './utils'
 import path from 'path'
-import { BACK_ARROW_DATA_TESTID } from './enums'
+import { X_DATA_TESTID } from './enums'
 import { createLogger } from './logger'
 
 const logger = createLogger('selectors')
@@ -166,9 +166,9 @@ export class UserProfileContextMenu {
     await button.click()
   }
 
-  async back(dataTestid: BACK_ARROW_DATA_TESTID) {
+  async back(dataTestid: X_DATA_TESTID) {
     const button = await this.driver.wait(
-      until.elementLocated(By.xpath(`//div[@data-testid="${dataTestid}"]`)),
+      until.elementLocated(By.xpath(`//button[@data-testid="${dataTestid}"]`)),
       20000,
       `Context back button with data-testid ${dataTestid} not found`,
       500

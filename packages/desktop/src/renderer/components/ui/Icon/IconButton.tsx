@@ -17,9 +17,9 @@ const StyledIconButtonMui = styled(IconButtonMui)(({ theme }) => ({
   },
 }))
 
-export const IconButton: React.FC<IIconButtonProps> = ({ children, onClick }) => {
+export const IconButton: React.FC<IIconButtonProps> = ({ children, onClick, dataTestId }) => {
   return (
-    <StyledIconButtonMui classes={{ root: classes.root }} onClick={onClick}>
+    <StyledIconButtonMui classes={{ root: classes.root }} onClick={onClick} data-testid={dataTestId}>
       {children}
     </StyledIconButtonMui>
   )

@@ -12,7 +12,7 @@ import {
 import { createLogger } from '../logger'
 import { EXPECTED_IMG_SRC_GIF, EXPECTED_IMG_SRC_JPEG, EXPECTED_IMG_SRC_PNG } from '../profilePhoto.const'
 import { sleep } from '../utils'
-import { BACK_ARROW_DATA_TESTID } from '../enums'
+import { X_DATA_TESTID } from '../enums'
 import { UserTestData } from '../types'
 
 const logger = createLogger('userProfile')
@@ -105,8 +105,8 @@ describe('User Profile Feature', () => {
       const imgSrc = await menu.getProfilePhotoSrc()
       expect(imgSrc).toEqual(EXPECTED_IMG_SRC_JPEG)
 
-      await menu.back(BACK_ARROW_DATA_TESTID.EDIT_PROFILE)
-      await menu.back(BACK_ARROW_DATA_TESTID.PROFILE)
+      await menu.back(X_DATA_TESTID.EDIT_PROFILE)
+      await menu.back(X_DATA_TESTID.PROFILE)
     } catch (e) {
       logger.error('Failed to set JPEG profile photo', e)
       throw e
@@ -124,8 +124,8 @@ describe('User Profile Feature', () => {
       const imgSrc = await menu.getProfilePhotoSrc()
       expect(imgSrc).toEqual(EXPECTED_IMG_SRC_GIF)
 
-      await menu.back(BACK_ARROW_DATA_TESTID.EDIT_PROFILE)
-      await menu.back(BACK_ARROW_DATA_TESTID.PROFILE)
+      await menu.back(X_DATA_TESTID.EDIT_PROFILE)
+      await menu.back(X_DATA_TESTID.PROFILE)
     } catch (e) {
       logger.error('Failed to set GIF profile photo', e)
       throw e
@@ -143,8 +143,8 @@ describe('User Profile Feature', () => {
       const imgSrc = await menu.getProfilePhotoSrc()
       expect(imgSrc).toEqual(EXPECTED_IMG_SRC_PNG)
 
-      await menu.back(BACK_ARROW_DATA_TESTID.EDIT_PROFILE)
-      await menu.back(BACK_ARROW_DATA_TESTID.PROFILE)
+      await menu.back(X_DATA_TESTID.EDIT_PROFILE)
+      await menu.back(X_DATA_TESTID.PROFILE)
     } catch (e) {
       logger.error('Failed to set PNG profile photo', e)
       throw e
