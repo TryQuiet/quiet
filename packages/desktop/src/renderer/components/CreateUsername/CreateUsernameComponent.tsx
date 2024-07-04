@@ -13,7 +13,7 @@ import Modal from '../ui/Modal/Modal'
 
 import { LoadingButton } from '../ui/LoadingButton/LoadingButton'
 
-import { TextInput } from '../../forms/components/textInput'
+import { TextField } from '../ui/TextField/TextField'
 
 import { userNameField } from '../../forms/fields/createUserFields'
 
@@ -222,7 +222,7 @@ export const CreateUsernameComponent: React.FC<CreateUsernameComponentProps> = (
                 rules={userFields.userName.validation}
                 name={'userName'}
                 render={({ field }) => (
-                  <TextInput
+                  <TextField
                     {...userFields.userName.fieldProps}
                     fullWidth
                     classes={classNames({

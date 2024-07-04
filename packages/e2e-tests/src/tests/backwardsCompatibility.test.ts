@@ -8,7 +8,7 @@ import {
   RegisterUsernameModal,
   Sidebar,
 } from '../selectors'
-import { BACKWARD_COMPATIBILITY_BASE_VERSION, BuildSetup, copyInstallerFile, downloadInstaller } from '../utils'
+import { BACKWARD_COMPATIBILITY_BASE_VERSION, BuildSetup, copyInstallerFile, downloadInstaller, sleep } from '../utils'
 import { createLogger } from '../logger'
 
 const logger = createLogger('backwardsCompatibility')
@@ -96,10 +96,11 @@ describe('Backwards Compatibility', () => {
     it(`Verify version - ${BACKWARD_COMPATIBILITY_BASE_VERSION}`, async () => {
       const settingsModal = await new Sidebar(ownerAppOldVersion.driver).openSettings()
       const isSettingsModal = await settingsModal.element.isDisplayed()
+      await sleep(2000)
       expect(isSettingsModal).toBeTruthy()
       const settingVersion = await settingsModal.getVersion()
       expect(settingVersion).toEqual(BACKWARD_COMPATIBILITY_BASE_VERSION)
-      await settingsModal.close()
+      await settingsModal.closeTabThenModal()
     })
     it('Sends a message', async () => {
       const isMessageInput = await generalChannel.messageInput.isDisplayed()
@@ -172,11 +173,12 @@ describe('Backwards Compatibility', () => {
       await new Promise<void>(resolve => setTimeout(() => resolve(), 10000))
       const settingsModal = await new Sidebar(ownerAppNewVersion.driver).openSettings()
       const isSettingsModal = await settingsModal.element.isDisplayed()
+      await sleep(2000)
       expect(isSettingsModal).toBeTruthy()
       const settingVersion = await settingsModal.getVersion()
       const envVersion = ownerAppNewVersion.buildSetup.getVersionFromEnv()
       expect(settingVersion).toEqual(envVersion)
-      await settingsModal.close()
+      await settingsModal.closeTabThenModal()
     })
 
     it('Check number of messages on second channel', async () => {

@@ -1,16 +1,16 @@
 import React from 'react'
 import { DeepMap, FieldError, FieldValues, Noop } from 'react-hook-form'
 import Typography from '@mui/material/Typography'
-import TextField, { TextFieldProps } from '@mui/material/TextField'
+import { TextField as MuiTextField, TextFieldProps as MuiTextFieldProps } from '@mui/material'
 
-export type TextInputProps = TextFieldProps & {
+export type TextFieldProps = MuiTextFieldProps & {
   errors: DeepMap<FieldValues, FieldError>
   classes: string
   onchange: (...event: any[]) => void
   onblur: Noop
 }
 
-export const TextInput: React.FC<TextInputProps> = ({
+export const TextField: React.FC<TextFieldProps> = ({
   errors,
   defaultValue,
   classes,
@@ -23,7 +23,7 @@ export const TextInput: React.FC<TextInputProps> = ({
 
   return (
     <>
-      <TextField
+      <MuiTextField
         error={hasError}
         defaultValue={defaultValue}
         name={name}

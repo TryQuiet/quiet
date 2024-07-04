@@ -1,7 +1,7 @@
 import { By, Key, type ThenableWebDriver, type WebElement, until } from 'selenium-webdriver'
 import { BuildSetup, sleep, type BuildSetupInit } from './utils'
 import path from 'path'
-import { BACK_ARROW_DATA_TESTID } from './enums'
+import { X_DATA_TESTID } from './enums'
 import { createLogger } from './logger'
 
 const logger = createLogger('selectors')
@@ -166,9 +166,9 @@ export class UserProfileContextMenu {
     await button.click()
   }
 
-  async back(dataTestid: BACK_ARROW_DATA_TESTID) {
+  async back(dataTestid: X_DATA_TESTID) {
     const button = await this.driver.wait(
-      until.elementLocated(By.xpath(`//div[@data-testid="${dataTestid}"]`)),
+      until.elementLocated(By.xpath(`//button[@data-testid="${dataTestid}"]`)),
       20000,
       `Context back button with data-testid ${dataTestid} not found`,
       500
@@ -522,12 +522,18 @@ export class Settings {
   }
 
   get element() {
-    return this.driver.wait(until.elementLocated(By.xpath("//h6[text()='Settings']")))
+    return this.driver.wait(until.elementLocated(By.xpath("//p[text()='Community Settings']")))
+  }
+
+  async switchTab(name: string) {
+    const tab = await this.driver.findElement(By.xpath(`//div[@data-testid='${name}-settings-tab']`))
+    await tab.click()
+    await new Promise<void>(resolve => setTimeout(() => resolve(), 500))
   }
 
   async getVersion() {
     await this.switchTab('about')
-    await new Promise<void>(resolve => setTimeout(() => resolve(), 500))
+
     const textWebElement = await this.driver.findElement(By.xpath('//p[contains(text(),"Version")]'))
     const text = await textWebElement.getText()
 
@@ -543,36 +549,42 @@ export class Settings {
     return version
   }
 
-  async openLeaveCommunityModal() {
-    const tab = await this.driver.wait(until.elementLocated(By.xpath('//p[@data-testid="leave-community-tab"]')))
-    await tab.click()
-  }
+  async leaveCommunity() {
+    await this.switchTab('leave-community')
 
-  async leaveCommunityButton() {
-    const button = await this.driver.wait(until.elementLocated(By.xpath('//button[text()="Leave community"]')))
+    const button = await this.driver.wait(
+      until.elementLocated(By.xpath('//button[@data-testid="leave-community-button"]'))
+    )
     await button.click()
   }
 
-  async switchTab(name: string) {
-    const tab = await this.driver.findElement(By.xpath(`//button[@data-testid='${name}-settings-tab']`))
-    await tab.click()
-  }
-
   async invitationCode() {
-    const unlockButton = await this.driver.findElement(By.xpath('//button[@data-testid="show-invitation-link"]'))
+    await this.switchTab('invite')
 
+    const unlockButton = await this.driver.findElement(By.xpath('//button[@data-testid="show-invitation-link"]'))
     await unlockButton.click()
 
     return await this.driver.findElement(By.xpath("//p[@data-testid='invitation-link']"))
   }
 
-  async close() {
+  async closeTab() {
     const closeButton = await this.driver
-      .findElement(By.xpath('//div[@data-testid="settingsModalActions"]'))
+      .findElement(By.xpath('//div[@data-testid="close-tab-button-box"]'))
       .findElement(By.css('button'))
     await closeButton.click()
   }
+
+  async closeModal() {
+    const closeButton = await this.driver.findElement(By.xpath('//div[@data-testid="close-settings-button"]'))
+    await closeButton.click()
+  }
+
+  async closeTabThenModal() {
+    await this.closeTab()
+    await this.closeModal()
+  }
 }
+
 export class DebugModeModal {
   private readonly driver: ThenableWebDriver
   constructor(driver: ThenableWebDriver) {

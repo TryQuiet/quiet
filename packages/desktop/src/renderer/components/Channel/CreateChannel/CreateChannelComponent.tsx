@@ -9,7 +9,7 @@ import WarningIcon from '@mui/icons-material/Warning'
 import Modal from '../../ui/Modal/Modal'
 import LoadingButton from '../../ui/LoadingButton/LoadingButton'
 
-import { TextInput } from '../../../forms/components/textInput'
+import { TextField } from '../../ui/TextField/TextField'
 import { channelNameField } from '../../../forms/fields/createChannelFields'
 
 import { parseName } from '@quiet/common'
@@ -171,7 +171,7 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
               rules={createChannelFields.channelName.validation}
               name={'channelName'}
               render={({ field }) => (
-                <TextInput
+                <TextField
                   {...createChannelFields.channelName.fieldProps}
                   fullWidth
                   classes={''}

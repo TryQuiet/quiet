@@ -9,7 +9,7 @@ import { PublicChannelStorage } from '@quiet/types'
 import Modal from '../ui/Modal/Modal'
 import { useForm } from 'react-hook-form'
 import { searchChannelField } from '../../forms/fields/searchChannelField'
-import { TextInput } from '../../forms/components/textInput'
+import { TextField } from '../ui/TextField/TextField'
 import { useCyclingFocus, Variant } from '../../containers/hooks'
 import ChannelItem from './ChannelItem'
 
@@ -195,7 +195,7 @@ const SearchModalComponent: React.FC<SearchModalComponentProps> = ({
               <Grid item justifyContent='space-between' alignItems='center' className={classes.inputWrapper}>
                 <Icon className={classes.magnifyingGlassIcon} src={magnifyingGlassIcon} />
 
-                <TextInput
+                <TextField
                   {...searchChannelFields.searchChannel.fieldProps}
                   fullWidth
                   variant='standard'

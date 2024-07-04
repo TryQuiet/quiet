@@ -83,7 +83,7 @@ describe('User joining with storage server', () => {
       await sleep(2000)
       logger.info({ invitationLinkV1 })
       expect(invitationLinkV1).not.toBeUndefined()
-      await settingsModal.close()
+      await settingsModal.closeTabThenModal()
     })
   })
 

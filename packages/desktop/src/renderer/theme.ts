@@ -1,4 +1,3 @@
-import { nativeTheme } from '@electron/remote'
 import { createTheme, type Theme } from '@mui/material/styles'
 
 const font = "'Rubik', sans-serif"
@@ -131,6 +130,27 @@ const lightTheme = createTheme({
     '0px 1px 0px #F0F0F0',
     '0px 1px 3px rgba(0, 0, 0, 0.0)',
     '0px 2px 25px rgba(0, 0, 0, 0.2)',
+    // From here, this is just 20 repeats until we figure out shadows
+    '0px 0px 4px rgba(0, 0, 0, 0.25)',
+    '0px 0px 4px rgba(0, 0, 0, 0.25)',
+    '0px 0px 4px rgba(0, 0, 0, 0.25)',
+    '0px 0px 4px rgba(0, 0, 0, 0.25)',
+    '0px 0px 4px rgba(0, 0, 0, 0.25)',
+    '0px 0px 4px rgba(0, 0, 0, 0.25)',
+    '0px 0px 4px rgba(0, 0, 0, 0.25)',
+    '0px 0px 4px rgba(0, 0, 0, 0.25)',
+    '0px 0px 4px rgba(0, 0, 0, 0.25)',
+    '0px 0px 4px rgba(0, 0, 0, 0.25)',
+    '0px 0px 4px rgba(0, 0, 0, 0.25)',
+    '0px 0px 4px rgba(0, 0, 0, 0.25)',
+    '0px 0px 4px rgba(0, 0, 0, 0.25)',
+    '0px 0px 4px rgba(0, 0, 0, 0.25)',
+    '0px 0px 4px rgba(0, 0, 0, 0.25)',
+    '0px 0px 4px rgba(0, 0, 0, 0.25)',
+    '0px 0px 4px rgba(0, 0, 0, 0.25)',
+    '0px 0px 4px rgba(0, 0, 0, 0.25)',
+    '0px 0px 4px rgba(0, 0, 0, 0.25)',
+    '0px 0px 4px rgba(0, 0, 0, 0.25)',
   ],
   components: {
     // Body font size changed in mui v5: https://mui.com/material-ui/migration/v5-component-changes/#update-body-font-size
@@ -189,6 +209,13 @@ const lightTheme = createTheme({
       styleOverrides: {
         paper: {
           borderRadius: 8,
+        },
+      },
+    },
+    MuiDrawer: {
+      styleOverrides: {
+        paper: {
+          backgroundColor: '#FFF',
         },
       },
     },
@@ -327,6 +354,27 @@ const darkTheme = createTheme({
     '0px 1px 0px #0F0F0F',
     '0px 1px 3px rgba(1, 1, 1, 0.0)',
     '0px 2px 25px rgba(1, 1, 1, 0.2)',
+    // Repeats until we design our shadows
+    '0px 0px 4px rgba(1, 1, 1, 0.25)',
+    '0px 0px 4px rgba(1, 1, 1, 0.25)',
+    '0px 0px 4px rgba(1, 1, 1, 0.25)',
+    '0px 0px 4px rgba(1, 1, 1, 0.25)',
+    '0px 0px 4px rgba(1, 1, 1, 0.25)',
+    '0px 0px 4px rgba(1, 1, 1, 0.25)',
+    '0px 0px 4px rgba(1, 1, 1, 0.25)',
+    '0px 0px 4px rgba(1, 1, 1, 0.25)',
+    '0px 0px 4px rgba(1, 1, 1, 0.25)',
+    '0px 0px 4px rgba(1, 1, 1, 0.25)',
+    '0px 0px 4px rgba(1, 1, 1, 0.25)',
+    '0px 0px 4px rgba(1, 1, 1, 0.25)',
+    '0px 0px 4px rgba(1, 1, 1, 0.25)',
+    '0px 0px 4px rgba(1, 1, 1, 0.25)',
+    '0px 0px 4px rgba(1, 1, 1, 0.25)',
+    '0px 0px 4px rgba(1, 1, 1, 0.25)',
+    '0px 0px 4px rgba(1, 1, 1, 0.25)',
+    '0px 0px 4px rgba(1, 1, 1, 0.25)',
+    '0px 0px 4px rgba(1, 1, 1, 0.25)',
+    '0px 0px 4px rgba(1, 1, 1, 0.25)',
   ],
   components: {
     // Body font size changed in mui v5: https://mui.com/material-ui/migration/v5-component-changes/#update-body-font-size
@@ -388,10 +436,18 @@ const darkTheme = createTheme({
         },
       },
     },
+    MuiDrawer: {
+      styleOverrides: {
+        paper: {
+          backgroundImage: 'none',
+        },
+      },
+    },
   },
 })
 
 const getTheme = (): Theme => {
+  const nativeTheme = (window.require && window.require('@electron/remote').nativeTheme) || null
   return nativeTheme?.shouldUseDarkColors ? darkTheme : lightTheme
 }
 

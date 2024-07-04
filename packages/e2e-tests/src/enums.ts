@@ -1,4 +1,4 @@
-export enum BACK_ARROW_DATA_TESTID {
-  EDIT_PROFILE = 'contextMenu-Editprofile-backArrow',
-  PROFILE = 'contextMenu-Profile-backArrow',
+export enum X_DATA_TESTID {
+  EDIT_PROFILE = 'contextMenu-close-button-Editprofile',
+  PROFILE = 'contextMenu-close-button-Profile',
 }

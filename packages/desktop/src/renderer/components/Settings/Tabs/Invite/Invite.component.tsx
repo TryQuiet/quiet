@@ -24,7 +24,7 @@ const classes = {
 const StyledGrid = styled(Grid)(({ theme }) => ({
   [`& .${classes.title}`]: {},
   [`& .${classes.wrapper}`]: {
-    maxWidth: '485px',
+    maxWidth: '100%',
   },
   [`& .${classes.titleDiv}`]: {
     marginBottom: 24,
@@ -34,12 +34,12 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
     fontSize: '13px',
     letterSpacing: '-0.4px',
     overflowWrap: 'break-word',
-    inlineSize: '430px',
+    inlineSize: 'calc(100% - 40px);',
   },
   [`& .${classes.button}`]: {
     marginTop: 24,
     textTransform: 'none',
-    width: 480,
+    width: '100%',
     height: 60,
     color: theme.palette.colors.white,
     backgroundColor: theme.palette.colors.quietBlue,
@@ -59,7 +59,7 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
     justifyContent: 'flex-start',
     alignItems: 'baseline',
     alignContent: 'stretch',
-    maxWidth: '485px',
+    maxWidth: '375px',
     position: 'relative',
   },
 
@@ -82,7 +82,7 @@ export const InviteComponent: FC<InviteComponentProps> = ({
   revealInputValue,
   handleClickInputReveal,
 }) => {
-  const hiddenInvitationLink = invitationLink.slice(0, 90).replace(/./g, '•')
+  const hiddenInvitationLink = '••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••'
   return (
     <StyledGrid container direction='column'>
       <Grid container item justifyContent='space-between' alignItems='center' className={classes.titleDiv}>

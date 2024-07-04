@@ -1,16 +1,10 @@
 import React, { useState } from 'react'
-
-import { styled } from '@mui/material/styles'
-
-import { Grid, Tabs, Typography } from '@mui/material'
-import AppBar from '@mui/material/AppBar'
-import { Scrollbars } from 'rc-scrollbars'
-import { AutoSizer } from 'react-virtualized'
+import ChevronRightIcon from '@mui/icons-material/ChevronRight'
+import CloseIcon from '@mui/icons-material/Close'
 
 import { useModal } from '../../containers/hooks'
-import Modal from '../ui/Modal/Modal'
-
-import Tab from '../ui/Tab/Tab'
+import { Box, Divider, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Typography } from '../ui'
+import IconButton from '../ui/Icon/IconButton'
 
 const PREFIX = 'SettingsModal'
 
@@ -19,50 +13,9 @@ const classes = {
   leaveComunity: `${PREFIX}leaveCommunity`,
 }
 
-const StyledModalContent = styled(Grid)(() => ({
-  zIndex: 9002,
-  paddingLeft: 20,
-  paddingTop: 32,
-  paddingRight: 32,
-}))
-
-const StyledTabsWrapper = styled(Grid)(() => ({
-  width: 168,
-}))
-
-const StyledAppBar = styled(AppBar, { label: 'xxxxx' })(({ theme }) => ({
-  color: theme.palette.colors.contrastText,
-  backgroundColor: theme.palette.background.default,
-  backgroundImage: 'none',
-  boxShadow: theme.shadows[3],
-
-  [`& .${classes.leaveComunity}`]: {
-    opacity: '1',
-    padding: '10px 8px 8px 8px',
-    color: theme.palette.colors.hotPink,
-    fontSize: '14px',
-    fontWeight: '400',
-    alignItems: 'flex-start',
-    textTransform: 'none',
-    lineHeight: '21px',
-    minHeight: '0px',
-  },
-}))
-
-const StyledTabs = styled(Tabs)(({ theme }) => ({
-  [`& .${classes.indicator}`]: {
-    height: '0 !important',
-  },
-}))
-
-const TabComponentWrapper = styled(Grid)(() => ({
-  marginLeft: 32,
-}))
-
 export interface SettingsComponentProps {
   open: boolean
   handleClose: () => void
-  isOwner: boolean
   tabs: any
   leaveCommunityModal: ReturnType<typeof useModal>
   isWindows?: boolean
@@ -71,114 +24,102 @@ export interface SettingsComponentProps {
 export const SettingsComponent: React.FC<SettingsComponentProps> = ({
   open,
   handleClose,
-  isOwner,
   tabs,
   leaveCommunityModal,
   isWindows,
 }) => {
-  const [contentRef, setContentRef] = React.useState<HTMLDivElement | null>(null)
-
-  const scrollbarRef = React.useRef(null)
-
-  const [offset, setOffset] = React.useState(0)
-
-  const defaultCurrentTab = 'invite'
-  const [currentTab, setCurrentTab] = useState(defaultCurrentTab)
-
-  const adjustOffset = () => {
-    if (!contentRef?.clientWidth) return
-    if (contentRef.clientWidth > 800) {
-      setOffset((contentRef.clientWidth - 800) / 2)
-    }
-  }
+  const [currentTab, setCurrentTab] = useState('')
 
   const handleChange = (tab: string) => {
     setCurrentTab(tab)
   }
 
-  // Workaround for default display of invite tab.
-  React.useEffect(() => {
-    setCurrentTab(defaultCurrentTab)
-  }, [isOwner])
-
-  React.useEffect(() => {
-    if (contentRef) {
-      window.addEventListener('resize', adjustOffset)
-      adjustOffset()
-    }
-  }, [contentRef])
+  const handleCloseTab = () => {
+    setCurrentTab('')
+  }
 
   const TabComponent = tabs[currentTab]
 
   return (
-    <Modal
-      open={open}
-      handleClose={handleClose}
-      title={'Settings'}
-      testIdPrefix='settings'
-      isBold
-      addBorder
-      contentWidth='100%'
-    >
-      <StyledModalContent
-        ref={ref => {
-          if (ref) {
-            setContentRef(ref)
-          }
-        }}
-        container
-        direction='row'
-      >
-        <StyledTabsWrapper item style={{ marginLeft: offset }}>
-          <StyledAppBar position='static'>
-            <StyledTabs
-              value={currentTab}
-              onChange={(event, value) => {
-                event.persist()
-                handleChange(value)
-              }}
-              orientation='vertical'
-              textColor='inherit'
-              classes={{ indicator: classes.indicator }}
-            >
-              <Tab value='about' label='About' data-testid={'about-settings-tab'} />
-              <Tab value='notifications' label='Notifications' data-testid={'notifications-settings-tab'} />
-              <Tab value='invite' label='Add Members' data-testid={'invite-settings-tab'} />
-              <Tab value='qrcode' label='QR Code' data-testid={'qr-code-tab'} />
-            </StyledTabs>
-            {!isWindows && (
-              <Grid style={{ marginTop: '24px', cursor: 'pointer' }}>
-                <Typography
-                  data-testid='leave-community-tab'
-                  className={classes.leaveComunity}
-                  onClick={leaveCommunityModal.handleOpen}
-                >
-                  Leave community
-                </Typography>
-              </Grid>
-            )}
-          </StyledAppBar>
-        </StyledTabsWrapper>
-        <Grid item xs>
-          <AutoSizer>
-            {({ width, height }) => {
-              const maxWidth = width > 632 ? 632 : width
-              return (
-                <Scrollbars
-                  ref={scrollbarRef}
-                  autoHideTimeout={500}
-                  style={{ width: maxWidth + offset, height: height }}
-                >
-                  <TabComponentWrapper item style={{ paddingRight: offset }}>
-                    <TabComponent setCurrentTab={setCurrentTab} scrollbarRef={scrollbarRef} />
-                  </TabComponentWrapper>
-                </Scrollbars>
-              )
-            }}
-          </AutoSizer>
-        </Grid>
-      </StyledModalContent>
-    </Modal>
+    <>
+      <Drawer open={open} onClose={handleClose} anchor='right'>
+        <List sx={{ width: '375px', paddingTop: '16px' }}>
+          <ListItem sx={{ paddingBottom: '8px' }}>
+            <div>
+              <ListItemButton onClick={handleClose} sx={{ padding: '0px' }} data-testid={'close-settings-button'}>
+                <ListItemIcon>
+                  <CloseIcon />
+                </ListItemIcon>
+              </ListItemButton>
+            </div>
+            <ListItemText sx={{ textAlign: 'center' }}>
+              <Typography sx={{ fontWeight: '500' }}>Community Settings</Typography>
+            </ListItemText>
+          </ListItem>
+          <Divider />
+          <ListItemButton data-testid={'about-settings-tab'} onClick={() => handleChange('about')}>
+            <ListItemText>About</ListItemText>
+            <ListItemIcon>
+              <ChevronRightIcon />
+            </ListItemIcon>
+          </ListItemButton>
+          <Divider />
+
+          <ListItemButton data-testid={'notifications-settings-tab'} onClick={() => handleChange('notifications')}>
+            <ListItemText>Notifications</ListItemText>
+            <ListItemIcon>
+              <ChevronRightIcon />
+            </ListItemIcon>
+          </ListItemButton>
+          <Divider />
+
+          <ListItemButton data-testid={'invite-settings-tab'} onClick={() => handleChange('invite')}>
+            <ListItemText>Add Members</ListItemText>
+            <ListItemIcon>
+              <ChevronRightIcon />
+            </ListItemIcon>
+          </ListItemButton>
+          <Divider />
+          <ListItemButton data-testid={'qr-code-settings-tab'} onClick={() => handleChange('qrcode')}>
+            <ListItemText> QR Code</ListItemText>
+            <ListItemIcon>
+              <ChevronRightIcon />
+            </ListItemIcon>
+          </ListItemButton>
+          {!isWindows && (
+            <>
+              <Divider />
+              <ListItemButton
+                data-testid='leave-community-settings-tab'
+                className={classes.leaveComunity}
+                onClick={leaveCommunityModal.handleOpen}
+              >
+                <ListItemText>Leave community</ListItemText>
+                <ListItemIcon>
+                  <ChevronRightIcon />
+                </ListItemIcon>
+              </ListItemButton>
+            </>
+          )}
+          <Divider />
+        </List>
+      </Drawer>
+      <Drawer open={currentTab !== ''} onClose={handleCloseTab} anchor='right' BackdropProps={{ invisible: true }}>
+        <Box
+          width={40}
+          sx={{ paddingTop: '16px', paddingBottom: '8px', paddingLeft: '4px' }}
+          data-testid={'close-tab-button-box'}
+        >
+          <IconButton onClick={handleCloseTab}>
+            <CloseIcon />
+          </IconButton>
+        </Box>
+        <Divider />
+        <Box p={2} width={375}>
+          {TabComponent && <TabComponent />}
+        </Box>
+      </Drawer>
+    </>
   )
 }
 

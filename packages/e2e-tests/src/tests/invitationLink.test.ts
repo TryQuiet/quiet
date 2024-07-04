@@ -12,6 +12,7 @@ import { composeInvitationDeepUrl, parseInvitationCode, userJoinedMessage } from
 import { execSync } from 'child_process'
 import { type SupportedPlatformDesktop } from '@quiet/types'
 import { createLogger } from '../logger'
+import { sleep } from '../utils'
 
 const logger = createLogger('invitationLink')
 
@@ -91,12 +92,15 @@ describe('New user joins using invitation link while having app opened', () => {
       const settingsModal = await new Sidebar(ownerApp.driver).openSettings()
       const isSettingsModal = await settingsModal.element.isDisplayed()
       expect(isSettingsModal).toBeTruthy()
-      await settingsModal.switchTab('invite') // TODO: Fix - the invite tab should be default for the owner
-      await new Promise<void>(resolve => setTimeout(() => resolve(), 1000))
+      await sleep(2000)
       const invitationCodeElement = await settingsModal.invitationCode()
+      await sleep(2000)
       invitationCode = await invitationCodeElement.getText()
-      logger.info('Received invitation link:', invitationCode)
-      await settingsModal.close()
+      await sleep(2000)
+      logger.info({ invitationCode })
+      expect(invitationCode).not.toBeUndefined()
+      logger.info('Received invitation code:', invitationCode)
+      await settingsModal.closeTabThenModal()
     })
 
     if (process.platform === 'darwin') {

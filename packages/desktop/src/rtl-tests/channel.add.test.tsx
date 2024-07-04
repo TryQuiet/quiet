@@ -164,7 +164,7 @@ describe('Add new channel', () => {
     expect(screen.getByTestId('channelTitle')).toHaveTextContent(`#${channelName.output}`)
     // Check if sidebar item displays as selected
     const link = screen.getByTestId(`${channelName.output}-link`)
-    expect(link).toHaveStyle('backgroundColor: rgb(103, 191, 211)') // lushSky: '#67BFD3'
+    expect(link).toHaveClass('ChannelsListItemselected')
   })
 
   it('Displays error if trying to add channel with already taken name', async () => {

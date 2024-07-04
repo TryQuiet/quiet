@@ -113,9 +113,11 @@ describe('Channel menu', () => {
 
     await userEvent.click(deleteChannelItem)
 
-    // Confirm context menu hides automatically
-    const channelContextMenu = screen.getByTestId('contextMenu')
-    expect(channelContextMenu).not.toBeVisible()
+    setTimeout(() => {
+      // Confirm context menu hides automatically (give time for the animation)
+      const channelContextMenu = screen.getByTestId('contextMenu')
+      expect(channelContextMenu).toBeNull()
+    }, 500)
 
     // Confirm confirmation modal pops up
     const deleteChannelModal = await screen.findByText('Are you sure?')

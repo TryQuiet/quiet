@@ -244,8 +244,8 @@ describe('Switch channels', () => {
     const generalChannelLink = screen.getByTestId('general-link')
     const generalChannelLinkText = screen.getByTestId('general-link-text')
 
-    // Assert channel is selected and not highglighted
-    expect(generalChannelLink).toHaveStyle('backgroundColor: rgb(103, 191, 211)') // lushSky: '#67BFD3'
+    // Assert channel is selected and not highlighted
+    expect(generalChannelLink).toHaveClass('ChannelsListItemselected')
     expect(generalChannelLinkText).toHaveStyle('opacity: 0.7')
 
     await act(async () => {
@@ -253,7 +253,7 @@ describe('Switch channels', () => {
     })
 
     // Confirm nothing changed
-    expect(generalChannelLink).toHaveStyle('backgroundColor: rgb(103, 191, 211)')
+    expect(generalChannelLink).toHaveClass('ChannelsListItemselected')
     expect(generalChannelLinkText).toHaveStyle('opacity: 0.7')
 
     function* mockIncomingMessages(): Generator {

@@ -104,7 +104,14 @@ export const LeaveCommunityComponent: FC<LeaveCommunityProps> = ({
           </Typography>
         </Grid>
         <Grid item xs={'auto'} className={classes.buttonContainer}>
-          <Button variant='contained' onClick={leaveCommunity} size='small' fullWidth className={classes.button}>
+          <Button
+            variant='contained'
+            onClick={leaveCommunity}
+            size='small'
+            fullWidth
+            className={classes.button}
+            data-testid={'leave-community-button'}
+          >
             Leave community
           </Button>
         </Grid>

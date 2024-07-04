@@ -1,6 +1,7 @@
 import React from 'react'
 import { styled } from '@mui/material/styles'
 import MuiTab from '@mui/material/Tab'
+import MuiTabs from '@mui/material/Tabs'
 
 const PREFIX = 'Tab'
 
@@ -41,4 +42,6 @@ export const Tab: React.FC<React.ComponentProps<typeof MuiTab>> = props => {
   )
 }
 
-export default Tab
+export const Tabs: React.FC<React.ComponentProps<typeof MuiTabs>> = props => {
+  return <MuiTabs {...props} />
+}
