@@ -1,3 +1,50 @@
+# Change Log
+
+All notable changes to this project will be documented in this file.
+See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+
+## [2.2.1-alpha.0](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@2.0.3-alpha.15...@quiet/desktop@2.2.1-alpha.0) (2024-07-08)
+
+
+### Bug Fixes
+
+* "Invite A Friend" tab now reads "Add Members" ([#2234](https://github.com/TryQuiet/quiet/issues/2234)) ([049cd56](https://github.com/TryQuiet/quiet/commit/049cd560b7fbdd31353f3565ab0498b60fddefa2))
+* Add `patch` to requirements documentation ([#1766](https://github.com/TryQuiet/quiet/issues/1766)) ([8eb6fcc](https://github.com/TryQuiet/quiet/commit/8eb6fccae2a894af395826f8043b35cfdd9bf3b5))
+* Allow JPEG and GIF images as profile photos [#2332](https://github.com/TryQuiet/quiet/issues/2332) ([#2353](https://github.com/TryQuiet/quiet/issues/2353)) ([233725f](https://github.com/TryQuiet/quiet/commit/233725f6872c0a2dceb5eab02622c529ee64b152))
+* Clean up desktop UI console errors/warnings ([#2226](https://github.com/TryQuiet/quiet/issues/2226)) ([570a7a9](https://github.com/TryQuiet/quiet/commit/570a7a9ce61ce52fb05b86e84c91c4a5110e2f7b))
+* cleanup username creation component ([#2216](https://github.com/TryQuiet/quiet/issues/2216)) ([1d03995](https://github.com/TryQuiet/quiet/commit/1d039952cf84e94fdcf8b66c395f634094ea3a6b))
+* create jdenticon from pubKey, not username - to distinguish user… ([#2207](https://github.com/TryQuiet/quiet/issues/2207)) ([fd8bd06](https://github.com/TryQuiet/quiet/commit/fd8bd06a5f226e0da8189581c076ba9976633e7d))
+* Enable channel context menu for all users ([#2206](https://github.com/TryQuiet/quiet/issues/2206)) ([02f6809](https://github.com/TryQuiet/quiet/commit/02f680903bb66faf52c007f66523096e449d6d31))
+* Make community name field text visible on create community page ([#2233](https://github.com/TryQuiet/quiet/issues/2233)) ([0f4a33f](https://github.com/TryQuiet/quiet/commit/0f4a33f231797d2ee94fdafbbb7917c640556a6d))
+* make sure local peer's address in in invitation link ([#2268](https://github.com/TryQuiet/quiet/issues/2268)) ([53f1ec9](https://github.com/TryQuiet/quiet/commit/53f1ec91da07efeb7861e504c4936728ff01062c))
+* pasting multiple files [#1987](https://github.com/TryQuiet/quiet/issues/1987) ([#2306](https://github.com/TryQuiet/quiet/issues/2306)) ([7c6b669](https://github.com/TryQuiet/quiet/commit/7c6b6693bb05e83632dbf452761345524cc4e310))
+* Quick fix for intro message race condition ([#2376](https://github.com/TryQuiet/quiet/issues/2376)) ([d4f7449](https://github.com/TryQuiet/quiet/commit/d4f744941db33cfc1aa0f519a0d90378ba90f574))
+* Remove duplicate introduction messages once again ([#2296](https://github.com/TryQuiet/quiet/issues/2296)) ([655a812](https://github.com/TryQuiet/quiet/commit/655a8124e177dae57a67e60367d6afdb73e0cb1a))
+* Remove unused dmPublicKey to prevent UI delay during joining ([#2392](https://github.com/TryQuiet/quiet/issues/2392)) ([3ba5b9a](https://github.com/TryQuiet/quiet/commit/3ba5b9a94501620777b4cf766506763abdc140f1))
+* Updating channel naming logic ([#2307](https://github.com/TryQuiet/quiet/issues/2307)) ([38b007e](https://github.com/TryQuiet/quiet/commit/38b007e9319855afdb9b2150a3fbb782b9a688c3))
+* Various fixes related to peers, CSRs and backend startup ([#2455](https://github.com/TryQuiet/quiet/issues/2455)) ([abd9101](https://github.com/TryQuiet/quiet/commit/abd9101f84149ae4ec1db3038fca31880334cdf3))
+
+
+### Features
+
+* [#1502](https://github.com/TryQuiet/quiet/issues/1502) get light/dark from native theme and access it through DRY function ([4d80746](https://github.com/TryQuiet/quiet/commit/4d8074674e324389a747d5a864b0efe96c282ee6))
+* [#1502](https://github.com/TryQuiet/quiet/issues/1502) Implement dark mode, tidy up loose styles and unused classes. ([84bf50a](https://github.com/TryQuiet/quiet/commit/84bf50a3e4018530e077b04f1d63c4202792dd50))
+* [#1502](https://github.com/TryQuiet/quiet/issues/1502) Let's do the Emoji picker too! ([17c1c67](https://github.com/TryQuiet/quiet/commit/17c1c67d829e5b78b169e3515095e95dabf595c0))
+* [#1502](https://github.com/TryQuiet/quiet/issues/1502) make backgrounds on channel input and settings tabs the default ([1fb3969](https://github.com/TryQuiet/quiet/commit/1fb396900adcc1a1c27d671ace7e0be8cf50c55b))
+* [#1502](https://github.com/TryQuiet/quiet/issues/1502) Remove hardcoded color and ensure contrast in tabs, more icon replacement ([cf106e0](https://github.com/TryQuiet/quiet/commit/cf106e08ae5b32d75b794b656fddc7e1fe1652ff))
+* [#1502](https://github.com/TryQuiet/quiet/issues/1502) Replace hard-coded icons that weren't visible in dark mode ([1a1ce11](https://github.com/TryQuiet/quiet/commit/1a1ce116348acc341c327a5819fb6517c68c72a5))
+* [#1502](https://github.com/TryQuiet/quiet/issues/1502) respect browser night-mode, fix sidebar and message highlight colors ([ecd239a](https://github.com/TryQuiet/quiet/commit/ecd239add006bca03519bb8d79ef1bc05db42928))
+* [#1502](https://github.com/TryQuiet/quiet/issues/1502) tweak light-mode sidebar background ([663afcd](https://github.com/TryQuiet/quiet/commit/663afcd42976f161392e768032a605a7fb342a6d))
+* [#1502](https://github.com/TryQuiet/quiet/issues/1502) Tweak more backgrounds in sidebar, Jdenticons, etc. ([d3fabeb](https://github.com/TryQuiet/quiet/commit/d3fabeb3ed8d08e6d3d1eafc308be806a2181159))
+* [#1502](https://github.com/TryQuiet/quiet/issues/1502) update sidebar's selected item background to match Figmas ([3d50808](https://github.com/TryQuiet/quiet/commit/3d508086e778a61bdeefbd3417acad5220572562))
+* 2312 pass invitation data to createNetwork saga and LAUNCH_COMMUNITY… ([#2438](https://github.com/TryQuiet/quiet/issues/2438)) ([de6f0cd](https://github.com/TryQuiet/quiet/commit/de6f0cda1b07ba7715cfb4876e51e423c5e9b9d0))
+* Add user profile feature for desktop ([#1923](https://github.com/TryQuiet/quiet/issues/1923)) ([d016be5](https://github.com/TryQuiet/quiet/commit/d016be5a162560962c6059d73db6ab005fb023e8))
+* Feat/519 big emoji messages ([#2389](https://github.com/TryQuiet/quiet/issues/2389)) ([71c8b22](https://github.com/TryQuiet/quiet/commit/71c8b226c81430c4eb741ca0903b8a27f67e259b))
+
+
+
+
+
 [unreleased]
 
 # New features:
