@@ -5,7 +5,7 @@ exports[`Elipsis renders with placement bottom 1`] = `
   <div>
     <span>
       <span
-        class="MuiTypography-root MuiTypography-caption Elipsiscontent css-1d4bzk2-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-caption Elipsiscontent css-1m4pgvy-MuiTypography-root"
         data-mui-internal-clone-element="true"
       >
         this ...
@@ -20,7 +20,7 @@ exports[`Elipsis renders with placement bottom-end 1`] = `
   <div>
     <span>
       <span
-        class="MuiTypography-root MuiTypography-caption Elipsiscontent css-1d4bzk2-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-caption Elipsiscontent css-1m4pgvy-MuiTypography-root"
         data-mui-internal-clone-element="true"
       >
         this ...
@@ -35,7 +35,7 @@ exports[`Elipsis renders with placement bottom-start 1`] = `
   <div>
     <span>
       <span
-        class="MuiTypography-root MuiTypography-caption Elipsiscontent css-1d4bzk2-MuiTypography-root"
+        class="MuiTypography-root MuiTypography-caption Elipsiscontent css-1m4pgvy-MuiTypography-root"
         data-mui-internal-clone-element="true"
       >
         this ...

@@ -33,7 +33,7 @@ describe('SpinnerLoader', () => {
               </svg>
             </span>
             <span
-              class="MuiTypography-root MuiTypography-caption MuiTypography-alignCenter SpinnerLoadermessage css-1ws1t6m-MuiTypography-root"
+              class="MuiTypography-root MuiTypography-caption MuiTypography-alignCenter SpinnerLoadermessage css-x82by-MuiTypography-root"
               style="font-size: 0.9090909090909091rem;"
             >
               Test loading message

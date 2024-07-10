@@ -38,7 +38,7 @@ describe('BasicMessage', () => {
       <body>
         <div>
           <li
-            class="MuiListItem-root MuiListItem-gutters MuiListItem-padding BasicMessageComponentwrapper css-hl6by7-MuiListItem-root"
+            class="MuiListItem-root MuiListItem-gutters MuiListItem-padding BasicMessageComponentwrapper css-17bnw67-MuiListItem-root"
           >
             <div
               class="MuiListItemText-root BasicMessageComponentmessageCard css-tlelie-MuiListItemText-root"
@@ -69,7 +69,7 @@ describe('BasicMessage', () => {
                         class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                       >
                         <p
-                          class="MuiTypography-root MuiTypography-body1 BasicMessageComponentusername css-11qbl00-MuiTypography-root"
+                          class="MuiTypography-root MuiTypography-body1 BasicMessageComponentusername css-cl2jau-MuiTypography-root"
                         >
                           gringo
                         </p>
@@ -94,7 +94,7 @@ describe('BasicMessage', () => {
                       class="MuiGrid-root MuiGrid-item css-15myz84-MuiGrid-root"
                     >
                       <span
-                        class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-1xya0ai-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-3qg0or-MuiTypography-root"
                         data-testid="messagesGroupContent-0"
                       >
                         message0
@@ -127,7 +127,7 @@ describe('BasicMessage', () => {
       <body>
         <div>
           <li
-            class="MuiListItem-root MuiListItem-gutters MuiListItem-padding BasicMessageComponentwrapper css-hl6by7-MuiListItem-root"
+            class="MuiListItem-root MuiListItem-gutters MuiListItem-padding BasicMessageComponentwrapper css-17bnw67-MuiListItem-root"
           >
             <div
               class="MuiListItemText-root BasicMessageComponentmessageCard css-tlelie-MuiListItemText-root"
@@ -158,7 +158,7 @@ describe('BasicMessage', () => {
                         class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                       >
                         <p
-                          class="MuiTypography-root MuiTypography-body1 BasicMessageComponentusername css-11qbl00-MuiTypography-root"
+                          class="MuiTypography-root MuiTypography-body1 BasicMessageComponentusername css-cl2jau-MuiTypography-root"
                         >
                           gringo
                         </p>
@@ -183,7 +183,7 @@ describe('BasicMessage', () => {
                       class="MuiGrid-root MuiGrid-item css-15myz84-MuiGrid-root"
                     >
                       <span
-                        class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-1xya0ai-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-3qg0or-MuiTypography-root"
                         data-testid="messagesGroupContent-0"
                       >
                         message0
@@ -193,7 +193,7 @@ describe('BasicMessage', () => {
                       class="MuiGrid-root MuiGrid-item css-15myz84-MuiGrid-root"
                     >
                       <span
-                        class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-1xya0ai-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-3qg0or-MuiTypography-root"
                         data-testid="messagesGroupContent-1"
                       >
                         message1
@@ -226,7 +226,7 @@ describe('BasicMessage', () => {
       <body>
         <div>
           <li
-            class="MuiListItem-root MuiListItem-gutters MuiListItem-padding  css-hl6by7-MuiListItem-root"
+            class="MuiListItem-root MuiListItem-gutters MuiListItem-padding  css-17bnw67-MuiListItem-root"
           >
             <div
               class="MuiListItemText-root BasicMessageComponentmessageCard css-tlelie-MuiListItemText-root"
@@ -260,7 +260,7 @@ describe('BasicMessage', () => {
                         class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                       >
                         <p
-                          class="MuiTypography-root MuiTypography-body1 BasicMessageComponentusername css-11qbl00-MuiTypography-root"
+                          class="MuiTypography-root MuiTypography-body1 BasicMessageComponentusername css-cl2jau-MuiTypography-root"
                         >
                           Quiet
                         </p>
@@ -285,7 +285,7 @@ describe('BasicMessage', () => {
                       class="MuiGrid-root MuiGrid-item css-15myz84-MuiGrid-root"
                     >
                       <span
-                        class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-1xya0ai-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-3qg0or-MuiTypography-root"
                         data-testid="messagesGroupContent-0"
                       >
                         message0
@@ -295,7 +295,7 @@ describe('BasicMessage', () => {
                       class="MuiGrid-root MuiGrid-item css-15myz84-MuiGrid-root"
                     >
                       <span
-                        class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-1xya0ai-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-3qg0or-MuiTypography-root"
                         data-testid="messagesGroupContent-1"
                       >
                         message1
@@ -329,7 +329,7 @@ describe('BasicMessage', () => {
       <body>
         <div>
           <li
-            class="MuiListItem-root MuiListItem-gutters MuiListItem-padding BasicMessageComponentwrapper css-hl6by7-MuiListItem-root"
+            class="MuiListItem-root MuiListItem-gutters MuiListItem-padding BasicMessageComponentwrapper css-17bnw67-MuiListItem-root"
           >
             <div
               class="MuiListItemText-root BasicMessageComponentmessageCard css-tlelie-MuiListItemText-root"
@@ -360,7 +360,7 @@ describe('BasicMessage', () => {
                         class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                       >
                         <p
-                          class="MuiTypography-root MuiTypography-body1 BasicMessageComponentusername css-11qbl00-MuiTypography-root"
+                          class="MuiTypography-root MuiTypography-body1 BasicMessageComponentusername css-cl2jau-MuiTypography-root"
                         >
                           gringo
                         </p>
@@ -385,7 +385,7 @@ describe('BasicMessage', () => {
                       class="MuiGrid-root MuiGrid-item css-15myz84-MuiGrid-root"
                     >
                       <span
-                        class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-1xya0ai-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-3qg0or-MuiTypography-root"
                         data-testid="messagesGroupContent-0"
                       >
                         message0
@@ -395,7 +395,7 @@ describe('BasicMessage', () => {
                       class="MuiGrid-root MuiGrid-item css-15myz84-MuiGrid-root"
                     >
                       <span
-                        class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-1xya0ai-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-3qg0or-MuiTypography-root"
                         data-testid="messagesGroupContent-0"
                       >
                         message0

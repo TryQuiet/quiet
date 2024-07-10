@@ -32,7 +32,7 @@ describe('UsernameCreated', () => {
               class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-auto UsernameCreatedbuttonContainer css-1wrgmsj-MuiGrid-root"
             >
               <button
-                class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-fullWidth MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-fullWidth UsernameCreatedbutton css-1x25m9x-MuiButtonBase-root-MuiButton-root"
+                class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-fullWidth MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-fullWidth UsernameCreatedbutton css-sdx6r0-MuiButtonBase-root-MuiButton-root"
                 tabindex="0"
                 type="button"
               >

@@ -19,7 +19,7 @@ describe('ProgressFab', () => {
             class="ProgressFabwrapper css-jv05tx"
           >
             <button
-              class="MuiButtonBase-root MuiFab-root ProgressFabroot MuiFab-circular MuiFab-sizeLarge MuiFab-default MuiFab-root ProgressFabroot MuiFab-circular MuiFab-sizeLarge MuiFab-default css-u7hri3-MuiButtonBase-root-MuiFab-root"
+              class="MuiButtonBase-root MuiFab-root ProgressFabroot MuiFab-circular MuiFab-sizeLarge MuiFab-default MuiFab-root ProgressFabroot MuiFab-circular MuiFab-sizeLarge MuiFab-default css-16owgso-MuiButtonBase-root-MuiFab-root"
               tabindex="0"
               type="button"
             >
@@ -49,7 +49,7 @@ describe('ProgressFab', () => {
             class="ProgressFabwrapper css-jv05tx"
           >
             <button
-              class="MuiButtonBase-root MuiFab-root ProgressFabroot ProgressFabbuttonSuccess MuiFab-circular MuiFab-sizeLarge MuiFab-default MuiFab-root ProgressFabroot ProgressFabbuttonSuccess MuiFab-circular MuiFab-sizeLarge MuiFab-default css-u7hri3-MuiButtonBase-root-MuiFab-root"
+              class="MuiButtonBase-root MuiFab-root ProgressFabroot ProgressFabbuttonSuccess MuiFab-circular MuiFab-sizeLarge MuiFab-default MuiFab-root ProgressFabroot ProgressFabbuttonSuccess MuiFab-circular MuiFab-sizeLarge MuiFab-default css-16owgso-MuiButtonBase-root-MuiFab-root"
               tabindex="0"
               type="button"
             >
@@ -87,7 +87,7 @@ describe('ProgressFab', () => {
             class="ProgressFabwrapper css-jv05tx"
           >
             <button
-              class="MuiButtonBase-root MuiFab-root ProgressFabroot MuiFab-circular MuiFab-sizeLarge MuiFab-default MuiFab-root ProgressFabroot MuiFab-circular MuiFab-sizeLarge MuiFab-default css-u7hri3-MuiButtonBase-root-MuiFab-root"
+              class="MuiButtonBase-root MuiFab-root ProgressFabroot MuiFab-circular MuiFab-sizeLarge MuiFab-default MuiFab-root ProgressFabroot MuiFab-circular MuiFab-sizeLarge MuiFab-default css-16owgso-MuiButtonBase-root-MuiFab-root"
               tabindex="0"
               type="button"
             >
@@ -136,7 +136,7 @@ describe('ProgressFab', () => {
             class="ProgressFabwrapper css-jv05tx"
           >
             <button
-              class="MuiButtonBase-root MuiFab-root ProgressFabroot ProgressFabbuttonSuccess MuiFab-circular MuiFab-sizeLarge MuiFab-default Mui-disabled MuiFab-root ProgressFabroot ProgressFabbuttonSuccess MuiFab-circular MuiFab-sizeLarge MuiFab-default css-u7hri3-MuiButtonBase-root-MuiFab-root"
+              class="MuiButtonBase-root MuiFab-root ProgressFabroot ProgressFabbuttonSuccess MuiFab-circular MuiFab-sizeLarge MuiFab-default Mui-disabled MuiFab-root ProgressFabroot ProgressFabbuttonSuccess MuiFab-circular MuiFab-sizeLarge MuiFab-default css-16owgso-MuiButtonBase-root-MuiFab-root"
               disabled=""
               tabindex="-1"
               type="button"

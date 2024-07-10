@@ -1,4 +1,5 @@
 import { createTheme, type Theme } from '@mui/material/styles'
+import React, { useEffect, useState } from 'react'
 
 const font = "'Rubik', sans-serif"
 const fontLogs = 'Menlo Regular'
@@ -446,9 +447,37 @@ const darkTheme = createTheme({
   },
 })
 
-const getTheme = (): Theme => {
-  const nativeTheme = (window.require && window.require('@electron/remote').nativeTheme) || null
-  return nativeTheme?.shouldUseDarkColors ? darkTheme : lightTheme
+const defaultTheme = darkTheme
+const getCurrentTheme = (useDarkTheme: boolean): Theme => {
+  return useDarkTheme ? darkTheme : lightTheme
 }
 
-export { lightTheme, darkTheme, getTheme }
+/**
+ * Check if dark mode is enabled natively in the OS and use an effect to get realtime updates to dark mode settings
+ * from the OS.
+ *
+ * NOTE: Defaults to the theme above
+ *
+ * @returns Theme that matches system theme
+ */
+const useTheme = (): Theme => {
+  const mediaQuery = () => (window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null)
+  const [isDarkTheme, setDarkTheme] = useState<Theme>(
+    mediaQuery != null ? getCurrentTheme(mediaQuery()!.matches) : defaultTheme
+  )
+
+  useEffect(() => {
+    const mediaQueryResult = mediaQuery()
+    if ((mediaQueryResult as MediaQueryList).addEventListener != null) {
+      ;(mediaQueryResult as MediaQueryList).addEventListener('change', event => {
+        setDarkTheme(getCurrentTheme(event.matches))
+      })
+    } else {
+      setDarkTheme(defaultTheme)
+    }
+  }, [])
+
+  return isDarkTheme
+}
+
+export { lightTheme, darkTheme, defaultTheme, useTheme }

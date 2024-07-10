@@ -28,7 +28,7 @@ describe('SidebarHeader', () => {
             >
               <span>
                 <button
-                  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeLarge SidebarHeadericonButton css-1pux6rn-MuiButtonBase-root-MuiIconButton-root"
+                  class="MuiButtonBase-root MuiIconButton-root MuiIconButton-edgeEnd MuiIconButton-sizeLarge SidebarHeadericonButton css-kg6xtt-MuiButtonBase-root-MuiIconButton-root"
                   data-mui-internal-clone-element="true"
                   data-testid="addChannelButton"
                   tabindex="0"

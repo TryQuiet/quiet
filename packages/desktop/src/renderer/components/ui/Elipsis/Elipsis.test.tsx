@@ -20,7 +20,7 @@ describe('Elipsis', () => {
         <div>
           <span>
             <span
-              class="MuiTypography-root MuiTypography-caption Elipsiscontent css-1d4bzk2-MuiTypography-root"
+              class="MuiTypography-root MuiTypography-caption Elipsiscontent css-1m4pgvy-MuiTypography-root"
               data-mui-internal-clone-element="true"
             >
               this ...
@@ -38,7 +38,7 @@ describe('Elipsis', () => {
         <div>
           <span>
             <span
-              class="MuiTypography-root MuiTypography-caption Elipsiscontent css-1d4bzk2-MuiTypography-root"
+              class="MuiTypography-root MuiTypography-caption Elipsiscontent css-1m4pgvy-MuiTypography-root"
               data-mui-internal-clone-element="true"
             >
               this is a sample text

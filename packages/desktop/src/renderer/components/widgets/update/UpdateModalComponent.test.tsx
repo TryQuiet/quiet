@@ -22,7 +22,7 @@ describe('UpdateModal', () => {
           aria-hidden="true"
         />
         <div
-          class="MuiModal-root css-16f7e5u-MuiModal-root"
+          class="MuiModal-root css-1mbrbs1-MuiModal-root"
           data-testid="updateAppModal"
           role="presentation"
         >
@@ -61,7 +61,7 @@ describe('UpdateModal', () => {
                     data-testid="ModalActions"
                   >
                     <button
-                      class="MuiButtonBase-root MuiIconButton-root IconButtonroot MuiIconButton-sizeMedium css-c8hoqc-MuiButtonBase-root-MuiIconButton-root"
+                      class="MuiButtonBase-root MuiIconButton-root IconButtonroot MuiIconButton-sizeMedium css-1hpikoh-MuiButtonBase-root-MuiIconButton-root"
                       tabindex="0"
                       type="button"
                     >
@@ -92,7 +92,7 @@ describe('UpdateModal', () => {
                 style="width: 600px;"
               >
                 <div
-                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-18p20vr-MuiGrid-root"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-grxeyr-MuiGrid-root"
                 >
                   <div
                     class="MuiGrid-root css-vj1n65-MuiGrid-root"

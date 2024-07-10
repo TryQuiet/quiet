@@ -24,7 +24,7 @@ describe('Loading', () => {
               class="MuiGrid-root MuiGrid-item LoadingprogressBarContainer css-13i4rnv-MuiGrid-root"
             >
               <span
-                class="MuiLinearProgress-root MuiLinearProgress-colorPrimary MuiLinearProgress-indeterminate LoadingprogressBar css-11iigj6-MuiLinearProgress-root"
+                class="MuiLinearProgress-root MuiLinearProgress-colorPrimary MuiLinearProgress-indeterminate LoadingprogressBar css-qs1m9b-MuiLinearProgress-root"
                 role="progressbar"
               >
                 <span
@@ -39,7 +39,7 @@ describe('Loading', () => {
               class="MuiGrid-root MuiGrid-item LoadingmessageContainer css-13i4rnv-MuiGrid-root"
             >
               <span
-                class="MuiTypography-root MuiTypography-caption Loadingmessage css-1d4bzk2-MuiTypography-root"
+                class="MuiTypography-root MuiTypography-caption Loadingmessage css-1m4pgvy-MuiTypography-root"
               >
                 test Msg
               </span>

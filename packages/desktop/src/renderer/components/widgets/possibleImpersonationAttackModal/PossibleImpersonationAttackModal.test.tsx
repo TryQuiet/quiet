@@ -1,12 +1,12 @@
 import React from 'react'
-import { getTheme } from '../../../theme'
+import { defaultTheme } from '../../../theme'
 import { ThemeProvider } from '@mui/material/styles'
 import { renderComponent } from '../../../testUtils/renderComponent'
 import PossibleImpersonationAttackModalComponent from './PossibleImpersonationAttackModal.component'
 
 describe('PossibleImpersonationAttackModal', () => {
   it('renderComponent', () => {
-    const theme = getTheme()
+    const theme = defaultTheme
 
     const result = renderComponent(
       <ThemeProvider theme={theme}>
@@ -21,7 +21,7 @@ describe('PossibleImpersonationAttackModal', () => {
           aria-hidden="true"
         />
         <div
-          class="MuiModal-root css-16f7e5u-MuiModal-root"
+          class="MuiModal-root css-1mbrbs1-MuiModal-root"
           role="presentation"
         >
           <div
@@ -61,7 +61,7 @@ describe('PossibleImpersonationAttackModal', () => {
                     data-testid="ModalActions"
                   >
                     <button
-                      class="MuiButtonBase-root MuiIconButton-root IconButtonroot MuiIconButton-sizeMedium css-c8hoqc-MuiButtonBase-root-MuiIconButton-root"
+                      class="MuiButtonBase-root MuiIconButton-root IconButtonroot MuiIconButton-sizeMedium css-1hpikoh-MuiButtonBase-root-MuiIconButton-root"
                       tabindex="0"
                       type="button"
                     >

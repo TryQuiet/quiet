@@ -52,7 +52,7 @@ describe('ChannelMessages', () => {
       <body>
         <div>
           <div
-            class="ChannelMessagesComponentscroll css-1c4tuyg"
+            class="ChannelMessagesComponentscroll css-sxxllx"
             data-testid="channelContent"
           >
             <ul
@@ -89,7 +89,7 @@ describe('ChannelMessages', () => {
                   </div>
                 </div>
                 <li
-                  class="MuiListItem-root MuiListItem-gutters MuiListItem-padding BasicMessageComponentwrapper css-hl6by7-MuiListItem-root"
+                  class="MuiListItem-root MuiListItem-gutters MuiListItem-padding BasicMessageComponentwrapper css-17bnw67-MuiListItem-root"
                 >
                   <div
                     class="MuiListItemText-root BasicMessageComponentmessageCard css-tlelie-MuiListItemText-root"
@@ -120,7 +120,7 @@ describe('ChannelMessages', () => {
                               class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                             >
                               <p
-                                class="MuiTypography-root MuiTypography-body1 BasicMessageComponentusername css-11qbl00-MuiTypography-root"
+                                class="MuiTypography-root MuiTypography-body1 BasicMessageComponentusername css-cl2jau-MuiTypography-root"
                               >
                                 string
                               </p>
@@ -145,7 +145,7 @@ describe('ChannelMessages', () => {
                             class="MuiGrid-root MuiGrid-item css-15myz84-MuiGrid-root"
                           >
                             <span
-                              class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-1xya0ai-MuiTypography-root"
+                              class="MuiTypography-root MuiTypography-body1 TextMessagemessage css-3qg0or-MuiTypography-root"
                               data-testid="messagesGroupContent-string"
                             >
                               string

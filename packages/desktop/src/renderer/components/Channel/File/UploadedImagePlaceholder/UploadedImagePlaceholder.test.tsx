@@ -27,7 +27,7 @@ describe('UploadedImagePlaceholder', () => {
       <body>
         <div>
           <div
-            class="css-1i8wbh6"
+            class="css-bxyyfp"
             data-testid="hvb45FGa-imagePlaceholder"
           >
             <p
@@ -107,7 +107,7 @@ describe('UploadedImagePlaceholder', () => {
       <body>
         <div>
           <div
-            class="css-1i8wbh6"
+            class="css-bxyyfp"
             data-testid="hvb45FGa-imagePlaceholder"
           >
             <p

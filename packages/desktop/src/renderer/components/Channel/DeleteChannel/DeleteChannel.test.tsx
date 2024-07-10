@@ -21,7 +21,7 @@ describe('LeaveCommunity', () => {
           aria-hidden="true"
         />
         <div
-          class="MuiModal-root css-16f7e5u-MuiModal-root"
+          class="MuiModal-root css-1mbrbs1-MuiModal-root"
           role="presentation"
         >
           <div
@@ -59,7 +59,7 @@ describe('LeaveCommunity', () => {
                     data-testid="ModalActions"
                   >
                     <button
-                      class="MuiButtonBase-root MuiIconButton-root IconButtonroot MuiIconButton-sizeMedium css-c8hoqc-MuiButtonBase-root-MuiIconButton-root"
+                      class="MuiButtonBase-root MuiIconButton-root IconButtonroot MuiIconButton-sizeMedium css-1hpikoh-MuiButtonBase-root-MuiIconButton-root"
                       tabindex="0"
                       type="button"
                     >
@@ -121,7 +121,7 @@ describe('LeaveCommunity', () => {
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-auto DeleteChannelbuttonContainer css-1wrgmsj-MuiGrid-root"
                   >
                     <button
-                      class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-fullWidth MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-fullWidth DeleteChannelbutton css-1x25m9x-MuiButtonBase-root-MuiButton-root"
+                      class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-fullWidth MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-fullWidth DeleteChannelbutton css-sdx6r0-MuiButtonBase-root-MuiButton-root"
                       data-testid="deleteChannelButton"
                       tabindex="0"
                       type="button"
@@ -136,7 +136,7 @@ describe('LeaveCommunity', () => {
                     class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-grid-xs-12 DeleteChannelsecondaryButtonContainer css-s2k0j8-MuiGrid-root"
                   >
                     <button
-                      class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-fullWidth MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-fullWidth DeleteChannelsecondaryButton css-1x25m9x-MuiButtonBase-root-MuiButton-root"
+                      class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-fullWidth MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeSmall MuiButton-containedSizeSmall MuiButton-fullWidth DeleteChannelsecondaryButton css-sdx6r0-MuiButtonBase-root-MuiButton-root"
                       tabindex="0"
                       type="button"
                     >

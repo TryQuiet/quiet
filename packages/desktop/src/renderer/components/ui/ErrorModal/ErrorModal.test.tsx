@@ -23,7 +23,7 @@ describe('ErrorModal', () => {
           aria-hidden="true"
         />
         <div
-          class="MuiModal-root css-16f7e5u-MuiModal-root"
+          class="MuiModal-root css-1mbrbs1-MuiModal-root"
           role="presentation"
         >
           <div
@@ -63,7 +63,7 @@ describe('ErrorModal', () => {
                     data-testid="ModalActions"
                   >
                     <button
-                      class="MuiButtonBase-root MuiIconButton-root IconButtonroot MuiIconButton-sizeMedium css-c8hoqc-MuiButtonBase-root-MuiIconButton-root"
+                      class="MuiButtonBase-root MuiIconButton-root IconButtonroot MuiIconButton-sizeMedium css-1hpikoh-MuiButtonBase-root-MuiIconButton-root"
                       tabindex="0"
                       type="button"
                     >
@@ -94,7 +94,7 @@ describe('ErrorModal', () => {
                 style="width: 600px;"
               >
                 <div
-                  class="MuiGrid-root MuiGrid-container MuiGrid-spacing-xs-3 MuiGrid-direction-xs-column css-10n3y47-MuiGrid-root"
+                  class="MuiGrid-root MuiGrid-container MuiGrid-spacing-xs-3 MuiGrid-direction-xs-column css-7mhs2c-MuiGrid-root"
                 >
                   <div
                     class="MuiGrid-root MuiGrid-container MuiGrid-item MuiGrid-direction-xs-column css-67pqv6-MuiGrid-root"
@@ -128,11 +128,11 @@ describe('ErrorModal', () => {
                         class="MuiFormControl-root MuiFormControl-fullWidth MuiTextField-root css-wb57ya-MuiFormControl-root-MuiTextField-root"
                       >
                         <div
-                          class="MuiInputBase-root MuiOutlinedInput-root ErrorModalComponenttextfield MuiInputBase-colorPrimary Mui-disabled ErrorModalComponentcssDisabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-multiline ErrorModalComponentstackTrace css-nqh2he-MuiInputBase-root-MuiOutlinedInput-root"
+                          class="MuiInputBase-root MuiOutlinedInput-root ErrorModalComponenttextfield MuiInputBase-colorPrimary Mui-disabled ErrorModalComponentcssDisabled MuiInputBase-fullWidth MuiInputBase-formControl MuiInputBase-multiline ErrorModalComponentstackTrace css-ycm7do-MuiInputBase-root-MuiOutlinedInput-root"
                         >
                           <textarea
                             aria-invalid="false"
-                            class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled ErrorModalComponentcssDisabled MuiInputBase-inputMultiline css-myj7m7-MuiInputBase-input-MuiOutlinedInput-input"
+                            class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled ErrorModalComponentcssDisabled MuiInputBase-inputMultiline css-1qk1us7-MuiInputBase-input-MuiOutlinedInput-input"
                             disabled=""
                             id="traceback"
                             rows="10"
@@ -142,14 +142,14 @@ describe('ErrorModal', () => {
                           </textarea>
                           <textarea
                             aria-hidden="true"
-                            class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled ErrorModalComponentcssDisabled MuiInputBase-inputMultiline css-myj7m7-MuiInputBase-input-MuiOutlinedInput-input"
+                            class="MuiInputBase-input MuiOutlinedInput-input Mui-disabled ErrorModalComponentcssDisabled MuiInputBase-inputMultiline css-1qk1us7-MuiInputBase-input-MuiOutlinedInput-input"
                             readonly=""
                             style="visibility: hidden; position: absolute; overflow: hidden; height: 0px; top: 0px; left: 0px; transform: translateZ(0); padding: 0px; width: 100%;"
                             tabindex="-1"
                           />
                           <fieldset
                             aria-hidden="true"
-                            class="MuiOutlinedInput-notchedOutline css-1d3z3hw-MuiOutlinedInput-notchedOutline"
+                            class="MuiOutlinedInput-notchedOutline css-9425fu-MuiOutlinedInput-notchedOutline"
                           >
                             <legend
                               class="css-ihdtdm"
@@ -168,7 +168,7 @@ describe('ErrorModal', () => {
                       class="MuiGrid-root MuiGrid-container MuiGrid-item css-capmjd-MuiGrid-root"
                     >
                       <button
-                        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium ErrorModalComponentbutton css-pfmuyw-MuiButtonBase-root-MuiButton-root"
+                        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium ErrorModalComponentbutton css-1zu9wc-MuiButtonBase-root-MuiButton-root"
                         tabindex="0"
                         type="button"
                       >

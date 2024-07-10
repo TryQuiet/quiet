@@ -4,7 +4,7 @@ import { getFactory, communities } from '@quiet/state-manager'
 import { IdentityPanel } from './IdentityPanel'
 import { prepareStore } from '../../../testUtils/prepareStore'
 import { renderComponent } from '../../../testUtils/renderComponent'
-import { type Community } from '@quiet/types'
+import { Community } from '@quiet/types'
 
 describe('IdentityPanel', () => {
   it('renders component with username', async () => {
@@ -32,7 +32,7 @@ describe('IdentityPanel', () => {
             class="css-1c9y83e"
           >
             <span
-              class="MuiButtonBase-root MuiButton-root IdentityPanelbutton MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root IdentityPanelbutton MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-18k1y27-MuiButtonBase-root-MuiButton-root"
+              class="MuiButtonBase-root MuiButton-root IdentityPanelbutton MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root IdentityPanelbutton MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-1rwf87u-MuiButtonBase-root-MuiButton-root"
               data-testid="settings-panel-button"
               role="button"
               tabindex="0"
@@ -82,7 +82,7 @@ describe('IdentityPanel', () => {
             class="css-1c9y83e"
           >
             <span
-              class="MuiButtonBase-root MuiButton-root IdentityPanelbutton MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root IdentityPanelbutton MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-18k1y27-MuiButtonBase-root-MuiButton-root"
+              class="MuiButtonBase-root MuiButton-root IdentityPanelbutton MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root IdentityPanelbutton MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-1rwf87u-MuiButtonBase-root-MuiButton-root"
               data-testid="settings-panel-button"
               role="button"
               tabindex="0"
@@ -139,7 +139,7 @@ describe('IdentityPanel', () => {
             class="css-1c9y83e"
           >
             <span
-              class="MuiButtonBase-root MuiButton-root IdentityPanelbutton MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root IdentityPanelbutton MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-18k1y27-MuiButtonBase-root-MuiButton-root"
+              class="MuiButtonBase-root MuiButton-root IdentityPanelbutton MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root IdentityPanelbutton MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium css-1rwf87u-MuiButtonBase-root-MuiButton-root"
               data-testid="settings-panel-button"
               role="button"
               tabindex="0"
