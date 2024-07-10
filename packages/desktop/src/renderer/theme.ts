@@ -448,7 +448,11 @@ const darkTheme = createTheme({
 })
 
 const defaultTheme = darkTheme
-const getCurrentTheme = (useDarkTheme: boolean): Theme => {
+const getCurrentTheme = (useDarkTheme: boolean | undefined): Theme => {
+  if (useDarkTheme == null) {
+    return defaultTheme
+  }
+
   return useDarkTheme ? darkTheme : lightTheme
 }
 
@@ -463,7 +467,7 @@ const getCurrentTheme = (useDarkTheme: boolean): Theme => {
 const useTheme = (): Theme => {
   const mediaQuery = () => (window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null)
   const [isDarkTheme, setDarkTheme] = useState<Theme>(
-    mediaQuery != null ? getCurrentTheme(mediaQuery()!.matches) : defaultTheme
+    mediaQuery != null ? getCurrentTheme(mediaQuery()?.matches) : defaultTheme
   )
 
   useEffect(() => {
