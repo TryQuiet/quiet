@@ -1,10 +1,10 @@
 import React from 'react'
-import { getTheme } from '../../../../theme'
+import { defaultTheme } from '../../../../theme'
 import { ThemeProvider } from '@mui/material/styles'
 import { renderComponent } from '../../../../testUtils/renderComponent'
 import DuplicateModalComponent from './DuplicateModal.component'
 
-const theme = getTheme()
+const theme = defaultTheme
 
 describe('DuplicateModalComponent', () => {
   it('renderComponent', () => {
@@ -21,7 +21,7 @@ describe('DuplicateModalComponent', () => {
           aria-hidden="true"
         />
         <div
-          class="MuiModal-root css-16f7e5u-MuiModal-root"
+          class="MuiModal-root css-1mbrbs1-MuiModal-root"
           data-testid="duplicateModalComponent"
           role="presentation"
         >
@@ -62,7 +62,7 @@ describe('DuplicateModalComponent', () => {
                     data-testid="ModalActions"
                   >
                     <button
-                      class="MuiButtonBase-root MuiIconButton-root IconButtonroot MuiIconButton-sizeMedium css-c8hoqc-MuiButtonBase-root-MuiIconButton-root"
+                      class="MuiButtonBase-root MuiIconButton-root IconButtonroot MuiIconButton-sizeMedium css-1hpikoh-MuiButtonBase-root-MuiIconButton-root"
                       tabindex="0"
                       type="button"
                     >
@@ -123,7 +123,7 @@ describe('DuplicateModalComponent', () => {
                         src="test-file-stub"
                       />
                       <span
-                        class="MuiTypography-root MuiTypography-caption UserLabel-wrapper UserLabel-textWhite css-1d4bzk2-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-caption UserLabel-wrapper UserLabel-textWhite css-1m4pgvy-MuiTypography-root"
                       >
                         Duplicate
                       </span>

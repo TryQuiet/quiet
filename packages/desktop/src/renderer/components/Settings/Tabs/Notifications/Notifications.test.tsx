@@ -49,10 +49,10 @@ describe('Notifications', () => {
                 class="MuiGrid-root MuiGrid-item Notificationsspacing css-13i4rnv-MuiGrid-root"
               >
                 <label
-                  class="MuiFormControlLabel-root NotificationsradioIcon MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
+                  class="MuiFormControlLabel-root NotificationsradioIcon MuiFormControlLabel-labelPlacementEnd css-jzcd7z-MuiFormControlLabel-root"
                 >
                   <span
-                    class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary Mui-checked MuiCheckbox-root MuiCheckbox-colorPrimary css-qaev87-MuiButtonBase-root-MuiCheckbox-root"
+                    class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary Mui-checked MuiCheckbox-root MuiCheckbox-colorPrimary css-p0kowz-MuiButtonBase-root-MuiCheckbox-root"
                   >
                     <input
                       checked=""
@@ -98,10 +98,10 @@ describe('Notifications', () => {
                 class="MuiGrid-root MuiGrid-item Notificationsspacing css-13i4rnv-MuiGrid-root"
               >
                 <label
-                  class="MuiFormControlLabel-root NotificationsradioIcon MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
+                  class="MuiFormControlLabel-root NotificationsradioIcon MuiFormControlLabel-labelPlacementEnd css-jzcd7z-MuiFormControlLabel-root"
                 >
                   <span
-                    class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-root MuiCheckbox-colorPrimary css-qaev87-MuiButtonBase-root-MuiCheckbox-root"
+                    class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-root MuiCheckbox-colorPrimary css-p0kowz-MuiButtonBase-root-MuiCheckbox-root"
                   >
                     <input
                       class="PrivateSwitchBase-input css-1m9pwf3"
@@ -158,10 +158,10 @@ describe('Notifications', () => {
                   data-testid="sound-librarianShhh"
                 >
                   <label
-                    class="MuiFormControlLabel-root NotificationsradioSound MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
+                    class="MuiFormControlLabel-root NotificationsradioSound MuiFormControlLabel-labelPlacementEnd css-jzcd7z-MuiFormControlLabel-root"
                   >
                     <span
-                      class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-root MuiCheckbox-colorPrimary css-qaev87-MuiButtonBase-root-MuiCheckbox-root"
+                      class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-root MuiCheckbox-colorPrimary css-p0kowz-MuiButtonBase-root-MuiCheckbox-root"
                       data-testid="sound-librarianShhh-radio"
                     >
                       <input
@@ -188,10 +188,10 @@ describe('Notifications', () => {
                   data-testid="sound-pow"
                 >
                   <label
-                    class="MuiFormControlLabel-root NotificationsradioSound MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
+                    class="MuiFormControlLabel-root NotificationsradioSound MuiFormControlLabel-labelPlacementEnd css-jzcd7z-MuiFormControlLabel-root"
                   >
                     <span
-                      class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-root MuiCheckbox-colorPrimary css-qaev87-MuiButtonBase-root-MuiCheckbox-root"
+                      class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-root MuiCheckbox-colorPrimary css-p0kowz-MuiButtonBase-root-MuiCheckbox-root"
                       data-testid="sound-pow-radio"
                     >
                       <input
@@ -218,10 +218,10 @@ describe('Notifications', () => {
                   data-testid="sound-bang"
                 >
                   <label
-                    class="MuiFormControlLabel-root NotificationsradioSound MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
+                    class="MuiFormControlLabel-root NotificationsradioSound MuiFormControlLabel-labelPlacementEnd css-jzcd7z-MuiFormControlLabel-root"
                   >
                     <span
-                      class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary Mui-checked MuiCheckbox-root MuiCheckbox-colorPrimary css-qaev87-MuiButtonBase-root-MuiCheckbox-root"
+                      class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary Mui-checked MuiCheckbox-root MuiCheckbox-colorPrimary css-p0kowz-MuiButtonBase-root-MuiCheckbox-root"
                       data-testid="sound-bang-radio"
                     >
                       <input
@@ -249,10 +249,10 @@ describe('Notifications', () => {
                   data-testid="sound-splat"
                 >
                   <label
-                    class="MuiFormControlLabel-root NotificationsradioSound MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
+                    class="MuiFormControlLabel-root NotificationsradioSound MuiFormControlLabel-labelPlacementEnd css-jzcd7z-MuiFormControlLabel-root"
                   >
                     <span
-                      class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-root MuiCheckbox-colorPrimary css-qaev87-MuiButtonBase-root-MuiCheckbox-root"
+                      class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-root MuiCheckbox-colorPrimary css-p0kowz-MuiButtonBase-root-MuiCheckbox-root"
                       data-testid="sound-splat-radio"
                     >
                       <input
@@ -279,10 +279,10 @@ describe('Notifications', () => {
                   data-testid="sound-none"
                 >
                   <label
-                    class="MuiFormControlLabel-root NotificationsradioSound MuiFormControlLabel-labelPlacementEnd css-j204z7-MuiFormControlLabel-root"
+                    class="MuiFormControlLabel-root NotificationsradioSound MuiFormControlLabel-labelPlacementEnd css-jzcd7z-MuiFormControlLabel-root"
                   >
                     <span
-                      class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-root MuiCheckbox-colorPrimary css-qaev87-MuiButtonBase-root-MuiCheckbox-root"
+                      class="MuiButtonBase-root MuiCheckbox-root MuiCheckbox-colorPrimary PrivateSwitchBase-root MuiCheckbox-root MuiCheckbox-colorPrimary MuiCheckbox-root MuiCheckbox-colorPrimary css-p0kowz-MuiButtonBase-root-MuiCheckbox-root"
                       data-testid="sound-none-radio"
                     >
                       <input

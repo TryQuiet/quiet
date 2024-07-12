@@ -4,13 +4,13 @@ import { ComponentStory, ComponentMeta } from '@storybook/react'
 import UpdateModal, { UpdateModalProps } from './UpdateModalComponent'
 
 import { withTheme } from '../../../storybook/decorators'
-import { getTheme } from '../../../theme'
+import { defaultTheme } from '../../../theme'
 import { createLogger } from '../../../logger'
 
 import Button from '@mui/material/Button'
 
 const logger = createLogger('updateModal:component:stories')
-const theme = getTheme()
+const theme = defaultTheme
 
 const Template: ComponentStory<typeof UpdateModal> = args => {
   return <UpdateModal {...args} />

@@ -28,7 +28,7 @@ describe('ChannelInput', () => {
       <body>
         <div>
           <div
-            class="MuiGrid-root ChannelInputroot css-1m0i9yi-MuiGrid-root"
+            class="MuiGrid-root ChannelInputroot css-4yjsav-MuiGrid-root"
           >
             <div
               class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column ChannelInputrootContent css-6gh8l0-MuiGrid-root"
@@ -114,7 +114,7 @@ describe('ChannelInput', () => {
       <body>
         <div>
           <div
-            class="MuiGrid-root ChannelInputroot ChannelInputnotAllowed css-1m0i9yi-MuiGrid-root"
+            class="MuiGrid-root ChannelInputroot ChannelInputnotAllowed css-4yjsav-MuiGrid-root"
           >
             <div
               class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column ChannelInputrootContent css-6gh8l0-MuiGrid-root"
@@ -174,7 +174,7 @@ describe('ChannelInput', () => {
                   class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true css-1vd824g-MuiGrid-root"
                 >
                   <span
-                    class="MuiTypography-root MuiTypography-caption ChannelInputInfoMessageinfo css-1d4bzk2-MuiTypography-root"
+                    class="MuiTypography-root MuiTypography-caption ChannelInputInfoMessageinfo css-1m4pgvy-MuiTypography-root"
                   >
                     Initializing community. This may take a few minutes...
                   </span>

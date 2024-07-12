@@ -14,7 +14,7 @@ import SentryWarning from './containers/widgets/sentryWarning/sentryWarning'
 import SettingsModal from './components/Settings/Settings'
 import UpdateModal from './containers/widgets/update/UpdateModal'
 import QuitAppDialog from './containers/ui/QuitAppDialog'
-import { getTheme } from './theme'
+import { useTheme } from './theme'
 import CreateCommunity from './components/CreateJoinCommunity/CreateCommunity/CreateCommunity'
 import JoinCommunity from './components/CreateJoinCommunity/JoinCommunity/JoinCommunity'
 import CreateChannel from './components/Channel/CreateChannel/CreateChannel'
@@ -43,7 +43,7 @@ export const persistor = persistStore(store)
 export default () => {
   return (
     <StyledEngineProvider injectFirst>
-      <ThemeProvider theme={getTheme()}>
+      <ThemeProvider theme={useTheme()}>
         <DndProvider backend={HTML5Backend}>
           <HashRouter>
             <Provider store={store}>

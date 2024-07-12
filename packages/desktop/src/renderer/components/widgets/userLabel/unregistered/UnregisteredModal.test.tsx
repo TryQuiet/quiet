@@ -1,10 +1,10 @@
 import React from 'react'
-import { getTheme } from '../../../../theme'
+import { defaultTheme } from '../../../../theme'
 import { ThemeProvider } from '@mui/material/styles'
 import { renderComponent } from '../../../../testUtils/renderComponent'
 import UnregisteredModalComponent from './UnregisteredModal.component'
 
-const theme = getTheme()
+const theme = defaultTheme
 
 describe('UnregisteredModalComponent', () => {
   it('renderComponent', () => {
@@ -21,7 +21,7 @@ describe('UnregisteredModalComponent', () => {
           aria-hidden="true"
         />
         <div
-          class="MuiModal-root css-16f7e5u-MuiModal-root"
+          class="MuiModal-root css-1mbrbs1-MuiModal-root"
           data-testid="unregisteredModalComponent"
           role="presentation"
         >
@@ -62,7 +62,7 @@ describe('UnregisteredModalComponent', () => {
                     data-testid="ModalActions"
                   >
                     <button
-                      class="MuiButtonBase-root MuiIconButton-root IconButtonroot MuiIconButton-sizeMedium css-c8hoqc-MuiButtonBase-root-MuiIconButton-root"
+                      class="MuiButtonBase-root MuiIconButton-root IconButtonroot MuiIconButton-sizeMedium css-1hpikoh-MuiButtonBase-root-MuiIconButton-root"
                       tabindex="0"
                       type="button"
                     >
@@ -112,7 +112,7 @@ describe('UnregisteredModalComponent', () => {
                      will be registered automatically and this alert will go away.
                   </p>
                   <button
-                    class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium UnregisteredModalComponent-button css-18k1y27-MuiButtonBase-root-MuiButton-root"
+                    class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium UnregisteredModalComponent-button css-1rwf87u-MuiButtonBase-root-MuiButton-root"
                     data-testid="unregistered-button"
                     tabindex="0"
                     type="button"

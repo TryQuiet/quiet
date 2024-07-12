@@ -1,12 +1,12 @@
 import React from 'react'
-import { getTheme } from '../../../theme'
+import { defaultTheme } from '../../../theme'
 import { ThemeProvider, StyledEngineProvider } from '@mui/material/styles'
 import { WelcomeMessage } from './WelcomeMessage'
 import { renderComponent } from '../../../testUtils/renderComponent'
 
 describe('WelcomeMessage', () => {
   it('renders component', () => {
-    const theme = getTheme()
+    const theme = defaultTheme
 
     const result = renderComponent(
       <StyledEngineProvider injectFirst>
@@ -19,7 +19,7 @@ describe('WelcomeMessage', () => {
       <body>
         <div>
           <li
-            class="MuiListItem-root MuiListItem-gutters MuiListItem-padding WelcomeMessagewrapper css-142ua8s-MuiListItem-root"
+            class="MuiListItem-root MuiListItem-gutters MuiListItem-padding WelcomeMessagewrapper css-6hb2zq-MuiListItem-root"
           >
             <div
               class="MuiListItemText-root MuiListItemText-multiline WelcomeMessagemessageCard css-konndc-MuiListItemText-root"
@@ -45,7 +45,7 @@ describe('WelcomeMessage', () => {
                       class="MuiGrid-root MuiGrid-item css-13i4rnv-MuiGrid-root"
                     >
                       <p
-                        class="MuiTypography-root MuiTypography-body1 WelcomeMessageusername css-11qbl00-MuiTypography-root"
+                        class="MuiTypography-root MuiTypography-body1 WelcomeMessageusername css-cl2jau-MuiTypography-root"
                       >
                         Quiet
                       </p>

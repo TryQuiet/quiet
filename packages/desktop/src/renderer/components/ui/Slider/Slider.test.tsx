@@ -23,7 +23,7 @@ describe('Slider', () => {
             class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-12km9n7-MuiGrid-root"
           >
             <span
-              class="MuiTypography-root MuiTypography-caption Slidertitle css-1d4bzk2-MuiTypography-root"
+              class="MuiTypography-root MuiTypography-caption Slidertitle css-1m4pgvy-MuiTypography-root"
             >
               this is a title of the slider
             </span>
@@ -91,7 +91,7 @@ describe('Slider', () => {
             class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-12km9n7-MuiGrid-root"
           >
             <span
-              class="MuiTypography-root MuiTypography-caption Slidertitle css-1d4bzk2-MuiTypography-root"
+              class="MuiTypography-root MuiTypography-caption Slidertitle css-1m4pgvy-MuiTypography-root"
             >
               this is a title of the slider
             </span>
@@ -163,7 +163,7 @@ describe('Slider', () => {
             class="MuiGrid-root MuiGrid-container MuiGrid-direction-xs-column css-12km9n7-MuiGrid-root"
           >
             <span
-              class="MuiTypography-root MuiTypography-caption Slidertitle css-1d4bzk2-MuiTypography-root"
+              class="MuiTypography-root MuiTypography-caption Slidertitle css-1m4pgvy-MuiTypography-root"
             >
               this is a title of the slider
             </span>
