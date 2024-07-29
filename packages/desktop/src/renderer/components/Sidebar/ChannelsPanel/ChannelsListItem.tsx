@@ -21,7 +21,17 @@ const classes = {
 
 const StyledListItemButton = styled(ListItemButton)(({ theme }) => ({
   [`&.${classes.root}`]: {
-    padding: 0,
+    width: 220,
+    height: 'hug',
+    padding: `3px 16px 3px 16px`,
+    gap: 4,
+    opacity: 1,
+    display: 'flex',
+    backgroundColor: 'inherit',
+  },
+
+  [`&.${classes.root}:hover`]: {
+    backgroundColor: theme.palette.colors.sidebarHover,
   },
 
   [`&.${classes.selected}`]: {
