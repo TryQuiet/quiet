@@ -1,19 +1,3 @@
-# Change Log
-
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
-
-## [2.2.1-alpha.1](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@2.2.1-alpha.0...@quiet/desktop@2.2.1-alpha.1) (2024-07-29)
-
-
-### Bug Fixes
-
-* **2576:** Update hover and selected contrast and modify sidebar color in dark mode ([#2579](https://github.com/TryQuiet/quiet/issues/2579)) ([d7bf1b9](https://github.com/TryQuiet/quiet/commit/d7bf1b938bce3096fbb9a67296fdca3fc4a157dc))
-
-
-
-
-
 [unreleased]
 
 # New features:
