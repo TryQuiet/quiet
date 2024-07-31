@@ -1,19 +1,3 @@
-# Change Log
-
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
-
-## [2.2.1-alpha.1](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@2.2.1-alpha.0...@quiet/desktop@2.2.1-alpha.1) (2024-07-29)
-
-
-### Bug Fixes
-
-* **2576:** Update hover and selected contrast and modify sidebar color in dark mode ([#2579](https://github.com/TryQuiet/quiet/issues/2579)) ([d7bf1b9](https://github.com/TryQuiet/quiet/commit/d7bf1b938bce3096fbb9a67296fdca3fc4a157dc))
-
-
-
-
-
 [unreleased]
 
 # New features:
@@ -33,6 +17,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 * Fixes issue with reconnecting to peers on resume on iOS ([#2424](https://github.com/TryQuiet/quiet/issues/2424))
 * Fixes references to 'invite code' to be 'invite link' in UI ([#2441](https://github.com/TryQuiet/quiet/issues/2441))
 * Fixes issue with image messages not displaying/throwing errors on iOS ([#2526](https://github.com/TryQuiet/quiet/issues/2526))
+* Removing parsing from channel and community naming ([#2302](https://github.com/TryQuiet/quiet/issues/2302))
 
 # Chores
 

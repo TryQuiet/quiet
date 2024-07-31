@@ -15,10 +15,6 @@ export const communityNameField = (name = 'name'): FieldData => {
         value: 20,
         message: CommunityNameErrors.NameTooLong,
       },
-      pattern: {
-        value: /^[-a-zA-Z0-9 ]+$/g,
-        message: CommunityNameErrors.WrongCharacter,
-      },
     },
   }
 }

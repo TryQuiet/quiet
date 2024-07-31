@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useRef } from 'react'
 import { styled } from '@mui/material/styles'
 import classNames from 'classnames'
 import { Typography, Grid, ListItemButton } from '@mui/material'
@@ -51,7 +51,6 @@ const StyledListItemButton = styled(ListItemButton)(({ theme }) => ({
     textOverflow: 'ellipsis',
     maxWidth: 215,
     whiteSpace: 'nowrap',
-    textTransform: 'lowercase',
   },
 
   [`& .${classes.newMessages}`]: {

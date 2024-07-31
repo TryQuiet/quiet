@@ -130,32 +130,6 @@ describe('Create community', () => {
     await waitFor(() => expect(handleCommunityAction).toBeCalledWith(communityName))
   })
 
-  it.each([
-    ['UpperCaseToLowerCase', 'uppercasetolowercase'],
-    ['spaces to hyphens', 'spaces-to-hyphens'],
-    ['!@#$%^&*()', '----------'],
-  ])('user inserting wrong community name "%s" gets corrected "%s"', async (name: string, corrected: string) => {
-    renderComponent(
-      <PerformCommunityActionComponent
-        open={true}
-        handleClose={() => {}}
-        communityOwnership={CommunityOwnership.Owner}
-        handleCommunityAction={() => {}}
-        handleRedirection={() => {}}
-        isConnectionReady={true}
-        isCloseDisabled={true}
-        hasReceivedResponse={false}
-      />
-    )
-
-    const input = screen.getByPlaceholderText('Community name')
-
-    await userEvent.type(input, name)
-    expect(screen.getByTestId('createCommunityNameWarning')).toHaveTextContent(
-      `Your community will be created as #${corrected}`
-    )
-  })
-
   it('user inserting invalid community name should see an error', async () => {
     const handleCommunityAction = jest.fn()
     const name = 'too-long-community-name'

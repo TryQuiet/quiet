@@ -1,18 +1,14 @@
-import React, { useState } from 'react'
+import React, { useEffect } from 'react'
 import { styled } from '@mui/material/styles'
 import { Controller, useForm } from 'react-hook-form'
 
 import { Grid, Typography } from '@mui/material'
-
-import WarningIcon from '@mui/icons-material/Warning'
 
 import Modal from '../../ui/Modal/Modal'
 import LoadingButton from '../../ui/LoadingButton/LoadingButton'
 
 import { TextField } from '../../ui/TextField/TextField'
 import { channelNameField } from '../../../forms/fields/createChannelFields'
-
-import { parseName } from '@quiet/common'
 
 const PREFIX = 'CreateChannelComponent'
 
@@ -21,12 +17,6 @@ const classes = {
   gutter: `${PREFIX}gutter`,
   button: `${PREFIX}button`,
   title: `${PREFIX}title`,
-  iconDiv: `${PREFIX}iconDiv`,
-  warningIcon: `${PREFIX}warningIcon`,
-  warningMessage: `${PREFIX}warningMessage`,
-  rootBar: `${PREFIX}rootBar`,
-  progressBar: `${PREFIX}progressBar`,
-  info: `${PREFIX}info`,
 }
 
 const StyledModalContent = styled(Grid)(({ theme }) => ({
@@ -58,35 +48,6 @@ const StyledModalContent = styled(Grid)(({ theme }) => ({
   [`& .${classes.title}`]: {
     marginBottom: 24,
   },
-
-  [`& .${classes.iconDiv}`]: {
-    width: 24,
-    height: 28,
-    marginRight: 8,
-  },
-
-  [`& .${classes.warningIcon}`]: {
-    color: theme.palette.warning.main,
-  },
-
-  [`& .${classes.warningMessage}`]: {
-    wordBreak: 'break-word',
-  },
-
-  [`& .${classes.rootBar}`]: {
-    width: 350,
-    marginTop: 32,
-    marginBottom: 16,
-  },
-
-  [`& .${classes.progressBar}`]: {
-    backgroundColor: theme.palette.colors.linkBlue,
-  },
-
-  [`& .${classes.info}`]: {
-    lineHeight: '19px',
-    color: theme.palette.colors.darkGray,
-  },
 }))
 
 const createChannelFields = {
@@ -112,9 +73,6 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
   handleClose,
   clearErrorsDispatch,
 }) => {
-  const [channelName, setChannelName] = useState('')
-  const [parsedNameDiffers, setParsedNameDiffers] = useState(false)
-
   const {
     handleSubmit,
     formState: { errors },
@@ -131,33 +89,29 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
   }
 
   const submitForm = (handleSubmit: (value: string) => void, values: CreateChannelFormValues) => {
-    handleSubmit(parseName(values.channelName))
+    handleSubmit(values.channelName)
   }
 
   const onChange = (name: string) => {
     setValue('channelName', name)
-    const parsedName = parseName(name)
-    setChannelName(parsedName)
-    setParsedNameDiffers(name !== parsedName)
   }
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!open) {
       setValue('channelName', '')
-      setChannelName('')
       clearErrors()
       clearErrorsDispatch()
     }
   }, [open])
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (channelCreationError) {
       setError('channelName', { message: channelCreationError })
     }
   }, [channelCreationError])
 
   return (
-    <Modal open={open} handleClose={handleClose} data-testid={'createChannelModal'}>
+    <Modal open={open} handleClose={handleClose} data-testid='createChannelModal'>
       <StyledModalContent container direction='column'>
         <form onSubmit={handleSubmit(onSubmit)}>
           <Grid container justifyContent='flex-start' direction='column' className={classes.fullContainer}>
@@ -167,16 +121,16 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
             <Typography variant='body2'>Channel name</Typography>
             <Controller
               control={control}
-              defaultValue={''}
+              defaultValue=''
               rules={createChannelFields.channelName.validation}
-              name={'channelName'}
+              name='channelName'
               render={({ field }) => (
                 <TextField
                   {...createChannelFields.channelName.fieldProps}
                   fullWidth
-                  classes={''}
+                  classes=''
                   variant='outlined'
-                  placeholder={'Enter a channel name'}
+                  placeholder='Enter a channel name'
                   autoFocus
                   errors={errors}
                   onchange={event => {
@@ -190,28 +144,11 @@ export const CreateChannelComponent: React.FC<CreateChannelProps> = ({
                     field.onBlur()
                   }}
                   value={field.value}
-                  data-testid={'createChannelInput'}
+                  data-testid='createChannelInput'
                 />
               )}
             />
-            <div className={classes.gutter}>
-              {!errors.channelName && channelName.length > 0 && parsedNameDiffers && (
-                <Grid container alignItems='center' direction='row'>
-                  <Grid item className={classes.iconDiv}>
-                    <WarningIcon className={classes.warningIcon} />
-                  </Grid>
-                  <Grid item xs>
-                    <Typography
-                      variant='body2'
-                      className={classes.warningMessage}
-                      data-testid={'createChannelNameWarning'}
-                    >
-                      Your channel will be created as <b>{`#${channelName}`}</b>
-                    </Typography>
-                  </Grid>
-                </Grid>
-              )}
-            </div>
+            <div className={classes.gutter} />
             <LoadingButton
               variant='contained'
               color='primary'

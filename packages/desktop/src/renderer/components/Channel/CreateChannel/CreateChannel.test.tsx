@@ -67,7 +67,7 @@ describe('Add new channel', () => {
 
     function* testSubmittedChannelName(): Generator {
       const createChannelAction = yield* take(publicChannels.actions.createChannel)
-      expect(createChannelAction.payload.channel.name).toEqual('some-channel-name--')
+      expect(createChannelAction.payload.channel.name).toEqual('Some channel NAME  ')
     }
   })
 
@@ -86,27 +86,5 @@ describe('Add new channel', () => {
 
     await userEvent.type(input, 'happy-path')
     expect(warning).toBeNull()
-  })
-
-  it.each([
-    ['UpperCaseToLowerCase', 'uppercasetolowercase'],
-    ['spaces to hyphens', 'spaces-to-hyphens'],
-    ['!@#$%^&*()', '----------'],
-  ])('user inserting wrong channel name "%s" gets corrected "%s"', async (name: string, corrected: string) => {
-    renderComponent(
-      <CreateChannelComponent
-        open={true}
-        createChannel={() => {}}
-        handleClose={() => {}}
-        clearErrorsDispatch={() => {}}
-      />
-    )
-
-    const input = screen.getByPlaceholderText('Enter a channel name')
-
-    await userEvent.type(input, name)
-    expect(screen.getByTestId('createChannelNameWarning')).toHaveTextContent(
-      `Your channel will be created as #${corrected}`
-    )
   })
 })
