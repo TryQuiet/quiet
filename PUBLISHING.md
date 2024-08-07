@@ -53,6 +53,7 @@ By the time release is ready, ask @holmes for <b>CHANGELOG.md</b> cosmetic revie
   `npm run publish --release=[patch|minor|major|EXACT_VERSION]`
 5. Cherry-pick `Publish` and `Update packages CHANGELOG.md` commits into /develop
 6. Manually update release notes on the <a href='https://github.com/TryQuiet/quiet/releases' target='blank'>Releases Page</a>
+7. Manually update "Downloads" link in [README](https://github.com/TryQuiet/quiet/blob/develop/README.md) nav to point to latest release tag.
 
 ## Post-release checklist (alpha)
 - [ ] App is promoted and sent for review on a closed testing track in Google Play
