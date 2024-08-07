@@ -13,6 +13,7 @@
 
 # Fixes:
 
+* Made entire user profile area clickable in the sidebar and updated hover state for improved usability ([#2566](https://github.com/TryQuiet/quiet/issues/2566))
 * Disable spellCheck/autoCorrect on non-spelling sensitive fields like usernames and channels ([#373](https://github.com/TryQuiet/quiet/issues/373))
 * Fixes issue with reconnecting to peers on resume on iOS ([#2424](https://github.com/TryQuiet/quiet/issues/2424))
 * Fixes references to 'invite code' to be 'invite link' in UI ([#2441](https://github.com/TryQuiet/quiet/issues/2441))
