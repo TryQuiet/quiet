@@ -90,7 +90,7 @@ describe('Add new channel', () => {
     const alice = await factory.create<ReturnType<typeof identity.actions.addNewIdentity>['payload']>('Identity', {
       nickname: 'alice',
     })
-    const channelName = { input: 'my-Super Channel ', output: 'my-super-channel-' }
+    const channelName = { input: 'my-Super Channel ', output: 'my-Super Channel ' }
 
     const mockImpl = async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
       const action = input[0]
@@ -161,7 +161,12 @@ describe('Add new channel', () => {
     expect(createChannelModal).toBeNull()
 
     // Check if newly created channel is present and selected
-    expect(screen.getByTestId('channelTitle')).toHaveTextContent(`#${channelName.output}`)
+    console.log(
+      screen.getByTestId('channelTitle').textContent,
+      `#${channelName.output}`,
+      screen.getByTestId('channelTitle').textContent === `#${channelName.output}`
+    )
+    expect(screen.getByTestId('channelTitle').textContent).toEqual(`#${channelName.output}`)
     // Check if sidebar item displays as selected
     const link = screen.getByTestId(`${channelName.output}-link`)
     expect(link).toHaveClass('ChannelsListItemselected')
@@ -290,7 +295,7 @@ describe('Add new channel', () => {
     expect(isErrorStillExist).toBeNull()
   })
 
-  it('Bug reproduction - create channel and open modal again without requierd field error', async () => {
+  it('Bug reproduction - create channel and open modal again without required field error', async () => {
     const channelName = 'las-venturas'
 
     const { store, runSaga } = await prepareStore(

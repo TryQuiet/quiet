@@ -1,16 +1,12 @@
 import React, { FC, useState, useRef, useEffect } from 'react'
-import { Keyboard, KeyboardAvoidingView, TextInput, View, Image } from 'react-native'
+import { Keyboard, KeyboardAvoidingView, TextInput, View } from 'react-native'
 
 import { defaultTheme } from '../../styles/themes/default.theme'
 
-import { Typography } from '../Typography/Typography.component'
 import { Input } from '../Input/Input.component'
 import { Button } from '../Button/Button.component'
 
-import { parseName } from '@quiet/common'
 import { Appbar } from '../Appbar/Appbar.component'
-
-import { appImages } from '../../assets'
 
 export interface CreateChannelProps {
   createChannelAction: (name: string) => void
@@ -26,7 +22,6 @@ export const CreateChannel: FC<CreateChannelProps> = ({
   handleBackButton,
 }) => {
   const [createChannelInput, setCreateChannelInput] = useState<string | undefined>()
-  const [parsedNameDiffers, setParsedNameDiffers] = useState(false)
 
   const [inputError, setInputError] = useState<string | undefined>()
   const [loading, setLoading] = useState<boolean>(false)
@@ -35,12 +30,7 @@ export const CreateChannel: FC<CreateChannelProps> = ({
 
   const onChangeText = (value: string) => {
     setInputError(undefined)
-    // inputRef.current?.setNativeProps({ text: value })
-
-    const parsedName = parseName(value)
-
-    setCreateChannelInput(parsedName)
-    setParsedNameDiffers(value !== parsedName)
+    setCreateChannelInput(value)
   }
 
   const onPress = () => {
@@ -70,14 +60,9 @@ export const CreateChannel: FC<CreateChannelProps> = ({
     }
   }, [clearComponent])
 
-  const warning_icon = appImages.icon_warning
-
   return (
-    <View
-      style={{ flex: 1, backgroundColor: defaultTheme.palette.background.white }}
-      testID={'create-channel-component'}
-    >
-      <Appbar title={'Create channel'} back={handleBackButton} />
+    <View style={{ flex: 1, backgroundColor: defaultTheme.palette.background.white }} testID='create-channel-component'>
+      <Appbar title='Create channel' back={handleBackButton} />
       <KeyboardAvoidingView
         behavior='height'
         style={{
@@ -89,48 +74,16 @@ export const CreateChannel: FC<CreateChannelProps> = ({
       >
         <Input
           onChangeText={onChangeText}
-          label={'Add a name for your channel'}
-          placeholder={'Channel name'}
+          label='Add a name for your channel'
+          placeholder='Channel name'
           length={20}
           disabled={loading}
           validation={inputError}
           ref={inputRef}
           autoCorrect={false}
         />
-        {!inputError &&
-          createChannelInput?.length !== undefined &&
-          createChannelInput.length > 0 &&
-          parsedNameDiffers && (
-            <View
-              style={{
-                display: 'flex',
-                flexDirection: 'row',
-                gap: 10,
-                alignItems: 'center',
-                marginTop: 12,
-              }}
-            >
-              <View>
-                <Image
-                  source={warning_icon}
-                  resizeMode='cover'
-                  resizeMethod='resize'
-                  style={{
-                    width: 16,
-                    height: 16,
-                  }}
-                />
-              </View>
-              <View testID={'create_channel_name_warning'}>
-                <Typography fontSize={14}>{'Your channel will be created as'}</Typography>
-                <Typography fontSize={14} fontWeight={'medium'}>
-                  {`#${createChannelInput}`}
-                </Typography>
-              </View>
-            </View>
-          )}
         <View style={{ marginTop: 12 }}>
-          <Button onPress={onPress} title={'Continue'} width={108} loading={loading} />
+          <Button onPress={onPress} title='Continue' width={108} loading={loading} />
         </View>
       </KeyboardAvoidingView>
     </View>

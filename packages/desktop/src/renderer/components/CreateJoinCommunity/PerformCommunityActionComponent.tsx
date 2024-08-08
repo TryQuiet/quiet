@@ -5,14 +5,12 @@ import classNames from 'classnames'
 import Typography from '@mui/material/Typography'
 import Grid from '@mui/material/Grid'
 
-import WarningIcon from '@mui/icons-material/Warning'
-
 import Modal from '../ui/Modal/Modal'
 import { LoadingButton } from '../ui/LoadingButton/LoadingButton'
 
 import { CreateCommunityDictionary, JoinCommunityDictionary } from '../CreateJoinCommunity/community.dictionary'
 
-import { CommunityOwnership, ErrorPayload } from '@quiet/types'
+import { CommunityOwnership } from '@quiet/types'
 
 import { Controller, useForm } from 'react-hook-form'
 import { TextField } from '../ui/TextField/TextField'
@@ -20,7 +18,6 @@ import { InviteLinkErrors } from '../../forms/fieldsErrors'
 import { IconButton, InputAdornment } from '@mui/material'
 import VisibilityOff from '@mui/icons-material/VisibilityOff'
 import Visibility from '@mui/icons-material/Visibility'
-import { parseName } from '@quiet/common'
 import { getInvitationCodes } from '@quiet/state-manager'
 import { createLogger } from '../../logger'
 
@@ -36,12 +33,6 @@ const classes = {
   gutter: `${PREFIX}gutter`,
   button: `${PREFIX}button`,
   title: `${PREFIX}title`,
-  iconDiv: `${PREFIX}iconDiv`,
-  warrningIcon: `${PREFIX}warrningIcon`,
-  warrningMessage: `${PREFIX}warrningMessage`,
-  rootBar: `${PREFIX}rootBar`,
-  progressBar: `${PREFIX}progressBar`,
-  info: `${PREFIX}info`,
 }
 
 const StyledModalContent = styled(Grid)(({ theme }) => ({
@@ -94,35 +85,6 @@ const StyledModalContent = styled(Grid)(({ theme }) => ({
   [`& .${classes.title}`]: {
     marginBottom: 24,
   },
-
-  [`& .${classes.iconDiv}`]: {
-    width: 24,
-    height: 28,
-    marginRight: 8,
-  },
-
-  [`& .${classes.warrningIcon}`]: {
-    color: theme.palette.warning.main,
-  },
-
-  [`& .${classes.warrningMessage}`]: {
-    wordBreak: 'break-word',
-  },
-
-  [`& .${classes.rootBar}`]: {
-    width: 350,
-    marginTop: 32,
-    marginBottom: 16,
-  },
-
-  [`& .${classes.progressBar}`]: {
-    backgroundColor: theme.palette.colors.linkBlue,
-  },
-
-  [`& .${classes.info}`]: {
-    lineHeight: '19px',
-    color: theme.palette.colors.darkGray,
-  },
 }))
 
 interface PerformCommunityActionFormValues {
@@ -156,9 +118,6 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
 }) => {
   const [formSent, setFormSent] = useState(false)
 
-  const [communityName, setCommunityName] = useState('...')
-  const [parsedNameDiffers, setParsedNameDiffers] = useState(false)
-
   const waitingForResponse = formSent && !hasReceivedResponse
 
   const dictionary =
@@ -186,7 +145,7 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
   ) => {
     if (communityOwnership === CommunityOwnership.Owner) {
       setFormSent(true)
-      handleSubmit(parseName(values.name))
+      handleSubmit(values.name)
       return
     }
 
@@ -210,16 +169,12 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
 
   const onChange = (name: string) => {
     if (communityOwnership === CommunityOwnership.User) return
-    // Check community name against naming policy if user creates community
-    const parsedName = parseName(name)
-    setCommunityName(parsedName)
-    setParsedNameDiffers(name !== parsedName)
+    setValue('name', name)
   }
 
   useEffect(() => {
     if (!open) {
       setValue('name', '')
-      setCommunityName('')
       clearErrors('name')
     }
   }, [open])
@@ -236,9 +191,9 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
               <Typography variant='body2'>{dictionary.label}</Typography>
               <Controller
                 control={control}
-                defaultValue={''}
+                defaultValue=''
                 rules={dictionary.field.validation}
-                name={'name'}
+                name='name'
                 render={({ field }) => (
                   <TextField
                     {...dictionary.field.fieldProps}
@@ -283,24 +238,7 @@ export const PerformCommunityActionComponent: React.FC<PerformCommunityActionPro
                 )}
               />
             </Grid>
-            <div className={classes.gutter}>
-              {!errors.name && communityName.length > 0 && parsedNameDiffers && (
-                <Grid container alignItems='center' direction='row'>
-                  <Grid item className={classes.iconDiv}>
-                    <WarningIcon className={classes.warrningIcon} />
-                  </Grid>
-                  <Grid item xs>
-                    <Typography
-                      variant='body2'
-                      className={classes.warrningMessage}
-                      data-testid={'createCommunityNameWarning'}
-                    >
-                      Your community will be created as <b>{`#${communityName}`}</b>
-                    </Typography>
-                  </Grid>
-                </Grid>
-              )}
-            </div>
+            <div className={classes.gutter} />
             <div className={classes.gutter}>
               <Grid container alignItems='center' direction='row'>
                 {dictionary.redirection}
