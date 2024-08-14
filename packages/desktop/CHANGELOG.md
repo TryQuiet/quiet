@@ -1,21 +1,12 @@
-# Change Log
-
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
-
-# [2.3.0](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@2.2.1-alpha.1...@quiet/desktop@2.3.0) (2024-08-14)
-
-**Note:** Version bump only for package @quiet/desktop
-
-
-
-
-
 [2.3.0]
 
 # New features:
 
 * Add dark mode to the desktop UI ([#1502](https://github.com/TryQuiet/quiet/issues/1502))
+
+# Chores
+
+* Update README and PUBLISHING docs
 
 [2.2.0]
 

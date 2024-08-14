@@ -1,43 +1,12 @@
-# Change Log
-
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
-
-# [2.3.0](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@2.2.1-alpha.1...@quiet/mobile@2.3.0) (2024-08-14)
-
-**Note:** Version bump only for package @quiet/mobile
-
-
-
-
-
-[unreleased]
+[2.3.0]
 
 # New features:
 
 * Add dark mode to the desktop UI ([#1502](https://github.com/TryQuiet/quiet/issues/1502))
-* Add support for new format of invitation link: `c=<cid>&t=<token>&s=<serverAddress>&i=<inviterAddress>` ([#2310](https://github.com/TryQuiet/quiet/issues/2310))
-* Use server for downloading initial community metadata if v2 invitation link is detected ([#2295](https://github.com/TryQuiet/quiet/issues/2295))
-
-# Refactorings:
-
-* Consolidate colors and align theme with MUI standards ([#2445](https://github.com/TryQuiet/quiet/issues/2445))
-* Refactor some UI components to align with architecture goals ([2447](https://github.com/TryQuiet/quiet/issues/2447))
-
-# Fixes:
-
-* Disable spellCheck/autoCorrect on non-spelling sensitive fields like usernames and channels ([#373](https://github.com/TryQuiet/quiet/issues/373))
-* Fixes issue with reconnecting to peers on resume on iOS ([#2424](https://github.com/TryQuiet/quiet/issues/2424))
-* Fixes references to 'invite code' to be 'invite link' in UI ([#2441](https://github.com/TryQuiet/quiet/issues/2441))
-* Fixes issue with image messages not displaying/throwing errors on iOS ([#2526](https://github.com/TryQuiet/quiet/issues/2526))
 
 # Chores
 
-* Cleanup data directory at end of e2e tests
-* Update mobile development README ([#2483](https://github.com/TryQuiet/quiet/issues/2483))
-* Update github workflows for PR gating ([#2487](https://github.com/TryQuiet/quiet/issues/2487))
-* Don't create duplicate CSRs when joining a community under certain circumstances ([#2321](https://github.com/TryQuiet/quiet/issues/2321))
-* Add abstract base classes for stores ([#2407](https://github.com/TryQuiet/quiet/issues/2407))
+* Update README and PUBLISHING docs
 
 [2.2.0]
 
