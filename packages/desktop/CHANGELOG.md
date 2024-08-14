@@ -1,16 +1,3 @@
-# Change Log
-
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
-
-# [2.3.0](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@2.2.1-alpha.1...@quiet/desktop@2.3.0) (2024-08-14)
-
-**Note:** Version bump only for package @quiet/desktop
-
-
-
-
-
 [2.3.0]
 
 # New features:
@@ -38,6 +25,10 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 * Update github workflows for PR gating ([#2487](https://github.com/TryQuiet/quiet/issues/2487))
 * Don't create duplicate CSRs when joining a community under certain circumstances ([#2321](https://github.com/TryQuiet/quiet/issues/2321))
 * Add abstract base classes for stores ([#2407](https://github.com/TryQuiet/quiet/issues/2407))
+
+# Chores
+
+* Update README and PUBLISHING docs
 
 [2.2.0]
 
