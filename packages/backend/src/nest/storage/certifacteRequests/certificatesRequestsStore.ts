@@ -1,4 +1,5 @@
 import { getCrypto } from 'pkijs'
+import { type LogEntry, type EventsType } from '@orbitdb/core'
 import { NoCryptoEngineError } from '@quiet/types'
 import { loadCSR, keyFromCertificate } from '@quiet/identity'
 import { StorageEvents } from '../storage.types'
@@ -20,25 +21,24 @@ export class CertificatesRequestsStore extends EventStoreBase<string> {
   public async init() {
     this.logger.info('Initializing certificates requests store')
 
-    this.store = await this.orbitDbService.orbitDb.log<string>('csrs', {
-      replicate: false,
-      accessController: {
+    this.store = await this.orbitDbService.orbitDb.open<EventsType<string>>('csrs', {
+      type: 'events',
+      sync: false,
+      AccessController: {
         write: ['*'],
       },
     })
-    await this.store.load()
-
-    this.store.events.on('write', async (_address, entry) => {
-      this.logger.info('Added CSR to database')
-      this.loadedCertificateRequests()
-    })
-
-    this.store.events.on('replicated', async () => {
-      this.logger.info('Replicated CSRs')
+    
+    this.store.events.on('update', async (entry: LogEntry) => {
+      this.logger.info('Database update')
       this.loadedCertificateRequests()
     })
 
     this.logger.info('Initialized')
+  }
+
+  public async startSync() {
+    await this.getStore().sync.start()
   }
 
   public async loadedCertificateRequests() {
@@ -78,12 +78,7 @@ export class CertificatesRequestsStore extends EventStoreBase<string> {
 
   public async getEntries() {
     const filteredCsrsMap: Map<string, string> = new Map()
-    const allEntries = this.getStore()
-      .iterator({ limit: -1 })
-      .collect()
-      .map(e => {
-        return e.payload.value
-      })
+    const allEntries = Array.from(await this.getStore().iterator()).map(e => e.value)
     this.logger.info('Total CSRs:', allEntries.length)
 
     const allCsrsUnique = [...new Set(allEntries)]

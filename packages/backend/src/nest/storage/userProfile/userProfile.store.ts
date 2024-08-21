@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { IdentityProvider } from 'orbit-db-identity-provider'
+import { type LogEntry, type KeyValueType, IPFSAccessController } from '@orbitdb/core'
 import { getCrypto } from 'pkijs'
 import { sha256 } from 'multiformats/hashes/sha2'
 import * as Block from 'multiformats/block'
@@ -7,12 +7,11 @@ import * as dagCbor from '@ipld/dag-cbor'
 import { stringToArrayBuffer } from 'pvutils'
 import { NoCryptoEngineError, UserProfile } from '@quiet/types'
 import { keyObjectFromString, verifySignature } from '@quiet/identity'
-import { constructPartial } from '@quiet/common'
 
 import { createLogger } from '../../common/logger'
 import { OrbitDb } from '../orbitDb/orbitDb.service'
 import { StorageEvents } from '../storage.types'
-import { KeyValueIndex } from '../orbitDb/keyValueIndex'
+import { KeyValueIndexedValidated } from '../orbitDb/keyValueIndexedValidated'
 import { validatePhoto } from './userProfile.utils'
 import { KeyValueStoreBase } from '../base.store'
 
@@ -34,45 +33,31 @@ export class UserProfileStore extends KeyValueStoreBase<UserProfile> {
   public async init() {
     logger.info('Initializing user profiles key/value store')
 
-    this.store = await this.orbitDbService.orbitDb.keyvalue<UserProfile>('user-profiles', {
-      replicate: false,
-      // Partially construct index so that we can include an
-      // IdentityProvider in the index validation logic. OrbitDB
-      // expects the store index to be constructable with zero
-      // arguments.
-      //
-      // @ts-expect-error
-      Index: constructPartial(UserProfileKeyValueIndex, [
-        // @ts-expect-error - OrbitDB's type declaration of OrbitDB lacks identity
-        this.orbitDbService.orbitDb.identity.provider,
-      ]),
-      accessController: {
-        write: ['*'],
-      },
+    this.store = await this.orbitDbService.orbitDb.open<KeyValueType<UserProfile>>('user-profiles', {
+      type: 'KeyValueIndexedValidated',
+      sync: false,
+      Database: KeyValueIndexedValidated(UserProfileStore.validateUserProfileEntry),
+      AccessController: IPFSAccessController({ write: ['*'] })
     })
 
-    this.store.events.on('write', (_address, entry) => {
-      logger.info('Saved user profile locally')
-      this.emit(StorageEvents.USER_PROFILES_STORED, {
-        profiles: [entry.payload.value],
-      })
-    })
-
-    this.store.events.on('ready', async () => {
-      logger.info('Loaded user profiles to memory')
+    this.store.events.on('update', (entry: LogEntry) => {
+      logger.info('Database update')
       this.emit(StorageEvents.USER_PROFILES_STORED, {
         profiles: this.getUserProfiles(),
       })
     })
 
-    this.store.events.on('replicated', async () => {
-      logger.info('Replicated user profiles')
-      this.emit(StorageEvents.USER_PROFILES_STORED, {
-        profiles: this.getUserProfiles(),
-      })
-    })
+    // FIXME: ready/replicated events no longer exist
+    // this.store.events.on('ready', async () => {
+    //   logger.info('Loaded user profiles to memory')
+    //   this.emit(StorageEvents.USER_PROFILES_STORED, {
+    //     profiles: this.getUserProfiles(),
+    //   })
+    // })
+  }
 
-    await this.store.load()
+  public async startSync() {
+    await this.getStore().sync.start()
   }
 
   public getEntry(key: string): UserProfile {
@@ -132,16 +117,15 @@ export class UserProfileStore extends KeyValueStoreBase<UserProfile> {
   }
 
   public static async validateUserProfileEntry(
-    identityProvider: typeof IdentityProvider,
     entry: LogEntry<UserProfile>
   ) {
     try {
-      if (entry.payload.key !== entry.payload.value.pubKey) {
+      if (entry.payload.key !== (entry.payload.value as UserProfile).pubKey) {
         logger.error(`Failed to verify user profile entry: ${entry.hash} entry key != payload pubKey`)
         return false
       }
 
-      return await UserProfileStore.validateUserProfile(entry.payload.value)
+      return await UserProfileStore.validateUserProfile(entry.payload.value as UserProfile)
     } catch (err) {
       logger.error('Failed to validate user profile entry:', entry.hash, err)
       return false
@@ -155,11 +139,5 @@ export class UserProfileStore extends KeyValueStoreBase<UserProfile> {
   clean(): void {
     logger.info('Cleaning user profiles store')
     this.store = undefined
-  }
-}
-
-export class UserProfileKeyValueIndex extends KeyValueIndex<UserProfile> {
-  constructor(identityProvider: typeof IdentityProvider) {
-    super(identityProvider, UserProfileStore.validateUserProfileEntry)
   }
 }

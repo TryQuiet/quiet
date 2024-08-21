@@ -9,11 +9,11 @@ import {
   getReqFieldValue,
   keyFromCertificate,
 } from '@quiet/identity'
-import type { IPFS } from 'ipfs-core'
-import EventStore from 'orbit-db-eventstore'
-import KeyValueStore from 'orbit-db-kvstore'
+import { type Helia } from "helia"
+import { type KeyValueType, type EventsType, IPFSAccessController } from '@orbitdb/core'
+
 import { EventEmitter } from 'events'
-import PeerId from 'peer-id'
+import { type PeerId } from '@libp2p/interface'
 import { getCrypto } from 'pkijs'
 import { stringToArrayBuffer } from 'pvutils'
 import validate from '../validation/validators'
@@ -49,22 +49,24 @@ import { removeFiles, removeDirs, createPaths } from '../common/utils'
 import { DBOptions, StorageEvents } from './storage.types'
 import { CertificatesStore } from './certificates/certificates.store'
 import { CertificatesRequestsStore } from './certifacteRequests/certificatesRequestsStore'
+import { IpfsService } from '../ipfs/ipfs.service'
 import { OrbitDb } from './orbitDb/orbitDb.service'
 import { CommunityMetadataStore } from './communityMetadata/communityMetadata.store'
 import { UserProfileStore } from './userProfile/userProfile.store'
+import { KeyValueIndexedValidated } from './orbitDb/keyValueIndexedValidated'
+import { MessagesAccessController } from './orbitDb/MessagesAccessController'
 
 @Injectable()
 export class StorageService extends EventEmitter {
   public publicChannelsRepos: Map<string, PublicChannelsRepo> = new Map()
   private publicKeysMap: Map<string, CryptoKey> = new Map()
 
-  public certificates: EventStore<string>
-  public channels: KeyValueStore<PublicChannel>
+  public certificates: EventsType<string>
+  public channels: KeyValueType<PublicChannel>
 
-  private ipfs: IPFS
+  private ipfsService: IpfsService
   private filesManager: IpfsFileManagerService
   private peerId: PeerId | null = null
-  private ipfsStarted: boolean
 
   private readonly logger = createLogger(StorageService.name)
 
@@ -87,7 +89,6 @@ export class StorageService extends EventEmitter {
     this.logger.info('Initializing storage')
     removeFiles(this.quietDir, 'LOCK')
     removeDirs(this.quietDir, 'repo.lock')
-    this.ipfsStarted = false
 
     if (!['android', 'ios'].includes(process.platform)) {
       createPaths([this.ipfsRepoPath, this.orbitDbDir])
@@ -105,15 +106,13 @@ export class StorageService extends EventEmitter {
     const { IpfsModule } = await import('../ipfs/ipfs.module')
     const ipfsModuleRef = await this.lazyModuleLoader.load(() => IpfsModule)
     const { IpfsService } = await import('../ipfs/ipfs.service')
-    const ipfsService = ipfsModuleRef.get(IpfsService)
-    await ipfsService.createInstance(peerId)
-    const ipfsInstance = ipfsService?.ipfsInstance
-    if (!ipfsInstance) {
-      this.logger.error('no ipfs instance')
-      throw new Error('no ipfs instance')
+    this.ipfsService = ipfsModuleRef.get(IpfsService)
+
+    await this.ipfsService.createInstance()
+    if (!this.ipfsService.ipfsInstance) {
+      throw new Error('IPFS instance required')
     }
-    this.ipfs = ipfsInstance
-    await this.orbitDbService.create(peerId, this.ipfs)
+    await this.orbitDbService.create(peerId, this.ipfsService.ipfsInstance)
 
     this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.INITIALIZING_IPFS)
 
@@ -127,54 +126,24 @@ export class StorageService extends EventEmitter {
     this.attachFileManagerEvents()
     await this.initDatabases()
 
-    void this.startIpfs()
+    await this.ipfsService.start()
+    await this.startSync()
   }
 
-  private async startIpfs() {
-    this.logger.info('Starting IPFS')
-    return this.ipfs
-      .start()
-      .then(async () => {
-        this.logger.info('IPFS started')
-        this.ipfsStarted = true
-        try {
-          await this.startReplicate()
-        } catch (e) {
-          this.logger.error(`Couldn't start store replication`, e)
-        }
-      })
-      .catch((e: Error) => {
-        this.logger.error(`Couldn't start ipfs node`, e)
-        throw new Error(e.message)
-      })
-  }
-
-  private async startReplicate() {
-    const dbs = []
-    if (this.communityMetadataStore?.getAddress()) {
-      dbs.push(this.communityMetadataStore.getAddress())
-    }
-    if (this.channels?.address) {
-      dbs.push(this.channels.address)
-    }
-    if (this.certificatesStore.getAddress()) {
-      dbs.push(this.certificatesStore.getAddress())
-    }
-    if (this.certificatesRequestsStore.getAddress()) {
-      dbs.push(this.certificatesRequestsStore.getAddress())
-    }
-    if (this.userProfileStore.getAddress()) {
-      dbs.push(this.userProfileStore.getAddress())
+  private async startSync() {
+    if (!this.ipfsService.isStarted()) {
+      this.logger.warn(`IPFS not started. Not starting database sync`)
+      return
     }
 
-    const channels = this.publicChannelsRepos.values()
-
-    for (const channel of channels) {
-      dbs.push(channel.db.address)
+    await this.communityMetadataStore.startSync()
+    await this.channels.sync.start()
+    await this.certificatesStore.startSync()
+    await this.certificatesRequestsStore.startSync()
+    await this.userProfileStore.startSync()
+    for (const channel of this.publicChannelsRepos.values()) {
+      await channel.db.sync.start()
     }
-
-    const addresses = dbs.map(db => StorageService.dbAddress(db))
-    await this.subscribeToPubSub(addresses)
   }
 
   static dbAddress = (db: { root: string; path: string }) => {
@@ -209,26 +178,8 @@ export class StorageService extends EventEmitter {
     this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.DBS_INITIALIZED)
   }
 
-  private async subscribeToPubSub(addr: string[]) {
-    if (!this.ipfsStarted) {
-      this.logger.warn(`IPFS not started. Not subscribing to ${addr}`)
-      return
-    }
-    for (const a of addr) {
-      this.logger.info(`Pubsub - subscribe to ${a}`)
-      // @ts-ignore
-      await this.orbitDbService.orbitDb._pubsub.subscribe(
-        a,
-        // @ts-ignore
-        this.orbitDbService.orbitDb._onMessage.bind(this.orbitDbService.orbitDb),
-        // @ts-ignore
-        this.orbitDbService.orbitDb._onPeerConnected.bind(this.orbitDbService.orbitDb)
-      )
-    }
-  }
-
-  private async __stopIPFS() {
-    if (this.ipfs) {
+  private async stopIPFS() {
+    if (this.ipfsService) {
       this.logger.info('Stopping IPFS files manager')
       try {
         await this.filesManager.stop()
@@ -237,11 +188,10 @@ export class StorageService extends EventEmitter {
       }
       this.logger.info('Stopping IPFS')
       try {
-        await this.ipfs.stop()
+        await this.ipfsService.stop()
       } catch (err) {
         this.logger.error(`Following error occured during closing ipfs database: ${err as string}`)
       }
-      this.ipfsStarted = false
     }
   }
 
@@ -279,7 +229,7 @@ export class StorageService extends EventEmitter {
     }
 
     await this.orbitDbService.stop()
-    await this.__stopIPFS()
+    await this.stopIPFS()
   }
 
   public attachStoreListeners() {
@@ -357,12 +307,10 @@ export class StorageService extends EventEmitter {
 
   private async createDbForChannels() {
     this.logger.info('createDbForChannels init')
-    this.channels = await this.orbitDbService.orbitDb.keyvalue<PublicChannel>('public-channels', {
-      replicate: false,
-      accessController: {
-        // type: 'channelsaccess',
-        write: ['*'],
-      },
+    this.channels = await this.orbitDbService.orbitDb.open<KeyValueType<PublicChannel>>('public-channels', {
+      sync: false,
+      Database: KeyValueIndexedValidated(),
+      AccessController: IPFSAccessController({ write: ['*'] })
     })
 
     this.channels.events.on('write', async (_address, entry) => {
@@ -392,7 +340,6 @@ export class StorageService extends EventEmitter {
       })
     })
 
-    await this.channels.load()
     this.logger.info('Channels count:', Object.keys(this.channels.all).length)
     this.logger.info('Channels names:', Object.keys(this.channels.all))
     Object.values(this.channels.all).forEach(async (channel: PublicChannel) => {
@@ -422,22 +369,21 @@ export class StorageService extends EventEmitter {
     return await verifySignature(signature, message.message, cryptoKey)
   }
 
-  protected getAllEventLogEntries<T>(db: EventStore<T>): T[] {
-    return db
-      .iterator({ limit: -1 })
-      .collect()
-      .map(e => e.payload.value)
+  // FIXME: Make sure all callers use await
+  protected async getAllEventLogEntries<T>(db: EventsType<T>): Promise<T[]> {
+    return Array.from(await db.iterator()).map(e => e.value)
   }
 
-  protected getAllEventLogRawEntries<T>(db: EventStore<T>) {
-    return db.iterator({ limit: -1 }).collect()
+  // FIXME: Make sure all callers use await
+  protected async getAllEventLogRawEntries<T>(db: EventsType<T>) {
+    return Array.from(await db.iterator())
   }
 
   public async subscribeToChannel(
     channelData: PublicChannel,
     options = { replicate: false }
   ): Promise<CreateChannelResponse | undefined> {
-    let db: EventStore<ChannelMessage>
+    let db: EventsType<ChannelMessage>
     // @ts-ignore
     if (channelData.address) {
       // @ts-ignore
@@ -464,6 +410,7 @@ export class StorageService extends EventEmitter {
     if (repo && !repo.eventsAttached) {
       this.logger.info('Subscribing to channel ', channelData.id)
 
+      // FIXME: only 'update' event exists
       db.events.on('write', async (_address, entry) => {
         this.logger.info(`Writing to public channel db ${channelData.id}`)
         const verified = await this.verifyMessage(entry.payload.value)
@@ -474,6 +421,7 @@ export class StorageService extends EventEmitter {
         })
       })
 
+      // FIXME: only 'update' event exists
       db.events.on('replicate.progress', async (address, _hash, entry, progress, total) => {
         this.logger.info(`progress ${progress as string}/${total as string}. Address: ${address as string}`)
         const messages = [entry.payload.value]
@@ -510,9 +458,10 @@ export class StorageService extends EventEmitter {
         }
       })
 
+      // FIXME: only 'update' event exists
       db.events.on('replicated', async address => {
         this.logger.info('Replicated.', address)
-        const ids = this.getAllEventLogEntries<ChannelMessage>(db).map(msg => msg.id)
+        const ids = (await this.getAllEventLogEntries<ChannelMessage>(db)).map(msg => msg.id)
         const community = await this.localDbService.getCurrentCommunity()
 
         if (community) {
@@ -524,8 +473,9 @@ export class StorageService extends EventEmitter {
         }
       })
 
+      // FIXME: only 'update' event exists
       db.events.on('ready', async () => {
-        const ids = this.getAllEventLogEntries<ChannelMessage>(db).map(msg => msg.id)
+        const ids = (await this.getAllEventLogEntries<ChannelMessage>(db)).map(msg => msg.id)
         const community = await this.localDbService.getCurrentCommunity()
 
         if (community) {
@@ -537,8 +487,6 @@ export class StorageService extends EventEmitter {
         }
       })
 
-      // FIXME: load is called twice for channel stores
-      await db.load()
       repo.eventsAttached = true
     }
 
@@ -553,7 +501,7 @@ export class StorageService extends EventEmitter {
     const repo = this.publicChannelsRepos.get(channelId)
     if (!repo) return
 
-    const messages = this.getAllEventLogEntries<ChannelMessage>(repo.db)
+    const messages = await this.getAllEventLogEntries<ChannelMessage>(repo.db)
     const filteredMessages: ChannelMessage[] = []
 
     for (const id of ids) {
@@ -566,7 +514,7 @@ export class StorageService extends EventEmitter {
     }
   }
 
-  private async createChannel(channelData: PublicChannel, options: DBOptions): Promise<EventStore<ChannelMessage>> {
+  private async createChannel(channelData: PublicChannel, options: DBOptions): Promise<EventsType<ChannelMessage>> {
     if (!validate.isChannel(channelData)) {
       this.logger.error('Invalid channel format')
       throw new Error('Create channel validation error')
@@ -575,14 +523,11 @@ export class StorageService extends EventEmitter {
     this.logger.info(`Creating channel ${channelData.id}`)
 
     const channelId = channelData.id
-    const db: EventStore<ChannelMessage> = await this.orbitDbService.orbitDb.log<ChannelMessage>(
+    const db = await this.orbitDbService.orbitDb.open<EventsType<ChannelMessage>>(
       `channels.${channelId}`,
       {
-        replicate: options.replicate,
-        accessController: {
-          type: 'messagesaccess',
-          write: ['*'],
-        },
+        type: 'events',
+        AccessController: MessagesAccessController({ write: ['*'] }),
       }
     )
     const channel = this.channels.get(channelId)
@@ -595,9 +540,7 @@ export class StorageService extends EventEmitter {
 
     this.publicChannelsRepos.set(channelId, { db, eventsAttached: false })
     this.logger.info(`Set ${channelId} to local channels`)
-    await db.load()
     this.logger.info(`Created channel ${channelId}`)
-    await this.subscribeToPubSub([StorageService.dbAddress(db.address)])
 
     return db
   }
@@ -605,7 +548,7 @@ export class StorageService extends EventEmitter {
   public async deleteChannel(payload: { channelId: string; ownerPeerId: string }) {
     this.logger.info('deleting channel storage', payload)
     const { channelId, ownerPeerId } = payload
-    const channel = this.channels.get(channelId)
+    const channel = await this.channels.get(channelId)
     if (!this.peerId) {
       this.logger.error('deleteChannel - peerId is null')
       throw new Error('deleteChannel - peerId is null')
@@ -616,11 +559,10 @@ export class StorageService extends EventEmitter {
     }
     let repo = this.publicChannelsRepos.get(channelId)
     if (!repo) {
-      const db = await this.orbitDbService.orbitDb.log<ChannelMessage>(`channels.${channelId}`, {
-        accessController: {
-          type: 'messagesaccess',
-          write: ['*'],
-        },
+      const db = await this.orbitDbService.orbitDb.open<EventsType<ChannelMessage>>(`channels.${channelId}`, {
+        sync: false,
+        type: 'events',
+        AccessController: MessagesAccessController({ write: ['*'] }),
       })
       repo = {
         db,
@@ -641,22 +583,6 @@ export class StorageService extends EventEmitter {
 
   public async deleteFile(fileMetadata: FileMetadata) {
     await this.filesManager.deleteBlocks(fileMetadata)
-  }
-
-  public async deleteChannelMessages(hashes: CID[]) {
-    this.logger.info('hashes ', hashes)
-    const gcresult = this.ipfs.repo.gc()
-    for await (const res of gcresult) {
-      // @ts-ignore
-      // const ccc = base58.base58btc.encode(res.cid?.multihash.bytes)
-      // this.logger.info('base58btc encoded', ccc)
-      // this.logger.info('garbage collector result', res)
-    }
-    // for await (const result of this.ipfs.block.rm(hashes)) {
-    //   if (result.error) {
-    //     logger.error(`Failed to remove block ${result.cid}`, result.error)
-    //   }
-    // }
   }
 
   public async sendMessage(message: ChannelMessage) {
@@ -780,21 +706,6 @@ export class StorageService extends EventEmitter {
     return allUsers
   }
 
-  public usernameCert(username: string): string | null {
-    /**
-     * Check if given username is already in use
-     */
-    const certificates = this.getAllEventLogEntries(this.certificatesStore.getStore())
-    for (const cert of certificates) {
-      const parsedCert = parseCertificate(cert)
-      const certUsername = getCertFieldValue(parsedCert, CertFieldsTypes.nickName)
-      if (certUsername?.localeCompare(username, 'en', { sensitivity: 'base' }) === 0) {
-        return cert
-      }
-    }
-    return null
-  }
-
   public async deleteFilesFromChannel(payload: DeleteFilesFromChannelSocketPayload) {
     const { messages } = payload
     Object.keys(messages).map(async key => {
@@ -838,7 +749,7 @@ export class StorageService extends EventEmitter {
     this.publicChannelsRepos = new Map()
     this.publicKeysMap = new Map()
     // @ts-ignore
-    this.ipfs = null
+    this.ipfsService = null
     // @ts-ignore
     this.filesManager = null
     this.peerId = null

@@ -3,7 +3,6 @@ import { Test, TestingModule } from '@nestjs/testing'
 import { FileMetadata } from '@quiet/types'
 import path from 'path'
 import fs from 'fs'
-import PeerId from 'peer-id'
 import { DirResult } from 'tmp'
 import { fileURLToPath } from 'url'
 import waitForExpect from 'wait-for-expect'
@@ -33,7 +32,6 @@ describe('IpfsFileManagerService', () => {
   let ipfsService: IpfsService
   let libp2pService: Libp2pService
   let lazyModuleLoader: LazyModuleLoader
-  let peerId: PeerId
 
   let tmpDir: DirResult
   let filePath: string
@@ -62,12 +60,11 @@ describe('IpfsFileManagerService', () => {
     ipfsService = moduleIpfs.get(IpfsService)
 
     const params = await libp2pInstanceParams()
-    peerId = params.peerId
 
     await libp2pService.createInstance(params)
     expect(libp2pService.libp2pInstance).not.toBeNull()
 
-    await ipfsService.createInstance(peerId)
+    await ipfsService.createInstance()
     expect(ipfsService.ipfsInstance).not.toBeNull()
 
     await ipfsFileManagerService.init()

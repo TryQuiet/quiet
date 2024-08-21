@@ -1,20 +1,18 @@
 import { jest, beforeEach, describe, it, expect, afterEach, beforeAll, test } from '@jest/globals'
 import fs from 'fs'
-import { create, IPFS } from 'ipfs-core'
+import { createHelia, type Helia } from 'helia'
 import { TestConfig } from '../../const'
 import { Test, TestingModule } from '@nestjs/testing'
 import { TestModule } from '../../common/test.module'
 import { StorageModule } from '../storage.module'
 import { OrbitDb } from '../orbitDb/orbitDb.service'
-import PeerId from 'peer-id'
+import { createEd25519PeerId } from '@libp2p/peer-id-factory'
 import { CommunityMetadataStore } from './communityMetadata.store'
 import { Community, CommunityMetadata } from '@quiet/types'
 import { LocalDbService } from '../../local-db/local-db.service'
 import { Store, getFactory, prepareStore } from '@quiet/state-manager'
 import { FactoryGirl } from 'factory-girl'
-import { IdentityProvider } from 'orbit-db-identity-provider'
-// @ts-ignore Hacking around ipfs-log not exporting Entry
-import Entry from '../../../../node_modules/ipfs-log/src/entry'
+import { type IdentitiesType, type LogEntry, Entry } from '@orbitdb/core'
 
 const metaValid = {
   id: 'anId',
@@ -27,13 +25,13 @@ const metaValid = {
 
 describe('CommmunityMetadataStore', () => {
   let metaValidWithOwnerId: CommunityMetadata
-  let entryValid: Entry
+  let entryValid: LogEntry<CommunityMetadata>
 
   let module: TestingModule
   let communityMetadataStore: CommunityMetadataStore
   let orbitDbService: OrbitDb
   let localDbService: LocalDbService
-  let ipfs: IPFS
+  let ipfs: Helia
 
   let store: Store
   let factory: FactoryGirl
@@ -70,8 +68,8 @@ describe('CommmunityMetadataStore', () => {
     orbitDbService = await module.resolve(OrbitDb)
     localDbService = await module.resolve(LocalDbService)
 
-    const peerId = await PeerId.create()
-    ipfs = await create()
+    const peerId = await createEd25519PeerId()
+    ipfs = await createHelia()
     await orbitDbService.create(peerId, ipfs)
 
     await communityMetadataStore.init()
@@ -84,17 +82,11 @@ describe('CommmunityMetadataStore', () => {
 
     const op = { op: 'PUT', key: metaValidWithOwnerId.id, value: metaValidWithOwnerId }
 
-    entryValid = await Entry.create(
-      ipfs,
-      // @ts-ignore
+    entryValid = await Entry.create<CommunityMetadata>(
       orbitDbService.orbitDb.identity,
       // @ts-ignore
-      communityMetadataStore.store.id,
+      communityMetadataStore.store.log.id,
       op,
-      [],
-      null,
-      [],
-      false
     )
   })
 
@@ -131,7 +123,7 @@ describe('CommmunityMetadataStore', () => {
     test('returns true if the owner ID is expected and entry is otherwise valid', async () => {
       const ret = await CommunityMetadataStore.validateCommunityMetadataEntry(
         localDbService,
-        { verify: jest.fn(() => true), verifyIdentity: jest.fn(() => true) } as unknown as typeof IdentityProvider,
+        { verifyIdentity: jest.fn(() => true) } as unknown as IdentitiesType,
         entryValid
       )
 
@@ -141,7 +133,7 @@ describe('CommmunityMetadataStore', () => {
     test('returns false if verify returns false and entry is otherwise valid', async () => {
       const ret = await CommunityMetadataStore.validateCommunityMetadataEntry(
         localDbService,
-        { verify: jest.fn(() => false), verifyIdentity: jest.fn(() => true) } as unknown as typeof IdentityProvider,
+        { verifyIdentity: jest.fn(() => true) } as unknown as IdentitiesType,
         entryValid
       )
 
@@ -151,7 +143,7 @@ describe('CommmunityMetadataStore', () => {
     test('returns false if verifyIdentity returns false and entry is otherwise valid', async () => {
       const ret = await CommunityMetadataStore.validateCommunityMetadataEntry(
         localDbService,
-        { verify: jest.fn(() => true), verifyIdentity: jest.fn(() => false) } as unknown as typeof IdentityProvider,
+        { verifyIdentity: jest.fn(() => false) } as unknown as IdentitiesType,
         entryValid
       )
 
@@ -159,18 +151,22 @@ describe('CommmunityMetadataStore', () => {
     })
 
     test('returns false if the owner ID is unexpected and entry is otherwise valid', async () => {
-      const entryInvalid = {
-        ...entryValid,
-        identity: {
-          ...entryValid.identity,
+      const op = { op: 'PUT', key: metaValidWithOwnerId.id, value: metaValidWithOwnerId }
+
+      const entryInvalid = await Entry.create<CommunityMetadata>(
+        {
+          ...orbitDbService.orbitDb.identity,
           // NOTE: This is where the entry identity is defined!
           id: 'Not the owner!',
         },
-      }
+        // @ts-ignore
+        communityMetadataStore.store.log.id,
+        op,
+      )
 
       const ret = await CommunityMetadataStore.validateCommunityMetadataEntry(
         localDbService,
-        { verify: jest.fn(() => true), verifyIdentity: jest.fn(() => true) } as unknown as typeof IdentityProvider,
+        { verify: jest.fn(() => true), verifyIdentity: jest.fn(() => true) } as unknown as IdentitiesType,
         entryInvalid
       )
 
@@ -183,23 +179,16 @@ describe('CommmunityMetadataStore', () => {
         rootCa: 'Something invalid!',
       }
       const opInvalid = { op: 'PUT', key: metaInvalid.id, value: metaInvalid }
-      // @ts-ignore
-      const entryInvalid = await Entry.create(
-        ipfs,
-        // @ts-ignore
+      const entryInvalid = await Entry.create<CommunityMetadata>(
         orbitDbService.orbitDb.identity,
         // @ts-ignore
-        communityMetadataStore.store.id,
+        communityMetadataStore.store.log.id,
         opInvalid,
-        [],
-        null,
-        [],
-        false
       )
 
       const ret = await CommunityMetadataStore.validateCommunityMetadataEntry(
         localDbService,
-        { verify: jest.fn(() => true), verifyIdentity: jest.fn(() => true) } as unknown as typeof IdentityProvider,
+        { verifyIdentity: jest.fn(() => true) } as unknown as IdentitiesType,
         entryInvalid
       )
 

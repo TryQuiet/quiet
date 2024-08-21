@@ -1,6 +1,6 @@
 import fs from 'fs'
 import { jest } from '@jest/globals'
-import { create, IPFS } from 'ipfs-core'
+import { createHelia, type Helia } from 'helia'
 import { CertificatesRequestsStore } from './certificatesRequestsStore'
 import { StorageEvents } from '../storage.types'
 import { TestConfig } from '../../const'
@@ -8,7 +8,7 @@ import { Test, TestingModule } from '@nestjs/testing'
 import { TestModule } from '../../common/test.module'
 import { StorageModule } from '../storage.module'
 import { OrbitDb } from '../orbitDb/orbitDb.service'
-import PeerId from 'peer-id'
+import { createEd25519PeerId } from '@libp2p/peer-id-factory'
 
 const replicatedEvent = async (certificatesRequestsStore: any) => {
   certificatesRequestsStore.events.emit('replicated')
@@ -19,7 +19,7 @@ describe('CertificatesRequestsStore', () => {
   let module: TestingModule
   let certificatesRequestsStore: CertificatesRequestsStore
   let orbitDb: OrbitDb
-  let ipfs: IPFS
+  let ipfs: Helia
 
   beforeEach(async () => {
     jest.clearAllMocks()
@@ -31,8 +31,8 @@ describe('CertificatesRequestsStore', () => {
     certificatesRequestsStore = await module.resolve(CertificatesRequestsStore)
 
     orbitDb = await module.resolve(OrbitDb)
-    const peerId = await PeerId.create()
-    ipfs = await create()
+    const peerId = await createEd25519PeerId()
+    ipfs = await createHelia()
     await orbitDb.create(peerId, ipfs)
 
     await certificatesRequestsStore.init()

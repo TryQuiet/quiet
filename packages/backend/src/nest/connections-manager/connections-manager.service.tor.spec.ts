@@ -1,7 +1,7 @@
-import PeerId from 'peer-id'
+import { createFromJSON } from '@libp2p/peer-id-factory'
 import { type DirResult } from 'tmp'
 import crypto from 'crypto'
-import { CustomEvent } from '@libp2p/interfaces/events'
+import { CustomEvent, type PeerId, isPeerId } from '@libp2p/interface'
 import { jest, beforeEach, describe, it, expect, afterEach } from '@jest/globals'
 import { communities, getFactory, identity, prepareStore, Store } from '@quiet/state-manager'
 import { createPeerId, createTmpDir, libp2pInstanceParams, removeFilesFromDir, tmpQuietDirPath } from '../common/utils'
@@ -188,8 +188,8 @@ describe('Connections manager', () => {
     const network = await connectionsManagerService.getNetwork()
     expect(network.hiddenService.onionAddress.split('.')[0]).toHaveLength(56)
     expect(network.hiddenService.privateKey).toHaveLength(99)
-    const peerId = await PeerId.createFromJSON(network.peerId)
-    expect(PeerId.isPeerId(peerId)).toBeTruthy()
+    const peerId = await createFromJSON(network.peerId)
+    expect(isPeerId(peerId)).toBeTruthy()
     expect(await spyOnDestroyHiddenService.mock.results[0].value).toBeTruthy()
   })
 

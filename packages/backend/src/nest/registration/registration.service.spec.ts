@@ -14,8 +14,8 @@ import { CertificatesStore } from '../storage/certificates/certificates.store'
 import { StorageService } from '../storage/storage.service'
 import { StorageModule } from '../storage/storage.module'
 import { OrbitDb } from '../storage/orbitDb/orbitDb.service'
-import { create } from 'ipfs-core'
-import PeerId from 'peer-id'
+import { createHelia } from 'helia'
+import { createEd25519PeerId } from '@libp2p/peer-id-factory'
 
 describe('RegistrationService', () => {
   let module: TestingModule
@@ -155,8 +155,8 @@ describe('RegistrationService', () => {
     }).compile()
     const certificatesStore = await storageModule.resolve(CertificatesStore)
     const orbitDb = await storageModule.resolve(OrbitDb)
-    const peerId = await PeerId.create()
-    const ipfs = await create()
+    const peerId = await createEd25519PeerId()
+    const ipfs = await createHelia()
     const loadAllCertificates = async () => {
       return await certificatesStore.getEntries()
     }

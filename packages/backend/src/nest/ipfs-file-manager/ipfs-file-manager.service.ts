@@ -6,7 +6,8 @@ import crypto from 'crypto'
 import PQueue, { AbortError } from 'p-queue'
 import { decode, PBNode } from '@ipld/dag-pb'
 import * as base58 from 'multiformats/bases/base58'
-import type { IPFS } from 'ipfs-core'
+import { type Helia } from 'helia'
+import { unixfs, type UnixFS } from '@helia/unixfs'
 import { promisify } from 'util'
 import sizeOf from 'image-size'
 import { CID } from 'multiformats/cid'
@@ -29,7 +30,8 @@ import { createLogger } from '../common/logger'
 
 @Injectable()
 export class IpfsFileManagerService extends EventEmitter {
-  public ipfs: IPFS
+  public ipfs: Helia
+  public fs: UnixFS
   public controllers: Map<
     string,
     {
@@ -63,6 +65,7 @@ export class IpfsFileManagerService extends EventEmitter {
       throw new Error('no ipfs instance')
     }
     this.ipfs = ipfsInstance
+    this.fs = unixfs(this.ipfs)
   }
 
   private attachIncomingEvents() {
@@ -97,15 +100,13 @@ export class IpfsFileManagerService extends EventEmitter {
     if (!hasBlockBeenDownloaded) return
 
     try {
-      const result = await this.ipfs.pin.rm(fileMetadata.cid, { recursive: true })
+      const cid = CID.parse(fileMetadata.cid)
+      const result = this.ipfs.pins.rm(cid)
     } catch (e) {
       this.logger.error('file removing error', e)
     }
 
-    const gcresult = this.ipfs.repo.gc()
-    for await (const res of gcresult) {
-      this.logger.info('garbage collector result', res)
-    }
+    await this.ipfs.gc()
   }
 
   public async stop() {
@@ -183,7 +184,7 @@ export class IpfsFileManagerService extends EventEmitter {
 
     // Create directory for file
     const dirname = 'uploads'
-    await this.ipfs.files.mkdir(`/${dirname}`, { parents: true })
+    await this.fs.addDirectory({ path: `/${dirname}` })
 
     // Write file to IPFS
     const uuid = `${Date.now()}_${Math.random().toString(36).substr(2.9)}`
@@ -192,7 +193,7 @@ export class IpfsFileManagerService extends EventEmitter {
     // Save copy to separate directory
     const filePath = this.copyFile(metadata.path, filename)
     this.logger.time(`Writing ${filename} to ipfs`)
-    const newCid = await this.ipfs.add(uploadedFileStreamIterable)
+    const newCid = await this.fs.addByteStream(uploadedFileStreamIterable)
 
     this.logger.timeEnd(`Writing ${filename} to ipfs`)
 
@@ -201,8 +202,8 @@ export class IpfsFileManagerService extends EventEmitter {
       ...metadata,
       tmpPath: undefined,
       path: filePath,
-      cid: newCid.cid.toString(),
-      size: newCid.size,
+      cid: newCid.toString(),
+      size: newCid.byteLength,
       width,
       height,
     }
@@ -245,6 +246,8 @@ export class IpfsFileManagerService extends EventEmitter {
   private async getLocalBlocks(): Promise<string[]> {
     const blocks: string[] = []
 
+    // FIXME: https://github.com/ipfs/helia/discussions/499
+    // @ts-ignore
     const refs = this.ipfs.refs.local()
 
     for await (const ref of refs) {
@@ -266,8 +269,10 @@ export class IpfsFileManagerService extends EventEmitter {
     this.controllers.set(fileMetadata.cid, { controller })
 
     // Add try catch and return downloadBlocks with timeout
-    const stat = await this.ipfs.files.stat(block)
-    if (fileMetadata.size && !compare(fileMetadata.size, stat.size, 0.05)) {
+    const stat = await this.fs.stat(block)
+    // FIXME: compare should accept bigint
+    // @ts-ignore
+    if (fileMetadata.size && !compare(fileMetadata.size, stat.fileSize, 0.05)) {
       await this.updateStatus(fileMetadata.cid, DownloadState.Malicious)
       return
     }
@@ -360,7 +365,7 @@ export class IpfsFileManagerService extends EventEmitter {
         let fetchedBlock
 
         try {
-          fetchedBlock = await this.ipfs.block.get(block, { timeout: BLOCK_FETCH_TIMEOUT * 1000 })
+          fetchedBlock = await this.ipfs.blockstore.get(block)
         } catch (e) {
           this.logger.error('Failed to fetch block', block.toString(), e)
           signal.removeEventListener('abort', onAbort)
@@ -425,7 +430,7 @@ export class IpfsFileManagerService extends EventEmitter {
         ...fileState,
         transferSpeed: 0,
       })
-      await this.ipfs.pin.add(block, { recursive: true })
+      this.ipfs.pins.add(block)
       await this.assemblyFile(fileMetadata)
     }
   }
@@ -447,8 +452,8 @@ export class IpfsFileManagerService extends EventEmitter {
     } while (fs.existsSync(filePath))
 
     const writeStream = fs.createWriteStream(filePath, { flags: 'wx' })
-
-    const entries = this.ipfs.cat(_CID)
+    
+    const entries = this.fs.cat(_CID)
 
     for await (const entry of entries) {
       await new Promise<void>((resolve, reject) => {

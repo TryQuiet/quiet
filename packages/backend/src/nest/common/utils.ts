@@ -4,16 +4,17 @@ import path from 'path'
 import { Server } from 'socket.io'
 import { UserData } from '@quiet/types'
 import createHttpsProxyAgent from 'https-proxy-agent'
-import PeerId from 'peer-id'
+import { createEd25519PeerId } from '@libp2p/peer-id-factory'
+import { peerIdFromKeys } from '@libp2p/peer-id'
+import { type PeerId } from '@libp2p/interface'
 import tmp from 'tmp'
-import crypto, { sign } from 'crypto'
+import crypto from 'crypto'
 import { type PermsData } from '@quiet/types'
 import { TestConfig } from '../const'
 import { Libp2pNodeParams } from '../libp2p/libp2p.types'
 import { createLibp2pAddress, createLibp2pListenAddress, isDefined } from '@quiet/common'
 import { Libp2pService } from '../libp2p/libp2p.service'
 import { CertFieldsTypes, getReqFieldValue, loadCSR } from '@quiet/identity'
-import { execFile } from 'child_process'
 import { createLogger } from './logger'
 
 const logger = createLogger('utils')
@@ -247,7 +248,6 @@ export function createFile(filePath: string, size: number) {
 }
 
 export async function createPeerId(): Promise<PeerId> {
-  const { peerIdFromKeys } = await eval("import('@libp2p/peer-id')")
-  const peerId = await PeerId.create()
-  return peerIdFromKeys(peerId.marshalPubKey(), peerId.marshalPrivKey())
+  const peerId = await createEd25519PeerId()
+  return peerIdFromKeys(peerId.publicKey, peerId.privateKey)
 }

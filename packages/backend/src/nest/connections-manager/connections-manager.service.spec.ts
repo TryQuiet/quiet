@@ -4,7 +4,6 @@ import { Test, TestingModule } from '@nestjs/testing'
 import { getFactory, prepareStore, type Store, type communities, type identity } from '@quiet/state-manager'
 import { type Community, type Identity, type InitCommunityPayload } from '@quiet/types'
 import { type FactoryGirl } from 'factory-girl'
-import PeerId from 'peer-id'
 import { TestModule } from '../common/test.module'
 import { libp2pInstanceParams, removeFilesFromDir } from '../common/utils'
 import { QUIET_DIR, TOR_PASSWORD_PROVIDER } from '../const'
@@ -14,7 +13,6 @@ import { LocalDbModule } from '../local-db/local-db.module'
 import { LocalDbService } from '../local-db/local-db.service'
 import { LocalDBKeys } from '../local-db/local-db.types'
 import { RegistrationModule } from '../registration/registration.module'
-import { RegistrationService } from '../registration/registration.service'
 import { SocketModule } from '../socket/socket.module'
 import { ConnectionsManagerModule } from './connections-manager.module'
 import { ConnectionsManagerService } from './connections-manager.service'
@@ -24,7 +22,6 @@ describe('ConnectionsManagerService', () => {
   let module: TestingModule
   let connectionsManagerService: ConnectionsManagerService
   let localDbService: LocalDbService
-  let registrationService: RegistrationService
   let libp2pService: Libp2pService
   let lazyModuleLoader: LazyModuleLoader
   let quietDir: string
@@ -33,7 +30,6 @@ describe('ConnectionsManagerService', () => {
   let community: Community
   let userIdentity: Identity
   let communityRootCa: string
-  let peerId: PeerId
 
   beforeEach(async () => {
     jest.clearAllMocks()
@@ -57,7 +53,6 @@ describe('ConnectionsManagerService', () => {
 
     connectionsManagerService = await module.resolve(ConnectionsManagerService)
     localDbService = await module.resolve(LocalDbService)
-    registrationService = await module.resolve(RegistrationService)
 
     lazyModuleLoader = await module.resolve(LazyModuleLoader)
     const { Libp2pModule: Module } = await import('../libp2p/libp2p.module')
@@ -65,7 +60,6 @@ describe('ConnectionsManagerService', () => {
     const { Libp2pService } = await import('../libp2p/libp2p.service')
     libp2pService = moduleRef.get(Libp2pService)
     const params = await libp2pInstanceParams()
-    peerId = params.peerId
     await libp2pService.createInstance(params)
     expect(libp2pService.libp2pInstance).not.toBeNull()
 

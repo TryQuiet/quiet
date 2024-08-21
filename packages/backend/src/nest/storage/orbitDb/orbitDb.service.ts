@@ -1,16 +1,16 @@
 import { Inject, Injectable } from '@nestjs/common'
 import { ORBIT_DB_DIR } from '../../const'
 import { createLogger } from '../../common/logger'
-import PeerId from 'peer-id'
-import AccessControllers from 'orbit-db-access-controllers'
+import { type PeerId } from '@libp2p/interface'
 import { MessagesAccessController } from './MessagesAccessController'
-import { createChannelAccessController } from './ChannelsAccessController'
-import OrbitDB from 'orbit-db'
-import { IPFS } from 'ipfs-core'
+import { createOrbitDB, type OrbitDBType, type IdentitiesType, useAccessController } from '@orbitdb/core'
+import { type Helia } from "helia";
 
 @Injectable()
 export class OrbitDb {
-  private orbitDbInstance: OrbitDB | null = null
+  private orbitDbInstance: OrbitDBType | null = null
+  // FIXME: Initialize this
+  public identities: IdentitiesType
 
   private readonly logger = createLogger(OrbitDb.name)
 
@@ -24,21 +24,16 @@ export class OrbitDb {
     return this.orbitDbInstance
   }
 
-  public async create(peerId: PeerId, ipfs: IPFS) {
-    this.logger.info('[create]:started')
+  public async create(peerId: PeerId, ipfs: Helia) {
+    this.logger.info('Creating OrbitDB')
     if (this.orbitDbInstance) return
 
-    const channelsAccessController = createChannelAccessController(peerId, this.orbitDbDir)
-    AccessControllers.addAccessController({ AccessController: MessagesAccessController })
-    AccessControllers.addAccessController({ AccessController: channelsAccessController })
-    // @ts-ignore
-    const orbitDb = await OrbitDB.createInstance(ipfs, {
-      // @ts-ignore
-      start: false,
+    useAccessController(MessagesAccessController)
+
+    const orbitDb = await createOrbitDB({
+      ipfs,
       id: peerId.toString(),
       directory: this.orbitDbDir,
-      // @ts-ignore
-      AccessControllers,
     })
 
     this.orbitDbInstance = orbitDb

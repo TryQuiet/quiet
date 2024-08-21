@@ -19,7 +19,7 @@ import {
 } from '@quiet/types'
 
 import path from 'path'
-import PeerId from 'peer-id'
+import { type PeerId } from '@libp2p/interface'
 import waitForExpect from 'wait-for-expect'
 import { sleep } from '../common/sleep'
 import { TestModule } from '../common/test.module'
@@ -165,7 +165,7 @@ describe('StorageService', () => {
     await libp2pService.createInstance(params)
     expect(libp2pService.libp2pInstance).not.toBeNull()
 
-    await ipfsService.createInstance(peerId)
+    await ipfsService.createInstance()
     expect(ipfsService.ipfsInstance).not.toBeNull()
     expect(localDbService.getStatus()).toEqual('open')
 
@@ -254,200 +254,6 @@ describe('StorageService', () => {
       const channelFromKeyValueStore = storageService.channels.get(channelio.id)
       expect(channelFromKeyValueStore).toEqual(channelio)
     })
-
-    it('subscribes to pubsub on channel creation', async () => {
-      // @ts-expect-error 'subscribeToPubSub' is private
-      const subscribeToPubSubSpy = jest.spyOn(storageService, 'subscribeToPubSub')
-      await storageService.init(peerId)
-      await storageService.subscribeToChannel(channelio)
-      const db = storageService.publicChannelsRepos.get(channelio.id)?.db
-      expect(db).not.toBe(undefined)
-      if (!db) return // TS complaining
-      const channelsDbAddress = storageService.channels?.address
-      const certificatesDbAddress = certificatesStore.getAddress()
-      const certificatesRequestsDbAddress = certificatesRequestsStore.getAddress()
-      const communityMetadataDbAddress = communityMetadataStore.getAddress()
-      const userProfileDbAddress = userProfileStore.getAddress()
-      expect(channelsDbAddress).not.toBeFalsy()
-      expect(certificatesDbAddress).not.toBeFalsy()
-      expect(subscribeToPubSubSpy).toBeCalledTimes(2)
-      // Storage initialization:
-      expect(subscribeToPubSubSpy).toHaveBeenNthCalledWith(1, [
-        StorageService.dbAddress(communityMetadataDbAddress),
-        StorageService.dbAddress(channelsDbAddress),
-        StorageService.dbAddress(certificatesDbAddress),
-        StorageService.dbAddress(certificatesRequestsDbAddress),
-        StorageService.dbAddress(userProfileDbAddress),
-      ])
-      // Creating channel:
-      expect(subscribeToPubSubSpy).toHaveBeenNthCalledWith(2, [StorageService.dbAddress(db.address)])
-    })
-  })
-
-  describe('Certificate', () => {
-    // FIXME: Due to moving certificates to a separate store and lack of proper nest configuration, this test is broken
-    it.skip('username check fails if username is already in use', async () => {
-      const userCertificate = await createUserCert(
-        rootPermsData.certificate,
-        rootPermsData.privKey,
-        // @ts-expect-error userCsr can be undefined
-        alice.userCsr?.userCsr,
-        new Date(),
-        new Date(2030, 1, 1)
-      )
-
-      await storageService.init(peerId)
-
-      await storageService.saveCertificate({ certificate: userCertificate.userCertString, rootPermsData })
-
-      for (const username of ['alice', 'Alice', 'Ąlicę', 'álicẽ']) {
-        const usernameCert = storageService.usernameCert(username)
-        expect(usernameCert).toEqual(userCertificate.userCertString)
-      }
-    })
-
-    it('username check passes if username is not found in certificates', async () => {
-      await storageService.init(peerId)
-
-      const usernameCert = storageService.usernameCert('alice')
-
-      expect(usernameCert).toBeNull()
-    })
-
-    // it('Certificates and peers list are updated on replicated event', async () => {
-    //   await storageService.init(peerId)
-
-    //   const eventSpy = jest.spyOn(storageService, 'emit')
-
-    //   const spyOnUpdatePeersList = jest.spyOn(storageService, 'updatePeersList')
-
-    //   storageService.certificatesStore.store.events.emit('replicated')
-
-    //   expect(eventSpy).toBeCalledWith(
-    //     SocketActionTypes.CONNECTION_PROCESS_INFO,
-    //     ConnectionProcessInfo.CERTIFICATES_STORED
-    //   )
-
-    //   await waitForExpect(() => {
-    //     expect(eventSpy).toBeCalledWith(StorageEvents.CERTIFICATES_STORED, { certificates: [] })
-    //     expect(spyOnUpdatePeersList).toBeCalled()
-    //   })
-    // })
-
-    // it('Certificates and peers list are updated on write event', async () => {
-    //   await storageService.init(peerId)
-
-    //   const eventSpy = jest.spyOn(storageService, 'emit')
-
-    //   const spyOnUpdatePeersList = jest.spyOn(storageService, 'updatePeersList')
-
-    //   storageService.certificatesStore.store.events.emit('write', 'address', { payload: { value: 'something' } }, [])
-
-    //   await waitForExpect(() => {
-    //     expect(eventSpy).toBeCalledWith(StorageEvents.CERTIFICATES_STORED, { certificates: [] })
-    //     expect(spyOnUpdatePeersList).toBeCalled()
-    //   })
-    // })
-
-    // it.each(['write', 'replicate.progress'])(
-    //   'The message is verified valid on "%s" db event',
-    //   async (eventName: string) => {
-    //     const aliceMessage = await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>(
-    //       'Message',
-    //       {
-    //         identity: alice,
-    //         message: generateMessageFactoryContentWithId(channel.id),
-    //       }
-    //     )
-    //     await storageService.init(peerId)
-
-    //     await storageService.subscribeToChannel(channelio)
-
-    //     const eventSpy = jest.spyOn(storageService, 'emit')
-    //     logger.info(
-    //       'storageService.publicChannelsRepos.get(message.channelId)',
-    //       storageService.publicChannelsRepos.get(message.channelId)
-    //     )
-    //     const publicChannelRepo = storageService.publicChannelsRepos.get(message.channelId)
-    //     expect(publicChannelRepo).not.toBeUndefined()
-    //     // @ts-expect-error
-    //     const db = publicChannelRepo.db
-    //     const messagePayload = {
-    //       payload: {
-    //         value: aliceMessage.message,
-    //       },
-    //     }
-
-    //     switch (eventName) {
-    //       case 'write':
-    //         db.events.emit(eventName, 'address', messagePayload, [])
-    //         break
-    //       case 'replicate.progress':
-    //         db.events.emit(eventName, 'address', 'hash', messagePayload, 'progress', 'total', [])
-    //         break
-    //     }
-
-    //     await waitForExpect(() => {
-    //       expect(eventSpy).toBeCalledWith('loadMessages', { isVerified: true, messages: [aliceMessage.message] })
-    //     })
-    //   }
-    // )
-
-    // it.each([['write'], ['replicate.progress']])(
-    //   'The message is verified not valid on "%s" db event',
-    //   async (eventName: string) => {
-    //     const aliceMessage = await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>(
-    //       'Message',
-    //       {
-    //         identity: alice,
-    //         message: generateMessageFactoryContentWithId(channel.id),
-    //       }
-    //     )
-
-    //     const johnMessage = await factory.create<ReturnType<typeof publicChannels.actions.test_message>['payload']>(
-    //       'Message',
-    //       {
-    //         identity: john,
-    //         message: generateMessageFactoryContentWithId(channel.id),
-    //       }
-    //     )
-
-    //     const aliceMessageWithJohnsPublicKey: ChannelMessage = {
-    //       ...aliceMessage.message,
-    //       pubKey: johnMessage.message.pubKey,
-    //     }
-
-    //     await storageService.init(peerId)
-    //     await storageService.subscribeToChannel(channelio)
-
-    //     const spyOnEmit = jest.spyOn(storageService, 'emit')
-    //     const publicChannelRepo = storageService.publicChannelsRepos.get(message.channelId)
-    //     expect(publicChannelRepo).not.toBeUndefined()
-    //     // @ts-expect-error
-    //     const db = publicChannelRepo.db
-    //     const messagePayload = {
-    //       payload: {
-    //         value: aliceMessageWithJohnsPublicKey,
-    //       },
-    //     }
-
-    //     switch (eventName) {
-    //       case 'write':
-    //         db.events.emit(eventName, 'address', messagePayload, [])
-    //         break
-    //       case 'replicate.progress':
-    //         db.events.emit(eventName, 'address', 'hash', messagePayload, 'progress', 'total', [])
-    //         break
-    //     }
-
-    //     await waitForExpect(() => {
-    //       expect(spyOnEmit).toBeCalledWith('loadMessages', {
-    //         isVerified: false,
-    //         messages: [aliceMessageWithJohnsPublicKey],
-    //       })
-    //     })
-    //   }
-    // )
   })
 
   describe('Message access controller', () => {
@@ -472,7 +278,7 @@ describe('StorageService', () => {
       // Confirm message has passed orbitdb validator (check signature verification only)
       expect(eventSpy).toHaveBeenCalled()
       // @ts-expect-error
-      const savedMessages = storageService.getAllEventLogEntries(db)
+      const savedMessages = await storageService.getAllEventLogEntries(db)
       expect(savedMessages.length).toBe(1)
       expect(savedMessages[0]).toEqual(messageCopy)
     })

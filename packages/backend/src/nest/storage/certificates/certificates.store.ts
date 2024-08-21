@@ -1,4 +1,5 @@
 import { getCrypto } from 'pkijs'
+import { type EventsType } from '@orbitdb/core'
 import { StorageEvents } from '../storage.types'
 import { CommunityMetadata, NoCryptoEngineError } from '@quiet/types'
 import {
@@ -33,32 +34,37 @@ export class CertificatesStore extends EventStoreBase<string> {
   public async init() {
     this.logger.info('Initializing certificates log store')
 
-    this.store = await this.orbitDbService.orbitDb.log<string>('certificates', {
-      replicate: false,
-      accessController: {
+    this.store = await this.orbitDbService.orbitDb.open<EventsType<string>>('certificates', {
+      type: 'events',
+      sync: false,
+      AccessController: {
         write: ['*'],
       },
     })
 
-    this.store.events.on('ready', async () => {
-      this.logger.info('Loaded certificates to memory')
-      this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CERTIFICATES_STORED)
-    })
+    // FIXME: ready event no longer exists
+    // this.store.events.on('ready', async () => {
+    //   this.logger.info('Loaded certificates to memory')
+    //   this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CERTIFICATES_STORED)
+    // })
 
-    this.store.events.on('write', async () => {
-      this.logger.info('Saved certificate locally')
+    this.store.events.on('update', async () => {
+      this.logger.info('Database update')
       await this.loadedCertificates()
     })
 
-    this.store.events.on('replicated', async () => {
-      this.logger.info('REPLICATED: Certificates')
-      this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CERTIFICATES_STORED)
-      await this.loadedCertificates()
-    })
-
-    await this.store.load()
+    // FIXME: replicated event no longer exists
+    // this.store.events.on('replicated', async () => {
+    //   this.logger.info('REPLICATED: Certificates')
+    //   this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CERTIFICATES_STORED)
+    //   await this.loadedCertificates()
+    // })
 
     this.logger.info('Initialized')
+  }
+
+  public async startSync() {
+    await this.getStore().sync.start()
   }
 
   public async loadedCertificates() {
@@ -132,10 +138,7 @@ export class CertificatesStore extends EventStoreBase<string> {
    */
   public async getEntries(): Promise<string[]> {
     this.logger.info('Getting certificates')
-    const allCertificates = this.getStore()
-      .iterator({ limit: -1 })
-      .collect()
-      .map(e => e.payload.value)
+    const allCertificates = Array.from(await this.getStore().iterator()).map(e => e.value)
 
     this.logger.info(`All certificates: ${allCertificates.length}`)
     const validCertificates = await Promise.all(

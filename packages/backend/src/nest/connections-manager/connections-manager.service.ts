@@ -1,4 +1,6 @@
-import { peerIdFromKeys } from '@libp2p/peer-id'
+import { createEd25519PeerId, createFromJSON } from '@libp2p/peer-id-factory'
+import { toString as uint8ArrayToString } from 'uint8arrays/to-string'
+import { base58btc } from 'multiformats/bases/base58'
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common'
 import { Crypto } from '@peculiar/webcrypto'
 import { EventEmitter } from 'events'
@@ -6,7 +8,7 @@ import fs from 'fs'
 import getPort from 'get-port'
 import { Agent } from 'https'
 import path from 'path'
-import PeerId from 'peer-id'
+import { type PeerId } from '@libp2p/interface'
 import { CryptoEngine, setEngine } from 'pkijs'
 import { getLibp2pAddressesFromCsrs, removeFilesFromDir } from '../common/utils'
 
@@ -255,8 +257,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.logger.info('Pausing!')
     await this.closeSocket()
     this.logger.info('Pausing libp2pService!')
-    this.peerInfo = await this.libp2pService?.pause()
-    this.logger.info('Found the following peer info on pause: ', this.peerInfo)
+    await this.libp2pService?.pause()
   }
 
   public async resume() {
@@ -343,8 +344,12 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     // TODO: Do we want to create the PeerId here? It doesn't necessarily have
     // anything to do with Tor.
     this.logger.info('Getting peer ID')
-    const peerId: PeerId = await PeerId.create()
-    const peerIdJson = peerId.toJSON()
+    const peerId: PeerId = await createEd25519PeerId()
+    const peerIdJson = {
+      id: base58btc.encode(peerId.multihash.bytes).slice(1),
+      pubKey: uint8ArrayToString(peerId.publicKey!, 'base64pad'),
+      privKey: uint8ArrayToString(peerId.privateKey!, 'base64pad'),
+    }
     this.logger.info(`Created network for peer ${peerId.toString()}. Address: ${hiddenService.onionAddress}`)
 
     return {
@@ -602,8 +607,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     const lazyService = moduleRef.get(Libp2pService)
     this.libp2pService = lazyService
 
-    const restoredRsa = await PeerId.createFromJSON(network.peerId)
-    const peerId = await peerIdFromKeys(restoredRsa.marshalPubKey(), restoredRsa.marshalPrivKey())
+    const peerId = await createFromJSON(network.peerId)
 
     const peers = community.peerList
     this.logger.info(`Launching community ${community.id}: payload peers: ${peers}`)
@@ -684,8 +688,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     })
     this.tor.on(SocketActionTypes.REDIAL_PEERS, async data => {
       this.logger.info(`Socket - ${SocketActionTypes.REDIAL_PEERS}`)
-      const peerInfo = this.libp2pService?.getCurrentPeerInfo()
-      await this.libp2pService?.redialPeers([...peerInfo.connected, ...peerInfo.dialed])
+      await this.libp2pService?.redialPeers()
     })
     this.socketService.on(SocketActionTypes.CONNECTION_PROCESS_INFO, data => {
       this.serverIoProvider.io.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, data)

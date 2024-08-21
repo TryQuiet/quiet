@@ -1,12 +1,12 @@
 import fs from 'fs'
 import { jest } from '@jest/globals'
-import { create, IPFS } from 'ipfs-core'
+import { createHelia, type Helia } from 'helia'
 import { TestConfig } from '../../const'
 import { Test, TestingModule } from '@nestjs/testing'
 import { TestModule } from '../../common/test.module'
 import { StorageModule } from '../storage.module'
 import { OrbitDb } from '../orbitDb/orbitDb.service'
-import PeerId from 'peer-id'
+import { createEd25519PeerId } from '@libp2p/peer-id-factory'
 import { CertificatesStore } from './certificates.store'
 import { CommunityMetadata } from '@quiet/types'
 
@@ -46,7 +46,7 @@ describe('CertificatesStore', () => {
   let module: TestingModule
   let certificatesStore: CertificatesStore
   let orbitDb: OrbitDb
-  let ipfs: IPFS
+  let ipfs: Helia
 
   beforeEach(async () => {
     jest.clearAllMocks()
@@ -58,8 +58,8 @@ describe('CertificatesStore', () => {
     certificatesStore = await module.resolve(CertificatesStore)
 
     orbitDb = await module.resolve(OrbitDb)
-    const peerId = await PeerId.create()
-    ipfs = await create()
+    const peerId = await createEd25519PeerId()
+    ipfs = await createHelia()
     await orbitDb.create(peerId, ipfs)
 
     await certificatesStore.init()
