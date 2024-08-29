@@ -21,25 +21,20 @@ jobs:
               - 'packages/desktop/**'
               - 'packages/state-manger/**'
       - name: "Skip tests"
-        if: steps.filter.outputs.validFiles == 'false'
         run: |
-         echo "Skipping test run" 
-         exit 0
+         echo "Skipping test run"
+
 
       - name: "Print OS"
-        if: steps.filter.outputs.validFiles == 'true'
         run: echo ${{ matrix.os }}
 
       - uses: actions/checkout@v3
-        if: steps.filter.outputs.validFiles == 'true'
 
       - name: "Setup environment"
         uses: ./.github/actions/setup-env
-        if: steps.filter.outputs.validFiles == 'true'
         with:
           cachePrefix: "desktop-tests"
           bootstrap-packages: "@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/desktop,backend-bundle"
 
       - name: "Desktop - state-manager bracket tests"
-        if: steps.filter.outputs.validFiles == 'true'
         run: lerna run rtl-test --scope @quiet/desktop --stream

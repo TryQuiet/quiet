@@ -20,41 +20,33 @@ jobs:
             desktop:
               - 'packages/desktop/**'
       - name: "Skip tests"
-        if: steps.filter.outputs.desktop == 'false'
         run: |
-         echo "Skipping test run" 
-         exit 0
+         echo "!Skipping test run"
+
 
       - name: "Print OS"
-        if: steps.filter.outputs.desktop == 'true'
         run: echo ${{ matrix.os }}
 
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
-        if: steps.filter.outputs.desktop == 'true'
 
       - name: Setup environment
         uses: ./.github/actions/setup-env
-        if: steps.filter.outputs.desktop == 'true'
         with:
           bootstrap-packages: "@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/desktop,backend-bundle"
 
       - name: "Install libs"
-        if: steps.filter.outputs.desktop == 'true'
         run: sudo apt-get update && sudo apt-get install -y libgtk2.0-0 libgtk-3-0 libnotify-dev libgconf-2-4 libnss3 libxss1 libasound2 libxtst6 xauth xvfb
 
       - name: "Remove test files workaround"
-        if: steps.filter.outputs.desktop == 'true'
         run: find packages/desktop/src -name '*.test.*' -delete && find packages/backend/src -name '*.test.*' -delete
 
       - uses: cypress-io/github-action@1b70233146622b69e789ccdd4f9452adc638d25a # v6.6.1
-        if: steps.filter.outputs.desktop == 'true'
         with:
           install: false
           command: npm run regression-test:ci
           working-directory: packages/desktop
 
       - name: Archive test screenshots
-        if: steps.filter.outputs.desktop == 'true'
         uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
         with:
           name: test-screenshots-linux

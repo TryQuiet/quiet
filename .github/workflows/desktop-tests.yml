@@ -20,25 +20,20 @@ jobs:
             desktop:
               - 'packages/desktop/**'
       - name: "Skip tests"
-        if: steps.filter.outputs.desktop == 'false'
         run: |
-         echo "Skipping test run" 
-         exit 0
+         echo "Skipping test run"
+
 
       - name: "Print OS"
-        if: steps.filter.outputs.desktop == 'true'
         run: echo ${{ matrix.os }}
 
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
-        if: steps.filter.outputs.desktop == 'true'
 
       - name: "Setup environment"
         uses: ./.github/actions/setup-env
-        if: steps.filter.outputs.desktop == 'true'
         with:
           cachePrefix: "desktop-tests"
           bootstrap-packages: "@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/desktop,backend-bundle"
 
       - name: "Unit tests"
-        if: steps.filter.outputs.desktop == 'true'
         run: lerna run test --scope @quiet/desktop --stream
