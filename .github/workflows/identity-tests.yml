@@ -2,6 +2,7 @@ name: Identity tests
 
 on:
   pull_request:
+  workflow_dispatch:
 
 jobs:
   identity-tests:

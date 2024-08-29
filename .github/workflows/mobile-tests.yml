@@ -2,6 +2,7 @@ name: Mobile tests
 
 on:
   pull_request:
+  workflow_dispatch:
     paths:
       - packages/mobile/**
 

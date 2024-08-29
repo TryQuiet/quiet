@@ -2,6 +2,7 @@ name: Common package tests
 
 on:
   pull_request:
+  workflow_dispatch:
     paths:
       - packages/common/**
 

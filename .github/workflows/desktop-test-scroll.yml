@@ -2,6 +2,7 @@ name: Desktop scroll regression tests
 
 on:
   pull_request:
+  workflow_dispatch:
 
 jobs:
   regression-tests:

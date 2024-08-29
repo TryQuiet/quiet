@@ -2,6 +2,7 @@ name: State-manager tests
 
 on:
   pull_request:
+  workflow_dispatch:
 
 jobs:
   state-manager-tests:

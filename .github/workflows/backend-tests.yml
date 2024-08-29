@@ -2,6 +2,7 @@ name: Backend unit tests
 
 on:
   pull_request:
+  workflow_dispatch:
 
 jobs:
   unit-tests:
