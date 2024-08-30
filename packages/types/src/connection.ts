@@ -32,7 +32,7 @@ export enum ConnectionProcessInfo {
 
   CONNECTION_STARTED = 'Connecting process started',
   LOADING_MESSAGES = 'Loading messages',
-  BACKEND_MODULES = 'Initialized backend modules',
+  BACKEND_MODULES = 'Initializing backend',
   REGISTERING_OWNER_CERTIFICATE = 'Registering owner certificate',
   CONNECTING_TO_COMMUNITY = 'Connecting to community members via Tor',
 }

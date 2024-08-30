@@ -21,13 +21,10 @@ import { usersActions } from '../../users/users.slice'
 import { filesActions } from '../../files/files.slice'
 import { networkActions } from '../../network/network.slice'
 import {
-  type ResponseCreateCommunityPayload,
-  type StorePeerListPayload,
   type ResponseLaunchCommunityPayload,
   type ChannelMessageIdsResponse,
   type ChannelsReplicatedPayload,
   type Community,
-  type CommunityId,
   type DownloadStatus,
   type ErrorPayload,
   type FileMetadata,
@@ -36,10 +33,7 @@ import {
   type RemoveDownloadStatus,
   type SendCertificatesResponse,
   type ChannelSubscribedPayload,
-  type SavedOwnerCertificatePayload,
-  type SendOwnerCertificatePayload,
   type SendCsrsResponse,
-  type CommunityMetadata,
   type UserProfilesStoredEvent,
   SocketActionTypes,
 } from '@quiet/types'
@@ -77,8 +71,7 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof filesActions.updateDownloadStatus>
     | ReturnType<typeof filesActions.removeDownloadStatus>
     | ReturnType<typeof filesActions.checkForMissingFiles>
-    | ReturnType<typeof connectionActions.setTorBootstrapProcess>
-    | ReturnType<typeof connectionActions.setConnectionProcess>
+    | ReturnType<typeof connectionActions.onConnectionProcessInfo>
     | ReturnType<typeof connectionActions.torBootstrapped>
     | ReturnType<typeof communitiesActions.clearInvitationCodes>
     | ReturnType<typeof identityActions.saveUserCsr>
@@ -91,7 +84,7 @@ export function subscribe(socket: Socket) {
       emit(connectionActions.setTorInitialized())
     })
     socket.on(SocketActionTypes.CONNECTION_PROCESS_INFO, (payload: string) => {
-      emit(connectionActions.setConnectionProcess(payload))
+      emit(connectionActions.onConnectionProcessInfo(payload))
     })
     // Misc
     socket.on(SocketActionTypes.PEER_CONNECTED, (payload: { peers: string[] }) => {

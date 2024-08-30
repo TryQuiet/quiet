@@ -1,5 +1,5 @@
 import { getCrypto } from 'pkijs'
-import { type LogEntry, type EventsType } from '@orbitdb/core'
+import { type LogEntry, type EventsType, IPFSAccessController } from '@orbitdb/core'
 import { NoCryptoEngineError } from '@quiet/types'
 import { loadCSR, keyFromCertificate } from '@quiet/identity'
 import { StorageEvents } from '../storage.types'
@@ -24,11 +24,9 @@ export class CertificatesRequestsStore extends EventStoreBase<string> {
     this.store = await this.orbitDbService.orbitDb.open<EventsType<string>>('csrs', {
       type: 'events',
       sync: false,
-      AccessController: {
-        write: ['*'],
-      },
+      AccessController: IPFSAccessController({ write: ['*'] })
     })
-    
+
     this.store.events.on('update', async (entry: LogEntry) => {
       this.logger.info('Database update')
       this.loadedCertificateRequests()

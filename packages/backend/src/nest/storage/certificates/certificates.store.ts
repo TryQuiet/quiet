@@ -1,5 +1,5 @@
 import { getCrypto } from 'pkijs'
-import { type EventsType } from '@orbitdb/core'
+import { type EventsType, IPFSAccessController } from '@orbitdb/core'
 import { StorageEvents } from '../storage.types'
 import { CommunityMetadata, NoCryptoEngineError } from '@quiet/types'
 import {
@@ -37,28 +37,14 @@ export class CertificatesStore extends EventStoreBase<string> {
     this.store = await this.orbitDbService.orbitDb.open<EventsType<string>>('certificates', {
       type: 'events',
       sync: false,
-      AccessController: {
-        write: ['*'],
-      },
+      AccessController: IPFSAccessController({ write: ['*'] })
     })
-
-    // FIXME: ready event no longer exists
-    // this.store.events.on('ready', async () => {
-    //   this.logger.info('Loaded certificates to memory')
-    //   this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CERTIFICATES_STORED)
-    // })
 
     this.store.events.on('update', async () => {
       this.logger.info('Database update')
+      this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CERTIFICATES_STORED)
       await this.loadedCertificates()
     })
-
-    // FIXME: replicated event no longer exists
-    // this.store.events.on('replicated', async () => {
-    //   this.logger.info('REPLICATED: Certificates')
-    //   this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CERTIFICATES_STORED)
-    //   await this.loadedCertificates()
-    // })
 
     this.logger.info('Initialized')
   }

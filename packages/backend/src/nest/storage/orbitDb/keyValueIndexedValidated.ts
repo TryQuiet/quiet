@@ -29,8 +29,8 @@
  * @augments module:Databases.Databases-KeyValue
  */
 import { type AccessController, KeyValue, LevelStorage, type IdentitiesType, type Identity, type Log, type LogEntry } from '@orbitdb/core'
-import { type Helia } from "helia";
-import { posixJoin } from './util';
+import { type Helia } from "helia"
+import { posixJoin } from './util'
 
 type ValidateFn<T> = (entry: LogEntry<T>) => Promise<boolean>
 

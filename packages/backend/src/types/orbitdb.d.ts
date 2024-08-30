@@ -36,11 +36,12 @@ declare module "@orbitdb/core" {
     Database?: Database
     AccessController?: AccessController
   }
-  
+
   export function createOrbitDB(args: {
     ipfs: Helia
     id: string
     directory: string
+    identities: IdentitiesType
   }): Promise<OrbitDBType>
 
   export function isValidAddress(address: unknown): boolean

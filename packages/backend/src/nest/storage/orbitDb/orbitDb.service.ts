@@ -1,15 +1,15 @@
 import { Inject, Injectable } from '@nestjs/common'
 import { ORBIT_DB_DIR } from '../../const'
 import { createLogger } from '../../common/logger'
+import { posixJoin } from './util'
 import { type PeerId } from '@libp2p/interface'
 import { MessagesAccessController } from './MessagesAccessController'
-import { createOrbitDB, type OrbitDBType, type IdentitiesType, useAccessController } from '@orbitdb/core'
+import { createOrbitDB, type OrbitDBType, type IdentitiesType, useAccessController, KeyStore, Identities } from '@orbitdb/core'
 import { type Helia } from "helia";
 
 @Injectable()
 export class OrbitDb {
   private orbitDbInstance: OrbitDBType | null = null
-  // FIXME: Initialize this
   public identities: IdentitiesType
 
   private readonly logger = createLogger(OrbitDb.name)
@@ -30,10 +30,14 @@ export class OrbitDb {
 
     useAccessController(MessagesAccessController)
 
+    const keystore = await KeyStore({ path: posixJoin(this.orbitDbDir, './keystore') })
+    this.identities = await Identities({ ipfs, keystore })
+
     const orbitDb = await createOrbitDB({
       ipfs,
       id: peerId.toString(),
       directory: this.orbitDbDir,
+      identities: this.identities,
     })
 
     this.orbitDbInstance = orbitDb

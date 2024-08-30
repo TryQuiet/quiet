@@ -9,15 +9,12 @@ import {
   getReqFieldValue,
   keyFromCertificate,
 } from '@quiet/identity'
-import { type Helia } from "helia"
-import { type KeyValueType, type EventsType, IPFSAccessController } from '@orbitdb/core'
-
+import { type KeyValueType, type EventsType, IPFSAccessController, type LogEntry } from '@orbitdb/core'
 import { EventEmitter } from 'events'
 import { type PeerId } from '@libp2p/interface'
 import { getCrypto } from 'pkijs'
 import { stringToArrayBuffer } from 'pvutils'
 import validate from '../validation/validators'
-import { CID } from 'multiformats/cid'
 import {
   ChannelMessage,
   CommunityMetadata,
@@ -298,59 +295,46 @@ export class StorageService extends EventEmitter {
     return await this.certificatesStore.getEntries()
   }
 
+  public async getChannels(): Promise<PublicChannel[]> {
+    return (await this.channels.all()).map(x => x.value)
+  }
+
   public async loadAllChannels() {
     this.logger.info('Getting all channels')
     this.emit(StorageEvents.CHANNELS_STORED, {
-      channels: this.channels.all as unknown as { [key: string]: PublicChannel },
+      channels: await this.getChannels(),
     })
   }
 
   private async createDbForChannels() {
-    this.logger.info('createDbForChannels init')
+    this.logger.info('Creating public-channels database')
     this.channels = await this.orbitDbService.orbitDb.open<KeyValueType<PublicChannel>>('public-channels', {
       sync: false,
       Database: KeyValueIndexedValidated(),
       AccessController: IPFSAccessController({ write: ['*'] })
     })
 
-    this.channels.events.on('write', async (_address, entry) => {
-      this.logger.info('WRITE: Channels')
-    })
+    this.channels.events.on('update', async (entry: LogEntry) => {
+      this.logger.info('public-channels database updated')
 
-    this.channels.events.on('replicated', async () => {
-      this.logger.info('REPLICATED: Channels')
       this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CHANNELS_STORED)
 
-      const channels = Object.values(this.channels.all)
+      const channels = await this.getChannels()
 
-      const keyValueChannels: {
-        [key: string]: PublicChannel
-      } = {}
+      this.emit(StorageEvents.CHANNELS_STORED, { channels })
 
-      channels.forEach(channel => {
-        keyValueChannels[channel.id] = channel
-      })
-
-      this.emit(StorageEvents.CHANNELS_STORED, {
-        channels: keyValueChannels,
-      })
-
-      channels.forEach(async (channel: PublicChannel) => {
-        await this.subscribeToChannel(channel, { replicate: true })
-      })
+      channels.forEach(channel => this.subscribeToChannel(channel, { replicate: true }))
     })
 
-    this.logger.info('Channels count:', Object.keys(this.channels.all).length)
-    this.logger.info('Channels names:', Object.keys(this.channels.all))
-    Object.values(this.channels.all).forEach(async (channel: PublicChannel) => {
-      await this.subscribeToChannel(channel)
-    })
-    this.logger.info('STORAGE: Finished createDbForChannels')
+    const channels = await this.getChannels()
+    this.logger.info('Channels count:', channels.length)
+    this.logger.info('Channels names:', channels.map(x => x.name))
+    channels.forEach(channel => this.subscribeToChannel(channel))
   }
 
   async initAllChannels() {
     this.emit(StorageEvents.CHANNELS_STORED, {
-      channels: this.channels.all as unknown as { [key: string]: PublicChannel },
+      channels: await this.getChannels(),
     })
   }
 
@@ -532,10 +516,10 @@ export class StorageService extends EventEmitter {
     )
     const channel = this.channels.get(channelId)
 
-    this.logger.info('Found existing channel:', channel)
-
     if (channel === undefined) {
-      await this.channels.put(channelId, { ...channelData })
+      await this.channels.put(channelId, channelData)
+    } else {
+      this.logger.info(`Channel ${channelId} already exists`)
     }
 
     this.publicChannelsRepos.set(channelId, { db, eventsAttached: false })

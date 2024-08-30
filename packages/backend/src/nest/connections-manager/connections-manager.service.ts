@@ -394,7 +394,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     let ownerCertResult: SavedOwnerCertificatePayload
 
     try {
-      this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.REGISTERING_OWNER_CERTIFICATE)
       ownerCertResult = await this.registrationService.registerOwnerCertificate({
         communityId: payload.id,
         userCsr: payload.ownerCsr,
@@ -663,7 +662,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     // initialized, this is helpful to manually inject the storage
     // service for now. Both object construction and object
     // initialization need to happen in order based on dependencies.
-    await this.registrationService.init(this.storageService)
+    this.registrationService.init(this.storageService)
 
     if (community.CA) {
       this.registrationService.setPermsData({

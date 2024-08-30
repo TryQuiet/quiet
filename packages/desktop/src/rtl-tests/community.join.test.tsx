@@ -102,15 +102,15 @@ describe('User', () => {
           id: payload.id,
         })
         socket.socketClient.emit<ChannelsReplicatedPayload>(SocketActionTypes.CHANNELS_STORED, {
-          channels: {
-            general: {
+          channels: [
+            {
               name: 'general',
               description: 'string',
               owner: 'owner',
               timestamp: 0,
               id: 'general',
             },
-          },
+          ],
         })
         socket.socketClient.emit<ChannelSubscribedPayload>(SocketActionTypes.CHANNEL_SUBSCRIBED, {
           channelId: 'general',
