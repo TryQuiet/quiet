@@ -449,7 +449,7 @@ const darkTheme = createTheme({
   },
 })
 
-const defaultTheme = darkTheme
+const defaultTheme = lightTheme
 const getCurrentTheme = (useDarkTheme: boolean | undefined): Theme => {
   if (useDarkTheme == null) {
     return defaultTheme
