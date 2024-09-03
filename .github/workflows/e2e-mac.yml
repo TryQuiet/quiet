@@ -25,6 +25,15 @@ jobs:
         with:
           source-path: darwin
 
+      - name: "Verify S3 access to latest-mac.yml"
+        run: |
+          if ! aws s3 cp s3://test.quiet/latest-mac.yml latest-mac.yml; then
+            echo "Error: Unable to access latest-mac.yml in S3 bucket $S3_BUCKET"
+            exit 1
+          fi
+            rm latest-mac.yml
+        shell: bash
+
       - name: Build App Image
         working-directory: ./packages/desktop
         run: node_modules/.bin/electron-builder --mac
