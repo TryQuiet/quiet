@@ -28,11 +28,18 @@ describe('New user joins using invitation link while having app opened', () => {
   let guestApp: App
 
   beforeAll(async () => {
-    ownerApp = new App()
-    guestApp = new App({ defaultDataDir: true })
-    if (process.platform === 'win32') {
-      await guestApp.cleanup(true)
+    ownerApp = new App({ dataDir: 'owner' })
+    guestApp = new App({ dataDir: 'guest' })
+    // Cleanup before starting
+    // close apps if they are open
+    if (await ownerApp.isOpened) {
+      await ownerApp.close()
     }
+    if (await guestApp.isOpened) {
+      await guestApp.close()
+    }
+    await ownerApp.cleanup(true)
+    await guestApp.cleanup(true)
   })
 
   beforeEach(async () => {
