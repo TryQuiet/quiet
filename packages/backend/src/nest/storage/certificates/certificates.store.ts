@@ -1,5 +1,5 @@
 import { getCrypto } from 'pkijs'
-import { type EventsType, IPFSAccessController } from '@orbitdb/core'
+import { type EventsType, IPFSAccessController, type LogEntry } from '@orbitdb/core'
 import { StorageEvents } from '../storage.types'
 import { CommunityMetadata, NoCryptoEngineError } from '@quiet/types'
 import {
@@ -40,7 +40,7 @@ export class CertificatesStore extends EventStoreBase<string> {
       AccessController: IPFSAccessController({ write: ['*'] })
     })
 
-    this.store.events.on('update', async () => {
+    this.store.events.on('update', async (event: LogEntry) => {
       this.logger.info('Database update')
       this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CERTIFICATES_STORED)
       await this.loadedCertificates()
@@ -124,9 +124,15 @@ export class CertificatesStore extends EventStoreBase<string> {
    */
   public async getEntries(): Promise<string[]> {
     this.logger.info('Getting certificates')
-    const allCertificates = Array.from(await this.getStore().iterator()).map(e => e.value)
 
+    const allCertificates: string[] = []
+
+    for await (const x of this.getStore().iterator()) {
+      allCertificates.push(x.value)
+    }
+    
     this.logger.info(`All certificates: ${allCertificates.length}`)
+
     const validCertificates = await Promise.all(
       allCertificates.map(async certificate => {
         if (this.filteredCertificatesMapping.has(certificate)) {

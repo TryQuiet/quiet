@@ -353,14 +353,14 @@ export class StorageService extends EventEmitter {
     return await verifySignature(signature, message.message, cryptoKey)
   }
 
-  // FIXME: Make sure all callers use await
   protected async getAllEventLogEntries<T>(db: EventsType<T>): Promise<T[]> {
-    return Array.from(await db.iterator()).map(e => e.value)
-  }
+    const res: T[] = []
 
-  // FIXME: Make sure all callers use await
-  protected async getAllEventLogRawEntries<T>(db: EventsType<T>) {
-    return Array.from(await db.iterator())
+    for await (const x of db.iterator()) {
+      res.push(x.value)
+    }
+
+    return res
   }
 
   public async subscribeToChannel(
@@ -394,38 +394,38 @@ export class StorageService extends EventEmitter {
     if (repo && !repo.eventsAttached) {
       this.logger.info('Subscribing to channel ', channelData.id)
 
-      // FIXME: only 'update' event exists
-      db.events.on('write', async (_address, entry) => {
-        this.logger.info(`Writing to public channel db ${channelData.id}`)
-        const verified = await this.verifyMessage(entry.payload.value)
+      db.events.on('update', async (entry: LogEntry<ChannelMessage>) => {
+        this.logger.info(`${channelData.id} database updated`, entry.payload.value)
 
-        this.emit(StorageEvents.MESSAGES_STORED, {
-          messages: [entry.payload.value],
-          isVerified: verified,
-        })
-      })
-
-      // FIXME: only 'update' event exists
-      db.events.on('replicate.progress', async (address, _hash, entry, progress, total) => {
-        this.logger.info(`progress ${progress as string}/${total as string}. Address: ${address as string}`)
-        const messages = [entry.payload.value]
-
-        const verified = await this.verifyMessage(messages[0])
-
-        const message = messages[0]
+        const message = entry.payload.value!
+        const verified = await this.verifyMessage(message)
 
         this.emit(StorageEvents.MESSAGES_STORED, {
           messages: [message],
           isVerified: verified,
         })
 
+        const ids = (await this.getAllEventLogEntries<ChannelMessage>(db)).map(msg => msg.id)
+        const community = await this.localDbService.getCurrentCommunity()
+
+        if (community) {
+          this.emit(StorageEvents.MESSAGE_IDS_STORED, {
+            ids,
+            channelId: channelData.id,
+            communityId: community.id,
+          })
+        }
+
+        // FIXME: the 'update' event runs if we replicate entries and if we add
+        // entries ourselves. So we may want to check if the message is written
+        // by us.
+        //
         // Display push notifications on mobile
         if (process.env.BACKEND === 'mobile') {
           if (!verified) return
 
           // Do not notify about old messages
-          // @ts-ignore
-          if (parseInt(message.createdAt) < parseInt(process.env.CONNECTION_TIME || '')) return
+          if (message.createdAt < parseInt(process.env.CONNECTION_TIME || '')) return
 
           const username = await this.certificatesStore.getCertificateUsername(message.pubKey)
           if (!username) {
@@ -442,34 +442,16 @@ export class StorageService extends EventEmitter {
         }
       })
 
-      // FIXME: only 'update' event exists
-      db.events.on('replicated', async address => {
-        this.logger.info('Replicated.', address)
-        const ids = (await this.getAllEventLogEntries<ChannelMessage>(db)).map(msg => msg.id)
-        const community = await this.localDbService.getCurrentCommunity()
+      const ids = (await this.getAllEventLogEntries<ChannelMessage>(db)).map(msg => msg.id)
+      const community = await this.localDbService.getCurrentCommunity()
 
-        if (community) {
-          this.emit(StorageEvents.MESSAGE_IDS_STORED, {
-            ids,
-            channelId: channelData.id,
-            communityId: community.id,
-          })
-        }
-      })
-
-      // FIXME: only 'update' event exists
-      db.events.on('ready', async () => {
-        const ids = (await this.getAllEventLogEntries<ChannelMessage>(db)).map(msg => msg.id)
-        const community = await this.localDbService.getCurrentCommunity()
-
-        if (community) {
-          this.emit(StorageEvents.MESSAGE_IDS_STORED, {
-            ids,
-            channelId: channelData.id,
-            communityId: community.id,
-          })
-        }
-      })
+      if (community) {
+        this.emit(StorageEvents.MESSAGE_IDS_STORED, {
+          ids,
+          channelId: channelData.id,
+          communityId: community.id,
+        })
+      }
 
       repo.eventsAttached = true
     }

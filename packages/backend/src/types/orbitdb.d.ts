@@ -136,7 +136,7 @@ declare module "@orbitdb/core" {
     put: (hash: string, value: any) => Promise<void>
     del: (hash: string) => Promise<void>
     get: (hash: string) => Promise<any | undefined>
-    iterator: ({ amount, reverse }: { amount?: number; reverse: boolean }) => IterableIterator<[string, any]>
+    iterator: ({ amount, reverse }: { amount?: number; reverse: boolean }) => Generator<[string, any]>
     close: () => Promise<void>
     clear: () => Promise<void>
   }
@@ -244,7 +244,7 @@ declare module "@orbitdb/core" {
     type: "events"
     add(value: T): Promise<string>
     get(hash: string): T
-    iterator({ gt, gte, lt, lte, amount }: { gt: string; gte: string; lt: string; lte: string; amount: number } = {}): Promise<IterableIterator<{ hash: string; value: T }>>
+    iterator({ gt, gte, lt, lte, amount }: { gt: string; gte: string; lt: string; lte: string; amount: number } = {}): AyncGenerator<{ hash: string; value: T }>
     all(): Promise<{ hash: string; value: T }[]>
   }
 

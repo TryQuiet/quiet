@@ -317,7 +317,7 @@ describe('StorageService', () => {
       // Confirm message has passed orbitdb validator (check signature verification only)
       expect(eventSpy).toHaveBeenCalled()
       // @ts-expect-error getAllEventLogEntries is protected
-      expect(storageService.getAllEventLogEntries(db).length).toBe(0)
+      expect((await storageService.getAllEventLogEntries(db)).length).toBe(0)
     })
   })
 

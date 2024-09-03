@@ -46,8 +46,9 @@ export class CertificatesRequestsStore extends EventStoreBase<string> {
   }
 
   public async addEntry(csr: string): Promise<string> {
-    this.logger.info('Adding CSR to database')
-    await this.store?.add(csr)
+    await this.getStore().add(csr)
+    this.logger.info('Adding CSR to database', csr)
+    this.loadedCertificateRequests()
     return csr
   }
 
@@ -76,7 +77,12 @@ export class CertificatesRequestsStore extends EventStoreBase<string> {
 
   public async getEntries() {
     const filteredCsrsMap: Map<string, string> = new Map()
-    const allEntries = Array.from(await this.getStore().iterator()).map(e => e.value)
+    const allEntries: string[] = []
+
+    for await (const x of this.getStore().iterator()) {
+      allEntries.push(x.value)
+    }
+
     this.logger.info('Total CSRs:', allEntries.length)
 
     const allCsrsUnique = [...new Set(allEntries)]
