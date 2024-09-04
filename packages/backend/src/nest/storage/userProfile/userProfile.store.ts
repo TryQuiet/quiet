@@ -40,20 +40,16 @@ export class UserProfileStore extends KeyValueStoreBase<UserProfile> {
       AccessController: IPFSAccessController({ write: ['*'] })
     })
 
-    this.store.events.on('update', (entry: LogEntry) => {
+    this.store.events.on('update', async (entry: LogEntry) => {
       logger.info('Database update')
       this.emit(StorageEvents.USER_PROFILES_STORED, {
-        profiles: this.getUserProfiles(),
+        profiles: await this.getUserProfiles(),
       })
     })
 
-    // FIXME: ready/replicated events no longer exist
-    // this.store.events.on('ready', async () => {
-    //   logger.info('Loaded user profiles to memory')
-    //   this.emit(StorageEvents.USER_PROFILES_STORED, {
-    //     profiles: this.getUserProfiles(),
-    //   })
-    // })
+    this.emit(StorageEvents.USER_PROFILES_STORED, {
+      profiles: await this.getUserProfiles(),
+    })
   }
 
   public async startSync() {
@@ -132,8 +128,8 @@ export class UserProfileStore extends KeyValueStoreBase<UserProfile> {
     }
   }
 
-  public getUserProfiles(): UserProfile[] {
-    return Object.values(this.getStore().all)
+  public async getUserProfiles(): Promise<UserProfile[]> {
+    return (await this.getStore().all()).map(x => x.value)
   }
 
   clean(): void {

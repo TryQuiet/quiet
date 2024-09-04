@@ -18,7 +18,7 @@ export const SERVER_ADDRESS_PARAM_KEY = 's'
 export const DEEP_URL_SCHEME_WITH_SEPARATOR = 'quiet://'
 const DEEP_URL_SCHEME = 'quiet'
 const ONION_ADDRESS_REGEX = /^[a-z0-9]{56}$/g
-const PEER_ID_REGEX = /^[a-zA-Z0-9]{46}$/g
+const PEER_ID_REGEX = /^[a-zA-Z0-9]{52}$/g
 
 interface ParseDeepUrlParams {
   url: string

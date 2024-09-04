@@ -52,7 +52,7 @@ export class CommunityMetadataStore extends KeyValueStoreBase<CommunityMetadata>
       AccessController: IPFSAccessController({ write: ['*'] })
     })
 
-    this.store.events.on('replicated', async () => {
+    this.store.events.on('update', async () => {
       logger.info('Replicated community metadata')
       const meta = this.getEntry()
       if (meta) {

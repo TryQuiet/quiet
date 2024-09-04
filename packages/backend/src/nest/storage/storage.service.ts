@@ -395,7 +395,7 @@ export class StorageService extends EventEmitter {
       this.logger.info('Subscribing to channel ', channelData.id)
 
       db.events.on('update', async (entry: LogEntry<ChannelMessage>) => {
-        this.logger.info(`${channelData.id} database updated`, entry.payload.value)
+        this.logger.info(`${channelData.id} database updated`)
 
         const message = entry.payload.value!
         const verified = await this.verifyMessage(message)
@@ -535,7 +535,7 @@ export class StorageService extends EventEmitter {
         eventsAttached: false,
       }
     }
-    await repo.db.close()
+    await repo.db.sync.stop()
     await repo.db.drop()
     this.publicChannelsRepos.delete(channelId)
     return { channelId: payload.channelId }
