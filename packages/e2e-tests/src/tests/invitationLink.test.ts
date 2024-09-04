@@ -31,13 +31,6 @@ describe('New user joins using invitation link while having app opened', () => {
     ownerApp = new App({ dataDir: 'owner' })
     guestApp = new App({ dataDir: 'guest' })
     // Cleanup before starting
-    // close apps if they are open
-    if (await ownerApp.isOpened) {
-      await ownerApp.close()
-    }
-    if (await guestApp.isOpened) {
-      await guestApp.close()
-    }
     await ownerApp.cleanup(true)
     await guestApp.cleanup(true)
   })
@@ -168,9 +161,10 @@ describe('New user joins using invitation link while having app opened', () => {
 
     it('Guest is redirected to UsernameModal', async () => {
       logger.info('Invitation Link', 15)
-      logger.info('Guest sees username modal')
       const registerModal = new RegisterUsernameModal(guestApp.driver)
+      logger.info('Waiting for username modal to be displayed')
       const isRegisterModalDisplayed = await registerModal.element.isDisplayed()
+      logger.info('Guest sees username modal')
       expect(isRegisterModalDisplayed).toBeTruthy()
     })
 
