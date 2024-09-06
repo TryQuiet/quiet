@@ -71,24 +71,20 @@ describe('User', () => {
       .withTimeout(LONG)
   })
 
-  /*
-   * The following step is currently commented out due to: https://github.com/TryQuiet/quiet/issues/1876
-   */
+  test('minimizes and restores the app', async () => {
+    await device.sendToHome()
 
-  // test('minimizes and restores the app', async () => {
-  //   await device.sendToHome()
+    await new Promise((resolve) => {
+      setTimeout(() => { resolve() }, 3000)
+    })
 
-  //   await new Promise((resolve) => {
-  //     setTimeout(() => { resolve() }, 3000)
-  //   })
+    await device.launchApp({ newInstance: false })
 
-  //   await device.launchApp({ newInstance: false })
-
-  //   // User comes back to channel list
-  //   await waitFor(element(by.id('channels_list')))
-  //     .toBeVisible()
-  //     .withTimeout(STARTUP)
-  // })
+    // User comes back to channel list
+    await waitFor(element(by.id('channels_list')))
+      .toBeVisible()
+      .withTimeout(STARTUP)
+  })
 
   test('enters #general channel', async () => {
     await press(element(by.text('#general')))

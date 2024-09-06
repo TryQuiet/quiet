@@ -1,4 +1,4 @@
-[unreleased]
+[2.3.0]
 
 # New features:
 
@@ -25,6 +25,10 @@
 * Update github workflows for PR gating ([#2487](https://github.com/TryQuiet/quiet/issues/2487))
 * Don't create duplicate CSRs when joining a community under certain circumstances ([#2321](https://github.com/TryQuiet/quiet/issues/2321))
 * Add abstract base classes for stores ([#2407](https://github.com/TryQuiet/quiet/issues/2407))
+
+# Chores
+
+* Update README and PUBLISHING docs
 
 [2.2.0]
 
