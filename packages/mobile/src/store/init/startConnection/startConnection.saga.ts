@@ -26,12 +26,9 @@ const logger = createLogger('startConnection')
 export function* startConnectionSaga(
   action: PayloadAction<ReturnType<typeof initActions.startWebsocketConnection>['payload']>
 ): Generator {
-  const isAlreadyConnected = yield* select(initSelectors.isWebsocketConnected)
-  if (isAlreadyConnected) return
-
   const { dataPort, socketIOSecret } = action.payload
 
-  logger.info('WEBSOCKET', 'Entered start connection saga', dataPort)
+  logger.info(`Starting connection saga on dataPort: ${dataPort}`)
 
   let _dataPort = dataPort
 
@@ -40,7 +37,7 @@ export function* startConnectionSaga(
   }
 
   if (!socketIOSecret) {
-    logger.error('WEBSOCKET', 'Missing IO secret')
+    logger.error('Missing IO secret')
     return
   }
 
