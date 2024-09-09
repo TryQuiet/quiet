@@ -10,7 +10,7 @@ import { Agent } from 'https'
 import path from 'path'
 import { type PeerId } from '@libp2p/interface'
 import { CryptoEngine, setEngine } from 'pkijs'
-import { getLibp2pAddressesFromCsrs, removeFilesFromDir } from '../common/utils'
+import { getUsersFromCsrs, removeFilesFromDir } from '../common/utils'
 
 import { LazyModuleLoader } from '@nestjs/core'
 import { createLibp2pAddress, isPSKcodeValid } from '@quiet/common'
@@ -617,8 +617,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       agent: this.socksProxyAgent,
       localAddress: this.libp2pService.createLibp2pAddress(onionAddress, peerId.toString()),
       targetPort: this.ports.libp2pHiddenService,
-      // Ignore local address
-      peers: peers ? peers.slice(1) : [],
       psk: Libp2pService.generateLibp2pPSK(community.psk).fullKey,
     }
     await this.libp2pService.createInstance(params)
@@ -652,7 +650,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       await this.localDbService.update(LocalDBKeys.PEERS, {
         [payload.peer]: peerStats,
       })
-      // BARTEK: Potentially obsolete to send this to state-manager
+
       this.serverIoProvider.io.emit(SocketActionTypes.PEER_DISCONNECTED, payload)
     })
 
@@ -670,6 +668,10 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         privKey: community.CA.rootKeyString,
       })
     }
+
+    // FIXME: Don't await this
+    // FIXME: Wait until Tor is bootstrapped to dial peers
+    await this.libp2pService.dialPeers(peers ?? [])
 
     this.logger.info('Storage initialized')
 
@@ -849,7 +851,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     })
     this.storageService.on(StorageEvents.CSRS_STORED, async (payload: { csrs: string[] }) => {
       this.logger.info(`Storage - ${StorageEvents.CSRS_STORED}`)
-      this.libp2pService.emit(Libp2pEvents.DIAL_PEERS, await getLibp2pAddressesFromCsrs(payload.csrs))
+      this.libp2pService.dialUsers(await getUsersFromCsrs(payload.csrs))
       this.serverIoProvider.io.emit(SocketActionTypes.CSRS_STORED, payload)
       this.registrationService.emit(RegistrationEvents.REGISTER_USER_CERTIFICATE, payload)
     })

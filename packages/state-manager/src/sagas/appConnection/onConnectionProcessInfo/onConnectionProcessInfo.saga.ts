@@ -10,7 +10,5 @@ export function* onConnectionProcessInfo(
   const community = yield* select(communitiesSelectors.currentCommunity)
   const isOwner = Boolean(community?.CA)
 
-  if (isOwner) {
-    yield* putResolve(connectionActions.setConnectionProcess({ info, isOwner }))
-  }
+  yield* putResolve(connectionActions.setConnectionProcess({ info, isOwner }))
 }

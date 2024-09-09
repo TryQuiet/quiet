@@ -56,7 +56,7 @@ export class UserProfileStore extends KeyValueStoreBase<UserProfile> {
     await this.getStore().sync.start()
   }
 
-  public getEntry(key: string): UserProfile {
+  public async getEntry(key: string): Promise<UserProfile> {
     throw new Error('Method not implemented.')
   }
 

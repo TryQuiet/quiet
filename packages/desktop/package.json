@@ -116,7 +116,7 @@
     "build:renderer:prod": "webpack --config webpack/webpack.config.renderer.prod.js",
     "postBuild": "node scripts/postBuild.js",
     "prestart": "npm run build:main",
-    "start": "cross-env DEBUG='backend*,quiet*,state-manager*,desktop*,utils*,identity*,common*,libp2p:websockets:listener:backend,libp2p:connection-manager:auto-dialler' npm run start:renderer",
+    "start": "cross-env DEBUG='*' npm run start:renderer",
     "start:main": "cross-env COLORIZE=true NODE_ENV=development ELECTRON_ENABLE_LOGGING=true electron .",
     "start:renderer": "cross-env COLORIZE=true NODE_ENV=development ELECTRON_ENABLE_LOGGING=true webpack-dev-server --config webpack/webpack.config.renderer.dev.js",
     "storybook": "export NODE_OPTIONS=--openssl-legacy-provider && start-storybook -p 6006",

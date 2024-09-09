@@ -25,7 +25,7 @@ import { LocalDbModule } from './local-db/local-db.module'
 import { Libp2pModule } from './libp2p/libp2p.module'
 import { TorModule } from './tor/tor.module'
 import express from 'express'
-import createHttpsProxyAgent from 'https-proxy-agent'
+import { HttpsProxyAgent } from 'https-proxy-agent'
 import getPort from 'get-port'
 import { createServer } from 'http'
 import { Server as SocketIO } from 'socket.io'
@@ -141,10 +141,7 @@ export class AppModule {
             if (!configOptions.httpTunnelPort) {
               configOptions.httpTunnelPort = await getPort()
             }
-            return createHttpsProxyAgent({
-              port: configOptions.httpTunnelPort,
-              host: '127.0.0.1',
-            })
+            return new HttpsProxyAgent(`http://127.0.0.1:${configOptions.httpTunnelPort}`)
           },
           inject: [CONFIG_OPTIONS],
         },

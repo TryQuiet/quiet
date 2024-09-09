@@ -31,7 +31,7 @@ abstract class StoreBase<V, S extends KeyValueType<V> | EventsType<V>> extends E
 export abstract class KeyValueStoreBase<V> extends StoreBase<V, KeyValueType<V>> {
   protected store: KeyValueType<V> | undefined
   abstract setEntry(key: string, value: V): Promise<V>
-  abstract getEntry(key?: string): V | null
+  abstract getEntry(key?: string): Promise<V | null>
 }
 
 export abstract class EventStoreBase<V> extends StoreBase<V, EventsType<V>> {

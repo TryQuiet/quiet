@@ -54,13 +54,13 @@ export class CommunityMetadataStore extends KeyValueStoreBase<CommunityMetadata>
 
     this.store.events.on('update', async () => {
       logger.info('Replicated community metadata')
-      const meta = this.getEntry()
+      const meta = await this.getEntry()
       if (meta) {
         this.emit(StorageEvents.COMMUNITY_METADATA_STORED, meta)
       }
     })
 
-    const meta = this.getEntry()
+    const meta = await this.getEntry()
     if (meta) {
       this.emit(StorageEvents.COMMUNITY_METADATA_STORED, meta)
     }
@@ -123,11 +123,10 @@ export class CommunityMetadataStore extends KeyValueStoreBase<CommunityMetadata>
     }
   }
 
-  public getEntry(_key?: string): CommunityMetadata | null {
-    const metadata = Object.values(this.getStore().all)
-    if (metadata.length === 0) return null
+  public async getEntry(_key?: string): Promise<CommunityMetadata | null> {
+    const metadata = (await this.getStore().all()).map(x => x.value)
 
-    return metadata[0]
+    return metadata.length > 0 ? metadata[0] : null
   }
 
   public static async validateCommunityMetadata(communityMetadata: CommunityMetadata): Promise<boolean> {

@@ -46,6 +46,8 @@ export class CertificatesStore extends EventStoreBase<string> {
       await this.loadedCertificates()
     })
 
+    this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.CERTIFICATES_STORED)
+
     this.logger.info('Initialized')
   }
 

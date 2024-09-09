@@ -63,42 +63,4 @@ describe('Libp2pService', () => {
     const expectedFullKeyString = LIBP2P_PSK_METADATA + uint8ArrayToString(generatedPskBuffer, 'base16')
     expect(uint8ArrayToString(generatedKey.fullKey)).toEqual(expectedFullKeyString)
   })
-
-  it(`Starts dialing peers on '${Libp2pEvents.DIAL_PEERS}' event`, async () => {
-    const peerId1 = await createPeerId()
-    const peerId2 = await createPeerId()
-    const addresses = [
-      libp2pService.createLibp2pAddress('onionAddress1.onion', peerId1.toString()),
-      libp2pService.createLibp2pAddress('onionAddress2.onion', peerId2.toString()),
-    ]
-    await libp2pService.createInstance(params)
-    // @ts-expect-error processItem is private
-    const spyOnProcessItem = jest.spyOn(processInChunks, 'processItem')
-    expect(libp2pService.libp2pInstance).not.toBeNull()
-    libp2pService.emit(Libp2pEvents.DIAL_PEERS, addresses)
-    await waitForExpect(async () => {
-      expect(spyOnProcessItem).toBeCalledTimes(addresses.length)
-    })
-  })
-
-  it(`Do not dial peer on '${Libp2pEvents.DIAL_PEERS}' event if peer was already dialed`, async () => {
-    const peerId1 = await createPeerId()
-    const peerId2 = await createPeerId()
-    const alreadyDialedAddress = libp2pService.createLibp2pAddress('onionAddress1.onion', peerId1.toString())
-    libp2pService.dialedPeers.add(alreadyDialedAddress)
-    const addresses = [
-      alreadyDialedAddress,
-      libp2pService.createLibp2pAddress('onionAddress2.onion', peerId2.toString()),
-    ]
-    await libp2pService.createInstance(params)
-    expect(libp2pService.libp2pInstance).not.toBeNull()
-    // @ts-expect-error processItem is private
-    const processItemSpy = jest.spyOn(processInChunks, 'processItem')
-    const dialSpy = jest.spyOn(libp2pService.libp2pInstance!, 'dial')
-    libp2pService.emit(Libp2pEvents.DIAL_PEERS, addresses)
-    await waitForExpect(async () => {
-      expect(processItemSpy).toBeCalledTimes(2 * DEFAULT_NUM_TRIES)
-      expect(dialSpy).toBeCalledTimes(1)
-    })
-  })
 })

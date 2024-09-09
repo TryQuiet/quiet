@@ -3,7 +3,7 @@ import getPort from 'get-port'
 import path from 'path'
 import { Server } from 'socket.io'
 import { UserData } from '@quiet/types'
-import createHttpsProxyAgent from 'https-proxy-agent'
+import { HttpsProxyAgent } from 'https-proxy-agent'
 import { createEd25519PeerId } from '@libp2p/peer-id-factory'
 import { peerIdFromKeys } from '@libp2p/peer-id'
 import { type PeerId } from '@libp2p/interface'
@@ -157,18 +157,18 @@ export const getUsersAddresses = async (users: UserData[]): Promise<string[]> =>
   return await Promise.all(peers)
 }
 
-export const getLibp2pAddressesFromCsrs = async (csrs: string[]): Promise<string[]> => {
-  const addresses = await Promise.all(
+export const getUsersFromCsrs = async (csrs: string[]): Promise<UserData[]> => {
+  const users = await Promise.all(
     csrs.map(async csr => {
       const parsedCsr = await loadCSR(csr)
+      const username = getReqFieldValue(parsedCsr, CertFieldsTypes.nickName)
       const peerId = getReqFieldValue(parsedCsr, CertFieldsTypes.peerId)
       const onionAddress = getReqFieldValue(parsedCsr, CertFieldsTypes.commonName)
-      if (!peerId || !onionAddress) return
 
-      return createLibp2pAddress(onionAddress, peerId)
+      return username && peerId && onionAddress ? { username, onionAddress, peerId } : undefined
     })
   )
-  return addresses.filter(isDefined)
+  return users.filter(isDefined)
 }
 
 /**
@@ -210,17 +210,13 @@ export const testBootstrapMultiaddrs = [
 export const libp2pInstanceParams = async (): Promise<Libp2pNodeParams> => {
   const port = await getPort()
   const peerId = await createPeerId()
-  const address = '0.0.0.0'
-  const peerIdRemote = await createPeerId()
-  const remoteAddress = createLibp2pAddress(address, peerIdRemote.toString())
   const libp2pKey = Libp2pService.generateLibp2pPSK().fullKey
   return {
     peerId,
     listenAddresses: [createLibp2pListenAddress('localhost')],
-    agent: createHttpsProxyAgent({ port: 1234, host: 'localhost' }),
+    agent: new HttpsProxyAgent('http://localhost:1234'),
     localAddress: createLibp2pAddress('localhost', peerId.toString()),
     targetPort: port,
-    peers: [remoteAddress],
     psk: libp2pKey,
   }
 }

@@ -1,7 +1,7 @@
 import { Global, Module } from '@nestjs/common'
 import express from 'express'
 import getPort from 'get-port'
-import createHttpsProxyAgent from 'https-proxy-agent'
+import { HttpsProxyAgent } from 'https-proxy-agent'
 import { Level } from 'level'
 import {
   EXPRESS_PROVIDER,
@@ -86,10 +86,7 @@ export const defaultConfigForTest = {
         if (!configOptions.httpTunnelPort) {
           configOptions.httpTunnelPort = await getPort()
         }
-        return createHttpsProxyAgent({
-          port: configOptions.httpTunnelPort,
-          host: '127.0.0.1',
-        })
+        return new HttpsProxyAgent(`http://127.0.0.1:${configOptions.httpTunnelPort}`)
       },
       inject: [CONFIG_OPTIONS],
     },

@@ -95,7 +95,9 @@ export class WebSockets implements Transport<WebSocketsDialEvents> {
     this.log('dialing %s:%s', cOpts.host, cOpts.port)
 
     const errorPromise = pDefer()
-    const rawSocket = connect(`${toUri(ma)}/?remoteAddress=${encodeURIComponent(this.init.localAddress)}`, this.init)
+    const addr = `${toUri(ma)}/?remoteAddress=${encodeURIComponent(this.init.localAddress)}`
+    this.log('CONNECTING TO ADDR', addr)
+    const rawSocket = connect(addr, this.init)
     rawSocket.socket.addEventListener('error', () => {
       // the WebSocket.ErrorEvent type doesn't actually give us any useful
       // information about what happened

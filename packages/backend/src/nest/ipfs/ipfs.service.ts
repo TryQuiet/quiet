@@ -1,6 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common'
 import { LazyModuleLoader } from '@nestjs/core'
 import { createHelia, type Helia } from "helia"
+import { bitswap } from '@helia/block-brokers'
 import { IPFS_REPO_PATCH } from '../const'
 import { createLogger } from '../common/logger'
 import { LevelDatastore } from 'datastore-level'
@@ -36,7 +37,8 @@ export class IpfsService {
         start: false,
         libp2p: libp2pInstance,
         blockstore: new FsBlockstore(this.ipfsRepoPath + '/blocks'),
-        datastore: new LevelDatastore(this.ipfsRepoPath + '/data')
+        datastore: new LevelDatastore(this.ipfsRepoPath + '/data'),
+        blockBrokers: [ bitswap() ],
       })
       this.ipfsInstance = ipfs
     } catch (error) {
