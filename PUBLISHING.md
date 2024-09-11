@@ -4,7 +4,7 @@
   </h1>
 
   <h3 align="center">
-    Current release owner 🎉⛸️🦆 <a href='https://github.com/leblowl'>@leblowl</a> (February 2024)
+    Current release owner ✨<a href='https://github.com/adrastaea'>@adrastaea</a>✨ (September 2024)
   </h3>
 
   <br />
@@ -12,7 +12,7 @@
 </p>
 
 ## Trigger
-Release process begins when all issues from `Sprint` are merged and moved to `Ready for QA`.  
+Release process begins when all issues from `Sprint` are merged and moved to `Ready for QA`.
 
 ## Branching strategy
 Each release starts with it's own branch (based on develop).
@@ -28,7 +28,7 @@ From this moment, all the fixes (patches) for the last supported version are bei
 
 
 ## Release candidates (alpha releases)
-Pre-release builds should only be triggered from the release branch and then delivered to QA.  
+Pre-release builds should only be triggered from the release branch and then delivered to QA.
 Alpha versions should be delivered to QA by updating GitHub with a link to the correct versions (for desktop) and numbers of current versions (for mobile). All GitHub issues included in the released alpha version should be moved to the Ready for QA column.
 If QA reports problems that needs to be solved, the fixes must be merged into the release and develop branches, then a patched pre-release is to be built.
 
@@ -49,7 +49,7 @@ By the time release is ready, ask @holmes for <b>CHANGELOG.md</b> cosmetic revie
 1. Checkout to a branch named after the release version number
 2. Navigate to root project directory
 3. Update CHANGELOG.md file
-4. Use the following command (with proper release type !For alpha releases use `pre` prefix!):  
+4. Use the following command (with proper release type !For alpha releases use `pre` prefix!):
   `npm run publish --release=[patch|minor|major|EXACT_VERSION]`
 5. Cherry-pick `Publish` and `Update packages CHANGELOG.md` commits into /develop
 6. Manually update release notes on the <a href='https://github.com/TryQuiet/quiet/releases' target='blank'>Releases Page</a>
@@ -64,12 +64,12 @@ By the time release is ready, ask @holmes for <b>CHANGELOG.md</b> cosmetic revie
 
 
 ## Changelog / Releases Page
-Root <b>CHANGELOG.md</b> file contents are being copied into each packages' ones.  
+Root <b>CHANGELOG.md</b> file contents are being copied into each packages' ones.
 This process is automated by `copy-changelog.js` script hooked on `postpublish` action.
 - [ ] Edit release notes to match style guide (See: [RELEASE_NOTES_GUIDE.md](RELEASE_NOTES_GUIDE.md))
 
 ## QA
-QA tests for issues on all the supported platforms and moves discovered blocking issues intoto the Sprint column, then mentions them in Slack <b>#qa</b> channel, following the criteria:  
+QA tests for issues on all the supported platforms and moves discovered blocking issues intoto the Sprint column, then mentions them in Slack <b>#qa</b> channel, following the criteria:
 - regression,
 - new bug that creates a general feeling of unreliability,
 - issue that is incompletely implemented according to the issue description,
@@ -83,8 +83,3 @@ QA tests for issues on all the supported platforms and moves discovered blocking
 
 #### (TODO) Publishing Process Document
 1. Expand on post-release checklist
-
-
-
-
-
