@@ -1,18 +1,9 @@
-# Change Log
+[2.3.1]
 
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+# Fixes:
 
-## [2.3.1-alpha.1](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@2.2.1-alpha.1...@quiet/desktop@2.3.1-alpha.1) (2024-09-11)
-
-
-### Bug Fixes
-
-* user profile area should be clickable [#2566](https://github.com/TryQuiet/quiet/issues/2566) ([#2595](https://github.com/TryQuiet/quiet/issues/2595)) ([9dfd6da](https://github.com/TryQuiet/quiet/commit/9dfd6da55a744546afd185c17bc8e6bbe29ec3ad))
-
-
-
-
+* Made entire user profile area clickable in the sidebar and updated hover state for improved usability ([#2566](https://github.com/TryQuiet/quiet/issues/2566))
+* Fix issue with websocket not being reconnected after app is resumed on android ([#2587](https://github.com/TryQuiet/quiet/issues/2587))
 
 [2.3.0]
 
@@ -41,10 +32,6 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 * Update github workflows for PR gating ([#2487](https://github.com/TryQuiet/quiet/issues/2487))
 * Don't create duplicate CSRs when joining a community under certain circumstances ([#2321](https://github.com/TryQuiet/quiet/issues/2321))
 * Add abstract base classes for stores ([#2407](https://github.com/TryQuiet/quiet/issues/2407))
-
-# Chores
-
-* Update README and PUBLISHING docs
 
 [2.2.0]
 
