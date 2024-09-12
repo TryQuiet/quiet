@@ -80,7 +80,8 @@ Alpha releases are pre-release versions of the release which are delivered to QA
 
 ## Post-release checklist (production)
 
-- [ ] Download links are updated on website and in README.md
+- [ ] Release build completed successfully and the assets are uploaded to the release page
+- [ ] Download links are updated on website
 - [ ] App is promoted and sent for review on a production track in Google Play
 - [ ] App is promoted and sent for review on an external track in App Store (Test Flight)
 - [ ] Issues in `Ready for QA` are moved to `Done`
