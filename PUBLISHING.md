@@ -43,11 +43,10 @@
 1. QA tests the production release.
 1. Production release is published.
 
-## Checklist for Alpha Release
+## Checklist Before Alpha Release
 
 - [ ] Release branch is created from `develop` branch with the production version number, e.g. `2.1.0`.
 - [ ] Reviewed the base `CHANGELOG.md` file and ensured that it is up to date with all changes included in the release since the last production release. Package level `CHANGELOG.md` files are automatically updated during the release process.
-- [ ] Approved the updated `CHANGELOG.md` file with the @holmesworcester.
 - [ ] Reviewed the [Quiet Planning Board](https://github.com/orgs/TryQuiet/projects/3) and ensured all issues contained in the release candidate are in the `Ready for QA` column.
 
 ## Preparing a Release Candidate (Alpha)
@@ -60,7 +59,7 @@ Alpha releases are pre-release versions of the release which are delivered to QA
 1. Promote the alpha release on the [Google Play Console](https://play.google.com/console/) to a closed testing track. Contact @holmesworcester if you need access to the organization.
 1. Notify QA that the alpha release is ready for testing.
 
-## Checklist for Production Release
+## Checklist Before Production Release
 
 - [ ] Build is working correctly, passes automated tests and self-QA
 - [ ] Alpha was delivered for QA
