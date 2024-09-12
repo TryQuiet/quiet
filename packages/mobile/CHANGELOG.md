@@ -1,44 +1,33 @@
-# Change Log
+# Changelog
 
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+## [2.3.1]
 
-## [2.3.1](https://github.com/TryQuiet/quiet/compare/@quiet/mobile@2.3.1-alpha.1...@quiet/mobile@2.3.1) (2024-09-12)
+### Fixes
 
-**Note:** Version bump only for package @quiet/mobile
+* The user profile area is now much easier to click on desktop, and has a nice hover effect matching the rest of the sidebar ([#2566](https://github.com/TryQuiet/quiet/issues/2566)) Thanks @okrayrum!
+* Android app will now work correctly after suspending it (e.g. by swiping up in the app manager) ([#2587](https://github.com/TryQuiet/quiet/issues/2587))
 
+## [2.3.0]
 
-
-
-
-[2.3.1]
-
-# Fixes:
-
-* Made entire user profile area clickable in the sidebar and updated hover state for improved usability ([#2566](https://github.com/TryQuiet/quiet/issues/2566))
-* Fix issue with websocket not being reconnected after app is resumed on android ([#2587](https://github.com/TryQuiet/quiet/issues/2587))
-
-[2.3.0]
-
-# New features:
+### New features
 
 * Add dark mode to the desktop UI ([#1502](https://github.com/TryQuiet/quiet/issues/1502))
 * Add support for new format of invitation link: `c=<cid>&t=<token>&s=<serverAddress>&i=<inviterAddress>` ([#2310](https://github.com/TryQuiet/quiet/issues/2310))
 * Use server for downloading initial community metadata if v2 invitation link is detected ([#2295](https://github.com/TryQuiet/quiet/issues/2295))
 
-# Refactorings:
+### Refactorings
 
 * Consolidate colors and align theme with MUI standards ([#2445](https://github.com/TryQuiet/quiet/issues/2445))
 * Refactor some UI components to align with architecture goals ([2447](https://github.com/TryQuiet/quiet/issues/2447))
 
-# Fixes:
+### Fixes
 
 * Disable spellCheck/autoCorrect on non-spelling sensitive fields like usernames and channels ([#373](https://github.com/TryQuiet/quiet/issues/373))
 * Fixes issue with reconnecting to peers on resume on iOS ([#2424](https://github.com/TryQuiet/quiet/issues/2424))
 * Fixes references to 'invite code' to be 'invite link' in UI ([#2441](https://github.com/TryQuiet/quiet/issues/2441))
 * Fixes issue with image messages not displaying/throwing errors on iOS ([#2526](https://github.com/TryQuiet/quiet/issues/2526))
 
-# Chores
+### Chores
 
 * Cleanup data directory at end of e2e tests
 * Update mobile development README ([#2483](https://github.com/TryQuiet/quiet/issues/2483))
@@ -46,18 +35,18 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 * Don't create duplicate CSRs when joining a community under certain circumstances ([#2321](https://github.com/TryQuiet/quiet/issues/2321))
 * Add abstract base classes for stores ([#2407](https://github.com/TryQuiet/quiet/issues/2407))
 
-[2.2.0]
+## [2.2.0]
 
-# New features:
+### New features
 
 * Add utilities for emoji detection in messages and make all-emoji message larger font size ([#519](https://github.com/TryQuiet/quiet/issues/519))
 
-# Refactorings:
+### Refactorings
 
 * Use ack for CREATE_NETWORK and simplify
 * Move Community model to the backend
 
-# Fixes:
+### Fixes
 
 * Allow JPEG and GIF files as profile photos ([#2332](https://github.com/TryQuiet/quiet/issues/2332))
 * Fix issues with recreating general channel when deleted while offline ([#2334](https://github.com/TryQuiet/quiet/issues/2334))
@@ -65,9 +54,9 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 * Fixes issue with reconnecting to peers on resume on iOS ([#2424](https://github.com/TryQuiet/quiet/issues/2424))
 * Reorder the closing of services, prevent sagas running multiple times and close backend server properly
 
-[2.1.2]
+## [2.1.2]
 
-# Refactorings:
+### Refactorings
 
 * Rename and reorganize frontend/backend events API
 * Rename message retrieval events/sagas and use ack feature
@@ -75,7 +64,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 * Use socket.io ack for CREATE_CHANNEL event
 * Introduce socket.io acknowledgements
 
-# Fixes:
+### Fixes
 
 * Fixes channel name creation logic
 * Remove duplicate introduction messages once again
@@ -84,34 +73,34 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 * Use consistent identicons for messages and profile
 * Add retry ability to tor-control and misc tor-control fixes
 
-# Other:
+## Other
 
 * Upgraded React-Native to 0.73.2
 
-[2.1.1]
+## [2.1.1]
 
-# Fixes:
+### Fixes
 
 * Make sure address of the inviting peer is in the invitation link
 * Opening the mobile app with joining links has been corrected.
 
-# Refactorings:
+### Refactorings
 
 * Remove unused backend events and state-manager event types
 
-[2.1.0]
+## [2.1.0]
 
-# New features:
+### New features
 
 * Added user profile feature.
 * Updated old logo of Linux and Windows with rounded ones.
 
-# Fixes:
+### Fixes
 
 * Handle spaces in tor process path.
 * Run tor process in shell.
 
-# Refactorings:
+### Refactorings
 
 * Refactor registration service, replace promise waiting mechanism around certificate requests and help prevent duplicate username registration
 * Removed SAVE_OWNER_CERTIFICATE event.
@@ -119,32 +108,32 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 * Removed unused SEND_USER_CERTIFICATE event.
 * Removed unused SUBSCRIBE_FOR events.
 
-[2.0.1]
+## [2.0.1]
 
-# Fixes:
+### Fixes
 
- * Desktop UI console errors/warnings have been cleaned up.
- * The channel context menu is now enabled for all users.
- * A bug that impersonated the channel creation message due to the removal of the username has been fixed.
- * Large file downloads are now slower but steadier.
- * The username changing form has been fixed.
- * Push notifications runtime permission is now requested on Android.
- * Users joining a community will no longer receive multiple "welcome" messages.
- * Users sharing the same nickname now have different profile images.
+* Desktop UI console errors/warnings have been cleaned up.
+* The channel context menu is now enabled for all users.
+* A bug that impersonated the channel creation message due to the removal of the username has been fixed.
+* Large file downloads are now slower but steadier.
+* The username changing form has been fixed.
+* Push notifications runtime permission is now requested on Android.
+* Users joining a community will no longer receive multiple "welcome" messages.
+* Users sharing the same nickname now have different profile images.
 
-[2.0.0]
+## [2.0.0]
 
-# Breaking changes:
+### Breaking changes
 
 * To let users join when the owner is offline we made changes that broke backwards compatibility, so you will need to create a new community and re-invite members. Need help migrating? [help@quiet.chat](mailto:help@quiet.chat)
 
-# New Features:
+### New features
 
 * Users can join a community when its owner is offline. This was a big one!
 * Desktop and mobile users can send markdown messages. (Thanks again @josephlacey!)
 * Desktop users can now export chats to a text file. (Thanks @rajdip-b!)
 
-# Improvements:
+### Improvements
 
 * Prettier message loading indicator on mobile
 * Better descriptions of the joining process
@@ -153,7 +142,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 * A nice splash screen on mobile until the joining/creating screens are ready
 * Clearer autoupdate language in the update modal, so users know that the app will update on restart
 
-# Fixes:
+### Fixes
 
 * Mobile apps should no longer crash on restart.
 * Joining community no longer gets stuck on "initiating backend modules."
@@ -167,19 +156,19 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 * Desktop settings now open the "invite" tab by default, as they were meant to.
 * We now initialize electron-store after setting appData to prevent creating an empty "Quiet" data directory.
 
-# Notes
+### Notes
 
 * Quiet now labels duplicate unregistered usernames
 * Quiet shows an full-screen warning for duplicate registered usernames, since these should never happen and indicate a potential compromise.
 * For authenticating connections, Quiet now uses libp2p's [Pre-shared Key Based Private Networks](https://github.com/libp2p/specs/blob/master/pnet/Private-Networks-PSK-V1.md) instead of X.509 certificates so peers can connect before registering.
 
-[2.0.3-alpha.16]
+## [2.0.3-alpha.16]
 
 * Fix: mobile app crashing on restart
 
 * Refactor: backend, storage module - extracting OrbitDB as another provider, refactor of  CertificatesRequestsStore, CommunityMetadataStore, CertificatesStore as Nest providers, store tests adjustments,  file structure
 
-[2.0.3-alpha.15]
+## [2.0.3-alpha.15]
 
 * Fix: construct all stores before initializing them - initializing community metadata store sets metadata in certificates store
 
@@ -187,13 +176,13 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 * Add debug logs.
 
-[2.0.3-alpha.14]
+## [2.0.3-alpha.14]
 
 * Add community metadata validation.
 
 * Move community metadata to separate store.
 
-[2.0.3-alpha.13]
+## [2.0.3-alpha.13]
 
 * Initialize electron-store after setting appData to prevent creating empty "Quiet" data directory
 
@@ -203,7 +192,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 * Add test-case in e2e multiple test for using username taken modal
 
-[2.0.3-alpha.12]
+## [2.0.3-alpha.12]
 
 * Better descriptions of the joining process
 
@@ -221,13 +210,13 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 * Feature: add functionality to export chat to text document in desktop version
 
-[2.0.3-alpha.6]
+## [2.0.3-alpha.6]
 
 * Fix: filter out invalid peer addresses in peer list. Update peer list in localdb.
 
 * Fix: dial new peers on CSRs replication
 
-[2.0.3-alpha.5]
+## [2.0.3-alpha.5]
 
 * Fix network data proceeding when using custom protocol multiple times #1847
 
@@ -235,11 +224,11 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 * Removed code responsible for data translation from channel address to channel id from state manager transforms and storage service
 
-[2.0.3-alpha.1]
+## [2.0.3-alpha.1]
 
 * Temporarily hiding leave community button from Possible impersonation attack
 
-[2.0.3-alpha.0]
+## [2.0.3-alpha.0]
 
 * Filter CSRs - remove old csrs and replace with new for each pubkey
 
@@ -259,7 +248,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 * Fix - up/down arrows now work properly inside channel input (textarea)
 
-[2.0.1-alpha.2]
+## [2.0.1-alpha.2]
 
 * UI layer for taken usernames for desktop and mobile
 
@@ -289,7 +278,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 * No unregistered/duplicated label for system messages
 
-[2.0.0-alpha.11]
+## [2.0.0-alpha.11]
 
 * Customize Launch Screen on iOS
 
