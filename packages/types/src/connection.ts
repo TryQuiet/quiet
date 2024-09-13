@@ -24,7 +24,6 @@ export enum ConnectionProcessInfo {
   INITIALIZING_STORAGE = 'Initializing storage',
   INITIALIZING_LIBP2P = 'Initializing libp2p',
   INITIALIZING_IPFS = 'Initializing IPFS',
-  STORAGE_INITIALIZED = 'Initialized storage',
   DBS_INITIALIZED = 'Initialized DBs',
   COMMUNITY_LAUNCHED = 'Launched community',
   CHANNELS_STORED = 'Channels replicated',

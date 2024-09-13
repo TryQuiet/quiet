@@ -20,7 +20,7 @@ abstract class StoreBase<V, S extends KeyValueType<V> | EventsType<V>> extends E
 
   async close(): Promise<void> {
     logger.info('Closing', this.getAddress())
-    await this.store?.close()
+    await this.getStore().close()
     logger.info('Closed', this.getAddress())
   }
 

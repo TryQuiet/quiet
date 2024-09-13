@@ -4,9 +4,8 @@ import crypto from 'crypto'
 import { CustomEvent, type PeerId, isPeerId } from '@libp2p/interface'
 import { jest, beforeEach, describe, it, expect, afterEach } from '@jest/globals'
 import { communities, getFactory, identity, prepareStore, Store } from '@quiet/state-manager'
-import { createPeerId, createTmpDir, libp2pInstanceParams, removeFilesFromDir, tmpQuietDirPath } from '../common/utils'
+import { createPeerId, createTmpDir, removeFilesFromDir, tmpQuietDirPath } from '../common/utils'
 import { NetworkStats, type Community, type Identity } from '@quiet/types'
-import { LazyModuleLoader } from '@nestjs/core'
 import { TestingModule, Test } from '@nestjs/testing'
 import { FactoryGirl } from 'factory-girl'
 import { TestModule } from '../common/test.module'
@@ -30,7 +29,6 @@ import waitForExpect from 'wait-for-expect'
 import { Libp2pEvents } from '../libp2p/libp2p.types'
 import { sleep } from '../common/sleep'
 import { createLibp2pAddress } from '@quiet/common'
-import { lib } from 'crypto-js'
 import { createLogger } from '../common/logger'
 
 const logger = createLogger('connectionsManager:test')
@@ -46,7 +44,6 @@ let tor: Tor
 let localDbService: LocalDbService
 let registrationService: RegistrationService
 let libp2pService: Libp2pService
-let lazyModuleLoader: LazyModuleLoader
 let quietDir: string
 let store: Store
 let factory: FactoryGirl
@@ -98,17 +95,6 @@ beforeEach(async () => {
   const torPassword = crypto.randomBytes(16).toString('hex')
   torControl = await module.resolve(TorControl)
   torControl.authString = 'AUTHENTICATE ' + torPassword + '\r\n'
-
-  lazyModuleLoader = await module.resolve(LazyModuleLoader)
-  const { Libp2pModule: Module } = await import('../libp2p/libp2p.module')
-  const moduleRef = await lazyModuleLoader.load(() => Module)
-  const { Libp2pService } = await import('../libp2p/libp2p.service')
-  libp2pService = moduleRef.get(Libp2pService)
-  const params = await libp2pInstanceParams()
-  peerId = params.peerId
-
-  connectionsManagerService.libp2pService = libp2pService
-
   quietDir = await module.resolve(QUIET_DIR)
 
   const pskBase64 = Libp2pService.generateLibp2pPSK().psk
@@ -126,10 +112,6 @@ afterEach(async () => {
 
 describe('Connections manager', () => {
   it('saves peer stats when peer has been disconnected', async () => {
-    // @ts-expect-error
-    libp2pService.processInChunksService.init = jest.fn()
-    // @ts-expect-error
-    libp2pService.processInChunksService.process = jest.fn()
     class RemotePeerEventDetail {
       peerId: string
 

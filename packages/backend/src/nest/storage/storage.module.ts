@@ -7,9 +7,10 @@ import { CertificatesRequestsStore } from './certifacteRequests/certificatesRequ
 import { CertificatesStore } from './certificates/certificates.store'
 import { CommunityMetadataStore } from './communityMetadata/communityMetadata.store'
 import { UserProfileStore } from './userProfile/userProfile.store'
+import { IpfsModule } from '../ipfs/ipfs.module'
 
 @Module({
-  imports: [LocalDbModule, IpfsFileManagerModule],
+  imports: [LocalDbModule, IpfsModule, IpfsFileManagerModule],
   providers: [
     StorageService,
     OrbitDb,

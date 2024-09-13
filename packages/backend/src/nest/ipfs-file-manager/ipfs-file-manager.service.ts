@@ -27,6 +27,7 @@ import { sleep } from '../common/sleep'
 const sizeOfPromisified = promisify(sizeOf)
 const { createPaths, compare } = await import('../common/utils')
 import { createLogger } from '../common/logger'
+import { IpfsService } from '../ipfs/ipfs.service'
 
 @Injectable()
 export class IpfsFileManagerService extends EventEmitter {
@@ -45,7 +46,7 @@ export class IpfsFileManagerService extends EventEmitter {
   private readonly logger = createLogger(IpfsFileManagerService.name)
   constructor(
     @Inject(QUIET_DIR) public readonly quietDir: string,
-    private readonly lazyModuleLoader: LazyModuleLoader
+    private readonly ipfsService: IpfsService
   ) {
     super()
 
@@ -54,12 +55,8 @@ export class IpfsFileManagerService extends EventEmitter {
   }
 
   public async init() {
-    const { IpfsModule } = await import('../ipfs/ipfs.module')
-    const moduleRef = await this.lazyModuleLoader.load(() => IpfsModule)
-    const { IpfsService } = await import('../ipfs/ipfs.service')
-    const ipfsService = moduleRef.get(IpfsService)
+    const ipfsInstance = this.ipfsService?.ipfsInstance
 
-    const ipfsInstance = ipfsService?.ipfsInstance
     if (!ipfsInstance) {
       this.logger.error('no ipfs instance')
       throw new Error('no ipfs instance')

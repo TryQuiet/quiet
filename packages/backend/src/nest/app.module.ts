@@ -41,14 +41,14 @@ const logger = createLogger('appModule')
 @Module({
   imports: [
     SocketModule,
-    ConnectionsManagerModule,
-    RegistrationModule,
-    IpfsFileManagerModule,
     LocalDbModule,
     Libp2pModule,
-    TorModule,
-    StorageModule,
     IpfsModule,
+    IpfsFileManagerModule,
+    StorageModule,
+    ConnectionsManagerModule,
+    RegistrationModule,
+    TorModule,
   ],
   providers: [
     {

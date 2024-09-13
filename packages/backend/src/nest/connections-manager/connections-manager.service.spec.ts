@@ -1,14 +1,12 @@
 import { jest } from '@jest/globals'
-import { LazyModuleLoader } from '@nestjs/core'
 import { Test, TestingModule } from '@nestjs/testing'
 import { getFactory, prepareStore, type Store, type communities, type identity } from '@quiet/state-manager'
 import { type Community, type Identity, type InitCommunityPayload } from '@quiet/types'
 import { type FactoryGirl } from 'factory-girl'
 import { TestModule } from '../common/test.module'
-import { libp2pInstanceParams, removeFilesFromDir } from '../common/utils'
+import { removeFilesFromDir } from '../common/utils'
 import { QUIET_DIR, TOR_PASSWORD_PROVIDER } from '../const'
 import { Libp2pModule } from '../libp2p/libp2p.module'
-import { Libp2pService } from '../libp2p/libp2p.service'
 import { LocalDbModule } from '../local-db/local-db.module'
 import { LocalDbService } from '../local-db/local-db.service'
 import { LocalDBKeys } from '../local-db/local-db.types'
@@ -22,8 +20,6 @@ describe('ConnectionsManagerService', () => {
   let module: TestingModule
   let connectionsManagerService: ConnectionsManagerService
   let localDbService: LocalDbService
-  let libp2pService: Libp2pService
-  let lazyModuleLoader: LazyModuleLoader
   let quietDir: string
   let store: Store
   let factory: FactoryGirl
@@ -53,23 +49,10 @@ describe('ConnectionsManagerService', () => {
 
     connectionsManagerService = await module.resolve(ConnectionsManagerService)
     localDbService = await module.resolve(LocalDbService)
-
-    lazyModuleLoader = await module.resolve(LazyModuleLoader)
-    const { Libp2pModule: Module } = await import('../libp2p/libp2p.module')
-    const moduleRef = await lazyModuleLoader.load(() => Module)
-    const { Libp2pService } = await import('../libp2p/libp2p.service')
-    libp2pService = moduleRef.get(Libp2pService)
-    const params = await libp2pInstanceParams()
-    await libp2pService.createInstance(params)
-    expect(libp2pService.libp2pInstance).not.toBeNull()
-
-    connectionsManagerService.libp2pService = libp2pService
-
     quietDir = await module.resolve(QUIET_DIR)
   })
 
   afterEach(async () => {
-    await libp2pService.libp2pInstance?.stop()
     if (connectionsManagerService) {
       await connectionsManagerService.closeAllServices()
     }

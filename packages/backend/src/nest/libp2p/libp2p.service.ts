@@ -15,7 +15,6 @@ import { getUsersAddresses } from '../common/utils'
 import crypto from 'crypto'
 import { EventEmitter } from 'events'
 import { Agent } from 'https'
-import { createServer } from 'it-ws'
 import { createLibp2p } from 'libp2p'
 import { DateTime } from 'luxon'
 import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
@@ -23,9 +22,7 @@ import { toString as uint8ArrayToString } from 'uint8arrays/to-string'
 import { SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
 import { ServerIoProviderTypes } from '../types'
 import { webSockets } from '../websocketOverTor'
-import { all } from '../websocketOverTor/filters'
-import { Libp2pConnectedPeer, Libp2pEvents, Libp2pNodeParams, Libp2pPeerInfo } from './libp2p.types'
-import { ProcessInChunksService } from './process-in-chunks.service'
+import { Libp2pConnectedPeer, Libp2pEvents, Libp2pNodeParams } from './libp2p.types'
 import { createLogger } from '../common/logger'
 
 const KEY_LENGTH = 32
@@ -224,13 +221,11 @@ export class Libp2pService extends EventEmitter {
         connectionEncryption: [noise()],
         transports: [
           webSockets({
-            // filter: all,
             websocket: {
               agent: params.agent,
             },
             localAddress: params.localAddress,
             targetPort: params.targetPort,
-            // createServer: createServer,
           }),
         ],
         services: {

@@ -1,6 +1,5 @@
-import { LazyModuleLoader } from '@nestjs/core'
 import { Test, TestingModule } from '@nestjs/testing'
-import { createUserCert, keyFromCertificate, loadCSR, parseCertificate } from '@quiet/identity'
+import { keyFromCertificate, parseCertificate } from '@quiet/identity'
 import {
   prepareStore,
   getFactory,
@@ -21,9 +20,8 @@ import {
 import path from 'path'
 import { type PeerId } from '@libp2p/interface'
 import waitForExpect from 'wait-for-expect'
-import { sleep } from '../common/sleep'
 import { TestModule } from '../common/test.module'
-import { createFile, libp2pInstanceParams, rootPermsData } from '../common/utils'
+import { createFile, libp2pInstanceParams } from '../common/utils'
 import { IpfsModule } from '../ipfs/ipfs.module'
 import { IpfsService } from '../ipfs/ipfs.service'
 import { Libp2pModule } from '../libp2p/libp2p.module'
@@ -37,13 +35,7 @@ import { fileURLToPath } from 'url'
 import { jest } from '@jest/globals'
 import { LocalDbModule } from '../local-db/local-db.module'
 import { LocalDbService } from '../local-db/local-db.service'
-import { IPFS_REPO_PATCH, ORBIT_DB_DIR, QUIET_DIR } from '../const'
-import { LocalDBKeys } from '../local-db/local-db.types'
-import { CertificatesRequestsStore } from './certifacteRequests/certificatesRequestsStore'
-import { CertificatesStore } from './certificates/certificates.store'
-import { CommunityMetadataStore } from './communityMetadata/communityMetadata.store'
-import { OrbitDb } from './orbitDb/orbitDb.service'
-import { UserProfileStore } from './userProfile/userProfile.store'
+import { ORBIT_DB_DIR } from '../const'
 import { createLogger } from '../common/logger'
 
 const logger = createLogger('storageService:test')
@@ -71,13 +63,7 @@ describe('StorageService', () => {
   let storageService: StorageService
   let ipfsService: IpfsService
   let libp2pService: Libp2pService
-  let lazyModuleLoader: LazyModuleLoader
   let localDbService: LocalDbService
-  let certificatesRequestsStore: CertificatesRequestsStore
-  let certificatesStore: CertificatesStore
-  let communityMetadataStore: CommunityMetadataStore
-  let userProfileStore: UserProfileStore
-  let orbitDbService: OrbitDb
   let peerId: PeerId
 
   let store: Store
@@ -91,8 +77,6 @@ describe('StorageService', () => {
   let filePath: string
   let utils: any
   let orbitDbDir: string
-  let ipfsRepoPatch: string
-  let quietDir: string
 
   jest.setTimeout(50000)
 
@@ -135,29 +119,10 @@ describe('StorageService', () => {
 
     storageService = await module.resolve(StorageService)
     localDbService = await module.resolve(LocalDbService)
-    orbitDbService = await module.resolve(OrbitDb)
-
-    certificatesRequestsStore = await module.resolve(CertificatesRequestsStore)
-    certificatesStore = await module.resolve(CertificatesStore)
-    communityMetadataStore = await module.resolve(CommunityMetadataStore)
-    userProfileStore = await module.resolve(UserProfileStore)
-    lazyModuleLoader = await module.resolve(LazyModuleLoader)
+    libp2pService = await module.resolve(Libp2pService)
+    ipfsService = await module.resolve(IpfsService)
 
     orbitDbDir = await module.resolve(ORBIT_DB_DIR)
-
-    ipfsRepoPatch = await module.resolve(IPFS_REPO_PATCH)
-
-    quietDir = await module.resolve(QUIET_DIR)
-
-    const { Libp2pModule: ModuleLibp2p } = await import('../libp2p/libp2p.module')
-    const moduleLibp2p = await lazyModuleLoader.load(() => ModuleLibp2p)
-    const { Libp2pService } = await import('../libp2p/libp2p.service')
-    libp2pService = moduleLibp2p.get(Libp2pService)
-
-    const { IpfsModule: ModuleIpfs } = await import('../ipfs/ipfs.module')
-    const moduleIpfs = await lazyModuleLoader.load(() => ModuleIpfs)
-    const { IpfsService } = await import('../ipfs/ipfs.service')
-    ipfsService = moduleIpfs.get(IpfsService)
 
     const params = await libp2pInstanceParams()
     peerId = params.peerId
@@ -165,8 +130,7 @@ describe('StorageService', () => {
     await libp2pService.createInstance(params)
     expect(libp2pService.libp2pInstance).not.toBeNull()
 
-    await ipfsService.createInstance()
-    expect(ipfsService.ipfsInstance).not.toBeNull()
+    await localDbService.open()
     expect(localDbService.getStatus()).toEqual('open')
 
     await localDbService.setCommunity(community)
@@ -176,9 +140,7 @@ describe('StorageService', () => {
   afterEach(async () => {
     await libp2pService.libp2pInstance?.stop()
     await ipfsService.ipfsInstance?.stop()
-    await storageService.stopOrbitDb()
-    await sleep(300)
-    // removeFilesFromDir(quietDir)
+    await storageService.stop()
     if (fs.existsSync(filePath)) {
       fs.rmSync(filePath)
     }
@@ -190,31 +152,12 @@ describe('StorageService', () => {
   })
 
   describe('Storage', () => {
-    // KACPER
-    it.skip('creates paths by default', async () => {
-      expect(fs.existsSync(orbitDbDir)).toBe(false)
-      //IPFS is created in before each
-      // expect(fs.existsSync(ipfsRepoPatch)).toBe(false)
-
-      const createPathsSpy = jest.spyOn(utils, 'createPaths')
-
-      await storageService.init(peerId)
-
-      expect(createPathsSpy).toHaveBeenCalled()
-
-      expect(fs.existsSync(orbitDbDir)).toBe(true)
-
-      expect(fs.existsSync(ipfsRepoPatch)).toBe(true)
-    })
-
     it('should not create paths if createPaths is set to false', async () => {
       const orgProcessPlatform = process.platform
       Object.defineProperty(process, 'platform', {
         value: 'android',
       })
       expect(fs.existsSync(orbitDbDir)).toBe(false)
-      //IPFS is created in before each
-      // expect(fs.existsSync(ipfsRepoPatch)).toBe(false)
 
       const createPathsSpy = jest.spyOn(utils, 'createPaths')
 
@@ -240,8 +183,8 @@ describe('StorageService', () => {
       const result = await storageService.deleteChannel({ channelId: channelio.id, ownerPeerId: peerId.toString() })
       expect(result).toEqual({ channelId: channelio.id })
 
-      const channelFromKeyValueStore = storageService.channels.get(channelio.id)
-      expect(channelFromKeyValueStore).toBeUndefined()
+      const channelFromKeyValueStore = (await storageService.getChannels()).filter(x => x.id === channelio.id)
+      expect(channelFromKeyValueStore).toEqual([])
     })
 
     it('delete channel as standard user', async () => {
@@ -251,8 +194,8 @@ describe('StorageService', () => {
       const result = await storageService.deleteChannel({ channelId: channelio.id, ownerPeerId: 'random peer id' })
       expect(result).toEqual({ channelId: channelio.id })
 
-      const channelFromKeyValueStore = storageService.channels.get(channelio.id)
-      expect(channelFromKeyValueStore).toEqual(channelio)
+      const channelFromKeyValueStore = (await storageService.getChannels()).filter(x => x.id === channelio.id)
+      expect(channelFromKeyValueStore).toEqual([channelio])
     })
   })
 
@@ -388,6 +331,7 @@ describe('StorageService', () => {
     let messages: {
       messages: Record<string, ChannelMessage>
     }
+
     beforeEach(async () => {
       realFilePath = path.join(dirname, '/real-file.txt')
       createFile(realFilePath, 2147483)
@@ -419,7 +363,7 @@ describe('StorageService', () => {
       }
     })
 
-    afterEach(async () => {
+    afterEach(() => {
       if (fs.existsSync(realFilePath)) {
         fs.rmSync(realFilePath)
       }
@@ -435,6 +379,7 @@ describe('StorageService', () => {
         expect(await storageService.checkIfFileExist(realFilePath)).toBeFalsy()
       }, 2000)
     })
+
     it('file dont exist - not throw error', async () => {
       fs.rmSync(realFilePath)
 

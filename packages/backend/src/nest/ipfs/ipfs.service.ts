@@ -1,11 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common'
-import { LazyModuleLoader } from '@nestjs/core'
 import { createHelia, type Helia } from "helia"
 import { bitswap } from '@helia/block-brokers'
 import { IPFS_REPO_PATCH } from '../const'
 import { createLogger } from '../common/logger'
 import { LevelDatastore } from 'datastore-level'
 import { FsBlockstore } from 'blockstore-fs'
+import { Libp2pService } from '../libp2p/libp2p.service'
 
 @Injectable()
 export class IpfsService {
@@ -15,17 +15,13 @@ export class IpfsService {
 
   constructor(
     @Inject(IPFS_REPO_PATCH) public readonly ipfsRepoPath: string,
-    private readonly lazyModuleLoader: LazyModuleLoader
+    private readonly libp2pService: Libp2pService
   ) {
     this.started = false
   }
 
   public async createInstance(): Promise<Helia> {
-    const { Libp2pModule } = await import('../libp2p/libp2p.module')
-    const moduleRef = await this.lazyModuleLoader.load(() => Libp2pModule)
-    const { Libp2pService } = await import('../libp2p/libp2p.service')
-    const libp2pService = moduleRef.get(Libp2pService)
-    const libp2pInstance = libp2pService?.libp2pInstance
+    const libp2pInstance = this.libp2pService?.libp2pInstance
 
     let ipfs: Helia
     try {
@@ -50,7 +46,10 @@ export class IpfsService {
   }
 
   public async start() {
-    await this.ipfsInstance?.start()
+    if (!this.ipfsInstance) {
+      throw new Error('IPFS instance does not exist')
+    }
+    await this.ipfsInstance.start()
     this.started = true
   }
 
@@ -59,7 +58,11 @@ export class IpfsService {
   }
 
   public async stop() {
-    await this.ipfsInstance?.stop()
+    this.logger.info('Stopping IPFS')
+    if (!this.ipfsInstance) {
+      throw new Error('IPFS instance does not exist')
+    }
+    await this.ipfsInstance.stop()
     this.started = false
   }
 

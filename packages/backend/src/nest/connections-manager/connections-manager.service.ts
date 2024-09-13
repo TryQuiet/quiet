@@ -12,7 +12,6 @@ import { type PeerId } from '@libp2p/interface'
 import { CryptoEngine, setEngine } from 'pkijs'
 import { getUsersFromCsrs, removeFilesFromDir } from '../common/utils'
 
-import { LazyModuleLoader } from '@nestjs/core'
 import { createLibp2pAddress, isPSKcodeValid } from '@quiet/common'
 import { CertFieldsTypes, createRootCA, getCertFieldValue, loadCertificate } from '@quiet/identity'
 import {
@@ -71,7 +70,6 @@ import { createLogger } from '../common/logger'
 export class ConnectionsManagerService extends EventEmitter implements OnModuleInit {
   public communityId: string
   public communityState: ServiceState
-  public libp2pService: Libp2pService
   private ports: GetPorts
   isTorInit: TorInitState = TorInitState.NOT_STARTED
   private peerInfo: Libp2pPeerInfo | undefined = undefined
@@ -84,11 +82,11 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     @Inject(SOCKS_PROXY_AGENT) public readonly socksProxyAgent: Agent,
     private readonly socketService: SocketService,
     private readonly registrationService: RegistrationService,
+    private readonly libp2pService: Libp2pService,
     private readonly storageServerProxyService: StorageServiceClient,
     private readonly localDbService: LocalDbService,
     private readonly storageService: StorageService,
     private readonly tor: Tor,
-    private readonly lazyModuleLoader: LazyModuleLoader
   ) {
     super()
   }
@@ -224,31 +222,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     }
   }
 
-  public async closeAllServices(options: { saveTor: boolean } = { saveTor: false }) {
-    this.logger.info('Closing services')
-
-    await this.closeSocket()
-
-    if (this.tor && !options.saveTor) {
-      this.logger.info('Killing tor')
-      await this.tor.kill()
-    } else if (options.saveTor) {
-      this.logger.info('Saving tor')
-    }
-    if (this.storageService) {
-      this.logger.info('Stopping OrbitDB')
-      await this.storageService?.stopOrbitDb()
-    }
-    if (this.libp2pService) {
-      this.logger.info('Stopping libp2p')
-      await this.libp2pService.close()
-    }
-    if (this.localDbService) {
-      this.logger.info('Closing local DB')
-      await this.localDbService.close()
-    }
-  }
-
   public async closeSocket() {
     await this.socketService.close()
   }
@@ -288,10 +261,38 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     await this.socketService.init()
   }
 
+  public async closeAllServices(options: { saveTor: boolean } = { saveTor: false }) {
+    this.logger.info('Closing services')
+
+    await this.closeSocket()
+
+    if (this.tor && !options.saveTor) {
+      this.logger.info('Killing tor')
+      await this.tor.kill()
+    } else if (options.saveTor) {
+      this.logger.info('Saving tor')
+    }
+    if (this.storageService) {
+      this.logger.info('Stopping StorageService')
+      await this.storageService?.stop()
+    }
+    if (this.libp2pService) {
+      this.logger.info('Stopping libp2p')
+      await this.libp2pService.close()
+    }
+    if (this.localDbService) {
+      this.logger.info('Closing local DB')
+      await this.localDbService.close()
+    }
+  }
+
   public async leaveCommunity(): Promise<boolean> {
     this.logger.info('Running leaveCommunity')
 
     await this.closeAllServices({ saveTor: true })
+
+    this.logger.info('Resetting StorageService')
+    await this.storageService.clean()
 
     this.logger.info('Purging data')
     await this.purgeData()
@@ -599,12 +600,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.logger.info(`Launching community ${community.id}: peer: ${network.peerId.id}`)
 
     const onionAddress = await this.spawnTorHiddenService(community.id, network)
-
-    const { Libp2pModule } = await import('../libp2p/libp2p.module')
-    const moduleRef = await this.lazyModuleLoader.load(() => Libp2pModule)
-    const { Libp2pService } = await import('../libp2p/libp2p.service')
-    const lazyService = moduleRef.get(Libp2pService)
-    this.libp2pService = lazyService
 
     const peerId = await createFromJSON(network.peerId)
 

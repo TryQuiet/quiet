@@ -39,7 +39,6 @@ import { IpfsFileManagerService } from '../ipfs-file-manager/ipfs-file-manager.s
 import { IPFS_REPO_PATCH, ORBIT_DB_DIR, QUIET_DIR } from '../const'
 import { IpfsFilesManagerEvents } from '../ipfs-file-manager/ipfs-file-manager.types'
 import { LocalDbService } from '../local-db/local-db.service'
-import { LazyModuleLoader } from '@nestjs/core'
 import { createLogger } from '../common/logger'
 import { PublicChannelsRepo } from '../common/types'
 import { removeFiles, removeDirs, createPaths } from '../common/utils'
@@ -55,15 +54,12 @@ import { MessagesAccessController } from './orbitDb/MessagesAccessController'
 
 @Injectable()
 export class StorageService extends EventEmitter {
+  private peerId: PeerId | null = null
   public publicChannelsRepos: Map<string, PublicChannelsRepo> = new Map()
   private publicKeysMap: Map<string, CryptoKey> = new Map()
 
-  public certificates: EventsType<string>
-  public channels: KeyValueType<PublicChannel>
-
-  private ipfsService: IpfsService
-  private filesManager: IpfsFileManagerService
-  private peerId: PeerId | null = null
+  private certificates: EventsType<string> | null
+  private channels: KeyValueType<PublicChannel> | null
 
   private readonly logger = createLogger(StorageService.name)
 
@@ -72,59 +68,44 @@ export class StorageService extends EventEmitter {
     @Inject(ORBIT_DB_DIR) public readonly orbitDbDir: string,
     @Inject(IPFS_REPO_PATCH) public readonly ipfsRepoPath: string,
     private readonly localDbService: LocalDbService,
+    private readonly ipfsService: IpfsService,
+    private readonly filesManager: IpfsFileManagerService,
     private readonly orbitDbService: OrbitDb,
     private readonly certificatesRequestsStore: CertificatesRequestsStore,
     private readonly certificatesStore: CertificatesStore,
     private readonly communityMetadataStore: CommunityMetadataStore,
     private readonly userProfileStore: UserProfileStore,
-    private readonly lazyModuleLoader: LazyModuleLoader
   ) {
     super()
   }
 
   private prepare() {
-    this.logger.info('Initializing storage')
     removeFiles(this.quietDir, 'LOCK')
     removeDirs(this.quietDir, 'repo.lock')
 
     if (!['android', 'ios'].includes(process.platform)) {
       createPaths([this.ipfsRepoPath, this.orbitDbDir])
     }
-
-    this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.STORAGE_INITIALIZED)
-
-    this.logger.info('Initialized storage')
   }
 
   public async init(peerId: any) {
-    this.clean()
+    this.logger.info('Initializing storage')
     this.prepare()
     this.peerId = peerId
-    const { IpfsModule } = await import('../ipfs/ipfs.module')
-    const ipfsModuleRef = await this.lazyModuleLoader.load(() => IpfsModule)
-    const { IpfsService } = await import('../ipfs/ipfs.service')
-    this.ipfsService = ipfsModuleRef.get(IpfsService)
-
-    await this.ipfsService.createInstance()
-    if (!this.ipfsService.ipfsInstance) {
-      throw new Error('IPFS instance required')
-    }
-    await this.orbitDbService.create(peerId, this.ipfsService.ipfsInstance)
 
     this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.INITIALIZING_IPFS)
 
-    const { IpfsFileManagerModule } = await import('../ipfs-file-manager/ipfs-file-manager.module')
-    const ipfsFileManagerModuleRef = await this.lazyModuleLoader.load(() => IpfsFileManagerModule)
-    const { IpfsFileManagerService } = await import('../ipfs-file-manager/ipfs-file-manager.service')
-    const ipfsFileManagerService = ipfsFileManagerModuleRef.get(IpfsFileManagerService)
-    await ipfsFileManagerService.init()
-    this.filesManager = ipfsFileManagerService
+    await this.ipfsService.createInstance()
+    await this.ipfsService.start()
+    await this.orbitDbService.create(peerId, this.ipfsService.ipfsInstance!)
 
     this.attachFileManagerEvents()
-    await this.initDatabases()
+    await this.filesManager.init()
 
-    await this.ipfsService.start()
+    await this.initDatabases()
     await this.startSync()
+
+    this.logger.info('Initialized storage')
   }
 
   private async startSync() {
@@ -134,7 +115,7 @@ export class StorageService extends EventEmitter {
     }
 
     await this.communityMetadataStore.startSync()
-    await this.channels.sync.start()
+    await this.channels?.sync.start()
     await this.certificatesStore.startSync()
     await this.certificatesRequestsStore.startSync()
     await this.userProfileStore.startSync()
@@ -174,24 +155,7 @@ export class StorageService extends EventEmitter {
     this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.DBS_INITIALIZED)
   }
 
-  private async stopIPFS() {
-    if (this.ipfsService) {
-      this.logger.info('Stopping IPFS files manager')
-      try {
-        await this.filesManager.stop()
-      } catch (e) {
-        this.logger.error('cannot stop filesManager', e)
-      }
-      this.logger.info('Stopping IPFS')
-      try {
-        await this.ipfsService.stop()
-      } catch (err) {
-        this.logger.error(`Following error occured during closing ipfs database: ${err as string}`)
-      }
-    }
-  }
-
-  public async stopOrbitDb() {
+  public async stop() {
     try {
       this.logger.info('Closing channels DB')
       await this.channels?.close()
@@ -225,7 +189,19 @@ export class StorageService extends EventEmitter {
     }
 
     await this.orbitDbService.stop()
-    await this.stopIPFS()
+
+    this.logger.info('Stopping IPFS files manager')
+    try {
+      await this.filesManager.stop()
+    } catch (e) {
+      this.logger.error('Error stopping IPFS files manager', e)
+    }
+
+    try {
+        await this.ipfsService.stop()
+    } catch (e) {
+      this.logger.error('Error stopping IPFS service', e)
+    }
   }
 
   public attachStoreListeners() {
@@ -294,7 +270,24 @@ export class StorageService extends EventEmitter {
     return await this.certificatesStore.getEntries()
   }
 
+  public async setChannel(id: string, channel: PublicChannel) {
+    if (!this.channels) {
+      throw new Error('Channels have not been initialized!')
+    }
+    await this.channels.put(id, channel)
+  }
+
+  public async getChannel(id: string) {
+    if (!this.channels) {
+      throw new Error('Channels have not been initialized!')
+    }
+    return await this.channels.get(id)
+  }
+
   public async getChannels(): Promise<PublicChannel[]> {
+    if (!this.channels) {
+      throw new Error('Channels have not been initialized!')
+    }
     return (await this.channels.all()).map(x => x.value)
   }
 
@@ -495,10 +488,10 @@ export class StorageService extends EventEmitter {
         AccessController: MessagesAccessController({ write: ['*'] }),
       }
     )
-    const channel = this.channels.get(channelId)
+    const channel = await this.getChannel(channelId)
 
     if (channel === undefined) {
-      await this.channels.put(channelId, channelData)
+      await this.setChannel(channelId, channelData)
     } else {
       this.logger.info(`Channel ${channelId} already exists`)
     }
@@ -513,13 +506,16 @@ export class StorageService extends EventEmitter {
   public async deleteChannel(payload: { channelId: string; ownerPeerId: string }) {
     this.logger.info('deleting channel storage', payload)
     const { channelId, ownerPeerId } = payload
-    const channel = await this.channels.get(channelId)
+    const channel = await this.getChannel(channelId)
     if (!this.peerId) {
       this.logger.error('deleteChannel - peerId is null')
       throw new Error('deleteChannel - peerId is null')
     }
     const isOwner = ownerPeerId === this.peerId.toString()
     if (channel && isOwner) {
+      if (!this.channels) {
+        throw new Error('Channels have not been initialized!')
+      }
       await this.channels.del(channelId)
     }
     let repo = this.publicChannelsRepos.get(channelId)
@@ -705,23 +701,19 @@ export class StorageService extends EventEmitter {
     })
   }
 
-  private clean() {
-    // @ts-ignore
-    this.channels = undefined
-    // @ts-ignore
-    this.messageThreads = undefined
-    // @ts-ignore
+  public async clean() {
+    this.peerId = null
     this.publicChannelsRepos = new Map()
     this.publicKeysMap = new Map()
-    // @ts-ignore
-    this.ipfsService = null
-    // @ts-ignore
-    this.filesManager = null
-    this.peerId = null
+
+    this.certificates = null
+    this.channels = null
 
     this.certificatesRequestsStore.clean()
     this.certificatesStore.clean()
     this.communityMetadataStore.clean()
     this.userProfileStore.clean()
+
+    await this.ipfsService.destoryInstance()
   }
 }
