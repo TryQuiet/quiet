@@ -76,6 +76,7 @@ Alpha releases are pre-release versions of the release which are delivered to QA
 1. Manually update the release notes on the [Releases Page](https://github.com/TryQuiet/quiet/releases) with the changes included in the release. See [RELEASE_NOTES_GUIDE.md](RELEASE_NOTES_GUIDE.md) for guidance on writing release notes.
 1. Promote the release on the [Google Play Console](https://play.google.com/console/) to a production track.
 1. Promote the release on the [App Store Connect](https://appstoreconnect.apple.com/).
+1. Checkout the `gh-pages` branch, and create a PR ([example](https://github.com/TryQuiet/quiet/pull/2605)) to update the download links on the [Quiet website](https://tryquiet.org/#Downloads) to point to the new release.
 
 ## Post-release checklist (production)
 
