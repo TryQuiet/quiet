@@ -1,5 +1,11 @@
 # Changelog
 
+## [unreleased]
+
+### Fixes
+
+* Fixed memory leak associated with autoUpdater ([#2606](https://github.com/TryQuiet/quiet/issues/2606))
+
 ## [2.3.1]
 
 ### Fixes
