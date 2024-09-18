@@ -11,75 +11,93 @@
   <br />
 </p>
 
-## Trigger
-Release process begins when all issues from `Sprint` are merged and moved to `Ready for QA`.
+## Release Trigger
 
-## Branching strategy
-Each release starts with it's own branch (based on develop).
-Develop becomes a draft for the next release.
-From this moment, all the fixes (patches) for the last supported version are being merged into the release branch and cherry-picked into develop.
+- [ ] [Quiet Planning Board](https://github.com/orgs/TryQuiet/projects/3) is up to date
+- [ ] All issues to be included from `Sprint` are merged and moved to `Merged`
+- [ ] `Ready for QA` column is empty of issues from previous releases
 
-### Example:
-```
+## Branching Rules
+
+1. Release branches are based on the `develop` branch.
+1. Release branches are named after the version number, e.g. `2.1.0` not the pre-release version number, e.g. `2.1.0-alpha.1`.
+1. Once a release branch is created, it is frozen and no new features are to be merged into it. Only bug fixes are allowed.
+1. Release branches are never deleted.
+1. Any hotfixes for the release branch are merged into the release branch and then cherry-picked into the `develop` branch if necessary.
+
+```plaintext
+# Example of branching strategy
 /develop  ->      /2.1.0       ->  #patch-commit
           ->  #feature-commit  ->  #patch-commit (cherry-picked)  -> /2.2.0
                                                                   -> ...
 ```
 
+## Release Flow
 
-## Release candidates (alpha releases)
-Pre-release builds should only be triggered from the release branch and then delivered to QA.
-Alpha versions should be delivered to QA by updating GitHub with a link to the correct versions (for desktop) and numbers of current versions (for mobile). All GitHub issues included in the released alpha version should be moved to the Ready for QA column.
-If QA reports problems that needs to be solved, the fixes must be merged into the release and develop branches, then a patched pre-release is to be built.
+1. Prepare a release candidate (alpha).
+1. Deliver the alpha to QA.
+1. QA tests the alpha.
+1. If QA finds issues, a github issue is created and moved to the `Sprint` column. Any fixes are merged into the release branch and `develop` branch.
+1. If QA finds no issues, the release is approved.
+1. A production release is built.
+1. QA tests the production release.
+1. Production release is published.
 
+## Checklist Before Alpha Release
 
-## Pre-release checklist
+- [ ] Release branch is created from `develop` branch with the production version number, e.g. `2.1.0`.
+- [ ] Reviewed the base `CHANGELOG.md` file and ensured that it is up to date with all changes included in the release since the last production release. Package level `CHANGELOG.md` files are automatically updated during the release process.
+- [ ] Reviewed the [Quiet Planning Board](https://github.com/orgs/TryQuiet/projects/3) and ensured all issues contained in the release candidate are in the `Ready for QA` column.
+
+## Preparing a Release Candidate (Alpha)
+
+Alpha releases are pre-release versions of the release which are delivered to QA for testing. They are versioned with a pre-release version number, e.g. `2.1.0-alpha.0`.
+
+1. Generate a [Github Personal Access Token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#) and set it as `GH_TOKEN` environment variable (or include it in the command as shown below).
+1. Trigger a pre-release with `GH_TOKEN=<token> npm run publish --release=[prepatch|preminor|premajor|<EXACT_VERSION>]` (e.g. to create a prerelease of a minor update `npm run publish --release=preminor`) This will increment the versions of every package that has changed, create a release on the [Releases Page](https://github.com/TryQuiet/quiet/releases), and trigger Github Actions to deploy the alpha release to the Google Play Store and App Store.
+1. Manually update the release notes on the [Releases Page](https://github.com/TryQuiet/quiet/releases) with the changes included in the alpha release. See [RELEASE_NOTES_GUIDE.md](RELEASE_NOTES_GUIDE.md) for guidance on writing release notes.
+1. Promote the alpha release on the [Google Play Console](https://play.google.com/console/) to a closed testing track. Contact @holmesworcester if you need access to the organization.
+1. Notify QA that the alpha release is ready for testing.
+
+## Checklist Before Production Release
+
 - [ ] Build is working correctly, passes automated tests and self-QA
-- [ ] Release candidate is delivered for QA
+- [ ] Alpha was delivered for QA
 - [ ] Sprint column is free from QA reported blocking issues
 - [ ] QA approved the release
-- [ ] All hotfixes to previous releases have been merged into the release (and develop) branch
-- [ ] CHANGELOG.md is up to date
+- [ ] All hotfixes for issues discovered in alpha releases have been merged into the release (and develop) branch
+- [ ] CHANGELOG.md is up to date and approved by @holmesworcester
 - [ ] PM approved the release
 
+## Preparing a Production Release
 
-## Publishing instruction
-
-By the time release is ready, ask @holmes for <b>CHANGELOG.md</b> cosmetic review, then:
-1. Checkout to a branch named after the release version number
-2. Navigate to root project directory
-3. Update CHANGELOG.md file
-4. Use the following command (with proper release type !For alpha releases use `pre` prefix!):
-  `npm run publish --release=[patch|minor|major|EXACT_VERSION]`
-5. Cherry-pick `Publish` and `Update packages CHANGELOG.md` commits into /develop
-6. Manually update release notes on the <a href='https://github.com/TryQuiet/quiet/releases' target='blank'>Releases Page</a>
-
-## Post-release checklist (alpha)
-- [ ] App is promoted and sent for review on a closed testing track in Google Play
+1. If not already done, generate a [Github Personal Access Token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#) and set it as `GH_TOKEN` environment variable (or include it in the command as shown below).
+1. Trigger a production release with `GH_TOKEN=<token> npm run publish --release=[patch|minor|major|<EXACT_VERSION>]` (e.g. to create a prerelease of a minor update `npm run publish --release=minor`) This should remove the `alpha.x` suffix, and create a release on the [Releases Page](https://github.com/TryQuiet/quiet/releases), and trigger Github Actions to deploy the release to the Google Play Store and App Store. If the semantic version is different from the alpha release, select no in the prompt to create new versions, and call the command again with the exact version.
+1. Manually update the release notes on the [Releases Page](https://github.com/TryQuiet/quiet/releases) with the changes included in the release. See [RELEASE_NOTES_GUIDE.md](RELEASE_NOTES_GUIDE.md) for guidance on writing release notes.
+1. Promote the release on the [Google Play Console](https://play.google.com/console/) to a production track.
+1. Promote the release on the [App Store Connect](https://appstoreconnect.apple.com/).
+1. Checkout the `gh-pages` branch, and create a PR ([example](https://github.com/TryQuiet/quiet/pull/2605)) to update the download links on the [Quiet website](https://tryquiet.org/#Downloads) to point to the new release.
 
 ## Post-release checklist (production)
-- [ ] Download links are updated on a website and in README.md
+
+- [ ] Release build completed successfully and the assets are uploaded to the release page
+- [ ] Download links are updated on website
 - [ ] App is promoted and sent for review on a production track in Google Play
 - [ ] App is promoted and sent for review on an external track in App Store (Test Flight)
-
-
-## Changelog / Releases Page
-Root <b>CHANGELOG.md</b> file contents are being copied into each packages' ones.
-This process is automated by `copy-changelog.js` script hooked on `postpublish` action.
-- [ ] Edit release notes to match style guide (See: [RELEASE_NOTES_GUIDE.md](RELEASE_NOTES_GUIDE.md))
+- [ ] Issues in `Ready for QA` are moved to `Done`
 
 ## QA
-QA tests for issues on all the supported platforms and moves discovered blocking issues intoto the Sprint column, then mentions them in Slack <b>#qa</b> channel, following the criteria:
-- regression,
-- new bug that creates a general feeling of unreliability,
-- issue that is incompletely implemented according to the issue description,
 
-### Book of laws
-1. Team drops any other work to work on new issues in the Sprint column
+QA tests for issues on all the supported platforms, moves discovered blocking issues into the Sprint column, and notifies the team in the Slack **#qa** channel.
+
+QA will test according to the following checklists:
+[Quiet Desktop Checklist](https://docs.google.com/spreadsheets/d/1QL5wKFbGMfGK5tZOr0YmeRGk5noS1Beo/edit?usp=sharing&ouid=106345980764925230240&rtpof=true&sd=true)
+[Quiet Mobile Checklist](https://docs.google.com/spreadsheets/d/1fwnTQKux7UUJtyjJwm9ENHGvbR_bv5gZ/edit?usp=sharing&ouid=106345980764925230240&rtpof=true&sd=true)
+[Quiet Prod Checklist](https://docs.google.com/spreadsheets/d/1qXo6FnED_Js7e-pfVG-ZNrJvztYkRNlK/edit?usp=sharing&ouid=106345980764925230240&rtpof=true&sd=true)
+
+### Rules for QA and Release Approval
+
+1. Team drops any other work to work on new issues blocking release
 2. PM can asynchronously decide a bug is not a blocker
 3. Team and QA can consult PM if they suspect a bug is not really a blocker despite meeting criteria
 4. PM can approve release in advance, pending completion of issues, or wait to give approval
-
-
-#### (TODO) Publishing Process Document
-1. Expand on post-release checklist
