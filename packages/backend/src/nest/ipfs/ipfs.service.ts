@@ -5,18 +5,19 @@ import { IPFS_REPO_PATCH } from '../const'
 import { createLogger } from '../common/logger'
 import { LevelDatastore } from 'datastore-level'
 import { FsBlockstore, FsBlockstoreInit } from 'blockstore-fs'
+import { LevelBlockstore, LevelBlockstoreInit } from 'blockstore-level'
 import { Libp2pService } from '../libp2p/libp2p.service'
 import { DatabaseOptions, Level } from 'level'
 
 type StoreInit = {
-  blockstore?: FsBlockstoreInit
+  blockstore?: Omit<LevelBlockstoreInit, 'valueEncoding' | 'keyEncoding'>
   datastore?: Omit<DatabaseOptions<string, Uint8Array>, 'valueEncoding' | 'keyEncoding'>
 }
 
 @Injectable()
 export class IpfsService {
   public ipfsInstance: Helia | null
-  private blockstore: FsBlockstore | null
+  private blockstore: FsBlockstore | LevelBlockstore | null
   private datastore: LevelDatastore | null
 
   private started: boolean
@@ -73,14 +74,23 @@ export class IpfsService {
     }
 
     if (datastoreInit.valueEncoding != 'buffer') {
-      throw new Error(`valueEncoding was set to ${datastoreInit.valueEncoding} but MUST be set to 'buffer'!`)
+      throw new Error(`Datastore valueEncoding was set to ${datastoreInit.valueEncoding} but MUST be set to 'buffer'!`)
     }
 
-    if (datastoreInit.valueEncoding != 'buffer') {
-      throw new Error(`keyEncoding was set to ${datastoreInit.keyEncoding} but MUST be set to 'utf8'!`)
+    if (datastoreInit.keyEncoding != 'utf8') {
+      throw new Error(`Datastore keyEncoding was set to ${datastoreInit.keyEncoding} but MUST be set to 'utf8'!`)
     }
 
-    let blockstoreInit: FsBlockstoreInit = {}
+    const datastoreLevelDb = new Level<string, Uint8Array>(this.ipfsRepoPath + '/data', datastoreInit)
+    this.datastore = new LevelDatastore(datastoreLevelDb, datastoreInit)
+
+    let blockstoreInit: LevelBlockstoreInit = {
+      keyEncoding: 'utf8',
+      valueEncoding: 'buffer',
+      createIfMissing: true,
+      errorIfExists: false,
+      version: 1,
+    }
 
     if (init?.blockstore != null) {
       blockstoreInit = {
@@ -89,10 +99,18 @@ export class IpfsService {
       }
     }
 
-    this.blockstore = new FsBlockstore(this.ipfsRepoPath + '/blocks', blockstoreInit)
+    if (blockstoreInit.valueEncoding != 'buffer') {
+      throw new Error(
+        `Blockstore valueEncoding was set to ${blockstoreInit.valueEncoding} but MUST be set to 'buffer'!`
+      )
+    }
 
-    const levelDb = new Level<string, Uint8Array>(this.ipfsRepoPath + '/data', datastoreInit)
-    this.datastore = new LevelDatastore(levelDb)
+    if (blockstoreInit.keyEncoding != 'utf8') {
+      throw new Error(`Blockstore keyEncoding was set to ${blockstoreInit.keyEncoding} but MUST be set to 'utf8'!`)
+    }
+
+    const blockstoreLevelDb = new Level<string, Uint8Array>(this.ipfsRepoPath + '/blocks', blockstoreInit)
+    this.blockstore = new LevelBlockstore(blockstoreLevelDb, blockstoreInit)
   }
 
   public async start() {

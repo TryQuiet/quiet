@@ -22,7 +22,7 @@ const logger = createLogger('orbitdb:keyValueWrapper')
  * @memberof module:Databases
  */
 export const KeyValueWithStorage =
-  () =>
+  (pinIpfs = true) =>
   async ({
     ipfs,
     identity,
@@ -51,7 +51,8 @@ export const KeyValueWithStorage =
     const { entryStorage, indexStorage, headsStorage } = await OrbitDbService.createDefaultStorage(
       directory,
       address,
-      ipfs
+      ipfs,
+      pinIpfs
     )
 
     // Set up the underlying KeyValue database

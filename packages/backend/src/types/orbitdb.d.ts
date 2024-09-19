@@ -80,12 +80,14 @@ declare module '@orbitdb/core' {
   // Identity
   //
 
-  export function Identities(args: {
+  export interface IdentitiesInit {
     keystore?: KeyStoreType
     path?: string
     storage?: Storage
     ipfs?: Helia
-  }): Promise<IdentitiesType>
+  }
+
+  export function Identities(args: IdentitiesInit): Promise<IdentitiesType>
 
   export interface IdentitiesType {
     createIdentity
@@ -124,11 +126,19 @@ declare module '@orbitdb/core' {
     clear: any
   }
 
-  export function IPFSBlockStorage({ ipfs: IPFS, pin: boolean }): Promise<Storage>
+  export interface IPFSBlockStorageInit {
+    ipfs: Helia
+    pin?: boolean
+    timeout?: number
+  }
+
+  export function IPFSBlockStorage(init: IPFSBlockStorageInit): Promise<Storage>
 
   export function LRUStorage({ size: number }): Promise<Storage>
 
   export function ComposedStorage(...args: Storage[]): Promise<Storage>
+
+  export function MemoryStorage(): Promise<Storage>
 
   export function LevelStorage({
     path,

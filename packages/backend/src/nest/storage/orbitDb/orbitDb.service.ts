@@ -16,8 +16,8 @@ import {
   LevelStorage,
 } from '@orbitdb/core'
 import { HeliaLibp2p, type Helia } from 'helia'
-import { KeyStore } from './keyStore'
 import { OrbitDbStorage } from '../../types'
+import { IdentitiesWithStorage } from './identitiesWithStorage'
 
 @Injectable()
 export class OrbitDbService {
@@ -42,8 +42,7 @@ export class OrbitDbService {
 
     orbitDbUseAccessController(MessagesAccessController)
 
-    const keystore = await KeyStore({ path: posixJoin(this.orbitDbDir, './keystore') })
-    this.identities = await Identities({ ipfs, keystore })
+    this.identities = await IdentitiesWithStorage(this.orbitDbDir, ipfs)
 
     const orbitDb = await createOrbitDB({
       ipfs,
@@ -71,11 +70,12 @@ export class OrbitDbService {
   public static async createDefaultStorage(
     baseDirectory: string,
     address: string,
-    ipfs: Helia | HeliaLibp2p
+    ipfs: Helia | HeliaLibp2p,
+    pinIpfs: boolean = true
   ): Promise<OrbitDbStorage> {
     const entryStorage = await ComposedStorage(
       await LRUStorage({ size: 1000 }),
-      await IPFSBlockStorage({ ipfs, pin: true })
+      await IPFSBlockStorage({ ipfs, pin: pinIpfs })
     )
 
     const headsStorage = await ComposedStorage(

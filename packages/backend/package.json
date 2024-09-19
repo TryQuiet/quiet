@@ -101,7 +101,7 @@
     "@quiet/types": "^2.0.2-alpha.1",
     "abortable-iterator": "^3.0.0",
     "blockstore-fs": "^2.0.0",
-    "blockstore-level": "1.1.8",
+    "blockstore-level": "^2.0.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.13.1",
     "cli-table": "^0.3.6",
