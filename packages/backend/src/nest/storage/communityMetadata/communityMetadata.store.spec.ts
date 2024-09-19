@@ -1,4 +1,3 @@
-import { jest, beforeEach, describe, it, expect, afterEach, beforeAll, test } from '@jest/globals'
 import fs from 'fs'
 import { createHelia, type Helia } from 'helia'
 import { TestConfig } from '../../const'
@@ -6,13 +5,13 @@ import { Test, TestingModule } from '@nestjs/testing'
 import { TestModule } from '../../common/test.module'
 import { StorageModule } from '../storage.module'
 import { OrbitDb } from '../orbitDb/orbitDb.service'
-import { createEd25519PeerId } from '@libp2p/peer-id-factory'
 import { CommunityMetadataStore } from './communityMetadata.store'
 import { Community, CommunityMetadata } from '@quiet/types'
 import { LocalDbService } from '../../local-db/local-db.service'
 import { Store, getFactory, prepareStore } from '@quiet/state-manager'
 import { FactoryGirl } from 'factory-girl'
 import { type IdentitiesType, type LogEntry, Entry } from '@orbitdb/core'
+import { createPeerId } from '../../common/utils'
 
 const metaValid = {
   id: 'anId',
@@ -68,7 +67,7 @@ describe('CommmunityMetadataStore', () => {
     orbitDbService = await module.resolve(OrbitDb)
     localDbService = await module.resolve(LocalDbService)
 
-    const peerId = await createEd25519PeerId()
+    const peerId = await createPeerId()
     ipfs = await createHelia()
     await orbitDbService.create(peerId, ipfs)
 
@@ -86,7 +85,7 @@ describe('CommmunityMetadataStore', () => {
       orbitDbService.orbitDb.identity,
       // @ts-ignore
       communityMetadataStore.store.log.id,
-      op,
+      op
     )
   })
 
@@ -161,7 +160,7 @@ describe('CommmunityMetadataStore', () => {
         },
         // @ts-ignore
         communityMetadataStore.store.log.id,
-        op,
+        op
       )
 
       const ret = await CommunityMetadataStore.validateCommunityMetadataEntry(
@@ -183,7 +182,7 @@ describe('CommmunityMetadataStore', () => {
         orbitDbService.orbitDb.identity,
         // @ts-ignore
         communityMetadataStore.store.log.id,
-        opInvalid,
+        opInvalid
       )
 
       const ret = await CommunityMetadataStore.validateCommunityMetadataEntry(

@@ -24,7 +24,7 @@ export class CertificatesRequestsStore extends EventStoreBase<string> {
     this.store = await this.orbitDbService.orbitDb.open<EventsType<string>>('csrs', {
       type: 'events',
       sync: false,
-      AccessController: IPFSAccessController({ write: ['*'] })
+      AccessController: IPFSAccessController({ write: ['*'] }),
     })
 
     this.store.events.on('update', async (entry: LogEntry) => {

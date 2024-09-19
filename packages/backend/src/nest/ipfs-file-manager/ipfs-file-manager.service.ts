@@ -449,7 +449,7 @@ export class IpfsFileManagerService extends EventEmitter {
     } while (fs.existsSync(filePath))
 
     const writeStream = fs.createWriteStream(filePath, { flags: 'wx' })
-    
+
     const entries = this.fs.cat(_CID)
 
     for await (const entry of entries) {

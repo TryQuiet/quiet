@@ -7,15 +7,13 @@ import { type DirResult } from 'tmp'
 import { type PermsData, type SaveCertificatePayload } from '@quiet/types'
 import { Time } from 'pkijs'
 import { issueCertificate, extractPendingCsrs } from './registration.functions'
-import { jest } from '@jest/globals'
-import { createTmpDir } from '../common/utils'
+import { createPeerId, createTmpDir } from '../common/utils'
 import { RegistrationEvents } from './registration.types'
 import { CertificatesStore } from '../storage/certificates/certificates.store'
 import { StorageService } from '../storage/storage.service'
 import { StorageModule } from '../storage/storage.module'
 import { OrbitDb } from '../storage/orbitDb/orbitDb.service'
 import { createHelia } from 'helia'
-import { createEd25519PeerId } from '@libp2p/peer-id-factory'
 
 describe('RegistrationService', () => {
   let module: TestingModule
@@ -155,7 +153,7 @@ describe('RegistrationService', () => {
     }).compile()
     const certificatesStore = await storageModule.resolve(CertificatesStore)
     const orbitDb = await storageModule.resolve(OrbitDb)
-    const peerId = await createEd25519PeerId()
+    const peerId = await createPeerId()
     const ipfs = await createHelia()
     const loadAllCertificates = async () => {
       return await certificatesStore.getEntries()

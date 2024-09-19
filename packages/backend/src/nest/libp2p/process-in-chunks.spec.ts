@@ -1,4 +1,3 @@
-import { jest, describe, it, expect } from '@jest/globals'
 import { ProcessInChunksService } from './process-in-chunks.service'
 import waitForExpect from 'wait-for-expect'
 import { TestModule } from '../common/test.module'

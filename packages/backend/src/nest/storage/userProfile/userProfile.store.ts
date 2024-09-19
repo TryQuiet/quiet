@@ -37,7 +37,7 @@ export class UserProfileStore extends KeyValueStoreBase<UserProfile> {
       type: 'KeyValueIndexedValidated',
       sync: false,
       Database: KeyValueIndexedValidated(UserProfileStore.validateUserProfileEntry),
-      AccessController: IPFSAccessController({ write: ['*'] })
+      AccessController: IPFSAccessController({ write: ['*'] }),
     })
 
     this.store.events.on('update', async (entry: LogEntry) => {
@@ -112,9 +112,7 @@ export class UserProfileStore extends KeyValueStoreBase<UserProfile> {
     return true
   }
 
-  public static async validateUserProfileEntry(
-    entry: LogEntry<UserProfile>
-  ) {
+  public static async validateUserProfileEntry(entry: LogEntry<UserProfile>) {
     try {
       if (entry.payload.key !== (entry.payload.value as UserProfile).pubKey) {
         logger.error(`Failed to verify user profile entry: ${entry.hash} entry key != payload pubKey`)

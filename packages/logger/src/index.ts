@@ -1,4 +1,5 @@
 import debug from 'debug'
+import { Console } from 'console'
 import { DateTime } from 'luxon'
 
 const colors = require('ansi-colors')
@@ -14,9 +15,6 @@ enum LogLevel {
   INFO = 'info',
   LOG = 'log',
   WARN = 'warn',
-}
-
-enum CustomLogLevel {
   TIMER = 'timer',
 }
 
@@ -56,6 +54,12 @@ colors.theme({
 })
 
 /**
+ * This is the base logger we use to write to the node terminal.  Due to the ways that we import the node logger
+ * we have to account for that (hence the ternary statement).
+ */
+const nodeConsoleLogger = Console instanceof Function ? new Console(process.stdout, process.stderr) : console
+
+/**
  * This class is what we use to log to the node console and, optionally, the native console for browser-facing code
  * like the desktop renderer
  *
@@ -70,9 +74,11 @@ export class QuietLogger {
   /**
    *
    * @param name This is the name that will be printed in the log entry
+   * @param parallelConsoleLog If true we will also log to the native console (e.g. browser console)
    */
   constructor(
     public name: string,
+    public parallelConsoleLog: boolean = false
   ) {
     this.isDebug = debug.enabled(name)
   }
@@ -165,7 +171,7 @@ export class QuietLogger {
     const startMs = this.timers.get(name)!
     this.timers.delete(name)
 
-    const formattedLogStrings = this.formatLog(CustomLogLevel.TIMER, name, `${endMs - startMs}ms - timer ended`)
+    const formattedLogStrings = this.formatLog(LogLevel.TIMER, name, `${endMs - startMs}ms - timer ended`)
     this.printLog(LogLevel.LOG, ...formattedLogStrings)
   }
 
@@ -192,7 +198,12 @@ export class QuietLogger {
    * @param formattedLogStrings Array of formatted log strings
    */
   private printLog(level: LogLevel, ...formattedLogStrings: string[]): void {
-    console[level](...formattedLogStrings)
+    // @ts-ignore
+    nodeConsoleLogger[level](...formattedLogStrings)
+    if (this.parallelConsoleLog) {
+      // @ts-ignore
+      console[level](...formattedLogStrings)
+    }
   }
 
   /**
@@ -203,7 +214,7 @@ export class QuietLogger {
    * @param optionalParams Other parameters we want to log
    * @returns Array of formatted log strings
    */
-  private formatLog(level: LogLevel | CustomLogLevel, message: any, ...optionalParams: any[]): string[] {
+  private formatLog(level: LogLevel, message: any, ...optionalParams: any[]): string[] {
     const formattedMessage = this.formatMessage(message, level)
     const formattedOptionalParams = optionalParams.map((param: any) => this.formatObject(param))
     return [formattedMessage, ...formattedOptionalParams]
@@ -276,14 +287,16 @@ export class QuietLogger {
  * entry point for logging in Quiet.
  *
  * @param packageName Name of the package we are logging in
+ * @param parallelConsoleLog If true we will also log to the native console (e.g. browser console)
  * @returns A function that can be used to generate a module-level logger
  */
 export const createQuietLogger = (
   packageName: string,
+  parallelConsoleLog: boolean = false
 ): ((moduleName: string) => QuietLogger) => {
   return (moduleName: string) => {
     const name = `${packageName}:${moduleName}`
-    console.info(`Initializing logger ${name}`)
-    return new QuietLogger(name)
+    nodeConsoleLogger.info(`Initializing logger ${name}`)
+    return new QuietLogger(name, parallelConsoleLog)
   }
 }

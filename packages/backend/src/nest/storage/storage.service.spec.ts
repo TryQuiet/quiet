@@ -32,7 +32,6 @@ import { StorageService } from './storage.service'
 import fs from 'fs'
 import { type FactoryGirl } from 'factory-girl'
 import { fileURLToPath } from 'url'
-import { jest } from '@jest/globals'
 import { LocalDbModule } from '../local-db/local-db.module'
 import { LocalDbService } from '../local-db/local-db.service'
 import { ORBIT_DB_DIR } from '../const'
@@ -44,7 +43,7 @@ const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
 const actual = await import('../common/utils')
-jest.unstable_mockModule('../common/utils', async () => {
+jest.mock('../common/utils', async () => {
   return {
     ...(actual as object),
     createPaths: jest.fn((paths: string[]) => {

@@ -1,11 +1,7 @@
 import { Injectable, OnModuleInit } from '@nestjs/common'
 import { EventEmitter } from 'events'
 import { extractPendingCsrs, issueCertificate } from './registration.functions'
-import {
-  PermsData,
-  RegisterOwnerCertificatePayload,
-  type SavedOwnerCertificatePayload,
-} from '@quiet/types'
+import { PermsData, RegisterOwnerCertificatePayload, type SavedOwnerCertificatePayload } from '@quiet/types'
 import { RegistrationEvents } from './registration.types'
 import { createLogger } from '../common/logger'
 import { StorageService } from '../storage/storage.service'

@@ -37,7 +37,7 @@ export class CertificatesStore extends EventStoreBase<string> {
     this.store = await this.orbitDbService.orbitDb.open<EventsType<string>>('certificates', {
       type: 'events',
       sync: false,
-      AccessController: IPFSAccessController({ write: ['*'] })
+      AccessController: IPFSAccessController({ write: ['*'] }),
     })
 
     this.store.events.on('update', async (event: LogEntry) => {
@@ -132,7 +132,7 @@ export class CertificatesStore extends EventStoreBase<string> {
     for await (const x of this.getStore().iterator()) {
       allCertificates.push(x.value)
     }
-    
+
     this.logger.info(`All certificates: ${allCertificates.length}`)
 
     const validCertificates = await Promise.all(

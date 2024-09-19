@@ -16,7 +16,11 @@ export interface SocketToConnOptions {
 
 // Convert a stream into a MultiaddrConnection
 // https://github.com/libp2p/interface-transport#multiaddrconnection
-export function socketToMaConn (stream: DuplexWebSocket, remoteAddr: Multiaddr, options: SocketToConnOptions): MultiaddrConnection {
+export function socketToMaConn(
+  stream: DuplexWebSocket,
+  remoteAddr: Multiaddr,
+  options: SocketToConnOptions
+): MultiaddrConnection {
   const log = options.logger.forComponent('libp2p:websockets:maconn')
   const metrics = options.metrics
   const metricPrefix = options.metricPrefix ?? ''
@@ -24,17 +28,19 @@ export function socketToMaConn (stream: DuplexWebSocket, remoteAddr: Multiaddr, 
   const maConn: MultiaddrConnection = {
     log,
 
-    async sink (source) {
+    async sink(source) {
       try {
-        await stream.sink((async function * () {
-          for await (const buf of source) {
-            if (buf instanceof Uint8Array) {
-              yield buf
-            } else {
-              yield buf.subarray()
+        await stream.sink(
+          (async function* () {
+            for await (const buf of source) {
+              if (buf instanceof Uint8Array) {
+                yield buf
+              } else {
+                yield buf.subarray()
+              }
             }
-          }
-        })())
+          })()
+        )
       } catch (err: any) {
         if (err.type !== 'aborted') {
           log.error(err)
@@ -48,7 +54,7 @@ export function socketToMaConn (stream: DuplexWebSocket, remoteAddr: Multiaddr, 
 
     timeline: { open: Date.now() },
 
-    async close (options: AbortOptions = {}) {
+    async close(options: AbortOptions = {}) {
       const start = Date.now()
 
       if (options.signal == null) {
@@ -56,14 +62,13 @@ export function socketToMaConn (stream: DuplexWebSocket, remoteAddr: Multiaddr, 
 
         options = {
           ...options,
-          signal
+          signal,
         }
       }
 
       const listener = (): void => {
         const { host, port } = maConn.remoteAddr.toOptions()
-        log('timeout closing stream to %s:%s after %dms, destroying it manually',
-          host, port, Date.now() - start)
+        log('timeout closing stream to %s:%s after %dms, destroying it manually', host, port, Date.now() - start)
 
         this.abort(new CodeError('Socket close timeout', 'ERR_SOCKET_CLOSE_TIMEOUT'))
       }
@@ -81,10 +86,9 @@ export function socketToMaConn (stream: DuplexWebSocket, remoteAddr: Multiaddr, 
       }
     },
 
-    abort (err: Error): void {
+    abort(err: Error): void {
       const { host, port } = maConn.remoteAddr.toOptions()
-      log('timeout closing stream to %s:%s due to error',
-        host, port, err)
+      log('timeout closing stream to %s:%s due to error', host, port, err)
 
       stream.destroy()
       maConn.timeline.close = Date.now()
@@ -94,19 +98,23 @@ export function socketToMaConn (stream: DuplexWebSocket, remoteAddr: Multiaddr, 
       // with an event listener
       // https://github.com/websockets/ws/issues/1752#issuecomment-622380981
       metrics?.increment({ [`${metricPrefix}error`]: true })
-    }
+    },
   }
 
-  stream.socket.addEventListener('close', () => {
-    metrics?.increment({ [`${metricPrefix}close`]: true })
+  stream.socket.addEventListener(
+    'close',
+    () => {
+      metrics?.increment({ [`${metricPrefix}close`]: true })
 
-    // In instances where `close` was not explicitly called,
-    // such as an iterable stream ending, ensure we have set the close
-    // timeline
-    if (maConn.timeline.close == null) {
-      maConn.timeline.close = Date.now()
-    }
-  }, { once: true })
+      // In instances where `close` was not explicitly called,
+      // such as an iterable stream ending, ensure we have set the close
+      // timeline
+      if (maConn.timeline.close == null) {
+        maConn.timeline.close = Date.now()
+      }
+    },
+    { once: true }
+  )
 
   return maConn
 }

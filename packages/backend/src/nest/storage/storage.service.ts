@@ -74,7 +74,7 @@ export class StorageService extends EventEmitter {
     private readonly certificatesRequestsStore: CertificatesRequestsStore,
     private readonly certificatesStore: CertificatesStore,
     private readonly communityMetadataStore: CommunityMetadataStore,
-    private readonly userProfileStore: UserProfileStore,
+    private readonly userProfileStore: UserProfileStore
   ) {
     super()
   }
@@ -95,14 +95,21 @@ export class StorageService extends EventEmitter {
 
     this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.INITIALIZING_IPFS)
 
+    this.logger.info(`Starting IPFS`)
     await this.ipfsService.createInstance()
     await this.ipfsService.start()
+
+    this.logger.info(`Creating OrbitDB service`)
     await this.orbitDbService.create(peerId, this.ipfsService.ipfsInstance!)
 
+    this.logger.info(`Starting file manager`)
     this.attachFileManagerEvents()
     await this.filesManager.init()
 
+    this.logger.info(`Initializing Databases`)
     await this.initDatabases()
+
+    this.logger.info(`Starting database sync`)
     await this.startSync()
 
     this.logger.info('Initialized storage')
@@ -198,7 +205,7 @@ export class StorageService extends EventEmitter {
     }
 
     try {
-        await this.ipfsService.stop()
+      await this.ipfsService.stop()
     } catch (e) {
       this.logger.error('Error stopping IPFS service', e)
     }
@@ -303,7 +310,7 @@ export class StorageService extends EventEmitter {
     this.channels = await this.orbitDbService.orbitDb.open<KeyValueType<PublicChannel>>('public-channels', {
       sync: false,
       Database: KeyValueIndexedValidated(),
-      AccessController: IPFSAccessController({ write: ['*'] })
+      AccessController: IPFSAccessController({ write: ['*'] }),
     })
 
     this.channels.events.on('update', async (entry: LogEntry) => {
@@ -320,7 +327,10 @@ export class StorageService extends EventEmitter {
 
     const channels = await this.getChannels()
     this.logger.info('Channels count:', channels.length)
-    this.logger.info('Channels names:', channels.map(x => x.name))
+    this.logger.info(
+      'Channels names:',
+      channels.map(x => x.name)
+    )
     channels.forEach(channel => this.subscribeToChannel(channel))
   }
 
@@ -373,11 +383,11 @@ export class StorageService extends EventEmitter {
       try {
         db = await this.createChannel(channelData, options)
       } catch (e) {
-        this.logger.error(`Can't subscribe to channel ${channelData.id}`, e.message)
+        this.logger.error(`Can't subscribe to channel ${channelData.id}`, e)
         return
       }
       if (!db) {
-        this.logger.error(`Can't subscribe to channel ${channelData.id}`)
+        this.logger.error(`Can't subscribe to channel ${channelData.id}, the DB isn't initialized!`)
         return
       }
       repo = this.publicChannelsRepos.get(channelData.id)
@@ -481,13 +491,10 @@ export class StorageService extends EventEmitter {
     this.logger.info(`Creating channel ${channelData.id}`)
 
     const channelId = channelData.id
-    const db = await this.orbitDbService.orbitDb.open<EventsType<ChannelMessage>>(
-      `channels.${channelId}`,
-      {
-        type: 'events',
-        AccessController: MessagesAccessController({ write: ['*'] }),
-      }
-    )
+    const db = await this.orbitDbService.orbitDb.open<EventsType<ChannelMessage>>(`channels.${channelId}`, {
+      type: 'events',
+      AccessController: MessagesAccessController({ write: ['*'] }),
+    })
     const channel = await this.getChannel(channelId)
 
     if (channel === undefined) {

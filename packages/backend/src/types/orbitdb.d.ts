@@ -1,14 +1,20 @@
 // Forked from https://github.com/reseau-constellation/orbit-db-types/blob/main/index.d.ts
 
-declare module "@orbitdb/core" {
-  import EventEmitter from "events"
-  import type { Helia } from "helia"
+declare module '@orbitdb/core' {
+  import EventEmitter from 'events'
+  import type { Helia } from 'helia'
 
   //
   // OrbitDB
   //
 
-  export function OrbitDB({ ipfs, id, identity, identities, directory }: {
+  export function OrbitDB({
+    ipfs,
+    id,
+    identity,
+    identities,
+    directory,
+  }: {
     ipfs: Helia
     id: string
     identity: Identity
@@ -18,10 +24,7 @@ declare module "@orbitdb/core" {
 
   export interface OrbitDBType {
     id: string
-    open: <T>(
-      address: string,
-      options?: OrbitDBOpenOptions
-    ) => Promise<T>
+    open: <T>(address: string, options?: OrbitDBOpenOptions) => Promise<T>
     stop
     ipfs
     directory
@@ -49,7 +52,7 @@ declare module "@orbitdb/core" {
   //
   // AccessController
   //
-  
+
   export function AccessController({
     orbitdb,
     identities,
@@ -69,10 +72,7 @@ declare module "@orbitdb/core" {
     canAppend: (entry: LogEntry) => Promise<boolean>
   }
 
-  export function IPFSAccessController(args: {
-    write?: string[]
-    storage?: Storage
-  }): AccessController
+  export function IPFSAccessController(args: { write?: string[]; storage?: Storage }): AccessController
 
   export function useAccessController(accessController: { type: string }): void
 
@@ -80,7 +80,12 @@ declare module "@orbitdb/core" {
   // Identity
   //
 
-  export function Identities(args: { keystore?: KeyStoreType, path?: string, storage?: Storage, ipfs?: Helia }): Promise<IdentitiesType>
+  export function Identities(args: {
+    keystore?: KeyStoreType
+    path?: string
+    storage?: Storage
+    ipfs?: Helia
+  }): Promise<IdentitiesType>
 
   export interface IdentitiesType {
     createIdentity
@@ -90,7 +95,7 @@ declare module "@orbitdb/core" {
     verify
     keystore
   }
-  
+
   export interface Identity {
     id: string
     publicKey: string
@@ -100,11 +105,7 @@ declare module "@orbitdb/core" {
     }
     type: string
     sign: (identity: Identity, data: string) => Promise<string>
-    verify: (
-      signature: string,
-      publicKey: string,
-      data: string
-    ) => Promise<boolean>
+    verify: (signature: string, publicKey: string, data: string) => Promise<boolean>
   }
 
   export interface IdentityProvider {
@@ -117,20 +118,25 @@ declare module "@orbitdb/core" {
   //
 
   export interface Storage {
-    put
-    get
+    put: any
+    get: any
+    close: any
+    clear: any
   }
 
-  export function IPFSBlockStorage({
-    ipfs: IPFS,
-    pin: boolean,
-  }): Promise<Storage>
+  export function IPFSBlockStorage({ ipfs: IPFS, pin: boolean }): Promise<Storage>
 
   export function LRUStorage({ size: number }): Promise<Storage>
 
   export function ComposedStorage(...args: Storage[]): Promise<Storage>
 
-  export function LevelStorage({ path, valueEncoding }: { path: string?; valueEncoding?: string }): Promise<LevelStorageType>
+  export function LevelStorage({
+    path,
+    valueEncoding,
+  }: {
+    path?: string
+    valueEncoding?: string
+  }): Promise<LevelStorageType>
 
   export interface LevelStorageType {
     put: (hash: string, value: any) => Promise<void>
@@ -149,11 +155,21 @@ declare module "@orbitdb/core" {
     id
     clock: Clock
     heads: () => Promise<LogEntry[]>
-    traverse: (rootEntries: LogEntry[] | null, shouldStopFn: (entry: LogEntry) => Promise<boolean>) => AsyncGenerator<LogEntry, void, unknown>
+    traverse: (
+      rootEntries: LogEntry[] | null,
+      shouldStopFn: (entry: LogEntry) => Promise<boolean>
+    ) => AsyncGenerator<LogEntry, void, unknown>
   }
 
   declare interface EntryType {
-    create: <T>(identity: Identity, id: string, payload: { op: string; key: string | null; value: T | null }, clock?: Clock, next?: string[], refs?: string[]) => Promise<LogEntry<T>>
+    create: <T>(
+      identity: Identity,
+      id: string,
+      payload: { op: string; key: string | null; value: T | null },
+      clock?: Clock,
+      next?: string[],
+      refs?: string[]
+    ) => Promise<LogEntry<T>>
     verify: (identities: IdentitiesType, entry: LogEntry) => Promise<boolean>
     decode: (bytes: Uint8Array) => Promise<LogEntry>
     isEntry: (obj: object) => boolean
@@ -168,7 +184,7 @@ declare module "@orbitdb/core" {
     next: string[]
     refs: string[]
     clock: Clock
-    v: Number
+    v: number
     key: string
     identity: string
     sig: string
@@ -209,11 +225,7 @@ declare module "@orbitdb/core" {
     meta: Record<string, any>
     close(): Promise<void>
     drop(): Promise<void>
-    addOperation: (args: {
-      op: string
-      key: string | null
-      value: unknown
-    }) => Promise<string>
+    addOperation: (args: { op: string; key: string | null; value: unknown }) => Promise<string>
     log: Log
     sync: Sync
     // peers: TODO
@@ -229,22 +241,45 @@ declare module "@orbitdb/core" {
     // peers: TODO
   }
 
-  export function KeyValue(): ({ ipfs, identity, address, name, access, directory, meta, headsStorage, entryStorage, indexStorage, referencesCount, syncAutomatically, onUpdate }) => Promise<KeyValueType>
+  export function KeyValue(): ({
+    ipfs,
+    identity,
+    address,
+    name,
+    access,
+    directory,
+    meta,
+    headsStorage,
+    entryStorage,
+    indexStorage,
+    referencesCount,
+    syncAutomatically,
+    onUpdate,
+  }) => Promise<KeyValueType>
 
   export interface KeyValueType<T = unknown> extends DatabaseType {
-    type: "keyvalue"
+    type: 'keyvalue'
     put(key: string, value: T): Promise<string>
-    set: KeyValue["put"]
+    set: KeyValue['put']
     del(key: string): Promise<string>
     get(key: string): Promise<T | undefined>
     all(): Promise<{ key: string; value: T; hash: string }[]>
   }
 
   export interface EventsType<T = unknown> extends DatabaseType {
-    type: "events"
+    type: 'events'
     add(value: T): Promise<string>
     get(hash: string): T
-    iterator({ gt, gte, lt, lte, amount }: { gt: string; gte: string; lt: string; lte: string; amount: number } = {}): AyncGenerator<{ hash: string; value: T }>
+    iterator({
+      gt,
+      gte,
+      lt,
+      lte,
+      amount,
+    }: { gt: string; gte: string; lt: string; lte: string; amount: number } = {}): AyncGenerator<{
+      hash: string
+      value: T
+    }>
     all(): Promise<{ hash: string; value: T }[]>
   }
 
@@ -252,15 +287,15 @@ declare module "@orbitdb/core" {
   // KeyStore
   //
 
-  export function KeyStore(args: { storage?: Storage, path?: string }): Promise<KeyStoreType>
+  export function KeyStore(args: { storage?: Storage; path?: string }): Promise<KeyStoreType>
 
   export interface KeyStoreType {
-    clear,
-    close,
-    hasKey,
-    addKey,
-    createKey,
-    getKey,
+    clear
+    close
+    hasKey
+    addKey
+    createKey
+    getKey
     getPublic
   }
 }

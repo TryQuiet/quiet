@@ -1,14 +1,13 @@
 import fs from 'fs'
-import { jest } from '@jest/globals'
 import { createHelia, type Helia } from 'helia'
 import { TestConfig } from '../../const'
 import { Test, TestingModule } from '@nestjs/testing'
 import { TestModule } from '../../common/test.module'
 import { StorageModule } from '../storage.module'
 import { OrbitDb } from '../orbitDb/orbitDb.service'
-import { createEd25519PeerId } from '@libp2p/peer-id-factory'
 import { CertificatesStore } from './certificates.store'
 import { CommunityMetadata } from '@quiet/types'
+import { createPeerId } from '../../common/utils'
 
 const communityMetadata: CommunityMetadata = {
   id: '39F7485441861F4A2A1A512188F1E0AA',
@@ -58,7 +57,7 @@ describe('CertificatesStore', () => {
     certificatesStore = await module.resolve(CertificatesStore)
 
     orbitDb = await module.resolve(OrbitDb)
-    const peerId = await createEd25519PeerId()
+    const peerId = await createPeerId()
     ipfs = await createHelia()
     await orbitDb.create(peerId, ipfs)
 

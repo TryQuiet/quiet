@@ -1,8 +1,6 @@
-import { createFromJSON } from '@libp2p/peer-id-factory'
 import { type DirResult } from 'tmp'
 import crypto from 'crypto'
-import { CustomEvent, type PeerId, isPeerId } from '@libp2p/interface'
-import { jest, beforeEach, describe, it, expect, afterEach } from '@jest/globals'
+import { type PeerId, isPeerId } from '@libp2p/interface'
 import { communities, getFactory, identity, prepareStore, Store } from '@quiet/state-manager'
 import { createPeerId, createTmpDir, removeFilesFromDir, tmpQuietDirPath } from '../common/utils'
 import { NetworkStats, type Community, type Identity } from '@quiet/types'
@@ -30,6 +28,7 @@ import { Libp2pEvents } from '../libp2p/libp2p.types'
 import { sleep } from '../common/sleep'
 import { createLibp2pAddress } from '@quiet/common'
 import { createLogger } from '../common/logger'
+import { createFromJSON } from '@libp2p/peer-id-factory'
 
 const logger = createLogger('connectionsManager:test')
 
@@ -186,9 +185,8 @@ describe('Connections manager', () => {
     const peersCount = 7
     for (let pCount = 0; pCount < peersCount; pCount++) {
       logger.info('pushing peer ', pCount)
-      peerList.push(
-        createLibp2pAddress(`${Math.random().toString(36).substring(2, 13)}.onion`, (await createPeerId()).toString())
-      )
+      const peerId = await createPeerId()
+      peerList.push(createLibp2pAddress(`${Math.random().toString(36).substring(2, 13)}.onion`, peerId.toString()))
     }
 
     const launchCommunityPayload = {
@@ -224,9 +222,8 @@ describe('Connections manager', () => {
     const peerList: string[] = []
     const peersCount = 8
     for (let pCount = 0; pCount < peersCount; pCount++) {
-      peerList.push(
-        createLibp2pAddress(`${Math.random().toString(36).substring(2, 13)}.onion`, (await createPeerId()).toString())
-      )
+      const peerId = await createPeerId()
+      peerList.push(createLibp2pAddress(`${Math.random().toString(36).substring(2, 13)}.onion`, peerId.toString()))
     }
 
     const launchCommunityPayload = {

@@ -13,7 +13,20 @@ import { raceSignal } from 'race-signal'
 import * as filters from './filters'
 import { createListener } from './listener'
 import { socketToMaConn } from './socket-to-conn'
-import type { Transport, MultiaddrFilter, CreateListenerOptions, DialTransportOptions, Listener, AbortOptions, ComponentLogger, Logger, Connection, OutboundConnectionUpgradeEvents, Metrics, CounterGroup } from '@libp2p/interface'
+import type {
+  Transport,
+  MultiaddrFilter,
+  CreateListenerOptions,
+  DialTransportOptions,
+  Listener,
+  AbortOptions,
+  ComponentLogger,
+  Logger,
+  Connection,
+  OutboundConnectionUpgradeEvents,
+  Metrics,
+  CounterGroup,
+} from '@libp2p/interface'
 import type { Multiaddr } from '@multiformats/multiaddr'
 import type { Server } from 'http'
 import type { DuplexWebSocket } from 'it-ws/duplex'
@@ -37,9 +50,7 @@ export interface WebSocketsMetrics {
   dialerEvents: CounterGroup
 }
 
-export type WebSocketsDialEvents =
-  OutboundConnectionUpgradeEvents |
-  ProgressEvent<'websockets:open-connection'>
+export type WebSocketsDialEvents = OutboundConnectionUpgradeEvents | ProgressEvent<'websockets:open-connection'>
 
 export class WebSockets implements Transport<WebSocketsDialEvents> {
   private readonly log: Logger
@@ -48,7 +59,7 @@ export class WebSockets implements Transport<WebSocketsDialEvents> {
   private readonly metrics?: WebSocketsMetrics
   private readonly components: WebSocketsComponents
 
-  constructor (components: WebSocketsComponents, init: WebSocketsInit) {
+  constructor(components: WebSocketsComponents, init: WebSocketsInit) {
     this.log = components.logger.forComponent('libp2p:websockets')
     this.logger = components.logger
     this.components = components
@@ -58,28 +69,26 @@ export class WebSockets implements Transport<WebSocketsDialEvents> {
       this.metrics = {
         dialerEvents: components.metrics.registerCounterGroup('libp2p_websockets_dialer_events_total', {
           label: 'event',
-          help: 'Total count of WebSockets dialer events by type'
-        })
+          help: 'Total count of WebSockets dialer events by type',
+        }),
       }
     }
   }
 
-  readonly [transportSymbol] = true
+  readonly [transportSymbol] = true;
 
-  readonly [Symbol.toStringTag] = '@quiet/websockets'
+  readonly [Symbol.toStringTag] = '@quiet/websockets';
 
-  readonly [serviceCapabilities]: string[] = [
-    '@libp2p/transport'
-  ]
+  readonly [serviceCapabilities]: string[] = ['@libp2p/transport']
 
-  async dial (ma: Multiaddr, options: DialTransportOptions<WebSocketsDialEvents>): Promise<Connection> {
+  async dial(ma: Multiaddr, options: DialTransportOptions<WebSocketsDialEvents>): Promise<Connection> {
     this.log('dialing %s', ma)
     options = options ?? {}
 
     const socket = await this._connect(ma, options)
     const maConn = socketToMaConn(socket, ma, {
       logger: this.logger,
-      metrics: this.metrics?.dialerEvents
+      metrics: this.metrics?.dialerEvents,
     })
     this.log('new outbound connection %s', maConn.remoteAddr)
 
@@ -88,7 +97,7 @@ export class WebSockets implements Transport<WebSocketsDialEvents> {
     return conn
   }
 
-  async _connect (ma: Multiaddr, options: DialTransportOptions<WebSocketsDialEvents>): Promise<DuplexWebSocket> {
+  async _connect(ma: Multiaddr, options: DialTransportOptions<WebSocketsDialEvents>): Promise<DuplexWebSocket> {
     options?.signal?.throwIfAborted()
 
     const cOpts = ma.toOptions()
@@ -98,12 +107,12 @@ export class WebSockets implements Transport<WebSocketsDialEvents> {
     const addr = `${toUri(ma)}/?remoteAddress=${encodeURIComponent(this.init.localAddress)}`
     this.log('CONNECTING TO ADDR', addr)
     const rawSocket = connect(addr, this.init)
-    rawSocket.socket.addEventListener('error', () => {
+    rawSocket.socket.addEventListener('error', errorEvent => {
       // the WebSocket.ErrorEvent type doesn't actually give us any useful
       // information about what happened
       // https://developer.mozilla.org/en-US/docs/Web/API/WebSocket/error_event
       const err = new CodeError(`Could not connect to ${ma.toString()}`, 'ERR_CONNECTION_FAILED')
-      this.log.error('connection error:', err)
+      this.log.error('connection error:', err, errorEvent.error)
       this.metrics?.dialerEvents.increment({ error: true })
       errorPromise.reject(err)
     })
@@ -116,10 +125,9 @@ export class WebSockets implements Transport<WebSocketsDialEvents> {
         this.metrics?.dialerEvents.increment({ abort: true })
       }
 
-      rawSocket.close()
-        .catch(err => {
-          this.log.error('error closing raw socket', err)
-        })
+      rawSocket.close().catch(err => {
+        this.log.error('error closing raw socket', err)
+      })
 
       throw err
     }
@@ -134,15 +142,18 @@ export class WebSockets implements Transport<WebSocketsDialEvents> {
    * anytime a new incoming Connection has been successfully upgraded via
    * `upgrader.upgradeInbound`
    */
-  createListener (options: CreateListenerOptions): Listener {
-    return createListener({
-      logger: this.logger,
-      metrics: this.components.metrics
-    }, {
-      ...this.init,
-      ...options,
-      targetPort: this.init.targetPort,
-    })
+  createListener(options: CreateListenerOptions): Listener {
+    return createListener(
+      {
+        logger: this.logger,
+        metrics: this.components.metrics,
+      },
+      {
+        ...this.init,
+        ...options,
+        targetPort: this.init.targetPort,
+      }
+    )
   }
 
   /**
@@ -150,7 +161,7 @@ export class WebSockets implements Transport<WebSocketsDialEvents> {
    * By default, in a browser environment only DNS+WSS multiaddr is accepted,
    * while in a Node.js environment DNS+{WS, WSS} multiaddrs are accepted.
    */
-  listenFilter (multiaddrs: Multiaddr[]): Multiaddr[] {
+  listenFilter(multiaddrs: Multiaddr[]): Multiaddr[] {
     multiaddrs = Array.isArray(multiaddrs) ? multiaddrs : [multiaddrs]
 
     if (this.init?.filter != null) {
@@ -163,13 +174,13 @@ export class WebSockets implements Transport<WebSocketsDialEvents> {
   /**
    * Filter check for all Multiaddrs that this transport can dial
    */
-  dialFilter (multiaddrs: Multiaddr[]): Multiaddr[] {
+  dialFilter(multiaddrs: Multiaddr[]): Multiaddr[] {
     return this.listenFilter(multiaddrs)
   }
 }
 
-export function webSockets (init: WebSocketsInit): (components: WebSocketsComponents) => Transport {
-  return (components) => {
+export function webSockets(init: WebSocketsInit): (components: WebSocketsComponents) => Transport {
+  return components => {
     return new WebSockets(components, init)
   }
 }

@@ -1,13 +1,11 @@
-import { jest } from '@jest/globals'
 import { Test, TestingModule } from '@nestjs/testing'
 import { TestModule } from '../common/test.module'
-import { createPeerId, libp2pInstanceParams } from '../common/utils'
+import { libp2pInstanceParams } from '../common/utils'
 import { Libp2pModule } from './libp2p.module'
 import { LIBP2P_PSK_METADATA, Libp2pService } from './libp2p.service'
 import { Libp2pEvents, Libp2pNodeParams } from './libp2p.types'
 import { toString as uint8ArrayToString } from 'uint8arrays/to-string'
 import validator from 'validator'
-import waitForExpect from 'wait-for-expect'
 import { DEFAULT_NUM_TRIES, ProcessInChunksService } from './process-in-chunks.service'
 
 describe('Libp2pService', () => {

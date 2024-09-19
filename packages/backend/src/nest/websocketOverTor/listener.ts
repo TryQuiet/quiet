@@ -4,12 +4,22 @@
 // Essentially, the only thing we've done is override the listening port in the listen function.
 
 import os from 'os'
-import { TypedEventEmitter, CustomEvent } from '@libp2p/interface'
+import { TypedEventEmitter } from '@libp2p/interface'
 import { ipPortToMultiaddr as toMultiaddr } from '@libp2p/utils/ip-port-to-multiaddr'
 import { multiaddr, protocols } from '@multiformats/multiaddr'
 import { createServer } from 'it-ws/server'
 import { socketToMaConn } from './socket-to-conn'
-import type { ComponentLogger, Logger, Connection, Listener, ListenerEvents, CreateListenerOptions, CounterGroup, MetricGroup, Metrics } from '@libp2p/interface'
+import type {
+  ComponentLogger,
+  Logger,
+  Connection,
+  Listener,
+  ListenerEvents,
+  CreateListenerOptions,
+  CounterGroup,
+  MetricGroup,
+  Metrics,
+} from '@libp2p/interface'
 import type { Multiaddr } from '@multiformats/multiaddr'
 import type { Server } from 'http'
 import type { DuplexWebSocket } from 'it-ws/duplex'
@@ -40,7 +50,7 @@ class WebSocketListener extends TypedEventEmitter<ListenerEvents> implements Lis
   private addr: string
   private init: WebSocketListenerInit
 
-  constructor (components: WebSocketListenerComponents, init: WebSocketListenerInit) {
+  constructor(components: WebSocketListenerComponents, init: WebSocketListenerInit) {
     super()
 
     this.log = components.logger.forComponent('libp2p:websockets:listener')
@@ -58,7 +68,7 @@ class WebSocketListener extends TypedEventEmitter<ListenerEvents> implements Lis
         const maConn = socketToMaConn(stream, toMultiaddr(stream.remoteAddress ?? '', stream.remotePort ?? 0), {
           logger: components.logger,
           metrics: this.metrics?.events,
-          metricPrefix: `${this.addr} `
+          metricPrefix: `${this.addr} `,
         })
         this.log('new inbound connection %s', maConn.remoteAddr)
 
@@ -69,17 +79,20 @@ class WebSocketListener extends TypedEventEmitter<ListenerEvents> implements Lis
         })
 
         try {
-          void init.upgrader.upgradeInbound(maConn)
-            .then((conn) => {
+          void init.upgrader
+            .upgradeInbound(maConn)
+            .then(conn => {
               this.log('inbound connection %s upgraded', maConn.remoteAddr)
 
               if (init?.handler != null) {
                 init?.handler(conn)
               }
 
-              self.dispatchEvent(new CustomEvent<Connection>('connection', {
-                detail: conn
-              }))
+              self.dispatchEvent(
+                new CustomEvent<Connection>('connection', {
+                  detail: conn,
+                })
+              )
             })
             .catch(async err => {
               this.log.error('inbound connection failed to upgrade', err)
@@ -96,7 +109,7 @@ class WebSocketListener extends TypedEventEmitter<ListenerEvents> implements Lis
             this.metrics?.errors.increment({ [`${this.addr} inbound_closing_failed`]: true })
           })
         }
-      }
+      },
     })
 
     this.server.on('listening', () => {
@@ -109,33 +122,35 @@ class WebSocketListener extends TypedEventEmitter<ListenerEvents> implements Lis
           help: 'Current active connections in WebSocket listener',
           calculate: () => {
             return {
-              [this.addr]: this.connections.size
+              [this.addr]: this.connections.size,
             }
-          }
+          },
         })
 
         this.metrics = {
           status: metrics?.registerMetricGroup('libp2p_websockets_listener_status_info', {
             label: 'address',
-            help: 'Current status of the WebSocket listener socket'
+            help: 'Current status of the WebSocket listener socket',
           }),
           errors: metrics?.registerMetricGroup('libp2p_websockets_listener_errors_total', {
             label: 'address',
-            help: 'Total count of WebSocket listener errors by type'
+            help: 'Total count of WebSocket listener errors by type',
           }),
           events: metrics?.registerMetricGroup('libp2p_websockets_listener_events_total', {
             label: 'address',
-            help: 'Total count of WebSocket listener events by type'
-          })
+            help: 'Total count of WebSocket listener events by type',
+          }),
         }
       }
       this.dispatchEvent(new CustomEvent('listening'))
     })
     this.server.on('error', (err: Error) => {
       this.metrics?.errors.increment({ [`${this.addr} listen_error`]: true })
-      this.dispatchEvent(new CustomEvent('error', {
-        detail: err
-      }))
+      this.dispatchEvent(
+        new CustomEvent('error', {
+          detail: err,
+        })
+      )
     })
     this.server.on('close', () => {
       this.dispatchEvent(new CustomEvent('close'))
@@ -144,9 +159,11 @@ class WebSocketListener extends TypedEventEmitter<ListenerEvents> implements Lis
     this.init = init
   }
 
-  async close (): Promise<void> {
+  async close(): Promise<void> {
     await Promise.all(
-      Array.from(this.connections).map(async maConn => { await maConn.close() })
+      Array.from(this.connections).map(async maConn => {
+        await maConn.close()
+      })
     )
 
     if (this.server.address() == null) {
@@ -157,7 +174,7 @@ class WebSocketListener extends TypedEventEmitter<ListenerEvents> implements Lis
     await this.server.close()
   }
 
-  async listen (ma: Multiaddr): Promise<void> {
+  async listen(ma: Multiaddr): Promise<void> {
     this.listeningMultiaddr = ma
 
     const listenOptions = {
@@ -168,7 +185,7 @@ class WebSocketListener extends TypedEventEmitter<ListenerEvents> implements Lis
     await this.server.listen(listenOptions)
   }
 
-  getAddrs (): Multiaddr[] {
+  getAddrs(): Multiaddr[] {
     const multiaddrs = []
     const address = this.server.address()
 
@@ -177,7 +194,9 @@ class WebSocketListener extends TypedEventEmitter<ListenerEvents> implements Lis
     }
 
     if (typeof address === 'string') {
-      throw new Error('Wrong address type received - expected AddressInfo, got string - are you trying to listen on a unix socket?')
+      throw new Error(
+        'Wrong address type received - expected AddressInfo, got string - are you trying to listen on a unix socket?'
+      )
     }
 
     if (this.listeningMultiaddr == null) {
@@ -219,6 +238,6 @@ class WebSocketListener extends TypedEventEmitter<ListenerEvents> implements Lis
   }
 }
 
-export function createListener (components: WebSocketListenerComponents, init: WebSocketListenerInit): Listener {
+export function createListener(components: WebSocketListenerComponents, init: WebSocketListenerInit): Listener {
   return new WebSocketListener(components, init)
 }

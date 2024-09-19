@@ -1,4 +1,3 @@
-import { jest } from '@jest/globals'
 import { Test, TestingModule } from '@nestjs/testing'
 import { getFactory, prepareStore, type Store, type communities, type identity } from '@quiet/state-manager'
 import { type Community, type Identity, type InitCommunityPayload } from '@quiet/types'

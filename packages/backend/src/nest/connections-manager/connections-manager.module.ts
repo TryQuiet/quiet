@@ -9,7 +9,15 @@ import { StorageServiceClientModule } from '../storageServiceClient/storageServi
 import { Libp2pModule } from '../libp2p/libp2p.module'
 
 @Module({
-  imports: [RegistrationModule, Libp2pModule, StorageModule, TorModule, SocketModule, LocalDbModule, StorageServiceClientModule],
+  imports: [
+    RegistrationModule,
+    Libp2pModule,
+    StorageModule,
+    TorModule,
+    SocketModule,
+    LocalDbModule,
+    StorageServiceClientModule,
+  ],
   providers: [ConnectionsManagerService],
   exports: [ConnectionsManagerService],
 })

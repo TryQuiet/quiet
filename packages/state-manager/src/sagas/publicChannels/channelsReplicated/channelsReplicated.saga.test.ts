@@ -82,10 +82,7 @@ describe('channelsReplicatedSaga', () => {
     await expectSaga(
       channelsReplicatedSaga,
       publicChannelsActions.channelsReplicated({
-        channels: [
-          sailingChannel,
-          generalChannel,
-        ],
+        channels: [sailingChannel, generalChannel],
       })
     )
       .withReducer(reducer)
@@ -103,10 +100,7 @@ describe('channelsReplicatedSaga', () => {
     await expectSaga(
       channelsReplicatedSaga,
       publicChannelsActions.channelsReplicated({
-        channels: [
-          generalChannel,
-          sailingChannel,
-        ],
+        channels: [generalChannel, sailingChannel],
       })
     )
       .withReducer(reducer)
@@ -129,10 +123,7 @@ describe('channelsReplicatedSaga', () => {
     await expectSaga(
       channelsReplicatedSaga,
       publicChannelsActions.channelsReplicated({
-        channels: [
-          sailingChannel,
-          generalChannel,
-        ],
+        channels: [sailingChannel, generalChannel],
       })
     )
       .withReducer(reducer)
@@ -155,10 +146,7 @@ describe('channelsReplicatedSaga', () => {
     await expectSaga(
       channelsReplicatedSaga,
       publicChannelsActions.channelsReplicated({
-        channels: [
-          generalChannel,
-          sailingChannel,
-        ],
+        channels: [generalChannel, sailingChannel],
       })
     )
       .withReducer(reducer)
@@ -203,10 +191,7 @@ describe('channelsReplicatedSaga', () => {
     await expectSaga(
       channelsReplicatedSaga,
       publicChannelsActions.channelsReplicated({
-        channels: [
-          generalChannel,
-          sailingChannel,
-        ],
+        channels: [generalChannel, sailingChannel],
       })
     )
       .withReducer(reducer)
@@ -225,10 +210,7 @@ describe('channelsReplicatedSaga', () => {
     await expectSaga(
       channelsReplicatedSaga,
       publicChannelsActions.channelsReplicated({
-        channels: [
-          generalChannel,
-          sailingChannel,
-        ],
+        channels: [generalChannel, sailingChannel],
       })
     )
       .withReducer(reducer)
@@ -244,10 +226,7 @@ describe('channelsReplicatedSaga', () => {
     await expectSaga(
       channelsReplicatedSaga,
       publicChannelsActions.channelsReplicated({
-        channels: [
-          generalChannel,
-          sailingChannel,
-        ],
+        channels: [generalChannel, sailingChannel],
       })
     )
       .withReducer(reducer)

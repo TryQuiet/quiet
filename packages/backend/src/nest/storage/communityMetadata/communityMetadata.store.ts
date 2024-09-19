@@ -1,4 +1,11 @@
-import { Entry, type LogEntry, type IdentityProvider, type IdentitiesType, IPFSAccessController, type KeyValueType } from '@orbitdb/core'
+import {
+  Entry,
+  type LogEntry,
+  type IdentityProvider,
+  type IdentitiesType,
+  IPFSAccessController,
+  type KeyValueType,
+} from '@orbitdb/core'
 import { CommunityMetadata } from '@quiet/types'
 import { loadCertificate } from '@quiet/identity'
 import { StorageEvents } from '../storage.types'
@@ -49,7 +56,7 @@ export class CommunityMetadataStore extends KeyValueStoreBase<CommunityMetadata>
           this.orbitDbService.identities
         )
       ),
-      AccessController: IPFSAccessController({ write: ['*'] })
+      AccessController: IPFSAccessController({ write: ['*'] }),
     })
 
     this.store.events.on('update', async () => {
@@ -154,7 +161,6 @@ export class CommunityMetadataStore extends KeyValueStoreBase<CommunityMetadata>
     entry: LogEntry<CommunityMetadata>
   ): Promise<boolean> {
     try {
-
       if (entry.payload.value && entry.payload.key !== entry.payload.value.id) {
         logger.error('Failed to verify community metadata entry:', entry.hash, 'entry key != payload id')
         return false

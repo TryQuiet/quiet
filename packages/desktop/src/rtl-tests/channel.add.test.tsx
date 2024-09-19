@@ -102,7 +102,7 @@ describe('Add new channel', () => {
         const channelEntities = store.getState().PublicChannels.channels.entities
         const channels = Object.values(channelEntities).filter(x => x) as PublicChannel[]
         return socket.socketClient.emit<ChannelsReplicatedPayload>(SocketActionTypes.CHANNELS_STORED, {
-          channels: [ ...channels, payload.channel ],
+          channels: [...channels, payload.channel],
         })
       }
       if (action === SocketActionTypes.SEND_MESSAGE) {
@@ -313,7 +313,7 @@ describe('Add new channel', () => {
         const channelEntities = store.getState().PublicChannels.channels.entities
         const channels = Object.values(channelEntities).filter(x => x) as PublicChannel[]
         return socket.socketClient.emit<ChannelsReplicatedPayload>(SocketActionTypes.CHANNELS_STORED, {
-          channels: [ ...channels, payload.channel ],
+          channels: [...channels, payload.channel],
         })
       }
       if (action === SocketActionTypes.SEND_MESSAGE) {
@@ -409,7 +409,7 @@ describe('Add new channel', () => {
         const channelEntities = store.getState().PublicChannels.channels.entities
         const channels = Object.values(channelEntities).filter(x => x) as PublicChannel[]
         return socket.socketClient.emit<ChannelsReplicatedPayload>(SocketActionTypes.CHANNELS_STORED, {
-          channels: [ ...channels, payload.channel ],
+          channels: [...channels, payload.channel],
         })
       }
     }

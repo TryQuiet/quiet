@@ -1,6 +1,4 @@
-import { createEd25519PeerId, createFromJSON } from '@libp2p/peer-id-factory'
 import { toString as uint8ArrayToString } from 'uint8arrays/to-string'
-import { base58btc } from 'multiformats/bases/base58'
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common'
 import { Crypto } from '@peculiar/webcrypto'
 import { EventEmitter } from 'events'
@@ -8,9 +6,8 @@ import fs from 'fs'
 import getPort from 'get-port'
 import { Agent } from 'https'
 import path from 'path'
-import { type PeerId } from '@libp2p/interface'
 import { CryptoEngine, setEngine } from 'pkijs'
-import { getUsersFromCsrs, removeFilesFromDir } from '../common/utils'
+import { createPeerId, getUsersFromCsrs, removeFilesFromDir } from '../common/utils'
 
 import { createLibp2pAddress, isPSKcodeValid } from '@quiet/common'
 import { CertFieldsTypes, createRootCA, getCertFieldValue, loadCertificate } from '@quiet/identity'
@@ -65,6 +62,7 @@ import { ConfigOptions, GetPorts, ServerIoProviderTypes } from '../types'
 import { ServiceState, TorInitState } from './connections-manager.types'
 import { DateTime } from 'luxon'
 import { createLogger } from '../common/logger'
+import { createFromJSON } from '@libp2p/peer-id-factory'
 
 @Injectable()
 export class ConnectionsManagerService extends EventEmitter implements OnModuleInit {
@@ -86,7 +84,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     private readonly storageServerProxyService: StorageServiceClient,
     private readonly localDbService: LocalDbService,
     private readonly storageService: StorageService,
-    private readonly tor: Tor,
+    private readonly tor: Tor
   ) {
     super()
   }
@@ -345,9 +343,9 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     // TODO: Do we want to create the PeerId here? It doesn't necessarily have
     // anything to do with Tor.
     this.logger.info('Getting peer ID')
-    const peerId: PeerId = await createEd25519PeerId()
+    const peerId = await createPeerId()
     const peerIdJson = {
-      id: base58btc.encode(peerId.multihash.bytes).slice(1),
+      id: peerId.toString(),
       pubKey: uint8ArrayToString(peerId.publicKey!, 'base64pad'),
       privKey: uint8ArrayToString(peerId.privateKey!, 'base64pad'),
     }

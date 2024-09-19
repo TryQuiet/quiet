@@ -6,6 +6,7 @@ import { IpfsFileManagerModule } from './ipfs-file-manager/ipfs-file-manager.mod
 import path from 'path'
 import fs from 'fs'
 
+// @ts-ignore
 import cors from 'cors'
 import {
   CONFIG_OPTIONS,
@@ -105,6 +106,7 @@ export class AppModule {
               pingInterval: 1000_000,
               pingTimeout: 1000_000,
             })
+            // @ts-ignore
             io.engine.use((req, res, next) => {
               const authHeader = req.headers['authorization']
               if (!authHeader) {

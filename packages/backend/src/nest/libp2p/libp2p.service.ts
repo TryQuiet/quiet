@@ -24,6 +24,7 @@ import { ServerIoProviderTypes } from '../types'
 import { webSockets } from '../websocketOverTor'
 import { Libp2pConnectedPeer, Libp2pEvents, Libp2pNodeParams } from './libp2p.types'
 import { createLogger } from '../common/logger'
+import * as filters from '@libp2p/websockets/filters'
 
 const KEY_LENGTH = 32
 export const LIBP2P_PSK_METADATA = '/key/swarm/psk/1.0.0/\n/base16/\n'
@@ -39,7 +40,7 @@ export class Libp2pService extends EventEmitter {
 
   constructor(
     @Inject(SERVER_IO_PROVIDER) public readonly serverIoProvider: ServerIoProviderTypes,
-    @Inject(SOCKS_PROXY_AGENT) public readonly socksProxyAgent: Agent,
+    @Inject(SOCKS_PROXY_AGENT) public readonly socksProxyAgent: Agent
   ) {
     super()
 
@@ -62,7 +63,6 @@ export class Libp2pService extends EventEmitter {
     } else {
       this.logger.warn('Not dialing self')
     }
-
   }
 
   public dialPeers = async (peerAddresses: string[]) => {
@@ -79,7 +79,7 @@ export class Libp2pService extends EventEmitter {
    * retrying.
    */
   private redialPeersInBackground = () => {
-    const peerAddrs = [ ...this.dialQueue ]
+    const peerAddrs = [...this.dialQueue]
 
     this.dialQueue = []
 
@@ -94,9 +94,7 @@ export class Libp2pService extends EventEmitter {
   public dialUsers = async (users: UserData[]) => {
     const addrs = await getUsersAddresses(users.filter(x => x.peerId !== this.libp2pInstance?.peerId.toString()))
 
-    for (const addr of addrs) {
-      await this.dialPeer(addr)
-    }
+    await this.dialPeers(addrs)
   }
 
   public pause = async () => {
@@ -213,14 +211,16 @@ export class Libp2pService extends EventEmitter {
           maxConnections: 20, // TODO: increase?
           dialTimeout: 120_000,
           maxParallelDials: 10,
+          inboundUpgradeTimeout: 60_000,
         },
         peerId: params.peerId,
         addresses: { listen: params.listenAddresses },
         connectionProtector: preSharedKey({ psk: params.psk }),
-        streamMuxers: [yamux(), mplex()],
+        streamMuxers: [mplex()],
         connectionEncryption: [noise()],
         transports: [
           webSockets({
+            filter: filters.all,
             websocket: {
               agent: params.agent,
             },
@@ -229,11 +229,18 @@ export class Libp2pService extends EventEmitter {
           }),
         ],
         services: {
-          dht: kadDHT(),
-          pubsub: gossipsub({ allowPublishToZeroTopicPeers: true }),
+          dht: kadDHT({
+            allowQueryWithZeroPeers: true,
+          }),
+          pubsub: gossipsub({
+            // neccessary to run a single peer
+            allowPublishToZeroTopicPeers: true,
+            fallbackToFloodsub: true,
+            doPX: true,
+          }),
           identify: identify(),
           identifyPush: identifyPush(),
-        }
+        },
       })
     } catch (err) {
       this.logger.error('Create libp2p:', err)
@@ -265,7 +272,10 @@ export class Libp2pService extends EventEmitter {
 
       const connectedPeers: Map<string, Libp2pConnectedPeer> = new Map()
       for (const conn of this.libp2pInstance?.getConnections() ?? []) {
-        connectedPeers.set(conn.remotePeer.toString(), { address: conn.remoteAddr.toString(), connectedAtSeconds: DateTime.utc().valueOf() })
+        connectedPeers.set(conn.remotePeer.toString(), {
+          address: conn.remoteAddr.toString(),
+          connectedAtSeconds: DateTime.utc().valueOf(),
+        })
       }
       this.connectedPeers = connectedPeers
       this.logger.info(`${localPeerId} is connected to ${this.connectedPeers.size} peers`)
@@ -307,6 +317,13 @@ export class Libp2pService extends EventEmitter {
     })
 
     this.redialPeersInBackground()
+
+    await this.libp2pInstance.start()
+
+    this.logger.warn(
+      `Libp2p Multiaddrs:`,
+      this.libp2pInstance.getMultiaddrs().map(addr => addr.toString())
+    )
 
     this.logger.info(`Initialized libp2p for peer ${peerId.toString()}`)
   }

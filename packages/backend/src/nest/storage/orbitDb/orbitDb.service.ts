@@ -4,8 +4,18 @@ import { createLogger } from '../../common/logger'
 import { posixJoin } from './util'
 import { type PeerId } from '@libp2p/interface'
 import { MessagesAccessController } from './MessagesAccessController'
-import { createOrbitDB, type OrbitDBType, type IdentitiesType, useAccessController, KeyStore, Identities } from '@orbitdb/core'
-import { type Helia } from "helia";
+import {
+  createOrbitDB,
+  type OrbitDBType,
+  type IdentitiesType,
+  useAccessController as orbitDbUseAccessController, // this is to fix a linting issue about react hooks
+  Identities,
+  ComposedStorage,
+  LRUStorage,
+  IPFSBlockStorage,
+} from '@orbitdb/core'
+import { type Helia } from 'helia'
+import { KeyStore } from './keyStore'
 
 @Injectable()
 export class OrbitDb {
@@ -28,7 +38,7 @@ export class OrbitDb {
     this.logger.info('Creating OrbitDB')
     if (this.orbitDbInstance) return
 
-    useAccessController(MessagesAccessController)
+    orbitDbUseAccessController(MessagesAccessController)
 
     const keystore = await KeyStore({ path: posixJoin(this.orbitDbDir, './keystore') })
     this.identities = await Identities({ ipfs, keystore })

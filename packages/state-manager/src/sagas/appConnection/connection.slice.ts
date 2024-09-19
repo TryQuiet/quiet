@@ -43,17 +43,20 @@ export const connectionSlice = createSlice({
       state.socketIOSecret = action.payload
     },
     onConnectionProcessInfo: (state, _action: PayloadAction<string>) => state,
-    setConnectionProcess: (state, action: PayloadAction<{ info: string, isOwner: boolean }>) => {
+    setConnectionProcess: (state, action: PayloadAction<{ info: string; isOwner: boolean }>) => {
       const { info, isOwner } = action.payload
 
       if (info === ConnectionProcessInfo.INITIALIZING_IPFS) {
-          if (state.connectionProcess.number > 30) return
-          state.connectionProcess = { number: 30, text: ConnectionProcessInfo.BACKEND_MODULES }
+        if (state.connectionProcess.number > 30) return
+        state.connectionProcess = { number: 30, text: ConnectionProcessInfo.BACKEND_MODULES }
       } else if (!isOwner) {
         if (info === ConnectionProcessInfo.CONNECTING_TO_COMMUNITY) {
           if (state.connectionProcess.number == 50) return
           state.connectionProcess = { number: 50, text: ConnectionProcessInfo.CONNECTING_TO_COMMUNITY }
-        } else if (info === ConnectionProcessInfo.CHANNELS_STORED || info === ConnectionProcessInfo.CERTIFICATES_STORED) {
+        } else if (
+          info === ConnectionProcessInfo.CHANNELS_STORED ||
+          info === ConnectionProcessInfo.CERTIFICATES_STORED
+        ) {
           let number = 90
           if (state.connectionProcess.number == 90) number = 95
           state.connectionProcess = { number, text: ConnectionProcessInfo.LOADING_MESSAGES }

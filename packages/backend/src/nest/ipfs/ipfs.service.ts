@@ -1,15 +1,24 @@
 import { Inject, Injectable } from '@nestjs/common'
-import { createHelia, type Helia } from "helia"
+import { createHelia, type Helia } from 'helia'
 import { bitswap } from '@helia/block-brokers'
 import { IPFS_REPO_PATCH } from '../const'
 import { createLogger } from '../common/logger'
 import { LevelDatastore } from 'datastore-level'
-import { FsBlockstore } from 'blockstore-fs'
+import { FsBlockstore, FsBlockstoreInit } from 'blockstore-fs'
 import { Libp2pService } from '../libp2p/libp2p.service'
+import { DatabaseOptions, Level } from 'level'
+
+type StoreInit = {
+  blockstore?: FsBlockstoreInit
+  datastore?: Omit<DatabaseOptions<string, Uint8Array>, 'valueEncoding' | 'keyEncoding'>
+}
 
 @Injectable()
 export class IpfsService {
   public ipfsInstance: Helia | null
+  private blockstore: FsBlockstore | null
+  private datastore: LevelDatastore | null
+
   private started: boolean
   private readonly logger = createLogger(IpfsService.name)
 
@@ -29,12 +38,17 @@ export class IpfsService {
         this.logger.error('Libp2p instance required')
         throw new Error('Libp2p instance required')
       }
+
+      this.logger.info(`Initializing Helia datastore and blockstore`)
+      await this.initializeStores()
+
+      this.logger.info(`Creating Helia instance`)
       ipfs = await createHelia({
         start: false,
         libp2p: libp2pInstance,
-        blockstore: new FsBlockstore(this.ipfsRepoPath + '/blocks'),
-        datastore: new LevelDatastore(this.ipfsRepoPath + '/data'),
-        blockBrokers: [ bitswap() ],
+        blockstore: this.blockstore!,
+        datastore: this.datastore!,
+        blockBrokers: [bitswap()],
       })
       this.ipfsInstance = ipfs
     } catch (error) {
@@ -45,12 +59,59 @@ export class IpfsService {
     return this.ipfsInstance
   }
 
+  private async initializeStores(init?: StoreInit): Promise<void> {
+    let datastoreInit: DatabaseOptions<string, Uint8Array> = {
+      keyEncoding: 'utf8',
+      valueEncoding: 'buffer',
+    }
+
+    if (init?.datastore != null) {
+      datastoreInit = {
+        ...datastoreInit,
+        ...init.datastore,
+      }
+    }
+
+    if (datastoreInit.valueEncoding != 'buffer') {
+      throw new Error(`valueEncoding was set to ${datastoreInit.valueEncoding} but MUST be set to 'buffer'!`)
+    }
+
+    if (datastoreInit.valueEncoding != 'buffer') {
+      throw new Error(`keyEncoding was set to ${datastoreInit.keyEncoding} but MUST be set to 'utf8'!`)
+    }
+
+    let blockstoreInit: FsBlockstoreInit = {}
+
+    if (init?.blockstore != null) {
+      blockstoreInit = {
+        ...blockstoreInit,
+        ...init.blockstore,
+      }
+    }
+
+    this.blockstore = new FsBlockstore(this.ipfsRepoPath + '/blocks', blockstoreInit)
+
+    const levelDb = new Level<string, Uint8Array>(this.ipfsRepoPath + '/data', datastoreInit)
+    this.datastore = new LevelDatastore(levelDb)
+  }
+
   public async start() {
+    this.logger.info(`Starting IPFS Service`)
     if (!this.ipfsInstance) {
       throw new Error('IPFS instance does not exist')
     }
+
+    this.logger.info(`Opening Helia blockstore`)
+    await this.blockstore!.open()
+
+    this.logger.info(`Opening Helia datastore`)
+    await this.datastore!.open()
+
+    this.logger.info(`Starting Helia`)
     await this.ipfsInstance.start()
+
     this.started = true
+    this.logger.info(`IPFS Service has started`)
   }
 
   public async isStarted() {
@@ -63,6 +124,8 @@ export class IpfsService {
       throw new Error('IPFS instance does not exist')
     }
     await this.ipfsInstance.stop()
+    await this.blockstore?.close()
+    await this.datastore?.close()
     this.started = false
   }
 
@@ -73,5 +136,7 @@ export class IpfsService {
       this.logger.error('Error while destroying IPFS instance', error)
     }
     this.ipfsInstance = null
+    this.blockstore = null
+    this.datastore = null
   }
 }

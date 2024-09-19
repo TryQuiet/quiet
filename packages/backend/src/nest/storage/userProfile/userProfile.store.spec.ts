@@ -1,4 +1,3 @@
-import { describe, expect, test } from '@jest/globals'
 import * as Block from 'multiformats/block'
 import { sha256 } from 'multiformats/hashes/sha2'
 import * as dagCbor from '@ipld/dag-cbor'
@@ -137,9 +136,7 @@ describe('UserProfileStore/validateUserProfileEntry', () => {
       sig: '',
       hash: '',
     }
-    expect(
-      await UserProfileStore.validateUserProfileEntry(userProfileEntry)
-    ).toBeFalsy()
+    expect(await UserProfileStore.validateUserProfileEntry(userProfileEntry)).toBeFalsy()
   })
 
   test('returns true if user profile entry is valid', async () => {
@@ -161,8 +158,6 @@ describe('UserProfileStore/validateUserProfileEntry', () => {
       sig: '',
       hash: '',
     }
-    expect(
-      await UserProfileStore.validateUserProfileEntry(userProfileEntry)
-    ).toBeTruthy()
+    expect(await UserProfileStore.validateUserProfileEntry(userProfileEntry)).toBeTruthy()
   })
 })
