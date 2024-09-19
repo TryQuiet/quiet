@@ -45,6 +45,7 @@ import {
   type SavedOwnerCertificatePayload,
   type UserProfile,
   type UserProfilesStoredEvent,
+  Identity,
 } from '@quiet/types'
 import { CONFIG_OPTIONS, QUIET_DIR, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
 import { Libp2pService } from '../libp2p/libp2p.service'
@@ -107,6 +108,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
     setEngine(
       'newEngine',
+      // @ts-ignore
       new CryptoEngine({
         name: 'newEngine',
         // @ts-ignore
@@ -171,6 +173,8 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     const dataReceivedPromise = new Promise<void>((resolve: () => void) => {
       onDataReceived = resolve
     })
+
+    // TODO: add migration of network info in COMMUNITY to IDENTITY
     // This is related to a specific migration, perhaps there is a way to
     // encapsulate this in LocalDbService.
     const keys = [LocalDBKeys.CURRENT_COMMUNITY_ID, LocalDBKeys.COMMUNITIES]
@@ -208,9 +212,9 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     const community = await this.localDbService.getCurrentCommunity()
     // TODO: Revisit this when we move the Identity model to the backend, since
     // this network data lives in that model.
-    const network = await this.localDbService.getNetworkInfo()
+    const identity = await this.localDbService.getIdentity()
 
-    if (community && network) {
+    if (community && identity) {
       const sortedPeers = await this.localDbService.getSortedPeers(community.peerList ?? [])
       this.logger.info('launchCommunityFromStorage - sorted peers', sortedPeers)
       if (sortedPeers.length > 0) {
@@ -218,7 +222,14 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       }
       await this.localDbService.setCommunity(community)
 
-      await this.launchCommunity({ community, network })
+      await this.launchCommunity({ community, identity })
+    } else {
+      if (!community) {
+        this.logger.info('No community found in storage')
+      }
+      if (!identity) {
+        this.logger.info('No identity found in storage')
+      }
     }
   }
 
@@ -415,18 +426,22 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       psk: psk,
     }
 
-    const network = {
+    const identity = {
+      id: '',
+      nickname: '',
       hiddenService: payload.hiddenService,
       peerId: payload.peerId,
+      userCsr: null,
+      userCertificate: null,
+      joinTimestamp: null,
     }
 
     await this.localDbService.setCommunity(community)
     await this.localDbService.setCurrentCommunityId(community.id)
-    // TODO: Revisit this when we move the Identity model to the backend, since
-    // this network data lives in that model.
-    await this.localDbService.setNetworkInfo(network)
 
-    await this.launchCommunity({ community, network })
+    await this.localDbService.setIdentity(identity)
+
+    await this.launchCommunity({ community, identity })
 
     const meta = await this.storageService.updateCommunityMetadata({
       id: community.id,
@@ -526,24 +541,27 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       inviteData,
     }
 
-    const network = {
+    const identity = {
+      id: '',
+      nickname: '',
       hiddenService: payload.hiddenService,
       peerId: payload.peerId,
+      userCsr: null,
+      userCertificate: null,
+      joinTimestamp: null,
     }
 
     await this.localDbService.setCommunity(community)
     await this.localDbService.setCurrentCommunityId(community.id)
-    // TODO: Revisit this when we move the Identity model to the backend, since
-    // this network data lives in that model.
-    await this.localDbService.setNetworkInfo(network)
+    await this.localDbService.setIdentity(identity)
 
-    await this.launchCommunity({ community, network })
+    await this.launchCommunity({ community, identity })
     this.logger.info(`Joined and launched community ${community.id}`)
 
     return community
   }
 
-  public async launchCommunity({ community, network }: { community: Community; network: NetworkInfo }) {
+  public async launchCommunity({ community, identity }: { community: Community; identity: Identity }) {
     if ([ServiceState.LAUNCHING, ServiceState.LAUNCHED].includes(this.communityState)) {
       this.logger.error(
         'Cannot launch community more than once.' +
@@ -554,9 +572,9 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.communityState = ServiceState.LAUNCHING
 
     try {
-      await this.launch({ community, network })
+      await this.launch({ community, identity })
     } catch (e) {
-      this.logger.error(`Couldn't launch community for peer ${network.peerId.id}.`, e)
+      this.logger.error(`Couldn't launch community for peer ${identity.peerId.id}.`, e)
       emitError(this.serverIoProvider.io, {
         type: SocketActionTypes.LAUNCH_COMMUNITY,
         message: ErrorMessages.COMMUNITY_LAUNCH_FAILED,
@@ -579,22 +597,22 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.serverIoProvider.io.emit(SocketActionTypes.COMMUNITY_LAUNCHED, { id: community.id })
   }
 
-  public async spawnTorHiddenService(communityId: string, network: NetworkInfo): Promise<string> {
-    this.logger.info(`Spawning hidden service for community ${communityId}, peer: ${network.peerId.id}`)
+  public async spawnTorHiddenService(communityId: string, identity: Identity): Promise<string> {
+    this.logger.info(`Spawning hidden service for community ${communityId}, peer: ${identity.peerId.id}`)
     this.serverIoProvider.io.emit(
       SocketActionTypes.CONNECTION_PROCESS_INFO,
       ConnectionProcessInfo.SPAWNING_HIDDEN_SERVICE
     )
     return await this.tor.spawnHiddenService({
       targetPort: this.ports.libp2pHiddenService,
-      privKey: network.hiddenService.privateKey,
+      privKey: identity.hiddenService.privateKey,
     })
   }
 
-  public async launch({ community, network }: { community: Community; network: NetworkInfo }) {
-    this.logger.info(`Launching community ${community.id}: peer: ${network.peerId.id}`)
+  public async launch({ community, identity }: { community: Community; identity: Identity }) {
+    this.logger.info(`Launching community ${community.id}: peer: ${identity.peerId.id}`)
 
-    const onionAddress = await this.spawnTorHiddenService(community.id, network)
+    const onionAddress = await this.spawnTorHiddenService(community.id, identity)
 
     const { Libp2pModule } = await import('../libp2p/libp2p.module')
     const moduleRef = await this.lazyModuleLoader.load(() => Libp2pModule)
@@ -602,7 +620,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     const lazyService = moduleRef.get(Libp2pService)
     this.libp2pService = lazyService
 
-    const restoredRsa = await PeerId.createFromJSON(network.peerId)
+    const restoredRsa = await PeerId.createFromJSON(identity.peerId)
     const peerId = await peerIdFromKeys(restoredRsa.marshalPubKey(), restoredRsa.marshalPrivKey())
 
     const peers = community.peerList

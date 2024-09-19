@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common'
 import { Level } from 'level'
-import { type Community, type NetworkInfo, NetworkStats } from '@quiet/types'
+import { type Community, type NetworkInfo, NetworkStats, Identity } from '@quiet/types'
 import { createLibp2pAddress, filterAndSortPeers } from '@quiet/common'
 import { LEVEL_DB } from '../const'
 import { LocalDBKeys, LocalDbStatus } from './local-db.types'
@@ -36,7 +36,6 @@ export class LocalDbService {
     try {
       data = await this.db.get(key)
     } catch (e) {
-      this.logger.error(`Getting '${key}'`, e)
       return null
     }
     return data
@@ -112,6 +111,7 @@ export class LocalDbService {
   }
 
   public async setCommunity(community: Community) {
+    this.logger.info('Setting community', community.id)
     let communities = await this.get(LocalDBKeys.COMMUNITIES)
     if (!communities) {
       communities = {}
@@ -121,6 +121,7 @@ export class LocalDbService {
   }
 
   public async setCurrentCommunityId(communityId: string) {
+    this.logger.info('Setting current community id', communityId)
     await this.put(LocalDBKeys.CURRENT_COMMUNITY_ID, communityId)
   }
 
@@ -129,6 +130,7 @@ export class LocalDbService {
   }
 
   public async getCurrentCommunity(): Promise<Community | undefined> {
+    this.logger.info('Getting current community')
     const currentCommunityId = await this.get(LocalDBKeys.CURRENT_COMMUNITY_ID)
     const communities = await this.get(LocalDBKeys.COMMUNITIES)
 
@@ -159,5 +161,13 @@ export class LocalDbService {
     return initCommunityPayload
       ? { peerId: initCommunityPayload.peerId, hiddenService: initCommunityPayload.hiddenService }
       : undefined
+  }
+
+  public async setIdentity(identity: Identity) {
+    await this.put(LocalDBKeys.IDENTITY, identity)
+  }
+
+  public async getIdentity(): Promise<Identity> {
+    return await this.get(LocalDBKeys.IDENTITY)
   }
 }

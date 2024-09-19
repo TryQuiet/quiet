@@ -49,6 +49,7 @@ export function* registerUsernameSaga(
   let userCsr = identity.userCsr
 
   if (userCsr) {
+    logger.info(`User CSR already exists for ${identity.id}`)
     try {
       if (identity.userCsr?.userCsr == null || identity.userCsr.userKey == null) {
         logger.error('identity.userCsr?.userCsr == null || identity.userCsr.userKey == null')
@@ -76,6 +77,7 @@ export function* registerUsernameSaga(
       return
     }
   } else {
+    logger.info('Creating new user CSR')
     try {
       const payload: CreateUserCsrPayload = {
         nickname,

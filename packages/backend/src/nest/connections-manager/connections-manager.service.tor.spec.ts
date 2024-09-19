@@ -147,7 +147,15 @@ describe('Connections manager', () => {
     await connectionsManagerService.init()
     await connectionsManagerService.launchCommunity({
       community,
-      network: { peerId: userIdentity.peerId, hiddenService: userIdentity.hiddenService },
+      identity: {
+        id: '',
+        nickname: '',
+        peerId: userIdentity.peerId,
+        hiddenService: userIdentity.hiddenService,
+        userCsr: null,
+        userCertificate: null,
+        joinTimestamp: null,
+      },
     })
     libp2pService.connectedPeers.set(peerId.toString(), {
       connectedAtSeconds: DateTime.utc().valueOf(),
@@ -214,9 +222,14 @@ describe('Connections manager', () => {
         id: community.id,
         peerList,
       },
-      network: {
+      identity: {
+        id: '',
+        nickname: '',
         peerId: userIdentity.peerId,
         hiddenService: userIdentity.hiddenService,
+        userCsr: null,
+        userCertificate: null,
+        joinTimestamp: null,
       },
     }
     await connectionsManagerService.init()
@@ -252,9 +265,14 @@ describe('Connections manager', () => {
         id: community.id,
         peerList,
       },
-      network: {
+      identity: {
+        id: '',
+        nickname: '',
         peerId: userIdentity.peerId,
         hiddenService: userIdentity.hiddenService,
+        userCsr: null,
+        userCertificate: null,
+        joinTimestamp: null,
       },
     }
 

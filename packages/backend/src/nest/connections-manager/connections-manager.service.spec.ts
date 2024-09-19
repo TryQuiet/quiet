@@ -139,9 +139,14 @@ describe('ConnectionsManagerService', () => {
     await localDbService.setCurrentCommunityId(community.id)
     const launchCommunityPayload = {
       community: community,
-      network: {
+      identity: {
+        id: '',
+        nickname: '',
         peerId: userIdentity.peerId,
         hiddenService: userIdentity.hiddenService,
+        userCsr: null,
+        userCertificate: null,
+        joinTimestamp: null,
       },
     }
 
