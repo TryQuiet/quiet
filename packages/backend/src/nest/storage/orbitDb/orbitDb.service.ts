@@ -13,16 +13,18 @@ import {
   ComposedStorage,
   LRUStorage,
   IPFSBlockStorage,
+  LevelStorage,
 } from '@orbitdb/core'
-import { type Helia } from 'helia'
+import { HeliaLibp2p, type Helia } from 'helia'
 import { KeyStore } from './keyStore'
+import { OrbitDbStorage } from '../../types'
 
 @Injectable()
-export class OrbitDb {
+export class OrbitDbService {
   private orbitDbInstance: OrbitDBType | null = null
   public identities: IdentitiesType
 
-  private readonly logger = createLogger(OrbitDb.name)
+  private readonly logger = createLogger(OrbitDbService.name)
 
   constructor(@Inject(ORBIT_DB_DIR) public readonly orbitDbDir: string) {}
 
@@ -64,5 +66,38 @@ export class OrbitDb {
     }
 
     this.orbitDbInstance = null
+  }
+
+  public static async createDefaultStorage(
+    baseDirectory: string,
+    address: string,
+    ipfs: Helia | HeliaLibp2p
+  ): Promise<OrbitDbStorage> {
+    const entryStorage = await ComposedStorage(
+      await LRUStorage({ size: 1000 }),
+      await IPFSBlockStorage({ ipfs, pin: true })
+    )
+
+    const headsStorage = await ComposedStorage(
+      await LRUStorage({ size: 1000 }),
+      await LevelStorage({
+        path: posixJoin(baseDirectory || './orbitdb', `./${address}/log/_heads/`),
+        valueEncoding: 'buffer',
+      })
+    )
+
+    const indexStorage = await ComposedStorage(
+      await LRUStorage({ size: 1000 }),
+      await LevelStorage({
+        path: posixJoin(baseDirectory || './orbitdb', `./${address}/log/_index/`),
+        valueEncoding: 'buffer',
+      })
+    )
+
+    return {
+      entryStorage,
+      headsStorage,
+      indexStorage,
+    }
   }
 }

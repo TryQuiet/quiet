@@ -4,7 +4,7 @@ import { TestConfig } from '../../const'
 import { Test, TestingModule } from '@nestjs/testing'
 import { TestModule } from '../../common/test.module'
 import { StorageModule } from '../storage.module'
-import { OrbitDb } from '../orbitDb/orbitDb.service'
+import { OrbitDbService } from '../orbitDb/orbitDb.service'
 import { CertificatesStore } from './certificates.store'
 import { CommunityMetadata } from '@quiet/types'
 import { createPeerId } from '../../common/utils'
@@ -44,7 +44,7 @@ const foreignCertificate =
 describe('CertificatesStore', () => {
   let module: TestingModule
   let certificatesStore: CertificatesStore
-  let orbitDb: OrbitDb
+  let orbitDb: OrbitDbService
   let ipfs: Helia
 
   beforeEach(async () => {
@@ -56,7 +56,7 @@ describe('CertificatesStore', () => {
 
     certificatesStore = await module.resolve(CertificatesStore)
 
-    orbitDb = await module.resolve(OrbitDb)
+    orbitDb = await module.resolve(OrbitDbService)
     const peerId = await createPeerId()
     ipfs = await createHelia()
     await orbitDb.create(peerId, ipfs)

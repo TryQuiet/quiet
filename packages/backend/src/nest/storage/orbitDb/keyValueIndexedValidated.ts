@@ -39,10 +39,13 @@ import {
   ComposedStorage,
   LRUStorage,
   IPFSBlockStorage,
+  KeyValueType,
 } from '@orbitdb/core'
 import { type Helia } from 'helia'
 import { toString as uint8ArrayToString } from 'uint8arrays/to-string'
 import { createLogger } from '../../common/logger'
+import { KeyValueWithStorage } from './keyValueWithStorage'
+import { OrbitDbService } from './orbitDb.service'
 
 import { posixJoin } from './util'
 
@@ -50,7 +53,7 @@ type ValidateFn<T> = (entry: LogEntry<T>) => Promise<boolean>
 
 const valueEncoding = 'json'
 
-const logger = createLogger('keyValueIndexedValidated')
+const logger = createLogger('orbitdb:keyValueIndexedValidated')
 
 /**
  * Defines an index for a KeyValue database.
@@ -173,9 +176,6 @@ export const KeyValueIndexedValidated =
     access,
     directory,
     meta,
-    headsStorage,
-    entryStorage,
-    indexStorage,
     referencesCount,
     syncAutomatically,
     onUpdate,
@@ -187,38 +187,15 @@ export const KeyValueIndexedValidated =
     access: typeof AccessController
     directory: string
     meta: Record<string, any>
-    headsStorage: Storage
-    entryStorage: Storage
-    indexStorage: Storage
     referencesCount: number
     syncAutomatically: boolean
     onUpdate: (log: Log, entry: LogEntry) => Promise<void>
   }) => {
-    // Set up the directory for an index
-    // directory = posixJoin(directory || './orbitdb', `./${address}/_index`)
-
-    logger.info(directory)
-
     // Set up the index
     const index = await Index({ directory: posixJoin(directory || './orbitdb', `./${address}/_index`), validateFn })()
 
-    // entryStorage = entryStorage || await ComposedStorage(
-    //   await LRUStorage({ size: 1000 }),
-    //   await IPFSBlockStorage({ ipfs, pin: true })
-    // )
-
-    // headsStorage = headsStorage || await ComposedStorage(
-    //   await LRUStorage({ size: 1000 }),
-    //   await LevelStorage({ path: posixJoin(directory, '/log/_heads/'), valueEncoding: 'buffer' })
-    // )
-
-    // indexStorage = indexStorage || ComposedStorage(
-    //   await LRUStorage({ size: 1000 }),
-    //   await LevelStorage({ path: posixJoin(directory, '/log/_index/'), valueEncoding: 'buffer' })
-    // )
-
     // Set up the underlying KeyValue database
-    const keyValueStore = await KeyValue()({
+    const keyValueStore: KeyValueType = await KeyValueWithStorage()({
       ipfs,
       identity,
       address,
@@ -226,9 +203,6 @@ export const KeyValueIndexedValidated =
       access,
       directory,
       meta,
-      headsStorage,
-      entryStorage,
-      indexStorage,
       referencesCount,
       syncAutomatically,
       onUpdate: index.update,

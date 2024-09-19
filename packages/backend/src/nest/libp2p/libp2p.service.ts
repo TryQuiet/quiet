@@ -216,7 +216,7 @@ export class Libp2pService extends EventEmitter {
         peerId: params.peerId,
         addresses: { listen: params.listenAddresses },
         connectionProtector: preSharedKey({ psk: params.psk }),
-        streamMuxers: [mplex()],
+        streamMuxers: [yamux()],
         connectionEncryption: [noise()],
         transports: [
           webSockets({

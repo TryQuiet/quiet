@@ -6,7 +6,7 @@ import { TestConfig } from '../../const'
 import { Test, TestingModule } from '@nestjs/testing'
 import { TestModule } from '../../common/test.module'
 import { StorageModule } from '../storage.module'
-import { OrbitDb } from '../orbitDb/orbitDb.service'
+import { OrbitDbService } from '../orbitDb/orbitDb.service'
 import { createPeerId } from '../../common/utils'
 
 const replicatedEvent = async (certificatesRequestsStore: any) => {
@@ -17,7 +17,7 @@ const replicatedEvent = async (certificatesRequestsStore: any) => {
 describe('CertificatesRequestsStore', () => {
   let module: TestingModule
   let certificatesRequestsStore: CertificatesRequestsStore
-  let orbitDb: OrbitDb
+  let orbitDb: OrbitDbService
   let ipfs: Helia
 
   beforeEach(async () => {
@@ -29,7 +29,7 @@ describe('CertificatesRequestsStore', () => {
 
     certificatesRequestsStore = await module.resolve(CertificatesRequestsStore)
 
-    orbitDb = await module.resolve(OrbitDb)
+    orbitDb = await module.resolve(OrbitDbService)
     const peerId = await createPeerId()
     ipfs = await createHelia()
     await orbitDb.create(peerId, ipfs)

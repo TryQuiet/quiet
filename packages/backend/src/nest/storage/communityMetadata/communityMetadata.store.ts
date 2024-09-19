@@ -11,7 +11,7 @@ import { loadCertificate } from '@quiet/identity'
 import { StorageEvents } from '../storage.types'
 import { KeyValueIndexedValidated } from '../orbitDb/keyValueIndexedValidated'
 import { LocalDbService } from '../../local-db/local-db.service'
-import { OrbitDb } from '../orbitDb/orbitDb.service'
+import { OrbitDbService } from '../orbitDb/orbitDb.service'
 import { Injectable } from '@nestjs/common'
 import { createLogger } from '../../common/logger'
 import { KeyValueStoreBase } from '../base.store'
@@ -21,7 +21,7 @@ const logger = createLogger('communityMetadataStore')
 @Injectable()
 export class CommunityMetadataStore extends KeyValueStoreBase<CommunityMetadata> {
   constructor(
-    private readonly orbitDbService: OrbitDb,
+    private readonly orbitDbService: OrbitDbService,
     private readonly localDbService: LocalDbService
   ) {
     super()

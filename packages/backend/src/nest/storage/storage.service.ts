@@ -46,11 +46,12 @@ import { DBOptions, StorageEvents } from './storage.types'
 import { CertificatesStore } from './certificates/certificates.store'
 import { CertificatesRequestsStore } from './certifacteRequests/certificatesRequestsStore'
 import { IpfsService } from '../ipfs/ipfs.service'
-import { OrbitDb } from './orbitDb/orbitDb.service'
+import { OrbitDbService } from './orbitDb/orbitDb.service'
 import { CommunityMetadataStore } from './communityMetadata/communityMetadata.store'
 import { UserProfileStore } from './userProfile/userProfile.store'
 import { KeyValueIndexedValidated } from './orbitDb/keyValueIndexedValidated'
 import { MessagesAccessController } from './orbitDb/MessagesAccessController'
+import { EventsWithStorage } from './orbitDb/eventsWithStorage'
 
 @Injectable()
 export class StorageService extends EventEmitter {
@@ -70,7 +71,7 @@ export class StorageService extends EventEmitter {
     private readonly localDbService: LocalDbService,
     private readonly ipfsService: IpfsService,
     private readonly filesManager: IpfsFileManagerService,
-    private readonly orbitDbService: OrbitDb,
+    private readonly orbitDbService: OrbitDbService,
     private readonly certificatesRequestsStore: CertificatesRequestsStore,
     private readonly certificatesStore: CertificatesStore,
     private readonly communityMetadataStore: CommunityMetadataStore,
@@ -493,6 +494,7 @@ export class StorageService extends EventEmitter {
     const channelId = channelData.id
     const db = await this.orbitDbService.orbitDb.open<EventsType<ChannelMessage>>(`channels.${channelId}`, {
       type: 'events',
+      Database: EventsWithStorage(),
       AccessController: MessagesAccessController({ write: ['*'] }),
     })
     const channel = await this.getChannel(channelId)
@@ -530,6 +532,7 @@ export class StorageService extends EventEmitter {
       const db = await this.orbitDbService.orbitDb.open<EventsType<ChannelMessage>>(`channels.${channelId}`, {
         sync: false,
         type: 'events',
+        Database: EventsWithStorage(),
         AccessController: MessagesAccessController({ write: ['*'] }),
       })
       repo = {

@@ -4,7 +4,7 @@ import { TestConfig } from '../../const'
 import { Test, TestingModule } from '@nestjs/testing'
 import { TestModule } from '../../common/test.module'
 import { StorageModule } from '../storage.module'
-import { OrbitDb } from '../orbitDb/orbitDb.service'
+import { OrbitDbService } from '../orbitDb/orbitDb.service'
 import { CommunityMetadataStore } from './communityMetadata.store'
 import { Community, CommunityMetadata } from '@quiet/types'
 import { LocalDbService } from '../../local-db/local-db.service'
@@ -28,7 +28,7 @@ describe('CommmunityMetadataStore', () => {
 
   let module: TestingModule
   let communityMetadataStore: CommunityMetadataStore
-  let orbitDbService: OrbitDb
+  let orbitDbService: OrbitDbService
   let localDbService: LocalDbService
   let ipfs: Helia
 
@@ -64,7 +64,7 @@ describe('CommmunityMetadataStore', () => {
 
     communityMetadataStore = await module.resolve(CommunityMetadataStore)
 
-    orbitDbService = await module.resolve(OrbitDb)
+    orbitDbService = await module.resolve(OrbitDbService)
     localDbService = await module.resolve(LocalDbService)
 
     const peerId = await createPeerId()

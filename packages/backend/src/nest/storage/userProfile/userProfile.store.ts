@@ -9,7 +9,7 @@ import { NoCryptoEngineError, UserProfile } from '@quiet/types'
 import { keyObjectFromString, verifySignature } from '@quiet/identity'
 
 import { createLogger } from '../../common/logger'
-import { OrbitDb } from '../orbitDb/orbitDb.service'
+import { OrbitDbService } from '../orbitDb/orbitDb.service'
 import { StorageEvents } from '../storage.types'
 import { KeyValueIndexedValidated } from '../orbitDb/keyValueIndexedValidated'
 import { validatePhoto } from './userProfile.utils'
@@ -26,7 +26,7 @@ export class UserProfileStore extends KeyValueStoreBase<UserProfile> {
   public static readonly codec = dagCbor
   public static readonly hasher = sha256
 
-  constructor(private readonly orbitDbService: OrbitDb) {
+  constructor(private readonly orbitDbService: OrbitDbService) {
     super()
   }
 

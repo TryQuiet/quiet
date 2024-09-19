@@ -257,6 +257,22 @@ declare module '@orbitdb/core' {
     onUpdate,
   }) => Promise<KeyValueType>
 
+  export function Events(): ({
+    ipfs,
+    identity,
+    address,
+    name,
+    access,
+    directory,
+    meta,
+    headsStorage,
+    entryStorage,
+    indexStorage,
+    referencesCount,
+    syncAutomatically,
+    onUpdate,
+  }) => Promise<EventsType>
+
   export interface KeyValueType<T = unknown> extends DatabaseType {
     type: 'keyvalue'
     put(key: string, value: T): Promise<string>

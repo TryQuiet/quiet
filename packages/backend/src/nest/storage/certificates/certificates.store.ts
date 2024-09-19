@@ -12,10 +12,11 @@ import {
 import { ConnectionProcessInfo, SocketActionTypes, UserData } from '@quiet/types'
 import { validate } from 'class-validator'
 import { CertificateData } from '../../registration/registration.functions'
-import { OrbitDb } from '../orbitDb/orbitDb.service'
+import { OrbitDbService } from '../orbitDb/orbitDb.service'
 import { Injectable } from '@nestjs/common'
 import { createLogger } from '../../common/logger'
 import { EventStoreBase } from '../base.store'
+import { EventsWithStorage } from '../orbitDb/eventsWithStorage'
 
 @Injectable()
 export class CertificatesStore extends EventStoreBase<string> {
@@ -25,7 +26,7 @@ export class CertificatesStore extends EventStoreBase<string> {
   private filteredCertificatesMapping: Map<string, Partial<UserData>>
   private usernameMapping: Map<string, string>
 
-  constructor(private readonly orbitDbService: OrbitDb) {
+  constructor(private readonly orbitDbService: OrbitDbService) {
     super()
     this.filteredCertificatesMapping = new Map()
     this.usernameMapping = new Map()
@@ -37,6 +38,7 @@ export class CertificatesStore extends EventStoreBase<string> {
     this.store = await this.orbitDbService.orbitDb.open<EventsType<string>>('certificates', {
       type: 'events',
       sync: false,
+      Database: EventsWithStorage(),
       AccessController: IPFSAccessController({ write: ['*'] }),
     })
 

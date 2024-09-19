@@ -6,15 +6,16 @@ import { StorageEvents } from '../storage.types'
 import { validate } from 'class-validator'
 import { UserCsrData } from '../../registration/registration.functions'
 import { Injectable } from '@nestjs/common'
-import { OrbitDb } from '../orbitDb/orbitDb.service'
+import { OrbitDbService } from '../orbitDb/orbitDb.service'
 import { createLogger } from '../../common/logger'
 import { EventStoreBase } from '../base.store'
+import { EventsWithStorage } from '../orbitDb/eventsWithStorage'
 
 @Injectable()
 export class CertificatesRequestsStore extends EventStoreBase<string> {
   protected readonly logger = createLogger(CertificatesRequestsStore.name)
 
-  constructor(private readonly orbitDbService: OrbitDb) {
+  constructor(private readonly orbitDbService: OrbitDbService) {
     super()
   }
 
@@ -24,6 +25,7 @@ export class CertificatesRequestsStore extends EventStoreBase<string> {
     this.store = await this.orbitDbService.orbitDb.open<EventsType<string>>('csrs', {
       type: 'events',
       sync: false,
+      Database: EventsWithStorage(),
       AccessController: IPFSAccessController({ write: ['*'] }),
     })
 

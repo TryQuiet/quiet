@@ -12,7 +12,7 @@ import { RegistrationEvents } from './registration.types'
 import { CertificatesStore } from '../storage/certificates/certificates.store'
 import { StorageService } from '../storage/storage.service'
 import { StorageModule } from '../storage/storage.module'
-import { OrbitDb } from '../storage/orbitDb/orbitDb.service'
+import { OrbitDbService } from '../storage/orbitDb/orbitDb.service'
 import { createHelia } from 'helia'
 
 describe('RegistrationService', () => {
@@ -152,7 +152,7 @@ describe('RegistrationService', () => {
       imports: [TestModule, StorageModule],
     }).compile()
     const certificatesStore = await storageModule.resolve(CertificatesStore)
-    const orbitDb = await storageModule.resolve(OrbitDb)
+    const orbitDb = await storageModule.resolve(OrbitDbService)
     const peerId = await createPeerId()
     const ipfs = await createHelia()
     const loadAllCertificates = async () => {
