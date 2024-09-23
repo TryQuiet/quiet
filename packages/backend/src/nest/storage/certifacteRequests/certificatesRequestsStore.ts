@@ -64,7 +64,7 @@ export class CertificatesRequestsStore extends EventStoreBase<string> {
       await parsedCsr.verify()
       await this.validateCsrFormat(csr)
     } catch (err) {
-      this.logger.error('Failed to validate user CSR:', csr, err?.message)
+      this.logger.error('Failed to validate user CSR:', csr, err)
       return false
     }
     return true

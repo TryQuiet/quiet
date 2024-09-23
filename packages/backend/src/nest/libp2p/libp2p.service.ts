@@ -1,30 +1,38 @@
 import { gossipsub } from '@chainsafe/libp2p-gossipsub'
 import { noise } from '@chainsafe/libp2p-noise'
-import { kadDHT } from '@libp2p/kad-dht'
-import { mplex } from '@libp2p/mplex'
 import { yamux } from '@chainsafe/libp2p-yamux'
-import { type Libp2p } from '@libp2p/interface'
+
+import { echo } from '@libp2p/echo'
+import { identify, identifyPush } from '@libp2p/identify'
+import { kadDHT } from '@libp2p/kad-dht'
+import { CodeError, ERR_INVALID_MESSAGE, ERR_TIMEOUT, PeerId, type Libp2p } from '@libp2p/interface'
 import { preSharedKey } from '@libp2p/pnet'
 import { peerIdFromString } from '@libp2p/peer-id'
-import { identify, identifyPush } from '@libp2p/identify'
+import { ping } from '@libp2p/ping'
+import * as filters from '@libp2p/websockets/filters'
+import { createLibp2p } from 'libp2p'
+
 import { multiaddr } from '@multiformats/multiaddr'
 import { Inject, Injectable } from '@nestjs/common'
-import { createLibp2pAddress, createLibp2pListenAddress } from '@quiet/common'
-import { ConnectionProcessInfo, type NetworkDataPayload, PeerId, SocketActionTypes, type UserData } from '@quiet/types'
-import { getUsersAddresses } from '../common/utils'
+
 import crypto from 'crypto'
 import { EventEmitter } from 'events'
 import { Agent } from 'https'
-import { createLibp2p } from 'libp2p'
 import { DateTime } from 'luxon'
 import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
 import { toString as uint8ArrayToString } from 'uint8arrays/to-string'
+import { pipe } from 'it-pipe'
+
+import { createLibp2pAddress, createLibp2pListenAddress } from '@quiet/common'
+import { ConnectionProcessInfo, type NetworkDataPayload, SocketActionTypes, type UserData } from '@quiet/types'
+
+import { getUsersAddresses } from '../common/utils'
 import { SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
 import { ServerIoProviderTypes } from '../types'
 import { webSockets } from '../websocketOverTor'
 import { Libp2pConnectedPeer, Libp2pEvents, Libp2pNodeParams } from './libp2p.types'
 import { createLogger } from '../common/logger'
-import * as filters from '@libp2p/websockets/filters'
+import { bitswap } from '@helia/block-brokers'
 
 const KEY_LENGTH = 32
 export const LIBP2P_PSK_METADATA = '/key/swarm/psk/1.0.0/\n/base16/\n'
@@ -215,6 +223,10 @@ export class Libp2pService extends EventEmitter {
         },
         peerId: params.peerId,
         addresses: { listen: params.listenAddresses },
+        connectionMonitor: {
+          abortConnectionOnPingFailure: false,
+          pingInterval: 60_000,
+        },
         connectionProtector: preSharedKey({ psk: params.psk }),
         streamMuxers: [yamux()],
         connectionEncryption: [noise()],
@@ -232,10 +244,12 @@ export class Libp2pService extends EventEmitter {
           dht: kadDHT({
             allowQueryWithZeroPeers: true,
           }),
+          echo: echo(),
           pubsub: gossipsub({
             // neccessary to run a single peer
             allowPublishToZeroTopicPeers: true,
             fallbackToFloodsub: true,
+            // emitSelf: false,
             doPX: true,
           }),
           identify: identify(),
@@ -243,7 +257,7 @@ export class Libp2pService extends EventEmitter {
         },
       })
     } catch (err) {
-      this.logger.error('Create libp2p:', err)
+      this.logger.error('Error while creating instance of libp2p', err)
       throw err
     }
     this.libp2pInstance = libp2p

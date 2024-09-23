@@ -1,3 +1,4 @@
+import { PeerId } from '@libp2p/interface'
 import { Agent } from 'http'
 
 export enum Libp2pEvents {
@@ -7,7 +8,7 @@ export enum Libp2pEvents {
 }
 
 export interface Libp2pNodeParams {
-  peerId: any
+  peerId: PeerId
   listenAddresses: string[]
   agent: Agent
   localAddress: string

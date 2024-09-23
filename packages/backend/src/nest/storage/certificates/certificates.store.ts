@@ -90,7 +90,7 @@ export class CertificatesStore extends EventStoreBase<string> {
       await this.validateCertificateAuthority(certificate)
       await this.validateCertificateFormat(certificate)
     } catch (err) {
-      this.logger.error('Failed to validate user certificate:', certificate, err?.message)
+      this.logger.error('Failed to validate user certificate:', certificate, err)
       return false
     }
     return true

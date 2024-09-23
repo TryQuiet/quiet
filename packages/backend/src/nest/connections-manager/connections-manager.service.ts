@@ -63,6 +63,7 @@ import { ServiceState, TorInitState } from './connections-manager.types'
 import { DateTime } from 'luxon'
 import { createLogger } from '../common/logger'
 import { createFromJSON } from '@libp2p/peer-id-factory'
+import { PeerId } from '@libp2p/interface'
 
 @Injectable()
 export class ConnectionsManagerService extends EventEmitter implements OnModuleInit {
@@ -599,7 +600,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
     const onionAddress = await this.spawnTorHiddenService(community.id, network)
 
-    const peerId = await createFromJSON(network.peerId)
+    const peerId: PeerId = await createFromJSON(network.peerId)
 
     const peers = community.peerList
     this.logger.info(`Launching community ${community.id}: payload peers: ${peers}`)
