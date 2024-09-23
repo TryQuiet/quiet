@@ -64,6 +64,7 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof communitiesActions.updateCommunityData>
     | ReturnType<typeof networkActions.addInitializedCommunity>
     | ReturnType<typeof networkActions.removeConnectedPeer>
+    | ReturnType<typeof connectionActions.setNetworkData>
     | ReturnType<typeof connectionActions.updateNetworkData>
     | ReturnType<typeof networkActions.addConnectedPeers>
     | ReturnType<typeof filesActions.broadcastHostedFile>
@@ -87,11 +88,13 @@ export function subscribe(socket: Socket) {
       emit(connectionActions.onConnectionProcessInfo(payload))
     })
     // Misc
-    socket.on(SocketActionTypes.PEER_CONNECTED, (payload: { peers: string[] }) => {
+    socket.on(SocketActionTypes.PEER_CONNECTED, (payload: NetworkDataPayload) => {
       logger.info(`${SocketActionTypes.PEER_CONNECTED}`, payload)
-      emit(networkActions.addConnectedPeers(payload.peers))
+      emit(networkActions.addConnectedPeers([payload.peer]))
+      emit(connectionActions.setNetworkData(payload))
     })
     socket.on(SocketActionTypes.PEER_DISCONNECTED, (payload: NetworkDataPayload) => {
+      logger.info(`${SocketActionTypes.PEER_DISCONNECTED}`, payload)
       emit(networkActions.removeConnectedPeer(payload.peer))
       emit(connectionActions.updateNetworkData(payload))
     })

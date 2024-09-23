@@ -617,7 +617,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
     // Libp2p event listeners
     this.libp2pService.on(Libp2pEvents.PEER_CONNECTED, async (payload: { peers: string[] }) => {
-      this.serverIoProvider.io.emit(SocketActionTypes.PEER_CONNECTED, payload)
+      this.logger.info(`Handling ${Libp2pEvents.PEER_CONNECTED} event - adding network stats`, payload)
       for (const peer of payload.peers) {
         const peerStats: NetworkStats = {
           peerId: peer,
@@ -628,10 +628,17 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         await this.localDbService.update(LocalDBKeys.PEERS, {
           [peer]: peerStats,
         })
+
+        this.serverIoProvider.io.emit(SocketActionTypes.PEER_CONNECTED, {
+          peer: peerStats.peerId,
+          lastSeen: peerStats.lastSeen,
+          connectionDuration: 0,
+        })
       }
     })
 
     this.libp2pService.on(Libp2pEvents.PEER_DISCONNECTED, async (payload: NetworkDataPayload) => {
+      this.logger.info(`Handling ${Libp2pEvents.PEER_DISCONNECTED} event - updating connection time`, payload)
       const peerPrevStats = await this.localDbService.find(LocalDBKeys.PEERS, payload.peer)
       const prev = peerPrevStats?.connectionTime || 0
 
@@ -845,7 +852,9 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     })
     this.storageService.on(StorageEvents.CSRS_STORED, async (payload: { csrs: string[] }) => {
       this.logger.info(`Storage - ${StorageEvents.CSRS_STORED}`)
-      this.libp2pService.dialUsers(await getUsersFromCsrs(payload.csrs))
+      const users = await getUsersFromCsrs(payload.csrs)
+      this.logger.info(`CSRS => Users`, payload.csrs, users)
+      this.libp2pService.dialUsers(users)
       this.serverIoProvider.io.emit(SocketActionTypes.CSRS_STORED, payload)
       this.registrationService.emit(RegistrationEvents.REGISTER_USER_CERTIFICATE, payload)
     })

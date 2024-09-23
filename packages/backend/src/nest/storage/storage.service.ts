@@ -52,6 +52,7 @@ import { UserProfileStore } from './userProfile/userProfile.store'
 import { KeyValueIndexedValidated } from './orbitDb/keyValueIndexedValidated'
 import { MessagesAccessController } from './orbitDb/MessagesAccessController'
 import { EventsWithStorage } from './orbitDb/eventsWithStorage'
+import { LocalDBKeys } from '../local-db/local-db.types'
 
 @Injectable()
 export class StorageService extends EventEmitter {
@@ -139,6 +140,11 @@ export class StorageService extends EventEmitter {
 
   public async initDatabases() {
     this.logger.time('Storage.initDatabases')
+
+    if (!(await this.localDbService.exists(LocalDBKeys.PEERS))) {
+      this.logger.info(`Adding empty value to 'peers' key in local DB`)
+      await this.localDbService.put(LocalDBKeys.PEERS, {})
+    }
 
     this.logger.info('1/3')
     this.attachStoreListeners()
@@ -672,7 +678,7 @@ export class StorageService extends EventEmitter {
 
     const allUsers = Object.values(allUsersByKey)
 
-    this.logger.info(`All users count: ${allUsers.length}`)
+    this.logger.info(`All users count: ${allUsers.length}`, allUsers)
 
     return allUsers
   }
