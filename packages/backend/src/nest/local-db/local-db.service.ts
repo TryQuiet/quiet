@@ -99,10 +99,10 @@ export class LocalDbService {
   public async getSortedPeers(peers: string[], includeLocalPeerAddress: boolean = true): Promise<string[]> {
     const peersStats = (await this.get(LocalDBKeys.PEERS)) || {}
     const stats: NetworkStats[] = Object.values(peersStats)
-    const network = await this.getNetworkInfo()
+    const identity = await this.getIdentity()
 
-    if (network) {
-      const localPeerAddress = createLibp2pAddress(network.hiddenService.onionAddress, network.peerId.id)
+    if (identity) {
+      const localPeerAddress = createLibp2pAddress(identity.hiddenService.onionAddress, identity.peerId.id)
       this.logger.info('Local peer', localPeerAddress)
       return filterAndSortPeers(peers, stats, localPeerAddress, includeLocalPeerAddress)
     } else {
@@ -141,33 +141,13 @@ export class LocalDbService {
     return communityId in ((await this.getCommunities()) ?? {})
   }
 
-  // These are potentially temporary functions to help us migrate data to the
-  // backend. Currently this information lives under the COMMUNITY key in
-  // LevelDB, but on the frontend this data lives in the Identity model. So we
-  // may want to keep this data in the Identity model in LevelDB (when we
-  // migrate it from the frontend) and have getIdentity/setIdentity functions.
-  public async setNetworkInfo(network: NetworkInfo) {
-    await this.put(LocalDBKeys.COMMUNITY, network)
-  }
-
-  // These are potentially temporary functions to help us migrate data to the
-  // backend. Currently this information lives under the COMMUNITY key in
-  // LevelDB, but on the frontend this data lives in the Identity model. So we
-  // may want to keep this data in the Identity model in LevelDB (when we
-  // migrate it from the frontend) and have getIdentity/setIdentity functions.
-  public async getNetworkInfo(): Promise<NetworkInfo | undefined> {
-    const initCommunityPayload = await this.get(LocalDBKeys.COMMUNITY)
-
-    return initCommunityPayload
-      ? { peerId: initCommunityPayload.peerId, hiddenService: initCommunityPayload.hiddenService }
-      : undefined
-  }
-
   public async setIdentity(identity: Identity) {
     await this.put(LocalDBKeys.IDENTITY, identity)
   }
 
-  public async getIdentity(): Promise<Identity> {
+  public async getIdentity(): Promise<Identity | undefined> {
     return await this.get(LocalDBKeys.IDENTITY)
   }
+
+  // temporarily shoving identity creation here
 }

@@ -31,11 +31,11 @@ export function* createNetworkSaga(
   logger.info('Generating community ID')
   const id = yield* call(generateId)
 
-  logger.info('Emitting CREATE_NETWORK')
-  const network: NetworkInfo = yield* apply(
+  logger.info('Emitting CREATE_IDENTITY')
+  const identity: Identity = yield* apply(
     socket,
     socket.emitWithAck,
-    applyEmitParams(SocketActionTypes.CREATE_NETWORK, id)
+    applyEmitParams(SocketActionTypes.CREATE_IDENTITY, id)
   )
 
   // TODO: Move CA generation to backend when creating Community
@@ -81,17 +81,6 @@ export function* createNetworkSaga(
   logger.info('Adding new community', id)
   yield* put(communitiesActions.addNewCommunity(community))
   yield* put(communitiesActions.setCurrentCommunity(id))
-
-  // Identities are tied to communities for now
-  const identity: Identity = {
-    id: community.id,
-    nickname: '',
-    hiddenService: network.hiddenService,
-    peerId: network.peerId,
-    userCsr: null,
-    userCertificate: null,
-    joinTimestamp: null,
-  }
 
   logger.info('Adding new identity', identity.id)
   yield* put(identityActions.addNewIdentity(identity))

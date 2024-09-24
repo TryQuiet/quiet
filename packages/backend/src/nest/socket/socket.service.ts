@@ -23,6 +23,8 @@ import {
   type NetworkInfo,
   CreateNetworkPayload,
   CommunityOwnership,
+  IdentityUpdatePayload,
+  Identity,
 } from '@quiet/types'
 import EventEmitter from 'events'
 import { CONFIG_OPTIONS, SERVER_IO_PROVIDER } from '../const'
@@ -30,6 +32,7 @@ import { ConfigOptions, ServerIoProviderTypes } from '../types'
 import { suspendableSocketEvents } from './suspendable.events'
 import { createLogger } from '../common/logger'
 import type net from 'node:net'
+import { Identify } from 'libp2p/dist/src/identify/pb/message'
 
 @Injectable()
 export class SocketService extends EventEmitter implements OnModuleInit {
@@ -177,6 +180,48 @@ export class SocketService extends EventEmitter implements OnModuleInit {
         async (communityId: string, callback: (response: NetworkInfo | undefined) => void) => {
           this.logger.info(`Creating network for community ${communityId}`)
           this.emit(SocketActionTypes.CREATE_NETWORK, communityId, callback)
+        }
+      )
+      socket.on(
+        SocketActionTypes.CREATE_IDENTITY,
+        async (communityId: string, callback: (response: Identity | undefined) => void) => {
+          this.logger.info(`Creating identity for community ${communityId}`)
+          this.emit(SocketActionTypes.CREATE_IDENTITY, communityId, callback)
+        }
+      )
+      socket.on(
+        SocketActionTypes.UPDATE_IDENTITY,
+        async (payload: IdentityUpdatePayload, callback: (response: Identity | undefined) => void) => {
+          this.logger.info(`Updating identity for community ${payload.id}`)
+          this.emit(SocketActionTypes.UPDATE_IDENTITY, payload, callback)
+        }
+      )
+      socket.on(
+        SocketActionTypes.REGISTER_USERNAME,
+        async (payload: { username: string }, callback: (response: CommunityOwnership | undefined) => void) => {
+          this.logger.info(`Registering username ${payload.username}`)
+          this.emit(SocketActionTypes.REGISTER_USERNAME, payload, callback)
+        }
+      )
+      socket.on(
+        SocketActionTypes.CREATE_USER_CSR,
+        async (payload: { id: string; nickname: string }, callback: (response: Identity | undefined) => void) => {
+          this.logger.info(`Creating user CSR for community ${payload}`)
+          this.emit(SocketActionTypes.CREATE_USER_CSR, payload, callback)
+        }
+      )
+      socket.on(
+        SocketActionTypes.VERIFY_JOIN_TIMESTAMP,
+        async (payload: { communityId: string; timestamp: number }, callback: (response: boolean) => void) => {
+          this.logger.info(`Verifying join timestamp for community ${payload.communityId}`)
+          this.emit(SocketActionTypes.VERIFY_JOIN_TIMESTAMP, payload, callback)
+        }
+      )
+      socket.on(
+        SocketActionTypes.UPDATE_JOIN_TIMESTAMP,
+        async (payload: { communityId: string; timestamp: number }, callback: (response: boolean) => void) => {
+          this.logger.info(`Updating join timestamp for community ${payload.communityId}`)
+          this.emit(SocketActionTypes.UPDATE_JOIN_TIMESTAMP, payload, callback)
         }
       )
 

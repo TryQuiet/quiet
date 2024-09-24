@@ -34,6 +34,16 @@ export interface Identity {
   introMessageSent?: boolean
 }
 
+export interface IdentityUpdatePayload {
+  id: string
+  nickname?: string
+  hiddenService?: HiddenService
+  userCsr?: UserCsr
+  userCertificate?: string
+  joinTimestamp?: number
+  introMessageSent?: boolean
+}
+
 export interface CreateUserCsrPayload {
   nickname: string
   commonName: string

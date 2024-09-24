@@ -22,6 +22,14 @@ export enum SocketActionTypes {
   LAUNCH_COMMUNITY = 'launchCommunity',
   LEAVE_COMMUNITY = 'leaveCommunity',
 
+  // ====== Identity ======
+  CREATE_IDENTITY = 'createIdentity',
+  UPDATE_IDENTITY = 'updateIdentity',
+  REGISTER_USERNAME = 'registerUsername',
+  CREATE_USER_CSR = 'storeUserCertificate',
+  VERIFY_JOIN_TIMESTAMP = 'verifyJoinTimestamp',
+  UPDATE_JOIN_TIMESTAMP = 'updateJoinTimestamp',
+
   // ====== Channels ======
 
   CHANNEL_SUBSCRIBED = 'channelSubscribed',

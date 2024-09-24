@@ -104,13 +104,8 @@ describe('ConnectionsManagerService', () => {
     }
     await localDbService.setCommunity(actualCommunity)
     await localDbService.setCurrentCommunityId(community.id)
-    // TODO: Revisit this when we move the Identity model to the backend, since
-    // this network data lives in that model.
-    const network = {
-      peerId: userIdentity.peerId,
-      hiddenService: userIdentity.hiddenService,
-    }
-    await localDbService.setNetworkInfo(network)
+
+    await localDbService.setIdentity(userIdentity)
 
     await connectionsManagerService.closeAllServices()
 
@@ -121,7 +116,7 @@ describe('ConnectionsManagerService', () => {
     const localPeerAddress = createLibp2pAddress(userIdentity.hiddenService.onionAddress, userIdentity.peerId.id)
     const updatedLaunchCommunityPayload = {
       community: { ...actualCommunity, peerList: [localPeerAddress, remotePeer] },
-      network,
+      userIdentity,
     }
 
     expect(launchCommunitySpy).toHaveBeenCalledWith(updatedLaunchCommunityPayload)
@@ -164,13 +159,8 @@ describe('ConnectionsManagerService', () => {
   it('Bug reproduction - Error on startup - Error: TOR: Connection already established - Trigger launchCommunity from backend and state manager', async () => {
     await localDbService.setCommunity(community)
     await localDbService.setCurrentCommunityId(community.id)
-    // TODO: Revisit this when we move the Identity model to the backend, since
-    // this network data lives in that model.
-    const network = {
-      peerId: userIdentity.peerId,
-      hiddenService: userIdentity.hiddenService,
-    }
-    await localDbService.setNetworkInfo(network)
+
+    await localDbService.setIdentity(userIdentity)
 
     const peerid = 'QmaEvCkpUG7GxhgvMkk8wxurfi1ehjHhSUNRksWTmXN2ix'
     await localDbService.put(LocalDBKeys.PEERS, {

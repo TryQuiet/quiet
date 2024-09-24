@@ -46,6 +46,8 @@ import {
   type UserProfile,
   type UserProfilesStoredEvent,
   Identity,
+  CreateUserCsrPayload,
+  RegisterCertificatePayload,
 } from '@quiet/types'
 import { CONFIG_OPTIONS, QUIET_DIR, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
 import { Libp2pService } from '../libp2p/libp2p.service'
@@ -65,6 +67,9 @@ import { ConfigOptions, GetPorts, ServerIoProviderTypes } from '../types'
 import { ServiceState, TorInitState } from './connections-manager.types'
 import { DateTime } from 'luxon'
 import { createLogger } from '../common/logger'
+import { createUserCsr, getPubKey, keyObjectFromString, loadPrivateKey, pubKeyFromCsr } from '@quiet/identity'
+import { config } from '@quiet/state-manager'
+import { identity } from 'rxjs'
 
 @Injectable()
 export class ConnectionsManagerService extends EventEmitter implements OnModuleInit {
@@ -210,8 +215,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.logger.info('Launching community from storage')
 
     const community = await this.localDbService.getCurrentCommunity()
-    // TODO: Revisit this when we move the Identity model to the backend, since
-    // this network data lives in that model.
+
     const identity = await this.localDbService.getIdentity()
 
     if (community && identity) {
@@ -381,6 +385,102 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
     // TODO: Should we save this network info in LevelDB at this point?
     return network
+  }
+
+  public async createIdentity(id: string): Promise<Identity | undefined> {
+    let identity: Identity | undefined = await this.localDbService.getIdentity()
+    if (!identity) {
+      this.logger.info('Creating identity')
+      const network: NetworkInfo = await this.getNetwork()
+      identity = {
+        id: id,
+        nickname: '',
+        hiddenService: network.hiddenService,
+        peerId: network.peerId,
+        userCsr: null,
+        userCertificate: null,
+        joinTimestamp: null,
+      }
+      this.logger.info('Created identity', identity)
+    } else {
+      this.logger.info('Retrieved identity from localDbService', identity)
+    }
+    await this.localDbService.setIdentity(identity)
+    return identity
+  }
+
+  public async addUserCsr(payload: { id: string; nickname: string }): Promise<Identity | undefined> {
+    const { id, nickname } = payload
+    this.logger.info('Creating user CSR for community', id)
+    let identity: Identity | undefined = await this.localDbService.getIdentity()
+    if (!identity) {
+      emitError(this.serverIoProvider.io, {
+        type: SocketActionTypes.CREATE_USER_CSR,
+        message: ErrorMessages.USER_CSR_CREATION_FAILED,
+        community: id,
+      })
+      this.logger.error('Identity not found')
+      return
+    }
+    let userCsr = identity.userCsr
+    if (userCsr) {
+      this.logger.info('Recreating user CSR')
+      try {
+        if (identity.userCsr?.userCsr == null || identity.userCsr.userKey == null) {
+          this.logger.error('identity.userCsr?.userCsr == null || identity.userCsr.userKey == null')
+          return
+        }
+        const _pubKey = await pubKeyFromCsr(identity.userCsr.userCsr)
+        const privateKey = await loadPrivateKey(identity.userCsr.userKey, config.signAlg)
+        const publicKey = await getPubKey(_pubKey)
+
+        const existingKeyPair: CryptoKeyPair = { privateKey, publicKey }
+
+        const payload: CreateUserCsrPayload = {
+          nickname: identity.nickname,
+          commonName: identity.hiddenService.onionAddress,
+          peerId: identity.peerId.id,
+          signAlg: config.signAlg,
+          hashAlg: config.hashAlg,
+          existingKeyPair,
+        }
+        this.logger.info('Recreating user CSR')
+        userCsr = await createUserCsr(payload)
+      } catch (e) {
+        emitError(this.serverIoProvider.io, {
+          type: SocketActionTypes.CREATE_IDENTITY,
+          message: ErrorMessages.NETWORK_SETUP_FAILED,
+          community: id,
+        })
+        this.logger.error('Failed to recreate user CSR', e)
+        return
+      }
+    } else {
+      this.logger.info('Creating new user CSR')
+      try {
+        const payload: CreateUserCsrPayload = {
+          nickname,
+          commonName: identity.hiddenService.onionAddress,
+          peerId: identity.peerId.id,
+          signAlg: config.signAlg,
+          hashAlg: config.hashAlg,
+        }
+
+        this.logger.info('Creating user CSR')
+        userCsr = await createUserCsr(payload)
+      } catch (e) {
+        emitError(this.serverIoProvider.io, {
+          type: SocketActionTypes.CREATE_IDENTITY,
+          message: ErrorMessages.NETWORK_SETUP_FAILED,
+          community: id,
+        })
+        return
+      }
+    }
+    identity = { ...identity, userCsr: userCsr, nickname: nickname }
+    this.logger.info('Created user CSR, new identity:', identity)
+    this.localDbService.setIdentity(identity)
+    return identity
   }
 
   public async createCommunity(payload: InitCommunityPayload): Promise<Community | undefined> {
@@ -735,6 +835,49 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         callback(await this.createNetwork(communityId))
       }
     )
+    this.socketService.on(
+      SocketActionTypes.CREATE_IDENTITY,
+      async (id: string, callback: (response: Identity | undefined) => void) => {
+        this.logger.info(`socketService - ${SocketActionTypes.CREATE_IDENTITY}`)
+        callback(await this.createIdentity(id))
+      }
+    )
+    this.socketService.on(
+      SocketActionTypes.UPDATE_IDENTITY,
+      async (payload: { id: string; nickname: string }, callback: (response: Identity | undefined) => void) => {
+        this.logger.info(`socketService - ${SocketActionTypes.UPDATE_IDENTITY}`)
+        // callback(await this.createIdentity(payload))
+      }
+    )
+    this.socketService.on(
+      SocketActionTypes.REGISTER_USERNAME,
+      async (payload: { id: string; nickname: string }, callback: (response: Identity | undefined) => void) => {
+        this.logger.info(`socketService - ${SocketActionTypes.REGISTER_USERNAME}`)
+        // callback(await this.createIdentity(payload))
+      }
+    )
+    this.socketService.on(
+      SocketActionTypes.CREATE_USER_CSR,
+      async (payload: { id: string; nickname: string }, callback: (response: Identity | undefined) => void) => {
+        this.logger.info(`socketService - ${SocketActionTypes.CREATE_USER_CSR}`)
+        callback(await this.addUserCsr(payload))
+      }
+    )
+    this.socketService.on(
+      SocketActionTypes.VERIFY_JOIN_TIMESTAMP,
+      async (payload: { timestamp: number }, callback: (response: Identity | undefined) => void) => {
+        this.logger.info(`socketService - ${SocketActionTypes.VERIFY_JOIN_TIMESTAMP}`)
+        // callback(await this.createIdentity(payload))
+      }
+    )
+    this.socketService.on(
+      SocketActionTypes.UPDATE_JOIN_TIMESTAMP,
+      async (payload: { timestamp: number }, callback: (response: Identity | undefined) => void) => {
+        this.logger.info(`socketService - ${SocketActionTypes.UPDATE_JOIN_TIMESTAMP}`)
+        // callback(await this.createIdentity(payload))
+      }
+    )
+
     this.socketService.on(
       SocketActionTypes.CREATE_COMMUNITY,
       async (args: InitCommunityPayload, callback: (response: Community | undefined) => void) => {

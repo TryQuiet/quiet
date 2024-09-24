@@ -4,10 +4,10 @@ import { createUserCsr, getPubKey, keyObjectFromString, loadPrivateKey, pubKeyFr
 import { identitySelectors } from '../identity.selectors'
 import { identityActions } from '../identity.slice'
 import { config } from '../../users/const/certFieldTypes'
-import { Socket } from '../../../types'
+import { Socket, applyEmitParams } from '../../../types'
 import { communitiesActions } from '../../communities/communities.slice'
 import { communitiesSelectors } from '../../communities/communities.selectors'
-import { CreateUserCsrPayload, RegisterCertificatePayload, Community } from '@quiet/types'
+import { CreateUserCsrPayload, RegisterCertificatePayload, Community, SocketActionTypes, Identity } from '@quiet/types'
 import { createLogger } from '../../../utils/logger'
 
 const logger = createLogger('registerUsernameSaga')
@@ -34,78 +34,19 @@ export function* registerUsernameSaga(
   }
   logger.info('Found community', community.id)
 
-  let identity = yield* select(identitySelectors.currentIdentity)
+  logger.info('Emitting CREATE_USER_CSR')
+  const identity: Identity = yield* apply(
+    socket,
+    socket.emitWithAck,
+    applyEmitParams(SocketActionTypes.CREATE_USER_CSR, { id: community.id, nickname: nickname })
+  )
   if (!identity) {
-    logger.warn('Identity missing, waiting...')
-    yield* take(identityActions.addNewIdentity)
-  }
-  identity = yield* select(identitySelectors.currentIdentity)
-  if (!identity) {
-    logger.error('Could not register username, no identity')
+    logger.error('Failed to create user CSR')
     return
   }
-  logger.info('Found identity', identity.id)
+  logger.info('Updated identity', identity.id)
 
-  let userCsr = identity.userCsr
-
-  if (userCsr) {
-    logger.info(`User CSR already exists for ${identity.id}`)
-    try {
-      if (identity.userCsr?.userCsr == null || identity.userCsr.userKey == null) {
-        logger.error('identity.userCsr?.userCsr == null || identity.userCsr.userKey == null')
-        return
-      }
-      const _pubKey = yield* call(pubKeyFromCsr, identity.userCsr.userCsr)
-      const privateKey = yield* call(loadPrivateKey, identity.userCsr.userKey, config.signAlg)
-      const publicKey = yield* call(getPubKey, _pubKey)
-
-      const existingKeyPair: CryptoKeyPair = { privateKey, publicKey }
-
-      const payload: CreateUserCsrPayload = {
-        nickname,
-        commonName: identity.hiddenService.onionAddress,
-        peerId: identity.peerId.id,
-        signAlg: config.signAlg,
-        hashAlg: config.hashAlg,
-        existingKeyPair,
-      }
-
-      logger.info('Recreating user CSR')
-      userCsr = yield* call(createUserCsr, payload)
-    } catch (e) {
-      logger.error(e)
-      return
-    }
-  } else {
-    logger.info('Creating new user CSR')
-    try {
-      const payload: CreateUserCsrPayload = {
-        nickname,
-        commonName: identity.hiddenService.onionAddress,
-        peerId: identity.peerId.id,
-        signAlg: config.signAlg,
-        hashAlg: config.hashAlg,
-      }
-
-      logger.info('Creating user CSR')
-      userCsr = yield* call(createUserCsr, payload)
-    } catch (e) {
-      logger.error(e)
-      return
-    }
-  }
-
-  // TODO: Can rename this type
-  const payload: RegisterCertificatePayload = {
-    communityId: community.id,
-    nickname,
-    userCsr,
-    // TODO: Remove
-    isUsernameTaken,
-  }
-
-  logger.info('Adding user CSR to Redux', payload.communityId)
-  yield* put(identityActions.addCsr(payload))
+  yield* put(identityActions.updateIdentity(identity))
 
   if (community.CA?.rootCertString) {
     yield* put(communitiesActions.createCommunity(community.id))

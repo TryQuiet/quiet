@@ -39,6 +39,9 @@ export enum ErrorMessages {
   NETWORK_SETUP_FAILED = 'Creating network failed',
   NOT_CONNECTED = "You're not connected with other peers.",
 
+  // Identity
+  USER_CSR_CREATION_FAILED = 'Creating user CSR failed',
+
   // Channels
   CHANNEL_NAME_TAKEN = 'Channel with this name already exists',
 
