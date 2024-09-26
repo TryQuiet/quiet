@@ -36,6 +36,7 @@ export async function createTestUserCert(rootCert?: RootCA, userCsr?: UserCsr): 
 
 export function setupCrypto() {
   const webcrypto = new Crypto()
+
   setEngine(
     'newEngine',
     webcrypto,
@@ -45,7 +46,6 @@ export function setupCrypto() {
       subtle: webcrypto.subtle,
     })
   )
-  global.crypto = webcrypto
 }
 
 export const createRootCertificateTestHelper = async (commonName: string): Promise<RootCA> => {

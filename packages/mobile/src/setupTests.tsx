@@ -7,7 +7,6 @@ import React from 'react'
 import { io } from 'socket.io-client'
 
 const webcrypto = new Crypto()
-global.crypto = webcrypto
 
 setEngine(
   'newEngine',

@@ -11,8 +11,6 @@ import { AsyncReturnType } from '../types/AsyncReturnType.interface'
 
 const crypto = new Crypto()
 
-global.crypto = crypto
-
 describe('send message - users go offline and online', () => {
   let owner: AsyncReturnType<typeof createApp>
   let userOne: AsyncReturnType<typeof createApp>

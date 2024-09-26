@@ -67,7 +67,7 @@ export class WebSockets extends EventEmitter {
     this.createServer = createServer
   }
 
-  readonly [Symbol.toStringTag] = '@libp2p/websockets'
+  readonly [Symbol.toStringTag] = '@libp2p/websockets';
 
   readonly [symbol] = true
 

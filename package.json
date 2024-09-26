@@ -14,7 +14,7 @@
     "lint-staged": "lerna run lint-staged"
   },
   "engines": {
-    "node": "18.12.1",
+    "node": "20.9.0",
     "npm": "8.19.2"
   },
   "devDependencies": {

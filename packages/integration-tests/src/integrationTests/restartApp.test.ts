@@ -8,10 +8,6 @@ import {
   assertInitializedCommunity,
 } from './assertions'
 
-const crypto = new Crypto()
-
-global.crypto = crypto
-
 describe('restart app without doing anything', () => {
   let owner: AsyncReturnType<typeof createApp>
   let store: typeof owner.store

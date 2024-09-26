@@ -4,10 +4,6 @@ import { createApp, sleep } from '../utils'
 import { createCommunity, getCommunityOwnerData, joinCommunity } from './appActions'
 import { assertConnectedToPeers, assertReceivedCertificates } from './assertions'
 
-const crypto = new Crypto()
-
-global.crypto = crypto
-
 describe('owner creates community', () => {
   let owner: AsyncReturnType<typeof createApp>
 

@@ -29,7 +29,15 @@ export const isE2Etest = process.env.E2E_TEST === 'true'
 
 const webcrypto = new Crypto()
 
-global.crypto = webcrypto
+setEngine(
+  'newEngine',
+  webcrypto,
+  new CryptoEngine({
+    name: '',
+    crypto: webcrypto,
+    subtle: webcrypto.subtle,
+  })
+)
 
 let dataDir = DESKTOP_DATA_DIR
 let mainWindow: BrowserWindow | null
@@ -91,16 +99,6 @@ const windowSize: IWindowSize = {
   width: 800,
   height: 540,
 }
-
-setEngine(
-  'newEngine',
-  webcrypto,
-  new CryptoEngine({
-    name: '',
-    crypto: webcrypto,
-    subtle: webcrypto.subtle,
-  })
-)
 
 const SOCKET_IO_SECRET = webcrypto.getRandomValues(new Uint32Array(5)).join('')
 

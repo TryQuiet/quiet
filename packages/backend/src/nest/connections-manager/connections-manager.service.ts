@@ -102,8 +102,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     //   process.exit(0)
     // })
     const webcrypto = new Crypto()
-    // @ts-ignore
-    global.crypto = webcrypto
 
     setEngine(
       'newEngine',
