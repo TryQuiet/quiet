@@ -35,26 +35,16 @@ export function* registerUsernameSaga(
   logger.info('Found community', community.id)
 
   logger.info('Emitting CREATE_USER_CSR')
-  const identity: Identity = yield* apply(
+  yield* apply(
     socket,
     socket.emitWithAck,
     applyEmitParams(SocketActionTypes.CREATE_USER_CSR, { id: community.id, nickname: nickname })
   )
-  if (!identity) {
-    logger.error('Failed to create user CSR')
-    return
-  }
-  logger.info('Updated identity', identity.id)
-
-  yield* put(identityActions.updateIdentity(identity))
-
   if (community.CA?.rootCertString) {
     yield* put(communitiesActions.createCommunity(community.id))
   } else {
     if (!isUsernameTaken) {
       yield* put(communitiesActions.launchCommunity(community.id))
-    } else {
-      yield* put(identityActions.saveUserCsr())
     }
   }
 }

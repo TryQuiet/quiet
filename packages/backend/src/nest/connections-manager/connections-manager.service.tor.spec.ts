@@ -145,18 +145,7 @@ describe('Connections manager', () => {
 
     // Peer connected
     await connectionsManagerService.init()
-    await connectionsManagerService.launchCommunity({
-      community,
-      identity: {
-        id: '',
-        nickname: '',
-        peerId: userIdentity.peerId,
-        hiddenService: userIdentity.hiddenService,
-        userCsr: null,
-        userCertificate: null,
-        joinTimestamp: null,
-      },
-    })
+    await connectionsManagerService.launchCommunity(community)
     libp2pService.connectedPeers.set(peerId.toString(), {
       connectedAtSeconds: DateTime.utc().valueOf(),
       address: peerId.toString(),
@@ -217,23 +206,8 @@ describe('Connections manager', () => {
       )
     }
 
-    const launchCommunityPayload = {
-      community: {
-        id: community.id,
-        peerList,
-      },
-      identity: {
-        id: '',
-        nickname: '',
-        peerId: userIdentity.peerId,
-        hiddenService: userIdentity.hiddenService,
-        userCsr: null,
-        userCertificate: null,
-        joinTimestamp: null,
-      },
-    }
     await connectionsManagerService.init()
-    await connectionsManagerService.launchCommunity(launchCommunityPayload)
+    await connectionsManagerService.launchCommunity({ ...community, peerList: peerList })
     await sleep(5000)
     // It looks LibP2P dials peers initially when it's started and
     // then IPFS service dials peers again when started, thus
@@ -260,23 +234,7 @@ describe('Connections manager', () => {
       )
     }
 
-    const launchCommunityPayload = {
-      community: {
-        id: community.id,
-        peerList,
-      },
-      identity: {
-        id: '',
-        nickname: '',
-        peerId: userIdentity.peerId,
-        hiddenService: userIdentity.hiddenService,
-        userCsr: null,
-        userCertificate: null,
-        joinTimestamp: null,
-      },
-    }
-
-    await connectionsManagerService.launchCommunity(launchCommunityPayload)
+    await connectionsManagerService.launchCommunity({ ...community, peerList: peerList })
     expect(spyOnDial).toHaveBeenCalledTimes(peersCount)
     await connectionsManagerService.closeAllServices()
     await sleep(5000)

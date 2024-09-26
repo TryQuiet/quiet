@@ -16,6 +16,7 @@ import { createLogger } from '../../../utils/logger'
 const logger = createLogger('launchCommunitySaga')
 
 export function* initCommunities(): Generator {
+  logger.info('Initializing communities')
   const joinedCommunities = yield* select(identitySelectors.joinedCommunities)
 
   const initializedCommunities = yield* select(networkSelectors.initializedCommunities)
@@ -70,6 +71,4 @@ export function* launchCommunitySaga(
   }
 
   yield* apply(socket, socket.emitWithAck, applyEmitParams(SocketActionTypes.LAUNCH_COMMUNITY, payload))
-
-  yield* put(identityActions.saveUserCsr())
 }

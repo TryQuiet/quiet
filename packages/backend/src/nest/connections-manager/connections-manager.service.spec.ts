@@ -132,25 +132,13 @@ describe('ConnectionsManagerService', () => {
   it('community is only launched once', async () => {
     await localDbService.setCommunity(community)
     await localDbService.setCurrentCommunityId(community.id)
-    const launchCommunityPayload = {
-      community: community,
-      identity: {
-        id: '',
-        nickname: '',
-        peerId: userIdentity.peerId,
-        hiddenService: userIdentity.hiddenService,
-        userCsr: null,
-        userCertificate: null,
-        joinTimestamp: null,
-      },
-    }
 
     //@ts-ignore
     const launchSpy = jest.spyOn(connectionsManagerService, 'launch').mockResolvedValue('address')
 
     await Promise.all([
-      connectionsManagerService.launchCommunity(launchCommunityPayload),
-      connectionsManagerService.launchCommunity(launchCommunityPayload),
+      connectionsManagerService.launchCommunity(community),
+      connectionsManagerService.launchCommunity(community),
     ])
 
     expect(launchSpy).toBeCalledTimes(1)

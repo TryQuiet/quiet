@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common'
 import { Level } from 'level'
-import { type Community, type NetworkInfo, NetworkStats, Identity } from '@quiet/types'
+import { type Community, type NetworkInfo, NetworkStats, Identity, IdentityUpdatePayload } from '@quiet/types'
 import { createLibp2pAddress, filterAndSortPeers } from '@quiet/common'
 import { LEVEL_DB } from '../const'
 import { LocalDBKeys, LocalDbStatus } from './local-db.types'
@@ -99,7 +99,7 @@ export class LocalDbService {
   public async getSortedPeers(peers: string[], includeLocalPeerAddress: boolean = true): Promise<string[]> {
     const peersStats = (await this.get(LocalDBKeys.PEERS)) || {}
     const stats: NetworkStats[] = Object.values(peersStats)
-    const identity = await this.getIdentity()
+    const identity = await this.getIdentity(await this.get(LocalDBKeys.CURRENT_COMMUNITY_ID))
 
     if (identity) {
       const localPeerAddress = createLibp2pAddress(identity.hiddenService.onionAddress, identity.peerId.id)
@@ -141,13 +141,23 @@ export class LocalDbService {
     return communityId in ((await this.getCommunities()) ?? {})
   }
 
+  // temporarily shoving identity creation here
   public async setIdentity(identity: Identity) {
     await this.put(LocalDBKeys.IDENTITY, identity)
+    let identities = await this.get(LocalDBKeys.IDENTITY)
+    if (!identities) {
+      identities = {}
+    }
+    identities[identity.id] = identity
+    await this.put(LocalDBKeys.IDENTITY, identities)
   }
 
-  public async getIdentity(): Promise<Identity | undefined> {
+  public async getIdentity(id: string): Promise<Identity | undefined> {
+    const identities = await this.get(LocalDBKeys.IDENTITY)
+    return identities?.[id]
+  }
+
+  public async getIdentities(): Promise<Record<string, Identity>> {
     return await this.get(LocalDBKeys.IDENTITY)
   }
-
-  // temporarily shoving identity creation here
 }

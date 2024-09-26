@@ -38,9 +38,9 @@ export interface IdentityUpdatePayload {
   id: string
   nickname?: string
   hiddenService?: HiddenService
-  userCsr?: UserCsr
-  userCertificate?: string
-  joinTimestamp?: number
+  userCsr?: UserCsr | null
+  userCertificate?: string | null
+  joinTimestamp?: number | null
   introMessageSent?: boolean
 }
 

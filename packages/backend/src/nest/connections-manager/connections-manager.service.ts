@@ -48,6 +48,7 @@ import {
   Identity,
   CreateUserCsrPayload,
   RegisterCertificatePayload,
+  IdentityUpdatePayload,
 } from '@quiet/types'
 import { CONFIG_OPTIONS, QUIET_DIR, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
 import { Libp2pService } from '../libp2p/libp2p.service'
@@ -215,26 +216,24 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.logger.info('Launching community from storage')
 
     const community = await this.localDbService.getCurrentCommunity()
-
-    const identity = await this.localDbService.getIdentity()
-
-    if (community && identity) {
-      const sortedPeers = await this.localDbService.getSortedPeers(community.peerList ?? [])
-      this.logger.info('launchCommunityFromStorage - sorted peers', sortedPeers)
-      if (sortedPeers.length > 0) {
-        community.peerList = sortedPeers
-      }
-      await this.localDbService.setCommunity(community)
-
-      await this.launchCommunity({ community, identity })
-    } else {
-      if (!community) {
-        this.logger.info('No community found in storage')
-      }
-      if (!identity) {
-        this.logger.info('No identity found in storage')
-      }
+    if (!community) {
+      this.logger.info('No community found in storage')
+      return
     }
+
+    const identity = await this.storageService.getIdentity(community.id)
+    if (!identity) {
+      this.logger.info('No identity found in storage')
+    }
+
+    const sortedPeers = await this.localDbService.getSortedPeers(community.peerList ?? [])
+    this.logger.info('launchCommunityFromStorage - sorted peers', sortedPeers)
+    if (sortedPeers.length > 0) {
+      community.peerList = sortedPeers
+    }
+    await this.localDbService.setCommunity(community)
+
+    await this.launchCommunity(community)
   }
 
   public async closeAllServices(options: { saveTor: boolean } = { saveTor: false }) {
@@ -388,7 +387,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   }
 
   public async createIdentity(id: string): Promise<Identity | undefined> {
-    let identity: Identity | undefined = await this.localDbService.getIdentity()
+    let identity: Identity | undefined = await this.storageService.getIdentity(id)
     if (!identity) {
       this.logger.info('Creating identity')
       const network: NetworkInfo = await this.getNetwork()
@@ -405,14 +404,14 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     } else {
       this.logger.info('Retrieved identity from localDbService', identity)
     }
-    await this.localDbService.setIdentity(identity)
+    await this.storageService.setIdentity(identity)
     return identity
   }
 
   public async addUserCsr(payload: { id: string; nickname: string }): Promise<Identity | undefined> {
     const { id, nickname } = payload
     this.logger.info('Creating user CSR for community', id)
-    let identity: Identity | undefined = await this.localDbService.getIdentity()
+    let identity: Identity | undefined = await this.storageService.getIdentity(id)
     if (!identity) {
       emitError(this.serverIoProvider.io, {
         type: SocketActionTypes.CREATE_USER_CSR,
@@ -448,7 +447,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         userCsr = await createUserCsr(payload)
       } catch (e) {
         emitError(this.serverIoProvider.io, {
-          type: SocketActionTypes.CREATE_IDENTITY,
+          type: SocketActionTypes.ADD_CSR,
           message: ErrorMessages.NETWORK_SETUP_FAILED,
           community: id,
         })
@@ -470,7 +469,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         userCsr = await createUserCsr(payload)
       } catch (e) {
         emitError(this.serverIoProvider.io, {
-          type: SocketActionTypes.CREATE_IDENTITY,
+          type: SocketActionTypes.ADD_CSR,
           message: ErrorMessages.NETWORK_SETUP_FAILED,
           community: id,
         })
@@ -478,8 +477,11 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       }
     }
     identity = { ...identity, userCsr: userCsr, nickname: nickname }
-    this.logger.info('Created user CSR, new identity:', identity)
-    this.localDbService.setIdentity(identity)
+    this.logger.info('Created user CSR')
+    this.storageService.setIdentity(identity)
+    if (identity.userCsr) {
+      this.storageService.saveCSR({ csr: identity.userCsr.userCsr })
+    }
     return identity
   }
 
@@ -491,8 +493,20 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       return
     }
 
-    if (!payload.ownerCsr) {
-      this.logger.error('ownerCsr is required to create community')
+    let identity = await this.storageService.getIdentity(payload.id)
+    if (!identity) {
+      emitError(this.serverIoProvider.io, {
+        type: SocketActionTypes.CREATE_COMMUNITY,
+        message: ErrorMessages.IDENTITY_NOT_FOUND,
+        community: payload.id,
+      })
+      return
+    } else if (!identity.userCsr) {
+      emitError(this.serverIoProvider.io, {
+        type: SocketActionTypes.CREATE_COMMUNITY,
+        message: ErrorMessages.USER_CSR_NOT_FOUND,
+        community: payload.id,
+      })
       return
     }
 
@@ -503,7 +517,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       this.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.REGISTERING_OWNER_CERTIFICATE)
       ownerCertResult = await this.registrationService.registerOwnerCertificate({
         communityId: payload.id,
-        userCsr: payload.ownerCsr,
+        userCsr: identity.userCsr,
         permsData: {
           certificate: payload.CA.rootCertString,
           privKey: payload.CA.rootKeyString,
@@ -526,22 +540,16 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       psk: psk,
     }
 
-    const identity = {
-      id: '',
-      nickname: '',
-      hiddenService: payload.hiddenService,
-      peerId: payload.peerId,
-      userCsr: null,
-      userCertificate: null,
-      joinTimestamp: null,
-    }
-
     await this.localDbService.setCommunity(community)
     await this.localDbService.setCurrentCommunityId(community.id)
 
-    await this.localDbService.setIdentity(identity)
-
-    await this.launchCommunity({ community, identity })
+    identity = {
+      ...identity,
+      userCertificate: ownerCertResult.network.certificate,
+      id: payload.id,
+    }
+    await this.storageService.setIdentity(identity)
+    await this.launchCommunity(community)
 
     const meta = await this.storageService.updateCommunityMetadata({
       id: community.id,
@@ -641,27 +649,16 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       inviteData,
     }
 
-    const identity = {
-      id: '',
-      nickname: '',
-      hiddenService: payload.hiddenService,
-      peerId: payload.peerId,
-      userCsr: null,
-      userCertificate: null,
-      joinTimestamp: null,
-    }
-
     await this.localDbService.setCommunity(community)
     await this.localDbService.setCurrentCommunityId(community.id)
-    await this.localDbService.setIdentity(identity)
 
-    await this.launchCommunity({ community, identity })
+    await this.launchCommunity(community)
     this.logger.info(`Joined and launched community ${community.id}`)
 
     return community
   }
 
-  public async launchCommunity({ community, identity }: { community: Community; identity: Identity }) {
+  public async launchCommunity(community: Community) {
     if ([ServiceState.LAUNCHING, ServiceState.LAUNCHED].includes(this.communityState)) {
       this.logger.error(
         'Cannot launch community more than once.' +
@@ -672,9 +669,9 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.communityState = ServiceState.LAUNCHING
 
     try {
-      await this.launch({ community, identity })
+      await this.launch(community)
     } catch (e) {
-      this.logger.error(`Couldn't launch community for peer ${identity.peerId.id}.`, e)
+      this.logger.error(`Failed to launch community ${community.id}`, e)
       emitError(this.serverIoProvider.io, {
         type: SocketActionTypes.LAUNCH_COMMUNITY,
         message: ErrorMessages.COMMUNITY_LAUNCH_FAILED,
@@ -709,8 +706,13 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     })
   }
 
-  public async launch({ community, identity }: { community: Community; identity: Identity }) {
-    this.logger.info(`Launching community ${community.id}: peer: ${identity.peerId.id}`)
+  public async launch(community: Community) {
+    this.logger.info(`Launching community ${community.id}`)
+
+    const identity = await this.storageService.getIdentity(community.id)
+    if (!identity) {
+      throw new Error(ErrorMessages.IDENTITY_NOT_FOUND)
+    }
 
     const onionAddress = await this.spawnTorHiddenService(community.id, identity)
 
@@ -1038,6 +1040,9 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     })
     this.storageService.on(StorageEvents.USER_PROFILES_STORED, (payload: UserProfilesStoredEvent) => {
       this.serverIoProvider.io.emit(SocketActionTypes.USER_PROFILES_STORED, payload)
+    })
+    this.storageService.on(StorageEvents.IDENTITY_STORED, (payload: Identity) => {
+      this.serverIoProvider.io.emit(SocketActionTypes.IDENTITY_STORED, payload)
     })
   }
 }

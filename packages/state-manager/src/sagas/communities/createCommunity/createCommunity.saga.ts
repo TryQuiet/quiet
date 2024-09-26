@@ -29,7 +29,7 @@ export function* createCommunitySaga(
   const identity = yield* select(identitySelectors.selectById(communityId))
 
   if (!identity) {
-    logger.error('Failed to create community - identity missing')
+    logger.error('Could not create community, identity')
     return
   }
 
@@ -58,19 +58,5 @@ export function* createCommunitySaga(
 
   yield* putResolve(communitiesActions.updateCommunityData(createdCommunity))
 
-  yield* putResolve(
-    identityActions.storeUserCertificate({
-      communityId: createdCommunity.id,
-      userCertificate: createdCommunity.ownerCertificate,
-    })
-  )
-
   yield* putResolve(publicChannelsActions.createGeneralChannel())
-  // TODO: We can likely refactor this a bit. Currently, we issue the owner's
-  // certificate before creating the community, but then we add the owner's CSR
-  // to the OrbitDB store after creating the community (in the following saga).
-  // We can likely add the owner's CSR when creating the community or decouple
-  // community creation from CSR/certificate creation and create the community
-  // first and then add the owner's CSR and issue their certificate.
-  yield* putResolve(identityActions.saveUserCsr())
 }
