@@ -6,7 +6,7 @@ jobs:
     runs-on: macos-12
     timeout-minutes: 180
     env:
-      ELECTRON_CUSTOM_VERSION: 23.0.0
+      ELECTRON_CUSTOM_VERSION: 29.4.6
       TEST_MODE: true
       IS_E2E: true
       IS_CI: true

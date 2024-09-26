@@ -111,7 +111,7 @@
     "build:dev": "concurrently \"npm run build:main\" \"npm run build:renderer\"",
     "build:dev:dist": "concurrently \"npm run build:main\" \"npm run build:renderer:prod\"",
     "build:renderer": "webpack --config webpack/webpack.config.renderer.dev.js",
-    "build:main": "tsc -p tsconfig.build.json && npm run copyMainEnvs",
+    "build:main": "tsc -p tsconfig.build.json",
     "build:main:prod": "tsc -p tsconfig.build.json && npm run copyMainEnvs",
     "build:renderer:prod": "webpack --config webpack/webpack.config.renderer.prod.js",
     "postBuild": "node scripts/postBuild.js",
