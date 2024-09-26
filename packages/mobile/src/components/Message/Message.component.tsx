@@ -9,6 +9,7 @@ import { AUTODOWNLOAD_SIZE_LIMIT } from '@quiet/state-manager'
 import { UploadedImage } from '../UploadedImage/UploadedImage.component'
 import { UploadedFile } from '../UploadedFile/UploadedFile.component'
 import { FileActionsProps } from '../UploadedFile/UploadedFile.types'
+// @ts-ignore
 import { MathJaxSvg } from 'react-native-mathjax-html-to-svg'
 import Markdown, { MarkdownIt, ASTNode } from '@ronradtke/react-native-markdown-display'
 import { defaultTheme } from '../../styles/themes/default.theme'
