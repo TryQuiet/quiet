@@ -1,6 +1,5 @@
 import { peerIdFromKeys } from '@libp2p/peer-id'
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common'
-import { Crypto } from '@peculiar/webcrypto'
 import { EventEmitter } from 'events'
 import fs from 'fs'
 import getPort from 'get-port'

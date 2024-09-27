@@ -1,5 +1,4 @@
 import { Time, setEngine, CryptoEngine } from 'pkijs'
-import { Crypto } from '@peculiar/webcrypto'
 import { createRootCA, type RootCA } from '../createRootCA'
 import { createUserCert, type UserCert } from '../createUserCert'
 import { createUserCsr, type UserCsr } from '../createUserCsr'

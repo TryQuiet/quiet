@@ -1,4 +1,3 @@
-import { Crypto } from '@peculiar/webcrypto'
 import { Command } from 'commander'
 import { NestFactory } from '@nestjs/core'
 import path from 'path'

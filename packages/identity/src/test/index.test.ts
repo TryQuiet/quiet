@@ -1,4 +1,3 @@
-import { Crypto } from '@peculiar/webcrypto'
 import { sign } from '../sign'
 import { extractPubKey, parseCertificate, parseCertificationRequest } from '../extractPubKey'
 import { verifySignature } from '../verifySignature'

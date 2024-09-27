@@ -1,5 +1,4 @@
 import { setEngine, CryptoEngine } from 'pkijs'
-import { Crypto } from '@peculiar/webcrypto'
 
 const webcrypto = new Crypto()
 setEngine(

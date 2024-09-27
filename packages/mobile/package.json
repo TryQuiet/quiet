@@ -23,7 +23,6 @@
     "version": "react-native-version --skip-tag"
   },
   "dependencies": {
-    "@peculiar/webcrypto": "^1.4.3",
     "@quiet/backend": "^2.0.3-alpha.5",
     "@quiet/common": "^2.0.2-alpha.1",
     "@quiet/identity": "^2.0.2-alpha.2",

@@ -1,4 +1,3 @@
-import { Crypto } from '@peculiar/webcrypto'
 import { createCommunity, clearInitializedCommunitiesAndRegistrars } from './appActions'
 import { createApp, sleep, storePersistor } from '../utils'
 import { AsyncReturnType } from '../types/AsyncReturnType.interface'

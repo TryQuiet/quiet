@@ -1,7 +1,6 @@
 /* eslint-disable */
 import { setEngine, CryptoEngine } from 'pkijs'
 import { setEngine as setIdentityEngine } from '../../identity/node_modules/pkijs'
-import { Crypto } from '@peculiar/webcrypto'
 import React from 'react'
 
 import { io } from 'socket.io-client'
