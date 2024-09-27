@@ -98,6 +98,8 @@ describe('One Client', () => {
           `${resourcesPath}`,
           '-p',
           'desktop',
+          '-scrt',
+          new Crypto().getRandomValues(new Uint32Array(5)).join(''),
         ]
         const backendBundlePath = path.normalize(require.resolve('backend-bundle'))
         logger.info('Spawning backend', backendBundlePath, 'with argvs:', forkArgvs)

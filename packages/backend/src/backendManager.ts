@@ -12,7 +12,6 @@ import { INestApplicationContext } from '@nestjs/common'
 import { OpenServices, validateOptions } from './options'
 import { SOCKS_PROXY_AGENT } from './nest/const'
 import { createLogger } from './nest/common/logger'
-import { CryptoEngine, setEngine } from 'pkijs'
 
 const logger = createLogger('backendManager')
 
@@ -40,17 +39,6 @@ export const runBackendDesktop = async () => {
   logger.info('Running backend manager desktop')
 
   const isDev = process.env.NODE_ENV === 'development'
-
-  const webcrypto = new Crypto()
-  setEngine(
-    'newEngine',
-    webcrypto,
-    new CryptoEngine({
-      name: '',
-      crypto: webcrypto,
-      subtle: webcrypto.subtle,
-    })
-  )
 
   validateOptions(options)
 
