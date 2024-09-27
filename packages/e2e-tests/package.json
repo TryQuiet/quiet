@@ -39,7 +39,7 @@
     "get-port": "^5.1.1",
     "jest": "^29.4.2",
     "path-browserify": "^1.0.1",
-    "selenium-webdriver": "^4.8.0",
+    "selenium-webdriver": "^4.25.0",
     "yargs": "^17.3.1"
   },
   "jest": {
