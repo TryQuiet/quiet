@@ -1,3 +1,4 @@
+import { Crypto } from '@peculiar/webcrypto'
 import {
   assertDownloadedImage,
   assertReceivedCertificates,

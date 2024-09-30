@@ -1,3 +1,4 @@
+import { Crypto } from '@peculiar/webcrypto'
 import {
   assertReceivedCertificates,
   assertReceivedChannelsAndSubscribe,
@@ -7,6 +8,8 @@ import {
 import { createCommunity, joinCommunity, getCommunityOwnerData, sendMessage } from './appActions'
 import { createApp, createAppWithoutTor, sleep, storePersistor } from '../utils'
 import { AsyncReturnType } from '../types/AsyncReturnType.interface'
+
+const crypto = new Crypto()
 
 describe('send message - users go offline and online', () => {
   let owner: AsyncReturnType<typeof createApp>

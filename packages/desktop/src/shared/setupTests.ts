@@ -1,4 +1,5 @@
 import { setEngine, CryptoEngine } from 'pkijs'
+import { Crypto } from '@peculiar/webcrypto'
 
 import { io } from 'socket.io-client'
 
