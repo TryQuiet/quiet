@@ -5,6 +5,20 @@ import { createUserCert, type UserCert } from '../createUserCert'
 import { createUserCsr, type UserCsr } from '../createUserCsr'
 import config from '../config'
 
+export function setupCrypto() {
+  const webcrypto = new Crypto()
+
+  setEngine(
+    'newEngine',
+    webcrypto,
+    new CryptoEngine({
+      name: '',
+      crypto: webcrypto,
+      subtle: webcrypto.subtle,
+    })
+  )
+}
+
 export const userData = {
   nickname: 'userName',
   commonName: 'nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad.onion',
@@ -17,6 +31,7 @@ const notBeforeDate = new Date()
 const notAfterDate = new Date(2030, 1, 1)
 
 export async function createTestRootCA(commonName?: string): Promise<RootCA> {
+  setupCrypto()
   return await createRootCA(
     new Time({ type: 1, value: notBeforeDate }),
     new Time({ type: 1, value: notAfterDate }),
@@ -34,21 +49,8 @@ export async function createTestUserCert(rootCert?: RootCA, userCsr?: UserCsr): 
   return await createUserCert(rootC.rootCertString, rootC.rootKeyString, user.userCsr, notBeforeDate, notAfterDate)
 }
 
-export function setupCrypto() {
-  const webcrypto = new Crypto()
-
-  setEngine(
-    'newEngine',
-    webcrypto,
-    new CryptoEngine({
-      name: '',
-      crypto: webcrypto,
-      subtle: webcrypto.subtle,
-    })
-  )
-}
-
 export const createRootCertificateTestHelper = async (commonName: string): Promise<RootCA> => {
+  setupCrypto()
   return await createRootCA(
     new Time({ type: 0, value: notBeforeDate }),
     new Time({ type: 0, value: notAfterDate }),

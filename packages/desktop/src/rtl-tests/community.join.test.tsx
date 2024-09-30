@@ -35,6 +35,7 @@ import {
   SocketActionTypes,
 } from '@quiet/types'
 import { composeInvitationShareUrl } from '@quiet/common'
+import { setupCrypto } from '@quiet/identity'
 
 jest.setTimeout(20_000)
 
@@ -60,6 +61,10 @@ describe('User', () => {
       unobserve: jest.fn(),
       disconnect: jest.fn(),
     }))
+  })
+
+  beforeAll(() => {
+    setupCrypto()
   })
 
   it('joins community and registers username', async () => {

@@ -19,6 +19,7 @@ import {
   createRootCertificateTestHelper,
   createUserCertificateTestHelper,
   keyObjectFromString,
+  setupCrypto,
   verifySignature,
 } from '@quiet/identity'
 
@@ -42,6 +43,8 @@ export const generateMessageFactoryContentWithId = (
 }
 
 export const getFactory = async (store: Store) => {
+  setupCrypto()
+
   // @ts-ignore
   const factory = new factoryGirl.FactoryGirl()
 

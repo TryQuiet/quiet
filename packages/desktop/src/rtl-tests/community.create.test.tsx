@@ -25,12 +25,17 @@ import { ModalName } from '../renderer/sagas/modals/modals.types'
 import { prepareStore } from '../renderer/testUtils/prepareStore'
 import { renderComponent } from '../renderer/testUtils/renderComponent'
 import { ioMock } from '../shared/setupTests'
+import { setupCrypto } from '@quiet/identity'
 
 jest.setTimeout(20_000)
 
 describe('User', () => {
   let socket: MockedSocket
   const generalId = generateChannelId('general')
+
+  beforeAll(() => {
+    setupCrypto()
+  })
 
   beforeEach(() => {
     socket = new MockedSocket()
