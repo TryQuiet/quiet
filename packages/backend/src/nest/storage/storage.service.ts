@@ -251,31 +251,59 @@ export class StorageService extends EventEmitter {
       await this.channels?.close()
       this.logger.info('Closed channels DB')
     } catch (e) {
-      this.logger.error('Error closing channels db', e)
+      if ((e as Error).message.includes('Store not initialized')) {
+        this.logger.warn(`Channels db wasn't initialized, moving on...`)
+      } else {
+        this.logger.error('Error closing channels db', e)
+      }
     }
 
     try {
+      this.logger.info('Closing certificates DB')
       await this.certificatesStore?.close()
+      this.logger.info('Closed certificates DB')
     } catch (e) {
-      this.logger.error('Error closing certificates db', e)
+      if ((e as Error).message.includes('Store not initialized')) {
+        this.logger.warn(`Certificates db wasn't initialized, moving on...`)
+      } else {
+        this.logger.error('Error closing certificates db', e)
+      }
     }
 
     try {
+      this.logger.info('Closing certificates requests DB')
       await this.certificatesRequestsStore?.close()
+      this.logger.info('Closed certificates requests DB')
     } catch (e) {
-      this.logger.error('Error closing certificates db', e)
+      if ((e as Error).message.includes('Store not initialized')) {
+        this.logger.warn(`Certificates requests db wasn't initialized, moving on...`)
+      } else {
+        this.logger.error('Error closing certificates requests db', e)
+      }
     }
 
     try {
+      this.logger.info('Closing community metadata DB')
       await this.communityMetadataStore?.close()
+      this.logger.info('Closed community metadata DB')
     } catch (e) {
-      this.logger.error('Error closing community metadata store', e)
+      if ((e as Error).message.includes('Store not initialized')) {
+        this.logger.warn(`Community metadata db wasn't initialized, moving on...`)
+      } else {
+        this.logger.error('Error closing community metadata db', e)
+      }
     }
 
     try {
+      this.logger.info('Closing user profile DB')
       await this.userProfileStore?.close()
+      this.logger.info('Closed user profile DB')
     } catch (e) {
-      this.logger.error('Error closing user profiles db', e)
+      if ((e as Error).message.includes('Store not initialized')) {
+        this.logger.warn(`User profile db wasn't initialized, moving on...`)
+      } else {
+        this.logger.error('Error closing user profile db', e)
+      }
     }
 
     await this.orbitDbService.stop()

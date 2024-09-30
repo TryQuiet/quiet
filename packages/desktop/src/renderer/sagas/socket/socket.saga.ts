@@ -16,7 +16,7 @@ export function* startConnectionSaga(
 ): Generator {
   const { dataPort } = action.payload
   if (!dataPort) {
-    logger.error('About to start connection but no dataPort found')
+    logger.error('About to start connection but no dataPort found', action)
   }
 
   let socketIOSecret = yield* select(connection.selectors.socketIOSecret)

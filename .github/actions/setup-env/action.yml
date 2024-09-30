@@ -14,7 +14,7 @@ runs:
   steps:
     - uses: actions/setup-node@master
       with:
-        node-version: 18.12.1
+        node-version: 20.9.0
     
     - name: Set up Python 3.12
       uses: actions/setup-python@v5
@@ -39,10 +39,6 @@ runs:
     - name: 'Increase git postBuffer size'
       if: ${{ runner.os == 'Windows' }}
       run: git config --global http.postBuffer 524288000
-      shell: bash
-
-    - name: "Set unsafe-perm"
-      run: npm set unsafe-perm true
       shell: bash
 
     - name: "Install lerna and typescript globally"

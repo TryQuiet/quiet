@@ -4,6 +4,7 @@ import { Crypto } from '@peculiar/webcrypto'
 import { io } from 'socket.io-client'
 
 const webcrypto = new Crypto()
+
 setEngine(
   'newEngine',
   webcrypto,
@@ -13,8 +14,6 @@ setEngine(
     subtle: webcrypto.subtle,
   })
 )
-// @ts-ignore
-global.crypto = webcrypto
 
 // @ts-ignore
 process._linkedBinding = name => name

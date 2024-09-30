@@ -13,9 +13,6 @@ const logger = createLogger('bot')
 // eslint-disable-next-line
 const { Crypto } = require('@peculiar/webcrypto')
 
-const crypto = new Crypto()
-global.crypto = crypto
-
 const webcrypto = new Crypto()
 setEngine(
   'newEngine',

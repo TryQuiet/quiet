@@ -10,15 +10,15 @@
     "distAndRunE2ETests:mac:local": "lerna run --scope @quiet/desktop distMac:local && lerna run --scope e2e-tests test:localBinary --",
     "e2e:linux:build": "lerna run --scope @quiet/backend webpack:prod && lerna run --scope @quiet/desktop distUbuntu && lerna run --scope e2e-tests linux:copy",
     "e2e:linux:run": "lerna run --scope e2e-tests test --",
-    "prepare": "husky",
+    "prepare": "node scripts/setup_husky.js && husky",
     "lint-staged": "lerna run lint-staged"
   },
   "engines": {
-    "node": "18.12.1",
-    "npm": "8.19.2"
+    "node": "20.9.0",
+    "npm": "10.1.0"
   },
   "devDependencies": {
-    "husky": "^9.0.11",
+    "husky": "^9.1.6",
     "lerna": "^6.6.2",
     "typescript": "^4.9.3"
   }

@@ -11,5 +11,3 @@ setEngine(
     subtle: webcrypto.subtle,
   })
 )
-
-global.crypto = webcrypto
