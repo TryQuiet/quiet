@@ -35,15 +35,17 @@ export function* registerUsernameSaga(
   logger.info('Found community', community.id)
 
   logger.info('Emitting CREATE_USER_CSR')
-  yield* apply(
+  const identity = yield* apply(
     socket,
     socket.emitWithAck,
     applyEmitParams(SocketActionTypes.CREATE_USER_CSR, { id: community.id, nickname: nickname })
   )
+  identityActions.addCsr(identity)
   if (community.CA?.rootCertString) {
     yield* put(communitiesActions.createCommunity(community.id))
   } else {
     if (!isUsernameTaken) {
+      logger.info('Username is not taken, launching community')
       yield* put(communitiesActions.launchCommunity(community.id))
     }
   }

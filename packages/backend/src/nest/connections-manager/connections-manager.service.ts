@@ -478,7 +478,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     }
     identity = { ...identity, userCsr: userCsr, nickname: nickname }
     this.logger.info('Created user CSR')
-    this.storageService.setIdentity(identity)
+    await this.storageService.setIdentity(identity)
     if (identity.userCsr) {
       this.storageService.saveCSR({ csr: identity.userCsr.userCsr })
     }
@@ -528,7 +528,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       return
     }
 
-    const localAddress = createLibp2pAddress(payload.hiddenService.onionAddress, payload.peerId.id)
+    const localAddress = createLibp2pAddress(identity.hiddenService.onionAddress, identity.peerId.id)
 
     let community: Community = {
       id: payload.id,
@@ -590,6 +590,17 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
   public async joinCommunity(payload: InitCommunityPayload): Promise<Community | undefined> {
     this.logger.info('Joining community: peers:', payload.peers)
+    const identity = await this.storageService.getIdentity(payload.id)
+
+    if (!identity) {
+      emitError(this.serverIoProvider.io, {
+        type: SocketActionTypes.LAUNCH_COMMUNITY,
+        message: ErrorMessages.IDENTITY_NOT_FOUND,
+        community: payload.id,
+      })
+      return
+    }
+
     let metadata = {
       psk: payload.psk,
       peers: payload.peers,
@@ -639,7 +650,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       return
     }
 
-    const localAddress = createLibp2pAddress(payload.hiddenService.onionAddress, payload.peerId.id)
+    const localAddress = createLibp2pAddress(identity.hiddenService.onionAddress, identity.peerId.id)
 
     const community = {
       id: payload.id,
@@ -667,6 +678,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       return
     }
     this.communityState = ServiceState.LAUNCHING
+    this.logger.info(`Community state is now ${this.communityState}`)
 
     try {
       await this.launch(community)

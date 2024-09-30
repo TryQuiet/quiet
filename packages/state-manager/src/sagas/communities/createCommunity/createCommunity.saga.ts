@@ -36,13 +36,8 @@ export function* createCommunitySaga(
   const payload: InitCommunityPayload = {
     id: communityId,
     name: community?.name,
-    peerId: identity.peerId,
-    hiddenService: identity.hiddenService,
     CA: community?.CA,
     rootCa: community?.rootCa,
-    // Type mismatch between `userCsr | null` in Identity and `ownerCsr?` in
-    // InitCommunityPayload
-    ownerCsr: identity.userCsr ?? undefined,
   }
 
   const createdCommunity: Community | undefined = yield* apply(

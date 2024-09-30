@@ -44,9 +44,8 @@ export function* launchCommunitySaga(
   }
 
   const community = yield* select(communitiesSelectors.selectById(communityId))
-  const identity = yield* select(identitySelectors.selectById(communityId))
 
-  if (!community || !identity?.userCsr?.userKey) {
+  if (!community) {
     logger.error('Could not launch community, missing community or user private key')
     return
   }
@@ -61,14 +60,12 @@ export function* launchCommunitySaga(
   }
 
   const payload: InitCommunityPayload = {
-    id: identity.id,
-    peerId: identity.peerId,
-    hiddenService: identity.hiddenService,
+    id: community.id,
     peers: peerList,
     psk: community.psk,
     ownerOrbitDbIdentity: community.ownerOrbitDbIdentity,
     inviteData: community.inviteData,
   }
-
+  logger.info(`Launching community ${communityId} with payload`, payload)
   yield* apply(socket, socket.emitWithAck, applyEmitParams(SocketActionTypes.LAUNCH_COMMUNITY, payload))
 }
