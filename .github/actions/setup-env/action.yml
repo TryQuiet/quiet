@@ -1,5 +1,8 @@
 name: 'Setup environment'
 
+env:
+  IS_CI: true
+
 inputs:
   bootstrap-packages:
     description: 'Lerna bootstrap packages (comma separated without spaces)'

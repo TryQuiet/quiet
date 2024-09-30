@@ -2,6 +2,10 @@ const fs = require('fs')
 const os = require('os')
 const path = require('path')
 
+if (process.env.IS_CI) {
+  return
+}
+
 console.log(`Ensuring husky init file(s) are in place`)
 
 const initShFileName = 'init.sh'
