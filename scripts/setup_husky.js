@@ -2,15 +2,17 @@ const fs = require('fs')
 const os = require('os')
 const path = require('path')
 
-if (process.env.IS_CI) {
-  return
-}
-
 console.log(`Ensuring husky init file(s) are in place`)
 
 const initShFileName = 'init.sh'
 const huskyDirPath = path.join(__dirname, '../', '.husky')
-const huskyConfigDirPath = path.join(os.homedir(), '/.config/husky/')
+const configPath = path.join(os.homedir(), '/.config/')
+const huskyConfigDirPath = path.join(configPath, '/husky/')
+
+if (!fs.existsSync(configPath)) {
+  console.log(`The directory ${configPath} doesn't exist, creating now`)
+  fs.mkdirSync(configPath)
+}
 
 if (!fs.existsSync(huskyConfigDirPath)) {
   console.log(`The directory ${huskyConfigDirPath} doesn't exist, creating now`)
