@@ -74,6 +74,10 @@ export function* createNetworkSaga(
     }
   }
 
+  logger.info('Adding new community', id)
+  yield* put(communitiesActions.addNewCommunity(community))
+  yield* put(communitiesActions.setCurrentCommunity(id))
+
   logger.info('Emitting CREATE_IDENTITY')
   const identity = yield* apply(socket, socket.emitWithAck, applyEmitParams(SocketActionTypes.CREATE_IDENTITY, id))
 
@@ -82,10 +86,6 @@ export function* createNetworkSaga(
     return
   }
   yield* put(identityActions.addNewIdentity(identity))
-
-  logger.info('Adding new community', id)
-  yield* put(communitiesActions.addNewCommunity(community))
-  yield* put(communitiesActions.setCurrentCommunity(id))
 
   logger.info('Network created')
 }
