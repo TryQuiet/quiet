@@ -1,5 +1,5 @@
 import { PayloadAction } from '@reduxjs/toolkit'
-import { apply, call, put, select } from 'typed-redux-saga'
+import { apply, call, put, select, take } from 'typed-redux-saga'
 import { Time } from 'pkijs'
 import { generateId } from '../../../utils/cryptography/cryptography'
 import { communitiesActions } from '../communities.slice'
@@ -33,9 +33,9 @@ export function* createNetworkSaga(
   const id = yield* call(generateId)
 
   logger.info('Emitting CREATE_IDENTITY')
-  yield* apply(socket, socket.emitWithAck, applyEmitParams(SocketActionTypes.CREATE_IDENTITY, id))
+  const identity = yield* apply(socket, socket.emitWithAck, applyEmitParams(SocketActionTypes.CREATE_IDENTITY, id))
 
-  const identity = yield* select(identitySelectors.selectById(id))
+  yield* put(identityActions.addNewIdentity(identity))
   if (!identity) {
     logger.error('Failed to create identity')
     return
@@ -68,6 +68,8 @@ export function* createNetworkSaga(
     inviteData: payload.inviteData,
   }
 
+  logger.info(`Creating community ${id} with payload`, community)
+
   if (payload.inviteData) {
     switch (payload.inviteData.version) {
       case InvitationDataVersion.v1:
@@ -75,6 +77,7 @@ export function* createNetworkSaga(
         community.ownerOrbitDbIdentity = payload.inviteData.ownerOrbitDbIdentity
         const invitationPeers = payload.inviteData.pairs
         if (invitationPeers) {
+          logger.info('Setting invitation codes')
           yield* put(communitiesActions.setInvitationCodes(invitationPeers))
         }
         break
