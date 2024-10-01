@@ -75,9 +75,9 @@ export class WebSockets implements Transport<WebSocketsDialEvents> {
     }
   }
 
-  readonly [transportSymbol] = true;
+  readonly [transportSymbol] = true
 
-  readonly [Symbol.toStringTag] = '@quiet/websockets';
+  readonly [Symbol.toStringTag] = '@quiet/websockets'
 
   readonly [serviceCapabilities]: string[] = ['@libp2p/transport']
 
