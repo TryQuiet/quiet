@@ -480,7 +480,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.logger.info('Created user CSR')
     await this.storageService.setIdentity(identity)
     if (identity.userCsr) {
-      this.storageService.saveCSR({ csr: identity.userCsr.userCsr })
+      await this.storageService.saveCSR({ csr: identity.userCsr.userCsr })
     }
     return identity
   }
@@ -801,6 +801,11 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     }
 
     this.logger.info('Storage initialized')
+
+    this.logger.info('Attempting to add user CSR')
+    if (identity.userCsr) {
+      await this.storageService.saveCSR({ csr: identity.userCsr.userCsr })
+    }
 
     this.serverIoProvider.io.emit(
       SocketActionTypes.CONNECTION_PROCESS_INFO,

@@ -726,7 +726,11 @@ export class StorageService extends EventEmitter {
 
   public async saveCSR(payload: SaveCSRPayload): Promise<void> {
     this.logger.info('About to save CSR...', payload.csr)
-    await this.certificatesRequestsStore.addEntry(payload.csr)
+    try {
+      await this.certificatesRequestsStore.addEntry(payload.csr)
+    } catch (e) {
+      this.logger.debug('Failed to save CSR', e)
+    }
   }
 
   /**
