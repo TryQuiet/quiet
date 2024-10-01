@@ -31,15 +31,6 @@ export function* createNetworkSaga(
   logger.info('Generating community ID')
   const id = yield* call(generateId)
 
-  logger.info('Emitting CREATE_IDENTITY')
-  const identity = yield* apply(socket, socket.emitWithAck, applyEmitParams(SocketActionTypes.CREATE_IDENTITY, id))
-
-  if (!identity) {
-    logger.error('Failed to create identity')
-    return
-  }
-  yield* put(identityActions.addNewIdentity(identity))
-
   // TODO: Move CA generation to backend when creating Community
   let CA: null | {
     rootCertString: string
@@ -82,6 +73,15 @@ export function* createNetworkSaga(
         break
     }
   }
+
+  logger.info('Emitting CREATE_IDENTITY')
+  const identity = yield* apply(socket, socket.emitWithAck, applyEmitParams(SocketActionTypes.CREATE_IDENTITY, id))
+
+  if (!identity) {
+    logger.error('Failed to create identity')
+    return
+  }
+  yield* put(identityActions.addNewIdentity(identity))
 
   logger.info('Adding new community', id)
   yield* put(communitiesActions.addNewCommunity(community))
