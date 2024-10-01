@@ -1,5 +1,5 @@
 import { PayloadAction } from '@reduxjs/toolkit'
-import { apply, call, put, select, take } from 'typed-redux-saga'
+import { apply, call, put } from 'typed-redux-saga'
 import { Time } from 'pkijs'
 import { generateId } from '../../../utils/cryptography/cryptography'
 import { communitiesActions } from '../communities.slice'
@@ -15,7 +15,6 @@ import {
 } from '@quiet/types'
 import { Socket, applyEmitParams } from '../../../types'
 import { createLogger } from '../../../utils/logger'
-import { identitySelectors } from '../../identity/identity.selectors'
 
 const logger = createLogger('createNetworkSaga')
 
@@ -35,11 +34,11 @@ export function* createNetworkSaga(
   logger.info('Emitting CREATE_IDENTITY')
   const identity = yield* apply(socket, socket.emitWithAck, applyEmitParams(SocketActionTypes.CREATE_IDENTITY, id))
 
-  yield* put(identityActions.addNewIdentity(identity))
   if (!identity) {
     logger.error('Failed to create identity')
     return
   }
+  yield* put(identityActions.addNewIdentity(identity))
 
   // TODO: Move CA generation to backend when creating Community
   let CA: null | {
