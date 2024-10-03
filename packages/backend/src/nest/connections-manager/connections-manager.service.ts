@@ -49,6 +49,7 @@ import {
   CreateUserCsrPayload,
   RegisterCertificatePayload,
   IdentityUpdatePayload,
+  InitUserCsrPayload,
 } from '@quiet/types'
 import { CONFIG_OPTIONS, QUIET_DIR, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
 import { Libp2pService } from '../libp2p/libp2p.service'
@@ -408,15 +409,15 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     return identity
   }
 
-  public async addUserCsr(payload: { id: string; nickname: string }): Promise<Identity | undefined> {
-    const { id, nickname } = payload
-    this.logger.info('Creating user CSR for community', id)
-    let identity: Identity | undefined = await this.storageService.getIdentity(id)
+  public async addUserCsr(payload: InitUserCsrPayload): Promise<Identity | undefined> {
+    const { communityId, nickname } = payload
+    this.logger.info('Creating user CSR for community', communityId)
+    let identity: Identity | undefined = await this.storageService.getIdentity(communityId)
     if (!identity) {
       emitError(this.serverIoProvider.io, {
         type: SocketActionTypes.CREATE_USER_CSR,
         message: ErrorMessages.USER_CSR_CREATION_FAILED,
-        community: id,
+        community: communityId,
       })
       this.logger.error('Identity not found')
       return
@@ -449,7 +450,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         emitError(this.serverIoProvider.io, {
           type: SocketActionTypes.ADD_CSR,
           message: ErrorMessages.NETWORK_SETUP_FAILED,
-          community: id,
+          community: communityId,
         })
         this.logger.error('Failed to recreate user CSR', e)
         return
@@ -471,7 +472,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         emitError(this.serverIoProvider.io, {
           type: SocketActionTypes.ADD_CSR,
           message: ErrorMessages.NETWORK_SETUP_FAILED,
-          community: id,
+          community: communityId,
         })
         return
       }
@@ -877,7 +878,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     )
     this.socketService.on(
       SocketActionTypes.CREATE_USER_CSR,
-      async (payload: { id: string; nickname: string }, callback: (response: Identity | undefined) => void) => {
+      async (payload: InitUserCsrPayload, callback: (response: Identity | undefined) => void) => {
         this.logger.info(`socketService - ${SocketActionTypes.CREATE_USER_CSR}`)
         callback(await this.addUserCsr(payload))
       }

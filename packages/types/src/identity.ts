@@ -44,6 +44,11 @@ export interface IdentityUpdatePayload {
   introMessageSent?: boolean
 }
 
+export interface InitUserCsrPayload {
+  communityId: string
+  nickname: string
+}
+
 export interface CreateUserCsrPayload {
   nickname: string
   commonName: string
