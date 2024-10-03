@@ -672,7 +672,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
     // FIXME: Don't await this
     // FIXME: Wait until Tor is bootstrapped to dial peers
-    await this.libp2pService.dialPeers(peers ?? [])
+    this.libp2pService.dialPeers(peers ?? [])
 
     this.logger.info('Storage initialized')
 

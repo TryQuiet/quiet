@@ -20,6 +20,7 @@ import {
   SOCKS_PROXY_AGENT,
   LEVEL_DB,
   DB_PATH,
+  LIBP2P_DB_PATH,
 } from './const'
 import { ConfigOptions, ConnectionsManagerOptions, ConnectionsManagerTypes } from './types'
 import { LocalDbModule } from './local-db/local-db.module'
@@ -153,6 +154,11 @@ export class AppModule {
           inject: [QUIET_DIR],
         },
         {
+          provide: LIBP2P_DB_PATH,
+          useFactory: (baseDir: string) => path.join(baseDir, 'libp2pDatastore'),
+          inject: [QUIET_DIR],
+        },
+        {
           provide: LEVEL_DB,
           useFactory: (dbPath: string) => new Level<string, unknown>(dbPath, { valueEncoding: 'json' }),
           inject: [DB_PATH],
@@ -163,6 +169,7 @@ export class AppModule {
         QUIET_DIR,
         ORBIT_DB_DIR,
         IPFS_REPO_PATCH,
+        LIBP2P_DB_PATH,
         SERVER_IO_PROVIDER,
         SOCKS_PROXY_AGENT,
         LEVEL_DB,

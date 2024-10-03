@@ -6,7 +6,7 @@
  *
  * Key-value pairs are stored to the configured storage.
  **/
-import { type AccessController, type Identity, type Log, type LogEntry, Events } from '@orbitdb/core'
+import { AccessControllerType, IdentitiesType, LogEntry, Events, LogType } from '@orbitdb/core'
 import { type Helia } from 'helia'
 import { createLogger } from '../../common/logger'
 import { OrbitDbService } from './orbitDb.service'
@@ -36,15 +36,15 @@ export const EventsWithStorage =
     onUpdate,
   }: {
     ipfs: Helia
-    identity: Identity
+    identity: IdentitiesType
     address: string
     name: string
-    access: typeof AccessController
+    access: AccessControllerType
     directory: string
     meta: Record<string, any>
     referencesCount: number
     syncAutomatically: boolean
-    onUpdate: (log: Log, entry: LogEntry) => Promise<void>
+    onUpdate: (log: LogType, entry: LogEntry) => Promise<void>
   }) => {
     logger.info(`Initializing Events OrbitDB database using custom storage`)
 

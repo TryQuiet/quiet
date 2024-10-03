@@ -404,7 +404,7 @@ export class StorageService extends EventEmitter {
       this.logger.info('Subscribing to channel ', channelData.id)
 
       db.events.on('update', async (entry: LogEntry<ChannelMessage>) => {
-        this.logger.info(`${channelData.id} database updated`)
+        this.logger.info(`${channelData.id} database updated`, entry.hash, entry.payload.value?.channelId)
 
         const message = entry.payload.value!
         const verified = await this.verifyMessage(message)

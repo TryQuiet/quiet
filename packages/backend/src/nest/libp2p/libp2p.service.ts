@@ -2,15 +2,18 @@ import { gossipsub } from '@chainsafe/libp2p-gossipsub'
 import { noise } from '@chainsafe/libp2p-noise'
 import { yamux } from '@chainsafe/libp2p-yamux'
 
-import { echo } from '@libp2p/echo'
 import { identify, identifyPush } from '@libp2p/identify'
+import { PeerId, type Libp2p } from '@libp2p/interface'
 import { kadDHT } from '@libp2p/kad-dht'
-import { CodeError, ERR_INVALID_MESSAGE, ERR_TIMEOUT, PeerId, type Libp2p } from '@libp2p/interface'
-import { preSharedKey } from '@libp2p/pnet'
+import { keychain } from '@libp2p/keychain'
 import { peerIdFromString } from '@libp2p/peer-id'
 import { ping } from '@libp2p/ping'
+import { preSharedKey } from '@libp2p/pnet'
 import * as filters from '@libp2p/websockets/filters'
 import { createLibp2p } from 'libp2p'
+
+import { LevelDatastore } from 'datastore-level'
+import { DatabaseOptions, Level } from 'level'
 
 import { multiaddr } from '@multiformats/multiaddr'
 import { Inject, Injectable } from '@nestjs/common'
@@ -21,18 +24,16 @@ import { Agent } from 'https'
 import { DateTime } from 'luxon'
 import { fromString as uint8ArrayFromString } from 'uint8arrays/from-string'
 import { toString as uint8ArrayToString } from 'uint8arrays/to-string'
-import { pipe } from 'it-pipe'
 
 import { createLibp2pAddress, createLibp2pListenAddress } from '@quiet/common'
 import { ConnectionProcessInfo, type NetworkDataPayload, SocketActionTypes, type UserData } from '@quiet/types'
 
 import { getUsersAddresses } from '../common/utils'
-import { SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
+import { LIBP2P_DB_PATH, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
 import { ServerIoProviderTypes } from '../types'
 import { webSockets } from '../websocketOverTor'
 import { Libp2pConnectedPeer, Libp2pEvents, Libp2pNodeParams } from './libp2p.types'
 import { createLogger } from '../common/logger'
-import { bitswap } from '@helia/block-brokers'
 
 const KEY_LENGTH = 32
 export const LIBP2P_PSK_METADATA = '/key/swarm/psk/1.0.0/\n/base16/\n'
@@ -43,12 +44,14 @@ export class Libp2pService extends EventEmitter {
   private dialQueue: string[]
   public connectedPeers: Map<string, Libp2pConnectedPeer>
   public dialedPeers: Set<string>
+  private datastore: LevelDatastore | null
 
   private readonly logger = createLogger(Libp2pService.name)
 
   constructor(
     @Inject(SERVER_IO_PROVIDER) public readonly serverIoProvider: ServerIoProviderTypes,
-    @Inject(SOCKS_PROXY_AGENT) public readonly socksProxyAgent: Agent
+    @Inject(SOCKS_PROXY_AGENT) public readonly socksProxyAgent: Agent,
+    @Inject(LIBP2P_DB_PATH) public readonly datastorePath: string
   ) {
     super()
 
@@ -205,15 +208,24 @@ export class Libp2pService extends EventEmitter {
   }
 
   public async createInstance(params: Libp2pNodeParams): Promise<Libp2p> {
+    this.logger.info(`Creating new libp2p instance`)
+
     if (this.libp2pInstance) {
+      this.logger.warn(`Found an existing instance of libp2p, returning...`)
       return this.libp2pInstance
     }
 
+    this.logger.info(`Creating or opening existing level datastore for libp2p`)
+    this.datastore = this.createDatastore()
+    await this.datastore.open()
+
     let libp2p: Libp2p
 
+    this.logger.info(`Creating libp2p`)
     try {
       libp2p = await createLibp2p({
         start: false,
+        datastore: this.datastore,
         connectionManager: {
           minConnections: 3, // TODO: increase?
           maxConnections: 20, // TODO: increase?
@@ -224,8 +236,10 @@ export class Libp2pService extends EventEmitter {
         peerId: params.peerId,
         addresses: { listen: params.listenAddresses },
         connectionMonitor: {
+          // ISLA: we should consider making this true if pings are reliable going forward
           abortConnectionOnPingFailure: false,
           pingInterval: 60_000,
+          enabled: true,
         },
         connectionProtector: preSharedKey({ psk: params.psk }),
         streamMuxers: [yamux()],
@@ -241,37 +255,42 @@ export class Libp2pService extends EventEmitter {
           }),
         ],
         services: {
-          dht: kadDHT({
-            allowQueryWithZeroPeers: true,
-          }),
-          echo: echo(),
+          ping: ping(),
           pubsub: gossipsub({
             // neccessary to run a single peer
             allowPublishToZeroTopicPeers: true,
             fallbackToFloodsub: true,
-            // emitSelf: false,
-            doPX: true,
+            emitSelf: true,
           }),
           identify: identify(),
           identifyPush: identifyPush(),
+          keychain: keychain(),
+          dht: kadDHT({
+            allowQueryWithZeroPeers: false,
+            clientMode: false,
+          }),
         },
       })
     } catch (err) {
       this.logger.error('Error while creating instance of libp2p', err)
       throw err
     }
+
     this.libp2pInstance = libp2p
     await this.afterCreation(params.peerId)
     return libp2p
   }
 
   private async afterCreation(peerId: PeerId) {
+    this.logger.info(`Performing post-creation setup of libp2p instance`)
+
     if (!this.libp2pInstance) {
       this.logger.error('libp2pInstance was not created')
       throw new Error('libp2pInstance was not created')
     }
 
     this.logger.info(`Local peerId: ${peerId.toString()}`)
+    this.logger.info(`Setting up libp2p event listeners`)
 
     this.serverIoProvider.io.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, ConnectionProcessInfo.INITIALIZING_LIBP2P)
 
@@ -330,6 +349,8 @@ export class Libp2pService extends EventEmitter {
       this.emit(Libp2pEvents.PEER_DISCONNECTED, peerStat)
     })
 
+    this.logger.info(`Dialing peers and starting libp2p`)
+
     this.redialPeersInBackground()
 
     await this.libp2pInstance.start()
@@ -342,9 +363,23 @@ export class Libp2pService extends EventEmitter {
     this.logger.info(`Initialized libp2p for peer ${peerId.toString()}`)
   }
 
+  private createDatastore(): LevelDatastore {
+    const datastoreInit: DatabaseOptions<string, Uint8Array> = {
+      keyEncoding: 'utf8',
+      valueEncoding: 'buffer',
+      createIfMissing: true,
+      errorIfExists: false,
+      version: 1,
+    }
+
+    const datastoreLevelDb = new Level<string, Uint8Array>(this.datastorePath, datastoreInit)
+    return new LevelDatastore(datastoreLevelDb, datastoreInit)
+  }
+
   public async close(): Promise<void> {
     this.logger.info('Closing libp2p service')
     await this.libp2pInstance?.stop()
+    await this.datastore?.close()
     this.libp2pInstance = null
     this.connectedPeers = new Map()
     this.dialedPeers = new Set()

@@ -4,10 +4,11 @@ import { bitswap } from '@helia/block-brokers'
 import { IPFS_REPO_PATCH } from '../const'
 import { createLogger } from '../common/logger'
 import { LevelDatastore } from 'datastore-level'
-import { FsBlockstore, FsBlockstoreInit } from 'blockstore-fs'
 import { LevelBlockstore, LevelBlockstoreInit } from 'blockstore-level'
 import { Libp2pService } from '../libp2p/libp2p.service'
 import { DatabaseOptions, Level } from 'level'
+import { base16upper } from 'multiformats/bases/base16'
+import * as raw from 'multiformats/codecs/raw'
 
 type StoreInit = {
   blockstore?: Omit<LevelBlockstoreInit, 'valueEncoding' | 'keyEncoding'>
@@ -17,7 +18,7 @@ type StoreInit = {
 @Injectable()
 export class IpfsService {
   public ipfsInstance: Helia | null
-  private blockstore: FsBlockstore | LevelBlockstore | null
+  private blockstore: LevelBlockstore | null
   private datastore: LevelDatastore | null
 
   private started: boolean
@@ -61,15 +62,20 @@ export class IpfsService {
   }
 
   private async initializeStores(init?: StoreInit): Promise<void> {
+    this.datastore = await this.createDatastore(init?.datastore)
+    this.blockstore = await this.createBlockstore(init?.blockstore)
+  }
+
+  private async createDatastore(init?: DatabaseOptions<string, Uint8Array>): Promise<LevelDatastore> {
     let datastoreInit: DatabaseOptions<string, Uint8Array> = {
       keyEncoding: 'utf8',
       valueEncoding: 'buffer',
     }
 
-    if (init?.datastore != null) {
+    if (init != null) {
       datastoreInit = {
         ...datastoreInit,
-        ...init.datastore,
+        ...init,
       }
     }
 
@@ -82,8 +88,10 @@ export class IpfsService {
     }
 
     const datastoreLevelDb = new Level<string, Uint8Array>(this.ipfsRepoPath + '/data', datastoreInit)
-    this.datastore = new LevelDatastore(datastoreLevelDb, datastoreInit)
+    return new LevelDatastore(datastoreLevelDb, datastoreInit)
+  }
 
+  private async createBlockstore(init?: LevelBlockstoreInit): Promise<LevelBlockstore> {
     let blockstoreInit: LevelBlockstoreInit = {
       keyEncoding: 'utf8',
       valueEncoding: 'buffer',
@@ -92,10 +100,10 @@ export class IpfsService {
       version: 1,
     }
 
-    if (init?.blockstore != null) {
+    if (init != null) {
       blockstoreInit = {
         ...blockstoreInit,
-        ...init.blockstore,
+        ...init,
       }
     }
 
@@ -110,7 +118,7 @@ export class IpfsService {
     }
 
     const blockstoreLevelDb = new Level<string, Uint8Array>(this.ipfsRepoPath + '/blocks', blockstoreInit)
-    this.blockstore = new LevelBlockstore(blockstoreLevelDb, blockstoreInit)
+    return new LevelBlockstore(blockstoreLevelDb, blockstoreInit)
   }
 
   public async start() {

@@ -161,14 +161,52 @@ declare module '@orbitdb/core' {
   // Log
   //
 
-  export interface Log {
-    id
+  export function Log(
+    identity: IdentitiesType,
+    options: {
+      logId?: string
+      logHeads?: LogEntry[]
+      access?: AccessControllerType
+      entryStorage?: Storage
+      headsStorage?: Storage
+      indexStorage?: Storage
+      sortFn?: (...args: any[]) => any
+    } = {}
+  ): Promise<LogType>
+
+  export interface LogType {
+    id: string
     clock: Clock
     heads: () => Promise<LogEntry[]>
+    values: () => Promise<LogEntry[]>
+    get: (hash: string) => Promise<LogEntry>
+    has: (hash: string) => Promise<boolean>
+    append: (
+      data: any,
+      options: {
+        referencesCount: number
+      } = { referencesCount: 0 }
+    ) => Promise<LogEntry | void>
+    join: (log: LogType) => Promise<void>
+    joinEntry: (entry: LogEntry) => Promise<boolean>
     traverse: (
       rootEntries: LogEntry[] | null,
       shouldStopFn: (entry: LogEntry) => Promise<boolean>
     ) => AsyncGenerator<LogEntry, void, unknown>
+    iterator: (
+      options: {
+        amount: number
+        gt: string
+        gte: string
+        lt: string
+        lte: string
+      } = {}
+    ) => AsyncGenerator<LogEntry, void, unknown>
+    clear: () => Promise<void>
+    close: () => Promise<void>
+    access: AccessControllerType
+    identity: Identity
+    storage: Storage
   }
 
   declare interface EntryType {

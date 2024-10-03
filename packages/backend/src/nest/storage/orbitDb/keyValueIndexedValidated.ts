@@ -29,23 +29,18 @@
  * @augments module:Databases.Databases-KeyValue
  */
 import {
-  type AccessController,
+  AccessControllerType,
   KeyValue,
   LevelStorage,
-  type IdentitiesType,
-  type Identity,
-  type Log,
-  type LogEntry,
-  ComposedStorage,
-  LRUStorage,
-  IPFSBlockStorage,
+  IdentitiesType,
+  LogEntry,
   KeyValueType,
+  LogType,
 } from '@orbitdb/core'
 import { type Helia } from 'helia'
 import { toString as uint8ArrayToString } from 'uint8arrays/to-string'
 import { createLogger } from '../../common/logger'
 import { KeyValueWithStorage } from './keyValueWithStorage'
-import { OrbitDbService } from './orbitDb.service'
 
 import { posixJoin } from './util'
 
@@ -69,7 +64,7 @@ const Index =
       valueEncoding,
     })
 
-    const update = async (log: Log, entry: LogEntry) => {
+    const update = async (log: LogType, entry: LogEntry) => {
       const keys = new Set()
       const toBeIndexed = new Set()
       const latest = entry.hash
@@ -181,15 +176,15 @@ export const KeyValueIndexedValidated =
     onUpdate,
   }: {
     ipfs: Helia
-    identity: Identity
+    identity: IdentitiesType
     address: string
     name: string
-    access: typeof AccessController
+    access: AccessControllerType
     directory: string
     meta: Record<string, any>
     referencesCount: number
     syncAutomatically: boolean
-    onUpdate: (log: Log, entry: LogEntry) => Promise<void>
+    onUpdate: (log: LogType, entry: LogEntry) => Promise<void>
   }) => {
     // Set up the index
     const index = await Index({ directory: posixJoin(directory || './orbitdb', `./${address}/_index`), validateFn })()

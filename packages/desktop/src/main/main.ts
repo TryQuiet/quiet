@@ -381,6 +381,9 @@ app.on('ready', async () => {
   backendProcess = fork(backendBundlePath, forkArgvs, {
     env: {
       NODE_OPTIONS: '--experimental-global-customevent',
+      DEBUG:
+        'backend*,quiet*,state-manager*,desktop*,utils*,identity*,common*,libp2p*,helia*,bitswap*,blockstore*,datastore*',
+      COLORIZE: 'true',
     },
   })
   logger.info('Forked backend, PID:', backendProcess.pid)
