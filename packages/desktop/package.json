@@ -86,7 +86,7 @@
   "scripts": {
     "version": "echo $npm_package_version",
     "copyBinaries": "cp -R ../../3rd-party/tor/$SOURCE_PATH/ ./tor/ && chmod 775 ./tor/tor",
-    "copyBinariesDarwin": "cp -R ../../3rd-party/tor/$SOURCE_PATH/ ./tor/ && chmod 775 ./tor/darwin/arm64/tor ./tor/darwin/x64/tor",
+    "copyBinariesDarwin": "cp -R ../../3rd-party/tor/$SOURCE_PATH/ ./tor/ && ls -lart ./tor && ls -lart ./tor/darwin && chmod 775 ./tor/darwin/arm64/tor ./tor/darwin/x64/tor",
     "copyBinariesWin": "xcopy ..\\..\\3rd-party\\tor\\win32 .\\tor\\",
     "pullLibs": "wget -N https://zbay-binaries.s3.us-east-2.amazonaws.com/$SOURCE_PATH/libssl.so -P ./ && chmod 775 ./libssl.so",
     "distMac:local": "export DEBUG=* SOURCE_PATH=darwin TEST_MODE=true IS_LOCAL=true && npm run copyBinariesDarwin && npm run build:dev:dist && electron-builder --mac -p never -c.mac.type=development -c.mac.identity=null",
