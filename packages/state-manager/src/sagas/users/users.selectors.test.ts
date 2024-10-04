@@ -78,7 +78,7 @@ describe('users selectors', () => {
     expect(usersData[alicePublicKey]).toMatchInlineSnapshot(`
       Object {
         "onionAddress": "nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad.onion",
-        "peerId": "12D3KooWCXzUw71ovvkDky6XkV57aCWUV9JhJoKhoqXa1gdhFNoL",
+        "peerId": "12D3KooWSYQf8zzr5rYnUdLxYyLzHruQHPaMssja1ADifGAcN3qY",
         "username": "alice",
       }
     `)
