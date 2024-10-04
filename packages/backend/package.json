@@ -104,7 +104,7 @@
     "blockstore-fs": "^2.0.0",
     "blockstore-level": "^2.0.1",
     "class-transformer": "^0.5.1",
-    "class-validator": "^0.13.1",
+    "class-validator": "^0.14.1",
     "cli-table": "^0.3.6",
     "commander": "^7.2.0",
     "cors": "^2.8.5",
