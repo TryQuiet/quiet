@@ -48,11 +48,12 @@
     ],
     "testTimeout": 40000,
     "setupFiles": [
-      "./jestSetup.js"
+      "./jestSetup.ts"
     ],
     "testEnvironment": "jest-environment-node"
   },
   "devDependencies": {
+    "@jest/globals": "29.7.0",
     "@nestjs/cli": "^10.2.1",
     "@nestjs/schematics": "^10.0.3",
     "@nestjs/testing": "^10.2.10",

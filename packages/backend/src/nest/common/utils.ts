@@ -204,7 +204,7 @@ export const rootPermsData: PermsData = {
 tmp.setGracefulCleanup()
 
 export const testBootstrapMultiaddrs = [
-  createLibp2pAddress('abcd.onion', 'QmfLUJcDSLVYnNqSPSRK4mKG8MGw51m9K2v59k3yq1C8s4'),
+  createLibp2pAddress('abcd.onion', '12D3KooWKCWstmqi5gaQvipT7xVneVGfWV7HYpCbmUu626R92hXx'),
 ]
 
 export const libp2pInstanceParams = async (): Promise<Libp2pNodeParams> => {

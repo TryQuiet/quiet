@@ -1,3 +1,5 @@
+import { jest } from '@jest/globals'
+
 import { webSockets } from './index'
 import { all } from './filters'
 import { multiaddr } from '@multiformats/multiaddr'
@@ -150,8 +152,8 @@ describe('websocketOverTor', () => {
       removeEventListener,
     }
 
-    const peerId1 = 'Qme5NiSQ6V3cc3nyfYVtkkXDPGBSYEVUNCN5sM4DbyYc7s'
-    const peerId2 = 'QmeCWxba5Yk1ZAKogQJsaHXoAermE7PgFZqpqyKNg65cSN'
+    const peerId1 = '12D3KooWHgLdRMqkepNiYnrur21cyASUNk1f9NZ5tuGa9He8QXNa'
+    const peerId2 = '12D3KooWSZxWV6DmmTNf9sUgcTQqpN3CTuRiJFY4VthXr4yYxXxi'
 
     const websocketsOverTorData1 = {
       filter: all,
@@ -236,8 +238,8 @@ describe('websocketOverTor', () => {
       removeEventListener,
     }
 
-    const peerId1 = 'Qme5NiSQ6V3cc3nyfYVtkkXDPGBSYEVUNCN5sM4DbyYc7s'
-    const peerId2 = 'QmeCWxba5Yk1ZAKogQJsaHXoAermE7PgFZqpqyKNg65cSN'
+    const peerId1 = '12D3KooWHgLdRMqkepNiYnrur21cyASUNk1f9NZ5tuGa9He8QXNa'
+    const peerId2 = '12D3KooWSZxWV6DmmTNf9sUgcTQqpN3CTuRiJFY4VthXr4yYxXxi'
 
     const websocketsOverTorDataServer = {
       filter: all,

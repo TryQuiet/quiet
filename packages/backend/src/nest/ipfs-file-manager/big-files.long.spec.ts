@@ -1,4 +1,5 @@
-import { LazyModuleLoader } from '@nestjs/core'
+import { jest } from '@jest/globals'
+
 import { Test, TestingModule } from '@nestjs/testing'
 import { DownloadState, FileMetadata } from '@quiet/types'
 import { DirResult } from 'tmp'
@@ -25,7 +26,6 @@ describe('IpfsFileManagerService', () => {
   let ipfsFileManagerService: IpfsFileManagerService
   let ipfsService: IpfsService
   let libp2pService: Libp2pService
-  let lazyModuleLoader: LazyModuleLoader
 
   let tmpDir: DirResult
   let filePath: string
@@ -42,23 +42,12 @@ describe('IpfsFileManagerService', () => {
 
     ipfsFileManagerService = await module.resolve(IpfsFileManagerService)
 
-    lazyModuleLoader = await module.resolve(LazyModuleLoader)
-
-    const { Libp2pModule: ModuleLibp2p } = await import('../libp2p/libp2p.module')
-    const moduleLibp2p = await lazyModuleLoader.load(() => ModuleLibp2p)
-    const { Libp2pService } = await import('../libp2p/libp2p.service')
-    libp2pService = moduleLibp2p.get(Libp2pService)
-
-    const { IpfsModule: ModuleIpfs } = await import('../ipfs/ipfs.module')
-    const moduleIpfs = await lazyModuleLoader.load(() => ModuleIpfs)
-    const { IpfsService } = await import('../ipfs/ipfs.service')
-    ipfsService = moduleIpfs.get(IpfsService)
-
+    libp2pService = await module.resolve(Libp2pService)
     const params = await libp2pInstanceParams()
-
     await libp2pService.createInstance(params)
     expect(libp2pService.libp2pInstance).not.toBeNull()
 
+    ipfsService = await module.resolve(IpfsService)
     await ipfsService.createInstance()
     expect(ipfsService.ipfsInstance).not.toBeNull()
 
@@ -105,7 +94,7 @@ describe('IpfsFileManagerService', () => {
         StorageEvents.FILE_UPLOADED,
         expect.objectContaining({
           ...metadata,
-          cid: expect.stringContaining('Qm'),
+          cid: expect.stringContaining('bafy'),
           width: undefined,
           height: undefined,
         })
@@ -116,7 +105,7 @@ describe('IpfsFileManagerService', () => {
         3,
         StorageEvents.DOWNLOAD_PROGRESS,
         expect.objectContaining({
-          cid: expect.stringContaining('Qm'),
+          cid: expect.stringContaining('bafy'),
           downloadState: DownloadState.Hosted,
           downloadProgress: undefined,
         })
@@ -128,7 +117,7 @@ describe('IpfsFileManagerService', () => {
         StorageEvents.MESSAGE_MEDIA_UPDATED,
         expect.objectContaining({
           ...metadata,
-          cid: expect.stringContaining('Qm'),
+          cid: expect.stringContaining('bafy'),
           width: undefined,
           height: undefined,
         })
@@ -141,8 +130,9 @@ describe('IpfsFileManagerService', () => {
     logger.time('Stopping ipfs')
     await ipfsService.ipfsInstance?.stop()
     logger.timeEnd('Stopping ipfs')
+    await libp2pService.close()
 
     // The jest test doesn't exit cleanly because of some asynchronous actions need time to complete, I can't find what is it.
-    await sleep(100000)
+    // await sleep(10_000)
   }, 1000000) // IPFS needs around 5 minutes to write 2.1GB file
 })

@@ -15,6 +15,7 @@ import {
   DB_PATH,
   LEVEL_DB,
   TEST_DATA_PORT,
+  LIBP2P_DB_PATH,
 } from '../const'
 import { ConfigOptions } from '../types'
 import path from 'path'
@@ -95,6 +96,10 @@ export const defaultConfigForTest = {
       useFactory: () => path.join(createTmpDir().name, 'testDB-nest'),
     },
     {
+      provide: LIBP2P_DB_PATH,
+      useFactory: () => path.join(createTmpDir().name, 'testDB-libp2p'),
+    },
+    {
       provide: LEVEL_DB,
       useFactory: (dbPath: string) => new Level<string, any>(dbPath, { valueEncoding: 'json' }),
       inject: [DB_PATH],
@@ -109,6 +114,7 @@ export const defaultConfigForTest = {
     SOCKS_PROXY_AGENT,
     LEVEL_DB,
     EXPRESS_PROVIDER,
+    LIBP2P_DB_PATH,
   ],
 })
 export class TestModule {}

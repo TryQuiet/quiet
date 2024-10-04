@@ -1,3 +1,5 @@
+import { jest } from '@jest/globals'
+
 import { Test, TestingModule } from '@nestjs/testing'
 import { getFactory, prepareStore, type Store, type communities, type identity } from '@quiet/state-manager'
 import { type Community, type Identity, type InitCommunityPayload } from '@quiet/types'
@@ -69,7 +71,7 @@ describe('ConnectionsManagerService', () => {
   it('launches community on init if its data exists in local db', async () => {
     const remotePeer = createLibp2pAddress(
       'y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdvcbzw5vex2crsr26qd',
-      'QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE'
+      '12D3KooWKCWstmqi5gaQvipT7xVneVGfWV7HYpCbmUu626R92hXx'
     )
 
     // Using the factory includes extra properties that affect the assertion
@@ -143,7 +145,7 @@ describe('ConnectionsManagerService', () => {
     }
     await localDbService.setNetworkInfo(network)
 
-    const peerid = 'QmaEvCkpUG7GxhgvMkk8wxurfi1ehjHhSUNRksWTmXN2ix'
+    const peerid = '12D3KooWKCWstmqi5gaQvipT7xVneVGfWV7HYpCbmUu626R92hXx'
     await localDbService.put(LocalDBKeys.PEERS, {
       [peerid]: {
         peerId: peerid,

@@ -1,4 +1,3 @@
-import { LazyModuleLoader } from '@nestjs/core'
 import { Test, TestingModule } from '@nestjs/testing'
 import { TestModule } from '../common/test.module'
 import { libp2pInstanceParams } from '../common/utils'
@@ -13,23 +12,19 @@ describe('IpfsService', () => {
   let module: TestingModule
   let ipfsService: IpfsService
   let libp2pService: Libp2pService
-  let lazyModuleLoader: LazyModuleLoader
 
   beforeEach(async () => {
     module = await Test.createTestingModule({
       imports: [TestModule, IpfsModule, SocketModule, Libp2pModule, LocalDbModule],
     }).compile()
 
-    ipfsService = await module.resolve(IpfsService)
-
-    lazyModuleLoader = await module.resolve(LazyModuleLoader)
-    const { Libp2pModule: Module } = await import('../libp2p/libp2p.module')
-    const moduleRef = await lazyModuleLoader.load(() => Module)
-    const { Libp2pService } = await import('../libp2p/libp2p.service')
-    libp2pService = moduleRef.get(Libp2pService)
+    libp2pService = await module.resolve(Libp2pService)
     const params = await libp2pInstanceParams()
+
     await libp2pService.createInstance(params)
     expect(libp2pService.libp2pInstance).not.toBeNull()
+
+    ipfsService = await module.resolve(IpfsService)
   })
 
   afterEach(async () => {

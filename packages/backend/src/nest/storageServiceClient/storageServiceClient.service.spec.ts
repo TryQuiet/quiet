@@ -1,3 +1,5 @@
+import { jest } from '@jest/globals'
+
 import { Test } from '@nestjs/testing'
 import { StorageServiceClientModule } from './storageServiceClient.module'
 import { StorageServiceClient } from './storageServiceClient.service'

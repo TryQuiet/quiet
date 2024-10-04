@@ -1,3 +1,5 @@
+import { jest } from '@jest/globals'
+
 import { Test, TestingModule } from '@nestjs/testing'
 import { defaultConfigForTest, TestModule } from '../common/test.module'
 import { createTmpDir, tmpQuietDirPath } from '../common/utils'

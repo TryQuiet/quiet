@@ -81,7 +81,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     @Inject(SOCKS_PROXY_AGENT) public readonly socksProxyAgent: Agent,
     private readonly socketService: SocketService,
     private readonly registrationService: RegistrationService,
-    private readonly libp2pService: Libp2pService,
+    public readonly libp2pService: Libp2pService,
     private readonly storageServerProxyService: StorageServiceClient,
     private readonly localDbService: LocalDbService,
     private readonly storageService: StorageService,

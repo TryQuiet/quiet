@@ -1,8 +1,10 @@
+import { jest } from '@jest/globals'
+
 import { type DirResult } from 'tmp'
 import crypto from 'crypto'
 import { type PeerId, isPeerId } from '@libp2p/interface'
 import { communities, getFactory, identity, prepareStore, Store } from '@quiet/state-manager'
-import { createPeerId, createTmpDir, removeFilesFromDir, tmpQuietDirPath } from '../common/utils'
+import { createPeerId, createTmpDir, libp2pInstanceParams, removeFilesFromDir, tmpQuietDirPath } from '../common/utils'
 import { NetworkStats, type Community, type Identity } from '@quiet/types'
 import { TestingModule, Test } from '@nestjs/testing'
 import { FactoryGirl } from 'factory-girl'
@@ -88,6 +90,8 @@ beforeEach(async () => {
   connectionsManagerService = await module.resolve(ConnectionsManagerService)
   localDbService = await module.resolve(LocalDbService)
   registrationService = await module.resolve(RegistrationService)
+  libp2pService = connectionsManagerService.libp2pService
+  peerId = await createPeerId()
   tor = await module.resolve(Tor)
   await tor.init()
 
@@ -111,17 +115,6 @@ afterEach(async () => {
 
 describe('Connections manager', () => {
   it('saves peer stats when peer has been disconnected', async () => {
-    class RemotePeerEventDetail {
-      peerId: string
-
-      constructor(peerId: string) {
-        this.peerId = peerId
-      }
-
-      toString = () => {
-        return this.peerId
-      }
-    }
     const emitSpy = jest.spyOn(libp2pService, 'emit')
 
     // Peer connected
@@ -136,17 +129,11 @@ describe('Connections manager', () => {
     })
 
     // Peer disconnected
-    const remoteAddr = `${peerId.toString()}`
-    const peerDisconectEventDetail = {
-      remotePeer: new RemotePeerEventDetail(peerId.toString()),
-      remoteAddr: new RemotePeerEventDetail(remoteAddr),
-    }
+    const remotePeer = peerId.toString()
     await waitForExpect(async () => {
       expect(libp2pService.libp2pInstance).not.toBeUndefined()
     }, 2_000)
-    libp2pService.libp2pInstance?.dispatchEvent(
-      new CustomEvent('peer:disconnect', { detail: peerDisconectEventDetail })
-    )
+    libp2pService.libp2pInstance?.dispatchEvent(new CustomEvent('peer:disconnect', { detail: remotePeer }))
     await waitForExpect(async () => {
       expect(libp2pService.connectedPeers.size).toEqual(0)
     }, 2000)
@@ -155,11 +142,11 @@ describe('Connections manager', () => {
       expect(await localDbService.get(LocalDBKeys.PEERS)).not.toBeNull()
     }, 2000)
     const peerStats: Record<string, NetworkStats> = await localDbService.get(LocalDBKeys.PEERS)
-    expect(Object.keys(peerStats)[0]).toEqual(remoteAddr)
+    expect(Object.keys(peerStats)[0]).toEqual(remotePeer)
     expect(emitSpy).toHaveBeenCalledWith(Libp2pEvents.PEER_DISCONNECTED, {
-      peer: peerStats[remoteAddr].peerId,
-      connectionDuration: peerStats[remoteAddr].connectionTime,
-      lastSeen: peerStats[remoteAddr].lastSeen,
+      peer: peerStats[remotePeer].peerId,
+      connectionDuration: peerStats[remotePeer].connectionTime,
+      lastSeen: peerStats[remotePeer].lastSeen,
     })
   })
 
@@ -205,7 +192,7 @@ describe('Connections manager', () => {
     // It looks LibP2P dials peers initially when it's started and
     // then IPFS service dials peers again when started, thus
     // peersCount-1 * 2 because we don't dial ourself (the first peer in the list)
-    expect(spyOnDial).toHaveBeenCalledTimes((peersCount - 1) * 2)
+    expect(spyOnDial).toHaveBeenCalledTimes(peersCount)
     // Temporary fix for hanging test - websocketOverTor doesn't have abortController
     await sleep(5000)
   })
