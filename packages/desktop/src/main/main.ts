@@ -380,13 +380,14 @@ app.on('ready', async () => {
     logger.error('Error occurred while trying to close hanging backend process', e)
   }
 
-  backendProcess = fork(backendBundlePath, forkArgvs, {
-    env: {
-      NODE_OPTIONS: '--experimental-global-customevent',
-      DEBUG: '*',
-      COLORIZE: 'true',
-    },
-  })
+  // backendProcess = fork(backendBundlePath, forkArgvs, {
+  //   env: {
+  //     NODE_OPTIONS: '--experimental-global-customevent',
+  //     DEBUG: '*',
+  //     COLORIZE: 'true',
+  //   },
+  // })
+  backendProcess = fork(backendBundlePath, forkArgvs)
   logger.info('Forked backend, PID:', backendProcess.pid)
 
   backendProcess.on('error', e => {
