@@ -388,12 +388,32 @@ app.on('ready', async () => {
   })
   logger.info('Forked backend, PID:', backendProcess.pid)
 
+  backendProcess.stdout.on('data', (chunk: any) => {
+    logger.info(`STDOUT FROM FORKED PROCESS`, chunk)
+  })
+  backendProcess.stderr.on('data', (chunk: any) => {
+    logger.info(`STDERR FROM FORKED PROCESS`, chunk)
+  })
+
+  backendProcess.on('spawn', () => {
+    logger.info('Backend process spawned')
+  })
+
+  backendProcess.on('close', (code, signal) => {
+    logger.warn('Backend process closed', code, signal)
+  })
+
+  backendProcess.on('disconnect', () => {
+    logger.info('Backend process disconnected')
+  })
+
   backendProcess.on('error', e => {
     logger.error('Backend process returned error', e)
     throw Error(e.message)
   })
 
-  backendProcess.on('exit', code => {
+  backendProcess.on('exit', (code, signal) => {
+    logger.warn('Backend process exited', code, signal)
     if (code === 1) {
       throw Error('Abnormal backend process termination')
     }
