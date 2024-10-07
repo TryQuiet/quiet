@@ -388,10 +388,10 @@ app.on('ready', async () => {
   })
   logger.info('Forked backend, PID:', backendProcess.pid)
 
-  backendProcess.stdout.on('data', (chunk: any) => {
+  backendProcess.stdout?.on('data', (chunk: any) => {
     logger.info(`STDOUT FROM FORKED PROCESS`, chunk)
   })
-  backendProcess.stderr.on('data', (chunk: any) => {
+  backendProcess.stderr?.on('data', (chunk: any) => {
     logger.info(`STDERR FROM FORKED PROCESS`, chunk)
   })
 
