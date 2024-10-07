@@ -371,6 +371,8 @@ app.on('ready', async () => {
     `${SOCKET_IO_SECRET}`,
   ]
 
+  logger.info('Fork argvs for backend process', forkArgvs)
+
   const backendBundlePath = path.normalize(require.resolve('backend-bundle'))
   try {
     closeHangingBackendProcess(path.normalize(path.join('backend-bundle', 'bundle.cjs')), path.normalize(appDataPath))
