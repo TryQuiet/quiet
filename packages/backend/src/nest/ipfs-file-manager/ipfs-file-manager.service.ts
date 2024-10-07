@@ -176,7 +176,7 @@ export class IpfsFileManagerService extends EventEmitter {
     await this.ufs.addDirectory({ path: dir })
 
     // Write file to IPFS
-    const randomBytes = crypto.randomBytes(16).toString('hex');
+    const randomBytes = crypto.randomBytes(16).toString('hex')
     const uuid = `${Date.now()}_${randomBytes}`
     const filename = `${uuid}_${metadata.name}${metadata.ext}`
 
