@@ -12,7 +12,9 @@
     "build": "tsc -p tsconfig.build.json",
     "webpack": "webpack --env mode=development && cp ./lib/bundle.cjs ../backend-bundle/bundle.cjs",
     "webpack:prod": "webpack --env mode=production && cp ./lib/bundle.cjs ../backend-bundle/bundle.cjs",
-    "postinstall": "patch -f -p0 < ./patch/electron-fetch.patch || true && patch -f -p0 --forward --binary < ./patch/parse-duration.patch || true && patch -f -p0 --forward --binary < ./patch/parse-duration-esm.patch || true && patch -f -p0 < ./patch/ipfs-pubsub-peer-monitor.patch || true && patch --forward -p0 node_modules/@orbitdb/core/src/oplog/log.js < ./patch/orbitdb-oplog.patch || true && patch --forward -p0 node_modules/@libp2p/kad-dht/dist/src/providers.js < ./patch/libp2p-kaddht-providers.patch || true && patch --forward -p0 node_modules/@helia/block-brokers/node_modules/ipfs-bitswap/dist/src/bitswap.js < ./patch/bitswap.patch || true && patch --forward -p0 node_modules/libp2p/dist/src/connection-monitor.js < ./patch/libp2p-connection-monitor.patch || true",
+    "postinstall": "npm run copyNodeDatachannelBinary && npm run applyPatches",
+    "copyNodeDatachannelBinary": "cp node_modules/node-datachannel/build/Release/node_datachannel.node ../backend-bundle/deps/node_datachannel.node",
+    "applyPatches": "patch -f -p0 < ./patch/electron-fetch.patch || true && patch -f -p0 --forward --binary < ./patch/parse-duration.patch || true && patch -f -p0 --forward --binary < ./patch/parse-duration-esm.patch || true && patch -f -p0 < ./patch/ipfs-pubsub-peer-monitor.patch || true && patch --forward -p0 node_modules/@orbitdb/core/src/oplog/log.js < ./patch/orbitdb-oplog.patch || true && patch --forward -p0 node_modules/@libp2p/kad-dht/dist/src/providers.js < ./patch/libp2p-kaddht-providers.patch || true && patch --forward -p0 node_modules/@helia/block-brokers/node_modules/ipfs-bitswap/dist/src/bitswap.js < ./patch/bitswap.patch || true && patch --forward -p0 node_modules/libp2p/dist/src/connection-monitor.js < ./patch/libp2p-connection-monitor.patch || true",
     "prepare": "npm run webpack",
     "version": "git add -A src",
     "lint:no-fix": "eslint --ext .jsx,.js,.ts,.tsx ./src/",
@@ -149,6 +151,7 @@
     "multiformats": "13.1.0",
     "@multiformats/multiaddr": "^12.3.0",
     "@multiformats/multiaddr-to-uri": "^10.1.0",
+    "node-datachannel": "0.20.0-alpha.2",
     "node-fetch": "^3.3.0",
     "@orbitdb/core": "^2.2.0",
     "p-defer": "^4.0.1",
@@ -174,7 +177,8 @@
       "@ipld/dag-cbor": "9.2.1"
     },
     "helia": {
-      "multiformats": "13.1.0"
+      "multiformats": "13.1.0",
+      "node-datachannel": "0.20.0-alpha.2"
     }
   },
   "lint-staged": {
