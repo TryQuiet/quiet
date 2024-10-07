@@ -383,7 +383,7 @@ app.on('ready', async () => {
   backendProcess = fork(backendBundlePath, forkArgvs, {
     env: {
       NODE_OPTIONS: '--experimental-global-customevent',
-      DEBUG: '*',
+      DEBUG: 'backend*,quiet*,state-manager*,desktop*,utils*,identity*,common*,libp2p:connection-manager:auto-dial',
       COLORIZE: 'true',
     },
   })
