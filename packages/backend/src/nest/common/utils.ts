@@ -176,11 +176,17 @@ export const getUsersFromCsrs = async (csrs: string[]): Promise<UserData[]> => {
  *
  * @param tolerance In percentage (0.0 - 1.0)
  */
-export const compare = (given: number, base: number, tolerance = 0) => {
-  const margin = base * tolerance
-  const min = base - margin
-  const max = base + margin
-  return given >= min && given <= max
+export const compare = (given: number | bigint, base: number | bigint, tolerance: number = 0) => {
+  // convert all of our values to bigint for consistency
+  const biBase: bigint = typeof base === 'bigint' ? base : BigInt(base)
+  const biGiven: bigint = typeof given === 'bigint' ? given : BigInt(given)
+  const biTolerance: bigint = typeof tolerance === 'bigint' ? tolerance : BigInt(tolerance * 100)
+
+  // perform the comparison
+  const margin = (biBase * biTolerance) / BigInt(100)
+  const min = biBase - margin
+  const max = biBase + margin
+  return biGiven >= min && biGiven <= max
 }
 
 export const getCors = () => {
