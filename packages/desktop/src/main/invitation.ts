@@ -37,9 +37,7 @@ export const updateDesktopFile = (isDev: boolean) => {
 
   try {
     const scheme = 'x-scheme-handler/quiet'
-    logger.info(execSync(`xdg-mime query default ${scheme}`).toString())
     logger.info(execSync(`xdg-mime default ${desktopName} ${scheme}`).toString())
-    logger.info(execSync(`xdg-mime query default ${scheme}`).toString())
   } catch (e) {
     logger.error("Couldn't set default scheme handler", e)
   }
