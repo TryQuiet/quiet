@@ -254,13 +254,10 @@ describe('Multiple Clients', () => {
 
     it('Second user can send a message, they see their message tagged as "unregistered"', async () => {
       logger.info('Second guest FETCHING CHANNEL MESSAGES!')
-      await new Promise<void>(resolve =>
-        setTimeout(() => {
-          resolve()
-        }, 15000)
-      )
+      await sleep(10_000)
       await generalChannelUser3.sendMessage(users.user3.messages[0])
       generalChannelUser3 = new Channel(users.user3.app.driver, 'general')
+      await sleep(4_000)
       await generalChannelUser3.waitForLabel(users.user3.username, 'Unregistered')
     })
 

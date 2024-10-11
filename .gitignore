@@ -7,3 +7,5 @@ c4/workspace.json
 .vscode
 packages/.DS_Store
 .idea
+*.log
+packages/backend-bundle/deps/node_datachannel.node

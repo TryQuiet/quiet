@@ -15,7 +15,11 @@ import { createLogger } from './nest/common/logger'
 
 const logger = createLogger('backendManager')
 
+logger.info('Launching backend manager')
+
 const program = new Command()
+
+logger.info('Launching backend manager program')
 
 program
   .option('-p, --platform <platform>', 'platform')
@@ -29,6 +33,8 @@ program
   .option('-d, --socketIOPort <number>', 'Socket io data server port')
   .option('-r, --resourcesPath <string>', 'Application resources path')
   .option('-scrt, --socketIOSecret <string>', 'socketIO secret')
+
+logger.info('Parsing args')
 
 program.parse(process.argv)
 const options = program.opts()
