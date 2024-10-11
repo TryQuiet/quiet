@@ -71,7 +71,6 @@ import { DateTime } from 'luxon'
 import { createLogger } from '../common/logger'
 import { createUserCsr, getPubKey, keyObjectFromString, loadPrivateKey, pubKeyFromCsr } from '@quiet/identity'
 import { config } from '@quiet/state-manager'
-import { identity } from 'rxjs'
 
 @Injectable()
 export class ConnectionsManagerService extends EventEmitter implements OnModuleInit {

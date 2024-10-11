@@ -114,10 +114,7 @@ describe('ConnectionsManagerService', () => {
     await connectionsManagerService.init()
 
     const localPeerAddress = createLibp2pAddress(userIdentity.hiddenService.onionAddress, userIdentity.peerId.id)
-    const updatedLaunchCommunityPayload = {
-      community: { ...actualCommunity, peerList: [localPeerAddress, remotePeer] },
-      userIdentity,
-    }
+    const updatedLaunchCommunityPayload = { ...actualCommunity, peerList: [localPeerAddress, remotePeer] }
 
     expect(launchCommunitySpy).toHaveBeenCalledWith(updatedLaunchCommunityPayload)
   })
