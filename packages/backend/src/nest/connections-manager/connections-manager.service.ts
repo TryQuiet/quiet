@@ -11,7 +11,7 @@ import { CryptoEngine, setEngine } from 'pkijs'
 import { getLibp2pAddressesFromCsrs, removeFilesFromDir } from '../common/utils'
 
 import { LazyModuleLoader } from '@nestjs/core'
-import { createLibp2pAddress, isPSKcodeValid } from '@quiet/common'
+import { createLibp2pAddress, filterValidAddresses, isPSKcodeValid } from '@quiet/common'
 import { CertFieldsTypes, createRootCA, getCertFieldValue, loadCertificate } from '@quiet/identity'
 import {
   ChannelMessageIdsResponse,
@@ -50,6 +50,7 @@ import {
   RegisterCertificatePayload,
   IdentityUpdatePayload,
   InitUserCsrPayload,
+  UserCsr,
 } from '@quiet/types'
 import { CONFIG_OPTIONS, QUIET_DIR, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
 import { Libp2pService } from '../libp2p/libp2p.service'
@@ -69,7 +70,7 @@ import { ConfigOptions, GetPorts, ServerIoProviderTypes } from '../types'
 import { ServiceState, TorInitState } from './connections-manager.types'
 import { DateTime } from 'luxon'
 import { createLogger } from '../common/logger'
-import { createUserCsr, getPubKey, keyObjectFromString, loadPrivateKey, pubKeyFromCsr } from '@quiet/identity'
+import { createUserCsr, getPubKey, loadPrivateKey, pubKeyFromCsr } from '@quiet/identity'
 import { config } from '@quiet/state-manager'
 
 @Injectable()
@@ -148,19 +149,24 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     if (!this.configOptions.httpTunnelPort) {
       this.configOptions.httpTunnelPort = await getPort()
     }
+    this.logger.info('prelisteners: communityState', this.communityState)
 
     this.attachSocketServiceListeners()
     this.attachTorEventsListeners()
     this.attachStorageListeners()
 
+    this.logger.info('postlisteners: communityState', this.communityState)
+
     if (this.localDbService.getStatus() === 'closed') {
       await this.localDbService.open()
     }
+    this.logger.info('premigration: communityState', this.communityState)
 
     if (this.configOptions.torControlPort) {
       await this.migrateLevelDb()
       await this.launchCommunityFromStorage()
     }
+    this.logger.info('init done: communityState', this.communityState)
   }
 
   /**
@@ -214,7 +220,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
   public async launchCommunityFromStorage() {
     this.logger.info('Launching community from storage')
-
     const community = await this.localDbService.getCurrentCommunity()
     if (!community) {
       this.logger.info('No community found in storage')
@@ -224,6 +229,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     const identity = await this.storageService.getIdentity(community.id)
     if (!identity) {
       this.logger.info('No identity found in storage')
+      return
     }
 
     const sortedPeers = await this.localDbService.getSortedPeers(community.peerList ?? [])
@@ -411,6 +417,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   public async addUserCsr(payload: InitUserCsrPayload): Promise<Identity | undefined> {
     const { communityId, nickname } = payload
     this.logger.info('Creating user CSR for community', communityId)
+
     let identity: Identity | undefined = await this.storageService.getIdentity(communityId)
     if (!identity) {
       emitError(this.serverIoProvider.io, {
@@ -421,67 +428,55 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       this.logger.error('Identity not found')
       return
     }
-    let userCsr = identity.userCsr
-    if (userCsr) {
+
+    let createUserCsrPayload: CreateUserCsrPayload
+
+    if (identity?.userCsr) {
       this.logger.info('Recreating user CSR')
-      try {
-        if (identity.userCsr?.userCsr == null || identity.userCsr.userKey == null) {
-          this.logger.error('identity.userCsr?.userCsr == null || identity.userCsr.userKey == null')
-          return
-        }
-        const _pubKey = await pubKeyFromCsr(identity.userCsr.userCsr)
-        const privateKey = await loadPrivateKey(identity.userCsr.userKey, config.signAlg)
-        const publicKey = await getPubKey(_pubKey)
-
-        const existingKeyPair: CryptoKeyPair = { privateKey, publicKey }
-
-        const payload: CreateUserCsrPayload = {
-          nickname: identity.nickname,
-          commonName: identity.hiddenService.onionAddress,
-          peerId: identity.peerId.id,
-          signAlg: config.signAlg,
-          hashAlg: config.hashAlg,
-          existingKeyPair,
-        }
-        this.logger.info('Recreating user CSR')
-        userCsr = await createUserCsr(payload)
-      } catch (e) {
-        emitError(this.serverIoProvider.io, {
-          type: SocketActionTypes.ADD_CSR,
-          message: ErrorMessages.NETWORK_SETUP_FAILED,
-          community: communityId,
-        })
-        this.logger.error('Failed to recreate user CSR', e)
+      if (identity.userCsr?.userCsr == null || identity.userCsr.userKey == null) {
+        this.logger.error('identity.userCsr?.userCsr == null || identity.userCsr.userKey == null')
         return
+      }
+      const _pubKey = await pubKeyFromCsr(identity.userCsr.userCsr)
+      const publicKey = await getPubKey(_pubKey)
+      const privateKey = await loadPrivateKey(identity.userCsr.userKey, config.signAlg)
+
+      const existingKeyPair: CryptoKeyPair = { privateKey, publicKey }
+
+      createUserCsrPayload = {
+        nickname: nickname,
+        commonName: identity.hiddenService.onionAddress,
+        peerId: identity.peerId.id,
+        signAlg: config.signAlg,
+        hashAlg: config.hashAlg,
+        existingKeyPair,
       }
     } else {
       this.logger.info('Creating new user CSR')
-      try {
-        const payload: CreateUserCsrPayload = {
-          nickname,
-          commonName: identity.hiddenService.onionAddress,
-          peerId: identity.peerId.id,
-          signAlg: config.signAlg,
-          hashAlg: config.hashAlg,
-        }
-
-        this.logger.info('Creating user CSR')
-        userCsr = await createUserCsr(payload)
-      } catch (e) {
-        emitError(this.serverIoProvider.io, {
-          type: SocketActionTypes.ADD_CSR,
-          message: ErrorMessages.NETWORK_SETUP_FAILED,
-          community: communityId,
-        })
-        return
+      createUserCsrPayload = {
+        nickname: nickname,
+        commonName: identity.hiddenService.onionAddress,
+        peerId: identity.peerId.id,
+        signAlg: config.signAlg,
+        hashAlg: config.hashAlg,
       }
     }
+
+    let userCsr: UserCsr
+    try {
+      userCsr = await createUserCsr(createUserCsrPayload)
+    } catch (e) {
+      emitError(this.serverIoProvider.io, {
+        type: SocketActionTypes.ADD_CSR,
+        message: ErrorMessages.USER_CSR_CREATION_FAILED,
+        community: communityId,
+      })
+      return
+    }
+
     identity = { ...identity, userCsr: userCsr, nickname: nickname }
     this.logger.info('Created user CSR')
     await this.storageService.setIdentity(identity)
-    if (identity.userCsr) {
-      await this.storageService.saveCSR({ csr: identity.userCsr.userCsr })
-    }
     return identity
   }
 
@@ -737,7 +732,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     const restoredRsa = await PeerId.createFromJSON(identity.peerId)
     const peerId = await peerIdFromKeys(restoredRsa.marshalPubKey(), restoredRsa.marshalPrivKey())
 
-    const peers = community.peerList
+    const peers = filterValidAddresses(community.peerList ? community.peerList : [])
     this.logger.info(`Launching community ${community.id}: payload peers: ${peers}`)
 
     const params: Libp2pNodeParams = {
