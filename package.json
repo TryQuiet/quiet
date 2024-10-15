@@ -3,8 +3,6 @@
   "private": true,
   "scripts": {
     "lerna": "lerna",
-    "bootstrap": "lerna bootstrap; say 'done'",
-    "cleanData": "rm -rf ~/Library/Application\\ Support/QuietDev",
     "publish": "lerna version $npm_config_release --no-private",
     "postpublish": "node copy-changelog.js && git add . && git commit -m 'Update packages CHANGELOG.md' && git push",
     "start:desktop": "lerna run --scope @quiet/desktop start",
