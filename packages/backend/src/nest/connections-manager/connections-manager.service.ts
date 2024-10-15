@@ -731,18 +731,16 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
     const restoredRsa = await PeerId.createFromJSON(identity.peerId)
     const peerId = await peerIdFromKeys(restoredRsa.marshalPubKey(), restoredRsa.marshalPrivKey())
-
     const peers = filterValidAddresses(community.peerList ? community.peerList : [])
-    this.logger.info(`Launching community ${community.id}: payload peers: ${peers}`)
+    const localAddress = createLibp2pAddress(onionAddress, peerId.toString())
 
     const params: Libp2pNodeParams = {
       peerId,
       listenAddresses: [this.libp2pService.createLibp2pListenAddress(onionAddress)],
       agent: this.socksProxyAgent,
-      localAddress: this.libp2pService.createLibp2pAddress(onionAddress, peerId.toString()),
+      localAddress: localAddress,
       targetPort: this.ports.libp2pHiddenService,
-      // Ignore local address
-      peers: peers ? peers.slice(1) : [],
+      peers: peers.filter(p => p !== localAddress),
       psk: Libp2pService.generateLibp2pPSK(community.psk).fullKey,
     }
     await this.libp2pService.createInstance(params)
