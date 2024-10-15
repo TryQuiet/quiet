@@ -24,12 +24,8 @@ export enum SocketActionTypes {
 
   // ====== Identity ======
   CREATE_IDENTITY = 'createIdentity',
-  UPDATE_IDENTITY = 'updateIdentity',
   IDENTITY_STORED = 'identityStored',
-  REGISTER_USERNAME = 'registerUsername',
   CREATE_USER_CSR = 'storeUserCertificate',
-  VERIFY_JOIN_TIMESTAMP = 'verifyJoinTimestamp',
-  UPDATE_JOIN_TIMESTAMP = 'updateJoinTimestamp',
 
   // ====== Channels ======
 

@@ -190,38 +190,10 @@ export class SocketService extends EventEmitter implements OnModuleInit {
         }
       )
       socket.on(
-        SocketActionTypes.UPDATE_IDENTITY,
-        async (payload: IdentityUpdatePayload, callback: (response: Identity | undefined) => void) => {
-          this.logger.info(`Updating identity for community ${payload.id}`)
-          this.emit(SocketActionTypes.UPDATE_IDENTITY, payload, callback)
-        }
-      )
-      socket.on(
-        SocketActionTypes.REGISTER_USERNAME,
-        async (payload: { username: string }, callback: (response: CommunityOwnership | undefined) => void) => {
-          this.logger.info(`Registering username ${payload.username}`)
-          this.emit(SocketActionTypes.REGISTER_USERNAME, payload, callback)
-        }
-      )
-      socket.on(
         SocketActionTypes.CREATE_USER_CSR,
         async (payload: { id: string; nickname: string }, callback: (response: Identity | undefined) => void) => {
           this.logger.info(`Creating user CSR for community ${payload}`)
           this.emit(SocketActionTypes.CREATE_USER_CSR, payload, callback)
-        }
-      )
-      socket.on(
-        SocketActionTypes.VERIFY_JOIN_TIMESTAMP,
-        async (payload: { communityId: string; timestamp: number }, callback: (response: boolean) => void) => {
-          this.logger.info(`Verifying join timestamp for community ${payload.communityId}`)
-          this.emit(SocketActionTypes.VERIFY_JOIN_TIMESTAMP, payload, callback)
-        }
-      )
-      socket.on(
-        SocketActionTypes.UPDATE_JOIN_TIMESTAMP,
-        async (payload: { communityId: string; timestamp: number }, callback: (response: boolean) => void) => {
-          this.logger.info(`Updating join timestamp for community ${payload.communityId}`)
-          this.emit(SocketActionTypes.UPDATE_JOIN_TIMESTAMP, payload, callback)
         }
       )
 

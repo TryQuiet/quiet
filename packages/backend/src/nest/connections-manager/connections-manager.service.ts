@@ -857,41 +857,12 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
       }
     )
     this.socketService.on(
-      SocketActionTypes.UPDATE_IDENTITY,
-      async (payload: { id: string; nickname: string }, callback: (response: Identity | undefined) => void) => {
-        this.logger.info(`socketService - ${SocketActionTypes.UPDATE_IDENTITY}`)
-        // callback(await this.createIdentity(payload))
-      }
-    )
-    this.socketService.on(
-      SocketActionTypes.REGISTER_USERNAME,
-      async (payload: { id: string; nickname: string }, callback: (response: Identity | undefined) => void) => {
-        this.logger.info(`socketService - ${SocketActionTypes.REGISTER_USERNAME}`)
-        // callback(await this.createIdentity(payload))
-      }
-    )
-    this.socketService.on(
       SocketActionTypes.CREATE_USER_CSR,
       async (payload: InitUserCsrPayload, callback: (response: Identity | undefined) => void) => {
         this.logger.info(`socketService - ${SocketActionTypes.CREATE_USER_CSR}`)
         callback(await this.addUserCsr(payload))
       }
     )
-    this.socketService.on(
-      SocketActionTypes.VERIFY_JOIN_TIMESTAMP,
-      async (payload: { timestamp: number }, callback: (response: Identity | undefined) => void) => {
-        this.logger.info(`socketService - ${SocketActionTypes.VERIFY_JOIN_TIMESTAMP}`)
-        // callback(await this.createIdentity(payload))
-      }
-    )
-    this.socketService.on(
-      SocketActionTypes.UPDATE_JOIN_TIMESTAMP,
-      async (payload: { timestamp: number }, callback: (response: Identity | undefined) => void) => {
-        this.logger.info(`socketService - ${SocketActionTypes.UPDATE_JOIN_TIMESTAMP}`)
-        // callback(await this.createIdentity(payload))
-      }
-    )
-
     this.socketService.on(
       SocketActionTypes.CREATE_COMMUNITY,
       async (args: InitCommunityPayload, callback: (response: Community | undefined) => void) => {
