@@ -562,7 +562,9 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     }
 
     this.logger.info(`Created and launched community ${community.id}`)
-
+    if (identity.userCsr?.userCsr) {
+      await this.storageService.saveCSR({ csr: identity.userCsr.userCsr })
+    }
     return community
   }
 
@@ -660,7 +662,9 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
     await this.launchCommunity(community)
     this.logger.info(`Joined and launched community ${community.id}`)
-
+    if (identity.userCsr?.userCsr) {
+      await this.storageService.saveCSR({ csr: identity.userCsr.userCsr })
+    }
     return community
   }
 
@@ -794,12 +798,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     }
 
     this.logger.info('Storage initialized')
-
-    this.logger.info('Attempting to add user CSR')
-    if (identity.userCsr) {
-      await this.storageService.saveCSR({ csr: identity.userCsr.userCsr })
-    }
-
     this.serverIoProvider.io.emit(
       SocketActionTypes.CONNECTION_PROCESS_INFO,
       ConnectionProcessInfo.CONNECTING_TO_COMMUNITY
