@@ -58,8 +58,6 @@ export function* createNetworkSaga(
     inviteData: payload.inviteData,
   }
 
-  logger.info(`Creating community ${id} with payload`, community)
-
   if (payload.inviteData) {
     switch (payload.inviteData.version) {
       case InvitationDataVersion.v1:

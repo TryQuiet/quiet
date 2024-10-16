@@ -9,21 +9,14 @@ import {
   CancelDownloadPayload,
   GetMessagesPayload,
   ConnectionProcessInfo,
-  RegisterOwnerCertificatePayload,
-  SaveOwnerCertificatePayload,
   InitCommunityPayload,
   Community,
   DeleteFilesFromChannelSocketPayload,
   SaveCSRPayload,
-  CommunityMetadata,
-  type PermsData,
   type UserProfile,
   type DeleteChannelResponse,
   type MessagesLoadedPayload,
   type NetworkInfo,
-  CreateNetworkPayload,
-  CommunityOwnership,
-  IdentityUpdatePayload,
   Identity,
 } from '@quiet/types'
 import EventEmitter from 'events'
@@ -32,7 +25,6 @@ import { ConfigOptions, ServerIoProviderTypes } from '../types'
 import { suspendableSocketEvents } from './suspendable.events'
 import { createLogger } from '../common/logger'
 import type net from 'node:net'
-import { Identify } from 'libp2p/dist/src/identify/pb/message'
 
 @Injectable()
 export class SocketService extends EventEmitter implements OnModuleInit {

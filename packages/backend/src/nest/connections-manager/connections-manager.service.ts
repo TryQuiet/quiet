@@ -47,8 +47,6 @@ import {
   type UserProfilesStoredEvent,
   Identity,
   CreateUserCsrPayload,
-  RegisterCertificatePayload,
-  IdentityUpdatePayload,
   InitUserCsrPayload,
   UserCsr,
 } from '@quiet/types'
@@ -149,24 +147,19 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     if (!this.configOptions.httpTunnelPort) {
       this.configOptions.httpTunnelPort = await getPort()
     }
-    this.logger.info('prelisteners: communityState', this.communityState)
 
     this.attachSocketServiceListeners()
     this.attachTorEventsListeners()
     this.attachStorageListeners()
 
-    this.logger.info('postlisteners: communityState', this.communityState)
-
     if (this.localDbService.getStatus() === 'closed') {
       await this.localDbService.open()
     }
-    this.logger.info('premigration: communityState', this.communityState)
 
     if (this.configOptions.torControlPort) {
       await this.migrateLevelDb()
       await this.launchCommunityFromStorage()
     }
-    this.logger.info('init done: communityState', this.communityState)
   }
 
   /**

@@ -70,7 +70,6 @@ beforeEach(async () => {
   jest.clearAllMocks()
   tmpDir = createTmpDir()
   tmpAppDataPath = tmpQuietDirPath(tmpDir.name)
-  logger.info('tmpAppDataPath', tmpAppDataPath)
   store = prepareStore().store
   factory = await getFactory(store)
   communityRootCa = 'rootCa'
@@ -100,7 +99,6 @@ beforeEach(async () => {
     })
     .compile()
   quietDir = await module.resolve(QUIET_DIR)
-  logger.info('quietDir', quietDir)
   connectionsManagerService = await module.resolve(ConnectionsManagerService)
   localDbService = await module.resolve(LocalDbService)
   registrationService = await module.resolve(RegistrationService)

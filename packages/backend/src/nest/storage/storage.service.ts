@@ -832,7 +832,6 @@ export class StorageService extends EventEmitter {
   }
 
   public async setIdentity(identity: Identity) {
-    this.logger.info('Setting identity', identity)
     await this.localDbService.setIdentity(identity)
     this.emit(SocketActionTypes.IDENTITY_STORED, identity)
   }
