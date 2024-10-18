@@ -65,10 +65,6 @@ runs:
       run: npm ci
       shell: bash
 
-    - name: "Checkout submodules"
-      run: git submodule update --init --recursive
-      shell: bash
-
     - name: "Build submodules"
       run: npm run build:auth
       shell: bash
