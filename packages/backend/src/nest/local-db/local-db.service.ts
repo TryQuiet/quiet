@@ -102,13 +102,14 @@ export class LocalDbService {
     const stats: NetworkStats[] = Object.values(peersStats)
     const network = await this.getNetworkInfo()
 
+    const localPeerAddress: string | undefined = undefined
     if (network) {
       const localPeerAddress = createLibp2pAddress(network.hiddenService.onionAddress, network.peerId.id)
       this.logger.info('Local peer', localPeerAddress)
       return filterAndSortPeers(peers, stats, localPeerAddress, includeLocalPeerAddress)
-    } else {
-      return filterAndSortPeers(peers, stats, undefined, includeLocalPeerAddress)
     }
+
+    return filterAndSortPeers(peers, stats, localPeerAddress, includeLocalPeerAddress)
   }
 
   public async setCommunity(community: Community) {

@@ -95,7 +95,7 @@ describe('User joining with storage server', () => {
       const v1Data: InvitationDataV1 = parseInvitationCode(invitationLinkV1.split('#')[1])
       const data: InvitationDataV2 = {
         version: InvitationDataVersion.v2,
-        cid: 'QmaRchXhkPWq8iLiMZwFfd2Yi4iESWhAYYJt8cTCVXSwpG',
+        cid: '12D3KooWSYQf8zzr5rYnUdLxYyLzHruQHPaMssja1ADifGAcN3qY',
         token: '898989',
         serverAddress: serverAddress,
         inviterAddress: 'pgzlcstu4ljvma7jqyalimcxlvss5bwlbba3c3iszgtwxee4qjdlgeqd',

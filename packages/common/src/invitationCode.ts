@@ -18,7 +18,7 @@ export const SERVER_ADDRESS_PARAM_KEY = 's'
 export const DEEP_URL_SCHEME_WITH_SEPARATOR = 'quiet://'
 const DEEP_URL_SCHEME = 'quiet'
 const ONION_ADDRESS_REGEX = /^[a-z0-9]{56}$/g
-const PEER_ID_REGEX = /^[a-zA-Z0-9]{46}$/g
+const PEER_ID_REGEX = /^[a-zA-Z0-9]{52}$/g
 
 interface ParseDeepUrlParams {
   url: string
@@ -85,7 +85,7 @@ const parseDeepUrl = ({ url, expectedProtocol = `${DEEP_URL_SCHEME}:` }: ParseDe
   try {
     validUrl = new URL(_url)
   } catch (e) {
-    logger.error(`Could not retrieve invitation code from deep url '${url}'. Reason: ${e.message}`)
+    logger.error(`Could not retrieve invitation code from deep url '${url}'`, e)
     throw e
   }
   if (!validUrl || validUrl.protocol !== expectedProtocol) {
@@ -277,7 +277,7 @@ const isParamValid = (param: string, value: string) => {
       try {
         new URL(value)
       } catch (e) {
-        logger.error(e.message)
+        logger.error(`Error while URL encoding ${value}`, e)
         return false
       }
       return true
