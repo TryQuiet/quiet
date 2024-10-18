@@ -55,7 +55,7 @@ runs:
       with:
         path: |
           node_modules
-          */*/node_modules
+          packages/*/node_modules
         key: ${{ inputs.cachePrefix }}-${{ runner.OS }}-npm-cache-${{ hashFiles('packages/*/package-lock.json') }}
         restore-keys: |
          ${{ inputs.cachePrefix }}-${{ runner.OS }}-npm-cache-
