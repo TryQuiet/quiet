@@ -8,7 +8,7 @@ jobs:
     timeout-minutes: 180
 
     env:
-      ELECTRON_CUSTOM_VERSION: 23.0.0
+      # ELECTRON_CUSTOM_VERSION: 23.0.0
       TEST_MODE: true
       E2E: true
       IS_CI: true
