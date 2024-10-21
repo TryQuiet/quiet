@@ -182,7 +182,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     // TODO: add migration of network info in COMMUNITY to IDENTITY
     // This is related to a specific migration, perhaps there is a way to
     // encapsulate this in LocalDbService.
-    const keys = [LocalDBKeys.CURRENT_COMMUNITY_ID, LocalDBKeys.COMMUNITIES]
+    const keys = [LocalDBKeys.CURRENT_COMMUNITY_ID, LocalDBKeys.COMMUNITIES, LocalDBKeys.IDENTITIES]
     const keysRequired: string[] = []
 
     for (const key of keys) {
