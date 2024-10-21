@@ -6,7 +6,7 @@ jobs:
     runs-on: macos-12
     timeout-minutes: 180
     env:
-      # ELECTRON_CUSTOM_VERSION: 23.0.0
+      ELECTRON_CUSTOM_VERSION: 23.0.0
       TEST_MODE: true
       IS_E2E: true
       IS_CI: true
@@ -18,9 +18,9 @@ jobs:
 
       - name: "Setup environment"
         uses: ./.github/actions/setup-env
-        # with:
-        #   cachePrefix: "e2e-crossplatform-mac"
-        #   bootstrap-packages: "@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/desktop,backend-bundle,e2e-tests"
+        with:
+          cachePrefix: "e2e-crossplatform-mac"
+          bootstrap-packages: "@quiet/eslint-config,@quiet/logger,@quiet/common,@quiet/types,@quiet/state-manager,@quiet/backend,@quiet/identity,@quiet/desktop,backend-bundle,e2e-tests"
 
       - name: Before build
         uses: ./.github/actions/before-build
