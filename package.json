@@ -11,7 +11,8 @@
     "e2e:linux:build": "lerna run --scope @quiet/backend webpack:prod && lerna run --scope @quiet/desktop distUbuntu && lerna run --scope e2e-tests linux:copy",
     "e2e:linux:run": "lerna run --scope e2e-tests test --",
     "prepare": "husky",
-    "lint-staged": "lerna run lint-staged"
+    "lint-staged": "lerna run lint-staged",
+    "watch": "lerna watch -- lerna run build --since"
   },
   "engines": {
     "node": "18.12.1",
