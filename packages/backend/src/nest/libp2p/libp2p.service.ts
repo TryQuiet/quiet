@@ -244,7 +244,7 @@ export class Libp2pService extends EventEmitter {
         },
         connectionProtector: preSharedKey({ psk: params.psk }),
         streamMuxers: [yamux()],
-        connectionEncryption: [noise()],
+        connectionEncryption: [noise() as any],
         transports: [
           webSockets({
             filter: filters.all,

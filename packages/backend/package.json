@@ -92,7 +92,7 @@
   },
   "dependencies": {
     "@chainsafe/libp2p-gossipsub": "13.2.0",
-    "@chainsafe/libp2p-noise": "15.1.2",
+    "@chainsafe/libp2p-noise": "13.0.2",
     "@chainsafe/libp2p-yamux": "6.0.2",
     "@nestjs/common": "^10.2.10",
     "@nestjs/core": "^10.2.10",
@@ -151,7 +151,6 @@
     "multiformats": "13.1.0",
     "@multiformats/multiaddr": "^12.3.0",
     "@multiformats/multiaddr-to-uri": "^10.1.0",
-    "node-datachannel": "0.20.0-alpha.2",
     "node-fetch": "^3.3.0",
     "@orbitdb/core": "^2.2.0",
     "p-defer": "^4.0.1",
@@ -175,10 +174,6 @@
     "@orbitdb/core": {
       "multiformats": "13.1.0",
       "@ipld/dag-cbor": "9.2.1"
-    },
-    "helia": {
-      "multiformats": "13.1.0",
-      "node-datachannel": "0.20.0-alpha.2"
     }
   },
   "lint-staged": {
