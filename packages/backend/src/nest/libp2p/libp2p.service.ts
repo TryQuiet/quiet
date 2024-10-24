@@ -7,6 +7,7 @@ import { PeerId, type Libp2p } from '@libp2p/interface'
 import { kadDHT } from '@libp2p/kad-dht'
 import { keychain } from '@libp2p/keychain'
 import { peerIdFromString } from '@libp2p/peer-id'
+import { ping } from '@libp2p/ping'
 import { preSharedKey } from '@libp2p/pnet'
 import * as filters from '@libp2p/websockets/filters'
 import { createLibp2p } from 'libp2p'
@@ -31,10 +32,8 @@ import { getUsersAddresses } from '../common/utils'
 import { LIBP2P_DB_PATH, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
 import { ServerIoProviderTypes } from '../types'
 import { webSockets } from '../websocketOverTor'
-import { Libp2pConnectedPeer, Libp2pEvents, Libp2pNodeParams } from './libp2p.types'
+import { Libp2pConnectedPeer, Libp2pEvents, Libp2pNodeParams, Libp2pPeerInfo } from './libp2p.types'
 import { createLogger } from '../common/logger'
-// import { ping } from './ping.service'
-import { ping } from '@libp2p/ping'
 
 const KEY_LENGTH = 32
 export const LIBP2P_PSK_METADATA = '/key/swarm/psk/1.0.0/\n/base16/\n'
@@ -109,14 +108,24 @@ export class Libp2pService extends EventEmitter {
     await this.dialPeers(addrs)
   }
 
-  public pause = async () => {
+  public getCurrentPeerInfo = (): Libp2pPeerInfo => {
+    return {
+      dialed: Array.from(this.dialedPeers),
+      connected: Array.from(this.connectedPeers.values()).map(peer => peer.address),
+    }
+  }
+
+  public pause = async (): Promise<Libp2pPeerInfo> => {
+    const peerInfo = this.getCurrentPeerInfo()
     await this.hangUpPeers(Array.from(this.dialedPeers))
     this.dialedPeers.clear()
     this.connectedPeers.clear()
-    this.logger.info('Found the following peer info on pause: ', this.connectedPeers, this.dialedPeers)
+    await this.datastore?.close()
+    return peerInfo
   }
 
   public resume = async (peersToDial: string[]): Promise<void> => {
+    await this.datastore?.open()
     if (peersToDial.length === 0) {
       this.logger.warn('No peers to redial!')
       return

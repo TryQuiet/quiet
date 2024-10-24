@@ -229,7 +229,8 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.logger.info('Pausing!')
     await this.closeSocket()
     this.logger.info('Pausing libp2pService!')
-    await this.libp2pService?.pause()
+    this.peerInfo = await this.libp2pService?.pause()
+    this.logger.info('Found the following peer info on pause: ', this.peerInfo)
   }
 
   public async resume() {
