@@ -19,7 +19,7 @@ import { createLibp2pAddress } from './libp2p'
 
 describe(`Invitation code helper ${InvitationDataVersion.v1}`, () => {
   const address = 'gloao6h5plwjy4tdlze24zzgcxll6upq2ex2fmu2ohhyu4gtys4nrjad'
-  const peerId = 'QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE'
+  const peerId = '12D3KooWSYQf8zzr5rYnUdLxYyLzHruQHPaMssja1ADifGAcN4zF'
   const data: InvitationDataV1 = {
     ...validInvitationDatav1[0],
     pairs: [...validInvitationDatav1[0].pairs, { peerId: peerId, onionAddress: address }],
@@ -61,13 +61,13 @@ describe(`Invitation code helper ${InvitationDataVersion.v1}`, () => {
 
   it('converts list of p2p addresses to invitation pairs', () => {
     const pair: InvitationPair = {
-      peerId: 'QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSE',
+      peerId: '12D3KooWSYQf8zzr5rYnUdLxYyLzHruQHPaMssja1ADifGAcN4zF',
       onionAddress: 'gloao6h5plwjy4tdlze24zzgcxll6upq2ex2fmu2ohhyu4gtys4nrjad',
     }
     const peerList = [
       createLibp2pAddress(pair.onionAddress, pair.peerId),
       'invalidAddress',
-      createLibp2pAddress('somethingElse.onion', 'QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wfFJDPPLsbKSA'),
+      createLibp2pAddress('somethingElse.onion', '12D3KooWSYQf8zzr5rYnUdLxYyLzHruQHPaMssja1ADifGAcN3qY'),
     ]
     expect(p2pAddressesToPairs(peerList)).toEqual([pair])
   })
@@ -103,7 +103,7 @@ describe(`Invitation code helper ${InvitationDataVersion.v1}`, () => {
     const urlParamsWithInvalidAddress = [
       [data.pairs[0].peerId, data.pairs[0].onionAddress],
       [data.pairs[1].peerId, data.pairs[1].onionAddress],
-      ['QmZoiJNAvCffeEHBjk766nLuKVdkxkAT7wf', 'y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdv'],
+      ['12D3KooWSYQf8zzr5rYnUdLxYyLzHruQHPaMssja1ADifGAcN4zF', 'y7yczmugl2tekami7sbdz5pfaemvx7bahwthrdv'],
       [PSK_PARAM_KEY, data.psk],
       [OWNER_ORBIT_DB_IDENTITY_PARAM_KEY, data.ownerOrbitDbIdentity],
     ]

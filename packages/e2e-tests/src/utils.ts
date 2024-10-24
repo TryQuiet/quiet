@@ -112,7 +112,7 @@ export class BuildSetup {
   public async createChromeDriver() {
     await this.initPorts()
     const env = {
-      DEBUG: 'backend*,desktop*,utils*,main*',
+      DEBUG: 'backend*,quiet*,state-manager*,desktop*,utils*,identity*,common*,libp2p:connection-manager:auto-dial',
       DATA_DIR: this.dataDir,
     }
     if (process.platform === 'win32') {

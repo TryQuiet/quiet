@@ -375,6 +375,8 @@ app.on('ready', async () => {
     `${SOCKET_IO_SECRET}`,
   ]
 
+  logger.info('Fork argvs for backend process', forkArgvs)
+
   const backendBundlePath = path.normalize(require.resolve('backend-bundle'))
   try {
     closeHangingBackendProcess(path.normalize(path.join('backend-bundle', 'bundle.cjs')), path.normalize(appDataPath))
@@ -382,7 +384,13 @@ app.on('ready', async () => {
     logger.error('Error occurred while trying to close hanging backend process', e)
   }
 
-  backendProcess = fork(backendBundlePath, forkArgvs)
+  backendProcess = fork(backendBundlePath, forkArgvs, {
+    env: {
+      NODE_OPTIONS: '--experimental-global-customevent',
+      DEBUG: 'backend*,quiet*,state-manager*,desktop*,utils*,identity*,common*,libp2p:connection-manager:auto-dial',
+      COLORIZE: 'true',
+    },
+  })
   logger.info('Forked backend, PID:', backendProcess.pid)
 
   backendProcess.on('error', e => {
@@ -390,7 +398,8 @@ app.on('ready', async () => {
     throw Error(e.message)
   })
 
-  backendProcess.on('exit', code => {
+  backendProcess.on('exit', (code, signal) => {
+    logger.warn('Backend process exited', code, signal)
     if (code === 1) {
       throw Error('Abnormal backend process termination')
     }

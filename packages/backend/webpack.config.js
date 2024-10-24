@@ -41,14 +41,6 @@ const webpackConfig = (env) => {
 
                 },
                 {
-                    test: /node_modules[\/\\]@achingbrain[\/\\]ssdp[\/\\]dist[\/\\]src[\/\\]default-ssdp-options.js/,
-                    loader: 'string-replace-loader',
-                    options: {
-                        search: "const pkg = req('../../package.json')",
-                        replace: "import pkg from '../../package.json'"
-                    }
-                },
-                {
                     test: /node_modules[\/\\]classic-level[\/\\]index.js/,
                     loader: 'string-replace-loader',
                     options: {
@@ -86,6 +78,10 @@ const webpackConfig = (env) => {
             new webpack.NormalModuleReplacementPlugin(
                 /node_modules[\/\\]classic-level[\/\\]binding.js/,
                 root('classic_level.cjs')
+            ),
+            new webpack.NormalModuleReplacementPlugin(
+                /node_modules[\/\\]node-datachannel[\/\\]dist[\/\\]cjs[\/\\]lib[\/\\]node-datachannel.cjs/,
+                root('node_datachannel.cjs')
             ),
             new webpack.NormalModuleReplacementPlugin(
                 /node_modules[\/\\]ipfs-utils[\/\\]src[\/\\]http[\/\\]fetch.js/,

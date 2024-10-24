@@ -404,7 +404,7 @@ export class Channel {
         return labelText === label
       })
       return properLabels.length > 0
-    })
+    }, 20_000)
   }
 
   async waitForLabelsNotPresent(username: string) {

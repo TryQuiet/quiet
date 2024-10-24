@@ -54,13 +54,6 @@ jobs:
           max_attempts: 3
           command: cd packages/e2e-tests && npm run test oneClient.test.ts
 
-      - name: Run multiple clients test
-        uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4 # v2.9.0
-        with:
-          timeout_minutes: 25
-          max_attempts: 3
-          command: cd packages/e2e-tests && npm run test multipleClients.test.ts
-
       - name: Run user profile test
         uses: nick-fields/retry@v2
         with:
@@ -81,3 +74,10 @@ jobs:
           timeout_minutes: 15
           max_attempts: 3
           command: cd packages/e2e-tests && npm run test backwardsCompatibility.test.ts
+
+      - name: Run multiple clients test
+        uses: nick-fields/retry@14672906e672a08bd6eeb15720e9ed3ce869cdd4 # v2.9.0
+        with:
+          timeout_minutes: 25
+          max_attempts: 3
+          command: cd packages/e2e-tests && npm run test multipleClients.test.ts
