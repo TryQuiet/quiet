@@ -19,7 +19,6 @@
     "rmDist": "rimraf lib/"
   },
   "devDependencies": {
-    "@babel/runtime": "^7.24.5",
     "@quiet/eslint-config": "^2.0.2-alpha.0",
     "@types/debug": "^4.1.7",
     "@types/luxon": "^3.4.2",

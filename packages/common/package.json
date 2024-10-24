@@ -21,11 +21,6 @@
   },
   "devDependencies": {
     "@quiet/eslint-config": "^2.0.2-alpha.0",
-    "@babel/core": "^7.24.7",
-    "@babel/plugin-transform-flow-strip-types": "^7.24.7",
-    "@babel/plugin-transform-private-methods": "^7.24.7",
-    "@babel/preset-env": "^7.24.7",
-    "@babel/runtime": "^7.24.7",
     "@types/jest": "^26.0.23",
     "@types/node": "^17.0.21",
     "@types/validator": "^13.11.5",
