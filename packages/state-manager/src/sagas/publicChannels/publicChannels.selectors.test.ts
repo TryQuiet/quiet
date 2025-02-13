@@ -14,7 +14,7 @@ import { publicChannelsActions } from './publicChannels.slice'
 
 import { type identityActions } from '../identity/identity.slice'
 import { usersActions } from '../users/users.slice'
-import { formatMessageDisplayDate, formatMessageDisplayDay } from '../../utils/functions/dates/formatMessageDisplayDate'
+import { formatMessageDisplayDate } from '../../utils/functions/dates/formatMessageDisplayDate'
 import { displayableMessage } from '../../utils/functions/dates/formatDisplayableMessage'
 import { DateTime } from 'luxon'
 import { generateChannelId } from '@quiet/common'
@@ -271,11 +271,21 @@ describe('publicChannelsSelectors', () => {
     }
 
     // Get groups names
-    const groupDay1 = formatMessageDisplayDay(formatMessageDisplayDate(msgs['7'].createdAt))
-    expect(groupDay1).toBe('Feb 5')
-    const groupDay2 = formatMessageDisplayDay(formatMessageDisplayDate(msgs['1'].createdAt))
-    expect(groupDay2).toBe('Oct 20')
-    const groupDay3 = formatMessageDisplayDay(formatMessageDisplayDate(msgs['9'].createdAt))
+    const groupDay1 = formatMessageDisplayDate(msgs['7'].createdAt)
+    expect(groupDay1).toBe('Feb 5, 2021')
+    const groupDay2 = formatMessageDisplayDate(msgs['1'].createdAt)
+    expect(groupDay2).toBe('Oct 20, 2020')
+
+    // Mock current date for "Today" test
+    jest.spyOn(DateTime, 'now').mockImplementation(() =>
+      DateTime.fromObject({
+        year: DateTime.fromSeconds(msgs['9'].createdAt).year,
+        month: DateTime.fromSeconds(msgs['9'].createdAt).month,
+        day: DateTime.fromSeconds(msgs['9'].createdAt).day,
+        hour: 12,
+      })
+    )
+    const groupDay3 = formatMessageDisplayDate(msgs['9'].createdAt)
     expect(groupDay3).toBe('Today')
 
     const expectedGrouppedMessages = {

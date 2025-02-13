@@ -56,7 +56,7 @@ describe('ChannelMessages', () => {
             data-testid="channelContent"
           >
             <div
-              class="MuiGrid-root MuiGrid-container css-1evpnhk-MuiGrid-root"
+              class="MuiGrid-root MuiGrid-container css-ahu7e1-MuiGrid-root"
             >
               <div
                 class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true css-1vd824g-MuiGrid-root"
@@ -82,7 +82,7 @@ describe('ChannelMessages', () => {
               <div>
                 <div
                   aria-label="Messages from Today"
-                  class="MuiGrid-root MuiGrid-container css-1oqe91p-MuiGrid-root"
+                  class="MuiGrid-root MuiGrid-container css-1tldmpr-MuiGrid-root"
                 >
                   <div
                     class="MuiGrid-root MuiGrid-item MuiGrid-grid-xs-true css-1vd824g-MuiGrid-root"
@@ -151,7 +151,7 @@ describe('ChannelMessages', () => {
                               <p
                                 class="MuiTypography-root MuiTypography-body1 BasicMessageComponenttime css-ghvhpl-MuiTypography-root"
                               >
-                                string
+                                11:58 am
                               </p>
                             </div>
                           </div>

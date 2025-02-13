@@ -33,7 +33,7 @@ const StyledGrid = styled(Grid)(({ theme }) => ({
     alignItems: 'center',
     padding: '5px 18px',
     gap: '8px',
-    width: '108px',
+    width: '125px',
     height: '25px',
     backgroundColor: theme.palette.background.default,
     border: `1px solid ${theme.palette.colors.border01}`,

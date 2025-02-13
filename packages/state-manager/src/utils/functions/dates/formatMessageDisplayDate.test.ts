@@ -2,62 +2,61 @@ import { DateTime } from 'luxon'
 import { formatMessageDisplayDate } from './formatMessageDisplayDate'
 
 describe('Format message displays date', () => {
-  it('from year ago', () => {
-    const createdAt = DateTime.now().plus({ years: -1 }).toSeconds()
-    const result = formatMessageDisplayDate(createdAt)
-    expect(result).toContain(',')
-  })
-
-  it('from day ago', () => {
-    const createdAt = DateTime.now().plus({ days: -1 }).toSeconds()
-    const result = formatMessageDisplayDate(createdAt)
-    expect(result).toContain(',')
-  })
-
-  it('from the same day', () => {
-    const createdAt = DateTime.now().toSeconds()
-    const result = formatMessageDisplayDate(createdAt)
-    expect(result).not.toContain(',')
-  })
-
-  it('from the same day but hours ago', () => {
-    jest.spyOn(DateTime, 'now').mockImplementation(() => {
-      return DateTime.fromObject({
-        year: 2020,
-        month: 10,
-        day: 20,
+  beforeEach(() => {
+    // Mock current date to 2024-03-15 (Friday)
+    jest.spyOn(DateTime, 'now').mockImplementation(() =>
+      DateTime.fromObject({
+        year: 2024,
+        month: 3,
+        day: 15,
         hour: 12,
       })
-    })
-    const createdAt = DateTime.now().plus({ hours: -2 }).toSeconds()
-    const result = formatMessageDisplayDate(createdAt)
-    expect(result).not.toContain(',')
+    )
   })
 
-  it('from minute before midnight', () => {
-    jest.spyOn(DateTime, 'now').mockImplementation(() => {
-      return DateTime.fromObject({
-        year: 2020,
-        month: 10,
-        day: 20,
-        hour: 0,
-      })
-    })
-    const createdAt = DateTime.now().plus({ minutes: -1 }).toSeconds()
+  afterEach(() => {
+    jest.restoreAllMocks()
+  })
+
+  it('shows full date for messages more than 4 days old', () => {
+    const createdAt = DateTime.now().plus({ days: -5 }).toSeconds()
     const result = formatMessageDisplayDate(createdAt)
-    expect(result).toContain(',')
-  }),
-    it('does not display leading zero on date', () => {
-      jest.spyOn(DateTime, 'now').mockImplementation(() => {
-        return DateTime.fromObject({
-          year: 2020,
-          month: 10,
-          day: 2,
-          hour: 0,
-        })
-      })
-      const createdAt = DateTime.now().plus({ minutes: -1 }).toSeconds()
-      const result = formatMessageDisplayDate(createdAt)
-      expect(result).toBe('Oct 1, 11:59 PM')
-    })
+    expect(result).toBe('Mar 10, 2024')
+  })
+
+  it('shows "Today" for current day messages', () => {
+    const createdAt = DateTime.now().toSeconds()
+    const result = formatMessageDisplayDate(createdAt)
+    expect(result).toBe('Today')
+  })
+
+  it('shows "Yesterday" for previous day messages', () => {
+    const createdAt = DateTime.now().plus({ days: -1 }).toSeconds()
+    const result = formatMessageDisplayDate(createdAt)
+    expect(result).toBe('Yesterday')
+  })
+
+  it('shows weekday name for 2 days ago', () => {
+    const createdAt = DateTime.now().plus({ days: -2 }).toSeconds()
+    const result = formatMessageDisplayDate(createdAt)
+    expect(result).toBe('Wednesday')
+  })
+
+  it('shows weekday name for 3 days ago', () => {
+    const createdAt = DateTime.now().plus({ days: -3 }).toSeconds()
+    const result = formatMessageDisplayDate(createdAt)
+    expect(result).toBe('Tuesday')
+  })
+
+  it('shows weekday name for 4 days ago', () => {
+    const createdAt = DateTime.now().plus({ days: -4 }).toSeconds()
+    const result = formatMessageDisplayDate(createdAt)
+    expect(result).toBe('Monday')
+  })
+
+  it('shows full date for messages from previous years', () => {
+    const createdAt = DateTime.now().plus({ years: -1 }).toSeconds()
+    const result = formatMessageDisplayDate(createdAt)
+    expect(result).toBe('Mar 15, 2023')
+  })
 })

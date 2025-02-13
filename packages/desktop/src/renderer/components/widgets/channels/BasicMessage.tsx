@@ -23,6 +23,7 @@ import Icon from '../../ui/Icon/Icon'
 import { UseModalType } from '../../../containers/hooks'
 import { HandleOpenModalType, UserLabelType } from '../userLabel/UserLabel.types'
 import UserLabel from '../userLabel/UserLabel.component'
+import { DateTime } from 'luxon'
 
 const PREFIX = 'BasicMessageComponent'
 
@@ -144,6 +145,17 @@ export const transformToLowercase = (string: string) => {
   return hasPM !== -1 ? string.replace('PM', 'pm') : string.replace('AM', 'am')
 }
 
+const formatMessageTime = (timestamp: number | string) => {
+  const date = typeof timestamp === 'string' ? new Date(timestamp) : new Date(timestamp)
+  return date
+    .toLocaleTimeString([], {
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+    })
+    .toLowerCase()
+}
+
 const MessageProfilePhoto: React.FC<{ message: DisplayableMessage }> = ({ message }) => {
   const imgStyle = {
     width: '36px',
@@ -251,7 +263,12 @@ export const BasicMessageComponent: React.FC<BasicMessageProps & FileActionsProp
                           [classes.time]: true,
                         })}
                       >
-                        {messageDisplayData.date}
+                        {DateTime.fromSeconds(messageDisplayData.createdAt)
+                          .toLocaleString({
+                            hour: 'numeric',
+                            minute: '2-digit',
+                          })
+                          .toLowerCase()}
                       </Typography>
                     </Grid>
                   )}
