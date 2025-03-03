@@ -12,14 +12,16 @@ import {
   IPFSBlockStorage,
 } from '@orbitdb/core'
 import { getCrypto } from 'pkijs'
-import { stringToArrayBuffer } from 'pvutils'
-import { keyObjectFromString, verifySignature } from '@quiet/identity'
-import { ChannelMessage, NoCryptoEngineError } from '@quiet/types'
-import { posixJoin } from './util'
+import { NoCryptoEngineError } from '@quiet/types'
+import { posixJoin } from '../../../orbitDb/util'
+import { EncryptedMessage } from '../messages.types'
+import { createLogger } from '../../../../common/logger'
 
 const codec = dagCbor
 const hasher = sha256
 const hashStringEncoding = base58btc
+
+const logger = createLogger(`storage:channels:messages:orbitdb:access-control`)
 
 const AccessControlList = async ({
   storage,
@@ -63,9 +65,8 @@ export const MessagesAccessController =
     }
 
     const crypto = getCrypto()
-    const keyMapping: Map<string, CryptoKey> = new Map()
 
-    const canAppend = async (entry: LogEntry<ChannelMessage>) => {
+    const canAppend = async (entry: LogEntry<EncryptedMessage>) => {
       if (!crypto) throw new NoCryptoEngineError()
 
       const writerIdentity = await identities.getIdentity(entry.identity)
@@ -82,21 +83,7 @@ export const MessagesAccessController =
         return false
       }
 
-      const message = entry.payload.value
-
-      if (message) {
-        const signature = stringToArrayBuffer(message.signature)
-        let cryptoKey = keyMapping.get(message.pubKey)
-
-        if (!cryptoKey) {
-          cryptoKey = await keyObjectFromString(message.pubKey, crypto)
-          keyMapping.set(message.pubKey, cryptoKey)
-        }
-
-        return await verifySignature(signature, message.message, cryptoKey)
-      } else {
-        return true
-      }
+      return true
     }
 
     return {
