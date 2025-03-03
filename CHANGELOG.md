@@ -5,11 +5,6 @@
 ### New features
 
 * Adds a context menu in Quiet desktop for copying text ([#503](https://github.com/TryQuiet/quiet/issues/503)) and saving images ([#503](https://github.com/TryQuiet/quiet/issues/568)) Thanks @agiledev24!
-
-## Unreleased
-
-### New features
-
 * Generating LFA-ready invite links when a sigchain is configured ([#2627](https://github.com/TryQuiet/quiet/issues/2627))
 * Add local-first/auth powered libp2p authentication service ([#2629](https://github.com/TryQuiet/quiet/issues/2629))
 
