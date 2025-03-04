@@ -54,7 +54,7 @@ jobs:
 
     env:
       TEST_MODE: ${{ github.event.action == 'prereleased' }}
-      S3_BUCKET: ${{ github.event.action == 'released' && 'quiet.3.x' || 'test.quiet' }}
+      S3_BUCKET: ${{ github.event.action == 'released' && 'quiet.4.x' || 'test.quiet' }}
       CHECKSUM_PATH: ${{ github.event.action == 'released' && 'packages/desktop/dist/latest-linux.yml' || 'packages/desktop/dist/alpha-linux.yml' }}
 
     steps:
@@ -137,7 +137,7 @@ jobs:
 
     env:
       TEST_MODE: ${{ github.event.action == 'prereleased' }}
-      S3_BUCKET: ${{ github.event.action == 'released' && 'quiet.3.x' || 'test.quiet' }}
+      S3_BUCKET: ${{ github.event.action == 'released' && 'quiet.4.x' || 'test.quiet' }}
 
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
@@ -222,7 +222,7 @@ jobs:
 
     env:
       TEST_MODE: ${{ github.event.action == 'prereleased' }}
-      S3_BUCKET: ${{ github.event.action == 'released' && 'quiet.3.x' || 'test.quiet' }}
+      S3_BUCKET: ${{ github.event.action == 'released' && 'quiet.4.x' || 'test.quiet' }}
 
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
