@@ -1,36 +1,57 @@
-## Running tests locally
+## Running e2e tests locally
 
-*  Install chromedriver correctly before running the tests:
+### Prerequisites
+
+1. Follow the setup instructions in the root `README.md` to install dependencies and bootstrap the project.
+
+2. Install Chromium:
+   - Linux: `sudo apt install chromium-browser`
+   - Mac: `brew install chromium`
+
+3. Install electron-chromedriver globally:
+
+`npm install -g electron-chromedriver@23.3.13`
+
+4. Set Electron version:
 
 `export ELECTRON_CUSTOM_VERSION=23.0.0`
-`npm run bootstrap`
 
+### Building and Running Tests
 
-*  Run jest:
+1. In the `desktop` package, build the application:
+   - Mac: `npm run distMac:local` # you may have to copy the binary from /Applications to the `e2e-tests/Quiet` directory
+   - Linux: `npm run distUbuntu`
 
-`npm run test`
+2. In the `e2e-tests` package:
 
-### Locally-built Binaries
+`npm run linux:copy` # copy the binary to the `e2e-tests/Quiet` directory
+`npm run test` # run all tests
 
-To run against binaries built locally (which will be in the `/dist` folder) you can run
+To run individual tests:
 
-```
-npm run test:localBinary
-```
+`npm run test oneClient.test.ts`
 
-This passes the `IS_LOCAL` flag and will use local binaries in the `/dist` directory (if the OS has been configured for it in the tests).  Check the README in the `desktop` package for information on building binaries for each OS.
+### Known Issues & Tips
 
-*You must compile the binary prior to running this command or it will fail!*
+- For Mac: We may need to manually mount the .dmg and copy to /Applications (need to verify exact steps)
+- For Linux: The `linux:copy` script handles moving the binary to `e2e-tests/Quiet/`
+- Tests can be flaky - use the retry flag if needed: `npm run test oneClient.test.ts -- --retry 3`
+- Set `DEBUG=backend*,quiet*` for more verbose logging
+- The tests expect a clean state - you may need to clear application data between runs
 
-Convenience methods can be found in the root `package.json` for building the binary before running the tests.
+## Test Suite
 
+Current E2E test suite includes:
+- oneClient.test.ts - Basic single client functionality
+- userProfile.test.ts - User profile management
+- multipleClients.test.ts - Multi-client interactions
+- invitationLink.test.ts - Invitation link functionality
+- backwardsCompatibility.test.ts - Version compatibility tests (CI only)
 
 ## Notes
 
-The rest of the tests to be rewritten have been left on this commit fa1256e4d19fc481e316a09523746ce9359d4073
--fileSending
--joiningUser
--lazyLoading
--newUser.returns
-
-In the current approach, installers are taken from github releases, but in the future the application will be built on CI
+Legacy tests pending migration can be found in commit fa1256e4d19fc481e316a09523746ce9359d4073:
+- fileSending
+- joiningUser
+- lazyLoading
+- newUser.returns
