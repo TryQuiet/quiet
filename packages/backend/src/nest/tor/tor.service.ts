@@ -266,20 +266,17 @@ export class Tor extends EventEmitter implements OnModuleInit {
         options
       )
 
-      this.process.stderr.on('data', e => {
-        const data = isUint8Array(e)
-          ? uint8ArrayToString(e)
-          : (e as any).type === 'buffer'
-            ? uint8ArrayToString(e.data)
-            : e
-        this.logger.error('Tor process. Stderr:', data)
-      })
-
       this.process.on('exit', (code, signal) => {
         this.logger.info(`Tor exited with code ${code} and signal ${signal}`)
       })
 
       this.process.on('error', err => {
+        // errors come in as byte arrays so we want them to be readable
+        const data = isUint8Array(err)
+          ? uint8ArrayToString(err)
+          : (err as any).type === 'buffer'
+            ? uint8ArrayToString(e.data)
+            : err
         this.logger.error(`Tor process. Error occurred`, err)
       })
 
@@ -291,10 +288,6 @@ export class Tor extends EventEmitter implements OnModuleInit {
           this.spawnHiddenServices()
           resolve()
         }
-      })
-
-      this.process.stderr.on('data', (data: any) => {
-        this.logger.error('ERROR:', data)
       })
     })
   }
