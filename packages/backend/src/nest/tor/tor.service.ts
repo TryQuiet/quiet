@@ -275,9 +275,9 @@ export class Tor extends EventEmitter implements OnModuleInit {
         const data = isUint8Array(err)
           ? uint8ArrayToString(err)
           : (err as any).type === 'buffer'
-            ? uint8ArrayToString(e.data)
+            ? uint8ArrayToString((err as any).data)
             : err
-        this.logger.error(`Tor process. Error occurred`, err)
+        this.logger.error(`Tor process. Error occurred`, data)
       })
 
       this.process.stdout.on('data', (data: any) => {
