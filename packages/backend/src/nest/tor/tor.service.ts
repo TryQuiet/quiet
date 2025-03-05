@@ -12,6 +12,8 @@ import { TorControl } from './tor-control.service'
 import { GetInfoTorSignal, HiddenServiceData, TorParams, TorParamsProvider, TorPasswordProvider } from './tor.types'
 
 import { createLogger } from '../common/logger'
+import { toString as uint8ArrayToString } from 'uint8arrays'
+import { isUint8Array } from 'util/types'
 
 export class Tor extends EventEmitter implements OnModuleInit {
   socksPort: number
@@ -265,7 +267,12 @@ export class Tor extends EventEmitter implements OnModuleInit {
       )
 
       this.process.stderr.on('data', e => {
-        this.logger.error('Tor process. Stderr:', e)
+        const data = isUint8Array(e)
+          ? uint8ArrayToString(e)
+          : (e as any).type === 'buffer'
+            ? uint8ArrayToString(e.data)
+            : e
+        this.logger.error('Tor process. Stderr:', data)
       })
 
       this.process.on('exit', (code, signal) => {
