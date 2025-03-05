@@ -97,9 +97,9 @@ describe('User', () => {
       const community = communities.selectors.currentCommunity(store.getState())
       switch (action) {
         case SocketActionTypes.CREATE_IDENTITY:
-          const createIdentityPayload = input[1] as InitCommunityPayload
+          const createIdentityPayload = input[1]
           return {
-            id: createIdentityPayload.id,
+            id: createIdentityPayload,
             nickname: 'alice',
             hiddenService: {
               onionAddress: 'onionAddress',
