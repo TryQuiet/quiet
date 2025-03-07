@@ -128,7 +128,7 @@ export class Libp2pService extends EventEmitter {
     }
 
     // TODO: Implement exponential backoff for peers that fail to connect
-    this.redialTimeout = setTimeout(this.redialPeersInBackground.bind(this), 20000)
+    this.redialTimeout = setTimeout(this.redialPeersInBackground.bind(this), 30_000)
   }
 
   public dialUsers = async (users: UserData[]) => {
@@ -222,7 +222,6 @@ export class Libp2pService extends EventEmitter {
 
       this.logger.info('Clearing local data')
       this.dialedPeers.delete(peerAddress)
-      this.connectedPeers.delete(peerId.toString())
       this.logger.info('Done hanging up')
     } catch (e) {
       this.logger.error('Error while hanging up on peer', e)
