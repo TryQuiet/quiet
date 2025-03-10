@@ -465,15 +465,15 @@ export class Libp2pService extends EventEmitter {
       }
       this.logger.info(`${localPeerId} has ${this.libp2pInstance.getConnections().length} open connections`)
 
-      const connectionStartTime: number = this.connectedPeers.get(remotePeerId)!.connectedAtSeconds
-      if (!connectionStartTime) {
-        this.logger.error(`No connection start time for peer ${remotePeerId}`)
-        return
-      }
-
       const connectionEndTime: number = DateTime.utc().valueOf()
-
-      const connectionDuration: number = connectionEndTime - connectionStartTime
+      const connectionStartTime: number | undefined = this.connectedPeers.get(remotePeerId)?.connectedAtSeconds
+      let connectionDuration: number | undefined = undefined
+      if (connectionStartTime == null) {
+        this.logger.error(`No connection start time for peer ${remotePeerId}`)
+        connectionDuration = -1
+      } else {
+        connectionDuration = connectionEndTime - connectionStartTime
+      }
 
       this.connectedPeers.delete(remotePeerId)
       this.logger.info(`${localPeerId} is connected to ${this.connectedPeers.size} peers`)
