@@ -51,3 +51,8 @@ export interface CreatedLibp2pPeerId {
   privKey: PrivateKey
   noiseKey: Uint8Array
 }
+
+export interface DialPeerOptions {
+  throwOnError?: boolean
+  redialOnError?: boolean
+}

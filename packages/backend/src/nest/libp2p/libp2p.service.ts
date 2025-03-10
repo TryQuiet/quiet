@@ -32,6 +32,7 @@ import { ServerIoProviderTypes } from '../types'
 import { webSockets as webSocketsOverTor } from '../websocketOverTor'
 import {
   CreatedLibp2pPeerId,
+  DialPeerOptions,
   Libp2pConnectedPeer,
   Libp2pDatastorePrefix,
   Libp2pEvents,
@@ -43,7 +44,7 @@ import { Libp2pDatastore } from './libp2p.datastore'
 import { WEBSOCKET_CIPHER_SUITE } from './libp2p.const'
 import { libp2pAuth, Libp2pAuth } from './libp2p.auth'
 import { SigChainService } from '../auth/sigchain.service'
-import { sleep } from '../common/sleep'
+import { TimedQueue } from '../common/timed-queue'
 
 const KEY_LENGTH = 32
 export const LIBP2P_PSK_METADATA = '/key/swarm/psk/1.0.0/\n/base16/\n'
@@ -51,11 +52,10 @@ export const LIBP2P_PSK_METADATA = '/key/swarm/psk/1.0.0/\n/base16/\n'
 @Injectable()
 export class Libp2pService extends EventEmitter {
   public libp2pInstance: Libp2p | null
-  private dialQueue: string[]
+  private redialQueue: TimedQueue
   public connectedPeers: Map<string, Libp2pConnectedPeer>
   public dialedPeers: Set<string>
   public libp2pDatastore: Libp2pDatastore | null
-  private redialTimeout: NodeJS.Timeout
   public localAddress: string
   private _connectedPeersInterval: NodeJS.Timeout
   private authService: Libp2pAuth | undefined
@@ -70,9 +70,9 @@ export class Libp2pService extends EventEmitter {
   ) {
     super()
 
-    this.dialQueue = []
     this.connectedPeers = new Map()
     this.dialedPeers = new Set()
+    this.redialQueue = new TimedQueue({ start: true, concurrency: 5, backoffFactor: 1.1, fuzzFactor: 0.5 })
   }
 
   public emit(event: string | symbol, ...args: any[]): boolean {
@@ -86,7 +86,26 @@ export class Libp2pService extends EventEmitter {
     return super.emit(event, ...args)
   }
 
-  public dialPeer = async (peerAddress: string) => {
+  /**
+   * Redial a given peer after a delay
+   *
+   * @param peerAddress Peer address to redial
+   */
+  public redialPeer = async (peerAddress: string): Promise<void> => {
+    const delayMs: number = 20_000
+    await this.redialQueue.enqueue({
+      delayMs,
+      key: peerAddress,
+      task: async (): Promise<void> => {
+        await this.dialPeer(peerAddress, { throwOnError: true, redialOnError: false })
+      },
+    })
+  }
+
+  public dialPeer = async (
+    peerAddress: string,
+    options: DialPeerOptions = { throwOnError: false, redialOnError: true }
+  ) => {
     this.logger.info(`Dialing peer address: ${peerAddress}`)
 
     if (!peerAddress.includes(this.libp2pInstance?.peerId.toString() ?? '')) {
@@ -95,7 +114,12 @@ export class Libp2pService extends EventEmitter {
         await this.libp2pInstance?.dial(multiaddr(peerAddress))
       } catch (e) {
         this.logger.warn(`Failed to dial peer address: ${peerAddress}`, e)
-        this.dialQueue.push(peerAddress)
+        if (options.redialOnError) {
+          await this.redialPeer(peerAddress)
+        }
+        if (options.throwOnError) {
+          throw e
+        }
       }
     } else {
       this.logger.warn('Not dialing self')
@@ -113,27 +137,8 @@ export class Libp2pService extends EventEmitter {
     }
   }
 
-  /**
-   * It doesn't look like libp2p redials peers if it fails to dial them the
-   * first time, so we handle that. Even if we fail to dial a peer, we keep
-   * retrying.
-   */
-  private redialPeersInBackground = () => {
-    const peerAddrs = [...this.dialQueue]
-
-    this.dialQueue = []
-
-    for (const addr of peerAddrs) {
-      this.dialPeer(addr)
-    }
-
-    // TODO: Implement exponential backoff for peers that fail to connect
-    this.redialTimeout = setTimeout(this.redialPeersInBackground.bind(this), 20000)
-  }
-
   public dialUsers = async (users: UserData[]) => {
     const addrs = await getUsersAddresses(users.filter(x => x.peerId !== this.libp2pInstance?.peerId.toString()))
-
     await this.dialPeers(addrs)
   }
 
@@ -145,7 +150,7 @@ export class Libp2pService extends EventEmitter {
   }
 
   public pause = async (): Promise<Libp2pPeerInfo> => {
-    clearTimeout(this.redialTimeout)
+    this.redialQueue.stop(true)
     const peerInfo = this.getCurrentPeerInfo()
     await this.hangUpPeers(Array.from(this.dialedPeers))
     this.dialedPeers.clear()
@@ -164,7 +169,7 @@ export class Libp2pService extends EventEmitter {
       this.logger.info(`No peers to redial!`)
     }
 
-    this.redialPeersInBackground()
+    this.redialQueue.start()
   }
 
   public readonly createLibp2pAddress = (address: string, peerId: string): string => {
@@ -222,7 +227,6 @@ export class Libp2pService extends EventEmitter {
 
       this.logger.info('Clearing local data')
       this.dialedPeers.delete(peerAddress)
-      this.connectedPeers.delete(peerId.toString())
       this.logger.info('Done hanging up')
     } catch (e) {
       this.logger.error('Error while hanging up on peer', e)
@@ -290,6 +294,7 @@ export class Libp2pService extends EventEmitter {
           protocolNegotiationTimeout: 10_000,
           maxDialQueueLength: 500,
           reconnectRetries: 25,
+          reconnectRetryInterval: 10_000,
         },
         privateKey: params.peerId.privKey,
         addresses: { listen: params.listenAddresses },
@@ -304,6 +309,11 @@ export class Libp2pService extends EventEmitter {
             ? preSharedKey({ psk: params.psk })
             : undefined,
         streamMuxers: [
+          yamux({
+            maxInboundStreams: 1024,
+            maxOutboundStreams: 1024,
+            maxMessageSize: 10485760,
+          }),
           mplex({
             disconnectThreshold: 20,
             maxInboundStreams: 1024,
@@ -455,15 +465,15 @@ export class Libp2pService extends EventEmitter {
       }
       this.logger.info(`${localPeerId} has ${this.libp2pInstance.getConnections().length} open connections`)
 
-      const connectionStartTime: number = this.connectedPeers.get(remotePeerId)!.connectedAtSeconds
-      if (!connectionStartTime) {
-        this.logger.error(`No connection start time for peer ${remotePeerId}`)
-        return
-      }
-
       const connectionEndTime: number = DateTime.utc().valueOf()
-
-      const connectionDuration: number = connectionEndTime - connectionStartTime
+      const connectionStartTime: number | undefined = this.connectedPeers.get(remotePeerId)?.connectedAtSeconds
+      let connectionDuration: number | undefined = undefined
+      if (connectionStartTime == null) {
+        this.logger.error(`No connection start time for peer ${remotePeerId}`)
+        connectionDuration = -1
+      } else {
+        connectionDuration = connectionEndTime - connectionStartTime
+      }
 
       this.connectedPeers.delete(remotePeerId)
       this.logger.info(`${localPeerId} is connected to ${this.connectedPeers.size} peers`)
@@ -476,8 +486,6 @@ export class Libp2pService extends EventEmitter {
     })
 
     this.logger.info(`Dialing peers and starting libp2p`)
-
-    this.redialPeersInBackground()
 
     await this.libp2pInstance.start()
 
@@ -515,7 +523,6 @@ export class Libp2pService extends EventEmitter {
 
   public async close(closeDatastore = true): Promise<void> {
     this.logger.info('Closing libp2p service')
-    clearTimeout(this.redialTimeout)
     clearInterval(this._connectedPeersInterval)
 
     await this.hangUpPeers(undefined)
@@ -527,6 +534,6 @@ export class Libp2pService extends EventEmitter {
     this.libp2pInstance = null
     this.connectedPeers = new Map()
     this.dialedPeers = new Set()
-    this.dialQueue = []
+    this.redialQueue.stop(true)
   }
 }
