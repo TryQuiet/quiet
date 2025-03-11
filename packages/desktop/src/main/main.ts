@@ -404,6 +404,7 @@ app.on('ready', async () => {
       DEBUG: process.env.DEBUG,
       LOG_DIR: process.env.LOG_DIR,
       COLORIZE: process.env.COLORIZE ?? 'true',
+      LOG_TO_FILE: process.env.LOG_TO_FILE ?? 'true',
     },
   })
   logger.info('Forked backend, PID:', backendProcess.pid)

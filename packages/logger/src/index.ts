@@ -116,7 +116,7 @@ export class QuietLogger {
     public parallelConsoleLog: boolean = false
   ) {
     this.logSetting = this._getLogSetting()
-    this.winstonLogger = this._initWinstonLogger(this.logSetting)
+    this.winstonLogger = this._initWinstonLogger()
   }
 
   extend(moduleName: string): QuietLogger {
@@ -495,7 +495,7 @@ export class QuietLogger {
     return colors[field]
   }
 
-  private _initWinstonLogger(logSetting: LogSetting): Logger {
+  private _initWinstonLogger(): Logger {
     const baseFormat = format.combine(
       format.splat(),
       format.timestamp(),
@@ -509,7 +509,8 @@ export class QuietLogger {
     ]
 
     const logDir = process.env.LOG_DIR
-    if (logDir != null) {
+    const logToFile = (process.env.LOG_TO_FILE ?? 'true') === 'true'
+    if (logToFile && logDir != null) {
       winstonTransports.push(
         new transports.DailyRotateFile({
           // %DATE will be replaced by the current date
