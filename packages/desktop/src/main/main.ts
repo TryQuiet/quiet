@@ -10,7 +10,7 @@ import { setEngine, CryptoEngine } from 'pkijs'
 import { Crypto } from '@peculiar/webcrypto'
 import { createLogger } from './logger'
 import { fork, ChildProcess } from 'child_process'
-import { DESKTOP_DATA_DIR, DESKTOP_DEV_DATA_DIR, getFilesData } from '@quiet/common'
+import { getFilesData } from '@quiet/common'
 import { updateDesktopFile, processInvitationCode } from './invitation'
 const ElectronStore = require('electron-store')
 const contextMenu = require('electron-context-menu')
@@ -32,16 +32,11 @@ const webcrypto = new Crypto()
 
 global.crypto = webcrypto
 
-let dataDir = DESKTOP_DATA_DIR
 let mainWindow: BrowserWindow | null
 let splash: BrowserWindow | null
 let invitationUrl: string | null
 
-if (isDev || process.env.DATA_DIR) {
-  dataDir = process.env.DATA_DIR || DESKTOP_DEV_DATA_DIR
-}
-
-const appDataPath = path.join(app.getPath('appData'), dataDir)
+const appDataPath = process.env.APP_DATA_PATH!
 
 if (!fs.existsSync(appDataPath)) {
   fs.mkdirSync(appDataPath)
@@ -406,8 +401,9 @@ app.on('ready', async () => {
   backendProcess = fork(backendBundlePath, forkArgvs, {
     env: {
       NODE_OPTIONS: '--experimental-global-customevent',
-      DEBUG: 'backend*,quiet*,state-manager*,desktop*,utils*,identity*,common*,libp2p*,helia*,blockstore*',
-      COLORIZE: 'true',
+      DEBUG: process.env.DEBUG,
+      LOG_DIR: process.env.LOG_DIR,
+      COLORIZE: process.env.COLORIZE ?? 'true',
     },
   })
   logger.info('Forked backend, PID:', backendProcess.pid)

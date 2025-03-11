@@ -1,8 +1,11 @@
 import debug from 'debug'
 import { Console } from 'console'
 import { DateTime } from 'luxon'
+import winston, { format, type Logger, transports } from 'winston'
+import 'winston-daily-rotate-file'
 
 import { ANY_KEY, findAllByKeyAndReplace } from './utils'
+import path from 'path'
 
 const colors = require('ansi-colors')
 
@@ -100,7 +103,8 @@ export class QuietLogger {
   // This is based on the `debug` package and is backwards-compatible with the old logger's behavior (for the most part)
   private logSetting: LogSetting = LogSetting.ON
   // Tracks timers created by the `time` log method
-  private timers: Map<string, number> = new Map()
+  private readonly timers: Map<string, number> = new Map()
+  private readonly winstonLogger: Logger
 
   /**
    *
@@ -112,6 +116,7 @@ export class QuietLogger {
     public parallelConsoleLog: boolean = false
   ) {
     this.logSetting = this._getLogSetting()
+    this.winstonLogger = this._initWinstonLogger(this.logSetting)
   }
 
   extend(moduleName: string): QuietLogger {
@@ -247,9 +252,9 @@ export class QuietLogger {
   private printLog(level: LogLevel, ...formattedLogStrings: string[]): void {
     // we have to do this conversion because console doesn't have a trace method
     const printLevel: LogLevel = level === LogLevel.TRACE ? LogLevel.LOG : level
-
+    const winstonLevel = level === LogLevel.ERROR ? 'error' : 'info'
     // @ts-ignore
-    nodeConsoleLogger[printLevel](...formattedLogStrings)
+    this.winstonLogger.log(winstonLevel, formattedLogStrings.join(' '))
     if (this.parallelConsoleLog) {
       // @ts-ignore
       console[printLevel](...formattedLogStrings)
@@ -488,6 +493,48 @@ export class QuietLogger {
     }
 
     return colors[field]
+  }
+
+  private _initWinstonLogger(logSetting: LogSetting): Logger {
+    const baseFormat = format.combine(
+      format.splat(),
+      format.timestamp(),
+      format.errors(),
+      format.printf(info => info.message as string)
+    )
+    const winstonTransports: winston.transport[] = [
+      new transports.Console({
+        format: format.combine(format.cli({ all: true }), baseFormat),
+      }),
+    ]
+
+    const logDir = process.env.LOG_DIR
+    if (logDir != null) {
+      winstonTransports.push(
+        new transports.DailyRotateFile({
+          // %DATE will be replaced by the current date
+          filename: path.join(logDir, `error_%DATE%.log`),
+          level: 'error',
+          format: baseFormat,
+          datePattern: 'YYYY-MM-DD',
+          zippedArchive: false, // don't want to zip our logs
+          maxFiles: '3d', // will keep log until they are older than 7 days
+        }),
+        // same for all levels
+        new transports.DailyRotateFile({
+          filename: path.join(logDir, `log_%DATE%.log`),
+          format: baseFormat,
+          datePattern: 'YYYY-MM-DD',
+          zippedArchive: false,
+          maxFiles: '3d',
+        })
+      )
+    }
+
+    return winston.createLogger({
+      level: 'silly',
+      transports: winstonTransports,
+    })
   }
 }
 
