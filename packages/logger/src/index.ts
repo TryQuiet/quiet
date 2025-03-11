@@ -533,7 +533,7 @@ export class QuietLogger {
     }
 
     return winston.createLogger({
-      level: 'silly',
+      level: 'silly', // this is just because we are doing the log level checking via debug
       transports: winstonTransports,
     })
   }
