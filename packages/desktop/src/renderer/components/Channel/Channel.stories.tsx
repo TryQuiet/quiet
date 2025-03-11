@@ -13,6 +13,7 @@ import { HTML5Backend } from 'react-dnd-html5-backend'
 import ChannelComponent, { ChannelComponentProps } from './ChannelComponent'
 import { UploadFilesPreviewsProps } from './File/UploadingPreview'
 import { DownloadState, DisplayableMessage } from '@quiet/types'
+import { HandleOpenModalType } from '../widgets/userLabel/UserLabel.types'
 
 // Provide a user object that satisfies 'Identity'
 const validUser = {
@@ -44,6 +45,25 @@ const validUser = {
 const dummyFn = () => {}
 
 const dummyRemoveFile = (_fileId: string) => {}
+
+// Add properly typed modal handlers that return the expected structure
+const dummyDuplicatedUsernameModalHandler: HandleOpenModalType = () => {
+  return {
+    payload: {
+      name: ModalName.duplicatedUsernameModal,
+    },
+    type: 'Modals/openModal' as const,
+  }
+}
+
+const dummyUnregisteredUsernameModalHandler: HandleOpenModalType = () => {
+  return {
+    payload: {
+      name: ModalName.unregisteredUsernameModal,
+    },
+    type: 'Modals/openModal' as const,
+  }
+}
 
 const defaultIsCommunityInitialized = true
 
@@ -686,7 +706,44 @@ export const SendingMessagesWithScroll: ComponentStory<typeof ChannelComponent> 
 
   return (
     <DndProvider backend={HTML5Backend}>
-      <ChannelComponent {...args} messages={localMessages} onInputEnter={handleSend} />
+      <ChannelComponent
+        {...args}
+        messages={localMessages}
+        onInputEnter={handleSend}
+        user={validUser}
+        channelId='general'
+        channelName='general'
+        newestMessage={
+          args.newestMessage || {
+            id: '31',
+            type: 1,
+            message: 'I agree!',
+            createdAt: 0,
+            channelId: 'general',
+            signature: 'signature',
+            pubKey: 'pubKey',
+          }
+        }
+        pendingMessages={args.pendingMessages || {}}
+        lazyLoading={args.lazyLoading || function (_load: boolean): void {}}
+        onInputChange={args.onInputChange || function (_value: string): void {}}
+        openUrl={args.openUrl || dummyFn}
+        openFilesDialog={args.openFilesDialog || dummyFn}
+        handleFileDrop={args.handleFileDrop || dummyFn}
+        isCommunityInitialized={args.isCommunityInitialized !== undefined ? args.isCommunityInitialized : true}
+        handleClipboardFiles={args.handleClipboardFiles || dummyFn}
+        pendingGeneralChannelRecreation={
+          args.pendingGeneralChannelRecreation !== undefined ? args.pendingGeneralChannelRecreation : false
+        }
+        duplicatedUsernameModalHandleOpen={
+          args.duplicatedUsernameModalHandleOpen || dummyDuplicatedUsernameModalHandler
+        }
+        unregisteredUsernameModalHandleOpen={
+          args.unregisteredUsernameModalHandleOpen || dummyUnregisteredUsernameModalHandler
+        }
+        removeFile={args.removeFile || dummyRemoveFile}
+        filesData={args.filesData || {}}
+      />
     </DndProvider>
   )
 }
