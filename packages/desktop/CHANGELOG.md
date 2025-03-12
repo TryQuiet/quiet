@@ -1,30 +1,24 @@
-# Change Log
-
-All notable changes to this project will be documented in this file.
-See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
-
-## [4.0.3-alpha.1](https://github.com/TryQuiet/quiet/compare/@quiet/desktop@4.0.3-alpha.0...@quiet/desktop@4.0.3-alpha.1) (2025-03-12)
-
-**Note:** Version bump only for package @quiet/desktop
-
-
-
-
-
 # Changelog
 
 ## [4.0.3]
+
+### New features
+
+* Adds a context menu in Quiet desktop for copying text ([#503](https://github.com/TryQuiet/quiet/issues/503)) and saving images ([#503](https://github.com/TryQuiet/quiet/issues/568)) Thanks @agiledev24!
 
 ### Fixes
 
 * Fixes issue where the app may crash when trying to redial a peer that doesn't recognize your user as being in the sigchain ([#2770](https://github.com/TryQuiet/quiet/issues/2770))
 * Fixes issue where the app may crash when hanging up on a peer we don't have in our sigchain ([#2770](https://github.com/TryQuiet/quiet/issues/2770))
 
+### Chores
+
+* Write app logs to rotating files ([#2771](https://github.com/TryQuiet/quiet/issues/2771))
+
 ## [4.0.0]
 
 ### New features
 
-* Adds a context menu in Quiet desktop for copying text ([#503](https://github.com/TryQuiet/quiet/issues/503)) and saving images ([#503](https://github.com/TryQuiet/quiet/issues/568)) Thanks @agiledev24!
 * Generating LFA-ready invite links when a sigchain is configured ([#2627](https://github.com/TryQuiet/quiet/issues/2627))
 * Add local-first/auth powered libp2p authentication service ([#2629](https://github.com/TryQuiet/quiet/issues/2629))
 * Adds admin-only screens when non-admins try to access add members screens ([#2729](https://github.com/TryQuiet/quiet/issues/2729))
