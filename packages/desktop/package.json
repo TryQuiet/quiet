@@ -99,7 +99,7 @@
     "lint-ci": "npm run lint:no-fix",
     "lint-staged": "lint-staged --no-stash",
     "type-check": "tsc -p tsconfig.build.json --noEmit",
-    "test": "LOG_TO_FILE=false --runInBand",
+    "test": "LOG_TO_FILE=false jest --runInBand",
     "test:watch": "LOG_TO_FILE=false jest --watchAll",
     "rtl-test": "LOG_TO_FILE=false jest ./src/rtl-tests",
     "regression-test:update": "cypress install && ./node_modules/.bin/cypress run --component --env type=base,SNAPSHOT_BASE_DIRECTORY=cypress/snapshots/base-local --config screenshotsFolder=cypress/snapshots/base-local",
