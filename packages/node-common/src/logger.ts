@@ -26,8 +26,6 @@ const initWinstonLogger = (): Logger => {
   ]
   const logDir = process.env.LOG_DIR
   const logToFile = (process.env.LOG_TO_FILE ?? 'true') === 'true'
-  __nodeConsoleLogger.log(`LOG_DIR`, process.env.LOG_DIR)
-  __nodeConsoleLogger.log('logToFile', logToFile)
   if (logToFile && logDir != null) {
     winstonTransports.push(
       new transports.DailyRotateFile({

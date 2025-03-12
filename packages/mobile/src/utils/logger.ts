@@ -11,6 +11,4 @@ FileLogger.configure({
   logsDirectory: RNFS.DocumentDirectoryPath + '/logs',
 })
 
-__nodeConsoleLogger.log(RNFS.DocumentDirectoryPath + '/logs')
-
 export const createLogger = createQuietLogger(DEFAULT_INTERNAL_LOG_METHOD, 'mobile')
