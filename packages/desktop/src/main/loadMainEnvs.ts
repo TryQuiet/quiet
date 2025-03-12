@@ -4,7 +4,7 @@ import { app } from 'electron'
 import { createLogger } from './logger'
 import { DESKTOP_DATA_DIR, DESKTOP_DEV_DATA_DIR } from '@quiet/common'
 
-const isDev = process.env.NODE_ENV !== 'development'
+const isDev = process.env.NODE_ENV === 'development'
 let dataDir = DESKTOP_DATA_DIR
 if (isDev || process.env.DATA_DIR) {
   dataDir = process.env.DATA_DIR || DESKTOP_DEV_DATA_DIR
