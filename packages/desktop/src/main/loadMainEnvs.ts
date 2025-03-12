@@ -15,7 +15,7 @@ process.env.LOG_DIR = path.join(process.env.APP_DATA_PATH, 'logs')
 
 const logger = createLogger('loadMainEnvs')
 
-if (isDev) {
+if (!isDev) {
   try {
     const pathProd = path.join.apply(null, [process.resourcesPath, 'mainEnvs.json'])
     const envsFile = fs.readFileSync(pathProd, { encoding: 'utf8' })
