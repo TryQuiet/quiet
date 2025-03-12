@@ -1,20 +1,19 @@
 import debug from 'debug'
 import { Console } from 'console'
 import { DateTime } from 'luxon'
-import winston, { format, type Logger, transports } from 'winston'
-import 'winston-daily-rotate-file'
 
 import { ANY_KEY, findAllByKeyAndReplace } from './utils'
-import path from 'path'
 
 const colors = require('ansi-colors')
 
 const COLORIZE = process.env['COLORIZE'] === 'true'
 
+export type InternalLogMethod = (level: LogLevel, ...formattedLogStrings: string[]) => void
+
 /**
  * Available log levels
  */
-enum LogLevel {
+export enum LogLevel {
   DEBUG = 'debug',
   ERROR = 'error',
   INFO = 'info',
@@ -27,7 +26,7 @@ enum LogLevel {
 /**
  * Maximum log level allowed
  */
-enum LogSetting {
+export enum LogSetting {
   TRACE = 2, // Allows all logs
   DEBUG = 1, // Excludes `trace` logs
   ON = 0, // Excludes `trace`, `debug`, and `log`
@@ -36,7 +35,7 @@ enum LogSetting {
 /**
  * Common fields to colorize
  */
-enum ColorField {
+export enum ColorField {
   SCOPE = 'scope',
   DATE = 'date',
   OBJECT = 'object',
@@ -90,7 +89,7 @@ colors.theme({
  * This is the base logger we use to write to the node terminal.  Due to the ways that we import the node logger
  * we have to account for that (hence the ternary statement).
  */
-const nodeConsoleLogger = Console instanceof Function ? new Console(process.stdout, process.stderr) : console
+export const __nodeConsoleLogger = Console instanceof Function ? new Console(process.stdout, process.stderr) : console
 
 /**
  * This class is what we use to log to the node console and, optionally, the native console for browser-facing code
@@ -104,7 +103,6 @@ export class QuietLogger {
   private logSetting: LogSetting = LogSetting.ON
   // Tracks timers created by the `time` log method
   private readonly timers: Map<string, number> = new Map()
-  private readonly winstonLogger: Logger
 
   /**
    *
@@ -112,15 +110,15 @@ export class QuietLogger {
    * @param parallelConsoleLog If true we will also log to the native console (e.g. browser console)
    */
   constructor(
+    private readonly internalLogMethod: InternalLogMethod,
     public name: string,
     public parallelConsoleLog: boolean = false
   ) {
     this.logSetting = this._getLogSetting()
-    this.winstonLogger = this._initWinstonLogger()
   }
 
   extend(moduleName: string): QuietLogger {
-    return new QuietLogger(`${this.name}:${moduleName}`, this.parallelConsoleLog)
+    return new QuietLogger(this.internalLogMethod, `${this.name}:${moduleName}`, this.parallelConsoleLog)
   }
 
   /*
@@ -250,12 +248,10 @@ export class QuietLogger {
    * @param formattedLogStrings Array of formatted log strings
    */
   private printLog(level: LogLevel, ...formattedLogStrings: string[]): void {
-    // we have to do this conversion because console doesn't have a trace method
-    const printLevel: LogLevel = level === LogLevel.TRACE ? LogLevel.LOG : level
-    const winstonLevel = level === LogLevel.ERROR ? 'error' : 'info'
-    // @ts-ignore
-    this.winstonLogger.log(winstonLevel, formattedLogStrings.join(' '))
+    this.internalLogMethod(level, formattedLogStrings.join(' '))
     if (this.parallelConsoleLog) {
+      // we have to do this conversion because console doesn't have a trace method
+      const printLevel: LogLevel = level === LogLevel.TRACE ? LogLevel.LOG : level
       // @ts-ignore
       console[printLevel](...formattedLogStrings)
     }
@@ -494,50 +490,10 @@ export class QuietLogger {
 
     return colors[field]
   }
-
-  private _initWinstonLogger(): Logger {
-    const baseFormat = format.combine(
-      format.splat(),
-      format.timestamp(),
-      format.errors(),
-      format.printf(info => info.message as string)
-    )
-    const winstonTransports: winston.transport[] = [
-      new transports.Console({
-        format: format.combine(format.cli({ all: true }), baseFormat),
-      }),
-    ]
-
-    const logDir = process.env.LOG_DIR
-    const logToFile = (process.env.LOG_TO_FILE ?? 'true') === 'true'
-    if (logToFile && logDir != null) {
-      winstonTransports.push(
-        new transports.DailyRotateFile({
-          // %DATE will be replaced by the current date
-          filename: path.join(logDir, `error_%DATE%.log`),
-          level: 'error',
-          format: baseFormat,
-          datePattern: 'YYYY-MM-DD',
-          zippedArchive: false, // don't want to zip our logs
-          maxFiles: '3d', // will keep log until they are older than 7 days
-        }),
-        // same for all levels
-        new transports.DailyRotateFile({
-          filename: path.join(logDir, `log_%DATE%.log`),
-          format: baseFormat,
-          datePattern: 'YYYY-MM-DD',
-          zippedArchive: false,
-          maxFiles: '3d',
-        })
-      )
-    }
-
-    return winston.createLogger({
-      level: 'silly', // this is just because we are doing the log level checking via debug
-      transports: winstonTransports,
-    })
-  }
 }
+
+export const DEFAULT_INTERNAL_LOG_METHOD: InternalLogMethod = (level, ...formattedLogStrings) =>
+  __nodeConsoleLogger['log'](...formattedLogStrings)
 
 /**
  * Generate a function that creates a module-level logger with a name like `packageName:moduleName`.  This is the main
@@ -548,12 +504,13 @@ export class QuietLogger {
  * @returns A function that can be used to generate a module-level logger
  */
 export const createQuietLogger = (
+  internalLogMethod: InternalLogMethod,
   packageName: string,
   parallelConsoleLog: boolean = false
 ): ((moduleName: string) => QuietLogger) => {
   return (moduleName: string) => {
     const name = `${packageName}:${moduleName}`
-    nodeConsoleLogger.info(`Initializing logger ${name}`)
-    return new QuietLogger(name, parallelConsoleLog)
+    __nodeConsoleLogger.info(`Initializing logger ${name}`)
+    return new QuietLogger(internalLogMethod, name, parallelConsoleLog)
   }
 }

@@ -1,25 +1,20 @@
 {
   "extends": "../../tsconfig.build.json",
   "compilerOptions": {
+    "target": "ES2020",
     "rootDir": "./src",
     "outDir": "./lib",
-    "target": "ES2020",
-    "strict": true,
-    "useUnknownInCatchVariables": false,
-    "jsx": "react-native",
     "typeRoots": [
       "../@types",
       "./node_modules/@types"
     ],
-    "declaration": false
+    "declaration": true
   },
   "include": [
-    "src",
-    "index.d.ts",
-    "node_modules/"
+    "src"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "**/__tests__/*"
   ]
 }
-  

@@ -16,7 +16,6 @@ import com.facebook.soloader.SoLoader
 import com.quietmobile.Communication.CommunicationModulePackage
 import com.quietmobile.Utils.Const
 
-
 class MainApplication : Application(), ReactApplication {
 
     override val reactNativeHost: ReactNativeHost =

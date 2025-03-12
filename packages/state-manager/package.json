@@ -50,6 +50,7 @@
     "@peculiar/webcrypto": "1.4.3",
     "@quiet/eslint-config": "^2.0.2-alpha.0",
     "@quiet/identity": "^2.0.2-alpha.2",
+    "@quiet/node-common": "^2.0.2-alpha.1",
     "@types/factory-girl": "^5.0.8",
     "@types/jest": "^26.0.24",
     "@types/luxon": "^2.0.0",
