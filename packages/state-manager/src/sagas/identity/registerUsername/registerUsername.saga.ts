@@ -4,7 +4,7 @@ import { identityActions } from '../identity.slice'
 import { Socket, applyEmitParams } from '../../../types'
 import { communitiesActions } from '../../communities/communities.slice'
 import { communitiesSelectors } from '../../communities/communities.selectors'
-import { SocketActionTypes, Identity, InitUserCsrPayload } from '@quiet/types'
+import { SocketActionTypes, Identity, InitUserCsrPayload, CommunityOwnership } from '@quiet/types'
 import { createLogger } from '../../../utils/logger'
 import { identitySelectors } from '../identity.selectors'
 
@@ -30,7 +30,7 @@ export function* registerUsernameSaga(
     logger.error('Could not register username, no community data')
     return
   }
-  logger.info(`Found community ${community?.id} has CA?: ${community?.CA !== null}`)
+  logger.info(`Found community ${community?.id} has ownership: ${community?.ownership}`)
 
   // **Wait for identity to be available before proceeding.**
   let identity = yield* select(identitySelectors.currentIdentity)
@@ -42,10 +42,11 @@ export function* registerUsernameSaga(
     )
     identity = actionIdentity.payload
   }
+  identity = { ...identity, nickname }
 
-  logger.info('Emitting CREATE_USER_CSR')
-  const payload: InitUserCsrPayload = { communityId: community.id, nickname, isUsernameTaken }
-  identity = yield* apply(socket, socket.emitWithAck, applyEmitParams(SocketActionTypes.CREATE_USER_CSR, payload))
+  // logger.info('Emitting CREATE_USER_CSR')
+  // const payload: InitUserCsrPayload = { communityId: community.id, nickname, isUsernameTaken }
+  // identity = yield* apply(socket, socket.emitWithAck, applyEmitParams(SocketActionTypes.CREATE_USER_CSR, payload))
 
   if (!identity) {
     logger.error('Failed to create identity')
@@ -53,7 +54,7 @@ export function* registerUsernameSaga(
   }
   yield* put(identityActions.updateIdentity(identity))
 
-  if (community.CA?.rootCertString) {
+  if (community.ownership === CommunityOwnership.Owner) {
     yield* put(communitiesActions.createCommunity(community.id))
   } else if (!isUsernameTaken) {
     logger.info('Username is not taken, launching community')

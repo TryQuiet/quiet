@@ -15,7 +15,6 @@ import { type UserWithSecrets } from '@localfirst/auth'
 import { type DeviceWithSecrets } from '@localfirst/auth'
 import { SERVER_IO_PROVIDER } from '../const'
 import { ServerIoProviderTypes } from '../types'
-import { Socket } from 'socket.io'
 
 @Injectable()
 export class SigChainService {

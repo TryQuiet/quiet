@@ -5,7 +5,7 @@ import { communitiesSelectors } from '../communities.selectors'
 import { communitiesActions } from '../communities.slice'
 import { identitySelectors } from '../../identity/identity.selectors'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
-import { type Community, type InitCommunityPayload, SocketActionTypes } from '@quiet/types'
+import { type Community, CreateCommunityPayload, type InitCommunityPayload, SocketActionTypes } from '@quiet/types'
 import { createLogger } from '../../../utils/logger'
 
 const logger = createLogger('createCommunitySaga')
@@ -27,16 +27,18 @@ export function* createCommunitySaga(
   const community = yield* select(communitiesSelectors.selectById(communityId))
   const identity = yield* select(identitySelectors.selectById(communityId))
 
-  if (!identity) {
+  if (!community || !community.name) {
+    logger.error('Could not create community - community missing')
+    return
+  }
+  if (!identity || !identity.nickname) {
     logger.error('Could not create community - identity missing')
     return
   }
 
-  const payload: InitCommunityPayload = {
+  const payload: CreateCommunityPayload = {
     id: communityId,
-    name: community?.name,
-    CA: community?.CA,
-    rootCa: community?.rootCa,
+    name: community.name,
   }
 
   const createdCommunity: Community | undefined = yield* apply(

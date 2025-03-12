@@ -6,7 +6,7 @@ import { apply, take } from 'typed-redux-saga'
 import userEvent from '@testing-library/user-event'
 import MockedSocket from 'socket.io-mock'
 import { ioMock } from '../shared/setupTests'
-import { socketEventData } from '@quiet/types'
+import { CommunityOwnership, socketEventData } from '@quiet/types'
 import { renderComponent } from '../renderer/testUtils/renderComponent'
 import { prepareStore } from '../renderer/testUtils/prepareStore'
 import Channel from '../renderer/components/Channel/Channel'
@@ -757,9 +757,7 @@ describe('Channel', () => {
     initialState.dispatch(
       communities.actions.updateCommunityData({
         id: community.id,
-        // null/undefined type mismatch here. Might make things easier
-        // to make it consistent.
-        ownerCertificate: alice.userCertificate || undefined,
+        ownership: CommunityOwnership.Owner,
       })
     )
 
@@ -769,7 +767,7 @@ describe('Channel', () => {
 
     const mockEmitImpl = async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
       const action = input[0]
-      if (action === SocketActionTypes.LAUNCH_COMMUNITY) {
+      if (action === SocketActionTypes.JOIN_COMMUNITY) {
         const data = input[1] as InitCommunityPayload
         const payload = data
         return socket.socketClient.emit<ResponseLaunchCommunityPayload>(SocketActionTypes.COMMUNITY_LAUNCHED, {
@@ -913,9 +911,7 @@ describe('Channel', () => {
     initialState.dispatch(
       communities.actions.updateCommunityData({
         id: community.id,
-        // null/undefined type mismatch here. Might make things easier
-        // to make it consistent.
-        ownerCertificate: alice.userCertificate || undefined,
+        ownership: CommunityOwnership.Owner,
       })
     )
 
@@ -970,7 +966,7 @@ describe('Channel', () => {
 
     const mockEmitImpl = async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
       const action = input[0]
-      if (action === SocketActionTypes.LAUNCH_COMMUNITY) {
+      if (action === SocketActionTypes.JOIN_COMMUNITY) {
         const data = input[1] as InitCommunityPayload
         const payload = data
         return socket.socketClient.emit<ResponseLaunchCommunityPayload>(SocketActionTypes.COMMUNITY_LAUNCHED, {
@@ -1055,15 +1051,13 @@ describe('Channel', () => {
     initialState.dispatch(
       communities.actions.updateCommunityData({
         id: community.id,
-        // null/undefined type mismatch here. Might make things easier
-        // to make it consistent.
-        ownerCertificate: alice.userCertificate || undefined,
+        ownership: CommunityOwnership.Owner,
       })
     )
 
     jest.spyOn(socket, 'emit').mockImplementation(async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
       const action = input[0]
-      if (action === SocketActionTypes.LAUNCH_COMMUNITY) {
+      if (action === SocketActionTypes.JOIN_COMMUNITY) {
         const data = input[1] as InitCommunityPayload
         const payload = data
         return socket.socketClient.emit<ResponseLaunchCommunityPayload>(SocketActionTypes.COMMUNITY_LAUNCHED, {
@@ -1160,9 +1154,7 @@ describe('Channel', () => {
     initialState.dispatch(
       communities.actions.updateCommunityData({
         id: community.id,
-        // null/undefined type mismatch here. Might make things easier
-        // to make it consistent.
-        ownerCertificate: alice.userCertificate || undefined,
+        ownership: CommunityOwnership.Owner,
       })
     )
 
@@ -1201,7 +1193,7 @@ describe('Channel', () => {
 
     jest.spyOn(socket, 'emit').mockImplementation(async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
       const action = input[0]
-      if (action === SocketActionTypes.LAUNCH_COMMUNITY) {
+      if (action === SocketActionTypes.JOIN_COMMUNITY) {
         const data = input[1] as InitCommunityPayload
         const payload = data
         return socket.socketClient.emit<ResponseLaunchCommunityPayload>(SocketActionTypes.COMMUNITY_LAUNCHED, {
@@ -1285,9 +1277,7 @@ describe('Channel', () => {
     initialState.dispatch(
       communities.actions.updateCommunityData({
         id: community.id,
-        // null/undefined type mismatch here. Might make things easier
-        // to make it consistent.
-        ownerCertificate: alice.userCertificate || undefined,
+        ownership: CommunityOwnership.Owner,
       })
     )
 
@@ -1326,7 +1316,7 @@ describe('Channel', () => {
 
     jest.spyOn(socket, 'emit').mockImplementation(async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
       const action = input[0]
-      if (action === SocketActionTypes.LAUNCH_COMMUNITY) {
+      if (action === SocketActionTypes.JOIN_COMMUNITY) {
         const data = input[1] as InitCommunityPayload
         const payload = data
         return socket.socketClient.emit<ResponseLaunchCommunityPayload>(SocketActionTypes.COMMUNITY_LAUNCHED, {
@@ -1412,9 +1402,7 @@ describe('Channel', () => {
     initialState.dispatch(
       communities.actions.updateCommunityData({
         id: community.id,
-        // null/undefined type mismatch here. Might make things easier
-        // to make it consistent.
-        ownerCertificate: alice.userCertificate || undefined,
+        ownership: CommunityOwnership.Owner,
       })
     )
 
@@ -1453,7 +1441,7 @@ describe('Channel', () => {
 
     jest.spyOn(socket, 'emit').mockImplementation(async (...input: [SocketActionTypes, ...socketEventData<[any]>]) => {
       const action = input[0]
-      if (action === SocketActionTypes.LAUNCH_COMMUNITY) {
+      if (action === SocketActionTypes.JOIN_COMMUNITY) {
         const data = input[1] as InitCommunityPayload
         const payload = data
         return socket.socketClient.emit<ResponseLaunchCommunityPayload>(SocketActionTypes.COMMUNITY_LAUNCHED, {

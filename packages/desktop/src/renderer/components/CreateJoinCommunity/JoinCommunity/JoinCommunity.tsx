@@ -6,7 +6,6 @@ import PerformCommunityActionComponent from '../../../components/CreateJoinCommu
 import { useModal } from '../../../containers/hooks'
 import { ModalName } from '../../../sagas/modals/modals.types'
 import { socketSelectors } from '../../../sagas/socket/socket.selectors'
-import { errors as errorsState } from '@quiet/state-manager'
 
 const JoinCommunity = () => {
   const dispatch = useDispatch()

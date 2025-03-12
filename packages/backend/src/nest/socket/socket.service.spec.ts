@@ -60,7 +60,7 @@ describe('SocketService', () => {
     const fragile: string[] = [
       SocketActionTypes.CREATE_NETWORK.valueOf(),
       SocketActionTypes.CREATE_COMMUNITY.valueOf(),
-      SocketActionTypes.LAUNCH_COMMUNITY.valueOf(),
+      SocketActionTypes.JOIN_COMMUNITY.valueOf(),
       SocketActionTypes.REGISTER_USER_CERTIFICATE.valueOf(),
       SocketActionTypes.ADD_CSR.valueOf(),
     ]

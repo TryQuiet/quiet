@@ -30,31 +30,30 @@ export function* createNetworkSaga(
   logger.info('Generating community ID')
   const id = yield* call(generateId)
 
-  // TODO: Move CA generation to backend when creating Community
-  let CA: null | {
-    rootCertString: string
-    rootKeyString: string
-  } = null
+  // // TODO: Move CA generation to backend when creating Community
+  // let CA: null | {
+  //   rootCertString: string
+  //   rootKeyString: string
+  // } = null
 
-  if (payload.ownership === CommunityOwnership.Owner) {
-    const notBeforeDate = new Date(Date.UTC(2010, 11, 28, 10, 10, 10))
-    const notAfterDate = new Date(Date.UTC(2030, 11, 28, 10, 10, 10))
+  // if (payload.ownership === CommunityOwnership.Owner) {
+  //   const notBeforeDate = new Date(Date.UTC(2010, 11, 28, 10, 10, 10))
+  //   const notAfterDate = new Date(Date.UTC(2030, 11, 28, 10, 10, 10))
 
-    logger.info('Generating CA')
-    CA = yield* call(
-      createRootCA,
-      new Time({ type: 0, value: notBeforeDate }),
-      new Time({ type: 0, value: notAfterDate }),
-      action.payload.name
-    )
-  }
+  //   logger.info('Generating CA')
+  //   CA = yield* call(
+  //     createRootCA,
+  //     new Time({ type: 0, value: notBeforeDate }),
+  //     new Time({ type: 0, value: notAfterDate }),
+  //     action.payload.name
+  //   )
+  // }
 
   const community: Community = {
     id,
     name: payload.name,
-    CA,
-    rootCa: CA?.rootCertString,
     inviteData: payload.inviteData,
+    ownership: payload.ownership,
   }
 
   if (payload.inviteData) {

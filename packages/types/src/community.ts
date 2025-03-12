@@ -15,6 +15,7 @@ export interface Community {
   psk?: string
   inviteData?: InvitationData | null
   ownerOrbitDbIdentity?: string
+  ownership: CommunityOwnership
 }
 
 export enum CommunityOwnership {
@@ -39,6 +40,16 @@ export interface Certificates {
   CA: string[]
 }
 
+export interface CreateCommunityPayload {
+  id: string
+  name: string
+}
+
+export interface JoinCommunityPayload {
+  id: string
+  inviteData: InvitationData
+}
+
 export interface InitCommunityPayload {
   // Used for both joining and creating community
   // Remove redundancy and pass data in inviteData?
@@ -53,6 +64,7 @@ export interface InitCommunityPayload {
   psk?: string
   ownerOrbitDbIdentity?: string
   inviteData?: InvitationData | null
+  username: string
 }
 
 export interface StorePeerListPayload {

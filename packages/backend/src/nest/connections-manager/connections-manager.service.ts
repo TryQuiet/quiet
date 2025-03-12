@@ -9,7 +9,13 @@ import path from 'path'
 import { CryptoEngine, setEngine } from 'pkijs'
 import { createPeerId, getUsersFromCsrs, removeFilesFromDir } from '../common/utils'
 
-import { createLibp2pAddress, filterValidAddresses, isPSKcodeValid } from '@quiet/common'
+import {
+  createLibp2pAddress,
+  filterValidAddresses,
+  isPSKcodeValid,
+  p2pAddressesToPairs,
+  pairsToP2pAddresses,
+} from '@quiet/common'
 import {
   CertFieldsTypes,
   createRootCA,
@@ -59,6 +65,9 @@ import {
   InvitationDataVersion,
   InvitationDataV2,
   PermissionsError,
+  CommunityOwnership,
+  CreateCommunityPayload,
+  JoinCommunityPayload,
 } from '@quiet/types'
 import { CONFIG_OPTIONS, QUIET_DIR, SERVER_IO_PROVIDER, SOCKS_PROXY_AGENT } from '../const'
 import { Libp2pService } from '../libp2p/libp2p.service'
@@ -100,7 +109,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     @Inject(QUIET_DIR) public readonly quietDir: string,
     @Inject(SOCKS_PROXY_AGENT) public readonly socksProxyAgent: Agent,
     private readonly socketService: SocketService,
-    private readonly registrationService: RegistrationService,
     public readonly libp2pService: Libp2pService,
     private readonly storageServerProxyService: StorageServiceClient,
     private readonly localDbService: LocalDbService,
@@ -406,7 +414,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.logger.info('Creating hidden service')
     const hiddenService = await this.tor.createNewHiddenService({ targetPort: this.ports.libp2pHiddenService })
 
-    this.logger.info('Destroying the hidden service we created')
+    // this.logger.info('Destroying the hidden service we created')
     await this.tor.destroyHiddenService(hiddenService.onionAddress.split('.')[0])
 
     // TODO: Do we want to create the PeerId here? It doesn't necessarily have
@@ -467,13 +475,8 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     return identity
   }
 
-  public async createCommunity(payload: InitCommunityPayload): Promise<Community | undefined> {
+  public async createCommunity(payload: CreateCommunityPayload): Promise<Community | undefined> {
     this.logger.info('Creating community', payload.id)
-
-    if (!payload.CA || !payload.rootCa) {
-      this.logger.error('CA and rootCa are required to create community')
-      return
-    }
 
     let identity = await this.storageService.getIdentity(payload.id)
     if (!identity) {
@@ -483,53 +486,20 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
         community: payload.id,
       })
       return
-    } else if (!identity.userCsr) {
-      emitError(this.serverIoProvider.io, {
-        type: SocketActionTypes.CREATE_COMMUNITY,
-        message: ErrorMessages.USER_CSR_NOT_FOUND,
-        community: payload.id,
-      })
-      return
-    }
-
-    const psk = Libp2pService.generateLibp2pPSK().psk
-    let ownerCertResult: SavedOwnerCertificatePayload
-
-    try {
-      ownerCertResult = await this.registrationService.registerOwnerCertificate({
-        communityId: payload.id,
-        userCsr: identity.userCsr,
-        permsData: {
-          certificate: payload.CA.rootCertString,
-          privKey: payload.CA.rootKeyString,
-        },
-      })
-    } catch (e) {
-      this.logger.error('Failed to register owner certificate')
-      return
     }
 
     const localAddress = createLibp2pAddress(identity.hiddenService.onionAddress, identity.peerId.id)
 
-    let community: Community = {
+    const community: Community = {
       id: payload.id,
       name: payload.name,
-      CA: payload.CA,
-      rootCa: payload.rootCa,
       peerList: [localAddress],
-      ownerCertificate: ownerCertResult.network.certificate,
-      psk: psk,
+      psk: Libp2pService.generateLibp2pPSK().psk,
+      ownership: CommunityOwnership.Owner,
     }
 
     await this.localDbService.setCommunity(community)
     await this.localDbService.setCurrentCommunityId(community.id)
-
-    identity = {
-      ...identity,
-      userCertificate: ownerCertResult.network.certificate,
-      id: payload.id,
-    }
-    await this.storageService.setIdentity(identity)
 
     if (!community.name) {
       this.logger.error('Community name is required to create sigchain')
@@ -538,27 +508,16 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.logger.info(`Creating new LFA chain`)
     await this.sigChainService.createChain(community.name, identity.nickname, true)
 
+    identity = {
+      ...identity,
+      id: payload.id,
+      userId: this.sigChainService.user.userId,
+    }
+    await this.storageService.setIdentity(identity)
+
     await this.launchCommunity(community)
 
-    const meta = await this.storageService.updateCommunityMetadata({
-      id: community.id,
-      rootCa: community.rootCa as string,
-      ownerCertificate: community.ownerCertificate as string,
-    })
-    const currentCommunity = await this.localDbService.getCurrentCommunity()
-
-    if (meta && currentCommunity) {
-      community = {
-        ...currentCommunity,
-        ownerOrbitDbIdentity: meta.ownerOrbitDbIdentity,
-      }
-      await this.localDbService.setCommunity(community)
-    }
-
     this.logger.info(`Created and launched community ${community.id}`)
-    if (identity.userCsr?.userCsr) {
-      await this.storageService.saveCSR({ csr: identity.userCsr.userCsr })
-    }
 
     // this is the forever invite that all users get
     this.logger.info(`Creating long lived LFA invite code`)
@@ -584,52 +543,26 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
   //   }
   // }
 
-  public async joinCommunity(payload: InitCommunityPayload): Promise<Community | undefined> {
-    this.logger.info('Joining community: peers:', payload.peers)
-    const identity = await this.storageService.getIdentity(payload.id)
+  public async joinCommunity(payload: JoinCommunityPayload): Promise<Community | undefined> {
+    let identity = await this.storageService.getIdentity(payload.id)
 
     if (!identity) {
       emitError(this.serverIoProvider.io, {
-        type: SocketActionTypes.LAUNCH_COMMUNITY,
+        type: SocketActionTypes.JOIN_COMMUNITY,
         message: ErrorMessages.IDENTITY_NOT_FOUND,
         community: payload.id,
       })
       return
     }
-
-    const metadata = {
-      psk: payload.psk,
-      peers: payload.peers,
-      ownerOrbitDbIdentity: payload.ownerOrbitDbIdentity,
-      name: payload.name,
-    }
-
     const inviteData = payload.inviteData
     let communityName: string | undefined
     if (inviteData && inviteData?.version == InvitationDataVersion.v2) {
       communityName = (payload.inviteData as InvitationDataV2).authData.communityName
       this.sigChainService.createChainFromInvite(identity.nickname, communityName, inviteData.authData.seed, true)
     }
-
-    if (!metadata.peers || metadata.peers.length === 0) {
-      this.logger.error('Joining community: Peers required')
-      return
-    }
-
-    if (!metadata.psk || !isPSKcodeValid(metadata.psk)) {
-      this.logger.error('Joining community: Libp2p PSK is not valid')
+    if (!isPSKcodeValid(inviteData.psk)) {
       emitError(this.serverIoProvider.io, {
-        type: SocketActionTypes.LAUNCH_COMMUNITY,
-        message: ErrorMessages.NETWORK_SETUP_FAILED,
-        community: payload.id,
-      })
-      return
-    }
-
-    if (!metadata.ownerOrbitDbIdentity) {
-      this.logger.error('Joining community: ownerOrbitDbIdentity is not valid')
-      emitError(this.serverIoProvider.io, {
-        type: SocketActionTypes.LAUNCH_COMMUNITY,
+        type: SocketActionTypes.JOIN_COMMUNITY,
         message: ErrorMessages.NETWORK_SETUP_FAILED,
         community: payload.id,
       })
@@ -637,18 +570,26 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     }
 
     const localAddress = createLibp2pAddress(identity.hiddenService.onionAddress, identity.peerId.id)
-
+    const peers = pairsToP2pAddresses(payload.inviteData.pairs)
     const community = {
       id: payload.id,
       name: communityName,
-      peerList: [...new Set([localAddress, ...metadata.peers])],
-      psk: metadata.psk,
-      ownerOrbitDbIdentity: metadata.ownerOrbitDbIdentity,
+      peerList: [...new Set([localAddress, ...peers])],
       inviteData,
+      psk: inviteData.psk,
+      ownership: CommunityOwnership.User,
     }
 
     await this.localDbService.setCommunity(community)
     await this.localDbService.setCurrentCommunityId(community.id)
+
+    identity = {
+      ...identity,
+      id: payload.id,
+      userId: this.sigChainService.user.userId,
+    }
+    await this.storageService.setIdentity(identity)
+
     await this.launchCommunity(community)
     this.logger.info(`Joined and launched community ${community.id}`)
     return community
@@ -670,7 +611,7 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     } catch (e) {
       this.logger.error(`Failed to launch community ${community.id}`, e)
       emitError(this.serverIoProvider.io, {
-        type: SocketActionTypes.LAUNCH_COMMUNITY,
+        type: SocketActionTypes.JOIN_COMMUNITY,
         message: ErrorMessages.COMMUNITY_LAUNCH_FAILED,
         community: community.id,
         trace: e.stack,
@@ -776,21 +717,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     const setupStorage = async () => {
       this.logger.info('Setting up storage')
       await this.storageService.init(peerIdData.peerId)
-      // We can use Nest for dependency injection, but I think since the
-      // registration service depends on the storage service being
-      // initialized, this is helpful to manually inject the storage
-      // service for now. Both object construction and object
-      // initialization need to happen in order based on dependencies.
-      this.registrationService.init(this.storageService)
-      if (community.CA) {
-        this.registrationService.setPermsData({
-          certificate: community.CA.rootCertString,
-          privKey: community.CA.rootKeyString,
-        })
-      }
-      if (identity.userCsr?.userCsr) {
-        await this.storageService.saveCSR({ csr: identity.userCsr.userCsr })
-      }
     }
 
     if (this.sigChainService.getActiveChain().team != null) {
@@ -871,16 +797,16 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     )
     this.socketService.on(
       SocketActionTypes.CREATE_COMMUNITY,
-      async (args: InitCommunityPayload, callback: (response: Community | undefined) => void) => {
+      async (args: CreateCommunityPayload, callback: (response: Community | undefined) => void) => {
         this.logger.info(`socketService - ${SocketActionTypes.CREATE_COMMUNITY}`)
         callback(await this.createCommunity(args))
       }
     )
-    // TODO: Rename to JOIN_COMMUNITY?
+
     this.socketService.on(
-      SocketActionTypes.LAUNCH_COMMUNITY,
-      async (args: InitCommunityPayload, callback: (response: Community | undefined) => void) => {
-        this.logger.info(`socketService - ${SocketActionTypes.LAUNCH_COMMUNITY}`)
+      SocketActionTypes.JOIN_COMMUNITY,
+      async (args: JoinCommunityPayload, callback: (response: Community | undefined) => void) => {
+        this.logger.info(`socketService - ${SocketActionTypes.JOIN_COMMUNITY}`)
         callback(await this.joinCommunity(args))
       }
     )
@@ -954,10 +880,10 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
     // Username registration
 
-    this.socketService.on(SocketActionTypes.ADD_CSR, async (payload: SaveCSRPayload) => {
-      this.logger.info(`socketService - ${SocketActionTypes.ADD_CSR}`)
-      await this.storageService?.saveCSR(payload)
-    })
+    // this.socketService.on(SocketActionTypes.ADD_CSR, async (payload: SaveCSRPayload) => {
+    //   this.logger.info(`socketService - ${SocketActionTypes.ADD_CSR}`)
+    //   await this.storageService?.saveCSR(payload)
+    // })
 
     // Public Channels
 
@@ -1057,45 +983,45 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.storageService.on(SocketActionTypes.CONNECTION_PROCESS_INFO, data => {
       this.serverIoProvider.io.emit(SocketActionTypes.CONNECTION_PROCESS_INFO, data)
     })
-    this.storageService.on(StorageEvents.CERTIFICATES_STORED, (payload: SendCertificatesResponse) => {
-      this.logger.info(`Storage - ${StorageEvents.CERTIFICATES_STORED}`)
-      this.serverIoProvider.io.emit(SocketActionTypes.CERTIFICATES_STORED, payload)
-    })
+    // this.storageService.on(StorageEvents.CERTIFICATES_STORED, (payload: SendCertificatesResponse) => {
+    //   this.logger.info(`Storage - ${StorageEvents.CERTIFICATES_STORED}`)
+    //   this.serverIoProvider.io.emit(SocketActionTypes.CERTIFICATES_STORED, payload)
+    // })
     this.storageService.on(StorageEvents.COMMUNITY_UPDATED, (payload: Community) => {
       this.serverIoProvider.io.emit(SocketActionTypes.COMMUNITY_UPDATED, payload)
     })
-    this.storageService.on(StorageEvents.CSRS_STORED, async (payload: { csrs: string[] }) => {
-      this.logger.info(`Storage - ${StorageEvents.CSRS_STORED}`)
-      const users = await getUsersFromCsrs(payload.csrs)
-      this.logger.info(`CSRS => Users`, payload.csrs, users)
-      this.serverIoProvider.io.emit(SocketActionTypes.CSRS_STORED, payload)
-      this.libp2pService.dialUsers(users)
-      this.registrationService.emit(RegistrationEvents.REGISTER_USER_CERTIFICATE, payload)
-    })
-    this.storageService.on(StorageEvents.COMMUNITY_METADATA_STORED, async (meta: CommunityMetadata) => {
-      this.logger.info(`Storage - ${StorageEvents.COMMUNITY_METADATA_STORED}: ${meta}`)
-      const community = await this.localDbService.getCurrentCommunity()
+    // this.storageService.on(StorageEvents.CSRS_STORED, async (payload: { csrs: string[] }) => {
+    //   this.logger.info(`Storage - ${StorageEvents.CSRS_STORED}`)
+    //   const users = await getUsersFromCsrs(payload.csrs)
+    //   this.logger.info(`CSRS => Users`, payload.csrs, users)
+    //   this.serverIoProvider.io.emit(SocketActionTypes.CSRS_STORED, payload)
+    //   this.libp2pService.dialUsers(users)
+    //   this.registrationService.emit(RegistrationEvents.REGISTER_USER_CERTIFICATE, payload)
+    // })
+    // this.storageService.on(StorageEvents.COMMUNITY_METADATA_STORED, async (meta: CommunityMetadata) => {
+    //   this.logger.info(`Storage - ${StorageEvents.COMMUNITY_METADATA_STORED}: ${meta}`)
+    //   const community = await this.localDbService.getCurrentCommunity()
 
-      if (community) {
-        const rootCaCert = loadCertificate(meta.rootCa)
-        const communityName = getCertFieldValue(rootCaCert, CertFieldsTypes.commonName)
+    //   if (community) {
+    //     const rootCaCert = loadCertificate(meta.rootCa)
+    //     const communityName = getCertFieldValue(rootCaCert, CertFieldsTypes.commonName)
 
-        if (!communityName) {
-          this.logger.error(`Could not retrieve ${CertFieldsTypes.commonName} from CommunityMetadata.rootCa`)
-        }
+    //     if (!communityName) {
+    //       this.logger.error(`Could not retrieve ${CertFieldsTypes.commonName} from CommunityMetadata.rootCa`)
+    //     }
 
-        const updatedCommunity = {
-          ...community,
-          name: communityName ?? undefined,
-          rootCa: meta.rootCa,
-          ownerCertificate: meta.ownerCertificate,
-          ownerOrbitDbIdentity: meta.ownerOrbitDbIdentity,
-        }
-        await this.localDbService.setCommunity(updatedCommunity)
+    //     const updatedCommunity = {
+    //       ...community,
+    //       name: communityName ?? undefined,
+    //       rootCa: meta.rootCa,
+    //       ownerCertificate: meta.ownerCertificate,
+    //       ownerOrbitDbIdentity: meta.ownerOrbitDbIdentity,
+    //     }
+    //     await this.localDbService.setCommunity(updatedCommunity)
 
-        this.serverIoProvider.io.emit(SocketActionTypes.COMMUNITY_UPDATED, updatedCommunity)
-      }
-    })
+    //     this.serverIoProvider.io.emit(SocketActionTypes.COMMUNITY_UPDATED, updatedCommunity)
+    //   }
+    // })
     this.storageService.on(StorageEvents.USER_PROFILES_STORED, (payload: UserProfilesStoredEvent) => {
       this.serverIoProvider.io.emit(SocketActionTypes.USER_PROFILES_STORED, payload)
     })

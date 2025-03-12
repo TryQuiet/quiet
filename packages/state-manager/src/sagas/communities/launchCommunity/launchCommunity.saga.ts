@@ -10,7 +10,7 @@ import { getCurrentTime } from '../../messages/utils/message.utils'
 import { connectionSelectors } from '../../appConnection/connection.selectors'
 import { networkSelectors } from '../../network/network.selectors'
 import { pairsToP2pAddresses } from '@quiet/common'
-import { type Community, type InitCommunityPayload, SocketActionTypes } from '@quiet/types'
+import { type Community, type InitCommunityPayload, JoinCommunityPayload, SocketActionTypes } from '@quiet/types'
 import { createLogger } from '../../../utils/logger'
 
 const logger = createLogger('launchCommunitySaga')
@@ -44,28 +44,22 @@ export function* launchCommunitySaga(
   }
 
   const community = yield* select(communitiesSelectors.selectById(communityId))
+  const identity = yield* select(identitySelectors.selectById(communityId))
 
-  if (!community) {
+  if (!identity) {
+    logger.error('Could not create community - identity missing')
+    return
+  }
+
+  if (!community || !community.inviteData) {
     logger.error('Could not launch community, missing community or user private key')
     return
   }
 
-  const invitationCodes = yield* select(communitiesSelectors.invitationCodes)
-  let peerList: string[] = []
-
-  if (invitationCodes) {
-    peerList = pairsToP2pAddresses(invitationCodes)
-  } else {
-    peerList = yield* select(connectionSelectors.peerList)
-  }
-
-  const payload: InitCommunityPayload = {
+  const payload: JoinCommunityPayload = {
     id: community.id,
-    peers: peerList,
-    psk: community.psk,
-    ownerOrbitDbIdentity: community.ownerOrbitDbIdentity,
     inviteData: community.inviteData,
   }
   logger.info(`Launching community ${communityId} with payload`, payload)
-  yield* apply(socket, socket.emitWithAck, applyEmitParams(SocketActionTypes.LAUNCH_COMMUNITY, payload))
+  yield* apply(socket, socket.emitWithAck, applyEmitParams(SocketActionTypes.JOIN_COMMUNITY, payload))
 }

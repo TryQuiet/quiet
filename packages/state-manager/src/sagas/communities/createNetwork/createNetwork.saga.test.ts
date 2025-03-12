@@ -37,6 +37,7 @@ describe('createNetwork', () => {
       name: undefined,
       CA: null,
       rootCa: undefined,
+      ownership: CommunityOwnership.User,
     }
 
     const inviteData: InvitationDataV1 = validInvitationDatav1[0]
@@ -139,6 +140,7 @@ describe('createNetwork', () => {
       CA,
       rootCa: CA.rootCertString,
       inviteData: undefined,
+      ownership: CommunityOwnership.Owner,
     }
 
     const reducer = combineReducers(reducers)

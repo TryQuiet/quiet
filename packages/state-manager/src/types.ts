@@ -38,7 +38,7 @@ export interface EmitEvents {
   [SocketActionTypes.START]: () => void
   [SocketActionTypes.CLOSE]: () => void
   // ====== Communities ======
-  [SocketActionTypes.LAUNCH_COMMUNITY]: EmitEvent<InitCommunityPayload, (response: Community | undefined) => void>
+  [SocketActionTypes.JOIN_COMMUNITY]: EmitEvent<InitCommunityPayload, (response: Community | undefined) => void>
   [SocketActionTypes.CREATE_COMMUNITY]: EmitEvent<InitCommunityPayload, (response: Community | undefined) => void>
   [SocketActionTypes.LEAVE_COMMUNITY]: () => void
   // ====== Messages ======

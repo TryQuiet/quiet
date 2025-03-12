@@ -139,7 +139,7 @@ describe('User', () => {
             joinTimestamp: null,
           }
           return mockIdentity
-        case SocketActionTypes.LAUNCH_COMMUNITY:
+        case SocketActionTypes.JOIN_COMMUNITY:
           const payload = input[1] as InitCommunityPayload
           expect(payload.id).toEqual(community?.id)
           socket.socketClient.emit<ResponseLaunchCommunityPayload>(SocketActionTypes.COMMUNITY_LAUNCHED, {

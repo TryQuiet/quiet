@@ -54,10 +54,10 @@ export class RegistrationService extends EventEmitter implements OnModuleInit {
 
         // Await the processing function and make sure everything that
         // needs to be done in order is awaited inside this function.
-        await this.issueCertificates({
-          ...event,
-          certificates: (await this.storageService?.loadAllCertificates()) as string[],
-        })
+        // await this.issueCertificates({
+        //   ...event,
+        //   certificates: (await this.storageService?.loadAllCertificates()) as string[],
+        // })
 
         this.logger.info('Finished processing registration event')
         // Event processing finished

@@ -2,7 +2,7 @@ import { jest } from '@jest/globals'
 
 import { Test, TestingModule } from '@nestjs/testing'
 import { getFactory, identity, prepareStore, type Store, type communities } from '@quiet/state-manager'
-import { type Community, type Identity, type InitCommunityPayload } from '@quiet/types'
+import { CommunityOwnership, type Community, type Identity, type InitCommunityPayload } from '@quiet/types'
 import { type FactoryGirl } from 'factory-girl'
 import { TestModule } from '../common/test.module'
 import { removeFilesFromDir } from '../common/utils'
@@ -94,6 +94,7 @@ describe('ConnectionsManagerService', () => {
       id: community.id,
       name: community.name,
       peerList: [remotePeer],
+      ownership: CommunityOwnership.Owner,
     }
     // await localDbService.setSigChain(sigChain)
     await localDbService.setCommunity(actualCommunity)
