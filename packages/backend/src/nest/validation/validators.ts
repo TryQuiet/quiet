@@ -36,14 +36,16 @@ const messageMediaSchema = joi.object({
 
 const messageSchema = joi.object({
   id: joi.string().required(),
+  userId: joi.string().required(),
+  author: joi.string().required(),
   type: joi.number().required().positive().integer(),
   message: joi.alternatives(joi.string(), joi.binary()).required(),
   media: messageMediaSchema,
   createdAt: joi.number().required(),
   channelId: joi.string(),
   channelAddress: joi.string(),
-  signature: joi.string().required(),
-  pubKey: joi.string().required(),
+  signature: joi.string().optional(),
+  pubKey: joi.string().optional(),
 })
 
 const channelSchema = joi.object({

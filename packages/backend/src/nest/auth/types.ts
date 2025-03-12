@@ -10,6 +10,5 @@ export type SigChainSaveData = {
 export type SerializedSigChain = {
   serializedTeam: Uint8Array | undefined
   localUserContext: LocalUserContext
-  context: Context
   teamKeyRing: Keyring | undefined
 }

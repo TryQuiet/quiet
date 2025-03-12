@@ -1490,8 +1490,7 @@ describe('Channel', () => {
     })
 
     const verificationStatus: MessageVerificationStatus = {
-      publicKey: message.pubKey,
-      signature: message.signature,
+      id: message.id,
       isVerified: true,
     }
 

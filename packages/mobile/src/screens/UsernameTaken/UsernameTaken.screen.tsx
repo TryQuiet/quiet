@@ -14,7 +14,7 @@ const UsernameTakenScreen: React.FC<UsernameTakenScreenProps> = () => {
 
   const usernameRegistered = currentIdentity?.userCertificate != null
 
-  const registeredUsers = useSelector(users.selectors.certificatesMapping)
+  const registeredUsers = useSelector(users.selectors.allUsers)
 
   const handleBackButton = useCallback(() => {
     dispatch(navigationActions.pop())

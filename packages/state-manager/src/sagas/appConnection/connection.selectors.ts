@@ -1,7 +1,7 @@
 import { StoreKeys } from '../store.keys'
 import { createSelector } from 'reselect'
 import { type CreatedSelectors, type StoreState } from '../store.types'
-import { allUsers, areCertificatesLoaded } from '../users/users.selectors'
+import { allUsers } from '../users/users.selectors'
 import { peersStatsAdapter } from './connection.adapter'
 import { connectedPeers, isCurrentCommunityInitialized } from '../network/network.selectors'
 import { type NetworkStats } from './connection.types'
@@ -93,35 +93,18 @@ export const invitationUrl = createSelector(
   }
 )
 
-export const connectedPeersMapping = createSelector(allUsers, connectedPeers, (certificates, peers) => {
-  const usersData = Object.values(certificates)
-  return peers.reduce((peersMapping: Record<string, User>, peerId: string) => {
-    for (const user of usersData) {
-      if (peerId === user.peerId) {
-        return {
-          ...peersMapping,
-          [peerId]: user,
-        }
-      }
-    }
-    return peersMapping
-  }, {})
-})
-
 export const isJoiningCompleted = createSelector(
   isCurrentCommunityInitialized,
   areMessagesLoaded,
   areChannelsLoaded,
-  areCertificatesLoaded,
-  (isCommunity, areMessages, areChannels, areCertificates) => {
-    logger.info({ isCommunity, areMessages, areChannels, areCertificates })
-    return isCommunity && areMessages && areChannels && areCertificates
+  (isCommunity, areMessages, areChannels) => {
+    logger.info({ isCommunity, areMessages, areChannels })
+    return isCommunity && areMessages && areChannels
   }
 )
 
 export const connectionSelectors = {
   lastConnectedTime,
-  connectedPeersMapping,
   peerList,
   invitationUrl,
   longLivedInvite,

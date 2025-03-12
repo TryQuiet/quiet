@@ -23,6 +23,7 @@ export interface PeerId {
 
 export interface Identity {
   id: string
+  userId?: string
   nickname: string
   hiddenService: HiddenService
   peerId: PeerId

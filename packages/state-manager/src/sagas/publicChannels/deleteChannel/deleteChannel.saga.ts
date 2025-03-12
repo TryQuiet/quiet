@@ -5,7 +5,6 @@ import { type Socket, applyEmitParams } from '../../../types'
 import { filesActions } from '../../files/files.slice'
 import { SocketActionTypes } from '@quiet/types'
 import { publicChannelsSelectors } from '../publicChannels.selectors'
-import { usersSelectors } from '../../users/users.selectors'
 import { createLogger } from '../../../utils/logger'
 
 const logger = createLogger('deleteChannelSaga')
@@ -17,7 +16,6 @@ export function* deleteChannelSaga(
   const channelId = action.payload.channelId
   const generalChannel = yield* select(publicChannelsSelectors.generalChannel)
   const currentChannelId = yield* select(publicChannelsSelectors.currentChannelId)
-  const ownerData = yield* select(usersSelectors.ownerData)
   const payloadChannel = yield* select(publicChannelsSelectors.getChannelById(channelId))
 
   if (generalChannel === undefined) return
@@ -32,9 +30,14 @@ export function* deleteChannelSaga(
     socket.emitWithAck,
     applyEmitParams(SocketActionTypes.DELETE_CHANNEL, {
       channelId,
-      ownerPeerId: ownerData?.peerId,
     })
   )
+
+  // TODO: handle case when user does not have permission to delete channel
+  if (!response || !response.deleted) {
+    logger.info('Failed to delete channel')
+    return
+  }
 
   yield* put(filesActions.deleteFilesFromChannel({ channelId }))
 

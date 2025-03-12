@@ -71,20 +71,20 @@ describe('Validators - Messages', () => {
       message: 'hello',
       createdAt: 1234567,
       channelId: '123n23l234lk234',
-      signature: 'asdfasdf',
-      pubKey: 'afsdf',
+      author: 'szakalak',
+      userId: 'szakalak',
     }
     expect(isMessage(msg)).toBeTruthy()
   })
   test('message with media is valid', () => {
     const msg: ChannelMessage = {
       id: 'fzxjdiasf8ashfisfd',
+      author: 'szakalak',
+      userId: 'szakalak',
       type: 1,
       message: 'hello',
       createdAt: 1234567,
       channelId: '123n23l234lk234',
-      signature: 'asdfasdf',
-      pubKey: 'afsdf',
       media: {
         cid: '123',
         message: {
@@ -104,8 +104,6 @@ describe('Validators - Messages', () => {
       message: 'hello',
       createdAt: 1234567,
       channelId: '123n23l234lk234',
-      signature: 'asdfasdf',
-      pubKey: 'afsdf',
     }
     expect(isMessage(msg as ChannelMessage)).toBeFalsy()
   })
@@ -116,8 +114,6 @@ describe('Validators - Messages', () => {
       message: 123,
       createdAt: 1234567,
       channelId: '123n23l234lk234',
-      signature: 'asdfasdf',
-      pubKey: 'afsdf',
     }
     expect(isMessage(msg as unknown as ChannelMessage)).toBeFalsy()
   })
@@ -125,11 +121,11 @@ describe('Validators - Messages', () => {
     const msg = {
       id: 'fzxjdiasf8ashfisfd',
       type: 1,
+      author: 'szakalak',
+      userId: 'szakalak',
       message: 'hello',
       createdAt: 1234567,
       channelId: '123n23l234lk234',
-      signature: 'asdfasdf',
-      pubKey: 'afsdf',
       media: {
         message: {
           id: 'fzxjdiasf8ashfisfd',
@@ -164,7 +160,7 @@ describe('Validators - Channels', () => {
     }
     expect(isChannel(channel as unknown as PublicChannel)).toBeFalsy()
   })
-  test('message proprty has wrong format', () => {
+  test('message property has wrong format', () => {
     const channel = {
       name: 'quiet',
       description: 'quiet',

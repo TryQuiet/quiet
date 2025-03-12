@@ -72,7 +72,6 @@ describe('messagesSelectors', () => {
       ).payload.message,
       id: Math.random().toString(36).substr(2.9),
       channelId: generalChannel.id,
-      pubKey: johnPublicKey,
     }
 
     // Store messages

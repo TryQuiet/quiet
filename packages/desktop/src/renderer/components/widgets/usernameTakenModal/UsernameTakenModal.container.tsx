@@ -22,7 +22,7 @@ const UsernameTakenModalContainer = () => {
 
   const modal = useModal(ModalName.usernameTakenModal)
 
-  const registeredUsernames = useSelector(users.selectors.registeredUsernames)
+  const registeredUsernames = useSelector(users.selectors.allUsers)
 
   const user = useSelector(identity.selectors.currentIdentity)
 
@@ -38,7 +38,11 @@ const UsernameTakenModalContainer = () => {
       }
 
       // Trying to register another already taken username
-      if (registeredUsernames.has(nickname)) {
+      if (
+        Object.values(registeredUsernames)
+          .map(u => u.username)
+          .includes(nickname)
+      ) {
         setRegistrationError(`${nickname} is already taken`)
       }
 

@@ -81,7 +81,7 @@ describe('MessagesService', () => {
             author: expect.objectContaining({
               generation: 0,
               type: EncryptionScopeType.USER,
-              name: sigChainService.getActiveChain().localUserContext.user.userId,
+              name: sigChainService.getActiveChain().user.userId,
             }),
             signature: expect.any(String),
           }),

@@ -177,12 +177,12 @@ export const displayableCurrentChannelMessages = createSelector(
   userProfiles,
   (messages, users, userProfiles: Record<string, UserProfile>) => {
     return messages.reduce((result: DisplayableMessage[], message: ChannelMessage) => {
-      const user = users[message.pubKey]
+      const user = users[message.userId!]
       if (user) {
         // @ts-ignore
-        result.push(displayableMessage(message, user, userProfiles[message.pubKey]))
+        result.push(displayableMessage(message, user, userProfiles[message.userId]))
       } else {
-        logger.warn('Received a message from a user that does not exist', message.id, message.pubKey, users)
+        logger.warn('Received a message from a user that does not exist', message.id, message.author, users)
       }
       return result
     }, [])
@@ -232,7 +232,7 @@ export const currentChannelMessagesMergedBySender = createSelector(
         const last = merged[index][0]
 
         if (
-          last?.pubKey === message?.pubKey &&
+          last?.userId === message?.userId &&
           message.createdAt - last.createdAt < 300 &&
           message.type !== MessageType.Info &&
           last.type !== MessageType.Info

@@ -6,7 +6,7 @@ import * as dagCbor from '@ipld/dag-cbor'
 import { sha256 } from 'multiformats/hashes/sha2'
 
 import { sign, loadPrivateKey, pubKeyFromCsr, configCrypto } from '@quiet/identity'
-import { UserProfile, UserProfileData, SocketActionTypes } from '@quiet/types'
+import { UserProfile, UserProfileDisplayData, SocketActionTypes } from '@quiet/types'
 import { fileToBase64String } from '@quiet/common'
 
 import { identitySelectors } from '../../identity/identity.selectors'
@@ -30,7 +30,7 @@ export function* saveUserProfileSaga(socket: Socket, action: PayloadAction<{ pho
     return
   }
 
-  const profile: UserProfileData = { photo: base64EncodedPhoto }
+  const profile: UserProfileDisplayData = { photo: base64EncodedPhoto, nickname: identity.nickname }
   const codec = dagCbor
   const hasher = sha256
   const { bytes } = yield* call(Block.encode, { value: profile, codec: codec, hasher: hasher })
@@ -42,7 +42,7 @@ export function* saveUserProfileSaga(socket: Socket, action: PayloadAction<{ pho
   const userProfile: UserProfile = {
     profile: profile,
     profileSig: signature,
-    pubKey,
+    userId: pubKey,
   }
 
   logger.info('Saving user profile', userProfile)

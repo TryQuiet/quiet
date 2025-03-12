@@ -82,21 +82,15 @@ export const CreateChannelScreen: FC = () => {
         )
         return
       }
+      const id = generateChannelId(name)
 
-      // Create channel
-      const channel: PublicChannel = {
-        name,
-        description: `Welcome to #${name}`,
-        owner: user.nickname,
-        id: generateChannelId(name),
-        timestamp: DateTime.utc().valueOf(),
-      }
-
-      setChannel({ channelId: channel.id, channelName: channel.name })
+      setChannel({ channelId: id, channelName: name })
 
       dispatch(
         publicChannels.actions.createChannel({
-          channel,
+          name: name,
+          description: `Welcome to #${name}`,
+          id: id,
         })
       )
     },

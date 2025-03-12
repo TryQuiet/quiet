@@ -2,7 +2,7 @@
  * Handles channel-related chain operations
  */
 
-import { LocalUserContext, Role } from '@localfirst/auth'
+import { MemberContext, Role } from '@localfirst/auth'
 import { SigChain } from '../../sigchain'
 import { ChainServiceBase } from '../chainServiceBase'
 import { Channel, QuietRole } from './roles'
@@ -13,17 +13,17 @@ const logger = createLogger('auth:channelService')
 const CHANNEL_ROLE_KEY_PREFIX = 'priv_chan_'
 
 class ChannelService extends ChainServiceBase {
-  public static init(sigChain: SigChain): ChannelService {
-    return new ChannelService(sigChain)
+  constructor(sigChain: SigChain) {
+    super(sigChain)
   }
 
   // TODO: figure out permissions
-  public createPrivateChannel(channelName: string, context: LocalUserContext): Channel {
+  public createPrivateChannel(channelName: string): Channel {
     logger.info(`Creating private channel role with name ${channelName}`)
     this.sigChain.roles.create(ChannelService.getPrivateChannelRoleName(channelName))
-    this.addMemberToPrivateChannel(context.user.userId, channelName)
+    this.addMemberToPrivateChannel(this.sigChain.user.userId, channelName)
 
-    return this.getChannel(channelName, context)
+    return this.getChannel(channelName)
   }
 
   public addMemberToPrivateChannel(userId: string, channelName: string) {
@@ -41,22 +41,22 @@ class ChannelService extends ChainServiceBase {
     this.sigChain.roles.delete(ChannelService.getPrivateChannelRoleName(channelName))
   }
 
-  public leaveChannel(channelName: string, context: LocalUserContext) {
+  public leaveChannel(channelName: string) {
     logger.info(`Leaving private channel with name ${channelName}`)
-    this.revokePrivateChannelMembership(context.user.userId, channelName)
+    this.revokePrivateChannelMembership(this.sigChain.user.userId, channelName)
   }
 
-  public getChannel(channelName: string, context: LocalUserContext): Channel {
-    const role = this.sigChain.roles.getRole(ChannelService.getPrivateChannelRoleName(channelName), context)
-    return this.roleToChannel(role, channelName, context)
+  public getChannel(channelName: string): Channel {
+    const role = this.sigChain.roles.getRole(ChannelService.getPrivateChannelRoleName(channelName))
+    return this.roleToChannel(role, channelName)
   }
 
-  public getChannels(context: LocalUserContext, haveAccessOnly: boolean = false): Channel[] {
-    const allRoles = this.sigChain.roles.getAllRoles(context, haveAccessOnly)
+  public getChannels(haveAccessOnly: boolean = false): Channel[] {
+    const allRoles = this.sigChain.roles.getAllRoles(haveAccessOnly)
     const allChannels = allRoles
-      .filter((role: QuietRole) => this.isRoleChannel(context, role.roleName))
+      .filter((role: QuietRole) => this.isRoleChannel(role.roleName))
       .map((role: QuietRole) =>
-        this.roleToChannel(role, ChannelService.getPrivateChannelNameFromRoleName(role.roleName), context)
+        this.roleToChannel(role, ChannelService.getPrivateChannelNameFromRoleName(role.roleName))
       )
 
     return allChannels
@@ -67,13 +67,13 @@ class ChannelService extends ChainServiceBase {
     return this.sigChain.roles.memberHasRole(userId, roleName)
   }
 
-  public amIInChannel(context: LocalUserContext, channelName: string): boolean {
-    return this.memberInChannel(context.user.userId, channelName)
+  public amIInChannel(channelName: string): boolean {
+    return this.memberInChannel(this.sigChain.user.userId, channelName)
   }
 
-  public isRoleChannel(context: LocalUserContext, roleName: string): boolean
-  public isRoleChannel(context: LocalUserContext, role: QuietRole | Role): boolean
-  public isRoleChannel(context: LocalUserContext, roleNameOrRole: string | QuietRole | Role): boolean {
+  public isRoleChannel(roleName: string): boolean
+  public isRoleChannel(role: QuietRole | Role): boolean
+  public isRoleChannel(roleNameOrRole: string | QuietRole | Role): boolean {
     let roleName: string
     if (typeof roleNameOrRole === 'string') {
       roleName = roleNameOrRole
@@ -84,7 +84,7 @@ class ChannelService extends ChainServiceBase {
     return roleName.startsWith(CHANNEL_ROLE_KEY_PREFIX)
   }
 
-  private roleToChannel(role: QuietRole, channelName: string, context: LocalUserContext): Channel {
+  private roleToChannel(role: QuietRole, channelName: string): Channel {
     return {
       ...role,
       channelName,

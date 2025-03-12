@@ -318,7 +318,7 @@ export class StorageService extends EventEmitter {
   }
 
   public async addUserProfile(profile: UserProfile) {
-    await this.userProfileStore.setEntry(profile.pubKey, profile)
+    await this.userProfileStore.setEntry(profile.userId, profile)
   }
 
   public async setIdentity(identity: Identity) {

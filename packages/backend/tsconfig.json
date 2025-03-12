@@ -13,12 +13,13 @@
     "strictPropertyInitialization": false,
     "module": "esnext",
     "moduleResolution": "node",
+    "types": ["jest"],
     "typeRoots": [
       "../@types",
       "./node_modules/@types",
-      "../../3rd-party/auth/packages/auth/src",
-      "../../3rd-party/auth/packages/crdx/src",
-      "../../3rd-party/js-libp2p-noise/src",
+      "../../3rd-party/auth/packages/auth/dist",
+      "../../3rd-party/crdx/packages/crdx/dist",
+      "../../3rd-party/js-libp2p-noise/dist"
     ],
   },
   "include": [

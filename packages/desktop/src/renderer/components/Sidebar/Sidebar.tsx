@@ -22,7 +22,7 @@ const Sidebar = () => {
   const currentCommunity = useSelector(communities.selectors.currentCommunity)
   const currentChannelId = useSelector(publicChannels.selectors.currentChannelId)
   const currentIdentity = useSelector(identity.selectors.currentIdentity)
-  const currentPubKey = useSelector(identity.selectors.currentPubKey)
+  const userId = useSelector(users.selectors.myUserId) || ''
   const userProfile = useSelector(users.selectors.myUserProfile)
 
   // Workaround for Redux bug, issue: https://github.com/TryQuiet/quiet/issues/1332
@@ -57,7 +57,7 @@ const Sidebar = () => {
 
   const userProfilePanelProps: UserProfilePanelProps = {
     currentIdentity: currentIdentity,
-    pubKey: currentPubKey,
+    userId: userId,
     userProfile: userProfile,
     userProfileContextMenu: userProfileContextMenu,
   }

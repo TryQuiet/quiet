@@ -6,13 +6,13 @@ export const displayableMessage = (message: ChannelMessage, user: User, profile?
   return {
     id: message.id,
     type: message.type,
+    userId: message.userId,
     message: message.message,
     createdAt: message.createdAt,
     date,
     nickname: user.username,
     isRegistered: user.isRegistered,
     isDuplicated: user.isDuplicated,
-    pubKey: user.pubKey,
     media: message.media,
     photo: profile?.profile.photo,
   }

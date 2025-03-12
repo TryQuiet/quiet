@@ -137,8 +137,7 @@ export const messagesSlice = createSlice({
     ) => {
       const { message, isVerified } = action.payload
       messageVerificationStatusAdapter.upsertOne(state.messageVerificationStatus, {
-        publicKey: message.pubKey,
-        signature: message.signature,
+        id: message.id,
         isVerified,
       })
     },

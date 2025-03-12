@@ -67,6 +67,7 @@ describe('channelDeletionResponseSaga', () => {
         channelDeletionResponseSaga,
         publicChannelsActions.channelDeletionResponse({
           channelId,
+          deleted: true,
         })
       )
         .withReducer(reducer)
@@ -87,6 +88,7 @@ describe('channelDeletionResponseSaga', () => {
         channelDeletionResponseSaga,
         publicChannelsActions.channelDeletionResponse({
           channelId,
+          deleted: true,
         })
       )
         .withReducer(reducer)
@@ -110,6 +112,7 @@ describe('channelDeletionResponseSaga', () => {
         channelDeletionResponseSaga,
         publicChannelsActions.channelDeletionResponse({
           channelId,
+          deleted: false,
         })
       )
         .withReducer(reducer)
@@ -134,6 +137,7 @@ describe('channelDeletionResponseSaga', () => {
         channelDeletionResponseSaga,
         publicChannelsActions.channelDeletionResponse({
           channelId,
+          deleted: true,
         })
       )
         .withReducer(reducer)
@@ -167,6 +171,7 @@ describe('channelDeletionResponseSaga', () => {
         channelDeletionResponseSaga,
         publicChannelsActions.channelDeletionResponse({
           channelId,
+          deleted: true,
         })
       )
         .withReducer(reducer)
@@ -201,6 +206,7 @@ describe('channelDeletionResponseSaga', () => {
         channelDeletionResponseSaga,
         publicChannelsActions.channelDeletionResponse({
           channelId,
+          deleted: true,
         })
       )
         .withReducer(reducer)
@@ -222,6 +228,7 @@ describe('channelDeletionResponseSaga', () => {
         channelDeletionResponseSaga,
         publicChannelsActions.channelDeletionResponse({
           channelId,
+          deleted: false,
         })
       )
         .withReducer(reducer)

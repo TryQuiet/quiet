@@ -14,6 +14,7 @@ import {
   SocketActionTypes,
   ChannelMessageIdsResponse,
   DeleteChannelResponse,
+  CreateChannelPayload,
 } from '@quiet/types'
 import fs from 'fs'
 import { IpfsFileManagerService } from '../../ipfs-file-manager/ipfs-file-manager.service'
@@ -29,6 +30,7 @@ import { createContextId, ModuleRef } from '@nestjs/core'
 import { SigChainService } from '../../auth/sigchain.service'
 import { EncryptedAndSignedPayload, EncryptionScopeType } from '../../auth/services/crypto/types'
 import { RoleName } from '../../auth/services/roles/roles'
+import { DateTime } from 'luxon'
 
 /**
  * Manages storage-level logic for all channels in Quiet
@@ -286,6 +288,27 @@ export class ChannelsService extends EventEmitter {
   }
 
   /**
+   * Handle create channel event from frontend and create a new channel store
+   *
+   * @param payload Payload containing metadata for new channel
+   * @returns Response containing metadata for new channel
+   */
+  public async handleCreateChannel(payload: CreateChannelPayload): Promise<CreateChannelResponse> {
+    const channelData: PublicChannel = {
+      id: payload.id,
+      name: payload.name,
+      description: payload.description ?? '',
+      owner: this.sigchainService.getActiveChain().user.userId,
+      timestamp: DateTime.utc().valueOf(),
+    }
+    const store = await this.createChannel(channelData)
+    if (!store) {
+      throw new Error('Failed to create channel')
+    }
+    return { channel: channelData }
+  }
+
+  /**
    * Creates a new channel store with the supplied metadata, if it doesn't exist, and subscribes
    * to new events on the store, if it didn't already exist.
    *
@@ -367,36 +390,39 @@ export class ChannelsService extends EventEmitter {
    * @returns Response containing metadata on the channel that was deleted
    * @throws Error
    */
-  public async deleteChannel(payload: { channelId: string; ownerPeerId: string }): Promise<DeleteChannelResponse> {
+  public async deleteChannel(payload: { channelId: string }): Promise<DeleteChannelResponse> {
     this.logger.info('Deleting channel', payload)
-    const { channelId, ownerPeerId } = payload
+    const { channelId } = payload
     const channel = await this.getChannel(channelId)
-    if (!this.peerId) {
-      this.logger.error('deleteChannel - peerId is null')
-      throw new Error('deleteChannel - peerId is null')
-    }
-    const isOwner = ownerPeerId === this.peerId.toString()
+    const isOwner = channel?.owner === this.sigchainService.getActiveChain().user.userId
+    // NOTE: this doesn't prevent other users from deleting channels they don't own if they modify the client
+    // TODO: invalidate removals from non-owners
     if (channel && isOwner) {
       if (!this.channels) {
         throw new Error('Channels have not been initialized!')
       }
       await this.channels.del(channelId)
+    } else {
+      this.logger.error(`User is not the owner of the channel ${channelId}`)
+      return { channelId, deleted: false } as DeleteChannelResponse
     }
+
     const repo = this.publicChannelsRepos.get(channelId)
     let store = repo?.store
+    // TODO: do we need to create a temporary store if it doesn't exist?
     if (store == null) {
       const channelData: PublicChannel = channel ?? {
         id: channelId,
         name: 'undefined',
-        owner: ownerPeerId,
+        owner: this.sigchainService.getActiveChain().user.userId,
         description: 'undefined',
-        timestamp: 0,
+        timestamp: DateTime.utc().valueOf(),
       }
       store = await this.createChannelStore(channelData)
     }
     await store.deleteChannel()
     this.publicChannelsRepos.delete(channelId)
-    return { channelId }
+    return { channelId, deleted: true } as DeleteChannelResponse
   }
 
   // Messages

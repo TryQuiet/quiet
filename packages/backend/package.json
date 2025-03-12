@@ -4,7 +4,7 @@
   "description": "tlg-manager",
   "types": "lib/index.d.ts",
   "type": "module",
-  "exports": "lib/index.js",
+  "exports": "./lib/index.js",
   "author": "",
   "license": "GPL-3.0-or-later",
   "private": true,

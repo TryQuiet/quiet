@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import CreateChannelComponent from './CreateChannelComponent'
 import { communities, errors, identity, publicChannels } from '@quiet/state-manager'
-import { ErrorCodes, ErrorMessages, PublicChannel, SocketActionTypes } from '@quiet/types'
+import { CreateChannelPayload, ErrorCodes, ErrorMessages, PublicChannel, SocketActionTypes } from '@quiet/types'
 import { DateTime } from 'luxon'
 import { useModal } from '../../../containers/hooks'
 import { ModalName } from '../../../sagas/modals/modals.types'
@@ -72,23 +72,13 @@ export const CreateChannel = () => {
       )
       return
     }
-    // Move to state manager
-    // Create channel
-    const channel: PublicChannel = {
-      name: name,
-      description: `Welcome to #${name}`,
-      owner: user.nickname,
-      id: generateChannelId(name),
-      timestamp: DateTime.utc().valueOf(),
-    }
-    flushSync(() => {
-      // TODO: maybe add a better fix. React 18 does not perform rerenders inside callback functions
-      setNewChannel(channel)
-    })
+
     dispatch(
       publicChannels.actions.createChannel({
-        channel: channel,
-      })
+        id: generateChannelId(name),
+        name: name,
+        description: `Welcome to #${name}`,
+      } as CreateChannelPayload)
     )
   }
   return (

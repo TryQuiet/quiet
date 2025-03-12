@@ -2,15 +2,7 @@ import { createSlice, type EntityState, type PayloadAction } from '@reduxjs/tool
 import { DateTime } from 'luxon'
 import { StoreKeys } from '../store.keys'
 import { identityAdapter } from './identity.adapter'
-import {
-  type UpdateJoinTimestampPayload,
-  type CreateUserCsrPayload,
-  type Identity,
-  type RegisterCertificatePayload,
-  type StoreUserCertificatePayload,
-  type RegisterUsernamePayload,
-  SendCsrsResponse,
-} from '@quiet/types'
+import { type UpdateJoinTimestampPayload, type Identity, type RegisterUsernamePayload } from '@quiet/types'
 import { createLogger } from '../../utils/logger'
 
 const logger = createLogger('identity:slice')
@@ -40,25 +32,6 @@ export const identitySlice = createSlice({
       }
     },
     registerUsername: (state, _action: PayloadAction<RegisterUsernamePayload>) => state,
-    addCsr: (state, action: PayloadAction<RegisterCertificatePayload>) => {
-      identityAdapter.updateOne(state.identities, {
-        id: action.payload.communityId,
-        changes: {
-          nickname: action.payload.nickname,
-          userCsr: action.payload.userCsr,
-        },
-      })
-    },
-    storeUserCertificate: (state, action: PayloadAction<StoreUserCertificatePayload>) => {
-      identityAdapter.updateOne(state.identities, {
-        id: action.payload.communityId,
-        changes: {
-          userCertificate: action.payload.userCertificate,
-          joinTimestamp: DateTime.utc().valueOf(),
-        },
-      })
-    },
-    saveUserCsr: state => state,
     verifyJoinTimestamp: state => state,
     updateJoinTimestamp: (state, action: PayloadAction<UpdateJoinTimestampPayload>) => {
       identityAdapter.updateOne(state.identities, {

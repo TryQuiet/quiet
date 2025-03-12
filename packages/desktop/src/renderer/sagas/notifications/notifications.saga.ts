@@ -36,8 +36,7 @@ export function* displayMessageNotificationSaga(
   const currentChannelId = yield* select(publicChannels.selectors.currentChannelId)
   const publicChannelsSelector = yield* select(publicChannels.selectors.publicChannels)
 
-  const currentIdentity = yield* select(identity.selectors.currentIdentity)
-  const allUsers = yield* select(users.selectors.allUsers)
+  const myUserId = yield* select(users.selectors.myUserId)
 
   const lastConnectedTime = yield* select(connection.selectors.lastConnectedTime)
 
@@ -54,8 +53,8 @@ export function* displayMessageNotificationSaga(
     if (focused && message.channelId === currentChannelId) return
 
     // Do not display notifications for own messages
-    const sender = allUsers[message.pubKey]?.username
-    if (!sender || sender === currentIdentity?.nickname) return
+    const sender = message.userId
+    if (!sender || sender === myUserId) return
 
     // Do not display notifications if turned off in configuration
     if (notificationsConfig === NotificationsOptions.doNotNotifyOfAnyMessages) return

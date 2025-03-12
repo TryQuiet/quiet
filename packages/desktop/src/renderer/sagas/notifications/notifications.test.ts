@@ -350,7 +350,7 @@ describe('displayNotificationsSaga', () => {
       messages: [
         {
           ...message,
-          pubKey: 'fake',
+          userId: 'fake',
         },
       ],
       isVerified: true,

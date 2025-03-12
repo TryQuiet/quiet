@@ -141,7 +141,7 @@ describe('ChannelsService', () => {
     it('deletes channel as owner', async () => {
       await channelsService.subscribeToChannel(channelio)
 
-      const result = await channelsService.deleteChannel({ channelId: channelio.id, ownerPeerId: peerId.toString() })
+      const result = await channelsService.deleteChannel({ channelId: channelio.id })
       expect(result).toEqual({ channelId: channelio.id })
 
       const channelFromKeyValueStore = (await channelsService.getChannels()).filter(x => x.id === channelio.id)
@@ -151,7 +151,7 @@ describe('ChannelsService', () => {
     it('delete channel as standard user', async () => {
       await channelsService.subscribeToChannel(channelio)
 
-      const result = await channelsService.deleteChannel({ channelId: channelio.id, ownerPeerId: 'random peer id' })
+      const result = await channelsService.deleteChannel({ channelId: channelio.id })
       expect(result).toEqual({ channelId: channelio.id })
 
       const channelFromKeyValueStore = (await channelsService.getChannels()).filter(x => x.id === channelio.id)
@@ -186,7 +186,7 @@ describe('ChannelsService', () => {
           author: {
             generation: 0,
             type: 'USER',
-            name: sigChainService.getActiveChain().localUserContext.user.userId,
+            name: sigChainService.getActiveChain().user.userId,
           },
           signature: expect.any(String),
         }),

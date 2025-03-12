@@ -1,5 +1,3 @@
-import { Certificates } from '@quiet/types'
-
 export enum StorageEvents {
   // Public Channels
   CHANNEL_SUBSCRIBED = 'channelSubscribed',

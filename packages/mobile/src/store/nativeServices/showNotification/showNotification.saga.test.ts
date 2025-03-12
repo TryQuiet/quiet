@@ -50,8 +50,8 @@ describe('showNotificationSaga', () => {
     message: string
     createdAt: number
     channelId: string
-    signature: string
-    pubKey: string
+    userId: string
+    author: string
     media?: FileMetadata
     channelName: string
   }
@@ -88,8 +88,8 @@ describe('showNotificationSaga', () => {
       createdAt: 0,
       id: 'id',
       message: 'message',
-      pubKey: 'pubKey',
-      signature: 'signature',
+      userId: 'userId',
+      author: 'author',
       type: 1,
     }
 
@@ -135,7 +135,7 @@ describe('showNotificationSaga', () => {
       )
       .provide([
         [call.fn(NativeModules.CommunicationModule.handleIncomingEvents), null],
-        [select(users.selectors.allUsers), { pubKey: { username } }],
+        [select(users.selectors.allUsers), { userId: { username } }],
       ])
       .call(JSON.stringify, messageWithChannelName)
       .call(
@@ -180,7 +180,7 @@ describe('showNotificationSaga', () => {
       )
       .provide([
         [call.fn(NativeModules.CommunicationModule.handleIncomingEvents), null],
-        [select(users.selectors.certificatesMapping), { pubKey: { username } }],
+        [select(users.selectors.allUsers), { userId: { username } }],
       ])
       .not.call(NativeModules.CommunicationModule.handleIncomingEvents)
       .run()
@@ -219,7 +219,7 @@ describe('showNotificationSaga', () => {
       )
       .provide([
         [call.fn(NativeModules.CommunicationModule.handleIncomingEvents), null],
-        [select(users.selectors.certificatesMapping), { pubKey: { username } }],
+        [select(users.selectors.allUsers), { userId: { username } }],
       ])
       .not.call(NativeModules.CommunicationModule.handleIncomingEvents)
       .run()

@@ -7,21 +7,27 @@ export interface UserData {
 export interface User extends UserData {
   isRegistered: boolean
   isDuplicated: boolean
-  pubKey: string
+  userId: string
 }
 
-export interface UserProfileData {
+export interface UserProfileDisplayData {
   photo: string // base64 encoded image
+  nickname: string
+  bio?: string
 }
 
 export interface UserProfile {
-  profile: UserProfileData
-  profileSig: string
-  pubKey: string
+  profile: UserProfileDisplayData
+  profileSig?: string // deprecated
+  userId: string
 }
 
 export interface UserProfilesStoredEvent {
   profiles: UserProfile[]
+}
+
+export interface UsersUpdatedEvent {
+  users: User[]
 }
 
 export interface SendCertificatesResponse {

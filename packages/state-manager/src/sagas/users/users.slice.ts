@@ -1,14 +1,13 @@
-import { createSlice, type EntityState, type PayloadAction } from '@reduxjs/toolkit'
-import { keyFromCertificate, parseCertificate, parseCertificationRequest } from '@quiet/identity'
+import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
 import { StoreKeys } from '../store.keys'
-import { certificatesAdapter } from './users.adapter'
-import { SendCsrsResponse, type SendCertificatesResponse, UserProfile } from '@quiet/types'
+import { UserProfile, User } from '@quiet/types'
 
 export class UsersState {
-  public certificates: EntityState<any> = certificatesAdapter.getInitialState()
-  public csrs: EntityState<any> = certificatesAdapter.getInitialState()
-  // Mapping of pubKey to UserProfile
+  // Mapping of userId to UserProfile
   public userProfiles: Record<string, UserProfile> = {}
+  public users: Record<string, User> = {}
+  // TODO: replace localUserContext with object with keys stripped
+  public myUserId: string | null = null
 }
 
 export const usersSlice = createSlice({
@@ -16,42 +15,6 @@ export const usersSlice = createSlice({
   name: StoreKeys.Users,
   reducers: {
     // Utility action for testing purposes
-    storeUserCertificate: (state, action: PayloadAction<{ certificate: string }>) => {
-      certificatesAdapter.addOne(state.certificates, parseCertificate(action.payload.certificate))
-    },
-    responseSendCertificates: (state, _action: PayloadAction<SendCertificatesResponse>) => state,
-    setAllCerts: (state, action: PayloadAction<SendCertificatesResponse>) => {
-      certificatesAdapter.setAll(
-        state.certificates,
-        Object.values(action.payload.certificates).map(item => {
-          if (!item) {
-            return
-          }
-          return parseCertificate(item)
-        })
-      )
-    },
-    storeCsrs: (state, action: PayloadAction<SendCsrsResponse>) => {
-      certificatesAdapter.upsertMany(
-        state.csrs,
-        Object.values(action.payload.csrs).map(item => {
-          if (!item) {
-            return
-          }
-          return parseCertificationRequest(item)
-        })
-      )
-    },
-    // Utility action for testing purposes
-    test_remove_user_certificate: (state, action: PayloadAction<{ certificate: string }>) => {
-      certificatesAdapter.removeOne(
-        state.certificates,
-        keyFromCertificate(parseCertificate(action.payload.certificate))
-      )
-    },
-    test_remove_user_csr: (state, action: PayloadAction<{ csr: string }>) => {
-      certificatesAdapter.removeOne(state.csrs, keyFromCertificate(parseCertificationRequest(action.payload.csr)))
-    },
     saveUserProfile: (state, _action: PayloadAction<{ photo?: File }>) => state,
     setUserProfiles: (state, action: PayloadAction<UserProfile[]>) => {
       // Creating user profiles object for backwards compatibility with 2.0.1
@@ -59,8 +22,37 @@ export const usersSlice = createSlice({
         state.userProfiles = {}
       }
       for (const userProfile of action.payload) {
-        state.userProfiles[userProfile.pubKey] = userProfile
+        state.userProfiles[userProfile.userId] = userProfile
       }
+      return state
+    },
+    deleteUserProfile: (state, action: PayloadAction<string>) => {
+      delete state.userProfiles[action.payload]
+      return state
+    },
+    setUsers: (state, action: PayloadAction<User[]>) => {
+      state.users = {}
+      for (const user of action.payload) {
+        state.users[user.userId] = user
+      }
+      return state
+    },
+    deleteUsers: (state, action: PayloadAction<User[]>) => {
+      for (const user of action.payload) {
+        try {
+          delete state.users[user.userId]
+        } catch (e) {
+          // User not found
+        }
+      }
+      return state
+    },
+    clearUsers: state => {
+      state.users = {}
+      return state
+    },
+    setMyUserId: (state, action: PayloadAction<string>) => {
+      state.myUserId = action.payload
       return state
     },
   },

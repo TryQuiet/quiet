@@ -87,6 +87,7 @@
   "devDependencies": {
     "@babel/core": "^7.24.5",
     "@babel/plugin-transform-flow-strip-types": "^7.24.1",
+    "@localfirst/auth": "file:../../3rd-party/auth/packages/auth/dist",
     "@babel/plugin-transform-private-methods": "^7.24.1",
     "@babel/preset-env": "^7.24.5",
     "@babel/runtime": "^7.24.5",

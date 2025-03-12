@@ -20,7 +20,7 @@ const LoadingPanel = () => {
   const isChannelReplicated = Boolean(useSelector(publicChannels.selectors.publicChannels)?.length > 0)
   const community = useSelector(communities.selectors.currentCommunity)
   const owner = Boolean(community?.CA)
-  const usersData = Object.keys(useSelector(users.selectors.certificates))
+  const usersData = Object.keys(useSelector(users.selectors.allUsers))
   const isOnlyOneUser = usersData.length === 1
   const connectionProcessSelector = useSelector(connection.selectors.connectionProcess)
   const isJoiningCompletedSelector = useSelector(connection.selectors.isJoiningCompleted)

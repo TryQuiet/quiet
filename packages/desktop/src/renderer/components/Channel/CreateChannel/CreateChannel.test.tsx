@@ -67,7 +67,7 @@ describe('Add new channel', () => {
 
     function* testSubmittedChannelName(): Generator {
       const createChannelAction = yield* take(publicChannels.actions.createChannel)
-      expect(createChannelAction.payload.channel.name).toEqual('some-channel-name--')
+      expect(createChannelAction.payload.name).toEqual('some-channel-name--')
     }
   })
 

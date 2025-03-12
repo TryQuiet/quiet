@@ -33,7 +33,7 @@ export function* showNotificationSaga(
   const allUsers = yield* select(users.selectors.allUsers)
   let username: string
   try {
-    username = allUsers[_message.pubKey].username
+    username = allUsers[_message.userId].username
   } catch (e) {
     logger.error(`Could not show notification for channel name ${channel.name} and message id ${_message.id}`, e)
     return

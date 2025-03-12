@@ -1,9 +1,8 @@
 import { createSelector } from 'reselect'
 import { channelMessagesAdapter } from '../publicChannels/publicChannels.adapter'
-import { currentChannelId, generalChannel } from '../publicChannels/publicChannels.selectors'
+import { currentChannelId } from '../publicChannels/publicChannels.selectors'
 import { StoreKeys } from '../store.keys'
 import { type CreatedSelectors, type StoreState } from '../store.types'
-import { allUsers } from '../users/users.selectors'
 import { downloadStatuses } from '../files/files.selectors'
 
 import {
@@ -66,18 +65,11 @@ export const currentPublicChannelMessagesEntries = createSelector(currentPublicC
 
 export const validCurrentPublicChannelMessagesEntries = createSelector(
   currentPublicChannelMessagesEntries,
-  allUsers,
   messagesVerificationStatus,
-  (messages, certificates, verification) => {
-    const filtered = messages.filter(message => message.pubKey in certificates)
-    return filtered.filter(message => {
-      const status = verification[message.signature]
-      if (
-        status &&
-        status.publicKey === message.pubKey &&
-        status.signature === message.signature &&
-        status.isVerified
-      ) {
+  (messages, verification) => {
+    return messages.filter(message => {
+      const status = verification[message.id]
+      if (status && status.isVerified) {
         return message
       }
     })

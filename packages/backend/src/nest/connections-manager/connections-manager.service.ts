@@ -78,12 +78,13 @@ import { ServiceState, TorInitState } from './connections-manager.types'
 import { DateTime } from 'luxon'
 import { createLogger } from '../common/logger'
 import { peerIdFromString } from '@libp2p/peer-id'
-import { PeerId } from '@libp2p/interface'
 import { privateKeyFromRaw } from '@libp2p/crypto/keys'
 import { SigChainService } from '../auth/sigchain.service'
 import { Base58, InviteResult } from '3rd-party/auth/packages/auth/dist'
-import { UserService } from '../auth/services/members/user.service'
 
+/**
+ * A monolith service that handles lots of events received from the state-manager.
+ */
 @Injectable()
 export class ConnectionsManagerService extends EventEmitter implements OnModuleInit {
   public communityId: string
@@ -466,77 +467,6 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     return identity
   }
 
-  public async addUserCsr(payload: InitUserCsrPayload): Promise<Identity | undefined> {
-    const { communityId, nickname } = payload
-    this.logger.info('Creating user CSR for community', communityId)
-
-    let identity: Identity | undefined = await this.storageService.getIdentity(communityId)
-    if (!identity) {
-      emitError(this.serverIoProvider.io, {
-        type: SocketActionTypes.CREATE_USER_CSR,
-        message: ErrorMessages.USER_CSR_CREATION_FAILED,
-        community: communityId,
-      })
-      this.logger.error('Identity not found')
-      return
-    }
-
-    let createUserCsrPayload: CreateUserCsrPayload
-
-    if (identity?.userCsr) {
-      this.logger.info('Recreating user CSR')
-      if (identity.userCsr?.userCsr == null || identity.userCsr.userKey == null) {
-        this.logger.error('identity.userCsr?.userCsr == null || identity.userCsr.userKey == null')
-        return
-      }
-      const _pubKey = await pubKeyFromCsr(identity.userCsr.userCsr)
-      const publicKey = await getPubKey(_pubKey)
-      const privateKey = await loadPrivateKey(identity.userCsr.userKey, configCrypto.signAlg)
-
-      const existingKeyPair: CryptoKeyPair = { privateKey, publicKey }
-
-      createUserCsrPayload = {
-        nickname,
-        commonName: identity.hiddenService.onionAddress,
-        peerId: identity.peerId.id,
-        signAlg: configCrypto.signAlg,
-        hashAlg: configCrypto.hashAlg,
-        existingKeyPair,
-      }
-    } else {
-      this.logger.info('Creating new user CSR')
-      createUserCsrPayload = {
-        nickname,
-        commonName: identity.hiddenService.onionAddress,
-        peerId: identity.peerId.id,
-        signAlg: configCrypto.signAlg,
-        hashAlg: configCrypto.hashAlg,
-      }
-    }
-
-    let userCsr: UserCsr
-    try {
-      this.logger.info(`Creating user csr for username ${createUserCsrPayload.nickname}`)
-      userCsr = await createUserCsr(createUserCsrPayload)
-    } catch (e) {
-      emitError(this.serverIoProvider.io, {
-        type: SocketActionTypes.CREATE_USER_CSR,
-        message: ErrorMessages.USER_CSR_CREATION_FAILED,
-        community: communityId,
-      })
-      return
-    }
-
-    identity = { ...identity, userCsr, nickname }
-    this.logger.info('Created user CSR')
-    await this.storageService.setIdentity(identity)
-    this.logger.info(`Current identity in storage: ${await this.storageService.getIdentity(identity.id)}`)
-    if (payload.isUsernameTaken) {
-      await this.storageService.saveCSR({ csr: userCsr.userCsr })
-    }
-    return identity
-  }
-
   public async createCommunity(payload: InitCommunityPayload): Promise<Community | undefined> {
     this.logger.info('Creating community', payload.id)
 
@@ -883,6 +813,9 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     )
   }
 
+  /**
+   * Attaches listeners for events received from the Tor service
+   */
   private attachTorEventsListeners() {
     this.logger.info('attachTorEventsListeners')
 
@@ -898,6 +831,9 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     })
   }
 
+  /**
+   * Attaches listeners for events received from the state manager
+   */
   private attachSocketServiceListeners() {
     // Community
     this.socketService.on(SocketActionTypes.CONNECTION, async () => {
@@ -929,8 +865,8 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     this.socketService.on(
       SocketActionTypes.CREATE_USER_CSR,
       async (payload: InitUserCsrPayload, callback: (response: Identity | undefined) => void) => {
-        this.logger.info(`socketService - ${SocketActionTypes.CREATE_USER_CSR}`)
-        callback(await this.addUserCsr(payload))
+        this.logger.info(`NOT IMPLEMENTED - ${SocketActionTypes.CREATE_USER_CSR}`)
+        // callback(await this.addUserCsr(payload))
       }
     )
     this.socketService.on(
@@ -1027,16 +963,13 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
 
     this.socketService.on(
       SocketActionTypes.CREATE_CHANNEL,
-      async (args: CreateChannelPayload, callback: (response?: CreateChannelResponse) => void) => {
-        callback(await this.storageService?.channels.subscribeToChannel(args.channel))
+      async (payload: CreateChannelPayload, callback: (response?: CreateChannelResponse) => void) => {
+        callback(await this.storageService?.channels.handleCreateChannel(payload))
       }
     )
     this.socketService.on(
       SocketActionTypes.DELETE_CHANNEL,
-      async (
-        payload: { channelId: string; ownerPeerId: string },
-        callback: (response: DeleteChannelResponse) => void
-      ) => {
+      async (payload: { channelId: string }, callback: (response: DeleteChannelResponse) => void) => {
         callback(await this.storageService?.channels.deleteChannel(payload))
       }
     )
@@ -1083,6 +1016,10 @@ export class ConnectionsManagerService extends EventEmitter implements OnModuleI
     })
   }
 
+  /**
+   * Forwards events from the storage service to the the state manager
+   * (also applies some side effects)
+   */
   private attachStorageListeners() {
     if (!this.storageService) return
     // Channel and Message Events

@@ -1,7 +1,6 @@
 import { type Socket, applyEmitParams } from '../../../types'
 import { select, apply, putResolve } from 'typed-redux-saga'
 import { type PayloadAction } from '@reduxjs/toolkit'
-import { identityActions } from '../../identity/identity.slice'
 import { communitiesSelectors } from '../communities.selectors'
 import { communitiesActions } from '../communities.slice'
 import { identitySelectors } from '../../identity/identity.selectors'
@@ -46,19 +45,12 @@ export function* createCommunitySaga(
     applyEmitParams(SocketActionTypes.CREATE_COMMUNITY, payload)
   )
 
-  if (!createdCommunity || !createdCommunity.ownerCertificate) {
+  if (!createdCommunity) {
     logger.error('Failed to create community - invalid response from backend')
     return
   }
 
   yield* putResolve(communitiesActions.updateCommunityData(createdCommunity))
-
-  yield* putResolve(
-    identityActions.storeUserCertificate({
-      communityId: createdCommunity.id,
-      userCertificate: createdCommunity.ownerCertificate,
-    })
-  )
 
   yield* putResolve(publicChannelsActions.createGeneralChannel())
 }

@@ -29,8 +29,8 @@ import { KeyMetadata } from '3rd-party/auth/packages/crdx/dist'
 const logger = createLogger('auth:cryptoService')
 
 class CryptoService extends ChainServiceBase {
-  public static init(sigChain: SigChain): CryptoService {
-    return new CryptoService(sigChain)
+  constructor(sigChain: SigChain) {
+    super(sigChain)
   }
 
   // TODO: Can we get other members' keys by generation?
@@ -142,7 +142,7 @@ class CryptoService extends ChainServiceBase {
       ...signature,
       contents,
     }
-    const isValid = this.verifyMessage(fullSig)
+    const isValid = this.validateSignature(fullSig)
     if (!isValid && failOnInvalid) {
       throw new Error(`Couldn't verify signature on message`)
     }
@@ -153,7 +153,7 @@ class CryptoService extends ChainServiceBase {
     }
   }
 
-  public verifyMessage(signature: SignedEnvelope): boolean {
+  public validateSignature(signature: SignedEnvelope): boolean {
     return this.sigChain.team!.verify(signature)
   }
 

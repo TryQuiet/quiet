@@ -148,9 +148,9 @@ export class ChannelStore extends EventStoreBase<EncryptedMessage, ConsumedChann
       // Do not notify about old messages
       if (message.createdAt < parseInt(process.env.CONNECTION_TIME || '')) return
 
-      const username = await this.certificatesStore.getCertificateUsername(message.pubKey)
+      const username = message.encSignature?.author?.name
       if (!username) {
-        this.logger.error(`Can't send push notification, no username found for public key '${message.pubKey}'`)
+        this.logger.error(`Can't send push notification, no username found for userId '${message.userId}'`)
         return
       }
 

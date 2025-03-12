@@ -35,8 +35,8 @@ export const generateMessageFactoryContentWithId = (
     message: (Math.random() * 10 ** 18).toString(36),
     createdAt: DateTime.utc().valueOf(),
     channelId,
-    signature: '',
-    pubKey: '',
+    userId: (Math.random() * 10 ** 18).toString(36),
+    author: 'alice',
     media: media || undefined,
   }
 }
@@ -82,87 +82,16 @@ export const getFactory = async (store: Store) => {
     }
   )
 
-  factory.define(
-    'Identity',
-    identity.actions.addNewIdentity,
-    {
-      id: factory.assoc('Community', 'id'),
-      hiddenService: {
-        onionAddress: 'putnxiwutblglde5i2mczpo37h5n4dvoqkqg2mkxzov7riwqu2owiaid.onion',
-        privateKey:
-          'ED25519-V3:WND1FoFZyY+c1f0uD6FBWgKvSYl4CdKSizSR7djRekW/rqw5fTw+gN80sGk0gl01sL5i25noliw85zF1BUBRDQ==',
-      },
-      peerId: createPeerIdTestHelper(),
-      nickname: factory.sequence('Identity.nickname', (n: number) => `user_${n}`),
-      userCsr: undefined,
-      userCertificate: undefined,
-      // 21.09.2022 - may be useful for testing purposes
-      joinTimestamp: 1663747464000,
+  factory.define('Identity', identity.actions.addNewIdentity, {
+    id: factory.assoc('Community', 'id'),
+    hiddenService: {
+      onionAddress: 'putnxiwutblglde5i2mczpo37h5n4dvoqkqg2mkxzov7riwqu2owiaid.onion',
+      privateKey: 'ED25519-V3:WND1FoFZyY+c1f0uD6FBWgKvSYl4CdKSizSR7djRekW/rqw5fTw+gN80sGk0gl01sL5i25noliw85zF1BUBRDQ==',
     },
-    {
-      afterBuild: async (action: ReturnType<typeof identity.actions.addNewIdentity>) => {
-        const createCsr = action.payload.userCsr === undefined
-        const requestCertificate = action.payload.userCertificate === undefined
-
-        const community = communities.selectors.selectEntities(store.getState())[action.payload.id]!
-
-        const userCertData = await createUserCertificateTestHelper(
-          {
-            nickname: action.payload.nickname,
-            commonName: action.payload.hiddenService.onionAddress,
-            peerId: action.payload.peerId.id,
-          },
-          community.CA
-        )
-
-        if (createCsr) {
-          action.payload.userCsr = userCertData.userCsr
-
-          const csrsObjects = users.selectors.csrs(store.getState())
-
-          // TODO: Converting CertificationRequest to string can be an util method
-          const csrsStrings = Object.values(csrsObjects)
-            .map(obj => {
-              if (!(obj instanceof CertificationRequest)) return
-              return Buffer.from(obj.toSchema(true).toBER(false)).toString('base64')
-            })
-            .filter(Boolean) // Filter out possible `undefined` values
-
-          await factory.create('UserCSR', {
-            csrs: csrsStrings.concat([userCertData.userCsr.userCsr]),
-          })
-        }
-
-        if (requestCertificate && userCertData.userCert?.userCertString) {
-          action.payload.userCertificate = userCertData.userCert.userCertString
-
-          // Store user's certificate even if the user won't be stored itself
-          // (to be able to display messages sent by this user)
-          await factory.create('UserCertificate', {
-            certificate: action.payload.userCertificate,
-          })
-
-          if (!community.ownerCertificate) {
-            store.dispatch(
-              communities.actions.updateCommunityData({
-                id: community.id,
-                ownerCertificate: action.payload.userCertificate,
-              })
-            )
-          }
-        }
-
-        return action
-      },
-    }
-  )
-
-  factory.define('UserCSR', users.actions.storeCsrs, {
-    csrs: [],
-  })
-
-  factory.define('UserCertificate', users.actions.storeUserCertificate, {
-    certificate: factory.assoc('Identity', 'userCertificate'),
+    peerId: createPeerIdTestHelper(),
+    nickname: factory.sequence('Identity.nickname', (n: number) => `user_${n}`),
+    // 21.09.2022 - may be useful for testing purposes
+    joinTimestamp: 1663747464000,
   })
 
   factory.define('PublicChannelsMessagesBase', messages.actions.addPublicChannelsMessagesBase, {
@@ -209,47 +138,17 @@ export const getFactory = async (store: Store) => {
         message: factory.sequence('Message.message', (n: number) => `message_${n}`),
         createdAt: DateTime.utc().valueOf(),
         channelId: generateChannelId('general'),
-        signature: '',
-        pubKey: '',
       },
-      verifyAutomatically: false,
+      verifyAutomatically: true,
     },
     {
       afterBuild: async (action: ReturnType<typeof publicChannels.actions.test_message>) => {
-        let signatureGenerated = false
-
-        // Generate signature if not specified
-        if (action.payload.message.signature === '') {
-          const userCertificate = action.payload.identity.userCertificate || ''
-          const userKey = action.payload.identity.userCsr?.userKey || ''
-          signatureGenerated = true
-          const { signature, pubKey } = await createMessageSignatureTestHelper(
-            action.payload.message.message,
-            userCertificate,
-            userKey
-          )
-          action.payload.message.signature = signature
-          action.payload.message.pubKey = pubKey
-        }
-
         if (action.payload.verifyAutomatically) {
-          // Mock verification status (which will always be true as the signature has been generated by the factory)
-          if (signatureGenerated) {
-            await factory.create('MessageVerificationStatus', {
-              message: action.payload.message,
-              isVerified: true,
-            })
-          } else {
-            // Verify the signature
-            const crypto = getCrypto()
-            const cryptoKey = await keyObjectFromString(action.payload.message.pubKey, crypto)
-            const signature = stringToArrayBuffer(action.payload.message.signature)
-            const isVerified = await verifySignature(signature, action.payload.message.message, cryptoKey)
-            await factory.create('MessageVerificationStatus', {
-              message: action.payload.message,
-              isVerified,
-            })
-          }
+          // Verify the signature
+          await factory.create('MessageVerificationStatus', {
+            message: action.payload.message,
+            isVerified: true,
+          })
         }
         return action
       },

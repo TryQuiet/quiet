@@ -34,7 +34,6 @@ export function* broadcastHostedFileSaga(
     socket,
     socket.emit,
     applyEmitParams(SocketActionTypes.SEND_MESSAGE, {
-      peerId: identity.peerId.id,
       message: {
         ...message,
         media: {

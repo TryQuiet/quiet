@@ -1,16 +1,13 @@
 import { type Socket, applyEmitParams } from '../../../types'
 import { type PayloadAction } from '@reduxjs/toolkit'
-import { sign, loadPrivateKey, pubKeyFromCsr } from '@quiet/identity'
 import { call, select, apply, put, delay, take } from 'typed-redux-saga'
-import { arrayBufferToString } from 'pvutils'
-import { identitySelectors } from '../../identity/identity.selectors'
 import { publicChannelsActions } from '../../publicChannels/publicChannels.slice'
 import { publicChannelsSelectors } from '../../publicChannels/publicChannels.selectors'
 import { messagesActions } from '../messages.slice'
 import { generateMessageId, getCurrentTime } from '../utils/message.utils'
 import { type ChannelMessage, MessageType, SendingStatus, SocketActionTypes } from '@quiet/types'
 import { createLogger } from '../../../utils/logger'
-import { configCrypto } from '@quiet/identity'
+import { userProfileSelectors } from '../../users/userProfile/userProfile.selectors'
 
 const logger = createLogger('sendMessageSaga')
 
@@ -20,10 +17,9 @@ export function* sendMessageSaga(
 ): Generator {
   const generatedMessageId = yield* call(generateMessageId)
   const id = action.payload.id || generatedMessageId
-
-  const identity = yield* select(identitySelectors.currentIdentity)
-  if (!identity?.userCsr) {
-    logger.error(`Failed to send message ${id} - user CSR is missing`)
+  const myUserProfile = yield* select(userProfileSelectors.myUserProfile)
+  if (!myUserProfile) {
+    logger.error(`Failed to send message ${id} - local user context is missing`)
     return
   }
 
@@ -36,21 +32,17 @@ export function* sendMessageSaga(
 
   logger.info(`Sending message ${id} to channel ${channelId}`)
 
-  const pubKey = yield* call(pubKeyFromCsr, identity.userCsr.userCsr)
-  const keyObject = yield* call(loadPrivateKey, identity.userCsr.userKey, configCrypto.signAlg)
-  const signatureArrayBuffer = yield* call(sign, action.payload.message, keyObject)
-  const signature = yield* call(arrayBufferToString, signatureArrayBuffer)
   const createdAt = yield* call(getCurrentTime)
 
   const message: ChannelMessage = {
     id,
+    userId: myUserProfile.userId,
+    author: myUserProfile.profile.nickname,
     type: action.payload.type || MessageType.Basic,
     message: action.payload.message,
     media: action.payload.media,
     createdAt,
     channelId,
-    signature,
-    pubKey,
   }
 
   // Grey out message until saved in db
@@ -65,8 +57,7 @@ export function* sendMessageSaga(
   // Mark own message as properly signed
   yield* put(
     messagesActions.addMessageVerificationStatus({
-      publicKey: message.pubKey,
-      signature: message.signature,
+      id: message.id,
       isVerified: true,
     })
   )
@@ -107,7 +98,6 @@ export function* sendMessageSaga(
     socket,
     socket.emit,
     applyEmitParams(SocketActionTypes.SEND_MESSAGE, {
-      peerId: identity.peerId.id,
       message,
     })
   )

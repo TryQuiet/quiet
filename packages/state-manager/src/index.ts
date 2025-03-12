@@ -62,7 +62,6 @@ export { getFactory, generateMessageFactoryContentWithId } from './utils/tests/f
 export * from './utils/tests/helpers'
 
 export { communitiesAdapter } from './sagas/communities/communities.adapter'
-export { certificatesAdapter } from './sagas/users/users.adapter'
 
 export { publicChannelsAdapter, channelMessagesAdapter } from './sagas/publicChannels/publicChannels.adapter'
 

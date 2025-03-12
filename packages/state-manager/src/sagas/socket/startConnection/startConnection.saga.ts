@@ -1,6 +1,6 @@
 import { eventChannel } from 'redux-saga'
 import { type Socket } from '../../../types'
-import { all, call, fork, put, takeEvery, cancelled, select } from 'typed-redux-saga'
+import { all, call, fork, put, takeEvery, cancelled } from 'typed-redux-saga'
 import { appActions } from '../../app/app.slice'
 import { appMasterSaga } from '../../app/app.master.saga'
 import { connectionActions } from '../../appConnection/connection.slice'
@@ -10,7 +10,7 @@ import { communitiesActions } from '../../communities/communities.slice'
 import { errorsMasterSaga } from '../../errors/errors.master.saga'
 import { errorsActions } from '../../errors/errors.slice'
 import { identityMasterSaga } from '../../identity/identity.master.saga'
-import { identityActions, identitySlice } from '../../identity/identity.slice'
+import { identityActions } from '../../identity/identity.slice'
 import { messagesMasterSaga } from '../../messages/messages.master.saga'
 import { filesMasterSaga } from '../../files/files.master.saga'
 import { messagesActions } from '../../messages/messages.slice'
@@ -31,16 +31,14 @@ import {
   type MessagesLoadedPayload,
   type NetworkDataPayload,
   type RemoveDownloadStatus,
-  type SendCertificatesResponse,
   type ChannelSubscribedPayload,
-  type SendCsrsResponse,
   type UserProfilesStoredEvent,
   type Identity,
+  type UsersUpdatedEvent,
   SocketActionTypes,
 } from '@quiet/types'
 
 import { createLogger } from '../../../utils/logger'
-import { identitySelectors } from '../../identity/identity.selectors'
 import { InviteResult } from '@localfirst/auth'
 
 const logger = createLogger('startConnectionSaga')
@@ -57,11 +55,8 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof publicChannelsActions.channelsReplicated>
     | ReturnType<typeof publicChannelsActions.createGeneralChannel>
     | ReturnType<typeof publicChannelsActions.channelDeletionResponse>
-    | ReturnType<typeof usersActions.responseSendCertificates>
-    | ReturnType<typeof usersActions.storeCsrs>
     | ReturnType<typeof errorsActions.addError>
     | ReturnType<typeof errorsActions.handleError>
-    | ReturnType<typeof identityActions.storeUserCertificate>
     | ReturnType<typeof identityActions.updateIdentity>
     | ReturnType<typeof identityActions.addNewIdentity>
     | ReturnType<typeof communitiesActions.createCommunity>
@@ -82,9 +77,11 @@ export function subscribe(socket: Socket) {
     | ReturnType<typeof connectionActions.createInvite>
     | ReturnType<typeof connectionActions.setLongLivedInvite>
     | ReturnType<typeof communitiesActions.clearInvitationCodes>
-    | ReturnType<typeof identityActions.saveUserCsr>
     | ReturnType<typeof connectionActions.setTorInitialized>
+    | ReturnType<typeof usersActions.setUsers>
+    | ReturnType<typeof usersActions.deleteUsers>
     | ReturnType<typeof usersActions.setUserProfiles>
+    | ReturnType<typeof usersActions.setMyUserId>
     | ReturnType<typeof appActions.loadMigrationData>
   >(emit => {
     // UPDATE FOR APP
@@ -164,15 +161,6 @@ export function subscribe(socket: Socket) {
       logger.error(payload, payload.trace)
       emit(errorsActions.handleError(payload))
     })
-    // Certificates
-    socket.on(SocketActionTypes.CSRS_STORED, (payload: SendCsrsResponse) => {
-      logger.info(`${SocketActionTypes.CSRS_STORED}`)
-      emit(usersActions.storeCsrs(payload))
-    })
-    socket.on(SocketActionTypes.CERTIFICATES_STORED, (payload: SendCertificatesResponse) => {
-      logger.info(`${SocketActionTypes.CERTIFICATES_STORED}`)
-      emit(usersActions.responseSendCertificates(payload))
-    })
 
     // Identity
     socket.on(SocketActionTypes.IDENTITY_STORED, (payload: Identity) => {
@@ -180,13 +168,26 @@ export function subscribe(socket: Socket) {
       emit(identityActions.updateIdentity(payload))
     })
 
-    // User Profile
+    // Users
+
+    socket.on(SocketActionTypes.USERS_UPDATED, (payload: UsersUpdatedEvent) => {
+      logger.info(`${SocketActionTypes.USERS_UPDATED}`)
+      emit(usersActions.setUsers(payload.users))
+    })
+
+    socket.on(SocketActionTypes.USERS_REMOVED, (payload: UsersUpdatedEvent) => {
+      logger.info(`${SocketActionTypes.USERS_REMOVED}`)
+      emit(usersActions.deleteUsers(payload.users))
+    })
 
     socket.on(SocketActionTypes.USER_PROFILES_STORED, (payload: UserProfilesStoredEvent) => {
       logger.info(`${SocketActionTypes.USER_PROFILES_STORED}`)
       emit(usersActions.setUserProfiles(payload.profiles))
     })
-
+    socket.on(SocketActionTypes.SET_MY_USER_ID, (payload: string) => {
+      logger.info(`${SocketActionTypes.SET_MY_USER_ID}`)
+      emit(usersActions.setMyUserId(payload))
+    })
     return () => undefined
   })
 }

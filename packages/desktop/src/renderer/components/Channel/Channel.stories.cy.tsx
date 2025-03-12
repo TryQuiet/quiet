@@ -29,10 +29,10 @@ const Template: ComponentStory<typeof ChannelComponent> = () => {
       message: message,
       createdAt: 0,
       date: '12:46',
-      nickname: users.vader.username,
+      nickname: users.vader.nickname,
       isDuplicated: false,
       isRegistered: true,
-      pubKey: users.vader.pubkey,
+      userId: users.vader.userId,
     }
     const _messages = mock_messages(_message)
     setMessages(_messages)
@@ -51,8 +51,8 @@ const Template: ComponentStory<typeof ChannelComponent> = () => {
             message: 'I agree!',
             createdAt: 0,
             channelId: 'general',
-            signature: 'signature',
-            pubKey: 'pubKey',
+            userId: 'pubKey',
+            author: 'vader',
           }}
           user={{
             id: 'id',
@@ -64,7 +64,7 @@ const Template: ComponentStory<typeof ChannelComponent> = () => {
             peerId: {
               id: 'id',
               privKey: 'privKey',
-              noiseKey: 'noiseKey'
+              noiseKey: 'noiseKey',
             },
             userCsr: {
               userCsr: 'userCsr',

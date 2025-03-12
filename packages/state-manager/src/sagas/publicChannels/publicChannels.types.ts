@@ -34,8 +34,8 @@ export interface ChannelMessage {
   message: string
   createdAt: number
   channelId: string
-  signature: string
-  pubKey: string
+  userId: string
+  author: string
   media?: FileMetadata
 }
 

@@ -27,6 +27,11 @@ import { createLogger } from '../common/logger'
 import type net from 'node:net'
 import { Base58, InviteResult } from '@localfirst/auth'
 
+/**
+ * Handles socket connections with the state-manager.
+ * Consumers can listen to events emitted by this service
+ * to receive incoming events from the state-manager
+ */
 @Injectable()
 export class SocketService extends EventEmitter implements OnModuleInit {
   private readonly logger = createLogger(SocketService.name)

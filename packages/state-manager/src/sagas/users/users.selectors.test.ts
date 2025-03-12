@@ -7,7 +7,7 @@ import { getFactory } from '../../utils/tests/factories'
 import { keyFromCertificate, parseCertificate, parseCertificationRequest } from '@quiet/identity'
 import { Identity, Community } from '@quiet/types'
 
-import { communitiesActions, communitiesReducer, CommunitiesState } from '../communities/communities.slice'
+import { communitiesActions } from '../communities/communities.slice'
 
 import { identityActions } from '../identity/identity.slice'
 
@@ -63,27 +63,6 @@ describe('users selectors', () => {
 
     const parsedAliceUnregisteredCertificationRequest = parseCertificationRequest(aliceUnregistered.userCsr!.userCsr)
     aliceUnregisteredPublicKey = keyFromCertificate(parsedAliceUnregisteredCertificationRequest)
-  })
-
-  it('get proper user certificate from store', async () => {
-    const certificates = usersSelectors.certificates(store.getState())
-    const userCertificate = certificates[alicePublicKey] || null
-
-    expect(userCertificate).not.toBeNull()
-  })
-
-  it('get proper fields from user certificate', async () => {
-    const usersData = usersSelectors.certificatesMapping(store.getState())
-
-    expect(usersData[alicePublicKey]).toEqual(aliceCertificateData)
-
-    expect(usersData[alicePublicKey]).toMatchInlineSnapshot(`
-      Object {
-        "onionAddress": "nqnw4kc4c77fb47lk52m5l57h4tcxceo7ymxekfn7yh5m66t4jv2olad.onion",
-        "peerId": "12D3KooWSYQf8zzr5rYnUdLxYyLzHruQHPaMssja1ADifGAcN3qY",
-        "username": "alice",
-      }
-    `)
   })
 
   it("gets registered user with proper 'isRegistered' prop", async () => {

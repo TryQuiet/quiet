@@ -45,8 +45,11 @@ export enum SocketActionTypes {
 
   // ====== User ======
 
+  USERS_UPDATED = 'usersUpdated',
+  USERS_REMOVED = 'usersRemoved',
   SET_USER_PROFILE = 'updateUserProfile',
   USER_PROFILES_STORED = 'userProfilesStored',
+  SET_MY_USER_ID = 'setMyUser',
 
   // ====== Files ======
 
